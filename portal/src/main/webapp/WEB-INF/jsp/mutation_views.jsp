@@ -254,12 +254,22 @@
 					<table cellpadding="0">
 						<tr>
 							<td>
-								<label>
+								<!--label>
 									<input class='mutation-3d-side-chain'
 									       type='checkbox'
 									       checked='checked'>
 									Display side chain
-								</label>
+								</label-->
+								<label>Side chain:</label>
+								<select class='mutation-3d-side-chain-select'>
+									<option value='all'
+									        title='Display side chain for all mapped residues'>all</option>
+									<option value='highlighted'
+									        selected='selected'
+									        title='Display side chain for highlighted residues only'>selected</option>
+									<option value='none'
+									        title='Do not display side chains'>none</option>
+								</select>
 								<img class='display-side-chain-help' src='{{helpImage}}'/>
 							</td>
 						</tr>
@@ -355,7 +365,12 @@
 </script>
 
 <script type="text/template" id="mutation_3d_side_chain_tip_template">
-	Displays the side chain atoms for the highlighted residues.
+	Display options for the side chain atoms.<br>
+	<br>
+	<b>All:</b> Displays the side chain atoms for every mapped residue.<br>
+	<b>Selected:</b> Displays the side chain atoms only for the selected mutations.<br>
+	<b>None:</b> Hides the side chain atoms.<br>
+	<br>
 	This option has no effect for the space-filling protein scheme.
 </script>
 

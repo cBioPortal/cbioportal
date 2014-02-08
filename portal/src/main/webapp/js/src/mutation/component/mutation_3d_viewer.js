@@ -63,7 +63,9 @@ var Mutation3dVis = function(name, options)
 		                                  // "none": do not color (use default atom colors)
 		mutationColor: "x8A2BE2",  // uniform color of the mutated residues
 		highlightColor: "xFFDD00", // color of the user-selected mutations
-		displaySideChain: true, // whether to display side chain for highlighted mutations
+		displaySideChain: "highlighted", // highlighted: display side chain for only selected mutations
+		                                 // all: display side chain for all mapped mutations
+		                                 // none: do not display side chain atoms
 		defaultZoom: 100, // default (unfocused) zoom level
 		focusZoom: 250, // focused zoom level
 		containerPadding: 10, // padding for the vis container (this is to prevent overlapping)
@@ -636,27 +638,30 @@ var Mutation3dVis = function(name, options)
 			            'range ' + rangeMin + ' ' + rangeMax + ';');
 		}
 
-		// color mapped residues
-		if (_options.colorMutations != "none")
+		// process mapped residues
+		for (var color in selection)
 		{
-			// color each residue with a mapped color (this is to sync with diagram colors)
-			for (var color in selection)
-			{
-				script.push("select " + selection[color].join(", ") + ";"); // select positions (mutations)
+			script.push("select " + selection[color].join(", ") + ";"); // select positions (mutations)
 
-				// use the actual mapped color
-				if (_options.colorMutations == "byMutationType")
-				{
-					// color with corresponding mutation color
-					script.push("color [" + color + "];");
-				}
-				// use a uniform color
-				else // if (_options.colorMutations == "uniform")
-				{
-					// color with a uniform mutation color
-					script.push("color [" + _options.mutationColor + "];");
-				}
+			// color each residue with a mapped color (this is to sync with diagram colors)
+
+			// use the actual mapped color
+			if (_options.colorMutations == "byMutationType")
+			{
+				// color with corresponding mutation color
+				script.push("color [" + color + "];");
 			}
+			// use a uniform color
+			else if (_options.colorMutations == "uniform")
+			{
+				// color with a uniform mutation color
+				script.push("color [" + _options.mutationColor + "];");
+			}
+
+			// show/hide side chains
+			script = script.concat(
+				generateSideChainScript(selection[color],
+					_options.displaySideChain == "all"));
 		}
 
 		// TODO see if it is possible to set translucency value without specifying a color
@@ -686,34 +691,60 @@ var Mutation3dVis = function(name, options)
 	function generateHighlightScript(positions)
 	{
 		var script = [];
+		var displaySideChain = _options.displaySideChain != "none";
+		var scriptPositions = [];
 
 		// highlight the selected positions
-		_.each(positions, function(position) {
-			var scriptPos = generateScriptPos(position);
-			script.push("select " + scriptPos + ":" + _chain.chainId + ";");
+		if (!_.isEmpty(positions))
+		{
+			// convert positions to script positions
+			_.each(positions, function(position) {
+				scriptPositions.push(generateScriptPos(position));
+			});
+
+			// add highlight color
+			script.push("select (" + scriptPositions.join(", ") + ") and :" + _chain.chainId + ";");
 			script.push("color [" + _options.highlightColor + "];");
 
-			// display side chain (no effect for space-filling)
-			if (!(_options.proteinScheme == "spaceFilling"))
+			// show/hide side chains
+			script = script.concat(
+				generateSideChainScript(scriptPositions, displaySideChain));
+		}
+
+		return script;
+	}
+
+	/**
+	 * Generates the script to show/hide the side chain for the given positions.
+	 * Positions can be in the form of "666" or "666:C", both are fine.
+	 *
+	 * @param positions         an array of already generated script positions
+	 * @param displaySideChain  flag to indicate to show/hide the side chain
+	 */
+	function generateSideChainScript(positions, displaySideChain)
+	{
+		var script = [];
+
+		// display side chain (no effect for space-filling)
+		if (!(_options.proteinScheme == "spaceFilling"))
+		{
+			// select the corresponding side chain and also the CA atom on the backbone
+			script.push("select ((" + positions.join(", ") + ") and :" + _chain.chainId + " and sidechain) or " +
+			            "((" + positions.join(", ") + ") and :" + _chain.chainId + " and *.CA);");
+
+			if (displaySideChain)
 			{
-				// select the corresponding side chain and also the CA atom on the backbone
-				script.push("select (" + scriptPos + ":" + _chain.chainId + " and sidechain) or " +
-				            "(" + scriptPos + ":" + _chain.chainId + ".CA);");
+				// display the side chain with ball&stick style
+				script.push("wireframe 0.15; spacefill 25%;");
 
-				if (_options.displaySideChain)
-				{
-					// display the side chain with ball&stick style
-					script.push("wireframe 0.15; spacefill 25%;");
-
-					// TODO also color side chain wrt atom type (CPK)?
-				}
-				else
-				{
-					// hide the side chain
-					script.push("wireframe OFF; spacefill OFF;");
-				}
+				// TODO also color side chain wrt atom type (CPK)?
 			}
-		});
+			else
+			{
+				// hide the side chain
+				script.push("wireframe OFF; spacefill OFF;");
+			}
+		}
 
 		return script;
 	}

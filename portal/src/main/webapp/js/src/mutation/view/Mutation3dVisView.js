@@ -157,17 +157,18 @@ var Mutation3dVisView = Backbone.View.extend({
 		var self = this;
 		var mut3dVis = self.options.mut3dVis;
 
-		var sideChain = self.$el.find(".mutation-3d-side-chain");
+		var sideChain = self.$el.find(".mutation-3d-side-chain-select");
 
 		// handler for side chain checkbox
 		sideChain.change(function() {
-			var display = sideChain.is(":checked");
+			//var display = sideChain.is(":checked");
+			var selected = $(this).val();
 
 			if (mut3dVis)
 			{
 				// update flag
-				mut3dVis.updateOptions({displaySideChain: display});
-				mut3dVis.refreshHighlight();
+				mut3dVis.updateOptions({displaySideChain: selected});
+				mut3dVis.reapplyStyle();
 			}
 		});
 

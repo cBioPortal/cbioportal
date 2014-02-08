@@ -3,7 +3,6 @@
  * structure visualizer app and its control buttons.
  *
  * options: {el: [target container],
- *           parentEl: [parent container],
  *           mut3dVis: reference to the Mutation3dVis instance,
  *           pdbProxy: PDB data proxy,
  *           mutationProxy: mutation data proxy
@@ -14,6 +13,10 @@
 var Mutation3dVisView = Backbone.View.extend({
 	initialize : function (options) {
 		this.options = options || {};
+
+		// custom event dispatcher
+		this.dispatcher = {};
+		_.extend(this.dispatcher, Backbone.Events);
 	},
 	render: function()
 	{
@@ -54,24 +57,11 @@ var Mutation3dVisView = Backbone.View.extend({
 			mut3dVis.updateContainer(container3d);
 		}
 
-		// click listener for the close icon of the 3d vis container
-		var closeHandler = function() {
-			// hide the vis pane
-			if (mut3dVis != null)
-			{
-				mut3dVis.hide();
-			}
-
-			// TODO move this part (or the whole handler) into Mutation3dController,
-			// define a custom event, and get rid of parentEl
-
-			// also hide all pdb panel views
-			self.options.parentEl.find(".mutation-pdb-panel-view").slideUp();
-		};
-
 		// add listeners to panel (header) buttons
 
-		self.$el.find(".mutation-3d-close").click(closeHandler);
+		self.$el.find(".mutation-3d-close").click(function() {
+			self.hideView();
+		});
 
 		self.$el.find(".mutation-3d-minimize").click(function(){
 			if (mut3dVis != null)
@@ -101,11 +91,6 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		// init buttons
 		self._initButtons();
-
-		// this is an access to a global div out of this view's template...
-//		$("#tabs").bind("tabsactivate", function(event, ui){
-//			closeHandler();
-//		});
 	},
 	/**
 	 * Initializes the control buttons.
@@ -172,17 +157,18 @@ var Mutation3dVisView = Backbone.View.extend({
 		var self = this;
 		var mut3dVis = self.options.mut3dVis;
 
-		var sideChain = self.$el.find(".mutation-3d-side-chain");
+		var sideChain = self.$el.find(".mutation-3d-side-chain-select");
 
 		// handler for side chain checkbox
 		sideChain.change(function() {
-			var display = sideChain.is(":checked");
+			//var display = sideChain.is(":checked");
+			var selected = $(this).val();
 
 			if (mut3dVis)
 			{
 				// update flag
-				mut3dVis.updateOptions({displaySideChain: display});
-				mut3dVis.refreshHighlight();
+				mut3dVis.updateOptions({displaySideChain: selected});
+				mut3dVis.reapplyStyle();
 			}
 		});
 
@@ -628,6 +614,24 @@ var Mutation3dVisView = Backbone.View.extend({
 		{
 			mut3dVis.maximize();
 		}
+	},
+	/**
+	 * Hides the 3D visualizer panel.
+	 */
+	hideView: function()
+	{
+		var self = this;
+		var mut3dVis = self.options.mut3dVis;
+
+		// hide the vis pane
+		if (mut3dVis != null)
+		{
+			mut3dVis.hide();
+		}
+
+		// trigger corresponding event
+		self.dispatcher.trigger(
+			MutationDetailsEvents.VIEW_3D_PANEL_CLOSED);
 	},
 	isVisible: function()
 	{

@@ -173,7 +173,9 @@
 			and then move the mouse in the desired direction.<br>
 			<b>Rotate:</b> Press and hold the left mouse button, and then move the mouse in the desired
 			direction to rotate along the x and y axes. To be able to rotate along the z-axis, you need to
-			press and hold the SHIFT key and the left mouse button, and then move the mouse left or right.
+			press and hold the SHIFT key and the left mouse button, and then move the mouse left or right.<br>
+			<b>Reset:</b> Press and hold the SHIFT key, and then double click on the background
+			to reset the orientation and the zoom level to the initial state.
 		</div>
 		<table>
 			<tr>
@@ -235,7 +237,7 @@
 									<option value='bySecondaryStructure'
 									        title='Color by Secondary Structure'>secondary structure</option>
 									<option value='byChain'
-									        title='Color by Chain'>chain</option>
+									        title='Color by Rainbow Gradient'>N-C rainbow</option>
 									<option value='byAtomType'
 									        title='Color by Atom Type'
 									        disabled='disabled'>atom type</option>
@@ -252,12 +254,22 @@
 					<table cellpadding="0">
 						<tr>
 							<td>
-								<label>
+								<!--label>
 									<input class='mutation-3d-side-chain'
 									       type='checkbox'
 									       checked='checked'>
 									Display side chain
-								</label>
+								</label-->
+								<label>Side chain:</label>
+								<select class='mutation-3d-side-chain-select'>
+									<option value='all'
+									        title='Display side chain for all mapped residues'>all</option>
+									<option value='highlighted'
+									        selected='selected'
+									        title='Display side chain for highlighted residues only'>selected</option>
+									<option value='none'
+									        title='Do not display side chains'>none</option>
+								</select>
 								<img class='display-side-chain-help' src='{{helpImage}}'/>
 							</td>
 						</tr>
@@ -343,7 +355,7 @@
 	<span class='mutation-3d-beta-sheet'>beta sheets</span>, and
 	<span class='mutation-3d-loop'>loops</span>.
 	This color option is not available for the space-filling protein scheme.<br>
-	<b>Chain:</b> Colors the protein with a rainbow gradient
+	<b>N-C rainbow:</b> Colors the protein with a rainbow gradient
 	from red (N-terminus) to blue (C-terminus).<br>
 	<b>Atom Type:</b> Colors the structure with respect to the atom type (CPK color scheme).
 	This color option is only available for the space-filling protein scheme.<br>
@@ -353,7 +365,12 @@
 </script>
 
 <script type="text/template" id="mutation_3d_side_chain_tip_template">
-	Displays the side chain atoms for the highlighted residues.
+	Display options for the side chain atoms.<br>
+	<br>
+	<b>All:</b> Displays the side chain atoms for every mapped residue.<br>
+	<b>Selected:</b> Displays the side chain atoms only for the selected mutations.<br>
+	<b>None:</b> Hides the side chain atoms.<br>
+	<br>
 	This option has no effect for the space-filling protein scheme.
 </script>
 

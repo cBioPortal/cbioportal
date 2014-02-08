@@ -393,6 +393,15 @@ function MutationPdbPanel(options, data, proxy, xScale)
 //			});
 //		});
 
+		// sort alignments in the first row by alignment length
+		if (rows.length > 0)
+		{
+			rows[0].sort(function(a, b){
+				return (b.chain.mergedAlignment.mergedString.length -
+				        a.chain.mergedAlignment.mergedString.length);
+			});
+		}
+
 		return rows;
 	}
 

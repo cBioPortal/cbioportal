@@ -279,7 +279,8 @@ var CoExpTable = (function() {
             $.each(window.PortalGlobals.getGeneList(), function(index, value) {
                 $("#coexp-tabs-content").append("<div id='" + Prefix.divPrefix + value + "'>" +
                     "<div id='" + Prefix.loadingImgPrefix + value + "'>" +
-                    "<img style='padding:20px;' src='images/ajax-loader.gif'>" +
+                    "<table><tr><td><img style='padding:20px;' src='images/ajax-loader.gif'></td>" + 
+                    "<td>Calculating and rendering may take up to 1 minute.</td></tr></table>" + 
                     "</div></div>");
             });
         }

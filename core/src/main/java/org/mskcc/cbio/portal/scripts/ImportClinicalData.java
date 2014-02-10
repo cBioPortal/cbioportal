@@ -152,6 +152,10 @@ public class ImportClinicalData {
         String stablePatientId = getStablePatientId(sampleId, fields, columnAttrs);
         if (validPatientId(stablePatientId)) {
             Patient patient = DaoPatient.getPatientByStableId(stablePatientId);
+            if (patient == null) {
+                addPatientToDatabase(stablePatientId);
+                patient = DaoPatient.getPatientByStableId(stablePatientId);
+            }
             sampleId = CaseIdUtil.getSampleId(sampleId);
             if (patient != null && DaoSample.getSampleByStableId(sampleId) == null) {
                 internalSampleId = DaoSample.addSample(new Sample(sampleId,
@@ -174,6 +178,10 @@ public class ImportClinicalData {
             int patientIdIndex = findAttributeColumnIndex(PATIENT_ID_COLUMN_NAME, columnAttrs);
             if (patientIdIndex >= 0) {
                 return fields[patientIdIndex];
+            }
+            // sample and patient id are the same
+            else {
+                return sampleId;
             }
         }
 
@@ -271,10 +279,13 @@ public class ImportClinicalData {
             }
         } else {
             // attribute Id header only
-            descriptions = displayNames;
             colnames = displayNames;
-            datatypes = new String[displayNames.length] ;
-            Arrays.fill(datatypes, "STRING"); // STRING by default -- TODO: better to guess from data
+            description = new String[colnames.length];
+            Arrays.fill(descriptions, ClinicalAttribute.MISSING);
+            datatypes = new String[colnames.length] ;
+            Arrays.fill(datatypes, ClinicalAttribute.DEFAULT_DATATYPE);
+            displayNames = new String[colnames.length];
+            Arrays.fill(displayNames, ClinicalAttribute.MISSING);
         }
 
         for (int i = 0; i < colnames.length; i+=1) {

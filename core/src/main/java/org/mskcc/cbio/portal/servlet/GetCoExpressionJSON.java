@@ -112,7 +112,8 @@ public class GetCoExpressionJSON extends HttpServlet  {
                            (compared_gene_id != queryGeneId)){
                             //Only calculate spearman with high scored pearson gene pairs.
                             double spearman = spearmansCorrelation.correlation(query_gene_exp, compared_gene_exp);
-                            if (spearman >= coExpScoreThreshold || spearman <= (-1) * coExpScoreThreshold) {
+                            if ((spearman >= coExpScoreThreshold || spearman <= (-1) * coExpScoreThreshold) &&
+                               ((spearman > 0 && pearson > 0) || (spearman < 0 && pearson < 0))) {
                               CanonicalGene comparedGene = daoGeneOptimized.getGene(compared_gene_id);
                               JSONObject _scores = new JSONObject();
                               _scores.put("gene", comparedGene.getHugoGeneSymbolAllCaps());

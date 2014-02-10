@@ -607,7 +607,6 @@ var Mutation3dVis = function(name, options)
 
 		if (_options.colorProteins == "byAtomType")
 		{
-			// TODO is this the default coloring?
 			script.push("color atoms CPK;");
 		}
 		else if (_options.colorProteins == "bySecondaryStructure")

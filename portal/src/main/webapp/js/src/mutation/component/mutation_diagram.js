@@ -29,6 +29,7 @@ function MutationDiagram(geneSymbol, options, data)
 
 	self.highlighted = {}; // map of highlighted data points (initially empty)
 	self.inTransition = false; // indicates if the diagram is in a graphical transition
+	self.multiSelect = false; // indicates if multiple lollipop selection is active
 
 	// init other class members as null, will be assigned later
 	self.svg = null;    // svg element (d3)
@@ -94,6 +95,7 @@ MutationDiagram.prototype.defaultOpts = {
 	regionTextAnchor: "middle", // text anchor (alignment) for the region label
 	showRegionText: true,       // show/hide region text
 	showStats: false,           // show/hide mutation stats in the lollipop tooltip
+	multiSelectKeycode: 16,     // shift (default multiple selection key)
 	lollipopLabelCount: 1,          // max number of lollipop labels to display
 	lollipopLabelThreshold: 2,      // y-value threshold: points below this value won't be labeled
 	lollipopFont: "sans-serif",     // font of the lollipop label
@@ -1705,6 +1707,13 @@ MutationDiagram.prototype.addDefaultListeners = function()
 			// remove highlight for the target circle
 			self.removeHighlight(this);
 
+			// also clear previous highlights if multiple selection is not active
+			if (!self.multiSelect)
+			{
+				// remove all diagram highlights
+				self.clearHighlights();
+			}
+
 			// trigger corresponding event
 			self.dispatcher.trigger(
 				MutationDetailsEvents.LOLLIPOP_DESELECTED,
@@ -1712,9 +1721,12 @@ MutationDiagram.prototype.addDefaultListeners = function()
 		}
 		else
 		{
-			// TODO do not clear previous highlights to enable multiple selection
-			// remove all diagram highlights
-			self.clearHighlights();
+			// clear previous highlights if multiple selection is not active
+			if (!self.multiSelect)
+			{
+				// remove all diagram highlights
+				self.clearHighlights();
+			}
 
 			// highlight the target circle on the diagram
 			self.highlight(this);
@@ -1740,6 +1752,23 @@ MutationDiagram.prototype.addDefaultListeners = function()
 		self.dispatcher.trigger(
 			MutationDetailsEvents.LOLLIPOP_MOUSEOVER,
 			datum, index);
+	});
+
+	// TODO listen to the key events only on the diagram (if possible)
+	// ...it might be better to bind window key event handlers in a global util class
+
+	$(window).on("keydown", function(event) {
+		if (event.keyCode == self.options.multiSelectKeycode)
+		{
+			self.multiSelect = true;
+		}
+	});
+
+	$(window).on("keyup", function(event) {
+		if (event.keyCode == self.options.multiSelectKeycode)
+		{
+			self.multiSelect = false;
+		}
 	});
 };
 

@@ -510,6 +510,10 @@ var StudyViewInitCharts = (function(){
             });
         });
         
+        //Add th tags based on number of attributes
+        for(var i=0 ; i<tmpA.length ; i++)
+            $("#dataTable tfoot tr").append("<th></th>");
+        
         var dataTable1 = $('#dataTable').dataTable({
             "sScrollX": "1200px",
             "sWidth": "1200px",
@@ -599,7 +603,17 @@ var StudyViewInitCharts = (function(){
         }
         
         var oTable = $('#dataTable').dataTable();        
-        $('#dataTable').dataTable().columnFilter();
+        //$('#dataTable').dataTable().columnFilter();
+        $(".dataTables_scrollFoot tfoot th").each( function ( i ) {
+            $(this).css('height','200px');
+            $(this).css('z-index','1500');
+            this.innerHTML = fnCreateSelect( oTable.fnGetColumnData(i) );
+            $('select', this).change( function () {
+                oTable.fnFilter( $(this).val(), i );
+            });
+            $(this).find('select').chosen();
+        });
+        
         oTable.fnAdjustColumnSizing();
         new FixedColumns( oTable);
         $(".DTFC_LeftBodyLiner").css("overflow-y","hidden");

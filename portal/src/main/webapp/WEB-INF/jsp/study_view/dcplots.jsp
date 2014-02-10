@@ -5,10 +5,8 @@
 <link rel="stylesheet" type="text/css" href="css/study-view.css">
 
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<script src="js/src/study-view/d3.js"></script>
 <script src="js/src/study-view/dc.js"></script>
 <script src="js/src/study-view/crossfilter.js"></script>
-<script src="js/src/study-view/jquery.dataTables.js"></script>
 <script src="js/src/study-view/dataTables.fixedColumns.js"></script>
 <script src="js/src/study-view/masonry.pkgd.min.js"></script>
 <script src="js/src/plots-view/component/ScatterPlots.js"></script>

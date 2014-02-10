@@ -134,6 +134,10 @@
     border-style:solid;
     margin-bottom: 10px;
 }
+.study-view-bar-x-log {
+    float: right;
+    margin-right: 5px;
+}
 .study-view-pie-main {
     float:left;
     width:180px;

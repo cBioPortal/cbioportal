@@ -111,7 +111,16 @@
     background-color:lightblue;
 }
 .study-view-pie-chart {
+    height:150px;
+    width:180px;
+    padding-left: 15px;
     float:left;
+}
+study-view-pie-label {
+    height:30px;
+    width:180px;
+    float:left;
+    padding-left: 20px;
 }
 
 .w2{
@@ -137,6 +146,7 @@
 .study-view-bar-x-log {
     float: right;
     margin-right: 5px;
+    margin-top: 2px;
 }
 .study-view-pie-main {
     float:left;

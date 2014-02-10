@@ -34,6 +34,9 @@ import org.mskcc.cbio.importer.model.*;
 import org.mskcc.cbio.portal.model.ClinicalAttribute;
 import org.mskcc.cbio.portal.scripts.ImportClinicalData;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.File;
 import java.util.*;
 import java.util.regex.*;
@@ -44,7 +47,7 @@ import java.lang.reflect.Method;
  */
 public class MetadataUtils {
 
-	// the reference metadata worksheet can contain environment vars
+	private static final Log LOG = LogFactory.getLog(MetadataUtils.class);
 	private static final Pattern ENVIRONMENT_VAR_REGEX = Pattern.compile("\\$(\\w*)");
 
 	/**
@@ -119,7 +122,7 @@ public class MetadataUtils {
     {
         Map<String, ClinicalAttributesMetadata> toReturn = new HashMap<String, ClinicalAttributesMetadata>();
         for (String columnHeader : normalizedColumnHeaderNames) {
-            Collection<ClinicalAttributesMetadata> metadata = config.getClinicalAttributesMetadata(columnHeader);
+            Collection<ClinicalAttributesMetadata> metadata = config.getClinicalAttributesMetadata(columnHeader.toUpperCase());
             if (!metadata.isEmpty()) {
                 toReturn.put(columnHeader, metadata.iterator().next());
             }
@@ -139,14 +142,23 @@ public class MetadataUtils {
                 Method m = clinicalAttributesMetadata.get(columnHeader).getClass().getMethod(metadataAccessor);
                 header.append((String)m.invoke(metadata) + ImportClinicalData.DELIMITER);
             }
-            else if (metadataAccessor.equals("getDatatype")) {
-                header.append(ClinicalAttribute.DEFAULT_DATATYPE);
-            }
             else {
-                header.append(ClinicalAttribute.MISSING);
+                logMessage(String.format("Unknown clinical attribute: %s", columnHeader));
+                if (metadataAccessor.equals("getDatatype")) {
+                    header.append(ClinicalAttribute.DEFAULT_DATATYPE);
+                }
+                else {
+                    header.append(ClinicalAttribute.MISSING);
+                }
             }
-
         }
         return header.toString().trim() + "\n";
+    }
+
+    protected void logMessage(String message)
+    {
+        if (LOG.isInfoEnabled()) {
+            LOG.info(message);
+        }
     }
 }

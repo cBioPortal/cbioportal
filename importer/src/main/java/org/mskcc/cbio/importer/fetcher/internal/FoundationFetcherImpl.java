@@ -65,11 +65,17 @@ class FoundationFetcherImpl implements Fetcher
 
 	private static final String FOUNDATION_FILE_EXTENSION = ".xml";
 	private static final Log LOG = LogFactory.getLog(FoundationFetcherImpl.class);
-    private static final List<String> clinicalAttributes = initializeClinicalAttributes();
-    private static List<String> initializeClinicalAttributes()
+    private static final List<String> sampleClinicalAttributes = initializeSampleClinicalAttributes();
+    private static List<String> initializeSampleClinicalAttributes()
     {
-        String[] attributes = { "CASE_ID", "GENDER", "FMI_CASE_ID", "PIPELINE_VER",
+        String[] attributes = { "PATIENT_ID", "SAMPLE_ID", "FMI_CASE_ID", "PIPELINE_VER",
                                 "TUMOR_NUCLEI_PERCENT", "MEDIAN_COV", "COV>100X", "ERROR_PERCENT" };
+        return Arrays.asList(attributes);
+    }
+    private static final List<String> patientClinicalAttributes = initializePatientClinicalAttributes();
+    private static List<String> initializePatientClinicalAttributes()
+    {
+        String[] attributes = { "PATIENT_ID", "GENDER" };
         return Arrays.asList(attributes);
     }
 
@@ -136,7 +142,8 @@ class FoundationFetcherImpl implements Fetcher
 		NodeList cases = this.fetchCaseList(foundationService);
 
 		// clinical data content
-		StringBuilder dataClinicalContent = new StringBuilder();
+		StringBuilder dataPatientClinicalContent = new StringBuilder();
+		StringBuilder dataSampleClinicalContent = new StringBuilder();
 
 		// mutation data content
 		StringBuilder dataMutationsContent = new StringBuilder();
@@ -165,7 +172,7 @@ class FoundationFetcherImpl implements Fetcher
 				Document doc = dBuilder.parse(new InputSource(
 						new StringReader(caseRecord)));
 
-				this.addClinicalData(doc, dataClinicalContent);
+				this.addClinicalData(doc, dataPatientClinicalContent, dataSampleClinicalContent);
 				this.addMutationData(doc, dataMutationsContent);
 				this.addFusionData(doc, dataFusionsContent);
 				this.addCNAData(doc, valueMap, caseSet, geneSet);
@@ -176,7 +183,8 @@ class FoundationFetcherImpl implements Fetcher
 		}
 
 		// generate data files
-		this.generateClinicalDataFile(dataClinicalContent);
+		this.generateClinicalDataFile(dataPatientClinicalContent, patientClinicalAttributes, DatatypeMetadata.CLINICAL_PATIENT_FILENAME);
+		this.generateClinicalDataFile(dataSampleClinicalContent, sampleClinicalAttributes, DatatypeMetadata.CLINICAL_SAMPLE_FILENAME);
 		this.generateMutationDataFile(dataMutationsContent);
 		this.generateFusionDataFile(dataFusionsContent);
 		this.generateCNADataFile(valueMap, caseSet, geneSet);
@@ -225,18 +233,17 @@ class FoundationFetcherImpl implements Fetcher
 		return caseFile;
 	}
 
-	protected File generateClinicalDataFile(StringBuilder content) throws Exception
+	protected File generateClinicalDataFile(StringBuilder content, List<String> clinicalAttributes, String filename) throws Exception
 	{
 		StringBuilder headerBuilder = new StringBuilder();
         headerBuilder.append(MetadataUtils.getClinicalMetadataHeaders(config, clinicalAttributes));
         for (String attribute : clinicalAttributes) {
-            headerBuilder.append(attribute + ImportClinicalData.DELIMITER);
+            headerBuilder.append(attribute.toUpperCase() + ImportClinicalData.DELIMITER);
         }
         String header = headerBuilder.toString().trim() + "\n";
 
 		File clinicalFile = fileUtils.createFileWithContents(
-			dataSourceMetadata.getDownloadDirectory() + File.separator +
-            DatatypeMetadata.CLINICAL_SAMPLE_FILENAME,
+			dataSourceMetadata.getDownloadDirectory() + File.separator + filename,
 			header + content.toString());
 
 		return clinicalFile;
@@ -382,7 +389,7 @@ class FoundationFetcherImpl implements Fetcher
 			numCases);
 	}
 
-	protected void addClinicalData(Document caseDoc, StringBuilder content)
+	protected void addClinicalData(Document caseDoc, StringBuilder patientContent, StringBuilder sampleContent)
 	{
 		String fmiCaseID = "";
 		String caseID = "";
@@ -445,23 +452,27 @@ class FoundationFetcherImpl implements Fetcher
 			}
 		}
 
-		// append the data as a single line
-		content.append(caseID);
-		content.append("\t");
-		content.append(gender);
-		content.append("\t");
-		content.append(fmiCaseID);
-		content.append("\t");
-		content.append(pipelineVer);
-		content.append("\t");
-		content.append(percentTumorNuclei);
-		content.append("\t");
-		content.append(medianCov);
-		content.append("\t");
-		content.append(covGreaterThan100x);
-		content.append("\t");
-		content.append(errorPercent);
-		content.append("\n");
+        patientContent.append(caseID);
+		patientContent.append("\t");
+        patientContent.append(gender);
+		patientContent.append("\n");
+
+        sampleContent.append(caseID);
+		sampleContent.append("\t");
+        sampleContent.append(caseID);
+		sampleContent.append("\t");
+		sampleContent.append(fmiCaseID);
+		sampleContent.append("\t");
+		sampleContent.append(pipelineVer);
+		sampleContent.append("\t");
+		sampleContent.append(percentTumorNuclei);
+		sampleContent.append("\t");
+		sampleContent.append(medianCov);
+		sampleContent.append("\t");
+		sampleContent.append(covGreaterThan100x);
+		sampleContent.append("\t");
+		sampleContent.append(errorPercent);
+		sampleContent.append("\n");
 	}
 
 	protected void addFusionData(Document caseDoc, StringBuilder content)

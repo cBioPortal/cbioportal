@@ -60,6 +60,7 @@ public class DatatypeMetadata {
 	public static final String CORRELATE_METHYL_FILE_ID = "Correlate";
 
     public static final String CLINICAL_SAMPLE_FILENAME_SUFFIX = "_sample.txt";
+	public static final String CLINICAL_PATIENT_FILENAME = "data_clinical_patient.txt";
 	public static final String CLINICAL_SAMPLE_FILENAME = "data_clinical_sample.txt";
 
 	// fusion data staging filename

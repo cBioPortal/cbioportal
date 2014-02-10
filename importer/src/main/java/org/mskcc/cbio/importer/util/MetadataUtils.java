@@ -155,7 +155,7 @@ public class MetadataUtils {
         return header.toString().trim() + "\n";
     }
 
-    protected void logMessage(String message)
+    private static void logMessage(String message)
     {
         if (LOG.isInfoEnabled()) {
             LOG.info(message);

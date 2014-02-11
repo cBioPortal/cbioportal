@@ -66,4 +66,32 @@ public class CaseIdUtil
 
 		return id;
     }
+
+    static public Sample.Type getTypeByTCGACode(String tcgaCode)
+    {
+        if (tcgaCode.equals("01")) {
+            return Sample.Type.PRIMARY_SOLID_TUMOR;
+        }
+        else if (tcgaCode.equals("02")) {
+            return Sample.Type.RECURRENT_SOLID_TUMOR;
+        }
+        else if (tcgaCode.equals("03")) {
+            return Sample.Type.PRIMARY_BLOOD_TUMOR;
+        }
+        else if (tcgaCode.equals("04")) {
+            return Sample.Type.RECURRENT_BLOOD_TUMOR;
+        }
+        else if (tcgaCode.equals("06")) {
+            return Sample.Type.METASTATIC;
+        }
+        else if (tcgaCode.equals("10")) {
+            return Sample.Type.BLOOD_NORMAL;
+        }
+        else if (tcgaCode.equals("11")) {
+            return Sample.Type.SOLID_NORMAL;
+        }
+        else {
+            return Sample.Type.PRIMARY_SOLID_TUMOR;
+        }
+    }
 }

@@ -66,34 +66,6 @@ public class Sample {
                 return false;
             }
         }
-
-        static public Type getTypeByTCGACode(String tcgaCode)
-        {
-            if (tcgaCode.equals("01")) {
-                return PRIMARY_SOLID_TUMOR;
-            }
-            else if (tcgaCode.equals("02")) {
-                return RECURRENT_SOLID_TUMOR;
-            }
-            else if (tcgaCode.equals("03")) {
-                return PRIMARY_BLOOD_TUMOR;
-            }
-            else if (tcgaCode.equals("04")) {
-                return RECURRENT_BLOOD_TUMOR;
-            }
-            else if (tcgaCode.equals("06")) {
-                return METASTATIC;
-            }
-            else if (tcgaCode.equals("10")) {
-                return BLOOD_NORMAL;
-            }
-            else if (tcgaCode.equals("11")) {
-                return SOLID_NORMAL;
-            }
-            else {
-                return PRIMARY_SOLID_TUMOR;
-            }
-        }
     }
 
     private static final Pattern TCGA_SAMPLE_BARCODE_REGEX =

@@ -454,7 +454,34 @@ var StudyViewInitCharts = (function(){
                 $('#' + _pieChartID + '-main').find('table tr:nth-child(' + innerID +')').append('<td id="pieLabel-'+_pieChartID+'-'+i+'" width="75px" style="font-size:'+fontSize+'px"><svg width="'+labelSize+'" height="'+labelSize+'"><rect width="'+labelSize+'" height="'+labelSize+'" style="fill:' + label[i].color + ';" /></svg>'+tmpName+'</td>');
             }
         }
-        console.log(label);
+        
+        $('#' + _pieChartID + '-main td').mouseenter(function(){
+            var idArray = $(this).attr('id').split('-');
+            var childID = Number(idArray[idArray.length-1])+1;
+            $('#' + _pieChartID + ' svg>g>g:nth-child(' + childID+')').css({
+                'fill-opacity': '.5',
+                'stroke-width': '3px'
+            });
+        });
+        $('#' + _pieChartID + '-main td').mouseout(function(){
+            var idArray = $(this).attr('id').split('-');
+            var childID = Number(idArray[idArray.length-1])+1;
+            $('#' + _pieChartID + ' svg>g>g:nth-child(' + childID+')').css({
+                'fill-opacity': '1',
+                'stroke-width': '1px'
+            });
+        });
+        /*
+        $('#' + _pieChartID + '-main td').click(function(){
+            var idArray = $(this).attr('id').split('-');
+            var childID = Number(idArray[idArray.length-1])+1;
+            console.log('#' + _pieChartID + ' svg>g>g:nth-child(' + childID+')');
+            //$('#' + _pieChartID + ' svg>g>g:nth-child(' + childID+')').find('path').click();
+            console.log(label[idArray[idArray.length-1]]);
+            varChart[idArray[idArray.length-2]].filter([label[idArray[idArray.length-1]].name]);            
+            varChart[idArray[idArray.length-2]].redraw;
+        });
+        */
         /*
         $('#' + _pieChartID + '>svg>g>g').each(function(){
             var labelName = $(this).find('title').text().split(':');
@@ -548,7 +575,6 @@ var StudyViewInitCharts = (function(){
             varChart[_chartID].xAxis().ticks(10);
             varChart[_chartID].xUnits(function(){return barScale;});
         }else if(_selectedAttrDisplay.search(/month/i) != -1){
-            console.log(distanceMinMaxArray[_selectedAttr].min + "-" + distanceMinMaxArray[_selectedAttr].max);
             varChart[_chartID].elasticX(false);
             varChart[_chartID].x(d3.scale.linear().domain([distanceMinMaxArray[_selectedAttr].min, distanceMinMaxArray[_selectedAttr].max]));
             varChart[_chartID].xAxis().ticks(10);

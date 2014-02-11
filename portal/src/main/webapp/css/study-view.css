@@ -122,6 +122,9 @@
     float:left;
     margin-left:30px;
 }
+.study-view-pie-label table td:hover{
+    cursor: pointer;
+}
 
 .w2{
     width:370px;
@@ -227,7 +230,8 @@ pieH3{
     stroke-width:1px;
 }
 .dc-chart .pie-slice :hover {
-    fill-opacity: .8;
+    fill-opacity: .5;
+    stroke-width: 3px;
 }
 .dc-chart .selected path {
     stroke-width: 3;

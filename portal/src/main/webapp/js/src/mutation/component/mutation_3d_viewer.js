@@ -498,18 +498,16 @@ var Mutation3dVis = function(name, options)
 	}
 
 	/**
-	 * Highlights the residue corresponding to the given pileup. If there is
-	 * no corresponding residue for the given pileup, this function does not
-	 * perform a highlight operation, and returns false.
+	 * Highlights the residue corresponding to the given pileups. This
+	 * function returns the number of successfully mapped residues
+	 * for the given pileups (returns zero if no mapping at all).
 	 *
-	 * @param pileup    Pileup instance
+	 * @param pileups   an array of Pileup instances
 	 * @param reset     indicates whether to reset previous highlights
-	 * @return {boolean}    true if there there a matching residue, false o.w.
+	 * @return {Number} number of mapped pileups (residues)
 	 */
-	function highlight(pileup, reset)
+	function highlight(pileups, reset)
 	{
-		// TODO allow passing of a Pileup array
-
 		// no chain selected yet, terminate
 		if (!_chain)
 		{
@@ -525,16 +523,21 @@ var Mutation3dVis = function(name, options)
 		// init script generation
 		var script = generateVisualStyleScript(_selection, _chain);
 
-		// assuming all other mutations in the same pileup have
-		// the same (or very close) mutation position.
-		var id = pileup.mutations[0].mutationId;
-		var position = _chain.positionMap[id];
+		var numMapped = 0;
 
-		if (position)
-		{
-			// add position to the highlighted ones
-			_highlighted[id] = position;
-		}
+		_.each(pileups, function(pileup, i) {
+			// assuming all other mutations in the same pileup have
+			// the same (or very close) mutation position.
+			var id = pileup.mutations[0].mutationId;
+			var position = _chain.positionMap[id];
+
+			if (position)
+			{
+				// add position to the highlighted ones
+				_highlighted[id] = position;
+				numMapped++;
+			}
+		});
 
 		// add highlight script string
 		script = script.concat(generateHighlightScript(_highlighted));
@@ -545,9 +548,8 @@ var Mutation3dVis = function(name, options)
 		// send script string to the app
 		_3dApp.script(script);
 
-		// return false if no mapping position found for this pileup,
-		// return true otherwise
-		return (position != null);
+		// return number of mapped residues for the given pileups
+		return numMapped;
 	}
 
 	/**

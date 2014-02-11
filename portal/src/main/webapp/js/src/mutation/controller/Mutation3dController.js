@@ -130,11 +130,8 @@ var Mutation3dController = function (
 			// focus view on already selected diagram location
 			if (mutationDiagram.isHighlighted())
 			{
-				var selected = mutationDiagram.getSelectedElements();
-
-				// TODO assuming there is only one selected element
-				// ... we need to update this part for multiple selection
-				if (!mut3dVisView.highlightView(selected[0].datum(), true))
+				// highlight 3D residues for the initially selected diagram elements
+				if (!mut3dVisView.highlightView(getSelectedPileups(), true))
 				{
 					mut3dVisView.showResidueWarning();
 				}
@@ -168,15 +165,24 @@ var Mutation3dController = function (
 	{
 		if (mut3dVisView && mut3dVisView.isVisible())
 		{
-			mut3dVisView.removeHighlight();
+			mut3dVisView.resetHighlight();
 			mut3dVisView.hideResidueWarning();
 		}
 	}
 
 	function diagramDeselectHandler(datum, index)
 	{
-		// TODO need to change this for multiple selection
-		allDeselectHandler();
+		// check if the diagram is still highlighted
+		if (mutationDiagram.isHighlighted())
+		{
+			// reselect with the reduced selection
+			diagramSelectHandler();
+		}
+		else
+		{
+			// no highlights (all deselected)
+			allDeselectHandler();
+		}
 	}
 
 	function diagramSelectHandler(datum, index)
@@ -184,10 +190,8 @@ var Mutation3dController = function (
 		// highlight the corresponding residue in 3D view
 		if (mut3dVisView && mut3dVisView.isVisible())
 		{
-			// highlight view for the selected datum
-			// TODO for now removing previous highlights,
-			// ...we need to change this to allow multiple selection
-			if (mut3dVisView.highlightView(datum, true))
+			// highlight view for the selected pileups
+			if (mut3dVisView.highlightView(getSelectedPileups(), true) > 0)
 			{
 				mut3dVisView.hideResidueWarning();
 			}
@@ -197,6 +201,24 @@ var Mutation3dController = function (
 				mut3dVisView.showResidueWarning();
 			}
 		}
+	}
+
+	/**
+	 * Retrieves the pileup data from the selected mutation diagram
+	 * elements.
+	 *
+	 * @return {Array} an array of Pileup instances
+	 */
+	function getSelectedPileups()
+	{
+		var pileups = [];
+
+		// get mutations for all selected elements
+		_.each(mutationDiagram.getSelectedElements(), function (ele, i) {
+			pileups = pileups.concat(ele.datum());
+		});
+
+		return pileups;
 	}
 
 	init();

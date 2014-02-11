@@ -101,7 +101,7 @@ var StudyViewProxy = (function() {
                     }
                        
                 }
-
+                
                 obtainDataObject['attr'] = a1[0]['attributes'];
                 
                 if(a2[0].length != 0){
@@ -127,6 +127,21 @@ var StudyViewProxy = (function() {
                         obtainDataObject['dataObjectM'][keyNumMapping[i]]['COPY_NUMBER_ALTERATIONS'] = val;
                     }); 
                     obtainDataObject['attr'].push(newAttri2);
+                }
+                
+                var caseidExist = false;
+                for(var i=0 ; i<obtainDataObject['attr'].length; i++){
+                    if(obtainDataObject['attr'][i].attr_id === 'CASE_ID'){
+                        caseidExist = true;
+                    }
+                }
+                if(!caseidExist){
+                    var newAttri = {};
+                    newAttri.attr_id = 'CASE_ID';
+                    newAttri.display_name = 'patient';
+                    newAttri.description = 'patient';
+                    newAttri.datatype = 'NUMBER';
+                    obtainDataObject['attr'].push(newAttri);
                 }
                 
                 callbackFunc(obtainDataObject);

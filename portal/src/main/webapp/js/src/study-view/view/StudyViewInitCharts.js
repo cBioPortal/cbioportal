@@ -46,11 +46,11 @@ var StudyViewInitCharts = (function(){
         var varType = []; //Could be displayed Charts Type 'pie,bar'. Mix combination, seperate by comma
         var distanceMinMaxArray = []; //Only for NUMBER dataType, store min, max and difference value
         
-    
+        
         dataA = dataObtained.attr;
         dataB = dataObtained.dataObjectM;
         
-         
+        
         //Calculate the number of pie, bar charts
         //Initial varName, varType, distanceMinMaxArray, varDisplay
         for(var i=0; i< dataA.length ; i++){
@@ -404,6 +404,17 @@ var StudyViewInitCharts = (function(){
         .ordinalColors(chartColors)
         .label(function (d) {
             return d.value;
+        })
+        .ordering(function(d){ return d.key;})
+        //Use to refresh Scatter Plot when click pie slice.
+        .on("filtered", function(){
+            var tmpDimention = varChart[attrNameMapUID["CASE_ID"]].dimension();
+            var tmpResult = tmpDimention.top(Infinity);
+            var tmpCaseID = [];
+            for(var i=0; i<tmpResult.length ; i++){
+                tmpCaseID.push(tmpResult[i].CASE_ID);
+            }
+            console.log(tmpCaseID);
         });
     }
     
@@ -437,7 +448,7 @@ var StudyViewInitCharts = (function(){
                     $('#' + _pieChartID + '-main').find('table').append("<tr id="+ innerID +" width='150px'></tr>");
                     innerID++;
                 } 
-                $('#' + _pieChartID + '-main').find('table tr:nth-child(' + innerID +')').append('<td id="pieLabel-'+_pieChartID+'-'+i+'" width="75px" style="font-size:'+fontSize+'px"><svg width="75" height="15"><rect width="'+labelSize+'" height="'+labelSize+'" style="fill:' + label[i].color + ';" /><text x="15" y="10">'+tmpName+'</text></svg></td>');
+                $('#' + _pieChartID + '-main').find('table tr:nth-child(' + innerID +')').append('<td class="pieLabel" id="pieLabel-'+_pieChartID+'-'+i+'" width="75px" style="font-size:'+fontSize+'px"><svg width="75" height="15"><rect width="'+labelSize+'" height="'+labelSize+'" style="fill:' + label[i].color + ';" /><text x="15" y="10">'+tmpName+'</text></svg></td>');
             }
             $('#' + _pieChartID + '-main').find('table tr:nth-child(' + innerID +')').append('<td id="pieLabel-pagging" width="75px" style="font-size:'+fontSize+'px"><svg width="75" height="15"><path d="M5 1 L0 9 L10 9 Z" fill="grey"/><text x=15 y=10 fill="black">1/2</text> <path d="M50 9 L45 1 L55 1 Z" fill="blue"/></svg></td>');
             
@@ -451,20 +462,20 @@ var StudyViewInitCharts = (function(){
                     $('#' + _pieChartID + '-main').find('table').append("<tr id="+ innerID +" width='150px'></tr>");
                     innerID++;
                 } 
-                $('#' + _pieChartID + '-main').find('table tr:nth-child(' + innerID +')').append('<td id="pieLabel-'+_pieChartID+'-'+i+'" width="75px" style="font-size:'+fontSize+'px"><svg width="75" height="15"><rect width="'+labelSize+'" height="'+labelSize+'" style="fill:' + label[i].color + ';" /><text x="15" y="10">'+tmpName+'</text></svg></td>');
+                $('#' + _pieChartID + '-main').find('table tr:nth-child(' + innerID +')').append('<td class="pieLabel" id="pieLabel-'+_pieChartID+'-'+i+'" width="75px" style="font-size:'+fontSize+'px"><svg width="75" height="15"><rect width="'+labelSize+'" height="'+labelSize+'" style="fill:' + label[i].color + ';" /><text x="15" y="10">'+tmpName+'</text></svg></td>');
             }
         }
         
-        $('#' + _pieChartID + '-main td svg').mouseenter(function(){
-            var idArray = $(this).parent().attr('id').split('-');
+        $('#' + _pieChartID + '-main .pieLabel').mouseenter(function(){
+            var idArray = $(this).attr('id').split('-');
             var childID = Number(idArray[idArray.length-1])+1;
             $('#' + _pieChartID + ' svg>g>g:nth-child(' + childID+')').css({
                 'fill-opacity': '.5',
                 'stroke-width': '3px'
             });
         });
-        $('#' + _pieChartID + '-main td svg').mouseleave(function(){
-            var idArray = $(this).parent().attr('id').split('-');
+        $('#' + _pieChartID + '-main .pieLabel').mouseleave(function(){
+            var idArray = $(this).attr('id').split('-');
             var childID = Number(idArray[idArray.length-1])+1;
             $('#' + _pieChartID + ' svg>g>g:nth-child(' + childID+')').css({
                 'fill-opacity': '1',
@@ -472,8 +483,8 @@ var StudyViewInitCharts = (function(){
             });
         });
         
-        $('#' + _pieChartID + '-main td svg').click(function(){
-            var idArray = $(this).parent().attr('id').split('-');
+        $('#' + _pieChartID + '-main .pieLabel').click(function(){
+            var idArray = $(this).attr('id').split('-');
             var childID = Number(idArray[idArray.length-1]);
             var chartID = Number(idArray[idArray.length-2]);
             varChart[chartID].onClick({key: label[childID].name, value:label[childID].value});            
@@ -561,7 +572,7 @@ var StudyViewInitCharts = (function(){
             .transitionDuration(1200)
             .renderHorizontalGridLines(true)
             .renderVerticalGridLines(true);
-
+            
         if(distanceMinMax < 1){
             varChart[_chartID].x(d3.scale.linear().nice([distanceMinMaxArray[_selectedAttr].min, distanceMinMaxArray[_selectedAttr].max]));
             varChart[_chartID].yAxis().tickFormat(d3.format("d"));

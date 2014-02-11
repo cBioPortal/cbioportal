@@ -112,15 +112,15 @@
 }
 .study-view-pie-chart {
     height:150px;
-    width:180px;
+    width:165px;
     padding-left: 15px;
     float:left;
 }
-study-view-pie-label {
+.study-view-pie-label {
     height:30px;
-    width:180px;
+    width:150px;
     float:left;
-    padding-left: 20px;
+    margin-left:30px;
 }
 
 .w2{

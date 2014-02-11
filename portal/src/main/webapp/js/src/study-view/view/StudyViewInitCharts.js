@@ -382,7 +382,7 @@ var StudyViewInitCharts = (function(){
         if(_selectedAttr === 'CASE_ID'){
             $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID + "-main\" class='study-view-dc-chart study-view-pie-main' style='display:none'><div id=\"study-view-dc-chart-" + _chartID + "\"></div></div>");
         }else
-            $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID + "-main\" class='study-view-dc-chart study-view-pie-main'><div style='width:180px; float:right'><span class='study-view-dc-chart-delete'>x</span><a href='javascript:varChart[" + _chartID + "].filterAll();dc.redrawAll();'><img src='images/refresh_12px.jpg' title='Reset Chart' class='study-view-dc-chart-change'></img></a></div><div id=\"study-view-dc-chart-" + _chartID + "\" class='" + _className + "'  value='"+ _selectedAttr + "," + _selectedAttrDisplay + ",pie'></div><div class='study-view-pie-label'></div><div style='width:180px; text-align:center;float:left;'><pieH4>" + _selectedAttrDisplay + "</pieH4></div></div>");
+            $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID + "-main\" class='study-view-dc-chart study-view-pie-main'><div style='width:180px; float:right; text-align:center;'><span class='study-view-dc-chart-delete'>x</span><a href='javascript:varChart[" + _chartID + "].filterAll();dc.redrawAll();'><img src='images/refresh_12px.jpg' title='Reset Chart' class='study-view-dc-chart-change'></img></a><pieH4>" + _selectedAttrDisplay + "</pieH4></div><div id=\"study-view-dc-chart-" + _chartID + "\" class='" + _className + "'  value='"+ _selectedAttr + "," + _selectedAttrDisplay + ",pie'></div><div class='study-view-pie-label'></div><div style='width:180px; text-align:center;float:left;'></div></div>");
         
         varChart[_chartID] = dc.pieChart("#study-view-dc-chart-" + _chartID);
         varCluster[_chartID] = ndx.dimension(function (d) {
@@ -408,13 +408,80 @@ var StudyViewInitCharts = (function(){
     }
     
     function addPieLabels(_pieChartID) {
+        var label =[];
+        var labelID = 0;
+        var labelSize = 9;
+        var fontSize = labelSize +1;
+        $('#' + _pieChartID + '-main').find('.study-view-pie-label').append("<table ></table>");
+        $('#' + _pieChartID + '>svg>g>g').each(function(){
+            var labelDatum = {};            
+            var labelName = $(this).find('title').text().split(':');
+            var color = $(this).find('path').attr('fill');
+            
+            labelDatum.id = labelID;
+            labelDatum.name = labelName[0];
+            labelDatum.color = color;
+            labelDatum.parentID = _pieChartID;
+            
+            label.push(labelDatum);
+            labelID++;
+        });
+        
+        if(label.length > 6){
+            var innerID = 0;
+            for(var i=0; i< 5; i++){
+                var tmpName = label[i].name;
+                if(tmpName.length > 9)
+                   tmpName = tmpName.substring(0,5) + " ...";
+                if(i % 2 === 0){
+                    $('#' + _pieChartID + '-main').find('table').append("<tr id="+ innerID +" width='150px'></tr>");
+                    innerID++;
+                } 
+                $('#' + _pieChartID + '-main').find('table tr:nth-child(' + innerID +')').append('<td id="pieLabel-'+_pieChartID+'-'+i+'" width="75px" style="font-size:'+fontSize+'px"><svg width="'+labelSize+'" height="'+labelSize+'"><rect width="'+labelSize+'" height="'+labelSize+'" style="fill:' + label[i].color + ';" /></svg>'+tmpName+'</td>');
+            }
+            $('#' + _pieChartID + '-main').find('table tr:nth-child(' + innerID +')').append('<td id="pieLabel-'+_pieChartID+'-'+i+'" width="75px" style="font-size:'+fontSize+'px"><svg width="75" height="10"><path d="M5 1 L0 9 L10 9 Z" fill="grey"/><text x=15 y=10 fill="black">1/2</text> <path d="M50 9 L45 1 L55 1 Z" fill="blue"/></svg></td>');
+            
+        }else{
+            var innerID = 0;
+            for(var i=0; i< label.length; i++){
+                var tmpName = label[i].name;
+                if(tmpName.length > 9)
+                   tmpName = tmpName.substring(0,5) + " ...";
+                if(i % 2 === 0){
+                    $('#' + _pieChartID + '-main').find('table').append("<tr id="+ innerID +" width='150px'></tr>");
+                    innerID++;
+                } 
+                $('#' + _pieChartID + '-main').find('table tr:nth-child(' + innerID +')').append('<td id="pieLabel-'+_pieChartID+'-'+i+'" width="75px" style="font-size:'+fontSize+'px"><svg width="'+labelSize+'" height="'+labelSize+'"><rect width="'+labelSize+'" height="'+labelSize+'" style="fill:' + label[i].color + ';" /></svg>'+tmpName+'</td>');
+            }
+        }
+        console.log(label);
+        /*
         $('#' + _pieChartID + '>svg>g>g').each(function(){
             var labelName = $(this).find('title').text().split(':');
             var color = $(this).find('path').attr('fill');
-            if(labelName[0].length > 6)
-                labelName[0] = labelName[0].substring(0,6) + "...";
-            $('#' + _pieChartID + '-main').find('.study-view-pie-label').append('<svg width="10" height="10"><rect width="12" height="12" style="fill:' + color + ';" /></svg>' +labelName[0] +'');
+            if(labelName[0].length > 9)
+                labelName[0] = labelName[0].substring(0,5) + " ...";
+            
+            if(labelID % 2 === 0 && (labelID===0 || labelID%6 !== 0)){
+                $('#' + _pieChartID + '-main').find('table').append("<tr id="+ innerID +" width='150px'></tr>");
+                innerID++;
+            }
+            if(labelID % 6 === 0){
+                thirdLevelID++;
+            }
+            if((labelID+1)%6==0){
+                $('#' + _pieChartID + '-main').find('table tr:nth-child(' + innerID +')').append('<td id="pieLabel-'+_pieChartID+'-'+labelID+'" width="75px">1/2</td>');
+                innerID++;
+                $('#' + _pieChartID + '-main').find('table').append("<tr id="+ innerID +" width='150px'></tr>");
+                $('#' + _pieChartID + '-main').find('table tr:nth-child(' + innerID +')').append('<td id="pieLabel-'+_pieChartID+'-'+labelID+'" width="75px"><svg width="8" height="8"><rect width="8" height="8" style="fill:' + color + ';" /></svg>' +labelName[0] +'</td>');
+                
+            }else
+                $('#' + _pieChartID + '-main').find('table tr:nth-child(' + innerID +')').append('<td id="pieLabel-'+_pieChartID+'-'+labelID+'" width="75px"><svg width="8" height="8"><rect width="8" height="8" style="fill:' + color + ';" /></svg>' +labelName[0] +'</td>');
+            labelID++;
         });
+        if(labelID > 6)
+            $('#' + _pieChartID + '-main').find('table').after("<svg width='165' height='10'><text x='135' y='0' fill='black'>1/"+thirdLevelID+"</text></svg>");
+        */;
     }
     function initBarChart(_chartID,_className,_selectedAttr,_selectedAttrDisplay,distanceMinMaxArray) {
         var distanceMinMax = distanceMinMaxArray[_selectedAttr].distance;
@@ -480,11 +547,14 @@ var StudyViewInitCharts = (function(){
             varChart[_chartID].yAxis().tickFormat(d3.format("d"));
             varChart[_chartID].xAxis().ticks(10);
             varChart[_chartID].xUnits(function(){return barScale;});
-        }else if(_selectedAttrDisplay.search(/month/i) != -1){                
+        }else if(_selectedAttrDisplay.search(/month/i) != -1){
+            console.log(distanceMinMaxArray[_selectedAttr].min + "-" + distanceMinMaxArray[_selectedAttr].max);
+            varChart[_chartID].elasticX(false);
             varChart[_chartID].x(d3.scale.linear().domain([distanceMinMaxArray[_selectedAttr].min, distanceMinMaxArray[_selectedAttr].max]));
             varChart[_chartID].xAxis().ticks(10);
             varChart[_chartID].yAxis().tickFormat(d3.format("d"));
             varChart[_chartID].xAxis().tickFormat(d3.format("d"));
+            varChart[_chartID].xUnits(function(){return barScale;});
         }else if(_selectedAttrDisplay.search(/mutation/i) != -1){ 
             varChart[_chartID].x(d3.scale.linear().domain([0, distanceMinMaxArray[_selectedAttr].max]));
             //varChart[_chartID].x(d3.scale.log().nice().domain([1,distanceMinMaxArray[_selectedAttr].max]));

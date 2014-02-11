@@ -731,15 +731,28 @@ var Mutation3dVisView = Backbone.View.extend({
 	},
 	/**
 	 * Shows a warning message for unmapped residues.
+	 *
+	 * @param unmappedCount  number of unmapped selections
+	 * @param selectCount    total number of selections
 	 */
-	showResidueWarning: function()
+	showResidueWarning: function(unmappedCount, selectCount)
 	{
 		var self = this;
 		var warning = self.$el.find(".mutation-3d-residue-warning");
+		var unmapped = self.$el.find(".mutation-3d-unmapped-info");
 
 		// show warning only if no other warning is visible
 		if (!self.$el.find(".mutation-3d-nomap-warning").is(":visible"))
 		{
+			if (selectCount > 1)
+			{
+				unmapped.text(unmappedCount + " of the selections");
+			}
+			else
+			{
+				unmapped.text("Selected mutation");
+			}
+
 			warning.show();
 		}
 	},

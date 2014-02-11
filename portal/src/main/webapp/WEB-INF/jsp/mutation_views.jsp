@@ -149,7 +149,8 @@
 		<div class='mutation-3d-info'></div>
 	</div>
 	<div class='mutation-3d-residue-warning'>
-		Selected mutation cannot be mapped onto this structure.
+		<span class="mutation-3d-unmapped-info">Selected mutation</span>
+		cannot be mapped onto this structure.
 	</div>
 	<div class='mutation-3d-nomap-warning'>
 		None of the mutations can be mapped onto this structure.

@@ -127,14 +127,10 @@ var Mutation3dController = function (
 		// calling another script immediately after updating the view
 		// does not work, so register a callback for update function
 		var callback = function() {
-			// focus view on already selected diagram location
+			// highlight mutations on the diagram
 			if (mutationDiagram.isHighlighted())
 			{
-				// highlight 3D residues for the initially selected diagram elements
-				if (!mut3dVisView.highlightView(getSelectedPileups(), true))
-				{
-					mut3dVisView.showResidueWarning();
-				}
+				highlightSelected();
 			}
 		};
 
@@ -190,16 +186,7 @@ var Mutation3dController = function (
 		// highlight the corresponding residue in 3D view
 		if (mut3dVisView && mut3dVisView.isVisible())
 		{
-			// highlight view for the selected pileups
-			if (mut3dVisView.highlightView(getSelectedPileups(), true) > 0)
-			{
-				mut3dVisView.hideResidueWarning();
-			}
-			// display a warning message if there is no corresponding residue
-			else
-			{
-				mut3dVisView.showResidueWarning();
-			}
+			highlightSelected();
 		}
 	}
 
@@ -219,6 +206,30 @@ var Mutation3dController = function (
 		});
 
 		return pileups;
+	}
+
+	/**
+	 * Highlights 3D residues for the selected diagram elements.
+	 */
+	function highlightSelected()
+	{
+		// selected pileups (mutations) on the diagram
+		var selected = getSelectedPileups();
+
+		// highlight 3D residues for the initially selected diagram elements
+		var mappedCount = mut3dVisView.highlightView(selected, true);
+
+		var unmappedCount = selected.length - mappedCount;
+
+		// show a warning message if there is at least one unmapped selection
+		if (unmappedCount > 0)
+		{
+			mut3dVisView.showResidueWarning(unmappedCount, selected.length);
+		}
+		else
+		{
+			mut3dVisView.hideResidueWarning();
+		}
 	}
 
 	init();

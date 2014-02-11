@@ -1670,26 +1670,25 @@ MutationDiagram.prototype.addDefaultListeners = function()
 
 	// diagram background click
 	self.addListener(".mut-dia-background", "click", function(datum, index) {
-		// just ignore the action if the diagram is already in a graphical transition.
+		// ignore the action (do not dispatch an event) if:
+		//  1) the diagram is already in a graphical transition:
 		// this is to prevent inconsistency due to fast clicks on the diagram.
-		if (self.isInTransition())
+		//  2) there is no previously highlighted data point
+		//  3) multi selection mode is on:
+		// this is to prevent reset due to an accidental click on background
+		var ignore = self.isInTransition() ||
+		             !self.isHighlighted() ||
+		             self.multiSelect;
+
+		if (!ignore)
 		{
-			return;
+			// remove all diagram highlights
+			self.clearHighlights();
+
+			// trigger corresponding event
+			self.dispatcher.trigger(
+				MutationDetailsEvents.ALL_LOLLIPOPS_DESELECTED);
 		}
-
-		// check if there is a highlighted circle
-		// no action required if no circle is highlighted
-		if (!self.isHighlighted())
-		{
-			return;
-		}
-
-		// remove all diagram highlights
-		self.clearHighlights();
-
-		// trigger corresponding event
-		self.dispatcher.trigger(
-			MutationDetailsEvents.ALL_LOLLIPOPS_DESELECTED);
 	});
 
 	// lollipop circle click

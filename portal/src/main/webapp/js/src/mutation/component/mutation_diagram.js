@@ -1753,6 +1753,20 @@ MutationDiagram.prototype.addDefaultListeners = function()
 			datum, index);
 	});
 
+	// listener that prevents text selection
+	// when multi selection is activated by the shift key
+	var preventSelection = function (datum, index)
+	{
+		if (self.multiSelect)
+		{
+			// current event is stored under d3.event
+			d3.event.preventDefault();
+		}
+	};
+
+	self.addListener(".mut-dia-data-point", "mousedown", preventSelection);
+	self.addListener(".mut-dia-background", "mousedown", preventSelection);
+
 	// TODO listen to the key events only on the diagram (if possible)
 	// ...it might be better to bind window key event handlers in a global util class
 

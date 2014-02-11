@@ -116,7 +116,7 @@ public class ImportGeneData {
             }
             if (!line.startsWith("#")) {
                 String parts[] = line.split("\t");
-                CanonicalGene gene = daoGeneOptimized.getNonAmbiguousGene(parts[3]);
+                CanonicalGene gene = daoGeneOptimized.getNonAmbiguousGene(parts[3], parts[0]);
                 if (gene==null) {
                     System.err.println("Could not find non ambiguous gene: "+parts[3]);
                     continue;

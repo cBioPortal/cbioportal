@@ -11,26 +11,26 @@
 <style type="text/css" title="currentStyle"> 
         @import "css/data_table_jui.css";
         @import "css/data_table_ColVis.css";
-        .ColVis {
+        #protein_exp .ColVis {
                 float: left;
                 margin-bottom: 0
         }
         .datatable-filter-custom {
                 float: left
         }
-        .dataTables_length {
+        #protein_exp .dataTables_length {
                 width: auto;
                 float: right;
         }
-        .dataTables_info {
+        #protein_exp .dataTables_info {
                 width: auto;
                 float: right;
         }
-        .div.datatable-paging {
+        #protein_exp .div.datatable-paging {
                 width: auto;
                 float: right;
         }
-        td.rppa-details {
+        #protein_exp td.rppa-details {
                 background-color : white;
         }
 </style>

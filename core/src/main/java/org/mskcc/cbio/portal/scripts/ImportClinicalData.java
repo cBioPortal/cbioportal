@@ -184,8 +184,6 @@ public class ImportClinicalData {
                 return sampleId;
             }
         }
-
-        return "";
     }
 
     private boolean validPatientId(String patientId)
@@ -280,7 +278,7 @@ public class ImportClinicalData {
         } else {
             // attribute Id header only
             colnames = displayNames;
-            description = new String[colnames.length];
+            descriptions = new String[colnames.length];
             Arrays.fill(descriptions, ClinicalAttribute.MISSING);
             datatypes = new String[colnames.length] ;
             Arrays.fill(datatypes, ClinicalAttribute.DEFAULT_DATATYPE);

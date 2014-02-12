@@ -55,8 +55,8 @@ var PlotsBoilerplate = {
         height: 595,
         xLeft: 120,     //The left/starting point for x axis
         xRight: 620,   //The right/ending point for x axis
-        yTop: 5,      //The top/ending point for y axis
-        yBottom: 505   //The bottom/starting point for y axis
+        yTop: 15,      //The top/ending point for y axis
+        yBottom: 515   //The bottom/starting point for y axis
     },
     elem : {
         svg: "",

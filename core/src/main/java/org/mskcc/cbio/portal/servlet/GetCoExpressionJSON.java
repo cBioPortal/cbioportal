@@ -95,7 +95,6 @@ public class GetCoExpressionJSON extends HttpServlet  {
 
         if (!isFullResult) {
           ArrayList<JSONObject> fullResultJson = new ArrayList<JSONObject>();
-          ArrayList<JSONObject> resultJson = new ArrayList<JSONObject>();
           GeneticProfile final_gp = CoExpUtil.getPreferedGeneticProfile(cancerStudyIdentifier);
           if (final_gp != null) {
             try {
@@ -126,13 +125,8 @@ public class GetCoExpressionJSON extends HttpServlet  {
                     }
                 }
                 fullResultJson = CoExpUtil.sortJsonArr(fullResultJson, "pearson");
-                //int _len = (fullResultJson.size() > resultLength ? resultLength : fullResultJson.size());
-                //for (int i = 0; i < _len; i++) {
-                //    resultJson.add(fullResultJson.get(i));
-                //}
                 httpServletResponse.setContentType("application/json");
                 PrintWriter out = httpServletResponse.getWriter();
-                //JSONValue.writeJSONString(resultJson, out);
                 JSONValue.writeJSONString(fullResultJson, out);
             } catch (DaoException e) {
                 System.out.println(e.getMessage());

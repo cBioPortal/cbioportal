@@ -30,7 +30,7 @@ package org.mskcc.cbio.portal.dao;
 import org.mskcc.cbio.portal.model.*;
 
 import java.sql.*;
-import java.util.ArrayList;
+import java.util.*;
 
 /**
  * Data access object for Sample_List table
@@ -295,13 +295,13 @@ public class DaoCaseList {
                     ("SELECT * FROM sample_list_list WHERE LIST_ID = ?");
             pstmt.setInt(1, caseList.getCaseListId());
             rs = pstmt.executeQuery();
-            ArrayList<String> toReturn = new ArrayList<String>();
+            HashSet<String> patientIds = new HashSet<String>();
             while (rs.next()) {
                 Sample sample = DaoSample.getSampleByInternalId(rs.getInt("SAMPLE_ID"));
                 Patient patient = DaoPatient.getPatientByInternalId(sample.getInternalPatientId());
-				toReturn.add(patient.getStableId());
+				patientIds.add(patient.getStableId());
 			}
-			return toReturn;
+            return new ArrayList<String>(patientIds);
         } catch (NullPointerException e) {
             throw new DaoException(e);
         } catch (SQLException e) {

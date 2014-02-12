@@ -50,8 +50,7 @@ public class TestGetCaseList extends TestCase {
       
       ImportCaseList.importCaseList(file, pMonitor);
       String[] caseList = GetCaseLists.getCaseListsAsTable("gbm").split("\n");
-      assertTrue(caseList[1]
-               .startsWith("gbm_6\tGBM 6\tGBM 6 Case List Description\t1\tTCGA-02-0001 TCGA-02-0003 TCGA-02-0006"));
+      assertTrue(caseList[1].startsWith("gbm_6\tGBM 6\tGBM 6 Case List Description"));
    }
 
     private void createSmallDbms() throws DaoException

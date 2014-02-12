@@ -27,13 +27,12 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import junit.framework.TestCase;
 import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.scripts.ResetDatabase;
 
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.Set;
+import java.util.*;
+import junit.framework.TestCase;
 
 /**
  * Junit tests for DaoMicroRnaAlteration class.
@@ -51,6 +50,7 @@ public class TestDaoMicroRnaAlteration extends TestCase {
     
     private void runTheTest() throws DaoException{
         ResetDatabase.resetDatabase();
+        createSamples();
 
         //  Add the Case List
         ArrayList<String> orderedCaseList = new ArrayList<String>();
@@ -89,4 +89,17 @@ public class TestDaoMicroRnaAlteration extends TestCase {
         dao.deleteAllRecords();
     }
 
+    private void createSamples() throws DaoException {
+        CancerStudy study = new CancerStudy("study", "description", "id", "brca", true);
+        Patient p = new Patient(study, "TCGA-1");
+        int pId = DaoPatient.addPatient(p);
+        Sample s = new Sample("TCGA-1", pId, "type");
+        DaoSample.addSample(s);
+        s = new Sample("TCGA-2", pId, "type");
+        DaoSample.addSample(s);
+        s = new Sample("TCGA-3", pId, "type");
+        DaoSample.addSample(s);
+        s = new Sample("TCGA-4", pId, "type");
+        DaoSample.addSample(s);
+    }
 }

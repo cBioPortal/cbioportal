@@ -285,7 +285,7 @@ public class GeneticAlterationUtil {
         }
     }
 
-    private static ArrayList<String> getSampleIdsFromPatientIds(List<String> targetCaseList)
+    public static ArrayList<String> getSampleIdsFromPatientIds(List<String> targetCaseList)
     {
         ArrayList<String> sampleIds = new ArrayList<String>();
         for (String patientId : targetCaseList) {

@@ -59,10 +59,13 @@ public class TestImportClinicalData extends TestCase {
         ResetDatabase.resetDatabase();
         ProgressMonitor pMonitor = new ProgressMonitor();
 		// TBD: change this to use getResourceAsStream()
-        File file = new File("target/test-classes/clinical_test.txt");
+        File patientFile = new File("target/test-classes/clinical_patient.txt");
+        File sampleFile = new File("target/test-classes/clinical_sample.txt");
         CancerStudy cancerStudy = new CancerStudy("test","test","test","test",true);
         cancerStudy.setInternalId(CANCER_STUDY_ID);
-        ImportClinicalData importClinicalData = new ImportClinicalData(cancerStudy, file, false, pMonitor);
+        ImportClinicalData importClinicalData = new ImportClinicalData(cancerStudy, patientFile, false, pMonitor);
+        importClinicalData.importData();
+        importClinicalData = new ImportClinicalData(cancerStudy, sampleFile, true, pMonitor);
         importClinicalData.importData();
 
         LinkedHashSet <String> caseSet = new LinkedHashSet<String>();
@@ -90,13 +93,13 @@ public class TestImportClinicalData extends TestCase {
         Patient clinical2 = clinicalCaseList.get(2);
         assertEquals (null, clinical2.getDiseaseFreeSurvivalMonths());
 
-		ClinicalParameterMap paramMap = DaoClinicalData.getDataSlice(CANCER_STUDY_ID, Arrays.asList("TUMORGRADE")).get(0);
-		assertEquals ("TUMORGRADE", paramMap.getName());
-		assertEquals("G3", paramMap.getValue("TCGA-04-1331"));
-        assertEquals("G2", paramMap.getValue("TCGA-04-1337"));
-        assertEquals(2, paramMap.getDistinctCategories().size());
+		ClinicalParameterMap paramMap = DaoClinicalData.getDataSlice(CANCER_STUDY_ID, Arrays.asList("PLATINUMSTATUS")).get(0);
+		assertEquals ("PLATINUMSTATUS", paramMap.getName());
+		assertEquals("Sensitive", paramMap.getValue("TCGA-04-1331"));
+        assertEquals("MISSING", paramMap.getValue("TCGA-04-1337"));
+        assertEquals(4, paramMap.getDistinctCategories().size());
 
 		Set<String> paramSet = DaoClinicalData.getDistinctParameters(CANCER_STUDY_ID);
-        assertEquals (12, paramSet.size());
+        assertEquals (9, paramSet.size());
     }
 }

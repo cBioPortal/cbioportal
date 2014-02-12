@@ -77,7 +77,7 @@ public class Patient {
         }
         
         Patient anotherPatient = (Patient)obj;
-        if (!stableId.equals(anotherPatient.getStableId())) {
+        if (this.internalId != anotherPatient.getInternalId()) {
             return false;
         }
         

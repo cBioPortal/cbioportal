@@ -27,14 +27,13 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import junit.framework.TestCase;
 import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.scripts.ResetDatabase;
-import org.mskcc.cbio.portal.model.CanonicalGene;
 
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.Set;
+import junit.framework.TestCase;
+
+import java.util.*;
 
 /**
  * JUnit tests for DaoGeneticAlteration class.
@@ -56,6 +55,8 @@ public class TestDaoGeneticAlteration extends TestCase {
         daoGene.addGene(new CanonicalGene (672, "BRCA1"));
 
         ResetDatabase.resetDatabase();
+        createSamples();
+
         DaoGeneticProfileCases daoGeneticProfileCases = new DaoGeneticProfileCases();
 
         //  Add the Case List
@@ -94,4 +95,17 @@ public class TestDaoGeneticAlteration extends TestCase {
         assertEquals (672, gene.getEntrezGeneId());
     }
 
+    private void createSamples() throws DaoException {
+        CancerStudy study = new CancerStudy("study", "description", "id", "brca", true);
+        Patient p = new Patient(study, "TCGA-1");
+        int pId = DaoPatient.addPatient(p);
+        Sample s = new Sample("TCGA-1", pId, "type");
+        DaoSample.addSample(s);
+        s = new Sample("TCGA-2", pId, "type");
+        DaoSample.addSample(s);
+        s = new Sample("TCGA-3", pId, "type");
+        DaoSample.addSample(s);
+        s = new Sample("TCGA-4", pId, "type");
+        DaoSample.addSample(s);
+    }
 }

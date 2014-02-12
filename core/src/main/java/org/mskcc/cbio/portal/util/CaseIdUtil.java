@@ -32,6 +32,12 @@ import java.util.regex.*;
 
 public class CaseIdUtil
 {
+    public static final Pattern TCGA_FULL_SAMPLE_BARCODE_REGEX =
+        Pattern.compile("^(TCGA-\\w\\w-\\w\\w\\w\\w-\\w\\w)[A-Z]$");
+
+    public static final Pattern TCGA_SAMPLE_BARCODE_REGEX =
+        Pattern.compile("^TCGA-\\w\\w-\\w\\w\\w\\w-(\\w\\w)$");
+
 	public static String getPatientId(String barCode)
 	{
         return getId(barCode, false);
@@ -56,7 +62,7 @@ public class CaseIdUtil
 			id = barCodeParts[0] + "-" + barCodeParts[1] + "-" + barCodeParts[2];
             if (forSample) {
                 id += "-" + barCodeParts[3];
-                Matcher tcgaSampleBarcodeMatcher = Sample.TCGA_FULL_SAMPLE_BARCODE_REGEX.matcher(id);
+                Matcher tcgaSampleBarcodeMatcher = TCGA_FULL_SAMPLE_BARCODE_REGEX.matcher(id);
                 id = (tcgaSampleBarcodeMatcher.find()) ? tcgaSampleBarcodeMatcher.group(1) : id;
             }
 		}

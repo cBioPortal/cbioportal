@@ -99,6 +99,11 @@ public class ImportClinicalData {
 
     private boolean validLine(String[] fields, List<ClinicalAttribute> columnAttrs)
     {
+        if (fields.length < columnAttrs.size()) {
+            int origFieldsLen = fields.length;
+            fields = Arrays.copyOf(fields, columnAttrs.size());
+            Arrays.fill(fields, origFieldsLen, columnAttrs.size(), "");
+        }
         return (fields.length == columnAttrs.size());
     }
 

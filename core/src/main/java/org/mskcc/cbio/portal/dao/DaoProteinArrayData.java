@@ -28,15 +28,12 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
+import org.mskcc.cbio.portal.model.*;
+
 import org.apache.commons.lang.StringUtils;
-import org.mskcc.cbio.portal.model.ProteinArrayData;
+
+import java.sql.*;
+import java.util.*;
 
 /**
  *
@@ -83,16 +80,19 @@ public class DaoProteinArrayData {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
+        Sample sample = DaoSample.getSampleByStableId(pad.getCaseId());
         try {
             con = JdbcUtil.getDbConnection(DaoProteinArrayData.class);
             pstmt = con.prepareStatement
-                    ("INSERT INTO protein_array_data (`PROTEIN_ARRAY_ID`,`CANCER_STUDY_ID`,`CASE_ID`,`ABUNDANCE`) "
+                    ("INSERT INTO protein_array_data (`PROTEIN_ARRAY_ID`,`CANCER_STUDY_ID`,`SAMPLE_ID`,`ABUNDANCE`) "
                             + "VALUES (?,?,?,?)");
             pstmt.setString(1, pad.getArrayId());
             pstmt.setInt(2, pad.getCancerStudyId());
-            pstmt.setString(3, pad.getCaseId());
+            pstmt.setInt(3, sample.getInternalId());
             pstmt.setDouble(4, pad.getAbundance());
             return pstmt.executeUpdate();
+        } catch (NullPointerException e) {
+            throw new DaoException(e);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -138,9 +138,10 @@ public class DaoProteinArrayData {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
+        List<Integer> internalSampleIds = DaoSample.getInternalSampleIds(caseIds);
         try {
             con = JdbcUtil.getDbConnection(DaoProteinArrayData.class);
-            if (caseIds==null) {
+            if (internalSampleIds == null) {
                 pstmt = con.prepareStatement
                         ("SELECT * FROM protein_array_data WHERE CANCER_STUDY_ID='"
                         + cancerStudyId + "' AND PROTEIN_ARRAY_ID IN ('"
@@ -150,7 +151,7 @@ public class DaoProteinArrayData {
                         ("SELECT * FROM protein_array_data WHERE CANCER_STUDY_ID='"
                         + cancerStudyId + "' AND PROTEIN_ARRAY_ID IN ('"
                         + StringUtils.join(arrayIds, "','") + "')"
-                        + " AND CASE_ID IN ('"+StringUtils.join(caseIds,"','") +"')");
+                        + " AND SAMPLE_ID IN ('"+StringUtils.join(internalSampleIds,"','") +"')");
             }
             rs = pstmt.executeQuery();
             return extractData(rs);
@@ -185,16 +186,22 @@ public class DaoProteinArrayData {
     }
     
     private ArrayList<ProteinArrayData> extractData(ResultSet rs) throws SQLException {
-        ArrayList<ProteinArrayData> list = new ArrayList<ProteinArrayData>();
-        while (rs.next()) {
-            ProteinArrayData pai = new ProteinArrayData(
+        try {
+            ArrayList<ProteinArrayData> list = new ArrayList<ProteinArrayData>();
+            while (rs.next()) {
+                Sample sample = DaoSample.getSampleByInternalId(rs.getInt("SAMPLE_ID"));
+                ProteinArrayData pai = new ProteinArrayData(
                     rs.getInt("CANCER_STUDY_ID"),
                     rs.getString("PROTEIN_ARRAY_ID"),
-                    rs.getString("CASE_ID"),
+                    sample.getStableId(),
                     rs.getDouble("ABUNDANCE"));
-            list.add(pai);
+                list.add(pai);
+            }
+            return list;
         }
-        return list;
+        catch(NullPointerException e) {
+            throw new SQLException(e);
+        }
     }
 
     /**

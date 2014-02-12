@@ -20,11 +20,12 @@ public final class DaoCnaEvent {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
+        Sample sample = DaoSample.getSampleByStableId(cnaEvent.getCaseId());
         try {
             con = JdbcUtil.getDbConnection(DaoCnaEvent.class);
             long eventId = addCnaEvent(cnaEvent, con);
             
-            if (eventExists(eventId, cnaEvent.getCaseId(), cnaEvent.getCnaProfileId(), con)) {
+            if (eventExists(eventId, sample.getInternalId(), cnaEvent.getCnaProfileId(), con)) {
                 return 0;
             }
             
@@ -32,10 +33,12 @@ public final class DaoCnaEvent {
 		("INSERT INTO sample_cna_event (`CNA_EVENT_ID`, `SAMPLE_ID`,"
                     + " `GENETIC_PROFILE_ID`) VALUES(?,?,?)");
             pstmt.setLong(1, eventId);
-            pstmt.setString(2, cnaEvent.getCaseId());
+            pstmt.setInt(2, sample.getInternalId());
             pstmt.setInt(3, cnaEvent.getCnaProfileId());
             
             return pstmt.executeUpdate();
+        } catch (NullPointerException e) {
+            throw new DaoException(e);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -78,15 +81,16 @@ public final class DaoCnaEvent {
         }
     }
     
-    private static boolean eventExists(long eventId, String caseId, int cnaProfileId, Connection con)
+    private static boolean eventExists(long eventId, int internalSampleId, int cnaProfileId, Connection con)
             throws DaoException {
         PreparedStatement pstmt  ;
         ResultSet rs = null;
+
         try {
             pstmt = con.prepareStatement
 		("SELECT count(*) FROM sample_cna_event WHERE `CNA_EVENT_ID`=? AND `SAMPLE_ID`=? AND `GENETIC_PROFILE_ID`=?");
             pstmt.setLong(1, eventId);
-            pstmt.setString(2, caseId);
+            pstmt.setInt(2, internalSampleId);
             pstmt.setInt(3, cnaProfileId);
             rs = pstmt.executeQuery();
             return rs.next() && rs.getInt(1) > 0;
@@ -120,19 +124,19 @@ public final class DaoCnaEvent {
             Map<Patient, Set<Long>>  map = new HashMap<Patient, Set<Long>> ();
             rs = pstmt.executeQuery();
             while (rs.next()) {
-                String caseId = rs.getString("SAMPLE_ID");
-                int cancerStudyId = DaoGeneticProfile.getGeneticProfileById(
-                        rs.getInt("GENETIC_PROFILE_ID")).getCancerStudyId();
-                Patient _patient = new Patient(DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId), caseId);
+                Sample sample = DaoSample.getSampleByInternalId(rs.getInt("SAMPLE_ID"));
+                Patient patient = DaoPatient.getPatientByInternalId(sample.getInternalPatientId());
                 long eventId = rs.getLong("CNA_EVENT_ID");
-                Set<Long> events = map.get(_patient);
+                Set<Long> events = map.get(patient);
                 if (events == null) {
                     events = new HashSet<Long>();
-                    map.put(_patient, events);
+                    map.put(patient, events);
                 }
                 events.add(eventId);
             }
             return map;
+        } catch (NullPointerException e) {
+            throw new DaoException(e);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -144,6 +148,7 @@ public final class DaoCnaEvent {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
+        List<Integer> internalSampleIds = DaoSample.getInternalSampleIds(Arrays.asList(caseIds));
         try {
             con = JdbcUtil.getDbConnection(DaoCnaEvent.class);
             pstmt = con.prepareStatement
@@ -151,13 +156,14 @@ public final class DaoCnaEvent {
                     + " ENTREZ_GENE_ID, ALTERATION FROM sample_cna_event, cna_event"
                     + " WHERE `GENETIC_PROFILE_ID`=?"
                     + " AND sample_cna_event.CNA_EVENT_ID=cna_event.CNA_EVENT_ID"
-                    + " AND SAMPLE_ID in ('"+StringUtils.join(caseIds, "','")+"')");
+                    + " AND SAMPLE_ID in ('"+StringUtils.join(internalSampleIds, "','")+"')");
             pstmt.setInt(1, profileId);
             rs = pstmt.executeQuery();
             List<CnaEvent> events = new ArrayList<CnaEvent>();
             while (rs.next()) {
                 try {
-                    CnaEvent event = new CnaEvent(rs.getString("SAMPLE_ID"),
+                    Sample sample = DaoSample.getSampleByInternalId(rs.getInt("SAMPLE_ID"));
+                    CnaEvent event = new CnaEvent(sample.getStableId(),
                             rs.getInt("GENETIC_PROFILE_ID"),
                             rs.getLong("ENTREZ_GENE_ID"), rs.getShort("ALTERATION"));
                     event.setEventId(rs.getLong("CNA_EVENT_ID"));
@@ -167,6 +173,8 @@ public final class DaoCnaEvent {
                 }
             }
             return events;
+        } catch (NullPointerException e) {
+            throw new DaoException(e);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

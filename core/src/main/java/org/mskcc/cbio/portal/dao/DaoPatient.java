@@ -68,7 +68,10 @@ public class DaoPatient {
             rs = pstmt.executeQuery();
             ArrayList<Patient> list = new ArrayList<Patient>();
             while (rs.next()) {
-                cachePatient(extractPatient(rs));
+                Patient p = extractPatient(rs);
+                if (p != null) {
+                    cachePatient(p);
+                }
             }
         }
         catch (SQLException e) {
@@ -173,6 +176,7 @@ public class DaoPatient {
     private static Patient extractPatient(ResultSet rs) throws SQLException
     {
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(rs.getInt("CANCER_STUDY_ID"));
+        if (cancerStudy == null) return null;
         return new Patient(cancerStudy,
                            rs.getInt("INTERNAL_ID"),
                            rs.getString("STABLE_ID"));

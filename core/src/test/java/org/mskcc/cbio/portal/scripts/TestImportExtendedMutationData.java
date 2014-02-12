@@ -27,18 +27,12 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
-import org.mskcc.cbio.portal.dao.DaoMutation;
-import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
-import org.mskcc.cbio.portal.model.CanonicalGene;
-import org.mskcc.cbio.portal.model.ExtendedMutation;
+import junit.framework.*;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 
 /**
@@ -59,6 +53,7 @@ public class TestImportExtendedMutationData extends TestCase {
             ImportExtendedMutationData parser;
 
             try {
+                TestDaoGeneticProfile.createSmallDbms();
                 parser = new ImportExtendedMutationData(file, 1, pMonitor, "no_such_germline_whitelistfile");
                 Assert.fail("Should throw IllegalArgumentException");
             } catch (IllegalArgumentException e) {
@@ -73,8 +68,8 @@ public class TestImportExtendedMutationData extends TestCase {
             checkBasicFilteringRules();
             
             // accept everything else
-            validateMutationAminoAcid (1, "TCGA-AA-3664", 51806, "P113L");   // valid Unknown
-            validateMutationAminoAcid (1, "TCGA-AA-3664", 89, "S116R"); // Unknown  Somatic
+            validateMutationAminoAcid (1, "TCGA-AA-3664-01", 51806, "P113L");   // valid Unknown
+            validateMutationAminoAcid (1, "TCGA-AA-3664-01", 89, "S116R"); // Unknown  Somatic
 
             loadGenes();
 			// TBD: change this to use getResourceAsStream()
@@ -95,7 +90,7 @@ public class TestImportExtendedMutationData extends TestCase {
             checkBasicFilteringRules();
             checkGermlineMutations();
             acceptEverythingElse();
-            validateMutationAminoAcid (1, "TCGA-AA-3664", 54407, "T433A");
+            validateMutationAminoAcid (1, "TCGA-AA-3664-01", 54407, "T433A");
 
 
             loadGenes();
@@ -106,9 +101,9 @@ public class TestImportExtendedMutationData extends TestCase {
             checkBasicFilteringRules();
             checkGermlineMutations();
             acceptEverythingElse();
-            validateMutationAminoAcid(1, "TCGA-AA-3664", 54407, "T433A");
+            validateMutationAminoAcid(1, "TCGA-AA-3664-01", 54407, "T433A");
             // Unknown  Somatic mutations on somatic whitelist
-            validateMutationAminoAcid(1, "TCGA-AA-3664", 6667, "A513V");
+            validateMutationAminoAcid(1, "TCGA-AA-3664-01", 6667, "A513V");
             // Unknown  Somatic mutations on somatic whitelist2
 
             // additional tests for the MAF columns added after oncotator
@@ -128,8 +123,8 @@ public class TestImportExtendedMutationData extends TestCase {
 
     // reject somatic mutations that aren't valid somatic, or on one of the somatic whitelists
     private void acceptEverythingElse() throws DaoException {
-        assertEquals(1, DaoMutation.getMutations(1, "TCGA-AA-3664", 51806).size());   // valid Unknown
-        assertEquals(1, DaoMutation.getMutations(1, "TCGA-AA-3664", 89).size()); // Unknown  Somatic
+        assertEquals(1, DaoMutation.getMutations(1, "TCGA-AA-3664-01", 51806).size());   // valid Unknown
+        assertEquals(1, DaoMutation.getMutations(1, "TCGA-AA-3664-01", 89).size()); // Unknown  Somatic
     }
 
     private void checkBasicFilteringRules() throws DaoException {
@@ -163,33 +158,33 @@ public class TestImportExtendedMutationData extends TestCase {
 
     private void acceptValidSomaticMutations() throws DaoException {
         // valid Somatic
-        validateMutationAminoAcid (1, "TCGA-AA-3664", 282770, "R113C");
+        validateMutationAminoAcid (1, "TCGA-AA-3664-01", 282770, "R113C");
 
         // valid Somatic
-        validateMutationAminoAcid (1, "TCGA-AA-3664", 51259, "G61G");
+        validateMutationAminoAcid (1, "TCGA-AA-3664-01", 51259, "G61G");
     }
 
     private void rejectSilentLOHIntronWildtype() throws DaoException {
-        assertEquals(0, DaoMutation.getMutations(1, "TCGA-AA-3664", 114548).size()); // silent
-        assertEquals(0, DaoMutation.getMutations(1, "TCGA-AA-3664", 343035).size()); // LOH
-        assertEquals(0, DaoMutation.getMutations(1, "TCGA-AA-3664", 80114).size()); // Wildtype
-        assertEquals(0, DaoMutation.getMutations(1, "TCGA-AA-3664", 219736).size()); // Wildtype
-        assertEquals(0, DaoMutation.getMutations(1, "TCGA-AA-3664", 6609).size()); // Intron
+        assertEquals(0, DaoMutation.getMutations(1, "TCGA-AA-3664-01", 114548).size()); // silent
+        assertEquals(0, DaoMutation.getMutations(1, "TCGA-AA-3664-01", 343035).size()); // LOH
+        assertEquals(0, DaoMutation.getMutations(1, "TCGA-AA-3664-01", 80114).size()); // Wildtype
+        assertEquals(0, DaoMutation.getMutations(1, "TCGA-AA-3664-01", 219736).size()); // Wildtype
+        assertEquals(0, DaoMutation.getMutations(1, "TCGA-AA-3664-01", 6609).size()); // Intron
     }
 
 
     private void checkGermlineMutations() throws DaoException {
-        assertEquals(0, DaoMutation.getMutations(1, "TCGA-AA-3664", 64581).size());
+        assertEquals(0, DaoMutation.getMutations(1, "TCGA-AA-3664-01", 64581).size());
         // missense, Germline mutation on germline whitelist
 
         // Germline mutation on germline whitelist
-        validateMutationAminoAcid (1, "TCGA-AA-3664", 2842, "L113P");
-        assertEquals(0, DaoMutation.getMutations(1, "TCGA-AA-3664", 50839).size());
+        validateMutationAminoAcid (1, "TCGA-AA-3664-01", 2842, "L113P");
+        assertEquals(0, DaoMutation.getMutations(1, "TCGA-AA-3664-01", 50839).size());
         // Germline mutations NOT on germline whitelist
     }
 
     private void loadGenes() throws DaoException {
-        ResetDatabase.resetDatabase();
+        TestDaoGeneticProfile.createSmallDbms();
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
 
 	    // genes for "data_mutations_extended.txt"

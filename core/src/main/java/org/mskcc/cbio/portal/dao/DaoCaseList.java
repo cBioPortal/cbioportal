@@ -27,14 +27,10 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import org.mskcc.cbio.portal.model.*;
+
+import java.sql.*;
 import java.util.ArrayList;
-import org.mskcc.cbio.portal.model.Case;
-import org.mskcc.cbio.portal.model.CaseList;
-import org.mskcc.cbio.portal.model.CaseListCategory;
 
 /**
  * Data access object for Sample_List table
@@ -190,13 +186,16 @@ public class DaoCaseList {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
+        Sample sample = DaoSample.getSampleByStableId(caseID);
         try {
             con = JdbcUtil.getDbConnection(DaoCaseList.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM sample_list_list WHERE SAMPLE_ID = ?");
-            pstmt.setString(1, caseID);
+            pstmt.setInt(1, sample.getInternalId());
             rs = pstmt.executeQuery();
             return (rs.next());
+        } catch (NullPointerException e) {
+            throw new DaoException(e);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -267,11 +266,16 @@ public class DaoCaseList {
         try {
             StringBuilder sql = new StringBuilder("INSERT INTO sample_list_list (`LIST_ID`, `SAMPLE_ID`) VALUES ");
             for (String caseId : caseList.getCaseList()) {
-                sql.append("('").append(caseListId).append("','").append(caseId).append("'),");
+                Patient patient = DaoPatient.getPatientByStableId(caseId);
+                for (Sample sample : DaoSample.getSamplesByInternalPatientId(patient.getInternalId())) {
+                    sql.append("('").append(caseListId).append("','").append(sample.getInternalId()).append("'),");
+                }
             }
             sql.deleteCharAt(sql.length()-1);
             pstmt = con.prepareStatement(sql.toString());
             return pstmt.executeUpdate();
+        } catch (NullPointerException e) {
+            throw new DaoException(e);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -293,9 +297,13 @@ public class DaoCaseList {
             rs = pstmt.executeQuery();
             ArrayList<String> toReturn = new ArrayList<String>();
             while (rs.next()) {
-				toReturn.add(rs.getString("SAMPLE_ID"));
+                Sample sample = DaoSample.getSampleByInternalId(rs.getInt("SAMPLE_ID"));
+                Patient patient = DaoPatient.getPatientByInternalId(sample.getInternalPatientId());
+				toReturn.add(patient.getStableId());
 			}
 			return toReturn;
+        } catch (NullPointerException e) {
+            throw new DaoException(e);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

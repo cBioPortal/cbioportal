@@ -190,7 +190,7 @@ public class GetProfileData {
 
             //  Ouput Column Headings
             buf.append ("GENE_ID\tCOMMON");
-            outputRow(targetCaseList, buf);
+            outputRow(GeneticAlterationUtil.getSampleIdsFromPatientIds(targetCaseList), buf);
 
             //  Iterate through all validated genes, and extract profile data.
             for (Gene gene: geneList) {                

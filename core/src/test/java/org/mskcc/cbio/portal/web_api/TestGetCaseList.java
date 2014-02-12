@@ -29,11 +29,9 @@ package org.mskcc.cbio.portal.web_api;
 
 import java.io.File;
 import junit.framework.TestCase;
-import org.mskcc.cbio.portal.dao.DaoCancerStudy;
-import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.scripts.ImportCaseList;
-import org.mskcc.cbio.portal.scripts.ImportTypesOfCancers;
-import org.mskcc.cbio.portal.scripts.ResetDatabase;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.scripts.*;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 /**
@@ -43,24 +41,53 @@ public class TestGetCaseList extends TestCase {
 
    public void testGetCaseList() throws Exception {
 
-      ResetDatabase.resetDatabase();
-      // load cancers
-	  // TBD: change this to use getResourceAsStream()
-      ImportTypesOfCancers.load(new ProgressMonitor(), new File("target/test-classes/cancers.txt"));
-
-      // corresponds to cancer_study_identifier: gbm in
-      // /case_list_test.txt
-      CancerStudy cancerStudy = new CancerStudy( "GBM", "GBM Description", "gbm", "GBM", false);
-      DaoCancerStudy.addCancerStudy(cancerStudy);
+       createSmallDbms();
 
       ProgressMonitor pMonitor = new ProgressMonitor();
       pMonitor.setConsoleMode(false);
 	  // TBD: change this to use getResourceAsStream()
       File file = new File("target/test-classes/case_list_test.txt");
-
+      
       ImportCaseList.importCaseList(file, pMonitor);
       String[] caseList = GetCaseLists.getCaseListsAsTable("gbm").split("\n");
       assertTrue(caseList[1]
-               .startsWith("gbm_91\tGBM 91\tGBM 91 Case List Description\t1\tTCGA-02-0001 TCGA-02-0003 TCGA-02-0006"));
+               .startsWith("gbm_6\tGBM 6\tGBM 6 Case List Description\t1\tTCGA-02-0001 TCGA-02-0003 TCGA-02-0006"));
    }
+
+    private void createSmallDbms() throws DaoException
+    {
+        TestDaoGeneticProfile.createSmallDbms();
+
+        CancerStudy study = DaoCancerStudy.getCancerStudyByStableId("gbm");
+
+        Patient p = new Patient(study, "TCGA-02-0001");
+        int pId = DaoPatient.addPatient(p);
+        Sample s = new Sample("TCGA-02-0001-01", pId, "type");
+        DaoSample.addSample(s);
+
+        p = new Patient(study, "TCGA-02-0003");
+        pId = DaoPatient.addPatient(p);
+        s = new Sample("TCGA-02-0003-01", pId, "type");
+        DaoSample.addSample(s);
+
+        p = new Patient(study, "TCGA-02-0006");
+        pId = DaoPatient.addPatient(p);
+        s = new Sample("TCGA-02-0006-01", pId, "type");
+        DaoSample.addSample(s);
+
+        p = new Patient(study, "TCGA-02-0007");
+        pId = DaoPatient.addPatient(p);
+        s = new Sample("TCGA-02-0007-01", pId, "type");
+        DaoSample.addSample(s);
+
+        p = new Patient(study, "TCGA-02-0009");
+        pId = DaoPatient.addPatient(p);
+        s = new Sample("TCGA-02-0009-01", pId, "type");
+        DaoSample.addSample(s);
+
+        p = new Patient(study, "TCGA-02-0010");
+        pId = DaoPatient.addPatient(p);
+        s = new Sample("TCGA-02-0010-01", pId, "type");
+        DaoSample.addSample(s);
+    }
 }

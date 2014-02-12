@@ -27,24 +27,14 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import org.mskcc.cbio.portal.model.ExtendedMutation;
-import org.mskcc.cbio.portal.model.CanonicalGene;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Map;
-import org.apache.commons.lang.StringUtils;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.model.ExtendedMutation.*;
 import org.mskcc.cbio.portal.util.MutationKeywordUtils;
+
+import org.apache.commons.lang.StringUtils;
+
+import java.sql.*;
+import java.util.*;
 
 /**
  * Data access object for Mutation table
@@ -53,52 +43,50 @@ public final class DaoMutation {
     public static final String NAN = "NaN";
 
     public static int addMutation(ExtendedMutation mutation, boolean newMutationEvent) throws DaoException {
-            if (!MySQLbulkLoader.isBulkLoad()) {
-                throw new DaoException("You have to turn on MySQLbulkLoader in order to insert mutations");
-            } else {
+        if (!MySQLbulkLoader.isBulkLoad()) {
+            throw new DaoException("You have to turn on MySQLbulkLoader in order to insert mutations");
+        }
+        else {
+            Sample sample = DaoSample.getSampleByStableId(mutation.getCaseId());
+            MySQLbulkLoader.getMySQLbulkLoader("mutation").insertRecord(
+                Long.toString(mutation.getMutationEventId()),
+                Integer.toString(mutation.getGeneticProfileId()),
+                Integer.toString(sample.getInternalId()),
+                Long.toString(mutation.getGene().getEntrezGeneId()),
+                mutation.getSequencingCenter(),
+                mutation.getSequencer(),
+                mutation.getMutationStatus(),
+                mutation.getValidationStatus(),
+                mutation.getTumorSeqAllele1(),
+                mutation.getTumorSeqAllele2(),
+                mutation.getMatchedNormSampleBarcode(),
+                mutation.getMatchNormSeqAllele1(),
+                mutation.getMatchNormSeqAllele2(),
+                mutation.getTumorValidationAllele1(),
+                mutation.getTumorValidationAllele2(),
+                mutation.getMatchNormValidationAllele1(),
+                mutation.getMatchNormValidationAllele2(),
+                mutation.getVerificationStatus(),
+                mutation.getSequencingPhase(),
+                mutation.getSequenceSource(),
+                mutation.getValidationMethod(),
+                mutation.getScore(),
+                mutation.getBamFile(),
+                Integer.toString(mutation.getTumorAltCount()),
+                Integer.toString(mutation.getTumorRefCount()),
+                Integer.toString(mutation.getNormalAltCount()),
+                Integer.toString(mutation.getNormalRefCount()));
 
-                    // use this code if bulk loading
-                    // write to the temp file maintained by the MySQLbulkLoader
-                    MySQLbulkLoader.getMySQLbulkLoader("mutation").insertRecord(
-                            Long.toString(mutation.getMutationEventId()),
-                            Integer.toString(mutation.getGeneticProfileId()),
-                            mutation.getCaseId(),
-                            Long.toString(mutation.getGene().getEntrezGeneId()),
-                            mutation.getSequencingCenter(),
-                            mutation.getSequencer(),
-                            mutation.getMutationStatus(),
-                            mutation.getValidationStatus(),
-                            mutation.getTumorSeqAllele1(),
-                            mutation.getTumorSeqAllele2(),
-                            mutation.getMatchedNormSampleBarcode(),
-                            mutation.getMatchNormSeqAllele1(),
-                            mutation.getMatchNormSeqAllele2(),
-                            mutation.getTumorValidationAllele1(),
-                            mutation.getTumorValidationAllele2(),
-                            mutation.getMatchNormValidationAllele1(),
-                            mutation.getMatchNormValidationAllele2(),
-                            mutation.getVerificationStatus(),
-                            mutation.getSequencingPhase(),
-                            mutation.getSequenceSource(),
-                            mutation.getValidationMethod(),
-                            mutation.getScore(),
-                            mutation.getBamFile(),
-                            Integer.toString(mutation.getTumorAltCount()),
-                            Integer.toString(mutation.getTumorRefCount()),
-                            Integer.toString(mutation.getNormalAltCount()),
-                            Integer.toString(mutation.getNormalRefCount()));
-
-                    if (newMutationEvent) {
-                        return addMutationEvent(mutation.getEvent())+1;
-                    } else {
-                        return 1;
-                    }
+            if (newMutationEvent) {
+                return addMutationEvent(mutation.getEvent())+1;
             }
+            else {
+                return 1;
+            }
+        }
     }
         
         public static int addMutationEvent(MutationEvent event) throws DaoException {
-            // use this code if bulk loading
-            // write to the temp file maintained by the MySQLbulkLoader
             String keyword = MutationKeywordUtils.guessOncotatorMutationKeyword(event.getProteinChange(), event.getMutationType());
             MySQLbulkLoader.getMySQLbulkLoader("mutation_event").insertRecord(
                     Long.toString(event.getMutationEventId()),
@@ -160,13 +148,14 @@ public final class DaoMutation {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         ArrayList <ExtendedMutation> mutationList = new ArrayList <ExtendedMutation>();
+        List<Integer> internalSampleIds = DaoSample.getInternalSampleIds(targetCaseList);
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM mutation "
                     + "INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID "
                     + "WHERE SAMPLE_ID IN ('"
-                     +org.apache.commons.lang.StringUtils.join(targetCaseList, "','")+
+                     +org.apache.commons.lang.StringUtils.join(internalSampleIds, "','")+
                      "') AND GENETIC_PROFILE_ID = ? AND mutation.ENTREZ_GENE_ID = ?");
             pstmt.setInt(1, geneticProfileId);
             pstmt.setLong(2, entrezGeneId);
@@ -189,13 +178,14 @@ public final class DaoMutation {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         ArrayList <ExtendedMutation> mutationList = new ArrayList <ExtendedMutation>();
+        Sample sample = DaoSample.getSampleByStableId(caseId);
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM mutation "
                     + "INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID "
                     + "WHERE SAMPLE_ID = ? AND GENETIC_PROFILE_ID = ? AND mutation.ENTREZ_GENE_ID = ?");
-            pstmt.setString(1, caseId);
+            pstmt.setInt(1, sample.getInternalId());
             pstmt.setInt(2, geneticProfileId);
             pstmt.setLong(3, entrezGeneId);
             rs = pstmt.executeQuery();
@@ -203,6 +193,8 @@ public final class DaoMutation {
                 ExtendedMutation mutation = extractMutation(rs);
                 mutationList.add(mutation);
             }
+        } catch (NullPointerException e) {
+            throw new DaoException(e);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -301,12 +293,13 @@ public final class DaoMutation {
             PreparedStatement pstmt = null;
             ResultSet rs = null;
             ArrayList <ExtendedMutation> mutationList = new ArrayList <ExtendedMutation>();
+            List<Integer> internalSampleIds = DaoSample.getInternalSampleIds(Arrays.asList(caseIds));
             try {
                 con = JdbcUtil.getDbConnection(DaoMutation.class);
                 pstmt = con.prepareStatement
                         ("SELECT * FROM mutation "
                         + "INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID "
-                        + "WHERE GENETIC_PROFILE_ID = ? AND SAMPLE_ID in ('"+StringUtils.join(caseIds, "','")+"')");
+                        + "WHERE GENETIC_PROFILE_ID = ? AND SAMPLE_ID in ('"+StringUtils.join(internalSampleIds, "','")+"')");
                 pstmt.setInt(1, geneticProfileId);
                 rs = pstmt.executeQuery();
                 while  (rs.next()) {
@@ -325,15 +318,18 @@ public final class DaoMutation {
             Connection con = null;
             PreparedStatement pstmt = null;
             ResultSet rs = null;
+            Sample sample = DaoSample.getSampleByStableId(caseId);
             try {
                 con = JdbcUtil.getDbConnection(DaoMutation.class);
                 pstmt = con.prepareStatement
                         ("SELECT EXISTS (SELECT 1 FROM mutation "
                         + "WHERE GENETIC_PROFILE_ID = ? AND SAMPLE_ID = ? AND TUMOR_ALT_COUNT>=0 AND TUMOR_REF_COUNT>=0)");
                 pstmt.setInt(1, geneticProfileId);
-                pstmt.setString(2, caseId);
+                pstmt.setInt(2, sample.getInternalId());
                 rs = pstmt.executeQuery();
                 return rs.next() && rs.getInt(1)==1;
+            } catch (NullPointerException e) {
+                throw new DaoException(e);
             } catch (SQLException e) {
                 throw new DaoException(e);
             } finally {
@@ -346,6 +342,7 @@ public final class DaoMutation {
             PreparedStatement pstmt = null;
             ResultSet rs = null;
             ArrayList <ExtendedMutation> mutationList = new ArrayList <ExtendedMutation>();
+            Sample sample = DaoSample.getSampleByStableId(excludeCaseId);
             try {
                 con = JdbcUtil.getDbConnection(DaoMutation.class);
                 pstmt = con.prepareStatement
@@ -354,12 +351,14 @@ public final class DaoMutation {
                         + "AND mutation.ENTREZ_GENE_ID = ? AND PROTEIN_CHANGE = ? AND SAMPLE_ID <> ?");
                 pstmt.setLong(1, entrezGeneId);
                 pstmt.setString(2, aminoAcidChange);
-                pstmt.setString(3, excludeCaseId);
+                pstmt.setInt(3, sample.getInternalId());
                 rs = pstmt.executeQuery();
                 while  (rs.next()) {
                     ExtendedMutation mutation = extractMutation(rs);
                     mutationList.add(mutation);
                 }
+            } catch (NullPointerException e) {
+                throw new DaoException(e);
             } catch (SQLException e) {
                 throw new DaoException(e);
             } finally {
@@ -458,33 +457,39 @@ public final class DaoMutation {
     }
 
     private static ExtendedMutation extractMutation(ResultSet rs) throws SQLException, DaoException {
-        ExtendedMutation mutation = new ExtendedMutation(extractMutationEvent(rs));
-        mutation.setGeneticProfileId(rs.getInt("GENETIC_PROFILE_ID"));
-        mutation.setCaseId(rs.getString("SAMPLE_ID"));
-        mutation.setSequencingCenter(rs.getString("CENTER"));
-        mutation.setSequencer(rs.getString("SEQUENCER"));
-        mutation.setMutationStatus(rs.getString("MUTATION_STATUS"));
-        mutation.setValidationStatus(rs.getString("VALIDATION_STATUS"));
-        mutation.setTumorSeqAllele1(rs.getString("TUMOR_SEQ_ALLELE1"));
-        mutation.setTumorSeqAllele2(rs.getString("TUMOR_SEQ_ALLELE2"));
-        mutation.setMatchedNormSampleBarcode(rs.getString("MATCHED_NORM_SAMPLE_BARCODE"));
-        mutation.setMatchNormSeqAllele1(rs.getString("MATCH_NORM_SEQ_ALLELE1"));
-        mutation.setMatchNormSeqAllele2(rs.getString("MATCH_NORM_SEQ_ALLELE2"));
-        mutation.setTumorValidationAllele1(rs.getString("TUMOR_VALIDATION_ALLELE1"));
-        mutation.setTumorValidationAllele2(rs.getString("TUMOR_VALIDATION_ALLELE2"));
-        mutation.setMatchNormValidationAllele1(rs.getString("MATCH_NORM_VALIDATION_ALLELE1"));
-        mutation.setMatchNormValidationAllele2(rs.getString("MATCH_NORM_VALIDATION_ALLELE2"));
-        mutation.setVerificationStatus(rs.getString("VERIFICATION_STATUS"));
-        mutation.setSequencingPhase(rs.getString("SEQUENCING_PHASE"));
-        mutation.setSequenceSource(rs.getString("SEQUENCE_SOURCE"));
-        mutation.setValidationMethod(rs.getString("VALIDATION_METHOD"));
-        mutation.setScore(rs.getString("SCORE"));
-        mutation.setBamFile(rs.getString("BAM_FILE"));
-        mutation.setTumorAltCount(rs.getInt("TUMOR_ALT_COUNT"));
-        mutation.setTumorRefCount(rs.getInt("TUMOR_REF_COUNT"));
-        mutation.setNormalAltCount(rs.getInt("NORMAL_ALT_COUNT"));
-        mutation.setNormalRefCount(rs.getInt("NORMAL_REF_COUNT"));
-        return mutation;
+        try {
+            ExtendedMutation mutation = new ExtendedMutation(extractMutationEvent(rs));
+            Sample sample = DaoSample.getSampleByInternalId(rs.getInt("SAMPLE_ID"));
+            mutation.setGeneticProfileId(rs.getInt("GENETIC_PROFILE_ID"));
+            mutation.setCaseId(sample.getStableId());
+            mutation.setSequencingCenter(rs.getString("CENTER"));
+            mutation.setSequencer(rs.getString("SEQUENCER"));
+            mutation.setMutationStatus(rs.getString("MUTATION_STATUS"));
+            mutation.setValidationStatus(rs.getString("VALIDATION_STATUS"));
+            mutation.setTumorSeqAllele1(rs.getString("TUMOR_SEQ_ALLELE1"));
+            mutation.setTumorSeqAllele2(rs.getString("TUMOR_SEQ_ALLELE2"));
+            mutation.setMatchedNormSampleBarcode(rs.getString("MATCHED_NORM_SAMPLE_BARCODE"));
+            mutation.setMatchNormSeqAllele1(rs.getString("MATCH_NORM_SEQ_ALLELE1"));
+            mutation.setMatchNormSeqAllele2(rs.getString("MATCH_NORM_SEQ_ALLELE2"));
+            mutation.setTumorValidationAllele1(rs.getString("TUMOR_VALIDATION_ALLELE1"));
+            mutation.setTumorValidationAllele2(rs.getString("TUMOR_VALIDATION_ALLELE2"));
+            mutation.setMatchNormValidationAllele1(rs.getString("MATCH_NORM_VALIDATION_ALLELE1"));
+            mutation.setMatchNormValidationAllele2(rs.getString("MATCH_NORM_VALIDATION_ALLELE2"));
+            mutation.setVerificationStatus(rs.getString("VERIFICATION_STATUS"));
+            mutation.setSequencingPhase(rs.getString("SEQUENCING_PHASE"));
+            mutation.setSequenceSource(rs.getString("SEQUENCE_SOURCE"));
+            mutation.setValidationMethod(rs.getString("VALIDATION_METHOD"));
+            mutation.setScore(rs.getString("SCORE"));
+            mutation.setBamFile(rs.getString("BAM_FILE"));
+            mutation.setTumorAltCount(rs.getInt("TUMOR_ALT_COUNT"));
+            mutation.setTumorRefCount(rs.getInt("TUMOR_REF_COUNT"));
+            mutation.setNormalAltCount(rs.getInt("NORMAL_ALT_COUNT"));
+            mutation.setNormalRefCount(rs.getInt("NORMAL_REF_COUNT"));
+            return mutation;
+        }
+        catch(NullPointerException e) {
+            throw new DaoException(e);
+        }
     }
     
     private static MutationEvent extractMutationEvent(ResultSet rs) throws SQLException, DaoException {
@@ -615,15 +620,15 @@ public final class DaoMutation {
      * @return Map &lt; case id, mutation count &gt;
      * @throws DaoException 
      */
-    public static Map<String, Integer> countMutationEvents(
-            int profileId, Collection<String> caseIds) throws DaoException {
+    public static Map<String, Integer> countMutationEvents(int profileId, Collection<String> caseIds) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
+        List<Integer> internalSampleIds = DaoSample.getInternalSampleIds(caseIds);
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
             String sql;
-            if (caseIds==null) {
+            if (internalSampleIds == null) {
                 sql = "SELECT `SAMPLE_ID`, count(DISTINCT `MUTATION_EVENT_ID`) FROM mutation"
                         + " WHERE `GENETIC_PROFILE_ID`=" + profileId
                         + " GROUP BY `SAMPLE_ID`";
@@ -632,7 +637,7 @@ public final class DaoMutation {
                 sql = "SELECT `SAMPLE_ID`, count(DISTINCT `MUTATION_EVENT_ID`) FROM mutation"
                         + " WHERE `GENETIC_PROFILE_ID`=" + profileId
                         + " AND `SAMPLE_ID` IN ('"
-                        + StringUtils.join(caseIds,"','")
+                        + StringUtils.join(internalSampleIds,"','")
                         + "') GROUP BY `SAMPLE_ID`";
             }
             pstmt = con.prepareStatement(sql);
@@ -640,9 +645,12 @@ public final class DaoMutation {
             Map<String, Integer> map = new HashMap<String, Integer>();
             rs = pstmt.executeQuery();
             while (rs.next()) {
-                map.put(rs.getString(1), rs.getInt(2));
+                Sample sample = DaoSample.getSampleByInternalId(rs.getInt(1));
+                map.put(sample.getStableId(), rs.getInt(2));
             }
             return map;
+        } catch (NullPointerException e) {
+            throw new DaoException(e);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -682,16 +690,18 @@ public final class DaoMutation {
             Map<String, Set<Long>>  map = new HashMap<String, Set<Long>> ();
             rs = pstmt.executeQuery();
             while (rs.next()) {
-                String caseId = rs.getString("SAMPLE_ID");
+                Sample sample = DaoSample.getSampleByInternalId(rs.getInt("SAMPLE_ID"));
                 long eventId = rs.getLong("MUTATION_EVENT_ID");
-                Set<Long> events = map.get(caseId);
+                Set<Long> events = map.get(sample.getStableId());
                 if (events == null) {
                     events = new HashSet<Long>();
-                    map.put(caseId, events);
+                    map.put(sample.getStableId(), events);
                 }
                 events.add(eventId);
             }
             return map;
+        } catch (NullPointerException e) {
+            throw new DaoException(e);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -734,19 +744,19 @@ public final class DaoMutation {
             Map<Patient, Set<Long>>  map = new HashMap<Patient, Set<Long>> ();
             rs = pstmt.executeQuery();
             while (rs.next()) {
-                String caseId = rs.getString("SAMPLE_ID");
-                int cancerStudyId = DaoGeneticProfile.getGeneticProfileById(
-                        rs.getInt("GENETIC_PROFILE_ID")).getCancerStudyId();
-                Patient _patient = new Patient(DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId), caseId);
+                Sample sample = DaoSample.getSampleByInternalId(rs.getInt("SAMPLE_ID"));
+                Patient patient = DaoPatient.getPatientByInternalId(sample.getInternalPatientId());
                 long eventId = rs.getLong("MUTATION_EVENT_ID");
-                Set<Long> events = map.get(_patient);
+                Set<Long> events = map.get(patient);
                 if (events == null) {
                     events = new HashSet<Long>();
-                    map.put(_patient, events);
+                    map.put(patient, events);
                 }
                 events.add(eventId);
             }
             return map;
+        } catch (NullPointerException e) {
+            throw new DaoException(e);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -760,7 +770,7 @@ public final class DaoMutation {
      * @return Map &lt; case id, list of event ids &gt;
      * @throws DaoException 
      */
-    public static Map<Case, Set<Long>> getSimilarCasesWithMutatedGenes(
+    public static Map<Sample, Set<Long>> getSimilarCasesWithMutatedGenes(
             Collection<Long> entrezGeneIds) throws DaoException {
         if (entrezGeneIds.isEmpty()) {
             return Collections.emptyMap();
@@ -775,22 +785,21 @@ public final class DaoMutation {
                     + " WHERE `ENTREZ_GENE_ID` IN ("+ StringUtils.join(entrezGeneIds,",") + ")";
             pstmt = con.prepareStatement(sql);
             
-            Map<Case, Set<Long>>  map = new HashMap<Case, Set<Long>> ();
+            Map<Sample, Set<Long>>  map = new HashMap<Sample, Set<Long>> ();
             rs = pstmt.executeQuery();
             while (rs.next()) {
-                String caseId = rs.getString("SAMPLE_ID");
-                int cancerStudyId = DaoGeneticProfile.getGeneticProfileById(
-                        rs.getInt("GENETIC_PROFILE_ID")).getCancerStudyId();
-                Case _case = new Case(caseId, cancerStudyId);
+                Sample sample = DaoSample.getSampleByInternalId(rs.getInt("SAMPLE_ID"));
                 long entrez = rs.getLong("ENTREZ_GENE_ID");
-                Set<Long> genes = map.get(_case);
+                Set<Long> genes = map.get(sample);
                 if (genes == null) {
                     genes = new HashSet<Long>();
-                    map.put(_case, genes);
+                    map.put(sample, genes);
                 }
                 genes.add(entrez);
             }
             return map;
+        } catch (NullPointerException e) {
+            throw new DaoException(e);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -914,11 +923,12 @@ public final class DaoMutation {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
+        Sample sample = DaoSample.getSampleByStableId(caseId);
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
             String sql = "SELECT DISTINCT ENTREZ_GENE_ID"
                     + " FROM mutation"
-                    + " AND SAMPLE_ID='" + caseId + "'";
+                + " AND SAMPLE_ID='" + sample.getInternalId() + "'";
             pstmt = con.prepareStatement(sql);
             
             Set<Long> set = new HashSet<Long>();
@@ -927,6 +937,8 @@ public final class DaoMutation {
                 set.add(rs.getLong(1));
             }
             return set;
+        } catch (NullPointerException e) {
+            throw new DaoException(e);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

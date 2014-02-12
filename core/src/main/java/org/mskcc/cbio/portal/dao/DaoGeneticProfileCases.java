@@ -27,11 +27,10 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;import java.util.Arrays;
+import org.mskcc.cbio.portal.model.Sample;
+
+import java.sql.*;
+import java.util.*;
 
 /**
  * Data Access Objects for the Genetic Profile Cases Table.
@@ -61,7 +60,8 @@ public class DaoGeneticProfileCases {
                 throw new IllegalArgumentException("Case ID cannot contain:  " + DELIM
                     + " --> " + caseId);
             }
-            orderedCaseListBuf.append(caseId).append(DELIM);
+            Sample sample = DaoSample.getSampleByStableId(caseId);
+            orderedCaseListBuf.append(Integer.toString(sample.getInternalId())).append(DELIM);
         }
         try {
             con = JdbcUtil.getDbConnection(DaoGeneticProfileCases.class);
@@ -71,6 +71,8 @@ public class DaoGeneticProfileCases {
             pstmt.setInt(1, geneticProfileId);
             pstmt.setString(2, orderedCaseListBuf.toString());
             return pstmt.executeUpdate();
+        } catch (NullPointerException e) {
+            throw new DaoException(e);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -124,7 +126,10 @@ public class DaoGeneticProfileCases {
                 //  Split, based on DELIM token
                 String parts[] = orderedCaseList.split(DELIM);
                 ArrayList <String> caseList = new ArrayList <String>();
-                caseList.addAll(Arrays.asList(parts));
+                for (String internalSampleId : parts) {
+                    Sample s = DaoSample.getSampleByInternalId(Integer.parseInt(internalSampleId));
+                    caseList.add(s.getStableId());
+                }
                 return caseList;
             } else {
                 return new ArrayList<String>();

@@ -1,9 +1,9 @@
 package org.mskcc.cbio.portal.dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import org.mskcc.cbio.portal.model.Sample;
+
+import java.sql.*;
+
 import java.util.ArrayList;
 
 /**
@@ -21,18 +21,21 @@ public final class DaoCaseProfile {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
+        Sample sample = DaoSample.getSampleByStableId(caseId);
         try {
             if (!caseExistsInGeneticProfile(caseId, geneticProfileId)) {
                 con = JdbcUtil.getDbConnection(DaoCaseProfile.class);
                 pstmt = con.prepareStatement
                         ("INSERT INTO sample_profile (`SAMPLE_ID`, `GENETIC_PROFILE_ID`) "
                                 + "VALUES (?,?)");
-                pstmt.setString(1, caseId);
+                pstmt.setInt(1, sample.getInternalId());
                 pstmt.setInt(2, geneticProfileId);
                 return pstmt.executeUpdate();
             } else {
                 return 0;
             }
+        } catch (NullPointerException e) {
+            throw new DaoException(e);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -45,14 +48,17 @@ public final class DaoCaseProfile {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
+        Sample sample = DaoSample.getSampleByStableId(caseId);
         try {
             con = JdbcUtil.getDbConnection(DaoCaseProfile.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM sample_profile WHERE SAMPLE_ID = ? AND GENETIC_PROFILE_ID = ?");
-            pstmt.setString(1, caseId);
+            pstmt.setInt(1, sample.getInternalId());
             pstmt.setInt(2, geneticProfileId);
             rs = pstmt.executeQuery();
             return (rs.next());
+        } catch (NullPointerException e) {
+            throw new DaoException(e);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -85,17 +91,19 @@ public final class DaoCaseProfile {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
+        Sample sample = DaoSample.getSampleByStableId(caseId);
         try {
             con = JdbcUtil.getDbConnection(DaoCaseProfile.class);
             pstmt = con.prepareStatement("SELECT GENETIC_PROFILE_ID FROM sample_profile WHERE SAMPLE_ID = ?");
-            pstmt.setString(1, caseId );
+            pstmt.setInt(1, sample.getInternalId());
             rs = pstmt.executeQuery();
             if( rs.next() ) {
                return rs.getInt("GENETIC_PROFILE_ID");
             }else{
                return NO_SUCH_PROFILE_ID;
             }
-
+        } catch (NullPointerException e) {
+            throw new DaoException(e);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -115,9 +123,12 @@ public final class DaoCaseProfile {
             rs = pstmt.executeQuery();
             ArrayList<String> caseIds = new ArrayList<String>();
             while (rs.next()) {
-                caseIds.add(rs.getString("SAMPLE_ID"));
+                Sample sample = DaoSample.getSampleByInternalId(rs.getInt("SAMPLE_ID"));
+                caseIds.add(sample.getStableId());
             }
             return caseIds;
+        } catch (NullPointerException e) {
+            throw new DaoException(e);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -136,9 +147,12 @@ public final class DaoCaseProfile {
             rs = pstmt.executeQuery();
             ArrayList<String> caseIds = new ArrayList<String>();
             while (rs.next()) {
-                caseIds.add(rs.getString("SAMPLE_ID"));
+                Sample sample = DaoSample.getSampleByInternalId(rs.getInt("SAMPLE_ID"));
+                caseIds.add(sample.getStableId());
             }
             return caseIds;
+        } catch (NullPointerException e) {
+            throw new DaoException(e);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

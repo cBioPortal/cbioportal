@@ -28,8 +28,8 @@
 package org.mskcc.cbio.portal.dao;
 
 import junit.framework.TestCase;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoGeneticProfileCases;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.scripts.ResetDatabase;
 
 import java.util.ArrayList;
@@ -47,8 +47,9 @@ public class TestDaoGeneticProfileCases extends TestCase {
      */
     public void testDaoGeneticProfileCases() throws DaoException {
         ResetDatabase.resetDatabase();
-        DaoGeneticProfileCases daoGeneticProfileCases = new DaoGeneticProfileCases();
+        createSamples();
 
+        DaoGeneticProfileCases daoGeneticProfileCases = new DaoGeneticProfileCases();
         ArrayList<String> orderedCaseList = new ArrayList<String>();
         orderedCaseList.add("TCGA-1");
         orderedCaseList.add("TCGA-2");
@@ -66,6 +67,20 @@ public class TestDaoGeneticProfileCases extends TestCase {
         orderedCaseList = daoGeneticProfileCases.getOrderedCaseList(1);
         assertEquals (0, orderedCaseList.size());
 
+    }
+
+    private void createSamples() throws DaoException {
+        CancerStudy study = new CancerStudy("study", "description", "id", "brca", true);
+        Patient p = new Patient(study, "TCGA-1");
+        int pId = DaoPatient.addPatient(p);
+        Sample s = new Sample("TCGA-1", pId, "type");
+        DaoSample.addSample(s);
+        s = new Sample("TCGA-2", pId, "type");
+        DaoSample.addSample(s);
+        s = new Sample("TCGA-3", pId, "type");
+        DaoSample.addSample(s);
+        s = new Sample("TCGA-4", pId, "type");
+        DaoSample.addSample(s);
     }
 
 }

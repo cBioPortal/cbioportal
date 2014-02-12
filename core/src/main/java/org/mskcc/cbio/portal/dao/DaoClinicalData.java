@@ -422,8 +422,8 @@ public final class DaoClinicalData {
                 mapCaseValue = new HashMap<String, String>();
                 mapAttrCaseValue.put(attrId, mapCaseValue);
             }
-                    
-            mapCaseValue.put(caseId, value);
+            Patient patient = DaoPatient.getPatientByInternalId(Integer.parseInt(caseId));
+            mapCaseValue.put(patient.getStableId(), value);
         }
                 
         List<ClinicalParameterMap> maps = new ArrayList<ClinicalParameterMap>();

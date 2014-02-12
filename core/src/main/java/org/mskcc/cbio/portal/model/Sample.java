@@ -26,10 +26,10 @@
 **/
 package org.mskcc.cbio.portal.model;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.regex.*;
+import org.mskcc.cbio.portal.util.CaseIdUtil;
+
 import org.apache.log4j.Logger;
+import java.util.regex.*;
 
 /**
  * Encapsulates Sample Data.
@@ -37,9 +37,6 @@ import org.apache.log4j.Logger;
  * @author Benjamin Gross
  */
 public class Sample {
-
-    public static final Pattern TCGA_FULL_SAMPLE_BARCODE_REGEX =
-        Pattern.compile("^(TCGA-\\w\\w-\\w\\w\\w\\w-\\w\\w)[A-Z]$");
 
     public static enum Type
     {
@@ -68,9 +65,6 @@ public class Sample {
         }
     }
 
-    private static final Pattern TCGA_SAMPLE_BARCODE_REGEX =
-        Pattern.compile("^TCGA-\\w\\w-\\w\\w\\w\\w-(\\w\\w)$");
-
     private int internalId;
     private String stableId;
     private Type sampleType;
@@ -93,9 +87,9 @@ public class Sample {
 
     private Type getType(String stableId)
     {
-        Matcher tcgaSampleBarcodeMatcher = TCGA_SAMPLE_BARCODE_REGEX.matcher(stableId);
+        Matcher tcgaSampleBarcodeMatcher = CaseIdUtil.TCGA_SAMPLE_BARCODE_REGEX.matcher(stableId);
         if (tcgaSampleBarcodeMatcher.find()) {
-            return Type.getTypeByTCGACode(tcgaSampleBarcodeMatcher.group(1));
+            return CaseIdUtil.getTypeByTCGACode(tcgaSampleBarcodeMatcher.group(1));
         }
         else {
             return Type.PRIMARY_SOLID_TUMOR;
@@ -125,5 +119,22 @@ public class Sample {
     public String getCancerTypeId()
     {
         return cancerTypeId;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Sample)) {
+            return false;
+        }
+        
+        Sample anotherSample = (Sample)obj;
+        return (this.internalId == anotherSample.getInternalId());
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 41 * hash + (this.stableId != null ? this.stableId.hashCode() : 0);
+        return hash;
     }
 }

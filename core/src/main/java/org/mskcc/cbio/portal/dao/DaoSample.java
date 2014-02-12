@@ -139,6 +139,18 @@ public class DaoSample {
         return byStableId.get(stableId);
     }
 
+    public static List<Integer> getInternalSampleIds(Collection<String> stableIds)
+    {
+        ArrayList<Integer> list = new ArrayList<Integer>();
+        for (String stableId : stableIds) {
+            Sample s = getSampleByStableId(stableId);
+            if (s != null) {
+                list.add(s.getInternalId());
+            }
+        }
+        return list;
+    }
+
     public static List<Sample> getAllSamples()
     {
         return new ArrayList<Sample>(byStableId.values());

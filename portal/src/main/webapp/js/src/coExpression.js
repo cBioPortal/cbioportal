@@ -184,7 +184,7 @@ var CoExpTable = (function() {
                 "<option value='positivePearson'>Show Only Positively Correlated (Pearson's)</option>" +
                 "<option value='negativePearson'>Show Only Negatively Correlated (Pearson's)</option>" +
                 "</select>");
-            $('select#coexp-table-select').change(function () {
+            $('select#coexp-table-select' + _geneId).change(function () {
                 if ($(this).val() === "negativePearson") {
                     _coExpTable.fnFilter("-", 1, false);
                 } else if ($(this).val() === "positivePearson") {

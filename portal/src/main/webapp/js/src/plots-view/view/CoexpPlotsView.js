@@ -76,7 +76,7 @@ var CoexpPlotsView = (function() {
         plotsOpts.names.control_panel = plotsDivId + plotsOpts.names.control_panel;       
         plotsOpts.names.log_scale_x = plotsDivId + plotsOpts.names.log_scale_x;       
         plotsOpts.names.log_scale_y = plotsDivId + plotsOpts.names.log_scale_y;       
-        plotsOpts.names.show_mutation = plotsDivId + plotsOpts.names.show_mutations;
+        plotsOpts.names.show_mutations = plotsDivId + plotsOpts.names.show_mutations;
         plotsOpts.names.download_pdf = plotsDivId + plotsOpts.names.download_pdf;
         plotsOpts.names.download_svg = plotsDivId + plotsOpts.names.download_svg;       
     }

@@ -176,10 +176,10 @@ var CoExpTable = (function() {
             $("#" + _tableDivId).append(downloadFullResultForm);            
         }
 
-        function attachPearsonFilter(_tableDivId, _coExpTable) { 
+        function attachPearsonFilter(_tableDivId, _coExpTable, _geneId) { 
             //Add drop down filter for positive/negative pearson display
             $("#" + _tableDivId).find('.coexp-table-filter-pearson').append(
-                "<select id='coexp-table-select'>" +
+                "<select id='coexp-table-select-" + _geneId + "'>" +
                 "<option value='all'>Show All</option>" +
                 "<option value='positivePearson'>Show Only Positively Correlated (Pearson's)</option>" +
                 "<option value='negativePearson'>Show Only Negatively Correlated (Pearson's)</option>" +
@@ -191,36 +191,6 @@ var CoExpTable = (function() {
                     _coExpTable.fnFilter('^[0-9]*\.[0-9]*$', 1, true);
                 } else if ($(this).val() === "all") {
                     _coExpTable.fnFilter("", 1);
-                }
-            });
-        }
-
-        function attachSpearmanFilter(_tableDivId, _coExpTable, _geneId) {
-            //Add check box for display agree/disagree score combination
-            $("#" + _tableDivId).find('.coexp-table-filter-score-conbination').append(
-                "<input type='checkbox' id='check-score-conbination-filter-" + _geneId + "'>" +
-                "Display only genes with score agreement" + 
-                "<img class='profile_help' src='images/help.png' id='score-combination-filter' " +
-                "title='something'>");
-            $("#score-combination-filter").qtip(
-                {
-                    content: {text: "<font size=1>something</font>"},
-                    style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
-                    show: {event: "mouseover"},
-                    hide: {fixed:true, delay: 100, event: "mouseout"},
-                    position: {my:'left bottom',at:'top right'}
-                }
-            );
-            //init with a Spearman filtering when the page first loaded
-            _coExpTable.fnDraw(); 
-            //event listener binding
-            $("#check-score-conbination-filter-" + _geneId).change(function() {
-                if ($(this).attr('checked')) {
-                    threshold = 0.3;
-                    _coExpTable.fnDraw();
-                } else {
-                    threshold = 0.0;
-                    _coExpTable.fnDraw();
                 }
             });
         }
@@ -251,18 +221,6 @@ var CoExpTable = (function() {
 
         //Overwrite some datatable function for custom filtering
         function overWriteFilters() {
-            jQuery.fn.dataTableExt.afnFiltering.push(
-                function(oSettings, aData, iDataIndex) {
-                    var iPearson = oSettings.aoData[iDataIndex]._aData[1];
-                    var iSpearman = oSettings.aoData[iDataIndex]._aData[2];
-                    if ((iPearson >= threshold || iPearson <= threshold * (-1)) && 
-                        (iSpearman >= threshold || iSpearman <= threshold * (-1))) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }
-            ); 
             jQuery.fn.dataTableExt.oSort['coexp-absolute-value-desc'] = function(a,b) {
                 if (Math.abs(a) > Math.abs(b)) return -1;
                 else if (Math.abs(a) < Math.abs(b)) return 1;
@@ -301,8 +259,7 @@ var CoExpTable = (function() {
                             overWriteFilters(); 
                             configTable();
                             attachDownloadFullResultButton(Names.tableDivId, geneId);
-                            attachPearsonFilter(Names.tableDivId, _coExpTable);
-                            //attachSpearmanFilter(Names.tableDivId, _coExpTable, geneId);
+                            attachPearsonFilter(Names.tableDivId, _coExpTable, geneId);
                             attachRowListener(_coExpTable, Names.tableId, Names.plotId, geneId);
                             initTable(_coExpTable);
                         }
@@ -322,7 +279,8 @@ var CoExpTable = (function() {
             $.each(window.PortalGlobals.getGeneList(), function(index, value) {
                 $("#coexp-tabs-content").append("<div id='" + Prefix.divPrefix + value + "'>" +
                     "<div id='" + Prefix.loadingImgPrefix + value + "'>" +
-                    "<img style='padding:20px;' src='images/ajax-loader.gif'>" +
+                    "<table><tr><td><img style='padding:20px;' src='images/ajax-loader.gif'></td>" + 
+                    "<td>Calculating and rendering may take up to 1 minute.</td></tr></table>" + 
                     "</div></div>");
             });
         }

@@ -286,11 +286,8 @@ var ScatterPlots = function() {
                 .type(style.shape))
             .attr("fill", function(d) {
                 if (d.fill === null || d.fill === "" || typeof d.fill === "undefined") {
-                    console.log("using style.fill");
                     return style.fill;
                 } else {
-                    console.log("using d.fill");
-                    console.log(d.fill);
                     return d.fill;
                 }
             })
@@ -439,6 +436,7 @@ var ScatterPlots = function() {
                 $(this).attr("stroke", d.stroke);
             }
         });
+        d3.select(".brush").call(elem.brush.clear());
         updateBrushCallback(brushedCases);
     }
 
@@ -603,7 +601,7 @@ var ScatterPlots = function() {
                     $(this).attr("stroke", _datumArr[_index].fill);
                 }
             });
-        },
+        }
 
     }
 }

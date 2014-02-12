@@ -332,6 +332,29 @@ var MutationDetailsUtil = function(mutations)
 		return contains;
 	};
 
+	this.distinctTumorTypeCount = function(gene)
+	{
+		gene = gene.toUpperCase();
+
+		var tumorTypeMap = {};
+
+		if (_mutationGeneMap[gene] != undefined)
+		{
+			var mutations = _mutationGeneMap[gene];
+
+			for (var i=0; i < mutations.length; i++)
+			{
+				if (mutations[i].tumorType)
+				{
+					tumorTypeMap[mutations[i].tumorType] = true;
+				}
+			}
+		}
+
+		return _.keys(tumorTypeMap).length;
+	};
+
+
 	// init maps by processing the initial mutations
 	if (mutations != null)
 	{

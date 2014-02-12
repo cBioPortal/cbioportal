@@ -32,7 +32,7 @@
     </div>
     <hr/>
     <div id="study-view-charts">
-        <div id='study-view-scatter-plot' class='study-view-dc-chart w4 h2'>
+        <div id='study-view-scatter-plot' class='study-view-dc-chart w3 h2'>
             <div id='study-view-scatter-plot-header'></div>
             <div id='study-view-scatter-plot-body'></div>
             <div id='study-view-scatter-plot-loading-img'></div>     

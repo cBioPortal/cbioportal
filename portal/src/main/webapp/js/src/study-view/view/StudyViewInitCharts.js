@@ -169,12 +169,12 @@ var StudyViewInitCharts = (function(){
         
         var scatterPlotOptions = {
             canvas : {  //position of components
-                width: 750,
-                height: 400,
+                width: 560,
+                height: 440,
                 xLeft: 100,     //The left/starting point for x axis
-                xRight: 630,   //The right/ending point for x axis
+                xRight: 500,   //The right/ending point for x axis
                 yTop: 10,      //The top/ending point for y axis
-                yBottom: 320   //The bottom/starting point for y axis
+                yBottom: 370   //The bottom/starting point for y axis
             },
             style : { //Default style setting
                 fill: "#3366cc", //light blue
@@ -210,14 +210,7 @@ var StudyViewInitCharts = (function(){
                 xTitleHelp: "Fraction of genome that has log2 copy number value above 0.2 or bellow -0.2",
                 yTitleHelp: "Number of sometic non-synonymous mutations"
             },
-            legends: [{
-                fill: "#3366cc", //light blue
-                stroke: "#0174DF", //dark blue
-                stroke_width: "1.2",
-                size: "20",
-                shape: "circle", //default, may vary for different mutation types
-                text: "Neither mutated"
-            }]
+            legends: []
         };    
         var scatterPlotDatum = {              
             x_val: "",
@@ -455,9 +448,11 @@ var StudyViewInitCharts = (function(){
                 } 
                 $('#' + _pieChartID + '-main').find('table tr:nth-child(' + innerID +')').append('<td class="pieLabel" id="pieLabel-'+_pieChartID+'-'+i+'" width="75px" style="font-size:'+fontSize+'px"><svg width="75" height="15"><rect width="'+labelSize+'" height="'+labelSize+'" style="fill:' + label[i].color + ';" /><text x="15" y="10">'+tmpName+'</text></svg></td>');
                 $('#pieLabel-'+_pieChartID+'-'+i).qtip({
-                    content:{
-                        text: label[i].name
-                    }
+                    content:{text: label[i].name},
+                    style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+                    show: {event: "mouseover"},
+                    hide: {fixed:true, delay: 100, event: "mouseout"},
+                    position: {my:'right bottom',at:'top left'}
                 });
             }
             $('#' + _pieChartID + '-main').find('table tr:nth-child(' + innerID +')').append('<td id="pieLabel-pagging" width="75px" style="font-size:'+fontSize+'px"><svg width="75" height="15"><path d="M5 1 L0 9 L10 9 Z" fill="grey"/><text x=15 y=10 fill="black">1/2</text> <path d="M50 9 L45 1 L55 1 Z" fill="blue"/></svg></td>');
@@ -474,9 +469,11 @@ var StudyViewInitCharts = (function(){
                 } 
                 $('#' + _pieChartID + '-main').find('table tr:nth-child(' + innerID +')').append('<td class="pieLabel" id="pieLabel-'+_pieChartID+'-'+i+'" width="75px" style="font-size:'+fontSize+'px"><svg width="75" height="15"><rect width="'+labelSize+'" height="'+labelSize+'" style="fill:' + label[i].color + ';" /><text x="15" y="10">'+tmpName+'</text></svg></td>');
                 $('#pieLabel-'+_pieChartID+'-'+i).qtip({
-                    content:{
-                        text: label[i].name
-                    }
+                    content:{text: label[i].name},
+                    style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+                    show: {event: "mouseover"},
+                    hide: {fixed:true, delay: 100, event: "mouseout"},
+                    position: {my:'right bottom',at:'top left'}
                 });
             }
         }
@@ -873,7 +870,11 @@ var StudyViewInitCharts = (function(){
     
     function addQTip(){
         $('.study-view-bar-x-log').qtip({
-            content: 'Log Scale X'
+            content: {text:'Log Scale X'},
+            style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+            show: {event: "mouseover"},
+            hide: {fixed:true, delay: 100, event: "mouseout"},
+            position: {my:'right bottom',at:'top left'}
         });
     }
     

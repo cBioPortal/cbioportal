@@ -132,10 +132,11 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		var helpContent = self.$el.find(".mutation-3d-vis-help-content");
 		var helpInit = self.$el.find(".mutation-3d-vis-help-init");
+		var helpInitLink = self.$el.find(".mutation-3d-vis-help-init a");
 		var helpClose = self.$el.find(".mutation-3d-vis-help-close");
 
 		// add listener to help link
-		helpInit.click(function(event) {
+		helpInitLink.click(function(event) {
 			event.preventDefault();
 			helpContent.slideToggle();
 			helpInit.slideToggle();

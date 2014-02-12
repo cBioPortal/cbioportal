@@ -449,6 +449,11 @@ var StudyViewInitCharts = (function(){
                     innerID++;
                 } 
                 $('#' + _pieChartID + '-main').find('table tr:nth-child(' + innerID +')').append('<td class="pieLabel" id="pieLabel-'+_pieChartID+'-'+i+'" width="75px" style="font-size:'+fontSize+'px"><svg width="75" height="15"><rect width="'+labelSize+'" height="'+labelSize+'" style="fill:' + label[i].color + ';" /><text x="15" y="10">'+tmpName+'</text></svg></td>');
+                $('#pieLabel-'+_pieChartID+'-'+i).qtip({
+                    content:{
+                        text: label[i].name
+                    }
+                });
             }
             $('#' + _pieChartID + '-main').find('table tr:nth-child(' + innerID +')').append('<td id="pieLabel-pagging" width="75px" style="font-size:'+fontSize+'px"><svg width="75" height="15"><path d="M5 1 L0 9 L10 9 Z" fill="grey"/><text x=15 y=10 fill="black">1/2</text> <path d="M50 9 L45 1 L55 1 Z" fill="blue"/></svg></td>');
             
@@ -463,6 +468,11 @@ var StudyViewInitCharts = (function(){
                     innerID++;
                 } 
                 $('#' + _pieChartID + '-main').find('table tr:nth-child(' + innerID +')').append('<td class="pieLabel" id="pieLabel-'+_pieChartID+'-'+i+'" width="75px" style="font-size:'+fontSize+'px"><svg width="75" height="15"><rect width="'+labelSize+'" height="'+labelSize+'" style="fill:' + label[i].color + ';" /><text x="15" y="10">'+tmpName+'</text></svg></td>');
+                $('#pieLabel-'+_pieChartID+'-'+i).qtip({
+                    content:{
+                        text: label[i].name
+                    }
+                });
             }
         }
         

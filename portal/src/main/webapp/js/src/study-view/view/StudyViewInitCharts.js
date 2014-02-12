@@ -26,6 +26,8 @@ var StudyViewInitCharts = (function(){
         "#9c5935","#a9c413","#2a778d","#668d1c",
         "#bea413","#0c5922","#743411"]; // Color scale from GOOGLE charts
 
+    var scatterStudyView = new ScatterPlots();
+    
     function initParameters(o) {
         parObject.studyId = o.studyId;
         parObject.caseIds = o.caseIds;
@@ -241,7 +243,6 @@ var StudyViewInitCharts = (function(){
             }
         });
         
-        var scatterStudyView = new ScatterPlots();
         scatterStudyView.init(scatterPlotOptions, scatterPlotArr, scatterPlotDataAttr,true);
         scatterStudyView.jointBrushCallback(scatterPlotCallBack);
 
@@ -405,17 +406,21 @@ var StudyViewInitCharts = (function(){
         .label(function (d) {
             return d.value;
         })
-        .ordering(function(d){ return d.key;})
+        .ordering(function(d){ return d.key;});
         //Use to refresh Scatter Plot when click pie slice.
-        .on("filtered", function(){
-            var tmpDimention = varChart[attrNameMapUID["CASE_ID"]].dimension();
-            var tmpResult = tmpDimention.top(Infinity);
-            var tmpCaseID = [];
-            for(var i=0; i<tmpResult.length ; i++){
-                tmpCaseID.push(tmpResult[i].CASE_ID);
-            }
-            console.log(tmpCaseID);
-        });
+        
+        if(_selectedAttr !== 'CASE_ID'){
+            varChart[_chartID].on("filtered", function(chart,filter){
+                var tmpDimention = varChart[attrNameMapUID["CASE_ID"]].dimension();
+                var tmpResult = tmpDimention.top(Infinity);
+                var tmpCaseID = [];
+                for(var i=0; i<tmpResult.length ; i++){
+                    tmpCaseID.push(tmpResult[i].CASE_ID);
+                }
+                //console.log(varChart[_chartID].filters());
+                setScatterPlotStyle(tmpCaseID,varChart[_chartID].filters());
+            });
+        }
     }
     
     function addPieLabels(_pieChartID) {
@@ -762,6 +767,41 @@ var StudyViewInitCharts = (function(){
         return col.toLowerCase().match(/(^age)|(gender)|(os_status)|(os_months)|(dfs_status)|(dfs_months)|(race)|(ethnicity)|(.*grade.*)|(.*stage.*)|(histology)|(tumor_type)|(subtype)|(tumor_site)|(.*score.*)|(mutation_count)|(copy_number_alterations)/);
     }
     
+    function setScatterPlotStyle(_selectedCaseID,_filters){
+        /*
+        var styleDatum = {
+            case_id: '',
+            fill: 'blue',
+            'stroke-width': '2px',
+            stroke: 'red'            
+        };
+        */
+        //console.log(_selectedCaseID);
+        var style=[];
+        for(var i=0 ; i< parObject.caseIds.length ; i++){
+            var styleDatum ={};
+            styleDatum.case_id = parObject.caseIds[i];
+            if(_selectedCaseID.length !== parObject.caseIds.length){
+                if(_selectedCaseID.indexOf(parObject.caseIds[i]) !== -1){
+                    styleDatum.fill='red';
+                    styleDatum.stroke = 'red';
+                }else{
+                    styleDatum.fill='#3366cc';
+                    styleDatum.stroke = '#3366cc';
+                }
+            }else if(_filters.length === 0){
+                styleDatum.fill='#3366cc';
+                styleDatum.stroke = '#3366cc';
+            }else{
+                styleDatum.fill='red';
+                styleDatum.stroke = 'red';
+            }
+            style.push(styleDatum);
+        }
+        //console.log(style);
+        scatterStudyView.updateStyle(style);
+    }
+    
     function resizeTable(){                 
         $('#dc-plots-loading-wait').hide();
         $('#study-view-main').show();
@@ -807,6 +847,16 @@ var StudyViewInitCharts = (function(){
        if(_brushedCaseIds.length > 0){
             varChart[attrNameMapUID['CASE_ID']].filterAll();
             varChart[attrNameMapUID['CASE_ID']].filter([_brushedCaseIds]);
+            dc.redrawAll();
+        }else{
+            /*
+            for(var i=0; i< varChart.length ; i++){
+                if(varChart[i].filters().length > 0)
+                    varChart[i].filterAll();
+            }
+            */
+            dc.filterAll();
+            //varChart[attrNameMapUID['CASE_ID']].filterAll();
             dc.redrawAll();
         }
     }

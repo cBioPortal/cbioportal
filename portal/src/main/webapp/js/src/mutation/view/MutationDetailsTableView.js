@@ -298,6 +298,11 @@ var MutationDetailsTableView = Backbone.View.extend({
 		vars.proteinChangeClass = proteinChange.style;
 		vars.proteinChangeTip = proteinChange.tip;
 
+		var tumorType = self._getTumorType(mutation);
+		vars.tumorType = tumorType.text;
+		vars.tumorTypeClass = tumorType.style;
+		vars.tumorTypeTip = tumorType.tip;
+
 		var mutationType = self._getMutationType(mutationTypeMap, mutation.mutationType);
 		vars.mutationTypeClass = mutationType.style;
 		vars.mutationTypeText = mutationType.text;
@@ -542,6 +547,15 @@ var MutationDetailsTableView = Backbone.View.extend({
 //        }
 
 		return {text: mutation.proteinChange,
+			style : style,
+			tip: tip};
+	},
+	_getTumorType: function(mutation)
+	{
+		var style = "tumor_type";
+		var tip = "";
+
+		return {text: mutation.tumorType,
 			style : style,
 			tip: tip};
 	},

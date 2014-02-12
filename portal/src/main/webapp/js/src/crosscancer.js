@@ -842,7 +842,9 @@
 	                            tableOpts: {
 		                            columnVisibility: {
 			                            // TODO "excludeIfHidden" instead?
-			                            "cancer study": "visible"
+			                            "cancer study": "visible",
+			                            // exclude tumor type for now
+			                            "tumor type": "exclude"
 		                            }
 	                            }
                             };

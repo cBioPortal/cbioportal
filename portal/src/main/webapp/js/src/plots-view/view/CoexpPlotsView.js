@@ -35,7 +35,7 @@
  *
  */
 
-var CoexpPlotsView = (function() {
+var CoexpPlotsView = function() {
 
     //params
     var plotsDivId = "",
@@ -54,8 +54,7 @@ var CoexpPlotsView = (function() {
         },
         settings = {
             enable_log_scale: false
-        },
-        coExoPlots = {};
+        };
 
 
     function importDefaultSettings() {
@@ -76,7 +75,7 @@ var CoexpPlotsView = (function() {
         plotsOpts.names.control_panel = plotsDivId + plotsOpts.names.control_panel;       
         plotsOpts.names.log_scale_x = plotsDivId + plotsOpts.names.log_scale_x;       
         plotsOpts.names.log_scale_y = plotsDivId + plotsOpts.names.log_scale_y;       
-        plotsOpts.names.show_mutation = plotsDivId + plotsOpts.names.show_mutations;
+        plotsOpts.names.show_mutations = plotsDivId + plotsOpts.names.show_mutations;
         plotsOpts.names.download_pdf = plotsDivId + plotsOpts.names.download_pdf;
         plotsOpts.names.download_svg = plotsDivId + plotsOpts.names.download_svg;       
     }
@@ -218,12 +217,8 @@ var CoexpPlotsView = (function() {
 
     function initPlots() {
         //Init Plots
-        coexpPlots = new ScatterPlots();
+        var coexpPlots = new ScatterPlots();
         coexpPlots.init(plotsOpts, dataArr, dataAttr, false);
-    }
-
-    function initHeader() {
-        //Init Header
         PlotsHeader.init(
             plotsOpts.names, 
             plotsOpts.text.title, 
@@ -293,8 +288,7 @@ var CoexpPlotsView = (function() {
             configHeaderSettings();
             initDivs();
             initPlots();
-            initHeader(); //Must init header after init plots (cuz event listeners are using plots interfaces)
-        },
+        }
     }
 
-}());
+}

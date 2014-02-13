@@ -37,7 +37,7 @@
  *
  */
 
-var CoexpPlots = (function() {
+var CoexpPlots = function() {
 
     function init(divName, geneX, geneY, pearson, spearman)  {
         getAlterationData(divName, geneX, geneY, pearson, spearman);
@@ -80,7 +80,8 @@ var CoexpPlots = (function() {
     function getMutationDataCallBack(_alteration_data_result, _divName, _geneX, _geneY, _pearson, _spearman) {
         return function(result) {
             CoexpPlotsProxy.init(_alteration_data_result, _geneX, _geneY, _pearson, _spearman);
-            CoexpPlotsView.init(_divName, _geneX, _geneY, CoexpPlotsProxy.getData(), CoexpPlotsProxy.getDataAttr());
+            var coexpPlotsView = new CoexpPlotsView();
+            coexpPlotsView.init(_divName, _geneX, _geneY, CoexpPlotsProxy.getData(), CoexpPlotsProxy.getDataAttr());
         }
     }
 
@@ -88,4 +89,4 @@ var CoexpPlots = (function() {
         init: init
     }
 
-}());
+}

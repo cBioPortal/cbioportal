@@ -30,6 +30,7 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 		// all other columns will be initially hidden by default
 		columnVisibility: {"aa change": "visible",
 			"case id": "visible",
+			"tumor type": "excludeIfHidden",
 			"type": "visible",
 			"cosmic": "visible",
 			"fis": "visible",
@@ -54,6 +55,9 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 			},
 			"ms": function (util, gene) {
 				return util.containsGermline(gene);
+			},
+			"tumor type": function (util, gene) {
+				return (util.distinctTumorTypeCount(gene) > 0);
 			}
 		},
 		// WARNING: overwriting advanced DataTables options such as

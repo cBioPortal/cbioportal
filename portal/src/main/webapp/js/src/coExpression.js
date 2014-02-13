@@ -33,7 +33,7 @@
  * Date: 12/5/13
  */
 
-var CoExpTable = (function() {
+var CoExpView = (function() {
 
     //Pre settings 
     var Prefix = {
@@ -59,8 +59,11 @@ var CoExpTable = (function() {
     var coexp_table_arr = [],
         _coExpTable = "";
 
-    var CoExpTable = (function() {
 
+
+
+    var CoExpTable = function() {
+ 
         function convertData(_result) {
             //Convert the format of the callback result to fit datatable
             coexp_table_arr = [];
@@ -184,7 +187,7 @@ var CoExpTable = (function() {
                 "<option value='positivePearson'>Show Only Positively Correlated (Pearson's)</option>" +
                 "<option value='negativePearson'>Show Only Negatively Correlated (Pearson's)</option>" +
                 "</select>");
-            $('select#coexp-table-select').change(function () {
+            $("select#coexp-table-select-" + _geneId).change(function () {
                 if ($(this).val() === "negativePearson") {
                     _coExpTable.fnFilter("-", 1, false);
                 } else if ($(this).val() === "positivePearson") {
@@ -208,7 +211,8 @@ var CoExpTable = (function() {
                 if (null !== aData) {
                     $("#" + plotId).empty();
                     $("#" + plotId).append("<img style='padding:220px;' src='images/ajax-loader.gif'>");
-                    CoexpPlots.init(plotId, geneId, aData[0], aData[1], aData[2]);
+                    var coexpPlots = new CoexpPlots();
+                    coexpPlots.init(plotId, geneId, aData[0], aData[1], aData[2]);
                 }
             })
         }
@@ -267,7 +271,10 @@ var CoExpTable = (function() {
                 }
             }
         }
-    }());
+    }
+
+
+
 
     var Tabs = (function() {
 
@@ -295,7 +302,8 @@ var CoExpTable = (function() {
         function bindListenerToTabs() {
             $("#coexp-tabs").on("tabsactivate", function(event, ui) {
                 var _gene = ui.newTab.text();
-                CoExpTable.init(_gene);
+                var coExpTable = new CoExpTable();
+                coExpTable.init(_gene);
             });
         }
 
@@ -314,7 +322,8 @@ var CoExpTable = (function() {
         },
         initView: function() {
             var _genes = window.PortalGlobals.getGeneList();
-            CoExpTable.init(_genes[0]);
+            var coExpTable = new CoExpTable();
+            coExpTable.init(_genes[0]);
         },
         downloadFullResult: function(_geneId) {
             var paramsGetCoExpData = {
@@ -328,4 +337,4 @@ var CoExpTable = (function() {
         }
     };
 
-}());    //Closing CoExpTable
+}());    //Closing CoExpView

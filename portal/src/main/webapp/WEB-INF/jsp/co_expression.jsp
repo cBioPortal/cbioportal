@@ -48,11 +48,10 @@
 
 <div class="section" id="coexp">
     <p style='margin-top: -25px;'>
-        This table below lists the genes with the highest expression correlation with the query genes. Click on a row to see the corresponding correlation plot. 
-        <img class='profile_help' src='images/help.png' title='
-            Pearson correlations are computed first.  For genes with an absolute correlation greater than 0.3, the Spearman correlations are also computed. By default, only gene pairs with an absolute value > 0.3 in both measures are shown. Only the top 250 genes are shown.
-        '>
+        This tableb lists the genes with the highest expression correlation with the query genes. Click on a row to see the corresponding correlation plot. 
+        <img src='images/help.png' id='coexp-help'>
     </p>
+
     <div id="coexp-tabs" class="coexp-tabs">
         <ul id='coexp-tabs-list'></ul>
         <div id='coexp-tabs-content'>
@@ -66,8 +65,8 @@
         $("#tabs").bind("tabsactivate", function(event, ui) {
             if (ui.newTab.text().trim().toLowerCase() === "co-expression") {
                 if (coexp_tab_init === false) {
-                    CoExpTable.initTabs();
-                    CoExpTable.initView();
+                    CoExpView.initTabs();
+                    CoExpView.initView();
                     coexp_tab_init = true;
                 } else {
                     $(window).trigger("resize");
@@ -75,4 +74,11 @@
             }
         });
     });
+    $("#coexp-help").qtip({
+        content: { text:'Pearson correlations are computed first.  For genes with an absolute correlation greater than 0.3 (or less than -0.3), the Spearman correlations are also computed. By default, only gene pairs with values > 0.3 (or < -0.3) in both measures are shown.'},
+        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+        show: {event: "mouseover"},
+        hide: {fixed:true, delay: 100, event: "mouseout"},
+        position: {my:'left bottom',at:'top right'}
+    })
 </script>

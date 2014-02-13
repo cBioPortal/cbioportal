@@ -431,7 +431,7 @@ var StudyViewInitCharts = (function(){
         var labelID = 0;
         var labelSize = 10;
         var fontSize = labelSize +1;
-        $('#' + _pieChartID + '-main').find('.study-view-pie-label').append("<table ></table>");
+        
         $('#' + _pieChartID + '>svg>g>g').each(function(){
             var labelDatum = {};            
             var labelName = $(this).find('title').text().split(':');
@@ -454,38 +454,110 @@ var StudyViewInitCharts = (function(){
             labelID++;
         });
         
+        var totalTableNum = parseInt(label.length/5) + 1;
+        
         if(label.length > 6){
-            var innerID = 0;
-            for(var i=0; i< 5; i++){
-                var tmpName = label[i].name;
-                if(tmpName.length > 9)
-                   tmpName = tmpName.substring(0,5) + " ...";
-                if(i % 2 === 0){
-                    $('#' + _pieChartID + '-main').find('table').append("<tr id="+ innerID +" width='150px'></tr>");
-                    innerID++;
-                } 
-                $('#' + _pieChartID + '-main').find('table tr:nth-child(' + innerID +')').append('<td class="pieLabel" id="pieLabel-'+_pieChartID+'-'+i+'" width="75px" style="font-size:'+fontSize+'px"><svg width="75" height="15"><rect width="'+labelSize+'" height="'+labelSize+'" style="fill:' + label[i].color + ';" /><text x="15" y="10">'+tmpName+'</text></svg></td>');
-                $('#pieLabel-'+_pieChartID+'-'+i).qtip({
-                    content:{text: label[i].name},
-                    style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
-                    show: {event: "mouseover"},
-                    hide: {fixed:true, delay: 100, event: "mouseout"},
-                    position: {my:'right bottom',at:'top left'}
-                });
+            for(var j = 0 ; j < label.length ; j+=5){
+                var tmpEndNum = j+5;
+                var innerID = 0;                
+                var tableId = parseInt(j/5);
+                var showTableStyle = '';
+                
+                if(tableId !== 0)  
+                    showTableStyle = 'style="display:none"';
+                
+                $('#' + _pieChartID + '-main')
+                        .find('.study-view-pie-label')
+                        .append("<table id='table-"+_pieChartID+"-"+tableId+"' "
+                            + showTableStyle + " ></table>");
+                
+                for(var i=j; i< tmpEndNum; i++){
+                    if(i<label.length){
+                        var tmpName = label[i].name;
+                        if(tmpName.length > 9)
+                           tmpName = tmpName.substring(0,5) + " ...";
+                        if((i-tableId) % 2 === 0){
+                            $('#' + _pieChartID + '-main')
+                                    .find('#table-'+_pieChartID+'-'+tableId)
+                                    .append("<tr id="+ innerID +" width='150px'></tr>");
+                            innerID++;
+                        } 
+                        $('#' + _pieChartID + '-main')
+                                .find('#table-'+_pieChartID+'-'+tableId+
+                                    ' tr:nth-child(' + innerID +')')
+                                .append('<td class="pieLabel" id="pieLabel-'
+                                    +_pieChartID+'-'+i
+                                    +'" width="75px" style="font-size:'
+                                    +fontSize+'px"><svg width="75" height="15"><rect width="'
+                                    +labelSize+'" height="'+labelSize+'" style="fill:' 
+                                    + label[i].color + ';" /><text x="15" y="10">'
+                                    +tmpName+'</text></svg></td>');
+                            
+                        $('#pieLabel-'+_pieChartID+'-'+i).qtip({
+                            content:{text: label[i].name},
+                            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+                            show: {event: "mouseover"},
+                            hide: {fixed:true, delay: 100, event: "mouseout"},
+                            position: {my:'right bottom',at:'top left'}
+                        });
+                    }else{
+                        if((i-tableId) % 2 === 0){
+                            $('#' + _pieChartID + '-main')
+                                    .find('#table-'+_pieChartID+'-'+tableId)
+                                    .append("<tr id="+ innerID +" width='150px'></tr>");
+                            innerID++;
+                        } 
+                        $('#' + _pieChartID + '-main')
+                                .find('#table-'+_pieChartID+'-'+tableId+' tr:nth-child(' + innerID +')')
+                                .append('<td id="pieLabel-'+_pieChartID+'-'+i
+                                    +'" style="width="75px" height="16px" font-size:'
+                                    +fontSize+'px"></td>');
+                    }
+                }
+                
+                var leftArrowColor = 'blue';
+                var rightArrowColor = 'blue';
+                if(tableId === 0)
+                    leftArrowColor = 'grey';
+                if(tableId+1 === totalTableNum)
+                    rightArrowColor = 'grey';
+                
+                $('#' + _pieChartID + '-main').find('#table-'+_pieChartID+'-'
+                    +tableId+' tr:nth-child(' + innerID +')').append('<td id="pieLabel-pagging-'
+                    +_pieChartID+"-"+tableId+'" style=" width="75px" height="16px" font-size:'+fontSize
+                    +'px"><svg  width="75" height="15">\n\
+                            <path class="pie-label-left-pagging" d="M5 1 L0 11 L10 11 Z" fill="'+leftArrowColor+'"/>\n\
+                            <text x=15 y=10 fill="black">'+(tableId+1)+'/'+totalTableNum+'</text>\n\
+                            <path class="pie-label-right-pagging" d="M45 11 L40 1 L50 1 Z" fill="'+rightArrowColor+'"/>\n\
+                          </svg></td>');
+            
             }
-            $('#' + _pieChartID + '-main').find('table tr:nth-child(' + innerID +')').append('<td id="pieLabel-pagging" width="75px" style="font-size:'+fontSize+'px"><svg width="75" height="15"><path d="M5 1 L0 9 L10 9 Z" fill="grey"/><text x=15 y=10 fill="black">1/2</text> <path d="M50 9 L45 1 L55 1 Z" fill="blue"/></svg></td>');
             
         }else{
             var innerID = 0;
+            $('#' + _pieChartID + '-main')
+                    .find('.study-view-pie-label')
+                    .append("<table id=table-"+_pieChartID+"-0></table>");
+                
             for(var i=0; i< label.length; i++){
                 var tmpName = label[i].name;
                 if(tmpName.length > 9)
                    tmpName = tmpName.substring(0,5) + " ...";
                 if(i % 2 === 0){
-                    $('#' + _pieChartID + '-main').find('table').append("<tr id="+ innerID +" width='150px'></tr>");
+                    $('#' + _pieChartID + '-main')
+                            .find('table')
+                            .append("<tr id="+ innerID +" width='150px'></tr>");
                     innerID++;
                 } 
-                $('#' + _pieChartID + '-main').find('table tr:nth-child(' + innerID +')').append('<td class="pieLabel" id="pieLabel-'+_pieChartID+'-'+i+'" width="75px" style="font-size:'+fontSize+'px"><svg width="75" height="15"><rect width="'+labelSize+'" height="'+labelSize+'" style="fill:' + label[i].color + ';" /><text x="15" y="10">'+tmpName+'</text></svg></td>');
+                $('#' + _pieChartID + '-main')
+                        .find('table tr:nth-child(' + innerID +')')
+                        .append('<td class="pieLabel" id="pieLabel-'
+                            +_pieChartID+'-'+i+'" width="75px" style="font-size:'
+                            +fontSize+'px"><svg width="75" height="15"><rect width="'
+                            +labelSize+'" height="'+labelSize+'" style="fill:'
+                            + label[i].color + ';" /><text x="15" y="10">'
+                            +tmpName+'</text></svg></td>');
+                    
                 $('#pieLabel-'+_pieChartID+'-'+i).qtip({
                     content:{text: label[i].name},
                     style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
@@ -536,6 +608,27 @@ var StudyViewInitCharts = (function(){
             varChart[chartID].redraw;
         });
         
+        $('#' + _pieChartID + '-main .pie-label-left-pagging').click(function(){
+            var tmpValue = $(this).parent().parent().attr('id').split('-');
+            var currentTableID = Number(tmpValue[tmpValue.length-1]);
+            if(currentTableID !== 0){
+                var nextTableID = currentTableID-1;
+
+                $('#table-'+_pieChartID+'-'+currentTableID).css('display','none');            
+                $('#table-'+_pieChartID+'-'+nextTableID).css('display','block');
+            }
+        });
+        $('#' + _pieChartID + '-main .pie-label-right-pagging').click(function(){
+            var fill = $(this).attr('fill');
+            if(fill === 'blue'){
+                var tmpValue = $(this).parent().parent().attr('id').split('-');
+                var currentTableID = Number(tmpValue[tmpValue.length-1]);
+                var nextTableID = currentTableID+1;
+            
+                $('#table-'+_pieChartID+'-'+currentTableID).css('display','none');            
+                $('#table-'+_pieChartID+'-'+nextTableID).css('display','block');
+            }
+        });
         /*
         $('#' + _pieChartID + '>svg>g>g').each(function(){
             var labelName = $(this).find('title').text().split(':');

@@ -150,6 +150,35 @@ public final class DaoCnaEvent {
         }
     }
     
+    public static List<CnaEvent.Event> getAllCnaEvents() throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoCnaEvent.class);
+            pstmt = con.prepareStatement
+		("SELECT * FROM cna_event");
+            rs = pstmt.executeQuery();
+            List<CnaEvent.Event> events = new ArrayList<CnaEvent.Event>();
+            while (rs.next()) {
+                try {
+                    CnaEvent.Event event = new CnaEvent.Event();
+                    event.setEventId(rs.getLong("CNA_EVENT_ID"));
+                    event.setEntrezGeneId(rs.getLong("ENTREZ_GENE_ID"));
+                    event.setAlteration(rs.getShort("ALTERATION"));
+                    events.add(event);
+                } catch (IllegalArgumentException e) {
+                    e.printStackTrace();
+                }
+            }
+            return events;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoCnaEvent.class, con, pstmt, rs);
+        }
+    }
+    
     public static Map<Long, Map<Integer, Integer>> countSamplesWithCNAGenes(
             Collection<Long> entrezGeneIds, int profileId) throws DaoException {
         return countSamplesWithCNAGenes(StringUtils.join(entrezGeneIds, ","), profileId);

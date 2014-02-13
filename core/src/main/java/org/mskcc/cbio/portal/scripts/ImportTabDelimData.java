@@ -135,8 +135,7 @@ public class ImportTabDelimData {
             }
             orderedCaseList.add(caseIds[i]);
         }
-        DaoGeneticProfileCases daoGeneticProfileCases = new DaoGeneticProfileCases();
-        daoGeneticProfileCases.addGeneticProfileCases(geneticProfileId, orderedCaseList);
+        DaoGeneticProfileCases.addGeneticProfileCases(geneticProfileId, orderedCaseList);
 
         String line = buf.readLine();
         int numRecordsStored = 0;
@@ -154,6 +153,9 @@ public class ImportTabDelimData {
         
         if (discritizedCnaProfile) {
             existingCnaEvents = new HashMap<CnaEvent.Event, CnaEvent.Event>();
+            for (CnaEvent.Event event : DaoCnaEvent.getAllCnaEvents()) {
+                existingCnaEvents.put(event, event);
+            }
             cnaEventId = DaoCnaEvent.getLargestCnaEventId();
             MySQLbulkLoader.bulkLoadOn();
         }
@@ -262,6 +264,7 @@ public class ImportTabDelimData {
                                             } else {
                                                 cnaEvent.setEventId(++cnaEventId);
                                                 DaoCnaEvent.addCaseCnaEvent(cnaEvent, true);
+                                                existingCnaEvents.put(cnaEvent.getEvent(), cnaEvent.getEvent());
                                             }
                                         }
                                     }

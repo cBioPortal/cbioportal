@@ -58,7 +58,7 @@ MatrixDataTypeConverter.prototype = {
         var types = [];
         var cols = headers.length;
         for (var c=0; c<cols; c++) {
-            var type = headers[c].match(/_cluster$/) ? 'string' : null;
+            var type = headers[c].toLowerCase().match(/(_cluster$)|(_id$)/) ? 'string' : null;
             for (var r=1; r<rows; r++) {
                 if (type=='string') break;
                 var d = dataMatrix[r][c];

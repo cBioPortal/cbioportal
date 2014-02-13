@@ -123,7 +123,7 @@ var Mutation3dView = Backbone.View.extend({
 				// trigger corresponding event
 				self.dispatcher.trigger(
 					MutationDetailsEvents.PDB_PANEL_INIT,
-					panel.pdbPanel);
+					pdbPanelView);
 			}
 
 			if (vis != null &&

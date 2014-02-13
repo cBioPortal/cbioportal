@@ -146,6 +146,13 @@
     cases = cases.replaceAll("\"", "\\\"");
     caseSetName = caseSetName.replaceAll("'", "\\'");
     caseSetName = caseSetName.replaceAll("\"", "\\\"");
+
+    //check if show co-expression tab
+    boolean showCoexpTab = false;
+    GeneticProfile final_gp = CoExpUtil.getPreferedGeneticProfile(cancerTypeId);
+    if (final_gp != null) {
+        showCoexpTab = true;
+    } 
 %>
 
 <script type="text/javascript">
@@ -154,6 +161,10 @@
         getGenes: function() { return '<%=genes%>'},  // raw gene list (as it is entered by the user, it MAY CONTAIN onco query language)
         getGeneListString: function() {  // gene list WITHOUT onco query language
             return '<%=StringUtils.join(theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes(), " ")%>'
+        },
+        getGeneList: function() {
+            var _geneList = '<%=StringUtils.join(theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes(), " ")%>';
+            return _geneList.split(/\s+/);    //Gene Id list without onco query language
         },
         getCaseSetId: function() { return '<%= caseSetId %>';},  //Id for user chosen standard case set
         getCaseSetName: function() { return '<%= caseSetName %>'},  //Name for user chose standard case set

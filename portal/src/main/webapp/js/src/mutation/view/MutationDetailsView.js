@@ -59,9 +59,6 @@ var MutationDetailsView = Backbone.View.extend({
 		var self = this;
 		var container3d = self.$el.find("#mutation_3d_container");
 
-		// hide loader image
-		self.$el.find("#mutation_details_loader").hide();
-
 		if (self.model.mutationProxy.hasData())
 		{
 			var mainContent = self.$el.find("#mutation_details_content");
@@ -77,7 +74,6 @@ var MutationDetailsView = Backbone.View.extend({
 		{
 			var mutation3dVisView = new Mutation3dVisView(
 					{el: container3d,
-					parentEl: self.$el,
 					mut3dVis: self.options.mut3dVis,
 					pdbProxy: self.pdbProxy,
 					mutationProxy: self.model.mutationProxy});
@@ -175,6 +171,10 @@ var MutationDetailsView = Backbone.View.extend({
 
 		// init view for the first gene only
 		contentSelector.bind('tabscreate', function(event, ui) {
+			// hide loader image
+			self.$el.find("#mutation_details_loader").hide();
+
+			// init view
 			self._initView(genes[0], cases, diagramOpts, tableOpts);
 		});
 
@@ -240,9 +240,6 @@ var MutationDetailsView = Backbone.View.extend({
 			var model = {geneSymbol: gene,
 				mutationSummary: summary,
 				uniprotId: sequence.metadata.identifier};
-
-			// reset the loader image
-			self.$el.find("#mutation_details_loader").empty();
 
 			// init the main view
 			var mainView = new MainMutationView({

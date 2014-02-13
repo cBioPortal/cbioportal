@@ -3,7 +3,6 @@
  * structure visualizer app and its control buttons.
  *
  * options: {el: [target container],
- *           parentEl: [parent container],
  *           mut3dVis: reference to the Mutation3dVis instance,
  *           pdbProxy: PDB data proxy,
  *           mutationProxy: mutation data proxy
@@ -14,6 +13,10 @@
 var Mutation3dVisView = Backbone.View.extend({
 	initialize : function (options) {
 		this.options = options || {};
+
+		// custom event dispatcher
+		this.dispatcher = {};
+		_.extend(this.dispatcher, Backbone.Events);
 	},
 	render: function()
 	{
@@ -54,24 +57,11 @@ var Mutation3dVisView = Backbone.View.extend({
 			mut3dVis.updateContainer(container3d);
 		}
 
-		// click listener for the close icon of the 3d vis container
-		var closeHandler = function() {
-			// hide the vis pane
-			if (mut3dVis != null)
-			{
-				mut3dVis.hide();
-			}
-
-			// TODO move this part (or the whole handler) into Mutation3dController,
-			// define a custom event, and get rid of parentEl
-
-			// also hide all pdb panel views
-			self.options.parentEl.find(".mutation-pdb-panel-view").slideUp();
-		};
-
 		// add listeners to panel (header) buttons
 
-		self.$el.find(".mutation-3d-close").click(closeHandler);
+		self.$el.find(".mutation-3d-close").click(function() {
+			self.hideView();
+		});
 
 		self.$el.find(".mutation-3d-minimize").click(function(){
 			if (mut3dVis != null)
@@ -101,11 +91,6 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		// init buttons
 		self._initButtons();
-
-		// this is an access to a global div out of this view's template...
-//		$("#tabs").bind("tabsactivate", function(event, ui){
-//			closeHandler();
-//		});
 	},
 	/**
 	 * Initializes the control buttons.
@@ -147,10 +132,11 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		var helpContent = self.$el.find(".mutation-3d-vis-help-content");
 		var helpInit = self.$el.find(".mutation-3d-vis-help-init");
+		var helpInitLink = self.$el.find(".mutation-3d-vis-help-init a");
 		var helpClose = self.$el.find(".mutation-3d-vis-help-close");
 
 		// add listener to help link
-		helpInit.click(function(event) {
+		helpInitLink.click(function(event) {
 			event.preventDefault();
 			helpContent.slideToggle();
 			helpInit.slideToggle();
@@ -172,17 +158,18 @@ var Mutation3dVisView = Backbone.View.extend({
 		var self = this;
 		var mut3dVis = self.options.mut3dVis;
 
-		var sideChain = self.$el.find(".mutation-3d-side-chain");
+		var sideChain = self.$el.find(".mutation-3d-side-chain-select");
 
 		// handler for side chain checkbox
 		sideChain.change(function() {
-			var display = sideChain.is(":checked");
+			//var display = sideChain.is(":checked");
+			var selected = $(this).val();
 
 			if (mut3dVis)
 			{
 				// update flag
-				mut3dVis.updateOptions({displaySideChain: display});
-				mut3dVis.refreshHighlight();
+				mut3dVis.updateOptions({displaySideChain: selected});
+				mut3dVis.reapplyStyle();
 			}
 		});
 
@@ -629,6 +616,24 @@ var Mutation3dVisView = Backbone.View.extend({
 			mut3dVis.maximize();
 		}
 	},
+	/**
+	 * Hides the 3D visualizer panel.
+	 */
+	hideView: function()
+	{
+		var self = this;
+		var mut3dVis = self.options.mut3dVis;
+
+		// hide the vis pane
+		if (mut3dVis != null)
+		{
+			mut3dVis.hide();
+		}
+
+		// trigger corresponding event
+		self.dispatcher.trigger(
+			MutationDetailsEvents.VIEW_3D_PANEL_CLOSED);
+	},
 	isVisible: function()
 	{
 		var self = this;
@@ -663,41 +668,28 @@ var Mutation3dVisView = Backbone.View.extend({
 	},
 	/**
 	 * Highlights the 3D visualizer for the residue
-	 * corresponding to the given pileup of mutations.
+	 * corresponding to the given array of pileups of mutations.
 	 *
-	 * @param pileup    Pileup instance
+	 * @param pileups   an array of Pileup instances
 	 * @param reset     whether to reset previous highlights
-	 * @return {boolean} true if highlight successful, false otherwise
+	 * @return {Number} number of mapped residues
 	 */
-	highlightView: function(pileup, reset)
+	highlightView: function(pileups, reset)
 	{
-		// TODO allow highlighting of multiple pileups in one function call
-
 		var self = this;
 		var mut3dVis = self.options.mut3dVis;
 
-		return mut3dVis.highlight(pileup, reset);
+		return mut3dVis.highlight(pileups, reset);
 	},
 	/**
-	 * Removes the highlight for the given pileup.
-	 *
-	 * If this function is invoked without a parameter,
-	 * then resets all residue highlights.
+	 * Resets all residue highlights.
 	 */
-	removeHighlight: function(pileup)
+	resetHighlight: function()
 	{
 		var self = this;
 		var mut3dVis = self.options.mut3dVis;
 
-		if (pileup)
-		{
-			// TODO reset only the provided pileup, not all of 'em!
-			mut3dVis.resetHighlight();
-		}
-		else
-		{
-			mut3dVis.resetHighlight();
-		}
+		mut3dVis.resetHighlight();
 	},
 	/**
 	 * Shows the loader image for the 3D vis container.
@@ -739,15 +731,28 @@ var Mutation3dVisView = Backbone.View.extend({
 	},
 	/**
 	 * Shows a warning message for unmapped residues.
+	 *
+	 * @param unmappedCount  number of unmapped selections
+	 * @param selectCount    total number of selections
 	 */
-	showResidueWarning: function()
+	showResidueWarning: function(unmappedCount, selectCount)
 	{
 		var self = this;
 		var warning = self.$el.find(".mutation-3d-residue-warning");
+		var unmapped = self.$el.find(".mutation-3d-unmapped-info");
 
 		// show warning only if no other warning is visible
 		if (!self.$el.find(".mutation-3d-nomap-warning").is(":visible"))
 		{
+			if (selectCount > 1)
+			{
+				unmapped.text(unmappedCount + " of the selections");
+			}
+			else
+			{
+				unmapped.text("Selected mutation");
+			}
+
 			warning.show();
 		}
 	},

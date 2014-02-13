@@ -3,6 +3,7 @@ app.name=target-portal
 app.version=1.0
 
 # Database Settings
+db.tomcat_resource_name=cgds_gdac
 db.user=
 db.password=
 db.host=localhost

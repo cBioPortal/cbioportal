@@ -38,7 +38,9 @@ import java.util.ArrayList;import java.util.Arrays;
  *
  * @author Ethan Cerami.
  */
-public class DaoGeneticProfileCases {
+public final class DaoGeneticProfileCases {
+    private DaoGeneticProfileCases() {}
+    
     private static final String DELIM = ",";
 
     /**
@@ -49,7 +51,7 @@ public class DaoGeneticProfileCases {
      * @return number of rows added.
      * @throws DaoException Data Access Exception.
      */
-    public int addGeneticProfileCases(int geneticProfileId, ArrayList<String> orderedCaseList)
+    public static int addGeneticProfileCases(int geneticProfileId, ArrayList<String> orderedCaseList)
             throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -84,7 +86,7 @@ public class DaoGeneticProfileCases {
      * @param geneticProfileId Genetic Profile ID.
      * @throws DaoException Database Error.
      */
-    public void deleteAllCasesInGeneticProfile(int geneticProfileId) throws DaoException {
+    public static void deleteAllCasesInGeneticProfile(int geneticProfileId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -108,7 +110,7 @@ public class DaoGeneticProfileCases {
      * @return ArrayList of Case IDs.
      * @throws DaoException Database Error.
      */
-    public ArrayList <String> getOrderedCaseList (int geneticProfileId) throws DaoException {
+    public static ArrayList <String> getOrderedCaseList (int geneticProfileId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -140,7 +142,7 @@ public class DaoGeneticProfileCases {
      * Deletes all Records in the table.
      * @throws DaoException Database Exception.
      */
-    public void deleteAllRecords() throws DaoException {
+    public static void deleteAllRecords() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;

@@ -33,12 +33,12 @@ import java.sql.*;
 import java.util.*;
 
 /**
- * Data access object for Sample_List table
+ * Data access object for patient_List table
  */
 public class DaoCaseList {
 
 	/**
-	 * Adds record to sample_list table.
+	 * Adds record to patient_list table.
 	 */
     public int addCaseList(CaseList caseList) throws DaoException {
         Connection con = null;
@@ -48,7 +48,7 @@ public class DaoCaseList {
         try {
             con = JdbcUtil.getDbConnection(DaoCaseList.class);
 
-            pstmt = con.prepareStatement("INSERT INTO sample_list (`STABLE_ID`, `CANCER_STUDY_ID`, `NAME`, `CATEGORY`," +
+            pstmt = con.prepareStatement("INSERT INTO patient_list (`STABLE_ID`, `CANCER_STUDY_ID`, `NAME`, `CATEGORY`," +
                     "`DESCRIPTION`)" + " VALUES (?,?,?,?,?)");
             pstmt.setString(1, caseList.getStableId());
             pstmt.setInt(2, caseList.getCancerStudyId());
@@ -77,7 +77,7 @@ public class DaoCaseList {
         try {
             con = JdbcUtil.getDbConnection(DaoCaseList.class);
             pstmt = con.prepareStatement
-                    ("SELECT * FROM sample_list WHERE STABLE_ID = ?");
+                    ("SELECT * FROM patient_list WHERE STABLE_ID = ?");
             pstmt.setString(1, stableId);
             rs = pstmt.executeQuery();
             if (rs.next()) {
@@ -103,7 +103,7 @@ public class DaoCaseList {
         try {
             con = JdbcUtil.getDbConnection(DaoCaseList.class);
             pstmt = con.prepareStatement
-                    ("SELECT * FROM sample_list WHERE LIST_ID = ?");
+                    ("SELECT * FROM patient_list WHERE LIST_ID = ?");
             pstmt.setInt(1, id);
             rs = pstmt.executeQuery();
             if (rs.next()) {
@@ -130,7 +130,7 @@ public class DaoCaseList {
             con = JdbcUtil.getDbConnection(DaoCaseList.class);
 
             pstmt = con.prepareStatement
-                    ("SELECT * FROM sample_list WHERE CANCER_STUDY_ID = ? ORDER BY NAME");
+                    ("SELECT * FROM patient_list WHERE CANCER_STUDY_ID = ? ORDER BY NAME");
             pstmt.setInt(1, cancerStudyId);
             rs = pstmt.executeQuery();
             ArrayList<CaseList> list = new ArrayList<CaseList>();
@@ -160,7 +160,7 @@ public class DaoCaseList {
         try {
             con = JdbcUtil.getDbConnection(DaoCaseList.class);
             pstmt = con.prepareStatement
-                    ("SELECT * FROM sample_list");
+                    ("SELECT * FROM patient_list");
             rs = pstmt.executeQuery();
             ArrayList<CaseList> list = new ArrayList<CaseList>();
             while (rs.next()) {
@@ -186,12 +186,12 @@ public class DaoCaseList {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        Sample sample = DaoSample.getSampleByStableId(caseID);
+        Patient patient = DaoPatient.getPatientByStableId(caseID);
         try {
             con = JdbcUtil.getDbConnection(DaoCaseList.class);
             pstmt = con.prepareStatement
-                    ("SELECT * FROM sample_list_list WHERE SAMPLE_ID = ?");
-            pstmt.setInt(1, sample.getInternalId());
+                    ("SELECT * FROM patient_list_list WHERE PATIENT_ID = ?");
+            pstmt.setInt(1, patient.getInternalId());
             rs = pstmt.executeQuery();
             return (rs.next());
         } catch (NullPointerException e) {
@@ -204,7 +204,7 @@ public class DaoCaseList {
     }
 
 	/**
-	 * Clears all records from sample list & sample_list_list.
+	 * Clears all records from patient list & patient_list_list.
 	 */
     public void deleteAllRecords() throws DaoException {
         Connection con = null;
@@ -212,9 +212,9 @@ public class DaoCaseList {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCaseList.class);
-            pstmt = con.prepareStatement("TRUNCATE TABLE sample_list");
+            pstmt = con.prepareStatement("TRUNCATE TABLE patient_list");
             pstmt.executeUpdate();
-            pstmt = con.prepareStatement("TRUNCATE TABLE sample_list_list");
+            pstmt = con.prepareStatement("TRUNCATE TABLE patient_list_list");
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -224,7 +224,7 @@ public class DaoCaseList {
     }
 
 	/**
-	 * Given a case list, gets list id from sample_list table
+	 * Given a case list, gets list id from patient_list table
 	 */
 	private int getCaseListId(CaseList caseList) throws DaoException {
         Connection con = null;
@@ -232,7 +232,7 @@ public class DaoCaseList {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCaseList.class);
-            pstmt = con.prepareStatement("SELECT LIST_ID FROM sample_list WHERE STABLE_ID=?");
+            pstmt = con.prepareStatement("SELECT LIST_ID FROM patient_list WHERE STABLE_ID=?");
             pstmt.setString(1, caseList.getStableId());
             rs = pstmt.executeQuery();
             if (rs.next()) {
@@ -247,7 +247,7 @@ public class DaoCaseList {
 	}
 
 	/**
-	 * Adds record to sample_list_list.
+	 * Adds record to patient_list_list.
 	 */
     private int addCaseListList(CaseList caseList, Connection con) throws DaoException {
 		
@@ -264,12 +264,10 @@ public class DaoCaseList {
         PreparedStatement pstmt  ;
         ResultSet rs = null;
         try {
-            StringBuilder sql = new StringBuilder("INSERT INTO sample_list_list (`LIST_ID`, `SAMPLE_ID`) VALUES ");
+            StringBuilder sql = new StringBuilder("INSERT INTO patient_list_list (`LIST_ID`, `PATIENT_ID`) VALUES ");
             for (String caseId : caseList.getCaseList()) {
                 Patient patient = DaoPatient.getPatientByStableId(caseId);
-                for (Sample sample : DaoSample.getSamplesByInternalPatientId(patient.getInternalId())) {
-                    sql.append("('").append(caseListId).append("','").append(sample.getInternalId()).append("'),");
-                }
+                sql.append("('").append(caseListId).append("','").append(patient.getInternalId()).append("'),");
             }
             sql.deleteCharAt(sql.length()-1);
             pstmt = con.prepareStatement(sql.toString());
@@ -292,16 +290,15 @@ public class DaoCaseList {
         ResultSet rs = null;
         try {
             pstmt = con.prepareStatement
-                    ("SELECT * FROM sample_list_list WHERE LIST_ID = ?");
+                    ("SELECT * FROM patient_list_list WHERE LIST_ID = ?");
             pstmt.setInt(1, caseList.getCaseListId());
             rs = pstmt.executeQuery();
-            HashSet<String> patientIds = new HashSet<String>();
+            ArrayList<String> patientIds = new ArrayList<String>();
             while (rs.next()) {
-                Sample sample = DaoSample.getSampleByInternalId(rs.getInt("SAMPLE_ID"));
-                Patient patient = DaoPatient.getPatientByInternalId(sample.getInternalPatientId());
+                Patient patient = DaoPatient.getPatientByInternalId(rs.getInt("PATIENT_ID"));
 				patientIds.add(patient.getStableId());
 			}
-            return new ArrayList<String>(patientIds);
+            return patientIds;
         } catch (NullPointerException e) {
             throw new DaoException(e);
         } catch (SQLException e) {

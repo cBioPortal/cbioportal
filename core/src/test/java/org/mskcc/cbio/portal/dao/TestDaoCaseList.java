@@ -39,8 +39,7 @@ import org.mskcc.cbio.portal.scripts.ResetDatabase;
 public class TestDaoCaseList extends TestCase {
 
     public void testDaoCaseList() throws DaoException {
-        ResetDatabase.resetDatabase();
-        createSamples();
+        createSmallDbms();
         DaoCaseList daoCaseList = new DaoCaseList();
         CaseList caseList = new CaseList();
         caseList.setName("Name0");
@@ -62,15 +61,12 @@ public class TestDaoCaseList extends TestCase {
         assertEquals(2, caseListFromDb.getCaseList().size());
     }
 
-    private void createSamples() throws DaoException {
+    private void createSmallDbms() throws DaoException {
+        ResetDatabase.resetDatabase();
         CancerStudy study = new CancerStudy("study", "description", "id", "brca", true);
         Patient p = new Patient(study, "TCGA-1");
         int pId = DaoPatient.addPatient(p);
-        Sample s = new Sample("TCGA-1", pId, "type");
-        DaoSample.addSample(s);
         p = new Patient(study, "TCGA-2");
         pId = DaoPatient.addPatient(p);
-        s = new Sample("TCGA-2", pId, "type");
-        DaoSample.addSample(s);
     }
 }

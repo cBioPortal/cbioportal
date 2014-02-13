@@ -108,10 +108,10 @@ CREATE TABLE `sample` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `sample_list`
+-- Table structure for table `patient_list`
 --
-drop table IF EXISTS sample_list;
-CREATE TABLE `sample_list` (
+drop table IF EXISTS patient_list;
+CREATE TABLE `patient_list` (
   `LIST_ID` int(11) NOT NULL auto_increment,
   `STABLE_ID` varchar(50) NOT NULL,
   `CATEGORY` varchar(255) NOT NULL,
@@ -126,15 +126,15 @@ CREATE TABLE `sample_list` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `sample_list_list`
+-- Table structure for table `patient_list_list`
 --
-drop table IF EXISTS sample_list_list;
-CREATE TABLE `sample_list_list` (
+drop table IF EXISTS patient_list_list;
+CREATE TABLE `patient_list_list` (
   `LIST_ID` int(11) NOT NULL,
-  `SAMPLE_ID` int(11) NOT NULL,
-  PRIMARY KEY  (`LIST_ID`,`SAMPLE_ID`),
+  `PATIENT_ID` int(11) NOT NULL,
+  PRIMARY KEY  (`LIST_ID`,`PATIENT_ID`),
   FOREIGN KEY (`LIST_ID`) REFERENCES `sample_list` (`LIST_ID`) ON DELETE CASCADE,
-  FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
+  FOREIGN KEY (`PATIENT_ID`) REFERENCES `patient` (`INTERNAL_ID`) ON DELETE CASCADE
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -213,15 +213,6 @@ CREATE TABLE `genetic_alteration` (
   FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
-drop table IF EXISTS micro_rna_alteration;
-CREATE TABLE `micro_rna_alteration` (
-  `GENETIC_PROFILE_ID` int(11) NOT NULL,
-  `MICRO_RNA_ID` varchar(50) NOT NULL,
-  `VALUES` longtext NOT NULL,
-  UNIQUE KEY `QUICK_LOOK_UP1` (`GENETIC_PROFILE_ID`,`MICRO_RNA_ID`),
-  FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
 --
 -- Table structure for table `genetic_profile_samples`
 --
@@ -233,7 +224,27 @@ CREATE TABLE `genetic_profile_samples` (
   FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
+--
+-- Table structure for table `sample_profile`
+--
+drop table IF EXISTS sample_profile;
+CREATE TABLE `sample_profile` (
+  `SAMPLE_ID` int(11) NOT NULL,
+  `GENETIC_PROFILE_ID` int(11) NOT NULL,
+  FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE,
+  FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
 -- --------------------------------------------------------
+
+drop table IF EXISTS micro_rna_alteration;
+CREATE TABLE `micro_rna_alteration` (
+  `GENETIC_PROFILE_ID` int(11) NOT NULL,
+  `MICRO_RNA_ID` varchar(50) NOT NULL,
+  `VALUES` longtext NOT NULL,
+  UNIQUE KEY `QUICK_LOOK_UP1` (`GENETIC_PROFILE_ID`,`MICRO_RNA_ID`),
+  FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -337,8 +348,6 @@ CREATE TABLE `mutation_count` (
   FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
--- --------------------------------------------------------
-
 --
 -- Table structure for table `mutation_frequency`
 --
@@ -353,17 +362,6 @@ CREATE TABLE `mutation_frequency` (
 
 
 -- --------------------------------------------------------
-
---
--- Table structure for table `sample_profile`
---
-drop table IF EXISTS sample_profile;
-CREATE TABLE `sample_profile` (
-  `SAMPLE_ID` int(11) NOT NULL,
-  `GENETIC_PROFILE_ID` int(11) NOT NULL,
-  FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE,
-  FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --
 -- Table structure for table `clinical_patient`
@@ -389,8 +387,6 @@ CREATE TABLE `clinical_sample` (
   FOREIGN KEY (`INTERNAL_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
--- --------------------------------------------------------
-
 --
 -- Table structure for table `clinical_attribute`
 --
@@ -403,6 +399,8 @@ CREATE TABLE `clinical_attribute` (
   `PATIENT_ATTRIBUTE` BOOLEAN NOT NULL,
   PRIMARY KEY (`ATTR_ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='DATATYPE can be NUMBER, BOOLEAN, STRING';
+
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `interaction`

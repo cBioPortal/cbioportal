@@ -416,11 +416,14 @@ var StudyViewInitCharts = (function(){
         if(_selectedAttr !== 'CASE_ID'){
             varChart[_chartID].on("filtered", function(chart,filter){
                 var currentPieFilters = varChart[_chartID].filters();
-                if(currentPieFilters.length === 0)
+                if(currentPieFilters.length === 0){
                     $("#study-view-dc-chart-" + _chartID + "-main .study-view-dc-chart-change").css('display','none');
-                else
-                    $("#study-view-dc-chart-" + _chartID + "-main .study-view-dc-chart-change").css('display','block'); 
-                
+                    $("#study-view-dc-chart-" + _chartID + "-main").css({'border-width':'1px', 'border-style':'solid'});
+                }
+                else{
+                    $("#study-view-dc-chart-" + _chartID + "-main .study-view-dc-chart-change").css('display','block');
+                    $("#study-view-dc-chart-" + _chartID + "-main").css({'border-width':'2px', 'border-style':'inset'});
+                }
                 var tmpDimention = varChart[attrNameMapUID["CASE_ID"]].dimension();
                 var tmpResult = tmpDimention.top(Infinity);
                 var tmpCaseID = [];
@@ -442,13 +445,15 @@ var StudyViewInitCharts = (function(){
             var labelDatum = {};            
             var labelName = $(this).find('title').text().split(':');
             var color = $(this).find('path').attr('fill');
-            var tmpPointsInfo = $(this).find('path').attr('d').split(/[\s,MLHVCSQTAZ]/);            
+            //var tmpPointsInfo = $(this).find('path').attr('d').split(/[\s,MLHVCSQTAZ]/);            
+            
             
             labelDatum.id = labelID;
             labelDatum.name = labelName[0];
             labelDatum.color = color;
             labelDatum.parentID = _pieChartID;
             labelDatum.value = labelName[1];
+            /*
             labelDatum.x1 = Number(tmpPointsInfo[1]);
             labelDatum.y1 = Number(tmpPointsInfo[2]);
             labelDatum.largeArc = Number(tmpPointsInfo[6]);
@@ -456,7 +461,7 @@ var StudyViewInitCharts = (function(){
             labelDatum.x2 = Number(tmpPointsInfo[8]);
             labelDatum.y2 = Number(tmpPointsInfo[9]);
             labelDatum.r = Number(tmpPointsInfo[3]);
-            
+            */
             label.push(labelDatum);
             labelID++;
         });
@@ -575,7 +580,7 @@ var StudyViewInitCharts = (function(){
             }
         }
         
-        labelInfo.push(label);
+        //labelInfo.push(label);
         
             
         $('#' + _pieChartID + '-main .pieLabel').mouseenter(function(){
@@ -588,16 +593,25 @@ var StudyViewInitCharts = (function(){
             
             var fatherID = Number(idArray[idArray.length-2]);
             
-            var r = 60;
-            var xm = (Number(labelInfo[fatherID][childID-1].x1) + Number(labelInfo[fatherID][childID-1].x2) ) /2;
-            var ym = (Number(labelInfo[fatherID][childID-1].y1) + Number(labelInfo[fatherID][childID-1].y2) ) /2;
+            var tmpPointsInfo = $('#' + _pieChartID + ' svg>g>g:nth-child(' + childID+')').find('path').attr('d').split(/[\s,MLHVCSQTAZ]/);            
+            
+            var x1 = Number(tmpPointsInfo[1]);
+            var y1 = Number(tmpPointsInfo[2]);
+            var largeArc = Number(tmpPointsInfo[6]);
+            var sweep = Number(tmpPointsInfo[7]);
+            var x2 = Number(tmpPointsInfo[8]);
+            var y2 = Number(tmpPointsInfo[9]);
+            var r = Number(tmpPointsInfo[3]);
+            
+            var xm = (x1 + x2) /2;
+            var ym = (y1 + y2) /2;
             
             var m = Math.sqrt((Math.pow(xm,2)+Math.pow(ym,2)));
             
-            var tmpX = (r + 1) / m * xm;
-            var tmpY = (r + 1) / m * ym;
+            var tmpX = (r + 3) / m * xm;
+            var tmpY = (r + 3) / m * ym;
             
-            if(labelInfo[fatherID][childID-1].largeArc === 1){
+            if(largeArc === 1){
                 tmpX = -tmpX;
                 tmpY = -tmpY;
             }
@@ -772,10 +786,14 @@ var StudyViewInitCharts = (function(){
             var tmpCaseID = [];
             var currentPieFilters = varChart[_chartID].filters();
             
-            if(currentPieFilters.length === 0)
+            if(currentPieFilters.length === 0){
                 $("#study-view-dc-chart-" + _chartID + "-main .study-view-dc-chart-change").css('display','none');
-            else
-                $("#study-view-dc-chart-" + _chartID + "-main .study-view-dc-chart-change").css('display','block'); 
+                $("#study-view-dc-chart-" + _chartID + "-main").css({'border-width':'1px', 'border-style':'solid'});
+            }
+            else{
+                $("#study-view-dc-chart-" + _chartID + "-main .study-view-dc-chart-change").css('display','block');
+                $("#study-view-dc-chart-" + _chartID + "-main").css({'border-width':'2px', 'border-style':'inset'});
+            }
                 
             for(var i=0; i<tmpResult.length ; i++){
                 tmpCaseID.push(tmpResult[i].CASE_ID);

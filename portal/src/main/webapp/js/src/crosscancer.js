@@ -836,11 +836,11 @@
                                     showStats: true
                                 },
 	                            tableOpts: {
+		                            // TODO define custom functions where necessary
 		                            columnVisibility: {
-			                            // TODO "excludeIfHidden" instead?
 			                            "cancer study": "visible",
 			                            // exclude tumor type for now
-			                            "tumor type": "exclude"
+			                            "tumor type": "excluded"
 		                            }
 	                            }
                             };

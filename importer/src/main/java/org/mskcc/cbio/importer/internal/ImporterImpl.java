@@ -325,8 +325,12 @@ class ImporterImpl implements Importer {
 				if (!(new File(stagingFilename)).exists()) {
                     if (isZScoreFile(stagingFilename, datatypeMetadata) &&
                         canCreateZScoreFile(rootDirectory, cancerStudyMetadata, datatypeMetadata)) {
-                        createZScoreFile(rootDirectory, cancerStudyMetadata, datatypeMetadata);
-                        createdZScoreFile = true;
+                        if (createZScoreFile(rootDirectory, cancerStudyMetadata, datatypeMetadata)) {
+                            createdZScoreFile = true;
+                        }
+                        else {
+                            continue;
+                        }
                     }
                     else {
                         if (LOG.isInfoEnabled()) {
@@ -487,13 +491,13 @@ class ImporterImpl implements Importer {
         return canCreateZScoreFile;
     }
 
-    private void createZScoreFile(String rootDirectory, CancerStudyMetadata cancerStudyMetadata, DatatypeMetadata datatypeMetadata) throws Exception
+    private boolean createZScoreFile(String rootDirectory, CancerStudyMetadata cancerStudyMetadata, DatatypeMetadata datatypeMetadata) throws Exception
     {
         ArrayList<DatatypeMetadata> dependencies = new ArrayList<DatatypeMetadata>();
         for (String dependency : datatypeMetadata.getDependencies()) {
             dependencies.add(config.getDatatypeMetadata(dependency).iterator().next());
         }
-        fileUtils.writeZScoresStagingFile(rootDirectory, cancerStudyMetadata, datatypeMetadata,
-                                          dependencies.toArray(new DatatypeMetadata[dependencies.size()]));
+        return fileUtils.writeZScoresStagingFile(rootDirectory, cancerStudyMetadata, datatypeMetadata,
+                                                 dependencies.toArray(new DatatypeMetadata[dependencies.size()]));
     }
 }

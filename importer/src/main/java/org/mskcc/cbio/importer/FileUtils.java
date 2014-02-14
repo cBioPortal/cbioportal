@@ -278,8 +278,8 @@ public interface FileUtils {
 	 * @param dependencies DatatypeMetadata[]
 	 * @throws Exception
 	 */
-	void writeZScoresStagingFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata,
-								 DatatypeMetadata datatypeMetadata, DatatypeMetadata[] dependencies) throws Exception;
+	boolean writeZScoresStagingFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata,
+                                    DatatypeMetadata datatypeMetadata, DatatypeMetadata[] dependencies) throws Exception;
 
 	/**
 	 * Returns an override file (if it exists) for the given portal & cancer study.  The override in this case

@@ -88,7 +88,7 @@ public class CancerStudyReader {
             throw new IllegalArgumentException("type of cancer is not specified.");
         }
         
-        String shortName = properties.getProperty("short_name").toLowerCase();
+        String shortName = properties.getProperty("short_name");
         if ( typeOfCancer == null) {
             throw new IllegalArgumentException("short_name is not specified.");
         }

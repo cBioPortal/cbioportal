@@ -139,11 +139,7 @@ var StudyViewInitCharts = (function(){
 
         dc.renderAll();
         dc.renderAll("group1");
-        
-        for(var i=0; i< pie.length ; i++){
-            if(pie[i]["attr_id"] !== "CASE_ID")
-                addPieLabels("study-view-dc-chart-" + attrNameMapUID[pie[i]["attr_id"]]);
-        }
+       
         $('#study-view-selectAttr')
             .find('option:gt(0)')
             .remove()
@@ -281,7 +277,7 @@ var StudyViewInitCharts = (function(){
         
         $('.study-view-dc-chart-delete').click(function(event){
                 var id = $(this).parent().parent().attr("id");
-                var valueA = $(this).parent().parent().val().split(',');
+                var valueA = $(this).parent().parent().attr('value').split(',');
                 var attrID = valueA[0];
                 var attrName = valueA[1];
                 $("div").remove("#" + id + "-main"); 
@@ -319,7 +315,7 @@ var StudyViewInitCharts = (function(){
                 totalCharts++;       
             }
             if(selectedChartType == 'pie'){
-                initPieChart(chartTmpID,'study-view-pie-chart',selectedAttr,selectedAttrDisplay);       
+                initPieChart(chartTmpID,'study-view-pie-chart',selectedAttr,selectedAttrDisplay);
             }else{
                 initBarChart(chartTmpID,'study-view-bar-chart',selectedAttr,selectedAttrDisplay,distanceMinMaxArray);                
             }
@@ -431,6 +427,9 @@ var StudyViewInitCharts = (function(){
                     tmpCaseID.push(tmpResult[i].CASE_ID);
                 }
                 setScatterPlotStyle(tmpCaseID,currentPieFilters);
+            });
+            varChart[_chartID].on("postRender",function(chart){
+                addPieLabels("study-view-dc-chart-" + _chartID);
             });
         }
     }

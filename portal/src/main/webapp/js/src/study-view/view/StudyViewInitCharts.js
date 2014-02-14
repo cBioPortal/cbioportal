@@ -27,6 +27,7 @@ var StudyViewInitCharts = (function(){
         "#bea413","#0c5922","#743411"]; // Color scale from GOOGLE charts
 
     var scatterStudyView = new ScatterPlots();
+    var labelInfo = [];
     
     function initParameters(o) {
         parObject.studyId = o.studyId;
@@ -420,7 +421,6 @@ var StudyViewInitCharts = (function(){
                 for(var i=0; i<tmpResult.length ; i++){
                     tmpCaseID.push(tmpResult[i].CASE_ID);
                 }
-                //console.log(varChart[_chartID].filters());
                 setScatterPlotStyle(tmpCaseID,varChart[_chartID].filters());
             });
         }
@@ -436,20 +436,21 @@ var StudyViewInitCharts = (function(){
             var labelDatum = {};            
             var labelName = $(this).find('title').text().split(':');
             var color = $(this).find('path').attr('fill');
-            //var tmpPointsInfo = $(this).find('path').attr('d').split(/[\s,MLHVCSQTAZ]/);            
-            //console.log(tmpPointsInfo);
+            var tmpPointsInfo = $(this).find('path').attr('d').split(/[\s,MLHVCSQTAZ]/);            
+            
             labelDatum.id = labelID;
             labelDatum.name = labelName[0];
             labelDatum.color = color;
             labelDatum.parentID = _pieChartID;
             labelDatum.value = labelName[1];
-            /*
             labelDatum.x1 = Number(tmpPointsInfo[1]);
             labelDatum.y1 = Number(tmpPointsInfo[2]);
+            labelDatum.largeArc = Number(tmpPointsInfo[6]);
+            labelDatum.sweep = Number(tmpPointsInfo[7]);
             labelDatum.x2 = Number(tmpPointsInfo[8]);
             labelDatum.y2 = Number(tmpPointsInfo[9]);
             labelDatum.r = Number(tmpPointsInfo[3]);
-            */
+            
             label.push(labelDatum);
             labelID++;
         });
@@ -568,6 +569,9 @@ var StudyViewInitCharts = (function(){
             }
         }
         
+        labelInfo.push(label);
+        
+            
         $('#' + _pieChartID + '-main .pieLabel').mouseenter(function(){
             var idArray = $(this).attr('id').split('-');
             var childID = Number(idArray[idArray.length-1])+1;
@@ -575,25 +579,36 @@ var StudyViewInitCharts = (function(){
                 'fill-opacity': '.5',
                 'stroke-width': '3px'
             });
-            /*
-            var m = Math.sqrt((Math.pow((label[2].x2+label[2].x1)/2,2)+Math.pow((label[2].y2+label[2].y1)/2,2)));
-            var tmpX = (label[2].x2+label[2].x1) * (label[2].r + 5) / m / 2;
-            var tmpY = (label[2].y2+label[2].y1) * (label[2].r + 5) / m / 2;
-            //var tmpX = Math.sqrt(2*Math.pow(label[2].r+10,2)*Math.pow(label[2].x2-label[2].x1,2)/(4*Math.pow(label[2].r,2)-Math.pow(label[2].x2-label[2].x1,2)-Math.pow(label[2].y2-label[2].y1,2)));
-            //var tmpY = Math.sqrt(2*Math.pow(label[2].r+10,2)*Math.pow(label[2].y2-label[2].y1,2)/(4*Math.pow(label[2].r,2)-Math.pow(label[2].x2-label[2].x1,2)-Math.pow(label[2].y2-label[2].y1,2)));
             
-            if(label[2].x1 + label[2].x2 < 0)
+            var fatherID = Number(idArray[idArray.length-2]);
+            
+            var r = 60;
+            var xm = (Number(labelInfo[fatherID][childID-1].x1) + Number(labelInfo[fatherID][childID-1].x2) ) /2;
+            var ym = (Number(labelInfo[fatherID][childID-1].y1) + Number(labelInfo[fatherID][childID-1].y2) ) /2;
+            
+            var m = Math.sqrt((Math.pow(xm,2)+Math.pow(ym,2)));
+            
+            var tmpX = (r + 1) / m * xm;
+            var tmpY = (r + 1) / m * ym;
+            
+            if(labelInfo[fatherID][childID-1].largeArc === 1){
                 tmpX = -tmpX;
-            if(label[2].y1 + label[2].y2 < 0)
                 tmpY = -tmpY;
+            }
             
-            $('#' + _pieChartID + ' svg').append("<g><circle cx=" + 35 +" cy="+ 35 +" r=3 stroke='black' stroke-width='3' fill='black'/></g>");
-            console.log(_pieChartID + "-" + labelID + "<circle cx=" + 35 +" cy="+ 35 +" r=3 stroke='black' stroke-width='3' fill='black' />");
-            */
+            var circleID = fatherID+"-"+(Number(childID)-1);
+            var circle= makeSVG('circle', {id: circleID, cx: tmpX, cy: tmpY, r:3, stroke: 'black', 'stroke-width': 1, fill: 'red'});
+            document.getElementById(_pieChartID).getElementsByTagName('svg')[0].getElementsByTagName('g')[0].appendChild(circle);
         });
+        
         $('#' + _pieChartID + '-main .pieLabel').mouseleave(function(){
             var idArray = $(this).attr('id').split('-');
             var childID = Number(idArray[idArray.length-1])+1;
+            var fatherID = Number(idArray[idArray.length-2]);
+            var circleID = fatherID+"-"+(Number(childID)-1);
+            
+            $("#" + _pieChartID + " svg g #" + circleID).remove();
+            
             $('#' + _pieChartID + ' svg>g>g:nth-child(' + childID+')').css({
                 'fill-opacity': '1',
                 'stroke-width': '1px'
@@ -629,34 +644,15 @@ var StudyViewInitCharts = (function(){
                 $('#table-'+_pieChartID+'-'+nextTableID).css('display','block');
             }
         });
-        /*
-        $('#' + _pieChartID + '>svg>g>g').each(function(){
-            var labelName = $(this).find('title').text().split(':');
-            var color = $(this).find('path').attr('fill');
-            if(labelName[0].length > 9)
-                labelName[0] = labelName[0].substring(0,5) + " ...";
-            
-            if(labelID % 2 === 0 && (labelID===0 || labelID%6 !== 0)){
-                $('#' + _pieChartID + '-main').find('table').append("<tr id="+ innerID +" width='150px'></tr>");
-                innerID++;
-            }
-            if(labelID % 6 === 0){
-                thirdLevelID++;
-            }
-            if((labelID+1)%6==0){
-                $('#' + _pieChartID + '-main').find('table tr:nth-child(' + innerID +')').append('<td id="pieLabel-'+_pieChartID+'-'+labelID+'" width="75px">1/2</td>');
-                innerID++;
-                $('#' + _pieChartID + '-main').find('table').append("<tr id="+ innerID +" width='150px'></tr>");
-                $('#' + _pieChartID + '-main').find('table tr:nth-child(' + innerID +')').append('<td id="pieLabel-'+_pieChartID+'-'+labelID+'" width="75px"><svg width="8" height="8"><rect width="8" height="8" style="fill:' + color + ';" /></svg>' +labelName[0] +'</td>');
-                
-            }else
-                $('#' + _pieChartID + '-main').find('table tr:nth-child(' + innerID +')').append('<td id="pieLabel-'+_pieChartID+'-'+labelID+'" width="75px"><svg width="8" height="8"><rect width="8" height="8" style="fill:' + color + ';" /></svg>' +labelName[0] +'</td>');
-            labelID++;
-        });
-        if(labelID > 6)
-            $('#' + _pieChartID + '-main').find('table').after("<svg width='165' height='10'><text x='135' y='0' fill='black'>1/"+thirdLevelID+"</text></svg>");
-        */;
     }
+    
+    function makeSVG(tag, attrs) {
+        var el= document.createElementNS('http://www.w3.org/2000/svg', tag);
+        for (var k in attrs)
+            el.setAttribute(k, attrs[k]);
+        return el;
+    }
+            
     function initBarChart(_chartID,_className,_selectedAttr,_selectedAttrDisplay,distanceMinMaxArray) {
         var distanceMinMax = distanceMinMaxArray[_selectedAttr].distance;
 

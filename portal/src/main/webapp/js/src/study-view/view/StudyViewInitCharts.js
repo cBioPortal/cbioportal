@@ -616,7 +616,7 @@ var StudyViewInitCharts = (function(){
             }
             
             var circleID = fatherID+"-"+(Number(childID)-1);
-            var circle= makeSVG('circle', {id: circleID, cx: tmpX, cy: tmpY, r:3, stroke: 'black', 'stroke-width': 1, fill: 'red'});
+            var circle= makeSVG('circle', {id: circleID, cx: tmpX, cy: tmpY, r:3, stroke: 'red', 'stroke-width': 1, fill: 'red'});
             document.getElementById(_pieChartID).getElementsByTagName('svg')[0].getElementsByTagName('g')[0].appendChild(circle);
         });
         
@@ -752,7 +752,7 @@ var StudyViewInitCharts = (function(){
             varChart[_chartID].xAxis().ticks(10);
             varChart[_chartID].xUnits(function(){return barScale;});
         }else if(_selectedAttrDisplay.search(/month/i) != -1){
-            varChart[_chartID].x(d3.scale.linear().domain(barDomain));
+            varChart[_chartID].x(d3.scale.linear().domain([-5, distanceMinMaxArray[_selectedAttr].max+(distanceMinMaxArray[_selectedAttr].distance)/10]));
             varChart[_chartID].xAxis().ticks(10);
             varChart[_chartID].yAxis().tickFormat(d3.format("d"));
             varChart[_chartID].xAxis().tickFormat(d3.format("d"));
@@ -1001,13 +1001,19 @@ var StudyViewInitCharts = (function(){
         var oTable = $('#dataTable').dataTable();        
         //$('#dataTable').dataTable().columnFilter();
         $(".dataTables_scrollFoot tfoot th").each( function ( i ) {
-            $(this).css('height','200px');
-            $(this).css('z-index','1500');
-            this.innerHTML = fnCreateSelect( oTable.fnGetColumnData(i) );
-            $('select', this).change( function () {
-                oTable.fnFilter( $(this).val(), i );
-            });
-            $(this).find('select').chosen();
+            if(i !== 0){                
+                $(this).css('z-index','1500');
+                this.innerHTML = fnCreateSelect( oTable.fnGetColumnData(i) );
+                $('select', this).change( function () {
+                    oTable.fnFilter( $(this).val(), i );
+                    var heightBody = $(".dataTables_scrollBody").css('height');
+                    var heightTable = $('.dataTables_scroll').css('height');
+                    $(".DTFC_LeftBodyLiner").css('height',heightBody);
+                    $(".DTFC_LeftBodyWrapper").css('height',heightBody); 
+                    $('.DTFC_ScrollWrapper').css('height',heightTable);
+                });
+            }
+            //$(this).find('select').chosen();
         });
         
         oTable.fnAdjustColumnSizing();

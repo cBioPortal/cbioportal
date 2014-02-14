@@ -118,7 +118,7 @@ var CoExpView = (function() {
 
             //Configure the datatable with  jquery
             _coExpTable = $("#" + Names.tableId).dataTable({
-                "sDom": '<"H"f<"coexp-table-filter-pearson">>t<"F"i>',
+                "sDom": '<"H"f<"coexp-table-filter-pearson">>t<"F"i<"datatable-paging"p>>',
                 "sPaginationType": "scrolling",
                 "bJQueryUI": true,
                 "bAutoWidth": false,
@@ -145,7 +145,7 @@ var CoExpView = (function() {
                 ],
                 "sScrollY": "550px",
                 "bScrollCollapse": true,
-                iDisplayLength: coexp_table_arr.length,
+                //iDisplayLength: coexp_table_arr.length,
                 "oLanguage": {
                     "sSearch": "Search Gene"
                 },
@@ -163,7 +163,9 @@ var CoExpView = (function() {
                         $('td:eq(2)', nRow).css("color", "#B40404");
                     }
                 },
-                "bDeferRender": true
+                "bDeferRender": true,
+                "iDisplayLength": 26,
+                "sPaginationType": "full_numbers"
             });  //close data table
         }
 
@@ -199,7 +201,7 @@ var CoExpView = (function() {
         }
 
         function attachRowListener(_coExpTable, tableId, plotId, geneId, profileDescription) {
-            $("#" + tableId + " tbody tr").on('click', function (event) {
+            $("#" + tableId + " tbody tr").live('click', function (event) {
                 //Highlight selected row
                 $(_coExpTable.fnSettings().aoData).each(function (){
                     $(this.nTr).removeClass('row_selected');

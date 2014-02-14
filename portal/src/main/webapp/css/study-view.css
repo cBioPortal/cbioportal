@@ -89,6 +89,11 @@
 
 
 /* CLASS styles */
+.pieLabel {
+    width: 75px;
+    height: 15px;
+    border-spacing: 0px;
+}
 .study-view-bar-chart rect{
     fill: #3366cc;
 }
@@ -184,6 +189,8 @@
     margin-right: 10px;
     margin-top: 3px;
     cursor: pointer;
+    font-size:10px;
+    display: none;
 }
 pieH4{
     font-size: 11px;

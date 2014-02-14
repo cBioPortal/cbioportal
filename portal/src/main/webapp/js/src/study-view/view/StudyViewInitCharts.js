@@ -415,13 +415,19 @@ var StudyViewInitCharts = (function(){
         
         if(_selectedAttr !== 'CASE_ID'){
             varChart[_chartID].on("filtered", function(chart,filter){
+                var currentPieFilters = varChart[_chartID].filters();
+                if(currentPieFilters.length === 0)
+                    $("#study-view-dc-chart-" + _chartID + "-main .study-view-dc-chart-change").css('display','none');
+                else
+                    $("#study-view-dc-chart-" + _chartID + "-main .study-view-dc-chart-change").css('display','block'); 
+                
                 var tmpDimention = varChart[attrNameMapUID["CASE_ID"]].dimension();
                 var tmpResult = tmpDimention.top(Infinity);
                 var tmpCaseID = [];
                 for(var i=0; i<tmpResult.length ; i++){
                     tmpCaseID.push(tmpResult[i].CASE_ID);
                 }
-                setScatterPlotStyle(tmpCaseID,varChart[_chartID].filters());
+                setScatterPlotStyle(tmpCaseID,currentPieFilters);
             });
         }
     }
@@ -488,8 +494,8 @@ var StudyViewInitCharts = (function(){
                                     ' tr:nth-child(' + innerID +')')
                                 .append('<td class="pieLabel" id="pieLabel-'
                                     +_pieChartID+'-'+i
-                                    +'" width="75px" style="font-size:'
-                                    +fontSize+'px"><svg width="75" height="15"><rect width="'
+                                    +'" style="font-size:'
+                                    +fontSize+'px"><svg width="75" height="13"><rect width="'
                                     +labelSize+'" height="'+labelSize+'" style="fill:' 
                                     + label[i].color + ';" /><text x="15" y="10">'
                                     +tmpName+'</text></svg></td>');
@@ -511,7 +517,7 @@ var StudyViewInitCharts = (function(){
                         $('#' + _pieChartID + '-main')
                                 .find('#table-'+_pieChartID+'-'+tableId+' tr:nth-child(' + innerID +')')
                                 .append('<td id="pieLabel-'+_pieChartID+'-'+i
-                                    +'" style="width="75px" height="16px" font-size:'
+                                    +'" style="width="75px" height="15px" font-size:'
                                     +fontSize+'px"></td>');
                     }
                 }
@@ -525,8 +531,8 @@ var StudyViewInitCharts = (function(){
                 
                 $('#' + _pieChartID + '-main').find('#table-'+_pieChartID+'-'
                     +tableId+' tr:nth-child(' + innerID +')').append('<td id="pieLabel-pagging-'
-                    +_pieChartID+"-"+tableId+'" style=" width="75px" height="16px" font-size:'+fontSize
-                    +'px"><svg  width="75" height="15">\n\
+                    +_pieChartID+"-"+tableId+'" style=" width="75px" height="16px" border="0px" font-size:'+fontSize
+                    +'px"><svg  width="75" height="13">\n\
                             <path class="pie-label-left-pagging" d="M5 1 L0 11 L10 11 Z" fill="'+leftArrowColor+'"/>\n\
                             <text x=15 y=10 fill="black">'+(tableId+1)+'/'+totalTableNum+'</text>\n\
                             <path class="pie-label-right-pagging" d="M45 11 L40 1 L50 1 Z" fill="'+rightArrowColor+'"/>\n\
@@ -553,8 +559,8 @@ var StudyViewInitCharts = (function(){
                 $('#' + _pieChartID + '-main')
                         .find('table tr:nth-child(' + innerID +')')
                         .append('<td class="pieLabel" id="pieLabel-'
-                            +_pieChartID+'-'+i+'" width="75px" style="font-size:'
-                            +fontSize+'px"><svg width="75" height="15"><rect width="'
+                            +_pieChartID+'-'+i+'"  style="font-size:'
+                            +fontSize+'px"><svg width="75" height="13"><rect width="'
                             +labelSize+'" height="'+labelSize+'" style="fill:'
                             + label[i].color + ';" /><text x="15" y="10">'
                             +tmpName+'</text></svg></td>');
@@ -661,7 +667,7 @@ var StudyViewInitCharts = (function(){
                 + "-main\" class='study-view-dc-chart study-view-bar-main'><div id=\"study-view-dc-chart-" 
                 + _chartID + "\" class='"+ _className +"'  value='" + _selectedAttr + "," + _selectedAttrDisplay 
                 + ",bar'><div style='width:100%; float:right'><span class='study-view-dc-chart-delete'>x</span><a href='javascript:varChart[" 
-                + _chartID + "].filterAll();dc.redrawAll();'><span title='Reset Chart' class='study-view-dc-chart-change' style='font-size:10px;'>\n\
+                + _chartID + "].filterAll();dc.redrawAll();'><span title='Reset Chart' class='study-view-dc-chart-change'>\n\
                 RESET</span></a><span style='float:right; font-size:10px; margin-right: 15px;margin-top:3px;'>Log Scale X</span><input type='checkbox' value='"
                 + _chartID +","+ distanceMinMaxArray[_selectedAttr].max +","+ distanceMinMaxArray[_selectedAttr].min 
                 +"' class='study-view-bar-x-log'></input></div></div><div style='width:100%; float:center;text-align:center;'><pieH4>" 
@@ -671,7 +677,7 @@ var StudyViewInitCharts = (function(){
                 + "-main\" class='study-view-dc-chart study-view-bar-main'><div id=\"study-view-dc-chart-" 
                 + _chartID + "\" class='"+ _className +"'  value='" + _selectedAttr + "," + _selectedAttrDisplay 
                 + ",bar'><div style='width:100%; float:right'><span class='study-view-dc-chart-delete'>x</span><a href='javascript:varChart[" 
-                + _chartID + "].filterAll();dc.redrawAll();'><span title='Reset Chart' class='study-view-dc-chart-change' style='font-size:10px;'>\n\
+                + _chartID + "].filterAll();dc.redrawAll();'><span title='Reset Chart' class='study-view-dc-chart-change'>\n\
                 RESET</span></a></div></div><div style='width:100%; float:center;text-align:center;'><pieH4>" + _selectedAttrDisplay + "</pieH4></div></div>");
         
         varChart[_chartID] = dc.barChart("#study-view-dc-chart-" + _chartID);
@@ -712,39 +718,41 @@ var StudyViewInitCharts = (function(){
             .group(varGroup[_chartID])
             .centerBar(true)
             .elasticY(true)
-            .elasticX(true)
+            .elasticX(false)
             .turnOnControls(true)
             .mouseZoomable(false)
             .brushOn(true)
             .transitionDuration(1200)
             .renderHorizontalGridLines(true)
             .renderVerticalGridLines(true);
-            
+        
+        var barDomain = [distanceMinMaxArray[_selectedAttr].min-distanceMinMaxArray[_selectedAttr].distance/10, distanceMinMaxArray[_selectedAttr].max+distanceMinMaxArray[_selectedAttr].distance/10];
         if(distanceMinMax < 1){
-            varChart[_chartID].x(d3.scale.linear().nice([distanceMinMaxArray[_selectedAttr].min, distanceMinMaxArray[_selectedAttr].max]));
+            varChart[_chartID].x(d3.scale.linear()
+                    .nice(barDomain));
             varChart[_chartID].yAxis().tickFormat(d3.format("d"));
             varChart[_chartID].xAxis().ticks(10);
             varChart[_chartID].xUnits(function(){return barScale;});
         }else if(distanceMinMax < 2){
-            varChart[_chartID].x(d3.scale.linear().domain([distanceMinMaxArray[_selectedAttr].min, distanceMinMaxArray[_selectedAttr].max]));
+            varChart[_chartID].x(d3.scale.linear().domain(barDomain));
             varChart[_chartID].yAxis().tickFormat(d3.format("d"));
             varChart[_chartID].xAxis().ticks(10);
             varChart[_chartID].xUnits(function(){return barScale;});
         }else if(_selectedAttrDisplay.search(/month/i) != -1){
-            varChart[_chartID].elasticX(false);
-            varChart[_chartID].x(d3.scale.linear().domain([distanceMinMaxArray[_selectedAttr].min, distanceMinMaxArray[_selectedAttr].max]));
+            varChart[_chartID].x(d3.scale.linear().domain(barDomain));
             varChart[_chartID].xAxis().ticks(10);
             varChart[_chartID].yAxis().tickFormat(d3.format("d"));
             varChart[_chartID].xAxis().tickFormat(d3.format("d"));
             varChart[_chartID].xUnits(function(){return barScale;});
         }else if(_selectedAttrDisplay.search(/mutation/i) != -1){ 
-            varChart[_chartID].x(d3.scale.linear().domain([0, distanceMinMaxArray[_selectedAttr].max]));
+            if(distanceMinMaxArray[_selectedAttr].distance)
+                varChart[_chartID].elasticX(true);
+            varChart[_chartID].x(d3.scale.linear().domain([0, distanceMinMaxArray[_selectedAttr].max+(distanceMinMaxArray[_selectedAttr].distance)/10]));
             //varChart[_chartID].x(d3.scale.log().nice().domain([1,distanceMinMaxArray[_selectedAttr].max]));
             varChart[_chartID].yAxis().tickFormat(d3.format("d"));
             varChart[_chartID].xAxis().tickFormat(d3.format("d"));
         }else if(_selectedAttrDisplay.search(/age/i) != -1){
-            varChart[_chartID].elasticX(false);
-            varChart[_chartID].x(d3.scale.linear().domain([distanceMinMaxArray[_selectedAttr].min, distanceMinMaxArray[_selectedAttr].max+2]));
+            varChart[_chartID].x(d3.scale.linear().domain(barDomain));
             varChart[_chartID].yAxis().tickFormat(d3.format("d"));    
            // varChart[_chartID].gap(5);
             //varChart[_chartID].xUnits(function(d){return parseInt(d/5) * 5;});
@@ -752,12 +760,29 @@ var StudyViewInitCharts = (function(){
             varChart[_chartID].xUnits(function(){return 20;});
             //varChart[_chartID].barPadding(20);  
         }else{
-            varChart[_chartID].x(d3.scale.linear().domain([distanceMinMaxArray[_selectedAttr].min, distanceMinMaxArray[_selectedAttr].max]));
+            varChart[_chartID].x(d3.scale.linear().domain(barDomain));
             varChart[_chartID].yAxis().tickFormat(d3.format("d"));
             varChart[_chartID].xAxis().tickFormat(d3.format("d"));
             varChart[_chartID].xAxis().ticks(10);
         }
         
+        varChart[_chartID].on("filtered", function(chart,filter){
+            var tmpDimention = varChart[attrNameMapUID["CASE_ID"]].dimension();
+            var tmpResult = tmpDimention.top(Infinity);
+            var tmpCaseID = [];
+            var currentPieFilters = varChart[_chartID].filters();
+            
+            if(currentPieFilters.length === 0)
+                $("#study-view-dc-chart-" + _chartID + "-main .study-view-dc-chart-change").css('display','none');
+            else
+                $("#study-view-dc-chart-" + _chartID + "-main .study-view-dc-chart-change").css('display','block'); 
+                
+            for(var i=0; i<tmpResult.length ; i++){
+                tmpCaseID.push(tmpResult[i].CASE_ID);
+            }
+            setScatterPlotStyle(tmpCaseID,currentPieFilters);     
+        });
+            
         $(".study-view-bar-x-log").unbind('click').click(function() {
             var valueArray = $(this).val().split(',');
             

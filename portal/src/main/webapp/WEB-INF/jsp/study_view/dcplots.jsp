@@ -52,7 +52,7 @@
             <img src="images/arrow_bottom.png" height='25px' alt='Update  Table' style="float: right"/>
         </div>
     </div>
-    <div id="dataTableLoading" style="text-align:center;display:none"><img src="images/ajax-loader.gif"></div>
+    <!--<div id="dataTableLoading" style="text-align:center;display:none"><img src="images/ajax-loader.gif"></div>-->
     <div id='data-table-chart'>
         <table id="dataTable">
             <tfoot>

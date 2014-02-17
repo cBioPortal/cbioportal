@@ -26,7 +26,7 @@ var StudyViewInitCharts = (function(){
         "#9c5935","#a9c413","#2a778d","#668d1c",
         "#bea413","#0c5922","#743411"]; // Color scale from GOOGLE charts
 
-    var scatterStudyView = new ScatterPlots();
+    var scatterStudyView;
     
     function initParameters(o) {
         parObject.studyId = o.studyId;
@@ -70,15 +70,13 @@ var StudyViewInitCharts = (function(){
                 //continue;
             }else if(dataA[i]["datatype"] === "NUMBER" || dataA[i]["datatype"] === "BOOLEAN"){                
                 if(selectedCol(dataA[i]["attr_id"])){                    
-                    if(keys.length>10)
+                    if(keys.length>10 || dataA[i]["attr_id"] === 'MUTATION_COUNT' || dataA[i]["attr_id"] === 'COPY_NUMBER_ALTERATIONS')
                         bar.push(dataA[i]);
                     else
                         pie.push(dataA[i]);
                 }
 
-                if(keys.length > 10)
-                    varType[dataA[i]["attr_id"]] = "bar";
-                else if(keys.length > 30)
+                if(keys.length > 10 || dataA[i]["attr_id"] === 'MUTATION_COUNT' || dataA[i]["attr_id"] === 'COPY_NUMBER_ALTERATIONS')
                     varType[dataA[i]["attr_id"]] = "bar";
                 else
                     varType[dataA[i]["attr_id"]] = "pie";
@@ -143,16 +141,21 @@ var StudyViewInitCharts = (function(){
             .find('option:gt(0)')
             .remove()
             .end();
-
+            
+        var hasDisplayItem = false;
         $.each(varName, function(key, value) {
-            if(displayedID.indexOf(value) == -1){
+            if(displayedID.indexOf(value) === -1){
                 $('#study-view-selectAttr')
                     .append($("<option></option>")
                         .attr("value",value)
                         .text(varDisplay[key]));
+                hasDisplayItem = true;
             }
         });
-
+            
+        if(!hasDisplayItem){
+            $('#study-view-selectAttr').attr('disabled','disabled');
+        }
         
         var scatterPlotDataAttr = {
             min_x: distanceMinMaxArray['COPY_NUMBER_ALTERATIONS'].min,
@@ -233,9 +236,13 @@ var StudyViewInitCharts = (function(){
             }
         });
         
-        scatterStudyView.init(scatterPlotOptions, scatterPlotArr, scatterPlotDataAttr,true);
-        scatterStudyView.jointBrushCallback(scatterPlotCallBack);
-
+        if(scatterPlotArr.length !== 0){
+            scatterStudyView = new ScatterPlots();
+            scatterStudyView.init(scatterPlotOptions, scatterPlotArr, scatterPlotDataAttr,true);
+            scatterStudyView.jointBrushCallback(scatterPlotCallBack);
+        }else{
+            $('#study-view-scatter-plot').css('display','none');
+        }
         var container = document.querySelector('#study-view-charts');
         var msnry = new Masonry( container, {
             columnWidth: 190,
@@ -288,7 +295,7 @@ var StudyViewInitCharts = (function(){
                     .append($("<option></option>")
                         .attr("value",attrID)
                         .text(attrName));
-                
+                $('#study-view-selectAttr').removeAttr('disabled');
                 var filteredResult = varCluster[attrNameMapUID['CASE_ID']].top(Infinity);
                 var filterString = "";
                 for(var i=0 ; i<filteredResult.length ; i++){
@@ -320,7 +327,8 @@ var StudyViewInitCharts = (function(){
             }
 
             $("#study-view-selectAttr option[value='"+ selectedAttr +"']").remove();
-            
+            if ($('#study-view-selectAttr option').length === 1)
+                 $('#study-view-selectAttr').attr('disabled','disabled');
             msnry.destroy();
             var container = document.querySelector('#study-view-charts');
             msnry = new Masonry( container, {
@@ -356,7 +364,7 @@ var StudyViewInitCharts = (function(){
                     .append($("<option></option>")
                         .attr("value",attrID)
                         .text(attrName));
-                
+                $('#study-view-selectAttr').removeAttr('disabled');
                 var filteredResult = varCluster[attrNameMapUID['CASE_ID']].top(Infinity);
                 var filterString = "";
                 for(var i=0 ; i<filteredResult.length ; i++){
@@ -422,10 +430,13 @@ var StudyViewInitCharts = (function(){
                 var tmpDimention = varChart[attrNameMapUID["CASE_ID"]].dimension();
                 var tmpResult = tmpDimention.top(Infinity);
                 var tmpCaseID = [];
-                for(var i=0; i<tmpResult.length ; i++){
-                    tmpCaseID.push(tmpResult[i].CASE_ID);
+                
+                if(typeof scatterStudyView !== 'undefined'){
+                    for(var i=0; i<tmpResult.length ; i++){
+                        tmpCaseID.push(tmpResult[i].CASE_ID);
+                    }
+                    setScatterPlotStyle(tmpCaseID,currentPieFilters);
                 }
-                setScatterPlotStyle(tmpCaseID,currentPieFilters);
             });
             varChart[_chartID].on("postRedraw",function(chart){
                 addPieLabels("study-view-dc-chart-" + _chartID);
@@ -700,7 +711,7 @@ var StudyViewInitCharts = (function(){
                 return returnValue;
             });
         }else{
-             varCluster[_chartID] = ndx.dimension(function (d) {
+            varCluster[_chartID] = ndx.dimension(function (d) {
                 var returnValue = d[_selectedAttr];
                 if(d[_selectedAttr] % 1 !== 0 && decimalPlaces(d[_selectedAttr]) > 3){
                     if(distanceMinMax < 2){
@@ -715,7 +726,7 @@ var StudyViewInitCharts = (function(){
                 }
                 return returnValue;
             });
-        }
+                    }
 
         var barScale = 50;
 
@@ -781,24 +792,25 @@ var StudyViewInitCharts = (function(){
         }
         
         varChart[_chartID].on("filtered", function(chart,filter){
-            var tmpDimention = varChart[attrNameMapUID["CASE_ID"]].dimension();
-            var tmpResult = tmpDimention.top(Infinity);
-            var tmpCaseID = [];
-            var currentPieFilters = varChart[_chartID].filters();
-            
-            if(currentPieFilters.length === 0){
-                $("#study-view-dc-chart-" + _chartID + "-main .study-view-dc-chart-change").css('display','none');
-                $("#study-view-dc-chart-" + _chartID + "-main").css({'border-width':'1px', 'border-style':'solid'});
+                var tmpDimention = varChart[attrNameMapUID["CASE_ID"]].dimension();
+                var tmpResult = tmpDimention.top(Infinity);
+                var tmpCaseID = [];
+                var currentPieFilters = varChart[_chartID].filters();
+
+                if(currentPieFilters.length === 0){
+                    $("#study-view-dc-chart-" + _chartID + "-main .study-view-dc-chart-change").css('display','none');
+                    $("#study-view-dc-chart-" + _chartID + "-main").css({'border-width':'1px', 'border-style':'solid'});
+                }
+                else{
+                    $("#study-view-dc-chart-" + _chartID + "-main .study-view-dc-chart-change").css('display','block');
+                    $("#study-view-dc-chart-" + _chartID + "-main").css({'border-width':'2px', 'border-style':'inset'});
+                }
+            if(typeof scatterStudyView !== 'undefined'){            
+                for(var i=0; i<tmpResult.length ; i++){
+                    tmpCaseID.push(tmpResult[i].CASE_ID);
+                }
+                setScatterPlotStyle(tmpCaseID,currentPieFilters);   
             }
-            else{
-                $("#study-view-dc-chart-" + _chartID + "-main .study-view-dc-chart-change").css('display','block');
-                $("#study-view-dc-chart-" + _chartID + "-main").css({'border-width':'2px', 'border-style':'inset'});
-            }
-                
-            for(var i=0; i<tmpResult.length ; i++){
-                tmpCaseID.push(tmpResult[i].CASE_ID);
-            }
-            setScatterPlotStyle(tmpCaseID,currentPieFilters);     
         });
             
         $(".study-view-bar-x-log").unbind('click').click(function() {
@@ -814,7 +826,7 @@ var StudyViewInitCharts = (function(){
     }
     function logScaleXBarChart(_chartID,_maxValue) {
         varChart[_chartID].x(d3.scale.log().nice().domain([1,_maxValue]));
-        var xAxisTickValue = [1];
+        var xAxisTickValue = [];
         for(var i=10 ; i< _maxValue ;){
             var tmp = _maxValue % i;
             if(tmp !== 0){
@@ -827,10 +839,10 @@ var StudyViewInitCharts = (function(){
     }
     function linearXBarChart(_chartID,_maxValue,_minValue) {
         varChart[_chartID].x(d3.scale.linear().domain([_minValue,_maxValue]));
-        var xAxisTickValue = ['0'];
-        var tmpValue = parseInt((_maxValue-_minValue) / 10);
+        var xAxisTickValue = [];
+        var tmpValue = parseInt((_maxValue-_minValue) / 9);
         
-        for(var i = 1; i< _maxValue ;i += tmpValue){
+        for(var i = 0; i< _maxValue ;i += tmpValue){
             var lengthCurrentNumber = i.toString().length -1;
             var tmp = (parseInt(i/(Math.pow(10,lengthCurrentNumber)))) * (Math.pow(10,lengthCurrentNumber));
             xAxisTickValue.push(tmp);
@@ -878,7 +890,6 @@ var StudyViewInitCharts = (function(){
         
         var dataTable1 = $('#dataTable').dataTable({
             "sScrollX": "1200px",
-            "sWidth": "1200px",
             "sScrollY": "300px",
             "bPaginate": false,
             "bFilter":true,
@@ -1052,6 +1063,34 @@ var StudyViewInitCharts = (function(){
     
     function fnCreateSelect( aData )
     {
+        var isNumericArray = true;
+        var hasNullValue = false;
+        for(var i=0;i<aData.length;i++){
+            if(isNaN(aData[i])){
+                if(aData[i] !== 'NA'){
+                    isNumericArray = false;
+                    break;
+                }else
+                    hasNullValue = true;
+            }
+        }
+        
+        if(isNumericArray && hasNullValue){
+            var index = aData.indexOf('NA');
+            if (index > -1) {
+                aData.splice(index, 1);
+            }
+        }
+        
+        if(isNumericArray){            
+            aData.sort(function(a,b) {
+                return Number(a) - Number(b);
+            });
+            if(hasNullValue)
+                aData.push('NA');
+        }else{
+            aData.sort();
+        }
         var r='<select><option value=""></option>', i, iLen=aData.length;
         for ( i=0 ; i<iLen ; i++ )
         {

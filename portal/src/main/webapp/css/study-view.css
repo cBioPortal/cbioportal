@@ -26,7 +26,7 @@
     margin-bottom: 10px;
 }
 #data-table-chart {
-    width:100%;
+    max-width:1200px;
     float:left;
     height:100%;
     margin-top:30px;
@@ -64,11 +64,13 @@
     width:1000px;
     margin:auto;
 }
+/*
 #dataTableLoading {
     float:left;
     width:1000px;
     margin:auto;
 }
+*/
 #study-view-updateContent {
     text-align:right;
     width: 500px;
@@ -317,14 +319,14 @@ ul li a {
 ul li a:hover, ul li a:focus {
     color:skyblue;
 }
-table.dataTable{
+#data-table-chart table.dataTable{
     width:100%;
     font-size:12px;
 }
 
-table.dataTable>tbody>tr>td {white-space:nowrap}
-table.dataTable>thead>tr>th:nth-child(1) {background-color: white;}
-table.dataTable>thead>tr>th {
+#data-table-chart table.dataTable>tbody>tr>td {white-space:nowrap}
+#data-table-chart table.dataTable>thead>tr>th:nth-child(1) {background-color: white;}
+#data-table-chart table.dataTable>thead>tr>th {
     //white-space:nowrap;
     -webkit-transform: rotate(315deg);  
     -moz-transform: rotate(315deg);
@@ -333,4 +335,5 @@ table.dataTable>thead>tr>th {
     border-style: hidden;
     text-align: center;
     vertical-align: middle;
+    word-wrap:break-word;
 }

@@ -31,8 +31,9 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoPdbUniprotAlignment;
+import org.mskcc.cbio.portal.dao.DaoPdbUniprotResidueMapping;
 import org.mskcc.cbio.portal.model.PdbUniprotAlignment;
+import org.mskcc.cbio.portal.model.PdbUniprotResidueMapping;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -78,11 +79,19 @@ public class PdbDataServlet extends HttpServlet
 		String uniprotId = request.getParameter("uniprotId");
 		String type = request.getParameter("type");
 
+		Set<Integer> positions = this.parseIntValues(request.getParameter("positions"));
+		Set<Integer> alignments = this.parseIntValues(request.getParameter("alignments"));
 		Set<String> pdbIds = this.parseStringValues(request.getParameter("pdbIds"));
 
 		try
 		{
-			if (pdbIds != null)
+			if (positions != null &&
+			    alignments != null)
+			{
+				JSONObject positionData = this.getPositionMap(alignments, positions);
+				this.writeOutput(response, positionData);
+			}
+			else if (pdbIds != null)
 			{
 				JSONObject pdbInfo = this.getPdbInfo(pdbIds);
 				this.writeOutput(response, pdbInfo);
@@ -229,7 +238,7 @@ public class PdbDataServlet extends HttpServlet
 		JSONArray alignmentArray = new JSONArray();
 
 		List<PdbUniprotAlignment> alignments =
-				DaoPdbUniprotAlignment.getAlignments(uniprotId);
+				DaoPdbUniprotResidueMapping.getAlignments(uniprotId);
 
 		for (PdbUniprotAlignment alignment : alignments)
 		{
@@ -239,11 +248,14 @@ public class PdbDataServlet extends HttpServlet
 			alignmentJson.put("alignmentId", alignmentId);
 			alignmentJson.put("pdbId", alignment.getPdbId());
 			alignmentJson.put("chain", alignment.getChain());
-			alignmentJson.put("uniprotId", alignment.getUniprotAcc());
+			alignmentJson.put("uniprotId", alignment.getUniprotId());
 			alignmentJson.put("pdbFrom", alignment.getPdbFrom());
 			alignmentJson.put("pdbTo", alignment.getPdbTo());
 			alignmentJson.put("uniprotFrom", alignment.getUniprotFrom());
 			alignmentJson.put("uniprotTo", alignment.getUniprotTo());
+			alignmentJson.put("eValue", alignment.getEValue());
+			alignmentJson.put("identityPerc", alignment.getIdentityPerc());
+			alignmentJson.put("alignmentString", this.alignmentString(alignment));
 
 			alignmentArray.add(alignmentJson);
 		}
@@ -253,14 +265,97 @@ public class PdbDataServlet extends HttpServlet
 
 	protected JSONObject getAlignmentSummary(String uniprotId) throws DaoException
 	{
-		Integer count = DaoPdbUniprotAlignment.getAlignmentCount(uniprotId);
+		Integer count = DaoPdbUniprotResidueMapping.getAlignmentCount(uniprotId);
 
 		JSONObject summary = new JSONObject();
 		summary.put("alignmentCount", count);
 
 		return summary;
 	}
-        
+
+	protected JSONObject getPositionMap(Set<Integer> alignments,
+			Set<Integer> positions) throws DaoException
+	{
+		Map<Integer, PdbUniprotResidueMapping> positionMap =
+				new HashMap<Integer, PdbUniprotResidueMapping>();
+
+		for (Integer alignmentId : alignments)
+		{
+			// get the pdb positions corresponding to the given uniprot positions
+			positionMap.putAll(DaoPdbUniprotResidueMapping.mapToPdbResidues(alignmentId, positions));
+		}
+
+		// create a json object for each PdbUniprotResidueMapping in the positionMap
+		JSONObject positionJson = new JSONObject();
+		positionJson.put("positionMap", this.positionMap(positionMap));
+
+		return positionJson;
+
+		// get all positions corresponding to the current alignment
+		//List<PdbUniprotResidueMapping> mappingList =
+		//		DaoPdbUniprotResidueMapping.getResidueMappings(alignmentId);
+
+		// create a json object for segments with special "match" values
+		//alignmentJson.put("segments", this.segmentArray(mappingList));
+	}
+
+	protected String alignmentString(PdbUniprotAlignment alignment)
+	{
+		StringBuilder sb = new StringBuilder();
+
+		// process 3 alignment strings and create a visualization string
+		String midline = alignment.getMidlineAlign();
+		String uniprot = alignment.getUniprotAlign();
+		String pdb = alignment.getPdbAlign();
+
+		if (midline.length() == uniprot.length() &&
+		    midline.length() == pdb.length())
+		{
+			for (int i = 0; i < midline.length(); i++)
+			{
+				// do not append anything if there is a gap in uniprot alignment
+				if (uniprot.charAt(i) != '-')
+				{
+					if (pdb.charAt(i) == '-')
+					{
+						sb.append('-');
+					}
+					else
+					{
+						sb.append(midline.charAt(i));
+					}
+				}
+			}
+		}
+		else
+		{
+			// the execution should never reach here,
+			// if everything is OK with the data...
+			sb.append("NA");
+		}
+
+		return sb.toString();
+	}
+
+	protected Map<Integer, JSONObject> positionMap(
+			Map<Integer, PdbUniprotResidueMapping> positionMap)
+	{
+		Map<Integer, JSONObject> map = new HashMap<Integer, JSONObject>();
+
+		for (Integer position : positionMap.keySet())
+		{
+			PdbUniprotResidueMapping mapping = positionMap.get(position);
+			JSONObject residueMappingJson = new JSONObject();
+
+			residueMappingJson.put("pdbPos", mapping.getPdbPos());
+			residueMappingJson.put("match", mapping.getMatch());
+
+			map.put(position, residueMappingJson);
+		}
+
+		return map;
+	}
+
 	// TODO it might be better to extract parse functions to a utility class
 
 	protected Set<String> parseStringValues(String values)

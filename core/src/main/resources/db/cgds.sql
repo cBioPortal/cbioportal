@@ -40,6 +40,7 @@ CREATE TABLE `cancer_study` (
   `CANCER_STUDY_IDENTIFIER` varchar(50),
   `TYPE_OF_CANCER_ID` varchar(25) NOT NULL,
   `NAME` varchar(255) NOT NULL,
+  `SHORT_NAME` varchar(64) NOT NULL,
   `DESCRIPTION` varchar(1024) NOT NULL,
   `PUBLIC` BOOLEAN NOT NULL,
   `PMID` varchar(20) DEFAULT NULL,
@@ -82,7 +83,7 @@ CREATE TABLE `authorities` (
 drop table IF EXISTS case_list;
 CREATE TABLE `case_list` (
   `LIST_ID` int(11) NOT NULL auto_increment,
-  `STABLE_ID` varchar(50) NOT NULL,
+  `STABLE_ID` varchar(255) NOT NULL,
   `CATEGORY` varchar(255) NOT NULL,
   `CANCER_STUDY_ID` int(11) NOT NULL,
   `NAME` varchar(255) NOT NULL,

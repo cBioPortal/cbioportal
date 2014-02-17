@@ -25,7 +25,6 @@
 <script type="text/javascript" src="js/lib/d3.min.js"></script>
 <script type="text/javascript" src="js/lib/igv_webstart.js"></script>
 
-<!--script type="text/javascript" src="js/lib/jsmol/JSmol.min.nojq.js"></script-->
 <script type="text/javascript" src="js/lib/jmol/JmolCore.js"></script>
 <script type="text/javascript" src="js/lib/jmol/JmolApplet.js"></script>
 <script type="text/javascript" src="js/lib/jmol/JmolControls.js"></script>
@@ -50,6 +49,7 @@
 <script type="text/javascript" src="js/src/global-tabs.js"></script>
 <script type="text/javascript" src="js/src/gene-symbol-validator.js"></script>
 <script type="text/javascript" src="js/src/d3.right-menu-stats.js"></script>
+<script type="text/javascript" src="js/src/DataProxyFactory.js"></script>
 
 <script type="text/javascript" src="js/src/mutation/component/mutation_diagram.js"></script>
 <script type="text/javascript" src="js/src/mutation/component/mutation_table.js"></script>
@@ -65,7 +65,15 @@
 <script type="text/javascript" src="js/src/mutation/util/MergedAlignmentSegmentor.js"></script>
 <script type="text/javascript" src="js/src/mutation/util/PdbDataUtil.js"></script>
 <script type="text/javascript" src="js/src/mutation/util/PileupUtil.js"></script>
+<script type="text/javascript" src="js/src/mutation/util/JmolWrapper.js"></script>
+<script type="text/javascript" src="js/src/mutation/util/JSmolWrapper.js"></script>
 <script type="text/javascript" src="js/src/mutation/data/PdbDataProxy.js"></script>
 <script type="text/javascript" src="js/src/mutation/data/MutationDataProxy.js"></script>
+<script type="text/javascript" src="js/src/mutation/controller/MutationDetailsEvents.js"></script>
+<script type="text/javascript" src="js/src/mutation/controller/MainMutationController.js"></script>
+<script type="text/javascript" src="js/src/mutation/controller/Mutation3dController.js"></script>
+<script type="text/javascript" src="js/src/mutation/controller/MutationDetailsTableController.js"></script>
+<script type="text/javascript" src="js/src/mutation/controller/MutationDiagramController.js"></script>
+
 
 

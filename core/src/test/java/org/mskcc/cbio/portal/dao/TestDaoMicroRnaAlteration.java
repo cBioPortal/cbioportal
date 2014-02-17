@@ -59,8 +59,7 @@ public class TestDaoMicroRnaAlteration extends TestCase {
         orderedCaseList.add("TCGA-3");
         orderedCaseList.add("TCGA-4");
 
-        DaoGeneticProfileCases daoGeneticProfileCases = new DaoGeneticProfileCases();
-        int numRows = daoGeneticProfileCases.addGeneticProfileCases(1, orderedCaseList);
+        int numRows = DaoGeneticProfileCases.addGeneticProfileCases(1, orderedCaseList);
         assertEquals (1, numRows);
 
         String data = "1.2:1.4:1.6:1.8";

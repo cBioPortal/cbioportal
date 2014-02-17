@@ -8,6 +8,8 @@
  *                   start: [start position],
  *                   end: [end position]}
  *          }
+ *
+ * @author Selcuk Onur Sumer
  */
 var RegionTipView = Backbone.View.extend({
 	render: function()

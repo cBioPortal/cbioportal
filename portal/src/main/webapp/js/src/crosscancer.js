@@ -67,11 +67,7 @@
         };
 
         var getStudyAbbr = function(study, metaData) {
-            var tokens = study.studyId.split("_", 2);
-            var firstPart = metaData.short_names[study.typeOfCancer];
-            var secondPart = " (" + tokens[1].toLocaleUpperCase().replace("_") + ")";
-
-            return firstPart + secondPart;
+            return metaData.cancer_studies[study.studyId].short_name;
         };
 
         var calculateFrequency = function(d, i, type) {
@@ -819,6 +815,11 @@
                                 redrawHistogram();
                             });
 
+			    // By default hide unaltered studies and animate this to warn user about this change
+			    if( $("#histogram-remove-notaltered").trigger("click") ) {
+                                setTimeout(redrawHistogram, 3000);
+			    }
+
                             // Let's load the mutation details as well
                             var servletParams = {
                                 data_priority: priority
@@ -837,7 +838,9 @@
 	                            tableOpts: {
 		                            columnVisibility: {
 			                            // TODO "excludeIfHidden" instead?
-			                            "cancer study": "visible"
+			                            "cancer study": "visible",
+			                            // exclude tumor type for now
+			                            "tumor type": "exclude"
 		                            }
 	                            }
                             };
@@ -1069,7 +1072,7 @@
                     model: {
                         tab: tab,
                         priority: priority,
-                        genes: genes
+                        genes: genes.replace(/_/g, "/")
                     }
                 })).render();
             }

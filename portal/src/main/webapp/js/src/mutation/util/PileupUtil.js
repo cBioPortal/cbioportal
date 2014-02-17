@@ -1,5 +1,7 @@
 /**
  * Singleton utility class for pileup related tasks.
+ *
+ * @author Selcuk Onur Sumer
  */
 var PileupUtil = (function()
 {
@@ -69,19 +71,7 @@ var PileupUtil = (function()
 	 */
 	var generateTypeGroupArray = function (pileup)
 	{
-		// TODO a very similar mapping is also used in the mutation table view
-		// ...it might be better to merge these two mappings to avoid duplication
-		var typeToGroupMap = {
-			missense_mutation: "missense_mutation",
-			nonsense_mutation: "trunc_mutation",
-			nonstop_mutation: "trunc_mutation",
-			frame_shift_del: "trunc_mutation",
-			frame_shift_ins: "trunc_mutation",
-			in_frame_ins: "inframe_mutation",
-			in_frame_del: "inframe_mutation",
-			splice_site: "trunc_mutation",
-			other: "other_mutation"
-		};
+		var mutationTypeMap = MutationViewsUtil.getVisualStyleMaps().mutationType;
 
 		var typeMap = generateTypeMap(pileup);
 		var groupArray = [];
@@ -92,11 +82,12 @@ var PileupUtil = (function()
 
 		for (var type in typeMap)
 		{
-			var group = typeToGroupMap[type];
+			// grouping mutations by the style (not by the type)
+			var group = mutationTypeMap[type].style;
 
 			if (group == undefined)
 			{
-				group = typeToGroupMap.other;
+				group = mutationTypeMap.other.style;
 			}
 
 			if (groupCountMap[group] == undefined)

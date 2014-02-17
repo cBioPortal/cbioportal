@@ -12,14 +12,13 @@ import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
  */
 public class CnaEvent {
     private String caseId;
-    private int cnaProfileId;
-    private long eventId;
-    private CanonicalGene gene;
-    private CNA alteration;
+    private int cnaProfileId;;
+    private Event event;
     
     public static enum CNA {
         AMP ((short)2, "Amplified"),
         GAIN ((short)1, "Gained"),
+        DIPLOID ((short)0, "Diploid"),
         HETLOSS ((short)-1, "Heterozygously deleted"),
         HOMDEL ((short)-2, "Homozygously deleted");
         
@@ -31,7 +30,7 @@ public class CnaEvent {
             this.desc = desc;
         }
         
-        private static Map<Short, CNA> cache = new HashMap<Short, CNA>();
+        private final static Map<Short, CNA> cache = new HashMap<Short, CNA>();
         static {
             for (CNA cna : CNA.values()) {
                 cache.put(cna.code, cna);
@@ -50,27 +49,96 @@ public class CnaEvent {
             return desc;
         }
     }
+    
+    public static class Event {
+        private long eventId;
+        private CanonicalGene gene;
+        private CNA alteration;
+
+        public long getEventId() {
+            return eventId;
+        }
+
+        public void setEventId(long eventId) {
+            this.eventId = eventId;
+        }
+
+        public CanonicalGene getGene() {
+            return gene;
+        }
+
+        public void setGene(CanonicalGene gene) {
+            this.gene = gene;
+        }
+
+        public void setEntrezGeneId(long entrezGeneId) {
+            setGene(DaoGeneOptimized.getInstance().getGene(entrezGeneId));
+            if (gene == null) {
+                throw new IllegalArgumentException("Could not find entrez gene id: "+entrezGeneId);
+            } 
+        }
+
+        public CNA getAlteration() {
+            return alteration;
+        }
+
+        public void setAlteration(CNA alteration) {
+            this.alteration = alteration;
+        }
+        
+        public void setAlteration(short alteration) {
+            this.alteration = CNA.getByCode(alteration);
+            if (this.alteration == null) {
+                throw new IllegalArgumentException("wrong copy number alteration");
+            }
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 3;
+            hash = 97 * hash + (this.gene != null ? this.gene.hashCode() : 0);
+            hash = 97 * hash + (this.alteration != null ? this.alteration.hashCode() : 0);
+            return hash;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final Event other = (Event) obj;
+            if (this.gene != other.gene && (this.gene == null || !this.gene.equals(other.gene))) {
+                return false;
+            }
+            if (this.alteration != other.alteration) {
+                return false;
+            }
+            return true;
+        }
+        
+    }
 
     public CnaEvent(String caseId, int cnaProfileId, long entrezGeneId, short alteration) {
+        event = new Event();
         setEntrezGeneId(entrezGeneId);
         this.caseId = caseId;
         this.cnaProfileId = cnaProfileId;
-        this.alteration = CNA.getByCode(alteration);
-        if (this.alteration == null) {
-            throw new IllegalArgumentException("wrong copy number alteration");
-        }
+        event.setAlteration(alteration);
     }
 
     public CNA getAlteration() {
-        return alteration;
+        return event.alteration;
     }
 
     public void setAlteration(CNA alteration) {
-        this.alteration = alteration;
+        event.setAlteration(alteration);
     }
 
     public void setAlteration(short alteration) {
-        this.alteration = CNA.getByCode(alteration);
+        event.setAlteration(CNA.getByCode(alteration));
     }
 
     public String getCaseId() {
@@ -90,25 +158,62 @@ public class CnaEvent {
     }
 
     public long getEntrezGeneId() {
-        return gene.getEntrezGeneId();
+        return event.getGene().getEntrezGeneId();
     }
     
     public String getGeneSymbol() {
-        return gene.getHugoGeneSymbolAllCaps();
+        return event.getGene().getHugoGeneSymbolAllCaps();
     }
 
     public void setEntrezGeneId(long entrezGeneId) {
-        this.gene = DaoGeneOptimized.getInstance().getGene(entrezGeneId);
-        if (this.gene == null) {
+        event.setEntrezGeneId(entrezGeneId);
+        if (event.gene == null) {
             throw new IllegalArgumentException("Could not find entrez gene id: "+entrezGeneId);
         } 
     }
 
     public long getEventId() {
-        return eventId;
+        return event.getEventId();
     }
 
     public void setEventId(long eventId) {
-        this.eventId = eventId;
+        event.setEventId(eventId);
     }
+
+    public Event getEvent() {
+        return event;
+    }
+
+    public void setEvent(Event event) {
+        this.event = event;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final CnaEvent other = (CnaEvent) obj;
+        if ((this.caseId == null) ? (other.caseId != null) : !this.caseId.equals(other.caseId)) {
+            return false;
+        }
+        if (this.cnaProfileId != other.cnaProfileId) {
+            return false;
+        }
+        if (this.event != other.event && (this.event == null || !this.event.equals(other.event))) {
+            return false;
+        }
+        return true;
+    }
+    
+    
 }

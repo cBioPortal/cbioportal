@@ -10,6 +10,8 @@
  *           mut3dVisView: [optional] reference to the Mutation3dVisView instance,
  *           diagram: [optional] reference to the MutationDiagram instance
  *          }
+ *
+ * @author Selcuk Onur Sumer
  */
 var PdbPanelView = Backbone.View.extend({
 	initialize : function (options) {
@@ -80,14 +82,9 @@ var PdbPanelView = Backbone.View.extend({
 		var self = this;
 
 		var panel = self.pdbPanel;
-		var gene = self.model.geneSymbol;
 		var vis = self.options.mut3dVisView;
 
 		var gChain = panel.getDefaultChainGroup();
-		var defaultDatum = gChain.datum();
-
-		// highlight the default chain
-		panel.highlight(gChain);
 
 		// update the color mapper for the 3D visualizer
 		// TODO this is not an ideal solution, but...
@@ -106,10 +103,10 @@ var PdbPanelView = Backbone.View.extend({
 			return color;
 		};
 
-		vis.options.mut3dVis.updateOptions({mutationColor: colorMapper});
+		vis.options.mut3dVis.updateOptions({mutationColorMapper: colorMapper});
 
-		// update the view with default chain
-		vis.updateView(gene, defaultDatum.pdbId, defaultDatum.chain);
+		// highlight the default chain
+		panel.highlight(gChain);
 	},
 	/**
 	 * Initializes the PDB chain panel.
@@ -125,7 +122,6 @@ var PdbPanelView = Backbone.View.extend({
 		var pdbColl = self.model.pdbColl;
 		var pdbProxy = self.model.pdbProxy;
 		var mutationDiagram = self.options.diagram;
-		var vis = self.options.mut3dVisView;
 
 		if (mutationDiagram != null)
 		{
@@ -139,17 +135,6 @@ var PdbPanelView = Backbone.View.extend({
 			// init panel
 			panel = new MutationPdbPanel(options, pdbColl, pdbProxy, xScale);
 			panel.init();
-
-			// add event listeners for chain selection
-			if (vis != null)
-			{
-				panel.addListener(".pdb-chain-group", "click", function(datum, index) {
-					// update view with the selected chain data
-					vis.updateView(gene, datum.pdbId, datum.chain);
-					// also highlight the selected chain on the pdb panel
-					panel.highlight(d3.select(this));
-				});
-			}
 		}
 
 		return panel;

@@ -41,6 +41,18 @@ cbio.util = (function() {
         }
         return aa;
     };
+        
+    var uniqueElementsOfArray = function(arr) {
+        var ret = [];
+        var aa = {};
+        for (var i=0, n=arr.length; i<n; i++) {
+            if (!(arr[i] in aa)) {
+                ret.push(arr[i]);
+                aa[arr[i]] = 1;
+            }
+        }
+        return ret;
+    };
 
     var alterAxesAttrForPDFConverter = function(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, rollback) {
 
@@ -168,14 +180,35 @@ cbio.util = (function() {
 		return browser;
 	};
 
+	/**
+	 * Retrieves the page origin from the global window object. This function is
+	 * introduced to eliminate cross-browser issues (window.location.origin is
+	 * undefined for IE)
+	 */
+	var getOrigin = function()
+	{
+		var origin = window.location.origin;
+
+		if (!origin)
+		{
+			origin = window.location.protocol + "//" +
+			         window.location.hostname +
+			         (window.location.port ? ':' + window.location.port: '');
+		}
+
+		return origin;
+	};
+
     return {
         toPrecision: toPrecision,
         getObjectLength: getObjectLength,
         checkNullOrUndefined: checkNullOrUndefined,
+        uniqueElementsOfArray: uniqueElementsOfArray,
         arrayToAssociatedArrayIndices: arrayToAssociatedArrayIndices,
         alterAxesAttrForPDFConverter: alterAxesAttrForPDFConverter,
         lcss: lcss,
-	    browser: detectBrowser() // returning the browser object, not the function itself
+	    browser: detectBrowser(), // returning the browser object, not the function itself
+	    getWindowOrigin: getOrigin
     };
 
 })();

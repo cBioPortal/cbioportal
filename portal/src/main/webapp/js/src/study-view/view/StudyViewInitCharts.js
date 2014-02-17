@@ -27,7 +27,6 @@ var StudyViewInitCharts = (function(){
         "#bea413","#0c5922","#743411"]; // Color scale from GOOGLE charts
 
     var scatterStudyView = new ScatterPlots();
-    var labelInfo = [];
     
     function initParameters(o) {
         parObject.studyId = o.studyId;
@@ -886,33 +885,18 @@ var StudyViewInitCharts = (function(){
             "aaData":tmpB
         });
         
-        /*       
-        $(".dataTables_scrollFoot tfoot th").each( function ( i ) {
-            this.innerHTML = fnCreateSelect( dataTable1.fnGetColumnData(i) );
-            //console.log(this);
-            $(this).attr('class','dataTableSelect');
-            $('select', this).change( function () {
-                dataTable1.fnFilter( $(this).val(), i );
-            } );
-        } );
-        */
-        //$(".dataTables_scrollFoot>tfoot>th:nth-child(1)").chosen();
         $("#dataTable_filter label input").attr("value","");
         $('#study-view-dataTable-header').click(function(){
-            if($("#dataTable_filter label input").val() !== ""){
-                    var items=[];
-                    $('#dataTable>tbody>tr>td:nth-child(1)').each( function(){
-                       items.push( $(this).text() );       
-                    });
-                    var items = $.unique( items );
-                    
-                    varChart[attrNameMapUID['CASE_ID']].filterAll();
-                    varChart[attrNameMapUID['CASE_ID']].filter([items]);
-                    dc.redrawAll();
-            }else{
-                    varChart[attrNameMapUID['CASE_ID']].filterAll();
-                    dc.redrawAll();
-            }
+            var items=[];
+            $('#dataTable>tbody>tr>td:nth-child(1)').each( function(){
+               items.push( $(this).text() );       
+            });
+            var items = $.unique( items );
+
+            varChart[attrNameMapUID['CASE_ID']].filterAll();
+            varChart[attrNameMapUID['CASE_ID']].filter([items]);
+            dc.redrawAll();
+            setScatterPlotStyle(items,varChart[attrNameMapUID['CASE_ID']].filters());
         });
         
         $('#study-view-dataTable-updateTable').click(function(){
@@ -923,9 +907,47 @@ var StudyViewInitCharts = (function(){
             }
             filterString = filterString.substr(0,filterString.length-1);
             dataTable1.fnFilter(filterString,0,true);
+            updateTable(dataTable1);
+            resizeLeftColumn();            
+            refreshSelectionInDataTable([0],dataTable1);
+            dataTable1.fnAdjustColumnSizing();
         });
     }  
- 
+    
+    function resizeLeftColumn(){
+        var heightBody = $(".dataTables_scrollBody").css('height');
+        var heightTable = $('.dataTables_scroll').css('height');
+        $(".DTFC_LeftBodyLiner").css('height',heightBody);
+        $(".DTFC_LeftBodyWrapper").css('height',heightBody); 
+        $('.DTFC_ScrollWrapper').css('height',heightTable);            
+    }
+    
+    function refreshSelectionInDataTable(_unrefreshID, _dataTable){
+        $(".dataTables_scrollFoot tfoot th").each( function ( i ) {
+            if(_unrefreshID.indexOf(i) === -1){                
+                $(this).css('z-index','1500');
+                this.innerHTML = fnCreateSelect( _dataTable.fnGetColumnData(i));
+                $('select', this).change( function () {
+                    if($(this).val() === '')
+                        _dataTable.fnFilter($(this).val(), i);
+                    else    
+                        _dataTable.fnFilter("^"+$(this).val()+"$", i, true);
+                    refreshSelectionInDataTable([0,i],_dataTable);
+                    resizeLeftColumn();
+                });
+            }
+        });
+    }
+    
+    function updateTable(_dataTable){
+        var oSettings = _dataTable.fnSettings();
+        for(var iCol = 1; iCol < oSettings.aoPreSearchCols.length; iCol++) {
+            oSettings.aoPreSearchCols[ iCol ].sSearch = '';
+        }
+        oSettings.oPreviousSearch.sSearch = '';
+        _dataTable.fnDraw();
+    }
+    
     function decimalPlaces(num) {
         var match = (''+num).match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
         if (!match) { return 0; }
@@ -950,7 +972,7 @@ var StudyViewInitCharts = (function(){
             stroke: 'red'            
         };
         */
-        //console.log(_selectedCaseID);
+       
         var style=[];
         for(var i=0 ; i< parObject.caseIds.length ; i++){
             var styleDatum ={};
@@ -972,7 +994,6 @@ var StudyViewInitCharts = (function(){
             }
             style.push(styleDatum);
         }
-        //console.log(style);
         scatterStudyView.updateStyle(style);
     }
     
@@ -998,23 +1019,9 @@ var StudyViewInitCharts = (function(){
             $("table.dataTable>thead>tr>th:nth-child("+i+")").height(maxX/Math.cos(radians));
         }
         
-        var oTable = $('#dataTable').dataTable();        
-        //$('#dataTable').dataTable().columnFilter();
-        $(".dataTables_scrollFoot tfoot th").each( function ( i ) {
-            if(i !== 0){                
-                $(this).css('z-index','1500');
-                this.innerHTML = fnCreateSelect( oTable.fnGetColumnData(i) );
-                $('select', this).change( function () {
-                    oTable.fnFilter( $(this).val(), i );
-                    var heightBody = $(".dataTables_scrollBody").css('height');
-                    var heightTable = $('.dataTables_scroll').css('height');
-                    $(".DTFC_LeftBodyLiner").css('height',heightBody);
-                    $(".DTFC_LeftBodyWrapper").css('height',heightBody); 
-                    $('.DTFC_ScrollWrapper').css('height',heightTable);
-                });
-            }
-            //$(this).find('select').chosen();
-        });
+        var oTable = $('#dataTable').dataTable();
+        
+        refreshSelectionInDataTable([0],oTable);
         
         oTable.fnAdjustColumnSizing();
         new FixedColumns( oTable);

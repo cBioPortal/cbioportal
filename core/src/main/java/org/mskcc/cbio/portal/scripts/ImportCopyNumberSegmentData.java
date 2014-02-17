@@ -5,6 +5,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
@@ -59,7 +60,7 @@ public class ImportCopyNumberSegmentData {
             }
             long start = Double.valueOf(strs[2]).longValue();
             long end = Double.valueOf(strs[3]).longValue();
-            int numProbes = Integer.parseInt(strs[4]);
+            int numProbes = new BigDecimal((strs[4])).intValue();
             double segMean = Double.parseDouble(strs[5]);
             
             CopyNumberSegment cns = new CopyNumberSegment(cancerStudyId, caseId, strs[1], start, end, numProbes, segMean);

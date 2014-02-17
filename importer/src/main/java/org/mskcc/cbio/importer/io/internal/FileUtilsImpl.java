@@ -655,8 +655,8 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	}
 
 	@Override
-	public void writeZScoresStagingFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata,
-										DatatypeMetadata datatypeMetadata, DatatypeMetadata[] dependencies) throws Exception {
+	public boolean writeZScoresStagingFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata,
+                                           DatatypeMetadata datatypeMetadata, DatatypeMetadata[] dependencies) throws Exception {
 
 		// sanity check
 		if (dependencies.length != 2) {
@@ -674,7 +674,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("writeZScoresStagingFile(), cannot find cna file dependency: " + cnaFile.getCanonicalPath());
 			}
-			return;
+			return false;
 		}
 
 		File expressionFile = org.apache.commons.io.FileUtils.getFile(stagingDirectory,
@@ -684,7 +684,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("writeZScoresStagingFile(), cannot find expression file dependency: " + expressionFile.getCanonicalPath());
 			}
-			return;
+			return false;
 		}
 
 		// we need a zscore file
@@ -710,7 +710,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			if (zScoresFile.exists()) {
 				org.apache.commons.io.FileUtils.forceDelete(zScoresFile);
 			}
-			return;
+			return false;
 		}
 		
 		// meta file
@@ -720,6 +720,8 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			}
 			writeMetadataFile(stagingDirectory, cancerStudyMetadata, datatypeMetadata, null);
 		}
+
+        return true;
 	}
 
 	@Override

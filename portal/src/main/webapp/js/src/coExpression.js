@@ -119,7 +119,7 @@ var CoExpView = (function() {
             //Configure the datatable with  jquery
             _coExpTable = $("#" + Names.tableId).dataTable({
                 "sDom": '<"H"f<"coexp-table-filter-pearson">>t<"F"i<"datatable-paging"p>>',
-                "sPaginationType": "scrolling",
+                "sPaginationType": "full_numbers",
                 "bJQueryUI": true,
                 "bAutoWidth": false,
                 "aaData" : coexp_table_arr,
@@ -164,8 +164,7 @@ var CoExpView = (function() {
                     }
                 },
                 "bDeferRender": true,
-                "iDisplayLength": 26,
-                "sPaginationType": "full_numbers"
+                "iDisplayLength": 26
             });  //close data table
         }
 

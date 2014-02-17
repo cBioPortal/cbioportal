@@ -141,9 +141,8 @@ var MutationDetailsController = function(
 						el: "#mutation_3d_" + gene,
 						model: {uniprotId: sequence.metadata.identifier,
 							geneSymbol: gene,
-							pdbProxy: _pdbProxy},
-						mut3dVisView: _mut3dVisView,
-						diagram: diagram});
+							pdbProxy: _pdbProxy}
+					});
 
 					view3d.render();
 
@@ -177,7 +176,7 @@ var MutationDetailsController = function(
 			// init controllers
 			new MainMutationController(mainMutationView, mutationDiagram);
 			new MutationDetailsTableController(mutationTableView, mutationDiagram);
-			new Mutation3dController(mutationDetailsView, _mut3dVisView, view3d, mutationDiagram, gene);
+			new Mutation3dController(mutationDetailsView, _mut3dVisView, view3d, mut3dVis, _pdbProxy, mutationDiagram, gene);
 			new MutationDiagramController(mutationDiagram, mutationTableView.tableUtil, mutationUtil);
 		};
 

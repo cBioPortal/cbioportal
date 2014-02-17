@@ -7,7 +7,6 @@
  *           model: {geneSymbol: hugo gene symbol,
  *                   pdbColl: collection of PdbModel instances,
  *                   pdbProxy: pdb data proxy},
- *           mut3dVisView: [optional] reference to the Mutation3dVisView instance,
  *           diagram: [optional] reference to the MutationDiagram instance
  *          }
  *
@@ -74,36 +73,14 @@ var PdbPanelView = Backbone.View.extend({
 		self.$el.slideDown();
 	},
 	/**
-	 * Loads the 3D visualizer for the default pdb and chain.
+	 * Selects the 3D visualizer for the default pdb and chain.
 	 * Default chain is one of the chains in the first row.
 	 */
-	loadDefaultChain: function()
+	selectDefaultChain: function()
 	{
 		var self = this;
-
 		var panel = self.pdbPanel;
-		var vis = self.options.mut3dVisView;
-
 		var gChain = panel.getDefaultChainGroup();
-
-		// update the color mapper for the 3D visualizer
-		// TODO this is not an ideal solution, but...
-		// ...while we have multiple diagrams, the 3d visualizer is a singleton
-		var colorMapper = function(mutationId, pdbId, chain) {
-			var mutationDiagram = self.options.diagram;
-			var color = mutationDiagram.mutationColorMap[mutationId];
-
-			if (color)
-			{
-				// this is for Jmol compatibility
-				// (colors should start with an "x" instead of "#")
-				color = color.replace("#", "x");
-			}
-
-			return color;
-		};
-
-		vis.options.mut3dVis.updateOptions({mutationColorMapper: colorMapper});
 
 		// highlight the default chain
 		panel.highlight(gChain);

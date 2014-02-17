@@ -6,17 +6,19 @@
  * @param mutationDetailsView   a MutationDetailsView instance
  * @param mut3dVisView          a Mutation3dVisView instance
  * @param mut3dView             a Mutation3dView instance
+ * @param mut3dVis              singleton Mutation3dVis instance
+ * @param pdbProxy              proxy for pdb data
  * @param mutationDiagram       a MutationDiagram instance
  * @param geneSymbol            hugo gene symbol (string value)
  *
  * @author Selcuk Onur Sumer
  */
 var Mutation3dController = function (
-	mutationDetailsView, mut3dVisView, mut3dView, mutationDiagram, geneSymbol)
+	mutationDetailsView, mut3dVisView, mut3dView, mut3dVis, pdbProxy, mutationDiagram, geneSymbol)
 {
 	// we cannot get pdb panel view as a constructor parameter,
-	// since it is initialized after initializing the controller
-	var pdbPanelView = null;
+	// since it is initialized after initializing this controller
+	var _pdbPanelView = null;
 
 	function init()
 	{
@@ -43,10 +45,6 @@ var Mutation3dController = function (
 			diagramResetHandler);
 
 		// add listeners for the mutation 3d view
-		mut3dView.dispatcher.on(
-			MutationDetailsEvents.PDB_PANEL_INIT,
-			pdbPanelInitHandler);
-
 		mut3dView.addInitCallback(mut3dInitHandler);
 
 		// add listeners for the mutation 3d vis view
@@ -90,28 +88,15 @@ var Mutation3dController = function (
 	function view3dPanelCloseHandler()
 	{
 		// hide the corresponding pdb panel view
-		if (pdbPanelView)
+		if (_pdbPanelView)
 		{
-			pdbPanelView.hideView();
+			_pdbPanelView.hideView();
 		}
-	}
-
-	function pdbPanelInitHandler(panelView)
-	{
-		pdbPanelView = panelView;
-
-		// we cannot add pdbPanel listeners at actual init of the controller,
-		// since pdb panel is conditionally initialized at a later point
-
-		// add listeners to the custom event dispatcher of the pdb panel
-		panelView.pdbPanel.dispatcher.on(
-			MutationDetailsEvents.CHAIN_SELECTED,
-			chainSelectHandler);
 	}
 
 	function mut3dInitHandler(event)
 	{
-		mut3dView.resetView();
+		reset3dView();
 
 		if (mut3dVisView != null)
 		{
@@ -230,6 +215,75 @@ var Mutation3dController = function (
 		{
 			mut3dVisView.hideResidueWarning();
 		}
+	}
+
+	/**
+	 * Resets the 3D view to its initial state. This function also initializes
+	 * the PDB panel view if it is not initialized yet.
+	 */
+	function reset3dView()
+	{
+		var gene = geneSymbol;
+		var uniprotId = mut3dView.model.uniprotId; // TODO get this from somewhere else
+
+		var initView = function(pdbColl)
+		{
+			// init pdb panel view if not initialized yet
+			if (_pdbPanelView == null)
+			{
+				// TODO PdbPanelView instance is only accessible within this controller,
+				// it might be better to move the pdb panel init function into another view.
+				// (actually the div "mutation_pdb_panel_view" is a part of MainMutationView)
+
+				var panelOpts = {el: "#mutation_pdb_panel_view_" + gene.toUpperCase(),
+					model: {geneSymbol: gene, pdbColl: pdbColl, pdbProxy: pdbProxy},
+					diagram: mutationDiagram};
+
+				_pdbPanelView = new PdbPanelView(panelOpts);
+				_pdbPanelView.render();
+
+				// add listeners to the custom event dispatcher of the pdb panel
+				_pdbPanelView.pdbPanel.dispatcher.on(
+					MutationDetailsEvents.CHAIN_SELECTED,
+					chainSelectHandler);
+			}
+
+			// reload the visualizer content with the default pdb and chain
+			if (mut3dVisView != null &&
+			    _pdbPanelView != null &&
+			    pdbColl.length > 0)
+			{
+				updateColorMapper();
+				_pdbPanelView.showView();
+				_pdbPanelView.selectDefaultChain();
+			}
+		};
+
+		// init view with the pdb data
+		pdbProxy.getPdbData(uniprotId, initView);
+	}
+
+	/**
+	 * Updates the color mapper of the 3D visualizer.
+	 */
+	function updateColorMapper()
+	{
+		// TODO this is not an ideal solution, but...
+		// ...while we have multiple diagrams, the 3d visualizer is a singleton
+		var colorMapper = function(mutationId, pdbId, chain) {
+			var color = mutationDiagram.mutationColorMap[mutationId];
+
+			if (color)
+			{
+				// this is for Jmol compatibility
+				// (colors should start with an "x" instead of "#")
+				color = color.replace("#", "x");
+			}
+
+			return color;
+		};
+
+		mut3dVis.updateOptions({mutationColorMapper: colorMapper});
 	}
 
 	init();

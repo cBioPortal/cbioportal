@@ -400,7 +400,7 @@ var StudyViewInitCharts = (function(){
         .radius(pieRadius)
         .dimension(varCluster[_chartID])
         .group(varGroup[_chartID])
-        .transitionDuration(1200)
+        .transitionDuration(600)
         .ordinalColors(chartColors)
         .label(function (d) {
             return d.value;
@@ -427,6 +427,9 @@ var StudyViewInitCharts = (function(){
                 }
                 setScatterPlotStyle(tmpCaseID,currentPieFilters);
             });
+            varChart[_chartID].on("postRedraw",function(chart){
+                addPieLabels("study-view-dc-chart-" + _chartID);
+            });
             varChart[_chartID].on("postRender",function(chart){
                 addPieLabels("study-view-dc-chart-" + _chartID);
             });
@@ -439,29 +442,28 @@ var StudyViewInitCharts = (function(){
         var labelSize = 10;
         var fontSize = labelSize +1;
         
+        $('#' + _pieChartID + '-main .study-view-pie-label').html("");
+          
         $('#' + _pieChartID + '>svg>g>g').each(function(){
             var labelDatum = {};            
             var labelName = $(this).find('title').text().split(':');
-            var color = $(this).find('path').attr('fill');
-            //var tmpPointsInfo = $(this).find('path').attr('d').split(/[\s,MLHVCSQTAZ]/);            
+            var color = $(this).find('path').attr('fill');            
+            var tmpPointsInfo = $(this).find('path').attr('d').split(/[\s,MLHVCSQTAZ]/);            
             
-            
-            labelDatum.id = labelID;
-            labelDatum.name = labelName[0];
-            labelDatum.color = color;
-            labelDatum.parentID = _pieChartID;
-            labelDatum.value = labelName[1];
-            /*
-            labelDatum.x1 = Number(tmpPointsInfo[1]);
-            labelDatum.y1 = Number(tmpPointsInfo[2]);
-            labelDatum.largeArc = Number(tmpPointsInfo[6]);
-            labelDatum.sweep = Number(tmpPointsInfo[7]);
-            labelDatum.x2 = Number(tmpPointsInfo[8]);
-            labelDatum.y2 = Number(tmpPointsInfo[9]);
-            labelDatum.r = Number(tmpPointsInfo[3]);
-            */
-            label.push(labelDatum);
-            labelID++;
+            var x1 = Number(tmpPointsInfo[1]);
+            var y1 = Number(tmpPointsInfo[2]);
+            var x2 = Number(tmpPointsInfo[8]);
+            var y2 = Number(tmpPointsInfo[9]);
+            //addPieSliceQTip(this,labelName[0]);
+            if(x1 !== x2 || y1 !== y2){
+                labelDatum.id = labelID;
+                labelDatum.name = labelName[0];
+                labelDatum.color = color;
+                labelDatum.parentID = _pieChartID;
+                labelDatum.value = labelName[1];
+                label.push(labelDatum);
+            }
+            labelID++;            
         });
         
         var totalTableNum = parseInt(label.length/5) + 1;
@@ -496,7 +498,7 @@ var StudyViewInitCharts = (function(){
                                 .find('#table-'+_pieChartID+'-'+tableId+
                                     ' tr:nth-child(' + innerID +')')
                                 .append('<td class="pieLabel" id="pieLabel-'
-                                    +_pieChartID+'-'+i
+                                    +_pieChartID+'-'+label[i].id+"-"+i
                                     +'" style="font-size:'
                                     +fontSize+'px"><svg width="75" height="13"><rect width="'
                                     +labelSize+'" height="'+labelSize+'" style="fill:' 
@@ -519,8 +521,7 @@ var StudyViewInitCharts = (function(){
                         } 
                         $('#' + _pieChartID + '-main')
                                 .find('#table-'+_pieChartID+'-'+tableId+' tr:nth-child(' + innerID +')')
-                                .append('<td id="pieLabel-'+_pieChartID+'-'+i
-                                    +'" style="width="75px" height="15px" font-size:'
+                                .append('<td style="width="75px" height="15px" font-size:'
                                     +fontSize+'px"></td>');
                     }
                 }
@@ -562,7 +563,7 @@ var StudyViewInitCharts = (function(){
                 $('#' + _pieChartID + '-main')
                         .find('table tr:nth-child(' + innerID +')')
                         .append('<td class="pieLabel" id="pieLabel-'
-                            +_pieChartID+'-'+i+'"  style="font-size:'
+                            +_pieChartID+'-'+label[i].id+'-'+i+'"  style="font-size:'
                             +fontSize+'px"><svg width="75" height="13"><rect width="'
                             +labelSize+'" height="'+labelSize+'" style="fill:'
                             + label[i].color + ';" /><text x="15" y="10">'
@@ -578,20 +579,18 @@ var StudyViewInitCharts = (function(){
             }
         }
         
-        //labelInfo.push(label);
-        
-            
         $('#' + _pieChartID + '-main .pieLabel').mouseenter(function(){
             var idArray = $(this).attr('id').split('-');
-            var childID = Number(idArray[idArray.length-1])+1;
+            var childID = Number(idArray[idArray.length-2])+1;
             $('#' + _pieChartID + ' svg>g>g:nth-child(' + childID+')').css({
                 'fill-opacity': '.5',
                 'stroke-width': '3px'
             });
             
-            var fatherID = Number(idArray[idArray.length-2]);
+            var fatherID = Number(idArray[idArray.length-3]);
             
             var tmpPointsInfo = $('#' + _pieChartID + ' svg>g>g:nth-child(' + childID+')').find('path').attr('d').split(/[\s,MLHVCSQTAZ]/);            
+            var tmpPointsInfo1 = $('#' + _pieChartID + ' svg>g>g:nth-child(' + childID+')').find('path').attr('d').split(/[A]/);
             
             var x1 = Number(tmpPointsInfo[1]);
             var y1 = Number(tmpPointsInfo[2]);
@@ -601,28 +600,28 @@ var StudyViewInitCharts = (function(){
             var y2 = Number(tmpPointsInfo[9]);
             var r = Number(tmpPointsInfo[3]);
             
-            var xm = (x1 + x2) /2;
-            var ym = (y1 + y2) /2;
-            
-            var m = Math.sqrt((Math.pow(xm,2)+Math.pow(ym,2)));
-            
-            var tmpX = (r + 3) / m * xm;
-            var tmpY = (r + 3) / m * ym;
-            
-            if(largeArc === 1){
-                tmpX = -tmpX;
-                tmpY = -tmpY;
+            if((x1-x2!==0 ||y1-y2!==0) && tmpPointsInfo1.length === 2){
+                var xm = (x1 + x2) /2;
+                var ym = (y1 + y2) /2;  
+                var m = Math.sqrt((Math.pow(xm,2)+Math.pow(ym,2)));
+                var tmpX = (r + 3) / m * xm;
+                var tmpY = (r + 3) / m * ym;
+                
+                if(largeArc === 1 && Math.abs(x1 - x2) >0.1) {
+                    tmpX = -tmpX;
+                    tmpY = -tmpY;
+                }
+
+                var circleID = fatherID+"-"+(Number(childID)-1);
+                var circle= makeSVG('circle', {id: circleID, cx: tmpX, cy: tmpY, r:3, stroke: 'red', 'stroke-width': 1, fill: 'red'});
+                document.getElementById(_pieChartID).getElementsByTagName('svg')[0].getElementsByTagName('g')[0].appendChild(circle);
             }
-            
-            var circleID = fatherID+"-"+(Number(childID)-1);
-            var circle= makeSVG('circle', {id: circleID, cx: tmpX, cy: tmpY, r:3, stroke: 'red', 'stroke-width': 1, fill: 'red'});
-            document.getElementById(_pieChartID).getElementsByTagName('svg')[0].getElementsByTagName('g')[0].appendChild(circle);
         });
         
         $('#' + _pieChartID + '-main .pieLabel').mouseleave(function(){
             var idArray = $(this).attr('id').split('-');
-            var childID = Number(idArray[idArray.length-1])+1;
-            var fatherID = Number(idArray[idArray.length-2]);
+            var childID = Number(idArray[idArray.length-2])+1;
+            var fatherID = Number(idArray[idArray.length-3]);
             var circleID = fatherID+"-"+(Number(childID)-1);
             
             $("#" + _pieChartID + " svg g #" + circleID).remove();
@@ -635,9 +634,9 @@ var StudyViewInitCharts = (function(){
         
         $('#' + _pieChartID + '-main .pieLabel').click(function(){
             var idArray = $(this).attr('id').split('-');
-            var childID = Number(idArray[idArray.length-1]);
-            var chartID = Number(idArray[idArray.length-2]);
-            varChart[chartID].onClick({key: label[childID].name, value:label[childID].value});            
+            var childaLabelID = Number(idArray[idArray.length-1]);
+            var chartID = Number(idArray[idArray.length-3]);
+            varChart[chartID].onClick({key: label[childaLabelID].name, value:label[childaLabelID].value});            
             varChart[chartID].redraw;
         });
         
@@ -734,7 +733,7 @@ var StudyViewInitCharts = (function(){
             .turnOnControls(true)
             .mouseZoomable(false)
             .brushOn(true)
-            .transitionDuration(1200)
+            .transitionDuration(600)
             .renderHorizontalGridLines(true)
             .renderVerticalGridLines(true);
         
@@ -764,8 +763,11 @@ var StudyViewInitCharts = (function(){
             varChart[_chartID].yAxis().tickFormat(d3.format("d"));
             varChart[_chartID].xAxis().tickFormat(d3.format("d"));
         }else if(_selectedAttrDisplay.search(/age/i) != -1){
+            //varChart[_chartID].x(d3.scale.ordinal().domain(["10", "50", "90"]));
             varChart[_chartID].x(d3.scale.linear().domain(barDomain));
-            varChart[_chartID].yAxis().tickFormat(d3.format("d"));    
+            varChart[_chartID].yAxis().tickFormat(d3.format("d"));
+            varChart[_chartID].centerBar(false);
+             
            // varChart[_chartID].gap(5);
             //varChart[_chartID].xUnits(function(d){return parseInt(d/5) * 5;});
             varChart[_chartID].xAxis().tickFormat(d3.format("d"));
@@ -1058,9 +1060,19 @@ var StudyViewInitCharts = (function(){
         return r+'</select>';
     }
     
-    function addQTip(){
+    function addXLogQTip(){
         $('.study-view-bar-x-log').qtip({
             content: {text:'Log Scale X'},
+            style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+            show: {event: "mouseover"},
+            hide: {fixed:true, delay: 100, event: "mouseout"},
+            position: {my:'right bottom',at:'top left'}
+        });
+    }
+    
+    function addPieSliceQTip(_identifier,_text){
+        $(_identifier).qtip({
+            content: {text:_text},
             style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
             show: {event: "mouseover"},
             hide: {fixed:true, delay: 100, event: "mouseout"},
@@ -1073,7 +1085,6 @@ var StudyViewInitCharts = (function(){
             initParameters(o);
             initCharts(data);
             restyle(data);
-            addQTip();
             resizeTable();
         }
     };

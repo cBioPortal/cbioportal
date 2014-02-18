@@ -206,6 +206,8 @@ public final class ImportPdbUniprotResidueMapping {
                 continue;
             }
             
+            System.out.println("processing "+line);
+            
             String uniprotId = parts[2];
             
             int pdbSeqResBeg = Integer.parseInt(parts[3]);
@@ -213,14 +215,13 @@ public final class ImportPdbUniprotResidueMapping {
             int uniprotResBeg = Integer.parseInt(parts[7]);
             int uniprotResEnd = Integer.parseInt(parts[8]);
             
-            int len = pdbSeqResBeg-pdbSeqResEnd;
-            
-            if (len != uniprotResBeg-uniprotResEnd) {
+            if (pdbSeqResBeg-pdbSeqResEnd != uniprotResBeg-uniprotResEnd) {
+                System.err.println("*** Lengths not equal");
                 continue;
             }
             
-            String pdbAtomResBeg = parts[5]; // could have insertion code
-            String pdbAtomResEnd = parts[6]; // could have insertion code
+//            String pdbAtomResBeg = parts[5]; // could have insertion code
+//            String pdbAtomResEnd = parts[6]; // could have insertion code
             
             
             PdbUniprotAlignment pdbUniprotAlignment = new PdbUniprotAlignment();
@@ -228,14 +229,12 @@ public final class ImportPdbUniprotResidueMapping {
             
             if (processPdbUniprotAlignment(pdbUniprotAlignment, pdbUniprotResidueMappings,
                     ++alignId, pdbId, chainId, uniprotId, uniprotResBeg,
-                    uniprotResEnd, pdbAtomResBeg, pdbAtomResEnd, atomCache)) {
+                    uniprotResEnd, pdbSeqResBeg, pdbSeqResEnd, atomCache)) {
                 DaoPdbUniprotResidueMapping.addPdbUniprotAlignment(pdbUniprotAlignment);
                 for (PdbUniprotResidueMapping mapping : pdbUniprotResidueMappings) {
                     DaoPdbUniprotResidueMapping.addPdbUniprotResidueMapping(mapping);
                 }
             }
-            
-            
             
             pMonitor.incrementCurValue();
             ConsoleUtil.showProgress(pMonitor);
@@ -250,64 +249,98 @@ public final class ImportPdbUniprotResidueMapping {
     private static boolean processPdbUniprotAlignment(
             PdbUniprotAlignment pdbUniprotAlignment, List<PdbUniprotResidueMapping> pdbUniprotResidueMappings,
             int alignId, String pdbId, String chainId, String uniprotId, int uniprotResBeg,
-            int uniprotResEnd, String pdbAtomResBeg, String pdbAtomResEnd, AtomCache atomCache) {
+            int uniprotResEnd, int pdbSeqResBeg, int pdbSeqResEnd, AtomCache atomCache) {
 
         String uniprotSeq = getUniprotSequence(uniprotId, uniprotResBeg, uniprotResEnd);
         if (uniprotSeq==null) {
+            System.err.println("Could not read UniProt Sequence");
             return false;
         }
         
-        Group[] pdbResidues = getPdbResidues(atomCache, pdbId, chainId, pdbAtomResBeg, pdbAtomResEnd);
-        if (pdbResidues.length!=uniprotResEnd-uniprotResBeg) {
+        List<Group>pdbResidues = getPdbResidues(atomCache, pdbId, chainId, pdbSeqResBeg, pdbSeqResEnd);
+        
+        int len = uniprotResEnd-uniprotResBeg+1;
+        
+        if (pdbResidues.size()!=len) {
+            System.err.println("*** Lengths not correct from structure");
             return false;
         }
         
-        ResidueNumber pdbResidueBeg = pdbResidues[0].getResidueNumber();
-        ResidueNumber pdbResidueEnd = pdbResidues[pdbResidues.length-1].getResidueNumber();
+        int start = 0;
+        for (; start<len; start++) {
+            if (pdbResidues.get(start).getResidueNumber()!=null) {
+                break;
+            }
+        }
+        
+        if (start==len) {
+            return false;
+        }
+        
+        int end;
+        for (end=len-1; end>=start; end--) {
+            if (pdbResidues.get(end).getResidueNumber()!=null) {
+                break;
+            }
+        }
+        
+        int identity = 0;
+        StringBuilder midline = new StringBuilder();
+        StringBuilder pdbAlign = new StringBuilder();
+        for (int i=start; i<end; i++) {
+            Group pdbResidue = pdbResidues.get(i);
+            if (!(pdbResidue instanceof AminoAcid)) {
+                System.err.println("*** Non amino acid");
+                return false;
+            }
+            
+            ResidueNumber rn = pdbResidue.getResidueNumber();
+            
+            char pdbAA = ((AminoAcid)pdbResidue).getAminoType();
+            char uniprotAA = uniprotSeq.charAt(i);
+            char match = ' ';
+            if (pdbAA == uniprotAA) {
+                identity++;
+                match = pdbAA;
+            }
+            
+            if (rn==null) { // if not a atom residue
+                match = '-';
+            }
+            
+            midline.append(match);
+            pdbAlign.append(pdbAA);
+            
+            if (rn!=null) {
+                PdbUniprotResidueMapping pdbUniprotResidueMapping = new PdbUniprotResidueMapping(alignId,
+                        rn.getSeqNum(), rn.getInsCode()==null?null:rn.getInsCode().toString(), uniprotResBeg+i, ""+match);
+                pdbUniprotResidueMappings.add(pdbUniprotResidueMapping);
+            }
+        }
         
         pdbUniprotAlignment.setAlignmentId(alignId);
 
         pdbUniprotAlignment.setPdbId(pdbId);
         pdbUniprotAlignment.setChain(chainId);
         pdbUniprotAlignment.setUniprotId(uniprotId);
-
+        
+        ResidueNumber pdbResidueBeg = pdbResidues.get(start).getResidueNumber();
+        ResidueNumber pdbResidueEnd = pdbResidues.get(end).getResidueNumber();
         pdbUniprotAlignment.setPdbFrom(pdbResidueBeg.getSeqNum());
         if (pdbResidueBeg.getInsCode()!=null) {
             pdbUniprotAlignment.setPdbFromInsertionCode(pdbResidueBeg.getInsCode().toString());
         }
         pdbUniprotAlignment.setPdbTo(pdbResidueEnd.getSeqNum());
         if (pdbResidueEnd.getInsCode()!=null) {
-            pdbUniprotAlignment.setPdbFromInsertionCode(pdbResidueEnd.getInsCode().toString());
+            pdbUniprotAlignment.setPdbToInsertionCode(pdbResidueEnd.getInsCode().toString());
         }
         pdbUniprotAlignment.setUniprotFrom(uniprotResBeg);
         pdbUniprotAlignment.setUniprotTo(uniprotResEnd);
 //        pdbUniprotAlignment.setEValue(null);
-        pdbUniprotAlignment.setUniprotAlign(uniprotSeq);
-        
-        int identity = 0;
-        StringBuilder midline = new StringBuilder();
-        StringBuilder pdbAlign = new StringBuilder();
-        for (int i=0; i<pdbResidues.length; i++) {
-            Group pdbResidue = pdbResidues[i];
-            if (!(pdbResidue instanceof AminoAcid)) {
-                return false;
-            }
-            
-            char pdbAA = ((AminoAcid)pdbResidue).getAminoType();
-            char uniprotAA = uniprotSeq.charAt(i);
-            
-            if (pdbAA == uniprotAA) {
-                identity++;
-                midline.append(pdbAA);
-            } else {
-                midline.append(" "); // do we want +
-            }
-            
-            pdbAlign.append(pdbAA);
-        }
+        pdbUniprotAlignment.setUniprotAlign(uniprotSeq.substring(start, end));
         
         pdbUniprotAlignment.setIdentity((float)identity);
-        pdbUniprotAlignment.setIdentityPerc((float)(identity*1.0/pdbResidues.length));
+        pdbUniprotAlignment.setIdentityPerc((float)(identity*1.0/(end-start)));
         pdbUniprotAlignment.setPdbAlign(pdbAlign.toString());
         pdbUniprotAlignment.setMidlineAlign(midline.toString());
         
@@ -318,7 +351,7 @@ public final class ImportPdbUniprotResidueMapping {
         AtomCache atomCache = new AtomCache(dirCache, true);
         FileParsingParameters params = new FileParsingParameters();
         params.setLoadChemCompInfo(false);
-        params.setAlignSeqRes(false);
+        params.setAlignSeqRes(true);
         params.setParseSecStruc(false);
         params.setUpdateRemediatedFiles(true);
         atomCache.setFileParsingParams(params);
@@ -326,25 +359,25 @@ public final class ImportPdbUniprotResidueMapping {
         return atomCache;
     }
     
-    private static Group[] getPdbResidues(AtomCache atomCache, String pdbId, String chainId, String start, String end) {
+    private static List<Group> getPdbResidues(AtomCache atomCache, String pdbId, String chainId, int start, int end) {
         try {
             Structure struc = atomCache.getStructure(pdbId);
             
             if (struc!=null) {
                 Chain chain = struc.getChainByPDB(chainId);
-                return chain.getGroupsByPDB(ResidueNumber.fromString(start), ResidueNumber.fromString(end));
+                return chain.getSeqResGroups().subList(start-1, end);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return new Group[0];
+            return Collections.emptyList();
     }
     
     private static String getUniprotSequence(String uniportAcc, int start, int end) {
         try {
             UniprotProxySequenceReader<AminoAcidCompound> uniprotSequence
                     = new UniprotProxySequenceReader<AminoAcidCompound>(uniportAcc, AminoAcidCompoundSet.getAminoAcidCompoundSet());
-            return uniprotSequence.getSequenceAsString().substring(start, end+1);
+            return uniprotSequence.getSequenceAsString().substring(start-1, end);
         } catch (Exception e) {
             e.printStackTrace();
             return null;

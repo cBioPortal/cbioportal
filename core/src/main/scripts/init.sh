@@ -32,4 +32,4 @@
 
 # PDB Uniprot Mapping
 # ./prepareEbiSiftsPdbUniprotMappingData.sh
-./importPdbUniprotResidueMapping.pl $PORTAL_DATA_HOME/reference-data/pdb_chain_uniprot.tsv $PORTAL_DATA_HOME/reference-data/pdb_chain_human.tsv $PORTAL_DATA_HOME/reference-data/pdb-cache
+./importPdbUniprotResidueMapping.pl $PORTAL_DATA_HOME/reference-data/pdb_chain_uniprot.tsv $PORTAL_DATA_HOME/reference-data/pdb_chain_human.tsv $PORTAL_DATA_HOME/reference-data/pdbe-cache

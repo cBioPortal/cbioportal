@@ -59,7 +59,7 @@ public final class DaoPdbUniprotResidueMapping {
                 alignment.getPdbToInsertionCode(),
                 Integer.toString(alignment.getUniprotFrom()),
                 Integer.toString(alignment.getUniprotTo()),
-                Double.toString(alignment.getEValue()),
+                alignment.getEValue()==null?null:Double.toString(alignment.getEValue()),
                 Double.toString(alignment.getIdentity()),
                 Double.toString(alignment.getIdentityPerc()),
                 alignment.getUniprotAlign(),

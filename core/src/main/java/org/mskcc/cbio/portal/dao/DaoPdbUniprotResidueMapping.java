@@ -54,7 +54,9 @@ public final class DaoPdbUniprotResidueMapping {
                 alignment.getChain(),
                 alignment.getUniprotId(),
                 Integer.toString(alignment.getPdbFrom()),
+                alignment.getPdbFromInsertionCode(),
                 Integer.toString(alignment.getPdbTo()),
+                alignment.getPdbToInsertionCode(),
                 Integer.toString(alignment.getUniprotFrom()),
                 Integer.toString(alignment.getUniprotTo()),
                 Double.toString(alignment.getEValue()),
@@ -74,6 +76,7 @@ public final class DaoPdbUniprotResidueMapping {
         MySQLbulkLoader.getMySQLbulkLoader("pdb_uniprot_residue_mapping").insertRecord(
                 Integer.toString(mapping.getAlignmentId()),
                 Integer.toString(mapping.getPdbPos()),
+                mapping.getPdbInsertionCode(),
                 Integer.toString(mapping.getUniprotPos()),
                 mapping.getMatch());
 
@@ -259,13 +262,15 @@ public final class DaoPdbUniprotResidueMapping {
 	 */
 	private static PdbUniprotResidueMapping extractResidueMapping(ResultSet rs) throws SQLException
 	{
-		Integer alignmentId = rs.getInt(1);
-		Integer pdbPosition = rs.getInt(2);
-		Integer uniprotPosition = rs.getInt(3);
-		String match = rs.getString(4);
+		Integer alignmentId = rs.getInt("ALIGNMENT_ID");
+		Integer pdbPosition = rs.getInt("PDB_POSITION");
+                String pdbInsertion = rs.getString("PDB_INSERTION_CODE");
+		Integer uniprotPosition = rs.getInt("UNIPROT_POSITION");
+		String match = rs.getString("MATCH");
 
 		return new PdbUniprotResidueMapping(alignmentId,
 				pdbPosition,
+                                pdbInsertion,
 				uniprotPosition,
 				match);
 	}
@@ -281,20 +286,22 @@ public final class DaoPdbUniprotResidueMapping {
 	{
 		PdbUniprotAlignment alignment = new PdbUniprotAlignment();
 
-		Integer alignmentId = rs.getInt(1);
-		String pdbId = rs.getString(2);
-		String chain = rs.getString(3);
-		String uniprotId = rs.getString(4);
-		Integer pdbFrom = rs.getInt(5);
-		Integer pdbTo = rs.getInt(6);
-		Integer uniprotFrom = rs.getInt(7);
-		Integer uniprotTo = rs.getInt(8);
-		Float eValue = rs.getFloat(9);
-		Float identity = rs.getFloat(10);
-		Float identityProtein = rs.getFloat(11);
-		String uniprotAlign = rs.getString(12);
-		String pdbAlign = rs.getString(13);
-		String midlineAlign = rs.getString(14);
+		Integer alignmentId = rs.getInt("ALIGNMENT_ID");
+		String pdbId = rs.getString("PDB_ID");
+		String chain = rs.getString("CHAIN");
+		String uniprotId = rs.getString("UNIPROT_ID");
+		Integer pdbFrom = rs.getInt("PDB_FROM");
+		Integer pdbTo = rs.getInt("PDB_TO");
+                String pdbFromInsertion = rs.getString("PDB_FROM_INSERTION_CODE");
+                String pdbToInsertion = rs.getString("PDB_TO_INSERTION_CODE");
+		Integer uniprotFrom = rs.getInt("UNIPROT_FROM");
+		Integer uniprotTo = rs.getInt("UNIPROT_TO");
+		Float eValue = rs.getFloat("EVALUE");
+		Float identity = rs.getFloat("IDENTITY");
+		Float identityProtein = rs.getFloat("IDENTP");
+		String uniprotAlign = rs.getString("UNIPROT_ALIGN");
+		String pdbAlign = rs.getString("PDB_ALIGN");
+		String midlineAlign = rs.getString("MIDLINE_ALIGN");
 
 		alignment.setAlignmentId(alignmentId);
 		alignment.setPdbId(pdbId);
@@ -304,6 +311,8 @@ public final class DaoPdbUniprotResidueMapping {
 		alignment.setUniprotTo(uniprotTo);
 		alignment.setPdbFrom(pdbFrom);
 		alignment.setPdbTo(pdbTo);
+                alignment.setPdbFromInsertionCode(pdbFromInsertion);
+                alignment.setPdbToInsertionCode(pdbToInsertion);
 		alignment.setEValue(eValue);
 		alignment.setIdentity(identity);
 		alignment.setIdentityPerc(identityProtein);

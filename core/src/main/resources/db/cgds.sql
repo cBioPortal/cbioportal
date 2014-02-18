@@ -611,6 +611,7 @@ drop table IF EXISTS pdb_uniprot_residue_mapping;
 CREATE TABLE `pdb_uniprot_residue_mapping` (
   `ALIGNMENT_ID` int NOT NULL,
   `PDB_POSITION` int NOT NULL,
+  `PDB_INSERTION_CODE` char(1) DEFAULT NULL,
   `UNIPROT_POSITION` int NOT NULL,
   `MATCH` char(1),
   KEY(`ALIGNMENT_ID`, `UNIPROT_POSITION`),
@@ -624,7 +625,9 @@ CREATE TABLE `pdb_uniprot_alignment` (
   `CHAIN` char(1) NOT NULL,
   `UNIPROT_ID` varchar(50) NOT NULL,
   `PDB_FROM` int NOT NULL,
+  `PDB_FROM_INSERTION_CODE` char(1) DEFAULT NULL,
   `PDB_TO` int NOT NULL,
+  `PDB_TO_INSERTION_CODE` char(1) DEFAULT NULL,
   `UNIPROT_FROM` int NOT NULL,
   `UNIPROT_TO` int NOT NULL,
   `EVALUE` float,

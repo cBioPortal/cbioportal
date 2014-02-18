@@ -64,7 +64,7 @@ public class GetAlterationDataJSON extends HttpServlet {
             DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
 
             for (String geneId: geneIdList) {
-                ArrayList<JSONObject> _geneArr = new ArrayList<>();
+                ArrayList<JSONObject> _geneArr = new ArrayList();
                 ArrayList<String> tmpProfileDataArr = 
                             GeneticAlterationUtil.getGeneticAlterationDataRow(
                                 daoGeneOptimized.getGene(geneId), 

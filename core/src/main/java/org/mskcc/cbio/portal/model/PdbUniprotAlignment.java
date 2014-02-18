@@ -39,11 +39,18 @@ public class PdbUniprotAlignment
 	private String chain;
 	private String uniprotId;
 	private Integer pdbFrom;
+        private String pdbFromInsertionCode;
 	private Integer pdbTo;
+        private String pdbToInsertionCode;
 	private Integer uniprotFrom;
 	private Integer uniprotTo;
 	private Float eValue;
 	private Float identity;
+	private Float identityPerc;
+
+	private String uniprotAlign;
+	private String pdbAlign;
+	private String midlineAlign;
 
 	public String getMidlineAlign()
 	{
@@ -75,10 +82,6 @@ public class PdbUniprotAlignment
 		this.pdbAlign = pdbAlign;
 	}
 
-	private String uniprotAlign;
-	private String pdbAlign;
-	private String midlineAlign;
-
 	public Float getEValue()
 	{
 		return eValue;
@@ -108,8 +111,6 @@ public class PdbUniprotAlignment
 	{
 		this.identityPerc = identityPerc;
 	}
-
-	private Float identityPerc;
 
 	public Integer getAlignmentId()
 	{
@@ -190,4 +191,21 @@ public class PdbUniprotAlignment
 	{
 		this.uniprotTo = uniprotTo;
 	}
+
+    public String getPdbFromInsertionCode() {
+        return pdbFromInsertionCode;
+    }
+
+    public void setPdbFromInsertionCode(String pdbFromInsertionCode) {
+        this.pdbFromInsertionCode = pdbFromInsertionCode;
+    }
+
+    public String getPdbToInsertionCode() {
+        return pdbToInsertionCode;
+    }
+
+    public void setPdbToInsertionCode(String pdbToInsertionCode) {
+        this.pdbToInsertionCode = pdbToInsertionCode;
+    }
+        
 }

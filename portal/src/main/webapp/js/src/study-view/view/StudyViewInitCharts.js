@@ -740,8 +740,6 @@ var StudyViewInitCharts = (function(){
             monthRange.push(tmpValue.toString());
         }        
         
-        console.log(monthDomain);
-        console.log(monthRange);
         if(distanceMinMax > 1000)
             $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID 
                 + "-main\" class='study-view-dc-chart study-view-bar-main'><div id=\"study-view-dc-chart-" 
@@ -824,7 +822,7 @@ var StudyViewInitCharts = (function(){
                     return 'NA'; 
                 else {
                     var tmpRangeValue = v.toString();
-                    if(tmpRangeValue.length > 3){
+                    if(tmpRangeValue.length > 3 && v > 1){
                         var tmpRangeValue1 = parseInt(tmpRangeValue) / (Math.pow(10, tmpRangeValue.length-1)) + "e" + (tmpRangeValue.length-1);
                         var tmpRangeValue2 = parseInt(v + seperateDistance) / (Math.pow(10, tmpRangeValue.length-1)) + "e" + (tmpRangeValue.length-1);
                         return tmpRangeValue1 + "~" + tmpRangeValue2;
@@ -941,6 +939,8 @@ var StudyViewInitCharts = (function(){
                 
                 if(value1.sTitle === 'CNA')
                     tmpValue = value['COPY_NUMBER_ALTERATIONS'];                
+                else if ( value1.sTitle === 'COMPLETE (ACGH, MRNA, SEQUENCING)')
+                    tmpValue = value[value1.sTitle];
                 else
                     tmpValue = value[value1.sTitle.replace(/[ ]/g,'_')];
                 
@@ -1079,7 +1079,7 @@ var StudyViewInitCharts = (function(){
     function resizeTable(){                 
         $('#dc-plots-loading-wait').hide();
         $('#study-view-main').show();
-
+        /*
         var rotationAngle = 315;
         var radians = Math.PI * (rotationAngle/180);
         var numColumns = 0;
@@ -1097,7 +1097,7 @@ var StudyViewInitCharts = (function(){
         for(var i =1;i<=numColumns ; i++){
             $("table.dataTable>thead>tr>th:nth-child("+i+")").height(maxX/Math.cos(radians));
         }
-        
+        */
         var oTable = $('#dataTable').dataTable();
         
         refreshSelectionInDataTable([0],oTable);

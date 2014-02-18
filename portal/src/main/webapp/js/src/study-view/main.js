@@ -22,6 +22,7 @@ $(document).ready(function(){
         caseIds: caseIds,
         cnaProfileId: cnaProfileId,
         mutationProfileId: mutationProfileId,
+        caseSetId: caseSetId
     };
     StudyViewControl.init(parObject);
 });

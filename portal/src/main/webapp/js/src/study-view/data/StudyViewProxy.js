@@ -11,7 +11,8 @@ var StudyViewProxy = (function() {
         studyId: "",
         caseIds: "",
         cnaProfileId: "",
-        mutationProfileId: ""
+        mutationProfileId: "",
+        caseSetId: ""
     };
     var usefulData = {};
     var dataObject = {}; 
@@ -20,15 +21,16 @@ var StudyViewProxy = (function() {
     var clinicalAttributesData = {};
     var mutationsData = {};
     var cnaData = {};
-    var obtainDataObject = new Array();
-    obtainDataObject['attr'] = new Array();
-    obtainDataObject['dataObjectM'] = new Array();
+    var obtainDataObject = [];
+    obtainDataObject['attr'] = [];
+    obtainDataObject['dataObjectM'] = [];
     
     function initLocalParameters(o){
         parObject.studyId = o.studyId;
         parObject.caseIds = o.caseIds;
         parObject.cnaProfileId = o.cnaProfileId;
-        parObject.mutationProfileId = o.mutationProfileId;
+        parObject.mutationProfileId = o.mutationProfileId;        
+        parObject.caseSetId = o.caseSetId;
         caseIdStr = parObject.caseIds.join(' ');
     }
     
@@ -37,7 +39,7 @@ var StudyViewProxy = (function() {
             cmd: "getClinicalData",
             format: "json",
             cancer_study_id: parObject.studyId,
-            case_list: caseIdStr
+            case_set_id: parObject.caseSetId
         };
         clinicalAttributesData = {
             cancer_study_id: parObject.studyId,
@@ -69,7 +71,7 @@ var StudyViewProxy = (function() {
                         dataObject[usefulData[i]["sample"]][usefulData[i]["attr_id"]] = usefulData[i]["attr_val"];
                     }
                     else{
-                        dataObject[usefulData[i]["sample"]] = new Array();
+                        dataObject[usefulData[i]["sample"]] = [];
                         dataObject[usefulData[i]["sample"]][usefulData[i]["attr_id"]] = usefulData[i]["attr_val"];
                     }
                 }
@@ -79,7 +81,7 @@ var StudyViewProxy = (function() {
                 var keyNumMapping = [];
                 
                 for(var j = 0; j< parObject.caseIds.length ; j++){
-                   var tmpArray = new Array();
+                    var tmpArray = [];
                     tmpArray["CASE_ID"] = parObject.caseIds[j];
                     tmpArray["MUTATION_COUNT"] = "NA";
                     tmpArray["COPY_NUMBER_ALTERATIONS"] = "NA";

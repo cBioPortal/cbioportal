@@ -10,7 +10,8 @@ var StudyViewControl = (function() {
         studyId: "",
         caseIds: "",
         cnaProfileId: "",
-        mutationProfileId: ""
+        mutationProfileId: "",
+        caseSetId: ""
     };
         
     var callbackFunc = function (data) {
@@ -22,6 +23,7 @@ var StudyViewControl = (function() {
         parObject.caseIds = o.caseIds;
         parObject.cnaProfileId = o.cnaProfileId;
         parObject.mutationProfileId = o.mutationProfileId;
+        parObject.caseSetId = o.caseSetId;
     }
     
     return {

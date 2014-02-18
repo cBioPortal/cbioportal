@@ -27,6 +27,7 @@
 }
 #data-table-chart {
     max-width:1200px;
+    width : 100%;
     float:left;
     height:100%;
     margin-top:30px;
@@ -328,10 +329,10 @@ ul li a:hover, ul li a:focus {
 #data-table-chart table.dataTable>thead>tr>th:nth-child(1) {background-color: white;}
 #data-table-chart table.dataTable>thead>tr>th {
     //white-space:nowrap;
-    -webkit-transform: rotate(315deg);  
-    -moz-transform: rotate(315deg);
-    -ms-transform: rotate(315deg);
-    -o-transform: rotate(315deg);
+    //-webkit-transform: rotate(315deg);  
+    //-moz-transform: rotate(315deg);
+    //-ms-transform: rotate(315deg);
+   // -o-transform: rotate(315deg);
     border-style: hidden;
     text-align: center;
     vertical-align: middle;

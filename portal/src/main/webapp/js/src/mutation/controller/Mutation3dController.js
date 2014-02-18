@@ -235,6 +235,7 @@ var Mutation3dController = function (
 				// it might be better to move the pdb panel init function into another view.
 				// (actually the div "mutation_pdb_panel_view" is a part of MainMutationView)
 
+				// TODO use class instead of id
 				var panelOpts = {el: "#mutation_pdb_panel_view_" + gene.toUpperCase(),
 					model: {geneSymbol: gene, pdbColl: pdbColl, pdbProxy: pdbProxy},
 					diagram: mutationDiagram};

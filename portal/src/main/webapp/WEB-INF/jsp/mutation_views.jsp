@@ -19,7 +19,7 @@
 	<br>
 </script>
 
-<script type="text/template" id="default_gene_mutation_details_info_template">
+<script type="text/template" id="default_mutation_details_gene_info_template">
 	<p>There are no mutation details available for this gene.</p>
 	<br>
 	<br>
@@ -44,7 +44,7 @@
 
 <script type="text/template" id="mutation_view_template">
 	<h4>{{geneSymbol}}: {{mutationSummary}}</h4>
-	<div id='mutation_diagram_toolbar_{{geneSymbol}}' class='mutation-diagram-toolbar'>
+	<div class='mutation-diagram-toolbar'>
 		<a href='http://www.uniprot.org/uniprot/{{uniprotId}}'
 		   class='mutation-details-uniprot-link'
 		   target='_blank'>{{uniprotId}}</a>
@@ -73,10 +73,10 @@
 		<table>
 			<tr>
 				<td>
-					<div id='mutation_diagram_{{geneSymbol}}' class='mutation-diagram-container'></div>
+					<div class='mutation-diagram-container'></div>
 				</td>
 				<td>
-					<div id='mutation_3d_{{geneSymbol}}' class="mutation-3d-initializer"></div>
+					<div class="mutation-3d-initializer"></div>
 				</td>
 			</tr>
 		</table>
@@ -87,7 +87,7 @@
 		Current view shows filtered results.
 		Click <a class='mutation-details-filter-reset'>here</a> to reset all filters.
 	</div>
-	<div id='mutation_table_{{geneSymbol}}' class='mutation-table-container'>
+	<div class='mutation-table-container'>
 		<img src='images/ajax-loader.gif'/>
 	</div>
 </script>
@@ -402,7 +402,7 @@
 </script>
 
 <script type="text/template" id="mutation_details_table_template">
-	<table id='mutation_details_table_{{geneSymbol}}' class='display mutation_details_table'
+	<table class='display mutation_details_table'
 	       cellpadding='0' cellspacing='0' border='0'>
 		<thead>{{tableHeaders}}</thead>
 		<tbody>{{tableRows}}</tbody>

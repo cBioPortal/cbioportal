@@ -80,10 +80,7 @@ var MutationDetailsController = function(
 	 */
 	function initView(gene, cases, diagramOpts, tableOpts)
 	{
-		var mutationDiagram = null;
-		var mainMutationView = null;
 		var mutationData = null;
-		var mutationUtil = mutationProxy.getMutationUtil();
 
 		// callback function to init view after retrieving
 		// sequence information.
@@ -93,19 +90,15 @@ var MutationDetailsController = function(
 			// get the first sequence from the response
 			var sequence = sequenceData[0];
 
-            var summary = "";
-
-            if(cases.length > 0) {
-                // calculate somatic & germline mutation rates
-                var mutationCount = mutationUtil.countMutations(gene, cases);
-                // generate summary string for the calculated mutation count values
-                summary = mutationUtil.generateSummary(mutationCount);
-            }
-
 			// prepare data for mutation view
 			var model = {geneSymbol: gene,
-				mutationSummary: summary,
-				uniprotId: sequence.metadata.identifier};
+				mutationData: mutationData,
+				mutationProxy: mutationProxy,
+				pdbProxy: _pdbProxy,
+				sequence: sequence,
+				sampleArray: cases,
+				diagramOpts: diagramOpts,
+				tableOpts: tableOpts};
 
 			// init the main view
 			var mainView = new MainMutationView({
@@ -114,70 +107,22 @@ var MutationDetailsController = function(
 
 			mainView.render();
 
-			// update the references after rendering the view
-			mainMutationView = mainView;
+			// update the reference after rendering the view
 			_geneTabView[gene].mainMutationView = mainView;
 
-			// TODO everything beyond this point is the part of the main mutation view,
-			// main mutation view (or its controller) should handle these initializations
+			// TODO this can be implemented in a better way in the MainMutationView class
+			var components = mainView.initComponents(_mut3dVisView);
 
-
-			// draw mutation diagram
-			var diagram = drawMutationDiagram(
-					gene, mutationData, sequence, diagramOpts);
-
-			var view3d = null;
-
-			// check if diagram is initialized successfully.
-			if (diagram)
-			{
-				// init diagram toolbar
-				mainView.initToolbar(diagram, gene);
-
-				// init the 3d view
-				if (_mut3dVisView)
-				{
-					view3d = new Mutation3dView({
-						el: "#mutation_3d_" + gene,
-						model: {uniprotId: sequence.metadata.identifier,
-							geneSymbol: gene,
-							pdbProxy: _pdbProxy}
-					});
-
-					view3d.render();
-
-					// also reset (init) the 3D view if the 3D panel is already active
-					if (_mut3dVisView.isVisible())
-					{
-						view3d.resetView();
-					}
-				}
-			}
-			else
-			{
-				console.log("Error initializing mutation diagram: %s", gene);
-			}
-
-			// init mutation table view
-
-			var mutationTableView = new MutationDetailsTableView(
-					{el: "#mutation_table_" + gene,
-					model: {geneSymbol: gene,
-						mutations: mutationData,
-						tableOpts: tableOpts}});
-
-			mutationTableView.render();
-
-			// update diagram reference after rendering the table
-			mutationDiagram = diagram;
 
 			// TODO init controllers in their corresponding view classes' init() method instead?
 
 			// init controllers
-			new MainMutationController(mainMutationView, mutationDiagram);
-			new MutationDetailsTableController(mutationTableView, mutationDiagram);
-			new Mutation3dController(mutationDetailsView, _mut3dVisView, view3d, mut3dVis, _pdbProxy, mutationDiagram, gene);
-			new MutationDiagramController(mutationDiagram, mutationTableView.tableUtil, mutationUtil);
+			new MainMutationController(mainView, components.diagram);
+			new MutationDetailsTableController(components.tableView, components.diagram);
+			new Mutation3dController(mutationDetailsView, _mut3dVisView, components.view3d, mut3dVis,
+			                         _pdbProxy, components.diagram, gene);
+			new MutationDiagramController(
+				components.diagram, components.tableView.tableUtil, mutationProxy.getMutationUtil());
 		};
 
 		// get mutation data for the current gene
@@ -193,7 +138,7 @@ var MutationDetailsController = function(
 			    mutationData.length == 0)
 			{
 				mutationDetailsView.$el.find("#mutation_details_" + gene).html(
-					_.template($("#default_gene_mutation_details_info_template").html(), {}));
+					_.template($("#default_mutation_details_gene_info_template").html(), {}));
 			}
 			// get the sequence data for the current gene & init view
 			else
@@ -201,44 +146,6 @@ var MutationDetailsController = function(
 				$.getJSON("getPfamSequence.json", {geneSymbol: gene}, init);
 			}
 		});
-	}
-
-	// TODO move this method into MainMutationController...
-	/**
-	 * Initializes the mutation diagram view.
-	 *
-	 * @param gene          hugo gene symbol
-	 * @param mutationData  mutation data (array of JSON objects)
-	 * @param sequenceData  sequence data (as a JSON object)
-	 * @param options       [optional] diagram options
-	 */
-	function drawMutationDiagram(gene, mutationData, sequenceData, options)
-	{
-		// use defaults if no options provided
-		if (!options)
-		{
-			options = {};
-		}
-
-		// do not draw the diagram if there is a critical error with
-		// the sequence data
-		if (sequenceData["length"] == "" ||
-		    parseInt(sequenceData["length"]) <= 0)
-		{
-			// return null to indicate an error
-			return null;
-		}
-
-		// overwrite container in any case (for consistency with the default view)
-		options.el = "#mutation_diagram_" + gene.toUpperCase();
-
-		// create a backbone collection for the given data
-		var mutationColl = new MutationCollection(mutationData);
-
-		var mutationDiagram = new MutationDiagram(gene, options, mutationColl);
-		mutationDiagram.initDiagram(sequenceData);
-
-		return mutationDiagram;
 	}
 
 	init();

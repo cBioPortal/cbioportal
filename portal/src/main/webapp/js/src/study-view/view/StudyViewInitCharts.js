@@ -683,7 +683,65 @@ var StudyViewInitCharts = (function(){
             
     function initBarChart(_chartID,_className,_selectedAttr,_selectedAttrDisplay,distanceMinMaxArray) {
         var distanceMinMax = distanceMinMaxArray[_selectedAttr].distance;
+        
+        var seperateDistance;
+        var tmpMaxDomain;
+        var numOfGroups = 10;
+        var startPoint;
+        var emptyValueMapping;
+        var monthDomain = [];
+        var monthRange = ['NA'];
+        var distanceLength;
+        var divider = 1;
+        
+        distanceLength = parseInt(distanceMinMax).toString().length;
+        for(var i=0;i<distanceLength-2;i++)
+            divider *= 10;
+        if(distanceMinMaxArray[_selectedAttr].max < 100 && distanceMinMaxArray[_selectedAttr].max > 20)
+            divider = 10;
+        /*
+        if(distanceMinMax > 1000 && _selectedAttrDisplay.search(/mutation/i) !== -1){
+            
+            //if(distanceMinMaxArray[_selectedAttr].max > divider *)
+            seperateDistance = (parseInt(distanceMinMax / (10 * divider)) + 1) * divider;
+            tmpMaxDomain = (parseInt(distanceMinMaxArray[_selectedAttr].max / divider) + 1) * divider;
+            numOfGroups = tmpMaxDomain/seperateDistance;
+            startPoint = 0;
+            emptyValueMapping = startPoint-seperateDistance;
+        }else 
+        */
+        if(distanceMinMaxArray[_selectedAttr].max <=1 && distanceMinMaxArray[_selectedAttr].max > 0 && distanceMinMaxArray[_selectedAttr].min>=-1 && distanceMinMaxArray[_selectedAttr].min<0){
+            seperateDistance = 0.2;
+            startPoint = (parseInt(distanceMinMaxArray[_selectedAttr].min / 0.2)-1) * 0.2;
+            emptyValueMapping = startPoint -0.2;
+        }else if(distanceMinMax > 1){
+            seperateDistance = (parseInt(distanceMinMax / (numOfGroups * divider)) + 1) * divider;
+            tmpMaxDomain = (parseInt(distanceMinMaxArray[_selectedAttr].max / divider) + 1) * divider;
+            startPoint = parseInt(distanceMinMaxArray[_selectedAttr].min / divider) * divider;
+            emptyValueMapping = startPoint-seperateDistance;
+        }else if(distanceMinMax < 1 && distanceMinMaxArray[_selectedAttr].min >=0 ){
+            seperateDistance = 0.1;
+            startPoint = 0;
+            emptyValueMapping = -0.1;
+        }else{
+            seperateDistance = 0.1;
+            startPoint = -1;
+            emptyValueMapping = -1.1;
+        }
+            
+        monthDomain.push(Number(cbio.util.toPrecision(Number(emptyValueMapping),5,0.1)));
 
+        for(var i=0; i< numOfGroups ; i++){
+            var tmpValue = i*seperateDistance + startPoint;
+            if(tmpValue > distanceMinMaxArray[_selectedAttr].max)
+                break;
+            tmpValue = Number(cbio.util.toPrecision(Number(tmpValue),5,0.1));
+            monthDomain.push(tmpValue);
+            monthRange.push(tmpValue.toString());
+        }        
+        
+        console.log(monthDomain);
+        console.log(monthRange);
         if(distanceMinMax > 1000)
             $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID 
                 + "-main\" class='study-view-dc-chart study-view-bar-main'><div id=\"study-view-dc-chart-" 
@@ -691,7 +749,7 @@ var StudyViewInitCharts = (function(){
                 + ",bar'><div style='width:100%; float:right'><span class='study-view-dc-chart-delete'>x</span><a href='javascript:varChart[" 
                 + _chartID + "].filterAll();dc.redrawAll();'><span title='Reset Chart' class='study-view-dc-chart-change'>\n\
                 RESET</span></a><span style='float:right; font-size:10px; margin-right: 15px;margin-top:3px;'>Log Scale X</span><input type='checkbox' value='"
-                + _chartID +","+ distanceMinMaxArray[_selectedAttr].max +","+ distanceMinMaxArray[_selectedAttr].min 
+                + _chartID +","+ distanceMinMaxArray[_selectedAttr].max +","+ distanceMinMaxArray[_selectedAttr].min + "," + emptyValueMapping + "," + seperateDistance
                 +"' class='study-view-bar-x-log'></input></div></div><div style='width:100%; float:center;text-align:center;'><pieH4>" 
                 + _selectedAttrDisplay + "</pieH4></div></div>");
         else
@@ -703,14 +761,7 @@ var StudyViewInitCharts = (function(){
                 RESET</span></a></div></div><div style='width:100%; float:center;text-align:center;'><pieH4>" + _selectedAttrDisplay + "</pieH4></div></div>");
         
         varChart[_chartID] = dc.barChart("#study-view-dc-chart-" + _chartID);
-        
-        if(_selectedAttr == 'AGE'){
-            varCluster[_chartID] = ndx.dimension(function (d) {
-                var returnValue =  parseInt(d[_selectedAttr] / 5) * 5;
-                
-                return returnValue;
-            });
-        }else{
+        if(_selectedAttrDisplay.search(/mutation/i) !== -1 && distanceMinMax > 1000){
             varCluster[_chartID] = ndx.dimension(function (d) {
                 var returnValue = d[_selectedAttr];
                 if(d[_selectedAttr] % 1 !== 0 && decimalPlaces(d[_selectedAttr]) > 3){
@@ -726,10 +777,20 @@ var StudyViewInitCharts = (function(){
                 }
                 return returnValue;
             });
+        }else{
+            varCluster[_chartID] = ndx.dimension(function (d) {
+                    var returnValue = d[_selectedAttr];
+                    if(returnValue === "NA" || returnValue === '' || returnValue === 'NaN'){
+                        return emptyValueMapping;
+                    }else{
+                        if(d[_selectedAttr] >= 0)
+                            returnValue =  parseInt(d[_selectedAttr] / seperateDistance) * seperateDistance;
+                        else
+                            returnValue =  (parseInt(d[_selectedAttr] / seperateDistance)-1) * seperateDistance;
+                        return returnValue;
                     }
-
-        var barScale = 50;
-
+                });
+        }
         varGroup[_chartID] = varCluster[_chartID].group();
 
         varChart[_chartID]
@@ -748,48 +809,38 @@ var StudyViewInitCharts = (function(){
             .renderHorizontalGridLines(true)
             .renderVerticalGridLines(true);
         
-        var barDomain = [distanceMinMaxArray[_selectedAttr].min-distanceMinMaxArray[_selectedAttr].distance/10, distanceMinMaxArray[_selectedAttr].max+distanceMinMaxArray[_selectedAttr].distance/10];
-        if(distanceMinMax < 1){
-            varChart[_chartID].x(d3.scale.linear()
-                    .nice(barDomain));
-            varChart[_chartID].yAxis().tickFormat(d3.format("d"));
-            varChart[_chartID].xAxis().ticks(10);
-            varChart[_chartID].xUnits(function(){return barScale;});
-        }else if(distanceMinMax < 2){
-            varChart[_chartID].x(d3.scale.linear().domain(barDomain));
-            varChart[_chartID].yAxis().tickFormat(d3.format("d"));
-            varChart[_chartID].xAxis().ticks(10);
-            varChart[_chartID].xUnits(function(){return barScale;});
-        }else if(_selectedAttrDisplay.search(/month/i) != -1){
-            varChart[_chartID].x(d3.scale.linear().domain([-5, distanceMinMaxArray[_selectedAttr].max+(distanceMinMaxArray[_selectedAttr].distance)/10]));
-            varChart[_chartID].xAxis().ticks(10);
-            varChart[_chartID].yAxis().tickFormat(d3.format("d"));
-            varChart[_chartID].xAxis().tickFormat(d3.format("d"));
-            varChart[_chartID].xUnits(function(){return barScale;});
-        }else if(_selectedAttrDisplay.search(/mutation/i) != -1){ 
+        if(_selectedAttrDisplay.search(/mutation/i) !== -1 && distanceMinMax > 1000){ 
             if(distanceMinMaxArray[_selectedAttr].distance)
                 varChart[_chartID].elasticX(true);
             varChart[_chartID].x(d3.scale.linear().domain([0, distanceMinMaxArray[_selectedAttr].max+(distanceMinMaxArray[_selectedAttr].distance)/10]));
-            //varChart[_chartID].x(d3.scale.log().nice().domain([1,distanceMinMaxArray[_selectedAttr].max]));
             varChart[_chartID].yAxis().tickFormat(d3.format("d"));
             varChart[_chartID].xAxis().tickFormat(d3.format("d"));
-        }else if(_selectedAttrDisplay.search(/age/i) != -1){
-            //varChart[_chartID].x(d3.scale.ordinal().domain(["10", "50", "90"]));
-            varChart[_chartID].x(d3.scale.linear().domain(barDomain));
-            varChart[_chartID].yAxis().tickFormat(d3.format("d"));
-            varChart[_chartID].centerBar(false);
-             
-           // varChart[_chartID].gap(5);
-            //varChart[_chartID].xUnits(function(d){return parseInt(d/5) * 5;});
-            varChart[_chartID].xAxis().tickFormat(d3.format("d"));
-            varChart[_chartID].xUnits(function(){return 20;});
-            //varChart[_chartID].barPadding(20);  
         }else{
-            varChart[_chartID].x(d3.scale.linear().domain(barDomain));
-            varChart[_chartID].yAxis().tickFormat(d3.format("d"));
-            varChart[_chartID].xAxis().tickFormat(d3.format("d"));
-            varChart[_chartID].xAxis().ticks(10);
-        }
+            varChart[_chartID].centerBar(true);
+            varChart[_chartID].x(d3.scale.linear().domain([monthDomain[0]-seperateDistance,monthDomain[monthDomain.length-1]+seperateDistance]));
+            varChart[_chartID].yAxis().tickFormat(d3.format("d"));            
+            varChart[_chartID].xAxis().tickFormat(function(v) {
+                if(v === emptyValueMapping) 
+                    return 'NA'; 
+                else {
+                    var tmpRangeValue = v.toString();
+                    if(tmpRangeValue.length > 3){
+                        var tmpRangeValue1 = parseInt(tmpRangeValue) / (Math.pow(10, tmpRangeValue.length-1)) + "e" + (tmpRangeValue.length-1);
+                        var tmpRangeValue2 = parseInt(v + seperateDistance) / (Math.pow(10, tmpRangeValue.length-1)) + "e" + (tmpRangeValue.length-1);
+                        return tmpRangeValue1 + "~" + tmpRangeValue2;
+                    }else{
+                        var upperNum = v+seperateDistance;
+                        return v + "~" + Number(cbio.util.toPrecision(Number(upperNum),5,0.1));
+                    }
+                }
+            });            
+            varChart[_chartID].xAxis().tickValues(monthDomain);
+            var xunitsNum = monthDomain.length*1.5;
+            if(xunitsNum <= 5)
+                varChart[_chartID].xUnits(function(){return 5;});
+            else
+                varChart[_chartID].xUnits(function(){return xunitsNum;});
+       }
         
         varChart[_chartID].on("filtered", function(chart,filter){
                 var tmpDimention = varChart[attrNameMapUID["CASE_ID"]].dimension();
@@ -812,8 +863,23 @@ var StudyViewInitCharts = (function(){
                 setScatterPlotStyle(tmpCaseID,currentPieFilters);   
             }
         });
+        
+        if(monthDomain.length > 5 && distanceMinMax < 1000){
+            varChart[_chartID].on("postRender",function(){
+                varChart[_chartID].selectAll("g.x text")
+                    .attr('transform', "rotate(-30)");
+                var x = varChart[_chartID].selectAll("g.x text")
+                    .attr('x');
+                varChart[_chartID].selectAll("g.x text")
+                    .attr('x',x-5);
+
+                varChart[_chartID].selectAll("g.x text")
+                    .attr('dy','0.9em');
+            });
+        }
+        
+        $(".study-view-bar-x-log").unbind('click').click(function(e) {
             
-        $(".study-view-bar-x-log").unbind('click').click(function() {
             var valueArray = $(this).val().split(',');
             
             if($(this).prop('checked')){
@@ -832,10 +898,10 @@ var StudyViewInitCharts = (function(){
             if(tmp !== 0){
                 xAxisTickValue.push(i);
                 i = i*10;
-            }
         }
+            }
         varChart[_chartID].xAxis().tickValues(xAxisTickValue);
-        varChart[_chartID].redraw();    
+        varChart[_chartID].redraw(); 
     }
     function linearXBarChart(_chartID,_maxValue,_minValue) {
         varChart[_chartID].x(d3.scale.linear().domain([_minValue,_maxValue]));
@@ -879,7 +945,7 @@ var StudyViewInitCharts = (function(){
                     tmpValue = value[value1.sTitle.replace(/[ ]/g,'_')];
                 
                 if(!isNaN(tmpValue) && (tmpValue % 1 != 0))
-                    tmpValue = cbio.util.toPrecision(Number(tmpValue),2,0.01);
+                    tmpValue = cbio.util.toPrecision(Number(tmpValue),5,0.01);
                 tmpB[key].push(tmpValue);
             });
         });

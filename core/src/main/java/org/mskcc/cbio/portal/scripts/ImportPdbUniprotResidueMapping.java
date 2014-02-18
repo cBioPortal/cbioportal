@@ -198,6 +198,10 @@ public final class ImportPdbUniprotResidueMapping {
         buf.readLine(); // skip head
         
         for (; line != null; line = buf.readLine()) {
+            
+            pMonitor.incrementCurValue();
+            ConsoleUtil.showProgress(pMonitor);
+            
             String[] parts = line.split("\t");
             String pdbId = parts[0];
             String chainId = parts[1];
@@ -235,9 +239,6 @@ public final class ImportPdbUniprotResidueMapping {
                     DaoPdbUniprotResidueMapping.addPdbUniprotResidueMapping(mapping);
                 }
             }
-            
-            pMonitor.incrementCurValue();
-            ConsoleUtil.showProgress(pMonitor);
         }
 
         //  Flush database

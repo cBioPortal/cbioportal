@@ -353,7 +353,7 @@ public final class ImportPdbUniprotResidueMapping {
         params.setLoadChemCompInfo(false);
         params.setAlignSeqRes(true);
         params.setParseSecStruc(false);
-        params.setUpdateRemediatedFiles(true);
+        params.setUpdateRemediatedFiles(false);
         atomCache.setFileParsingParams(params);
         atomCache.setAutoFetch(true);
         return atomCache;

@@ -42,7 +42,7 @@ var MutationDetailsController = function(
 	{
 		// init 3D view if the visualizer is available
 
-		var container3d = mutationDetailsView.$el.find("#mutation_3d_container");
+		var container3d = mutationDetailsView.$el.find(".mutation-3d-container");
 
 		if (mut3dVis)
 		{

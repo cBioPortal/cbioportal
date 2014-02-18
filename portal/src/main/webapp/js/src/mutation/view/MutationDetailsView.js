@@ -51,9 +51,7 @@ var MutationDetailsView = Backbone.View.extend({
 
 		if (self.model.mutationProxy.hasData())
 		{
-			self._initDefaultView(self.model.sampleArray,
-                    self.model.diagramOpts,
-					self.model.tableOpts);
+			self._initDefaultView();
 		}
 
 		// format after render
@@ -68,7 +66,7 @@ var MutationDetailsView = Backbone.View.extend({
 
 		if (self.model.mutationProxy.hasData())
 		{
-			var mainContent = self.$el.find("#mutation_details_content");
+			var mainContent = self.$el.find(".mutation-details-content");
 			mainContent.tabs();
 			mainContent.tabs('paging', {tabsPerPage: 10, follow: true, cycle: false});
 			mainContent.tabs("option", "active", 0);
@@ -84,7 +82,7 @@ var MutationDetailsView = Backbone.View.extend({
 	{
 		// tabs("refresh") is problematic...
 //		var self = this;
-//		var mainContent = self.$el.find("#mutation_details_content");
+//		var mainContent = self.$el.find(".mutation-details-content");
 //		mainContent.tabs("refresh");
 
         // just trigger the window resize event,
@@ -136,16 +134,12 @@ var MutationDetailsView = Backbone.View.extend({
 	 *
 	 * If you want to have more customized components, it is better
 	 * to initialize all the component separately.
-	 *
-	 * @param cases         array of case ids (samples)
-	 * @param diagramOpts   [optional] mutation diagram options
-	 * @param tableOpts     [optional] mutation table options
 	 */
-	_initDefaultView: function(cases, diagramOpts, tableOpts)
+	_initDefaultView: function()
 	{
 		var self = this;
 
-		var contentSelector = self.$el.find("#mutation_details_content");
+		var contentSelector = self.$el.find(".mutation-details-content");
 
 		// reset all previous tabs related listeners (if any)
 		contentSelector.bind('tabscreate', false);
@@ -154,7 +148,7 @@ var MutationDetailsView = Backbone.View.extend({
 		// init view for the first gene only
 		contentSelector.bind('tabscreate', function(event, ui) {
 			// hide loader image
-			self.$el.find("#mutation_details_loader").hide();
+			self.$el.find(".mutation-details-loader").hide();
 
 			// trigger corresponding event
 			self.dispatcher.trigger(

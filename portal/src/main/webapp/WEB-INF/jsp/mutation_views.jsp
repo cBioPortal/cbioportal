@@ -1,11 +1,11 @@
 <%@ taglib prefix="sql_rt" uri="http://java.sun.com/jstl/sql_rt" %>
 
 <script type="text/template" id="default_mutation_details_template">
-	<div id='mutation_3d_container' class='mutation-3d-container'></div>
-	<div id='mutation_details_loader'>
+	<div class='mutation-3d-container'></div>
+	<div class='mutation-details-loader'>
 		<img src='{{loaderImage}}'/>
 	</div>
-	<div id='mutation_details_content' class='mutation-details-content'>
+	<div class='mutation-details-content'>
 		<ul>
 			{{listContent}}
 		</ul>

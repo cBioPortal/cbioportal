@@ -668,41 +668,28 @@ var Mutation3dVisView = Backbone.View.extend({
 	},
 	/**
 	 * Highlights the 3D visualizer for the residue
-	 * corresponding to the given pileup of mutations.
+	 * corresponding to the given array of pileups of mutations.
 	 *
-	 * @param pileup    Pileup instance
+	 * @param pileups   an array of Pileup instances
 	 * @param reset     whether to reset previous highlights
-	 * @return {boolean} true if highlight successful, false otherwise
+	 * @return {Number} number of mapped residues
 	 */
-	highlightView: function(pileup, reset)
+	highlightView: function(pileups, reset)
 	{
-		// TODO allow highlighting of multiple pileups in one function call
-
 		var self = this;
 		var mut3dVis = self.options.mut3dVis;
 
-		return mut3dVis.highlight(pileup, reset);
+		return mut3dVis.highlight(pileups, reset);
 	},
 	/**
-	 * Removes the highlight for the given pileup.
-	 *
-	 * If this function is invoked without a parameter,
-	 * then resets all residue highlights.
+	 * Resets all residue highlights.
 	 */
-	removeHighlight: function(pileup)
+	resetHighlight: function()
 	{
 		var self = this;
 		var mut3dVis = self.options.mut3dVis;
 
-		if (pileup)
-		{
-			// TODO reset only the provided pileup, not all of 'em!
-			mut3dVis.resetHighlight();
-		}
-		else
-		{
-			mut3dVis.resetHighlight();
-		}
+		mut3dVis.resetHighlight();
 	},
 	/**
 	 * Shows the loader image for the 3D vis container.
@@ -744,15 +731,28 @@ var Mutation3dVisView = Backbone.View.extend({
 	},
 	/**
 	 * Shows a warning message for unmapped residues.
+	 *
+	 * @param unmappedCount  number of unmapped selections
+	 * @param selectCount    total number of selections
 	 */
-	showResidueWarning: function()
+	showResidueWarning: function(unmappedCount, selectCount)
 	{
 		var self = this;
 		var warning = self.$el.find(".mutation-3d-residue-warning");
+		var unmapped = self.$el.find(".mutation-3d-unmapped-info");
 
 		// show warning only if no other warning is visible
 		if (!self.$el.find(".mutation-3d-nomap-warning").is(":visible"))
 		{
+			if (selectCount > 1)
+			{
+				unmapped.text(unmappedCount + " of the selections");
+			}
+			else
+			{
+				unmapped.text("Selected mutation");
+			}
+
 			warning.show();
 		}
 	},

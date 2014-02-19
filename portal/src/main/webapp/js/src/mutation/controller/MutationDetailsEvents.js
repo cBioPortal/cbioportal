@@ -15,8 +15,8 @@ var MutationDetailsEvents = (function()
 	var _diagramPlotReset = "mutationDiagramPlotReset";
 	var _mutationTableFiltered = "mutationTableFiltered";
 	var _chainSelected = "pdbPanelChainSelected";
-	var _pdbPanelInit = "pdbPanelInitialized";
 	var _geneTabSelected = "mutationDetailsGeneTabSelected";
+	var _geneTabsCreated = "mutationDetailsGeneTabsCreated";
 	var _3dPanelClosed = "mutation3dPanelClosed";
 
 	return {
@@ -28,9 +28,9 @@ var MutationDetailsEvents = (function()
 		DIAGRAM_PLOT_UPDATED: _diagramPlotUpdated,
 		DIAGRAM_PLOT_RESET: _diagramPlotReset,
 		MUTATION_TABLE_FILTERED: _mutationTableFiltered,
-		PDB_PANEL_INIT: _pdbPanelInit,
 		CHAIN_SELECTED: _chainSelected,
 		GENE_TAB_SELECTED: _geneTabSelected,
+		GENE_TABS_CREATED: _geneTabsCreated,
 		VIEW_3D_PANEL_CLOSED: _3dPanelClosed
 	};
 })();

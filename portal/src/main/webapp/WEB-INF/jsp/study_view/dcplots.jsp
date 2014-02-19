@@ -33,7 +33,11 @@
     <hr/>
     <div id="study-view-charts">
         <div id='study-view-scatter-plot' class='study-view-dc-chart w3 h2'>
-            <div id='study-view-scatter-plot-header'></div>
+            <div id='study-view-scatter-plot-header' style="float: right">
+                <input type='checkbox' id='study-view-scatter-plot-log-scale-x'><span style="margin: 5px 10px 0px 0px; color: grey">Log Scale X</span>
+                <input type='checkbox' id='study-view-scatter-plot-log-scale-y'><span style="margin: 5px 50px 0px 0px; color: grey">Log Scale y</span>
+                <span class='study-view-scatter-plot-delete'>x</span>
+            </div>
             <div id='study-view-scatter-plot-body'></div>
             <div id='study-view-scatter-plot-loading-img'></div>     
             <div id='study-view-scatter-plot-control-panel'></div>

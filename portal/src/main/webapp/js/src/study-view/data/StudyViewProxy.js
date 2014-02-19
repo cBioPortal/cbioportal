@@ -77,11 +77,11 @@ var StudyViewProxy = (function() {
                 }
 
                 var dataAttrA1 = a1[0]['attributes'];
-                var keys = Object.keys(dataObject);
+                
                 var keyNumMapping = [];
                 
                 for(var j = 0; j< parObject.caseIds.length ; j++){
-                    var tmpArray = [];
+                    var tmpArray = {};
                     tmpArray["CASE_ID"] = parObject.caseIds[j];
                     tmpArray["MUTATION_COUNT"] = "NA";
                     tmpArray["COPY_NUMBER_ALTERATIONS"] = "NA";
@@ -106,26 +106,32 @@ var StudyViewProxy = (function() {
                 
                 obtainDataObject['attr'] = a1[0]['attributes'];
                 
-                if(a2[0].length != 0){
+                var filteredA2 = removeExtraData(parObject.caseIds,a2[0]);
+                var filteredA3 = removeExtraData(parObject.caseIds,a3[0]);
+                if(Object.keys(filteredA2).length !== 0){
                     var newAttri1 = {};
                     newAttri1.attr_id = 'MUTATION_COUNT';
                     newAttri1.display_name = 'Mutation Count';
                     newAttri1.description = 'Mutation Count';
                     newAttri1.datatype = 'NUMBER';                        
 
-                    jQuery.each(a2[0], function(i,val){
+                    jQuery.each(filteredA2, function(i,val){
+                        if(val === undefined)
+                            val = 'NA';
                         obtainDataObject['dataObjectM'][keyNumMapping[i]]['MUTATION_COUNT'] = val;
                     });    
                     obtainDataObject['attr'].push(newAttri1);
                 }
-                if(a3[0].length != 0){
+                if(Object.keys(filteredA3).length !== 0){
                     var newAttri2 = {};
                     newAttri2.attr_id = 'COPY_NUMBER_ALTERATIONS';
                     newAttri2.display_name = 'Copy Number Alterations';
                     newAttri2.description = 'Copy Number Alterations';
                     newAttri2.datatype = 'NUMBER';
 
-                    jQuery.each(a3[0], function(i,val){
+                    jQuery.each(filteredA3, function(i,val){
+                        if(val === undefined)
+                            val = 'NA';
                         obtainDataObject['dataObjectM'][keyNumMapping[i]]['COPY_NUMBER_ALTERATIONS'] = val;
                     }); 
                     obtainDataObject['attr'].push(newAttri2);
@@ -149,6 +155,14 @@ var StudyViewProxy = (function() {
                 callbackFunc(obtainDataObject);
             });
     };
+    
+    function removeExtraData(_caseId,_data){
+        var _newData = {};
+        for(var i=0; i< _caseId.length ; i++){
+            _newData[_caseId[i]] = _data[_caseId[i]];
+        }
+        return _newData;
+    }
     
     return {
         init: function(o,callbackFunc){

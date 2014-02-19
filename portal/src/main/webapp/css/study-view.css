@@ -187,6 +187,11 @@
     color: lightgray;
     cursor: pointer;
 }
+.study-view-scatter-plot-delete{  
+    margin-right: 5px;
+    color: lightgray;
+    cursor: pointer;
+}
 .study-view-dc-chart-change {
     float: right;
     margin-right: 10px;

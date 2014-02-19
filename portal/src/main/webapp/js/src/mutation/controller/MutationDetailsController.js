@@ -119,7 +119,8 @@ var MutationDetailsController = function(
 			// init controllers
 			new MainMutationController(mainView, components.diagram);
 			new MutationDetailsTableController(components.tableView, components.diagram);
-			new Mutation3dController(mutationDetailsView, _mut3dVisView, components.view3d, mut3dVis,
+			new Mutation3dController(mutationDetailsView, mainView,
+			                         _mut3dVisView, components.view3d, mut3dVis,
 			                         _pdbProxy, components.diagram, gene);
 			new MutationDiagramController(
 				components.diagram, components.tableView.tableUtil, mutationProxy.getMutationUtil());

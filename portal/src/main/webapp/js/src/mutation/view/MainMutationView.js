@@ -92,11 +92,36 @@ var MainMutationView = Backbone.View.extend({
 		// init mutation table view
 		var tableView = self._initMutationTableView(gene, mutationData, tableOpts);
 
+		// update component references
+		self._mutationDiagram = diagram;
+		self._tableView = tableView;
+		self._mut3dView = view3d;
+
 		return {
 			diagram: diagram,
 			tableView: tableView,
 			view3d: view3d
 		};
+	},
+	initPdbPanelView: function(pdbColl)
+	{
+		var self = this;
+
+		var panelOpts = {
+			//el: "#mutation_pdb_panel_view_" + gene.toUpperCase(),
+			el: self.$el.find(".mutation-pdb-panel-view"),
+			model: {geneSymbol: self.model.geneSymbol,
+				pdbColl: pdbColl,
+				pdbProxy: self.model.pdbProxy},
+			diagram: self._mutationDiagram
+		};
+
+		var pdbPanelView = new PdbPanelView(panelOpts);
+		pdbPanelView.render();
+
+		self._pdbPanelView = pdbPanelView;
+
+		return pdbPanelView;
 	},
 	/**
 	 * Generates a one-line summary of the mutation data.
@@ -186,9 +211,7 @@ var MainMutationView = Backbone.View.extend({
 		}
 
 		// overwrite container in any case (for consistency with the default view)
-		//options.el = "#mutation_diagram_" + gene.toUpperCase();
-		//options.el = self.$el.find(".mutation-diagram-container");
-		options.el = self.options.el + " .mutation-diagram-container";
+		options.el = self.$el.find(".mutation-diagram-container");
 
 		// create a backbone collection for the given data
 		var mutationColl = new MutationCollection(mutationData);

@@ -21,9 +21,7 @@ var PdbPanelView = Backbone.View.extend({
 		var self = this;
 
 		// compile the template using underscore
-		var template = _.template(
-				$("#pdb_panel_view_template").html(),
-				{geneSymbol: self.model.geneSymbol});
+		var template = _.template($("#pdb_panel_view_template").html(), {});
 
 		// load the compiled HTML into the Backbone "el"
 		self.$el.html(template);
@@ -95,7 +93,6 @@ var PdbPanelView = Backbone.View.extend({
 		var self = this;
 		var panel = null;
 
-		var gene = self.model.geneSymbol;
 		var pdbColl = self.model.pdbColl;
 		var pdbProxy = self.model.pdbProxy;
 		var mutationDiagram = self.options.diagram;
@@ -105,7 +102,7 @@ var PdbPanelView = Backbone.View.extend({
 			var xScale = mutationDiagram.xScale;
 
 			// set margin same as the diagram margin for correct alignment with x-axis
-			var options = {el: "#mutation_pdb_panel_" + gene.toUpperCase(),
+			var options = {el: self.$el.find(".mutation-pdb-panel-container"),
 				marginLeft: mutationDiagram.options.marginLeft,
 				marginRight: mutationDiagram.options.marginRight};
 

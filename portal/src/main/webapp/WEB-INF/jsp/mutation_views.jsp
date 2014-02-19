@@ -81,7 +81,7 @@
 			</tr>
 		</table>
 	</div>
-	<div id='mutation_pdb_panel_view_{{geneSymbol}}' class="mutation-pdb-panel-view"></div>
+	<div class="mutation-pdb-panel-view"></div>
 
 	<div class='mutation-details-filter-info'>
 		Current view shows filtered results.
@@ -158,7 +158,7 @@
 	<div class='mutation-3d-vis-loader'>
 		<img src='{{loaderImage}}'/>
 	</div>
-	<div id='mutation_3d_visualizer' class='mutation-3d-vis-container'></div>
+	<div class='mutation-3d-vis-container'></div>
 	<div class='mutation-3d-vis-toolbar'>
 		<div class='mutation-3d-vis-help-init'>
 			<a href="#">how to pan/zoom/rotate?</a>
@@ -385,13 +385,13 @@
 	<table>
 		<tr>
 			<td valign="top">
-				<div id='mutation_pdb_panel_{{geneSymbol}}' class='mutation-pdb-panel-container'></div>
+				<div class='mutation-pdb-panel-container'></div>
 			</td>
 			<td></td>
 		</tr>
 		<tr>
 			<td valign="top" align="center">
-				<div id='mutation_pdb_controls_{{geneSymbol}}' class='mutation-pdb-panel-controls'>
+				<div class='mutation-pdb-panel-controls'>
 					<button class='expand-collapse-pdb-panel'
 					        title='Expand/Collapse PDB Chains'></button>
 				</div>

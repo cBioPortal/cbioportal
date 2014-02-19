@@ -4,6 +4,7 @@
  * on the view wrt each event type.
  *
  * @param mutationDetailsView   a MutationDetailsView instance
+ * @param mainMutationView      a MainMutationView instance
  * @param mut3dVisView          a Mutation3dVisView instance
  * @param mut3dView             a Mutation3dView instance
  * @param mut3dVis              singleton Mutation3dVis instance
@@ -13,8 +14,8 @@
  *
  * @author Selcuk Onur Sumer
  */
-var Mutation3dController = function (
-	mutationDetailsView, mut3dVisView, mut3dView, mut3dVis, pdbProxy, mutationDiagram, geneSymbol)
+var Mutation3dController = function (mutationDetailsView, mainMutationView,
+	mut3dVisView, mut3dView, mut3dVis, pdbProxy, mutationDiagram, geneSymbol)
 {
 	// we cannot get pdb panel view as a constructor parameter,
 	// since it is initialized after initializing this controller
@@ -231,17 +232,7 @@ var Mutation3dController = function (
 			// init pdb panel view if not initialized yet
 			if (_pdbPanelView == null)
 			{
-				// TODO PdbPanelView instance is only accessible within this controller,
-				// it might be better to move the pdb panel init function into another view.
-				// (actually the div "mutation_pdb_panel_view" is a part of MainMutationView)
-
-				// TODO use class instead of id
-				var panelOpts = {el: "#mutation_pdb_panel_view_" + gene.toUpperCase(),
-					model: {geneSymbol: gene, pdbColl: pdbColl, pdbProxy: pdbProxy},
-					diagram: mutationDiagram};
-
-				_pdbPanelView = new PdbPanelView(panelOpts);
-				_pdbPanelView.render();
+				_pdbPanelView = mainMutationView.initPdbPanelView(pdbColl);
 
 				// add listeners to the custom event dispatcher of the pdb panel
 				_pdbPanelView.pdbPanel.dispatcher.on(

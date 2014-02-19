@@ -255,7 +255,8 @@ public class PdbDataServlet extends HttpServlet
 			alignmentJson.put("uniprotTo", alignment.getUniprotTo());
 			alignmentJson.put("eValue", alignment.getEValue());
 			alignmentJson.put("identityPerc", alignment.getIdentityPerc());
-			alignmentJson.put("alignmentString", this.alignmentString(alignment));
+			//alignmentJson.put("alignmentString", this.alignmentString(alignment));
+			alignmentJson.put("alignmentString", alignment.getMidlineAlign());
 
 			alignmentArray.add(alignmentJson);
 		}

@@ -238,6 +238,21 @@ var CoExpView = (function() {
             };
         }
 
+        function getCoExpDataCallBack(result, geneId) {
+            if (_.isEmpty(result)) {
+                $('#tabs').tabs("disable", "coexp");
+            } else {
+                convertData(result);
+                assembleNames(geneId);
+                drawLayout();
+                overWriteFilters(); 
+                configTable();
+                attachDownloadFullResultButton(Names.tableDivId, geneId);
+                attachPearsonFilter(Names.tableDivId, _coExpTable, geneId);
+                attachRowListener(_coExpTable, Names.tableId, Names.plotId, geneId);
+                initTable(_coExpTable);
+            }
+        }
 
         return {
             init: function(geneId) {
@@ -252,24 +267,11 @@ var CoExpView = (function() {
                         case_ids_key: window.PortalGlobals.getCaseIdsKey(),
                         is_full_result: "false"
                     };
-                    $.post("getCoExp.do", paramsGetCoExpData, getCoExpDataCallBack, "json");
-                    //Generate datatable 
-                    function getCoExpDataCallBack(result) {
-                        if (_.isEmpty(result)) {
-                            $('#tabs').tabs("disable", "coexp");
-                        } else {
-                            convertData(result);
-                            assembleNames(geneId);
-                            drawLayout();
-                            overWriteFilters(); 
-                            configTable();
-                            attachDownloadFullResultButton(Names.tableDivId, geneId);
-                            attachPearsonFilter(Names.tableDivId, _coExpTable, geneId);
-                            attachRowListener(_coExpTable, Names.tableId, Names.plotId, geneId);
-                            initTable(_coExpTable);
-                        }
-                    }
+                    $.post("getCoExp.do", paramsGetCoExpData, function(result){
+                        getCoExpDataCallBack(result, geneId);}
+                        , "json");
                 }
+
             }
         }
     }

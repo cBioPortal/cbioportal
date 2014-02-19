@@ -225,7 +225,7 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 	function reset3dView()
 	{
 		var gene = geneSymbol;
-		var uniprotId = mut3dView.model.uniprotId; // TODO get this from somewhere else
+		var uniprotAcc = mut3dView.model.uniprotAcc; // TODO get this from somewhere else
 
 		var initView = function(pdbColl)
 		{
@@ -252,7 +252,7 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 		};
 
 		// init view with the pdb data
-		pdbProxy.getPdbData(uniprotId, initView);
+		pdbProxy.getPdbData(uniprotAcc, initView);
 	}
 
 	/**

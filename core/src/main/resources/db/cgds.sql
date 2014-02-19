@@ -624,7 +624,7 @@ CREATE TABLE `pdb_uniprot_alignment` (
   `ALIGNMENT_ID` int NOT NULL,
   `PDB_ID` char(4) NOT NULL,
   `CHAIN` char(1) NOT NULL,
-  `UNIPROT_ID` varchar(50) NOT NULL,
+  `UNIPROT_ACC` varchar(50) NOT NULL,
   `PDB_FROM` int NOT NULL, # sequence residue number
   `PDB_TO` int NOT NULL, # sequence residue number
   `UNIPROT_FROM` int NOT NULL,

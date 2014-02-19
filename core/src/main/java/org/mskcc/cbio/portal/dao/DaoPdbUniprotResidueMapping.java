@@ -52,7 +52,7 @@ public final class DaoPdbUniprotResidueMapping {
                 Integer.toString(alignment.getAlignmentId()),
                 alignment.getPdbId(),
                 alignment.getChain(),
-                alignment.getUniprotId(),
+                alignment.getUniprotAcc(),
                 Integer.toString(alignment.getPdbFrom()),
                 Integer.toString(alignment.getPdbTo()),
                 Integer.toString(alignment.getUniprotFrom()),
@@ -86,11 +86,11 @@ public final class DaoPdbUniprotResidueMapping {
 	/**
 	 * Retrieves all alignments for the given Uniprot id.
 	 *
-	 * @param uniprotId     uniprot id
+	 * @param uniprotAcc     uniprot accession
 	 * @return  a list of PdbUniprotAlignment instances
 	 * @throws DaoException
 	 */
-	public static List<PdbUniprotAlignment> getAlignments(String uniprotId) throws DaoException
+	public static List<PdbUniprotAlignment> getAlignments(String uniprotAcc) throws DaoException
 	{
 		Connection con = null;
 		PreparedStatement pstmt = null;
@@ -98,9 +98,9 @@ public final class DaoPdbUniprotResidueMapping {
 		try {
 			con = JdbcUtil.getDbConnection(DaoPdbUniprotResidueMapping.class);
 			pstmt = con.prepareStatement("SELECT * FROM pdb_uniprot_alignment " +
-			                             "WHERE UNIPROT_ID=? " +
+			                             "WHERE UNIPROT_ACC=? " +
 			                             "ORDER BY UNIPROT_FROM ASC");
-			pstmt.setString(1, uniprotId);
+			pstmt.setString(1, uniprotAcc);
 			rs = pstmt.executeQuery();
 
 			List<PdbUniprotAlignment> alignments = new ArrayList<PdbUniprotAlignment>();
@@ -121,11 +121,11 @@ public final class DaoPdbUniprotResidueMapping {
 	/**
 	 * Retrieves the total number alignments for the given Uniprot id.
 	 *
-	 * @param uniprotId     uniprot id
+	 * @param uniprotAcc     uniprot accession
 	 * @return  total number of alignments for the given Uniprot id.
 	 * @throws DaoException
 	 */
-	public static Integer getAlignmentCount(String uniprotId) throws DaoException
+	public static Integer getAlignmentCount(String uniprotAcc) throws DaoException
 	{
 		Connection con = null;
 		PreparedStatement pstmt = null;
@@ -133,8 +133,8 @@ public final class DaoPdbUniprotResidueMapping {
 		try {
 			con = JdbcUtil.getDbConnection(DaoPdbUniprotResidueMapping.class);
 			pstmt = con.prepareStatement("SELECT COUNT(*) FROM pdb_uniprot_alignment " +
-			                             "WHERE UNIPROT_ID=?");
-			pstmt.setString(1, uniprotId);
+			                             "WHERE UNIPROT_ACC=?");
+			pstmt.setString(1, uniprotAcc);
 			rs = pstmt.executeQuery();
 
 			Integer count = -1;
@@ -263,15 +263,15 @@ public final class DaoPdbUniprotResidueMapping {
 	{
 		Integer alignmentId = rs.getInt("ALIGNMENT_ID");
 		Integer pdbPosition = rs.getInt("PDB_POSITION");
-                String pdbInsertion = rs.getString("PDB_INSERTION_CODE");
-                Integer pdbSeqRes = rs.getInt("PDB_SEQRES");
+		String pdbInsertion = rs.getString("PDB_INSERTION_CODE");
+		Integer pdbSeqRes = rs.getInt("PDB_SEQRES");
 		Integer uniprotPosition = rs.getInt("UNIPROT_POSITION");
 		String match = rs.getString("MATCH");
 
 		return new PdbUniprotResidueMapping(alignmentId,
 				pdbPosition,
-                                pdbInsertion,
-                                pdbSeqRes,
+				pdbInsertion,
+				pdbSeqRes,
 				uniprotPosition,
 				match);
 	}
@@ -290,7 +290,7 @@ public final class DaoPdbUniprotResidueMapping {
 		Integer alignmentId = rs.getInt("ALIGNMENT_ID");
 		String pdbId = rs.getString("PDB_ID");
 		String chain = rs.getString("CHAIN");
-		String uniprotId = rs.getString("UNIPROT_ID");
+		String uniprotAcc = rs.getString("UNIPROT_ACC");
 		Integer pdbFrom = rs.getInt("PDB_FROM");
 		Integer pdbTo = rs.getInt("PDB_TO");
 		Integer uniprotFrom = rs.getInt("UNIPROT_FROM");
@@ -305,7 +305,7 @@ public final class DaoPdbUniprotResidueMapping {
 		alignment.setAlignmentId(alignmentId);
 		alignment.setPdbId(pdbId);
 		alignment.setChain(chain);
-		alignment.setUniprotId(uniprotId);
+		alignment.setUniprotAcc(uniprotAcc);
 		alignment.setUniprotFrom(uniprotFrom);
 		alignment.setUniprotTo(uniprotTo);
 		alignment.setPdbFrom(pdbFrom);

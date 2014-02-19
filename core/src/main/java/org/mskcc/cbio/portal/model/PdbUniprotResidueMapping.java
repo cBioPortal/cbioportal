@@ -36,15 +36,15 @@ public class PdbUniprotResidueMapping
 {
 	private Integer alignmentId;
 	private Integer pdbPos;
-        private String pdbInsertionCode;
-        private Integer pdbSeqRes;
+	private String pdbInsertionCode;
+	private Integer pdbSeqRes;
 	private Integer uniprotPos;
 	private String match;
 
 	public PdbUniprotResidueMapping(Integer alignmentId,
 			Integer pdbPos,
-                        String pdbInsertionCode,
-                        Integer pdbSeqRes,
+			String pdbInsertionCode,
+			Integer pdbSeqRes,
 			Integer uniprotPos,
 			String match)
 	{

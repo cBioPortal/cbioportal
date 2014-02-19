@@ -101,7 +101,7 @@ public final class ImportPdbUniprotResidueMapping {
                     String pdbId = parts[0].substring(1);
                     if (!pdbId.equals(pdbUniprotAlignment.getPdbId())
                             || !parts[1].equals(pdbUniprotAlignment.getChain())
-                            || !parts[2].equals(pdbUniprotAlignment.getUniprotId())) {
+                            || !parts[2].equals(pdbUniprotAlignment.getUniprotAcc())) {
                         mappingUniPdbProtein = new HashMap<Integer, Integer>();
                         mappingPdbUniProtein = new HashMap<Integer, Integer>();
                     }
@@ -110,7 +110,7 @@ public final class ImportPdbUniprotResidueMapping {
                     
                     pdbUniprotAlignment.setPdbId(pdbId);
                     pdbUniprotAlignment.setChain(parts[1]);
-                    pdbUniprotAlignment.setUniprotId(parts[2]);
+                    pdbUniprotAlignment.setUniprotAcc(parts[2]);
                     
                     pdbUniprotAlignment.setPdbFrom(Integer.parseInt(parts[3]));
                     pdbUniprotAlignment.setPdbTo(Integer.parseInt(parts[4]));
@@ -213,7 +213,7 @@ public final class ImportPdbUniprotResidueMapping {
             
             System.out.println("processing "+line);
             
-            String uniprotId = parts[2];
+            String uniprotAcc = parts[2];
             
             int pdbSeqResBeg = Integer.parseInt(parts[3]);
             int pdbSeqResEnd = Integer.parseInt(parts[4]);
@@ -233,7 +233,7 @@ public final class ImportPdbUniprotResidueMapping {
             List<PdbUniprotResidueMapping> pdbUniprotResidueMappings = new ArrayList<PdbUniprotResidueMapping>();
             
             if (processPdbUniprotAlignment(pdbUniprotAlignment, pdbUniprotResidueMappings,
-                    ++alignId, pdbId, chainId, uniprotId, uniprotResBeg,
+                    ++alignId, pdbId, chainId, uniprotAcc, uniprotResBeg,
                     uniprotResEnd, pdbSeqResBeg, pdbSeqResEnd, identp_threhold, atomCache)) {
                 DaoPdbUniprotResidueMapping.addPdbUniprotAlignment(pdbUniprotAlignment);
                 for (PdbUniprotResidueMapping mapping : pdbUniprotResidueMappings) {
@@ -250,10 +250,10 @@ public final class ImportPdbUniprotResidueMapping {
     
     private static boolean processPdbUniprotAlignment(
             PdbUniprotAlignment pdbUniprotAlignment, List<PdbUniprotResidueMapping> pdbUniprotResidueMappings,
-            int alignId, String pdbId, String chainId, String uniprotId, int uniprotResBeg,
+            int alignId, String pdbId, String chainId, String uniprotAcc, int uniprotResBeg,
             int uniprotResEnd, int pdbSeqResBeg, int pdbSeqResEnd, double identp_threhold, AtomCache atomCache) {
 
-        String uniprotSeq = getUniprotSequence(uniprotId, uniprotResBeg, uniprotResEnd);
+        String uniprotSeq = getUniprotSequence(uniprotAcc, uniprotResBeg, uniprotResEnd);
         if (uniprotSeq==null) {
             System.err.println("Could not read UniProt Sequence");
             return false;
@@ -333,7 +333,7 @@ public final class ImportPdbUniprotResidueMapping {
 
         pdbUniprotAlignment.setPdbId(pdbId);
         pdbUniprotAlignment.setChain(chainId);
-        pdbUniprotAlignment.setUniprotId(uniprotId);
+        pdbUniprotAlignment.setUniprotAcc(uniprotAcc);
         
         pdbUniprotAlignment.setPdbFrom(pdbSeqResBeg+start);
         pdbUniprotAlignment.setPdbTo(pdbSeqResBeg+end-1);

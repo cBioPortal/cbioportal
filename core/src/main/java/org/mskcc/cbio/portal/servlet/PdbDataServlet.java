@@ -349,7 +349,8 @@ public class PdbDataServlet extends HttpServlet
 			JSONObject residueMappingJson = new JSONObject();
 
 			residueMappingJson.put("pdbPos", mapping.getPdbPos());
-			residueMappingJson.put("match", mapping.getMatch());
+			//residueMappingJson.put("match", mapping.getMatch());
+			residueMappingJson.put("insertion", mapping.getPdbInsertionCode());
 
 			map.put(position, residueMappingJson);
 		}

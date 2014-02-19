@@ -39,9 +39,7 @@ public class PdbUniprotAlignment
 	private String chain;
 	private String uniprotId;
 	private Integer pdbFrom;
-        private String pdbFromInsertionCode;
 	private Integer pdbTo;
-        private String pdbToInsertionCode;
 	private Integer uniprotFrom;
 	private Integer uniprotTo;
 	private Float eValue;
@@ -191,21 +189,5 @@ public class PdbUniprotAlignment
 	{
 		this.uniprotTo = uniprotTo;
 	}
-
-    public String getPdbFromInsertionCode() {
-        return pdbFromInsertionCode;
-    }
-
-    public void setPdbFromInsertionCode(String pdbFromInsertionCode) {
-        this.pdbFromInsertionCode = pdbFromInsertionCode;
-    }
-
-    public String getPdbToInsertionCode() {
-        return pdbToInsertionCode;
-    }
-
-    public void setPdbToInsertionCode(String pdbToInsertionCode) {
-        this.pdbToInsertionCode = pdbToInsertionCode;
-    }
         
 }

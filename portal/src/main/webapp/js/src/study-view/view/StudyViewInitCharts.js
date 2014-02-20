@@ -122,7 +122,10 @@ var StudyViewInitCharts = (function(){
         }
 
         for(var i=0; i< bar.length ; i++){
-            initBarChart(createdChartID,'study-view-bar-chart',bar[i]["attr_id"],bar[i]["display_name"],distanceMinMaxArray);
+            if(bar[i]["attr_id"] === 'MUTATION_COUNT' && distanceMinMaxArray[bar[i]["attr_id"]].distance > 1000)
+                initLogBarChart(createdChartID,'study-view-bar-chart',bar[i]["attr_id"],bar[i]["display_name"],distanceMinMaxArray);
+            else
+                initBarChart(createdChartID,'study-view-bar-chart',bar[i]["attr_id"],bar[i]["display_name"],distanceMinMaxArray);
             HTMLtagsMapUID["study-view-dc-chart-" + createdChartID] = createdChartID;
             attrNameMapUID[bar[i]["attr_id"]] = createdChartID;
             displayedID.push(bar[i]["attr_id"]);            
@@ -717,111 +720,79 @@ var StudyViewInitCharts = (function(){
         return el;
     }
             
-    function initBarChart(_chartID,_className,_selectedAttr,_selectedAttrDisplay,distanceMinMaxArray) {
-        var distanceMinMax = distanceMinMaxArray[_selectedAttr].distance;
-        
-        var seperateDistance;
-        var tmpMaxDomain;
-        var numOfGroups = 10;
-        var startPoint;
-        var emptyValueMapping;
-        var monthDomain = [];
-        var monthRange = ['NA'];
-        var distanceLength;
-        var divider = 1;
-        
-        distanceLength = parseInt(distanceMinMax).toString().length;
-        for(var i=0;i<distanceLength-2;i++)
-            divider *= 10;
-        if(distanceMinMaxArray[_selectedAttr].max < 100 && distanceMinMaxArray[_selectedAttr].max > 20)
-            divider = 10;
-        /*
-        if(distanceMinMax > 1000 && _selectedAttrDisplay.search(/mutation/i) !== -1){
-            
-            //if(distanceMinMaxArray[_selectedAttr].max > divider *)
-            seperateDistance = (parseInt(distanceMinMax / (10 * divider)) + 1) * divider;
-            tmpMaxDomain = (parseInt(distanceMinMaxArray[_selectedAttr].max / divider) + 1) * divider;
-            numOfGroups = tmpMaxDomain/seperateDistance;
-            startPoint = 0;
-            emptyValueMapping = startPoint-seperateDistance;
-        }else 
-        */
-        if(distanceMinMaxArray[_selectedAttr].max <=1 && distanceMinMaxArray[_selectedAttr].max > 0 && distanceMinMaxArray[_selectedAttr].min>=-1 && distanceMinMaxArray[_selectedAttr].min<0){
-            seperateDistance = 0.2;
-            startPoint = (parseInt(distanceMinMaxArray[_selectedAttr].min / 0.2)-1) * 0.2;
-            emptyValueMapping = startPoint -0.2;
-        }else if(distanceMinMax > 1){
-            seperateDistance = (parseInt(distanceMinMax / (numOfGroups * divider)) + 1) * divider;
-            tmpMaxDomain = (parseInt(distanceMinMaxArray[_selectedAttr].max / divider) + 1) * divider;
-            startPoint = parseInt(distanceMinMaxArray[_selectedAttr].min / divider) * divider;
-            emptyValueMapping = startPoint-seperateDistance;
-        }else if(distanceMinMax < 1 && distanceMinMaxArray[_selectedAttr].min >=0 ){
-            seperateDistance = 0.1;
-            startPoint = 0;
-            emptyValueMapping = -0.1;
-        }else{
-            seperateDistance = 0.1;
-            startPoint = -1;
-            emptyValueMapping = -1.1;
-        }
-            
-        monthDomain.push(Number(cbio.util.toPrecision(Number(emptyValueMapping),5,0.1)));
-
-        for(var i=0; i< numOfGroups ; i++){
-            var tmpValue = i*seperateDistance + startPoint;
-            if(tmpValue > distanceMinMaxArray[_selectedAttr].max)
-                break;
-            tmpValue = Number(cbio.util.toPrecision(Number(tmpValue),5,0.1));
-            monthDomain.push(tmpValue);
-            monthRange.push(tmpValue.toString());
-        }        
-        
-        var logCheckBox = "";
-        
-        if(distanceMinMax > 1000)
-            logCheckBox = "<span style='float:right; font-size:10px; margin-right: 15px;margin-top:3px;color: grey'>Log Scale X</span><input type='checkbox' value='"
-                + _chartID +","+ distanceMinMaxArray[_selectedAttr].max +","+ distanceMinMaxArray[_selectedAttr].min + "," + emptyValueMapping + "," + seperateDistance
-                +"' class='study-view-bar-x-log'></input>'";
-        
-        $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID 
-                + "-main\" class='study-view-dc-chart study-view-bar-main'><div id=\"study-view-dc-chart-" 
+    function initLogBarChart(_chartID,_className,_selectedAttr,_selectedAttrDisplay,distanceMinMaxArray) {
+        var logCheckBox = "<span id='scale-span-"+_chartID+"' style='float:right; font-size:10px; margin-right: 15px;margin-top:3px;color: grey'>Linear Scale X</span><input type='checkbox' value='"
+                + _chartID +","+ distanceMinMaxArray[_selectedAttr].max +","+ distanceMinMaxArray[_selectedAttr].min + "," + _selectedAttr
+                +"' id='scale-input-"+_chartID+"' class='study-view-bar-x-linear'></input>";
+        var contentHTML = "<div id=\"study-view-dc-chart-" 
                 + _chartID + "\" class='"+ _className +"'  value='" + _selectedAttr + "," + _selectedAttrDisplay 
                 + ",bar'><div style='width:100%; float:right'><span class='study-view-dc-chart-delete'>x</span><a href='javascript:varChart[" 
-                + _chartID + "].filterAll();dc.redrawAll();'><span title='Reset Chart' class='study-view-dc-chart-change'>\n\
+                + _chartID + "].filterAll();dc.redrawAll();'><span  title='Reset Chart' class='study-view-dc-chart-change'>\n\
                 RESET</span></a>"+logCheckBox +"</div></div><div style='width:100%; float:center;text-align:center;'><pieH4>"
-                + _selectedAttrDisplay + "</pieH4></div></div>");
+                + _selectedAttrDisplay + "</pieH4></div>";
+        
+        if($("#study-view-dc-chart-" + _chartID+ "-main").length === 0){
+            $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID 
+                + "-main\" class='study-view-dc-chart study-view-bar-main'>" + contentHTML + "</div>");
+            $("#scale-input-"+_chartID).unbind( "click" ).click(function(e) {
+                $(this).attr('checked',false);
+                $(this).parent().parent().find('svg').remove();
+                varChart[_chartID].filterAll();
+                dc.redrawAll();
+                dc.deregisterChart(varChart[_chartID]);                
+
+                var spanValue = $("#scale-span-"+_chartID).html();
+                var result = spanValue.match(/linear/i);
+                if(result){
+                    initBarChart(_chartID,_className,_selectedAttr,_selectedAttrDisplay,distanceMinMaxArray);
+                    $("#scale-span-"+_chartID).html("Log Scale X");
+                }else{
+                    initLogBarChart(_chartID,_className,_selectedAttr,_selectedAttrDisplay,distanceMinMaxArray);
+                    $("#scale-span-"+_chartID).html("Linear Scale X");
+                }
+                varChart[_chartID].render();
+            });
+        }
         
         varChart[_chartID] = dc.barChart("#study-view-dc-chart-" + _chartID);
-        if(_selectedAttrDisplay.search(/mutation/i) !== -1 && distanceMinMax > 1000){
-            varCluster[_chartID] = ndx.dimension(function (d) {
-                var returnValue = d[_selectedAttr];
-                if(d[_selectedAttr] % 1 !== 0 && decimalPlaces(d[_selectedAttr]) > 3){
-                    if(distanceMinMax < 2){
-                        returnValue = d3.round(d[_selectedAttr],2);
-                    }
-                    else
-                        returnValue = d3.round(d[_selectedAttr]);
-                }
-                if(returnValue === "NA" || returnValue === '' || returnValue === 'NaN'){
-                    //returnValue = distanceMinMaxArray[_selectedAttr].max + 100;
-                    return null;
+        
+        
+        var emptyValueMapping = "1000";
+        var maxDomain = 10000;
+        var monthDomain = [];
+        for(var i=0; ;i+=0.5){
+            var tmpValue = parseInt(Math.pow(10,i));
+            monthDomain.push(tmpValue);
+            if(tmpValue > distanceMinMaxArray[_selectedAttr].max){
+                emptyValueMapping = Math.pow(10,i+0.5);
+                monthDomain.push(emptyValueMapping);
+                maxDomain = Math.pow(10,i+1);
+                break;
+            }
+        }
+        varCluster[_chartID] = ndx.dimension(function (d) {
+            var returnValue = Number(d[_selectedAttr]);
+            if(isNaN(returnValue)){
+                return emptyValueMapping;
+            }else{
+                returnValue = Number(returnValue);
+                for(var i=1;i<monthDomain.length;i++){
+                    if(d[_selectedAttr] < monthDomain[i] && d[_selectedAttr] >= monthDomain[i-1])
+                        returnValue = parseInt(Math.pow(10,i/2-0.25));
                 }
                 return returnValue;
-            });
-        }else{
-            varCluster[_chartID] = ndx.dimension(function (d) {
-                    var returnValue = d[_selectedAttr];
-                    if(returnValue === "NA" || returnValue === '' || returnValue === 'NaN'){
-                        return emptyValueMapping;
-                    }else{
-                        if(d[_selectedAttr] >= 0)
-                            returnValue =  parseInt(d[_selectedAttr] / seperateDistance) * seperateDistance;
-                        else
-                            returnValue =  (parseInt(d[_selectedAttr] / seperateDistance)-1) * seperateDistance;
-                        return returnValue;
-                    }
-                });
-        }
+            }
+        });
+        
+        varChart[_chartID].yAxis().tickFormat(d3.format("d"));            
+        varChart[_chartID].xAxis().tickFormat(function(v) {
+            if(v === emptyValueMapping) 
+                return 'NA'; 
+            else {
+                return v;
+            }
+        });            
+
         varGroup[_chartID] = varCluster[_chartID].group();
 
         varChart[_chartID]
@@ -839,39 +810,187 @@ var StudyViewInitCharts = (function(){
             .transitionDuration(600)
             .renderHorizontalGridLines(true)
             .renderVerticalGridLines(true);
-        
-        if(_selectedAttrDisplay.search(/mutation/i) !== -1 && distanceMinMax > 1000){ 
-            if(distanceMinMaxArray[_selectedAttr].distance)
-                varChart[_chartID].elasticX(true);
-            varChart[_chartID].x(d3.scale.linear().domain([0, distanceMinMaxArray[_selectedAttr].max+(distanceMinMaxArray[_selectedAttr].distance)/10]));
-            varChart[_chartID].yAxis().tickFormat(d3.format("d"));
-            varChart[_chartID].xAxis().tickFormat(d3.format("d"));
-        }else{
             varChart[_chartID].centerBar(true);
-            varChart[_chartID].x(d3.scale.linear().domain([monthDomain[0]-seperateDistance,monthDomain[monthDomain.length-1]+seperateDistance]));
+            varChart[_chartID].x(d3.scale.log().nice().domain([0.7,maxDomain]));
             varChart[_chartID].yAxis().tickFormat(d3.format("d"));            
             varChart[_chartID].xAxis().tickFormat(function(v) {
+                var returnValue = v;
                 if(v === emptyValueMapping) 
-                    return 'NA'; 
+                    returnValue = 'NA';
                 else {
-                    var tmpRangeValue = v.toString();
-                    if(tmpRangeValue.length > 3 && v > 1){
-                        var tmpRangeValue1 = parseInt(tmpRangeValue) / (Math.pow(10, tmpRangeValue.length-1)) + "e" + (tmpRangeValue.length-1);
-                        var tmpRangeValue2 = parseInt(v + seperateDistance) / (Math.pow(10, tmpRangeValue.length-1)) + "e" + (tmpRangeValue.length-1);
-                        return tmpRangeValue1 + "~" + tmpRangeValue2;
-                    }else{
-                        var upperNum = v+seperateDistance;
-                        return v + "~" + Number(cbio.util.toPrecision(Number(upperNum),5,0.1));
-                    }
+                    var index = monthDomain.indexOf(v);
+                    if(index % 2 === 0)
+                        return v.toString();
+                    else
+                        return '';
                 }
+                return returnValue; 
             });            
-            varChart[_chartID].xAxis().tickValues(monthDomain);
-            var xunitsNum = monthDomain.length*1.5;
-            if(xunitsNum <= 5)
-                varChart[_chartID].xUnits(function(){return 5;});
+        
+        varChart[_chartID].xAxis().tickValues(monthDomain);
+        var xunitsNum = monthDomain.length*1.3;
+        if(xunitsNum <= 5)
+            varChart[_chartID].xUnits(function(){return 5;});
+        else
+            varChart[_chartID].xUnits(function(){return xunitsNum;});
+        varChart[_chartID].on("filtered", function(chart,filter){
+                var tmpDimention = varChart[attrNameMapUID["CASE_ID"]].dimension();
+                var tmpResult = tmpDimention.top(Infinity);
+                var tmpCaseID = [];
+                var currentPieFilters = varChart[_chartID].filters();
+
+                if(currentPieFilters.length === 0){
+                    $("#study-view-dc-chart-" + _chartID + "-main .study-view-dc-chart-change").css('display','none');
+                    $("#study-view-dc-chart-" + _chartID + "-main").css({'border-width':'1px', 'border-style':'solid'});
+                }
+                else{
+                    $("#study-view-dc-chart-" + _chartID + "-main .study-view-dc-chart-change").css('display','block');
+                    $("#study-view-dc-chart-" + _chartID + "-main").css({'border-width':'2px', 'border-style':'inset'});
+                }
+            if(typeof scatterStudyView !== 'undefined'){            
+                for(var i=0; i<tmpResult.length ; i++){
+                    tmpCaseID.push(tmpResult[i].CASE_ID);
+                }
+                setScatterPlotStyle(tmpCaseID,currentPieFilters);   
+            }
+        });
+    }
+    
+    function initBarChart(_chartID,_className,_selectedAttr,_selectedAttrDisplay,distanceMinMaxArray) {
+        var distanceMinMax = distanceMinMaxArray[_selectedAttr].distance;
+        
+        var seperateDistance;
+        var tmpMaxDomain;
+        var numOfGroups = 10;
+        var startPoint;
+        var emptyValueMapping;
+        var monthDomain = [];
+        var distanceLength;
+        var divider = 1;
+        
+        distanceLength = parseInt(distanceMinMax).toString().length;
+        for(var i=0;i<distanceLength-2;i++)
+            divider *= 10;
+        if(distanceMinMaxArray[_selectedAttr].max < 100 && distanceMinMaxArray[_selectedAttr].max > 20)
+            divider = 10;
+        
+        if(distanceMinMaxArray[_selectedAttr].max <=1 && distanceMinMaxArray[_selectedAttr].max > 0 && distanceMinMaxArray[_selectedAttr].min>=-1 && distanceMinMaxArray[_selectedAttr].min<0){
+            tmpMaxDomain = (parseInt(distanceMinMaxArray[_selectedAttr].max / divider) + 1) * divider;
+            seperateDistance = 0.2;
+            startPoint = (parseInt(distanceMinMaxArray[_selectedAttr].min / 0.2)-1) * 0.2;
+            emptyValueMapping = tmpMaxDomain +0.2;
+        }else if(distanceMinMax > 1){
+            seperateDistance = (parseInt(distanceMinMax / (numOfGroups * divider)) + 1) * divider;
+            tmpMaxDomain = (parseInt(distanceMinMaxArray[_selectedAttr].max / divider) + 1) * divider;
+            startPoint = parseInt(distanceMinMaxArray[_selectedAttr].min / divider) * divider;
+            emptyValueMapping = tmpMaxDomain+seperateDistance;
+        }else if(distanceMinMax < 1 && distanceMinMaxArray[_selectedAttr].min >=0 ){
+            seperateDistance = 0.1;
+            startPoint = 0;
+            emptyValueMapping = 1.1;
+        }else{
+            seperateDistance = 0.1;
+            startPoint = -1;
+            emptyValueMapping = tmpMaxDomain + 0.1;
+        }
+        
+        for(var i=0; i<= numOfGroups ; i++){
+            var tmpValue = i*seperateDistance + startPoint;
+            tmpValue = Number(cbio.util.toPrecision(Number(tmpValue),5,0.1));
+            monthDomain.push(tmpValue);
+            if(tmpValue > distanceMinMaxArray[_selectedAttr].max){
+                if(distanceMinMax > 1000)
+                    emptyValueMapping = (i+1)*seperateDistance + startPoint;
+                break;
+            }
+        }   
+        
+        var logCheckBox = "";
+        
+        if(distanceMinMax > 1000)
+            logCheckBox = "<span id='scale-span-"+_chartID+"' style='float:right; font-size:10px; margin-right: 15px;margin-top:3px;color: grey'>Log Scale X</span><input type='checkbox' value='"
+                + _chartID +","+ distanceMinMaxArray[_selectedAttr].max +","+ distanceMinMaxArray[_selectedAttr].min + "," + _selectedAttr
+                +"' id='scale-input-"+_chartID+"' class='study-view-bar-x-log'></input>";
+        
+        var contentHTML = "<div id=\"study-view-dc-chart-" 
+                + _chartID + "\" class='"+ _className +"'  value='" + _selectedAttr + "," + _selectedAttrDisplay 
+                + ",bar'><div style='width:100%; float:right'><span class='study-view-dc-chart-delete'>x</span><a href='javascript:varChart[" 
+                + _chartID + "].filterAll();dc.redrawAll();'><span title='Reset Chart' class='study-view-dc-chart-change'>\n\
+                RESET</span></a>"+logCheckBox +"</div></div><div style='width:100%; float:center;text-align:center;'><pieH4>"
+                + _selectedAttrDisplay + "</pieH4></div>";
+        if($("#study-view-dc-chart-" + _chartID+ "-main").length === 0){
+            $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID 
+                + "-main\" class='study-view-dc-chart study-view-bar-main'>" + contentHTML + "</div>");
+            $("#scale-input-"+_chartID).unbind( "click" ).click(function(e) {
+                $(this).attr('checked',false);
+                $(this).parent().parent().find('svg').remove();
+                varChart[_chartID].filterAll();
+                dc.redrawAll();
+                dc.deregisterChart(varChart[_chartID]);                
+
+                var spanValue = $("#scale-span-"+_chartID).html();
+                var result = spanValue.match(/linear/i);
+                if(result){
+                    initBarChart(_chartID,_className,_selectedAttr,_selectedAttrDisplay,distanceMinMaxArray);
+                    $("#scale-span-"+_chartID).html("Log Scale X");
+                }else{
+                    initLogBarChart(_chartID,_className,_selectedAttr,_selectedAttrDisplay,distanceMinMaxArray);
+                    $("#scale-span-"+_chartID).html("Linear Scale X");
+                }
+                varChart[_chartID].render();
+            });
+        }
+            
+        varChart[_chartID] = dc.barChart("#study-view-dc-chart-" + _chartID);
+        var hasEmptyValue = false;
+            varCluster[_chartID] = ndx.dimension(function (d) {
+                    var returnValue = d[_selectedAttr];
+                    if(returnValue === "NA" || returnValue === '' || returnValue === 'NaN'){
+                        hasEmptyValue = true;
+                        return emptyValueMapping;
+                    }else{
+                        if(d[_selectedAttr] >= 0)
+                            returnValue =  parseInt(d[_selectedAttr] / seperateDistance) * seperateDistance + seperateDistance/2;
+                        else
+                            returnValue =  (parseInt(d[_selectedAttr] / seperateDistance)-1) * seperateDistance + seperateDistance/2;
+                        return returnValue;
+                    }
+                });
+        
+        if(hasEmptyValue)
+            monthDomain.push(Number(cbio.util.toPrecision(Number(emptyValueMapping),5,0.1)));
+
+        varGroup[_chartID] = varCluster[_chartID].group();
+
+        varChart[_chartID]
+            .width(370)
+            .height(180)
+            .margins({top: 10, right: 20, bottom: 30, left: 40})
+            .dimension(varCluster[_chartID])
+            .group(varGroup[_chartID])
+            .centerBar(true)
+            .elasticY(true)
+            .elasticX(false)
+            .turnOnControls(true)
+            .mouseZoomable(false)
+            .brushOn(true)
+            .transitionDuration(600)
+            .renderHorizontalGridLines(true)
+            .renderVerticalGridLines(true);
+        varChart[_chartID].x(d3.scale.linear().domain([monthDomain[0]-seperateDistance,monthDomain[monthDomain.length-1]+seperateDistance]));
+        varChart[_chartID].yAxis().tickFormat(d3.format("d"));            
+        varChart[_chartID].xAxis().tickFormat(function(v) {
+            if(v === emptyValueMapping) 
+                return 'NA'; 
             else
-                varChart[_chartID].xUnits(function(){return xunitsNum;});
-       }
+                return v;
+        });            
+        varChart[_chartID].xAxis().tickValues(monthDomain);
+        var xunitsNum = monthDomain.length*1.3;
+        if(xunitsNum <= 5)
+            varChart[_chartID].xUnits(function(){return 5;});
+        else
+            varChart[_chartID].xUnits(function(){return xunitsNum;});
         
         varChart[_chartID].on("filtered", function(chart,filter){
                 var tmpDimention = varChart[attrNameMapUID["CASE_ID"]].dimension();
@@ -895,60 +1014,8 @@ var StudyViewInitCharts = (function(){
             }
         });
         
-        if(monthDomain.length > 5 && distanceMinMax < 1000){
-            varChart[_chartID].on("postRender",function(){
-                varChart[_chartID].selectAll("g.x text")
-                    .attr('transform', "rotate(-30)");
-                var x = varChart[_chartID].selectAll("g.x text")
-                    .attr('x');
-                varChart[_chartID].selectAll("g.x text")
-                    .attr('x',x-5);
-
-                varChart[_chartID].selectAll("g.x text")
-                    .attr('dy','0.9em');
-            });
-        }
-        
-        $(".study-view-bar-x-log").unbind('click').click(function(e) {
-            
-            var valueArray = $(this).val().split(',');
-            
-            if($(this).prop('checked')){
-                logScaleXBarChart(valueArray[0],valueArray[1]);
-            }else{
-                $(this).prop('checked', false);
-                linearXBarChart(valueArray[0],valueArray[1],valueArray[2]);
-            }
-        });
     }
-    function logScaleXBarChart(_chartID,_maxValue) {
-        varChart[_chartID].x(d3.scale.log().nice().domain([1,_maxValue]));
-        var xAxisTickValue = [];
-        for(var i=10 ; i< _maxValue ;){
-            var tmp = _maxValue % i;
-            if(tmp !== 0){
-                xAxisTickValue.push(i);
-                i = i*10;
-        }
-            }
-        varChart[_chartID].xAxis().tickValues(xAxisTickValue);
-        varChart[_chartID].redraw(); 
-    }
-    function linearXBarChart(_chartID,_maxValue,_minValue) {
-        varChart[_chartID].x(d3.scale.linear().domain([_minValue,_maxValue]));
-        var xAxisTickValue = [];
-        var tmpValue = parseInt((_maxValue-_minValue) / 9);
-        
-        for(var i = 0; i< _maxValue ;i += tmpValue){
-            var lengthCurrentNumber = i.toString().length -1;
-            var tmp = (parseInt(i/(Math.pow(10,lengthCurrentNumber)))) * (Math.pow(10,lengthCurrentNumber));
-            xAxisTickValue.push(tmp);
-            
-        }
-        varChart[_chartID].xAxis().tickValues(xAxisTickValue);
-        //varChart[_chartID].xAxis().ticks(10);
-        varChart[_chartID].redraw();    
-    }
+    
     function restyle(data) {
         var tmpA = [];
         var tmpB = [];

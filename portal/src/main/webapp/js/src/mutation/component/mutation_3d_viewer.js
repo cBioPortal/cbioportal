@@ -121,7 +121,7 @@ var Mutation3dVis = function(name, options)
 		// update reference
 		_container = $(container);
 
-		var appContainer = _container.find("#mutation_3d_visualizer");
+		var appContainer = _container.find(".mutation-3d-vis-container");
 
 		// set width
 		appContainer.css("width", _options.appOptions.width);

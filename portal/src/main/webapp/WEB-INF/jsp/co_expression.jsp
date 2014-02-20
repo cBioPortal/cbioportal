@@ -19,7 +19,10 @@
         font-size: 11px;
         padding-left: 6px;
     }
-
+    #coexp .dataTables_paginate {
+        float: left;
+        text-align: left;
+    }
     #coexp .dataTables_info {
         float: left;
         width: auto;

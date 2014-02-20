@@ -249,7 +249,9 @@ MutationDiagram.prototype.initDiagram = function(sequenceData)
 {
 	var self = this;
 
-	var container = d3.select(self.options.el);
+	// selecting using jQuery node to support both string and jQuery selector values
+	var node = $(self.options.el)[0];
+	var container = d3.select(node);
 
 	// calculate bounds & save a reference for future access
 	var bounds = self.bounds = this.calcBounds(self.options);

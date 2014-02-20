@@ -568,8 +568,9 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		_rowData = allocateRows(PdbDataUtil.getSortedChainData(data));
 		_maxExpansionLevel = calcMaxExpansionLevel(_rowData.length, _options.numRows);
 
-		// init svg container
-		var container = d3.select(_options.el);
+		// selecting using jQuery node to support both string and jQuery selector values
+		var node = $(_options.el)[0];
+		var container = d3.select(node);
 
 		// number of rows to be shown initially
 		var numRows = _options.numRows[0];

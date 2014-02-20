@@ -328,84 +328,6 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	}
 
 	/**
-	 * Create row data by allocating position for each chain.
-	 * A row may have multiple chains if there is no overlap
-	 * between chains.
-	 *
-	 * @param chainData an array of <pdb id, PdbChainModel> pairs
-	 * @return {Array}  a 2D array of chain allocation
-	 */
-	function allocateRows(chainData)
-	{
-		var rows = [];
-
-		_.each(chainData, function(datum, idx) {
-			var chain = datum.chain;
-
-			if (chain.alignments.length > 0)
-			{
-				var inserted = false;
-
-				// find the first available row for this chain
-				for (var i=0; i < rows.length; i++)
-				{
-					var row = rows[i];
-					var conflict = false;
-
-					// check for conflict for this row
-					for (var j=0; j < row.length; j++)
-					{
-						if (overlaps(chain, row[j].chain))
-						{
-							// set the flag, and break the loop
-							conflict = true;
-							break;
-						}
-					}
-
-					// if there is space available in this row,
-					// insert the chain into the current row
-					if (!conflict)
-					{
-						// insert the chain, set the flag, and break the loop
-						row.push(datum);
-						inserted = true;
-						break;
-					}
-				}
-
-				// if there is no available space in any row,
-				// then insert the chain to the next row
-				if (!inserted)
-				{
-					var newAllocation = [];
-					newAllocation.push(datum);
-					rows.push(newAllocation);
-				}
-			}
-		});
-
-		// sort alignments in each row by start position (lowest comes first)
-//		_.each(rows, function(allocation, idx) {
-//			allocation.sort(function(a, b){
-//				return (a.chain.mergedAlignment.uniprotFrom -
-//				        b.chain.mergedAlignment.uniprotFrom);
-//			});
-//		});
-
-		// sort alignments in the first row by alignment length
-		if (rows.length > 0)
-		{
-			rows[0].sort(function(a, b){
-				return (b.chain.mergedAlignment.mergedString.length -
-				        a.chain.mergedAlignment.mergedString.length);
-			});
-		}
-
-		return rows;
-	}
-
-	/**
 	 * Returns the group svg element for the default chain.
 	 *
 	 * @return chain datum for the default chain.
@@ -413,45 +335,6 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	function getDefaultChainGroup()
 	{
 		return _defaultChainGroup;
-	}
-
-	/**
-	 * Checks if the given two chain alignments (positions) overlaps
-	 * with each other.
-	 *
-	 * @param chain1    first chain
-	 * @param chain2    second chain
-	 * @return {boolean}    true if intersects, false if distinct
-	 */
-	function overlaps(chain1, chain2)
-	{
-		var overlap = true;
-
-		if (chain1.mergedAlignment.uniprotFrom >= chain2.mergedAlignment.uniprotTo ||
-		    chain2.mergedAlignment.uniprotFrom >= chain1.mergedAlignment.uniprotTo)
-		{
-			// no conflict
-			overlap = false;
-		}
-
-		return overlap;
-	}
-
-	/**
-	 * Calculates total number of chains for the given PDB data.
-	 *
-	 * @param data      PDB data (collection of PdbModel instances)
-	 * @return {number} total number of chains
-	 */
-	function calcChainCount(data)
-	{
-		var chainCount = 0;
-
-		data.each(function(pdb, idx) {
-			chainCount += pdb.chains.length;
-		});
-
-		return chainCount;
 	}
 
 	/**
@@ -565,7 +448,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	function init()
 	{
 		// generate row data (one row may contain more than one chain)
-		_rowData = allocateRows(PdbDataUtil.getSortedChainData(data));
+		_rowData = PdbDataUtil.allocateChainRows(data);
 		_maxExpansionLevel = calcMaxExpansionLevel(_rowData.length, _options.numRows);
 
 		// selecting using jQuery node to support both string and jQuery selector values

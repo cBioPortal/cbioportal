@@ -201,12 +201,115 @@ var PdbDataUtil = (function()
 	}
 
 	/**
+	 * Creates row data by allocating position for each chain.
+	 * A row may have multiple chains if there is no overlap
+	 * between chains.
+	 *
+	 * @param pdbColl   a PdbCollection instance
+	 * @return {Array}  a 2D array of chain allocation
+	 */
+	function allocateChainRows(pdbColl)
+	{
+		// sort chains by rank (high to low)
+		var chainData = sortChainsDesc(pdbColl);
+
+		var rows = [];
+
+		_.each(chainData, function(datum, idx) {
+			var chain = datum.chain;
+
+			if (chain.alignments.length > 0)
+			{
+				var inserted = false;
+
+				// find the first available row for this chain
+				for (var i=0; i < rows.length; i++)
+				{
+					var row = rows[i];
+					var conflict = false;
+
+					// check for conflict for this row
+					for (var j=0; j < row.length; j++)
+					{
+						if (overlaps(chain, row[j].chain))
+						{
+							// set the flag, and break the loop
+							conflict = true;
+							break;
+						}
+					}
+
+					// if there is space available in this row,
+					// insert the chain into the current row
+					if (!conflict)
+					{
+						// insert the chain, set the flag, and break the loop
+						row.push(datum);
+						inserted = true;
+						break;
+					}
+				}
+
+				// if there is no available space in any row,
+				// then insert the chain to the next row
+				if (!inserted)
+				{
+					var newAllocation = [];
+					newAllocation.push(datum);
+					rows.push(newAllocation);
+				}
+			}
+		});
+
+		// sort alignments in each row by start position (lowest comes first)
+//		_.each(rows, function(allocation, idx) {
+//			allocation.sort(function(a, b){
+//				return (a.chain.mergedAlignment.uniprotFrom -
+//				        b.chain.mergedAlignment.uniprotFrom);
+//			});
+//		});
+
+		// sort alignments in the first row by alignment length
+		if (rows.length > 0)
+		{
+			rows[0].sort(function(a, b){
+				return (b.chain.mergedAlignment.mergedString.length -
+				        a.chain.mergedAlignment.mergedString.length);
+			});
+		}
+
+		return rows;
+	}
+
+	/**
+	 * Checks if the given two chain alignments (positions) overlaps
+	 * with each other.
+	 *
+	 * @param chain1    first chain
+	 * @param chain2    second chain
+	 * @return {boolean}    true if intersects, false if distinct
+	 */
+	function overlaps(chain1, chain2)
+	{
+		var overlap = true;
+
+		if (chain1.mergedAlignment.uniprotFrom >= chain2.mergedAlignment.uniprotTo ||
+		    chain2.mergedAlignment.uniprotFrom >= chain1.mergedAlignment.uniprotTo)
+		{
+			// no conflict
+			overlap = false;
+		}
+
+		return overlap;
+	}
+
+	/**
 	 * Creates a sorted array of chain datum (a {pdbId, PdbChainModel} pair).
 	 * The highest ranked chain will be the first element of the returned
 	 * data array.
 	 *
 	 * @param pdbColl   a PdbCollection instance
-	 * @return {Array}  an array of sorted chain data
+	 * @return {Array}  an array of <pdb id, PdbChainModel> pairs
 	 */
 	function sortChainsDesc(pdbColl)
 	{
@@ -276,6 +379,23 @@ var PdbDataUtil = (function()
 		        getMinValue(a.chain.alignments, "identityPerc"));
 	}
 
+	/**
+	 * Calculates total number of chains for the given PDB data.
+	 *
+	 * @param data      PDB data (collection of PdbModel instances)
+	 * @return {number} total number of chains
+	 */
+	function calcChainCount(data)
+	{
+		var chainCount = 0;
+
+		data.each(function(pdb, idx) {
+			chainCount += pdb.chains.length;
+		});
+
+		return chainCount;
+	}
+
 	function getMinValue(alignments, field)
 	{
 		var min = Infinity;
@@ -312,7 +432,7 @@ var PdbDataUtil = (function()
 		ALIGNMENT_SPACE: ALIGNMENT_SPACE,
 		// public functions
 		processPdbData: processPdbData,
-		getSortedChainData: sortChainsDesc,
+		allocateChainRows: allocateChainRows,
 		mergeAlignments: mergeAlignments
 	};
 })();

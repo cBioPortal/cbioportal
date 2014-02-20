@@ -50,6 +50,7 @@ import org.biojava3.core.sequence.compound.AminoAcidCompoundSet;
 import org.biojava3.core.sequence.loader.UniprotProxySequenceReader;
 import org.mskcc.cbio.portal.dao.DaoPdbUniprotResidueMapping;
 import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoUniProtIdMapping;
 import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
 import org.mskcc.cbio.portal.model.PdbUniprotAlignment;
 import org.mskcc.cbio.portal.model.PdbUniprotResidueMapping;
@@ -251,7 +252,7 @@ public final class ImportPdbUniprotResidueMapping {
     private static boolean processPdbUniprotAlignment(
             PdbUniprotAlignment pdbUniprotAlignment, List<PdbUniprotResidueMapping> pdbUniprotResidueMappings,
             int alignId, String pdbId, String chainId, String uniprotAcc, int uniprotResBeg,
-            int uniprotResEnd, int pdbSeqResBeg, int pdbSeqResEnd, double identp_threhold, AtomCache atomCache) {
+            int uniprotResEnd, int pdbSeqResBeg, int pdbSeqResEnd, double identp_threhold, AtomCache atomCache) throws DaoException {
 
         String uniprotSeq = getUniprotSequence(uniprotAcc, uniprotResBeg, uniprotResEnd);
         if (uniprotSeq==null) {
@@ -334,7 +335,11 @@ public final class ImportPdbUniprotResidueMapping {
         pdbUniprotAlignment.setPdbId(pdbId);
         pdbUniprotAlignment.setChain(chainId);
         
-        /// need to map it to ID
+        String uniprotId = DaoUniProtIdMapping.mapFromUniprotAccessionToUniprotId(uniprotAcc);
+        if (uniprotId==null) {
+            System.out.println("could not mapping uniprotacc " + uniprotAcc);
+            return false;
+        }
         pdbUniprotAlignment.setUniprotId(uniprotAcc);
         
         ResidueNumber startRes = pdbResidues.get(start).getResidueNumber();

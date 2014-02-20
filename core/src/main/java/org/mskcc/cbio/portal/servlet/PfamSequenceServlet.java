@@ -51,7 +51,7 @@ public class PfamSequenceServlet extends HttpServlet
 		// TODO sanitize geneSymbol if necessary
 		String hugoGeneSymbol = request.getParameter("geneSymbol");
 
-		List<String> uniProtIds = this.idMappingService.getUniProtIds(hugoGeneSymbol);
+		List<String> uniProtIds = this.idMappingService.mapFromHugoToUniprotAccessions(hugoGeneSymbol);
 
 		// final json string to return
 		String jsonString = "";

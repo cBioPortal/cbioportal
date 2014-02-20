@@ -49,7 +49,7 @@ public class TestAbstractIdMappingService extends TestCase {
 
     public final void testGetUniProtIdNullHugoGeneSymbol() {
         try {
-            idMappingService.getUniProtIds(null);
+            idMappingService.mapFromHugoToUniprotAccessions(null);
             fail("Null Pointer Exception should have been thrown.");
         } catch (NullPointerException e) {
         }

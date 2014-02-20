@@ -142,9 +142,9 @@ CREATE TABLE `gene_alias` (
 --
 drop table IF EXISTS uniprot_id_mapping;
 CREATE TABLE `uniprot_id_mapping` (
-  `ENTREZ_GENE_ID` int(255),
-  `UNIPROT_ID` varchar(255) NOT NULL,
   `UNIPROT_ACC` varchar(255) NOT NULL,
+  `UNIPROT_ID` varchar(255) NOT NULL,
+  `ENTREZ_GENE_ID` int(255),
   PRIMARY KEY  (`ENTREZ_GENE_ID`, `UNIPROT_ID`),
   KEY (`UNIPROT_ID`),
   Key (`UNIPROT_ACC`),
@@ -489,9 +489,9 @@ CREATE TABLE `text_cache` (
 --
 drop table IF EXISTS pfam_graphics;
 CREATE TABLE `pfam_graphics` (
-  `UNIPROT_ID` varchar(255) NOT NULL,
+  `UNIPROT_ACC` varchar(255) NOT NULL,
   `JSON_DATA` longtext NOT NULL,
-  PRIMARY KEY (`UNIPROT_ID`)
+  PRIMARY KEY (`UNIPROT_ACC`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --
@@ -638,6 +638,6 @@ CREATE TABLE `pdb_uniprot_alignment` (
   `PDB_ALIGN` text,
   `MIDLINE_ALIGN` text,
   PRIMARY KEY (`ALIGNMENT_ID`),
-  KEY(`UNIPROT_ACC`),
+  KEY(`UNIPROT_ID`),
   KEY(`PDB_ID`, `CHAIN`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;

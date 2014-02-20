@@ -194,7 +194,9 @@ var StudyViewInitCharts = (function(){
                 loading_img: "study-view-scatter-plot-loading-img",
                 control_panel: "study-view-scatter-plot-control-panel",
                 log_scale_x: "study-view-scatter-plot-log-scale-x",
-                log_scale_y: "study-view-scatter-plot-log-scale-y"        
+                log_scale_y: "study-view-scatter-plot-log-scale-y",
+                download_pdf: "study-view-scatter-plot-pdf",
+                download_svg: "study-view-scatter-plot-svg"         
             },
             elem : {
                 svg: "",
@@ -245,7 +247,6 @@ var StudyViewInitCharts = (function(){
             scatterStudyView = new ScatterPlots();
             scatterStudyView.init(scatterPlotOptions, scatterPlotArr, scatterPlotDataAttr,true);            
             scatterStudyView.jointBrushCallback(scatterPlotCallBack);
-            
             $("#" + scatterPlotOptions.names.log_scale_x).change(function() {
                 scatterStudyView.updateScaleX(scatterPlotOptions.names.log_scale_x);
             });
@@ -269,38 +270,109 @@ var StudyViewInitCharts = (function(){
             itemSelector: '.study-view-dc-chart',
             gutter:1
         });
-
-
+        
+        $("#study-view-scatter-plot-pdf").submit(function(){
+            setSVGElementValue("study-view-scatter-plot-body","study-view-scatter-plot-pdf-value",scatterPlotOptions);
+        });
+        $("#study-view-scatter-plot-svg").submit(function(){
+            setSVGElementValue("study-view-scatter-plot-body","study-view-scatter-plot-svg-value",scatterPlotOptions);
+        });
+        $('#random').mouseenter(function(){
+            $('#study-view-add-chart-button').fadeOut('fast');
+            $(this).animate({
+                width:'+=100'
+            },{
+                duration: 'fast',
+                complete: function(){
+                    $('#study-view-selectAttr').fadeIn('fast');
+                }
+            });
+        });
+        $('#random').mouseleave(function(){
+            $('#study-view-selectAttr').fadeOut('fast',function(){
+                $('#random').animate({
+                    width:'-=100'
+                },{
+                    dutation:'fast',
+                    complete:function(){
+                        $('#study-view-add-chart-button').fadeIn('fast');
+                    }
+            });
+            })
+        });
+        
         $('#study-view-selectAttr').change(function(){
-            if($("#study-view-selectAttr")[0].selectedIndex != 0){
-                $('#study-view-selectChartType').removeAttr('disabled');
-
+            if($("#study-view-selectAttr")[0].selectedIndex !== 0){
                 var chartType;
+                
                 if($(this).val() === 'mutationCNA')
                     chartType = ['scatter'];
                 else
-                    chartType = varType[$(this).val()].split(',')
-                $('#study-view-selectChartType')
-                        .find('option')
-                        .remove()
-                        .end();
+                    chartType = varType[$(this).val()].split(',');
+                
+                var selectedAttr = $('#study-view-selectAttr').find(":selected").val();
+                var selectedAttrDisplay = $('#study-view-selectAttr').find(":selected").text();
+                var selectedChartType = chartType[0];
+                var chartTmpID = -1;
 
-                $.each(chartType, function(key, value) {
-                    $('#study-view-selectChartType')
-                        .append($("<option></option>")
-                            .attr("value",value)
-                            .text(value + " chart"));
-                });
-                if($('#study-view-selectAttr').find(":selected").val())
-                    $('#study-view-add-chart-button').removeAttr('disabled');  
-            }else{
-                $('#study-view-selectChartType')
-                        .find('option')
-                        .remove()
-                        .end()
-                        .append('<option>No chart type could be selected</option>')
-                        .attr('disabled','disabled');
-                $('#study-view-add-chart-button').attr('disabled','disabled');
+                if(selectedAttr==='mutationCNA' && selectedChartType === 'scatter'){
+                    $("#study-view-scatter-plot").css('display','block');
+                }else{
+                    if(Object.keys(attrNameMapUID).indexOf(selectedAttr) !== -1){
+                        chartTmpID = attrNameMapUID[selectedAttr];
+                    }else{
+                        chartTmpID = totalCharts;
+                        HTMLtagsMapUID["study-view-dc-chart-" + totalCharts] = totalCharts;
+                        attrNameMapUID[selectedAttr] = totalCharts;
+                        totalCharts++;       
+                    }
+                    if(selectedChartType == 'pie'){
+                        initPieChart(chartTmpID,'study-view-pie-chart',selectedAttr,selectedAttrDisplay);
+                    }else{
+                        initBarChart(chartTmpID,'study-view-bar-chart',selectedAttr,selectedAttrDisplay,distanceMinMaxArray);                
+                    }
+
+
+                    msnry.destroy();
+                    var container = document.querySelector('#study-view-charts');
+                    msnry = new Masonry( container, {
+                      columnWidth: 190,
+                      itemSelector: '.study-view-dc-chart',
+                      gutter:1
+                    });
+
+                    varChart[chartTmpID].render();
+                     $('#study-view-dc-chart-'+ chartTmpID +' .study-view-dc-chart-delete').click(function(event){
+                        var id = $(this).parent().parent().attr("id");
+                        var valueA = $(this).parent().parent().attr("value").split(',');
+                        var attrID = valueA[0];
+                        var attrName = valueA[1];
+                        $("div").remove("#" + id + "-main"); 
+                        varChart[HTMLtagsMapUID[id]].filterAll();
+                        dc.redrawAll();
+                        dc.deregisterChart(varChart[HTMLtagsMapUID[id]]);
+                        msnry.layout();
+                        $('#study-view-selectAttr')
+                            .append($("<option></option>")
+                                .attr("value",attrID)
+                                .text(attrName));
+                        $('#study-view-selectAttr').removeAttr('disabled');
+                        var filteredResult = varCluster[attrNameMapUID['CASE_ID']].top(Infinity);
+                        var filterString = "";
+                        for(var i=0 ; i<filteredResult.length ; i++){
+                            filterString += filteredResult[i].CASE_ID + '|';
+                        }
+                        filterString = filterString.substr(0,filterString.length-1);
+                        var dataTable1 = $('#dataTable').dataTable();
+                        dataTable1.fnFilter(filterString,0,true);
+                    });
+                }
+
+                msnry.layout();
+
+                $("#study-view-selectAttr option[value='"+ selectedAttr +"']").remove();
+                if ($('#study-view-selectAttr option').length === 1)
+                     $('#study-view-selectAttr').attr('disabled','disabled');
             }
         });
         
@@ -328,84 +400,17 @@ var StudyViewInitCharts = (function(){
                 var dataTable1 = $('#dataTable').dataTable();
                 dataTable1.fnFilter(filterString,0,true);
         });
-
-        $('#study-view-add-chart-button').click(function(){
-            var selectedAttr = $('#study-view-selectAttr').find(":selected").val();
-            var selectedAttrDisplay = $('#study-view-selectAttr').find(":selected").text();
-            var selectedChartType = $('#study-view-selectChartType').find(":selected").val();
-            var chartTmpID = -1;
-            
-            if(selectedAttr==='mutationCNA' && selectedChartType === 'scatter'){
-                $("#study-view-scatter-plot").css('display','block');
-            }else{
-                if(Object.keys(attrNameMapUID).indexOf(selectedAttr) !== -1){
-                    chartTmpID = attrNameMapUID[selectedAttr];
-                }else{
-                    chartTmpID = totalCharts;
-                    HTMLtagsMapUID["study-view-dc-chart-" + totalCharts] = totalCharts;
-                    attrNameMapUID[selectedAttr] = totalCharts;
-                    totalCharts++;       
-                }
-                if(selectedChartType == 'pie'){
-                    initPieChart(chartTmpID,'study-view-pie-chart',selectedAttr,selectedAttrDisplay);
-                }else{
-                    initBarChart(chartTmpID,'study-view-bar-chart',selectedAttr,selectedAttrDisplay,distanceMinMaxArray);                
-                }
-                
-                
-                msnry.destroy();
-                var container = document.querySelector('#study-view-charts');
-                msnry = new Masonry( container, {
-                  columnWidth: 190,
-                  itemSelector: '.study-view-dc-chart',
-                  gutter:1
-                });
-
-                varChart[chartTmpID].render();
-                 $('#study-view-dc-chart-'+ chartTmpID +' .study-view-dc-chart-delete').click(function(event){
-                    var id = $(this).parent().parent().attr("id");
-                    var valueA = $(this).parent().parent().attr("value").split(',');
-                    var attrID = valueA[0];
-                    var attrName = valueA[1];
-                    $("div").remove("#" + id + "-main"); 
-                    varChart[HTMLtagsMapUID[id]].filterAll();
-                    dc.redrawAll();
-                    dc.deregisterChart(varChart[HTMLtagsMapUID[id]]);
-                    msnry.layout();
-                    $('#study-view-selectAttr')
-                        .append($("<option></option>")
-                            .attr("value",attrID)
-                            .text(attrName));
-                    $('#study-view-selectAttr').removeAttr('disabled');
-                    var filteredResult = varCluster[attrNameMapUID['CASE_ID']].top(Infinity);
-                    var filterString = "";
-                    for(var i=0 ; i<filteredResult.length ; i++){
-                        filterString += filteredResult[i].CASE_ID + '|';
-                    }
-                    filterString = filterString.substr(0,filterString.length-1);
-                    var dataTable1 = $('#dataTable').dataTable();
-                    dataTable1.fnFilter(filterString,0,true);
-                });
-            }
-            
-            msnry.layout();
-
-            $("#study-view-selectAttr option[value='"+ selectedAttr +"']").remove();
-            if ($('#study-view-selectAttr option').length === 1)
-                 $('#study-view-selectAttr').attr('disabled','disabled');
-
-            $('#study-view-selectChartType')
-                    .find('option')
-                    .remove()
-                    .end()
-                    .append('<option>No chart type could be selected</option>')
-                    .attr('disabled', 'disabled');
-
-            $('#study-view-add-chart-button').attr("disabled", "disabled");
-
-        });
     }
-
+    
+    function setSVGElementValue(_svgParentDivId,_idNeedToSetValue,scatterPlotDataAttr){
+        $("#" + _svgParentDivId + " .plots-title-x-help").remove();
+        $("#" + _svgParentDivId + " .plots-title-y-help").remove();
+        
+        var svgElement = $("#" + _svgParentDivId).html();
+        $("#" + _idNeedToSetValue).val(svgElement);
+        scatterStudyView.updateTitleHelp(scatterPlotDataAttr.names.log_scale_x, scatterPlotDataAttr.names.log_scale_y);
+    }
+    
     function initPieChart(_chartID,_className,_selectedAttr,_selectedAttrDisplay) {
         if(_selectedAttr === 'CASE_ID'){
             $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID

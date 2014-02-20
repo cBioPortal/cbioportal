@@ -86,10 +86,11 @@
 #study-view-add-chart {
     width:100%;
     float:left;
-    margin-top:10px;
     margin-bottom:10px;
 }
-
+#study-view-selectAttr{
+     display:none;
+}
 
 /* CLASS styles */
 .pieLabel {

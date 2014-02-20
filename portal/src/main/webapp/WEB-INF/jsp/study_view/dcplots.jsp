@@ -22,20 +22,34 @@
 
 <div id="study-view-main" style="display: none;">
     <div id="study-view-add-chart">
+        <div id='random' style="float: left; height: 30px;">
+            <span id='study-view-add-chart-button'>Add Chart</span>
         <select id='study-view-selectAttr'>
             <option>Please select attribute</option>
         </select>
-        <select id='study-view-selectChartType' disabled="disabled">
+        <select id='study-view-selectChartType' disabled="disabled" style='display: none'>
             <option>No chart type could be selected</option>
         </select>
-        <input type='button' value='Add Chart' id='study-view-add-chart-button' class='study-view-header-button' disabled/>
+        </div>
     </div>
     <hr/>
     <div id="study-view-charts">
         <div id='study-view-scatter-plot' class='study-view-dc-chart w3 h2'>
             <div id='study-view-scatter-plot-header' style="float: right">
-                <input type='checkbox' id='study-view-scatter-plot-log-scale-x'><span style="margin: 5px 10px 0px 0px; color: grey">Log Scale X</span>
-                <input type='checkbox' id='study-view-scatter-plot-log-scale-y'><span style="margin: 5px 50px 0px 0px; color: grey">Log Scale y</span>
+                <form style="display:inline-block" action="svgtopdf.do" method="post" id="study-view-scatter-plot-pdf">
+                    <input type="hidden" name="svgelement" id="study-view-scatter-plot-pdf-value">
+                    <input type="hidden" name="filetype" value="pdf">
+                    <input type="hidden" name="filename" value="Scatter_Plot_result-<%=cancerStudy.getCancerStudyStableId()%>.pdf">
+                    <input type='submit' value="PDF">                
+                </form>
+                <form style="display:inline-block" action="svgtopdf.do" method="post" id="study-view-scatter-plot-svg">
+                    <input type="hidden" name="svgelement" id="study-view-scatter-plot-svg-value">
+                    <input type="hidden" name="filetype" value="svg">
+                    <input type="hidden" name="filename" value="Scatter_Plot_result-<%=cancerStudy.getCancerStudyStableId()%>.svg">
+                    <input type='submit' value="SVG">                
+                </form>
+                <input type='checkbox' id='study-view-scatter-plot-log-scale-x'></input><span style="margin: 5px 10px 0px 0px; color: grey">Log Scale X</span>
+                <input type='checkbox' id='study-view-scatter-plot-log-scale-y'></input><span style="margin: 5px 50px 0px 0px; color: grey">Log Scale y</span>
                 <span class='study-view-scatter-plot-delete'>x</span>
             </div>
             <div id='study-view-scatter-plot-body'></div>

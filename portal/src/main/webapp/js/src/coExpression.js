@@ -164,7 +164,7 @@ var CoExpView = (function() {
                     }
                 },
                 "bDeferRender": true,
-                "iDisplayLength": 26
+                "iDisplayLength": 25
             });  //close data table
         }
 
@@ -185,8 +185,8 @@ var CoExpView = (function() {
             $("#" + _tableDivId).find('.coexp-table-filter-pearson').append(
                 "<select id='coexp-table-select-" + _geneId + "'>" +
                 "<option value='all'>Show All</option>" +
-                "<option value='positivePearson'>Show Only Positively Correlated (Pearson's)</option>" +
-                "<option value='negativePearson'>Show Only Negatively Correlated (Pearson's)</option>" +
+                "<option value='positivePearson'>Show Only Positively Correlated</option>" +
+                "<option value='negativePearson'>Show Only Negatively Correlated</option>" +
                 "</select>");
             $("select#coexp-table-select-" + _geneId).change(function () {
                 if ($(this).val() === "negativePearson") {

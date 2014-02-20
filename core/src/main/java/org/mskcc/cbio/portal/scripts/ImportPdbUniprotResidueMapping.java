@@ -101,7 +101,7 @@ public final class ImportPdbUniprotResidueMapping {
                     String pdbId = parts[0].substring(1);
                     if (!pdbId.equals(pdbUniprotAlignment.getPdbId())
                             || !parts[1].equals(pdbUniprotAlignment.getChain())
-                            || !parts[2].equals(pdbUniprotAlignment.getUniprotAcc())) {
+                            || !parts[2].equals(pdbUniprotAlignment.getUniprotId())) {
                         mappingUniPdbProtein = new HashMap<Integer, Integer>();
                         mappingPdbUniProtein = new HashMap<Integer, Integer>();
                     }
@@ -110,10 +110,10 @@ public final class ImportPdbUniprotResidueMapping {
                     
                     pdbUniprotAlignment.setPdbId(pdbId);
                     pdbUniprotAlignment.setChain(parts[1]);
-                    pdbUniprotAlignment.setUniprotAcc(parts[2]);
+                    pdbUniprotAlignment.setUniprotId(parts[2]);
                     
-                    pdbUniprotAlignment.setPdbFrom(Integer.parseInt(parts[3]));
-                    pdbUniprotAlignment.setPdbTo(Integer.parseInt(parts[4]));
+                    pdbUniprotAlignment.setPdbFrom(parts[3]);
+                    pdbUniprotAlignment.setPdbTo(parts[4]);
                     pdbUniprotAlignment.setUniprotFrom(Integer.parseInt(parts[5]));
                     pdbUniprotAlignment.setUniprotTo(Integer.parseInt(parts[6]));
                     pdbUniprotAlignment.setEValue(Float.parseFloat(parts[7]));
@@ -148,7 +148,7 @@ public final class ImportPdbUniprotResidueMapping {
                     mappingPdbUniAlignment.put(pdbPos, uniprotPos);
                     
                     String match = parts[5].length()==0 ? " " : parts[5];
-                    PdbUniprotResidueMapping pdbUniprotResidueMapping = new PdbUniprotResidueMapping(alignId, pdbPos, null, pdbPos, uniprotPos, match);
+                    PdbUniprotResidueMapping pdbUniprotResidueMapping = new PdbUniprotResidueMapping(alignId, pdbPos, null, uniprotPos, match);
                     pdbUniprotResidueMappings.add(pdbUniprotResidueMapping);
                 }
 
@@ -317,7 +317,7 @@ public final class ImportPdbUniprotResidueMapping {
                 PdbUniprotResidueMapping pdbUniprotResidueMapping = 
                         new PdbUniprotResidueMapping(alignId, rn.getSeqNum(),
                         rn.getInsCode()==null?null:rn.getInsCode().toString(),
-                        pdbSeqResBeg+i, uniprotResBeg+i, ""+match);
+                        uniprotResBeg+i, ""+match);
                 pdbUniprotResidueMappings.add(pdbUniprotResidueMapping);
             }
         }
@@ -333,10 +333,16 @@ public final class ImportPdbUniprotResidueMapping {
 
         pdbUniprotAlignment.setPdbId(pdbId);
         pdbUniprotAlignment.setChain(chainId);
-        pdbUniprotAlignment.setUniprotAcc(uniprotAcc);
         
-        pdbUniprotAlignment.setPdbFrom(pdbSeqResBeg+start);
-        pdbUniprotAlignment.setPdbTo(pdbSeqResBeg+end-1);
+        /// need to map it to ID
+        pdbUniprotAlignment.setUniprotId(uniprotAcc);
+        
+        ResidueNumber startRes = pdbResidues.get(start).getResidueNumber();
+        ResidueNumber endRes = pdbResidues.get(end).getResidueNumber();
+        pdbUniprotAlignment.setPdbFrom(Integer.toString(startRes.getSeqNum())
+                +(startRes.getInsCode()==null?"":startRes.getInsCode()));
+        pdbUniprotAlignment.setPdbTo(Integer.toString(endRes.getSeqNum())
+                +(endRes.getInsCode()==null?"":endRes.getInsCode()));
         pdbUniprotAlignment.setUniprotFrom(uniprotResBeg+start);
         pdbUniprotAlignment.setUniprotTo(uniprotResBeg+end-1);
 //        pdbUniprotAlignment.setEValue(null);

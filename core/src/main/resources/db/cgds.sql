@@ -142,9 +142,12 @@ CREATE TABLE `gene_alias` (
 --
 drop table IF EXISTS uniprot_id_mapping;
 CREATE TABLE `uniprot_id_mapping` (
-  `ENTREZ_GENE_ID` int(255) NOT NULL,
+  `ENTREZ_GENE_ID` int(255),
   `UNIPROT_ID` varchar(255) NOT NULL,
+  `UNIPROT_ACC` varchar(255) NOT NULL,
   PRIMARY KEY  (`ENTREZ_GENE_ID`, `UNIPROT_ID`),
+  KEY (`UNIPROT_ID`),
+  Key (`UNIPROT_ACC`),
   FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
@@ -612,7 +615,6 @@ CREATE TABLE `pdb_uniprot_residue_mapping` (
   `ALIGNMENT_ID` int NOT NULL,
   `PDB_POSITION` int NOT NULL,
   `PDB_INSERTION_CODE` char(1) DEFAULT NULL,
-  `PDB_SEQRES` int NOT NULL,
   `UNIPROT_POSITION` int NOT NULL,
   `MATCH` char(1),
   KEY(`ALIGNMENT_ID`, `UNIPROT_POSITION`),
@@ -624,9 +626,9 @@ CREATE TABLE `pdb_uniprot_alignment` (
   `ALIGNMENT_ID` int NOT NULL,
   `PDB_ID` char(4) NOT NULL,
   `CHAIN` char(1) NOT NULL,
-  `UNIPROT_ACC` varchar(50) NOT NULL,
-  `PDB_FROM` int NOT NULL, # sequence residue number
-  `PDB_TO` int NOT NULL, # sequence residue number
+  `UNIPROT_ID` varchar(50) NOT NULL,
+  `PDB_FROM` varchar(10) NOT NULL,
+  `PDB_TO` varchar(10) NOT NULL,
   `UNIPROT_FROM` int NOT NULL,
   `UNIPROT_TO` int NOT NULL,
   `EVALUE` float,

@@ -37,21 +37,18 @@ public class PdbUniprotResidueMapping
 	private Integer alignmentId;
 	private Integer pdbPos;
 	private String pdbInsertionCode;
-	private Integer pdbSeqRes;
 	private Integer uniprotPos;
 	private String match;
 
 	public PdbUniprotResidueMapping(Integer alignmentId,
 			Integer pdbPos,
 			String pdbInsertionCode,
-			Integer pdbSeqRes,
 			Integer uniprotPos,
 			String match)
 	{
 		this.alignmentId = alignmentId;
 		this.pdbPos = pdbPos;
                 this.pdbInsertionCode = pdbInsertionCode;
-                this.pdbSeqRes = pdbSeqRes;
 		this.uniprotPos = uniprotPos;
 		this.match = match;
 	}
@@ -106,13 +103,5 @@ public class PdbUniprotResidueMapping
         
         public String getJmolPdbResidue() {
             return pdbPos.toString() + (pdbInsertionCode==null?"":("^"+pdbInsertionCode));
-        }
-
-        public Integer getPdbSeqRes() {
-            return pdbSeqRes;
-        }
-
-        public void setPdbSeqRes(Integer pdbSeqRes) {
-            this.pdbSeqRes = pdbSeqRes;
         }
 }

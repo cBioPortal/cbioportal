@@ -8,6 +8,10 @@
     padding: 0 5px;
     border-radius: 5px;
 }
+#testDropDown li:hover{
+    cursor: pointer;
+    background-color: lightgrey;
+}
 #testDropDown ul{
     float:left;
 }
@@ -344,6 +348,7 @@ pieH3{
 } 
 
 /* tag styles */
+/*
 ul {
     list-style-type: none;
 }
@@ -357,6 +362,7 @@ ul li a {
 ul li a:hover, ul li a:focus {
     color:skyblue;
 }
+*/
 #data-table-chart table.dataTable{
     width:100%;
     font-size:12px;

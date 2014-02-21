@@ -17,6 +17,7 @@ var StudyViewInitCharts = (function(){
     var attrNameMapUID = []; //The relationshio between "The unique attribute name" and "The unique ID number in whole page"        
     var varCluster = []; //Clusters of displayed charts -- DC.JS require
     var varGroup = []; //Groups of displayed charts -- DC.JS require
+    var disableFiltId = [0];
     var chartColors = ["#3366cc","#dc3912","#ff9900","#109618",
         "#990099","#0099c6","#dd4477","#66aa00",
         "#b82e2e","#316395","#994499","#22aa99",
@@ -1193,7 +1194,7 @@ var StudyViewInitCharts = (function(){
             dataTable1.fnFilter(filterString,0,true);
             updateTable(dataTable1);
             resizeLeftColumn();            
-            refreshSelectionInDataTable([0],dataTable1);
+            refreshSelectionInDataTable(dataTable1);
             dataTable1.fnAdjustColumnSizing();
         });
     }  
@@ -1201,22 +1202,27 @@ var StudyViewInitCharts = (function(){
     function resizeLeftColumn(){
         var heightBody = $(".dataTables_scrollBody").css('height');
         var heightTable = $('.dataTables_scroll').css('height');
+        //var newHeight = Number(heightTable.substring(0,heightTable.length-2)) + 20;
         $(".DTFC_LeftBodyLiner").css('height',heightBody);
         $(".DTFC_LeftBodyWrapper").css('height',heightBody); 
         $('.DTFC_ScrollWrapper').css('height',heightTable);            
     }
     
-    function refreshSelectionInDataTable(_unrefreshID, _dataTable){
+    function refreshSelectionInDataTable(_dataTable){
         $(".dataTables_scrollFoot tfoot th").each( function ( i ) {
-            if(_unrefreshID.indexOf(i) === -1){                
+            if(disableFiltId.indexOf(i) === -1){                
                 $(this).css('z-index','1500');
                 this.innerHTML = fnCreateSelect( _dataTable.fnGetColumnData(i));
                 $('select', this).change( function () {
-                    if($(this).val() === '')
+                    if($(this).val() === ''){
                         _dataTable.fnFilter($(this).val(), i);
-                    else    
+                        disableFiltId.splice(disableFiltId.indexOf(i),1);
+                    }else{
                         _dataTable.fnFilter("^"+$(this).val()+"$", i, true);
-                    refreshSelectionInDataTable([0,i],_dataTable);
+                        disableFiltId.push(i);
+                    }
+                    
+                    refreshSelectionInDataTable(_dataTable);
                     resizeLeftColumn();
                 });
             }
@@ -1305,7 +1311,7 @@ var StudyViewInitCharts = (function(){
         */
         var oTable = $('#dataTable').dataTable();
         
-        refreshSelectionInDataTable([0],oTable);
+        refreshSelectionInDataTable(oTable);
         
         oTable.fnAdjustColumnSizing();
         new FixedColumns( oTable);

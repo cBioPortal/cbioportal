@@ -144,6 +144,8 @@ var StudyViewInitCharts = (function(){
             .find('option:gt(0)')
             .remove()
             .end();
+    
+        $('#testDropDown ul').find('li').remove().end();
             
         var hasDisplayItem = false;
         $.each(varName, function(key, value) {
@@ -151,6 +153,11 @@ var StudyViewInitCharts = (function(){
                 $('#study-view-selectAttr')
                     .append($("<option></option>")
                         .attr("value",value)
+                        .text(varDisplay[key]));
+                
+                $('#testDropDown ul')
+                    .append($("<li></li>")
+                        .attr("id",value)
                         .text(varDisplay[key]));
                 hasDisplayItem = true;
             }
@@ -259,8 +266,11 @@ var StudyViewInitCharts = (function(){
                     .append($("<option></option>")
                         .attr("value",'mutationCNA')
                         .text("Number of Mutation vs Fraction of copy number altered genome"));
+                $('#testDropDown ul')
+                        .append($('<li></li>').attr('id','mutationCNA').text('Number of Mutation vs Fraction of copy number altered genome'));
                 msnry.layout();
-            });            
+                addClick();
+            });
         }else{
             $('#study-view-scatter-plot').css('display','none');
         }
@@ -277,10 +287,20 @@ var StudyViewInitCharts = (function(){
         $("#study-view-scatter-plot-svg").submit(function(){
             setSVGElementValue("study-view-scatter-plot-body","study-view-scatter-plot-svg-value",scatterPlotOptions);
         });
+        
+        $('#testDropDown ul').hide();
+        $('#testDropDown').mouseenter(function(){
+           $('#testDropDown ul').show('slow');
+        });
+        $('#testDropDown').mouseleave(function(){
+           $('#testDropDown ul').hide('slow');
+        });
+        
         $('#random').mouseenter(function(){
             $('#study-view-add-chart-button').fadeOut('fast');
             $(this).animate({
-                width:'+=100'
+                width:'+=100',
+                color: 'white'
             },{
                 duration: 'fast',
                 complete: function(){
@@ -288,10 +308,12 @@ var StudyViewInitCharts = (function(){
                 }
             });
         });
+        
         $('#random').mouseleave(function(){
             $('#study-view-selectAttr').fadeOut('fast',function(){
                 $('#random').animate({
-                    width:'-=100'
+                    width:'-=100',
+                    color: 'light grey'
                 },{
                     dutation:'fast',
                     complete:function(){
@@ -300,6 +322,8 @@ var StudyViewInitCharts = (function(){
             });
             })
         });
+        
+        addClick();
         
         $('#study-view-selectAttr').change(function(){
             if($("#study-view-selectAttr")[0].selectedIndex !== 0){
@@ -356,6 +380,8 @@ var StudyViewInitCharts = (function(){
                             .append($("<option></option>")
                                 .attr("value",attrID)
                                 .text(attrName));
+                        //$('#testDropDown ul')
+                        //       .append($('<li></li>').attr('value',attrID).text(attrName));
                         $('#study-view-selectAttr').removeAttr('disabled');
                         var filteredResult = varCluster[attrNameMapUID['CASE_ID']].top(Infinity);
                         var filterString = "";
@@ -371,6 +397,7 @@ var StudyViewInitCharts = (function(){
                 msnry.layout();
 
                 $("#study-view-selectAttr option[value='"+ selectedAttr +"']").remove();
+                //$('#testDropDown ul').find('li[value="' + selectedAttr + '"]').remove();
                 if ($('#study-view-selectAttr option').length === 1)
                      $('#study-view-selectAttr').attr('disabled','disabled');
             }
@@ -390,6 +417,8 @@ var StudyViewInitCharts = (function(){
                     .append($("<option></option>")
                         .attr("value",attrID)
                         .text(attrName));
+                $('#testDropDown ul')
+                                .append($('<li></li>').attr('id',attrID).text(attrName));
                 $('#study-view-selectAttr').removeAttr('disabled');
                 var filteredResult = varCluster[attrNameMapUID['CASE_ID']].top(Infinity);
                 var filterString = "";
@@ -400,6 +429,77 @@ var StudyViewInitCharts = (function(){
                 var dataTable1 = $('#dataTable').dataTable();
                 dataTable1.fnFilter(filterString,0,true);
         });
+        
+        function addClick(){
+            $('#testDropDown ul li').click(function() {
+                var chartType
+                if($(this).attr('id') === 'mutationCNA')
+                    chartType = ['scatter'];
+                else
+                    chartType = varType[$(this).attr('id')].split(',');
+                
+                var selectedAttr = $(this).attr('id');
+                var selectedAttrDisplay = $(this).text();
+                var selectedChartType = chartType[0];
+                var chartTmpID = -1;
+
+                if(selectedAttr==='mutationCNA' && selectedChartType === 'scatter'){
+                    $("#study-view-scatter-plot").css('display','block');
+                }else{
+                    if(Object.keys(attrNameMapUID).indexOf(selectedAttr) !== -1){
+                        chartTmpID = attrNameMapUID[selectedAttr];
+                    }else{
+                        chartTmpID = totalCharts;
+                        HTMLtagsMapUID["study-view-dc-chart-" + totalCharts] = totalCharts;
+                        attrNameMapUID[selectedAttr] = totalCharts;
+                        totalCharts++;       
+                    }
+                    if(selectedChartType == 'pie'){
+                        initPieChart(chartTmpID,'study-view-pie-chart',selectedAttr,selectedAttrDisplay);
+                    }else{
+                        initBarChart(chartTmpID,'study-view-bar-chart',selectedAttr,selectedAttrDisplay,distanceMinMaxArray);                
+                    }
+
+
+                    msnry.destroy();
+                    var container = document.querySelector('#study-view-charts');
+                    msnry = new Masonry( container, {
+                      columnWidth: 190,
+                      itemSelector: '.study-view-dc-chart',
+                      gutter:1
+                    });
+
+                    varChart[chartTmpID].render();
+                     $('#study-view-dc-chart-'+ chartTmpID +' .study-view-dc-chart-delete').click(function(event){
+                        var id = $(this).parent().parent().attr("id");
+                        var valueA = $(this).parent().parent().attr("value").split(',');
+                        var attrID = valueA[0];
+                        var attrName = valueA[1];
+                        $("div").remove("#" + id + "-main"); 
+                        varChart[HTMLtagsMapUID[id]].filterAll();
+                        dc.redrawAll();
+                        dc.deregisterChart(varChart[HTMLtagsMapUID[id]]);
+                        msnry.layout();
+                        $('#testDropDown ul')
+                                .append($('<li></li>').attr('id',attrID).text(attrName));
+                        var filteredResult = varCluster[attrNameMapUID['CASE_ID']].top(Infinity);
+                        var filterString = "";
+                        for(var i=0 ; i<filteredResult.length ; i++){
+                            filterString += filteredResult[i].CASE_ID + '|';
+                        }
+                        filterString = filterString.substr(0,filterString.length-1);
+                        var dataTable1 = $('#dataTable').dataTable();
+                        dataTable1.fnFilter(filterString,0,true);
+                    });
+                }
+
+                msnry.layout();
+                
+                $('#testDropDown ul').find('li[id="' + selectedAttr + '"]').remove();
+               
+            });
+        
+        }
     }
     
     function setSVGElementValue(_svgParentDivId,_idNeedToSetValue,scatterPlotDataAttr){

@@ -22,14 +22,18 @@
 
 <div id="study-view-main" style="display: none;">
     <div id="study-view-add-chart">
+        <!--
         <div id='random' style="float: left; height: 30px;">
             <span id='study-view-add-chart-button'>Add Chart</span>
         <select id='study-view-selectAttr'>
             <option>Please select attribute</option>
         </select>
-        <select id='study-view-selectChartType' disabled="disabled" style='display: none'>
-            <option>No chart type could be selected</option>
-        </select>
+        </div>
+        -->
+        <div  id='testDropDown'> 
+            <i><strong><span style='color: grey'>Add Chart</span></strong></i>
+            <ul>   
+            </ul>
         </div>
     </div>
     <hr/>

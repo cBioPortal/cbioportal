@@ -1,5 +1,31 @@
 /* main style */
-
+#testDropDown li{
+    display: inline-block;
+    border-style: solid;
+    border-width:1px;
+    border-color: lightgrey;
+    margin: 2px 5px 2px 0;
+    padding: 0 5px;
+    border-radius: 5px;
+}
+#testDropDown ul{
+    float:left;
+}
+#testDropDown span{
+    float:left;
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+#testDropDown {
+    display: inline-block;
+    border-style: solid;
+    border-width: 1px;
+    border-color: lightgrey;
+    border-radius: 5px;
+    height:inherit;
+    vertical-align: middle;
+    padding: 0 10px;
+}
 #study-view-main {
     margin-left: auto;
     margin-right: auto;

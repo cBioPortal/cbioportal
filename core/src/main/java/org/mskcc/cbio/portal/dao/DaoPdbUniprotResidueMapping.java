@@ -104,11 +104,11 @@ public final class DaoPdbUniprotResidueMapping {
 	/**
 	 * Retrieves all alignments for the given Uniprot id.
 	 *
-	 * @param uniprotAcc     uniprot accession
+	 * @param uniprotId     uniprot id
 	 * @return  a list of PdbUniprotAlignment instances
 	 * @throws DaoException
 	 */
-	public static List<PdbUniprotAlignment> getAlignments(String uniprotAcc) throws DaoException
+	public static List<PdbUniprotAlignment> getAlignments(String uniprotId) throws DaoException
 	{
 		Connection con = null;
 		PreparedStatement pstmt = null;
@@ -116,9 +116,9 @@ public final class DaoPdbUniprotResidueMapping {
 		try {
 			con = JdbcUtil.getDbConnection(DaoPdbUniprotResidueMapping.class);
 			pstmt = con.prepareStatement("SELECT * FROM pdb_uniprot_alignment " +
-			                             "WHERE UNIPROT_ACC=? " +
+			                             "WHERE UNIPROT_ID=? " +
 			                             "ORDER BY UNIPROT_FROM ASC");
-			pstmt.setString(1, uniprotAcc);
+			pstmt.setString(1, uniprotId);
 			rs = pstmt.executeQuery();
 
 			List<PdbUniprotAlignment> alignments = new ArrayList<PdbUniprotAlignment>();
@@ -139,11 +139,11 @@ public final class DaoPdbUniprotResidueMapping {
 	/**
 	 * Retrieves the total number alignments for the given Uniprot id.
 	 *
-	 * @param uniprotAcc     uniprot accession
+	 * @param uniprotId     uniprot id
 	 * @return  total number of alignments for the given Uniprot id.
 	 * @throws DaoException
 	 */
-	public static Integer getAlignmentCount(String uniprotAcc) throws DaoException
+	public static Integer getAlignmentCount(String uniprotId) throws DaoException
 	{
 		Connection con = null;
 		PreparedStatement pstmt = null;
@@ -151,8 +151,8 @@ public final class DaoPdbUniprotResidueMapping {
 		try {
 			con = JdbcUtil.getDbConnection(DaoPdbUniprotResidueMapping.class);
 			pstmt = con.prepareStatement("SELECT COUNT(*) FROM pdb_uniprot_alignment " +
-			                             "WHERE UNIPROT_ACC=?");
-			pstmt.setString(1, uniprotAcc);
+			                             "WHERE UNIPROT_ID=?");
+			pstmt.setString(1, uniprotId);
 			rs = pstmt.executeQuery();
 
 			Integer count = -1;

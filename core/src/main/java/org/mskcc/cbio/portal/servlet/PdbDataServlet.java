@@ -52,7 +52,7 @@ import java.util.*;
  *
  * This servlet is designed to be queried with 3 different set of parameters,
  * and for each set the servlet returns different information:
- * 1) {uniprotAcc} : returns a list of pdb alignments for the given uniprot accession (JSON array)
+ * 1) {uniprotId} : returns a list of pdb alignments for the given uniprot id (JSON array)
  * 2) {positions, alignments} : returns a uniprotPos->pdbPos mapping (JSON object)
  * 3) {pdbIds} : returns basic information about the given PDB ids (JSON object)
  *
@@ -75,8 +75,8 @@ public class PdbDataServlet extends HttpServlet
 			final HttpServletResponse response)
 			throws ServletException, IOException
 	{
-		// TODO sanitize acc if necessary... and, allow more than one uniprot accession?
-		String uniprotAcc = request.getParameter("uniprotAcc");
+		// TODO sanitize id if necessary... and, allow more than one uniprot id?
+		String uniprotId = request.getParameter("uniprotId");
 		String type = request.getParameter("type");
 
 		Set<Integer> positions = this.parseIntValues(request.getParameter("positions"));
@@ -99,13 +99,13 @@ public class PdbDataServlet extends HttpServlet
 			else if (type != null &&
 			         type.equals("summary"))
 			{
-				JSONObject summary = this.getAlignmentSummary(uniprotAcc);
+				JSONObject summary = this.getAlignmentSummary(uniprotId);
 				this.writeOutput(response, summary);
 			}
 			else
 			{
-				// write back array of alignments for this uniprot accession
-				JSONArray alignmentData = this.getAlignmentArray(uniprotAcc);
+				// write back array of alignments for this uniprot id
+				JSONArray alignmentData = this.getAlignmentArray(uniprotId);
 				this.writeOutput(response, alignmentData);
 			}
 		}
@@ -233,12 +233,12 @@ public class PdbDataServlet extends HttpServlet
 		return sb.toString();
 	}
 
-	protected JSONArray getAlignmentArray(String uniprotAcc) throws DaoException
+	protected JSONArray getAlignmentArray(String uniprotId) throws DaoException
 	{
 		JSONArray alignmentArray = new JSONArray();
 
 		List<PdbUniprotAlignment> alignments =
-				DaoPdbUniprotResidueMapping.getAlignments(uniprotAcc);
+				DaoPdbUniprotResidueMapping.getAlignments(uniprotId);
 
 		for (PdbUniprotAlignment alignment : alignments)
 		{
@@ -255,8 +255,8 @@ public class PdbDataServlet extends HttpServlet
 			alignmentJson.put("uniprotTo", alignment.getUniprotTo());
 			alignmentJson.put("eValue", alignment.getEValue());
 			alignmentJson.put("identityPerc", alignment.getIdentityPerc());
-			//alignmentJson.put("alignmentString", this.alignmentString(alignment));
-			alignmentJson.put("alignmentString", alignment.getMidlineAlign());
+			alignmentJson.put("alignmentString", this.alignmentString(alignment));
+			//alignmentJson.put("alignmentString", alignment.getMidlineAlign());
 
 			alignmentArray.add(alignmentJson);
 		}
@@ -264,9 +264,9 @@ public class PdbDataServlet extends HttpServlet
 		return alignmentArray;
 	}
 
-	protected JSONObject getAlignmentSummary(String uniprotAcc) throws DaoException
+	protected JSONObject getAlignmentSummary(String uniprotId) throws DaoException
 	{
-		Integer count = DaoPdbUniprotResidueMapping.getAlignmentCount(uniprotAcc);
+		Integer count = DaoPdbUniprotResidueMapping.getAlignmentCount(uniprotId);
 
 		JSONObject summary = new JSONObject();
 		summary.put("alignmentCount", count);

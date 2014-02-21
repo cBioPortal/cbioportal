@@ -85,6 +85,7 @@ public class MutationDataUtils {
 	public static final String REFSEQ_MRNA_ID = "refseqMrnaId";
 	public static final String CODON_CHANGE = "codonChange";
 	public static final String UNIPROT_ID = "uniprotId";
+	public static final String UNIPROT_ACC = "uniprotAcc";
 	public static final String PROTEIN_POS_START = "proteinPosStart";
 	public static final String PROTEIN_POS_END = "proteinPosEnd";
 	public static final String MUTATION_COUNT = "mutationCount";
@@ -247,7 +248,8 @@ public class MutationDataUtils {
         mutationData.put(CANONICAL_TRANSCRIPT, mutation.isCanonicalTranscript());
         mutationData.put(REFSEQ_MRNA_ID, mutation.getOncotatorRefseqMrnaId());
         mutationData.put(CODON_CHANGE, mutation.getOncotatorCodonChange());
-        mutationData.put(UNIPROT_ID, this.getUniprotId(mutation));
+        mutationData.put(UNIPROT_ID, mutation.getOncotatorUniprotName());
+	    mutationData.put(UNIPROT_ACC, mutation.getOncotatorUniprotAccession());
         mutationData.put(PROTEIN_POS_START, mutation.getOncotatorProteinPosStart());
         mutationData.put(PROTEIN_POS_END, mutation.getOncotatorProteinPosEnd());
         mutationData.put(MUTATION_COUNT, countMap.get(mutation.getCaseId()));
@@ -618,7 +620,6 @@ public class MutationDataUtils {
 
     protected String getUniprotId(ExtendedMutation mutation)
     {
-        // TODO uniprot name or uniprot accession
         return mutation.getOncotatorUniprotName();
     }
 

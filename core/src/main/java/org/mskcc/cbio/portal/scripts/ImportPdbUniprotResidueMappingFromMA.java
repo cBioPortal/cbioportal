@@ -77,7 +77,7 @@ public final class ImportPdbUniprotResidueMappingFromMA {
         FileReader reader = new FileReader(mappingFile);
         BufferedReader buf = new BufferedReader(reader);
         String line = buf.readLine();
-        int alignId = 0;
+        int alignId = DaoPdbUniprotResidueMapping.getLargestAlignmentId();
         PdbUniprotAlignment pdbUniprotAlignment = new PdbUniprotAlignment();
         List<PdbUniprotResidueMapping> pdbUniprotResidueMappings = Collections.emptyList();
         Map<Integer, Integer> mappingUniPdbProtein = Collections.emptyMap();

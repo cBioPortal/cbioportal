@@ -33,10 +33,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.biojava.bio.structure.AminoAcid;
 import org.biojava.bio.structure.Chain;
@@ -77,7 +75,7 @@ public final class ImportPdbUniprotResidueMappingFromSifts {
         MySQLbulkLoader.bulkLoadOn();
         FileReader reader = new FileReader(mappingFile);
         BufferedReader buf = new BufferedReader(reader);
-        int alignId = 0;
+        int alignId = DaoPdbUniprotResidueMapping.getLargestAlignmentId();
         
         String line = buf.readLine();
         while (line.startsWith("#")) {

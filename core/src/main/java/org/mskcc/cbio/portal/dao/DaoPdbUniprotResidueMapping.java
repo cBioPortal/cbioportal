@@ -81,6 +81,25 @@ public final class DaoPdbUniprotResidueMapping {
         // return 1 because normal insert will return 1 if no error occurs
         return 1;
     }
+    
+    
+    
+    public static int getLargestAlignmentId() throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoPdbUniprotResidueMapping.class);
+            pstmt = con.prepareStatement
+                    ("SELECT MAX(`ALIGNMENT_ID`) FROM `pdb_uniprot_alignment`");
+            rs = pstmt.executeQuery();
+            return rs.next() ? rs.getInt(1) : 0;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoPdbUniprotResidueMapping.class, con, pstmt, rs);
+        }
+    }
 
 	/**
 	 * Retrieves all alignments for the given Uniprot id.

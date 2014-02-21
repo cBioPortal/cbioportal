@@ -80,22 +80,19 @@ var MutationDetailsController = function(
 	 */
 	function initView(gene, cases, diagramOpts, tableOpts)
 	{
-		var mutationData = null;
-
 		// callback function to init view after retrieving
 		// sequence information.
-		var init = function(sequenceData)
+		var init = function(sequenceData, mutationData, pdbData)
 		{
-			// TODO sequenceData may be null for unknown genes...
-			// get the first sequence from the response
-			var sequence = sequenceData[0];
+			// pre-process to add 3D match information
+			mutationData = processMutationData(mutationData, pdbData);
 
 			// prepare data for mutation view
 			var model = {geneSymbol: gene,
 				mutationData: mutationData,
 				mutationProxy: mutationProxy,
 				pdbProxy: _pdbProxy,
-				sequence: sequence,
+				sequence: sequenceData,
 				sampleArray: cases,
 				diagramOpts: diagramOpts,
 				tableOpts: tableOpts};
@@ -131,12 +128,8 @@ var MutationDetailsController = function(
 			// init reference mapping
 			_geneTabView[gene] = {};
 
-			// update mutation data reference
-			mutationData = data;
-
 			// display a message if there is no mutation data available for this gene
-			if (mutationData == null ||
-			    mutationData.length == 0)
+			if (data == null || data.length == 0)
 			{
 				mutationDetailsView.$el.find("#mutation_details_" + gene).html(
 					_.template($("#default_mutation_details_gene_info_template").html(), {}));
@@ -144,9 +137,111 @@ var MutationDetailsController = function(
 			// get the sequence data for the current gene & init view
 			else
 			{
-				$.getJSON("getPfamSequence.json", {geneSymbol: gene}, init);
+				$.getJSON("getPfamSequence.json", {geneSymbol: gene}, function(sequenceData) {
+					// TODO sequenceData may be null for unknown genes...
+					// get the first sequence from the response
+					var sequence = sequenceData[0];
+
+					if (_pdbProxy)
+					{
+						var uniprotId = sequence.metadata.identifier;
+						_pdbProxy.getPdbData(uniprotId, function(pdbData) {
+							init(sequence, data, pdbData);
+						});
+					}
+					else
+					{
+						init(sequence, data);
+					}
+
+				});
 			}
 		});
+	}
+
+	/**
+	 * Processes mutation data to add additional information.
+	 *
+	 * @param mutationData  raw mutation data array
+	 * @param pdbData       pdb data for the corresponding uniprot id
+	 * @return {Array}      mutation data array with additional attrs
+	 */
+	function processMutationData(mutationData, pdbData)
+	{
+		if (!pdbData)
+		{
+			return mutationData;
+		}
+
+		var rowData = PdbDataUtil.allocateChainRows(pdbData);
+
+		_.each(mutationData, function(mutation, idx) {
+			mutation.pdbMatch = mutationToPdb(mutation, rowData);
+		});
+
+		return mutationData;
+	}
+
+	/**
+	 * Finds the first matching pdb id & chain for the given mutation and
+	 * the chain rows.
+	 *
+	 * @param mutation  a MutationModel instance
+	 * @param rowData   ranked chain data
+	 * @return {Object}
+	 */
+	function mutationToPdb(mutation, rowData)
+	{
+		var pdbMatch = null;
+
+		var location = mutation.proteinChange.match(/[0-9]+/);
+		var type = mutation.mutationType.trim().toLowerCase();
+
+		// skip fusions or invalid locations
+		if (location == null ||
+		    type == "fusion")
+		{
+			return pdbMatch;
+		}
+
+		// iterate all chains to find the first matching position
+		for (var i=0;
+		     i < rowData.length && !pdbMatch;
+		     i++)
+		{
+			var allocation = rowData[i];
+
+			for (var j=0;
+			     j < allocation.length && !pdbMatch;
+			     j++)
+			{
+				var datum = allocation[j];
+
+				var alignment = datum.chain.mergedAlignment;
+
+				// use merged alignment to see if there is a match
+				var rangeWithin = location > alignment.uniprotFrom &&
+				                  location < alignment.uniprotTo;
+
+				// TODO also check for mismatch/gap within the alignment string
+				if (rangeWithin)
+				{
+					pdbMatch = {pdbId: datum.pdbId,
+						chainId: datum.chain.chainId};
+
+					// found a matching pdb residue, break the inner loop
+					break;
+				}
+			}
+
+			if (pdbMatch)
+			{
+				// found a matching pdb residue, break the outer loop
+				break;
+			}
+		}
+
+		return pdbMatch;
 	}
 
 	init();

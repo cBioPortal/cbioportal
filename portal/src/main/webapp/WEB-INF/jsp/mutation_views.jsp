@@ -454,7 +454,7 @@
 			</a>
 		</td>
 		<td>
-			<a href='{{pdbLink}}' target='_blank'>
+			<a href='#' class="pdb-link" alt="{{pdbMatchId}}">
 				<span style="background-color:#88C;color:white">
 					&nbsp;3D&nbsp;
 				</span>

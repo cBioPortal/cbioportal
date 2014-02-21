@@ -29,6 +29,7 @@ var MutationModel = Backbone.Model.extend({
 		this.msaLink = attributes.msaLink;
 		this.xVarLink = attributes.xVarLink;
 		this.pdbLink = attributes.pdbLink;
+		this.pdbMatch = attributes.pdbMatch; // {pdbId, chainId} pair
 		this.igvLink = attributes.igvLink;
 		this.mutationStatus = attributes.mutationStatus;
 		this.validationStatus = attributes.validationStatus;

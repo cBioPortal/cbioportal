@@ -60,7 +60,7 @@ var MutationDetailsTableView = Backbone.View.extend({
 		// add click listener for each igv link to get the actual parameters
 		// from another servlet
 		_.each(self.$el.find('.igv-link'), function(element, index) {
-			// TODO use mutation id, instead of binding url to attr alt
+			// TODO use mutation id, and dispatch an event
 			var url = $(element).attr("alt");
 
 			$(element).click(function(evt) {
@@ -71,6 +71,13 @@ var MutationDetailsTableView = Backbone.View.extend({
 					prepIGVLaunch(data.bamFileUrl, data.encodedLocus, data.referenceGenome, data.trackName);
 				});
 			});
+		});
+
+		// add click listener for each 3D link
+		self.$el.find('.pdb-link').click(function(evt) {
+			var id = $(this).attr("alt");
+			// TODO dispatch an event with mutation id as a parameter
+			// ...and then handle it in 3D & diagram controllers
 		});
 
 		var tableSelector = self.$el.find('.mutation_details_table');
@@ -274,8 +281,9 @@ var MutationDetailsTableView = Backbone.View.extend({
 
 		vars.xVarLink = mutation.xVarLink;
 		vars.msaLink = mutation.msaLink;
-		vars.pdbLink = mutation.pdbLink;
 		vars.igvLink = mutation.igvLink;
+
+		vars.pdbMatchId = self._getPdbMatchId(mutation);
 
 		var mutationStatus = self._getMutationStatus(mutationStatusMap, mutation.mutationStatus);
 		vars.mutationStatusTip = mutationStatus.tip;
@@ -536,6 +544,17 @@ var MutationDetailsTableView = Backbone.View.extend({
 		}
 
 		return {text: text, total: total, style: style, tipClass: tipStyle};
+	},
+	_getPdbMatchId: function(mutation)
+	{
+		if (mutation.pdbMatch)
+		{
+			return mutation.mutationId;
+		}
+		else
+		{
+			return "";
+		}
 	},
 	_getProteinChange: function(mutation)
 	{

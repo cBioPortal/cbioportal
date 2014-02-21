@@ -9,13 +9,16 @@
  * @param mut3dView             a Mutation3dView instance
  * @param mut3dVis              singleton Mutation3dVis instance
  * @param pdbProxy              proxy for pdb data
+ * @param mutationUtil          data utility class (having the related mutations)
  * @param mutationDiagram       a MutationDiagram instance
+ * @param tableView             a MutationDetailsTableView instance
  * @param geneSymbol            hugo gene symbol (string value)
  *
  * @author Selcuk Onur Sumer
  */
 var Mutation3dController = function (mutationDetailsView, mainMutationView,
-	mut3dVisView, mut3dView, mut3dVis, pdbProxy, mutationDiagram, geneSymbol)
+	mut3dVisView, mut3dView, mut3dVis, pdbProxy, mutationUtil,
+	mutationDiagram, tableView, geneSymbol)
 {
 	// we cannot get pdb panel view as a constructor parameter,
 	// since it is initialized after initializing this controller
@@ -44,6 +47,11 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 		mutationDiagram.dispatcher.on(
 			MutationDetailsEvents.DIAGRAM_PLOT_RESET,
 			diagramResetHandler);
+
+		// add listeners for the mutation table view
+		tableView.dispatcher.on(
+			MutationDetailsEvents.PDB_LINK_CLICKED,
+			pdbLinkHandler);
 
 		// add listeners for the mutation 3d view
 		mut3dView.addInitCallback(mut3dInitHandler);
@@ -173,6 +181,18 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 		if (mut3dVisView && mut3dVisView.isVisible())
 		{
 			highlightSelected();
+		}
+	}
+
+	function pdbLinkHandler(mutationId)
+	{
+		var mutationMap = mutationUtil.getMutationIdMap();
+		var mutation = mutationMap[mutationId];
+
+		if (mutation)
+		{
+			// TODO select the corresponding pdb, and highlight the mutation on 3D vis
+			// (without filtering the table)
 		}
 	}
 

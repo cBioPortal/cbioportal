@@ -46,6 +46,7 @@ var MutationDetailsController = function(
 
 		if (mut3dVis)
 		{
+			// TODO remove mutationProxy?
 			var mutation3dVisView = new Mutation3dVisView(
 				{el: container3d,
 					mut3dVis: mut3dVis,
@@ -82,15 +83,21 @@ var MutationDetailsController = function(
 	{
 		// callback function to init view after retrieving
 		// sequence information.
-		var init = function(sequenceData, mutationData, pdbData)
+		var init = function(sequenceData, mutationData, pdbRowData)
 		{
 			// pre-process to add 3D match information
-			mutationData = processMutationData(mutationData, pdbData);
+			// TODO this does not update the data in mutationProxy.mutationUtil!!
+			// ...also update the corresponding mutations within the util
+
+			mutationData = processMutationData(mutationData, pdbRowData);
+			var mutationUtil = new MutationDetailsUtil(
+				new MutationCollection(mutationData));
+			//var mutationUtil = mutationProxy.getMutationUtil();
 
 			// prepare data for mutation view
 			var model = {geneSymbol: gene,
 				mutationData: mutationData,
-				mutationProxy: mutationProxy,
+				mutationProxy: mutationProxy, // TODO send util instead?
 				pdbProxy: _pdbProxy,
 				sequence: sequenceData,
 				sampleArray: cases,
@@ -118,9 +125,10 @@ var MutationDetailsController = function(
 			new MutationDetailsTableController(components.tableView, components.diagram);
 			new Mutation3dController(mutationDetailsView, mainView,
 			                         _mut3dVisView, components.view3d, mut3dVis,
-			                         _pdbProxy, components.diagram, gene);
+			                         _pdbProxy, mutationUtil,
+			                         components.diagram, components.tableView, gene);
 			new MutationDiagramController(
-				components.diagram, components.tableView.tableUtil, mutationProxy.getMutationUtil());
+				components.diagram, components.tableView.tableUtil, mutationUtil);
 		};
 
 		// get mutation data for the current gene
@@ -145,8 +153,8 @@ var MutationDetailsController = function(
 					if (_pdbProxy)
 					{
 						var uniprotId = sequence.metadata.identifier;
-						_pdbProxy.getPdbData(uniprotId, function(pdbData) {
-							init(sequence, data, pdbData);
+						_pdbProxy.getPdbRowData(uniprotId, function(pdbRowData) {
+							init(sequence, data, pdbRowData);
 						});
 					}
 					else
@@ -163,85 +171,21 @@ var MutationDetailsController = function(
 	 * Processes mutation data to add additional information.
 	 *
 	 * @param mutationData  raw mutation data array
-	 * @param pdbData       pdb data for the corresponding uniprot id
+	 * @param pdbRowData    pdb row data for the corresponding uniprot id
 	 * @return {Array}      mutation data array with additional attrs
 	 */
-	function processMutationData(mutationData, pdbData)
+	function processMutationData(mutationData, pdbRowData)
 	{
-		if (!pdbData)
+		if (!pdbRowData)
 		{
 			return mutationData;
 		}
 
-		var rowData = PdbDataUtil.allocateChainRows(pdbData);
-
 		_.each(mutationData, function(mutation, idx) {
-			mutation.pdbMatch = mutationToPdb(mutation, rowData);
+			mutation.pdbMatch = PdbDataUtil.mutationToPdb(mutation, pdbRowData);
 		});
 
 		return mutationData;
-	}
-
-	/**
-	 * Finds the first matching pdb id & chain for the given mutation and
-	 * the chain rows.
-	 *
-	 * @param mutation  a MutationModel instance
-	 * @param rowData   ranked chain data
-	 * @return {Object}
-	 */
-	function mutationToPdb(mutation, rowData)
-	{
-		var pdbMatch = null;
-
-		var location = mutation.proteinChange.match(/[0-9]+/);
-		var type = mutation.mutationType.trim().toLowerCase();
-
-		// skip fusions or invalid locations
-		if (location == null ||
-		    type == "fusion")
-		{
-			return pdbMatch;
-		}
-
-		// iterate all chains to find the first matching position
-		for (var i=0;
-		     i < rowData.length && !pdbMatch;
-		     i++)
-		{
-			var allocation = rowData[i];
-
-			for (var j=0;
-			     j < allocation.length && !pdbMatch;
-			     j++)
-			{
-				var datum = allocation[j];
-
-				var alignment = datum.chain.mergedAlignment;
-
-				// use merged alignment to see if there is a match
-				var rangeWithin = location > alignment.uniprotFrom &&
-				                  location < alignment.uniprotTo;
-
-				// TODO also check for mismatch/gap within the alignment string
-				if (rangeWithin)
-				{
-					pdbMatch = {pdbId: datum.pdbId,
-						chainId: datum.chain.chainId};
-
-					// found a matching pdb residue, break the inner loop
-					break;
-				}
-			}
-
-			if (pdbMatch)
-			{
-				// found a matching pdb residue, break the outer loop
-				break;
-			}
-		}
-
-		return pdbMatch;
 	}
 
 	init();

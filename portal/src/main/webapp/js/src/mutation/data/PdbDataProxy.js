@@ -17,6 +17,9 @@ var PdbDataProxy = function(mutationUtil)
 	// map of <uniprot id, PdbCollection> pairs
 	var _pdbDataCache = {};
 
+	// map of <uniprot id, PdbChain[][]> pairs
+	var _pdbRowDataCache = {};
+
 	// map of <pdb id, pdb info> pairs
 	var _pdbInfoCache = {};
 
@@ -164,6 +167,37 @@ var PdbDataProxy = function(mutationUtil)
 	}
 
 	/**
+	 * Retrieves the PDB data for the provided uniprot id, and creates
+	 * a 2D-array of pdb chains ranked by length and other criteria.
+	 *
+	 * Forwards the processed data to the given callback function
+	 * assuming that the callback function accepts a single parameter.
+	 *
+	 * @param uniprotId     uniprot id
+	 * @param callback      callback function to be invoked
+	 */
+	function getPdbRowData(uniprotId, callback)
+	{
+		// retrieve data if not cached yet
+		if (_pdbRowDataCache[uniprotId] == undefined)
+		{
+			getPdbData(uniprotId, function(pdbColl) {
+				// get the data & cache
+				var rowData = PdbDataUtil.allocateChainRows(pdbColl);
+				_pdbRowDataCache[uniprotId] = rowData;
+
+				// forward to the callback
+				callback(rowData);
+			});
+		}
+		else
+		{
+			// data is already cached, just forward it
+			callback(_pdbRowDataCache[uniprotId]);
+		}
+	}
+
+	/**
 	 * Retrieves the PDB data summary for the provided uniprot id. Passes
 	 * the retrieved data as a parameter to the given callback function
 	 * assuming that the callback function accepts a single parameter.
@@ -256,6 +290,7 @@ var PdbDataProxy = function(mutationUtil)
 	return {
 		hasPdbData: hasPdbData,
 		getPdbData: getPdbData,
+		getPdbRowData: getPdbRowData,
 		getPdbInfo: getPdbInfo,
 		getPositionMap: getPositionMap
 	};

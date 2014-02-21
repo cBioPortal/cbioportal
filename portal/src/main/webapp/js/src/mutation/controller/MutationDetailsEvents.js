@@ -14,6 +14,7 @@ var MutationDetailsEvents = (function()
 	var _diagramPlotUpdated = "mutationDiagramPlotUpdated";
 	var _diagramPlotReset = "mutationDiagramPlotReset";
 	var _mutationTableFiltered = "mutationTableFiltered";
+	var _pdbLinkClicked = "mutationTablePdbLinkClicked";
 	var _chainSelected = "pdbPanelChainSelected";
 	var _geneTabSelected = "mutationDetailsGeneTabSelected";
 	var _geneTabsCreated = "mutationDetailsGeneTabsCreated";
@@ -28,6 +29,7 @@ var MutationDetailsEvents = (function()
 		DIAGRAM_PLOT_UPDATED: _diagramPlotUpdated,
 		DIAGRAM_PLOT_RESET: _diagramPlotReset,
 		MUTATION_TABLE_FILTERED: _mutationTableFiltered,
+		PDB_LINK_CLICKED: _pdbLinkClicked,
 		CHAIN_SELECTED: _chainSelected,
 		GENE_TAB_SELECTED: _geneTabSelected,
 		GENE_TABS_CREATED: _geneTabsCreated,

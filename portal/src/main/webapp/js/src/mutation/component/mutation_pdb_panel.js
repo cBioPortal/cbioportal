@@ -447,6 +447,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	 */
 	function init()
 	{
+		// TODO get pdbRowData (or uniprot id?) as a model parameter
 		// generate row data (one row may contain more than one chain)
 		_rowData = PdbDataUtil.allocateChainRows(data);
 		_maxExpansionLevel = calcMaxExpansionLevel(_rowData.length, _options.numRows);

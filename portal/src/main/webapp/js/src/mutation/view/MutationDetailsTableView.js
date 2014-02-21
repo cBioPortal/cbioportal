@@ -10,6 +10,13 @@
  * @author Selcuk Onur Sumer
  */
 var MutationDetailsTableView = Backbone.View.extend({
+	initialize : function (options) {
+		this.options = options || {};
+
+		// custom event dispatcher
+		this.dispatcher = {};
+		_.extend(this.dispatcher, Backbone.Events);
+	},
 	render: function()
 	{
 		var self = this;
@@ -75,9 +82,12 @@ var MutationDetailsTableView = Backbone.View.extend({
 
 		// add click listener for each 3D link
 		self.$el.find('.pdb-link').click(function(evt) {
-			var id = $(this).attr("alt");
+			var mutationId = $(this).attr("alt");
 			// TODO dispatch an event with mutation id as a parameter
 			// ...and then handle it in 3D & diagram controllers
+			self.dispatcher.trigger(
+				MutationDetailsEvents.PDB_LINK_CLICKED,
+				mutationId);
 		});
 
 		var tableSelector = self.$el.find('.mutation_details_table');

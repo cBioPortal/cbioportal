@@ -170,6 +170,68 @@ var PdbDataUtil = (function()
 	}
 
 	/**
+	 * Finds the first matching pdb id & chain for the given mutation and
+	 * row of chains.
+	 *
+	 * @param mutation  a MutationModel instance
+	 * @param rowData   ranked chain data (2D array)
+	 * @return {Object} {pdbId, chainId}
+	 */
+	function mutationToPdb(mutation, rowData)
+	{
+		var pdbMatch = null;
+
+		var location = mutation.proteinChange.match(/[0-9]+/);
+		var type = mutation.mutationType.trim().toLowerCase();
+
+		// skip fusions or invalid locations
+		if (location == null ||
+		    type == "fusion")
+		{
+			return pdbMatch;
+		}
+
+		// iterate all chains to find the first matching position
+		for (var i=0;
+		     i < rowData.length && !pdbMatch;
+		     i++)
+		{
+			var allocation = rowData[i];
+
+			for (var j=0;
+			     j < allocation.length && !pdbMatch;
+			     j++)
+			{
+				var datum = allocation[j];
+
+				var alignment = datum.chain.mergedAlignment;
+
+				// use merged alignment to see if there is a match
+				var rangeWithin = location > alignment.uniprotFrom &&
+				                  location < alignment.uniprotTo;
+
+				// TODO also check for mismatch/gap within the alignment string
+				if (rangeWithin)
+				{
+					pdbMatch = {pdbId: datum.pdbId,
+						chainId: datum.chain.chainId};
+
+					// found a matching pdb residue, break the inner loop
+					break;
+				}
+			}
+
+			if (pdbMatch)
+			{
+				// found a matching pdb residue, break the outer loop
+				break;
+			}
+		}
+
+		return pdbMatch;
+	}
+
+	/**
 	 * Calculates an alignment score based on mismatch ratio.
 	 *
 	 * @param mergedStr merged alignment string
@@ -432,6 +494,7 @@ var PdbDataUtil = (function()
 		ALIGNMENT_SPACE: ALIGNMENT_SPACE,
 		// public functions
 		processPdbData: processPdbData,
+		mutationToPdb: mutationToPdb,
 		allocateChainRows: allocateChainRows,
 		mergeAlignments: mergeAlignments
 	};

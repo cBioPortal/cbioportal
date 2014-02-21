@@ -130,22 +130,22 @@ var PdbDataProxy = function(mutationUtil)
 	}
 
 	/**
-	 * Retrieves the PDB data for the provided uniprot accession. Passes
+	 * Retrieves the PDB data for the provided uniprot id. Passes
 	 * the retrieved data as a parameter to the given callback function
 	 * assuming that the callback function accepts a single parameter.
 	 *
-	 * @param uniprotAcc    uniprot accession
+	 * @param uniprotId     uniprot id
 	 * @param callback      callback function to be invoked
 	 */
-	function getPdbData(uniprotAcc, callback)
+	function getPdbData(uniprotId, callback)
 	{
 		// retrieve data from the server if not cached
-		if (_pdbDataCache[uniprotAcc] == undefined)
+		if (_pdbDataCache[uniprotId] == undefined)
 		{
 			// process & cache the raw data
 			var processData = function(data) {
 				var pdbColl = PdbDataUtil.processPdbData(data);
-				_pdbDataCache[uniprotAcc] = pdbColl;
+				_pdbDataCache[uniprotId] = pdbColl;
 
 				// forward the processed data to the provided callback function
 				callback(pdbColl);
@@ -153,32 +153,32 @@ var PdbDataProxy = function(mutationUtil)
 
 			// retrieve data from the servlet
 			$.getJSON(_servletName,
-					{uniprotAcc: uniprotAcc},
+					{uniprotId: uniprotId},
 					processData);
 		}
 		else
 		{
 			// data is already cached, just forward it
-			callback(_pdbDataCache[uniprotAcc]);
+			callback(_pdbDataCache[uniprotId]);
 		}
 	}
 
 	/**
-	 * Retrieves the PDB data summary for the provided uniprot acc. Passes
+	 * Retrieves the PDB data summary for the provided uniprot id. Passes
 	 * the retrieved data as a parameter to the given callback function
 	 * assuming that the callback function accepts a single parameter.
 	 *
-	 * @param uniprotAcc    uniprot accession
+	 * @param uniprotId     uniprot id
 	 * @param callback      callback function to be invoked
 	 */
-	function getPdbDataSummary(uniprotAcc, callback)
+	function getPdbDataSummary(uniprotId, callback)
 	{
 		// retrieve data from the server if not cached
-		if (_pdbDataSummaryCache[uniprotAcc] == undefined)
+		if (_pdbDataSummaryCache[uniprotId] == undefined)
 		{
 			// process & cache the raw data
 			var processData = function(data) {
-				_pdbDataSummaryCache[uniprotAcc] = data;
+				_pdbDataSummaryCache[uniprotId] = data;
 
 				// forward the processed data to the provided callback function
 				callback(data);
@@ -186,32 +186,32 @@ var PdbDataProxy = function(mutationUtil)
 
 			// retrieve data from the servlet
 			$.getJSON(_servletName,
-					{uniprotAcc: uniprotAcc, type: "summary"},
+					{uniprotId: uniprotId, type: "summary"},
 					processData);
 		}
 		else
 		{
 			// data is already cached, just forward it
-			callback(_pdbDataSummaryCache[uniprotAcc]);
+			callback(_pdbDataSummaryCache[uniprotId]);
 		}
 	}
 
 	/**
 	 * Checks if there is structure (PDB) data available for the provided
-	 * uniprot accession. Passes a boolean parameter to the given callback
-	 * function assuming that the callback function accepts a single parameter.
+	 * uniprot id. Passes a boolean parameter to the given callback function
+	 * assuming that the callback function accepts a single parameter.
 	 *
-	 * @param uniprotAcc    uniprot accession
+	 * @param uniprotId     uniprot id
 	 * @param callback      callback function to be invoked
 	 */
-	function hasPdbData(uniprotAcc, callback)
+	function hasPdbData(uniprotId, callback)
 	{
 		var processData = function(data) {
 			var hasData = data && (data.alignmentCount > 0);
 			callback(hasData);
 		};
 
-		getPdbDataSummary(uniprotAcc, processData);
+		getPdbDataSummary(uniprotId, processData);
 	}
 
 	// TODO allow more than one pdb id

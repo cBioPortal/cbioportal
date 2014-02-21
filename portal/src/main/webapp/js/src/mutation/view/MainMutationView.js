@@ -166,7 +166,7 @@ var MainMutationView = Backbone.View.extend({
 		{
 			view3d = new Mutation3dView({
 				el: self.$el.find(".mutation-3d-initializer"),
-				model: {uniprotAcc: sequence.metadata.accession,
+				model: {uniprotId: sequence.metadata.identifier,
 					geneSymbol: gene,
 					pdbProxy: pdbProxy}
 			});

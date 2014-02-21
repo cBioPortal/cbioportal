@@ -10,7 +10,7 @@
  *
  * options: {el: [target container],
  *           model: {geneSymbol: hugo gene symbol,
- *                   uniprotAcc: uniprot accession for this gene,
+ *                   uniprotId: uniprot identifier for this gene,
  *                   pdbProxy: pdb data proxy}
  *          }
  *
@@ -72,9 +72,9 @@ var Mutation3dView = Backbone.View.extend({
 		};
 
 		var pdbProxy = self.model.pdbProxy;
-		var uniprotAcc = self.model.uniprotAcc;
+		var uniprotId = self.model.uniprotId;
 
-		pdbProxy.hasPdbData(uniprotAcc, formatButton);
+		pdbProxy.hasPdbData(uniprotId, formatButton);
 	},
 	/**
 	 * Adds a callback function for the 3D visualizer init button.

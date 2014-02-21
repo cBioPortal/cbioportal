@@ -1,6 +1,6 @@
 /* main style */
 #testDropDown li{
-    display: inline-block;
+    list-style: none;
     border-style: solid;
     border-width:1px;
     border-color: lightgrey;
@@ -13,22 +13,31 @@
     background-color: lightgrey;
 }
 #testDropDown ul{
-    float:left;
+    padding: 0;
+    float:right;
 }
 #testDropDown span{
-    float:left;
+    float:right;
     margin-top: 8px;
     margin-bottom: 8px;
 }
+#testDropDown span:hover{
+    cursor: default;
+}
 #testDropDown {
-    display: inline-block;
+    top: 60px;
+    right:21px;
+    float:right;
     border-style: solid;
     border-width: 1px;
     border-color: lightgrey;
     border-radius: 5px;
-    height:inherit;
     vertical-align: middle;
     padding: 0 10px;
+    position: absolute;
+    background-color: white;
+    box-shadow: -2px 2px 2px lightgrey;
+    z-index:500;
 }
 #study-view-main {
     margin-left: auto;
@@ -116,6 +125,7 @@
 #study-view-add-chart {
     width:100%;
     float:left;
+    height: 30px;
     margin-bottom:10px;
 }
 #study-view-selectAttr{

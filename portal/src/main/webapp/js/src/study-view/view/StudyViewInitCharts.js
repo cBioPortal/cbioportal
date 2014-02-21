@@ -553,25 +553,25 @@ var StudyViewInitCharts = (function(){
         
         if(_selectedAttr !== 'CASE_ID'){
             varChart[_chartID].on("filtered", function(chart,filter){
-                var currentPieFilters = varChart[_chartID].filters();
-                if(currentPieFilters.length === 0){
-                    $("#study-view-dc-chart-" + _chartID + "-main .study-view-dc-chart-change").css('display','none');
-                    $("#study-view-dc-chart-" + _chartID + "-main").css({'border-width':'1px', 'border-style':'solid'});
-                }
-                else{
-                    $("#study-view-dc-chart-" + _chartID + "-main .study-view-dc-chart-change").css('display','block');
-                    $("#study-view-dc-chart-" + _chartID + "-main").css({'border-width':'2px', 'border-style':'inset'});
-                }
-                var tmpDimention = varChart[attrNameMapUID["CASE_ID"]].dimension();
-                var tmpResult = tmpDimention.top(Infinity);
-                var tmpCaseID = [];
-                
-                if(typeof scatterStudyView !== 'undefined'){
-                    for(var i=0; i<tmpResult.length ; i++){
-                        tmpCaseID.push(tmpResult[i].CASE_ID);
+                    var currentPieFilters = varChart[_chartID].filters();
+                    if(currentPieFilters.length === 0){
+                        $("#study-view-dc-chart-" + _chartID + "-main .study-view-dc-chart-change").css('display','none');
+                        $("#study-view-dc-chart-" + _chartID + "-main").css({'border-width':'1px', 'border-style':'solid'});
                     }
-                    setScatterPlotStyle(tmpCaseID,currentPieFilters);
-                }
+                    else{
+                        $("#study-view-dc-chart-" + _chartID + "-main .study-view-dc-chart-change").css('display','block');
+                        $("#study-view-dc-chart-" + _chartID + "-main").css({'border-width':'2px', 'border-style':'inset'});
+                    }
+                    var tmpDimention = varChart[attrNameMapUID["CASE_ID"]].dimension();
+                    var tmpResult = tmpDimention.top(Infinity);
+                    var tmpCaseID = [];
+
+                    if(typeof scatterStudyView !== 'undefined'){
+                        for(var i=0; i<tmpResult.length ; i++){
+                            tmpCaseID.push(tmpResult[i].CASE_ID);
+                        }
+                        setScatterPlotStyle(tmpCaseID,currentPieFilters);
+                    }
             });
             varChart[_chartID].on("postRedraw",function(chart){
                 addPieLabels("study-view-dc-chart-" + _chartID);
@@ -1112,12 +1112,12 @@ var StudyViewInitCharts = (function(){
                     $("#study-view-dc-chart-" + _chartID + "-main .study-view-dc-chart-change").css('display','block');
                     $("#study-view-dc-chart-" + _chartID + "-main").css({'border-width':'2px', 'border-style':'inset'});
                 }
-            if(typeof scatterStudyView !== 'undefined'){            
-                for(var i=0; i<tmpResult.length ; i++){
-                    tmpCaseID.push(tmpResult[i].CASE_ID);
+                if(typeof scatterStudyView !== 'undefined'){
+                    for(var i=0; i<tmpResult.length ; i++){
+                        tmpCaseID.push(tmpResult[i].CASE_ID);
+                    }
+                    setScatterPlotStyle(tmpCaseID,currentPieFilters);   
                 }
-                setScatterPlotStyle(tmpCaseID,currentPieFilters);   
-            }
         });
         
     }
@@ -1326,14 +1326,10 @@ var StudyViewInitCharts = (function(){
             varChart[attrNameMapUID['CASE_ID']].filter([_brushedCaseIds]);
             dc.redrawAll();
         }else{
-            /*
             for(var i=0; i< varChart.length ; i++){
                 if(varChart[i].filters().length > 0)
                     varChart[i].filterAll();
             }
-            */
-            dc.filterAll();
-            //varChart[attrNameMapUID['CASE_ID']].filterAll();
             dc.redrawAll();
         }
     }

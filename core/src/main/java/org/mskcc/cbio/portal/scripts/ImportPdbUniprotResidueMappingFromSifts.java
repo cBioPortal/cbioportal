@@ -88,7 +88,6 @@ public final class ImportPdbUniprotResidueMappingFromSifts {
         buf.readLine(); // skip head
         
         for (; line != null; line = buf.readLine()) {
-            
             pMonitor.incrementCurValue();
             ConsoleUtil.showProgress(pMonitor);
             
@@ -228,10 +227,10 @@ public final class ImportPdbUniprotResidueMappingFromSifts {
             System.out.println("could not mapping uniprotacc " + uniprotAcc);
             return false;
         }
-        pdbUniprotAlignment.setUniprotId(uniprotAcc);
+        pdbUniprotAlignment.setUniprotId(uniprotId);
         
         ResidueNumber startRes = pdbResidues.get(start).getResidueNumber();
-        ResidueNumber endRes = pdbResidues.get(end).getResidueNumber();
+        ResidueNumber endRes = pdbResidues.get(end-1).getResidueNumber();
         pdbUniprotAlignment.setPdbFrom(Integer.toString(startRes.getSeqNum())
                 +(startRes.getInsCode()==null?"":startRes.getInsCode()));
         pdbUniprotAlignment.setPdbTo(Integer.toString(endRes.getSeqNum())
@@ -297,7 +296,7 @@ public final class ImportPdbUniprotResidueMappingFromSifts {
         return humanChains;
     }
     
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {        
         if (args.length < 2) {
             System.out.println("command line usage:  importPdbUniprotResidueMapping.pl <pdb_chain_uniprot.tsv> <pdb_chain_human.tsv> <pdb-cache-dir>");
             return;

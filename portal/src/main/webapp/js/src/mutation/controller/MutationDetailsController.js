@@ -85,19 +85,20 @@ var MutationDetailsController = function(
 		// sequence information.
 		var init = function(sequenceData, mutationData, pdbRowData)
 		{
-			// pre-process to add 3D match information
-			// TODO this does not update the data in mutationProxy.mutationUtil!!
-			// ...also update the corresponding mutations within the util
+			// process data to add 3D match information
+			mutationData = processMutationData(mutationData,
+			                                   mutationProxy.getMutationUtil(),
+			                                   pdbRowData);
 
-			mutationData = processMutationData(mutationData, pdbRowData);
-			var mutationUtil = new MutationDetailsUtil(
-				new MutationCollection(mutationData));
-			//var mutationUtil = mutationProxy.getMutationUtil();
+			// TODO a new util for each instance instead?
+//			var mutationUtil = new MutationDetailsUtil(
+//				new MutationCollection(mutationData));
+			var mutationUtil = mutationProxy.getMutationUtil();
 
 			// prepare data for mutation view
 			var model = {geneSymbol: gene,
 				mutationData: mutationData,
-				mutationProxy: mutationProxy, // TODO send util instead?
+				mutationProxy: mutationProxy, // TODO pass mutationUtil instead?
 				pdbProxy: _pdbProxy,
 				sequence: sequenceData,
 				sampleArray: cases,
@@ -171,18 +172,25 @@ var MutationDetailsController = function(
 	 * Processes mutation data to add additional information.
 	 *
 	 * @param mutationData  raw mutation data array
+	 * @param mutationUtil  mutation util
 	 * @param pdbRowData    pdb row data for the corresponding uniprot id
 	 * @return {Array}      mutation data array with additional attrs
 	 */
-	function processMutationData(mutationData, pdbRowData)
+	function processMutationData(mutationData, mutationUtil, pdbRowData)
 	{
 		if (!pdbRowData)
 		{
 			return mutationData;
 		}
 
+		var map = mutationUtil.getMutationIdMap();
+
 		_.each(mutationData, function(mutation, idx) {
-			mutation.pdbMatch = PdbDataUtil.mutationToPdb(mutation, pdbRowData);
+			var match = PdbDataUtil.mutationToPdb(mutation, pdbRowData);
+			// update the raw mutation object
+			mutation.pdbMatch = match;
+			// also update the corresponding MutationModel within the util
+			map[mutation.mutationId].pdbMatch = match;
 		});
 
 		return mutationData;

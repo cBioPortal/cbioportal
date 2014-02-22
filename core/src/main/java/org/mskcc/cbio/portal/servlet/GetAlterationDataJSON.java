@@ -72,10 +72,14 @@ public class GetAlterationDataJSON extends HttpServlet {
                                 final_gp
                             );
                 for (int i = 0; i < caseIds.size(); i++) {
-                    JSONObject _datum = new JSONObject();
-                    _datum.put("caseId", caseIds.get(i));
-                    _datum.put("value", Float.parseFloat(tmpProfileDataArr.get(i)));
-                    _geneArr.add(_datum);
+                    if (!tmpProfileDataArr.get(i).equals("NA") && 
+                        tmpProfileDataArr.get(i) != null &&
+                        !tmpProfileDataArr.get(i).equals("NaN")) {
+                        JSONObject _datum = new JSONObject();
+                        _datum.put("caseId", caseIds.get(i));
+                        _datum.put("value", Float.parseFloat(tmpProfileDataArr.get(i)));
+                        _geneArr.add(_datum);                        
+                    }
                 }
                 _result.put(geneId, _geneArr);
             }

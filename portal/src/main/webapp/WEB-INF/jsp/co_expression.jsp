@@ -51,7 +51,7 @@
 
 <div class="section" id="coexp">
     <p style='margin-top: -25px;'>
-        This tableb lists the genes with the highest expression correlation with the query genes. Click on a row to see the corresponding correlation plot. 
+        This table lists the genes with the highest expression correlation with the query genes. Click on a row to see the corresponding correlation plot. 
         <img src='images/help.png' id='coexp-help'>
     </p>
 
@@ -78,7 +78,7 @@
         });
     });
     $("#coexp-help").qtip({
-        content: { text:'Pearson correlations are computed first.  For genes with an absolute correlation greater than 0.3 (or less than -0.3), the Spearman correlations are also computed. By default, only gene pairs with values > 0.3 (or < -0.3) in both measures are shown.'},
+        content: { text:'Pearson correlations are computed first. For genes with a correlation greater than 0.3 or less than -0.3, the Spearman correlations are also computed. By default, only gene pairs with values > 0.3 or < -0.3 in both measures are shown.'},
         style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
         show: {event: "mouseover"},
         hide: {fixed:true, delay: 100, event: "mouseout"},

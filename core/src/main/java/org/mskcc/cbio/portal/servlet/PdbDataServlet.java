@@ -256,6 +256,7 @@ public class PdbDataServlet extends HttpServlet
 			alignmentJson.put("eValue", alignment.getEValue());
 			alignmentJson.put("identityPerc", alignment.getIdentityPerc());
 			alignmentJson.put("alignmentString", this.alignmentString(alignment));
+			//alignmentJson.put("alignmentString", alignment.getMidlineAlign());
 
 			alignmentArray.add(alignmentJson);
 		}
@@ -348,7 +349,8 @@ public class PdbDataServlet extends HttpServlet
 			JSONObject residueMappingJson = new JSONObject();
 
 			residueMappingJson.put("pdbPos", mapping.getPdbPos());
-			residueMappingJson.put("match", mapping.getMatch());
+			//residueMappingJson.put("match", mapping.getMatch());
+			residueMappingJson.put("insertion", mapping.getPdbInsertionCode());
 
 			map.put(position, residueMappingJson);
 		}

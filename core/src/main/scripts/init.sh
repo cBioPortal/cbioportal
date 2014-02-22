@@ -30,6 +30,10 @@
 # ./prepareCosmicData.sh
 ./importCosmicData.pl $PORTAL_DATA_HOME/reference-data/CosmicCodingMuts.vcf
 
-# PDB Uniprot Mapping
-## ./convertPdbUniprotMappingFromMaDb.py --host [host] --user [user] --passwd [passwd] --db [db] --output $PORTAL_DATA_HOME/reference-data/pdb-uniprot-residue-mapping.txt
-./importPdbUniprotResidueMapping.pl $PORTAL_DATA_HOME/reference-data/pdb-uniprot-residue-mapping.txt
+# PDB Uniprot Mapping from Sifts
+# ./prepareEbiSiftsPdbUniprotMappingData.sh
+./importPdbUniprotResidueMappingFromSifts.pl $PORTAL_DATA_HOME/reference-data/pdb_chain_uniprot.tsv $PORTAL_DATA_HOME/reference-data/pdb_chain_human.tsv $PORTAL_DATA_HOME/reference-data/pdb-cache
+
+# PDB Uniprot Mapping from MA
+# $PORTAL_HOME/core/src/main/scripts/convertPdbUniprotMappingFromMaDb.py --host [host] --user [user] --passwd [passwd] --db [db] --output $PORTAL_DATA_HOME/reference-data/pdb-uniprot-residue-mapping.txt
+./importPdbUniprotResidueMappingFromMA.pl $PORTAL_DATA_HOME/reference-data/pdb-uniprot-residue-mapping.txt

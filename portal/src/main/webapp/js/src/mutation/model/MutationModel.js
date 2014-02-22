@@ -50,6 +50,7 @@ var MutationModel = Backbone.Model.extend({
 		this.refseqMrnaId = attributes.refseqMrnaId;
 		this.codonChange = attributes.codonChange;
 		this.uniprotId = attributes.uniprotId;
+		this.uniprotAcc = attributes.uniprotAcc;
 		this.proteinPosStart = attributes.proteinPosStart;
 		this.proteinPosEnd = attributes.proteinPosEnd;
 		this.mutationCount = attributes.mutationCount;

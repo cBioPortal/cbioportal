@@ -146,7 +146,24 @@ var MutationDetailsController = function(
 			// get the sequence data for the current gene & init view
 			else
 			{
-				$.getJSON("getPfamSequence.json", {geneSymbol: gene}, function(sequenceData) {
+				// get the most frequent uniprot accession string (excluding "NA")
+				var uniprotInfo = mutationProxy.getMutationUtil().dataFieldCount(
+					gene, "uniprotAcc", ["NA"]);
+
+				var uniprotAcc = null;
+				var servletParams = {geneSymbol: gene};
+
+				if (uniprotInfo.length > 0)
+				{
+					uniprotAcc = uniprotInfo[0].uniprotAcc;
+				}
+
+				if (uniprotAcc)
+				{
+					servletParams = {uniprotAcc: uniprotAcc};
+				}
+
+				$.getJSON("getPfamSequence.json", servletParams, function(sequenceData) {
 					// TODO sequenceData may be null for unknown genes...
 					// get the first sequence from the response
 					var sequence = sequenceData[0];

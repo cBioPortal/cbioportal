@@ -836,11 +836,24 @@ var Mutation3dVis = function(name, options)
 	 */
 	function generateScriptPos(position)
 	{
-		var posStr = position.start.pdbPos;
+		var insertionStr = function(insertion) {
+			var posStr = "";
+
+			if (insertion && insertion.length > 0)
+			{
+				posStr += "^" + insertion;
+			}
+
+			return posStr;
+		};
+
+		var posStr = position.start.pdbPos +
+		             insertionStr(position.start.insertion);
 
 		if (position.end.pdbPos > position.start.pdbPos)
 		{
-			posStr += "-" + position.end.pdbPos;
+			posStr += "-" + position.end.pdbPos +
+			          insertionStr(position.end.insertion);
 		}
 
 		return posStr;

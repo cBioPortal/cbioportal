@@ -34,10 +34,23 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import org.biojava.bio.structure.AminoAcid;
+import org.biojava.bio.structure.Chain;
+import org.biojava.bio.structure.Group;
+import org.biojava.bio.structure.ResidueNumber;
+import org.biojava.bio.structure.Structure;
+import org.biojava.bio.structure.align.util.AtomCache;
+import org.biojava.bio.structure.io.FileParsingParameters;
+import org.biojava3.core.sequence.compound.AminoAcidCompound;
+import org.biojava3.core.sequence.compound.AminoAcidCompoundSet;
+import org.biojava3.core.sequence.loader.UniprotProxySequenceReader;
 import org.mskcc.cbio.portal.dao.DaoPdbUniprotResidueMapping;
 import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoUniProtIdMapping;
 import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
 import org.mskcc.cbio.portal.model.PdbUniprotAlignment;
 import org.mskcc.cbio.portal.model.PdbUniprotResidueMapping;
@@ -49,8 +62,8 @@ import org.mskcc.cbio.portal.util.ProgressMonitor;
  *
  * @author jgao
  */
-public final class ImportPdbUniprotResidueMapping {
-    private ImportPdbUniprotResidueMapping() {}
+public final class ImportPdbUniprotResidueMappingFromMA {
+    private ImportPdbUniprotResidueMappingFromMA() {}
 
     /**
      * 
@@ -58,12 +71,13 @@ public final class ImportPdbUniprotResidueMapping {
      * @param mappingFile pdb-uniprot-residue-mapping.txt.
      * @param pMonitor Progress Monitor.
      */
-    public static void importData(File mappingFile, ProgressMonitor pMonitor) throws DaoException, IOException {
+    public static void importMutationAssessorData(File mappingFile, double identpThrehold,
+            ProgressMonitor pMonitor) throws DaoException, IOException {
         MySQLbulkLoader.bulkLoadOn();
         FileReader reader = new FileReader(mappingFile);
         BufferedReader buf = new BufferedReader(reader);
         String line = buf.readLine();
-        int alignId = 0;
+        int alignId = DaoPdbUniprotResidueMapping.getLargestAlignmentId();
         PdbUniprotAlignment pdbUniprotAlignment = new PdbUniprotAlignment();
         List<PdbUniprotResidueMapping> pdbUniprotResidueMappings = Collections.emptyList();
         Map<Integer, Integer> mappingUniPdbProtein = Collections.emptyMap();
@@ -78,12 +92,14 @@ public final class ImportPdbUniprotResidueMapping {
                     // alignment line, eg. >1a37   A       1433B_HUMAN     1       32      3       34      0.000000        29.000000       90.625000       MDKSELVQKAKLAEQAERYDDMAAAMKAVTEQ        MDKNELVQKAKLAEQAERYDDMAACMKSVTEQ        MDK+ELVQKAKLAEQAERYDDMAA MK+VTEQ
                     
                     if (!pdbUniprotResidueMappings.isEmpty()) {
-                        DaoPdbUniprotResidueMapping.addPdbUniprotAlignment(pdbUniprotAlignment);
-                        for (PdbUniprotResidueMapping mapping : pdbUniprotResidueMappings) {
-                            DaoPdbUniprotResidueMapping.addPdbUniprotResidueMapping(mapping);
+                        if (pdbUniprotAlignment.getIdentityPerc()>=identpThrehold) {
+                            DaoPdbUniprotResidueMapping.addPdbUniprotAlignment(pdbUniprotAlignment);
+                            for (PdbUniprotResidueMapping mapping : pdbUniprotResidueMappings) {
+                                DaoPdbUniprotResidueMapping.addPdbUniprotResidueMapping(mapping);
+                            }
+                            mappingUniPdbProtein.putAll(mappingUniPdbAlignment);
+                            mappingPdbUniProtein.putAll(mappingPdbUniAlignment);
                         }
-                        mappingUniPdbProtein.putAll(mappingUniPdbAlignment);
-                        mappingPdbUniProtein.putAll(mappingPdbUniAlignment);
                     }
                     
                     String pdbId = parts[0].substring(1);
@@ -100,8 +116,8 @@ public final class ImportPdbUniprotResidueMapping {
                     pdbUniprotAlignment.setChain(parts[1]);
                     pdbUniprotAlignment.setUniprotId(parts[2]);
                     
-                    pdbUniprotAlignment.setPdbFrom(Integer.parseInt(parts[3]));
-                    pdbUniprotAlignment.setPdbTo(Integer.parseInt(parts[4]));
+                    pdbUniprotAlignment.setPdbFrom(parts[3]);
+                    pdbUniprotAlignment.setPdbTo(parts[4]);
                     pdbUniprotAlignment.setUniprotFrom(Integer.parseInt(parts[5]));
                     pdbUniprotAlignment.setUniprotTo(Integer.parseInt(parts[6]));
                     pdbUniprotAlignment.setEValue(Float.parseFloat(parts[7]));
@@ -136,7 +152,7 @@ public final class ImportPdbUniprotResidueMapping {
                     mappingPdbUniAlignment.put(pdbPos, uniprotPos);
                     
                     String match = parts[5].length()==0 ? " " : parts[5];
-                    PdbUniprotResidueMapping pdbUniprotResidueMapping = new PdbUniprotResidueMapping(alignId, pdbPos, uniprotPos, match);
+                    PdbUniprotResidueMapping pdbUniprotResidueMapping = new PdbUniprotResidueMapping(alignId, pdbPos, null, uniprotPos, match);
                     pdbUniprotResidueMappings.add(pdbUniprotResidueMapping);
                 }
 
@@ -150,9 +166,11 @@ public final class ImportPdbUniprotResidueMapping {
         
         // last one
         if (!pdbUniprotResidueMappings.isEmpty()) {
-            DaoPdbUniprotResidueMapping.addPdbUniprotAlignment(pdbUniprotAlignment);
-            for (PdbUniprotResidueMapping mapping : pdbUniprotResidueMappings) {
-                DaoPdbUniprotResidueMapping.addPdbUniprotResidueMapping(mapping);
+            if (pdbUniprotAlignment.getIdentityPerc()>=identpThrehold) {
+                DaoPdbUniprotResidueMapping.addPdbUniprotAlignment(pdbUniprotAlignment);
+                for (PdbUniprotResidueMapping mapping : pdbUniprotResidueMappings) {
+                    DaoPdbUniprotResidueMapping.addPdbUniprotResidueMapping(mapping);
+                }
             }
         }
 
@@ -162,24 +180,23 @@ public final class ImportPdbUniprotResidueMapping {
         }
     }
     
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         if (args.length < 1) {
-            System.out.println("command line usage:  importPdbUniprotResidueMapping.pl <pdb-uniprot-residue-mapping.txt>");
+            System.out.println("command line usage: importPdbUniprotResidueMappingMA.pl pdb-uniprot-residue-mapping.txt");
             return;
         }
-    
+        
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(true);
-
+        
+        double identpThrehold = 50;
         try {
-            DaoPdbUniprotResidueMapping.deleteAllRecords();
-            
             File file = new File(args[0]);
             System.out.println("Reading PDB-UniProt residue mapping from:  " + file.getAbsolutePath());
             int numLines = FileUtil.getNumLines(file);
             System.out.println(" --> total number of lines:  " + numLines);
             pMonitor.setMaxValue(numLines);
-            importData(file, pMonitor);
+            importMutationAssessorData(file, identpThrehold, pMonitor);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (DaoException e) {

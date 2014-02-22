@@ -217,7 +217,7 @@ var MutationDetailsUtil = function(mutations)
 						continue;
 					}
 
-					if (mutations[j].mutationStatus.toLowerCase() === this.GERMLINE)
+					if (mutations[j].mutationStatus.toLowerCase() === GERMLINE)
 					{
 						// case has at least one germline mutation
 						germline = 1;

@@ -32,14 +32,23 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoUniProtIdMapping;
 import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
 import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.FileUtil;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
+import org.mskcc.cbio.portal.web_api.ConnectionManager;
 
 /**
  * Import data into the uniprot_id_mapping table.
@@ -56,6 +65,8 @@ public final class ImportUniProtIdMapping {
     }
 
     public void importData() throws DaoException, IOException {
+        Set<String> swissAccession = getSwissProtAccessionHuman();
+        
         MySQLbulkLoader.bulkLoadOn();
         
         BufferedReader reader = new BufferedReader(new FileReader(uniProtIdMapping));
@@ -64,6 +75,10 @@ public final class ImportUniProtIdMapping {
         Map<String, String> mapUniprotAccUniprotId = new HashMap<String, String>();
         for (String line = reader.readLine(); line != null; line = reader.readLine()) {
             String[] parts = line.split("\t");
+            if (!swissAccession.contains(parts[0])) {
+                continue;
+            }
+            
             if (parts[1].equals("GeneID")) {
                 mapUniprotAccEntrezGeneId.put(parts[0], Integer.valueOf(parts[2]));
             } else if (parts[1].equals("UniProtKB-ID")) {
@@ -86,6 +101,38 @@ public final class ImportUniProtIdMapping {
         }
         
         MySQLbulkLoader.flushAll();
+    }
+    
+    
+    
+    private Set<String> getSwissProtAccessionHuman() throws IOException {
+        String strURL = "http://www.uniprot.org/uniprot/?query="
+                + "taxonomy%3ahuman+AND+reviewed%3ayes&force=yes&format=list";
+        
+        MultiThreadedHttpConnectionManager connectionManager =
+                ConnectionManager.getConnectionManager();
+        HttpClient client = new HttpClient(connectionManager);
+        GetMethod method = new GetMethod(strURL);
+        
+        try {
+            int statusCode = client.executeMethod(method);
+            if (statusCode == HttpStatus.SC_OK) {
+                BufferedReader bufReader = new BufferedReader(
+                        new InputStreamReader(method.getResponseBodyAsStream()));
+                Set<String> accs = new HashSet<String>();
+                for (String line=bufReader.readLine(); line!=null; line=bufReader.readLine()) {
+                    accs.add(line);
+                }
+                return accs;
+            } else {
+                //  Otherwise, throw HTTP Exception Object
+                throw new HttpException(statusCode + ": " + HttpStatus.getStatusText(statusCode)
+                        + " Base URL:  " + strURL);
+            }
+        } finally {
+            //  Must release connection back to Apache Commons Connection Pool
+            method.releaseConnection();
+        }
     }
 
     public static void main(final String[] args) {

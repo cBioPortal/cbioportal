@@ -14,7 +14,7 @@
 ./importSangerCensus.pl $PORTAL_DATA_HOME/reference-data/sanger_gene_census.txt
 
 # Load UniProt Mapping Data
-# You must run:  ./prepareUniProtIdMapping.sh first.
+# You must run:  ./prepareUniProtData.sh first.
 ./importUniProtIdMapping.pl $PORTAL_DATA_HOME/reference-data/uniprot-id-mapping.txt
 
 # Network

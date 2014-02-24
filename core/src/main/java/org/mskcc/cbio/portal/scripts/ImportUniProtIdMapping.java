@@ -65,7 +65,7 @@ public final class ImportUniProtIdMapping {
     }
 
     public void importData() throws DaoException, IOException {
-        Set<String> swissAccession = getSwissProtAccessionHuman();
+        Set<String> swissAccessions = getSwissProtAccessionHuman();
         
         MySQLbulkLoader.bulkLoadOn();
         
@@ -74,8 +74,11 @@ public final class ImportUniProtIdMapping {
         Map<String, Integer> mapUniprotAccEntrezGeneId = new HashMap<String, Integer>();
         Map<String, String> mapUniprotAccUniprotId = new HashMap<String, String>();
         for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+            progressMonitor.incrementCurValue();
+            ConsoleUtil.showProgress(progressMonitor);
+            
             String[] parts = line.split("\t");
-            if (!swissAccession.contains(parts[0])) {
+            if (!swissAccessions.contains(parts[0])) {
                 continue;
             }
             
@@ -86,9 +89,6 @@ public final class ImportUniProtIdMapping {
             } else {
                 System.err.println("Wong mapping: "+line);
             }
-            
-            progressMonitor.incrementCurValue();
-            ConsoleUtil.showProgress(progressMonitor);
         }
         
         reader.close();

@@ -11,6 +11,7 @@
 <script src="js/src/study-view/masonry.pkgd.min.js"></script>
 <script src="js/src/plots-view/component/ScatterPlots.js"></script>
 <script src="js/src/study-view/view/DcRedrawAllDataTable.js"></script>
+<script src="js/src/study-view/StudyViewBoilerplate.js"></script>
 <script src="js/src/study-view/StudyViewControl.js"></script>
 <script src="js/src/study-view/data/StudyViewProxy.js"></script>
 <script src="js/src/study-view/view/StudyViewInitCharts.js"></script>
@@ -31,7 +32,7 @@
                 <input type="submit" id='study-view-header-left-1' class="study-view-header study-view-header-left boxLeft hidden" value="Query selection"/>
             </form>
             <span id='study-view-header-left-2' class="study-view-header study-view-header-left boxLeft hidden">Clear selection</span>
-            <span id='study-view-header-left-3' class="hidden" style='margin-top: 4px; margin-left: 4px; background-color: lightyellow'>...</span>
+            <span id='study-view-header-left-3' class="hidden" style='margin-top: 4px; margin-left: 4px; background-color: lightyellow'></span>
         </div>
         <div class="hidden" id="study-view-case-select-custom-dialog">
             Please input case IDs (one per line)

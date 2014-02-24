@@ -211,6 +211,17 @@ var StudyViewInitCharts = (function(){
             scatterStudyView.init(scatterPlotOptions, scatterPlotArr, scatterPlotDataAttr,true);            
             scatterStudyView.jointBrushCallback(scatterPlotCallBack);
             
+            /*
+            if(scatterPlotDataAttr.max_x > 1000){
+                $("#" + scatterPlotOptions.names.log_scale_x).attr('checked',true);
+                scatterStudyView.updateScaleX(scatterPlotOptions.names.log_scale_x);
+            }
+            if(scatterPlotDataAttr.max_y > 1000){
+                $("#" + scatterPlotOptions.names.log_scale_y).attr('checked',true);
+                scatterStudyView.updateScaleY(scatterPlotOptions.names.log_scale_y);
+            }
+            */
+           
             $("#" + scatterPlotOptions.names.log_scale_x).change(function() {
                 scatterStudyView.updateScaleX(scatterPlotOptions.names.log_scale_x);
             });
@@ -250,10 +261,10 @@ var StudyViewInitCharts = (function(){
         
         $('#study-view-add-chart ul').hide();
         $('#study-view-add-chart').mouseenter(function(){
-           $('#study-view-add-chart ul').show('slow');
+           $('#study-view-add-chart ul').show(300);
         });
         $('#study-view-add-chart').mouseleave(function(){
-           $('#study-view-add-chart ul').hide('slow');
+           $('#study-view-add-chart ul').hide(300);
         });
         
         addClick();
@@ -1402,12 +1413,29 @@ var StudyViewInitCharts = (function(){
         return r+'</select>';
     }
     
+    function getRefererCaseId() {
+        var idStr = /^#?case_ids=(.+)/.exec(location.hash);
+        if (!idStr) return null;
+        return idStr[1].split(/[ ,]+/);
+    }
+    function filterCharts(){
+        var ids = getRefererCaseId();
+        if(ids !== null){
+            varChart[attrNameMapUID['CASE_ID']].filterAll();
+            varChart[attrNameMapUID['CASE_ID']].filter([ids]);
+            dc.redrawAll();
+            setScatterPlotStyle(ids,varChart[attrNameMapUID['CASE_ID']].filters());
+            $('#study-view-header-left-0').qtip('toggle');
+            changeHeader();
+        }
+    }
     return {
         init: function(o,data){
             initParameters(o);
             initCharts(data);
             restyle(data);
             resizeTable();
+            filterCharts();
         }
     };
 })();

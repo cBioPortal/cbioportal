@@ -118,12 +118,12 @@ var CoExpView = (function() {
 
             //Configure the datatable with  jquery
             _coExpTable = $("#" + Names.tableId).dataTable({
-                "sDom": '<"H"f<"coexp-table-filter-pearson">>t<"F"i<"datatable-paging"p>>',
+                "sDom": '<"H"f<"coexp-table-filter-pearson">>t<"F"ip>',
                 "sPaginationType": "full_numbers",
                 "bJQueryUI": true,
                 "bAutoWidth": false,
                 "aaData" : coexp_table_arr,
-                "aaSorting": [[1, 'desc']],
+                "aaSorting": [[1, 'asc']],
                 "aoColumnDefs": [
                     {
                         "bSearchable": true,
@@ -227,15 +227,16 @@ var CoExpView = (function() {
         //Overwrite some datatable function for custom filtering
         function overWriteFilters() {
             jQuery.fn.dataTableExt.oSort['coexp-absolute-value-desc'] = function(a,b) {
-                if (Math.abs(a) > Math.abs(b)) return -1;
-                else if (Math.abs(a) < Math.abs(b)) return 1;
-                else return 0;
-            };
-            jQuery.fn.dataTableExt.oSort['coexp-absolute-value-asc'] = function(a,b) {
                 if (Math.abs(a) > Math.abs(b)) return 1;
                 else if (Math.abs(a) < Math.abs(b)) return -1;
                 else return 0;
             };
+            jQuery.fn.dataTableExt.oSort['coexp-absolute-value-asc'] = function(a,b) {
+                if (Math.abs(a) > Math.abs(b)) return -1;
+                else if (Math.abs(a) < Math.abs(b)) return 1;
+                else return 0;
+            };
+            jQuery.fn.dataTableExt.oPagination.iFullNumbersShowPages = 10;
         }
 
         function getCoExpDataCallBack(result, geneId) {
@@ -275,8 +276,6 @@ var CoExpView = (function() {
             }
         }
     }
-
-
 
 
     var Tabs = (function() {

@@ -1,11 +1,11 @@
 <%@ taglib prefix="sql_rt" uri="http://java.sun.com/jstl/sql_rt" %>
 
 <script type="text/template" id="default_mutation_details_template">
-	<div id='mutation_3d_container' class='mutation-3d-container'></div>
-	<div id='mutation_details_loader'>
+	<div class='mutation-3d-container'></div>
+	<div class='mutation-details-loader'>
 		<img src='{{loaderImage}}'/>
 	</div>
-	<div id='mutation_details_content' class='mutation-details-content'>
+	<div class='mutation-details-content'>
 		<ul>
 			{{listContent}}
 		</ul>
@@ -19,7 +19,7 @@
 	<br>
 </script>
 
-<script type="text/template" id="default_gene_mutation_details_info_template">
+<script type="text/template" id="default_mutation_details_gene_info_template">
 	<p>There are no mutation details available for this gene.</p>
 	<br>
 	<br>
@@ -44,7 +44,7 @@
 
 <script type="text/template" id="mutation_view_template">
 	<h4>{{geneSymbol}}: {{mutationSummary}}</h4>
-	<div id='mutation_diagram_toolbar_{{geneSymbol}}' class='mutation-diagram-toolbar'>
+	<div class='mutation-diagram-toolbar'>
 		<a href='http://www.uniprot.org/uniprot/{{uniprotId}}'
 		   class='mutation-details-uniprot-link'
 		   target='_blank'>{{uniprotId}}</a>
@@ -73,21 +73,21 @@
 		<table>
 			<tr>
 				<td>
-					<div id='mutation_diagram_{{geneSymbol}}' class='mutation-diagram-container'></div>
+					<div class='mutation-diagram-container'></div>
 				</td>
 				<td>
-					<div id='mutation_3d_{{geneSymbol}}' class="mutation-3d-initializer"></div>
+					<div class="mutation-3d-initializer"></div>
 				</td>
 			</tr>
 		</table>
 	</div>
-	<div id='mutation_pdb_panel_view_{{geneSymbol}}' class="mutation-pdb-panel-view"></div>
+	<div class="mutation-pdb-panel-view"></div>
 
 	<div class='mutation-details-filter-info'>
 		Current view shows filtered results.
 		Click <a class='mutation-details-filter-reset'>here</a> to reset all filters.
 	</div>
-	<div id='mutation_table_{{geneSymbol}}' class='mutation-table-container'>
+	<div class='mutation-table-container'>
 		<img src='images/ajax-loader.gif'/>
 	</div>
 </script>
@@ -149,7 +149,8 @@
 		<div class='mutation-3d-info'></div>
 	</div>
 	<div class='mutation-3d-residue-warning'>
-		Selected mutation cannot be mapped onto this structure.
+		<span class="mutation-3d-unmapped-info">Selected mutation</span>
+		cannot be mapped onto this structure.
 	</div>
 	<div class='mutation-3d-nomap-warning'>
 		None of the mutations can be mapped onto this structure.
@@ -157,7 +158,7 @@
 	<div class='mutation-3d-vis-loader'>
 		<img src='{{loaderImage}}'/>
 	</div>
-	<div id='mutation_3d_visualizer' class='mutation-3d-vis-container'></div>
+	<div class='mutation-3d-vis-container'></div>
 	<div class='mutation-3d-vis-toolbar'>
 		<div class='mutation-3d-vis-help-init'>
 			<a href="#">how to pan/zoom/rotate?</a>
@@ -384,13 +385,13 @@
 	<table>
 		<tr>
 			<td valign="top">
-				<div id='mutation_pdb_panel_{{geneSymbol}}' class='mutation-pdb-panel-container'></div>
+				<div class='mutation-pdb-panel-container'></div>
 			</td>
 			<td></td>
 		</tr>
 		<tr>
 			<td valign="top" align="center">
-				<div id='mutation_pdb_controls_{{geneSymbol}}' class='mutation-pdb-panel-controls'>
+				<div class='mutation-pdb-panel-controls'>
 					<button class='expand-collapse-pdb-panel'
 					        title='Expand/Collapse PDB Chains'></button>
 				</div>
@@ -401,7 +402,7 @@
 </script>
 
 <script type="text/template" id="mutation_details_table_template">
-	<table id='mutation_details_table_{{geneSymbol}}' class='display mutation_details_table'
+	<table class='display mutation_details_table'
 	       cellpadding='0' cellspacing='0' border='0'>
 		<thead>{{tableHeaders}}</thead>
 		<tbody>{{tableRows}}</tbody>

@@ -68,8 +68,13 @@ var MainMutationController = function (mainMutationView, mutationDiagram)
 
 	function deselectHandler(datum, index)
 	{
-		// hide filter reset info
-		allDeselectHandler();
+		// check if all deselected
+		// (always show text if still there is a selected data point)
+		if (mutationDiagram.getSelectedElements().length == 0)
+		{
+			// hide filter reset info
+			allDeselectHandler();
+		}
 	}
 
 	function selectHandler(datum, index)

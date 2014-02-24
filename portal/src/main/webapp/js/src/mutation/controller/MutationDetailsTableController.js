@@ -68,10 +68,26 @@ var MutationDetailsTableController = function(tableView, mutationDiagram)
 			// remove all table highlights
 			tableView.clearHighlights();
 
-			// TODO this needs revision for multiple select
-			// roll back the table to its previous state
-			// (to the last state when a manual filtering applied)
-			tableView.rollBack();
+			var mutations = [];
+
+			// get mutations for all selected elements
+			_.each(mutationDiagram.getSelectedElements(), function (ele, i) {
+				mutations = mutations.concat(ele.datum().mutations);
+			});
+
+			// reselect with the reduced selection
+			if (mutations.length > 0)
+			{
+				// filter table for the selected mutations
+				tableView.filter(mutations);
+			}
+			// rollback only if none selected
+			else
+			{
+				// roll back the table to its previous state
+				// (to the last state when a manual filtering applied)
+				tableView.rollBack();
+			}
 		}
 	}
 
@@ -82,8 +98,15 @@ var MutationDetailsTableController = function(tableView, mutationDiagram)
 			// remove all table highlights
 			tableView.clearHighlights();
 
-			// filter table for the given mutations
-			tableView.filter(datum.mutations);
+			var mutations = [];
+
+			// get mutations for all selected elements
+			_.each(mutationDiagram.getSelectedElements(), function (ele, i) {
+				mutations = mutations.concat(ele.datum().mutations);
+			});
+
+			// filter table for the selected mutations
+			tableView.filter(mutations);
 		}
 	}
 

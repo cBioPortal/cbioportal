@@ -4,19 +4,22 @@
  * on the view wrt each event type.
  *
  * @param mutationDetailsView   a MutationDetailsView instance
+ * @param mainMutationView      a MainMutationView instance
  * @param mut3dVisView          a Mutation3dVisView instance
  * @param mut3dView             a Mutation3dView instance
+ * @param mut3dVis              singleton Mutation3dVis instance
+ * @param pdbProxy              proxy for pdb data
  * @param mutationDiagram       a MutationDiagram instance
  * @param geneSymbol            hugo gene symbol (string value)
  *
  * @author Selcuk Onur Sumer
  */
-var Mutation3dController = function (
-	mutationDetailsView, mut3dVisView, mut3dView, mutationDiagram, geneSymbol)
+var Mutation3dController = function (mutationDetailsView, mainMutationView,
+	mut3dVisView, mut3dView, mut3dVis, pdbProxy, mutationDiagram, geneSymbol)
 {
 	// we cannot get pdb panel view as a constructor parameter,
-	// since it is initialized after initializing the controller
-	var pdbPanelView = null;
+	// since it is initialized after initializing this controller
+	var _pdbPanelView = null;
 
 	function init()
 	{
@@ -43,10 +46,6 @@ var Mutation3dController = function (
 			diagramResetHandler);
 
 		// add listeners for the mutation 3d view
-		mut3dView.dispatcher.on(
-			MutationDetailsEvents.PDB_PANEL_INIT,
-			pdbPanelInitHandler);
-
 		mut3dView.addInitCallback(mut3dInitHandler);
 
 		// add listeners for the mutation 3d vis view
@@ -90,28 +89,15 @@ var Mutation3dController = function (
 	function view3dPanelCloseHandler()
 	{
 		// hide the corresponding pdb panel view
-		if (pdbPanelView)
+		if (_pdbPanelView)
 		{
-			pdbPanelView.hideView();
+			_pdbPanelView.hideView();
 		}
-	}
-
-	function pdbPanelInitHandler(panelView)
-	{
-		pdbPanelView = panelView;
-
-		// we cannot add pdbPanel listeners at actual init of the controller,
-		// since pdb panel is conditionally initialized at a later point
-
-		// add listeners to the custom event dispatcher of the pdb panel
-		panelView.pdbPanel.dispatcher.on(
-			MutationDetailsEvents.CHAIN_SELECTED,
-			chainSelectHandler);
 	}
 
 	function mut3dInitHandler(event)
 	{
-		mut3dView.resetView();
+		reset3dView();
 
 		if (mut3dVisView != null)
 		{
@@ -127,17 +113,10 @@ var Mutation3dController = function (
 		// calling another script immediately after updating the view
 		// does not work, so register a callback for update function
 		var callback = function() {
-			// focus view on already selected diagram location
+			// highlight mutations on the diagram
 			if (mutationDiagram.isHighlighted())
 			{
-				var selected = mutationDiagram.getSelectedElements();
-
-				// TODO assuming there is only one selected element
-				// ... we need to update this part for multiple selection
-				if (!mut3dVisView.highlightView(selected[0].datum(), true))
-				{
-					mut3dVisView.showResidueWarning();
-				}
+				highlightSelected();
 			}
 		};
 
@@ -168,15 +147,24 @@ var Mutation3dController = function (
 	{
 		if (mut3dVisView && mut3dVisView.isVisible())
 		{
-			mut3dVisView.removeHighlight();
+			mut3dVisView.resetHighlight();
 			mut3dVisView.hideResidueWarning();
 		}
 	}
 
 	function diagramDeselectHandler(datum, index)
 	{
-		// TODO need to change this for multiple selection
-		allDeselectHandler();
+		// check if the diagram is still highlighted
+		if (mutationDiagram.isHighlighted())
+		{
+			// reselect with the reduced selection
+			diagramSelectHandler();
+		}
+		else
+		{
+			// no highlights (all deselected)
+			allDeselectHandler();
+		}
 	}
 
 	function diagramSelectHandler(datum, index)
@@ -184,19 +172,110 @@ var Mutation3dController = function (
 		// highlight the corresponding residue in 3D view
 		if (mut3dVisView && mut3dVisView.isVisible())
 		{
-			// highlight view for the selected datum
-			// TODO for now removing previous highlights,
-			// ...we need to change this to allow multiple selection
-			if (mut3dVisView.highlightView(datum, true))
-			{
-				mut3dVisView.hideResidueWarning();
-			}
-			// display a warning message if there is no corresponding residue
-			else
-			{
-				mut3dVisView.showResidueWarning();
-			}
+			highlightSelected();
 		}
+	}
+
+	/**
+	 * Retrieves the pileup data from the selected mutation diagram
+	 * elements.
+	 *
+	 * @return {Array} an array of Pileup instances
+	 */
+	function getSelectedPileups()
+	{
+		var pileups = [];
+
+		// get mutations for all selected elements
+		_.each(mutationDiagram.getSelectedElements(), function (ele, i) {
+			pileups = pileups.concat(ele.datum());
+		});
+
+		return pileups;
+	}
+
+	/**
+	 * Highlights 3D residues for the selected diagram elements.
+	 */
+	function highlightSelected()
+	{
+		// selected pileups (mutations) on the diagram
+		var selected = getSelectedPileups();
+
+		// highlight 3D residues for the initially selected diagram elements
+		var mappedCount = mut3dVisView.highlightView(selected, true);
+
+		var unmappedCount = selected.length - mappedCount;
+
+		// show a warning message if there is at least one unmapped selection
+		if (unmappedCount > 0)
+		{
+			mut3dVisView.showResidueWarning(unmappedCount, selected.length);
+		}
+		else
+		{
+			mut3dVisView.hideResidueWarning();
+		}
+	}
+
+	/**
+	 * Resets the 3D view to its initial state. This function also initializes
+	 * the PDB panel view if it is not initialized yet.
+	 */
+	function reset3dView()
+	{
+		var gene = geneSymbol;
+		var uniprotId = mut3dView.model.uniprotId; // TODO get this from somewhere else
+
+		var initView = function(pdbColl)
+		{
+			// init pdb panel view if not initialized yet
+			if (_pdbPanelView == null)
+			{
+				_pdbPanelView = mainMutationView.initPdbPanelView(pdbColl);
+
+				// add listeners to the custom event dispatcher of the pdb panel
+				_pdbPanelView.pdbPanel.dispatcher.on(
+					MutationDetailsEvents.CHAIN_SELECTED,
+					chainSelectHandler);
+			}
+
+			// reload the visualizer content with the default pdb and chain
+			if (mut3dVisView != null &&
+			    _pdbPanelView != null &&
+			    pdbColl.length > 0)
+			{
+				updateColorMapper();
+				_pdbPanelView.showView();
+				_pdbPanelView.selectDefaultChain();
+			}
+		};
+
+		// init view with the pdb data
+		pdbProxy.getPdbData(uniprotId, initView);
+	}
+
+	/**
+	 * Updates the color mapper of the 3D visualizer.
+	 */
+	function updateColorMapper()
+	{
+		// TODO this is not an ideal solution, but...
+		// ...while we have multiple diagrams, the 3d visualizer is a singleton
+		var colorMapper = function(mutationId, pdbId, chain) {
+			var color = mutationDiagram.mutationColorMap[mutationId];
+
+			if (color)
+			{
+				// this is for Jmol compatibility
+				// (colors should start with an "x" instead of "#")
+				color = color.replace("#", "x");
+			}
+
+			return color;
+		};
+
+		mut3dVis.updateOptions({mutationColorMapper: colorMapper});
 	}
 
 	init();

@@ -1,5 +1,5 @@
 /* main style */
-#testDropDown li{
+#study-view-add-chart li{
     list-style: none;
     border-style: solid;
     border-width:1px;
@@ -8,35 +8,27 @@
     padding: 0 5px;
     border-radius: 5px;
 }
-#testDropDown li:hover{
+#study-view-add-chart li:hover{
     cursor: pointer;
     background-color: lightgrey;
 }
-#testDropDown ul{
+#study-view-add-chart ul{
     padding: 0;
     float:right;
+    margin: 2px 0;
 }
-#testDropDown span{
-    float:right;
-    margin-top: 8px;
-    margin-bottom: 8px;
+#study-view-add-chart span{
+    float: right;
+    margin: 2px 0;
 }
-#testDropDown span:hover{
+#study-view-add-chart span:hover{
     cursor: default;
 }
-#testDropDown {
+#study-view-add-chart {
     top: 60px;
     right:21px;
     float:right;
-    border-style: solid;
-    border-width: 1px;
-    border-color: lightgrey;
-    border-radius: 5px;
-    vertical-align: middle;
-    padding: 0 10px;
     position: absolute;
-    background-color: white;
-    box-shadow: -2px 2px 2px lightgrey;
     z-index:500;
 }
 #study-view-main {
@@ -122,7 +114,7 @@
 #study-view-dataTable-updateTable {
     margin-right: 75px;
 }
-#study-view-add-chart {
+#study-view-header-function {
     width:100%;
     float:left;
     height: 30px;
@@ -131,8 +123,44 @@
 #study-view-selectAttr{
      display:none;
 }
+#study-view-header-left {
+    width:auto;
+    float: left;
+    vertical-align: middle;
+}
+#study-view-header-left span {
+    float: left;
+}
+#study-view-header-left input {
+    float: left;
+}
 
 /* CLASS styles */
+.study-view-header{    
+    border-style: solid;
+    border-width: 1px;
+    border-color: lightgrey;
+    border-radius: 5px;
+    vertical-align: middle;
+    padding: 0 10px;
+    background-color: white;
+    margin: 2px 2px;;
+    color: grey;
+    width: auto;
+}
+.study-view-header-left:hover{    
+    cursor: pointer;
+    background-color: lightgrey;
+}
+.boxLeft {
+    box-shadow: 2px 2px 2px lightgrey;
+}
+.boxRight {
+    box-shadow: -2px 2px 2px lightgrey;
+}
+.hidden {
+    display: none;
+}
 .pieLabel {
     width: 75px;
     height: 15px;

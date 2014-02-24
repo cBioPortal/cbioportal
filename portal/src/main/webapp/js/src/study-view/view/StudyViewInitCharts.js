@@ -14,6 +14,7 @@ var StudyViewInitCharts = (function(){
     };
 
     var ndx = "";
+    var numOfCases;
     var attrNameMapUID = []; //The relationshio between "The unique attribute name" and "The unique ID number in whole page"        
     var varCluster = []; //Clusters of displayed charts -- DC.JS require
     var varGroup = []; //Groups of displayed charts -- DC.JS require
@@ -52,7 +53,7 @@ var StudyViewInitCharts = (function(){
         
         dataA = dataObtained.attr;
         dataB = dataObtained.dataObjectM;
-        
+        numOfCases = dataB.length;
         
         //Calculate the number of pie, bar charts
         //Initial varName, varType, distanceMinMaxArray, varDisplay
@@ -146,7 +147,7 @@ var StudyViewInitCharts = (function(){
             .remove()
             .end();
     
-        $('#testDropDown ul').find('li').remove().end();
+        $('#study-view-add-chart ul').find('li').remove().end();
             
         var hasDisplayItem = false;
         $.each(varName, function(key, value) {
@@ -156,7 +157,7 @@ var StudyViewInitCharts = (function(){
                         .attr("value",value)
                         .text(varDisplay[key]));
                 
-                $('#testDropDown ul')
+                $('#study-view-add-chart ul')
                     .append($("<li></li>")
                         .attr("id",value)
                         .text(varDisplay[key]));
@@ -267,7 +268,7 @@ var StudyViewInitCharts = (function(){
                     .append($("<option></option>")
                         .attr("value",'mutationCNA')
                         .text("Number of Mutation vs Fraction of copy number altered genome"));
-                $('#testDropDown ul')
+                $('#study-view-add-chart ul')
                         .append($('<li></li>').attr('id','mutationCNA').text('Number of Mutation vs Fraction of copy number altered genome'));
                 msnry.layout();
                 addClick();
@@ -289,39 +290,12 @@ var StudyViewInitCharts = (function(){
             setSVGElementValue("study-view-scatter-plot-body","study-view-scatter-plot-svg-value",scatterPlotOptions);
         });
         
-        $('#testDropDown ul').hide();
-        $('#testDropDown').mouseenter(function(){
-           $('#testDropDown ul').show('slow');
+        $('#study-view-add-chart ul').hide();
+        $('#study-view-add-chart').mouseenter(function(){
+           $('#study-view-add-chart ul').show('slow');
         });
-        $('#testDropDown').mouseleave(function(){
-           $('#testDropDown ul').hide('slow');
-        });
-        
-        $('#random').mouseenter(function(){
-            $('#study-view-add-chart-button').fadeOut('fast');
-            $(this).animate({
-                width:'+=100',
-                color: 'white'
-            },{
-                duration: 'fast',
-                complete: function(){
-                    $('#study-view-selectAttr').fadeIn('fast');
-                }
-            });
-        });
-        
-        $('#random').mouseleave(function(){
-            $('#study-view-selectAttr').fadeOut('fast',function(){
-                $('#random').animate({
-                    width:'-=100',
-                    color: 'light grey'
-                },{
-                    dutation:'fast',
-                    complete:function(){
-                        $('#study-view-add-chart-button').fadeIn('fast');
-                    }
-            });
-            })
+        $('#study-view-add-chart').mouseleave(function(){
+           $('#study-view-add-chart ul').hide('slow');
         });
         
         addClick();
@@ -381,7 +355,7 @@ var StudyViewInitCharts = (function(){
                             .append($("<option></option>")
                                 .attr("value",attrID)
                                 .text(attrName));
-                        //$('#testDropDown ul')
+                        //$('#study-view-add-chart ul')
                         //       .append($('<li></li>').attr('value',attrID).text(attrName));
                         $('#study-view-selectAttr').removeAttr('disabled');
                         var filteredResult = varCluster[attrNameMapUID['CASE_ID']].top(Infinity);
@@ -398,7 +372,7 @@ var StudyViewInitCharts = (function(){
                 msnry.layout();
 
                 $("#study-view-selectAttr option[value='"+ selectedAttr +"']").remove();
-                //$('#testDropDown ul').find('li[value="' + selectedAttr + '"]').remove();
+                //$('#study-view-add-chart ul').find('li[value="' + selectedAttr + '"]').remove();
                 if ($('#study-view-selectAttr option').length === 1)
                      $('#study-view-selectAttr').attr('disabled','disabled');
             }
@@ -418,7 +392,7 @@ var StudyViewInitCharts = (function(){
                     .append($("<option></option>")
                         .attr("value",attrID)
                         .text(attrName));
-                $('#testDropDown ul')
+                $('#study-view-add-chart ul')
                                 .append($('<li></li>').attr('id',attrID).text(attrName));
                 $('#study-view-selectAttr').removeAttr('disabled');
                 var filteredResult = varCluster[attrNameMapUID['CASE_ID']].top(Infinity);
@@ -431,8 +405,47 @@ var StudyViewInitCharts = (function(){
                 dataTable1.fnFilter(filterString,0,true);
         });
         
+       
+        $('#study-view-header-left-0').qtip({
+            id: 'modal', // Since we're only creating one modal, give it an ID so we can style it
+            content: {
+                    text: $('#study-view-case-select-custom-dialog'),
+                    title: {
+                            text: 'Custom case selection',
+                            button: true
+                    }
+            },
+            position: {
+                    my: 'center', // ...at the center of the viewport
+                    at: 'center',
+                    target: $(window)
+            },
+            show: {
+                    event: 'click', // Show it on click...
+                    solo: true // ...and hide all other tooltips...
+            },
+            hide: false,
+            style: 'qtip-light qtip-rounded qtip-wide'
+        });
+        
+        $('#study-view-header-left-2').click(function (){
+            dc.filterAll();
+            dc.redrawAll();
+            changeHeader();
+        });
+        
+        $("#study-view-case-select-custom-submit-btn").click(function() {
+            var caseIds = $('#study-view-case-select-custom-input').val().trim().split(/\s+/);
+            console.log(caseIds);
+            varChart[attrNameMapUID['CASE_ID']].filterAll();
+            varChart[attrNameMapUID['CASE_ID']].filter([caseIds]);
+            dc.redrawAll();
+            setScatterPlotStyle(caseIds,varChart[attrNameMapUID['CASE_ID']].filters());
+            $('study-view-header-left-0').qtip('toggle');
+        });
+    
         function addClick(){
-            $('#testDropDown ul li').click(function() {
+            $('#study-view-add-chart ul li').click(function() {
                 var chartType
                 if($(this).attr('id') === 'mutationCNA')
                     chartType = ['scatter'];
@@ -481,7 +494,7 @@ var StudyViewInitCharts = (function(){
                         dc.redrawAll();
                         dc.deregisterChart(varChart[HTMLtagsMapUID[id]]);
                         msnry.layout();
-                        $('#testDropDown ul')
+                        $('#study-view-add-chart ul')
                                 .append($('<li></li>').attr('id',attrID).text(attrName));
                         var filteredResult = varCluster[attrNameMapUID['CASE_ID']].top(Infinity);
                         var filterString = "";
@@ -496,7 +509,7 @@ var StudyViewInitCharts = (function(){
 
                 msnry.layout();
                 
-                $('#testDropDown ul').find('li[id="' + selectedAttr + '"]').remove();
+                $('#study-view-add-chart ul').find('li[id="' + selectedAttr + '"]').remove();
                
             });
         
@@ -565,7 +578,7 @@ var StudyViewInitCharts = (function(){
                     var tmpDimention = varChart[attrNameMapUID["CASE_ID"]].dimension();
                     var tmpResult = tmpDimention.top(Infinity);
                     var tmpCaseID = [];
-
+                    changeHeader();
                     if(typeof scatterStudyView !== 'undefined'){
                         for(var i=0; i<tmpResult.length ; i++){
                             tmpCaseID.push(tmpResult[i].CASE_ID);
@@ -579,6 +592,43 @@ var StudyViewInitCharts = (function(){
             varChart[_chartID].on("postRender",function(chart){
                 addPieLabels("study-view-dc-chart-" + _chartID);
             });
+        }
+    }
+    
+    function changeHeader(){
+        var tmpDimention = varChart[attrNameMapUID["CASE_ID"]].dimension();
+        var tmpResult = tmpDimention.top(Infinity);
+        var tmpResultLength = tmpResult.length;
+        var tmpCaseID = [];
+        for(var i=0; i<tmpResult.length ; i++){
+            tmpCaseID.push(tmpResult[i].CASE_ID);
+        }
+        if(tmpResultLength === numOfCases){
+            var hasFilter = false;
+            for(var i=0; i<varChart.length; i++){
+                if (varChart[i].filters().length > 0)
+                    hasFilter = true;
+            }
+            if(hasFilter){
+                $("#study-view-header-left-0").css('display','none');
+                $("#study-view-header-left-1").css('display','block');
+                $("#study-view-header-left-2").css('display','block');
+                $("#study-view-header-left-3").css('display','block');
+                $("#study-view-header-left-3").text(tmpResultLength + " cases are selected.");
+                $("#study-view-header-left-case-ids").val(tmpCaseID.join(" "));
+            }else{
+                $("#study-view-header-left-0").css('display','block');
+                $("#study-view-header-left-1").css('display','none');
+                $("#study-view-header-left-2").css('display','none');
+                $("#study-view-header-left-3").css('display','none');
+            }
+        }else{
+            $("#study-view-header-left-0").css('display','none');
+            $("#study-view-header-left-1").css('display','block');
+            $("#study-view-header-left-2").css('display','block');
+            $("#study-view-header-left-3").css('display','block');
+            $("#study-view-header-left-3").text(tmpResultLength + " cases are selected.");
+            $("#study-view-header-left-case-ids").val(tmpCaseID.join(" "));
         }
     }
     
@@ -1112,6 +1162,7 @@ var StudyViewInitCharts = (function(){
                     $("#study-view-dc-chart-" + _chartID + "-main .study-view-dc-chart-change").css('display','block');
                     $("#study-view-dc-chart-" + _chartID + "-main").css({'border-width':'2px', 'border-style':'inset'});
                 }
+                changeHeader();
                 if(typeof scatterStudyView !== 'undefined'){
                     for(var i=0; i<tmpResult.length ; i++){
                         tmpCaseID.push(tmpResult[i].CASE_ID);
@@ -1143,13 +1194,18 @@ var StudyViewInitCharts = (function(){
             $.each(tmpA, function(key1,value1){
                 var tmpValue ='';
                 
-                if(value1.sTitle === 'CNA')
+                if(value1.sTitle === 'CNA'){
                     tmpValue = value['COPY_NUMBER_ALTERATIONS'];                
-                else if ( value1.sTitle === 'COMPLETE (ACGH, MRNA, SEQUENCING)')
+                }else if ( value1.sTitle === 'COMPLETE (ACGH, MRNA, SEQUENCING)'){
                     tmpValue = value[value1.sTitle];
-                else
+                }else if ( value1.sTitle === 'CASE ID'){
+                    tmpValue = "<a href='tumormap.do?case_id=" + 
+                    value['CASE_ID'] + "&cancer_study_id=" +
+                    parObject.studyId + "' target='_blank'>" + 
+                    value['CASE_ID'] + "</a></strong>";
+                }else{
                     tmpValue = value[value1.sTitle.replace(/[ ]/g,'_')];
-                
+                }
                 if(!isNaN(tmpValue) && (tmpValue % 1 != 0))
                     tmpValue = cbio.util.toPrecision(Number(tmpValue),5,0.01);
                 tmpB[key].push(tmpValue);
@@ -1332,6 +1388,7 @@ var StudyViewInitCharts = (function(){
             }
             dc.redrawAll();
         }
+        changeHeader();
     }
     
     function fnCreateSelect( aData )

@@ -189,10 +189,12 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 		var mutationMap = mutationUtil.getMutationIdMap();
 		var mutation = mutationMap[mutationId];
 
-		if (mutation)
+		if (mutation && _pdbPanelView)
 		{
-			// TODO select the corresponding pdb, and highlight the mutation on 3D vis
-			// (without filtering the table)
+			// TODO highlight the corresponding pileup (without filtering the table)
+
+			// reset the view with the selected chain
+			reset3dView(mutation.pdbMatch.pdbId, mutation.pdbMatch.chainId);
 		}
 	}
 
@@ -241,8 +243,11 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 	/**
 	 * Resets the 3D view to its initial state. This function also initializes
 	 * the PDB panel view if it is not initialized yet.
+	 *
+	 * @param pdbId     initial pdb structure to select
+	 * @param chainId   initial chain to select
 	 */
-	function reset3dView()
+	function reset3dView(pdbId, chainId)
 	{
 		var gene = geneSymbol;
 		var uniprotId = mut3dView.model.uniprotId; // TODO get this from somewhere else
@@ -267,7 +272,15 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 			{
 				updateColorMapper();
 				_pdbPanelView.showView();
-				_pdbPanelView.selectDefaultChain();
+
+				if (pdbId && chainId)
+				{
+					_pdbPanelView.selectChain(pdbId, chainId);
+				}
+				else
+				{
+					_pdbPanelView.selectDefaultChain();
+				}
 			}
 		};
 

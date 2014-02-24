@@ -5,6 +5,8 @@
  */
 var PileupUtil = (function()
 {
+	var _idCounter = 0;
+
 	/**
 	 * Processes a Pileup instance, and creates a map of
 	 * <mutation type, mutation array> pairs.
@@ -114,7 +116,39 @@ var PileupUtil = (function()
 		return groupArray;
 	};
 
+	/**
+	 * Finds the uniprot location for the protein change of
+	 * the given mutation.
+	 *
+	 * @param mutation
+	 */
+	var getProteinChangeLocation = function(mutation)
+	{
+		var proteinChange = mutation.proteinChange;
+
+		return proteinChange.match(/[0-9]+/);
+	};
+
+	var nextId = function()
+	{
+		_idCounter++;
+
+		return "pileup_" + _idCounter;
+	};
+
+	var mapToMutations = function(pileups)
+	{
+		var map = {};
+
+		// TODO map each mutation id to its corresponding pileup
+
+		return map;
+	};
+
 	return {
+		nextId: nextId,
+		mapToMutations: mapToMutations,
+		getProteinChangeLocation: getProteinChangeLocation,
 		getMutationTypeMap: generateTypeMap,
 		getMutationTypeArray: generateTypeArray,
 		getMutationTypeGroups: generateTypeGroupArray

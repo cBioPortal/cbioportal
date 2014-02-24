@@ -71,7 +71,7 @@ var PdbPanelView = Backbone.View.extend({
 		self.$el.slideDown();
 	},
 	/**
-	 * Selects the 3D visualizer for the default pdb and chain.
+	 * Selects the default pdb and chain for the 3D visualizer.
 	 * Default chain is one of the chains in the first row.
 	 */
 	selectDefaultChain: function()
@@ -82,6 +82,16 @@ var PdbPanelView = Backbone.View.extend({
 
 		// highlight the default chain
 		panel.highlight(gChain);
+	},
+	/**
+	 * Selects the given pdb and chain for the 3D visualizer.
+	 *
+	 * @param pdbId     pdb to be selected
+	 * @param chainId   chain to be selected
+	 */
+	selectChain: function(pdbId, chainId)
+	{
+		// TODO find and highlight the corresponding chain rectangle...
 	},
 	/**
 	 * Initializes the PDB chain panel.

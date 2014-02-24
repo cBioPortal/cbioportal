@@ -181,7 +181,7 @@ var PdbDataUtil = (function()
 	{
 		var pdbMatch = null;
 
-		var location = mutation.proteinChange.match(/[0-9]+/);
+		var location = PileupUtil.getProteinChangeLocation(mutation);
 		var type = mutation.mutationType.trim().toLowerCase();
 
 		// skip fusions or invalid locations

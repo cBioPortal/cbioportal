@@ -141,6 +141,11 @@ var PileupUtil = (function()
 		var map = {};
 
 		// TODO map each mutation id to its corresponding pileup
+		_.each(pileups, function(pileup) {
+			_.each(pileup.mutations, function(mutation) {
+				map[mutation.mutationId] = pileup.pileupId;
+			})
+		});
 
 		return map;
 	};

@@ -441,7 +441,7 @@ MutationDiagram.prototype.processData = function(mutationData)
 	{
 		var pileup = {};
 
-		pileup.id = PileupUtil.nextId();
+		pileup.pileupId = PileupUtil.nextId();
 		pileup.mutations = mutations[key];
 		pileup.count = mutations[key].length;
 		pileup.location = parseInt(key);
@@ -1063,7 +1063,7 @@ MutationDiagram.prototype.drawLollipop = function (points, lines, pileup, option
 		.attr('fill', lollipopFillColor)
 		.attr('stroke', options.lollipopBorderColor)
 		.attr('stroke-width', options.lollipopBorderWidth)
-		.attr('id', pileup.id)
+		.attr('id', pileup.pileupId)
 		.attr('class', 'mut-dia-data-point');
 
 	// bind pileup data with the lollipop data point
@@ -1835,6 +1835,24 @@ MutationDiagram.prototype.clearHighlights = function()
 		.size(self.options.lollipopSize)
 		.type(self.getLollipopShapeFn()));
 	self.highlighted = {};
+};
+
+/**
+ * Highlights the pileup containing the given mutation.
+ *
+ * @param mutationId    id of the mutation
+ */
+MutationDiagram.prototype.highlightMutation = function(mutationId)
+{
+	var self = this;
+
+	var pileupId = self.mutationPileupMap[mutationId];
+	var pileup = self.svg.select("#" + pileupId);
+
+	if (pileup.length > 0)
+	{
+		self.highlight(pileup[0][0]);
+	}
 };
 
 /**

@@ -189,9 +189,11 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 		var mutationMap = mutationUtil.getMutationIdMap();
 		var mutation = mutationMap[mutationId];
 
-		if (mutation && _pdbPanelView)
+		if (mutation)
 		{
-			// TODO highlight the corresponding pileup (without filtering the table)
+			// highlight the corresponding pileup (without filtering the table)
+			mutationDiagram.clearHighlights();
+			mutationDiagram.highlightMutation(mutation.mutationId);
 
 			// reset the view with the selected chain
 			reset3dView(mutation.pdbMatch.pdbId, mutation.pdbMatch.chainId);

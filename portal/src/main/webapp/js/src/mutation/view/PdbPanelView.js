@@ -91,7 +91,13 @@ var PdbPanelView = Backbone.View.extend({
 	 */
 	selectChain: function(pdbId, chainId)
 	{
-		// TODO find and highlight the corresponding chain rectangle...
+		var self = this;
+		var panel = self.pdbPanel;
+		var gChain = panel.getChainGroup(pdbId, chainId);
+
+		// TODO chain may not be visible (expand panel if necessary?)
+		// highlight the default chain
+		panel.highlight(gChain);
 	},
 	/**
 	 * Initializes the PDB chain panel.

@@ -118,6 +118,9 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	// indicator for an expansion level whether the rectangles drawn
 	var _levelDrawn = [];
 
+	// <pdbId:chainId> to <chain group (svg element)> map
+	var _chainMap = {};
+
 	/**
 	 * Draws the actual content of the panel, by drawing a rectangle
 	 * for each chain
@@ -150,6 +153,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 
 					var gChain = drawChainRectangles(svg, chain, color, options, xScale, y);
 					gChain.datum(datum);
+					_chainMap[datum.pdbId + ":" + datum.chain.chainId] = gChain;
 
 					// set the first drawn chain as the default chain
 					if (_defaultChainGroup == null)
@@ -330,11 +334,24 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	/**
 	 * Returns the group svg element for the default chain.
 	 *
-	 * @return chain datum for the default chain.
+	 * @return chain group for the default chain.
 	 */
 	function getDefaultChainGroup()
 	{
 		return _defaultChainGroup;
+	}
+
+	/**
+	 * Returns the group svg element for the given pdb id
+	 * and chain id pair.
+	 *
+	 * @param pdbId
+	 * @param chainId
+	 * @return chain group for the specified chain.
+	 */
+	function getChainGroup(pdbId, chainId)
+	{
+		return _chainMap[pdbId + ":" + chainId];
 	}
 
 	/**
@@ -694,6 +711,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	return {init: init,
 		addListener: addListener,
 		removeListener: removeListener,
+		getChainGroup: getChainGroup,
 		getDefaultChainGroup: getDefaultChainGroup,
 		show: showPanel,
 		hide: hidePanel,

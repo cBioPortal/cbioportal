@@ -8,7 +8,7 @@
  */
 var Pileup = Backbone.Model.extend({
 	initialize: function(attributes) {
-		this.id = attributes.id; // incremental id (client-side generated)
+		this.pileupId = attributes.pileupId; // incremental id (client-side generated)
 		this.mutations = attributes.mutations; // array of mutations at this data point
 		this.count = attributes.count; // number of mutations at this data point
 		this.location = attributes.location; // the location of the mutations

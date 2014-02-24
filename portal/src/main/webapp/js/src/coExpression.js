@@ -118,12 +118,12 @@ var CoExpView = (function() {
 
             //Configure the datatable with  jquery
             _coExpTable = $("#" + Names.tableId).dataTable({
-                "sDom": '<"H"f<"coexp-table-filter-pearson">>t<"F"i<"datatable-paging"p>>',
-                "sPaginationType": "scrolling",
+                "sDom": '<"H"f<"coexp-table-filter-pearson">>t<"F"ip>',
+                "sPaginationType": "full_numbers",
                 "bJQueryUI": true,
                 "bAutoWidth": false,
                 "aaData" : coexp_table_arr,
-                "aaSorting": [[1, 'desc']],
+                "aaSorting": [[1, 'asc']],
                 "aoColumnDefs": [
                     {
                         "bSearchable": true,
@@ -164,8 +164,7 @@ var CoExpView = (function() {
                     }
                 },
                 "bDeferRender": true,
-                "iDisplayLength": 26,
-                "sPaginationType": "full_numbers"
+                "iDisplayLength": 25
             });  //close data table
         }
 
@@ -186,8 +185,8 @@ var CoExpView = (function() {
             $("#" + _tableDivId).find('.coexp-table-filter-pearson').append(
                 "<select id='coexp-table-select-" + _geneId + "'>" +
                 "<option value='all'>Show All</option>" +
-                "<option value='positivePearson'>Show Only Positively Correlated (Pearson's)</option>" +
-                "<option value='negativePearson'>Show Only Negatively Correlated (Pearson's)</option>" +
+                "<option value='positivePearson'>Show Only Positively Correlated</option>" +
+                "<option value='negativePearson'>Show Only Negatively Correlated</option>" +
                 "</select>");
             $("select#coexp-table-select-" + _geneId).change(function () {
                 if ($(this).val() === "negativePearson") {
@@ -228,17 +227,33 @@ var CoExpView = (function() {
         //Overwrite some datatable function for custom filtering
         function overWriteFilters() {
             jQuery.fn.dataTableExt.oSort['coexp-absolute-value-desc'] = function(a,b) {
-                if (Math.abs(a) > Math.abs(b)) return -1;
-                else if (Math.abs(a) < Math.abs(b)) return 1;
-                else return 0;
-            };
-            jQuery.fn.dataTableExt.oSort['coexp-absolute-value-asc'] = function(a,b) {
                 if (Math.abs(a) > Math.abs(b)) return 1;
                 else if (Math.abs(a) < Math.abs(b)) return -1;
                 else return 0;
             };
+            jQuery.fn.dataTableExt.oSort['coexp-absolute-value-asc'] = function(a,b) {
+                if (Math.abs(a) > Math.abs(b)) return -1;
+                else if (Math.abs(a) < Math.abs(b)) return 1;
+                else return 0;
+            };
+            jQuery.fn.dataTableExt.oPagination.iFullNumbersShowPages = 10;
         }
 
+        function getCoExpDataCallBack(result, geneId) {
+            if (_.isEmpty(result)) {
+                $('#tabs').tabs("disable", "coexp");
+            } else {
+                convertData(result);
+                assembleNames(geneId);
+                drawLayout();
+                overWriteFilters(); 
+                configTable();
+                attachDownloadFullResultButton(Names.tableDivId, geneId);
+                attachPearsonFilter(Names.tableDivId, _coExpTable, geneId);
+                attachRowListener(_coExpTable, Names.tableId, Names.plotId, geneId);
+                initTable(_coExpTable);
+            }
+        }
 
         return {
             init: function(geneId) {
@@ -253,29 +268,14 @@ var CoExpView = (function() {
                         case_ids_key: window.PortalGlobals.getCaseIdsKey(),
                         is_full_result: "false"
                     };
-                    $.post("getCoExp.do", paramsGetCoExpData, getCoExpDataCallBack, "json");
-                    //Generate datatable 
-                    function getCoExpDataCallBack(result) {
-                        if (_.isEmpty(result)) {
-                            $('#tabs').tabs("disable", "coexp");
-                        } else {
-                            convertData(result);
-                            assembleNames(geneId);
-                            drawLayout();
-                            overWriteFilters(); 
-                            configTable();
-                            attachDownloadFullResultButton(Names.tableDivId, geneId);
-                            attachPearsonFilter(Names.tableDivId, _coExpTable, geneId);
-                            attachRowListener(_coExpTable, Names.tableId, Names.plotId, geneId);
-                            initTable(_coExpTable);
-                        }
-                    }
+                    $.post("getCoExp.do", paramsGetCoExpData, function(result){
+                        getCoExpDataCallBack(result, geneId);}
+                        , "json");
                 }
+
             }
         }
     }
-
-
 
 
     var Tabs = (function() {

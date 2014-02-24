@@ -41,6 +41,10 @@ import org.json.simple.JSONValue;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.node.ObjectNode;
+import org.codehaus.jackson.map.ObjectMapper;
+
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 import org.mskcc.cbio.portal.util.CoExpUtil;
@@ -94,7 +98,9 @@ public class GetCoExpressionJSON extends HttpServlet  {
         Long queryGeneId = geneObj.getEntrezGeneId();
 
         if (!isFullResult) {
-          ArrayList<JSONObject> fullResultJson = new ArrayList<JSONObject>();
+          ArrayList<JsonNode> fullResultJson = new ArrayList<JsonNode>();
+          ObjectMapper mapper = new ObjectMapper();
+
           GeneticProfile final_gp = CoExpUtil.getPreferedGeneticProfile(cancerStudyIdentifier);
           if (final_gp != null) {
             try {
@@ -114,7 +120,7 @@ public class GetCoExpressionJSON extends HttpServlet  {
                             if ((spearman >= coExpScoreThreshold || spearman <= (-1) * coExpScoreThreshold) &&
                                ((spearman > 0 && pearson > 0) || (spearman < 0 && pearson < 0))) {
                               CanonicalGene comparedGene = daoGeneOptimized.getGene(compared_gene_id);
-                              JSONObject _scores = new JSONObject();
+                              ObjectNode _scores = mapper.createObjectNode();
                               _scores.put("gene", comparedGene.getHugoGeneSymbolAllCaps());
                               _scores.put("pearson", pearson);
                               _scores.put("spearman", spearman);
@@ -124,10 +130,9 @@ public class GetCoExpressionJSON extends HttpServlet  {
                         }
                     }
                 }
-                fullResultJson = CoExpUtil.sortJsonArr(fullResultJson, "pearson");
                 httpServletResponse.setContentType("application/json");
                 PrintWriter out = httpServletResponse.getWriter();
-                JSONValue.writeJSONString(fullResultJson, out);
+                mapper.writeValue(out, fullResultJson);
             } catch (DaoException e) {
                 System.out.println(e.getMessage());
             }
@@ -135,7 +140,7 @@ public class GetCoExpressionJSON extends HttpServlet  {
             JSONObject emptyResult = new JSONObject();
             httpServletResponse.setContentType("application/json");
             PrintWriter out = httpServletResponse.getWriter();
-            JSONValue.writeJSONString(emptyResult, out);            
+            mapper.writeValue(out, emptyResult);
           }
         } else {
           StringBuilder fullResutlStr = new StringBuilder();

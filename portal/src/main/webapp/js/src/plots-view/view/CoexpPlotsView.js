@@ -227,7 +227,7 @@ var CoexpPlotsView = function() {
             coexpPlots.loadSvg
         );
         //Bind event listeners
-        $("#" + plotsOpts.names.show_mutations).change( function() {
+        $("#" + plotsOpts.names.show_mutations).change(function() {
             coexpPlots.updateMutations(
                 plotsOpts.names.show_mutations,
                 plotsOpts.names.log_scale_x,

@@ -55,6 +55,9 @@ public class TCGASurvivalDataCalculator implements SurvivalDataCalculator
     {
         NOT_APPLICABLE("Not Applicable"),
         NOT_AVAILABLE("Not Available"),
+        PENDING("Pending"),
+        DISCREPANCY("Discrepancy"),
+        COMPLETED("Completed"),
         NULL("null"),
         MISSING("");
 

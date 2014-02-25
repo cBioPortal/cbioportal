@@ -143,7 +143,7 @@ var PileupUtil = (function()
 		// TODO map each mutation id to its corresponding pileup
 		_.each(pileups, function(pileup) {
 			_.each(pileup.mutations, function(mutation) {
-				map[mutation.mutationId] = pileup.pileupId;
+				map[mutation.mutationSid] = pileup.pileupId;
 			})
 		});
 

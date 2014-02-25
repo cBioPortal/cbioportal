@@ -82,9 +82,10 @@ var MutationDetailsTableView = Backbone.View.extend({
 
 		// add click listener for each 3D link
 		self.$el.find('.pdb-link').click(function(evt) {
+			evt.preventDefault();
+
 			var mutationId = $(this).attr("alt");
-			// TODO dispatch an event with mutation id as a parameter
-			// ...and then handle it in 3D & diagram controllers
+
 			self.dispatcher.trigger(
 				MutationDetailsEvents.PDB_LINK_CLICKED,
 				mutationId);

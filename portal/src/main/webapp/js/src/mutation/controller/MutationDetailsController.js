@@ -129,7 +129,7 @@ var MutationDetailsController = function(
 			                         _pdbProxy, mutationUtil,
 			                         components.diagram, components.tableView, gene);
 			new MutationDiagramController(
-				components.diagram, components.tableView.tableUtil, mutationUtil);
+				components.diagram, components.tableView.tableUtil, mutationUtil, components.tableView);
 		};
 
 		// get mutation data for the current gene

@@ -50,7 +50,7 @@ function MutationDiagram(geneSymbol, options, data)
 	// color mapping for mutations: <mutation id, (pileup) color> pairs
 	self.mutationColorMap = {};
 
-	// mutation id to pileup mapping: <mutation id, pileup group> pairs
+	// mutation id to pileup mapping: <mutation sid, pileup group> pairs
 	self.mutationPileupMap = {};
 }
 
@@ -1513,6 +1513,7 @@ MutationDiagram.prototype.updatePlot = function(mutationData)
 	{
 		self.pileups = pileups = self.processData(mutationData);
 		self.currentData = mutationData;
+		self.mutationPileupMap = PileupUtil.mapToMutations(pileups);
 	}
 
 	// remove all elements in the plot area
@@ -1840,13 +1841,13 @@ MutationDiagram.prototype.clearHighlights = function()
 /**
  * Highlights the pileup containing the given mutation.
  *
- * @param mutationId    id of the mutation
+ * @param mutationSid    id of the mutation
  */
-MutationDiagram.prototype.highlightMutation = function(mutationId)
+MutationDiagram.prototype.highlightMutation = function(mutationSid)
 {
 	var self = this;
 
-	var pileupId = self.mutationPileupMap[mutationId];
+	var pileupId = self.mutationPileupMap[mutationSid];
 	var pileup = self.svg.select("#" + pileupId);
 
 	if (pileup.length > 0)

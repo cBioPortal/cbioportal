@@ -93,11 +93,18 @@ var PdbPanelView = Backbone.View.extend({
 	{
 		var self = this;
 		var panel = self.pdbPanel;
+
+		// expand the panel up to the level of the given chain
+		panel.expandToChainLevel(pdbId, chainId);
+
+		// get the chain group
 		var gChain = panel.getChainGroup(pdbId, chainId);
 
-		// TODO chain may not be visible (expand panel if necessary?)
-		// highlight the default chain
-		panel.highlight(gChain);
+		// highlight the chain group
+		if (gChain)
+		{
+			panel.highlight(gChain);
+		}
 	},
 	/**
 	 * Initializes the PDB chain panel.

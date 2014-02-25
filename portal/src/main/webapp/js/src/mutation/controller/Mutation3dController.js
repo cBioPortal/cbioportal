@@ -191,10 +191,6 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 
 		if (mutation)
 		{
-			// highlight the corresponding pileup (without filtering the table)
-			mutationDiagram.clearHighlights();
-			mutationDiagram.highlightMutation(mutation.mutationId);
-
 			// reset the view with the selected chain
 			reset3dView(mutation.pdbMatch.pdbId, mutation.pdbMatch.chainId);
 		}

@@ -121,6 +121,9 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	// <pdbId:chainId> to <chain group (svg element)> map
 	var _chainMap = {};
 
+	// <pdbId:chainId> to <row index> map
+	var _rowMap = {};
+
 	/**
 	 * Draws the actual content of the panel, by drawing a rectangle
 	 * for each chain
@@ -153,7 +156,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 
 					var gChain = drawChainRectangles(svg, chain, color, options, xScale, y);
 					gChain.datum(datum);
-					_chainMap[datum.pdbId + ":" + datum.chain.chainId] = gChain;
+					_chainMap[chainKey(datum.pdbId, datum.chain.chainId)] = gChain;
 
 					// set the first drawn chain as the default chain
 					if (_defaultChainGroup == null)
@@ -493,8 +496,32 @@ function MutationPdbPanel(options, data, proxy, xScale)
 			drawYAxisLabel(svg, _options);
 		}
 
+		// build row map
+		_rowMap = buildRowMap(_rowData);
+
 		// add default listeners
 		addDefaultListeners();
+	}
+
+	/**
+	 * Builds a map of <pdbId:chainId>, <row index> pairs
+	 * for the given row data.
+	 *
+	 * @param rowData   rows of chain data
+	 * @return {Object} <pdbId:chainId> to <row index> map
+	 */
+	function buildRowMap(rowData)
+	{
+		var map = {};
+
+		// add a rectangle group for each chain
+		_.each(rowData, function(allocation, rowIdx) {
+			_.each(allocation, function(datum, idx) {
+				map[chainKey(datum.pdbId, datum.chain.chainId)] = rowIdx;
+			});
+		});
+
+		return map;
 	}
 
 	/**
@@ -601,6 +628,19 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	 */
 	function toggleHeight()
 	{
+		 var nextLevel = drawNextLevel();
+
+		// resize panel
+		resizePanel(nextLevel);
+	}
+
+	/**
+	 * Draws the next level of rectangles.
+	 *
+	 * @return {Number} next level number
+	 */
+	function drawNextLevel()
+	{
 		// do not try to draw any further levels than max level
 		// (no rectangle to draw beyond max level)
 		var nextLevel = (_expansion + 1) % (_maxExpansionLevel + 1);
@@ -625,8 +665,60 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		// update expansion level
 		_expansion = nextLevel;
 
-		// resize panel
-		resizePanel(nextLevel);
+		return nextLevel;
+	}
+
+	/**
+	 * Expands the panel to a specific level.
+	 *
+	 * @param level
+	 */
+	function expandToLevel(level)
+	{
+		var nextLevel = -1;
+
+		// expand until desired level
+		for (var i = _expansion;
+		     i < level && i < _maxExpansionLevel;
+		     i++)
+		{
+			nextLevel = drawNextLevel();
+		}
+
+		// if already expanded (or beyond) that level,
+		// no need to update or resize
+		if (nextLevel !== -1)
+		{
+			// resize panel
+			resizePanel(nextLevel);
+		}
+	}
+
+	/**
+	 * Expands the panel to the level of the specified chain.
+	 *
+	 * @param pdbId
+	 * @param chainId
+	 */
+	function expandToChainLevel(pdbId, chainId)
+	{
+		var chainLevel = -1;
+		var chainRow = _rowMap[chainKey(pdbId, chainId)];
+
+		for (var i=0; i < _options.numRows.length; i++)
+		{
+			if (chainRow < _options.numRows[i])
+			{
+				chainLevel = i;
+				break;
+			}
+		}
+
+		// TODO chainLevel is beyond the visible levels, expand all?
+		if (chainLevel !== -1)
+		{
+			expandToLevel(chainLevel);
+		}
 	}
 
 	/**
@@ -675,6 +767,11 @@ function MutationPdbPanel(options, data, proxy, xScale)
 			chainGroup);
 	}
 
+	function chainKey(pdbId, chainId)
+	{
+		return pdbId + ":" + chainId;
+	}
+
 	function boundingBox(rectGroup)
 	{
 		var left = Infinity;
@@ -716,6 +813,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		show: showPanel,
 		hide: hidePanel,
 		toggleHeight: toggleHeight,
+		expandToChainLevel: expandToChainLevel,
 		hasMoreChains: hasMoreChains,
 		highlight: highlight,
 		dispatcher: _dispatcher};

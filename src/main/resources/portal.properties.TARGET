@@ -111,5 +111,5 @@ broad.bam.checking.url=
 temporary_dir=/tmp
 
 # tcga - bcr
-tcga.clinical.url=https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/<TUMOR_TYPE>/bcr/biotab/clin/
-tcga.clinical.filename=clinical_<TUMOR_TYPE>.tar.gz
+tcga.clinical.url=https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/<TUMOR_TYPE>/bcr/nationwidechildrens.org/bio/clin/
+tcga.clinical.filename=nationwidechildrens.org_<TUMOR_TYPE>.bio.Level_2.0.<REVISION>.0.tar.gz

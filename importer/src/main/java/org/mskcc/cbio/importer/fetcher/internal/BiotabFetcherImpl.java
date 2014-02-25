@@ -29,34 +29,31 @@
 package org.mskcc.cbio.importer.fetcher.internal;
 
 // imports
-import org.mskcc.cbio.importer.Admin;
-import org.mskcc.cbio.importer.Config;
-import org.mskcc.cbio.importer.Fetcher;
-import org.mskcc.cbio.importer.FileUtils;
-import org.mskcc.cbio.importer.DatabaseUtils;
-import org.mskcc.cbio.importer.model.ImportDataRecord;
-import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.ReferenceMetadata;
-import org.mskcc.cbio.importer.model.DataSourcesMetadata;
+import org.mskcc.cbio.importer.*;
+import org.mskcc.cbio.importer.model.*;
 import org.mskcc.cbio.importer.dao.ImportDataRecordDAO;
 
 import org.mskcc.cbio.portal.web_api.ConnectionManager;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.*;
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.auth.*;
 import org.apache.commons.httpclient.methods.*;
 
+import org.jsoup.*;
+import org.jsoup.nodes.*;
+
 import org.springframework.beans.factory.annotation.Value;
 
+import java.io.*;
 import java.util.*;
-import java.io.File;
-import java.io.InputStream;
+import java.util.regex.*;
 
 class BiotabFetcherImpl extends FetcherBaseImpl implements Fetcher
 {
+    private static final int DEFAULT_LATEST_REVISION = 0;
     private static final String TUMOR_TYPE_REGEX = "<TUMOR_TYPE>";
+    private static final String REVISION_REGEX = "<REVISION>";
 	private static final Log LOG = LogFactory.getLog(BiotabFetcherImpl.class);
 
 	private Config config;
@@ -113,18 +110,52 @@ class BiotabFetcherImpl extends FetcherBaseImpl implements Fetcher
     private void fetchData() throws Exception
     {
         for (String tumorType : config.getTumorTypesToDownload()) {
-            saveClinicalForTumorType(tumorType);
+            saveClinicalForTumorType(tumorType, getRevision(tumorType));
         }
     }
+    
+    private String getRevision(String tumorType) throws Exception
+    {
+        Integer latestRevision = DEFAULT_LATEST_REVISION;
+        Pattern revisionPattern = getRevisionPattern(tumorType);
 
-    private void saveClinicalForTumorType(String tumorType)
+        try {
+            Document doc = Jsoup.connect(getURLToFileIndex(tumorType)).get();
+            for (Element link : doc.select("a[href]")) {
+                Matcher revisionMatcher = revisionPattern.matcher(link.text());
+                if (revisionMatcher.find()) {
+                    Integer thisRevision = Integer.parseInt(revisionMatcher.group(1));
+                    if (thisRevision > latestRevision) {
+                        latestRevision = thisRevision;
+                    }
+                }
+            }
+        }
+        catch(HttpStatusException e) {
+            logMessage(LOG, "http status exception - getRevision(), skipping, tumorType: " + tumorType);
+        }
+
+        return Integer.toString(latestRevision);
+    }
+
+    private String getURLToFileIndex(String tumorType)
+    {
+        return (tcgaClinicalURL.replace(TUMOR_TYPE_REGEX, tumorType));
+    }
+
+    private Pattern getRevisionPattern(String tumorType)
+    {
+        return Pattern.compile(tcgaClinicalFilename.replace(TUMOR_TYPE_REGEX, tumorType.toUpperCase()).replace(REVISION_REGEX, "(\\d)") + "$");
+    }
+
+    private void saveClinicalForTumorType(String tumorType, String revision)
     {
         HttpClient client = getHttpClient();
-        GetMethod method = new GetMethod(getSourceURL(tumorType));
+        GetMethod method = new GetMethod(getURLToFile(tumorType, revision));
 
         try {
             if (client.executeMethod(method) == HttpStatus.SC_OK) {
-                saveClinicalData(tumorType, method.getResponseBodyAsStream());
+                saveClinicalData(tumorType, revision, method.getResponseBodyAsStream());
             }
         }
         catch (Exception e) {}
@@ -140,25 +171,25 @@ class BiotabFetcherImpl extends FetcherBaseImpl implements Fetcher
         return new HttpClient(connectionManager);
     }
 
-    private String getSourceURL(String tumorType)
+    private String getURLToFile(String tumorType, String revision)
     {
         return (tcgaClinicalURL.replace(TUMOR_TYPE_REGEX, tumorType) +
-                tcgaClinicalFilename.replace(TUMOR_TYPE_REGEX, tumorType));
+                tcgaClinicalFilename.replace(TUMOR_TYPE_REGEX, tumorType.toUpperCase()).replace(REVISION_REGEX, revision));
     }
 
-    private void saveClinicalData(String tumorType, InputStream is) throws Exception
+    private void saveClinicalData(String tumorType, String revision, InputStream is) throws Exception
     {
-        File clinicalDataFile =  fileUtils.createFileFromStream(getDestinationFilename(tumorType), is);
+        File clinicalDataFile =  fileUtils.createFileFromStream(getDestinationFilename(tumorType, revision), is);
         createImportDataRecord(tumorType, clinicalDataFile);
     }
 
-    private String getDestinationFilename(String tumorType) throws Exception
+    private String getDestinationFilename(String tumorType, String revision) throws Exception
     {
         return (getDownloadDirectory() +
                 File.separator +
                 tumorType +
                 File.separator +
-                tcgaClinicalFilename.replace(TUMOR_TYPE_REGEX, tumorType));
+                tcgaClinicalFilename.replace(TUMOR_TYPE_REGEX, tumorType.toUpperCase()).replace(REVISION_REGEX, revision));
     }
 
     private String getDownloadDirectory() throws Exception

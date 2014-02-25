@@ -211,7 +211,6 @@ var StudyViewInitCharts = (function(){
             scatterStudyView.init(scatterPlotOptions, scatterPlotArr, scatterPlotDataAttr,true);            
             scatterStudyView.jointBrushCallback(scatterPlotCallBack);
             
-            /*
             if(scatterPlotDataAttr.max_x > 1000){
                 $("#" + scatterPlotOptions.names.log_scale_x).attr('checked',true);
                 scatterStudyView.updateScaleX(scatterPlotOptions.names.log_scale_x);
@@ -220,7 +219,6 @@ var StudyViewInitCharts = (function(){
                 $("#" + scatterPlotOptions.names.log_scale_y).attr('checked',true);
                 scatterStudyView.updateScaleY(scatterPlotOptions.names.log_scale_y);
             }
-            */
            
             $("#" + scatterPlotOptions.names.log_scale_x).change(function() {
                 scatterStudyView.updateScaleX(scatterPlotOptions.names.log_scale_x);
@@ -297,10 +295,11 @@ var StudyViewInitCharts = (function(){
             dc.redrawAll();
             changeHeader();
         });
+        /*
         $('#study-view-header-left-4').click(function (){
             removeAllNAValue(dataObtained);
         });
-        
+        */
         $("#study-view-case-select-custom-submit-btn").click(function() {
             var caseIds = $('#study-view-case-select-custom-input').val().trim().split(/\s+/);
             filterChartsByGivingIDs(caseIds);
@@ -843,7 +842,7 @@ var StudyViewInitCharts = (function(){
                         "-main\" class='study-view-dc-chart study-view-bar-main'>" +
                         contentHTML + "</div>");
                 
-            $("#scale-input-"+chartID).unbind( "click" ).click(function(e) {
+            $("#scale-input-"+chartID).change(function(e) {
                 $(this).parent().parent().find('svg').remove();
                 varChart[chartID].filterAll();
                 dc.redrawAll();
@@ -856,10 +855,10 @@ var StudyViewInitCharts = (function(){
                     displayName: selectedAttrDisplay,
                     distanceArray:distanceMinMaxArray
                 };
-                if(!$(this).attr('checked')){
-                    initBarChart(_para);
-                }else{
+                if($(this).attr('checked')){
                     initLogBarChart(_para);
+                }else{
+                    initBarChart(_para);
                 }
                 varChart[chartID].render();
             });

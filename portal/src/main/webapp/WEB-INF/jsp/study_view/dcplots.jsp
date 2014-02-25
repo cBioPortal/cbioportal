@@ -24,7 +24,7 @@
 <div id="study-view-main" style="display: none;">
     <div id="study-view-header-function">
         <div  id='study-view-header-left'> 
-            <span id='study-view-header-left-4' class="study-view-header study-view-header-left boxLeft">Remove All NA value</span>
+            <!--<span id='study-view-header-left-4' class="study-view-header study-view-header-left boxLeft">Remove All NA value</span>-->
             <span id='study-view-header-left-0' class="study-view-header study-view-header-left boxLeft">Select cases by IDs</span>
             <form method="post" action="index.do" style='float: left'>
                 <input type="hidden" name="cancer_study_id" value="<%=cancerStudy.getCancerStudyStableId()%>">

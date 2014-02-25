@@ -63,7 +63,11 @@ var ScatterPlots = function() {
     var axis_edge = 0.1;
         log_scale_threshold = 0.17677669529;
 
-    var updateBrushCallback = "";
+    var updateBrushCallback = "",
+        brushOn = false;
+
+    var axisXLogFlag = false,
+        axisYLogFlag = false;
 
     function initSettings(options, _dataAttr) { //Init with options
         style = jQuery.extend(true, {}, options.style);
@@ -101,6 +105,7 @@ var ScatterPlots = function() {
             elem.svg.append("g")
                 .attr("class", "brush")
                 .call(elem.brush);
+            brushOn = true;
         }
       
         elem.dotsGroup = elem.svg.append("svg:g");
@@ -267,10 +272,10 @@ var ScatterPlots = function() {
         );
     }
 
-    function drawPlots() {
+    function drawPlots(_dataArr) {
         elem.dotsGroup.selectAll("path").remove();
         elem.dotsGroup.selectAll("path")
-            .data(dataArr)
+            .data(_dataArr)
             .enter()
             .append("svg:path")
             .attr("transform", function(d) {
@@ -422,10 +427,13 @@ var ScatterPlots = function() {
     function brushended() {
         var brushedCases = [];
         brushedCases.length = 0;
-        var extent = elem.brush.extent(); 
+        var extent = elem.brush.extent();
         elem.dotsGroup.selectAll("path").each(function(d) {
-            if (d.x_val > extent[0][0] && d.x_val < extent[1][0] &&
-                d.y_val > extent[0][1] && d.y_val < extent[1][1]) {
+            var _x = $(this).attr("x_val"),
+                _y = $(this).attr("y_val");
+            
+            if (_x > extent[0][0] && _x < extent[1][0] &&
+                _y > extent[0][1] && _y < extent[1][1]) {
                 //TODO: does not work with log scale applied scenario
                 $(this).attr("stroke", "red");
                 $(this).attr("fill", "red");
@@ -455,6 +463,10 @@ var ScatterPlots = function() {
                             var _post_x = elem.xScale(Math.log(d3.select(this).attr("x_val")) / Math.log(2));
                         }
                         var _post_y = d3.select(this).attr("y_pos");
+                        
+                        d3.select(this).attr("x_val",Math.log(d3.select(this).attr("x_val")) / Math.log(2));
+                        axisXLogFlag = true;
+                        
                     } else if (_axis === "y") {
                         var _post_x = d3.select(this).attr("x_pos");
                         if (parseFloat(d3.select(this).attr("y_val")) <= log_scale_threshold) {
@@ -462,18 +474,23 @@ var ScatterPlots = function() {
                         } else {
                             var _post_y = elem.yScale(Math.log(d3.select(this).attr("y_val")) / Math.log(2));
                         }
-
+                        d3.select(this).attr("y_val",Math.log(d3.select(this).attr("y_val")) / Math.log(2));
+                        axisYLogFlag = true;
                     }
                     d3.select(this).attr("x_pos", _post_x);
                     d3.select(this).attr("y_pos", _post_y);
                     return "translate(" + _post_x + ", " + _post_y + ")";
                 } else {
                     if (_axis === "x") {
+                        d3.select(this).attr("x_val",Math.pow(2,d3.select(this).attr("x_val")));
                         var _post_x = elem.xScale(d3.select(this).attr("x_val"));
                         var _post_y = d3.select(this).attr("y_pos");
+                        axisXLogFlag = false;
                     } else if (_axis === "y") {
+                        d3.select(this).attr("y_val",Math.pow(2,d3.select(this).attr("y_val")));
                         var _post_x = d3.select(this).attr("x_pos");
                         var _post_y = elem.yScale(d3.select(this).attr("y_val"));
+                        axisYLogFlag = false;
                     }
                     d3.select(this).attr("x_pos", _post_x);
                     d3.select(this).attr("y_pos", _post_y);
@@ -510,6 +527,11 @@ var ScatterPlots = function() {
             .range([canvas.yBottom, canvas.yTop]);
     }
     
+    function updateBrush() {
+        elem.brush.x(elem.xScale);
+        elem.brush.y(elem.yScale);
+    }
+    
     return {
         init: function(_options, _dataArr, _dataAttr, _brushOn) {    //Init with options
             initSettings(_options, _dataAttr);
@@ -523,7 +545,7 @@ var ScatterPlots = function() {
             generateAxisY();
             appendAxisTitleX(false);
             appendAxisTitleY(false);
-            drawPlots();
+            drawPlots(dataArr);
             drawLegends();
             addQtips();
         },
@@ -535,6 +557,8 @@ var ScatterPlots = function() {
             } else {
                 initScaleX();
             }
+            if(brushOn)
+                updateBrush();
             initAxisX();
             generateAxisX();
             appendAxisTitleX(_applyLogScale);
@@ -547,6 +571,8 @@ var ScatterPlots = function() {
             } else {
                 initScaleY();
             }
+            if(brushOn)
+                updateBrush();
             initAxisY();
             generateAxisY();
             appendAxisTitleY(_applyLogScale);
@@ -566,7 +592,7 @@ var ScatterPlots = function() {
             }  
 
             if (_showMutations) {
-                drawPlots();
+                drawPlots(dataArr);
                 drawLegends();
             } else {
                 hideMutations();
@@ -594,22 +620,39 @@ var ScatterPlots = function() {
         },
         updateStyle: function(_datumArr) {
             var _tmpDataArr=[];
-            for(var i=0 ; i< dataArr.length ; i++){
+            var dataCopy = jQuery.extend(true,[],dataArr);
+            if(axisXLogFlag && axisYLogFlag){
+                for(var i=0; i<dataCopy.length; i++){
+                    dataCopy[i].x_val = Math.log(dataCopy[i].x_val) / Math.log(2);
+                    dataCopy[i].y_val = Math.log(dataCopy[i].y_val) / Math.log(2);
+                }
+            }else if(axisXLogFlag){
+                for(var i=0; i<dataCopy.length; i++){
+                    dataCopy[i].x_val = Math.log(dataCopy[i].x_val) / Math.log(2);
+                }
+            }else if(axisYLogFlag){
+                for(var i=0; i<dataCopy.length; i++){
+                    dataCopy[i].y_val = Math.log(dataCopy[i].y_val) / Math.log(2);
+                }
+            }
+            
+            for(var i=0 ; i< dataCopy.length ; i++){
                 for(var j=0 ; j< _datumArr.length ; j++){
-                    if(_datumArr[j].case_id === dataArr[i].case_id && _datumArr[j].fill !== 'red'){
-                        _tmpDataArr.push(dataArr[i]);
+                    if(_datumArr[j].case_id === dataCopy[i].case_id && _datumArr[j].fill !== 'red'){
+                        _tmpDataArr.push(dataCopy[i]);
                     }
                 }
             }
-            for(var i=0 ; i< dataArr.length ; i++){
+            for(var i=0 ; i< dataCopy.length ; i++){
                 for(var j=0 ; j< _datumArr.length ; j++){
-                    if(_datumArr[j].case_id === dataArr[i].case_id && _datumArr[j].fill === 'red'){
-                        _tmpDataArr.push(dataArr[i]);
+                    if(_datumArr[j].case_id === dataCopy[i].case_id && _datumArr[j].fill === 'red'){
+                        _tmpDataArr.push(dataCopy[i]);
                     }
                 }
             }
-            dataArr = _tmpDataArr;
-            drawPlots();
+            
+            dataCopy = _tmpDataArr;
+            drawPlots(dataCopy);
             addQtips();
             
             var _caseIdList = [];

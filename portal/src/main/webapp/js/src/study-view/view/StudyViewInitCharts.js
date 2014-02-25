@@ -226,6 +226,7 @@ var StudyViewInitCharts = (function(){
             $("#" + scatterPlotOptions.names.log_scale_y).change(function() {
                 scatterStudyView.updateScaleY(scatterPlotOptions.names.log_scale_y);
             });
+            $(".study-view-scatter-plot-delete").unbind('click');
             $(".study-view-scatter-plot-delete").click(function (){
                 $("#study-view-scatter-plot").css('display','none');
                 $('#study-view-add-chart ul')
@@ -267,14 +268,17 @@ var StudyViewInitCharts = (function(){
         
         addClick();
         
+        $('.study-view-dc-chart-delete').unbind('click');
         $('.study-view-dc-chart-delete').click(function(event){
                 var _id = $(this).parent().parent().attr("id");
                 var _valueA = $(this).parent().parent().attr('value').split(',');
                 var _attrID = _valueA[0];
                 var _attrName = _valueA[1];
                 $("div").remove("#" + _id + "-main"); 
-                varChart[HTMLtagsMapUID[_id]].filterAll();
-                dc.redrawAll();
+                if(varChart[HTMLtagsMapUID[_id]].hasFilter()){
+                    varChart[HTMLtagsMapUID[_id]].filterAll();
+                    dc.redrawAll();
+                }
                 dc.deregisterChart(varChart[HTMLtagsMapUID[_id]]);
                 msnry.layout();
                 $('#study-view-add-chart ul')
@@ -289,7 +293,7 @@ var StudyViewInitCharts = (function(){
                 _dataTable1.fnFilter(_filterString,0,true);
                 addClick();
         });
-        
+        $('#study-view-header-left-2').unbind('click');
         $('#study-view-header-left-2').click(function (){
             dc.filterAll();
             dc.redrawAll();
@@ -307,6 +311,7 @@ var StudyViewInitCharts = (function(){
         });
     
         function addClick(){
+            $('#study-view-add-chart ul li').unbind('click');
             $('#study-view-add-chart ul li').click(function() {
                 var _chartType = [];
                 if($(this).attr('id') === 'mutationCNA')
@@ -356,13 +361,17 @@ var StudyViewInitCharts = (function(){
                     });
 
                     varChart[chartTmpID].render();
-                     $('#study-view-dc-chart-'+ chartTmpID +' .study-view-dc-chart-delete').click(function(event){
+                    
+                    $('#study-view-dc-chart-'+ chartTmpID +' .study-view-dc-chart-delete').unbind('click');
+                    $('#study-view-dc-chart-'+ chartTmpID +' .study-view-dc-chart-delete').click(function(event){
                         var id = $(this).parent().parent().attr("id"),
                             valueA = $(this).parent().parent().attr("value").split(',');
                             
                         $("div").remove("#" + id + "-main"); 
-                        varChart[HTMLtagsMapUID[id]].filterAll();
-                        dc.redrawAll();
+                        if(varChart[chartTmpID].hasFilter()){
+                            varChart[chartTmpID].filterAll();
+                            dc.redrawAll();
+                        }
                         dc.deregisterChart(varChart[HTMLtagsMapUID[id]]);
                         msnry.layout();
                         $('#study-view-add-chart ul')
@@ -844,8 +853,12 @@ var StudyViewInitCharts = (function(){
                 
             $("#scale-input-"+chartID).change(function(e) {
                 $(this).parent().parent().find('svg').remove();
-                varChart[chartID].filterAll();
-                dc.redrawAll();
+                
+                if(varChart[chartID].hasFilter()){
+                    varChart[chartID].filterAll();
+                    dc.redrawAll();
+                }
+                
                 dc.deregisterChart(varChart[chartID]);                
                 
                 var _para = {
@@ -1057,7 +1070,7 @@ var StudyViewInitCharts = (function(){
                     "-main\" class='study-view-dc-chart study-view-bar-main'>" + 
                     contentHTML + "</div>");
             
-            $("#scale-input-"+chartID).unbind( "click" ).click(function(e) {
+            $("#scale-input-"+chartID).change(function(e) {
                 var _para = {
                     chartID: chartID,
                     chartDivID: className,
@@ -1067,14 +1080,17 @@ var StudyViewInitCharts = (function(){
                 };
                 
                 $(this).parent().parent().find('svg').remove();
-                varChart[chartID].filterAll();
-                dc.redrawAll();
+                
+                if(varChart[chartID].hasFilter()){
+                    varChart[chartID].filterAll();
+                    dc.redrawAll();
+                }
                 dc.deregisterChart(varChart[chartID]);                
 
-                if(!$(this).attr('checked')){
-                    initBarChart(_para);
-                }else{
+                if($(this).attr('checked')){
                     initLogBarChart(_para);
+                }else{
+                    initBarChart(_para);
                 }
                 varChart[chartID].render();
             });
@@ -1223,6 +1239,7 @@ var StudyViewInitCharts = (function(){
         });
         
         $("#dataTable_filter label input").attr("value","");
+        $('#study-view-dataTable-header').unbind('click');
         $('#study-view-dataTable-header').click(function(){
             var items=[];
             $('#dataTable>tbody>tr>td:nth-child(1)').each( function(){
@@ -1233,6 +1250,7 @@ var StudyViewInitCharts = (function(){
             filterChartsByGivingIDs(items);
         });
         
+        $('#study-view-dataTable-updateTable').unbind('click');
         $('#study-view-dataTable-updateTable').click(function(){
             var filterString = "",
                 filteredResult = varCluster[attrNameMapUID['CASE_ID']].top(Infinity);
@@ -1248,6 +1266,7 @@ var StudyViewInitCharts = (function(){
             dataTable1.fnAdjustColumnSizing();
         });
         
+        $("#dataTable tbody").unbind('click');
         $("#dataTable tbody").click(function(event){
             var returnValue, selectedRowCaseId;
             var oTable = $("#dataTable").dataTable();

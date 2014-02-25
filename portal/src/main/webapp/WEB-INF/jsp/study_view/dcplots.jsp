@@ -9,7 +9,7 @@
 <script src="js/src/study-view/crossfilter.js"></script>
 <script src="js/src/study-view/dataTables.fixedColumns.js"></script>
 <script src="js/src/study-view/masonry.pkgd.min.js"></script>
-<script src="js/src/plots-view/component/ScatterPlots.js"></script>
+<script src="js/src/study-view/ScatterPlots.js"></script>
 <script src="js/src/study-view/view/DcRedrawAllDataTable.js"></script>
 <script src="js/src/study-view/StudyViewBoilerplate.js"></script>
 <script src="js/src/study-view/StudyViewControl.js"></script>
@@ -24,6 +24,7 @@
 <div id="study-view-main" style="display: none;">
     <div id="study-view-header-function">
         <div  id='study-view-header-left'> 
+            <span id='study-view-header-left-4' class="study-view-header study-view-header-left boxLeft">Remove All NA value</span>
             <span id='study-view-header-left-0' class="study-view-header study-view-header-left boxLeft">Select cases by IDs</span>
             <form method="post" action="index.do" style='float: left'>
                 <input type="hidden" name="cancer_study_id" value="<%=cancerStudy.getCancerStudyStableId()%>">
@@ -46,30 +47,8 @@
         </div>
     </div>
     <hr/>
-    <div id="study-view-charts">
-        <div id='study-view-scatter-plot' class='study-view-dc-chart w3 h2'>
-            <div id='study-view-scatter-plot-header' style="float: right">
-                <form style="display:inline-block" action="svgtopdf.do" method="post" id="study-view-scatter-plot-pdf">
-                    <input type="hidden" name="svgelement" id="study-view-scatter-plot-pdf-value">
-                    <input type="hidden" name="filetype" value="pdf">
-                    <input type="hidden" name="filename" value="Scatter_Plot_result-<%=cancerStudy.getCancerStudyStableId()%>.pdf">
-                    <input type='submit' value="PDF">                
-                </form>
-                <form style="display:inline-block" action="svgtopdf.do" method="post" id="study-view-scatter-plot-svg">
-                    <input type="hidden" name="svgelement" id="study-view-scatter-plot-svg-value">
-                    <input type="hidden" name="filetype" value="svg">
-                    <input type="hidden" name="filename" value="Scatter_Plot_result-<%=cancerStudy.getCancerStudyStableId()%>.svg">
-                    <input type='submit' value="SVG">                
-                </form>
-                <input type='checkbox' id='study-view-scatter-plot-log-scale-x'></input><span style="margin: 5px 10px 0px 0px; color: grey">Log Scale X</span>
-                <input type='checkbox' id='study-view-scatter-plot-log-scale-y'></input><span style="margin: 5px 50px 0px 0px; color: grey">Log Scale y</span>
-                <span class='study-view-scatter-plot-delete'>x</span>
-            </div>
-            <div id='study-view-scatter-plot-body'></div>
-            <div id='study-view-scatter-plot-loading-img'></div>     
-            <div id='study-view-scatter-plot-control-panel'></div>
-        </div>
-    </div>
+    
+    <div id="study-view-charts"></div>
     
     <div id="study-view-update">
         <div id="study-view-updateContent">
@@ -84,13 +63,6 @@
         </div>
     </div>
     <!--<div id="dataTableLoading" style="text-align:center;display:none"><img src="images/ajax-loader.gif"></div>-->
-    <div id='data-table-chart'>
-        <table id="dataTable">
-            <tfoot>
-                <tr>
-                </tr>
-            </tfoot>
-        </table>		
-    </div>
+    <div id='data-table-chart'></div>
 
 </div>

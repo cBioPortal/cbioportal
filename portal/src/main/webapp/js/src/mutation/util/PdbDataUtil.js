@@ -207,11 +207,11 @@ var PdbDataUtil = (function()
 				var alignment = datum.chain.mergedAlignment;
 
 				// use merged alignment to see if there is a match
-				var rangeWithin = location > alignment.uniprotFrom &&
-				                  location < alignment.uniprotTo;
+				var rangeWithin = location >= alignment.uniprotFrom &&
+				                  location <= alignment.uniprotTo;
 
-				// TODO also check for mismatch/gap within the alignment string
-				if (rangeWithin)
+				// check for match condition
+				if (rangeWithin && alignmentMatch(alignment, location))
 				{
 					pdbMatch = {pdbId: datum.pdbId,
 						chainId: datum.chain.chainId};
@@ -229,6 +229,28 @@ var PdbDataUtil = (function()
 		}
 
 		return pdbMatch;
+	}
+
+	/**
+	 * Checks for a match for the specified location on the
+	 * given merged alignment.
+	 *
+	 * @param alignment merged alignment
+	 * @param location  protein change location
+	 * @return {boolean}    true if match, false otherwise
+	 */
+	function alignmentMatch(alignment, location)
+	{
+		var index = location - alignment.uniprotFrom;
+
+		var symbol = alignment.mergedString[index];
+
+		var mismatch = symbol == ALIGNMENT_MINUS ||
+			symbol == ALIGNMENT_PLUS ||
+			symbol == ALIGNMENT_SPACE ||
+			symbol == ALIGNMENT_GAP;
+
+		return !mismatch;
 	}
 
 	/**

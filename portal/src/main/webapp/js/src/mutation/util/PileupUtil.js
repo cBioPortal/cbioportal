@@ -120,13 +120,21 @@ var PileupUtil = (function()
 	 * Finds the uniprot location for the protein change of
 	 * the given mutation.
 	 *
-	 * @param mutation
+	 * @param mutation  a MutationModel instance
+	 * @return {String} protein location as a string value
 	 */
 	var getProteinChangeLocation = function(mutation)
 	{
+		var location = null;
 		var proteinChange = mutation.proteinChange;
+		var result = proteinChange.match(/[0-9]+/);
 
-		return proteinChange.match(/[0-9]+/);
+		if (result && result.length > 0)
+		{
+			location = result[0];
+		}
+
+		return location;
 	};
 
 	var nextId = function()
@@ -136,11 +144,17 @@ var PileupUtil = (function()
 		return "pileup_" + _idCounter;
 	};
 
+	/**
+	 * Creates a map of <mutation sid>, <pileup id> pairs.
+	 *
+	 * @param pileups   list of pileups
+	 * @return {Object} <mutation sid> to <pileup id> map
+	 */
 	var mapToMutations = function(pileups)
 	{
 		var map = {};
 
-		// TODO map each mutation id to its corresponding pileup
+		// map each mutation sid to its corresponding pileup
 		_.each(pileups, function(pileup) {
 			_.each(pileup.mutations, function(mutation) {
 				map[mutation.mutationSid] = pileup.pileupId;

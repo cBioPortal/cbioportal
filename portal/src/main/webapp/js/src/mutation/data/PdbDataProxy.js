@@ -98,12 +98,21 @@ var PdbDataProxy = function(mutationUtil)
 				for(var i=0; i < mutations.length; i++)
 				{
 					var start = data.positionMap[mutations[i].proteinPosStart];
-					var end = data.positionMap[mutations[i].proteinPosEnd];
+					var end = start;
+
+					var type = mutations[i].mutationType;
+
+					// ignore end position for mutation other than in frame del
+					if (type != null &&
+						type.toLowerCase() === "in_frame_del")
+					{
+						end = data.positionMap[mutations[i].proteinPosEnd] || end;
+					}
 
 					// if no start and end position found for this mutation,
 					// then it means this mutation position is not in this chain
-					if (start != undefined &&
-					    end != undefined)
+					if (start != null &&
+					    end != null)
 					{
 						positionMap[mutations[i].mutationId] =
 							{start: start, end: end};

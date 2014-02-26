@@ -237,6 +237,9 @@ var StudyViewInitCharts = (function(){
                             .text('Number of Mutation vs Fraction of copy number altered genome'));
                 msnry.layout();
                 addClick();
+                removePieMark();
+                redrawChartsAfterDeletion();
+                setScatterPlotStyle([],[]);
             });            
         
             $("#study-view-scatter-plot-pdf").submit(function(){
@@ -1396,13 +1399,22 @@ var StudyViewInitCharts = (function(){
             }
         }
     }
+    function redrawChartsAfterDeletion(){
+        for(var i=0; i< varChart.length ; i++){
+            if(varChart[i].filters().length > 0)
+                varChart[i].filterAll();
+        }
+        dc.redrawAll();
+    }
     function scatterPlotBrushCallBack(_brushedCaseIds) {
-        var _numOfCharts = varChart.length;
-        
         brushedCaseIds = _brushedCaseIds;
-        if(brushedCaseIds.length > 0){
+        scatterPlotCallBack(_brushedCaseIds);
+    }
+    function scatterPlotCallBack(_caseIDs){
+        var _numOfCharts = varChart.length;
+        if(_caseIDs.length > 0){
             varChart[attrNameMapUID['CASE_ID']].filterAll();
-            varChart[attrNameMapUID['CASE_ID']].filter([brushedCaseIds]);
+            varChart[attrNameMapUID['CASE_ID']].filter([_caseIDs]);
             dc.redrawAll();
         }else{
             for(var i=0; i< _numOfCharts ; i++){
@@ -1415,7 +1427,6 @@ var StudyViewInitCharts = (function(){
         changeHeader();
         removePieMark();
     }
-    
     function scatterPlotClickCallBack(_clickedCaseIds) {
         
         if(_clickedCaseIds.length === 1 && (brushedCaseIds.length === 0 || brushedCaseIds.indexOf(_clickedCaseIds[0]) === -1)){
@@ -1429,7 +1440,7 @@ var StudyViewInitCharts = (function(){
         }else if(_clickedCaseIds.length === 1){
             getDataAndDrawStartMarker(_clickedCaseIds);
         }else{
-            scatterPlotBrushCallBack(_clickedCaseIds);
+            scatterPlotCallBack(_clickedCaseIds);
         }
     }
     

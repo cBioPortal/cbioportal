@@ -473,14 +473,22 @@ var Mutation3dVisView = Backbone.View.extend({
 			}
 		};
 
-		// if no pdb id or chain is provided, then do not reload
-		if (!pdbId && !chain)
+		// do not reload (just refresh) if no pdb id or chain is provided,
+		// or the provided chain and the previous chain are the same
+		if ((pdbId == null && chain == null) ||
+		    (pdbId == self.pdbId && chain == self.chain))
 		{
 			// just refresh
 			var mapped = mut3dVis.refresh();
 
 			// update mapping info
 			showMapInfo(mapped);
+
+			// call the provided custom callback function
+			if (_.isFunction(callback))
+			{
+				callback();
+			}
 		}
 		// reload the new pdb structure
 		else

@@ -191,6 +191,13 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 
 		if (mutation)
 		{
+			// TODO ideally diagram should be highlighted by MutationDiagramController,
+			// ...but we need to make sure that diagram is highlighted before refreshing the 3D view
+
+			// highlight the corresponding pileup (without filtering the table)
+			mutationDiagram.clearHighlights();
+			mutationDiagram.highlightMutation(mutation.mutationSid);
+
 			// reset the view with the selected chain
 			reset3dView(mutation.pdbMatch.pdbId, mutation.pdbMatch.chainId);
 		}

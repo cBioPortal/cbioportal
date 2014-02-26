@@ -16,9 +16,12 @@ var MutationDiagramController = function(mutationDiagram, mutationTable, mutatio
 			tableFilterHandler);
 
 		// add listeners for the mutation table view
-		tableView.dispatcher.on(
-			MutationDetailsEvents.PDB_LINK_CLICKED,
-			pdbLinkHandler);
+
+		// TODO make sure to call this event handler before 3D controller's handler,
+		// otherwise 3D update will not work properly.
+//		tableView.dispatcher.on(
+//			MutationDetailsEvents.PDB_LINK_CLICKED,
+//			pdbLinkHandler);
 	}
 
 	function tableFilterHandler(tableSelector)

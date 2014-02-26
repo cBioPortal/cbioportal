@@ -186,8 +186,7 @@ public class FetchPfamGraphicsData
             return;
 		}
 
-		String input = args[i];
-		String output = args[i+1];
+		String output = args[i];
 
 		if (noFetch)
 		{

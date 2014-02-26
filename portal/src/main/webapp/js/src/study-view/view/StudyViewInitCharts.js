@@ -237,7 +237,7 @@ var StudyViewInitCharts = (function(){
                             .text('Number of Mutation vs Fraction of copy number altered genome'));
                 msnry.layout();
                 addClick();
-                removePieMark();
+                removeMarker();
                 redrawChartsAfterDeletion();
                 setScatterPlotStyle([],[]);
             });            
@@ -489,7 +489,7 @@ var StudyViewInitCharts = (function(){
                 }
                 
                 changeHeader();
-                removePieMark();
+                removeMarker();
             });
             varChart[chartID].on("postRedraw",function(chart){
                 addPieLabels("study-view-dc-chart-" + chartID);
@@ -973,7 +973,7 @@ var StudyViewInitCharts = (function(){
             }
             
             changeHeader();
-            removePieMark();
+            removeMarker();
         });
     }
     
@@ -1176,7 +1176,7 @@ var StudyViewInitCharts = (function(){
             }
             
             changeHeader();
-            removePieMark();
+            removeMarker();
         });
         
     }
@@ -1391,7 +1391,7 @@ var StudyViewInitCharts = (function(){
         $(".dataTables_scroll").css("overflow-x","scroll");
         $(".DTFC_LeftHeadWrapper").css("background-color","white");
     }
-    function removePieMark(){
+    function removePieMarker(){
         var _numOfCharts = varChart.length;
         for(var i=0; i< _numOfCharts; i++){
             if(attrNameMapUID['CASE_ID'] !== i){
@@ -1425,7 +1425,7 @@ var StudyViewInitCharts = (function(){
             brushOn = false;
         }
         changeHeader();
-        removePieMark();
+        removeMarker();
     }
     function scatterPlotClickCallBack(_clickedCaseIds) {
         
@@ -1436,15 +1436,15 @@ var StudyViewInitCharts = (function(){
             }
             dc.redrawAll();
             
-            getDataAndDrawStartMarker(_clickedCaseIds);
+            getDataAndDrawMarker(_clickedCaseIds);
         }else if(_clickedCaseIds.length === 1){
-            getDataAndDrawStartMarker(_clickedCaseIds);
+            getDataAndDrawMarker(_clickedCaseIds);
         }else{
             scatterPlotCallBack(_clickedCaseIds);
         }
     }
     
-    function getDataAndDrawStartMarker(_clickedCaseIds) {
+    function getDataAndDrawMarker(_clickedCaseIds) {
         var _numOfCharts = varChart.length;
         for(var i=0; i< _numOfCharts; i++){
             if(attrNameMapUID['CASE_ID'] !== i){
@@ -1459,15 +1459,17 @@ var StudyViewInitCharts = (function(){
                         var _titleArray = _title.split(":");
                         var _key = _titleArray[0];
                         if(_key === _relativeValue){
-                            drawStarMarker($(this).find('path').attr('d'),"study-view-dc-chart-" + i,key,i);
+                            drawPieMarker($(this).find('path').attr('d'),"study-view-dc-chart-" + i,key,i);
                         }
                     });
+                }else if(_valueArray[2] === 'bar'){
+                    drawBarMarker("study-view-dc-chart-" + i,dataArr[_clickedCaseIds[0]][_valueArray[0]]);
                 }
             }
         }
     }
     
-    function drawStarMarker(_d,_pieChartID,_childID,_fatherID) {
+    function drawPieMarker(_d,_pieChartID,_childID,_fatherID) {
         var tmpPointsInfo = _d.split(/[\s,MLHVCSQTAZ]/),          
             tmpPointsInfo1 = _d.split(/[A]/);
 
@@ -1493,7 +1495,7 @@ var StudyViewInitCharts = (function(){
                 _tmpY = -_tmpY;
             }
 
-            var textID = "text-" + _fatherID+"-"+Number(_childID);
+            var textID = "path-" + _fatherID+"-"+Number(_childID);
                     
             d3.select("#" + _pieChartID + " svg g").append("path")
                 .attr("transform", function(d) { return "translate(" + _tmpX + "," + _tmpY + ")"; })
@@ -1501,25 +1503,85 @@ var StudyViewInitCharts = (function(){
                 .attr('fill',"red")
                 .attr('id',textID)
                 .attr('class','mark');
-            /*
-            var textID = "text-" + _fatherID+"-"+Number(_childID),
-                textPara = {
-                    id: textID, 
-                    x: _tmpX, 
-                    y: _tmpY,
-                    class: 'mark'
-                };
-            var text= makeSVG('text',textPara);
-            text.appendChild(document.createTextNode("*"));
-            document.getElementById(_pieChartID)
-                    .getElementsByTagName('svg')[0]
-                    .getElementsByTagName('g')[0]
-                    .appendChild(text);
-            */
         }
     }
-    function fnCreateSelect( aData )
-    {
+    
+    function removeMarker(){
+        removePieMarker();
+        removeBarMarker();
+    }
+    function removeBarMarker(){
+        var _numOfCharts = varChart.length;
+        for(var i=0; i< _numOfCharts; i++){
+            if(attrNameMapUID['CASE_ID'] !== i){
+                $("#study-view-dc-chart-" + i).find('svg .mark').remove();
+            }
+        }
+    }
+    
+    function drawBarMarker(_barChartID,_value) {
+        var transformChartBody = trimTransformString($('#' + _barChartID + " .chart-body").attr("transform"));
+        var allBars = $('#' + _barChartID + " .chart-body").find('rect');
+        var bar = [];
+        var allAxisX = $('#' + _barChartID + " .axis.x").find("g");
+        var transformAxiaX = trimTransformString($('#' + _barChartID + " .axis.x").attr("transform"));
+        
+        var xValue = [];
+        var xTranslate = [];
+        
+        $.each(allBars,function(key,value){
+            var barDatum = {}
+            barDatum.x = Number($(this).attr('x')) + Number(transformChartBody[0]);
+            barDatum.y = Number($(this).attr('y')) + Number(transformChartBody[1]) - 5;
+            barDatum.width = Number($(this).attr('width'));
+            bar.push(barDatum);
+        });
+        
+        var numOfBar = bar.length;
+        
+        $.each(allAxisX,function(key,value){
+            xValue[key] = Number($(this).select('text').text());
+            xTranslate[key] = Number(trimTransformString($(this).attr('transform'))[0]) + Number(transformAxiaX[0]);
+        });
+        
+        var x,y,
+            numItemOfX = xTranslate.length;
+        
+        if(_value === 'NA'){
+            x = bar[numOfBar-1].x + bar[numOfBar-1].width / 2;
+            y= bar[numOfBar-1].y;
+        }else {
+            for(var i=0 ; i< numItemOfX ; i++){
+                if(_value < xValue[i]){
+                    for(var j=0 ; j< numOfBar ; j++){
+                        if(bar[j].x < xTranslate[i] && bar[j].x > xTranslate[i-1]){
+                            x = (xTranslate[i] + xTranslate[i-1])/2;
+                            y= bar[j].y;
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        
+        d3.select("#" + _barChartID + " svg").append("path")
+            .attr("transform", function(d) { return "translate(" + x + "," + y + ")"; })
+            .attr("d", d3.svg.symbol().size('25').type('triangle-down'))
+            .attr('fill',"red")
+            .attr('class','mark');
+    }
+    
+    function trimTransformString(_string){
+        var _tmpString = _string.split("(");
+        
+        _tmpString = _tmpString[1].split(")");
+        _tmpString = _tmpString[0].split(",");
+        
+        return _tmpString;
+    }
+    
+    function fnCreateSelect( aData ){
         var isNumericArray = true;
         var hasNullValue = false;
         for(var i=0;i<aData.length;i++){

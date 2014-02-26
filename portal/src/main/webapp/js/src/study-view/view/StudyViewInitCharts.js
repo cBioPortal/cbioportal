@@ -11,10 +11,12 @@ var StudyViewInitCharts = (function(){
     var numOfCases,
         scatterStudyView,
         ndx = "",
+        dataArr = {},
         attrNameMapUID = [], //The relationshio between "The unique attribute name" and "The unique ID number in whole page"        
         varCluster = [], //Clusters of displayed charts -- DC.JS require
         varGroup = [], //Groups of displayed charts -- DC.JS require
         disableFiltId = [0],
+        brushedCaseIds = [],
         chartColors = ["#3366cc","#dc3912","#ff9900","#109618",
             "#990099","#0099c6","#dd4477","#66aa00",
             "#b82e2e","#316395","#994499","#22aa99",
@@ -61,7 +63,6 @@ var StudyViewInitCharts = (function(){
         
         numOfCases = dataB.length;        
         ndx = crossfilter(dataB);
-            
         //Calculate the number of pie, bar charts
         //Initial varName, varType, distanceMinMaxArray, varDisplay
         for(var i=0; i< dataA.length ; i++){
@@ -209,7 +210,8 @@ var StudyViewInitCharts = (function(){
             scatterPlotDataAttr.max_y = distanceMinMaxArray['MUTATION_COUNT'].max;    
         
             scatterStudyView.init(scatterPlotOptions, scatterPlotArr, scatterPlotDataAttr,true);            
-            scatterStudyView.jointBrushCallback(scatterPlotCallBack);
+            scatterStudyView.jointBrushCallback(scatterPlotBrushCallBack);
+            scatterStudyView.jointClickCallback(scatterPlotClickCallBack);
             
             if(scatterPlotDataAttr.max_x > 1000){
                 $("#" + scatterPlotOptions.names.log_scale_x).attr('checked',true);
@@ -475,13 +477,16 @@ var StudyViewInitCharts = (function(){
 
                 var _tmpResult = varChart[attrNameMapUID["CASE_ID"]].dimension().top(Infinity),
                     _tmpCaseID = [];
-                changeHeader();
+                
                 if(typeof scatterStudyView !== 'undefined'){
                     for(var i=0; i<_tmpResult.length ; i++){
                         _tmpCaseID.push(_tmpResult[i].CASE_ID);
                     }
                     setScatterPlotStyle(_tmpCaseID,currentPieFilters);
                 }
+                
+                changeHeader();
+                removePieMark();
             });
             varChart[chartID].on("postRedraw",function(chart){
                 addPieLabels("study-view-dc-chart-" + chartID);
@@ -733,22 +738,15 @@ var StudyViewInitCharts = (function(){
                     _tmpX = -_tmpX;
                     _tmpY = -_tmpY;
                 }
-
-                var circleID = fatherID+"-"+(Number(childID)-1),
-                    circlePara = {
-                        id: circleID, 
-                        cx: _tmpX, 
-                        cy: _tmpY, 
-                        r:3, 
-                        stroke: 'red', 
-                        'stroke-width': 1, 
-                        fill: 'red'
-                    }
-                var circle= makeSVG('circle',circlePara);
-                document.getElementById(_pieChartID)
-                        .getElementsByTagName('svg')[0]
-                        .getElementsByTagName('g')[0]
-                        .appendChild(circle);
+                
+                var circleID = "circle-" +fatherID+"-"+(Number(childID)-1);
+                    
+                d3.select("#" + _pieChartID + " svg g").append("path")
+                    .attr("transform", function(d) { return "translate(" + _tmpX + "," + _tmpY + ")"; })
+                    .attr("d", d3.svg.symbol().size('25').type('circle'))
+                    .attr('fill',"red")
+                    .attr('id',circleID)
+                    .attr('class','circle');
             }
         });
         
@@ -758,7 +756,7 @@ var StudyViewInitCharts = (function(){
             var fatherID = Number(idArray[idArray.length-3]);
             var circleID = fatherID+"-"+(Number(childID)-1);
             
-            $("#" + _pieChartID + " svg g #" + circleID).remove();
+            $("#" + _pieChartID + " svg g #circle-" + circleID).remove();
             
             $('#' + _pieChartID + ' svg>g>g:nth-child(' + childID+')').css({
                 'fill-opacity': '1',
@@ -810,13 +808,6 @@ var StudyViewInitCharts = (function(){
                 $('#table-'+_pieChartID+'-'+nextTableID).css('display','block');
             }
         });
-    }
-    
-    function makeSVG(tag, attrs) {
-        var el= document.createElementNS('http://www.w3.org/2000/svg', tag);
-        for (var k in attrs)
-            el.setAttribute(k, attrs[k]);
-        return el;
     }
             
     function initLogBarChart(_para) {
@@ -971,14 +962,15 @@ var StudyViewInitCharts = (function(){
                         .css({'border-width':'2px', 'border-style':'inset'});
             }
             
-            changeHeader();
-            
             if(typeof scatterStudyView !== 'undefined'){
                 for(var i=0; i<tmpResult.length ; i++){
                     tmpCaseID.push(tmpResult[i].CASE_ID);
                 }
                 setScatterPlotStyle(tmpCaseID,currentPieFilters);   
             }
+            
+            changeHeader();
+            removePieMark();
         });
     }
     
@@ -1173,14 +1165,15 @@ var StudyViewInitCharts = (function(){
                         .css({'border-width':'2px', 'border-style':'inset'});
             }
             
-            changeHeader();
-            
             if(typeof scatterStudyView !== 'undefined'){
                 for(var i=0; i<tmpResult.length ; i++){
                     tmpCaseID.push(tmpResult[i].CASE_ID);
                 }
                 setScatterPlotStyle(tmpCaseID,currentPieFilters);   
             }
+            
+            changeHeader();
+            removePieMark();
         });
         
     }
@@ -1395,22 +1388,125 @@ var StudyViewInitCharts = (function(){
         $(".dataTables_scroll").css("overflow-x","scroll");
         $(".DTFC_LeftHeadWrapper").css("background-color","white");
     }
-    
-    function scatterPlotCallBack(_brushedCaseIds) {
-       if(_brushedCaseIds.length > 0){
+    function removePieMark(){
+        var _numOfCharts = varChart.length;
+        for(var i=0; i< _numOfCharts; i++){
+            if(attrNameMapUID['CASE_ID'] !== i){
+                $("#study-view-dc-chart-" + i).find('svg g .mark').remove();
+            }
+        }
+    }
+    function scatterPlotBrushCallBack(_brushedCaseIds) {
+        var _numOfCharts = varChart.length;
+        
+        brushedCaseIds = _brushedCaseIds;
+        if(brushedCaseIds.length > 0){
             varChart[attrNameMapUID['CASE_ID']].filterAll();
-            varChart[attrNameMapUID['CASE_ID']].filter([_brushedCaseIds]);
+            varChart[attrNameMapUID['CASE_ID']].filter([brushedCaseIds]);
             dc.redrawAll();
         }else{
+            for(var i=0; i< _numOfCharts ; i++){
+                if(varChart[i].filters().length > 0)
+                    varChart[i].filterAll();
+            }
+            dc.redrawAll();
+            brushOn = false;
+        }
+        changeHeader();
+        removePieMark();
+    }
+    
+    function scatterPlotClickCallBack(_clickedCaseIds) {
+        
+        if(_clickedCaseIds.length === 1 && (brushedCaseIds.length === 0 || brushedCaseIds.indexOf(_clickedCaseIds[0]) === -1)){
             for(var i=0; i< varChart.length ; i++){
                 if(varChart[i].filters().length > 0)
                     varChart[i].filterAll();
             }
             dc.redrawAll();
+            
+            getDataAndDrawStartMarker(_clickedCaseIds);
+        }else if(_clickedCaseIds.length === 1){
+            getDataAndDrawStartMarker(_clickedCaseIds);
+        }else{
+            scatterPlotBrushCallBack(_clickedCaseIds);
         }
-        changeHeader();
     }
     
+    function getDataAndDrawStartMarker(_clickedCaseIds) {
+        var _numOfCharts = varChart.length;
+        for(var i=0; i< _numOfCharts; i++){
+            if(attrNameMapUID['CASE_ID'] !== i){
+                var _datum = $("#study-view-dc-chart-" + i);
+                var _value = _datum.attr('value');
+                var _valueArray = _value.split(",");
+                if(_valueArray[2] === 'pie'){
+                    var _relativeValue = dataArr[_clickedCaseIds[0]][_valueArray[0]];
+                    var gArray = _datum.find('svg g g');
+                    $.each(gArray, function(key,value){
+                        var _title = $(this).find('title').text();
+                        var _titleArray = _title.split(":");
+                        var _key = _titleArray[0];
+                        if(_key === _relativeValue){
+                            drawStarMarker($(this).find('path').attr('d'),"study-view-dc-chart-" + i,key,i);
+                        }
+                    });
+                }
+            }
+        }
+    }
+    
+    function drawStarMarker(_d,_pieChartID,_childID,_fatherID) {
+        var tmpPointsInfo = _d.split(/[\s,MLHVCSQTAZ]/),          
+            tmpPointsInfo1 = _d.split(/[A]/);
+
+        var x1 = Number(tmpPointsInfo[1]),
+            y1 = Number(tmpPointsInfo[2]),
+            largeArc = Number(tmpPointsInfo[6]),
+            sweep = Number(tmpPointsInfo[7]),
+            x2 = Number(tmpPointsInfo[8]),
+            y2 = Number(tmpPointsInfo[9]),
+            r = Number(tmpPointsInfo[3]);
+
+        if((x1-x2!==0 ||y1-y2!==0) && tmpPointsInfo1.length === 2){
+            var _xm = (x1 + x2) /2,
+                _ym = (y1 + y2) /2;
+
+            var m = Math.sqrt((Math.pow(_xm,2)+Math.pow(_ym,2)));
+
+            var _tmpX = (r + 6) / m * _xm,
+                _tmpY = (r + 6) / m * _ym;
+
+            if(largeArc === 1 && Math.abs(x1 - x2) >0.1) {
+                _tmpX = -_tmpX;
+                _tmpY = -_tmpY;
+            }
+
+            var textID = "text-" + _fatherID+"-"+Number(_childID);
+                    
+            d3.select("#" + _pieChartID + " svg g").append("path")
+                .attr("transform", function(d) { return "translate(" + _tmpX + "," + _tmpY + ")"; })
+                .attr("d", d3.svg.symbol().size('25').type('triangle-up'))
+                .attr('fill',"red")
+                .attr('id',textID)
+                .attr('class','mark');
+            /*
+            var textID = "text-" + _fatherID+"-"+Number(_childID),
+                textPara = {
+                    id: textID, 
+                    x: _tmpX, 
+                    y: _tmpY,
+                    class: 'mark'
+                };
+            var text= makeSVG('text',textPara);
+            text.appendChild(document.createTextNode("*"));
+            document.getElementById(_pieChartID)
+                    .getElementsByTagName('svg')[0]
+                    .getElementsByTagName('g')[0]
+                    .appendChild(text);
+            */
+        }
+    }
     function fnCreateSelect( aData )
     {
         var isNumericArray = true;
@@ -1477,8 +1573,15 @@ var StudyViewInitCharts = (function(){
         $("#data-table-chart").html("");
         $("#data-table-chart").append(StudyViewBoilerplate.dataTableDiv);
     }
+    function initData(_data){
+        var _dataArrLength = _data.dataObjectM.length;
+        for(var i=0 ; i< _dataArrLength ; i++){
+            dataArr[_data.dataObjectM[i].CASE_ID] = _data.dataObjectM[i];
+        }
+    }
     return {
         init: function(o,data){
+            initData(data);
             initPage();
             initParameters(o);
             initCharts(data);

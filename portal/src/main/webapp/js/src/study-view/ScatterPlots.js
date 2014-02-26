@@ -64,7 +64,9 @@ var ScatterPlots = function() {
         log_scale_threshold = 0.17677669529;
 
     var updateBrushCallback = "",
-        brushOn = false;
+        clickCallback = "",
+        brushOn = false,
+        brushedCases = [];
 
     var axisXLogFlag = false,
         axisYLogFlag = false;
@@ -411,44 +413,133 @@ var ScatterPlots = function() {
                 .duration(600)
                 .delay(100)
                 .attr("d", d3.svg.symbol().size(style.size * 10).type(style.shape));
+            $(this).css('cursor','pointer');
         };
         var mouseOff = function(d) {
             var dot = d3.select(this);
+            var size = style.size;
+            var attr = $(this).attr('clicked');
+            if(typeof attr !== 'undefined' && attr !== false){
+                size = style.size * 5;
+            }
+            
             dot.transition()
                 .ease("elastic")
                 .duration(600)
                 .delay(100)
-                .attr("d", d3.svg.symbol().size(style.size).type(style.shape));
+                .attr("d", d3.svg.symbol().size(size).type(style.shape));
         };
+        var click = function(){
+            var clickedCases = [],
+                dot = d3.select(this),
+                attr = $(this).attr('clicked');
+            
+            
+            if(typeof attr !== 'undefined' && attr !== false){
+                $(this).removeAttr('clicked');
+                dot.attr('stroke-width','0');
+            }else{
+                dot.attr('clicked','clicked')
+                    .attr('stroke-width','3px');
+                if(dot.attr('stroke') === 'red')
+                    dot.attr('stroke',style.stroke);
+                else
+                    dot.attr('stroke','red');
+            }
+            
+            elem.dotsGroup.selectAll("path").each(function(d) {
+                var subAttr = $(this).attr('clicked');
+                if (typeof subAttr !== 'undefined' && subAttr !== false) {
+                    clickedCases.push(d.case_id);
+                }
+            });
+                
+            var clickedCasesLength = clickedCases.length;
+            
+            if(clickedCasesLength > 1){
+                elem.dotsGroup.selectAll("path").each(function(d) {
+                    var subAttr = $(this).attr('clicked');
+                    if (typeof subAttr === 'undefined' || subAttr === false) {
+                        $(this).attr("stroke", style.stroke);   
+                        $(this).attr("fill", style.fill); 
+                        $(this).attr("d", d3.svg.symbol().size(style.size).type(style.shape));
+                    }
+                });
+                elem.dotsGroup.selectAll("path").each(function(d) {
+                    var subAttr = $(this).attr('clicked');
+                    if (typeof subAttr !== 'undefined' && subAttr !== false) {
+                        $(this).attr("stroke", "red");   
+                        $(this).attr("fill", style.fill); 
+                    }
+                });
+            }
+            
+            for(var i=0 ; i< clickedCasesLength ; i++){
+                if(brushedCases.indexOf(clickedCases[i]) === -1){
+                    elem.dotsGroup.selectAll("path").each(function(d) {
+                        var subAttr = $(this).attr('clicked');
+                        if (typeof subAttr === 'undefined' || subAttr === false) {
+                            $(this).attr("stroke", style.stroke);   
+                            $(this).attr("fill", style.fill); 
+                            $(this).attr("d", d3.svg.symbol().size(style.size).type(style.shape));
+                        }
+                    });
+                    
+                    elem.dotsGroup.selectAll("path").each(function(d) {
+                        var subAttr = $(this).attr('clicked');
+                        if (typeof subAttr !== 'undefined' && subAttr !== false) {
+                            $(this).attr("stroke", "red");   
+                            $(this).attr("fill", style.fill); 
+                        }
+                    });
+                    break;
+                }
+            }
+                
+            clickCallback(clickedCases);
+        };
+        
         elem.dotsGroup.selectAll("path").attr('pointer-events', 'all').on("mouseover", mouseOn);
         elem.dotsGroup.selectAll("path").attr('pointer-events', 'all').on("mouseout", mouseOff);
+        elem.dotsGroup.selectAll("path").attr('pointer-events', 'all').on("click", click);
     }
-
+    
     function brushended() {
-        var brushedCases = [];
-        brushedCases.length = 0;
+        var _brushedCases = [];
+        _brushedCases.length = 0;
         var extent = elem.brush.extent();
+        console.log(extent);
         elem.dotsGroup.selectAll("path").each(function(d) {
             var _x = $(this).attr("x_val"),
-                _y = $(this).attr("y_val");
+                _y = $(this).attr("y_val"),
+                attr = $(this).attr('clicked');
             
             if (_x > extent[0][0] && _x < extent[1][0] &&
                 _y > extent[0][1] && _y < extent[1][1]) {
                 //TODO: does not work with log scale applied scenario
-                $(this).attr("stroke", "red");
+                if(typeof attr !== 'undefined' && attr !== false){
+                    $(this).attr("stroke", style.stroke);
+                }else{
+                     $(this).attr("stroke", "red");
+                }
                 $(this).attr("fill", "red");
-                brushedCases.push(d.case_id);
+                _brushedCases.push(d.case_id);
             } else {
                 if(d.stroke === null || d.stroke === "" || typeof d.stroke === "undefined") {
                     $(this).attr("stroke", style.stroke);   
                     $(this).attr("fill", style.fill); 
+                    $(this).attr("d", d3.svg.symbol().size(style.size).type(style.shape));
                 }
                 $(this).attr("stroke", d.stroke);
                 $(this).attr("fill", d.fill);
+                if(typeof attr !== 'undefined' && attr !== false){
+                    $(this).removeAttr('clicked');
+                }
             }
         });
         d3.select(".brush").call(elem.brush.clear());
-        updateBrushCallback(brushedCases);
+        updateBrushCallback(_brushedCases);
+        brushedCases = _brushedCases;
     }
 
     function updatePlotsLogScale(_axis, _applyLogScale) {
@@ -617,6 +708,9 @@ var ScatterPlots = function() {
         },
         jointBrushCallback: function(_refreshCallback) {
             updateBrushCallback = _refreshCallback;
+        },
+        jointClickCallback: function(_clickCallback) {
+            clickCallback = _clickCallback;
         },
         updateStyle: function(_datumArr) {
             var _tmpDataArr=[];

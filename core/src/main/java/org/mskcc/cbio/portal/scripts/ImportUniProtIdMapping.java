@@ -103,9 +103,7 @@ public final class ImportUniProtIdMapping {
         MySQLbulkLoader.flushAll();
     }
     
-    
-    
-    private Set<String> getSwissProtAccessionHuman() throws IOException {
+    public static Set<String> getSwissProtAccessionHuman() throws IOException {
         String strURL = "http://www.uniprot.org/uniprot/?query="
                 + "taxonomy%3ahuman+AND+reviewed%3ayes&force=yes&format=list";
         

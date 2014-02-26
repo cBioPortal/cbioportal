@@ -33,8 +33,6 @@ import java.net.URLConnection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoUniProtIdMapping;
 
 /**
  * Fetches PFAM graphic data.
@@ -56,7 +54,7 @@ public class FetchPfamGraphicsData
 	 * @return  total number of errors
 	 */
 	public static int driver(String outputFilename,
-			boolean incremental) throws IOException, DaoException
+			boolean incremental) throws IOException
 	{
 		BufferedWriter out = new BufferedWriter(new FileWriter(outputFilename));
 
@@ -68,7 +66,7 @@ public class FetchPfamGraphicsData
 		// 3. populate key set if incremental option is selected
 		Set<String> keySet = initKeySet(outputFilename, incremental);
                 
-                Set<String> uniprotAccs = DaoUniProtIdMapping.getAllUniprotAccessions();
+                Set<String> uniprotAccs = ImportUniProtIdMapping.getSwissProtAccessionHuman();
 
 		// read all
 		for (String uniprotId : uniprotAccs)
@@ -182,7 +180,7 @@ public class FetchPfamGraphicsData
 		}
 
 		// check IO file name args
-		if (args.length - i < 2)
+		if (args.length - i < 1)
 		{
 			System.out.println("command line usage:  fetchPfamGraphicsData.sh <output_pfam_mapping_file>");
             return;

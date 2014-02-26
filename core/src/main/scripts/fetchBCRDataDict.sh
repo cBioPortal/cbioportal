@@ -2,4 +2,4 @@
 
 echo "downloading BCR Data Dictionary (XML)..."
 echo
-wget --no-check-certificate -P $PORTAL_DATA_HOME/reference-data https://tcga-data.nci.nih.gov/docs/dictionary/TCGA_BCR_DataDictionary.xml
+wget --no-check-certificate -O $PORTAL_DATA_HOME/reference-data/TCGA_BCR_DataDictionary.html https://tcga-data.nci.nih.gov/docs/dictionary/

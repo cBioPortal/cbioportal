@@ -39,7 +39,6 @@ import org.jsoup.select.Elements;
 
 import java.io.*;
 import java.util.*;
-import java.util.regex.*;
 
 public class BCRHTMLDictImporter extends ImporterBaseImpl implements Importer
 {
@@ -47,8 +46,7 @@ public class BCRHTMLDictImporter extends ImporterBaseImpl implements Importer
     private static final String DEFINITION_HEADER = "Definition";
     private static final String DISEASE_TYPE_HEADER = "Disease Type";
     private static final String TUMOR_TYPES_DELIMITER = " \\| ";
-    private static final Pattern COLUMN_NAME_REGEX = Pattern.compile("^.*xmlTag: (.*)$");
-    private static final Pattern DISPLAY_NAME_REGEX = Pattern.compile("^(.*) xmlTag:.*$");
+    private static final String COLUMN_NAME_REGEX = "xmlTag: ";
 
     private static final Log LOG = LogFactory.getLog(BCRHTMLDictImporter.class);
 
@@ -106,7 +104,7 @@ public class BCRHTMLDictImporter extends ImporterBaseImpl implements Importer
 
         setColumnIndices(table.select("thead").first());
         for (Element row : table.select("tbody").first().select("tr")) {
-            bcrs.add(getBCRDictEntryFromRow(row));
+            bcrs.addAll(getBCRDictEntryFromRow(row));
         }
 
         if (bcrs.isEmpty()) {
@@ -138,23 +136,33 @@ public class BCRHTMLDictImporter extends ImporterBaseImpl implements Importer
         return -1;
     }
 
-    private BCRDictEntry getBCRDictEntryFromRow(Element row)
+    private List<BCRDictEntry> getBCRDictEntryFromRow(Element row)
     {
+        List<BCRDictEntry> bcrs = new ArrayList<BCRDictEntry>();
+
+        // there can be multiple column attribute headers per row
+        for (String columnName : getColumnNamesFromRow(row)) {
             BCRDictEntry bcr = new BCRDictEntry();
-            bcr.id = getNameFromRow(row, COLUMN_NAME_REGEX);
-            bcr.displayName = getNameFromRow(row, DISPLAY_NAME_REGEX);
+            bcr.id = columnName;
+            bcr.displayName = getDisplayNameFromRow(row);
             bcr.description = row.select("td").get(definitionIndex).text();
             bcr.cancerStudy = "";
             bcr.tumorType = getTumorTypesFromRow(row);
+            bcrs.add(bcr);
+        }
 
-            return bcr;
+        return bcrs;
     }
 
-    private String getNameFromRow(Element row, Pattern p)
+    private List<String> getColumnNamesFromRow(Element row)
     {
-        String value = row.select("td").get(displayAndColumnNameIndex).text();
-        Matcher nameMatcher = p.matcher(value);
-        return (nameMatcher.find()) ? nameMatcher.group(1) : value;
+        List<String> values = Arrays.asList(row.select("td").get(displayAndColumnNameIndex).text().split(COLUMN_NAME_REGEX));
+        return values.subList(1, values.size());
+    }
+
+    private String getDisplayNameFromRow(Element row)
+    {
+        return row.select("td").get(displayAndColumnNameIndex).text().split(COLUMN_NAME_REGEX)[0].trim();
     }
 
     private String getTumorTypesFromRow(Element row)

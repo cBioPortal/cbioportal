@@ -32,6 +32,8 @@ import java.util.regex.*;
 
 public class CaseIdUtil
 {
+    public static final String TCGA_BARCODE_PREFIX = "TCGA";
+
     public static final Pattern TCGA_FULL_SAMPLE_BARCODE_REGEX =
         Pattern.compile("^(TCGA-\\w\\w-\\w\\w\\w\\w-\\w\\w)[A-Z]$");
 
@@ -51,7 +53,7 @@ public class CaseIdUtil
     private static String getId(String barCode, boolean forSample)
     {
 		// do not process non-TCGA bar codes...
-		if (!barCode.startsWith("TCGA")) {
+		if (!barCode.startsWith(TCGA_BARCODE_PREFIX)) {
 			return barCode;
 		}
 

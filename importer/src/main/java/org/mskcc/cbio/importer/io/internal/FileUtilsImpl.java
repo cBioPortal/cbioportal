@@ -32,6 +32,7 @@ package org.mskcc.cbio.importer.io.internal;
 import org.mskcc.cbio.importer.*;
 import org.mskcc.cbio.importer.model.*;
 import org.mskcc.cbio.portal.scripts.*;
+import org.mskcc.cbio.portal.util.CaseIdUtil;
 import org.mskcc.cbio.importer.util.*;
 import org.mskcc.cbio.importer.converter.internal.MethylationConverterImpl;
 
@@ -1076,7 +1077,10 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
             // all other rows are rows in the table
             else {
                 rowData = (rowData == null) ? new LinkedList<LinkedList<String>>() : rowData;
-                LinkedList thisRow = new LinkedList(Arrays.asList(it.nextLine().split(Converter.VALUE_DELIMITER, -1)));
+                LinkedList<String> thisRow = new LinkedList(Arrays.asList(it.nextLine().split(Converter.VALUE_DELIMITER, -1)));
+                if (processingBCRClinicalFile(dataFilename) && skipClinicalDataRow(thisRow)) {
+                    continue;
+                }
                 if (methylationCorrelation == null) {
                     rowData.add(thisRow);
                 }
@@ -1160,4 +1164,14 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
 		return new ArrayList<String>(caseSet);
 	}
+
+    private boolean processingBCRClinicalFile(String dataFilename)
+    {
+        return (dataFilename.startsWith(DatatypeMetadata.BCR_CLINICAL_FILENAME_PREFIX));
+    }
+
+    private boolean skipClinicalDataRow(LinkedList<String> row)
+    {
+        return (!row.getFirst().startsWith(CaseIdUtil.TCGA_BARCODE_PREFIX));
+    }
 }

@@ -44,15 +44,15 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-public class BCRDictImporter extends ImporterBaseImpl implements Importer
+public class BCRXMLDictImporter extends ImporterBaseImpl implements Importer
 {
-    private static final Log LOG = LogFactory.getLog(BCRDictImporter.class);
+    private static final Log LOG = LogFactory.getLog(BCRXMLDictImporter.class);
 
     private Config config;
     private FileUtils fileUtils;
     private DatabaseUtils databaseUtils;
 
-    public BCRDictImporter(Config config, FileUtils fileUtils, DatabaseUtils databaseUtils)
+    public BCRXMLDictImporter(Config config, FileUtils fileUtils, DatabaseUtils databaseUtils)
     {
         this.config = config;
         this.fileUtils = fileUtils;
@@ -93,7 +93,7 @@ public class BCRDictImporter extends ImporterBaseImpl implements Importer
         SAXParser saxParser = factory.newSAXParser();
 
         List<BCRDictEntry> bcrs = new ArrayList<BCRDictEntry>();
-        BCRDictParser handler = new BCRDictParser(bcrs);
+        BCRXMLDictParser handler = new BCRXMLDictParser(bcrs);
         saxParser.parse(xmlFilename, handler);
 
         return bcrs;

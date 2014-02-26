@@ -43,7 +43,7 @@ import javax.xml.parsers.SAXParserFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 @RunWith(JUnit4.class)
-public class BCRDictParserTest {
+public class BCRXMLDictParserTest {
 
     @Test
     public void parseTest() throws ParserConfigurationException, SAXException, IOException {
@@ -52,7 +52,7 @@ public class BCRDictParserTest {
 
         SAXParserFactory factory = SAXParserFactory.newInstance();
         SAXParser saxParser = factory.newSAXParser();
-        BCRDictParser handler = new BCRDictParser(bcrs);
+        BCRXMLDictParser handler = new BCRXMLDictParser(bcrs);
 
         String testXml = "<dictionary></dictionary>";
         InputStream stream = new ByteArrayInputStream(testXml.getBytes());

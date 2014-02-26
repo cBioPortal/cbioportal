@@ -38,7 +38,7 @@ import java.util.ArrayList;
 /**
  * Handles SAX XML element events for parsing data from the Biospecimen Core Resource (BCR) Data Dictionary
  */
-public class BCRDictParser extends DefaultHandler
+public class BCRXMLDictParser extends DefaultHandler
 {
     private List<BCRDictEntry> bcrs;
     private BCRDictEntry currBcr;
@@ -46,7 +46,7 @@ public class BCRDictParser extends DefaultHandler
     private StringBuilder content;
     private ArrayList<String> tumorTypes = new ArrayList<String>();
 
-    public BCRDictParser(List<BCRDictEntry> bcrs)
+    public BCRXMLDictParser(List<BCRDictEntry> bcrs)
     {
         this.bcrs = bcrs;
         this.content = new StringBuilder();

@@ -90,7 +90,6 @@ public class BCRHTMLDictImporter extends ImporterBaseImpl implements Importer
         for (Element table : doc.select("table")) {
             for (Element row : table.select("tr")) {
                 for (Element col : row.select("td")) {
-                    System.out.println(col.text());
                 }
             }
         }

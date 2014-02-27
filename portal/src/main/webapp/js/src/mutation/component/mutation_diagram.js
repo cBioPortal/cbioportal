@@ -420,7 +420,7 @@ MutationDiagram.prototype.processData = function(mutationData)
 	{
 		var mutation = mutationData.at(i);
 
-		var location = PileupUtil.getProteinChangeLocation(mutation);
+		var location = mutation.getProteinStartPos();
 		var type = mutation.mutationType.trim().toLowerCase();
 
 		if (location != null && type != "fusion")

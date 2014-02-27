@@ -203,11 +203,14 @@ var MutationDetailsController = function(
 		var map = mutationUtil.getMutationIdMap();
 
 		_.each(mutationData, function(mutation, idx) {
-			var match = PdbDataUtil.mutationToPdb(mutation, pdbRowData);
+			// use model instance, since raw mutation data won't work with mutationToPdb
+			var mutationModel = map[mutation.mutationId];
+			// find the matching pdb
+			var match = PdbDataUtil.mutationToPdb(mutationModel, pdbRowData);
 			// update the raw mutation object
 			mutation.pdbMatch = match;
 			// also update the corresponding MutationModel within the util
-			map[mutation.mutationId].pdbMatch = match;
+			mutationModel.pdbMatch = match;
 		});
 
 		return mutationData;

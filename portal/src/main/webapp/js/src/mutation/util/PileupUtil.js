@@ -116,27 +116,6 @@ var PileupUtil = (function()
 		return groupArray;
 	};
 
-	/**
-	 * Finds the uniprot location for the protein change of
-	 * the given mutation.
-	 *
-	 * @param mutation  a MutationModel instance
-	 * @return {String} protein location as a string value
-	 */
-	var getProteinChangeLocation = function(mutation)
-	{
-		var location = null;
-		var proteinChange = mutation.proteinChange;
-		var result = proteinChange.match(/[0-9]+/);
-
-		if (result && result.length > 0)
-		{
-			location = result[0];
-		}
-
-		return location;
-	};
-
 	var nextId = function()
 	{
 		_idCounter++;
@@ -167,7 +146,6 @@ var PileupUtil = (function()
 	return {
 		nextId: nextId,
 		mapToMutations: mapToMutations,
-		getProteinChangeLocation: getProteinChangeLocation,
 		getMutationTypeMap: generateTypeMap,
 		getMutationTypeArray: generateTypeArray,
 		getMutationTypeGroups: generateTypeGroupArray

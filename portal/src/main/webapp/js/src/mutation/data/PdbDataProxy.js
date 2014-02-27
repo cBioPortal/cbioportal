@@ -97,7 +97,7 @@ var PdbDataProxy = function(mutationUtil)
 				// re-map mutation ids with positions by using the raw position map
 				for(var i=0; i < mutations.length; i++)
 				{
-					var start = data.positionMap[mutations[i].proteinPosStart];
+					var start = data.positionMap[mutations[i].getProteinStartPos()];
 					var end = start;
 
 					var type = mutations[i].mutationType;

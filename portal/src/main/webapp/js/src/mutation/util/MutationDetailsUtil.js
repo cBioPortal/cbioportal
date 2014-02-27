@@ -68,7 +68,7 @@ var MutationDetailsUtil = function(mutations)
 		for(var i=0; i < mutations.length; i++)
 		{
 			var position = {id: mutations[i].id,
-				start: mutations[i].proteinPosStart,
+				start: mutations[i].getProteinStartPos(),
 				end: mutations[i].proteinPosEnd};
 
 			positions.push(position);

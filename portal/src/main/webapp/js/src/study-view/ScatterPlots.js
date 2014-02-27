@@ -434,7 +434,7 @@ var ScatterPlots = function() {
                 dot = d3.select(this),
                 attr = $(this).attr('clicked');
             
-            
+            //UPdate click point style
             if(typeof attr !== 'undefined' && attr !== false){
                 $(this).removeAttr('clicked');
                 dot.attr('stroke-width','0');
@@ -442,6 +442,11 @@ var ScatterPlots = function() {
                 dot.attr('clicked','clicked')
                     .attr('stroke-width','3px');
                 if(dot.attr('stroke') === 'red')
+                    dot.attr('stroke',style.stroke);
+                else
+                    dot.attr('stroke','red');
+                
+                if(dot.attr('fill') === 'red')
                     dot.attr('stroke',style.stroke);
                 else
                     dot.attr('stroke','red');
@@ -456,6 +461,8 @@ var ScatterPlots = function() {
                 
             var clickedCasesLength = clickedCases.length;
             
+            //If number of clicked cases bigger than 1, restyle rest points,
+            //including all points has been brushed.
             if(clickedCasesLength > 1){
                 elem.dotsGroup.selectAll("path").each(function(d) {
                     var subAttr = $(this).attr('clicked');
@@ -474,6 +481,8 @@ var ScatterPlots = function() {
                 });
             }
             
+            //If click the point out of brush area, all points in brushed area
+            //should be reset to original status.
             for(var i=0 ; i< clickedCasesLength ; i++){
                 if(brushedCases.indexOf(clickedCases[i]) === -1){
                     elem.dotsGroup.selectAll("path").each(function(d) {
@@ -757,7 +766,9 @@ var ScatterPlots = function() {
                 if (_caseIdList.indexOf(d.case_id) !== -1) {
                     var _index = _caseIdList.indexOf(d.case_id);
                     $(this).attr("fill", _datumArr[_index].fill);
-                    $(this).attr("stroke", _datumArr[_index].fill);
+                    $(this).attr("stroke", _datumArr[_index].stroke);
+                    $(this).attr("d", d3.svg.symbol().size(_datumArr[_index].size).type(style.shape));
+                    $(this).attr("stroke-width", _datumArr[_index].strokeWidth);
                 }
             });            
         }

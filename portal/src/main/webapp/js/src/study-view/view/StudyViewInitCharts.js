@@ -17,6 +17,7 @@ var StudyViewInitCharts = (function(){
         varGroup = [], //Groups of displayed charts -- DC.JS require
         disableFiltId = [0],
         brushedCaseIds = [],
+        clickedCaseIds = [],
         chartColors = ["#3366cc","#dc3912","#ff9900","#109618",
             "#990099","#0099c6","#dd4477","#66aa00",
             "#b82e2e","#316395","#994499","#22aa99",
@@ -737,6 +738,11 @@ var StudyViewInitCharts = (function(){
                 var _tmpX = (r + 3) / m * _xm,
                     _tmpY = (r + 3) / m * _ym;
                 
+                if(_xm === 0 && _ym === 0){
+                    _tmpY = 0;
+                    _tmpX = r + 6;
+                }
+            
                 if(largeArc === 1 && Math.abs(x1 - x2) >0.1) {
                     _tmpX = -_tmpX;
                     _tmpY = -_tmpY;
@@ -1341,18 +1347,33 @@ var StudyViewInitCharts = (function(){
             styleDatum.case_id = parObject.caseIds[i];
             if(_selectedCaseID.length !== parObject.caseIds.length){
                 if(_selectedCaseID.indexOf(parObject.caseIds[i]) !== -1){
-                    styleDatum.fill='red';
-                    styleDatum.stroke = 'red';
+                    if(clickedCaseIds.indexOf(parObject.caseIds[i]) !== -1){
+                        styleDatum.fill='red';
+                        styleDatum.stroke='#3366cc';
+                        styleDatum.strokeWidth='3px';
+                        styleDatum.size='300';
+                    }else{
+                        styleDatum.fill='red';
+                        styleDatum.stroke = 'red';
+                        styleDatum.strokeWidth='0';
+                        styleDatum.size='60';
+                    }
                 }else{
                     styleDatum.fill='#3366cc';
                     styleDatum.stroke = '#3366cc';
+                    styleDatum.strokeWidth='0';
+                    styleDatum.size='60';
                 }
             }else if(_filters.length === 0){
                 styleDatum.fill='#3366cc';
                 styleDatum.stroke = '#3366cc';
+                styleDatum.strokeWidth='0';
+                styleDatum.size='60';
             }else{
                 styleDatum.fill='red';
                 styleDatum.stroke = 'red';
+                styleDatum.strokeWidth='0';
+                styleDatum.size='60';
             }
             style.push(styleDatum);
         }
@@ -1408,6 +1429,9 @@ var StudyViewInitCharts = (function(){
     }
     function scatterPlotBrushCallBack(_brushedCaseIds) {
         brushedCaseIds = _brushedCaseIds;
+        if(_brushedCaseIds.length === 0 || (clickedCaseIds.length === 1 && _brushedCaseIds.indexOf(clickedCaseIds[0]) === -1)){
+            clickedCaseIds = [];
+        }
         scatterPlotCallBack(_brushedCaseIds);
     }
     function scatterPlotCallBack(_caseIDs){
@@ -1426,9 +1450,12 @@ var StudyViewInitCharts = (function(){
         }
         changeHeader();
         removeMarker();
+        if(clickedCaseIds.length === 1){
+            getDataAndDrawMarker(clickedCaseIds);
+        }
     }
     function scatterPlotClickCallBack(_clickedCaseIds) {
-        
+        clickedCaseIds = _clickedCaseIds;
         if(_clickedCaseIds.length === 1 && (brushedCaseIds.length === 0 || brushedCaseIds.indexOf(_clickedCaseIds[0]) === -1)){
             for(var i=0; i< varChart.length ; i++){
                 if(varChart[i].filters().length > 0)
@@ -1439,6 +1466,8 @@ var StudyViewInitCharts = (function(){
             getDataAndDrawMarker(_clickedCaseIds);
         }else if(_clickedCaseIds.length === 1){
             getDataAndDrawMarker(_clickedCaseIds);
+        }else if(_clickedCaseIds.length === 0 && brushedCaseIds.length !== 0){
+            removeMarker();
         }else{
             scatterPlotCallBack(_clickedCaseIds);
         }
@@ -1480,21 +1509,26 @@ var StudyViewInitCharts = (function(){
             x2 = Number(tmpPointsInfo[8]),
             y2 = Number(tmpPointsInfo[9]),
             r = Number(tmpPointsInfo[3]);
-
+    
         if((x1-x2!==0 ||y1-y2!==0) && tmpPointsInfo1.length === 2){
             var _xm = (x1 + x2) /2,
                 _ym = (y1 + y2) /2;
 
             var m = Math.sqrt((Math.pow(_xm,2)+Math.pow(_ym,2)));
-
+            
             var _tmpX = (r + 6) / m * _xm,
                 _tmpY = (r + 6) / m * _ym;
-
+            
+            if(_xm === 0 && _ym === 0){
+                _tmpY = 0;
+                _tmpX = r + 6;
+            }
+            
             if(largeArc === 1 && Math.abs(x1 - x2) >0.1) {
                 _tmpX = -_tmpX;
                 _tmpY = -_tmpY;
             }
-
+            
             var textID = "path-" + _fatherID+"-"+Number(_childID);
                     
             d3.select("#" + _pieChartID + " svg g").append("path")

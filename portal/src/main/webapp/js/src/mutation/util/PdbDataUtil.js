@@ -245,10 +245,7 @@ var PdbDataUtil = (function()
 
 		var symbol = alignment.mergedString[index];
 
-		var mismatch = symbol == ALIGNMENT_MINUS ||
-			symbol == ALIGNMENT_PLUS ||
-			symbol == ALIGNMENT_SPACE ||
-			symbol == ALIGNMENT_GAP;
+		var mismatch = (symbol == ALIGNMENT_GAP);
 
 		return !mismatch;
 	}

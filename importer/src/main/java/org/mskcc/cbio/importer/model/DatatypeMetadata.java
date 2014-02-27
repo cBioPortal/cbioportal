@@ -47,9 +47,10 @@ public class DatatypeMetadata {
 	public static final String NUM_GENES_TAG = "<NUM_GENES>";
 	public static final String TUMOR_TYPE_TAG = "<TUMOR_TYPE>";
 	public static final String CANCER_STUDY_TAG = "<CANCER_STUDY>";
-    public static final String CLINICAL_PATIENT_FOLLOWUP_VERSION = "<FOLLOWUP_VERSION>";
-    public static final Pattern CLINICAL_PATIENT_FOLLOWUP_FILE_REGEX = Pattern.compile("clinical_follow_up_v(\\d\\.\\d+)_\\w+\\.txt");
-    public static final Pattern CLINICAL_PATIENT_FILE_REGEX = Pattern.compile("clinical_patient_(\\w+)\\.txt");
+    public static final String CLINICAL_FOLLOWUP_VERSION = "<FOLLOWUP_VERSION>";
+    // this will match both patient and nte followup files - which is ok.
+    public static final Pattern CLINICAL_FOLLOWUP_FILE_REGEX = Pattern.compile("nationwidechildrens.org_clinical_follow_up_v(\\d\\.\\d+)_\\w+\\.txt");
+    public static final Pattern CLINICAL_PATIENT_FILE_REGEX = Pattern.compile("nationwidechildrens.org_clinical_patient_(\\w+)\\.txt");
 	
 	// delimiter when specifying datatypes on worksheet
     public static final String DATATYPES_DELIMITER = ":"; 
@@ -59,6 +60,7 @@ public class DatatypeMetadata {
 
 	public static final String CORRELATE_METHYL_FILE_ID = "Correlate";
 
+    public static final String COMMON_DATA_ELEMENT_ID = "CDE_ID:";
     public static final String BCR_CLINICAL_FILENAME_PREFIX = "data_bcr";
     public static final String CLINICAL_SAMPLE_FILENAME_SUFFIX = "_sample.txt";
 	public static final String CLINICAL_PATIENT_FILENAME = "data_clinical_patient.txt";

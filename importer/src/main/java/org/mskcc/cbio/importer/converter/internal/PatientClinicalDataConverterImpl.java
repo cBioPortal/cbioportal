@@ -103,6 +103,7 @@ public class PatientClinicalDataConverterImpl extends ClinicalDataConverterImpl 
         throw new IllegalArgumentException("Cannot find clinical patient file, aborting");
     }
 
+    // includes both patient and nte files - which is ok
     private List<DataMatrix> getSortedFollowUpMatrices(List<DataMatrix> dataMatrices)
     {
         List<DataMatrix> followUps = new ArrayList<DataMatrix>(dataMatrices);

@@ -33,6 +33,8 @@ import java.net.URLConnection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import org.mskcc.cbio.portal.util.ConsoleUtil;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 /**
  * Fetches PFAM graphic data.
@@ -67,11 +69,17 @@ public class FetchPfamGraphicsData
 		Set<String> keySet = initKeySet(outputFilename, incremental);
                 
                 Set<String> uniprotAccs = ImportUniProtIdMapping.getSwissProtAccessionHuman();
+                
+                ProgressMonitor pMonitor = new ProgressMonitor();
+                pMonitor.setConsoleMode(true);
+                pMonitor.setMaxValue(uniprotAccs.size());
 
 		// read all
 		for (String uniprotId : uniprotAccs)
 		{
-
+                            pMonitor.incrementCurValue();
+                            ConsoleUtil.showProgress(pMonitor);
+                            
                             // avoid to add a duplicate entry
                             if (keySet.contains(uniprotId))
                             {

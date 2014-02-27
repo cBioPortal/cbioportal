@@ -39,6 +39,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		highlightBorderColor: "#FF9900", // color of the highlight rect border
 		highlightBorderWidth: 2.0,       // width of the highlight rect border
 		colors: ["#3366cc"],  // rectangle colors
+		animationDuration: 1000, // transition duration (in ms) used for resize animations
 		/**
 		 * Default chain tooltip function.
 		 *
@@ -124,6 +125,12 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	// <pdbId:chainId> to <row index> map
 	var _rowMap = {};
 
+	// previous height before auto collapse
+	var _levelHeight = 0;
+
+	// currently highlighted chain
+	var _highlighted = null;
+
 	/**
 	 * Draws the actual content of the panel, by drawing a rectangle
 	 * for each chain
@@ -191,7 +198,10 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	 */
 	function drawChainRectangles(svg, chain, color, options, xScale, y)
 	{
-		var gChain = svg.append("g").attr("class", "pdb-chain-group");
+		var gChain = svg.append("g")
+			.attr("class", "pdb-chain-group")
+			.attr("opacity", 1);
+
 		var height = options.chainHeight;
 
 		// init the segmentor for the merged alignment object
@@ -215,6 +225,10 @@ function MutationPdbPanel(options, data, proxy, xScale)
 					.attr('y1', y + height/2)
 					.attr('x2', x + width)
 					.attr('y2', y + height/2);
+
+				// store initial position for future use
+				// (this is not a good way of using datum)
+				line.datum({initPos: {x: x, y: (y + height/2)}});
 			}
 			// draw a rectangle for any other segment type
 			else
@@ -228,6 +242,10 @@ function MutationPdbPanel(options, data, proxy, xScale)
 					.attr('y', y)
 					.attr('width', width)
 					.attr('height', height);
+
+				// store initial position for future use
+				// (this is not a good way of using datum)
+				rect.datum({initPos: {x: x, y: y}});
 			}
 		}
 
@@ -239,7 +257,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	 *
 	 * @param svg       svg to append the label element
 	 * @param options   general options object
-	 * @return {object} text label (svg element)
+	 * @return {object} label group (svg element)
 	 */
 	function drawYAxisLabel(svg, options)
 	{
@@ -260,8 +278,12 @@ function MutationPdbPanel(options, data, proxy, xScale)
 			orient = "horizontal";
 		}
 
+		var gLabel = svg.append("g")
+			.attr("class", "pdb-panel-y-axis-label-group")
+			.attr("opacity", 1);
+
 		// append label
-		var label = svg.append("text")
+		var label = gLabel.append("text")
 			.attr("fill", options.labelYFontColor)
 			.attr("text-anchor", textAnchor)
 			.attr("x", x)
@@ -293,7 +315,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 			label.text(options.labelY);
 		}
 
-		var help = drawYAxisHelp(svg, x, y, orient, options);
+		var help = drawYAxisHelp(gLabel, x, y, orient, options);
 
 		var addTooltip = options.yHelpTipFn;
 		addTooltip(help);
@@ -421,7 +443,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	 * Calculates the collapsed height of the panel wrt to provided
 	 * maxChain option.
 	 *
-	 * @param maxChain  maximum number of chains to be displayed
+	 * @param maxChain  maximum number of rows to be displayed
 	 * @return {number} calculated collapsed height
 	 */
 	function calcCollapsedHeight(maxChain)
@@ -478,11 +500,12 @@ function MutationPdbPanel(options, data, proxy, xScale)
 
 		// number of rows to be shown initially
 		var numRows = _options.numRows[0];
+		_levelHeight = calcCollapsedHeight(numRows);
 
 		// create svg element & update its reference
 		var svg = createSvg(container,
 		                    _options.elWidth,
-		                    calcCollapsedHeight(numRows));
+		                    _levelHeight);
 
 		_svg = svg;
 
@@ -605,12 +628,15 @@ function MutationPdbPanel(options, data, proxy, xScale)
 
 	/**
 	 * Resizes the panel height to show only a limited number of chains.
+	 *
+	 * @param index level index
 	 */
 	function resizePanel(index)
 	{
 		// resize to collapsed height
 		var collapsedHeight = calcCollapsedHeight(_options.numRows[index]);
-		_svg.transition().duration(1000).attr("height", collapsedHeight);
+		_svg.transition().duration(_options.animationDuration).attr("height", collapsedHeight);
+		_levelHeight = collapsedHeight;
 	}
 
 	/**
@@ -620,7 +646,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	{
 		// resize to full size
 		var fullHeight = calcHeight(_options.elHeight);
-		_svg.transition().duration(1000).attr("height", fullHeight);
+		_svg.transition().duration(_options.animationDuration).attr("height", fullHeight);
 	}
 
 	/**
@@ -750,6 +776,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		// add the selection rectangle
 		var rect = _svg.append('rect')
 			.attr('class', "pdb-selection-rectangle")
+			.attr('opacity', 0)
 			.attr('fill', "none")
 			.attr('stroke', _options.highlightBorderColor)
 			.attr('stroke-width', _options.highlightBorderWidth)
@@ -757,6 +784,15 @@ function MutationPdbPanel(options, data, proxy, xScale)
 			.attr('y', bbox.y)
 			.attr('width', bbox.width)
 			.attr('height', bbox.height);
+
+		rect.transition().duration(_options.animationDuration).attr('opacity', 1);
+
+		// store initial position for future use
+		// (this is not a good way of using datum)
+		rect.datum({initPos: {x: bbox.x, y: bbox.y}});
+
+		// update the reference
+		_highlighted = chainGroup;
 
 		// ...alternatively we can just use a yellowish color
 		// to highlight the whole background
@@ -779,13 +815,16 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		var y = -1;
 		var height = -1;
 
+		// TODO using initial values to find the bounding box, this might not be safe!
 		rectGroup.selectAll("rect").each(function(datum, idx) {
 			var rect = d3.select(this);
 			// assuming height and y are the same for all rects
-			y = parseFloat(rect.attr("y"));
+			//y = parseFloat(rect.attr("y"));
+			y = datum.initPos.y;
 			height = parseFloat(rect.attr("height"));
 
-			var x = parseFloat(rect.attr("x"));
+			//var x = parseFloat(rect.attr("x"));
+			var x = datum.initPos.x;
 			var width = parseFloat(rect.attr("width"));
 
 			if (x < left)
@@ -805,6 +844,140 @@ function MutationPdbPanel(options, data, proxy, xScale)
 			height: height};
 	}
 
+	function minimizeToHighlighted(callback)
+	{
+		if (_highlighted != null)
+		{
+			minimizeToChain(_highlighted, callback);
+		}
+	}
+
+	/**
+	 * Collapses the view to the given chain group by hiding
+	 * everything other than the given chain. Also reduces
+	 * the size of the diagram to fit only a single row.
+	 *
+	 * @param chainGroup    chain group (svg element)
+	 * @param callback      function to call after the transition
+	 */
+	function minimizeToChain(chainGroup, callback)
+	{
+		// already minimized (or being minimized)
+//		if (_minimized)
+//		{
+//			return;
+//		}
+
+		var duration = _options.animationDuration;
+		var datum = chainGroup.datum();
+		var key = chainKey(datum.pdbId, datum.chain.chainId);
+		var chainRow = _rowMap[key];
+		var shift = chainRow * (_options.chainHeight + _options.chainPadding);
+
+		// 3 transitions in parallel:
+		// 1) shift all chains up, such that selected chain will be on top
+		// 2) fade-out all chains (except selected) and labels
+		// 3) resize the panel to a single row size
+
+		var shiftFn = function(target, d, attr) {
+			var ele = d3.select(target);
+			return (parseInt(ele.attr(attr)) - shift);
+		};
+
+		// shift up every chain on the y-axis
+		yShiftRect(".pdb-chain-group rect", shiftFn, duration);
+		yShiftRect(".pdb-selection-rectangle", shiftFn, duration);
+		yShiftLine(".pdb-chain-group line", shiftFn, duration);
+
+		// fade-out other chains, labels, etc.
+
+		_svg.selectAll(".pdb-chain-group")
+			.transition().duration(duration)
+			.attr("opacity", function(datum) {
+				if (chainKey(datum.pdbId, datum.chain.chainId) === key) {
+					// do not hide the provided chain
+					return 1;
+				} else {
+					// hide all the others
+					return 0;
+				}
+			});
+
+		_svg.select(".pdb-panel-y-axis-label-group")
+			.transition().duration(duration)
+			.attr("opacity", 0);
+
+		// resize to collapsed height
+		var collapsedHeight = calcCollapsedHeight(1);
+		_svg.transition().duration(duration)
+			.attr("height", collapsedHeight)
+			.each("end", function(){
+				if (_.isFunction(callback)) {
+					callback();
+				}
+			});
+	}
+
+	function yShiftLine(selector, shiftFn, duration)
+	{
+		_svg.selectAll(selector)
+			.transition().duration(duration)
+			.attr("y1", function(d) {
+				return shiftFn(this, d, "y1");
+			})
+			.attr("y2", function(d) {
+				return shiftFn(this, d, "y2");
+			});
+	}
+
+	function yShiftRect(selector, shiftFn, duration)
+	{
+		_svg.selectAll(selector)
+			.transition().duration(duration)
+			.attr("y", function(d) {
+				return shiftFn(this, d, "y");
+			});
+	}
+
+	/**
+	 * Reverses the changes back to the state before calling
+	 * the minimizeToChain function.
+	 *
+	 * @param callback  function to call after the transition
+	 */
+	function restoreToFull(callback)
+	{
+		var duration = _options.animationDuration;
+
+		var shiftFn = function(target, d, attr) {
+			return d.initPos.y;
+		};
+
+		// put everything back to its original position
+		yShiftRect(".pdb-chain-group rect", shiftFn, duration);
+		yShiftRect(".pdb-selection-rectangle", shiftFn, duration);
+		yShiftLine(".pdb-chain-group line", shiftFn, duration);
+
+		// fade-in hidden elements
+
+		_svg.selectAll(".pdb-chain-group")
+			.transition().duration(duration)
+			.attr("opacity", 1);
+
+		_svg.selectAll(".pdb-panel-y-axis-label-group")
+			.transition().duration(duration)
+			.attr("opacity", 1);
+
+		// restore to previous height
+		_svg.transition().duration(duration)
+			.attr("height", _levelHeight)
+			.each("end", function(){
+				if (_.isFunction(callback)) {
+					callback();
+				}
+			});
+	}
+
 	return {init: init,
 		addListener: addListener,
 		removeListener: removeListener,
@@ -814,6 +987,9 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		hide: hidePanel,
 		toggleHeight: toggleHeight,
 		expandToChainLevel: expandToChainLevel,
+		minimizeToChain: minimizeToChain,
+		minimizeToHighlighted: minimizeToHighlighted,
+		restoreToFull: restoreToFull,
 		hasMoreChains: hasMoreChains,
 		highlight: highlight,
 		dispatcher: _dispatcher};

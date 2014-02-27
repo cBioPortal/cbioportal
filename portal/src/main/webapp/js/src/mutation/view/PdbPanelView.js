@@ -15,6 +15,7 @@
 var PdbPanelView = Backbone.View.extend({
 	initialize : function (options) {
 		this.options = options || {};
+		this.collapseTimer = null;
 	},
 	render: function()
 	{
@@ -59,6 +60,25 @@ var PdbPanelView = Backbone.View.extend({
 				self.pdbPanel.toggleHeight();
 			});
 		}
+
+		self.$el.mouseenter(function(evt) {
+			// clear previous highlight
+			if (self.collapseTimer != null)
+			{
+				clearTimeout(self.collapseTimer);
+			}
+
+			self.pdbPanel.restoreToFull();
+
+			if (self.pdbPanel.hasMoreChains())
+			{
+				expandButton.slideDown();
+			}
+		});
+
+		self.$el.mouseleave(function(evt) {
+			self.autoCollapse();
+		});
 	},
 	hideView: function()
 	{
@@ -80,8 +100,17 @@ var PdbPanelView = Backbone.View.extend({
 		var panel = self.pdbPanel;
 		var gChain = panel.getDefaultChainGroup();
 
-		// highlight the default chain
-		panel.highlight(gChain);
+		// clear previous timer
+		if (self.collapseTimer != null)
+		{
+			clearTimeout(self.collapseTimer);
+		}
+
+		// restore to full view
+		panel.restoreToFull(function() {
+			// highlight the default chain
+			panel.highlight(gChain);
+		});
 	},
 	/**
 	 * Selects the given pdb and chain for the 3D visualizer.
@@ -94,17 +123,47 @@ var PdbPanelView = Backbone.View.extend({
 		var self = this;
 		var panel = self.pdbPanel;
 
-		// expand the panel up to the level of the given chain
-		panel.expandToChainLevel(pdbId, chainId);
-
-		// get the chain group
-		var gChain = panel.getChainGroup(pdbId, chainId);
-
-		// highlight the chain group
-		if (gChain)
+		// clear previous timer
+		if (self.collapseTimer != null)
 		{
-			panel.highlight(gChain);
+			clearTimeout(self.collapseTimer);
 		}
+
+		// restore to full view
+		panel.restoreToFull(function() {
+			// expand the panel up to the level of the given chain
+			panel.expandToChainLevel(pdbId, chainId);
+
+			// get the chain group
+			var gChain = panel.getChainGroup(pdbId, chainId);
+
+			// highlight the chain group
+			if (gChain)
+			{
+				panel.highlight(gChain);
+			}
+		});
+	},
+	/**
+	 * Initializes auto collapse process.
+	 */
+	autoCollapse: function()
+	{
+		var self = this;
+		var expandButton = self.$el.find(".expand-collapse-pdb-panel");
+		var delay = 5000; // time to minimization
+
+		// clear previous timer
+		if (self.collapseTimer != null)
+		{
+			clearTimeout(self.collapseTimer);
+		}
+
+		// set new timer
+		self.collapseTimer = setTimeout(function() {
+			self.pdbPanel.minimizeToHighlighted();
+			expandButton.slideUp();
+		}, delay);
 	},
 	/**
 	 * Initializes the PDB chain panel.

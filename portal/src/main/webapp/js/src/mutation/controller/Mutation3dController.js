@@ -270,7 +270,7 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 					chainSelectHandler);
 			}
 
-			// reload the visualizer content with the default pdb and chain
+			// reload the visualizer content with the given pdb and chain
 			if (mut3dVisView != null &&
 			    _pdbPanelView != null &&
 			    pdbColl.length > 0)
@@ -284,8 +284,12 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 				}
 				else
 				{
+					// select default chain if none provided
 					_pdbPanelView.selectDefaultChain();
 				}
+
+				// initiate auto-collapse
+				_pdbPanelView.autoCollapse();
 			}
 		};
 

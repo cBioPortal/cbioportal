@@ -134,7 +134,14 @@
 #study-view-header-left input {
     float: left;
 }
-
+#dataTables_filter {
+    width:auto;
+    float: right;
+}
+#dataTable_info {
+    float: left;
+    width: auto;
+}
 /* CLASS styles */
 .study-view-header{    
     border-style: solid;
@@ -386,6 +393,23 @@ pieH3{
 } 
 .row_selected{
     background-color: lightgray;
+}
+.dataTableTop {
+    float: left;
+    width: 100%;
+}
+.dataTableReset {
+    float: left;
+    width: auto;
+    margin-left: 3px;
+    font-size: 100%;
+    padding: 3px;
+}
+.dataTableReset span{
+    color: lightblue;
+}
+.dataTableReset span:hover{
+    cursor: pointer;
 }
 /* tag styles */
 /*

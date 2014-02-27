@@ -384,7 +384,9 @@ pieH3{
     shape-rendering: crispEdges;
     z-index: -1;
 } 
-
+.row_selected{
+    background-color: lightgray;
+}
 /* tag styles */
 /*
 ul {
@@ -405,7 +407,9 @@ ul li a:hover, ul li a:focus {
     width:100%;
     font-size:12px;
 }
-
+#data-table-chart table#dataTable>tbody:hover{
+    cursor: pointer;
+}
 #data-table-chart table.dataTable>tbody>tr>td {white-space:nowrap}
 #data-table-chart table.dataTable>thead>tr>th:nth-child(1) {background-color: white;}
 #data-table-chart table.dataTable>thead>tr>th {

@@ -16,6 +16,7 @@ var PdbPanelView = Backbone.View.extend({
 	initialize : function (options) {
 		this.options = options || {};
 		this.collapseTimer = null;
+		this.expandTimer = null;
 	},
 	render: function()
 	{
@@ -62,18 +63,7 @@ var PdbPanelView = Backbone.View.extend({
 		}
 
 		self.$el.mouseenter(function(evt) {
-			// clear previous highlight
-			if (self.collapseTimer != null)
-			{
-				clearTimeout(self.collapseTimer);
-			}
-
-			self.pdbPanel.restoreToFull();
-
-			if (self.pdbPanel.hasMoreChains())
-			{
-				expandButton.slideDown();
-			}
+			self.autoExpand();
 		});
 
 		self.$el.mouseleave(function(evt) {
@@ -127,11 +117,8 @@ var PdbPanelView = Backbone.View.extend({
 		var self = this;
 		var panel = self.pdbPanel;
 
-		// clear previous timer
-		if (self.collapseTimer != null)
-		{
-			clearTimeout(self.collapseTimer);
-		}
+		// clear previous timers
+		self.clearTimers();
 
 		// restore to original positions & highlight the chain
 		panel.restoreChainPositions(function() {
@@ -154,7 +141,7 @@ var PdbPanelView = Backbone.View.extend({
 		});
 	},
 	/**
-	 * Initializes auto collapse process.
+	 * Initializes the auto collapse process.
 	 *
 	 * @delay time to minimization
 	 */
@@ -168,17 +155,56 @@ var PdbPanelView = Backbone.View.extend({
 		var self = this;
 		var expandButton = self.$el.find(".expand-collapse-pdb-panel");
 
-		// clear previous timer
-		if (self.collapseTimer != null)
-		{
-			clearTimeout(self.collapseTimer);
-		}
+		// clear previous timers
+		self.clearTimers();
 
 		// set new timer
 		self.collapseTimer = setTimeout(function() {
 			self.pdbPanel.minimizeToHighlighted();
 			expandButton.slideUp();
 		}, delay);
+	},
+	/**
+	 * Initializes the auto expand process.
+	 *
+	 * @delay time to minimization
+	 */
+	autoExpand: function(delay)
+	{
+		if (delay == null)
+		{
+			delay = 400;
+		}
+
+		var self = this;
+		var expandButton = self.$el.find(".expand-collapse-pdb-panel");
+
+		// clear previous timers
+		self.clearTimers();
+
+		// set new timer
+		self.expandTimer = setTimeout(function() {
+			self.pdbPanel.restoreToFull();
+
+			if (self.pdbPanel.hasMoreChains())
+			{
+				expandButton.slideDown();
+			}
+		}, delay);
+	},
+	clearTimers: function()
+	{
+		var self = this;
+
+		if (self.collapseTimer != null)
+		{
+			clearTimeout(self.collapseTimer);
+		}
+
+		if (self.expandTimer != null)
+		{
+			clearTimeout(self.expandTimer);
+		}
 	},
 	/**
 	 * Initializes the PDB chain panel.

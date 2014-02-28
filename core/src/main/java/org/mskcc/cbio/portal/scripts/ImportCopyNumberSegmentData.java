@@ -1,19 +1,11 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import org.mskcc.cbio.portal.dao.DaoCancerStudy;
-import org.mskcc.cbio.portal.dao.DaoCopyNumberSegment;
-import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.CopyNumberSegment;
-import org.mskcc.cbio.portal.util.ConsoleUtil;
-import org.mskcc.cbio.portal.util.FileUtil;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
+import org.mskcc.cbio.portal.util.*;
+
+import java.io.*;
 
 /**
  * Import protein array antibody information into database.
@@ -23,7 +15,6 @@ public class ImportCopyNumberSegmentData {
     private ProgressMonitor pMonitor;
     private int cancerStudyId;
     private File file;
-    private Pattern p = Pattern.compile("(TCGA\\-[^\\-]+-[^\\-]+).*");
     
     public ImportCopyNumberSegmentData(File file, int cancerStudyId, ProgressMonitor pMonitor) {
         this.file = file;
@@ -52,11 +43,7 @@ public class ImportCopyNumberSegmentData {
                 System.err.println("wrong format: "+line);
             }
 
-            String caseId = strs[0];
-            Matcher m = p.matcher(caseId);
-            if (m.matches()) {
-                caseId = m.group(1);
-            }
+            String caseId = CaseIdUtil.getSampleId(strs[0]);
             long start = Double.valueOf(strs[2]).longValue();
             long end = Double.valueOf(strs[3]).longValue();
             int numProbes = Integer.parseInt(strs[4]);

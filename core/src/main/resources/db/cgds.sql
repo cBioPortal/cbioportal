@@ -113,7 +113,7 @@ CREATE TABLE `sample` (
 drop table IF EXISTS patient_list;
 CREATE TABLE `patient_list` (
   `LIST_ID` int(11) NOT NULL auto_increment,
-  `STABLE_ID` varchar(50) NOT NULL,
+  `STABLE_ID` varchar(255) NOT NULL,
   `CATEGORY` varchar(255) NOT NULL,
   `CANCER_STUDY_ID` int(11) NOT NULL,
   `NAME` varchar(255) NOT NULL,

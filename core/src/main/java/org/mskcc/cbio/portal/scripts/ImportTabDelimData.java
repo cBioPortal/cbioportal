@@ -27,24 +27,13 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.io.*;
+import java.util.*;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.model.CanonicalGene;
-import org.mskcc.cbio.portal.model.CnaEvent;
-import org.mskcc.cbio.portal.model.GeneticAlterationType;
-import org.mskcc.cbio.portal.model.GeneticProfile;
-import org.mskcc.cbio.portal.util.ConsoleUtil;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
-import org.mskcc.cbio.portal.util.CaseIdUtil;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.*;
 
 /**
  * Code to Import Copy Number Alteration or MRNA Expression Data.
@@ -192,7 +181,7 @@ public class ImportTabDelimData {
                 }
 
                 if (hugo != null || entrez != null) {
-                    if (hugo.contains("///") || hugo.contains("---")) {
+                    if (hugo != null && (hugo.contains("///") || hugo.contains("---"))) {
                         //  Ignore gene IDs separated by ///.  This indicates that
                         //  the line contains information regarding multiple genes, and
                         //  we cannot currently handle this.
@@ -209,7 +198,7 @@ public class ImportTabDelimData {
                             }
                         } 
                         
-                        if (genes==null) {
+                        if (genes==null && hugo != null) {
                             // deal with multiple symbols separate by |, use the first one
                             int ix = hugo.indexOf("|");
                             if (ix>0) {
@@ -219,11 +208,15 @@ public class ImportTabDelimData {
                             genes = daoGene.guessGene(hugo);
                         }
 
+                        if (genes == null) {
+                            genes = Collections.emptyList();
+                        }
+
                         //  If no target line is specified or we match the target, process.
                         if (targetLine == null || parts[0].equals(targetLine)) {
                             if (genes.isEmpty()) {
                                 //  if gene is null, we might be dealing with a micro RNA ID
-                                if (hugo.toLowerCase().contains("-mir-")) {
+                                if (hugo != null && hugo.toLowerCase().contains("-mir-")) {
 //                                    if (microRnaIdSet.contains(geneId)) {
 //                                        storeMicroRnaAlterations(values, daoMicroRnaAlteration, geneId);
 //                                        numRecordsStored++;
@@ -233,7 +226,8 @@ public class ImportTabDelimData {
                                             + "and all tab-delimited data associated with it!");
 //                                    }
                                 } else {
-                                    pMonitor.logWarning("Gene not found:  [" + hugo
+                                    String gene = (hugo != null) ? hugo : entrez;
+                                    pMonitor.logWarning("Gene not found:  [" + gene
                                         + "]. Ignoring it "
                                         + "and all tab-delimited data associated with it!");
                                 }
@@ -325,7 +319,8 @@ public class ImportTabDelimData {
         
         for (int i=startIndex; i<headers.length; i++) {
             String h = headers[i];
-            if (!h.equalsIgnoreCase("Hugo_Symbol") &&
+            if (!h.equalsIgnoreCase("Gene Symbol") &&
+                    !h.equalsIgnoreCase("Hugo_Symbol") &&
                     !h.equalsIgnoreCase("Entrez_Gene_Id") &&
                     !h.equalsIgnoreCase("Locus ID") &&
                     !h.equalsIgnoreCase("Cytoband")) {

@@ -26,9 +26,9 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 		// - excludeIfHidden: if conditionally determined to be hidden initially, then exclude
 		//
 		// all other columns will be initially hidden by default
-		//
 		columnVisibility: {"aa change": "visible",
 			"case id": "visible",
+			"tumor type": "excludeIfHidden",
 			"type": "visible",
 			"cosmic": "visible",
 			"fis": "visible",
@@ -52,32 +52,42 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 			},
 			"ms": function (util, gene) {
 				return util.containsGermline(gene);
+			},
+			"tumor type": function (util, gene) {
+				return (util.distinctTumorTypeCount(gene) > 0);
 			}
 		},
-		paginate: false,
-		filter: true
+		// WARNING: overwriting advanced DataTables options such as
+		// aoColumnDefs, oColVis, and fnDrawCallback may break column
+		// visibility and sorting behaviour. Proceed wisely ;)
+		dataTableOpts: {
+			"sDom": '<"H"<"mutation_datatables_filter"f>C<"mutation_datatables_info"i>>t',
+			"bJQueryUI": true,
+			"bPaginate": false,
+			"bFilter": true
+		}
 	};
 
 	// merge options with default options to use defaults for missing values
 	var _options = jQuery.extend(true, {}, _defaultOpts, options);
 
-	var mutationUtil = new MutationDetailsUtil(
+	var _mutationUtil = new MutationDetailsUtil(
 		new MutationCollection(mutations));
 
 	// a list of registered callback functions
-	var callbackFunctions = [];
+	var _callbackFunctions = [];
 
 	// flag used to switch callbacks on/off
-	var callbackActive = true;
+	var _callbackActive = true;
 
 	// reference to the data table object
-	var dataTable = null;
+	var _dataTable = null;
 
 	// this is used to check if search string is changed after each redraw
-	var prevSearch = "";
+	var _prevSearch = "";
 
 	// last search string manually entered by the user
-	var manualSearch = "";
+	var _manualSearch = "";
 
 	/**
 	 * Creates a mapping for given column headers. The mapped values
@@ -147,7 +157,7 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 				// visibility function checks the condition
 				if (_.isFunction(visFn))
 				{
-					visible = visFn(mutationUtil, gene);
+					visible = visFn(_mutationUtil, gene);
 				}
 				else
 				{
@@ -263,12 +273,9 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 	 */
 	function _initDataTable(tableSelector, indexMap, hiddenCols, excludedCols, nonSearchableCols)
 	{
-		// format the table with the dataTable plugin
-	    var oTable = tableSelector.dataTable({
-	        "sDom": '<"H"<"mutation_datatables_filter"f>C<"mutation_datatables_info"i>>t',
-	        "bJQueryUI": true,
-	        "bPaginate": _options.paginate,
-	        "bFilter": _options.filter,
+		// these are the parametric data tables options
+		// TODO try to move these into the main defaultOpts object?
+	    var tableOpts = {
 //	        "aaData" : rows,
 //	        "aoColumns" : columns,
 	        "aoColumnDefs":[
@@ -310,25 +317,30 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 
 		        // call the functions only if the corresponding flag is set
 		        // and there is a change in the search term
-		        if (callbackActive &&
-		            prevSearch != currSearch)
+		        if (_callbackActive &&
+		            _prevSearch != currSearch)
 		        {
 			        // call registered callback functions
-			        for (var i=0; i < callbackFunctions.length; i++)
+			        for (var i=0; i < _callbackFunctions.length; i++)
 			        {
-				        callbackFunctions[i](tableSelector);
+				        _callbackFunctions[i](tableSelector);
 			        }
 
 			        // assuming callbacks are active for only manual filtering
 			        // so update manual search string only if callbacks are active
-			        manualSearch = currSearch;
+			        _manualSearch = currSearch;
 		        }
 
 		        // update prev search string reference for future use
-		        prevSearch = currSearch;
+		        _prevSearch = currSearch;
 	        }
-	    });
+	    };
 
+		// merge with the one in the main options object
+		tableOpts = jQuery.extend(true, {}, _defaultOpts.dataTableOpts, tableOpts);
+
+		// format the table with the dataTable plugin
+		var oTable = tableSelector.dataTable(tableOpts);
 	    oTable.css("width", "100%");
 
 		// return the data table instance
@@ -372,7 +384,7 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 		tableSelector.find('.mutation_table_cosmic').each(function() {
 			var label = this;
 			var mutationId = $(label).attr('alt');
-			var mutation = mutationUtil.getMutationIdMap()[mutationId];
+			var mutation = _mutationUtil.getMutationIdMap()[mutationId];
 
 			// copy default qTip options and modify "content" to customize for cosmic
 			var qTipOptsCosmic = {};
@@ -692,7 +704,7 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 
 	this.getDataTable = function()
 	{
-		return dataTable;
+		return _dataTable;
 	};
 
 	/**
@@ -720,10 +732,10 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 		_addSortFunctions();
 
 		// actual initialization of the DataTables plug-in
-		dataTable = _initDataTable(tableSelector, indexMap, hiddenCols, excludedCols, nonSearchableCols);
+		_dataTable = _initDataTable(tableSelector, indexMap, hiddenCols, excludedCols, nonSearchableCols);
 
 		// add a delay to the filter
-		dataTable.fnSetFilteringDelay(600);
+		_dataTable.fnSetFilteringDelay(600);
 	};
 
 	/**
@@ -736,7 +748,7 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 	{
 		if (_.isFunction(callbackFn))
 		{
-			callbackFunctions.push(callbackFn);
+			_callbackFunctions.push(callbackFn);
 		}
 	};
 
@@ -752,7 +764,7 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 		// remove the function at the specified index
 		if (index >= 0)
 		{
-			callbackFunctions.splice(index, 1);
+			_callbackFunctions.splice(index, 1);
 		}
 	};
 
@@ -763,7 +775,7 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 	 */
 	this.setCallbackActive = function(active)
 	{
-		callbackActive = active;
+		_callbackActive = active;
 	};
 
 	/**
@@ -772,12 +784,12 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 	 */
 	this.cleanFilters = function()
 	{
-		prevSearch = "";
-		manualSearch = "";
+		_prevSearch = "";
+		_manualSearch = "";
 	};
 
 	this.getManualSearch = function()
 	{
-		return manualSearch;
+		return _manualSearch;
 	};
 };

@@ -28,6 +28,7 @@
 package org.mskcc.cbio.portal.dao;
 
 import org.mskcc.cbio.portal.util.DatabaseProperties;
+import org.mskcc.cbio.portal.util.GlobalProperties;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbcp.DelegatingPreparedStatement;
@@ -97,7 +98,9 @@ public class JdbcUtil {
         DataSource ds = initDataSourceTomcat();
 
         try {
-            ds.getConnection();
+            if (ds!=null) {
+                ds.getConnection();
+            }
         }
         catch (Exception e) {
             ds = null;
@@ -113,6 +116,11 @@ public class JdbcUtil {
     }
 
     private static DataSource initDataSourceTomcat() {
+        String tomcatResourceName = GlobalProperties.getProperty("db.tomcat_resource_name");
+        if (null == tomcatResourceName || tomcatResourceName.isEmpty()) {
+            return null;
+        }
+        
 
         DataSource ds = null;
         activeConnectionCount = new HashMap<String,Integer>();
@@ -122,7 +130,7 @@ public class JdbcUtil {
             if (cxt == null) {
                 throw new Exception("Context for creating data source not found!");
             }
-            ds = (DataSource)cxt.lookup( "java:/comp/env/jdbc/cbioportal" );
+            ds = (DataSource)cxt.lookup( "java:/comp/env/jdbc/" + GlobalProperties.getProperty("db.tomcat_resource_name") );
             if (ds == null) {
                 throw new Exception("Data source not found!");
             }

@@ -3,10 +3,11 @@
  *
  * @param options   visual options object
  * @param data      PDB data (collection of PdbModel instances)
+ * @param proxy     PDB data proxy
  * @param xScale    scale function for the x axis
  * @constructor
  */
-function MutationPdbPanel(options, data, xScale)
+function MutationPdbPanel(options, data, proxy, xScale)
 {
 	/**
 	 * Default visual options.
@@ -40,22 +41,32 @@ function MutationPdbPanel(options, data, xScale)
 		 * @param element   target svg element (rectangle)
 		 */
 		chainTipFn: function (element) {
-			// TODO define a backbone view: PdbChainTipView
 			var datum = element.datum();
 
-			var tip = "<span class='pdb-chain-tip'>" +
-			          "<b>PDB id:</b> " + datum.pdbId + "<br>" +
-			          "<b>Chain:</b> " + datum.chain.chainId +
-			          " (" + datum.chain.mergedAlignment.uniprotFrom +
-			          " - " + datum.chain.mergedAlignment.uniprotTo + ")" +
-			          "</span>";
+			proxy.getPdbInfo(datum.pdbId, function(pdbInfo) {
 
-			var options = {content: {text: tip},
-				hide: {fixed: true, delay: 100},
-				style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'},
-				position: {my:'bottom left', at:'top center'}};
+				// TODO define a backbone view: PdbChainTipView
 
-			$(element).qtip(options);
+				var tip = "<span class='pdb-chain-tip'>" +
+				          "<b>PDB id:</b> " + datum.pdbId + "<br>" +
+				          "<b>Chain:</b> " + datum.chain.chainId +
+				          " (" + datum.chain.mergedAlignment.uniprotFrom +
+				          " - " + datum.chain.mergedAlignment.uniprotTo + ")<br>";
+
+				if (pdbInfo)
+				{
+					tip += "<b>Summary:</b> " + pdbInfo;
+				}
+
+				tip += "</span>";
+
+				var options = {content: {text: tip},
+					hide: {fixed: true, delay: 100},
+					style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'},
+					position: {my:'bottom left', at:'top center'}};
+
+				$(element).qtip(options);
+			});
 		}
 	};
 

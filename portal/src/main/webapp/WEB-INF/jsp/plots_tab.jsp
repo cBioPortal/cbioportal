@@ -113,7 +113,7 @@
                         <br>
                         <h5>y Axis</h5>
                         Gene<br>
-                        <select id='custom_geneY' onchange="PlotsCustomMenu.updateY();PlotsCustomView.init()"></select><br>
+                        <select id='custom_geneY' onchange="PlotsCustomMenu.updateY();PlotsCustomView.init();"></select><br>
                         Plot Type<br>
                         <select id='custom_plots_type_y' onchange='PlotsCustomMenu.updateY();PlotsCustomView.init();'></select><br>
                         Platform<br>

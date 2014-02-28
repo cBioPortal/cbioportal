@@ -1,3 +1,6 @@
+# December 9, 2014
+* Added mutation data of 99 bladder cancer samples (BGI, Nature Genetics 2013)
+
 # December 6, 2014
 * Data sets matching four recently submitted or published TCGA studies are now available
     * Glioblastoma (Cell 2013)

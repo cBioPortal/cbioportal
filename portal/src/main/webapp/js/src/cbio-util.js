@@ -41,6 +41,18 @@ cbio.util = (function() {
         }
         return aa;
     };
+        
+    var uniqueElementsOfArray = function(arr) {
+        var ret = [];
+        var aa = {};
+        for (var i=0, n=arr.length; i<n; i++) {
+            if (!(arr[i] in aa)) {
+                ret.push(arr[i]);
+                aa[arr[i]] = 1;
+            }
+        }
+        return ret;
+    };
 
     var alterAxesAttrForPDFConverter = function(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, rollback) {
 
@@ -172,6 +184,7 @@ cbio.util = (function() {
         toPrecision: toPrecision,
         getObjectLength: getObjectLength,
         checkNullOrUndefined: checkNullOrUndefined,
+        uniqueElementsOfArray: uniqueElementsOfArray,
         arrayToAssociatedArrayIndices: arrayToAssociatedArrayIndices,
         alterAxesAttrForPDFConverter: alterAxesAttrForPDFConverter,
         lcss: lcss,

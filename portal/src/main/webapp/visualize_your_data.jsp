@@ -12,7 +12,7 @@
        <table cellspacing="2px">
         <tr>
             <td>
-            <h1>Visualize your data</h1>
+            <h1>Visualize your own data</h1>
             <div class="markdown">
             <p><jsp:include page="content/visualize_your_data.html" flush="true" /></p>
             </div>

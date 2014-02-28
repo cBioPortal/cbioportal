@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jmeterTestPlan version="1.2" properties="2.2">
+<jmeterTestPlan version="1.2" properties="2.5" jmeter="2.10 r1533061">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="cBio Portal" enabled="true">
       <stringProp name="TestPlan.comments"></stringProp>
@@ -12,13 +12,13 @@
     </TestPlan>
     <hashTree>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group" enabled="true">
-        <stringProp name="ThreadGroup.on_sample_error">stoptest</stringProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
-          <stringProp name="LoopController.loops">50</stringProp>
+          <stringProp name="LoopController.loops">10</stringProp>
         </elementProp>
         <stringProp name="ThreadGroup.num_threads">50</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">5</stringProp>
         <longProp name="ThreadGroup.start_time">1337087536000</longProp>
         <longProp name="ThreadGroup.end_time">1337087536000</longProp>
         <boolProp name="ThreadGroup.scheduler">false</boolProp>
@@ -28,385 +28,15 @@
       <hashTree>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="index.do (Summary)" enabled="true">
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-            <collectionProp name="Arguments.arguments">
-              <elementProp name="tab_index" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">tab_visualize</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">tab_index</stringProp>
-              </elementProp>
-              <elementProp name="cancer_study_id" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">ucec_tcga</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">cancer_study_id</stringProp>
-              </elementProp>
-              <elementProp name="genetic_profile_ids_PROFILE_MUTATION_EXTENDED" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">ucec_tcga_mutations</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">genetic_profile_ids_PROFILE_MUTATION_EXTENDED</stringProp>
-              </elementProp>
-              <elementProp name="genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">ucec_tcga_gistic</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION</stringProp>
-              </elementProp>
-              <elementProp name="Z_SCORE_THRESHOLD" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">2.0</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">Z_SCORE_THRESHOLD</stringProp>
-              </elementProp>
-              <elementProp name="case_set_id" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">ucec_tcga_3way_complete</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">case_set_id</stringProp>
-              </elementProp>
-              <elementProp name="case_ids" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value"></stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">case_ids</stringProp>
-              </elementProp>
-              <elementProp name="gene_list" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">EGFR</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">gene_list</stringProp>
-              </elementProp>
-              <elementProp name="gene_set_choice" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">user-defined-list</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">gene_set_choice</stringProp>
-              </elementProp>
-              <elementProp name="Action" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">Submit</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">Action</stringProp>
-              </elementProp>
-            </collectionProp>
+            <collectionProp name="Arguments.arguments"/>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">miso-dev.cbio.mskcc.org</stringProp>
-          <stringProp name="HTTPSampler.port">38080</stringProp>
+          <stringProp name="HTTPSampler.domain">miso.cbio.mskcc.org</stringProp>
+          <stringProp name="HTTPSampler.port">28080</stringProp>
           <stringProp name="HTTPSampler.connect_timeout"></stringProp>
           <stringProp name="HTTPSampler.response_timeout"></stringProp>
           <stringProp name="HTTPSampler.protocol"></stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-          <stringProp name="HTTPSampler.path">/load-testing-portal/index.do</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
-          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
-          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
-          <boolProp name="HTTPSampler.monitor">false</boolProp>
-          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
-        </HTTPSamplerProxy>
-        <hashTree/>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="index.do (os_survival_plot)" enabled="true">
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-            <collectionProp name="Arguments.arguments">
-              <elementProp name="genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">ucec_tcga_gistic</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION</stringProp>
-              </elementProp>
-              <elementProp name="Action" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">Submit</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">Action</stringProp>
-              </elementProp>
-              <elementProp name="genetic_profile_ids_PROFILE_MUTATION_EXTENDED" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">ucec_tcga_mutations</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">genetic_profile_ids_PROFILE_MUTATION_EXTENDED</stringProp>
-              </elementProp>
-              <elementProp name="case_set_id" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">ucec_tcga_3way_complete</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">case_set_id</stringProp>
-              </elementProp>
-              <elementProp name="Z_SCORE_THRESHOLD" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">2.0</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">Z_SCORE_THRESHOLD</stringProp>
-              </elementProp>
-              <elementProp name="case_ids" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value"></stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">case_ids</stringProp>
-              </elementProp>
-              <elementProp name="cancer_study_id" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">ucec_tcga</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">cancer_study_id</stringProp>
-              </elementProp>
-              <elementProp name="gene_list" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">EGFR</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">gene_list</stringProp>
-              </elementProp>
-              <elementProp name="tab_index" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">tab_visualize</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">tab_index</stringProp>
-              </elementProp>
-              <elementProp name="gene_set_choice" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">user-defined-list</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">gene_set_choice</stringProp>
-              </elementProp>
-              <elementProp name="output" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">os_survival_plot</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">output</stringProp>
-              </elementProp>
-            </collectionProp>
-          </elementProp>
-          <stringProp name="HTTPSampler.domain">miso-dev.cbio.mskcc.org</stringProp>
-          <stringProp name="HTTPSampler.port">38080</stringProp>
-          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-          <stringProp name="HTTPSampler.response_timeout"></stringProp>
-          <stringProp name="HTTPSampler.protocol"></stringProp>
-          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-          <stringProp name="HTTPSampler.path">/load-testing-portal/index.do</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
-          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
-          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
-          <boolProp name="HTTPSampler.monitor">false</boolProp>
-          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
-        </HTTPSamplerProxy>
-        <hashTree/>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="index.do (dfs_survival_plot)" enabled="true">
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-            <collectionProp name="Arguments.arguments">
-              <elementProp name="genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">ucec_tcga_gistic</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION</stringProp>
-                <stringProp name="Argument.desc">false</stringProp>
-              </elementProp>
-              <elementProp name="Action" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">Submit</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">Action</stringProp>
-              </elementProp>
-              <elementProp name="genetic_profile_ids_PROFILE_MUTATION_EXTENDED" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">ucec_tcga_mutations</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">genetic_profile_ids_PROFILE_MUTATION_EXTENDED</stringProp>
-              </elementProp>
-              <elementProp name="case_set_id" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">ucec_tcga_3way_complete</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">case_set_id</stringProp>
-              </elementProp>
-              <elementProp name="Z_SCORE_THRESHOLD" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">2.0</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">Z_SCORE_THRESHOLD</stringProp>
-              </elementProp>
-              <elementProp name="case_ids" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value"></stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">case_ids</stringProp>
-              </elementProp>
-              <elementProp name="cancer_study_id" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">ucec_tcga</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">cancer_study_id</stringProp>
-              </elementProp>
-              <elementProp name="gene_list" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">EGFR</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">gene_list</stringProp>
-              </elementProp>
-              <elementProp name="tab_index" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">tab_visualize</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">tab_index</stringProp>
-              </elementProp>
-              <elementProp name="gene_set_choice" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">user-defined-list</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">gene_set_choice</stringProp>
-              </elementProp>
-              <elementProp name="output" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">dfs_survival_plot</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">output</stringProp>
-              </elementProp>
-            </collectionProp>
-          </elementProp>
-          <stringProp name="HTTPSampler.domain">miso-dev.cbio.mskcc.org</stringProp>
-          <stringProp name="HTTPSampler.port">38080</stringProp>
-          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-          <stringProp name="HTTPSampler.response_timeout"></stringProp>
-          <stringProp name="HTTPSampler.protocol"></stringProp>
-          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-          <stringProp name="HTTPSampler.path">/load-testing-portal/index.do</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
-          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
-          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
-          <boolProp name="HTTPSampler.monitor">false</boolProp>
-          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
-        </HTTPSamplerProxy>
-        <hashTree/>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="index.do (html)" enabled="true">
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-            <collectionProp name="Arguments.arguments">
-              <elementProp name="genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">ucec_tcga_gistic</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION</stringProp>
-                <stringProp name="Argument.desc">false</stringProp>
-              </elementProp>
-              <elementProp name="Action" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">Submit</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">Action</stringProp>
-              </elementProp>
-              <elementProp name="genetic_profile_ids_PROFILE_MUTATION_EXTENDED" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">ucec_tcga_mutations</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">genetic_profile_ids_PROFILE_MUTATION_EXTENDED</stringProp>
-              </elementProp>
-              <elementProp name="case_set_id" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">ucec_tcga_3way_complete</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">case_set_id</stringProp>
-              </elementProp>
-              <elementProp name="Z_SCORE_THRESHOLD" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">2.0</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">Z_SCORE_THRESHOLD</stringProp>
-              </elementProp>
-              <elementProp name="case_ids" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value"></stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">case_ids</stringProp>
-              </elementProp>
-              <elementProp name="cancer_study_id" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">ucec_tcga</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">cancer_study_id</stringProp>
-              </elementProp>
-              <elementProp name="gene_list" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">EGFR</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">gene_list</stringProp>
-              </elementProp>
-              <elementProp name="tab_index" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">tab_visualize</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">tab_index</stringProp>
-              </elementProp>
-              <elementProp name="gene_set_choice" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">user-defined-list</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">gene_set_choice</stringProp>
-              </elementProp>
-              <elementProp name="output" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">html</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">output</stringProp>
-              </elementProp>
-            </collectionProp>
-          </elementProp>
-          <stringProp name="HTTPSampler.domain">miso-dev.cbio.mskcc.org</stringProp>
-          <stringProp name="HTTPSampler.port">38080</stringProp>
-          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-          <stringProp name="HTTPSampler.response_timeout"></stringProp>
-          <stringProp name="HTTPSampler.protocol"></stringProp>
-          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-          <stringProp name="HTTPSampler.path">/load-testing-portal/index.do</stringProp>
+          <stringProp name="HTTPSampler.path">/public-portal/index.do?cancer_study_id=ucec_tcga_pub&amp;genetic_profile_ids_PROFILE_MUTATION_EXTENDED=ucec_tcga_pub_mutations&amp;genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=ucec_tcga_pub_gistic&amp;Z_SCORE_THRESHOLD=2.0&amp;RPPA_SCORE_THRESHOLD=2.0&amp;data_priority=0&amp;case_set_id=ucec_tcga_pub_cnaseq&amp;case_ids=&amp;gene_set_choice=user-defined-list&amp;gene_list=PTEN+PIK3CA&amp;clinical_param_selection=null&amp;tab_index=tab_visualize&amp;Action=Submit</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -421,13 +51,13 @@
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
             <collectionProp name="Arguments.arguments"/>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">miso-dev.cbio.mskcc.org</stringProp>
-          <stringProp name="HTTPSampler.port">38080</stringProp>
+          <stringProp name="HTTPSampler.domain">miso.cbio.mskcc.org</stringProp>
+          <stringProp name="HTTPSampler.port">28080</stringProp>
           <stringProp name="HTTPSampler.connect_timeout"></stringProp>
           <stringProp name="HTTPSampler.response_timeout"></stringProp>
           <stringProp name="HTTPSampler.protocol"></stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-          <stringProp name="HTTPSampler.path">/load-testing-portal/portal_meta_data.json</stringProp>
+          <stringProp name="HTTPSampler.path">/public-portal/portal_meta_data.json</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -438,32 +68,161 @@
           <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
         </HTTPSamplerProxy>
         <hashTree/>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="mutation_diagram_data.json (EGFR)" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="getSurvivalData.json" enabled="true">
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
             <collectionProp name="Arguments.arguments">
-              <elementProp name="hugoGeneSymbol" elementType="HTTPArgument">
+              <elementProp name="case_set_id" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">EGFR</stringProp>
+                <stringProp name="Argument.value">ucec_tcga_pub_cnaseq</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
                 <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">hugoGeneSymbol</stringProp>
+                <stringProp name="Argument.name">case_set_id</stringProp>
               </elementProp>
-              <elementProp name="mutations" elementType="HTTPArgument">
+              <elementProp name="cancer_study_id" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">[{&quot;geneticProfileId&quot;:134,&quot;caseId&quot;:&quot;TCGA-AP-A051&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;7&quot;,&quot;startPosition&quot;:55214316,&quot;endPosition&quot;:55214316,&quot;aminoAcidChange&quot;:&quot;V148M&quot;,&quot;mutationType&quot;:&quot;Missense_Mutation&quot;,&quot;functionalImpactScore&quot;:&quot;H&quot;,&quot;linkXVar&quot;:&quot;http://getma.org/v1/?cm=var&amp;var=hg19,7,55214316,G,A&amp;fts=all&quot;,&quot;linkPdb&quot;:&quot;http://getma.org/v1/pdb.php?prot=EGFR_HUMAN&amp;from=57&amp;to=168&amp;var=V148M&quot;,&quot;linkMsa&quot;:&quot;http://getma.org/v1/?cm=msa&amp;ty=f&amp;p=EGFR_HUMAN&amp;rb=57&amp;re=168&amp;var=V148M&quot;},{&quot;geneticProfileId&quot;:134,&quot;caseId&quot;:&quot;TCGA-AP-A0LM&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;7&quot;,&quot;startPosition&quot;:55227843,&quot;endPosition&quot;:55227843,&quot;aminoAcidChange&quot;:&quot;S437Y&quot;,&quot;mutationType&quot;:&quot;Missense_Mutation&quot;,&quot;functionalImpactScore&quot;:&quot;M&quot;,&quot;linkXVar&quot;:&quot;http://getma.org/v1/?cm=var&amp;var=hg19,7,55227843,C,A&amp;fts=all&quot;,&quot;linkPdb&quot;:&quot;http://getma.org/v1/pdb.php?prot=EGFR_HUMAN&amp;from=361&amp;to=481&amp;var=S437Y&quot;,&quot;linkMsa&quot;:&quot;http://getma.org/v1/?cm=msa&amp;ty=f&amp;p=EGFR_HUMAN&amp;rb=361&amp;re=481&amp;var=S437Y&quot;},{&quot;geneticProfileId&quot;:134,&quot;caseId&quot;:&quot;TCGA-AP-A051&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;7&quot;,&quot;startPosition&quot;:55227854,&quot;endPosition&quot;:55227854,&quot;aminoAcidChange&quot;:&quot;V441I&quot;,&quot;mutationType&quot;:&quot;Missense_Mutation&quot;,&quot;functionalImpactScore&quot;:&quot;L&quot;,&quot;linkXVar&quot;:&quot;http://getma.org/v1/?cm=var&amp;var=hg19,7,55227854,G,A&amp;fts=all&quot;,&quot;linkPdb&quot;:&quot;http://getma.org/v1/pdb.php?prot=EGFR_HUMAN&amp;from=361&amp;to=481&amp;var=V441I&quot;,&quot;linkMsa&quot;:&quot;http://getma.org/v1/?cm=msa&amp;ty=f&amp;p=EGFR_HUMAN&amp;rb=361&amp;re=481&amp;var=V441I&quot;},{&quot;geneticProfileId&quot;:134,&quot;caseId&quot;:&quot;TCGA-AP-A051&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;7&quot;,&quot;startPosition&quot;:55259423,&quot;endPosition&quot;:55259423,&quot;aminoAcidChange&quot;:&quot;Y827*&quot;,&quot;mutationType&quot;:&quot;Nonsense_Mutation&quot;,&quot;functionalImpactScore&quot;:&quot;NA&quot;,&quot;linkXVar&quot;:&quot;http://getma.org/v1/?cm=var&amp;var=hg19,7,55259423,C,A&amp;fts=all&quot;,&quot;linkPdb&quot;:&quot;NA&quot;,&quot;linkMsa&quot;:&quot;NA&quot;},{&quot;geneticProfileId&quot;:134,&quot;caseId&quot;:&quot;TCGA-AX-A0J0&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;7&quot;,&quot;startPosition&quot;:55259436,&quot;endPosition&quot;:55259436,&quot;aminoAcidChange&quot;:&quot;R832C&quot;,&quot;mutationType&quot;:&quot;Missense_Mutation&quot;,&quot;functionalImpactScore&quot;:&quot;M&quot;,&quot;linkXVar&quot;:&quot;http://getma.org/v1/?cm=var&amp;var=hg19,7,55259436,C,T&amp;fts=all&quot;,&quot;linkPdb&quot;:&quot;http://getma.org/v1/pdb.php?prot=EGFR_HUMAN&amp;from=712&amp;to=968&amp;var=R832C&quot;,&quot;linkMsa&quot;:&quot;http://getma.org/v1/?cm=msa&amp;ty=f&amp;p=EGFR_HUMAN&amp;rb=712&amp;re=968&amp;var=R832C&quot;},{&quot;geneticProfileId&quot;:134,&quot;caseId&quot;:&quot;TCGA-D1-A15W&quot;,&quot;sequencingCenter&quot;:&quot;genome.wustl.edu&quot;,&quot;sequencer&quot;:&quot;Illumina GAIIx&quot;,&quot;mutationStatus&quot;:&quot;Somatic&quot;,&quot;validationStatus&quot;:&quot;Unknown&quot;,&quot;chr&quot;:&quot;7&quot;,&quot;startPosition&quot;:55266458,&quot;endPosition&quot;:55266458,&quot;aminoAcidChange&quot;:&quot;G917A&quot;,&quot;mutationType&quot;:&quot;Missense_Mutation&quot;,&quot;functionalImpactScore&quot;:&quot;M&quot;,&quot;linkXVar&quot;:&quot;http://getma.org/v1/?cm=var&amp;var=hg19,7,55266458,G,C&amp;fts=all&quot;,&quot;linkPdb&quot;:&quot;http://getma.org/v1/pdb.php?prot=EGFR_HUMAN&amp;from=712&amp;to=968&amp;var=G917A&quot;,&quot;linkMsa&quot;:&quot;http://getma.org/v1/?cm=msa&amp;ty=f&amp;p=EGFR_HUMAN&amp;rb=712&amp;re=968&amp;var=G917A&quot;}]</stringProp>
+                <stringProp name="Argument.value">ucec_tcga_pub</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
                 <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">mutations</stringProp>
+                <stringProp name="Argument.name">cancer_study_id</stringProp>
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">miso-dev.cbio.mskcc.org</stringProp>
-          <stringProp name="HTTPSampler.port">38080</stringProp>
+          <stringProp name="HTTPSampler.domain">miso.cbio.mskcc.org</stringProp>
+          <stringProp name="HTTPSampler.port">28080</stringProp>
           <stringProp name="HTTPSampler.connect_timeout"></stringProp>
           <stringProp name="HTTPSampler.response_timeout"></stringProp>
           <stringProp name="HTTPSampler.protocol"></stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-          <stringProp name="HTTPSampler.path">/load-testing-portal/mutation_diagram_data.json</stringProp>
+          <stringProp name="HTTPSampler.path">/public-portal/getSurvivalData.json</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+          <boolProp name="HTTPSampler.monitor">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="getProfileData.json" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="gene_list" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">PTEN</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">gene_list</stringProp>
+              </elementProp>
+              <elementProp name="genetic_profile_id" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">ucec_tcga_pub_mutations%20ucec_tcga_pub_gistic%20ucec_tcga_pub_gistic%20ucec_tcga_pub_rna_seq_v2_mrna%20ucec_tcga_pub_RPPA_protein_level</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">genetic_profile_id</stringProp>
+              </elementProp>
+              <elementProp name="case_set_id" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">ucec_tcga_pub_cnaseq</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">case_set_id</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">miso.cbio.mskcc.org</stringProp>
+          <stringProp name="HTTPSampler.port">28080</stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/public-portal/getProfileData.json</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+          <boolProp name="HTTPSampler.monitor">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="getGeneticProfile.json" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="cancer_study_id" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">ucec_tcga_pub</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">cancer_study_id</stringProp>
+              </elementProp>
+              <elementProp name="case_set_id" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">ucec_tcga_pub_cnaseq</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">case_set_id</stringProp>
+              </elementProp>
+              <elementProp name="gene_list" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">PTEN%20PIK3CA</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">gene_list</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">miso.cbio.mskcc.org</stringProp>
+          <stringProp name="HTTPSampler.port">28080</stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/public-portal/getGeneticProfile.json</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+          <boolProp name="HTTPSampler.monitor">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="getMutationData.json" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="geneList" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">PTEN</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">geneList</stringProp>
+              </elementProp>
+              <elementProp name="geneticProfiles" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">ucec_tcga_pub_gistic+ucec_tcga_pub_mutations</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">geneticProfiles</stringProp>
+              </elementProp>
+              <elementProp name="caseList" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">TCGA-A5-A0G5+TCGA-A5-A0G9+TCGA-A5-A0GA+TCGA-A5-A0GB+TCGA-A5-A0GE+TCGA-A5-A0GH+TCGA-A5-A0GI+TCGA-A5-A0GJ+TCGA-A5-A0GM+TCGA-A5-A0GN+TCGA-A5-A0GP+TCGA-A5-A0GQ+TCGA-A5-A0GU+TCGA-A5-A0GV+TCGA-A5-A0GW+TCGA-A5-A0GX+TCGA-A5-A0R6+TCGA-A5-A0R7+TCGA-A5-A0R8+TCGA-A5-A0R9+TCGA-A5-A0RA+TCGA-A5-A0VP+TCGA-A5-A0VQ+TCGA-AJ-A23M+TCGA-AP-A051+TCGA-AP-A052+TCGA-AP-A053+TCGA-AP-A054+TCGA-AP-A056+TCGA-AP-A059+TCGA-AP-A05A+TCGA-AP-A05D+TCGA-AP-A05H+TCGA-AP-A05J+TCGA-AP-A05N+TCGA-AP-A05P+TCGA-AP-A0L8+TCGA-AP-A0L9+TCGA-AP-A0LD+TCGA-AP-A0LE+TCGA-AP-A0LF+TCGA-AP-A0LG+TCGA-AP-A0LH+TCGA-AP-A0LI+TCGA-AP-A0LJ+TCGA-AP-A0LL+TCGA-AP-A0LM+TCGA-AP-A0LN+TCGA-AP-A0LO+TCGA-AP-A0LP+TCGA-AP-A0LQ+TCGA-AP-A0LT+TCGA-AP-A0LV+TCGA-AP-A1DQ+TCGA-AX-A05S+TCGA-AX-A05T+TCGA-AX-A05U+TCGA-AX-A05W+TCGA-AX-A05Y+TCGA-AX-A05Z+TCGA-AX-A060+TCGA-AX-A062+TCGA-AX-A063+TCGA-AX-A064+TCGA-AX-A06B+TCGA-AX-A06H+TCGA-AX-A06L+TCGA-AX-A0IS+TCGA-AX-A0IU+TCGA-AX-A0IW+TCGA-AX-A0J0+TCGA-AX-A0J1+TCGA-AX-A1C7+TCGA-AX-A1C8+TCGA-AX-A1CP+TCGA-AX-A2H5+TCGA-AX-A2HF+TCGA-B5-A0JN+TCGA-B5-A0JR+TCGA-B5-A0JS+TCGA-B5-A0JT+TCGA-B5-A0JV+TCGA-B5-A0JY+TCGA-B5-A0JZ+TCGA-B5-A0K0+TCGA-B5-A0K1+TCGA-B5-A0K2+TCGA-B5-A0K3+TCGA-B5-A0K4+TCGA-B5-A0K6+TCGA-B5-A0K7+TCGA-B5-A0K8+TCGA-B5-A0K9+TCGA-B5-A11E+TCGA-B5-A11F+TCGA-B5-A11G+TCGA-B5-A11H+TCGA-B5-A11I+TCGA-B5-A11J+TCGA-B5-A11N+TCGA-B5-A11O+TCGA-B5-A11Q+TCGA-B5-A11R+TCGA-B5-A11S+TCGA-B5-A11U+TCGA-B5-A11V+TCGA-B5-A11W+TCGA-B5-A11Y+TCGA-B5-A11Z+TCGA-B5-A121+TCGA-B5-A1MU+TCGA-B5-A1MY+TCGA-BG-A0LW+TCGA-BG-A0LX+TCGA-BG-A0M0+TCGA-BG-A0M2+TCGA-BG-A0M3+TCGA-BG-A0M4+TCGA-BG-A0M6+TCGA-BG-A0M7+TCGA-BG-A0M8+TCGA-BG-A0M9+TCGA-BG-A0MC+TCGA-BG-A0MG+TCGA-BG-A0MI+TCGA-BG-A0MO+TCGA-BG-A0MQ+TCGA-BG-A0MS+TCGA-BG-A0MT+TCGA-BG-A0MU+TCGA-BG-A0RY+TCGA-BG-A0VT+TCGA-BG-A0VV+TCGA-BG-A0VW+TCGA-BG-A0VX+TCGA-BG-A0VZ+TCGA-BG-A0W1+TCGA-BG-A0W2+TCGA-BG-A0YU+TCGA-BG-A0YV+TCGA-BG-A186+TCGA-BG-A187+TCGA-BG-A18A+TCGA-BG-A18B+TCGA-BG-A18C+TCGA-BG-A2AE+TCGA-BK-A0C9+TCGA-BK-A0CA+TCGA-BK-A0CB+TCGA-BK-A0CC+TCGA-BK-A139+TCGA-BK-A13C+TCGA-BS-A0T9+TCGA-BS-A0TA+TCGA-BS-A0TC+TCGA-BS-A0TD+TCGA-BS-A0TE+TCGA-BS-A0TG+TCGA-BS-A0TI+TCGA-BS-A0TJ+TCGA-BS-A0U5+TCGA-BS-A0U7+TCGA-BS-A0U8+TCGA-BS-A0U9+TCGA-BS-A0UA+TCGA-BS-A0UF+TCGA-BS-A0UJ+TCGA-BS-A0UL+TCGA-BS-A0UT+TCGA-BS-A0UV+TCGA-BS-A0V6+TCGA-BS-A0V7+TCGA-BS-A0V8+TCGA-BS-A0WQ+TCGA-D1-A0ZN+TCGA-D1-A0ZO+TCGA-D1-A0ZP+TCGA-D1-A0ZQ+TCGA-D1-A0ZR+TCGA-D1-A0ZS+TCGA-D1-A0ZU+TCGA-D1-A0ZV+TCGA-D1-A0ZZ+TCGA-D1-A101+TCGA-D1-A102+TCGA-D1-A103+TCGA-D1-A15V+TCGA-D1-A15W+TCGA-D1-A15X+TCGA-D1-A15Z+TCGA-D1-A160+TCGA-D1-A161+TCGA-D1-A163+TCGA-D1-A165+TCGA-D1-A167+TCGA-D1-A168+TCGA-D1-A169+TCGA-D1-A16B+TCGA-D1-A16D+TCGA-D1-A16E+TCGA-D1-A16G+TCGA-D1-A16I+TCGA-D1-A16J+TCGA-D1-A16N+TCGA-D1-A16O+TCGA-D1-A16Q+TCGA-D1-A16S+TCGA-D1-A16X+TCGA-D1-A16Y+TCGA-D1-A174+TCGA-D1-A176+TCGA-D1-A177+TCGA-D1-A17A+TCGA-D1-A17B+TCGA-D1-A17C+TCGA-D1-A17D+TCGA-D1-A17F+TCGA-D1-A17H+TCGA-D1-A17K+TCGA-D1-A17L+TCGA-D1-A17M+TCGA-D1-A17N+TCGA-D1-A17Q+TCGA-D1-A17R+TCGA-D1-A17S+TCGA-D1-A17T+TCGA-D1-A17U+TCGA-D1-A1NU+TCGA-D1-A1NX+TCGA-DI-A0WH+TCGA-DI-A1NN+TCGA-E6-A1LZ+TCGA-EO-A1Y5+TCGA-EO-A1Y8+TCGA-EY-A1GS+TCGA-EY-A212+TCGA-FI-A2D2+TCGA-FI-A2EW+TCGA-FI-A2EX+TCGA-FI-A2F8+</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">caseList</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">miso.cbio.mskcc.org</stringProp>
+          <stringProp name="HTTPSampler.port">28080</stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/public-portal/getMutationData.json</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -479,14 +238,14 @@
             <collectionProp name="Arguments.arguments">
               <elementProp name="cancer_study_id" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">ucec_tcga</stringProp>
+                <stringProp name="Argument.value">ucec_tcga_pub</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
                 <boolProp name="HTTPArgument.use_equals">true</boolProp>
                 <stringProp name="Argument.name">cancer_study_id</stringProp>
               </elementProp>
               <elementProp name="heat_map" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">Case+ID%09EGFR%09%0ATCGA-A5-A0G9%09%09%0ATCGA-A5-A0GM%09%09%0ATCGA-A5-A0GU%09%09%0ATCGA-A5-A0GW%09%09%0ATCGA-A5-A0GX%09%09%0ATCGA-A5-A0R6%09%09%0ATCGA-A5-A0R7%09%09%0ATCGA-A5-A0R8%09%09%0ATCGA-A5-A0RA%09%09%0ATCGA-A5-A0VP%09%09%0ATCGA-AP-A051%09MUT%3B%09%0ATCGA-AP-A05N%09%09%0ATCGA-AP-A0L8%09%09%0ATCGA-AP-A0LE%09%09%0ATCGA-AP-A0LJ%09%09%0ATCGA-AP-A0LM%09MUT%3B%09%0ATCGA-AP-A1DQ%09%09%0ATCGA-AX-A05U%09%09%0ATCGA-AX-A05Z%09%09%0ATCGA-AX-A060%09%09%0ATCGA-AX-A062%09%09%0ATCGA-AX-A0IS%09%09%0ATCGA-AX-A0J0%09MUT%3B%09%0ATCGA-AX-A0J1%09%09%0ATCGA-AX-A1CP%09%09%0ATCGA-AX-A2H5%09%09%0ATCGA-B5-A0K1%09%09%0ATCGA-B5-A0K3%09%09%0ATCGA-B5-A0K6%09%09%0ATCGA-B5-A11F%09%09%0ATCGA-B5-A11H%09%09%0ATCGA-B5-A11O%09%09%0ATCGA-B5-A121%09%09%0ATCGA-B5-A1MU%09%09%0ATCGA-BG-A0LW%09%09%0ATCGA-BG-A0M0%09%09%0ATCGA-BG-A0M8%09%09%0ATCGA-BG-A0M9%09%09%0ATCGA-BG-A0MI%09%09%0ATCGA-BG-A0MO%09%09%0ATCGA-BG-A0MQ%09%09%0ATCGA-BG-A0MS%09%09%0ATCGA-BG-A0VT%09%09%0ATCGA-BG-A0VW%09%09%0ATCGA-BG-A0VX%09%09%0ATCGA-BG-A0VZ%09%09%0ATCGA-BG-A0W1%09%09%0ATCGA-BG-A0W2%09%09%0ATCGA-BG-A18A%09%09%0ATCGA-BG-A18C%09%09%0ATCGA-BG-A2AE%09%09%0ATCGA-BK-A0C9%09%09%0ATCGA-BK-A0CC%09AMP%3B%09%0ATCGA-BS-A0T9%09%09%0ATCGA-BS-A0TD%09%09%0ATCGA-BS-A0TJ%09%09%0ATCGA-BS-A0UL%09%09%0ATCGA-BS-A0UT%09%09%0ATCGA-D1-A0ZN%09%09%0ATCGA-D1-A0ZR%09%09%0ATCGA-D1-A0ZS%09%09%0ATCGA-D1-A101%09%09%0ATCGA-D1-A102%09%09%0ATCGA-D1-A15W%09MUT%3B%09%0ATCGA-D1-A167%09%09%0ATCGA-D1-A16D%09%09%0ATCGA-D1-A16N%09%09%0ATCGA-D1-A16X%09%09%0ATCGA-D1-A176%09%09%0ATCGA-D1-A17B%09%09%0ATCGA-D1-A17C%09%09%0ATCGA-D1-A17D%09%09%0ATCGA-D1-A17F%09%09%0ATCGA-D1-A17K%09%09%0ATCGA-D1-A17L%09%09%0ATCGA-DI-A0WH%09%09%0ATCGA-DI-A1NN%09%09%0ATCGA-EO-A1Y8%09%09%0ATCGA-FI-A2EW%09%09%0A</stringProp>
+                <stringProp name="Argument.value">ase+ID%09PTEN%09%0ATCGA-A5-A0G5%09%09%0ATCGA-A5-A0G9%09MUT%3B%09%0ATCGA-A5-A0GA%09MUT%3B%09%0ATCGA-A5-A0GB%09MUT%3B%09%0ATCGA-A5-A0GE%09MUT%3B%09%0ATCGA-A5-A0GH%09MUT%3B%09%0ATCGA-A5-A0GI%09%09%0ATCGA-A5-A0GJ%09HOMDEL%3B%09%0ATCGA-A5-A0GM%09MUT%3B%09%0ATCGA-A5-A0GN%09%09%0ATCGA-A5-A0GP%09MUT%3B%09%0ATCGA-A5-A0GQ%09MUT%3B%09%0ATCGA-A5-A0GU%09MUT%3B%09%0ATCGA-A5-A0GV%09MUT%3B%09%0ATCGA-A5-A0GW%09MUT%3B%09%0ATCGA-A5-A0GX%09MUT%3B%09%0ATCGA-A5-A0R6%09%09%0ATCGA-A5-A0R7%09MUT%3B%09%0ATCGA-A5-A0R8%09MUT%3B%09%0ATCGA-A5-A0R9%09MUT%3B%09%0ATCGA-A5-A0RA%09MUT%3B%09%0ATCGA-A5-A0VP%09MUT%3B%09%0ATCGA-A5-A0VQ%09MUT%3B%09%0ATCGA-AJ-A23M%09%09%0ATCGA-AP-A051%09MUT%3B%09%0ATCGA-AP-A052%09HOMDEL%3B%09%0ATCGA-AP-A053%09%09%0ATCGA-AP-A054%09MUT%3B%09%0ATCGA-AP-A056%09MUT%3B%09%0ATCGA-AP-A059%09MUT%3B%09%0ATCGA-AP-A05A%09%09%0ATCGA-AP-A05D%09%09%0ATCGA-AP-A05H%09%09%0ATCGA-AP-A05J%09AMP%3B%09%0ATCGA-AP-A05N%09MUT%3B%09%0ATCGA-AP-A05P%09%09%0ATCGA-AP-A0L8%09%09%0ATCGA-AP-A0L9%09%09%0ATCGA-AP-A0LD%09MUT%3B%09%0ATCGA-AP-A0LE%09MUT%3B%09%0ATCGA-AP-A0LF%09%09%0ATCGA-AP-A0LG%09MUT%3B%09%0ATCGA-AP-A0LH%09%09%0ATCGA-AP-A0LI%09%09%0ATCGA-AP-A0LJ%09MUT%3B%09%0ATCGA-AP-A0LL%09%09%0ATCGA-AP-A0LM%09%09%0ATCGA-AP-A0LN%09MUT%3B%09%0ATCGA-AP-A0LO%09MUT%3B%09%0ATCGA-AP-A0LP%09MUT%3B%09%0ATCGA-AP-A0LQ%09MUT%3B%09%0ATCGA-AP-A0LT%09MUT%3B%09%0ATCGA-AP-A0LV%09MUT%3B%09%0ATCGA-AP-A1DQ%09%09%0ATCGA-AX-A05S%09MUT%3B%09%0ATCGA-AX-A05T%09MUT%3B%09%0ATCGA-AX-A05U%09MUT%3B%09%0ATCGA-AX-A05W%09MUT%3B%09%0ATCGA-AX-A05Y%09MUT%3B%09%0ATCGA-AX-A05Z%09MUT%3B%09%0ATCGA-AX-A060%09MUT%3B%09%0ATCGA-AX-A062%09%09%0ATCGA-AX-A063%09MUT%3B%09%0ATCGA-AX-A064%09MUT%3B%09%0ATCGA-AX-A06B%09%09%0ATCGA-AX-A06H%09MUT%3B%09%0ATCGA-AX-A06L%09MUT%3B%09%0ATCGA-AX-A0IS%09MUT%3B%09%0ATCGA-AX-A0IU%09%09%0ATCGA-AX-A0IW%09%09%0ATCGA-AX-A0J0%09MUT%3B%09%0ATCGA-AX-A0J1%09MUT%3B%09%0ATCGA-AX-A1C7%09%09%0ATCGA-AX-A1C8%09%09%0ATCGA-AX-A1CP%09%09%0ATCGA-AX-A2H5%09%09%0ATCGA-AX-A2HF%09%09%0ATCGA-B5-A0JN%09%09%0ATCGA-B5-A0JR%09MUT%3B%09%0ATCGA-B5-A0JS%09MUT%3B%09%0ATCGA-B5-A0JT%09MUT%3B%09%0ATCGA-B5-A0JV%09MUT%3B%09%0ATCGA-B5-A0JY%09MUT%3B%09%0ATCGA-B5-A0JZ%09MUT%3B%09%0ATCGA-B5-A0K0%09%09%0ATCGA-B5-A0K1%09MUT%3B%09%0ATCGA-B5-A0K2%09HOMDEL%3BMUT%3B%09%0ATCGA-B5-A0K3%09%09%0ATCGA-B5-A0K4%09MUT%3B%09%0ATCGA-B5-A0K6%09MUT%3B%09%0ATCGA-B5-A0K7%09MUT%3B%09%0ATCGA-B5-A0K8%09%09%0ATCGA-B5-A0K9%09MUT%3B%09%0ATCGA-B5-A11E%09MUT%3B%09%0ATCGA-B5-A11F%09%09%0ATCGA-B5-A11G%09%09%0ATCGA-B5-A11H%09MUT%3B%09%0ATCGA-B5-A11I%09%09%0ATCGA-B5-A11J%09MUT%3B%09%0ATCGA-B5-A11N%09MUT%3B%09%0ATCGA-B5-A11O%09MUT%3B%09%0ATCGA-B5-A11Q%09MUT%3B%09%0ATCGA-B5-A11R%09MUT%3B%09%0ATCGA-B5-A11S%09MUT%3B%09%0ATCGA-B5-A11U%09%09%0ATCGA-B5-A11V%09MUT%3B%09%0ATCGA-B5-A11W%09MUT%3B%09%0ATCGA-B5-A11Y%09MUT%3B%09%0ATCGA-B5-A11Z%09MUT%3B%09%0ATCGA-B5-A121%09%09%0ATCGA-B5-A1MU%09%09%0ATCGA-B5-A1MY%09%09%0ATCGA-BG-A0LW%09%09%0ATCGA-BG-A0LX%09MUT%3B%09%0ATCGA-BG-A0M0%09MUT%3B%09%0ATCGA-BG-A0M2%09MUT%3B%09%0ATCGA-BG-A0M3%09MUT%3B%09%0ATCGA-BG-A0M4%09MUT%3B%09%0ATCGA-BG-A0M6%09%09%0ATCGA-BG-A0M7%09MUT%3B%09%0ATCGA-BG-A0M8%09%09%0ATCGA-BG-A0M9%09MUT%3B%09%0ATCGA-BG-A0MC%09MUT%3B%09%0ATCGA-BG-A0MG%09MUT%3B%09%0ATCGA-BG-A0MI%09MUT%3B%09%0ATCGA-BG-A0MO%09%09%0ATCGA-BG-A0MQ%09MUT%3B%09%0ATCGA-BG-A0MS%09MUT%3B%09%0ATCGA-BG-A0MT%09MUT%3B%09%0ATCGA-BG-A0MU%09MUT%3B%09%0ATCGA-BG-A0RY%09MUT%3B%09%0ATCGA-BG-A0VT%09%09%0ATCGA-BG-A0VV%09%09%0ATCGA-BG-A0VW%09MUT%3B%09%0ATCGA-BG-A0VX%09%09%0ATCGA-BG-A0VZ%09MUT%3B%09%0ATCGA-BG-A0W1%09MUT%3B%09%0ATCGA-BG-A0W2%09MUT%3B%09%0ATCGA-BG-A0YU%09%09%0ATCGA-BG-A0YV%09MUT%3B%09%0ATCGA-BG-A186%09MUT%3B%09%0ATCGA-BG-A187%09MUT%3B%09%0ATCGA-BG-A18A%09MUT%3B%09%0ATCGA-BG-A18B%09MUT%3B%09%0ATCGA-BG-A18C%09%09%0ATCGA-BG-A2AE%09%09%0ATCGA-BK-A0C9%09MUT%3B%09%0ATCGA-BK-A0CA%09MUT%3B%09%0ATCGA-BK-A0CB%09MUT%3B%09%0ATCGA-BK-A0CC%09%09%0ATCGA-BK-A139%09MUT%3B%09%0ATCGA-BK-A13C%09MUT%3B%09%0ATCGA-BS-A0T9%09%09%0ATCGA-BS-A0TA%09MUT%3B%09%0ATCGA-BS-A0TC%09MUT%3B%09%0ATCGA-BS-A0TD%09MUT%3B%09%0ATCGA-BS-A0TE%09HOMDEL%3B%09%0ATCGA-BS-A0TG%09%09%0ATCGA-BS-A0TI%09MUT%3B%09%0ATCGA-BS-A0TJ%09MUT%3B%09%0ATCGA-BS-A0U5%09%09%0ATCGA-BS-A0U7%09MUT%3B%09%0ATCGA-BS-A0U8%09MUT%3B%09%0ATCGA-BS-A0U9%09%09%0ATCGA-BS-A0UA%09MUT%3B%09%0ATCGA-BS-A0UF%09MUT%3B%09%0ATCGA-BS-A0UJ%09MUT%3B%09%0ATCGA-BS-A0UL%09%09%0ATCGA-BS-A0UT%09%09%0ATCGA-BS-A0UV%09MUT%3B%09%0ATCGA-BS-A0V6%09MUT%3B%09%0ATCGA-BS-A0V7%09MUT%3B%09%0ATCGA-BS-A0V8%09MUT%3B%09%0ATCGA-BS-A0WQ%09MUT%3B%09%0ATCGA-D1-A0ZN%09MUT%3B%09%0ATCGA-D1-A0ZO%09MUT%3B%09%0ATCGA-D1-A0ZP%09%09%0ATCGA-D1-A0ZQ%09%09%0ATCGA-D1-A0ZR%09MUT%3B%09%0ATCGA-D1-A0ZS%09MUT%3B%09%0ATCGA-D1-A0ZU%09MUT%3B%09%0ATCGA-D1-A0ZV%09MUT%3B%09%0ATCGA-D1-A0ZZ%09%09%0ATCGA-D1-A101%09MUT%3B%09%0ATCGA-D1-A102%09MUT%3B%09%0ATCGA-D1-A103%09MUT%3B%09%0ATCGA-D1-A15V%09%09%0ATCGA-D1-A15W%09MUT%3B%09%0ATCGA-D1-A15X%09%09%0ATCGA-D1-A15Z%09MUT%3B%09%0ATCGA-D1-A160%09MUT%3B%09%0ATCGA-D1-A161%09MUT%3B%09%0ATCGA-D1-A163%09%09%0ATCGA-D1-A165%09MUT%3B%09%0ATCGA-D1-A167%09%09%0ATCGA-D1-A168%09%09%0ATCGA-D1-A169%09MUT%3B%09%0ATCGA-D1-A16B%09MUT%3B%09%0ATCGA-D1-A16D%09MUT%3B%09%0ATCGA-D1-A16E%09MUT%3B%09%0ATCGA-D1-A16G%09%09%0ATCGA-D1-A16I%09%09%0ATCGA-D1-A16J%09%09%0ATCGA-D1-A16N%09MUT%3B%09%0ATCGA-D1-A16O%09MUT%3B%09%0ATCGA-D1-A16Q%09MUT%3B%09%0ATCGA-D1-A16S%09%09%0ATCGA-D1-A16X%09MUT%3B%09%0ATCGA-D1-A16Y%09MUT%3B%09%0ATCGA-D1-A174%09MUT%3B%09%0ATCGA-D1-A176%09MUT%3B%09%0ATCGA-D1-A177%09MUT%3B%09%0ATCGA-D1-A17A%09MUT%3B%09%0ATCGA-D1-A17B%09MUT%3B%09%0ATCGA-D1-A17C%09MUT%3B%09%0ATCGA-D1-A17D%09MUT%3B%09%0ATCGA-D1-A17F%09MUT%3B%09%0ATCGA-D1-A17H%09HOMDEL%3BMUT%3B%09%0ATCGA-D1-A17K%09%09%0ATCGA-D1-A17L%09MUT%3B%09%0ATCGA-D1-A17M%09MUT%3B%09%0ATCGA-D1-A17N%09MUT%3B%09%0ATCGA-D1-A17Q%09MUT%3B%09%0ATCGA-D1-A17R%09MUT%3B%09%0ATCGA-D1-A17S%09MUT%3B%09%0ATCGA-D1-A17T%09MUT%3B%09%0ATCGA-D1-A17U%09MUT%3B%09%0ATCGA-D1-A1NU%09%09%0ATCGA-D1-A1NX%09%09%0ATCGA-DI-A0WH%09%09%0ATCGA-DI-A1NN%09%09%0ATCGA-E6-A1LZ%09%09%0ATCGA-EO-A1Y5%09%09%0ATCGA-EO-A1Y8%09%09%0ATCGA-EY-A1GS%09%09%0ATCGA-EY-A212%09%09%0ATCGA-FI-A2D2%09HOMDEL%3B%09%0ATCGA-FI-A2EW%09%09%0ATCGA-FI-A2EX%09%09%0ATCGA-FI-A2F8%09%09%0A</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
                 <boolProp name="HTTPArgument.use_equals">true</boolProp>
                 <stringProp name="Argument.name">heat_map</stringProp>
@@ -507,18 +266,169 @@
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">miso-dev.cbio.mskcc.org</stringProp>
-          <stringProp name="HTTPSampler.port">38080</stringProp>
+          <stringProp name="HTTPSampler.domain">miso.cbio.mskcc.org</stringProp>
+          <stringProp name="HTTPSampler.port">28080</stringProp>
           <stringProp name="HTTPSampler.connect_timeout"></stringProp>
           <stringProp name="HTTPSampler.response_timeout"></stringProp>
           <stringProp name="HTTPSampler.protocol"></stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-          <stringProp name="HTTPSampler.path">/load-testing-portal/ProteinArraySignificanceTest.json</stringProp>
+          <stringProp name="HTTPSampler.path">/public-portal/ProteinArraySignificanceTest.json</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
           <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+          <boolProp name="HTTPSampler.monitor">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="clinicalAttributes.json" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="cancer_study_id" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">ucec_tcga_pub</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">cancer_study_id</stringProp>
+              </elementProp>
+              <elementProp name="case_list" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">TCGA-A5-A0G5%20TCGA-A5-A0G9%20TCGA-A5-A0GA%20TCGA-A5-A0GB%20TCGA-A5-A0GE%20TCGA-A5-A0GH%20TCGA-A5-A0GI%20TCGA-A5-A0GJ%20TCGA-A5-A0GM%20TCGA-A5-A0GN%20TCGA-A5-A0GP%20TCGA-A5-A0GQ%20TCGA-A5-A0GU%20TCGA-A5-A0GV%20TCGA-A5-A0GW%20TCGA-A5-A0GX%20TCGA-A5-A0R6%20TCGA-A5-A0R7%20TCGA-A5-A0R8%20TCGA-A5-A0R9%20TCGA-A5-A0RA%20TCGA-A5-A0VP%20TCGA-A5-A0VQ%20TCGA-AJ-A23M%20TCGA-AP-A051%20TCGA-AP-A052%20TCGA-AP-A053%20TCGA-AP-A054%20TCGA-AP-A056%20TCGA-AP-A059%20TCGA-AP-A05A%20TCGA-AP-A05D%20TCGA-AP-A05H%20TCGA-AP-A05J%20TCGA-AP-A05N%20TCGA-AP-A05P%20TCGA-AP-A0L8%20TCGA-AP-A0L9%20TCGA-AP-A0LD%20TCGA-AP-A0LE%20TCGA-AP-A0LF%20TCGA-AP-A0LG%20TCGA-AP-A0LH%20TCGA-AP-A0LI%20TCGA-AP-A0LJ%20TCGA-AP-A0LL%20TCGA-AP-A0LM%20TCGA-AP-A0LN%20TCGA-AP-A0LO%20TCGA-AP-A0LP%20TCGA-AP-A0LQ%20TCGA-AP-A0LT%20TCGA-AP-A0LV%20TCGA-AP-A1DQ%20TCGA-AX-A05S%20TCGA-AX-A05T%20TCGA-AX-A05U%20TCGA-AX-A05W%20TCGA-AX-A05Y%20TCGA-AX-A05Z%20TCGA-AX-A060%20TCGA-AX-A062%20TCGA-AX-A063%20TCGA-AX-A064%20TCGA-AX-A06B%20TCGA-AX-A06H%20TCGA-AX-A06L%20TCGA-AX-A0IS%20TCGA-AX-A0IU%20TCGA-AX-A0IW%20TCGA-AX-A0J0%20TCGA-AX-A0J1%20TCGA-AX-A1C7%20TCGA-AX-A1C8%20TCGA-AX-A1CP%20TCGA-AX-A2H5%20TCGA-AX-A2HF%20TCGA-B5-A0JN%20TCGA-B5-A0JR%20TCGA-B5-A0JS%20TCGA-B5-A0JT%20TCGA-B5-A0JV%20TCGA-B5-A0JY%20TCGA-B5-A0JZ%20TCGA-B5-A0K0%20TCGA-B5-A0K1%20TCGA-B5-A0K2%20TCGA-B5-A0K3%20TCGA-B5-A0K4%20TCGA-B5-A0K6%20TCGA-B5-A0K7%20TCGA-B5-A0K8%20TCGA-B5-A0K9%20TCGA-B5-A11E%20TCGA-B5-A11F%20TCGA-B5-A11G%20TCGA-B5-A11H%20TCGA-B5-A11I%20TCGA-B5-A11J%20TCGA-B5-A11N%20TCGA-B5-A11O%20TCGA-B5-A11Q%20TCGA-B5-A11R%20TCGA-B5-A11S%20TCGA-B5-A11U%20TCGA-B5-A11V%20TCGA-B5-A11W%20TCGA-B5-A11Y%20TCGA-B5-A11Z%20TCGA-B5-A121%20TCGA-B5-A1MU%20TCGA-B5-A1MY%20TCGA-BG-A0LW%20TCGA-BG-A0LX%20TCGA-BG-A0M0%20TCGA-BG-A0M2%20TCGA-BG-A0M3%20TCGA-BG-A0M4%20TCGA-BG-A0M6%20TCGA-BG-A0M7%20TCGA-BG-A0M8%20TCGA-BG-A0M9%20TCGA-BG-A0MC%20TCGA-BG-A0MG%20TCGA-BG-A0MI%20TCGA-BG-A0MO%20TCGA-BG-A0MQ%20TCGA-BG-A0MS%20TCGA-BG-A0MT%20TCGA-BG-A0MU%20TCGA-BG-A0RY%20TCGA-BG-A0VT%20TCGA-BG-A0VV%20TCGA-BG-A0VW%20TCGA-BG-A0VX%20TCGA-BG-A0VZ%20TCGA-BG-A0W1%20TCGA-BG-A0W2%20TCGA-BG-A0YU%20TCGA-BG-A0YV%20TCGA-BG-A186%20TCGA-BG-A187%20TCGA-BG-A18A%20TCGA-BG-A18B%20TCGA-BG-A18C%20TCGA-BG-A2AE%20TCGA-BK-A0C9%20TCGA-BK-A0CA%20TCGA-BK-A0CB%20TCGA-BK-A0CC%20TCGA-BK-A139%20TCGA-BK-A13C%20TCGA-BS-A0T9%20TCGA-BS-A0TA%20TCGA-BS-A0TC%20TCGA-BS-A0TD%20TCGA-BS-A0TE%20TCGA-BS-A0TG%20TCGA-BS-A0TI%20TCGA-BS-A0TJ%20TCGA-BS-A0U5%20TCGA-BS-A0U7%20TCGA-BS-A0U8%20TCGA-BS-A0U9%20TCGA-BS-A0UA%20TCGA-BS-A0UF%20TCGA-BS-A0UJ%20TCGA-BS-A0UL%20TCGA-BS-A0UT%20TCGA-BS-A0UV%20TCGA-BS-A0V6%20TCGA-BS-A0V7%20TCGA-BS-A0V8%20TCGA-BS-A0WQ%20TCGA-D1-A0ZN%20TCGA-D1-A0ZO%20TCGA-D1-A0ZP%20TCGA-D1-A0ZQ%20TCGA-D1-A0ZR%20TCGA-D1-A0ZS%20TCGA-D1-A0ZU%20TCGA-D1-A0ZV%20TCGA-D1-A0ZZ%20TCGA-D1-A101%20TCGA-D1-A102%20TCGA-D1-A103%20TCGA-D1-A15V%20TCGA-D1-A15W%20TCGA-D1-A15X%20TCGA-D1-A15Z%20TCGA-D1-A160%20TCGA-D1-A161%20TCGA-D1-A163%20TCGA-D1-A165%20TCGA-D1-A167%20TCGA-D1-A168%20TCGA-D1-A169%20TCGA-D1-A16B%20TCGA-D1-A16D%20TCGA-D1-A16E%20TCGA-D1-A16G%20TCGA-D1-A16I%20TCGA-D1-A16J%20TCGA-D1-A16N%20TCGA-D1-A16O%20TCGA-D1-A16Q%20TCGA-D1-A16S%20TCGA-D1-A16X%20TCGA-D1-A16Y%20TCGA-D1-A174%20TCGA-D1-A176%20TCGA-D1-A177%20TCGA-D1-A17A%20TCGA-D1-A17B%20TCGA-D1-A17C%20TCGA-D1-A17D%20TCGA-D1-A17F%20TCGA-D1-A17H%20TCGA-D1-A17K%20TCGA-D1-A17L%20TCGA-D1-A17M%20TCGA-D1-A17N%20TCGA-D1-A17Q%20TCGA-D1-A17R%20TCGA-D1-A17S%20TCGA-D1-A17T%20TCGA-D1-A17U%20TCGA-D1-A1NU%20TCGA-D1-A1NX%20TCGA-DI-A0WH%20TCGA-DI-A1NN%20TCGA-E6-A1LZ%20TCGA-EO-A1Y5%20TCGA-EO-A1Y8%20TCGA-EY-A1GS%20TCGA-EY-A212%20TCGA-FI-A2D2%20TCGA-FI-A2EW%20TCGA-FI-A2EX%20TCGA-FI-A2F8</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">case_list</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">miso.cbio.mskcc.org</stringProp>
+          <stringProp name="HTTPSampler.port">28080</stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/public-portal/clinicalAttributes.json</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+          <boolProp name="HTTPSampler.monitor">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GeneData.json" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="cancer_study_id" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">ucec_tcga_pub</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">cancer_study_id</stringProp>
+              </elementProp>
+              <elementProp name="oql" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">PTEN%20PIK3CA</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">oql</stringProp>
+              </elementProp>
+              <elementProp name="case_list" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">TCGA-A5-A0G5%20TCGA-A5-A0G9%20TCGA-A5-A0GA%20TCGA-A5-A0GB%20TCGA-A5-A0GE%20TCGA-A5-A0GH%20TCGA-A5-A0GI%20TCGA-A5-A0GJ%20TCGA-A5-A0GM%20TCGA-A5-A0GN%20TCGA-A5-A0GP%20TCGA-A5-A0GQ%20TCGA-A5-A0GU%20TCGA-A5-A0GV%20TCGA-A5-A0GW%20TCGA-A5-A0GX%20TCGA-A5-A0R6%20TCGA-A5-A0R7%20TCGA-A5-A0R8%20TCGA-A5-A0R9%20TCGA-A5-A0RA%20TCGA-A5-A0VP%20TCGA-A5-A0VQ%20TCGA-AJ-A23M%20TCGA-AP-A051%20TCGA-AP-A052%20TCGA-AP-A053%20TCGA-AP-A054%20TCGA-AP-A056%20TCGA-AP-A059%20TCGA-AP-A05A%20TCGA-AP-A05D%20TCGA-AP-A05H%20TCGA-AP-A05J%20TCGA-AP-A05N%20TCGA-AP-A05P%20TCGA-AP-A0L8%20TCGA-AP-A0L9%20TCGA-AP-A0LD%20TCGA-AP-A0LE%20TCGA-AP-A0LF%20TCGA-AP-A0LG%20TCGA-AP-A0LH%20TCGA-AP-A0LI%20TCGA-AP-A0LJ%20TCGA-AP-A0LL%20TCGA-AP-A0LM%20TCGA-AP-A0LN%20TCGA-AP-A0LO%20TCGA-AP-A0LP%20TCGA-AP-A0LQ%20TCGA-AP-A0LT%20TCGA-AP-A0LV%20TCGA-AP-A1DQ%20TCGA-AX-A05S%20TCGA-AX-A05T%20TCGA-AX-A05U%20TCGA-AX-A05W%20TCGA-AX-A05Y%20TCGA-AX-A05Z%20TCGA-AX-A060%20TCGA-AX-A062%20TCGA-AX-A063%20TCGA-AX-A064%20TCGA-AX-A06B%20TCGA-AX-A06H%20TCGA-AX-A06L%20TCGA-AX-A0IS%20TCGA-AX-A0IU%20TCGA-AX-A0IW%20TCGA-AX-A0J0%20TCGA-AX-A0J1%20TCGA-AX-A1C7%20TCGA-AX-A1C8%20TCGA-AX-A1CP%20TCGA-AX-A2H5%20TCGA-AX-A2HF%20TCGA-B5-A0JN%20TCGA-B5-A0JR%20TCGA-B5-A0JS%20TCGA-B5-A0JT%20TCGA-B5-A0JV%20TCGA-B5-A0JY%20TCGA-B5-A0JZ%20TCGA-B5-A0K0%20TCGA-B5-A0K1%20TCGA-B5-A0K2%20TCGA-B5-A0K3%20TCGA-B5-A0K4%20TCGA-B5-A0K6%20TCGA-B5-A0K7%20TCGA-B5-A0K8%20TCGA-B5-A0K9%20TCGA-B5-A11E%20TCGA-B5-A11F%20TCGA-B5-A11G%20TCGA-B5-A11H%20TCGA-B5-A11I%20TCGA-B5-A11J%20TCGA-B5-A11N%20TCGA-B5-A11O%20TCGA-B5-A11Q%20TCGA-B5-A11R%20TCGA-B5-A11S%20TCGA-B5-A11U%20TCGA-B5-A11V%20TCGA-B5-A11W%20TCGA-B5-A11Y%20TCGA-B5-A11Z%20TCGA-B5-A121%20TCGA-B5-A1MU%20TCGA-B5-A1MY%20TCGA-BG-A0LW%20TCGA-BG-A0LX%20TCGA-BG-A0M0%20TCGA-BG-A0M2%20TCGA-BG-A0M3%20TCGA-BG-A0M4%20TCGA-BG-A0M6%20TCGA-BG-A0M7%20TCGA-BG-A0M8%20TCGA-BG-A0M9%20TCGA-BG-A0MC%20TCGA-BG-A0MG%20TCGA-BG-A0MI%20TCGA-BG-A0MO%20TCGA-BG-A0MQ%20TCGA-BG-A0MS%20TCGA-BG-A0MT%20TCGA-BG-A0MU%20TCGA-BG-A0RY%20TCGA-BG-A0VT%20TCGA-BG-A0VV%20TCGA-BG-A0VW%20TCGA-BG-A0VX%20TCGA-BG-A0VZ%20TCGA-BG-A0W1%20TCGA-BG-A0W2%20TCGA-BG-A0YU%20TCGA-BG-A0YV%20TCGA-BG-A186%20TCGA-BG-A187%20TCGA-BG-A18A%20TCGA-BG-A18B%20TCGA-BG-A18C%20TCGA-BG-A2AE%20TCGA-BK-A0C9%20TCGA-BK-A0CA%20TCGA-BK-A0CB%20TCGA-BK-A0CC%20TCGA-BK-A139%20TCGA-BK-A13C%20TCGA-BS-A0T9%20TCGA-BS-A0TA%20TCGA-BS-A0TC%20TCGA-BS-A0TD%20TCGA-BS-A0TE%20TCGA-BS-A0TG%20TCGA-BS-A0TI%20TCGA-BS-A0TJ%20TCGA-BS-A0U5%20TCGA-BS-A0U7%20TCGA-BS-A0U8%20TCGA-BS-A0U9%20TCGA-BS-A0UA%20TCGA-BS-A0UF%20TCGA-BS-A0UJ%20TCGA-BS-A0UL%20TCGA-BS-A0UT%20TCGA-BS-A0UV%20TCGA-BS-A0V6%20TCGA-BS-A0V7%20TCGA-BS-A0V8%20TCGA-BS-A0WQ%20TCGA-D1-A0ZN%20TCGA-D1-A0ZO%20TCGA-D1-A0ZP%20TCGA-D1-A0ZQ%20TCGA-D1-A0ZR%20TCGA-D1-A0ZS%20TCGA-D1-A0ZU%20TCGA-D1-A0ZV%20TCGA-D1-A0ZZ%20TCGA-D1-A101%20TCGA-D1-A102%20TCGA-D1-A103%20TCGA-D1-A15V%20TCGA-D1-A15W%20TCGA-D1-A15X%20TCGA-D1-A15Z%20TCGA-D1-A160%20TCGA-D1-A161%20TCGA-D1-A163%20TCGA-D1-A165%20TCGA-D1-A167%20TCGA-D1-A168%20TCGA-D1-A169%20TCGA-D1-A16B%20TCGA-D1-A16D%20TCGA-D1-A16E%20TCGA-D1-A16G%20TCGA-D1-A16I%20TCGA-D1-A16J%20TCGA-D1-A16N%20TCGA-D1-A16O%20TCGA-D1-A16Q%20TCGA-D1-A16S%20TCGA-D1-A16X%20TCGA-D1-A16Y%20TCGA-D1-A174%20TCGA-D1-A176%20TCGA-D1-A177%20TCGA-D1-A17A%20TCGA-D1-A17B%20TCGA-D1-A17C%20TCGA-D1-A17D%20TCGA-D1-A17F%20TCGA-D1-A17H%20TCGA-D1-A17K%20TCGA-D1-A17L%20TCGA-D1-A17M%20TCGA-D1-A17N%20TCGA-D1-A17Q%20TCGA-D1-A17R%20TCGA-D1-A17S%20TCGA-D1-A17T%20TCGA-D1-A17U%20TCGA-D1-A1NU%20TCGA-D1-A1NX%20TCGA-DI-A0WH%20TCGA-DI-A1NN%20TCGA-E6-A1LZ%20TCGA-EO-A1Y5%20TCGA-EO-A1Y8%20TCGA-EY-A1GS%20TCGA-EY-A212%20TCGA-FI-A2D2%20TCGA-FI-A2EW%20TCGA-FI-A2EX%20TCGA-FI-A2F8</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">case_list</stringProp>
+              </elementProp>
+              <elementProp name="geneticProfileIds" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">ucec_tcga_pub_gistic%20ucec_tcga_pub_mutations</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">geneticProfileIds</stringProp>
+              </elementProp>
+              <elementProp name="z_score_threshold" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">2.0</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">z_score_threshold</stringProp>
+              </elementProp>
+              <elementProp name="rppa_score_threshold" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">2.0</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">rppa_score_threshold</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">miso.cbio.mskcc.org</stringProp>
+          <stringProp name="HTTPSampler.port">28080</stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/public-portal/GeneData.json</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+          <boolProp name="HTTPSampler.monitor">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="ClinicalFreeForm.json" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">miso.cbio.mskcc.org</stringProp>
+          <stringProp name="HTTPSampler.port">28080</stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/public-portal/ClinicalFreeForm.json?studyId=ucec_tcga_pub</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+          <boolProp name="HTTPSampler.monitor">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="CheckGeneSymbol.json" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="genes" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">PTEN%20PIK3CA</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">genes</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">miso.cbio.mskcc.org</stringProp>
+          <stringProp name="HTTPSampler.port">28080</stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/public-portal/CheckGeneSymbol.json</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
           <boolProp name="HTTPSampler.monitor">false</boolProp>
           <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
         </HTTPSamplerProxy>
@@ -615,201 +525,14 @@
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">miso-dev.cbio.mskcc.org</stringProp>
-          <stringProp name="HTTPSampler.port">38080</stringProp>
+          <stringProp name="HTTPSampler.domain">miso.cbio.mskcc.org</stringProp>
+          <stringProp name="HTTPSampler.port">28080</stringProp>
           <stringProp name="HTTPSampler.connect_timeout"></stringProp>
           <stringProp name="HTTPSampler.response_timeout"></stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-          <stringProp name="HTTPSampler.path">/load-testing-portal/network.do</stringProp>
+          <stringProp name="HTTPSampler.path">/public-portal/network.do</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
-          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
-          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
-          <boolProp name="HTTPSampler.image_parser">true</boolProp>
-          <boolProp name="HTTPSampler.monitor">false</boolProp>
-          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
-        </HTTPSamplerProxy>
-        <hashTree/>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="generatePlots.do" enabled="true">
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-            <collectionProp name="Arguments.arguments">
-              <elementProp name="cancer_study_id" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">ucec_tcga</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">cancer_study_id</stringProp>
-                <stringProp name="Argument.desc">false</stringProp>
-              </elementProp>
-              <elementProp name="case_set_id" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">ucec_tcga_3way_complete</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">case_set_id</stringProp>
-                <stringProp name="Argument.desc">false</stringProp>
-              </elementProp>
-              <elementProp name="case_ids" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value"></stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">case_ids</stringProp>
-              </elementProp>
-              <elementProp name="gene" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">EGFR</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">gene</stringProp>
-                <stringProp name="Argument.desc">false</stringProp>
-              </elementProp>
-              <elementProp name="mutation_profile_id" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">ucec_tcga_mutations</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">mutation_profile_id</stringProp>
-                <stringProp name="Argument.desc">false</stringProp>
-              </elementProp>
-              <elementProp name="mrnra_profile_id" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">ucec_tcga_rna_seq_mrna</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">mrnra_profile_id</stringProp>
-              </elementProp>
-              <elementProp name="cna_profile_id" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">ucec_tcga_gistic</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">cna_profile_id</stringProp>
-              </elementProp>
-              <elementProp name="normal_case_set_id" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">undefined</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">normal_case_set_id</stringProp>
-              </elementProp>
-              <elementProp name="include_normals" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">undefined</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">include_normals</stringProp>
-              </elementProp>
-              <elementProp name="methylation_profile_id" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">ucec_tcga_methylation</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">methylation_profile_id</stringProp>
-              </elementProp>
-              <elementProp name="rppa_protein_profile_id" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">ucec_tcga_RPPA_protein_level</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">rppa_protein_profile_id</stringProp>
-              </elementProp>
-              <elementProp name="plot_type" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">mrna_cna</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">plot_type</stringProp>
-              </elementProp>
-            </collectionProp>
-          </elementProp>
-          <stringProp name="HTTPSampler.domain">miso-dev.cbio.mskcc.org</stringProp>
-          <stringProp name="HTTPSampler.port">38080</stringProp>
-          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-          <stringProp name="HTTPSampler.response_timeout"></stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
-          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-          <stringProp name="HTTPSampler.path">/load-testing-portal/network.do</stringProp>
-          <stringProp name="HTTPSampler.method">POST</stringProp>
-          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
-          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
-          <boolProp name="HTTPSampler.image_parser">true</boolProp>
-          <boolProp name="HTTPSampler.monitor">false</boolProp>
-          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
-        </HTTPSamplerProxy>
-        <hashTree/>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="plot.do" enabled="true">
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-            <collectionProp name="Arguments.arguments">
-              <elementProp name="cancer_study_id" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">ucec_tcga</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">cancer_study_id</stringProp>
-                <stringProp name="Argument.desc">false</stringProp>
-              </elementProp>
-              <elementProp name="gene_list" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">EGFR</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">gene_list</stringProp>
-                <stringProp name="Argument.desc">false</stringProp>
-              </elementProp>
-              <elementProp name="genetic_profile_ids" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">ucec_tcga_gistic,ucec_tcga_rna_seq_mrna</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">genetic_profile_ids</stringProp>
-                <stringProp name="Argument.desc">false</stringProp>
-              </elementProp>
-              <elementProp name="skin" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">cna_mrna_mut</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">skin</stringProp>
-              </elementProp>
-              <elementProp name="skin_col_gp" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">ucec_tcga_mutations</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">skin_col_gp</stringProp>
-              </elementProp>
-              <elementProp name="case_set_id" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">ucec_tcga_3way_complete</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">case_set_id</stringProp>
-                <stringProp name="Argument.desc">false</stringProp>
-              </elementProp>
-              <elementProp name="case_ids" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value"></stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                <stringProp name="Argument.name">case_ids</stringProp>
-              </elementProp>
-            </collectionProp>
-          </elementProp>
-          <stringProp name="HTTPSampler.domain">miso-dev.cbio.mskcc.org</stringProp>
-          <stringProp name="HTTPSampler.port">38080</stringProp>
-          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-          <stringProp name="HTTPSampler.response_timeout"></stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
-          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-          <stringProp name="HTTPSampler.path">/load-testing-portal/network.do</stringProp>
-          <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>

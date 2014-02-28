@@ -43,10 +43,10 @@ public class TCGASurvivalDataCalculator implements SurvivalDataCalculator
     private static final String FOLLOW_UP_PATIENT_ID = "bcr_followup_barcode";
 
     private static final String VITAL_STATUS = "vital_status";
-    private static final String DAYS_TO_DEATH = "days_to_death";
-    private static final String LAST_FOLLOW_UP = "days_to_last_followup";
+    private static final String DAYS_TO_DEATH = "death_days_to";//"days_to_death";
+    private static final String LAST_FOLLOW_UP = "last_contact_days_to";//"days_to_last_followup";
     private static final String LAST_KNOWN_ALIVE = "days_to_last_known_alive";
-    private static final String NEW_TUMOR_EVENT = "days_to_new_tumor_event_after_initial_treatment";
+    private static final String NEW_TUMOR_EVENT = "new_tumor_event_dx_days_to";//"days_to_new_tumor_event_after_initial_treatment";
     private static final Pattern FOLLOW_UP_PATIENT_ID_REGEX = Pattern.compile("^(TCGA-\\w\\w-\\w\\w\\w\\w)-.*$");
     
     private List<String> canonicalPatientList;
@@ -142,11 +142,11 @@ public class TCGASurvivalDataCalculator implements SurvivalDataCalculator
     {
         String lastFollowUp;
         String lastKnownAlive;
+        String vitalStatus;
     }
 
     private class SurvivalData extends ClinicalDataRecord
     {
-        String vitalStatus;
         String daysToDeath;
     }
 
@@ -193,12 +193,10 @@ public class TCGASurvivalDataCalculator implements SurvivalDataCalculator
         for (int lc = 0; lc < patientIds.size(); lc++) {
             String patientId = patientIds.get(lc);
             SurvivalData sd = getSurvivalDataForPatient(lc, dataMatrix);
-            if (sd != null) {
-                if (survivalDataMap.containsKey(patientId)) {
-                    sd = mergeSurvivalData(survivalDataMap.get(patientId), sd);
-                }
-                survivalDataMap.put(patientId, sd);
+            if (survivalDataMap.containsKey(patientId)) {
+                sd = mergeSurvivalData(survivalDataMap.get(patientId), sd);
             }
+            survivalDataMap.put(patientId, sd);
         }
 
         return survivalDataMap;
@@ -237,21 +235,18 @@ public class TCGASurvivalDataCalculator implements SurvivalDataCalculator
         survivalData.lastFollowUp = getValue(patientIndex, LAST_FOLLOW_UP, dataMatrix);
         survivalData.lastKnownAlive = getValue(patientIndex, LAST_KNOWN_ALIVE, dataMatrix);
         
-        return (validSurvivalData(survivalData)) ? survivalData : null;
-    }
-
-    private boolean validSurvivalData(SurvivalData survivalData)
-    {
-        return (!survivalData.vitalStatus.isEmpty() &&
-                !survivalData.daysToDeath.isEmpty() &&
-                !survivalData.lastFollowUp.isEmpty() &&
-                !survivalData.lastKnownAlive.isEmpty());
+        return survivalData;
     }
 
     private String getValue(int index, String columnName, DataMatrix dataMatrix)
     {
         List<LinkedList<String>> columnData = dataMatrix.getColumnData(columnName);
-        return (columnData.isEmpty()) ? "" : columnData.get(0).get(index);
+
+        String value = MissingAttributeValues.getNotAvailable();
+        if (!columnData.isEmpty()) {
+            value = columnData.get(0).get(index);
+        }
+        return (value.isEmpty()) ? MissingAttributeValues.getNotAvailable() : value;
     }
 
     private SurvivalData mergeSurvivalData(SurvivalData sd1, SurvivalData sd2)
@@ -349,8 +344,11 @@ public class TCGASurvivalDataCalculator implements SurvivalDataCalculator
 
     private boolean vitalStatusChanged(String value1, String value2)
     {
-        return ((VitalStatusAlive.has(value1) && VitalStatusDead.has(value2)) ||
-                (VitalStatusAlive.has(value2) && VitalStatusDead.has(value1)));
+        return ((VitalStatusAlive.has(value1) ||
+                 VitalStatusDead.has(value1) ||
+                 VitalStatusAlive.has(value2) ||
+                 VitalStatusDead.has(value2)) &&
+                !value1.equals(value2));
     }
 
     private boolean missingAttributeChanged(String value1, String value2)
@@ -490,12 +488,10 @@ public class TCGASurvivalDataCalculator implements SurvivalDataCalculator
         for (int lc = 0; lc < patientIds.size(); lc++) {
             String patientId = patientIds.get(lc);
             DiseaseFreeData df = getDiseaseFreeDataForPatient(lc, dataMatrix);
-            if (df != null) {
-                if (diseaseFreeDataMap.containsKey(patientId)) {
-                    df = mergeDiseaseFreeData(diseaseFreeDataMap.get(patientId), df);
-                }
-                diseaseFreeDataMap.put(patientId, df);
+            if (diseaseFreeDataMap.containsKey(patientId)) {
+                df = mergeDiseaseFreeData(diseaseFreeDataMap.get(patientId), df);
             }
+            diseaseFreeDataMap.put(patientId, df);
         }
 
         return diseaseFreeDataMap;
@@ -503,29 +499,14 @@ public class TCGASurvivalDataCalculator implements SurvivalDataCalculator
 
     private DiseaseFreeData getDiseaseFreeDataForPatient(int patientIndex, DataMatrix dataMatrix)
     {
-        String value = "";
         DiseaseFreeData diseaseFreeData = new DiseaseFreeData();
 
-        value = getValue(patientIndex, NEW_TUMOR_EVENT, dataMatrix);
-        diseaseFreeData.daysToNewTumorEventAfterInitialTreatment =
-            (value.isEmpty()) ? MissingAttributeValues.getNotAvailable() : value;
+        diseaseFreeData.vitalStatus = getValue(patientIndex, VITAL_STATUS, dataMatrix);
+        diseaseFreeData.lastFollowUp = getValue(patientIndex, LAST_FOLLOW_UP, dataMatrix);
+        diseaseFreeData.lastKnownAlive = getValue(patientIndex, LAST_KNOWN_ALIVE, dataMatrix);
+        diseaseFreeData.daysToNewTumorEventAfterInitialTreatment = getValue(patientIndex, NEW_TUMOR_EVENT, dataMatrix);
 
-        value = getValue(patientIndex, LAST_FOLLOW_UP, dataMatrix);
-        diseaseFreeData.lastFollowUp = 
-            (value.isEmpty()) ? MissingAttributeValues.getNotAvailable() : value;
-
-        value = getValue(patientIndex, LAST_KNOWN_ALIVE, dataMatrix);
-        diseaseFreeData.lastKnownAlive = 
-            (value.isEmpty()) ? MissingAttributeValues.getNotAvailable() : value;
-
-        return (validDiseaseFreeData(diseaseFreeData)) ? diseaseFreeData : null;
-    }
-
-    private boolean validDiseaseFreeData(DiseaseFreeData diseaseFreeData)
-    {
-        return (!diseaseFreeData.daysToNewTumorEventAfterInitialTreatment.isEmpty() &&
-                !diseaseFreeData.lastFollowUp.isEmpty() &&
-                !diseaseFreeData.lastKnownAlive.isEmpty());
+        return diseaseFreeData;
     }
 
     private DiseaseFreeData mergeDiseaseFreeData(DiseaseFreeData df1, DiseaseFreeData df2)
@@ -534,6 +515,7 @@ public class TCGASurvivalDataCalculator implements SurvivalDataCalculator
 
         mergedDiseaseFreeData.lastFollowUp = mergeWorksheetValues(df1.lastFollowUp, df2.lastFollowUp);
         mergedDiseaseFreeData.lastKnownAlive = mergeWorksheetValues(df1.lastKnownAlive, df2.lastKnownAlive);
+        mergedDiseaseFreeData.vitalStatus = mergeWorksheetValues(df1.vitalStatus, df2.vitalStatus);
         mergedDiseaseFreeData.daysToNewTumorEventAfterInitialTreatment =
             mergeWorksheetValues(df1.daysToNewTumorEventAfterInitialTreatment, df2.daysToNewTumorEventAfterInitialTreatment);
 
@@ -565,7 +547,7 @@ public class TCGASurvivalDataCalculator implements SurvivalDataCalculator
         for (String patientId : diseaseFreeData.keySet()) {
             int dfStatusIndex = canonicalPatientList.indexOf(patientId);
             DiseaseFreeData df = diseaseFreeData.get(patientId);
-            if (df.daysToNewTumorEventAfterInitialTreatment.equals(MissingAttributeValues.NULL.toString())) {
+            if (patientIsDiseaseFree(df)) {
                 dfStatus.set(dfStatusIndex, DiseaseFreeStatus.DISEASE_FREE.toString());
             }
             else {
@@ -588,7 +570,7 @@ public class TCGASurvivalDataCalculator implements SurvivalDataCalculator
             int dfStatusMonthsIndex = canonicalPatientList.indexOf(patientId);
             DiseaseFreeData df = diseaseFreeData.get(patientId);
             try {
-                if (df.daysToNewTumorEventAfterInitialTreatment.equals(MissingAttributeValues.NULL.toString())) {
+                if (patientIsDiseaseFree(df)) {
                     dfStatusMonths.set(dfStatusMonthsIndex, convertDaysToMonths(df.lastFollowUp, df.lastKnownAlive));
                 }
                 else {
@@ -602,6 +584,13 @@ public class TCGASurvivalDataCalculator implements SurvivalDataCalculator
         }
 
         return dfStatusMonths;
+    }
+
+    private boolean patientIsDiseaseFree(DiseaseFreeData df)
+    {
+        return (VitalStatusAlive.has(df.vitalStatus) &&
+                (df.daysToNewTumorEventAfterInitialTreatment.equals(MissingAttributeValues.NULL.toString()) ||
+                 df.daysToNewTumorEventAfterInitialTreatment.equals(MissingAttributeValues.getNotAvailable())));
     }
 
     private List<String> initializeList(int size)

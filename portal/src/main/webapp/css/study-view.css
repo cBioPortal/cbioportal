@@ -141,6 +141,7 @@
 #dataTable_info {
     float: left;
     width: auto;
+    margin-left: 3px;
 }
 /* CLASS styles */
 .study-view-header{    

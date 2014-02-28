@@ -65,8 +65,7 @@ var ScatterPlots = function() {
 
     var updateBrushCallback = "",
         clickCallback = "",
-        brushOn = false,
-        brushedCases = [];
+        brushOn = false;
 
     var axisXLogFlag = false,
         axisYLogFlag = false;
@@ -429,83 +428,14 @@ var ScatterPlots = function() {
                 .delay(100)
                 .attr("d", d3.svg.symbol().size(size).type(style.shape));
         };
+        //Click has three status: 1. Click; 2. ShiftClick; 3. Both
         var click = function(){
-            var clickedCases = [],
-                dot = d3.select(this),
-                attr = $(this).attr('clicked');
             
-            //UPdate click point style
-            if(typeof attr !== 'undefined' && attr !== false){
-                $(this).removeAttr('clicked');
-                dot.attr('stroke-width','0');
+            if(d3.event.shiftKey){
+                shiftclicked(this);
             }else{
-                dot.attr('clicked','clicked')
-                    .attr('stroke-width','3px');
-                if(dot.attr('stroke') === 'red')
-                    dot.attr('stroke',style.stroke);
-                else
-                    dot.attr('stroke','red');
-                
-                if(dot.attr('fill') === 'red')
-                    dot.attr('stroke',style.stroke);
-                else
-                    dot.attr('stroke','red');
+                clicked(this);
             }
-            
-            elem.dotsGroup.selectAll("path").each(function(d) {
-                var subAttr = $(this).attr('clicked');
-                if (typeof subAttr !== 'undefined' && subAttr !== false) {
-                    clickedCases.push(d.case_id);
-                }
-            });
-                
-            var clickedCasesLength = clickedCases.length;
-            
-            //If number of clicked cases bigger than 1, restyle rest points,
-            //including all points has been brushed.
-            if(clickedCasesLength > 1){
-                elem.dotsGroup.selectAll("path").each(function(d) {
-                    var subAttr = $(this).attr('clicked');
-                    if (typeof subAttr === 'undefined' || subAttr === false) {
-                        $(this).attr("stroke", style.stroke);   
-                        $(this).attr("fill", style.fill); 
-                        $(this).attr("d", d3.svg.symbol().size(style.size).type(style.shape));
-                    }
-                });
-                elem.dotsGroup.selectAll("path").each(function(d) {
-                    var subAttr = $(this).attr('clicked');
-                    if (typeof subAttr !== 'undefined' && subAttr !== false) {
-                        $(this).attr("stroke", "red");   
-                        $(this).attr("fill", style.fill); 
-                    }
-                });
-            }
-            
-            //If click the point out of brush area, all points in brushed area
-            //should be reset to original status.
-            for(var i=0 ; i< clickedCasesLength ; i++){
-                if(brushedCases.indexOf(clickedCases[i]) === -1){
-                    elem.dotsGroup.selectAll("path").each(function(d) {
-                        var subAttr = $(this).attr('clicked');
-                        if (typeof subAttr === 'undefined' || subAttr === false) {
-                            $(this).attr("stroke", style.stroke);   
-                            $(this).attr("fill", style.fill); 
-                            $(this).attr("d", d3.svg.symbol().size(style.size).type(style.shape));
-                        }
-                    });
-                    
-                    elem.dotsGroup.selectAll("path").each(function(d) {
-                        var subAttr = $(this).attr('clicked');
-                        if (typeof subAttr !== 'undefined' && subAttr !== false) {
-                            $(this).attr("stroke", "red");   
-                            $(this).attr("fill", style.fill); 
-                        }
-                    });
-                    break;
-                }
-            }
-                
-            clickCallback(clickedCases);
         };
         
         elem.dotsGroup.selectAll("path").attr('pointer-events', 'all').on("mouseover", mouseOn);
@@ -513,42 +443,171 @@ var ScatterPlots = function() {
         elem.dotsGroup.selectAll("path").attr('pointer-events', 'all').on("click", click);
     }
     
+    function changeClickStyle(_element){
+        var _clickType = pointClickType(_element);
+        
+        switch(_clickType){
+            case 'clicked':
+                $(_element).attr('stroke-width','3px')
+                            .attr("d", d3.svg.symbol().size(style.size*5).type(style.shape))
+                            .attr('fill',style.fill)
+                            .attr('stroke','red');
+                break;
+            case 'shiftClicked':
+                $(_element).attr('stroke-width','0')
+                            .attr("d", d3.svg.symbol().size(style.size*5).type(style.shape))
+                            .attr('fill','red');
+                break;
+            case 'both':
+                $(_element).attr('stroke-width','3px')
+                            .attr("d", d3.svg.symbol().size(style.size*5).type(style.shape))
+                            .attr('fill','red')
+                            .attr('stroke',style.stroke);
+                break;
+            
+            //default: withOutClick
+            default:
+                $(_element).attr('stroke-width',style.stroke_width)
+                            .attr("d", d3.svg.symbol().size(style.size).type(style.shape))
+                            .attr('fill',style.fill)
+                            .attr('stroke',style.stroke);
+        }
+    }
+    
+    function pointClickType(_element){
+        var _clickType,
+            _attr = $(_element).attr('clicked');
+        if(typeof _attr === 'undefined' || _attr === false)
+            _clickType = 'none';
+        else
+            _clickType = _attr;
+        return _clickType;
+    }
+    
+    function clicked(_element){
+        //Only allow click one point, return string to distinguish
+        //the Click function and Shift Click function
+        var _clickedCase = '',
+            _attrType = pointClickType(_element);
+        //UPdate click point style
+        if(_attrType === 'both'){
+            $(_element).attr('clicked','shiftClicked');
+            changeClickStyle(_element);
+        }else if(_attrType === 'clicked'){
+            $(_element).removeAttr('clicked');
+            changeClickStyle(_element);
+        }else{
+            elem.dotsGroup.selectAll("path").each(function(d) {
+                var _subAttrType = pointClickType(this);
+                if(_subAttrType === 'both'){
+                    $(this).attr('clicked','shiftClicked');
+                    changeClickStyle(this);
+                }if(_subAttrType === 'clicked'){
+                    $(this).removeAttr('clicked');
+                    changeClickStyle(this);
+                }
+            });
+            if(_attrType === 'shiftClicked'){
+                $(_element).attr('clicked','both');
+                changeClickStyle(_element);
+            }else{
+                $(_element).attr('clicked','clicked');
+                changeClickStyle(_element);
+            }
+        }
+        
+        //Find the clicked point ID
+        elem.dotsGroup.selectAll("path").each(function(d) {
+            var _subTyleAttr = pointClickType(this);
+            if (_subTyleAttr === 'clicked' || _subTyleAttr === 'both') {
+                _clickedCase = d.case_id;
+            }
+        });
+        
+        clickCallback(_clickedCase);
+    }
+    
+    function shiftclicked(_element){
+        var _shiftClickedCases = [],
+            _attrType = pointClickType(_element);
+    
+        //UPdate click point style
+        if(_attrType === 'shiftClicked' || _attrType === 'both'){
+            $(_element).removeAttr('clicked');
+            changeClickStyle(_element);
+        }else if(_attrType === 'clicked'){
+            $(_element).attr('clicked','shiftClicked');
+            changeClickStyle(_element);
+        }else{
+            $(_element).attr('clicked','shiftClicked');
+            changeClickStyle(_element);
+        }
+        
+        elem.dotsGroup.selectAll("path").each(function(d) {
+            var _subAttrType = pointClickType(this);
+            if (_subAttrType === 'both' || _subAttrType === 'shiftClicked') {
+                _shiftClickedCases.push(d.case_id);
+                if(_subAttrType === 'shiftClicked'){
+                    onlyClickedPoint = false;
+                }
+                if(_subAttrType === 'both'){
+                    $(this).attr('clicked','shiftClicked');
+                    changeClickStyle(this);
+                }
+            }else if(_subAttrType === 'clicked' ){
+                $(this).attr('clicked','shiftClicked');
+                changeClickStyle(this);
+                _shiftClickedCases.push(d.case_id);
+            }
+        });
+        clickCallback(_shiftClickedCases);
+    }
+    
     function brushended() {
-        var _brushedCases = [];
+        var _brushedCases = [],
+            _totalHighlightIds = [];
         _brushedCases.length = 0;
         var extent = elem.brush.extent();
-        console.log(extent);
+        
+        
         elem.dotsGroup.selectAll("path").each(function(d) {
-            var _x = $(this).attr("x_val"),
-                _y = $(this).attr("y_val"),
-                attr = $(this).attr('clicked');
-            
+            var _attrType,
+                _x = $(this).attr("x_val"),
+                _y = $(this).attr("y_val");    
+                
             if (_x > extent[0][0] && _x < extent[1][0] &&
                 _y > extent[0][1] && _y < extent[1][1]) {
                 //TODO: does not work with log scale applied scenario
-                if(typeof attr !== 'undefined' && attr !== false){
-                    $(this).attr("stroke", style.stroke);
-                }else{
-                     $(this).attr("stroke", "red");
-                }
-                $(this).attr("fill", "red");
+                $(this).attr('clicked','shiftClicked');
+                changeClickStyle(this);
                 _brushedCases.push(d.case_id);
-            } else {
-                if(d.stroke === null || d.stroke === "" || typeof d.stroke === "undefined") {
-                    $(this).attr("stroke", style.stroke);   
-                    $(this).attr("fill", style.fill); 
-                    $(this).attr("d", d3.svg.symbol().size(style.size).type(style.shape));
-                }
-                $(this).attr("stroke", d.stroke);
-                $(this).attr("fill", d.fill);
-                if(typeof attr !== 'undefined' && attr !== false){
-                    $(this).removeAttr('clicked');
-                }
+            }
+            if(_attrType === 'clicked'){
+                $(this).attr('clicked','shiftClicked');
+                changeClickStyle(this);
+            }
+            
+            _attrType = pointClickType(this);
+            if(_attrType !== 'none'){
+                _totalHighlightIds.push(d.case_id);
             }
         });
+        
+        if(_brushedCases.length === 0){
+            elem.dotsGroup.selectAll("path").each(function(d) {
+                var _attrType = pointClickType(this);
+                
+                if(_attrType !== 'none'){
+                    $(this).removeAttr('clicked');
+                }
+                
+                changeClickStyle(this);
+                _totalHighlightIds = []
+            });
+        }
+        
         d3.select(".brush").call(elem.brush.clear());
-        updateBrushCallback(_brushedCases);
-        brushedCases = _brushedCases;
+        updateBrushCallback(_totalHighlightIds);
     }
 
     function updatePlotsLogScale(_axis, _applyLogScale) {

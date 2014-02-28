@@ -10,7 +10,8 @@ var StudyViewInitCharts = (function(){
 
     var numOfCases,
         scatterStudyView,
-        ndx = "",
+        ndx,
+        clickedCaseId = '',
         dataArr = {},
         removedChart = [],
         attrNameMapUID = [], //The relationshio between "The unique attribute name" and "The unique ID number in whole page"        
@@ -18,7 +19,7 @@ var StudyViewInitCharts = (function(){
         varGroup = [], //Groups of displayed charts -- DC.JS require
         disableFiltId = [0],
         brushedCaseIds = [],
-        clickedCaseIds = [],
+        shiftClickedCaseIds = [],
         chartColors = ["#3366cc","#dc3912","#ff9900","#109618",
             "#990099","#0099c6","#dd4477","#66aa00",
             "#b82e2e","#316395","#994499","#22aa99",
@@ -1274,45 +1275,51 @@ var StudyViewInitCharts = (function(){
             resizeLeftColumn();
         });
         $("#dataTable tbody").unbind('click');
-        $("#dataTable tbody").click(function(event){
-            var returnValue, 
-                selectedRowCaseId = [],
-                oTable = $("#dataTable").dataTable();
-           
-           /*
-            $(oTable.fnSettings().aoData).each(function (){
-                $(this.nTr).removeClass('row_selected');
-            });
-            */
-            if($(event.target.parentNode).hasClass('row_selected')){
-                $(event.target.parentNode).removeClass('row_selected');
-                if($(event.target.parentNode).hasClass('odd')){
-                   $(event.target.parentNode).css('background-color','#E2E4FF'); 
+        $("#dataTable tbody").mousedown(function(event){
+            if(event.shiftKey){
+                event.preventDefault();
+                //TODO: Add table row shift click listener.
+                console.log('here');
+            }else{
+                var returnValue, 
+                    selectedRowCaseId = [],
+                    oTable = $("#dataTable").dataTable();
+
+               /*
+                $(oTable.fnSettings().aoData).each(function (){
+                    $(this.nTr).removeClass('row_selected');
+                });
+                */
+                if($(event.target.parentNode).hasClass('row_selected')){
+                    $(event.target.parentNode).removeClass('row_selected');
+                    if($(event.target.parentNode).hasClass('odd')){
+                       $(event.target.parentNode).css('background-color','#E2E4FF'); 
+                    }else{
+                        $(event.target.parentNode).css('background-color','white');
+                    }
                 }else{
-                    $(event.target.parentNode).css('background-color','white');
+                    $(event.target.parentNode).addClass('row_selected');
+                    $(event.target.parentNode).css('background-color','lightgray');
                 }
-            }else{
-                $(event.target.parentNode).addClass('row_selected');
-                $(event.target.parentNode).css('background-color','lightgray');
+                returnValue = fnGetSelected(oTable);
+                var returnValueLength = returnValue.length;
+                for(var i=0 ; i< returnValueLength; i++){
+                    selectedRowCaseId.push($(returnValue[i]).find('td').first().text());
+                }
+
+                if(selectedRowCaseId.length > 1){
+                    removeMarker();
+                    filterChartsByGivingIDs(selectedRowCaseId);
+                }else if(selectedRowCaseId.length === 1){
+                    removeMarker();
+                    redrawChartsAfterDeletion();
+                    getDataAndDrawMarker(selectedRowCaseId);
+                }else{
+                    removeMarker();
+                    redrawChartsAfterDeletion();
+                }
+                setScatterPlotStyle(selectedRowCaseId,varChart[attrNameMapUID['CASE_ID']].filters());
             }
-            returnValue = fnGetSelected(oTable);
-            var returnValueLength = returnValue.length;
-            for(var i=0 ; i< returnValueLength; i++){
-                selectedRowCaseId.push($(returnValue[i]).find('td').first().text());
-            }
-            
-            if(selectedRowCaseId.length > 1){
-                removeMarker();
-                filterChartsByGivingIDs(selectedRowCaseId);
-            }else if(selectedRowCaseId.length === 1){
-                removeMarker();
-                redrawChartsAfterDeletion();
-                getDataAndDrawMarker(selectedRowCaseId);
-            }else{
-                removeMarker();
-                redrawChartsAfterDeletion();
-            }
-            setScatterPlotStyle(selectedRowCaseId,varChart[attrNameMapUID['CASE_ID']].filters());
         });
     } 
     function showDataTableReset( _oTable ){
@@ -1453,6 +1460,7 @@ var StudyViewInitCharts = (function(){
         $(".dataTables_scroll").css("overflow-x","scroll");
         $(".DTFC_LeftHeadWrapper").css("background-color","white");
     }
+    
     function removePieMarker(){
         var _numOfCharts = varChart.length;
         for(var i=0; i< _numOfCharts; i++){
@@ -1461,6 +1469,7 @@ var StudyViewInitCharts = (function(){
             }
         }
     }
+    
     function redrawChartsAfterDeletion(){
         for(var i=0; i< varChart.length ; i++){
             if(removedChart.indexOf(i) === -1){
@@ -1470,13 +1479,17 @@ var StudyViewInitCharts = (function(){
         }
         dc.redrawAll();
     }
+    
     function scatterPlotBrushCallBack(_brushedCaseIds) {
         brushedCaseIds = _brushedCaseIds;
-        if(_brushedCaseIds.length === 0 || (clickedCaseIds.length === 1 && _brushedCaseIds.indexOf(clickedCaseIds[0]) === -1)){
-            clickedCaseIds = [];
+        if(_brushedCaseIds.length === 0 || (shiftClickedCaseIds.length === 1 && _brushedCaseIds.indexOf(shiftClickedCaseIds[0]) === -1)){
+            shiftClickedCaseIds = [];
+            clickedCaseId = '';
         }
         scatterPlotCallBack(_brushedCaseIds);
+        removeMarker();
     }
+    
     function scatterPlotCallBack(_caseIDs){
         var _numOfCharts = varChart.length;
         if(_caseIDs.length > 0){
@@ -1492,27 +1505,49 @@ var StudyViewInitCharts = (function(){
             brushOn = false;
         }
         changeHeader();
-        removeMarker();
-        if(clickedCaseIds.length === 1){
-            getDataAndDrawMarker(clickedCaseIds);
+    }
+    
+    function scatterPlotClickCallBack(_clickedCaseIds) {
+        var _typeOfInputClickedCases = typeof _clickedCaseIds;
+        if(_typeOfInputClickedCases === 'string'){
+            clickedCaseId = _clickedCaseIds;
+            scatterPlotClick(_clickedCaseIds);
+        }else{
+            shiftClickedCaseIds = _clickedCaseIds;
+            scatterPlotShiftClick(_clickedCaseIds);
         }
     }
-    function scatterPlotClickCallBack(_clickedCaseIds) {
-        clickedCaseIds = _clickedCaseIds;
-        if(_clickedCaseIds.length === 1 && (brushedCaseIds.length === 0 || brushedCaseIds.indexOf(_clickedCaseIds[0]) === -1)){
-            for(var i=0; i< varChart.length ; i++){
-                if(varChart[i].filters().length > 0)
-                    varChart[i].filterAll();
-            }
-            dc.redrawAll();
-            
-            getDataAndDrawMarker(_clickedCaseIds);
-        }else if(_clickedCaseIds.length === 1){
-            getDataAndDrawMarker(_clickedCaseIds);
-        }else if(_clickedCaseIds.length === 0 && brushedCaseIds.length !== 0){
+    
+    function scatterPlotClick(_clickedCaseId){
+        if(_clickedCaseId !== ''){
             removeMarker();
+            getDataAndDrawMarker([_clickedCaseId]);
         }else{
-            scatterPlotCallBack(_clickedCaseIds);
+            removeMarker();
+        }
+    }
+    
+    function scatterPlotShiftClick(_shiftClickedCaseIds){
+        var _shiftClickedCasesLength = _shiftClickedCaseIds.length;
+        
+        removeMarker();
+        shiftClickedCaseIds = _shiftClickedCaseIds;
+        if(_shiftClickedCasesLength !== 0){
+           /*if(clickedCaseId !== ''){
+                if(shiftClickedCaseIds.indexOf(clickedCaseId) === -1){
+                    shiftClickedCaseIds.push(clickedCaseId);
+                }
+                removeMarker();
+                scatterPlotCallBack(shiftClickedCaseIds);
+                getDataAndDrawMarker([clickedCaseId]);
+            }else{*/
+            clickedCaseId = '';
+            scatterPlotCallBack(shiftClickedCaseIds);
+            //}
+        }else{
+            redrawChartsAfterDeletion();
+            if(clickedCaseId !== '')
+                getDataAndDrawMarker([clickedCaseId]);
         }
     }
     

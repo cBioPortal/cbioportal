@@ -227,7 +227,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 					.attr('y2', y + height/2);
 
 				// store initial position for future use
-				// (this is not a good way of using datum)
+				// TODO this is not a good way of using datum
 				line.datum({initPos: {x: x, y: (y + height/2)}});
 			}
 			// draw a rectangle for any other segment type
@@ -244,7 +244,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 					.attr('height', height);
 
 				// store initial position for future use
-				// (this is not a good way of using datum)
+				// TODO this is not a good way of using datum
 				rect.datum({initPos: {x: x, y: y}});
 			}
 		}
@@ -792,7 +792,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		gRect.transition().duration(_options.animationDuration).attr('opacity', 1);
 
 		// store initial position for future use
-		// (this is not a good way of using datum)
+		// TODO this is not a good way of using datum
 		rect.datum({initPos: {x: bbox.x, y: bbox.y}});
 
 		// ...alternatively we can just use a yellowish color
@@ -816,16 +816,13 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		var y = -1;
 		var height = -1;
 
-		// TODO using initial values to find the bounding box, this might not be safe!
 		rectGroup.selectAll("rect").each(function(datum, idx) {
 			var rect = d3.select(this);
 			// assuming height and y are the same for all rects
 			y = parseFloat(rect.attr("y"));
-			//y = datum.initPos.y;
 			height = parseFloat(rect.attr("height"));
 
 			var x = parseFloat(rect.attr("x"));
-			//var x = datum.initPos.x;
 			var width = parseFloat(rect.attr("width"));
 
 			if (x < left)
@@ -868,12 +865,6 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	 */
 	function minimizeToChain(chainGroup, callback)
 	{
-		// already minimized (or being minimized)
-//		if (_minimized)
-//		{
-//			return;
-//		}
-
 		var duration = _options.animationDuration;
 
 		// 3 transitions in parallel:
@@ -909,8 +900,16 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		var key = chainKey(datum.pdbId, datum.chain.chainId);
 		var chainRow = _rowMap[key];
 
-		// TODO if chains are not at their original positions, then shift value should be different
-		var shift = chainRow * (_options.chainHeight + _options.chainPadding);
+		// if chains are not at their original positions, then shift value should be different
+//		var shift = chainRow * (_options.chainHeight + _options.chainPadding);
+
+		// calculate shift value relative to the current position of the given chain group
+		var shift = 0;
+
+		chainGroup.selectAll("rect").each(function(datum, idx) {
+			var rect = d3.select(this);
+			shift = parseInt(rect.attr("y")) - _options.marginTop;
+		});
 
 		var shiftFn = function(target, d, attr) {
 			var ele = d3.select(target);

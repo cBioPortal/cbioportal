@@ -111,6 +111,10 @@ var PdbPanelView = Backbone.View.extend({
 			// highlight the default chain
 			panel.highlight(gChain);
 		});
+
+		// TODO call this in the controller?
+		// initiate auto-collapse
+		self.autoCollapse();
 	},
 	/**
 	 * Selects the given pdb and chain for the 3D visualizer.
@@ -129,8 +133,8 @@ var PdbPanelView = Backbone.View.extend({
 			clearTimeout(self.collapseTimer);
 		}
 
-		// restore to full view
-		panel.restoreToFull(function() {
+		// restore to original positions & highlight the chain
+		panel.restoreChainPositions(function() {
 			// expand the panel up to the level of the given chain
 			panel.expandToChainLevel(pdbId, chainId);
 
@@ -142,16 +146,27 @@ var PdbPanelView = Backbone.View.extend({
 			{
 				panel.highlight(gChain);
 			}
+
+			// TODO call this in the controller?
+			self.autoCollapse(0);
+			// minimize to selected
+			//panel.minimizeToHighlighted();
 		});
 	},
 	/**
 	 * Initializes auto collapse process.
+	 *
+	 * @delay time to minimization
 	 */
-	autoCollapse: function()
+	autoCollapse: function(delay)
 	{
+		if (delay == null)
+		{
+			delay = 2000;
+		}
+
 		var self = this;
 		var expandButton = self.$el.find(".expand-collapse-pdb-panel");
-		var delay = 5000; // time to minimization
 
 		// clear previous timer
 		if (self.collapseTimer != null)

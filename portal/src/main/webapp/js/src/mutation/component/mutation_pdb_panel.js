@@ -767,16 +767,20 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	 */
 	function highlight(chainGroup)
 	{
+		// update the reference
+		_highlighted = chainGroup;
+
 		// calculate the bounding box
 		var bbox = boundingBox(chainGroup);
 
 		// remove the previous selection rectangle(s)
-		_svg.selectAll(".pdb-selection-rectangle").remove();
+		_svg.selectAll(".pdb-selection-rectangle-group").remove();
+		var gRect = _svg.append('g')
+			.attr('class', "pdb-selection-rectangle-group")
+			.attr('opacity', 0);
 
 		// add the selection rectangle
-		var rect = _svg.append('rect')
-			.attr('class', "pdb-selection-rectangle")
-			.attr('opacity', 0)
+		var rect = gRect.append('rect')
 			.attr('fill', "none")
 			.attr('stroke', _options.highlightBorderColor)
 			.attr('stroke-width', _options.highlightBorderWidth)
@@ -785,14 +789,11 @@ function MutationPdbPanel(options, data, proxy, xScale)
 			.attr('width', bbox.width)
 			.attr('height', bbox.height);
 
-		rect.transition().duration(_options.animationDuration).attr('opacity', 1);
+		gRect.transition().duration(_options.animationDuration).attr('opacity', 1);
 
 		// store initial position for future use
 		// (this is not a good way of using datum)
 		rect.datum({initPos: {x: bbox.x, y: bbox.y}});
-
-		// update the reference
-		_highlighted = chainGroup;
 
 		// ...alternatively we can just use a yellowish color
 		// to highlight the whole background
@@ -819,12 +820,12 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		rectGroup.selectAll("rect").each(function(datum, idx) {
 			var rect = d3.select(this);
 			// assuming height and y are the same for all rects
-			//y = parseFloat(rect.attr("y"));
-			y = datum.initPos.y;
+			y = parseFloat(rect.attr("y"));
+			//y = datum.initPos.y;
 			height = parseFloat(rect.attr("height"));
 
-			//var x = parseFloat(rect.attr("x"));
-			var x = datum.initPos.x;
+			var x = parseFloat(rect.attr("x"));
+			//var x = datum.initPos.x;
 			var width = parseFloat(rect.attr("width"));
 
 			if (x < left)
@@ -844,6 +845,11 @@ function MutationPdbPanel(options, data, proxy, xScale)
 			height: height};
 	}
 
+	/**
+	 * Collapses the view to the currently highlighted chain group
+	 *
+	 * @param callback  function to invoke after the transition
+	 */
 	function minimizeToHighlighted(callback)
 	{
 		if (_highlighted != null)
@@ -858,7 +864,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	 * the size of the diagram to fit only a single row.
 	 *
 	 * @param chainGroup    chain group (svg element)
-	 * @param callback      function to call after the transition
+	 * @param callback      function to invoke after the transition
 	 */
 	function minimizeToChain(chainGroup, callback)
 	{
@@ -869,15 +875,42 @@ function MutationPdbPanel(options, data, proxy, xScale)
 //		}
 
 		var duration = _options.animationDuration;
+
+		// 3 transitions in parallel:
+
+		// 1) shift all chains up, such that selected chain will be on top
+		shiftToChain(chainGroup);
+
+		// 2) fade-out all chains (except selected) and labels
+		fadeOutOthers(chainGroup);
+
+		// 3) resize the panel to a single row size
+		var collapsedHeight = calcCollapsedHeight(1);
+		_svg.transition().duration(duration)
+			.attr("height", collapsedHeight)
+			.each("end", function(){
+				if (_.isFunction(callback)) {
+					callback();
+				}
+			});
+	}
+
+	/**
+	 * Shift all the chain rectangles, such that the given chain
+	 * will be in the first row.
+	 *
+	 * @param chainGroup    chain group (svg element)
+	 * @param callback      function to invoke after the transition
+	 */
+	function shiftToChain(chainGroup, callback)
+	{
+		var duration = _options.animationDuration;
 		var datum = chainGroup.datum();
 		var key = chainKey(datum.pdbId, datum.chain.chainId);
 		var chainRow = _rowMap[key];
-		var shift = chainRow * (_options.chainHeight + _options.chainPadding);
 
-		// 3 transitions in parallel:
-		// 1) shift all chains up, such that selected chain will be on top
-		// 2) fade-out all chains (except selected) and labels
-		// 3) resize the panel to a single row size
+		// TODO if chains are not at their original positions, then shift value should be different
+		var shift = chainRow * (_options.chainHeight + _options.chainPadding);
 
 		var shiftFn = function(target, d, attr) {
 			var ele = d3.select(target);
@@ -886,10 +919,26 @@ function MutationPdbPanel(options, data, proxy, xScale)
 
 		// shift up every chain on the y-axis
 		yShiftRect(".pdb-chain-group rect", shiftFn, duration);
-		yShiftRect(".pdb-selection-rectangle", shiftFn, duration);
+		yShiftRect(".pdb-selection-rectangle-group rect", shiftFn, duration);
 		yShiftLine(".pdb-chain-group line", shiftFn, duration);
 
-		// fade-out other chains, labels, etc.
+		// TODO it is better to bind this to a d3 transition
+		// ..safest way is to call after the selected chain's transition ends
+		setTimeout(callback, duration + 50);
+	}
+
+	/**
+	 * Fades out all other element except the ones in
+	 * the given chain group.
+	 *
+	 * @param chainGroup    chain group to exclude from fade out
+	 * @param callback      function to invoke after the transition
+	 */
+	function fadeOutOthers(chainGroup, callback)
+	{
+		var duration = _options.animationDuration;
+		var datum = chainGroup.datum();
+		var key = chainKey(datum.pdbId, datum.chain.chainId);
 
 		_svg.selectAll(".pdb-chain-group")
 			.transition().duration(duration)
@@ -905,13 +954,8 @@ function MutationPdbPanel(options, data, proxy, xScale)
 
 		_svg.select(".pdb-panel-y-axis-label-group")
 			.transition().duration(duration)
-			.attr("opacity", 0);
-
-		// resize to collapsed height
-		var collapsedHeight = calcCollapsedHeight(1);
-		_svg.transition().duration(duration)
-			.attr("height", collapsedHeight)
-			.each("end", function(){
+			.attr("opacity", 0)
+			.each("end", function() {
 				if (_.isFunction(callback)) {
 					callback();
 				}
@@ -943,9 +987,32 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	 * Reverses the changes back to the state before calling
 	 * the minimizeToChain function.
 	 *
-	 * @param callback  function to call after the transition
+	 * @param callback  function to invoke after the transition
 	 */
 	function restoreToFull(callback)
+	{
+		var duration = _options.animationDuration;
+
+		// put everything back to its original position
+		restoreChainPositions();
+
+		// fade-in hidden elements
+		fadeInAll();
+
+		// restore to previous height
+		_svg.transition().duration(duration)
+			.attr("height", _levelHeight)
+			.each("end", function(){
+				if (_.isFunction(callback)) {
+					callback();
+				}
+			});
+	}
+
+	/**
+	 * Restores all chains back to their initial positions.
+	 */
+	function restoreChainPositions(callback)
 	{
 		var duration = _options.animationDuration;
 
@@ -955,8 +1022,20 @@ function MutationPdbPanel(options, data, proxy, xScale)
 
 		// put everything back to its original position
 		yShiftRect(".pdb-chain-group rect", shiftFn, duration);
-		yShiftRect(".pdb-selection-rectangle", shiftFn, duration);
 		yShiftLine(".pdb-chain-group line", shiftFn, duration);
+		yShiftRect(".pdb-selection-rectangle-group rect", shiftFn, duration);
+
+		// TODO it is better to bind this to a d3 transition
+		// ..safest way is to call after the selected chain's transition ends
+		setTimeout(callback, duration + 50);
+	}
+
+	/**
+	 * Fades in all hidden components.
+	 */
+	function fadeInAll(callback)
+	{
+		var duration = _options.animationDuration;
 
 		// fade-in hidden elements
 
@@ -966,11 +1045,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 
 		_svg.selectAll(".pdb-panel-y-axis-label-group")
 			.transition().duration(duration)
-			.attr("opacity", 1);
-
-		// restore to previous height
-		_svg.transition().duration(duration)
-			.attr("height", _levelHeight)
+			.attr("opacity", 1)
 			.each("end", function(){
 				if (_.isFunction(callback)) {
 					callback();
@@ -990,6 +1065,8 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		minimizeToChain: minimizeToChain,
 		minimizeToHighlighted: minimizeToHighlighted,
 		restoreToFull: restoreToFull,
+		restoreChainPositions: restoreChainPositions,
+		fadeInAll: fadeInAll,
 		hasMoreChains: hasMoreChains,
 		highlight: highlight,
 		dispatcher: _dispatcher};

@@ -287,9 +287,6 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 					// select default chain if none provided
 					_pdbPanelView.selectDefaultChain();
 				}
-
-				// initiate auto-collapse
-				_pdbPanelView.autoCollapse();
 			}
 		};
 

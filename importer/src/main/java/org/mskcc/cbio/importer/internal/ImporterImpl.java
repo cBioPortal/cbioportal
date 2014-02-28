@@ -481,8 +481,7 @@ class ImporterImpl implements Importer {
                 propertyNeedsUpdating(properties.getProperty("description"), cancerStudyMetadata.getDescription()) ||
                 propertyNeedsUpdating(properties.getProperty("citation"), cancerStudyMetadata.getCitation()) ||
                 propertyNeedsUpdating(properties.getProperty("pmid"), cancerStudyMetadata.getPMID()) ||
-                propertyNeedsUpdating(properties.getProperty("groups"), cancerStudyMetadata.getGroups()) ||
-                propertyNeedsUpdating(properties.getProperty("short_name"), cancerStudyMetadata.getShortName()));
+                propertyNeedsUpdating(properties.getProperty("groups"), cancerStudyMetadata.getGroups()));
     }
 
     private Properties getProperties(String cancerStudyMetadataFilename) throws Exception

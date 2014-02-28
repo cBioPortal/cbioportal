@@ -235,7 +235,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 			{
 				var rect = gChain.append('rect')
 					.attr('fill', color)
-					.attr('opacity', chain.mergedAlignment.score)
+					.attr('opacity', chain.mergedAlignment.identityPerc)
 					.attr('stroke', options.chainBorderColor)
 					.attr('stroke-width', options.chainBorderWidth)
 					.attr('x', x)

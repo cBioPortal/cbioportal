@@ -164,7 +164,8 @@ var PdbDataUtil = (function()
 		mergedAlignment.uniprotTo = mergedAlignment.uniprotFrom + mergedStr.length;
 		mergedAlignment.pdbFrom = alignments[0].pdbFrom;
 		mergedAlignment.mergedString = mergedStr;
-		mergedAlignment.score = calcScore(mergedStr);
+		mergedAlignment.identityPerc = calcIdentityPerc(mergedStr);
+		mergedAlignment.identity = calcIdentity(mergedStr);
 
 		return mergedAlignment;
 	}
@@ -251,11 +252,13 @@ var PdbDataUtil = (function()
 	}
 
 	/**
-	 * Calculates an alignment score based on mismatch ratio.
+	 * Calculates the identity percentage of the given alignment string
+	 * based on mismatch ratio.
 	 *
 	 * @param mergedStr merged alignment string
+	 * @return {Number} identity percentage value
 	 */
-	function calcScore(mergedStr)
+	function calcIdentityPerc(mergedStr)
 	{
 		var gap = 0;
 		var mismatch = 0;
@@ -279,6 +282,32 @@ var PdbDataUtil = (function()
 		}
 
 		return 1.0 - (mismatch / (count - gap));
+	}
+
+	/**
+	 * Calculates the identity (number of matches) for
+	 * the given alignment string.
+	 *
+	 * @param mergedStr merged alignment string
+	 * @return {Number} identity value
+	 */
+	function calcIdentity(mergedStr)
+	{
+		mergedStr = mergedStr.toLowerCase();
+
+		var match = 0;
+
+		for (var count=0; count < mergedStr.length; count++)
+		{
+			var symbol = mergedStr[count];
+
+			if (symbol.match(/[a-z]/))
+			{
+				match++;
+			}
+		}
+
+		return match;
 	}
 
 	/**
@@ -405,11 +434,11 @@ var PdbDataUtil = (function()
 			});
 		});
 
-		//chains.sort(compareChains);
-
+		// rank the chains
 		sortChains(chains, [
-			compareMergedLength, // sort by length first
-			compareScore, // then by calculated alignment score
+			compareIdentity, // first, sort by identity
+			compareMergedLength, // then by length
+			compareIdentityPerc, // then by identity percentage
 			comparePdbId, // then by pdb id (A-Z)
 			compareChainId // then by chain id (A-Z)
 		]);
@@ -442,33 +471,18 @@ var PdbDataUtil = (function()
 		});
 	}
 
-	/**
-	 * Comparison function for chains.
-	 */
-	function compareChains(a, b)
+	function compareIdentity(a, b)
 	{
-		var result = 0;
-
-		// first, try to sort by alignment score
-		if (result == 0)
-		{
-			result = compareScore(a, b);
-		}
-
-		// second, try to sort by alignment length (longest string comes first)
-		if (result == 0)
-		{
-			result = compareMergedLength(a, b);
-		}
-
-		return result;
+		// higher value should comes first
+		return (b.chain.mergedAlignment.identity -
+		        a.chain.mergedAlignment.identity);
 	}
 
-	function compareScore(a, b)
+	function compareIdentityPerc(a, b)
 	{
-		// higher score should comes first
-		return (b.chain.mergedAlignment.score -
-		        a.chain.mergedAlignment.score);
+		// higher value should comes first
+		return (b.chain.mergedAlignment.identityPerc -
+		        a.chain.mergedAlignment.identityPerc);
 	}
 
 	function compareMergedLength(a, b)

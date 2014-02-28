@@ -138,39 +138,6 @@ var CoexpPlotsView = function() {
         _tmp_obj["stroke_width"] = plotsOpts.style.stroke_width;
         _tmp_obj["text"] = plotsOpts.text.legends.non_mut;
         plotsOpts.legends.push(_tmp_obj);
-        //Add scores info (as art of legends)
-        var _tmp_obj = {}; //act as anb empty line
-        _tmp_obj["fill"] = plotsOpts.style.fill;
-        _tmp_obj["stroke"] = plotsOpts.style.stroke;
-        _tmp_obj["size"] = 0;
-        _tmp_obj["shape"] = plotsOpts.style.shape;
-        _tmp_obj["stroke_width"] = plotsOpts.style.stroke_width;
-        _tmp_obj["text"] = "";
-        plotsOpts.legends.push(_tmp_obj);
-        var _tmp_obj = {}; //act as an empty line
-        _tmp_obj["fill"] = plotsOpts.style.fill;
-        _tmp_obj["stroke"] = plotsOpts.style.stroke;
-        _tmp_obj["size"] = 0;
-        _tmp_obj["shape"] = plotsOpts.style.shape;
-        _tmp_obj["stroke_width"] = plotsOpts.style.stroke_width;
-        _tmp_obj["text"] = "";
-        plotsOpts.legends.push(_tmp_obj);
-        var _tmp_obj = {};
-        _tmp_obj["fill"] = plotsOpts.style.fill;
-        _tmp_obj["stroke"] = plotsOpts.style.stroke;
-        _tmp_obj["size"] = 0;
-        _tmp_obj["shape"] = plotsOpts.style.shape;
-        _tmp_obj["stroke_width"] = plotsOpts.style.stroke_width;
-        _tmp_obj["text"] = "Pearson: " + dataAttr.pearson;
-        plotsOpts.legends.push(_tmp_obj);
-        var _tmp_obj = {};
-        _tmp_obj["fill"] = plotsOpts.style.fill;
-        _tmp_obj["stroke"] = plotsOpts.style.stroke;
-        _tmp_obj["size"] = 0;
-        _tmp_obj["shape"] = plotsOpts.style.shape;
-        _tmp_obj["stroke_width"] = plotsOpts.style.stroke_width;
-        _tmp_obj["text"] = "Spearman: " + dataAttr.spearman;
-        plotsOpts.legends.push(_tmp_obj);
         //Update Mutated Cases' Styles
         $.each(dataArr, function(index, obj) {
             if (obj.hasOwnProperty("mutation")) {

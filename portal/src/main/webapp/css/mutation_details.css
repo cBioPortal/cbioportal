@@ -202,6 +202,9 @@ table.display tr.odd.mutation-table-highlight td {
 .pdb-chain-group{
 	cursor: pointer;
 }
+.mutation-pdb-panel-container {
+	overflow: hidden;
+}
 
 /**
  * 3D visualizer panel

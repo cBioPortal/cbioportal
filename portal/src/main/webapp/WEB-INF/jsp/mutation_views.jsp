@@ -225,6 +225,11 @@
             </a>
         </td>
 		<td>
+			<span class='{{tumorTypeClass}}' alt='{{tumorTypeTip}}'>
+				{{tumorType}}
+			</span>
+		</td>
+		<td>
 			<span class='{{proteinChangeClass}}' alt='{{proteinChangeTip}}'>
 				{{proteinChange}}
 			</span>
@@ -313,6 +318,7 @@
 	<th alt='Mutation ID' class='mutation-table-header'>Mutation ID</th>
 	<th alt='Case ID' class='mutation-table-header'>Case ID</th>
     <th alt='Cancer Study' class='mutation-table-header'>Cancer Study</th>
+	<th alt='Tumor Type' class='mutation-table-header'>Tumor Type</th>
     <th alt='Protein Change' class='mutation-table-header'>AA Change</th>
 	<th alt='Mutation Type' class='mutation-table-header'>Type</th>
 	<th alt='Overlapping mutations in COSMIC' class='mutation-table-header'>COSMIC</th>

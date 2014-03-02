@@ -283,6 +283,10 @@ public class Admin implements Runnable {
 			else if (commandLine.hasOption("import_reference_data")) {
 				importReferenceData(commandLine.getOptionValue("import_reference_data"));
 			}
+			else if (commandLine.hasOption("import_types_of_cancer")) {
+				importTypesOfCancer();
+			}
+                        
 			// import data
 			else if (commandLine.hasOption("import_data")) {
                 String[] values = commandLine.getOptionValues("import_data");
@@ -582,6 +586,27 @@ public class Admin implements Runnable {
 				}
 			}
 		}
+		if (LOG.isInfoEnabled()) {
+			LOG.info("importReferenceData(), complete");
+		}
+	}
+
+	/**
+	 * Helper function to import types of cancer.
+     *
+     * @param referenceType String
+	 *
+	 * @throws Exception
+	 */
+	private void importTypesOfCancer() throws Exception {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("importTypesOfCancer()");
+		}
+                
+                Importer importer = (Importer)getBean("importer");
+                importer.importTypesOfCancer();
+                        
 		if (LOG.isInfoEnabled()) {
 			LOG.info("importReferenceData(), complete");
 		}

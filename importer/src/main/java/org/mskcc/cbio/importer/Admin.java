@@ -171,6 +171,11 @@ public class Admin implements Runnable {
 													   "Use \"" + Config.ALL + "\" to import all reference data.")
 									  .create("import_reference_data"));
 
+        Option importTypesOfCancer = (OptionBuilder.withArgName("import_types_of_cancer")
+									  .hasArg()
+									  .withDescription("Import types of cancer.")
+									  .create("import_types_of_cancer"));
+        
         Option importData = (OptionBuilder.withArgName("portal:init_portal_db:init_tumor_types:ref_data")
                              .hasArgs(4)
 							 .withValueSeparator(':')
@@ -202,6 +207,7 @@ public class Admin implements Runnable {
 		toReturn.addOption(applyOverrides);
 		toReturn.addOption(generateCaseLists);
 		toReturn.addOption(importReferenceData);
+		toReturn.addOption(importTypesOfCancer);
 		toReturn.addOption(importData);
 		toReturn.addOption(copySegFiles);
 

@@ -1278,9 +1278,6 @@ var StudyViewInitCharts = (function(){
         $("#dataTable tbody").mousedown(function(event){
             if(event.shiftKey){
                 event.preventDefault();
-                //TODO: Add table row shift click listener.
-                console.log('here');
-            }else{
                 var returnValue, 
                     selectedRowCaseId = [],
                     oTable = $("#dataTable").dataTable();
@@ -1306,18 +1303,50 @@ var StudyViewInitCharts = (function(){
                 for(var i=0 ; i< returnValueLength; i++){
                     selectedRowCaseId.push($(returnValue[i]).find('td').first().text());
                 }
+                shiftClickedCaseIds = selectedRowCaseId;
+                clickedCaseId = '';
+                removeMarker();
+                filterChartsByGivingIDs(selectedRowCaseId);
+                setScatterPlotStyle(selectedRowCaseId,varChart[attrNameMapUID['CASE_ID']].filters());
+            }else{
+                var returnValue, 
+                    selectedRowCaseId = [],
+                    oTable = $("#dataTable").dataTable();
 
-                if(selectedRowCaseId.length > 1){
-                    removeMarker();
-                    filterChartsByGivingIDs(selectedRowCaseId);
-                }else if(selectedRowCaseId.length === 1){
-                    removeMarker();
-                    redrawChartsAfterDeletion();
-                    getDataAndDrawMarker(selectedRowCaseId);
+                if($(event.target.parentNode).hasClass('row_selected')){
+                    $(event.target.parentNode).removeClass('row_selected');
+                    if($(event.target.parentNode).hasClass('odd')){
+                       $(event.target.parentNode).css('background-color','#E2E4FF'); 
+                    }else{
+                        $(event.target.parentNode).css('background-color','white');
+                    }
                 }else{
-                    removeMarker();
-                    redrawChartsAfterDeletion();
+                    $(oTable.fnSettings().aoData).each(function (){
+                        if($(this.nTr).hasClass('row_selected')){
+                            $(this.nTr).removeClass('row_selected');
+                            if($(this.nTr).hasClass('odd')){
+                               $(this.nTr).css('background-color','#E2E4FF'); 
+                            }else{
+                                $(this.nTr).css('background-color','white');
+                            }
+                        }
+                    });
+
+                    $(event.target.parentNode).addClass('row_selected');
+                    $(event.target.parentNode).css('background-color','lightgray');
                 }
+                
+                returnValue = fnGetSelected(oTable);
+                var returnValueLength = returnValue.length;
+                for(var i=0 ; i< returnValueLength; i++){
+                    selectedRowCaseId.push($(returnValue[i]).find('td').first().text());
+                }
+
+                clickedCaseId = selectedRowCaseId[0];
+                shiftClickedCaseIds = [];
+                removeMarker();
+                redrawChartsAfterDeletion();
+                getDataAndDrawMarker(selectedRowCaseId);
                 setScatterPlotStyle(selectedRowCaseId,varChart[attrNameMapUID['CASE_ID']].filters());
             }
         });
@@ -1395,16 +1424,16 @@ var StudyViewInitCharts = (function(){
             styleDatum.case_id = parObject.caseIds[i];
             if(_selectedCaseID.length !== parObject.caseIds.length){
                 if(_selectedCaseID.indexOf(parObject.caseIds[i]) !== -1){
-                    if(clickedCaseIds.indexOf(parObject.caseIds[i]) !== -1){
-                        styleDatum.fill='red';
-                        styleDatum.stroke='#3366cc';
+                    if(clickedCaseId !== ''){
+                        styleDatum.fill='#3366cc';
+                        styleDatum.stroke='#red';
                         styleDatum.strokeWidth='3px';
                         styleDatum.size='300';
                     }else{
                         styleDatum.fill='red';
                         styleDatum.stroke = 'red';
                         styleDatum.strokeWidth='0';
-                        styleDatum.size='60';
+                        styleDatum.size='300';
                     }
                 }else{
                     styleDatum.fill='#3366cc';
@@ -1485,6 +1514,19 @@ var StudyViewInitCharts = (function(){
         if(_brushedCaseIds.length === 0 || (shiftClickedCaseIds.length === 1 && _brushedCaseIds.indexOf(shiftClickedCaseIds[0]) === -1)){
             shiftClickedCaseIds = [];
             clickedCaseId = '';
+            
+            var oTable = $("#dataTable").dataTable();
+
+            $(oTable.fnSettings().aoData).each(function (){
+                if($(this.nTr).hasClass('row_selected')){
+                    $(this.nTr).removeClass('row_selected');
+                    if($(this.nTr).hasClass('odd')){
+                       $(this.nTr).css('background-color','#E2E4FF'); 
+                    }else{
+                        $(this.nTr).css('background-color','white');
+                    }
+                }
+            });
         }
         scatterPlotCallBack(_brushedCaseIds);
         removeMarker();

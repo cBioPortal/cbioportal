@@ -20,8 +20,8 @@
         padding-left: 6px;
     }
     #coexp .dataTables_paginate {
-        float: left;
-        text-align: left;
+        float: right;
+        padding: 3px;
     }
     #coexp .paging_full_numbers .ui-button {
         border: 1px solid #aaa;

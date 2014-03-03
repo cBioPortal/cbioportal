@@ -114,14 +114,14 @@ var CoExpView = (function() {
 
             //Configure the datatable with  jquery
             _coExpTable = $("#" + Names.tableId).dataTable({
-                "sDom": '<"H"f<"coexp-table-filter-pearson">>t<"F"ip>',
+                "sDom": '<"H"f<"coexp-table-filter-pearson">>t<"F"i<"datatable-paging"p>>',
                 "bPaginate": true,
-                "sPaginationType": "full_numbers",
+                "sPaginationType": "two_button",
                 "bInfo": true,
                 "bJQueryUI": true,
                 "bAutoWidth": false,
                 "aaData" : coexp_table_arr,
-                "aaSorting": [[1, 'asc']],
+                "aaSorting": [[1, 'desc']],
                 "aoColumnDefs": [
                     {
                         "bSearchable": true,
@@ -141,12 +141,14 @@ var CoExpView = (function() {
                         "sWidth": "22%"
                     }
                 ],
-                "sScrollY": "550px",
+                "sScrollY": "600px",
                 "bScrollCollapse": true,
                 //iDisplayLength: coexp_table_arr.length,
                 "oLanguage": {
                     "sSearch": "Search Gene"
                 },
+                "bDeferRender": true,
+                "iDisplayLength": 28,
                 "fnRowCallback": function(nRow, aData) {
                     $('td:eq(0)', nRow).css("font-weight", "bold");
                     $('td:eq(1)', nRow).css("font-weight", "bold");
@@ -161,8 +163,14 @@ var CoExpView = (function() {
                         $('td:eq(2)', nRow).css("color", "#B40404");
                     }
                 },
-                "bDeferRender": true,
-                "iDisplayLength": 25
+                "fnInfoCallback": function( oSettings, iStart, iEnd, iMax, iTotal, sPre ) {
+                    if (iTotal === iMax) {
+                        return iStart +" to "+ iEnd + " of " + iTotal;
+                    } else {
+                        return iStart + " to " + iEnd + " of " + iTotal + " (filtered from " + iMax + " total)";
+                    }
+                    
+                }
             });  //close data table
         }
 
@@ -181,7 +189,7 @@ var CoExpView = (function() {
         function attachPearsonFilter(_tableDivId, _coExpTable, _geneId) { 
             //Add drop down filter for positive/negative pearson display
             $("#" + _tableDivId).find('.coexp-table-filter-pearson').append(
-                "<select id='coexp-table-select-" + _geneId + "'>" +
+                "<select id='coexp-table-select-" + _geneId + "' style='width: 230px'>" +
                 "<option value='all'>Show All</option>" +
                 "<option value='positivePearson'>Show Only Positively Correlated</option>" +
                 "<option value='negativePearson'>Show Only Negatively Correlated</option>" +
@@ -225,16 +233,15 @@ var CoExpView = (function() {
         //Overwrite some datatable function for custom filtering
         function overWriteFilters() {
             jQuery.fn.dataTableExt.oSort['coexp-absolute-value-desc'] = function(a,b) {
-                if (Math.abs(a) > Math.abs(b)) return 1;
-                else if (Math.abs(a) < Math.abs(b)) return -1;
-                else return 0;
-            };
-            jQuery.fn.dataTableExt.oSort['coexp-absolute-value-asc'] = function(a,b) {
                 if (Math.abs(a) > Math.abs(b)) return -1;
                 else if (Math.abs(a) < Math.abs(b)) return 1;
                 else return 0;
             };
-            jQuery.fn.dataTableExt.oPagination.iFullNumbersShowPages = 10;
+            jQuery.fn.dataTableExt.oSort['coexp-absolute-value-asc'] = function(a,b) {
+                if (Math.abs(a) > Math.abs(b)) return 1;
+                else if (Math.abs(a) < Math.abs(b)) return -1;
+                else return 0;
+            };
         }
 
         function getCoExpDataCallBack(result, geneId) {

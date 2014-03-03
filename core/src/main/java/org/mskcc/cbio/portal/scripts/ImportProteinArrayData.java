@@ -28,24 +28,16 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.util.ConsoleUtil;
-import org.mskcc.cbio.portal.util.FileUtil;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
+import org.mskcc.cbio.portal.util.*;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+
+import java.io.*;
+import java.util.*;
+import java.util.regex.*;
 
 /**
  * Import protein array data into database
@@ -80,13 +72,9 @@ public class ImportProteinArrayData {
         String line = buf.readLine();
         String[] caseIds = line.split("\t");
         ArrayList<String> cases = new ArrayList<String>();
-        Pattern p = Pattern.compile("(TCGA-..-....)");
-        for (int i=1; i<caseIds.length; i++) {
-            String caseId = caseIds[i];
-            Matcher m = p.matcher(caseId);
-            if (m.find()) {
-                cases.add(m.group(1));
-            }
+        for (int i=1; i < caseIds.length; i++) {
+            String caseId = CaseIdUtil.getSampleId(caseIds[i]);
+            cases.add(caseId);
         }
         
         while ((line=buf.readLine()) != null) {

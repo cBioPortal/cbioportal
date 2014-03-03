@@ -716,7 +716,9 @@ var StudyViewInitCharts = (function(){
             var tmpPointsInfo = $('#' + _pieChartID + ' svg>g>g:nth-child(' + 
                     childID+')').find('path').attr('d').split(/[\s,MLHVCSQTAZ]/),          
                 tmpPointsInfo1 = $('#' + _pieChartID + ' svg>g>g:nth-child(' + 
-                    childID+')').find('path').attr('d').split(/[A]/);
+                    childID+')').find('path').attr('d').split(/[A]/),
+                _fill = $('#' + _pieChartID + ' svg>g>g:nth-child(' + 
+                    childID+')').find('path').attr('fill');    
             
             var x1 = Number(tmpPointsInfo[1]),
                 y1 = Number(tmpPointsInfo[2]),
@@ -745,14 +747,42 @@ var StudyViewInitCharts = (function(){
                     _tmpY = -_tmpY;
                 }
                 
+                var _pointOne = Math.atan2(y1,x1);
+                var _pointTwo = Math.atan2(y2,x2);
+
+                if(_pointOne < -Math.PI/2){
+                    _pointOne = Math.PI/2 + Math.PI *2 +_pointOne;
+                }else{
+                    _pointOne = Math.PI/2 +_pointOne;
+                }
+
+                if(_pointTwo < -Math.PI/2){
+                    _pointTwo = Math.PI/2 + Math.PI*2 +_pointTwo;
+                }else{
+                    _pointTwo = Math.PI/2 +_pointTwo;
+                }
+               
                 var circleID = "circle-" +fatherID+"-"+(Number(childID)-1);
-                    
+                  /*   
                 d3.select("#" + _pieChartID + " svg g").append("path")
                     .attr("transform", function(d) { return "translate(" + _tmpX + "," + _tmpY + ")"; })
                     .attr("d", d3.svg.symbol().size('25').type('circle'))
                     .attr('fill',"red")
                     .attr('id',circleID)
                     .attr('class','circle');
+                */
+               
+                var arc = d3.svg.arc()
+                                .innerRadius(r + 3)
+                                .outerRadius(r + 5)
+                                .startAngle(_pointOne)
+                                .endAngle(_pointTwo)
+                                ;
+                d3.select("#" + _pieChartID + " svg g").append("path")
+                    .attr("d", arc)
+                    .attr('fill',_fill)
+                    .attr('id',circleID)
+                    .attr('class','mark');
             }
         });
         
@@ -1643,7 +1673,7 @@ var StudyViewInitCharts = (function(){
                             var _titleArray = _title.split(":");
                             var _key = _titleArray[0];
                             if(_key === _relativeValue){
-                                drawPieMarker($(this).find('path').attr('d'),"study-view-dc-chart-" + i,key,i);
+                                drawPieMarker($(this).find('path').attr('d'),$(this).find('path').attr('fill'),"study-view-dc-chart-" + i,key,i);
                             }
                         });
                     }else if(_valueArray[2] === 'bar'){
@@ -1654,7 +1684,7 @@ var StudyViewInitCharts = (function(){
         }
     }
     
-    function drawPieMarker(_d,_pieChartID,_childID,_fatherID) {
+    function drawPieMarker(_d,_fill,_pieChartID,_childID,_fatherID) {
         var tmpPointsInfo = _d.split(/[\s,MLHVCSQTAZ]/),          
             tmpPointsInfo1 = _d.split(/[A]/);
 
@@ -1680,17 +1710,46 @@ var StudyViewInitCharts = (function(){
                 _tmpX = r + 6;
             }
             
+            var _pointOne = Math.atan2(y1,x1);
+            var _pointTwo = Math.atan2(y2,x2);
+            
+            if(_pointOne < -Math.PI/2){
+                _pointOne = Math.PI/2 + Math.PI *2 +_pointOne;
+            }else{
+                _pointOne = Math.PI/2 +_pointOne;
+            }
+            
+            if(_pointTwo < -Math.PI/2){
+                _pointTwo = Math.PI/2 + Math.PI*2 +_pointTwo;
+            }else{
+                _pointTwo = Math.PI/2 +_pointTwo;
+            }
+            
             if(largeArc === 1 && Math.abs(x1 - x2) >0.1) {
                 _tmpX = -_tmpX;
                 _tmpY = -_tmpY;
             }
             
             var textID = "path-" + _fatherID+"-"+Number(_childID);
-                    
+            /*      
             d3.select("#" + _pieChartID + " svg g").append("path")
                 .attr("transform", function(d) { return "translate(" + _tmpX + "," + _tmpY + ")"; })
                 .attr("d", d3.svg.symbol().size('25').type('triangle-up'))
                 .attr('fill',"red")
+                .attr('id',textID)
+                .attr('class','mark');*/
+            
+            
+            
+            var arc = d3.svg.arc()
+                            .innerRadius(r + 3)
+                            .outerRadius(r + 5)
+                            .startAngle(_pointOne)
+                            .endAngle(_pointTwo)
+                            ;
+            d3.select("#" + _pieChartID + " svg g").append("path")
+                .attr("d", arc)
+                .attr('fill',_fill)
                 .attr('id',textID)
                 .attr('class','mark');
         }

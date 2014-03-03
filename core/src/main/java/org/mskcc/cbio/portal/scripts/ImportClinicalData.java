@@ -42,8 +42,6 @@ public class ImportClinicalData {
     public static final String PATIENT_ID_COLUMN_NAME = "PATIENT_ID";
     public static final String SAMPLE_TYPE_COLUMN_NAME = "SAMPLE_TYPE";
 
-    private static final Pattern TCGA_SAMPLE_BARCODE_REGEX = Pattern.compile("(TCGA-\\w\\w-\\w\\w\\w\\w)\\-\\d\\d[A-Q]$");
-
     private boolean isSampleData;
 	private File clinicalDataFile;
 	private CancerStudy cancerStudy;
@@ -174,7 +172,7 @@ public class ImportClinicalData {
 
     private String getStablePatientId(String sampleId, String[] fields, List<ClinicalAttribute> columnAttrs)
     {
-        Matcher tcgaSampleBarcodeMatcher = TCGA_SAMPLE_BARCODE_REGEX.matcher(sampleId);
+        Matcher tcgaSampleBarcodeMatcher = CaseIdUtil.TCGA_PATIENT_BARCODE_FROM_SAMPLE_REGEX.matcher(sampleId);
         if (tcgaSampleBarcodeMatcher.find()) {
             return tcgaSampleBarcodeMatcher.group(1);
         }

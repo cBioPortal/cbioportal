@@ -34,11 +34,14 @@ public class CaseIdUtil
 {
     public static final String TCGA_BARCODE_PREFIX = "TCGA";
 
-    public static final Pattern TCGA_FULL_SAMPLE_BARCODE_REGEX =
-        Pattern.compile("^(TCGA-\\w\\w-\\w\\w\\w\\w-\\w\\w)[A-Z]$");
-
     public static final Pattern TCGA_SAMPLE_BARCODE_REGEX =
-        Pattern.compile("^TCGA-\\w\\w-\\w\\w\\w\\w-(\\w\\w)$");
+        Pattern.compile("^(TCGA-\\w\\w-\\w\\w\\w\\w-\\d\\d)[A-Z]$");
+
+    public static final Pattern TCGA_SAMPLE_TYPE_BARCODE_REGEX =
+        Pattern.compile("^TCGA-\\w\\w-\\w\\w\\w\\w-(\\d\\d)$");
+
+    public static final Pattern TCGA_PATIENT_BARCODE_FROM_SAMPLE_REGEX =
+        Pattern.compile("^(TCGA-\\w\\w-\\w\\w\\w\\w)\\-\\d\\d[A-Z]$");
 
 	public static String getPatientId(String barCode)
 	{
@@ -64,7 +67,7 @@ public class CaseIdUtil
 			id = barCodeParts[0] + "-" + barCodeParts[1] + "-" + barCodeParts[2];
             if (forSample) {
                 id += "-" + barCodeParts[3];
-                Matcher tcgaSampleBarcodeMatcher = TCGA_FULL_SAMPLE_BARCODE_REGEX.matcher(id);
+                Matcher tcgaSampleBarcodeMatcher = TCGA_SAMPLE_BARCODE_REGEX.matcher(id);
                 id = (tcgaSampleBarcodeMatcher.find()) ? tcgaSampleBarcodeMatcher.group(1) : id;
             }
 		}

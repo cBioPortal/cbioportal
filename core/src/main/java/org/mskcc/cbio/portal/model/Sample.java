@@ -87,7 +87,7 @@ public class Sample {
 
     private Type getType(String stableId)
     {
-        Matcher tcgaSampleBarcodeMatcher = CaseIdUtil.TCGA_SAMPLE_BARCODE_REGEX.matcher(stableId);
+        Matcher tcgaSampleBarcodeMatcher = CaseIdUtil.TCGA_SAMPLE_TYPE_BARCODE_REGEX.matcher(stableId);
         if (tcgaSampleBarcodeMatcher.find()) {
             return CaseIdUtil.getTypeByTCGACode(tcgaSampleBarcodeMatcher.group(1));
         }

@@ -171,8 +171,7 @@ public class Admin implements Runnable {
 													   "Use \"" + Config.ALL + "\" to import all reference data.")
 									  .create("import_reference_data"));
 
-        Option importTypesOfCancer = (OptionBuilder.withArgName("import_types_of_cancer")
-									  .hasArg()
+        Option importTypesOfCancer = (OptionBuilder.hasArg(false)
 									  .withDescription("Import types of cancer.")
 									  .create("import_types_of_cancer"));
         

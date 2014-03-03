@@ -173,8 +173,10 @@ public class ImportTabDelimData {
                 parts = line.split("\t",-1);
                 
                 if (parts.length>lenParts) {
-                    System.err.println("The following line has more fields (" + parts.length
-                            + ") than the headers(" + lenParts + "): \n"+parts[0]);
+                    if (line.split("\t").length>lenParts) {
+                        System.err.println("The following line has more fields (" + parts.length
+                                + ") than the headers(" + lenParts + "): \n"+parts[0]);
+                    }
                 }
                 String values[] = (String[]) ArrayUtils.subarray(parts, caseStartIndex, parts.length>lenParts?lenParts:parts.length);
 

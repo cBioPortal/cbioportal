@@ -33,6 +33,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -103,36 +105,29 @@ public final class ImportUniProtIdMapping {
         MySQLbulkLoader.flushAll();
     }
     
-    
-    
-    private Set<String> getSwissProtAccessionHuman() throws IOException {
+    public static Set<String> getSwissProtAccessionHuman() throws IOException {
         String strURL = "http://www.uniprot.org/uniprot/?query="
                 + "taxonomy%3ahuman+AND+reviewed%3ayes&force=yes&format=list";
         
-        MultiThreadedHttpConnectionManager connectionManager =
-                ConnectionManager.getConnectionManager();
-        HttpClient client = new HttpClient(connectionManager);
-        GetMethod method = new GetMethod(strURL);
-        
-        try {
-            int statusCode = client.executeMethod(method);
-            if (statusCode == HttpStatus.SC_OK) {
-                BufferedReader bufReader = new BufferedReader(
-                        new InputStreamReader(method.getResponseBodyAsStream()));
-                Set<String> accs = new HashSet<String>();
-                for (String line=bufReader.readLine(); line!=null; line=bufReader.readLine()) {
-                    accs.add(line);
-                }
-                return accs;
-            } else {
-                //  Otherwise, throw HTTP Exception Object
-                throw new HttpException(statusCode + ": " + HttpStatus.getStatusText(statusCode)
-                        + " Base URL:  " + strURL);
-            }
-        } finally {
-            //  Must release connection back to Apache Commons Connection Pool
-            method.releaseConnection();
+        URL url = new URL(strURL);
+
+        URLConnection pfamConn = url.openConnection();
+
+        BufferedReader in = new BufferedReader(
+                        new InputStreamReader(pfamConn.getInputStream()));
+
+        String line;
+        Set<String> accs = new HashSet<String>();
+
+        // read all
+        while((line = in.readLine()) != null)
+        {
+                accs.add(line);
         }
+
+        in.close();
+
+	return accs;
     }
 
     public static void main(final String[] args) {

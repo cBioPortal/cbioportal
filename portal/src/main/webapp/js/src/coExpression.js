@@ -59,9 +59,6 @@ var CoExpView = (function() {
     var coexp_table_arr = [],
         _coExpTable = "";
 
-
-
-
     var CoExpTable = function() {
  
         function convertData(_result) {
@@ -103,7 +100,6 @@ var CoExpView = (function() {
             Names.plotId = Prefix.plotPrefix + _geneId;
         }
 
-
         function configTable() {
             //Draw out the markdown of the datatable
             $("#" + Names.tableId).append(
@@ -119,7 +115,9 @@ var CoExpView = (function() {
             //Configure the datatable with  jquery
             _coExpTable = $("#" + Names.tableId).dataTable({
                 "sDom": '<"H"f<"coexp-table-filter-pearson">>t<"F"ip>',
+                "bPaginate": true,
                 "sPaginationType": "full_numbers",
+                "bInfo": true,
                 "bJQueryUI": true,
                 "bAutoWidth": false,
                 "aaData" : coexp_table_arr,

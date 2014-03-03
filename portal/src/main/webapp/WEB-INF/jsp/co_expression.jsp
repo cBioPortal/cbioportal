@@ -23,6 +23,15 @@
         float: left;
         text-align: left;
     }
+    #coexp .paging_full_numbers .ui-button {
+        border: 1px solid #aaa;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        padding: 2px 5px;
+        margin: 0 3px;
+        cursor: hand;
+        text-align: left;
+    }
     #coexp .dataTables_info {
         float: left;
         width: auto;

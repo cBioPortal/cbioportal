@@ -435,8 +435,7 @@ ul li a:hover, ul li a:focus {
 #data-table-chart table#dataTable>tbody:hover{
     cursor: pointer;
 }
-#data-table-chart table.dataTable>tbody>tr>td {white-space:nowrap}
-#data-table-chart table.dataTable>thead>tr>th:nth-child(1) {background-color: white;}
+#data-table-chart table.dataTable>thead>tr>th:nth-child(1) {background-color: white; white-space: nowrap;}
 #data-table-chart table.dataTable>thead>tr>th {
     //white-space:nowrap;
     //-webkit-transform: rotate(315deg);  
@@ -447,4 +446,6 @@ ul li a:hover, ul li a:focus {
     text-align: center;
     vertical-align: middle;
     word-wrap:break-word;
+    max-width: 200px;
+    min-width: 100px;
 }

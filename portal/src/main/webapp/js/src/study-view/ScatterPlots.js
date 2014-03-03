@@ -448,7 +448,7 @@ var ScatterPlots = function() {
         
         switch(_clickType){
             case 'clicked':
-                $(_element).attr('stroke-width','3px')
+                $(_element).attr('stroke-width','3')
                             .attr("d", d3.svg.symbol().size(style.size*5).type(style.shape))
                             .attr('fill',style.fill)
                             .attr('stroke','red');
@@ -459,7 +459,7 @@ var ScatterPlots = function() {
                             .attr('fill','red');
                 break;
             case 'both':
-                $(_element).attr('stroke-width','3px')
+                $(_element).attr('stroke-width','3')
                             .attr("d", d3.svg.symbol().size(style.size*5).type(style.shape))
                             .attr('fill','red')
                             .attr('stroke',style.stroke);
@@ -595,12 +595,10 @@ var ScatterPlots = function() {
         
         if(_brushedCases.length === 0){
             elem.dotsGroup.selectAll("path").each(function(d) {
-                var _attrType = pointClickType(this);
-                
-                if(_attrType !== 'none'){
+                //var _attrType = pointClickType(this);
+                //if(_attrType !== 'none'){
                     $(this).removeAttr('clicked');
-                }
-                
+                //}
                 changeClickStyle(this);
                 _totalHighlightIds = []
             });
@@ -828,6 +826,13 @@ var ScatterPlots = function() {
                     $(this).attr("stroke", _datumArr[_index].stroke);
                     $(this).attr("d", d3.svg.symbol().size(_datumArr[_index].size).type(style.shape));
                     $(this).attr("stroke-width", _datumArr[_index].strokeWidth);
+                    if(_datumArr[_index].fill === style.fill && _datumArr[_index].stroke === 'red'){
+                        $(this).attr("clicked", 'clicked');
+                    }else if(_datumArr[_index].fill === 'red' && _datumArr[_index].stroke === 'red'){
+                        $(this).attr("clicked", 'shiftClicked');
+                    }else if(_datumArr[_index].fill === 'red' && _datumArr[_index].stroke === style.stroke){
+                        $(this).attr("clicked", 'both');
+                    }
                 }
             });            
         }

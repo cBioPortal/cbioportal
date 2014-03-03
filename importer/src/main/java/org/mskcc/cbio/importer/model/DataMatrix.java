@@ -195,10 +195,8 @@ public class DataMatrix {
 		List<String> caseIDColumnData = getColumnData(caseIDColumn).get(0);
 		for (int lc = 0; lc < caseIDColumnData.size(); lc++) {
 			String caseID = caseIDColumnData.get(lc);
-			if (caseIDsFilter.isTumorCaseID(caseID)) {
-				caseIDColumnData.set(lc, caseIDsFilter.getSampleId(caseID));
-				caseIDs.add(caseID);
-			}
+            caseIDColumnData.set(lc, caseIDsFilter.getSampleId(caseID));
+            caseIDs.add(caseID);
 		}
 	}
 

@@ -37,35 +37,7 @@ import java.util.Collection;
  * Interface used to manage case ids within import data matrices.
  */
 public interface CaseIDs {
-
-    /**
-     * Returns barcode which includes patient & sample type.
-     *
-     * @param caseID String
-     * @param String 
-     */
-    String getSampleId(String caseID);
-
-	/**
-	 * Converts the given case id to mskcc format.
-	 *
-	 * @param caseID String
-	 * @return String
-	 */
-	String getPatientId(String caseID);
-
-	/**
-	 * Determines if given case id is a tumor case id.
-	 *
-     * @param caseID String
-	 * @return boolean
-	 */
-	boolean isTumorCaseID(String caseID);
-
-	/**
-	 * Computes the number of case ids within the give import data matrix.
-	 *
-     * @param dataMatrix DataMatrix
-	 */
-	int getCaseCount(DataMatrix dataMatrix);
+	boolean isSampleId(String caseId);
+    String getSampleId(String caseId);
+	String getPatientId(String caseId);
 }

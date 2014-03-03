@@ -165,12 +165,12 @@ public class DataMatrix {
 			if (columnHeader.ignoreColumn) {
 				continue;
 			}
-			// ignore column in during filtering if desired
+			// ignore column if desired
 			else if (columnsToIgnore != null && columnsToIgnore.contains(columnHeader.label)) {
 				continue;
 			}
-			// ignore column (case) if its not a tumor id
-			if (!caseIDsFilter.isTumorCaseID(columnHeader.label)) {
+			// ignore column (case) if its not a sample id
+			if (!caseIDsFilter.isSampleId(columnHeader.label)) {
 				columnHeader.ignoreColumn = true;
 				continue;
 			}

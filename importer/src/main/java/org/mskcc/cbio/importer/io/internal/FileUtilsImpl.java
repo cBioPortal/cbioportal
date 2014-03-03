@@ -32,7 +32,6 @@ package org.mskcc.cbio.importer.io.internal;
 import org.mskcc.cbio.importer.*;
 import org.mskcc.cbio.importer.model.*;
 import org.mskcc.cbio.portal.scripts.*;
-import org.mskcc.cbio.portal.util.CaseIdUtil;
 import org.mskcc.cbio.importer.util.*;
 import org.mskcc.cbio.importer.converter.internal.MethylationConverterImpl;
 
@@ -361,7 +360,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 					if (mafCaseIDColumnIndex  == -1) {
 						if (LOG.isInfoEnabled()) LOG.info("getCaseListFromStagingFile(), this is not a MAF header contains sample ids...");
 						for (String potentialCaseID : thisRow) {
-							if (!strict || caseIDs.isTumorCaseID(potentialCaseID)) {
+							if (!strict || caseIDs.isSampleId(potentialCaseID)) {
 								// check to filter out column headers other than sample ids
 								if (Converter.NON_CASE_IDS.contains(potentialCaseID.toUpperCase())) {
 									continue;
@@ -379,7 +378,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 				}
 				// we want to add the value at mafCaseIDColumnIndex into return set - this is a case ID
 				String potentialCaseID = thisRow.get(mafCaseIDColumnIndex);
-				if (!strict || caseIDs.isTumorCaseID(potentialCaseID)) {
+				if (!strict || caseIDs.isSampleId(potentialCaseID)) {
 					caseSet.add(caseIDs.getPatientId(potentialCaseID));
 				}
 			}
@@ -1174,6 +1173,6 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
     private boolean skipClinicalDataRow(LinkedList<String> row)
     {
-        return (!row.getFirst().startsWith(CaseIdUtil.TCGA_BARCODE_PREFIX));
+        return (!row.getFirst().startsWith("TCGA"));
     }
 }

@@ -47,11 +47,12 @@ import java.util.regex.Pattern;
  */
 public class CaseIDsImpl implements CaseIDs {
 
-    private static final String PATIENT_SAMPLE_REGEX = "tcga-patient-sample-pattern";
+    private static final String SAMPLE_REGEX = "tcga-sample-pattern";
+    private static final String PATIENT_REGEX = "tcga-patient-pattern";
 
 	// ref to our matchers
-    private Pattern patientSamplePattern;
-	private Collection<Pattern> patterns;
+    private Pattern samplePattern;
+    private Pattern patientPattern;
 
 	/**
 	 * Constructor.
@@ -69,42 +70,15 @@ public class CaseIDsImpl implements CaseIDs {
 		}
 
 		// setup our matchers
-		patterns = new ArrayList<Pattern>();
 		for (CaseIDFilterMetadata caseIDFilter : caseIDFilters) {
-            if (caseIDFilter.getFilterName().equals(PATIENT_SAMPLE_REGEX)) {
-                patientSamplePattern = Pattern.compile(caseIDFilter.getRegex());
+            if (caseIDFilter.getFilterName().equals(PATIENT_REGEX)) {
+                patientPattern = Pattern.compile(caseIDFilter.getRegex());
             }
-            else {
-                patterns.add(Pattern.compile(caseIDFilter.getRegex()));
+            else if (caseIDFilter.getFilterName().equals(SAMPLE_REGEX)) {
+                samplePattern = Pattern.compile(caseIDFilter.getRegex());
             }
+
 		}
-	}
-
-    @Override
-    public String getSampleId(String caseID)
-    {
-        Matcher matcher = patientSamplePattern.matcher(caseID);
-        return (matcher.find()) ? matcher.group(1) : caseID;
-    }
-
-	/**
-	 * Converts the given case id to mskcc format.
-	 *
-	 * @param caseID String
-	 * @return String
-	 */
-	@Override
-	public String getPatientId(String caseID) {
-
-		for (Pattern pattern : patterns) {
-			Matcher matcher = pattern.matcher(caseID);
-			if (matcher.find()) {
-				return matcher.group(1);
-			}
-		}
-
-		// outta here
-		return caseID;
 	}
 
 	/**
@@ -114,37 +88,38 @@ public class CaseIDsImpl implements CaseIDs {
 	 * @return boolean
 	 */
 	@Override
-	public boolean isTumorCaseID(String caseID) {
-
-		for (Pattern pattern : patterns) {
-			if (pattern.matcher(caseID).matches()) {
-				return true;
-			}
-		}
-
-		// outta here
-		return false;
+	public boolean isSampleId(String caseId)
+    {
+        caseId = clean(caseId);
+        return (samplePattern.matcher(caseId).matches());
 	}
 
-	/**
-	 * Computes the number of case ids within the give import data matrix.
-	 *
-     * @param dataMatrix DataMatrix
-	 * @return int
-	 */
+    @Override
+    public String getSampleId(String caseId)
+    {
+        String cleanId = clean(caseId);
+        Matcher matcher = samplePattern.matcher(cleanId);
+        return (matcher.find()) ? matcher.group(1) : caseId;
+    }
+
 	@Override
-	public int getCaseCount(DataMatrix dataMatrix) {
-
-		int toReturn = 0;
-
-		Collection<String> columnHeaders = dataMatrix.getColumnHeaders();
-		for (String columnHeader : columnHeaders) {
-			if (isTumorCaseID(columnHeader)) {
-				++toReturn;
-			}
-		}
-
-		// outta here
-		return toReturn;
+	public String getPatientId(String caseId)
+    {
+        String cleanId = clean(caseId);
+        Matcher matcher = patientPattern.matcher(cleanId);
+        return (matcher.find()) ? matcher.group(1) : caseId;
 	}
+
+    private String clean(String caseId)
+    {
+        if (caseId.contains("Tumor")) {
+            return caseId.replace("Tumor", "01");
+        }
+        else if (caseId.contains("Normal")) {
+            return caseId.replace("Normal", "11");
+        }
+        else {
+            return caseId;
+        }
+    }
 }

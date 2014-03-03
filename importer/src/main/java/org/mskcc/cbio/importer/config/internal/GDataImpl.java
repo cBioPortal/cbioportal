@@ -521,6 +521,7 @@ class GDataImpl implements Config {
         BCRDictEntry bcr = new BCRDictEntry();
         HashMap<String, ClinicalAttributesNamespace> clinicalAttributesNamespace = makeClinicalAttributesNamespaceHashMap();
 
+        boolean updatedClinicalAttributes = false;
         for (String missingAttribute : missingAttributeColumnHeaders) {
             if (!clinicalAttributesNamespace.containsKey(missingAttribute)) {
                 bcr.id = missingAttribute;
@@ -532,7 +533,11 @@ class GDataImpl implements Config {
                                 true, null, null,
                                 ClinicalAttributesNamespace.getPropertiesMap(bcr,
                                                                              ClinicalAttributesNamespace.DATE_FORMAT.format(Calendar.getInstance().getTime())));
+                updatedClinicalAttributes = true;
             }
+        }
+        if (updatedClinicalAttributes) {
+            clinicalAttributesNamespaceMatrix = null;
         }
     }
 

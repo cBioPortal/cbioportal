@@ -143,7 +143,7 @@ class ImporterImpl implements Importer {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("importData(), importing tumor types...");
 			}
-			importTumorTypes();
+			importTypesOfCancer();
 		}
 
 		// import reference data if desired
@@ -234,7 +234,8 @@ class ImporterImpl implements Importer {
 	/**
 	 * Helper function to import tumor type metadata.
 	 */
-	private void importTumorTypes() throws Exception {
+        @Override
+	public void importTypesOfCancer() throws Exception {
 		// tumor types
 		StringBuilder cancerFileContents = new StringBuilder();
 		for (TumorTypeMetadata tumorType : config.getTumorTypeMetadata(Config.ALL)) {

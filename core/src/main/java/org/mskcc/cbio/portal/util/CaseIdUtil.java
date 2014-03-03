@@ -35,13 +35,13 @@ public class CaseIdUtil
     public static final String TCGA_BARCODE_PREFIX = "TCGA";
 
     public static final Pattern TCGA_SAMPLE_BARCODE_REGEX =
-        Pattern.compile("^(TCGA-\\w\\w-\\w\\w\\w\\w-\\d\\d)[A-Z]$");
+        Pattern.compile("^(TCGA-\\w\\w-\\w\\w\\w\\w-\\d\\d).*$");
 
     public static final Pattern TCGA_SAMPLE_TYPE_BARCODE_REGEX =
-        Pattern.compile("^TCGA-\\w\\w-\\w\\w\\w\\w-(\\d\\d)$");
+        Pattern.compile("^TCGA-\\w\\w-\\w\\w\\w\\w-(\\d\\d).*$");
 
     public static final Pattern TCGA_PATIENT_BARCODE_FROM_SAMPLE_REGEX =
-        Pattern.compile("^(TCGA-\\w\\w-\\w\\w\\w\\w)\\-\\d\\d[A-Z]$");
+        Pattern.compile("^(TCGA-\\w\\w-\\w\\w\\w\\w)\\-\\d\\d.*$");
 
 	public static String getPatientId(String barCode)
 	{

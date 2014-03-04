@@ -76,6 +76,9 @@ public class ImportProteinArrayData {
             String caseId = CaseIdUtil.getSampleId(caseIds[i]);
             cases.add(caseId);
         }
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
+        ImportProfileData.addPatients(cases.toArray(new String[cases.size()]), cancerStudy);
+        ImportProfileData.addSamples(cases.toArray(new String[cases.size()]), cancerStudy);
         
         while ((line=buf.readLine()) != null) {
             if (pMonitor != null) {

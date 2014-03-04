@@ -191,12 +191,17 @@ public class ImportProfileData{
         System.out.println ("Total time:  " + totalTime + " ms");
     }
 
-    public static void addPatients(String barCodes[], int geneticProfileId) throws DaoException
+    public static void addPatients(String barcodes[], int geneticProfileId) throws DaoException
     {
-        for (String barCode : barCodes) {
-            String patientId = CaseIdUtil.getPatientId(barCode);
+        addPatients(barcodes, getCancerStudy(geneticProfileId));
+    }
+
+    public static void addPatients(String barcodes[], CancerStudy cancerStudy) throws DaoException
+    {
+        for (String barcode : barcodes) {
+            String patientId = CaseIdUtil.getPatientId(barcode);
             if (unknownPatient(patientId)) {
-                addPatient(patientId, geneticProfileId);
+                addPatient(patientId, cancerStudy);
             }
         }
     }
@@ -206,19 +211,23 @@ public class ImportProfileData{
         return (DaoPatient.getPatientByStableId(stableId) == null);
     }
 
-    private static void addPatient(String stableId, int geneticProfileId) throws DaoException
+    private static void addPatient(String stableId, CancerStudy cancerStudy) throws DaoException
     {
-        DaoPatient.addPatient(new Patient(getCancerStudy(geneticProfileId),
-                                          stableId));
+        DaoPatient.addPatient(new Patient(cancerStudy, stableId));
     }
 
-    public static void addSamples(String barCodes[], int geneticProfileId) throws DaoException
+    public static void addSamples(String barcodes[], int geneticProfileId) throws DaoException
     {
-        for (String barCode : barCodes) {
-            String patientId = CaseIdUtil.getPatientId(barCode);
-            String sampleId = CaseIdUtil.getSampleId(barCode);
+        addSamples(barcodes, getCancerStudy(geneticProfileId));
+    }
+
+    public static void addSamples(String barcodes[], CancerStudy cancerStudy) throws DaoException
+    {
+        for (String barcode : barcodes) {
+            String patientId = CaseIdUtil.getPatientId(barcode);
+            String sampleId = CaseIdUtil.getSampleId(barcode);
             if (unknownSample(sampleId)) {
-                addSample(sampleId, patientId, geneticProfileId);
+                addSample(sampleId, patientId, cancerStudy);
             }
         }
     }
@@ -228,12 +237,12 @@ public class ImportProfileData{
         return (DaoSample.getSampleByStableId(stableId) == null);
     }
 
-    private static void addSample(String sampleId, String patientId, int geneticProfileId) throws DaoException
+    private static void addSample(String sampleId, String patientId, CancerStudy cancerStudy) throws DaoException
     {
         Patient patient = DaoPatient.getPatientByStableId(patientId);
         DaoSample.addSample(new Sample(sampleId,
                                        patient.getInternalId(),
-                                       getCancerStudy(geneticProfileId).getTypeOfCancerId()));
+                                       cancerStudy.getTypeOfCancerId()));
     }
 
     private static CancerStudy getCancerStudy(int geneticProfileId)

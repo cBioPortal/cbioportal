@@ -345,9 +345,9 @@ pieH3{
     fill-opacity: 1;
 }
 .dc-chart .deselected path {
-    stroke: none;
-    fill-opacity: .5;
-    fill: #ccc;
+    stroke: white;
+    stroke-width: 1;
+    fill-opacity: .2;
 }
 .dc-data-count {
     float: right;

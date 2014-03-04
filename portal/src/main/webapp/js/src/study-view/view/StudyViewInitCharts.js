@@ -492,13 +492,9 @@ var StudyViewInitCharts = (function(){
             });
             varChart[chartID].on("postRedraw",function(chart){
                 addPieLabels("study-view-dc-chart-" + chartID);
-                $('g.deselected path').css('stroke-width','1');
-                $('g.deselected path').css('stroke','white');
             });
             varChart[chartID].on("postRender",function(chart){
                 addPieLabels("study-view-dc-chart-" + chartID);
-                $('g.deselected path').css('stroke-width','1');
-                $('g.deselected path').css('stroke','white');
             });
         }
     }
@@ -1591,12 +1587,12 @@ var StudyViewInitCharts = (function(){
                         styleDatum.fill='#3366cc';
                         styleDatum.stroke='red';
                         styleDatum.strokeWidth='3';
-                        styleDatum.size='300';
+                        styleDatum.size='100';
                     }else{
                         styleDatum.fill='red';
                         styleDatum.stroke = 'red';
                         styleDatum.strokeWidth='0';
-                        styleDatum.size='300';
+                        styleDatum.size='100';
                     }
                 }else{
                     styleDatum.fill='#3366cc';

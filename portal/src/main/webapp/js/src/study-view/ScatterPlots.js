@@ -419,7 +419,7 @@ var ScatterPlots = function() {
             var size = style.size;
             var attr = $(this).attr('clicked');
             if(typeof attr !== 'undefined' && attr !== false){
-                size = style.size * 5;
+                size = style.size * 2;
             }
             
             dot.transition()
@@ -449,18 +449,18 @@ var ScatterPlots = function() {
         switch(_clickType){
             case 'clicked':
                 $(_element).attr('stroke-width','3')
-                            .attr("d", d3.svg.symbol().size(style.size*5).type(style.shape))
+                            .attr("d", d3.svg.symbol().size(style.size*10).type(style.shape))
                             .attr('fill',style.fill)
                             .attr('stroke','red');
                 break;
             case 'shiftClicked':
                 $(_element).attr('stroke-width','0')
-                            .attr("d", d3.svg.symbol().size(style.size*5).type(style.shape))
+                            .attr("d", d3.svg.symbol().size(style.size*2).type(style.shape))
                             .attr('fill','red');
                 break;
             case 'both':
                 $(_element).attr('stroke-width','3')
-                            .attr("d", d3.svg.symbol().size(style.size*5).type(style.shape))
+                            .attr("d", d3.svg.symbol().size(style.size*2).type(style.shape))
                             .attr('fill','red')
                             .attr('stroke',style.stroke);
                 break;

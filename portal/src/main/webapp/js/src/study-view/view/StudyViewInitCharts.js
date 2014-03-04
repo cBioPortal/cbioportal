@@ -19,6 +19,7 @@ var StudyViewInitCharts = (function(){
         varGroup = [], //Groups of displayed charts -- DC.JS require
         disableFiltId = [0],
         brushedCaseIds = [],
+        dataType = {},
         shiftClickedCaseIds = [],
         chartColors = ["#3366cc","#dc3912","#ff9900","#109618",
             "#990099","#0099c6","#dd4477","#66aa00",
@@ -77,6 +78,12 @@ var StudyViewInitCharts = (function(){
                     _varValuesNum[dataB[j][dataA[i]["attr_id"]]]=0;
             }
             var keys = Object.keys(_varValuesNum);
+            
+            if(dataA[i]["datatype"] === "NUMBER"){
+                dataType[dataA[i]["attr_id"]] = 'allnumeric';
+            }else{
+                dataType[dataA[i]["attr_id"]] = 'string';
+            }
             
             if(dataA[i]["attr_id"] === "CASE_ID"){
                 pie.push(dataA[i]);
@@ -1061,7 +1068,7 @@ var StudyViewInitCharts = (function(){
         
         for(var i=0; i<= numOfGroups ; i++){
             var tmpValue = i*seperateDistance + startPoint;
-            tmpValue = Number(cbio.util.toPrecision(Number(tmpValue),5,0.1));
+            tmpValue = Number(cbio.util.toPrecision(Number(tmpValue),3,0.1));
             monthDomain.push(tmpValue);
             if(tmpValue > distanceMinMaxArray[selectedAttr].max){
                 if(distanceMinMax > 1000)
@@ -1142,7 +1149,7 @@ var StudyViewInitCharts = (function(){
         });
         
         if(hasEmptyValue)
-            monthDomain.push(Number(cbio.util.toPrecision(Number(emptyValueMapping),5,0.1)));
+            monthDomain.push(Number(cbio.util.toPrecision(Number(emptyValueMapping),3,0.1)));
    
         varGroup[chartID] = varCluster[chartID].group();
 
@@ -1217,8 +1224,7 @@ var StudyViewInitCharts = (function(){
     function restyle(data) {
         var tmpA = [],
             tmpB = [];
-        
-        tmpA.push({sTitle:"CASE ID"});
+        tmpA.push({sTitle:"CASE ID",sType:'string'});
         for(var i=0; i< data.attr.length;i++){
             if(data.attr[i].attr_id !== 'CASE_ID'){
                 var tmp = {};
@@ -1226,6 +1232,7 @@ var StudyViewInitCharts = (function(){
                     tmp.sTitle = 'CNA';
                 else
                     tmp.sTitle = data.attr[i].attr_id.replace(/[_]/g,' ');
+                tmp.sType = dataType[data.attr[i].attr_id];
                 tmpA.push(tmp);
             }
         }
@@ -1247,8 +1254,9 @@ var StudyViewInitCharts = (function(){
                 }else{
                     tmpValue = value[value1.sTitle.replace(/[ ]/g,'_')];
                 }
-                if(!isNaN(tmpValue) && (tmpValue % 1 != 0))
-                    tmpValue = cbio.util.toPrecision(Number(tmpValue),5,0.01);
+                if(!isNaN(tmpValue) && (tmpValue % 1 != 0)){
+                    tmpValue = cbio.util.toPrecision(Number(tmpValue),3,0.01);
+                }
                 
                 var _selectedString = tmpValue.toString(),
                     specialChar = ['(',')','/','?','+'],
@@ -1263,7 +1271,6 @@ var StudyViewInitCharts = (function(){
                 tmpB[key].push(_selectedString);
             });
         });
-        
         //Add th tags based on number of attributes
         for(var i=0 ; i<tmpA.length ; i++)
             $("#dataTable tfoot tr").append("<th></th>");
@@ -1292,6 +1299,7 @@ var StudyViewInitCharts = (function(){
         });
         $(".dataTableReset span").click(function(){
             $("#dataTable_filter label input").attr("value","");
+            $.fn.dataTableExt.afnFiltering = [];
             updateTable(dataTable1,[]);
             resizeLeftColumn();            
             refreshSelectionInDataTable(dataTable1);
@@ -1437,7 +1445,27 @@ var StudyViewInitCharts = (function(){
         $(".dataTables_scrollFoot tfoot th").each( function ( i ) {
             if(disableFiltId.indexOf(i) === -1){                
                 $(this).css('z-index','1500');
-                this.innerHTML = fnCreateSelect( _dataTable.fnGetColumnData(i));
+                this.innerHTML = fnCreateSelect( _dataTable.fnGetColumnData(i), i);
+                
+                var drag = d3.behavior.drag()
+                        .on("drag", dragMove)
+                        .on("dragend",dragEnd);
+                
+                d3.select("#dataTable-" + i + "-left")
+                                .call(drag);
+                d3.select("#dataTable-" + i + "-right")
+                                .call(drag);
+                
+                $("#dataTable-" + i + "-na").click(function(){
+                    $.fn.dataTableExt.afnFiltering = [];
+                    _dataTable.fnFilter("^NA$", i, true);
+                    disableFiltId.push(i);
+                    refreshSelectionInDataTable(_dataTable);
+                    resizeLeftColumn();
+                    showDataTableReset(_dataTable);
+                    _dataTable.fnAdjustColumnSizing();
+                });
+                
                 $('select', this).change( function () {
                     if($(this).val() === ''){
                         _dataTable.fnFilter($(this).val(), i);
@@ -1461,6 +1489,78 @@ var StudyViewInitCharts = (function(){
                     showDataTableReset(_dataTable);
                     _dataTable.fnAdjustColumnSizing();
                 });
+                
+                function dragMove(d) {
+                    var _start = Number($(this).parent().attr('start')),
+                        _end = Number($(this).parent().attr('end')),
+                        _xMoved = d3.event.x - 5,
+                        _lineLength = Number($(this).parent().find('line').attr('x2')) - Number($(this).parent().find('line').attr('x1'));
+                    
+                    if(_start > _end){
+                        var _tmp = _end;
+                        _end - _start;
+                        _start = _end;
+                    }
+                    
+                    if(_xMoved >= 0 && _xMoved <= _lineLength){
+                        var _text = (_end-_start) * _xMoved / _lineLength + _start;
+                        _text = cbio.util.toPrecision(Number(_text),3,0.1);
+                        if($(this).attr('id').toString().indexOf('left') !== -1){
+                            d3.select(this)
+                                .attr("transform", "translate(" +_xMoved +",0)");
+                        }else{
+                            _xMoved -= _lineLength;
+                             d3.select(this)
+                                .attr("transform", "translate(" +_xMoved +",0)");
+                        }
+                        $(this).find('text').text(_text);
+                    }
+                }
+                
+                function dragEnd(d) {
+                    var _min = Number($(this).parent().find('g.left').find('text').text()),
+                        _max = Number($(this).parent().find('g.right').find('text').text());
+                    
+                    if(_min > _max){
+                        var _tmp = _max;
+                        _max - _min;
+                        _min = _max;
+                    }
+                    
+                    $.fn.dataTableExt.afnFiltering = [];
+                    $.fn.dataTableExt.afnFiltering.push(
+                        function( oSettings, aData, iDataIndex ) {
+                                var iMin = _min;
+                                var iMax = _max;
+                                var iVersion = aData[i];
+                                if ( iMin == "" && iMax == "" )
+                                {
+                                        return true;
+                                }
+                                else if ( iMin == "" && iVersion < iMax )
+                                {
+                                        return true;
+                                }
+                                else if ( iMin < iVersion && "" == iMax )
+                                {
+                                        return true;
+                                }
+                                else if ( iMin < iVersion && iVersion < iMax )
+                                {
+                                        return true;
+                                }
+                                return false;
+                        }
+                    );
+                    
+                    _dataTable.fnDraw();;
+                    _dataTable.fnSort([ [i,'asc']]);
+                    disableFiltId.push(i);
+                    refreshSelectionInDataTable(_dataTable);
+                    resizeLeftColumn();
+                    showDataTableReset(_dataTable);
+                    _dataTable.fnAdjustColumnSizing();
+                }
             }
         });
     }
@@ -1830,41 +1930,73 @@ var StudyViewInitCharts = (function(){
         return _tmpString;
     }
     
-    function fnCreateSelect( aData ){
-        var isNumericArray = true;
-        var hasNullValue = false;
+    function fnCreateSelect( aData, _index ){
+        var _isNumericArray = true,
+            _hasNullValue = false;
         for(var i=0;i<aData.length;i++){
             if(isNaN(aData[i])){
                 if(aData[i] !== 'NA'){
-                    isNumericArray = false;
+                    _isNumericArray = false;
                     break;
-                }else
-                    hasNullValue = true;
+                }else{
+                    _hasNullValue = true;
+                }
             }
         }
         
-        if(isNumericArray && hasNullValue){
-            var index = aData.indexOf('NA');
+        if(_isNumericArray && _hasNullValue){
+            var index = aData.indexOf("NA");
             if (index > -1) {
                 aData.splice(index, 1);
             }
         }
         
-        if(isNumericArray){            
+        if(_isNumericArray){            
             aData.sort(function(a,b) {
                 return Number(a) - Number(b);
             });
-            if(hasNullValue)
-                aData.push('NA');
         }else{
             aData.sort();
         }
-        var r='<select><option value=""></option>', i, iLen=aData.length;
-        for ( i=0 ; i<iLen ; i++ )
-        {
-            r += '<option value="'+aData[i]+'">'+aData[i]+'</option>';
+        if(!_isNumericArray || aData.length === 0){
+            var r='<select><option value=""></option>', i, iLen=aData.length;
+            for ( i=0 ; i<iLen ; i++ )
+            {
+                r += '<option value="'+aData[i]+'">'+aData[i]+'</option>';
+            }
+            return r+'</select>';
+        }else{
+            var _min = aData[0],
+                _max = aData[aData.length-1],
+                _x1 = 5,
+                _x2 = 95,
+                NAsvg = '';
+            
+            if(_hasNullValue){
+                _x2 = 75;
+            }
+            
+            var _leftTriangelCoordinates = (_x1-5) + ",2 "+ (_x1+5)+",2 "+_x1+",10",
+                _rightTriangelCoordinates = (_x2-5) + ",2 "+ (_x2+5)+",2 "+_x2+",10",
+                _leftText = "x='"+(_x1-3)+"' y='20'",
+                _rightText = "x='"+(_x2-10)+"' y='20'",
+                _NAText = "x='"+(_x2+20)+"' y='20'";
+            
+            if(_hasNullValue){
+                NAsvg = "<text "+ _NAText +" id='dataTable-"+ _index +"-na' fill='black' style='font-size:8' class='clickable' >NA</text>";
+            }
+            
+            var _svgLine = "<svg width='110' height='30' start='"+ _min +"' end='"+ _max +"'>" + 
+                    "<g><line x1='"+ _x1 +"' y1='10' x2='"+ _x2 +"' y2='10' style='stroke:black;stroke-width:2' /></g>"+
+                    "<g id='dataTable-"+ _index +"-left' class='clickable left'><polygon points='"+_leftTriangelCoordinates+"' style='fill:grey'></polygon>"+
+                    "<text "+_leftText+" fill='black' style='font-size:8'>"+ _min +"</text></g>" + 
+                    "<g id='dataTable-"+ _index +"-right' class='clickable right'><polygon points='"+_rightTriangelCoordinates+"' style='fill:grey'></polygon>"+
+                    "<text "+_rightText+" fill='black' style='font-size:8'>"+ _max +"</text></g>" +
+                    NAsvg + 
+                    "</svg>";
+
+            return _svgLine;
         }
-        return r+'</select>';
     }
     
     function getRefererCaseId() {

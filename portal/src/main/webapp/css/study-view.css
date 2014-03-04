@@ -412,6 +412,9 @@ pieH3{
 .dataTableReset span:hover{
     cursor: pointer;
 }
+.clickable:hover{
+    cursor: pointer;
+}
 /* tag styles */
 /*
 ul {

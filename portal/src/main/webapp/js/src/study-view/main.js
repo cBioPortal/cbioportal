@@ -80,7 +80,32 @@ $.fn.dataTableExt.oApi.fnGetColumnData = function ( oSettings, iColumn, bUnique,
     }
      
     return asResultData;
-}}(jQuery));
+}
+$.fn.dataTableExt.oSort['allnumeric-asc']  = function(a,b) {
+    if(a === 'NA'){
+        return 1;
+    }else if(b === 'NA'){
+        return -1;
+    }else{
+        var x = parseFloat(a);
+        var y = parseFloat(b);
+        return ((x < y) ? -1 : ((x > y) ?  1 : 0));
+    }
+};
+
+$.fn.dataTableExt.oSort['allnumeric-desc']  = function(a,b) {
+    if(a === 'NA'){
+        return -1;
+    }else if(b === 'NA'){
+        return 1;
+    }else{
+        var x = parseFloat(a);
+        var y = parseFloat(b);
+        return ((x < y) ? 1 : ((x > y) ?  -1 : 0));
+    }
+};
+}(jQuery));
+
 
 /*
 * File:        jquery.dataTables.columnFilter.js

@@ -43,39 +43,52 @@ public class CaseIdUtil
     public static final Pattern TCGA_PATIENT_BARCODE_FROM_SAMPLE_REGEX =
         Pattern.compile("^(TCGA-\\w\\w-\\w\\w\\w\\w)\\-\\d\\d.*$");
 
-	public static String getPatientId(String barCode)
+	public static String getPatientId(String barcode)
 	{
-        return getId(barCode, false);
+        return getId(barcode, false);
 	}
 
-	public static String getSampleId(String barCode)
+	public static String getSampleId(String barcode)
 	{
-        return getId(barCode, true);
+        return getId(barcode, true);
 	}
 
-    private static String getId(String barCode, boolean forSample)
+    private static String getId(String barcode, boolean forSample)
     {
 		// do not process non-TCGA bar codes...
-		if (!barCode.startsWith(TCGA_BARCODE_PREFIX)) {
-			return barCode;
+		if (!barcode.startsWith(TCGA_BARCODE_PREFIX)) {
+			return barcode;
 		}
 
         String id = null;
-		String barCodeParts[] = barCode.split("-");
+		String barcodeParts[] = clean(barcode).split("-");
 		try {
             // an example bar code looks like this:  TCGA-13-1479-01A-01W
-			id = barCodeParts[0] + "-" + barCodeParts[1] + "-" + barCodeParts[2];
+			id = barcodeParts[0] + "-" + barcodeParts[1] + "-" + barcodeParts[2];
             if (forSample) {
-                id += "-" + barCodeParts[3];
+                id += "-" + barcodeParts[3];
                 Matcher tcgaSampleBarcodeMatcher = TCGA_SAMPLE_BARCODE_REGEX.matcher(id);
                 id = (tcgaSampleBarcodeMatcher.find()) ? tcgaSampleBarcodeMatcher.group(1) : id;
             }
 		}
         catch (ArrayIndexOutOfBoundsException e) {
-			id = barCode;
+			id = barcode;
 		}
 
 		return id;
+    }
+
+    private static String clean(String barcode)
+    {
+        if (barcode.contains("Tumor")) {
+            return barcode.replace("Tumor", "01");
+        }
+        else if (barcode.contains("Normal")) {
+            return barcode.replace("Normal", "11");
+        }
+        else {
+            return barcode;
+        }
     }
 
     static public Sample.Type getTypeByTCGACode(String tcgaCode)

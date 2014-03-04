@@ -82,7 +82,7 @@
 		</table>
 	</div>
 	<div class="mutation-pdb-panel-view"></div>
-
+	<div class="mutation-pdb-table-view"></div>
 	<div class='mutation-details-filter-info'>
 		Current view shows filtered results.
 		Click <a class='mutation-details-filter-reset'>here</a> to reset all filters.
@@ -401,6 +401,19 @@
 	</table>
 </script>
 
+<script type="text/template" id="pdb_table_view_template">
+	<table>
+		<tr>
+			<td valign="top">
+				<table class='mutation-pdb-table-container'
+				       cellpadding='0' cellspacing='0' border='0'>
+				</table>
+			</td>
+			<td></td>
+		</tr>
+	</table>
+</script>
+
 <script type="text/template" id="mutation_details_table_template">
 	<table class='display mutation_details_table'
 	       cellpadding='0' cellspacing='0' border='0'>
@@ -653,3 +666,4 @@
 <script type="text/javascript" src="js/src/mutation/view/PdbPanelView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/PredictedImpactTipView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/RegionTipView.js"></script>
+<script type="text/javascript" src="js/src/mutation/view/PdbTableView.js"></script>

@@ -23,6 +23,7 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 	// we cannot get pdb panel view as a constructor parameter,
 	// since it is initialized after initializing this controller
 	var _pdbPanelView = null;
+	var _pdbTableView = null;
 
 	function init()
 	{
@@ -268,6 +269,17 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 				_pdbPanelView.pdbPanel.dispatcher.on(
 					MutationDetailsEvents.CHAIN_SELECTED,
 					chainSelectHandler);
+			}
+
+			// init pdb panel view if not initialized yet
+			if (_pdbTableView == null)
+			{
+				_pdbTableView = mainMutationView.initPdbTableView(pdbColl);
+
+				// TODO add listeners to the custom event dispatcher of the pdb table
+//				_pdbTableView.pdbPanel.dispatcher.on(
+//					MutationDetailsEvents.CHAIN_SELECTED,
+//					chainSelectHandler);
 			}
 
 			// reload the visualizer content with the given pdb and chain

@@ -143,7 +143,7 @@ public class BCRHTMLDictImporter extends ImporterBaseImpl implements Importer
         // there can be multiple column attribute headers per row
         for (String columnName : getColumnNamesFromRow(row)) {
             BCRDictEntry bcr = new BCRDictEntry();
-            bcr.id = columnName;
+            bcr.id = columnName.trim();
             bcr.displayName = getDisplayNameFromRow(row);
             bcr.description = row.select("td").get(definitionIndex).text();
             bcr.cancerStudy = "";

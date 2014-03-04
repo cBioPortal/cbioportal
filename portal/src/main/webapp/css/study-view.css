@@ -450,5 +450,13 @@ ul li a:hover, ul li a:focus {
     vertical-align: middle;
     word-wrap:break-word;
     max-width: 200px;
-    min-width: 100px;
+    min-width: 60px;
+}
+#data-table-chart table.dataTable>tbody>tr>td {
+    max-width: 200px;
+    min-width: 60px;
+}
+#data-table-chart table.dataTable>tfoot>tr>th {
+    max-width: 200px;
+    min-width: 60px;
 }

@@ -18,6 +18,7 @@ var StudyViewInitCharts = (function(){
         varCluster = [], //Clusters of displayed charts -- DC.JS require
         varGroup = [], //Groups of displayed charts -- DC.JS require
         disableFiltId = [0],
+        dataTableNumericFilter = [],
         brushedCaseIds = [],
         dataType = {},
         shiftClickedCaseIds = [],
@@ -130,6 +131,7 @@ var StudyViewInitCharts = (function(){
 
             varDisplay.push(dataA[i]["display_name"]);                
             varName.push(dataA[i]["attr_id"]);
+            dataTableNumericFilter[i] = '';
         }
 
         var totalCharts = pie.length + bar.length,
@@ -1437,6 +1439,18 @@ var StudyViewInitCharts = (function(){
         $('.DTFC_ScrollWrapper').css('height',heightTable);            
     }
     
+    function updateDataTableNumericFilter(_dataTable){
+        var dataTableNumericFilterLength = dataTableNumericFilter.length;
+        $.fn.dataTableExt.afnFiltering = [];
+        console.log(dataTableNumericFilter);
+        for(var i=0; i<dataTableNumericFilterLength; i++){
+            if(dataTableNumericFilter[i] !== ''){
+                $.fn.dataTableExt.afnFiltering.push(dataTableNumericFilter[i]);
+            }
+        }
+        _dataTable.fnDraw();
+    }
+    
     function refreshSelectionInDataTable(_dataTable){
         $(".dataTables_scrollFoot tfoot th").each( function ( i ) {
             if(disableFiltId.indexOf(i) === -1){                
@@ -1451,14 +1465,16 @@ var StudyViewInitCharts = (function(){
                                 .call(drag);
                 d3.select("#dataTable-" + i + "-right")
                                 .call(drag);
-                
-                $("#dataTable-" + i + "-na").click(function(){
-                    $.fn.dataTableExt.afnFiltering = [];
-                    _dataTable.fnFilter("^NA$", i, true);
-                    disableFiltId.push(i);
-                    refreshSelectionInDataTable(_dataTable);
+                        
+                $("#dataTable-" + i + "-reset").unbind('click');
+                $("#dataTable-" + i + "-reset").click(function(){
+                    dataTableNumericFilter[i] = '';
+                    updateDataTableNumericFilter(_dataTable);
+                    disableFiltId.splice(disableFiltId.indexOf(i),1);
                     resizeLeftColumn();
                     showDataTableReset(_dataTable);
+                    $("#dataTable-" + i + "-reset").css('display','none');
+                    refreshSelectionInDataTable(_dataTable);
                     _dataTable.fnAdjustColumnSizing();
                 });
                 
@@ -1480,9 +1496,9 @@ var StudyViewInitCharts = (function(){
                         disableFiltId.push(i);
                     }
                     
-                    refreshSelectionInDataTable(_dataTable);
                     resizeLeftColumn();
                     showDataTableReset(_dataTable);
+                    refreshSelectionInDataTable(_dataTable);
                     _dataTable.fnAdjustColumnSizing();
                 });
                 
@@ -1523,9 +1539,7 @@ var StudyViewInitCharts = (function(){
                         _min = _max;
                     }
                     
-                    $.fn.dataTableExt.afnFiltering = [];
-                    $.fn.dataTableExt.afnFiltering.push(
-                        function( oSettings, aData, iDataIndex ) {
+                    dataTableNumericFilter[i] = function( oSettings, aData, iDataIndex ) {
                                 var iMin = _min;
                                 var iMax = _max;
                                 var iVersion = aData[i];
@@ -1546,15 +1560,15 @@ var StudyViewInitCharts = (function(){
                                         return true;
                                 }
                                 return false;
-                        }
-                    );
+                        };
+                    updateDataTableNumericFilter(_dataTable);
                     
-                    _dataTable.fnDraw();;
                     _dataTable.fnSort([ [i,'asc']]);
                     disableFiltId.push(i);
-                    refreshSelectionInDataTable(_dataTable);
                     resizeLeftColumn();
                     showDataTableReset(_dataTable);
+                    $("#dataTable-" + i + "-reset").css('display','block');
+                    refreshSelectionInDataTable(_dataTable);
                     _dataTable.fnAdjustColumnSizing();
                 }
             }
@@ -1965,30 +1979,21 @@ var StudyViewInitCharts = (function(){
             var _min = aData[0],
                 _max = aData[aData.length-1],
                 _x1 = 5,
-                _x2 = 95,
-                NAsvg = '';
-            
-            if(_hasNullValue){
-                _x2 = 75;
-            }
+                _x2 = 65;
             
             var _leftTriangelCoordinates = (_x1-5) + ",2 "+ (_x1+5)+",2 "+_x1+",10",
                 _rightTriangelCoordinates = (_x2-5) + ",2 "+ (_x2+5)+",2 "+_x2+",10",
                 _leftText = "x='"+(_x1-3)+"' y='20'",
                 _rightText = "x='"+(_x2-10)+"' y='20'",
-                _NAText = "x='"+(_x2+20)+"' y='20'";
-            
-            if(_hasNullValue){
-                NAsvg = "<text "+ _NAText +" id='dataTable-"+ _index +"-na' fill='black' style='font-size:8' class='clickable' >NA</text>";
-            }
-            
+                _resetText = "x='"+(_x2+15)+"' y='20'";
+           
             var _svgLine = "<svg width='110' height='30' start='"+ _min +"' end='"+ _max +"'>" + 
                     "<g><line x1='"+ _x1 +"' y1='10' x2='"+ _x2 +"' y2='10' style='stroke:black;stroke-width:2' /></g>"+
                     "<g id='dataTable-"+ _index +"-left' class='clickable left'><polygon points='"+_leftTriangelCoordinates+"' style='fill:grey'></polygon>"+
                     "<text "+_leftText+" fill='black' style='font-size:8'>"+ _min +"</text></g>" + 
                     "<g id='dataTable-"+ _index +"-right' class='clickable right'><polygon points='"+_rightTriangelCoordinates+"' style='fill:grey'></polygon>"+
                     "<text "+_rightText+" fill='black' style='font-size:8'>"+ _max +"</text></g>" +
-                    NAsvg + 
+                    "<text "+ _resetText +" id='dataTable-"+ _index +"-reset' class='clickable hidden'  fill='black' style='font-size:8'>RESET</text>" + 
                     "</svg>";
 
             return _svgLine;

@@ -46,7 +46,7 @@ public class ImportCopyNumberSegmentData {
             String caseId = CaseIdUtil.getSampleId(strs[0]);
             long start = Double.valueOf(strs[2]).longValue();
             long end = Double.valueOf(strs[3]).longValue();
-            int numProbes = Integer.parseInt(strs[4]);
+            int numProbes = Double.valueOf(strs[4]).intValue();
             double segMean = Double.parseDouble(strs[5]);
             
             CopyNumberSegment cns = new CopyNumberSegment(cancerStudyId, caseId, strs[1], start, end, numProbes, segMean);

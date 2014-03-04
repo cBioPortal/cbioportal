@@ -115,9 +115,9 @@ public abstract class ClinicalDataConverterImpl extends ConverterBaseImpl implem
         return clinicalAttributes;
     }
 
-    protected List<String> removeUnknownColumnsFromMatrix(DataMatrix dataMatrix, Map<String, ClinicalAttributesMetadata> clinicalAttributes)
+    protected Set<String> removeUnknownColumnsFromMatrix(DataMatrix dataMatrix, Map<String, ClinicalAttributesMetadata> clinicalAttributes)
     {
-        List<String> missingAttributes = new ArrayList<String>();
+        Set<String> missingAttributes = new HashSet<String>();
 
         for (String externalColumnHeader : dataMatrix.getColumnHeaders()) {
             if (!clinicalAttributes.containsKey(externalColumnHeader)) {

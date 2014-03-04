@@ -47,7 +47,7 @@
         <property-file-dir>${PORTAL_HOME}/src/main/resources</property-file-dir>
         <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
         <gpl-files-to-exclude>lorem-ipsum</gpl-files-to-exclude>
-		<final-war-name>multiple-samples</final-war-name>
+		<final-war-name>public-portal</final-war-name>
 	  </properties>
 	</profile>
 	<profile>

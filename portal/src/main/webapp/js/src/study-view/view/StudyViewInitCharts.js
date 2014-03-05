@@ -193,6 +193,9 @@ var StudyViewInitCharts = (function(){
             }
         });
         
+        if($('#study-view-add-chart ul').find('li').length === 0 ){
+            $('#study-view-add-chart').css('display','none');
+        }
         
         $.each(dataB, function(i,value) {
             if( !isNaN(value['COPY_NUMBER_ALTERATIONS']) && 
@@ -243,11 +246,16 @@ var StudyViewInitCharts = (function(){
             $(".study-view-scatter-plot-delete").unbind('click');
             $(".study-view-scatter-plot-delete").click(function (){
                 $("#study-view-scatter-plot").css('display','none');
+                $('#study-view-add-chart').css('display','block');
                 $('#study-view-add-chart ul')
                         .append($('<li></li>')
                             .attr('id','mutationCNA')
                             .text('Number of Mutation vs Fraction of copy number altered genome'));
                 msnry.layout();
+                clickedCaseId = '',
+                brushedCaseIds = [];
+                shiftClickedIds = [];
+                //deleteChartResetDataTable($("#dataTable").dataTable());
                 addClick();
                 removeMarker();
                 redrawChartsAfterDeletion();
@@ -378,6 +386,10 @@ var StudyViewInitCharts = (function(){
                 msnry.layout();
                 
                 $('#study-view-add-chart ul').find('li[id="' + selectedAttr + '"]').remove();
+                
+                if($('#study-view-add-chart ul').find('li').length === 0 ){
+                    $('#study-view-add-chart').css('display','none');
+                }
             });
         }
     }
@@ -391,16 +403,32 @@ var StudyViewInitCharts = (function(){
         dc.deregisterChart(varChart[_chartID]);
         $('#study-view-add-chart ul')
                 .append($('<li></li>').attr('id',_value[0]).text(_value[1]));
-        var _filteredResult = varCluster[attrNameMapUID['CASE_ID']].top(Infinity);
-        var _filterString = "";
-        for(var i=0 ; i<_filteredResult.length ; i++){
-            _filterString += _filteredResult[i].CASE_ID + '|';
-        }
-        _filterString = _filterString.substr(0,_filterString.length-1);
-        $('#dataTable').dataTable().fnFilter(_filterString,0,true);
+        
+        $('#study-view-add-chart').css('display','block');
+        
+        //deleteChartResetDataTable($("#dataTable").dataTable());
         removedChart.push(Number(_chartID));
     }
-        
+    
+    function deleteChartResetDataTable(_dataTable) {
+        var filterArray = [],
+            filteredResult = varCluster[attrNameMapUID['CASE_ID']].top(Infinity);
+
+        for(var i=0 ; i<filteredResult.length ; i++){
+            filterArray.push(filteredResult[i].CASE_ID);
+        }
+
+        $.fn.dataTableExt.afnFiltering = [function( oSettings, aData, iDataIndex ) {
+            var data = aData[0];
+            var dataContent = $(data).text();
+            if ( filterArray.indexOf(dataContent) !== -1){
+                return true;
+            }
+            return false;
+        }];
+        _dataTable.fnDraw();
+    }
+    
     function setSVGElementValue(_svgParentDivId,_idNeedToSetValue,scatterPlotDataAttr){
         $("#" + _svgParentDivId + " .plots-title-x-help").remove();
         $("#" + _svgParentDivId + " .plots-title-y-help").remove();
@@ -1069,8 +1097,12 @@ var StudyViewInitCharts = (function(){
             tmpValue = Number(cbio.util.toPrecision(Number(tmpValue),3,0.1));
             monthDomain.push(tmpValue);
             if(tmpValue > distanceMinMaxArray[selectedAttr].max){
-                if(distanceMinMax > 1000)
+                if(distanceMinMax > 1000 || distanceMinMax < 1){
                     emptyValueMapping = (i+1)*seperateDistance + startPoint;
+                }
+                if(distanceMinMax < 1){
+                    emptyValueMapping = Number(cbio.util.toPrecision(Number(emptyValueMapping),3,0.1));
+                }
                 break;
             }
         }   
@@ -1306,23 +1338,7 @@ var StudyViewInitCharts = (function(){
         });
         $('#study-view-dataTable-updateTable').unbind('click');
         $('#study-view-dataTable-updateTable').click(function(){
-            var filterArray = [],
-                filteredResult = varCluster[attrNameMapUID['CASE_ID']].top(Infinity);
-            
-            for(var i=0 ; i<filteredResult.length ; i++){
-                filterArray.push(filteredResult[i].CASE_ID);
-            }
-            
-            $.fn.dataTableExt.afnFiltering = [function( oSettings, aData, iDataIndex ) {
-                    var data = aData[0];
-                    var dataContent = $(data).text();
-                    if ( filterArray.indexOf(dataContent) !== -1){
-                        return true;
-                    }
-                    return false;
-            }];
-        
-            dataTable1.fnDraw();
+            deleteChartResetDataTable(dataTable1);
             resizeLeftColumn();            
             refreshSelectionInDataTable(dataTable1);
             dataTable1.fnAdjustColumnSizing();

@@ -29,11 +29,7 @@ package org.mskcc.cbio.portal.dao;
 
 import org.mskcc.cbio.portal.model.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
+import java.util.*;
 
 import org.apache.commons.math.stat.correlation.PearsonsCorrelation;
 
@@ -291,7 +287,9 @@ public class GeneticAlterationUtil {
         for (String patientId : targetCaseList) {
             Patient patient = DaoPatient.getPatientByStableId(patientId);
             for (Sample sample : DaoSample.getSamplesByInternalPatientId(patient.getInternalId())) {
-                sampleIds.add(sample.getStableId());
+                if (sample.getType() == Sample.Type.PRIMARY_SOLID_TUMOR) {
+                    sampleIds.add(sample.getStableId());
+                }
             }
         }
         return sampleIds;

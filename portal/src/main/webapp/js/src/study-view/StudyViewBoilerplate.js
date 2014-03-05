@@ -106,13 +106,13 @@ var StudyViewBoilerplate ={
             "<form style='display:inline-block' action='svgtopdf.do' method='post' id='study-view-scatter-plot-pdf'>"+
             "<input type='hidden' name='svgelement' id='study-view-scatter-plot-pdf-value'>"+
             "<input type='hidden' name='filetype' value='pdf'>"+
-            "<input type='hidden' name='filename' value='Scatter_Plot_result-<%=cancerStudy.getCancerStudyStableId()%>.pdf'>"+
+            "<input type='hidden' id='study-view-scatter-plot-pdf-name' name='filename' value=''>"+
             "<input type='submit' value='PDF'>"+          
             "</form>"+
             "<form style='display:inline-block' action='svgtopdf.do' method='post' id='study-view-scatter-plot-svg'>"+
             "<input type='hidden' name='svgelement' id='study-view-scatter-plot-svg-value'>"+
             "<input type='hidden' name='filetype' value='svg'>"+
-            "<input type='hidden' name='filename' value='Scatter_Plot_result-<%=cancerStudy.getCancerStudyStableId()%>.svg'>"+
+            "<input type='hidden' id='study-view-scatter-plot-svg-name' name='filename' value=''>"+
             "<input type='submit' value='SVG'>"+    
             "</form>"+
             "<input type='checkbox' id='study-view-scatter-plot-log-scale-x'></input><span style='margin: 5px 10px 0px 0px; color: grey'>Log Scale X</span>"+

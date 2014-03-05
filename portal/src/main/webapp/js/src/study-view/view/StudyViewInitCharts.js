@@ -65,6 +65,8 @@ var StudyViewInitCharts = (function(){
         headerLeftQtip.position.target = $(window);
         headerLeftQtip.content.text = $('#study-view-case-select-custom-dialog')
         $('#study-view-header-left-0').qtip(headerLeftQtip);;
+        $("#study-view-scatter-plot-pdf-name").val("Scatter_Plot_result-"+ parObject.studyId +".pdf");
+        $("#study-view-scatter-plot-svg-name").val("Scatter_Plot_result-"+ parObject.studyId +".svg");
         
         numOfCases = dataB.length;        
         ndx = crossfilter(dataB);

@@ -30,9 +30,9 @@
                 <input type="hidden" name="cancer_study_id" value="<%=cancerStudy.getCancerStudyStableId()%>">
                 <input type="hidden" name="case_set_id" value="-1">
                 <input type="hidden" id="study-view-header-left-case-ids" name="case_ids" value="">
-                <input type="submit" id='study-view-header-left-1' class="study-view-header study-view-header-left boxLeft hidden" value="Query selection"/>
+                <input type="submit" id='study-view-header-left-1' class="study-view-header study-view-header-left boxLeft hidden" value="Query selected cases"/>
             </form>
-            <span id='study-view-header-left-2' class="study-view-header study-view-header-left boxLeft hidden">Clear selection</span>
+            <span id='study-view-header-left-2' class="study-view-header study-view-header-left boxLeft hidden">Clear selected cases</span>
             <span id='study-view-header-left-3' class="hidden" style='margin-top: 4px; margin-left: 4px; background-color: lightyellow'></span>
         </div>
         <div class="hidden" id="study-view-case-select-custom-dialog">

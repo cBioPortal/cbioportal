@@ -561,11 +561,20 @@ var StudyViewInitCharts = (function(){
                 $("#study-view-header-left-3").css('display','none');
             }
         }else{
-            if(tmpResultLength === 1){
+            if(tmpResultLength === 0){
                 $("#study-view-header-left-0").css('display','none');
                 $("#study-view-header-left-1").css('display','none');
                 $("#study-view-header-left-2").css('display','block');
                 $("#study-view-header-left-3").css('display','block');
+                $("#study-view-header-left-2").text('Reset');
+                $("#study-view-header-left-3").text("No case is selected.");
+                $("#study-view-header-left-case-ids").val(tmpCaseID.join(" "));
+            }else if(tmpResultLength === 1){
+                $("#study-view-header-left-0").css('display','none');
+                $("#study-view-header-left-1").css('display','none');
+                $("#study-view-header-left-2").css('display','block');
+                $("#study-view-header-left-3").css('display','block');
+                $("#study-view-header-left-2").text('Clear selected case');
                 $("#study-view-header-left-3").html("");
                 $("#study-view-header-left-3")
                         .append("<a title='Go to patient-centric view' " + 
@@ -577,6 +586,7 @@ var StudyViewInitCharts = (function(){
                 $("#study-view-header-left-1").css('display','block');
                 $("#study-view-header-left-2").css('display','block');
                 $("#study-view-header-left-3").css('display','block');
+                $("#study-view-header-left-2").text('Clear selected cases');
                 $("#study-view-header-left-3").text(tmpResultLength + " cases are selected.");
                 $("#study-view-header-left-case-ids").val(tmpCaseID.join(" "));
             }

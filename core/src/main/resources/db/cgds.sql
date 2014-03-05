@@ -40,6 +40,7 @@ CREATE TABLE `cancer_study` (
   `CANCER_STUDY_IDENTIFIER` varchar(50),
   `TYPE_OF_CANCER_ID` varchar(25) NOT NULL,
   `NAME` varchar(255) NOT NULL,
+  `SHORT_NAME` varchar(64) NOT NULL,
   `DESCRIPTION` varchar(1024) NOT NULL,
   `PUBLIC` BOOLEAN NOT NULL,
   `PMID` varchar(20) DEFAULT NULL,
@@ -141,9 +142,12 @@ CREATE TABLE `gene_alias` (
 --
 drop table IF EXISTS uniprot_id_mapping;
 CREATE TABLE `uniprot_id_mapping` (
-  `ENTREZ_GENE_ID` int(255) NOT NULL,
+  `UNIPROT_ACC` varchar(255) NOT NULL,
   `UNIPROT_ID` varchar(255) NOT NULL,
+  `ENTREZ_GENE_ID` int(255),
   PRIMARY KEY  (`ENTREZ_GENE_ID`, `UNIPROT_ID`),
+  KEY (`UNIPROT_ID`),
+  Key (`UNIPROT_ACC`),
   FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
@@ -485,9 +489,9 @@ CREATE TABLE `text_cache` (
 --
 drop table IF EXISTS pfam_graphics;
 CREATE TABLE `pfam_graphics` (
-  `UNIPROT_ID` varchar(255) NOT NULL,
+  `UNIPROT_ACC` varchar(255) NOT NULL,
   `JSON_DATA` longtext NOT NULL,
-  PRIMARY KEY (`UNIPROT_ID`)
+  PRIMARY KEY (`UNIPROT_ACC`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --
@@ -610,6 +614,7 @@ drop table IF EXISTS pdb_uniprot_residue_mapping;
 CREATE TABLE `pdb_uniprot_residue_mapping` (
   `ALIGNMENT_ID` int NOT NULL,
   `PDB_POSITION` int NOT NULL,
+  `PDB_INSERTION_CODE` char(1) DEFAULT NULL,
   `UNIPROT_POSITION` int NOT NULL,
   `MATCH` char(1),
   KEY(`ALIGNMENT_ID`, `UNIPROT_POSITION`),
@@ -622,8 +627,8 @@ CREATE TABLE `pdb_uniprot_alignment` (
   `PDB_ID` char(4) NOT NULL,
   `CHAIN` char(1) NOT NULL,
   `UNIPROT_ID` varchar(50) NOT NULL,
-  `PDB_FROM` int NOT NULL,
-  `PDB_TO` int NOT NULL,
+  `PDB_FROM` varchar(10) NOT NULL,
+  `PDB_TO` varchar(10) NOT NULL,
   `UNIPROT_FROM` int NOT NULL,
   `UNIPROT_TO` int NOT NULL,
   `EVALUE` float,

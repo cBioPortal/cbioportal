@@ -3,6 +3,8 @@
  *
  * Current model is sufficient to visualize both the table and the diagram.
  * Later we may add more data if necessary.
+ *
+ * @author Selcuk Onur Sumer
  */
 var MutationModel = Backbone.Model.extend({
 	initialize: function(attributes) {
@@ -17,6 +19,7 @@ var MutationModel = Backbone.Model.extend({
         this.cancerStudy = attributes.cancerStudy;
         this.cancerStudyShort = attributes.cancerStudyShort;
         this.cancerStudyLink = attributes.cancerStudyLink;
+		this.tumorType = attributes.tumorType;
 		this.proteinChange = attributes.proteinChange;
 		this.mutationType = attributes.mutationType;
 		this.cosmic = attributes.cosmic;
@@ -46,11 +49,13 @@ var MutationModel = Backbone.Model.extend({
 		this.refseqMrnaId = attributes.refseqMrnaId;
 		this.codonChange = attributes.codonChange;
 		this.uniprotId = attributes.uniprotId;
+		this.uniprotAcc = attributes.uniprotAcc;
 		this.proteinPosStart = attributes.proteinPosStart;
 		this.proteinPosEnd = attributes.proteinPosEnd;
 		this.mutationCount = attributes.mutationCount;
 		this.specialGeneData = attributes.specialGeneData;
 		this.keyword = attributes.keyword;
+		this.cna = attributes.cna;
 	},
 	url: function() {
 		// TODO implement this to get the data from a web service

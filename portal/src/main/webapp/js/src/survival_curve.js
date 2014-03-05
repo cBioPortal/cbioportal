@@ -260,7 +260,11 @@ var survivalCurves = (function() {
                 setDFSGroups(result, caseLists);
                 if (os_altered_group.length === 0 && os_unaltered_group.length === 0 &&
                     dfs_altered_group.length === 0 && dfs_unaltered_group.length === 0) {
-                    $('#tab-survival').hide();
+                    //$('#tab-survival').hide();
+                    var tab = $('#tabs a').filter(function(){
+                        return $(this).text() == "Survival";
+                    }).parent();
+                    tab.hide();
                 } else {
                     if (os_altered_group.length !== 0 || os_unaltered_group.length !== 0) {
                         calcOS();
@@ -426,40 +430,48 @@ var survivalCurves = (function() {
 
         function drawOSLines() {
             var _os_altered_data = data.getOSAlteredData();
-            if (_os_altered_data[0].time !== 0) {
-                _os_altered_data.unshift(appendZeroPoint(_os_altered_data[0].num_at_risk));
-            }
             var _os_unaltered_data = data.getOSUnalteredData();
-            if (_os_unaltered_data[0].time !== 0) {
-                _os_unaltered_data.unshift(appendZeroPoint(_os_unaltered_data[0].num_at_risk));
+            if (_os_altered_data !== null) {
+                if (_os_altered_data[0].time !== 0) {
+                    _os_altered_data.unshift(appendZeroPoint(_os_altered_data[0].num_at_risk));
+                }
+                elem.svgOS.append("path")
+                    .attr("d", elem.line(_os_altered_data))
+                    .style("fill", "none")
+                    .style("stroke", settings.altered_line_color);
             }
-            elem.svgOS.append("path")
-                .attr("d", elem.line(_os_altered_data))
-                .style("fill", "none")
-                .style("stroke", settings.altered_line_color);
-            elem.svgOS.append("path")
-                .attr("d", elem.line(_os_unaltered_data))
-                .style("fill", "none")
-                .style("stroke", settings.unaltered_line_color);
+            if (_os_unaltered_data !== null) {
+                if (_os_unaltered_data[0].time !== 0) {
+                    _os_unaltered_data.unshift(appendZeroPoint(_os_unaltered_data[0].num_at_risk));
+                }
+                elem.svgOS.append("path")
+                    .attr("d", elem.line(_os_unaltered_data))
+                    .style("fill", "none")
+                    .style("stroke", settings.unaltered_line_color);
+            }
         }
 
         function drawDFSLines() {
             var _dfs_altered_data = data.getDFSAlteredData();
-            if (_dfs_altered_data[0].time !== 0) {
-                _dfs_altered_data.unshift(appendZeroPoint(_dfs_altered_data[0].num_at_risk));
-            }
             var _dfs_unaltered_data = data.getDFSUnalteredData();
-            if (_dfs_unaltered_data[0].time !== 0) {
-                _dfs_unaltered_data.unshift(appendZeroPoint(_dfs_unaltered_data[0].num_at_risk));
+            if (_dfs_altered_data !== null) {
+                if (_dfs_altered_data[0].time !== 0) {
+                    _dfs_altered_data.unshift(appendZeroPoint(_dfs_altered_data[0].num_at_risk));
+                }
+                elem.svgDFS.append("path")
+                    .attr("d", elem.line(_dfs_altered_data))
+                    .style("fill", "none")
+                    .style("stroke", settings.altered_line_color);
             }
-            elem.svgDFS.append("path")
-                .attr("d", elem.line(_dfs_altered_data))
-                .style("fill", "none")
-                .style("stroke", settings.altered_line_color);
-            elem.svgDFS.append("path")
-                .attr("d", elem.line(_dfs_unaltered_data))
-                .style("fill", "none")
-                .style("stroke", settings.unaltered_line_color);
+            if (_dfs_unaltered_data !== null) {
+                if (_dfs_unaltered_data[0].time !== 0) {
+                    _dfs_unaltered_data.unshift(appendZeroPoint(_dfs_unaltered_data[0].num_at_risk));
+                }
+                elem.svgDFS.append("path")
+                    .attr("d", elem.line(_dfs_unaltered_data))
+                    .style("fill", "none")
+                    .style("stroke", settings.unaltered_line_color);
+            }
         }
 
         function drawInvisiableDots(svg, color, data) {

@@ -861,6 +861,11 @@ function outputClinicalData() {
         var diseaseInfo = [];
         diseaseInfo.push("<a href=\"study.do?cancer_study_id="+
                 cancerStudyId+"\">"+cancerStudyName+"</a>");
+        
+        var typeOfCancer = guessClinicalData(clinicalData,["TYPE_OF_CANCER"]);
+        if (typeOfCancer!==null) {
+            diseaseInfo.push(typeOfCancer);
+        }
 
         var stateInfo = formatStateInfo(clinicalData);
         if (stateInfo) diseaseInfo.push(stateInfo);

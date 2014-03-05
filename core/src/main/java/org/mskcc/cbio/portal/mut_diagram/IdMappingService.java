@@ -35,10 +35,17 @@ import java.util.List;
 public interface IdMappingService {
 
     /**
-     * Return a list of UniProt ids for the specified HUGO gene symbol, or an empty list if no such ids exist.
+     * Return a list of UniProt accessions for the specified HUGO gene symbol, or an empty list if no such accessions exist.
      *
      * @param hugoGeneSymbol HUGO gene symbol, must not be null
-     * @return a list of UniProt ids for the specified HUGO gene symbol, or an empty list if no such ids exist
+     * @return a list of UniProt accessions for the specified HUGO gene symbol, or an empty list if no such accessions exist
      */
-    List<String> getUniProtIds(String hugoGeneSymbol);
+    List<String> mapFromHugoToUniprotAccessions(String hugoGeneSymbol);
+    
+    /**
+     * 
+     * @param uniprotId
+     * @return 
+     */
+    String mapFromUniprotIdToUniprotAccession(String uniprotId);
 }

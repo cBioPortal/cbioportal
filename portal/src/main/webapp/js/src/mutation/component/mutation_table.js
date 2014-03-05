@@ -8,6 +8,8 @@
  * @param mutations     mutations as an array of raw JSON objects
  * @param options       visual options object
  * @constructor
+ *
+ * @author Selcuk Onur Sumer
  */
 var MutationTable = function(tableSelector, gene, mutations, options)
 {
@@ -15,17 +17,21 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 
 	// default options object
 	var _defaultOpts = {
-		// indicates the visibility of columns
+		// Indicates the visibility of columns
 		//
-		// - visible: column will always be visible initially
-		// - conditional: column will be visible conditionally
-		// - hidden:  column will always be hidden initially,
-		// but user can unhide the hidden columns via show/hide option
-		// - exclude: columns will be hidden initially,
-		// and the user cannot unhide these via show/hide option
-		// - excludeIfHidden: if conditionally determined to be hidden initially, then exclude
+		// - Valid string constants:
+		// "visible": column will be visible initially
+		// "hidden":  column will be hidden initially,
+		// but user can unhide the column via show/hide option
+		// "excluded": column will be hidden initially,
+		// and the user cannot unhide the column via show/hide option
 		//
-		// all other columns will be initially hidden by default
+		// - Custom function: It is also possible to set a custom function
+		// to determine the visibility of a column. A custom function
+		// should return one of the valid string constants defined above.
+		// For any unknown visibility value, column will be hidden by default.
+		//
+		// All other columns will be initially hidden by default.
 		columnVisibility: {"aa change": "visible",
 			"case id": "visible",
 			"type": "visible",
@@ -35,27 +41,40 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 			"3d": "visible",
 			"vs": "visible",
 			"allele freq (t)": "visible",
+			"copy #" : "visible",
 			"#mut in sample": "visible",
-			"mutation id": "exclude",
-			"cancer study": "exclude",
-			"bam": "excludeIfHidden",
-			"ms": "conditional"},
-		// visibility functions for conditionally visible columns,
-		// i.e: columns whose visibility set to either "conditional" or "excludeIfHidden".
-		// if no method is provided for conditionally hidden columns, then these columns
-		// will be initially visible
-		// TODO we may need more parameters than these two
-		visibilityFn: {
+			"mutation id": "excluded",
+			"cancer study": "excluded",
+			// TODO we may need more parameters than these two (util, gene)
 			"bam": function (util, gene) {
-				return util.containsIgvLink(gene);
+				if (util.containsIgvLink(gene)) {
+					return "visible";
+				}
+				else {
+					return "excluded";
+				}
 			},
 			"ms": function (util, gene) {
-				return util.containsGermline(gene);
+				if (util.containsGermline(gene)) {
+					return "visible";
+				}
+				else {
+					return "hidden";
+				}
+			},
+			"tumor type": function (util, gene) {
+				// TODO return "hidden" if (count == 1) ?
+				if (util.distinctTumorTypeCount(gene) > 0) {
+					return "visible";
+				}
+				else {
+					return "excluded";
+				}
 			}
 		},
 		// WARNING: overwriting advanced DataTables options such as
 		// aoColumnDefs, oColVis, and fnDrawCallback may break column
-		// visibility and sorting behaviour. Proceed wisely ;)
+		// visibility, sorting, and filtering. Proceed wisely ;)
 		dataTableOpts: {
 			"sDom": '<"H"<"mutation_datatables_filter"f>C<"mutation_datatables_info"i>>t',
 			"bJQueryUI": true,
@@ -70,8 +89,9 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 	var _mutationUtil = new MutationDetailsUtil(
 		new MutationCollection(mutations));
 
-	// a list of registered callback functions
-	var _callbackFunctions = [];
+	// custom event dispatcher
+	var _dispatcher = {};
+	_.extend(_dispatcher, Backbone.Events);
 
 	// flag used to switch callbacks on/off
 	var _callbackActive = true;
@@ -86,7 +106,7 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 	var _manualSearch = "";
 
 	/**
-	 * Creates a mapping for given column headers. The mapped values
+	 * Creates a mapping for the given column headers. The mapped values
 	 * will be the array indices for each element.
 	 *
 	 * @param headers   column header names
@@ -99,8 +119,7 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 
 		for (var i=0; i < headers.length; i++)
 		{
-			if (map[headers[i].toLowerCase()] == undefined ||
-			    map[headers[i].toLowerCase()] == null)
+			if (map[headers[i].toLowerCase()] == null)
 			{
 				map[headers[i].toLowerCase()] = i;
 			}
@@ -110,64 +129,51 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 	}
 
 	/**
+	 * Creates a mapping for the given column headers. The mapped values
+	 * will be one of these visibility values: visible, hidden, excluded.
+	 *
+	 * @param headers   column header names
+	 * @return {object} map of <column name, visibility value>
+	 * @private
+	 */
+	function _buildColumnVisMap(headers)
+	{
+		var map = {};
+
+		_.each(headers, function(ele, idx) {
+			var header = ele.toLowerCase();
+
+			if (map[header] == null)
+			{
+				map[header] = _visibilityValue(header);
+			}
+		});
+
+		return map;
+	}
+
+	/**
 	 * Creates an array of indices for the columns to be hidden.
 	 *
 	 * @param headers   column header names
 	 * @param indexMap  map of <column name, column index>
+	 * @param visMap    map of <column name, column visibility value>
 	 * @return {Array}  an array of column indices
 	 * @private
 	 */
-	function _getHiddenColumns(headers, indexMap)
+	function _getHiddenColumns(headers, indexMap, visMap)
 	{
 		// set hidden column indices
 		var hiddenCols = [];
 
 		// process all headers
 		_.each(headers, function(ele, idx) {
-			var visible = false;
 			var header = ele.toLowerCase();
-			var vis = _options.columnVisibility[header];
 
-			// if not in the list, hidden by default
-			if (!vis)
+			// determine visibility
+			if (visMap[header] != "visible")
 			{
-				vis = "hidden";
-			}
-
-			// check known options
-			if (vis === "hidden" ||
-			    vis === "exclude")
-			{
-				visible = false;
-			}
-			else if (vis == "visible")
-			{
-				visible = true;
-			}
-			// check if conditionally hidden
-			else if (vis === "conditional" ||
-			    vis === "excludeIfHidden")
-			{
-				var visFn = _options.visibilityFn[header];
-
-				// visibility function checks the condition
-				if (_.isFunction(visFn))
-				{
-					visible = visFn(_mutationUtil, gene);
-				}
-				else
-				{
-					visible = true;
-				}
-			}
-			// for unknown option, hide by default
-			else
-			{
-				visible = false;
-			}
-
-			if (!visible)
-			{
+				// include in hidden columns list if not visible
 				hiddenCols.push(indexMap[header]);
 			}
 		});
@@ -178,47 +184,54 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 	/**
 	 * Creates an array of indices for the columns to be completely excluded.
 	 *
-	 * @param headers       column header names
-	 * @param indexMap      map of <column name, column index>
-	 * @param hiddenCols    indices of the hidden columns
+	 * @param headers   column header names
+	 * @param indexMap  map of <column name, column index>
+	 * @param visMap    map of <column name, column visibility value>
 	 * @return {Array}  an array of column indices
 	 * @private
 	 */
-	function _getExcludedColumns(headers, indexMap, hiddenCols)
+	function _getExcludedColumns(headers, indexMap, visMap)
 	{
 		// excluded column indices
 		var excludedCols = [];
 
 		// check all headers
 		_.each(headers, function(ele, idx) {
-			var excluded = false;
 			var header = ele.toLowerCase();
-			var vis = _options.columnVisibility[header];
 
-			// check if excluded
-			if (vis)
-			{
-				if (vis === "exclude")
-				{
-					excluded = true;
-				}
-				else if (vis === "excludeIfHidden")
-				{
-					// if the column is hidden, then exclude
-					if ($.inArray(indexMap[header], hiddenCols) != -1)
-					{
-						excluded = true;
-					}
-				}
-			}
-
-			if (excluded)
+			// determine visibility
+			if (visMap[header] == "excluded")
 			{
 				excludedCols.push(indexMap[header]);
 			}
 		});
 
 		return excludedCols;
+	}
+
+	/**
+	 * Determines the visibility value for the given column name
+	 *
+	 * @param columnName    name of the column (header)
+	 * @return {String}     visibility value for the given column
+	 */
+	function _visibilityValue(columnName)
+	{
+		var vis = _options.columnVisibility[columnName];
+		var value = vis;
+
+		// if not in the list, hidden by default
+		if (!vis)
+		{
+			value = "hidden";
+		}
+		// if function, then evaluate the value
+		else if (_.isFunction(vis))
+		{
+			value = vis(_mutationUtil, gene);
+		}
+
+		return value;
 	}
 
 	/**
@@ -293,6 +306,9 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 		                indexMap["allele freq (n)"]]},
 	            {"sType": 'predicted-impact-col',
 	                "aTargets": [indexMap["fis"]]},
+		        {"sType": 'copy-number-col',
+			        "sClass": "center-align-td",
+			        "aTargets": [indexMap["copy #"]]},
 	            {"asSorting": ["desc", "asc"],
 	                "aTargets": [indexMap["cosmic"],
 		                indexMap["fis"],
@@ -311,19 +327,18 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 
 		        var currSearch = oSettings.oPreviousSearch.sSearch;
 
-		        // call the functions only if the corresponding flag is set
+		        // trigger the event only if the corresponding flag is set
 		        // and there is a change in the search term
 		        if (_callbackActive &&
 		            _prevSearch != currSearch)
 		        {
-			        // call registered callback functions
-			        for (var i=0; i < _callbackFunctions.length; i++)
-			        {
-				        _callbackFunctions[i](tableSelector);
-			        }
+			        // trigger corresponding event
+			        _dispatcher.trigger(
+				        MutationDetailsEvents.MUTATION_TABLE_FILTERED,
+				        tableSelector);
 
-			        // assuming callbacks are active for only manual filtering
-			        // so update manual search string only if callbacks are active
+			        // assuming events are active for only manual filtering
+			        // so update manual search string only after triggering the event
 			        _manualSearch = currSearch;
 		        }
 
@@ -456,6 +471,42 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 		{
 			//assuming FIS values cannot exceed 1000
 			value += score / 1000;
+		}
+
+		return value;
+	}
+
+	function _assignValueToCna(text)
+	{
+		var value;
+		text = text.toLowerCase();
+
+		// TODO this is actually reverse mapping of MutationDetailsUtil._cnaMap
+		if (text == "homdel") {
+			value = 1;
+		} else if (text == "hetloss") {
+			value = 2;
+		} else if (text == "diploid") {
+			value = 3;
+		} else if (text == "gain") {
+			value = 4;
+		} else if (text == "amp") {
+			value = 5;
+		} else { // unknown
+			value = -1;
+		}
+
+		return value;
+	}
+
+	function _getAltTextValue(a)
+	{
+		var altValue = $(a).attr("alt");
+		var value = parseFloat(altValue);
+
+		if (isNaN(value))
+		{
+			value = "";
 		}
 
 		return value;
@@ -638,6 +689,26 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 		};
 
 		/**
+		 * Ascending sort function for the copy number column.
+		 */
+		jQuery.fn.dataTableExt.oSort['copy-number-col-asc']  = function(a,b) {
+			var av = _assignValueToCna(_getLabelTextValue(a));
+			var bv = _assignValueToCna(_getLabelTextValue(b));
+
+			return _compareSortAsc(a, b, av, bv);
+		};
+
+		/**
+		 * Descending sort function for the copy number column.
+		 */
+		jQuery.fn.dataTableExt.oSort['copy-number-col-desc']  = function(a,b) {
+			var av = _assignValueToCna(_getLabelTextValue(a));
+			var bv = _assignValueToCna(_getLabelTextValue(b));
+
+			return _compareSortDesc(a, b, av, bv);
+		};
+
+		/**
 		 * Ascending sort function for predicted impact column.
 		 */
 		jQuery.fn.dataTableExt.oSort['predicted-impact-col-asc']  = function(a,b) {
@@ -719,9 +790,14 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 		// instead of integer constants for table columns
 		var indexMap = _buildColumnIndexMap(headers);
 
+		// build a visibility map for column headers
+		var visibilityMap = _buildColumnVisMap(headers);
+
 		// determine hidden and excluded columns
-        var hiddenCols = _getHiddenColumns(headers, indexMap);
-		var excludedCols = _getExcludedColumns(headers, indexMap, hiddenCols);
+        var hiddenCols = _getHiddenColumns(headers, indexMap, visibilityMap);
+		var excludedCols = _getExcludedColumns(headers, indexMap, visibilityMap);
+
+		// determine columns to exclude from filtering (through the search box)
 		var nonSearchableCols = _getNonSearchableCols(indexMap);
 
 		// add custom sort functions for specific columns
@@ -735,37 +811,7 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 	};
 
 	/**
-	 * Registers a callback function which is to be called
-	 * for each rendering of the table.
-	 *
-	 * @param callbackFn    function to register
-	 */
-	this.registerCallback = function(callbackFn)
-	{
-		if (_.isFunction(callbackFn))
-		{
-			_callbackFunctions.push(callbackFn);
-		}
-	};
-
-	/**
-	 * Removes a previously registered callback function.
-	 *
-	 * @param callbackFn    function to unregister
-	 */
-	this.unregisterCallback = function(callbackFn)
-	{
-		var index = $.inArray(callbackFn);
-
-		// remove the function at the specified index
-		if (index >= 0)
-		{
-			_callbackFunctions.splice(index, 1);
-		}
-	};
-
-	/**
-	 * Enables/disables callback functions.
+	 * Enables/disables callback functions (event triggering).
 	 *
 	 * @param active    boolean value
 	 */
@@ -788,4 +834,6 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 	{
 		return _manualSearch;
 	};
+
+	this.dispatcher = _dispatcher;
 };

@@ -30,8 +30,8 @@
 	// TODO 3d Visualizer should be initialized before document get ready
 	// ...due to incompatible Jmol initialization behavior
 	var _mut3dVis = null;
-	//_mut3dVis = new Mutation3dVis("crossCancer3dView", {});
-	//_mut3dVis.init();
+	_mut3dVis = new Mutation3dVis("crossCancer3dView", {});
+	_mut3dVis.init();
 
 	// Prepare eveything only if the page is ready to load
     $(function(){
@@ -67,11 +67,7 @@
         };
 
         var getStudyAbbr = function(study, metaData) {
-            var tokens = study.studyId.split("_", 2);
-            var firstPart = metaData.short_names[study.typeOfCancer];
-            var secondPart = " (" + tokens[1].toLocaleUpperCase().replace("_") + ")";
-
-            return firstPart + secondPart;
+            return metaData.cancer_studies[study.studyId].short_name;
         };
 
         var calculateFrequency = function(d, i, type) {
@@ -840,9 +836,11 @@
                                     showStats: true
                                 },
 	                            tableOpts: {
+		                            // TODO define custom functions where necessary
 		                            columnVisibility: {
-			                            // TODO "excludeIfHidden" instead?
-			                            "cancer study": "visible"
+			                            "cancer study": "visible",
+			                            // exclude tumor type for now
+			                            "tumor type": "excluded"
 		                            }
 	                            }
                             };

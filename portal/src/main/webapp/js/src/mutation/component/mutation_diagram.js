@@ -5,6 +5,8 @@
  * @param options       visual options object
  * @param data          collection of Mutation models (MutationCollection)
  * @constructor
+ *
+ * @author Selcuk Onur Sumer
  */
 function MutationDiagram(geneSymbol, options, data)
 {
@@ -12,6 +14,10 @@ function MutationDiagram(geneSymbol, options, data)
 
 	// event listeners
 	self.listeners = {};
+
+	// custom event dispatcher
+	self.dispatcher = {};
+	_.extend(self.dispatcher, Backbone.Events);
 
 	// merge options with default options to use defaults for missing values
 	self.options = jQuery.extend(true, {}, self.defaultOpts, options);
@@ -23,6 +29,7 @@ function MutationDiagram(geneSymbol, options, data)
 
 	self.highlighted = {}; // map of highlighted data points (initially empty)
 	self.inTransition = false; // indicates if the diagram is in a graphical transition
+	self.multiSelect = false; // indicates if multiple lollipop selection is active
 
 	// init other class members as null, will be assigned later
 	self.svg = null;    // svg element (d3)
@@ -54,7 +61,7 @@ MutationDiagram.prototype.defaultOpts = {
 	el: "#mutation_diagram_d3", // id of the container
 	elWidth: 740,               // width of the container
 	elHeight: 180,              // height of the container
-	marginLeft: 40,             // left margin for the plot area
+	marginLeft: 45,             // left margin for the plot area
 	marginRight: 30,            // right margin for the plot area
 	marginTop: 30,              // top margin for the plot area
 	marginBottom: 60,           // bottom margin for the plot area
@@ -88,6 +95,7 @@ MutationDiagram.prototype.defaultOpts = {
 	regionTextAnchor: "middle", // text anchor (alignment) for the region label
 	showRegionText: true,       // show/hide region text
 	showStats: false,           // show/hide mutation stats in the lollipop tooltip
+	multiSelectKeycode: 16,     // shift (default multiple selection key)
 	lollipopLabelCount: 1,          // max number of lollipop labels to display
 	lollipopLabelThreshold: 2,      // y-value threshold: points below this value won't be labeled
 	lollipopFont: "sans-serif",     // font of the lollipop label
@@ -241,7 +249,9 @@ MutationDiagram.prototype.initDiagram = function(sequenceData)
 {
 	var self = this;
 
-	var container = d3.select(self.options.el);
+	// selecting using jQuery node to support both string and jQuery selector values
+	var node = $(self.options.el)[0];
+	var container = d3.select(node);
 
 	// calculate bounds & save a reference for future access
 	var bounds = self.bounds = this.calcBounds(self.options);
@@ -271,6 +281,9 @@ MutationDiagram.prototype.initDiagram = function(sequenceData)
 				bounds,
 				self.options,
 				data);
+
+		// add default listeners
+		self.addDefaultListeners();
 	};
 
 	// if no sequence data is provided, try to get it from the servlet
@@ -1527,6 +1540,10 @@ MutationDiagram.prototype.updatePlot = function(mutationData)
 	// reset highlight map
 	self.highlighted = {};
 
+	// trigger corresponding event
+	self.dispatcher.trigger(
+		MutationDetailsEvents.DIAGRAM_PLOT_UPDATED);
+
 	return self.isFiltered();
 };
 
@@ -1582,6 +1599,10 @@ MutationDiagram.prototype.resetPlot = function()
 	var self = this;
 
 	self.updatePlot(self.rawData);
+
+	// trigger corresponding event
+	self.dispatcher.trigger(
+		MutationDetailsEvents.DIAGRAM_PLOT_RESET);
 };
 
 /**
@@ -1643,6 +1664,127 @@ MutationDiagram.prototype.removeListener = function(selector, event)
 	{
 		delete self.listeners[selector][event];
 	}
+};
+
+MutationDiagram.prototype.addDefaultListeners = function()
+{
+	var self = this;
+
+	// diagram background click
+	self.addListener(".mut-dia-background", "click", function(datum, index) {
+		// ignore the action (do not dispatch an event) if:
+		//  1) the diagram is already in a graphical transition:
+		// this is to prevent inconsistency due to fast clicks on the diagram.
+		//  2) there is no previously highlighted data point
+		//  3) multi selection mode is on:
+		// this is to prevent reset due to an accidental click on background
+		var ignore = self.isInTransition() ||
+		             !self.isHighlighted() ||
+		             self.multiSelect;
+
+		if (!ignore)
+		{
+			// remove all diagram highlights
+			self.clearHighlights();
+
+			// trigger corresponding event
+			self.dispatcher.trigger(
+				MutationDetailsEvents.ALL_LOLLIPOPS_DESELECTED);
+		}
+	});
+
+	// lollipop circle click
+	self.addListener(".mut-dia-data-point", "click", function(datum, index) {
+		// just ignore the action if the diagram is already in a graphical transition.
+		// this is to prevent inconsistency due to fast clicks on the diagram.
+		if (self.isInTransition())
+		{
+			return;
+		}
+
+		// if already highlighted, remove highlight on a second click
+		if (self.isHighlighted(this))
+		{
+			// remove highlight for the target circle
+			self.removeHighlight(this);
+
+			// also clear previous highlights if multiple selection is not active
+			if (!self.multiSelect)
+			{
+				// remove all diagram highlights
+				self.clearHighlights();
+			}
+
+			// trigger corresponding event
+			self.dispatcher.trigger(
+				MutationDetailsEvents.LOLLIPOP_DESELECTED,
+				datum, index);
+		}
+		else
+		{
+			// clear previous highlights if multiple selection is not active
+			if (!self.multiSelect)
+			{
+				// remove all diagram highlights
+				self.clearHighlights();
+			}
+
+			// highlight the target circle on the diagram
+			self.highlight(this);
+
+			// trigger corresponding event
+			self.dispatcher.trigger(
+				MutationDetailsEvents.LOLLIPOP_SELECTED,
+				datum, index);
+		}
+	});
+
+	// lollipop circle mouse over
+	self.addListener(".mut-dia-data-point", "mouseout", function(datum, index) {
+		// trigger corresponding event
+		self.dispatcher.trigger(
+			MutationDetailsEvents.LOLLIPOP_MOUSEOUT,
+			datum, index);
+	});
+
+	// lollipop circle mouse out
+	self.addListener(".mut-dia-data-point", "mouseover", function(datum, index) {
+		// trigger corresponding event
+		self.dispatcher.trigger(
+			MutationDetailsEvents.LOLLIPOP_MOUSEOVER,
+			datum, index);
+	});
+
+	// listener that prevents text selection
+	// when multi selection is activated by the shift key
+	var preventSelection = function (datum, index)
+	{
+		if (self.multiSelect)
+		{
+			// current event is stored under d3.event
+			d3.event.preventDefault();
+		}
+	};
+
+	self.addListener(".mut-dia-data-point", "mousedown", preventSelection);
+	self.addListener(".mut-dia-background", "mousedown", preventSelection);
+
+	// TODO listen to the key events only on the diagram (if possible)
+	// ...it might be better to bind window key event handlers in a global util class
+
+	$(window).on("keydown", function(event) {
+		if (event.keyCode == self.options.multiSelectKeycode)
+		{
+			self.multiSelect = true;
+		}
+	});
+
+	$(window).on("keyup", function(event) {
+		if (event.keyCode == self.options.multiSelectKeycode)
+		{
+			self.multiSelect = false;
+		}
+	});
 };
 
 /**
@@ -1749,6 +1891,24 @@ MutationDiagram.prototype.removeHighlight = function(selector)
 	// remove data point from the map
 	var location = element.datum().location;
 	delete self.highlighted[location];
+};
+
+/**
+ * Returns selected (highlighted) elements as a list of svg elements.
+ *
+ * @return {Array}  a list of SVG elements
+ */
+MutationDiagram.prototype.getSelectedElements = function()
+{
+	var self = this;
+	var selected = [];
+
+	for (var key in self.highlighted)
+	{
+		selected.push(self.highlighted[key]);
+	}
+
+	return selected;
 };
 
 /**

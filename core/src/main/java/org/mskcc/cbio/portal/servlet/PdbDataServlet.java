@@ -77,6 +77,7 @@ public class PdbDataServlet extends HttpServlet
 	{
 		// TODO sanitize id if necessary... and, allow more than one uniprot id?
 		String uniprotId = request.getParameter("uniprotId");
+		String type = request.getParameter("type");
 
 		Set<Integer> positions = this.parseIntValues(request.getParameter("positions"));
 		Set<Integer> alignments = this.parseIntValues(request.getParameter("alignments"));
@@ -94,6 +95,12 @@ public class PdbDataServlet extends HttpServlet
 			{
 				JSONObject pdbInfo = this.getPdbInfo(pdbIds);
 				this.writeOutput(response, pdbInfo);
+			}
+			else if (type != null &&
+			         type.equals("summary"))
+			{
+				JSONObject summary = this.getAlignmentSummary(uniprotId);
+				this.writeOutput(response, summary);
 			}
 			else
 			{
@@ -249,11 +256,22 @@ public class PdbDataServlet extends HttpServlet
 			alignmentJson.put("eValue", alignment.getEValue());
 			alignmentJson.put("identityPerc", alignment.getIdentityPerc());
 			alignmentJson.put("alignmentString", this.alignmentString(alignment));
+			//alignmentJson.put("alignmentString", alignment.getMidlineAlign());
 
 			alignmentArray.add(alignmentJson);
 		}
 
 		return alignmentArray;
+	}
+
+	protected JSONObject getAlignmentSummary(String uniprotId) throws DaoException
+	{
+		Integer count = DaoPdbUniprotResidueMapping.getAlignmentCount(uniprotId);
+
+		JSONObject summary = new JSONObject();
+		summary.put("alignmentCount", count);
+
+		return summary;
 	}
 
 	protected JSONObject getPositionMap(Set<Integer> alignments,
@@ -331,7 +349,8 @@ public class PdbDataServlet extends HttpServlet
 			JSONObject residueMappingJson = new JSONObject();
 
 			residueMappingJson.put("pdbPos", mapping.getPdbPos());
-			residueMappingJson.put("match", mapping.getMatch());
+			//residueMappingJson.put("match", mapping.getMatch());
+			residueMappingJson.put("insertion", mapping.getPdbInsertionCode());
 
 			map.put(position, residueMappingJson);
 		}

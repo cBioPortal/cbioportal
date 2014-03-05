@@ -56,7 +56,6 @@ public class TestDaoGeneticAlteration extends TestCase {
         daoGene.addGene(new CanonicalGene (672, "BRCA1"));
 
         ResetDatabase.resetDatabase();
-        DaoGeneticProfileCases daoGeneticProfileCases = new DaoGeneticProfileCases();
 
         //  Add the Case List
         ArrayList<String> orderedCaseList = new ArrayList<String>();
@@ -64,7 +63,7 @@ public class TestDaoGeneticAlteration extends TestCase {
         orderedCaseList.add("TCGA-2");
         orderedCaseList.add("TCGA-3");
         orderedCaseList.add("TCGA-4");
-        int numRows = daoGeneticProfileCases.addGeneticProfileCases(1, orderedCaseList);
+        int numRows = DaoGeneticProfileCases.addGeneticProfileCases(1, orderedCaseList);
         assertEquals (1, numRows);
 
         //  Add Some Data

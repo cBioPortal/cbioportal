@@ -756,9 +756,7 @@ var PlotsView = (function () {
                 }
                 analyseData();
             },
-            getCaseSetLength: function() { return caseSetLength; },
             getDotsGroup: function() { return dotsGroup; },
-            getDotsGroupLength: function() { return dotsGroup.length; },
             getDataStatus: function() { return status; },
             getDataAttr: function() { return attr; }
         };

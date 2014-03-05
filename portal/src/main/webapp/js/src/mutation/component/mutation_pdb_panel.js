@@ -18,7 +18,8 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		el: "#mutation_pdb_panel_d3", // id of the container
 		elWidth: 740,       // width of the container
 		elHeight: "auto",   // height of the container
-		numRows: [5, 20, Infinity], // number of rows to be to be displayed for each expand request
+		maxHeight: 200,     // max height of the container
+		numRows: [8, Infinity], // number of rows to be to be displayed for each expand request
 		marginLeft: 45,     // left margin
 		marginRight: 30,    // right margin
 		marginTop: 2,       // top margin
@@ -641,7 +642,16 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	{
 		// resize to collapsed height
 		var collapsedHeight = calcCollapsedHeight(_options.numRows[index]);
-		_svg.transition().duration(_options.animationDuration).attr("height", collapsedHeight);
+
+		dispatchResizeStartEvent(collapsedHeight);
+
+		_svg.transition()
+			.duration(_options.animationDuration)
+			.attr("height", collapsedHeight)
+			.each("end", function() {
+				dispatchResizeEndEvent(collapsedHeight);
+			});
+
 		_levelHeight = collapsedHeight;
 	}
 
@@ -878,12 +888,16 @@ function MutationPdbPanel(options, data, proxy, xScale)
 
 		// 3) resize the panel to a single row size
 		var collapsedHeight = calcCollapsedHeight(1);
+
+		dispatchResizeStartEvent(collapsedHeight);
+
 		_svg.transition().duration(duration)
 			.attr("height", collapsedHeight)
 			.each("end", function(){
 				if (_.isFunction(callback)) {
 					callback();
 				}
+				dispatchResizeEndEvent(collapsedHeight);
 			});
 	}
 
@@ -999,6 +1013,8 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		// fade-in hidden elements
 		fadeInAll();
 
+		dispatchResizeStartEvent(_levelHeight);
+
 		// restore to previous height
 		_svg.transition().duration(duration)
 			.attr("height", _levelHeight)
@@ -1006,6 +1022,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 				if (_.isFunction(callback)) {
 					callback();
 				}
+				dispatchResizeEndEvent(_levelHeight);
 			});
 	}
 
@@ -1056,6 +1073,20 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	function getHighlighted()
 	{
 		return _highlighted;
+	}
+
+	function dispatchResizeStartEvent(newHeight)
+	{
+		_dispatcher.trigger(
+			MutationDetailsEvents.PDB_PANEL_RESIZE_STARTED,
+			newHeight, _options.maxHeight);
+	}
+
+	function dispatchResizeEndEvent(newHeight)
+	{
+		_dispatcher.trigger(
+			MutationDetailsEvents.PDB_PANEL_RESIZE_ENDED,
+			newHeight, _options.maxHeight);
 	}
 
 	return {init: init,

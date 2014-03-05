@@ -114,6 +114,26 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 		}
 	}
 
+	function panelResizeStartHandler(newHeight, maxHeight)
+	{
+		// check if it is expanded beyond the max height
+		if (newHeight > maxHeight)
+		{
+			// add the toggle bar at the beginning of the resize
+			_pdbPanelView.toggleScrollBar(maxHeight);
+		}
+	}
+
+	function panelResizeEndHandler(newHeight, maxHeight)
+	{
+		// check if it is collapsed
+		if (newHeight <= maxHeight)
+		{
+			// remove the toggle bar at the end of the resize
+			_pdbPanelView.toggleScrollBar(-1);
+		}
+	}
+
 	function panelChainSelectHandler(element)
 	{
 		// TODO ideally, we should queue every script call in JSmolWrapper,
@@ -298,6 +318,14 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 				_pdbPanelView.pdbPanel.dispatcher.on(
 					MutationDetailsEvents.PANEL_CHAIN_SELECTED,
 					panelChainSelectHandler);
+
+				_pdbPanelView.pdbPanel.dispatcher.on(
+					MutationDetailsEvents.PDB_PANEL_RESIZE_STARTED,
+					panelResizeStartHandler);
+
+				_pdbPanelView.pdbPanel.dispatcher.on(
+					MutationDetailsEvents.PDB_PANEL_RESIZE_ENDED,
+					panelResizeEndHandler);
 			}
 
 			// init pdb panel view if not initialized yet

@@ -199,6 +199,31 @@ var PdbPanelView = Backbone.View.extend({
 			}
 		}, delay);
 	},
+	/**
+	 * Limits the size of the panel by the given max height value,
+	 * and adds a scroll bar for the y-axis. If max height is not
+	 * a valid value, then disables the scroll bar.
+	 *
+	 * @param maxHeight desired max height value
+	 */
+	toggleScrollBar: function(maxHeight)
+	{
+		var self = this;
+		var container = self.$el.find(".mutation-pdb-panel-container");
+
+		if (maxHeight > 0)
+		{
+			container.css("max-height", maxHeight);
+			container.css("overflow", "");
+			container.css("overflow-y", "scroll");
+		}
+		else
+		{
+			container.css("max-height", "");
+			container.css("overflow-y", "");
+			container.css("overflow", "hidden");
+		}
+	},
 	clearTimers: function()
 	{
 		var self = this;

@@ -15,8 +15,10 @@ var MutationDetailsEvents = (function()
 	var _diagramPlotReset = "mutationDiagramPlotReset";
 	var _mutationTableFiltered = "mutationTableFiltered";
 	var _pdbLinkClicked = "mutationTablePdbLinkClicked";
-	var _panelChainSelected = "pdbPanelChainSelected";
-	var _tableChainSelected = "pdbTableChainSelected";
+	var _pdbPanelResizeStarted = "mutationPdbPanelResizeStarted";
+	var _pdbPanelResizeEnded = "mutationPdbPanelResizeEnded";
+	var _panelChainSelected = "mutationPdbPanelChainSelected";
+	var _tableChainSelected = "mutationPdbTableChainSelected";
 	var _pdbTableInit = "mutationPdbTableInitialized";
 	var _geneTabSelected = "mutationDetailsGeneTabSelected";
 	var _geneTabsCreated = "mutationDetailsGeneTabsCreated";
@@ -32,6 +34,8 @@ var MutationDetailsEvents = (function()
 		DIAGRAM_PLOT_RESET: _diagramPlotReset,
 		MUTATION_TABLE_FILTERED: _mutationTableFiltered,
 		PDB_LINK_CLICKED: _pdbLinkClicked,
+		PDB_PANEL_RESIZE_STARTED: _pdbPanelResizeStarted,
+		PDB_PANEL_RESIZE_ENDED: _pdbPanelResizeEnded,
 		PANEL_CHAIN_SELECTED: _panelChainSelected,
 		TABLE_CHAIN_SELECTED: _tableChainSelected,
 		PDB_TABLE_INIT: _pdbTableInit,

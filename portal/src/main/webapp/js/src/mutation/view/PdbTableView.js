@@ -49,6 +49,15 @@ var PdbTableView = Backbone.View.extend({
 		var self = this;
 		self.$el.slideDown();
 	},
+	selectChain: function(pdbId, chainId)
+	{
+		var self = this;
+
+		if (self.pdbTable != null)
+		{
+			self.pdbTable.selectRow(pdbId, chainId);
+		}
+	},
 	/**
 	 * Initializes the PDB chain table.
 	 *

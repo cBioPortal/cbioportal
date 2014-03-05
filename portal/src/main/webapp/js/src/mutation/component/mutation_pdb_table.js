@@ -71,6 +71,8 @@ function MutationPdbTable(options, headers)
 	// reference to the data table object
 	var _dataTable = null;
 
+	var _rowMap = {};
+
 	/**
 	 * Initializes the data tables plug-in for the given table selector.
 	 *
@@ -129,8 +131,18 @@ function MutationPdbTable(options, headers)
 					"aTargets": [indexMap["uniprot positions"]]}
 			],
 			"oColVis": {"aiExclude": excludedCols}, // columns to always hide
-			"fnDrawCallback": function(oSettings) {
-
+//			"fnDrawCallback": function(oSettings) {
+//
+//			},
+			"fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+				var key = PdbDataUtil.chainKey(aData[indexMap["pdb id"]],
+				                               aData[indexMap["chain"]]);
+				_rowMap[key] = nRow;
+			},
+			"fnInitComplete": function(oSettings, json) {
+				// trigger corresponding event
+				_dispatcher.trigger(
+					MutationDetailsEvents.PDB_TABLE_INIT);
 			}
 		};
 
@@ -204,9 +216,7 @@ function MutationPdbTable(options, headers)
 	{
 		$(_options.el).on("click", "tr", function (event) {
 			// remove previous highlights
-			$(_dataTable.fnSettings().aoData).each(function (){
-				$(this.nTr).removeClass('row_selected');
-			});
+			removeAllSelection();
 
 			// highlight selected row
 			$(event.target.parentNode).addClass('row_selected');
@@ -223,7 +233,25 @@ function MutationPdbTable(options, headers)
 
 	function selectRow(pdbId, chainId)
 	{
-		// TODO add class row_selected...
+		var key = PdbDataUtil.chainKey(pdbId, chainId);
+
+		// remove previous highlights
+		removeAllSelection();
+
+		// highlight selected
+		var nRow = _rowMap[key];
+		$(nRow).addClass("row_selected");
+	}
+
+	function removeAllSelection()
+	{
+//			$(_dataTable.fnSettings().aoData).each(function (){
+//				$(this.nTr).removeClass('row_selected');
+//			});
+
+		_.each(_rowMap, function(nRow) {
+			$(nRow).removeClass("row_selected");
+		});
 	}
 
 	return {

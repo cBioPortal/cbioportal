@@ -471,6 +471,11 @@ var PdbDataUtil = (function()
 		});
 	}
 
+	function chainKey(pdbId, chainId)
+	{
+		return pdbId + ":" + chainId;
+	}
+
 	function compareIdentity(a, b)
 	{
 		// higher value should comes first
@@ -589,6 +594,7 @@ var PdbDataUtil = (function()
 		processPdbData: processPdbData,
 		mutationToPdb: mutationToPdb,
 		allocateChainRows: allocateChainRows,
-		mergeAlignments: mergeAlignments
+		mergeAlignments: mergeAlignments,
+		chainKey: chainKey
 	};
 })();

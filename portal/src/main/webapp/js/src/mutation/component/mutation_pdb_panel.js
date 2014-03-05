@@ -169,7 +169,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 
 					var gChain = drawChainRectangles(svg, chain, color, options, xScale, y);
 					gChain.datum(datum);
-					_chainMap[chainKey(datum.pdbId, datum.chain.chainId)] = gChain;
+					_chainMap[PdbDataUtil.chainKey(datum.pdbId, datum.chain.chainId)] = gChain;
 
 					// set the first drawn chain as the default chain
 					if (_defaultChainGroup == null)
@@ -546,7 +546,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		// add a rectangle group for each chain
 		_.each(rowData, function(allocation, rowIdx) {
 			_.each(allocation, function(datum, idx) {
-				map[chainKey(datum.pdbId, datum.chain.chainId)] = rowIdx;
+				map[PdbDataUtil.chainKey(datum.pdbId, datum.chain.chainId)] = rowIdx;
 			});
 		});
 
@@ -735,7 +735,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	function expandToChainLevel(pdbId, chainId)
 	{
 		var chainLevel = -1;
-		var chainRow = _rowMap[chainKey(pdbId, chainId)];
+		var chainRow = _rowMap[PdbDataUtil.chainKey(pdbId, chainId)];
 
 		for (var i=0; i < _options.numRows.length; i++)
 		{
@@ -808,11 +808,6 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		_dispatcher.trigger(
 			MutationDetailsEvents.PANEL_CHAIN_SELECTED,
 			chainGroup);
-	}
-
-	function chainKey(pdbId, chainId)
-	{
-		return pdbId + ":" + chainId;
 	}
 
 	function boundingBox(rectGroup)
@@ -903,7 +898,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	{
 		var duration = _options.animationDuration;
 		var datum = chainGroup.datum();
-		var key = chainKey(datum.pdbId, datum.chain.chainId);
+		var key = PdbDataUtil.chainKey(datum.pdbId, datum.chain.chainId);
 		var chainRow = _rowMap[key];
 
 		// if chains are not at their original positions, then shift value should be different
@@ -943,12 +938,12 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	{
 		var duration = _options.animationDuration;
 		var datum = chainGroup.datum();
-		var key = chainKey(datum.pdbId, datum.chain.chainId);
+		var key = PdbDataUtil.chainKey(datum.pdbId, datum.chain.chainId);
 
 		_svg.selectAll(".pdb-chain-group")
 			.transition().duration(duration)
 			.attr("opacity", function(datum) {
-				if (chainKey(datum.pdbId, datum.chain.chainId) === key) {
+				if (PdbDataUtil.chainKey(datum.pdbId, datum.chain.chainId) === key) {
 					// do not hide the provided chain
 					return 1;
 				} else {
@@ -1058,6 +1053,11 @@ function MutationPdbPanel(options, data, proxy, xScale)
 			});
 	}
 
+	function getHighlighted()
+	{
+		return _highlighted;
+	}
+
 	return {init: init,
 		addListener: addListener,
 		removeListener: removeListener,
@@ -1074,6 +1074,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		fadeInAll: fadeInAll,
 		hasMoreChains: hasMoreChains,
 		highlight: highlight,
+		getHighlighted: getHighlighted,
 		dispatcher: _dispatcher};
 }
 

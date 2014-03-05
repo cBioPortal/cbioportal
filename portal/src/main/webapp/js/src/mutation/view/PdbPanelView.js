@@ -140,6 +140,13 @@ var PdbPanelView = Backbone.View.extend({
 			//panel.minimizeToHighlighted();
 		});
 	},
+	getSelectedChain: function()
+	{
+		var self = this;
+		var panel = self.pdbPanel;
+
+		return panel.getHighlighted();
+	},
 	/**
 	 * Initializes the auto collapse process.
 	 *

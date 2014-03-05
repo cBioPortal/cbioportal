@@ -129,9 +129,15 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 			}
 		};
 
-		// update view with the selected chain data
+		// update 3D view with the selected chain data
 		var datum = element.datum();
 		mut3dVisView.updateView(geneSymbol, datum.pdbId, datum.chain, callback);
+
+		// also update the pdb table (highlight the corresponding row)
+		if (_pdbTableView != null)
+		{
+			_pdbTableView.selectChain(datum.pdbId, datum.chain.chainId);
+		}
 	}
 
 	function tableChainSelectHandler(pdbId, chainId)
@@ -142,6 +148,21 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 		}
 	}
 
+	function pdbTableInitHandler()
+	{
+		if (_pdbPanelView != null)
+		{
+			// find currently selected chain in the panel
+			var gChain = _pdbPanelView.getSelectedChain();
+
+			// select the corresponding row on the table
+			if (gChain != null)
+			{
+				var datum = gChain.datum();
+				_pdbTableView.selectChain(datum.pdbId, datum.chain.chainId);
+			}
+		}
+	}
 	function diagramResetHandler()
 	{
 		if (mut3dVisView && mut3dVisView.isVisible())
@@ -284,7 +305,11 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 			{
 				_pdbTableView = mainMutationView.initPdbTableView(pdbColl);
 
-				// TODO add listeners to the custom event dispatcher of the pdb table
+				// add listeners to the custom event dispatcher of the pdb table
+				_pdbTableView.pdbTable.dispatcher.on(
+					MutationDetailsEvents.PDB_TABLE_INIT,
+					pdbTableInitHandler);
+
 				_pdbTableView.pdbTable.dispatcher.on(
 					MutationDetailsEvents.TABLE_CHAIN_SELECTED,
 					tableChainSelectHandler);

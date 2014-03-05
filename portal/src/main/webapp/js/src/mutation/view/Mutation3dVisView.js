@@ -410,9 +410,9 @@ var Mutation3dVisView = Backbone.View.extend({
 				chainId: chain.chainId,
 				pdbInfo: ""};
 
-			if (pdbInfo)
+			if (pdbInfo && pdbInfo[pdbId])
 			{
-				model.pdbInfo = pdbInfo;
+				model.pdbInfo = pdbInfo[pdbId];
 			}
 
 			// init info view

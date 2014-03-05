@@ -29,9 +29,19 @@
 	padding-right: 15%;
 	margin-bottom: 0;
 }
-.mutation-pdb-table-view .mutation-pdb-table-container {
+.mutation-pdb-table-view .pdb-chain-table {
 	font-size: 90%;
 	color: black;
+}
+.mutation-pdb-table-view .pdb-chain-table td {
+	font-size: 100%;
+}
+.mutation-pdb-table-view .pdb-chain-table-container {
+	width: 670px;
+	padding-left: 40px;
+}
+.mutation-pdb-table-view {
+	margin-bottom: 10px;
 }
 .mutation-table-container .ColVis {
 	float: left;
@@ -203,7 +213,8 @@ table.display tr.odd.mutation-table-highlight td {
 .mutation-table-container {
 	margin-bottom: 40px;
 }
-.mutation-table-header {
+.mutation-table-header,
+th.mutation-pdb-table-column {
 	font-weight: bold !important;
 }
 .mut-dia-data-point,

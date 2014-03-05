@@ -402,10 +402,13 @@
 </script>
 
 <script type="text/template" id="pdb_table_view_template">
+	<div class='pdb-chain-table-loader'>
+		<img src='{{loaderImage}}'/>
+	</div>
 	<table>
 		<tr>
-			<td valign="top">
-				<table class='mutation-pdb-table-container'
+			<td valign="top" class='pdb-chain-table-container'>
+				<table class='display pdb-chain-table'
 				       cellpadding='0' cellspacing='0' border='0'>
 				</table>
 			</td>
@@ -617,7 +620,7 @@
 
 <script type="text/template" id="mutation_details_pdb_chain_tip_template">
 	<span class='pdb-chain-tip'>
-		<b>PDB id:</b> {{pdbId}}<br>
+		<b>PDB Id:</b> {{pdbId}}<br>
 		<b>Chain:</b> {{chainId}}<br>
 		{{pdbInfo}}
 	</span>

@@ -114,7 +114,7 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 		}
 	}
 
-	function chainSelectHandler(element)
+	function panelChainSelectHandler(element)
 	{
 		// TODO ideally, we should queue every script call in JSmolWrapper,
 		// ...and send request to the frame one by one, but it is complicated
@@ -122,7 +122,7 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 		// calling another script immediately after updating the view
 		// does not work, so register a callback for update function
 		var callback = function() {
-			// highlight mutations on the diagram
+			// highlight mutations on the 3D view
 			if (mutationDiagram.isHighlighted())
 			{
 				highlightSelected();
@@ -132,6 +132,14 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 		// update view with the selected chain data
 		var datum = element.datum();
 		mut3dVisView.updateView(geneSymbol, datum.pdbId, datum.chain, callback);
+	}
+
+	function tableChainSelectHandler(pdbId, chainId)
+	{
+		if (pdbId && chainId)
+		{
+			_pdbPanelView.selectChain(pdbId, chainId);
+		}
 	}
 
 	function diagramResetHandler()
@@ -267,8 +275,8 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 
 				// add listeners to the custom event dispatcher of the pdb panel
 				_pdbPanelView.pdbPanel.dispatcher.on(
-					MutationDetailsEvents.CHAIN_SELECTED,
-					chainSelectHandler);
+					MutationDetailsEvents.PANEL_CHAIN_SELECTED,
+					panelChainSelectHandler);
 			}
 
 			// init pdb panel view if not initialized yet
@@ -277,9 +285,9 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 				_pdbTableView = mainMutationView.initPdbTableView(pdbColl);
 
 				// TODO add listeners to the custom event dispatcher of the pdb table
-//				_pdbTableView.pdbPanel.dispatcher.on(
-//					MutationDetailsEvents.CHAIN_SELECTED,
-//					chainSelectHandler);
+				_pdbTableView.pdbTable.dispatcher.on(
+					MutationDetailsEvents.TABLE_CHAIN_SELECTED,
+					tableChainSelectHandler);
 			}
 
 			// reload the visualizer content with the given pdb and chain

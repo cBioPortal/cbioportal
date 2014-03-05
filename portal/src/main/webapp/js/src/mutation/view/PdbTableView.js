@@ -20,7 +20,8 @@ var PdbTableView = Backbone.View.extend({
 		var self = this;
 
 		// compile the template using underscore
-		var template = _.template($("#pdb_table_view_template").html(), {});
+		var template = _.template($("#pdb_table_view_template").html(),
+		                          {loaderImage: "images/ajax-loader.gif"});
 
 		// load the compiled HTML into the Backbone "el"
 		self.$el.html(template);
@@ -56,32 +57,57 @@ var PdbTableView = Backbone.View.extend({
 	_initPdbTable: function()
 	{
 		var self = this;
-		var table = null;
 
 		var pdbColl = self.model.pdbColl;
 		var pdbProxy = self.model.pdbProxy;
 
-		var options = {el: self.$el.find(".mutation-pdb-table-container")};
-		var rows = self._generateRowData(pdbColl);
-		var headers = ["PDB id", "Chain"];
+		var options = {el: self.$el.find(".pdb-chain-table")};
+		var headers = ["PDB Id",
+			"Chain",
+			"Uniprot From",
+			"Uniprot To",
+			"Uniprot Positions",
+			"Identity Percent",
+			"Organism",
+			"Summary"];
+		var table = new MutationPdbTable(options, headers);
 
-		// init panel
-		table = new MutationPdbTable(options, rows, headers);
-		table.renderTable();
+		self._generateRowData(pdbColl, pdbProxy, function(rowData) {
+			// init table with the row data
+			table.renderTable(rowData);
+			// hide loader image
+			self.$el.find(".pdb-chain-table-loader").hide();
+		});
 
 		return table;
 	},
-	_generateRowData: function(pdbColl)
+	_generateRowData: function(pdbColl, pdbProxy, callback)
 	{
 		var rows = [];
+		var pdbIds = [];
 
 		pdbColl.each(function(pdb) {
-			pdb.chains.each(function(chain) {
-				rows.push([pdb.pdbId, chain.chainId]);
-			})
+			pdbIds.push(pdb.pdbId);
 		});
 
-		return rows;
+		pdbProxy.getPdbInfo(pdbIds.join(" "), function(data) {
+			pdbColl.each(function(pdb) {
+				pdb.chains.each(function(chain) {
+					rows.push(
+						[pdb.pdbId,
+						chain.chainId,
+						chain.mergedAlignment.uniprotFrom,
+						chain.mergedAlignment.uniprotTo,
+						null,
+						chain.mergedAlignment.identityPerc,
+						"TODO",
+						data[pdb.pdbId]]
+					);
+				})
+			});
+
+			callback(rows);
+		});
 	}
 });
 

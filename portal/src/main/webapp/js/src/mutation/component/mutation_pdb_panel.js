@@ -18,7 +18,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		el: "#mutation_pdb_panel_d3", // id of the container
 		elWidth: 740,       // width of the container
 		elHeight: "auto",   // height of the container
-		numRows: [5, 10, 20], // number of rows to be to be displayed for each expand request
+		numRows: [5, 20, Infinity], // number of rows to be to be displayed for each expand request
 		marginLeft: 45,     // left margin
 		marginRight: 30,    // right margin
 		marginTop: 2,       // top margin
@@ -49,11 +49,17 @@ function MutationPdbPanel(options, data, proxy, xScale)
 			var datum = element.datum();
 
 			proxy.getPdbInfo(datum.pdbId, function(pdbInfo) {
+				var summary = null;
+
+				if (pdbInfo)
+				{
+					summary = pdbInfo[datum.pdbId];
+				}
 
 				// init tip view
 				var tipView = new PdbChainTipView({model: {
 					pdbId: datum.pdbId,
-					pdbInfo: pdbInfo,
+					pdbInfo: summary,
 					chain: datum.chain
 				}});
 
@@ -800,7 +806,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 
 		// trigger corresponding event
 		_dispatcher.trigger(
-			MutationDetailsEvents.CHAIN_SELECTED,
+			MutationDetailsEvents.PANEL_CHAIN_SELECTED,
 			chainGroup);
 	}
 

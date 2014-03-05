@@ -257,42 +257,77 @@ var PdbDataProxy = function(mutationUtil)
 		getPdbDataSummary(uniprotId, processData);
 	}
 
-	// TODO allow more than one pdb id
-	// ...see MutationDataProxy.getMutationData for a sample implementation
 	/**
-	 * Retrieves the PDB information for the provided PDB id. Passes
+	 * Retrieves the PDB information for the provided PDB id(s). Passes
 	 * the retrieved data as a parameter to the given callback function
 	 * assuming that the callback function accepts a single parameter.
 	 *
-	 * @param pdbId     PDB id
+	 * @param pdbIdList list of PDB ids as a white-space delimited string
 	 * @param callback  callback function to be invoked
 	 */
-	function getPdbInfo(pdbId, callback)
+	function getPdbInfo(pdbIdList, callback)
 	{
-		// retrieve data from the server if not cached
-		if (_pdbInfoCache[pdbId] == undefined)
+		var pdbIds = pdbIdList.trim().split(/\s+/);
+		var pdbToQuery = [];
+
+		// get previously grabbed data (if any)
+
+		var pdbData = {};
+
+		// process each pdb id in the given list
+		_.each(pdbIds, function(pdbId, idx) {
+			//pdbId = pdbId.toLowerCase();
+
+			var data = _pdbInfoCache[pdbId];
+
+			if (data == undefined ||
+			    data.length == 0)
+			{
+				// data does not exist for this pdb, add it to the list
+				pdbToQuery.push(pdbId);
+			}
+			else
+			{
+				// data is already cached for this pdb id, update the data object
+				pdbData[pdbId] = data;
+			}
+		});
+
+		var servletParams = {};
+
+		// some (or all) data is missing,
+		// send ajax request for missing ids
+		if (pdbToQuery.length > 0)
 		{
 			// process & cache the raw data
 			var processData = function(data) {
 
-				if (data[pdbId] != null)
-				{
-					_pdbInfoCache[pdbId] = data[pdbId];
-				}
+				_.each(pdbIds, function(pdbId, idx) {
+					if (data[pdbId] != null)
+					{
+						_pdbInfoCache[pdbId] = data[pdbId];
 
-				// forward the data to the provided callback function
-				callback(data[pdbId]);
+						// concat new data with already cached data
+						pdbData[pdbId] = data[pdbId];
+					}
+				});
+
+				// forward the final data to the callback function
+				callback(pdbData);
 			};
 
-			// retrieve data from the servlet
-			$.getJSON(_servletName,
-			          {pdbIds: pdbId},
-			          processData);
+			// add pdbToQuery to the servlet params
+			servletParams.pdbIds = pdbToQuery.join(" ");
+
+			// retrieve data from the server
+			$.post(_servletName, servletParams, processData, "json");
+			//$.getJSON(_servletName, servletParams, processData, "json");
 		}
+		// data for all requested chains already cached
 		else
 		{
-			// data is already cached, just forward it
-			callback(_pdbInfoCache[pdbId]);
+			// just forward the data to the callback function
+			callback(pdbData);
 		}
 	}
 

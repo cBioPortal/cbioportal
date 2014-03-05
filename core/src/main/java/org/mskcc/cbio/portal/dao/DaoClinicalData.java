@@ -188,7 +188,7 @@ public final class DaoClinicalData {
 
             rs = pstmt.executeQuery();
             if (rs.next()) {
-                return extract(internalCancerStudyId, rs);
+                return extract(table, internalCancerStudyId, rs);
             }
             else {
                 throw new DaoException(String.format("clinical data not found for (%d, %s)",
@@ -225,7 +225,7 @@ public final class DaoClinicalData {
             pstmt = con.prepareStatement(sql);
             rs = pstmt.executeQuery();
             while (rs.next()) {
-                clinicals.add(extract(internalCancerStudyId, rs));
+                clinicals.add(extract(table, internalCancerStudyId, rs));
             }
         }
         catch (SQLException e) {
@@ -301,7 +301,7 @@ public final class DaoClinicalData {
             pstmt = con.prepareStatement(sql);
             rs = pstmt.executeQuery();
             while (rs.next()) {
-                clinicals.add(extract(internalCancerStudyId, rs));
+                clinicals.add(extract(table, internalCancerStudyId, rs));
             }
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -332,7 +332,7 @@ public final class DaoClinicalData {
             while(rs.next()) {
                 Integer patientId = rs.getInt("INTERNAL_ID");
                 if (patients.contains(patientId)) {
-                    clinicals.add(extract(internalCancerStudyId, rs));
+                    clinicals.add(extract(PATIENT_TABLE, internalCancerStudyId, rs));
                 }
             }
 		}
@@ -346,11 +346,23 @@ public final class DaoClinicalData {
         return clinicals;
     }
 
-    private static ClinicalData extract(int internalCancerStudyId, ResultSet rs) throws SQLException {
+    private static ClinicalData extract(String table, int internalCancerStudyId, ResultSet rs) throws SQLException {
+        // get 
+        String stableId = getStableIdFromInternalId(table, rs.getInt("INTERNAL_ID"));
 		return new ClinicalData(internalCancerStudyId,
-								rs.getString("INTERNAL_ID"),
+								stableId,
 								rs.getString("ATTR_ID"),
 								rs.getString("ATTR_VALUE"));
+    }
+
+    private static String getStableIdFromInternalId(String table, int internalId)
+    {
+        if (table.equals(SAMPLE_TABLE)) {
+            return DaoSample.getSampleByInternalId(internalId).getStableId();
+        }
+        else {
+            return DaoPatient.getPatientByInternalId(internalId).getStableId();
+        }
     }
 
     private static String generateCaseIdsSql(Collection<Integer> caseIds) {
@@ -394,8 +406,7 @@ public final class DaoClinicalData {
 
             ArrayList<Patient> toReturn = new ArrayList<Patient>();
             for (Map.Entry<String,Map<String,ClinicalData>> entry : clinicalData.entrySet()) {
-                Patient patient = DaoPatient.getPatientByInternalId(Integer.parseInt(entry.getKey()));
-                toReturn.add(new Patient(cancerStudy, patient.getStableId(), patient.getStableId(), entry.getValue()));
+                toReturn.add(new Patient(cancerStudy, entry.getKey(), entry.getKey(), entry.getValue()));
             }
             return toReturn;
 	}
@@ -422,8 +433,7 @@ public final class DaoClinicalData {
                 mapCaseValue = new HashMap<String, String>();
                 mapAttrCaseValue.put(attrId, mapCaseValue);
             }
-            Patient patient = DaoPatient.getPatientByInternalId(Integer.parseInt(caseId));
-            mapCaseValue.put(patient.getStableId(), value);
+            mapCaseValue.put(caseId, value);
         }
                 
         List<ClinicalParameterMap> maps = new ArrayList<ClinicalParameterMap>();

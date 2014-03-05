@@ -72,7 +72,9 @@ public class CaseIdUtil
             }
 		}
         catch (ArrayIndexOutOfBoundsException e) {
-			id = barcode;
+            // many (all?) barcodes in overrides are just patient id's - tack on a primary solid tumor code
+            // (we don't have any blood cancer overrides that need a sample code)
+			id = barcode + "-01";
 		}
 
 		return id;

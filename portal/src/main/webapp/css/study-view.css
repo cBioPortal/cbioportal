@@ -451,6 +451,9 @@ ul li a:hover, ul li a:focus {
     word-wrap:break-word;
     max-width: 200px;
     min-width: 60px;
+}#data-table-chart table.dataTable>tbody>tr>td:nth-child(1) {
+    text-align: center;
+    white-space: nowrap;
 }
 #data-table-chart table.dataTable>tbody>tr>td {
     max-width: 200px;

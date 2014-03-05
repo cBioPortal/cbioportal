@@ -156,7 +156,7 @@ var StudyViewInitCharts = (function(){
             displayedID.push(pie[i]["attr_id"]);
             createdChartID++;
         }
-
+        
         for(var i=0; i< bar.length ; i++){
             para.chartID = createdChartID;
             para.chartDivID = 'study-view-bar-chart';
@@ -400,7 +400,7 @@ var StudyViewInitCharts = (function(){
         $('#dataTable').dataTable().fnFilter(_filterString,0,true);
         removedChart.push(Number(_chartID));
     }
-    
+        
     function setSVGElementValue(_svgParentDivId,_idNeedToSetValue,scatterPlotDataAttr){
         $("#" + _svgParentDivId + " .plots-title-x-help").remove();
         $("#" + _svgParentDivId + " .plots-title-y-help").remove();
@@ -465,42 +465,42 @@ var StudyViewInitCharts = (function(){
         if(selectedAttr !== 'CASE_ID'){
             varChart[chartID].on("filtered", function(chart,filter){
                 var currentPieFilters = varChart[chartID].filters();
-                if(currentPieFilters.length === 0){
+                    if(currentPieFilters.length === 0){
                     $("#study-view-dc-chart-" + chartID + 
-                            "-main .study-view-dc-chart-change")
-                            .css('display','none');
+                                "-main .study-view-dc-chart-change")
+                                .css('display','none');
                     $("#study-view-dc-chart-" + chartID + "-main")
-                            .css({'border-width':'1px', 'border-style':'solid'});
-                }else{
+                                .css({'border-width':'1px', 'border-style':'solid'});
+                    }else{
                     $("#study-view-dc-chart-" + chartID + 
-                            "-main .study-view-dc-chart-change")
-                            .css('display','block');
+                                "-main .study-view-dc-chart-change")
+                                .css('display','block');
                     $("#study-view-dc-chart-" + chartID + "-main")
-                            .css({'border-width':'2px', 'border-style':'inset'});
-                }
-
-                var _tmpResult = varChart[attrNameMapUID["CASE_ID"]].dimension().top(Infinity),
-                    _tmpCaseID = [];
-                
-                if(typeof scatterStudyView !== 'undefined'){
-                    for(var i=0; i<_tmpResult.length ; i++){
-                        _tmpCaseID.push(_tmpResult[i].CASE_ID);
+                                .css({'border-width':'2px', 'border-style':'inset'});
                     }
-                    setScatterPlotStyle(_tmpCaseID,currentPieFilters);
-                }
-                
-                changeHeader();
-                removeMarker();
-            });
+
+                    var _tmpResult = varChart[attrNameMapUID["CASE_ID"]].dimension().top(Infinity),
+                        _tmpCaseID = [];
+
+                    if(typeof scatterStudyView !== 'undefined'){
+                        for(var i=0; i<_tmpResult.length ; i++){
+                            _tmpCaseID.push(_tmpResult[i].CASE_ID);
+                        }
+                        setScatterPlotStyle(_tmpCaseID,currentPieFilters);
+                    }
+
+                    changeHeader();
+                    removeMarker();
+                });
             varChart[chartID].on("postRedraw",function(chart){
                 addPieLabels("study-view-dc-chart-" + chartID);
             });
             varChart[chartID].on("postRender",function(chart){
                 addPieLabels("study-view-dc-chart-" + chartID);
             });
+            }
         }
-    }
-    
+        
     function changeHeader(){
         var tmpDimention = varChart[attrNameMapUID["CASE_ID"]].dimension();
         var tmpResult = tmpDimention.top(Infinity);
@@ -707,150 +707,150 @@ var StudyViewInitCharts = (function(){
             }
         }
         
-        $('#' + _pieChartID + '-main .pieLabel').mouseenter(function(){
-            var idArray = $(this).attr('id').split('-'),
-                childID = Number(idArray[idArray.length-2])+1;
-                
-            $('#' + _pieChartID + ' svg>g>g:nth-child(' + childID+')').css({
-                'fill-opacity': '.5',
-                'stroke-width': '3'
-            });
-            
-            var fatherID = Number(idArray[idArray.length-3]);
-            
-            var tmpPointsInfo = $('#' + _pieChartID + ' svg>g>g:nth-child(' + 
-                    childID+')').find('path').attr('d').split(/[\s,MLHVCSQTAZ]/),          
-                tmpPointsInfo1 = $('#' + _pieChartID + ' svg>g>g:nth-child(' + 
-                    childID+')').find('path').attr('d').split(/[A]/),
-                _fill = $('#' + _pieChartID + ' svg>g>g:nth-child(' + 
-                    childID+')').find('path').attr('fill');    
-            
-            var x1 = Number(tmpPointsInfo[1]),
-                y1 = Number(tmpPointsInfo[2]),
-                largeArc = Number(tmpPointsInfo[6]),
-                sweep = Number(tmpPointsInfo[7]),
-                x2 = Number(tmpPointsInfo[8]),
-                y2 = Number(tmpPointsInfo[9]),
-                r = Number(tmpPointsInfo[3]);
-            
-            if((x1-x2!==0 ||y1-y2!==0) && tmpPointsInfo1.length === 2){
-                var _xm = (x1 + x2) /2,
-                    _ym = (y1 + y2) /2;
-                    
-                var m = Math.sqrt((Math.pow(_xm,2)+Math.pow(_ym,2)));
-                
-                var _tmpX = (r + 3) / m * _xm,
-                    _tmpY = (r + 3) / m * _ym;
-                
-                if(_xm === 0 && _ym === 0){
-                    _tmpY = 0;
-                    _tmpX = r + 6;
-                }
-            
-                if(largeArc === 1 && Math.abs(x1 - x2) >0.1) {
-                    _tmpX = -_tmpX;
-                    _tmpY = -_tmpY;
-                }
-                
-                var _pointOne = Math.atan2(y1,x1);
-                var _pointTwo = Math.atan2(y2,x2);
+            $('#' + _pieChartID + '-main .pieLabel').mouseenter(function(){
+                var idArray = $(this).attr('id').split('-'),
+                    childID = Number(idArray[idArray.length-2])+1;
 
-                if(_pointOne < -Math.PI/2){
-                    _pointOne = Math.PI/2 + Math.PI *2 +_pointOne;
-                }else{
-                    _pointOne = Math.PI/2 +_pointOne;
-                }
+                $('#' + _pieChartID + ' svg>g>g:nth-child(' + childID+')').css({
+                    'fill-opacity': '.5',
+                    'stroke-width': '3'
+                });
 
-                if(_pointTwo < -Math.PI/2){
-                    _pointTwo = Math.PI/2 + Math.PI*2 +_pointTwo;
-                }else{
-                    _pointTwo = Math.PI/2 +_pointTwo;
+                var fatherID = Number(idArray[idArray.length-3]);
+
+                var tmpPointsInfo = $('#' + _pieChartID + ' svg>g>g:nth-child(' + 
+                        childID+')').find('path').attr('d').split(/[\s,MLHVCSQTAZ]/),          
+                    tmpPointsInfo1 = $('#' + _pieChartID + ' svg>g>g:nth-child(' + 
+                        childID+')').find('path').attr('d').split(/[A]/),
+                    _fill = $('#' + _pieChartID + ' svg>g>g:nth-child(' + 
+                        childID+')').find('path').attr('fill');    
+
+                var x1 = Number(tmpPointsInfo[1]),
+                    y1 = Number(tmpPointsInfo[2]),
+                    largeArc = Number(tmpPointsInfo[6]),
+                    sweep = Number(tmpPointsInfo[7]),
+                    x2 = Number(tmpPointsInfo[8]),
+                    y2 = Number(tmpPointsInfo[9]),
+                    r = Number(tmpPointsInfo[3]);
+
+                if((x1-x2!==0 ||y1-y2!==0) && tmpPointsInfo1.length === 2){
+                    var _xm = (x1 + x2) /2,
+                        _ym = (y1 + y2) /2;
+
+                    var m = Math.sqrt((Math.pow(_xm,2)+Math.pow(_ym,2)));
+
+                    var _tmpX = (r + 3) / m * _xm,
+                        _tmpY = (r + 3) / m * _ym;
+
+                    if(_xm === 0 && _ym === 0){
+                        _tmpY = 0;
+                        _tmpX = r + 6;
+                    }
+
+                    if(largeArc === 1 && Math.abs(x1 - x2) >0.1) {
+                        _tmpX = -_tmpX;
+                        _tmpY = -_tmpY;
+                    }
+
+                    var _pointOne = Math.atan2(y1,x1);
+                    var _pointTwo = Math.atan2(y2,x2);
+
+                    if(_pointOne < -Math.PI/2){
+                        _pointOne = Math.PI/2 + Math.PI *2 +_pointOne;
+                    }else{
+                        _pointOne = Math.PI/2 +_pointOne;
+                    }
+
+                    if(_pointTwo < -Math.PI/2){
+                        _pointTwo = Math.PI/2 + Math.PI*2 +_pointTwo;
+                    }else{
+                        _pointTwo = Math.PI/2 +_pointTwo;
+                    }
+
+                    var circleID = "circle-" +fatherID+"-"+(Number(childID)-1);
+                      /*   
+                    d3.select("#" + _pieChartID + " svg g").append("path")
+                        .attr("transform", function(d) { return "translate(" + _tmpX + "," + _tmpY + ")"; })
+                        .attr("d", d3.svg.symbol().size('25').type('circle'))
+                        .attr('fill',"red")
+                        .attr('id',circleID)
+                        .attr('class','circle');
+                    */
+
+                    var arc = d3.svg.arc()
+                                    .innerRadius(r + 3)
+                                    .outerRadius(r + 5)
+                                    .startAngle(_pointOne)
+                                    .endAngle(_pointTwo)
+                                    ;
+                    d3.select("#" + _pieChartID + " svg g").append("path")
+                        .attr("d", arc)
+                        .attr('fill',_fill)
+                        .attr('id',circleID)
+                        .attr('class','mark');
                 }
-               
-                var circleID = "circle-" +fatherID+"-"+(Number(childID)-1);
-                  /*   
-                d3.select("#" + _pieChartID + " svg g").append("path")
-                    .attr("transform", function(d) { return "translate(" + _tmpX + "," + _tmpY + ")"; })
-                    .attr("d", d3.svg.symbol().size('25').type('circle'))
-                    .attr('fill',"red")
-                    .attr('id',circleID)
-                    .attr('class','circle');
-                */
-               
-                var arc = d3.svg.arc()
-                                .innerRadius(r + 3)
-                                .outerRadius(r + 5)
-                                .startAngle(_pointOne)
-                                .endAngle(_pointTwo)
-                                ;
-                d3.select("#" + _pieChartID + " svg g").append("path")
-                    .attr("d", arc)
-                    .attr('fill',_fill)
-                    .attr('id',circleID)
-                    .attr('class','mark');
-            }
-        });
-        
-        $('#' + _pieChartID + '-main .pieLabel').mouseleave(function(){
-            var idArray = $(this).attr('id').split('-');
-            var childID = Number(idArray[idArray.length-2])+1;
-            var fatherID = Number(idArray[idArray.length-3]);
-            var circleID = fatherID+"-"+(Number(childID)-1);
-            
-            $("#" + _pieChartID + " svg g #circle-" + circleID).remove();
-            
-            $('#' + _pieChartID + ' svg>g>g:nth-child(' + childID+')').css({
-                'fill-opacity': '1',
-                'stroke-width': '1px'
             });
-        });
-        
-        $('#' + _pieChartID + '-main .pieLabel').click(function(){
-            var idArray = $(this).attr('id').split('-');
-            
-            var childaLabelID = Number(idArray[idArray.length-1]),
-                childID = Number(idArray[idArray.length-2])+1,
-                chartID = Number(idArray[idArray.length-3]);
-            
-            var circleID = chartID+"-"+(Number(childID)-1);
-            
-            varChart[chartID].onClick({
-                key: label[childaLabelID].name, 
-                value:label[childaLabelID].value
-            });       
-            
-            varChart[chartID].redraw;           
-            
-            $("#" + _pieChartID + " svg g #" + circleID).remove();
-            
-            $('#' + _pieChartID + ' svg>g>g:nth-child(' + childID+')').css({
-                'fill-opacity': '1',
-                'stroke-width': '1px'
+
+            $('#' + _pieChartID + '-main .pieLabel').mouseleave(function(){
+                var idArray = $(this).attr('id').split('-');
+                var childID = Number(idArray[idArray.length-2])+1;
+                var fatherID = Number(idArray[idArray.length-3]);
+                var circleID = fatherID+"-"+(Number(childID)-1);
+
+                $("#" + _pieChartID + " svg g #circle-" + circleID).remove();
+
+                $('#' + _pieChartID + ' svg>g>g:nth-child(' + childID+')').css({
+                    'fill-opacity': '1',
+                    'stroke-width': '1px'
+                });
             });
-        });
-        
-        $('#' + _pieChartID + '-main .pie-label-left-pagging').click(function(){
-            var tmpValue = $(this).parent().parent().attr('id').split('-');
-            var currentTableID = Number(tmpValue[tmpValue.length-1]);
-            if(currentTableID !== 0){
-                var nextTableID = currentTableID-1;
-                $('#table-'+_pieChartID+'-'+currentTableID).css('display','none');            
-                $('#table-'+_pieChartID+'-'+nextTableID).css('display','block');
-            }
-        });
-        $('#' + _pieChartID + '-main .pie-label-right-pagging').click(function(){
-            var fill = $(this).attr('fill');
-            if(fill === 'blue'){
+
+            $('#' + _pieChartID + '-main .pieLabel').click(function(){
+                var idArray = $(this).attr('id').split('-');
+
+                var childaLabelID = Number(idArray[idArray.length-1]),
+                    childID = Number(idArray[idArray.length-2])+1,
+                    chartID = Number(idArray[idArray.length-3]);
+
+                var circleID = chartID+"-"+(Number(childID)-1);
+
+                varChart[chartID].onClick({
+                    key: label[childaLabelID].name, 
+                    value:label[childaLabelID].value
+                });       
+
+                varChart[chartID].redraw;           
+
+                $("#" + _pieChartID + " svg g #" + circleID).remove();
+
+                $('#' + _pieChartID + ' svg>g>g:nth-child(' + childID+')').css({
+                    'fill-opacity': '1',
+                    'stroke-width': '1px'
+                });
+            });
+
+            $('#' + _pieChartID + '-main .pie-label-left-pagging').click(function(){
                 var tmpValue = $(this).parent().parent().attr('id').split('-');
                 var currentTableID = Number(tmpValue[tmpValue.length-1]);
-                var nextTableID = currentTableID+1;
-            
-                $('#table-'+_pieChartID+'-'+currentTableID).css('display','none');            
-                $('#table-'+_pieChartID+'-'+nextTableID).css('display','block');
-            }
-        });
-    }
-            
+                if(currentTableID !== 0){
+                    var nextTableID = currentTableID-1;
+                    $('#table-'+_pieChartID+'-'+currentTableID).css('display','none');            
+                    $('#table-'+_pieChartID+'-'+nextTableID).css('display','block');
+                }
+            });
+            $('#' + _pieChartID + '-main .pie-label-right-pagging').click(function(){
+                var fill = $(this).attr('fill');
+                if(fill === 'blue'){
+                    var tmpValue = $(this).parent().parent().attr('id').split('-');
+                    var currentTableID = Number(tmpValue[tmpValue.length-1]);
+                    var nextTableID = currentTableID+1;
+
+                    $('#table-'+_pieChartID+'-'+currentTableID).css('display','none');            
+                    $('#table-'+_pieChartID+'-'+nextTableID).css('display','block');
+                }
+            });
+        }
+    
     function initLogBarChart(_para) {
         var chartID = _para.chartID,
             className = _para.chartDivID,
@@ -1306,15 +1306,23 @@ var StudyViewInitCharts = (function(){
         });
         $('#study-view-dataTable-updateTable').unbind('click');
         $('#study-view-dataTable-updateTable').click(function(){
-            var filterString = "",
+            var filterArray = [],
                 filteredResult = varCluster[attrNameMapUID['CASE_ID']].top(Infinity);
-                
+            
             for(var i=0 ; i<filteredResult.length ; i++){
-                filterString += filteredResult[i].CASE_ID + '|';
+                filterArray.push(filteredResult[i].CASE_ID);
             }
-            filterString = filterString.substr(0,filterString.length-1);
-            dataTable1.fnFilter(filterString,0,true);
-            updateTable(dataTable1,[0]);
+            
+            $.fn.dataTableExt.afnFiltering = [function( oSettings, aData, iDataIndex ) {
+                    var data = aData[0];
+                    var dataContent = $(data).text();
+                    if ( filterArray.indexOf(dataContent) !== -1){
+                        return true;
+                    }
+                    return false;
+            }];
+        
+            dataTable1.fnDraw();
             resizeLeftColumn();            
             refreshSelectionInDataTable(dataTable1);
             dataTable1.fnAdjustColumnSizing();
@@ -1442,7 +1450,6 @@ var StudyViewInitCharts = (function(){
     function updateDataTableNumericFilter(_dataTable){
         var dataTableNumericFilterLength = dataTableNumericFilter.length;
         $.fn.dataTableExt.afnFiltering = [];
-        console.log(dataTableNumericFilter);
         for(var i=0; i<dataTableNumericFilterLength; i++){
             if(dataTableNumericFilter[i] !== ''){
                 $.fn.dataTableExt.afnFiltering.push(dataTableNumericFilter[i]);

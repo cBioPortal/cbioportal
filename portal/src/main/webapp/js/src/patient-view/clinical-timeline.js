@@ -356,8 +356,7 @@
             var dates = getStartStopDates(timePointData);
             
             var tooltip = [];
-            tooltip.push("<td>startDate</td><td>"+dates[0]+"</td>");
-            tooltip.push("<td>stopDate</td><td>"+dates[1]+"</td>");
+            tooltip.push("<td>date</td><td>"+dates[0]+(dates[1]===dates[0]?"":" - "+dates[1])+"</td>");
             if ("eventData" in timePointData) {
                 var eventData = timePointData["eventData"];
                 for (var key in eventData) {
@@ -407,7 +406,12 @@
             }
             
             if ("treatment" in timelineDataByType) {
-                var treatments = timelineDataByType["treatment"].sort(function(a,b){return a.startDate-b.startDate;});
+                var treatments = timelineDataByType["treatment"].sort(function(a,b){
+                    if (a["startDate"]===b["startDate"]) {
+                        return a["eventData"]["agent"].localeCompare(b["eventData"]["agent"]);
+                    }
+                    return a["startDate"]-b["startDate"];
+                });
                 var treatmentGroups = separateTreatmentsByTime(treatments);
                 for (var i in treatmentGroups) {
                     ret.push({

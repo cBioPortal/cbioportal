@@ -289,8 +289,113 @@
       if (!arguments.length) return colorPropertyName;
       colorPropertyName = colorProp;
       return timeline;
-    }
+    };
     
     return timeline;
   };
+})();
+
+(function () {
+    parepareTimeLineData = (function() {
+        function getStartStopDates(timePointData) {
+            var startDate = timePointData["startDate"];
+            var stopDate = timePointData["stopDate"];
+            if (cbio.util.checkNullOrUndefined(stopDate)) stopDate = startDate;
+            return [startDate, stopDate];
+        }
+        
+        function separateTreatmentsByAgent(treatments) {
+            var ret = {};
+            treatments.forEach(function(treatment) {
+                var agent = treatment.eventData.agent;
+                if (cbio.util.checkNullOrUndefined(agent)) {
+                    agent = treatment.eventData.subtype;
+                }
+                if (cbio.util.checkNullOrUndefined(agent)) {
+                    agent = treatment.eventData.type;
+                }
+                if (!(agent in ret)) {
+                    ret[agent] = [];
+                }
+                ret[agent].push(treatment);
+            });
+            return ret;
+        }
+        
+        function formatATimePoint(timePointData) {
+            var dates = getStartStopDates(timePointData);
+            
+            var tooltip = [];
+            tooltip.push("<td>startDate</td><td>"+dates[0]+"</td>");
+            tooltip.push("<td>stopDate</td><td>"+dates[1]+"</td>");
+            if ("eventData" in timePointData) {
+                var eventData = timePointData["eventData"];
+                for (var key in eventData) {
+                    tooltip.push("<td>"+key+"</td><td>"+eventData[key]+"</td>");
+                }
+            }
+            
+            return {
+                starting_time : dates[0],
+                ending_time : dates[1],
+                tooltip : "<table class='timeline-tooltip-table uninitialized'><thead><tr><th>&nbsp;</th><th>&nbsp;</th></tr></thead><tr>" + tooltip.join("</tr><tr>") + "</tr></table>"
+            };
+        }
+        
+        function formatTimePoints(timePointsData) {
+            var times = [];
+            timePointsData.forEach(function(timePointData){
+                times.push(formatATimePoint(timePointData));
+            });
+            return times;
+        }
+            
+        var prepare = function(timelineData) {
+            var timelineDataByType = {};
+            
+            timelineData.forEach(function(data) {
+                var type = data["eventType"];
+                if (!(type in timelineDataByType)) timelineDataByType[type] = [];
+                timelineDataByType[type].push(data);
+            });
+            
+            var ret = [];
+            
+            if ("diagnostic" in timelineDataByType) {
+                ret.push({
+                    label:"Diagnostics",
+                    display:"circle",
+                    times:formatTimePoints(timelineDataByType["diagnostic"])});
+            }
+            
+            if ("lab_test" in timelineDataByType) {
+                ret.push({
+                    label:"Lab Tests",
+                    display:"circle",
+                    times:formatTimePoints(timelineDataByType["lab_test"])});
+            }
+            
+            if ("treatment" in timelineDataByType) {
+                var treatments = timelineDataByType["treatment"].sort(function(a,b){return a.startDate-b.startDate;});
+                var treatmentGroups = separateTreatmentsByAgent(treatments);
+                for (var agent in treatmentGroups) {
+                    ret.push({
+                        label:agent,
+                        display:"rect",
+                        times:formatTimePoints(treatmentGroups[agent])});
+                }
+            }
+            
+            return ret;
+//            return [
+//                    {label:"Diagnostics", display:"circle", times: [{"starting_time": 0, "tooltip":"First diagonosis"},{"starting_time": 200}, {"starting_time": 500}]},
+//                    {label:"Lab Tests", display:"circle", times: [{"starting_time": -10}, ]},
+//                    {label:"Therapy", display:"rect", times: [{"starting_time": 140, "ending_time": 360, "tooltip":"Chemo"}]},
+//                  ];
+        };
+        
+        return {
+            prepare: prepare
+        };
+    })();
 })();

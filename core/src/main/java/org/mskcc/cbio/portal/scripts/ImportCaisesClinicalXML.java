@@ -171,7 +171,7 @@ public final class ImportCaisesClinicalXML {
             
             node = treatmentNode.selectSingleNode("MedTxTotalDose");
             if (node!=null) {
-                clinicalEvent.addEventDatum("total_dose", node.getText());
+                clinicalEvent.addEventDatum("totalDose", node.getText());
             }
             
             node = treatmentNode.selectSingleNode("MedTxUnits");
@@ -233,12 +233,12 @@ public final class ImportCaisesClinicalXML {
             
             node = treatmentNode.selectSingleNode("RadTxDosePerFraction");
             if (node!=null) {
-                clinicalEvent.addEventDatum("dose_per_fraction", node.getText());
+                clinicalEvent.addEventDatum("dosePerFraction", node.getText());
             }
             
             node = treatmentNode.selectSingleNode("RadTxTotalDose");
             if (node!=null) {
-                clinicalEvent.addEventDatum("total_dose", node.getText());
+                clinicalEvent.addEventDatum("totalDose", node.getText());
             }
             
             node = treatmentNode.selectSingleNode("RadTxUnits");
@@ -248,7 +248,7 @@ public final class ImportCaisesClinicalXML {
             
             node = treatmentNode.selectSingleNode("RadTxNumFractions");
             if (node!=null) {
-                clinicalEvent.addEventDatum("num_fractions", node.getText());
+                clinicalEvent.addEventDatum("numFractions", node.getText());
             }
             
             node = treatmentNode.selectSingleNode("RadTxTarget");
@@ -280,7 +280,7 @@ public final class ImportCaisesClinicalXML {
             
             node = treatmentNode.selectSingleNode("BrachyIsotope");
             if (node!=null) {
-                clinicalEvent.addEventDatum("brachy_isotope", node.getText());
+                clinicalEvent.addEventDatum("brachyIsotope", node.getText());
             }
             
             node = treatmentNode.selectSingleNode("BrachyPrescribedDose");
@@ -290,7 +290,7 @@ public final class ImportCaisesClinicalXML {
             
             node = treatmentNode.selectSingleNode("BrachyDoseNotes");
             if (node!=null) {
-                clinicalEvent.addEventDatum("dose_notes", node.getText());
+                clinicalEvent.addEventDatum("doseNotes", node.getText());
             }
             
             clinicalEvents.add(clinicalEvent);
@@ -350,7 +350,7 @@ public final class ImportCaisesClinicalXML {
             
             node = diagnosticNode.selectSingleNode("DxNumNewTumors");
             if (node!=null) {
-                clinicalEvent.addEventDatum("num_new_tumors", node.getText());
+                clinicalEvent.addEventDatum("numNewTumors", node.getText());
             }
             
             clinicalEvents.add(clinicalEvent);
@@ -394,7 +394,7 @@ public final class ImportCaisesClinicalXML {
             
             node  = labTestNode.selectSingleNode("LabNormalRange");
             if (node!=null) {
-                clinicalEvent.addEventDatum("normal_range", node.getText());
+                clinicalEvent.addEventDatum("normalange", node.getText());
             }
             
             node  = labTestNode.selectSingleNode("LabNotes");

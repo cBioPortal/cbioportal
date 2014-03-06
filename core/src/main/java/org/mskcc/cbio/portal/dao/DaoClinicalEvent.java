@@ -52,33 +52,35 @@ public final class DaoClinicalEvent {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-           con = JdbcUtil.getDbConnection(DaoClinicalEvent.class);
-           
-           // get events first
-           pstmt = con.prepareStatement("SELECT * FROM clinical_event WHERE CANCER_STUDY_ID=? AND PATIENT_ID=?");
-           pstmt.setInt(1, cancerStudyId);
-           pstmt.setString(2, patientId);
-           
-           rs = pstmt.executeQuery();
-           Map<Long, ClinicalEvent> clinicalEvents = new HashMap<Long, ClinicalEvent>();
-           while (rs.next()) {
-              ClinicalEvent clinicalEvent = extractClinicalEvent(rs);
-              clinicalEvents.put(clinicalEvent.getClinicalEventId(), clinicalEvent);
-           }
-           
-           rs.close();
+            con = JdbcUtil.getDbConnection(DaoClinicalEvent.class);
+
+            // get events first
+            pstmt = con.prepareStatement("SELECT * FROM clinical_event WHERE CANCER_STUDY_ID=? AND PATIENT_ID=?");
+            pstmt.setInt(1, cancerStudyId);
+            pstmt.setString(2, patientId);
+
+            rs = pstmt.executeQuery();
+            Map<Long, ClinicalEvent> clinicalEvents = new HashMap<Long, ClinicalEvent>();
+            while (rs.next()) {
+               ClinicalEvent clinicalEvent = extractClinicalEvent(rs);
+               clinicalEvents.put(clinicalEvent.getClinicalEventId(), clinicalEvent);
+            }
+
+            rs.close();
            
            // get data then
-           pstmt = con.prepareStatement("SELECT * FROM clinical_event_data WHERE clinical_event_id in ("
-                   + StringUtils.join(clinicalEvents.entrySet(), ",") + ")");
-           
-           rs = pstmt.executeQuery();
-           while (rs.next()) {
-              long eventId = rs.getLong("CLINICAL_EVENT_ID");
-              clinicalEvents.get(eventId).addEventDatum(rs.getString("KEY"), rs.getString("VALUE"));
-           }
-           
-           return clinicalEvents.values();
+           if (!clinicalEvents.isEmpty()) {
+                pstmt = con.prepareStatement("SELECT * FROM clinical_event_data WHERE CLINICAL_EVENT_ID IN ("
+                        + StringUtils.join(clinicalEvents.keySet(), ",") + ")");
+
+                rs = pstmt.executeQuery();
+                while (rs.next()) {
+                   long eventId = rs.getLong("CLINICAL_EVENT_ID");
+                   clinicalEvents.get(eventId).addEventDatum(rs.getString("KEY"), rs.getString("VALUE"));
+                }
+            }
+
+            return clinicalEvents.values();
         } catch (SQLException e) {
            throw new DaoException(e);
         } finally {
@@ -93,7 +95,7 @@ public final class DaoClinicalEvent {
         clinicalEvent.setPatientId(rs.getString("PATIENT_ID"));
         clinicalEvent.setStartDate(JdbcUtil.readLongFromResultSet(rs, "START_DATE"));
         clinicalEvent.setStopDate(JdbcUtil.readLongFromResultSet(rs, "STOP_DATE"));
-        clinicalEvent.setEventType(rs.getString("TYPE"));
+        clinicalEvent.setEventType(rs.getString("EVENT_TYPE"));
         return clinicalEvent;
     }
     

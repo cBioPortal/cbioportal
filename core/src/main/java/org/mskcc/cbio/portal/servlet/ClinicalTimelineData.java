@@ -35,7 +35,7 @@ public class ClinicalTimelineData extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        Set<String> types = new HashSet<String>(Arrays.asList(request.getParameter("type").split("[ ,]+")));
+        //Set<String> types = new HashSet<String>(Arrays.asList(request.getParameter("type").split("[ ,]+")));
         int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(request.getParameter("cancer_study_id")).getInternalId();
         String patientId = request.getParameter("patient_id");
         

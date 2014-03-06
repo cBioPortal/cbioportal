@@ -642,61 +642,24 @@ CREATE TABLE `pdb_uniprot_alignment` (
   KEY(`PDB_ID`, `CHAIN`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
 
-drop table IF EXISTS treatment;
-CREATE TABLE `treatment` (
-  `TREATMENT_ID` int(255) NOT NULL auto_increment,
-  `CANCER_STUDY_ID` int(11) NOT NULL,
+drop table IF EXISTS clinical_event;
+CREATE TABLE `clinical_event` (
+  `CLINICAL_EVENT_ID` int NOT NULL auto_increment,
+  `CANCER_STUDY_ID` int NOT NULL,
   `PATIENT_ID` varchar(255) NOT NULL,
-  `START_DATE` int,
+  `START_DATE` int NOT NULL,
   `STOP_DATE` int,
-  `TYPE` varchar(20), # MEDICAL, Radiation
-  `SUBTYPE` varchar(20), # HORM, CHEMO, ...
-  `INDICATION` varchar(50),
-  `INTENT` varchar(50),
-  `TARGET` varchar(50),
-  `AGENT` varchar(50),
-  `ISOTOPE` varchar(50),
-  `DOSE` float,
-  `TOTAL_DOSE` float,
-  `UNIT` varchar(20),
-  `SCHEDULE` varchar(20), # daily, three times daily, ...
-  `ROUTE` varchar(20),
-  PRIMARY KEY (`TREATMENT_ID`),
+  `EVENT_TYPE` varchar(20) NOT NULL,
+  PRIMARY KEY (`CLINICAL_EVENT_ID`),
   KEY (`CANCER_STUDY_ID`, `PATIENT_ID`),
+  KEY (`CANCER_STUDY_ID`, `PATIENT_ID`, `EVENT_TYPE`),
   FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
 
-drop table IF EXISTS diagnostic;
-CREATE TABLE `diagnostic` (
-  `DIAGNOSTIC_ID` int(255) NOT NULL auto_increment,
-  `CANCER_STUDY_ID` int(11) NOT NULL,
-  `PATIENT_ID` varchar(255) NOT NULL,
-  `DATE` int,
-  `TYPE` varchar(30), # Bone scan, CT scan (for diagnostics), PCA, ACP (for lab tests)
-  `SIDE` varchar(50), 
-  `TARGET` varchar(255),
-  `RESULT` varchar(255),
-  `STATUS` varchar(255),
-  `IMAGE_BASELINE` varchar(20),
-  `NUM_NEW_TUMORS` int,
-  `NOTES` text,
-  PRIMARY KEY (`DIAGNOSTIC_ID`),
-  KEY (`CANCER_STUDY_ID`, `PATIENT_ID`),
-  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
-
-drop table IF EXISTS lab_test;
-CREATE TABLE `lab_test` (
-  `LAB_TEST_ID` int(255) NOT NULL auto_increment,
-  `CANCER_STUDY_ID` int(11) NOT NULL,
-  `PATIENT_ID` varchar(255) NOT NULL,
-  `DATE` int,
-  `TEST` varchar(30), # Bone scan, CT scan (for diagnostics), PCA, ACP (for lab tests)
-  `RESULT` varchar(30),
-  `UNIT` varchar(20),
-  `NORMAL_RANGE` varchar(255),
-  `NOTES` text,
-  PRIMARY KEY (`LAB_TEST_ID`),
-  KEY (`CANCER_STUDY_ID`, `PATIENT_ID`),
-  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
+drop table IF EXISTS clinical_event_data;
+CREATE TABLE `clinical_event_data` (
+  `CLINICAL_EVENT_ID` int(255) NOT NULL,
+  `KEY` varchar(255) NOT NULL,
+  `VALUE` varchar(5000) NOT NULL,
+  FOREIGN KEY (`CLINICAL_EVENT_ID`) REFERENCES `clinical_event` (`CLINICAL_EVENT_ID`) ON DELETE CASCADE
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;

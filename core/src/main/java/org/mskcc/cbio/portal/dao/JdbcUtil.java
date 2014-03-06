@@ -298,6 +298,11 @@ public class JdbcUtil {
         return rs.wasNull() ? null : i;
     }
     
+    static Long readLongFromResultSet(ResultSet rs, String column) throws SQLException {
+        long l = rs.getInt(column);
+        return rs.wasNull() ? null : l;
+    }
+    
     static Double readDoubleFromResultSet(ResultSet rs, String column) throws SQLException {
         double d = rs.getDouble(column);
         return rs.wasNull() ? null : d;

@@ -7,10 +7,8 @@ package org.mskcc.cbio.portal.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -18,23 +16,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
-import org.mskcc.cbio.portal.dao.DaoDiagnostic;
+import org.mskcc.cbio.portal.dao.DaoClinicalEvent;
 import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoLabTest;
-import org.mskcc.cbio.portal.dao.DaoTreatment;
-import org.mskcc.cbio.portal.model.Diagnostic;
-import org.mskcc.cbio.portal.model.LabTest;
-import org.mskcc.cbio.portal.model.Treatment;
+import org.mskcc.cbio.portal.model.ClinicalEvent;
 
 /**
  *
  * @author jgao
  */
 public class ClinicalTimelineData extends HttpServlet {
-    
-    public final static String TREATMENT = "treatment";
-    public final static String DIAGNOSTIC = "diagnostic";
-    public final static String LAB_TEST = "lab_test";
     
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -49,53 +39,10 @@ public class ClinicalTimelineData extends HttpServlet {
         int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(request.getParameter("cancer_study_id")).getInternalId();
         String patientId = request.getParameter("patient_id");
         
-        HashMap result = new HashMap();
+        Collection<ClinicalEvent> clinicalEvents;
         
         try {
-            if (types.contains(TREATMENT)) {
-                List<Treatment> treatments = DaoTreatment.getTreatment(cancerStudyId, patientId);
-                if (!treatments.isEmpty()) {
-                    result.put(TREATMENT, treatments);
-                }
-            }
-
-            if (types.contains(DIAGNOSTIC)) {
-                List<Diagnostic> diagnostics = DaoDiagnostic.getDiagnostic(cancerStudyId, patientId);
-                if (!diagnostics.isEmpty()) {
-                    result.put(DIAGNOSTIC, diagnostics);
-                }
-            }
-
-            if (types.contains(LAB_TEST)) {
-                List<LabTest> labTests = DaoLabTest.getLabTest(cancerStudyId, patientId);
-                if (!labTests.isEmpty()) {
-                    result.put(LAB_TEST, labTests);
-                }
-            }
-        } catch (DaoException ex) {
-            throw new ServletException(ex);
-        }
-        
-        
-        response.setContentType("application/json");
-        PrintWriter out = response.getWriter();
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            mapper.writeValue(out, result);
-        } finally {            
-            out.close();
-        }
-        
-    }
-    
-    private void processGetTreatmentDataRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(request.getParameter("cancer_study_id")).getInternalId();
-        String patientId = request.getParameter("patient_id");
-        
-        List<Treatment> treatments = Collections.emptyList();
-        try {
-            treatments = DaoTreatment.getTreatment(cancerStudyId, patientId);
+            clinicalEvents = DaoClinicalEvent.getClinicalEvent(cancerStudyId, patientId);
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }
@@ -104,51 +51,7 @@ public class ClinicalTimelineData extends HttpServlet {
         PrintWriter out = response.getWriter();
         ObjectMapper mapper = new ObjectMapper();
         try {
-            mapper.writeValue(out, treatments);
-        } finally {            
-            out.close();
-        }
-    }
-    
-    private void processGetDiagnosticDataRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(request.getParameter("cancer_study_id")).getInternalId();
-        String patientId = request.getParameter("patient_id");
-        
-        List<Diagnostic> diagnostics = Collections.emptyList();
-        try {
-            diagnostics = DaoDiagnostic.getDiagnostic(cancerStudyId, patientId);
-        } catch (DaoException ex) {
-            throw new ServletException(ex);
-        }
-        
-        response.setContentType("application/json");
-        PrintWriter out = response.getWriter();
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            mapper.writeValue(out, diagnostics);
-        } finally {            
-            out.close();
-        }
-    }
-    
-    private void processGetLabTestDataRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(request.getParameter("cancer_study_id")).getInternalId();
-        String patientId = request.getParameter("patient_id");
-        
-        List<LabTest> labTests = Collections.emptyList();
-        try {
-            labTests = DaoLabTest.getLabTest(cancerStudyId, patientId);
-        } catch (DaoException ex) {
-            throw new ServletException(ex);
-        }
-        
-        response.setContentType("application/json");
-        PrintWriter out = response.getWriter();
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            mapper.writeValue(out, labTests);
+            mapper.writeValue(out, clinicalEvents);
         } finally {            
             out.close();
         }

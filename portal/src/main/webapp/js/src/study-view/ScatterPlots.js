@@ -563,46 +563,77 @@ var ScatterPlots = function() {
         clickCallback(_shiftClickedCases);
     }
     
-    function brushended() {
+    function brushended(event) {
         var _brushedCases = [],
             _totalHighlightIds = [];
-        _brushedCases.length = 0;
+        
         var extent = elem.brush.extent();
+        var _isShift = window.event.shiftKey ? true : false;
         
+        _brushedCases.length = 0;
         
-        elem.dotsGroup.selectAll("path").each(function(d) {
-            var _attrType,
-                _x = $(this).attr("x_val"),
-                _y = $(this).attr("y_val");    
-                
-            if (_x > extent[0][0] && _x < extent[1][0] &&
-                _y > extent[0][1] && _y < extent[1][1]) {
-                //TODO: does not work with log scale applied scenario
-                $(this).attr('clicked','shiftClicked');
-                changeClickStyle(this);
-                _brushedCases.push(d.case_id);
-            }
-            if(_attrType === 'clicked'){
-                $(this).attr('clicked','shiftClicked');
-                changeClickStyle(this);
-            }
-            
-            _attrType = pointClickType(this);
-            if(_attrType !== 'none'){
-                _totalHighlightIds.push(d.case_id);
-            }
-        });
-        
-        if(_brushedCases.length === 0){
+        if(_isShift){
             elem.dotsGroup.selectAll("path").each(function(d) {
-                //var _attrType = pointClickType(this);
-                //if(_attrType !== 'none'){
+                var _attrType = pointClickType(this),
+                    _x = $(this).attr("x_val"),
+                    _y = $(this).attr("y_val");    
+
+                if (_x > extent[0][0] && _x < extent[1][0] &&
+                    _y > extent[0][1] && _y < extent[1][1]) {
+                    if(_attrType === 'shiftClicked'){
+                        $(this).removeAttr('clicked');
+                    }else{
+                        $(this).attr('clicked','shiftClicked');
+                        _brushedCases.push(d.case_id);
+                    }
+                    changeClickStyle(this);
+                }
+                if(_attrType === 'clicked'){
+                    $(this).attr('clicked','shiftClicked');
+                    changeClickStyle(this);
+                    _brushedCases.push(d.case_id);
+                }
+
+                _attrType = pointClickType(this);
+                if(_attrType !== 'none'){
+                    _totalHighlightIds.push(d.case_id);
+                }
+            });
+            
+        }else{
+            elem.dotsGroup.selectAll("path").each(function(d) {
+                var _attrType = pointClickType(this),
+                    _x = $(this).attr("x_val"),
+                    _y = $(this).attr("y_val");    
+
+                if (_x > extent[0][0] && _x < extent[1][0] &&
+                    _y > extent[0][1] && _y < extent[1][1]) {
+                    //TODO: does not work with log scale applied scenario
+                    $(this).attr('clicked','shiftClicked');
+                    changeClickStyle(this);
+                    _brushedCases.push(d.case_id);
+                }else{
+                    if(_attrType !== 'none'){
+                        $(this).removeAttr('clicked');
+                        changeClickStyle(this);
+                    }
+                }
+                
+                _totalHighlightIds = _brushedCases;
+            });
+        }
+        
+        if(_totalHighlightIds.length === 0){
+            elem.dotsGroup.selectAll("path").each(function(d) {
+                var _attrType = pointClickType(this);
+                if(_attrType !== 'none'){
                     $(this).removeAttr('clicked');
-                //}
-                changeClickStyle(this);
+                    changeClickStyle(this);
+                }
                 _totalHighlightIds = []
             });
         }
+        
         
         d3.select(".brush").call(elem.brush.clear());
         updateBrushCallback(_totalHighlightIds);

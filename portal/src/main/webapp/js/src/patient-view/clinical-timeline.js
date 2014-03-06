@@ -106,7 +106,7 @@
             .attr("class", "timeline-viz-elem")
             .style("fill", function(d, i){ 
               if( colorPropertyName ){ 
-                return colorCycle( datum[colorPropertyName] ) 
+                return colorCycle( d[colorPropertyName] ) 
               } 
               return colorCycle(index);  
             })
@@ -305,12 +305,13 @@
         }
         
         function getTreatmentAgent(treatment) {
-            var agent = treatment.eventData.agent;
+            var eventData = treatment["eventData"];
+            var agent = eventData["agent"];
             if (cbio.util.checkNullOrUndefined(agent)) {
-                agent = treatment.eventData.subtype;
+                agent = eventData["subtype"];
             }
             if (cbio.util.checkNullOrUndefined(agent)) {
-                agent = treatment.eventData.type;
+                agent = eventData["type"];
             }
             return agent;
         }
@@ -333,12 +334,22 @@
                 var dates = getStartStopDates(treatment);
                 for (var row=0; row<ret.length; row++) {
                     var currStopDate = getStartStopDates(ret[row][ret[row].length-1])[1]; // assume sorted
-                    if (dates[0]>currStopDate) break;
+                    if (dates[0]>=currStopDate) break;
                 }
                 if (row===ret.length) ret.push([]);
                 ret[row].push(treatment);
             });
             return ret;
+        }
+        
+        function getColor(timePointData) {
+            if (timePointData["eventType"]==="treatment")
+                return getTreatmentAgent(timePointData);
+            if (timePointData["eventType"]==="lab_test")
+                return timePointData["eventData"]["test"];
+            if (timePointData["eventType"]==="diagnostic")
+                return timePointData["eventData"]["type"];
+            return timePointData["eventType"];
         }
         
         function formatATimePoint(timePointData) {
@@ -357,6 +368,7 @@
             return {
                 starting_time : dates[0],
                 ending_time : dates[1],
+                color: getColor(timePointData),
                 tooltip : "<table class='timeline-tooltip-table uninitialized'><thead><tr><th>&nbsp;</th><th>&nbsp;</th></tr></thead><tr>" + tooltip.join("</tr><tr>") + "</tr></table>"
             };
         }

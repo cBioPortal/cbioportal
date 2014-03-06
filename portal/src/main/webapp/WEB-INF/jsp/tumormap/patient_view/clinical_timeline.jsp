@@ -51,7 +51,7 @@
                 if (timeData.length===0) return;
 
                 var width = $("#td-content").width() - 50;
-                var timeline = clinicalTimeline().itemHeight(12).stack();
+                var timeline = clinicalTimeline().itemHeight(12).colorProperty('color').stack();
                 var svg = d3.select("#timeline").append("svg").attr("width", width).datum(timeData).call(timeline);
                 $("#timeline-container").show();
             }

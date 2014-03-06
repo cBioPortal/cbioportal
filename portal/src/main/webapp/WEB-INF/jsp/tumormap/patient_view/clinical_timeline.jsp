@@ -48,6 +48,7 @@
                 if (cbio.util.getObjectLength(data)===0) return;
                 
                 var timeData = prepareTimelineData(data);
+                if (timeData.length===0) return;
 
                 var width = $("#td-content").width() - 50;
                 var timeline = clinicalTimeline().itemHeight(12).stack();
@@ -58,24 +59,32 @@
         );
             
         function prepareTimelineData(timelineData) {
+            var timelineDataByType = {};
+            
+            timelineData.forEach(function(data) {
+                var type = data["eventType"];
+                if (!(type in timelineDataByType)) timelineDataByType[type] = [];
+                timelineDataByType[type].push(data);
+            });
+            
             var ret = [];
             
-            if ("diagnostic" in timelineData) {
+            if ("diagnostic" in timelineDataByType) {
                 ret.push({
                     label:"Diagnostics",
                     display:"circle",
-                    times:formatTimePoints(timelineData["diagnostic"])});
+                    times:formatTimePoints(timelineDataByType["diagnostic"])});
             }
             
-            if ("lab_test" in timelineData) {
+            if ("lab_test" in timelineDataByType) {
                 ret.push({
                     label:"Lab Tests",
                     display:"circle",
-                    times:formatTimePoints(timelineData["lab_test"])});
+                    times:formatTimePoints(timelineDataByType["lab_test"])});
             }
             
-            if ("treatment" in timelineData) {
-                var treatments = timelineData["treatment"].sort(function(a,b){return a.startDate-b.startDate});
+            if ("treatment" in timelineDataByType) {
+                var treatments = timelineDataByType["treatment"].sort(function(a,b){return a.startDate-b.startDate;});
                 var treatmentGroups = separateTreatmentsByAgent(treatments);
                 for (var agent in treatmentGroups) {
                     ret.push({
@@ -103,20 +112,18 @@
         
         function formatATimePoint(timePointData) {
             var startDate, stopDate;
-            if ("date" in timePointData) {
-                startDate = timePointData["date"];
-                stopDate = startDate;
-            } else {
-                startDate = timePointData["startDate"];
-                stopDate = timePointData["stopDate"];
-            }
+            startDate = timePointData["startDate"];
+            stopDate = timePointData["stopDate"];
+            if (cbio.util.checkNullOrUndefined(stopDate)) stopDate = startDate;
             
             var tooltip = [];
-            for (var key in timePointData) {
-                if (key.match(/(diagnosticId)|(treatmentId)|(labTestId)|(cancerStudyId)|(patientId)/)) continue;
-                var value = timePointData[key];
-                if (value===null) continue;
-                tooltip.push("<td>"+key+"</td><td>"+value+"</td>");
+            tooltip.push("<td>startDate</td><td>"+startDate+"</td>");
+            tooltip.push("<td>stopDate</td><td>"+stopDate+"</td>");
+            if ("eventData" in timePointData) {
+                var eventData = timePointData["eventData"];
+                for (var key in eventData) {
+                    tooltip.push("<td>"+key+"</td><td>"+eventData[key]+"</td>");
+                }
             }
             
             return {
@@ -129,12 +136,12 @@
         function separateTreatmentsByAgent(treatments) {
             var ret = {};
             treatments.forEach(function(treatment) {
-                var agent = treatment.agent;
-                if (agent===null) {
-                    agent = treatment.subtype;
+                var agent = treatment.eventData.agent;
+                if (cbio.util.checkNullOrUndefined(agent)) {
+                    agent = treatment.eventData.subtype;
                 }
-                if (agent===null) {
-                    agent = treatment.type;
+                if (cbio.util.checkNullOrUndefined(agent)) {
+                    agent = treatment.eventData.type;
                 }
                 if (!(agent in ret)) {
                     ret[agent] = [];

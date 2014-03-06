@@ -19,6 +19,8 @@ var MutationDetailsEvents = (function()
 	var _pdbPanelResizeEnded = "mutationPdbPanelResizeEnded";
 	var _panelChainSelected = "mutationPdbPanelChainSelected";
 	var _tableChainSelected = "mutationPdbTableChainSelected";
+	var _tableChainMouseout = "mutationPdbTableChainMouseout";
+	var _tableChainMouseover = "mutationPdbTableChainMouseover";
 	var _pdbTableInit = "mutationPdbTableInitialized";
 	var _geneTabSelected = "mutationDetailsGeneTabSelected";
 	var _geneTabsCreated = "mutationDetailsGeneTabsCreated";
@@ -38,6 +40,8 @@ var MutationDetailsEvents = (function()
 		PDB_PANEL_RESIZE_ENDED: _pdbPanelResizeEnded,
 		PANEL_CHAIN_SELECTED: _panelChainSelected,
 		TABLE_CHAIN_SELECTED: _tableChainSelected,
+		TABLE_CHAIN_MOUSEOUT: _tableChainMouseout,
+		TABLE_CHAIN_MOUSEOVER: _tableChainMouseover,
 		PDB_TABLE_INIT: _pdbTableInit,
 		GENE_TAB_SELECTED: _geneTabSelected,
 		GENE_TABS_CREATED: _geneTabsCreated,

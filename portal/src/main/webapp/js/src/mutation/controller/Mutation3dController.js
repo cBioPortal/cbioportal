@@ -97,10 +97,16 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 
 	function view3dPanelCloseHandler()
 	{
-		// hide the corresponding pdb panel view
+		// hide the corresponding pdb panel and table views
+
 		if (_pdbPanelView)
 		{
 			_pdbPanelView.hideView();
+		}
+
+		if (_pdbTableView)
+		{
+			_pdbTableView.hideView();
 		}
 	}
 
@@ -153,6 +159,7 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 		var datum = element.datum();
 		mut3dVisView.updateView(geneSymbol, datum.pdbId, datum.chain, callback);
 
+		// TODO do not update if the event is triggered by the table itself
 		// also update the pdb table (highlight the corresponding row)
 		if (_pdbTableView != null)
 		{
@@ -165,6 +172,20 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 		if (pdbId && chainId)
 		{
 			_pdbPanelView.selectChain(pdbId, chainId);
+		}
+	}
+
+	function tableMouseoutHandler()
+	{
+		_pdbPanelView.pdbPanel.minimizeToHighlighted();
+	}
+
+	function tableMouseoverHandler(pdbId, chainId)
+	{
+		if (pdbId && chainId)
+		{
+			_pdbPanelView.pdbPanel.minimizeToChain(
+				_pdbPanelView.pdbPanel.getChainGroup(pdbId, chainId));
 		}
 	}
 
@@ -328,7 +349,8 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 					panelResizeEndHandler);
 			}
 
-			// init pdb panel view if not initialized yet
+			// TODO do not init here, init on demand (button click, or mouseover, etc.)
+			// init pdb table view if not initialized yet
 			if (_pdbTableView == null)
 			{
 				_pdbTableView = mainMutationView.initPdbTableView(pdbColl);
@@ -341,6 +363,16 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 				_pdbTableView.pdbTable.dispatcher.on(
 					MutationDetailsEvents.TABLE_CHAIN_SELECTED,
 					tableChainSelectHandler);
+
+				_pdbTableView.pdbTable.dispatcher.on(
+					MutationDetailsEvents.TABLE_CHAIN_MOUSEOUT,
+					tableMouseoutHandler);
+
+				_pdbTableView.pdbTable.dispatcher.on(
+					MutationDetailsEvents.TABLE_CHAIN_MOUSEOVER,
+					tableMouseoverHandler);
+
+				_pdbTableView.showView();
 			}
 
 			// reload the visualizer content with the given pdb and chain

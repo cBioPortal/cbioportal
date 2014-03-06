@@ -229,6 +229,26 @@ function MutationPdbTable(options, headers)
 				data[indexMap["pdb id"]],
 				data[indexMap["chain"]]);
 		});
+
+		// TODO mouse over/out actions do not work as desired
+
+		$(_options.el).on("mouseleave", "table", function (event) {
+			//var data = _dataTable.fnGetData(this);
+
+			// trigger corresponding event
+//			_dispatcher.trigger(
+//				MutationDetailsEvents.TABLE_CHAIN_MOUSEOUT);
+		});
+
+		$(_options.el).on("mouseenter", "tr", function (event) {
+			var data = _dataTable.fnGetData(this);
+
+			// trigger corresponding event
+//			_dispatcher.trigger(
+//				MutationDetailsEvents.TABLE_CHAIN_MOUSEOVER,
+//				data[indexMap["pdb id"]],
+//				data[indexMap["chain"]]);
+		});
 	}
 
 	function selectRow(pdbId, chainId)

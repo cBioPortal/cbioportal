@@ -880,8 +880,18 @@ function MutationPdbPanel(options, data, proxy, xScale)
 
 		// 3 transitions in parallel:
 
+		// TODO shifting all chains causes problems with multiple transitions
 		// 1) shift all chains up, such that selected chain will be on top
-		shiftToChain(chainGroup);
+		//shiftToChain(chainGroup);
+
+		// 1) reposition the given chain..
+		moveToFirstRow(chainGroup, callback);
+
+		//..and the selection rectangle if the chain is highlighted
+		if (chainGroup == _highlighted)
+		{
+			moveToFirstRow(_svg.selectAll(".pdb-selection-rectangle-group"));
+		}
 
 		// 2) fade-out all chains (except selected) and labels
 		fadeOutOthers(chainGroup);
@@ -894,9 +904,6 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		_svg.transition().duration(duration)
 			.attr("height", collapsedHeight)
 			.each("end", function(){
-				if (_.isFunction(callback)) {
-					callback();
-				}
 				dispatchResizeEndEvent(collapsedHeight);
 			});
 	}
@@ -942,6 +949,37 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	}
 
 	/**
+	 * Moves the given chainGroup to the first row.
+	 *
+	 * @param chainGroup
+	 * @param callback
+	 */
+	function moveToFirstRow(chainGroup, callback)
+	{
+		var duration = _options.animationDuration;
+
+		// first row coordinates...
+		// (we can also use the default chain coordinates)
+		var y = _options.marginTop;
+		var height = _options.chainHeight;
+
+		// move chain group rectangles and lines
+		chainGroup.selectAll("line")
+			.transition().duration(duration)
+			.attr('y1', y + height/2)
+			.attr('y2', y + height/2);
+
+		chainGroup.selectAll("rect")
+			.transition().duration(duration)
+			.attr('y', y)
+			.each("end", function() {
+                if (_.isFunction(callback)) {
+					callback();
+				}
+			});
+	}
+
+	/**
 	 * Fades out all other element except the ones in
 	 * the given chain group.
 	 *
@@ -954,6 +992,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		var datum = chainGroup.datum();
 		var key = PdbDataUtil.chainKey(datum.pdbId, datum.chain.chainId);
 
+		// fade out all chain rectangles but the given
 		_svg.selectAll(".pdb-chain-group")
 			.transition().duration(duration)
 			.attr("opacity", function(datum) {
@@ -962,6 +1001,19 @@ function MutationPdbPanel(options, data, proxy, xScale)
 					return 1;
 				} else {
 					// hide all the others
+					return 0;
+				}
+			});
+
+		// also fade out selection rectangle if the given chain is not selected
+		_svg.selectAll(".pdb-selection-rectangle-group")
+			.transition().duration(duration)
+			.attr("opacity", function(datum) {
+				if (_highlighted == chainGroup) {
+					// do not hide the selection rectangle
+					return 1;
+				} else {
+					// hide the selection rectangle
 					return 0;
 				}
 			});
@@ -1057,6 +1109,10 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		// fade-in hidden elements
 
 		_svg.selectAll(".pdb-chain-group")
+			.transition().duration(duration)
+			.attr("opacity", 1);
+
+		_svg.selectAll(".pdb-selection-rectangle-group")
 			.transition().duration(duration)
 			.attr("opacity", 1);
 

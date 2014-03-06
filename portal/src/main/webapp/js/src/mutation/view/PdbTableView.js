@@ -36,8 +36,8 @@ var PdbTableView = Backbone.View.extend({
 	{
 		var self = this;
 
-		// TODO hide view initially
-		//self.$el.hide();
+		// hide view initially
+		self.$el.hide();
 	},
 	hideView: function()
 	{

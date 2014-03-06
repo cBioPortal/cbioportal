@@ -304,20 +304,39 @@
             return [startDate, stopDate];
         }
         
+        function getTreatmentAgent(treatment) {
+            var agent = treatment.eventData.agent;
+            if (cbio.util.checkNullOrUndefined(agent)) {
+                agent = treatment.eventData.subtype;
+            }
+            if (cbio.util.checkNullOrUndefined(agent)) {
+                agent = treatment.eventData.type;
+            }
+            return agent;
+        }
+        
         function separateTreatmentsByAgent(treatments) {
             var ret = {};
             treatments.forEach(function(treatment) {
-                var agent = treatment.eventData.agent;
-                if (cbio.util.checkNullOrUndefined(agent)) {
-                    agent = treatment.eventData.subtype;
-                }
-                if (cbio.util.checkNullOrUndefined(agent)) {
-                    agent = treatment.eventData.type;
-                }
+                var agent = getTreatmentAgent(treatment);
                 if (!(agent in ret)) {
                     ret[agent] = [];
                 }
                 ret[agent].push(treatment);
+            });
+            return ret;
+        }
+        
+        function separateTreatmentsByTime(treatments) {
+            var ret = [];
+            treatments.forEach(function(treatment) {
+                var dates = getStartStopDates(treatment);
+                for (var row=0; row<ret.length; row++) {
+                    var currStopDate = getStartStopDates(ret[row][ret[row].length-1])[1]; // assume sorted
+                    if (dates[0]>currStopDate) break;
+                }
+                if (row===ret.length) ret.push([]);
+                ret[row].push(treatment);
             });
             return ret;
         }
@@ -377,12 +396,12 @@
             
             if ("treatment" in timelineDataByType) {
                 var treatments = timelineDataByType["treatment"].sort(function(a,b){return a.startDate-b.startDate;});
-                var treatmentGroups = separateTreatmentsByAgent(treatments);
-                for (var agent in treatmentGroups) {
+                var treatmentGroups = separateTreatmentsByTime(treatments);
+                for (var i in treatmentGroups) {
                     ret.push({
-                        label:agent,
+                        label:"Treatment",
                         display:"rect",
-                        times:formatTimePoints(treatmentGroups[agent])});
+                        times:formatTimePoints(treatmentGroups[i])});
                 }
             }
             

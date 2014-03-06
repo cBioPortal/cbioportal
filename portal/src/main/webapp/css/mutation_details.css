@@ -40,6 +40,9 @@
 	width: 670px;
 	padding-left: 40px;
 }
+.mutation-pdb-table-view .pdb-chain-table-loader {
+	padding-left: 40px;
+}
 .mutation-pdb-table-view {
 	margin-bottom: 10px;
 }

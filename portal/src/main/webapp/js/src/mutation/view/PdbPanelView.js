@@ -62,11 +62,17 @@ var PdbPanelView = Backbone.View.extend({
 			});
 		}
 
-		self.$el.mouseenter(function(evt) {
+		var pdbTableButton = self.$el.find(".init-pdb-table");
+
+//		pdbTableButton.button({
+//			icons: {primary: "ui-icon-triangle-2-n-s"},
+//			});
+
+		self.$el.find(".mutation-pdb-panel-container").mouseenter(function(evt) {
 			self.autoExpand();
 		});
 
-		self.$el.mouseleave(function(evt) {
+		self.$el.find(".mutation-pdb-panel-container").mouseleave(function(evt) {
 			self.autoCollapse();
 		});
 	},
@@ -79,6 +85,18 @@ var PdbPanelView = Backbone.View.extend({
 	{
 		var self = this;
 		self.$el.slideDown();
+	},
+	/**
+	 * Adds a callback function for the PDB panel init button.
+	 *
+	 * @param callback  function to be invoked on click
+	 */
+	addInitCallback: function(callback) {
+		var self = this;
+		var pdbTableButton = self.$el.find(".init-pdb-table");
+
+		// add listener to 3D init button
+		pdbTableButton.click(callback);
 	},
 	/**
 	 * Selects the default pdb and chain for the 3D visualizer.

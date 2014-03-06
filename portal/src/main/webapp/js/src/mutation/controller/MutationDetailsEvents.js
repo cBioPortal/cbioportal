@@ -21,7 +21,7 @@ var MutationDetailsEvents = (function()
 	var _tableChainSelected = "mutationPdbTableChainSelected";
 	var _tableChainMouseout = "mutationPdbTableChainMouseout";
 	var _tableChainMouseover = "mutationPdbTableChainMouseover";
-	var _pdbTableInit = "mutationPdbTableInitialized";
+	var _pdbTableReady = "mutationPdbTableReady";
 	var _geneTabSelected = "mutationDetailsGeneTabSelected";
 	var _geneTabsCreated = "mutationDetailsGeneTabsCreated";
 	var _3dPanelClosed = "mutation3dPanelClosed";
@@ -42,7 +42,7 @@ var MutationDetailsEvents = (function()
 		TABLE_CHAIN_SELECTED: _tableChainSelected,
 		TABLE_CHAIN_MOUSEOUT: _tableChainMouseout,
 		TABLE_CHAIN_MOUSEOVER: _tableChainMouseover,
-		PDB_TABLE_INIT: _pdbTableInit,
+		PDB_TABLE_READY: _pdbTableReady,
 		GENE_TAB_SELECTED: _geneTabSelected,
 		GENE_TABS_CREATED: _geneTabsCreated,
 		VIEW_3D_PANEL_CLOSED: _3dPanelClosed

@@ -387,7 +387,11 @@
 			<td valign="top">
 				<div class='mutation-pdb-panel-container'></div>
 			</td>
-			<td></td>
+			<td valign="top">
+				<button class='init-pdb-table'>
+					<label>Show PDB Chain Table</label>
+				</button>
+			</td>
 		</tr>
 		<tr>
 			<td valign="top" align="center">

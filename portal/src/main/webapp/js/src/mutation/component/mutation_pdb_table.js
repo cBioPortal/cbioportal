@@ -142,7 +142,7 @@ function MutationPdbTable(options, headers)
 			"fnInitComplete": function(oSettings, json) {
 				// trigger corresponding event
 				_dispatcher.trigger(
-					MutationDetailsEvents.PDB_TABLE_INIT);
+					MutationDetailsEvents.PDB_TABLE_READY);
 			}
 		};
 

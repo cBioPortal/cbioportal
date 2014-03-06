@@ -189,7 +189,36 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 		}
 	}
 
-	function pdbTableInitHandler()
+	function initPdbTable(pdbColl)
+	{
+		// init pdb table view if not initialized yet
+		if (_pdbTableView == null &&
+		    pdbColl.length > 0)
+		{
+			_pdbTableView = mainMutationView.initPdbTableView(pdbColl);
+
+			// add listeners to the custom event dispatcher of the pdb table
+			_pdbTableView.pdbTable.dispatcher.on(
+				MutationDetailsEvents.PDB_TABLE_READY,
+				pdbTableReadyHandler);
+
+			_pdbTableView.pdbTable.dispatcher.on(
+				MutationDetailsEvents.TABLE_CHAIN_SELECTED,
+				tableChainSelectHandler);
+
+			_pdbTableView.pdbTable.dispatcher.on(
+				MutationDetailsEvents.TABLE_CHAIN_MOUSEOUT,
+				tableMouseoutHandler);
+
+			_pdbTableView.pdbTable.dispatcher.on(
+				MutationDetailsEvents.TABLE_CHAIN_MOUSEOVER,
+				tableMouseoverHandler);
+		}
+
+		_pdbTableView.showView();
+	}
+
+	function pdbTableReadyHandler()
 	{
 		if (_pdbPanelView != null)
 		{
@@ -347,32 +376,11 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 				_pdbPanelView.pdbPanel.dispatcher.on(
 					MutationDetailsEvents.PDB_PANEL_RESIZE_ENDED,
 					panelResizeEndHandler);
-			}
 
-			// TODO do not init here, init on demand (button click, or mouseover, etc.)
-			// init pdb table view if not initialized yet
-			if (_pdbTableView == null)
-			{
-				_pdbTableView = mainMutationView.initPdbTableView(pdbColl);
-
-				// add listeners to the custom event dispatcher of the pdb table
-				_pdbTableView.pdbTable.dispatcher.on(
-					MutationDetailsEvents.PDB_TABLE_INIT,
-					pdbTableInitHandler);
-
-				_pdbTableView.pdbTable.dispatcher.on(
-					MutationDetailsEvents.TABLE_CHAIN_SELECTED,
-					tableChainSelectHandler);
-
-				_pdbTableView.pdbTable.dispatcher.on(
-					MutationDetailsEvents.TABLE_CHAIN_MOUSEOUT,
-					tableMouseoutHandler);
-
-				_pdbTableView.pdbTable.dispatcher.on(
-					MutationDetailsEvents.TABLE_CHAIN_MOUSEOVER,
-					tableMouseoverHandler);
-
-				_pdbTableView.showView();
+				// add listeners for the mutation 3d view
+				_pdbPanelView.addInitCallback(function(event) {
+					initPdbTable(pdbColl);
+				});
 			}
 
 			// reload the visualizer content with the given pdb and chain

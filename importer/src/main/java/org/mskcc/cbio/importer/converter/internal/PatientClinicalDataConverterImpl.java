@@ -81,9 +81,14 @@ public class PatientClinicalDataConverterImpl extends ClinicalDataConverterImpl 
 
         List<DataMatrix> dataMatrixList = new ArrayList<DataMatrix>(Arrays.asList(dataMatrices));
         DataMatrix patientMatrix = removeMatrix(dataMatrixList, DatatypeMetadata.CLINICAL_PATIENT_FILE_REGEX);
+        if (patientMatrix == null) {
+            logMessage(LOG, "createStagingFile(), cannot find patient matrix, aborting...");
+        }
         DataMatrix nteMatrix = removeMatrix(dataMatrixList, DatatypeMetadata.CLINICAL_NTE_FILE_REGEX);
         List<DataMatrix> followUps = getSortedFollowUpMatrices(dataMatrixList);
-        insertNTEMatrixInFollowUpList(followUps, nteMatrix);
+        if (nteMatrix != null) {
+            insertNTEMatrixInFollowUpList(followUps, nteMatrix);
+        }
 
         processPatientMatrix(cancerStudyMetadata, patientMatrix, followUps);
 
@@ -101,8 +106,7 @@ public class PatientClinicalDataConverterImpl extends ClinicalDataConverterImpl 
                 return dataMatrix;
             }
         }
-        logMessage(LOG, "createStagingFile(), cannot find required matrix, aborting.");
-        throw new IllegalArgumentException("Cannot find required matrix, aborting");
+        return null;
     }
 
     // includes both patient and nte files - which is ok

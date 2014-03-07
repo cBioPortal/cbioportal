@@ -22,6 +22,7 @@ var StudyViewInitCharts = (function(){
         brushedCaseIds = [],
         dataType = {},
         shiftClickedCaseIds = [],
+        columnIndexMappingColumnId = {},
         chartColors = ["#3366cc","#dc3912","#ff9900","#109618",
             "#990099","#0099c6","#dd4477","#66aa00",
             "#b82e2e","#316395","#994499","#22aa99",
@@ -1314,9 +1315,12 @@ var StudyViewInitCharts = (function(){
             });
         });
         //Add th tags based on number of attributes
-        for(var i=0 ; i<tmpA.length ; i++)
+        for(var i=0 ; i<tmpA.length ; i++){
             $("#dataTable tfoot tr").append("<th></th>");
-       
+            columnIndexMappingColumnId[i] = i;
+        }
+        
+        
         var dataTable1 = $('#dataTable').dataTable({
             "sScrollX": "1200px",
             "sScrollY": "300px",
@@ -1324,9 +1328,26 @@ var StudyViewInitCharts = (function(){
             "bScrollCollapse": true,
             "aoColumns": tmpA,
             "aaData":tmpB,
-            "sDom": '<"dataTableTop"i<"dataTableReset">f>rt'
+            "sDom": '<"dataTableTop"Ci<"dataTableReset">f>rt',
+            "fnDrawCallback": function(oSettings){
+                if($(".ColVis_collection.TableTools_collection").css('display') === 'block'){
+                    var _currentIndex= 0 ;
+                    columnIndexMappingColumnId = {};
+                    $.each(dataTable1.fnSettings().aoColumns, function(c){
+                        if(dataTable1.fnSettings().aoColumns[c].bVisible === true){
+                            columnIndexMappingColumnId[_currentIndex] = c;
+                            _currentIndex++;
+                        }
+                    });
+                    $("#dataTable_filter label input").attr("value","");
+                    $.fn.dataTableExt.afnFiltering = [];
+                    disableFiltId = [0];
+                    refreshSelectionInDataTable(dataTable1);
+                    $(".dataTableReset span").css('display','none');
+                }
+            }
         });
-        
+        $(".ColVis_MasterButton").css({height:'auto', padding:'0 4px'})
         $(".dataTableReset").append("<a><span class='hidden' title='Reset Chart'>RESET</span></a>");
         $("#dataTable_filter label input").attr("value","");
         $('#study-view-dataTable-header').unbind('click');
@@ -1490,7 +1511,7 @@ var StudyViewInitCharts = (function(){
         $(".dataTables_scrollFoot tfoot th").each( function ( i ) {
             if(disableFiltId.indexOf(i) === -1){                
                 $(this).css('z-index','1500');
-                this.innerHTML = fnCreateSelect( _dataTable.fnGetColumnData(i), i);
+                this.innerHTML = fnCreateSelect( _dataTable.fnGetColumnData(columnIndexMappingColumnId[i]), i);
                 
                 var drag = d3.behavior.drag()
                         .on("drag", dragMove)
@@ -1503,7 +1524,7 @@ var StudyViewInitCharts = (function(){
                         
                 $("#dataTable-" + i + "-reset").unbind('click');
                 $("#dataTable-" + i + "-reset").click(function(){
-                    dataTableNumericFilter[i] = '';
+                    dataTableNumericFilter[columnIndexMappingColumnId[i]] = '';
                     updateDataTableNumericFilter(_dataTable);
                     disableFiltId.splice(disableFiltId.indexOf(i),1);
                     resizeLeftColumn();
@@ -1515,7 +1536,7 @@ var StudyViewInitCharts = (function(){
                 
                 $('select', this).change( function () {
                     if($(this).val() === ''){
-                        _dataTable.fnFilter($(this).val(), i);
+                        _dataTable.fnFilter($(this).val(), columnIndexMappingColumnId[i]);
                         disableFiltId.splice(disableFiltId.indexOf(i),1);
                     }else{
                         var _selectedString = $(this).val().toString(),
@@ -1527,7 +1548,7 @@ var StudyViewInitCharts = (function(){
                                 _selectedString = _selectedString.replace(re ,"\\"+ specialChar[j]);
                             } 
                         }
-                        _dataTable.fnFilter("^"+_selectedString+"$", i, true);
+                        _dataTable.fnFilter("^"+_selectedString+"$", columnIndexMappingColumnId[i], true);
                         disableFiltId.push(i);
                     }
                     
@@ -1574,10 +1595,10 @@ var StudyViewInitCharts = (function(){
                         _min = _max;
                     }
                     
-                    dataTableNumericFilter[i] = function( oSettings, aData, iDataIndex ) {
+                    dataTableNumericFilter[columnIndexMappingColumnId[i]] = function( oSettings, aData, iDataIndex ) {
                                 var iMin = _min;
                                 var iMax = _max;
-                                var iVersion = aData[i];
+                                var iVersion = aData[columnIndexMappingColumnId[i]];
                                 if ( iMin == "" && iMax == "" )
                                 {
                                         return true;
@@ -1598,7 +1619,7 @@ var StudyViewInitCharts = (function(){
                         };
                     updateDataTableNumericFilter(_dataTable);
                     
-                    _dataTable.fnSort([ [i,'asc']]);
+                    _dataTable.fnSort([ [columnIndexMappingColumnId[i],'asc']]);
                     disableFiltId.push(i);
                     resizeLeftColumn();
                     showDataTableReset(_dataTable);

@@ -415,6 +415,12 @@ pieH3{
 .clickable:hover{
     cursor: pointer;
 }
+.ColVis_Button {
+    white-space: nowrap;
+}
+.ColVis_MasterButton {
+    border-radius: 5px;
+}
 /* tag styles */
 /*
 ul {

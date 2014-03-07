@@ -15,7 +15,7 @@
 <script src="js/src/study-view/StudyViewControl.js"></script>
 <script src="js/src/study-view/data/StudyViewProxy.js"></script>
 <script src="js/src/study-view/view/StudyViewInitCharts.js"></script>
-<script src="js/src/study-view/main.js"></script> 
+<script src="js/src/study-view/main.js"></script>
 
 <div id="dc-plots-loading-wait">
     <img src="images/ajax-loader.gif"/>

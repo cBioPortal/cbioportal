@@ -432,6 +432,7 @@ var ScatterPlots = function() {
         var click = function(){
             
             if(d3.event.shiftKey){
+                d3.event.preventDefault();
                 shiftclicked(this);
             }else{
                 clicked(this);

@@ -178,7 +178,7 @@ var promptMutsigTable = function() {
             "aoColumns": [
                 null,
                 null,
-                null,
+                { "sType" : "numeric"},
                 { "bSortable" : false, "sWidth": "5%" }
             ],
             "bPaginate": false,

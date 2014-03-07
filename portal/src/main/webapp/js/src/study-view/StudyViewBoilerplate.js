@@ -5,7 +5,7 @@
  */
 
 var StudyViewBoilerplate ={
-    headerCaseSelectCustomDialog :{
+    headerCaseSelectCustomDialog: {
         id: 'modal', // Since we're only creating one modal, give it an ID so we can style it
         content: {
                 text: '',
@@ -26,6 +26,16 @@ var StudyViewBoilerplate ={
         hide: false,
         style: 'qtip-light qtip-rounded qtip-wide'
     },
+    chartColors: [
+        "#3366cc","#dc3912","#ff9900","#109618",
+        "#990099","#0099c6","#dd4477","#66aa00",
+        "#b82e2e","#316395","#994499","#22aa99",
+        "#aaaa11","#6633cc","#e67300","#8b0707",
+        "#651067","#329262","#5574a6","#3b3eac",
+        "#b77322","#16d620","#b91383","#f4359e",
+        "#9c5935","#a9c413","#2a778d","#668d1c",
+        "#bea413","#0c5922","#743411"
+    ],
     pieLabelQtip: {
         content:{text: ""},
         style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
@@ -33,7 +43,7 @@ var StudyViewBoilerplate ={
         hide: {fixed:true, delay: 100, event: "mouseout"},
         position: {my:'right bottom',at:'top left'}
     },
-    scatterPlotDataAttr : {
+    scatterPlotDataAttr: {
         min_x: 0,
         max_x: 0,
         min_y: 0,
@@ -44,7 +54,7 @@ var StudyViewBoilerplate ={
     },
 
     scatterPlotOptions: {
-        canvas : {  //position of components
+        canvas: {  //position of components
             width: 560,
             height: 440,
             xLeft: 100,     //The left/starting point for x axis
@@ -52,7 +62,7 @@ var StudyViewBoilerplate ={
             yTop: 10,      //The top/ending point for y axis
             yBottom: 350   //The bottom/starting point for y axis
         },
-        style : { //Default style setting
+        style: { //Default style setting
             fill: "#3366cc", //light blue
             stroke: "#0174DF", //dark blue
             stroke_width: "1.2",
@@ -71,7 +81,7 @@ var StudyViewBoilerplate ={
             download_pdf: "study-view-scatter-plot-pdf",
             download_svg: "study-view-scatter-plot-svg"         
         },
-        elem : {
+        elem: {
             svg: "",
             xScale: "",
             yScale: "",

@@ -82,7 +82,6 @@
 		</table>
 	</div>
 	<div class="mutation-pdb-panel-view"></div>
-	<div class="mutation-pdb-table-view"></div>
 	<div class='mutation-details-filter-info'>
 		Current view shows filtered results.
 		Click <a class='mutation-details-filter-reset'>here</a> to reset all filters.
@@ -382,25 +381,28 @@
 </script>
 
 <script type="text/template" id="pdb_panel_view_template">
-	<table>
+	<table class='mutation-pdb-main-container'>
 		<tr>
 			<td valign="top">
 				<div class='mutation-pdb-panel-container'></div>
 			</td>
-			<td valign="top">
-				<button class='init-pdb-table'>
-					<label>Show PDB Chain Table</label>
-				</button>
-			</td>
 		</tr>
 		<tr>
 			<td valign="top" align="center">
-				<div class='mutation-pdb-panel-controls'>
-					<button class='expand-collapse-pdb-panel'
-					        title='Expand/Collapse PDB Chains'></button>
-				</div>
+				<button class='expand-collapse-pdb-panel'
+				        title='Expand/Collapse PDB Chains'></button>
 			</td>
-			<td></td>
+		</tr>
+		<tr class='pdb-table-controls'>
+			<td>
+				<a href="#" class='init-pdb-table'>PDB Chain Table &#187</a>
+				<a href="#" class='close-pdb-table'>hide table</a>
+			</td>
+		</tr>
+		<tr class='pdb-table-wrapper'>
+			<td>
+				<div class="mutation-pdb-table-view"></div>
+			</td>
 		</tr>
 	</table>
 </script>
@@ -641,10 +643,13 @@
 		Gaps within the chains are represented by a thin line connecting the segments of the chain.<br>
 		<br>
 		By default, only a first few rows are displayed.
-		To see more chains, click on the expand/collapse button below the panel.<br>
+		To see more chains, use the scroll bar next to the panel.
+		To see the detailed list of all available PDB chains in a table
+		click on the link below the panel.<br>
 		<br>
 		To select a chain, simply click on it.
 		Selected chain is highlighted with a different frame color.
+		You can also select a chain by clicking on a row in the table.
 		Selecting a chain reloads the PDB data for the 3D structure visualizer.
 	</span>
 </script>

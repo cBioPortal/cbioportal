@@ -42,15 +42,12 @@ var PdbPanelView = Backbone.View.extend({
 		self.$el.hide();
 
 		// format panel controls
-
 		var expandButton = self.$el.find(".expand-collapse-pdb-panel");
+		var pdbTableClose = self.$el.find(".close-pdb-table");
+		var pdbTableControls = self.$el.find(".pdb-table-controls");
 
-		// hide expand button if there is no more chain to show
-		if (!self.pdbPanel.hasMoreChains())
-		{
-			expandButton.hide();
-		}
-		else
+		// format the expand button if there are more chains to show
+		if (self.pdbPanel.hasMoreChains())
 		{
 			expandButton.button({
 				icons: {primary: "ui-icon-triangle-2-n-s"},
@@ -62,17 +59,24 @@ var PdbPanelView = Backbone.View.extend({
 			});
 		}
 
-		var pdbTableButton = self.$el.find(".init-pdb-table");
+		// initially hide controls
+		expandButton.hide();
+		pdbTableControls.hide();
+		pdbTableClose.hide();
 
-//		pdbTableButton.button({
-//			icons: {primary: "ui-icon-triangle-2-n-s"},
-//			});
+		pdbTableClose.click(function(event) {
+			if (self.pdbTableView)
+			{
+				self.pdbTableView.hideView();
+				self.toggleTableControls();
+			}
+		});
 
-		self.$el.find(".mutation-pdb-panel-container").mouseenter(function(evt) {
+		self.$el.find(".mutation-pdb-main-container").mouseenter(function(evt) {
 			self.autoExpand();
 		});
 
-		self.$el.find(".mutation-pdb-panel-container").mouseleave(function(evt) {
+		self.$el.find(".mutation-pdb-main-container").mouseleave(function(evt) {
 			self.autoCollapse();
 		});
 	},
@@ -86,6 +90,24 @@ var PdbPanelView = Backbone.View.extend({
 		var self = this;
 		self.$el.slideDown();
 	},
+	initPdbTableView: function(pdbColl)
+	{
+		var self = this;
+
+		var tableOpts = {
+			el: self.$el.find(".mutation-pdb-table-view"),
+			model: {geneSymbol: self.model.geneSymbol,
+				pdbColl: pdbColl,
+				pdbProxy: self.model.pdbProxy}
+		};
+
+		var pdbTableView = new PdbTableView(tableOpts);
+		pdbTableView.render();
+
+		self.pdbTableView = pdbTableView;
+
+		return pdbTableView;
+	},
 	/**
 	 * Adds a callback function for the PDB panel init button.
 	 *
@@ -93,10 +115,22 @@ var PdbPanelView = Backbone.View.extend({
 	 */
 	addInitCallback: function(callback) {
 		var self = this;
-		var pdbTableButton = self.$el.find(".init-pdb-table");
+		var pdbTableInit = self.$el.find(".init-pdb-table");
 
-		// add listener to 3D init button
-		pdbTableButton.click(callback);
+		// add listener to pdb table init button
+		pdbTableInit.click(function(event) {
+			event.preventDefault();
+			callback(event);
+		});
+	},
+	toggleTableControls: function()
+	{
+		var self = this;
+		var pdbTableInit = self.$el.find(".init-pdb-table");
+		var pdbTableClose = self.$el.find(".close-pdb-table");
+
+		pdbTableClose.toggle();
+		pdbTableInit.toggle();
 	},
 	/**
 	 * Selects the default pdb and chain for the 3D visualizer.
@@ -108,21 +142,14 @@ var PdbPanelView = Backbone.View.extend({
 		var panel = self.pdbPanel;
 		var gChain = panel.getDefaultChainGroup();
 
-		// clear previous timer
-		if (self.collapseTimer != null)
-		{
-			clearTimeout(self.collapseTimer);
-		}
+		// clear previous timers
+		self.clearTimers();
 
 		// restore to full view
 		panel.restoreToFull(function() {
 			// highlight the default chain
 			panel.highlight(gChain);
 		});
-
-		// TODO call this in the controller?
-		// initiate auto-collapse
-		self.autoCollapse();
 	},
 	/**
 	 * Selects the given pdb and chain for the 3D visualizer.
@@ -151,11 +178,6 @@ var PdbPanelView = Backbone.View.extend({
 			{
 				panel.highlight(gChain);
 			}
-
-			// TODO call this in the controller?
-			self.autoCollapse(0);
-			// minimize to selected
-			//panel.minimizeToHighlighted();
 		});
 	},
 	getSelectedChain: function()
@@ -179,6 +201,8 @@ var PdbPanelView = Backbone.View.extend({
 
 		var self = this;
 		var expandButton = self.$el.find(".expand-collapse-pdb-panel");
+		var pdbTableControls = self.$el.find(".pdb-table-controls");
+		var pdbTableWrapper = self.$el.find(".pdb-table-wrapper");
 
 		// clear previous timers
 		self.clearTimers();
@@ -187,6 +211,8 @@ var PdbPanelView = Backbone.View.extend({
 		self.collapseTimer = setTimeout(function() {
 			self.pdbPanel.minimizeToHighlighted();
 			expandButton.slideUp();
+			pdbTableControls.slideUp();
+			pdbTableWrapper.slideUp();
 		}, delay);
 	},
 	/**
@@ -203,6 +229,8 @@ var PdbPanelView = Backbone.View.extend({
 
 		var self = this;
 		var expandButton = self.$el.find(".expand-collapse-pdb-panel");
+		var pdbTableControls = self.$el.find(".pdb-table-controls");
+		var pdbTableWrapper = self.$el.find(".pdb-table-wrapper");
 
 		// clear previous timers
 		self.clearTimers();
@@ -215,6 +243,9 @@ var PdbPanelView = Backbone.View.extend({
 			{
 				expandButton.slideDown();
 			}
+
+			pdbTableControls.slideDown();
+			pdbTableWrapper.slideDown();
 		}, delay);
 	},
 	/**
@@ -277,7 +308,8 @@ var PdbPanelView = Backbone.View.extend({
 			// set margin same as the diagram margin for correct alignment with x-axis
 			var options = {el: self.$el.find(".mutation-pdb-panel-container"),
 				marginLeft: mutationDiagram.options.marginLeft,
-				marginRight: mutationDiagram.options.marginRight};
+				marginRight: mutationDiagram.options.marginRight,
+				maxHeight: 200};
 
 			// init panel
 			panel = new MutationPdbPanel(options, pdbColl, pdbProxy, xScale);

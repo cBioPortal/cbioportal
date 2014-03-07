@@ -29,23 +29,36 @@
 	padding-right: 15%;
 	margin-bottom: 0;
 }
-.mutation-pdb-table-view .pdb-chain-table {
+.mutation-pdb-main-container .pdb-chain-table {
 	font-size: 90%;
 	color: black;
 }
-.mutation-pdb-table-view .pdb-chain-table td {
+.mutation-pdb-main-container .pdb-chain-table td {
 	font-size: 100%;
 }
-.mutation-pdb-table-view .pdb-chain-table-container {
+.mutation-pdb-main-container .pdb-chain-table-container {
 	width: 670px;
 	padding-left: 40px;
 }
-.mutation-pdb-table-view .pdb-chain-table-loader {
+.mutation-pdb-main-container .pdb-chain-table-loader {
 	padding-left: 40px;
 }
-.mutation-pdb-table-view {
+.mutation-pdb-main-container {
 	margin-bottom: 10px;
 }
+.mutation-pdb-main-container .mutation-pdb-panel-container {
+	overflow: hidden;
+	max-height: 200px;
+}
+.pdb-table-controls .init-pdb-table {
+	padding-left: 45px;
+	float: left;
+}
+.pdb-table-controls .close-pdb-table {
+	padding-right: 45px;
+	float: right;
+}
+
 .mutation-table-container .ColVis {
 	float: left;
 	padding-right: 25%;
@@ -224,10 +237,6 @@ th.mutation-pdb-table-column {
 .pdb-chain-group{
 	cursor: pointer;
 }
-.mutation-pdb-panel-container {
-	overflow: hidden;
-}
-
 /**
  * 3D visualizer panel
  */

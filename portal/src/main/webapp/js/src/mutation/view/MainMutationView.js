@@ -123,25 +123,6 @@ var MainMutationView = Backbone.View.extend({
 
 		return pdbPanelView;
 	},
-	initPdbTableView: function(pdbColl)
-	{
-		var self = this;
-
-		var tableOpts = {
-			//el: "#mutation_pdb_panel_view_" + gene.toUpperCase(),
-			el: self.$el.find(".mutation-pdb-table-view"),
-			model: {geneSymbol: self.model.geneSymbol,
-				pdbColl: pdbColl,
-				pdbProxy: self.model.pdbProxy}
-		};
-
-		var pdbTableView = new PdbTableView(tableOpts);
-		pdbTableView.render();
-
-		self._pdbTableView = pdbTableView;
-
-		return pdbTableView;
-	},
 	/**
 	 * Generates a one-line summary of the mutation data.
 	 *

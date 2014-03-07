@@ -19,7 +19,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		elWidth: 740,       // width of the container
 		elHeight: "auto",   // height of the container
 		maxHeight: 200,     // max height of the container
-		numRows: [8, Infinity], // number of rows to be to be displayed for each expand request
+		numRows: [Infinity], // number of rows to be to be displayed for each expand request
 		marginLeft: 45,     // left margin
 		marginRight: 30,    // right margin
 		marginTop: 2,       // top margin
@@ -35,6 +35,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		labelYPaddingTopH: 7,    // padding between y-axis and its label (horizontal alignment)
 		labelYPaddingRightV: 25, // padding between y-axis and its label (vertical alignment)
 		labelYPaddingTopV: 20,   // padding between y-axis and its label (vertical alignment)
+		labelAlignThreshold: 5,  // threshold to determine horizontal or vertical alignment
 		chainBorderColor: "#666666", // border color of the chain rectangles
 		chainBorderWidth: 0.5,       // border width of the chain rectangles
 		highlightBorderColor: "#FF9900", // color of the highlight rect border
@@ -276,7 +277,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		var orient = "vertical";
 
 		// horizontal orientation for small number of rows
-		if (_rowData.length < options.numRows[0])
+		if (_rowData.length < options.labelAlignThreshold)
 		{
 			x = options.marginLeft - options.labelYPaddingRightH;
 			y = options.marginTop + options.labelYPaddingTopH;

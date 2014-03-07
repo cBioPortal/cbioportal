@@ -103,11 +103,6 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 		{
 			_pdbPanelView.hideView();
 		}
-
-		if (_pdbTableView)
-		{
-			_pdbTableView.hideView();
-		}
 	}
 
 	function mut3dInitHandler(event)
@@ -193,9 +188,10 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 	{
 		// init pdb table view if not initialized yet
 		if (_pdbTableView == null &&
+		    _pdbPanelView != null &&
 		    pdbColl.length > 0)
 		{
-			_pdbTableView = mainMutationView.initPdbTableView(pdbColl);
+			_pdbTableView = _pdbPanelView.initPdbTableView(pdbColl);
 
 			// add listeners to the custom event dispatcher of the pdb table
 			_pdbTableView.pdbTable.dispatcher.on(
@@ -215,7 +211,12 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 				tableMouseoverHandler);
 		}
 
-		_pdbTableView.showView();
+		if (_pdbPanelView != null &&
+		    _pdbTableView != null)
+		{
+			_pdbPanelView.toggleTableControls();
+			_pdbTableView.showView();
+		}
 	}
 
 	function pdbTableReadyHandler()
@@ -400,6 +401,9 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 					// select default chain if none provided
 					_pdbPanelView.selectDefaultChain();
 				}
+
+				// initiate auto-collapse
+				_pdbPanelView.autoCollapse();
 			}
 		};
 

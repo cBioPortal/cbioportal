@@ -120,7 +120,7 @@ class ConverterImpl implements Converter {
 			// short circuit if this is a published study
 			if (!cancerStudyMetadata.isConverted()) {
 				if (LOG.isInfoEnabled()) {
-					LOG.info("convertData(), skipping conversion of published study: " + cancerStudyMetadata);
+					LOG.info("convertData(), skipping conversion of study: " + cancerStudyMetadata);
 				}
 				continue;
 			}

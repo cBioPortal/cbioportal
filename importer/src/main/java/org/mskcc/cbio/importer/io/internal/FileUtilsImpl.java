@@ -513,67 +513,6 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			writer.close();
 	}
 
-    @Override
-    public Set<String> getPatientListFromAllCases(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata) throws Exception
-    {
-        CaseListMetadata caseListMetadata = config.getCaseListMetadata(CaseListMetadata.ALL_CASES_FILENAME).iterator().next();
-		File allCaseFile = org.apache.commons.io.FileUtils.getFile(stagingDirectory,
-																   cancerStudyMetadata.getStudyPath(),
-                                                                   "case_lists",
-                                                                   caseListMetadata.getCaseListFilename());
-
-        LinkedHashSet<String> patients = new LinkedHashSet<String>();
-        for (String line : org.apache.commons.io.FileUtils.readLines(allCaseFile, "UTF-8")) {
-            if (line.startsWith("case_list_ids: ")) {
-                String[] parts = line.split(": ");
-                if (parts.length == 2) {
-                    patients.addAll(Arrays.asList(parts[1].split("\t")));
-                    break;
-                }
-            }
-        }
-
-        return patients;
-    }
-
-    @Override
-    public Set<String> getPatientListFromStagingData(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata) throws Exception
-    {
-        CaseListMetadata caseListMetadata = config.getCaseListMetadata(CaseListMetadata.ALL_CASES_FILENAME).iterator().next();
-        String[] stagingFilenames = caseListMetadata.getStagingFilenames().split("\\" + CaseListMetadata.CASE_LIST_UNION_DELIMITER);
-        LinkedHashSet<String> patients = new LinkedHashSet<String>();
-        for (String stagingFilename : stagingFilenames) {
-            List<String> thisPatientList = getCaseListFromStagingFile(true, caseIDs, cancerStudyMetadata, stagingDirectory, stagingFilename);
-            if (!thisPatientList.isEmpty()) {
-                patients.addAll(thisPatientList);
-            }
-        }
-        return patients;
-    }
-
-	@Override
-	public void writePatientListFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata, Set<String> patients) throws Exception
-    {
-        File patientFile = org.apache.commons.io.FileUtils.getFile(stagingDirectory,
-                                                                   cancerStudyMetadata.getStudyPath(),
-                                                                   cancerStudyMetadata.getCancerStudyPatientListFilename());
-        if (LOG.isInfoEnabled()) {
-            LOG.info("writePatientListFile(), patient file: " + patientFile);
-        }
-
-        if (!patients.isEmpty()) {
-            PrintWriter writer = new PrintWriter(org.apache.commons.io.FileUtils.openOutputStream(patientFile, false));
-            for (String patient : patients) {
-                writer.println(patient);
-            }
-            writer.flush();
-            writer.close();
-        }
-        else if (LOG.isInfoEnabled()) {
-            LOG.info("writePatientListFile(), patient file is empty!");
-        }
-    }
-
 	public void writeMetadataFile(String stagingDirectory,
 			CancerStudyMetadata cancerStudyMetadata,
 			DatatypeMetadata datatypeMetadata,

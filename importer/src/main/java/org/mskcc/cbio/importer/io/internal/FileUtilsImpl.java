@@ -193,7 +193,10 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
             }
             File dataFile = new File(fileCanonicalPath);
             InputStream is = org.apache.commons.io.FileUtils.openInputStream(dataFile);
-            dataMatrices.add(getDataMatrix(dataFile.getName(), is, methylationCorrelation));
+            DataMatrix m = getDataMatrix(dataFile.getName(), is, methylationCorrelation);
+            if (m != null) {
+	            dataMatrices.add(m);
+	        }
             IOUtils.closeQuietly(is);
         }
 
@@ -984,7 +987,10 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
                 IOUtils.closeQuietly(tis);
             }
             else {
-                toReturn.add(getDataMatrix(dataFile.getName(), unzippedContent, methylationCorrelation));
+            	DataMatrix m = getDataMatrix(dataFile.getName(), unzippedContent, methylationCorrelation);
+            	if (m != null) {
+                	toReturn.add(m);
+            	}
                 IOUtils.closeQuietly(unzippedContent);
             }
         }

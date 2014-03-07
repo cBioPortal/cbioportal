@@ -975,7 +975,10 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
                         if (LOG.isInfoEnabled()) {
                             LOG.info("Processing tar-archive: " + importDataRecord.getDataFilename());
                         }
-                        toReturn.add(getDataMatrix(entryName, tis, methylationCorrelation));
+                        DataMatrix m = getDataMatrix(entryName, tis, methylationCorrelation);
+                        if (m != null) {
+	                        toReturn.add(m);
+	                    }
                     }
                 }
                 IOUtils.closeQuietly(tis);

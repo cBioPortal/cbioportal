@@ -287,7 +287,8 @@ public class GeneticAlterationUtil {
         for (String patientId : targetCaseList) {
             Patient patient = DaoPatient.getPatientByStableId(patientId);
             for (Sample sample : DaoSample.getSamplesByInternalPatientId(patient.getInternalId())) {
-                if (sample.getType() == Sample.Type.PRIMARY_SOLID_TUMOR) {
+                if (sample.getType() != Sample.Type.SOLID_NORMAL &&
+                    sample.getType() != Sample.Type.BLOOD_NORMAL) {
                     sampleIds.add(sample.getStableId());
                 }
             }

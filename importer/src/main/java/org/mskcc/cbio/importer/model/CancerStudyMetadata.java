@@ -46,8 +46,6 @@ public class CancerStudyMetadata {
 	private static final String CANCER_STUDY_METADATA_FILE_EXT = ".txt";
 	private static final String CANCER_STUDY_METADATA_FILE = "meta_study" + CANCER_STUDY_METADATA_FILE_EXT;
 
-    private static final String CANCER_STUDY_PATIENT_LIST_FILE = "patient_list.txt";
-
 	// cancer study identifier delimiter (used in metadata files)
 	private static final String CANCER_STUDY_IDENTIFIER_DELIMITER = "_";
 
@@ -55,9 +53,6 @@ public class CancerStudyMetadata {
 	public static final String NUM_CASES_TAG = "<NUM_CASES>";
 	public static final String TUMOR_TYPE_TAG = "<TUMOR_TYPE>";
 	public static final String TUMOR_TYPE_NAME_TAG = "<TUMOR_TYPE_NAME>";
-
-	// these suffix identifies a published study
-	public static final String PUBLISHED_TCGA_STUDY_SUFFIX = "tcga_pub";
 
 	// bean properties
 	private String name;
@@ -69,20 +64,21 @@ public class CancerStudyMetadata {
 	private String center;
 	private String lab;
 	private String groups;
+	private String shortName;
+	private Boolean convert;
 
     /**
      * Create a CancerStudyMetadata instance with properties in given array.
 	 * ITs assumed order of properties is that from google worksheet.
 	 * cancerStudyPath is of the form brca/tcga/pub that you would find 
-	 * on the google spreadsheet cancer_studies worksheet.
-	 *
+	 * on the google spreadsheet cancer_studies worksheet
 	 * All portal columns are ignored (anything > 1)
      *
 	 * @param properties String[]
      */
     public CancerStudyMetadata(String[] properties) {
 
-		if (properties.length < 5) {
+		if (properties.length < 7) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
 
@@ -107,6 +103,8 @@ public class CancerStudyMetadata {
 		this.citation = properties[3].trim();
 		this.pmid = properties[4].trim();
 		this.groups = properties[5].trim();
+		this.shortName = properties[6].trim();
+		this.convert = new Boolean(properties[7].trim());
 	}
 
 	public String getName() { return name; }
@@ -124,13 +122,12 @@ public class CancerStudyMetadata {
 	public String getCitation() { return citation; }
 	public String getPMID() { return pmid; }
 	public String getGroups() { return groups; }
+	public String getShortName() { return shortName; }	
+	public Boolean isConverted() { return convert; }
 
 	public String getCancerStudyMetadataFilename() {
+		//return getStudyPath() + File.separator + toString() + CANCER_STUDY_METADATA_FILE_EXT;
 		return CANCER_STUDY_METADATA_FILE;
-	}
-
-	public String getCancerStudyPatientListFilename() {
-        return CANCER_STUDY_PATIENT_LIST_FILE;
 	}
 
 	public String toString() {

@@ -118,7 +118,7 @@ class ConverterImpl implements Converter {
 		for (CancerStudyMetadata cancerStudyMetadata : config.getCancerStudyMetadata(portalMetadata.getName())) {
 
 			// short circuit if this is a published study
-			if (cancerStudyMetadata.toString().endsWith(CancerStudyMetadata.PUBLISHED_TCGA_STUDY_SUFFIX)) {
+			if (!cancerStudyMetadata.isConverted()) {
 				if (LOG.isInfoEnabled()) {
 					LOG.info("convertData(), skipping conversion of published study: " + cancerStudyMetadata);
 				}

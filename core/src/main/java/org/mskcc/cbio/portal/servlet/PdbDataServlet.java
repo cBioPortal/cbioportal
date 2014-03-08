@@ -131,8 +131,15 @@ public class PdbDataServlet extends HttpServlet
 		{
 			try
 			{
-				String info = this.makeRequest(pdbId);
-				infoMap.put(pdbId, this.parsePdbInfo(info));
+				String rawData = this.makeRequest(pdbId);
+				Map<String, String> content = this.parsePdbFile(rawData);
+				Map<String, Object> info = new HashMap<String, Object>();
+
+				info.put("title", this.parseTitle(content.get("title")));
+				info.put("compound", this.parseCompound(content.get("compnd")));
+				info.put("source", this.parseCompound(content.get("source")));
+
+				infoMap.put(pdbId, info);
 			}
 			catch (IOException e)
 			{
@@ -144,41 +151,166 @@ public class PdbDataServlet extends HttpServlet
 		return infoMap;
 	}
 
-	/**
-	 * Parses the raw PDB info returned by the service, and creates
-	 * a human readable info string.
-	 *
-	 * @param rawInfo   raw data retrieved from the service
-	 * @return  a human readable info string
-	 */
-	protected String parsePdbInfo(String rawInfo)
+	protected Map<String, String> parsePdbFile(String rawInput)
 	{
-		String[] lines = rawInfo.split("\n");
-		StringBuilder sb = new StringBuilder();
+		String[] lines = rawInput.toLowerCase().split("\n");
 
-		// count for the number of "TITLE" lines
-		Integer count = 0;
+		// count for distinct identifiers
+		Map<String, Integer> countMap = new HashMap<String, Integer>();
+
+		// map of builders to build content for each identifier
+		Map<String, StringBuilder> contentMap = new HashMap<String, StringBuilder>();
+
+		// actual content map to return
+		Map<String, String> content = new HashMap<String, String>();
 
 		for (String line: lines)
 		{
-			count++;
+			String[] tokens = line.split("[\\s]+");
+
+			// first token is the identifier
+			if (tokens.length == 0)
+			{
+				// empty line, just skip
+				continue;
+			}
+
+			String identifier = tokens[0];
+
+			// get the corresponding count
+			Integer count = countMap.get(identifier);
+
+			if (count == null)
+			{
+				count = 0;
+			}
+
+			// update count
+			countMap.put(identifier, ++count);
 
 			String str = line;
 
-			// if there is more than one "TITLE" lines,
+			// if there is more than one identifier lines,
 			// than the line starts with the line number
 			// we should get rid of the line number as well
 			if (count > 1)
 			{
-				str = str.replace(count.toString(), "");
+				str = str.replaceFirst(count.toString(), "");
 			}
 
-			// get rid of the "TITLE"
-			str = str.toLowerCase().replaceAll("title", "").trim();
+			// get the corresponding string builder
+			StringBuilder sb = contentMap.get(identifier);
+
+			if (sb == null)
+			{
+				sb = new StringBuilder();
+				contentMap.put(identifier, sb);
+			}
+
+			// get rid of the identifier itself
+			str = str.replaceFirst(identifier, "").trim();
+
+			// append the parsed line
 			sb.append(str);
+			sb.append("\n");
+		}
+
+		for (String identifier: contentMap.keySet())
+		{
+			String value = contentMap.get(identifier).toString().trim();
+			content.put(identifier, value);
+		}
+
+		return content;
+	}
+
+	protected Map<String, Object> parseCompound(String rawInput)
+	{
+		String[] lines = rawInput.split("\n");
+		StringBuilder sb = new StringBuilder();
+		Map<String, Object> content = new HashMap<String, Object>();
+		Map<String, Object> mol = null;
+
+		// buffering lines (just in case if an entity consists of multiple lines)
+		StringBuilder buffer = new StringBuilder();
+
+		for (String line: lines)
+		{
+			buffer.append(line);
+
+			// process the buffer if line end with a semicolon
+			if (line.trim().endsWith(";"))
+			{
+				String[] tokens = buffer.toString().split(":");
+
+				if (tokens.length > 1)
+				{
+					String field = tokens[0].trim();
+					String value = tokens[1].trim();
+					// remove the semicolon
+					value = value.substring(0, value.length() - 1);
+					JSONArray list = null;
+
+					// create a new mapping object for each mol_id
+					if (field.equals("mol_id"))
+					{
+						mol = new HashMap<String, Object>();
+						content.put(value, mol);
+					}
+					// convert comma separated chain and gene lists into an array
+					else if (field.equals("chain") ||
+					         field.equals("gene"))
+					{
+						String[] values = value.split("[\\s,]+");
+						list = new JSONArray();
+						list.addAll(Arrays.asList(values));
+					}
+
+					// add the field for the current mol
+					if (mol != null)
+					{
+						if (list != null)
+						{
+							mol.put(field, list);
+						}
+						else
+						{
+							mol.put(field, value);
+						}
+					}
+				}
+
+				// reset buffer for the next entity
+				buffer = new StringBuilder();
+			}
+			else
+			{
+				// add a whitespace before adding the next line
+				buffer.append(" ");
+			}
+		}
+
+		return content;
+	}
+
+	/**
+	 * Parses the raw PDB info returned by the service, and creates
+	 * a human readable info string.
+	 *
+	 * @param rawTitle   data lines to process
+	 * @return  a human readable info string
+	 */
+	protected String parseTitle(String rawTitle)
+	{
+		String[] lines = rawTitle.split("\n");
+		StringBuilder sb = new StringBuilder();
+
+		for (String line: lines)
+		{
+			sb.append(line);
 
 			// whether to add a space at the end or not
-			if (!str.endsWith("-"))
+			if (!line.endsWith("-"))
 			{
 				sb.append(" ");
 			}
@@ -212,11 +344,13 @@ public class PdbDataServlet extends HttpServlet
 		String line;
 		StringBuilder sb = new StringBuilder();
 
-		// TODO break the loop after "TITLE" lines?
+		// TODO no need to read until the end of the file
 		while((line = in.readLine()) != null)
 		{
-			// only append "TITLE" lines
-			if (line.toLowerCase().startsWith("title"))
+			// only append specific lines
+			if (line.toLowerCase().startsWith("title") ||
+			    line.toLowerCase().startsWith("compnd") ||
+			    line.toLowerCase().startsWith("source"))
 			{
 				sb.append(line).append("\n");
 			}

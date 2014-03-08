@@ -64,6 +64,70 @@ var PdbDataUtil = (function()
 	}
 
 	/**
+	 * Generates a pdb info summary for the given full pdb info object
+	 * and the chain id.
+	 *
+	 * @param pdbInfo   pdb info data (retrieved from server)
+	 * @param chainId   chain id as a string
+	 * @returns {String} pdb summary string for the given chain
+	 */
+	function generatePdbInfoSummary(pdbInfo, chainId)
+	{
+		var summary = pdbInfo.title;
+
+		// TODO cache?
+
+		// get chain specific molecule info
+		for (var key in pdbInfo.compound)
+		{
+			var mol = pdbInfo.compound[key];
+
+			if (mol.molecule &&
+			    _.indexOf(mol.chain, chainId.toLowerCase()) != -1)
+			{
+				// chain is associated with this mol,
+				// get the organism info from the source
+
+				summary += " -- " + mol.molecule;
+				break;
+			}
+		}
+
+		return summary;
+	}
+
+	/**
+	 * Finds the organism for the given full pdb info object
+	 * and the chain id.
+	 *
+	 * @param pdbInfo   pdb info data (retrieved from server)
+	 * @param chainId   chain id as a string
+	 * @returns {String} organism data corresponding to the given chain
+	 */
+	function getOrganism(pdbInfo, chainId)
+	{
+		var organism = "NA";
+
+		// TODO cache?
+		for (var key in pdbInfo.compound)
+		{
+			var mol = pdbInfo.compound[key];
+
+			if (_.indexOf(mol.chain, chainId.toLowerCase()) != -1)
+			{
+				// chain is associated with this mol,
+				// get the organism info from the source
+				organism = pdbInfo.source[mol.mol_id].organism_scientific ||
+				           organism;
+
+				break;
+			}
+		}
+
+		return organism;
+	}
+
+	/**
 	 * Merge alignments in the given array.
 	 *
 	 * @param alignments    an array of PdbAlignmentModel instances
@@ -595,6 +659,8 @@ var PdbDataUtil = (function()
 		mutationToPdb: mutationToPdb,
 		allocateChainRows: allocateChainRows,
 		mergeAlignments: mergeAlignments,
+		generatePdbInfoSummary: generatePdbInfoSummary,
+		getOrganism: getOrganism,
 		chainKey: chainKey
 	};
 })();

@@ -109,8 +109,8 @@ var PdbTableView = Backbone.View.extend({
 						chain.mergedAlignment.uniprotTo,
 						null,
 						chain.mergedAlignment.identityPerc,
-						"TODO",
-						data[pdb.pdbId]]
+						PdbDataUtil.getOrganism(data[pdb.pdbId], chain.chainId),
+						PdbDataUtil.generatePdbInfoSummary(data[pdb.pdbId], chain.chainId)]
 					);
 				})
 			});

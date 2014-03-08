@@ -32,7 +32,7 @@ function MutationPdbTable(options, headers)
 			"pdb id": "visible",
 			"chain": "visible",
 			"uniprot positions": "visible",
-			"identitiy percent": "visible",
+			"identity percent": "hidden",
 			"organism": "visible",
 			"summary": "visible",
 			"uniprot from": "excluded",

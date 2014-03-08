@@ -55,7 +55,8 @@ function MutationPdbPanel(options, data, proxy, xScale)
 
 				if (pdbInfo)
 				{
-					summary = pdbInfo[datum.pdbId];
+					summary = PdbDataUtil.generatePdbInfoSummary(
+						pdbInfo[datum.pdbId], datum.chain.chainId);
 				}
 
 				// init tip view

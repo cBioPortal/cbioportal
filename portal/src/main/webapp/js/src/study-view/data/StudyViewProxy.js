@@ -1,7 +1,6 @@
 /* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * This class is used to retrive data from webservice, mutaton and cna servlets
+ * including all date and date attributes
  */
 
 
@@ -14,16 +13,16 @@ var StudyViewProxy = (function() {
         mutationProfileId: "",
         caseSetId: ""
     };
-    var usefulData = {};
-    var dataObject = {}; 
-    var caseIdStr = '';
-    var webserviceData = {};
-    var clinicalAttributesData = {};
-    var mutationsData = {};
-    var cnaData = {};
-    var obtainDataObject = [];
+
+    var caseIdStr = '',
+        webserviceData = {},
+        clinicalAttributesData = {},
+        mutationsData = {},
+        cnaData = {},
+        obtainDataObject = [];
+        
     obtainDataObject['attr'] = [];
-    obtainDataObject['dataObjectM'] = [];
+    obtainDataObject['arr'] = [];
     
     function initLocalParameters(o){
         parObject.studyId = o.studyId;
@@ -34,6 +33,7 @@ var StudyViewProxy = (function() {
         caseIdStr = parObject.caseIds.join(' ');
     }
     
+    //By using POST method in Ajax, the Ajax should be created.
     function initAjaxParameters(){
         webserviceData = {
             cmd: "getClinicalData",
@@ -64,79 +64,91 @@ var StudyViewProxy = (function() {
                 $.ajax({type: "POST", url: "cna.json", data: cnaData}))
 
             .done(function(a1, a2, a3){
-                usefulData = a1[0]['data'];
+                var _dataAttrMapArr = [], //Map attrbute value with attribute name for each datum
+                    _keyNumMapping = [],
+                    _data = a1[0]['data'],
+                    _dataAttrOfa1 = a1[0]['attributes'],
+                    _dataLength = _data.length,
+                    _globalCaseIdsLength = parObject.caseIds.length;
 
-                for(var i=0; i < usefulData.length;i++){
-                    if(usefulData[i]["sample"] in dataObject){
-                        dataObject[usefulData[i]["sample"]][usefulData[i]["attr_id"]] = usefulData[i]["attr_val"];
+                //Reorganize data into wanted format datum[ caseID ][ Attribute Name ] = Attribute Value
+                //The original data structure is { attr_id: , attr_va: , sample}
+                for(var i = 0; i < _dataLength; i++){
+                    if(_data[i]["sample"] in _dataAttrMapArr){
+                        _dataAttrMapArr[_data[i]["sample"]][_data[i]["attr_id"]] = _data[i]["attr_val"];
                     }
                     else{
-                        dataObject[usefulData[i]["sample"]] = [];
-                        dataObject[usefulData[i]["sample"]][usefulData[i]["attr_id"]] = usefulData[i]["attr_val"];
+                        _dataAttrMapArr[_data[i]["sample"]] = [];
+                        _dataAttrMapArr[_data[i]["sample"]][_data[i]["attr_id"]] = _data[i]["attr_val"];
                     }
                 }
 
-                var dataAttrA1 = a1[0]['attributes'];
-                
-                var keyNumMapping = [];
-                
-                for(var j = 0; j< parObject.caseIds.length ; j++){
-                    var tmpArray = {};
-                    tmpArray["CASE_ID"] = parObject.caseIds[j];
-                    tmpArray["MUTATION_COUNT"] = "NA";
-                    tmpArray["COPY_NUMBER_ALTERATIONS"] = "NA";
-                    keyNumMapping[parObject.caseIds[j]] = j;
-                    $.each(dataAttrA1,function(key,value){
-                        tmpArray[value['attr_id']] = "NA";
+                //Initial data array, not all of cases has MUTAION COUND OR COPY NUMBER ALTERATIONS.
+                for(var j = 0; j <  _globalCaseIdsLength; j++){
+                    var _caseDatum = {};
+                    _caseDatum["CASE_ID"] = parObject.caseIds[j];
+                    _caseDatum["MUTATION_COUNT"] = "NA";
+                    _caseDatum["COPY_NUMBER_ALTERATIONS"] = "NA";
+                    _keyNumMapping[parObject.caseIds[j]] = j;
+                    $.each(_dataAttrOfa1,function(key,value){
+                        _caseDatum[value['attr_id']] = "NA";
                     });
-                    obtainDataObject['dataObjectM'].push(tmpArray);
+                    obtainDataObject['arr'].push(_caseDatum);
                 }
                 
-                for(var key in dataObject){
-                    for (var i = 0 ; i < dataAttrA1.length ; i++){
-                        var tmpValue = dataObject[key][dataAttrA1[i]['attr_id']];
+                for(var key in _dataAttrMapArr){
+                    for (var i = 0 ; i < _dataAttrOfa1.length ; i++){
+                        var tmpValue = _dataAttrMapArr[key][_dataAttrOfa1[i]['attr_id']];
                         if(tmpValue === '' || tmpValue === undefined || tmpValue === 'na' || tmpValue === 'NA'){
                             tmpValue = 'NA';
-                            obtainDataObject['dataObjectM'][keyNumMapping[key]][dataAttrA1[i]['attr_id']] = tmpValue;
+                            obtainDataObject['arr'][_keyNumMapping[key]][_dataAttrOfa1[i]['attr_id']] = tmpValue;
                         }else
-                            obtainDataObject['dataObjectM'][keyNumMapping[key]][dataAttrA1[i]['attr_id']] = dataObject[key][dataAttrA1[i]['attr_id']];
+                            obtainDataObject['arr'][_keyNumMapping[key]][_dataAttrOfa1[i]['attr_id']] = _dataAttrMapArr[key][_dataAttrOfa1[i]['attr_id']];
                     }
                        
                 }
                 
                 obtainDataObject['attr'] = a1[0]['attributes'];
                 
+                //Filter extra data
                 var filteredA2 = removeExtraData(parObject.caseIds,a2[0]);
                 var filteredA3 = removeExtraData(parObject.caseIds,a3[0]);
+                
+                //Add new attribute MUTATIOIN COUNT for each case if have any
                 if(Object.keys(filteredA2).length !== 0){
-                    var newAttri1 = {};
-                    newAttri1.attr_id = 'MUTATION_COUNT';
-                    newAttri1.display_name = 'Mutation Count';
-                    newAttri1.description = 'Mutation Count';
-                    newAttri1.datatype = 'NUMBER';                        
+                    var _newAttr = {};
+                    _newAttr.attr_id = 'MUTATION_COUNT';
+                    _newAttr.display_name = 'Mutation Count';
+                    _newAttr.description = 'Mutation Count';
+                    _newAttr.datatype = 'NUMBER';                        
 
                     jQuery.each(filteredA2, function(i,val){
                         if(val === undefined)
                             val = 'NA';
-                        obtainDataObject['dataObjectM'][keyNumMapping[i]]['MUTATION_COUNT'] = val;
+                        obtainDataObject['arr'][_keyNumMapping[i]]['MUTATION_COUNT'] = val;
                     });    
-                    obtainDataObject['attr'].push(newAttri1);
+                    obtainDataObject['attr'].push(_newAttr);
                 }
+
+                //Add new attribute COPY NUMBER ALTERATIONS for each case if have any
                 if(Object.keys(filteredA3).length !== 0){
-                    var newAttri2 = {};
-                    newAttri2.attr_id = 'COPY_NUMBER_ALTERATIONS';
-                    newAttri2.display_name = 'Copy Number Alterations';
-                    newAttri2.description = 'Copy Number Alterations';
-                    newAttri2.datatype = 'NUMBER';
+                    var _newAttri = {};
+                    _newAttri.attr_id = 'COPY_NUMBER_ALTERATIONS';
+                    _newAttri.display_name = 'Copy Number Alterations';
+                    _newAttri.description = 'Copy Number Alterations';
+                    _newAttri.datatype = 'NUMBER';
 
                     jQuery.each(filteredA3, function(i,val){
                         if(val === undefined)
                             val = 'NA';
-                        obtainDataObject['dataObjectM'][keyNumMapping[i]]['COPY_NUMBER_ALTERATIONS'] = val;
+                        obtainDataObject['arr'][_keyNumMapping[i]]['COPY_NUMBER_ALTERATIONS'] = val;
                     }); 
-                    obtainDataObject['attr'].push(newAttri2);
+                    obtainDataObject['attr'].push(_newAttri);
                 }
                 
+                //Attribute CASE_ID will be treated as identifier in Study View
+                //If the case data does not have CASE_ID column, new CASE_ID attribute
+                //should be created.d
                 var caseidExist = false;
                 for(var i=0 ; i<obtainDataObject['attr'].length; i++){
                     if(obtainDataObject['attr'][i].attr_id === 'CASE_ID'){
@@ -144,22 +156,25 @@ var StudyViewProxy = (function() {
                     }
                 }
                 if(!caseidExist){
-                    var newAttri = {};
-                    newAttri.attr_id = 'CASE_ID';
-                    newAttri.display_name = 'patient';
-                    newAttri.description = 'patient';
-                    newAttri.datatype = 'NUMBER';
-                    obtainDataObject['attr'].push(newAttri);
+                    var _newAttr = {};
+                    _newAttr.attr_id = 'CASE_ID';
+                    _newAttr.display_name = 'patient';
+                    _newAttr.description = 'patient';
+                    _newAttr.datatype = 'NUMBER';
+                    obtainDataObject['attr'].push(_newAttr);
                 }
                 
                 callbackFunc(obtainDataObject);
             });
     };
     
-    function removeExtraData(_caseId,_data){
+    //Webservice may retrun extra cases including there data
+    //This function is designed to elimate data based on case id
+    //which not inlcuded in globle caseIds Array
+    function removeExtraData(_caseIds,_data){
         var _newData = {};
-        for(var i=0; i< _caseId.length ; i++){
-            _newData[_caseId[i]] = _data[_caseId[i]];
+        for(var i=0; i< _caseIds.length ; i++){
+            _newData[_caseIds[i]] = _data[_caseIds[i]];
         }
         return _newData;
     }

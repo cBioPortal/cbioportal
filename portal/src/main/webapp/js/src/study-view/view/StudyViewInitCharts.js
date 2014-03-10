@@ -53,7 +53,7 @@ var StudyViewInitCharts = (function(){
             scatterPlotOptions = {};
             
         var dataA = dataObtained.attr, //Atrributes
-            dataB = dataObtained.dataObjectM; //All data
+            dataB = dataObtained.arr; //All data
         
         var headerLeftQtip = jQuery.extend(true, {}, StudyViewBoilerplate.headerCaseSelectCustomDialog);
         headerLeftQtip.position.target = $(window);
@@ -1280,7 +1280,7 @@ var StudyViewInitCharts = (function(){
             }
         }
         
-        $.each(data.dataObjectM, function(key,value){ 
+        $.each(data.arr, function(key,value){ 
             tmpB[key] = [];
             $.each(tmpA, function(key1,value1){
                 var tmpValue ='';
@@ -2097,9 +2097,9 @@ var StudyViewInitCharts = (function(){
     }
     
     function initData(_data){
-        var _dataArrLength = _data.dataObjectM.length;
+        var _dataArrLength = _data.arr.length;
         for(var i=0 ; i< _dataArrLength ; i++){
-            dataArr[_data.dataObjectM[i].CASE_ID] = _data.dataObjectM[i];
+            dataArr[_data.arr[i].CASE_ID] = _data.arr[i];
         }
     }
     

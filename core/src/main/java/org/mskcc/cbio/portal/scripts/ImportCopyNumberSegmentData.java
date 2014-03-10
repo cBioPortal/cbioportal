@@ -2,7 +2,7 @@
 package org.mskcc.cbio.portal.scripts;
 
 import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.model.CopyNumberSegment;
+import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
 
 import java.io.*;
@@ -43,13 +43,17 @@ public class ImportCopyNumberSegmentData {
                 System.err.println("wrong format: "+line);
             }
 
-            String caseId = CaseIdUtil.getSampleId(strs[0]);
+            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
+            ImportProfileData.addPatients(new String[] { CaseIdUtil.getPatientId(strs[0]) }, cancerStudy);
+            ImportProfileData.addSamples(new String[] { CaseIdUtil.getSampleId(strs[0]) }, cancerStudy);
+
+            String sampleId = CaseIdUtil.getSampleId(strs[0]);
             long start = Double.valueOf(strs[2]).longValue();
             long end = Double.valueOf(strs[3]).longValue();
             int numProbes = Double.valueOf(strs[4]).intValue();
             double segMean = Double.parseDouble(strs[5]);
             
-            CopyNumberSegment cns = new CopyNumberSegment(cancerStudyId, caseId, strs[1], start, end, numProbes, segMean);
+            CopyNumberSegment cns = new CopyNumberSegment(cancerStudyId, sampleId, strs[1], start, end, numProbes, segMean);
             DaoCopyNumberSegment.addCopyNumberSegment(cns);
         }
     }

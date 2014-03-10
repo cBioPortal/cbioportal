@@ -144,8 +144,8 @@ var PdbPanelView = Backbone.View.extend({
 		// clear previous timers
 		self.clearTimers();
 
-		// restore to full view
-		panel.restoreToFull(function() {
+		// restore chain positions
+		panel.restoreChainPositions(function() {
 			// highlight the default chain
 			panel.highlight(gChain);
 		});

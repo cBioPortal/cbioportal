@@ -215,7 +215,7 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 		    _pdbTableView != null)
 		{
 			_pdbPanelView.toggleTableControls();
-			_pdbTableView.showView();
+			_pdbTableView.toggleView();
 		}
 	}
 

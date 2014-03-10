@@ -50,13 +50,12 @@
 	overflow: hidden;
 	max-height: 200px;
 }
-.pdb-table-controls .init-pdb-table {
+.pdb-table-controls td {
 	padding-left: 45px;
-	float: left;
 }
-.pdb-table-controls .close-pdb-table {
-	padding-right: 45px;
-	float: right;
+.pdb-table-controls .triangle {
+	float: left;
+	cursor: pointer;
 }
 
 .mutation-table-container .ColVis {

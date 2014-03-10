@@ -43,8 +43,10 @@ var PdbPanelView = Backbone.View.extend({
 
 		// format panel controls
 		var expandButton = self.$el.find(".expand-collapse-pdb-panel");
-		var pdbTableClose = self.$el.find(".close-pdb-table");
+		var pdbTableInit = self.$el.find(".init-pdb-table");
 		var pdbTableControls = self.$el.find(".pdb-table-controls");
+		var triangleDown = self.$el.find(".triangle-down");
+		var triangle = self.$el.find(".triangle");
 
 		// format the expand button if there are more chains to show
 		if (self.pdbPanel.hasMoreChains())
@@ -62,14 +64,13 @@ var PdbPanelView = Backbone.View.extend({
 		// initially hide controls
 		expandButton.hide();
 		pdbTableControls.hide();
-		pdbTableClose.hide();
 
-		pdbTableClose.click(function(event) {
-			if (self.pdbTableView)
-			{
-				self.pdbTableView.hideView();
-				self.toggleTableControls();
-			}
+		triangleDown.hide();
+
+		// make triangles clickable
+		triangle.click(function(event) {
+			// same as clicking on the link
+			pdbTableInit.click();
 		});
 
 		self.$el.find(".mutation-pdb-main-container").mouseenter(function(evt) {
@@ -126,11 +127,9 @@ var PdbPanelView = Backbone.View.extend({
 	toggleTableControls: function()
 	{
 		var self = this;
-		var pdbTableInit = self.$el.find(".init-pdb-table");
-		var pdbTableClose = self.$el.find(".close-pdb-table");
 
-		pdbTableClose.toggle();
-		pdbTableInit.toggle();
+		// just toggle triangle orientation
+		self.$el.find(".triangle").toggle();
 	},
 	/**
 	 * Selects the default pdb and chain for the 3D visualizer.

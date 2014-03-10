@@ -395,13 +395,16 @@
 		</tr>
 		<tr class='pdb-table-controls'>
 			<td>
-				<a href="#" class='init-pdb-table'>PDB Chain Table &#187</a>
-				<a href="#" class='close-pdb-table'>hide table</a>
+				<span class="triangle triangle-right ui-icon ui-icon-triangle-1-e"></span>
+				<span class="triangle triangle-down ui-icon ui-icon-triangle-1-s"></span>
+				<a href="#" class='init-pdb-table'>PDB Chain Table</a>
 			</td>
 		</tr>
-		<tr class='pdb-table-wrapper'>
+		<tr>
 			<td>
-				<div class="mutation-pdb-table-view"></div>
+				<div class='pdb-table-wrapper'>
+					<div class="mutation-pdb-table-view"></div>
+				</div>
 			</td>
 		</tr>
 	</table>

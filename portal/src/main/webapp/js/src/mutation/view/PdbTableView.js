@@ -49,6 +49,11 @@ var PdbTableView = Backbone.View.extend({
 		var self = this;
 		self.$el.slideDown();
 	},
+	toggleView: function()
+	{
+		var self = this;
+		self.$el.slideToggle();
+	},
 	selectChain: function(pdbId, chainId)
 	{
 		var self = this;

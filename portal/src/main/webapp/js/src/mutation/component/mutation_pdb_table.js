@@ -38,6 +38,15 @@ function MutationPdbTable(options, headers)
 			"uniprot from": "excluded",
 			"uniprot to": "excluded"
 		},
+		// Indicates whether a column is searchable or not.
+		// Should be a boolean value or a function.
+		//
+		// All other columns will be initially non-searchable by default.
+		columnSearch: {
+			"pdb id": true,
+			"organism": true,
+			"summary": true
+		},
 		// custom width values for columns
 		columnWidth: {
 			"summary": "65%"
@@ -170,8 +179,28 @@ function MutationPdbTable(options, headers)
 		// if function, then evaluate the value
 		else if (_.isFunction(vis))
 		{
-			// TODO determine vis params (if needed)
+			// TODO determine function params (if needed)
 			value = vis();
+		}
+
+		return value;
+	}
+
+	function searchValue(columnName)
+	{
+		var searchVal = _options.columnSearch[columnName];
+		var value = searchVal;
+
+		// if not in the list, hidden by default
+		if (searchVal == null)
+		{
+			value = false;
+		}
+		// if function, then evaluate the value
+		else if (_.isFunction(searchVal))
+		{
+			// TODO determine function params (if needed)
+			value = searchVal();
 		}
 
 		return value;
@@ -192,13 +221,15 @@ function MutationPdbTable(options, headers)
 		// build a visibility map for column headers
 		var visibilityMap = DataTableUtil.buildColumnVisMap(headers, visibilityValue);
 
+		// build a map to determine searchable columns
+		var searchMap = DataTableUtil.buildColumnSearchMap(headers, searchValue);
+
 		// determine hidden and excluded columns
 		var hiddenCols = DataTableUtil.getHiddenColumns(headers, indexMap, visibilityMap);
 		var excludedCols = DataTableUtil.getExcludedColumns(headers, indexMap, visibilityMap);
 
 		// determine columns to exclude from filtering (through the search box)
-		//var nonSearchableCols = _getNonSearchableCols(indexMap);
-		var nonSearchableCols = [];
+		var nonSearchableCols = DataTableUtil.getNonSearchableColumns(headers, indexMap, searchMap);
 
 		// add custom sort functions for specific columns
 		//_addSortFunctions();

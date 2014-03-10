@@ -41,7 +41,40 @@ var DataTableUtil = (function()
 
 			if (map[header] == null)
 			{
-				map[header] = _.isFunction(visibilityValue) && visibilityValue(header);
+				// TODO sanitize return value of the custom function
+				if (_.isFunction(visibilityValue))
+				{
+					map[header] = visibilityValue(header);
+				}
+				else
+				{
+					map[header] = "hidden";
+				}
+			}
+		});
+
+		return map;
+	}
+
+	/**
+	 * Creates a mapping for the given column headers. The mapped values
+	 * will be a boolean.
+	 *
+	 * @param headers       column header names
+	 * @param searchValue   function to determine search value (returns boolean)
+	 * @return {object} map of <column name, search value>
+	 * @private
+	 */
+	function buildColumnSearchMap(headers, searchValue)
+	{
+		var map = {};
+
+		_.each(headers, function(ele, idx) {
+			var header = ele.toLowerCase();
+
+			if (map[header] == null)
+			{
+				map[header] = _.isFunction(searchValue) && searchValue(header);
 			}
 		});
 
@@ -105,10 +138,31 @@ var DataTableUtil = (function()
 		return excludedCols;
 	}
 
+	function getNonSearchableColumns(headers, indexMap, searchMap)
+	{
+		// nonSearchableCols column indices
+		var nonSearchableCols = [];
+
+		// check all headers
+		_.each(headers, function(ele, idx) {
+			var header = ele.toLowerCase();
+
+			// check if searchable
+			if (searchMap[header] === false)
+			{
+				nonSearchableCols.push(indexMap[header]);
+			}
+		});
+
+		return nonSearchableCols;
+	}
+
 	return {
 		buildColumnIndexMap: buildColumnIndexMap,
 		buildColumnVisMap: buildColumnVisMap,
+		buildColumnSearchMap: buildColumnSearchMap,
 		getHiddenColumns: getHiddenColumns,
-		getExcludedColumns: getExcludedColumns
+		getExcludedColumns: getExcludedColumns,
+		getNonSearchableColumns: getNonSearchableColumns
 	};
 })();

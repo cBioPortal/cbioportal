@@ -30,8 +30,11 @@ package org.mskcc.cbio.portal.servlet;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoPdbUniprotResidueMapping;
+import org.mskcc.cbio.portal.dao.DaoTextCache;
 import org.mskcc.cbio.portal.model.PdbUniprotAlignment;
 import org.mskcc.cbio.portal.model.PdbUniprotResidueMapping;
 
@@ -117,40 +120,80 @@ public class PdbDataServlet extends HttpServlet
 	}
 
 	/**
-	 * Retrieves PDB info data from the service
-	 * for each pdb id in the given set.
+	 * Retrieves PDB info data for each pdb id in the given set.
 	 *
 	 * @param pdbIds    a set of PDB ids
 	 * @return  a map of info string keyed on pdb id
 	 */
 	protected JSONObject getPdbInfo(Set<String> pdbIds)
 	{
-		JSONObject infoMap = new JSONObject();
+		JSONObject info = new JSONObject();
 
 		for (String pdbId: pdbIds)
 		{
 			try
 			{
-				String rawData = this.makeRequest(pdbId);
-				Map<String, String> content = this.parsePdbFile(rawData);
-				Map<String, Object> info = new HashMap<String, Object>();
-
-				info.put("title", this.parseTitle(content.get("title")));
-				info.put("compound", this.parseCompound(content.get("compnd")));
-				info.put("source", this.parseCompound(content.get("source")));
-
-				infoMap.put(pdbId, info);
+				info.put(pdbId, this.getInfoJson(pdbId));
 			}
-			catch (IOException e)
+			catch (Exception e)
 			{
 				// unable to retrieve pdb info
-				infoMap.put(pdbId, null);
+				info.put(pdbId, null);
 			}
 		}
 
-		return infoMap;
+		return info;
 	}
 
+	/**
+	 * Retrieves PDB info data from web service or from the cache
+	 * for the given id.
+	 *
+	 * @param pdbId    PDB id string
+	 * @return  a JSON object containing the pdb info
+	 */
+	protected JSONObject getInfoJson(String pdbId)
+			throws IOException, DaoException, ParseException
+	{
+		JSONObject info = null;
+
+		DaoTextCache cache = new DaoTextCache();
+		String key = "PDB_FILE_" + pdbId;
+
+		// try to get the JSON string from the cache
+		String jsonString = cache.getText(key);
+
+		// not cached yet, request from service and parse raw data
+		if (jsonString == null)
+		{
+			info = new JSONObject();
+			String rawData = this.makeRequest(pdbId);
+			Map<String, String> content = this.parsePdbFile(rawData);
+
+			info.put("title", this.parseTitle(content.get("title")));
+			info.put("compound", this.parseCompound(content.get("compnd")));
+			info.put("source", this.parseCompound(content.get("source")));
+
+			// cache json data as a string
+			cache.cacheText(key, info.toJSONString());
+		}
+		// already cached, just parse the JSON string
+		else
+		{
+			JSONParser parser = new JSONParser();
+			info = (JSONObject) parser.parse(jsonString);
+		}
+
+		return info;
+	}
+
+	/**
+	 * Parses the raw PDB file retrieved from the server and
+	 * creates a mapping for each main identifier.
+	 *
+	 * @param rawInput  raw file contents as a String
+	 * @return  data mapped on the main identifier names
+	 */
 	protected Map<String, String> parsePdbFile(String rawInput)
 	{
 		String[] lines = rawInput.toLowerCase().split("\n");
@@ -227,7 +270,6 @@ public class PdbDataServlet extends HttpServlet
 	protected Map<String, Object> parseCompound(String rawInput)
 	{
 		String[] lines = rawInput.split("\n");
-		StringBuilder sb = new StringBuilder();
 		Map<String, Object> content = new HashMap<String, Object>();
 		Map<String, Object> mol = null;
 

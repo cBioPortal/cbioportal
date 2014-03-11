@@ -62,8 +62,6 @@ public class GeneticAlterationUtil {
         DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
         DaoMicroRnaAlteration daoMicroRnaAlteration = DaoMicroRnaAlteration.getInstance();
 
-        targetCaseList = getSampleIdsFromPatientIds(targetCaseList);
-
         //  First branch:  are we dealing with a canonical (protein-coding) gene or a microRNA?
         if (targetGene instanceof CanonicalGene) {
             CanonicalGene canonicalGene = (CanonicalGene) targetGene;

@@ -158,6 +158,7 @@ public class GetProfileData {
             Boolean suppressMondrianHeader) throws DaoException {
 
         StringBuffer buf = new StringBuffer();
+        ArrayList<String> targetSampleList = GeneticAlterationUtil.getSampleIdsFromPatientIds(targetCaseList);
 
         //  Validate that all Genetic Profiles are valid Stable IDs.
         for (String geneticProfileId:  targetGeneticProfileIdList) {
@@ -190,18 +191,18 @@ public class GetProfileData {
 
             //  Ouput Column Headings
             buf.append ("GENE_ID\tCOMMON");
-            outputRow(GeneticAlterationUtil.getSampleIdsFromPatientIds(targetCaseList), buf);
+            outputRow(targetSampleList, buf);
 
             //  Iterate through all validated genes, and extract profile data.
             for (Gene gene: geneList) {                
                 ArrayList<String> dataRow = GeneticAlterationUtil.getGeneticAlterationDataRow(gene,
-                        targetCaseList, geneticProfile);
+                        targetSampleList, geneticProfile);
                 outputGeneRow(dataRow, gene, buf);
             }
         } else {
             //  Ouput Column Headings
             buf.append ("GENETIC_PROFILE_ID\tALTERATION_TYPE\tGENE_ID\tCOMMON");
-            outputRow(targetCaseList, buf);
+            outputRow(targetSampleList, buf);
             
             ArrayList<GeneticProfile> profiles = new ArrayList<GeneticProfile>(targetGeneticProfileIdList.size());
             boolean includeRPPAProteinLevel = false;
@@ -234,7 +235,7 @@ public class GetProfileData {
                     buf.append(gp1.getStableId()).append(WebApiUtil.TAB).append(gp1.getGeneticAlterationType())
                             .append (WebApiUtil.TAB);   
                     dataRow1 = GeneticAlterationUtil.getGeneticAlterationDataRow(gene,
-                            targetCaseList, gp1);
+                            targetSampleList, gp1);
                     outputGeneRow(dataRow1, gene, buf);
                 }
                 
@@ -247,7 +248,7 @@ public class GetProfileData {
                     buf.append(gp2.getStableId()).append(WebApiUtil.TAB).append(gp2.getGeneticAlterationType())
                             .append (WebApiUtil.TAB);   
                     ArrayList<String> dataRow = GeneticAlterationUtil.getBestCorrelatedProteinArrayDataRow(
-                            gp2.getCancerStudyId(),(CanonicalGene)gene, targetCaseList, dataRow1);
+                            gp2.getCancerStudyId(),(CanonicalGene)gene, targetSampleList, dataRow1);
                     outputGeneRow(dataRow, gene, buf);
                 }
             } else {            
@@ -262,7 +263,7 @@ public class GetProfileData {
                         buf.append(geneticProfile.getStableId()).append(WebApiUtil.TAB)
                                 .append(geneticProfile.getGeneticAlterationType()).append (WebApiUtil.TAB);   
                         ArrayList<String> dataRow = GeneticAlterationUtil.getGeneticAlterationDataRow(gene,
-                                targetCaseList, geneticProfile);
+                                targetSampleList, geneticProfile);
                         outputGeneRow(dataRow, gene, buf);
                     }
                 }

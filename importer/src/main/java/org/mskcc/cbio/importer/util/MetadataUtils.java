@@ -150,6 +150,7 @@ public class MetadataUtils {
                 else {
                     header.append(ClinicalAttribute.MISSING);
                 }
+                header.append(ImportClinicalData.DELIMITER);
             }
         }
         return header.toString().trim() + "\n";

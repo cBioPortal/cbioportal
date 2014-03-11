@@ -105,6 +105,18 @@ th.mutation-details-qtip-style {
 	vertical-align: bottom;
 	margin-left: 3px;
 }
+.mutation-table-container .oma_link {
+	margin-right: 10px;
+}
+.mutation-table-container .oma_high {
+	padding-right: 6px;
+}
+.mutation-table-container .oma_medium {
+	padding-right: 5px;
+}
+.mutation-table-container .oma_neutral {
+	padding-right: 6px;
+}
 .diagram-lollipop-tip, .diagram-region-tip, .pdb-chain-tip {
 	font-size: 12px;
 }

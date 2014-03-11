@@ -13,8 +13,6 @@
  */
 var MutationTable = function(tableSelector, gene, mutations, options)
 {
-	// TODO add more options if necessary (for other views: patient view, cross cancer, etc)
-
 	// default options object
 	var _defaultOpts = {
 		// Indicates the visibility of columns
@@ -36,16 +34,29 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 			"case id": "visible",
 			"type": "visible",
 			"cosmic": "visible",
-			"fis": "visible",
-			"cons": "visible",
+			"mutation assessor": "visible",
 			"3d": "visible",
 			"vs": "visible",
-			"allele freq (t)": "visible",
-			"copy #" : "visible",
 			"#mut in sample": "visible",
 			"mutation id": "excluded",
 			"cancer study": "excluded",
 			// TODO we may need more parameters than these two (util, gene)
+			"copy #" : function (util, gene) {
+				if (util.containsCnaData(gene)) {
+					return "visible";
+				}
+				else {
+					return "hidden";
+				}
+			},
+			"allele freq (t)": function (util, gene) {
+				if (util.containsAlleleFreqT(gene)) {
+					return "visible";
+				}
+				else {
+					return "hidden";
+				}
+			},
 			"bam": function (util, gene) {
 				if (util.containsIgvLink(gene)) {
 					return "visible";
@@ -310,14 +321,13 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 	                "aTargets": [indexMap["allele freq (t)"],
 		                indexMap["allele freq (n)"]]},
 	            {"sType": 'predicted-impact-col',
-	                "aTargets": [indexMap["fis"]]},
+	                "aTargets": [indexMap["mutation assessor"]]},
 		        {"sType": 'copy-number-col',
 			        "sClass": "center-align-td",
 			        "aTargets": [indexMap["copy #"]]},
 	            {"asSorting": ["desc", "asc"],
 	                "aTargets": [indexMap["cosmic"],
-		                indexMap["fis"],
-	                    indexMap["cons"],
+		                indexMap["mutation assessor"],
 	                    indexMap["3d"],
 	                    indexMap["#mut in sample"]]},
 	            {"bVisible": false,
@@ -546,7 +556,8 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 	{
 		if (a.indexOf("label") != -1)
 		{
-			return $(a).text().trim();
+			// TODO temp workaround
+			return $(a).find("label").text().trim() || $(a).text().trim();
 		}
 		else
 		{

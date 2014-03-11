@@ -470,8 +470,6 @@
 			<span class='{{omaClass}} {{fisClass}}' alt='{{fisValue}}|{{xVarLink}}'>
 				<label>{{fisText}}</label>
 			</span>
-		</td>
-		<td>
 			<a href='{{msaLink}}' target='_blank'>
 				<span style="background-color:#88C;color:white">
 					&nbsp;msa&nbsp;
@@ -549,9 +547,9 @@
     <th alt='Protein Change' class='mutation-table-header'>AA Change</th>
 	<th alt='Mutation Type' class='mutation-table-header'>Type</th>
 	<th alt='Overlapping mutations in COSMIC' class='mutation-table-header'>COSMIC</th>
-	<th alt='Predicted Functional Impact Score (via Mutation Assessor) for missense mutations'
-	    class='mutation-table-header'>FIS</th>
-	<th alt='Conservation' class='mutation-table-header'>Cons</th>
+	<!--th alt='Predicted Functional Impact Score (via Mutation Assessor) for missense mutations'
+	    class='mutation-table-header'>FIS</th-->
+	<th alt='Mutation Assessor' class='mutation-table-header'>Mutation Assessor</th>
 	<th alt='3D Structure' class='mutation-table-header'>3D</th>
 	<th alt='Mutation Status' class='mutation-table-header'>MS</th>
 	<th alt='Validation Status' class='mutation-table-header'>VS</th>

@@ -180,10 +180,6 @@ function MutationPdbPanel(options, data, proxy, xScale)
 						_defaultChainGroup = gChain;
 					}
 
-					// add tooltip
-					var addTooltip = options.chainTipFn;
-					addTooltip(gChain);
-
 					// increment chain counter
 					count++;
 				}
@@ -192,6 +188,42 @@ function MutationPdbPanel(options, data, proxy, xScale)
 
 		// update global rectangle counter in the end
 		_rectCount = count;
+
+		// add chain tooltips
+		addChainTooltips(data, options);
+	}
+
+	/**
+	 * Adds tooltips to the chain rectangles.
+	 *
+	 * @param data      row data containing pdb and chain information
+	 * @param options   visual options object
+	 */
+	function addChainTooltips(data, options)
+	{
+		// this is to prevent chain tooltip functions to send
+		// too many separate requests to the server
+
+		var pdbIds = [];
+		var chains = [];
+
+		// collect pdb ids and chains
+		_.each(data, function(allocation, rowIdx) {
+			_.each(allocation, function(datum, idx) {
+				pdbIds.push(datum.pdbId);
+				chains.push(_chainMap[
+					PdbDataUtil.chainKey(datum.pdbId, datum.chain.chainId)]);
+			});
+		});
+
+		// this caches pdb info before adding the tooltips
+		proxy.getPdbInfo(pdbIds.join(" "), function(data) {
+			// add tooltip to the chain groups
+			_.each(chains, function(chain, idx) {
+				var addTooltip = options.chainTipFn;
+				addTooltip(chain);
+			});
+		});
 	}
 
 	/**

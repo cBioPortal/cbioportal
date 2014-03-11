@@ -113,7 +113,8 @@ var PdbDataUtil = (function()
 		{
 			var mol = pdbInfo.compound[key];
 
-			if (_.indexOf(mol.chain, chainId.toLowerCase()) != -1)
+			if (_.indexOf(mol.chain, chainId.toLowerCase()) != -1 &&
+			    pdbInfo.source[mol.mol_id] != null)
 			{
 				// chain is associated with this mol,
 				// get the organism info from the source

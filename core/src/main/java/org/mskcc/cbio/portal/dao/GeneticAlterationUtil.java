@@ -118,8 +118,6 @@ public class GeneticAlterationUtil {
             throws DaoException {
         ArrayList<String> dataRow = new ArrayList<String>();
 
-        targetCaseList = getSampleIdsFromPatientIds(targetCaseList);
-        
         String type = targetGene.isPhosphoProtein() ? 
                 GeneticAlterationType.PHOSPHORYLATION.toString():GeneticAlterationType.PROTEIN_LEVEL.toString();
         

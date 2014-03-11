@@ -68,7 +68,7 @@ var MutationDetailsUtil = function(mutations)
 		for(var i=0; i < mutations.length; i++)
 		{
 			var position = {id: mutations[i].id,
-				start: mutations[i].proteinPosStart,
+				start: mutations[i].getProteinStartPos(),
 				end: mutations[i].proteinPosEnd};
 
 			positions.push(position);
@@ -219,7 +219,7 @@ var MutationDetailsUtil = function(mutations)
 						continue;
 					}
 
-					if (mutations[j].mutationStatus.toLowerCase() === this.GERMLINE)
+					if (mutations[j].mutationStatus.toLowerCase() === GERMLINE)
 					{
 						// case has at least one germline mutation
 						germline = 1;
@@ -354,6 +354,59 @@ var MutationDetailsUtil = function(mutations)
 		return _.keys(tumorTypeMap).length;
 	};
 
+	/**
+	 * Returns a sorted array of data field counts for the given gene.
+	 * Does not include counts for the values provided within
+	 * the exclude list.
+	 *
+	 * @param gene          hugo gene symbol
+	 * @param dataField     data field name
+	 * @param excludeList   data values to exclude while counting
+	 * @return {Array}  array of uniprot id count info
+	 */
+	this.dataFieldCount = function(gene, dataField, excludeList)
+	{
+		gene = gene.toUpperCase();
+
+		var uniprotMap = {};
+
+		if (_mutationGeneMap[gene] != undefined)
+		{
+			var mutations = _mutationGeneMap[gene];
+
+			for (var i=0; i < mutations.length; i++)
+			{
+				var uniprot = mutations[i][dataField];
+
+				if (uniprot &&
+				    !_.contains(excludeList, uniprot))
+				{
+					if (uniprotMap[uniprot] === undefined)
+					{
+						uniprotMap[uniprot] = 0;
+					}
+
+					uniprotMap[uniprot]++;
+				}
+			}
+		}
+
+		var pairs = _.pairs(uniprotMap);
+
+		pairs.sort(function(a, b) {
+			return (b[1] - a[1]);
+		});
+
+		var result = [];
+
+		_.each(pairs, function(pair, i) {
+			var obj = {count: pair[1]};
+			obj[dataField] = pair[0];
+			result.push(obj);
+		});
+
+		return result;
+	};
 
 	// init maps by processing the initial mutations
 	if (mutations != null)

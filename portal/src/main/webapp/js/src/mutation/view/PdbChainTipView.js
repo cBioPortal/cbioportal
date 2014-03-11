@@ -34,9 +34,7 @@ var PdbChainTipView = Backbone.View.extend({
 		// pass variables in using Underscore.js template
 		var variables = {pdbId: this.model.pdbId,
 			pdbInfo: summary,
-			chainId: this.model.chain.chainId,
-			from: this.model.chain.mergedAlignment.uniprotFrom,
-			to: this.model.chain.mergedAlignment.uniprotTo};
+			chainId: this.model.chain.chainId};
 
 		// compile the template using underscore
 		return _.template(

@@ -55,6 +55,7 @@
 <script type="text/javascript" src="js/src/mutation/component/mutation_table.js"></script>
 <script type="text/javascript" src="js/src/mutation/component/mutation_3d_viewer.js"></script>
 <script type="text/javascript" src="js/src/mutation/component/mutation_pdb_panel.js"></script>
+<script type="text/javascript" src="js/src/mutation/component/mutation_pdb_table.js"></script>
 <script type="text/javascript" src="js/src/mutation/model/MutationModel.js"></script>
 <script type="text/javascript" src="js/src/mutation/model/PdbAlignmentModel.js"></script>
 <script type="text/javascript" src="js/src/mutation/model/PdbChainModel.js"></script>
@@ -67,6 +68,7 @@
 <script type="text/javascript" src="js/src/mutation/util/PileupUtil.js"></script>
 <script type="text/javascript" src="js/src/mutation/util/JmolWrapper.js"></script>
 <script type="text/javascript" src="js/src/mutation/util/JSmolWrapper.js"></script>
+<script type="text/javascript" src="js/src/mutation/util/DataTableUtil.js"></script>
 <script type="text/javascript" src="js/src/mutation/data/PdbDataProxy.js"></script>
 <script type="text/javascript" src="js/src/mutation/data/MutationDataProxy.js"></script>
 <script type="text/javascript" src="js/src/mutation/controller/MutationDetailsEvents.js"></script>

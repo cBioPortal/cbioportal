@@ -9,17 +9,21 @@
  * @param mut3dView             a Mutation3dView instance
  * @param mut3dVis              singleton Mutation3dVis instance
  * @param pdbProxy              proxy for pdb data
+ * @param mutationUtil          data utility class (having the related mutations)
  * @param mutationDiagram       a MutationDiagram instance
+ * @param tableView             a MutationDetailsTableView instance
  * @param geneSymbol            hugo gene symbol (string value)
  *
  * @author Selcuk Onur Sumer
  */
 var Mutation3dController = function (mutationDetailsView, mainMutationView,
-	mut3dVisView, mut3dView, mut3dVis, pdbProxy, mutationDiagram, geneSymbol)
+	mut3dVisView, mut3dView, mut3dVis, pdbProxy, mutationUtil,
+	mutationDiagram, tableView, geneSymbol)
 {
 	// we cannot get pdb panel view as a constructor parameter,
 	// since it is initialized after initializing this controller
 	var _pdbPanelView = null;
+	var _pdbTableView = null;
 
 	function init()
 	{
@@ -44,6 +48,11 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 		mutationDiagram.dispatcher.on(
 			MutationDetailsEvents.DIAGRAM_PLOT_RESET,
 			diagramResetHandler);
+
+		// add listeners for the mutation table view
+		tableView.dispatcher.on(
+			MutationDetailsEvents.PDB_LINK_CLICKED,
+			pdbLinkHandler);
 
 		// add listeners for the mutation 3d view
 		mut3dView.addInitCallback(mut3dInitHandler);
@@ -88,7 +97,8 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 
 	function view3dPanelCloseHandler()
 	{
-		// hide the corresponding pdb panel view
+		// hide the corresponding pdb panel and table views
+
 		if (_pdbPanelView)
 		{
 			_pdbPanelView.hideView();
@@ -105,7 +115,27 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 		}
 	}
 
-	function chainSelectHandler(element)
+	function panelResizeStartHandler(newHeight, maxHeight)
+	{
+		// check if it is expanded beyond the max height
+		if (newHeight > maxHeight)
+		{
+			// add the toggle bar at the beginning of the resize
+			_pdbPanelView.toggleScrollBar(maxHeight);
+		}
+	}
+
+	function panelResizeEndHandler(newHeight, maxHeight)
+	{
+		// check if it is collapsed
+		if (newHeight <= maxHeight)
+		{
+			// remove the toggle bar at the end of the resize
+			_pdbPanelView.toggleScrollBar(-1);
+		}
+	}
+
+	function panelChainSelectHandler(element)
 	{
 		// TODO ideally, we should queue every script call in JSmolWrapper,
 		// ...and send request to the frame one by one, but it is complicated
@@ -113,18 +143,97 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 		// calling another script immediately after updating the view
 		// does not work, so register a callback for update function
 		var callback = function() {
-			// highlight mutations on the diagram
+			// highlight mutations on the 3D view
 			if (mutationDiagram.isHighlighted())
 			{
 				highlightSelected();
 			}
 		};
 
-		// update view with the selected chain data
+		// update 3D view with the selected chain data
 		var datum = element.datum();
 		mut3dVisView.updateView(geneSymbol, datum.pdbId, datum.chain, callback);
+
+		// TODO do not update if the event is triggered by the table itself
+		// also update the pdb table (highlight the corresponding row)
+		if (_pdbTableView != null)
+		{
+			_pdbTableView.selectChain(datum.pdbId, datum.chain.chainId);
+		}
 	}
 
+	function tableChainSelectHandler(pdbId, chainId)
+	{
+		if (pdbId && chainId)
+		{
+			_pdbPanelView.selectChain(pdbId, chainId);
+		}
+	}
+
+	function tableMouseoutHandler()
+	{
+		_pdbPanelView.pdbPanel.minimizeToHighlighted();
+	}
+
+	function tableMouseoverHandler(pdbId, chainId)
+	{
+		if (pdbId && chainId)
+		{
+			_pdbPanelView.pdbPanel.minimizeToChain(
+				_pdbPanelView.pdbPanel.getChainGroup(pdbId, chainId));
+		}
+	}
+
+	function initPdbTable(pdbColl)
+	{
+		// init pdb table view if not initialized yet
+		if (_pdbTableView == null &&
+		    _pdbPanelView != null &&
+		    pdbColl.length > 0)
+		{
+			_pdbTableView = _pdbPanelView.initPdbTableView(pdbColl);
+
+			// add listeners to the custom event dispatcher of the pdb table
+			_pdbTableView.pdbTable.dispatcher.on(
+				MutationDetailsEvents.PDB_TABLE_READY,
+				pdbTableReadyHandler);
+
+			_pdbTableView.pdbTable.dispatcher.on(
+				MutationDetailsEvents.TABLE_CHAIN_SELECTED,
+				tableChainSelectHandler);
+
+			_pdbTableView.pdbTable.dispatcher.on(
+				MutationDetailsEvents.TABLE_CHAIN_MOUSEOUT,
+				tableMouseoutHandler);
+
+			_pdbTableView.pdbTable.dispatcher.on(
+				MutationDetailsEvents.TABLE_CHAIN_MOUSEOVER,
+				tableMouseoverHandler);
+		}
+
+		if (_pdbPanelView != null &&
+		    _pdbTableView != null)
+		{
+			_pdbPanelView.toggleTableControls();
+			_pdbTableView.toggleView();
+		}
+	}
+
+	function pdbTableReadyHandler()
+	{
+		if (_pdbPanelView != null)
+		{
+			// find currently selected chain in the panel
+			var gChain = _pdbPanelView.getSelectedChain();
+
+			// select the corresponding row on the table
+			if (gChain != null)
+			{
+				var datum = gChain.datum();
+				_pdbTableView.selectChain(datum.pdbId, datum.chain.chainId);
+			}
+		}
+	}
 	function diagramResetHandler()
 	{
 		if (mut3dVisView && mut3dVisView.isVisible())
@@ -176,6 +285,25 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 		}
 	}
 
+	function pdbLinkHandler(mutationId)
+	{
+		var mutationMap = mutationUtil.getMutationIdMap();
+		var mutation = mutationMap[mutationId];
+
+		if (mutation)
+		{
+			// TODO ideally diagram should be highlighted by MutationDiagramController,
+			// ...but we need to make sure that diagram is highlighted before refreshing the 3D view
+
+			// highlight the corresponding pileup (without filtering the table)
+			mutationDiagram.clearHighlights();
+			mutationDiagram.highlightMutation(mutation.mutationSid);
+
+			// reset the view with the selected chain
+			reset3dView(mutation.pdbMatch.pdbId, mutation.pdbMatch.chainId);
+		}
+	}
+
 	/**
 	 * Retrieves the pileup data from the selected mutation diagram
 	 * elements.
@@ -221,8 +349,11 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 	/**
 	 * Resets the 3D view to its initial state. This function also initializes
 	 * the PDB panel view if it is not initialized yet.
+	 *
+	 * @param pdbId     initial pdb structure to select
+	 * @param chainId   initial chain to select
 	 */
-	function reset3dView()
+	function reset3dView(pdbId, chainId)
 	{
 		var gene = geneSymbol;
 		var uniprotId = mut3dView.model.uniprotId; // TODO get this from somewhere else
@@ -236,18 +367,43 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 
 				// add listeners to the custom event dispatcher of the pdb panel
 				_pdbPanelView.pdbPanel.dispatcher.on(
-					MutationDetailsEvents.CHAIN_SELECTED,
-					chainSelectHandler);
+					MutationDetailsEvents.PANEL_CHAIN_SELECTED,
+					panelChainSelectHandler);
+
+				_pdbPanelView.pdbPanel.dispatcher.on(
+					MutationDetailsEvents.PDB_PANEL_RESIZE_STARTED,
+					panelResizeStartHandler);
+
+				_pdbPanelView.pdbPanel.dispatcher.on(
+					MutationDetailsEvents.PDB_PANEL_RESIZE_ENDED,
+					panelResizeEndHandler);
+
+				// add listeners for the mutation 3d view
+				_pdbPanelView.addInitCallback(function(event) {
+					initPdbTable(pdbColl);
+				});
 			}
 
-			// reload the visualizer content with the default pdb and chain
+			// reload the visualizer content with the given pdb and chain
 			if (mut3dVisView != null &&
 			    _pdbPanelView != null &&
 			    pdbColl.length > 0)
 			{
 				updateColorMapper();
 				_pdbPanelView.showView();
-				_pdbPanelView.selectDefaultChain();
+
+				if (pdbId && chainId)
+				{
+					_pdbPanelView.selectChain(pdbId, chainId);
+				}
+				else
+				{
+					// select default chain if none provided
+					_pdbPanelView.selectDefaultChain();
+				}
+
+				// initiate auto-collapse
+				_pdbPanelView.autoCollapse();
 			}
 		};
 

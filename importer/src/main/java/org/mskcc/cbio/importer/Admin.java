@@ -171,6 +171,10 @@ public class Admin implements Runnable {
 													   "Use \"" + Config.ALL + "\" to import all reference data.")
 									  .create("import_reference_data"));
 
+        Option importTypesOfCancer = (OptionBuilder.hasArg(false)
+									  .withDescription("Import types of cancer.")
+									  .create("import_types_of_cancer"));
+        
         Option importData = (OptionBuilder.withArgName("portal:init_portal_db:init_tumor_types:ref_data")
                              .hasArgs(4)
 							 .withValueSeparator(':')
@@ -202,6 +206,7 @@ public class Admin implements Runnable {
 		toReturn.addOption(applyOverrides);
 		toReturn.addOption(generateCaseLists);
 		toReturn.addOption(importReferenceData);
+		toReturn.addOption(importTypesOfCancer);
 		toReturn.addOption(importData);
 		toReturn.addOption(copySegFiles);
 
@@ -283,6 +288,10 @@ public class Admin implements Runnable {
 			else if (commandLine.hasOption("import_reference_data")) {
 				importReferenceData(commandLine.getOptionValue("import_reference_data"));
 			}
+			else if (commandLine.hasOption("import_types_of_cancer")) {
+				importTypesOfCancer();
+			}
+                        
 			// import data
 			else if (commandLine.hasOption("import_data")) {
                 String[] values = commandLine.getOptionValues("import_data");
@@ -582,6 +591,27 @@ public class Admin implements Runnable {
 				}
 			}
 		}
+		if (LOG.isInfoEnabled()) {
+			LOG.info("importReferenceData(), complete");
+		}
+	}
+
+	/**
+	 * Helper function to import types of cancer.
+     *
+     * @param referenceType String
+	 *
+	 * @throws Exception
+	 */
+	private void importTypesOfCancer() throws Exception {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("importTypesOfCancer()");
+		}
+                
+                Importer importer = (Importer)getBean("importer");
+                importer.importTypesOfCancer();
+                        
 		if (LOG.isInfoEnabled()) {
 			LOG.info("importReferenceData(), complete");
 		}

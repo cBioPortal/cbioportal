@@ -49,6 +49,9 @@ function MutationDiagram(geneSymbol, options, data)
 
 	// color mapping for mutations: <mutation id, (pileup) color> pairs
 	self.mutationColorMap = {};
+
+	// mutation id to pileup mapping: <mutation sid, pileup group> pairs
+	self.mutationPileupMap = {};
 }
 
 // TODO use percent values instead of pixel values for some components?
@@ -263,6 +266,7 @@ MutationDiagram.prototype.initDiagram = function(sequenceData)
 		var data = {};
 		data.pileups = self.processData(self.rawData);
 		data.sequence = sequenceData;
+		self.mutationPileupMap = PileupUtil.mapToMutations(data.pileups);
 
 		// save a reference for future access
 		self.data = data;
@@ -416,9 +420,7 @@ MutationDiagram.prototype.processData = function(mutationData)
 	{
 		var mutation = mutationData.at(i);
 
-		var proteinChange = mutation.proteinChange;
-
-		var location = proteinChange.match(/[0-9]+/);
+		var location = mutation.getProteinStartPos();
 		var type = mutation.mutationType.trim().toLowerCase();
 
 		if (location != null && type != "fusion")
@@ -439,6 +441,7 @@ MutationDiagram.prototype.processData = function(mutationData)
 	{
 		var pileup = {};
 
+		pileup.pileupId = PileupUtil.nextId();
 		pileup.mutations = mutations[key];
 		pileup.count = mutations[key].length;
 		pileup.location = parseInt(key);
@@ -1060,6 +1063,7 @@ MutationDiagram.prototype.drawLollipop = function (points, lines, pileup, option
 		.attr('fill', lollipopFillColor)
 		.attr('stroke', options.lollipopBorderColor)
 		.attr('stroke-width', options.lollipopBorderWidth)
+		.attr('id', pileup.pileupId)
 		.attr('class', 'mut-dia-data-point');
 
 	// bind pileup data with the lollipop data point
@@ -1509,6 +1513,7 @@ MutationDiagram.prototype.updatePlot = function(mutationData)
 	{
 		self.pileups = pileups = self.processData(mutationData);
 		self.currentData = mutationData;
+		self.mutationPileupMap = PileupUtil.mapToMutations(pileups);
 	}
 
 	// remove all elements in the plot area
@@ -1831,6 +1836,24 @@ MutationDiagram.prototype.clearHighlights = function()
 		.size(self.options.lollipopSize)
 		.type(self.getLollipopShapeFn()));
 	self.highlighted = {};
+};
+
+/**
+ * Highlights the pileup containing the given mutation.
+ *
+ * @param mutationSid    id of the mutation
+ */
+MutationDiagram.prototype.highlightMutation = function(mutationSid)
+{
+	var self = this;
+
+	var pileupId = self.mutationPileupMap[mutationSid];
+	var pileup = self.svg.select("#" + pileupId);
+
+	if (pileup.length > 0)
+	{
+		self.highlight(pileup[0][0]);
+	}
 };
 
 /**

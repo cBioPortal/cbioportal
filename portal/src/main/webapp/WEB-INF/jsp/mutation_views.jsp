@@ -82,7 +82,6 @@
 		</table>
 	</div>
 	<div class="mutation-pdb-panel-view"></div>
-
 	<div class='mutation-details-filter-info'>
 		Current view shows filtered results.
 		Click <a class='mutation-details-filter-reset'>here</a> to reset all filters.
@@ -382,19 +381,45 @@
 </script>
 
 <script type="text/template" id="pdb_panel_view_template">
-	<table>
+	<table class='mutation-pdb-main-container'>
 		<tr>
 			<td valign="top">
 				<div class='mutation-pdb-panel-container'></div>
 			</td>
-			<td></td>
 		</tr>
 		<tr>
 			<td valign="top" align="center">
-				<div class='mutation-pdb-panel-controls'>
-					<button class='expand-collapse-pdb-panel'
-					        title='Expand/Collapse PDB Chains'></button>
+				<button class='expand-collapse-pdb-panel'
+				        title='Expand/Collapse PDB Chains'></button>
+			</td>
+		</tr>
+		<tr class='pdb-table-controls'>
+			<td>
+				<span class="triangle triangle-right ui-icon ui-icon-triangle-1-e"></span>
+				<span class="triangle triangle-down ui-icon ui-icon-triangle-1-s"></span>
+				<a href="#" class='init-pdb-table'>PDB Chain Table</a>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<div class='pdb-table-wrapper'>
+					<div class="mutation-pdb-table-view"></div>
 				</div>
+			</td>
+		</tr>
+	</table>
+</script>
+
+<script type="text/template" id="pdb_table_view_template">
+	<div class='pdb-chain-table-loader'>
+		<img src='{{loaderImage}}'/>
+	</div>
+	<table>
+		<tr>
+			<td valign="top" class='pdb-chain-table-container'>
+				<table class='display pdb-chain-table'
+				       cellpadding='0' cellspacing='0' border='0'>
+				</table>
 			</td>
 			<td></td>
 		</tr>
@@ -454,7 +479,7 @@
 			</a>
 		</td>
 		<td>
-			<a href='{{pdbLink}}' target='_blank'>
+			<a href='#' class="pdb-link" alt="{{pdbMatchId}}">
 				<span style="background-color:#88C;color:white">
 					&nbsp;3D&nbsp;
 				</span>
@@ -604,8 +629,8 @@
 
 <script type="text/template" id="mutation_details_pdb_chain_tip_template">
 	<span class='pdb-chain-tip'>
-		<b>PDB id:</b> {{pdbId}}<br>
-		<b>Chain:</b> {{chainId}} ({{from}} - {{to}})<br>
+		<b>PDB Id:</b> {{pdbId}}<br>
+		<b>Chain:</b> {{chainId}}<br>
 		{{pdbInfo}}
 	</span>
 </script>
@@ -621,10 +646,13 @@
 		Gaps within the chains are represented by a thin line connecting the segments of the chain.<br>
 		<br>
 		By default, only a first few rows are displayed.
-		To see more chains, click on the expand/collapse button below the panel.<br>
+		To see more chains, use the scroll bar next to the panel.
+		To see the detailed list of all available PDB chains in a table
+		click on the link below the panel.<br>
 		<br>
 		To select a chain, simply click on it.
 		Selected chain is highlighted with a different frame color.
+		You can also select a chain by clicking on a row in the table.
 		Selecting a chain reloads the PDB data for the 3D structure visualizer.
 	</span>
 </script>
@@ -653,3 +681,4 @@
 <script type="text/javascript" src="js/src/mutation/view/PdbPanelView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/PredictedImpactTipView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/RegionTipView.js"></script>
+<script type="text/javascript" src="js/src/mutation/view/PdbTableView.js"></script>

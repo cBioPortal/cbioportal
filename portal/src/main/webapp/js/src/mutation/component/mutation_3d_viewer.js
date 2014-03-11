@@ -310,7 +310,7 @@ var Mutation3dVis = function(name, options)
 		_highlighted = {};
 
 		// pdbId and/or chainId may be null
-		if (!_pdbId || !_chain)
+		if (_pdbId == null || _chain == null)
 		{
 			// nothing to refresh
 			return mappedMutations;
@@ -446,7 +446,7 @@ var Mutation3dVis = function(name, options)
 	function focus(pileup)
 	{
 		// no chain selected yet, terminate
-		if (!_chain)
+		if (_chain == null)
 		{
 			return false;
 		}
@@ -509,9 +509,9 @@ var Mutation3dVis = function(name, options)
 	function highlight(pileups, reset)
 	{
 		// no chain selected yet, terminate
-		if (!_chain)
+		if (_chain == null)
 		{
-			return false;
+			return 0;
 		}
 
 		if (reset)
@@ -531,7 +531,7 @@ var Mutation3dVis = function(name, options)
 			var id = pileup.mutations[0].mutationId;
 			var position = _chain.positionMap[id];
 
-			if (position)
+			if (position != null)
 			{
 				// add position to the highlighted ones
 				_highlighted[id] = position;
@@ -780,7 +780,7 @@ var Mutation3dVis = function(name, options)
 		var position = _chain.positionMap[mutationId];
 
 		// check if the mutation maps on this chain
-		if (position)
+		if (position != null)
 		{
 			var scriptPos = generateScriptPos(position);
 
@@ -836,11 +836,25 @@ var Mutation3dVis = function(name, options)
 	 */
 	function generateScriptPos(position)
 	{
-		var posStr = position.start.pdbPos;
+		var insertionStr = function(insertion) {
+			var posStr = "";
+
+			if (insertion != null &&
+			    insertion.length > 0)
+			{
+				posStr += "^" + insertion;
+			}
+
+			return posStr;
+		};
+
+		var posStr = position.start.pdbPos +
+		             insertionStr(position.start.insertion);
 
 		if (position.end.pdbPos > position.start.pdbPos)
 		{
-			posStr += "-" + position.end.pdbPos;
+			posStr += "-" + position.end.pdbPos +
+			          insertionStr(position.end.insertion);
 		}
 
 		return posStr;

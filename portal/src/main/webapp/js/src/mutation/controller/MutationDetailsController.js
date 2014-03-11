@@ -46,6 +46,7 @@ var MutationDetailsController = function(
 
 		if (mut3dVis)
 		{
+			// TODO remove mutationProxy?
 			var mutation3dVisView = new Mutation3dVisView(
 				{el: container3d,
 					mut3dVis: mut3dVis,
@@ -80,22 +81,26 @@ var MutationDetailsController = function(
 	 */
 	function initView(gene, cases, diagramOpts, tableOpts)
 	{
-		var mutationData = null;
-
 		// callback function to init view after retrieving
 		// sequence information.
-		var init = function(sequenceData)
+		var init = function(sequenceData, mutationData, pdbRowData)
 		{
-			// TODO sequenceData may be null for unknown genes...
-			// get the first sequence from the response
-			var sequence = sequenceData[0];
+			// process data to add 3D match information
+			mutationData = processMutationData(mutationData,
+			                                   mutationProxy.getMutationUtil(),
+			                                   pdbRowData);
+
+			// TODO a new util for each instance instead?
+//			var mutationUtil = new MutationDetailsUtil(
+//				new MutationCollection(mutationData));
+			var mutationUtil = mutationProxy.getMutationUtil();
 
 			// prepare data for mutation view
 			var model = {geneSymbol: gene,
 				mutationData: mutationData,
-				mutationProxy: mutationProxy,
+				mutationProxy: mutationProxy, // TODO pass mutationUtil instead?
 				pdbProxy: _pdbProxy,
-				sequence: sequence,
+				sequence: sequenceData,
 				sampleArray: cases,
 				diagramOpts: diagramOpts,
 				tableOpts: tableOpts};
@@ -121,9 +126,10 @@ var MutationDetailsController = function(
 			new MutationDetailsTableController(components.tableView, components.diagram);
 			new Mutation3dController(mutationDetailsView, mainView,
 			                         _mut3dVisView, components.view3d, mut3dVis,
-			                         _pdbProxy, components.diagram, gene);
+			                         _pdbProxy, mutationUtil,
+			                         components.diagram, components.tableView, gene);
 			new MutationDiagramController(
-				components.diagram, components.tableView.tableUtil, mutationProxy.getMutationUtil());
+				components.diagram, components.tableView.tableUtil, mutationUtil, components.tableView);
 		};
 
 		// get mutation data for the current gene
@@ -131,12 +137,8 @@ var MutationDetailsController = function(
 			// init reference mapping
 			_geneTabView[gene] = {};
 
-			// update mutation data reference
-			mutationData = data;
-
 			// display a message if there is no mutation data available for this gene
-			if (mutationData == null ||
-			    mutationData.length == 0)
+			if (data == null || data.length == 0)
 			{
 				mutationDetailsView.$el.find("#mutation_details_" + gene).html(
 					_.template($("#default_mutation_details_gene_info_template").html(), {}));
@@ -144,9 +146,74 @@ var MutationDetailsController = function(
 			// get the sequence data for the current gene & init view
 			else
 			{
-				$.getJSON("getPfamSequence.json", {geneSymbol: gene}, init);
+				// get the most frequent uniprot accession string (excluding "NA")
+				var uniprotInfo = mutationProxy.getMutationUtil().dataFieldCount(
+					gene, "uniprotAcc", ["NA"]);
+
+				var uniprotAcc = null;
+				var servletParams = {geneSymbol: gene};
+
+				if (uniprotInfo.length > 0)
+				{
+					uniprotAcc = uniprotInfo[0].uniprotAcc;
+				}
+
+				if (uniprotAcc)
+				{
+					servletParams = {uniprotAcc: uniprotAcc};
+				}
+
+				$.getJSON("getPfamSequence.json", servletParams, function(sequenceData) {
+					// TODO sequenceData may be null for unknown genes...
+					// get the first sequence from the response
+					var sequence = sequenceData[0];
+
+					if (_pdbProxy)
+					{
+						var uniprotId = sequence.metadata.identifier;
+						_pdbProxy.getPdbRowData(uniprotId, function(pdbRowData) {
+							init(sequence, data, pdbRowData);
+						});
+					}
+					else
+					{
+						init(sequence, data);
+					}
+
+				});
 			}
 		});
+	}
+
+	/**
+	 * Processes mutation data to add additional information.
+	 *
+	 * @param mutationData  raw mutation data array
+	 * @param mutationUtil  mutation util
+	 * @param pdbRowData    pdb row data for the corresponding uniprot id
+	 * @return {Array}      mutation data array with additional attrs
+	 */
+	function processMutationData(mutationData, mutationUtil, pdbRowData)
+	{
+		if (!pdbRowData)
+		{
+			return mutationData;
+		}
+
+		var map = mutationUtil.getMutationIdMap();
+
+		_.each(mutationData, function(mutation, idx) {
+			// use model instance, since raw mutation data won't work with mutationToPdb
+			var mutationModel = map[mutation.mutationId];
+			// find the matching pdb
+			var match = PdbDataUtil.mutationToPdb(mutationModel, pdbRowData);
+			// update the raw mutation object
+			mutation.pdbMatch = match;
+			// also update the corresponding MutationModel within the util
+			mutationModel.pdbMatch = match;
+		});
+
+		return mutationData;
 	}
 
 	init();

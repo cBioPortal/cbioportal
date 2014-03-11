@@ -79,7 +79,12 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 			"sDom": '<"H"<"mutation_datatables_filter"f>C<"mutation_datatables_info"i>>t',
 			"bJQueryUI": true,
 			"bPaginate": false,
-			"bFilter": true
+			"bFilter": true,
+			"oLanguage": {
+				"sInfo": "Showing _TOTAL_ mutations",
+				"sInfoFiltered": "(out of _MAX_ total mutations)",
+				"sInfoEmpty": "No mutations to show"
+			}
 		}
 	};
 

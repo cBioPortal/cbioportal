@@ -444,6 +444,7 @@ var ScatterPlots = function() {
         elem.dotsGroup.selectAll("path").attr('pointer-events', 'all').on("click", click);
     }
     
+    //Added in Study View especially
     function changeClickStyle(_element){
         var _clickType = pointClickType(_element);
         
@@ -475,6 +476,7 @@ var ScatterPlots = function() {
         }
     }
     
+    //Added in Study View especially
     function pointClickType(_element){
         var _clickType,
             _attr = $(_element).attr('clicked');
@@ -485,6 +487,7 @@ var ScatterPlots = function() {
         return _clickType;
     }
     
+    //This functions has been modified from original template.
     function clicked(_element){
         //Only allow click one point, return string to distinguish
         //the Click function and Shift Click function
@@ -528,6 +531,7 @@ var ScatterPlots = function() {
         clickCallback(_clickedCase);
     }
     
+    //Added in Study View especially
     function shiftclicked(_element){
         var _shiftClickedCases = [],
             _attrType = pointClickType(_element);
@@ -564,6 +568,7 @@ var ScatterPlots = function() {
         clickCallback(_shiftClickedCases);
     }
     
+    //This functions has been modified from original template.
     function brushended(event) {
         var _brushedCases = [],
             _totalHighlightIds = [];
@@ -810,6 +815,8 @@ var ScatterPlots = function() {
         jointClickCallback: function(_clickCallback) {
             clickCallback = _clickCallback;
         },
+        
+        //This functions has been modified from original template.
         updateStyle: function(_datumArr) {
             var _tmpDataArr=[];
             var dataCopy = jQuery.extend(true,[],dataArr);

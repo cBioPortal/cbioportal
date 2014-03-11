@@ -174,7 +174,7 @@ var StudyViewInitCharts = (function(){
                 "the number of created charts not equal to number of totalCharts. --1");
             return false;
         }
-
+        
         dc.renderAll();
         dc.renderAll("group1");
        
@@ -313,7 +313,7 @@ var StudyViewInitCharts = (function(){
             filterChartsByGivingIDs(caseIds);
             $('#study-view-header-left-0').qtip('toggle');
         });
-    
+        
         function addClick(){
             $('#study-view-add-chart ul li').unbind('click');
             $('#study-view-add-chart ul li').click(function() {

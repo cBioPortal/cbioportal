@@ -1,7 +1,7 @@
 /* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * This class is designed to control Study View working flow.
+ * 1. Get data by using StudyViewProxy
+ * 2. Passing data to StudyViewInitCharts and initial all charts
  */
 
 

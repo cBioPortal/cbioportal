@@ -5,17 +5,8 @@
 <link rel="stylesheet" type="text/css" href="css/study-view.css">
 
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<script src="js/src/study-view/dc.js"></script>
-<script src="js/src/study-view/crossfilter.js"></script>
-<script src="js/src/study-view/dataTables.fixedColumns.js"></script>
 <script src="js/src/study-view/masonry.pkgd.min.js"></script>
-<script src="js/src/study-view/ScatterPlots.js"></script>
-<script src="js/src/study-view/view/DcRedrawAllDataTable.js"></script>
-<script src="js/src/study-view/StudyViewBoilerplate.js"></script>
-<script src="js/src/study-view/StudyViewControl.js"></script>
-<script src="js/src/study-view/data/StudyViewProxy.js"></script>
-<script src="js/src/study-view/view/StudyViewInitCharts.js"></script>
-<script src="js/src/study-view/main.js"></script>
+<script data-main="js/src/study-view/main.js" src="js/require.js"></script>
 
 <div id="dc-plots-loading-wait">
     <img src="images/ajax-loader.gif"/>

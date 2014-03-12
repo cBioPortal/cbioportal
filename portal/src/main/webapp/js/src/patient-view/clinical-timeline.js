@@ -306,27 +306,27 @@
         
         function getTreatmentAgent(treatment) {
             var eventData = treatment["eventData"];
-            var agent = eventData["agent"];
+            var agent = eventData["AGENT"];
             if (cbio.util.checkNullOrUndefined(agent)) {
-                agent = eventData["subtype"];
+                agent = eventData["SUBTYPE"];
             }
             if (cbio.util.checkNullOrUndefined(agent)) {
-                agent = eventData["type"];
+                agent = eventData["TREATMENT_TYPE"];
             }
             return agent;
         }
         
-        function separateTreatmentsByAgent(treatments) {
-            var ret = {};
-            treatments.forEach(function(treatment) {
-                var agent = getTreatmentAgent(treatment);
-                if (!(agent in ret)) {
-                    ret[agent] = [];
-                }
-                ret[agent].push(treatment);
-            });
-            return ret;
-        }
+//        function separateTreatmentsByAgent(treatments) {
+//            var ret = {};
+//            treatments.forEach(function(treatment) {
+//                var agent = getTreatmentAgent(treatment);
+//                if (!(agent in ret)) {
+//                    ret[agent] = [];
+//                }
+//                ret[agent].push(treatment);
+//            });
+//            return ret;
+//        }
         
         function separateTreatmentsByTime(treatments) {
             var ret = [];
@@ -341,14 +341,15 @@
             });
             return ret;
         }
-        
+
         function getColor(timePointData) {
-            if (timePointData["eventType"]==="treatment")
+            var type = timePointData["eventType"];
+            if (type==="TREATMENT")
                 return getTreatmentAgent(timePointData);
-            if (timePointData["eventType"]==="lab_test")
-                return timePointData["eventData"]["test"];
-            if (timePointData["eventType"]==="diagnostic")
-                return timePointData["eventData"]["type"];
+            if (type==="LAB_TEST")
+                return timePointData["eventData"]["TEST"];
+            if (type==="DIAGNOSTIC")
+                return timePointData["eventData"]["TYPE"];
             return timePointData["eventType"];
         }
         
@@ -391,24 +392,24 @@
             
             var ret = [];
             
-            if ("diagnostic" in timelineDataByType) {
+            if ("DIAGNOSTIC" in timelineDataByType) {
                 ret.push({
                     label:"Diagnostics",
                     display:"circle",
-                    times:formatTimePoints(timelineDataByType["diagnostic"])});
+                    times:formatTimePoints(timelineDataByType["DIAGNOSTIC"])});
             }
             
-            if ("lab_test" in timelineDataByType) {
+            if ("LAB_TEST" in timelineDataByType) {
                 ret.push({
                     label:"Lab Tests",
                     display:"circle",
-                    times:formatTimePoints(timelineDataByType["lab_test"])});
+                    times:formatTimePoints(timelineDataByType["LAB_TEST"])});
             }
             
-            if ("treatment" in timelineDataByType) {
-                var treatments = timelineDataByType["treatment"].sort(function(a,b){
+            if ("TREATMENT" in timelineDataByType) {
+                var treatments = timelineDataByType["TREATMENT"].sort(function(a,b){
                     if (a["startDate"]===b["startDate"]) {
-                        return a["eventData"]["agent"].localeCompare(b["eventData"]["agent"]);
+                        return getTreatmentAgent(a).localeCompare(getTreatmentAgent(b));
                     }
                     return a["startDate"]-b["startDate"];
                 });

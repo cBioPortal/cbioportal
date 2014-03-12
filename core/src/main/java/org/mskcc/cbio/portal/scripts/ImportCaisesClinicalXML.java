@@ -32,7 +32,9 @@ public final class ImportCaisesClinicalXML {
     
     private ImportCaisesClinicalXML() {}
     
-    public static void main(String[] args) throws Exception {        
+    public static void main(String[] args) throws Exception {
+        args = new String[] {"/Users/gaoj/projects/cbio-portal-data/studies/prad/su2c/data_clinical_caises.xml",
+            "/Users/gaoj/projects/cbio-portal-data/studies/prad/su2c/meta_clinical_caises.txt"};
         if (args.length != 2) {
             System.out.println("command line usage:  importCaisesXml <data_clinical_caises.xml> <meta_clinical_caises.txt>");
             return;
@@ -134,8 +136,8 @@ public final class ImportCaisesClinicalXML {
             ClinicalEvent clinicalEvent = new ClinicalEvent();
             clinicalEvent.setCancerStudyId(cancerStudyId);
             clinicalEvent.setPatientId(patientId);
-            clinicalEvent.setEventType("treatment");
-            clinicalEvent.addEventDatum("type","medical therapy");
+            clinicalEvent.setEventType("TREATMENT");
+            clinicalEvent.addEventDatum("TREATMENT_TYPE","Medical Therapy");
             
             Node node = treatmentNode.selectSingleNode("MedTxDate");
             if (node==null) {
@@ -151,42 +153,42 @@ public final class ImportCaisesClinicalXML {
             
             node = treatmentNode.selectSingleNode("MedTxType");
             if (node!=null) {
-                clinicalEvent.addEventDatum("subtype", node.getText());
+                clinicalEvent.addEventDatum("SUBTYPE", node.getText());
             }
             
             node = treatmentNode.selectSingleNode("MedTxIndication");
             if (node!=null) {
-                clinicalEvent.addEventDatum("indication", node.getText());
+                clinicalEvent.addEventDatum("INDICATION", node.getText());
             }
             
             node = treatmentNode.selectSingleNode("MedTxAgent");
             if (node!=null) {
-                clinicalEvent.addEventDatum("agent", node.getText());
+                clinicalEvent.addEventDatum("AGENT", node.getText());
             }
             
             node = treatmentNode.selectSingleNode("MedTxDose");
             if (node!=null) {
-                clinicalEvent.addEventDatum("dose", node.getText());
+                clinicalEvent.addEventDatum("DOSE", node.getText());
             }
             
             node = treatmentNode.selectSingleNode("MedTxTotalDose");
             if (node!=null) {
-                clinicalEvent.addEventDatum("totalDose", node.getText());
+                clinicalEvent.addEventDatum("TOTAL_DOSE", node.getText());
             }
             
             node = treatmentNode.selectSingleNode("MedTxUnits");
             if (node!=null) {
-                clinicalEvent.addEventDatum("unit", node.getText());
+                clinicalEvent.addEventDatum("UNIT", node.getText());
             }
             
             node = treatmentNode.selectSingleNode("MedTxSchedule");
             if (node!=null) {
-                clinicalEvent.addEventDatum("schedule", node.getText());
+                clinicalEvent.addEventDatum("SCHEDULE", node.getText());
             }
             
             node = treatmentNode.selectSingleNode("MedTxRoute");
             if (node!=null) {
-                clinicalEvent.addEventDatum("route", node.getText());
+                clinicalEvent.addEventDatum("ROUTE", node.getText());
             }
             
             clinicalEvents.add(clinicalEvent);
@@ -201,8 +203,8 @@ public final class ImportCaisesClinicalXML {
             ClinicalEvent clinicalEvent = new ClinicalEvent();
             clinicalEvent.setCancerStudyId(cancerStudyId);
             clinicalEvent.setPatientId(patientId);
-            clinicalEvent.setEventType("treatment");
-            clinicalEvent.addEventDatum("type", "radiation therapy");
+            clinicalEvent.setEventType("TREATMENT");
+            clinicalEvent.addEventDatum("TREATMENT_TYPE", "Radiation Therapy");
             
             Node node = treatmentNode.selectSingleNode("RadTxDate");
             if (node==null) {
@@ -218,42 +220,42 @@ public final class ImportCaisesClinicalXML {
             
             node = treatmentNode.selectSingleNode("RadTxType");
             if (node!=null) {
-                clinicalEvent.addEventDatum("subtype", node.getText());
+                clinicalEvent.addEventDatum("SUBTYPE", node.getText());
             }
             
             node = treatmentNode.selectSingleNode("RadTxIndication");
             if (node!=null) {
-                clinicalEvent.addEventDatum("indication", node.getText());
+                clinicalEvent.addEventDatum("INDICATION", node.getText());
             }
             
             node = treatmentNode.selectSingleNode("RadTxIntent");
             if (node!=null) {
-                clinicalEvent.addEventDatum("intent", node.getText());
+                clinicalEvent.addEventDatum("INTENT", node.getText());
             }
             
             node = treatmentNode.selectSingleNode("RadTxDosePerFraction");
             if (node!=null) {
-                clinicalEvent.addEventDatum("dosePerFraction", node.getText());
+                clinicalEvent.addEventDatum("DOSE_PER_FRACTION", node.getText());
             }
             
             node = treatmentNode.selectSingleNode("RadTxTotalDose");
             if (node!=null) {
-                clinicalEvent.addEventDatum("totalDose", node.getText());
+                clinicalEvent.addEventDatum("TOTAL_DOSE", node.getText());
             }
             
             node = treatmentNode.selectSingleNode("RadTxUnits");
             if (node!=null) {
-                clinicalEvent.addEventDatum("unit", node.getText());
+                clinicalEvent.addEventDatum("UNIT", node.getText());
             }
             
             node = treatmentNode.selectSingleNode("RadTxNumFractions");
             if (node!=null) {
-                clinicalEvent.addEventDatum("numFractions", node.getText());
+                clinicalEvent.addEventDatum("NUM_FRACTIONS", node.getText());
             }
             
             node = treatmentNode.selectSingleNode("RadTxTarget");
             if (node!=null) {
-                clinicalEvent.addEventDatum("target", node.getText());
+                clinicalEvent.addEventDatum("TARGET", node.getText());
             }
             
             clinicalEvents.add(clinicalEvent);
@@ -268,8 +270,8 @@ public final class ImportCaisesClinicalXML {
             ClinicalEvent clinicalEvent = new ClinicalEvent();
             clinicalEvent.setCancerStudyId(cancerStudyId);
             clinicalEvent.setPatientId(patientId);
-            clinicalEvent.setEventType("treatment");
-            clinicalEvent.addEventDatum("type","Brachytherapy");
+            clinicalEvent.setEventType("TREATMENT");
+            clinicalEvent.addEventDatum("TREATMENT_TYPE","Brachytherapy");
             
             Node node = treatmentNode.selectSingleNode("BrachyDate");
             if (node==null) {
@@ -280,17 +282,17 @@ public final class ImportCaisesClinicalXML {
             
             node = treatmentNode.selectSingleNode("BrachyIsotope");
             if (node!=null) {
-                clinicalEvent.addEventDatum("brachyIsotope", node.getText());
+                clinicalEvent.addEventDatum("BRACHY_ISOTOPE", node.getText());
             }
             
             node = treatmentNode.selectSingleNode("BrachyPrescribedDose");
             if (node!=null) {
-                clinicalEvent.addEventDatum("dose", node.getText());
+                clinicalEvent.addEventDatum("DOSE", node.getText());
             }
             
             node = treatmentNode.selectSingleNode("BrachyDoseNotes");
             if (node!=null) {
-                clinicalEvent.addEventDatum("doseNotes", node.getText());
+                clinicalEvent.addEventDatum("DOSE_NOTES", node.getText());
             }
             
             clinicalEvents.add(clinicalEvent);
@@ -304,7 +306,7 @@ public final class ImportCaisesClinicalXML {
             ClinicalEvent clinicalEvent = new ClinicalEvent();
             clinicalEvent.setCancerStudyId(cancerStudyId);
             clinicalEvent.setPatientId(patientId);
-            clinicalEvent.setEventType("diagnostic");
+            clinicalEvent.setEventType("DIAGNOSTIC");
             
             Node node = diagnosticNode.selectSingleNode("DxDate");
             if (node==null) {
@@ -315,42 +317,42 @@ public final class ImportCaisesClinicalXML {
             
             node = diagnosticNode.selectSingleNode("DxType");
             if (node!=null) {
-                clinicalEvent.addEventDatum("type", node.getText());
+                clinicalEvent.addEventDatum("DIAGNOSTIC_TYPE", node.getText());
             }
             
             node = diagnosticNode.selectSingleNode("DxTarget");
             if (node!=null) {
-                clinicalEvent.addEventDatum("target", node.getText());
+                clinicalEvent.addEventDatum("TARGET", node.getText());
             }
             
             node = diagnosticNode.selectSingleNode("DxResult");
             if (node!=null) {
-                clinicalEvent.addEventDatum("result", node.getText());
+                clinicalEvent.addEventDatum("RESULT", node.getText());
             }
             
             node = diagnosticNode.selectSingleNode("DxNotes");
             if (node!=null) {
-                clinicalEvent.addEventDatum("notes", node.getText());
+                clinicalEvent.addEventDatum("NOTES", node.getText());
             }
             
             node = diagnosticNode.selectSingleNode("DxSide");
             if (node!=null) {
-                clinicalEvent.addEventDatum("side", node.getText());
+                clinicalEvent.addEventDatum("SIDE", node.getText());
             }
             
             node = diagnosticNode.selectSingleNode("DxStatus");
             if (node!=null) {
-                clinicalEvent.addEventDatum("status", node.getText());
+                clinicalEvent.addEventDatum("STATUS", node.getText());
             }
             
             node = diagnosticNode.selectSingleNode("ImgBaseline");
             if (node!=null) {
-                clinicalEvent.addEventDatum("baseline", node.getText());
+                clinicalEvent.addEventDatum("BASELINE", node.getText());
             }
             
             node = diagnosticNode.selectSingleNode("DxNumNewTumors");
             if (node!=null) {
-                clinicalEvent.addEventDatum("numNewTumors", node.getText());
+                clinicalEvent.addEventDatum("NUM_NEW_TUMORS", node.getText());
             }
             
             clinicalEvents.add(clinicalEvent);
@@ -364,7 +366,7 @@ public final class ImportCaisesClinicalXML {
             ClinicalEvent clinicalEvent = new ClinicalEvent();
             clinicalEvent.setCancerStudyId(cancerStudyId);
             clinicalEvent.setPatientId(patientId);
-            clinicalEvent.setEventType("lab_test");
+            clinicalEvent.setEventType("LAB_TEST");
             
             Node node  = labTestNode.selectSingleNode("LabDate");
             if (node==null) {
@@ -378,28 +380,28 @@ public final class ImportCaisesClinicalXML {
                 System.err.println("no lab test name");
                 continue;
             }
-            clinicalEvent.addEventDatum("test", node.getText());
+            clinicalEvent.addEventDatum("TEST", node.getText());
             
             node  = labTestNode.selectSingleNode("LabResult");
             if (node==null) {
                 System.err.println("no lab result");
                 continue;
             }
-            clinicalEvent.addEventDatum("result", node.getText());
+            clinicalEvent.addEventDatum("RESULT", node.getText());
             
             node  = labTestNode.selectSingleNode("LabUnits");
             if (node!=null) {
-                clinicalEvent.addEventDatum("unit", node.getText());
+                clinicalEvent.addEventDatum("UNIT", node.getText());
             }
             
             node  = labTestNode.selectSingleNode("LabNormalRange");
             if (node!=null) {
-                clinicalEvent.addEventDatum("normalange", node.getText());
+                clinicalEvent.addEventDatum("NORMAL_RANGE", node.getText());
             }
             
             node  = labTestNode.selectSingleNode("LabNotes");
             if (node!=null) {
-                clinicalEvent.addEventDatum("notes", node.getText());
+                clinicalEvent.addEventDatum("NOTES", node.getText());
             }
             
             clinicalEvents.add(clinicalEvent);

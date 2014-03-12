@@ -8,7 +8,7 @@
 
 <style>
     #coexp .coexp-table-filter-custom {
-        width: 100%;
+        width: 400px;
         float: left;
     }
     #coexp .datatables_filter {

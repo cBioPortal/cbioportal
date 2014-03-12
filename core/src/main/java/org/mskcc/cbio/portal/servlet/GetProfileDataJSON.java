@@ -86,6 +86,7 @@ public class GetProfileDataJSON extends HttpServlet  {
             throws ServletException, IOException {
 
         //Get URL Parameters
+        String cancerStudyIdentifier = httpServletRequest.getParameter("cancer_study_id");
         String caseSetId = httpServletRequest.getParameter("case_set_id");
         String caseIdsKey = httpServletRequest.getParameter("case_ids_key");
         String[] geneIdList = httpServletRequest.getParameter("gene_list").split("\\s+");
@@ -97,9 +98,14 @@ public class GetProfileDataJSON extends HttpServlet  {
 
         try {
 
+            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
+            if (cancerStudy == null) {
+                throw new DaoException("Unknown cancer study id: " + cancerStudyIdentifier);
+            }
+
             //Get Case case ID list
             DaoCaseList daoCaseList = new DaoCaseList();
-            CaseList caseList;
+            CaseList caseList = null;
             ArrayList<String> caseIdList = new ArrayList<String>();
             if (caseSetId.equals("-1")) {
                 String strCaseIds = CaseSetUtil.getCaseIds(caseIdsKey);
@@ -111,7 +117,7 @@ public class GetProfileDataJSON extends HttpServlet  {
                 caseList = daoCaseList.getCaseListByStableId(caseSetId);
                 caseIdList = caseList.getCaseList();
             }
-            caseIdList = GeneticAlterationUtil.getSampleIdsFromPatientIds(caseIdList);
+            caseIdList = GeneticAlterationUtil.getSampleIdsFromPatientIds(cancerStudy.getInternalId(), caseIdList);
 
             //Get profile data
             for (String geneId: geneIdList) {

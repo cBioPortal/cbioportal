@@ -146,19 +146,6 @@ public final class DaoClinicalData {
         return DaoCancerStudy.getCancerStudyByStableId(cancerStudyId).getInternalId();
     }
 
-    private static int getInternalId(String attrId, String stableId) throws DaoException
-    {
-        if (sampleAttributes.containsKey(attrId)) {
-            return DaoSample.getSampleByStableId(stableId).getInternalId();
-        }
-        else if (patientAttributes.containsKey(stableId)) {
-            return DaoPatient.getPatientByStableId(stableId).getInternalId();
-        }
-        else {
-            throw new DaoException("Unknown clinical attribute: " + attrId);
-        }
-    }
-    
     private static String getAttributeTable(String attrId) throws DaoException
     {
         if (sampleAttributes.containsKey(attrId)) {

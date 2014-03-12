@@ -179,30 +179,6 @@ public class DaoCaseList {
         }
     }
 
-    /**
-	 * Given a case id, determines if it exists
-	 */
-    public boolean caseIDExists(String caseID) throws DaoException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        Patient patient = DaoPatient.getPatientByStableId(caseID);
-        try {
-            con = JdbcUtil.getDbConnection(DaoCaseList.class);
-            pstmt = con.prepareStatement
-                    ("SELECT * FROM patient_list_list WHERE PATIENT_ID = ?");
-            pstmt.setInt(1, patient.getInternalId());
-            rs = pstmt.executeQuery();
-            return (rs.next());
-        } catch (NullPointerException e) {
-            throw new DaoException(e);
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        } finally {
-            JdbcUtil.closeAll(DaoCaseList.class, con, pstmt, rs);
-        }
-    }
-
 	/**
 	 * Clears all records from patient list & patient_list_list.
 	 */
@@ -266,7 +242,7 @@ public class DaoCaseList {
         try {
             StringBuilder sql = new StringBuilder("INSERT INTO patient_list_list (`LIST_ID`, `PATIENT_ID`) VALUES ");
             for (String caseId : caseList.getCaseList()) {
-                Patient patient = DaoPatient.getPatientByStableId(caseId);
+                Patient patient = DaoPatient.getPatient(caseList.getCancerStudyId(), caseId);
                 sql.append("('").append(caseListId).append("','").append(patient.getInternalId()).append("'),");
             }
             sql.deleteCharAt(sql.length()-1);

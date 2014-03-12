@@ -277,11 +277,11 @@ public class GeneticAlterationUtil {
         }
     }
 
-    public static ArrayList<String> getSampleIdsFromPatientIds(List<String> targetCaseList)
+    public static ArrayList<String> getSampleIdsFromPatientIds(int cancerStudyId, List<String> targetCaseList)
     {
         ArrayList<String> sampleIds = new ArrayList<String>();
         for (String patientId : targetCaseList) {
-            Patient patient = DaoPatient.getPatientByStableId(patientId);
+            Patient patient = DaoPatient.getPatient(cancerStudyId, patientId);
             for (Sample sample : DaoSample.getSamplesByInternalPatientId(patient.getInternalId())) {
                 if (sample.getType() != Sample.Type.SOLID_NORMAL &&
                     sample.getType() != Sample.Type.BLOOD_NORMAL) {

@@ -182,6 +182,7 @@ var Plots = (function(){
         },
         getProfileData: function(gene, genetic_profile_id, case_set_id, case_ids_key, callback_func) {
             var paramsGetProfileData = {
+                cancer_study_id: cancer_study_id,
                 gene_list: gene,
                 genetic_profile_id: genetic_profile_id,
                 case_set_id: case_set_id,

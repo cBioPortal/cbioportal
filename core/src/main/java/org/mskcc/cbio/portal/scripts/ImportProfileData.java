@@ -200,15 +200,15 @@ public class ImportProfileData{
     {
         for (String barcode : barcodes) {
             String patientId = CaseIdUtil.getPatientId(barcode);
-            if (unknownPatient(patientId)) {
+            if (unknownPatient(cancerStudy, patientId)) {
                 addPatient(patientId, cancerStudy);
             }
         }
     }
 
-    private static boolean unknownPatient(String stableId)
+    private static boolean unknownPatient(CancerStudy cancerStudy, String stableId)
     {
-        return (DaoPatient.getPatientByStableId(stableId) == null);
+        return (DaoPatient.getPatient(cancerStudy.getInternalId(), stableId) == null);
     }
 
     private static void addPatient(String stableId, CancerStudy cancerStudy) throws DaoException
@@ -225,21 +225,28 @@ public class ImportProfileData{
     {
         for (String barcode : barcodes) {
             String patientId = CaseIdUtil.getPatientId(barcode);
+            Patient patient = DaoPatient.getPatient(cancerStudy.getInternalId(), patientId);
             String sampleId = CaseIdUtil.getSampleId(barcode);
-            if (unknownSample(sampleId)) {
+            if (unknownSample(patient, sampleId)) {
                 addSample(sampleId, patientId, cancerStudy);
             }
         }
     }
 
-    private static boolean unknownSample(String stableId)
+    private static boolean unknownSample(Patient patient, String stableId)
     {
-        return (DaoSample.getSampleByStableId(stableId) == null);
+        List<Sample> knownSamples = DaoSample.getSamplesByInternalPatientId(patient.getInternalId());
+        for (Sample knownSample : knownSamples){
+          if (knownSample.getStableId().equals(stableId)) {
+            return false;
+          }
+        }
+        return true;
     }
 
     private static void addSample(String sampleId, String patientId, CancerStudy cancerStudy) throws DaoException
     {
-        Patient patient = DaoPatient.getPatientByStableId(patientId);
+        Patient patient = DaoPatient.getPatient(cancerStudy.getInternalId(), patientId);
         DaoSample.addSample(new Sample(sampleId,
                                        patient.getInternalId(),
                                        cancerStudy.getTypeOfCancerId()));

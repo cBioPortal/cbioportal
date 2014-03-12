@@ -126,7 +126,7 @@ public class GetGeneticProfilesJSON extends HttpServlet  {
                             caseList = daoCaseList.getCaseListByStableId(caseSetId);
                             caseIdList = caseList.getCaseList();
                         }
-                        caseIdList = GeneticAlterationUtil.getSampleIdsFromPatientIds(caseIdList);
+                        caseIdList = GeneticAlterationUtil.getSampleIdsFromPatientIds(cancerStudyId, caseIdList);
 
                         for (String geneId : geneList) {
                             //Get gene

@@ -141,7 +141,7 @@ public class ImportClinicalData {
 
     private int addPatientToDatabase(String stableId) throws Exception
     {
-        if (validPatientId(stableId) && DaoPatient.getPatientByStableId(stableId) == null) {
+        if (validPatientId(stableId) && DaoPatient.getPatient(cancerStudy.getInternalId(), stableId) == null) {
            Patient patient = new Patient(cancerStudy, stableId);
            return DaoPatient.addPatient(patient);
        }
@@ -154,10 +154,10 @@ public class ImportClinicalData {
         int internalSampleId = -1;
         String stablePatientId = getStablePatientId(sampleId, fields, columnAttrs);
         if (validPatientId(stablePatientId)) {
-            Patient patient = DaoPatient.getPatientByStableId(stablePatientId);
+            Patient patient = DaoPatient.getPatient(cancerStudy.getInternalId(), stablePatientId);
             if (patient == null) {
                 addPatientToDatabase(stablePatientId);
-                patient = DaoPatient.getPatientByStableId(stablePatientId);
+                patient = DaoPatient.getPatient(cancerStudy.getInternalId(), stablePatientId);
             }
             sampleId = CaseIdUtil.getSampleId(sampleId);
             if (patient != null && DaoSample.getSampleByStableId(sampleId) == null) {

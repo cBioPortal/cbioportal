@@ -158,7 +158,6 @@ public class GetProfileData {
             Boolean suppressMondrianHeader) throws DaoException {
 
         StringBuffer buf = new StringBuffer();
-        ArrayList<String> targetSampleList = GeneticAlterationUtil.getSampleIdsFromPatientIds(targetCaseList);
 
         //  Validate that all Genetic Profiles are valid Stable IDs.
         for (String geneticProfileId:  targetGeneticProfileIdList) {
@@ -170,6 +169,13 @@ public class GetProfileData {
                 return buf.toString();
             }
         }
+        // validate all genetic profiles belong to the same cancer study
+        if (differentCancerStudies(targetGeneticProfileIdList)) {
+            buf.append("Genetic profiles must come from same cancer study.").append((WebApiUtil.NEW_LINE));
+            return buf.toString();
+        }
+        int cancerStudyId = DaoGeneticProfile.getGeneticProfileByStableId(targetGeneticProfileIdList.get(0)).getCancerStudyId();
+        ArrayList<String> targetSampleList = GeneticAlterationUtil.getSampleIdsFromPatientIds(cancerStudyId, targetCaseList);
 
         //  Branch based on number of profiles requested.
         //  In the first case, we have 1 profile and 1 or more genes.
@@ -270,6 +276,25 @@ public class GetProfileData {
             }
         }
         return buf.toString();
+    }
+
+    private static boolean differentCancerStudies(List<String> targetGeneticProfileList)
+    {
+        if (targetGeneticProfileList.size() == 1) return false;
+
+        int firstCancerStudyId = -1;
+        boolean processingFirstId = true;
+        for (String profileId : targetGeneticProfileList) {
+            GeneticProfile p = DaoGeneticProfile.getGeneticProfileByStableId(profileId);
+          if (processingFirstId) {
+                firstCancerStudyId = p.getCancerStudyId();
+                processingFirstId = false;
+          }  
+          else if (p.getCancerStudyId() != firstCancerStudyId) {
+              return true;
+          }
+        }
+        return false;
     }
 
     private static void outputRow(ArrayList<String> dataValues, StringBuffer buf) {

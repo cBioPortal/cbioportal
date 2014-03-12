@@ -15,7 +15,7 @@ var PdbTableView = Backbone.View.extend({
 	initialize : function (options) {
 		this.options = options || {};
 	},
-	render: function()
+	render: function(callback)
 	{
 		var self = this;
 
@@ -27,7 +27,7 @@ var PdbTableView = Backbone.View.extend({
 		self.$el.html(template);
 
 		// init pdb table
-		self.pdbTable = self._initPdbTable();
+		self._initPdbTable(callback);
 
 		// format after rendering
 		self.format();
@@ -64,11 +64,25 @@ var PdbTableView = Backbone.View.extend({
 		}
 	},
 	/**
+	 * Moves the scroll bar to the selected chain's position.
+	 */
+	scrollToSelected: function()
+	{
+		var self = this;
+		var selected = self.pdbTable.getSelectedRow();
+
+		var container = self.$el.find(".dataTables_scrollBody");
+
+		// TODO make scroll parameters customizable?
+		container.scrollTo($(selected),
+		                   {axis: 'y', duration: 800});
+	},
+	/**
 	 * Initializes the PDB chain table.
 	 *
 	 * @return {MutationPdbTable}   table instance
 	 */
-	_initPdbTable: function()
+	_initPdbTable: function(callback)
 	{
 		var self = this;
 
@@ -84,7 +98,14 @@ var PdbTableView = Backbone.View.extend({
 			"Identity Percent",
 			"Organism",
 			"Summary"];
+
 		var table = new MutationPdbTable(options, headers);
+		self.pdbTable = table;
+
+		if (_.isFunction(callback))
+		{
+			callback(self, table);
+		}
 
 		self._generateRowData(pdbColl, pdbProxy, function(rowData) {
 			// init table with the row data

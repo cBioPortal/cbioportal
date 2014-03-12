@@ -82,6 +82,8 @@ function MutationPdbTable(options, headers)
 
 	var _rowMap = {};
 
+	var _selectedRow = null;
+
 	/**
 	 * Initializes the data tables plug-in for the given table selector.
 	 *
@@ -292,6 +294,8 @@ function MutationPdbTable(options, headers)
 		// highlight selected
 		var nRow = _rowMap[key];
 		$(nRow).addClass("row_selected");
+
+		_selectedRow = nRow;
 	}
 
 	function removeAllSelection()
@@ -305,9 +309,15 @@ function MutationPdbTable(options, headers)
 		});
 	}
 
+	function getSelectedRow()
+	{
+		return _selectedRow;
+	}
+
 	return {
 		renderTable: renderTable,
 		selectRow: selectRow,
+		getSelectedRow: getSelectedRow,
 		dispatcher: _dispatcher
 	};
 }

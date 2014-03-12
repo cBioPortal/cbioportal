@@ -91,7 +91,7 @@ var PdbPanelView = Backbone.View.extend({
 		var self = this;
 		self.$el.slideDown();
 	},
-	initPdbTableView: function(pdbColl)
+	initPdbTableView: function(pdbColl, callback)
 	{
 		var self = this;
 
@@ -103,9 +103,9 @@ var PdbPanelView = Backbone.View.extend({
 		};
 
 		var pdbTableView = new PdbTableView(tableOpts);
-		pdbTableView.render();
-
 		self.pdbTableView = pdbTableView;
+
+		pdbTableView.render(callback);
 
 		return pdbTableView;
 	},
@@ -271,6 +271,18 @@ var PdbPanelView = Backbone.View.extend({
 			container.css("overflow-y", "");
 			container.css("overflow", "hidden");
 		}
+	},
+	/**
+	 * Moves the scroll bar to the selected chain's position.
+	 */
+	scrollToSelected: function()
+	{
+		var self = this;
+		var container = self.$el.find(".mutation-pdb-panel-container");
+
+		// TODO make scroll parameters customizable?
+		container.scrollTo($(".pdb-selection-rectangle-group"),
+		                   {axis: 'y', duration: 800, offset: -150});
 	},
 	clearTimers: function()
 	{

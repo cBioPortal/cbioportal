@@ -64,8 +64,8 @@ var StudyViewBoilerplate ={
         },
         style: { //Default style setting
             fill: "#3366cc", //light blue
-            stroke: "#0174DF", //dark blue
-            stroke_width: "1.2",
+            stroke: "#3366cc", //dark blue
+            stroke_width: "0",
             size: "60",
             shape: "circle" //default, may vary for different mutation types
         },

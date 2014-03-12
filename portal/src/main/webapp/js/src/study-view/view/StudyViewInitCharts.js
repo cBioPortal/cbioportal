@@ -143,7 +143,7 @@ var StudyViewInitCharts = (function(){
         }
         
         for(var i=0; i< bar.length ; i++){
-            makeNewbarChartInstance(createdChartID, bar[i], distanceMinMaxArray[bar[i]['attr_id']]);
+            makeNewBarChartInstance(createdChartID, bar[i], distanceMinMaxArray[bar[i]['attr_id']]);
             HTMLtagsMapUID["study-view-dc-chart-" + createdChartID] = createdChartID;
             attrNameMapUID[bar[i]["attr_id"]] = createdChartID;
             displayedID.push(bar[i]["attr_id"]);            
@@ -275,6 +275,7 @@ var StudyViewInitCharts = (function(){
         $('.study-view-dc-chart-delete').click(function(event){
                 var _id = $(this).parent().parent().attr("id").split("-");
                 var _valueA = $(this).parent().parent().attr('value').split(',');
+                
                 deleteChart(_id[_id.length-1],_valueA);
                 msnry.layout();
                 addClick();
@@ -322,19 +323,10 @@ var StudyViewInitCharts = (function(){
                         totalCharts++;       
                     }
                     
-                    var _para = {
-                        chartID: chartTmpID,
-                        chartDivID: 'study-view-bar-chart',
-                        attrId: selectedAttr,
-                        displayName: selectedAttrDisplay,
-                        distanceArray:distanceMinMaxArray
-                    };
-                    
                     if(selectedChartType === 'pie'){
-                        _para.chartDivID = 'study-view-pie-chart';
-                        initPieChart(_para);
+                        makeNewPieChartInstance(chartTmpID, {attr_id:selectedAttr,display_name:selectedAttrDisplay});
                     }else{
-                        initBarChart(_para);                
+                        makeNewBarChartInstance(chartTmpID, {attr_id:selectedAttr,display_name:selectedAttrDisplay}, distanceMinMaxArray[selectedAttr]);
                     }
 
 
@@ -377,8 +369,8 @@ var StudyViewInitCharts = (function(){
                 baseID: "study-view",
                 chartID: _chartID,
                 chartDivClass: 'study-view-pie-chart',
-                attrID: _pieInfo["attr_id"],
-                displayName: _pieInfo["display_name"],
+                attrID: _pieInfo.attr_id,
+                displayName: _pieInfo.display_name,
                 transitionDuration: 800,
                 ndx: ndx,
                 chartColors: chartColors
@@ -408,13 +400,13 @@ var StudyViewInitCharts = (function(){
         varChart[_chartID].postFilterCallbackFunc(changeHeader);
     }
     
-    function makeNewbarChartInstance(_chartID, _barInfo, _distanceArray) {
+    function makeNewBarChartInstance(_chartID, _barInfo, _distanceArray) {
         var param = {
                 baseID: "study-view",
                 chartID: _chartID,
                 chartDivClass: 'study-view-bar-chart',
-                attrID: _barInfo["attr_id"],
-                displayName: _barInfo["display_name"],
+                attrID: _barInfo.attr_id,
+                displayName: _barInfo.display_name,
                 transitionDuration: 800,
                 ndx: ndx,
                 needLogScale: false,
@@ -426,7 +418,7 @@ var StudyViewInitCharts = (function(){
         }else{
             param.needLogScale = false;
         }
-
+        
         varChart[_chartID] = new BarChart();
         varChart[_chartID].init(param);
         var _barchartCallbackFunction = function(_currentPieFilters){
@@ -475,7 +467,7 @@ var StudyViewInitCharts = (function(){
     }
     
     function deleteChart(_chartID,_value){
-        $("div").remove("#study-view-dc-chart-" + _chartID + "-main"); 
+        $("div").remove("#study-view-dc-chart-main-" + _chartID); 
         if(varChart[_chartID].getChart().hasFilter()){
             varChart[_chartID].getChart().filterAll();
             dc.redrawAll();
@@ -485,7 +477,7 @@ var StudyViewInitCharts = (function(){
                 .append($('<li></li>').attr('id',_value[0]).text(_value[1]));
         
         $('#study-view-add-chart').css('display','block');
-        
+        varChart[_chartID] = "";
         //deleteChartResetDataTable($("#dataTable").dataTable());
         removedChart.push(Number(_chartID));
     }
@@ -606,10 +598,10 @@ var StudyViewInitCharts = (function(){
                 "<div style='width:100%; float:center;text-align:center;'><pieH4>"
                 + selectedAttrDisplay + "</pieH4></div>";
         
-        if($("#study-view-dc-chart-" + chartID+ "-main").length === 0){
+        if($("#study-view-dc-chart-main-" + chartID).length === 0){
             $("#study-view-charts")
-                    .append("<div id=\"study-view-dc-chart-" + chartID+ 
-                        "-main\" class='study-view-dc-chart study-view-bar-main'>" +
+                    .append("<div id=\"study-view-dc-chart-main-" + chartID+ 
+                        "\" class='study-view-dc-chart study-view-bar-main'>" +
                         contentHTML + "</div>");
                 
             $("#scale-input-"+chartID).change(function(e) {
@@ -720,17 +712,17 @@ var StudyViewInitCharts = (function(){
             clickedCaseId = '';
             
             if(currentPieFilters.length === 0){
-                $("#study-view-dc-chart-" + chartID + 
-                        "-main .study-view-dc-chart-change")
+                $("#study-view-dc-chart-main-" + chartID + 
+                        " .study-view-dc-chart-change")
                         .css('display','none');
-                $("#study-view-dc-chart-" + chartID + "-main")
+                $("#study-view-dc-chart-main-" + chartID)
                         .css({'border-width':'1px', 'border-style':'solid'});
             }
             else{
-                $("#study-view-dc-chart-" + chartID + 
-                        "-main .study-view-dc-chart-change")
+                $("#study-view-dc-chart-main-" + chartID + 
+                        " .study-view-dc-chart-change")
                         .css('display','block');
-                $("#study-view-dc-chart-" + chartID + "-main")
+                $("#study-view-dc-chart-main-" + chartID)
                         .css({'border-width':'2px', 'border-style':'inset'});
             }
             
@@ -1326,11 +1318,11 @@ var StudyViewInitCharts = (function(){
                             var _titleArray = _title.split(":");
                             var _key = _titleArray[0];
                             if(_key === _relativeValue){
-                                drawPieMarker($(this).find('path').attr('d'),$(this).find('path').attr('fill'),"study-view-dc-chart-" + i,key,i);
+                                varChart[i].drawMarker(key+1,i);
                             }
                         });
                     }else if(_valueArray[2] === 'bar'){
-                        drawBarMarker("study-view-dc-chart-" + i,dataArr[_clickedCaseIds[0]][_valueArray[0]]);
+                         varChart[i].drawMarker(dataArr[_clickedCaseIds[0]][_valueArray[0]]);
                     }
                 }
             }
@@ -1338,84 +1330,17 @@ var StudyViewInitCharts = (function(){
     }
     
     function removeMarker(){
-        //removePieMarker();
-        removeBarMarker();
-    }
-    
-    function removeBarMarker(){
-        var _numOfCharts = varChart.length;
-        for(var i=0; i< _numOfCharts; i++){
-            if(attrNameMapUID['CASE_ID'] !== i){
-                $("#study-view-dc-chart-" + i).find('svg .mark').remove();
-            }
+        var i, _chartLength = varChart.length;
+        
+        for( i = 0; i < _chartLength; i++ ){
+            varChart[i].removeMarker();
         }
-    }
-    
-    function drawBarMarker(_barChartID,_value) {
-        var transformChartBody = trimTransformString($('#' + _barChartID + " .chart-body").attr("transform"));
-        var allBars = $('#' + _barChartID + " .chart-body").find('rect');
-        var bar = [];
-        var allAxisX = $('#' + _barChartID + " .axis.x").find("g");
-        var transformAxiaX = trimTransformString($('#' + _barChartID + " .axis.x").attr("transform"));
-        
-        var xValue = [];
-        var xTranslate = [];
-        
-        $.each(allBars,function(key,value){
-            var barDatum = {}
-            barDatum.x = Number($(this).attr('x')) + Number(transformChartBody[0]);
-            barDatum.y = Number($(this).attr('y')) + Number(transformChartBody[1]) - 5;
-            barDatum.width = Number($(this).attr('width'));
-            bar.push(barDatum);
-        });
-        
-        var numOfBar = bar.length;
-        
-        $.each(allAxisX,function(key,value){
-            xValue[key] = Number($(this).select('text').text());
-            xTranslate[key] = Number(trimTransformString($(this).attr('transform'))[0]) + Number(transformAxiaX[0]);
-        });
-        
-        var x,y,
-            numItemOfX = xTranslate.length;
-        
-        if(_value === 'NA'){
-            x = bar[numOfBar-1].x + bar[numOfBar-1].width / 2;
-            y= bar[numOfBar-1].y;
-        }else {
-            for(var i=0 ; i< numItemOfX ; i++){
-                if(_value < xValue[i]){
-                    for(var j=0 ; j< numOfBar ; j++){
-                        if(bar[j].x < xTranslate[i] && bar[j].x > xTranslate[i-1]){
-                            x = (xTranslate[i] + xTranslate[i-1])/2;
-                            y= bar[j].y;
-                            break;
-                        }
-                    }
-                    break;
-                }
-            }
-        }
-        
-        d3.select("#" + _barChartID + " svg").append("path")
-            .attr("transform", function(d) { return "translate(" + x + "," + y + ")"; })
-            .attr("d", d3.svg.symbol().size('25').type('triangle-down'))
-            .attr('fill',"red")
-            .attr('class','mark');
-    }
-    
-    function trimTransformString(_string){
-        var _tmpString = _string.split("(");
-        
-        _tmpString = _tmpString[1].split(")");
-        _tmpString = _tmpString[0].split(",");
-        
-        return _tmpString;
     }
     
     function fnCreateSelect( aData, _index ){
         var _isNumericArray = true,
             _hasNullValue = false;
+    
         for(var i=0;i<aData.length;i++){
             if(isNaN(aData[i])){
                 if(aData[i] !== 'NA'){
@@ -1428,9 +1353,9 @@ var StudyViewInitCharts = (function(){
         }
         
         if(_isNumericArray && _hasNullValue){
-            var index = aData.indexOf("NA");
-            if (index > -1) {
-                aData.splice(index, 1);
+            var _index = aData.indexOf("NA");
+            if (_index > -1) {
+                aData.splice(_index, 1);
             }
         }
         

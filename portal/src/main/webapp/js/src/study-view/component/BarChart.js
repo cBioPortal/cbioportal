@@ -9,12 +9,12 @@
  *                  attrId: the attribute name, 
  *                  displayName: the display content of this attribute, 
  *                  transitionDuration: this will be used for initializing
- *                                      DC Pie Chart,
- *                  ndx: crossfilter dimension, used by initializing DC Pie Chart
+ *                                      DC Bar Chart,
+ *                  ndx: crossfilter dimension, used by initializing DC Bar Chart
  *                  chartColors: color schema
  *                  
- * @interface: getChart -- return DC Pie Chart Object.
- * @interface: getCluster -- return the cluster of DC Pie Chart.
+ * @interface: getChart -- return DC Bar Chart Object.
+ * @interface: getCluster -- return the cluster of DC Bar Chart.
  * @interface: updateParam -- pass _param to update current globel parameters,
  *                            this _param should only pass exist keys. 
  * @interface: reDrawChart -- refresh bar chart by redrawing the DC.js Bar
@@ -65,12 +65,12 @@ var BarChart = function(){
         scatterPlotCallback;
     
     //This function is designed to add functions like click, on, or other
-    //other functions added after initializing this Pie Chart.
+    //other functions added after initializing this Bar Chart.
     function addFunctions() {
         barChart.on("filtered", function(chart,filter){
-            var _currentPieFilters = barChart.filters();
+            var _currentFilters = barChart.filters();
 
-            if(_currentPieFilters.length === 0){
+            if(_currentFilters.length === 0){
                 $("#" + DIV.mainDiv + " .study-view-dc-chart-change")
                             .css('display','none');
                 $("#" + DIV.mainDiv)
@@ -82,8 +82,8 @@ var BarChart = function(){
                         .css({'border-width':'2px', 'border-style':'inset'});
             }
 
-            updateScatterPlot(_currentPieFilters);
-            removeBarMarker();
+            updateScatterPlot(_currentFilters);
+            removeMarker();
             postFilterCallback();
         });
     }
@@ -450,9 +450,9 @@ var BarChart = function(){
     }
 
     
-    //Remove drawed Pie Markder.
-    function removeBarMarker() {
-        $("#" + DIV.chartDiv).find('svg g .mark').remove();
+    //Remove drawed Bar Markder.
+    function removeMarker() {
+        $("#" + DIV.chartDiv).find('svg .mark').remove();
     }
     
     function trimTransformString(_string){
@@ -466,8 +466,8 @@ var BarChart = function(){
     
     //Bar Chart will have communications with ScatterPlot, this function is used
     //to call the callback function.
-    function updateScatterPlot(_currentPieFilters) {
-        scatterPlotCallback(_currentPieFilters);
+    function updateScatterPlot(_currentFilters) {
+        scatterPlotCallback(_currentFilters);
     }
     
     return {
@@ -486,6 +486,8 @@ var BarChart = function(){
             addFunctions();
         },
 
+        drawMarker: drawMarker,
+        
         getChart : function() {
             return barChart;
         },
@@ -509,6 +511,8 @@ var BarChart = function(){
             }
             addFunctions();
         },
+        
+        removeMarker: removeMarker,
         
         scatterPlotCallbackFunction: function (_callback) {
             scatterPlotCallback = _callback;

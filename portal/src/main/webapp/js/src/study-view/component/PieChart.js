@@ -174,14 +174,15 @@ var PieChart = function(){
     function addPieLabelEvents() {
         $('#' + DIV.mainDiv + ' .pieLabel').mouseenter(function(){
             var idArray = $(this).attr('id').split('-'),
-                childID = Number(idArray[idArray.length-2])+1;
+                childID = Number(idArray[idArray.length-2])+1,
+                fatherID = Number(idArray[idArray.length-3]);
 
             $('#' + DIV.chartDiv + ' svg>g>g:nth-child(' + childID+')').css({
                 'fill-opacity': '.5',
                 'stroke-width': '3'
             });
             
-            drawMarker(childID,idArray);
+            drawMarker(childID,fatherID);
         });
 
         $('#' + DIV.mainDiv + ' .pieLabel').mouseleave(function(){
@@ -249,9 +250,9 @@ var PieChart = function(){
     function addFunctions() {
         if(selectedAttr !== 'CASE_ID'){
             pieChart.on("filtered", function(chart,filter){
-                var _currentPieFilters = pieChart.filters();
+                var _currentFilters = pieChart.filters();
                 
-                if(_currentPieFilters.length === 0){
+                if(_currentFilters.length === 0){
                     $("#" + DIV.mainDiv + " .study-view-dc-chart-change")
                                 .css('display','none');
                     $("#" + DIV.mainDiv)
@@ -263,8 +264,8 @@ var PieChart = function(){
                             .css({'border-width':'2px', 'border-style':'inset'});
                 }
 
-                updateScatterPlot(_currentPieFilters);
-                removePieMarker();
+                updateScatterPlot(_currentFilters);
+                removeMarker();
                 postFilterCallback();
             });
             pieChart.on("postRedraw",function(chart){
@@ -304,10 +305,8 @@ var PieChart = function(){
     
     //This function is designed to draw Pie Slice Marker(Arc) based on the
     //selected pie slice color.
-    function drawMarker(_childID,_idArray) {
-        var _fatherID = Number(_idArray[_idArray.length-3]);
-
-       var _pointsInfo = 
+    function drawMarker(_childID,_fatherID) {
+        var _pointsInfo = 
                 $('#' + DIV.chartDiv + ' svg>g>g:nth-child(' + _childID+')')
                     .find('path')
                     .attr('d')
@@ -459,7 +458,7 @@ var PieChart = function(){
     }
 
     //Remove drawed Pie Markder.
-    function removePieMarker() {
+    function removeMarker() {
         $("#" + DIV.chartDiv).find('svg g .mark').remove();
     }
     
@@ -506,8 +505,8 @@ var PieChart = function(){
     
     //Pie Chart will have communications with ScatterPlot, this function is used
     //to call the callback function.
-    function updateScatterPlot(_currentPieFilters) {
-        scatterPlotCallback(_currentPieFilters);
+    function updateScatterPlot(_currentFilters) {
+        scatterPlotCallback(_currentFilters);
     }
     
     return {
@@ -525,10 +524,14 @@ var PieChart = function(){
         getCluster: function(){
             return cluster;
         },
-
+        
+        drawMarker: drawMarker,
+        
         pieLabelClickCallbackFunction: function(_callback){
             pieLabelClickCallback = _callback;
         },
+        
+        removeMarker: removeMarker,
         
         scatterPlotCallbackFunction: function (_callback){
             scatterPlotCallback = _callback;

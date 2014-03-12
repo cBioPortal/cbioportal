@@ -16,7 +16,7 @@ var LoadingJS = (function(){
         var _key;
         
         var _folder = {
-                component: ['ScatterPlots'],
+                component: ['ScatterPlots','PieChart', 'BarChart'],
                 data: ['StudyViewProxy'],
                 util: [
                     'DcRedrawAllDataTable', 

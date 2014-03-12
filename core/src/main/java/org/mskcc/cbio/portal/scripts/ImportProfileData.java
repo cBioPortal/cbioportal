@@ -235,8 +235,7 @@ public class ImportProfileData{
 
     private static boolean unknownSample(Patient patient, String stableId)
     {
-        List<Sample> knownSamples = DaoSample.getSamplesByInternalPatientId(patient.getInternalId());
-        for (Sample knownSample : knownSamples){
+        for (Sample knownSample : DaoSample.getSamplesByInternalPatientId(patient.getInternalId())) {
           if (knownSample.getStableId().equals(stableId)) {
             return false;
           }

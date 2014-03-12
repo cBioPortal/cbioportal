@@ -37,7 +37,7 @@ CREATE TABLE `type_of_cancer` (
 drop table IF EXISTS cancer_study;
 CREATE TABLE `cancer_study` (
   `CANCER_STUDY_ID` int(11) NOT NULL auto_increment,
-  `CANCER_STUDY_IDENTIFIER` varchar(50),
+  `CANCER_STUDY_IDENTIFIER` varchar(255),
   `TYPE_OF_CANCER_ID` varchar(25) NOT NULL,
   `NAME` varchar(255) NOT NULL,
   `SHORT_NAME` varchar(64) NOT NULL,
@@ -159,7 +159,7 @@ CREATE TABLE `uniprot_id_mapping` (
 drop table IF EXISTS genetic_profile;
 CREATE TABLE `genetic_profile` (
   `GENETIC_PROFILE_ID` int(11) NOT NULL auto_increment,
-  `STABLE_ID` varchar(50) NOT NULL,
+  `STABLE_ID` varchar(255) NOT NULL,
   `CANCER_STUDY_ID` int(11) NOT NULL,
   `GENETIC_ALTERATION_TYPE` varchar(255) NOT NULL,
   `DATATYPE` varchar(255) NOT NULL,

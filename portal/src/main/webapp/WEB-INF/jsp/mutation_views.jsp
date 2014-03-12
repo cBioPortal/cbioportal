@@ -435,6 +435,29 @@
 	</table>
 </script>
 
+<!-- PDB Table components
+  -- These components are intended to be used within PDB table cells.
+  -->
+
+<script type="text/template" id="mutation_pdb_table_pdb_cell_template">
+	<a href="http://www.rcsb.org/pdb/explore/explore.do?structureId={{pdbId}}"
+	   alt="Click to see the details"
+	   class="simple-tip"
+	   target="_blank"><b>{{pdbId}}</b></a>
+</script>
+
+<script type="text/template" id="mutation_pdb_table_chain_cell_template">
+	<span class="pbd-chain-table-chain-cell">
+		<label>{{chainId}}</label>
+		<a>
+			<span alt="Click to update the 3D view with this chain"
+			      class="simple-tip">&nbsp;3D&nbsp;</span>
+		</a>
+	</span>
+</script>
+
+<!-- (end PDB Table) -->
+
 <script type="text/template" id="mutation_details_table_data_row_template">
 	<tr id='{{mutationId}}' class="{{mutationSid}}">
 		<td>{{mutationId}}-{{mutationSid}}</td>

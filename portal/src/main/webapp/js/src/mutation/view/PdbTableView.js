@@ -15,7 +15,7 @@ var PdbTableView = Backbone.View.extend({
 	initialize : function (options) {
 		this.options = options || {};
 	},
-	render: function()
+	render: function(callback)
 	{
 		var self = this;
 
@@ -27,7 +27,7 @@ var PdbTableView = Backbone.View.extend({
 		self.$el.html(template);
 
 		// init pdb table
-		self.pdbTable = self._initPdbTable();
+		self._initPdbTable(callback);
 
 		// format after rendering
 		self.format();
@@ -54,6 +54,16 @@ var PdbTableView = Backbone.View.extend({
 		var self = this;
 		self.$el.slideToggle();
 	},
+	/**
+	 * Resets all table filters (rolls back to initial state)
+	 */
+	resetFilters: function()
+	{
+		var self = this;
+
+		// TODO do not clean filters if not filtered
+		self.pdbTable.cleanFilters();
+	},
 	selectChain: function(pdbId, chainId)
 	{
 		var self = this;
@@ -64,11 +74,25 @@ var PdbTableView = Backbone.View.extend({
 		}
 	},
 	/**
+	 * Moves the scroll bar to the selected chain's position.
+	 */
+	scrollToSelected: function()
+	{
+		var self = this;
+		var selected = self.pdbTable.getSelectedRow();
+
+		var container = self.$el.find(".dataTables_scrollBody");
+
+		// TODO make scroll parameters customizable?
+		container.scrollTo($(selected),
+		                   {axis: 'y', duration: 800});
+	},
+	/**
 	 * Initializes the PDB chain table.
 	 *
 	 * @return {MutationPdbTable}   table instance
 	 */
-	_initPdbTable: function()
+	_initPdbTable: function(callback)
 	{
 		var self = this;
 
@@ -76,15 +100,22 @@ var PdbTableView = Backbone.View.extend({
 		var pdbProxy = self.model.pdbProxy;
 
 		var options = {el: self.$el.find(".pdb-chain-table")};
-		var headers = ["PDB Id",
+		var headers = ["datum",
+			"PDB Id",
 			"Chain",
 			"Uniprot From",
-			"Uniprot To",
 			"Uniprot Positions",
 			"Identity Percent",
 			"Organism",
 			"Summary"];
+
 		var table = new MutationPdbTable(options, headers);
+		self.pdbTable = table;
+
+		if (_.isFunction(callback))
+		{
+			callback(self, table);
+		}
 
 		self._generateRowData(pdbColl, pdbProxy, function(rowData) {
 			// init table with the row data
@@ -107,11 +138,19 @@ var PdbTableView = Backbone.View.extend({
 		pdbProxy.getPdbInfo(pdbIds.join(" "), function(data) {
 			pdbColl.each(function(pdb) {
 				pdb.chains.each(function(chain) {
+					// this is the data of the hidden column "datum"
+					// content of this datum is exactly same as each datum
+					// associated with the pdb panel chain rectangles...
+					var datum = {
+						pdbId: pdb.pdbId,
+						chain: chain
+					};
+
 					rows.push(
-						[pdb.pdbId,
+						[datum,
+						pdb.pdbId,
 						chain.chainId,
 						chain.mergedAlignment.uniprotFrom,
-						chain.mergedAlignment.uniprotTo,
 						null,
 						chain.mergedAlignment.identityPerc,
 						PdbDataUtil.getOrganism(data[pdb.pdbId], chain.chainId),

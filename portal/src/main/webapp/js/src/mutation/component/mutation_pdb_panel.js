@@ -180,10 +180,6 @@ function MutationPdbPanel(options, data, proxy, xScale)
 						_defaultChainGroup = gChain;
 					}
 
-					// add tooltip
-					var addTooltip = options.chainTipFn;
-					addTooltip(gChain);
-
 					// increment chain counter
 					count++;
 				}
@@ -192,6 +188,42 @@ function MutationPdbPanel(options, data, proxy, xScale)
 
 		// update global rectangle counter in the end
 		_rectCount = count;
+
+		// add chain tooltips
+		addChainTooltips(data, options);
+	}
+
+	/**
+	 * Adds tooltips to the chain rectangles.
+	 *
+	 * @param data      row data containing pdb and chain information
+	 * @param options   visual options object
+	 */
+	function addChainTooltips(data, options)
+	{
+		// this is to prevent chain tooltip functions to send
+		// too many separate requests to the server
+
+		var pdbIds = [];
+		var chains = [];
+
+		// collect pdb ids and chains
+		_.each(data, function(allocation, rowIdx) {
+			_.each(allocation, function(datum, idx) {
+				pdbIds.push(datum.pdbId);
+				chains.push(_chainMap[
+					PdbDataUtil.chainKey(datum.pdbId, datum.chain.chainId)]);
+			});
+		});
+
+		// this caches pdb info before adding the tooltips
+		proxy.getPdbInfo(pdbIds.join(" "), function(data) {
+			// add tooltip to the chain groups
+			_.each(chains, function(chain, idx) {
+				var addTooltip = options.chainTipFn;
+				addTooltip(chain);
+			});
+		});
 	}
 
 	/**
@@ -644,14 +676,15 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	{
 		// resize to collapsed height
 		var collapsedHeight = calcCollapsedHeight(_options.numRows[index]);
+		var prevHeight = _svg.attr("height");
 
-		dispatchResizeStartEvent(collapsedHeight);
+		dispatchResizeStartEvent(collapsedHeight, prevHeight);
 
 		_svg.transition()
 			.duration(_options.animationDuration)
 			.attr("height", collapsedHeight)
 			.each("end", function() {
-				dispatchResizeEndEvent(collapsedHeight);
+				dispatchResizeEndEvent(collapsedHeight, prevHeight);
 			});
 
 		_levelHeight = collapsedHeight;
@@ -900,13 +933,14 @@ function MutationPdbPanel(options, data, proxy, xScale)
 
 		// 3) resize the panel to a single row size
 		var collapsedHeight = calcCollapsedHeight(1);
+		var prevHeight = _svg.attr("height");
 
-		dispatchResizeStartEvent(collapsedHeight);
+		dispatchResizeStartEvent(collapsedHeight, prevHeight);
 
 		_svg.transition().duration(duration)
 			.attr("height", collapsedHeight)
 			.each("end", function(){
-				dispatchResizeEndEvent(collapsedHeight);
+				dispatchResizeEndEvent(collapsedHeight, prevHeight);
 			});
 	}
 
@@ -1067,7 +1101,9 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		// fade-in hidden elements
 		fadeInAll();
 
-		dispatchResizeStartEvent(_levelHeight);
+		var prevHeight = _svg.attr("height");
+
+		dispatchResizeStartEvent(_levelHeight, prevHeight);
 
 		// restore to previous height
 		_svg.transition().duration(duration)
@@ -1076,7 +1112,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 				if (_.isFunction(callback)) {
 					callback();
 				}
-				dispatchResizeEndEvent(_levelHeight);
+				dispatchResizeEndEvent(_levelHeight, prevHeight);
 			});
 	}
 
@@ -1133,18 +1169,18 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		return _highlighted;
 	}
 
-	function dispatchResizeStartEvent(newHeight)
+	function dispatchResizeStartEvent(newHeight, prevHeight)
 	{
 		_dispatcher.trigger(
 			MutationDetailsEvents.PDB_PANEL_RESIZE_STARTED,
-			newHeight, _options.maxHeight);
+			newHeight, prevHeight, _options.maxHeight);
 	}
 
-	function dispatchResizeEndEvent(newHeight)
+	function dispatchResizeEndEvent(newHeight, prevHeight)
 	{
 		_dispatcher.trigger(
 			MutationDetailsEvents.PDB_PANEL_RESIZE_ENDED,
-			newHeight, _options.maxHeight);
+			newHeight, prevHeight, _options.maxHeight);
 	}
 
 	return {init: init,

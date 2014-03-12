@@ -25,6 +25,12 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 	var _pdbPanelView = null;
 	var _pdbTableView = null;
 
+	// TODO this can be implemented in a better/safer way
+	// ...find a way to bind the source info to the actual event
+
+	// flags for distinguishing actual event sources
+	var _chainSelectedByTable = false;
+
 	function init()
 	{
 		// add listeners to the custom event dispatcher of the diagram
@@ -115,7 +121,7 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 		}
 	}
 
-	function panelResizeStartHandler(newHeight, maxHeight)
+	function panelResizeStartHandler(newHeight, prevHeight, maxHeight)
 	{
 		// check if it is expanded beyond the max height
 		if (newHeight > maxHeight)
@@ -125,13 +131,20 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 		}
 	}
 
-	function panelResizeEndHandler(newHeight, maxHeight)
+	function panelResizeEndHandler(newHeight, prevHeight, maxHeight)
 	{
 		// check if it is collapsed
 		if (newHeight <= maxHeight)
 		{
 			// remove the toggle bar at the end of the resize
 			_pdbPanelView.toggleScrollBar(-1);
+		}
+
+		// if there is a change in the size,
+		// then also scroll to the correct position
+		if (prevHeight != newHeight)
+		{
+			_pdbPanelView.scrollToSelected();
 		}
 	}
 
@@ -150,16 +163,29 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 			}
 		};
 
+		// scroll to the selected chain if selection triggered by the table
+		// (i.e: exclude manual selection for the sake of user-friendliness)
+		if (_chainSelectedByTable)
+		{
+			// scroll the view
+			_pdbPanelView.scrollToSelected();
+		}
+
 		// update 3D view with the selected chain data
 		var datum = element.datum();
 		mut3dVisView.updateView(geneSymbol, datum.pdbId, datum.chain, callback);
 
-		// TODO do not update if the event is triggered by the table itself
 		// also update the pdb table (highlight the corresponding row)
-		if (_pdbTableView != null)
+		if (!_chainSelectedByTable &&
+		    _pdbTableView != null)
 		{
+			_pdbTableView.resetFilters();
 			_pdbTableView.selectChain(datum.pdbId, datum.chain.chainId);
+			_pdbTableView.scrollToSelected();
 		}
+
+		// reset the flag
+		_chainSelectedByTable = false;
 	}
 
 	function tableChainSelectHandler(pdbId, chainId)
@@ -167,6 +193,7 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 		if (pdbId && chainId)
 		{
 			_pdbPanelView.selectChain(pdbId, chainId);
+			_chainSelectedByTable = true;
 		}
 	}
 
@@ -191,12 +218,16 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 		    _pdbPanelView != null &&
 		    pdbColl.length > 0)
 		{
-			_pdbTableView = _pdbPanelView.initPdbTableView(pdbColl);
+			_pdbTableView = _pdbPanelView.initPdbTableView(pdbColl, function(view, table) {
+				// we need to register a callback to add this event listener
+				table.dispatcher.on(
+					MutationDetailsEvents.PDB_TABLE_READY,
+					pdbTableReadyHandler);
+
+				_pdbTableView = view;
+			});
 
 			// add listeners to the custom event dispatcher of the pdb table
-			_pdbTableView.pdbTable.dispatcher.on(
-				MutationDetailsEvents.PDB_TABLE_READY,
-				pdbTableReadyHandler);
 
 			_pdbTableView.pdbTable.dispatcher.on(
 				MutationDetailsEvents.TABLE_CHAIN_SELECTED,
@@ -231,6 +262,7 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 			{
 				var datum = gChain.datum();
 				_pdbTableView.selectChain(datum.pdbId, datum.chain.chainId);
+				_pdbTableView.scrollToSelected();
 			}
 		}
 	}

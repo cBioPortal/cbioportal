@@ -179,6 +179,7 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 		if (!_chainSelectedByTable &&
 		    _pdbTableView != null)
 		{
+			_pdbTableView.resetFilters();
 			_pdbTableView.selectChain(datum.pdbId, datum.chain.chainId);
 			_pdbTableView.scrollToSelected();
 		}

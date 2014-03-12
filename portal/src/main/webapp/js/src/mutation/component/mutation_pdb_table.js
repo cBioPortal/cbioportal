@@ -11,7 +11,7 @@ function MutationPdbTable(options, headers)
 {
 	// default options object
 	var _defaultOpts = {
-		el: "mutation_pdb_table_d3",
+		el: "#mutation_pdb_table_d3",
 		elWidth: 740, // width of the container
 		// Indicates the visibility of columns
 		//
@@ -28,7 +28,7 @@ function MutationPdbTable(options, headers)
 		// For any unknown visibility value, column will be hidden by default.
 		//
 		// All other columns will be initially hidden by default.
-		columnVisibility: {"aa change": "visible",
+		columnVisibility: {
 			"pdb id": "visible",
 			"chain": "visible",
 			"uniprot positions": "visible",
@@ -36,7 +36,7 @@ function MutationPdbTable(options, headers)
 			"organism": "visible",
 			"summary": "visible",
 			"uniprot from": "excluded",
-			"uniprot to": "excluded"
+			"datum": "excluded"
 		},
 		// Indicates whether a column is searchable or not.
 		// Should be a boolean value or a function.
@@ -130,11 +130,24 @@ function MutationPdbTable(options, headers)
 					},
 					"aTargets": [indexMap["identity percent"]]},
 				{"fnRender": function(obj) {
+						// format using the corresponding template
+						return _.template($("#mutation_pdb_table_pdb_cell_template").html(),
+						                  {pdbId: obj.aData[obj.iDataColumn]});
+					},
+					"aTargets": [indexMap["pdb id"]]},
+				{"fnRender": function(obj) {
+						// format using the corresponding template
+						return _.template($("#mutation_pdb_table_chain_cell_template").html(),
+						                  {chainId: obj.aData[obj.iDataColumn]});
+					},
+					"aTargets": [indexMap["chain"]]},
+				{"fnRender": function(obj) {
 						// there is no data (null) for uniprot positions,
 						// so set the display value by using the hidden
-						// columns ("uniprot from" and "uniprot to")
-						return obj.aData[indexMap["uniprot from"]] + "-" +
-						       obj.aData[indexMap["uniprot to"]];
+						// column "datum"
+						var datum = obj.aData[indexMap["datum"]];
+						return datum.chain.mergedAlignment.uniprotFrom + "-" +
+						       datum.chain.mergedAlignment.uniprotTo;
 					},
 					"aTargets": [indexMap["uniprot positions"]]},
 				// sort uniprot positions wrt "uniprot from"
@@ -142,12 +155,13 @@ function MutationPdbTable(options, headers)
 					"aTargets": [indexMap["uniprot positions"]]}
 			],
 			"oColVis": {"aiExclude": excludedCols}, // columns to always hide
-//			"fnDrawCallback": function(oSettings) {
-//
-//			},
+			"fnDrawCallback": function(oSettings) {
+				addDefaultTooltips();
+			},
 			"fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
-				var key = PdbDataUtil.chainKey(aData[indexMap["pdb id"]],
-				                               aData[indexMap["chain"]]);
+				var datum = aData[indexMap["datum"]];
+				var key = PdbDataUtil.chainKey(datum.pdbId,
+				                               datum.chain.chainId);
 				_rowMap[key] = nRow;
 			},
 			"fnInitComplete": function(oSettings, json) {
@@ -247,20 +261,26 @@ function MutationPdbTable(options, headers)
 
 	function addDefaultListeners(indexMap)
 	{
-		$(_options.el).on("click", "tr", function (event) {
+		//$(_options.el).on("click", "tr", function (event) {
+		$(_options.el).on("click", ".pbd-chain-table-chain-cell a", function (event) {
 			// remove previous highlights
 			removeAllSelection();
 
-			// highlight selected row
-			$(event.target.parentNode).addClass('row_selected');
+			// get selected row via event target
+			var selectedRow = $(event.target).closest("tr");
 
-			var data = _dataTable.fnGetData(this);
+			// highlight selected row
+			selectedRow.addClass('row_selected');
+
+			//var data = _dataTable.fnGetData(this);
+			var data = _dataTable.fnGetData(selectedRow[0]);
+			var datum = data[indexMap["datum"]];
 
 			// trigger corresponding event
 			_dispatcher.trigger(
 				MutationDetailsEvents.TABLE_CHAIN_SELECTED,
-				data[indexMap["pdb id"]],
-				data[indexMap["chain"]]);
+				datum.pdbId,
+				datum.chain.chainId);
 		});
 
 		// TODO mouse over/out actions do not work as desired
@@ -284,6 +304,12 @@ function MutationPdbTable(options, headers)
 		});
 	}
 
+	function cleanFilters()
+	{
+		// just show everything
+		_dataTable.fnFilter("");
+	}
+
 	function selectRow(pdbId, chainId)
 	{
 		var key = PdbDataUtil.chainKey(pdbId, chainId);
@@ -300,13 +326,7 @@ function MutationPdbTable(options, headers)
 
 	function removeAllSelection()
 	{
-//			$(_dataTable.fnSettings().aoData).each(function (){
-//				$(this.nTr).removeClass('row_selected');
-//			});
-
-		_.each(_rowMap, function(nRow) {
-			$(nRow).removeClass("row_selected");
-		});
+		$(_options.el).find("tr").removeClass("row_selected");
 	}
 
 	function getSelectedRow()
@@ -314,9 +334,28 @@ function MutationPdbTable(options, headers)
 		return _selectedRow;
 	}
 
+	function addDefaultTooltips()
+	{
+		var qTipOptions = defaultTooltipOpts();
+		$(_options.el).find(".simple-tip").qtip(qTipOptions);
+	}
+
+	// TODO duplicate code -- see MutationTable._addMutationTableTooltips function
+	function defaultTooltipOpts()
+	{
+		return {
+			content: {attr: 'alt'},
+			show: {event: 'mouseover'},
+			hide: {fixed: true, delay: 100, event: 'mouseout'},
+			style: {classes: 'mutation-details-tooltip qtip-shadow qtip-light qtip-rounded'},
+			position: {my:'top left', at:'bottom right'}
+		};
+	}
+
 	return {
 		renderTable: renderTable,
 		selectRow: selectRow,
+		cleanFilters: cleanFilters,
 		getSelectedRow: getSelectedRow,
 		dispatcher: _dispatcher
 	};

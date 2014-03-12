@@ -43,6 +43,16 @@
 .mutation-pdb-main-container .pdb-chain-table-loader {
 	padding-left: 40px;
 }
+.mutation-pdb-main-container .pbd-chain-table-chain-cell label {
+	font-weight: bold;
+	font-style: italic;
+}
+.mutation-pdb-main-container .pbd-chain-table-chain-cell a {
+	cursor: pointer;
+	background-color: #88C;
+	color: white;
+	float: right;
+}
 .mutation-pdb-main-container {
 	margin-bottom: 10px;
 }

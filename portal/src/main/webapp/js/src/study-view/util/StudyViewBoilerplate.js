@@ -110,6 +110,33 @@ var StudyViewBoilerplate ={
         stroke: "",
         fill: ""
     },
+    
+    updateTableDiv: 
+            "<div style='float: left'>" +
+            "<input type='button' "+
+                "id='study-view-dataTable-updateTable' "+
+                "class='study-view-header-button' "+
+                "value = 'Update Table'/>" +
+            "</div>",
+    
+    updateChartsDiv: 
+            "<div style='float: left'>" +
+            "<input type='button' "+
+                "id='study-view-dataTable-updateCharts' "+
+                "class='study-view-header-button' "+
+                "value = 'Update Charts'/>" +
+            "</div>",
+    
+    upArrowDiv:
+            "<img src='images/arrow_top.png' " +
+                "height='25px' alt='Update Charts' " +
+                "style='float: left'/>",
+    
+    downArrowDiv:
+            "<img src='images/arrow_bottom.png' " +
+                "height='25px' alt='Update Table' " +
+                "style='float: left'/>",
+        
     scatterPlotDiv: 
             "<div id='study-view-scatter-plot' class='study-view-dc-chart w3 h2'>"+
             "<div id='study-view-scatter-plot-header' style='float: right'>"+

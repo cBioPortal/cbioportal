@@ -41,19 +41,8 @@
     
     <div id="study-view-charts"></div>
     
-    <div id="study-view-update">
-        <div id="study-view-updateContent">
-            <div style="float: right">
-                <input type='button' id='study-view-dataTable-header' class='study-view-header-button' value = 'Update Charts'/>
-            </div>
-            <img src="images/arrow_top.png" height='25px' alt='Update Charts' style="float: right"/>
-            <div style="float: right">
-                <input type='button' id='study-view-dataTable-updateTable' class='study-view-header-button' value = 'Update Table' />
-            </div>
-            <img src="images/arrow_bottom.png" height='25px' alt='Update  Table' style="float: right"/>
-        </div>
-    </div>
-    <!--<div id="dataTableLoading" style="text-align:center;display:none"><img src="images/ajax-loader.gif"></div>-->
+    <div id="study-view-update"></div>
+    
     <div id='data-table-chart'></div>
 
 </div>

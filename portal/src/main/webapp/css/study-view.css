@@ -93,20 +93,12 @@
 }
 #study-view-update {
     float:left;
-    width:1000px;
+    width:1200px;
     margin:auto;
 }
-/*
-#dataTableLoading {
-    float:left;
-    width:1000px;
-    margin:auto;
-}
-*/
 #study-view-updateContent {
-    text-align:right;
-    width: 500px;
-    height: auto;
+    width: 338px;
+    height: 25px;
     margin-left:auto;
     margin-right:auto;
     margin-top: 20px;

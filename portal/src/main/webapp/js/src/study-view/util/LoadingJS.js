@@ -23,7 +23,10 @@ var LoadingJS = (function(){
                     'FnGetColumnData',
                     'FnColumnFilter'
                 ],
-                view: ['StudyViewInitCharts', 'StudyViewInitDataTable'],
+                view: [
+                        'StudyViewInitCharts', 
+                        'StudyViewInitDataTable',
+                        'StudyViewInitMiddleComponents'],
                 controller: ['StudyViewControl']
             };
             

@@ -17,6 +17,7 @@ var StudyViewControl = (function() {
     var callbackFunc = function (_data) {
         StudyViewInitDataTable.init(parObject, _data);
         StudyViewInitCharts.init(parObject, _data);
+        StudyViewInitMiddleComponents.init();
         DATATABLE.resizeTable();
     };
     

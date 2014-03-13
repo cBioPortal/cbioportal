@@ -547,26 +547,6 @@ var StudyViewInitCharts = (function(){
         }
     }
     
-    function middleComponents() {
-        
-        $('#study-view-dataTable-header').unbind('click');
-        $('#study-view-dataTable-header').click(function(){
-            var items=[];
-            $('#dataTable>tbody>tr>td:nth-child(1)').each( function(){
-               items.push( $(this).text() );       
-            });
-            var items = $.unique( items );
-
-            filterChartsByGivingIDs(items);
-        });
-        $('#study-view-dataTable-updateTable').unbind('click');
-        $('#study-view-dataTable-updateTable').click(function(){
-            var _filteredResult = varChart[attrNameMapUID['CASE_ID']].getCluster().top(Infinity);
-            DATATABLE.updateTable(_filteredResult);
-        });
-       
-    }
-
     function updateDataTableCallbackFuncs() {
         
         var _dataTableRowClickCallback = function(_deSelect, _selectedRowCaseId) {
@@ -597,6 +577,7 @@ var StudyViewInitCharts = (function(){
     
     function setScatterPlotStyle(_selectedCaseID,_filters){
         var style=[];
+        
         for(var i=0 ; i< parObject.caseIds.length ; i++){
             var styleDatum ={};
             styleDatum.case_id = parObject.caseIds[i];
@@ -801,15 +782,20 @@ var StudyViewInitCharts = (function(){
     }
     
     return {
-        init: function(o,data){
+        init: function(o,data) {
             initData(data);
             initPage();
             initParameters(o);
             initCharts(data);
-            middleComponents();
             updateDataTableCallbackFuncs();
-            //resizeTable();
             filterCharts();
-        }
+        },
+        
+        getFilteredResults: function() {
+            var _filteredResult = varChart[attrNameMapUID['CASE_ID']].getCluster().top(Infinity);
+            return _filteredResult;
+        },
+        
+        filterChartsByGivingIDs: filterChartsByGivingIDs
     };
 })();

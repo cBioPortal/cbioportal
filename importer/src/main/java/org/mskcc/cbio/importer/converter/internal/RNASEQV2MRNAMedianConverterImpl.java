@@ -162,7 +162,7 @@ public class RNASEQV2MRNAMedianConverterImpl implements Converter {
 
                 List<String> pairs;
                 List<LinkedList<String>> columnData = dataMatrix.getColumnData(HYBRIDIZATION_REF_COLUMN_HEADER_NAME);
-                if (columnData!=null) {
+                if (!columnData.isEmpty()) {
                     pairs = columnData.get(0);
                 } else {
                     pairs = dataMatrix.getColumnData(0); // non standard gene column name

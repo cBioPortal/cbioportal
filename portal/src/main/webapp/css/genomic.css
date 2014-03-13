@@ -10,22 +10,16 @@
 }
 
 .oma_medium {
-  color: #AE601F;
+  color: #9F6F47;
   font-weight:bold;
 }
 
 .oma_low {
-  color: #3F74C0;
+  color: #988A3E;
   font-weight:bold;
 }
 
 .oma_neutral {
   color: #909090;
-  /*color: #4C7B9F;*/
   font-weight:bold;
 }
-
-.oma_high A:link {!important; text-decoration: underline !important;}
-.oma_high A:visited {!important; text-decoration: underline !important;}
-.oma_high A:active {!important; text-decoration: underline !important;}
-

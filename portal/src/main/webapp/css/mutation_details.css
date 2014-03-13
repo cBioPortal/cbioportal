@@ -47,10 +47,8 @@
 	font-weight: bold;
 	font-style: italic;
 }
-.mutation-pdb-main-container .pbd-chain-table-chain-cell a {
+.mutation-pdb-main-container .pdb-table-3d-icon {
 	cursor: pointer;
-	background-color: #88C;
-	color: white;
 	float: right;
 }
 .mutation-pdb-main-container {
@@ -89,7 +87,7 @@
 }
 .mutation-table-container .mutation-table-3d-icon,
 .mutation-table-container .mutation-table-igv-icon,
-.pdb-chain-table-container .pdb-table-3d-icon {
+.mutation-pdb-main-container .pdb-table-3d-icon {
 	background-color: #88C;
 	color: white;
 	padding-left: 6px;
@@ -132,8 +130,8 @@ th.mutation-details-qtip-style {
 }
 */
 .mutation-table-container .mutation_table_cosmic {
-	/*cursor: pointer;*/
-	color: #1974B8;
+	/*cursor: pointer;
+	color: #1974B8;*/
 }
 #mutation_details .dataTables_filter {
 	width: 200px;
@@ -148,18 +146,6 @@ th.mutation-details-qtip-style {
 .mutation-table-container .pdb-img {
 	vertical-align: bottom;
 	margin-left: 3px;
-}
-.mutation-table-container .oma_high {
-	padding-right: 7px;
-	padding-left: 7px;
-}
-.mutation-table-container .oma_medium {
-	padding-left: 6px;
-	padding-right: 7px;
-}
-.mutation-table-container .oma_neutral {
-	padding-right: 7px;
-	padding-left: 7px;
 }
 .diagram-lollipop-tip, .diagram-region-tip, .pdb-chain-tip {
 	font-size: 12px;

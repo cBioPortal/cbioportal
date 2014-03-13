@@ -52,10 +52,10 @@ var MutationViewsUtil = (function()
 	 * view values.
 	 */
 	var _omaScoreMap = {
-		h: {label: "H", style: "oma_high", tooltip: "High"},
-		m: {label: "M", style: "oma_medium", tooltip: "Medium"},
-		l: {label: "L", style: "oma_low", tooltip: "Low"},
-		n: {label: "N", style: "oma_neutral", tooltip: "Neutral"}
+		h: {label: "High", style: "oma_high", tooltip: "High"},
+		m: {label: "Medium", style: "oma_medium", tooltip: "Medium"},
+		l: {label: "Low", style: "oma_low", tooltip: "Low"},
+		n: {label: "Neutral", style: "oma_neutral", tooltip: "Neutral"}
 	};
 
 	/**

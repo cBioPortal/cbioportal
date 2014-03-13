@@ -478,8 +478,13 @@
 		</td>
 		<td>
 			<span class='{{proteinChangeClass}}' alt='{{proteinChangeTip}}'>
-				{{proteinChange}}
+				<a>{{proteinChange}}</a>
 			</span>
+			<a href='#' class="mutation-table-3d-link" alt="{{pdbMatchId}}">
+				<span>
+					&nbsp;3D&nbsp;
+				</span>
+			</a>
 		</td>
 		<td>
 			<span class='{{mutationTypeClass}}'>
@@ -490,21 +495,9 @@
 			<label class='{{cosmicClass}}' alt='{{mutationId}}'><b>{{cosmicCount}}</b></label>
 		</td>
 		<td>
-			<span class='{{omaClass}} {{fisClass}}' alt='{{fisValue}}|{{xVarLink}}'>
+			<span class='{{omaClass}} {{fisClass}}' alt='{{fisValue}}|{{mutationId}}'>
 				<label>{{fisText}}</label>
 			</span>
-			<a href='{{msaLink}}' target='_blank'>
-				<span style="background-color:#88C;color:white">
-					&nbsp;msa&nbsp;
-				</span>
-			</a>
-		</td>
-		<td>
-			<a href='#' class="pdb-link" alt="{{pdbMatchId}}">
-				<span style="background-color:#88C;color:white">
-					&nbsp;3D&nbsp;
-				</span>
-			</a>
 		</td>
 		<td>
 			<span alt='{{mutationStatusTip}}' class='simple-tip {{mutationStatusClass}}'>
@@ -573,7 +566,6 @@
 	<!--th alt='Predicted Functional Impact Score (via Mutation Assessor) for missense mutations'
 	    class='mutation-table-header'>FIS</th-->
 	<th alt='Mutation Assessor' class='mutation-table-header'>Mutation Assessor</th>
-	<th alt='3D Structure' class='mutation-table-header'>3D</th>
 	<th alt='Mutation Status' class='mutation-table-header'>MS</th>
 	<th alt='Validation Status' class='mutation-table-header'>VS</th>
 	<th alt='Sequencing Center' class='mutation-table-header'>Center</th>
@@ -680,10 +672,22 @@
 
 <script type="text/template" id="mutation_details_fis_tip_template">
 	Predicted impact score: <b>{{impact}}</b>
-	<div class='mutation-assessor-link'>
+	<div class='mutation-assessor-main-link'>
 		<a href='{{linkOut}}' target='_blank'>
 			<img height=15 width=19 src='images/ma.png'>
 			Go to Mutation Assessor
+		</a>
+	</div>
+	<div class='mutation-assessor-msa-link'>
+		<a href='{{msaLink}}' target='_blank'>
+			<img height=15 width=19 src='images/msa.png'>
+			Multiple Sequence Alignment
+		</a>
+	</div>
+	<div class='mutation-assessor-3d-link'>
+		<a href='{{pdbLink}}' target='_blank'>
+			<img height=15 width=19 src='images/pdb.png'>
+			Mutation Assessor 3D View
 		</a>
 	</div>
 </script>

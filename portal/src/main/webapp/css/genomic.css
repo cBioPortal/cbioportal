@@ -2,33 +2,26 @@
 
 .oma_link {
 	font-weight:bold;
-	padding-top: 1px;
-	padding-left:8px;
-	padding-right:8px;
-	padding-bottom: 2px;
 }
 
 .oma_high {
-  background: #C83C3C;
-  color: #EBEFF2;
+  color: #C83C3C;
   font-weight:bold;
 }
 
 .oma_medium {
-  background: #C79060;
-  color: #EBEFF2;
+  color: #AE601F;
   font-weight:bold;
 }
 
 .oma_low {
-  background: #E8E894;
-  color: #2E5EA3;
+  color: #3F74C0;
   font-weight:bold;
 }
 
 .oma_neutral {
-  background: #EFEFEF;
-  color: #4C7B9F;
+  color: #909090;
+  /*color: #4C7B9F;*/
   font-weight:bold;
 }
 

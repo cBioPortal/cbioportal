@@ -561,7 +561,8 @@
 	<th alt='Overlapping mutations in COSMIC' class='mutation-table-header'>COSMIC</th>
 	<!--th alt='Predicted Functional Impact Score (via Mutation Assessor) for missense mutations'
 	    class='mutation-table-header'>FIS</th-->
-	<th alt='Mutation Assessor' class='mutation-table-header'>Mutation Assessor</th>
+	<th alt='Predicted Functional Impact Score (via Mutation Assessor) for missense mutations'
+	    class='mutation-table-header'>Mutation Assessor</th>
 	<th alt='Mutation Status' class='mutation-table-header'>MS</th>
 	<th alt='Validation Status' class='mutation-table-header'>VS</th>
 	<th alt='Sequencing Center' class='mutation-table-header'>Center</th>

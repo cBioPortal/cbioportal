@@ -15,14 +15,9 @@ var StudyViewInitCharts = (function(){
         dataArr = {},
         removedChart = [],
         attrNameMapUID = [], //The relationshio between "The unique attribute name" and "The unique ID number in whole page"        
-        varCluster = [], //Clusters of displayed charts -- DC.JS require
-        varGroup = [], //Groups of displayed charts -- DC.JS require
-        disableFiltId = [0],
-        dataTableNumericFilter = [],
         brushedCaseIds = [],
         dataType = {},
         shiftClickedCaseIds = [],
-        columnIndexMappingColumnId = {},
         chartColors = jQuery.extend(true, [], StudyViewBoilerplate.chartColors), // Color scale from GOOGLE charts
         parObject = {
             studyId: "",
@@ -127,7 +122,6 @@ var StudyViewInitCharts = (function(){
 
             varDisplay.push(dataA[i]["display_name"]);                
             varName.push(dataA[i]["attr_id"]);
-            dataTableNumericFilter[i] = '';
         }
 
         //var totalCharts = pie.length,
@@ -482,25 +476,6 @@ var StudyViewInitCharts = (function(){
         removedChart.push(Number(_chartID));
     }
     
-    function deleteChartResetDataTable(_dataTable) {
-        var filterArray = [],
-            filteredResult = varCluster[attrNameMapUID['CASE_ID']].top(Infinity);
-
-        for(var i=0 ; i<filteredResult.length ; i++){
-            filterArray.push(filteredResult[i].CASE_ID);
-        }
-
-        $.fn.dataTableExt.afnFiltering = [function( oSettings, aData, iDataIndex ) {
-            var data = aData[0];
-            var dataContent = $(data).text();
-            if ( filterArray.indexOf(dataContent) !== -1){
-                return true;
-            }
-            return false;
-        }];
-        _dataTable.fnDraw();
-    }
-    
     function setSVGElementValue(_svgParentDivId,_idNeedToSetValue,scatterPlotDataAttr){
         $("#" + _svgParentDivId + " .plots-title-x-help").remove();
         $("#" + _svgParentDivId + " .plots-title-y-help").remove();
@@ -572,263 +547,8 @@ var StudyViewInitCharts = (function(){
         }
     }
     
-    function initLogBarChart(_para) {
-        var chartID = _para.chartID,
-            className = _para.chartDivID,
-            selectedAttr = _para.attrId,
-            selectedAttrDisplay = _para.displayName,
-            distanceMinMaxArray = _para.distanceArray;
+    function middleComponents() {
         
-        var logCheckBox = "<span id='scale-span-"+chartID+
-                "' style='float:right; font-size:10px; margin-right: 15px;"+
-                "margin-top:3px;color: grey'>Log Scale X</span>"+
-                "<input type='checkbox' checked value='"+ chartID +","+ 
-                distanceMinMaxArray[selectedAttr].max +","+ 
-                distanceMinMaxArray[selectedAttr].min + "," + selectedAttr +
-                "' id='scale-input-"+chartID+
-                "' class='study-view-bar-x-log'></input>";
-        
-        var contentHTML = "<div id=\"study-view-dc-chart-" + chartID + 
-                "\" class='"+ className +"'  value='" + selectedAttr + "," + 
-                selectedAttrDisplay+ ",bar'><div style='width:100%; float:right'>"+
-                "<span class='study-view-dc-chart-delete'>x</span>"+
-                "<a href='javascript:varChart[" + chartID + "].filterAll();dc.redrawAll();'>"+
-                "<span  title='Reset Chart' class='study-view-dc-chart-change'>"+
-                "RESET</span></a>"+logCheckBox +"</div></div>"+
-                "<div style='width:100%; float:center;text-align:center;'><pieH4>"
-                + selectedAttrDisplay + "</pieH4></div>";
-        
-        if($("#study-view-dc-chart-main-" + chartID).length === 0){
-            $("#study-view-charts")
-                    .append("<div id=\"study-view-dc-chart-main-" + chartID+ 
-                        "\" class='study-view-dc-chart study-view-bar-main'>" +
-                        contentHTML + "</div>");
-                
-            $("#scale-input-"+chartID).change(function(e) {
-                $(this).parent().parent().find('svg').remove();
-                
-                if(varChart[chartID].hasFilter()){
-                    varChart[chartID].filterAll();
-                    dc.redrawAll();
-                }
-                
-                dc.deregisterChart(varChart[chartID]);                
-                
-                var _para = {
-                    chartID: chartID,
-                    chartDivID: className,
-                    attrId: selectedAttr,
-                    displayName: selectedAttrDisplay,
-                    distanceArray:distanceMinMaxArray
-                };
-                if($(this).attr('checked')){
-                    initLogBarChart(_para);
-                }else{
-                    initBarChart(_para);
-                }
-                varChart[chartID].render();
-            });
-        }
-        
-        varChart[chartID] = dc.barChart("#study-view-dc-chart-" + chartID);
-        
-        var emptyValueMapping = "1000",
-            maxDomain = 10000,
-            monthDomain = [];
-
-        for(var i=0; ;i+=0.5){
-            var _tmpValue = parseInt(Math.pow(10,i));
-            monthDomain.push(_tmpValue);
-            if(_tmpValue > distanceMinMaxArray[selectedAttr].max){
-                emptyValueMapping = Math.pow(10,i+0.5);
-                monthDomain.push(emptyValueMapping);
-                maxDomain = Math.pow(10,i+1);
-                break;
-            }
-        }
-        varCluster[chartID] = ndx.dimension(function (d) {
-            var returnValue = Number(d[selectedAttr]);
-            if(isNaN(returnValue)){
-                return emptyValueMapping;
-            }else{
-                returnValue = Number(returnValue);
-                for(var i=1;i<monthDomain.length;i++){
-                    if(d[selectedAttr] < monthDomain[i] && d[selectedAttr] >= monthDomain[i-1])
-                        returnValue = parseInt(Math.pow(10,i/2-0.25));
-                }
-                return returnValue;
-            }
-        }); 
-        
-        varGroup[chartID] = varCluster[chartID].group();
-
-        varChart[chartID]
-            .width(370)
-            .height(180)
-            .margins({top: 10, right: 20, bottom: 30, left: 40})
-            .dimension(varCluster[chartID])
-            .group(varGroup[chartID])
-            .centerBar(true)
-            .elasticY(true)
-            .elasticX(false)
-            .turnOnControls(true)
-            .mouseZoomable(false)
-            .brushOn(true)
-            .transitionDuration(600)
-            .renderHorizontalGridLines(true)
-            .renderVerticalGridLines(true);
-    
-        varChart[chartID].centerBar(true);
-        varChart[chartID].x(d3.scale.log().nice().domain([0.7,maxDomain]));
-        varChart[chartID].yAxis().tickFormat(d3.format("d"));            
-        varChart[chartID].xAxis().tickFormat(function(v) {
-            var returnValue = v;
-            if(v === emptyValueMapping) 
-                returnValue = 'NA';
-            else {
-                var index = monthDomain.indexOf(v);
-                if(index % 2 === 0)
-                    return v.toString();
-                else
-                    return '';
-            }
-            return returnValue; 
-        });            
-        
-        varChart[chartID].xAxis().tickValues(monthDomain);
-        var xunitsNum = monthDomain.length*1.3;
-        if(xunitsNum <= 5)
-            varChart[chartID].xUnits(function(){return 5;});
-        else
-            varChart[chartID].xUnits(function(){return xunitsNum;});
-        
-        varChart[chartID].on("filtered", function(chart,filter){
-            var tmpCaseID = [],
-                currentPieFilters = varChart[chartID].filters(),
-                tmpDimention = varChart[attrNameMapUID["CASE_ID"]].dimension();
-                
-            var tmpResult = tmpDimention.top(Infinity);
-            
-            clickedCaseId = '';
-            
-            if(currentPieFilters.length === 0){
-                $("#study-view-dc-chart-main-" + chartID + 
-                        " .study-view-dc-chart-change")
-                        .css('display','none');
-                $("#study-view-dc-chart-main-" + chartID)
-                        .css({'border-width':'1px', 'border-style':'solid'});
-            }
-            else{
-                $("#study-view-dc-chart-main-" + chartID + 
-                        " .study-view-dc-chart-change")
-                        .css('display','block');
-                $("#study-view-dc-chart-main-" + chartID)
-                        .css({'border-width':'2px', 'border-style':'inset'});
-            }
-            
-            if(typeof scatterStudyView !== 'undefined'){
-                for(var i=0; i<tmpResult.length ; i++){
-                    tmpCaseID.push(tmpResult[i].CASE_ID);
-                }
-                setScatterPlotStyle(tmpCaseID,currentPieFilters);   
-            }
-            
-            changeHeader();
-            removeMarker();
-        });
-    }
-    
-    function restyle(data) {
-        var tmpA = [],
-            tmpB = [];
-        tmpA.push({sTitle:"CASE ID",sType:'string'});
-        for(var i=0; i< data.attr.length;i++){
-            if(data.attr[i].attr_id !== 'CASE_ID'){
-                var tmp = {};
-                if(data.attr[i].attr_id === 'COPY_NUMBER_ALTERATIONS')
-                    tmp.sTitle = 'CNA';
-                else
-                    tmp.sTitle = data.attr[i].attr_id.replace(/[_]/g,' ');
-                tmp.sType = dataType[data.attr[i].attr_id];
-                tmpA.push(tmp);
-            }
-        }
-        
-        $.each(data.arr, function(key,value){ 
-            tmpB[key] = [];
-            $.each(tmpA, function(key1,value1){
-                var tmpValue ='';
-                
-                if(value1.sTitle === 'CNA'){
-                    tmpValue = value['COPY_NUMBER_ALTERATIONS'];                
-                }else if ( value1.sTitle === 'COMPLETE (ACGH, MRNA, SEQUENCING)'){
-                    tmpValue = value[value1.sTitle];
-                }else if ( value1.sTitle === 'CASE ID'){
-                    tmpValue = "<a href='tumormap.do?case_id=" + 
-                    value['CASE_ID'] + "&cancer_study_id=" +
-                    parObject.studyId + "' target='_blank'>" + 
-                    value['CASE_ID'] + "</a></strong>";
-                }else{
-                    tmpValue = value[value1.sTitle.replace(/[ ]/g,'_')];
-                }
-                if(!isNaN(tmpValue) && (tmpValue % 1 != 0)){
-                    tmpValue = cbio.util.toPrecision(Number(tmpValue),3,0.01);
-                }
-                
-                var _selectedString = tmpValue.toString(),
-                    specialChar = ['(',')','/','?','+'],
-                    specialCharLength = specialChar.length;
-                for(var j=0; j < specialCharLength ; j++){
-                    if(_selectedString.indexOf(specialChar[j]) !== -1){
-                        var re = new RegExp("\\" + specialChar[j],"g");
-                        _selectedString = _selectedString.replace(re ,specialChar[j] + " ");
-                    } 
-                }
-                
-                tmpB[key].push(_selectedString);
-            });
-        });
-        //Add th tags based on number of attributes
-        for(var i=0 ; i<tmpA.length ; i++){
-            $("#dataTable tfoot tr").append("<th></th>");
-            columnIndexMappingColumnId[i] = i;
-        }
-        
-        
-        var dataTable1 = $('#dataTable').dataTable({
-            "sScrollX": "1200px",
-            "sScrollY": "300px",
-            "bPaginate": false,
-            "bScrollCollapse": true,
-            "aoColumns": tmpA,
-            "aaData":tmpB,
-            "sDom": '<"dataTableTop"Ci<"dataTableReset">f>rt',
-            "fnDrawCallback": function(oSettings){
-                if($(".ColVis_collection.TableTools_collection").css('display') === 'block'){
-                    var _currentIndex= 0 ;
-                    columnIndexMappingColumnId = {};
-                    $.each(dataTable1.fnSettings().aoColumns, function(c){
-                        if(dataTable1.fnSettings().aoColumns[c].bVisible === true){
-                            columnIndexMappingColumnId[_currentIndex] = c;
-                            _currentIndex++;
-                        }
-                    });
-                    $("#dataTable_filter label input").attr("value","");
-                    $.fn.dataTableExt.afnFiltering = [];
-                    disableFiltId = [0];
-                    resizeLeftColumn();         
-                    refreshSelectionInDataTable(dataTable1);
-                    $(".dataTableReset span").css('display','none');
-                }
-            }
-        });
-        $(".ColVis_MasterButton").css({height:'auto', padding:'0 4px'});
-        $(".ColVis_MasterButton").click(function() {
-            $('.ColVis_collection.TableTools_collection').find('button').first().prop('disabled',true);
-            $('.ColVis_collection.TableTools_collection').find('button').first().find('input').prop('disabled',true);
-        });
-        $(".dataTableReset").append("<a><span class='hidden' title='Reset Chart'>RESET</span></a>");
-        $("#dataTable_filter label input").attr("value","");
         $('#study-view-dataTable-header').unbind('click');
         $('#study-view-dataTable-header').click(function(){
             var items=[];
@@ -839,297 +559,38 @@ var StudyViewInitCharts = (function(){
 
             filterChartsByGivingIDs(items);
         });
-        $(".dataTableReset span").click(function(){
-            $("#dataTable_filter label input").attr("value","");
-            $.fn.dataTableExt.afnFiltering = [];
-            updateTable(dataTable1,[]);
-            resizeLeftColumn();            
-            refreshSelectionInDataTable(dataTable1);
-            dataTable1.fnAdjustColumnSizing();
-            showDataTableReset(dataTable1);
-        });
         $('#study-view-dataTable-updateTable').unbind('click');
         $('#study-view-dataTable-updateTable').click(function(){
-            deleteChartResetDataTable(dataTable1);
-            resizeLeftColumn();            
-            refreshSelectionInDataTable(dataTable1);
-            dataTable1.fnAdjustColumnSizing();
-            $("#dataTable_filter label input").attr("value","");
-            showDataTableReset(dataTable1);
+            var _filteredResult = varChart[attrNameMapUID['CASE_ID']].getCluster().top(Infinity);
+            DATATABLE.updateTable(_filteredResult);
         });
+       
+    }
+
+    function updateDataTableCallbackFuncs() {
         
-        $("#dataTable_filter label input").keyup(function() {
-            showDataTableReset(dataTable1);
-            resizeLeftColumn();
-        });
-        $("#dataTable tbody").unbind('click');
-        $("#dataTable tbody").mousedown(function(event){
-            if(event.shiftKey){
-                event.preventDefault();
-                var returnValue, 
-                    selectedRowCaseId = [],
-                    oTable = $("#dataTable").dataTable();
-
-               /*
-                $(oTable.fnSettings().aoData).each(function (){
-                    $(this.nTr).removeClass('row_selected');
-                });
-                */
-                if($(event.target.parentNode).hasClass('row_selected')){
-                    $(event.target.parentNode).removeClass('row_selected');
-                    if($(event.target.parentNode).hasClass('odd')){
-                       $(event.target.parentNode).css('background-color','#E2E4FF'); 
-                    }else{
-                        $(event.target.parentNode).css('background-color','white');
-                    }
-                }else{
-                    $(event.target.parentNode).addClass('row_selected');
-                    $(event.target.parentNode).css('background-color','lightgray');
-                }
-                returnValue = fnGetSelected(oTable);
-                var returnValueLength = returnValue.length;
-                for(var i=0 ; i< returnValueLength; i++){
-                    selectedRowCaseId.push($(returnValue[i]).find('td').first().text());
-                }
-                shiftClickedCaseIds = selectedRowCaseId;
-                clickedCaseId = '';
-                removeMarker();
-                filterChartsByGivingIDs(selectedRowCaseId);
-                setScatterPlotStyle(selectedRowCaseId,varChart[attrNameMapUID['CASE_ID']].getChart().filters());
-            }else{
-                var returnValue, 
-                    selectedRowCaseId = [],
-                    deSelect = false;
-                    oTable = $("#dataTable").dataTable();
-
-                if($(event.target.parentNode).hasClass('row_selected')){
-                    $(event.target.parentNode).removeClass('row_selected');
-                    if($(event.target.parentNode).hasClass('odd')){
-                       $(event.target.parentNode).css('background-color','#E2E4FF'); 
-                    }else{
-                        $(event.target.parentNode).css('background-color','white');
-                    }
-                    deSelect = true;
-                }else{
-                    $(oTable.fnSettings().aoData).each(function (){
-                        if($(this.nTr).hasClass('row_selected')){
-                            $(this.nTr).removeClass('row_selected');
-                            if($(this.nTr).hasClass('odd')){
-                               $(this.nTr).css('background-color','#E2E4FF'); 
-                            }else{
-                                $(this.nTr).css('background-color','white');
-                            }
-                        }
-                    });
-
-                    $(event.target.parentNode).addClass('row_selected');
-                    $(event.target.parentNode).css('background-color','lightgray');
-                }
-                
-                returnValue = fnGetSelected(oTable);
-                var returnValueLength = returnValue.length;
-                for(var i=0 ; i< returnValueLength; i++){
-                    selectedRowCaseId.push($(returnValue[i]).find('td').first().text());
-                }
-
-                clickedCaseId = selectedRowCaseId[0];
-                shiftClickedCaseIds = [];
-                removeMarker();
-                redrawChartsAfterDeletion();
-                if(!deSelect){
-                    getDataAndDrawMarker(selectedRowCaseId);
-                }
-                setScatterPlotStyle(selectedRowCaseId,varChart[attrNameMapUID['CASE_ID']].getChart().filters());
+        var _dataTableRowClickCallback = function(_deSelect, _selectedRowCaseId) {
+            clickedCaseId = _selectedRowCaseId;
+            removeMarker();
+            redrawChartsAfterDeletion();
+            if(!_deSelect){
+                getDataAndDrawMarker(_selectedRowCaseId);
             }
-        });
-    } 
-    
-    function showDataTableReset( _oTable ){
-        var _showedColumnNumber = _oTable.fnSettings().fnRecordsDisplay();
-        var _totalColumnNumber = _oTable.fnSettings().fnRecordsTotal();
-        if(_showedColumnNumber !== _totalColumnNumber){
-            $(".dataTableReset span").css('display','block');
-        }else{
-            $(".dataTableReset span").css('display','none');
-            disableFiltId = [0];
-            refreshSelectionInDataTable(_oTable);
-        }
-    }
-    
-    function fnGetSelected( oTableLocal ){
-	var aReturn = new Array();
-	var aTrs = oTableLocal.fnGetNodes();
-	
-	for ( var i=0 ; i<aTrs.length ; i++ ){
-            if ( $(aTrs[i]).hasClass('row_selected') ){
-                    aReturn.push( aTrs[i] );
-            }
-	}
-	return aReturn;
-    }
-
-    function resizeLeftColumn(){
-        var heightBody = $(".dataTables_scrollBody").css('height'),
-            heightTable = $('.dataTables_scroll').css('height'),
-            widthBody = $("#dataTable tbody>tr>td:nth-child(1)").css('width');
+            setScatterPlotStyle(_selectedRowCaseId,varChart[attrNameMapUID['CASE_ID']].getChart().filters());
+        };
         
-        widthBody = widthBody.slice(0,widthBody.length-2);
-        widthBody = Number(widthBody) + 20;
-        widthBody = widthBody.toString() + 'px';
+        var _dataTableRowShiftClickCallback = function(_selectedRowCaseId) {
+            shiftClickedCaseIds = _selectedRowCaseId;
+            clickedCaseId = '';
+            removeMarker();
+            filterChartsByGivingIDs(_selectedRowCaseId);
+            setScatterPlotStyle(_selectedRowCaseId,varChart[attrNameMapUID['CASE_ID']].getChart().filters());
+        };
         
-        $(".DTFC_LeftBodyLiner").css('height',heightBody);
-        $(".DTFC_LeftBodyWrapper").css('height',heightBody); 
-        $(".DTFC_LeftWrapper").css('width',widthBody);
-        $(".DTFC_LeftBodyLiner").css('width',widthBody);
-        $('.DTFC_ScrollWrapper').css('height',heightTable);            
+        DATATABLE.rowClickCallback(_dataTableRowClickCallback);
+        DATATABLE.rowShiftClickCallback(_dataTableRowShiftClickCallback);
     }
     
-    function updateDataTableNumericFilter(_dataTable){
-        var dataTableNumericFilterLength = dataTableNumericFilter.length;
-        $.fn.dataTableExt.afnFiltering = [];
-        for(var i=0; i<dataTableNumericFilterLength; i++){
-            if(dataTableNumericFilter[i] !== ''){
-                $.fn.dataTableExt.afnFiltering.push(dataTableNumericFilter[i]);
-            }
-        }
-        _dataTable.fnDraw();
-    }
-    
-    function refreshSelectionInDataTable(_dataTable){
-        $(".dataTables_scrollFoot tfoot th").each( function ( i ) {
-            if(disableFiltId.indexOf(i) === -1){                
-                $(this).css('z-index','1500');
-                this.innerHTML = fnCreateSelect( _dataTable.fnGetColumnData(columnIndexMappingColumnId[i]), i);
-                
-                var drag = d3.behavior.drag()
-                        .on("drag", dragMove)
-                        .on("dragend",dragEnd);
-                
-                d3.select("#dataTable-" + i + "-left")
-                                .call(drag);
-                d3.select("#dataTable-" + i + "-right")
-                                .call(drag);
-                        
-                $("#dataTable-" + i + "-reset").unbind('click');
-                $("#dataTable-" + i + "-reset").click(function(){
-                    dataTableNumericFilter[columnIndexMappingColumnId[i]] = '';
-                    updateDataTableNumericFilter(_dataTable);
-                    disableFiltId.splice(disableFiltId.indexOf(i),1);
-                    resizeLeftColumn();
-                    showDataTableReset(_dataTable);
-                    $("#dataTable-" + i + "-reset").css('display','none');
-                    refreshSelectionInDataTable(_dataTable);
-                    _dataTable.fnAdjustColumnSizing();
-                });
-                
-                $('select', this).change( function () {
-                    if($(this).val() === ''){
-                        _dataTable.fnFilter($(this).val(), columnIndexMappingColumnId[i]);
-                        disableFiltId.splice(disableFiltId.indexOf(i),1);
-                    }else{
-                        var _selectedString = $(this).val().toString(),
-                            specialChar = ['(',')','/','?','+'],
-                            specialCharLength = specialChar.length;
-                        for(var j=0; j < specialCharLength ; j++){
-                            if(_selectedString.indexOf(specialChar[j]) !== -1){
-                                var re = new RegExp("\\" + specialChar[j],"g");
-                                _selectedString = _selectedString.replace(re ,"\\"+ specialChar[j]);
-                            } 
-                        }
-                        _dataTable.fnFilter("^"+_selectedString+"$", columnIndexMappingColumnId[i], true);
-                        disableFiltId.push(i);
-                    }
-                    
-                    resizeLeftColumn();
-                    showDataTableReset(_dataTable);
-                    refreshSelectionInDataTable(_dataTable);
-                    _dataTable.fnAdjustColumnSizing();
-                });
-                
-                function dragMove(d) {
-                    var _start = Number($(this).parent().attr('start')),
-                        _end = Number($(this).parent().attr('end')),
-                        _xMoved = d3.event.x - 5,
-                        _lineLength = Number($(this).parent().find('line').attr('x2')) - Number($(this).parent().find('line').attr('x1'));
-                    
-                    if(_start > _end){
-                        var _tmp = _end;
-                        _end - _start;
-                        _start = _end;
-                    }
-                    
-                    if(_xMoved >= 0 && _xMoved <= _lineLength){
-                        var _text = (_end-_start) * _xMoved / _lineLength + _start;
-                        _text = cbio.util.toPrecision(Number(_text),3,0.1);
-                        if($(this).attr('id').toString().indexOf('left') !== -1){
-                            d3.select(this)
-                                .attr("transform", "translate(" +_xMoved +",0)");
-                        }else{
-                            _xMoved -= _lineLength;
-                             d3.select(this)
-                                .attr("transform", "translate(" +_xMoved +",0)");
-                        }
-                        $(this).find('text').text(_text);
-                    }
-                }
-                
-                function dragEnd(d) {
-                    var _min = Number($(this).parent().find('g.left').find('text').text()),
-                        _max = Number($(this).parent().find('g.right').find('text').text());
-                    
-                    if(_min > _max){
-                        var _tmp = _max;
-                        _max - _min;
-                        _min = _max;
-                    }
-                    
-                    dataTableNumericFilter[columnIndexMappingColumnId[i]] = function( oSettings, aData, iDataIndex ) {
-                                var iMin = _min;
-                                var iMax = _max;
-                                var iVersion = aData[columnIndexMappingColumnId[i]];
-                                if ( iMin == "" && iMax == "" )
-                                {
-                                        return true;
-                                }
-                                else if ( iMin == "" && iVersion < iMax )
-                                {
-                                        return true;
-                                }
-                                else if ( iMin < iVersion && "" == iMax )
-                                {
-                                        return true;
-                                }
-                                else if ( iMin < iVersion && iVersion < iMax )
-                                {
-                                        return true;
-                                }
-                                return false;
-                        };
-                    updateDataTableNumericFilter(_dataTable);
-                    
-                    _dataTable.fnSort([ [columnIndexMappingColumnId[i],'asc']]);
-                    disableFiltId.push(i);
-                    resizeLeftColumn();
-                    showDataTableReset(_dataTable);
-                    $("#dataTable-" + i + "-reset").css('display','block');
-                    refreshSelectionInDataTable(_dataTable);
-                    _dataTable.fnAdjustColumnSizing();
-                }
-            }
-        });
-    }
-    
-    function updateTable(_dataTable,_exceptionColumns){
-        var oSettings = _dataTable.fnSettings();
-        for(var iCol = 0; iCol < oSettings.aoPreSearchCols.length; iCol++) {
-            if(_exceptionColumns.indexOf(iCol) === -1){
-                oSettings.aoPreSearchCols[ iCol ].sSearch = '';
-            }
-        }
-        oSettings.oPreviousSearch.sSearch = '';
-        _dataTable.fnDraw();
-    }
-
     function selectedCol(col) {
         return col.toLowerCase().match(/(^age)|(gender)|(os_status)|(os_months)|(dfs_status)|(dfs_months)|(race)|(ethnicity)|(.*grade.*)|(.*stage.*)|(histology)|(tumor_type)|(subtype)|(tumor_site)|(.*score.*)|(mutation_count)|(copy_number_alterations)/);
     }
@@ -1172,39 +633,6 @@ var StudyViewInitCharts = (function(){
             style.push(styleDatum);
         }
         scatterStudyView.updateStyle(style);
-    }
-    
-    function resizeTable(){                 
-        $('#dc-plots-loading-wait').hide();
-        $('#study-view-main').show();
-        /*
-        var rotationAngle = 315;
-        var radians = Math.PI * (rotationAngle/180);
-        var numColumns = 0;
-        var maxX =0;
-        $('table.dataTable>thead>tr>th').each(function(){
-            numColumns++;
-        });
-        
-        for(var i =1;i<=numColumns ; i++){
-            var rotatedX = $("table.dataTable>thead>tr>th:nth-child("+i+")").width();
-            if(rotatedX > maxX)
-                maxX = rotatedX;
-        }
-        maxX -= 28;
-        for(var i =1;i<=numColumns ; i++){
-            $("table.dataTable>thead>tr>th:nth-child("+i+")").height(maxX/Math.cos(radians));
-        }
-        */
-        var oTable = $('#dataTable').dataTable();
-        
-        refreshSelectionInDataTable(oTable);
-        
-        oTable.fnAdjustColumnSizing();
-        new FixedColumns( oTable);
-        $(".DTFC_LeftBodyLiner").css("overflow-y","hidden");
-        $(".dataTables_scroll").css("overflow-x","scroll");
-        $(".DTFC_LeftHeadWrapper").css("background-color","white");
     }
     
     function redrawChartsAfterDeletion(){
@@ -1337,67 +765,6 @@ var StudyViewInitCharts = (function(){
         }
     }
     
-    function fnCreateSelect( aData, _index ){
-        var _isNumericArray = true,
-            _hasNullValue = false;
-    
-        for(var i=0;i<aData.length;i++){
-            if(isNaN(aData[i])){
-                if(aData[i] !== 'NA'){
-                    _isNumericArray = false;
-                    break;
-                }else{
-                    _hasNullValue = true;
-                }
-            }
-        }
-        
-        if(_isNumericArray && _hasNullValue){
-            var _index = aData.indexOf("NA");
-            if (_index > -1) {
-                aData.splice(_index, 1);
-            }
-        }
-        
-        if(_isNumericArray){            
-            aData.sort(function(a,b) {
-                return Number(a) - Number(b);
-            });
-        }else{
-            aData.sort();
-        }
-        if(!_isNumericArray || aData.length === 0){
-            var r='<select><option value=""></option>', i, iLen=aData.length;
-            for ( i=0 ; i<iLen ; i++ )
-            {
-                r += '<option value="'+aData[i]+'">'+aData[i]+'</option>';
-            }
-            return r+'</select>';
-        }else{
-            var _min = aData[0],
-                _max = aData[aData.length-1],
-                _x1 = 5,
-                _x2 = 65;
-            
-            var _leftTriangelCoordinates = (_x1-5) + ",2 "+ (_x1+5)+",2 "+_x1+",10",
-                _rightTriangelCoordinates = (_x2-5) + ",2 "+ (_x2+5)+",2 "+_x2+",10",
-                _leftText = "x='"+(_x1-3)+"' y='20'",
-                _rightText = "x='"+(_x2-10)+"' y='20'",
-                _resetText = "x='"+(_x2+15)+"' y='20'";
-           
-            var _svgLine = "<svg width='110' height='30' start='"+ _min +"' end='"+ _max +"'>" + 
-                    "<g><line x1='"+ _x1 +"' y1='10' x2='"+ _x2 +"' y2='10' style='stroke:black;stroke-width:2' /></g>"+
-                    "<g id='dataTable-"+ _index +"-left' class='clickable left'><polygon points='"+_leftTriangelCoordinates+"' style='fill:grey'></polygon>"+
-                    "<text "+_leftText+" fill='black' style='font-size:8'>"+ _min +"</text></g>" + 
-                    "<g id='dataTable-"+ _index +"-right' class='clickable right'><polygon points='"+_rightTriangelCoordinates+"' style='fill:grey'></polygon>"+
-                    "<text "+_rightText+" fill='black' style='font-size:8'>"+ _max +"</text></g>" +
-                    "<text "+ _resetText +" id='dataTable-"+ _index +"-reset' class='clickable hidden'  fill='black' style='font-size:8'>RESET</text>" + 
-                    "</svg>";
-
-            return _svgLine;
-        }
-    }
-    
     function getRefererCaseId() {
         var idStr = /^#?case_ids=(.+)/.exec(location.hash);
         if (!idStr) return null;
@@ -1422,8 +789,8 @@ var StudyViewInitCharts = (function(){
     function initPage(){
         $("#study-view-charts").html("");
         $("#study-view-charts").append(StudyViewBoilerplate.scatterPlotDiv);
-        $("#data-table-chart").html("");
-        $("#data-table-chart").append(StudyViewBoilerplate.dataTableDiv);
+        //$("#data-table-chart").html("");
+        //$("#data-table-chart").append(StudyViewBoilerplate.dataTableDiv);
     }
     
     function initData(_data){
@@ -1439,8 +806,9 @@ var StudyViewInitCharts = (function(){
             initPage();
             initParameters(o);
             initCharts(data);
-            restyle(data);
-            resizeTable();
+            middleComponents();
+            updateDataTableCallbackFuncs();
+            //resizeTable();
             filterCharts();
         }
     };

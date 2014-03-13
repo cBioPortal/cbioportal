@@ -16,14 +16,14 @@ var LoadingJS = (function(){
         var _key;
         
         var _folder = {
-                component: ['ScatterPlots','PieChart', 'BarChart'],
+                component: ['ScatterPlots','PieChart', 'BarChart', 'DataTable'],
                 data: ['StudyViewProxy'],
                 util: [
                     'DcRedrawAllDataTable', 
                     'FnGetColumnData',
                     'FnColumnFilter'
                 ],
-                view: ['StudyViewInitCharts'],
+                view: ['StudyViewInitCharts', 'StudyViewInitDataTable'],
                 controller: ['StudyViewControl']
             };
             

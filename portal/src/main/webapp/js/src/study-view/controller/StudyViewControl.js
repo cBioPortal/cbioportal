@@ -14,8 +14,10 @@ var StudyViewControl = (function() {
         caseSetId: ""
     };
         
-    var callbackFunc = function (data) {
-        StudyViewInitCharts.init(parObject,data);
+    var callbackFunc = function (_data) {
+        StudyViewInitDataTable.init(parObject, _data);
+        StudyViewInitCharts.init(parObject, _data);
+        DATATABLE.resizeTable();
     };
     
     function initLocalParameters(o){
@@ -26,9 +28,15 @@ var StudyViewControl = (function() {
         parObject.caseSetId = o.caseSetId;
     }
     
+    function initPage(){
+        $("#data-table-chart").html("");
+        $("#data-table-chart").append(StudyViewBoilerplate.dataTableDiv);
+    }
+    
     return {
         init: function(o) {
             initLocalParameters(o);
+            initPage();
             StudyViewProxy.init(parObject,callbackFunc);
         }
     };

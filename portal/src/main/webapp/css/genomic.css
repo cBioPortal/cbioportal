@@ -5,26 +5,30 @@
 	padding-top: 1px;
 	padding-left:8px;
 	padding-right:8px;
-	padding-bottom: 1px;
+	padding-bottom: 2px;
 }
 
 .oma_high {
   background: #C83C3C;
+  color: #EBEFF2;
   font-weight:bold;
 }
 
 .oma_medium {
   background: #C79060;
+  color: #EBEFF2;
   font-weight:bold;
 }
 
 .oma_low {
   background: #E8E894;
+  color: #2E5EA3;
   font-weight:bold;
 }
 
 .oma_neutral {
   background: #EFEFEF;
+  color: #4C7B9F;
   font-weight:bold;
 }
 

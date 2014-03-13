@@ -451,7 +451,7 @@
 		<label>{{chainId}}</label>
 		<a>
 			<span alt="Click to update the 3D view with this chain"
-			      class="simple-tip">&nbsp;3D&nbsp;</span>
+			      class="simple-tip pdb-table-3d-icon">3D</span>
 		</a>
 	</span>
 </script>
@@ -481,9 +481,7 @@
 				<a>{{proteinChange}}</a>
 			</span>
 			<a href='#' class="mutation-table-3d-link" alt="{{pdbMatchId}}">
-				<span>
-					&nbsp;3D&nbsp;
-				</span>
+				<span class="mutation-table-3d-icon">3D</span>
 			</a>
 		</td>
 		<td>
@@ -541,9 +539,7 @@
 		</td>
 		<td>
 			<a class='igv-link' alt='{{igvLink}}'>
-				<span style="background-color:#88C;color:white">
-					&nbsp;IGV&nbsp;
-				</span>
+				<span class="mutation-table-igv-icon">IGV</span>
 			</a>
 		</td>
 		<td>
@@ -672,21 +668,21 @@
 
 <script type="text/template" id="mutation_details_fis_tip_template">
 	Predicted impact score: <b>{{impact}}</b>
-	<div class='mutation-assessor-main-link'>
+	<div class='mutation-assessor-main-link mutation-assessor-link'>
 		<a href='{{linkOut}}' target='_blank'>
 			<img height=15 width=19 src='images/ma.png'>
 			Go to Mutation Assessor
 		</a>
 	</div>
-	<div class='mutation-assessor-msa-link'>
+	<div class='mutation-assessor-msa-link mutation-assessor-link'>
 		<a href='{{msaLink}}' target='_blank'>
-			<img height=15 width=19 src='images/msa.png'>
+			<span class="ma-msa-icon">msa</span>
 			Multiple Sequence Alignment
 		</a>
 	</div>
-	<div class='mutation-assessor-3d-link'>
+	<div class='mutation-assessor-3d-link mutation-assessor-link'>
 		<a href='{{pdbLink}}' target='_blank'>
-			<img height=15 width=19 src='images/pdb.png'>
+			<span class="ma-3d-icon">3D</span>
 			Mutation Assessor 3D View
 		</a>
 	</div>

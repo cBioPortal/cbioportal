@@ -87,9 +87,34 @@
 .mutation-table-container .mutation-table-3d-link {
 	float: right;
 }
-.mutation-table-container .mutation-table-3d-link span {
+.mutation-table-container .mutation-table-3d-icon,
+.mutation-table-container .mutation-table-igv-icon,
+.pdb-chain-table-container .pdb-table-3d-icon {
 	background-color: #88C;
 	color: white;
+	padding-left: 6px;
+	padding-right: 6px;
+}
+.mutation-assessor-link {
+	margin-bottom: 1px;
+}
+.mutation-assessor-link .ma-msa-icon{
+	background-color: #88C;
+	color: white;
+	padding-left: 3px;
+	padding-right: 3px;
+	font-size: 80%;
+}
+.mutation-assessor-link .ma-3d-icon {
+	background-color: #88C;
+	color: white;
+	padding-left: 6px;
+	padding-right: 6px;
+	font-size: 80%;
+}
+.mutation-assessor-main-link img {
+	padding-left: 3px;
+	padding-right: 3px;
 }
 .mutation-table-container .best_effect_transcript {
 	color: red;

@@ -150,6 +150,7 @@ MutationDiagram.prototype.defaultOpts = {
 	yAxisFont: "sans-serif",    // font type of the y-axis labels
 	yAxisFontSize: "10px",      // font size of the y-axis labels
 	yAxisFontColor: "#2E3436",  // font color of the y-axis labels
+	animationDuration: 600,     // transition duration (in ms) used for highlight animations
 	/**
 	 * Default lollipop tooltip function.
 	 *
@@ -1675,6 +1676,8 @@ MutationDiagram.prototype.addDefaultListeners = function()
 {
 	var self = this;
 
+	// TODO we might not need check isInTransition anymore...
+
 	// diagram background click
 	self.addListener(".mut-dia-background", "click", function(datum, index) {
 		// ignore the action (do not dispatch an event) if:
@@ -1832,9 +1835,12 @@ MutationDiagram.prototype.clearHighlights = function()
 	var dataPoints = self.gData.selectAll(".mut-dia-data-point");
 
 	// TODO see if it is possible to update ONLY size, not the whole 'd' attr
-	dataPoints.attr("d", d3.svg.symbol()
-		.size(self.options.lollipopSize)
-		.type(self.getLollipopShapeFn()));
+	dataPoints.transition()
+		.ease("elastic")
+		.duration(self.options.animationDuration)
+		.attr("d", d3.svg.symbol()
+			.size(self.options.lollipopSize)
+			.type(self.getLollipopShapeFn()));
 	self.highlighted = {};
 };
 
@@ -1872,7 +1878,7 @@ MutationDiagram.prototype.highlight = function(selector)
 
 	element.transition()
 		.ease("elastic")
-		.duration(600)
+		.duration(self.options.animationDuration)
 		// TODO see if it is possible to update ONLY size, not the whole 'd' attr
 		.attr("d", d3.svg.symbol()
 			.size(self.options.lollipopHighlightSize)
@@ -1902,7 +1908,7 @@ MutationDiagram.prototype.removeHighlight = function(selector)
 
 	element.transition()
 		.ease("elastic")
-		.duration(600)
+		.duration(self.options.animationDuration)
 		// TODO see if it is possible to update ONLY size, not the whole 'd' attr
 		.attr("d", d3.svg.symbol()
 			.size(self.options.lollipopSize)

@@ -79,7 +79,7 @@
 	padding-left:5px;
 	padding-right:5px;
 }
-.mutation-table-container .protein_change {
+.mutation-table-container .mutation-table-protein-change {
 	font-weight: bold;
 	font-style: italic;
 	cursor: pointer;

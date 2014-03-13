@@ -91,6 +91,17 @@ var MutationDetailsTableView = Backbone.View.extend({
 				mutationId);
 		});
 
+		// add click listener for each 3D link
+		self.$el.find('.mutation-table-protein-change a').click(function(evt) {
+			evt.preventDefault();
+
+			var mutationId = $(this).closest("tr").attr("id");
+
+			self.dispatcher.trigger(
+				MutationDetailsEvents.PROTEIN_CHANGE_LINK_CLICKED,
+				mutationId);
+		});
+
 		var tableSelector = self.$el.find('.mutation_details_table');
 
 		var tableUtil = new MutationTable(tableSelector,
@@ -569,8 +580,8 @@ var MutationDetailsTableView = Backbone.View.extend({
 	},
 	_getProteinChange: function(mutation)
 	{
-		var style = "protein_change";
-		var tip = "";
+		var style = "mutation-table-protein-change";
+		var tip = "click to highlight the position on the diagram";
 
 		// TODO disabled temporarily, enable when isoform support completely ready
 //        if (!mutation.canonicalTranscript)

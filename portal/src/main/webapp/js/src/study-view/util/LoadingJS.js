@@ -16,7 +16,7 @@ var LoadingJS = (function(){
         var _key;
         
         var _folder = {
-                component: ['ScatterPlots','PieChart', 'BarChart', 'DataTable'],
+                component: ['ScatterPlots','PieChart', 'BarChart', 'DataTable','AddCharts'],
                 data: ['StudyViewProxy'],
                 util: [
                     'DcRedrawAllDataTable', 
@@ -26,7 +26,8 @@ var LoadingJS = (function(){
                 view: [
                         'StudyViewInitCharts', 
                         'StudyViewInitDataTable',
-                        'StudyViewInitMiddleComponents'],
+                        'StudyViewInitMiddleComponents',
+                        'StudyViewInitTopComponents'],
                 controller: ['StudyViewControl']
             };
             

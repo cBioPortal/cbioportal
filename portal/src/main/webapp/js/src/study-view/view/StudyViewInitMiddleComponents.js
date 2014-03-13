@@ -1,10 +1,6 @@
 /*
- * Components put between charts and dataTable. Currently only has two buttons.
- * 'Update Table' and 'Update Charts'
+ * View for Middle Components 
  * 
- * @param _data -- 
- *                  
- * @interface: getDataTable -- 
  *                                       
  * @authur: Hongxin Zhang
  * @date: Mar. 2014

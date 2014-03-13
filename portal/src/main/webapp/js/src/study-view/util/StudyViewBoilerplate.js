@@ -111,6 +111,100 @@ var StudyViewBoilerplate ={
         fill: ""
     },
     
+    headerLeftDiv: function() {
+        var _header = $('<div></div>'),
+            _span1 = $('<span></span>'),
+            _span2 = $('<span></span>'),
+            _span3 = $('<span></span>'),
+            _form = $('<form></form>'),
+            _input1 = $('<input></input>'),
+            _input2 = $('<input></input>'),
+            _input3 = $('<input></input>'),
+            _input4 = $('<input></input>');
+        
+        _header.attr('id','study-view-header-left');
+        _span1
+            .attr({
+                'id': 'study-view-header-left-0',
+                'class': 'study-view-header study-view-header-left boxLeft'})
+            .text('Select cases by IDs');
+        _form
+            .attr({
+                method: "post",
+                action: "index.do",
+            })
+            .css({
+                float: "left"
+            });   
+        _input1
+            .attr({
+                type: "hidden",
+                name: "cancer_study_id",
+                id: "study-view-header-left-cancer_study-ids",
+                value: ""
+            });
+        _input2
+            .attr({
+                type: "hidden",
+                name: "case_set_id",
+                value: "-1"
+            });
+        _input3
+            .attr({
+                type: "hidden",
+                id: "study-view-header-left-case-ids",
+                name: "case_ids",
+                value: ""
+            });
+        _input4
+            .attr({
+                type: "submit",
+                id: "study-view-header-left-1",
+                value: "Query selected cases",
+                class: "study-view-header study-view-header-left boxLeft hidden"
+            });
+        _form.append(_input1);
+        _form.append(_input2);
+        _form.append(_input3);
+        _form.append(_input4);
+        
+        _span2
+            .attr({
+                'id': 'study-view-header-left-2',
+                'class': 'study-view-header study-view-header-left boxLeft hidden'})
+            .text('Clear selected cases');
+        
+        _span3
+            .attr({
+                'id': 'study-view-header-left-3',
+                'class': 'hidden'})
+            .text('Clear selected cases')
+            .css({
+                "margin-top": "4px",
+                "margin-left": "4px",
+                "background-color": "lightyellow"
+            });
+       
+        _header.append(_span1);
+        _header.append(_form);
+        _header.append(_span2);
+        _header.append(_span3);
+        
+        return _header;
+    },
+    
+    customDialogDiv:
+            "<div class='hidden' id='study-view-case-select-custom-dialog'>" +
+                "Please input case IDs (one per line)" +
+                "<textarea rows='20' cols='50' id='study-view-case-select-custom-input'></textarea><br/>" +
+                "<button type='button' id='study-view-case-select-custom-submit-btn'>Select</button>" +
+            "</div>",
+    addChartDiv:
+            "<div  id='study-view-add-chart' class='study-view-header boxRight'>" +
+                "<span style='color: grey'>Add Chart</span>" +
+                "<ul>" +
+                "</ul>" +
+            "</div>",
     updateTableDiv: 
             "<div style='float: left'>" +
             "<input type='button' "+

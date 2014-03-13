@@ -1,7 +1,10 @@
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/*
+ * View for All Charts 
+ * 
+ *                                       
+ * @authur: Hongxin Zhang
+ * @date: Mar. 2014
+ * 
  */
 
 
@@ -11,12 +14,21 @@ var StudyViewInitCharts = (function(){
     var numOfCases,
         scatterStudyView,
         ndx,
+        msnry,
+        totalCharts,
         clickedCaseId = '',
         dataArr = {},
+        createdChartID,
         removedChart = [],
         attrNameMapUID = [], //The relationshio between "The unique attribute name" and "The unique ID number in whole page"        
         brushedCaseIds = [],
+        varName = [], //Store all attributes in all data
+        HTMLtagsMapUID = [], //The relationshio between "The ID of div standing for each Chart in HTML" and "The unique ID number in whole page"
+        varType = [], //Could be displayed Charts Type 'pie,bar'. Mix combination, seperate by comma
+        distanceMinMaxArray = [], //Only for NUMBER dataType, store min, max and difference value
         dataType = {},
+        displayedID = [], //Displayed Charts ID number
+        varDisplay = [], //Displayed Charts Name -- the display_name in each attribute       
         shiftClickedCaseIds = [],
         chartColors = jQuery.extend(true, [], StudyViewBoilerplate.chartColors), // Color scale from GOOGLE charts
         parObject = {
@@ -37,12 +49,6 @@ var StudyViewInitCharts = (function(){
         var pie = [], //Displayed attributes info, dataType: STRING, NUMBER, OR BOOLEAN
             bar = [], //Displayed attributes info, dataType: NUMBER
             combine = [], //Combine charts which created for unrecognizable data type
-            varName = [], //Store all attributes in all data
-            HTMLtagsMapUID = [], //The relationshio between "The ID of div standing for each Chart in HTML" and "The unique ID number in whole page"
-            displayedID = [], //Displayed Charts ID number
-            varDisplay = [], //Displayed Charts Name -- the display_name in each attribute       
-            varType = [], //Could be displayed Charts Type 'pie,bar'. Mix combination, seperate by comma
-            distanceMinMaxArray = [], //Only for NUMBER dataType, store min, max and difference value
             scatterPlotArr = [],
             scatterPlotDataAttr = {},
             scatterPlotOptions = {};
@@ -50,10 +56,6 @@ var StudyViewInitCharts = (function(){
         var dataA = dataObtained.attr, //Atrributes
             dataB = dataObtained.arr; //All data
             
-        var headerLeftQtip = jQuery.extend(true, {}, StudyViewBoilerplate.headerCaseSelectCustomDialog);
-        headerLeftQtip.position.target = $(window);
-        headerLeftQtip.content.text = $('#study-view-case-select-custom-dialog')
-        $('#study-view-header-left-0').qtip(headerLeftQtip);;
         $("#study-view-scatter-plot-pdf-name").val("Scatter_Plot_result-"+ parObject.studyId +".pdf");
         $("#study-view-scatter-plot-svg-name").val("Scatter_Plot_result-"+ parObject.studyId +".svg");
         
@@ -125,7 +127,7 @@ var StudyViewInitCharts = (function(){
         }
 
         //var totalCharts = pie.length,
-        var totalCharts = pie.length + bar.length,
+        totalCharts = pie.length + bar.length,
             createdChartID = 0;
             
         for(var i=0; i< pie.length ; i++){
@@ -153,21 +155,6 @@ var StudyViewInitCharts = (function(){
         
         dc.renderAll();
         dc.renderAll("group1");
-       
-        $('#study-view-add-chart ul').find('li').remove().end();
-            
-        $.each(varName, function(key, value) {
-            if(displayedID.indexOf(value) === -1){
-                $('#study-view-add-chart ul')
-                    .append($("<li></li>")
-                        .attr("id",value)
-                        .text(varDisplay[key]));
-            }
-        });
-        
-        if($('#study-view-add-chart ul').find('li').length === 0 ){
-            $('#study-view-add-chart').css('display','none');
-        }
         
         $.each(dataB, function(i,value) {
             if( !isNaN(value['COPY_NUMBER_ALTERATIONS']) && 
@@ -226,9 +213,9 @@ var StudyViewInitCharts = (function(){
                 msnry.layout();
                 clickedCaseId = '',
                 brushedCaseIds = [];
-                shiftClickedIds = [];
+                shiftClickedCaseIds = [];
                 //deleteChartResetDataTable($("#dataTable").dataTable());
-                addClick();
+                AddCharts.bindliClickFunc();
                 removeMarker();
                 redrawChartsAfterDeletion();
                 setScatterPlotStyle([],[]);
@@ -249,21 +236,11 @@ var StudyViewInitCharts = (function(){
         }
         
         var container = document.querySelector('#study-view-charts');
-        var msnry = new Masonry( container, {
+        msnry = new Masonry( container, {
             columnWidth: 190,
             itemSelector: '.study-view-dc-chart',
             gutter:1
         });
-        
-        $('#study-view-add-chart ul').hide();
-        $('#study-view-add-chart').mouseenter(function(){
-           $('#study-view-add-chart ul').show(300);
-        });
-        $('#study-view-add-chart').mouseleave(function(){
-           $('#study-view-add-chart ul').hide(300);
-        });
-        
-        addClick();
         
         $('.study-view-dc-chart-delete').unbind('click');
         $('.study-view-dc-chart-delete').click(function(event){
@@ -272,90 +249,13 @@ var StudyViewInitCharts = (function(){
                 
                 deleteChart(_id[_id.length-1],_valueA);
                 msnry.layout();
-                addClick();
-        });
-        $('#study-view-header-left-2').unbind('click');
-        $('#study-view-header-left-2').click(function (){
-            dc.filterAll();
-            dc.redrawAll();
-            changeHeader();
+                AddCharts.bindliClickFunc();
         });
         /*
         $('#study-view-header-left-4').click(function (){
             removeAllNAValue(dataObtained);
         });
         */
-        $("#study-view-case-select-custom-submit-btn").click(function() {
-            var caseIds = $('#study-view-case-select-custom-input').val().trim().split(/\s+/);
-            filterChartsByGivingIDs(caseIds);
-            $('#study-view-header-left-0').qtip('toggle');
-        });
-        
-        function addClick(){
-            $('#study-view-add-chart ul li').unbind('click');
-            $('#study-view-add-chart ul li').click(function() {
-                var _chartType = [];
-                if($(this).attr('id') === 'mutationCNA')
-                    _chartType = ['scatter'];
-                else
-                    _chartType = varType[$(this).attr('id')].split(',');
-                
-                var selectedAttr = $(this).attr('id');
-                var selectedAttrDisplay = $(this).text();
-                var selectedChartType = _chartType[0];
-                var chartTmpID = -1;
-
-                if(selectedAttr==='mutationCNA' && selectedChartType === 'scatter'){
-                    $("#study-view-scatter-plot").css('display','block');
-                }else{
-                    if(Object.keys(attrNameMapUID).indexOf(selectedAttr) !== -1){
-                        chartTmpID = attrNameMapUID[selectedAttr];
-                    }else{
-                        chartTmpID = totalCharts;
-                        HTMLtagsMapUID["study-view-dc-chart-" + totalCharts] = totalCharts;
-                        attrNameMapUID[selectedAttr] = totalCharts;
-                        totalCharts++;       
-                    }
-                    
-                    if(selectedChartType === 'pie'){
-                        makeNewPieChartInstance(chartTmpID, {attr_id:selectedAttr,display_name:selectedAttrDisplay});
-                    }else{
-                        makeNewBarChartInstance(chartTmpID, {attr_id:selectedAttr,display_name:selectedAttrDisplay}, distanceMinMaxArray[selectedAttr]);
-                    }
-
-
-                    msnry.destroy();
-                    var container = document.querySelector('#study-view-charts');
-                    msnry = new Masonry( container, {
-                      columnWidth: 190,
-                      itemSelector: '.study-view-dc-chart',
-                      gutter:1
-                    });
-
-                    varChart[chartTmpID].getChart().render();
-                    
-                    $('#study-view-dc-chart-'+ chartTmpID +' .study-view-dc-chart-delete').unbind('click');
-                    $('#study-view-dc-chart-'+ chartTmpID +' .study-view-dc-chart-delete').click(function(event){
-                        var valueA = $(this).parent().parent().attr("value").split(',');
-                        deleteChart(chartTmpID,valueA);
-                        addClick();
-                        msnry.layout();
-                    });
-                }
-                
-                var index = removedChart.indexOf(chartTmpID);
-                if (index > -1) {
-                    removedChart.splice(index, 1);
-                }
-                msnry.layout();
-                
-                $('#study-view-add-chart ul').find('li[id="' + selectedAttr + '"]').remove();
-                
-                if($('#study-view-add-chart ul').find('li').length === 0 ){
-                    $('#study-view-add-chart').css('display','none');
-                }
-            });
-        }
     }
     
     function makeNewPieChartInstance(_chartID, _pieInfo) {
@@ -488,63 +388,8 @@ var StudyViewInitCharts = (function(){
     function changeHeader(){
         var tmpDimention = varChart[attrNameMapUID["CASE_ID"]].getChart().dimension();
         var tmpResult = tmpDimention.top(Infinity);
-        var tmpResultLength = tmpResult.length;
-        var tmpCaseID = [];
-        for(var i=0; i<tmpResult.length ; i++){
-            tmpCaseID.push(tmpResult[i].CASE_ID);
-        }
-        if(tmpResultLength === numOfCases){
-            var hasFilter = false;
-            for(var i=0; i<varChart.length; i++){
-                if(removedChart.indexOf(i) === -1){
-                    if (varChart[i].getChart().filters().length > 0)
-                        hasFilter = true;
-                }
-            }
-            if(hasFilter){
-                $("#study-view-header-left-0").css('display','none');
-                $("#study-view-header-left-1").css('display','block');
-                $("#study-view-header-left-2").css('display','block');
-                $("#study-view-header-left-3").css('display','block');
-                $("#study-view-header-left-3").text(tmpResultLength + " cases are selected.");
-                $("#study-view-header-left-case-ids").val(tmpCaseID.join(" "));
-            }else{
-                $("#study-view-header-left-0").css('display','block');
-                $("#study-view-header-left-1").css('display','none');
-                $("#study-view-header-left-2").css('display','none');
-                $("#study-view-header-left-3").css('display','none');
-            }
-        }else{
-            if(tmpResultLength === 0){
-                $("#study-view-header-left-0").css('display','none');
-                $("#study-view-header-left-1").css('display','none');
-                $("#study-view-header-left-2").css('display','block');
-                $("#study-view-header-left-3").css('display','block');
-                $("#study-view-header-left-2").text('Reset');
-                $("#study-view-header-left-3").text("No case is selected.");
-                $("#study-view-header-left-case-ids").val(tmpCaseID.join(" "));
-            }else if(tmpResultLength === 1){
-                $("#study-view-header-left-0").css('display','none');
-                $("#study-view-header-left-1").css('display','none');
-                $("#study-view-header-left-2").css('display','block');
-                $("#study-view-header-left-3").css('display','block');
-                $("#study-view-header-left-2").text('Clear selected case');
-                $("#study-view-header-left-3").html("");
-                $("#study-view-header-left-3")
-                        .append("<a title='Go to patient-centric view' " + 
-                        "href='case.do?cancer_study_id=" + parObject.studyId +
-                        "&amp;case_id=" + tmpCaseID[0] + "'>" + tmpCaseID[0] + 
-                        "</a>" + " is selected.");                
-            }else{
-                $("#study-view-header-left-0").css('display','none');
-                $("#study-view-header-left-1").css('display','block');
-                $("#study-view-header-left-2").css('display','block');
-                $("#study-view-header-left-3").css('display','block');
-                $("#study-view-header-left-2").text('Clear selected cases');
-                $("#study-view-header-left-3").text(tmpResultLength + " cases are selected.");
-                $("#study-view-header-left-case-ids").val(tmpCaseID.join(" "));
-            }
-        }
+        
+        StudyViewInitTopComponents.changeHeader(tmpResult, numOfCases, removedChart);
     }
     
     function updateDataTableCallbackFuncs() {
@@ -661,7 +506,6 @@ var StudyViewInitCharts = (function(){
                     varChart[i].getChart().filterAll();
             }
             dc.redrawAll();
-            brushOn = false;
         }
         changeHeader();
     }
@@ -693,17 +537,8 @@ var StudyViewInitCharts = (function(){
         removeMarker();
         shiftClickedCaseIds = _shiftClickedCaseIds;
         if(_shiftClickedCasesLength !== 0){
-           /*if(clickedCaseId !== ''){
-                if(shiftClickedCaseIds.indexOf(clickedCaseId) === -1){
-                    shiftClickedCaseIds.push(clickedCaseId);
-                }
-                removeMarker();
-                scatterPlotCallBack(shiftClickedCaseIds);
-                getDataAndDrawMarker([clickedCaseId]);
-            }else{*/
             clickedCaseId = '';
             scatterPlotCallBack(shiftClickedCaseIds);
-            //}
         }else{
             redrawChartsAfterDeletion();
             if(clickedCaseId !== '')
@@ -796,6 +631,82 @@ var StudyViewInitCharts = (function(){
             return _filteredResult;
         },
         
-        filterChartsByGivingIDs: filterChartsByGivingIDs
+        getShowedChartsInfo: function() {
+            var _param = {};
+            
+            _param.name = varName;
+            _param.displayName = varDisplay;
+            _param.displayedID = displayedID;
+            
+            return _param;
+        },
+        
+        createNewChart: function(_id, _text) {
+            var _chartType = [];
+            
+            if(_id === 'mutationCNA')
+                _chartType = ['scatter'];
+            else
+                _chartType = varType[_id].split(',');
+
+            var selectedAttr = _id;
+            var selectedAttrDisplay = _text;
+            var selectedChartType = _chartType[0];
+            var chartTmpID = -1;
+
+            if(selectedAttr==='mutationCNA' && selectedChartType === 'scatter'){
+                $("#study-view-scatter-plot").css('display','block');
+            }else{
+                if(Object.keys(attrNameMapUID).indexOf(selectedAttr) !== -1){
+                    chartTmpID = attrNameMapUID[selectedAttr];
+                }else{
+                    chartTmpID = totalCharts;
+                    HTMLtagsMapUID["study-view-dc-chart-" + totalCharts] = totalCharts;
+                    attrNameMapUID[selectedAttr] = totalCharts;
+                    totalCharts++;       
+                }
+
+                if(selectedChartType === 'pie'){
+                    makeNewPieChartInstance(chartTmpID, {attr_id:selectedAttr,display_name:selectedAttrDisplay});
+                }else{
+                    makeNewBarChartInstance(chartTmpID, {attr_id:selectedAttr,display_name:selectedAttrDisplay}, distanceMinMaxArray[selectedAttr]);
+                }
+
+
+                msnry.destroy();
+                var container = document.querySelector('#study-view-charts');
+                msnry = new Masonry( container, {
+                  columnWidth: 190,
+                  itemSelector: '.study-view-dc-chart',
+                  gutter:1
+                });
+
+                varChart[chartTmpID].getChart().render();
+
+                $('#study-view-dc-chart-'+ chartTmpID +' .study-view-dc-chart-delete').unbind('click');
+                $('#study-view-dc-chart-'+ chartTmpID +' .study-view-dc-chart-delete').click(function(event){
+                    var valueA = $(this).parent().parent().attr("value").split(',');
+                    deleteChart(chartTmpID,valueA);
+                    AddCharts.bindliClickFunc();
+                    msnry.layout();
+                });
+            }
+
+            var index = removedChart.indexOf(chartTmpID);
+            if (index > -1) {
+                removedChart.splice(index, 1);
+            }
+            msnry.layout();
+
+            $('#study-view-add-chart ul').find('li[id="' + selectedAttr + '"]').remove();
+
+            if($('#study-view-add-chart ul').find('li').length === 0 ){
+                $('#study-view-add-chart').css('display','none');
+            }
+        },
+        
+        filterChartsByGivingIDs: filterChartsByGivingIDs,
+        
+        changeHeader: changeHeader
     };
 })();

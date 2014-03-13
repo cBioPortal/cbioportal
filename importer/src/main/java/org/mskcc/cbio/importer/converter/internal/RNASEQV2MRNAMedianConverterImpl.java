@@ -47,6 +47,7 @@ import org.apache.commons.logging.LogFactory;
 import java.util.List;
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Set;
 
 /**
@@ -158,8 +159,16 @@ public class RNASEQV2MRNAMedianConverterImpl implements Converter {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), cleaning up Hybridization REF column...");
 		}
-		List<String> pairs = dataMatrix.getColumnData(HYBRIDIZATION_REF_COLUMN_HEADER_NAME).get(0);
-		for (int lc = 0; lc < pairs.size(); lc++) {
+
+                List<String> pairs;
+                List<LinkedList<String>> columnData = dataMatrix.getColumnData(HYBRIDIZATION_REF_COLUMN_HEADER_NAME);
+                if (columnData!=null) {
+                    pairs = columnData.get(0);
+                } else {
+                    pairs = dataMatrix.getColumnData(0); // non standard gene column name
+                }
+                
+                for (int lc = 0; lc < pairs.size(); lc++) {
 			String[] parts = pairs.get(lc).trim().split("\\|");
 			if (parts.length == 2) {
 				String toPart = parts[1];

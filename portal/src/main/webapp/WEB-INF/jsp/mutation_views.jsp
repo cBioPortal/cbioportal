@@ -451,7 +451,7 @@
 		<label>{{chainId}}</label>
 		<a>
 			<span alt="Click to update the 3D view with this chain"
-			      class="simple-tip">&nbsp;3D&nbsp;</span>
+			      class="simple-tip pdb-table-3d-icon">3D</span>
 		</a>
 	</span>
 </script>
@@ -478,8 +478,11 @@
 		</td>
 		<td>
 			<span class='{{proteinChangeClass}}' alt='{{proteinChangeTip}}'>
-				{{proteinChange}}
+				<a>{{proteinChange}}</a>
 			</span>
+			<a href='#' class="mutation-table-3d-link" alt="{{pdbMatchId}}">
+				<span class="mutation-table-3d-icon">3D</span>
+			</a>
 		</td>
 		<td>
 			<span class='{{mutationTypeClass}}'>
@@ -487,24 +490,15 @@
 			</span>
 		</td>
 		<td>
-			<label class='{{cosmicClass}}' alt='{{mutationId}}'><b>{{cosmicCount}}</b></label>
+			<label alt='{{cnaTip}}' class='simple-tip {{cnaClass}}'>{{cna}}</label>
 		</td>
 		<td>
-			<span class='{{omaClass}} {{fisClass}}' alt='{{fisValue}}|{{xVarLink}}'>
+			<label class='{{cosmicClass}}' alt='{{mutationId}}'>{{cosmicCount}}</label>
+		</td>
+		<td>
+			<span class='{{omaClass}} {{fisClass}}' alt='{{fisValue}}|{{mutationId}}'>
 				<label>{{fisText}}</label>
 			</span>
-			<a href='{{msaLink}}' target='_blank'>
-				<span style="background-color:#88C;color:white">
-					&nbsp;msa&nbsp;
-				</span>
-			</a>
-		</td>
-		<td>
-			<a href='#' class="pdb-link" alt="{{pdbMatchId}}">
-				<span style="background-color:#88C;color:white">
-					&nbsp;3D&nbsp;
-				</span>
-			</a>
 		</td>
 		<td>
 			<span alt='{{mutationStatusTip}}' class='simple-tip {{mutationStatusClass}}'>
@@ -548,13 +542,8 @@
 		</td>
 		<td>
 			<a class='igv-link' alt='{{igvLink}}'>
-				<span style="background-color:#88C;color:white">
-					&nbsp;IGV&nbsp;
-				</span>
+				<span class="mutation-table-igv-icon">IGV</span>
 			</a>
-		</td>
-		<td>
-			<label alt='{{cnaTip}}' class='simple-tip-left {{cnaClass}}'>{{cna}}</label>
 		</td>
 		<td>
 			<label class='{{mutationCountClass}}'>{{mutationCount}}</label>
@@ -569,11 +558,10 @@
 	<th alt='Tumor Type' class='mutation-table-header'>Tumor Type</th>
     <th alt='Protein Change' class='mutation-table-header'>AA Change</th>
 	<th alt='Mutation Type' class='mutation-table-header'>Type</th>
+	<th alt='Copy-number status of the mutated gene' class='mutation-table-header'>Copy #</th>
 	<th alt='Overlapping mutations in COSMIC' class='mutation-table-header'>COSMIC</th>
-	<!--th alt='Predicted Functional Impact Score (via Mutation Assessor) for missense mutations'
-	    class='mutation-table-header'>FIS</th-->
-	<th alt='Mutation Assessor' class='mutation-table-header'>Mutation Assessor</th>
-	<th alt='3D Structure' class='mutation-table-header'>3D</th>
+	<th alt='Predicted Functional Impact Score (via Mutation Assessor) for missense mutations'
+	    class='mutation-table-header'>Mutation Assessor</th>
 	<th alt='Mutation Status' class='mutation-table-header'>MS</th>
 	<th alt='Validation Status' class='mutation-table-header'>VS</th>
 	<th alt='Sequencing Center' class='mutation-table-header'>Center</th>
@@ -592,7 +580,6 @@
 	<th alt='Normal Ref Count' class='mutation-table-header'>Norm Ref</th>
 	<th alt='Normal Alt Count' class='mutation-table-header'>Norm Alt</th>
 	<th alt='Link to BAM file' class='mutation-table-header'>BAM</th>
-	<th alt='Copy-number status of the mutated gene' class='mutation-table-header'>Copy #</th>
 	<th alt='Total number of<br> nonsynonymous mutations<br> in the sample'
 	    class='mutation-table-header'>#Mut in Sample</th>
 </script>
@@ -680,10 +667,22 @@
 
 <script type="text/template" id="mutation_details_fis_tip_template">
 	Predicted impact score: <b>{{impact}}</b>
-	<div class='mutation-assessor-link'>
+	<div class='mutation-assessor-main-link mutation-assessor-link'>
 		<a href='{{linkOut}}' target='_blank'>
 			<img height=15 width=19 src='images/ma.png'>
 			Go to Mutation Assessor
+		</a>
+	</div>
+	<div class='mutation-assessor-msa-link mutation-assessor-link'>
+		<a href='{{msaLink}}' target='_blank'>
+			<span class="ma-msa-icon">msa</span>
+			Multiple Sequence Alignment
+		</a>
+	</div>
+	<div class='mutation-assessor-3d-link mutation-assessor-link'>
+		<a href='{{pdbLink}}' target='_blank'>
+			<span class="ma-3d-icon">3D</span>
+			Mutation Assessor 3D View
 		</a>
 	</div>
 </script>

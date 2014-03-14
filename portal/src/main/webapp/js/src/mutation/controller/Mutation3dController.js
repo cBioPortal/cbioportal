@@ -60,6 +60,10 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 			MutationDetailsEvents.PDB_LINK_CLICKED,
 			pdbLinkHandler);
 
+		tableView.dispatcher.on(
+			MutationDetailsEvents.PROTEIN_CHANGE_LINK_CLICKED,
+			proteinChangeLinkHandler);
+
 		// add listeners for the mutation 3d view
 		mut3dView.addInitCallback(mut3dInitHandler);
 
@@ -314,6 +318,19 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 		if (mut3dVisView && mut3dVisView.isVisible())
 		{
 			highlightSelected();
+		}
+	}
+
+	function proteinChangeLinkHandler(mutationId)
+	{
+		var mutationMap = mutationUtil.getMutationIdMap();
+		var mutation = mutationMap[mutationId];
+
+		if (mutation)
+		{
+			// highlight the corresponding pileup (without filtering the table)
+			mutationDiagram.clearHighlights();
+			mutationDiagram.highlightMutation(mutation.mutationSid);
 		}
 	}
 

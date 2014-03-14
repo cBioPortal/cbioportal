@@ -35,7 +35,6 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 			"type": "visible",
 			"cosmic": "visible",
 			"mutation assessor": "visible",
-			"3d": "visible",
 			"vs": "visible",
 			"#mut in sample": "visible",
 			"mutation id": "excluded",
@@ -316,11 +315,18 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 		                indexMap["norm alt"],
 		                indexMap["norm ref"],
 	                    indexMap["#mut in sample"]]},
+		        {"sType": 'string',
+			        "sClass": "center-align-td",
+			        "aTargets": [indexMap["vs"],
+				        indexMap["ms"],
+				        indexMap["type"],
+				        indexMap["center"]]},
 	            {"sType": 'label-float-col',
 	                "sClass": "right-align-td",
 	                "aTargets": [indexMap["allele freq (t)"],
 		                indexMap["allele freq (n)"]]},
 	            {"sType": 'predicted-impact-col',
+		            "sClass": "center-align-td",
 	                "aTargets": [indexMap["mutation assessor"]]},
 		        {"sType": 'copy-number-col',
 			        "sClass": "center-align-td",
@@ -328,7 +334,6 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 	            {"asSorting": ["desc", "asc"],
 	                "aTargets": [indexMap["cosmic"],
 		                indexMap["mutation assessor"],
-	                    indexMap["3d"],
 	                    indexMap["#mut in sample"]]},
 	            {"bVisible": false,
 	                "aTargets": hiddenCols},
@@ -438,6 +443,9 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 			var links = $(this).attr('alt');
 			var parts = links.split("|");
 
+			var mutationId = parts[1];
+			var mutation = _mutationUtil.getMutationIdMap()[mutationId];
+
 			// copy default qTip options and modify "content"
 			// to customize for predicted impact score
 			var qTipOptsOma = {};
@@ -446,7 +454,9 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 			qTipOptsOma.content = {text: "NA"}; // content is overwritten on render
 			qTipOptsOma.events = {render: function(event, api) {
 				var model = {impact: parts[0],
-					xvia: parts[1]};
+					xvia: mutation.xVarLink,
+					msaLink: mutation.msaLink,
+					pdbLink: mutation.pdbLink};
 
 				var container = $(this).find('.qtip-content');
 

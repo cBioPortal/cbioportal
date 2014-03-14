@@ -26,10 +26,24 @@
 }
 #study-view-add-chart {
     top: 60px;
+    right:100px;
+    float:right;
+    position: absolute;
+    z-index:500;
+}
+#study-view-tutorial {
+    top: 60px;
     right:21px;
     float:right;
     position: absolute;
     z-index:500;
+}
+#study-view-tutorial span{
+    float: right;
+    margin: 2px 0;
+}
+#study-view-tutorial span:hover{
+    cursor: pointer;
 }
 #study-view-main {
     margin-left: auto;

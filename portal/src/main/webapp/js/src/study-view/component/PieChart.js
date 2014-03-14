@@ -279,6 +279,13 @@ var PieChart = function(){
     
     //Initialize HTML tags which will be used for current Pie Chart.
     function createDiv() {
+        var _introDiv = '';
+        var _introNumber = Number(chartID) +2;
+        _introDiv = "data-step='" + _introNumber + "' data-intro='Pie chart will category\n\
+                         attributes by different colors' data-step='3' data-intro='Pie chart will category\n\
+                         attributes by different colors'";
+        
+        
         if(selectedAttr === 'CASE_ID'){
             $(DIV.parentID)
                     .append("<div id=\"" + DIV.mainDiv + 
@@ -287,7 +294,8 @@ var PieChart = function(){
                     DIV.chartDiv + "\"></div></div>");
         }else
             $("#"+DIV.parentID).append("<div id=\"" + DIV.mainDiv +
-                "\" class='study-view-dc-chart study-view-pie-main'>"+
+                "\"" + _introDiv +
+                "class='study-view-dc-chart study-view-pie-main'>"+
                 "<div id=\"" + DIV.chartDiv + "\" class='" + 
                 className + "'  value='"+ selectedAttr + "," + 
                 selectedAttrDisplay + ",pie'>"+

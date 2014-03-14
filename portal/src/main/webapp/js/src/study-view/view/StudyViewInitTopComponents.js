@@ -35,6 +35,10 @@ var StudyViewInitTopComponents = (function() {
             StudyViewInitCharts.filterChartsByGivingIDs(caseIds);
             $('#study-view-header-left-0').qtip('toggle');
         });
+        
+        $("#study-view-tutorial").click(function() {
+            StudyViewInitIntroJS.init();
+        });
     }
     
     function changeHeader(_filteredResult, _numOfCases, _removedChart){
@@ -121,7 +125,7 @@ var StudyViewInitTopComponents = (function() {
         $("#study-view-header-function").append(_newElement);
         $("#study-view-header-function").append(StudyViewBoilerplate.customDialogDiv);
         $("#study-view-header-left-cancer_study-ids").val(parObject.studyId);
-        
+        $("#study-view-header-function").append(StudyViewBoilerplate.tutorialDiv);
         _headerLeftQtip.position.target = $(window);
         _headerLeftQtip.content.text = $('#study-view-case-select-custom-dialog');
         $('#study-view-header-left-0').qtip(_headerLeftQtip);;

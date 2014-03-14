@@ -206,6 +206,12 @@ var StudyViewBoilerplate ={
                 "<ul>" +
                 "</ul>" +
             "</div>",
+    
+    tutorialDiv:
+            "<div  id='study-view-tutorial' class='study-view-header boxRight'>" +
+                "<span style='color: grey'>Tutorial</span>" +
+            "</div>",
+    
     updateTableDiv: 
             "<div style='float: left'>" +
             "<input type='button' "+
@@ -233,7 +239,8 @@ var StudyViewBoilerplate ={
                 "style='float: left'/>",
         
     scatterPlotDiv: 
-            "<div id='study-view-scatter-plot' class='study-view-dc-chart w3 h2'>"+
+            "<div id='study-view-scatter-plot' class='study-view-dc-chart w3 h2'"+
+            "data-step='1' data-intro='Scatter Plot<br/>x: CNA<br/>y: MUTATIONS COUNT'>" +
             "<div id='study-view-scatter-plot-header' style='float: right'>"+
             "<form style='display:inline-block' action='svgtopdf.do' method='post' id='study-view-scatter-plot-pdf'>"+
             "<input type='hidden' name='svgelement' id='study-view-scatter-plot-pdf-value'>"+

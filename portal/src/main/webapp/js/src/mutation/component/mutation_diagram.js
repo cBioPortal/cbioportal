@@ -28,7 +28,6 @@ function MutationDiagram(geneSymbol, options, data)
 	self.pileups = null; // current pileups (updated after each filtering)
 
 	self.highlighted = {}; // map of highlighted data points (initially empty)
-	self.inTransition = false; // indicates if the diagram is in a graphical transition
 	self.multiSelect = false; // indicates if multiple lollipop selection is active
 
 	// init other class members as null, will be assigned later
@@ -150,7 +149,7 @@ MutationDiagram.prototype.defaultOpts = {
 	yAxisFont: "sans-serif",    // font type of the y-axis labels
 	yAxisFontSize: "10px",      // font size of the y-axis labels
 	yAxisFontColor: "#2E3436",  // font color of the y-axis labels
-	animationDuration: 600,     // transition duration (in ms) used for highlight animations
+	animationDuration: 1000,    // transition duration (in ms) used for highlight animations
 	/**
 	 * Default lollipop tooltip function.
 	 *
@@ -1676,8 +1675,6 @@ MutationDiagram.prototype.addDefaultListeners = function()
 {
 	var self = this;
 
-	// TODO we might not need check isInTransition anymore...
-
 	// diagram background click
 	self.addListener(".mut-dia-background", "click", function(datum, index) {
 		// ignore the action (do not dispatch an event) if:
@@ -1686,8 +1683,7 @@ MutationDiagram.prototype.addDefaultListeners = function()
 		//  2) there is no previously highlighted data point
 		//  3) multi selection mode is on:
 		// this is to prevent reset due to an accidental click on background
-		var ignore = self.isInTransition() ||
-		             !self.isHighlighted() ||
+		var ignore = !self.isHighlighted() ||
 		             self.multiSelect;
 
 		if (!ignore)
@@ -1703,13 +1699,6 @@ MutationDiagram.prototype.addDefaultListeners = function()
 
 	// lollipop circle click
 	self.addListener(".mut-dia-data-point", "click", function(datum, index) {
-		// just ignore the action if the diagram is already in a graphical transition.
-		// this is to prevent inconsistency due to fast clicks on the diagram.
-		if (self.isInTransition())
-		{
-			return;
-		}
-
 		// if already highlighted, remove highlight on a second click
 		if (self.isHighlighted(this))
 		{
@@ -1874,8 +1863,6 @@ MutationDiagram.prototype.highlight = function(selector)
 	var self = this;
 	var element = d3.select(selector);
 
-	self.inTransition = true;
-
 	element.transition()
 		.ease("elastic")
 		.duration(self.options.animationDuration)
@@ -1883,9 +1870,6 @@ MutationDiagram.prototype.highlight = function(selector)
 		.attr("d", d3.svg.symbol()
 			.size(self.options.lollipopHighlightSize)
 			.type(self.getLollipopShapeFn()))
-		.each("end", function() {
-			self.inTransition = false;
-		});
 
 	// add data point to the map
 	var location = element.datum().location;
@@ -1904,8 +1888,6 @@ MutationDiagram.prototype.removeHighlight = function(selector)
 	var self = this;
 	var element = d3.select(selector);
 
-	self.inTransition = true;
-
 	element.transition()
 		.ease("elastic")
 		.duration(self.options.animationDuration)
@@ -1913,9 +1895,6 @@ MutationDiagram.prototype.removeHighlight = function(selector)
 		.attr("d", d3.svg.symbol()
 			.size(self.options.lollipopSize)
 			.type(self.getLollipopShapeFn()))
-		.each("end", function() {
-			self.inTransition = false;
-		});
 
 	// remove data point from the map
 	var location = element.datum().location;
@@ -1959,17 +1938,6 @@ MutationDiagram.prototype.isFiltered = function()
 	}
 
 	return filtered;
-};
-
-/**
- * Returns true if the diagram is currently in graphical transition,
- * false otherwise.
- *
- * @return {boolean} true if diagram is in transition, false o.w.
- */
-MutationDiagram.prototype.isInTransition = function()
-{
-	return this.inTransition;
 };
 
 MutationDiagram.prototype.getMaxY = function()

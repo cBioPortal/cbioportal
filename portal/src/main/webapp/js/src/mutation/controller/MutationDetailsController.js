@@ -15,7 +15,8 @@ var MutationDetailsController = function(
 	function init()
 	{
 		// init pdb proxy
-		if (mutationProxy.hasData())
+		if (mut3dVis &&
+		    mutationProxy.hasData())
 		{
 			_pdbProxy = new PdbDataProxy(mutationProxy.getMutationUtil());
 		}
@@ -124,10 +125,16 @@ var MutationDetailsController = function(
 			// init controllers
 			new MainMutationController(mainView, components.diagram);
 			new MutationDetailsTableController(components.tableView, components.diagram);
-			new Mutation3dController(mutationDetailsView, mainView,
-			                         _mut3dVisView, components.view3d, mut3dVis,
-			                         _pdbProxy, mutationUtil,
-			                         components.diagram, components.tableView, gene);
+
+			if (mut3dVis &&
+			    _mut3dVisView)
+			{
+				new Mutation3dController(mutationDetailsView, mainView,
+					_mut3dVisView, components.view3d, mut3dVis,
+					_pdbProxy, mutationUtil,
+					components.diagram, components.tableView, gene);
+			}
+
 			new MutationDiagramController(
 				components.diagram, components.tableView.tableUtil, mutationUtil, components.tableView);
 		};

@@ -130,16 +130,17 @@
 		3D Structure
 	</div>
 	<div class='mutation-3d-info-main'>
-		Chain <span class='mutation-3d-chain-id'>{{chainId}}</span> of PDB
+		PDB
 		<span class='mutation-3d-pdb-id'>
 			<a href="http://www.rcsb.org/pdb/explore/explore.do?structureId={{pdbId}}"
 			   target="_blank">
 				{{pdbId}}
 			</a>
 		</span>
-		<span class='mutation-3d-pdb-info'>: {{pdbInfo}}
-			<span class='mutation-3d-mol-info'>-- {{molInfo}}</span>
-		</span>
+		<span class='mutation-3d-pdb-info'>: {{pdbInfo}}</span><br>
+		Chain
+		<span class='mutation-3d-chain-id'>{{chainId}}</span>
+		<span class='mutation-3d-mol-info'>: {{molInfo}}</span>
 	</div>
 </script>
 
@@ -644,9 +645,14 @@
 
 <script type="text/template" id="mutation_details_pdb_chain_tip_template">
 	<span class='pdb-chain-tip'>
-		<b>PDB Id:</b> {{pdbId}}<br>
-		<b>Chain:</b> {{chainId}}<br>
-		{{pdbInfo}}
+		PDB
+		<a href="http://www.rcsb.org/pdb/explore/explore.do?structureId={{pdbId}}"
+		   target="_blank">
+			<b>{{pdbId}}</b>
+		</a>
+		<span class="chain-rectangle-tip-pdb-info">{{pdbInfo}}</span><br>
+		Chain <b>{{chainId}}</b>
+		<span class="chain-rectangle-tip-mol-info">{{molInfo}}</span>
 	</span>
 </script>
 

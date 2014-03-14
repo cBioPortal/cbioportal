@@ -1,7 +1,32 @@
 /*
  * View for All Charts 
  * 
- *                                       
+ * @param: _parmas -- include studyId, caseIds, cnaProfileId and mutationProfileId.
+ * @param: _data -- TWO PROPERTIES
+ *                 attr: data attributes, each attribute is an object which
+ *                       include attr_id, datatype, description and dispaly_name
+ *                 arr: data contents, each object of this array stand for one
+ *                      case. Each case should include all attributes as key and
+ *                      their relative value. If attribute of this case doesn't
+ *                      exist, the NA value will still give to this attribute.
+ *
+ * @interface: getFilteredResults -- return the filtered result list of CASE_ID
+ *                                   chart.
+ * @interface: getShowedChartsInfo -- return charts infomation including
+ *                                    ID names, display names and displayed ID.
+ * @interface: getScatterPlotInitValue -- return the max and min value of
+ *                                        'COPY_NUMBER_ALTERATIONS' and
+ *                                        'MUTATION_COUNT'.
+ * @interface: getCharts -- return all DC charts
+ * 
+ * Following interfaces will call StudyViewInitCharts functions directly.
+ * @interface: filterChartsByGivingIDs 
+ * @interface: changeHeader 
+ * @interface: scatterPlotBrushCallBack
+ * @interface: scatterPlotClickCallBack
+ * @interface: createNewChart
+ * 
+ * 
  * @authur: Hongxin Zhang
  * @date: Mar. 2014
  * 
@@ -12,12 +37,11 @@ var StudyViewInitCharts = (function(){
     
 
     var numOfCases,
-        ndx,
+        ndx, //Crossfilter dimension
         msnry,
         totalCharts,
         clickedCaseId = '',
         dataArr = {},
-        createdChartID,
         pie = [], //Displayed attributes info, dataType: STRING, NUMBER, OR BOOLEAN
         bar = [], //Displayed attributes info, dataType: NUMBER
         
@@ -29,9 +53,9 @@ var StudyViewInitCharts = (function(){
         //The relationshio between "The unique attribute name" and 
         //"The unique ID number in whole page"
         attrNameMapUID = [],
+        
         brushedCaseIds = [],
         varChart = [],
-        removeKeyIndex = [],
         varName = [], //Store all attributes in all data
         
         //The relationshio between "The ID of div standing for each Chart
@@ -48,7 +72,9 @@ var StudyViewInitCharts = (function(){
         displayedID = [], //Displayed Charts ID number
         varDisplay = [], //Displayed Charts Name -- the display_name in each attribute       
         shiftClickedCaseIds = [],
-        chartColors = jQuery.extend(true, [], StudyViewBoilerplate.chartColors), // Color scale from GOOGLE charts
+        
+        // Color scale from GOOGLE charts
+        chartColors = jQuery.extend(true, [], StudyViewBoilerplate.chartColors), 
         parObject = {
             studyId: "",
             caseIds: "",
@@ -144,7 +170,6 @@ var StudyViewInitCharts = (function(){
             varName.push(_attr[i]["attr_id"]);
         }
 
-        //var totalCharts = pie.length,
         totalCharts = pie.length + bar.length;
         initScatterPlot(_arr);
     }
@@ -174,7 +199,6 @@ var StudyViewInitCharts = (function(){
             clickedCaseId = '',
             brushedCaseIds = [];
             shiftClickedCaseIds = [];
-            //deleteChartResetDataTable($("#dataTable").dataTable());
             AddCharts.bindliClickFunc();
             removeMarker();
             redrawChartsAfterDeletion();
@@ -208,7 +232,6 @@ var StudyViewInitCharts = (function(){
         }
         
         dc.renderAll();
-        //dc.renderAll("group1");
         
         $('.study-view-dc-chart-delete').unbind('click');
         $('.study-view-dc-chart-delete').click(function(event){
@@ -219,11 +242,6 @@ var StudyViewInitCharts = (function(){
                 msnry.layout();
                 AddCharts.bindliClickFunc();
         });
-        /*
-        $('#study-view-header-left-4').click(function (){
-            removeAllNAValue(dataObtained);
-        });
-        */
     }
     
     function makeNewPieChartInstance(_chartID, _pieInfo) {
@@ -257,7 +275,6 @@ var StudyViewInitCharts = (function(){
         
         varChart[_chartID] = new PieChart();
         varChart[_chartID].init(_param);
-        
         varChart[_chartID].scatterPlotCallbackFunction(_piechartCallbackFunction);
         varChart[_chartID].postFilterCallbackFunc(changeHeader);
     }
@@ -275,14 +292,6 @@ var StudyViewInitCharts = (function(){
                 distanceArray: _distanceArray
             };
             
-        if(_distanceArray.diff > 1000){
-            param.needLogScale = true;
-        }else{
-            param.needLogScale = false;
-        }
-        
-        varChart[_chartID] = new BarChart();
-        varChart[_chartID].init(param);
         var _barchartCallbackFunction = function(_currentPieFilters){
             var _tmpResult = varChart[attrNameMapUID["CASE_ID"]]
                     .getChart()
@@ -299,22 +308,31 @@ var StudyViewInitCharts = (function(){
                 setScatterPlotStyle(_tmpCaseID,_currentPieFilters);
             }
         };
+        
+        if(_distanceArray.diff > 1000){
+            param.needLogScale = true;
+        }else{
+            param.needLogScale = false;
+        }
+        
+        varChart[_chartID] = new BarChart();
+        varChart[_chartID].init(param);
         varChart[_chartID].scatterPlotCallbackFunction(_barchartCallbackFunction);
         varChart[_chartID].postFilterCallbackFunc(changeHeader);
 
         if(_distanceArray.diff > 1000){
             $("#scale-input-"+_chartID).change(function(e) {
                 $(this).parent().parent().find('svg').remove();
-                var _idArray = $(this).attr('id').split('-'),
-                    _currentID = _idArray[2];
+                var _param = {},
+                    _idArray = $(this).attr('id').split('-'),
+                    _currentID = _idArray[2],
+                    _currentChart = varChart[_currentID].getChart();
 
-                if(varChart[_currentID].getChart().hasFilter()){
-                    varChart[_currentID].getChart().filterAll();
+                if(_currentChart.hasFilter()){
+                    _currentChart.filterAll();
                     dc.redrawAll();
                 }
-                dc.deregisterChart(varChart[_currentID].getChart());                
-
-                var _param = {};
+                dc.deregisterChart(_currentChart);
 
                 if($(this).attr('checked')){
                     _param.needLogScale = true;
@@ -323,7 +341,7 @@ var StudyViewInitCharts = (function(){
                 }
                 varChart[_currentID].updateParam(_param);
                 varChart[_currentID].reDrawChart();
-                varChart[_currentID].getChart().render();
+                _currentChart.render();
             });
         }
     }
@@ -370,10 +388,13 @@ var StudyViewInitCharts = (function(){
             setScatterPlotStyle(_selectedRowCaseId,varChart[attrNameMapUID['CASE_ID']].getChart().filters());
         };
         
-        StudyViewInitDataTable.getDataTable().rowClickCallback(_dataTableRowClickCallback);
-        StudyViewInitDataTable.getDataTable().rowShiftClickCallback(_dataTableRowShiftClickCallback);
+        var _dataTable = StudyViewInitDataTable.getDataTable();
+        _dataTable.rowClickCallback(_dataTableRowClickCallback);
+        _dataTable.rowShiftClickCallback(_dataTableRowShiftClickCallback);
     }
     
+    //This filter is the same one which used in previous Google Charts Version,
+    //should be revised later.
     function selectedCol(col) {
         return col.toLowerCase().match(/(^age)|(gender)|(os_status)|(os_months)|(dfs_status)|(dfs_months)|(race)|(ethnicity)|(.*grade.*)|(.*stage.*)|(histology)|(tumor_type)|(subtype)|(tumor_site)|(.*score.*)|(mutation_count)|(copy_number_alterations)/);
     }
@@ -508,19 +529,22 @@ var StudyViewInitCharts = (function(){
     function getDataAndDrawMarker(_clickedCaseIds) {
         if(_clickedCaseIds.length > 0) {
             var _numOfCharts = varChart.length;
+            
             for(var i=0; i< _numOfCharts; i++){
                 if(removedChart.indexOf(i) === -1){
                     if(attrNameMapUID['CASE_ID'] !== i){
-                        var _datum = $("#study-view-dc-chart-" + i);
-                        var _value = _datum.attr('value');
-                        var _valueArray = _value.split(",");
+                        var _datum = $("#study-view-dc-chart-" + i),
+                            _value = _datum.attr('value'),
+                            _valueArray = _value.split(",");
+                    
                         if(_valueArray[2] === 'pie'){
-                            var _relativeValue = dataArr[_clickedCaseIds[0]][_valueArray[0]];
-                            var gArray = _datum.find('svg g g');
-                            $.each(gArray, function(key,value){
-                                var _title = $(this).find('title').text();
-                                var _titleArray = _title.split(":");
-                                var _key = _titleArray[0];
+                            var _relativeValue = dataArr[_clickedCaseIds[0]][_valueArray[0]],
+                                _gArray = _datum.find('svg g g');
+                            $.each(_gArray, function(key,value){
+                                var _title = $(this).find('title').text(),
+                                    _titleArray = _title.split(":"),
+                                    _key = _titleArray[0];
+                                
                                 if(_key === _relativeValue){
                                     varChart[i].drawMarker(key+1,i);
                                 }
@@ -543,94 +567,108 @@ var StudyViewInitCharts = (function(){
     }
     
     function getRefererCaseId() {
-        var idStr = /^#?case_ids=(.+)/.exec(location.hash);
-        if (!idStr) return null;
-        return idStr[1].split(/[ ,]+/);
+        var _idStr = /^#?case_ids=(.+)/.exec(location.hash);
+       
+        if (!_idStr) return null;
+        
+        return _idStr[1].split(/[ ,]+/);
     }
     
+    //This function is designed to analysis URL. If the user input
+    //the case ID in url, this function will catch all case IDs 
+    //and filter charts.
     function filterCharts(){
-        var ids = getRefererCaseId();
-        if(ids !== null){
-            filterChartsByGivingIDs(ids);
+        var _ids = getRefererCaseId();
+        
+        if(_ids !== null){
+            filterChartsByGivingIDs(_ids);
         }
     }
     
     function filterChartsByGivingIDs(_ids){
-        varChart[attrNameMapUID['CASE_ID']].getChart().filterAll();
-        varChart[attrNameMapUID['CASE_ID']].getChart().filter([_ids]);
+        var _caseIDChart = varChart[attrNameMapUID['CASE_ID']].getChart();
+        
+        _caseIDChart.filterAll();
+        _caseIDChart.filter([_ids]);
         dc.redrawAll();
-        setScatterPlotStyle(_ids,varChart[attrNameMapUID['CASE_ID']].getChart().filters());
+        setScatterPlotStyle(_ids,_caseIDChart.filters());
         changeHeader();
     }
     
     function createNewChartFromOutside(_id, _text) {
-        var _chartType = [];
+        var _selectedChartType,
+            _index,
+            _chartType = [],
+            _selectedAttr = _id,
+            _selectedAttrDisplay = _text,
+            _chartID = -1;
 
         if(_id === 'mutationCNA')
             _chartType = ['scatter'];
         else
             _chartType = varType[_id].split(',');
 
-        var selectedAttr = _id;
-        var selectedAttrDisplay = _text;
-        var selectedChartType = _chartType[0];
-        var chartTmpID = -1;
+        _selectedChartType = _chartType[0];
 
-        if(selectedAttr==='mutationCNA' && selectedChartType === 'scatter'){
+        if(_selectedAttr==='mutationCNA' && _selectedChartType === 'scatter'){
             $("#study-view-scatter-plot").css('display','block');
         }else{
-            if(Object.keys(attrNameMapUID).indexOf(selectedAttr) !== -1){
-                chartTmpID = attrNameMapUID[selectedAttr];
+            if(Object.keys(attrNameMapUID).indexOf(_selectedAttr) !== -1){
+                _chartID = attrNameMapUID[_selectedAttr];
             }else{
-                chartTmpID = totalCharts;
+                _chartID = totalCharts;
                 HTMLtagsMapUID["study-view-dc-chart-" + totalCharts] = totalCharts;
-                attrNameMapUID[selectedAttr] = totalCharts;
+                attrNameMapUID[_selectedAttr] = totalCharts;
                 totalCharts++;       
             }
 
-            if(selectedChartType === 'pie'){
-                makeNewPieChartInstance(chartTmpID, {attr_id:selectedAttr,display_name:selectedAttrDisplay});
+            if(_selectedChartType === 'pie'){
+                makeNewPieChartInstance(_chartID, 
+                                        {attr_id:_selectedAttr,
+                                            display_name:_selectedAttrDisplay});
             }else{
-                makeNewBarChartInstance(chartTmpID, {attr_id:selectedAttr,display_name:selectedAttrDisplay}, distanceMinMaxArray[selectedAttr]);
+                makeNewBarChartInstance(_chartID,
+                                        {attr_id:_selectedAttr,
+                                            display_name:_selectedAttrDisplay},
+                                        distanceMinMaxArray[_selectedAttr]);
             }
 
 
             msnry.destroy();
-            var container = document.querySelector('#study-view-charts');
-            msnry = new Masonry( container, {
+            msnry = new Masonry( document.querySelector('#study-view-charts'), {
               columnWidth: 190,
               itemSelector: '.study-view-dc-chart',
               gutter:1
             });
 
-            varChart[chartTmpID].getChart().render();
+            varChart[_chartID].getChart().render();
 
-            $('#study-view-dc-chart-'+ chartTmpID +' .study-view-dc-chart-delete').unbind('click');
-            $('#study-view-dc-chart-'+ chartTmpID +' .study-view-dc-chart-delete').click(function(event){
+            $('#study-view-dc-chart-'+ _chartID +' .study-view-dc-chart-delete').unbind('click');
+            $('#study-view-dc-chart-'+ _chartID +' .study-view-dc-chart-delete').click(function(event){
                 var valueA = $(this).parent().parent().attr("value").split(',');
-                deleteChart(chartTmpID,valueA);
+                deleteChart(_chartID,valueA);
                 AddCharts.bindliClickFunc();
                 msnry.layout();
             });
         }
 
-        var index = removedChart.indexOf(chartTmpID);
-        if (index > -1) {
-            removedChart.splice(index, 1);
+        _index = removedChart.indexOf(_chartID);
+        if (_index > -1) {
+            removedChart.splice(_index, 1);
         }
         msnry.layout();
 
-        $('#study-view-add-chart ul').find('li[id="' + selectedAttr + '"]').remove();
+        $('#study-view-add-chart ul').find('li[id="' + _selectedAttr + '"]').remove();
 
         if($('#study-view-add-chart ul').find('li').length === 0 ){
             $('#study-view-add-chart').css('display','none');
         }
     }
     return {
-        init: function(o,data) {
-            initParameters(o);
-            initData(data);
-            initCharts(data);
+        init: function(_params,_data) {
+            initParameters(_params);
+            initData(_data);
+            initCharts(_data);
             createLayout();
             updateDataTableCallbackFuncs();
             filterCharts();

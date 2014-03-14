@@ -27,7 +27,8 @@ var LoadingJS = (function(){
                         'StudyViewInitCharts', 
                         'StudyViewInitDataTable',
                         'StudyViewInitMiddleComponents',
-                        'StudyViewInitTopComponents'],
+                        'StudyViewInitTopComponents',
+                        'StudyViewInitScatterPlot'],
                 controller: ['StudyViewControl']
             };
             

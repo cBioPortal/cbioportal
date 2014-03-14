@@ -108,8 +108,8 @@ var BarChart = function(){
                 "\" class='"+ param.className +"'  value='" + param.selectedAttr + "," + 
                 param.selectedAttrDisplay + ",bar'><div style='width:100%; float:right'>"+
                 "<span class='study-view-dc-chart-delete'>x</span>"+
-                "<a href='javascript:varChart[" + param.chartID + 
-                "].getChart().filterAll();dc.redrawAll();'>"+
+                "<a href='javascript:StudyViewInitCharts.getChartsByID("+ 
+                param.chartID +").getChart().filterAll();dc.redrawAll();'>"+
                 "<span title='Reset Chart' class='study-view-dc-chart-change'>"+
                 "RESET</span></a>"+_logCheckBox +"</div></div>"+
                 "<div style='width:100%; float:center;text-align:center;'>"+
@@ -442,7 +442,7 @@ var BarChart = function(){
         param.needLogScale = _param.needLogScale;
         param.distanceArray = _param.distanceArray;
         
-        distanceMinMax = param.distanceArray.distance;
+        distanceMinMax = param.distanceArray.diff;
     
         DIV.mainDiv = _baseID + "-dc-chart-main-" + param.chartID;
         DIV.chartDiv = _baseID + "-dc-chart-" + param.chartID;
@@ -486,8 +486,6 @@ var BarChart = function(){
             addFunctions();
         },
 
-        drawMarker: drawMarker,
-        
         getChart : function() {
             return barChart;
         },
@@ -512,14 +510,15 @@ var BarChart = function(){
             addFunctions();
         },
         
-        removeMarker: removeMarker,
-        
         scatterPlotCallbackFunction: function (_callback) {
             scatterPlotCallback = _callback;
         },
         
         postFilterCallbackFunc: function(_callback) {
             postFilterCallback = _callback;
-        }
+        },
+        
+        removeMarker: removeMarker,
+        drawMarker: drawMarker,
     };
 };

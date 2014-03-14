@@ -26,7 +26,7 @@ var StudyViewInitMiddleComponents = (function() {
         $('#study-view-dataTable-updateTable').unbind('click');
         $('#study-view-dataTable-updateTable').click(function(){
             var _filteredResult = StudyViewInitCharts.getFilteredResults();
-            DATATABLE.updateTable(_filteredResult);
+            StudyViewInitDataTable.getDataTable().updateTable(_filteredResult);
         });
     }
     

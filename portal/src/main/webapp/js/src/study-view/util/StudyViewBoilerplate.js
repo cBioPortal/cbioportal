@@ -102,6 +102,7 @@ var StudyViewBoilerplate ={
         },
         legends: []
     },
+    
     scatterPlotDatum: {              
         x_val: "",
         y_val: "",

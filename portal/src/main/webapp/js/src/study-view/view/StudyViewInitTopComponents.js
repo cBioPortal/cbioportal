@@ -39,7 +39,8 @@ var StudyViewInitTopComponents = (function() {
     
     function changeHeader(_filteredResult, _numOfCases, _removedChart){
         var _caseID = [],
-            _resultLength = _filteredResult.length;
+            _resultLength = _filteredResult.length,
+            _charts = StudyViewInitCharts.getCharts();
     
         for(var i=0; i<_filteredResult.length ; i++){
             _caseID.push(_filteredResult[i].CASE_ID);
@@ -48,9 +49,9 @@ var StudyViewInitTopComponents = (function() {
         if(_resultLength === _numOfCases){
             var _hasFilter = false;
             
-            for(var i=0; i<varChart.length; i++){
+            for(var i=0; i<_charts.length; i++){
                 if(_removedChart.indexOf(i) === -1){
-                    if (varChart[i].getChart().filters().length > 0)
+                    if (_charts[i].getChart().filters().length > 0)
                         _hasFilter = true;
                 }
             }

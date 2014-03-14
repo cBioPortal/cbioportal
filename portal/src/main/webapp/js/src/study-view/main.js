@@ -1,9 +1,5 @@
 
 //Charts Array, store all pie chart/ bar chart instances
-var varChart = [];
-var DATATABLE;
-var removeKeyIndex = [];
-    
 
 $(document).ready(function(){
     var parObject = {

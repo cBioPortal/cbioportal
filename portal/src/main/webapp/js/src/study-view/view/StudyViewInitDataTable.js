@@ -10,7 +10,7 @@
 
 var StudyViewInitDataTable = (function() {
     
-    var param, data;
+    var param, data, dataTable;
     
     function initParam(_param, _data) {
         param = _param;
@@ -18,14 +18,18 @@ var StudyViewInitDataTable = (function() {
     }
     
     function initDataTable() {
-        DATATABLE = new DataTable();
-        DATATABLE.init(param, data);
+        dataTable = new DataTable();
+        dataTable.init(param, data);
     }
     
     return {
         init: function(_param, _data) {
             initParam(_param, _data);
             initDataTable();
+        },
+        
+        getDataTable: function() {
+            return dataTable;
         }
     };
 })();

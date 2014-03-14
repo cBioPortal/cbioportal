@@ -19,7 +19,7 @@ var StudyViewControl = (function() {
         StudyViewInitCharts.init(parObject, _data);
         StudyViewInitTopComponents.init(parObject);
         StudyViewInitMiddleComponents.init();
-        DATATABLE.resizeTable();
+        StudyViewInitDataTable.getDataTable().resizeTable();
     };
     
     function initLocalParameters(o){

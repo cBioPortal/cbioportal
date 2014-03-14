@@ -293,7 +293,8 @@ var PieChart = function(){
                 selectedAttrDisplay + ",pie'>"+
                 "<div style='width:180px; float:right; text-align:center;'>"+
                 "<span class='study-view-dc-chart-delete'>x</span>"+
-                "<a href='javascript:varChart["+chartID+"].getChart().filterAll();dc.redrawAll();'>" +
+                "<a href='javascript:StudyViewInitCharts.getChartsByID("+ 
+                chartID +").getChart().filterAll();dc.redrawAll();'>" +
                 "<span title='Reset Chart' class='study-view-dc-chart-change' "+
                 "style='font-size:10px;'>RESET</span></a></div>"+
                 "<div style='width:180px;float:left;text-align:center'><chartTitleH4>" +

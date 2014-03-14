@@ -137,7 +137,9 @@
 				{{pdbId}}
 			</a>
 		</span>
-		<span class='mutation-3d-pdb-info'>: {{pdbInfo}}</span>
+		<span class='mutation-3d-pdb-info'>: {{pdbInfo}}
+			<span class='mutation-3d-mol-info'>-- {{molInfo}}</span>
+		</span>
 	</div>
 </script>
 
@@ -454,6 +456,11 @@
 			      class="simple-tip pdb-table-3d-icon">3D</span>
 		</a>
 	</span>
+</script>
+
+<script type="text/template" id="mutation_pdb_table_summary_cell_template">
+	<b>pdb:</b> {{summary}} <br>
+	<b>chain:</b> {{molecule}}
 </script>
 
 <!-- (end PDB Table) -->

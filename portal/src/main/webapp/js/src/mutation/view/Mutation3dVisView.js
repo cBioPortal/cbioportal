@@ -408,12 +408,16 @@ var Mutation3dVisView = Backbone.View.extend({
 		var infoCallback = function(pdbInfo) {
 			var model = {pdbId: pdbId,
 				chainId: chain.chainId,
-				pdbInfo: ""};
+				pdbInfo: "",
+				molInfo: ""};
 
 			if (pdbInfo && pdbInfo[pdbId])
 			{
-				model.pdbInfo = PdbDataUtil.generatePdbInfoSummary(
+				var summary = PdbDataUtil.generatePdbInfoSummary(
 					pdbInfo[pdbId], chain.chainId);
+
+				model.pdbInfo = summary.title;
+				model.molInfo = summary.molecule;
 			}
 
 			// init info view

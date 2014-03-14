@@ -142,6 +142,16 @@ function MutationPdbTable(options, headers)
 					},
 					"aTargets": [indexMap["chain"]]},
 				{"fnRender": function(obj) {
+						var vars = {summary: obj.aData[obj.iDataColumn].title,
+							molecule: obj.aData[obj.iDataColumn].molecule};
+
+						// format using the corresponding template
+						return _.template(
+							$("#mutation_pdb_table_summary_cell_template").html(),
+							vars);
+					},
+					"aTargets": [indexMap["summary"]]},
+				{"fnRender": function(obj) {
 						// there is no data (null) for uniprot positions,
 						// so set the display value by using the hidden
 						// column "datum"

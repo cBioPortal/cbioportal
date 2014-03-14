@@ -4,7 +4,8 @@
  * options: {el: [target container],
  *           model: {pdbId: String,
  *                   chainId: String,
- *                   pdbInfo: String}
+ *                   pdbInfo: String,
+ *                   molInfo: String}
  *          }
  *
  * @author Selcuk Onur Sumer
@@ -29,6 +30,7 @@ var Mutation3dVisInfoView = Backbone.View.extend({
 	{
 		var self = this;
 		var pdbInfo = self.model.pdbInfo;
+		var molInfo = self.model.molInfo;
 
 		// if no info provided, then hide the corresponding span
 		if (pdbInfo == null ||
@@ -38,6 +40,12 @@ var Mutation3dVisInfoView = Backbone.View.extend({
 		}
 		else
 		{
+			if (molInfo == null ||
+			    molInfo.length == 0)
+			{
+				self.$el.find(".mutation-3d-mol-info").hide();
+			}
+
 			// make information text expandable/collapsible
 			self._addExpander();
 		}

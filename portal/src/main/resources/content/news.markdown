@@ -1,14 +1,10 @@
-# March 18, 2014
-* New feature: visualizing mutations in 3D structure.
-* New feature: gene expression correlation analysis.
-* Added copy number alteration status of mutated genes in mutation table.
+# March 15, 2014
 * All TCGA data update to Firehose run of Jan 15, 2014.
+* Updated to the latest COSMIC data (v68).
 * Added two new TCGA Provisional Studies
     * Adrenocortical Carcinoma
     * Uterine Carcinosarcoma
-* Updated to the latest COSMIC data (v68).
-* Added mutation data of 693+149 samples from 10 published studies
-    * Chronic Lymphocytic Leukemia (Broad, Cell 2013)
+* Added mutation data of 693 samples from 9 published studies
     * Hepatocellular Carcinoma (RIKEN, Nature Genetics 2012)
     * Liver Hepatocellular Carcinoma (LGGM, Hepatology in press) 
     * Medulloblastoma (Broad, Nature 2012)

@@ -371,6 +371,7 @@ var StudyViewInitCharts = (function(){
     function updateDataTableCallbackFuncs() {
         
         var _dataTableRowClickCallback = function(_deSelect, _selectedRowCaseId) {
+            console.log(_selectedRowCaseId);
             clickedCaseId = _selectedRowCaseId;
             removeMarker();
             redrawChartsAfterDeletion();
@@ -476,14 +477,17 @@ var StudyViewInitCharts = (function(){
     
     function scatterPlotCallBack(_caseIDs){
         var _numOfCharts = varChart.length;
+        
         if(_caseIDs.length > 0){
             varChart[attrNameMapUID['CASE_ID']].getChart().filterAll();
             varChart[attrNameMapUID['CASE_ID']].getChart().filter([_caseIDs]);
             dc.redrawAll();
         }else{
             for(var i=0; i< _numOfCharts ; i++){
-                if(varChart[i].getChart().filters().length > 0)
-                    varChart[i].getChart().filterAll();
+                if(varChart[i] !== ''){
+                    if(varChart[i].getChart().filters().length > 0)
+                        varChart[i].getChart().filterAll();
+                }
             }
             dc.redrawAll();
         }
@@ -562,7 +566,9 @@ var StudyViewInitCharts = (function(){
         var i, _chartLength = varChart.length;
         
         for( i = 0; i < _chartLength; i++ ){
-            varChart[i].removeMarker();
+            if(varChart[i] !== ''){
+                varChart[i].removeMarker();
+            }
         }
     }
     
@@ -588,6 +594,9 @@ var StudyViewInitCharts = (function(){
     function filterChartsByGivingIDs(_ids){
         var _caseIDChart = varChart[attrNameMapUID['CASE_ID']].getChart();
         
+        if(_ids.length > 1){
+            clickedCaseId = '';
+        }
         _caseIDChart.filterAll();
         _caseIDChart.filter([_ids]);
         dc.redrawAll();

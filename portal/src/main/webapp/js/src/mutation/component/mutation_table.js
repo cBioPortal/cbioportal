@@ -41,7 +41,7 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 			"3d": "visible",
 			"vs": "visible",
 			"allele freq (t)": "visible",
-			"copy #" : "visible",
+			"copy #" : "excluded",
 			"#mut in sample": "visible",
 			"mutation id": "excluded",
 			"cancer study": "excluded",

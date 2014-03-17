@@ -1,5 +1,7 @@
 /* main style */
 #study-view-add-chart li{
+    color: white;
+    text-align: center;
     list-style: none;
     border-style: solid;
     border-width:1px;
@@ -17,33 +19,36 @@
     float:right;
     margin: 2px 0;
 }
-#study-view-add-chart span{
-    float: right;
-    margin: 2px 0;
-}
-#study-view-add-chart span:hover{
-    cursor: default;
-}
 #study-view-add-chart {
-    top: 60px;
     right:100px;
-    float:right;
     position: absolute;
-    z-index:500;
+    z-index:21;
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 50px;
 }
 #study-view-tutorial {
-    top: 60px;
-    right:21px;
-    float:right;
+    right: 0;
+    width: 80px;
     position: absolute;
-    z-index:500;
+    z-index:21;
 }
-#study-view-tutorial span{
-    float: right;
-    margin: 2px 0;
+#study-view-header-left-0 {
+    left: 0;
 }
-#study-view-tutorial span:hover{
-    cursor: pointer;
+#study-view-header-left-1 {
+    left: 10px;
+}
+#study-view-header-left-2 {
+    left: 190px;
+}
+#study-view-header-left-3 {
+    left: 375px;
+    font-size: 11px;
+}
+#study-view-header-left-3:hover{
+    cursor: default;
+    background-color: rgb(248, 133, 8);
 }
 #study-view-main {
     margin-left: auto;
@@ -121,24 +126,15 @@
     margin-right: 75px;
 }
 #study-view-header-function {
-    width:100%;
-    float:left;
-    height: 30px;
-    margin-bottom:10px;
+    position: absolute;
+    top: 60px;
+    width: 1200px;
+    height: 50px;
+    background-color: rgb(248, 133, 8);
+    z-index: 20;
 }
 #study-view-selectAttr{
      display:none;
-}
-#study-view-header-left {
-    width:auto;
-    float: left;
-    vertical-align: middle;
-}
-#study-view-header-left span {
-    float: left;
-}
-#study-view-header-left input {
-    float: left;
 }
 #dataTables_filter {
     width:auto;
@@ -151,26 +147,35 @@
 }
 /* CLASS styles */
 .study-view-header{    
-    border-style: solid;
-    border-width: 1px;
-    border-color: lightgrey;
-    border-radius: 5px;
+    //border-style: solid;
+    //border-width: 1px;
+    //border-color: lightgrey;
+    //border-radius: 5px;
+    margin: 0;
+    position: absolute;
+    z-index: 21;
     vertical-align: middle;
     padding: 0 10px;
-    background-color: white;
-    margin: 2px 2px;;
-    color: grey;
+    background-color: rgb(248, 133, 8);
     width: auto;
+    color: white;
+    border-width: 0;
+    font-size: 13px;
+    font-weight: bold;
+    text-align: center;
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 50px;
 }
-.study-view-header-left:hover{    
+.study-view-header:hover{    
     cursor: pointer;
-    background-color: lightgrey;
+    background-color: orange;
 }
 .boxLeft {
-    box-shadow: 2px 2px 2px lightgrey;
+    //box-shadow: 2px 2px 2px lightgrey;
 }
 .boxRight {
-    box-shadow: -2px 2px 2px lightgrey;
+    //box-shadow: -2px 2px 2px lightgrey;
 }
 .hidden {
     display: none;
@@ -181,10 +186,10 @@
     border-spacing: 0px;
 }
 .study-view-bar-chart rect{
-    fill: #3366cc;
+    fill: #2986e2;
 }
 .study-view-bar-chart g.brush rect.extent {
-    fill:#3366cc;
+    fill: #2986e2;
     fill-opacity:0.2;
 }
 .study-view-bar-chart g.brush .resize path {
@@ -362,7 +367,7 @@ pieH3{
     margin-bottom: 10px;
 }
 .dc-data-count .filter-count {
-    color: #3182bd;
+    color: #2986e2;
     font-weight: bold;
 }
 .dc-data-count .total-count {
@@ -371,7 +376,7 @@ pieH3{
 }
 .study-view-header-button{
     color:white;
-    background-color:#3366ff;
+    background-color:#2986e2;
     border: none;
     border-radius: 10px;
     -webkit-border-radius: 10px;
@@ -384,7 +389,7 @@ pieH3{
     transition: All 0.5s ease;
 }
 .study-view-header-button:hover:enabled{
-    background-color:#3366cc;
+    background-color: #3366cc;
 }
 .study-view-header-button:disabled {
     background-color:lightgray;
@@ -413,7 +418,7 @@ pieH3{
     padding: 3px;
 }
 .dataTableReset span{
-    color: lightblue;
+    color: #2986e2;
 }
 .dataTableReset span:hover{
     cursor: pointer;
@@ -427,6 +432,51 @@ pieH3{
 .ColVis_MasterButton {
     border-radius: 5px;
 }
+
+#content ul{
+    margin-bottom: 0;
+}
+#content li a{
+    outline: none;
+}
+.ui-widget-content {
+    border: 0;
+    margin-left: 2px;
+}
+.ui-widget-header {
+    border: 0;
+    background: white;
+}
+.ui-state-default.ui-corner-top.ui-tabs-active.ui-state-active{
+    border: 1px solid #aaaaaa;
+    border-bottom: 0;
+    background: white;
+}
+.ui-state-default.ui-corner-top{
+    border: 0;
+    background: white;
+}
+#dc-plots {
+    border: 1px solid #aaaaaa;
+    border-radius: 5px;
+    border-top-left-radius: 0;
+}
+#clinical-plots {
+    border: 1px solid #aaaaaa;
+    border-radius: 5px;
+    border-top-left-radius: 0;
+}
+#mutations {
+    border: 1px solid #aaaaaa;
+    border-radius: 5px;
+    border-top-left-radius: 0;
+}
+#clinical {
+    border: 1px solid #aaaaaa;
+    border-radius: 5px;
+    border-top-left-radius: 0;
+}
+
 /* tag styles */
 /*
 ul {

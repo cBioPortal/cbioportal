@@ -23,22 +23,7 @@ var AddCharts = (function(){
     }
     
     function createDiv() {
-        var _header = $('<div></div>'),
-            _span = $('<span><span>');
-        
-        _span.css({
-                    color: 'grey'
-                })
-            .text('Add Chart');
-        
-        _header.attr({
-            id: 'study-view-add-chart',
-            class: 'study-view-header boxRight'
-        });
-        
-        _header.append(_span);
-        _header.append("<ul></ul>");
-        $("#study-view-header-function").append(_header);
+        $("#study-view-header-function").append(StudyViewBoilerplate.addChartDiv);
     }
     
     function initAddChartsButton(_param) {

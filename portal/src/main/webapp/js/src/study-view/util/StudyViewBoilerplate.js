@@ -27,7 +27,7 @@ var StudyViewBoilerplate ={
         style: 'qtip-light qtip-rounded qtip-wide'
     },
     chartColors: [
-        "#3366cc","#dc3912","#ff9900","#109618",
+        "#2986e2","#dc3912","#ff9900","#109618",
         "#990099","#0099c6","#dd4477","#66aa00",
         "#b82e2e","#316395","#994499","#22aa99",
         "#aaaa11","#6633cc","#e67300","#8b0707",
@@ -63,8 +63,8 @@ var StudyViewBoilerplate ={
             yBottom: 350   //The bottom/starting point for y axis
         },
         style: { //Default style setting
-            fill: "#3366cc", //light blue
-            stroke: "#3366cc", //dark blue
+            fill: "#2986e2", //light blue
+            stroke: "#2986e2", //dark blue
             stroke_width: "0",
             size: "60",
             shape: "circle" //default, may vary for different mutation types
@@ -127,7 +127,7 @@ var StudyViewBoilerplate ={
         _span1
             .attr({
                 'id': 'study-view-header-left-0',
-                'class': 'study-view-header study-view-header-left boxLeft'})
+                'class': 'study-view-header study-view-header-left'})
             .text('Select cases by IDs');
         _form
             .attr({
@@ -162,7 +162,7 @@ var StudyViewBoilerplate ={
                 type: "submit",
                 id: "study-view-header-left-1",
                 value: "Query selected cases",
-                class: "study-view-header study-view-header-left boxLeft hidden"
+                class: "study-view-header study-view-header-left hidden"
             });
         _form.append(_input1);
         _form.append(_input2);
@@ -172,19 +172,14 @@ var StudyViewBoilerplate ={
         _span2
             .attr({
                 'id': 'study-view-header-left-2',
-                'class': 'study-view-header study-view-header-left boxLeft hidden'})
+                'class': 'study-view-header study-view-header-left hidden'})
             .text('Clear selected cases');
         
         _span3
             .attr({
                 'id': 'study-view-header-left-3',
-                'class': 'hidden'})
-            .text('Clear selected cases')
-            .css({
-                "margin-top": "4px",
-                "margin-left": "4px",
-                "background-color": "lightyellow"
-            });
+                'class': 'study-view-header hidden'})
+            .text('Clear selected cases');
        
         _header.append(_span1);
         _header.append(_form);
@@ -201,15 +196,15 @@ var StudyViewBoilerplate ={
                 "<button type='button' id='study-view-case-select-custom-submit-btn'>Select</button>" +
             "</div>",
     addChartDiv:
-            "<div  id='study-view-add-chart' class='study-view-header boxRight'>" +
-                "<span style='color: grey'>Add Chart</span>" +
+            "<div  id='study-view-add-chart' class='study-view-header'>" +
+                "<span>Add Chart</span><br>" +
                 "<ul>" +
                 "</ul>" +
             "</div>",
     
     tutorialDiv:
-            "<div  id='study-view-tutorial' class='study-view-header boxRight'>" +
-                "<span style='color: grey'>Tutorial</span>" +
+            "<div  id='study-view-tutorial' class='study-view-header'>" +
+                "<span>Tutorial</span>" +
             "</div>",
     
     updateTableDiv: 

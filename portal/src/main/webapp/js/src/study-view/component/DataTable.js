@@ -126,8 +126,8 @@ var DataTable = function() {
                 }else if ( value1.sTitle === 'CASE ID'){
                     _tmpValue = "<a href='tumormap.do?case_id=" + 
                     value['CASE_ID'] + "&cancer_study_id=" +
-                    parObject.studyId + "' target='_blank'>" + 
-                    value['CASE_ID'] + "</a></strong>";
+                    parObject.studyId + "' target='_blank'><span style='color: #2986e2'>" + 
+                    value['CASE_ID'] + "</span></a></strong>";
                 }else{
                     _tmpValue = value[value1.sTitle.replace(/[ ]/g,'_')];
                 }

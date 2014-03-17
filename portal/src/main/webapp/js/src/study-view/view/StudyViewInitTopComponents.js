@@ -50,6 +50,10 @@ var StudyViewInitTopComponents = (function() {
             _caseID.push(_filteredResult[i].CASE_ID);
         }
         
+
+        $("#study-view-header-left-2").css('left','190px');
+        $("#study-view-header-left-3").css('left','375px');
+                
         if(_resultLength === _numOfCases){
             var _hasFilter = false;
             
@@ -86,13 +90,15 @@ var StudyViewInitTopComponents = (function() {
                 $("#study-view-header-left-1").css('display','none');
                 $("#study-view-header-left-2").css('display','block');
                 $("#study-view-header-left-3").css('display','block');
+                $("#study-view-header-left-2").css('left','10px');
+                $("#study-view-header-left-3").css('left','180px');
                 $("#study-view-header-left-2").text('Clear selected case');
                 $("#study-view-header-left-3").html("");
                 $("#study-view-header-left-3")
                         .append("<a title='Go to patient-centric view' " + 
                         "href='case.do?cancer_study_id=" + parObject.studyId +
-                        "&amp;case_id=" + _caseID[0] + "'>" + _caseID[0] + 
-                        "</a>" + " is selected.");                
+                        "&amp;case_id=" + _caseID[0] + "'><span style='color: #2986e2'>" + _caseID[0] + 
+                        "</span></a>" + " is selected.");                
             }else{
                 $("#study-view-header-left-0").css('display','none');
                 $("#study-view-header-left-1").css('display','block');
@@ -105,7 +111,7 @@ var StudyViewInitTopComponents = (function() {
         }
     }
     
-    function initComponents() {
+    function initAddCharts() {
         AddCharts.init();
         AddCharts.initAddChartsButton(StudyViewInitCharts.getShowedChartsInfo());
         AddCharts.liClickCallback(liClickCallBack);
@@ -128,14 +134,15 @@ var StudyViewInitTopComponents = (function() {
         $("#study-view-header-function").append(StudyViewBoilerplate.tutorialDiv);
         _headerLeftQtip.position.target = $(window);
         _headerLeftQtip.content.text = $('#study-view-case-select-custom-dialog');
-        $('#study-view-header-left-0').qtip(_headerLeftQtip);;
+        $('#study-view-header-left-0').qtip(_headerLeftQtip);
+        
+        initAddCharts();
     }
     
     return {
         init: function(_data) {
             initParameters(_data);
             createDiv();
-            initComponents();
             addEvents();
         },
         

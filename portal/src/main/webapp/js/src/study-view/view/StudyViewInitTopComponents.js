@@ -90,8 +90,8 @@ var StudyViewInitTopComponents = (function() {
                 $("#study-view-header-left-1").css('display','none');
                 $("#study-view-header-left-2").css('display','block');
                 $("#study-view-header-left-3").css('display','block');
-                $("#study-view-header-left-2").css('left','10px');
-                $("#study-view-header-left-3").css('left','180px');
+                $("#study-view-header-left-2").css('left','0');
+                $("#study-view-header-left-3").css('left','190px');
                 $("#study-view-header-left-2").text('Clear selected case');
                 $("#study-view-header-left-3").html("");
                 $("#study-view-header-left-3")

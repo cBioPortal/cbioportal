@@ -410,7 +410,7 @@ var StudyViewInitCharts = (function(){
             if(_selectedCaseID.length !== parObject.caseIds.length){
                 if(_selectedCaseID.indexOf(parObject.caseIds[i]) !== -1){
                     if(clickedCaseId !== ''){
-                        styleDatum.fill = '#3366cc';
+                        styleDatum.fill = '#2986e2';
                         styleDatum.stroke = 'red';
                         styleDatum.strokeWidth = '3';
                         styleDatum.size = '120';
@@ -421,14 +421,14 @@ var StudyViewInitCharts = (function(){
                         styleDatum.size = '120';
                     }
                 }else{
-                    styleDatum.fill = '#3366cc';
-                    styleDatum.stroke = '#3366cc';
+                    styleDatum.fill = '#2986e2';
+                    styleDatum.stroke = '#2986e2';
                     styleDatum.strokeWidth = '0';
                     styleDatum.size = '60';
                 }
             }else if(_filters.length === 0){
-                styleDatum.fill = '#3366cc';
-                styleDatum.stroke = '#3366cc';
+                styleDatum.fill = '#2986e2';
+                styleDatum.stroke = '#2986e2';
                 styleDatum.strokeWidth = '0';
                 styleDatum.size = '60';
             }else{
@@ -439,6 +439,7 @@ var StudyViewInitCharts = (function(){
             }
             _style.push(styleDatum);
         }
+        console.log(_style);
         StudyViewInitScatterPlot.getScatterPlot().updateStyle(_style);
     }
     

@@ -27,7 +27,7 @@ var StudyViewBoilerplate ={
         style: 'qtip-light qtip-rounded qtip-wide'
     },
     chartColors: [
-        "#2986e2","#dc3912","#ff9900","#109618",
+        "#2986e2","#dc3912","#f88508","#109618",
         "#990099","#0099c6","#dd4477","#66aa00",
         "#b82e2e","#316395","#994499","#22aa99",
         "#aaaa11","#6633cc","#e67300","#8b0707",
@@ -63,8 +63,8 @@ var StudyViewBoilerplate ={
             yBottom: 350   //The bottom/starting point for y axis
         },
         style: { //Default style setting
-            fill: "#2986e2", //light blue
-            stroke: "#2986e2", //dark blue
+            fill: "#2986e2", 
+            stroke: "#2986e2",
             stroke_width: "0",
             size: "60",
             shape: "circle" //default, may vary for different mutation types

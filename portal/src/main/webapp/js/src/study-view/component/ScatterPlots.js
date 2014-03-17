@@ -458,7 +458,8 @@ var ScatterPlots = function() {
             case 'shiftClicked':
                 $(_element).attr('stroke-width','0')
                             .attr("d", d3.svg.symbol().size(style.size*2).type(style.shape))
-                            .attr('fill','red');
+                            .attr('fill','red')
+                            .attr('stroke','red');
                 break;
             case 'both':
                 $(_element).attr('stroke-width','3')

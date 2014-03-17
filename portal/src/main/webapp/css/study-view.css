@@ -35,9 +35,11 @@
 }
 #study-view-header-left-0 {
     left: 0;
+    width: 160px;
 }
 #study-view-header-left-1 {
-    left: 10px;
+    left: 0;
+    width: 190px;
 }
 #study-view-header-left-2 {
     left: 190px;
@@ -48,7 +50,7 @@
 }
 #study-view-header-left-3:hover{
     cursor: default;
-    background-color: rgb(248, 133, 8);
+    background-color: #f88508;
 }
 #study-view-main {
     margin-left: auto;
@@ -130,7 +132,7 @@
     top: 60px;
     width: 1200px;
     height: 50px;
-    background-color: rgb(248, 133, 8);
+    background-color: #f88508;
     z-index: 20;
 }
 #study-view-selectAttr{
@@ -156,7 +158,7 @@
     z-index: 21;
     vertical-align: middle;
     padding: 0 10px;
-    background-color: rgb(248, 133, 8);
+    background-color: #f88508;
     width: auto;
     color: white;
     border-width: 0;

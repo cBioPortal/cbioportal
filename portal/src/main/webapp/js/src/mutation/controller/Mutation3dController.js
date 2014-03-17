@@ -72,6 +72,10 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 			MutationDetailsEvents.VIEW_3D_PANEL_CLOSED,
 			view3dPanelCloseHandler);
 
+		mut3dVisView.dispatcher.on(
+			MutationDetailsEvents.VIEW_3D_STRUCTURE_RELOADED,
+			view3dReloadHandler);
+
 		// add listeners for the mutation details view
 		mutationDetailsView.dispatcher.on(
 			MutationDetailsEvents.GENE_TAB_SELECTED,
@@ -154,19 +158,6 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 
 	function panelChainSelectHandler(element)
 	{
-		// TODO ideally, we should queue every script call in JSmolWrapper,
-		// ...and send request to the frame one by one, but it is complicated
-
-		// calling another script immediately after updating the view
-		// does not work, so register a callback for update function
-		var callback = function() {
-			// highlight mutations on the 3D view
-			if (mutationDiagram.isHighlighted())
-			{
-				highlightSelected();
-			}
-		};
-
 		// scroll to the selected chain if selection triggered by the table
 		// (i.e: exclude manual selection for the sake of user-friendliness)
 		if (_chainSelectedByTable)
@@ -177,7 +168,7 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 
 		// update 3D view with the selected chain data
 		var datum = element.datum();
-		mut3dVisView.updateView(geneSymbol, datum.pdbId, datum.chain, callback);
+		mut3dVisView.updateView(geneSymbol, datum.pdbId, datum.chain);
 
 		// also update the pdb table (highlight the corresponding row)
 		if (!_chainSelectedByTable &&
@@ -190,6 +181,15 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 
 		// reset the flag
 		_chainSelectedByTable = false;
+	}
+
+	function view3dReloadHandler()
+	{
+		// highlight mutations on the 3D view
+		if (mutationDiagram.isHighlighted())
+		{
+			highlightSelected();
+		}
 	}
 
 	function tableChainSelectHandler(pdbId, chainId)

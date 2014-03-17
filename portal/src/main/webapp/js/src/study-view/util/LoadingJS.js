@@ -16,7 +16,13 @@ var LoadingJS = (function(){
         var _key;
         
         var _folder = {
-                component: ['ScatterPlots','PieChart', 'BarChart', 'DataTable','AddCharts'],
+                component: [
+                            'ScatterPlots',
+                            'PieChart', 
+                            'BarChart', 
+                            'DataTable',
+                            'AddCharts',
+                            'survival_curve'],
                 data: ['StudyViewProxy'],
                 util: [
                     'DcRedrawAllDataTable', 
@@ -29,7 +35,8 @@ var LoadingJS = (function(){
                         'StudyViewInitMiddleComponents',
                         'StudyViewInitTopComponents',
                         'StudyViewInitScatterPlot',
-                        'StudyViewInitIntroJS'],
+                        'StudyViewInitIntroJS',
+                        'StudyViewInitSurvivalPlot'],
                 controller: ['StudyViewControl']
             };
             

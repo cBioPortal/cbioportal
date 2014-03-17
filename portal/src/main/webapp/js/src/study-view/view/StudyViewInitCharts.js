@@ -172,6 +172,7 @@ var StudyViewInitCharts = (function(){
 
         totalCharts = pie.length + bar.length;
         initScatterPlot(_arr);
+        initSurvivalPlot(dataObtained.survivalData);
     }
     
     function createLayout() {
@@ -182,6 +183,10 @@ var StudyViewInitCharts = (function(){
             gutter:1
         });
         msnry.layout();
+    }
+    
+    function initSurvivalPlot(_data) {
+        StudyViewInitSurvivalPlot.init(parObject.caseIds, _data);
     }
     
     function initScatterPlot(_arr) {

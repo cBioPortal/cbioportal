@@ -19,6 +19,7 @@ var StudyViewProxy = (function() {
         clinicalAttributesData = {},
         mutationsData = {},
         cnaData = {},
+        survivalData = {},
         obtainDataObject = [];
         
     obtainDataObject['attr'] = [];
@@ -54,16 +55,22 @@ var StudyViewProxy = (function() {
             cmd: "get_cna_fraction",
             case_ids: caseIdStr,
             cancer_study_id: parObject.studyId
-        };   
+        };
+        survivalData = {
+            case_set_id: caseSetId,
+            case_ids_key: caseIds,
+            cancer_study_id: cancerStudyId
+        };
     }
     
     function getDataFunc(callbackFunc){
          $.when(  
                 $.ajax({type: "POST", url: "webservice.do", data: webserviceData}), 
                 $.ajax({type: "POST", url: "mutations.json", data: mutationsData}),
-                $.ajax({type: "POST", url: "cna.json", data: cnaData}))
+                $.ajax({type: "POST", url: "cna.json", data: cnaData}),
+                $.ajax({type: "POST", url: "getSurvivalData.json", data: survivalData}))
 
-            .done(function(a1, a2, a3){
+            .done(function(a1, a2, a3, a4){
                 var _dataAttrMapArr = [], //Map attrbute value with attribute name for each datum
                     _keyNumMapping = [],
                     _data = a1[0]['data'],
@@ -163,7 +170,8 @@ var StudyViewProxy = (function() {
                     _newAttr.datatype = 'NUMBER';
                     obtainDataObject['attr'].push(_newAttr);
                 }
-                
+                console.log(a4);
+                obtainDataObject.survivalData = a4[0];
                 callbackFunc(obtainDataObject);
             });
     };

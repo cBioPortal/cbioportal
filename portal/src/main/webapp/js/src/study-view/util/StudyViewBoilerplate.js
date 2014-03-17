@@ -257,6 +257,9 @@ var StudyViewBoilerplate ={
             "<div id='study-view-scatter-plot-loading-img'></div>"+
             "<div id='study-view-scatter-plot-control-panel'></div>"+
             "</div>",
+    survivalPlotDiv:
+            "<div id='os_survival_curve' class='study-view-dc-chart'></div>" + 
+            "<div id='dfs_survival_curve' class='study-view-dc-chart'></div>",
     dataTableDiv: 
             "<table id='dataTable'>"+
             "<tfoot>"+

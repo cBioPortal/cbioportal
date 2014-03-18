@@ -1,12 +1,12 @@
 # March 15, 2014
-* All TCGA data update to Firehose run of Jan 15, 2014.
-* Updated to the latest COSMIC data (v68).
-* Added two new TCGA Provisional Studies
+* All TCGA data updated to the Firehose run of January 15, 2014
+* Updated to the latest COSMIC data (v68)
+* Added two new provisional TCGA studies:
     * Adrenocortical Carcinoma
     * Uterine Carcinosarcoma
-* Added mutation data of 898 samples from 11 published studies
+* Added mutation data of 898 samples from 11 published studies:
     * Hepatocellular Carcinoma (RIKEN, Nature Genetics 2012)
-    * Liver Hepatocellular Carcinoma (LGGM, Hepatology in press) 
+    * Hepatocellular Carcinoma (LGGM, Hepatology in press)
     * Medulloblastoma (Broad, Nature 2012)
     * Medulloblastoma (ICGC, Nature 2012)
     * Medulloblastoma (WashU, Nature 2012)

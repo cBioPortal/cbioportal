@@ -16,7 +16,7 @@
         }
         var oTable = $("#"+table_id).dataTable( {
                 "sDom": sDom, // selectable columns
-                "oColVis": { "aiExclude": [ mutTableIndices["id"] ] }, // always hide id column
+                "oColVis": { "aiExclude": [ mutTableIndices["id"], mutTableIndices["cna"] ] }, // always hide id column
                 "bJQueryUI": true,
                 "bDestroy": true,
                 "aaData": data,

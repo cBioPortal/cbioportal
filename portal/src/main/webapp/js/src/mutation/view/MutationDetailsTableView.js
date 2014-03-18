@@ -4,9 +4,10 @@
  * options: {el: [target container],
  *           model: {mutations: [mutation data as an array of JSON objects],
  *                   geneSymbol: [hugo gene symbol as a string],
- *                   syncFn: sync function for outside sources,
  *                   tableOpts: [mutation table options -- optional]}
  *          }
+ *
+ * @author Selcuk Onur Sumer
  */
 var MutationDetailsTableView = Backbone.View.extend({
 	render: function()
@@ -78,9 +79,6 @@ var MutationDetailsTableView = Backbone.View.extend({
 			self.model.geneSymbol,
 			self.model.mutations,
 			self.model.tableOpts);
-
-		// add a callback function for sync purposes
-		tableUtil.registerCallback(self.model.syncFn);
 
 		// format the table (convert to a DataTable)
 		tableUtil.formatTable();
@@ -227,71 +225,28 @@ var MutationDetailsTableView = Backbone.View.extend({
 	{
 		var self = this;
 
-		/**
-		 * Mapping between the mutation type (data) values and
-		 * view values. The first element of an array corresponding to a
-		 * data value is the display text (html), and the second one
-		 * is style (css).
-		 */
-		var mutationTypeMap = {
-			missense_mutation: {label: "Missense", style: "missense_mutation"},
-			nonsense_mutation: {label: "Nonsense", style: "trunc_mutation"},
-			nonstop_mutation: {label: "Nonstop", style: "trunc_mutation"},
-			frame_shift_del: {label: "FS del", style: "trunc_mutation"},
-			frame_shift_ins: {label: "FS ins", style: "trunc_mutation"},
-			in_frame_ins: {label: "IF ins", style: "inframe_mutation"},
-			in_frame_del: {label: "IF del", style: "inframe_mutation"},
-			splice_site: {label: "Splice", style: "trunc_mutation"},
-			other: {style: "other_mutation"}
-		};
+		var visualStyleMaps = MutationViewsUtil.getVisualStyleMaps();
 
-		/**
-		 * Mapping between the validation status (data) values and
-		 * view values. The first element of an array corresponding to a
-		 * data value is the display text (html), and the second one
-		 * is style (css).
-		 */
-		var validationStatusMap = {
-			valid: {label: "V", style: "valid", tooltip: "Valid"},
-			validated: {label: "V", style: "valid", tooltip: "Valid"},
-			wildtype: {label: "W", style: "wildtype", tooltip: "Wildtype"},
-			unknown: {label: "U", style: "unknown", tooltip: "Unknown"},
-			not_tested: {label: "U", style: "unknown", tooltip: "Unknown"},
-			none: {label: "U", style: "unknown", tooltip: "Unknown"},
-			na: {label: "U", style: "unknown", tooltip: "Unknown"}
-		};
-
-		/**
-		 * Mapping between the mutation status (data) values and
-		 * view values. The first element of an array corresponding to a
-		 * data value is the display text (html), and the second one
-		 * is style (css).
-		 */
-		var mutationStatusMap = {
-			somatic: {label: "S", style: "somatic", tooltip: "Somatic"},
-			germline: {label: "G", style: "germline", tooltip: "Germline"},
-			unknown: {label: "U", style: "unknown", tooltip: "Unknown"},
-			none: {label: "U", style: "unknown", tooltip: "Unknown"},
-			na: {label: "U", style: "unknown", tooltip: "Unknown"}
-		};
-
-		var omaScoreMap = {
-			h: {label: "H", style: "oma_high", tooltip: "High"},
-			m: {label: "M", style: "oma_medium", tooltip: "Medium"},
-			l: {label: "L", style: "oma_low", tooltip: "Low"},
-			n: {label: "N", style: "oma_neutral", tooltip: "Neutral"}
-		};
+		var mutationTypeMap = visualStyleMaps.mutationType;
+		var validationStatusMap = visualStyleMaps.validationStatus;
+		var mutationStatusMap = visualStyleMaps.mutationStatus;
+		var omaScoreMap = visualStyleMaps.omaScore;
+		var cnaMap = visualStyleMaps.cna;
 
 		var vars = {};
 
 		vars.mutationId = mutation.mutationId;
         vars.mutationSid = mutation.mutationSid;
-        vars.caseId = mutation.caseId;
 		vars.linkToPatientView = mutation.linkToPatientView;
         vars.cancerType = mutation.cancerType;
         vars.cancerStudy = mutation.cancerStudy;
         vars.cancerStudyShort = mutation.cancerStudyShort;
         vars.cancerStudyLink = mutation.cancerStudyLink;
+
+		var caseId = self._getCaseId(mutation.caseId);
+		vars.caseId = caseId.text;
+		vars.caseIdClass = caseId.style;
+		vars.caseIdTip = caseId.tip;
 
         var proteinChange = self._getProteinChange(mutation);
 		vars.proteinChange = proteinChange.text;
@@ -384,7 +339,60 @@ var MutationDetailsTableView = Backbone.View.extend({
 		vars.mutationCount = mutationCount.text;
 		vars.mutationCountClass = mutationCount.style;
 
+		var cna = self._getCNA(cnaMap, mutation.cna);
+		vars.cna = cna.text;
+		vars.cnaClass = cna.style;
+		vars.cnaTip = cna.tip;
+
 		return vars;
+	},
+	// TODO identify duplicate/similar get functions
+	_getCNA : function(map, value)
+	{
+		var style, label, tip;
+
+		if (map[value] != null)
+		{
+			style = map[value].style;
+			label = map[value].label;
+			tip = map[value].tooltip;
+		}
+		else
+		{
+			style = map.unknown.style;
+			label = map.unknown.label;
+			tip = map.unknown.tooltip;
+		}
+
+		return {style: style, tip: tip, text: label};
+	},
+    /**
+     * Returns the text content, the css class, and the tooltip
+     * for the given case id value. If the length of the actual
+     * case id string is too long, then creates a short form of
+     * the case id ending with an ellipsis.
+     *
+     * @param caseId    actual case id string
+     * @return {{style: string, text: string, tip: string}}
+     * @private
+     */
+	_getCaseId: function(caseId)
+	{
+		// TODO customize this length?
+		var maxLength = 16;
+
+		var text = caseId;
+		var style = ""; // no style for short case id strings
+		var tip = caseId; // display full case id as a tip
+
+		// no need to bother with clipping the text for 1 or 2 chars.
+		if (caseId.length > maxLength + 2)
+		{
+			text = caseId.substring(0, maxLength) + "...";
+			style = "simple-tip"; // enable tooltip for long strings
+		}
+
+		return {style: style, tip: tip, text: text};
 	},
     /**
      * Returns the text content and the css class for the given

@@ -1,5 +1,7 @@
 /**
  * Singleton utility class for PDB data related tasks.
+ *
+ * @author Selcuk Onur Sumer
  */
 var PdbDataUtil = (function()
 {
@@ -77,10 +79,11 @@ var PdbDataUtil = (function()
 	 * they are sorted by uniprotFrom field.
 	 *
 	 * @param alignments    an array of PdbAlignmentModel instances
+	 * @return {Object}     merged alignment object
 	 */
 	function mergeSortedAlignments(alignments)
 	{
-		var mergedAlignment = {mergedString: "", uniprotFrom: -1, uniprotTo: -1};
+		var mergedAlignment = {mergedString: "", uniprotFrom: -1, uniprotTo: -1, pdbFrom: -1};
 		var mergedStr = "";
 		var end = -1;
 		var prev;
@@ -159,6 +162,7 @@ var PdbDataUtil = (function()
 
 		mergedAlignment.uniprotFrom = alignments[0].uniprotFrom;
 		mergedAlignment.uniprotTo = mergedAlignment.uniprotFrom + mergedStr.length;
+		mergedAlignment.pdbFrom = alignments[0].pdbFrom;
 		mergedAlignment.mergedString = mergedStr;
 		mergedAlignment.score = calcScore(mergedStr);
 
@@ -217,9 +221,41 @@ var PdbDataUtil = (function()
 			});
 		});
 
-		chains.sort(compareChains);
+		//chains.sort(compareChains);
+
+		sortChains(chains, [
+			compareMergedLength, // sort by length first
+			compareScore, // then by calculated alignment score
+			comparePdbId, // then by pdb id (A-Z)
+			compareChainId // then by chain id (A-Z)
+		]);
 
 		return chains;
+	}
+
+	/**
+	 * Sort chains wrt the given comparator functions.
+	 *
+	 * @param chains        an array of PDB chain data
+	 * @param comparators   an array of comparator functions
+	 */
+	function sortChains(chains, comparators)
+	{
+		// compare using given comparator functions
+		chains.sort(function(a, b) {
+			var result = 0;
+
+			// continue to compare until the result is different than zero
+			for (var i=0;
+			     i < comparators.length && result == 0;
+			     i++)
+			{
+				var fn = comparators[i];
+				result = fn(a, b);
+			}
+
+			return result;
+		});
 	}
 
 	/**
@@ -256,6 +292,34 @@ var PdbDataUtil = (function()
 		// longer string should comes first in the sorted array
 		return (b.chain.mergedAlignment.mergedString.length -
 		        a.chain.mergedAlignment.mergedString.length);
+	}
+
+	function comparePdbId(a, b)
+	{
+		// A-Z sort
+		if (b.pdbId > a.pdbId) {
+			return -1;
+		} else if (b.pdbId < a.pdbId) {
+			return 1;
+		} else {
+			return 0;
+		}
+
+		//return (a.pdbId - b.pdbId);
+	}
+
+	function compareChainId(a, b)
+	{
+		// A-Z sort
+		if (b.chain.chainId > a.chain.chainId) {
+			return -1;
+		} else if (b.chain.chainId < a.chain.chainId) {
+			return 1;
+		} else {
+			return 0;
+		}
+
+		//return (a.chain.chainId - b.chain.chainId);
 	}
 
 	function compareEValue(a, b)

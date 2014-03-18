@@ -85,10 +85,12 @@ public class MutationDataUtils {
 	public static final String REFSEQ_MRNA_ID = "refseqMrnaId";
 	public static final String CODON_CHANGE = "codonChange";
 	public static final String UNIPROT_ID = "uniprotId";
+	public static final String UNIPROT_ACC = "uniprotAcc";
 	public static final String PROTEIN_POS_START = "proteinPosStart";
 	public static final String PROTEIN_POS_END = "proteinPosEnd";
 	public static final String MUTATION_COUNT = "mutationCount";
 	public static final String SPECIAL_GENE_DATA = "specialGeneData";
+	public static final String CNA_CONTEXT = "cna";
 
     /**
      * Generates an array (JSON array) of mutations for the given case
@@ -137,15 +139,26 @@ public class MutationDataUtils {
         Map<String, Integer> countMap = this.getMutationCountMap(mutationList);
 	    Map<String, ClinicalData> clinicalDataMap = getClinicalDataMap(
 			    targetCaseList, cancerStudy, "TYPE_OF_CANCER");
+        
+        DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
+        
+        GeneticProfile cnaProfile = DaoCancerStudy.getCancerStudyByInternalId(geneticProfile.getCancerStudyId()).getCopyNumberAlterationProfile(true);
+        Map<String,Map<String,String>> cnaDataMap = new HashMap<String,Map<String,String>>();
+        if (cnaProfile!=null) {
+            for (String geneSymbol : targetGeneList) {
+                cnaDataMap.put(geneSymbol,
+                        DaoGeneticAlteration.getInstance().getGeneticAlterationMap(cnaProfile.getGeneticProfileId(), daoGeneOptimized.getGene(geneSymbol).getEntrezGeneId()));
+            }
+        }
 
-	    for (ExtendedMutation mutation : mutationList)
+        for (ExtendedMutation mutation : mutationList)
         {
             String caseId = mutation.getCaseId();
 
             if (targetCaseList.contains(caseId))
             {
                 mutationArray.add(getMutationDataMap(
-		                mutation, geneticProfile, cancerStudy, countMap, cosmic, clinicalDataMap));
+		                mutation, geneticProfile, cancerStudy, countMap, cnaDataMap, cosmic, clinicalDataMap));
             }
         }
 
@@ -175,13 +188,14 @@ public class MutationDataUtils {
 		}
 
 		return map;
-	}
+    }
 
-	protected HashMap<String, Object> getMutationDataMap(
+    protected HashMap<String, Object> getMutationDataMap(
             ExtendedMutation mutation,
             GeneticProfile geneticProfile,
 			CancerStudy cancerStudy,
             Map<String, Integer> countMap,
+            Map<String,Map<String,String>> cnaDataMap,
             Map<Long, Set<CosmicMutationFrequency>> cosmic,
 			Map<String, ClinicalData> clinicalDataMap) throws DaoException
     {
@@ -204,7 +218,7 @@ public class MutationDataUtils {
         mutationData.put(LINK_TO_PATIENT_VIEW, linkToPatientView);
         mutationData.put(CANCER_TYPE, typeOfCancer);
         mutationData.put(CANCER_STUDY, cancerStudy.getName());
-        mutationData.put(CANCER_STUDY_SHORT, getShortName(cancerStudy));
+        mutationData.put(CANCER_STUDY_SHORT, cancerStudy.getShortName());
         mutationData.put(CANCER_STUDY_LINK, GlobalProperties.getLinkToCancerStudyView(cancerStudyStableId));
 	    mutationData.put(TUMOR_TYPE, this.getTumorType(mutation, clinicalDataMap));
         mutationData.put(PROTEIN_CHANGE, mutation.getProteinChange());
@@ -234,13 +248,23 @@ public class MutationDataUtils {
         mutationData.put(CANONICAL_TRANSCRIPT, mutation.isCanonicalTranscript());
         mutationData.put(REFSEQ_MRNA_ID, mutation.getOncotatorRefseqMrnaId());
         mutationData.put(CODON_CHANGE, mutation.getOncotatorCodonChange());
-        mutationData.put(UNIPROT_ID, this.getUniprotId(mutation));
+        mutationData.put(UNIPROT_ID, mutation.getOncotatorUniprotName());
+	    mutationData.put(UNIPROT_ACC, mutation.getOncotatorUniprotAccession());
         mutationData.put(PROTEIN_POS_START, mutation.getOncotatorProteinPosStart());
         mutationData.put(PROTEIN_POS_END, mutation.getOncotatorProteinPosEnd());
         mutationData.put(MUTATION_COUNT, countMap.get(mutation.getCaseId()));
         mutationData.put(SPECIAL_GENE_DATA, this.getSpecialGeneData(mutation));
+        mutationData.put(CNA_CONTEXT, getCnaData(cnaDataMap, mutation));
 
         return mutationData;
+    }
+    
+    private String getCnaData(Map<String,Map<String,String>> cnaDataMap, ExtendedMutation mutation) {
+        Map<String,String> map = cnaDataMap.get(mutation.getGeneSymbol());
+        if (map==null) {
+            return null;
+        }
+        return map.get(mutation.getCaseId());
     }
 
     public String generateMutationId(ExtendedMutation mutation) {
@@ -327,16 +351,6 @@ public class MutationDataUtils {
         }
 
         return counts;
-    }
-
-    private String getShortName(CancerStudy cancerStudy) throws DaoException {
-        String sName = cancerStudy.getCancerStudyStableId();
-        String tumorType = cancerStudy.getTypeOfCancerId();
-        sName = sName.replace(tumorType + "_", "").replaceAll("_", " ").toUpperCase();
-        TypeOfCancer typeOfCancerById = DaoTypeOfCancer.getTypeOfCancerById(tumorType);
-        sName = typeOfCancerById.getShortName() + " (" + sName + ")";
-
-        return sName;
     }
 
     /**
@@ -606,7 +620,6 @@ public class MutationDataUtils {
 
     protected String getUniprotId(ExtendedMutation mutation)
     {
-        // TODO uniprot name or uniprot accession
         return mutation.getOncotatorUniprotName();
     }
 

@@ -51,7 +51,7 @@ public final class CgdsIdMappingService implements IdMappingService {
     }
 
     /** {@inheritDoc} */
-    public List<String> getUniProtIds(final String hugoGeneSymbol) {
+    public List<String> mapFromHugoToUniprotAccessions(final String hugoGeneSymbol) {
         checkNotNull(hugoGeneSymbol, "hugoGeneSymbol must not be null");
         try {
             CanonicalGene gene = geneDao.getGene(hugoGeneSymbol);
@@ -59,12 +59,23 @@ public final class CgdsIdMappingService implements IdMappingService {
                 logger.warn("could not find gene with hugoGeneSymbol " + hugoGeneSymbol + " for uniprot id mapping");
             }
             else {
-                return DaoUniProtIdMapping.getUniProtIds((int) gene.getEntrezGeneId()); // is entrez gene id really a long?
+                return DaoUniProtIdMapping.mapFromEntrezGeneIdToUniprotAccession((int) gene.getEntrezGeneId()); // is entrez gene id really a long?
             }
         }
         catch (DaoException e) {
             logger.error("could not find uniprot id mapping for hugoGeneSymbol " + hugoGeneSymbol, e);
         }
         return Collections.emptyList();
+    }
+    
+    public String  mapFromUniprotIdToUniprotAccession(String uniprotId) {
+        checkNotNull(uniprotId, "uniprotId must not be null");
+        try {
+            return DaoUniProtIdMapping.mapFromUniprotAccessionToUniprotId(uniprotId);
+        }
+        catch (DaoException e) {
+            logger.error("could not find uniprot id mapping for " + uniprotId, e);
+        }
+        return null;
     }
 }

@@ -180,6 +180,25 @@ cbio.util = (function() {
 		return browser;
 	};
 
+	/**
+	 * Retrieves the page origin from the global window object. This function is
+	 * introduced to eliminate cross-browser issues (window.location.origin is
+	 * undefined for IE)
+	 */
+	var getOrigin = function()
+	{
+		var origin = window.location.origin;
+
+		if (!origin)
+		{
+			origin = window.location.protocol + "//" +
+			         window.location.hostname +
+			         (window.location.port ? ':' + window.location.port: '');
+		}
+
+		return origin;
+	};
+
     return {
         toPrecision: toPrecision,
         getObjectLength: getObjectLength,
@@ -188,7 +207,8 @@ cbio.util = (function() {
         arrayToAssociatedArrayIndices: arrayToAssociatedArrayIndices,
         alterAxesAttrForPDFConverter: alterAxesAttrForPDFConverter,
         lcss: lcss,
-	    browser: detectBrowser() // returning the browser object, not the function itself
+	    browser: detectBrowser(), // returning the browser object, not the function itself
+	    getWindowOrigin: getOrigin
     };
 
 })();

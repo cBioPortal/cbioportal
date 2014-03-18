@@ -7,6 +7,8 @@
  *           model: {},
  *           diagram: reference to the MutationDiagram instance
  *          }
+ *
+ * @author Selcuk Onur Sumer
  */
 var MutationCustomizePanelView = Backbone.View.extend({
 	initialize : function (options) {

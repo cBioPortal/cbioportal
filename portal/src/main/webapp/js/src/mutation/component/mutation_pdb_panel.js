@@ -62,7 +62,8 @@ function MutationPdbPanel(options, data, proxy, xScale)
 				// init tip view
 				var tipView = new PdbChainTipView({model: {
 					pdbId: datum.pdbId,
-					pdbInfo: summary,
+					pdbInfo: summary.title,
+					molInfo: summary.molecule,
 					chain: datum.chain
 				}});
 

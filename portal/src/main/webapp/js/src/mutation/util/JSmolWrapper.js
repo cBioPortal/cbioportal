@@ -19,7 +19,7 @@ var JSmolWrapper = function()
 	var _targetDocument = null;
 	var _container = null;
 	var _origin = cbio.util.getWindowOrigin();
-	var _scriptCallback = null;
+	var _commandQueue = [];
 
 	// default options
 	var defaultOpts = {
@@ -96,14 +96,22 @@ var JSmolWrapper = function()
 			// done event: supposed to be fired when JSmol finishes executing a script
 			else if (event.data.type == "done")
 			{
-				if (_scriptCallback &&
-				    _.isFunction(_scriptCallback))
+				var command = _commandQueue.shift();
+				var callback = command.callback;
+
+				// check for a registered callback
+				if (callback &&
+				    _.isFunction(callback))
 				{
 					// call the registered callback function
-					_scriptCallback();
+					callback();
+				}
 
-					// reset the function after callback
-					_scriptCallback = null;
+				// see if there are more commands to send
+				if (!_.isEmpty(_commandQueue))
+				{
+					command = _.first(_commandQueue);
+					_targetWindow.postMessage(command.data, _origin);
 				}
 			}
 		};
@@ -151,12 +159,10 @@ var JSmolWrapper = function()
 		if (_targetWindow)
 		{
 			var data = {type: "script", content: command};
-			_targetWindow.postMessage(data, _origin);
-		}
 
-		// register a callback function
-		// (which is supposed to be called with a "reload" event)
-		_scriptCallback = callback;
+			// queue the command, this prevents simultaneous JSmol script calls
+			queue(data, callback);
+		}
 	}
 
 	/**
@@ -193,6 +199,31 @@ var JSmolWrapper = function()
 		}
 
 		return targetDocument;
+	}
+
+	/**
+	 * Adds the given data package and callback function to the command queue.
+	 * If the queue is currently empty, immediately posts the message to the
+	 * target window.
+	 *
+	 * @param data      data package to send
+	 * @param callback  callback function for this command
+	 */
+	function queue(data, callback)
+	{
+		// TODO not always safe -- producer/consumer problem, may run into a deadlock...
+
+		// immediately post message if the queue is empty
+		if (_.isEmpty(_commandQueue))
+		{
+			_commandQueue.push({data: data, callback: callback});
+			_targetWindow.postMessage(data, _origin);
+		}
+		// add command to the queue (message will be post after a "done" event)
+		else
+		{
+			_commandQueue.push({data: data, callback: callback});
+		}
 	}
 
 	return {

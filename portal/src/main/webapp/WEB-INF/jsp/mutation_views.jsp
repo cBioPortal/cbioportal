@@ -26,15 +26,14 @@
 </script>
 
 <script type="text/template" id="default_mutation_details_main_content_template">
-	<div id='mutation_details_{{geneSymbol}}'>
+	<div id='mutation_details_{{geneId}}'>
 		<img src='{{loaderImage}}'/>
 	</div>
 </script>
 
 <script type="text/template" id="default_mutation_details_list_content_template">
 	<li>
-		<a href="#mutation_details_{{geneSymbol}}"
-		   id="mutation_details_tab_{{geneSymbol}}"
+		<a href="#mutation_details_{{geneId}}"
 		   class="mutation-details-tabs-ref"
 		   title="{{geneSymbol}} mutations">
 			<span>{{geneSymbol}}</span>
@@ -130,14 +129,17 @@
 		3D Structure
 	</div>
 	<div class='mutation-3d-info-main'>
-		Chain <span class='mutation-3d-chain-id'>{{chainId}}</span> of PDB
+		PDB
 		<span class='mutation-3d-pdb-id'>
 			<a href="http://www.rcsb.org/pdb/explore/explore.do?structureId={{pdbId}}"
 			   target="_blank">
 				{{pdbId}}
 			</a>
 		</span>
-		<span class='mutation-3d-pdb-info'>: {{pdbInfo}}</span>
+		<span class='mutation-3d-pdb-info'>: {{pdbInfo}}</span><br>
+		Chain
+		<span class='mutation-3d-chain-id'>{{chainId}}</span>
+		<span class='mutation-3d-mol-info'>: {{molInfo}}</span>
 	</div>
 </script>
 
@@ -456,6 +458,11 @@
 	</span>
 </script>
 
+<script type="text/template" id="mutation_pdb_table_summary_cell_template">
+	<b>pdb:</b> {{summary}} <br>
+	<b>chain:</b> {{molecule}}
+</script>
+
 <!-- (end PDB Table) -->
 
 <script type="text/template" id="mutation_details_table_data_row_template">
@@ -637,9 +644,14 @@
 
 <script type="text/template" id="mutation_details_pdb_chain_tip_template">
 	<span class='pdb-chain-tip'>
-		<b>PDB Id:</b> {{pdbId}}<br>
-		<b>Chain:</b> {{chainId}}<br>
-		{{pdbInfo}}
+		PDB
+		<a href="http://www.rcsb.org/pdb/explore/explore.do?structureId={{pdbId}}"
+		   target="_blank">
+			<b>{{pdbId}}</b>
+		</a>
+		<span class="chain-rectangle-tip-pdb-info">{{pdbInfo}}</span><br>
+		Chain <b>{{chainId}}</b>
+		<span class="chain-rectangle-tip-mol-info">{{molInfo}}</span>
 	</span>
 </script>
 

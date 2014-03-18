@@ -12,6 +12,7 @@ portal/Portal.ipr
 portal/Portal.iws
 portal/checkstyle_report.xml
 core/nbactions.xml
+logs
 importer/nbactions.xml
 portal/nb-configuration.xml
 portal/nbactions.xml

@@ -55,7 +55,7 @@
 <li><strong>name:</strong>  short name of the type of cancer.</li>
 </ul>
 <h3 id="example">Example</h3>
-<p><a href="http://cbio.mskcc.org/cgx/webservice.do?cmd=getTypesOfCancer">Get all Types of Cancer.</a></p>
+<p><a href="webservice.do?cmd=getTypesOfCancer">Get all Types of Cancer.</a></p>
 <h2 id="get-all-cancer-studies">Get All Cancer Studies</h2>
 <h3 id="description_1">Description</h3>
 <p>Retrieves meta-data regarding cancer studies stored on the server.</p>
@@ -66,8 +66,7 @@
 <h3 id="response-format_1">Response Format</h3>
 <p>A tab-delimited file with three columns:</p>
 <ul>
-<li><strong>cancer_study_id:</strong>  a unique integer ID that should be used to identify the cancer study in subsequent interface calls.<br />
-</li>
+<li><strong>cancer_study_id:</strong>  a unique integer ID that should be used to identify the cancer study in subsequent interface calls.  </li>
 <li><strong>name:</strong>  short name of the cancer study.</li>
 <li><strong>description:</strong>  short description of the cancer study.</li>
 </ul>
@@ -87,8 +86,7 @@
 <li><strong>genetic_profile_id</strong>:  a unique ID used to identify the genetic profile ID in subsequent interface calls.  This is a human readable ID.  For example, "gbm_mutations" identifies the TCGA GBM mutation genetic profile.</li>
 <li><strong>genetic_profile_name</strong>:  short profile name.</li>
 <li><strong>genetic_profile_description</strong>:  short profile description.</li>
-<li><strong>cancer_study_id</strong>:  cancer study ID tied to this genetic profile.  Will match the input cancer_study_id.<br />
-</li>
+<li><strong>cancer_study_id</strong>:  cancer study ID tied to this genetic profile.  Will match the input cancer_study_id.  </li>
 <li><strong>genetic_alteration_type</strong>:  indicates the profile type.  Will be one of:<ul>
 <li>MUTATION</li>
 <li>MUTATION_EXTENDED</li>
@@ -115,8 +113,7 @@
 <li><strong>case_list_id</strong>:  a unique ID used to identify the case list ID in subsequent interface calls.  This is a human readable ID.  For example, "gbm_all" identifies all cases profiles in the TCGA GBM study.</li>
 <li><strong>case_list_name</strong>:  short name for the case list.</li>
 <li><strong>case_list_description</strong>:  short description of the case list.</li>
-<li><strong>cancer_study_id</strong>:  cancer study ID tied to this genetic profile.  Will match the input cancer_study_id.<br />
-</li>
+<li><strong>cancer_study_id</strong>:  cancer study ID tied to this genetic profile.  Will match the input cancer_study_id.  </li>
 <li><strong>case_ids</strong>:  space delimited list of all case IDs that make up this case list.</li>
 </ul>
 <h3 id="example_3">Example</h3>
@@ -139,19 +136,16 @@
 <h4 id="response-format-1">Response Format 1</h4>
 <p>When requesting one or multiple genes and a single genetic profile ID (see above), you will receive a tab-delimited matrix with the following columns:</p>
 <ol>
-<li><strong>GENE_ID</strong>:  Entrez Gene ID <br />
-</li>
+<li><strong>GENE_ID</strong>:  Entrez Gene ID   </li>
 <li><strong>COMMON</strong>:  HUGO Gene Symbol</li>
 <li><strong>Columns 3 - N</strong>:  Data for each case</li>
 </ol>
 <h4 id="response-format-2">Response Format 2</h4>
 <p>When requesting a single gene and multiple genetic profile IDs (see above), you will receive a tab-delimited matrix with the following columns:</p>
 <ol>
-<li><strong>GENETIC_PROFILE_ID</strong>:  The Genetic Profile ID. <br />
-</li>
+<li><strong>GENETIC_PROFILE_ID</strong>:  The Genetic Profile ID.   </li>
 <li><strong>ALTERATION_TYPE</strong>:  The Genetic Alteration Type, e.g. MUTATION, MUTATION_EXTENDED, COPY_NUMBER_ALTERATION, or MRNA_EXPRESSION.</li>
-<li><strong>GENE_ID</strong>:  Entrez Gene ID. <br />
-</li>
+<li><strong>GENE_ID</strong>:  Entrez Gene ID.   </li>
 <li><strong>COMMON</strong>:  HUGO Gene Symbol.</li>
 <li><strong>Columns 5 - N</strong>:  Data for each case.</li>
 </ol>

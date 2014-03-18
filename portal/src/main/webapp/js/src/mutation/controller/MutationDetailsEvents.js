@@ -26,6 +26,7 @@ var MutationDetailsEvents = (function()
 	var _geneTabSelected = "mutationDetailsGeneTabSelected";
 	var _geneTabsCreated = "mutationDetailsGeneTabsCreated";
 	var _3dPanelClosed = "mutation3dPanelClosed";
+	var _3dStructureReloaded = "mutation3dStructureReloaded";
 
 	return {
 		LOLLIPOP_SELECTED: _lollipopSelected,
@@ -47,6 +48,7 @@ var MutationDetailsEvents = (function()
 		PDB_TABLE_READY: _pdbTableReady,
 		GENE_TAB_SELECTED: _geneTabSelected,
 		GENE_TABS_CREATED: _geneTabsCreated,
+		VIEW_3D_STRUCTURE_RELOADED: _3dStructureReloaded,
 		VIEW_3D_PANEL_CLOSED: _3dPanelClosed
 	};
 })();

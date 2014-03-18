@@ -126,7 +126,6 @@ public class GetCoExpressionJSON extends HttpServlet  {
                               _scores.put("spearman", spearman);
                               fullResultJson.add(_scores);                             
                             }
-
                         }
                     }
                 }

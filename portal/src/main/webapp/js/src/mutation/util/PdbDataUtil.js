@@ -69,11 +69,12 @@ var PdbDataUtil = (function()
 	 *
 	 * @param pdbInfo   pdb info data (retrieved from server)
 	 * @param chainId   chain id as a string
-	 * @returns {String} pdb summary string for the given chain
+	 * @returns {Object} pdb summary for the given chain
 	 */
 	function generatePdbInfoSummary(pdbInfo, chainId)
 	{
-		var summary = pdbInfo.title;
+		var summary = {};
+		summary.title = pdbInfo.title;
 
 		// TODO cache?
 
@@ -88,7 +89,7 @@ var PdbDataUtil = (function()
 				// chain is associated with this mol,
 				// get the organism info from the source
 
-				summary += " -- " + mol.molecule;
+				summary.molecule = mol.molecule;
 				break;
 			}
 		}

@@ -8,7 +8,7 @@
 
 <style>
     #coexp .coexp-table-filter-custom {
-        width: 100%;
+        width: 400px;
         float: left;
     }
     #coexp .datatables_filter {
@@ -20,8 +20,8 @@
         padding-left: 6px;
     }
     #coexp .dataTables_paginate {
-        float: left;
-        text-align: left;
+        float: right;
+        padding: 3px;
     }
     #coexp .paging_full_numbers .ui-button {
         border: 1px solid #aaa;
@@ -77,8 +77,7 @@
         $("#tabs").bind("tabsactivate", function(event, ui) {
             if (ui.newTab.text().trim().toLowerCase() === "co-expression") {
                 if (coexp_tab_init === false) {
-                    CoExpView.initTabs();
-                    CoExpView.initView();
+                    CoExpView.init();
                     coexp_tab_init = true;
                 } else {
                     $(window).trigger("resize");

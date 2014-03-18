@@ -15,7 +15,8 @@ var MutationDetailsController = function(
 	function init()
 	{
 		// init pdb proxy
-		if (mutationProxy.hasData())
+		if (mut3dVis &&
+		    mutationProxy.hasData())
 		{
 			_pdbProxy = new PdbDataProxy(mutationProxy.getMutationUtil());
 		}
@@ -107,7 +108,7 @@ var MutationDetailsController = function(
 
 			// init the main view
 			var mainView = new MainMutationView({
-				el: "#mutation_details_" + gene,
+				el: "#mutation_details_" + cbio.util.safeProperty(gene),
 				model: model});
 
 			mainView.render();
@@ -124,10 +125,16 @@ var MutationDetailsController = function(
 			// init controllers
 			new MainMutationController(mainView, components.diagram);
 			new MutationDetailsTableController(components.tableView, components.diagram);
-			new Mutation3dController(mutationDetailsView, mainView,
-			                         _mut3dVisView, components.view3d, mut3dVis,
-			                         _pdbProxy, mutationUtil,
-			                         components.diagram, components.tableView, gene);
+
+			if (mut3dVis &&
+			    _mut3dVisView)
+			{
+				new Mutation3dController(mutationDetailsView, mainView,
+					_mut3dVisView, components.view3d, mut3dVis,
+					_pdbProxy, mutationUtil,
+					components.diagram, components.tableView, gene);
+			}
+
 			new MutationDiagramController(
 				components.diagram, components.tableView.tableUtil, mutationUtil, components.tableView);
 		};
@@ -140,8 +147,9 @@ var MutationDetailsController = function(
 			// display a message if there is no mutation data available for this gene
 			if (data == null || data.length == 0)
 			{
-				mutationDetailsView.$el.find("#mutation_details_" + gene).html(
-					_.template($("#default_mutation_details_gene_info_template").html(), {}));
+				mutationDetailsView.$el.find(
+					"#mutation_details_" + cbio.util.safeProperty(gene)).html(
+						_.template($("#default_mutation_details_gene_info_template").html(), {}));
 			}
 			// get the sequence data for the current gene & init view
 			else

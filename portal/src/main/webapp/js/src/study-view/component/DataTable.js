@@ -190,7 +190,7 @@ var DataTable = function() {
                     $(".dataTableReset span").css('display','none');
                 }
             }
-        });
+        }).fnSetFilteringDelay();
     }
     
     //Add th tags based on number of attributes
@@ -235,9 +235,19 @@ var DataTable = function() {
             $(this).css({'cursor': 'default'});
         });
         
+        var inputDelay = (function(){
+            var timer = 0;
+            return function(callback, ms){
+              clearTimeout (timer);
+              timer = setTimeout(callback, ms);
+            };
+        })();
+        
         $("#dataTable_filter label input").keyup(function() {
-            showDataTableReset(dataTable);
-            resizeLeftColumn();
+            inputDelay(function(){
+                showDataTableReset(dataTable);
+                resizeLeftColumn();
+            }, 500 );
         });
         
         $("#dataTable tbody").mousedown(function(event){
@@ -334,7 +344,8 @@ var DataTable = function() {
     //Create Regular Selector or Numeric Selector based on data type.
     function fnCreateSelect( aData, index ){
         var _isNumericArray = true,
-            _hasNullValue = false;
+            _hasNullValue = false,
+            _numOfKeys = aData.length;
     
         for(var i=0;i<aData.length;i++){
             if(isNaN(aData[i])){
@@ -361,13 +372,18 @@ var DataTable = function() {
         }else{
             aData.sort();
         }
-        if(!_isNumericArray || aData.length === 0){
+        
+        if(!_isNumericArray || aData.length === 0 || (_isNumericArray && _numOfKeys < 10)){
             var r='<select><option value=""></option>', i, iLen=aData.length;
-            for ( i=0 ; i<iLen ; i++ )
-            {
-                r += '<option value="'+aData[i]+'">'+aData[i]+'</option>';
+            if(iLen === 0){
+                return "";
+            }else{
+                for ( i=0 ; i<iLen ; i++ )
+                {
+                    r += '<option value="'+aData[i]+'">'+aData[i]+'</option>';
+                }
+                return r+'</select>';
             }
-            return r+'</select>';
         }else{
             var _min = aData[0],
                 _max = aData[aData.length-1],
@@ -607,6 +623,9 @@ var DataTable = function() {
         },
         
         updateTable: function(_filteredResult) {
+            if( $("#dataTable_filter label input").attr("value") !== ''){
+                dataTable.fnFilter('');
+            }
             deleteChartResetDataTable(_filteredResult);
             resizeLeftColumn();            
             refreshSelectionInDataTable();

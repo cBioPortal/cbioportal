@@ -26,6 +26,20 @@ var StudyViewInitTopComponents = (function() {
         $('#study-view-header-left-2').click(function (){
             dc.filterAll();
             dc.redrawAll();
+            $(StudyViewInitDataTable
+                    .getDataTable()
+                    .getDataTable()
+                    .fnSettings()
+                    .aoData).each(function (){
+                if($(this.nTr).hasClass('row_selected')){
+                    $(this.nTr).removeClass('row_selected');
+                    if($(this.nTr).hasClass('odd')){
+                       $(this.nTr).css('background-color','#E2E4FF'); 
+                    }else{
+                        $(this.nTr).css('background-color','white');
+                    }
+                }
+            });
             StudyViewInitCharts.changeHeader();
         });
         

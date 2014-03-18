@@ -426,7 +426,7 @@ var StudyViewInitCharts = (function(){
                     styleDatum.strokeWidth = '0';
                     styleDatum.size = '60';
                 }
-            }else if(_filters.length === 0){
+            }else if(_filters === null || _filters.length === 0 ){
                 styleDatum.fill = '#2986e2';
                 styleDatum.stroke = '#2986e2';
                 styleDatum.strokeWidth = '0';

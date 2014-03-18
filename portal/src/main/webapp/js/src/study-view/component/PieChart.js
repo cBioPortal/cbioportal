@@ -264,7 +264,10 @@ var PieChart = function(){
                             .css({'border-width':'2px', 'border-style':'inset'});
                 }
 
-                updateScatterPlot(_currentFilters);
+                if(StudyViewInitScatterPlot.getScatterPlot().getBrushedCases().length > 0){
+                    updateScatterPlot(_currentFilters);
+                }
+                
                 removeMarker();
                 postFilterCallback();
             });

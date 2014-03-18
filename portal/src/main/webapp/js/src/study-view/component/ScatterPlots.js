@@ -58,7 +58,8 @@ var ScatterPlots = function() {
         names = {}, //ids
         legends = [],
         dataArr = [],
-        dataAttr = {};
+        dataAttr = {},
+        brushedCases = [];
 
     var axis_edge = 0.1;
         log_scale_threshold = 0.17677669529;
@@ -630,6 +631,8 @@ var ScatterPlots = function() {
             });
         }
         
+        brushedCases = _brushedCases;
+        
         if(_totalHighlightIds.length === 0){
             elem.dotsGroup.selectAll("path").each(function(d) {
                 var _attrType = pointClickType(this);
@@ -773,6 +776,10 @@ var ScatterPlots = function() {
             appendAxisTitleY(_applyLogScale);
             updatePlotsLogScale("y", _applyLogScale);
         },
+        getBrushedCases: function() {
+            return brushedCases;
+        },
+        
         updateMutations: function(_divName, _divName_x_scale, _divName_y_scale) {
             var _showMutations = document.getElementById(_divName).checked;
             

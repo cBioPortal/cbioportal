@@ -385,6 +385,7 @@ pieH3{
 }
 .study-view-header-button{
     color:white;
+    outline: none;
     background-color:#2986e2;
     border: none;
     border-radius: 10px;
@@ -435,11 +436,16 @@ pieH3{
 .clickable:hover{
     cursor: pointer;
 }
+
+//Show/Hide columns related classes
 .ColVis_Button {
     white-space: nowrap;
 }
 .ColVis_MasterButton {
     border-radius: 5px;
+}
+.ColVis_Button.TableTools_Button.ColVis_MasterButton{
+    outline: none
 }
 
 #content ul{
@@ -450,11 +456,13 @@ pieH3{
 }
 .ui-widget-content {
     border: 0;
-    margin-left: 2px;
 }
 .ui-widget-header {
     border: 0;
     background: white;
+}
+.ui-tabs .ui-tabs-nav {
+    padding: 0;
 }
 .ui-state-default.ui-corner-top.ui-tabs-active.ui-state-active{
     border: 1px solid #aaaaaa;

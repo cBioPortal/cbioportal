@@ -169,7 +169,7 @@ var StudyViewInitCharts = (function(){
             varDisplay.push(_attr[i]["display_name"]);                
             varName.push(_attr[i]["attr_id"]);
         }
-
+        
         totalCharts = pie.length + bar.length;
         initScatterPlot(_arr);
     }
@@ -341,7 +341,7 @@ var StudyViewInitCharts = (function(){
                 }
                 varChart[_currentID].updateParam(_param);
                 varChart[_currentID].reDrawChart();
-                _currentChart.render();
+                varChart[_currentID].getChart().render();
             });
         }
     }
@@ -439,7 +439,7 @@ var StudyViewInitCharts = (function(){
             }
             _style.push(styleDatum);
         }
-        console.log(_style);
+        
         StudyViewInitScatterPlot.getScatterPlot().updateStyle(_style);
     }
     

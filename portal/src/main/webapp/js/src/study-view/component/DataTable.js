@@ -150,6 +150,10 @@ var DataTable = function() {
                         } 
                     }
                 }
+                
+                if(_selectedString === 'NA'){
+                    _selectedString = '';
+                }
                 aaData[key].push(_selectedString);
             });
         });
@@ -220,6 +224,7 @@ var DataTable = function() {
             .append("<a><span class='hidden' title='Reset Chart'>RESET</span></a>");
     
         $(".dataTableReset span").click(function(){
+            $(this).css({'cursor': 'wait'});
             $("#dataTable_filter label input").attr("value","");
             $.fn.dataTableExt.afnFiltering = [];
             updateTable([]);
@@ -227,6 +232,7 @@ var DataTable = function() {
             refreshSelectionInDataTable();
             dataTable.fnAdjustColumnSizing();
             showDataTableReset();
+            $(this).css({'cursor': 'default'});
         });
         
         $("#dataTable_filter label input").keyup(function() {

@@ -82,7 +82,7 @@ var StudyViewProxy = (function() {
                         _dataAttrMapArr[_data[i]["sample"]][_data[i]["attr_id"]] = _data[i]["attr_val"];
                     }
                 }
-
+                
                 //Initial data array, not all of cases has MUTAION COUND OR COPY NUMBER ALTERATIONS.
                 for(var j = 0; j <  _globalCaseIdsLength; j++){
                     var _caseDatum = {};
@@ -91,7 +91,9 @@ var StudyViewProxy = (function() {
                     _caseDatum["COPY_NUMBER_ALTERATIONS"] = "NA";
                     _keyNumMapping[parObject.caseIds[j]] = j;
                     $.each(_dataAttrOfa1,function(key,value){
-                        _caseDatum[value['attr_id']] = "NA";
+                        if(value['attr_id'] !== 'CASE_ID'){
+                            _caseDatum[value['attr_id']] = "NA";
+                        }
                     });
                     obtainDataObject['arr'].push(_caseDatum);
                 }
@@ -139,8 +141,9 @@ var StudyViewProxy = (function() {
                     _newAttri.datatype = 'NUMBER';
 
                     jQuery.each(filteredA3, function(i,val){
-                        if(val === undefined)
+                        if(val === undefined){
                             val = 'NA';
+                        }
                         obtainDataObject['arr'][_keyNumMapping[i]]['COPY_NUMBER_ALTERATIONS'] = val;
                     }); 
                     obtainDataObject['attr'].push(_newAttri);

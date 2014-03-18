@@ -4,12 +4,13 @@
 * Added two new TCGA Provisional Studies
     * Adrenocortical Carcinoma
     * Uterine Carcinosarcoma
-* Added mutation data of 693 samples from 10 published studies
+* Added mutation data of 898 samples from 11 published studies
     * Hepatocellular Carcinoma (RIKEN, Nature Genetics 2012)
     * Liver Hepatocellular Carcinoma (LGGM, Hepatology in press) 
     * Medulloblastoma (Broad, Nature 2012)
     * Medulloblastoma (ICGC, Nature 2012)
     * Medulloblastoma (WashU, Nature 2012)
+    * Multiple Myeloma (Broad, Cancer Cell 2014)
     * Pancreatic Adenocarcinoma (ICGC, Nature 2012)
     * Small Cell Carcinoma of the Ovary (MSKCC, Nature Genetics in press)
     * Small Cell Lung Cancer (CLCGP, Nature Genetics 2012)

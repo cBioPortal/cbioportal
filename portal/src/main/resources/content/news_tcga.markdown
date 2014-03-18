@@ -1,6 +1,10 @@
 # March 15, 2014
 * All TCGA data update to Firehose run of Jan 15, 2014.
 * Updated to the latest COSMIC data (v68).
+* Added two new TCGA Provisional Studies
+    * Adrenocortical Carcinoma
+    * Uterine Carcinosarcoma
+* Added genomic data from multiple studies from literature.
 
 # November 8, 2013
 

@@ -45,12 +45,16 @@
     left: 190px;
 }
 #study-view-header-left-3 {
-    left: 375px;
+    left: 0;
+    line-height: 30px;
+    top: 50px;
+    background-color: lightyellow;
+    color:black;
+    opacity: 0.9;
     font-size: 11px;
 }
 #study-view-header-left-3:hover{
     cursor: default;
-    background-color: #f88508;
 }
 #study-view-main {
     margin-left: auto;
@@ -172,6 +176,9 @@
 .study-view-header:hover{    
     cursor: pointer;
     background-color: orange;
+    -moz-box-shadow: 0 0 5px #ccc inset;
+    -webkit-box-shadow: 0 0 5px #ccc inset;
+    box-shadow: 0 0 5px #ccc inset;
 }
 .boxLeft {
     //box-shadow: 2px 2px 2px lightgrey;
@@ -453,9 +460,26 @@ pieH3{
     border: 1px solid #aaaaaa;
     border-bottom: 0;
     background: white;
+    color: #2986e2;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    -moz-box-shadow: 0 0 5px lightgrey inset;
+    -webkit-box-shadow: 0 0 5px lightgrey inset;
+    box-shadow: 0 0 5px lightgrey inset;
+}
+
+.ui-state-default.ui-corner-top.ui-state-hover {
+    border: 1px solid #aaaaaa;
+    border-bottom: 0;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    -moz-box-shadow: 0 0 5px lightgrey inset;
+    -webkit-box-shadow: 0 0 5px lightgrey inset;
+    box-shadow: 0 0 5px lightgrey inset;
 }
 .ui-state-default.ui-corner-top{
-    border: 0;
+    border: 1px;
+    border-color: white;
     background: white;
 }
 #dc-plots {

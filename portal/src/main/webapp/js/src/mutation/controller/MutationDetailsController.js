@@ -108,7 +108,7 @@ var MutationDetailsController = function(
 
 			// init the main view
 			var mainView = new MainMutationView({
-				el: "#mutation_details_" + gene,
+				el: "#mutation_details_" + cbio.util.safeProperty(gene),
 				model: model});
 
 			mainView.render();
@@ -147,8 +147,9 @@ var MutationDetailsController = function(
 			// display a message if there is no mutation data available for this gene
 			if (data == null || data.length == 0)
 			{
-				mutationDetailsView.$el.find("#mutation_details_" + gene).html(
-					_.template($("#default_mutation_details_gene_info_template").html(), {}));
+				mutationDetailsView.$el.find(
+					"#mutation_details_" + cbio.util.safeProperty(gene)).html(
+						_.template($("#default_mutation_details_gene_info_template").html(), {}));
 			}
 			// get the sequence data for the current gene & init view
 			else

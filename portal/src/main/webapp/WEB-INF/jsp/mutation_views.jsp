@@ -26,15 +26,14 @@
 </script>
 
 <script type="text/template" id="default_mutation_details_main_content_template">
-	<div id='mutation_details_{{geneSymbol}}'>
+	<div id='mutation_details_{{geneId}}'>
 		<img src='{{loaderImage}}'/>
 	</div>
 </script>
 
 <script type="text/template" id="default_mutation_details_list_content_template">
 	<li>
-		<a href="#mutation_details_{{geneSymbol}}"
-		   id="mutation_details_tab_{{geneSymbol}}"
+		<a href="#mutation_details_{{geneId}}"
 		   class="mutation-details-tabs-ref"
 		   title="{{geneSymbol}} mutations">
 			<span>{{geneSymbol}}</span>

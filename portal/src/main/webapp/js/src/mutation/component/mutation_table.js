@@ -13,8 +13,6 @@
  */
 var MutationTable = function(tableSelector, gene, mutations, options)
 {
-	// TODO add more options if necessary (for other views: patient view, cross cancer, etc)
-
 	// default options object
 	var _defaultOpts = {
 		// Indicates the visibility of columns
@@ -36,16 +34,28 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 			"case id": "visible",
 			"type": "visible",
 			"cosmic": "visible",
-			"fis": "visible",
-			"cons": "visible",
-			"3d": "visible",
+			"mutation assessor": "visible",
 			"vs": "visible",
-			"allele freq (t)": "visible",
-			"copy #" : "excluded",
 			"#mut in sample": "visible",
 			"mutation id": "excluded",
 			"cancer study": "excluded",
 			// TODO we may need more parameters than these two (util, gene)
+			"copy #" : function (util, gene) {
+				if (util.containsCnaData(gene)) {
+					return "visible";
+				}
+				else {
+					return "hidden";
+				}
+			},
+			"allele freq (t)": function (util, gene) {
+				if (util.containsAlleleFreqT(gene)) {
+					return "visible";
+				}
+				else {
+					return "hidden";
+				}
+			},
 			"bam": function (util, gene) {
 				if (util.containsIgvLink(gene)) {
 					return "visible";
@@ -79,7 +89,12 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 			"sDom": '<"H"<"mutation_datatables_filter"f>C<"mutation_datatables_info"i>>t',
 			"bJQueryUI": true,
 			"bPaginate": false,
-			"bFilter": true
+			"bFilter": true,
+			"oLanguage": {
+				"sInfo": "Showing _TOTAL_ mutations",
+				"sInfoFiltered": "(out of _MAX_ total mutations)",
+				"sInfoEmpty": "No mutations to show"
+			}
 		}
 	};
 
@@ -300,20 +315,25 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 		                indexMap["norm alt"],
 		                indexMap["norm ref"],
 	                    indexMap["#mut in sample"]]},
+		        {"sType": 'string',
+			        "sClass": "center-align-td",
+			        "aTargets": [indexMap["vs"],
+				        indexMap["ms"],
+				        indexMap["type"],
+				        indexMap["center"]]},
 	            {"sType": 'label-float-col',
 	                "sClass": "right-align-td",
 	                "aTargets": [indexMap["allele freq (t)"],
 		                indexMap["allele freq (n)"]]},
 	            {"sType": 'predicted-impact-col',
-	                "aTargets": [indexMap["fis"]]},
+		            "sClass": "center-align-td",
+	                "aTargets": [indexMap["mutation assessor"]]},
 		        {"sType": 'copy-number-col',
 			        "sClass": "center-align-td",
 			        "aTargets": [indexMap["copy #"]]},
 	            {"asSorting": ["desc", "asc"],
 	                "aTargets": [indexMap["cosmic"],
-		                indexMap["fis"],
-	                    indexMap["cons"],
-	                    indexMap["3d"],
+		                indexMap["mutation assessor"],
 	                    indexMap["#mut in sample"]]},
 	            {"bVisible": false,
 	                "aTargets": hiddenCols},
@@ -423,6 +443,9 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 			var links = $(this).attr('alt');
 			var parts = links.split("|");
 
+			var mutationId = parts[1];
+			var mutation = _mutationUtil.getMutationIdMap()[mutationId];
+
 			// copy default qTip options and modify "content"
 			// to customize for predicted impact score
 			var qTipOptsOma = {};
@@ -431,7 +454,9 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 			qTipOptsOma.content = {text: "NA"}; // content is overwritten on render
 			qTipOptsOma.events = {render: function(event, api) {
 				var model = {impact: parts[0],
-					xvia: parts[1]};
+					xvia: mutation.xVarLink,
+					msaLink: mutation.msaLink,
+					pdbLink: mutation.pdbLink};
 
 				var container = $(this).find('.qtip-content');
 
@@ -541,7 +566,8 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 	{
 		if (a.indexOf("label") != -1)
 		{
-			return $(a).text().trim();
+			// TODO temp workaround
+			return $(a).find("label").text().trim() || $(a).text().trim();
 		}
 		else
 		{

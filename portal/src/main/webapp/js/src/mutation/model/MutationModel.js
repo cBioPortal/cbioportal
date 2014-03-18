@@ -29,6 +29,7 @@ var MutationModel = Backbone.Model.extend({
 		this.msaLink = attributes.msaLink;
 		this.xVarLink = attributes.xVarLink;
 		this.pdbLink = attributes.pdbLink;
+		this.pdbMatch = attributes.pdbMatch; // {pdbId, chainId} pair
 		this.igvLink = attributes.igvLink;
 		this.mutationStatus = attributes.mutationStatus;
 		this.validationStatus = attributes.validationStatus;
@@ -60,6 +61,49 @@ var MutationModel = Backbone.Model.extend({
 	url: function() {
 		// TODO implement this to get the data from a web service
 		var urlStr = "webservice.do?cmd=...";
+	},
+	/**
+	 * Finds out the protein start position for this mutation.
+	 * The field proteinPosStart has a priority over proteinChange.
+	 * If none of these has a valid value, then this function
+	 * returns null.
+	 *
+	 * @return protein start position
+	 */
+	getProteinStartPos: function()
+	{
+		// first try protein start pos
+		var position = this.proteinPosStart;
+
+		// if not valid, then try protein change value
+		if (position == null ||
+		    position.length == 0 ||
+		    position == "NA" ||
+		    position < 0)
+		{
+			position = this.getProteinChangeLocation();
+		}
+
+		return position;
+	},
+	/**
+	 * Finds the uniprot location for the protein change of
+	 * the given mutation.
+	 *
+	 * @return {String} protein location as a string value
+	 */
+	getProteinChangeLocation: function()
+	{
+		var location = null;
+		var proteinChange = this.proteinChange;
+		var result = proteinChange.match(/[0-9]+/);
+
+		if (result && result.length > 0)
+		{
+			location = result[0];
+		}
+
+		return location;
 	},
 	calcCosmicCount: function(cosmic)
 	{

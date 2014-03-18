@@ -2,7 +2,7 @@
  * Tooltip view for the PDB panel chain rectangles.
  *
  * options: {el: [target container],
- *           model: {pdbId, pdbInfo, chain}
+ *           model: {pdbId, chain, pdbInfo, molInfo}
  *          }
  *
  * @author Selcuk Onur Sumer
@@ -23,20 +23,29 @@ var PdbChainTipView = Backbone.View.extend({
 	},
 	compileTemplate: function()
 	{
-		var summary = "";
-
-		// TODO this can be implemented in a better way
-		if (this.model.pdbInfo)
-		{
-			summary = "<b>Summary:</b> " + this.model.pdbInfo;
-		}
+		var self = this;
+		var pdbInfo = self.model.pdbInfo;
+		var molInfo = self.model.molInfo;
 
 		// pass variables in using Underscore.js template
-		var variables = {pdbId: this.model.pdbId,
-			pdbInfo: summary,
-			chainId: this.model.chain.chainId,
-			from: this.model.chain.mergedAlignment.uniprotFrom,
-			to: this.model.chain.mergedAlignment.uniprotTo};
+		var variables = {pdbId: self.model.pdbId,
+			chainId: self.model.chain.chainId,
+			pdbInfo: "",
+			molInfo: ""};
+
+		// TODO this can be implemented in a better way
+
+		if (pdbInfo != null ||
+		    pdbInfo.length > 0)
+		{
+			variables.pdbInfo = ": " + pdbInfo;
+		}
+
+		if (molInfo != null ||
+		    molInfo.length > 0)
+		{
+			variables.molInfo = ": " + molInfo;
+		}
 
 		// compile the template using underscore
 		return _.template(

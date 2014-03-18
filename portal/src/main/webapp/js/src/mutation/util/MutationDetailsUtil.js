@@ -68,7 +68,7 @@ var MutationDetailsUtil = function(mutations)
 		for(var i=0; i < mutations.length; i++)
 		{
 			var position = {id: mutations[i].id,
-				start: mutations[i].proteinPosStart,
+				start: mutations[i].getProteinStartPos(),
 				end: mutations[i].proteinPosEnd};
 
 			positions.push(position);
@@ -322,6 +322,55 @@ var MutationDetailsUtil = function(mutations)
 			for (var i=0; i < mutations.length; i++)
 			{
 				if (mutations[i].igvLink)
+				{
+					contains = true;
+					break;
+				}
+			}
+		}
+
+		return contains;
+	};
+
+	this.containsAlleleFreqT = function(gene)
+	{
+		var contains = false;
+
+		gene = gene.toUpperCase();
+
+		if (_mutationGeneMap[gene] != undefined)
+		{
+			var mutations = _mutationGeneMap[gene];
+
+			for (var i=0; i < mutations.length; i++)
+			{
+				if (mutations[i].tumorFreq &&
+				    mutations[i].tumorFreq != "NA")
+				{
+					contains = true;
+					break;
+				}
+			}
+		}
+
+		return contains;
+	};
+
+	this.containsCnaData = function(gene)
+	{
+		var contains = false;
+
+		gene = gene.toUpperCase();
+
+		if (_mutationGeneMap[gene] != undefined)
+		{
+			var mutations = _mutationGeneMap[gene];
+
+			for (var i=0; i < mutations.length; i++)
+			{
+				if (mutations[i].cna &&
+				    mutations[i].cna != "NA" &&
+				    mutations[i].cna != "unknown")
 				{
 					contains = true;
 					break;

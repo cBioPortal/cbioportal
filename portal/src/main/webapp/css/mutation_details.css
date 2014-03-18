@@ -24,30 +24,104 @@
  * along with this library; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
-
-#mutation_details .ColVis {
+.mutation-pdb-table-view .ColVis {
 	float: left;
-	padding-right:25%;
+	padding-right: 15%;
 	margin-bottom: 0;
 }
-#mutation_details .unknown {
-	background: #E0E0E0;
-	color:black;
-	padding-left:5px;
-	padding-right:5px;
-}
-#mutation_details .protein_change {
-	font-weight: bold;
-	font-style: italic;
-}
-#mutation_details .best_effect_transcript {
-	color: red;
-}
-#mutation_details .mutation_details_table {
+.mutation-pdb-main-container .pdb-chain-table {
 	font-size: 90%;
 	color: black;
 }
-#mutation_details .mutation_details_table td {
+.mutation-pdb-main-container .pdb-chain-table td {
+	font-size: 100%;
+}
+.mutation-pdb-main-container .pdb-chain-table-container {
+	width: 670px;
+	padding-left: 40px;
+}
+.mutation-pdb-main-container .pdb-chain-table-loader {
+	padding-left: 40px;
+}
+.mutation-pdb-main-container .pbd-chain-table-chain-cell label {
+	font-weight: bold;
+	font-style: italic;
+}
+.mutation-pdb-main-container .pdb-table-3d-icon {
+	cursor: pointer;
+	float: right;
+}
+.mutation-pdb-main-container {
+	margin-bottom: 10px;
+}
+.mutation-pdb-main-container .mutation-pdb-panel-container {
+	overflow: hidden;
+	max-height: 200px;
+}
+.pdb-table-controls td {
+	padding-left: 45px;
+}
+.pdb-table-controls .triangle {
+	float: left;
+	cursor: pointer;
+}
+
+.mutation-table-container .ColVis {
+	float: left;
+	padding-right: 25%;
+	margin-bottom: 0;
+}
+.mutation-table-container .unknown {
+	background: #E0E0E0;
+	color: #000000;
+	padding-left:5px;
+	padding-right:5px;
+}
+.mutation-table-container .mutation-table-protein-change {
+	font-weight: bold;
+	font-style: italic;
+	cursor: pointer;
+}
+.mutation-table-container .mutation-table-3d-link {
+	float: right;
+}
+.mutation-table-container .mutation-table-3d-icon,
+.mutation-table-container .mutation-table-igv-icon,
+.mutation-pdb-main-container .pdb-table-3d-icon {
+	background-color: #88C;
+	color: white;
+	padding-left: 6px;
+	padding-right: 6px;
+}
+.mutation-assessor-link {
+	margin-bottom: 1px;
+}
+.mutation-assessor-link .ma-msa-icon{
+	background-color: #88C;
+	color: white;
+	padding-left: 3px;
+	padding-right: 3px;
+	font-size: 80%;
+}
+.mutation-assessor-link .ma-3d-icon {
+	background-color: #88C;
+	color: white;
+	padding-left: 6px;
+	padding-right: 6px;
+	font-size: 80%;
+}
+.mutation-assessor-main-link img {
+	padding-left: 3px;
+	padding-right: 3px;
+}
+.mutation-table-container .best_effect_transcript {
+	color: red;
+}
+.mutation-table-container .mutation_details_table {
+	font-size: 90%;
+	color: black;
+}
+.mutation-table-container .mutation_details_table td {
 	font-size: 100%;
 }
 /*
@@ -55,9 +129,9 @@ th.mutation-details-qtip-style {
     font-size: 115%;
 }
 */
-#mutation_details .mutation_table_cosmic {
-	/*cursor: pointer;*/
-	color: #1974B8;
+.mutation-table-container .mutation_table_cosmic {
+	/*cursor: pointer;
+	color: #1974B8;*/
 }
 #mutation_details .dataTables_filter {
 	width: 200px;
@@ -68,7 +142,8 @@ th.mutation-details-qtip-style {
 #mutation_details .dataTables_info {
 	width: 300px;
 }
-#mutation_details .msa-img, #mutation_details .pdb-img {
+.mutation-table-container .msa-img,
+.mutation-table-container .pdb-img {
 	vertical-align: bottom;
 	margin-left: 3px;
 }
@@ -88,19 +163,19 @@ th.mutation-details-qtip-style {
 	font-size:90%;
 }
 .missense_mutation {
-	color: green;
+	color: #008000;
 	font-weight: bold;
 }
 .trunc_mutation {
-	color: red;
+	color: #FF0000;
 	font-weight: bold;
 }
 .inframe_mutation {
-	color: black;
+	color: #000000;
 	font-weight: bold;
 }
 .other_mutation {
-	color: gray;
+	color: #808080;
 	font-weight: bold;
 }
 .uniform_mutation {
@@ -108,29 +183,29 @@ th.mutation-details-qtip-style {
 	font-weight: bold;
 }
 .cna-homdel {
-	color:blue;
+	color: #0000FF;
 	font-weight: bold;
 }
 .cna-hetloss {
-	color:blue;
+	color: #0000FF;
 	font-weight: bold;
 	font-size:smaller;
 }
 .cna-diploid {
-	color:black;
+	color: #000000;
 	font-size:xx-small;
 }
 .cna-gain {
-	color:red;
+	color: #FF0000;
 	font-weight: bold;
 	font-size:smaller;
 }
 .cna-amp {
-	color:red;
+	color: #FF0000;
 	font-weight: bold;
 }
 .cna-unknown {
-	color:gray;
+	color: #808080;
 	font-size:xx-small;
 }
 .diagram_toolbar {
@@ -186,16 +261,23 @@ th.mutation-details-qtip-style {
 .mutation-details-tabs-ref {
 	font-size: 11px !important;
 }
-.mutation-table-highlight {
-	background-color: #E9E900 !important;
+table.display tr.even.mutation-table-highlight td {
+	background-color: #E9E900;
+}
+table.display tr.odd.mutation-table-highlight td {
+	background-color: #E0E000;
 }
 .mutation-table-container {
 	margin-bottom: 40px;
 }
-.mutation-table-header {
+.mutation-table-header,
+th.mutation-pdb-table-column {
 	font-weight: bold !important;
 }
-
+.mut-dia-data-point,
+.pdb-chain-group{
+	cursor: pointer;
+}
 /**
  * 3D visualizer panel
  */

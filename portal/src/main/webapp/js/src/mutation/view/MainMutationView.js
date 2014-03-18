@@ -78,11 +78,15 @@ var MainMutationView = Backbone.View.extend({
 			// init diagram toolbar
 			self._initToolbar(diagram, gene);
 
-			// init the 3d view
-			view3d = self._init3dView(gene,
-				sequence,
-				self.model.pdbProxy,
-				mut3dVisView);
+			if (mut3dVisView)
+			{
+				// init the 3d view
+				view3d = self._init3dView(gene,
+					sequence,
+					self.model.pdbProxy,
+					mut3dVisView);
+			}
+
 		}
 		else
 		{

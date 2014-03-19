@@ -346,6 +346,7 @@ var StudyViewInitCharts = (function(){
         $('#study-view-add-chart').css('display','block');
         varChart[_chartID] = "";
         removedChart.push(Number(_chartID));
+        getSelectedCasesAndRedrawScatterPlot([]);
     }
         
     function changeHeader(){

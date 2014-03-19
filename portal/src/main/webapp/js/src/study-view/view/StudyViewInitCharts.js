@@ -253,7 +253,7 @@ var StudyViewInitCharts = (function(){
 
         clickedCaseId = '';
 
-        if(typeof StudyViewInitScatterPlot.getScatterPlot() !== 'undefined'){
+        if(StudyViewInitScatterPlot.getScatterPlot()){
             for(var i=0; i<_tmpResult.length ; i++){
                 _tmpCaseID.push(_tmpResult[i].CASE_ID);
             }
@@ -388,46 +388,49 @@ var StudyViewInitCharts = (function(){
     }
     
     function setScatterPlotStyle(_selectedCaseID,_filters){
-        var _style = [];
+        var _style = [],
+            _scatterPlot = StudyViewInitScatterPlot.getScatterPlot();
         
-        for(var i=0 ; i< parObject.caseIds.length ; i++){
-            var styleDatum = {};
-            
-            styleDatum.case_id = parObject.caseIds[i];
-            if(_selectedCaseID.length !== parObject.caseIds.length){
-                if(_selectedCaseID.indexOf(parObject.caseIds[i]) !== -1){
-                    if(clickedCaseId !== ''){
-                        styleDatum.fill = '#2986e2';
-                        styleDatum.stroke = 'red';
-                        styleDatum.strokeWidth = '3';
-                        styleDatum.size = '120';
+        if(_scatterPlot){
+            for(var i=0 ; i< parObject.caseIds.length ; i++){
+                var styleDatum = {};
+
+                styleDatum.case_id = parObject.caseIds[i];
+                if(_selectedCaseID.length !== parObject.caseIds.length){
+                    if(_selectedCaseID.indexOf(parObject.caseIds[i]) !== -1){
+                        if(clickedCaseId !== ''){
+                            styleDatum.fill = '#2986e2';
+                            styleDatum.stroke = 'red';
+                            styleDatum.strokeWidth = '3';
+                            styleDatum.size = '120';
+                        }else{
+                            styleDatum.fill = 'red';
+                            styleDatum.stroke = 'red';
+                            styleDatum.strokeWidth = '0';
+                            styleDatum.size = '120';
+                        }
                     }else{
-                        styleDatum.fill = 'red';
-                        styleDatum.stroke = 'red';
+                        styleDatum.fill = '#2986e2';
+                        styleDatum.stroke = '#2986e2';
                         styleDatum.strokeWidth = '0';
-                        styleDatum.size = '120';
+                        styleDatum.size = '60';
                     }
-                }else{
+                }else if(_filters === null || _filters.length === 0 ){
                     styleDatum.fill = '#2986e2';
                     styleDatum.stroke = '#2986e2';
                     styleDatum.strokeWidth = '0';
                     styleDatum.size = '60';
+                }else{
+                    styleDatum.fill = 'red';
+                    styleDatum.stroke = 'red';
+                    styleDatum.strokeWidth = '0';
+                    styleDatum.size = '120';
                 }
-            }else if(_filters === null || _filters.length === 0 ){
-                styleDatum.fill = '#2986e2';
-                styleDatum.stroke = '#2986e2';
-                styleDatum.strokeWidth = '0';
-                styleDatum.size = '60';
-            }else{
-                styleDatum.fill = 'red';
-                styleDatum.stroke = 'red';
-                styleDatum.strokeWidth = '0';
-                styleDatum.size = '120';
+                _style.push(styleDatum);
             }
-            _style.push(styleDatum);
+
+            StudyViewInitScatterPlot.getScatterPlot().updateStyle(_style);
         }
-        
-        StudyViewInitScatterPlot.getScatterPlot().updateStyle(_style);
     }
     
     function redrawChartsAfterDeletion(){

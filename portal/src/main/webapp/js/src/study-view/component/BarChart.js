@@ -68,8 +68,9 @@ var BarChart = function(){
     //other functions added after initializing this Bar Chart.
     function addFunctions() {
         barChart.on("filtered", function(chart,filter){
-            var _currentFilters = barChart.filters();
-
+            var _currentFilters = barChart.filters(),
+                _scatterPlot = StudyViewInitScatterPlot.getScatterPlot();
+            
             if(_currentFilters.length === 0){
                 $("#" + DIV.mainDiv + " .study-view-dc-chart-change")
                             .css('display','none');
@@ -81,16 +82,14 @@ var BarChart = function(){
                 $("#" + DIV.mainDiv)
                         .css({'border-width':'2px', 'border-style':'inset'});
             }
+            
+            if(_scatterPlot){
+                if(_scatterPlot.getBrushedCases().length > 0 ||
+                    filter !== null){
 
-            if(StudyViewInitScatterPlot
-                    .getScatterPlot()
-                    .getBrushedCases()
-                    .length > 0 ||
-                filter !== null){
-            
-                updateScatterPlot(_currentFilters);
+                    updateScatterPlot(_currentFilters);
+                }
             }
-            
             removeMarker();
             postFilterCallback();
         });
@@ -207,8 +206,15 @@ var BarChart = function(){
         for( var i = 0; i < _distanceLength - 2; i++ )
             divider *= 10;
         if( param.distanceArray.max < 100 && 
-                param.distanceArray.max > 20 )
+                param.distanceArray.max > 50 ){
             divider = 10;
+        }else if ( param.distanceArray.max < 100 && 
+                param.distanceArray.max > 30 ){
+            divider = 5;
+        }else if ( param.distanceArray.max < 100 && 
+                param.distanceArray.max > 10 ){
+            divider = 2;
+        }
         
         if(param.distanceArray.max <= 1 && 
                 param.distanceArray.max > 0 && 
@@ -245,13 +251,16 @@ var BarChart = function(){
             var _tmpValue = i * seperateDistance + startPoint;
             
             _tmpValue = Number(cbio.util.toPrecision(Number(_tmpValue),3,0.1));
-            xDomain.push(_tmpValue);
             
             //If the current tmpValue already bigger than maxmium number, the
             //function should decrease the number of bars and also reset the
             //Mappped empty value.
             if(_tmpValue > param.distanceArray.max){
-                
+                //if i = 0 and tmpValue bigger than maximum number, that means
+                //all data fall into NA category.
+                if(i !== 0){
+                    xDomain.push(_tmpValue);
+                }
                 //Reset the empty mapping value 
                 if(distanceMinMax > 1000 || distanceMinMax < 1){
                     emptyValueMapping = (i+1)*seperateDistance + startPoint;
@@ -264,6 +273,8 @@ var BarChart = function(){
                 }
                 
                 break;
+            }else{
+                xDomain.push(_tmpValue);
             }
         }
     }
@@ -283,9 +294,9 @@ var BarChart = function(){
             }else{
                 if(d[param.selectedAttr] >= 0){
                     returnValue =  parseInt( 
-                                    d[param.selectedAttr] / 
+                                    (d[param.selectedAttr]-startPoint) / 
                                     seperateDistance) * 
-                                    seperateDistance + seperateDistance / 2;
+                                    seperateDistance + startPoint + seperateDistance / 2;
                 }else{
                     returnValue =  ( parseInt( 
                                         d[param.selectedAttr] / 

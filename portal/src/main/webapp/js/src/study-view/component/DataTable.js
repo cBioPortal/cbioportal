@@ -250,10 +250,30 @@ var DataTable = function() {
             }, 500 );
         });
         
+        //Set mouse down timeout to seperate click and mousedown and hold
+        var _timeOut = 0;
         $("#dataTable tbody").mousedown(function(event){
+            var _d = new Date();
+            _timeOut= _d.getTime();
+            //Tried couple times, only prevent default function in here works.
+            //The shiftKey click function should be originally combined with
+            //mousedown function.
+            if(event.shiftKey){
+                event.preventDefault();
+            }
+        }).bind('mouseup', function(event) {
+            var _d = new Date();
+            _timeOut= _d.getTime()-_timeOut;
+            
+            if(_timeOut < 500){
+                mouseDownFunc(event);
+            }
+        });;
+        
+        function mouseDownFunc(event) {
             var _selectedRowCaseId = [],
                 _deSelect = false;
-                
+        
             if(event.shiftKey){
                 event.preventDefault();
 
@@ -300,7 +320,7 @@ var DataTable = function() {
                 _selectedRowCaseId = getRowSelectedCases();
                 rowClickCallback(_deSelect, _selectedRowCaseId);
             }
-        });
+        }
     }
     
     function getRowSelectedCases() {

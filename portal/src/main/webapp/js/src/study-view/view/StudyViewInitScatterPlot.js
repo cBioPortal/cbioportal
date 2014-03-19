@@ -109,15 +109,19 @@ var StudyViewInitScatterPlot = (function() {
     }
     
     return {
-      init: function(_params, _arr) {
-          initParams(_params);
-          initData(_arr);
-          initPage();
-          initComponent();
-      },
-      
-      getScatterPlot: function() {
-          return scatterPlot;
-      }
+        init: function(_params, _arr) {
+            initParams(_params);
+            initData(_arr);
+            initPage();
+            initComponent();
+        },
+
+        getScatterPlot: function() {
+            if(scatterPlot === undefined){
+                return false;
+            }else{
+                return scatterPlot;
+            }
+        }
     };
 })();

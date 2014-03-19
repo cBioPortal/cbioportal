@@ -132,8 +132,20 @@ var MutationViewsUtil = (function()
 		};
 	}
 
+	function defaultTableTooltipOpts()
+	{
+		return {
+			content: {attr: 'alt'},
+			show: {event: 'mouseover'},
+			hide: {fixed: true, delay: 100, event: 'mouseout'},
+			style: {classes: 'mutation-details-tooltip qtip-shadow qtip-light qtip-rounded'},
+			position: {my:'top left', at:'bottom right'}
+		};
+	}
+
 	return {
-		initMutationDetailsView : delayedInitMutationDetailsView,
+		initMutationDetailsView: delayedInitMutationDetailsView,
+		defaultTableTooltipOpts: defaultTableTooltipOpts,
 		getVisualStyleMaps: getVisualStyleMaps
 	};
 })();

@@ -15,13 +15,19 @@ var MutationDiagramController = function(mutationDiagram, mutationTable, mutatio
 			MutationDetailsEvents.MUTATION_TABLE_FILTERED,
 			tableFilterHandler);
 
+		// TODO make sure to call these event handlers before 3D controller's handler,
+		// otherwise 3D update will not work properly.
+		// (this requires event handler prioritization which is not trivial)
+
 		// add listeners for the mutation table view
 
-		// TODO make sure to call this event handler before 3D controller's handler,
-		// otherwise 3D update will not work properly.
+//		tableView.dispatcher.on(
+//			MutationDetailsEvents.PROTEIN_CHANGE_LINK_CLICKED,
+//			proteinChangeLinkHandler);
+
 //		tableView.dispatcher.on(
 //			MutationDetailsEvents.PDB_LINK_CLICKED,
-//			pdbLinkHandler);
+//			proteinChangeLinkHandler);
 	}
 
 	function tableFilterHandler(tableSelector)
@@ -53,7 +59,7 @@ var MutationDiagramController = function(mutationDiagram, mutationTable, mutatio
 		}
 	}
 
-	function pdbLinkHandler(mutationId)
+	function proteinChangeLinkHandler(mutationId)
 	{
 		var mutationMap = mutationUtil.getMutationIdMap();
 		var mutation = mutationMap[mutationId];

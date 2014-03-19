@@ -54,6 +54,11 @@ var PdbTableView = Backbone.View.extend({
 		var self = this;
 		self.$el.slideToggle();
 	},
+	refreshView: function()
+	{
+		var self = this;
+		self.pdbTable.getDataTable().fnAdjustColumnSizing();
+	},
 	/**
 	 * Resets all table filters (rolls back to initial state)
 	 */

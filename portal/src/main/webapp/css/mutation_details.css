@@ -85,13 +85,16 @@
 .mutation-table-container .mutation-table-3d-link {
 	float: right;
 }
-.mutation-table-container .mutation-table-3d-icon,
-.mutation-table-container .mutation-table-igv-icon,
-.mutation-pdb-main-container .pdb-table-3d-icon {
+.mutation-table-container .mutation-table-igv-icon {
 	background-color: #88C;
 	color: white;
 	padding-left: 6px;
 	padding-right: 6px;
+}
+.mutation-table-container .mutation-table-3d-icon,
+.mutation-pdb-main-container .pdb-table-3d-icon {
+	font-size: 95%;
+	font-weight: bold;
 }
 .mutation-assessor-link {
 	margin-bottom: 1px;

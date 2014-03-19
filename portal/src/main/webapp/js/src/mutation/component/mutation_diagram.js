@@ -150,6 +150,7 @@ MutationDiagram.prototype.defaultOpts = {
 	yAxisFontSize: "10px",      // font size of the y-axis labels
 	yAxisFontColor: "#2E3436",  // font color of the y-axis labels
 	animationDuration: 1000,    // transition duration (in ms) used for highlight animations
+	fadeDuration: 1500,         // transition duration (in ms) used for fade animations
 	/**
 	 * Default lollipop tooltip function.
 	 *
@@ -1064,7 +1065,11 @@ MutationDiagram.prototype.drawLollipop = function (points, lines, pileup, option
 		.attr('stroke', options.lollipopBorderColor)
 		.attr('stroke-width', options.lollipopBorderWidth)
 		.attr('id', pileup.pileupId)
-		.attr('class', 'mut-dia-data-point');
+		.attr('class', 'mut-dia-data-point')
+		.attr('opacity', 0);
+
+	// TODO add transition for y value to have a nicer effect
+	self.fadeIn(dataPoint);
 
 	// bind pileup data with the lollipop data point
 	dataPoint.datum(pileup);
@@ -1079,7 +1084,11 @@ MutationDiagram.prototype.drawLollipop = function (points, lines, pileup, option
 		.attr('y2', self.calcSequenceBounds(bounds, options).y)
 		.attr('stroke', options.lollipopStrokeColor)
 		.attr('stroke-width', options.lollipopStrokeWidth)
-		.attr('class', 'mut-dia-data-line');
+		.attr('class', 'mut-dia-data-line')
+		.attr('opacity', 0);
+
+	// TODO add transition for y2 value to have a nicer effect
+	self.fadeIn(line);
 
 	return {"dataPoint": dataPoint, "line": line};
 };
@@ -1210,6 +1219,8 @@ MutationDiagram.prototype.getLollipopFillColor = function(options, pileup)
  */
 MutationDiagram.prototype.drawLollipopLabels = function (labels, pileups, options, xScale, yScale)
 {
+	var self = this;
+
 	// helper function to adjust text position to prevent overlapping with the y-axis
 	var getTextAnchor = function(text, textAnchor)
 	{
@@ -1290,7 +1301,10 @@ MutationDiagram.prototype.drawLollipopLabels = function (labels, pileups, option
 			.attr("transform", "rotate(" + options.lollipopTextAngle + ", " + x + "," + y +")")
 			.style("font-size", options.lollipopFontSize)
 			.style("font-family", options.lollipopFont)
-			.text(pileups[i].label);
+			.text(pileups[i].label)
+			.attr("opacity", 0);
+
+		self.fadeIn(text);
 
 		// adjust anchor
 		var textAnchor = getTextAnchor(text, options.lollipopTextAnchor);
@@ -1565,9 +1579,21 @@ MutationDiagram.prototype.cleanPlotArea = function()
 	var dataPoints = self.gData.selectAll(".mut-dia-data-point");
 
 	// remove all plot elements (no animation)
-	labels.remove();
-	lines.remove();
-	dataPoints.remove();
+//	labels.remove();
+//	lines.remove();
+//	dataPoints.remove();
+
+	self.fadeOut(labels, function(element) {
+		$(element).remove();
+	});
+
+	self.fadeOut(lines, function(element) {
+		$(element).remove();
+	});
+
+	self.fadeOut(dataPoints, function(element) {
+		$(element).remove();
+	});
 
 	// alternative animated version:
 	// fade out and then remove all
@@ -1869,7 +1895,7 @@ MutationDiagram.prototype.highlight = function(selector)
 		// TODO see if it is possible to update ONLY size, not the whole 'd' attr
 		.attr("d", d3.svg.symbol()
 			.size(self.options.lollipopHighlightSize)
-			.type(self.getLollipopShapeFn()))
+			.type(self.getLollipopShapeFn()));
 
 	// add data point to the map
 	var location = element.datum().location;
@@ -1894,11 +1920,39 @@ MutationDiagram.prototype.removeHighlight = function(selector)
 		// TODO see if it is possible to update ONLY size, not the whole 'd' attr
 		.attr("d", d3.svg.symbol()
 			.size(self.options.lollipopSize)
-			.type(self.getLollipopShapeFn()))
+			.type(self.getLollipopShapeFn()));
 
 	// remove data point from the map
 	var location = element.datum().location;
 	delete self.highlighted[location];
+};
+
+MutationDiagram.prototype.fadeIn = function(element, callback)
+{
+	var self = this;
+
+	element.transition()
+		.style("opacity", 1)
+		.duration(self.options.fadeDuration)
+		.each("end", function() {
+			      if(_.isFunction(callback)) {
+				      callback(this);
+			      }
+		      });
+};
+
+MutationDiagram.prototype.fadeOut = function(element, callback)
+{
+	var self = this;
+
+	element.transition()
+		.style("opacity", 0)
+		.duration(self.options.fadeDuration)
+		.each("end", function() {
+			      if(_.isFunction(callback)) {
+				      callback(this);
+			      }
+		      });
 };
 
 /**

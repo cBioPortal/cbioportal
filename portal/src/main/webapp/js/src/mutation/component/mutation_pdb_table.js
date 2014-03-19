@@ -346,20 +346,8 @@ function MutationPdbTable(options, headers)
 
 	function addDefaultTooltips()
 	{
-		var qTipOptions = defaultTooltipOpts();
+		var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
 		$(_options.el).find(".simple-tip").qtip(qTipOptions);
-	}
-
-	// TODO duplicate code -- see MutationTable._addMutationTableTooltips function
-	function defaultTooltipOpts()
-	{
-		return {
-			content: {attr: 'alt'},
-			show: {event: 'mouseover'},
-			hide: {fixed: true, delay: 100, event: 'mouseout'},
-			style: {classes: 'mutation-details-tooltip qtip-shadow qtip-light qtip-rounded'},
-			position: {my:'top left', at:'bottom right'}
-		};
 	}
 
 	return {

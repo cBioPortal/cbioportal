@@ -90,6 +90,9 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 			"bJQueryUI": true,
 			"bPaginate": false,
 			"bFilter": true,
+			// TODO adding scroll breaks header/footer tooltips
+			"sScrollY": "600px",
+			"bScrollCollapse": true,
 			"oLanguage": {
 				"sInfo": "Showing _TOTAL_ mutations",
 				"sInfoFiltered": "(out of _MAX_ total mutations)",
@@ -364,7 +367,13 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 
 		        // update prev search string reference for future use
 		        _prevSearch = currSearch;
-	        }
+	        },
+		    "fnHeaderCallback": function(oSettings) {
+			    _addHeaderTooltips(tableSelector);
+		    },
+		    "fnFooterCallback": function(oSettings) {
+			    _addFooterTooltips(tableSelector);
+		    }
 	    };
 
 		// merge with the one in the main options object
@@ -386,24 +395,12 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 	 */
 	function _addMutationTableTooltips(tableSelector)
 	{
-	    var qTipOptions = {content: {attr: 'alt'},
-		    show: {event: 'mouseover'},
-	        hide: {fixed: true, delay: 100, event: 'mouseout'},
-	        style: {classes: 'mutation-details-tooltip qtip-shadow qtip-light qtip-rounded'},
-	        position: {my:'top left', at:'bottom right'}};
+		var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
 
-	    var qTipOptionsHeader = {};
-		var qTipOptionsFooter = {};
 	    var qTipOptionsLeft = {};
-	    jQuery.extend(true, qTipOptionsHeader, qTipOptions);
-		jQuery.extend(true, qTipOptionsFooter, qTipOptions);
 	    jQuery.extend(true, qTipOptionsLeft, qTipOptions);
-	    qTipOptionsHeader.position = {my:'bottom center', at:'top center'};
-		qTipOptionsFooter.position = {my:'top center', at:'bottom center'};
 	    qTipOptionsLeft.position = {my:'top right', at:'bottom left'};
 
-	    tableSelector.find('thead th').qtip(qTipOptionsHeader);
-		tableSelector.find('tfoot th').qtip(qTipOptionsFooter);
 	    //$('#mutation_details .mutation_details_table td').qtip(qTipOptions);
 
 		tableSelector.find('.simple-tip').qtip(qTipOptions);
@@ -468,6 +465,30 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 			$(this).qtip(qTipOptsOma);
 		});
 	}
+
+	function _addHeaderTooltips(tableSelector)
+	{
+		var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
+
+		var qTipOptionsHeader = {};
+		jQuery.extend(true, qTipOptionsHeader, qTipOptions);
+		qTipOptionsHeader.position = {my:'bottom center', at:'top center'};
+
+		tableSelector.find('thead th').qtip(qTipOptionsHeader);
+		//tableSelector.find('.mutation-table-header').qtip(qTipOptionsHeader);
+	}
+
+	function _addFooterTooltips(tableSelector)
+	{
+		var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
+
+		var qTipOptionsFooter = {};
+		jQuery.extend(true, qTipOptionsFooter, qTipOptions);
+		qTipOptionsFooter.position = {my:'top center', at:'bottom center'};
+
+		tableSelector.find('tfoot th').qtip(qTipOptionsFooter);
+	}
+
 
 	/**
 	 * Helper function for predicted impact score sorting.

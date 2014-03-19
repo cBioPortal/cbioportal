@@ -245,6 +245,11 @@ var PdbPanelView = Backbone.View.extend({
 
 			pdbTableControls.slideDown();
 			pdbTableWrapper.slideDown();
+
+			if (self.pdbTableView != null)
+			{
+				self.pdbTableView.refreshView();
+			}
 		}, delay);
 	},
 	/**

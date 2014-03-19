@@ -63,7 +63,7 @@ function MutationPdbTable(options, headers)
 			"sScrollY": "200px",
 			"bScrollCollapse": true,
 			"oLanguage": {
-				"sInfo": "Showing _TOTAL_ PDB chains",
+				"sInfo": "Showing _TOTAL_ PDB chain(s)",
 				"sInfoFiltered": "(out of _MAX_ total chains)",
 				"sInfoEmpty": "No chains to show"
 			}
@@ -320,6 +320,11 @@ function MutationPdbTable(options, headers)
 		_dataTable.fnFilter("");
 	}
 
+	function getDataTable()
+	{
+		return _dataTable;
+	}
+
 	function selectRow(pdbId, chainId)
 	{
 		var key = PdbDataUtil.chainKey(pdbId, chainId);
@@ -346,20 +351,8 @@ function MutationPdbTable(options, headers)
 
 	function addDefaultTooltips()
 	{
-		var qTipOptions = defaultTooltipOpts();
+		var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
 		$(_options.el).find(".simple-tip").qtip(qTipOptions);
-	}
-
-	// TODO duplicate code -- see MutationTable._addMutationTableTooltips function
-	function defaultTooltipOpts()
-	{
-		return {
-			content: {attr: 'alt'},
-			show: {event: 'mouseover'},
-			hide: {fixed: true, delay: 100, event: 'mouseout'},
-			style: {classes: 'mutation-details-tooltip qtip-shadow qtip-light qtip-rounded'},
-			position: {my:'top left', at:'bottom right'}
-		};
 	}
 
 	return {
@@ -367,6 +360,7 @@ function MutationPdbTable(options, headers)
 		selectRow: selectRow,
 		cleanFilters: cleanFilters,
 		getSelectedRow: getSelectedRow,
+		getDataTable: getDataTable,
 		dispatcher: _dispatcher
 	};
 }

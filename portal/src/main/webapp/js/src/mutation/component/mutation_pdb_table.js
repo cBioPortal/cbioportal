@@ -63,7 +63,7 @@ function MutationPdbTable(options, headers)
 			"sScrollY": "200px",
 			"bScrollCollapse": true,
 			"oLanguage": {
-				"sInfo": "Showing _TOTAL_ PDB chains",
+				"sInfo": "Showing _TOTAL_ PDB chain(s)",
 				"sInfoFiltered": "(out of _MAX_ total chains)",
 				"sInfoEmpty": "No chains to show"
 			}

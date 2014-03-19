@@ -337,17 +337,23 @@ var PieChart = function(){
 
         var _x1 = Number(_pointsInfo[1]),
             _y1 = Number(_pointsInfo[2]),
-            _largeArc = Number(_pointsInfo[6]),
+            //_largeArc = Number(_pointsInfo[6]),
             _x2 = Number(_pointsInfo[8]),
             _y2 = Number(_pointsInfo[9]),
             _r = Number(_pointsInfo[3]);
 
         if((_x1 - _x2!==0 || _y1 - _y2!==0) && _pointsInfo1.length === 2){
+            
+            //This comment function is designed to calculate the central point
+            //between start and end points. Has been abandon since using arc
+            //marker stead of red circle marker.
+            /*
             var _xm = (_x1 + _x2) /2,
                 _ym = (_y1 + _y2) /2;
-
+            
             var m = Math.sqrt((Math.pow(_xm,2)+Math.pow(_ym,2)));
 
+            
             var _tmpX = (_r + 3) / m * _xm,
                 _tmpY = (_r + 3) / m * _ym;
 
@@ -355,12 +361,12 @@ var PieChart = function(){
                 _tmpY = 0;
                 _tmpX = _r + 6;
             }
-
             if(_largeArc === 1 && Math.abs(_x1 - _x2) >0.1) {
                 _tmpX = -_tmpX;
                 _tmpY = -_tmpY;
-            }
-
+            }*/
+            
+            //
             var _pointOne = Math.atan2(_y1,_x1);
             var _pointTwo = Math.atan2(_y2,_x2);
 
@@ -375,9 +381,20 @@ var PieChart = function(){
             }else{
                 _pointTwo = Math.PI/2 +_pointTwo;
             }
+            
+            //The value of point two should always bigger than the value
+            //of point one. If the point two close to 12 oclick, we should 
+            //change it value close to 2PI instead of close to 0
+            if(_pointTwo > 0 && _pointTwo < 0.0000001){
+                _pointTwo = 2*Math.PI-_pointTwo;
+            }
+            
+            if(_pointTwo < _pointOne){
+                console.log('%cError: the end angle should always bigger' +
+                        ' than start angle.', 'color: red');
+            }
 
             var _arcID = "arc-" +_fatherID+"-"+(Number(_childID)-1);
-
             var _arc = d3.svg.arc()
                             .innerRadius(_r + 3)
                             .outerRadius(_r + 5)

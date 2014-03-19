@@ -264,12 +264,20 @@ var PieChart = function(){
                             .css({'border-width':'2px', 'border-style':'inset'});
                 }
 
-                if(StudyViewInitScatterPlot.getScatterPlot().getBrushedCases().length > 0){
+                if(StudyViewInitScatterPlot
+                        .getScatterPlot()
+                        .getBrushedCases()
+                        .length > 0 || 
+                    filter !== null){
+                
                     updateScatterPlot(_currentFilters);
                 }
                 
                 removeMarker();
                 postFilterCallback();
+            });
+            pieChart.on("preRedraw",function(chart){
+                removeMarker();
             });
             pieChart.on("postRedraw",function(chart){
                 addPieLabels();
@@ -305,7 +313,8 @@ var PieChart = function(){
                 "<div style='width:180px; float:right; text-align:center;'>"+
                 "<span class='study-view-dc-chart-delete'>x</span>"+
                 "<a href='javascript:StudyViewInitCharts.getChartsByID("+ 
-                chartID +").getChart().filterAll();dc.redrawAll();'>" +
+                chartID +").getChart().filterAll();" +
+                "StudyViewInitCharts.getSelectedCasesAndRedrawScatterPlot([]); dc.redrawAll();'>" +
                 "<span title='Reset Chart' class='study-view-dc-chart-change' "+
                 "style='font-size:10px;'>RESET</span></a></div>"+
                 "<div style='width:180px;float:left;text-align:center'><chartTitleH4>" +

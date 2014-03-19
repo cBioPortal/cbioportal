@@ -163,7 +163,7 @@ var StudyViewInitCharts = (function(){
                 }
                 varType[_attr[i]["attr_id"]] = "pie";
             }else {
-                console.log("Can not identify data type.");
+                console.log("%c Error: Can not identify data type.", "color:red");
             }
 
             varDisplay.push(_attr[i]["display_name"]);                
@@ -226,8 +226,8 @@ var StudyViewInitCharts = (function(){
         }
         
         if(createdChartID !== totalCharts){
-            console.log("Initial charts function error: " + 
-                "the number of created charts not equal to number of totalCharts. --1");
+            console.log("$c Error: the number of created charts not equal to " +"\
+                number of totalCharts. --1", "color:red");
             return false;
         }
         
@@ -244,6 +244,23 @@ var StudyViewInitCharts = (function(){
         });
     }
     
+    function getSelectedCasesAndRedrawScatterPlot(_currentPieFilters) {
+        var _tmpResult = varChart[attrNameMapUID["CASE_ID"]]
+                    .getChart()
+                    .dimension()
+                    .top(Infinity),
+        _tmpCaseID = [];
+
+        clickedCaseId = '';
+
+        if(typeof StudyViewInitScatterPlot.getScatterPlot() !== 'undefined'){
+            for(var i=0; i<_tmpResult.length ; i++){
+                _tmpCaseID.push(_tmpResult[i].CASE_ID);
+            }
+            setScatterPlotStyle(_tmpCaseID,_currentPieFilters);
+        }
+    }
+    
     function makeNewPieChartInstance(_chartID, _pieInfo) {
         var _param = {
                 baseID: "study-view",
@@ -256,22 +273,7 @@ var StudyViewInitCharts = (function(){
                 chartColors: chartColors
             };
 
-        var _piechartCallbackFunction = function(_currentPieFilters){
-            var _tmpResult = varChart[attrNameMapUID["CASE_ID"]]
-                    .getChart()
-                    .dimension()
-                    .top(Infinity),
-            _tmpCaseID = [];
-
-            clickedCaseId = '';
-
-            if(typeof StudyViewInitScatterPlot.getScatterPlot() !== 'undefined'){
-                for(var i=0; i<_tmpResult.length ; i++){
-                    _tmpCaseID.push(_tmpResult[i].CASE_ID);
-                }
-                setScatterPlotStyle(_tmpCaseID,_currentPieFilters);
-            }
-        };
+        var _piechartCallbackFunction = getSelectedCasesAndRedrawScatterPlot;
         
         varChart[_chartID] = new PieChart();
         varChart[_chartID].init(_param);
@@ -292,22 +294,7 @@ var StudyViewInitCharts = (function(){
                 distanceArray: _distanceArray
             };
             
-        var _barchartCallbackFunction = function(_currentPieFilters){
-            var _tmpResult = varChart[attrNameMapUID["CASE_ID"]]
-                    .getChart()
-                    .dimension()
-                    .top(Infinity),
-            _tmpCaseID = [];
-
-            clickedCaseId = '';
-
-            if(typeof StudyViewInitScatterPlot.getScatterPlot() !== 'undefined'){
-                for(var i=0; i<_tmpResult.length ; i++){
-                    _tmpCaseID.push(_tmpResult[i].CASE_ID);
-                }
-                setScatterPlotStyle(_tmpCaseID,_currentPieFilters);
-            }
-        };
+        var _barchartCallbackFunction = getSelectedCasesAndRedrawScatterPlot;
         
         if(_distanceArray.diff > 1000){
             param.needLogScale = true;
@@ -371,7 +358,6 @@ var StudyViewInitCharts = (function(){
     function updateDataTableCallbackFuncs() {
         
         var _dataTableRowClickCallback = function(_deSelect, _selectedRowCaseId) {
-            console.log(_selectedRowCaseId);
             clickedCaseId = _selectedRowCaseId;
             removeMarker();
             redrawChartsAfterDeletion();
@@ -718,6 +704,7 @@ var StudyViewInitCharts = (function(){
             return varChart[_index];
         },
         
+        getSelectedCasesAndRedrawScatterPlot: getSelectedCasesAndRedrawScatterPlot,
         filterChartsByGivingIDs: filterChartsByGivingIDs,
         changeHeader: changeHeader,
         scatterPlotBrushCallBack: scatterPlotBrushCallBack,

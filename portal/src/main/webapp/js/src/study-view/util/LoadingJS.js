@@ -53,7 +53,8 @@ var LoadingJS = (function(){
                  if(callbackFunc !== ''){
                      callbackFunc();
                  }else{
-                     console.log('Error... No Callback Function Initialized.');
+                     console.log('%c Error: No Callback Function Initialized.', 
+                                    "color:red");
                  }
             });
         });

@@ -417,17 +417,17 @@ var ScatterPlots = function() {
         };
         var mouseOff = function(d) {
             var dot = d3.select(this);
-            var size = style.size;
-            var attr = $(this).attr('clicked');
-            if(typeof attr !== 'undefined' && attr !== false){
-                size = style.size * 2;
-            }
+            var size = getMouseoutPointSize(this);
             
             dot.transition()
                 .ease("elastic")
                 .duration(600)
                 .delay(100)
                 .attr("d", d3.svg.symbol().size(size).type(style.shape));
+        
+            elem.dotsGroup.selectAll("path").each(function(d) {
+                changePointSize(this);
+            });
         };
         //Click has three status: 1. Click; 2. ShiftClick; 3. Both
         var click = function(){
@@ -445,6 +445,36 @@ var ScatterPlots = function() {
         elem.dotsGroup.selectAll("path").attr('pointer-events', 'all').on("click", click);
     }
     
+    function getMouseoutPointSize(_element) {
+        var _clickType = pointClickType(_element);
+        
+        switch(_clickType){
+            case 'none':
+                return style.size;
+                break;
+            default:
+                return style.size*2;
+        }
+    }
+    function changePointSize(_element) {
+        var _clickType = pointClickType(_element);
+        
+        switch(_clickType){
+            case 'clicked':
+                $(_element).attr("d", d3.svg.symbol().size(style.size*10).type(style.shape));
+                break;
+            case 'shiftClicked':
+                $(_element).attr("d", d3.svg.symbol().size(style.size*2).type(style.shape));
+                break;
+            case 'both':
+                $(_element).attr("d", d3.svg.symbol().size(style.size*2).type(style.shape));
+                break;
+            
+            //default: withOutClick
+            default:
+                $(_element).attr("d", d3.svg.symbol().size(style.size).type(style.shape));
+        }
+    }
     //Added in Study View especially
     function changeClickStyle(_element){
         var _clickType = pointClickType(_element);
@@ -452,19 +482,16 @@ var ScatterPlots = function() {
         switch(_clickType){
             case 'clicked':
                 $(_element).attr('stroke-width','3')
-                            .attr("d", d3.svg.symbol().size(style.size*10).type(style.shape))
                             .attr('fill',style.fill)
                             .attr('stroke','red');
                 break;
             case 'shiftClicked':
                 $(_element).attr('stroke-width','0')
-                            .attr("d", d3.svg.symbol().size(style.size*2).type(style.shape))
                             .attr('fill','red')
                             .attr('stroke','red');
                 break;
             case 'both':
                 $(_element).attr('stroke-width','3')
-                            .attr("d", d3.svg.symbol().size(style.size*2).type(style.shape))
                             .attr('fill','red')
                             .attr('stroke',style.stroke);
                 break;
@@ -472,7 +499,6 @@ var ScatterPlots = function() {
             //default: withOutClick
             default:
                 $(_element).attr('stroke-width',style.stroke_width)
-                            .attr("d", d3.svg.symbol().size(style.size).type(style.shape))
                             .attr('fill',style.fill)
                             .attr('stroke',style.stroke);
         }
@@ -554,9 +580,6 @@ var ScatterPlots = function() {
             var _subAttrType = pointClickType(this);
             if (_subAttrType === 'both' || _subAttrType === 'shiftClicked') {
                 _shiftClickedCases.push(d.case_id);
-                if(_subAttrType === 'shiftClicked'){
-                    onlyClickedPoint = false;
-                }
                 if(_subAttrType === 'both'){
                     $(this).attr('clicked','shiftClicked');
                     changeClickStyle(this);
@@ -640,10 +663,13 @@ var ScatterPlots = function() {
                     $(this).removeAttr('clicked');
                     changeClickStyle(this);
                 }
-                _totalHighlightIds = []
+                _totalHighlightIds = [];
             });
         }
         
+        elem.dotsGroup.selectAll("path").each(function(d) {
+            changePointSize(this);
+        });
         
         d3.select(".brush").call(elem.brush.clear());
         updateBrushCallback(_totalHighlightIds);

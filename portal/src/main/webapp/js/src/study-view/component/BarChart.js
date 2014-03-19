@@ -82,7 +82,12 @@ var BarChart = function(){
                         .css({'border-width':'2px', 'border-style':'inset'});
             }
 
-            if(StudyViewInitScatterPlot.getScatterPlot().getBrushedCases().length > 0){
+            if(StudyViewInitScatterPlot
+                    .getScatterPlot()
+                    .getBrushedCases()
+                    .length > 0 ||
+                filter !== null){
+            
                 updateScatterPlot(_currentFilters);
             }
             
@@ -112,7 +117,9 @@ var BarChart = function(){
                 param.selectedAttrDisplay + ",bar'><div style='width:100%; float:right'>"+
                 "<span class='study-view-dc-chart-delete'>x</span>"+
                 "<a href='javascript:StudyViewInitCharts.getChartsByID("+ 
-                param.chartID +").getChart().filterAll();dc.redrawAll();'>"+
+                param.chartID +").getChart().filterAll();" +
+                "StudyViewInitCharts.getSelectedCasesAndRedrawScatterPlot([]); " +
+                "dc.redrawAll();'>"+
                 "<span title='Reset Chart' class='study-view-dc-chart-change'>"+
                 "RESET</span></a>"+_logCheckBox +"</div></div>"+
                 "<div style='width:100%; float:center;text-align:center;'>"+

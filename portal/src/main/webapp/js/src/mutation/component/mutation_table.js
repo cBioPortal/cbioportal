@@ -368,11 +368,11 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 		        // update prev search string reference for future use
 		        _prevSearch = currSearch;
 	        },
-		    "fnHeaderCallback": function(oSettings) {
-			    _addHeaderTooltips(tableSelector);
+		    "fnHeaderCallback": function(nHead, aData, iStart, iEnd, aiDisplay) {
+			    _addHeaderTooltips(nHead);
 		    },
-		    "fnFooterCallback": function(oSettings) {
-			    _addFooterTooltips(tableSelector);
+		    "fnFooterCallback": function(nFoot, aData, iStart, iEnd, aiDisplay) {
+			    _addFooterTooltips(nFoot);
 		    }
 	    };
 
@@ -388,7 +388,7 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 	}
 
 	/**
-	 * Add tooltips for the table header and the table data rows.
+	 * Adds tooltips for the table data rows.
 	 *
 	 * @param tableSelector   jQuery selector for the target table
 	 * @private
@@ -466,7 +466,13 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 		});
 	}
 
-	function _addHeaderTooltips(tableSelector)
+	/**
+	 * Adds tooltips for the table header cells.
+	 *
+	 * @param nHead table header
+	 * @private
+	 */
+	function _addHeaderTooltips(nHead)
 	{
 		var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
 
@@ -474,11 +480,17 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 		jQuery.extend(true, qTipOptionsHeader, qTipOptions);
 		qTipOptionsHeader.position = {my:'bottom center', at:'top center'};
 
-		tableSelector.find('thead th').qtip(qTipOptionsHeader);
-		//tableSelector.find('.mutation-table-header').qtip(qTipOptionsHeader);
+		//tableSelector.find('thead th').qtip(qTipOptionsHeader);
+		$(nHead).find("th").qtip(qTipOptionsHeader);
 	}
 
-	function _addFooterTooltips(tableSelector)
+	/**
+	 * Adds tooltips for the table footer cells.
+	 *
+	 * @param nFoot table footer
+	 * @private
+	 */
+	function _addFooterTooltips(nFoot)
 	{
 		var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
 
@@ -486,7 +498,8 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 		jQuery.extend(true, qTipOptionsFooter, qTipOptions);
 		qTipOptionsFooter.position = {my:'top center', at:'bottom center'};
 
-		tableSelector.find('tfoot th').qtip(qTipOptionsFooter);
+		//tableSelector.find('tfoot th').qtip(qTipOptionsFooter);
+		$(nFoot).find("th").qtip(qTipOptionsFooter);
 	}
 
 

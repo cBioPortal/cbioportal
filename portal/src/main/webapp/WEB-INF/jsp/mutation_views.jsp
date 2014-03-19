@@ -503,11 +503,6 @@
 			<label class='{{cosmicClass}}' alt='{{mutationId}}'>{{cosmicCount}}</label>
 		</td>
 		<td>
-			<span class='{{omaClass}} {{fisClass}}' alt='{{fisValue}}|{{mutationId}}'>
-				<label>{{fisText}}</label>
-			</span>
-		</td>
-		<td>
 			<span alt='{{mutationStatusTip}}' class='simple-tip {{mutationStatusClass}}'>
 				<label>{{mutationStatusText}}</label>
 			</span>
@@ -515,6 +510,11 @@
 		<td>
 			<span alt='{{validationStatusTip}}' class="simple-tip {{validationStatusClass}}">
 				<label>{{validationStatusText}}</label>
+			</span>
+		</td>
+		<td>
+			<span class='{{omaClass}} {{fisClass}}' alt='{{fisValue}}|{{mutationId}}'>
+				<label>{{fisText}}</label>
 			</span>
 		</td>
 		<td>{{sequencingCenter}}</td>
@@ -567,10 +567,10 @@
 	<th alt='Mutation Type' class='mutation-table-header'>Type</th>
 	<th alt='Copy-number status of the mutated gene' class='mutation-table-header'>Copy #</th>
 	<th alt='Overlapping mutations in COSMIC' class='mutation-table-header'>COSMIC</th>
-	<th alt='Predicted Functional Impact Score (via Mutation Assessor) for missense mutations'
-	    class='mutation-table-header'>Mutation Assessor</th>
 	<th alt='Mutation Status' class='mutation-table-header'>MS</th>
 	<th alt='Validation Status' class='mutation-table-header'>VS</th>
+	<th alt='Predicted Functional Impact Score (via Mutation Assessor) for missense mutations'
+	    class='mutation-table-header'>Mutation Assessor</th>
 	<th alt='Sequencing Center' class='mutation-table-header'>Center</th>
 	<!--th alt='NCBI Build Number' class='mutation-table-header'>Build</th-->
 	<th alt='Chromosome' class='mutation-table-header'>Chr</th>

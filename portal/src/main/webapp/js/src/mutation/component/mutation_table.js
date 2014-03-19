@@ -73,11 +73,15 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 				}
 			},
 			"tumor type": function (util, gene) {
-				// TODO return "hidden" if (count == 1) ?
-				if (util.distinctTumorTypeCount(gene) > 0) {
+				var count = util.distinctTumorTypeCount(gene);
+
+				if (count > 1) {
 					return "visible";
 				}
-				else {
+				else if (count > 0) {
+					return "hidden";
+				}
+				else { // if (count <= 0)
 					return "excluded";
 				}
 			}
@@ -90,11 +94,10 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 			"bJQueryUI": true,
 			"bPaginate": false,
 			"bFilter": true,
-			// TODO adding scroll breaks header/footer tooltips
 			"sScrollY": "600px",
 			"bScrollCollapse": true,
 			"oLanguage": {
-				"sInfo": "Showing _TOTAL_ mutations",
+				"sInfo": "Showing _TOTAL_ mutation(s)",
 				"sInfoFiltered": "(out of _MAX_ total mutations)",
 				"sInfoEmpty": "No mutations to show"
 			}
@@ -338,6 +341,9 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 	                "aTargets": [indexMap["cosmic"],
 		                indexMap["mutation assessor"],
 	                    indexMap["#mut in sample"]]},
+		        {"sWidth": "2%",
+			        "aTargets": [indexMap["mutation assessor"],
+				        indexMap["#mut in sample"]]},
 	            {"bVisible": false,
 	                "aTargets": hiddenCols},
 		        {"bSearchable": false,
@@ -381,7 +387,11 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 
 		// format the table with the dataTable plugin
 		var oTable = tableSelector.dataTable(tableOpts);
-	    oTable.css("width", "100%");
+	    //oTable.css("width", "100%");
+
+		$(window).bind('resize', function () {
+			oTable.fnAdjustColumnSizing();
+		});
 
 		// return the data table instance
 		return oTable;
@@ -446,7 +456,7 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 			// copy default qTip options and modify "content"
 			// to customize for predicted impact score
 			var qTipOptsOma = {};
-			jQuery.extend(true, qTipOptsOma, qTipOptions);
+			jQuery.extend(true, qTipOptsOma, qTipOptionsLeft);
 
 			qTipOptsOma.content = {text: "NA"}; // content is overwritten on render
 			qTipOptsOma.events = {render: function(event, api) {

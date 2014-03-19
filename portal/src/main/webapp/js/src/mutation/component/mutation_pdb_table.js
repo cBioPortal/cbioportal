@@ -320,6 +320,11 @@ function MutationPdbTable(options, headers)
 		_dataTable.fnFilter("");
 	}
 
+	function getDataTable()
+	{
+		return _dataTable;
+	}
+
 	function selectRow(pdbId, chainId)
 	{
 		var key = PdbDataUtil.chainKey(pdbId, chainId);
@@ -355,6 +360,7 @@ function MutationPdbTable(options, headers)
 		selectRow: selectRow,
 		cleanFilters: cleanFilters,
 		getSelectedRow: getSelectedRow,
+		getDataTable: getDataTable,
 		dispatcher: _dispatcher
 	};
 }

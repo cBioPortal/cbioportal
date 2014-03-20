@@ -173,9 +173,10 @@ var DataTable = function() {
             "sDom": '<"dataTableTop"Ci<"dataTableReset">f>rt',
             "fnDrawCallback": function(oSettings){
                 if($(".ColVis_collection.TableTools_collection").css('display') === 'block'){
-                    var _currentIndex= 0 ;
+                    var _currentIndex= 0;
                     
                     columnIndexMappingColumnId = {};
+                    //Recalculate the column and Id mapping
                     $.each(dataTable.fnSettings().aoColumns, function(c){
                         if(dataTable.fnSettings().aoColumns[c].bVisible === true){
                             columnIndexMappingColumnId[_currentIndex] = c;
@@ -408,21 +409,22 @@ var DataTable = function() {
             var _min = aData[0],
                 _max = aData[aData.length-1],
                 _x1 = 5,
-                _x2 = 65;
+                _x2 = 65,
+                _fontSize = '8px';
             
             var _leftTriangelCoordinates = (_x1-5) + ",2 "+ (_x1+5)+",2 "+_x1+",10",
                 _rightTriangelCoordinates = (_x2-5) + ",2 "+ (_x2+5)+",2 "+_x2+",10",
-                _leftText = "x='"+(_x1-3)+"' y='20'",
-                _rightText = "x='"+(_x2-10)+"' y='20'",
-                _resetText = "x='"+(_x2+15)+"' y='20'";
+                _leftText = "x='"+(_x1-3)+"' y='22'",
+                _rightText = "x='"+(_x2-10)+"' y='22'",
+                _resetText = "x='"+(_x2+15)+"' y='22'";
            
             var _svgLine = "<svg width='110' height='30' start='"+ _min +"' end='"+ _max +"'>" + 
                     "<g><line x1='"+ _x1 +"' y1='10' x2='"+ _x2 +"' y2='10' style='stroke:black;stroke-width:2' /></g>"+
                     "<g id='dataTable-"+ index +"-left' class='clickable left'><polygon points='"+_leftTriangelCoordinates+"' style='fill:grey'></polygon>"+
-                    "<text "+_leftText+" fill='black' style='font-size:8'>"+ _min +"</text></g>" + 
+                    "<text "+_leftText+" fill='black' style='font-size:"+ _fontSize +"'>"+ _min +"</text></g>" + 
                     "<g id='dataTable-"+ index +"-right' class='clickable right'><polygon points='"+_rightTriangelCoordinates+"' style='fill:grey'></polygon>"+
-                    "<text "+_rightText+" fill='black' style='font-size:8'>"+ _max +"</text></g>" +
-                    "<text "+ _resetText +" id='dataTable-"+ index +"-reset' class='clickable hidden'  fill='black' style='font-size:8'>RESET</text>" + 
+                    "<text "+_rightText+" fill='black' style='font-size:"+ _fontSize +"'>"+ _max +"</text></g>" +
+                    "<text "+ _resetText +" id='dataTable-"+ index +"-reset' class='clickable hidden'  fill='black' style='font-size:"+ _fontSize +"'>RESET</text>" + 
                     "</svg>";
 
             return _svgLine;
@@ -452,8 +454,10 @@ var DataTable = function() {
         
         if(_showedColumnNumber !== _totalColumnNumber){
             $(".dataTableReset span").css('display','block');
+            $(".ColVis.TableTools").css('display','none');
         }else{
             $(".dataTableReset span").css('display','none');
+            $(".ColVis.TableTools").css('display','block');
             disableFiltId = [0];
             refreshSelectionInDataTable();
         }
@@ -472,15 +476,87 @@ var DataTable = function() {
         dataTable.fnDraw();
     }
     
+    function selectorDragMove() {
+        var _start = Number($(this).parent().attr('start')),
+            _end = Number($(this).parent().attr('end')),
+            _xMoved = d3.event.x - 5,
+            _lineLength = Number($(this).parent().find('line').attr('x2')) - Number($(this).parent().find('line').attr('x1'));
+
+        if(_start > _end){
+            var _tmp = _end;
+
+            _end = _start;
+            _start = _tmp;
+        }
+
+        if(_xMoved >= 0 && _xMoved <= _lineLength){
+            var _text = (_end-_start) * _xMoved / _lineLength + _start;
+
+            _text = cbio.util.toPrecision(Number(_text),3,0.1);
+
+            if($(this).attr('id').toString().indexOf('left') !== -1){
+                d3.select(this)
+                    .attr("transform", "translate(" +_xMoved +",0)");
+            }else{
+                _xMoved -= _lineLength;
+                d3.select(this)
+                    .attr("transform", "translate(" +_xMoved +",0)");
+            }
+            $(this).find('text').text(_text);
+        }
+    }
+    
+    function selectorDragEnd() {
+        var _min = Number($(this).parent().find('g.left').find('text').text()),
+            _max = Number($(this).parent().find('g.right').find('text').text()),
+            _id = $(this).attr('id').split('-'),
+            _i = Number(_id[1]);
+
+        if(_min > _max){
+            var _tmp = _max;
+
+            _max = _min;
+            _min = _tmp;
+        }
+
+        dataTableNumericFilter[columnIndexMappingColumnId[_i]] = function( oSettings, aData, iDataIndex ) {
+            var _iMin = _min,
+                _iMax = _max,
+                _iCurrent = aData[columnIndexMappingColumnId[_i]];
+
+            if ( _iMin === "" && _iMax === "" ){
+                    return true;
+            }else if ( _iMin === "" && _iCurrent < _iMax ){
+                    return true;
+            }else if ( _iMin < _iCurrent && "" === _iMax ){
+                    return true;
+            }else if ( _iMin < _iCurrent && _iCurrent < _iMax ){
+                    return true;
+            }
+
+            return false;
+        };
+
+        updateDataTableNumericFilter();
+        dataTable.fnSort([ [columnIndexMappingColumnId[_i],'asc']]);
+        disableFiltId.push(_i);
+        resizeLeftColumn();
+        showDataTableReset();
+        $("#dataTable-" + _i + "-reset").css('display','block');
+        refreshSelectionInDataTable();
+        dataTable.fnAdjustColumnSizing();
+    }
+    
     function refreshSelectionInDataTable(){
         $(".dataTables_scrollFoot tfoot th").each( function ( i ) {
-            if(disableFiltId.indexOf(i) === -1){                
+            
+            if(disableFiltId.indexOf(i) === -1){               
                 $(this).css('z-index','1500');
                 this.innerHTML = fnCreateSelect( dataTable.fnGetColumnData(columnIndexMappingColumnId[i]), i);
                 
                 var _drag = d3.behavior.drag()
-                        .on("drag", dragMove)
-                        .on("dragend",dragEnd);
+                        .on("drag", selectorDragMove)
+                        .on("dragend",selectorDragEnd);
                 
                 d3.select("#dataTable-" + i + "-left")
                                 .call(_drag);
@@ -504,6 +580,8 @@ var DataTable = function() {
                         dataTable.fnFilter($(this).val(), columnIndexMappingColumnId[i]);
                         disableFiltId.splice(disableFiltId.indexOf(i),1);
                     }else{
+                        //Need to process special charector which can no be
+                        //treated as special charector in regular expression.
                         var j,
                             _selectedString = $(this).val().toString(),
                             _specialChar = ['(',')','/','?','+'],
@@ -523,77 +601,6 @@ var DataTable = function() {
                     refreshSelectionInDataTable();
                     dataTable.fnAdjustColumnSizing();
                 });
-                
-                //Used by numeric selector
-                function dragMove(d) {
-                    var _start = Number($(this).parent().attr('start')),
-                        _end = Number($(this).parent().attr('end')),
-                        _xMoved = d3.event.x - 5,
-                        _lineLength = Number($(this).parent().find('line').attr('x2')) - Number($(this).parent().find('line').attr('x1'));
-                    
-                    if(_start > _end){
-                        var _tmp = _end;
-                        
-                        _end = _start;
-                        _start = _tmp;
-                    }
-                    
-                    if(_xMoved >= 0 && _xMoved <= _lineLength){
-                        var _text = (_end-_start) * _xMoved / _lineLength + _start;
-                        
-                        _text = cbio.util.toPrecision(Number(_text),3,0.1);
-                        
-                        if($(this).attr('id').toString().indexOf('left') !== -1){
-                            d3.select(this)
-                                .attr("transform", "translate(" +_xMoved +",0)");
-                        }else{
-                            _xMoved -= _lineLength;
-                            d3.select(this)
-                                .attr("transform", "translate(" +_xMoved +",0)");
-                        }
-                        $(this).find('text').text(_text);
-                    }
-                }
-                
-                //Used by numeric selector
-                function dragEnd(d) {
-                    var _min = Number($(this).parent().find('g.left').find('text').text()),
-                        _max = Number($(this).parent().find('g.right').find('text').text());
-                    
-                    if(_min > _max){
-                        var _tmp = _max;
-                        
-                        _max = _min;
-                        _min = _tmp;
-                    }
-                    
-                    dataTableNumericFilter[columnIndexMappingColumnId[i]] = function( oSettings, aData, iDataIndex ) {
-                        var _iMin = _min,
-                            _iMax = _max,
-                            _iCurrent = aData[columnIndexMappingColumnId[i]];
-                    
-                        if ( _iMin === "" && _iMax === "" ){
-                                return true;
-                        }else if ( _iMin === "" && _iCurrent < _iMax ){
-                                return true;
-                        }else if ( _iMin < _iCurrent && "" === _iMax ){
-                                return true;
-                        }else if ( _iMin < _iCurrent && _iCurrent < _iMax ){
-                                return true;
-                        }
-                        
-                        return false;
-                    };
-                        
-                    updateDataTableNumericFilter();
-                    dataTable.fnSort([ [columnIndexMappingColumnId[i],'asc']]);
-                    disableFiltId.push(i);
-                    resizeLeftColumn();
-                    showDataTableReset();
-                    $("#dataTable-" + i + "-reset").css('display','block');
-                    refreshSelectionInDataTable();
-                    dataTable.fnAdjustColumnSizing();
-                }
             }
         });
     }

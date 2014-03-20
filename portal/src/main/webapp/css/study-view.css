@@ -46,6 +46,7 @@
 }
 #study-view-header-left-3 {
     left: 0;
+    height: 30px;
     line-height: 30px;
     top: 50px;
     background-color: lightyellow;
@@ -158,6 +159,7 @@
     //border-color: lightgrey;
     //border-radius: 5px;
     margin: 0;
+    height: 50px;
     position: absolute;
     z-index: 21;
     vertical-align: middle;

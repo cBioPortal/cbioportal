@@ -162,7 +162,7 @@ var StudyViewBoilerplate ={
                 type: "submit",
                 id: "study-view-header-left-1",
                 value: "Query selected cases",
-                class: "study-view-header study-view-header-left hidden"
+                class: "study-view-header hidden"
             });
         _form.append(_input1);
         _form.append(_input2);
@@ -172,7 +172,7 @@ var StudyViewBoilerplate ={
         _span2
             .attr({
                 'id': 'study-view-header-left-2',
-                'class': 'study-view-header study-view-header-left hidden'})
+                'class': 'study-view-header hidden'})
             .text('Clear selected cases');
         
         _span3

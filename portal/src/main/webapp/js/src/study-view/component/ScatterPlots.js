@@ -451,9 +451,8 @@ var ScatterPlots = function() {
         };
         //Click has three status: 1. Click; 2. ShiftClick; 3. Both
         var click = function(){
-            
-            if(d3.event.shiftKey){
-                d3.event.preventDefault();
+            d3.event.preventDefault();
+            if(shiftKeyDown){
                 shiftclicked(this);
             }else{
                 clicked(this);

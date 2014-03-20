@@ -4,20 +4,17 @@
     text-align: center;
     list-style: none;
     border-style: solid;
-    border-width:1px;
+    border-width: 1px 0 0 0;
     border-color: lightgrey;
-    margin: 2px 5px 2px 0;
     padding: 0 5px;
-    border-radius: 5px;
 }
 #study-view-add-chart li:hover{
     cursor: pointer;
     background-color: lightgrey;
 }
 #study-view-add-chart ul{
-    padding: 0;
     float:right;
-    margin: 2px 0;
+    padding: 0 0 5px 0;
 }
 #study-view-add-chart {
     right:100px;
@@ -36,13 +33,16 @@
 #study-view-header-left-0 {
     left: 0;
     width: 160px;
+    height: 50px;
 }
 #study-view-header-left-1 {
     left: 0;
     width: 190px;
+    height: 50px;
 }
 #study-view-header-left-2 {
     left: 190px;
+    height: 50px;
 }
 #study-view-header-left-3 {
     left: 0;
@@ -159,7 +159,6 @@
     //border-color: lightgrey;
     //border-radius: 5px;
     margin: 0;
-    height: 50px;
     position: absolute;
     z-index: 21;
     vertical-align: middle;

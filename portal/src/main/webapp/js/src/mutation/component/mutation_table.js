@@ -35,7 +35,6 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 			"type": "visible",
 			"cosmic": "visible",
 			"mutation assessor": "visible",
-			"vs": "visible",
 			"#mut in sample": "visible",
 			"mutation id": "excluded",
 			"cancer study": "excluded",
@@ -66,6 +65,14 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 			},
 			"ms": function (util, gene) {
 				if (util.containsGermline(gene)) {
+					return "visible";
+				}
+				else {
+					return "hidden";
+				}
+			},
+			"vs": function (util, gene) {
+				if (util.containsValidStatus(gene)) {
 					return "visible";
 				}
 				else {

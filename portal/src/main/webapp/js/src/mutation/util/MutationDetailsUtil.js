@@ -9,6 +9,7 @@
 var MutationDetailsUtil = function(mutations)
 {
 	var GERMLINE = "germline"; // germline mutation constant
+	var VALID = "valid";
 
 	// init class variables
 	var _mutationGeneMap = {};
@@ -273,6 +274,29 @@ var MutationDetailsUtil = function(mutations)
         return true;
     };
 
+	this._contains = function(gene, matchFn)
+	{
+		var contains = false;
+
+		gene = gene.toUpperCase();
+
+		var mutations = _mutationGeneMap[gene];
+
+		if (mutations != null)
+		{
+			for (var i=0; i < mutations.length; i++)
+			{
+				contains = matchFn(mutations[i]);
+
+				if (contains)
+				{
+					break;
+				}
+			}
+		}
+
+		return contains;
+	};
 
     /**
 	 * Checks if there is a germline mutation for the given gene.
@@ -281,26 +305,21 @@ var MutationDetailsUtil = function(mutations)
 	 */
 	this.containsGermline = function(gene)
 	{
-		var self = this;
-		var contains = false;
+		return this._contains(gene, function(mutation) {
+			return (mutation.mutationStatus.toLowerCase() == GERMLINE);
+		});
+	};
 
-		gene = gene.toUpperCase();
-
-		if (_mutationGeneMap[gene] != undefined)
-		{
-			var mutations = _mutationGeneMap[gene];
-
-			for (var i=0; i < mutations.length; i++)
-			{
-				if (mutations[i].mutationStatus.toLowerCase() == GERMLINE)
-				{
-					contains = true;
-					break;
-				}
-			}
-		}
-
-		return contains;
+	/**
+	 * Checks if there is a "valid" validation status for the given gene.
+	 *
+	 * @param gene  hugo gene symbol
+	 */
+	this.containsValidStatus = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.validationStatus.toLowerCase() == VALID);
+		});
 	};
 
 	/**
@@ -310,77 +329,45 @@ var MutationDetailsUtil = function(mutations)
 	 */
 	this.containsIgvLink = function(gene)
 	{
-		var self = this;
-		var contains = false;
-
-		gene = gene.toUpperCase();
-
-		if (_mutationGeneMap[gene] != undefined)
-		{
-			var mutations = _mutationGeneMap[gene];
-
-			for (var i=0; i < mutations.length; i++)
-			{
-				if (mutations[i].igvLink)
-				{
-					contains = true;
-					break;
-				}
-			}
-		}
-
-		return contains;
+		return this._contains(gene, function(mutation) {
+			return (mutation.igvLink != null);
+		});
 	};
 
+	/**
+	 * Checks if there is valid allele frequency data for the given gene.
+	 *
+	 * @param gene  hugo gene symbol
+	 */
 	this.containsAlleleFreqT = function(gene)
 	{
-		var contains = false;
-
-		gene = gene.toUpperCase();
-
-		if (_mutationGeneMap[gene] != undefined)
-		{
-			var mutations = _mutationGeneMap[gene];
-
-			for (var i=0; i < mutations.length; i++)
-			{
-				if (mutations[i].tumorFreq &&
-				    mutations[i].tumorFreq != "NA")
-				{
-					contains = true;
-					break;
-				}
-			}
-		}
-
-		return contains;
+		return this._contains(gene, function(mutation) {
+			return (mutation.tumorFreq &&
+			        mutation.tumorFreq != "NA");
+		});
 	};
 
+	/**
+	 * Checks if there is valid copy number data for the given gene.
+	 *
+	 * @param gene  hugo gene symbol
+	 */
 	this.containsCnaData = function(gene)
 	{
-		var contains = false;
-
-		gene = gene.toUpperCase();
-
-		if (_mutationGeneMap[gene] != undefined)
-		{
-			var mutations = _mutationGeneMap[gene];
-
-			for (var i=0; i < mutations.length; i++)
-			{
-				if (mutations[i].cna &&
-				    mutations[i].cna != "NA" &&
-				    mutations[i].cna != "unknown")
-				{
-					contains = true;
-					break;
-				}
-			}
-		}
-
-		return contains;
+		return this._contains(gene, function(mutation) {
+			return (mutation.cna &&
+			        mutation.cna != "NA" &&
+			        mutation.cna != "unknown");
+		});
 	};
 
+	/**
+	 * Returns the number of distinct tumor type values for
+	 * the given gene
+	 *
+	 * @param gene  hugo gene symbol
+	 * @returns {Number}    number of distinct tumor type values
+	 */
 	this.distinctTumorTypeCount = function(gene)
 	{
 		gene = gene.toUpperCase();
@@ -411,13 +398,13 @@ var MutationDetailsUtil = function(mutations)
 	 * @param gene          hugo gene symbol
 	 * @param dataField     data field name
 	 * @param excludeList   data values to exclude while counting
-	 * @return {Array}  array of uniprot id count info
+	 * @return {Array}  array of data value count info
 	 */
 	this.dataFieldCount = function(gene, dataField, excludeList)
 	{
 		gene = gene.toUpperCase();
 
-		var uniprotMap = {};
+		var valueCountMap = {};
 
 		if (_mutationGeneMap[gene] != undefined)
 		{
@@ -425,22 +412,22 @@ var MutationDetailsUtil = function(mutations)
 
 			for (var i=0; i < mutations.length; i++)
 			{
-				var uniprot = mutations[i][dataField];
+				var value = mutations[i][dataField];
 
-				if (uniprot &&
-				    !_.contains(excludeList, uniprot))
+				if (value &&
+				    !_.contains(excludeList, value))
 				{
-					if (uniprotMap[uniprot] === undefined)
+					if (valueCountMap[value] === undefined)
 					{
-						uniprotMap[uniprot] = 0;
+						valueCountMap[value] = 0;
 					}
 
-					uniprotMap[uniprot]++;
+					valueCountMap[value]++;
 				}
 			}
 		}
 
-		var pairs = _.pairs(uniprotMap);
+		var pairs = _.pairs(valueCountMap);
 
 		pairs.sort(function(a, b) {
 			return (b[1] - a[1]);

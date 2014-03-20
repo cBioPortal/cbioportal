@@ -143,7 +143,7 @@ class ImporterImpl implements Importer {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("importData(), importing tumor types...");
 			}
-			importTumorTypes();
+			importTypesOfCancer();
 		}
 
 		// import reference data if desired
@@ -234,7 +234,8 @@ class ImporterImpl implements Importer {
 	/**
 	 * Helper function to import tumor type metadata.
 	 */
-	private void importTumorTypes() throws Exception {
+        @Override
+	public void importTypesOfCancer() throws Exception {
 		// tumor types
 		StringBuilder cancerFileContents = new StringBuilder();
 		for (TumorTypeMetadata tumorType : config.getTumorTypeMetadata(Config.ALL)) {
@@ -325,8 +326,12 @@ class ImporterImpl implements Importer {
 				if (!(new File(stagingFilename)).exists()) {
                     if (isZScoreFile(stagingFilename, datatypeMetadata) &&
                         canCreateZScoreFile(rootDirectory, cancerStudyMetadata, datatypeMetadata)) {
-                        createZScoreFile(rootDirectory, cancerStudyMetadata, datatypeMetadata);
-                        createdZScoreFile = true;
+                        if (createZScoreFile(rootDirectory, cancerStudyMetadata, datatypeMetadata)) {
+                            createdZScoreFile = true;
+                        }
+                        else {
+                            continue;
+                        }
                     }
                     else {
                         if (LOG.isInfoEnabled()) {
@@ -434,7 +439,8 @@ class ImporterImpl implements Importer {
                 propertyNeedsUpdating(properties.getProperty("description"), cancerStudyMetadata.getDescription()) ||
                 propertyNeedsUpdating(properties.getProperty("citation"), cancerStudyMetadata.getCitation()) ||
                 propertyNeedsUpdating(properties.getProperty("pmid"), cancerStudyMetadata.getPMID()) ||
-                propertyNeedsUpdating(properties.getProperty("groups"), cancerStudyMetadata.getGroups()));
+                propertyNeedsUpdating(properties.getProperty("groups"), cancerStudyMetadata.getGroups()) ||
+                propertyNeedsUpdating(properties.getProperty("short_name"), cancerStudyMetadata.getShortName()));
     }
 
     private Properties getProperties(String cancerStudyMetadataFilename) throws Exception
@@ -486,13 +492,13 @@ class ImporterImpl implements Importer {
         return canCreateZScoreFile;
     }
 
-    private void createZScoreFile(String rootDirectory, CancerStudyMetadata cancerStudyMetadata, DatatypeMetadata datatypeMetadata) throws Exception
+    private boolean createZScoreFile(String rootDirectory, CancerStudyMetadata cancerStudyMetadata, DatatypeMetadata datatypeMetadata) throws Exception
     {
         ArrayList<DatatypeMetadata> dependencies = new ArrayList<DatatypeMetadata>();
         for (String dependency : datatypeMetadata.getDependencies()) {
             dependencies.add(config.getDatatypeMetadata(dependency).iterator().next());
         }
-        fileUtils.writeZScoresStagingFile(rootDirectory, cancerStudyMetadata, datatypeMetadata,
-                                          dependencies.toArray(new DatatypeMetadata[dependencies.size()]));
+        return fileUtils.writeZScoresStagingFile(rootDirectory, cancerStudyMetadata, datatypeMetadata,
+                                                 dependencies.toArray(new DatatypeMetadata[dependencies.size()]));
     }
 }

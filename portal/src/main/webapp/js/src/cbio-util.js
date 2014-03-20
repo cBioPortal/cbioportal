@@ -181,6 +181,38 @@ cbio.util = (function() {
 		return browser;
 	};
 
+	/**
+	 * Retrieves the page origin from the global window object. This function is
+	 * introduced to eliminate cross-browser issues (window.location.origin is
+	 * undefined for IE)
+	 */
+	var getOrigin = function()
+	{
+		var origin = window.location.origin;
+
+		if (!origin)
+		{
+			origin = window.location.protocol + "//" +
+			         window.location.hostname +
+			         (window.location.port ? ':' + window.location.port: '');
+		}
+
+		return origin;
+	};
+
+	/**
+	 * Replaces problematic characters with an underscore for the given string.
+	 * Those characters cause problems with the properties of an HTML object,
+	 * especially for the id and class properties.
+	 *
+	 * @param property  string to be modified
+	 * @return {string} safe version of the given string
+	 */
+	var safeProperty = function(property)
+	{
+		return property.replace(/[^a-zA-Z0-9-]/g,'_');
+	};
+
     return {
         toPrecision: toPrecision,
         getObjectLength: getObjectLength,
@@ -189,7 +221,9 @@ cbio.util = (function() {
         arrayToAssociatedArrayIndices: arrayToAssociatedArrayIndices,
         alterAxesAttrForPDFConverter: alterAxesAttrForPDFConverter,
         lcss: lcss,
-	    browser: detectBrowser() // returning the browser object, not the function itself
+	    browser: detectBrowser(), // returning the browser object, not the function itself
+	    getWindowOrigin: getOrigin,
+	    safeProperty: safeProperty
     };
 
 })();

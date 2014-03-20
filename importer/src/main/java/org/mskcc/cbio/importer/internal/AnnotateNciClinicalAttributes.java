@@ -97,6 +97,12 @@ public class AnnotateNciClinicalAttributes implements Importer {
     {
 		throw new UnsupportedOperationException();
     }
+        
+    @Override
+        public void importTypesOfCancer() throws Exception
+    {
+		throw new UnsupportedOperationException();
+    }
 
     @Override
     public void importReferenceData(ReferenceMetadata referenceMetadata) throws Exception {

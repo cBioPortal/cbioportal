@@ -141,6 +141,12 @@ class CancerStudyImporterImpl implements Importer, Validator {
     {
 		throw new UnsupportedOperationException();
     }
+        
+    @Override
+        public void importTypesOfCancer() throws Exception
+    {
+		throw new UnsupportedOperationException();
+    }
 
     @Override
     public void importCancerStudy(String cancerStudyDirectoryName, boolean skip, boolean force) throws Exception

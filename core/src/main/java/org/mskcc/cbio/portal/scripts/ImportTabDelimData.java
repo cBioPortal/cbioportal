@@ -42,7 +42,6 @@ import org.mskcc.cbio.portal.util.*;
  */
 public class ImportTabDelimData {
     private HashSet<Long> importedGeneSet = new HashSet<Long>();
-    private HashSet<String> importedMicroRNASet = new HashSet<String>();
     private static Logger logger = Logger.getLogger(ImportTabDelimData.class);
 
     /**
@@ -136,8 +135,7 @@ public class ImportTabDelimData {
             }
             orderedCaseList.add(caseIds[i]);
         }
-        DaoGeneticProfileCases daoGeneticProfileCases = new DaoGeneticProfileCases();
-        daoGeneticProfileCases.addGeneticProfileCases(geneticProfileId, orderedCaseList);
+        DaoGeneticProfileCases.addGeneticProfileCases(geneticProfileId, orderedCaseList);
 
         String line = buf.readLine();
         int numRecordsStored = 0;
@@ -145,8 +143,23 @@ public class ImportTabDelimData {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
 
         DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
-        DaoMicroRnaAlteration daoMicroRnaAlteration = DaoMicroRnaAlteration.getInstance();
+        
+        boolean discritizedCnaProfile = geneticProfile!=null
+                                        && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.COPY_NUMBER_ALTERATION
+                                        && geneticProfile.showProfileInAnalysisTab();
 
+        Map<CnaEvent.Event, CnaEvent.Event> existingCnaEvents = null;
+        long cnaEventId = 0;
+        
+        if (discritizedCnaProfile) {
+            existingCnaEvents = new HashMap<CnaEvent.Event, CnaEvent.Event>();
+            for (CnaEvent.Event event : DaoCnaEvent.getAllCnaEvents()) {
+                existingCnaEvents.put(event, event);
+            }
+            cnaEventId = DaoCnaEvent.getLargestCnaEventId();
+            MySQLbulkLoader.bulkLoadOn();
+        }
+        
         int lenParts = parts.length;
         
         while (line != null) {
@@ -160,8 +173,10 @@ public class ImportTabDelimData {
                 parts = line.split("\t",-1);
                 
                 if (parts.length>lenParts) {
-                    System.err.println("The following line has more fields (" + parts.length
-                            + ") than the headers(" + lenParts + "): \n"+parts[0]);
+                    if (line.split("\t").length>lenParts) {
+                        System.err.println("The following line has more fields (" + parts.length
+                                + ") than the headers(" + lenParts + "): \n"+parts[0]);
+                    }
                 }
                 String values[] = (String[]) ArrayUtils.subarray(parts, caseStartIndex, parts.length>lenParts?lenParts:parts.length);
 
@@ -231,10 +246,30 @@ public class ImportTabDelimData {
                                 }
                             } else if (genes.size()==1) {
                                 storeGeneticAlterations(values, daoGeneticAlteration, genes.get(0));
-                                if (geneticProfile!=null
-                                        && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.COPY_NUMBER_ALTERATION
-                                        && geneticProfile.showProfileInAnalysisTab()) {
-                                    storeCna(genes.get(0).getEntrezGeneId(), orderedCaseList, values);
+                                if (discritizedCnaProfile) {
+                                    long entrezGeneId = genes.get(0).getEntrezGeneId();
+                                    int n = values.length;
+                                    if (n==0)
+                                        System.out.println();
+                                    int i = values[0].equals(""+entrezGeneId) ? 1:0;
+                                    for (; i<n; i++) {
+                                        if (values[i].equals(GeneticAlterationType.AMPLIFICATION) 
+                                               // || values[i].equals(GeneticAlterationType.GAIN)
+                                               // || values[i].equals(GeneticAlterationType.ZERO)
+                                               // || values[i].equals(GeneticAlterationType.HEMIZYGOUS_DELETION)
+                                                || values[i].equals(GeneticAlterationType.HOMOZYGOUS_DELETION)) {
+                                            CnaEvent cnaEvent = new CnaEvent(orderedCaseList.get(i), geneticProfileId, entrezGeneId, Short.parseShort(values[i]));
+                                            
+                                            if (existingCnaEvents.containsKey(cnaEvent.getEvent())) {
+                                                cnaEvent.setEventId(existingCnaEvents.get(cnaEvent.getEvent()).getEventId());
+                                                DaoCnaEvent.addCaseCnaEvent(cnaEvent, false);
+                                            } else {
+                                                cnaEvent.setEventId(++cnaEventId);
+                                                DaoCnaEvent.addCaseCnaEvent(cnaEvent, true);
+                                                existingCnaEvents.put(cnaEvent.getEvent(), cnaEvent.getEvent());
+                                            }
+                                        }
+                                    }
                                 }
                                 
                                 numRecordsStored++;
@@ -261,18 +296,6 @@ public class ImportTabDelimData {
         }
     }
 
-    private void storeMicroRnaAlterations(String[] values,
-            DaoMicroRnaAlteration daoMicroRnaAlteration, String microRnaId) throws DaoException {
-
-        //  Check that we have not already imported information regarding this microRNA.
-        //  This is an important check, because a GISTIC or RAE file may contain
-        //  multiple rows for the same gene, and we only want to import the first row.
-        if (!importedMicroRNASet.contains(microRnaId)) {
-            daoMicroRnaAlteration.addMicroRnaAlterations(geneticProfileId, microRnaId, values);
-            importedMicroRNASet.add(microRnaId);
-        }
-    }
-
     private void storeGeneticAlterations(String[] values, DaoGeneticAlteration daoGeneticAlteration,
             CanonicalGene gene) throws DaoException {
 
@@ -282,20 +305,6 @@ public class ImportTabDelimData {
         if (!importedGeneSet.contains(gene.getEntrezGeneId())) {
             daoGeneticAlteration.addGeneticAlterations(geneticProfileId, gene.getEntrezGeneId(), values);
             importedGeneSet.add(gene.getEntrezGeneId());
-        }
-    }
-    
-    private void storeCna(long entrezGeneId, ArrayList <String> cases, String[] values) throws DaoException {
-        int n = values.length;
-        if (n==0)
-            System.out.println();
-        int i = values[0].equals(""+entrezGeneId) ? 1:0;
-        for (; i<n; i++) {
-            if (values[i].equals(GeneticAlterationType.AMPLIFICATION) 
-                    || values[i].equals(GeneticAlterationType.HOMOZYGOUS_DELETION)) {
-                CnaEvent event = new CnaEvent(cases.get(i), geneticProfileId, entrezGeneId, Short.parseShort(values[i]));
-                DaoCnaEvent.addCaseCnaEvent(event);
-            }
         }
     }
     

@@ -233,9 +233,17 @@
                     <td class="cc-alt-type">Mutation</td>
                     <td>{{mutationFrequency}}% ({{mutationCount}} cases)</td>
                 </tr>
+                <tr class='{{ lossCount > 0 ? "cc-loss" : "cc-hide"}}'>
+                    <td class="cc-alt-type">Heterozygous loss</td>
+                    <td>{{lossFrequency}}% ({{lossCount}} cases)</td>
+                </tr>
                 <tr class='{{ deletionCount > 0 ? "cc-del" : "cc-hide"}}'>
                     <td class="cc-alt-type">Deletion</td>
                     <td>{{deletionFrequency}}% ({{deletionCount}} cases)</td>
+                </tr>
+                <tr class='{{ gainCount > 0 ? "cc-gain" : "cc-hide"}}'>
+                    <td class="cc-alt-type">Gain</td>
+                    <td>{{gainFrequency}}% ({{gainCount}} cases)</td>
                 </tr>
                 <tr class='{{ amplificationCount > 0 ? "cc-amp" : "cc-hide"}}'>
                     <td class="cc-alt-type">Amplification</td>

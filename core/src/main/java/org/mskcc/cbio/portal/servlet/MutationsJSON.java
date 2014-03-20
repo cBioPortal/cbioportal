@@ -146,6 +146,7 @@ public class MutationsJSON extends HttpServlet {
         String[] patients = request.getParameter(PatientView.CASE_ID).split(" +");
         String mutationProfileId = request.getParameter(PatientView.MUTATION_PROFILE);
         String mrnaProfileId = request.getParameter(PatientView.MRNA_PROFILE);
+        String cnaProfileId = request.getParameter(PatientView.CNA_PROFILE);
         String drugType = request.getParameter(PatientView.DRUG_TYPE);
         boolean fdaOnly = false;
         boolean cancerDrug = true;
@@ -163,6 +164,7 @@ public class MutationsJSON extends HttpServlet {
         Map<String, Integer> keywordContextMap = Collections.emptyMap();
         DaoGeneOptimized daoGeneOptimized = null;
         Map<Long, Map<String,Object>> mrnaContext = Collections.emptyMap();
+        Map<Long, String> cnaContext = Collections.emptyMap();
         
         try {
             mutationProfile = DaoGeneticProfile.getGeneticProfileByStableId(mutationProfileId);
@@ -179,6 +181,9 @@ public class MutationsJSON extends HttpServlet {
                 if (mrnaProfileId!=null && patients.length==1) { // only if there is only one tumor
                     mrnaContext = getMrnaContext(patients[0], mutations, mrnaProfileId);
                 }
+                if (cnaProfileId!=null && patients.length==1) { // only if there is only one tumor
+                    cnaContext = getCnaContext(patients[0], mutations, cnaProfileId);
+                }
             }
         } catch (DaoException ex) {
             throw new ServletException(ex);
@@ -192,6 +197,7 @@ public class MutationsJSON extends HttpServlet {
                     mutation.getKeyword()==null?1:keywordContextMap.get(mutation.getKeyword()),
                     cosmic.get(mutation.getMutationEventId()),
                     mrnaContext.get(mutation.getEntrezGeneId()),
+                    cnaContext.get(mutation.getEntrezGeneId()),
                     daoGeneOptimized);
         }
 
@@ -338,6 +344,26 @@ public class MutationsJSON extends HttpServlet {
         return ret;
     }
     
+    private Map<Long, String> getCnaContext(String caseId, List<ExtendedMutation> mutations,
+            String cnaProfileId) throws DaoException {
+        Map<Long, String> mapGeneCna = new HashMap<Long, String>();
+        DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
+        for (ExtendedMutation mutEvent : mutations) {
+            long gene = mutEvent.getEntrezGeneId();
+            if (mapGeneCna.containsKey(gene)) {
+                continue;
+            }
+            
+            String cna = daoGeneticAlteration.getGeneticAlteration(
+                    DaoGeneticProfile.getGeneticProfileByStableId(cnaProfileId).getGeneticProfileId(),
+                    caseId, gene);
+            
+            mapGeneCna.put(gene, cna);
+        }
+        
+        return mapGeneCna;
+    }
+    
     private Map<Long, Map<String,Object>> getMrnaContext(String caseId, List<ExtendedMutation> mutations,
             String mrnaProfileId) throws DaoException {
         Map<Long, Map<String,Object>> mapGenePercentile = new HashMap<Long, Map<String,Object>>();
@@ -426,6 +452,7 @@ public class MutationsJSON extends HttpServlet {
         map.put("mutsig", new ArrayList());
         map.put("genemutrate", new ArrayList());
         map.put("keymutrate", new ArrayList());
+        map.put("cna", new ArrayList());
         map.put("mrna", new ArrayList());
         map.put("sanger", new ArrayList());
         map.put("cancer-gene", new ArrayList());
@@ -450,7 +477,7 @@ public class MutationsJSON extends HttpServlet {
     private void exportMutation(Map<String,List> data, Map<Long, Integer> mapMutationEventIndex,
             ExtendedMutation mutation, CancerStudy cancerStudy, Set<String> drugs,
             int geneContext, int keywordContext, Set<CosmicMutationFrequency> cosmic, Map<String,Object> mrna,
-            DaoGeneOptimized daoGeneOptimized) throws ServletException {
+            String cna, DaoGeneOptimized daoGeneOptimized) throws ServletException {
         Long eventId = mutation.getMutationEventId();
         Integer ix = mapMutationEventIndex.get(eventId);
         if (ix!=null) { // multiple samples
@@ -485,6 +512,7 @@ public class MutationsJSON extends HttpServlet {
         data.get("normal-alt-count").add(addReadCountMap(new HashMap<String,Integer>(),mutation.getCaseId(),mutation.getNormalAltCount()));
         data.get("normal-ref-count").add(addReadCountMap(new HashMap<String,Integer>(),mutation.getCaseId(),mutation.getNormalRefCount()));
         data.get("validation").add(mutation.getValidationStatus());
+        data.get("cna").add(cna);
         data.get("mrna").add(mrna);
         
         // cosmic

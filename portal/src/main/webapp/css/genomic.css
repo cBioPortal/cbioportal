@@ -2,32 +2,24 @@
 
 .oma_link {
 	font-weight:bold;
-	padding-top: 1px;
-	padding-left:8px;
-	padding-right:8px;
 }
 
 .oma_high {
-  background: #C83C3C;
+  color: #C83C3C;
   font-weight:bold;
 }
 
 .oma_medium {
-  background: #C79060;
+  color: #9F6F47;
   font-weight:bold;
 }
 
 .oma_low {
-  background: #E8E894;
+  color: #988A3E;
   font-weight:bold;
 }
 
 .oma_neutral {
-  background: #EFEFEF;
+  color: #909090;
   font-weight:bold;
 }
-
-.oma_high A:link {!important; text-decoration: underline !important;}
-.oma_high A:visited {!important; text-decoration: underline !important;}
-.oma_high A:active {!important; text-decoration: underline !important;}
-

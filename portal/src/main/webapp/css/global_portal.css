@@ -1353,3 +1353,10 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
 	font-size: 12px !important;
 }
 
+.brush .extent {
+    stroke: #fff;
+    fill-opacity: .125;
+    shape-rendering: crispEdges;
+    z-index: -1;
+} 
+

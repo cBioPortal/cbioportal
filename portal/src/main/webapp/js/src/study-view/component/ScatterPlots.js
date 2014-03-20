@@ -71,6 +71,8 @@ var ScatterPlots = function() {
     var axisXLogFlag = false,
         axisYLogFlag = false;
 
+    var shiftKeyDown = false;
+
     function initSettings(options, _dataAttr) { //Init with options
         style = jQuery.extend(true, {}, options.style);
         canvas = jQuery.extend(true, {}, options.canvas);
@@ -390,7 +392,25 @@ var ScatterPlots = function() {
             });
 
     }
+    
+    function addListeners() {
+        //This code is oringinally coming from Onur. Listening shiftKey down and 
+        //shiftKey up.
+        $(window).on("keydown", function(event) {
+            if (event.keyCode === 16)
+            {
+                shiftKeyDown = true;
+            }
+        });
 
+        $(window).on("keyup", function(event) {
+            if (event.keyCode === 16)
+            {
+                shiftKeyDown = false;
+            }
+        });
+    }
+    
     function addQtips() {
         elem.dotsGroup.selectAll('path').each(
             function(d) {
@@ -599,11 +619,10 @@ var ScatterPlots = function() {
             _totalHighlightIds = [];
         
         var extent = elem.brush.extent();
-        var _isShift = window.event.shiftKey ? true : false;
         
         _brushedCases.length = 0;
         
-        if(_isShift){
+        if(shiftKeyDown){
             elem.dotsGroup.selectAll("path").each(function(d) {
                 var _attrType = pointClickType(this),
                     _x = $(this).attr("x_val"),
@@ -771,6 +790,7 @@ var ScatterPlots = function() {
             appendAxisTitleY(false);
             drawPlots(dataArr);
             drawLegends();
+            addListeners();
             addQtips();
         },
         // !!! Log Scale are only used by using RNA Seq Profile

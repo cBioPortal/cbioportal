@@ -252,6 +252,9 @@ th.mutation-pdb-table-column {
 .pdb-chain-group{
 	cursor: pointer;
 }
+.mutation-3d-initializer {
+	padding-bottom: 30px;
+}
 /**
  * 3D visualizer panel
  */

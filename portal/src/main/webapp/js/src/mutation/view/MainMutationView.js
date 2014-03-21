@@ -181,7 +181,6 @@ var MainMutationView = Backbone.View.extend({
 
 		return view3d;
 	},
-	// TODO create MutationDiagramView class, move this method into that class.
 	/**
 	 * Initializes the mutation diagram view.
 	 *

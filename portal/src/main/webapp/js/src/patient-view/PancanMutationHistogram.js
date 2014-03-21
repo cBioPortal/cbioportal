@@ -80,6 +80,9 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
         bygene: generate_cancer_study2datum(bygene_data)
     };
 
+    bykeyword_data = _.values(cancer_study2datum.bykeyword);
+    bygene_data = _.values(cancer_study2datum.bygene);
+
     if (bygene_data.length !== bykeyword_data.length) {
         throw new Error("must be same length");
     }

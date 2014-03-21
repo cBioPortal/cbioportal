@@ -14,7 +14,6 @@
     mutTableIndices = cbio.util.arrayToAssociatedArrayIndices(mutTableIndices);
 
     var drawPanCanThumbnails = function(oTable) {
-        console.log("ran pan can;")
         var num_rows = oTable.fnSettings().fnRecordsTotal();
         var pancan_column = mutTableIndices['pancan_mutations'];
         var dummy = false;      // doesn't matter
@@ -32,7 +31,6 @@
 
                 // if already drawn, then quit
                 if($thumbnail.attr("data-pancan-done")) {
-                    console.log("short cut.");
                     return;
                 }
 
@@ -88,7 +86,7 @@
             $thumbnails.each(function(idx, thumbnail) {
                 _.defer(createOneThumbNail, idx, thumbnail);
             });
-        })($('.pancan_mutations_histogram_thumbnail'));
+        })($(oTable).find('.pancan_mutations_histogram_thumbnail'));
     };
 
     function buildMutationsDataTable(mutations,mutEventIds, table_id, sDom, iDisplayLength, sEmptyInfo, compact) {

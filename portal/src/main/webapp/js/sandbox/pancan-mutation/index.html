@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Pancan Mutations</title>
+<!--
+<link rel="stylesheet" type="text/css" href="FIXME" />
+<script type="text/javascript" src="FIXME"></script>
+<style type="text/css">
+/* <![CDATA[ */
+/* ]]> */
+</style>
+-->
+<link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/qtip2/2.1.1/basic/jquery.qtip.css" />
+
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.2.2/d3.v3.min.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.1/underscore-min.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/qtip2/2.1.1/jquery.qtip.min.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.8/require.min.js"></script>
+<script type="text/javascript" src="../../src/patient-view/PancanMutationHistogram.js"></script>
+
+</head>
+<body>
+    <div id="histogram"></div>
+    <div id="sparkline"></div>
+</body>
+
+<script>
+    var el = document.getElementById('histogram');
+
+    // This is for the moustache-like templates
+    // prevents collisions with JSP tags
+    _.templateSettings = {
+        interpolate : /\{\{(.+?)\}\}/g
+    };
+
+    d3.json('bykeyword.json', function(bykeyword_data) {
+        d3.json('byhugo.json', function(byhugo_data) {
+            d3.json('cancer_study_meta_data.json', function(cancer_study_meta_data) {
+                var barchart = PancanMutationHistogram(bykeyword_data,
+                    byhugo_data,
+                    cancer_study_meta_data,
+                    el,
+                    {this_cancer_study: "Stomach Adenocarcinoma (TCGA, Provisional)"}
+                    );
+
+                barchart.qtip($(barchart.el).find("svg")[0]);
+
+                var sparkline = PancanMutationHistogram(bykeyword_data,
+                    byhugo_data,
+                    cancer_study_meta_data,
+                    document.getElementById('sparkline'),
+                    {this_cancer_study: "Stomach Adenocarcinoma (TCGA, Provisional)", sparkline: true }
+                );
+            });
+        });
+    });
+</script>
+
+</html>

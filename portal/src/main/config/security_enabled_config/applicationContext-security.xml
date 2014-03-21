@@ -102,11 +102,12 @@
       <intercept-url pattern="/getSurvivalData.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/igvlinking.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/calcPval.do*" access="isAuthenticated()"/>
+      <intercept-url pattern="/pancancerMutations.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/jsmol_frame.jsp*" access="isAuthenticated()"/>
       <intercept-url pattern="/getCoExp.do*" access="isAuthenticated()"/>
       <intercept-url pattern="/getAlterationData.json" access="isAuthenticated()"/>
 
-      <!-- everything else locked down by default -->
+        <!-- everything else locked down by default -->
 	  <intercept-url pattern="/**" access="denyAll"/>
 	  <openid-login login-page="/login.jsp" default-target-url="/index.do" user-service-ref="customUserService" authentication-failure-url="/login.jsp?login_error=true">
 		<attribute-exchange identifier-match="https://www.google.com/.*">

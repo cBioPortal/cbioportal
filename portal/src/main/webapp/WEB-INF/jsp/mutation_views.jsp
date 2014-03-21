@@ -43,6 +43,29 @@
 
 <script type="text/template" id="mutation_view_template">
 	<h4>{{geneSymbol}}: {{mutationSummary}}</h4>
+	<div>
+		<table>
+			<tr>
+				<td>
+					<div class='mutation-diagram-view'></div>
+				</td>
+				<td>
+					<div class="mutation-3d-initializer"></div>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div class="mutation-pdb-panel-view"></div>
+	<div class='mutation-details-filter-info'>
+		Current view shows filtered results.
+		Click <a class='mutation-details-filter-reset'>here</a> to reset all filters.
+	</div>
+	<div class='mutation-table-container'>
+		<img src='images/ajax-loader.gif'/>
+	</div>
+</script>
+
+<script type="text/template" id="mutation_diagram_view_template">
 	<div class='mutation-diagram-toolbar'>
 		<a href='http://www.uniprot.org/uniprot/{{uniprotId}}'
 		   class='mutation-details-uniprot-link'
@@ -68,26 +91,7 @@
 		<button class="diagram-customize">Customize</button>
 	</div>
 	<div class="mutation-diagram-customize ui-widget"></div>
-	<div>
-		<table>
-			<tr>
-				<td>
-					<div class='mutation-diagram-container'></div>
-				</td>
-				<td>
-					<div class="mutation-3d-initializer"></div>
-				</td>
-			</tr>
-		</table>
-	</div>
-	<div class="mutation-pdb-panel-view"></div>
-	<div class='mutation-details-filter-info'>
-		Current view shows filtered results.
-		Click <a class='mutation-details-filter-reset'>here</a> to reset all filters.
-	</div>
-	<div class='mutation-table-container'>
-		<img src='images/ajax-loader.gif'/>
-	</div>
+	<div class='mutation-diagram-container'></div>
 </script>
 
 <script type="text/template" id="mutation_customize_panel_template">

@@ -186,6 +186,7 @@ var MainMutationView = Backbone.View.extend({
 
 		return view3d;
 	},
+	// TODO create MutationDiagramView class, move this method into that class.
 	/**
 	 * Initializes the mutation diagram view.
 	 *
@@ -198,6 +199,20 @@ var MainMutationView = Backbone.View.extend({
 	_initMutationDiagram: function (gene, mutationData, sequenceData, options)
 	{
 		var self = this;
+
+		// pass variables in using Underscore.js template
+		var variables = {geneSymbol: self.model.geneSymbol,
+			uniprotId: self.model.sequence.metadata.identifier};
+
+		// compile the template using underscore
+		var template = _.template(
+			$("#mutation_diagram_view_template").html(),
+			variables);
+
+		// load the compiled HTML into the Backbone "el"
+		self.$el.find(".mutation-diagram-view").html(template);
+
+		self.$el.find(".mutation-diagram-customize").hide();
 
 		// use defaults if no options provided
 		if (!options)

@@ -24,9 +24,7 @@
                         <th class="mut-header" alt="Mutation frequency in cohort"><b>Cohort</b></th>
                         <th class="mut-header" alt="Mutation frequency in Portal"><b>cBioPortal</b></th>
                         <th class="mut-header" alt="COSMIC occurrences"><b>COSMIC</b></th>
-                        <th class="mut-header" alt="Functional Impact Score predicted by MutationAssessor (missense mutations only)"><b>FIS</b></th>
-                        <th class="mut-header" alt="Sequence conservation"><b>Cons</b></th>
-                        <th class="mut-header" alt="Protein 3D Structure"><b>3D</b></th>
+                        <th class="mut-header" alt="Functional Impact predicted by MutationAssessor (missense mutations only)"><b>Mutation Assessor</b></th>
                         <th class="mut-header" alt="Potential Drugs"><b>Drugs</b></th>
                     </tr>
                 </thead>

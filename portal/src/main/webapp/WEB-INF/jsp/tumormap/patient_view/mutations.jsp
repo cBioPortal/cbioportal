@@ -4,7 +4,7 @@
 
 <script type="text/javascript" src="js/lib/igv_webstart.js"></script>
 
-<link href="css/mutations_table.css" type="text/css" rel="stylesheet"/>
+<link href="css/mutation/mutation_table.css" type="text/css" rel="stylesheet"/>
 
 <script type="text/javascript">
     var mutTableIndices = cbio.util.arrayToAssociatedArrayIndices(
@@ -635,25 +635,25 @@
                                     if (xvia!=null) {
                                         if (xvia.indexOf('http://')!==0) xvia='http://'+xvia;
                                         
-                                        tip += "<div class='mutation-assessor-main-link mutation-assessor-link'>" +
-                                                "<a href='"+xvia+"' target='_blank'><img height='15' width='19' src='images/ma.png'> Go to Mutation Assessor</a></div>";
+                                        tip += "<div class=\"mutation-assessor-main-link mutation-assessor-link\">" +
+                                                "<a href=\""+xvia+"\" target=\"_blank\"><img height=\"15\" width=\"19\" src=\"images/ma.png\"> Go to Mutation Assessor</a></div>";
                                     }
                                     
                                     var msa = ma['msa'];
                                     if (msa&&msa!=='NA') {
                                         if (msa.indexOf('http://')!==0) msa='http://'+msa;
-                                        tip += "<div class='mutation-assessor-msa-link mutation-assessor-link'>"+
-                                               "<a href='"+msa+"' target='_blank'><span class='ma-msa-icon'>msa</span> Multiple Sequence Alignment</a></div>";
+                                        tip += "<div class=\"mutation-assessor-msa-link mutation-assessor-link\">"+
+                                               "<a href=\""+msa+"\" target=\"_blank\"><span class=\"ma-msa-icon\">msa</span> Multiple Sequence Alignment</a></div>";
                                     }
                                     
                                     var pdb = ma['pdb'];
                                     if (pdb&&pdb!=='NA') {
                                         if (pdb.indexOf('http://')!==0) pdb='http://'+pdb;
-                                        tip += "<div class='mutation-assessor-3d-link mutation-assessor-link'>"+
-                                               "<a href='"+pdb+"' target='_blank'><span class='ma-msa-icon'>3D</span> Mutation Assessor 3D View</a></div>";
+                                        tip += "<div class=\"mutation-assessor-3d-link mutation-assessor-link\">"+
+                                               "<a href=\""+pdb+"\" target=\"_blank\"><span class=\"ma-msa-icon\">3D</span> Mutation Assessor 3D View</a></div>";
                                     }
 
-                                    ret += "<span class='oma_link oma_medium "+table_id+"-tip' alt='"+tip+"'>"+impact+"</span>";
+                                    ret += "<span class='"+maclass+" "+table_id+"-tip' alt='"+tip+"'>"+impact+"</span>";
                                 }
                                 
                                 return ret;

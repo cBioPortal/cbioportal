@@ -93,27 +93,6 @@
 	font-size: 90%;
 	font-weight: bold;
 }
-.mutation-assessor-link {
-	margin-bottom: 1px;
-}
-.mutation-assessor-link .ma-msa-icon{
-	background-color: #88C;
-	color: white;
-	padding-left: 3px;
-	padding-right: 3px;
-	font-size: 80%;
-}
-.mutation-assessor-link .ma-3d-icon {
-	background-color: #88C;
-	color: white;
-	padding-left: 6px;
-	padding-right: 6px;
-	font-size: 80%;
-}
-.mutation-assessor-main-link img {
-	padding-left: 3px;
-	padding-right: 3px;
-}
 .mutation-table-container .best_effect_transcript {
 	color: red;
 }
@@ -141,11 +120,6 @@ th.mutation-details-qtip-style {
 }
 #mutation_details .dataTables_info {
 	width: 300px;
-}
-.mutation-table-container .msa-img,
-.mutation-table-container .pdb-img {
-	vertical-align: bottom;
-	margin-left: 3px;
 }
 .diagram-lollipop-tip, .diagram-region-tip, .pdb-chain-tip {
 	font-size: 12px;

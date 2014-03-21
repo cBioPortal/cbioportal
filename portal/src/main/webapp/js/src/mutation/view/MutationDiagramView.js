@@ -53,6 +53,7 @@ var MutationDiagramView = Backbone.View.extend({
 		// hide the toolbar & customization panel by default
 		self.$el.find(".mutation-diagram-toolbar").hide();
 		self.$el.find(".mutation-diagram-customize").hide();
+		self.$el.find(".mutation-diagram-toolbar-buttons").css("visibility", "hidden");
 
 		// init toolbar if the diagram is initialized successfully
 		if (self.mutationDiagram)
@@ -188,6 +189,33 @@ var MutationDiagramView = Backbone.View.extend({
 			panel.toggleView();
 		});
 
+		// hide buttons initially, show on mouse over
+		self._autoHideToolbarButtons();
+
 		toolbar.show();
+	},
+	/**
+	 * Shows the toolbar buttons only on mouse over.
+	 * And hides them on mouse out.
+	 */
+	_autoHideToolbarButtons: function()
+	{
+		var self = this;
+		var buttons = self.$el.find(".mutation-diagram-toolbar-buttons");
+
+		self.$el.mouseenter(function(evt) {
+			buttons.fadeIn({complete: function() {
+				$(this).css({"visibility":"visible"});
+				$(this).css({"display":"inline"});
+			}});
+		});
+
+		self.$el.mouseleave(function(evt) {
+			// fade out without setting display to none.
+			buttons.fadeOut({complete: function() {
+				$(this).css({"visibility":"hidden"});
+				$(this).css({"display":"inline"});
+			}});
+		});
 	}
 });

@@ -86,9 +86,11 @@
 			<input type='hidden' name='filetype' value='svg'>
 			<input type='hidden' name='filename' value='mutation_diagram_{{geneSymbol}}.svg'>
 		</form>
-		<button class='diagram-to-pdf'>PDF</button>
-		<button class='diagram-to-svg'>SVG</button>
-		<button class="diagram-customize">Customize</button>
+		<span class='mutation-diagram-toolbar-buttons'>
+			<button class='diagram-to-pdf'>PDF</button>
+			<button class='diagram-to-svg'>SVG</button>
+			<button class="diagram-customize">Customize</button>
+		</span>
 	</div>
 	<div class="mutation-diagram-customize ui-widget"></div>
 	<div class='mutation-diagram-container'></div>

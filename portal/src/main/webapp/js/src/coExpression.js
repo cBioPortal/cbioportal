@@ -61,9 +61,11 @@ var CoExpView = (function() {
                 $("#coexp-tabs-list").append("<li><a href='#" + Prefix.divPrefix + value + 
                   "' class='coexp-tabs-ref'><span>" + value + "</span></a></li>");
             });
+        }
+
+        function appendLoadingImgs() {
             $.each(window.PortalGlobals.getGeneList(), function(index, value) {
                 $("#coexp-tabs-content").append("<div id='" + Prefix.divPrefix + value + "'>" +
-                    "<div id='" + Prefix.profileSelectorPrefix + value + "'></div>" + 
                     "<div id='" + Prefix.loadingImgPrefix + value + "'>" +
                     "<table><tr><td><img style='padding:20px;' src='images/ajax-loader.gif'></td>" + 
                     "<td>Calculating and rendering may take up to 1 minute.</td></tr></table>" + 
@@ -88,6 +90,7 @@ var CoExpView = (function() {
 
         return {
             appendTabsContent: appendTabsContent,
+            appendLoadingImgs: appendLoadingImgs,
             generateTabs: generateTabs,
             bindListenerToTabs: bindListenerToTabs
         }
@@ -103,11 +106,17 @@ var CoExpView = (function() {
                     profileList.push(obj);
                 }
             })
+            //swap the rna seq profile to the top
+            $.each(profileList, function(i, obj) {
+                if (obj["STABLE_ID"].toLowerCase().indexOf("rna_seq") !== -1) {
+                    cbio.util.swapElement(profileList, i, 0);
+                }
+            });
         }
 
         function drawProfileSelector() {
             $("#coexp-profile-selector-dropdown").append(
-                " Using genetic profile " + 
+                "Data Set " + 
                 "<select id='coexp-profile-selector'></select>");
             $.each(profileList, function(index, value) {
                 $("#coexp-profile-selector").append(
@@ -131,10 +140,17 @@ var CoExpView = (function() {
                         element.parentNode.removeChild(element); //destroy all the existing instances
                     }                      
                 });
-                var curTabIndex = $("#coexp-tabs").tabs( "option", "active" );
-                console.log(curTabIndex);
+                //Append loading imgs
+                $.each(window.PortalGlobals.getGeneList(), function(index, value) {
+                    $("#" + Prefix.loadingImgPrefix + value).append(
+                        "<table><tr><td><img style='padding:20px;' src='images/ajax-loader.gif'></td>" + 
+                        "<td>Calculating and rendering may take up to 1 minute.</td></tr></table>" + 
+                        "</div>");
+                });
+                //Re-draw the currently selected sub-tab view
+                var curTabIndex = $("#coexp-tabs").tabs("option", "active");
                 var coExpSubTabView = new CoExpSubTabView();
-                coExpSubTabView.init(geneIds[0]);
+                coExpSubTabView.init(geneIds[curTabIndex]);
             });
 
         }
@@ -254,12 +270,11 @@ var CoExpView = (function() {
             function attachPearsonFilter() { 
                 //Add drop down filter for positive/negative pearson display
                 $("#" + Names.tableDivId).find('.coexp-table-filter-pearson').append(
-                    "<table style='margin-left: 4px;'><tr><td><font size='2px' color='black'>Directions </font></td>" + 
-                    "<td><select id='coexp-table-select-" + geneId + "' style='width: 230px'>" +
+                    "<select id='coexp-table-select-" + geneId + "' style='width: 230px; margin-left: 5px;'>" +
                     "<option value='all'>Show All</option>" +
                     "<option value='positivePearson'>Show Only Positively Correlated</option>" +
                     "<option value='negativePearson'>Show Only Negatively Correlated</option>" +
-                    "</select></td></tr></table>");
+                    "</select>");
                 $("select#coexp-table-select-" + geneId).change(function () {
                     if ($(this).val() === "negativePearson") {
                         coExpTableInstance.fnFilter("-", 1, false);
@@ -323,7 +338,7 @@ var CoExpView = (function() {
 
             function getCoExpDataCallBack(result, geneId) {
                 //Hide the loading img
-                $("#" + Names.loadingImgId).hide();
+                $("#" + Names.loadingImgId).empty();
                 //Render datatable
                 convertData(result);
                 overWriteFilters(); 
@@ -403,10 +418,15 @@ var CoExpView = (function() {
 
     }   //Closing coExpSubTabView
 
+
+
     function getGeneticProfileCallback(result) {
         var _genes = window.PortalGlobals.getGeneList();
         //Init Profile selector
         ProfileSelector.init(result[_genes[0]]); 
+        if (profileList.length === 1) {
+            $("#coexp-profile-selector-dropdown").hide();
+        }
         var coExpSubTabView = new CoExpSubTabView();
         coExpSubTabView.init(_genes[0]);
     }
@@ -415,9 +435,9 @@ var CoExpView = (function() {
         init: function() {
             //Init Tabs
             Tabs.appendTabsContent();
+            Tabs.appendLoadingImgs();
             Tabs.generateTabs();
             Tabs.bindListenerToTabs();
-
             //Get all the genetic profiles with data available 
             var paramsGetProfiles = {
                 cancer_study_id: window.PortalGlobals.getCancerStudyId(),

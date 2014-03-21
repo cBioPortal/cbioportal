@@ -212,6 +212,12 @@ cbio.util = (function() {
 		return property.replace(/[^a-zA-Z0-9-]/g,'_');
 	};
 
+    function swapElement(array, indexA, indexB) {
+        var tmp = array[indexA];
+        array[indexA] = array[indexB];
+        array[indexB] = tmp;
+    }
+
     return {
         toPrecision: toPrecision,
         getObjectLength: getObjectLength,
@@ -222,7 +228,8 @@ cbio.util = (function() {
         lcss: lcss,
 	    browser: detectBrowser(), // returning the browser object, not the function itself
 	    getWindowOrigin: getOrigin,
-	    safeProperty: safeProperty
+	    safeProperty: safeProperty,
+        swapElement: swapElement
     };
 
 })();

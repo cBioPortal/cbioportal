@@ -2,6 +2,7 @@
 * New features:
     * Visualizing of mutations mapped on 3D structures (individual or multiple mutations, directly in the browser)
     * Gene expression correlation analysis (find all genes with expression correlation to your query genes)
+    * The Patient-Centric View now displays mutation frequencies across all cohorts in cBioPortal for each mutation
     * The Mutation Details Tab and the Patient-Centric View now display the copy-number status of each mutation
 
 # March 18, 2014

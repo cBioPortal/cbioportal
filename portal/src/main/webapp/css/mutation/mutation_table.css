@@ -1,0 +1,49 @@
+/*  Styles for Online Mutation Assessor (OMA) */
+.oma_link {
+	font-weight:bold;
+}
+.oma_high {
+	color: #C83C3C;
+	font-weight:bold;
+}
+.oma_medium {
+	color: #9F6F47;
+	font-weight:bold;
+}
+.oma_low {
+	color: #988A3E;
+	font-weight:bold;
+}
+.oma_neutral {
+	color: #909090;
+	font-weight:bold;
+}
+
+.mutation-assessor-link {
+	margin-bottom: 1px;
+}
+.mutation-assessor-link .ma-msa-icon{
+	background-color: #88C;
+	color: white;
+	padding-left: 3px;
+	padding-right: 3px;
+	font-size: 80%;
+}
+.mutation-assessor-link .ma-3d-icon {
+	background-color: #88C;
+	color: white;
+	padding-left: 6px;
+	padding-right: 6px;
+	font-size: 80%;
+}
+.mutation-assessor-main-link img {
+	padding-left: 3px;
+	padding-right: 3px;
+}
+/*
+.mutation-table-container .msa-img,
+.mutation-table-container .pdb-img {
+	vertical-align: bottom;
+	margin-left: 3px;
+}
+*/

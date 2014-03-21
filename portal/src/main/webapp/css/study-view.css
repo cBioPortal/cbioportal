@@ -139,6 +139,7 @@
     height: 50px;
     background-color: #f88508;
     z-index: 20;
+    -webkit-backface-visibility: hidden;
 }
 #study-view-selectAttr{
      display:none;

@@ -6,6 +6,7 @@
 	@import "css/data_table_jui.css";
 	@import "css/data_table_ColVis.css";
 	@import "css/mutation_details.css";
+	@import "css/mutation/mutation_table.css";
 </style>
 
 <script type="text/javascript">

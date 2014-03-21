@@ -46,9 +46,6 @@ var MainMutationView = Backbone.View.extend({
 
 		// hide the mutation diagram filter info text by default
 		self.$el.find(".mutation-details-filter-info").hide();
-		// hide the toolbar & customization panel by default
-		self.$el.find(".mutation-diagram-toolbar").hide();
-		self.$el.find(".mutation-diagram-customize").hide();
 	},
 	/**
 	 * Initializes the main components (such as the mutation diagram
@@ -67,17 +64,16 @@ var MainMutationView = Backbone.View.extend({
 		var tableOpts = self.model.tableOpts;
 
 		// draw mutation diagram
-		var diagram = self._initMutationDiagram(
-			gene, mutationData, sequence, diagramOpts);
+		var diagramView = self._initMutationDiagramView(
+				gene, mutationData, sequence, diagramOpts);
+
+		var diagram = diagramView.mutationDiagram;
 
 		var view3d = null;
 
-		// check if diagram is initialized successfully.
+		// init 3D view if the diagram is initialized successfully
 		if (diagram)
 		{
-			// init diagram toolbar
-			self._initToolbar(diagram, gene);
-
 			if (mut3dVisView)
 			{
 				// init the 3d view
@@ -86,7 +82,6 @@ var MainMutationView = Backbone.View.extend({
 					self.model.pdbProxy,
 					mut3dVisView);
 			}
-
 		}
 		else
 		{
@@ -196,49 +191,22 @@ var MainMutationView = Backbone.View.extend({
 	 * @param options       [optional] diagram options
 	 * @return {Object}     initialized mutation diagram view
 	 */
-	_initMutationDiagram: function (gene, mutationData, sequenceData, options)
+	_initMutationDiagramView: function (gene, mutationData, sequenceData, options)
 	{
 		var self = this;
 
-		// pass variables in using Underscore.js template
-		var variables = {geneSymbol: self.model.geneSymbol,
-			uniprotId: self.model.sequence.metadata.identifier};
+		var model = {mutations: mutationData,
+			sequence: sequenceData,
+			geneSymbol: gene,
+			diagramOpts: options};
 
-		// compile the template using underscore
-		var template = _.template(
-			$("#mutation_diagram_view_template").html(),
-			variables);
+		var diagramView = new MutationDiagramView({
+			el: self.$el.find(".mutation-diagram-view"),
+			model: model});
 
-		// load the compiled HTML into the Backbone "el"
-		self.$el.find(".mutation-diagram-view").html(template);
+		diagramView.render();
 
-		self.$el.find(".mutation-diagram-customize").hide();
-
-		// use defaults if no options provided
-		if (!options)
-		{
-			options = {};
-		}
-
-		// do not draw the diagram if there is a critical error with
-		// the sequence data
-		if (sequenceData["length"] == "" ||
-		    parseInt(sequenceData["length"]) <= 0)
-		{
-			// return null to indicate an error
-			return null;
-		}
-
-		// overwrite container in any case (for consistency with the default view)
-		options.el = self.$el.find(".mutation-diagram-container");
-
-		// create a backbone collection for the given data
-		var mutationColl = new MutationCollection(mutationData);
-
-		var mutationDiagram = new MutationDiagram(gene, options, mutationColl);
-		mutationDiagram.initDiagram(sequenceData);
-
-		return mutationDiagram;
+		return diagramView;
 	},
 	/**
 	 * Initializes the mutation table view.
@@ -262,95 +230,6 @@ var MainMutationView = Backbone.View.extend({
 		mutationTableView.render();
 
 		return mutationTableView;
-	},
-	/**
-	 * Initializes the toolbar over the mutation diagram.
-	 *
-	 * @param diagram       the mutation diagram instance
-	 * @param geneSymbol    gene symbol as a string
-	 */
-	_initToolbar: function(diagram, geneSymbol) {
-		var self = this;
-
-		var toolbar = self.$el.find(".mutation-diagram-toolbar");
-		var pdfButton = self.$el.find(".diagram-to-pdf");
-		var svgButton = self.$el.find(".diagram-to-svg");
-		var customizeButton = self.$el.find(".diagram-customize");
-
-		// helper function to trigger submit event for the svg and pdf button clicks
-		var submitForm = function(alterFn, diagram, formClass)
-		{
-			// alter diagram to have the desired output
-			alterFn(diagram, false);
-
-			// convert svg content to string
-			var xmlSerializer = new XMLSerializer();
-			var svgString = xmlSerializer.serializeToString(diagram.svg[0][0]);
-
-			// restore previous settings after generating xml string
-			alterFn(diagram, true);
-
-			// set actual value of the form element (svgelement)
-			var form = self.$el.find("." + formClass);
-			form.find('input[name="svgelement"]').val(svgString);
-
-			// submit form
-			form.submit();
-		};
-
-		// helper function to adjust SVG for file output
-		var alterDiagramForSvg = function(diagram, rollback)
-		{
-			var topLabel = geneSymbol;
-
-			if (rollback)
-			{
-				topLabel = "";
-			}
-
-			// adding a top left label (to include a label in the file)
-			diagram.updateTopLabel(topLabel);
-		};
-
-		// helper function to adjust SVG for PDF output
-		var alterDiagramForPdf = function(diagram, rollback)
-		{
-			// we also need the same changes (top label) in pdf
-			alterDiagramForSvg(diagram, rollback);
-		};
-
-		//add listener to the svg button
-		svgButton.click(function (event) {
-			// submit svg form
-			submitForm(alterDiagramForSvg, diagram, "svg-to-file-form");
-		});
-
-		// add listener to the pdf button
-		pdfButton.click(function (event) {
-			// submit pdf form
-			submitForm(alterDiagramForPdf, diagram, "svg-to-pdf-form");
-		});
-
-		// add listeners to customize button
-		customizeButton.click(function(event) {
-			var panel = self.customizePanelView;
-
-			// init view if not init yet
-			if (!panel)
-			{
-				panel = new MutationCustomizePanelView({
-					el: self.$el.find(".mutation-diagram-customize"),
-					diagram: diagram});
-				panel.render();
-
-				self.customizePanelView = panel;
-			}
-
-			// toggle view
-			panel.toggleView();
-		});
-
-		toolbar.show();
 	},
 	/**
 	 * Initializes the filter reset link, which is a part of filter info

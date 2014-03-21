@@ -49,7 +49,7 @@
 				<td>
 					<div class='mutation-diagram-view'></div>
 				</td>
-				<td>
+				<td valign="bottom">
 					<div class="mutation-3d-initializer"></div>
 				</td>
 			</tr>
@@ -712,6 +712,7 @@
 <script type="text/javascript" src="js/src/mutation/view/Mutation3dVisInfoView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/MutationCustomizePanelView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/MutationDetailsTableView.js"></script>
+<script type="text/javascript" src="js/src/mutation/view/MutationDiagramView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/MutationDetailsView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/PdbChainTipView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/PdbPanelView.js"></script>

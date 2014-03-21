@@ -47,10 +47,6 @@
 	font-weight: bold;
 	font-style: italic;
 }
-.mutation-pdb-main-container .pdb-table-3d-icon {
-	cursor: pointer;
-	float: right;
-}
 .mutation-pdb-main-container {
 	margin-bottom: 10px;
 }
@@ -82,7 +78,8 @@
 	font-style: italic;
 	cursor: pointer;
 }
-.mutation-table-container .mutation-table-3d-link {
+.mutation-table-container .mutation-table-3d-link,
+.mutation-pdb-main-container .pdb-table-3d-link {
 	float: right;
 }
 .mutation-table-container .mutation-table-igv-icon {
@@ -93,7 +90,7 @@
 }
 .mutation-table-container .mutation-table-3d-icon,
 .mutation-pdb-main-container .pdb-table-3d-icon {
-	font-size: 95%;
+	font-size: 90%;
 	font-weight: bold;
 }
 .mutation-assessor-link {

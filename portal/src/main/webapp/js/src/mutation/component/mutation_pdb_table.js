@@ -273,6 +273,8 @@ function MutationPdbTable(options, headers)
 	{
 		//$(_options.el).on("click", "tr", function (event) {
 		$(_options.el).on("click", ".pbd-chain-table-chain-cell a", function (event) {
+			event.preventDefault();
+
 			// remove previous highlights
 			removeAllSelection();
 

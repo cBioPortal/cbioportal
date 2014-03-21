@@ -20,6 +20,9 @@ var JSmolWrapper = function()
 	var _container = null;
 	var _origin = cbio.util.getWindowOrigin();
 	var _commandQueue = [];
+	var _commandMap = {};
+
+	var _idCounter = 0;
 
 	// default options
 	var defaultOpts = {
@@ -96,21 +99,33 @@ var JSmolWrapper = function()
 			// done event: supposed to be fired when JSmol finishes executing a script
 			else if (event.data.type == "done")
 			{
-				var command = _commandQueue.shift();
-				var callback = command.callback;
+				var command = _commandMap[event.data.scriptId];
 
-				// check for a registered callback
-				if (callback &&
-				    _.isFunction(callback))
+				if (command != null)
 				{
-					// call the registered callback function
-					callback();
+					// remove the command to prevent possible multiple executions
+					delete _commandMap[event.data.scriptId];
+
+					// check for a registered callback
+
+					var callback = command.callback;
+
+					if (callback &&
+					    _.isFunction(callback))
+					{
+						// call the registered callback function
+						callback();
+					}
 				}
 
 				// see if there are more commands to send
 				if (!_.isEmpty(_commandQueue))
 				{
-					command = _.first(_commandQueue);
+					// get the next command from the queue
+					command = _commandQueue.shift();
+					// add it to the map to access the callback when "done"
+					_commandMap[command.data.scriptId] = command;
+					// send the command
 					_targetWindow.postMessage(command.data, _origin);
 				}
 			}
@@ -140,12 +155,6 @@ var JSmolWrapper = function()
 		{
 			console.log("warning: JSmol frame cannot be initialized properly");
 		}
-		else
-		{
-			$('#jsmol_frame').bind('click', function(event) {
-				alert("test");
-			});
-		}
 	}
 
 	/**
@@ -158,7 +167,11 @@ var JSmolWrapper = function()
 	{
 		if (_targetWindow)
 		{
-			var data = {type: "script", content: command};
+			_idCounter = (_idCounter + 1) % 1000000;
+
+			var data = {type: "script",
+				content: command,
+				scriptId: "script_" + (_idCounter)};
 
 			// queue the command, this prevents simultaneous JSmol script calls
 			queue(data, callback);
@@ -211,18 +224,23 @@ var JSmolWrapper = function()
 	 */
 	function queue(data, callback)
 	{
+		var command = {data: data, callback: callback};
+
 		// TODO not always safe -- producer/consumer problem, may run into a deadlock...
 
 		// immediately post message if the queue is empty
 		if (_.isEmpty(_commandQueue))
 		{
-			_commandQueue.push({data: data, callback: callback});
+			// add the command to the map to access the callback when "done"
+			_commandMap[command.data.scriptId] = command;
+			// send the command
 			_targetWindow.postMessage(data, _origin);
 		}
 		// add command to the queue (message will be post after a "done" event)
 		else
 		{
-			_commandQueue.push({data: data, callback: callback});
+			// add the command to the queue
+			_commandQueue.push(command);
 		}
 	}
 

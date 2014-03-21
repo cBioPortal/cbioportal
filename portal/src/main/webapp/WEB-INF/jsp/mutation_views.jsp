@@ -451,9 +451,9 @@
 <script type="text/template" id="mutation_pdb_table_chain_cell_template">
 	<span class="pbd-chain-table-chain-cell">
 		<label>{{chainId}}</label>
-		<a>
+		<a href="#" class="pdb-table-3d-link">
 			<span alt="Click to update the 3D view with this chain"
-			      class="simple-tip pdb-table-3d-icon">3D</span>
+			      class="pdb-table-3d-icon">3D</span>
 		</a>
 	</span>
 </script>

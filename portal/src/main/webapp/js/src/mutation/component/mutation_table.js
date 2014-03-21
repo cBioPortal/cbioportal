@@ -35,7 +35,6 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 			"type": "visible",
 			"cosmic": "visible",
 			"mutation assessor": "visible",
-			"vs": "visible",
 			"#mut in sample": "visible",
 			"mutation id": "excluded",
 			"cancer study": "excluded",
@@ -66,6 +65,14 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 			},
 			"ms": function (util, gene) {
 				if (util.containsGermline(gene)) {
+					return "visible";
+				}
+				else {
+					return "hidden";
+				}
+			},
+			"vs": function (util, gene) {
+				if (util.containsValidStatus(gene)) {
 					return "visible";
 				}
 				else {
@@ -272,13 +279,14 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 			count++;
 		}
 
-		// except these 4, exclude any other column from search
+		// except the ones below, exclude any other column from search
 		for (var col=0; col<count; col++)
 		{
 			var searchable = col == indexMap["case id"] ||
 					col == indexMap["mutation id"] ||
 					col == indexMap["cancer study"] ||
 					col == indexMap["aa change"] ||
+					col == indexMap["tumor type"] ||
 					col == indexMap["type"];
 
 			if (!searchable)

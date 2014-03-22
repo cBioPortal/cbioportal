@@ -22,7 +22,7 @@
                         <th class="mut-header" alt="Copy-number status of the mutated gene"><b>Copy #</b></th>
                         <th class="mut-header" alt="Percentile of mRNA expression of the mutated gene in this tumor comparing to the cohort"><b>mRNA Expr.</b></th>
                         <th class="mut-header" alt="Mutation frequency in cohort"><b>Cohort</b></th>
-                        <th class="mut-header" alt="Mutation frequency in Portal"><b>cBioPortal</b></th>
+                        <th class="mut-header" width="160px" alt="Mutation frequency in cBioPortal"><b>cBioPortal</b></th>
                         <th class="mut-header" alt="COSMIC occurrences"><b>COSMIC</b></th>
                         <th class="mut-header" alt="Functional Impact predicted by MutationAssessor (missense mutations only)"><b>Mutation<br/>Assessor</b></th>
                         <th class="mut-header" alt="Potential Drugs"><b>Drugs</b></th>

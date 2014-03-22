@@ -44,6 +44,7 @@
       <intercept-url pattern="/data_sets.jsp" access="isAuthenticated()"/>
       <intercept-url pattern="/about_us.jsp" access="isAuthenticated()"/>
       <intercept-url pattern="/web_api.jsp" access="isAuthenticated()"/>
+      <intercept-url pattern="/jobs.jsp" access="isAuthenticated()"/>
       <intercept-url pattern="/cgds_r.jsp" access="isAuthenticated()"/>
       <intercept-url pattern="/networks.jsp" access="isAuthenticated()"/>
       <intercept-url pattern="/protein_exp.jsp" access="isAuthenticated()"/>

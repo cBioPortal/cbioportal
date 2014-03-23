@@ -71,15 +71,6 @@ public class PatientView extends HttpServlet {
     // class which process access control to cancer studies
     private AccessControl accessControl;
 
-    private static List<Map<String, Object>> CANCER_STUDY_META_DATA;
-    static {
-        try {
-            CANCER_STUDY_META_DATA = DaoCaseProfile.metaData();
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-        }
-    }
-
     /**
      * Initializes the servlet.
      *
@@ -265,7 +256,7 @@ public class PatientView extends HttpServlet {
     }
 
     private void setCancerStudyMetaData(HttpServletRequest request) throws DaoException, ProtocolException {
-        request.setAttribute(CANCER_STUDY_META_DATA_KEY_STRING, CANCER_STUDY_META_DATA);
+        request.setAttribute(CANCER_STUDY_META_DATA_KEY_STRING, DaoCaseProfile.metaData(accessControl.getCancerStudies()));
     }
     
     private void setNumCases(HttpServletRequest request) throws DaoException {

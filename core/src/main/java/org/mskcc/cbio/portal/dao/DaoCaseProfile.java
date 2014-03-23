@@ -166,14 +166,7 @@ public final class DaoCaseProfile {
      * @author Gideon Dresdner <dresdnerg@cbio.mskcc.org>
      *
      */
-    public static List<Map<String, Object>> metaData() throws DaoException, ProtocolException {
-
-        // get all cancer studies according to the security context
-        ApplicationContext context =
-                new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
-        AccessControl accessControl = (AccessControl)context.getBean("accessControl");
-        List<CancerStudy> cancerStudies = accessControl.getCancerStudies();
-
+    public static List<Map<String, Object>> metaData(List<CancerStudy> cancerStudies) throws DaoException, ProtocolException {
         // collect all mutationProfileIds
         Map<Integer, GeneticProfile> id2MutationProfile = new HashMap<Integer, GeneticProfile>();
         for (CancerStudy cancerStudy : cancerStudies) {
@@ -221,12 +214,13 @@ public final class DaoCaseProfile {
                 data.add(datum);
             }
 
-            return data;
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
             JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
         }
+        
+	return data;
     }
 
     public static void deleteAllRecords() throws DaoException {

@@ -80,8 +80,14 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
         bygene: generate_cancer_study2datum(bygene_data)
     };
 
-    bykeyword_data = _.values(cancer_study2datum.bykeyword);
-    bygene_data = _.values(cancer_study2datum.bygene);
+    var commonKeys = _.intersection( _.keys(cancer_study2datum.bykeyword), _.keys(cancer_study2datum.bygene) );
+    bykeyword_data = [];
+    bygene_data = [];
+    _.each(commonKeys, function(aKey) {
+	bykeyword_data.push(cancer_study2datum.bykeyword[aKey]);
+        bygene_data.push(cancer_study2datum.bygene[aKey]);
+    });
+
 
     if (bygene_data.length !== bykeyword_data.length) {
         throw new Error("must be same length");

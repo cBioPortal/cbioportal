@@ -813,7 +813,8 @@
                     addCosmicTooltip(table_id);
                     listenToBamIgvClick(".igv-link");
                     drawPanCanThumbnails(this);
-
+                    
+                    oTable.fnAdjustColumnSizing();
                 },
                 "aaSorting": [[mutTableIndices["cosmic"],'desc'],[mutTableIndices["altrate"],'desc']],
                 "oLanguage": {
@@ -826,7 +827,7 @@
                 "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
         } );
 
-        oTable.css("width","100%");
+        oTable.css("width","95%");
         addNoteTooltip("#"+table_id+" th.mut-header");
 
         genomicEventObs.subscribePancanMutationsFrequency(function() {

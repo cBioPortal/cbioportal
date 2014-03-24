@@ -5,7 +5,7 @@
 <style type="text/css" title="currentStyle">
 	@import "css/data_table_jui.css";
 	@import "css/data_table_ColVis.css";
-	@import "css/mutation_details.css";
+	@import "css/mutation/mutation_details.css";
 	@import "css/mutation/mutation_table.css";
 	@import "css/mutation/mutation_3d.css";
 	@import "css/mutation/mutation_diagram.css";

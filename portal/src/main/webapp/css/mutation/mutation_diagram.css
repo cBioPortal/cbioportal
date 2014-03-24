@@ -1,0 +1,47 @@
+.diagram-lollipop-tip,
+.diagram-region-tip {
+	font-size: 12px;
+}
+.diagram_toolbar {
+	padding-top: 10px;
+	padding-left: 10px;
+}
+.mutation-diagram-customize {
+	margin-top: 5px;
+	padding: 5px;
+	background-color: #eeeeee;
+	border: 1px solid #d3d3d3;
+}
+.mutation-diagram-customize table {
+	width: 100%;
+}
+.diagram-customize-close {
+	float: right;
+}
+.diagram-customize {
+	margin-left: 25px;
+}
+.diagram-y-axis-slider-area {
+	width: 230px;
+}
+.diagram-y-axis-slider-area .diagram-slider-min-label {
+	float: left;
+	text-align: right;
+	font-size: 90%;
+}
+.diagram-y-axis-slider-area .diagram-slider-max-label {
+	float: right;
+	text-align: left;
+	font-size: 90%;
+}
+.diagram-y-axis-slider-area .diagram-slider-title {
+	text-align: center;
+	font-weight: bold;
+	margin-bottom: 5px;
+}
+.diagram-y-axis-limit-input {
+	margin-left: 8px;
+}
+.mut-dia-data-point {
+	cursor: pointer;
+}

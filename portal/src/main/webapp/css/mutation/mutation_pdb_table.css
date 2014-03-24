@@ -1,0 +1,52 @@
+.pdb-chain-table-container .dataTables_filter {
+	width: 200px;
+}
+.pdb-chain-table-container .dataTables_filter input {
+	width: 120px;
+}
+.pdb-chain-table-container .dataTables_info {
+	width: 300px;
+}
+.mutation-pdb-table-view .ColVis {
+	float: left;
+	padding-right: 15%;
+	margin-bottom: 0;
+}
+.mutation-pdb-main-container .pdb-chain-table {
+	font-size: 90%;
+	color: black;
+}
+.mutation-pdb-main-container .pdb-chain-table td {
+	font-size: 100%;
+}
+.mutation-pdb-main-container .pdb-chain-table-container {
+	width: 670px;
+	padding-left: 40px;
+}
+.mutation-pdb-main-container .pdb-chain-table-loader {
+	padding-left: 40px;
+}
+.mutation-pdb-main-container .pbd-chain-table-chain-cell label {
+	font-weight: bold;
+	font-style: italic;
+}
+.pdb-table-controls td {
+	padding-left: 45px;
+}
+.pdb-table-controls .triangle {
+	float: left;
+	cursor: pointer;
+}
+th.mutation-pdb-table-column {
+	font-weight: bold !important;
+}
+
+.mutation_pdb_datatable_filter {
+	float: right;
+	padding-top: 3px;
+}
+.mutation_pdb_datatable_info {
+	float: left;
+	padding-top: 5px;
+	font-size: 90%;
+}

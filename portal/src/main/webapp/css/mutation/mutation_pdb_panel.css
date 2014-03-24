@@ -1,0 +1,20 @@
+.mutation-pdb-main-container {
+	margin-bottom: 10px;
+}
+.mutation-pdb-main-container .mutation-pdb-panel-container {
+	overflow: hidden;
+	max-height: 200px;
+}
+.mutation-pdb-main-container .pdb-table-3d-icon {
+	font-size: 90%;
+	font-weight: bold;
+}
+.mutation-pdb-main-container .pdb-table-3d-link {
+	float: right;
+}
+.pdb-chain-tip {
+	font-size: 12px;
+}
+.pdb-chain-group{
+	cursor: pointer;
+}

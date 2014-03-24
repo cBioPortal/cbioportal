@@ -47,3 +47,91 @@
 	margin-left: 3px;
 }
 */
+
+.mutation-table-container .dataTables_filter {
+	width: 200px;
+}
+.mutation-table-container .dataTables_filter input {
+	width: 120px;
+}
+.mutation-table-container .dataTables_info {
+	width: 300px;
+}
+.mutation-table-container .ColVis {
+	float: left;
+	padding-right: 25%;
+	margin-bottom: 0;
+}
+.mutation-table-container .unknown {
+	background: #E0E0E0;
+	color: #000000;
+	padding-left:5px;
+	padding-right:5px;
+}
+.mutation-table-container .mutation-table-protein-change {
+	font-weight: bold;
+	font-style: italic;
+	cursor: pointer;
+}
+.mutation-table-container .mutation-table-3d-link {
+	float: right;
+}
+.mutation-table-container .mutation-table-igv-icon {
+	background-color: #88C;
+	color: white;
+	padding-left: 6px;
+	padding-right: 6px;
+}
+.mutation-table-container .mutation-table-3d-icon {
+	font-size: 90%;
+	font-weight: bold;
+}
+.mutation-table-container .best_effect_transcript {
+	color: red;
+}
+.mutation-table-container .mutation_details_table {
+	font-size: 90%;
+	color: black;
+}
+.mutation-table-container .mutation_details_table td {
+	font-size: 100%;
+}
+.mutation-table-container .mutation_table_cosmic {
+	/*cursor: pointer;
+	color: #1974B8;*/
+}
+
+/*
+th.mutation-details-qtip-style {
+    font-size: 115%;
+}
+*/
+table.display tr.even.mutation-table-highlight td {
+	background-color: #E9E900;
+}
+table.display tr.odd.mutation-table-highlight td {
+	background-color: #E0E000;
+}
+.mutation-table-container {
+	margin-bottom: 40px;
+}
+.mutation-table-header {
+	font-weight: bold !important;
+}
+
+.cosmic-details-tip-info {
+	padding-bottom: 5px;
+}
+.cosmic-details-table {
+	font-size: 11px !important;
+}
+
+.mutation_datatables_filter {
+	float: right;
+	padding-top: 3px;
+}
+.mutation_datatables_info {
+	float: left;
+	padding-top: 5px;
+	font-size: 90%;
+}

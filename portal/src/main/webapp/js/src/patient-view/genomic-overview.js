@@ -260,8 +260,9 @@ function underlineText(textElement,p) {
 }
 
 function translateChm(chm) {
+    if (chm.toLowerCase().indexOf("chr")===0) chm=chm.substring(3);
     if (chm==='X'||chm==='x') chm = 23;
     if (chm==='Y'||chm==='y') chm = 24;
     if (isNaN(chm) || chm < 1 || chm > 24) return null;
-    return chm;
+    return parseInt(chm);
 }

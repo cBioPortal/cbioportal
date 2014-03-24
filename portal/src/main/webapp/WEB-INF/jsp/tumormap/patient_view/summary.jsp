@@ -242,8 +242,7 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
 
             // create a plot on a hidden element
             var hidden_plot_id = '#allele-freq-plot-big';
-            window.allelefreqplot = AlleleFreqPlot($(hidden_plot_id)[0],
-                    AlleleFreqPlotUtils.extract_and_process(genomicEventObs, caseIds[0]));
+            window.allelefreqplot = AlleleFreqPlot($(hidden_plot_id)[0], processed_data);
 
             // add qtip on allele frequency plot thumbnail
             $(thumbnail).qtip({
@@ -290,7 +289,7 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
                 hide: {fixed: true, delay: 100, event: "mouseout"},
                 style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow', tip: false},
                 //position: {my:'left top',at:'bottom center'}
-                position: {my:'top right',at:'top right'},
+                position: {my:'top right',at:'top right'}
             });
         });
     });

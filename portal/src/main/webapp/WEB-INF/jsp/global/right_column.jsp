@@ -29,7 +29,8 @@
     <h3>What's New</h3>
 
     <p>
-    <b>&bull; <a href="http://www.cbioportal.org/public-portal/sci_signal_reprint.jsp">New <i>Protocol</i> paper in Science Signaling</a></b>
+    &bull;<a href="jobs.jsp">(3/2013) We are hiring a data curator</a><br>
+    &bull;<a href="news.jsp">(3/2013) New data and features released</a>
     </p>
     
     <form action="http://groups.google.com/group/cbioportal-news/boxsubscribe">

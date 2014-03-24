@@ -257,6 +257,12 @@ var StudyViewBoilerplate ={
             "<div id='study-view-scatter-plot-loading-img'></div>"+
             "<div id='study-view-scatter-plot-control-panel'></div>"+
             "</div>",
+    
+    wordCloudDiv:
+            "<div id='study-view-word-cloud' class='study-view-dc-chart study-view-word-cloud'>" +
+                "<div style='width:180px; float:right; text-align:center;'>"+
+                "<span class='study-view-word-cloud-delete'>x</span></div>"+
+            "</div>",
     dataTableDiv: 
             "<table id='dataTable'>"+
             "<tfoot>"+

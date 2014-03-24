@@ -2,8 +2,12 @@
 var LoadingJS = (function(){
     //Tmp include public libraries in here, will change JSarray to empty array
     //before merge study view to default branch
-    var JSPublic = ['dc','crossfilter','dataTables.fixedColumns','util/StudyViewBoilerplate'
-                    ];
+    var JSPublic = [
+                    'dc',
+                    'crossfilter',
+                    'dataTables.fixedColumns',
+                    'util/StudyViewBoilerplate',
+                    'd3.layout.cloud'];
     
     //As input for RequireJS
     var JSarray = [];
@@ -30,7 +34,8 @@ var LoadingJS = (function(){
                         'StudyViewInitMiddleComponents',
                         'StudyViewInitTopComponents',
                         'StudyViewInitScatterPlot',
-                        'StudyViewInitIntroJS'],
+                        'StudyViewInitIntroJS',
+                        'StudyViewInitWordCloud'],
                 controller: ['StudyViewControl']
             };
             

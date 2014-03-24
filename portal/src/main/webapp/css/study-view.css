@@ -235,6 +235,15 @@
 .study-view-pie-label table td:hover{
     cursor: pointer;
 }
+.study-view-word-cloud {
+    float:left;
+    width:180px;
+    height:220px;
+    border:1px;
+    border-color:lightgrey;
+    border-style:solid;
+    margin-bottom: 10px;
+}
 
 .w2{
     width:370px;
@@ -295,6 +304,12 @@
     margin-right: 5px;
     color: lightgray;
     cursor: pointer;
+}
+.study-view-word-cloud-delete{  
+    margin-right: 5px;
+    color: lightgray;
+    cursor: pointer;
+    float: right;
 }
 .study-view-dc-chart-change {
     float: right;

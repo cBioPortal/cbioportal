@@ -91,6 +91,14 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		// init buttons
 		self._initButtons();
+
+		// make the main container draggable
+		container3d.draggable({handle: ".mutation-3d-info-title",
+			start: function( event, ui ) {
+				// fix the width to prevent resize during drag
+				var width = container3d.css("width");
+				container3d.css("width", width);
+			}});
 	},
 	/**
 	 * Initializes the control buttons.
@@ -624,6 +632,16 @@ var Mutation3dVisView = Backbone.View.extend({
 		}
 	},
 	/**
+	 * Resets the position of the 3D panel to its initial state.
+	 */
+	resetPanelPosition: function()
+	{
+		var self = this;
+		var container3d = self.$el;
+
+		container3d.css({"left": "", "width": ""});
+	},
+	/**
 	 * Hides the 3D visualizer panel.
 	 */
 	hideView: function()
@@ -636,6 +654,12 @@ var Mutation3dVisView = Backbone.View.extend({
 		{
 			mut3dVis.hide();
 		}
+
+		// TODO ideally we should reset the panel before showing it,
+		// but there are some problems with css updating
+
+		// reset the panel to its initial state
+		self.resetPanelPosition();
 
 		// trigger corresponding event
 		self.dispatcher.trigger(

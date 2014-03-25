@@ -124,7 +124,8 @@ var MutationDetailsController = function(
 
 			// init controllers
 			new MainMutationController(mainView, components.diagram);
-			new MutationDetailsTableController(components.tableView, components.diagram);
+			new MutationDetailsTableController(
+				components.tableView, components.diagram, mutationDetailsView);
 
 			if (mut3dVis &&
 			    _mut3dVisView)

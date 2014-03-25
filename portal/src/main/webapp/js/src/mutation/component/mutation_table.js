@@ -398,7 +398,10 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 	    //oTable.css("width", "100%");
 
 		$(window).bind('resize', function () {
-			oTable.fnAdjustColumnSizing();
+			if (oTable.is(":visible"))
+			{
+				oTable.fnAdjustColumnSizing();
+			}
 		});
 
 		// return the data table instance

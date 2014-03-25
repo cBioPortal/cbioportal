@@ -639,7 +639,7 @@ var Mutation3dVisView = Backbone.View.extend({
 		var self = this;
 		var container3d = self.$el;
 
-		container3d.css({"left": "", "width": ""});
+		container3d.css({"left": "", "width": "", "top": 0});
 	},
 	/**
 	 * Hides the 3D visualizer panel.
@@ -654,12 +654,6 @@ var Mutation3dVisView = Backbone.View.extend({
 		{
 			mut3dVis.hide();
 		}
-
-		// TODO ideally we should reset the panel before showing it,
-		// but there are some problems with css updating
-
-		// reset the panel to its initial state
-		self.resetPanelPosition();
 
 		// trigger corresponding event
 		self.dispatcher.trigger(

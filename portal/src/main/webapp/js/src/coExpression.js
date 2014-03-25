@@ -299,7 +299,7 @@ var CoExpView = (function() {
                         $("#" + Names.plotId).empty();
                         $("#" + Names.plotId).append("<img style='padding:220px;' src='images/ajax-loader.gif'>");
                         var coexpPlots = new CoexpPlots();
-                        coexpPlots.init(Names.plotId, geneId, aData[0], aData[1], aData[2]);
+                        coexpPlots.init(Names.plotId, geneId, aData[0], aData[1], aData[2], $("#coexp-profile-selector :selected").val());
                     }
                 })
             }

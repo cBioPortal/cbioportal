@@ -39,16 +39,17 @@
 
 var CoexpPlots = function() {
 
-    function init(divName, geneX, geneY, pearson, spearman)  {
-        getAlterationData(divName, geneX, geneY, pearson, spearman);
+    function init(divName, geneX, geneY, pearson, spearman, profileId)  {
+        getAlterationData(divName, geneX, geneY, pearson, spearman, profileId);
     }
 
-    function getAlterationData(divName, geneX, geneY, pearson, spearman) {
+    function getAlterationData(divName, geneX, geneY, pearson, spearman, profileId) {
         var paramsGetAlterationData = {
             cancer_study_id: window.PortalGlobals.getCancerStudyId(),
             gene_list: geneX + " " + geneY,
             case_set_id: window.PortalGlobals.getCaseSetId(),
-            case_ids_key: window.PortalGlobals.getCaseIdsKey()
+            case_ids_key: window.PortalGlobals.getCaseIdsKey(),
+            profile_id: profileId
         };
         $.post(
             "getAlterationData.json", 

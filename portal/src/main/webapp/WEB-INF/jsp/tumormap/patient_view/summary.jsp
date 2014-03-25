@@ -51,7 +51,6 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
             return;
         }
         
-        $('#mutation_summary_wrapper_table').hide();
         $('#cna_summary_wrapper_table').hide();
         if (!genomicEventObs.hasMut||!genomicEventObs.hasSeg) $('#mut-cna-scatter').hide();
         if (showGenomicOverview) initGenomicsOverview();
@@ -302,7 +301,7 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
 <tr valign="top">
 <td>
 <div id="mutation_summary_wait"><img src="images/ajax-loader.gif"/> Loading mutations ...</div>
-<table cellpadding="0" cellspacing="0" border="0" id="mutation_summary_wrapper_table" width="100%">
+<table cellpadding="0" cellspacing="0" border="0" id="mutation_summary_wrapper_table" width="100%" style="display:none;">
     <tr>
         <td>
             <table cellpadding="0" cellspacing="0" border="0" class="display" id="mutation_summary_table">

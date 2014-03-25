@@ -29,8 +29,8 @@
     <h3>What's New</h3>
 
     <p>
-    &bull;<a href="jobs.jsp">(3/2013) We are hiring a data curator</a><br>
-    &bull;<a href="news.jsp">(3/2013) New data and features released</a>
+    &bull;<a href="jobs.jsp"> <b>We are hiring a data curator</b></a><br>
+    &bull;<a href="news.jsp"> <b>New data and features released</b></a>
     </p>
     
     <form action="http://groups.google.com/group/cbioportal-news/boxsubscribe">

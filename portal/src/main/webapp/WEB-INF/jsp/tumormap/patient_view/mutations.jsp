@@ -971,7 +971,6 @@
     
     $(document).ready(function(){
         $('#mutation_id_filter_msg').hide();
-        $('#mutation_wrapper_table').hide();
         var params = {
             <%=PatientView.CASE_ID%>:caseIdsStr,
             <%=PatientView.MUTATION_PROFILE%>:mutationProfileId
@@ -1180,7 +1179,7 @@
 <div id="mutation_id_filter_msg"><font color="red">The following table contains filtered mutations.</font>
 <button onclick="unfilterMutationsTableByIds(); return false;" style="font-size: 1em;">Show all mutations</button></div>
 <div  id="pancan_mutations_histogram_container"></div>
-<table cellpadding="0" cellspacing="0" border="0" id="mutation_wrapper_table" width="100%">
+<table cellpadding="0" cellspacing="0" border="0" id="mutation_wrapper_table" width="100%" style="display:none;">
     <tr>
         <td>
             <table cellpadding="0" cellspacing="0" border="0" class="display" id="mutation_table">

@@ -1,4 +1,4 @@
-# March 21, 2014
+# March 25, 2014
 * New features:
     * Visualizing of mutations mapped on 3D structures (individual or multiple mutations, directly in the browser)
     * Gene expression correlation analysis (find all genes with expression correlation to your query genes)

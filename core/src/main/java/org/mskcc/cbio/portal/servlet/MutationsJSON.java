@@ -4,6 +4,7 @@ package org.mskcc.cbio.portal.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
+import java.util.regex.Pattern;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -73,16 +74,30 @@ public class MutationsJSON extends HttpServlet {
             mutationProfile = DaoGeneticProfile.getGeneticProfileByStableId(mutationProfileId);
             if (mutationProfile!=null) {
                 int profileId = mutationProfile.getGeneticProfileId();
+                Set<String> selectedCaseList = new HashSet<String>();
+                
+                if (request.getParameterMap().containsKey("case_list")) {
+                    String caseList = request.getParameter("case_list");
+                    Pattern p = Pattern.compile("[,\\s]+");
+                    String cases[] = p.split(caseList);
+                    for (String selectedCase : cases) {
+                        selectedCase = selectedCase.trim();
+                        if (selectedCase.length() == 0) {
+                            continue;
+                        }
+                        selectedCaseList.add("'" + selectedCase + "'");
+                    }
+                }
                 
                 // get all recurrently mutation genes
-                smgs = DaoMutation.getSMGs(profileId, null, 2, DEFAULT_THERSHOLD_NUM_SMGS);
+                smgs = DaoMutation.getSMGs(profileId, null, 2, DEFAULT_THERSHOLD_NUM_SMGS, (selectedCaseList.isEmpty()? null: selectedCaseList));
                 
                 // get all cbio cancer genes
                 Set<Long> cbioCancerGeneIds = daoGeneOptimized.getEntrezGeneIds(
                         daoGeneOptimized.getCbioCancerGenes());
                 cbioCancerGeneIds.removeAll(smgs.keySet());
                 if (!cbioCancerGeneIds.isEmpty()) {
-                    smgs.putAll(DaoMutation.getSMGs(profileId, cbioCancerGeneIds, -1, -1));
+                    smgs.putAll(DaoMutation.getSMGs(profileId, cbioCancerGeneIds, -1, -1, (selectedCaseList.isEmpty()? null: selectedCaseList)));
                 }
                 
                 // added mutsig results
@@ -92,7 +107,7 @@ public class MutationsJSON extends HttpServlet {
                     mutsigGenes.removeAll(smgs.keySet());
                     if (!mutsigGenes.isEmpty()) {
                         // append mutsig genes
-                        smgs.putAll(DaoMutation.getSMGs(profileId, mutsigGenes, -1, -1));
+                        smgs.putAll(DaoMutation.getSMGs(profileId, mutsigGenes, -1, -1, (selectedCaseList.isEmpty()? null: selectedCaseList)));
                     }
                 }
             }

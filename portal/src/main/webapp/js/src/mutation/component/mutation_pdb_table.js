@@ -56,7 +56,7 @@ function MutationPdbTable(options, headers)
 		// visibility, sorting, and filtering. Proceed wisely ;)
 		dataTableOpts: {
 			//"sDom": '<"H"<"mutation_datatables_filter"f>C<"mutation_datatables_info"i>>t',
-			"sDom": '<"H"<"mutation_datatables_filter"f><"mutation_datatables_info"i>>t',
+			"sDom": '<"H"<"mutation_pdb_datatable_info"i><"mutation_pdb_datatable_filter"f>>t',
 			"bJQueryUI": true,
 			"bPaginate": false,
 			"bFilter": true,

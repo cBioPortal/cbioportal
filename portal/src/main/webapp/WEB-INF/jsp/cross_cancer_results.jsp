@@ -38,8 +38,12 @@
 <script type="text/javascript" src="js/src/crosscancer.js"></script>
 <link href="css/data_table_ColVis.css" type="text/css" rel="stylesheet" />
 <link href="css/data_table_jui.css" type="text/css" rel="stylesheet" />
-<link href="css/mutation_details.css" type="text/css" rel="stylesheet" />
+<link href="css/mutation/mutation_details.css" type="text/css" rel="stylesheet" />
 <link href="css/mutation/mutation_table.css" type="text/css" rel="stylesheet" />
+<link href="css/mutation/mutation_3d.css" type="text/css" rel="stylesheet" />
+<link href="css/mutation/mutation_diagram.css" type="text/css" rel="stylesheet" />
+<link href="css/mutation/mutation_pdb_panel.css" type="text/css" rel="stylesheet" />
+<link href="css/mutation/mutation_pdb_table.css" type="text/css" rel="stylesheet" />
 <link href="css/crosscancer.css" type="text/css" rel="stylesheet" />
 
 <%

@@ -21,27 +21,12 @@
             <td>
             <h2>Genomic Data and Scientific Content Curator for cBioPortal</h2>
             <div>
-            <p>Memorial Sloan Kettering Cancer Center is a world renowned organization
-               dedicated to the progressive control and cure of cancer through programs
-               of patient care, research, and education. The mission of the <b>Center for
-               Molecular Oncology (CMO)</b> is to promote precision oncology through genomic
-               analysis to guide the diagnosis and treatment of cancer patients. The
-               CMO brings together clinicians and scientists throughout MSKCC to conduct
-               large-scale translational research involving molecular characterization
-               of patient tumor specimens in order to identify correlations between
-               genomic features and clinical outcomes.</p>
                 
-            <p>We are looking for a <b>Genomic Data and Scientific Content Curator</b>
-               to support the <b>cBioPortal for Cancer Genomics</b> (http://cbioportal.org).
-               The cBioPortal is a highly successful tool that supports the Center
-               for Molecular Oncology (CMO) at Memorial Sloan-Kettering Cancer
-               Center as well as thousands of cancer researchers and clinicians
-               around the globe. To take the Portal to the next level and to
-               transition it towards use in the clinic, we are looking to improve
-               and expand its data content. The Curator will be responsible for
-               the <b>collection, maintenance, and quality control of genomic alteration
-               data</b> and related <b>clinical annotation</b> for the cBioPortal.</p>
-
+            <p>We are looking for a <b>Genomic Data and Scientific Content Curator</b> to support cBioPortal.
+                To take the Portal to the next level and to transition it towards use in the clinic,
+                we are looking to improve and expand its data content. The Curator will be responsible
+                for the <b>collection, maintenance, and quality control of genomic alteration data</b> and
+                related <b>clinical annotation</b> for the cBioPortal.
             <p>
                 <h3>Responsibilities</h3>
                 <ul>
@@ -54,7 +39,6 @@
                 <li>Update website content and help prepare educational documents</li>
                 </ul>
             </p>
-
             <p>
                 <h3>Required Skills</h3>
                 <ul>
@@ -66,7 +50,6 @@
                 <li>Ability to work in a team</li>
                 </ul>
             </p>
-
             <p>
                 To apply please send your resume to: cbioportaljobs@gmail.com.
                 In the subject line please add #Datacurator ....

@@ -101,9 +101,14 @@ var CoExpView = (function() {
 
         function filterProfiles(_profileList) {
             $.each(_profileList, function(i, obj) {
-                if (obj["GENETIC_ALTERATION_TYPE"] === "MRNA_EXPRESSION" && //only take mrna profiles
-                    obj["STABLE_ID"].toLowerCase().indexOf("zscores") === -1) { //elimiate z-score profiles
-                    profileList.push(obj);
+                if (obj["GENETIC_ALTERATION_TYPE"] === "MRNA_EXPRESSION") {
+                    if (obj["STABLE_ID"].toLowerCase().indexOf("zscores") !== -1) {
+                        if (obj["STABLE_ID"].toLowerCase().indexOf("merged_median_zscores") !== -1) {
+                            profileList.push(obj);
+                        }
+                    } else {
+                        profileList.push(obj);
+                    }
                 }
             })
             //swap the rna seq profile to the top

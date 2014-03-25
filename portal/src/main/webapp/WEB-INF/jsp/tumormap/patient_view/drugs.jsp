@@ -188,7 +188,7 @@
                         keywords.push(drug[2]);
                     }
 
-                    $("#pv-drugs-table").dataTable({
+                    var drugsTable = $("#pv-drugs-table").dataTable({
                         "sDom": '<"H"<"drugs-summary-table-name">fr>t<"F"<"drugs-show-more"><"datatable-paging"pl>>',
                         "bJQueryUI": true,
                         "bDestroy": true,
@@ -202,6 +202,7 @@
                         "iDisplayLength": 25,
                         "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
                     });
+                    drugsTable.css("width","100%");
 
                     $(".drug-synoynms").qtip({
                         content: { attr: 'title' },
@@ -306,6 +307,7 @@
                         "iDisplayLength": 25,
                         "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
                     });
+                    clinicalTrialsDataTable.css("width","100%");
 
                     // Done with the loading. Hide the image.
                     $("#trials_wait").hide();

@@ -9,4 +9,4 @@ Questions and feedback:  <%= GlobalProperties.getEmailContact() %>
 <% if (GlobalProperties.getAppName().equalsIgnoreCase("public-portal")) { %>
  | <a href="http://groups.google.com/group/cbioportal">User discussion group</a>
 <% } %>
-</td></tr></table> <!--end of page_wrapper-->
+</div> <!--end of page_wrapper-->

@@ -35,11 +35,26 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 var StudyViewInitWordCloud = (function() {
     //The length of words should be same with the length of fontSize.
     var words = [],
-        fontSize = [];
+        fontSize = [],
+        parObject = {
+            studyId: "",
+            caseIds: "",
+            cnaProfileId: "",
+            mutationProfileId: "",
+            caseSetId: ""
+        };
+        
+    function initData(_data){
+        words = _data.names;
+        fontSize = _data.size;
+    }
     
     function initParams(_params){
-        words = _params.names;
-        fontSize = _params.size;
+        parObject.studyId = _params.studyId;
+        parObject.caseIds = _params.caseIds;
+        parObject.cnaProfileId = _params.cnaProfileId;
+        parObject.mutationProfileId = _params.mutationProfileId;
+        parObject.caseSetId = _params.caseSetId;
     }
     
     function initDiv(){
@@ -52,9 +67,9 @@ var StudyViewInitWordCloud = (function() {
 
         d3.select("#study-view-word-cloud").append("svg")
             .attr("width", 180)
-            .attr("height", 200)
+            .attr("height", 180)
           .append("g")
-            .attr("transform", "translate(90,100)")
+            .attr("transform", "translate(90,90)")
           .selectAll("text")
             .data(words)
           .enter().append("text")
@@ -62,16 +77,28 @@ var StudyViewInitWordCloud = (function() {
             .style("font-family", "Impact")
             //.style("fill", function(d, i) { return fill(i); })
             .style("fill", 'green')
+            .style('cursor', 'pointer')
             .attr("text-anchor", "middle")
             .attr("transform", function(d) {
               return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
             })
+            
             .text(function(d) { return d.text; });
+    
+            $("#study-view-word-cloud svg text").click(function(){
+                var _text = $(this).text();
+                window.open("index.do?Action=Submit&"+
+                            "genetic_profile_ids="+parObject.mutationProfileId+"&" +
+                            "case_set_id="+parObject.caseSetId+"&" +
+                            "cancer_study_id="+parObject.studyId+"&" +
+                            "gene_list="+ _text +"&tab_index=tab_visualize&" +
+                            "#mutation_details");
+            });
     }
     
     //Changed based on Jason's example file.
     function initD3Cloud() {
-        d3.layout.cloud().size([180, 200])
+        d3.layout.cloud().size([180, 180])
             .words(words.map(function(d, index) {
                 return {text: d, size: fontSize[index]};
             }))
@@ -84,14 +111,15 @@ var StudyViewInitWordCloud = (function() {
     }
     
     function redraw(_data){
-        $("#study-view-word-cloud").find('svg').remove;
-        initParams(_data);
+        $("#study-view-word-cloud").find('svg').remove();
+        initData(_data);
         initD3Cloud();
     }
     
     return {
-        init: function(_params){
+        init: function(_params, _data){
             initParams(_params);
+            initData(_data);
             initDiv();
             initD3Cloud();
         },

@@ -73,14 +73,12 @@ var StudyViewInitScatterPlot = (function() {
                 scatterPlot.updateScaleY(scatterPlotOptions.names.log_scale_y);
             });    
         
-            $("#study-view-scatter-plot").mouseenter(function(){
-                $("#study-view-scatter-plot-header").fadeIn('slow', function(){
+            $("#study-view-scatter-plot").hover(function(){
+                $("#study-view-scatter-plot-header").stop().fadeIn('slow', function(){
                     $(this).css('display', 'block');
                 });
-            });
-            
-            $("#study-view-scatter-plot").mouseleave(function(){
-                $("#study-view-scatter-plot-header").fadeOut('slow', function(){
+            }, function(){
+                $("#study-view-scatter-plot-header").stop().fadeOut('slow', function(){
                     $(this).css('display', 'none');
                 });
             });

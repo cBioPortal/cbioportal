@@ -68,30 +68,32 @@ var BarChart = function(){
     //other functions added after initializing this Bar Chart.
     function addFunctions() {
         barChart.on("filtered", function(chart,filter){
-            var _currentFilters = barChart.filters(),
-                _scatterPlot = StudyViewInitScatterPlot.getScatterPlot();
-            
-            if(_currentFilters.length === 0){
-                $("#" + DIV.mainDiv + " .study-view-dc-chart-change")
-                            .css('display','none');
-                $("#" + DIV.mainDiv)
-                        .css({'border-width':'1px', 'border-style':'solid'});
-            }else{
-                $("#" + DIV.mainDiv + " .study-view-dc-chart-change")
-                            .css('display','block');
-                $("#" + DIV.mainDiv)
-                        .css({'border-width':'2px', 'border-style':'inset'});
-            }
-            
-            if(_scatterPlot){
-                if(_scatterPlot.getBrushedCases().length > 0 ||
-                    filter !== null){
+            dc.events.trigger(function() {
+                var _currentFilters = barChart.filters(),
+                    _scatterPlot = StudyViewInitScatterPlot.getScatterPlot();
 
-                    updateScatterPlot(_currentFilters);
+                if(_currentFilters.length === 0){
+                    $("#" + DIV.mainDiv + " .study-view-dc-chart-change")
+                                .css('display','none');
+                    $("#" + DIV.mainDiv)
+                            .css({'border-width':'1px', 'border-style':'solid'});
+                }else{
+                    $("#" + DIV.mainDiv + " .study-view-dc-chart-change")
+                                .css('display','block');
+                    $("#" + DIV.mainDiv)
+                            .css({'border-width':'2px', 'border-style':'inset'});
                 }
-            }
-            removeMarker();
-            postFilterCallback();
+
+                if(_scatterPlot){
+                    if(_scatterPlot.getBrushedCases().length > 0 ||
+                        filter !== null){
+
+                        updateScatterPlot(_currentFilters);
+                    }
+                }
+                removeMarker();
+                postFilterCallback();
+            }, 400);
         });
     }
     

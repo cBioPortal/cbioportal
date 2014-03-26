@@ -50,8 +50,8 @@ var CoExpView = (function() {
         threshold = 0.3;
 
     //Containers    
-    var coExpTableInstance = "", //instance of the co-exp table 
-        profileList = []; //Profile Lists for all queried genes
+    //var coExpTableInstance = "", //instance of the co-exp table 
+    var    profileList = []; //Profile Lists for all queried genes
 
     //Sub tabs
     var Tabs = (function() {
@@ -173,6 +173,8 @@ var CoExpView = (function() {
 
     //Instance of each sub tab
     var CoExpSubTabView = function() {
+
+        var coExpTableInstance = "";
 
         var Names = {
                 divId: "", //Id for the div of the single query gene (both coexp table and plot)

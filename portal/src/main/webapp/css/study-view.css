@@ -304,6 +304,7 @@
     margin-right: 5px;
     color: lightgray;
     cursor: pointer;
+    float: right;
 }
 .study-view-word-cloud-delete{  
     margin-right: 5px;

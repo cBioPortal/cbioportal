@@ -73,6 +73,18 @@ var StudyViewInitScatterPlot = (function() {
                 scatterPlot.updateScaleY(scatterPlotOptions.names.log_scale_y);
             });    
         
+            $("#study-view-scatter-plot").mouseenter(function(){
+                $("#study-view-scatter-plot-header").fadeIn('slow', function(){
+                    $(this).css('display', 'block');
+                });
+            });
+            
+            $("#study-view-scatter-plot").mouseleave(function(){
+                $("#study-view-scatter-plot-header").fadeOut('slow', function(){
+                    $(this).css('display', 'none');
+                });
+            });
+            
             $("#study-view-scatter-plot-pdf").submit(function(){
                 setSVGElementValue("study-view-scatter-plot-body",
                     "study-view-scatter-plot-pdf-value",
@@ -105,7 +117,7 @@ var StudyViewInitScatterPlot = (function() {
         $("#study-view-charts").append(StudyViewBoilerplate.scatterPlotDiv);
         $("#study-view-scatter-plot-pdf-name").val("Scatter_Plot_result-"+ parObject.studyId +".pdf");
         $("#study-view-scatter-plot-svg-name").val("Scatter_Plot_result-"+ parObject.studyId +".svg");
-        
+        $("#study-view-scatter-plot-header").css('display', 'none');
     }
     
     return {

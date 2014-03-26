@@ -236,7 +236,8 @@ var StudyViewBoilerplate ={
     scatterPlotDiv: 
             "<div id='study-view-scatter-plot' class='study-view-dc-chart w3 h2'"+
             "data-step='1' data-intro='Scatter Plot<br/>x: CNA<br/>y: MUTATIONS COUNT'>" +
-            "<div id='study-view-scatter-plot-header' style='float: right'>"+
+            "<div id='study-view-scatter-plot-header-wrapper' style='float:right; width: 350px; height: 22px;'>"+
+            "<div id='study-view-scatter-plot-header' style='float: left'>"+
             "<form style='display:inline-block' action='svgtopdf.do' method='post' id='study-view-scatter-plot-pdf'>"+
             "<input type='hidden' name='svgelement' id='study-view-scatter-plot-pdf-value'>"+
             "<input type='hidden' name='filetype' value='pdf'>"+
@@ -251,8 +252,7 @@ var StudyViewBoilerplate ={
             "</form>"+
             "<input type='checkbox' id='study-view-scatter-plot-log-scale-x'></input><span style='margin: 5px 10px 0px 0px; color: grey'>Log Scale X</span>"+
             "<input type='checkbox' id='study-view-scatter-plot-log-scale-y'></input><span style='margin: 5px 50px 0px 0px; color: grey'>Log Scale y</span>"+
-            "<span class='study-view-scatter-plot-delete'>x</span>"+
-            "</div>"+
+            "</div><span class='study-view-scatter-plot-delete'>x</span></div>"+
             "<div id='study-view-scatter-plot-body'></div>"+
             "<div id='study-view-scatter-plot-loading-img'></div>"+
             "<div id='study-view-scatter-plot-control-panel'></div>"+

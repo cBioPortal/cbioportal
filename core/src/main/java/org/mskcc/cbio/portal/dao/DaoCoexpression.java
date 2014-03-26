@@ -34,7 +34,6 @@ import java.util.*;
 
 import org.apache.commons.lang.StringUtils;
 import org.mskcc.cbio.portal.model.Coexpression;
-import org.mskcc.cbio.portal.model.CosmicMutationFrequency;
 
 /**
  *
@@ -62,7 +61,7 @@ public class DaoCoexpression {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection(DaoCosmicData.class);
+            con = JdbcUtil.getDbConnection(DaoCoexpression.class);
             ArrayList<Coexpression> result = new ArrayList<Coexpression>();
             pstmt = con.prepareStatement("SELECT * FROM coexpression WHERE " +
                     "GENETIC_PROFILE_ID='" + geneticProfileId + "' AND " +
@@ -81,7 +80,7 @@ public class DaoCoexpression {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(DaoCosmicData.class, con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCoexpression.class, con, pstmt, rs);
         }
     }
 

@@ -513,7 +513,6 @@ var StudyViewInitCharts = (function(){
             removeMarker();
             filterChartsByGivingIDs(_selectedRowCaseId);
             setScatterPlotStyle(_selectedRowCaseId,varChart[attrNameMapUID['CASE_ID']].getChart().filters());
-            redrawWordCloud();
         };
         
         var _dataTable = StudyViewInitDataTable.getDataTable();
@@ -734,6 +733,7 @@ var StudyViewInitCharts = (function(){
         dc.redrawAll();
         setScatterPlotStyle(_ids,_caseIDChart.filters());
         changeHeader();
+        redrawWordCloud();
     }
     
     function createNewChartFromOutside(_id, _text) {

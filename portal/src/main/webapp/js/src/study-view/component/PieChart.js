@@ -263,12 +263,12 @@ var PieChart = function(){
                     $("#" + DIV.mainDiv)
                             .css({'border-width':'2px', 'border-style':'inset'});
                 }
-
-                if(StudyViewInitScatterPlot
+                
+                if(filter !== null || (filter !== null && StudyViewInitScatterPlot
                         .getScatterPlot()
                         .getBrushedCases()
-                        .length > 0 || 
-                    filter !== null){
+                        .length > 0 
+                    )){
                 
                     updateScatterPlot(_currentFilters);
                 }

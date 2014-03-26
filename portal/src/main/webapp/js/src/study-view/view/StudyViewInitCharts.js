@@ -583,6 +583,8 @@ var StudyViewInitCharts = (function(){
     }
     
     function scatterPlotBrushCallBack(_brushedCaseIds) {
+        var _numOfCharts = varChart.length;
+        
         brushedCaseIds = _brushedCaseIds;
         if(_brushedCaseIds.length === 0 || (shiftClickedCaseIds.length === 1 && _brushedCaseIds.indexOf(shiftClickedCaseIds[0]) === -1)){
             shiftClickedCaseIds = [];
@@ -601,6 +603,17 @@ var StudyViewInitCharts = (function(){
                 }
             });
         }
+        
+        
+        if(_brushedCaseIds.length > 0){
+            for(var i=0; i< _numOfCharts ; i++){
+                if(varChart[i] !== ''){
+                    if(varChart[i].getChart().filters().length > 0)
+                        varChart[i].getChart().filter(null);
+                }
+            }
+        }
+        
         scatterPlotCallBack(_brushedCaseIds);
         removeMarker();
     }

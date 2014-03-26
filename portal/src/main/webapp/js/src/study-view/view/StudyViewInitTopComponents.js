@@ -32,7 +32,9 @@ var StudyViewInitTopComponents = (function() {
             //sevious times based on the number of charts. Right now, only
             //redraw word cloud if the chart has filter
             for( i = 0; i < _chartsLength; i++){
-                if(_charts[i].getChart().filter() !== null){
+                if(_charts[i] !== "" && 
+                        _charts[i].getChart().filter() !== null){
+                    
                     _charts[i].getChart().filter(null);
                 }
             }

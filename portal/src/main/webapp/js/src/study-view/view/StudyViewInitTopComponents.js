@@ -24,7 +24,23 @@ var StudyViewInitTopComponents = (function() {
         
         $('#study-view-header-left-2').unbind('click');
         $('#study-view-header-left-2').click(function (){
-            dc.filterAll();
+            var i,
+                _charts = StudyViewInitCharts.getCharts(),
+                _chartsLength = _charts.length;
+            
+            //Previous using dc.filterAll(), but this will redraw word cloud
+            //sevious times based on the number of charts. Right now, only
+            //redraw word cloud if the chart has filter
+            for( i = 0; i < _chartsLength; i++){
+                if(_charts[i].getChart().filter() !== null){
+                    _charts[i].getChart().filter(null);
+                }
+            }
+            
+            //If set the filter to null the update scatterplot in charts do
+            //not work, so need to update scatter plot here
+            StudyViewInitCharts.getSelectedCasesAndRedrawScatterPlot(null);
+            
             dc.redrawAll();
             $(StudyViewInitDataTable
                     .getDataTable()

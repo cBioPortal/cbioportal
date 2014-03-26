@@ -37,6 +37,9 @@ var Mutation3dVis = function(name, options)
 	// used for show/hide option (workaround)
 	var _prevTop = null;
 
+	// used for glow effect on highlighted mutations
+	var _glowInterval = null;
+
 	// default visualization options
 	var defaultOpts = {
 		// applet/application (Jmol/JSmol) options
@@ -66,6 +69,8 @@ var Mutation3dVis = function(name, options)
 		                                  // "none": do not color (use default atom colors)
 		mutationColor: "x8A2BE2",  // uniform color of the mutated residues
 		highlightColor: "xFFDD00", // color of the user-selected mutations
+		highlightGradient: ["FFDD00", "000000"], // gradient highlight colors used for glow effect
+		addGlowEffect: true, // whether to add glow effect to highlighted mutations
 		displaySideChain: "highlighted", // highlighted: display side chain for only selected mutations
 		                                 // all: display side chain for all mapped mutations
 		                                 // none: do not display side chain atoms
@@ -112,6 +117,12 @@ var Mutation3dVis = function(name, options)
 
 		// init app
 		_3dApp.init(name, _options.appOptions);
+
+		// TODO memory leak -- eventually crashes the browser
+//		if (_options.addGlowEffect)
+//		{
+//			addGlowEffect();
+//		}
 	}
 
 	/**
@@ -710,30 +721,46 @@ var Mutation3dVis = function(name, options)
 	 * Generates the highlight script to be sent to the 3D app.
 	 *
 	 * @param positions mutation positions to highlight
+	 * @param color     highlight color
 	 * @return {Array}  script lines as an array
 	 */
 	function generateHighlightScript(positions)
 	{
 		var script = [];
-		var displaySideChain = _options.displaySideChain != "none";
-		var scriptPositions = [];
 
 		// highlight the selected positions
 		if (!_.isEmpty(positions))
 		{
 			// convert positions to script positions
-			_.each(positions, function(position) {
-				scriptPositions.push(generateScriptPos(position));
-			});
+			var scriptPositions = generateHighlightScriptPositions(positions);
 
-			// add highlight color
-			script.push("select (" + scriptPositions.join(", ") + ") and :" + _chain.chainId + ";");
-			script.push("color [" + _options.highlightColor + "];");
-
-			// show/hide side chains
 			script = script.concat(
-				generateSideChainScript(scriptPositions, displaySideChain));
+				generateHighlightFromScriptPos(scriptPositions, _options.highlightColor));
 		}
+
+		return script;
+	}
+
+	/**
+	 * Generates highlight script by using the converted highlight positions.
+	 *
+	 * @param scriptPositions   script positions
+	 * @param color             highlight color
+	 * @returns {Array} script lines as an array
+	 */
+	function generateHighlightFromScriptPos(scriptPositions, color)
+	{
+		var script = [];
+
+		// add highlight color
+		script.push("select (" + scriptPositions.join(", ") + ") and :" + _chain.chainId + ";");
+		script.push("color [" + color + "];");
+
+		var displaySideChain = _options.displaySideChain != "none";
+
+		// show/hide side chains
+		script = script.concat(
+			generateSideChainScript(scriptPositions, displaySideChain));
 
 		return script;
 	}
@@ -883,6 +910,18 @@ var Mutation3dVis = function(name, options)
 		return posStr;
 	}
 
+	function generateHighlightScriptPositions(positions)
+	{
+		var scriptPositions = [];
+
+		// convert positions to script positions
+		_.each(positions, function(position) {
+			scriptPositions.push(generateScriptPos(position));
+		});
+
+		return scriptPositions;
+	}
+
 	/**
 	 * Updates the options of the 3D visualizer.
 	 *
@@ -891,6 +930,59 @@ var Mutation3dVis = function(name, options)
 	function updateOptions(options)
 	{
 		_options = jQuery.extend(true, {}, _options, options);
+	}
+
+	/**
+	 * Adds glow effect to the user selected (highlighted) mutations.
+	 */
+	function addGlowEffect()
+	{
+		// clear previous glow interval (if any)
+		if (_glowInterval != null)
+		{
+			clearInterval(_glowInterval);
+		}
+
+		// create gradient color generator
+		var gradient = new Rainbow();
+		var range = 16;
+		var index = 0;
+		gradient.setNumberRange(0, range - 1);
+		gradient.setSpectrum(_options.highlightGradient[0],
+		                     _options.highlightGradient[1]);
+
+		// convert positions to script positions
+		var scriptPositions = null;
+
+		// set new interval
+		_glowInterval = setInterval(function() {
+			var highlightCount = _.size(_highlighted);
+
+			if (highlightCount > 0)
+			{
+				// TODO update script position each time _highlighted is updated
+				if (scriptPositions == null ||
+				    scriptPositions.length != highlightCount)
+				{
+					scriptPositions = generateHighlightScriptPositions(_highlighted)
+				}
+			}
+
+			if (scriptPositions != null &&
+			    scriptPositions.length > 0)
+			{
+				var color = "x" + gradient.colorAt(index);
+				var script = generateHighlightFromScriptPos(scriptPositions, color);
+
+				// convert array to a single string
+				script = script.join(" ");
+
+				// send script string to the app
+				_3dApp.script(script);
+
+				index = (index + 1) % range;
+			}
+		}, 50);
 	}
 
 	// return public functions

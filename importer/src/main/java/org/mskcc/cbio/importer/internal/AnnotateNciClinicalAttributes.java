@@ -105,6 +105,11 @@ public class AnnotateNciClinicalAttributes implements Importer {
     }
 
     @Override
+    public void importCaseLists(String portal) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
     public void importReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
         String bcrXmlFilename = referenceMetadata.getImporterArgs().get(0);
         importReferenceData(bcrXmlFilename);

@@ -70,7 +70,7 @@ A tab-delimited file with two columns:
 
 ### Example
 
-[Get all Types of Cancer.](http://cbio.mskcc.org/cgx/webservice.do?cmd=getTypesOfCancer)
+[Get all Types of Cancer.](webservice.do?cmd=getTypesOfCancer)
 
 ## Get All Cancer Studies
 

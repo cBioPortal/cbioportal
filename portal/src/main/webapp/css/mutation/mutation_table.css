@@ -1,0 +1,164 @@
+/*
+ * Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center
+ * has been advised of the possibility of such damage.  See
+ * the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ */
+
+/*  Styles for Online Mutation Assessor (OMA) */
+.oma_link {
+	font-weight:bold;
+}
+.oma_high {
+	color: #C83C3C;
+	font-weight:bold;
+}
+.oma_medium {
+	color: #9F6F47;
+	font-weight:bold;
+}
+.oma_low {
+	color: #988A3E;
+	font-weight:bold;
+}
+.oma_neutral {
+	color: #909090;
+	font-weight:bold;
+}
+
+.mutation-assessor-link {
+	margin-bottom: 1px;
+}
+.mutation-assessor-link .ma-msa-icon{
+	background-color: #88C;
+	color: white;
+	padding-left: 3px;
+	padding-right: 3px;
+	font-size: 80%;
+}
+.mutation-assessor-link .ma-3d-icon {
+	background-color: #88C;
+	color: white;
+	padding-left: 6px;
+	padding-right: 6px;
+	font-size: 80%;
+}
+.mutation-assessor-main-link img {
+	padding-left: 3px;
+	padding-right: 3px;
+}
+/*
+.mutation-table-container .msa-img,
+.mutation-table-container .pdb-img {
+	vertical-align: bottom;
+	margin-left: 3px;
+}
+*/
+
+.mutation-table-container .dataTables_filter {
+	width: 200px;
+}
+.mutation-table-container .dataTables_filter input {
+	width: 120px;
+}
+.mutation-table-container .dataTables_info {
+	width: 300px;
+}
+.mutation-table-container .ColVis {
+	float: left;
+	padding-right: 20%;
+	margin-bottom: 0;
+}
+.mutation-table-container .unknown {
+	background: #E0E0E0;
+	color: #000000;
+	padding-left:5px;
+	padding-right:5px;
+}
+.mutation-table-container .mutation-table-protein-change {
+	font-weight: bold;
+	font-style: italic;
+	cursor: pointer;
+}
+.mutation-table-container .mutation-table-3d-link {
+	float: right;
+}
+.mutation-table-container .mutation-table-igv-icon {
+	background-color: #88C;
+	color: white;
+	padding-left: 6px;
+	padding-right: 6px;
+}
+.mutation-table-container .mutation-table-3d-icon {
+	font-size: 90%;
+	font-weight: bold;
+}
+.mutation-table-container .best_effect_transcript {
+	color: red;
+}
+.mutation-table-container .mutation_details_table {
+	font-size: 90%;
+	color: black;
+}
+.mutation-table-container .mutation_details_table td {
+	font-size: 100%;
+}
+.mutation-table-container .mutation_table_cosmic {
+	/*cursor: pointer;
+	color: #1974B8;*/
+}
+
+/*
+th.mutation-details-qtip-style {
+    font-size: 115%;
+}
+*/
+table.display tr.even.mutation-table-highlight td {
+	background-color: #E9E900;
+}
+table.display tr.odd.mutation-table-highlight td {
+	background-color: #E0E000;
+}
+.mutation-table-container {
+	margin-bottom: 40px;
+}
+.mutation-table-header {
+	font-weight: bold !important;
+}
+
+.cosmic-details-tip-info {
+	padding-bottom: 5px;
+}
+.cosmic-details-table {
+	font-size: 11px !important;
+}
+
+.mutation_datatables_filter {
+	float: right;
+	padding-top: 3px;
+}
+.mutation_datatables_info {
+	float: left;
+	padding-top: 5px;
+	font-size: 90%;
+}

@@ -26,9 +26,10 @@ import org.apache.log4j.Logger;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.AccessControl;
-import org.mskcc.cbio.portal.web_api.ConnectionManager;
 import org.mskcc.cbio.portal.util.GlobalProperties;
 import org.mskcc.cbio.portal.util.XDebug;
+import org.mskcc.cbio.portal.web_api.ConnectionManager;
+import org.mskcc.cbio.portal.web_api.ProtocolException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -47,6 +48,7 @@ public class PatientView extends HttpServlet {
     public static final String HAS_SEGMENT_DATA = "has_segment_data";
     public static final String HAS_ALLELE_FREQUENCY_DATA = "has_allele_frequency_data";
     public static final String MUTATION_PROFILE = "mutation_profile";
+    public static final String CANCER_STUDY_META_DATA_KEY_STRING = "cancer_study_meta_data";
     public static final String CNA_PROFILE = "cna_profile";
     public static final String MRNA_PROFILE = "mrna_profile";
     public static final String NUM_CASES_IN_SAME_STUDY = "num_cases";
@@ -101,6 +103,7 @@ public class PatientView extends HttpServlet {
                 setGeneticProfiles(request);
                 setClinicalInfo(request);
                 setNumCases(request);
+                setCancerStudyMetaData(request);
             }
             
             if (request.getAttribute(ERROR)!=null) {
@@ -116,8 +119,12 @@ public class PatientView extends HttpServlet {
         } catch (DaoException e) {
             xdebug.logMsg(this, "Got Database Exception:  " + e.getMessage());
             forwardToErrorPage(request, response,
-                               "An error occurred while trying to connect to the database.", xdebug);
-        } 
+                    "An error occurred while trying to connect to the database.", xdebug);
+        } catch (ProtocolException e) {
+            xdebug.logMsg(this, "Got Protocol Exception " + e.getMessage());
+            forwardToErrorPage(request, response,
+                    "An error occurred while trying to authenticate.", xdebug);
+        }
     }
 
     /**
@@ -244,6 +251,10 @@ public class PatientView extends HttpServlet {
             request.setAttribute(NUM_CASES_IN_SAME_MRNA_PROFILE, 
                     DaoCaseProfile.countCasesInProfile(mrnaProfile.getGeneticProfileId()));
         }
+    }
+
+    private void setCancerStudyMetaData(HttpServletRequest request) throws DaoException, ProtocolException {
+        request.setAttribute(CANCER_STUDY_META_DATA_KEY_STRING, DaoCaseProfile.metaData(accessControl.getCancerStudies()));
     }
     
     private void setNumCases(HttpServletRequest request) throws DaoException {

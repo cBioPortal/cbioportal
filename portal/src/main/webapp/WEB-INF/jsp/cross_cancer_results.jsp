@@ -38,7 +38,12 @@
 <script type="text/javascript" src="js/src/crosscancer.js"></script>
 <link href="css/data_table_ColVis.css" type="text/css" rel="stylesheet" />
 <link href="css/data_table_jui.css" type="text/css" rel="stylesheet" />
-<link href="css/mutation_details.css" type="text/css" rel="stylesheet" />
+<link href="css/mutation/mutation_details.css" type="text/css" rel="stylesheet" />
+<link href="css/mutation/mutation_table.css" type="text/css" rel="stylesheet" />
+<link href="css/mutation/mutation_3d.css" type="text/css" rel="stylesheet" />
+<link href="css/mutation/mutation_diagram.css" type="text/css" rel="stylesheet" />
+<link href="css/mutation/mutation_pdb_panel.css" type="text/css" rel="stylesheet" />
+<link href="css/mutation/mutation_pdb_table.css" type="text/css" rel="stylesheet" />
 <link href="css/crosscancer.css" type="text/css" rel="stylesheet" />
 
 <%
@@ -233,9 +238,17 @@
                     <td class="cc-alt-type">Mutation</td>
                     <td>{{mutationFrequency}}% ({{mutationCount}} cases)</td>
                 </tr>
+                <tr class='{{ lossCount > 0 ? "cc-loss" : "cc-hide"}}'>
+                    <td class="cc-alt-type">Heterozygous loss</td>
+                    <td>{{lossFrequency}}% ({{lossCount}} cases)</td>
+                </tr>
                 <tr class='{{ deletionCount > 0 ? "cc-del" : "cc-hide"}}'>
                     <td class="cc-alt-type">Deletion</td>
                     <td>{{deletionFrequency}}% ({{deletionCount}} cases)</td>
+                </tr>
+                <tr class='{{ gainCount > 0 ? "cc-gain" : "cc-hide"}}'>
+                    <td class="cc-alt-type">Gain</td>
+                    <td>{{gainFrequency}}% ({{gainCount}} cases)</td>
                 </tr>
                 <tr class='{{ amplificationCount > 0 ? "cc-amp" : "cc-hide"}}'>
                     <td class="cc-alt-type">Amplification</td>

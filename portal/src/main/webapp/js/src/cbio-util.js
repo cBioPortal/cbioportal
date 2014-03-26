@@ -33,6 +33,7 @@ cbio.util = (function() {
         return o === null || typeof o === "undefined";
     };
 
+    // convert from array to associative array of element to index
     var arrayToAssociatedArrayIndices = function(arr, offset) {
         if (checkNullOrUndefined(offset)) offset=0;
         var aa = {};
@@ -199,6 +200,25 @@ cbio.util = (function() {
 		return origin;
 	};
 
+	/**
+	 * Replaces problematic characters with an underscore for the given string.
+	 * Those characters cause problems with the properties of an HTML object,
+	 * especially for the id and class properties.
+	 *
+	 * @param property  string to be modified
+	 * @return {string} safe version of the given string
+	 */
+	var safeProperty = function(property)
+	{
+		return property.replace(/[^a-zA-Z0-9-]/g,'_');
+	};
+
+    function swapElement(array, indexA, indexB) {
+        var tmp = array[indexA];
+        array[indexA] = array[indexB];
+        array[indexB] = tmp;
+    }
+
     return {
         toPrecision: toPrecision,
         getObjectLength: getObjectLength,
@@ -208,7 +228,9 @@ cbio.util = (function() {
         alterAxesAttrForPDFConverter: alterAxesAttrForPDFConverter,
         lcss: lcss,
 	    browser: detectBrowser(), // returning the browser object, not the function itself
-	    getWindowOrigin: getOrigin
+	    getWindowOrigin: getOrigin,
+	    safeProperty: safeProperty,
+        swapElement: swapElement
     };
 
 })();

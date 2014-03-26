@@ -516,9 +516,19 @@
     </servlet-mapping>
 
     <servlet>
+        <servlet-name>PancancerMutationsJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.PancancerMutationsJSON</servlet-class>
+    </servlet>
+
+    <servlet>
         <servlet-name>GetProteinArrayDataJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.GetProteinArrayDataJSON</servlet-class>
     </servlet>
+
+    <servlet-mapping>
+        <servlet-name>PancancerMutationsJSON</servlet-name>
+        <url-pattern>/pancancerMutations.json</url-pattern>
+    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>GetProteinArrayDataJSON</servlet-name>

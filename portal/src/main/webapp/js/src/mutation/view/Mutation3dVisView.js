@@ -91,6 +91,14 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		// init buttons
 		self._initButtons();
+
+		// make the main container draggable
+		container3d.draggable({handle: ".mutation-3d-info-title",
+			start: function( event, ui ) {
+				// fix the width to prevent resize during drag
+				var width = container3d.css("width");
+				container3d.css("width", width);
+			}});
 	},
 	/**
 	 * Initializes the control buttons.
@@ -384,9 +392,8 @@ var Mutation3dVisView = Backbone.View.extend({
 	 * @param geneSymbol    hugo gene symbol
 	 * @param pdbId         pdb id
 	 * @param chain         PdbChainModel instance
-	 * @param callback      function to be called after update
 	 */
-	updateView: function(geneSymbol, pdbId, chain, callback)
+	updateView: function(geneSymbol, pdbId, chain)
 	{
 		var self = this;
 		var mut3dVis = self.options.mut3dVis;
@@ -398,7 +405,7 @@ var Mutation3dVisView = Backbone.View.extend({
 
 			// reload the selected pdb and chain data
 			mut3dVis.show();
-			self.refreshView(pdbId, chain, callback);
+			self.refreshView(pdbId, chain);
 
 			// store pdb id and chain for future reference
 			self.pdbId = pdbId;
@@ -408,11 +415,16 @@ var Mutation3dVisView = Backbone.View.extend({
 		var infoCallback = function(pdbInfo) {
 			var model = {pdbId: pdbId,
 				chainId: chain.chainId,
-				pdbInfo: ""};
+				pdbInfo: "",
+				molInfo: ""};
 
-			if (pdbInfo)
+			if (pdbInfo && pdbInfo[pdbId])
 			{
-				model.pdbInfo = pdbInfo;
+				var summary = PdbDataUtil.generatePdbInfoSummary(
+					pdbInfo[pdbId], chain.chainId);
+
+				model.pdbInfo = summary.title;
+				model.molInfo = summary.molecule;
 			}
 
 			// init info view
@@ -436,9 +448,8 @@ var Mutation3dVisView = Backbone.View.extend({
 	 *
 	 * @param pdbId     pdb id
 	 * @param chain     PdbChainModel instance
-	 * @param callback  function to be called after refresh
 	 */
-	refreshView: function(pdbId, chain, callback)
+	refreshView: function(pdbId, chain)
 	{
 		var self = this;
 		var mut3dVis = self.options.mut3dVis;
@@ -473,14 +484,20 @@ var Mutation3dVisView = Backbone.View.extend({
 			}
 		};
 
-		// if no pdb id or chain is provided, then do not reload
-		if (!pdbId && !chain)
+		// do not reload (just refresh) if no pdb id or chain is provided,
+		// or the provided chain and the previous chain are the same
+		if ((pdbId == null && chain == null) ||
+		    (pdbId == self.pdbId && chain == self.chain))
 		{
 			// just refresh
 			var mapped = mut3dVis.refresh();
 
 			// update mapping info
 			showMapInfo(mapped);
+
+			// trigger corresponding event
+			self.dispatcher.trigger(
+				MutationDetailsEvents.VIEW_3D_STRUCTURE_RELOADED);
 		}
 		// reload the new pdb structure
 		else
@@ -498,11 +515,9 @@ var Mutation3dVisView = Backbone.View.extend({
 				var mapped = mut3dVis.reload(pdbId, chain, function() {
 					// hide the loader image after reload complete
 					self.hideLoader();
-					// call the provided custom callback function
-					if (_.isFunction(callback))
-					{
-						callback();
-					}
+					// trigger corresponding event
+					self.dispatcher.trigger(
+						MutationDetailsEvents.VIEW_3D_STRUCTURE_RELOADED);
 				});
 				// update mapping info if necessary
 				showMapInfo(mapped);
@@ -615,6 +630,16 @@ var Mutation3dVisView = Backbone.View.extend({
 		{
 			mut3dVis.maximize();
 		}
+	},
+	/**
+	 * Resets the position of the 3D panel to its initial state.
+	 */
+	resetPanelPosition: function()
+	{
+		var self = this;
+		var container3d = self.$el;
+
+		container3d.css({"left": "", "width": "", "top": 0});
 	},
 	/**
 	 * Hides the 3D visualizer panel.

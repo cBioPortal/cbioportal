@@ -33,6 +33,7 @@ cbio.util = (function() {
         return o === null || typeof o === "undefined";
     };
 
+    // convert from array to associative array of element to index
     var arrayToAssociatedArrayIndices = function(arr, offset) {
         if (checkNullOrUndefined(offset)) offset=0;
         var aa = {};
@@ -212,6 +213,12 @@ cbio.util = (function() {
 		return property.replace(/[^a-zA-Z0-9-]/g,'_');
 	};
 
+    function swapElement(array, indexA, indexB) {
+        var tmp = array[indexA];
+        array[indexA] = array[indexB];
+        array[indexB] = tmp;
+    }
+
     return {
         toPrecision: toPrecision,
         getObjectLength: getObjectLength,
@@ -222,7 +229,8 @@ cbio.util = (function() {
         lcss: lcss,
 	    browser: detectBrowser(), // returning the browser object, not the function itself
 	    getWindowOrigin: getOrigin,
-	    safeProperty: safeProperty
+	    safeProperty: safeProperty,
+        swapElement: swapElement
     };
 
 })();

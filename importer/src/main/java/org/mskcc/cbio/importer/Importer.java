@@ -60,6 +60,8 @@ public interface Importer {
 	 */
         void importTypesOfCancer() throws Exception;
         
+        void importCaseLists(String portal) throws Exception;
+        
     /**
      * Imports all cancer studies found within the given directory.
      * If force is set, user will not be prompted to override existing cancer study.

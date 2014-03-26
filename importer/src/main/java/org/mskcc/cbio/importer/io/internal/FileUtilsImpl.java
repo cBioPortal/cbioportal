@@ -844,7 +844,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
                 
                 if (ixNcbiBuild!=-1) {
                     parts = it.nextLine().split("\t");
-                    if (parts[3].contains("36") || parts[3].equals("hg18")) {
+                    if (parts[ixNcbiBuild].contains("36") || parts[ixNcbiBuild].equals("hg18")) {
                             it.close();
                             File liftoverInputFile = org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
                                                                                                                                                              ""+System.currentTimeMillis()+".liftoverInputFile");

@@ -102,9 +102,9 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 
 		// just hide the 3D view for now
 
-		if (mut3dVisView &&
-		    mut3dVisView.isVisible())
+		if (mut3dVisView)
 		{
+			mut3dVisView.resetPanelPosition();
 			mut3dVisView.hideView();
 		}
 	}
@@ -125,6 +125,7 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 
 		if (mut3dVisView != null)
 		{
+			mut3dVisView.resetPanelPosition();
 			mut3dVisView.maximizeView();
 		}
 	}
@@ -168,7 +169,12 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 
 		// update 3D view with the selected chain data
 		var datum = element.datum();
-		mut3dVisView.updateView(geneSymbol, datum.pdbId, datum.chain);
+
+		if (mut3dVisView != null)
+		{
+			mut3dVisView.maximizeView();
+			mut3dVisView.updateView(geneSymbol, datum.pdbId, datum.chain);
+		}
 
 		// also update the pdb table (highlight the corresponding row)
 		if (!_chainSelectedByTable &&

@@ -12,8 +12,7 @@
 %>
 
 <!-- Include Global Style Sheets -->
-<link rel="icon" href="http://cbio.mskcc.org/favicon.ico"/>
-<link href="css/genomic.css" type="text/css" rel="stylesheet" />
+<link rel="icon" href="images/cbioportal_icon.png"/>
 <link href="css/responsiveslides.css" type="text/css" rel="stylesheet" />
 <link href="css/tipTip.css" type="text/css" rel="stylesheet" />
 <link href="css/jquery.qtip.min.css" type="text/css" rel="stylesheet" />

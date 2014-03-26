@@ -85,7 +85,12 @@ var PileupUtil = (function()
 		for (var type in typeMap)
 		{
 			// grouping mutations by the style (not by the type)
-			var group = mutationTypeMap[type].style;
+			var group = undefined;
+
+			if (mutationTypeMap[type] != null)
+			{
+				group = mutationTypeMap[type].style;
+			}
 
 			if (group == undefined)
 			{

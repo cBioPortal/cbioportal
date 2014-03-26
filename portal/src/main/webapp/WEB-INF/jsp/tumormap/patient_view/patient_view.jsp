@@ -293,6 +293,9 @@ if (patientViewError!=null) {
         .qtip-wide {
             max-width: 600px;
         }
+        .qtip {
+            font-size: 11px;
+        }
         .datatable-name {
                 float: left;
                 font-weight: bold;
@@ -406,11 +409,11 @@ function getEventIndexMap(eventTableData,idCol) {
     
 function addNoteTooltip(elem, content, position) {
     $(elem).qtip({
-        content: (typeof content === 'undefined' ? {attr: 'alt'} : content),
+        content: (cbio.util.checkNullOrUndefined(content) ? {attr: 'alt'} : content),
 	    show: {event: "mouseover"},
         hide: {fixed: true, delay: 100, event: "mouseout"},
         style: { classes: 'qtip-light qtip-rounded' },
-        position: (typeof position === 'undefined' ? {my:'top left',at:'bottom center'} : position)
+        position: (cbio.util.checkNullOrUndefined(position) ? {my:'top left',at:'bottom center'} : position)
     });
 }
 
@@ -1017,6 +1020,9 @@ function plotCaselabelInSVG(svg, caseId) {
         .attr("fill","white")
         .text(label);
 }
+
+window["<%=PatientView.CANCER_STUDY_META_DATA_KEY_STRING%>"]
+        = <%=jsonMapper.writeValueAsString(request.getAttribute(PatientView.CANCER_STUDY_META_DATA_KEY_STRING))%>;
 
 </script>
 

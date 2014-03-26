@@ -52,7 +52,7 @@
                 $thumbnail.html(content);
                 $(invisible_container).empty();     // N.B.
 
-                $thumbnail.qtip({
+                $thumbnail.children('svg').qtip({
                     content: {text: 'pancancer mutation bar chart is broken'},
                     events: {
                         render: function(event, api) {

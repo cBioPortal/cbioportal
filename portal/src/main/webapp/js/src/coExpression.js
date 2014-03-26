@@ -39,7 +39,7 @@ var CoExpView = (function() {
     var Prefix = {
             divPrefix: "coexp_",
             loadingImgPrefix: "coexp_loading_img_",
-            tableDivPreFix: "coexp_table_div_",
+            tableDivPrefix: "coexp_table_div_",
             tablePrefix: "coexp_table_",
             plotPrefix: "coexp_plot_",
         },
@@ -48,10 +48,9 @@ var CoExpView = (function() {
             coexp_plots_width: "750px"
         },
         threshold = 0.3;
-
     //Containers    
-    //var coExpTableInstance = "", //instance of the co-exp table 
-    var    profileList = []; //Profile Lists for all queried genes
+    var profileList = [], //Profile Lists for all queried genes
+        coExpTableArr = [];
 
     //Sub tabs
     var Tabs = (function() {
@@ -133,20 +132,22 @@ var CoExpView = (function() {
 
         function bindListener() {
             $("#coexp-profile-selector").change(function() {
-                //Distroy all the subview instance
                 var geneIds = window.PortalGlobals.getGeneList();
                 $.each(geneIds, function(index, value) {
-                    var element =  document.getElementById(Prefix.tableDivPreFix + value);
+                    //Distroy all the subview instances
+                    var element =  document.getElementById(Prefix.tableDivPrefix + value);
                     if (typeof(element) !== 'undefined' && element !== null) { 
                         element.parentNode.removeChild(element); //destroy all the existing instances
                     }
                     element =  document.getElementById(Prefix.plotPrefix + value);
                     if (typeof(element) !== 'undefined' && element !== null) { 
                         element.parentNode.removeChild(element); //destroy all the existing instances
-                    }                      
-                });
-                //Append loading imgs
-                $.each(window.PortalGlobals.getGeneList(), function(index, value) {
+                    }   
+                    //Empty all the sub divs
+                    $("#" + Prefix.tableDivPrefix + value).empty();
+                    $("#" + Prefix.plotsPreFix + value).empty();
+                    $("#" + Prefix.loadingImgPrefix + value).empty();
+                    //Add back loading imgs
                     $("#" + Prefix.loadingImgPrefix + value).append(
                         "<table><tr><td><img style='padding:20px;' src='images/ajax-loader.gif'></td>" + 
                         "<td>Calculating and rendering may take up to 1 minute.</td></tr></table>" + 
@@ -157,7 +158,6 @@ var CoExpView = (function() {
                 var coExpSubTabView = new CoExpSubTabView();
                 coExpSubTabView.init(geneIds[curTabIndex]);
             });
-
         }
 
         return {
@@ -174,8 +174,6 @@ var CoExpView = (function() {
     //Instance of each sub tab
     var CoExpSubTabView = function() {
 
-        var coExpTableInstance = "";
-
         var Names = {
                 divId: "", //Id for the div of the single query gene (both coexp table and plot)
                 loadingImgId: "", //Id for ajax loading img
@@ -184,7 +182,8 @@ var CoExpView = (function() {
                 plotsId: "" //Id for the plots on the right
             },
             geneId = "", //Gene of this sub tab instance
-            coexpTableArr = []; //Data array for the datatable
+            coexpTableArr = [], //Data array for the datatable
+            coExpTableInstance = "";
 
         var CoExpTable = function() {
 
@@ -294,6 +293,9 @@ var CoExpView = (function() {
             }
 
             function attachRowListener() {
+                console.log("Names.tableId");
+                console.log(Names.tableId);
+
                 $("#" + Names.tableId + " tbody tr").live('click', function (event) {
                     //Highlight selected row
                     $(coExpTableInstance.fnSettings().aoData).each(function (){
@@ -357,7 +359,7 @@ var CoExpView = (function() {
             }
 
             return {
-                init: function(_geneId, _profileId) {
+                init: function(_geneId) {
                     //Getting co-exp data (for currently selected gene/profile) from servlet
                     $("#" + Names.plotId).empty();
                     var paramsGetCoExpData = {
@@ -384,8 +386,8 @@ var CoExpView = (function() {
             //figure out div id
             Names.divId = Prefix.divPrefix + geneId;
             Names.loadingImgId = Prefix.loadingImgPrefix + geneId;
-            Names.tableId = Prefix.tablePrefix + geneId;
-            Names.tableDivId = Prefix.tableDivPreFix + geneId;
+            Names.tableId = Prefix.tablePrefix + geneId + jQuery.now();
+            Names.tableDivId = Prefix.tableDivPrefix + geneId;
             Names.plotId = Prefix.plotPrefix + geneId;
         }
 
@@ -403,18 +405,19 @@ var CoExpView = (function() {
             $("#" + Names.tableDivId).addClass("coexp-table");
             $("#" + Names.tableDivId).addClass("coexp-plots");
             $("#" + Names.tableDivId).append(
-                "<table id='" + Names.tableId + "' cellpadding='0' cellspacing='0' border='0' class='display'></table>");
+                "<table id='" + Names.tableId + "' class='coexp_datatable_" + geneId + 
+                "' cellpadding='0' cellspacing='0' border='0' class='display'></table>");
         }
 
         return {
             init: function(_geneId) {
+                //Set the attributes of the sub-view instance
+                geneId = _geneId;
                 //TODO: Just a quick fix for the sub-tab collapse bug
                 $(window).trigger("resize");
                 //Get the div id of the right sub-tab
-                var element =  document.getElementById(Prefix.tablePrefix + _geneId);
-                //Set the attributes of the sub-view instance
-                geneId = _geneId;
-                if (typeof(element) === 'undefined' || element === null) { //Avoid duplication (see if the subtab instance already exists)
+                var element = $(".coexp_datatable_" + _geneId);
+                if (element.length === 0) { //Avoid duplication (see if the subtab instance already exists)
                     assembleNames();
                     drawLayout();
                     var coExpTable = new CoExpTable();
@@ -424,8 +427,6 @@ var CoExpView = (function() {
         }
 
     }   //Closing coExpSubTabView
-
-
 
     function getGeneticProfileCallback(result) {
         var _genes = window.PortalGlobals.getGeneList();

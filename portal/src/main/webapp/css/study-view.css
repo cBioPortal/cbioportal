@@ -406,9 +406,11 @@ pieH3{
     outline: none;
     background-color:#2986e2;
     border: none;
+    /*
     border-radius: 10px;
     -webkit-border-radius: 10px;
     -moz-border-radius: 10px;
+    */
     cursor:pointer;
     -webkit-transition: All 0.5s ease;
     -moz-transition: All 0.5s ease;
@@ -458,9 +460,6 @@ pieH3{
 //Show/Hide columns related classes
 .ColVis_Button {
     white-space: nowrap;
-}
-.ColVis_MasterButton {
-    border-radius: 5px;
 }
 .ColVis_Button.TableTools_Button.ColVis_MasterButton{
     outline: none

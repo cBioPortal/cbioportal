@@ -773,7 +773,7 @@
                                     if (pdb&&pdb!=='NA') {
                                         if (pdb.indexOf('http://')!==0) pdb='http://'+pdb;
                                         tip += "<div class=\"mutation-assessor-3d-link mutation-assessor-link\">"+
-                                               "<a href=\""+pdb+"\" target=\"_blank\"><span class=\"ma-msa-icon\">3D</span> Mutation Assessor 3D View</a></div>";
+                                               "<a href=\""+pdb+"\" target=\"_blank\"><span class=\"ma-3d-icon\">3D</span> Mutation Assessor 3D View</a></div>";
                                     }
 
                                     ret += "<span class='"+maclass+" "+table_id+"-ma-tip' alt='"+tip+"'>"+impact+"</span>";

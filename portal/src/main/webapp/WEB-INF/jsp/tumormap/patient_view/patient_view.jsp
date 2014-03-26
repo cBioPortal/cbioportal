@@ -293,6 +293,9 @@ if (patientViewError!=null) {
         .qtip-wide {
             max-width: 600px;
         }
+        .qtip {
+            font-size: 11px;
+        }
         .datatable-name {
                 float: left;
                 font-weight: bold;

@@ -9,7 +9,7 @@
 			<img src="<%= GlobalProperties.getTagLineImage() %>" alt="Tag Line">
 		</td>
 		<td valign="middle" align="right" width="25%">
-			<a href="http://www.mskcc.org"><img src="images/msk_logo.png" height="50px" alt="MSKCC Logo"></a>
+			<a href="http://www.mskcc.org"><img src="images/mskcc_logo_3d_grey.jpg" height="50px" alt="MSKCC Logo"></a>
 		</td>
 	</tr>
     <%

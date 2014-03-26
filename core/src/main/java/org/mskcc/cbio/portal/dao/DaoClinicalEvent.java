@@ -125,6 +125,10 @@ public final class DaoClinicalEvent {
             pstmt = con.prepareStatement("DELETE FROM clinical_event WHERE CANCER_STUDY_ID=?");
             pstmt.setInt(1, cancerStudyId);
             pstmt.executeUpdate();
+            
+            pstmt = con.prepareStatement("DELETE FROM clinical_event_data WHERE CANCER_STUDY_ID=?");
+            pstmt.setInt(1, cancerStudyId);
+            pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

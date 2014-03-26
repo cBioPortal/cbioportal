@@ -4,17 +4,14 @@
  */
 package org.mskcc.cbio.portal.scripts;
 
-import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
+import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
@@ -33,8 +30,8 @@ public final class ImportCaisesClinicalXML {
     private ImportCaisesClinicalXML() {}
     
     public static void main(String[] args) throws Exception {
-        args = new String[] {"/Users/gaoj/projects/cbio-portal-data/studies/prad/su2c/data_clinical_caises.xml",
-            "/Users/gaoj/projects/cbio-portal-data/studies/prad/su2c/meta_clinical_caises.txt"};
+//        args = new String[] {"/Users/gaoj/projects/cbio-portal-data/studies/prad/su2c/data_clinical_caises.xml",
+//            "/Users/gaoj/projects/cbio-portal-data/studies/prad/su2c/meta_clinical_caises.txt"};
         if (args.length != 2) {
             System.out.println("command line usage:  importCaisesXml <data_clinical_caises.xml> <meta_clinical_caises.txt>");
             return;
@@ -59,21 +56,35 @@ public final class ImportCaisesClinicalXML {
         System.out.println("Done!");
     }
     
-    private static Map<String,String> readPatientIDMapping(String urlIDMappingFile) throws IOException {
-        FileReader reader =  new FileReader(urlIDMappingFile);
-        BufferedReader buff = new BufferedReader(reader);
-
-        Map<String,String> map = new HashMap<String,String>();
-        
-        String line = buff.readLine(); // skip the first line
-        while ((line = buff.readLine()) != null) {
-            String[] parts = line.split("\t");
-            if (!parts[1].isEmpty()) {
-                map.put(parts[2], parts[1]);
-            }
-        }
-        return map;
-    }
+//    private static Map<String,String> readSampleIDMapping(String clinicalDataFile) throws IOException {
+//        FileReader reader =  new FileReader(clinicalDataFile);
+//        BufferedReader buff = new BufferedReader(reader);
+//
+//        Map<String,String> map = new HashMap<String,String>();
+//        
+//        String line = buff.readLine(); 
+//        while (line.startsWith("#")) {
+//            line = buff.readLine();
+//        }
+//        
+//        Map<String,Integer> mapHeaderIndex = new HashMap<String,Integer>();
+//        String[] headers = line.split("\t");
+//        for (int i=0; i<headers.length; i++) {
+//            String header = headers[i];
+//            mapHeaderIndex.put(header, i);
+//        }
+//        
+//        int ixSampleId = mapHeaderIndex.get("CASE_ID");
+//        int ixSu2cSampleId = mapHeaderIndex.get("SU2C_SAMPLE_ID");
+//        
+//        while ((line = buff.readLine()) != null) {
+//            String[] parts = line.split("\t");
+//            if (!parts[1].isEmpty()) {
+//                map.put(parts[ixSampleId], parts[ixSu2cSampleId]);
+//            }
+//        }
+//        return map;
+//    }
     
     private static void importData(String urlXml, int cancerStudyId) throws DocumentException, DaoException {
         MySQLbulkLoader.bulkLoadOn();
@@ -94,6 +105,7 @@ public final class ImportCaisesClinicalXML {
             
             List<ClinicalEvent> clinicalEvents = new ArrayList<ClinicalEvent>();
             
+            parseSpecimen(clinicalEvents, patientNode, patientId, cancerStudyId);
             parseMedicalTherapies(clinicalEvents, patientNode, patientId, cancerStudyId);
             parseRadiationTherapies(clinicalEvents, patientNode, patientId, cancerStudyId);
             parseBrachyTherapies(clinicalEvents, patientNode, patientId, cancerStudyId);
@@ -405,6 +417,62 @@ public final class ImportCaisesClinicalXML {
             }
             
             clinicalEvents.add(clinicalEvent);
+        }
+    }
+    
+    private static void parseSpecimen(List<ClinicalEvent> clinicalEvents,
+            Node patientNode, String patientId, int cancerStudyId) {
+        List<Node> specimenAccessionNodes = patientNode.selectNodes("SpecimenAccessions/SpecimenAccession");
+        for (Node specimenAccessionNode : specimenAccessionNodes) {
+            Node node  = specimenAccessionNode.selectSingleNode("AccessionDate");
+            if (node==null) {
+                System.err.println("no date");
+                continue;
+            }
+            long date = Long.parseLong(node.getText());
+            
+            String site = null, type = null, instrument = null;
+            node  = specimenAccessionNode.selectSingleNode("AccessionAnatomicSite");
+            if (node!=null) {
+                site = node.getText();
+            }
+            node  = specimenAccessionNode.selectSingleNode("AccessionVisitType");
+            if (node!=null) {
+                type = node.getText();
+            }
+            node  = specimenAccessionNode.selectSingleNode("AccessionProcInstrument");
+            if (node!=null) {
+                instrument = node.getText();
+            }
+            
+            List<Node> specimenNodes = specimenAccessionNode.selectNodes("Specimens/Specimen");
+            for (Node specimenNode : specimenNodes) {
+                ClinicalEvent clinicalEvent = new ClinicalEvent();
+                clinicalEvent.setCancerStudyId(cancerStudyId);
+                clinicalEvent.setPatientId(patientId);
+                clinicalEvent.setEventType("SPECIMEN");
+                clinicalEvent.setStartDate(date);
+                if (site!=null) {
+                    clinicalEvent.addEventDatum("SPECIMEN_SITE", site);
+                }
+                if (type!=null) {
+                    clinicalEvent.addEventDatum("ANATOMIC_SITE", type);
+                }
+                if (instrument!=null) {
+                    clinicalEvent.addEventDatum("PROC_INSTRUMENT", instrument);
+                }
+                
+                addAllDataUnderNode(clinicalEvent, Element.class.cast(specimenNode));
+
+                clinicalEvents.add(clinicalEvent);
+            }
+        }
+    }
+    
+    private static void addAllDataUnderNode(ClinicalEvent clinicalEvent, Element element) {
+        for ( Iterator i = element.elementIterator(); i.hasNext(); ) {
+            Element child = (Element) i.next();
+            clinicalEvent.addEventDatum(child.getName(), child.getTextTrim());
         }
     }
 }

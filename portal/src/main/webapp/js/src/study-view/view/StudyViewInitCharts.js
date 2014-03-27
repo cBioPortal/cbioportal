@@ -295,14 +295,27 @@ var StudyViewInitCharts = (function(){
     
     function createLayout() {
         var container = document.querySelector('#study-view-charts');
-        msnry = new Masonry( container, {
+        msnry = new Packery( container, {
             columnWidth: 190,
+            rowHeight: 230,
             itemSelector: '.study-view-dc-chart',
-            gutter:1
+            gutter:5
         });
-        msnry.layout();
+        bondDragForLayout();
     }
     
+    function bondDragForLayout(){
+        var itemElems = msnry.getItemElements();
+        // for each item...
+        for ( var i=0, len = itemElems.length; i < len; i++ ) {
+            var elem = itemElems[i];
+            // make element draggable with Draggabilly
+            var draggie = new Draggabilly( elem );
+            // bind Draggabilly events to Packery
+            msnry.bindDraggabillyEvents( draggie );
+        }
+        msnry.layout();
+    }
     function initWordCloud(_data) {
         StudyViewInitWordCloud.init(parObject, _data);
         $(".study-view-word-cloud-delete").unbind('click');
@@ -313,7 +326,8 @@ var StudyViewInitCharts = (function(){
                     .append($('<li></li>')
                         .attr('id','wordCloud')
                         .text('Word Cloud'));
-            msnry.layout();
+            
+            bondDragForLayout();
             AddCharts.bindliClickFunc();
         });
     }
@@ -329,7 +343,8 @@ var StudyViewInitCharts = (function(){
                     .append($('<li></li>')
                         .attr('id','mutationCNA')
                         .text('Number of Mutation vs Fraction of copy number altered genome'));
-            msnry.layout();
+            
+            bondDragForLayout();
             clickedCaseId = '',
             brushedCaseIds = [];
             shiftClickedCaseIds = [];
@@ -373,7 +388,7 @@ var StudyViewInitCharts = (function(){
                 var _valueA = $(this).parent().parent().attr('value').split(',');
                 
                 deleteChart(_id[_id.length-1],_valueA);
-                msnry.layout();
+                bondDragForLayout();
                 AddCharts.bindliClickFunc();
         });
     }
@@ -794,10 +809,11 @@ var StudyViewInitCharts = (function(){
 
 
             msnry.destroy();
-            msnry = new Masonry( document.querySelector('#study-view-charts'), {
-              columnWidth: 190,
-              itemSelector: '.study-view-dc-chart',
-              gutter:1
+            msnry = new Packery( document.querySelector('#study-view-charts'), {
+                columnWidth: 190,
+                rowHeight: 230,
+                itemSelector: '.study-view-dc-chart',
+                gutter:5
             });
 
             varChart[_chartID].getChart().render();
@@ -807,7 +823,7 @@ var StudyViewInitCharts = (function(){
                 var valueA = $(this).parent().parent().attr("value").split(',');
                 deleteChart(_chartID,valueA);
                 AddCharts.bindliClickFunc();
-                msnry.layout();
+                bondDragForLayout();
             });
         }
 
@@ -815,7 +831,8 @@ var StudyViewInitCharts = (function(){
         if (_index > -1) {
             removedChart.splice(_index, 1);
         }
-        msnry.layout();
+        
+        bondDragForLayout();
 
         $('#study-view-add-chart ul').find('li[id="' + _selectedAttr + '"]').remove();
 

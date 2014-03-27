@@ -87,7 +87,6 @@
     border-style: solid;
     border-width: 1px;
     border-color: lightgrey;
-    margin-bottom: 10px;
 }
 #data-table-chart {
     max-width:1200px;
@@ -252,7 +251,6 @@
     border:1px;
     border-color:lightgrey;
     border-style:solid;
-    margin-bottom: 10px;
 }
 
 .w2{
@@ -279,7 +277,6 @@
     border:1px;
     border-color:lightgrey;
     border-style:solid;
-    margin-bottom: 10px;
 }
 .study-view-bar-x-log {
     float: right;
@@ -298,7 +295,6 @@
     border:1px;
     border-color:lightgrey;
     border-style:solid;
-    margin-bottom: 10px;
 }
 
 .study-view-pie-chart :active{

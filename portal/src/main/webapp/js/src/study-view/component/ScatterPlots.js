@@ -824,7 +824,18 @@ var ScatterPlots = function() {
         getBrushedCases: function() {
             return brushedCases;
         },
-        
+        getHighlightCases: function() {
+            var _highLightCases = [];
+            
+            elem.dotsGroup.selectAll("path").each(function(d) {
+                var _attrType = pointClickType(this);
+                
+                if(_attrType === 'shiftClicked'){
+                    _highLightCases.push(d.case_id);
+                }
+            });
+            return _highLightCases;
+        },
         updateMutations: function(_divName, _divName_x_scale, _divName_y_scale) {
             var _showMutations = document.getElementById(_divName).checked;
             

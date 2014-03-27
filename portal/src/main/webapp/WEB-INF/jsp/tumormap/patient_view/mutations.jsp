@@ -52,7 +52,7 @@
                 $thumbnail.html(content);
                 $(invisible_container).empty();     // N.B.
 
-                $thumbnail.qtip({
+                $thumbnail.children('svg').qtip({
                     content: {text: 'pancancer mutation bar chart is broken'},
                     events: {
                         render: function(event, api) {
@@ -78,7 +78,7 @@
                     },
                     hide: { fixed: true, delay: 100 },
                     style: { classes: 'qtip-light qtip-rounded qtip-shadow', tip: true },
-                    position: {my:'top right',at:'bottom center'}
+                    position: {my:'center right',at:'center left'}
                 });
 
                 $thumbnail.attr("data-pancan-done", true);
@@ -773,10 +773,10 @@
                                     if (pdb&&pdb!=='NA') {
                                         if (pdb.indexOf('http://')!==0) pdb='http://'+pdb;
                                         tip += "<div class=\"mutation-assessor-3d-link mutation-assessor-link\">"+
-                                               "<a href=\""+pdb+"\" target=\"_blank\"><span class=\"ma-msa-icon\">3D</span> Mutation Assessor 3D View</a></div>";
+                                               "<a href=\""+pdb+"\" target=\"_blank\"><span class=\"ma-3d-icon\">3D</span> Mutation Assessor 3D View</a></div>";
                                     }
 
-                                    ret += "<span class='"+maclass+" "+table_id+"-tip' alt='"+tip+"'>"+impact+"</span>";
+                                    ret += "<span class='"+maclass+" "+table_id+"-ma-tip' alt='"+tip+"'>"+impact+"</span>";
                                 }
                                 
                                 return ret;
@@ -809,6 +809,7 @@
                     plotMrna("."+table_id+"-mrna",mutations);
                     plotMutRate("."+table_id+"-mut-cohort",mutations);
                     addNoteTooltip("."+table_id+"-tip");
+                    addNoteTooltip("."+table_id+"-ma-tip",null,{my:'top right',at:'bottom center'});
                     addDrugsTooltip("."+table_id+"-drug-tip", 'top right', 'bottom center');
                     addCosmicTooltip(table_id);
                     listenToBamIgvClick(".igv-link");
@@ -971,7 +972,6 @@
     
     $(document).ready(function(){
         $('#mutation_id_filter_msg').hide();
-        $('#mutation_wrapper_table').hide();
         var params = {
             <%=PatientView.CASE_ID%>:caseIdsStr,
             <%=PatientView.MUTATION_PROFILE%>:mutationProfileId
@@ -1180,7 +1180,7 @@
 <div id="mutation_id_filter_msg"><font color="red">The following table contains filtered mutations.</font>
 <button onclick="unfilterMutationsTableByIds(); return false;" style="font-size: 1em;">Show all mutations</button></div>
 <div  id="pancan_mutations_histogram_container"></div>
-<table cellpadding="0" cellspacing="0" border="0" id="mutation_wrapper_table" width="100%">
+<table cellpadding="0" cellspacing="0" border="0" id="mutation_wrapper_table" width="100%" style="display:none;">
     <tr>
         <td>
             <table cellpadding="0" cellspacing="0" border="0" class="display" id="mutation_table">

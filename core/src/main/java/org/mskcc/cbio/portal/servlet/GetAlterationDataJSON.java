@@ -57,10 +57,12 @@ public class GetAlterationDataJSON extends HttpServlet {
         String[] geneIdList = httpServletRequest.getParameter("gene_list").split("\\s+");
         String caseSetId = httpServletRequest.getParameter("case_set_id");
         String caseIdsKey = httpServletRequest.getParameter("case_ids_key");
+        String profileId = httpServletRequest.getParameter("profile_id");
+
 
         try {
 
-            GeneticProfile final_gp = CoExpUtil.getPreferedGeneticProfile(cancerStudyIdentifier);
+            GeneticProfile final_gp = DaoGeneticProfile.getGeneticProfileByStableId(profileId);
             ArrayList<String> caseIds = CoExpUtil.getCaseIds(caseSetId, caseIdsKey);
 
             ObjectMapper mapper = new ObjectMapper();

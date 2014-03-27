@@ -265,7 +265,7 @@ var CoExpView = (function() {
                 var downloadFullResultForm = "<form style='float:right;' action='getCoExp.do' method='post'>" +
                     "<input type='hidden' name='cancer_study_id' value='" + window.PortalGlobals.getCancerStudyId() + "'>" +
                     "<input type='hidden' name='gene' value='" + geneId + "'>" +
-                    "<input type='hidden' name='profile_id' value='" + $("#coexp-profile-selector-" + geneId + " :selected").val() + "'>" + 
+                    "<input type='hidden' name='profile_id' value='" + $("#coexp-profile-selector :selected").val() + "'>" + 
                     "<input type='hidden' name='case_set_id' value='" + window.PortalGlobals.getCaseSetId() + "'>" +
                     "<input type='hidden' name='case_ids_key' value='" + window.PortalGlobals.getCaseIdsKey() + "'>" +
                     "<input type='hidden' name='is_full_result' value='true'>" +

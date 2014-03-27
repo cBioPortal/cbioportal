@@ -9,6 +9,7 @@ The cBio Portal for NCI-TARGET is developed and maintained by the Computational 
  * Anders Jacobsen, MSKCC
  * S. Onur Sumer, MSKCC
  * Yichao Sun, MSKCC
+ * Hongxin Zhang, MSKCC
  * Istemi Bahceci, Bilkent University
  * Ugur Dogrusoz, Bilkent University
  * Chris Sander, MSKCC

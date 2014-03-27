@@ -9,6 +9,7 @@ The cBioPortal for Cancer Genomics is developed and maintained by the [Computati
  * Anders Jacobsen, MSKCC
  * S. Onur Sumer, MSKCC
  * Yichao Sun, MSKCC
+ * Hongxin Zhang, MSKCC
  * Istemi Bahceci, Bilkent University
  * Ugur Dogrusoz, Bilkent University
  * Chris Sander, MSKCC

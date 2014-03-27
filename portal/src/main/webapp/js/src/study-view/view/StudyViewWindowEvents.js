@@ -1,5 +1,7 @@
 /* 
  *This class is designed to listen all windows events. Exp. window.scroll
+ *
+ * @interface: getScrollStatus -- return the flag whether page has been scrolled.
  */
 
 
@@ -7,6 +9,10 @@ var StudyViewWindowEvents = (function(){
     
     var chartsTabHeaderTopInitialized = false,
         chartsTabHeaderTop = 0,
+        
+        //Whether the is scrolled, and here is specific to detect whether
+        //the header of Charts Tab is on the page top or not.
+        //Will be used outside function
         scrolled = false;
         
     function initEvents(){
@@ -16,12 +22,14 @@ var StudyViewWindowEvents = (function(){
     function initScrollEvent(){
         $(window).scroll(function(e){
             
+            //To get offset position of charts tab header, and only initial once
             if(!chartsTabHeaderTopInitialized){
                 chartsTabHeaderTop = $("#study-view-header-function").offset().top;
                 chartsTabHeaderTopInitialized = true;
             }
             
-            if ($(this).scrollTop() > chartsTabHeaderTop){ 
+            if ($(this).scrollTop() > chartsTabHeaderTop){
+                //Use transform to move header
                 var _transformY = Number($(this).scrollTop()) - chartsTabHeaderTop;
                 
                 scrolled = true;
@@ -83,9 +91,11 @@ var StudyViewWindowEvents = (function(){
             }
         });
     }
+    
     return {
       init: initEvents,
-      getScrollStatus: function() {
+      
+        getScrollStatus: function() {
           return scrolled;
       }
     };

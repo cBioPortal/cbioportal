@@ -408,22 +408,27 @@ var DataTable = function() {
         }else{
             var _min = aData[0],
                 _max = aData[aData.length-1],
-                _x1 = 5,
+                _x1 = 15,
                 _x2 = 65,
+                _textH = 30,
+                _resetH = 32,
+                _triangelTop = 34,
+                _lineH = 33,
+                _triangelBottom = _triangelTop + 8,
                 _fontSize = '8px';
             
-            var _leftTriangelCoordinates = (_x1-5) + ",2 "+ (_x1+5)+",2 "+_x1+",10",
-                _rightTriangelCoordinates = (_x2-5) + ",2 "+ (_x2+5)+",2 "+_x2+",10",
-                _leftText = "x='"+(_x1-3)+"' y='22'",
-                _rightText = "x='"+(_x2-10)+"' y='22'",
-                _resetText = "x='"+(_x2+15)+"' y='22'";
+            var _leftTriangelCoordinates = (_x1-5) + ","+_triangelBottom+ " "+ (_x1+5)+","+_triangelBottom+ " "+_x1+","+_triangelTop,
+                _rightTriangelCoordinates = (_x2-5) + ","+_triangelBottom+ " "+ (_x2+5)+","+_triangelBottom+ " "+_x2+","+_triangelTop,
+                _leftText = "x='"+_x1+"' y='"+_textH+"'",
+                _rightText = "x='"+_x2+"' y='"+_textH+"'",
+                _resetText = "x='"+(_x2+15)+"' y='"+_resetH+"'";
            
-            var _svgLine = "<svg width='110' height='30' start='"+ _min +"' end='"+ _max +"'>" + 
-                    "<g><line x1='"+ _x1 +"' y1='10' x2='"+ _x2 +"' y2='10' style='stroke:black;stroke-width:2' /></g>"+
-                    "<g id='dataTable-"+ index +"-left' class='clickable left'><polygon points='"+_leftTriangelCoordinates+"' style='fill:grey'></polygon>"+
-                    "<text "+_leftText+" fill='black' style='font-size:"+ _fontSize +"'>"+ _min +"</text></g>" + 
+            var _svgLine = "<svg width='110' height='50' start='"+ _min +"' end='"+ _max +"'>" + 
+                    "<g><line x1='"+ _x1 +"' y1='"+_lineH+"' x2='"+ _x2 +"' y2='"+_lineH+"' style='stroke:black;stroke-width:2' /></g>"+
                     "<g id='dataTable-"+ index +"-right' class='clickable right'><polygon points='"+_rightTriangelCoordinates+"' style='fill:grey'></polygon>"+
-                    "<text "+_rightText+" fill='black' style='font-size:"+ _fontSize +"'>"+ _max +"</text></g>" +
+                    "<text "+_rightText+" fill='black' transform='rotate(-30 "+_x2+" "+_textH+")' style='font-size:"+ _fontSize +"'>"+ _max +"</text></g>" +
+                    "<g id='dataTable-"+ index +"-left' class='clickable left'><polygon points='"+_leftTriangelCoordinates+"' style='fill:grey'></polygon>"+
+                    "<text "+_leftText+" fill='black' transform='rotate(-30 "+_x1+" "+_textH+")' style='font-size:"+ _fontSize +"'>"+ _min +"</text></g>" + 
                     "<text "+ _resetText +" id='dataTable-"+ index +"-reset' class='clickable hidden'  fill='black' style='font-size:"+ _fontSize +"'>RESET</text>" + 
                     "</svg>";
 
@@ -526,11 +531,11 @@ var DataTable = function() {
 
             if ( _iMin === "" && _iMax === "" ){
                     return true;
-            }else if ( _iMin === "" && _iCurrent < _iMax ){
+            }else if ( _iMin === "" && _iCurrent <= _iMax ){
                     return true;
-            }else if ( _iMin < _iCurrent && "" === _iMax ){
+            }else if ( _iMin <= _iCurrent && "" === _iMax ){
                     return true;
-            }else if ( _iMin < _iCurrent && _iCurrent < _iMax ){
+            }else if ( _iMin <= _iCurrent && _iCurrent <= _iMax ){
                     return true;
             }
 

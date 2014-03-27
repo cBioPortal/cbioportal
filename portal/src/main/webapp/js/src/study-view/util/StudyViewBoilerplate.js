@@ -178,7 +178,7 @@ var StudyViewBoilerplate ={
         _span3
             .attr({
                 'id': 'study-view-header-left-3',
-                'class': 'study-view-header hidden'})
+                'class': 'hidden'})
             .text('Clear selected cases');
        
         _header.append(_span1);

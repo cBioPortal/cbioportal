@@ -45,12 +45,21 @@
     height: 50px;
 }
 #study-view-header-left-3 {
+    position: absolute;
     left: 410px;
     height: 30px;
     line-height: 30px;
     top: 12px;
     border: 0;
     font-size: 13px;
+    margin: 0;
+    z-index: 21;
+    vertical-align: middle;
+    padding: 0 10px;
+    background-color: white;
+    width: auto;
+    color: #2986e2;
+    text-align: center;
 }
 #study-view-header-left-3:hover{
     cursor: default;
@@ -171,7 +180,6 @@
     font-weight: bold;
     text-align: center;
     display: inline-block;
-    vertical-align: middle;
     line-height: 50px;
 }
 .study-view-header:hover{    

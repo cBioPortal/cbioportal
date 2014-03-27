@@ -235,7 +235,7 @@ var CoExpView = (function() {
                         "sSearch": "Search Gene"
                     },
                     "bDeferRender": true,
-                    "iDisplayLength": 27,
+                    "iDisplayLength": 30,
                     "fnRowCallback": function(nRow, aData) {
                         $('td:eq(0)', nRow).css("font-weight", "bold");
                         $('td:eq(1)', nRow).css("font-weight", "bold");

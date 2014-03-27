@@ -3,12 +3,8 @@ package org.mskcc.cbio.portal.util;
 import java.util.*;
 
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.dao.*;
 
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.node.ObjectNode;
-import org.codehaus.jackson.map.ObjectMapper;
 
 
 public class CoExpUtil {
@@ -56,32 +52,40 @@ public class CoExpUtil {
     }
 
 	public static Map<Long,double[]> getExpressionMap(int profileId, String caseSetId, String caseIdsKey) throws DaoException {
-
-		ArrayList<String> caseIds = getCaseIds(caseSetId, caseIdsKey);
-
-        DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
-        Map<Long, HashMap<String, String>> mapStr = daoGeneticAlteration.getGeneticAlterationMap(profileId, null);
-        Map<Long, double[]> map = new HashMap<Long, double[]>(mapStr.size());
-        for (Map.Entry<Long, HashMap<String, String>> entry : mapStr.entrySet()) {
-            Long gene = entry.getKey();
-            Map<String, String> mapCaseValueStr = entry.getValue();
-            double[] values = new double[caseIds.size()];
-            for (int i = 0; i < caseIds.size(); i++) {
-                String caseId = caseIds.get(i);
-                String value = mapCaseValueStr.get(caseId);
-                Double d;
-                try {
-                    d = Double.valueOf(value);
-                } catch (Exception e) {
-                    d = Double.NaN;
+            //Filter out cases with no values
+            ArrayList<String> caseIds = getCaseIds(caseSetId, caseIdsKey);
+            caseIds.retainAll(DaoCaseProfile.getAllCaseIdsInProfile(profileId));
+        
+            DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
+        
+            Map<Long, HashMap<String, String>> mapStr = daoGeneticAlteration.getGeneticAlterationMap(profileId, null);
+            Map<Long, double[]> map = new HashMap<Long, double[]>(mapStr.size());
+            for (Map.Entry<Long, HashMap<String, String>> entry : mapStr.entrySet()) {
+                Long gene = entry.getKey();
+                Map<String, String> mapCaseValueStr = entry.getValue();
+                double[] values = new double[caseIds.size()];
+                boolean isValid = true;
+                for (int i = 0; i < caseIds.size(); i++) {
+                    String caseId = caseIds.get(i);
+                    String value = mapCaseValueStr.get(caseId);
+                    Double d;
+                    try {
+                        d = Double.valueOf(value);
+                    } catch (Exception e) {
+                        d = Double.NaN;
+                    }
+                    if (d!=null && !d.isNaN()) {
+                        values[i]=d;
+                    } else {
+                        isValid = false;
+                        break;
+                    }
                 }
-                if (d!=null && !d.isNaN()) {
-                    values[i]=d;
+                if (isValid) {
+                    map.put(gene, values);
                 }
             }
-            map.put(gene, values);
+            return map;
         }
-        return map;
-    }
 	
 }

@@ -35,7 +35,8 @@ var LoadingJS = (function(){
                         'StudyViewInitTopComponents',
                         'StudyViewInitScatterPlot',
                         'StudyViewInitIntroJS',
-                        'StudyViewInitWordCloud'],
+                        'StudyViewInitWordCloud',
+                        'StudyViewWindowEvents'],
                 controller: ['StudyViewControl']
             };
             

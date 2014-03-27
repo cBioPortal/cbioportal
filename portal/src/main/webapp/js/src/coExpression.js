@@ -402,7 +402,7 @@ var CoExpView = (function() {
             $("#" + Names.tableDivId).addClass("coexp-table");
             $("#" + Names.tableDivId).addClass("coexp-plots");
             $("#" + Names.tableDivId).append(
-                "<table id='" + Names.tableId + "' class='display cellpadding='0' cellspacing='0' border='0' class='display'></table>");
+                "<table id='" + Names.tableId + "' class='display coexp_datatable_" + geneId + "' cellpadding='0' cellspacing='0' border='0'></table>");
         }
 
         return {

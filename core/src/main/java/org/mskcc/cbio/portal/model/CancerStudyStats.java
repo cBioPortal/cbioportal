@@ -46,7 +46,7 @@ public class CancerStudyStats {
         private String reference;
 	private Integer all;
 	private Integer sequenced;
-	private Integer aCGH;
+	private Integer cna;
 	private Integer rnaSEQ;
 	private Integer tumorMRNA;
 	private Integer normal;
@@ -60,7 +60,7 @@ public class CancerStudyStats {
 	 *
 	 */
 	public CancerStudyStats(String stableID, String studyName, String reference, Integer all, Integer sequenced,
-							Integer aCGH, Integer rnaSEQ, Integer tumorMRNA, Integer normal,
+							Integer cna, Integer rnaSEQ, Integer tumorMRNA, Integer normal,
 							Integer tumorMIRNA, Integer methylation, Integer rppa, Integer complete) {
 
 		this.stableID = stableID;
@@ -68,7 +68,7 @@ public class CancerStudyStats {
                 this.reference = reference;
 		this.all = all;
 		this.sequenced = sequenced;
-		this.aCGH = aCGH;
+		this.cna = cna;
 		this.rnaSEQ = rnaSEQ;
 		this.tumorMRNA = tumorMRNA;
 		this.normal = normal;
@@ -84,7 +84,7 @@ public class CancerStudyStats {
 	public String getReference() { return this.reference; }
 	public Integer getAll() { return this.all; }
 	public Integer getSequenced() { return this.sequenced; }
-	public Integer getACGH() { return this.aCGH; }
+	public Integer getCNA() { return this.cna; }
 	public Integer getRNASEQ() { return this.rnaSEQ; }
 	public Integer getTumorMRNA() { return this.tumorMRNA; }
 	public Integer getNormal() { return this.normal; }

@@ -14,9 +14,11 @@ var DataTableUtil = (function()
 
 		for (var i=0; i < headers.length; i++)
 		{
-			if (map[headers[i].toLowerCase()] == null)
+			var header = headers[i].name || headers[i].toLowerCase();
+
+			if (map[header] == null)
 			{
-				map[headers[i].toLowerCase()] = i;
+				map[header] = i;
 			}
 		}
 
@@ -37,7 +39,7 @@ var DataTableUtil = (function()
 		var map = {};
 
 		_.each(headers, function(ele, idx) {
-			var header = ele.toLowerCase();
+			var header = ele.name || ele.toLowerCase();
 
 			if (map[header] == null)
 			{
@@ -70,7 +72,7 @@ var DataTableUtil = (function()
 		var map = {};
 
 		_.each(headers, function(ele, idx) {
-			var header = ele.toLowerCase();
+			var header = ele.name || ele.toLowerCase();
 
 			if (map[header] == null)
 			{
@@ -97,7 +99,7 @@ var DataTableUtil = (function()
 
 		// process all headers
 		_.each(headers, function(ele, idx) {
-			var header = ele.toLowerCase();
+			var header = ele.name || ele.toLowerCase();
 
 			// determine visibility
 			if (visMap[header] != "visible")
@@ -126,7 +128,7 @@ var DataTableUtil = (function()
 
 		// check all headers
 		_.each(headers, function(ele, idx) {
-			var header = ele.toLowerCase();
+			var header = ele.name || ele.toLowerCase();
 
 			// determine visibility
 			if (visMap[header] == "excluded")
@@ -145,7 +147,7 @@ var DataTableUtil = (function()
 
 		// check all headers
 		_.each(headers, function(ele, idx) {
-			var header = ele.toLowerCase();
+			var header = ele.name || ele.toLowerCase();
 
 			// check if searchable
 			if (searchMap[header] === false)

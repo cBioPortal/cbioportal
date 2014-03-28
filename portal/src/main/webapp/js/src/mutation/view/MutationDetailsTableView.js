@@ -45,38 +45,11 @@ var MutationDetailsTableView = Backbone.View.extend({
 
 		var options = {el: self.$el.find(".mutation_details_table")};
 
-		var headers = ["datum",
-			"Mutation ID",
-			"Case ID",
-			"Cancer Study",
-			"Tumor Type",
-			"AA Change",
-			"Type",
-			"Copy #",
-			"COSMIC",
-			"MS",
-			"VS",
-			"Mutation Assessor",
-			"Center",
-			"Chr",
-			"Start Pos",
-			"End Pos",
-			"Ref",
-			"Var",
-			"Allele Freq (T)",
-			"Allele Freq (N)",
-			"Var Ref",
-			"Var Alt",
-			"Norm Ref",
-			"Norm Alt",
-			"BAM",
-			"#Mut in Sample"];
-
-		var mutationColl = new MutationCollection(self.model.mutations)
+		var mutationColl = new MutationCollection(self.model.mutations);
 		var mutationUtil = new MutationDetailsUtil(mutationColl);
 
 		var table = new MutationDetailsTable(
-			options, headers, self.model.geneSymbol, mutationUtil);
+			options, self.model.geneSymbol, mutationUtil);
 
 		// TODO self.mutationTable = table;
 		self.tableUtil = table;
@@ -86,7 +59,7 @@ var MutationDetailsTableView = Backbone.View.extend({
 			callback(self, table);
 		}
 
-		self._generateRowData(headers, mutationColl, function(rowData) {
+		self._generateRowData(table.getHeaders(), mutationColl, function(rowData) {
 			// init table with the row data
 			table.renderTable(rowData);
 			// hide loader image

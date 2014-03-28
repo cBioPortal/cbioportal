@@ -5,17 +5,21 @@
  */
 var MutationDetailsTableFormatter = (function()
 {
-	var visualStyleMaps = MutationViewsUtil.getVisualStyleMaps();
+	var _visualStyleMaps = MutationViewsUtil.getVisualStyleMaps();
 
-	var mutationTypeMap = visualStyleMaps.mutationType;
-	var validationStatusMap = visualStyleMaps.validationStatus;
-	var mutationStatusMap = visualStyleMaps.mutationStatus;
-	var omaScoreMap = visualStyleMaps.omaScore;
-	var cnaMap = visualStyleMaps.cna;
+	var _mutationTypeMap = _visualStyleMaps.mutationType;
+	var _validationStatusMap = _visualStyleMaps.validationStatus;
+	var _mutationStatusMap = _visualStyleMaps.mutationStatus;
+	var _omaScoreMap = _visualStyleMaps.omaScore;
+	var _cnaMap = _visualStyleMaps.cna;
 
 	// TODO identify duplicate/similar get functions
+	function getCNA(value)
+	{
+		return _getCNA(_cnaMap, value);
+	}
 
-	function getCNA(map, value)
+	function _getCNA(map, value)
 	{
 		var style, label, tip;
 
@@ -64,6 +68,11 @@ var MutationDetailsTableFormatter = (function()
 		return {style: style, tip: tip, text: text};
 	}
 
+	function getMutationType(value)
+	{
+		return _getMutationType(_mutationTypeMap, value);
+	}
+
     /**
      * Returns the text content and the css class for the given
      * mutation type value.
@@ -73,7 +82,7 @@ var MutationDetailsTableFormatter = (function()
      * @return {{style: string, text: string}}
      * @private
      */
-	function getMutationType(map, value)
+	function _getMutationType(map, value)
 	{
 		var style, text;
 		value = value.toLowerCase();
@@ -92,6 +101,11 @@ var MutationDetailsTableFormatter = (function()
 		return {style: style, text: text};
 	}
 
+	function getMutationStatus(value)
+	{
+		return _getMutationStatus(_mutationStatusMap, value);
+	}
+
 	/**
      * Returns the text content, the css class, and the tooltip
 	 * for the given mutation type value.
@@ -101,7 +115,7 @@ var MutationDetailsTableFormatter = (function()
      * @return {{style: string, text: string, tip: string}}
      * @private
      */
-	function getMutationStatus(map, value)
+	function _getMutationStatus(map, value)
 	{
 		var style = "simple-tip";
 		var text = value;
@@ -118,6 +132,11 @@ var MutationDetailsTableFormatter = (function()
 		return {style: style, tip: tip, text: text};
 	}
 
+	function getValidationStatus(value)
+	{
+		return _getValidationStatus(_validationStatusMap, value);
+	}
+
 	/**
 	 * Returns the text content, the css class, and the tooltip
 	 * for the given validation status value.
@@ -127,7 +146,7 @@ var MutationDetailsTableFormatter = (function()
 	 * @return {{style: string, text: string, tip: string}}
 	 * @private
 	 */
-	function getValidationStatus(map, value)
+	function _getValidationStatus(map, value)
 	{
 		var style, label, tip;
 		value = value.toLowerCase();
@@ -148,6 +167,11 @@ var MutationDetailsTableFormatter = (function()
 		return {style: style, tip: tip, text: label};
 	}
 
+	function getFis(fis, fisValue)
+	{
+		return _getFis(_omaScoreMap, fis, fisValue);
+	}
+
 	/**
 	 * Returns the text content, the css classes, and the tooltip
 	 * for the given string and numerical values of a
@@ -159,7 +183,7 @@ var MutationDetailsTableFormatter = (function()
 	 * @return {{fisClass: string, omaClass: string, value: string, text: string}}
 	 * @private
 	 */
-	function getFis(map, fis, fisValue)
+	function _getFis(map, fis, fisValue)
 	{
 		var text = "";
 		var fisClass = "";
@@ -321,7 +345,19 @@ var MutationDetailsTableFormatter = (function()
     }
 
 	return {
-		getCaseId: getCaseId
+		getCaseId: getCaseId,
+		getProteinChange: getProteinChange,
+		getPdbMatchId: getPdbMatchId,
+		getAlleleCount: getAlleleCount,
+		getAlleleFreq: getAlleleFreq,
+		getCNA: getCNA,
+		getMutationType: getMutationType,
+		getMutationStatus: getMutationStatus,
+		getValidationStatus: getValidationStatus,
+		getFis: getFis,
+		getTumorType: getTumorType,
+		getCosmic: getCosmic,
+		getIntValue: getIntValue
 	}
 })();
 

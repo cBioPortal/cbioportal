@@ -5,7 +5,7 @@
  *
  * @author Selcuk Onur Sumer
  */
-var MutationDiagramController = function(mutationDiagram, mutationTable, mutationUtil, tableView)
+var MutationDiagramController = function(mutationDiagram, mutationTable, mutationUtil)
 {
 	function init()
 	{
@@ -21,11 +21,11 @@ var MutationDiagramController = function(mutationDiagram, mutationTable, mutatio
 
 		// add listeners for the mutation table view
 
-//		tableView.dispatcher.on(
+//		mutationTable.dispatcher.on(
 //			MutationDetailsEvents.PROTEIN_CHANGE_LINK_CLICKED,
 //			proteinChangeLinkHandler);
 
-//		tableView.dispatcher.on(
+//		mutationTable.dispatcher.on(
 //			MutationDetailsEvents.PDB_LINK_CLICKED,
 //			proteinChangeLinkHandler);
 	}

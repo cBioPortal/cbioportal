@@ -124,6 +124,7 @@ function MutationPdbTable(options, headers)
 					"aTargets": hiddenCols},
 				{"bSearchable": false,
 					"aTargets": nonSearchableCols},
+				// TODO use new option columnRender (see mutation_details_table.js)
 				{"fnRender": function(obj) {
 						// format as a percentage value
 						return Math.round(obj.aData[obj.iDataColumn] * 100);

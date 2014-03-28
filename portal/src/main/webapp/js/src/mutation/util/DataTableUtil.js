@@ -157,12 +157,43 @@ var DataTableUtil = (function()
 		return nonSearchableCols;
 	}
 
+	function getColumnRenderers(renderers, indexMap)
+	{
+		var columnRenderers = [];
+
+		_.each(_.pairs(renderers), function(pair) {
+			var columnName = pair[0];
+			var renderFn = pair[1];
+
+			var columnIdx = indexMap[columnName];
+
+			if (columnIdx != null)
+			{
+				var renderer = {
+					"fnRender": function(obj) {
+						// assuming the data table has a datum column
+						var datum = obj.aData[indexMap["datum"]];
+
+						// assuming renderFn takes these 2 parameters
+						return renderFn(obj, datum);
+					},
+					"aTargets": [columnIdx]
+				};
+
+				columnRenderers.push(renderer);
+			}
+		});
+
+		return columnRenderers;
+	}
+
 	return {
 		buildColumnIndexMap: buildColumnIndexMap,
 		buildColumnVisMap: buildColumnVisMap,
 		buildColumnSearchMap: buildColumnSearchMap,
 		getHiddenColumns: getHiddenColumns,
 		getExcludedColumns: getExcludedColumns,
-		getNonSearchableColumns: getNonSearchableColumns
+		getNonSearchableColumns: getNonSearchableColumns,
+		getColumnRenderers: getColumnRenderers
 	};
 })();

@@ -1,11 +1,120 @@
 <script type="text/template" id="mutation_details_table_template">
 	<table class='display mutation_details_table'
 	       cellpadding='0' cellspacing='0' border='0'>
-		<thead>{{tableHeaders}}</thead>
-		<tbody>{{tableRows}}</tbody>
-		<tfoot>{{tableHeaders}}</tfoot>
 	</table>
 </script>
+
+<!-- Mutation Table components
+  -- These components are intended to be used within the mutation table cells.
+  -->
+
+<script type="text/template" id="mutation_table_case_id_template">
+	<a href='{{linkToPatientView}}' target='_blank'>
+		<b alt="{{caseIdTip}}"
+		   class="{{caseIdClass}}">{{caseId}}</b>
+	</a>
+</script>
+
+<script type="text/template" id="mutation_table_cancer_study_template">
+	<a href='{{cancerStudyLink}}' target='_blank'>
+		<b title="{{cancerStudy}}"
+		   alt="{{cancerStudy}}"
+		   class="cc-short-study-name">{{cancerStudyShort}}</b>
+	</a>
+</script>
+
+<script type="text/template" id="mutation_table_tumor_type_template">
+	<span class='{{tumorTypeClass}}' alt='{{tumorTypeTip}}'>
+		{{tumorType}}
+	</span>
+</script>
+
+<script type="text/template" id="mutation_table_protein_change_template">
+	<span class='{{proteinChangeClass}}' alt='{{proteinChangeTip}}'>
+		<a>{{proteinChange}}</a>
+	</span>
+	<a href='#' class="mutation-table-3d-link" alt="{{pdbMatchId}}">
+		<span class="mutation-table-3d-icon">3D</span>
+	</a>
+</script>
+
+<script type="text/template" id="mutation_table_mutation_type_template">
+	<span class='{{mutationTypeClass}}'>
+		<label>{{mutationTypeText}}</label>
+	</span>
+</script>
+
+<script type="text/template" id="mutation_table_cna_template">
+	<label alt='{{cnaTip}}' class='simple-tip {{cnaClass}}'>{{cna}}</label>
+</script>
+
+<script type="text/template" id="mutation_table_cosmic_template">
+	<label class='{{cosmicClass}}' alt='{{mutationId}}'>{{cosmicCount}}</label>
+</script>
+
+<script type="text/template" id="mutation_table_mutation_status_template">
+	<span alt='{{mutationStatusTip}}' class='simple-tip {{mutationStatusClass}}'>
+		<label>{{mutationStatusText}}</label>
+	</span>
+</script>
+
+<script type="text/template" id="mutation_table_validation_status_template">
+	<span alt='{{validationStatusTip}}' class="simple-tip {{validationStatusClass}}">
+		<label>{{validationStatusText}}</label>
+	</span>
+</script>
+
+<script type="text/template" id="mutation_table_mutation_assessor_template">
+	<span class='{{omaClass}} {{fisClass}}' alt='{{fisValue}}|{{mutationId}}'>
+		<label>{{fisText}}</label>
+	</span>
+</script>
+
+<script type="text/template" id="mutation_table_start_pos_template">
+	<label class='{{startPosClass}}'>{{startPos}}</label>
+</script>
+
+<script type="text/template" id="mutation_table_end_pos_template">
+	<label class='{{endPosClass}}'>{{endPos}}</label>
+</script>
+
+<script type="text/template" id="mutation_table_tumor_freq_template">
+	<label alt='<b>{{tumorAltCount}}</b> variant reads out of <b>{{tumorTotalCount}}</b> total'
+	       class='{{tumorFreqClass}} {{tumorFreqTipClass}}'>{{tumorFreq}}</label>
+</script>
+
+<script type="text/template" id="mutation_table_normal_freq_template">
+	<label alt='<b>{{normalAltCount}}</b> variant reads out of <b>{{normalTotalCount}}</b> total'
+	       class='{{normalFreqClass}} {{normalFreqTipClass}}'>{{normalFreq}}</label>
+</script>
+
+<script type="text/template" id="mutation_table_tumor_ref_count_template">
+	<label class='{{tumorRefCountClass}}'>{{tumorRefCount}}</label>
+</script>
+
+<script type="text/template" id="mutation_table_tumor_alt_count_template">
+	<label class='{{tumorAltCountClass}}'>{{tumorAltCount}}</label>
+</script>
+
+<script type="text/template" id="mutation_table_normal_ref_count_template">
+	<label class='{{normalRefCountClass}}'>{{normalRefCount}}</label>
+</script>
+
+<script type="text/template" id="mutation_table_normal_alt_count_template">
+	<label class='{{normalAltCountClass}}'>{{normalAltCount}}</label>
+</script>
+
+<script type="text/template" id="mutation_table_igv_link_template">
+	<a class='igv-link' alt='{{igvLink}}'>
+		<span class="mutation-table-igv-icon">IGV</span>
+	</a>
+</script>
+
+<script type="text/template" id="mutation_table_mutation_count_template">
+	<label class='{{mutationCountClass}}'>{{mutationCount}}</label>
+</script>
+
+<!-- TODO remove data_row_template and header_row_template after refactoring -->
 
 <script type="text/template" id="mutation_details_table_data_row_template">
 	<tr id='{{mutationId}}' class="{{mutationSid}}">

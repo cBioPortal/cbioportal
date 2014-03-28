@@ -21,6 +21,105 @@ var MutationDetailsTableView = Backbone.View.extend({
 	{
 		var self = this;
 
+		// compile the template using underscore
+		var template = _.template($("#mutation_details_table_template").html(),
+		                          {loaderImage: "images/ajax-loader.gif"});
+
+		// load the compiled HTML into the Backbone "el"
+		self.$el.html(template);
+
+		// init pdb table
+		self._initMutationTable();
+
+		// format after rendering
+		self.format();
+	},
+	/**
+	 * Initializes the PDB chain table.
+	 *
+	 * @return {MutationDetailsTable}   table instance
+	 */
+	_initMutationTable: function(callback)
+	{
+		var self = this;
+
+		var options = {el: self.$el.find(".mutation_details_table")};
+
+		var headers = ["datum",
+			"Mutation ID",
+			"Case ID",
+			"Cancer Study",
+			"Tumor Type",
+			"AA Change",
+			"Type",
+			"Copy #",
+			"COSMIC",
+			"MS",
+			"VS",
+			"Mutation Assessor",
+			"Center",
+			"Chr",
+			"Start Pos",
+			"End Pos",
+			"Ref",
+			"Var",
+			"Allele Freq (T)",
+			"Allele Freq (N)",
+			"Var Ref",
+			"Var Alt",
+			"Norm Ref",
+			"Norm Alt",
+			"BAM",
+			"#Mut in Sample"];
+
+		var mutationColl = new MutationCollection(self.model.mutations)
+		var mutationUtil = new MutationDetailsUtil(mutationColl);
+
+		var table = new MutationDetailsTable(
+			options, headers, self.model.geneSymbol, mutationUtil);
+
+		// TODO self.mutationTable = table;
+		self.tableUtil = table;
+
+		if (_.isFunction(callback))
+		{
+			callback(self, table);
+		}
+
+		self._generateRowData(headers, mutationColl, function(rowData) {
+			// init table with the row data
+			table.renderTable(rowData);
+			// hide loader image
+			//self.$el.find(".mutation-details-table-loader").hide();
+		});
+
+		return table;
+	},
+	_generateRowData: function(headers, mutationColl, callback)
+	{
+		// TODO make all additional ajax calls here?
+
+		var rows = [];
+
+		mutationColl.each(function(mutation) {
+			// only set the datum
+			var row = [mutation];
+
+			// set everything else to null...
+			for (var i=0; i < headers.length - 1; i++)
+			{
+				row.push(null);
+			}
+
+			rows.push(row);
+		});
+
+		callback(rows);
+	},
+	render_old: function()
+	{
+		var self = this;
+
 		var mutations = new MutationCollection(self.model.mutations);
 
 		var tableHeaders = _.template(
@@ -53,10 +152,14 @@ var MutationDetailsTableView = Backbone.View.extend({
 
 		self.format();
 	},
+	format: function()
+	{
+		// TODO format table
+	},
 	/**
 	 * Formats the contents of the view after the initial rendering.
 	 */
-	format: function()
+	format_old: function()
 	{
 		var self = this;
 

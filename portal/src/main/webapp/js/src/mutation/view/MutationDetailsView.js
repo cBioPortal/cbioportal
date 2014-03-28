@@ -116,11 +116,13 @@ var MutationDetailsView = Backbone.View.extend({
 				mainContent += _.template(
 					$("#default_mutation_details_main_content_template").html(),
 						{loaderImage: "images/ajax-loader.gif",
-						geneSymbol: gene});
+							geneSymbol: gene,
+							geneId: cbio.util.safeProperty(gene)});
 
 				listContent += _.template(
 					$("#default_mutation_details_list_content_template").html(),
-					{geneSymbol: gene});
+					{geneSymbol: gene,
+						geneId: cbio.util.safeProperty(gene)});
 			});
 		}
 

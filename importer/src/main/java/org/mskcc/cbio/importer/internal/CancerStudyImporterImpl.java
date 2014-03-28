@@ -149,6 +149,11 @@ class CancerStudyImporterImpl implements Importer, Validator {
     }
 
     @Override
+    public void importCaseLists(String portal) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
     public void importCancerStudy(String cancerStudyDirectoryName, boolean skip, boolean force) throws Exception
     {
         for (File metaStudyFile : listFiles(cancerStudyDirectoryName, FileFilterUtils.nameFileFilter(CANCER_STUDY_FILENAME))) {

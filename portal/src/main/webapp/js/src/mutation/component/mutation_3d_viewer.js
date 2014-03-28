@@ -34,6 +34,9 @@ var Mutation3dVis = function(name, options)
 	// spin indicator (initially off)
 	var _spin = "OFF";
 
+	// used for show/hide option (workaround)
+	var _prevTop = null;
+
 	// default visualization options
 	var defaultOpts = {
 		// applet/application (Jmol/JSmol) options
@@ -171,7 +174,21 @@ var Mutation3dVis = function(name, options)
 			_container.show();
 
 			// this is a workaround. see the hide() function below for details
-			_container.css('top', 0);
+
+			var currentTop = parseInt(_container.css('top'));
+
+			// update the top position only if it is negative
+			if (currentTop < 0)
+			{
+				if (_prevTop != null && _prevTop > 0)
+				{
+					_container.css('top', _prevTop);
+				}
+				else
+				{
+					_container.css('top', 0);
+				}
+			}
 		}
 	}
 
@@ -188,6 +205,13 @@ var Mutation3dVis = function(name, options)
 		if (_container != null)
 		{
 			//_container.hide();
+			var currentTop = parseInt(_container.css('top'));
+
+			if (currentTop > 0)
+			{
+				_prevTop = currentTop;
+			}
+
 			_container.css('top', -9999);
 		}
 	}
@@ -200,8 +224,8 @@ var Mutation3dVis = function(name, options)
 		// minimize container
 		if (_container != null)
 		{
-			_container.css("overflow", "hidden");
-			_container.css("height", _options.minimizedHeight);
+			_container.css({"overflow": "hidden",
+				"height": _options.minimizedHeight});
 			_minimized = true;
 		}
 	}
@@ -213,8 +237,7 @@ var Mutation3dVis = function(name, options)
 	{
 		if (_container != null)
 		{
-			_container.css("overflow", "");
-			_container.css("height", "");
+			_container.css({"overflow": "", "height": ""});
 			_minimized = false;
 		}
 	}
@@ -236,9 +259,9 @@ var Mutation3dVis = function(name, options)
 
 	function isVisible()
 	{
-		var top = _container.css("top").replace("px", "");
+		var top = parseInt(_container.css("top"));
 
-		var hidden = (top < 0) || _container.is(":hidden");
+		var hidden = (top == -9999) || _container.is(":hidden");
 
 		return !hidden;
 	}
@@ -310,7 +333,7 @@ var Mutation3dVis = function(name, options)
 		_highlighted = {};
 
 		// pdbId and/or chainId may be null
-		if (!_pdbId || !_chain)
+		if (_pdbId == null || _chain == null)
 		{
 			// nothing to refresh
 			return mappedMutations;
@@ -446,7 +469,7 @@ var Mutation3dVis = function(name, options)
 	function focus(pileup)
 	{
 		// no chain selected yet, terminate
-		if (!_chain)
+		if (_chain == null)
 		{
 			return false;
 		}
@@ -509,9 +532,9 @@ var Mutation3dVis = function(name, options)
 	function highlight(pileups, reset)
 	{
 		// no chain selected yet, terminate
-		if (!_chain)
+		if (_chain == null)
 		{
-			return false;
+			return 0;
 		}
 
 		if (reset)
@@ -531,7 +554,7 @@ var Mutation3dVis = function(name, options)
 			var id = pileup.mutations[0].mutationId;
 			var position = _chain.positionMap[id];
 
-			if (position)
+			if (position != null)
 			{
 				// add position to the highlighted ones
 				_highlighted[id] = position;
@@ -780,7 +803,7 @@ var Mutation3dVis = function(name, options)
 		var position = _chain.positionMap[mutationId];
 
 		// check if the mutation maps on this chain
-		if (position)
+		if (position != null)
 		{
 			var scriptPos = generateScriptPos(position);
 
@@ -839,7 +862,8 @@ var Mutation3dVis = function(name, options)
 		var insertionStr = function(insertion) {
 			var posStr = "";
 
-			if (insertion && insertion.length > 0)
+			if (insertion != null &&
+			    insertion.length > 0)
 			{
 				posStr += "^" + insertion;
 			}

@@ -86,6 +86,7 @@ public class GetCoExpressionJSON extends HttpServlet  {
 
         String cancerStudyIdentifier = httpServletRequest.getParameter("cancer_study_id");
         String geneSymbol = httpServletRequest.getParameter("gene");
+        String profileId = httpServletRequest.getParameter("profile_id");
 	      String caseSetId = httpServletRequest.getParameter("case_set_id");
         String caseIdsKey = httpServletRequest.getParameter("case_ids_key");
         boolean isFullResult = Boolean.parseBoolean(httpServletRequest.getParameter("is_full_result"));
@@ -100,8 +101,7 @@ public class GetCoExpressionJSON extends HttpServlet  {
         if (!isFullResult) {
           ArrayList<JsonNode> fullResultJson = new ArrayList<JsonNode>();
           ObjectMapper mapper = new ObjectMapper();
-
-          GeneticProfile final_gp = CoExpUtil.getPreferedGeneticProfile(cancerStudyIdentifier);
+          GeneticProfile final_gp = DaoGeneticProfile.getGeneticProfileByStableId(profileId);
           if (final_gp != null) {
             try {
                 Map<Long,double[]> map = CoExpUtil.getExpressionMap(final_gp.getGeneticProfileId(), caseSetId, caseIdsKey);
@@ -144,7 +144,7 @@ public class GetCoExpressionJSON extends HttpServlet  {
         } else {
           StringBuilder fullResutlStr = new StringBuilder();
           fullResutlStr.append("Gene Symbol\tPearson Score\tSpearman Score\n");
-          GeneticProfile final_gp = CoExpUtil.getPreferedGeneticProfile(cancerStudyIdentifier);
+          GeneticProfile final_gp = DaoGeneticProfile.getGeneticProfileByStableId(profileId);
           if (final_gp != null) {
             try {
               Map<Long,double[]> map = CoExpUtil.getExpressionMap(final_gp.getGeneticProfileId(), caseSetId, caseIdsKey);

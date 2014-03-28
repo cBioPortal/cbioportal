@@ -1,0 +1,261 @@
+[
+    {
+        "cancer_type": "acc",
+        "count": 2,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Adenoid Cystic Carcinoma (MSKCC, Nature Genetics 2013)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "blca",
+        "count": 15,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Bladder Cancer (MSKCC, JCO 2013)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "blca",
+        "count": 3,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Bladder Urothelial Carcinoma (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "brca",
+        "count": 12,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Breast Invasive Carcinoma (British Columbia, Nature 2012)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "brca",
+        "count": 10,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Breast Invasive Carcinoma (Broad, Nature 2012)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "brca",
+        "count": 15,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Breast Invasive Carcinoma (Sanger, Nature 2012)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "brca",
+        "count": 99,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Breast Invasive Carcinoma (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "brca",
+        "count": 72,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Breast Invasive Carcinoma (TCGA, Nature 2012)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "ccle",
+        "count": 159,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Cancer Cell Line Encyclopedia (Novartis/Broad, Nature 2012)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "cesc",
+        "count": 1,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Cervical Squamous Cell Carcinoma and Endocervical Adenocarcinoma (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "coadread",
+        "count": 12,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Colorectal Cancer (Genentech, Nature 2012)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "coadread",
+        "count": 37,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Colon and Rectum Adenocarcinoma (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "coadread",
+        "count": 37,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Colon and Rectum Adenocarcinoma (TCGA, Nature 2012)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "gbm",
+        "count": 16,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Glioblastoma Multiforme (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "gbm",
+        "count": 7,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Glioblastoma (TCGA, Nature 2008)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "hnsc",
+        "count": 93,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Head and Neck Squamous Cell Carcinoma (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "hnsc",
+        "count": 87,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Head and Neck Squamous Cell Carcinoma (TCGA, In preparation)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "kirc",
+        "count": 1,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Kidney Renal Clear Cell Carcinoma (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "kirc",
+        "count": 2,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Kidney Renal Clear Cell Carcinoma (TCGA, in press)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "kirp",
+        "count": 1,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Kidney Renal Papillary Cell Carcinoma (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "laml",
+        "count": 7,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Acute Myeloid Leukemia (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "laml",
+        "count": 7,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Acute Myeloid Leukemia (TCGA, NEJM 2013)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "lgg",
+        "count": 21,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Brain Lower Grade Glioma (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "luad",
+        "count": 37,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Lung Adenocarcinoma (Broad, Cell 2012)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "luad",
+        "count": 49,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Lung Adenocarcinoma (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "luad",
+        "count": 21,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Lung Adenocarcinoma (TSP, Nature 2008)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "lusc",
+        "count": 44,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Lung Squamous Cell Carcinoma (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "lusc",
+        "count": 44,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Lung Squamous Cell Carcinoma (TCGA, Nature 2012)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "ov",
+        "count": 91,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Ovarian Serous Cystadenocarcinoma (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "ov",
+        "count": 106,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Ovarian Serous Cystadenocarcinoma (TCGA, Nature 2011)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "prad",
+        "count": 1,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Prostate Adenocarcinoma (MSKCC, Cancer Cell 2010)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "prad",
+        "count": 1,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Prostate Adenocarcinoma (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "skcm",
+        "count": 13,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Skin Cutaneous Melanoma (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "stad",
+        "count": 36,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Stomach Adenocarcinoma (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "thca",
+        "count": 3,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Thyroid Carcinoma (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "ucec",
+        "count": 14,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Uterine Corpus Endometrial Carcinoma (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "ucec",
+        "count": 14,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Uterine Corpus Endometrioid Carcinoma (TCGA, Nature 2013)",
+        "hugo": "TP53"
+    }
+]

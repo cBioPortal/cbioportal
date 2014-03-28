@@ -5,10 +5,11 @@
  *
  * @param tableView         a MutationDetailsTableView instance
  * @param mutationDiagram   a MutationDiagram instance
+ * @param mutationDetailsView   a MutationDetailsView instance
  *
  * @author Selcuk Onur Sumer
  */
-var MutationDetailsTableController = function(tableView, mutationDiagram)
+var MutationDetailsTableController = function(tableView, mutationDiagram, mutationDetailsView)
 {
 	function init()
 	{
@@ -37,6 +38,11 @@ var MutationDetailsTableController = function(tableView, mutationDiagram)
 		mutationDiagram.dispatcher.on(
 			MutationDetailsEvents.DIAGRAM_PLOT_RESET,
 			diagramResetHandler);
+
+		// add listeners for the mutation details view
+		mutationDetailsView.dispatcher.on(
+			MutationDetailsEvents.GENE_TAB_SELECTED,
+			geneTabSelectHandler);
 	}
 
 	function diagramResetHandler()
@@ -125,6 +131,20 @@ var MutationDetailsTableController = function(tableView, mutationDiagram)
 		{
 			// remove all highlights
 			tableView.clearHighlights();
+		}
+	}
+
+	function geneTabSelectHandler(gene)
+	{
+		if (tableView)
+		{
+			var oTable = tableView.tableUtil.getDataTable();
+
+			// alternatively we can check if selected gene is this view's gene
+			if (oTable.is(":visible"))
+			{
+				oTable.fnAdjustColumnSizing();
+			}
 		}
 	}
 

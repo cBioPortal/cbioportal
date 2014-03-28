@@ -13,8 +13,6 @@
  */
 var MutationTable = function(tableSelector, gene, mutations, options)
 {
-	// TODO add more options if necessary (for other views: patient view, cross cancer, etc)
-
 	// default options object
 	var _defaultOpts = {
 		// Indicates the visibility of columns
@@ -36,16 +34,27 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 			"case id": "visible",
 			"type": "visible",
 			"cosmic": "visible",
-			"fis": "visible",
-			"cons": "visible",
-			"3d": "visible",
-			"vs": "visible",
-			"allele freq (t)": "visible",
-			"copy #" : "excluded",
+			"mutation assessor": "visible",
 			"#mut in sample": "visible",
 			"mutation id": "excluded",
 			"cancer study": "excluded",
 			// TODO we may need more parameters than these two (util, gene)
+			"copy #" : function (util, gene) {
+				if (util.containsCnaData(gene)) {
+					return "visible";
+				}
+				else {
+					return "hidden";
+				}
+			},
+			"allele freq (t)": function (util, gene) {
+				if (util.containsAlleleFreqT(gene)) {
+					return "visible";
+				}
+				else {
+					return "hidden";
+				}
+			},
 			"bam": function (util, gene) {
 				if (util.containsIgvLink(gene)) {
 					return "visible";
@@ -62,12 +71,24 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 					return "hidden";
 				}
 			},
-			"tumor type": function (util, gene) {
-				// TODO return "hidden" if (count == 1) ?
-				if (util.distinctTumorTypeCount(gene) > 0) {
+			"vs": function (util, gene) {
+				if (util.containsValidStatus(gene)) {
 					return "visible";
 				}
 				else {
+					return "hidden";
+				}
+			},
+			"tumor type": function (util, gene) {
+				var count = util.distinctTumorTypeCount(gene);
+
+				if (count > 1) {
+					return "visible";
+				}
+				else if (count > 0) {
+					return "hidden";
+				}
+				else { // if (count <= 0)
 					return "excluded";
 				}
 			}
@@ -79,7 +100,14 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 			"sDom": '<"H"<"mutation_datatables_filter"f>C<"mutation_datatables_info"i>>t',
 			"bJQueryUI": true,
 			"bPaginate": false,
-			"bFilter": true
+			"bFilter": true,
+			"sScrollY": "600px",
+			"bScrollCollapse": true,
+			"oLanguage": {
+				"sInfo": "Showing _TOTAL_ mutation(s)",
+				"sInfoFiltered": "(out of _MAX_ total mutations)",
+				"sInfoEmpty": "No mutations to show"
+			}
 		}
 	};
 
@@ -251,13 +279,14 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 			count++;
 		}
 
-		// except these 4, exclude any other column from search
+		// except the ones below, exclude any other column from search
 		for (var col=0; col<count; col++)
 		{
 			var searchable = col == indexMap["case id"] ||
 					col == indexMap["mutation id"] ||
 					col == indexMap["cancer study"] ||
 					col == indexMap["aa change"] ||
+					col == indexMap["tumor type"] ||
 					col == indexMap["type"];
 
 			if (!searchable)
@@ -300,21 +329,29 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 		                indexMap["norm alt"],
 		                indexMap["norm ref"],
 	                    indexMap["#mut in sample"]]},
+		        {"sType": 'string',
+			        "sClass": "center-align-td",
+			        "aTargets": [indexMap["vs"],
+				        indexMap["ms"],
+				        indexMap["type"],
+				        indexMap["center"]]},
 	            {"sType": 'label-float-col',
 	                "sClass": "right-align-td",
 	                "aTargets": [indexMap["allele freq (t)"],
 		                indexMap["allele freq (n)"]]},
 	            {"sType": 'predicted-impact-col',
-	                "aTargets": [indexMap["fis"]]},
+		            "sClass": "center-align-td",
+	                "aTargets": [indexMap["mutation assessor"]]},
 		        {"sType": 'copy-number-col',
 			        "sClass": "center-align-td",
 			        "aTargets": [indexMap["copy #"]]},
 	            {"asSorting": ["desc", "asc"],
 	                "aTargets": [indexMap["cosmic"],
-		                indexMap["fis"],
-	                    indexMap["cons"],
-	                    indexMap["3d"],
+		                indexMap["mutation assessor"],
 	                    indexMap["#mut in sample"]]},
+		        {"sWidth": "2%",
+			        "aTargets": [indexMap["mutation assessor"],
+				        indexMap["#mut in sample"]]},
 	            {"bVisible": false,
 	                "aTargets": hiddenCols},
 		        {"bSearchable": false,
@@ -344,7 +381,13 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 
 		        // update prev search string reference for future use
 		        _prevSearch = currSearch;
-	        }
+	        },
+		    "fnHeaderCallback": function(nHead, aData, iStart, iEnd, aiDisplay) {
+			    _addHeaderTooltips(nHead);
+		    },
+		    "fnFooterCallback": function(nFoot, aData, iStart, iEnd, aiDisplay) {
+			    _addFooterTooltips(nFoot);
+		    }
 	    };
 
 		// merge with the one in the main options object
@@ -352,38 +395,33 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 
 		// format the table with the dataTable plugin
 		var oTable = tableSelector.dataTable(tableOpts);
-	    oTable.css("width", "100%");
+	    //oTable.css("width", "100%");
+
+		$(window).bind('resize', function () {
+			if (oTable.is(":visible"))
+			{
+				oTable.fnAdjustColumnSizing();
+			}
+		});
 
 		// return the data table instance
 		return oTable;
 	}
 
 	/**
-	 * Add tooltips for the table header and the table data rows.
+	 * Adds tooltips for the table data rows.
 	 *
 	 * @param tableSelector   jQuery selector for the target table
 	 * @private
 	 */
 	function _addMutationTableTooltips(tableSelector)
 	{
-	    var qTipOptions = {content: {attr: 'alt'},
-		    show: {event: 'mouseover'},
-	        hide: {fixed: true, delay: 100, event: 'mouseout'},
-	        style: {classes: 'mutation-details-tooltip qtip-shadow qtip-light qtip-rounded'},
-	        position: {my:'top left', at:'bottom right'}};
+		var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
 
-	    var qTipOptionsHeader = {};
-		var qTipOptionsFooter = {};
 	    var qTipOptionsLeft = {};
-	    jQuery.extend(true, qTipOptionsHeader, qTipOptions);
-		jQuery.extend(true, qTipOptionsFooter, qTipOptions);
 	    jQuery.extend(true, qTipOptionsLeft, qTipOptions);
-	    qTipOptionsHeader.position = {my:'bottom center', at:'top center'};
-		qTipOptionsFooter.position = {my:'top center', at:'bottom center'};
 	    qTipOptionsLeft.position = {my:'top right', at:'bottom left'};
 
-	    tableSelector.find('thead th').qtip(qTipOptionsHeader);
-		tableSelector.find('tfoot th').qtip(qTipOptionsFooter);
 	    //$('#mutation_details .mutation_details_table td').qtip(qTipOptions);
 
 		tableSelector.find('.simple-tip').qtip(qTipOptions);
@@ -423,15 +461,20 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 			var links = $(this).attr('alt');
 			var parts = links.split("|");
 
+			var mutationId = parts[1];
+			var mutation = _mutationUtil.getMutationIdMap()[mutationId];
+
 			// copy default qTip options and modify "content"
 			// to customize for predicted impact score
 			var qTipOptsOma = {};
-			jQuery.extend(true, qTipOptsOma, qTipOptions);
+			jQuery.extend(true, qTipOptsOma, qTipOptionsLeft);
 
 			qTipOptsOma.content = {text: "NA"}; // content is overwritten on render
 			qTipOptsOma.events = {render: function(event, api) {
 				var model = {impact: parts[0],
-					xvia: parts[1]};
+					xvia: mutation.xVarLink,
+					msaLink: mutation.msaLink,
+					pdbLink: mutation.pdbLink};
 
 				var container = $(this).find('.qtip-content');
 
@@ -443,6 +486,43 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 			$(this).qtip(qTipOptsOma);
 		});
 	}
+
+	/**
+	 * Adds tooltips for the table header cells.
+	 *
+	 * @param nHead table header
+	 * @private
+	 */
+	function _addHeaderTooltips(nHead)
+	{
+		var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
+
+		var qTipOptionsHeader = {};
+		jQuery.extend(true, qTipOptionsHeader, qTipOptions);
+		qTipOptionsHeader.position = {my:'bottom center', at:'top center'};
+
+		//tableSelector.find('thead th').qtip(qTipOptionsHeader);
+		$(nHead).find("th").qtip(qTipOptionsHeader);
+	}
+
+	/**
+	 * Adds tooltips for the table footer cells.
+	 *
+	 * @param nFoot table footer
+	 * @private
+	 */
+	function _addFooterTooltips(nFoot)
+	{
+		var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
+
+		var qTipOptionsFooter = {};
+		jQuery.extend(true, qTipOptionsFooter, qTipOptions);
+		qTipOptionsFooter.position = {my:'top center', at:'bottom center'};
+
+		//tableSelector.find('tfoot th').qtip(qTipOptionsFooter);
+		$(nFoot).find("th").qtip(qTipOptionsFooter);
+	}
+
 
 	/**
 	 * Helper function for predicted impact score sorting.
@@ -541,7 +621,8 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 	{
 		if (a.indexOf("label") != -1)
 		{
-			return $(a).text().trim();
+			// TODO temp workaround
+			return $(a).find("label").text().trim() || $(a).text().trim();
 		}
 		else
 		{

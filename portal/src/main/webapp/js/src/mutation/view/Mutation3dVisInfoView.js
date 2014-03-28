@@ -4,7 +4,8 @@
  * options: {el: [target container],
  *           model: {pdbId: String,
  *                   chainId: String,
- *                   pdbInfo: String}
+ *                   pdbInfo: String,
+ *                   molInfo: String}
  *          }
  *
  * @author Selcuk Onur Sumer
@@ -29,6 +30,7 @@ var Mutation3dVisInfoView = Backbone.View.extend({
 	{
 		var self = this;
 		var pdbInfo = self.model.pdbInfo;
+		var molInfo = self.model.molInfo;
 
 		// if no info provided, then hide the corresponding span
 		if (pdbInfo == null ||
@@ -39,18 +41,29 @@ var Mutation3dVisInfoView = Backbone.View.extend({
 		else
 		{
 			// make information text expandable/collapsible
-			self._addExpander();
+			self._addExpander(".mutation-3d-pdb-info");
+		}
+
+		if (molInfo == null ||
+		    molInfo.length == 0)
+		{
+			self.$el.find(".mutation-3d-mol-info").hide();
+		}
+		else
+		{
+			// make information text expandable/collapsible
+			self._addExpander(".mutation-3d-mol-info");
 		}
 	},
 	/**
 	 * Applies expander plugin to the PDB info area. The options are
-	 * optimized to have at most 2 lines of PDB description at init.
+	 * optimized to have 1 line of description at init.
 	 */
-	_addExpander: function()
+	_addExpander: function(selector)
 	{
 		var self = this;
 
-		var expanderOpts = {slicePoint: 80, // default is 100
+		var expanderOpts = {slicePoint: 40, // default is 100
 			widow: 2,
 			expandPrefix: ' ',
 			expandText: '[...]',
@@ -65,6 +78,6 @@ var Mutation3dVisInfoView = Backbone.View.extend({
 			collapseEffect: 'fadeOut'};
 
 		//self.$el.find(".mutation-3d-info-main").expander(expanderOpts);
-		self.$el.find(".mutation-3d-pdb-info").expander(expanderOpts);
+		self.$el.find(selector).expander(expanderOpts);
 	}
 });

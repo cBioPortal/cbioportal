@@ -213,6 +213,36 @@ cbio.util = (function() {
 		return property.replace(/[^a-zA-Z0-9-]/g,'_');
 	};
 
+	/**
+	 * Hides the child html element on mouse leave, and shows on
+	 * mouse enter. This function is designed to hide a child
+	 * element within a parent element.
+	 *
+	 * @param parentElement target of mouse events
+	 * @param childElement  element to show/hide
+	 */
+	function autoHideOnMouseLeave(parentElement, childElement)
+	{
+		$(parentElement).mouseenter(function(evt) {
+			childElement.fadeIn({complete: function() {
+				$(this).css({"visibility":"visible"});
+				$(this).css({"display":"inline"});
+			}});
+		});
+
+		$(parentElement).mouseleave(function(evt) {
+			// fade out without setting display to none
+			childElement.fadeOut({complete: function() {
+				// fade out uses hide() function, but it may change
+				// the size of the parent element
+				// so this is a workaround to prevent resize
+				// due to display: "none"
+				$(this).css({"visibility":"hidden"});
+				$(this).css({"display":"inline"});
+			}});
+		});
+	}
+
     function swapElement(array, indexA, indexB) {
         var tmp = array[indexA];
         array[indexA] = array[indexB];
@@ -230,6 +260,7 @@ cbio.util = (function() {
 	    browser: detectBrowser(), // returning the browser object, not the function itself
 	    getWindowOrigin: getOrigin,
 	    safeProperty: safeProperty,
+	    autoHideOnMouseLeave: autoHideOnMouseLeave,
         swapElement: swapElement
     };
 

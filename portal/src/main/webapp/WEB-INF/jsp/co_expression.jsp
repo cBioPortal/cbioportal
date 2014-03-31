@@ -73,6 +73,10 @@
 <script>
     $(document).ready( function() {
         var coexp_tab_init = false;
+        if ($("#coexp").is(":visible")) {
+            CoExpView.init();
+            coexp_tab_init = true;
+        }
         $("#tabs").bind("tabsactivate", function(event, ui) {
             if (ui.newTab.text().trim().toLowerCase() === "co-expression") {
                 if (coexp_tab_init === false) {

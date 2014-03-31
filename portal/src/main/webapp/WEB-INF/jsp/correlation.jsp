@@ -150,6 +150,8 @@
             out.println("INF");
         } else if (Double.isNaN(value)) {
             out.println("NaN");
+        } else if (value<0.000001) {
+            out.println("<0.000001");
         } else {
             out.println(decimalFormat.format(value));
         }

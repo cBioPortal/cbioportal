@@ -231,9 +231,14 @@ var StudyViewInitCharts = (function(){
             _topGenes = {},
             _dataLength = _data.length;
         for( i = 0; i < _dataLength; i++){
-            _mutatedGenes.push([_data[i].gene_symbol, _data[i].num_muts]);
+            if( _data[i].length > 0 ){
+                var _numOfMutationsPerNucletide = 
+                        Number(_data[i].num_muts) / Number(_data[i].length);
+                
+                _mutatedGenes.push([_data[i].gene_symbol, 
+                                    _numOfMutationsPerNucletide]);
+            }
         }
-        
         if(_mutatedGenes.length !== 0){
             _mutatedGenes.sort(sortNumMuts);
         }

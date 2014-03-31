@@ -38,6 +38,7 @@
 -->
 	<http use-expressions="true">
 	  <intercept-url pattern="/login.jsp*" access="permitAll"/>
+	  <intercept-url pattern="/monitoring*" access="isAuthenticated()"/>
       <intercept-url pattern="/video.jsp" access="isAuthenticated()"/>
       <intercept-url pattern="/news.jsp" access="isAuthenticated()"/>
       <intercept-url pattern="/faq.jsp" access="isAuthenticated()"/>

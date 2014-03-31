@@ -43,7 +43,10 @@ var StudyViewInitWordCloud = (function() {
             mutationProfileId: "",
             caseSetId: ""
         };
-        
+    var WIDTH = 180,
+        HEIGHT = 180;
+    
+    
     function initData(_data){
         words = _data.names;
         fontSize = _data.size;
@@ -64,12 +67,13 @@ var StudyViewInitWordCloud = (function() {
     //This function is inspired by Jason's daw function.
     function draw(words){
         var fill = d3.scale.category20();
-
+        var startX = 0, startY = 0;
+        
         d3.select("#study-view-word-cloud").append("svg")
-            .attr("width", 180)
-            .attr("height", 180)
+            .attr("width", WIDTH)
+            .attr("height", HEIGHT)
           .append("g")
-            .attr("transform", "translate(90,90)")
+            .attr("transform", "translate(10,40)")
           .selectAll("text")
             .data(words)
           .enter().append("text")
@@ -78,13 +82,33 @@ var StudyViewInitWordCloud = (function() {
             //.style("fill", function(d, i) { return fill(i); })
             .style("fill", 'green')
             .style('cursor', 'pointer')
-            .attr("text-anchor", "middle")
-            .attr("transform", function(d) {
-              return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+            //.attr("text-anchor", "middle")
+            .attr("transform", function(d, i) {
+                //TODO: A constant didider for width and height of each text 
+                //are calculated based on multiple testing. This should be
+                //changed later.
+                var _translate = "translate(" + [startX, startY] + ")";
+                
+                //d.width - d.size is so called constant divider for width
+                var _width = d.width - d.size;
+                
+                startX += _width;
+                
+                if(startX > (WIDTH-10)){
+                    startX = 0;
+                    
+                    //1.3 is so called constant divider for height 
+                    startY += d.y1 * 1.3;
+                    _translate = "translate(" + [startX, startY] + ")";
+                    startX += _width;
+                }
+                
+                return _translate;
+              //return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
             })
             
             .text(function(d) { return d.text; });
-    
+            
             $("#study-view-word-cloud svg text").click(function(){
                 var _text = $(this).text();
                 window.open("index.do?Action=Submit&"+
@@ -102,7 +126,7 @@ var StudyViewInitWordCloud = (function() {
             .words(words.map(function(d, index) {
                 return {text: d, size: fontSize[index]};
             }))
-            .padding(5)
+            .padding(0)
             .rotate(function() { return ~~0; })
             .font("Impact")
             .fontSize(function(d) { return d.size; })

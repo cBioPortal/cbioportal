@@ -74,6 +74,8 @@ var StudyViewInitCharts = (function(){
         varDisplay = [], //Displayed Charts Name -- the display_name in each attribute       
         shiftClickedCaseIds = [],
         
+        WORDCLOUDTEXTSIZECONSTANT = 200;
+        
         // Color scale from GOOGLE charts
         chartColors = jQuery.extend(true, [], StudyViewBoilerplate.chartColors), 
         parObject = {
@@ -277,7 +279,7 @@ var StudyViewInitCharts = (function(){
         }
         
         for( i = 0; i < _geneLength; i++){
-            var _size = (_genes[i] / _totalMuts) * 150;
+            var _size = (_genes[i] / _totalMuts) * WORDCLOUDTEXTSIZECONSTANT;
             if(_size > 40){
                 _size = 40;
             }

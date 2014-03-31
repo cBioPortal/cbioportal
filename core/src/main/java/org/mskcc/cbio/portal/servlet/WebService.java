@@ -487,9 +487,11 @@ public class WebService extends HttpServlet {
 
     private ArrayList<String> getGeneList(HttpServletRequest request) {
         // bypassing security filtering for the gene list..
-	    //String geneList = request.getParameter(GENE_LIST);
-	    String geneList = ((XssRequestWrapper)request).getRawParameter(GENE_LIST);
-
+	String geneList = request.getParameter(GENE_LIST);
+        if (request instanceof XssRequestWrapper) {
+            geneList = ((XssRequestWrapper)request).getRawParameter(GENE_LIST);
+        }
+        
         //  Split on white space or commas
         Pattern p = Pattern.compile("[,\\s]+");
         String genes[] = p.split(geneList);

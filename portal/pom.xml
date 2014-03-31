@@ -40,11 +40,11 @@
 		<version>4.5</version>
         </dependency-->
         
-        <dependency>
+        <!--dependency>
                 <groupId>net.bull.javamelody</groupId>
                 <artifactId>javamelody-core</artifactId>
                 <version>1.50.0</version>
-        </dependency>
+        </dependency-->
 
   </dependencies>
 

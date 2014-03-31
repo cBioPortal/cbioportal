@@ -147,6 +147,19 @@
     z-index: 20;
     -webkit-backface-visibility: hidden;
 }
+#study-view-scatter-plot-header {
+    float: left;
+    margin-top: 2px;
+}
+#study-view-scatter-plot-title {
+    float: left;
+    margin: 5px 40px 0 5px;
+}
+#study-view-word-cloud-title {
+    width:180px; 
+    text-align:center;
+    margin-bottom: 20px;
+}
 #study-view-selectAttr{
      display:none;
 }
@@ -205,6 +218,11 @@
     height: 15px;
     border-spacing: 0px;
 }
+.study-view-scatter-plot-checkbox {
+    margin: 5px 10px 0px 0px; 
+    color: grey;
+    font-size: 10px;
+}
 .study-view-bar-chart rect{
     fill: #2986e2;
 }
@@ -227,7 +245,7 @@
     background-color:lightblue;
 }
 .study-view-pie-chart {
-    height:165px;
+    height:150px;
     width:180px;
     //padding-left: 15px;
     float:left;
@@ -327,7 +345,7 @@
     display: none;
 }
 chartTitleH4{
-    font-size: 11px;
+    font-size: 10px;
     color: black;
     font-weight: bold;
 }

@@ -236,22 +236,24 @@ var StudyViewBoilerplate ={
     scatterPlotDiv: 
             "<div id='study-view-scatter-plot' class='study-view-dc-chart w3 h2'"+
             "data-step='1' data-intro='Scatter Plot<br/>x: CNA<br/>y: MUTATIONS COUNT'>" +
-            "<div id='study-view-scatter-plot-header-wrapper' style='float:right; width: 350px; height: 22px;'>"+
-            "<div id='study-view-scatter-plot-header' style='float: left'>"+
-            "<form style='display:inline-block' action='svgtopdf.do' method='post' id='study-view-scatter-plot-pdf'>"+
+            "<div id='study-view-scatter-plot-header-wrapper' style='float:right; width: 100%; height: 22px;'>"+
+            "<chartTitleH4 id='study-view-scatter-plot-title'>"+
+            "Mutation Count vs Copy Number Alterations</chartTitleH4>"+
+            "<div id='study-view-scatter-plot-header'>"+
+            "<form style='display:inline-block; margin-right:5px' action='svgtopdf.do' method='post' id='study-view-scatter-plot-pdf'>"+
             "<input type='hidden' name='svgelement' id='study-view-scatter-plot-pdf-value'>"+
             "<input type='hidden' name='filetype' value='pdf'>"+
             "<input type='hidden' id='study-view-scatter-plot-pdf-name' name='filename' value=''>"+
-            "<input type='submit' value='PDF'>"+          
+            "<input type='submit' style='font-size:10px' value='PDF'>"+          
             "</form>"+
             "<form style='display:inline-block' action='svgtopdf.do' method='post' id='study-view-scatter-plot-svg'>"+
             "<input type='hidden' name='svgelement' id='study-view-scatter-plot-svg-value'>"+
             "<input type='hidden' name='filetype' value='svg'>"+
             "<input type='hidden' id='study-view-scatter-plot-svg-name' name='filename' value=''>"+
-            "<input type='submit' value='SVG'>"+    
+            "<input type='submit' style='font-size:10px' value='SVG'>"+    
             "</form>"+
-            "<input type='checkbox' id='study-view-scatter-plot-log-scale-x'></input><span style='margin: 5px 10px 0px 0px; color: grey'>Log Scale X</span>"+
-            "<input type='checkbox' id='study-view-scatter-plot-log-scale-y'></input><span style='margin: 5px 50px 0px 0px; color: grey'>Log Scale y</span>"+
+            "<input type='checkbox' id='study-view-scatter-plot-log-scale-x'></input><span class='study-view-scatter-plot-checkbox'>Log Scale X</span>"+
+            "<input type='checkbox' id='study-view-scatter-plot-log-scale-y'></input><span class='study-view-scatter-plot-checkbox'>Log Scale y</span>"+
             "</div><span class='study-view-scatter-plot-delete'>x</span></div>"+
             "<div id='study-view-scatter-plot-body'></div>"+
             "<div id='study-view-scatter-plot-loading-img'></div>"+
@@ -259,12 +261,13 @@ var StudyViewBoilerplate ={
             "</div>",
     
     wordCloudDiv:
-            "<div id='study-view-word-cloud' class='study-view-dc-chart study-view-word-cloud'>" +
-                "<div style='width:180px; float:right; text-align:center;'>" +
-                "<span class='study-view-word-cloud-delete'>x</span></div>" +
-                "<div style='width:180px;float:left;text-align:center'>" +
-                "<chartTitleH4>Mutated Genes</chartTitleH4></div>" +
-            "</div>",
+            "<div id='study-view-word-cloud' "+
+            "class='study-view-dc-chart study-view-word-cloud'>" +
+                "<div id='study-view-word-cloud-title'>" +
+                "<chartTitleH4>Mutated Genes</chartTitleH4>" +
+                "<span class='study-view-word-cloud-delete' "+
+                "style = 'float:right;'>x</span></div>" +
+             "</div>",
     dataTableDiv: 
             "<table id='dataTable'>"+
             "<tfoot>"+

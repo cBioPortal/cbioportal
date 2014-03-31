@@ -58,7 +58,7 @@ var PieChart = function(){
         pieLabelClickCallback,
         scatterPlotCallback;
     
-    
+    var titleLengthCutoff = 16;
     
     //This function is designed to draw Pie Labels based on current color the
     //Pie Chart has. Pagging function will be added when the number of labels
@@ -303,7 +303,11 @@ var PieChart = function(){
                     "\" class='study-view-dc-chart study-view-pie-main' "+
                     "style='display:none'><div id=\"" +
                     DIV.chartDiv + "\"></div></div>");
-        }else
+        }else{
+            var _title = selectedAttrDisplay.toString();
+            if(_title.length > titleLengthCutoff) {
+                _title = _title.substring(0,(titleLengthCutoff-2)) + "...";
+            }
             $("#"+DIV.parentID).append("<div id=\"" + DIV.mainDiv +
                 "\"" + _introDiv +
                 "class='study-view-dc-chart study-view-pie-main'>"+
@@ -314,14 +318,20 @@ var PieChart = function(){
                 "<span class='study-view-dc-chart-delete'>x</span>"+
                 "<a href='javascript:StudyViewInitCharts.getChartsByID("+ 
                 chartID +").getChart().filterAll();" +
-                "StudyViewInitCharts.getSelectedCasesAndRedrawScatterPlot([]); dc.redrawAll();'>" +
-                "<span title='Reset Chart' class='study-view-dc-chart-change' "+
-                "style='font-size:10px;'>RESET</span></a></div>"+
-                "<div style='width:180px;float:left;text-align:center'><chartTitleH4>" +
-                selectedAttrDisplay + "</chartTitleH4></div></div>"+
+                "StudyViewInitCharts.getSelectedCasesAndRedrawScatterPlot([]);"+ 
+                "dc.redrawAll();'><span title='Reset Chart'"+
+                "class='study-view-dc-chart-change' style='font-size:10px;'>"+
+                "RESET</span></a><chartTitleH4 id='"+DIV.chartDiv +"-title'>" +
+                _title + "</chartTitleH4></div>"+
+                "<div style='width:180px;float:left;text-align:center'></div></div>"+
                 "<div class='study-view-pie-label'></div>"+
                 "<div style='width:180px; text-align:center;float:left;'></div></div>");
-        
+            //Title has been cut with 8 head character with ..., so the length
+            //still longer than titleLengthCutoff
+            if(_title.length > titleLengthCutoff) {
+                addQtip(selectedAttrDisplay, DIV.chartDiv +"-title");
+            }
+        }
     }
     
     //This function is designed to draw Pie Slice Marker(Arc) based on the
@@ -533,12 +543,17 @@ var PieChart = function(){
 
             //Only add qtip when the length of pie label bigger than 9
             if(label[i].name.length > 9){
-                var _qtip = jQuery.extend(true,{},StudyViewBoilerplate.pieLabelQtip);
-                
-                _qtip.content.text = label[i].name;
-                $('#'+DIV.labelTableTdID +label[i].id+'-'+i).qtip(_qtip);
+                addQtip(label[i].name, DIV.labelTableTdID +label[i].id+'-'+i);
             }
         }
+    }
+    
+    //Pass the qtip ID without #
+    function addQtip(_text, _DivID){
+        var _qtip = jQuery.extend(true,{},StudyViewBoilerplate.pieLabelQtip);
+                
+        _qtip.content.text = _text;
+        $('#'+_DivID).qtip(_qtip);
     }
     
     //Pie Chart will have communications with ScatterPlot, this function is used

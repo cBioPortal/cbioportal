@@ -1,3 +1,8 @@
+/**
+ * Singleton utility class for DataTables related tasks.
+ *
+ * @author Selcuk Onur Sumer
+ */
 var DataTableUtil = (function()
 {
 	/**
@@ -12,15 +17,13 @@ var DataTableUtil = (function()
 	{
 		var map = {};
 
-		for (var i=0; i < headers.length; i++)
+		_.each(headers, function(header, index)
 		{
-			var header = headers[i].name || headers[i].toLowerCase();
-
 			if (map[header] == null)
 			{
-				map[header] = i;
+				map[header] = index;
 			}
-		}
+		});
 
 		return map;
 	}
@@ -38,9 +41,7 @@ var DataTableUtil = (function()
 	{
 		var map = {};
 
-		_.each(headers, function(ele, idx) {
-			var header = ele.name || ele.toLowerCase();
-
+		_.each(headers, function(header, idx) {
 			if (map[header] == null)
 			{
 				// TODO sanitize return value of the custom function
@@ -71,9 +72,7 @@ var DataTableUtil = (function()
 	{
 		var map = {};
 
-		_.each(headers, function(ele, idx) {
-			var header = ele.name || ele.toLowerCase();
-
+		_.each(headers, function(header, idx) {
 			if (map[header] == null)
 			{
 				map[header] = _.isFunction(searchValue) && searchValue(header);
@@ -98,9 +97,7 @@ var DataTableUtil = (function()
 		var hiddenCols = [];
 
 		// process all headers
-		_.each(headers, function(ele, idx) {
-			var header = ele.name || ele.toLowerCase();
-
+		_.each(headers, function(header, idx) {
 			// determine visibility
 			if (visMap[header] != "visible")
 			{
@@ -127,9 +124,7 @@ var DataTableUtil = (function()
 		var excludedCols = [];
 
 		// check all headers
-		_.each(headers, function(ele, idx) {
-			var header = ele.name || ele.toLowerCase();
-
+		_.each(headers, function(header, idx) {
 			// determine visibility
 			if (visMap[header] == "excluded")
 			{
@@ -146,9 +141,7 @@ var DataTableUtil = (function()
 		var nonSearchableCols = [];
 
 		// check all headers
-		_.each(headers, function(ele, idx) {
-			var header = ele.name || ele.toLowerCase();
-
+		_.each(headers, function(header, idx) {
 			// check if searchable
 			if (searchMap[header] === false)
 			{
@@ -189,6 +182,31 @@ var DataTableUtil = (function()
 		return columnRenderers;
 	}
 
+	function getColumnOptions(headers, columnWidth)
+	{
+		var columns = [];
+
+		// set column options
+		_.each(_.pairs(headers), function(pair) {
+			var name = pair[0];
+			var header = pair[1];
+
+//			var column = {"sTitle": header.display,
+//				"sClass": sClass};
+
+			var column = {"sTitle": header.display};
+			var sWidth = columnWidth[name];
+
+			if (sWidth != null) {
+				column.sWidth = sWidth;
+			}
+
+			columns.push(column);
+		});
+
+		return columns;
+	}
+
 	return {
 		buildColumnIndexMap: buildColumnIndexMap,
 		buildColumnVisMap: buildColumnVisMap,
@@ -196,6 +214,7 @@ var DataTableUtil = (function()
 		getHiddenColumns: getHiddenColumns,
 		getExcludedColumns: getExcludedColumns,
 		getNonSearchableColumns: getNonSearchableColumns,
+		getColumnOptions: getColumnOptions,
 		getColumnRenderers: getColumnRenderers
 	};
 })();

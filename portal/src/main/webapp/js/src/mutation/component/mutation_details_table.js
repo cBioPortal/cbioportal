@@ -14,94 +14,72 @@ function MutationDetailsTable(options, gene, mutationUtil)
 	// default options object
 	var _defaultOpts = {
 		el: "#mutation_details_table_d3",
+		//elWidth: 740, // width of the container
 		// default column header information
 		//
 		// name: internal name used to define column specific properties
 		// display: display value
 		// tip: tooltip value
-		//
-		// order of the columns determines the actual display order
-		headers: [
-			{name: "datum",
-				display: "", // never display datum...
+		headers: {
+			datum: {display: "", // never display datum...
 				tip: ""},
-			{name: "mutationId",
-				display: "Mutation ID",
+			mutationId: {display: "Mutation ID",
 				tip: "Mutation ID"},
-			{name: "caseId",
-				display: "Case ID",
+			caseId: {display: "Case ID",
 				tip:"Case ID"},
-			{name: "cancerStudy",
-				display: "Cancer Study",
+			cancerStudy: {display: "Cancer Study",
 				tip:"Cancer Study"},
-			{name: "tumorType",
-				display: "Tumor Type",
+			tumorType: {display: "Tumor Type",
 				tip:"Tumor Type"},
-			{name: "proteinChange",
-				display: "AA change",
+			proteinChange: {display: "AA change",
 				tip:"Protein Change"},
-			{name: "mutationType",
-				display: "Type",
+			mutationType: {display: "Type",
 				tip:"Mutation Type"},
-			{name: "cna",
-				display: "Copy #",
+			cna: {display: "Copy #",
 				tip:"Copy-number status of the mutated gene"},
-			{name: "cosmic",
-				display: "COSMIC",
+			cosmic: {display: "COSMIC",
 				tip:"Overlapping mutations in COSMIC"},
-			{name: "mutationStatus",
-				display: "MS",
+			mutationStatus: {display: "MS",
 				tip:"Mutation Status"},
-			{name: "validationStatus",
-				display: "VS",
+			validationStatus: {display: "VS",
 				tip:"Validation Status"},
-			{name: "mutationAssessor",
-				display: "Mutation Assessor",
+			mutationAssessor: {display: "Mutation Assessor",
 				tip:"Predicted Functional Impact Score (via Mutation Assessor) for missense mutations"},
-			{name: "sequencingCenter",
-				display: "Center",
+			sequencingCenter: {display: "Center",
 				tip:"Sequencing Center"},
-			{name: "chr",
-				display: "Chr",
+			chr: {display: "Chr",
 				tip:"Chromosome"},
-			{name: "startPos",
-				display: "Start Pos",
+			startPos: {display: "Start Pos",
 				tip:"Start Position"},
-			{name: "endPos",
-				display: "End Pos",
+			endPos: {display: "End Pos",
 				tip:"End Position"},
-			{name: "referenceAllele",
-				display: "Ref",
+			referenceAllele: {display: "Ref",
 				tip:"Reference Allele"},
-			{name: "variantAllele",
-				display: "Var",
+			variantAllele: {display: "Var",
 				tip:"Variant Allele"},
-			{name: "tumorFreq",
-				display: "Allele Freq (T)",
+			tumorFreq: {display: "Allele Freq (T)",
 				tip:"Variant allele frequency<br> in the tumor sample"},
-			{name: "normalFreq",
-				display: "Allele Freq (N)",
+			normalFreq: {display: "Allele Freq (N)",
 				tip:"Variant allele frequency<br> in the normal sample"},
-			{name: "tumorRefCount",
-				display: "Var Ref",
+			tumorRefCount: {display: "Var Ref",
 				tip:"Variant Ref Count"},
-			{name: "tumorAltCount",
-				display: "Var Alt",
+			tumorAltCount: {display: "Var Alt",
 				tip:"Variant Alt Count"},
-			{name: "normalRefCount",
-				display: "Norm Ref",
+			normalRefCount: {display: "Norm Ref",
 				tip:"Normal Ref Count"},
-			{name: "normalAltCount",
-				display: "Norm Alt",
+			normalAltCount: {display: "Norm Alt",
 				tip:"Normal Alt Count"},
-			{name: "igvLink",
-				display: "BAM",
+			igvLink: {display: "BAM",
 				tip:"Link to BAM file"},
-			{name: "mutationCount",
-				display: "#Mut in Sample",
+			mutationCount: {display: "#Mut in Sample",
 				tip:"Total number of<br> nonsynonymous mutations<br> in the sample"}
-		],
-		//elWidth: 740, // width of the container
+		},
+		columnOrder: ["datum", "mutationId", "caseId", "cancerStudy", "tumorType",
+			"proteinChange", "mutationType", "cna", "cosmic", "mutationStatus",
+			"validationStatus", "mutationAssessor", "sequencingCenter", "chr",
+			"startPos", "endPos", "referenceAllele", "variantAllele", "tumorFreq",
+			"normalFreq", "tumorRefCount", "tumorAltCount", "normalRefCount",
+			"normalAltCount", "igvLink", "mutationCount"],
 		// Indicates the visibility of columns
 		//
 		// - Valid string constants:
@@ -225,6 +203,16 @@ function MutationDetailsTable(options, gene, mutationUtil)
 
 				return _.template(
 					$("#mutation_table_protein_change_template").html(), vars);
+			},
+			"cancerStudy": function(obj, mutation) {
+				var vars = {};
+				//vars.cancerType = mutation.cancerType;
+				vars.cancerStudy = mutation.cancerStudy;
+				vars.cancerStudyShort = mutation.cancerStudyShort;
+				vars.cancerStudyLink = mutation.cancerStudyLink;
+
+				return _.template(
+					$("#mutation_table_cancer_study_template").html(), vars);
 			},
 			"tumorType": function(obj, mutation) {
 				var tumorType = MutationDetailsTableFormatter.getTumorType(mutation);
@@ -439,8 +427,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 	// reference to the data table object
 	var _dataTable = null;
 
-	// flag used to switch callbacks on/off
-	var _callbackActive = true;
+	// flag used to switch events on/off
+	var _eventActive = true;
 
 	// this is used to check if search string is changed after each redraw
 	var _prevSearch = "";
@@ -468,20 +456,9 @@ function MutationDetailsTable(options, gene, mutationUtil)
 	function initDataTable(tableSelector, rows, headers,
 		indexMap, hiddenCols, excludedCols, nonSearchableCols)
 	{
-		var columns = [];
-
 		// set column options
-		_.each(headers, function(header) {
-			var column = {"sTitle": header.display,
-				"sClass": "mutation-details-table-column"};
-			var sWidth = _options.columnWidth[header.name];
-
-			if (sWidth != null) {
-				column.sWidth = sWidth;
-			}
-
-			columns.push(column);
-		});
+		var columns = DataTableUtil.getColumnOptions(headers,
+			_options.columnWidth);
 
 		// these are the parametric data tables options
 		var tableOpts = {
@@ -536,7 +513,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 
 				// trigger the event only if the corresponding flag is set
 				// and there is a change in the search term
-				if (_callbackActive &&
+				if (_eventActive &&
 				    _prevSearch != currSearch)
 				{
 					// trigger corresponding event
@@ -565,12 +542,17 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				$(tableSelector).find('a[href=""]').remove();
 				$(tableSelector).find('a[alt=""]').remove();
 
+				// TODO append the footer (there is no API to init the footer, we need a custom function)
+				//$(tableSelector).append('<tfoot></tfoot>');
+				//$(tableSelector).find('thead tr').clone().appendTo($(tableSelector).find('tfoot'));
+
 //				// trigger corresponding event
 //				_dispatcher.trigger(
 //					MutationDetailsEvents.MUTATION_TABLE_READY);
 			},
 			"fnHeaderCallback": function(nHead, aData, iStart, iEnd, aiDisplay) {
-			    addHeaderTooltips(nHead);
+			    $(nHead).find('th').addClass("mutation-details-table-header");
+				addHeaderTooltips(nHead);
 		    },
 		    "fnFooterCallback": function(nFoot, aData, iStart, iEnd, aiDisplay) {
 			    addFooterTooltips(nFoot);
@@ -584,19 +566,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 		// merge with the one in the main options object
 		tableOpts = jQuery.extend(true, {}, _defaultOpts.dataTableOpts, tableOpts);
 
-		// format the table with the dataTable plugin
-		var oTable = tableSelector.dataTable(tableOpts);
-		//oTable.css("width", "100%");
-
-		$(window).bind('resize', function () {
-			if (oTable.is(":visible"))
-			{
-				oTable.fnAdjustColumnSizing();
-			}
-		});
-
-		// return the data table instance
-		return oTable;
+		// format the table with the dataTable plugin and return the table instance
+		return tableSelector.dataTable(tableOpts);
 	}
 
 	/**
@@ -652,40 +623,55 @@ function MutationDetailsTable(options, gene, mutationUtil)
 	 */
 	function renderTable(rows)
 	{
-		var headers = _options.headers;
+		var columns = _options.columnOrder;
 
 		// build a map, to be able to use string constants
 		// instead of integer constants for table columns
-		var indexMap = DataTableUtil.buildColumnIndexMap(headers);
+		var indexMap = DataTableUtil.buildColumnIndexMap(columns);
 
 		// build a visibility map for column headers
-		var visibilityMap = DataTableUtil.buildColumnVisMap(headers, visibilityValue);
+		var visibilityMap = DataTableUtil.buildColumnVisMap(columns, visibilityValue);
 
 		// build a map to determine searchable columns
-		var searchMap = DataTableUtil.buildColumnSearchMap(headers, searchValue);
+		var searchMap = DataTableUtil.buildColumnSearchMap(columns, searchValue);
 
 		// determine hidden and excluded columns
-		var hiddenCols = DataTableUtil.getHiddenColumns(headers, indexMap, visibilityMap);
-		var excludedCols = DataTableUtil.getExcludedColumns(headers, indexMap, visibilityMap);
+		var hiddenCols = DataTableUtil.getHiddenColumns(columns, indexMap, visibilityMap);
+		var excludedCols = DataTableUtil.getExcludedColumns(columns, indexMap, visibilityMap);
 
 		// determine columns to exclude from filtering (through the search box)
-		var nonSearchableCols = DataTableUtil.getNonSearchableColumns(headers, indexMap, searchMap);
+		var nonSearchableCols = DataTableUtil.getNonSearchableColumns(columns, indexMap, searchMap);
 
 		// add custom sort functions for specific columns
 		addSortFunctions();
 
 		// actual initialization of the DataTables plug-in
-		_dataTable = initDataTable($(_options.el), rows, headers,
+		_dataTable = initDataTable($(_options.el), rows, _options.headers,
 		                           indexMap, hiddenCols, excludedCols, nonSearchableCols);
 
-		addDefaultListeners(indexMap);
+		//_dataTable.css("width", "100%");
+
+		addDefaultListeners(indexMap, _dataTable);
 
 		// add a delay to the filter
 		_dataTable.fnSetFilteringDelay(600);
 	}
 
+	/**
+	 * Adds default event listeners for the table.
+	 *
+	 * @param indexMap  column index map
+	 */
 	function addDefaultListeners(indexMap)
 	{
+		// add resize listener to the window to adjust column sizing
+		$(window).bind('resize', function () {
+			if (_dataTable.is(":visible"))
+			{
+				_dataTable.fnAdjustColumnSizing();
+			}
+		});
+
 		// add click listener for each igv link to get the actual parameters
 		// from another servlet
 		_.each($(_options.el).find('.igv-link'), function(element, index) {
@@ -753,13 +739,13 @@ function MutationDetailsTable(options, gene, mutationUtil)
 	}
 
 	/**
-	 * Enables/disables callback functions (event triggering).
+	 * Enables/disables event triggering.
 	 *
 	 * @param active    boolean value
 	 */
-	function setCallbackActive (active)
+	function setEventActive(active)
 	{
-		_callbackActive = active;
+		_eventActive = active;
 	}
 
 	/**
@@ -1237,7 +1223,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 		getSelectedRow: getSelectedRow,
 		getDataTable: getDataTable,
 		getHeaders: getHeaders,
-		setCallbackActive: setCallbackActive,
+		setEventActive: setEventActive,
 		getManualSearch: getManualSearch,
 		dispatcher: _dispatcher
 	};

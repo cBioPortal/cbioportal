@@ -2,9 +2,9 @@
  * Default table view for the mutations.
  *
  * options: {el: [target container],
- *           model: {mutations: [mutation data as an array of JSON objects],
- *                   geneSymbol: [hugo gene symbol as a string],
- *                   tableOpts: [mutation table options -- optional]}
+ *           model: {mutations: mutation data as an array of JSON objects,
+ *                   geneSymbol: hugo gene symbol as a string,
+ *                   tableOpts: mutation table options (optional)}
  *          }
  *
  * @author Selcuk Onur Sumer
@@ -43,7 +43,8 @@ var MutationDetailsTableView = Backbone.View.extend({
 	{
 		var self = this;
 
-		var options = {el: self.$el.find(".mutation_details_table")};
+		var options = self.model.tableOpts || {};
+		options.el = options.el || self.$el.find(".mutation_details_table");
 
 		var mutationColl = new MutationCollection(self.model.mutations);
 		var mutationUtil = new MutationDetailsUtil(mutationColl);
@@ -79,7 +80,7 @@ var MutationDetailsTableView = Backbone.View.extend({
 			var row = [mutation];
 
 			// set everything else to null...
-			for (var i=0; i < headers.length - 1; i++)
+			for (var i=0; i < _.size(headers) - 1; i++)
 			{
 				row.push(null);
 			}
@@ -249,14 +250,14 @@ var MutationDetailsTableView = Backbone.View.extend({
 			asRegex = false;
 		}
 
-		// disable callbacks before filtering, otherwise it creates a chain reaction
-		self.tableUtil.setCallbackActive(false);
+		// disable event triggering before filtering, otherwise it creates a chain reaction
+		self.tableUtil.setEventActive(false);
 
 		// apply filter
 		self._applyFilter(oTable, regex, asRegex, updateBox, limit);
 
-		// enable callbacks after filtering
-		self.tableUtil.setCallbackActive(true);
+		// enable events after filtering
+		self.tableUtil.setEventActive(true);
 	},
 	/**
 	 * Resets all table filters (rolls back to initial state)
@@ -279,15 +280,15 @@ var MutationDetailsTableView = Backbone.View.extend({
 		var self = this;
 		var oTable = self.tableUtil.getDataTable();
 
-		// disable callbacks before filtering, otherwise it creates a chain reaction
-		self.tableUtil.setCallbackActive(false);
+		// disable event triggering before filtering, otherwise it creates a chain reaction
+		self.tableUtil.setEventActive(false);
 
 		// re-apply last manual filter string
 		var searchStr = self.tableUtil.getManualSearch();
 		self._applyFilter(oTable, searchStr, false);
 
-		// enable callbacks after filtering
-		self.tableUtil.setCallbackActive(true);
+		// enable events after filtering
+		self.tableUtil.setEventActive(true);
 	},
 	/**
 	 * Filters the given data table with the provided filter string.

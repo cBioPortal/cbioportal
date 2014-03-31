@@ -71,17 +71,12 @@ var StudyViewInitScatterPlot = (function() {
             });
             $("#" + scatterPlotOptions.names.log_scale_y).change(function() {
                 scatterPlot.updateScaleY(scatterPlotOptions.names.log_scale_y);
-            });    
-        
-            $("#study-view-scatter-plot").hover(function(){
-                $("#study-view-scatter-plot-header").stop().fadeIn('slow', function(){
-                    $(this).css('display', 'block');
-                });
-            }, function(){
-                $("#study-view-scatter-plot-header").stop().fadeOut('slow', function(){
-                    $(this).css('display', 'none');
-                });
             });
+            
+            StudyViewOverallFunctions
+                    .showHideDivision("study-view-scatter-plot", 
+                                    "study-view-scatter-plot-header");
+            
             
             $("#study-view-scatter-plot-pdf").submit(function(){
                 setSVGElementValue("study-view-scatter-plot-body",

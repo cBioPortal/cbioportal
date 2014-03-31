@@ -103,19 +103,21 @@ var BarChart = function(){
         
         
         if(param.needLogScale){
-            _logCheckBox = "<span id='scale-span-"+param.chartID+
+            _logCheckBox = "<div id='StudyViewLogBarChartCheckboxWrapper'>"+
+                "<span id='scale-span-"+param.chartID+
                 "' style='float:right; font-size:10px; margin-right: 15px;"+
                 "margin-top:3px;color: grey'>Log Scale X</span>"+
                 "<input type='checkbox' value='"+ param.chartID +","+ 
                 param.distanceArray.max +","+ 
                 param.distanceArray.min + "," + param.selectedAttr+
                 "' id='scale-input-"+param.chartID+
-                "' class='study-view-bar-x-log' checked='checked'></input>";
-        }
+                "' class='study-view-bar-x-log' checked='checked'></input></div>";
+       }
         
         var contentHTML = "<div id=\"" + DIV.chartDiv + 
                 "\" class='"+ param.className +"'  value='" + param.selectedAttr + "," + 
-                param.selectedAttrDisplay + ",bar'><div style='width:100%; float:right'>"+
+                param.selectedAttrDisplay + ",bar'>"+
+                "<div style='height: 18px; width:100%; float:right'>"+
                 "<span class='study-view-dc-chart-delete'>x</span>"+
                 "<a href='javascript:StudyViewInitCharts.getChartsByID("+ 
                 param.chartID +").getChart().filterAll();" +
@@ -131,6 +133,12 @@ var BarChart = function(){
                     .append("<div id=\"" + DIV.mainDiv+ 
                     "\" class='study-view-dc-chart study-view-bar-main'>" + 
                     contentHTML + "</div>");
+        }
+        
+        if(param.needLogScale){
+            StudyViewOverallFunctions
+                    .showHideDivision(DIV.chartDiv, 
+                                    "StudyViewLogBarChartCheckboxWrapper");
         }
     }
     

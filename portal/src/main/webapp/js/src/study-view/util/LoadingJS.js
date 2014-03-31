@@ -26,7 +26,8 @@ var LoadingJS = (function(){
                     'DcRedrawAllDataTable', 
                     'FnGetColumnData',
                     'FnColumnFilter',
-                    'FnSetFilteringDelay'
+                    'FnSetFilteringDelay',
+                    'StudyViewOverallFunctions'
                 ],
                 view: [
                         'StudyViewInitCharts', 

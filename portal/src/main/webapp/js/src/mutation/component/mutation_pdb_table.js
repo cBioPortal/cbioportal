@@ -113,7 +113,7 @@ function MutationPdbTable(options)
 			}
 		},
 		// default tooltip functions
-		columnTooltip: {
+		columnTooltips: {
 			"simple": function(selector) {
 				var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
 
@@ -152,6 +152,10 @@ function MutationPdbTable(options)
 						datum.chain.chainId);
 				});
 			}
+		},
+		// custom column sort functions
+		customSort: {
+
 		},
 		// delay amount before applying the user entered filter query
 		filteringDelay: 0,
@@ -320,7 +324,7 @@ function MutationPdbTable(options)
 		var nonSearchableCols = DataTableUtil.getNonSearchableColumns(columnOrder, indexMap, searchMap);
 
 		// add custom sort functions for specific columns
-		//_addSortFunctions();
+		addSortFunctions();
 
 		// actual initialization of the DataTables plug-in
 		_dataTable = initDataTable($(_options.el), rows, _options.columns,
@@ -403,7 +407,7 @@ function MutationPdbTable(options)
 	{
 		var tableSelector = $(_options.el);
 
-		_.each(_options.columnTooltip, function(tooltipFn) {
+		_.each(_options.columnTooltips, function(tooltipFn) {
 			if (_.isFunction(tooltipFn))
 			{
 				tooltipFn(tableSelector);
@@ -414,6 +418,19 @@ function MutationPdbTable(options)
 	function getColumnOptions()
 	{
 		return _options.columns;
+	}
+
+	/**
+	 * Adds custom DataTables sort function for specific columns.
+	 */
+	function addSortFunctions()
+	{
+		_.each(_.pairs(_options.customSort), function(pair) {
+			var fnName = pair[0];
+			var sortFn = pair[1];
+
+			jQuery.fn.dataTableExt.oSort[fnName] = sortFn;
+		});
 	}
 
 	return {

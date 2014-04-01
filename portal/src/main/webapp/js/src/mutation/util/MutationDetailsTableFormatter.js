@@ -344,6 +344,87 @@ var MutationDetailsTableFormatter = (function()
 		return {text: text, style: style};
     }
 
+
+	/**
+	 * Helper function for predicted impact score sorting.
+	 */
+	function assignValueToPredictedImpact(text, score)
+	{
+		// using score by itself may be sufficient,
+		// but sometimes we have no numerical score value
+
+		var value;
+		text = text.toLowerCase();
+
+		if (text == "low" || text == "l") {
+			value = 2;
+		} else if (text == "medium" || text == "m") {
+			value = 3;
+		} else if (text == "high" || text == "h") {
+			value = 4;
+		} else if (text == "neutral" || text == "n") {
+			value = 1;
+		} else {
+			value = -1;
+		}
+
+		if (value > 0 && !isNaN(score))
+		{
+			//assuming FIS values cannot exceed 1000
+			value += score / 1000;
+		}
+
+		return value;
+	}
+
+	/**
+	 * Helper function for copy number sorting.
+	 */
+	function assignValueToCna(text)
+	{
+		var value;
+		text = text.toLowerCase();
+
+		// TODO this is actually reverse mapping of MutationDetailsUtil._cnaMap
+		if (text == "homdel") {
+			value = 1;
+		} else if (text == "hetloss") {
+			value = 2;
+		} else if (text == "diploid") {
+			value = 3;
+		} else if (text == "gain") {
+			value = 4;
+		} else if (text == "amp") {
+			value = 5;
+		} else { // unknown
+			value = -1;
+		}
+
+		return value;
+	}
+
+	/**
+	 * Helper function for predicted impact score sorting.
+	 * Gets the score from the "alt" property within the given html string.
+	 */
+	function getFisValue(a)
+	{
+		var score = "";
+		var altValue = $(a).attr("alt");
+
+		var parts = altValue.split("|");
+
+		if (parts.length > 0)
+		{
+			if (parts[0].length > 0)
+			{
+				score = parseFloat(parts[0]);
+			}
+		}
+
+		return score;
+	}
+
 	return {
 		getCaseId: getCaseId,
 		getProteinChange: getProteinChange,
@@ -357,7 +438,12 @@ var MutationDetailsTableFormatter = (function()
 		getFis: getFis,
 		getTumorType: getTumorType,
 		getCosmic: getCosmic,
-		getIntValue: getIntValue
+		getIntValue: getIntValue,
+		assignValueToPredictedImpact: assignValueToPredictedImpact,
+		assignValueToCna: assignValueToCna,
+		getFisValue: getFisValue,
+
+
 	}
 })();
 

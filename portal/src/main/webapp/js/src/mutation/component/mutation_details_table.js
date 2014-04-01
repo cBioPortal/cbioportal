@@ -459,7 +459,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 			}
 		},
 		// default tooltip functions
-		columnTooltip: {
+		columnTooltips: {
 			"simple": function(selector, mutationUtil, gene) {
 				var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
 
@@ -596,6 +596,142 @@ function MutationDetailsTable(options, gene, mutationUtil)
 						MutationDetailsEvents.PROTEIN_CHANGE_LINK_CLICKED,
 						mutationId);
 				});
+			}
+		},
+		// custom column sort functions
+		// TODO these sort functions parsing the data from the html content
+		// ...instead we should be able to use the corresponding datum
+		// TODO these function names are global for all data tables...
+		customSort: {
+			/**
+			 * Ascending sort function for protein (amino acid) change column.
+			 */
+			"aa-change-col-asc": function(a,b) {
+				var ares = a.match(/.*[A-Z]([0-9]+)[^0-9]+/);
+				var bres = b.match(/.*[A-Z]([0-9]+)[^0-9]+/);
+
+				if (ares) {
+					if (bres) {
+						var ia = parseInt(ares[1]);
+						var ib = parseInt(bres[1]);
+						return ia==ib ? 0 : (ia<ib ? -1:1);
+					} else {
+						return -1;
+					}
+				} else {
+					if (bres) {
+						return 1;
+					} else {
+						return a==b ? 0 : (a<b ? -1:1);
+					}
+				}
+			},
+			/**
+			 * Descending sort function for protein (amino acid) change column.
+			 */
+			"aa-change-col-desc": function(a,b) {
+				var ares = a.match(/.*[A-Z]([0-9]+)[^0-9]+/);
+				var bres = b.match(/.*[A-Z]([0-9]+)[^0-9]+/);
+
+				if (ares) {
+					if (bres) {
+						var ia = parseInt(ares[1]);
+						var ib = parseInt(bres[1]);
+						return ia==ib ? 0 : (ia<ib ? 1:-1);
+					} else {
+						return -1;
+					}
+				} else {
+					if (bres) {
+						return 1;
+					} else {
+						return a==b ? 0 : (a<b ? 1:-1);
+					}
+				}
+			},
+			/**
+			 * Ascending sort function for the copy number column.
+			 */
+			"copy-number-col-asc": function(a,b) {
+				var av = MutationDetailsTableFormatter.assignValueToCna(
+					DataTableUtil.getLabelTextValue(a));
+				var bv = MutationDetailsTableFormatter.assignValueToCna(
+					DataTableUtil.getLabelTextValue(b));
+
+				return DataTableUtil.compareSortAsc(a, b, av, bv);
+			},
+			/**
+			 * Descending sort function for the copy number column.
+			 */
+			"copy-number-col-desc":  function(a,b) {
+				var av = MutationDetailsTableFormatter.assignValueToCna(
+					DataTableUtil.getLabelTextValue(a));
+				var bv = MutationDetailsTableFormatter.assignValueToCna(
+					DataTableUtil.getLabelTextValue(b));
+
+				return DataTableUtil.compareSortDesc(a, b, av, bv);
+			},
+			/**
+			 * Ascending sort function for predicted impact column.
+			 */
+			"predicted-impact-col-asc": function(a,b) {
+				var av = MutationDetailsTableFormatter.assignValueToPredictedImpact(
+					DataTableUtil.getLabelTextValue(a),
+					DataTableUtil.getFisValue(a));
+				var bv = MutationDetailsTableFormatter.assignValueToPredictedImpact(
+					DataTableUtil.getLabelTextValue(b),
+					DataTableUtil.getFisValue(b));
+
+				return DataTableUtil.compareSortAsc(a, b, av, bv);
+			},
+			/**
+			 * Descending sort function for predicted impact column.
+			 */
+			"predicted-impact-col-desc": function(a,b) {
+				var av = MutationDetailsTableFormatter.assignValueToPredictedImpact(
+					DataTableUtil.getLabelTextValue(a),
+					DataTableUtil.getFisValue(a));
+				var bv = MutationDetailsTableFormatter.assignValueToPredictedImpact(
+					DataTableUtil.getLabelTextValue(b),
+					DataTableUtil.getFisValue(b));
+
+				return DataTableUtil.compareSortDesc(a, b, av, bv);
+			},
+			/**
+			 * Ascending sort function for columns having int within label tag.
+			 */
+			"label-int-col-asc": function(a,b) {
+				var av = DataTableUtil.getLabelTextIntValue(a);
+				var bv = DataTableUtil.getLabelTextIntValue(b);
+
+				return DataTableUtil.compareSortAsc(a, b, av, bv);
+			},
+			/**
+			 * Descending sort function for columns having int within label tag.
+			 */
+			"label-int-col-desc": function(a,b) {
+				var av = DataTableUtil.getLabelTextIntValue(a);
+				var bv = DataTableUtil.getLabelTextIntValue(b);
+
+				return DataTableUtil.compareSortDesc(a, b, av, bv);
+			},
+			/**
+			 * Ascending sort function for columns having float within label tag.
+			 */
+			"label-float-col-asc": function(a,b) {
+				var av = DataTableUtil.getLabelTextFloatValue(a);
+				var bv = DataTableUtil.getLabelTextFloatValue(b);
+
+				return DataTableUtil.compareSortAsc(a, b, av, bv);
+			},
+			/**
+			 * Descending sort function for columns having float within label tag.
+			 */
+			"label-float-col-desc": function(a,b) {
+				var av = DataTableUtil.getLabelTextFloatValue(a);
+				var bv = DataTableUtil.getLabelTextFloatValue(b);
+
+				return DataTableUtil.compareSortDesc(a, b, av, bv);
 			}
 		},
 		// delay amount before applying the user entered filter query
@@ -913,7 +1049,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 	{
 		var tableSelector = $(_options.el);
 
-		_.each(_options.columnTooltip, function(tooltipFn) {
+		_.each(_options.columnTooltips, function(tooltipFn) {
 			tooltipFn(tableSelector, mutationUtil, gene);
 		});
 	}
@@ -968,329 +1104,16 @@ function MutationDetailsTable(options, gene, mutationUtil)
 	}
 
 	/**
-	 * Helper function for predicted impact score sorting.
-	 */
-	function _assignValueToPredictedImpact(text, score)
-	{
-		// using score by itself may be sufficient,
-		// but sometimes we have no numerical score value
-
-		var value;
-		text = text.toLowerCase();
-
-		if (text == "low" || text == "l") {
-			value = 2;
-		} else if (text == "medium" || text == "m") {
-			value = 3;
-		} else if (text == "high" || text == "h") {
-			value = 4;
-		} else if (text == "neutral" || text == "n") {
-			value = 1;
-		} else {
-			value = -1;
-		}
-
-		if (value > 0 && !isNaN(score))
-		{
-			//assuming FIS values cannot exceed 1000
-			value += score / 1000;
-		}
-
-		return value;
-	}
-
-	function _assignValueToCna(text)
-	{
-		var value;
-		text = text.toLowerCase();
-
-		// TODO this is actually reverse mapping of MutationDetailsUtil._cnaMap
-		if (text == "homdel") {
-			value = 1;
-		} else if (text == "hetloss") {
-			value = 2;
-		} else if (text == "diploid") {
-			value = 3;
-		} else if (text == "gain") {
-			value = 4;
-		} else if (text == "amp") {
-			value = 5;
-		} else { // unknown
-			value = -1;
-		}
-
-		return value;
-	}
-
-	function _getAltTextValue(a)
-	{
-		var altValue = $(a).attr("alt");
-		var value = parseFloat(altValue);
-
-		if (isNaN(value))
-		{
-			value = "";
-		}
-
-		return value;
-	}
-
-	/**
-	 * Helper function for predicted impact score sorting.
-	 * Gets the score from the "alt" property within the given html string.
-	 */
-	function _getFisValue(a)
-	{
-		var score = "";
-		var altValue = $(a).attr("alt");
-
-		var parts = altValue.split("|");
-
-		if (parts.length > 0)
-		{
-			if (parts[0].length > 0)
-			{
-				score = parseFloat(parts[0]);
-			}
-		}
-
-		return score;
-	}
-
-	/**
-	 * Helper function for sorting string values within label tag.
-	 */
-	function _getLabelTextValue(a)
-	{
-		if (a.indexOf("label") != -1)
-		{
-			// TODO temp workaround
-			return $(a).find("label").text().trim() || $(a).text().trim();
-		}
-		else
-		{
-			return -1;
-		}
-	}
-
-	/**
-	 * Helper function for sorting int values within label tag.
-	 */
-	function _getLabelTextIntValue(a)
-	{
-		if (a.indexOf("label") != -1)
-		{
-			return parseInt($(a).text());
-		}
-		else
-		{
-			return -1;
-		}
-	}
-
-	/**
-	 * Helper function for sorting float values within label tag.
-	 */
-	function _getLabelTextFloatValue(a)
-	{
-		if (a.indexOf("label") != -1)
-		{
-			return parseFloat($(a).text());
-		}
-		else
-		{
-			return -1;
-		}
-	}
-
-	/**
-	 * Comparison function for ascending sort operations.
-	 *
-	 * @param a
-	 * @param b
-	 * @param av
-	 * @param bv
-	 * @return
-	 * @private
-	 */
-	function _compareSortAsc(a, b, av, bv)
-	{
-		if (av >= 0) {
-			if (bv >= 0) {
-				return av==bv ? 0 : (av<bv ? -1:1);
-			} else {
-				return -1;
-			}
-		} else {
-			if (bv >= 0) {
-				return 1;
-			} else {
-				return a==b ? 0 : (a<b ? 1:-1);
-			}
-		}
-	}
-
-	/**
-	 * Comparison function for descending sort operations.
-	 *
-	 * @param a
-	 * @param b
-	 * @param av
-	 * @param bv
-	 * @return
-	 * @private
-	 */
-	function _compareSortDesc(a, b, av, bv)
-	{
-		if (av >= 0) {
-			if (bv >= 0) {
-				return av==bv ? 0 : (av<bv ? 1:-1);
-			} else {
-				return -1;
-			}
-		} else {
-			if (bv >= 0) {
-				return 1;
-			} else {
-				return a==b ? 0 : (a<b ? -1:1);
-			}
-		}
-	}
-
-	/**
 	 * Adds custom DataTables sort function for specific columns.
-	 *
-	 * @private
 	 */
 	function addSortFunctions()
 	{
-		/**
-		 * Ascending sort function for protein (amino acid) change column.
-		 */
-		jQuery.fn.dataTableExt.oSort['aa-change-col-asc'] = function(a,b) {
-			var ares = a.match(/.*[A-Z]([0-9]+)[^0-9]+/);
-			var bres = b.match(/.*[A-Z]([0-9]+)[^0-9]+/);
+		_.each(_.pairs(_options.customSort), function(pair) {
+			var fnName = pair[0];
+			var sortFn = pair[1];
 
-			if (ares) {
-				if (bres) {
-					var ia = parseInt(ares[1]);
-					var ib = parseInt(bres[1]);
-					return ia==ib ? 0 : (ia<ib ? -1:1);
-				} else {
-					return -1;
-				}
-			} else {
-				if (bres) {
-					return 1;
-				} else {
-					return a==b ? 0 : (a<b ? -1:1);
-				}
-			}
-		};
-
-		/**
-		 * Descending sort function for protein (amino acid) change column.
-		 */
-		jQuery.fn.dataTableExt.oSort['aa-change-col-desc'] = function(a,b) {
-			var ares = a.match(/.*[A-Z]([0-9]+)[^0-9]+/);
-			var bres = b.match(/.*[A-Z]([0-9]+)[^0-9]+/);
-
-			if (ares) {
-				if (bres) {
-					var ia = parseInt(ares[1]);
-					var ib = parseInt(bres[1]);
-					return ia==ib ? 0 : (ia<ib ? 1:-1);
-				} else {
-					return -1;
-				}
-			} else {
-				if (bres) {
-					return 1;
-				} else {
-					return a==b ? 0 : (a<b ? 1:-1);
-				}
-			}
-		};
-
-		/**
-		 * Ascending sort function for the copy number column.
-		 */
-		jQuery.fn.dataTableExt.oSort['copy-number-col-asc']  = function(a,b) {
-			var av = _assignValueToCna(_getLabelTextValue(a));
-			var bv = _assignValueToCna(_getLabelTextValue(b));
-
-			return _compareSortAsc(a, b, av, bv);
-		};
-
-		/**
-		 * Descending sort function for the copy number column.
-		 */
-		jQuery.fn.dataTableExt.oSort['copy-number-col-desc']  = function(a,b) {
-			var av = _assignValueToCna(_getLabelTextValue(a));
-			var bv = _assignValueToCna(_getLabelTextValue(b));
-
-			return _compareSortDesc(a, b, av, bv);
-		};
-
-		/**
-		 * Ascending sort function for predicted impact column.
-		 */
-		jQuery.fn.dataTableExt.oSort['predicted-impact-col-asc']  = function(a,b) {
-			var av = _assignValueToPredictedImpact(_getLabelTextValue(a), _getFisValue(a));
-			var bv = _assignValueToPredictedImpact(_getLabelTextValue(b), _getFisValue(b));
-
-			return _compareSortAsc(a, b, av, bv);
-		};
-
-		/**
-		 * Descending sort function for predicted impact column.
-		 */
-		jQuery.fn.dataTableExt.oSort['predicted-impact-col-desc']  = function(a,b) {
-			var av = _assignValueToPredictedImpact(_getLabelTextValue(a), _getFisValue(a));
-			var bv = _assignValueToPredictedImpact(_getLabelTextValue(b), _getFisValue(b));
-
-			return _compareSortDesc(a, b, av, bv);
-		};
-
-		/**
-		 * Ascending sort function for columns having int within label tag.
-		 */
-		jQuery.fn.dataTableExt.oSort['label-int-col-asc'] = function(a,b) {
-			var av = _getLabelTextIntValue(a);
-			var bv = _getLabelTextIntValue(b);
-
-			return _compareSortAsc(a, b, av, bv);
-		};
-
-		/**
-		 * Descending sort function for columns having int within label tag.
-		 */
-		jQuery.fn.dataTableExt.oSort['label-int-col-desc'] = function(a,b) {
-			var av = _getLabelTextIntValue(a);
-			var bv = _getLabelTextIntValue(b);
-
-			return _compareSortDesc(a, b, av, bv);
-		};
-
-		/**
-		 * Ascending sort function for columns having float within label tag.
-		 */
-		jQuery.fn.dataTableExt.oSort['label-float-col-asc'] = function(a,b) {
-			var av = _getLabelTextFloatValue(a);
-			var bv = _getLabelTextFloatValue(b);
-
-			return _compareSortAsc(a, b, av, bv);
-		};
-
-		/**
-		 * Descending sort function for columns having float within label tag.
-		 */
-		jQuery.fn.dataTableExt.oSort['label-float-col-desc'] = function(a,b) {
-			var av = _getLabelTextFloatValue(a);
-			var bv = _getLabelTextFloatValue(b);
-
-			return _compareSortDesc(a, b, av, bv);
-		};
+			jQuery.fn.dataTableExt.oSort[fnName] = sortFn;
+		});
 	}
 
 	return {

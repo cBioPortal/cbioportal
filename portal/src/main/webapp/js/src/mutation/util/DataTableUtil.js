@@ -1,3 +1,5 @@
+// TODO move this class to a global directory since these are generic data table utils
+
 /**
  * Singleton utility class for DataTables related tasks.
  *
@@ -251,6 +253,117 @@ var DataTableUtil = (function()
 		return columnOpts;
 	}
 
+	function getAltTextValue(a)
+	{
+		var altValue = $(a).attr("alt");
+		var value = parseFloat(altValue);
+
+		if (isNaN(value))
+		{
+			value = "";
+		}
+
+		return value;
+	}
+
+	/**
+	 * Helper function for sorting string values within label tag.
+	 */
+	function getLabelTextValue(a)
+	{
+		if (a.indexOf("label") != -1)
+		{
+			// TODO temp workaround
+			return $(a).find("label").text().trim() || $(a).text().trim();
+		}
+		else
+		{
+			return -1;
+		}
+	}
+
+	/**
+	 * Helper function for sorting int values within label tag.
+	 */
+	function getLabelTextIntValue(a)
+	{
+		if (a.indexOf("label") != -1)
+		{
+			return parseInt($(a).text());
+		}
+		else
+		{
+			return -1;
+		}
+	}
+
+	/**
+	 * Helper function for sorting float values within label tag.
+	 */
+	function getLabelTextFloatValue(a)
+	{
+		if (a.indexOf("label") != -1)
+		{
+			return parseFloat($(a).text());
+		}
+		else
+		{
+			return -1;
+		}
+	}
+
+	/**
+	 * Comparison function for ascending sort operations.
+	 *
+	 * @param a
+	 * @param b
+	 * @param av
+	 * @param bv
+	 * @return
+	 */
+	function compareSortAsc(a, b, av, bv)
+	{
+		if (av >= 0) {
+			if (bv >= 0) {
+				return av==bv ? 0 : (av<bv ? -1:1);
+			} else {
+				return -1;
+			}
+		} else {
+			if (bv >= 0) {
+				return 1;
+			} else {
+				return a==b ? 0 : (a<b ? 1:-1);
+			}
+		}
+	}
+
+	/**
+	 * Comparison function for descending sort operations.
+	 *
+	 * @param a
+	 * @param b
+	 * @param av
+	 * @param bv
+	 * @return
+	 */
+	function compareSortDesc(a, b, av, bv)
+	{
+		if (av >= 0) {
+			if (bv >= 0) {
+				return av==bv ? 0 : (av<bv ? 1:-1);
+			} else {
+				return -1;
+			}
+		} else {
+			if (bv >= 0) {
+				return 1;
+			} else {
+				return a==b ? 0 : (a<b ? -1:1);
+			}
+		}
+	}
+
 	return {
 		buildColumnIndexMap: buildColumnIndexMap,
 		buildColumnNameMap: buildColumnNameMap,
@@ -260,6 +373,12 @@ var DataTableUtil = (function()
 		getExcludedColumns: getExcludedColumns,
 		getNonSearchableColumns: getNonSearchableColumns,
 		getColumnOptions: getColumnOptions,
-		getColumnRenderers: getColumnRenderers
+		getColumnRenderers: getColumnRenderers,
+		compareSortAsc: compareSortAsc,
+		compareSortDesc: compareSortDesc,
+		getAltTextValue: getAltTextValue,
+		getLabelTextValue: getLabelTextValue,
+		getLabelTextIntValue: getLabelTextIntValue,
+		getLabelTextFloatValue: getLabelTextFloatValue
 	};
 })();

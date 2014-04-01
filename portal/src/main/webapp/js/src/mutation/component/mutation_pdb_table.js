@@ -75,6 +75,7 @@ function MutationPdbTable(options)
 		columnWidth: {
 			"summary": "65%"
 		},
+		// renderer function for each column
 		columnRender: {
 			identityPercent: function(obj, datum) {
 				// format as a percentage value
@@ -113,6 +114,7 @@ function MutationPdbTable(options)
 				return datum.chain.mergedAlignment.uniprotFrom;
 			}
 		},
+		// default tooltip functions
 		columnTooltip: {
 			"simple": function(selector) {
 				var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
@@ -123,6 +125,34 @@ function MutationPdbTable(options)
 
 				$(selector).find('.simple-tip').qtip(qTipOptions);
 				$(selector).find('.simple-tip-left').qtip(qTipOptionsLeft);
+			}
+		},
+		// default event listener config
+		// TODO add more params if necessary
+		eventListeners: {
+			"pdbLink": function(dataTable, dispatcher, indexMap) {
+				$(dataTable).on("click", ".pbd-chain-table-chain-cell a", function (event) {
+					event.preventDefault();
+
+					// remove previous highlights
+					removeAllSelection();
+
+					// get selected row via event target
+					var selectedRow = $(event.target).closest("tr");
+
+					// highlight selected row
+					selectedRow.addClass('row_selected');
+
+					//var data = _dataTable.fnGetData(this);
+					var data = dataTable.fnGetData(selectedRow[0]);
+					var datum = data[indexMap["datum"]];
+
+					// trigger corresponding event
+					dispatcher.trigger(
+						MutationDetailsEvents.TABLE_CHAIN_SELECTED,
+						datum.pdbId,
+						datum.chain.chainId);
+				});
 			}
 		},
 		// WARNING: overwriting advanced DataTables options such as
@@ -299,35 +329,15 @@ function MutationPdbTable(options)
 
 		_dataTable.css("width", "100%");
 
-		addDefaultListeners(indexMap);
+		addEventListeners(indexMap);
 		// add a delay to the filter
 		//_dataTable.fnSetFilteringDelay(600);
 	}
 
-	function addDefaultListeners(indexMap)
+	function addEventListeners(indexMap)
 	{
-		//$(_options.el).on("click", "tr", function (event) {
-		$(_options.el).on("click", ".pbd-chain-table-chain-cell a", function (event) {
-			event.preventDefault();
-
-			// remove previous highlights
-			removeAllSelection();
-
-			// get selected row via event target
-			var selectedRow = $(event.target).closest("tr");
-
-			// highlight selected row
-			selectedRow.addClass('row_selected');
-
-			//var data = _dataTable.fnGetData(this);
-			var data = _dataTable.fnGetData(selectedRow[0]);
-			var datum = data[indexMap["datum"]];
-
-			// trigger corresponding event
-			_dispatcher.trigger(
-				MutationDetailsEvents.TABLE_CHAIN_SELECTED,
-				datum.pdbId,
-				datum.chain.chainId);
+		_.each(_options.eventListeners, function(listenerFn) {
+			listenerFn(_dataTable, _dispatcher, indexMap);
 		});
 
 		// TODO mouse over/out actions do not work as desired

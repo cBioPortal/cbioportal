@@ -176,6 +176,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 			"mutationAssessor": "2%",
 			"mutationCount": "2%"
 		},
+		// renderer functions for each column
 		columnRender: {
 			"mutationId": function(obj, datum) {
 				// TODO define 2 separate columns?
@@ -423,6 +424,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return mutation.igvLink;
 			}
 		},
+		// default tooltip functions
 		columnTooltip: {
 			"simple": function(selector, mutationUtil, gene) {
 				var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
@@ -502,6 +504,63 @@ function MutationDetailsTable(options, gene, mutationUtil)
 					}};
 
 					$(this).qtip(qTipOptsOma);
+				});
+			}
+		},
+		// default event listener config
+		// TODO add more params if necessary
+		eventListeners: {
+			"windowResize": function(dataTable, dispatcher, mutationUtil, gene) {
+				// add resize listener to the window to adjust column sizing
+				$(window).bind('resize', function () {
+					if (dataTable.is(":visible"))
+					{
+						dataTable.fnAdjustColumnSizing();
+					}
+				});
+			},
+			"igvLink": function(dataTable, dispatcher, mutationUtil, gene) {
+				// add click listener for each igv link to get the actual parameters
+				// from another servlet
+				_.each($(dataTable).find('.igv-link'), function(element, index) {
+					// TODO use mutation id, and dispatch an event
+					var url = $(element).attr("alt");
+
+					$(element).click(function(evt) {
+						// get parameters from the server and call related igv function
+						$.getJSON(url, function(data) {
+							//console.log(data);
+							// TODO this call displays warning message (resend)
+							prepIGVLaunch(data.bamFileUrl,
+							              data.encodedLocus,
+							              data.referenceGenome,
+							              data.trackName);
+						});
+					});
+				});
+			},
+			"proteinChange3d": function(dataTable, dispatcher, mutationUtil, gene) {
+				// add click listener for each 3D link
+				$(dataTable).find('.mutation-table-3d-link').click(function(evt) {
+					evt.preventDefault();
+
+					var mutationId = $(this).attr("alt");
+
+					dispatcher.trigger(
+						MutationDetailsEvents.PDB_LINK_CLICKED,
+						mutationId);
+				});
+			},
+			"proteinChange": function(dataTable, dispatcher, mutationUtil, gene) {
+				// add click listener for each protein change link
+				$(dataTable).find('.mutation-table-protein-change a').click(function(evt) {
+					evt.preventDefault();
+
+					var mutationId = $(this).closest("tr").attr("id");
+
+					dispatcher.trigger(
+						MutationDetailsEvents.PROTEIN_CHANGE_LINK_CLICKED,
+						mutationId);
 				});
 			}
 		},
@@ -639,7 +698,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				_prevSearch = currSearch;
 			},
 			"fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
-				var mutation = aData[indexMap["datum"]];
+				var mutation = aData[indexMap["datum"]].mutation;
 				// TODO mapping on mutationId and mutationSid...
 				//var key = mutation.mutationId;
 				//_rowMap[key] = nRow;
@@ -761,7 +820,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 
 		//_dataTable.css("width", "100%");
 
-		addDefaultListeners(indexMap);
+		addEventListeners(indexMap);
 
 		// add a delay to the filter
 		_dataTable.fnSetFilteringDelay(600);
@@ -772,55 +831,10 @@ function MutationDetailsTable(options, gene, mutationUtil)
 	 *
 	 * @param indexMap  column index map
 	 */
-	function addDefaultListeners(indexMap)
+	function addEventListeners(indexMap)
 	{
-		// add resize listener to the window to adjust column sizing
-		$(window).bind('resize', function () {
-			if (_dataTable.is(":visible"))
-			{
-				_dataTable.fnAdjustColumnSizing();
-			}
-		});
-
-		// add click listener for each igv link to get the actual parameters
-		// from another servlet
-		_.each($(_options.el).find('.igv-link'), function(element, index) {
-			// TODO use mutation id, and dispatch an event
-			var url = $(element).attr("alt");
-
-			$(element).click(function(evt) {
-				// get parameters from the server and call related igv function
-				$.getJSON(url, function(data) {
-					//console.log(data);
-					// TODO this call displays warning message (resend)
-					prepIGVLaunch(data.bamFileUrl,
-					              data.encodedLocus,
-					              data.referenceGenome,
-					              data.trackName);
-				});
-			});
-		});
-
-		// add click listener for each 3D link
-		$(_options.el).find('.mutation-table-3d-link').click(function(evt) {
-			evt.preventDefault();
-
-			var mutationId = $(this).attr("alt");
-
-			_dispatcher.trigger(
-				MutationDetailsEvents.PDB_LINK_CLICKED,
-				mutationId);
-		});
-
-		// add click listener for each 3D link
-		$(_options.el).find('.mutation-table-protein-change a').click(function(evt) {
-			evt.preventDefault();
-
-			var mutationId = $(this).closest("tr").attr("id");
-
-			_dispatcher.trigger(
-				MutationDetailsEvents.PROTEIN_CHANGE_LINK_CLICKED,
-				mutationId);
+		_.each(_options.eventListeners, function(listenerFn) {
+			listenerFn(_dataTable, _dispatcher, mutationUtil, gene);
 		});
 	}
 

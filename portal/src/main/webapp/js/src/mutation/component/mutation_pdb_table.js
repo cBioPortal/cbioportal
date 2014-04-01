@@ -12,28 +12,30 @@ function MutationPdbTable(options)
 	var _defaultOpts = {
 		el: "#mutation_pdb_table_d3",
 		elWidth: 740, // width of the container
-		// default column header information
+		// default column options
 		//
 		// name: internal name used to define column specific properties
-		// display: display value
+		// sTitle: display value
 		// tip: tooltip value
-		headers: {
-			datum: {display: "datum",
+		// [data table options]: sType, sClass, sWidth, asSorting, ...
+		columns: {
+			datum: {sTitle: "datum",
 				tip:""},
-			pdbId: {display: "PDB Id",
+			pdbId: {sTitle: "PDB Id",
 				tip:""},
-			chain: {display: "Chain",
+			chain: {sTitle: "Chain",
 				tip:""},
-			uniprotFrom: {display: "Uniprot From",
+			uniprotFrom: {sTitle: "Uniprot From",
 				tip:""},
-			uniprotPos: {display: "Uniprot Positions",
+			uniprotPos: {sTitle: "Uniprot Positions",
 				tip:""},
-			identityPercent: {display: "Identity Percent",
+			identityPercent: {sTitle: "Identity Percent",
 				tip:""},
-			organism: {display: "Organism",
+			organism: {sTitle: "Organism",
 				tip:""},
-			summary: {display: "Summary",
-				tip:""}
+			summary: {sTitle: "Summary",
+				tip:"",
+				sWidth: "65%"}
 		},
 		columnOrder: ["datum", "pdbId", "chain", "uniprotFrom",
 			"uniprotPos", "identityPercent", "organism", "summary"],
@@ -70,10 +72,6 @@ function MutationPdbTable(options)
 			"pdbId": true,
 			"organism": true,
 			"summary": true
-		},
-		// custom width values for columns
-		columnWidth: {
-			"summary": "65%"
 		},
 		// renderer function for each column
 		columnRender: {
@@ -155,6 +153,8 @@ function MutationPdbTable(options)
 				});
 			}
 		},
+		// delay amount before applying the user entered filter query
+		filteringDelay: 0,
 		// WARNING: overwriting advanced DataTables options such as
 		// aoColumnDefs, oColVis, and fnDrawCallback may break column
 		// visibility, sorting, and filtering. Proceed wisely ;)
@@ -193,7 +193,7 @@ function MutationPdbTable(options)
 	 *
 	 * @param tableSelector jQuery selector for the target table
 	 * @param rows          data rows
-	 * @param headers       column headers
+	 * @param columnOpts    column options
 	 * @param indexMap      map of <column name, column index>
 	 * @param hiddenCols    indices of the hidden columns
 	 * @param excludedCols  indices of the excluded columns
@@ -201,13 +201,12 @@ function MutationPdbTable(options)
 	 * @return {object}     DataTable instance
 	 * @private
 	 */
-	function initDataTable(tableSelector, rows, headers,
+	function initDataTable(tableSelector, rows, columnOpts,
 		indexMap, hiddenCols, excludedCols, nonSearchableCols)
 	{
-		// set column options
-		var columns = DataTableUtil.getColumnOptions(headers,
-			indexMap,
-			_options.columnWidth);
+		// generate column options for the data table
+		var columns = DataTableUtil.getColumnOptions(columnOpts,
+			indexMap);
 
 		// these are the parametric data tables options
 		var tableOpts = {
@@ -301,37 +300,41 @@ function MutationPdbTable(options)
 	 */
 	function renderTable(rows)
 	{
-		var headers = _options.columnOrder;
+		var columnOrder = _options.columnOrder;
 
 		// build a map, to be able to use string constants
 		// instead of integer constants for table columns
-		var indexMap = DataTableUtil.buildColumnIndexMap(headers);
+		var indexMap = DataTableUtil.buildColumnIndexMap(columnOrder);
 
 		// build a visibility map for column headers
-		var visibilityMap = DataTableUtil.buildColumnVisMap(headers, visibilityValue);
+		var visibilityMap = DataTableUtil.buildColumnVisMap(columnOrder, visibilityValue);
 
 		// build a map to determine searchable columns
-		var searchMap = DataTableUtil.buildColumnSearchMap(headers, searchValue);
+		var searchMap = DataTableUtil.buildColumnSearchMap(columnOrder, searchValue);
 
 		// determine hidden and excluded columns
-		var hiddenCols = DataTableUtil.getHiddenColumns(headers, indexMap, visibilityMap);
-		var excludedCols = DataTableUtil.getExcludedColumns(headers, indexMap, visibilityMap);
+		var hiddenCols = DataTableUtil.getHiddenColumns(columnOrder, indexMap, visibilityMap);
+		var excludedCols = DataTableUtil.getExcludedColumns(columnOrder, indexMap, visibilityMap);
 
 		// determine columns to exclude from filtering (through the search box)
-		var nonSearchableCols = DataTableUtil.getNonSearchableColumns(headers, indexMap, searchMap);
+		var nonSearchableCols = DataTableUtil.getNonSearchableColumns(columnOrder, indexMap, searchMap);
 
 		// add custom sort functions for specific columns
 		//_addSortFunctions();
 
 		// actual initialization of the DataTables plug-in
-		_dataTable = initDataTable($(_options.el), rows, _options.headers,
+		_dataTable = initDataTable($(_options.el), rows, _options.columns,
 			indexMap, hiddenCols, excludedCols, nonSearchableCols);
 
 		_dataTable.css("width", "100%");
 
 		addEventListeners(indexMap);
+
 		// add a delay to the filter
-		//_dataTable.fnSetFilteringDelay(600);
+		if (_options.filteringDelay > 0)
+		{
+			_dataTable.fnSetFilteringDelay(_options.filteringDelay);
+		}
 	}
 
 	function addEventListeners(indexMap)
@@ -408,9 +411,9 @@ function MutationPdbTable(options)
 		});
 	}
 
-	function getHeaders()
+	function getColumnOptions()
 	{
-		return _options.headers;
+		return _options.columns;
 	}
 
 	return {
@@ -419,7 +422,7 @@ function MutationPdbTable(options)
 		cleanFilters: cleanFilters,
 		getSelectedRow: getSelectedRow,
 		getDataTable: getDataTable,
-		getHeaders: getHeaders,
+		getColumnOptions: getColumnOptions,
 		dispatcher: _dispatcher
 	};
 }

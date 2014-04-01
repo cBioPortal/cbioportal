@@ -116,7 +116,7 @@ var PdbTableView = Backbone.View.extend({
 			callback(self, table);
 		}
 
-		self._generateRowData(table.getHeaders(), pdbColl, pdbProxy, function(rowData) {
+		self._generateRowData(table.getColumnOptions(), pdbColl, pdbProxy, function(rowData) {
 			// init table with the row data
 			table.renderTable(rowData);
 			// hide loader image

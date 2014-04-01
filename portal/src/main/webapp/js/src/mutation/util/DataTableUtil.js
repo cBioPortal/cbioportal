@@ -31,23 +31,23 @@ var DataTableUtil = (function()
 	/**
 	 * Creates a mapping for the given column headers.
 	 *
-	 * @param headers   column header definitions
+	 * @param columns   column options
 	 * @return {object} map of <column display name, column name>
 	 * @private
 	 */
-	function buildColumnNameMap(headers)
+	function buildColumnNameMap(columns)
 	{
 		var map = {};
 
-		_.each(_.pairs(headers), function(pair, index)
+		_.each(_.pairs(columns), function(pair, index)
 		{
 			var name = pair[0];
 			var options = pair[1];
 
-			if (options.display != null &&
-			    options.display.length > 0)
+			if (options.sTitle != null &&
+			    options.sTitle.length > 0)
 			{
-				map[options.display] = name;
+				map[options.sTitle] = name;
 			}
 		});
 
@@ -225,36 +225,30 @@ var DataTableUtil = (function()
 	/**
 	 * Generates basic column options for the given headers.
 	 *
-	 * @param headers       header options object
-	 * @param indexMap      map of <column name, column index>
-	 * @param columnWidth   column width options
-	 * @returns {Array}     array of column options
+	 * @param columns   column options object
+	 * @param indexMap  map of <column name, column index>
+	 * @returns {Array} array of column options
 	 */
-	function getColumnOptions(headers, indexMap, columnWidth)
+	function getColumnOptions(columns, indexMap)
 	{
-		var columns = [];
+		var columnOpts = [];
 
 		// set column options
-		_.each(_.pairs(headers), function(pair) {
+		_.each(_.pairs(columns), function(pair) {
 			var name = pair[0];
-			var header = pair[1];
+			var column = pair[1];
 
-			var column = {"sTitle": header.display};
-			var sWidth = columnWidth[name];
-
-			if (sWidth != null) {
-				column.sWidth = sWidth;
-			}
+			// TODO column may have non-datatable options
 
 			var idx = indexMap[name];
 
 			if (idx > 0)
 			{
-				columns[idx] = column;
+				columnOpts[idx] = column;
 			}
 		});
 
-		return columns;
+		return columnOpts;
 	}
 
 	return {

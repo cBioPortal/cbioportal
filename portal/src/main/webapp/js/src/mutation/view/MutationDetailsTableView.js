@@ -60,7 +60,7 @@ var MutationDetailsTableView = Backbone.View.extend({
 			callback(self, table);
 		}
 
-		self._generateRowData(table.getHeaders(), mutationColl, function(rowData) {
+		self._generateRowData(table.getColumnOptions(), mutationColl, function(rowData) {
 			// init table with the row data
 			table.renderTable(rowData);
 			// hide loader image

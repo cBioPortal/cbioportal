@@ -14,64 +14,103 @@ function MutationDetailsTable(options, gene, mutationUtil)
 	var _defaultOpts = {
 		el: "#mutation_details_table_d3",
 		//elWidth: 740, // width of the container
-		// default column header information
+		// default column options
 		//
-		// name: internal name used to define column specific properties
-		// display: display value
-		// tip: tooltip value
-		headers: {
-			datum: {display: "datum",
+		// sTitle: display value
+		// tip: tooltip value of the column header
+		//
+		// [data table options]: sType, sClass, sWidth, asSorting, ...
+		columns: {
+			datum: {sTitle: "datum",
 				tip: ""},
-			mutationId: {display: "Mutation ID",
+			mutationId: {sTitle: "Mutation ID",
 				tip: "Mutation ID"},
-			caseId: {display: "Case ID",
-				tip:"Case ID"},
-			cancerStudy: {display: "Cancer Study",
-				tip:"Cancer Study"},
-			tumorType: {display: "Tumor Type",
-				tip:"Tumor Type"},
-			proteinChange: {display: "AA change",
-				tip:"Protein Change"},
-			mutationType: {display: "Type",
-				tip:"Mutation Type"},
-			cna: {display: "Copy #",
-				tip:"Copy-number status of the mutated gene"},
-			cosmic: {display: "COSMIC",
-				tip:"Overlapping mutations in COSMIC"},
-			mutationStatus: {display: "MS",
-				tip:"Mutation Status"},
-			validationStatus: {display: "VS",
-				tip:"Validation Status"},
-			mutationAssessor: {display: "Mutation Assessor",
-				tip:"Predicted Functional Impact Score (via Mutation Assessor) for missense mutations"},
-			sequencingCenter: {display: "Center",
-				tip:"Sequencing Center"},
-			chr: {display: "Chr",
-				tip:"Chromosome"},
-			startPos: {display: "Start Pos",
-				tip:"Start Position"},
-			endPos: {display: "End Pos",
-				tip:"End Position"},
-			referenceAllele: {display: "Ref",
-				tip:"Reference Allele"},
-			variantAllele: {display: "Var",
-				tip:"Variant Allele"},
-			tumorFreq: {display: "Allele Freq (T)",
-				tip:"Variant allele frequency<br> in the tumor sample"},
-			normalFreq: {display: "Allele Freq (N)",
-				tip:"Variant allele frequency<br> in the normal sample"},
-			tumorRefCount: {display: "Var Ref",
-				tip:"Variant Ref Count"},
-			tumorAltCount: {display: "Var Alt",
-				tip:"Variant Alt Count"},
-			normalRefCount: {display: "Norm Ref",
-				tip:"Normal Ref Count"},
-			normalAltCount: {display: "Norm Alt",
-				tip:"Normal Alt Count"},
-			igvLink: {display: "BAM",
-				tip:"Link to BAM file"},
-			mutationCount: {display: "#Mut in Sample",
-				tip:"Total number of<br> nonsynonymous mutations<br> in the sample"}
+			caseId: {sTitle: "Case ID",
+				tip: "Case ID"},
+			cancerStudy: {sTitle: "Cancer Study",
+				tip: "Cancer Study"},
+			tumorType: {sTitle: "Tumor Type",
+				tip: "Tumor Type"},
+			proteinChange: {sTitle: "AA change",
+				tip: "Protein Change",
+				sType: "aa-change-col"},
+			mutationType: {sTitle: "Type",
+				tip: "Mutation Type",
+				sType: "string",
+				sClass: "center-align-td"},
+			cna: {sTitle: "Copy #",
+				tip: "Copy-number status of the mutated gene",
+				sType: "copy-number-col",
+				sClass: "center-align-td"},
+			cosmic: {sTitle: "COSMIC",
+				tip: "Overlapping mutations in COSMIC",
+				sType: "label-int-col",
+				sClass: "right-align-td",
+				asSorting: ["desc", "asc"]},
+			mutationStatus: {sTitle: "MS",
+				tip: "Mutation Status",
+				sType: "string",
+				sClass: "center-align-td"},
+			validationStatus: {sTitle: "VS",
+				tip: "Validation Status",
+				sType: "string",
+				sClass: "center-align-td"},
+			mutationAssessor: {sTitle: "Mutation Assessor",
+				tip: "Predicted Functional Impact Score (via Mutation Assessor) for missense mutations",
+				sType: "predicted-impact-col",
+				sClass: "center-align-td",
+				asSorting: ["desc", "asc"],
+				sWidth: "2%"},
+			sequencingCenter: {sTitle: "Center",
+				tip: "Sequencing Center",
+				sType: "string",
+				sClass: "center-align-td"},
+			chr: {sTitle: "Chr",
+				tip: "Chromosome"},
+			startPos: {sTitle: "Start Pos",
+				tip: "Start Position",
+				sType: "label-int-col",
+				sClass: "right-align-td"},
+			endPos: {sTitle: "End Pos",
+				tip: "End Position",
+				sType: "label-int-col",
+				sClass: "right-align-td"},
+			referenceAllele: {sTitle: "Ref",
+				tip: "Reference Allele"},
+			variantAllele: {sTitle: "Var",
+				tip: "Variant Allele"},
+			tumorFreq: {sTitle: "Allele Freq (T)",
+				tip: "Variant allele frequency<br> in the tumor sample",
+				sType: "label-float-col",
+				sClass: "right-align-td"},
+			normalFreq: {sTitle: "Allele Freq (N)",
+				tip: "Variant allele frequency<br> in the normal sample",
+				sType: "label-float-col",
+				sClass: "right-align-td"},
+			tumorRefCount: {sTitle: "Var Ref",
+				tip: "Variant Ref Count",
+				sType: "label-int-col",
+				sClass: "right-align-td"},
+			tumorAltCount: {sTitle: "Var Alt",
+				tip: "Variant Alt Count",
+				sType: "label-int-col",
+				sClass: "right-align-td"},
+			normalRefCount: {sTitle: "Norm Ref",
+				tip: "Normal Ref Count",
+				sType: "label-int-col",
+				sClass: "right-align-td"},
+			normalAltCount: {sTitle: "Norm Alt",
+				tip: "Normal Alt Count",
+				sType: "label-int-col",
+				sClass: "right-align-td"},
+			igvLink: {sTitle: "BAM",
+				tip: "Link to BAM file"},
+			mutationCount: {sTitle: "#Mut in Sample",
+				tip: "Total number of<br> nonsynonymous mutations<br> in the sample",
+				sType: "label-int-col",
+				sClass: "right-align-td",
+				asSorting: ["desc", "asc"],
+				sWidth: "2%"}
 		},
 		columnOrder: ["datum", "mutationId", "caseId", "cancerStudy", "tumorType",
 			"proteinChange", "mutationType", "cna", "cosmic", "mutationStatus",
@@ -170,11 +209,6 @@ function MutationDetailsTable(options, gene, mutationUtil)
 			"proteinChange": true,
 			"tumorType": true,
 			"mutationType": true
-		},
-		// custom width values for columns
-		columnWidth: {
-			"mutationAssessor": "2%",
-			"mutationCount": "2%"
 		},
 		// renderer functions for each column
 		columnRender: {
@@ -564,6 +598,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				});
 			}
 		},
+		// delay amount before applying the user entered filter query
+		filteringDelay: 600,
 		// WARNING: overwriting advanced DataTables options such as
 		// aoColumnDefs, oColVis, and fnDrawCallback may break column
 		// visibility, sorting, and filtering. Proceed wisely ;)
@@ -611,7 +647,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 	 *
 	 * @param tableSelector jQuery selector for the target table
 	 * @param rows          data rows
-	 * @param headers       column headers
+	 * @param columnOpts    column options
 	 * @param nameMap       map of <column display name, column name>
 	 * @param indexMap      map of <column name, column index>
 	 * @param hiddenCols    indices of the hidden columns
@@ -620,51 +656,18 @@ function MutationDetailsTable(options, gene, mutationUtil)
 	 * @return {object}     DataTable instance
 	 * @private
 	 */
-	function initDataTable(tableSelector, rows, headers, nameMap,
+	function initDataTable(tableSelector, rows, columnOpts, nameMap,
 		indexMap, hiddenCols, excludedCols, nonSearchableCols)
 	{
-		// set column options
-		var columns = DataTableUtil.getColumnOptions(headers,
-			indexMap,
-			_options.columnWidth);
+		// generate column options for the data table
+		var columns = DataTableUtil.getColumnOptions(columnOpts,
+			indexMap);
 
 		// these are the parametric data tables options
 		var tableOpts = {
 			"aaData" : rows,
 			"aoColumns" : columns,
 			"aoColumnDefs":[
-				{"sType": 'aa-change-col',
-					"aTargets": [ indexMap["proteinChange"] ]},
-				{"sType": 'label-int-col',
-					"sClass": "right-align-td",
-					"aTargets": [indexMap["cosmic"],
-						indexMap["startPos"],
-						indexMap["endPos"],
-						indexMap["tumorAltCount"],
-						indexMap["tumorRefCount"],
-						indexMap["normalAltCount"],
-						indexMap["normalRefCount"],
-						indexMap["mutationCount"]]},
-				{"sType": 'string',
-					"sClass": "center-align-td",
-					"aTargets": [indexMap["validationStatus"],
-						indexMap["mutationStatus"],
-						indexMap["mutationType"],
-						indexMap["sequencingCenter"]]},
-				{"sType": 'label-float-col',
-					"sClass": "right-align-td",
-					"aTargets": [indexMap["tumorFreq"],
-						indexMap["normalFreq"]]},
-				{"sType": 'predicted-impact-col',
-					"sClass": "center-align-td",
-					"aTargets": [indexMap["mutationAssessor"]]},
-				{"sType": 'copy-number-col',
-					"sClass": "center-align-td",
-					"aTargets": [indexMap["cna"]]},
-				{"asSorting": ["desc", "asc"],
-					"aTargets": [indexMap["cosmic"],
-						indexMap["mutationAssessor"],
-						indexMap["mutationCount"]]},
 				{"bVisible": false,
 					"aTargets": hiddenCols},
 				{"bSearchable": false,
@@ -710,7 +713,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				$(tableSelector).find('a[href=""]').remove();
 				$(tableSelector).find('a[alt=""]').remove();
 
-				// TODO append the footer (there is no API to init the footer, we need a custom function)
+				// TODO append the footer
+				// (there is no API to init the footer, we need a custom function)
 				//$(tableSelector).append('<tfoot></tfoot>');
 				//$(tableSelector).find('thead tr').clone().appendTo($(tableSelector).find('tfoot'));
 
@@ -791,31 +795,31 @@ function MutationDetailsTable(options, gene, mutationUtil)
 	 */
 	function renderTable(rows)
 	{
-		var columns = _options.columnOrder;
+		var columnOrder = _options.columnOrder;
 
 		// build a map, to be able to use string constants
 		// instead of integer constants for table columns
-		var indexMap = DataTableUtil.buildColumnIndexMap(columns);
-		var nameMap = DataTableUtil.buildColumnNameMap(_options.headers);
+		var indexMap = DataTableUtil.buildColumnIndexMap(columnOrder);
+		var nameMap = DataTableUtil.buildColumnNameMap(_options.columns);
 
 		// build a visibility map for column headers
-		var visibilityMap = DataTableUtil.buildColumnVisMap(columns, visibilityValue);
+		var visibilityMap = DataTableUtil.buildColumnVisMap(columnOrder, visibilityValue);
 
 		// build a map to determine searchable columns
-		var searchMap = DataTableUtil.buildColumnSearchMap(columns, searchValue);
+		var searchMap = DataTableUtil.buildColumnSearchMap(columnOrder, searchValue);
 
 		// determine hidden and excluded columns
-		var hiddenCols = DataTableUtil.getHiddenColumns(columns, indexMap, visibilityMap);
-		var excludedCols = DataTableUtil.getExcludedColumns(columns, indexMap, visibilityMap);
+		var hiddenCols = DataTableUtil.getHiddenColumns(columnOrder, indexMap, visibilityMap);
+		var excludedCols = DataTableUtil.getExcludedColumns(columnOrder, indexMap, visibilityMap);
 
 		// determine columns to exclude from filtering (through the search box)
-		var nonSearchableCols = DataTableUtil.getNonSearchableColumns(columns, indexMap, searchMap);
+		var nonSearchableCols = DataTableUtil.getNonSearchableColumns(columnOrder, indexMap, searchMap);
 
 		// add custom sort functions for specific columns
 		addSortFunctions();
 
 		// actual initialization of the DataTables plug-in
-		_dataTable = initDataTable($(_options.el), rows, _options.headers, nameMap,
+		_dataTable = initDataTable($(_options.el), rows, _options.columns, nameMap,
 		                           indexMap, hiddenCols, excludedCols, nonSearchableCols);
 
 		//_dataTable.css("width", "100%");
@@ -823,7 +827,11 @@ function MutationDetailsTable(options, gene, mutationUtil)
 		addEventListeners(indexMap);
 
 		// add a delay to the filter
-		_dataTable.fnSetFilteringDelay(600);
+		// add a delay to the filter
+		if (_options.filteringDelay > 0)
+		{
+			_dataTable.fnSetFilteringDelay(_options.filteringDelay);
+		}
 	}
 
 	/**
@@ -896,9 +904,9 @@ function MutationDetailsTable(options, gene, mutationUtil)
 		return _dataTable;
 	}
 
-	function getHeaders()
+	function getColumnOptions()
 	{
-		return _options.headers;
+		return _options.columns;
 	}
 
 	function addColumnTooltips()
@@ -927,11 +935,12 @@ function MutationDetailsTable(options, gene, mutationUtil)
 
 		//tableSelector.find('thead th').qtip(qTipOptionsHeader);
 		$(nHead).find("th").each(function(){
-			var display = nameMap[$(this).text()];
+			var displayName = $(this).text();
+			var colName = nameMap[displayName];
 
-			if (display != null)
+			if (colName != null)
 			{
-				var tip = _options.headers[display].tip;
+				var tip = _options.columns[colName].tip;
 
 				// TODO change the options content instead?
 				$(this).attr("alt", tip);
@@ -1290,7 +1299,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 		cleanFilters: cleanFilters,
 		getSelectedRow: getSelectedRow,
 		getDataTable: getDataTable,
-		getHeaders: getHeaders,
+		getColumnOptions: getColumnOptions,
 		setEventActive: setEventActive,
 		getManualSearch: getManualSearch,
 		dispatcher: _dispatcher

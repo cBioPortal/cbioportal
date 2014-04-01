@@ -7,6 +7,7 @@ package org.mskcc.cbio.portal.scripts;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -36,7 +37,8 @@ public final class ImportCaisesClinicalXML {
     
     public static void main(String[] args) throws Exception {
 //        args = new String[] {"--data","/Users/gaoj/projects/cbio-portal-data/studies/prad/su2c/data_clinical_caises.xml",
-//            "--meta","/Users/gaoj/projects/cbio-portal-data/studies/prad/su2c/meta_clinical_caises.txt"};
+//            "--meta","/Users/gaoj/projects/cbio-portal-data/studies/prad/su2c/meta_clinical_caises.txt",
+//            "--loadMode", "bulkLoad"};
         if (args.length < 4) {
             System.out.println("command line usage:  importCaisesXml --data <data_clinical_caises.xml> --meta <meta_clinical_caises.txt>");
             return;
@@ -47,6 +49,7 @@ public final class ImportCaisesClinicalXML {
                "caises data file" ).withRequiredArg().describedAs( "data_clinical_caises.xml" ).ofType( String.class );
        OptionSpec<String> meta = parser.accepts( "meta",
                "meta (description) file" ).withRequiredArg().describedAs( "meta_clinical_caises.txt" ).ofType( String.class );
+       parser.acceptsAll(Arrays.asList("dbmsAction", "loadMode"));
        OptionSet options = null;
       try {
          options = parser.parse( args );

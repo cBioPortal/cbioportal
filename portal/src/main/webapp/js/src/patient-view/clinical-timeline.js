@@ -91,6 +91,9 @@
           
           g.selectAll("svg").data(data).enter()
             .append(datum.display)
+            .attr('id', function (d, i) {
+                return d[datum.id];
+            })
             .attr('x', getXPos)
             .attr("y", getStackPosition)
             .attr("width", function (d, i) {
@@ -391,6 +394,14 @@
             });
             
             var ret = [];
+            
+            if ("SPECIMEN" in timelineDataByType) {
+                ret.push({
+                    label:"Specimen",
+                    display:"circle",
+                    id:"SpecimenReferenceNumber",
+                    times:formatTimePoints(timelineDataByType["SPECIMEN"])});
+            }
             
             if ("DIAGNOSTIC" in timelineDataByType) {
                 ret.push({

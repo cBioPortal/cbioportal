@@ -113,6 +113,18 @@ function MutationPdbTable(options)
 				return datum.chain.mergedAlignment.uniprotFrom;
 			}
 		},
+		columnTooltip: {
+			"simple": function(selector) {
+				var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
+
+				var qTipOptionsLeft = {};
+				jQuery.extend(true, qTipOptionsLeft, qTipOptions);
+				qTipOptionsLeft.position = {my:'top right', at:'bottom left'};
+
+				$(selector).find('.simple-tip').qtip(qTipOptions);
+				$(selector).find('.simple-tip-left').qtip(qTipOptionsLeft);
+			}
+		},
 		// WARNING: overwriting advanced DataTables options such as
 		// aoColumnDefs, oColVis, and fnDrawCallback may break column
 		// visibility, sorting, and filtering. Proceed wisely ;)
@@ -182,7 +194,7 @@ function MutationPdbTable(options)
 			],
 			"oColVis": {"aiExclude": excludedCols}, // columns to always hide
 			"fnDrawCallback": function(oSettings) {
-				addDefaultTooltips();
+				addColumnTooltips();
 			},
 			"fnHeaderCallback": function(nHead, aData, iStart, iEnd, aiDisplay) {
 				$(nHead).find('th').addClass("mutation-pdb-table-header");
@@ -374,10 +386,16 @@ function MutationPdbTable(options)
 		return _selectedRow;
 	}
 
-	function addDefaultTooltips()
+	function addColumnTooltips()
 	{
-		var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
-		$(_options.el).find(".simple-tip").qtip(qTipOptions);
+		var tableSelector = $(_options.el);
+
+		_.each(_options.columnTooltip, function(tooltipFn) {
+			if (_.isFunction(tooltipFn))
+			{
+				tooltipFn(tableSelector);
+			}
+		});
 	}
 
 	function getHeaders()

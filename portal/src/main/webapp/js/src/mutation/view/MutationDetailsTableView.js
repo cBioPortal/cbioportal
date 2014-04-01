@@ -77,7 +77,8 @@ var MutationDetailsTableView = Backbone.View.extend({
 
 		mutationColl.each(function(mutation) {
 			// only set the datum
-			var row = [mutation];
+			var datum = {mutation: mutation};
+			var row = [datum];
 
 			// set everything else to null...
 			for (var i=0; i < _.size(headers) - 1; i++)

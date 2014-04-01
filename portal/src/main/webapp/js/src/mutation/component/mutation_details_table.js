@@ -177,11 +177,13 @@ function MutationDetailsTable(options, gene, mutationUtil)
 			"mutationCount": "2%"
 		},
 		columnRender: {
-			"mutationId": function(obj, mutation) {
+			"mutationId": function(obj, datum) {
 				// TODO define 2 separate columns?
+				var mutation = datum.mutation;
 				return (mutation.mutationId + "-" + mutation.mutationSid);
 			},
-			"caseId": function(obj, mutation) {
+			"caseId": function(obj, datum) {
+				var mutation = datum.mutation;
 				var caseIdFormat = MutationDetailsTableFormatter.getCaseId(mutation.caseId);
 				var vars = {};
 				vars.linkToPatientView = mutation.linkToPatientView;
@@ -192,7 +194,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_case_id_template").html(), vars);
 			},
-			"proteinChange": function(obj, mutation) {
+			"proteinChange": function(obj, datum) {
+				var mutation = datum.mutation;
 				var proteinChange = MutationDetailsTableFormatter.getProteinChange(mutation);
 				var vars = {};
 				vars.proteinChange = proteinChange.text;
@@ -203,7 +206,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_protein_change_template").html(), vars);
 			},
-			"cancerStudy": function(obj, mutation) {
+			"cancerStudy": function(obj, datum) {
+				var mutation = datum.mutation;
 				var vars = {};
 				//vars.cancerType = mutation.cancerType;
 				vars.cancerStudy = mutation.cancerStudy;
@@ -213,7 +217,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_cancer_study_template").html(), vars);
 			},
-			"tumorType": function(obj, mutation) {
+			"tumorType": function(obj, datum) {
+				var mutation = datum.mutation;
 				var tumorType = MutationDetailsTableFormatter.getTumorType(mutation);
 				var vars = {};
 				vars.tumorType = tumorType.text;
@@ -223,7 +228,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_tumor_type_template").html(), vars);
 			},
-			"mutationType": function(obj, mutation) {
+			"mutationType": function(obj, datum) {
+				var mutation = datum.mutation;
 				var mutationType = MutationDetailsTableFormatter.getMutationType(mutation.mutationType);
 				var vars = {};
 				vars.mutationTypeClass = mutationType.style;
@@ -232,7 +238,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_mutation_type_template").html(), vars);
 			},
-			"cosmic": function(obj, mutation) {
+			"cosmic": function(obj, datum) {
+				var mutation = datum.mutation;
 				var cosmic = MutationDetailsTableFormatter.getCosmic(mutation.cosmicCount);
 				var vars = {};
 				vars.cosmicClass = cosmic.style;
@@ -242,7 +249,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_cosmic_template").html(), vars);
 			},
-			"cna": function(obj, mutation) {
+			"cna": function(obj, datum) {
+				var mutation = datum.mutation;
 				var cna = MutationDetailsTableFormatter.getCNA(mutation.cna);
 				var vars = {};
 				vars.cna = cna.text;
@@ -252,7 +260,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_cna_template").html(), vars);
 			},
-			"mutationCount": function(obj, mutation) {
+			"mutationCount": function(obj, datum) {
+				var mutation = datum.mutation;
 				var mutationCount = MutationDetailsTableFormatter.getIntValue(mutation.mutationCount);
 				var vars = {};
 				vars.mutationCount = mutationCount.text;
@@ -261,7 +270,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_mutation_count_template").html(), vars);
 			},
-			"normalFreq": function(obj, mutation) {
+			"normalFreq": function(obj, datum) {
+				var mutation = datum.mutation;
 				var alleleCount = MutationDetailsTableFormatter.getAlleleCount(mutation.normalAltCount);
 				var normalFreq = MutationDetailsTableFormatter.getAlleleFreq(mutation.normalFreq,
 					mutation.normalAltCount,
@@ -277,7 +287,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_normal_freq_template").html(), vars);
 			},
-			"tumorFreq": function(obj, mutation) {
+			"tumorFreq": function(obj, datum) {
+				var mutation = datum.mutation;
 				var alleleCount = MutationDetailsTableFormatter.getAlleleCount(mutation.tumorAltCount);
 				var tumorFreq = MutationDetailsTableFormatter.getAlleleFreq(mutation.tumorFreq,
 					mutation.tumorAltCount,
@@ -293,7 +304,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_tumor_freq_template").html(), vars);
 			},
-			"mutationAssessor": function(obj, mutation) {
+			"mutationAssessor": function(obj, datum) {
+				var mutation = datum.mutation;
 				var fis = MutationDetailsTableFormatter.getFis(mutation.functionalImpactScore, mutation.fisValue);
 				var vars = {};
 				vars.fisClass = fis.fisClass;
@@ -305,7 +317,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_mutation_assessor_template").html(), vars);
 			},
-			"mutationStatus": function(obj, mutation) {
+			"mutationStatus": function(obj, datum) {
+				var mutation = datum.mutation;
 				var mutationStatus = MutationDetailsTableFormatter.getMutationStatus(mutation.mutationStatus);
 				var vars = {};
 				vars.mutationStatusTip = mutationStatus.tip;
@@ -315,7 +328,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_mutation_status_template").html(), vars);
 			},
-			"validationStatus": function(obj, mutation) {
+			"validationStatus": function(obj, datum) {
+				var mutation = datum.mutation;
 				var validationStatus = MutationDetailsTableFormatter.getValidationStatus(mutation.validationStatus);
 				var vars = {};
 				vars.validationStatusTip = validationStatus.tip;
@@ -325,7 +339,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_validation_status_template").html(), vars);
 			},
-			"normalRefCount": function(obj, mutation) {
+			"normalRefCount": function(obj, datum) {
+				var mutation = datum.mutation;
 				var alleleCount = MutationDetailsTableFormatter.getAlleleCount(mutation.normalRefCount);
 				var vars = {};
 				vars.normalRefCount = alleleCount.text;
@@ -334,7 +349,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_normal_ref_count_template").html(), vars);
 			},
-			"normalAltCount": function(obj, mutation) {
+			"normalAltCount": function(obj, datum) {
+				var mutation = datum.mutation;
 				var alleleCount = MutationDetailsTableFormatter.getAlleleCount(mutation.normalAltCount);
 				var vars = {};
 				vars.normalAltCount = alleleCount.text;
@@ -343,7 +359,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_normal_alt_count_template").html(), vars);
 			},
-			"tumorRefCount": function(obj, mutation) {
+			"tumorRefCount": function(obj, datum) {
+				var mutation = datum.mutation;
 				var alleleCount = MutationDetailsTableFormatter.getAlleleCount(mutation.tumorRefCount);
 				var vars = {};
 				vars.tumorRefCount = alleleCount.text;
@@ -352,7 +369,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_tumor_ref_count_template").html(), vars);
 			},
-			"tumorAltCount": function(obj, mutation) {
+			"tumorAltCount": function(obj, datum) {
+				var mutation = datum.mutation;
 				var alleleCount = MutationDetailsTableFormatter.getAlleleCount(mutation.tumorAltCount);
 				var vars = {};
 				vars.tumorAltCount = alleleCount.text;
@@ -361,7 +379,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_tumor_alt_count_template").html(), vars);
 			},
-			"startPos": function(obj, mutation) {
+			"startPos": function(obj, datum) {
+				var mutation = datum.mutation;
 				var startPos = MutationDetailsTableFormatter.getIntValue(mutation.startPos);
 				var vars = {};
 				vars.startPos = startPos.text;
@@ -370,7 +389,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_start_pos_template").html(), vars);
 			},
-			"endPos": function(obj, mutation) {
+			"endPos": function(obj, datum) {
+				var mutation = datum.mutation;
 				var endPos = MutationDetailsTableFormatter.getIntValue(mutation.endPos);
 				var vars = {};
 				vars.endPos = endPos.text;
@@ -379,32 +399,120 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_end_pos_template").html(), vars);
 			},
-			"sequencingCenter": function(obj, mutation) {
+			"sequencingCenter": function(obj, datum) {
+				var mutation = datum.mutation;
 				return mutation.sequencingCenter;
 			},
-			"chr": function(obj, mutation) {
+			"chr": function(obj, datum) {
+				var mutation = datum.mutation;
 				return mutation.chr;
 			},
-			"referenceAllele": function(obj, mutation) {
+			"referenceAllele": function(obj, datum) {
+				var mutation = datum.mutation;
 				return mutation.referenceAllele;
 			},
-			"variantAllele": function(obj, mutation) {
+			"variantAllele": function(obj, datum) {
+				var mutation = datum.mutation;
 				return mutation.variantAllele;
 			},
-			"igvLink": function(obj, mutation) {
+			"igvLink": function(obj, datum) {
 				//vars.xVarLink = mutation.xVarLink;
 				//vars.msaLink = mutation.msaLink;
 				//vars.igvLink = mutation.igvLink;
+				var mutation = datum.mutation;
 				return mutation.igvLink;
+			}
+		},
+		columnTooltip: {
+			"simple": function(selector, mutationUtil, gene) {
+				var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
+
+				var qTipOptionsLeft = {};
+				jQuery.extend(true, qTipOptionsLeft, qTipOptions);
+				qTipOptionsLeft.position = {my:'top right', at:'bottom left'};
+
+				$(selector).find('.simple-tip').qtip(qTipOptions);
+				$(selector).find('.simple-tip-left').qtip(qTipOptionsLeft);
+				//tableSelector.find('.best_effect_transcript').qtip(qTipOptions);
+				//tableSelector.find('.cc-short-study-name').qtip(qTipOptions);
+				//$('#mutation_details .mutation_details_table td').qtip(qTipOptions);
+			},
+			"cosmic": function(selector, mutationUtil, gene) {
+				var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
+
+				// add tooltip for COSMIC value
+				$(selector).find('.mutation_table_cosmic').each(function() {
+					var label = this;
+					var mutationId = $(label).attr('alt');
+					var mutation = mutationUtil.getMutationIdMap()[mutationId];
+
+					// copy default qTip options and modify "content" to customize for cosmic
+					var qTipOptsCosmic = {};
+					jQuery.extend(true, qTipOptsCosmic, qTipOptions);
+
+					qTipOptsCosmic.content = {text: "NA"}; // content is overwritten on render
+					qTipOptsCosmic.events = {render: function(event, api) {
+						var model = {cosmic: mutation.cosmic,
+							keyword: mutation.keyword,
+							geneSymbol: gene,
+							total: $(label).text()};
+
+						var container = $(this).find('.qtip-content');
+
+						// create & render cosmic tip view
+						var cosmicView = new CosmicTipView({el: container, model: model});
+						cosmicView.render();
+					}};
+
+					$(label).qtip(qTipOptsCosmic);
+				});
+			},
+			"mutationAssessor": function(selector, mutationUtil, gene) {
+				var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
+
+				var qTipOptionsLeft = {};
+				jQuery.extend(true, qTipOptionsLeft, qTipOptions);
+				qTipOptionsLeft.position = {my:'top right', at:'bottom left'};
+
+				// add tooltip for Predicted Impact Score (FIS)
+				$(selector).find('.oma_link').each(function() {
+					var links = $(this).attr('alt');
+					var parts = links.split("|");
+
+					var mutationId = parts[1];
+					var mutation = mutationUtil.getMutationIdMap()[mutationId];
+
+					// copy default qTip options and modify "content"
+					// to customize for predicted impact score
+					var qTipOptsOma = {};
+					jQuery.extend(true, qTipOptsOma, qTipOptionsLeft);
+
+					qTipOptsOma.content = {text: "NA"}; // content is overwritten on render
+					qTipOptsOma.events = {render: function(event, api) {
+						var model = {impact: parts[0],
+							xvia: mutation.xVarLink,
+							msaLink: mutation.msaLink,
+							pdbLink: mutation.pdbLink};
+
+						var container = $(this).find('.qtip-content');
+
+						// create & render FIS tip view
+						var fisTipView = new PredictedImpactTipView({el:container, model: model});
+						fisTipView.render();
+					}};
+
+					$(this).qtip(qTipOptsOma);
+				});
 			}
 		},
 		// WARNING: overwriting advanced DataTables options such as
 		// aoColumnDefs, oColVis, and fnDrawCallback may break column
 		// visibility, sorting, and filtering. Proceed wisely ;)
 		dataTableOpts: {
-			"sDom": '<"H"<"mutation_datatables_filter"f>C<"mutation_datatables_info"i>>t',
+			"sDom": '<"H"<"mutation_datatables_filter"f>C<"mutation_datatables_info"i>>t<"F">>',
 			"bJQueryUI": true,
 			"bPaginate": false,
+			//"sPaginationType": "two_button",
 			"bFilter": true,
 			"sScrollY": "600px",
 			"bScrollCollapse": true,
@@ -508,7 +616,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 			],
 			"oColVis": {"aiExclude": excludedCols}, // columns to always hide
 			"fnDrawCallback": function(oSettings) {
-				addMutationTableTooltips();
+				addColumnTooltips();
 
 				var currSearch = oSettings.oPreviousSearch.sSearch;
 
@@ -716,15 +824,13 @@ function MutationDetailsTable(options, gene, mutationUtil)
 		});
 	}
 
-	function selectRow(pdbId, chainId)
+	function selectRow(mutationId)
 	{
-		var key = PdbDataUtil.chainKey(pdbId, chainId);
-
 		// remove previous highlights
 		removeAllSelection();
 
 		// highlight selected
-		var nRow = _rowMap[key];
+		var nRow = _rowMap[mutationId];
 		$(nRow).addClass("row_selected");
 
 		_selectedRow = nRow;
@@ -781,78 +887,12 @@ function MutationDetailsTable(options, gene, mutationUtil)
 		return _options.headers;
 	}
 
-	function addMutationTableTooltips()
+	function addColumnTooltips()
 	{
-		var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
-
-	    var qTipOptionsLeft = {};
-	    jQuery.extend(true, qTipOptionsLeft, qTipOptions);
-	    qTipOptionsLeft.position = {my:'top right', at:'bottom left'};
-
 		var tableSelector = $(_options.el);
 
-	    //$('#mutation_details .mutation_details_table td').qtip(qTipOptions);
-
-		tableSelector.find('.simple-tip').qtip(qTipOptions);
-		tableSelector.find('.best_effect_transcript').qtip(qTipOptions);
-        tableSelector.find('.cc-short-study-name').qtip(qTipOptions);
-        tableSelector.find('.simple-tip-left').qtip(qTipOptionsLeft);
-
-		// add tooltip for COSMIC value
-		tableSelector.find('.mutation_table_cosmic').each(function() {
-			var label = this;
-			var mutationId = $(label).attr('alt');
-			var mutation = mutationUtil.getMutationIdMap()[mutationId];
-
-			// copy default qTip options and modify "content" to customize for cosmic
-			var qTipOptsCosmic = {};
-			jQuery.extend(true, qTipOptsCosmic, qTipOptions);
-
-			qTipOptsCosmic.content = {text: "NA"}; // content is overwritten on render
-			qTipOptsCosmic.events = {render: function(event, api) {
-				var model = {cosmic: mutation.cosmic,
-					keyword: mutation.keyword,
-					geneSymbol: gene,
-					total: $(label).text()};
-
-				var container = $(this).find('.qtip-content');
-
-				// create & render cosmic tip view
-				var cosmicView = new CosmicTipView({el: container, model: model});
-				cosmicView.render();
-			}};
-
-			$(label).qtip(qTipOptsCosmic);
-		});
-
-		// add tooltip for Predicted Impact Score (FIS)
-		tableSelector.find('.oma_link').each(function() {
-			var links = $(this).attr('alt');
-			var parts = links.split("|");
-
-			var mutationId = parts[1];
-			var mutation = mutationUtil.getMutationIdMap()[mutationId];
-
-			// copy default qTip options and modify "content"
-			// to customize for predicted impact score
-			var qTipOptsOma = {};
-			jQuery.extend(true, qTipOptsOma, qTipOptionsLeft);
-
-			qTipOptsOma.content = {text: "NA"}; // content is overwritten on render
-			qTipOptsOma.events = {render: function(event, api) {
-				var model = {impact: parts[0],
-					xvia: mutation.xVarLink,
-					msaLink: mutation.msaLink,
-					pdbLink: mutation.pdbLink};
-
-				var container = $(this).find('.qtip-content');
-
-				// create & render FIS tip view
-				var fisTipView = new PredictedImpactTipView({el:container, model: model});
-				fisTipView.render();
-			}};
-
-			$(this).qtip(qTipOptsOma);
+		_.each(_options.columnTooltip, function(tooltipFn) {
+			tooltipFn(tableSelector, mutationUtil, gene);
 		});
 	}
 

@@ -19,7 +19,7 @@
 	<a href='{{cancerStudyLink}}' target='_blank'>
 		<b title="{{cancerStudy}}"
 		   alt="{{cancerStudy}}"
-		   class="cc-short-study-name">{{cancerStudyShort}}</b>
+		   class="cc-short-study-name simple-tip">{{cancerStudyShort}}</b>
 	</a>
 </script>
 

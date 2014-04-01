@@ -20,8 +20,6 @@
 
 <script type="text/template" id="mutation_pdb_table_pdb_cell_template">
 	<a href="http://www.rcsb.org/pdb/explore/explore.do?structureId={{pdbId}}"
-	   alt="Click to see the details"
-	   class="simple-tip"
 	   target="_blank"><b>{{pdbId}}</b></a>
 </script>
 

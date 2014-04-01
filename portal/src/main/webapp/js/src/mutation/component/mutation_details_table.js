@@ -2,7 +2,6 @@
  * Constructor for the MutationDetailsTable class.
  *
  * @param options       visual options object
- * @param headers       array of header names
  * @param gene          hugo gene symbol
  * @param mutationUtil  mutation details util
  * @constructor
@@ -21,7 +20,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 		// display: display value
 		// tip: tooltip value
 		headers: {
-			datum: {display: "", // never display datum...
+			datum: {display: "datum",
 				tip: ""},
 			mutationId: {display: "Mutation ID",
 				tip: "Mutation ID"},
@@ -446,6 +445,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 	 * @param tableSelector jQuery selector for the target table
 	 * @param rows          data rows
 	 * @param headers       column headers
+	 * @param nameMap       map of <column display name, column name>
 	 * @param indexMap      map of <column name, column index>
 	 * @param hiddenCols    indices of the hidden columns
 	 * @param excludedCols  indices of the excluded columns
@@ -453,11 +453,12 @@ function MutationDetailsTable(options, gene, mutationUtil)
 	 * @return {object}     DataTable instance
 	 * @private
 	 */
-	function initDataTable(tableSelector, rows, headers,
+	function initDataTable(tableSelector, rows, headers, nameMap,
 		indexMap, hiddenCols, excludedCols, nonSearchableCols)
 	{
 		// set column options
 		var columns = DataTableUtil.getColumnOptions(headers,
+			indexMap,
 			_options.columnWidth);
 
 		// these are the parametric data tables options
@@ -552,10 +553,10 @@ function MutationDetailsTable(options, gene, mutationUtil)
 			},
 			"fnHeaderCallback": function(nHead, aData, iStart, iEnd, aiDisplay) {
 			    $(nHead).find('th').addClass("mutation-details-table-header");
-				addHeaderTooltips(nHead);
+				addHeaderTooltips(nHead, nameMap);
 		    },
 		    "fnFooterCallback": function(nFoot, aData, iStart, iEnd, aiDisplay) {
-			    addFooterTooltips(nFoot);
+			    //TODO addFooterTooltips(nFoot, nameMap);
 		    }
 		};
 
@@ -628,6 +629,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 		// build a map, to be able to use string constants
 		// instead of integer constants for table columns
 		var indexMap = DataTableUtil.buildColumnIndexMap(columns);
+		var nameMap = DataTableUtil.buildColumnNameMap(_options.headers);
 
 		// build a visibility map for column headers
 		var visibilityMap = DataTableUtil.buildColumnVisMap(columns, visibilityValue);
@@ -646,12 +648,12 @@ function MutationDetailsTable(options, gene, mutationUtil)
 		addSortFunctions();
 
 		// actual initialization of the DataTables plug-in
-		_dataTable = initDataTable($(_options.el), rows, _options.headers,
+		_dataTable = initDataTable($(_options.el), rows, _options.headers, nameMap,
 		                           indexMap, hiddenCols, excludedCols, nonSearchableCols);
 
 		//_dataTable.css("width", "100%");
 
-		addDefaultListeners(indexMap, _dataTable);
+		addDefaultListeners(indexMap);
 
 		// add a delay to the filter
 		_dataTable.fnSetFilteringDelay(600);
@@ -857,10 +859,11 @@ function MutationDetailsTable(options, gene, mutationUtil)
 	/**
 	 * Adds tooltips for the table header cells.
 	 *
-	 * @param nHead table header
+	 * @param nHead     table header
+	 * @param nameMap   map of <column display name, column name>
 	 * @private
 	 */
-	function addHeaderTooltips(nHead)
+	function addHeaderTooltips(nHead, nameMap)
 	{
 		var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
 
@@ -869,7 +872,18 @@ function MutationDetailsTable(options, gene, mutationUtil)
 		qTipOptionsHeader.position = {my:'bottom center', at:'top center'};
 
 		//tableSelector.find('thead th').qtip(qTipOptionsHeader);
-		$(nHead).find("th").qtip(qTipOptionsHeader);
+		$(nHead).find("th").each(function(){
+			var display = nameMap[$(this).text()];
+
+			if (display != null)
+			{
+				var tip = _options.headers[display].tip;
+
+				// TODO change the options content instead?
+				$(this).attr("alt", tip);
+				$(this).qtip(qTipOptionsHeader);
+			}
+		});
 	}
 
 	/**

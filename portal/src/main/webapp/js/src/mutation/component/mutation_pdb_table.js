@@ -18,21 +18,21 @@ function MutationPdbTable(options)
 		// display: display value
 		// tip: tooltip value
 		headers: {
-			datum: { display: "",
+			datum: {display: "datum",
 				tip:""},
-			pdbId: { display: "PDB Id",
+			pdbId: {display: "PDB Id",
 				tip:""},
-			chain: { display: "Chain",
+			chain: {display: "Chain",
 				tip:""},
-			uniprotFrom: { display: "Uniprot From",
+			uniprotFrom: {display: "Uniprot From",
 				tip:""},
-			uniprotPos: { display: "Uniprot Positions",
+			uniprotPos: {display: "Uniprot Positions",
 				tip:""},
-			identityPercent: { display: "Identity Percent",
+			identityPercent: {display: "Identity Percent",
 				tip:""},
-			organism: { display: "Organism",
+			organism: {display: "Organism",
 				tip:""},
-			summary: { display: "Summary",
+			summary: {display: "Summary",
 				tip:""}
 		},
 		columnOrder: ["datum", "pdbId", "chain", "uniprotFrom",
@@ -164,6 +164,7 @@ function MutationPdbTable(options)
 	{
 		// set column options
 		var columns = DataTableUtil.getColumnOptions(headers,
+			indexMap,
 			_options.columnWidth);
 
 		// these are the parametric data tables options

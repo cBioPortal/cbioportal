@@ -1,4 +1,6 @@
 /**
+ * TODO remove this class after refactoring
+ *
  * Class for formatting a table of mutations.
  * This class is specifically designed to convert a regular
  * html table into a DataTable.

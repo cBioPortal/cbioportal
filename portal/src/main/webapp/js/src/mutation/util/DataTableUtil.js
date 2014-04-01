@@ -29,6 +29,32 @@ var DataTableUtil = (function()
 	}
 
 	/**
+	 * Creates a mapping for the given column headers.
+	 *
+	 * @param headers   column header definitions
+	 * @return {object} map of <column display name, column name>
+	 * @private
+	 */
+	function buildColumnNameMap(headers)
+	{
+		var map = {};
+
+		_.each(_.pairs(headers), function(pair, index)
+		{
+			var name = pair[0];
+			var options = pair[1];
+
+			if (options.display != null &&
+			    options.display.length > 0)
+			{
+				map[options.display] = name;
+			}
+		});
+
+		return map;
+	}
+
+	/**
 	 * Creates a mapping for the given column headers. The mapped values
 	 * will be one of these visibility values: visible, hidden, excluded.
 	 *
@@ -135,6 +161,13 @@ var DataTableUtil = (function()
 		return excludedCols;
 	}
 
+	/**
+	 *
+	 * @param headers   column header names
+	 * @param indexMap  map of <column name, column index>
+	 * @param searchMap map of <column name, column search value>
+	 * @return {Array}  an array of column indices
+	 */
 	function getNonSearchableColumns(headers, indexMap, searchMap)
 	{
 		// nonSearchableCols column indices
@@ -152,6 +185,13 @@ var DataTableUtil = (function()
 		return nonSearchableCols;
 	}
 
+	/**
+	 * Generates renderer functions for each column.
+	 *
+	 * @param renderers map of <column name, renderer>
+	 * @param indexMap  map of <column name, column index>
+	 * @returns {Array} array of renderer functions
+	 */
 	function getColumnRenderers(renderers, indexMap)
 	{
 		var columnRenderers = [];
@@ -182,7 +222,15 @@ var DataTableUtil = (function()
 		return columnRenderers;
 	}
 
-	function getColumnOptions(headers, columnWidth)
+	/**
+	 * Generates basic column options for the given headers.
+	 *
+	 * @param headers       header options object
+	 * @param indexMap      map of <column name, column index>
+	 * @param columnWidth   column width options
+	 * @returns {Array}     array of column options
+	 */
+	function getColumnOptions(headers, indexMap, columnWidth)
 	{
 		var columns = [];
 
@@ -191,9 +239,6 @@ var DataTableUtil = (function()
 			var name = pair[0];
 			var header = pair[1];
 
-//			var column = {"sTitle": header.display,
-//				"sClass": sClass};
-
 			var column = {"sTitle": header.display};
 			var sWidth = columnWidth[name];
 
@@ -201,7 +246,12 @@ var DataTableUtil = (function()
 				column.sWidth = sWidth;
 			}
 
-			columns.push(column);
+			var idx = indexMap[name];
+
+			if (idx > 0)
+			{
+				columns[idx] = column;
+			}
 		});
 
 		return columns;
@@ -209,6 +259,7 @@ var DataTableUtil = (function()
 
 	return {
 		buildColumnIndexMap: buildColumnIndexMap,
+		buildColumnNameMap: buildColumnNameMap,
 		buildColumnVisMap: buildColumnVisMap,
 		buildColumnSearchMap: buildColumnSearchMap,
 		getHiddenColumns: getHiddenColumns,

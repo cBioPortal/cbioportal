@@ -244,6 +244,11 @@
         <servlet-class>org.mskcc.cbio.portal.servlet.ClinicalAttributesServlet</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>ClinicalTimelineData</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.ClinicalTimelineData</servlet-class>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>webservice</servlet-name>
         <url-pattern>/webservice.do</url-pattern>
@@ -357,6 +362,11 @@
     <servlet-mapping>
         <servlet-name>ClinicalJSON</servlet-name>
         <url-pattern>/clinical.json</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ClinicalTimelineData</servlet-name>
+        <url-pattern>/clinical_timeline_data.json</url-pattern>
     </servlet-mapping>
      
      <!-- tumor map -->

@@ -143,17 +143,17 @@ public class MySQLbulkLoader {
          return;
       }
       try {
-         tempFileWriter.write( fieldValues[0]==null ? "\\N" : fieldValues[0] );
+         tempFileWriter.write( escapeValue(fieldValues[0]) );
          for( int i=1; i<fieldValues.length; i++ ){
             tempFileWriter.write( "\t" );
-            tempFileWriter.write( fieldValues[i]==null ? "\\N" : fieldValues[i] );
+            tempFileWriter.write( escapeValue(fieldValues[i]) );
          }
          tempFileWriter.newLine();
 
          if( rows++ < numDebuggingRowsToPrint ){
-            StringBuffer sb = new StringBuffer( fieldValues[0]==null ? "\\N" : fieldValues[0] );
+            StringBuffer sb = new StringBuffer( escapeValue(fieldValues[0]) );
             for( int i=1; i<fieldValues.length; i++ ){
-               sb.append( "\t" ).append( fieldValues[i]==null ? "\\N" : fieldValues[i] );
+               sb.append( "\t" ).append( escapeValue(fieldValues[i]) );
             }
             System.err.println( "MySQLbulkLoader: Wrote " + sb.toString() + " to '" + tempFileName + "'.");
          }
@@ -161,6 +161,14 @@ public class MySQLbulkLoader {
          System.err.println( "Unable to write to temp file.\n");
          e.printStackTrace();
       }
+   }
+   
+   private String escapeValue(String value) {
+       if (value==null) {
+           return "\\N";
+       }
+       
+       return value.replace("\r", "").replaceAll("\n", "\\\\n").replace("\t", "\\t");
    }
    
    /**

@@ -180,10 +180,8 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
     }
 </script>
 
-
-<%if(showPlaceHoder){%>
-<br/>Clinical timeline goes here...
-<br/><br/>
+<%if(isDemoMode){%>
+<jsp:include page="clinical_timeline.jsp" flush="true" />
 <%}%>
 
 <%if(showGenomicOverview){%>

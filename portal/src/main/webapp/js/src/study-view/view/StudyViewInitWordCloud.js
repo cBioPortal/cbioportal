@@ -64,6 +64,30 @@ var StudyViewInitWordCloud = (function() {
         $("#study-view-charts").append(StudyViewBoilerplate.wordCloudDiv);
     }
     
+    //Add all listener events
+    function addEvents() {
+        $("#study-view-word-cloud-pdf").submit(function(){
+            setSVGElementValue("study-view-word-cloud",
+               "study-view-word-cloud-pdf-value");
+        });
+        $("#study-view-word-cloud-svg").submit(function(){
+            setSVGElementValue("study-view-word-cloud",
+                "study-view-word-cloud-svg-value");
+        });
+        
+        StudyViewOverallFunctions
+                    .showHideDivision("study-view-word-cloud", 
+                                    "study-view-word-cloud-side");
+    }
+    
+    function setSVGElementValue(_svgParentDivId,_idNeedToSetValue){
+        var svgElement;
+        
+        //Remove x/y title help icon first.
+        svgElement = $("#" + _svgParentDivId + " svg").html();
+        $("#" + _idNeedToSetValue).val("<svg>"+svgElement + "</svg>");
+    }
+    
     //This function is inspired by Jason's daw function.
     function draw(words){
         var fill = d3.scale.category20();
@@ -146,6 +170,7 @@ var StudyViewInitWordCloud = (function() {
             initData(_data);
             initDiv();
             initD3Cloud();
+            addEvents();
         },
         
         redraw: redraw

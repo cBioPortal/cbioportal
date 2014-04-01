@@ -270,7 +270,20 @@
     border-color:lightgrey;
     border-style:solid;
 }
-
+.study-view-pdf-svg-side {
+    position: absolute;
+    width: 35px;
+    border: 1px solid lightgrey;
+    left: 180px;
+    top: 15px;
+    z-index: 20;
+    padding: 2px 2px 3px 2px;
+    background-color: white;
+    border-left-width: 0;
+}
+.study-view-pdf-svg-side.bar {
+    left: 370px;
+}
 .w2{
     width:370px;
 }
@@ -335,6 +348,9 @@
     color: lightgray;
     cursor: pointer;
     float: right;
+}
+.study-view-dc-chart {
+    background-color: white;
 }
 .study-view-dc-chart-change {
     float: right;

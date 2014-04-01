@@ -97,6 +97,30 @@ var BarChart = function(){
         });
     }
     
+    //Add all listener events
+    function addEvents() {
+        $("#"+DIV.chartDiv+"-pdf").submit(function(){
+            setSVGElementValue(DIV.chartDiv,
+                DIV.chartDiv+"-pdf-value");
+        });
+        $("#"+DIV.chartDiv+"-svg").submit(function(){
+            setSVGElementValue(DIV.chartDiv,
+                DIV.chartDiv+"-svg-value");
+        });
+        
+        StudyViewOverallFunctions
+                    .showHideDivision(DIV.mainDiv, 
+                                    DIV.chartDiv+"-side");
+    }
+    
+    function setSVGElementValue(_svgParentDivId,_idNeedToSetValue){
+        var svgElement;
+        
+        //Remove x/y title help icon first.
+        svgElement = $("#" + _svgParentDivId + " svg").html();
+        $("#" + _idNeedToSetValue).val("<svg>"+svgElement + "</svg>");
+    }
+    
     //Initialize HTML tags which will be used for current Bar Chart.
     function createDiv() {
         var _logCheckBox = "";
@@ -117,6 +141,19 @@ var BarChart = function(){
         var contentHTML = "<div id=\"" + DIV.chartDiv + 
                 "\" class='"+ param.className +"'  value='" + param.selectedAttr + "," + 
                 param.selectedAttrDisplay + ",bar'>"+
+                "<div id='"+DIV.chartDiv+"-side' class='study-view-pdf-svg-side bar'>"+
+                "<form style='display:inline-block;' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-pdf'>"+
+                "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-pdf-value'>"+
+                "<input type='hidden' name='filetype' value='pdf'>"+
+                "<input type='hidden' id='"+DIV.chartDiv+"-pdf-name' name='filename' value='"+param.selectedAttrDisplay+".pdf'>"+
+                "<input type='submit' style='font-size:10px' value='PDF'>"+          
+                "</form>"+
+                "<form style='display:inline-block' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-svg'>"+
+                "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-svg-value'>"+
+                "<input type='hidden' name='filetype' value='svg'>"+
+                "<input type='hidden' id='"+DIV.chartDiv+"-svg-name' name='filename' value='"+param.selectedAttrDisplay+".svg'>"+
+                "<input type='submit' style='font-size:10px' value='SVG'>"+    
+                "</form></div>"+
                 "<div style='height: 18px; width:100%; float:right'>"+
                 "<span class='study-view-dc-chart-delete'>x</span>"+
                 "<a href='javascript:StudyViewInitCharts.getChartsByID("+ 
@@ -515,6 +552,7 @@ var BarChart = function(){
                 initDCBarChart();
             }
             addFunctions();
+            addEvents();
         },
 
         getChart : function() {

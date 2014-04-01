@@ -312,12 +312,38 @@ var StudyViewInitCharts = (function(){
     }
     
     function bondDragForLayout(){
-        var itemElems = msnry.getItemElements();
+        var itemElems = msnry.getItemElements(),
+            itemElemsLength = itemElems.length;
         // for each item...
-        for ( var i=0, len = itemElems.length; i < len; i++ ) {
+        for ( var i=0, len = itemElemsLength; i < len; i++ ) {
             var elem = itemElems[i];
             // make element draggable with Draggabilly
             var draggie = new Draggabilly( elem );
+            
+            //Set selected chart z-index bigger than others
+            draggie.on( 'dragStart', function(instance, event, pointer){
+                var _itemElems = msnry.getItemElements(),
+                    _itemElemsLength = _itemElems.length;
+                    
+                for(var j=0; j< _itemElemsLength; j++){
+                    if( instance.element.id === _itemElems[j].id){
+                        $("#" + _itemElems[j].id).css('z-index','20');
+                    }else{
+                        $("#" + _itemElems[j].id).css('z-index','1');
+                    }
+                }
+            });
+            
+            //Remove z-index of all charts
+            draggie.on( 'dragEnd', function(instance, event, pointer){
+                var _itemElems = msnry.getItemElements(),
+                    _itemElemsLength = _itemElems.length;
+                
+                for(var j=0; j< _itemElemsLength; j++){
+                    $("#" + _itemElems[j].id).css('z-index','');
+                }
+            });
+            
             // bind Draggabilly events to Packery
             msnry.bindDraggabillyEvents( draggie );
         }

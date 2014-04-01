@@ -118,7 +118,11 @@ var BarChart = function(){
         
         //Remove x/y title help icon first.
         svgElement = $("#" + _svgParentDivId + " svg").html();
-        $("#" + _idNeedToSetValue).val("<svg>"+svgElement + "</svg>");
+        $("#" + _idNeedToSetValue)
+                .val("<svg width='370' height='200'>"+
+                    "<g><text x='180' y='20' style='text-anchor: middle'>"+
+                    param.selectedAttrDisplay+"</text></g>"+
+                    "<g transform='translate(0, 20)'>"+svgElement + "</g></svg>");
     }
     
     //Initialize HTML tags which will be used for current Bar Chart.

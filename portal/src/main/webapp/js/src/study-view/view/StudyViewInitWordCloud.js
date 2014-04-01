@@ -85,7 +85,11 @@ var StudyViewInitWordCloud = (function() {
         
         //Remove x/y title help icon first.
         svgElement = $("#" + _svgParentDivId + " svg").html();
-        $("#" + _idNeedToSetValue).val("<svg>"+svgElement + "</svg>");
+        $("#" + _idNeedToSetValue)
+                .val("<svg width='180' height='180'>"+
+                    "<g><text x='30' y='20'  style='text-anchor: middle'>"+
+                    "Mutated Genes</text></g><g transform='translate(25, 20)'>"+
+                    svgElement + "</g></svg>");
     }
     
     //This function is inspired by Jason's daw function.

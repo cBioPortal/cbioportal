@@ -37,6 +37,7 @@ var StudyViewWindowEvents = (function(){
                 $('#study-view-header-function').css({
                     'left': '-13px',
                     'width': '1276px',
+                    'z-index': '99',
                     'background-color': '#2986e2',
                     'transform': 'translate(0,' + _transformY + 'px)',
                     '-webkit-transform': 'translate(0,' + _transformY + 'px)',
@@ -63,6 +64,7 @@ var StudyViewWindowEvents = (function(){
                 $('#study-view-header-function').css({
                     'top': '60px',
                     'left': '',
+                    'z-index': '',
                     'background-color': 'white',
                     'width': '1200px',
                     'transform': ''

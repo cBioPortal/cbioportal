@@ -20,23 +20,35 @@ var PredictedImpactTipView = Backbone.View.extend({
 	},
 	format: function()
 	{
+		var isValidLink = function(url)
+		{
+			var valid = true;
+
+			if (url == null || url == "NA" || url.length == 0)
+			{
+				valid = false;
+			}
+
+			return valid;
+		};
+
 		var xvia = this.model.xvia;
 
-		if (xvia == null || xvia == "NA")
+		if (!isValidLink(xvia))
 		{
 			this.$el.find(".mutation-assessor-main-link").hide();
 		}
 
 		var pdbLink = this.model.pdbLink;
 
-		if (pdbLink == null || pdbLink == "NA")
+		if (!isValidLink(pdbLink))
 		{
 			this.$el.find(".mutation-assessor-3d-link").hide();
 		}
 
 		var msaLink = this.model.msaLink;
 
-		if (msaLink == null || msaLink == "NA")
+		if (!isValidLink(msaLink))
 		{
 			this.$el.find(".mutation-assessor-msa-link").hide();
 		}

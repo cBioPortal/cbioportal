@@ -4,11 +4,16 @@
  */
 package org.mskcc.cbio.portal.scripts;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import joptsimple.OptionException;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -30,18 +35,42 @@ public final class ImportCaisesClinicalXML {
     private ImportCaisesClinicalXML() {}
     
     public static void main(String[] args) throws Exception {
-//        args = new String[] {"/Users/gaoj/projects/cbio-portal-data/studies/prad/su2c/data_clinical_caises.xml",
-//            "/Users/gaoj/projects/cbio-portal-data/studies/prad/su2c/meta_clinical_caises.txt"};
-        if (args.length != 2) {
-            System.out.println("command line usage:  importCaisesXml <data_clinical_caises.xml> <meta_clinical_caises.txt>");
+//        args = new String[] {"--data","/Users/gaoj/projects/cbio-portal-data/studies/prad/su2c/data_clinical_caises.xml",
+//            "--meta","/Users/gaoj/projects/cbio-portal-data/studies/prad/su2c/meta_clinical_caises.txt"};
+        if (args.length < 4) {
+            System.out.println("command line usage:  importCaisesXml --data <data_clinical_caises.xml> --meta <meta_clinical_caises.txt>");
             return;
         }
         
-        String urlXml = args[0];
-        String meta = args[1];
+       OptionParser parser = new OptionParser();
+       OptionSpec<String> data = parser.accepts( "data",
+               "caises data file" ).withRequiredArg().describedAs( "data_clinical_caises.xml" ).ofType( String.class );
+       OptionSpec<String> meta = parser.accepts( "meta",
+               "meta (description) file" ).withRequiredArg().describedAs( "meta_clinical_caises.txt" ).ofType( String.class );
+       OptionSet options = null;
+      try {
+         options = parser.parse( args );
+         //exitJVM = !options.has(returnFromMain);
+      } catch (OptionException e) {
+          e.printStackTrace();
+      }
+       
+       String dataFile = null;
+       if( options.has( data ) ){
+          dataFile = options.valueOf( data );
+       }else{
+           throw new Exception( "'data' argument required.");
+       }
+
+       String descriptorFile = null;
+       if( options.has( meta ) ){
+          descriptorFile = options.valueOf( meta );
+       }else{
+           throw new Exception( "'meta' argument required.");
+       }
         
         Properties properties = new Properties();
-        properties.load(new FileInputStream(meta));
+        properties.load(new FileInputStream(descriptorFile));
       
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(properties.getProperty("cancer_study_identifier"));
         if (cancerStudy == null) {
@@ -51,7 +80,7 @@ public final class ImportCaisesClinicalXML {
         int cancerStudyId = cancerStudy.getInternalId();
         DaoClinicalEvent.deleteByCancerStudyId(cancerStudyId);
         
-        importData(urlXml, cancerStudy.getInternalId());
+        importData(dataFile, cancerStudy.getInternalId());
 
         System.out.println("Done!");
     }

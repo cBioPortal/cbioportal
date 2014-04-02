@@ -46,6 +46,10 @@ import java.util.*;
  */
 public final class DaoClinicalData {
     private DaoClinicalData() {}
+    
+    public static int addDatum(ClinicalData cd) throws DaoException {
+        return addDatum(cd.getCancerStudyId(), cd.getCaseId(), cd.getAttrId(), cd.getAttrVal());
+    }
 
     /**
      * add a new clinical datum

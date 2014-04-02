@@ -44,6 +44,10 @@ public class ClinicalData {
     public ClinicalData() {
         this(-1, "", "", "");
     }
+    
+    public ClinicalData(ClinicalData other) {
+        this(other.getCancerStudyId(), other.getCaseId(), other.getAttrId(), other.getAttrVal());
+    }
 
     /**
      * Constructor

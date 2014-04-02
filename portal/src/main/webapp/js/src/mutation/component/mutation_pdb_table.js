@@ -8,6 +8,11 @@
  */
 function MutationPdbTable(options)
 {
+	var self = this;
+
+	// call super constructor
+	AdvancedDataTable.call(this, options);
+
 	// default options object
 	var _defaultOpts = {
 		el: "#mutation_pdb_table_d3",
@@ -37,6 +42,7 @@ function MutationPdbTable(options)
 				tip:"",
 				sWidth: "65%"}
 		},
+		// display order of column headers
 		columnOrder: ["datum", "pdbId", "chain", "uniprotFrom",
 			"uniprotPos", "identityPercent", "organism", "summary"],
 		// Indicates the visibility of columns
@@ -179,14 +185,11 @@ function MutationPdbTable(options)
 	};
 
 	// merge options with default options to use defaults for missing values
-	var _options = jQuery.extend(true, {}, _defaultOpts, options);
+	self._options = jQuery.extend(true, {}, _defaultOpts, options);
+	var _options = self._options;
 
 	// custom event dispatcher
-	var _dispatcher = {};
-	_.extend(_dispatcher, Backbone.Events);
-
-	// reference to the data table object
-	var _dataTable = null;
+	var _dispatcher = self._dispatcher;
 
 	var _rowMap = {};
 
@@ -198,6 +201,7 @@ function MutationPdbTable(options)
 	 * @param tableSelector jQuery selector for the target table
 	 * @param rows          data rows
 	 * @param columnOpts    column options
+	 * @param nameMap       map of <column display name, column name>
 	 * @param indexMap      map of <column name, column index>
 	 * @param hiddenCols    indices of the hidden columns
 	 * @param excludedCols  indices of the excluded columns
@@ -205,7 +209,7 @@ function MutationPdbTable(options)
 	 * @return {object}     DataTable instance
 	 * @private
 	 */
-	function initDataTable(tableSelector, rows, columnOpts,
+	function initDataTable(tableSelector, rows, columnOpts, nameMap,
 		indexMap, hiddenCols, excludedCols, nonSearchableCols)
 	{
 		// generate column options for the data table
@@ -227,7 +231,7 @@ function MutationPdbTable(options)
 			],
 			"oColVis": {"aiExclude": excludedCols}, // columns to always hide
 			"fnDrawCallback": function(oSettings) {
-				addColumnTooltips();
+				self._addColumnTooltips();
 			},
 			"fnHeaderCallback": function(nHead, aData, iStart, iEnd, aiDisplay) {
 				$(nHead).find('th').addClass("mutation-pdb-table-header");
@@ -256,6 +260,12 @@ function MutationPdbTable(options)
 		return tableSelector.dataTable(tableOpts);
 	}
 
+	/**
+	 * Determines the visibility value for the given column name
+	 *
+	 * @param columnName    name of the column (header)
+	 * @return {String}     visibility value for the given column
+	 */
 	function visibilityValue(columnName)
 	{
 		var vis = _options.columnVisibility[columnName];
@@ -276,6 +286,12 @@ function MutationPdbTable(options)
 		return value;
 	}
 
+	/**
+	 * Determines the search value for the given column name
+	 *
+	 * @param columnName    name of the column (header)
+	 * @return {Boolean}    whether searchable or not
+	 */
 	function searchValue(columnName)
 	{
 		var searchVal = _options.columnSearch[columnName];
@@ -296,56 +312,9 @@ function MutationPdbTable(options)
 		return value;
 	}
 
-	/**
-	 * Formats the table with data tables plugin for the given
-	 * row data array (each element represents a single row).
-	 *
-	 * @rows    row data as an array
-	 */
-	function renderTable(rows)
-	{
-		var columnOrder = _options.columnOrder;
-
-		// build a map, to be able to use string constants
-		// instead of integer constants for table columns
-		var indexMap = DataTableUtil.buildColumnIndexMap(columnOrder);
-
-		// build a visibility map for column headers
-		var visibilityMap = DataTableUtil.buildColumnVisMap(columnOrder, visibilityValue);
-
-		// build a map to determine searchable columns
-		var searchMap = DataTableUtil.buildColumnSearchMap(columnOrder, searchValue);
-
-		// determine hidden and excluded columns
-		var hiddenCols = DataTableUtil.getHiddenColumns(columnOrder, indexMap, visibilityMap);
-		var excludedCols = DataTableUtil.getExcludedColumns(columnOrder, indexMap, visibilityMap);
-
-		// determine columns to exclude from filtering (through the search box)
-		var nonSearchableCols = DataTableUtil.getNonSearchableColumns(columnOrder, indexMap, searchMap);
-
-		// add custom sort functions for specific columns
-		addSortFunctions();
-
-		// actual initialization of the DataTables plug-in
-		_dataTable = initDataTable($(_options.el), rows, _options.columns,
-			indexMap, hiddenCols, excludedCols, nonSearchableCols);
-
-		_dataTable.css("width", "100%");
-
-		addEventListeners(indexMap);
-
-		// add a delay to the filter
-		if (_options.filteringDelay > 0)
-		{
-			_dataTable.fnSetFilteringDelay(_options.filteringDelay);
-		}
-	}
-
 	function addEventListeners(indexMap)
 	{
-		_.each(_options.eventListeners, function(listenerFn) {
-			listenerFn(_dataTable, _dispatcher, indexMap);
-		});
+		// super.addEventListeners(indexMap);
 
 		// TODO mouse over/out actions do not work as desired
 
@@ -371,12 +340,7 @@ function MutationPdbTable(options)
 	function cleanFilters()
 	{
 		// just show everything
-		_dataTable.fnFilter("");
-	}
-
-	function getDataTable()
-	{
-		return _dataTable;
+		self.getDataTable().fnFilter("");
 	}
 
 	function selectRow(pdbId, chainId)
@@ -403,43 +367,18 @@ function MutationPdbTable(options)
 		return _selectedRow;
 	}
 
-	function addColumnTooltips()
-	{
-		var tableSelector = $(_options.el);
+	// override required functions
+	this._initDataTable = initDataTable;
+	this._visibilityValue = visibilityValue;
+	this._searchValue = searchValue;
 
-		_.each(_options.columnTooltips, function(tooltipFn) {
-			if (_.isFunction(tooltipFn))
-			{
-				tooltipFn(tableSelector);
-			}
-		});
-	}
-
-	function getColumnOptions()
-	{
-		return _options.columns;
-	}
-
-	/**
-	 * Adds custom DataTables sort function for specific columns.
-	 */
-	function addSortFunctions()
-	{
-		_.each(_.pairs(_options.customSort), function(pair) {
-			var fnName = pair[0];
-			var sortFn = pair[1];
-
-			jQuery.fn.dataTableExt.oSort[fnName] = sortFn;
-		});
-	}
-
-	return {
-		renderTable: renderTable,
-		selectRow: selectRow,
-		cleanFilters: cleanFilters,
-		getSelectedRow: getSelectedRow,
-		getDataTable: getDataTable,
-		getColumnOptions: getColumnOptions,
-		dispatcher: _dispatcher
-	};
+	// additional public functions
+	this.selectRow = selectRow;
+	this.cleanFilters = cleanFilters;
+	this.getSelectedRow = getSelectedRow;
+	this.dispatcher = this._dispatcher;
 }
+
+// MutationPdbTable extends AdvancedDataTable...
+MutationPdbTable.prototype = new AdvancedDataTable();
+MutationPdbTable.prototype.constructor = MutationPdbTable;

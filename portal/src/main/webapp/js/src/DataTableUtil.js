@@ -1,5 +1,3 @@
-// TODO move this class to a global directory since these are generic data table utils
-
 /**
  * Singleton utility class for DataTables related tasks.
  *

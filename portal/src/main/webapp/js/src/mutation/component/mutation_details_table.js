@@ -10,6 +10,11 @@
  */
 function MutationDetailsTable(options, gene, mutationUtil)
 {
+	var self = this;
+
+	// call super constructor
+	AdvancedDataTable.call(this, options);
+
 	// default options object
 	var _defaultOpts = {
 		el: "#mutation_details_table_d3",
@@ -112,6 +117,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				asSorting: ["desc", "asc"],
 				sWidth: "2%"}
 		},
+		// display order of column headers
 		columnOrder: ["datum", "mutationId", "caseId", "cancerStudy", "tumorType",
 			"proteinChange", "mutationType", "cna", "cosmic", "mutationStatus",
 			"validationStatus", "mutationAssessor", "sequencingCenter", "chr",
@@ -756,14 +762,11 @@ function MutationDetailsTable(options, gene, mutationUtil)
 	};
 
 	// merge options with default options to use defaults for missing values
-	var _options = jQuery.extend(true, {}, _defaultOpts, options);
+	self._options = jQuery.extend(true, {}, _defaultOpts, options);
+	var _options = self._options;
 
 	// custom event dispatcher
-	var _dispatcher = {};
-	_.extend(_dispatcher, Backbone.Events);
-
-	// reference to the data table object
-	var _dataTable = null;
+	var _dispatcher = self._dispatcher;
 
 	// flag used to switch events on/off
 	var _eventActive = true;
@@ -814,7 +817,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 			],
 			"oColVis": {"aiExclude": excludedCols}, // columns to always hide
 			"fnDrawCallback": function(oSettings) {
-				addColumnTooltips();
+				self._addColumnTooltips();
 
 				var currSearch = oSettings.oPreviousSearch.sSearch;
 
@@ -860,7 +863,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 			},
 			"fnHeaderCallback": function(nHead, aData, iStart, iEnd, aiDisplay) {
 			    $(nHead).find('th').addClass("mutation-details-table-header");
-				addHeaderTooltips(nHead, nameMap);
+				self._addHeaderTooltips(nHead, nameMap);
 		    },
 		    "fnFooterCallback": function(nFoot, aData, iStart, iEnd, aiDisplay) {
 			    //TODO addFooterTooltips(nFoot, nameMap);
@@ -903,6 +906,12 @@ function MutationDetailsTable(options, gene, mutationUtil)
 		return value;
 	}
 
+	/**
+	 * Determines the search value for the given column name
+	 *
+	 * @param columnName    name of the column (header)
+	 * @return {Boolean}    whether searchable or not
+	 */
 	function searchValue(columnName)
 	{
 		var searchVal = _options.columnSearch[columnName];
@@ -924,53 +933,6 @@ function MutationDetailsTable(options, gene, mutationUtil)
 	}
 
 	/**
-	 * Formats the table with data tables plugin for the given
-	 * row data array (each element represents a single row).
-	 *
-	 * @rows    row data as an array
-	 */
-	function renderTable(rows)
-	{
-		var columnOrder = _options.columnOrder;
-
-		// build a map, to be able to use string constants
-		// instead of integer constants for table columns
-		var indexMap = DataTableUtil.buildColumnIndexMap(columnOrder);
-		var nameMap = DataTableUtil.buildColumnNameMap(_options.columns);
-
-		// build a visibility map for column headers
-		var visibilityMap = DataTableUtil.buildColumnVisMap(columnOrder, visibilityValue);
-
-		// build a map to determine searchable columns
-		var searchMap = DataTableUtil.buildColumnSearchMap(columnOrder, searchValue);
-
-		// determine hidden and excluded columns
-		var hiddenCols = DataTableUtil.getHiddenColumns(columnOrder, indexMap, visibilityMap);
-		var excludedCols = DataTableUtil.getExcludedColumns(columnOrder, indexMap, visibilityMap);
-
-		// determine columns to exclude from filtering (through the search box)
-		var nonSearchableCols = DataTableUtil.getNonSearchableColumns(columnOrder, indexMap, searchMap);
-
-		// add custom sort functions for specific columns
-		addSortFunctions();
-
-		// actual initialization of the DataTables plug-in
-		_dataTable = initDataTable($(_options.el), rows, _options.columns, nameMap,
-		                           indexMap, hiddenCols, excludedCols, nonSearchableCols);
-
-		//_dataTable.css("width", "100%");
-
-		addEventListeners(indexMap);
-
-		// add a delay to the filter
-		// add a delay to the filter
-		if (_options.filteringDelay > 0)
-		{
-			_dataTable.fnSetFilteringDelay(_options.filteringDelay);
-		}
-	}
-
-	/**
 	 * Adds default event listeners for the table.
 	 *
 	 * @param indexMap  column index map
@@ -978,7 +940,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 	function addEventListeners(indexMap)
 	{
 		_.each(_options.eventListeners, function(listenerFn) {
-			listenerFn(_dataTable, _dispatcher, mutationUtil, gene);
+			listenerFn(self.getDataTable(), _dispatcher, mutationUtil, gene);
 		});
 	}
 
@@ -1024,27 +986,14 @@ function MutationDetailsTable(options, gene, mutationUtil)
 		_manualSearch = "";
 	}
 
-//	function cleanFilters()
-//	{
-//		// just show everything
-//		_dataTable.fnFilter("");
-//	}
-
 	function getManualSearch()
 	{
 		return _manualSearch;
 	}
 
-	function getDataTable()
-	{
-		return _dataTable;
-	}
-
-	function getColumnOptions()
-	{
-		return _options.columns;
-	}
-
+	/**
+	 * Adds column (data) tooltips provided within the options object.
+	 */
 	function addColumnTooltips()
 	{
 		var tableSelector = $(_options.el);
@@ -1103,29 +1052,24 @@ function MutationDetailsTable(options, gene, mutationUtil)
 		$(nFoot).find("th").qtip(qTipOptionsFooter);
 	}
 
-	/**
-	 * Adds custom DataTables sort function for specific columns.
-	 */
-	function addSortFunctions()
-	{
-		_.each(_.pairs(_options.customSort), function(pair) {
-			var fnName = pair[0];
-			var sortFn = pair[1];
+	// override required functions
+	this._initDataTable = initDataTable;
+	this._visibilityValue = visibilityValue;
+	this._searchValue = searchValue;
+	this._addColumnTooltips = addColumnTooltips;
+	this._addEventListeners = addEventListeners;
+	this._addHeaderTooltips = addHeaderTooltips;
 
-			jQuery.fn.dataTableExt.oSort[fnName] = sortFn;
-		});
-	}
-
-	return {
-		renderTable: renderTable,
-		selectRow: selectRow,
-		cleanFilters: cleanFilters,
-		getSelectedRow: getSelectedRow,
-		getDataTable: getDataTable,
-		getColumnOptions: getColumnOptions,
-		setEventActive: setEventActive,
-		getManualSearch: getManualSearch,
-		dispatcher: _dispatcher
-	};
+	// additional public functions
+	this.setEventActive = setEventActive;
+	this.getManualSearch = getManualSearch;
+	this.cleanFilters = cleanFilters;
+	//this.selectRow = selectRow;
+	//this.getSelectedRow = getSelectedRow;
+	this.dispatcher = this._dispatcher;
 }
+
+// MutationDetailsTable extends AdvancedDataTable...
+MutationDetailsTable.prototype = new AdvancedDataTable();
+MutationDetailsTable.prototype.constructor = MutationDetailsTable;
 

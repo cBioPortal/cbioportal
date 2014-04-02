@@ -129,8 +129,7 @@ public final class DaoClinicalData {
             if (rs.next()) {
                 return extract(rs);
             } else {
-                throw new DaoException(String.format("clincial not found for (%d, %s, %s)",
-                        cancerStudyId, caseId, attrId));
+                return null;
             }
 
         } catch (SQLException e) {

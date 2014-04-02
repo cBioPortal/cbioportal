@@ -136,6 +136,9 @@ public final class ImportCaisesClinicalXML {
         
         long clinicalEventId = DaoClinicalEvent.getLargestClinicalEventId();
         
+        Map<String, Set<String>> mapPatientIdSampleId = getMapPatientIdSampleId(cancerStudyId);
+        Map<String, Set<String>> mapSu2cSampleIdSampleId = getMapSu2cSampleIdSampleId(cancerStudyId);
+        
         for (Node patientNode : patientNodes) {
             String patientId = patientNode.selectSingleNode("PtProtocolStudyId").getText();
             
@@ -144,10 +147,10 @@ public final class ImportCaisesClinicalXML {
             // processing clinical data
             List<ClinicalData> clinicalData = filterClinicalData(
                     parsePatientClinicalData(patientNode, patientId, cancerStudyId),
-                    getMapPatientIdSampleId(cancerStudyId));
+                    mapPatientIdSampleId);
             clinicalData.addAll(filterClinicalData(
                     parseClinicalDataFromSpecimen(patientNode, cancerStudyId),
-                    getMapSu2cSampleIdSampleId(cancerStudyId)));
+                    mapSu2cSampleIdSampleId));
             for (ClinicalData cd : clinicalData) {
                 if (DaoClinicalData.getDatum(cancerStudyId, cd.getCaseId(), cd.getAttrId())==null) {
                     DaoClinicalData.addDatum(cd);
@@ -219,7 +222,7 @@ public final class ImportCaisesClinicalXML {
             String su2cSampleId = cd.getAttrVal();
             String sampleId = cd.getCaseId();
             if (null!=map.put(su2cSampleId, Collections.singleton(sampleId))) {
-                System.err.println("Something is wring: there are two samples with the same su2c ID: "+su2cSampleId);
+                System.err.println("Something is wrong: there are two samples with the same su2c ID: "+su2cSampleId);
             }
         }
         return map;

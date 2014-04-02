@@ -38,7 +38,7 @@
  *
  ****************************************************************************************************/
 
-var survivalCurves = (function() {
+var SurvivalCurves = function() {
 
     var util = (function() {
 
@@ -345,7 +345,6 @@ var survivalCurves = (function() {
                 axis_color: "black"
             };
 
-
         function initOSCanvas() {
             $('#os_survival_curve').empty();
             elem.svgOS = d3.select("#os_survival_curve")
@@ -510,7 +509,6 @@ var survivalCurves = (function() {
                         }
                     }
                     content += "</font>";
-
 
                     $(this).qtip(
                         {
@@ -971,7 +969,8 @@ var survivalCurves = (function() {
             var paramsGetSurvivalData = {
                 case_set_id: case_set_id,
                 case_ids_key: case_ids_key,
-                cancer_study_id: cancer_study_id
+                cancer_study_id: cancer_study_id,
+                data_type: "os"
             };
             $.post("getSurvivalData.json", paramsGetSurvivalData, getResultInit(caseLists), "json");
 
@@ -982,7 +981,7 @@ var survivalCurves = (function() {
             }
         }
     }
-}());
+};
 
 function loadSurvivalCurveSVG(svgId) {
     return $("#" + svgId).html();

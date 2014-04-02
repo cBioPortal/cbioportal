@@ -53,7 +53,7 @@
     function getSurvivalPlotsCaseList() {
         <%
             JSONObject result = new JSONObject();
-            for (String caseId : mergedCaseList) {
+            for (String caseId : mergedCaseList) { 
                 if (dataSummary.isCaseAltered(caseId)) {
                     result.put(caseId, "altered");
                 } else {
@@ -66,6 +66,7 @@
     }
 
     $(document).ready(function() {
+        var survivalCurves = new SurvivalCurves();
         survivalCurves.init(getSurvivalPlotsCaseList());
     });
 </script>

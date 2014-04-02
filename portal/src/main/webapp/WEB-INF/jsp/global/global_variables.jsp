@@ -170,6 +170,7 @@
         getCaseSetName: function() { return '<%= caseSetName %>'},  //Name for user chose standard case set
         getCaseIdsKey: function() { return '<%= caseIdsKey %>'; },   //A key arrsigned to use build case set
         getCases: function() { return '<%= cases %>'; }, // list of queried case ids
+        getMergedCases: function() { return '<%=  mergedCaseList %>'; },
         getOqlString: (function() {     // raw gene list (as it is entered by the user, it may contain onco query language)
             var oql = '<%=oql%>'
                     .replace("&gt;", ">", "gm")

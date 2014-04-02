@@ -126,7 +126,7 @@ public final class ImportCaisesClinicalXML {
 //        return map;
 //    }
     
-    private static void importData(String urlXml, int cancerStudyId) throws DocumentException, DaoException {
+    private static void importData(String urlXml, int cancerStudyId) throws Exception {
         MySQLbulkLoader.bulkLoadOn();
         
         SAXReader reader = new SAXReader();
@@ -138,6 +138,10 @@ public final class ImportCaisesClinicalXML {
         
         Map<String, Set<String>> mapPatientIdSampleId = getMapPatientIdSampleId(cancerStudyId);
         Map<String, Set<String>> mapSu2cSampleIdSampleId = getMapSu2cSampleIdSampleId(cancerStudyId);
+        
+        if (mapPatientIdSampleId.isEmpty()) {
+            throw new Exception("clinical data need to be imported first");
+        }
         
         for (Node patientNode : patientNodes) {
             String patientId = patientNode.selectSingleNode("PtProtocolStudyId").getText();

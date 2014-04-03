@@ -45,6 +45,8 @@ boolean showTissueImages = tissueImageUrl!=null;
 String patientID = (String)request.getAttribute(PatientView.PATIENT_ID);
 int numTumors = (Integer)request.getAttribute("num_tumors");
 
+boolean showTimeline = (Boolean)request.getAttribute("has_timeline_data");
+
 String pathReportUrl = (String)request.getAttribute(PatientView.PATH_REPORT_URL);
 
 //String drugType = xssUtil.getCleanerInput(request, "drug_type");
@@ -420,54 +422,62 @@ function addNoteTooltip(elem, content, position) {
     });
 }
 
-function addMoreClinicalTooltip(elemId, caseId) {
-    var clinicalData = [];
-    for (var key in clinicalDataMap[caseId]) {
-        clinicalData.push([key, clinicalDataMap[caseId][key]]);
-    }
-    
-    if (clinicalData.length===0) {
-        $('#'+elemId).remove();
-    } else {
-        $('#'+elemId).qtip({
-            content: {
-                text: '<table id="more-clinical-table-'+caseId+'"></table>'
-            },
-            events: {
-                render: function(event, api) {
-                    $('#more-clinical-table-'+caseId).dataTable( {
-                        "sDom": 't',
-                        "bJQueryUI": true,
-                        "bDestroy": true,
-                        "aaData": clinicalData,
-                        "aoColumnDefs":[
-                            {
-                                "aTargets": [ 0 ],
-                                "fnRender": function(obj) {
-                                    return '<b>'+obj.aData[ obj.iDataColumn ]+'</b>';
+function addMoreClinicalTooltip(elem) {
+    $(elem).each(function( index ) {
+        var thisElem = $(this);
+        var caseId = thisElem.attr('alt');
+        
+        var clinicalData = [];
+        for (var key in clinicalDataMap[caseId]) {
+            clinicalData.push([key, clinicalDataMap[caseId][key]]);
+        }
+
+        if (clinicalData.length===0) {
+            thisElem.remove();
+        } else {
+            thisElem.qtip({
+                content: {
+                    text: '<table id="more-clinical-table-'+caseId+'"></table>'
+                },
+                events: {
+                    render: function(event, api) {
+                        $(this).html("<table></table>");
+                        $(this).find("table").dataTable( {
+                            "sDom": 't',
+                            "bJQueryUI": true,
+                            "bDestroy": true,
+                            "aaData": clinicalData,
+                            "aoColumnDefs":[
+                                {
+                                    "aTargets": [ 0 ],
+                                    "sClass": "left-align-td",
+                                    "fnRender": function(obj) {
+                                        return '<b>'+obj.aData[ obj.iDataColumn ]+'</b>';
+                                    }
+                                },
+                                {
+                                    "aTargets": [ 1 ],
+                                    "sClass": "left-align-td",
+                                    "bSortable": false
                                 }
+                            ],
+                            "aaSorting": [[0,'asc']],
+                            "oLanguage": {
+                                "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
+                                "sInfoFiltered": "",
+                                "sLengthMenu": "Show _MENU_ per page"
                             },
-                            {
-                                "aTargets": [ 1 ],
-                                "bSortable": false
-                            }
-                        ],
-                        "aaSorting": [[0,'asc']],
-                        "oLanguage": {
-                            "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
-                            "sInfoFiltered": "",
-                            "sLengthMenu": "Show _MENU_ per page"
-                        },
-                        "iDisplayLength": -1
-                    } );
-                }
-            },
-	        show: {event: "mouseover"},
-            hide: {fixed: true, delay: 100, event: "mouseout"},
-            style: { classes: 'qtip-light qtip-rounded qtip-wide' },
-            position: {my:'top right',at:'bottom right',viewport: $(window)}
-        });
-    }
+                            "iDisplayLength": -1
+                        } );
+                    }
+                },
+                    show: {event: "mouseover"},
+                hide: {fixed: true, delay: 100, event: "mouseout"},
+                style: { classes: 'qtip-light qtip-rounded qtip-wide' },
+                position: {my:'top right',at:'bottom right',viewport: $(window)}
+            });
+        }
+    });
 }
 
 function addDrugsTooltip(elem, my, at) {
@@ -762,8 +772,7 @@ function outputClinicalData() {
             var stateInfo = formatStateInfo(clinicalData);
             if (stateInfo) row +="&nbsp;"+stateInfo;
         }
-        row += "</td><td align='right'><a href='#' id='more-clinical-a-"+
-                    caseId+"'>More about this tumor</a></td></tr>";
+        row += "</td><td align='right'><a href='#' class='more-clinical-a' alt='"+caseId+"'>More about this tumor</a></td></tr>";
         $("#clinical_table").append(row);
         
         if (n===1) {
@@ -772,8 +781,8 @@ function outputClinicalData() {
             row = "<tr><td>"+diseaseInfo+"</td><td align='right'>"+patientStatus+"</td></tr-->";
             $("#clinical_table").append(row);
         }
-        addMoreClinicalTooltip("more-clinical-a-"+caseId, caseId);
     }
+    addMoreClinicalTooltip(".more-clinical-a");
     
     if (n>1) {
         plotCaseLabel('.case-label-header', false, true);

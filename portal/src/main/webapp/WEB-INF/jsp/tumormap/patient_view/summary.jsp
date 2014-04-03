@@ -180,7 +180,10 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
     }
 </script>
 
+
+<%if(showTimeline){%>
 <jsp:include page="clinical_timeline.jsp" flush="true" />
+<%}%>
 
 <%if(showGenomicOverview){%>
 <table>

@@ -116,6 +116,31 @@ public final class DaoClinicalEvent {
         }
     }
     
+    /**
+     * 
+     * @param cancerStudyId
+     * @param caseId
+     * @return true if timeline data exist for the case
+     * @throws DaoException 
+     */
+    public static boolean timeEventsExistForPatient(int cancerStudyId, String patientId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoCopyNumberSegment.class);
+            pstmt = con.prepareStatement("SELECT EXISTS(SELECT 1 FROM `clinical_event` WHERE `CANCER_STUDY_ID`=? AND `PATIENT_ID`=?)");
+            pstmt.setInt(1, cancerStudyId);
+            pstmt.setString(2, patientId);
+            rs = pstmt.executeQuery();
+            return rs.next() && rs.getInt(1)==1;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoCopyNumberSegment.class, con, pstmt, rs);
+        }
+    }
+    
     public static void deleteByCancerStudyId(int cancerStudyId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;

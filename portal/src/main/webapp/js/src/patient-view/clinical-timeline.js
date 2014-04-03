@@ -395,19 +395,19 @@
             
             var ret = [];
             
-            if ("STATUS" in timelineDataByType) {
-                ret.push({
-                    label:"Status",
-                    display:"circle",
-                    times:formatTimePoints(timelineDataByType["STATUS"])});
-            }
-            
             if ("SPECIMEN" in timelineDataByType) {
                 ret.push({
                     label:"Specimen",
                     display:"circle",
                     id:"SpecimenReferenceNumber",
                     times:formatTimePoints(timelineDataByType["SPECIMEN"])});
+            }
+            
+            if ("STATUS" in timelineDataByType) {
+                ret.push({
+                    label:"Status",
+                    display:"circle",
+                    times:formatTimePoints(timelineDataByType["STATUS"])});
             }
             
             if ("DIAGNOSTIC" in timelineDataByType) {
@@ -425,9 +425,30 @@
             }
             
             if ("TREATMENT" in timelineDataByType) {
+                var agentStartDates = {};
+                timelineDataByType["TREATMENT"].forEach(function(treatment) {
+                    var agent = getTreatmentAgent(treatment);
+                    var startDate = treatment["startDate"];
+                    if (agent in agentStartDates) {
+                        if (agentStartDates[agent] > startDate) {
+                            agentStartDates[agent] = startDate;
+                        }
+                    } else {
+                        agentStartDates[agent] = startDate;
+                    }
+                });
+                
                 var treatments = timelineDataByType["TREATMENT"].sort(function(a,b){
                     if (a["startDate"]===b["startDate"]) {
-                        return getTreatmentAgent(a).localeCompare(getTreatmentAgent(b));
+                        var agentA = getTreatmentAgent(a);
+                        var agentB = getTreatmentAgent(b);
+                        var agentStartDateA = agentStartDates[agentA];
+                        var agentStartDateB = agentStartDates[agentB];
+                        if (agentStartDateA===agentStartDateB) {
+                            return agentA.localeCompare(agentB);
+                        }
+                        
+                        return agentStartDateA - agentStartDateB;
                     }
                     return a["startDate"]-b["startDate"];
                 });

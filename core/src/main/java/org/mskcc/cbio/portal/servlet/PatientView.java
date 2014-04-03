@@ -291,6 +291,12 @@ public class PatientView extends HttpServlet {
         if (attrMap!=null) {
             patientId = attrMap.get(PATIENT_ID_ATTR_NAME);
         }
+        
+        request.setAttribute("has_timeline_data", Boolean.FALSE);
+        if (patientId!=null) {
+            request.setAttribute("has_timeline_data", DaoClinicalEvent.timeEventsExistForPatient(
+                    cancerStudy.getInternalId(), patientId));
+        }
 
         request.setAttribute(PATIENT_ID, patientId==null?caseId:patientId);
         

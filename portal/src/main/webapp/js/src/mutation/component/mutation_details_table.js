@@ -334,7 +334,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				var normalFreq = MutationDetailsTableFormatter.getAlleleFreq(mutation.normalFreq,
 					mutation.normalAltCount,
 					mutation.normalRefCount,
-					"simple-tip-left");
+					"simple-tip");
 				var vars = {};
 				vars.normalFreq = normalFreq.text;
 				vars.normalFreqClass = normalFreq.style;
@@ -351,7 +351,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				var tumorFreq = MutationDetailsTableFormatter.getAlleleFreq(mutation.tumorFreq,
 					mutation.tumorAltCount,
 					mutation.tumorRefCount,
-					"simple-tip-left");
+					"simple-tip");
 				var vars = {};
 				vars.tumorFreq = tumorFreq.text;
 				vars.tumorFreqClass = tumorFreq.style;
@@ -485,13 +485,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 		columnTooltips: {
 			"simple": function(selector, mutationUtil, gene) {
 				var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
-
-				var qTipOptionsLeft = {};
-				jQuery.extend(true, qTipOptionsLeft, qTipOptions);
-				qTipOptionsLeft.position = {my:'top right', at:'bottom left'};
-
 				$(selector).find('.simple-tip').qtip(qTipOptions);
-				$(selector).find('.simple-tip-left').qtip(qTipOptionsLeft);
 				//tableSelector.find('.best_effect_transcript').qtip(qTipOptions);
 				//tableSelector.find('.cc-short-study-name').qtip(qTipOptions);
 				//$('#mutation_details .mutation_details_table td').qtip(qTipOptions);
@@ -529,10 +523,6 @@ function MutationDetailsTable(options, gene, mutationUtil)
 			"mutationAssessor": function(selector, mutationUtil, gene) {
 				var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
 
-				var qTipOptionsLeft = {};
-				jQuery.extend(true, qTipOptionsLeft, qTipOptions);
-				qTipOptionsLeft.position = {my:'top right', at:'bottom left'};
-
 				// add tooltip for Predicted Impact Score (FIS)
 				$(selector).find('.oma_link').each(function() {
 					var links = $(this).attr('alt');
@@ -544,7 +534,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 					// copy default qTip options and modify "content"
 					// to customize for predicted impact score
 					var qTipOptsOma = {};
-					jQuery.extend(true, qTipOptsOma, qTipOptionsLeft);
+					jQuery.extend(true, qTipOptsOma, qTipOptions);
 
 					qTipOptsOma.content = {text: "NA"}; // content is overwritten on render
 					qTipOptsOma.events = {render: function(event, api) {
@@ -1067,7 +1057,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 
 		var qTipOptionsHeader = {};
 		jQuery.extend(true, qTipOptionsHeader, qTipOptions);
-		qTipOptionsHeader.position = {my:'bottom center', at:'top center'};
+		qTipOptionsHeader.position = {my:'bottom center', at:'top center', viewport: $(window)};
 
 		//tableSelector.find('thead th').qtip(qTipOptionsHeader);
 		$(nHead).find("th").each(function(){
@@ -1097,7 +1087,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 
 		var qTipOptionsFooter = {};
 		jQuery.extend(true, qTipOptionsFooter, qTipOptions);
-		qTipOptionsFooter.position = {my:'top center', at:'bottom center'};
+		qTipOptionsFooter.position = {my:'top center', at:'bottom center', viewport: $(window)};
 
 		//tableSelector.find('tfoot th').qtip(qTipOptionsFooter);
 		$(nFoot).find("th").qtip(qTipOptionsFooter);

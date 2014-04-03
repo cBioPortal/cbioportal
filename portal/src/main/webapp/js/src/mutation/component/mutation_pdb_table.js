@@ -124,13 +124,7 @@ function MutationPdbTable(options)
 		columnTooltips: {
 			"simple": function(selector) {
 				var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
-
-				var qTipOptionsLeft = {};
-				jQuery.extend(true, qTipOptionsLeft, qTipOptions);
-				qTipOptionsLeft.position = {my:'top right', at:'bottom left'};
-
 				$(selector).find('.simple-tip').qtip(qTipOptions);
-				$(selector).find('.simple-tip-left').qtip(qTipOptionsLeft);
 			}
 		},
 		// default event listener config

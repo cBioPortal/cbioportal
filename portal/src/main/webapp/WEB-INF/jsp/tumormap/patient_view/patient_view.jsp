@@ -496,24 +496,24 @@ function addDrugsTooltip(elem, my, at) {
                             if (drug[4]) {
                                 txtDrug.push("FDA approved?</b></td><td>"+(drug[4]?"Yes":"No"));
                             }
-                            if (drug[5]) {
-                                txtDrug.push("Description:</b></td><td>"+drug[5]);
-                            }
-                            if (drug[7]) { // xref
-                                var xref = [];
-                                var nci = drug[7]['NCI_Drug'];
-                                if (nci) xref.push("<a href='http://www.cancer.gov/drugdictionary?CdrID="+nci+"'>NCI</a>");
-                                var pharmgkb = drug[7]['PharmGKB'];
-                                if (pharmgkb) xref.push("<a href='http://www.pharmgkb.org/views/index.jsp?objId="+pharmgkb+"'>PharmGKB</a>");
-                                var drugbank = drug[7]['DrugBank'];
-                                if (drugbank) xref.push("<a href='http://www.drugbank.ca/drugs/"+drugbank+"'>DrugBank</a>");
-                                var keggdrug = drug[7]['KEGG Drug'];
-                                if (keggdrug) xref.push("<a href='http://www.genome.jp/dbget-bin/www_bget?dr:"+keggdrug+"'>KEGG Drug</a>");
-                                
-                                if (xref.length) {
-                                    txtDrug.push("Data sources:</b></td><td>"+xref.join(",&nbsp;"));
-                                }
-                            }
+//                            if (drug[5]) {
+//                                txtDrug.push("Description:</b></td><td>"+drug[5]);
+//                            }
+//                            if (drug[7]) { // xref
+//                                var xref = [];
+//                                var nci = drug[7]['NCI_Drug'];
+//                                if (nci) xref.push("<a href='http://www.cancer.gov/drugdictionary?CdrID="+nci+"'>NCI</a>");
+//                                var pharmgkb = drug[7]['PharmGKB'];
+//                                if (pharmgkb) xref.push("<a href='http://www.pharmgkb.org/views/index.jsp?objId="+pharmgkb+"'>PharmGKB</a>");
+//                                var drugbank = drug[7]['DrugBank'];
+//                                if (drugbank) xref.push("<a href='http://www.drugbank.ca/drugs/"+drugbank+"'>DrugBank</a>");
+//                                var keggdrug = drug[7]['KEGG Drug'];
+//                                if (keggdrug) xref.push("<a href='http://www.genome.jp/dbget-bin/www_bget?dr:"+keggdrug+"'>KEGG Drug</a>");
+//                                
+//                                if (xref.length) {
+//                                    txtDrug.push("Data sources:</b></td><td>"+xref.join(",&nbsp;"));
+//                                }
+//                            }
                             if (drug[8]>0) {
                                 var nci = drug[7]['NCI_Drug'];
                                 if (nci) {

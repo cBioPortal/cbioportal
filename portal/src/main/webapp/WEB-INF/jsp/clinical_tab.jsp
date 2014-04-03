@@ -66,7 +66,9 @@
     }
 
     $(document).ready(function() {
-        var survivalCurves = new SurvivalCurves();
-        survivalCurves.init(getSurvivalPlotsCaseList(), "os");
+        var survivalCurvesOS = new SurvivalCurves();
+        survivalCurvesOS.init(getSurvivalPlotsCaseList(), "os", "os_survival_curve");
+        var survivalCurvesDFS = new SurvivalCurves();
+        survivalCurvesDFS.init(getSurvivalPlotsCaseList(), "dfs", "dfs_survival_curve");
     });
 </script>

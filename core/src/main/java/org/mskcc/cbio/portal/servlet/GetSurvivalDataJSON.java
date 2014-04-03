@@ -84,6 +84,7 @@ public class GetSurvivalDataJSON extends HttpServlet {
         String cancerStudyIdentifier = httpServletRequest.getParameter("cancer_study_id");
         String caseSetId = httpServletRequest.getParameter("case_set_id");
         String caseIdsKey = httpServletRequest.getParameter("case_ids_key");
+        //So far only accept single data type
         String dataType = httpServletRequest.getParameter("data_type");
 
         try {
@@ -119,7 +120,7 @@ public class GetSurvivalDataJSON extends HttpServlet {
                 JSONObject _result = new JSONObject();
 
                 _result.put("case_id", clinicalData.getCaseId());
-                if (dataType == "os") {
+                if (dataType.equalsIgnoreCase("os")) {
                     if (clinicalData.getOverallSurvivalMonths() == null) {
                         _result.put("months", "NA");
                     } else {
@@ -133,7 +134,7 @@ public class GetSurvivalDataJSON extends HttpServlet {
                     } else if(osStatus.equalsIgnoreCase("LIVING")) {
                         _result.put("status", "0");
                     }   
-                } else if (dataType == "dfs") {
+                } else if (dataType.equalsIgnoreCase("dfs")) {
                     if (clinicalData.getDiseaseFreeSurvivalMonths() == null) {
                         _result.put("months", "NA");
                     } else {

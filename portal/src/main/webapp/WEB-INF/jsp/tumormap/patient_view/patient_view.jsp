@@ -45,6 +45,8 @@ boolean showTissueImages = tissueImageUrl!=null;
 String patientID = (String)request.getAttribute(PatientView.PATIENT_ID);
 int numTumors = (Integer)request.getAttribute("num_tumors");
 
+boolean showTimeline = (Boolean)request.getAttribute("has_timeline_data");
+
 String pathReportUrl = (String)request.getAttribute(PatientView.PATH_REPORT_URL);
 
 //String drugType = xssUtil.getCleanerInput(request, "drug_type");

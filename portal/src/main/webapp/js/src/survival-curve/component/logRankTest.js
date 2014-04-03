@@ -36,7 +36,8 @@ var LogRankTest = function() {
             expectation: 0, //(n1j / (n1j + n2j)) * (m1j + m2j)
             variance: 0
         },
-        mergedArr = [];
+        mergedArr = [],
+        callBackFunc = "";
     //os: DECEASED-->1, LIVING-->0; dfs: Recurred/Progressed --> 1, Disease Free-->0
     function mergeGrps(inputGrp1, inputGrp2) {
         var _ptr_1 = 0; //index indicator/pointer for group1
@@ -107,7 +108,7 @@ var LogRankTest = function() {
         }
     }
 
-    function calcPval(_dataInst) {
+    function calcPval(_callBackFunc) {
         var O1 = 0, E1 = 0, V = 0;
         for (var i in mergedArr) {
             var _item = mergedArr[i];
@@ -118,17 +119,18 @@ var LogRankTest = function() {
         var chi_square_score = (O1 - E1) * (O1 - E1) / V;
         $.post( "calcPval.do", { chi_square_score: chi_square_score })
             .done( function(_data) {
-                _dataInst.pValCallBack(_data);
+                callBackFunc = _callBackFunc;
+                callBackFunc(_data);
             });
     }
 
     return {
-        calc: function(inputGrp1, inputGrp2, _dataInst) {
+        calc: function(inputGrp1, inputGrp2, _callBackFunc) {
             mergedArr.length = 0;
             mergeGrps(inputGrp1, inputGrp2);
             calcExpection();
             calcVariance();
-            calcPval(_dataInst);
+            calcPval(_callBackFunc);
         }
     }
 };

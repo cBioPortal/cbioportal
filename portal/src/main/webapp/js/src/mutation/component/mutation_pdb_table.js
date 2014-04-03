@@ -10,9 +10,6 @@ function MutationPdbTable(options)
 {
 	var self = this;
 
-	// call super constructor
-	AdvancedDataTable.call(this, options);
-
 	// default options object
 	var _defaultOpts = {
 		el: "#mutation_pdb_table_d3",
@@ -31,9 +28,11 @@ function MutationPdbTable(options)
 			chain: {sTitle: "Chain",
 				tip:""},
 			uniprotPos: {sTitle: "Uniprot Positions",
-				tip:""},
+				tip:"",
+				sType: "numeric"},
 			identityPercent: {sTitle: "Identity Percent",
-				tip:""},
+				tip:"",
+				sType: "numeric"},
 			organism: {sTitle: "Organism",
 				tip:""},
 			summary: {sTitle: "Summary",
@@ -199,8 +198,11 @@ function MutationPdbTable(options)
 	};
 
 	// merge options with default options to use defaults for missing values
-	self._options = jQuery.extend(true, {}, self._defaultOpts, _defaultOpts, options);
-	var _options = self._options;
+	var _options = jQuery.extend(true, {}, _defaultOpts, options);
+
+	// call super constructor to init options and other params
+	AdvancedDataTable.call(this, _options);
+	_options = self._options;
 
 	// custom event dispatcher
 	var _dispatcher = self._dispatcher;
@@ -210,7 +212,7 @@ function MutationPdbTable(options)
 	var _selectedRow = null;
 
 	/**
-	 * Initializes the data tables plug-in for the given table selector.
+	 * Generates the data table options for the given parameters.
 	 *
 	 * @param tableSelector jQuery selector for the target table
 	 * @param rows          data rows
@@ -220,10 +222,10 @@ function MutationPdbTable(options)
 	 * @param hiddenCols    indices of the hidden columns
 	 * @param excludedCols  indices of the excluded columns
 	 * @param nonSearchableCols    indices of the columns excluded from search
-	 * @return {object}     DataTable instance
+	 * @return {object}     DataTable options
 	 * @private
 	 */
-	function initDataTable(tableSelector, rows, columnOpts, nameMap,
+	function initDataTableOpts(tableSelector, rows, columnOpts, nameMap,
 		indexMap, hiddenCols, excludedCols, nonSearchableCols)
 	{
 		// generate column options for the data table
@@ -260,18 +262,7 @@ function MutationPdbTable(options)
 			}
 		};
 
-		// also add mData definitions (rendering, sort, etc.)
-		var mData = DataTableUtil.getColumnData(indexMap,
-			_options.columnRender,
-			_options.columnSort);
-
-		tableOpts.aoColumnDefs = tableOpts.aoColumnDefs.concat(mData);
-
-		// merge with the one in the main options object
-		tableOpts = jQuery.extend(true, {}, _defaultOpts.dataTableOpts, tableOpts);
-
-		// format the table with the dataTable plugin and return the instance
-		return tableSelector.dataTable(tableOpts);
+		return tableOpts;
 	}
 
 	/**
@@ -382,7 +373,7 @@ function MutationPdbTable(options)
 	}
 
 	// override required functions
-	this._initDataTable = initDataTable;
+	this._initDataTableOpts = initDataTableOpts;
 	this._visibilityValue = visibilityValue;
 	this._searchValue = searchValue;
 

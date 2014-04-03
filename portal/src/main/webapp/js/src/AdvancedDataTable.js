@@ -146,6 +146,26 @@ function AdvancedDataTable(options)
 	};
 
 	/**
+	 * Generates the data table options for the given parameters.
+	 *
+	 * @param tableSelector jQuery selector for the target table
+	 * @param rows          data rows
+	 * @param columnOpts    column options
+	 * @param nameMap       map of <column display name, column name>
+	 * @param indexMap      map of <column name, column index>
+	 * @param hiddenCols    indices of the hidden columns
+	 * @param excludedCols  indices of the excluded columns
+	 * @param nonSearchableCols    indices of the columns excluded from search
+	 * @return {object}     DataTable options
+	 */
+	self._initDataTableOpts = function(tableSelector, rows, columnOpts, nameMap,
+		indexMap, hiddenCols, excludedCols, nonSearchableCols)
+	{
+		// method body should be overridden by subclasses
+		return null;
+	};
+
+	/**
 	 * Initializes the data tables plug-in for the given table selector.
 	 *
 	 * @param tableSelector jQuery selector for the target table
@@ -161,8 +181,22 @@ function AdvancedDataTable(options)
 	self._initDataTable = function(tableSelector, rows, columnOpts, nameMap,
 		indexMap, hiddenCols, excludedCols, nonSearchableCols)
 	{
-		// method body should be overridden by subclasses
-		return null;
+		var tableOpts = self._initDataTableOpts(tableSelector, rows, columnOpts, nameMap,
+			indexMap, hiddenCols, excludedCols, nonSearchableCols);
+
+		// also add mData definitions (rendering, sort, etc.)
+		var mData = DataTableUtil.getColumnData(indexMap,
+			self._options.columnRender,
+			self._options.columnSort);
+
+		tableOpts.aoColumnDefs = tableOpts.aoColumnDefs.concat(mData);
+
+		// merge with the one in the main options object
+		//tableOpts = jQuery.extend(true, {}, _defaultOpts.dataTableOpts, tableOpts);
+		tableOpts = jQuery.extend(true, {}, self._options.dataTableOpts, tableOpts);
+
+		// format the table with the dataTable plugin and return the table instance
+		return tableSelector.dataTable(tableOpts);
 	};
 
 	/**

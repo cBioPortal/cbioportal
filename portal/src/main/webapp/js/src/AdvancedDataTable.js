@@ -46,19 +46,32 @@ function AdvancedDataTable(options)
 		//
 		// All other columns will be initially non-searchable by default.
 		columnSearch: {},
-		// renderer functions for each column
+		// renderer functions:
+		// returns the display value for a column (may contain html elements)
+		// if no render function is defined for a column,
+		// then we rely on a custom "mData" function.
 		columnRender: {},
+		// column sort functions:
+		// returns the value to be used for column sorting purposes.
+		// if no sort function is defined for a column,
+		// then uses the render function for sorting purposes.
+		columnSort: {},
+		// column filter functions:
+		// returns the value to be used for column sorting purposes.
+		// if no filter function is defined for a column,
+		// then uses the sort function value for filtering purposes.
+		// if no sort function is defined either, then uses
+		// the value returned by the render function.
+		columnFilter: {},
+		// native "mData" function for DataTables plugin. if this is implemented,
+		// functions defined in columnRender and columnSort will be ignored.
+		// in addition to the default source, type, and val parameters,
+		// another parameter "indexMap" will also be passed to the function.
+		columnData: {},
 		// default tooltip functions
 		columnTooltips: {},
 		// default event listener config
 		eventListeners: {},
-		// column sort functions
-		columnSort: {},
-		// native "mData" function for DataTables plugin. if this is implemented,
-		// functions defined in columnRender and columnSort will be ignored.
-		// in addition to default source, type, and val parameters,
-		// another parameter "indexMap" will also be passed to the function.
-		columnData: {},
 		// sort functions for custom types
 		customSort: {},
 		// delay amount before applying the user entered filter query
@@ -193,6 +206,7 @@ function AdvancedDataTable(options)
 		var mData = DataTableUtil.getColumnData(indexMap,
 			self._options.columnRender,
 			self._options.columnSort,
+			self._options.columnFilter,
 			self._options.columnData);
 
 		tableOpts.aoColumnDefs = tableOpts.aoColumnDefs.concat(mData);

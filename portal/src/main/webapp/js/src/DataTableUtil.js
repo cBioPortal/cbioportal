@@ -225,24 +225,41 @@ var DataTableUtil = (function()
 	/**
 	 * Generates "mData" functions for each column.
 	 *
-	 * @param renderers map of <column name, renderer>
 	 * @param indexMap  map of <column name, column index>
+	 * @param columnRender map of <column name, renderer>
 	 * @param columnSort map of <column name, sort function>
+	 * @param columnFilter map of <column name, filter function>
 	 * @param columnData map of <column name, mData function>
 	 *
 	 * @returns {Array} array of mData functions
 	 */
-	function getColumnData(indexMap, renderers, columnSort, columnData)
+	function getColumnData(indexMap, columnRender, columnSort, columnFilter, columnData)
 	{
 		var mData = {};
 
-		// process renderer & sort functions first
-		_.each(_.pairs(renderers), function(pair) {
+		// iterate over list of renderers
+		// (assuming each column has its corresponding renderer)
+		_.each(_.pairs(columnRender), function(pair) {
 			var columnName = pair[0];
 			var renderFn = pair[1];
 			var sortFn = columnSort[columnName];
+			var filterFn = columnFilter[columnName];
 
 			var columnIdx = indexMap[columnName];
+
+			var sortValue = function(datum)
+			{
+				// try to use a sort function
+				if (sortFn != null)
+				{
+					return sortFn(datum);
+				}
+				// if no sort function defined,
+				// use the render function
+				{
+					return renderFn(datum);
+				}
+			};
 
 			if (columnIdx != null)
 			{
@@ -259,22 +276,18 @@ var DataTableUtil = (function()
 						}
 						else if (type === "sort")
 						{
-							// try to use a sort function
-							if (sortFn != null)
-							{
-								return sortFn(datum);
-							}
-							// if no sort function defined,
-							// use the render function
-							{
-								return renderFn(datum);
-							}
+							return sortValue(datum);
 						}
 						else if (type === "filter")
 						{
-							// TODO return the actual column data value
-							// (pass dataValue function map as a param to this function?)
-							return renderFn(datum);
+							if (filterFn != null)
+							{
+								return filterFn(datum);
+							}
+							else
+							{
+								return sortValue(datum);
+							}
 						}
 //						else if (type === "type")
 //						{

@@ -1,5 +1,14 @@
 /**
- * Constructor for the MutationPdbTable class.
+ * MutationPdbTable class (extends AdvancedDataTable)
+ *
+ * Highly customizable table view built on DataTables plugin.
+ * See default options object (_defaultOpts) for details.
+ *
+ * With its default configuration, following events are dispatched by this class:
+ * - MutationDetailsEvents.TABLE_CHAIN_SELECTED:
+ *   dispatched when a PDB chain selected on the table
+ * - MutationDetailsEvents.PDB_TABLE_READY:
+ *   dispatched when the table initialization complete
  *
  * @param options   visual options object
  * @constructor
@@ -162,7 +171,6 @@ function MutationPdbTable(options)
 				return datum.pdbId;
 			},
 			chain: function(datum) {
-				// format using the corresponding template
 				return datum.chain.chainId;
 			},
 			organism: function(datum) {
@@ -174,6 +182,19 @@ function MutationPdbTable(options)
 			uniprotPos: function(datum) {
 				return MutationDetailsTableFormatter.assignIntValue(
 					datum.chain.mergedAlignment.uniprotFrom);
+			}
+		},
+		// column filter functions
+		columnFilter: {
+			identityPercent: function(datum) {
+				return Math.round(datum.chain.mergedAlignment.identityPerc * 100);
+			},
+			summary: function(datum) {
+				return datum.summary.title + " " + datum.summary.molecule;
+			},
+			uniprotPos: function(datum) {
+				return datum.chain.mergedAlignment.uniprotFrom + "-" +
+				       datum.chain.mergedAlignment.uniprotTo;
 			}
 		},
 		// delay amount before applying the user entered filter query

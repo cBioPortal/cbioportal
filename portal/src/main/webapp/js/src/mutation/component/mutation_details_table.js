@@ -1,5 +1,16 @@
 /**
- * Constructor for the MutationDetailsTable class.
+ * MutationDetailsTable class (extends AdvancedDataTable)
+ *
+ * Highly customizable table view built on DataTables plugin.
+ * See default options object (_defaultOpts) for details.
+ *
+ * With its default configuration, following events are dispatched by this class:
+ * - MutationDetailsEvents.PDB_LINK_CLICKED:
+ *   dispatched when clicked on a 3D link (in the protein change column)
+ * - MutationDetailsEvents.PROTEIN_CHANGE_LINK_CLICKED:
+ *   dispatched when clicked on the protein change link (in the protein change column)
+ * - MutationDetailsEvents.MUTATION_TABLE_FILTERED:
+ *   dispatched when the table is filter by a user input (via the search box)
  *
  * @param options       visual options object
  * @param gene          hugo gene symbol
@@ -219,7 +230,10 @@ function MutationDetailsTable(options, gene, mutationUtil)
 			"tumorType": true,
 			"mutationType": true
 		},
-		// renderer functions for each column
+		// renderer functions:
+		// returns the display value for a column (may contain html elements)
+		// if no render function is defined for a column,
+		// then we rely on a custom "mData" function.
 		columnRender: {
 			"mutationId": function(datum) {
 				// TODO define 2 separate columns?
@@ -607,7 +621,10 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				});
 			}
 		},
-		// column sort functions
+		// column sort functions:
+		// returns the value to be used for column sorting purposes.
+		// if no sort function is defined for a column,
+		// then uses the render function for sorting purposes.
 		columnSort: {
 			"mutationId": function(datum) {
 				var mutation = datum.mutation;
@@ -721,6 +738,66 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				var mutation = datum.mutation;
 				return mutation.igvLink;
 			}
+		},
+		// column filter functions:
+		// returns the value to be used for column sorting purposes.
+		// if no filter function is defined for a column,
+		// then uses the sort function value for filtering purposes.
+		// if no sort function is defined either, then uses
+		// the value returned by the render function.
+		columnFilter: {
+			"mutationId": function(datum) {
+				var mutation = datum.mutation;
+				return (mutation.mutationId + "-" + mutation.mutationSid);
+			},
+			"proteinChange": function(datum) {
+				return datum.mutation.proteinChange;
+			},
+			"cosmic": function(datum) {
+				return datum.mutation.cosmicCount;
+			},
+			"cna": function(datum) {
+				return datum.mutation.cna;
+			},
+			"mutationCount": function(datum) {
+				return datum.mutation.mutationCount;
+			},
+			"normalFreq": function(datum) {
+				return datum.mutation.normalFreq;
+			},
+			"tumorFreq": function(datum) {
+				return datum.mutation.tumorFreq;
+			},
+			"mutationAssessor": function(datum) {
+				return datum.mutation.functionalImpactScore;
+			},
+			"normalRefCount": function(datum) {
+				return datum.mutation.normalRefCount;
+			},
+			"normalAltCount": function(datum) {
+				return datum.mutation.normalAltCount;
+			},
+			"tumorRefCount": function(datum) {
+				return datum.mutation.tumorRefCount;
+			},
+			"tumorAltCount": function(datum) {
+				return datum.mutation.tumorAltCount;
+			},
+			"startPos": function(datum) {
+				return datum.mutation.startPos;
+			},
+			"endPos": function(datum) {
+				return datum.mutation.endPos;
+			}
+		},
+		// native "mData" function for DataTables plugin. if this is implemented,
+		// functions defined in columnRender and columnSort will be ignored.
+		// in addition to default source, type, and val parameters,
+		// another parameter "indexMap" will also be passed to the function.
+		columnData: {
+			// not implemented by default:
+			// default config relies on columnRender,
+			// columnSort, and columnFilter functions
 		},
 		// delay amount before applying the user entered filter query
 		filteringDelay: 600,

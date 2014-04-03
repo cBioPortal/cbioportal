@@ -13,7 +13,8 @@ var MutationDetailsTableFormatter = (function()
 	var _omaScoreMap = _visualStyleMaps.omaScore;
 	var _cnaMap = _visualStyleMaps.cna;
 
-	// TODO identify duplicate/similar get functions
+	// TODO identify similar get functions to avoid code duplication
+
 	function getCNA(value)
 	{
 		return _getCNA(_cnaMap, value);

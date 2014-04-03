@@ -418,7 +418,7 @@ function addNoteTooltip(elem, content, position) {
 	    show: {event: "mouseover"},
         hide: {fixed: true, delay: 100, event: "mouseout"},
         style: { classes: 'qtip-light qtip-rounded' },
-        position: (cbio.util.checkNullOrUndefined(position) ? {my:'top left',at:'bottom center'} : position)
+        position: (cbio.util.checkNullOrUndefined(position) ? {my:'top left',at:'bottom center',viewport: $(window)} : position)
     });
 }
 
@@ -474,7 +474,7 @@ function addMoreClinicalTooltip(elem) {
                     show: {event: "mouseover"},
                 hide: {fixed: true, delay: 100, event: "mouseout"},
                 style: { classes: 'qtip-light qtip-rounded qtip-wide' },
-                position: {my:'top right',at:'bottom right'}
+                position: {my:'top right',at:'bottom right',viewport: $(window)}
             });
         }
     });
@@ -506,24 +506,24 @@ function addDrugsTooltip(elem, my, at) {
                             if (drug[4]) {
                                 txtDrug.push("FDA approved?</b></td><td>"+(drug[4]?"Yes":"No"));
                             }
-                            if (drug[5]) {
-                                txtDrug.push("Description:</b></td><td>"+drug[5]);
-                            }
-                            if (drug[7]) { // xref
-                                var xref = [];
-                                var nci = drug[7]['NCI_Drug'];
-                                if (nci) xref.push("<a href='http://www.cancer.gov/drugdictionary?CdrID="+nci+"'>NCI</a>");
-                                var pharmgkb = drug[7]['PharmGKB'];
-                                if (pharmgkb) xref.push("<a href='http://www.pharmgkb.org/views/index.jsp?objId="+pharmgkb+"'>PharmGKB</a>");
-                                var drugbank = drug[7]['DrugBank'];
-                                if (drugbank) xref.push("<a href='http://www.drugbank.ca/drugs/"+drugbank+"'>DrugBank</a>");
-                                var keggdrug = drug[7]['KEGG Drug'];
-                                if (keggdrug) xref.push("<a href='http://www.genome.jp/dbget-bin/www_bget?dr:"+keggdrug+"'>KEGG Drug</a>");
-                                
-                                if (xref.length) {
-                                    txtDrug.push("Data sources:</b></td><td>"+xref.join(",&nbsp;"));
-                                }
-                            }
+//                            if (drug[5]) {
+//                                txtDrug.push("Description:</b></td><td>"+drug[5]);
+//                            }
+//                            if (drug[7]) { // xref
+//                                var xref = [];
+//                                var nci = drug[7]['NCI_Drug'];
+//                                if (nci) xref.push("<a href='http://www.cancer.gov/drugdictionary?CdrID="+nci+"'>NCI</a>");
+//                                var pharmgkb = drug[7]['PharmGKB'];
+//                                if (pharmgkb) xref.push("<a href='http://www.pharmgkb.org/views/index.jsp?objId="+pharmgkb+"'>PharmGKB</a>");
+//                                var drugbank = drug[7]['DrugBank'];
+//                                if (drugbank) xref.push("<a href='http://www.drugbank.ca/drugs/"+drugbank+"'>DrugBank</a>");
+//                                var keggdrug = drug[7]['KEGG Drug'];
+//                                if (keggdrug) xref.push("<a href='http://www.genome.jp/dbget-bin/www_bget?dr:"+keggdrug+"'>KEGG Drug</a>");
+//                                
+//                                if (xref.length) {
+//                                    txtDrug.push("Data sources:</b></td><td>"+xref.join(",&nbsp;"));
+//                                }
+//                            }
                             if (drug[8]>0) {
                                 var nci = drug[7]['NCI_Drug'];
                                 if (nci) {
@@ -540,7 +540,7 @@ function addDrugsTooltip(elem, my, at) {
             show: {event: "mouseover"},
             hide: {fixed: true, delay: 100, event: "mouseout"},
             style: { classes: 'qtip-light qtip-rounded qtip-wide' },
-            position: { my: my, at: at }
+            position: { my: my, at: at,viewport: $(window) }
         });
     });
 }
@@ -631,7 +631,7 @@ function plotMrna(div,alts) {
 	        show: {event: "mouseover"},
             hide: {fixed: true, delay: 10, event: "mouseout"},
             style: { classes: 'qtip-light qtip-rounded' },
-            position: {my:'top left',at:'bottom center'}
+            position: {my:'top left',at:'bottom center',viewport: $(window)}
         });
     });
 }
@@ -705,7 +705,7 @@ function plotAlleleFreq(div,mutations,altReadCount,refReadCount) {
 	        show: {event: "mouseover"},
             hide: {fixed: true, delay: 10, event: "mouseout"},
             style: { classes: 'qtip-light qtip-rounded' },
-            position: {my:'top left',at:'bottom center'}
+            position: {my:'top left',at:'bottom center',viewport: $(window)}
         });
     });
 }
@@ -1012,7 +1012,7 @@ function plotCaseLabel(svgEl,onlyIfEmpty, noTip) {
     
         if (caseId) {
             plotCaselabelInSVG(svg, caseId);
-            if (!noTip) addNoteTooltip($(this), caseMetaData.tooltip[caseId], {my:'middle left',at:'middle right'});
+            if (!noTip) addNoteTooltip($(this), caseMetaData.tooltip[caseId], {my:'middle left',at:'middle right',viewport: $(window)});
         }
     });
 }

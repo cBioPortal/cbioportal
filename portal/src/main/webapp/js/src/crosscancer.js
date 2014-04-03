@@ -380,7 +380,8 @@
                                     })).render();
 
                                     var qOpts = _.extend(defaultQTipOptions, {
-                                        content: container.html()
+                                        content: container.html(),
+                                        position: { viewport: $(window) }
                                     });
                                     $(this).qtip(qOpts);
 
@@ -428,7 +429,8 @@
                                 .style("stroke-width", "1")
                                 .each(function(d, i) {
                                     var qOpts = _.extend(defaultQTipOptions, {
-                                        content: metaData.type_of_cancers[metaData.cancer_studies[d.studyId].type_of_cancer]
+                                        content: metaData.type_of_cancers[metaData.cancer_studies[d.studyId].type_of_cancer],
+                                        position: { viewport: $(window) }
                                     });
                                     $(this).qtip(qOpts);
                                 });
@@ -452,7 +454,8 @@
                                     var qOpts = _.extend(defaultQTipOptions, {
                                         content: metaData.cancer_studies[d.studyId].has_mutation_data
                                             ? "Mutation data available"
-                                            : "Mutation data not available"
+                                            : "Mutation data not available",
+                                        position: { viewport: $(window) }
                                     });
                                     $(this).qtip(qOpts);
                                 });
@@ -477,7 +480,8 @@
                                     var qOpts = _.extend(defaultQTipOptions, {
                                         content: metaData.cancer_studies[d.studyId].has_cna_data
                                             ? "CNA data available"
-                                            : "CNA data not available"
+                                            : "CNA data not available",
+                                        position: { viewport: $(window) }
                                     });
                                     $(this).qtip(qOpts);
                                 });
@@ -504,7 +508,8 @@
                                 .attr("class", function(d, i) { return d.studyId + " annotation-abbr" })
                                 .each(function(d, i) {
                                     var qOpts = _.extend(defaultQTipOptions, {
-                                        content: metaData.cancer_studies[d.studyId].name
+                                        content: metaData.cancer_studies[d.studyId].name,
+                                        position: { viewport: $(window) }
                                     });
                                     $(this).qtip(qOpts);
                                 })

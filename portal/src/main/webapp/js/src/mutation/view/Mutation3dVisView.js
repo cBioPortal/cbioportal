@@ -625,7 +625,7 @@ var Mutation3dVisView = Backbone.View.extend({
 			hide: {fixed: true, delay: 100, event: 'mouseout'},
 			show: {event: 'mouseover'},
 			style: {classes: 'qtip-light qtip-rounded qtip-shadow'},
-			position: {my:'top right', at:'bottom center'}};
+			position: {my:'top right', at:'bottom center', viewport: $(window)}};
 	},
 	/**
 	 * Minimizes the 3D visualizer panel.

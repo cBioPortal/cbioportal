@@ -155,11 +155,11 @@
                 
                 oTable.css("width","100%");
                 
-                $('.smg-table-name').html(n+" mutated genes <img id='mutations-summary-help' src='images/help.png' title='Genes that <ul><li>are in the top 500 (randed by mutations per nucleotide) recurrently mutated (2 or more mutations)</li><li>or are cancer genes</li><li>or are detected by MutSig</li></ul>.'>");
+                $('.smg-table-name').html(n+" mutated genes <img id='mutations-summary-help' src='images/help.png' title='Genes that <ul><li>are in the top 500 (ranked by mutations per nucleotide) recurrently mutated (2 or more mutations)</li><li>or are cancer genes</li><li>or are detected by MutSig</li></ul>.'>");
                 $('#mutations-summary-help').qtip({
                     content: { attr: 'title' },
                     style: { classes: 'qtip-light qtip-rounded' },
-                    position: { my:'top center',at:'bottom center' }
+                    position: { my:'top center',at:'bottom center',viewport: $(window) }
                 });
                 
                 $('.smg-table-name').addClass('data-table-name');

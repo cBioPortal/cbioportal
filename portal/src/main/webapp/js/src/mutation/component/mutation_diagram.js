@@ -167,7 +167,7 @@ MutationDiagram.prototype.defaultOpts = {
 			hide: {fixed: true, delay: 100, event: 'mouseout'},
 			show: {event: 'mouseover'},
 			style: {classes: 'qtip-light qtip-rounded qtip-shadow cc-ui-tooltip'},
-			position: {my:'bottom left', at:'top center'}};
+			position: {my:'bottom left', at:'top center',viewport: $(window)}};
 
 		$(element).qtip(options);
 	},
@@ -191,7 +191,7 @@ MutationDiagram.prototype.defaultOpts = {
 			hide: {fixed: true, delay: 100, event: 'mouseout'},
 			show: {event: 'mouseover'},
 			style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'},
-			position: {my:'bottom left', at:'top center'}};
+			position: {my:'bottom left', at:'top center',viewport: $(window)}};
 
 		$(element).qtip(options);
 	}

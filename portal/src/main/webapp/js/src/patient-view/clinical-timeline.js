@@ -395,6 +395,13 @@
             
             var ret = [];
             
+            if ("STATUS" in timelineDataByType) {
+                ret.push({
+                    label:"Status",
+                    display:"circle",
+                    times:formatTimePoints(timelineDataByType["STATUS"])});
+            }
+            
             if ("SPECIMEN" in timelineDataByType) {
                 ret.push({
                     label:"Specimen",

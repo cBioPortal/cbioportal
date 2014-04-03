@@ -222,14 +222,25 @@ var DataTableUtil = (function()
 		return columnRenderers;
 	}
 
-	function getColumnData(indexMap, renderers, customSort)
+	/**
+	 * Generates "mData" functions for each column.
+	 *
+	 * @param renderers map of <column name, renderer>
+	 * @param indexMap  map of <column name, column index>
+	 * @param columnSort map of <column name, sort function>
+	 * @param columnData map of <column name, mData function>
+	 *
+	 * @returns {Array} array of mData functions
+	 */
+	function getColumnData(indexMap, renderers, columnSort, columnData)
 	{
-		var mData = [];
+		var mData = {};
 
+		// process renderer & sort functions first
 		_.each(_.pairs(renderers), function(pair) {
 			var columnName = pair[0];
 			var renderFn = pair[1];
-			var sortFn = customSort[columnName];
+			var sortFn = columnSort[columnName];
 
 			var columnIdx = indexMap[columnName];
 
@@ -240,7 +251,7 @@ var DataTableUtil = (function()
 						var datum = source[indexMap["datum"]];
 
 						if (type === "set") {
-							return;
+							return null;
 						}
 						else if (type === "display")
 						{
@@ -270,16 +281,34 @@ var DataTableUtil = (function()
 //							return 0.0;
 //						}
 
-						return source[indexMap[columnName]];
+						return source[columnIdx];
 					},
 					"aTargets": [columnIdx]
 				};
 
-				mData.push(def);
+				mData[columnName] = def;
 			}
 		});
 
-		return mData;
+		// now process columnData ("mData") functions
+		// (this will override prev definition, if any)
+		_.each(_.pairs(columnData), function(pair) {
+			var columnName = pair[0];
+			var mDataFn = pair[1];
+			var columnIdx = indexMap[columnName];
+
+			var def = {
+				"mData": function(source, type, val) {
+					return mDataFn(source, type, val, indexMap);
+				},
+				"aTargets": [columnIdx]
+			};
+
+			mData[columnName] = def;
+		});
+
+		// return an array of values (not a map)
+		return _.values(mData);
 	}
 
 	/**

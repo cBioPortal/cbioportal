@@ -54,6 +54,11 @@ function AdvancedDataTable(options)
 		eventListeners: {},
 		// column sort functions
 		columnSort: {},
+		// native "mData" function for DataTables plugin. if this is implemented,
+		// functions defined in columnRender and columnSort will be ignored.
+		// in addition to default source, type, and val parameters,
+		// another parameter "indexMap" will also be passed to the function.
+		columnData: {},
 		// sort functions for custom types
 		customSort: {},
 		// delay amount before applying the user entered filter query
@@ -187,7 +192,8 @@ function AdvancedDataTable(options)
 		// also add mData definitions (rendering, sort, etc.)
 		var mData = DataTableUtil.getColumnData(indexMap,
 			self._options.columnRender,
-			self._options.columnSort);
+			self._options.columnSort,
+			self._options.columnData);
 
 		tableOpts.aoColumnDefs = tableOpts.aoColumnDefs.concat(mData);
 

@@ -449,7 +449,7 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 				var container = $(this).find('.qtip-content');
 
 				// create & render cosmic tip view
-				var cosmicView = new CosmicTipView({el: container, model: model, viewport: $(window)});
+				var cosmicView = new CosmicTipView({el: container, model: model});
 				cosmicView.render();
 			}};
 

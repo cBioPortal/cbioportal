@@ -420,7 +420,7 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 
 	    var qTipOptionsLeft = {};
 	    jQuery.extend(true, qTipOptionsLeft, qTipOptions);
-	    qTipOptionsLeft.position = {my:'top right', at:'bottom left'};
+	    qTipOptionsLeft.position = {my:'top right', at:'bottom left', viewport: $(window)};
 
 	    //$('#mutation_details .mutation_details_table td').qtip(qTipOptions);
 
@@ -449,7 +449,7 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 				var container = $(this).find('.qtip-content');
 
 				// create & render cosmic tip view
-				var cosmicView = new CosmicTipView({el: container, model: model});
+				var cosmicView = new CosmicTipView({el: container, model: model, viewport: $(window)});
 				cosmicView.render();
 			}};
 
@@ -499,7 +499,7 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 
 		var qTipOptionsHeader = {};
 		jQuery.extend(true, qTipOptionsHeader, qTipOptions);
-		qTipOptionsHeader.position = {my:'bottom center', at:'top center'};
+		qTipOptionsHeader.position = {my:'bottom center', at:'top center', viewport: $(window)};
 
 		//tableSelector.find('thead th').qtip(qTipOptionsHeader);
 		$(nHead).find("th").qtip(qTipOptionsHeader);
@@ -517,7 +517,7 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 
 		var qTipOptionsFooter = {};
 		jQuery.extend(true, qTipOptionsFooter, qTipOptions);
-		qTipOptionsFooter.position = {my:'top center', at:'bottom center'};
+		qTipOptionsFooter.position = {my:'top center', at:'bottom center', viewport: $(window)};
 
 		//tableSelector.find('tfoot th').qtip(qTipOptionsFooter);
 		$(nFoot).find("th").qtip(qTipOptionsFooter);

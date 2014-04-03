@@ -78,7 +78,7 @@
                     },
                     hide: { fixed: true, delay: 100 },
                     style: { classes: 'qtip-light qtip-rounded qtip-shadow', tip: true },
-                    position: {my:'center right',at:'center left'}
+                    position: {my:'center right',at:'center left',viewport: $(window)}
                 });
 
                 $thumbnail.attr("data-pancan-done", true);
@@ -809,7 +809,7 @@
                     plotMrna("."+table_id+"-mrna",mutations);
                     plotMutRate("."+table_id+"-mut-cohort",mutations);
                     addNoteTooltip("."+table_id+"-tip");
-                    addNoteTooltip("."+table_id+"-ma-tip",null,{my:'top right',at:'bottom center'});
+                    addNoteTooltip("."+table_id+"-ma-tip",null,{my:'top right',at:'bottom center',viewport: $(window)});
                     addDrugsTooltip("."+table_id+"-drug-tip", 'top right', 'bottom center');
                     addCosmicTooltip(table_id);
                     listenToBamIgvClick(".igv-link");
@@ -907,7 +907,7 @@
 	            show: {event: "mouseover"},
                 hide: {fixed: true, delay: 200, event: "mouseout"},
                 style: { classes: 'qtip-light qtip-rounded' },
-                position: {my:'top right',at:'bottom center'}
+                position: {my:'top right',at:'bottom center',viewport: $(window)}
             });
         }
     }
@@ -964,7 +964,7 @@
 	        show: {event: "mouseover"},
             hide: {fixed: true, delay: 100, event: "mouseout"},
             style: { classes: 'qtip-light qtip-rounded qtip-wide' },
-            position: {my:'top right',at:'bottom center'}
+            position: {my:'top right',at:'bottom center',viewport: $(window)}
         });
     }
     
@@ -1023,7 +1023,7 @@
                 $('#mutations-summary-help').qtip({
                     content: { attr: 'title' },
                     style: { classes: 'qtip-light qtip-rounded' },
-                    position: { my:'top center',at:'bottom center' }
+                    position: { my:'top center',at:'bottom center',viewport: $(window) }
                 });
                 $('.mutation-summary-table-name').addClass("datatable-name");
                 $('#mutation_summary_wrapper_table').show();

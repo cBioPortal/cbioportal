@@ -206,17 +206,20 @@
 
                     $(".drug-synoynms").qtip({
                         content: { attr: 'title' },
-                        style: { classes: 'qtip-light qtip-rounded' }
+                        style: { classes: 'qtip-light qtip-rounded' },
+                        position: { viewport: $(window) }
                     });
 
                     $(".drug-targets").qtip({
                         content: { attr: 'title' },
-                        style: { classes: 'qtip-light qtip-rounded' }
+                        style: { classes: 'qtip-light qtip-rounded' },
+                        position: { viewport: $(window) }
                     });
 
                     $(".annotated-target").qtip({
                         content: { attr: 'title' },
-                        style: { classes: 'qtip-light qtip-rounded' }
+                        style: { classes: 'qtip-light qtip-rounded' },
+                        position: { viewport: $(window) }
                     });
 
                     populateClinicalTrialsTable(keywords, 'both');
@@ -229,7 +232,8 @@
                     $(".drugs-summary-table-name").html("" + data.length + " drugs of interest " + infoBox);
                     $("#drug-summary-help").qtip({
                         content: { attr: 'title' },
-                        style: { classes: 'qtip-light qtip-rounded' }
+                        style: { classes: 'qtip-light qtip-rounded' },
+                        position: { viewport: $(window) }
                     });
 
                 }
@@ -325,7 +329,8 @@
                     $(".trials-summary-table-name").html(data.length + " clinical trials of interest " + infoBox);
                     $("#trial-summary-help").qtip({
                         content: { attr: 'title' },
-                        style: { classes: 'qtip-light qtip-rounded' }
+                        style: { classes: 'qtip-light qtip-rounded' },
+                        position: { viewport: $(window) }
                     });
 
                 }

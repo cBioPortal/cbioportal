@@ -416,7 +416,7 @@ function addNoteTooltip(elem, content, position) {
 	    show: {event: "mouseover"},
         hide: {fixed: true, delay: 100, event: "mouseout"},
         style: { classes: 'qtip-light qtip-rounded' },
-        position: (cbio.util.checkNullOrUndefined(position) ? {my:'top left',at:'bottom center'} : position)
+        position: (cbio.util.checkNullOrUndefined(position) ? {my:'top left',at:'bottom center',viewport: $(window)} : position)
     });
 }
 
@@ -465,7 +465,7 @@ function addMoreClinicalTooltip(elemId, caseId) {
 	        show: {event: "mouseover"},
             hide: {fixed: true, delay: 100, event: "mouseout"},
             style: { classes: 'qtip-light qtip-rounded qtip-wide' },
-            position: {my:'top right',at:'bottom right'}
+            position: {my:'top right',at:'bottom right',viewport: $(window)}
         });
     }
 }
@@ -530,7 +530,7 @@ function addDrugsTooltip(elem, my, at) {
             show: {event: "mouseover"},
             hide: {fixed: true, delay: 100, event: "mouseout"},
             style: { classes: 'qtip-light qtip-rounded qtip-wide' },
-            position: { my: my, at: at }
+            position: { my: my, at: at,viewport: $(window) }
         });
     });
 }
@@ -621,7 +621,7 @@ function plotMrna(div,alts) {
 	        show: {event: "mouseover"},
             hide: {fixed: true, delay: 10, event: "mouseout"},
             style: { classes: 'qtip-light qtip-rounded' },
-            position: {my:'top left',at:'bottom center'}
+            position: {my:'top left',at:'bottom center',viewport: $(window)}
         });
     });
 }
@@ -695,7 +695,7 @@ function plotAlleleFreq(div,mutations,altReadCount,refReadCount) {
 	        show: {event: "mouseover"},
             hide: {fixed: true, delay: 10, event: "mouseout"},
             style: { classes: 'qtip-light qtip-rounded' },
-            position: {my:'top left',at:'bottom center'}
+            position: {my:'top left',at:'bottom center',viewport: $(window)}
         });
     });
 }
@@ -1003,7 +1003,7 @@ function plotCaseLabel(svgEl,onlyIfEmpty, noTip) {
     
         if (caseId) {
             plotCaselabelInSVG(svg, caseId);
-            if (!noTip) addNoteTooltip($(this), caseMetaData.tooltip[caseId], {my:'middle left',at:'middle right'});
+            if (!noTip) addNoteTooltip($(this), caseMetaData.tooltip[caseId], {my:'middle left',at:'middle right',viewport: $(window)});
         }
     });
 }

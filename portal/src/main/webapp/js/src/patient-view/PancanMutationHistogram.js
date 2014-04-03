@@ -405,7 +405,7 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
         mouseOverBar.each(function(d) {
             $(this).qtip({
                 content: {text: 'mouseover failed'},
-                position: {my:'left top', at:'center right'},
+                position: {my:'left top', at:'center right', viewport: $(window)},
                 style: { classes: 'qtip-light qtip-rounded qtip-shadow' },
                 hide: { fixed: true, delay: 100 },
                 events: {

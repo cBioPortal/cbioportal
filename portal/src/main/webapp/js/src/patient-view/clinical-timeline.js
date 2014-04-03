@@ -175,7 +175,7 @@
                 show: {event: "mouseover"},
                 hide: {fixed: true, delay: 100, event:"mouseout"},
                 style: { classes: 'qtip-light qtip-rounded' },
-                position: {my:'top middle',at:'bottom middle'},
+                position: {my:'top middle',at:'bottom middle', viewport: $(window)},
                 events: {
                     render: function(event, api) {
                         $(".timeline-tooltip-table.uninitialized").dataTable( 

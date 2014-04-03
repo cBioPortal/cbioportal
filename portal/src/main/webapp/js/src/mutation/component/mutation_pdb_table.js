@@ -30,8 +30,6 @@ function MutationPdbTable(options)
 				tip:""},
 			chain: {sTitle: "Chain",
 				tip:""},
-			uniprotFrom: {sTitle: "Uniprot From",
-				tip:""},
 			uniprotPos: {sTitle: "Uniprot Positions",
 				tip:""},
 			identityPercent: {sTitle: "Identity Percent",
@@ -43,8 +41,8 @@ function MutationPdbTable(options)
 				sWidth: "65%"}
 		},
 		// display order of column headers
-		columnOrder: ["datum", "pdbId", "chain", "uniprotFrom",
-			"uniprotPos", "identityPercent", "organism", "summary"],
+		columnOrder: ["datum", "pdbId", "chain", "uniprotPos",
+			"identityPercent", "organism", "summary"],
 		// Indicates the visibility of columns
 		//
 		// - Valid string constants:
@@ -67,7 +65,6 @@ function MutationPdbTable(options)
 			"identityPercent": "hidden",
 			"organism": "visible",
 			"summary": "visible",
-			"uniprotFrom": "excluded",
 			"datum": "excluded"
 		},
 		// Indicates whether a column is searchable or not.
@@ -81,24 +78,24 @@ function MutationPdbTable(options)
 		},
 		// renderer function for each column
 		columnRender: {
-			identityPercent: function(obj, datum) {
+			identityPercent: function(datum) {
 				// format as a percentage value
 				return Math.round(datum.chain.mergedAlignment.identityPerc * 100);
 			},
-			pdbId: function(obj, datum) {
+			pdbId: function(datum) {
 				// format using the corresponding template
 				return _.template($("#mutation_pdb_table_pdb_cell_template").html(),
 		                  {pdbId: datum.pdbId});
 			},
-			chain: function(obj, datum) {
+			chain: function(datum) {
 				// format using the corresponding template
 				return _.template($("#mutation_pdb_table_chain_cell_template").html(),
 		                  {chainId: datum.chain.chainId});
 			},
-			organism: function(obj, datum) {
+			organism: function(datum) {
 				return datum.organism;
 			},
-			summary: function(obj, datum) {
+			summary: function(datum) {
 				var vars = {summary: datum.summary.title,
 					molecule: datum.summary.molecule};
 
@@ -107,15 +104,12 @@ function MutationPdbTable(options)
 					$("#mutation_pdb_table_summary_cell_template").html(),
 					vars);
 			},
-			uniprotPos: function(obj, datum) {
+			uniprotPos: function(datum) {
 				// there is no data (null) for uniprot positions,
 				// so set the display value by using the hidden
 				// column "datum"
 				return datum.chain.mergedAlignment.uniprotFrom + "-" +
 				       datum.chain.mergedAlignment.uniprotTo;
-			},
-			uniprotFrom: function(obj, datum) {
-				return datum.chain.mergedAlignment.uniprotFrom;
 			}
 		},
 		// default tooltip functions
@@ -159,9 +153,29 @@ function MutationPdbTable(options)
 				});
 			}
 		},
-		// custom column sort functions
-		customSort: {
-
+		// column sort functions
+		columnSort: {
+			identityPercent: function(datum) {
+				return MutationDetailsTableFormatter.assignFloatValue(
+					Math.round(datum.chain.mergedAlignment.identityPerc * 100));
+			},
+			pdbId: function(datum) {
+				return datum.pdbId;
+			},
+			chain: function(datum) {
+				// format using the corresponding template
+				return datum.chain.chainId;
+			},
+			organism: function(datum) {
+				return datum.organism;
+			},
+			summary: function(datum) {
+				return datum.summary.title + datum.summary.molecule;
+			},
+			uniprotPos: function(datum) {
+				return MutationDetailsTableFormatter.assignIntValue(
+					datum.chain.mergedAlignment.uniprotFrom);
+			}
 		},
 		// delay amount before applying the user entered filter query
 		filteringDelay: 0,
@@ -185,7 +199,7 @@ function MutationPdbTable(options)
 	};
 
 	// merge options with default options to use defaults for missing values
-	self._options = jQuery.extend(true, {}, _defaultOpts, options);
+	self._options = jQuery.extend(true, {}, self._defaultOpts, _defaultOpts, options);
 	var _options = self._options;
 
 	// custom event dispatcher
@@ -224,10 +238,7 @@ function MutationPdbTable(options)
 				{"bVisible": false,
 					"aTargets": hiddenCols},
 				{"bSearchable": false,
-					"aTargets": nonSearchableCols},
-				// sort uniprot positions wrt "uniprot from"
-				{"iDataSort": indexMap["uniprotFrom"],
-					"aTargets": [indexMap["uniprotPos"]]}
+					"aTargets": nonSearchableCols}
 			],
 			"oColVis": {"aiExclude": excludedCols}, // columns to always hide
 			"fnDrawCallback": function(oSettings) {
@@ -249,9 +260,12 @@ function MutationPdbTable(options)
 			}
 		};
 
-		// also add column renderers
-		var renderers = DataTableUtil.getColumnRenderers(_options.columnRender, indexMap);
-		tableOpts.aoColumnDefs = tableOpts.aoColumnDefs.concat(renderers);
+		// also add mData definitions (rendering, sort, etc.)
+		var mData = DataTableUtil.getColumnData(indexMap,
+			_options.columnRender,
+			_options.columnSort);
+
+		tableOpts.aoColumnDefs = tableOpts.aoColumnDefs.concat(mData);
 
 		// merge with the one in the main options object
 		tableOpts = jQuery.extend(true, {}, _defaultOpts.dataTableOpts, tableOpts);

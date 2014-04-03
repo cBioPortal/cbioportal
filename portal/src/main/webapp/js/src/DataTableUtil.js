@@ -222,6 +222,66 @@ var DataTableUtil = (function()
 		return columnRenderers;
 	}
 
+	function getColumnData(indexMap, renderers, customSort)
+	{
+		var mData = [];
+
+		_.each(_.pairs(renderers), function(pair) {
+			var columnName = pair[0];
+			var renderFn = pair[1];
+			var sortFn = customSort[columnName];
+
+			var columnIdx = indexMap[columnName];
+
+			if (columnIdx != null)
+			{
+				var def = {
+					"mData": function(source, type, val) {
+						var datum = source[indexMap["datum"]];
+
+						if (type === "set") {
+							return;
+						}
+						else if (type === "display")
+						{
+							return renderFn(datum);
+						}
+						else if (type === "sort")
+						{
+							// try to use a sort function
+							if (sortFn != null)
+							{
+								return sortFn(datum);
+							}
+							// if no sort function defined,
+							// use the render function
+							{
+								return renderFn(datum);
+							}
+						}
+						else if (type === "filter")
+						{
+							// TODO return the actual column data value
+							// (pass dataValue function map as a param to this function?)
+							return renderFn(datum);
+						}
+//						else if (type === "type")
+//						{
+//							return 0.0;
+//						}
+
+						return source[indexMap[columnName]];
+					},
+					"aTargets": [columnIdx]
+				};
+
+				mData.push(def);
+			}
+		});
+
+		return mData;
+	}
+
 	/**
 	 * Generates basic column options for the given headers.
 	 *
@@ -372,6 +432,7 @@ var DataTableUtil = (function()
 		getNonSearchableColumns: getNonSearchableColumns,
 		getColumnOptions: getColumnOptions,
 		getColumnRenderers: getColumnRenderers,
+		getColumnData: getColumnData,
 		compareSortAsc: compareSortAsc,
 		compareSortDesc: compareSortDesc,
 		getAltTextValue: getAltTextValue,

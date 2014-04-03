@@ -377,52 +377,28 @@ var MutationDetailsTableFormatter = (function()
 		return value;
 	}
 
-	/**
-	 * Helper function for copy number sorting.
-	 */
-	function assignValueToCna(text)
+	function assignIntValue(value)
 	{
-		var value;
-		text = text.toLowerCase();
+		var val = parseInt(value);
 
-		// TODO this is actually reverse mapping of MutationDetailsUtil._cnaMap
-		if (text == "homdel") {
-			value = 1;
-		} else if (text == "hetloss") {
-			value = 2;
-		} else if (text == "diploid") {
-			value = 3;
-		} else if (text == "gain") {
-			value = 4;
-		} else if (text == "amp") {
-			value = 5;
-		} else { // unknown
-			value = -1;
+		if (isNaN(val))
+		{
+			val = -Infinity;
 		}
 
-		return value;
+		return val;
 	}
 
-	/**
-	 * Helper function for predicted impact score sorting.
-	 * Gets the score from the "alt" property within the given html string.
-	 */
-	function getFisValue(a)
+	function assignFloatValue(value)
 	{
-		var score = "";
-		var altValue = $(a).attr("alt");
+		var val = parseFloat(value);
 
-		var parts = altValue.split("|");
-
-		if (parts.length > 0)
+		if (isNaN(val))
 		{
-			if (parts[0].length > 0)
-			{
-				score = parseFloat(parts[0]);
-			}
+			val = -Infinity;
 		}
 
-		return score;
+		return val;
 	}
 
 	return {
@@ -440,10 +416,8 @@ var MutationDetailsTableFormatter = (function()
 		getCosmic: getCosmic,
 		getIntValue: getIntValue,
 		assignValueToPredictedImpact: assignValueToPredictedImpact,
-		assignValueToCna: assignValueToCna,
-		getFisValue: getFisValue,
-
-
+		assignIntValue: assignIntValue,
+		assignFloatValue: assignFloatValue
 	}
 })();
 

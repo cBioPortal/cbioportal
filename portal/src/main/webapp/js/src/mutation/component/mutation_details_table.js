@@ -38,18 +38,18 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				tip: "Tumor Type"},
 			proteinChange: {sTitle: "AA change",
 				tip: "Protein Change",
-				sType: "aa-change-col"},
+				sType: "numeric"},
 			mutationType: {sTitle: "Type",
 				tip: "Mutation Type",
 				sType: "string",
 				sClass: "center-align-td"},
 			cna: {sTitle: "Copy #",
 				tip: "Copy-number status of the mutated gene",
-				sType: "copy-number-col",
+				sType: "numeric",
 				sClass: "center-align-td"},
 			cosmic: {sTitle: "COSMIC",
 				tip: "Overlapping mutations in COSMIC",
-				sType: "label-int-col",
+				sType: "numeric",
 				sClass: "right-align-td",
 				asSorting: ["desc", "asc"]},
 			mutationStatus: {sTitle: "MS",
@@ -62,7 +62,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				sClass: "center-align-td"},
 			mutationAssessor: {sTitle: "Mutation Assessor",
 				tip: "Predicted Functional Impact Score (via Mutation Assessor) for missense mutations",
-				sType: "predicted-impact-col",
+				sType: "numeric",
 				sClass: "center-align-td",
 				asSorting: ["desc", "asc"],
 				sWidth: "2%"},
@@ -74,11 +74,11 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				tip: "Chromosome"},
 			startPos: {sTitle: "Start Pos",
 				tip: "Start Position",
-				sType: "label-int-col",
+				sType: "numeric",
 				sClass: "right-align-td"},
 			endPos: {sTitle: "End Pos",
 				tip: "End Position",
-				sType: "label-int-col",
+				sType: "numeric",
 				sClass: "right-align-td"},
 			referenceAllele: {sTitle: "Ref",
 				tip: "Reference Allele"},
@@ -86,33 +86,39 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				tip: "Variant Allele"},
 			tumorFreq: {sTitle: "Allele Freq (T)",
 				tip: "Variant allele frequency<br> in the tumor sample",
-				sType: "label-float-col",
-				sClass: "right-align-td"},
+				sType: "numeric",
+				sClass: "right-align-td",
+				asSorting: ["desc", "asc"]},
 			normalFreq: {sTitle: "Allele Freq (N)",
 				tip: "Variant allele frequency<br> in the normal sample",
-				sType: "label-float-col",
-				sClass: "right-align-td"},
+				sType: "numeric",
+				sClass: "right-align-td",
+				asSorting: ["desc", "asc"]},
 			tumorRefCount: {sTitle: "Var Ref",
 				tip: "Variant Ref Count",
-				sType: "label-int-col",
-				sClass: "right-align-td"},
+				sType: "numeric",
+				sClass: "right-align-td",
+				asSorting: ["desc", "asc"]},
 			tumorAltCount: {sTitle: "Var Alt",
 				tip: "Variant Alt Count",
-				sType: "label-int-col",
-				sClass: "right-align-td"},
+				sType: "numeric",
+				sClass: "right-align-td",
+				asSorting: ["desc", "asc"]},
 			normalRefCount: {sTitle: "Norm Ref",
 				tip: "Normal Ref Count",
-				sType: "label-int-col",
-				sClass: "right-align-td"},
+				sType: "numeric",
+				sClass: "right-align-td",
+				asSorting: ["desc", "asc"]},
 			normalAltCount: {sTitle: "Norm Alt",
 				tip: "Normal Alt Count",
-				sType: "label-int-col",
-				sClass: "right-align-td"},
+				sType: "numeric",
+				sClass: "right-align-td",
+				asSorting: ["desc", "asc"]},
 			igvLink: {sTitle: "BAM",
 				tip: "Link to BAM file"},
 			mutationCount: {sTitle: "#Mut in Sample",
 				tip: "Total number of<br> nonsynonymous mutations<br> in the sample",
-				sType: "label-int-col",
+				sType: "numeric",
 				sClass: "right-align-td",
 				asSorting: ["desc", "asc"],
 				sWidth: "2%"}
@@ -218,12 +224,12 @@ function MutationDetailsTable(options, gene, mutationUtil)
 		},
 		// renderer functions for each column
 		columnRender: {
-			"mutationId": function(obj, datum) {
+			"mutationId": function(datum) {
 				// TODO define 2 separate columns?
 				var mutation = datum.mutation;
 				return (mutation.mutationId + "-" + mutation.mutationSid);
 			},
-			"caseId": function(obj, datum) {
+			"caseId": function(datum) {
 				var mutation = datum.mutation;
 				var caseIdFormat = MutationDetailsTableFormatter.getCaseId(mutation.caseId);
 				var vars = {};
@@ -235,7 +241,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_case_id_template").html(), vars);
 			},
-			"proteinChange": function(obj, datum) {
+			"proteinChange": function(datum) {
 				var mutation = datum.mutation;
 				var proteinChange = MutationDetailsTableFormatter.getProteinChange(mutation);
 				var vars = {};
@@ -247,7 +253,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_protein_change_template").html(), vars);
 			},
-			"cancerStudy": function(obj, datum) {
+			"cancerStudy": function(datum) {
 				var mutation = datum.mutation;
 				var vars = {};
 				//vars.cancerType = mutation.cancerType;
@@ -258,7 +264,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_cancer_study_template").html(), vars);
 			},
-			"tumorType": function(obj, datum) {
+			"tumorType": function(datum) {
 				var mutation = datum.mutation;
 				var tumorType = MutationDetailsTableFormatter.getTumorType(mutation);
 				var vars = {};
@@ -269,7 +275,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_tumor_type_template").html(), vars);
 			},
-			"mutationType": function(obj, datum) {
+			"mutationType": function(datum) {
 				var mutation = datum.mutation;
 				var mutationType = MutationDetailsTableFormatter.getMutationType(mutation.mutationType);
 				var vars = {};
@@ -279,7 +285,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_mutation_type_template").html(), vars);
 			},
-			"cosmic": function(obj, datum) {
+			"cosmic": function(datum) {
 				var mutation = datum.mutation;
 				var cosmic = MutationDetailsTableFormatter.getCosmic(mutation.cosmicCount);
 				var vars = {};
@@ -290,7 +296,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_cosmic_template").html(), vars);
 			},
-			"cna": function(obj, datum) {
+			"cna": function(datum) {
 				var mutation = datum.mutation;
 				var cna = MutationDetailsTableFormatter.getCNA(mutation.cna);
 				var vars = {};
@@ -301,7 +307,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_cna_template").html(), vars);
 			},
-			"mutationCount": function(obj, datum) {
+			"mutationCount": function(datum) {
 				var mutation = datum.mutation;
 				var mutationCount = MutationDetailsTableFormatter.getIntValue(mutation.mutationCount);
 				var vars = {};
@@ -311,7 +317,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_mutation_count_template").html(), vars);
 			},
-			"normalFreq": function(obj, datum) {
+			"normalFreq": function(datum) {
 				var mutation = datum.mutation;
 				var alleleCount = MutationDetailsTableFormatter.getAlleleCount(mutation.normalAltCount);
 				var normalFreq = MutationDetailsTableFormatter.getAlleleFreq(mutation.normalFreq,
@@ -328,7 +334,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_normal_freq_template").html(), vars);
 			},
-			"tumorFreq": function(obj, datum) {
+			"tumorFreq": function(datum) {
 				var mutation = datum.mutation;
 				var alleleCount = MutationDetailsTableFormatter.getAlleleCount(mutation.tumorAltCount);
 				var tumorFreq = MutationDetailsTableFormatter.getAlleleFreq(mutation.tumorFreq,
@@ -345,7 +351,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_tumor_freq_template").html(), vars);
 			},
-			"mutationAssessor": function(obj, datum) {
+			"mutationAssessor": function(datum) {
 				var mutation = datum.mutation;
 				var fis = MutationDetailsTableFormatter.getFis(mutation.functionalImpactScore, mutation.fisValue);
 				var vars = {};
@@ -358,7 +364,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_mutation_assessor_template").html(), vars);
 			},
-			"mutationStatus": function(obj, datum) {
+			"mutationStatus": function(datum) {
 				var mutation = datum.mutation;
 				var mutationStatus = MutationDetailsTableFormatter.getMutationStatus(mutation.mutationStatus);
 				var vars = {};
@@ -369,7 +375,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_mutation_status_template").html(), vars);
 			},
-			"validationStatus": function(obj, datum) {
+			"validationStatus": function(datum) {
 				var mutation = datum.mutation;
 				var validationStatus = MutationDetailsTableFormatter.getValidationStatus(mutation.validationStatus);
 				var vars = {};
@@ -380,7 +386,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_validation_status_template").html(), vars);
 			},
-			"normalRefCount": function(obj, datum) {
+			"normalRefCount": function(datum) {
 				var mutation = datum.mutation;
 				var alleleCount = MutationDetailsTableFormatter.getAlleleCount(mutation.normalRefCount);
 				var vars = {};
@@ -390,7 +396,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_normal_ref_count_template").html(), vars);
 			},
-			"normalAltCount": function(obj, datum) {
+			"normalAltCount": function(datum) {
 				var mutation = datum.mutation;
 				var alleleCount = MutationDetailsTableFormatter.getAlleleCount(mutation.normalAltCount);
 				var vars = {};
@@ -400,7 +406,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_normal_alt_count_template").html(), vars);
 			},
-			"tumorRefCount": function(obj, datum) {
+			"tumorRefCount": function(datum) {
 				var mutation = datum.mutation;
 				var alleleCount = MutationDetailsTableFormatter.getAlleleCount(mutation.tumorRefCount);
 				var vars = {};
@@ -410,7 +416,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_tumor_ref_count_template").html(), vars);
 			},
-			"tumorAltCount": function(obj, datum) {
+			"tumorAltCount": function(datum) {
 				var mutation = datum.mutation;
 				var alleleCount = MutationDetailsTableFormatter.getAlleleCount(mutation.tumorAltCount);
 				var vars = {};
@@ -420,7 +426,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_tumor_alt_count_template").html(), vars);
 			},
-			"startPos": function(obj, datum) {
+			"startPos": function(datum) {
 				var mutation = datum.mutation;
 				var startPos = MutationDetailsTableFormatter.getIntValue(mutation.startPos);
 				var vars = {};
@@ -430,7 +436,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_start_pos_template").html(), vars);
 			},
-			"endPos": function(obj, datum) {
+			"endPos": function(datum) {
 				var mutation = datum.mutation;
 				var endPos = MutationDetailsTableFormatter.getIntValue(mutation.endPos);
 				var vars = {};
@@ -440,23 +446,23 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				return _.template(
 					$("#mutation_table_end_pos_template").html(), vars);
 			},
-			"sequencingCenter": function(obj, datum) {
+			"sequencingCenter": function(datum) {
 				var mutation = datum.mutation;
 				return mutation.sequencingCenter;
 			},
-			"chr": function(obj, datum) {
+			"chr": function(datum) {
 				var mutation = datum.mutation;
 				return mutation.chr;
 			},
-			"referenceAllele": function(obj, datum) {
+			"referenceAllele": function(datum) {
 				var mutation = datum.mutation;
 				return mutation.referenceAllele;
 			},
-			"variantAllele": function(obj, datum) {
+			"variantAllele": function(datum) {
 				var mutation = datum.mutation;
 				return mutation.variantAllele;
 			},
-			"igvLink": function(obj, datum) {
+			"igvLink": function(datum) {
 				//vars.xVarLink = mutation.xVarLink;
 				//vars.msaLink = mutation.msaLink;
 				//vars.igvLink = mutation.igvLink;
@@ -604,140 +610,119 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				});
 			}
 		},
-		// custom column sort functions
-		// TODO these sort functions parsing the data from the html content
-		// ...instead we should be able to use the corresponding datum
-		// TODO these function names are global for all data tables...
-		customSort: {
-			/**
-			 * Ascending sort function for protein (amino acid) change column.
-			 */
-			"aa-change-col-asc": function(a,b) {
-				var ares = a.match(/.*[A-Z]([0-9]+)[^0-9]+/);
-				var bres = b.match(/.*[A-Z]([0-9]+)[^0-9]+/);
+		// column sort functions
+		columnSort: {
+			"mutationId": function(datum) {
+				var mutation = datum.mutation;
+				return mutation.mutationId;
+			},
+			"caseId": function(datum) {
+				var mutation = datum.mutation;
+				return mutation.caseId;
+			},
+			"proteinChange": function(datum) {
+				var proteinChange = datum.mutation.proteinChange;
+				var matched = proteinChange.match(/.*[A-Z]([0-9]+)[^0-9]+/);
 
-				if (ares) {
-					if (bres) {
-						var ia = parseInt(ares[1]);
-						var ib = parseInt(bres[1]);
-						return ia==ib ? 0 : (ia<ib ? -1:1);
-					} else {
-						return -1;
-					}
-				} else {
-					if (bres) {
-						return 1;
-					} else {
-						return a==b ? 0 : (a<b ? -1:1);
-					}
+				if (matched && matched.length > 1)
+				{
+					return parseInt(matched[1]);
+				}
+				else
+				{
+					return -Infinity;
 				}
 			},
-			/**
-			 * Descending sort function for protein (amino acid) change column.
-			 */
-			"aa-change-col-desc": function(a,b) {
-				var ares = a.match(/.*[A-Z]([0-9]+)[^0-9]+/);
-				var bres = b.match(/.*[A-Z]([0-9]+)[^0-9]+/);
-
-				if (ares) {
-					if (bres) {
-						var ia = parseInt(ares[1]);
-						var ib = parseInt(bres[1]);
-						return ia==ib ? 0 : (ia<ib ? 1:-1);
-					} else {
-						return -1;
-					}
-				} else {
-					if (bres) {
-						return 1;
-					} else {
-						return a==b ? 0 : (a<b ? 1:-1);
-					}
-				}
+			"cancerStudy": function(datum) {
+				var mutation = datum.mutation;
+				return mutation.cancerStudy;
 			},
-			/**
-			 * Ascending sort function for the copy number column.
-			 */
-			"copy-number-col-asc": function(a,b) {
-				var av = MutationDetailsTableFormatter.assignValueToCna(
-					DataTableUtil.getLabelTextValue(a));
-				var bv = MutationDetailsTableFormatter.assignValueToCna(
-					DataTableUtil.getLabelTextValue(b));
-
-				return DataTableUtil.compareSortAsc(a, b, av, bv);
+			"tumorType": function(datum) {
+				var mutation = datum.mutation;
+				return mutation.tumorType;
 			},
-			/**
-			 * Descending sort function for the copy number column.
-			 */
-			"copy-number-col-desc":  function(a,b) {
-				var av = MutationDetailsTableFormatter.assignValueToCna(
-					DataTableUtil.getLabelTextValue(a));
-				var bv = MutationDetailsTableFormatter.assignValueToCna(
-					DataTableUtil.getLabelTextValue(b));
-
-				return DataTableUtil.compareSortDesc(a, b, av, bv);
+			"mutationType": function(datum) {
+				var mutation = datum.mutation;
+				return mutation.mutationType;
 			},
-			/**
-			 * Ascending sort function for predicted impact column.
-			 */
-			"predicted-impact-col-asc": function(a,b) {
-				var av = MutationDetailsTableFormatter.assignValueToPredictedImpact(
-					DataTableUtil.getLabelTextValue(a),
-					DataTableUtil.getFisValue(a));
-				var bv = MutationDetailsTableFormatter.assignValueToPredictedImpact(
-					DataTableUtil.getLabelTextValue(b),
-					DataTableUtil.getFisValue(b));
-
-				return DataTableUtil.compareSortAsc(a, b, av, bv);
+			"cosmic": function(datum) {
+				var mutation = datum.mutation;
+				return MutationDetailsTableFormatter.assignIntValue(mutation.cosmicCount);
 			},
-			/**
-			 * Descending sort function for predicted impact column.
-			 */
-			"predicted-impact-col-desc": function(a,b) {
-				var av = MutationDetailsTableFormatter.assignValueToPredictedImpact(
-					DataTableUtil.getLabelTextValue(a),
-					DataTableUtil.getFisValue(a));
-				var bv = MutationDetailsTableFormatter.assignValueToPredictedImpact(
-					DataTableUtil.getLabelTextValue(b),
-					DataTableUtil.getFisValue(b));
-
-				return DataTableUtil.compareSortDesc(a, b, av, bv);
+			"cna": function(datum) {
+				var mutation = datum.mutation;
+				return MutationDetailsTableFormatter.assignIntValue(mutation.cna);
 			},
-			/**
-			 * Ascending sort function for columns having int within label tag.
-			 */
-			"label-int-col-asc": function(a,b) {
-				var av = DataTableUtil.getLabelTextIntValue(a);
-				var bv = DataTableUtil.getLabelTextIntValue(b);
-
-				return DataTableUtil.compareSortAsc(a, b, av, bv);
+			"mutationCount": function(datum) {
+				var mutation = datum.mutation;
+				return MutationDetailsTableFormatter.assignIntValue(mutation.mutationCount);
 			},
-			/**
-			 * Descending sort function for columns having int within label tag.
-			 */
-			"label-int-col-desc": function(a,b) {
-				var av = DataTableUtil.getLabelTextIntValue(a);
-				var bv = DataTableUtil.getLabelTextIntValue(b);
-
-				return DataTableUtil.compareSortDesc(a, b, av, bv);
+			"normalFreq": function(datum) {
+				var mutation = datum.mutation;
+				return MutationDetailsTableFormatter.assignFloatValue(mutation.normalFreq);
 			},
-			/**
-			 * Ascending sort function for columns having float within label tag.
-			 */
-			"label-float-col-asc": function(a,b) {
-				var av = DataTableUtil.getLabelTextFloatValue(a);
-				var bv = DataTableUtil.getLabelTextFloatValue(b);
-
-				return DataTableUtil.compareSortAsc(a, b, av, bv);
+			"tumorFreq": function(datum) {
+				var mutation = datum.mutation;
+				return MutationDetailsTableFormatter.assignFloatValue(mutation.tumorFreq);
 			},
-			/**
-			 * Descending sort function for columns having float within label tag.
-			 */
-			"label-float-col-desc": function(a,b) {
-				var av = DataTableUtil.getLabelTextFloatValue(a);
-				var bv = DataTableUtil.getLabelTextFloatValue(b);
+			"mutationAssessor": function(datum) {
+				var mutation = datum.mutation;
 
-				return DataTableUtil.compareSortDesc(a, b, av, bv);
+				return MutationDetailsTableFormatter.assignValueToPredictedImpact(
+					mutation.functionalImpactScore,
+					mutation.fisValue);
+			},
+			"mutationStatus": function(datum) {
+				var mutation = datum.mutation;
+				return mutation.mutationStatus;
+			},
+			"validationStatus": function(datum) {
+				var mutation = datum.mutation;
+				return mutation.validationStatus;
+			},
+			"normalRefCount": function(datum) {
+				var mutation = datum.mutation;
+				return MutationDetailsTableFormatter.assignIntValue(mutation.normalRefCount);
+			},
+			"normalAltCount": function(datum) {
+				var mutation = datum.mutation;
+				return MutationDetailsTableFormatter.assignIntValue(mutation.normalAltCount);
+			},
+			"tumorRefCount": function(datum) {
+				var mutation = datum.mutation;
+				return MutationDetailsTableFormatter.assignIntValue(mutation.tumorRefCount);
+			},
+			"tumorAltCount": function(datum) {
+				var mutation = datum.mutation;
+				return MutationDetailsTableFormatter.assignIntValue(mutation.tumorAltCount);
+			},
+			"startPos": function(datum) {
+				var mutation = datum.mutation;
+				return MutationDetailsTableFormatter.assignIntValue(mutation.startPos);
+			},
+			"endPos": function(datum) {
+				var mutation = datum.mutation;
+				return MutationDetailsTableFormatter.assignIntValue(mutation.endPos);
+			},
+			"sequencingCenter": function(datum) {
+				var mutation = datum.mutation;
+				return mutation.sequencingCenter;
+			},
+			"chr": function(datum) {
+				var mutation = datum.mutation;
+				return mutation.chr;
+			},
+			"referenceAllele": function(datum) {
+				var mutation = datum.mutation;
+				return mutation.referenceAllele;
+			},
+			"variantAllele": function(datum) {
+				var mutation = datum.mutation;
+				return mutation.variantAllele;
+			},
+			"igvLink": function(datum) {
+				var mutation = datum.mutation;
+				return mutation.igvLink;
 			}
 		},
 		// delay amount before applying the user entered filter query
@@ -762,7 +747,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 	};
 
 	// merge options with default options to use defaults for missing values
-	self._options = jQuery.extend(true, {}, _defaultOpts, options);
+	self._options = jQuery.extend(true, {}, self._defaultOpts, _defaultOpts, options);
 	var _options = self._options;
 
 	// custom event dispatcher
@@ -811,9 +796,6 @@ function MutationDetailsTable(options, gene, mutationUtil)
 					"aTargets": hiddenCols},
 				{"bSearchable": false,
 					"aTargets": nonSearchableCols}
-				// TODO may need to define sort targets as well
-				//{"iDataSort": indexMap["uniprot from"],
-				//	"aTargets": [indexMap["uniprot positions"]]}
 			],
 			"oColVis": {"aiExclude": excludedCols}, // columns to always hide
 			"fnDrawCallback": function(oSettings) {
@@ -870,9 +852,12 @@ function MutationDetailsTable(options, gene, mutationUtil)
 		    }
 		};
 
-		// also add column renderers
-		var renderers = DataTableUtil.getColumnRenderers(_options.columnRender, indexMap);
-		tableOpts.aoColumnDefs = tableOpts.aoColumnDefs.concat(renderers);
+		// also add mData definitions (rendering, sort, etc.)
+		var mData = DataTableUtil.getColumnData(indexMap,
+			_options.columnRender,
+			_options.columnSort);
+
+		tableOpts.aoColumnDefs = tableOpts.aoColumnDefs.concat(mData);
 
 		// merge with the one in the main options object
 		tableOpts = jQuery.extend(true, {}, _defaultOpts.dataTableOpts, tableOpts);

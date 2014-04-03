@@ -52,10 +52,12 @@ function AdvancedDataTable(options)
 		columnTooltips: {},
 		// default event listener config
 		eventListeners: {},
-		// custom column sort functions
+		// column sort functions
+		columnSort: {},
+		// sort functions for custom types
 		customSort: {},
 		// delay amount before applying the user entered filter query
-		filteringDelay: 600,
+		filteringDelay: 0,
 		// WARNING: overwriting advanced DataTables options such as
 		// aoColumnDefs, oColVis, and fnDrawCallback may break column
 		// visibility, sorting, and filtering. Proceed wisely ;)

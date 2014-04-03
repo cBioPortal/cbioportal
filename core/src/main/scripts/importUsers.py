@@ -61,8 +61,8 @@ CGDS_USERS_WORKSHEET = 'users.worksheet'
 GDAC_USER_SPREADSHEET = 'Request Access to the cBio GDAC Cancer Genomics Portal'
 SU2C_USER_SPREADSHEET = 'Request Access to the cBio SU2C Cancer Genomics Portal'
 PROSTATE_USER_SPREADSHEET = 'Request Access to the cBio Prostate Cancer Genomics Portal'
-GLIOMA_USER_SPREADSHEET = 'Request Access to the cBio Glioma Prostate Cancer Genomics Portal'
-ACC_USER_SPREADSHEET = 'Request Access to the cBio ACC Prostate Cancer Genomics Portal'
+GLIOMA_USER_SPREADSHEET = 'Request Access to the cBio Glioma Cancer Genomics Portal'
+ACC_USER_SPREADSHEET = 'Request Access to the cBio ACC Cancer Genomics Portal'
 TARGET_USER_SPREADSHEET = 'Request Access to the cBio TARGET Cancer Genomics Portal'
 
 # portal name

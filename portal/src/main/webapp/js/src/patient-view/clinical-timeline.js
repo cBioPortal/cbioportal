@@ -174,8 +174,8 @@
                 content: {attr:"tip"},
                 show: {event: "mouseover"},
                 hide: {fixed: true, delay: 100, event:"mouseout"},
-                style: { classes: 'qtip-light qtip-rounded' },
-                position: {my:'top middle',at:'bottom middle'},
+                style: { classes: 'qtip-light qtip-rounded qtip-wide' },
+                position: {my:'top middle',at:'bottom middle',viewport: $(window)},
                 events: {
                     render: function(event, api) {
                         $(".timeline-tooltip-table.uninitialized").dataTable( 
@@ -191,8 +191,8 @@
                                 "sInfoFiltered": "",
                             },
                             "fnDrawCallback": function ( oSettings ) {
-    $(oSettings.nTHead).hide();
-},
+                                $(oSettings.nTHead).hide();
+                            },
                             "aaSorting": [[0,'asc']],
                             "iDisplayLength": -1
                             } 

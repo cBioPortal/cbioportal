@@ -84,7 +84,7 @@ public class GetSurvivalDataJSON extends HttpServlet {
         String cancerStudyIdentifier = httpServletRequest.getParameter("cancer_study_id");
         String caseSetId = httpServletRequest.getParameter("case_set_id");
         String caseIdsKey = httpServletRequest.getParameter("case_ids_key");
-        String[] dataTypes = httpServletRequest.getParameter("data_type").split("\\+");
+        String dataType = httpServletRequest.getParameter("data_type");
 
         try {
 
@@ -119,38 +119,35 @@ public class GetSurvivalDataJSON extends HttpServlet {
                 JSONObject _result = new JSONObject();
 
                 _result.put("case_id", clinicalData.getCaseId());
-                if (Arrays.asList(dataTypes).contains("os")) {
+                if (dataType == "os") {
                     if (clinicalData.getOverallSurvivalMonths() == null) {
-                        _result.put("os_months", "NA");
+                        _result.put("months", "NA");
                     } else {
-                        _result.put("os_months", clinicalData.getOverallSurvivalMonths());
+                        _result.put("months", clinicalData.getOverallSurvivalMonths());
                     }
                     String osStatus = clinicalData.getOverallSurvivalStatus();
                     if(osStatus == null || osStatus.length() == 0) {
-                        _result.put("os_status", "NA");
+                        _result.put("status", "NA");
                     } else if (osStatus.equalsIgnoreCase("DECEASED")) {
-                        _result.put("os_status", "1");
+                        _result.put("status", "1");
                     } else if(osStatus.equalsIgnoreCase("LIVING")) {
-                        _result.put("os_status", "0");
-                    }                    
-                }
-
-                if (Arrays.asList(dataTypes).contains("dfs")) {
+                        _result.put("status", "0");
+                    }   
+                } else if (dataType == "dfs") {
                     if (clinicalData.getDiseaseFreeSurvivalMonths() == null) {
-                        _result.put("dfs_months", "NA");
+                        _result.put("months", "NA");
                     } else {
-                        _result.put("dfs_months", clinicalData.getDiseaseFreeSurvivalMonths());
+                        _result.put("months", clinicalData.getDiseaseFreeSurvivalMonths());
                     }
                     String dfsStatus = clinicalData.getDiseaseFreeSurvivalStatus();
                     if(dfsStatus == null || dfsStatus.length() == 0) {
-                        _result.put("dfs_status", "NA");
+                        _result.put("status", "NA");
                     }else if (dfsStatus.equalsIgnoreCase("Recurred/Progressed") || dfsStatus.equalsIgnoreCase("Recurred")) {
-                        _result.put("dfs_status", "1");
+                        _result.put("status", "1");
                     } else if(dfsStatus.equalsIgnoreCase("DiseaseFree")) {
-                        _result.put("dfs_status", "0");
-                    }                    
+                        _result.put("status", "0");
+                    }                     
                 }
-
                 results.put(clinicalData.getCaseId(), _result);
             }
 

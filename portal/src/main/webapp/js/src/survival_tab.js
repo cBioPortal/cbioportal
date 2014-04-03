@@ -40,27 +40,13 @@
 
 var SurvivalCurves = function() {
 
-    var util = (function() {
+    var data = "",
+        view = "",
+        kmEstimator = "",
+        logRankTest = "";
+        //confidenceIntervals = "";
 
-        function sortByAttribute(objs, attrName) {
-            function compare(a,b) {
-                if (a[attrName] < b[attrName])
-                    return -1;
-                if (a[attrName] > b[attrName])
-                    return 1;
-                return 0;
-            }
-            objs.sort(compare);
-            return objs;
-        }
-
-        return {
-            sortByAttribute: sortByAttribute
-        }
-
-    }());
-
-    var data  = (function() {
+    var Data  = function() {
 
         var datum = {
                 case_id: "",
@@ -69,10 +55,10 @@ var SurvivalCurves = function() {
                 num_at_risk: -1,
                 survival_rate: 0
             },
-            os_altered_group = [],
-            os_unaltered_group = [],
-            dfs_altered_group = [],
-            dfs_unaltered_group = [],
+            altered_group = [],
+            unaltered_group = [],
+            //dfs_altered_group = [],
+            //dfs_unaltered_group = [],
             stat_datum = {
                 pVal: 0,
                 num_altered_cases: 0,
@@ -97,7 +83,7 @@ var SurvivalCurves = function() {
 
         //Settle the overall survival datum group
         //order by time, filtered NA cases and add on num of risk for each time point
-        function setOSGroups(result, caseLists) {
+        function setGroups(result, caseLists) {
             var _totalAlter = 0,
                 _totalUnalter = 0;
 
@@ -105,112 +91,116 @@ var SurvivalCurves = function() {
                 if (result.hasOwnProperty(caseId) && (result[caseId] !== "")) {
                     var _datum = jQuery.extend(true, {}, datum);
                     _datum.case_id = result[caseId].case_id;
-                    _datum.time = result[caseId].os_months;
-                    _datum.status = result[caseId].os_status;
+                    _datum.time = result[caseId].months;
+                    _datum.status = result[caseId].status;
                     if (_datum.time !== "NA" && _datum.status !== "NA") {
                         if (caseLists[caseId] === "altered") {
-                            os_altered_group.push(_datum);
+                            altered_group.push(_datum);
                             _totalAlter += 1;
                         } else if (caseLists[caseId] === "unaltered") {
-                            os_unaltered_group.push(_datum);
+                            unaltered_group.push(_datum);
                             _totalUnalter += 1;
                         }
                     }
                 }
             }
-            util.sortByAttribute(os_altered_group, "time");
-            util.sortByAttribute(os_unaltered_group, "time");
+            cbio.util.sortByAttribute(altered_group, "time");
+            cbio.util.sortByAttribute(unaltered_group, "time");
 
-            for (var i in os_altered_group) {
-                os_altered_group[i].num_at_risk = _totalAlter;
+            for (var i in altered_group) {
+                altered_group[i].num_at_risk = _totalAlter;
                 _totalAlter += -1;
             }
-            for (var i in os_unaltered_group) {
-                os_unaltered_group[i].num_at_risk = _totalUnalter;
+            for (var i in unaltered_group) {
+                unaltered_group[i].num_at_risk = _totalUnalter;
                 _totalUnalter += -1;
             }
+
+            console.log(altered_group);
+            console.log(unaltered_group);
+
         }
 
-        //Settle the disease free survival datum group
-        //order by time, filtered NA cases and add on num of risk for each time point
-        function setDFSGroups(result, caseLists) {
-            var _totalAlter = 0,
-                _totalUnalter = 0;
+        // //Settle the disease free survival datum group
+        // //order by time, filtered NA cases and add on num of risk for each time point
+        // function setDFSGroups(result, caseLists) {
+        //     var _totalAlter = 0,
+        //         _totalUnalter = 0;
 
-            for (var caseId in result) {
-                if (result.hasOwnProperty(caseId) && (result[caseId] !== "")) {
-                    var _datum = jQuery.extend(true, {}, datum);
-                    _datum.case_id = result[caseId].case_id;
-                    _datum.time = result[caseId].dfs_months;
-                    _datum.status = result[caseId].dfs_status;
-                    if (_datum.time !== "NA" && _datum.status !== "NA") {
-                        if (caseLists[caseId] === "altered") {
-                            dfs_altered_group.push(_datum);
-                            _totalAlter += 1;
-                        } else if (caseLists[caseId] === "unaltered") {
-                            dfs_unaltered_group.push(_datum);
-                            _totalUnalter += 1;
-                        }
-                    }
-                }
-            }
+        //     for (var caseId in result) {
+        //         if (result.hasOwnProperty(caseId) && (result[caseId] !== "")) {
+        //             var _datum = jQuery.extend(true, {}, datum);
+        //             _datum.case_id = result[caseId].case_id;
+        //             _datum.time = result[caseId].dfs_months;
+        //             _datum.status = result[caseId].dfs_status;
+        //             if (_datum.time !== "NA" && _datum.status !== "NA") {
+        //                 if (caseLists[caseId] === "altered") {
+        //                     dfs_altered_group.push(_datum);
+        //                     _totalAlter += 1;
+        //                 } else if (caseLists[caseId] === "unaltered") {
+        //                     dfs_unaltered_group.push(_datum);
+        //                     _totalUnalter += 1;
+        //                 }
+        //             }
+        //         }
+        //     }
 
-            util.sortByAttribute(dfs_altered_group, "time");
-            util.sortByAttribute(dfs_unaltered_group, "time");
+        //     cbio.util.sortByAttribute(dfs_altered_group, "time");
+        //     cbio.util.sortByAttribute(dfs_unaltered_group, "time");
 
-            for (var i in dfs_altered_group) {
-                dfs_altered_group[i].num_at_risk = _totalAlter;
-                _totalAlter += -1;
+        //     for (var i in dfs_altered_group) {
+        //         dfs_altered_group[i].num_at_risk = _totalAlter;
+        //         _totalAlter += -1;
+        //     }
+        //     for (var i in dfs_unaltered_group) {
+        //         dfs_unaltered_group[i].num_at_risk = _totalUnalter;
+        //         _totalUnalter += -1;
+        //     }
+        // }
+
+        function calc() {
+            kmEstimator.calc(altered_group);
+            kmEstimator.calc(unaltered_group);
+            var _stat_datum = jQuery.extend(true, {}, stat_datum);
+            if (altered_group.length !== 0) {
+                _stat_datum.num_altered_cases = altered_group.length;
+            } else {
+                _stat_datum.num_altered_cases = "NA";
             }
-            for (var i in dfs_unaltered_group) {
-                dfs_unaltered_group[i].num_at_risk = _totalUnalter;
-                _totalUnalter += -1;
+            if (unaltered_group.length !== 0) {
+                _stat_datum.num_unaltered_cases = unaltered_group.length;
+            } else {
+                _stat_datum.num_unaltered_cases = "NA";
             }
+            _stat_datum.num_of_events_altered_cases = countEvents(altered_group);
+            _stat_datum.num_of_events_unaltered_cases = countEvents(unaltered_group);
+            _stat_datum.altered_median = calcMedian(altered_group);
+            _stat_datum.unaltered_median = calcMedian(unaltered_group);
+            logRankTest.calc(altered_group, unaltered_group);
+            stat_values = _stat_datum;
         }
 
-        function calcOS() {
-            kmEstimator.calc(os_altered_group);
-            kmEstimator.calc(os_unaltered_group);
-            var _os_stat_datum = jQuery.extend(true, {}, stat_datum);
-            if (os_altered_group.length !== 0) {
-                _os_stat_datum.num_altered_cases = os_altered_group.length;
-            } else {
-                _os_stat_datum.num_altered_cases = "NA";
-            }
-            if (os_unaltered_group.length !== 0) {
-                _os_stat_datum.num_unaltered_cases = os_unaltered_group.length;
-            } else {
-                _os_stat_datum.num_unaltered_cases = "NA";
-            }
-            _os_stat_datum.num_of_events_altered_cases = countEvents(os_altered_group);
-            _os_stat_datum.num_of_events_unaltered_cases = countEvents(os_unaltered_group);
-            _os_stat_datum.altered_median = calcMedian(os_altered_group);
-            _os_stat_datum.unaltered_median = calcMedian(os_unaltered_group);
-            logRankTest.calc(os_altered_group, os_unaltered_group, "os");
-            stat_values["os"] = _os_stat_datum;
-        }
-
-        function calcDFS() {
-            kmEstimator.calc(dfs_altered_group);
-            kmEstimator.calc(dfs_unaltered_group);
-            var _dfs_stat_datum = jQuery.extend(true, {}, stat_datum);
-            if (dfs_altered_group.length !== 0) {
-                _dfs_stat_datum.num_altered_cases = dfs_altered_group.length;
-            } else {
-                _dfs_stat_datum.num_altered_cases = "NA";
-            }
-            if (dfs_unaltered_group.length !== 0) {
-                _dfs_stat_datum.num_unaltered_cases = dfs_unaltered_group.length;
-            } else {
-                _dfs_stat_datum.num_unaltered_cases = "NA";
-            }
-            _dfs_stat_datum.num_of_events_altered_cases = countEvents(dfs_altered_group);
-            _dfs_stat_datum.num_of_events_unaltered_cases = countEvents(dfs_unaltered_group);
-            _dfs_stat_datum.altered_median = calcMedian(dfs_altered_group);
-            _dfs_stat_datum.unaltered_median = calcMedian(dfs_unaltered_group);
-            logRankTest.calc(dfs_altered_group, dfs_unaltered_group, "dfs");
-            stat_values["dfs"] = _dfs_stat_datum;
-        }
+        // function calcDFS() {
+        //     kmEstimator.calc(dfs_altered_group);
+        //     kmEstimator.calc(dfs_unaltered_group);
+        //     var _dfs_stat_datum = jQuery.extend(true, {}, stat_datum);
+        //     if (dfs_altered_group.length !== 0) {
+        //         _dfs_stat_datum.num_altered_cases = dfs_altered_group.length;
+        //     } else {
+        //         _dfs_stat_datum.num_altered_cases = "NA";
+        //     }
+        //     if (dfs_unaltered_group.length !== 0) {
+        //         _dfs_stat_datum.num_unaltered_cases = dfs_unaltered_group.length;
+        //     } else {
+        //         _dfs_stat_datum.num_unaltered_cases = "NA";
+        //     }
+        //     _dfs_stat_datum.num_of_events_altered_cases = countEvents(dfs_altered_group);
+        //     _dfs_stat_datum.num_of_events_unaltered_cases = countEvents(dfs_unaltered_group);
+        //     _dfs_stat_datum.altered_median = calcMedian(dfs_altered_group);
+        //     _dfs_stat_datum.unaltered_median = calcMedian(dfs_unaltered_group);
+        //     logRankTest.calc(dfs_altered_group, dfs_unaltered_group, "dfs");
+        //     stat_values["dfs"] = _dfs_stat_datum;
+        // }
 
         function countEvents(inputArr) {
             if (inputArr.length !== 0) {
@@ -242,64 +232,43 @@ var SurvivalCurves = function() {
         }
 
         return {
-            pValCallBack: function(pVal, type) {
-                pVal = parseFloat(pVal).toFixed(6);
-                if (type === "os") {
-                    stat_values.os.pVal = pVal;
-                    view.initOS();
-                    view.generateOS();
-                } else if (type === "dfs") {
-                    stat_values.dfs.pVal = pVal;
-                    view.initDFS();
-                    view.generateDFS();
-                }
+            pValCallBack: function(_pVal) {
+                    _pVal = parseFloat(_pVal).toFixed(6);
+                    stat_values.pVal = _pVal;
+                    //view.init();
+                    //view.generate();
+                    console.log(stat_values);
             },
             init: function(result, caseLists) {
                 cntAlter(caseLists);
-                setOSGroups(result, caseLists);
-                setDFSGroups(result, caseLists);
-                if (os_altered_group.length === 0 && os_unaltered_group.length === 0 &&
-                    dfs_altered_group.length === 0 && dfs_unaltered_group.length === 0) {
+                setGroups(result, caseLists);
+                if (altered_group.length === 0 && unaltered_group.length === 0) {
                     //$('#tab-survival').hide();
-                    var tab = $('#tabs a').filter(function(){
-                        return $(this).text() == "Survival";
-                    }).parent();
-                    tab.hide();
+                    // var tab = $('#tabs a').filter(function(){
+                    //     return $(this).text() == "Survival";
+                    // }).parent();
+                    // tab.hide();
                 } else {
-                    if (os_altered_group.length !== 0 || os_unaltered_group.length !== 0) {
-                        calcOS();
+                    if (altered_group.length !== 0 || unaltered_group.length !== 0) {
+                        calc();
                     } else {
-                        view.errorMsg("os");
-                    }
-                    if (dfs_altered_group.length !== 0 || dfs_unaltered_group.length !== 0) {
-                        calcDFS();
-                    } else {
-                        view.errorMsg("dfs");
+                        //view.errorMsg("os");
                     }
                 }
             },
-            getOSAlteredData: function() {
-                return os_altered_group;
+            getAlteredData: function() {
+                return altered_group;
             },
-            getOSUnalteredData: function() {
-                return os_unaltered_group;
+            getUnalteredData: function() {
+                return unaltered_group;
             },
-            getDFSAlteredData: function() {
-                return dfs_altered_group;
-            },
-            getDFSUnalteredData: function() {
-                return dfs_unaltered_group;
-            },
-            getOsStats: function() {
-                return stat_values.os;
-            },
-            getDfsStats: function() {
-                return stat_values.dfs;
+            getStats: function() {
+                return stat_values;
             }
         }
-    }());
+    };
 
-    var view = (function() {
+    var View = function() {
         var elem = {
                 svgOS : "",
                 svgDFS: "",
@@ -773,14 +742,13 @@ var SurvivalCurves = function() {
 
             }
         }
-    }());
+    };
 
-    var kmEstimator = (function() {
-
+    var KmEstimator = function() {
         return {
             calc: function(inputGrp) { //calculate the survival rate for each time point
                 //each item in the input already has fields: time, num at risk, event/status(0-->censored)
-                var _prev_value = 1;  //buffer for the previous value
+                var _prev_value = 1;  //cache for the previous value
                 for (var i in inputGrp) {
                     var _case = inputGrp[i];
                     if (_case.status === "1") {
@@ -794,9 +762,9 @@ var SurvivalCurves = function() {
                 }
             }
         }
-    }());
+    };
 
-    var logRankTest = (function() {
+    var LogRankTest = function() {
 
         var datum = {
                 time: "",    //num of months
@@ -878,7 +846,7 @@ var SurvivalCurves = function() {
             }
         }
 
-        function calcPval(type) {
+        function calcPval() {
             var O1 = 0, E1 = 0, V = 0;
             for (var i in mergedArr) {
                 var _item = mergedArr[i];
@@ -889,22 +857,22 @@ var SurvivalCurves = function() {
             var chi_square_score = (O1 - E1) * (O1 - E1) / V;
             $.post( "calcPval.do", { chi_square_score: chi_square_score })
                 .done( function(_data) {
-                    data.pValCallBack(_data, type);
+                    data.pValCallBack(_data);
                 });
         }
 
         return {
-            calc: function(inputGrp1, inputGrp2, type) {
+            calc: function(inputGrp1, inputGrp2) {
                 mergedArr.length = 0;
                 mergeGrps(inputGrp1, inputGrp2);
                 calcExpection();
                 calcVariance();
-                calcPval(type);
+                calcPval();
             }
         }
-    }());
+    };
 
-    var confidenceIntervals = (function() {
+    var ConfidenceIntervals = function() {
 
         var arr = [],
             n = 0,
@@ -961,22 +929,26 @@ var SurvivalCurves = function() {
                 calcControlLimits();
             }
         }
-
-    }());
+    };
 
     return {
-        init: function(caseLists) {
+        init: function(_caseLists, _dataType) {
             var paramsGetSurvivalData = {
                 case_set_id: case_set_id,
                 case_ids_key: case_ids_key,
                 cancer_study_id: cancer_study_id,
-                data_type: "os"
+                data_type: _dataType
             };
-            $.post("getSurvivalData.json", paramsGetSurvivalData, getResultInit(caseLists), "json");
+            $.post("getSurvivalData.json", paramsGetSurvivalData, getResultInit(_caseLists), "json");
 
-            function getResultInit(caseLists) {
+            function getResultInit(_caseLists) {
                 return function(result) {
-                    data.init(result, caseLists);
+                    data = new Data();
+                    view = new View();
+                    kmEstimator = new KmEstimator(); 
+                    logRankTest = new LogRankTest();   
+                    //confidenceIntervals = new ConfidenceIntervals();                 
+                    data.init(result, _caseLists);
                 }
             }
         }

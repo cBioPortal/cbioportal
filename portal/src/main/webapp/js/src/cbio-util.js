@@ -199,6 +199,18 @@ cbio.util = (function() {
 		return origin;
 	};
 
+    var sortByAttribute = function(objs, attrName) {
+        function compare(a,b) {
+            if (a[attrName] < b[attrName])
+                return -1;
+            if (a[attrName] > b[attrName])
+                return 1;
+            return 0;
+        }
+        objs.sort(compare);
+        return objs;
+    }
+
     return {
         toPrecision: toPrecision,
         getObjectLength: getObjectLength,
@@ -208,7 +220,8 @@ cbio.util = (function() {
         alterAxesAttrForPDFConverter: alterAxesAttrForPDFConverter,
         lcss: lcss,
 	    browser: detectBrowser(), // returning the browser object, not the function itself
-	    getWindowOrigin: getOrigin
+	    getWindowOrigin: getOrigin,
+        sortByAttribute: sortByAttribute
     };
 
 })();

@@ -38,7 +38,7 @@
         case_ids_key = "<%out.print(caseIdsKey);%>";
     }
 </script>
-<script type="text/javascript" src="js/src/survival_curve.js"></script>
+<script type="text/javascript" src="js/src/survival_tab.js"></script>
 
 <div class="section" id="survival">
     <h4 id='os_header'>Overall Survival Kaplan-Meier Estimate</h4>
@@ -67,6 +67,6 @@
 
     $(document).ready(function() {
         var survivalCurves = new SurvivalCurves();
-        survivalCurves.init(getSurvivalPlotsCaseList());
+        survivalCurves.init(getSurvivalPlotsCaseList(), "os");
     });
 </script>

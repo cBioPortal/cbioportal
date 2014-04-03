@@ -159,7 +159,7 @@
                 $('#mutations-summary-help').qtip({
                     content: { attr: 'title' },
                     style: { classes: 'qtip-light qtip-rounded' },
-                    position: { my:'top center',at:'bottom center' }
+                    position: { my:'top center',at:'bottom center',viewport: $(window) }
                 });
                 
                 $('.smg-table-name').addClass('data-table-name');

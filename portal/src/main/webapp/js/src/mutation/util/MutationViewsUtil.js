@@ -139,7 +139,7 @@ var MutationViewsUtil = (function()
 			show: {event: 'mouseover'},
 			hide: {fixed: true, delay: 100, event: 'mouseout'},
 			style: {classes: 'mutation-details-tooltip qtip-shadow qtip-light qtip-rounded'},
-			position: {my:'top left', at:'bottom right'}
+			position: {my:'top left', at:'bottom right', viewport: $(window)}
 		};
 	}
 

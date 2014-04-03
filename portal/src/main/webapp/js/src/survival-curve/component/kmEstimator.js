@@ -24,20 +24,25 @@
  * along with this library; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
+ 
+var KmEstimator = function() {
 
-var SurvivalTab = (function() {
-    
     return {
-        init: function(_caseList) {
-            var survivalCurveViewOS = new SurvivalCurveView();
-            survivalCurveViewOS.init(_caseList, "os", "os_survival_curve");
-            var survivalCurveViewDFS = new SurvivalCurveView();
-            survivalCurveViewDFS.init(_caseList, "dfs", "dfs_survival_curve");            
+        calc: function(inputGrp) { //calculate the survival rate for each time point
+            //each item in the input already has fields: time, num at risk, event/status(0-->censored)
+            var _prev_value = 1;  //cache for the previous value
+            for (var i in inputGrp) {
+                var _case = inputGrp[i];
+                if (_case.status === "1") {
+                    _case.survival_rate = _prev_value * ((_case.num_at_risk - 1) / _case.num_at_risk) ;
+                    _prev_value = _case.survival_rate;
+                } else if (_case.status === "0") {
+                    _case.survival_rate = _prev_value; //survival rate remain the same if the event is "censored"
+                } else {
+                    //TODO: error handling
+                }
+            }
         }
     }
 
-}()); //Close SubvivalTabView (Singular)
-
-function loadSurvivalCurveSVG(svgId) {
-    return $("#" + svgId).html();
-}
+}; //Close KmEstimator

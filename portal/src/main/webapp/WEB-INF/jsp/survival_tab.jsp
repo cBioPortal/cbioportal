@@ -39,6 +39,11 @@
     }
 </script>
 <script type="text/javascript" src="js/src/survival_tab.js"></script>
+<script type="text/javascript" src="js/src/survival-curve/survivalCurveView.js"></script>
+<script type="text/javascript" src="js/src/survival-curve/survivalCurveProxy.js"></script>
+<script type="text/javascript" src="js/src/survival-curve/component/infoTable.js"></script>
+<script type="text/javascript" src="js/src/survival-curve/component/kmCurve.js"></script>
+<script type="text/javascript" src="js/src/survival-curve/component/logRankTest.js"></script>
 
 <div class="section" id="survival">
     <h4 id='os_header'>Overall Survival Kaplan-Meier Estimate</h4>
@@ -66,9 +71,6 @@
     }
 
     $(document).ready(function() {
-        var survivalCurvesOS = new SurvivalCurves();
-        survivalCurvesOS.init(getSurvivalPlotsCaseList(), "os", "os_survival_curve");
-        var survivalCurvesDFS = new SurvivalCurves();
-        survivalCurvesDFS.init(getSurvivalPlotsCaseList(), "dfs", "dfs_survival_curve");
+        SurvivalTab.init(getSurvivalPlotsCaseList());
     });
 </script>

@@ -61,11 +61,15 @@ CGDS_USERS_WORKSHEET = 'users.worksheet'
 GDAC_USER_SPREADSHEET = 'Request Access to the cBio GDAC Cancer Genomics Portal'
 SU2C_USER_SPREADSHEET = 'Request Access to the cBio SU2C Cancer Genomics Portal'
 PROSTATE_USER_SPREADSHEET = 'Request Access to the cBio Prostate Cancer Genomics Portal'
+GLIOMA_USER_SPREADSHEET = 'Request Access to the cBio Glioma Cancer Genomics Portal'
+ACC_USER_SPREADSHEET = 'Request Access to the cBio ACC Cancer Genomics Portal'
 TARGET_USER_SPREADSHEET = 'Request Access to the cBio TARGET Cancer Genomics Portal'
 
 # portal name
 PORTAL_NAME = { GDAC_USER_SPREADSHEET : "gdac-portal",
                 PROSTATE_USER_SPREADSHEET : "prostate-portal",
+                GLIOMA_USER_SPREADSHEET : "glioma-portal",
+                ACC_USER_SPREADSHEET : "acc-portal",
                 SU2C_USER_SPREADSHEET : "su2c-portal",
                 TARGET_USER_SPREADSHEET : "target-portal" }
 
@@ -105,6 +109,16 @@ PROSTATE_MESSAGE_BODY = """Thank you for your interest in the cBioPortal for Pro
 Please keep in mind that the most of the data provided in this Portal are preliminary, unpublished and subject to change.
 """
 
+GLIOMA_MESSAGE_BODY = """Thank you for your interest in the cBioPortal for Glioma. We have granted you access. You can login at http://cbioportal.org/glioma-portal/. Please let us know if you have any problems logging in.
+
+Please keep in mind that the most of the data provided in this Portal are preliminary, unpublished and subject to change.
+"""
+
+ACC_MESSAGE_BODY = """Thank you for your interest in the cBioPortal for ACC. We have granted you access. You can login at http://cbioportal.org/acc-portal/. Please let us know if you have any problems logging in.
+
+Please keep in mind that the most of the data provided in this Portal are preliminary, unpublished and subject to change.
+"""
+
 TARGET_MESSAGE_BODY = """Thank you for your interest in the cBioPortal for NCI-TARGET. We have granted you access. You can login at http://cbioportal.org/target-portal/. Please let us know if you have any problems logging in.
 
 Please keep in mind that the most of the data provided in this Portal are preliminary, unpublished and subject to change.
@@ -112,6 +126,8 @@ Please keep in mind that the most of the data provided in this Portal are prelim
 
 MESSAGE_BODY = { GDAC_USER_SPREADSHEET : GDAC_MESSAGE_BODY,
                  PROSTATE_USER_SPREADSHEET : PROSTATE_MESSAGE_BODY,
+                 GLIOMA_USER_SPREADSHEET : GLIOMA_MESSAGE_BODY,
+                 ACC_USER_SPREADSHEET : ACC_MESSAGE_BODY,
                  SU2C_USER_SPREADSHEET : SU2C_MESSAGE_BODY,
                  TARGET_USER_SPREADSHEET : TARGET_MESSAGE_BODY }
 

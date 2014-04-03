@@ -149,7 +149,8 @@ var RightMenuStudyStatsUtil = (function($) {
                 },
                 position: {
                     at: 'left bottom',
-                    my: 'top right'
+                    my: 'top right',
+                    viewport: $(window)
                 }
             });
         }

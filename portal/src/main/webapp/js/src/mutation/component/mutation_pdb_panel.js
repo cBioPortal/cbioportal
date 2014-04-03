@@ -72,7 +72,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 				var options = {content: {text: content},
 					hide: {fixed: true, delay: 100},
 					style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'},
-					position: {my:'bottom left', at:'top center'}};
+					position: {my:'bottom left', at:'top center',viewport: $(window)}};
 
 				$(element).qtip(options);
 			});
@@ -89,7 +89,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 			var options = {content: {text: content},
 				hide: {fixed: true, delay: 100},
 				style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow qtip-wide'},
-				position: {my:'bottom left', at:'top center'}};
+				position: {my:'bottom left', at:'top center',viewport: $(window)}};
 
 			$(element).qtip(options);
 		}

@@ -97,7 +97,8 @@
             position: {
                     my: 'center', // ...at the center of the viewport
                     at: 'center',
-                    target: $(window)
+                    target: $(window),
+                    viewport: $(window)
             },
             show: {
                     event: 'click', // Show it on click...

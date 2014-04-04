@@ -49,7 +49,7 @@
 </script>
 
 <script type="text/template" id="mutation_table_cosmic_template">
-	<label class='{{cosmicClass}}' alt='{{mutationId}}'>{{cosmicCount}}</label>
+	<label class='{{cosmicClass}}'>{{cosmicCount}}</label>
 </script>
 
 <script type="text/template" id="mutation_table_mutation_status_template">
@@ -105,7 +105,7 @@
 </script>
 
 <script type="text/template" id="mutation_table_igv_link_template">
-	<a class='igv-link' alt='{{igvLink}}'>
+	<a href='{{igvLink}}' class='igv-link'>
 		<span class="mutation-table-igv-icon">IGV</span>
 	</a>
 </script>

@@ -239,7 +239,17 @@ var MutationDetailsTableFormatter = (function()
 
 	function getPdbMatchLink(mutation)
 	{
-		if (mutation.pdbMatch)
+		return getLink(mutation.pdbMatch);
+	}
+
+	function getIgvLink(mutation)
+	{
+		return getLink(mutation.igvLink);
+	}
+
+	function getLink(value)
+	{
+		if (value)
 		{
 			// this is not a real link,
 			// actual action is performed by an event listener
@@ -411,6 +421,7 @@ var MutationDetailsTableFormatter = (function()
 		getCaseId: getCaseId,
 		getProteinChange: getProteinChange,
 		getPdbMatchLink: getPdbMatchLink,
+		getIgvLink: getIgvLink,
 		getAlleleCount: getAlleleCount,
 		getAlleleFreq: getAlleleFreq,
 		getCNA: getCNA,

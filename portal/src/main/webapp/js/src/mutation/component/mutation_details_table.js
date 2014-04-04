@@ -123,7 +123,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				sClass: "right-align-td",
 				asSorting: ["desc", "asc"]},
 			igvLink: {sTitle: "BAM",
-				tip: "Link to BAM file"},
+				tip: "Link to BAM file",
+				sClass: "center-align-td"},
 			mutationCount: {sTitle: "#Mut in Sample",
 				tip: "Total number of<br> nonsynonymous mutations<br> in the sample",
 				sType: "numeric",
@@ -302,7 +303,6 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				var vars = {};
 				vars.cosmicClass = cosmic.style;
 				vars.cosmicCount = cosmic.count;
-				vars.mutationId = mutation.mutationId;
 
 				return _.template(
 					$("#mutation_table_cosmic_template").html(), vars);
@@ -477,7 +477,11 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				//vars.msaLink = mutation.msaLink;
 				//vars.igvLink = mutation.igvLink;
 				var mutation = datum.mutation;
-				return mutation.igvLink;
+				var vars = {};
+				vars.igvLink = MutationDetailsTableFormatter.getIgvLink(mutation);
+
+				return _.template(
+					$("#mutation_table_igv_link_template").html(), vars);
 			}
 		},
 		// default tooltip functions
@@ -495,7 +499,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				// add tooltip for COSMIC value
 				$(selector).find('.mutation_table_cosmic').each(function() {
 					var label = this;
-					var mutationId = $(label).attr('alt');
+					var mutationId = $(label).closest("tr.mutation-table-data-row").attr("id");
 					var mutation = mutationUtil.getMutationIdMap()[mutationId];
 
 					// copy default qTip options and modify "content" to customize for cosmic
@@ -567,22 +571,24 @@ function MutationDetailsTable(options, gene, mutationUtil)
 			"igvLink": function(dataTable, dispatcher, mutationUtil, gene) {
 				// add click listener for each igv link to get the actual parameters
 				// from another servlet
-				_.each($(dataTable).find('.igv-link'), function(element, index) {
-					// TODO use mutation id, and dispatch an event
-					var url = $(element).attr("alt");
+				$(dataTable).find('.igv-link').click(function(evt) {
+					evt.preventDefault();
 
-					$(element).click(function(evt) {
-						// get parameters from the server and call related igv function
-						$.getJSON(url, function(data) {
-							//console.log(data);
-							// TODO this call displays warning message (resend)
-							prepIGVLaunch(data.bamFileUrl,
-							              data.encodedLocus,
-							              data.referenceGenome,
-							              data.trackName);
-						});
+					var mutationId = $(this).closest("tr.mutation-table-data-row").attr("id");
+					var mutation = mutationUtil.getMutationIdMap()[mutationId];
+					var url = mutation.igvLink;
+
+					// get parameters from the server and call related igv function
+					$.getJSON(url, function(data) {
+						//console.log(data);
+						// TODO this call displays warning message (resend)
+						prepIGVLaunch(data.bamFileUrl,
+						              data.encodedLocus,
+						              data.referenceGenome,
+						              data.trackName);
 					});
 				});
+
 			},
 			"proteinChange3d": function(dataTable, dispatcher, mutationUtil, gene) {
 				// add click listener for each 3D link

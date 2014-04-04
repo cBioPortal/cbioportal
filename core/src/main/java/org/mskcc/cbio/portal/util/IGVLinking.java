@@ -316,7 +316,7 @@ public class IGVLinking {
     {
         String encodedCaseId = getEncoded(caseId);
         String url = GlobalProperties.getProperty(GlobalProperties.BROAD_BAM_CHECKING_URL);
-        return (url != null & !url.isEmpty() && encodedCaseId != null) ?
+        return (url != null && !url.isEmpty() && encodedCaseId != null) ?
             url.replace(SAMPLE_REGEX, encodedCaseId) : null;
     }
 

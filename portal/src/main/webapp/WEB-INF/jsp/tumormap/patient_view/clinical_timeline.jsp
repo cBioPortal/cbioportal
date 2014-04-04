@@ -40,16 +40,8 @@
             var caseId = caseIds[i];
             var clinicalData = clinicalDataMap[caseId];
             var su2cSampleId = guessClinicalData(clinicalData,["SU2C_SAMPLE_ID"]);
-            plotCaselabelInSVG(d3.select('#timeline-'+su2cSampleId),caseId);
+            fillColorAndLabelForCase(d3.select('.timeline-'+su2cSampleId),caseId);
         }
-    }
-    
-    function plotOtherSpecimens() {
-        var circle = d3.selectAll('#timeline-undefined').append("g")
-            .attr("transform", "translate(6,6)");
-        circle.append("circle")
-            .attr("r",6)
-            .attr("fill","grey");
     }
 
     $(document).ready(function(){
@@ -72,7 +64,6 @@
                 var timeline = clinicalTimeline().itemHeight(12).colorProperty('color').stack();
                 var svg = d3.select("#timeline").append("svg").attr("width", width).datum(timeData).call(timeline);
                 plotCaseLabelsInTimeline();
-                plotOtherSpecimens();
                 $("#timeline-container").show();
             }
             ,"json"

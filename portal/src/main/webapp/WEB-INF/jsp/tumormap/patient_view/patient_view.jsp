@@ -1019,13 +1019,17 @@ function plotCaseLabel(svgEl,onlyIfEmpty, noTip) {
 
 function plotCaselabelInSVG(svg, caseId) {
     if(!svg) return;
-    var label = caseMetaData.label[caseId];
-    var color = caseMetaData.color[caseId];
     var circle = svg.append("g")
         .attr("transform", "translate(6,6)");
     circle.append("circle")
-        .attr("r",6)
-        .attr("fill",color);
+        .attr("r",6);
+    fillColorAndLabelForCase(circle, caseId);
+}
+
+function fillColorAndLabelForCase(circle, caseId) {
+    var label = caseMetaData.label[caseId];
+    var color = caseMetaData.color[caseId];
+    circle.select("circle").attr("fill",color);
     circle.append("text")
         .attr("x",-3)
         .attr("y",4)

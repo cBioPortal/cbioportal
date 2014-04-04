@@ -90,40 +90,36 @@
           var data = datum.times;
           var hasLabel = (typeof(datum.label) !== "undefined");
           
-          if (datum.display==='g') {
-              g.selectAll("svg").data(data).enter()
-                .append(datum.display)
-                .attr('id', function (d, i) {
-                    return d.id;
-                })
-                .attr('transform',getTransform)
-                .attr("tip",  function (d, i) {
-                  return d.tooltip;
-                })
-                .attr("class", datum.class);
-          } else {
-              g.selectAll("svg").data(data).enter()
-                .append(datum.display)
-                .attr('x', getXPos)
-                .attr("y", getStackPosition)
-                .attr("width", function (d, i) {
-                  return (d.ending_time - d.starting_time) * scaleFactor;
-                })
-                .attr("cy", getStackPosition)
-                .attr("cx", getXPos)
-                .attr("r", itemHeight/2)
-                .attr("height", 3)
-                .attr("tip",  function (d, i) {
-                  return d.tooltip;
-                })
-                .attr("class", datum.class)
-                .style("fill", function(d, i){ 
-                  if( colorPropertyName ){ 
-                    return colorCycle( sumCharCodes(d[colorPropertyName]) % nColors );
-                  } 
-                  return colorCycle(index % nColors);  
-                });
-        }
+          var sg = g.selectAll("svg").data(data).enter()
+            .append('g')
+            .attr('id', function (d, i) {
+                return d.id;
+            })
+            .attr('transform',getTransform)
+            .attr("tip",  function (d, i) {
+              return d.tooltip;
+            })
+            .attr("class",  function (d, i) {
+                var ret = "timeline-viz-elem";
+                if (datum.class) ret += " "+datum.class;
+                if (d.class) ret += " "+d.class;
+                return ret;
+            });
+
+            sg.append(datum.display)
+            .attr("width", function (d, i) {
+              return (d.ending_time - d.starting_time) * scaleFactor;
+            })
+            .attr("r", itemHeight/2)
+            .attr("height", 3)
+            .attr("fill", function(d, i){ 
+              if( colorPropertyName ){ 
+                  if (d[colorPropertyName]&&d[colorPropertyName].indexOf('#')===0) 
+                    return d[colorPropertyName];
+                  return colorCycle( sumCharCodes(d[colorPropertyName]) % nColors );
+              } 
+              return colorCycle(index % nColors);  
+            });
 
           // add the label
           if (hasLabel) {
@@ -371,6 +367,8 @@
 
         function getColor(timePointData) {
             var type = timePointData["eventType"];
+            if (type==="SPECIMEN")
+                return "#999999";
             if (type==="TREATMENT")
                 return getTreatmentAgent(timePointData);
             if (type==="LAB_TEST")
@@ -392,15 +390,19 @@
                 }
             }
             
-            var su2cSampleId = timePointData["eventData"]["SpecimenReferenceNumber"];
-            
-            return {
+            var ret = {
                 starting_time : dates[0],
                 ending_time : dates[1],
                 color: getColor(timePointData),
-                id: 'timeline-'+su2cSampleId,
                 tooltip : "<table class='timeline-tooltip-table uninitialized'><thead><tr><th>&nbsp;</th><th>&nbsp;</th></tr></thead><tr>" + tooltip.join("</tr><tr>") + "</tr></table>"
             };
+            
+            var su2cSampleId = timePointData["eventData"]["SpecimenReferenceNumber"];
+            
+            if (su2cSampleId) 
+                ret['class'] = 'timeline-'+su2cSampleId;
+            
+            return ret;
         }
         
         function formatTimePoints(timePointsData) {
@@ -425,7 +427,7 @@
             if ("SPECIMEN" in timelineDataByType) {
                 ret.push({
                     label:"Specimen",
-                    display:"g",
+                    display:"circle",
                     class:"timeline-speciman",
                     times:formatTimePoints(timelineDataByType["SPECIMEN"])});
             }

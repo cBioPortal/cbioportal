@@ -752,6 +752,15 @@ function idRegEx(ids) {
     return "(^"+ids.join("$)|(^")+"$)";
 }
 
+function guessClinicalData(clinicalData, paramNames) {
+    if (!clinicalData) return null;
+    for (var i=0, len=paramNames.length; i<len; i++) {
+        var data = clinicalData[paramNames[i]];
+        if (typeof data !== 'undefined' && data !== null) return data;
+    }
+    return null;
+}
+
 function outputClinicalData() {
     $("#clinical_div").append("<table id='clinical_table' width='100%'></table>");
     var n=caseIds.length;
@@ -971,15 +980,6 @@ function outputClinicalData() {
         return patientStatus;
     }
 
-    function guessClinicalData(clinicalData, paramNames) {
-        if (!clinicalData) return null;
-        for (var i=0, len=paramNames.length; i<len; i++) {
-            var data = clinicalData[paramNames[i]];
-            if (typeof data !== 'undefined' && data !== null) return data;
-        }
-        return null;
-    }
-
     function getCaseColor(caseType) {
         if (!caseType) return "black";
         var caseTypeNorm = normalizedCaseType(caseType.toLowerCase());
@@ -1018,6 +1018,7 @@ function plotCaseLabel(svgEl,onlyIfEmpty, noTip) {
 }
 
 function plotCaselabelInSVG(svg, caseId) {
+    if(!svg) return;
     var label = caseMetaData.label[caseId];
     var color = caseMetaData.color[caseId];
     var circle = svg.append("g")

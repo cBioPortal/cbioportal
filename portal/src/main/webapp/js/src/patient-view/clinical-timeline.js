@@ -90,31 +90,40 @@
           var data = datum.times;
           var hasLabel = (typeof(datum.label) !== "undefined");
           
-          g.selectAll("svg").data(data).enter()
-            .append(datum.display)
-            .attr('id', function (d, i) {
-                return d[datum.id];
-            })
-            .attr('x', getXPos)
-            .attr("y", getStackPosition)
-            .attr("width", function (d, i) {
-              return (d.ending_time - d.starting_time) * scaleFactor;
-            })
-            .attr("cy", getStackPosition)
-            .attr("cx", getXPos)
-            .attr("r", itemHeight/2)
-            .attr("height", 3)
-            .attr("tip",  function (d, i) {
-              return d.tooltip;
-            })
-            .attr("class", "timeline-viz-elem")
-            .style("fill", function(d, i){ 
-              if( colorPropertyName ){ 
-                return colorCycle( sumCharCodes(d[colorPropertyName]) % nColors );
-              } 
-              return colorCycle(index % nColors);  
-            })
-          ;
+          if (datum.display==='g') {
+              g.selectAll("svg").data(data).enter()
+                .append(datum.display)
+                .attr('id', function (d, i) {
+                    return d.id;
+                })
+                .attr('transform',getTransform)
+                .attr("tip",  function (d, i) {
+                  return d.tooltip;
+                })
+                .attr("class", datum.class);
+          } else {
+              g.selectAll("svg").data(data).enter()
+                .append(datum.display)
+                .attr('x', getXPos)
+                .attr("y", getStackPosition)
+                .attr("width", function (d, i) {
+                  return (d.ending_time - d.starting_time) * scaleFactor;
+                })
+                .attr("cy", getStackPosition)
+                .attr("cx", getXPos)
+                .attr("r", itemHeight/2)
+                .attr("height", 3)
+                .attr("tip",  function (d, i) {
+                  return d.tooltip;
+                })
+                .attr("class", datum.class)
+                .style("fill", function(d, i){ 
+                  if( colorPropertyName ){ 
+                    return colorCycle( sumCharCodes(d[colorPropertyName]) % nColors );
+                  } 
+                  return colorCycle(index % nColors);  
+                });
+        }
 
           // add the label
           if (hasLabel) {
@@ -130,6 +139,10 @@
             } 
             return margin.top;
           }
+      
+            function getTransform(d, i) {
+                return 'translate('+getXPos(d,i)+','+getStackPosition(d,i)+")";
+            }
         });
       });
       
@@ -379,10 +392,13 @@
                 }
             }
             
+            var su2cSampleId = timePointData["eventData"]["SpecimenReferenceNumber"];
+            
             return {
                 starting_time : dates[0],
                 ending_time : dates[1],
                 color: getColor(timePointData),
+                id: 'timeline-'+su2cSampleId,
                 tooltip : "<table class='timeline-tooltip-table uninitialized'><thead><tr><th>&nbsp;</th><th>&nbsp;</th></tr></thead><tr>" + tooltip.join("</tr><tr>") + "</tr></table>"
             };
         }
@@ -409,8 +425,8 @@
             if ("SPECIMEN" in timelineDataByType) {
                 ret.push({
                     label:"Specimen",
-                    display:"circle",
-                    id:"SpecimenReferenceNumber",
+                    display:"g",
+                    class:"timeline-speciman",
                     times:formatTimePoints(timelineDataByType["SPECIMEN"])});
             }
             
@@ -418,6 +434,7 @@
                 ret.push({
                     label:"Status",
                     display:"circle",
+                    class:"timeline-status",
                     times:formatTimePoints(timelineDataByType["STATUS"])});
             }
             
@@ -425,6 +442,7 @@
                 ret.push({
                     label:"Diagnostics",
                     display:"circle",
+                    class:"timeline-diagnostic",
                     times:formatTimePoints(timelineDataByType["DIAGNOSTIC"])});
             }
             
@@ -432,6 +450,7 @@
                 ret.push({
                     label:"Lab Tests",
                     display:"circle",
+                    class:"timeline-lab_test",
                     times:formatTimePoints(timelineDataByType["LAB_TEST"])});
             }
             
@@ -468,6 +487,7 @@
                     ret.push({
                         label:"Treatment",
                         display:"rect",
+                        class:"timeline-treatment",
                         times:formatTimePoints(treatmentGroups[i])});
                 }
             }

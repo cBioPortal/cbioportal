@@ -14,7 +14,7 @@
         colorPropertyName = null,
         beginning = 0,
         ending = 0,
-        margin = {left: 100, right:30, top: 30, bottom:30},
+        margin = {left: 150, right:30, top: 30, bottom:6},
         stacked = false,
         rotateTicks = false,
         itemHeight = 20,
@@ -227,7 +227,7 @@
         if (!height && !gParentItem.attr("height")) {
           if (itemHeight) {
             // set height based off of item height
-            height = gSize.height + gSize.top - gParentSize.top;
+            height = gSize.height + gSize.top - gParentSize.top + margin.bottom;
             // set bounding rectangle height
             d3.select(gParent[0][0]).attr("height", height);
           } else {
@@ -373,9 +373,13 @@
             if (type==="TREATMENT")
                 return getTreatmentAgent(timePointData);
             if (type==="LAB_TEST")
-                return timePointData["eventData"]["TEST"];
+//                return timePointData["eventData"]["TEST"];
+                return "#0099cc";
             if (type==="DIAGNOSTIC")
-                return timePointData["eventData"]["TYPE"];
+                return "#669900";
+//                return timePointData["eventData"]["DIAGNOSTIC_TYPE"];
+            if (type==="STATUS")
+                return "#FF8800";
             return type;
         }
         
@@ -432,7 +436,11 @@
             var ret = [];
             
             if ("SPECIMEN" in timelineDataByType) {
-                var eventGroups = separateEvents(sortByDate(timelineDataByType["SPECIMEN"]), "SpecimenPreservationType");
+                var specimens = _.filter(timelineDataByType["SPECIMEN"], function(specimen){
+                    var type = specimen["eventData"]["SpecimenType"];
+                    return type && type.toUpperCase()==="TISSUE";
+                });
+                var eventGroups = separateEvents(sortByDate(specimens), "SpecimenPreservationType");
                 for (var type in eventGroups) {
                     ret.push({
                         label:type,

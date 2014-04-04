@@ -259,7 +259,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				vars.proteinChange = proteinChange.text;
 				vars.proteinChangeClass = proteinChange.style;
 				vars.proteinChangeTip = proteinChange.tip;
-				vars.pdbMatchId = MutationDetailsTableFormatter.getPdbMatchId(mutation);
+				vars.pdbMatchLink = MutationDetailsTableFormatter.getPdbMatchLink(mutation);
 
 				return _.template(
 					$("#mutation_table_protein_change_template").html(), vars);
@@ -364,13 +364,12 @@ function MutationDetailsTable(options, gene, mutationUtil)
 			},
 			"mutationAssessor": function(datum) {
 				var mutation = datum.mutation;
-				var fis = MutationDetailsTableFormatter.getFis(mutation.functionalImpactScore, mutation.fisValue);
+				var fis = MutationDetailsTableFormatter.getFis(
+					mutation.functionalImpactScore, mutation.fisValue);
 				var vars = {};
 				vars.fisClass = fis.fisClass;
 				vars.omaClass = fis.omaClass;
-				vars.fisValue = fis.value;
 				vars.fisText = fis.text;
-				vars.mutationId = mutation.mutationId;
 
 				return _.template(
 					$("#mutation_table_mutation_assessor_template").html(), vars);
@@ -525,11 +524,10 @@ function MutationDetailsTable(options, gene, mutationUtil)
 
 				// add tooltip for Predicted Impact Score (FIS)
 				$(selector).find('.oma_link').each(function() {
-					var links = $(this).attr('alt');
-					var parts = links.split("|");
-
-					var mutationId = parts[1];
+					var mutationId = $(this).closest("tr.mutation-table-data-row").attr("id");
 					var mutation = mutationUtil.getMutationIdMap()[mutationId];
+					var fis = MutationDetailsTableFormatter.getFis(
+						mutation.functionalImpactScore, mutation.fisValue);
 
 					// copy default qTip options and modify "content"
 					// to customize for predicted impact score
@@ -538,7 +536,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 
 					qTipOptsOma.content = {text: "NA"}; // content is overwritten on render
 					qTipOptsOma.events = {render: function(event, api) {
-						var model = {impact: parts[0],
+						var model = {impact: fis.value,
 							xvia: mutation.xVarLink,
 							msaLink: mutation.msaLink,
 							pdbLink: mutation.pdbLink};
@@ -591,7 +589,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				$(dataTable).find('.mutation-table-3d-link').click(function(evt) {
 					evt.preventDefault();
 
-					var mutationId = $(this).attr("alt");
+					var mutationId = $(this).closest("tr.mutation-table-data-row").attr("id");
 
 					dispatcher.trigger(
 						MutationDetailsEvents.PDB_LINK_CLICKED,
@@ -603,7 +601,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				$(dataTable).find('.mutation-table-protein-change a').click(function(evt) {
 					evt.preventDefault();
 
-					var mutationId = $(this).closest("tr").attr("id");
+					var mutationId = $(this).closest("tr.mutation-table-data-row").attr("id");
 
 					dispatcher.trigger(
 						MutationDetailsEvents.PROTEIN_CHANGE_LINK_CLICKED,
@@ -895,11 +893,14 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				//_rowMap[key] = nRow;
 				$(nRow).attr("id", mutation.mutationId);
 				$(nRow).addClass(mutation.mutationSid);
+				$(nRow).addClass("mutation-table-data-row");
 			},
 			"fnInitComplete": function(oSettings, json) {
+				// TODO this may not be safe
 				// remove invalid links
 				$(tableSelector).find('a[href=""]').remove();
-				$(tableSelector).find('a[alt=""]').remove();
+				//$(tableSelector).find('a[alt=""]').remove();
+				$(tableSelector).find('a.igv-link[alt=""]').remove();
 
 				// TODO append the footer
 				// (there is no API to init the footer, we need a custom function)

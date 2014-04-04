@@ -138,7 +138,7 @@ function MutationPdbTable(options)
 					removeAllSelection();
 
 					// get selected row via event target
-					var selectedRow = $(event.target).closest("tr");
+					var selectedRow = $(event.target).closest("tr.pdb-chain-table-data-row");
 
 					// highlight selected row
 					selectedRow.addClass('row_selected');
@@ -269,6 +269,7 @@ function MutationPdbTable(options)
 				var key = PdbDataUtil.chainKey(datum.pdbId,
 				                               datum.chain.chainId);
 				_rowMap[key] = nRow;
+				$(nRow).addClass("pdb-chain-table-data-row");
 			},
 			"fnInitComplete": function(oSettings, json) {
 				// trigger corresponding event

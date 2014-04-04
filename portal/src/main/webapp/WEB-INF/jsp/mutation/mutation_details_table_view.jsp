@@ -33,7 +33,7 @@
 	<span class='{{proteinChangeClass}}' alt='{{proteinChangeTip}}'>
 		<a>{{proteinChange}}</a>
 	</span>
-	<a href='#' class="mutation-table-3d-link" alt="{{pdbMatchId}}">
+	<a href='{{pdbMatchLink}}' class="mutation-table-3d-link">
 		<span class="mutation-table-3d-icon">3D</span>
 	</a>
 </script>
@@ -65,7 +65,7 @@
 </script>
 
 <script type="text/template" id="mutation_table_mutation_assessor_template">
-	<span class='{{omaClass}} {{fisClass}}' alt='{{fisValue}}|{{mutationId}}'>
+	<span class='{{omaClass}} {{fisClass}}'>
 		<label>{{fisText}}</label>
 	</span>
 </script>

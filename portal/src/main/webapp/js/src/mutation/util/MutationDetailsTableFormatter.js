@@ -237,14 +237,19 @@ var MutationDetailsTableFormatter = (function()
 		return {text: text, total: total, style: style, tipClass: tipStyle};
 	}
 
-	function getPdbMatchId(mutation)
+	function getPdbMatchLink(mutation)
 	{
 		if (mutation.pdbMatch)
 		{
-			return mutation.mutationId;
+			// this is not a real link,
+			// actual action is performed by an event listener
+			// "#" indicates that this is a valid link
+			return "#";
 		}
 		else
 		{
+			// an empty string indicates that this is not a valid link
+			// invalid links are removed by the view itself after rendering
 			return "";
 		}
 	}
@@ -405,7 +410,7 @@ var MutationDetailsTableFormatter = (function()
 	return {
 		getCaseId: getCaseId,
 		getProteinChange: getProteinChange,
-		getPdbMatchId: getPdbMatchId,
+		getPdbMatchLink: getPdbMatchLink,
 		getAlleleCount: getAlleleCount,
 		getAlleleFreq: getAlleleFreq,
 		getCNA: getCNA,

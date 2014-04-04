@@ -339,28 +339,29 @@
             return agent;
         }
         
-//        function separateTreatmentsByAgent(treatments) {
-//            var ret = {};
-//            treatments.forEach(function(treatment) {
-//                var agent = getTreatmentAgent(treatment);
-//                if (!(agent in ret)) {
-//                    ret[agent] = [];
-//                }
-//                ret[agent].push(treatment);
-//            });
-//            return ret;
-//        }
+        function separateEvents(events, attr) {
+            var ret = {};
+            events.forEach(function(event) {
+                var value = event["eventData"][attr];
+                if (!(value in ret)) {
+                    ret[value] = [];
+                }
+                ret[value].push(event);
+            });
+            return ret;
+        }
         
-        function separateTreatmentsByTime(treatments) {
+        function separateEventsByTime(events, allowOneDayOverlap) {
             var ret = [];
-            treatments.forEach(function(treatment) {
-                var dates = getStartStopDates(treatment);
+            events.forEach(function(event) {
+                var dates = getStartStopDates(event);
                 for (var row=0; row<ret.length; row++) {
                     var currStopDate = getStartStopDates(ret[row][ret[row].length-1])[1]; // assume sorted
-                    if (dates[0]>=currStopDate) break;
+                    if (dates[0]>currStopDate) break;
+                    if (allowOneDayOverlap && dates[0]===currStopDate) break;
                 }
                 if (row===ret.length) ret.push([]);
-                ret[row].push(treatment);
+                ret[row].push(event);
             });
             return ret;
         }
@@ -412,6 +413,12 @@
             });
             return times;
         }
+        
+        function sortByDate(timePointsData) {
+            return timePointsData.sort(function(a,b){
+                return a["startDate"]-b["startDate"];
+            });
+        }
             
         var prepare = function(timelineData) {
             var timelineDataByType = {};
@@ -425,11 +432,14 @@
             var ret = [];
             
             if ("SPECIMEN" in timelineDataByType) {
-                ret.push({
-                    label:"Specimen",
-                    display:"circle",
-                    class:"timeline-speciman",
-                    times:formatTimePoints(timelineDataByType["SPECIMEN"])});
+                var eventGroups = separateEvents(sortByDate(timelineDataByType["SPECIMEN"]), "SpecimenPreservationType");
+                for (var type in eventGroups) {
+                    ret.push({
+                        label:type,
+                        display:"circle",
+                        class:"timeline-speciman",
+                        times:formatTimePoints(eventGroups[type])});
+                }
             }
             
             if ("STATUS" in timelineDataByType) {
@@ -441,19 +451,25 @@
             }
             
             if ("DIAGNOSTIC" in timelineDataByType) {
-                ret.push({
-                    label:"Diagnostics",
-                    display:"circle",
-                    class:"timeline-diagnostic",
-                    times:formatTimePoints(timelineDataByType["DIAGNOSTIC"])});
+                var eventGroups = separateEvents(sortByDate(timelineDataByType["DIAGNOSTIC"]),"DIAGNOSTIC_TYPE");
+                for (var type in eventGroups) {
+                    ret.push({
+                        label:type,
+                        display:"circle",
+                        class:"timeline-diagnostic",
+                        times:formatTimePoints(eventGroups[type])});
+                }
             }
             
             if ("LAB_TEST" in timelineDataByType) {
-                ret.push({
-                    label:"Lab Tests",
-                    display:"circle",
-                    class:"timeline-lab_test",
-                    times:formatTimePoints(timelineDataByType["LAB_TEST"])});
+                var eventGroups = separateEvents(sortByDate(timelineDataByType["LAB_TEST"]),"TEST");
+                for (var test in eventGroups) {
+                   ret.push({
+                        label:test,
+                        display:"circle",
+                        class:"timeline-lab_test",
+                        times:formatTimePoints(eventGroups[test])});
+                }
             }
             
             if ("TREATMENT" in timelineDataByType) {
@@ -484,7 +500,7 @@
                     }
                     return a["startDate"]-b["startDate"];
                 });
-                var treatmentGroups = separateTreatmentsByTime(treatments);
+                var treatmentGroups = separateEventsByTime(treatments,true);
                 for (var i in treatmentGroups) {
                     ret.push({
                         label:"Treatment",

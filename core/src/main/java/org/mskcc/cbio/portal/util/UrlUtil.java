@@ -120,7 +120,7 @@ public class UrlUtil {
                     	// if no request attribute found, then use the utility function
                     	else
                     	{
-                    		currentValue = CaseSetUtil.shortenCaseIds(currentValue);
+                    		currentValue = PatientSetUtil.shortenPatientIds(currentValue);
                     	}
                     }
 

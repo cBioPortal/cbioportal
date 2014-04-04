@@ -35,11 +35,11 @@ import org.mskcc.cbio.portal.scripts.*;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 /**
- * JUnit test for GetCaseLists class.
+ * JUnit test for GetPatientLists class.
  */
-public class TestGetCaseList extends TestCase {
+public class TestGetPatientList extends TestCase {
 
-   public void testGetCaseList() throws Exception {
+   public void testGetPatientList() throws Exception {
 
        createSmallDbms();
 
@@ -48,9 +48,9 @@ public class TestGetCaseList extends TestCase {
 	  // TBD: change this to use getResourceAsStream()
       File file = new File("target/test-classes/case_list_test.txt");
       
-      ImportCaseList.importCaseList(file, pMonitor);
-      String[] caseList = GetCaseLists.getCaseListsAsTable("gbm").split("\n");
-      assertTrue(caseList[1].startsWith("gbm_6\tGBM 6\tGBM 6 Case List Description"));
+      ImportPatientList.importPatientList(file, pMonitor);
+      String[] patientList = GetPatientLists.getPatientListsAsTable("gbm").split("\n");
+      assertTrue(patientList[1].startsWith("gbm_6\tGBM 6\tGBM 6 Case List Description"));
    }
 
     private void createSmallDbms() throws DaoException

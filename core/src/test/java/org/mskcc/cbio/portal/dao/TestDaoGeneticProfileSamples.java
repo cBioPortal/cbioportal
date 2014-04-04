@@ -28,7 +28,6 @@
 package org.mskcc.cbio.portal.dao;
 
 import junit.framework.TestCase;
-import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.scripts.ResetDatabase;
 
@@ -39,33 +38,33 @@ import java.util.ArrayList;
  *
  * @author Ethan Cerami.
  */
-public class TestDaoGeneticProfileCases extends TestCase {
+public class TestDaoGeneticProfileSamples extends TestCase {
 
     /**
-     * Tests the Dao Genetic Profile Cases Class.
+     * Tests the Dao Genetic Profile Samples Class.
      * @throws DaoException Database Exception.
      */
-    public void testDaoGeneticProfileCases() throws DaoException {
+    public void testDaoGeneticProfileSamples() throws DaoException {
         ResetDatabase.resetDatabase();
         createSamples();
 
-        DaoGeneticProfileCases daoGeneticProfileCases = new DaoGeneticProfileCases();
-        ArrayList<String> orderedCaseList = new ArrayList<String>();
-        orderedCaseList.add("TCGA-1");
-        orderedCaseList.add("TCGA-2");
-        orderedCaseList.add("TCGA-3");
-        orderedCaseList.add("TCGA-4");
-        int numRows = daoGeneticProfileCases.addGeneticProfileCases(1, orderedCaseList);
+        DaoGeneticProfileSamples daoGeneticProfileSamples = new DaoGeneticProfileSamples();
+        ArrayList<Integer> orderedSampleList = new ArrayList<Integer>();
+        orderedSampleList.add(1);
+        orderedSampleList.add(2);
+        orderedSampleList.add(3);
+        orderedSampleList.add(4);
+        int numRows = daoGeneticProfileSamples.addGeneticProfileSamples(1, orderedSampleList);
 
         assertEquals (1, numRows);
 
-        orderedCaseList = daoGeneticProfileCases.getOrderedCaseList(1);
-        assertEquals (4, orderedCaseList.size());
+        orderedSampleList = daoGeneticProfileSamples.getOrderedSampleList(1);
+        assertEquals (4, orderedSampleList.size());
 
         //  Test the Delete method
-        daoGeneticProfileCases.deleteAllCasesInGeneticProfile(1);
-        orderedCaseList = daoGeneticProfileCases.getOrderedCaseList(1);
-        assertEquals (0, orderedCaseList.size());
+        daoGeneticProfileSamples.deleteAllSamplesInGeneticProfile(1);
+        orderedSampleList = daoGeneticProfileSamples.getOrderedSampleList(1);
+        assertEquals (0, orderedSampleList.size());
 
     }
 

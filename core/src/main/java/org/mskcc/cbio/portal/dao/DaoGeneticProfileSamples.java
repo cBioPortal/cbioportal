@@ -33,65 +33,60 @@ import java.sql.*;
 import java.util.*;
 
 /**
- * Data Access Objects for the Genetic Profile Cases Table.
+ * Data Access Objects for the Genetic Profile Samples Table.
  *
  * @author Ethan Cerami.
  */
-public class DaoGeneticProfileCases {
+public class DaoGeneticProfileSamples {
     private static final String DELIM = ",";
 
     /**
-     * Adds a new Ordered Case List for a Specified Genetic Profile ID.
+     * Adds a new Ordered Sample List for a Specified Genetic Profile ID.
      *
      * @param geneticProfileId  Genetic Profile ID.
-     * @param orderedCaseList   Array List of Case IDs.
+     * @param orderedSampleList   Array List of Sample IDs.
      * @return number of rows added.
      * @throws DaoException Data Access Exception.
      */
-    public int addGeneticProfileCases(int geneticProfileId, ArrayList<String> orderedCaseList)
+    public int addGeneticProfileSamples(int geneticProfileId, ArrayList<Integer> orderedSampleList)
             throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        StringBuffer orderedCaseListBuf = new StringBuffer();
+        StringBuffer orderedSampleListBuf = new StringBuffer();
         //  Created Joined String, based on DELIM token
-        for (String caseId:  orderedCaseList) {
-            if (caseId.contains(DELIM)) {
-                throw new IllegalArgumentException("Case ID cannot contain:  " + DELIM
-                    + " --> " + caseId);
-            }
-            Sample sample = DaoSample.getSampleByStableId(caseId);
-            orderedCaseListBuf.append(Integer.toString(sample.getInternalId())).append(DELIM);
+        for (Integer sampleId :  orderedSampleList) {
+            orderedSampleListBuf.append(Integer.toString(sampleId)).append(DELIM);
         }
         try {
-            con = JdbcUtil.getDbConnection(DaoGeneticProfileCases.class);
+            con = JdbcUtil.getDbConnection(DaoGeneticProfileSamples.class);
             pstmt = con.prepareStatement
                     ("INSERT INTO genetic_profile_samples (`GENETIC_PROFILE_ID`, " +
                     "`ORDERED_SAMPLE_LIST`) "+ "VALUES (?,?)");
             pstmt.setInt(1, geneticProfileId);
-            pstmt.setString(2, orderedCaseListBuf.toString());
+            pstmt.setString(2, orderedSampleListBuf.toString());
             return pstmt.executeUpdate();
         } catch (NullPointerException e) {
             throw new DaoException(e);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(DaoGeneticProfileCases.class, con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGeneticProfileSamples.class, con, pstmt, rs);
         }
     }
 
     /**
-     * Deletes all cases associated with the specified Genetic Profile ID.
+     * Deletes all samples associated with the specified Genetic Profile ID.
      *
      * @param geneticProfileId Genetic Profile ID.
      * @throws DaoException Database Error.
      */
-    public void deleteAllCasesInGeneticProfile(int geneticProfileId) throws DaoException {
+    public void deleteAllSamplesInGeneticProfile(int geneticProfileId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection(DaoGeneticProfileCases.class);
+            con = JdbcUtil.getDbConnection(DaoGeneticProfileSamples.class);
             pstmt = con.prepareStatement("DELETE from " +
                     "genetic_profile_samples WHERE GENETIC_PROFILE_ID=?");
             pstmt.setLong(1, geneticProfileId);
@@ -99,45 +94,43 @@ public class DaoGeneticProfileCases {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(DaoGeneticProfileCases.class, con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGeneticProfileSamples.class, con, pstmt, rs);
         }
     }
 
     /**
-     * Gets an Ordered Case List for the specified Genetic Profile ID.
+     * Gets an Ordered Sample List for the specified Genetic Profile ID.
      *
      * @param geneticProfileId Genetic Profile ID.
-     * @return ArrayList of Case IDs.
      * @throws DaoException Database Error.
      */
-    public ArrayList <String> getOrderedCaseList (int geneticProfileId) throws DaoException {
+    public ArrayList <Integer> getOrderedSampleList(int geneticProfileId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection(DaoGeneticProfileCases.class);
+            con = JdbcUtil.getDbConnection(DaoGeneticProfileSamples.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM genetic_profile_samples WHERE GENETIC_PROFILE_ID = ?");
             pstmt.setInt(1, geneticProfileId);
             rs = pstmt.executeQuery();
             if  (rs.next()) {
-                String orderedCaseList = rs.getString("ORDERED_SAMPLE_LIST");
+                String orderedSampleList = rs.getString("ORDERED_SAMPLE_LIST");
 
                 //  Split, based on DELIM token
-                String parts[] = orderedCaseList.split(DELIM);
-                ArrayList <String> caseList = new ArrayList <String>();
+                String parts[] = orderedSampleList.split(DELIM);
+                ArrayList <Integer> sampleList = new ArrayList <Integer>();
                 for (String internalSampleId : parts) {
-                    Sample s = DaoSample.getSampleByInternalId(Integer.parseInt(internalSampleId));
-                    caseList.add(s.getStableId());
+                    sampleList.add(Integer.parseInt(internalSampleId));
                 }
-                return caseList;
+                return sampleList;
             } else {
-                return new ArrayList<String>();
+                return new ArrayList<Integer>();
             }
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(DaoGeneticProfileCases.class, con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGeneticProfileSamples.class, con, pstmt, rs);
         }
     }
 
@@ -150,13 +143,13 @@ public class DaoGeneticProfileCases {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection(DaoGeneticProfileCases.class);
+            con = JdbcUtil.getDbConnection(DaoGeneticProfileSamples.class);
             pstmt = con.prepareStatement("TRUNCATE TABLE genetic_profile_samples");
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(DaoGeneticProfileCases.class, con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGeneticProfileSamples.class, con, pstmt, rs);
         }
     }
 }

@@ -114,7 +114,7 @@ public class DaoClinicalAttribute {
     public static List<ClinicalAttribute> getDataBySamples(int cancerStudyId, Set<String> sampleIdSet) throws DaoException
     {
         List<Integer> patientIds = new ArrayList<Integer>();
-        for (Patient patient : DaoPatient.getPatientsByInternalCancerStudyId(cancerStudyId)) {
+        for (Patient patient : DaoPatient.getPatientsByCancerStudyId(cancerStudyId)) {
             patientIds.add(patient.getInternalId());
         }
         return getDataByInternalIds(patientIds);

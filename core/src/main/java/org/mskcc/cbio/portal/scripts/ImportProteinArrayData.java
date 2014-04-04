@@ -70,16 +70,13 @@ public class ImportProteinArrayData {
         FileReader reader = new FileReader(arrayData);
         BufferedReader buf = new BufferedReader(reader);
         String line = buf.readLine();
-        String[] caseIds = line.split("\t");
-        ArrayList<String> cases = new ArrayList<String>();
-        for (int i=1; i < caseIds.length; i++) {
-            String caseId = CaseIdUtil.getSampleId(caseIds[i]);
-            cases.add(caseId);
-        }
+        String[] sampleIds = line.split("\t");
+
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
-        ImportProfileData.addPatients(cases.toArray(new String[cases.size()]), cancerStudy);
-        ImportProfileData.addSamples(cases.toArray(new String[cases.size()]), cancerStudy);
+        ImportDataUtil.addPatients(sampleIds, cancerStudy);
+        ImportDataUtil.addSamples(sampleIds, cancerStudy);
         
+        ArrayList<Integer> internalSampleIds = new ArrayList<Integer>();
         while ((line=buf.readLine()) != null) {
             if (pMonitor != null) {
                 pMonitor.incrementCurValue();
@@ -89,19 +86,21 @@ public class ImportProteinArrayData {
             String[] strs = line.split("\t");
             String arrayInfo = strs[0];
             String arrayId = importArrayInfo(arrayInfo);
-            
+           
             double[] zscores = convertToZscores(strs);
             for (int i=0; i<zscores.length; i++) {
-                ProteinArrayData pad = new ProteinArrayData(cancerStudyId, arrayId, cases.get(i), zscores[i]);
+                Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleIds[i]);
+                ProteinArrayData pad = new ProteinArrayData(cancerStudyId, arrayId, sample.getInternalId(), zscores[i]);
                 daoPAD.addProteinArrayData(pad);
+                internalSampleIds.add(sample.getInternalId());
             }
             
         }
         
         // import profile
-        addRPPAProfile(cases);
+        addRPPAProfile(internalSampleIds);
     }
-    
+
     private double[] convertToZscores(String[] strs) {
         double[] data = new double[strs.length-1];
         for (int i=1; i<strs.length; i++) {
@@ -206,24 +205,9 @@ public class ImportProteinArrayData {
         }
     }
     
-    private void addRPPACaseList(ArrayList<String> cases) throws DaoException {
-        DaoCaseList daoCaseList = new DaoCaseList();
-        if (daoCaseList.getCaseListByStableId(cancerStudyStableId+"_RPPA")!=null) {
-            return;
-        }
-        
-        CaseList caseList = new CaseList(cancerStudyStableId+"_RPPA",-1,cancerStudyId,"Tumors with RPPA data",
-                CaseListCategory.ALL_CASES_WITH_RPPA_DATA);
-        caseList.setDescription("All tumor samples with protein/phosphoprotein levels determined by " +
-                "reverse phase protein array.");
-        caseList.setCaseList(cases);
-        
-        daoCaseList.addCaseList(caseList);
-    }
-    
-    private void addRPPAProfile(ArrayList<String> cases) throws DaoException {
+    private void addRPPAProfile(ArrayList<Integer> sampleIds) throws DaoException {
         // add profile
-        DaoGeneticProfileCases daoGeneticProfileCases = new DaoGeneticProfileCases();
+        DaoGeneticProfileSamples daoGeneticProfileSamples = new DaoGeneticProfileSamples();
         String idProfProt = cancerStudyStableId+"_RPPA_protein_level";
         if (DaoGeneticProfile.getGeneticProfileByStableId(idProfProt)==null) {
             GeneticProfile gpPro = new GeneticProfile(idProfProt, cancerStudyId,
@@ -232,8 +216,8 @@ public class ImportProteinArrayData {
 													  "Protein or phosphoprotein level (Z-scores) measured by reverse phase protein array (RPPA)",
 													  true);
             DaoGeneticProfile.addGeneticProfile(gpPro);
-            daoGeneticProfileCases.addGeneticProfileCases(
-                    DaoGeneticProfile.getGeneticProfileByStableId(idProfProt).getGeneticProfileId(), cases);
+            daoGeneticProfileSamples.addGeneticProfileSamples(
+                    DaoGeneticProfile.getGeneticProfileByStableId(idProfProt).getGeneticProfileId(), sampleIds);
         }
     }
     
@@ -269,13 +253,13 @@ public class ImportProteinArrayData {
         DaoProteinArrayInfo daoPAI = DaoProteinArrayInfo.getInstance();
         DaoProteinArrayTarget daoPAT = DaoProteinArrayTarget.getInstance();
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-        DaoCaseList daoCaseList = new DaoCaseList();
+        DaoPatientList daoPatientList = new DaoPatientList();
         ArrayList<CancerStudy> studies = DaoCancerStudy.getAllCancerStudies();
         for (CancerStudy study : studies) {
             int studyId = study.getInternalId();
-            CaseList caselist = daoCaseList.getCaseListByStableId(study.getCancerStudyStableId()+"_RPPA");
-            if (caselist==null) continue;
-            ArrayList<String> cases = caselist.getCaseList();
+            PatientList patientlist = daoPatientList.getPatientListByStableId(study.getCancerStudyStableId()+"_RPPA");
+            if (patientlist==null) continue;
+            List<Integer> sampleIds = InternalIdUtil.getInternalSampleIds(studyId, patientlist.getPatientList());
             ArrayList<ProteinArrayInfo> phosphoArrays = daoPAI.getProteinArrayInfoForType(
                     studyId, Collections.singleton("phosphorylation"));
             ArrayList<ProteinArrayInfo> proteinArrays = daoPAI.getProteinArrayInfoForType(
@@ -307,23 +291,23 @@ public class ImportProteinArrayData {
                         daoPAI.addProteinArrayCancerStudy(id, Collections.singleton(studyId));
                         
                         ArrayList<ProteinArrayData> phosphoData = daoPAD.getProteinArrayData(
-                                studyId, Collections.singleton(phosphoArray.getId()), cases);
+                                studyId, Collections.singleton(phosphoArray.getId()), sampleIds);
                         ArrayList<ProteinArrayData> proteinData = daoPAD.getProteinArrayData(
-                                studyId, Collections.singleton(proteinArray.getId()), cases);
-                        HashMap<String,ProteinArrayData> mapProteinData = new HashMap<String,ProteinArrayData>();
+                                studyId, Collections.singleton(proteinArray.getId()), sampleIds);
+                        HashMap<Integer,ProteinArrayData> mapProteinData = new HashMap<Integer,ProteinArrayData>();
                         for (ProteinArrayData pad : proteinData) {
-                            mapProteinData.put(pad.getCaseId(), pad);
+                            mapProteinData.put(pad.getSampleId(), pad);
                         }
                         
                         for (ProteinArrayData pad : phosphoData) {
-                            String caseid = pad.getCaseId();
-                            ProteinArrayData proteinPAD = mapProteinData.get(caseid);
+                            Integer sampleId = pad.getSampleId();
+                            ProteinArrayData proteinPAD = mapProteinData.get(sampleId);
                             if (proteinPAD==null) {
-                                System.err.println("no data: "+proteinPAD.getArrayId()+" "+caseid);
+                                System.err.println("no data: "+proteinPAD.getArrayId()+" "+sampleId);
                                 continue;
                             }
                             double abud = pad.getAbundance() - proteinPAD.getAbundance(); // minus
-                            ProteinArrayData norm = new ProteinArrayData(studyId, id, caseid, abud);
+                            ProteinArrayData norm = new ProteinArrayData(studyId, id, sampleId, abud);
                             daoPAD.addProteinArrayData(norm);
                         }
                         

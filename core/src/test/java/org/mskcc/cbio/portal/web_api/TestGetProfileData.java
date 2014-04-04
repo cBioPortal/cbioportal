@@ -71,13 +71,13 @@ public class TestGetProfileData extends TestCase {
         ArrayList <String> geneticProfileIdList = new ArrayList<String>();
         geneticProfileIdList.add("gbm_rae");
 
-        ArrayList <String> caseIdList = new ArrayList <String>();
-        caseIdList.add("TCGA-02-0001");
-        caseIdList.add("TCGA-02-0003");
-        caseIdList.add("TCGA-02-0006");
+        ArrayList <String> sampleIdList = new ArrayList <String>();
+        sampleIdList.add("TCGA-02-0001-01");
+        sampleIdList.add("TCGA-02-0003-01");
+        sampleIdList.add("TCGA-02-0006-01");
 
         GetProfileData getProfileData = new GetProfileData(geneticProfileIdList, targetGeneList,
-                caseIdList, new Boolean(false));
+                sampleIdList, new Boolean(false));
         String out = getProfileData.getRawContent();
         String lines[] = out.split("\n");
         assertEquals("# DATA_TYPE\t Barry CNA Results" , lines[0]);

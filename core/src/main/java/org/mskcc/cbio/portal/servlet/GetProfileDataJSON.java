@@ -27,34 +27,26 @@
 
 package org.mskcc.cbio.portal.servlet;
 
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.*;
+
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.node.ObjectNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.*;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-
-import org.mskcc.cbio.portal.dao.*;
-
-import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.CaseList;
-import org.mskcc.cbio.portal.model.Gene;
-import org.mskcc.cbio.portal.model.GeneticProfile;
-import org.mskcc.cbio.portal.util.CaseSetUtil;
+import java.util.*;
 
 /**
  * Retrieves genomic profile data for one or more genes.
  * developed based on web api "GetGeneticProfiles"
  *
  * @param genetic_profile_id
- * @param case_set_id
+ * @param patient_set_id
  * @param gene_list
  *
  * @return JSON objects of genetic profile data
@@ -87,8 +79,8 @@ public class GetProfileDataJSON extends HttpServlet  {
 
         //Get URL Parameters
         String cancerStudyIdentifier = httpServletRequest.getParameter("cancer_study_id");
-        String caseSetId = httpServletRequest.getParameter("case_set_id");
-        String caseIdsKey = httpServletRequest.getParameter("case_ids_key");
+        String patientSetId = httpServletRequest.getParameter("case_set_id");
+        String patientIdsKey = httpServletRequest.getParameter("case_ids_key");
         String[] geneIdList = httpServletRequest.getParameter("gene_list").split("\\s+");
         String[] geneticProfileIds = httpServletRequest.getParameter("genetic_profile_id").split("\\s+");
 
@@ -103,21 +95,22 @@ public class GetProfileDataJSON extends HttpServlet  {
                 throw new DaoException("Unknown cancer study id: " + cancerStudyIdentifier);
             }
 
-            //Get Case case ID list
-            DaoCaseList daoCaseList = new DaoCaseList();
-            CaseList caseList = null;
-            ArrayList<String> caseIdList = new ArrayList<String>();
-            if (caseSetId.equals("-1")) {
-                String strCaseIds = CaseSetUtil.getCaseIds(caseIdsKey);
-                String[] caseArray = strCaseIds.split("\\s+");
-                for (String item : caseArray) {
-                    caseIdList.add(item);
+            //Get patient ID list
+            DaoPatientList daoPatientList = new DaoPatientList();
+            PatientList patientList = null;
+            ArrayList<String> patientIdList = new ArrayList<String>();
+            if (patientSetId.equals("-1")) {
+                String strPatientIds = PatientSetUtil.getPatientIds(patientIdsKey);
+                String[] patientArray = strPatientIds.split("\\s+");
+                for (String item : patientArray) {
+                    patientIdList.add(item);
                 }
             } else {
-                caseList = daoCaseList.getCaseListByStableId(caseSetId);
-                caseIdList = caseList.getCaseList();
+                patientList = daoPatientList.getPatientListByStableId(patientSetId);
+                patientIdList = patientList.getPatientList();
             }
-            caseIdList = GeneticAlterationUtil.getSampleIdsFromPatientIds(cancerStudy.getInternalId(), caseIdList);
+            List<Integer> internalSampleIds = InternalIdUtil.getInternalSampleIdsFromPatientIds(cancerStudy.getInternalId(), patientIdList);
+            List<String> stableSampleIds = InternalIdUtil.getStableSampleIds(internalSampleIds);
 
             //Get profile data
             for (String geneId: geneIdList) {
@@ -128,10 +121,10 @@ public class GetProfileDataJSON extends HttpServlet  {
                 JsonNode tmpGeneObj = mapper.createObjectNode();
 
                 HashMap<String, JsonNode> tmpObjMap =
-                        new LinkedHashMap<String, JsonNode>(); //<"case_id", "profile_data_collection_json"
-                for (String caseId: caseIdList) {
+                        new LinkedHashMap<String, JsonNode>(); //<"sample_id", "profile_data_collection_json"
+                for (String stableSampleId : stableSampleIds) {
                     JsonNode tmp = mapper.createObjectNode();
-                    tmpObjMap.put(caseId, tmp);
+                    tmpObjMap.put(stableSampleId, tmp);
                 }
 
                 //Get raw data (plain text) for each profile
@@ -139,17 +132,17 @@ public class GetProfileDataJSON extends HttpServlet  {
                     try {
                         ArrayList<String> tmpProfileDataArr = GeneticAlterationUtil.getGeneticAlterationDataRow(
                                 gene,
-                                caseIdList,
+                                internalSampleIds,
                                 DaoGeneticProfile.getGeneticProfileByStableId(geneticProfileId));
-                        //Mapping case Id and profile data
+                        //Mapping sample Id and profile data
                         HashMap<String,String> tmpResultMap =
-                                new HashMap<String,String>();  //<"case_id", "profile_data">
-                        for (int i = 0; i < caseIdList.size(); i++) {
-                            tmpResultMap.put(caseIdList.get(i), tmpProfileDataArr.get(i));
+                                new HashMap<String,String>();  //<"sample_id", "profile_data">
+                        for (int i = 0; i < stableSampleIds.size(); i++) {
+                            tmpResultMap.put(stableSampleIds.get(i), tmpProfileDataArr.get(i));
                         }
 
-                        for (String caseId: caseIdList) {
-                            ((ObjectNode)(tmpObjMap.get(caseId))).put(geneticProfileId, tmpResultMap.get(caseId));
+                        for (String stableSampleId : stableSampleIds) {
+                            ((ObjectNode)(tmpObjMap.get(stableSampleId))).put(geneticProfileId, tmpResultMap.get(stableSampleId));
                         }
                     } catch(NullPointerException e) {
                         //TODO: handle empty dataset
@@ -157,8 +150,8 @@ public class GetProfileDataJSON extends HttpServlet  {
                     }
                 }
 
-                for (String caseId: caseIdList) {
-                    ((ObjectNode)tmpGeneObj).put(caseId, tmpObjMap.get(caseId));
+                for (String stableSampleId : stableSampleIds) {
+                    ((ObjectNode)tmpGeneObj).put(stableSampleId, tmpObjMap.get(stableSampleId));
                 }
 
                 ((ObjectNode)result).put(geneId, tmpGeneObj);

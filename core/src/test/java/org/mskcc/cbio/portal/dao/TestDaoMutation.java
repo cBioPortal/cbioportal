@@ -58,7 +58,7 @@ public class TestDaoMutation extends TestCase {
                 mutation.setMutationEventId(1);
                 mutation.setKeyword("key");
 		mutation.setGeneticProfileId(1);
-		mutation.setCaseId("1234");
+		mutation.setSampleId(1);
 		mutation.setGene(blahGene);
 		mutation.setValidationStatus("validated");
 		mutation.setMutationStatus("somatic");
@@ -115,7 +115,7 @@ public class TestDaoMutation extends TestCase {
 		if( MySQLbulkLoader.isBulkLoad()){
                     MySQLbulkLoader.flushAll();
 		}
-		ArrayList<ExtendedMutation> mutationList = DaoMutation.getMutations(1, "1234", 321);
+		ArrayList<ExtendedMutation> mutationList = DaoMutation.getMutations(1, 1, 321);
 		validateMutation(mutationList.get(0));
 
 		//  Test the getGenesInProfile method
@@ -131,7 +131,7 @@ public class TestDaoMutation extends TestCase {
 
 	private void validateMutation(ExtendedMutation mutation) {
 		assertEquals (1, mutation.getGeneticProfileId());
-		assertEquals ("1234", mutation.getCaseId());
+		assertEquals (1, mutation.getSampleId());
 		assertEquals (321, mutation.getEntrezGeneId());
 		assertEquals ("validated", mutation.getValidationStatus());
 		assertEquals ("somatic", mutation.getMutationStatus());

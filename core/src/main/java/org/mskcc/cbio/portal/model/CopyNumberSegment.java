@@ -8,17 +8,17 @@ package org.mskcc.cbio.portal.model;
 public class CopyNumberSegment {
     private long segId;
     private int cancerStudyId;
-    private String sample;
+    private int sampleId;
     private String chr; // 1-22,X/Y,M
     private long start;
     private long end;
     private int numProbes;
     private double segMean;
 
-    public CopyNumberSegment(int cancerStudyId, String sample, String chr,
+    public CopyNumberSegment(int cancerStudyId, int sampleId, String chr,
             long start, long end, int numProbes, double segMean) {
         this.cancerStudyId = cancerStudyId;
-        this.sample = sample;
+        this.sampleId = sampleId;
         this.chr = chr;
         this.start = start;
         this.end = end;
@@ -58,12 +58,12 @@ public class CopyNumberSegment {
         this.numProbes = numProbes;
     }
 
-    public String getCaseId() {
-        return sample;
+    public int getSampleId() {
+        return sampleId;
     }
 
-    public void setCaseId(String sample) {
-        this.sample = sample;
+    public void setSampleId(int sampleId) {
+        this.sampleId = sampleId;
     }
 
     public long getSegId() {

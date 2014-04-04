@@ -124,12 +124,12 @@ public class CrossCancerMutationDataServlet extends HttpServlet
                 //  Get all Genetic Profiles Associated with this Cancer Study ID.
                 ArrayList<GeneticProfile> geneticProfileList = GetGeneticProfiles.getGeneticProfiles(cancerStudyId);
 
-                //  Get all Case Lists Associated with this Cancer Study ID.
-                ArrayList<CaseList> caseSetList = GetCaseLists.getCaseLists(cancerStudyId);
+                //  Get all Patient Lists Associated with this Cancer Study ID.
+                ArrayList<PatientList> patientSetList = GetPatientLists.getPatientLists(cancerStudyId);
 
-                //  Get the default case set
-                AnnotatedCaseSets annotatedCaseSets = new AnnotatedCaseSets(caseSetList, dataTypePriority);
-                CaseList defaultCaseSet = annotatedCaseSets.getDefaultCaseList();
+                //  Get the default patient set
+                AnnotatedPatientSets annotatedPatientSets = new AnnotatedPatientSets(patientSetList, dataTypePriority);
+                PatientList defaultPatientSet = annotatedPatientSets.getDefaultPatientList();
 
                 //  Get the default genomic profiles
                 CategorizedGeneticProfileSet categorizedGeneticProfileSet =
@@ -149,15 +149,15 @@ public class CrossCancerMutationDataServlet extends HttpServlet
 
                 for (GeneticProfile profile : defaultGeneticProfileSet.values()) {
                     ArrayList<String> targetGeneList = this.parseValues(geneList);
-                    ArrayList<String> caseList = new ArrayList<String>();
-                    caseList.addAll(defaultCaseSet.getCaseList());
+                    ArrayList<String> patientList = new ArrayList<String>();
+                    patientList.addAll(defaultPatientSet.getPatientList());
 
                     if(!profile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED))
                             continue;
 
                     // add mutation data for each genetic profile
                     JSONArray mutationData
-                            = mutationDataUtils.getMutationData(profile.getStableId(), targetGeneList, caseList);
+                            = mutationDataUtils.getMutationData(profile.getStableId(), targetGeneList, patientList);
                     data.addAll(mutationData);
                 }
             }

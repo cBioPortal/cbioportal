@@ -47,17 +47,18 @@ public class GeneticAlterationUtil {
 
     /**
      * Gets a Row of data corresponding to:  target gene, within the target genetic profile
-     * and only within the target cases.
+     * and only within the target samples.
      *
      * @param targetGene                Target Gene.
-     * @param targetCaseList            Target Case List.
+     * @param targetSampleList          Target Sample List.
      * @param targetGeneticProfile      Target Genetic Profile.
      * @return Array List of String values.
      * @throws DaoException Database Error.
      */
-    public static ArrayList<String> getGeneticAlterationDataRow  (Gene targetGene,
-            ArrayList<String> targetCaseList, GeneticProfile targetGeneticProfile)
-            throws DaoException {
+    public static ArrayList<String> getGeneticAlterationDataRow(Gene targetGene,
+                                                                List<Integer> targetSampleList,
+                                                                GeneticProfile targetGeneticProfile) throws DaoException
+    {
         ArrayList<String> dataRow = new ArrayList<String>();
         DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
         DaoMicroRnaAlteration daoMicroRnaAlteration = DaoMicroRnaAlteration.getInstance();
@@ -65,43 +66,44 @@ public class GeneticAlterationUtil {
         //  First branch:  are we dealing with a canonical (protein-coding) gene or a microRNA?
         if (targetGene instanceof CanonicalGene) {
             CanonicalGene canonicalGene = (CanonicalGene) targetGene;
-            Map<String, String> caseMap;
+            Map<Integer, String> sampleMap;
 
             //  Handle Mutations one way
-            if (targetGeneticProfile.getGeneticAlterationType() ==
-                    GeneticAlterationType.MUTATION_EXTENDED) {
-                caseMap = getMutationMap (targetCaseList, targetGeneticProfile.getGeneticProfileId(),
-                        canonicalGene.getEntrezGeneId());
-            } else if (targetGeneticProfile.getGeneticAlterationType() ==
-                    GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) {
+            if (targetGeneticProfile.getGeneticAlterationType() == GeneticAlterationType.MUTATION_EXTENDED) {
+                sampleMap = getMutationMap(targetSampleList,
+                                            targetGeneticProfile.getGeneticProfileId(),
+                                            canonicalGene.getEntrezGeneId());
+            }
+            else if (targetGeneticProfile.getGeneticAlterationType() == GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) {
                 String type = canonicalGene.isPhosphoProtein() ? 
                         GeneticAlterationType.PHOSPHORYLATION.toString():GeneticAlterationType.PROTEIN_LEVEL.toString();
-                caseMap = getProteinArrayDataMap (targetGeneticProfile.getCancerStudyId(),
-                        targetCaseList, canonicalGene, type, null)[0];
-            } else {
+                sampleMap = getProteinArrayDataMap (targetGeneticProfile.getCancerStudyId(),
+                                                   targetSampleList, canonicalGene, type, null)[0];
+            }
+            else {
                 //  Handle All Other Data Types another way
-                caseMap = daoGeneticAlteration.getGeneticAlterationMap
-                        (targetGeneticProfile.getGeneticProfileId(),
-                                canonicalGene.getEntrezGeneId());
+                sampleMap = daoGeneticAlteration.getGeneticAlterationMap(targetGeneticProfile.getGeneticProfileId(),
+                                                                        canonicalGene.getEntrezGeneId());
             }
 
-            //  Iterate through all cases in the profile
-            for (String caseId:  targetCaseList) {
-                String value = caseMap.get(caseId);
+            //  Iterate through all samples in the profile
+            for (Integer sampleId:  targetSampleList) {
+                String value = sampleMap.get(sampleId);
                 if (value == null) {
                     dataRow.add (NAN);
                 } else {
                     dataRow.add (value);
                 }
             }
-        } else if (targetGene instanceof MicroRna) {
+        }
+        else if (targetGene instanceof MicroRna) {
             MicroRna microRna = (MicroRna) targetGene;
-            HashMap<String, String> caseMap = daoMicroRnaAlteration.getMicroRnaAlterationMap
+            HashMap<Integer, String> sampleMap = daoMicroRnaAlteration.getMicroRnaAlterationMap
                     (targetGeneticProfile.getGeneticProfileId(), microRna.getMicroRnaId());
 
-            //  Iterate through all cases in the profile
-            for (String caseId:  targetCaseList) {
-                String value = caseMap.get(caseId);
+            //  Iterate through all samples in the profile
+            for (Integer sampleId :  targetSampleList) {
+                String value = sampleMap.get(sampleId);
                 if (value == null) {
                     dataRow.add (NAN);
                 } else {
@@ -112,22 +114,23 @@ public class GeneticAlterationUtil {
         return dataRow;
     }
     
-    public static ArrayList<String> getBestCorrelatedProteinArrayDataRow(
-            int cancerStudyId, CanonicalGene targetGene,
-            ArrayList<String> targetCaseList, ArrayList<String> correlatedToData)
-            throws DaoException {
+    public static ArrayList<String> getBestCorrelatedProteinArrayDataRow(int cancerStudyId,
+                                                                        CanonicalGene targetGene,
+                                                                        List<Integer> targetSampleList,
+                                                                        List<String> correlatedToData) throws DaoException
+    {
         ArrayList<String> dataRow = new ArrayList<String>();
 
         String type = targetGene.isPhosphoProtein() ? 
                 GeneticAlterationType.PHOSPHORYLATION.toString():GeneticAlterationType.PROTEIN_LEVEL.toString();
         
-        Map<String, String>[] caseMaps = getProteinArrayDataMap(cancerStudyId, targetCaseList, targetGene,
-                        type,null);
+        Map<Integer, String>[] sampleMaps = getProteinArrayDataMap(cancerStudyId, targetSampleList,
+                                                                    targetGene, type, null);
         
-        Map<String, String> caseMap = getBestCorrelatedCaseMap(caseMaps, targetCaseList, correlatedToData);
-        //  Iterate through all cases in the profile
-        for (String caseId:  targetCaseList) {
-            String value = caseMap.get(caseId);
+        Map<Integer, String> sampleMap = getBestCorrelatedSampleMap(sampleMaps, targetSampleList, correlatedToData);
+        //  Iterate through all samples in the profile
+        for (Integer sampleId :  targetSampleList) {
+            String value = sampleMap.get(sampleId);
             if (value == null) {
                 dataRow.add (NAN);
             } else {
@@ -140,26 +143,26 @@ public class GeneticAlterationUtil {
     /**
      * Gets a Map of Mutation Data.
      */
-    private static HashMap <String, String> getMutationMap (ArrayList<String> targetCaseList,
-            int geneticProfileId, long entrezGeneId) throws DaoException {
-
-        HashMap <String, String> mutationMap = new HashMap <String, String>();
+    private static HashMap <Integer, String> getMutationMap (List<Integer> targetSampleList,
+                                                             int geneticProfileId, long entrezGeneId) throws DaoException
+    {
+        HashMap <Integer, String> mutationMap = new HashMap <Integer, String>();
         ArrayList <ExtendedMutation> mutationList =
-                    DaoMutation.getMutations(geneticProfileId, targetCaseList, entrezGeneId);
+                    DaoMutation.getMutations(geneticProfileId, targetSampleList, entrezGeneId);
         
         for (ExtendedMutation mutation : mutationList) {
-            String caseId = mutation.getCaseId();
-            //  Handle the possibility of multiple mutations in the same gene / patient
+            Integer sampleId = mutation.getSampleId();
+            //  Handle the possibility of multiple mutations in the same gene / sample
             //  Handles issue:  165
-            if (mutationMap.containsKey(caseId))
+            if (mutationMap.containsKey(sampleId))
             {
-                String existingStr = mutationMap.get(caseId);
-                mutationMap.put(caseId, existingStr + "," +
+                String existingStr = mutationMap.get(sampleId);
+                mutationMap.put(sampleId, existingStr + "," +
 					mutation.getProteinChange());
             }
             else
             {
-                mutationMap.put(caseId, mutation.getProteinChange());
+                mutationMap.put(sampleId, mutation.getProteinChange());
             }
         }
         return mutationMap;
@@ -168,13 +171,14 @@ public class GeneticAlterationUtil {
     /**
      * Gets a Map of Protein Array Data.
      */
-    private static Map <String, String>[] getProteinArrayDataMap
-            (int cancerStudyId, ArrayList<String> targetCaseList, CanonicalGene canonicalGene, String type,
-            ArrayList<String> correlatedToData) throws DaoException {
+    private static Map <Integer, String>[] getProteinArrayDataMap(int cancerStudyId, List<Integer> targetSampleList,
+                                                                CanonicalGene canonicalGene, String type,
+                                                                List<String> correlatedToData) throws DaoException
+    {
         DaoProteinArrayInfo daoPAI = DaoProteinArrayInfo.getInstance();
         DaoProteinArrayData daoPAD = DaoProteinArrayData.getInstance();
         
-        Map <String, String>[] ret;
+        Map <Integer, String>[] ret;
 
         List<String> arrayIds = new ArrayList<String>();
         if (canonicalGene.isPhosphoProtein()) {
@@ -199,7 +203,7 @@ public class GeneticAlterationUtil {
         
         if (arrayIds.isEmpty()) {
             ret = new Map[1];
-            Map <String, String> map = Collections.emptyMap();
+            Map <Integer, String> map = Collections.emptyMap();
             ret[0] = map;
             return ret;
         }
@@ -214,25 +218,28 @@ public class GeneticAlterationUtil {
                 continue;
             }
 
-            ret[i] = new HashMap<String,String>();
-            List<ProteinArrayData> pads = daoPAD.getProteinArrayData(cancerStudyId, arrayId, targetCaseList);
+            ret[i] = new HashMap<Integer,String>();
+            List<ProteinArrayData> pads = daoPAD.getProteinArrayData(cancerStudyId, arrayId, targetSampleList);
             for (ProteinArrayData pad : pads) {
-                ret[i].put(pad.getCaseId(), Double.toString(pad.getAbundance()));
+                ret[i].put(pad.getSampleId(), Double.toString(pad.getAbundance()));
             }
         }
         return ret;
     }
     
-    private static Map<String,String> getBestCorrelatedCaseMap(Map<String, String>[] caseMaps,
-            ArrayList<String> targetCaseList, ArrayList<String> correlatedToData) {
-        if (caseMaps.length==1 || correlatedToData==null || correlatedToData.size()!= targetCaseList.size()) {
-            return caseMaps[0];
+    private static Map<Integer,String> getBestCorrelatedSampleMap(Map<Integer, String>[] sampleMaps,
+                                                                List<Integer> targetSampleList,
+                                                                List<String> correlatedToData)
+    {
+
+        if (sampleMaps.length==1 || correlatedToData==null || correlatedToData.size()!= targetSampleList.size()) {
+            return sampleMaps[0];
         }
         
-        Map<String, String> ret = null;
+        Map<Integer, String> ret = null;
         double maxCorr = Double.NEGATIVE_INFINITY;
-        for (Map<String, String> map : caseMaps) {
-            double corr = calcCorrCoef(map, targetCaseList, correlatedToData);
+        for (Map<Integer, String> map : sampleMaps) {
+            double corr = calcCorrCoef(map, targetSampleList, correlatedToData);
             if (corr > maxCorr) {
                 maxCorr = corr;
                 ret = map;
@@ -242,18 +249,20 @@ public class GeneticAlterationUtil {
         return ret;
     }
     
-    private static double calcCorrCoef(Map<String, String> caseMap,
-            ArrayList<String> targetCaseList, ArrayList<String> correlatedToData) {
+    private static double calcCorrCoef(Map<Integer, String> sampleMap,
+                                        List<Integer> targetSampleList,
+                                        List<String> correlatedToData)
+    {
         try {
             List<Double> l1 = new ArrayList<Double>();
             List<Double> l2 = new ArrayList<Double>();
-            for (int i=0; i<targetCaseList.size(); i++) {
-                String targetCase = targetCaseList.get(i);
+            for (int i=0; i<targetSampleList.size(); i++) {
+                Integer targetSample = targetSampleList.get(i);
                 if (correlatedToData.get(i).equals("NAN")) {
                     continue;
                 }
 
-                String abun = caseMap.get(targetCase);
+                String abun = sampleMap.get(targetSample);
                 if (abun==null) {
                     continue;
                 }
@@ -275,20 +284,5 @@ public class GeneticAlterationUtil {
         } catch (Exception e) {
             return -2.0;
         }
-    }
-
-    public static ArrayList<String> getSampleIdsFromPatientIds(int cancerStudyId, List<String> targetCaseList)
-    {
-        ArrayList<String> sampleIds = new ArrayList<String>();
-        for (String patientId : targetCaseList) {
-            Patient patient = DaoPatient.getPatient(cancerStudyId, patientId);
-            for (Sample sample : DaoSample.getSamplesByInternalPatientId(patient.getInternalId())) {
-                if (sample.getType() != Sample.Type.SOLID_NORMAL &&
-                    sample.getType() != Sample.Type.BLOOD_NORMAL) {
-                    sampleIds.add(sample.getStableId());
-                }
-            }
-        }
-        return sampleIds;
     }
 }

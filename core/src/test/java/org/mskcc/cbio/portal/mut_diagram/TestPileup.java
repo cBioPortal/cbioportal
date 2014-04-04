@@ -83,7 +83,7 @@ public final class TestPileup {
     public void testPileupSingleMutation() {
         ExtendedMutation mutation = new ExtendedMutation();
         mutation.setProteinChange("A123K");
-        mutation.setCaseId("caseId");
+        mutation.setSampleId(1);
 
         List<Pileup> pileups = Pileup.pileup(ImmutableList.of(mutation));
         assertNotNull(pileups);
@@ -96,16 +96,16 @@ public final class TestPileup {
     }
 
     @Test
-    public void testPileupMultipleMutationsSameLocationDifferentCaseIds() {
+    public void testPileupMultipleMutationsSameLocationDifferentSampleIds() {
         ExtendedMutation mutation0 = new ExtendedMutation();
         ExtendedMutation mutation1 = new ExtendedMutation();
         ExtendedMutation mutation2 = new ExtendedMutation();
         mutation0.setProteinChange("A123K");
         mutation1.setProteinChange("A123K");
         mutation2.setProteinChange("A123K");
-        mutation0.setCaseId("caseId0");
-        mutation1.setCaseId("caseId1");
-        mutation2.setCaseId("caseId2");
+        mutation0.setSampleId(1);
+        mutation1.setSampleId(2);
+        mutation2.setSampleId(3);
 
         List<Pileup> pileups = Pileup.pileup(ImmutableList.of(mutation0, mutation1, mutation2));
         assertNotNull(pileups);
@@ -118,16 +118,16 @@ public final class TestPileup {
     }
 
     @Test
-    public void testPileupMultipleMutationsSameLocationSameCaseIds() {
+    public void testPileupMultipleMutationsSameLocationSameSampleIds() {
         ExtendedMutation mutation0 = new ExtendedMutation();
         ExtendedMutation mutation1 = new ExtendedMutation();
         ExtendedMutation mutation2 = new ExtendedMutation();
         mutation0.setProteinChange("A123K");
         mutation1.setProteinChange("A123K");
         mutation2.setProteinChange("A123K");
-        mutation0.setCaseId("caseId");
-        mutation1.setCaseId("caseId");
-        mutation2.setCaseId("caseId");
+        mutation0.setSampleId(1);
+        mutation1.setSampleId(1);
+        mutation2.setSampleId(1);
 
         List<Pileup> pileups = Pileup.pileup(ImmutableList.of(mutation0, mutation1, mutation2));
         assertNotNull(pileups);
@@ -140,16 +140,16 @@ public final class TestPileup {
     }
 
     @Test
-    public void testPileupMultipleMutationsSameLocationNullCaseId() {
+    public void testPileupMultipleMutationsSameLocationNullSampleId() {
         ExtendedMutation mutation0 = new ExtendedMutation();
         ExtendedMutation mutation1 = new ExtendedMutation();
         ExtendedMutation mutation2 = new ExtendedMutation();
         mutation0.setProteinChange("A123K");
         mutation1.setProteinChange("A123K");
         mutation2.setProteinChange("A123K");
-        mutation0.setCaseId("caseId0");
-        mutation1.setCaseId(null);
-        mutation2.setCaseId("caseId2");
+        mutation0.setSampleId(1);
+        mutation1.setSampleId(2);
+        mutation2.setSampleId(3);
 
         List<Pileup> pileups = Pileup.pileup(ImmutableList.of(mutation0, mutation1, mutation2));
         assertNotNull(pileups);
@@ -169,9 +169,9 @@ public final class TestPileup {
         mutation0.setProteinChange("A123K");
         mutation1.setProteinChange("A123K");
         mutation2.setProteinChange("A123G");
-        mutation0.setCaseId("caseId0");
-        mutation1.setCaseId("caseId1");
-        mutation2.setCaseId("caseId2");
+        mutation0.setSampleId(1);
+        mutation1.setSampleId(2);
+        mutation2.setSampleId(3);
 
         List<Pileup> pileups = Pileup.pileup(ImmutableList.of(mutation0, mutation1, mutation2));
         assertNotNull(pileups);
@@ -185,16 +185,16 @@ public final class TestPileup {
 
     @Test
     // not sure this could happen, unless one caseId can have different phases
-    public void testPileupMultipleMutationsSameLocationDifferentAminoAcidChangeSameCaseIds() {
+    public void testPileupMultipleMutationsSameLocationDifferentAminoAcidChangeSameSampleIds() {
         ExtendedMutation mutation0 = new ExtendedMutation();
         ExtendedMutation mutation1 = new ExtendedMutation();
         ExtendedMutation mutation2 = new ExtendedMutation();
         mutation0.setProteinChange("A123K");
         mutation1.setProteinChange("A123K");
         mutation2.setProteinChange("A123G");
-        mutation0.setCaseId("caseId");
-        mutation1.setCaseId("caseId");
-        mutation2.setCaseId("caseId");
+        mutation0.setSampleId(1);
+        mutation1.setSampleId(1);
+        mutation2.setSampleId(1);
 
         List<Pileup> pileups = Pileup.pileup(ImmutableList.of(mutation0, mutation1, mutation2));
         assertNotNull(pileups);
@@ -214,9 +214,9 @@ public final class TestPileup {
         mutation0.setProteinChange("A123K");
         mutation1.setProteinChange("A123K");
         mutation2.setProteinChange("K234G");
-        mutation0.setCaseId("caseId0");
-        mutation1.setCaseId("caseId1");
-        mutation2.setCaseId("caseId2");
+        mutation0.setSampleId(1);
+        mutation1.setSampleId(2);
+        mutation2.setSampleId(3);
 
         List<Pileup> pileups = Pileup.pileup(ImmutableList.of(mutation0, mutation1, mutation2));
         assertNotNull(pileups);
@@ -243,9 +243,9 @@ public final class TestPileup {
         mutation0.setProteinChange("A123K");
         mutation1.setProteinChange("missense");
         mutation2.setProteinChange("A123K");
-        mutation0.setCaseId("caseId0");
-        mutation1.setCaseId("caseId1");
-        mutation2.setCaseId("caseId2");
+        mutation0.setSampleId(1);
+        mutation1.setSampleId(2);
+        mutation2.setSampleId(3);
 
         List<Pileup> pileups = Pileup.pileup(ImmutableList.of(mutation0, mutation1, mutation2));
         assertNotNull(pileups);
@@ -265,9 +265,9 @@ public final class TestPileup {
         mutation0.setProteinChange("A123K");
         mutation1.setProteinChange(null);
         mutation2.setProteinChange("A123K");
-        mutation0.setCaseId("caseId0");
-        mutation1.setCaseId("caseId1");
-        mutation2.setCaseId("caseId2");
+        mutation0.setSampleId(1);
+        mutation1.setSampleId(2);
+        mutation2.setSampleId(3);
 
         List<Pileup> pileups = Pileup.pileup(ImmutableList.of(mutation0, mutation1, mutation2));
         assertNotNull(pileups);
@@ -283,7 +283,7 @@ public final class TestPileup {
     public void testPileupsLowercasePDotSAnimoAcidPosition() {
         ExtendedMutation mutation = new ExtendedMutation();
         mutation.setProteinChange("p.S310F");
-        mutation.setCaseId("caseId");
+        mutation.setSampleId(1);
 
         List<Pileup> pileups = Pileup.pileup(ImmutableList.of(mutation));
         assertNotNull(pileups);

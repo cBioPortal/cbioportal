@@ -27,21 +27,21 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import org.mskcc.cbio.portal.dao.DaoCaseList;
+import org.mskcc.cbio.portal.dao.DaoPatientList;
 import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 /**
- * Command Line Tool to Delete All Case Lists.
+ * Command Line Tool to Delete All Patient Lists.
  */
-public class DeleteAllCaseLists {
+public class DeleteAllPatientLists {
 
     public static void main(String[] args) throws Exception {
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(true);
-        DaoCaseList daoCaseList = new DaoCaseList();
-        daoCaseList.deleteAllRecords();
-        System.out.println ("\nAll Existing Case Lists Deleted.");
+        DaoPatientList daoPatientList = new DaoPatientList();
+        daoPatientList.deleteAllRecords();
+        System.out.println ("\nAll Existing Patient Lists Deleted.");
         ConsoleUtil.showWarnings(pMonitor);
     }
 }

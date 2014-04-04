@@ -30,7 +30,7 @@ package org.mskcc.cbio.portal.util;
 import org.mskcc.cbio.portal.model.Sample;
 import java.util.regex.*;
 
-public class CaseIdUtil
+public class StableIdUtil
 {
     public static final String TCGA_BARCODE_PREFIX = "TCGA";
 

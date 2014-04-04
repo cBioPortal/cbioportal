@@ -36,29 +36,29 @@ import org.mskcc.cbio.portal.scripts.ResetDatabase;
 /**
  * JUnit test for DaoCase List.
  */
-public class TestDaoCaseList extends TestCase {
+public class TestDaoPatientList extends TestCase {
 
-    public void testDaoCaseList() throws DaoException {
+    public void testDaoPatientList() throws DaoException {
         createSmallDbms();
-        DaoCaseList daoCaseList = new DaoCaseList();
-        CaseList caseList = new CaseList();
-        caseList.setName("Name0");
-        caseList.setDescription("Description0");
-        caseList.setStableId("stable_0");
-        caseList.setCancerStudyId(2);
-        caseList.setCaseListCategory(CaseListCategory.ALL_CASES_WITH_CNA_DATA);
-        ArrayList<String> cases = new ArrayList<String>();
-        cases.add("TCGA-1");
-        cases.add("TCGA-2");
-        caseList.setCaseList(cases);
-        daoCaseList.addCaseList(caseList);
+        DaoPatientList daoPatientList = new DaoPatientList();
+        PatientList patientList = new PatientList();
+        patientList.setName("Name0");
+        patientList.setDescription("Description0");
+        patientList.setStableId("stable_0");
+        patientList.setCancerStudyId(CancerStudy.NO_SUCH_STUDY);
+        patientList.setPatientListCategory(PatientListCategory.ALL_CASES_WITH_CNA_DATA);
+        ArrayList<String> patients = new ArrayList<String>();
+        patients.add("TCGA-1");
+        patients.add("TCGA-2");
+        patientList.setPatientList(patients);
+        daoPatientList.addPatientList(patientList);
         
-        CaseList caseListFromDb = daoCaseList.getCaseListByStableId("stable_0");
-        assertEquals("Name0", caseListFromDb.getName());
-        assertEquals("Description0", caseListFromDb.getDescription());
-        assertEquals(CaseListCategory.ALL_CASES_WITH_CNA_DATA, caseListFromDb.getCaseListCategory());
-        assertEquals("stable_0", caseListFromDb.getStableId());
-        assertEquals(2, caseListFromDb.getCaseList().size());
+        PatientList patientListFromDb = daoPatientList.getPatientListByStableId("stable_0");
+        assertEquals("Name0", patientListFromDb.getName());
+        assertEquals("Description0", patientListFromDb.getDescription());
+        assertEquals(PatientListCategory.ALL_CASES_WITH_CNA_DATA, patientListFromDb.getPatientListCategory());
+        assertEquals("stable_0", patientListFromDb.getStableId());
+        assertEquals(2, patientListFromDb.getPatientList().size());
     }
 
     private void createSmallDbms() throws DaoException {

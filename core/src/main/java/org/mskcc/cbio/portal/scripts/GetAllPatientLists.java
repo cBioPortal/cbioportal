@@ -27,25 +27,25 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import org.mskcc.cbio.portal.dao.DaoCaseList;
-import org.mskcc.cbio.portal.model.CaseList;
+import org.mskcc.cbio.portal.dao.DaoPatientList;
+import org.mskcc.cbio.portal.model.PatientList;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 import java.util.ArrayList;
 
 /**
- * Command Line Tool to Export All Case Lists to the Console.
+ * Command Line Tool to Export All Patient Lists to the Console.
  */
-public class GetAllCaseLists {
+public class GetAllPatientLists {
 
     public static void main(String[] args) throws Exception {
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(true);
-        DaoCaseList daoCaseList = new DaoCaseList();
-        ArrayList <CaseList> caseListMaster = daoCaseList.getAllCaseLists();
-        for (CaseList caseList:  caseListMaster) {
-            System.out.println (caseList.getCaseListId() + ": "
-                    + caseList.getStableId() + ": " + caseList.getName());
+        DaoPatientList daoPatientList = new DaoPatientList();
+        ArrayList <PatientList> patientListMaster = daoPatientList.getAllPatientLists();
+        for (PatientList patientList:  patientListMaster) {
+            System.out.println (patientList.getPatientListId() + ": "
+                    + patientList.getStableId() + ": " + patientList.getName());
         }
     }
 }

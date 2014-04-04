@@ -29,13 +29,9 @@
 package org.mskcc.cbio.portal.util;
 
 // imports
-import org.mskcc.cbio.portal.dao.DaoCaseList;
-import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.AccessControl;
-import org.mskcc.cbio.portal.model.CaseList;
-import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.CancerStudyStats;
-import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.web_api.ProtocolException;
 
 import org.springframework.context.ApplicationContext;
@@ -61,8 +57,8 @@ public class DataSetsUtil {
 	// ref to our list of cancer study stats & total num of samples
 	private List<CancerStudyStats> cancerStudyStats;
 
-	// ref to case list DAO
-	private DaoCaseList daoCaseList;
+	// ref to patient list DAO
+	private DaoPatientList daoPatientList;
 
 	/**
 	 * Constructor (private).
@@ -70,7 +66,7 @@ public class DataSetsUtil {
 	public DataSetsUtil() {
 
 		try {
-			daoCaseList = new DaoCaseList();
+			daoPatientList = new DaoPatientList();
 			// totalNumberOfSamples will be set while computing stats
 			totalNumberOfSamples = 0;
 			cancerStudyStats = computeCancerStudyStats();
@@ -155,12 +151,12 @@ public class DataSetsUtil {
 		return (AccessControl)context.getBean("accessControl");
 	}
 
-	private int getCount(CancerStudy cancerStudy, String caseListSuffix) throws DaoException {
+	private int getCount(CancerStudy cancerStudy, String patientListSuffix) throws DaoException {
 		
-		String caseListID = cancerStudy.getCancerStudyStableId() + caseListSuffix;
-		CaseList desiredCaseList = daoCaseList.getCaseListByStableId(caseListID);
+		String patientListID = cancerStudy.getCancerStudyStableId() + patientListSuffix;
+		PatientList desiredPatientList = daoPatientList.getPatientListByStableId(patientListID);
 		
 		// outta here
-		return (desiredCaseList != null) ? desiredCaseList.getCaseList().size() : 0;
+		return (desiredPatientList != null) ? desiredPatientList.getPatientList().size() : 0;
 	}
 }

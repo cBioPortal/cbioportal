@@ -19,14 +19,13 @@ public final class DaoCopyNumberSegment {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        Sample sample = DaoSample.getSampleByStableId(seg.getCaseId());
         try {
             con = JdbcUtil.getDbConnection(DaoCopyNumberSegment.class);
             pstmt = con.prepareStatement
                     ("INSERT INTO copy_number_seg (`SAMPLE_ID`, `CHR`,"
                         + " `START`, `END`, `NUM_PROBES`, `SEGMENT_MEAN`, `CANCER_STUDY_ID`)"
                         + " VALUES (?,?,?,?,?,?,?)");
-            pstmt.setInt(1, sample.getInternalId());
+            pstmt.setInt(1, seg.getSampleId());
             pstmt.setString(2, seg.getChr());
             pstmt.setLong(3, seg.getStart());
             pstmt.setLong(4, seg.getEnd());
@@ -43,18 +42,17 @@ public final class DaoCopyNumberSegment {
         }
     }
     
-    public static List<CopyNumberSegment> getSegmentForACase(
-            String caseId, int cancerStudyId) throws DaoException {
-        return getSegmentForCases(Collections.singleton(caseId),cancerStudyId);
+    public static List<CopyNumberSegment> getSegmentForASample(
+            int sampleId, int cancerStudyId) throws DaoException {
+        return getSegmentForSamples(Collections.singleton(sampleId),cancerStudyId);
     }
     
-    public static List<CopyNumberSegment> getSegmentForCases(
-            Collection<String> caseIds, int cancerStudyId) throws DaoException {
-        if (caseIds.isEmpty()) {
+    public static List<CopyNumberSegment> getSegmentForSamples(
+            Collection<Integer> sampleIds, int cancerStudyId) throws DaoException {
+        if (sampleIds.isEmpty()) {
             return Collections.emptyList();
         }
-        List<Integer> internalSampleIds = DaoSample.getInternalSampleIds(caseIds);        
-        String concatCaseIds = "('"+StringUtils.join(internalSampleIds, "','")+"')";
+        String concatSampleIds = "('"+StringUtils.join(sampleIds, "','")+"')";
         
         List<CopyNumberSegment> segs = new ArrayList<CopyNumberSegment>();
         Connection con = null;
@@ -64,14 +62,13 @@ public final class DaoCopyNumberSegment {
             con = JdbcUtil.getDbConnection(DaoCopyNumberSegment.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM copy_number_seg"
-                    + " WHERE `SAMPLE_ID` IN "+ concatCaseIds
+                    + " WHERE `SAMPLE_ID` IN "+ concatSampleIds
                     + " AND `CANCER_STUDY_ID`="+cancerStudyId);
             rs = pstmt.executeQuery();
             while (rs.next()) {
-                Sample sample = DaoSample.getSampleByInternalId(rs.getInt("SAMPLE_ID"));
                 CopyNumberSegment seg = new CopyNumberSegment(
                         rs.getInt("CANCER_STUDY_ID"),
-                        sample.getStableId(),
+                        rs.getInt("SAMPLE_ID"),
                         rs.getString("CHR"),
                         rs.getLong("START"),
                         rs.getLong("END"),
@@ -90,40 +87,39 @@ public final class DaoCopyNumberSegment {
         }
     }
     
-    public static double getCopyNumberActeredFraction(String caseId,
+    public static double getCopyNumberActeredFraction(int sampleId,
             int cancerStudyId, double cutoff) throws DaoException {
-        Double d = getCopyNumberActeredFraction(Collections.singleton(caseId), cancerStudyId, cutoff)
-                .get(caseId);
+        Double d = getCopyNumberActeredFraction(Collections.singleton(sampleId), cancerStudyId, cutoff)
+                .get(sampleId);
         return d==null ? Double.NaN : d;
     }
     
-    public static Map<String,Double> getCopyNumberActeredFraction(Collection<String> caseIds,
+    public static Map<Integer,Double> getCopyNumberActeredFraction(Collection<Integer> sampleIds,
             int cancerStudyId, double cutoff) throws DaoException {
-        Map<String,Long> alteredLength = getCopyNumberAlteredLength(caseIds, cancerStudyId, cutoff);
-        Map<String,Long> measuredLength = getCopyNumberAlteredLength(caseIds, cancerStudyId, 0);
-        Map<String,Double> fraction = new HashMap<String,Double>(alteredLength.size());
-        for (String caseId : caseIds) {
-            Long ml = measuredLength.get(caseId);
+        Map<Integer,Long> alteredLength = getCopyNumberAlteredLength(sampleIds, cancerStudyId, cutoff);
+        Map<Integer,Long> measuredLength = getCopyNumberAlteredLength(sampleIds, cancerStudyId, 0);
+        Map<Integer,Double> fraction = new HashMap<Integer,Double>(alteredLength.size());
+        for (Integer sampleId : sampleIds) {
+            Long ml = measuredLength.get(sampleId);
             if (ml==null || ml==0) {
                 continue;
             }
-            Long al = alteredLength.get(caseId);
+            Long al = alteredLength.get(sampleId);
             if (al==null) {
                 al = (long) 0;
             }
-            fraction.put(caseId, 1.0*al/ml);
+            fraction.put(sampleId, 1.0*al/ml);
         }
         return fraction;
     }
     
-    private static Map<String,Long> getCopyNumberAlteredLength(Collection<String> caseIds,
+    private static Map<Integer,Long> getCopyNumberAlteredLength(Collection<Integer> sampleIds,
             int cancerStudyId, double cutoff) throws DaoException {
-        Map<String,Long> map = new HashMap<String,Long>();
+        Map<Integer,Long> map = new HashMap<Integer,Long>();
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         String sql;
-        List<Integer> internalSampleIds = DaoSample.getInternalSampleIds(caseIds);
         try {
             con = JdbcUtil.getDbConnection(DaoCopyNumberSegment.class);
             if (cutoff>0) {
@@ -131,21 +127,20 @@ public final class DaoCopyNumberSegment {
                     + " FROM `copy_number_seg`"
                     + " WHERE `CANCER_STUDY_ID`="+cancerStudyId
                     + " AND ABS(`SEGMENT_MEAN`)>=" + cutoff
-                    + " AND `SAMPLE_ID` IN ('" + StringUtils.join(internalSampleIds,"','") +"')"
+                    + " AND `SAMPLE_ID` IN ('" + StringUtils.join(sampleIds,"','") +"')"
                     + " GROUP BY `SAMPLE_ID`";
             } else {
                 sql = "SELECT  `SAMPLE_ID`, SUM(`END`-`START`)"
                     + " FROM `copy_number_seg`"
                     + " WHERE `CANCER_STUDY_ID`="+cancerStudyId
-                    + " AND `SAMPLE_ID` IN ('" + StringUtils.join(internalSampleIds,"','") +"')"
+                    + " AND `SAMPLE_ID` IN ('" + StringUtils.join(sampleIds,"','") +"')"
                     + " GROUP BY `SAMPLE_ID`";
             }
             
             pstmt = con.prepareStatement(sql);
             rs = pstmt.executeQuery();
             while (rs.next()) {
-                Sample sample = DaoSample.getSampleByInternalId(rs.getInt(1));
-                map.put(sample.getStableId(), rs.getLong(2));
+                map.put(rs.getInt(1), rs.getLong(2));
             }
             
             return map;
@@ -184,21 +179,20 @@ public final class DaoCopyNumberSegment {
     /**
      * 
      * @param cancerStudyId
-     * @param caseId
+     * @param sampleId
      * @return true if segment data exist for the case
      * @throws DaoException 
      */
-    public static boolean segmentDataExistForCase(int cancerStudyId, String caseId) throws DaoException {
+    public static boolean segmentDataExistForSample(int cancerStudyId, int sampleId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        Sample sample = DaoSample.getSampleByStableId(caseId);
         try {
             con = JdbcUtil.getDbConnection(DaoCopyNumberSegment.class);
             pstmt = con.prepareStatement("SELECT EXISTS(SELECT 1 FROM `copy_number_seg`"
                 + " WHERE `CANCER_STUDY_ID`=? AND `SAMPLE_ID`=?");
             pstmt.setInt(1, cancerStudyId);
-            pstmt.setInt(2, sample.getInternalId());
+            pstmt.setInt(2, sampleId);
             rs = pstmt.executeQuery();
             return rs.next() && rs.getInt(1)==1;
         } catch (NullPointerException e) {

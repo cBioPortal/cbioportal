@@ -27,26 +27,17 @@
 
 package org.mskcc.cbio.portal.servlet;
 
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-import org.mskcc.cbio.portal.dao.DaoCancerStudy;
-import org.mskcc.cbio.portal.dao.DaoCaseList;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.CaseList;
-import org.mskcc.cbio.portal.model.Patient;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.web_api.GetClinicalData;
-import org.mskcc.cbio.portal.util.CaseSetUtil;
+import org.mskcc.cbio.portal.util.PatientSetUtil;
+
+import org.json.simple.*;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.HashSet;
+import javax.servlet.http.*;
+import java.io.*;
+import java.util.*;
 
 /**
  * Author: yichaoS
@@ -81,8 +72,8 @@ public class GetSurvivalDataJSON extends HttpServlet {
                           HttpServletResponse httpServletResponse) throws ServletException, IOException {
 
         String cancerStudyIdentifier = httpServletRequest.getParameter("cancer_study_id");
-        String caseSetId = httpServletRequest.getParameter("case_set_id");
-        String caseIdsKey = httpServletRequest.getParameter("case_ids_key");
+        String patientSetId = httpServletRequest.getParameter("case_set_id");
+        String patientIdsKey = httpServletRequest.getParameter("case_ids_key");
 
         try {
 
@@ -90,27 +81,27 @@ public class GetSurvivalDataJSON extends HttpServlet {
             CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
             int cancerStudyId = cancerStudy.getInternalId();
 
-            //Get Case case ID list
-            DaoCaseList daoCaseList = new DaoCaseList();
-            CaseList caseList;
-            ArrayList<String> caseIdList = new ArrayList<String>();
-            if (caseSetId.equals("-1") && caseIdsKey.length() != 0) {
-                String strCaseIds = CaseSetUtil.getCaseIds(caseIdsKey);
-                String[] caseArray = strCaseIds.split("\\s+");
-                for (String item : caseArray) {
-                    caseIdList.add(item);
+            //Get patient ID list
+            DaoPatientList daoPatientList = new DaoPatientList();
+            PatientList patientList;
+            ArrayList<String> patientIdList = new ArrayList<String>();
+            if (patientSetId.equals("-1") && patientIdsKey.length() != 0) {
+                String strPatientIds = PatientSetUtil.getPatientIds(patientIdsKey);
+                String[] patientArray = strPatientIds.split("\\s+");
+                for (String item : patientArray) {
+                    patientIdList.add(item);
                 }
             } else {
-                caseList = daoCaseList.getCaseListByStableId(caseSetId);
-                caseIdList = caseList.getCaseList();
+                patientList = daoPatientList.getPatientListByStableId(patientSetId);
+                patientIdList = patientList.getPatientList();
             }
 
             //Get Clinical Data List
-            HashSet<String> caseIdListHashSet = new HashSet<String>(caseIdList);
+            HashSet<String> patientIdListHashSet = new HashSet<String>(patientIdList);
             List<Patient> clinicalDataList =
-                    GetClinicalData.getClinicalData(cancerStudyId, caseIdListHashSet);
+                    GetClinicalData.getClinicalData(cancerStudyId, patientIdListHashSet);
 
-            //Assemble JSON object (key <-- case id)
+            //Assemble JSON object (key <-- patient id)
             JSONObject results = new JSONObject();
             for (int i = 0; i < clinicalDataList.size(); i++){
                 Patient clinicalData = clinicalDataList.get(i);

@@ -35,13 +35,13 @@ package org.mskcc.cbio.portal.model;
 public class ProteinArrayData {
     private String arrayId;
     private int cancerStudyId;
-    private String caseId;
+    private int sampleId;
     private double abundance;
 
-    public ProteinArrayData(int cancerStudyId, String arrayId, String caseId, double abundance) {
+    public ProteinArrayData(int cancerStudyId, String arrayId, int sampleId, double abundance) {
         this.cancerStudyId = cancerStudyId;
         this.arrayId = arrayId;
-        this.caseId = caseId;
+        this.sampleId = sampleId;
         this.abundance = abundance;
     }
 
@@ -69,12 +69,12 @@ public class ProteinArrayData {
         this.arrayId = arrayId;
     }
 
-    public String getCaseId() {
-        return caseId;
+    public int getSampleId() {
+        return sampleId;
     }
 
-    public void setCaseId(String caseId) {
-        this.caseId = caseId;
+    public void setSampleId(int sampleId) {
+        this.sampleId = sampleId;
     }
     
     

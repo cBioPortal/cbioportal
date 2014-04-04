@@ -11,7 +11,7 @@ import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
  * @author jgao
  */
 public class CnaEvent {
-    private String caseId;
+    private int sampleId;
     private int cnaProfileId;
     private long eventId;
     private CanonicalGene gene;
@@ -51,9 +51,9 @@ public class CnaEvent {
         }
     }
 
-    public CnaEvent(String caseId, int cnaProfileId, long entrezGeneId, short alteration) {
+    public CnaEvent(int sampleId, int cnaProfileId, long entrezGeneId, short alteration) {
         setEntrezGeneId(entrezGeneId);
-        this.caseId = caseId;
+        this.sampleId = sampleId;
         this.cnaProfileId = cnaProfileId;
         this.alteration = CNA.getByCode(alteration);
         if (this.alteration == null) {
@@ -73,12 +73,12 @@ public class CnaEvent {
         this.alteration = CNA.getByCode(alteration);
     }
 
-    public String getCaseId() {
-        return caseId;
+    public int getSampleId() {
+        return sampleId;
     }
 
-    public void setCaseId(String caseId) {
-        this.caseId = caseId;
+    public void setSampleId(int sampleId) {
+        this.sampleId = sampleId;
     }
 
     public int getCnaProfileId() {

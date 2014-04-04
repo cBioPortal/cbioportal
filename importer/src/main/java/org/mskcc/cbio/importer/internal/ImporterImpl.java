@@ -389,9 +389,9 @@ class ImporterImpl implements Importer {
 			String caseListDirectory = (rootDirectory + File.separator + cancerStudyMetadata.getStudyPath() + File.separator + "case_lists");
 			args = new String[] { caseListDirectory };
 			if (LOG.isInfoEnabled()) {
-				LOG.info("loadStagingFile(), ImportCaseList:main(), with args: " + Arrays.asList(args));
+				LOG.info("loadStagingFile(), ImportPatientList:main(), with args: " + Arrays.asList(args));
 			}
-			ImportCaseList.main(args);
+			ImportPatientList.main(args);
 
 			if (!missingCaseListFilenames.isEmpty()) {
 				if (LOG.isInfoEnabled()) {

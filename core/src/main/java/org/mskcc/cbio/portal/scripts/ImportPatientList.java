@@ -27,24 +27,19 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.Properties;
-import org.mskcc.cbio.portal.dao.DaoCancerStudy;
-import org.mskcc.cbio.portal.dao.DaoCaseList;
-import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.CaseList;
-import org.mskcc.cbio.portal.model.CaseListCategory;
-import org.mskcc.cbio.portal.util.ConsoleUtil;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.util.*;
+
+import java.io.*;
+import java.util.*;
 
 /**
- * Command Line tool to Import Case Lists.
+ * Command Line tool to Import Patient Lists.
  */
-public class ImportCaseList {
+public class ImportPatientList {
 
-   public static void importCaseList(File dataFile, ProgressMonitor pMonitor) throws Exception {
+   public static void importPatientList(File dataFile, ProgressMonitor pMonitor) throws Exception {
       pMonitor.setCurrentMessage("Read data from:  " + dataFile.getAbsolutePath());
       Properties properties = new Properties();
       properties.load(new FileInputStream(dataFile));
@@ -69,50 +64,50 @@ public class ImportCaseList {
                   + cancerStudyIdentifier + "' not found in dbms or inaccessible to user.");
       }
 
-      String caseListName = properties.getProperty("case_list_name");
+      String patientListName = properties.getProperty("case_list_name");
        
-      String caseListCategoryStr = properties.getProperty("case_list_category");
-      if (caseListCategoryStr  == null || caseListCategoryStr.length() == 0) {
-          caseListCategoryStr = "other";
+      String patientListCategoryStr = properties.getProperty("case_list_category");
+      if (patientListCategoryStr  == null || patientListCategoryStr.length() == 0) {
+          patientListCategoryStr = "other";
       }
-      CaseListCategory caseListCategory = CaseListCategory.get(caseListCategoryStr); 
+      PatientListCategory patientListCategory = PatientListCategory.get(patientListCategoryStr); 
        
-      String caseListDescription = properties.getProperty("case_list_description");
-      String caseListStr = properties.getProperty("case_list_ids");
-      if (caseListName == null) {
+      String patientListDescription = properties.getProperty("case_list_description");
+      String patientListStr = properties.getProperty("case_list_ids");
+      if (patientListName == null) {
          throw new IllegalArgumentException("case_list_name is not specified.");
-      } else if (caseListDescription == null) {
+      } else if (patientListDescription == null) {
          throw new IllegalArgumentException("case_list_description is not specified.");
       }
 
-      // construct case id list
-      ArrayList<String> caseIDsList = new ArrayList<String>();
-      String[] caseIds = caseListStr.split("\\s");
-      for (String caseId : caseIds) {
-         caseIDsList.add(caseId);
+      // construct patient id list
+      ArrayList<String> patientIDsList = new ArrayList<String>();
+      String[] patientIds = patientListStr.split("\\s");
+      for (String patientId : patientIds) {
+         patientIDsList.add(patientId);
       }
 
-      DaoCaseList daoCaseList = new DaoCaseList();
-      CaseList caseList = daoCaseList.getCaseListByStableId(stableId);
-      if (caseList != null) {
-         throw new IllegalArgumentException("Case list with this stable Id already exists:  " + stableId);
+      DaoPatientList daoPatientList = new DaoPatientList();
+      PatientList patientList = daoPatientList.getPatientListByStableId(stableId);
+      if (patientList != null) {
+         throw new IllegalArgumentException("Patient list with this stable Id already exists:  " + stableId);
       }
 
-      caseList = new CaseList();
-      caseList.setStableId(stableId);
+      patientList = new PatientList();
+      patientList.setStableId(stableId);
       int cancerStudyId = theCancerStudy.getInternalId();
-      caseList.setCancerStudyId(cancerStudyId);
-      caseList.setCaseListCategory(caseListCategory);
-      caseList.setName(caseListName);
-      caseList.setDescription(caseListDescription);
-      caseList.setCaseList(caseIDsList);
-      daoCaseList.addCaseList(caseList);
+      patientList.setCancerStudyId(cancerStudyId);
+      patientList.setPatientListCategory(patientListCategory);
+      patientList.setName(patientListName);
+      patientList.setDescription(patientListDescription);
+      patientList.setPatientList(patientIDsList);
+      daoPatientList.addPatientList(patientList);
 
-      caseList = daoCaseList.getCaseListByStableId(stableId);
+      patientList = daoPatientList.getPatientListByStableId(stableId);
 
-      pMonitor.setCurrentMessage(" --> stable ID:  " + caseList.getStableId());
-      pMonitor.setCurrentMessage(" --> case list name:  " + caseList.getName());
-      pMonitor.setCurrentMessage(" --> number of cases:  " + caseIDsList.size());
+      pMonitor.setCurrentMessage(" --> stable ID:  " + patientList.getStableId());
+      pMonitor.setCurrentMessage(" --> patient list name:  " + patientList.getName());
+      pMonitor.setCurrentMessage(" --> number of patients:  " + patientIDsList.size());
    }
 
    public static void main(String[] args) throws Exception {
@@ -129,14 +124,14 @@ public class ImportCaseList {
          File files[] = dataFile.listFiles();
          for (File file : files) {
             if (file.getName().endsWith("txt")) {
-               ImportCaseList.importCaseList(file, pMonitor);
+               ImportPatientList.importPatientList(file, pMonitor);
             }
          }
          if (files.length == 0) {
-             pMonitor.setCurrentMessage("No case lists found in directory, skipping import: " + dataFile.getCanonicalPath());
+             pMonitor.setCurrentMessage("No patient lists found in directory, skipping import: " + dataFile.getCanonicalPath());
          }
       } else {
-         ImportCaseList.importCaseList(dataFile, pMonitor);
+         ImportPatientList.importPatientList(dataFile, pMonitor);
       }
       ConsoleUtil.showWarnings(pMonitor);
    }

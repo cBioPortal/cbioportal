@@ -44,17 +44,18 @@ public class ImportCopyNumberSegmentData {
             }
 
             CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
-            ImportProfileData.addPatients(new String[] { CaseIdUtil.getPatientId(strs[0]) }, cancerStudy);
-            ImportProfileData.addSamples(new String[] { CaseIdUtil.getSampleId(strs[0]) }, cancerStudy);
+            ImportDataUtil.addPatients(strs, cancerStudy);
+            ImportDataUtil.addSamples(strs, cancerStudy);
 
-            String sampleId = CaseIdUtil.getSampleId(strs[0]);
+            String sampleId = StableIdUtil.getSampleId(strs[0]);
             long start = Double.valueOf(strs[2]).longValue();
             long end = Double.valueOf(strs[3]).longValue();
             int numProbes = Double.valueOf(strs[4]).intValue();
             double segMean = Double.parseDouble(strs[5]);
             
-            CopyNumberSegment cns = new CopyNumberSegment(cancerStudyId, sampleId, strs[1], start, end, numProbes, segMean);
-            DaoCopyNumberSegment.addCopyNumberSegment(cns);
+            Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId);
+            CopyNumberSegment cns = new CopyNumberSegment(cancerStudyId, s.getInternalId(), strs[1], start, end, numProbes, segMean);
+        
         }
     }
     

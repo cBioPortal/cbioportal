@@ -27,7 +27,6 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.scripts.ResetDatabase;
 
@@ -55,17 +54,12 @@ public class TestDaoGeneticAlteration extends TestCase {
         daoGene.addGene(new CanonicalGene (672, "BRCA1"));
 
         ResetDatabase.resetDatabase();
-        createSamples();
+        ArrayList<Integer> internalSampleIds = createSamples();
 
-        DaoGeneticProfileCases daoGeneticProfileCases = new DaoGeneticProfileCases();
+        DaoGeneticProfileSamples daoGeneticProfileSamples = new DaoGeneticProfileSamples();
 
         //  Add the Case List
-        ArrayList<String> orderedCaseList = new ArrayList<String>();
-        orderedCaseList.add("TCGA-1");
-        orderedCaseList.add("TCGA-2");
-        orderedCaseList.add("TCGA-3");
-        orderedCaseList.add("TCGA-4");
-        int numRows = daoGeneticProfileCases.addGeneticProfileCases(1, orderedCaseList);
+        int numRows = daoGeneticProfileSamples.addGeneticProfileSamples(1, internalSampleIds);
         assertEquals (1, numRows);
 
         //  Add Some Data
@@ -80,11 +74,11 @@ public class TestDaoGeneticAlteration extends TestCase {
            MySQLbulkLoader.flushAll();
         }
 
-        HashMap<String, String> valueMap = dao.getGeneticAlterationMap(1, 672);
-        assertEquals ("200", valueMap.get("TCGA-1"));
-        assertEquals ("400", valueMap.get("TCGA-2"));
-        assertEquals ("600", valueMap.get("TCGA-3"));
-        assertEquals ("800", valueMap.get("TCGA-4"));
+        HashMap<Integer, String> valueMap = dao.getGeneticAlterationMap(1, 672);
+        assertEquals ("200", valueMap.get(1));
+        assertEquals ("400", valueMap.get(2));
+        assertEquals ("600", valueMap.get(3));
+        assertEquals ("800", valueMap.get(4));
 
         //  Test the getGenesInProfile method
         Set <CanonicalGene> geneSet = dao.getGenesInProfile(1);
@@ -95,17 +89,19 @@ public class TestDaoGeneticAlteration extends TestCase {
         assertEquals (672, gene.getEntrezGeneId());
     }
 
-    private void createSamples() throws DaoException {
+    private ArrayList<Integer> createSamples() throws DaoException {
+        ArrayList<Integer> toReturn = new ArrayList<Integer>();
         CancerStudy study = new CancerStudy("study", "description", "id", "brca", true);
         Patient p = new Patient(study, "TCGA-1");
         int pId = DaoPatient.addPatient(p);
-        Sample s = new Sample("TCGA-1", pId, "type");
-        DaoSample.addSample(s);
-        s = new Sample("TCGA-2", pId, "type");
-        DaoSample.addSample(s);
-        s = new Sample("TCGA-3", pId, "type");
-        DaoSample.addSample(s);
-        s = new Sample("TCGA-4", pId, "type");
-        DaoSample.addSample(s);
+        Sample s = new Sample("TCGA-1-1-01", pId, "type");
+        toReturn.add(DaoSample.addSample(s));
+        s = new Sample("TCGA-1-2-01", pId, "type");
+        toReturn.add(DaoSample.addSample(s));
+        s = new Sample("TCGA-1-3-01", pId, "type");
+        toReturn.add(DaoSample.addSample(s));
+        s = new Sample("TCGA-1-4-01", pId, "type");
+        toReturn.add(DaoSample.addSample(s));
+        return toReturn;
     }
 }

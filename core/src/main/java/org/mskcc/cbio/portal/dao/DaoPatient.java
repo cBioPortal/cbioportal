@@ -29,6 +29,8 @@ package org.mskcc.cbio.portal.dao;
 
 import org.mskcc.cbio.portal.model.*;
 
+import org.apache.commons.collections.map.MultiKeyMap;
+
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,6 +44,7 @@ public class DaoPatient {
 
     private static final Map<Integer, Patient> byInternalId = new ConcurrentHashMap<Integer, Patient>();
     private static final Map<Integer, Set<Patient>> byInternalCancerStudyId = new ConcurrentHashMap<Integer, Set<Patient>>();
+    private static final MultiKeyMap byCancerIdAndStablePatientId = new MultiKeyMap();
 
     static {
         cache();
@@ -51,6 +54,7 @@ public class DaoPatient {
     {
         byInternalId.clear();
         byInternalCancerStudyId.clear();
+        byCancerIdAndStablePatientId.clear();
     }
 
     private static void cache()
@@ -68,7 +72,7 @@ public class DaoPatient {
             while (rs.next()) {
                 Patient p = extractPatient(rs);
                 if (p != null) {
-                    cachePatient(p);
+                    cachePatient(p, p.getCancerStudy().getInternalId());
                 }
             }
         }
@@ -80,7 +84,7 @@ public class DaoPatient {
         }
     }
 
-    public static void cachePatient(Patient patient)
+    public static void cachePatient(Patient patient, int cancerStudyId)
     {
         if (!byInternalId.containsKey(patient.getInternalId())) {
             byInternalId.put(patient.getInternalId(), patient);
@@ -92,6 +96,10 @@ public class DaoPatient {
             Set<Patient> patientList = new HashSet<Patient>();
             patientList.add(patient);
             byInternalCancerStudyId.put(patient.getCancerStudy().getInternalId(), patientList);
+        }
+
+        if (!byCancerIdAndStablePatientId.containsKey(cancerStudyId, patient.getStableId())) {
+            byCancerIdAndStablePatientId.put(cancerStudyId, patient.getStableId(), patient);
         }
     }
 
@@ -109,7 +117,7 @@ public class DaoPatient {
             pstmt.executeUpdate();
             rs = pstmt.getGeneratedKeys();
             if (rs.next()) {
-                cachePatient(new Patient(patient.getCancerStudy(), rs.getInt(1), patient.getStableId()));
+                cachePatient(new Patient(patient.getCancerStudy(), rs.getInt(1), patient.getStableId()), patient.getCancerStudy().getInternalId());
                 return rs.getInt(1);
             }
             return -1;
@@ -122,29 +130,25 @@ public class DaoPatient {
         }
     }
 
-    public static Patient getPatientByInternalId(int internalId)
+    public static Patient getPatientById(int internalId)
     {
         return byInternalId.get(internalId);
     }
 
-    public static Patient getPatient(int cancerStudyId, String stableId) 
+    public static Patient getPatientByCancerStudyAndPatientId(int cancerStudyId, String stablePatientId) 
     {
-        for (Patient patient : getPatientsByInternalCancerStudyId(cancerStudyId)) {
-            if (patient.getStableId().equals(stableId)) {
-                return patient;
-            }
-        }
-        return null;
+        return (Patient)byCancerIdAndStablePatientId.get(cancerStudyId, stablePatientId);
     }
 
-    public static Set<Patient> getPatientsByInternalCancerStudyId(int cancerStudyId)
+    public static Set<Patient> getPatientsByCancerStudyId(int cancerStudyId)
     {
         return byInternalCancerStudyId.get(cancerStudyId);
     }
 
     public static List<Patient> getAllPatients()
     {
-        return new ArrayList<Patient>(byInternalId.values());
+        return (byInternalId.isEmpty()) ? Collections.<Patient>emptyList() :
+            new ArrayList<Patient>(byInternalId.values());
     }
 
     public static void deleteAllRecords() throws DaoException

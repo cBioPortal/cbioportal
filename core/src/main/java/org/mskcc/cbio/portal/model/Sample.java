@@ -26,9 +26,8 @@
 **/
 package org.mskcc.cbio.portal.model;
 
-import org.mskcc.cbio.portal.util.CaseIdUtil;
+import org.mskcc.cbio.portal.util.StableIdUtil;
 
-import org.apache.log4j.Logger;
 import java.util.regex.*;
 
 /**
@@ -87,9 +86,9 @@ public class Sample {
 
     private Type getType(String stableId)
     {
-        Matcher tcgaSampleBarcodeMatcher = CaseIdUtil.TCGA_SAMPLE_TYPE_BARCODE_REGEX.matcher(stableId);
+        Matcher tcgaSampleBarcodeMatcher = StableIdUtil.TCGA_SAMPLE_TYPE_BARCODE_REGEX.matcher(stableId);
         if (tcgaSampleBarcodeMatcher.find()) {
-            return CaseIdUtil.getTypeByTCGACode(tcgaSampleBarcodeMatcher.group(1));
+            return StableIdUtil.getTypeByTCGACode(tcgaSampleBarcodeMatcher.group(1));
         }
         else {
             return Type.PRIMARY_SOLID_TUMOR;

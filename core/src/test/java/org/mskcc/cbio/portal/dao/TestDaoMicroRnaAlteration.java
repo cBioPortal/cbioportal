@@ -27,7 +27,6 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.scripts.ResetDatabase;
 
@@ -50,17 +49,11 @@ public class TestDaoMicroRnaAlteration extends TestCase {
     
     private void runTheTest() throws DaoException{
         ResetDatabase.resetDatabase();
-        createSamples();
+        ArrayList<Integer> internalSampleIds = createSamples();
 
         //  Add the Case List
-        ArrayList<String> orderedCaseList = new ArrayList<String>();
-        orderedCaseList.add("TCGA-1");
-        orderedCaseList.add("TCGA-2");
-        orderedCaseList.add("TCGA-3");
-        orderedCaseList.add("TCGA-4");
-
-        DaoGeneticProfileCases daoGeneticProfileCases = new DaoGeneticProfileCases();
-        int numRows = daoGeneticProfileCases.addGeneticProfileCases(1, orderedCaseList);
+        DaoGeneticProfileSamples daoGeneticProfileSamples = new DaoGeneticProfileSamples();
+        int numRows = daoGeneticProfileSamples.addGeneticProfileSamples(1, internalSampleIds);
         assertEquals (1, numRows);
 
         String data = "1.2:1.4:1.6:1.8";
@@ -74,32 +67,34 @@ public class TestDaoMicroRnaAlteration extends TestCase {
            MySQLbulkLoader.flushAll();
         }
 
-        String value = dao.getMicroRnaAlteration(1, "TCGA-1", "hsa-123");
+        String value = dao.getMicroRnaAlteration(1, internalSampleIds.get(0), "hsa-123");
         assertEquals("1.2", value);
-        value = dao.getMicroRnaAlteration(1, "TCGA-2", "hsa-123");
+        value = dao.getMicroRnaAlteration(1, internalSampleIds.get(1), "hsa-123");
         assertEquals("1.4", value);
 
-        HashMap<String, String> map = dao.getMicroRnaAlterationMap(1, "hsa-123");
+        HashMap<Integer, String> map = dao.getMicroRnaAlterationMap(1, "hsa-123");
         assertEquals (4, map.size());
-        assertTrue (map.containsKey("TCGA-1"));
-        assertTrue (map.containsKey("TCGA-2"));
+        assertTrue (map.containsKey(internalSampleIds.get(1)));
+        assertTrue (map.containsKey(internalSampleIds.get(2)));
 
         Set<String> microRnaSet = dao.getGenesInProfile(1);
         assertEquals (1, microRnaSet.size());
         dao.deleteAllRecords();
     }
 
-    private void createSamples() throws DaoException {
+    private ArrayList<Integer> createSamples() throws DaoException {
+        ArrayList<Integer> toReturn = new ArrayList<Integer>();
         CancerStudy study = new CancerStudy("study", "description", "id", "brca", true);
         Patient p = new Patient(study, "TCGA-1");
         int pId = DaoPatient.addPatient(p);
-        Sample s = new Sample("TCGA-1", pId, "type");
-        DaoSample.addSample(s);
-        s = new Sample("TCGA-2", pId, "type");
-        DaoSample.addSample(s);
-        s = new Sample("TCGA-3", pId, "type");
-        DaoSample.addSample(s);
-        s = new Sample("TCGA-4", pId, "type");
-        DaoSample.addSample(s);
+        Sample s = new Sample("TCGA-1-1-01", pId, "type");
+        toReturn.add(DaoSample.addSample(s));
+        s = new Sample("TCGA-1-2-01", pId, "type");
+        toReturn.add(DaoSample.addSample(s));
+        s = new Sample("TCGA-1-3-01", pId, "type");
+        toReturn.add(DaoSample.addSample(s));
+        s = new Sample("TCGA-1-4-01", pId, "type");
+        toReturn.add(DaoSample.addSample(s));
+        return toReturn;
     }
 }

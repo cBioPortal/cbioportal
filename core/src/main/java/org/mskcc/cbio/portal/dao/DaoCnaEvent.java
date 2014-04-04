@@ -20,12 +20,11 @@ public final class DaoCnaEvent {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        Sample sample = DaoSample.getSampleByStableId(cnaEvent.getCaseId());
         try {
             con = JdbcUtil.getDbConnection(DaoCnaEvent.class);
             long eventId = addCnaEvent(cnaEvent, con);
             
-            if (eventExists(eventId, sample.getInternalId(), cnaEvent.getCnaProfileId(), con)) {
+            if (eventExists(eventId, cnaEvent.getSampleId(), cnaEvent.getCnaProfileId(), con)) {
                 return 0;
             }
             
@@ -33,7 +32,7 @@ public final class DaoCnaEvent {
 		("INSERT INTO sample_cna_event (`CNA_EVENT_ID`, `SAMPLE_ID`,"
                     + " `GENETIC_PROFILE_ID`) VALUES(?,?,?)");
             pstmt.setLong(1, eventId);
-            pstmt.setInt(2, sample.getInternalId());
+            pstmt.setInt(2, cnaEvent.getSampleId());
             pstmt.setInt(3, cnaEvent.getCnaProfileId());
             
             return pstmt.executeUpdate();
@@ -101,12 +100,12 @@ public final class DaoCnaEvent {
         }
     }
     
-    public static Map<Patient, Set<Long>> getCasesWithAlterations(
+    public static Map<Sample, Set<Long>> getSamplesWithAlterations(
             Collection<Long> eventIds) throws DaoException {
-        return getCasesWithAlterations(StringUtils.join(eventIds, ","));
+        return getSamplesWithAlterations(StringUtils.join(eventIds, ","));
     }
     
-    public static Map<Patient, Set<Long>> getCasesWithAlterations(String concatEventIds)
+    public static Map<Sample, Set<Long>> getSamplesWithAlterations(String concatEventIds)
             throws DaoException {
         if (concatEventIds.isEmpty()) {
             return Collections.emptyMap();
@@ -121,16 +120,15 @@ public final class DaoCnaEvent {
                     + concatEventIds + ")";
             pstmt = con.prepareStatement(sql);
             
-            Map<Patient, Set<Long>>  map = new HashMap<Patient, Set<Long>> ();
+            Map<Sample, Set<Long>>  map = new HashMap<Sample, Set<Long>> ();
             rs = pstmt.executeQuery();
             while (rs.next()) {
-                Sample sample = DaoSample.getSampleByInternalId(rs.getInt("SAMPLE_ID"));
-                Patient patient = DaoPatient.getPatientByInternalId(sample.getInternalPatientId());
+                Sample sample = DaoSample.getSampleById(rs.getInt("SAMPLE_ID"));
                 long eventId = rs.getLong("CNA_EVENT_ID");
-                Set<Long> events = map.get(patient);
+                Set<Long> events = map.get(sample);
                 if (events == null) {
                     events = new HashSet<Long>();
-                    map.put(patient, events);
+                    map.put(sample, events);
                 }
                 events.add(eventId);
             }
@@ -144,11 +142,10 @@ public final class DaoCnaEvent {
         }
     }
     
-    public static List<CnaEvent> getCnaEvents(String[] caseIds, int profileId) throws DaoException {
+    public static List<CnaEvent> getCnaEvents(List<Integer> sampleIds, int profileId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        List<Integer> internalSampleIds = DaoSample.getInternalSampleIds(Arrays.asList(caseIds));
         try {
             con = JdbcUtil.getDbConnection(DaoCnaEvent.class);
             pstmt = con.prepareStatement
@@ -156,14 +153,14 @@ public final class DaoCnaEvent {
                     + " ENTREZ_GENE_ID, ALTERATION FROM sample_cna_event, cna_event"
                     + " WHERE `GENETIC_PROFILE_ID`=?"
                     + " AND sample_cna_event.CNA_EVENT_ID=cna_event.CNA_EVENT_ID"
-                    + " AND SAMPLE_ID in ('"+StringUtils.join(internalSampleIds, "','")+"')");
+                    + " AND SAMPLE_ID in ('"+StringUtils.join(sampleIds, "','")+"')");
             pstmt.setInt(1, profileId);
             rs = pstmt.executeQuery();
             List<CnaEvent> events = new ArrayList<CnaEvent>();
             while (rs.next()) {
                 try {
-                    Sample sample = DaoSample.getSampleByInternalId(rs.getInt("SAMPLE_ID"));
-                    CnaEvent event = new CnaEvent(sample.getStableId(),
+                    Sample sample = DaoSample.getSampleById(rs.getInt("SAMPLE_ID"));
+                    CnaEvent event = new CnaEvent(sample.getInternalId(),
                             rs.getInt("GENETIC_PROFILE_ID"),
                             rs.getLong("ENTREZ_GENE_ID"), rs.getShort("ALTERATION"));
                     event.setEventId(rs.getLong("CNA_EVENT_ID"));

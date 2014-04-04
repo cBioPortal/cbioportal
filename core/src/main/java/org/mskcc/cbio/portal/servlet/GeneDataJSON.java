@@ -119,8 +119,8 @@ public class GeneDataJSON extends HttpServlet {
         // separated by a space
 
         try {
-            List<String> caseIds = WebserviceParserUtils.getCaseList(request);
-            sampleIds = Joiner.on(" ").join(caseIds);
+            List<String> patientIds = WebserviceParserUtils.getPatientList(request);
+            sampleIds = Joiner.on(" ").join(patientIds);
         } catch (ProtocolException e) {
             throw new ServletException(e);
         } catch (DaoException e) {

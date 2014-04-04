@@ -30,7 +30,6 @@ package org.mskcc.cbio.portal.scripts;
 import junit.framework.TestCase;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.scripts.*;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 import java.io.File;
@@ -75,27 +74,33 @@ public class TestImportTabDelimData extends TestCase {
         ImportTabDelimData parser = new ImportTabDelimData(file, ImportTabDelimData.BARRY_TARGET, 1, pMonitor);
         parser.importData();
 
-        String value = dao.getGeneticAlteration(1, "TCGA-02-0001-01", 207);
+        String value = dao.getGeneticAlteration(1, 1, 207);
         assertEquals ("0", value);
-        value = dao.getGeneticAlteration(1, "TCGA-02-0007-01", 207);
+        value = dao.getGeneticAlteration(1, 4, 207);
         assertEquals ("-1", value);
-        value = dao.getGeneticAlteration(1, "TCGA-06-0241-01", 207);
+        value = dao.getGeneticAlteration(1, 2, 207);
         assertEquals ("-1", value);
-        value = dao.getGeneticAlteration(1, "TCGA-06-0241-01", 675);
+        value = dao.getGeneticAlteration(1, 2, 675);
         assertEquals ("2", value);
-        value = dao.getGeneticAlteration(1, "TCGA-06-0148-01", 207);
+        value = dao.getGeneticAlteration(1, 3, 207);
         assertEquals ("2", value);
 
-        int cnaStatus = Integer.parseInt(dao.getGeneticAlteration(1, "TCGA-06-0148-01", 207));
+        int cnaStatus = Integer.parseInt(dao.getGeneticAlteration(1, 3, 207));
         assertEquals(CopyNumberStatus.COPY_NUMBER_AMPLIFICATION, cnaStatus);
-        cnaStatus = Integer.parseInt(dao.getGeneticAlteration(1, "TCGA-06-0241-01", 675));
+        cnaStatus = Integer.parseInt(dao.getGeneticAlteration(1, 2, 675));
         assertEquals(CopyNumberStatus.COPY_NUMBER_AMPLIFICATION, cnaStatus);
-        cnaStatus = Integer.parseInt(dao.getGeneticAlteration(1, "TCGA-02-0007-01", 207));
+        cnaStatus = Integer.parseInt(dao.getGeneticAlteration(1, 4, 207));
         assertEquals(CopyNumberStatus.HEMIZYGOUS_DELETION, cnaStatus);
 
-        assertTrue(DaoCaseProfile.caseExistsInGeneticProfile("TCGA-02-0001-01", 1));
-        assertTrue(DaoCaseProfile.caseExistsInGeneticProfile("TCGA-06-0241-01", 1));
-        ArrayList caseIds = DaoCaseProfile.getAllCaseIdsInProfile(1);
+        Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(1, "TCGA-02-0001");
+        Sample sample = DaoSample.getSampleByPatientAndSampleId(patient.getInternalId(), "TCGA-02-0001-01");
+        assertTrue(DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), 1));
+ 
+        patient = DaoPatient.getPatientByCancerStudyAndPatientId(1, "TCGA-06-0241");
+        sample = DaoSample.getSampleByPatientAndSampleId(patient.getInternalId(), "TCGA-06-0241-01");
+        assertTrue(DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), 1));
+
+        ArrayList caseIds = DaoSampleProfile.getAllSampleIdsInProfile(1);
         assertEquals(94, caseIds.size());
     }
 
@@ -133,28 +138,33 @@ public class TestImportTabDelimData extends TestCase {
         ImportTabDelimData parser = new ImportTabDelimData(file, null, 1, pMonitor);
         parser.importData();
 
-        String value = dao.getGeneticAlteration(1, "TCGA-02-0001-01", 207);
+        String value = dao.getGeneticAlteration(1, 1, 207);
         assertEquals (value, "0");
-        value = dao.getGeneticAlteration(1, "TCGA-02-0007-01", 207);
+        value = dao.getGeneticAlteration(1, 4, 207);
         assertEquals (value, "-1");
-        value = dao.getGeneticAlteration(1, "TCGA-06-0241-01", 207);
+        value = dao.getGeneticAlteration(1, 2, 207);
         assertEquals (value, "-1");
-        value = dao.getGeneticAlteration(1, "TCGA-06-0241-01", 675);
+        value = dao.getGeneticAlteration(1, 2, 675);
         assertEquals (value, "2");
-        value = dao.getGeneticAlteration(1, "TCGA-06-0148-01", 207);
+        value = dao.getGeneticAlteration(1, 3, 207);
         assertEquals (value, "2");
 
-        int cnaStatus = Integer.parseInt(dao.getGeneticAlteration(1, "TCGA-06-0148-01", 207));
+        int cnaStatus = Integer.parseInt(dao.getGeneticAlteration(1, 3, 207));
         assertEquals(CopyNumberStatus.COPY_NUMBER_AMPLIFICATION, cnaStatus);
-        cnaStatus = Integer.parseInt(dao.getGeneticAlteration(1, "TCGA-06-0241-01", 675));
+        cnaStatus = Integer.parseInt(dao.getGeneticAlteration(1, 2, 675));
         assertEquals(CopyNumberStatus.COPY_NUMBER_AMPLIFICATION, cnaStatus);
-        cnaStatus = Integer.parseInt(dao.getGeneticAlteration(1, "TCGA-02-0007-01", 207));
+        cnaStatus = Integer.parseInt(dao.getGeneticAlteration(1, 4, 207));
         assertEquals(CopyNumberStatus.HEMIZYGOUS_DELETION, cnaStatus);
 
-        assertTrue(DaoCaseProfile.caseExistsInGeneticProfile("TCGA-02-0001-01", 1));
-        assertTrue(DaoCaseProfile.caseExistsInGeneticProfile("TCGA-06-0241-01", 1));
-        ArrayList caseIds = DaoCaseProfile.getAllCaseIdsInProfile(1);
-        assertEquals(94, caseIds.size());
+        Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(1, "TCGA-02-0001");
+        Sample sample = DaoSample.getSampleByPatientAndSampleId(patient.getInternalId(), "TCGA-02-0001-01");
+        assertTrue(DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), 1));
+
+        patient = DaoPatient.getPatientByCancerStudyAndPatientId(1, "TCGA-06-0241");
+        sample = DaoSample.getSampleByPatientAndSampleId(patient.getInternalId(), "TCGA-06-0241-01");
+        assertTrue(DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), 1));
+        ArrayList sampleIds = DaoSampleProfile.getAllSampleIdsInProfile(1);
+        assertEquals(94, sampleIds.size());
     }
 
     /**
@@ -201,10 +211,10 @@ public class TestImportTabDelimData extends TestCase {
         ImportTabDelimData parser = new ImportTabDelimData(file, 1, pMonitor);
         parser.importData();
         
-        String value = dao.getGeneticAlteration(1, "DD639", 2978);
+        String value = dao.getGeneticAlteration(1, 6, 2978);
         assertEquals ("2.01", value );
 
-        value = dao.getGeneticAlteration(1, "DD638", 7849);
+        value = dao.getGeneticAlteration(1, 5, 7849);
         assertEquals ("0.55", value );
     }
 

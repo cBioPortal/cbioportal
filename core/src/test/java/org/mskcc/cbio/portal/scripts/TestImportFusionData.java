@@ -78,7 +78,7 @@ public class TestImportFusionData extends TestCase
 
 		assertEquals(2, list.size()); // all except "FAKE"
 
-		list = DaoMutation.getMutations(1, "TCGA-XX-A3XX-01");
+		list = DaoMutation.getMutations(1, 1);
 
 		assertEquals(1, list.size());
 		assertEquals("saturn", list.get(0).getSequencingCenter());
@@ -86,7 +86,7 @@ public class TestImportFusionData extends TestCase
 		assertEquals("Fusion", list.get(0).getMutationType());
 		assertEquals("Fusion1", list.get(0).getProteinChange());
 
-		list = DaoMutation.getMutations(1, "TCGA-YY-A2YY-01");
+		list = DaoMutation.getMutations(1, 2);
 
 		assertEquals(1, list.size());
 		assertEquals("jupiter", list.get(0).getSequencingCenter());

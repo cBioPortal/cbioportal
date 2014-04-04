@@ -110,36 +110,35 @@ public class ImportTabDelimData {
         String headerLine = buf.readLine();
         String parts[] = headerLine.split("\t");
 
-        int caseStartIndex = getStartIndex(parts);
+        int sampleStartIndex = getStartIndex(parts);
         int hugoSymbolIndex = getHugoSymbolIndex(parts);
         int entrezGeneIdIndex = getEntrezGeneIdIndex(parts);
         
-        String caseIds[];
-
+        String sampleIds[];
         //  Branch, depending on targetLine setting
         if (targetLine == null) {
-            caseIds = new String[parts.length - caseStartIndex];
-            System.arraycopy(parts, caseStartIndex, caseIds, 0, parts.length - caseStartIndex);
+            sampleIds = new String[parts.length - sampleStartIndex];
+            System.arraycopy(parts, sampleStartIndex, sampleIds, 0, parts.length - sampleStartIndex);
         } else {
-            caseIds = new String[parts.length - caseStartIndex];
-            System.arraycopy(parts, caseStartIndex, caseIds, 0, parts.length - caseStartIndex);
+            sampleIds = new String[parts.length - sampleStartIndex];
+            System.arraycopy(parts, sampleStartIndex, sampleIds, 0, parts.length - sampleStartIndex);
         }
-        ImportProfileData.addPatients(caseIds, geneticProfileId);
-        ImportProfileData.addSamples(caseIds, geneticProfileId);
-		convertBarcodes(caseIds);
-        pMonitor.setCurrentMessage("Import tab delimited data for " + caseIds.length + " cases.");
+        ImportDataUtil.addPatients(sampleIds, geneticProfileId);
+        ImportDataUtil.addSamples(sampleIds, geneticProfileId);
+        pMonitor.setCurrentMessage("Import tab delimited data for " + sampleIds.length + " samples.");
 
-        // Add Cases to the Database
-        ArrayList <String> orderedCaseList = new ArrayList<String>();
-        for (int i = 0; i < caseIds.length; i++) {
-            if (!DaoCaseProfile.caseExistsInGeneticProfile(caseIds[i],
-                    geneticProfileId)) {
-                DaoCaseProfile.addCaseProfile(caseIds[i], geneticProfileId);
+        // Add Samples to the Database
+        ArrayList <Integer> orderedSampleList = new ArrayList<Integer>();
+        for (int i = 0; i < sampleIds.length; i++) {
+           Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
+                                                                       StableIdUtil.getSampleId(sampleIds[i]));
+            if (!DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId)) {
+                DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId);
             }
-            orderedCaseList.add(caseIds[i]);
+            orderedSampleList.add(sample.getInternalId());
         }
-        DaoGeneticProfileCases daoGeneticProfileCases = new DaoGeneticProfileCases();
-        daoGeneticProfileCases.addGeneticProfileCases(geneticProfileId, orderedCaseList);
+        DaoGeneticProfileSamples daoGeneticProfileSamples = new DaoGeneticProfileSamples();
+        daoGeneticProfileSamples.addGeneticProfileSamples(geneticProfileId, orderedSampleList);
 
         String line = buf.readLine();
         int numRecordsStored = 0;
@@ -165,7 +164,7 @@ public class ImportTabDelimData {
                     System.err.println("The following line has more fields (" + parts.length
                             + ") than the headers(" + lenParts + "): \n"+parts[0]);
                 }
-                String values[] = (String[]) ArrayUtils.subarray(parts, caseStartIndex, parts.length>lenParts?lenParts:parts.length);
+                String values[] = (String[]) ArrayUtils.subarray(parts, sampleStartIndex, parts.length>lenParts?lenParts:parts.length);
 
                 String hugo = parts[hugoSymbolIndex];
                 if (hugo!=null && hugo.isEmpty()) {
@@ -236,7 +235,7 @@ public class ImportTabDelimData {
                                 if (geneticProfile!=null
                                         && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.COPY_NUMBER_ALTERATION
                                         && geneticProfile.showProfileInAnalysisTab()) {
-                                    storeCna(genes.get(0).getEntrezGeneId(), orderedCaseList, values);
+                                    storeCna(genes.get(0).getEntrezGeneId(), orderedSampleList, values);
                                 }
                                 
                                 numRecordsStored++;
@@ -287,15 +286,15 @@ public class ImportTabDelimData {
         }
     }
     
-    private void storeCna(long entrezGeneId, ArrayList <String> cases, String[] values) throws DaoException {
+    private void storeCna(long entrezGeneId, ArrayList<Integer> samples, String[] values) throws DaoException {
         int n = values.length;
         if (n==0)
             System.out.println();
         int i = values[0].equals(""+entrezGeneId) ? 1:0;
         for (; i<n; i++) {
-            if (values[i].equals(GeneticAlterationType.AMPLIFICATION) 
-                    || values[i].equals(GeneticAlterationType.HOMOZYGOUS_DELETION)) {
-                CnaEvent event = new CnaEvent(cases.get(i), geneticProfileId, entrezGeneId, Short.parseShort(values[i]));
+            if (values[i].equals(GeneticAlterationType.AMPLIFICATION) ||
+                values[i].equals(GeneticAlterationType.HOMOZYGOUS_DELETION)) {
+                CnaEvent event = new CnaEvent(samples.get(i), geneticProfileId, entrezGeneId, Short.parseShort(values[i]));
                 DaoCnaEvent.addCaseCnaEvent(event);
             }
         }
@@ -330,11 +329,5 @@ public class ImportTabDelimData {
         
         return startIndex;
     }
-
-	private void convertBarcodes(String caseIds[])
-	{
-		for (int lc = 0; lc < caseIds.length; lc++) {
-			caseIds[lc] = CaseIdUtil.getSampleId(caseIds[lc]);
-		}
-	}
 }
+

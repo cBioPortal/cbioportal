@@ -1,19 +1,14 @@
 
 package org.mskcc.cbio.portal.servlet;
 
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.*;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.*;
 import org.apache.log4j.Logger;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONValue;
+import org.json.simple.*;
 import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.Patient;
+import org.mskcc.cbio.portal.model.*;
 
 /**
  *
@@ -38,27 +33,27 @@ public class SimilarPatientsJSON extends HttpServlet {
 
         String strMutations = request.getParameter(MUTATION);
         String strCna = request.getParameter(CNA);
-        String patient = request.getParameter(PatientView.CASE_ID);
+        String sample = request.getParameter(PatientView.CASE_ID);
         String cancerStudyId = request.getParameter(QueryBuilder.CANCER_STUDY_ID);
         
         try {
             CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
             if (cancerStudy!=null) {
-                Patient _patient = DaoPatient.getPatient(cancerStudy.getInternalId(), patient);
-                if (_patient!=null) {
-                    Map<Patient, Set<Long>> similarMutations;
+                Sample _sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudy.getInternalId(), sample);
+                if (_sample!=null) {
+                    Map<Sample, Set<Long>> similarMutations;
                     if (strMutations==null||strMutations.isEmpty()) {
                         similarMutations = Collections.emptyMap();
                     } else {
-                        similarMutations = DaoMutation.getSimilarCasesWithMutationsByKeywords(strMutations);
-                        similarMutations.remove(_patient);
+                        similarMutations = DaoMutation.getSimilarSamplesWithMutationsByKeywords(strMutations);
+                        similarMutations.remove(_sample);
                     }
-                    Map<Patient, Set<Long>> similarCnas;
+                    Map<Sample, Set<Long>> similarCnas;
                     if (strCna==null||strCna.isEmpty()) {
                         similarCnas = Collections.emptyMap();
                     } else {
-                        similarCnas = DaoCnaEvent.getCasesWithAlterations(strCna);
-                        similarCnas.remove(_patient);
+                        similarCnas = DaoCnaEvent.getSamplesWithAlterations(strCna);
+                        similarCnas.remove(_sample);
                     }
 
                     export(table, similarMutations, similarCnas);
@@ -90,17 +85,18 @@ public class SimilarPatientsJSON extends HttpServlet {
 //        return ret;
 //    }
     
-    private void export(JSONArray table, Map<Patient, Set<Long>> similarMutations, Map<Patient, Set<Long>> similarCnas) 
+    private void export(JSONArray table, Map<Sample, Set<Long>> similarMutations, Map<Sample, Set<Long>> similarCnas) 
             throws DaoException {
-        Set<Patient> patients = new HashSet<Patient>();
-        patients.addAll(similarMutations.keySet());
-        patients.addAll(similarCnas.keySet());
-        for (Patient patient : patients) {
+        Set<Sample> samples = new HashSet<Sample>();
+        samples.addAll(similarMutations.keySet());
+        samples.addAll(similarCnas.keySet());
+        for (Sample sample : samples) {
             JSONArray row = new JSONArray();
-            row.add(patient.getStableId());
+            row.add(sample.getStableId());
             
             String[] cancerStudy = {"unknown","unknown"};
             try {
+                Patient patient = DaoPatient.getPatientById(sample.getInternalPatientId());
                 CancerStudy study = patient.getCancerStudy();
                 cancerStudy[0] = study.getCancerStudyStableId();
                 cancerStudy[1] = study.getName();
@@ -111,12 +107,12 @@ public class SimilarPatientsJSON extends HttpServlet {
             row.add(Arrays.asList(cancerStudy));
             Map<String,Set<Long>> events = new HashMap<String,Set<Long>>(2);
             
-            Set<Long> mutations = similarMutations.get(patient);
+            Set<Long> mutations = similarMutations.get(sample);
             if (mutations != null) {
                 events.put(MUTATION, mutations);
             }
             
-            Set<Long> cna = similarCnas.get(patient);
+            Set<Long> cna = similarCnas.get(sample);
             if (cna != null) {
                 events.put(CNA, cna);
             }

@@ -141,7 +141,7 @@ public class ImportClinicalData {
 
     private int addPatientToDatabase(String stableId) throws Exception
     {
-        if (validPatientId(stableId) && DaoPatient.getPatient(cancerStudy.getInternalId(), stableId) == null) {
+        if (validPatientId(stableId) && DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), stableId) == null) {
            Patient patient = new Patient(cancerStudy, stableId);
            return DaoPatient.addPatient(patient);
        }
@@ -154,13 +154,13 @@ public class ImportClinicalData {
         int internalSampleId = -1;
         String stablePatientId = getStablePatientId(sampleId, fields, columnAttrs);
         if (validPatientId(stablePatientId)) {
-            Patient patient = DaoPatient.getPatient(cancerStudy.getInternalId(), stablePatientId);
+            Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), stablePatientId);
             if (patient == null) {
                 addPatientToDatabase(stablePatientId);
-                patient = DaoPatient.getPatient(cancerStudy.getInternalId(), stablePatientId);
+                patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), stablePatientId);
             }
-            sampleId = CaseIdUtil.getSampleId(sampleId);
-            if (patient != null && DaoSample.getSampleByStableId(sampleId) == null) {
+            sampleId = StableIdUtil.getSampleId(sampleId);
+            if (patient != null && DaoSample.getSampleByCancerStudyAndSampleId(cancerStudy.getInternalId(), sampleId) == null) {
                 internalSampleId = DaoSample.addSample(new Sample(sampleId,
                                                                   patient.getInternalId(),
                                                                   cancerStudy.getTypeOfCancerId()));
@@ -172,7 +172,7 @@ public class ImportClinicalData {
 
     private String getStablePatientId(String sampleId, String[] fields, List<ClinicalAttribute> columnAttrs)
     {
-        Matcher tcgaSampleBarcodeMatcher = CaseIdUtil.TCGA_PATIENT_BARCODE_FROM_SAMPLE_REGEX.matcher(sampleId);
+        Matcher tcgaSampleBarcodeMatcher = StableIdUtil.TCGA_PATIENT_BARCODE_FROM_SAMPLE_REGEX.matcher(sampleId);
         if (tcgaSampleBarcodeMatcher.find()) {
             return tcgaSampleBarcodeMatcher.group(1);
         }

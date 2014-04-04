@@ -29,7 +29,6 @@ package org.mskcc.cbio.portal.dao;
 
 import org.mskcc.cbio.portal.model.CanonicalGene;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -122,40 +121,40 @@ public class DaoGeneticAlteration {
      * Gets the Specified Genetic Alteration.
      *
      * @param geneticProfileId  Genetic Profile ID.
-     * @param caseId            Case ID.
+     * @param sampleId            Sample ID.
      * @param entrezGeneId      Entrez Gene ID.
      * @return value or NAN.
      * @throws DaoException Database Error.
      */
-    public String getGeneticAlteration(int geneticProfileId, String caseId,
+    public String getGeneticAlteration(int geneticProfileId, int sampleId,
             long entrezGeneId) throws DaoException {
-        HashMap <String, String> caseMap = getGeneticAlterationMap (geneticProfileId, entrezGeneId);
-        if (caseMap.containsKey(caseId)) {
-            return caseMap.get(caseId);
+        HashMap <Integer, String> sampleMap = getGeneticAlterationMap (geneticProfileId, entrezGeneId);
+        if (sampleMap.containsKey(sampleId)) {
+            return sampleMap.get(sampleId);
         } else {
             return NAN;
         }
     }
 
     /**
-     * Gets a HashMap of Values, keyed by Case ID.
+     * Gets a HashMap of Values, keyed by Sample ID.
      * @param geneticProfileId  Genetic Profile ID.
      * @param entrezGeneId      Entrez Gene ID.
-     * @return HashMap of values, keyed by Case ID.
+     * @return HashMap of values, keyed by Sample ID.
      * @throws DaoException Database Error.
      */
-    public HashMap<String, String> getGeneticAlterationMap(int geneticProfileId,
+    public HashMap<Integer, String> getGeneticAlterationMap(int geneticProfileId,
             long entrezGeneId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        HashMap<String, String> map = new HashMap<String, String>();
+        HashMap<Integer, String> map = new HashMap<Integer, String>();
 
-        DaoGeneticProfileCases daoGeneticProfileCases = new DaoGeneticProfileCases();
-        ArrayList<String> orderedCaseList = daoGeneticProfileCases.getOrderedCaseList
+        DaoGeneticProfileSamples daoGeneticProfileSamples = new DaoGeneticProfileSamples();
+        ArrayList<Integer> orderedSampleList = daoGeneticProfileSamples.getOrderedSampleList
                 (geneticProfileId);
-        if (orderedCaseList == null || orderedCaseList.size() ==0) {
-            throw new IllegalArgumentException ("Could not find any cases for genetic" +
+        if (orderedSampleList == null || orderedSampleList.size() ==0) {
+            throw new IllegalArgumentException ("Could not find any samples for genetic" +
                     " profile ID:  " + geneticProfileId);
         }
         try {
@@ -173,8 +172,8 @@ public class DaoGeneticAlteration {
                 String valueParts[] = values.split(DELIM);
                 for (int i=0; i<valueParts.length; i++) {
                     String value = valueParts[i];
-                    String caseId = orderedCaseList.get(i);
-                    map.put(caseId, value);
+                    Integer sampleId = orderedSampleList.get(i);
+                    map.put(sampleId, value);
                 }
             }
             return map;

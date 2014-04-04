@@ -28,25 +28,19 @@
 
 package org.mskcc.cbio.portal.servlet;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.*;
-import java.util.zip.GZIPOutputStream;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.lang.StringUtils;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
-import org.mskcc.cbio.portal.dao.DaoGeneticAlteration;
-import org.mskcc.cbio.portal.dao.DaoInteraction;
-import org.mskcc.cbio.portal.dao.DaoMutation;
+import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.network.*;
 import org.mskcc.cbio.portal.util.*;
-import org.mskcc.cbio.portal.web_api.GetCaseLists;
-import org.mskcc.cbio.portal.web_api.GetGeneticProfiles;
+import org.mskcc.cbio.portal.web_api.*;
+
+import org.apache.commons.lang.StringUtils;
+
+import java.io.*;
+import java.util.*;
+import java.util.zip.GZIPOutputStream;
+import javax.servlet.ServletException;
+import javax.servlet.http.*;
 
 /**
  * Retrieving 
@@ -159,8 +153,8 @@ public class NetworkServlet extends HttpServlet {
                 // and get the list of genes in network
                 xdebug.logMsg(this, "Retrieving data from CGDS...");
                 
-                // Get case ids
-                Set<String> targetCaseIds = getCaseIds(req, cancerTypeId);
+                // Get patient ids
+                Set<String> targetPatientIds = getPatientIds(req, cancerTypeId);
                 
                 //  Get User Selected Genetic Profiles
                 Set<GeneticProfile> geneticProfileSet = getGeneticProfileSet(req, cancerTypeId);
@@ -201,14 +195,14 @@ public class NetworkServlet extends HttpServlet {
 
                     // add attributes
                     addCGDSDataAsNodeAttribute(node, entrezGeneId, geneticProfileSet, 
-                            targetCaseIds, zScoreThreshold);
+                            targetPatientIds, zScoreThreshold);
                 }
 
                 xdebug.stopTimer();
                 xdebug.logMsg(this, "Retrived data from CGDS. Took "+xdebug.getTimeElapsed()+"ms");
                 
                 if (mapQueryGeneAlterationCaseNumber!=null) {
-                    addAttributesForQueryGenes(queryNodes, targetCaseIds.size(), mapQueryGeneAlterationCaseNumber);
+                    addAttributesForQueryGenes(queryNodes, targetPatientIds.size(), mapQueryGeneAlterationCaseNumber);
                 }
                 
                 String nLinker = req.getParameter("linkers");
@@ -462,29 +456,28 @@ public class NetworkServlet extends HttpServlet {
         return alterPerc == null ? 0.0 : alterPerc;
     }
     
-    private Set<String> getCaseIds(HttpServletRequest req, String cancerStudyId) 
+    private Set<String> getPatientIds(HttpServletRequest req, String cancerStudyId) 
             throws ServletException, DaoException {
-    	String caseIdsKey = req.getParameter(QueryBuilder.CASE_IDS_KEY);
-    	String strCaseIds = CaseSetUtil.getCaseIds(caseIdsKey);
+    	String patientIdsKey = req.getParameter(QueryBuilder.CASE_IDS_KEY);
+    	String strPatientIds = PatientSetUtil.getPatientIds(patientIdsKey);
     	
-        if (strCaseIds==null || strCaseIds.length()==0) {
-            String caseSetId = req.getParameter(QueryBuilder.CASE_SET_ID);
-                //  Get Case Sets for Selected Cancer Type
-                ArrayList<CaseList> caseSets = GetCaseLists.getCaseLists(cancerStudyId);
-                for (CaseList cs : caseSets) {
-                    if (cs.getStableId().equals(caseSetId)) {
-                        strCaseIds = cs.getCaseListAsString();
+        if (strPatientIds==null || strPatientIds.length()==0) {
+            String patientSetId = req.getParameter(QueryBuilder.CASE_SET_ID);
+                //  Get Patient Sets for Selected Cancer Type
+                ArrayList<PatientList> patientSets = GetPatientLists.getPatientLists(cancerStudyId);
+                for (PatientList ps : patientSets) {
+                    if (ps.getStableId().equals(patientSetId)) {
+                        strPatientIds = ps.getPatientListAsString();
                         break;
                     }
                 }
         }
-        //String[] caseArray = strCaseIds.split(" ");
-        String[] caseArray = strCaseIds.split("\\s+");
-        Set<String> targetCaseIds = new HashSet<String>(caseArray.length);
-        for (String caseId : caseArray) {
-            targetCaseIds.add(caseId);
+        String[] patientArray = strPatientIds.split("\\s+");
+        Set<String> targetPatientIds = new HashSet<String>(patientArray.length);
+        for (String patientId : patientArray) {
+            targetPatientIds.add(patientId);
         }
-        return targetCaseIds;
+        return targetPatientIds;
     }
     
     private Set<GeneticProfile> getGeneticProfileSet(HttpServletRequest req, String cancerStudyId)
@@ -646,16 +639,19 @@ public class NetworkServlet extends HttpServlet {
      * 
      * @return mutated cases.
      */
-    private Set<String> getMutatedCases(int geneticProfileId, Set<String> targetCaseList,
+    private Set<String> getMutatedCases(int geneticProfileId, Set<String> targetSampleList,
             long entrezGeneId) throws DaoException {
+        GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
+        List<Integer> internalSampleIds = InternalIdUtil.getInternalSampleIds(geneticProfile.getCancerStudyId(), new ArrayList<String>(targetSampleList));
         ArrayList <ExtendedMutation> mutationList =
-                    DaoMutation.getMutations(geneticProfileId, targetCaseList, entrezGeneId);
-        Set<String> cases = new HashSet<String>();
+                    DaoMutation.getMutations(geneticProfileId, internalSampleIds, entrezGeneId);
+        Set<String> samples = new HashSet<String>();
         for (ExtendedMutation mutation : mutationList) {
-            cases.add(mutation.getCaseId());
+            Sample sample = DaoSample.getSampleById(mutation.getSampleId()); 
+            samples.add(sample.getStableId());
         }
         
-        return cases;
+        return samples;
     }
     
     /**
@@ -666,22 +662,24 @@ public class NetworkServlet extends HttpServlet {
      * @return map from cna status to cases
      * @throws DaoException 
      */
-    private Map<String,Set<String>> getCNACases(int geneticProfileId, Set<String> targetCaseList,
+    private Map<String,Set<String>> getCNACases(int geneticProfileId, Set<String> targetSampleList,
             long entrezGeneId) throws DaoException {
-        Map<String,String> caseMap = DaoGeneticAlteration.getInstance()
+        GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
+        List<Integer> internalSampleIds = InternalIdUtil.getInternalSampleIds(geneticProfile.getCancerStudyId(), new ArrayList<String>(targetSampleList));
+        Map<Integer,String> sampleMap = DaoGeneticAlteration.getInstance()
                 .getGeneticAlterationMap(geneticProfileId,entrezGeneId);
-        caseMap.keySet().retainAll(targetCaseList);
+        sampleMap.keySet().retainAll(targetSampleList);
         Map<String,Set<String>> res = new HashMap<String,Set<String>>();
         res.put("-2", new HashSet<String>());
         //res.put("-1", new HashSet<String>());
         //res.put("1", new HashSet<String>());
         res.put("2", new HashSet<String>());
         
-        for (Map.Entry<String,String> entry : caseMap.entrySet()) {
+        for (Map.Entry<Integer,String> entry : sampleMap.entrySet()) {
             String cna = entry.getValue();
             if (cna.equals("2")||cna.equals("-2")) {
-                String caseId = entry.getKey();
-                res.get(cna).add(caseId);
+                Sample sample = DaoSample.getSampleById(entry.getKey()); 
+                res.get(cna).add(sample.getStableId());
             }
         }
         return res;
@@ -696,32 +694,33 @@ public class NetworkServlet extends HttpServlet {
      * contains down-regulated cases.
      * @throws DaoException 
      */
-    private Set<String>[] getMRnaAlteredCases(int geneticProfileId, Set<String> targetCaseList,
+    private Set<String>[] getMRnaAlteredCases(int geneticProfileId, Set<String> targetSampleList,
             long entrezGeneId, double zScoreThreshold) throws DaoException {
-        Map<String,String> caseMap = DaoGeneticAlteration.getInstance()
+        GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
+        List<Integer> internalSampleIds = InternalIdUtil.getInternalSampleIds(geneticProfile.getCancerStudyId(), new ArrayList<String>(targetSampleList));
+        Map<Integer,String> sampleMap = DaoGeneticAlteration.getInstance()
                 .getGeneticAlterationMap(geneticProfileId,entrezGeneId);
-        caseMap.keySet().retainAll(targetCaseList);
-        Set<String>[] cases = new Set[2];
-        cases[0] = new HashSet<String>();
-        cases[1] = new HashSet<String>();
+        sampleMap.keySet().retainAll(targetSampleList);
+        Set<String>[] samples = new Set[2];
+        samples[0] = new HashSet<String>();
+        samples[1] = new HashSet<String>();
         
-        for (Map.Entry<String,String> entry : caseMap.entrySet()) {
-            String caseId = entry.getKey();
+        for (Map.Entry<Integer,String> entry : sampleMap.entrySet()) {
             double mrna;
             try {
                 mrna = Double.parseDouble(entry.getValue());
             } catch (Exception e) {
                 continue;
             }
-            
+            Sample sample = DaoSample.getSampleById(entry.getKey()); 
             if (mrna>=zScoreThreshold) {
-                cases[0].add(caseId);
+                samples[0].add(sample.getStableId());
             } else if (mrna<=-zScoreThreshold) {
-                cases[1].add(caseId);
+                samples[1].add(sample.getStableId());
             }
         }
         
-        return cases;
+        return samples;
     }
     
     private Map<String,Map<String,Integer>> decodeQueryAlteration(String strQueryAlteration) {

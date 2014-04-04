@@ -70,9 +70,9 @@ public class DaoProteinArrayData {
      * @throws DaoException Database Error.
      */
     public int addProteinArrayData(ProteinArrayData pad) throws DaoException {
-        if (getProteinArrayData(pad.getCancerStudyId(), pad.getArrayId(),pad.getCaseId())!=null) {
+        if (getProteinArrayData(pad.getCancerStudyId(), pad.getArrayId(),pad.getSampleId())!=null) {
             System.err.println("RPPA data of "+pad.getArrayId()+" for case "
-                    +pad.getCaseId()+" in cancer study "
+                    +pad.getSampleId()+" in cancer study "
                     +pad.getCancerStudyId()+ " has already been added.");
             return 0;
         }
@@ -80,7 +80,6 @@ public class DaoProteinArrayData {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        Sample sample = DaoSample.getSampleByStableId(pad.getCaseId());
         try {
             con = JdbcUtil.getDbConnection(DaoProteinArrayData.class);
             pstmt = con.prepareStatement
@@ -88,7 +87,7 @@ public class DaoProteinArrayData {
                             + "VALUES (?,?,?,?)");
             pstmt.setString(1, pad.getArrayId());
             pstmt.setInt(2, pad.getCancerStudyId());
-            pstmt.setInt(3, sample.getInternalId());
+            pstmt.setInt(3, pad.getSampleId());
             pstmt.setDouble(4, pad.getAbundance());
             return pstmt.executeUpdate();
         } catch (NullPointerException e) {
@@ -100,8 +99,8 @@ public class DaoProteinArrayData {
         }
     }
     
-    public ProteinArrayData getProteinArrayData(int cancerStudyId, String arrayId, String caseId) throws DaoException {
-        ArrayList<ProteinArrayData> list = getProteinArrayData(cancerStudyId, arrayId, Collections.singleton(caseId));
+    public ProteinArrayData getProteinArrayData(int cancerStudyId, String arrayId, int sampleId) throws DaoException {
+        ArrayList<ProteinArrayData> list = getProteinArrayData(cancerStudyId, arrayId, Collections.singleton(sampleId));
         if (list.isEmpty()) {
             return null;
         }
@@ -109,9 +108,9 @@ public class DaoProteinArrayData {
         return list.get(0);
     }
     
-    public ArrayList<ProteinArrayData> getProteinArrayData(int cancerStudyId, String arrayId, Collection<String> caseIds)
+    public ArrayList<ProteinArrayData> getProteinArrayData(int cancerStudyId, String arrayId, Collection<Integer> sampleIds)
             throws DaoException {
-        return getProteinArrayData(cancerStudyId, Collections.singleton(arrayId), caseIds);
+        return getProteinArrayData(cancerStudyId, Collections.singleton(arrayId), sampleIds);
     }
 
     /**
@@ -133,15 +132,14 @@ public class DaoProteinArrayData {
      * @return map of array id to a list of protein array data.
      * @throws DaoException Database Error.
      */
-    public ArrayList<ProteinArrayData> getProteinArrayData(int cancerStudyId, Collection<String> arrayIds, Collection<String> caseIds)
+    public ArrayList<ProteinArrayData> getProteinArrayData(int cancerStudyId, Collection<String> arrayIds, Collection<Integer> sampleIds)
             throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        List<Integer> internalSampleIds = DaoSample.getInternalSampleIds(caseIds);
         try {
             con = JdbcUtil.getDbConnection(DaoProteinArrayData.class);
-            if (internalSampleIds == null) {
+            if (sampleIds == null) {
                 pstmt = con.prepareStatement
                         ("SELECT * FROM protein_array_data WHERE CANCER_STUDY_ID='"
                         + cancerStudyId + "' AND PROTEIN_ARRAY_ID IN ('"
@@ -151,7 +149,7 @@ public class DaoProteinArrayData {
                         ("SELECT * FROM protein_array_data WHERE CANCER_STUDY_ID='"
                         + cancerStudyId + "' AND PROTEIN_ARRAY_ID IN ('"
                         + StringUtils.join(arrayIds, "','") + "')"
-                        + " AND SAMPLE_ID IN ('"+StringUtils.join(internalSampleIds,"','") +"')");
+                        + " AND SAMPLE_ID IN ('"+StringUtils.join(sampleIds,"','") +"')");
             }
             rs = pstmt.executeQuery();
             return extractData(rs);
@@ -189,11 +187,10 @@ public class DaoProteinArrayData {
         try {
             ArrayList<ProteinArrayData> list = new ArrayList<ProteinArrayData>();
             while (rs.next()) {
-                Sample sample = DaoSample.getSampleByInternalId(rs.getInt("SAMPLE_ID"));
                 ProteinArrayData pai = new ProteinArrayData(
                     rs.getInt("CANCER_STUDY_ID"),
                     rs.getString("PROTEIN_ARRAY_ID"),
-                    sample.getStableId(),
+                    rs.getInt("SAMPLE_ID"),
                     rs.getDouble("ABUNDANCE"));
                 list.add(pai);
             }

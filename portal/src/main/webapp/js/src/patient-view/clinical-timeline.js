@@ -9,7 +9,8 @@
           tickTime: d3.time.hours, 
           tickNumber: 1, 
           tickSize: 6 },
-        colorCycle = d3.scale.category20(),
+        nColors = 20;
+        colorCycle = d3.scale.category20().domain(d3.range(0,nColors)),
         colorPropertyName = null,
         beginning = 0,
         ending = 0,
@@ -39,13 +40,13 @@
           d.forEach(function (datum, index) {
 
             // create y mapping for stacked graph
-            if (stacked && Object.keys(yAxisMapping).indexOf(index) == -1) {
+            if (stacked && Object.keys(yAxisMapping).indexOf(index) === -1) {
               yAxisMapping[index] = maxStack;
               maxStack++;
             }
 
             // figure out beginning and ending times if they are unspecified
-            if (ending == 0 && beginning == 0){
+            if (ending === 0 && beginning === 0){
               datum.times.forEach(function (time, i) {
                 if (time.starting_time < minTime)
                   minTime = time.starting_time;
@@ -87,7 +88,7 @@
       g.each(function(d, i) {
         d.forEach( function(datum, index){
           var data = datum.times;
-          var hasLabel = (typeof(datum.label) != "undefined");
+          var hasLabel = (typeof(datum.label) !== "undefined");
           
           g.selectAll("svg").data(data).enter()
             .append(datum.display)
@@ -109,9 +110,9 @@
             .attr("class", "timeline-viz-elem")
             .style("fill", function(d, i){ 
               if( colorPropertyName ){ 
-                return colorCycle( d[colorPropertyName] ) 
+                return colorCycle( sumCharCodes(d[colorPropertyName]) % nColors );
               } 
-              return colorCycle(index);  
+              return colorCycle(index % nColors);  
             })
           ;
 
@@ -146,6 +147,16 @@
           
       addToolTip();
 
+      function sumCharCodes(str) {
+          if (!str) return 0;
+          var strU = str.toUpperCase();
+          var sum = 0;
+          for (var i=0; i<strU.length; i++) {
+              sum += strU.charCodeAt(i);
+          }
+          return sum;
+      }
+      
       function getXPos(d, i) {
         return margin.left + (d.starting_time - beginning) * scaleFactor;
       }
@@ -353,7 +364,7 @@
                 return timePointData["eventData"]["TEST"];
             if (type==="DIAGNOSTIC")
                 return timePointData["eventData"]["TYPE"];
-            return timePointData["eventType"];
+            return type;
         }
         
         function formatATimePoint(timePointData) {

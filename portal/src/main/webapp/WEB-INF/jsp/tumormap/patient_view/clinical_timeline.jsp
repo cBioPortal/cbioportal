@@ -37,10 +37,10 @@
     $(document).ready(function(){
         
         var params = {
-            type:"diagnostic,treatment,lab_test",
+            //type:"diagnostic,treatment,lab_test",
             cancer_study_id:cancerStudyId,
             patient_id:patientId
-        }
+        };
         
         $.post("clinical_timeline_data.json", 
             params,

@@ -34,13 +34,23 @@
   
   <script type="text/javascript">
 
+
+    function plotCaseLabelsInTimeline() {
+        for (var i=0; i<caseIds.length; i++) {
+            var caseId = caseIds[i];
+            var clinicalData = clinicalDataMap[caseId];
+            var su2cSampleId = guessClinicalData(clinicalData,["SU2C_SAMPLE_ID"]);
+            fillColorAndLabelForCase(d3.select('.timeline-'+su2cSampleId),caseId);
+        }
+    }
+
     $(document).ready(function(){
         
         var params = {
-            type:"diagnostic,treatment,lab_test",
+            //type:"diagnostic,treatment,lab_test",
             cancer_study_id:cancerStudyId,
             patient_id:patientId
-        }
+        };
         
         $.post("clinical_timeline_data.json", 
             params,
@@ -51,8 +61,9 @@
                 if (timeData.length===0) return;
 
                 var width = $("#td-content").width() - 50;
-                var timeline = clinicalTimeline().itemHeight(12).colorProperty('color').stack();
+                var timeline = clinicalTimeline().itemHeight(12).colorProperty('color').opacityProperty('opacity').stack();
                 var svg = d3.select("#timeline").append("svg").attr("width", width).datum(timeData).call(timeline);
+                plotCaseLabelsInTimeline();
                 $("#timeline-container").show();
             }
             ,"json"

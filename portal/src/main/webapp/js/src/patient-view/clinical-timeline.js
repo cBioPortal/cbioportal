@@ -12,6 +12,7 @@
         nColors = 20;
         colorCycle = d3.scale.category20().domain(d3.range(0,nColors)),
         colorPropertyName = null,
+        opacityPropertyName = null,
         beginning = 0,
         ending = 0,
         margin = {left: 150, right:30, top: 30, bottom:6},
@@ -119,6 +120,12 @@
                   return colorCycle( sumCharCodes(d[colorPropertyName]) % nColors );
               } 
               return colorCycle(index % nColors);  
+            })
+            .attr("opacity", function(d, i){ 
+              if( opacityPropertyName ){ 
+                  return d[opacityPropertyName];
+              } 
+              return 1.0;  
             });
 
           // add the label
@@ -313,6 +320,12 @@
       colorPropertyName = colorProp;
       return timeline;
     };
+
+    timeline.opacityProperty = function(opacityProp) {
+      if (!arguments.length) return opacityPropertyName;
+      opacityPropertyName = opacityProp;
+      return timeline;
+    };
     
     return timeline;
   };
@@ -374,13 +387,29 @@
                 return getTreatmentAgent(timePointData);
             if (type==="LAB_TEST")
 //                return timePointData["eventData"]["TEST"];
-                return "#0099cc";
+                return "#CC0000";
             if (type==="DIAGNOSTIC")
-                return "#669900";
+                return "#33B5E5";
 //                return timePointData["eventData"]["DIAGNOSTIC_TYPE"];
             if (type==="STATUS")
                 return "#FF8800";
             return type;
+        }
+        
+        function getOpacity(timePointData) {
+            var type = timePointData["eventType"];
+            if (type==="LAB_TEST") {
+                var test = timePointData["eventData"]["TEST"];
+                if (test) {
+                    if (test.toUpperCase()==='PSA') {
+                        var result = timePointData["eventData"]["RESULT"];
+                        if (!result) return 0;
+                        var psa = parseFloat(result)+1.1;
+                        return Math.log(psa)/Math.log(1000);
+                    }
+                }
+            }
+            return 1.0;
         }
         
         function formatATimePoint(timePointData) {
@@ -399,6 +428,7 @@
                 starting_time : dates[0],
                 ending_time : dates[1],
                 color: getColor(timePointData),
+                opacity: getOpacity(timePointData),
                 tooltip : "<table class='timeline-tooltip-table uninitialized'><thead><tr><th>&nbsp;</th><th>&nbsp;</th></tr></thead><tr>" + tooltip.join("</tr><tr>") + "</tr></table>"
             };
             

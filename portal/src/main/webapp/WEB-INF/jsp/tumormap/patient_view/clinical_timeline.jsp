@@ -61,7 +61,7 @@
                 if (timeData.length===0) return;
 
                 var width = $("#td-content").width() - 50;
-                var timeline = clinicalTimeline().itemHeight(12).colorProperty('color').stack();
+                var timeline = clinicalTimeline().itemHeight(12).colorProperty('color').opacityProperty('opacity').stack();
                 var svg = d3.select("#timeline").append("svg").attr("width", width).datum(timeData).call(timeline);
                 plotCaseLabelsInTimeline();
                 $("#timeline-container").show();

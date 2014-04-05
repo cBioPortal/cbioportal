@@ -546,7 +546,7 @@
                 var treatmentGroups = separateEventsByTime(treatments,true);
                 for (var i in treatmentGroups) {
                     ret.push({
-                        label:"Treatment",
+                        label:i==0?"Treatment":"",
                         display:"rect",
                         class:"timeline-treatment",
                         times:formatTimePoints(treatmentGroups[i])});

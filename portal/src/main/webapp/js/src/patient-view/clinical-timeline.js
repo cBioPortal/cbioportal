@@ -453,8 +453,34 @@
             return times;
         }
         
-        function sortByDate(timePointsData) {
+        function combineTimePointsByTime(sortedTimePoints) {
+            if (!sortedTimePoints || sortedTimePoints.length===0) return sortedTimePoints;
+            var pre = 0;
+            var ret = [sortedTimePoints[0]];
+            // assume sorted
+            for (var i=1; i<sortedTimePoints.length; i++) {
+                var preEvent = ret[pre];
+                var currEvent = sortedTimePoints[i];
+                if (preEvent["starting_time"]===currEvent["starting_time"]) {
+                    preEvent["tooltip"] += "<hr>"+currEvent["tooltip"];
+                } else {
+                    ret.push(currEvent);
+                    pre++;
+                }
+                
+            }
+            return ret;
+        }
+        
+        function sortByDate(timePointsData, optionalAttr) {
             return timePointsData.sort(function(a,b){
+                if (a["startDate"]===b["startDate"] && optionalAttr) {
+                    var va = a["eventData"][optionalAttr];
+                    var vb = a["eventData"][optionalAttr];
+                    if (va===vb) return 0;
+                    if ((typeof va)!=='string') return 1;
+                    return va.localeCompare(vb);
+                }
                 return a["startDate"]-b["startDate"];
             });
         }
@@ -498,14 +524,12 @@
             }
             
             if ("DIAGNOSTIC" in timelineDataByType) {
-                var eventGroups = separateEvents(sortByDate(timelineDataByType["DIAGNOSTIC"]),"DIAGNOSTIC_TYPE");
-                for (var type in eventGroups) {
-                    ret.push({
-                        label:type,
-                        display:"circle",
-                        class:"timeline-diagnostic",
-                        times:formatTimePoints(eventGroups[type])});
-                }
+                var eventGroup = sortByDate(timelineDataByType["DIAGNOSTIC"],"DIAGNOSTIC_TYPE");
+                ret.push({
+                    label:"Diagnostics",
+                    display:"circle",
+                    class:"timeline-diagnostic",
+                    times:combineTimePointsByTime(formatTimePoints(eventGroup))});
             }
             
             if ("LAB_TEST" in timelineDataByType) {

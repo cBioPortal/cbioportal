@@ -423,6 +423,13 @@
                 return a["startDate"]-b["startDate"];
             });
         }
+        
+        function filter(timePointsData, key, value) {
+            return _.filter(timePointsData, function(specimen){
+                    var type = specimen["eventData"][key];
+                    return type && type.toUpperCase()===value;
+                });
+        }
             
         var prepare = function(timelineData) {
             var timelineDataByType = {};
@@ -436,10 +443,7 @@
             var ret = [];
             
             if ("SPECIMEN" in timelineDataByType) {
-                var specimens = _.filter(timelineDataByType["SPECIMEN"], function(specimen){
-                    var type = specimen["eventData"]["SpecimenType"];
-                    return type && type.toUpperCase()==="TISSUE";
-                });
+                var specimens = filter(timelineDataByType["SPECIMEN"],"SpecimenType","TISSUE");
                 var eventGroups = separateEvents(sortByDate(specimens), "SpecimenPreservationType");
                 for (var type in eventGroups) {
                     ret.push({
@@ -470,7 +474,8 @@
             }
             
             if ("LAB_TEST" in timelineDataByType) {
-                var eventGroups = separateEvents(sortByDate(timelineDataByType["LAB_TEST"]),"TEST");
+                var lab_tests = filter(timelineDataByType["LAB_TEST"],"TEST","PSA");
+                var eventGroups = separateEvents(sortByDate(lab_tests),"TEST");
                 for (var test in eventGroups) {
                    ret.push({
                         label:test,

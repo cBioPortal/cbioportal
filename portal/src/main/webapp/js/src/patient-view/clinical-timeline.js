@@ -85,6 +85,11 @@
         .attr("transform", "translate(" + 0 +","+(margin.top + (itemHeight + itemMargin) * maxStack)+")")
         .call(xAxis);
 
+      gParent.append('text')
+          .attr("class", "timeline-label")
+          .attr("transform", "translate("+ 0 +","+ (margin.top)+")")
+          .text("Months to diagnosis");
+
       // draw the chart
       g.each(function(d, i) {
         d.forEach( function(datum, index){
@@ -190,7 +195,7 @@
           }
           
           tickFormat = {
-            format: function(d) {return (d/daysPerMonth).toFixed(0)+" months";}, 
+            format: function(d) {return (d/daysPerMonth).toFixed(0);}, 
             tickValues: tickValues, 
             tickSize: 8
           };

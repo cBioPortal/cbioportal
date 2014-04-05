@@ -389,7 +389,7 @@
 //                return timePointData["eventData"]["TEST"];
                 return "#CC0000";
             if (type==="DIAGNOSTIC")
-                return "#33B5E5";
+                return "#0099CC";
 //                return timePointData["eventData"]["DIAGNOSTIC_TYPE"];
             if (type==="STATUS")
                 return "#FF8800";

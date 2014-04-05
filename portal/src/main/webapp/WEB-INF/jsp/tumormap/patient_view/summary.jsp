@@ -63,7 +63,7 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
     function initGenomicsOverview() {
         var chmInfo = new ChmInfo();
 
-        var genomic_overview_length = $("#td-content").width() - 70;
+        var genomic_overview_length = $("#td-content").width() - 75;
         genomic_overview_length -= ((genomicEventObs.hasMut && genomicEventObs.hasSeg) ? 110 : 0);
         genomic_overview_length -= (hasAlleleFrequencyData&&caseIds.length===1 ? 110 : 0);
         var config = new GenomicOverviewConfig(

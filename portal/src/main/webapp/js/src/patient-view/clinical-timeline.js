@@ -15,7 +15,7 @@
         opacityPropertyName = null,
         beginning = 0,
         ending = 0,
-        margin = {left: 150, right:30, top: 30, bottom:6},
+        margin = {left: 150, right:30, top: 20, bottom:6},
         stacked = false,
         rotateTicks = false,
         itemHeight = 20,

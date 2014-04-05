@@ -20,11 +20,11 @@
     }
     
     #timeline .axis {
-      transform: translate(0px,30px);
-      -ms-transform: translate(0px,30px); /* IE 9 */
-      -webkit-transform: translate(0px,30px); /* Safari and Chrome */
-      -o-transform: translate(0px,30px); /* Opera */
-      -moz-transform: translate(0px,30px); /* Firefox */
+      transform: translate(0px,20px);
+      -ms-transform: translate(0px,20px); /* IE 9 */
+      -webkit-transform: translate(0px,20px); /* Safari and Chrome */
+      -o-transform: translate(0px,20px); /* Opera */
+      -moz-transform: translate(0px,20px); /* Firefox */
     }
 
     .coloredDiv {
@@ -60,7 +60,7 @@
                 var timeData = parepareTimeLineData.prepare(data);
                 if (timeData.length===0) return;
 
-                var width = $("#td-content").width() - 50;
+                var width = $("#td-content").width() - 70;
                 var timeline = clinicalTimeline().itemHeight(12).colorProperty('color').opacityProperty('opacity').stack();
                 var svg = d3.select("#timeline").append("svg").attr("width", width).datum(timeData).call(timeline);
                 plotCaseLabelsInTimeline();
@@ -71,9 +71,11 @@
     });
   </script>
 
+  <fieldset style="border-width: 1px; border-color: #ccc; border-style: solid;">
+  <legend style="color:#1974b8;">Clinical Events</legend>
   <div id="timeline-container" style="display:hidden">
   <div id="timeline">
   
   </div>
-      <br/>
   </div>
+  </fieldset>

@@ -1,3 +1,9 @@
+# April 5, 2014
+* New features:
+    * Visualizing and comparing multiple tumor samples in the patient-centric view
+    * Visualizing clinical events (diagnostics, lab tests, treatment, etc.) in the patient-centric view
+<br/>![3D viewer & Co-expression](images/previews/multitumor-and-timeline.png)
+
 # March 27, 2014
 * New features:
     * Visualizing of mutations mapped on 3D structures (individual or multiple mutations, directly in the browser)

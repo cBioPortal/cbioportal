@@ -52,7 +52,7 @@ var PieChart = function(){
     
     var label =[],
         labelSize = 10,
-        fontSize = labelSize +1;
+        fontSize = labelSize;
             
     var postFilterCallback,
         pieLabelClickCallback,
@@ -121,11 +121,13 @@ var PieChart = function(){
                             .append('<td class="pieLabel" id="' +
                                 DIV.labelTableTdID+label[i].id + "-" + i +
                                 '" style="font-size:' + fontSize +
-                                'px"><svg width="75" height="13"><rect width="' +
+                                'px"><svg width="'+(labelSize+3)+'" height="'+
+                                labelSize+'"><rect width="' +
                                 labelSize+'" height="'+ labelSize +
                                 '" style="fill:' + label[i].color + 
-                                ';" /><text x="15" y="10">' + _tmpName +
-                                '</text></svg></td>');
+                                ';" /></svg><span value="'+
+                                label[i].name + '" style="vertical-align: top">'+
+                                _tmpName+'</span></td>');
 
                     //Only add qtip when the length of pie label bigger than 9
                     if(label[i].name.length > 9){
@@ -307,13 +309,76 @@ var PieChart = function(){
     function setSVGElementValue(_svgParentDivId,_idNeedToSetValue){
         var svgElement;
         
-        //Remove x/y title help icon first.
+        var _pieLabelString = '', 
+            _pieLabelYCoord = 0,
+            _svg = $("#" + _svgParentDivId + " svg"),
+            _svgHeight = _svg.height(),
+            _text = _svg.find('text'),
+            _slice = _svg.find('g .pie-slice'),
+            _pieLabel = $("#" + _svgParentDivId).parent().find('td.pieLabel');
+        
+        //Change pie slice text styles
+        $.each(_text, function(index, value){
+            $(value).css({
+                'fill': 'white',
+                'font-size': '14px',
+                'stroke': 'white',
+                'stroke-width': '1px'
+            });
+        });
+        
+        //Change pie slice styles
+        $.each(_slice, function(index, value){
+            
+            $($(value).find('path')[0]).css({
+                'stroke': 'white',
+                'stroke-width': '1px'
+            });
+        });
+        
+        
+        //Draw pie label into output
+        
+        $.each(_pieLabel, function(index, value){
+            var _labelName = $($(value).find('span')[0]).attr('value');
+            var _labelColormarker = $($(value).find('svg')[0]).html();
+            
+            _pieLabelString += "<g transform='translate(0, "+ 
+                    _pieLabelYCoord+")'>"+ _labelColormarker+
+                    "<text x='13' y='10' "+
+                    "style='font-size:15px'>"+  _labelName + "</text></g>";
+            
+            _pieLabelYCoord += 15;
+        });
+        
         svgElement = $("#" + _svgParentDivId + " svg").html();
+        
         $("#" + _idNeedToSetValue)
-                .val("<svg width='180' height='180'>"+
-                    "<g><text x='90' y='20' style='text-anchor: middle'>"+
+                .val("<svg width='180' height='"+(180+_yCoord)+"'>"+
+                    "<g><text x='90' y='20' style='font-weight: bold;"+
+                    "text-anchor: middle'>"+
                     selectedAttrDisplay+"</text></g>"+
-                    "<g transform='translate(25, 20)'>"+svgElement + "</g></svg>");
+                    "<g transform='translate(25, 20)'>"+svgElement+ "</g>"+
+                    "<g transform='translate(30, "+(_svgHeight+20)+")'>"+
+                    _pieLabelString+"</g></svg>");
+    
+        //Remove pie slice text styles
+        $.each(_text, function(index, value){
+            $(value).css({
+                'fill': '',
+                'font-size': '',
+                'stroke': '',
+                'stroke-width': ''
+            });
+        });
+        
+        //Remove pie slice styles
+        $.each(_slice, function(index, value){
+            $($(value).find('path')[0]).css({
+                'stroke': '',
+                'stroke-width': ''
+            });
+        });
     }
     
     //Initialize HTML tags which will be used for current Pie Chart.
@@ -579,10 +644,12 @@ var PieChart = function(){
                     .append('<td class="pieLabel" id="'+
                         DIV.labelTableTdID +label[i].id+'-'+i+
                         '"  style="font-size:'+fontSize+'px">'+
-                        '<svg width="75" height="13"><rect width="'+
+                        '<svg width="'+(labelSize+3)+'" height="'+
+                        labelSize+'"><rect width="'+
                         labelSize+'" height="'+labelSize+'" style="fill:'+
-                        label[i].color + ';" /><text x="15" y="10">'+
-                        _tmpName+'</text></svg></td>');
+                        label[i].color + ';" /></svg><span value="'+
+                        label[i].name + '" style="vertical-align: top">'+
+                        _tmpName+'</span></td>');
 
             //Only add qtip when the length of pie label bigger than 9
             if(label[i].name.length > 9){

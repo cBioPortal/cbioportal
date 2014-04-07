@@ -86,9 +86,10 @@ var StudyViewInitWordCloud = (function() {
         //Remove x/y title help icon first.
         svgElement = $("#" + _svgParentDivId + " svg").html();
         $("#" + _idNeedToSetValue)
-                .val("<svg width='180' height='180'>"+
-                    "<g><text x='30' y='20'  style='text-anchor: middle'>"+
-                    "Mutated Genes</text></g><g transform='translate(25, 20)'>"+
+                .val("<svg width='200' height='200'>"+
+                    "<g><text x='100' y='20'  style='font-weight: bold; "+
+                    "text-anchor: middle'>"+
+                    "Mutated Genes</text></g><g transform='translate(10, 20)'>"+
                     svgElement + "</g></svg>");
     }
     

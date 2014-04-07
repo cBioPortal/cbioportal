@@ -57,6 +57,9 @@ var StudyViewWindowEvents = (function(){
                     'background-color': '#2986e2',
                     'opacity': '0.8'
                 });
+                
+                $('#study-view-tutorial').css('display', 'none');
+                $('#study-view-add-chart').css('display', 'none');
             }
             if ($(this).scrollTop() < chartsTabHeaderTop){
                 scrolled = false;
@@ -90,6 +93,9 @@ var StudyViewWindowEvents = (function(){
                     'background-color': 'white',
                     'opacity': '1'
                 });
+                
+                $('#study-view-tutorial').css('display', 'block');
+                $('#study-view-add-chart').css('display', 'block');
             }
         });
     }

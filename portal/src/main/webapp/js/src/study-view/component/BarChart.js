@@ -117,7 +117,7 @@ var BarChart = function(){
     //brush and deselected bar, this function is designed to change the svg
     //style, save svg and delete added style.
     function setSVGElementValue(_svgParentDivId,_idNeedToSetValue){
-        var _svgElement, _svgElementOriginal;
+        var _svgElement;
         
         var _svg = $("#" + _svgParentDivId + " svg");
         //Change brush style
@@ -166,8 +166,6 @@ var BarChart = function(){
                     });
         });
         
-        //Remove x/y title help icon first.
-        _svgElementOriginal = _svg.html();
         _svgElement = _svg.html();
         
         //Remove brush if brush width is 0, svg file will remove brush
@@ -178,7 +176,8 @@ var BarChart = function(){
         
         $("#" + _idNeedToSetValue)
                 .val("<svg width='370' height='200'>"+
-                    "<g><text x='180' y='20' style='text-anchor: middle'>"+
+                    "<g><text x='180' y='20' style='font-weight: bold; "+
+                    "text-anchor: middle'>"+
                     param.selectedAttrDisplay+"</text></g>"+
                     "<g transform='translate(0, 20)'>"+_svgElement + "</g></svg>");
        

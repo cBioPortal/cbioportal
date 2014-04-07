@@ -41,7 +41,7 @@ var StudyViewBoilerplate ={
         style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
         show: {event: "mouseover"},
         hide: {fixed:true, delay: 100, event: "mouseout"},
-        position: {my:'right bottom',at:'top left'}
+        position: {viewport: $(window)}
     },
     scatterPlotDataAttr: {
         min_x: 0,

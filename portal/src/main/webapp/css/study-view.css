@@ -615,4 +615,5 @@ ul li a:hover, ul li a:focus {
 #data-table-chart table.dataTable>tfoot>tr>th {
     max-width: 200px;
     min-width: 60px;
+    border-top: 0;
 }

@@ -266,10 +266,11 @@ var PieChart = function(){
                             .css({'border-width':'2px', 'border-style':'inset'});
                 }
                 
-                if(filter !== null || (filter !== null && StudyViewInitScatterPlot
-                        .getScatterPlot()
-                        .getBrushedCases()
-                        .length > 0 
+                if(filter !== null || (filter !== null && 
+                        StudyViewInitScatterPlot
+                            .getScatterPlot()
+                            .getBrushedCases()
+                            .length > 0 
                     )){
                 
                     updateScatterPlot(_currentFilters);
@@ -354,7 +355,7 @@ var PieChart = function(){
         svgElement = $("#" + _svgParentDivId + " svg").html();
         
         $("#" + _idNeedToSetValue)
-                .val("<svg width='180' height='"+(180+_yCoord)+"'>"+
+                .val("<svg width='180' height='"+(180+_pieLabelYCoord)+"'>"+
                     "<g><text x='90' y='20' style='font-weight: bold;"+
                     "text-anchor: middle'>"+
                     selectedAttrDisplay+"</text></g>"+

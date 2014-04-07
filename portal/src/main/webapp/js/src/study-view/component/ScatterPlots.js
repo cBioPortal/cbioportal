@@ -774,6 +774,20 @@ var ScatterPlots = function() {
         elem.brush.y(elem.yScale);
     }
     
+    function log2Value(_value){
+        
+        if(typeof log_scale_threshold !== 'undefined'){
+            if(_value <= log_scale_threshold){
+                _value = Math.log(log_scale_threshold) / Math.log(2);
+            }else{
+                _value = Math.log(_value) / Math.log(2);
+            }
+        }else{
+            _value = Math.log(_value) / Math.log(2);
+        }
+        return _value;
+    }
+    
     return {
         init: function(_options, _dataArr, _dataAttr, _brushOn) {    //Init with options
             initSettings(_options, _dataAttr);
@@ -884,18 +898,19 @@ var ScatterPlots = function() {
         updateStyle: function(_datumArr) {
             var _tmpDataArr=[];
             var dataCopy = jQuery.extend(true,[],dataArr);
+            
             if(axisXLogFlag && axisYLogFlag){
                 for(var i=0; i<dataCopy.length; i++){
-                    dataCopy[i].x_val = Math.log(dataCopy[i].x_val) / Math.log(2);
-                    dataCopy[i].y_val = Math.log(dataCopy[i].y_val) / Math.log(2);
+                    dataCopy[i].x_val = log2Value(dataCopy[i].x_val);
+                    dataCopy[i].y_val = log2Value(dataCopy[i].y_val);
                 }
             }else if(axisXLogFlag){
                 for(var i=0; i<dataCopy.length; i++){
-                    dataCopy[i].x_val = Math.log(dataCopy[i].x_val) / Math.log(2);
+                    dataCopy[i].x_val = log2Value(dataCopy[i].x_val);
                 }
             }else if(axisYLogFlag){
                 for(var i=0; i<dataCopy.length; i++){
-                    dataCopy[i].y_val = Math.log(dataCopy[i].y_val) / Math.log(2);
+                    dataCopy[i].y_val = log2Value(dataCopy[i].y_val);
                 }
             }
             

@@ -27,11 +27,18 @@
 
 var SurvivalTab = (function() {
 
-	var osOpts = {},
-		dfsOpts = {};
+	var	input = [];
+
 
     return {
         init: function(_caseList) {
+
+        	//For survival tab, there are two charts: overall survival, disease free
+			var os = {},
+				dfs = {};
+        	input.push(os);
+        	input.push(dfs);
+
     		//Import default settings
 	        osOpts = jQuery.extend(true, {}, SurvivalCurveBroilerPlate);
 	        dfsOpts = jQuery.extend(true, {}, SurvivalCurveBroilerPlate);  

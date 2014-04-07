@@ -41,7 +41,7 @@
 var SurvivalCurveView = function() {
 
     //Instances of calculators
-    var data = "",
+    var dataInst = "", //Not raw data but the ones being calculated by KM and log-tank already!
         opts = "",
         survivalCurve = "",
         kmEstimator = "",
@@ -52,9 +52,9 @@ var SurvivalCurveView = function() {
 
     var dataInitCallBack = function(_pVal) {
         _pVal = parseFloat(_pVal).toFixed(6);
-        data.getStats().pVal = _pVal; //Fill out the missing p-value
+        dataInst.getStats().pVal = _pVal; //Fill out the missing p-value
         //Import default settings
-        survivalCurve.init(data, divId, opts);
+        survivalCurve.init(survivalCurveInputDataInst, divId, opts);
     }
 
     return {
@@ -74,13 +74,13 @@ var SurvivalCurveView = function() {
             function getResultInit(_caseLists) {
                 return function(result) {
                     //Init all the calculators
-                    data = new SurvivalCurveProxy();
+                    dataInst = new SurvivalCurveProxy();
                     survivalCurve = new SurvivalCurve();
                     kmEstimator = new KmEstimator(); 
                     logRankTest = new LogRankTest();   
                     //confidenceIntervals = new ConfidenceIntervals();      
                     //Init Date and then Init view in the data's callback         
-                    data.init(result, _caseLists, kmEstimator, logRankTest, dataInitCallBack);
+                    dataInst.init(result, _caseLists, kmEstimator, logRankTest, dataInitCallBack);
                 }
             }
         },

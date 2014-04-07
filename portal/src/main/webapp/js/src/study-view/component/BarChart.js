@@ -113,16 +113,130 @@ var BarChart = function(){
                                     DIV.chartDiv+"-side");
     }
     
+    //Bar chart SVG style is controled by CSS file. In order to change 
+    //brush and deselected bar, this function is designed to change the svg
+    //style, save svg and delete added style.
     function setSVGElementValue(_svgParentDivId,_idNeedToSetValue){
-        var svgElement;
+        var _svgElement, _svgElementOriginal;
+        
+        var _svg = $("#" + _svgParentDivId + " svg");
+        //Change brush style
+        var _brush = _svg.find("g.brush"),
+            _brushWidth = Number(_brush.find('rect.extent').attr('width'));
+        
+        _brush.find('rect.extent')
+                .css({
+                    'fill-opacity': '0.2',
+                    'fill': '#2986e2'
+                });
+                
+        _brush.find('.resize path')
+                .css({
+                    'fill': '#eee',
+                    'stroke': '#666'
+                });
+                                    
+        //Change deselected bar chart
+        var _chartBody = _svg.find('.chart-body'),
+            _deselectedCharts = _chartBody.find('.bar.deselected');
+    
+        $.each(_deselectedCharts,function(index, value){
+            $(value).css({
+                        'stroke': '',
+                        'fill': '#ccc'
+                    });
+        });
+         
+        //Change axis style
+        var _axis = _svg.find('.axis'),
+            _axisDomain = _axis.find('.domain'),
+            _axisTick = _axis.find('.tick.major line');
+        
+        $.each(_axisDomain,function(index, value){
+            $(value).css({
+                        'fill': 'white',
+                        'fill-opacity': '0',
+                        'stroke': 'black'
+                    });
+        });
+        
+        $.each(_axisTick,function(index, value){
+            $(value).css({
+                        'stroke': 'black'
+                    });
+        });
         
         //Remove x/y title help icon first.
-        svgElement = $("#" + _svgParentDivId + " svg").html();
+        _svgElementOriginal = _svg.html();
+        _svgElement = _svg.html();
+        
+        //Remove brush if brush width is 0, svg file will remove brush
+        //automatically, but the pdf file will not
+        if(_brushWidth === 0){
+            _svgElement = parseSVG(_svg.html());
+        }
+        
         $("#" + _idNeedToSetValue)
                 .val("<svg width='370' height='200'>"+
                     "<g><text x='180' y='20' style='text-anchor: middle'>"+
                     param.selectedAttrDisplay+"</text></g>"+
-                    "<g transform='translate(0, 20)'>"+svgElement + "</g></svg>");
+                    "<g transform='translate(0, 20)'>"+_svgElement + "</g></svg>");
+       
+        
+        //Remove added styles
+        _brush.find('rect.extent')
+                .css({
+                    'fill-opacity': '',
+                    'fill': ''
+                });
+                
+        _brush.find('.resize path')
+                .css({
+                    'fill': '',
+                    'stroke': ''
+                });
+                
+        $.each(_deselectedCharts,function(index, value){
+            $(value).css({
+                        'stroke': '',
+                        'fill': ''
+                    });
+        });
+    
+        $.each(_axisDomain,function(index, value){
+            $(value).css({
+                        'fill': '',
+                        'fill-opacity': '',
+                        'stroke': ''
+                    });
+        });
+        
+        $.each(_axisTick,function(index, value){
+            $(value).css({
+                        'stroke': ''
+                    });
+        });
+    }
+    
+    //Parse string to document recognisable SVG elements
+    function parseSVG(s) {
+        var _string = '';
+        var _div= document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+        var _frag= document.createDocumentFragment();
+        
+        _div.innerHTML= '<svg xmlns="http://www.w3.org/2000/svg">'+s+'</svg>';
+        while (_div.firstChild.firstChild){
+            var _tmpElem = _div.firstChild
+                                .firstChild
+                                .getElementsByClassName('brush')[0];
+            
+            if(typeof _tmpElem !== 'undefined'){
+                _tmpElem.parentNode.removeChild(_tmpElem);
+            }
+            _string += _div.firstChild.firstChild.innerHTML;
+            _frag.appendChild(_div.firstChild.firstChild);
+        }
+        return _string;
     }
     
     //Initialize HTML tags which will be used for current Bar Chart.
@@ -380,8 +494,8 @@ var BarChart = function(){
             .mouseZoomable(false)
             .brushOn(true)
             .transitionDuration(param.transitionDuration)
-            .renderHorizontalGridLines(true)
-            .renderVerticalGridLines(true);
+            .renderHorizontalGridLines(false)
+            .renderVerticalGridLines(false);
     
         barChart.x( d3.scale.linear()
                         .domain([ 
@@ -470,8 +584,8 @@ var BarChart = function(){
             .mouseZoomable(false)
             .brushOn(true)
             .transitionDuration(param.transitionDuration)
-            .renderHorizontalGridLines(true)
-            .renderVerticalGridLines(true);
+            .renderHorizontalGridLines(false)
+            .renderVerticalGridLines(false);
     
         barChart.centerBar(true);
         barChart.x(d3.scale.log().nice().domain([0.7,_maxDomain]));

@@ -42,22 +42,27 @@ var SurvivalCurveView = function() {
 
     //Instances of calculators
     var data = "",
+        opts = "",
         survivalCurve = "",
         kmEstimator = "",
         logRankTest = "";
         //confidenceIntervals = "";
-
-    var divId = "";
+    var divId = "",
+        opts = {};
 
     var dataInitCallBack = function(_pVal) {
         _pVal = parseFloat(_pVal).toFixed(6);
-        data.getStats().pVal = _pVal;
-        survivalCurve.init(data, divId);
+        data.getStats().pVal = _pVal; //Fill out the missing p-value
+        //Import default settings
+        survivalCurve.init(data, divId, opts);
     }
 
     return {
-        init: function(_caseLists, _dataType, _divId) {
+        init: function(_caseLists, _dataType, _divId, _opts) {
+            //Place the paramteres
             divId = _divId;
+            opts = jQuery.extend(true, {}, _opts); //deep copy!
+            //Get Survival Data
             var paramsGetSurvivalData = {
                 case_set_id: case_set_id,
                 case_ids_key: case_ids_key,
@@ -65,7 +70,7 @@ var SurvivalCurveView = function() {
                 data_type: _dataType
             };
             $.post("getSurvivalData.json", paramsGetSurvivalData, getResultInit(_caseLists), "json");
-
+            //Survival data callback
             function getResultInit(_caseLists) {
                 return function(result) {
                     //Init all the calculators
@@ -73,8 +78,7 @@ var SurvivalCurveView = function() {
                     survivalCurve = new SurvivalCurve();
                     kmEstimator = new KmEstimator(); 
                     logRankTest = new LogRankTest();   
-                    //confidenceIntervals = new ConfidenceIntervals();        
-
+                    //confidenceIntervals = new ConfidenceIntervals();      
                     //Init Date and then Init view in the data's callback         
                     data.init(result, _caseLists, kmEstimator, logRankTest, dataInitCallBack);
                 }

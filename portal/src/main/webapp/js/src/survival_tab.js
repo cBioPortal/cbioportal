@@ -26,13 +26,33 @@
  */
 
 var SurvivalTab = (function() {
-    
+
+	var osOpts = {},
+		dfsOpts = {};
+
     return {
         init: function(_caseList) {
-            var survivalCurveViewOS = new SurvivalCurveView();
-            survivalCurveViewOS.init(_caseList, "os", "os_survival_curve");
+    		//Import default settings
+	        osOpts = jQuery.extend(true, {}, SurvivalCurveBroilerPlate);
+	        dfsOpts = jQuery.extend(true, {}, SurvivalCurveBroilerPlate);  
+
+    		//Customize settings
+    		osOpts.text.xTitle = "Months Survival";
+    		osOpts.text.yTitle = "Surviving";
+    		osOpts.text.qTips.estimation = "Survival estimate";
+    		osOpts.text.qTips.censoredEvent = "Time of last observation";
+    		osOpts.text.qTips.failureEvent = "Time of death";
+    		dfsOpts.text.xTitle = "Months Disease Free";
+    		dfsOpts.text.yTitle = "Disease Free";
+    		dfsOpts.text.qTips.estimation = "Disease free estimate";
+    		dfsOpts.text.qTips.censoredEvent = "Time of last observation";
+    		dfsOpts.text.qTips.failureEvent = "Time of relapse";
+
+    		//Init Instances
+            survivalCurveViewOS = new SurvivalCurveView();
+            survivalCurveViewOS.init(_caseList, "os", "os_survival_curve", osOpts);
             var survivalCurveViewDFS = new SurvivalCurveView();
-            survivalCurveViewDFS.init(_caseList, "dfs", "dfs_survival_curve");            
+            survivalCurveViewDFS.init(_caseList, "dfs", "dfs_survival_curve", dfsOpts);            
         }
     }
 

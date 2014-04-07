@@ -38,13 +38,15 @@
         case_ids_key = "<%out.print(caseIdsKey);%>";
     }
 </script>
+
 <script type="text/javascript" src="js/src/survival_tab.js"></script>
 <script type="text/javascript" src="js/src/survival-curve/survivalCurveView.js"></script>
 <script type="text/javascript" src="js/src/survival-curve/survivalCurveProxy.js"></script>
 <script type="text/javascript" src="js/src/survival-curve/component/survivalCurve.js"></script>
 <script type="text/javascript" src="js/src/survival-curve/component/infoTable.js"></script>
-<script type="text/javascript" src="js/src/survival-curve/component/kmCurve.js"></script>
+<script type="text/javascript" src="js/src/survival-curve/component/kmEstimator.js"></script>
 <script type="text/javascript" src="js/src/survival-curve/component/logRankTest.js"></script>
+<script type="text/javascript" src="js/src/survival-curve/component/boilerPlate.js"></script>
 
 <div class="section" id="survival">
     <h4 id='os_header'>Overall Survival Kaplan-Meier Estimate</h4>

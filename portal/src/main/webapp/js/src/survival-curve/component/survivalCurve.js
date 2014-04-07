@@ -1,42 +1,14 @@
 var SurvivalCurve = function() {
-    var elem = {
-            svg : "",
-            xScale : "",
-            yScale : "",
-            xAxis : "",
-            yAxis : "",
-            line: "",
-            alterDots: "",
-            unalterDots: "",
-            alterCensoredDots: "",
-            unalterCensoredDots: ""
-        },
-        settings = {
-            canvas_width: 1000,
-            canvas_height: 620,
-            altered_line_color: "red",
-            unaltered_line_color: "blue",
-            altered_mouseover_color: "#F5BCA9",
-            unaltered_mouseover_color: "#81BEF7"
-        },
-        text = {
-            glyph1: "Cases with Alteration(s) in Query Gene(s)",
-            glyph2: "Cases without Alteration(s) in Query Gene(s)",
-            xTitle: "Months Survival",
-            yTitle: "Surviving",
-        },
-        style = {
-            censored_sign_size: 5,
-            axis_stroke_width: 1,
-            axisX_title_pos_x: 380,
-            axisX_title_pos_y: 600,
-            axisY_title_pos_x: -270,
-            axisY_title_pos_y: 45,
-            axis_color: "black"
-        };
+
     //Material
     var data = "",
         divId = "";
+
+    //Instances
+    var elem = "",
+        settings = "",
+        text = "",
+        style = "";
 
     function initCanvas() {
         $('#' + divId).empty();
@@ -135,57 +107,49 @@ var SurvivalCurve = function() {
             .style("opacity", 0);
     }
 
-    // function addQtips(svg, type) {
-    //     svg.selectAll('path').each(
-    //         function(d) {
-    //             var content = "<font size='2'>";
-    //             content += "Case id: " + "<strong><a href='tumormap.do?case_id=" + d.case_id +
-    //                 "&cancer_study_id=" + cancer_study_id + "' target='_blank'>" + d.case_id + "</a></strong><br>";
-    //             if (type === "os") {
-    //                 content += "Survival estimate: <strong>" + (d.survival_rate * 100).toFixed(2) + "%</strong><br>";
-    //             } else if (type === "dfs") {
-    //                 content += "Disease free estimate: <strong>" + (d.survival_rate * 100).toFixed(2) + "%</strong><br>";
-    //             }
-    //             if (d.status === "0") { // If censored, mark it
-    //                 content += "Time of last observation: <strong>" + d.time.toFixed(2) + " </strong>months (censored)<br>";
-    //             } else {
-    //                 if (type === "os") {
-    //                     content += "Time of death: <strong>" + d.time.toFixed(2) + " </strong>months<br>";
-    //                 } else if (type === "dfs") {
-    //                     content += "Time of relapse: <strong>" + d.time.toFixed(2) + " </strong>months<br>";
-    //                 }
-    //             }
-    //             content += "</font>";
+    function addQtips(svg) {
+        svg.selectAll('path').each(
+            function(d) {
+                var content = "<font size='2'>";
+                content += "Case id: " + "<strong><a href='tumormap.do?case_id=" + d.case_id +
+                           "&cancer_study_id=" + cancer_study_id + "' target='_blank'>" + d.case_id + "</a></strong><br>";
+                content += text.qTips.estimation + ": <strong>" + (d.survival_rate * 100).toFixed(2) + "%</strong><br>";
+                if (d.status === "0") { // If censored, mark it
+                    content += text.qTips.censoredEvent + ": <strong>" + d.time.toFixed(2) + " </strong>months (censored)<br>";
+                } else { // status is 1, means event occured 
+                    content += text.qTips.failureEvent + ": <strong>" + d.time.toFixed(2) + " </strong>months<br>";
+                }
+                content += "</font>";
 
-    //             $(this).qtip(
-    //                 {
-    //                     content: {text: content},
-    //                     style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow qtip-wide'},
-    //                     show: {event: "mouseover"},
-    //                     hide: {fixed:true, delay: 100, event: "mouseout"},
-    //                     position: {my:'left bottom',at:'top right'}
-    //                 }
-    //             );
+                $(this).qtip(
+                    {
+                        content: {text: content},
+                        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow qtip-wide'},
+                        show: {event: "mouseover"},
+                        hide: {fixed:true, delay: 100, event: "mouseout"},
+                        position: {my:'left bottom',at:'top right'}
+                    }
+                );
 
-    //             var mouseOn = function() {
-    //                 var dot = d3.select(this);
-    //                 dot.transition()
-    //                     .duration(400)
-    //                     .style("opacity", .9);
-    //             };
+                var mouseOn = function() {
+                    var dot = d3.select(this);
+                    dot.transition()
+                        .duration(400)
+                        .style("opacity", .9);
+                };
 
-    //             var mouseOff = function() {
-    //                 var dot = d3.select(this);
-    //                 dot.transition()
-    //                     .duration(400)
-    //                     .style("opacity", 0);
-    //             };
+                var mouseOff = function() {
+                    var dot = d3.select(this);
+                    dot.transition()
+                        .duration(400)
+                        .style("opacity", 0);
+                };
 
-    //             svg.selectAll("path").on("mouseover", mouseOn);
-    //             svg.selectAll("path").on("mouseout", mouseOff);
-    //         }
-    //     );
-    // }
+                svg.selectAll("path").on("mouseover", mouseOn);
+                svg.selectAll("path").on("mouseout", mouseOff);
+            }
+        );
+    }
 
     function appendAxis(svg, elemAxisX, elemAxisY) {
         svg.append("g")
@@ -370,9 +334,15 @@ var SurvivalCurve = function() {
     }
 
     return {
-        init: function(_data, _divId) {
+        init: function(_data, _divId, _opts) {
+            //Place parameters
             divId = _divId;
             data = _data;
+            elem = _opts.elem;
+            settings = _opts.settings;
+            text = _opts.text;
+            style = _opts.style;
+            //Init and Render
             initCanvas();
             initAxis();
             initLines();
@@ -381,8 +351,8 @@ var SurvivalCurve = function() {
             drawInvisiableDots(elem.unalterDots, settings.unaltered_mouseover_color, data.getUnalteredData());
             drawCensoredDots(elem.alterCensoredDots, data.getAlteredData(), settings.altered_line_color);
             drawCensoredDots(elem.unalterCensoredDots, data.getUnalteredData(), settings.unaltered_line_color);
-            //addQtips(elem.osAlterDots, "os");
-            //addQtips(elem.osUnalterDots, "os");
+            addQtips(elem.alterDots);
+            addQtips(elem.unalterDots);
             appendAxis(elem.svg, elem.xAxis, elem.yAxis);
             appendAxisTitles(elem.svg, text.xTitle, text.yTitle);
             addLegends(elem.svg);

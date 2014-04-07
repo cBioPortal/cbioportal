@@ -1268,6 +1268,10 @@ cc-ie-message {
     border-color: #1974B8;
 }
 
+.left-align-td {
+    text-align: left;
+}
+
 .right-align-td {
     text-align: right;
 }

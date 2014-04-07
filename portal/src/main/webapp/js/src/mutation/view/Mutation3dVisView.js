@@ -93,12 +93,34 @@ var Mutation3dVisView = Backbone.View.extend({
 		self._initButtons();
 
 		// make the main container draggable
-		container3d.draggable({handle: ".mutation-3d-info-title",
-			start: function( event, ui ) {
+		container3d.draggable({
+			handle: ".mutation-3d-info-title",
+			start: function(event, ui) {
 				// fix the width to prevent resize during drag
 				var width = container3d.css("width");
 				container3d.css("width", width);
-			}});
+			},
+			stop: function(event, ui) {
+				var top = parseInt(container3d.css("top"));
+				var left = parseInt(container3d.css("left"));
+				//var width = parseInt(container3d.css("width"));
+
+				// if the panel goes beyond the visible area, get it back!
+
+				if (top < 0)
+				{
+					container3d.css("top", 0);
+				}
+
+				//if (left < -width)
+				if (left < 0)
+				{
+					container3d.css("left", 0);
+				}
+
+				// TODO user can still take the panel out by dragging it to the bottom or right
+			}
+		});
 	},
 	/**
 	 * Initializes the control buttons.
@@ -603,7 +625,7 @@ var Mutation3dVisView = Backbone.View.extend({
 			hide: {fixed: true, delay: 100, event: 'mouseout'},
 			show: {event: 'mouseover'},
 			style: {classes: 'qtip-light qtip-rounded qtip-shadow'},
-			position: {my:'top right', at:'bottom center'}};
+			position: {my:'top right', at:'bottom center', viewport: $(window)}};
 	},
 	/**
 	 * Minimizes the 3D visualizer panel.

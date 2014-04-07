@@ -73,6 +73,10 @@
 <script>
     $(document).ready( function() {
         var coexp_tab_init = false;
+        if ($("#coexp").is(":visible")) {
+            CoExpView.init();
+            coexp_tab_init = true;
+        }
         $("#tabs").bind("tabsactivate", function(event, ui) {
             if (ui.newTab.text().trim().toLowerCase() === "co-expression") {
                 if (coexp_tab_init === false) {
@@ -89,6 +93,6 @@
         style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
         show: {event: "mouseover"},
         hide: {fixed:true, delay: 100, event: "mouseout"},
-        position: {my:'left bottom',at:'top right'}
+        position: {my:'left bottom',at:'top right',viewport: $(window)}
     })
 </script>

@@ -11,14 +11,14 @@
  * @param pdbProxy              proxy for pdb data
  * @param mutationUtil          data utility class (having the related mutations)
  * @param mutationDiagram       a MutationDiagram instance
- * @param tableView             a MutationDetailsTableView instance
+ * @param mutationTable         a MutationDetailsTable instance
  * @param geneSymbol            hugo gene symbol (string value)
  *
  * @author Selcuk Onur Sumer
  */
 var Mutation3dController = function (mutationDetailsView, mainMutationView,
 	mut3dVisView, mut3dView, mut3dVis, pdbProxy, mutationUtil,
-	mutationDiagram, tableView, geneSymbol)
+	mutationDiagram, mutationTable, geneSymbol)
 {
 	// we cannot get pdb panel view as a constructor parameter,
 	// since it is initialized after initializing this controller
@@ -56,11 +56,11 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 			diagramResetHandler);
 
 		// add listeners for the mutation table view
-		tableView.dispatcher.on(
+		mutationTable.dispatcher.on(
 			MutationDetailsEvents.PDB_LINK_CLICKED,
 			pdbLinkHandler);
 
-		tableView.dispatcher.on(
+		mutationTable.dispatcher.on(
 			MutationDetailsEvents.PROTEIN_CHANGE_LINK_CLICKED,
 			proteinChangeLinkHandler);
 

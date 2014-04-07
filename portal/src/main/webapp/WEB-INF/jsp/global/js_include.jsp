@@ -52,9 +52,11 @@
 <script type="text/javascript" src="js/src/gene-symbol-validator.js"></script>
 <script type="text/javascript" src="js/src/d3.right-menu-stats.js"></script>
 <script type="text/javascript" src="js/src/DataProxyFactory.js"></script>
+<script type="text/javascript" src="js/src/AdvancedDataTable.js"></script>
+<script type="text/javascript" src="js/src/DataTableUtil.js"></script>
 
 <script type="text/javascript" src="js/src/mutation/component/mutation_diagram.js"></script>
-<script type="text/javascript" src="js/src/mutation/component/mutation_table.js"></script>
+<script type="text/javascript" src="js/src/mutation/component/mutation_details_table.js"></script>
 <script type="text/javascript" src="js/src/mutation/component/mutation_3d_viewer.js"></script>
 <script type="text/javascript" src="js/src/mutation/component/mutation_pdb_panel.js"></script>
 <script type="text/javascript" src="js/src/mutation/component/mutation_pdb_table.js"></script>
@@ -65,12 +67,12 @@
 <script type="text/javascript" src="js/src/mutation/model/Pileup.js"></script>
 <script type="text/javascript" src="js/src/mutation/util/MutationDetailsUtil.js"></script>
 <script type="text/javascript" src="js/src/mutation/util/MutationViewsUtil.js"></script>
+<script type="text/javascript" src="js/src/mutation/util/MutationDetailsTableFormatter.js"></script>
 <script type="text/javascript" src="js/src/mutation/util/MergedAlignmentSegmentor.js"></script>
 <script type="text/javascript" src="js/src/mutation/util/PdbDataUtil.js"></script>
 <script type="text/javascript" src="js/src/mutation/util/PileupUtil.js"></script>
 <script type="text/javascript" src="js/src/mutation/util/JmolWrapper.js"></script>
 <script type="text/javascript" src="js/src/mutation/util/JSmolWrapper.js"></script>
-<script type="text/javascript" src="js/src/mutation/util/DataTableUtil.js"></script>
 <script type="text/javascript" src="js/src/mutation/data/PdbDataProxy.js"></script>
 <script type="text/javascript" src="js/src/mutation/data/MutationDataProxy.js"></script>
 <script type="text/javascript" src="js/src/mutation/controller/MutationDetailsEvents.js"></script>

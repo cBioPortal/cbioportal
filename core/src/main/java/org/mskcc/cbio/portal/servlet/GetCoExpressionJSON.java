@@ -98,8 +98,6 @@ public class GetCoExpressionJSON extends HttpServlet  {
         CanonicalGene geneObj = daoGeneOptimized.getGene(geneSymbol);
         Long queryGeneId = geneObj.getEntrezGeneId();
 
-
-
         if (!isFullResult) {
           ArrayList<JsonNode> fullResultJson = new ArrayList<JsonNode>();
           ObjectMapper mapper = new ObjectMapper();

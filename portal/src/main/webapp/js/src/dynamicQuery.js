@@ -450,7 +450,8 @@ function updateCaseListSmart() {
                 },
                 position: {
                     my: 'left middle',
-                    at: 'middle right'
+                    at: 'middle right',
+                    viewport: $(window)
                 },
 	            show: "mouseover",
 	            hide: "mouseout"

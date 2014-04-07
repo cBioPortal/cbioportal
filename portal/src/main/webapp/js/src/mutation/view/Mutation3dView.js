@@ -63,7 +63,7 @@ var Mutation3dView = Backbone.View.extend({
 					hide: {fixed: true, delay: 100, event: 'mouseout'},
 					show: {event: 'mouseover'},
 					style: {classes: 'qtip-light qtip-rounded qtip-shadow cc-ui-tooltip'},
-					position: {my:'bottom center', at:'top center'}};
+					position: {my:'bottom center', at:'top center', viewport: $(window)}};
 
 				// disabled buttons do not trigger mouse events,
 				// so add tooltip to the wrapper div instead

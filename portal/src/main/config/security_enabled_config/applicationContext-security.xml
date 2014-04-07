@@ -38,6 +38,7 @@
 -->
 	<http use-expressions="true">
 	  <intercept-url pattern="/login.jsp*" access="permitAll"/>
+	  <intercept-url pattern="/monitoring*" access="isAuthenticated()"/>
       <intercept-url pattern="/video.jsp" access="isAuthenticated()"/>
       <intercept-url pattern="/news.jsp" access="isAuthenticated()"/>
       <intercept-url pattern="/faq.jsp" access="isAuthenticated()"/>
@@ -95,6 +96,7 @@
       <intercept-url pattern="/crosscancermutation.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/clinical.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/clinicalAttributes.json*" access="isAuthenticated()"/>
+      <intercept-url pattern="/clinical_timeline_data.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/tools.jsp*" access="isAuthenticated()"/>
       <intercept-url pattern="/echofile*" access="isAuthenticated()"/>
       <intercept-url pattern="/getGeneticProfile.json*" access="isAuthenticated()"/>

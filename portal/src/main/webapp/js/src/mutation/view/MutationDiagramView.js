@@ -203,19 +203,6 @@ var MutationDiagramView = Backbone.View.extend({
 		var self = this;
 		var buttons = self.$el.find(".mutation-diagram-toolbar-buttons");
 
-		self.$el.mouseenter(function(evt) {
-			buttons.fadeIn({complete: function() {
-				$(this).css({"visibility":"visible"});
-				$(this).css({"display":"inline"});
-			}});
-		});
-
-		self.$el.mouseleave(function(evt) {
-			// fade out without setting display to none.
-			buttons.fadeOut({complete: function() {
-				$(this).css({"visibility":"hidden"});
-				$(this).css({"display":"inline"});
-			}});
-		});
+		cbio.util.autoHideOnMouseLeave(self.$el, buttons);
 	}
 });

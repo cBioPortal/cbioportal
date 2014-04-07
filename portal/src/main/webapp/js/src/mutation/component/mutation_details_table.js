@@ -38,6 +38,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				tip: ""},
 			mutationId: {sTitle: "Mutation ID",
 				tip: "Mutation ID"},
+			mutationSid: {sTitle: "Mutation SID",
+				tip: ""},
 			caseId: {sTitle: "Case ID",
 				tip: "Case ID"},
 			cancerStudy: {sTitle: "Cancer Study",
@@ -133,12 +135,14 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				sWidth: "2%"}
 		},
 		// display order of column headers
-		columnOrder: ["datum", "mutationId", "caseId", "cancerStudy", "tumorType",
+		columnOrder: [
+			"datum", "mutationId", "mutationSid", "caseId", "cancerStudy", "tumorType",
 			"proteinChange", "mutationType", "cna", "cosmic", "mutationStatus",
 			"validationStatus", "mutationAssessor", "sequencingCenter", "chr",
 			"startPos", "endPos", "referenceAllele", "variantAllele", "tumorFreq",
 			"normalFreq", "tumorRefCount", "tumorAltCount", "normalRefCount",
-			"normalAltCount", "igvLink", "mutationCount"],
+			"normalAltCount", "igvLink", "mutationCount"
+		],
 		// Indicates the visibility of columns
 		//
 		// - Valid string constants:
@@ -163,6 +167,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 			"mutationAssessor": "visible",
 			"mutationCount": "visible",
 			"mutationId": "excluded",
+			"mutationSid": "excluded",
 			"cancerStudy": "excluded",
 			// TODO we may need more parameters than these two (util, gene)
 			"cna" : function (util, gene) {
@@ -226,6 +231,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 		columnSearch: {
 			"caseId": true,
 			"mutationId": true,
+			"mutationSid": true,
 			"cancerStudy": true,
 			"proteinChange": true,
 			"tumorType": true,
@@ -237,9 +243,13 @@ function MutationDetailsTable(options, gene, mutationUtil)
 		// then we rely on a custom "mData" function.
 		columnRender: {
 			"mutationId": function(datum) {
-				// TODO define 2 separate columns?
 				var mutation = datum.mutation;
-				return (mutation.mutationId + "-" + mutation.mutationSid);
+				return mutation.mutationId;
+				//return (mutation.mutationId + "-" + mutation.mutationSid);
+			},
+			"mutationSid": function(datum) {
+				var mutation = datum.mutation;
+				return mutation.mutationSid;
 			},
 			"caseId": function(datum) {
 				var mutation = datum.mutation;
@@ -580,15 +590,12 @@ function MutationDetailsTable(options, gene, mutationUtil)
 
 					// get parameters from the server and call related igv function
 					$.getJSON(url, function(data) {
-						//console.log(data);
-						// TODO this call displays warning message (resend)
 						prepIGVLaunch(data.bamFileUrl,
 						              data.encodedLocus,
 						              data.referenceGenome,
 						              data.trackName);
 					});
 				});
-
 			},
 			"proteinChange3d": function(dataTable, dispatcher, mutationUtil, gene) {
 				// add click listener for each 3D link
@@ -623,6 +630,10 @@ function MutationDetailsTable(options, gene, mutationUtil)
 			"mutationId": function(datum) {
 				var mutation = datum.mutation;
 				return mutation.mutationId;
+			},
+			"mutationSid": function(datum) {
+				var mutation = datum.mutation;
+				return mutation.mutationSid;
 			},
 			"caseId": function(datum) {
 				var mutation = datum.mutation;
@@ -740,10 +751,6 @@ function MutationDetailsTable(options, gene, mutationUtil)
 		// if no sort function is defined either, then uses
 		// the value returned by the render function.
 		columnFilter: {
-			"mutationId": function(datum) {
-				var mutation = datum.mutation;
-				return (mutation.mutationId + "-" + mutation.mutationSid);
-			},
 			"proteinChange": function(datum) {
 				return datum.mutation.proteinChange;
 			},
@@ -906,7 +913,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				// remove invalid links
 				$(tableSelector).find('a[href=""]').remove();
 				//$(tableSelector).find('a[alt=""]').remove();
-				$(tableSelector).find('a.igv-link[alt=""]').remove();
+				//$(tableSelector).find('a.igv-link[alt=""]').remove();
 
 				// TODO append the footer
 				// (there is no API to init the footer, we need a custom function)
@@ -920,10 +927,10 @@ function MutationDetailsTable(options, gene, mutationUtil)
 			"fnHeaderCallback": function(nHead, aData, iStart, iEnd, aiDisplay) {
 			    $(nHead).find('th').addClass("mutation-details-table-header");
 				self._addHeaderTooltips(nHead, nameMap);
-		    },
-		    "fnFooterCallback": function(nFoot, aData, iStart, iEnd, aiDisplay) {
-			    //TODO addFooterTooltips(nFoot, nameMap);
 		    }
+//		    "fnFooterCallback": function(nFoot, aData, iStart, iEnd, aiDisplay) {
+//			    addFooterTooltips(nFoot, nameMap);
+//		    }
 		};
 
 		return tableOpts;
@@ -1075,8 +1082,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 			{
 				var tip = _options.columns[colName].tip;
 
-				// TODO change the options content instead?
-				$(this).attr("alt", tip);
+				//$(this).attr("alt", tip);
+				qTipOptionsHeader.content = {text: tip};
 				$(this).qtip(qTipOptionsHeader);
 			}
 		});

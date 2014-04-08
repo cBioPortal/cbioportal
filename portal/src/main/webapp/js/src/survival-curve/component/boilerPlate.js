@@ -6,10 +6,8 @@ var SurvivalCurveBroilerPlate = {
 	    xAxis : "",
 	    yAxis : "",
 	    line: "",
-	    alterDots: "",
-	    unalterDots: "",
-	    alterCensoredDots: "",
-	    unalterCensoredDots: ""
+	    dots: "",
+	    censoredDots: ""
 	},
 	settings : {
 	    canvas_width: 1000,

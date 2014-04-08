@@ -1,9 +1,7 @@
 var SurvivalCurve = function() {
 
-    //Material
-    var data = "",
-        divId = "";
-
+    var divId = "";
+        numOfGroups = 0;
     //Instances
     var elem = "",
         settings = "",
@@ -16,17 +14,14 @@ var SurvivalCurve = function() {
             .append("svg")
             .attr("width", settings.canvas_width)
             .attr("height", settings.canvas_height);
-        elem.alterDots = elem.svg.append("g");
-        elem.unalterDots = elem.svg.append("g");
-        elem.alterCensoredDots = elem.svg.append("g");
-        elem.unalterCensoredDots = elem.svg.append("g");
     }
 
-    function initAxis() {
+    function initAxis(_inputDataArr) {
         var _dataset = [];
         var formatAsPercentage = d3.format(".1%");
-        _dataset.push(d3.max(data.getAlteredData(), function(d) { return d.time; }));
-        _dataset.push(d3.max(data.getUnalteredData(), function(d) { return d.time; }));
+        $.each(_inputDataArr, function(index, data) {
+            _dataset.push(d3.max(data.getData(), function(d) { return d.time; }));
+        });
         elem.xScale = d3.scale.linear()
             .domain([0, d3.max(_dataset) + 0.1 * d3.max(_dataset)])
             .range([100, 700]);
@@ -69,31 +64,20 @@ var SurvivalCurve = function() {
         return _datum;
     }
 
-    function drawLines() {
-        var alteredData = data.getAlteredData();
-        var unalteredData = data.getUnalteredData();
-        if (alteredData !== null) {
-            if (alteredData[0].time !== 0) {
-                alteredData.unshift(appendZeroPoint(alteredData[0].num_at_risk));
+    function drawLines(data) {
+        if (data !== null) {
+            if (data[0].time !== 0) {
+                data.unshift(appendZeroPoint(data[0].num_at_risk));
             }
             elem.svg.append("path")
-                .attr("d", elem.line(alteredData))
+                .attr("d", elem.line(data))
                 .style("fill", "none")
                 .style("stroke", settings.altered_line_color);
         }
-        if (unalteredData !== null) {
-            if (unalteredData[0].time !== 0) {
-                unalteredData.unshift(appendZeroPoint(unalteredData[0].num_at_risk));
-            }
-            elem.svg.append("path")
-                .attr("d", elem.line(unalteredData))
-                .style("fill", "none")
-                .style("stroke", settings.unaltered_line_color);
-        }
     }
 
-    function drawInvisiableDots(svg, color, data) {
-        svg.selectAll("path")
+    function drawInvisiableDots(data) {
+        elem.svg.selectAll("path")
             .data(data)
             .enter()
             .append("svg:path")
@@ -103,12 +87,12 @@ var SurvivalCurve = function() {
             .attr("transform", function(d){
                 return "translate(" + elem.xScale(d.time) + ", " + elem.yScale(d.survival_rate) + ")";
             })
-            .attr("fill", color)
+            .attr("fill", settings.altered_mouseover_color)
             .style("opacity", 0);
     }
 
-    function addQtips(svg) {
-        svg.selectAll('path').each(
+    function addQtips() {
+        elem.svg.selectAll('path').each(
             function(d) {
                 var content = "<font size='2'>";
                 content += "Case id: " + "<strong><a href='tumormap.do?case_id=" + d.case_id +
@@ -151,8 +135,8 @@ var SurvivalCurve = function() {
         );
     }
 
-    function appendAxis(svg, elemAxisX, elemAxisY) {
-        svg.append("g")
+    function appendAxis(elemAxisX, elemAxisY) {
+        elem.svg.append("g")
             .style("stroke-width", style.axis_stroke_width)
             .style("fill", "none")
             .style("stroke", style.axis_color)
@@ -160,14 +144,14 @@ var SurvivalCurve = function() {
             .style("shape-rendering", "crispEdges")
             .attr("transform", "translate(0, 550)")
             .call(elemAxisX);
-        svg.append("g")
+        elem.svg.append("g")
             .style("stroke-width", style.axis_stroke_width)
             .style("fill", "none")
             .style("stroke", style.axis_color)
             .style("shape-rendering", "crispEdges")
             .attr("transform", "translate(0, 50)")
             .call(elemAxisX.orient("bottom").ticks(0));
-        svg.append("g")
+        elem.svg.append("g")
             .style("stroke-width", style.axis_stroke_width)
             .style("fill", "none")
             .style("stroke", style.axis_color)
@@ -175,14 +159,14 @@ var SurvivalCurve = function() {
             .style("shape-rendering", "crispEdges")
             .attr("transform", "translate(100, 0)")
             .call(elemAxisY);
-        svg.append("g")
+        elem.svg.append("g")
             .style("stroke-width", style.axis_stroke_width)
             .style("fill", "none")
             .style("stroke", style.axis_color)
             .style("shape-rendering", "crispEdges")
             .attr("transform", "translate(700, 0)")
             .call(elemAxisY.orient("left").ticks(0));
-        svg.selectAll("text")
+        elem.svg.selectAll("text")
             .style("font-family", "sans-serif")
             .style("font-size", "11px")
             .style("stroke-width", 0.5)
@@ -191,8 +175,8 @@ var SurvivalCurve = function() {
 
     }
 
-    function drawCensoredDots(svg, data, color) {
-        svg.selectAll("path")
+    function drawCensoredDots(data) {
+        elem.svg.selectAll("path")
             .data(data)
             .enter()
             .append("line")
@@ -200,7 +184,7 @@ var SurvivalCurve = function() {
             .attr("x2", function(d) {return elem.xScale(d.time)})
             .attr("y1", function(d) {return elem.yScale(d.survival_rate) + style.censored_sign_size})
             .attr("y2", function(d) {return elem.yScale(d.survival_rate) - style.censored_sign_size})
-            .attr("stroke", color)
+            .attr("stroke", settings.altered_line_color)
             .style("opacity", function(d) {
                 if (d.status === "1") {
                     return 0; //hidden
@@ -208,7 +192,7 @@ var SurvivalCurve = function() {
                     return 1;
                 }
             });
-        svg.selectAll("path")
+        elem.svg.selectAll("path")
             .data(data)
             .enter()
             .append("line")
@@ -216,7 +200,7 @@ var SurvivalCurve = function() {
             .attr("x2", function(d) {return elem.xScale(d.time) - style.censored_sign_size})
             .attr("y1", function(d) {return elem.yScale(d.survival_rate)})
             .attr("y2", function(d) {return elem.yScale(d.survival_rate)})
-            .attr("stroke", color)
+            .attr("stroke", settings.altered_line_color)
             .style("opacity", function(d) {
                 if (d.status === "1") {
                     return 0; //hidden
@@ -264,15 +248,15 @@ var SurvivalCurve = function() {
 
     }
 
-    function appendAxisTitles(svg, xTitle, yTitle) {
-        svg.append("text")
+    function appendAxisTitles(xTitle, yTitle) {
+        elem.svg.append("text")
             .attr("class", "label")
             .attr("x", style.axisX_title_pos_x)
             .attr("y", style.axisX_title_pos_y)
             .style("text-anchor", "middle")
             .style("font-weight","bold")
             .text(xTitle);
-        svg.append("text")
+        elem.svg.append("text")
             .attr("class", "label")
             .attr("transform", "rotate(-90)")
             .attr("x", style.axisY_title_pos_x)
@@ -311,7 +295,7 @@ var SurvivalCurve = function() {
             "</tr><tr>" +
             "<td style='text-align:left;'>Cases without Alteration(s) in Query Gene(s)</td>" +
             "<td><b>" + vals.num_unaltered_cases + "</b></td>" +
-            "<td><b>" + vals.num_of_events_unaltered_cases + "</b></td>" +
+            "<td><b>" + vals.num_of_events_unaltered_cases + "</b></td>" + 
             "<td><b>" + vals.unaltered_median + "</b></td>" +
             "</table>");
     }
@@ -334,29 +318,27 @@ var SurvivalCurve = function() {
     }
 
     return {
-        init: function(_data, _divId, _opts) {
+        init: function(_inputDataArr, _divId, _opts) {
             //Place parameters
             divId = _divId;
-            data = _data;
             elem = _opts.elem;
             settings = _opts.settings;
             text = _opts.text;
             style = _opts.style;
             //Init and Render
             initCanvas();
-            initAxis();
-            initLines();
-            drawLines();
-            drawInvisiableDots(elem.alterDots, settings.altered_mouseover_color, data.getAlteredData());
-            drawInvisiableDots(elem.unalterDots, settings.unaltered_mouseover_color, data.getUnalteredData());
-            drawCensoredDots(elem.alterCensoredDots, data.getAlteredData(), settings.altered_line_color);
-            drawCensoredDots(elem.unalterCensoredDots, data.getUnalteredData(), settings.unaltered_line_color);
-            addQtips(elem.alterDots);
-            addQtips(elem.unalterDots);
+            initAxis(_inputDataArr);
+            $.each(_inputDataArr, function(index, data) {
+                initLines();
+                drawLines(data.getData());
+                drawInvisiableDots(data.getData());
+                drawCensoredDots(data.getData());
+                addQtips();
+            });
             appendAxis(elem.svg, elem.xAxis, elem.yAxis);
             appendAxisTitles(elem.svg, text.xTitle, text.yTitle);
-            addLegends(elem.svg);
-            addPvals();
+            //addLegends(elem.svg);
+            //addPvals();
             //appendInfo("os_stat_table", data.getStats(), "os");
             //appendImgConverter("os_header", divId);
         }

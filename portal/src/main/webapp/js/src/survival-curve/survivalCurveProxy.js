@@ -7,89 +7,57 @@ var SurvivalCurveProxy  = function() {
                 num_at_risk: -1,
                 survival_rate: 0
             },
-            altered_group = [],
-            unaltered_group = [],
-            stat_datum = {
+            datumArr = [],
+            statDatum = {
                 pVal: 0,
-                num_altered_cases: 0,
-                num_unaltered_cases: 0,
-                num_of_events_altered_cases: 0,
-                num_of_events_unaltered_cases: 0,
-                altered_median: 0,
-                unaltered_median: 0
+                num_cases: 0,
+                num_of_events_cases: 0,
+                median: 0
             },
-            stat_values = {},
+            statValues = {},
             kmEstimator = "",
-            logRankTest = "";
+            logRankTest = "",
+            totalNum = 0,
+            caseList = [];
 
-        var totalAlter = 0,
-            totalUnalter = 0;
-
-        //Count the total number of altered and unaltered cases
-        function cntAlter(caseLists) {
-            for (var key in caseLists) {
-                if (caseLists[key] === "altered") totalAlter += 1;
-                else if (caseLists[key] === "unaltered") totalUnalter += 1;
-            }
-        }
-
-        //Settle the overall survival datum group
-        //order by time, filtered NA cases and add on num of risk for each time point
-        function setGroups(result, caseLists) {
-            var _totalAlter = 0,
-                _totalUnalter = 0;
-
-            for (var caseId in result) {
-                if (result.hasOwnProperty(caseId) && (result[caseId] !== "")) {
+        //First Configure datums by combining AJAX result with caselist 
+        //Then order by time, filtered NA cases and add on num of risk for each time point
+        function assembleDatums(_result) {
+            var _totalNum = 0;
+            //Get event and time
+            for (var caseId in _result) {
+                if (_result.hasOwnProperty(caseId) && _result[caseId] !== "" && caseList.indexOf(caseId) !== -1) {
                     var _datum = jQuery.extend(true, {}, datum);
-                    _datum.case_id = result[caseId].case_id;
-                    _datum.time = result[caseId].months;
-                    _datum.status = result[caseId].status;
+                    _datum.case_id = _result[caseId].case_id;
+                    _datum.time = _result[caseId].months;
+                    _datum.status = _result[caseId].status;
                     if (_datum.time !== "NA" && _datum.status !== "NA") {
-                        if (caseLists[caseId] === "altered") {
-                            altered_group.push(_datum);
-                            _totalAlter += 1;
-                        } else if (caseLists[caseId] === "unaltered") {
-                            unaltered_group.push(_datum);
-                            _totalUnalter += 1;
-                        }
+                        datumArr.push(_datum);
+                        _totalNum += 1;
                     }
                 }
             }
-            cbio.util.sortByAttribute(altered_group, "time");
-            cbio.util.sortByAttribute(unaltered_group, "time");
-
-            for (var i in altered_group) {
-                altered_group[i].num_at_risk = _totalAlter;
-                _totalAlter += -1;
+            //Sort by time
+            cbio.util.sortByAttribute(datumArr, "time");
+            //Set num at risk
+            for (var i in datumArr) {
+                datumArr[i].num_at_risk = _totalNum;
+                _totalNum += -1;
             }
-            for (var i in unaltered_group) {
-                unaltered_group[i].num_at_risk = _totalUnalter;
-                _totalUnalter += -1;
-            }
-
         }
 
-        function calc(_callBackFunc) {
-            kmEstimator.calc(altered_group);
-            kmEstimator.calc(unaltered_group);
-            var _stat_datum = jQuery.extend(true, {}, stat_datum);
-            if (altered_group.length !== 0) {
-                _stat_datum.num_altered_cases = altered_group.length;
+        function calc() {
+            kmEstimator.calc(datumArr);
+            var _statDatum = jQuery.extend(true, {}, statDatum);
+            if (datumArr.length !== 0) {
+                _statDatum.num_cases = datumArr.length;
             } else {
-                _stat_datum.num_altered_cases = "NA";
+                _statDatum.num_cases = "NA";
             }
-            if (unaltered_group.length !== 0) {
-                _stat_datum.num_unaltered_cases = unaltered_group.length;
-            } else {
-                _stat_datum.num_unaltered_cases = "NA";
-            }
-            _stat_datum.num_of_events_altered_cases = countEvents(altered_group);
-            _stat_datum.num_of_events_unaltered_cases = countEvents(unaltered_group);
-            _stat_datum.altered_median = calcMedian(altered_group);
-            _stat_datum.unaltered_median = calcMedian(unaltered_group);
-            stat_values = _stat_datum;
-            logRankTest.calc(altered_group, unaltered_group, _callBackFunc);
+            _statDatum.num_of_events_cases = countEvents(datumArr);
+            _statDatum.median = calcMedian(datumArr);
+            statValues = _statDatum;
+            //logRankTest.calc(altered_group, unaltered_group, _callBackFunc);
         }
 
         function countEvents(inputArr) {
@@ -122,33 +90,30 @@ var SurvivalCurveProxy  = function() {
         }
 
         return {
-            init: function(result, caseLists, _kmEstimator, _logRankTest, _pValCallbackFunc) {
+            init: function(_result, _caseList, _kmEstimator, _logRankTest) {
+                caseList = _caseList;
                 kmEstimator = _kmEstimator;
                 logRankTest = _logRankTest;
-                cntAlter(caseLists);
-                setGroups(result, caseLists);
-                if (altered_group.length === 0 && unaltered_group.length === 0) {
+                assembleDatums(_result);
+                if (datumArr.length === 0) {
                     //$('#tab-survival').hide();
                     // var tab = $('#tabs a').filter(function(){
                     //     return $(this).text() == "Survival";
                     // }).parent();
                     // tab.hide();
                 } else {
-                    if (altered_group.length !== 0 || unaltered_group.length !== 0) {
-                        calc(_pValCallbackFunc);
+                    if (datumArr.length !== 0) {
+                        calc();
                     } else {
                         //view.errorMsg("os");
                     }
                 }
             },
-            getAlteredData: function() {
-                return altered_group;
-            },
-            getUnalteredData: function() {
-                return unaltered_group;
+            getData: function() {
+                return datumArr;
             },
             getStats: function() {
-                return stat_values;
+                return statValues;
             }
         }
     };

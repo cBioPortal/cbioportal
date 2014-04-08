@@ -48,13 +48,16 @@ var SurvivalCurveView = function() {
         logRankTest = "";
         //confidenceIntervals = "";
     var divId = "",
-        opts = {};
+        opts = {},
+        //data instances for each group
+        alteredGroup = [],
+        unalteredGroup = [];
 
     var dataInitCallBack = function(_pVal) {
         _pVal = parseFloat(_pVal).toFixed(6);
         dataInst.getStats().pVal = _pVal; //Fill out the missing p-value
         //Import default settings
-        survivalCurve.init(survivalCurveInputDataInst, divId, opts);
+        //survivalCurve.init(survivalCurveInputDataInst, divId, opts);
     }
 
     return {
@@ -74,13 +77,26 @@ var SurvivalCurveView = function() {
             function getResultInit(_caseLists) {
                 return function(result) {
                     //Init all the calculators
-                    dataInst = new SurvivalCurveProxy();
-                    survivalCurve = new SurvivalCurve();
                     kmEstimator = new KmEstimator(); 
                     logRankTest = new LogRankTest();   
-                    //confidenceIntervals = new ConfidenceIntervals();      
-                    //Init Date and then Init view in the data's callback         
-                    dataInst.init(result, _caseLists, kmEstimator, logRankTest, dataInitCallBack);
+                    //confidenceIntervals = new ConfidenceIntervals();    
+
+                    //Split the data into altered/unaltered groups  
+                    for (var key in _caseLists) {  
+                        if (_caseLists[key] === "altered") alteredGroup.push(key);
+                        else if (_caseLists[key] === "unaltered") unalteredGroup.push(key);
+                    }
+
+                    //Init data instances for different groups
+                    var alteredDataInst = new SurvivalCurveProxy();
+                    var unalteredDataInst = new SurvivalCurveProxy();
+                    alteredDataInst.init(result, alteredGroup, kmEstimator, logRankTest);
+                    unalteredDataInst.init(result, unalteredGroup, kmEstimator, logRankTest);
+
+                    //render the curve
+                    var inputDataInstArr = [alteredDataInst, unalteredDataInst];
+                    survivalCurve = new SurvivalCurve();
+                    survivalCurve.init(inputDataInstArr, divId, opts);
                 }
             }
         },

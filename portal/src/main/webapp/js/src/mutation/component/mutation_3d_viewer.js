@@ -96,6 +96,9 @@ var Mutation3dVis = function(name, options)
 
 	var _options = jQuery.extend(true, {}, defaultOpts, options);
 
+	// main script generator for the embedded visualizer
+	var _scriptGen = new JmolScriptGenerator();
+
 	/**
 	 * Initializes the visualizer.
 	 */
@@ -165,7 +168,7 @@ var Mutation3dVis = function(name, options)
 //		var script = "select all;" +
 //		             _styleScripts[style];
 		// regenerate visual style script
-		var script = generateVisualStyleScript(_selection, _chain);
+		var script = _scriptGen.generateVisualStyleScript(_selection, _chain, _options);
 
 		// regenerate highlight script
 		script = script.concat(generateHighlightScript(_highlighted));
@@ -314,8 +317,8 @@ var Mutation3dVis = function(name, options)
 		// construct Jmol script string
 		var script = [];
 
-		script.push("load=" + pdbId + ";"); // load the corresponding pdb
-		script = script.concat(generateVisualStyleScript(_selection, _chain));
+		script.push(_scriptGen.loadPdb(pdbId)); // load the corresponding pdb
+		script = script.concat(_scriptGen.generateVisualStyleScript(_selection, _chain, _options));
 
 		// TODO spin is currently disabled...
 		//script.push("spin " + _spin + ";");
@@ -356,7 +359,7 @@ var Mutation3dVis = function(name, options)
 		var script = [];
 
 		// update visual style by using the updated selection map
-		script = script.concat(generateVisualStyleScript(_selection, _chain));
+		script = script.concat(_scriptGen.generateVisualStyleScript(_selection, _chain, _options));
 
 		// convert array into a string (to pass to Jmol)
 		script = script.join(" ");
@@ -377,18 +380,38 @@ var Mutation3dVis = function(name, options)
 	 */
 	function updateSelectionMap(pdbId, chain)
 	{
-		var selection = {};
+		// update selection for a possible future restore
+		var result = generateColorMap(pdbId, chain, _options, _scriptGen);
+
+		_selection = result.colorMap;
+
+		return result.mappedMutations;
+	}
+
+	/**
+	 * Generates color mapping for the mutations within the position map
+	 * of the given chain.
+	 *
+	 * @param pdbId     pdb id as a string
+	 * @param chain     a PdbChainModel instance
+	 * @param options   visual style options
+	 * @param scriptGen a MolScriptGenerator instance
+	 * @returns {Object} map of <color, script position array> and mapped mutations
+	 */
+	function generateColorMap (pdbId, chain, options, scriptGen)
+	{
 		var mappedMutations = [];
-		var color = _options.mutationColor;
+		var colorMap = {};
+		var color = options.mutationColor;
 
 		// update the residue selection map wrt mutation color mapper
 		for (var mutationId in chain.positionMap)
 		{
 			var position = chain.positionMap[mutationId];
 
-			if (_.isFunction(_options.mutationColorMapper))
+			if (_.isFunction(options.mutationColorMapper))
 			{
-				color = _options.mutationColorMapper(mutationId, pdbId, chain);
+				color = options.mutationColorMapper(mutationId, pdbId, chain);
 			}
 
 			if (color == null)
@@ -400,28 +423,28 @@ var Mutation3dVis = function(name, options)
 				continue;
 			}
 
-			if (selection[color] == null)
+			if (colorMap[color] == null)
 			{
 				// using an object instead of an array (to avoid duplicates)
-				selection[color] = {};
+				colorMap[color] = {};
 			}
 
-			var scriptPos = generateScriptPos(position);
-			selection[color][scriptPos] = (scriptPos + ":" + chain.chainId);
+			var scriptPos = scriptGen.scriptPosition(position);
+			colorMap[color][scriptPos] = scriptPos;
 			mappedMutations.push(mutationId);
 		}
 
 		// convert maps to arrays
-		_.each(selection, function(value, key, list) {
+		_.each(colorMap, function(value, key, list) {
 			// key is a "color"
 			// value is a "position script string" map
 			list[key] = _.values(value);
 		});
 
-		// update selection for a possible future restore
-		_selection = selection;
-
-		return mappedMutations;
+		return {
+			colorMap: colorMap,
+			mappedMutations: mappedMutations
+		};
 	}
 
 	/**
@@ -555,7 +578,7 @@ var Mutation3dVis = function(name, options)
 		}
 
 		// init script generation
-		var script = generateVisualStyleScript(_selection, _chain);
+		var script = _scriptGen.generateVisualStyleScript(_selection, _chain, _options);
 
 		var numMapped = 0;
 
@@ -609,7 +632,7 @@ var Mutation3dVis = function(name, options)
 		_highlighted = {};
 
 		// remove all selection highlights
-		var script = generateVisualStyleScript(_selection, _chain);
+		var script = _scriptGen.generateVisualStyleScript(_selection, _chain, _options);
 
 		// convert array to a single string
 		script = script.join(" ");
@@ -618,186 +641,15 @@ var Mutation3dVis = function(name, options)
 	}
 
 	/**
-	 * Generates the visual style (scheme, coloring, selection, etc.) script
-	 * to be sent to the 3D app.
-	 *
-	 * @return {Array}  script lines as an array
-	 */
-	function generateVisualStyleScript(selection, chain)
-	{
-		var script = [];
-
-		script.push("select all;"); // select everything
-		script.push(_styleScripts[_options.proteinScheme]); // show selected style view
-
-		// do the initial (uniform) coloring
-
-		script.push("color [" + _options.defaultColor + "];"); // set default color
-		//script.push("translucent [" + _options.defaultTranslucency + "];"); // set default opacity
-		script.push("select :" + chain.chainId + ";"); // select the chain
-		script.push("color [" + _options.chainColor + "];"); // set chain color
-		//script.push("translucent [" + _options.chainTranslucency + "];"); // set chain opacity
-
-		// additional coloring for the selected chain
-		script.push("select :" + chain.chainId + ";");
-
-		if (_options.colorProteins == "byAtomType")
-		{
-			script.push("color atoms CPK;");
-		}
-		else if (_options.colorProteins == "bySecondaryStructure")
-		{
-			// color secondary structure (for the selected chain)
-			script.push("select :" + chain.chainId + " and helix;"); // select alpha helices
-			script.push("color [" + _options.structureColors.alphaHelix + "];"); // set color
-			script.push("select :" + chain.chainId + " and sheet;"); // select beta sheets
-			script.push("color [" + _options.structureColors.betaSheet + "];"); // set color
-		}
-		else if (_options.colorProteins == "byChain")
-		{
-			// min atom no within the selected chain
-			var rangeMin = "@{{:" + chain.chainId + "}.atomNo.min}";
-			// max atom no within the selected chain
-			var rangeMax = "@{{:" + chain.chainId + "}.atomNo.max}";
-
-			// max residue no within the selected chain
-			//var rangeMin = "@{{:" + chain.chainId + "}.resNo.min}";
-			// max residue no within the selected chain
-			//var rangeMax = "@{{:" + chain.chainId + "}.resNo.max}";
-
-			// select the chain
-			script.push("select :" + chain.chainId + ";");
-
-			// color the chain by rainbow coloring scheme (gradient coloring)
-			script.push('color atoms property atomNo "roygb" ' +
-			            'range ' + rangeMin + ' ' + rangeMax + ';');
-		}
-
-		// process mapped residues
-		for (var color in selection)
-		{
-			script.push("select " + selection[color].join(", ") + ";"); // select positions (mutations)
-
-			// color each residue with a mapped color (this is to sync with diagram colors)
-
-			// use the actual mapped color
-			if (_options.colorMutations == "byMutationType")
-			{
-				// color with corresponding mutation color
-				script.push("color [" + color + "];");
-			}
-			// use a uniform color
-			else if (_options.colorMutations == "uniform")
-			{
-				// color with a uniform mutation color
-				script.push("color [" + _options.mutationColor + "];");
-			}
-
-			// show/hide side chains
-			script = script.concat(
-				generateSideChainScript(selection[color],
-					_options.displaySideChain == "all"));
-		}
-
-		// TODO see if it is possible to set translucency value without specifying a color
-		// ...right now ignoring _options.defaultTranslucency and _options.chainTranslucency
-
-		// adjust structure transparency
-		script.push("select all;");
-		script.push("color translucent;");
-		//script.push("color translucent [" + _options.defaultTranslucency + "];");
-		script.push("select :" + chain.chainId + ";");
-		script.push("color opaque;");
-
-		if (_options.restrictProtein)
-		{
-			script.push("restrict protein;");
-		}
-
-		return script;
-	}
-
-	/**
 	 * Generates the highlight script to be sent to the 3D app.
 	 *
 	 * @param positions mutation positions to highlight
-	 * @param color     highlight color
 	 * @return {Array}  script lines as an array
 	 */
 	function generateHighlightScript(positions)
 	{
-		var script = [];
-
-		// highlight the selected positions
-		if (!_.isEmpty(positions))
-		{
-			// convert positions to script positions
-			var scriptPositions = generateHighlightScriptPositions(positions);
-
-			script = script.concat(
-				generateHighlightFromScriptPos(scriptPositions, _options.highlightColor));
-		}
-
-		return script;
-	}
-
-	/**
-	 * Generates highlight script by using the converted highlight positions.
-	 *
-	 * @param scriptPositions   script positions
-	 * @param color             highlight color
-	 * @returns {Array} script lines as an array
-	 */
-	function generateHighlightFromScriptPos(scriptPositions, color)
-	{
-		var script = [];
-
-		// add highlight color
-		script.push("select (" + scriptPositions.join(", ") + ") and :" + _chain.chainId + ";");
-		script.push("color [" + color + "];");
-
-		var displaySideChain = _options.displaySideChain != "none";
-
-		// show/hide side chains
-		script = script.concat(
-			generateSideChainScript(scriptPositions, displaySideChain));
-
-		return script;
-	}
-
-	/**
-	 * Generates the script to show/hide the side chain for the given positions.
-	 * Positions can be in the form of "666" or "666:C", both are fine.
-	 *
-	 * @param positions         an array of already generated script positions
-	 * @param displaySideChain  flag to indicate to show/hide the side chain
-	 */
-	function generateSideChainScript(positions, displaySideChain)
-	{
-		var script = [];
-
-		// display side chain (no effect for space-filling)
-		if (!(_options.proteinScheme == "spaceFilling"))
-		{
-			// select the corresponding side chain and also the CA atom on the backbone
-			script.push("select ((" + positions.join(", ") + ") and :" + _chain.chainId + " and sidechain) or " +
-			            "((" + positions.join(", ") + ") and :" + _chain.chainId + " and *.CA);");
-
-			if (displaySideChain)
-			{
-				// display the side chain with ball&stick style
-				script.push("wireframe 0.15; spacefill 25%;");
-
-				// TODO also color side chain wrt atom type (CPK)?
-			}
-			else
-			{
-				// hide the side chain
-				script.push("wireframe OFF; spacefill OFF;");
-			}
-		}
-
-		return script;
+		return _scriptGen.generateHighlightScript(
+			positions, _options.highlightColor, _options, _chain);
 	}
 
 	/**
@@ -879,50 +731,6 @@ var Mutation3dVis = function(name, options)
 	}
 
 	/**
-	 * Generates a position string for Jmol scripting.
-	 *
-	 * @position object containing PDB position info
-	 * @return {string} position string for Jmol
-	 */
-	function generateScriptPos(position)
-	{
-		var insertionStr = function(insertion) {
-			var posStr = "";
-
-			if (insertion != null &&
-			    insertion.length > 0)
-			{
-				posStr += "^" + insertion;
-			}
-
-			return posStr;
-		};
-
-		var posStr = position.start.pdbPos +
-		             insertionStr(position.start.insertion);
-
-		if (position.end.pdbPos > position.start.pdbPos)
-		{
-			posStr += "-" + position.end.pdbPos +
-			          insertionStr(position.end.insertion);
-		}
-
-		return posStr;
-	}
-
-	function generateHighlightScriptPositions(positions)
-	{
-		var scriptPositions = [];
-
-		// convert positions to script positions
-		_.each(positions, function(position) {
-			scriptPositions.push(generateScriptPos(position));
-		});
-
-		return scriptPositions;
-	}
-
-	/**
 	 * Updates the options of the 3D visualizer.
 	 *
 	 * @param options   new options object
@@ -964,7 +772,7 @@ var Mutation3dVis = function(name, options)
 				if (scriptPositions == null ||
 				    scriptPositions.length != highlightCount)
 				{
-					scriptPositions = generateHighlightScriptPositions(_highlighted)
+					scriptPositions = _scriptGen.highlightScriptPositions(_highlighted);
 				}
 			}
 
@@ -972,7 +780,8 @@ var Mutation3dVis = function(name, options)
 			    scriptPositions.length > 0)
 			{
 				var color = "x" + gradient.colorAt(index);
-				var script = generateHighlightFromScriptPos(scriptPositions, color);
+				var script = _scriptGen.highlightScript(
+					scriptPositions, color, _options, _chain);
 
 				// convert array to a single string
 				script = script.join(" ");

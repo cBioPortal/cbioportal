@@ -37,8 +37,11 @@ import java.util.*;
  *
  * @author Ethan Cerami.
  */
-public class DaoGeneticProfileSamples {
+public final class DaoGeneticProfileSamples
+{
     private static final String DELIM = ",";
+
+    private DaoGeneticProfileSamples() {}
 
     /**
      * Adds a new Ordered Sample List for a Specified Genetic Profile ID.
@@ -48,7 +51,7 @@ public class DaoGeneticProfileSamples {
      * @return number of rows added.
      * @throws DaoException Data Access Exception.
      */
-    public int addGeneticProfileSamples(int geneticProfileId, ArrayList<Integer> orderedSampleList)
+    public static int addGeneticProfileSamples(int geneticProfileId, ArrayList<Integer> orderedSampleList)
             throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -81,7 +84,7 @@ public class DaoGeneticProfileSamples {
      * @param geneticProfileId Genetic Profile ID.
      * @throws DaoException Database Error.
      */
-    public void deleteAllSamplesInGeneticProfile(int geneticProfileId) throws DaoException {
+    public static void deleteAllSamplesInGeneticProfile(int geneticProfileId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -104,7 +107,7 @@ public class DaoGeneticProfileSamples {
      * @param geneticProfileId Genetic Profile ID.
      * @throws DaoException Database Error.
      */
-    public ArrayList <Integer> getOrderedSampleList(int geneticProfileId) throws DaoException {
+    public static ArrayList <Integer> getOrderedSampleList(int geneticProfileId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -138,7 +141,7 @@ public class DaoGeneticProfileSamples {
      * Deletes all Records in the table.
      * @throws DaoException Database Exception.
      */
-    public void deleteAllRecords() throws DaoException {
+    public static void deleteAllRecords() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;

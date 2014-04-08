@@ -79,6 +79,18 @@ public class BCRHTMLDictImporter extends ImporterBaseImpl implements Importer
     }
 
     @Override
+    public void importTypesOfCancer() throws Exception
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void importCaseLists(String portal) throws Exception
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void importReferenceData(ReferenceMetadata referenceMetadata) throws Exception
     {
         String bcrDictionaryFilename = referenceMetadata.getImporterArgs().get(0);

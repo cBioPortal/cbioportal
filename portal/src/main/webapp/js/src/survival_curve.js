@@ -260,7 +260,11 @@ var survivalCurves = (function() {
                 setDFSGroups(result, caseLists);
                 if (os_altered_group.length === 0 && os_unaltered_group.length === 0 &&
                     dfs_altered_group.length === 0 && dfs_unaltered_group.length === 0) {
-                    $('#tab-survival').hide();
+                    //$('#tab-survival').hide();
+                    var tab = $('#tabs a').filter(function(){
+                        return $(this).text() == "Survival";
+                    }).parent();
+                    tab.hide();
                 } else {
                     if (os_altered_group.length !== 0 || os_unaltered_group.length !== 0) {
                         calcOS();
@@ -514,7 +518,7 @@ var survivalCurves = (function() {
                             style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow qtip-wide'},
                             show: {event: "mouseover"},
                             hide: {fixed:true, delay: 100, event: "mouseout"},
-                            position: {my:'left bottom',at:'top right'}
+                            position: {my:'left bottom',at:'top right', viewport: $(window)}
                         }
                     );
 

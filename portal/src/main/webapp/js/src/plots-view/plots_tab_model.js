@@ -103,7 +103,7 @@ var Plots = (function(){
                         style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                         show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
-                        position: {my:'left bottom',at:'top right'}
+                        position: {my:'left bottom',at:'top right', viewport: $(window)}
                     }
                 );
             }
@@ -126,7 +126,7 @@ var Plots = (function(){
                         style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                         show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
-                        position: {my:'right bottom',at:'top left'}
+                        position: {my:'right bottom',at:'top left', viewport: $(window)}
                     }
                 );
             }
@@ -191,13 +191,8 @@ var Plots = (function(){
             $.post("getProfileData.json", paramsGetProfileData, callback_func, "json");
         },
         getMutationType: function(gene, genetic_profile_id, case_set_id, case_ids_key, callback_func) {
-            var paramsGetMutationType = {
-                geneList: gene,
-                geneticProfiles: genetic_profile_id,  //Here is simply cancer_study_id + "_mutations"
-                caseSetId: case_set_id,
-                caseIdsKey: case_ids_key
-            };
-            $.post("getMutationData.json", paramsGetMutationType, callback_func, "json");
+            var proxy = DataProxyFactory.getDefaultMutationDataProxy();
+            proxy.getMutationData(gene, callback_func);
         },
         addxAxisHelp: addxAxisHelp,
         addyAxisHelp: addyAxisHelp,
@@ -234,7 +229,7 @@ function loadPlotsSVG() {
         style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
         show: {event: "mouseover"},
         hide: {fixed:true, delay: 100, event: "mouseout"},
-        position: {my:'right bottom',at:'top left'}
+        position: {my:'right bottom',at:'top left', viewport: $(window)}
     });
 
     return result;

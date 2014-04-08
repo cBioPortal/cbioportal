@@ -134,7 +134,7 @@ public final class DaoCancerStudy {
             pstmt = con.prepareStatement("INSERT INTO cancer_study " +
                     "( `CANCER_STUDY_IDENTIFIER`, `NAME`, "
                     + "`DESCRIPTION`, `PUBLIC`, `TYPE_OF_CANCER_ID`, "
-                    + "`PMID`, `CITATION`, `GROUPS` ) VALUES (?,?,?,?,?,?,?,?)",
+                    + "`PMID`, `CITATION`, `GROUPS`, `SHORT_NAME` ) VALUES (?,?,?,?,?,?,?,?,?)",
                     Statement.RETURN_GENERATED_KEYS);
             pstmt.setString(1, stableId);
             pstmt.setString(2, cancerStudy.getName());
@@ -149,7 +149,8 @@ public final class DaoCancerStudy {
             } else {
                 pstmt.setString(8, StringUtils.join(groups, ";"));
             }
-            
+            pstmt.setString(9, cancerStudy.getShortName());
+
             pstmt.executeUpdate();
             rs = pstmt.getGeneratedKeys();
             if (rs.next()) {
@@ -278,8 +279,11 @@ public final class DaoCancerStudy {
                 "delete from gistic_to_gene where GISTIC_ROI_ID IN (select GISTIC_ROI_ID from gistic where CANCER_STUDY_ID=?);",
                 "delete from gistic where CANCER_STUDY_ID=?;",
                 "delete from mut_sig where CANCER_STUDY_ID=?;",
+                "delete from _case where CANCER_STUDY_ID=?;",
                 "delete from protein_array_data where CANCER_STUDY_ID=?;",
                 "delete from protein_array_cancer_study where CANCER_STUDY_ID=?;",
+                "delete from clinical_event_data where CLINICAL_EVENT_ID IN (select CLINICAL_EVENT_ID from clinical_event where CANCER_STUDY_ID=?)",
+                "delete from clinical_event where CANCER_STUDY_ID=?;",
                 "delete from cancer_study where CANCER_STUDY_ID=?;"
                 };
             for (String sql : sqls) {    
@@ -307,6 +311,7 @@ public final class DaoCancerStudy {
         cancerStudy.setPmid(rs.getString("PMID"));
         cancerStudy.setCitation(rs.getString("CITATION"));
         cancerStudy.setGroups(rs.getString("GROUPS"));
+        cancerStudy.setShortName(rs.getString("SHORT_NAME"));
 
         cancerStudy.setInternalId(rs.getInt("CANCER_STUDY_ID"));
         return cancerStudy;

@@ -7,6 +7,8 @@
  *                   keyword: [mutation keyword],
  *                   total: [number of total cosmic occurrences]}
  *          }
+ *
+ * @author Selcuk Onur Sumer
  */
 var CosmicTipView = Backbone.View.extend({
 	render: function()

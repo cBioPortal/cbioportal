@@ -1,3 +1,19 @@
+# March 27, 2014
+* New features:
+    * Visualizing of mutations mapped on 3D structures (individual or multiple mutations, directly in the browser)
+    * Gene expression correlation analysis (find all genes with expression correlation to your query genes)
+    * The Patient-Centric View now displays mutation frequencies across all cohorts in cBioPortal for each mutation
+    * The Mutation Details Tab and the Patient-Centric View now display the copy-number status of each mutation
+<br/>![3D viewer & Co-expression](images/previews/news_3d_coexp.png)
+
+# March 18, 2014
+* All TCGA data updated to the Firehose run of January 15, 2014
+* Updated to the latest COSMIC data (v68)
+* Added two new provisional TCGA studies
+    * Adrenocortical Carcinoma
+    * Uterine Carcinosarcoma
+* Added genomic data from multiple studies from the literature
+
 # November 8, 2013
 
 * All TCGA data updated to the Firehose run of September 23, 2013.

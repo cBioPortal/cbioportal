@@ -142,7 +142,7 @@ class ImporterImpl implements Importer {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("importData(), importing tumor types...");
 			}
-			importTumorTypes();
+			importTypesOfCancer();
 		}
 
 		// import reference data if desired
@@ -233,7 +233,8 @@ class ImporterImpl implements Importer {
 	/**
 	 * Helper function to import tumor type metadata.
 	 */
-	private void importTumorTypes() throws Exception {
+        @Override
+	public void importTypesOfCancer() throws Exception {
 		// tumor types
 		StringBuilder cancerFileContents = new StringBuilder();
 		for (TumorTypeMetadata tumorType : config.getTumorTypeMetadata(Config.ALL)) {
@@ -253,6 +254,70 @@ class ImporterImpl implements Importer {
 		String[] importCancerTypesArgs = { cancerFile.getCanonicalPath() };
 		ImportTypesOfCancers.main(importCancerTypesArgs);
 		cancerFile.delete();
+	}
+
+	/**
+	 * Helper function to import case lists.
+	 */
+        @Override
+        public void importCaseLists(String portal) throws Exception {
+            if (LOG.isInfoEnabled()) {
+			LOG.info("importData()");
+		}
+
+            // check args
+            if (portal == null) {
+                throw new IllegalArgumentException("portal must not be null");
+                    }
+
+            // get portal metadata
+            PortalMetadata portalMetadata = config.getPortalMetadata(portal).iterator().next();
+            if (portalMetadata == null) {
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("importData(), cannot find PortalMetadata, returning");
+                }
+                return;
+            }
+            
+            // iterate over all cancer studies
+            for (CancerStudyMetadata cancerStudyMetadata : config.getCancerStudyMetadata(portalMetadata.getName())) {
+                importCaseLists(portalMetadata, cancerStudyMetadata);
+            }
+        }
+        
+	private void importCaseLists(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata) throws Exception {
+		Collection<DataSourcesMetadata> dataSourcesMetadata = config.getDataSourcesMetadata(Config.ALL);
+                String rootDirectory = MetadataUtils.getCancerStudyRootDirectory(portalMetadata, dataSourcesMetadata, cancerStudyMetadata);
+                // create missing case lists
+                List<String> missingCaseListFilenames = fileUtils.getMissingCaseListFilenames(rootDirectory, cancerStudyMetadata);
+
+                if (!missingCaseListFilenames.isEmpty()) {
+                        if (LOG.isInfoEnabled()) {
+                                LOG.info("loadStagingFile(), the following case lists are missing and if data files are available will be generated: " + missingCaseListFilenames);
+                        }
+                        // create missing caselists
+                        fileUtils.generateCaseLists(false, true, rootDirectory, cancerStudyMetadata);
+                }
+
+                // process case lists
+                String caseListDirectory = (rootDirectory + File.separator + cancerStudyMetadata.getStudyPath() + File.separator + "case_lists");
+                String[] args = new String[] { caseListDirectory };
+                if (LOG.isInfoEnabled()) {
+                        LOG.info("loadStagingFile(), ImportCaseList:main(), with args: " + Arrays.asList(args));
+                }
+                ImportPatientList.main(args);
+
+                if (!missingCaseListFilenames.isEmpty()) {
+                        if (LOG.isInfoEnabled()) {
+                                LOG.info("loadStagingFile(), deleting auto-generated case list files...");
+                        }
+                        // remove missing caselists that were just created
+                        for (String missingCaseListFilename : missingCaseListFilenames) {
+                                fileUtils.deleteFile(new File(missingCaseListFilename));
+                        }
+                        File caseListDir = new File(caseListDirectory);
+                        if (fileUtils.directoryIsEmpty(caseListDir)) fileUtils.deleteDirectory(caseListDir);
+                }
 	}
 
 	/**
@@ -374,36 +439,8 @@ class ImporterImpl implements Importer {
                 }
 			}
 
-			// create missing case lists
-			List<String> missingCaseListFilenames = fileUtils.getMissingCaseListFilenames(rootDirectory, cancerStudyMetadata);
-
-			if (!missingCaseListFilenames.isEmpty()) {
-				if (LOG.isInfoEnabled()) {
-					LOG.info("loadStagingFile(), the following case lists are missing and if data files are available will be generated: " + missingCaseListFilenames);
-				}
-				// create missing caselists
-				fileUtils.generateCaseLists(false, false, rootDirectory, cancerStudyMetadata);
-			}
-
-			// process case lists
-			String caseListDirectory = (rootDirectory + File.separator + cancerStudyMetadata.getStudyPath() + File.separator + "case_lists");
-			args = new String[] { caseListDirectory };
-			if (LOG.isInfoEnabled()) {
-				LOG.info("loadStagingFile(), ImportPatientList:main(), with args: " + Arrays.asList(args));
-			}
-			ImportPatientList.main(args);
-
-			if (!missingCaseListFilenames.isEmpty()) {
-				if (LOG.isInfoEnabled()) {
-					LOG.info("loadStagingFile(), deleting auto-generated case list files...");
-				}
-				// remove missing caselists that were just created
-				for (String missingCaseListFilename : missingCaseListFilenames) {
-					fileUtils.deleteFile(new File(missingCaseListFilename));
-				}
-				File caseListDir = new File(caseListDirectory);
-				if (fileUtils.directoryIsEmpty(caseListDir)) fileUtils.deleteDirectory(caseListDir);
-			}
+			importCaseLists(portalMetadata, cancerStudyMetadata);
+                        
             if (createdCancerStudyMetadataFile) fileUtils.deleteFile(new File(cancerStudyMetadataFile));
 		}
 	}
@@ -481,7 +518,8 @@ class ImporterImpl implements Importer {
                 propertyNeedsUpdating(properties.getProperty("description"), cancerStudyMetadata.getDescription()) ||
                 propertyNeedsUpdating(properties.getProperty("citation"), cancerStudyMetadata.getCitation()) ||
                 propertyNeedsUpdating(properties.getProperty("pmid"), cancerStudyMetadata.getPMID()) ||
-                propertyNeedsUpdating(properties.getProperty("groups"), cancerStudyMetadata.getGroups()));
+                propertyNeedsUpdating(properties.getProperty("groups"), cancerStudyMetadata.getGroups()) ||
+                propertyNeedsUpdating(properties.getProperty("short_name"), cancerStudyMetadata.getShortName()));
     }
 
     private Properties getProperties(String cancerStudyMetadataFilename) throws Exception

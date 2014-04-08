@@ -33,6 +33,8 @@ import java.net.URLConnection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import org.mskcc.cbio.portal.util.ConsoleUtil;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 /**
  * Fetches PFAM graphic data.
@@ -53,15 +55,11 @@ public class FetchPfamGraphicsData
 	 * @param incremental       indicates incremental fetching
 	 * @return  total number of errors
 	 */
-	public static int driver(String inputFilename,
-			String outputFilename,
+	public static int driver(String outputFilename,
 			boolean incremental) throws IOException
 	{
-		BufferedReader in = new BufferedReader(new FileReader(inputFilename));
 		BufferedWriter out = new BufferedWriter(new FileWriter(outputFilename));
 
-		String line;
-		int numLines = 0;
 		int numErrors = 0;
 
 		// TODO if incremental:
@@ -69,56 +67,48 @@ public class FetchPfamGraphicsData
 		// 2. check if a certain uniprot id is already mapped in the file
 		// 3. populate key set if incremental option is selected
 		Set<String> keySet = initKeySet(outputFilename, incremental);
+                
+                Set<String> uniprotAccs = ImportUniProtIdMapping.getSwissProtAccessionHuman();
+                
+                ProgressMonitor pMonitor = new ProgressMonitor();
+                pMonitor.setConsoleMode(true);
+                pMonitor.setMaxValue(uniprotAccs.size());
 
 		// read all
-		while ((line = in.readLine()) != null)
+		for (String uniprotId : uniprotAccs)
 		{
-			if (line.trim().length() == 0)
-			{
-				continue;
-			}
+                            pMonitor.incrementCurValue();
+                            ConsoleUtil.showProgress(pMonitor);
+                            
+                            // avoid to add a duplicate entry
+                            if (keySet.contains(uniprotId))
+                            {
+                                    continue;
+                            }
 
-			String[] parts = line.split("\t");
+                            String pfamJson = fetch(uniprotId);
+                            keySet.add(uniprotId);
 
-			if (parts.length > 1)
-			{
-				String uniprotId = parts[1];
+                            // replace all tabs and new lines with a single space
+                            pfamJson = pfamJson.trim().replaceAll("\t", " ").replaceAll("\n", " ");
 
-				// avoid to add a duplicate entry
-				if (keySet.contains(uniprotId))
-				{
-					continue;
-				}
-
-				String pfamJson = fetch(uniprotId);
-				keySet.add(uniprotId);
-
-				// replace all tabs and new lines with a single space
-				pfamJson = pfamJson.trim().replaceAll("\t", " ").replaceAll("\n", " ");
-
-				// verify if it is really a JSON object
-				// TODO this verification may not be safe...
-				if (pfamJson.startsWith("[") || pfamJson.startsWith("{"))
-				{
-					out.write(uniprotId);
-					out.write("\t");
-					out.write(pfamJson);
-					out.write("\n");
-				}
-				else
-				{
-					System.out.println("Invalid data for: " + uniprotId);
-					numErrors++;
-				}
-			}
-
-			numLines++;
+                            // verify if it is really a JSON object
+                            // TODO this verification may not be safe...
+                            if (pfamJson.startsWith("[") || pfamJson.startsWith("{"))
+                            {
+                                    out.write(uniprotId);
+                                    out.write("\t");
+                                    out.write(pfamJson);
+                                    out.write("\n");
+                            }
+                            else
+                            {
+                                    System.out.println("Invalid data for: " + uniprotId);
+                                    numErrors++;
+                            }
 		}
 
-		System.out.println("Total number of lines processed: " + numLines);
-
 		out.close();
-		in.close();
 
 		return numErrors;
 	}
@@ -137,15 +127,15 @@ public class FetchPfamGraphicsData
 
 	/**
 	 * Fetches the JSON data from the PFAM graphics service for the
-	 * specified uniprot id.
+	 * specified uniprot accession.
 	 *
-	 * @param uniprotId a uniprot id
+	 * @param uniprotAcc a uniprot accession
 	 * @return  pfam graphic data as a JSON string
 	 * @throws  IOException
 	 */
-	private static String fetch(String uniprotId) throws IOException
+	private static String fetch(String uniprotAcc) throws IOException
 	{
-		URL url = new URL(URL_PREFIX + uniprotId + URL_SUFFIX);
+		URL url = new URL(URL_PREFIX + uniprotAcc + URL_SUFFIX);
 
 		URLConnection pfamConn = url.openConnection();
 
@@ -166,7 +156,7 @@ public class FetchPfamGraphicsData
 		return sb.toString();
 	}
 
-	public static void main(String[] args)
+	public static void main(String[] args) throws Exception
 	{
 		// default config params
 		boolean noFetch = false;     // skip fetching
@@ -198,15 +188,13 @@ public class FetchPfamGraphicsData
 		}
 
 		// check IO file name args
-		if (args.length - i < 2)
+		if (args.length - i < 1)
 		{
-			System.out.println("command line usage:  fetchPfamGraphicsData.sh " +
-			                   "<uniprot_id_mapping_file> <output_pfam_mapping_file>");
+			System.out.println("command line usage:  fetchPfamGraphicsData.sh <output_pfam_mapping_file>");
             return;
 		}
 
-		String input = args[i];
-		String output = args[i+1];
+		String output = args[i];
 
 		if (noFetch)
 		{
@@ -215,26 +203,19 @@ public class FetchPfamGraphicsData
 			return;
 		}
 
-		try
-		{
-			System.out.println("Fetching started...");
-			Date start = new Date();
-			int numErrors = driver(input, output, incremental);
-			Date end = new Date();
-			System.out.println("Fetching finished.");
+                    System.out.println("Fetching started...");
+                    Date start = new Date();
+                    int numErrors = driver(output, incremental);
+                    Date end = new Date();
+                    System.out.println("Fetching finished.");
 
-			double timeElapsed = (end.getTime() - start.getTime()) / 1000.0;
+                    double timeElapsed = (end.getTime() - start.getTime()) / 1000.0;
 
-			System.out.println("\nTotal time elapsed: " + timeElapsed + " seconds");
+                    System.out.println("\nTotal time elapsed: " + timeElapsed + " seconds");
 
-			if (numErrors > 0)
-			{
-				System.out.println("Total number of errors: " + numErrors);
-			}
-		}
-		catch (IOException e)
-		{
-			System.out.println("error processing IO files.");
-		}
+                    if (numErrors > 0)
+                    {
+                            System.out.println("Total number of errors: " + numErrors);
+                    }
 	}
 }

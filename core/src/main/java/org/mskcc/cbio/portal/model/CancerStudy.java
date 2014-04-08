@@ -53,6 +53,7 @@ public class CancerStudy {
     private String pmid;
     private String citation;
     private Set<String> groups;
+    private String shortName;
     
 
     /**
@@ -68,6 +69,7 @@ public class CancerStudy {
         super();
         this.studyID = CancerStudy.NO_SUCH_STUDY;
         this.name = name;
+        this.shortName = "";
         this.description = description;
         this.cancerStudyIdentifier = cancerStudyIdentifier;
         this.typeOfCancerId = typeOfCancerId;
@@ -415,4 +417,11 @@ public class CancerStudy {
         return DaoGistic.hasGistic(this);
     }
 
+    public String getShortName() {
+        return shortName;
+    }
+
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
+    }
 }

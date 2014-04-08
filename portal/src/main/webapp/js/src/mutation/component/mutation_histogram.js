@@ -5,6 +5,8 @@
  * @param options       visual options object
  * @param data          collection of Mutation models (MutationCollection)
  * @constructor
+ *
+ * @author Selcuk Onur Sumer
  */
 function MutationHistogram(geneSymbol, options, data)
 {

@@ -188,7 +188,7 @@
                         keywords.push(drug[2]);
                     }
 
-                    $("#pv-drugs-table").dataTable({
+                    var drugsTable = $("#pv-drugs-table").dataTable({
                         "sDom": '<"H"<"drugs-summary-table-name">fr>t<"F"<"drugs-show-more"><"datatable-paging"pl>>',
                         "bJQueryUI": true,
                         "bDestroy": true,
@@ -202,20 +202,24 @@
                         "iDisplayLength": 25,
                         "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
                     });
+                    drugsTable.css("width","100%");
 
                     $(".drug-synoynms").qtip({
                         content: { attr: 'title' },
-                        style: { classes: 'qtip-light qtip-rounded' }
+                        style: { classes: 'qtip-light qtip-rounded' },
+                        position: { viewport: $(window) }
                     });
 
                     $(".drug-targets").qtip({
                         content: { attr: 'title' },
-                        style: { classes: 'qtip-light qtip-rounded' }
+                        style: { classes: 'qtip-light qtip-rounded' },
+                        position: { viewport: $(window) }
                     });
 
                     $(".annotated-target").qtip({
                         content: { attr: 'title' },
-                        style: { classes: 'qtip-light qtip-rounded' }
+                        style: { classes: 'qtip-light qtip-rounded' },
+                        position: { viewport: $(window) }
                     });
 
                     populateClinicalTrialsTable(keywords, 'both');
@@ -228,7 +232,8 @@
                     $(".drugs-summary-table-name").html("" + data.length + " drugs of interest " + infoBox);
                     $("#drug-summary-help").qtip({
                         content: { attr: 'title' },
-                        style: { classes: 'qtip-light qtip-rounded' }
+                        style: { classes: 'qtip-light qtip-rounded' },
+                        position: { viewport: $(window) }
                     });
 
                 }
@@ -306,6 +311,7 @@
                         "iDisplayLength": 25,
                         "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
                     });
+                    clinicalTrialsDataTable.css("width","100%");
 
                     // Done with the loading. Hide the image.
                     $("#trials_wait").hide();
@@ -323,7 +329,8 @@
                     $(".trials-summary-table-name").html(data.length + " clinical trials of interest " + infoBox);
                     $("#trial-summary-help").qtip({
                         content: { attr: 'title' },
-                        style: { classes: 'qtip-light qtip-rounded' }
+                        style: { classes: 'qtip-light qtip-rounded' },
+                        position: { viewport: $(window) }
                     });
 
                 }

@@ -73,6 +73,8 @@ public class MutationDataServlet extends HttpServlet
 		// get request parameters
 		String geneticProfiles = request.getParameter("geneticProfiles");
 		String genes = request.getParameter("geneList");
+		// we need slashes for miRNA input
+		genes = genes.replaceAll("\\\\/", "/");
 
 		// parse single strings to create list of strings
 		ArrayList<String> geneticProfileList = this.parseValues(geneticProfiles);

@@ -3,6 +3,8 @@
  * initialized with the full mutation data already retrieved from the server.
  *
  * @param geneList  list of target genes (genes of interest) as a string
+ *
+ * @author Selcuk Onur Sumer
  */
 var MutationDataProxy = function(geneList)
 {
@@ -81,7 +83,10 @@ var MutationDataProxy = function(geneList)
 		var mutationData = [];
 		var mutationMap = _util.getMutationGeneMap();
 
+		// process each gene in the given list
 		_.each(genes, function(gene, idx) {
+			gene = gene.toUpperCase();
+
 			var data = mutationMap[gene];
 
 			if (data == undefined ||
@@ -92,7 +97,7 @@ var MutationDataProxy = function(geneList)
 			}
 			else
 			{
-				// update the data
+				// data is already cached for this gene, update the data array
 				mutationData = mutationData.concat(data);
 			}
 		});
@@ -107,16 +112,32 @@ var MutationDataProxy = function(geneList)
 		else
 		{
 			var process = function(data) {
+				// process new data retrieved from server
 				var mutations = new MutationCollection(data);
 				_util.processMutationData(mutations);
-				callback(data);
+
+				// concat new data with already cached data,
+				// and forward it to the callback function
+				mutationData = mutationData.concat(data);
+				callback(mutationData);
 			};
 
-			// add genesToQuery to the servlet params
-			_servletParams.geneList = genesToQuery.join(" ");
+			// some (or all) data is missing,
+			// send ajax request for missing genes
+			if (genesToQuery.length > 0)
+			{
+				// add genesToQuery to the servlet params
+				_servletParams.geneList = genesToQuery.join(" ");
 
-			// retrieve data from the server
-			$.post(_servletName, _servletParams, process, "json");
+				// retrieve data from the server
+				$.post(_servletName, _servletParams, process, "json");
+			}
+			// data for all requested genes already cached
+			else
+			{
+				// just forward the data to the callback function
+				callback(mutationData);
+			}
 		}
 	}
 

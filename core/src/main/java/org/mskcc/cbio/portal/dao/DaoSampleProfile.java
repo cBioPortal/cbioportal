@@ -1,9 +1,11 @@
 package org.mskcc.cbio.portal.dao;
 
-import org.mskcc.cbio.portal.model.Sample;
+import org.mskcc.cbio.portal.model.*;
+
+import org.apache.commons.lang.StringUtils;
 
 import java.sql.*;
-import java.util.ArrayList;
+import java.util.*;
 
 /**
  * Data access object for sample_profile table
@@ -154,6 +156,72 @@ public final class DaoSampleProfile {
         } finally {
             JdbcUtil.closeAll(DaoSampleProfile.class, con, pstmt, rs);
         }
+    }
+
+    /**
+     * Counts the number of sequenced cases in each cancer study, returning a list of maps
+     * containing the cancer study (full string name), the cancer type (e.g. `brca_tcga`), and the count
+     *
+     * @return  [ list of maps { cancer_study, cancer_type, num_sequenced_samples } ]
+     * @throws DaoException
+     * @author Gideon Dresdner <dresdnerg@cbio.mskcc.org>
+     *
+     */
+    public static List<Map<String, Object>> metaData(List<CancerStudy> cancerStudies) throws DaoException {
+        // collect all mutationProfileIds
+        Map<Integer, GeneticProfile> id2MutationProfile = new HashMap<Integer, GeneticProfile>();
+        for (CancerStudy cancerStudy : cancerStudies) {
+            GeneticProfile mutationProfile = cancerStudy.getMutationProfile();
+
+            if (mutationProfile != null) {
+                // e.g. if cancerStudy == All Cancer Studies
+                Integer mutationProfileId = mutationProfile.getGeneticProfileId();
+                id2MutationProfile.put(mutationProfileId, mutationProfile);
+            }
+        }
+
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
+        try {
+            con = JdbcUtil.getDbConnection(DaoMutation.class);
+
+            String sql = "select `GENETIC_PROFILE_ID`, count(`SAMPLE_ID`) from sample_profile " +
+                    " where `GENETIC_PROFILE_ID` in ("+ StringUtils.join(id2MutationProfile.keySet(), ",") + ")" +
+                    " group by `GENETIC_PROFILE_ID`";
+
+            pstmt = con.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                Map<String, Object> datum = new HashMap<String, Object>();
+
+                Integer mutationProfileId = rs.getInt(1);
+                Integer numSequencedSamples = rs.getInt(2);
+
+                GeneticProfile mutationProfile = id2MutationProfile.get(mutationProfileId);
+                Integer cancerStudyId = mutationProfile.getCancerStudyId();
+                CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
+                String cancerStudyName = cancerStudy.getName();
+                String cancerType = cancerStudy.getTypeOfCancerId();
+
+                datum.put("cancer_study", cancerStudyName);
+                datum.put("cancer_type", cancerType);
+                datum.put("color", DaoTypeOfCancer.getTypeOfCancerById(cancerType).getDedicatedColor());
+                datum.put("num_sequenced_samples", numSequencedSamples);
+
+                data.add(datum);
+            }
+
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
+        }
+        
+	return data;
     }
 
     public static void deleteAllRecords() throws DaoException {

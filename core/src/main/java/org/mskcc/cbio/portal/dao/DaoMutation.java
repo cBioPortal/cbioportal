@@ -85,7 +85,9 @@ public final class DaoMutation {
         }
     }
         
-        public static int addMutationEvent(MutationEvent event) throws DaoException {
+        public static int addMutationEvent(ExtendedMutation.MutationEvent event) throws DaoException {
+            // use this code if bulk loading
+            // write to the temp file maintained by the MySQLbulkLoader
             String keyword = MutationKeywordUtils.guessOncotatorMutationKeyword(event.getProteinChange(), event.getMutationType());
             MySQLbulkLoader.getMySQLbulkLoader("mutation_event").insertRecord(
                     Long.toString(event.getMutationEventId()),
@@ -411,18 +413,18 @@ public final class DaoMutation {
         return mutationList;
     }
     
-    public static Set<MutationEvent> getAllMutationEvents() throws DaoException {
+    public static Set<ExtendedMutation.MutationEvent> getAllMutationEvents() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        Set<MutationEvent> events = new HashSet<MutationEvent>();
+        Set<ExtendedMutation.MutationEvent> events = new HashSet<ExtendedMutation.MutationEvent>();
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM mutation_event");
             rs = pstmt.executeQuery();
             while  (rs.next()) {
-                MutationEvent event = extractMutationEvent(rs);
+                ExtendedMutation.MutationEvent event = extractMutationEvent(rs);
                 events.add(event);
             }
         } catch (SQLException e) {
@@ -485,8 +487,8 @@ public final class DaoMutation {
         }
     }
     
-    private static MutationEvent extractMutationEvent(ResultSet rs) throws SQLException, DaoException {
-        MutationEvent event = new MutationEvent();
+    private static ExtendedMutation.MutationEvent extractMutationEvent(ResultSet rs) throws SQLException, DaoException {
+        ExtendedMutation.MutationEvent event = new ExtendedMutation.MutationEvent();
         event.setMutationEventId(rs.getLong("MUTATION_EVENT_ID"));
         long entrezId = rs.getLong("mutation_event.ENTREZ_GENE_ID");
         DaoGeneOptimized aDaoGene = DaoGeneOptimized.getInstance();
@@ -847,7 +849,7 @@ public final class DaoMutation {
      * @return Map &lt; entrez, sampleCount &gt;
      * @throws DaoException 
      */
-    public static Map<Long, Integer> countSamplesWithMutatedGenes(String concatEntrezGeneIds, int profileId) throws DaoException {
+        public static Map<Long, Integer> countSamplesWithMutatedGenes(String concatEntrezGeneIds, int profileId) throws DaoException {
         if (concatEntrezGeneIds.isEmpty()) {
             return Collections.emptyMap();
         }
@@ -876,7 +878,7 @@ public final class DaoMutation {
             JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
         }
     }
-    
+
     public static Map<String, Integer> countSamplesWithKeywords(Collection<String> keywords, int profileId) throws DaoException {
         if (keywords.isEmpty()) {
             return Collections.emptyMap();
@@ -894,7 +896,7 @@ public final class DaoMutation {
                     + StringUtils.join(keywords,"','")
                     + "') GROUP BY `KEYWORD`";
             pstmt = con.prepareStatement(sql);
-            
+
             Map<String, Integer> map = new HashMap<String, Integer>();
             rs = pstmt.executeQuery();
             while (rs.next()) {
@@ -907,26 +909,143 @@ public final class DaoMutation {
             JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
         }
     }
-    
-    public static Set<Long> getMutatedGenesForACase(int sampleId) throws DaoException {
+
+    /**
+     *
+     * Counts all the samples in each cancer study in the collection of geneticProfileIds by mutation keyword
+     *
+     * @param keywords
+     * @param internalProfileIds
+     * @return Collection of Maps {"keyword" , "hugo" , "cancer_study" , "count"} where cancer_study == cancerStudy.getName();
+     * @throws DaoException
+     * @author Gideon Dresdner <dresdnerg@cbio.mskcc.org>
+     */
+    public static Collection<Map<String, Object>> countSamplesWithKeywords(Collection<String> keywords, Collection<Integer> internalProfileIds) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
-            String sql = "SELECT DISTINCT ENTREZ_GENE_ID"
-                    + " FROM mutation"
-                + " AND SAMPLE_ID='" + sampleId + "'";
+
+            String sql = "SELECT KEYWORD, GENETIC_PROFILE_ID, mutation.ENTREZ_GENE_ID, count(DISTINCT SAMPLE_ID) FROM mutation, mutation_event " +
+                    "WHERE GENETIC_PROFILE_ID IN (" + StringUtils.join(internalProfileIds, ",") + ") " +
+                    "AND mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID " +
+                    "AND KEYWORD IN ('" + StringUtils.join(keywords, "','") + "') " +
+                    "GROUP BY KEYWORD, GENETIC_PROFILE_ID";
+
             pstmt = con.prepareStatement(sql);
-            
-            Set<Long> set = new HashSet<Long>();
             rs = pstmt.executeQuery();
+
+            Collection<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
             while (rs.next()) {
-                set.add(rs.getLong(1));
+
+                Map<String, Object> d = new HashMap<String, Object>();
+
+                String keyword = rs.getString(1);
+                Integer geneticProfileId = rs.getInt(2);
+                Long entrez = rs.getLong(3);
+                Integer count = rs.getInt(4);
+
+                // this is computing a join and in not optimal
+                GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
+                Integer cancerStudyId = geneticProfile.getCancerStudyId();
+                CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
+                String name = cancerStudy.getName();
+                String cancerType = cancerStudy.getTypeOfCancerId();
+
+                CanonicalGene gene = DaoGeneOptimized.getInstance().getGene(entrez);
+                String hugo = gene.getHugoGeneSymbolAllCaps();
+
+                d.put("keyword", keyword);
+                d.put("hugo", hugo);
+                d.put("cancer_study", name);
+                d.put("cancer_type", cancerType);
+                d.put("count", count);
+
+                data.add(d);
             }
-            return set;
-        } catch (NullPointerException e) {
+
+            return data;
+
+        } catch (SQLException e) {
             throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
+        }
+    }
+
+    /**
+     *
+     * Counts up all the samples that have any mutation in a gene by genomic profile (ids)
+     *
+     * @param hugos
+     * @param internalProfileIds
+     * @return Collection of Maps {"hugo" , "cancer_study" , "count"} where cancer_study == cancerStudy.getName();
+     * and gene is the hugo gene symbol.
+     *
+     * @throws DaoException
+     * @author Gideon Dresdner <dresdnerg@cbio.mskcc.org>
+     */
+    public static Collection<Map<String, Object>> countSamplesWithGenes(Collection<String> hugos, Collection<Integer> internalProfileIds) throws DaoException {
+
+        // convert hugos to entrezs
+        // and simultaneously construct a map to turn them back into hugo gene symbols later
+        List<Long> entrezs = new ArrayList<Long>();
+        Map<Long, CanonicalGene> entrez2CanonicalGene = new HashMap<Long, CanonicalGene>();
+        DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
+        for (String hugo : hugos) {
+            CanonicalGene canonicalGene = daoGeneOptimized.getGene(hugo);
+            Long entrez = canonicalGene.getEntrezGeneId();
+
+            entrezs.add(entrez);
+            entrez2CanonicalGene.put(entrez, canonicalGene);
+        }
+
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoMutation.class);
+
+            String sql = "select mutation.ENTREZ_GENE_ID, mutation.GENETIC_PROFILE_ID, count(distinct SAMPLE_ID) from mutation, mutation_event\n" +
+                    "where GENETIC_PROFILE_ID in (" + StringUtils.join(internalProfileIds, ",") + ")\n" +
+                    "and mutation.ENTREZ_GENE_ID in (" + StringUtils.join(entrezs, ",")  + ")\n" +
+                    "and mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID\n" +
+                    "group by ENTREZ_GENE_ID, GENETIC_PROFILE_ID";
+
+            pstmt = con.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+
+            Collection<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
+            while (rs.next()) {
+
+                Map<String, Object> d = new HashMap<String, Object>();
+
+                Long entrez = rs.getLong(1);
+                Integer geneticProfileId = rs.getInt(2);
+                Integer count = rs.getInt(3);
+
+                // can you do the boogie woogie to get a cancerStudy's name?
+                // this is computing a join and in not optimal
+                GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
+                Integer cancerStudyId = geneticProfile.getCancerStudyId();
+                CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
+                String name = cancerStudy.getName();
+                String cancerType = cancerStudy.getTypeOfCancerId();
+
+                CanonicalGene canonicalGene = entrez2CanonicalGene.get(entrez);
+                String hugo = canonicalGene.getHugoGeneSymbolAllCaps();
+
+                d.put("hugo", hugo);
+                d.put("cancer_study", name);
+                d.put("cancer_type", cancerType);
+                d.put("count", count);
+
+                data.add(d);
+            }
+
+            return data;
+
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -1048,5 +1167,4 @@ public final class DaoMutation {
             JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
         }
     }
-    
 }

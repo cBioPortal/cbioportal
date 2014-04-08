@@ -322,10 +322,13 @@ class GDataImpl implements Config {
 					// a delimited list of datatypes have been requested
 					toReturn = new ArrayList<DatatypeMetadata>();
 					for (String datatype : datatypesIndicator.split(DatatypeMetadata.DATATYPES_DELIMITER)) {
-						DatatypeMetadata datatypeMetadata = getDatatypeMetadata(datatype).iterator().next();
-						toReturn.add(datatypeMetadata);
-						if (LOG.isInfoEnabled()) {
-							LOG.info("Selecting data type"+datatypeMetadata.getDatatype());
+                                                Collection<DatatypeMetadata> metaData = getDatatypeMetadata(datatype);
+                                                if (!metaData.isEmpty()) {
+                                                    DatatypeMetadata datatypeMetadata = metaData.iterator().next();
+                                                    toReturn.add(datatypeMetadata);
+                                                    if (LOG.isInfoEnabled()) {
+                                                            LOG.info("Selecting data type"+datatypeMetadata.getDatatype());
+                                                    }
                                                 }
 					}
 				}

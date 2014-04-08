@@ -207,7 +207,6 @@ public class ImportProteinArrayData {
     
     private void addRPPAProfile(ArrayList<Integer> sampleIds) throws DaoException {
         // add profile
-        DaoGeneticProfileSamples daoGeneticProfileSamples = new DaoGeneticProfileSamples();
         String idProfProt = cancerStudyStableId+"_RPPA_protein_level";
         if (DaoGeneticProfile.getGeneticProfileByStableId(idProfProt)==null) {
             GeneticProfile gpPro = new GeneticProfile(idProfProt, cancerStudyId,
@@ -216,7 +215,7 @@ public class ImportProteinArrayData {
 													  "Protein or phosphoprotein level (Z-scores) measured by reverse phase protein array (RPPA)",
 													  true);
             DaoGeneticProfile.addGeneticProfile(gpPro);
-            daoGeneticProfileSamples.addGeneticProfileSamples(
+            DaoGeneticProfileSamples.addGeneticProfileSamples(
                     DaoGeneticProfile.getGeneticProfileByStableId(idProfProt).getGeneticProfileId(), sampleIds);
         }
     }

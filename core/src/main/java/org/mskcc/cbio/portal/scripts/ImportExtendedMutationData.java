@@ -57,24 +57,6 @@ public class ImportExtendedMutationData{
 	private File mutationFile;
 	private int geneticProfileId;
 	private MutationFilter myMutationFilter;
-	private static Map<String,String> validChrValues = null;
-	private static String normalizeChr(String strChr) {
-	    if (validChrValues==null) {
-		validChrValues = new HashMap<String,String>();
-		for (int lc = 1; lc<=24; lc++) {
-			validChrValues.put(Integer.toString(lc),Integer.toString(lc));
-			validChrValues.put("CHR" + Integer.toString(lc),Integer.toString(lc));
-		}
-		validChrValues.put("X","23");
-		validChrValues.put("CHRX","23");
-		validChrValues.put("Y","24");
-		validChrValues.put("CHRY","24");
-		validChrValues.put("NA","NA");
-		validChrValues.put("MT","MT"); // mitochondria
-	    }
-	    
-	    return validChrValues.get(strChr);
-	}
 
 	/**
 	 * construct an ImportExtendedMutationData with no white lists.
@@ -179,7 +161,7 @@ public class ImportExtendedMutationData{
 					continue;
 				}
 
-				String chr = normalizeChr(record.getChr().toUpperCase());
+				String chr = DaoGeneOptimized.normalizeChr(record.getChr().toUpperCase());
 				if (chr==null) {
 					pMonitor.logWarning("Skipping entry with chromosome value: " + record.getChr());
 					line = buf.readLine();
@@ -302,7 +284,7 @@ public class ImportExtendedMutationData{
 
 				if(gene == null) {
 					// If Entrez Gene ID Fails, try Symbol.
-					gene = daoGene.getNonAmbiguousGene(geneSymbol);
+					gene = daoGene.getNonAmbiguousGene(geneSymbol, chr);
 				}
 
 				if(gene == null) {

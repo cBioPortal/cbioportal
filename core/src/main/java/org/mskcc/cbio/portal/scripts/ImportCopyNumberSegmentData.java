@@ -6,6 +6,7 @@ import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
 
 import java.io.*;
+import java.math.BigDecimal;
 
 /**
  * Import protein array antibody information into database.
@@ -50,7 +51,7 @@ public class ImportCopyNumberSegmentData {
             String sampleId = StableIdUtil.getSampleId(strs[0]);
             long start = Double.valueOf(strs[2]).longValue();
             long end = Double.valueOf(strs[3]).longValue();
-            int numProbes = Double.valueOf(strs[4]).intValue();
+            int numProbes = new BigDecimal((strs[4])).intValue();
             double segMean = Double.parseDouble(strs[5]);
             
             Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId);

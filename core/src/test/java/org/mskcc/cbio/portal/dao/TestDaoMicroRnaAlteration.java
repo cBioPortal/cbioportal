@@ -52,8 +52,7 @@ public class TestDaoMicroRnaAlteration extends TestCase {
         ArrayList<Integer> internalSampleIds = createSamples();
 
         //  Add the Case List
-        DaoGeneticProfileSamples daoGeneticProfileSamples = new DaoGeneticProfileSamples();
-        int numRows = daoGeneticProfileSamples.addGeneticProfileSamples(1, internalSampleIds);
+        int numRows = DaoGeneticProfileSamples.addGeneticProfileSamples(1, internalSampleIds);
         assertEquals (1, numRows);
 
         String data = "1.2:1.4:1.6:1.8";

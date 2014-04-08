@@ -56,10 +56,8 @@ public class TestDaoGeneticAlteration extends TestCase {
         ResetDatabase.resetDatabase();
         ArrayList<Integer> internalSampleIds = createSamples();
 
-        DaoGeneticProfileSamples daoGeneticProfileSamples = new DaoGeneticProfileSamples();
-
-        //  Add the Case List
-        int numRows = daoGeneticProfileSamples.addGeneticProfileSamples(1, internalSampleIds);
+        //  Add the Sample List
+        int numRows = DaoGeneticProfileSamples.addGeneticProfileSamples(1, internalSampleIds);
         assertEquals (1, numRows);
 
         //  Add Some Data

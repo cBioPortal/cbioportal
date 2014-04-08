@@ -1,0 +1,74 @@
+/*
+ * Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center
+ * has been advised of the possibility of such damage.  See
+ * the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ */
+
+.diagram-lollipop-tip,
+.diagram-region-tip {
+	font-size: 12px;
+}
+.diagram_toolbar {
+	padding-top: 10px;
+	padding-left: 10px;
+}
+.mutation-diagram-customize {
+	margin-top: 5px;
+	padding: 5px;
+	background-color: #eeeeee;
+	border: 1px solid #d3d3d3;
+}
+.mutation-diagram-customize table {
+	width: 100%;
+}
+.diagram-customize-close {
+	float: right;
+}
+.diagram-customize {
+	margin-left: 25px;
+}
+.diagram-y-axis-slider-area {
+	width: 230px;
+}
+.diagram-y-axis-slider-area .diagram-slider-min-label {
+	float: left;
+	text-align: right;
+	font-size: 90%;
+}
+.diagram-y-axis-slider-area .diagram-slider-max-label {
+	float: right;
+	text-align: left;
+	font-size: 90%;
+}
+.diagram-y-axis-slider-area .diagram-slider-title {
+	text-align: center;
+	font-weight: bold;
+	margin-bottom: 5px;
+}
+.diagram-y-axis-limit-input {
+	margin-left: 8px;
+}
+.mut-dia-data-point {
+	cursor: pointer;
+}

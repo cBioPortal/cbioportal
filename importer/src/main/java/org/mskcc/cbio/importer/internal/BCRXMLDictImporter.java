@@ -71,6 +71,17 @@ public class BCRXMLDictImporter extends ImporterBaseImpl implements Importer
     {
 		throw new UnsupportedOperationException();
     }
+        
+    @Override
+        public void importTypesOfCancer() throws Exception
+    {
+		throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void importCaseLists(String portal) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
     @Override
     public void importReferenceData(ReferenceMetadata referenceMetadata) throws Exception

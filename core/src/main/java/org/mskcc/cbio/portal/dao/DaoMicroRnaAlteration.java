@@ -145,8 +145,7 @@ public class DaoMicroRnaAlteration {
         ResultSet rs = null;
         HashMap<Integer, String> map = new HashMap<Integer, String>();
 
-        DaoGeneticProfileSamples daoGeneticProfileSamples = new DaoGeneticProfileSamples();
-        ArrayList<Integer> orderedSampleList = daoGeneticProfileSamples.getOrderedSampleList
+        ArrayList<Integer> orderedSampleList = DaoGeneticProfileSamples.getOrderedSampleList
                 (geneticProfileId);
         if (orderedSampleList == null || orderedSampleList.size() ==0) {
             throw new IllegalArgumentException ("Could not find any samples for genetic" +

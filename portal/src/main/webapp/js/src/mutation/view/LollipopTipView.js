@@ -5,6 +5,8 @@
  *           model: {count: [number of mutations],
  *                   label: [info for that location]}
  *          }
+ *
+ * @author Selcuk Onur Sumer
  */
 var LollipopTipView = Backbone.View.extend({
 	render: function()

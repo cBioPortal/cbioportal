@@ -51,6 +51,8 @@ public final class DaoClinicalData {
     private static final Map<String, String> sampleAttributes = new HashMap<String, String>();
     private static final Map<String, String> patientAttributes = new HashMap<String, String>();
 
+    private DaoClinicalData() {}
+
     static {
         cache();
     }
@@ -178,8 +180,7 @@ public final class DaoClinicalData {
                 return extract(table, internalCancerStudyId, rs);
             }
             else {
-                throw new DaoException(String.format("clinical data not found for (%d, %s)",
-                                                     internalId, attrId));
+                return null;
             }
         }
         catch (SQLException e) {
@@ -317,7 +318,7 @@ public final class DaoClinicalData {
         return clinicals;
     }
 
-    private static List<ClinicalData> getDataByAttributeIds(int internalCancerStudyId, Collection<String> attributeIds) throws DaoException {
+    public static List<ClinicalData> getDataByAttributeIds(int internalCancerStudyId, Collection<String> attributeIds) throws DaoException {
 
 		Connection con = null;
 		PreparedStatement pstmt = null;

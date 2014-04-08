@@ -756,9 +756,7 @@ var PlotsView = (function () {
                 }
                 analyseData();
             },
-            getCaseSetLength: function() { return caseSetLength; },
             getDotsGroup: function() { return dotsGroup; },
-            getDotsGroupLength: function() { return dotsGroup.length; },
             getDataStatus: function() { return status; },
             getDataAttr: function() { return attr; }
         };
@@ -1229,7 +1227,7 @@ var PlotsView = (function () {
                                     style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                                     show: {event: "mouseover"},
                                     hide: {fixed:true, delay: 100, event: "mouseout"},
-                                    position: {my:'left bottom',at:'top right'}
+                                    position: {my:'left bottom',at:'top right', viewport: $(window)}
                                 }
                             );
                             if (Util.plotsTypeIsCopyNo()) {    //Handle special symbols

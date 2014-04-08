@@ -96,8 +96,7 @@ public class ExportProfileData {
     }
 
     private static ArrayList<Integer> outputHeader(GeneticProfile profile, FileWriter writer) throws DaoException, IOException {
-        DaoGeneticProfileSamples daoGeneticProfileSamples = new DaoGeneticProfileSamples();
-        ArrayList<Integer> sampleList = daoGeneticProfileSamples.getOrderedSampleList(profile.getGeneticProfileId());
+        ArrayList<Integer> sampleList = DaoGeneticProfileSamples.getOrderedSampleList(profile.getGeneticProfileId());
         writer.write("SYMBOL" + TAB);
         writer.write("ENTREZ_GENE_ID");
         for (Integer sampleId : sampleList) {

@@ -166,6 +166,8 @@ public class CrossCancerJSON extends HttpServlet {
                 int noOfMutated = 0,
                         noOfCnaUp = 0,
                         noOfCnaDown = 0,
+                        noOfCnaLoss = 0,
+                        noOfCnaGain = 0,
                         noOfOther = 0,
                         noOfAll = 0;
 
@@ -176,7 +178,10 @@ public class CrossCancerJSON extends HttpServlet {
 
                         boolean isAnyMutated = false,
                                 isAnyCnaUp = false,
-                                isAnyCnaDown = false;
+                                isAnyCnaDown = false,
+                                isAnyCnaLoss = false,
+                                isAnyCnaGain = false
+                        ;
 
                         for (String gene : genes) {
                             isAnyMutated |= genomicData.isGeneMutated(gene, patientId);
@@ -185,6 +190,10 @@ public class CrossCancerJSON extends HttpServlet {
                             isAnyCnaUp |= isCnaUp;
                             boolean isCnaDown = cnaLevel != null && cnaLevel.equals(GeneticTypeLevel.HomozygouslyDeleted);
                             isAnyCnaDown |= isCnaDown;
+                            boolean isCnaLoss = cnaLevel != null && cnaLevel.equals(GeneticTypeLevel.HemizygouslyDeleted);
+                            isAnyCnaLoss |= isCnaLoss;
+                            boolean isCnaGain = cnaLevel != null && cnaLevel.equals(GeneticTypeLevel.Gained);
+                            isAnyCnaGain |= isCnaGain;
                         }
 
                         boolean isAnyCnaChanged = isAnyCnaUp || isAnyCnaDown;
@@ -196,6 +205,10 @@ public class CrossCancerJSON extends HttpServlet {
                             noOfCnaUp++;
                         else if(isAnyCnaDown)
                             noOfCnaDown++;
+                        else if(isAnyCnaGain)
+                            noOfCnaGain++;
+                        else if(isAnyCnaLoss)
+                            noOfCnaLoss++;
 
                         noOfAll++;
                     }
@@ -207,6 +220,8 @@ public class CrossCancerJSON extends HttpServlet {
                 alterations.put("mutation", noOfMutated);
                 alterations.put("cnaUp", noOfCnaUp);
                 alterations.put("cnaDown", noOfCnaDown);
+                alterations.put("cnaLoss", noOfCnaLoss);
+                alterations.put("cnaGain", noOfCnaGain);
                 alterations.put("other", noOfOther);
                 cancerMap.put("genes", genes);
                 cancerMap.put("skipped", skipStudy);

@@ -48,24 +48,22 @@ public class TestDaoGeneticProfileSamples extends TestCase {
         ResetDatabase.resetDatabase();
         createSamples();
 
-        DaoGeneticProfileSamples daoGeneticProfileSamples = new DaoGeneticProfileSamples();
         ArrayList<Integer> orderedSampleList = new ArrayList<Integer>();
         orderedSampleList.add(1);
         orderedSampleList.add(2);
         orderedSampleList.add(3);
         orderedSampleList.add(4);
-        int numRows = daoGeneticProfileSamples.addGeneticProfileSamples(1, orderedSampleList);
+        int numRows = DaoGeneticProfileSamples.addGeneticProfileSamples(1, orderedSampleList);
 
         assertEquals (1, numRows);
 
-        orderedSampleList = daoGeneticProfileSamples.getOrderedSampleList(1);
+        orderedSampleList = DaoGeneticProfileSamples.getOrderedSampleList(1);
         assertEquals (4, orderedSampleList.size());
 
         //  Test the Delete method
-        daoGeneticProfileSamples.deleteAllSamplesInGeneticProfile(1);
-        orderedSampleList = daoGeneticProfileSamples.getOrderedSampleList(1);
+        DaoGeneticProfileSamples.deleteAllSamplesInGeneticProfile(1);
+        orderedSampleList = DaoGeneticProfileSamples.getOrderedSampleList(1);
         assertEquals (0, orderedSampleList.size());
-
     }
 
     private void createSamples() throws DaoException {

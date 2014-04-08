@@ -35,8 +35,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 import java.util.HashSet;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Data Access Object for the Genetic Alteration Table.
@@ -145,36 +148,53 @@ public class DaoGeneticAlteration {
      */
     public HashMap<Integer, String> getGeneticAlterationMap(int geneticProfileId,
             long entrezGeneId) throws DaoException {
+        HashMap<Long,HashMap<Integer, String>> map = getGeneticAlterationMap(geneticProfileId, Collections.singleton(entrezGeneId));
+        if (map.isEmpty()) {
+            return new HashMap<Integer, String>();
+        }
+        
+        return map.get(entrezGeneId);
+    }
+
+    /**
+     * 
+     * @param geneticProfileId  Genetic Profile ID.
+     * @param entrezGeneIds      Entrez Gene IDs.
+     * @return Map<Entrez, Map<CaseId, Value>>.
+     * @throws DaoException Database Error.
+     */
+    public HashMap<Long,HashMap<Integer, String>> getGeneticAlterationMap(int geneticProfileId, Collection<Long> entrezGeneIds) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        HashMap<Integer, String> map = new HashMap<Integer, String>();
-
-        DaoGeneticProfileSamples daoGeneticProfileSamples = new DaoGeneticProfileSamples();
-        ArrayList<Integer> orderedSampleList = daoGeneticProfileSamples.getOrderedSampleList
-                (geneticProfileId);
+        HashMap<Long,HashMap<Integer, String>> map = new HashMap<Long,HashMap<Integer, String>>();
+        ArrayList<Integer> orderedSampleList = DaoGeneticProfileSamples.getOrderedSampleList(geneticProfileId);
         if (orderedSampleList == null || orderedSampleList.size() ==0) {
             throw new IllegalArgumentException ("Could not find any samples for genetic" +
                     " profile ID:  " + geneticProfileId);
         }
         try {
             con = JdbcUtil.getDbConnection(DaoGeneticAlteration.class);
-            pstmt = con.prepareStatement
-                    ("SELECT * FROM genetic_alteration WHERE" +
-                            " ENTREZ_GENE_ID = ? AND GENETIC_PROFILE_ID = ?");
-            pstmt.setLong(1, entrezGeneId);
-            pstmt.setInt(2, geneticProfileId);
-
-
+            if (entrezGeneIds == null) {
+                pstmt = con.prepareStatement("SELECT * FROM genetic_alteration WHERE"
+                        + " GENETIC_PROFILE_ID = " + geneticProfileId);
+            } else {
+                pstmt = con.prepareStatement("SELECT * FROM genetic_alteration WHERE"
+                        + " GENETIC_PROFILE_ID = " + geneticProfileId
+                        + " AND ENTREZ_GENE_ID IN ("+StringUtils.join(entrezGeneIds, ",")+")");
+            }
             rs = pstmt.executeQuery();
-            if  (rs.next()) {
+            while (rs.next()) {
+                HashMap<Integer, String> mapSampleValue = new HashMap<Integer, String>();
+                long entrez = rs.getLong("ENTREZ_GENE_ID");
                 String values = rs.getString("VALUES");
                 String valueParts[] = values.split(DELIM);
                 for (int i=0; i<valueParts.length; i++) {
                     String value = valueParts[i];
                     Integer sampleId = orderedSampleList.get(i);
-                    map.put(sampleId, value);
+                    mapSampleValue.put(sampleId, value);
                 }
+                map.put(entrez, mapSampleValue);
             }
             return map;
         } catch (SQLException e) {

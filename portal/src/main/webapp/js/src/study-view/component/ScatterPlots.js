@@ -217,7 +217,7 @@ var ScatterPlots = function() {
         elem.axisTitleGroup.append("svg:image")
             .attr("xlink:href", "images/help.png")
             .attr("class", "plots-title-x-help")
-            .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2 + _xTitle.length / 2 * 8)
+            .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2 - _xTitle.length / 2 * 8.5)
             .attr("y", canvas.yBottom + 48)
             .attr("width", "16")
             .attr("height", "16");

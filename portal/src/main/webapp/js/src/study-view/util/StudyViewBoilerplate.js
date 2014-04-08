@@ -55,6 +55,15 @@ var StudyViewBoilerplate ={
 
     scatterPlotOptions: {
         canvas: {  //position of components
+            /* //For Scatter Plot with 
+            width: 430,
+            height: 350,
+            xLeft: 100,     //The left/starting point for x axis
+            xRight: 415,   //The right/ending point for x axis
+            yTop: 10,      //The top/ending point for y axis
+            yBottom: 280   //The bottom/starting point for y axis
+            */
+           
             width: 560,
             height: 440,
             xLeft: 100,     //The left/starting point for x axis
@@ -73,7 +82,7 @@ var StudyViewBoilerplate ={
         names: { 
             div: "study-view-scatter-plot",
             header: "study-view-scatter-plot-header",
-            body: "study-view-scatter-plot-body",
+            body: "study-view-scatter-plot-body-svg",
             loading_img: "study-view-scatter-plot-loading-img",
             control_panel: "study-view-scatter-plot-control-panel",
             log_scale_x: "study-view-scatter-plot-log-scale-x",
@@ -255,7 +264,10 @@ var StudyViewBoilerplate ={
             "<input type='checkbox' id='study-view-scatter-plot-log-scale-x'></input><span class='study-view-scatter-plot-checkbox'>Log Scale X</span>"+
             "<input type='checkbox' id='study-view-scatter-plot-log-scale-y'></input><span class='study-view-scatter-plot-checkbox'>Log Scale y</span>"+
             "</div><span class='study-view-scatter-plot-delete'>x</span></div>"+
-            "<div id='study-view-scatter-plot-body'></div>"+
+            "<div id='study-view-scatter-plot-body'>"+
+            "<div id='study-view-scatter-plot-body-top-chart'></div>"+
+            "<div id='study-view-scatter-plot-body-svg'></div>"+
+            "<div id='study-view-scatter-plot-body-right-chart'></div></div>"+
             "<div id='study-view-scatter-plot-loading-img'></div>"+
             "<div id='study-view-scatter-plot-control-panel'></div>"+
             "</div>",

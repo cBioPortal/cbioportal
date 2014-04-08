@@ -59,7 +59,9 @@ var BarChart = function(){
         emptyValueMapping,
         xDomain = [],
         numOfGroups = 10,
-        divider = 1;
+        divider = 1,
+        chartWidth = 370,
+        chartHeight = 180;
             
     var postFilterCallback,
         scatterPlotCallback;
@@ -481,8 +483,8 @@ var BarChart = function(){
         }
         
         barChart
-            .width(370)
-            .height(180)
+            .width(chartWidth)
+            .height(chartHeight)
             .margins({top: 10, right: 20, bottom: 30, left: 40})
             .dimension(cluster)
             .group(cluster.group())
@@ -571,8 +573,8 @@ var BarChart = function(){
         }); 
         
         barChart
-            .width(370)
-            .height(180)
+            .width(chartWidth)
+            .height(chartHeight)
             .margins({top: 10, right: 20, bottom: 30, left: 40})
             .dimension(cluster)
             .group(cluster.group())
@@ -626,6 +628,14 @@ var BarChart = function(){
         param.ndx = _param.ndx;
         param.needLogScale = _param.needLogScale;
         param.distanceArray = _param.distanceArray;
+        
+        if(typeof _param.chartWidth !== 'undefined'){
+            chartWidth = _param.chartWidth;
+        }
+        
+        if(typeof _param.chartHeight !== 'undefined'){
+            chartHeight = _param.chartHeight;
+        }
         
         distanceMinMax = param.distanceArray.diff;
     

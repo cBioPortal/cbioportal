@@ -162,8 +162,9 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		var helpContent = self.$el.find(".mutation-3d-vis-help-content");
 		var helpInit = self.$el.find(".mutation-3d-vis-help-init");
-		var helpInitLink = self.$el.find(".mutation-3d-vis-help-init a");
+		var helpInitLink = self.$el.find(".mutation-3d-vis-help-open");
 		var helpClose = self.$el.find(".mutation-3d-vis-help-close");
+		var pymolDownload = self.$el.find(".mutation-3d-pymol-dload");
 
 		// add listener to help link
 		helpInitLink.click(function(event) {
@@ -177,6 +178,14 @@ var Mutation3dVisView = Backbone.View.extend({
 			event.preventDefault();
 			helpContent.slideToggle();
 			helpInit.slideToggle();
+		});
+
+		// add listener to download link
+		pymolDownload.click(function(event) {
+			event.preventDefault();
+			// TODO create a download form...
+			var script = mut3dVis.generatePymolScript();
+			alert(script);
 		});
 	},
 	/**

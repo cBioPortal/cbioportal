@@ -14,6 +14,10 @@ function MolScriptGenerator()
 		return "";
 	};
 
+	this.selectNone = function() {
+		return "";
+	};
+
 	this.setScheme = function(schemeName) {
 		return "";
 	};
@@ -62,7 +66,7 @@ function MolScriptGenerator()
 		return "";
 	};
 
-	this.selectSideChains = function(scriptPositions, chain) {
+	this.selectSideChains = function(scriptPositions, chainId) {
 		return "";
 	};
 
@@ -74,7 +78,7 @@ function MolScriptGenerator()
 		return "";
 	};
 
-	this.center = function(position, chain) {
+	this.center = function(position, chainId) {
 		return "";
 	};
 
@@ -227,7 +231,7 @@ function MolScriptGenerator()
 		if (!(options.proteinScheme == "spaceFilling"))
 		{
 			// select the corresponding side chain and also the CA atom on the backbone
-			script.push(self.selectSideChains(scriptPositions, chain));
+			script.push(self.selectSideChains(scriptPositions, chain.chainId));
 
 			if (displaySideChain)
 			{

@@ -26,6 +26,11 @@ function JmolScriptGenerator()
 		return "select all;";
 	}
 
+	function selectNone()
+	{
+		return "select none;";
+	}
+
 	function setScheme(schemeName)
 	{
 		return _styleScripts[schemeName];
@@ -82,7 +87,9 @@ function JmolScriptGenerator()
 		return "restrict protein;";
 	}
 
-	function setTransparency(transparency){
+	function setTransparency(transparency)
+	{
+		// TODO we should use the given transparency value...
 		return "color translucent;";
 	}
 
@@ -128,10 +135,10 @@ function JmolScriptGenerator()
 		return "select (" + scriptPositions.join(", ") + ") and :" + chainId + ";";
 	}
 
-	function selectSideChains(scriptPositions, chain)
+	function selectSideChains(scriptPositions, chainId)
 	{
-		return "select ((" + scriptPositions.join(", ") + ") and :" + chain.chainId + " and sidechain) or " +
-		"((" + scriptPositions.join(", ") + ") and :" + chain.chainId + " and *.CA);"
+		return "select ((" + scriptPositions.join(", ") + ") and :" + chainId + " and sidechain) or " +
+		"((" + scriptPositions.join(", ") + ") and :" + chainId + " and *.CA);"
 	}
 
 	function enableBallAndStick()
@@ -144,11 +151,11 @@ function JmolScriptGenerator()
 		return "wireframe OFF; spacefill OFF;";
 	}
 
-	function center(position, chain)
+	function center(position, chainId)
 	{
 		var self = this;
 		var scriptPos = self.scriptPosition(position);
-		return "center " + scriptPos + ":" + chain.chainId + ";"
+		return "center " + scriptPos + ":" + chainId + ";"
 	}
 
 	function defaultCenter()
@@ -192,7 +199,8 @@ function JmolScriptGenerator()
 		var script = [];
 
 		// add highlight color
-		script.push("select (" + scriptPositions.join(", ") + ") and :" + chain.chainId + ";");
+		// "select (" + scriptPositions.join(", ") + ") and :" + chain.chainId + ";"
+		script.push(self.selectPositions(scriptPositions, chain.chainId));
 		script.push(self.setColor(color));
 
 		var displaySideChain = options.displaySideChain != "none";
@@ -204,8 +212,10 @@ function JmolScriptGenerator()
 		return script;
 	}
 
+	// override required functions
 	this.loadPdb = loadPdb;
 	this.selectAll = selectAll;
+	this.selectNone = selectNone;
 	this.setScheme = setScheme;
 	this.setColor = setColor;
 	this.selectChain = selectChain;
@@ -229,6 +239,6 @@ function JmolScriptGenerator()
 	this.spin = spin;
 }
 
-// MutationDetailsTable extends AdvancedDataTable...
+// JmolScriptGenerator extends MolScriptGenerator...
 JmolScriptGenerator.prototype = new MolScriptGenerator();
 JmolScriptGenerator.prototype.constructor = JmolScriptGenerator;

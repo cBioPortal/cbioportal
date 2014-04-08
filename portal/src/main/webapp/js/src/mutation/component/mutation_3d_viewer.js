@@ -656,7 +656,7 @@ var Mutation3dVis = function(name, options)
 		var script = [];
 
 		// center to the selection
-		script.push(_scriptGen.center(position, _chain));
+		script.push(_scriptGen.center(position, _chain.chainId));
 
 		return script;
 	}
@@ -677,7 +677,7 @@ var Mutation3dVis = function(name, options)
 		{
 			// center and zoom to the selection
 			script.push(_scriptGen.zoom(_options.focusZoom));
-			script.push(_scriptGen.center(position, _chain));
+			script.push(_scriptGen.center(position, _chain.chainId));
 		}
 
 		return script;
@@ -783,8 +783,41 @@ var Mutation3dVis = function(name, options)
 		}, 50);
 	}
 
+	/**
+	 * Generates a PymolScript from the current state of the 3D visualizer.
+	 */
+	function generatePymolScript()
+	{
+		var scriptGen = new PymolScriptGenerator();
+		var script = [];
+
+		// reinitialize
+		script.push(scriptGen.reinitialize());
+
+		// load current pdb
+		script.push(scriptGen.loadPdb(_pdbId));
+
+		// generate visual style from current options
+		script = script.concat(
+			scriptGen.generateVisualStyleScript(
+				_selection, _chain, _options));
+
+		// generate highlight script from current highlights
+		script = script.concat(
+			scriptGen.generateHighlightScript(
+				_highlighted, _options.highlightColor, _options, _chain));
+
+		script.push(scriptGen.selectNone());
+
+		// convert array to line of scripts
+		script = script.join("\n");
+
+		return script;
+	}
+
 	// return public functions
-	return {init: init,
+	return {
+		init: init,
 		show: show,
 		hide: hide,
 		minimize: minimize,
@@ -807,5 +840,7 @@ var Mutation3dVis = function(name, options)
 		updateContainer: updateContainer,
 		toggleSpin: toggleSpin,
 		reapplyStyle : reapplyStyle,
-		updateOptions: updateOptions};
+		updateOptions: updateOptions,
+		generatePymolScript: generatePymolScript
+	};
 };

@@ -75,6 +75,7 @@
 <script type="text/javascript" src="js/src/mutation/util/JSmolWrapper.js"></script>
 <script type="text/javascript" src="js/src/mutation/util/MolScriptGenerator.js"></script>
 <script type="text/javascript" src="js/src/mutation/util/JmolScriptGenerator.js"></script>
+<script type="text/javascript" src="js/src/mutation/util/PymolScriptGenerator.js"></script>
 <script type="text/javascript" src="js/src/mutation/data/PdbDataProxy.js"></script>
 <script type="text/javascript" src="js/src/mutation/data/MutationDataProxy.js"></script>
 <script type="text/javascript" src="js/src/mutation/controller/MutationDetailsEvents.js"></script>

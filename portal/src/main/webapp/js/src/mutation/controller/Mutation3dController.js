@@ -485,16 +485,7 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 		// TODO this is not an ideal solution, but...
 		// ...while we have multiple diagrams, the 3d visualizer is a singleton
 		var colorMapper = function(mutationId, pdbId, chain) {
-			var color = mutationDiagram.mutationColorMap[mutationId];
-
-			if (color)
-			{
-				// this is for Jmol compatibility
-				// (colors should start with an "x" instead of "#")
-				color = color.replace("#", "x");
-			}
-
-			return color;
+			return mutationDiagram.mutationColorMap[mutationId];
 		};
 
 		mut3dVis.updateOptions({mutationColorMapper: colorMapper});

@@ -33,7 +33,9 @@ function JmolScriptGenerator()
 
 	function setColor (color)
 	{
-		color.replace("#", "x");
+		// this is for Jmol compatibility
+		// (colors should start with an "x" instead of "#")
+		color = color.replace("#", "x");
 
 		return "color [" + color + "];"
 	}
@@ -142,6 +144,39 @@ function JmolScriptGenerator()
 		return "wireframe OFF; spacefill OFF;";
 	}
 
+	function center(position, chain)
+	{
+		var self = this;
+		var scriptPos = self.scriptPosition(position);
+		return "center " + scriptPos + ":" + chain.chainId + ";"
+	}
+
+	function defaultCenter()
+	{
+		return "center;";
+	}
+
+	function zoom(zoomValue)
+	{
+		// center and zoom to the selection
+		return "zoom " + zoomValue + ";";
+	}
+
+	function defaultZoomIn()
+	{
+		return "zoom in;"
+	}
+
+	function defaultZoomOut()
+	{
+		return "zoom out;"
+	}
+
+	function spin(value)
+	{
+		return "spin " + value + ";";
+	}
+
 	/**
 	 * Generates highlight script by using the converted highlight positions.
 	 *
@@ -158,7 +193,7 @@ function JmolScriptGenerator()
 
 		// add highlight color
 		script.push("select (" + scriptPositions.join(", ") + ") and :" + chain.chainId + ";");
-		script.push("color [" + color + "];");
+		script.push(self.setColor(color));
 
 		var displaySideChain = options.displaySideChain != "none";
 
@@ -187,6 +222,11 @@ function JmolScriptGenerator()
 	this.enableBallAndStick = enableBallAndStick;
 	this.disableBallAndStick = disableBallAndStick;
 	this.highlightScript = highlightScript;
+	this.center = center;
+	this.defaultZoomIn = defaultZoomIn;
+	this.defaultZoomOut = defaultZoomOut;
+	this.defaultCenter = defaultCenter;
+	this.spin = spin;
 }
 
 // MutationDetailsTable extends AdvancedDataTable...

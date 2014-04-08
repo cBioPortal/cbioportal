@@ -74,6 +74,30 @@ function MolScriptGenerator()
 		return "";
 	};
 
+	this.center = function(position, chain) {
+		return "";
+	};
+
+	this.zoom = function(zoomValue) {
+		return "";
+	};
+
+	this.defaultZoomIn = function() {
+		return "";
+	};
+
+	this.defaultZoomOut = function() {
+		return "";
+	};
+
+	this.defaultCenter = function() {
+		return "";
+	};
+
+	this.spin = function(value) {
+		return "";
+	};
+
 	/**
 	 * Generates highlight script by using the converted highlight positions.
 	 *

@@ -14,11 +14,10 @@ var AddCharts = (function(){
     
     function addEvents() {
         $('#study-view-add-chart ul').hide();
-        $('#study-view-add-chart').mouseenter(function(){
-           $('#study-view-add-chart ul').show(300);
-        });
-        $('#study-view-add-chart').mouseleave(function(){
-           $('#study-view-add-chart ul').hide(300);
+        $('#study-view-add-chart').hover(function(){
+           $('#study-view-add-chart ul').stop().show(300);
+        }, function(){
+           $('#study-view-add-chart ul').stop().hide(300);
         });
     }
     

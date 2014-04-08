@@ -40,6 +40,7 @@ var StudyViewInitCharts = (function(){
         ndx, //Crossfilter dimension
         msnry,
         totalCharts,
+        mutatedGenes = [],
         clickedCaseId = '',
         dataArr = {},
         pie = [], //Displayed attributes info, dataType: STRING, NUMBER, OR BOOLEAN
@@ -48,7 +49,7 @@ var StudyViewInitCharts = (function(){
         //Each attribute will have one unique ID. If the chart of one attribute
         //has been deleted, this ID will push into removedChart array. This
         //array will be used when the chart deleted and redraw charts.
-        removedChart = [], 
+        removedChart = [],
         
         //The relationshio between "The unique attribute name" and 
         //"The unique ID number in whole page"
@@ -73,6 +74,8 @@ var StudyViewInitCharts = (function(){
         varDisplay = [], //Displayed Charts Name -- the display_name in each attribute       
         shiftClickedCaseIds = [],
         
+        WORDCLOUDTEXTSIZECONSTANT = 200;
+        
         // Color scale from GOOGLE charts
         chartColors = jQuery.extend(true, [], StudyViewBoilerplate.chartColors), 
         parObject = {
@@ -80,6 +83,7 @@ var StudyViewInitCharts = (function(){
             caseIds: "",
             cnaProfileId: "",
             mutationProfileId: "",
+            caseSetId: ""
         };
     
     function initParameters(o) {
@@ -87,6 +91,7 @@ var StudyViewInitCharts = (function(){
         parObject.caseIds = o.caseIds;
         parObject.cnaProfileId = o.cnaProfileId;
         parObject.mutationProfileId = o.mutationProfileId;
+        parObject.caseSetId = o.caseSetId;
     }
     
     function initData(dataObtained) {
@@ -95,7 +100,8 @@ var StudyViewInitCharts = (function(){
             _arr = dataObtained.arr,
             _attrLength = _attr.length,
             _arrLength = _arr.length;
-            
+        
+        mutatedGenes = dataObtained.mutatedGenes;   
         numOfCases = _arr.length;        
         ndx = crossfilter(_arr);
         
@@ -172,16 +178,191 @@ var StudyViewInitCharts = (function(){
         
         totalCharts = pie.length + bar.length;
         initScatterPlot(_arr);
+        var _trimedData = wordCloudDataProcess(mutatedGenes);
+        initWordCloud(_trimedData);
+    }
+    
+    function redrawWordCloud(){
+        var _selectedCases = varChart[attrNameMapUID["CASE_ID"]]
+                    .getChart()
+                    .dimension()
+                    .top(Infinity),
+        _selectedCasesLength = _selectedCases.length,
+        _selectedGeneMutatedInfo = [],
+        _filteredMutatedGenes = {},
+        _selectedCasesIds = [];
+        
+        if(_selectedCasesLength !== 0){
+            for( var i = 0; i < _selectedCasesLength; i++){
+                _selectedCasesIds.push(_selectedCases[i].CASE_ID);
+            }
+
+            var mutatedGenesObject = {
+                cmd: 'get_smg',
+                case_list: _selectedCasesIds.join(' '),
+                mutation_profile: parObject.mutationProfileId
+            };
+
+            $.when($.ajax({type: "POST", url: "mutations.json", data: mutatedGenesObject}))
+            .done(function(a1){
+                var i, dataLength = a1.length;
+
+                for( i = 0; i < dataLength; i++){
+                    _selectedGeneMutatedInfo.push(a1[i]);
+                }
+                _filteredMutatedGenes = wordCloudDataProcess(_selectedGeneMutatedInfo);
+                StudyViewInitWordCloud.redraw(_filteredMutatedGenes);
+            });
+        }else{
+            _filteredMutatedGenes = wordCloudDataProcess([]);
+            StudyViewInitWordCloud.redraw(_filteredMutatedGenes);
+        }     
+    }
+    //Only return top 10 of maximum number of mutations gene
+    function wordCloudDataProcess(_data) {
+        /*This data format is:
+        * cytoband: _value(string)
+        * gene_symbol: _value(string)
+        * length: _value(number)
+        * num_muts: _value(number)
+        */
+        var i,
+            //Use array instead of object, array has sorting function
+            _mutatedGenes = [],
+            _mutatedGenesLength,
+            _topGenes = {},
+            _dataLength = _data.length;
+        for( i = 0; i < _dataLength; i++){
+            if( _data[i].length > 0 ){
+                var _numOfMutationsPerNucletide = 
+                        Number(_data[i].num_muts) / Number(_data[i].length);
+                
+                _mutatedGenes.push([_data[i].gene_symbol, 
+                                    _numOfMutationsPerNucletide]);
+            }
+        }
+        if(_mutatedGenes.length !== 0){
+            _mutatedGenes.sort(sortNumMuts);
+        }
+        
+        if(_dataLength < 10){
+            _mutatedGenesLength = _dataLength;
+        }else{
+            _mutatedGenesLength = 10;
+        }
+        
+        if(_mutatedGenesLength === 0){
+            _topGenes.names = ['No Mutated Gene'];
+            _topGenes.size = [15];
+        }else{
+            _topGenes.names = [];
+            _topGenes.size = [];
+
+            for( i = 0; i< _mutatedGenesLength; i++){
+                _topGenes.names.push(_mutatedGenes[i][0]);
+                _topGenes.size.push(_mutatedGenes[i][1]);
+            }
+            _topGenes.size = calculateWordSize(_topGenes.size);
+        }
+        
+        return _topGenes;
+    }
+    
+    function calculateWordSize(_genes) {
+        var i,
+            _geneLength = _genes.length,
+            _percental = [],
+            _totalMuts = 0;
+        
+        for( i = 0; i < _geneLength; i++){
+            _totalMuts += _genes[i];
+        }
+        
+        for( i = 0; i < _geneLength; i++){
+            var _size = (_genes[i] / _totalMuts) * WORDCLOUDTEXTSIZECONSTANT;
+            if(_size > 40){
+                _size = 40;
+            }
+            _percental.push(_size);
+        }
+        
+        return _percental;
+    }
+    
+    function sortNumMuts(a, b) {
+        a = a[1];
+        b = b[1];
+        
+        if (a < b)
+            return 1;
+        if (a > b)
+            return -1;
+        return 0;
     }
     
     function createLayout() {
         var container = document.querySelector('#study-view-charts');
-        msnry = new Masonry( container, {
+        msnry = new Packery( container, {
             columnWidth: 190,
+            rowHeight: 230,
             itemSelector: '.study-view-dc-chart',
-            gutter:1
+            gutter:5
         });
+        bondDragForLayout();
+    }
+    
+    function bondDragForLayout(){
+        var itemElems = msnry.getItemElements(),
+            itemElemsLength = itemElems.length;
+        // for each item...
+        for ( var i=0, len = itemElemsLength; i < len; i++ ) {
+            var elem = itemElems[i];
+            // make element draggable with Draggabilly
+            var draggie = new Draggabilly( elem );
+            
+            //Set selected chart z-index bigger than others
+            draggie.on( 'dragStart', function(instance, event, pointer){
+                var _itemElems = msnry.getItemElements(),
+                    _itemElemsLength = _itemElems.length;
+                    
+                for(var j=0; j< _itemElemsLength; j++){
+                    if( instance.element.id === _itemElems[j].id){
+                        $("#" + _itemElems[j].id).css('z-index','20');
+                    }else{
+                        $("#" + _itemElems[j].id).css('z-index','1');
+                    }
+                }
+            });
+            
+            //Remove z-index of all charts
+            draggie.on( 'dragEnd', function(instance, event, pointer){
+                var _itemElems = msnry.getItemElements(),
+                    _itemElemsLength = _itemElems.length;
+                
+                for(var j=0; j< _itemElemsLength; j++){
+                    $("#" + _itemElems[j].id).css('z-index','');
+                }
+            });
+            
+            // bind Draggabilly events to Packery
+            msnry.bindDraggabillyEvents( draggie );
+        }
         msnry.layout();
+    }
+    function initWordCloud(_data) {
+        StudyViewInitWordCloud.init(parObject, _data);
+        $(".study-view-word-cloud-delete").unbind('click');
+        $(".study-view-word-cloud-delete").click(function (){
+            $("#study-view-word-cloud").css('display','none');
+            $('#study-view-add-chart').css('display','block');
+            $('#study-view-add-chart ul')
+                    .append($('<li></li>')
+                        .attr('id','wordCloud')
+                        .text('Word Cloud'));
+            
+            bondDragForLayout();
+            AddCharts.bindliClickFunc();
+        });
     }
     
     function initScatterPlot(_arr) {
@@ -195,7 +376,8 @@ var StudyViewInitCharts = (function(){
                     .append($('<li></li>')
                         .attr('id','mutationCNA')
                         .text('Number of Mutation vs Fraction of copy number altered genome'));
-            msnry.layout();
+            
+            bondDragForLayout();
             clickedCaseId = '',
             brushedCaseIds = [];
             shiftClickedCaseIds = [];
@@ -239,7 +421,7 @@ var StudyViewInitCharts = (function(){
                 var _valueA = $(this).parent().parent().attr('value').split(',');
                 
                 deleteChart(_id[_id.length-1],_valueA);
-                msnry.layout();
+                bondDragForLayout();
                 AddCharts.bindliClickFunc();
         });
     }
@@ -278,7 +460,12 @@ var StudyViewInitCharts = (function(){
         varChart[_chartID] = new PieChart();
         varChart[_chartID].init(_param);
         varChart[_chartID].scatterPlotCallbackFunction(_piechartCallbackFunction);
-        varChart[_chartID].postFilterCallbackFunc(changeHeader);
+        varChart[_chartID].postFilterCallbackFunc(postFilterCallbackFunc);
+    }
+    
+    function postFilterCallbackFunc(){
+        changeHeader();
+        redrawWordCloud();
     }
     
     function makeNewBarChartInstance(_chartID, _barInfo, _distanceArray) {
@@ -305,7 +492,7 @@ var StudyViewInitCharts = (function(){
         varChart[_chartID] = new BarChart();
         varChart[_chartID].init(param);
         varChart[_chartID].scatterPlotCallbackFunction(_barchartCallbackFunction);
-        varChart[_chartID].postFilterCallbackFunc(changeHeader);
+        varChart[_chartID].postFilterCallbackFunc(postFilterCallbackFunc);
 
         if(_distanceArray.diff > 1000){
             $("#scale-input-"+_chartID).change(function(e) {
@@ -444,6 +631,8 @@ var StudyViewInitCharts = (function(){
     }
     
     function scatterPlotBrushCallBack(_brushedCaseIds) {
+        var _numOfCharts = varChart.length;
+        
         brushedCaseIds = _brushedCaseIds;
         if(_brushedCaseIds.length === 0 || (shiftClickedCaseIds.length === 1 && _brushedCaseIds.indexOf(shiftClickedCaseIds[0]) === -1)){
             shiftClickedCaseIds = [];
@@ -462,6 +651,17 @@ var StudyViewInitCharts = (function(){
                 }
             });
         }
+        
+        
+        if(_brushedCaseIds.length > 0){
+            for(var i=0; i< _numOfCharts ; i++){
+                if(varChart[i] !== ''){
+                    if(varChart[i].getChart().filters().length > 0)
+                        varChart[i].getChart().filter(null);
+                }
+            }
+        }
+        
         scatterPlotCallBack(_brushedCaseIds);
         removeMarker();
     }
@@ -483,6 +683,7 @@ var StudyViewInitCharts = (function(){
             dc.redrawAll();
         }
         changeHeader();
+        redrawWordCloud();
     }
     
     function scatterPlotClickCallBack(_clickedCaseIds) {
@@ -593,6 +794,7 @@ var StudyViewInitCharts = (function(){
         dc.redrawAll();
         setScatterPlotStyle(_ids,_caseIDChart.filters());
         changeHeader();
+        redrawWordCloud();
     }
     
     function createNewChartFromOutside(_id, _text) {
@@ -603,15 +805,20 @@ var StudyViewInitCharts = (function(){
             _selectedAttrDisplay = _text,
             _chartID = -1;
 
-        if(_id === 'mutationCNA')
+        if(_id === 'mutationCNA'){
             _chartType = ['scatter'];
-        else
+        }else if(_id === 'wordCloud'){
+            _chartType = ['wordCloud'];
+        }else{
             _chartType = varType[_id].split(',');
+        }
 
         _selectedChartType = _chartType[0];
 
-        if(_selectedAttr==='mutationCNA' && _selectedChartType === 'scatter'){
+        if(_selectedAttr==='mutationCNA'){
             $("#study-view-scatter-plot").css('display','block');
+        }else if(_selectedAttr==='wordCloud'){
+            $("#study-view-word-cloud").css('display','block');
         }else{
             if(Object.keys(attrNameMapUID).indexOf(_selectedAttr) !== -1){
                 _chartID = attrNameMapUID[_selectedAttr];
@@ -635,10 +842,11 @@ var StudyViewInitCharts = (function(){
 
 
             msnry.destroy();
-            msnry = new Masonry( document.querySelector('#study-view-charts'), {
-              columnWidth: 190,
-              itemSelector: '.study-view-dc-chart',
-              gutter:1
+            msnry = new Packery( document.querySelector('#study-view-charts'), {
+                columnWidth: 190,
+                rowHeight: 230,
+                itemSelector: '.study-view-dc-chart',
+                gutter:5
             });
 
             varChart[_chartID].getChart().render();
@@ -648,7 +856,7 @@ var StudyViewInitCharts = (function(){
                 var valueA = $(this).parent().parent().attr("value").split(',');
                 deleteChart(_chartID,valueA);
                 AddCharts.bindliClickFunc();
-                msnry.layout();
+                bondDragForLayout();
             });
         }
 
@@ -656,7 +864,8 @@ var StudyViewInitCharts = (function(){
         if (_index > -1) {
             removedChart.splice(_index, 1);
         }
-        msnry.layout();
+        
+        bondDragForLayout();
 
         $('#study-view-add-chart ul').find('li[id="' + _selectedAttr + '"]').remove();
 

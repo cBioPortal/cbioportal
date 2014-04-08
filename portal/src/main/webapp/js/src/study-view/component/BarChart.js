@@ -59,7 +59,9 @@ var BarChart = function(){
         emptyValueMapping,
         xDomain = [],
         numOfGroups = 10,
-        divider = 1;
+        divider = 1,
+        chartWidth = 370,
+        chartHeight = 180;
             
     var postFilterCallback,
         scatterPlotCallback;
@@ -68,31 +70,174 @@ var BarChart = function(){
     //other functions added after initializing this Bar Chart.
     function addFunctions() {
         barChart.on("filtered", function(chart,filter){
-            var _currentFilters = barChart.filters(),
-                _scatterPlot = StudyViewInitScatterPlot.getScatterPlot();
-            
-            if(_currentFilters.length === 0){
-                $("#" + DIV.mainDiv + " .study-view-dc-chart-change")
-                            .css('display','none');
-                $("#" + DIV.mainDiv)
-                        .css({'border-width':'1px', 'border-style':'solid'});
-            }else{
-                $("#" + DIV.mainDiv + " .study-view-dc-chart-change")
-                            .css('display','block');
-                $("#" + DIV.mainDiv)
-                        .css({'border-width':'2px', 'border-style':'inset'});
-            }
-            
-            if(_scatterPlot){
-                if(_scatterPlot.getBrushedCases().length > 0 ||
-                    filter !== null){
+            dc.events.trigger(function() {
+                var _currentFilters = barChart.filters(),
+                    _scatterPlot = StudyViewInitScatterPlot.getScatterPlot();
 
-                    updateScatterPlot(_currentFilters);
+                if(_currentFilters.length === 0){
+                    $("#" + DIV.mainDiv + " .study-view-dc-chart-change")
+                                .css('display','none');
+                    $("#" + DIV.mainDiv)
+                            .css({'border-width':'1px', 'border-style':'solid'});
+                }else{
+                    $("#" + DIV.mainDiv + " .study-view-dc-chart-change")
+                                .css('display','block');
+                    $("#" + DIV.mainDiv)
+                            .css({'border-width':'2px', 'border-style':'inset'});
                 }
-            }
-            removeMarker();
-            postFilterCallback();
+
+                if(_scatterPlot){
+                    if(_scatterPlot.getBrushedCases().length > 0 ||
+                        filter !== null){
+
+                        updateScatterPlot(_currentFilters);
+                    }
+                }
+                removeMarker();
+                postFilterCallback();
+            }, 400);
         });
+    }
+    
+    //Add all listener events
+    function addEvents() {
+        $("#"+DIV.chartDiv+"-pdf").submit(function(){
+            setSVGElementValue(DIV.chartDiv,
+                DIV.chartDiv+"-pdf-value");
+        });
+        $("#"+DIV.chartDiv+"-svg").submit(function(){
+            setSVGElementValue(DIV.chartDiv,
+                DIV.chartDiv+"-svg-value");
+        });
+        
+        StudyViewOverallFunctions
+                    .showHideDivision(DIV.mainDiv, 
+                                    DIV.chartDiv+"-side");
+    }
+    
+    //Bar chart SVG style is controled by CSS file. In order to change 
+    //brush and deselected bar, this function is designed to change the svg
+    //style, save svg and delete added style.
+    function setSVGElementValue(_svgParentDivId,_idNeedToSetValue){
+        var _svgElement;
+        
+        var _svg = $("#" + _svgParentDivId + " svg");
+        //Change brush style
+        var _brush = _svg.find("g.brush"),
+            _brushWidth = Number(_brush.find('rect.extent').attr('width'));
+        
+        _brush.find('rect.extent')
+                .css({
+                    'fill-opacity': '0.2',
+                    'fill': '#2986e2'
+                });
+                
+        _brush.find('.resize path')
+                .css({
+                    'fill': '#eee',
+                    'stroke': '#666'
+                });
+                                    
+        //Change deselected bar chart
+        var _chartBody = _svg.find('.chart-body'),
+            _deselectedCharts = _chartBody.find('.bar.deselected');
+    
+        $.each(_deselectedCharts,function(index, value){
+            $(value).css({
+                        'stroke': '',
+                        'fill': '#ccc'
+                    });
+        });
+         
+        //Change axis style
+        var _axis = _svg.find('.axis'),
+            _axisDomain = _axis.find('.domain'),
+            _axisTick = _axis.find('.tick.major line');
+        
+        $.each(_axisDomain,function(index, value){
+            $(value).css({
+                        'fill': 'white',
+                        'fill-opacity': '0',
+                        'stroke': 'black'
+                    });
+        });
+        
+        $.each(_axisTick,function(index, value){
+            $(value).css({
+                        'stroke': 'black'
+                    });
+        });
+        
+        _svgElement = _svg.html();
+        
+        //Remove brush if brush width is 0, svg file will remove brush
+        //automatically, but the pdf file will not
+        if(_brushWidth === 0){
+            _svgElement = parseSVG(_svg.html());
+        }
+        
+        $("#" + _idNeedToSetValue)
+                .val("<svg width='370' height='200'>"+
+                    "<g><text x='180' y='20' style='font-weight: bold; "+
+                    "text-anchor: middle'>"+
+                    param.selectedAttrDisplay+"</text></g>"+
+                    "<g transform='translate(0, 20)'>"+_svgElement + "</g></svg>");
+       
+        
+        //Remove added styles
+        _brush.find('rect.extent')
+                .css({
+                    'fill-opacity': '',
+                    'fill': ''
+                });
+                
+        _brush.find('.resize path')
+                .css({
+                    'fill': '',
+                    'stroke': ''
+                });
+                
+        $.each(_deselectedCharts,function(index, value){
+            $(value).css({
+                        'stroke': '',
+                        'fill': ''
+                    });
+        });
+    
+        $.each(_axisDomain,function(index, value){
+            $(value).css({
+                        'fill': '',
+                        'fill-opacity': '',
+                        'stroke': ''
+                    });
+        });
+        
+        $.each(_axisTick,function(index, value){
+            $(value).css({
+                        'stroke': ''
+                    });
+        });
+    }
+    
+    //Parse string to document recognisable SVG elements
+    function parseSVG(s) {
+        var _string = '';
+        var _div= document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+        var _frag= document.createDocumentFragment();
+        
+        _div.innerHTML= '<svg xmlns="http://www.w3.org/2000/svg">'+s+'</svg>';
+        while (_div.firstChild.firstChild){
+            var _tmpElem = _div.firstChild
+                                .firstChild
+                                .getElementsByClassName('brush')[0];
+            
+            if(typeof _tmpElem !== 'undefined'){
+                _tmpElem.parentNode.removeChild(_tmpElem);
+            }
+            _string += _div.firstChild.firstChild.innerHTML;
+            _frag.appendChild(_div.firstChild.firstChild);
+        }
+        return _string;
     }
     
     //Initialize HTML tags which will be used for current Bar Chart.
@@ -101,19 +246,34 @@ var BarChart = function(){
         
         
         if(param.needLogScale){
-            _logCheckBox = "<span id='scale-span-"+param.chartID+
+            _logCheckBox = "<div id='StudyViewLogBarChartCheckboxWrapper'>"+
+                "<span id='scale-span-"+param.chartID+
                 "' style='float:right; font-size:10px; margin-right: 15px;"+
                 "margin-top:3px;color: grey'>Log Scale X</span>"+
                 "<input type='checkbox' value='"+ param.chartID +","+ 
                 param.distanceArray.max +","+ 
                 param.distanceArray.min + "," + param.selectedAttr+
                 "' id='scale-input-"+param.chartID+
-                "' class='study-view-bar-x-log' checked='checked'></input>";
-        }
+                "' class='study-view-bar-x-log' checked='checked'></input></div>";
+       }
         
         var contentHTML = "<div id=\"" + DIV.chartDiv + 
                 "\" class='"+ param.className +"'  value='" + param.selectedAttr + "," + 
-                param.selectedAttrDisplay + ",bar'><div style='width:100%; float:right'>"+
+                param.selectedAttrDisplay + ",bar'>"+
+                "<div id='"+DIV.chartDiv+"-side' class='study-view-pdf-svg-side bar'>"+
+                "<form style='display:inline-block;' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-pdf'>"+
+                "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-pdf-value'>"+
+                "<input type='hidden' name='filetype' value='pdf'>"+
+                "<input type='hidden' id='"+DIV.chartDiv+"-pdf-name' name='filename' value='"+param.selectedAttrDisplay+".pdf'>"+
+                "<input type='submit' style='font-size:10px' value='PDF'>"+          
+                "</form>"+
+                "<form style='display:inline-block' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-svg'>"+
+                "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-svg-value'>"+
+                "<input type='hidden' name='filetype' value='svg'>"+
+                "<input type='hidden' id='"+DIV.chartDiv+"-svg-name' name='filename' value='"+param.selectedAttrDisplay+".svg'>"+
+                "<input type='submit' style='font-size:10px' value='SVG'>"+    
+                "</form></div>"+
+                "<div style='height: 18px; width:100%; float:right'>"+
                 "<span class='study-view-dc-chart-delete'>x</span>"+
                 "<a href='javascript:StudyViewInitCharts.getChartsByID("+ 
                 param.chartID +").getChart().filterAll();" +
@@ -129,6 +289,12 @@ var BarChart = function(){
                     .append("<div id=\"" + DIV.mainDiv+ 
                     "\" class='study-view-dc-chart study-view-bar-main'>" + 
                     contentHTML + "</div>");
+        }
+        
+        if(param.needLogScale){
+            StudyViewOverallFunctions
+                    .showHideDivision(DIV.chartDiv, 
+                                    "StudyViewLogBarChartCheckboxWrapper");
         }
     }
     
@@ -317,8 +483,8 @@ var BarChart = function(){
         }
         
         barChart
-            .width(370)
-            .height(180)
+            .width(chartWidth)
+            .height(chartHeight)
             .margins({top: 10, right: 20, bottom: 30, left: 40})
             .dimension(cluster)
             .group(cluster.group())
@@ -329,8 +495,8 @@ var BarChart = function(){
             .mouseZoomable(false)
             .brushOn(true)
             .transitionDuration(param.transitionDuration)
-            .renderHorizontalGridLines(true)
-            .renderVerticalGridLines(true);
+            .renderHorizontalGridLines(false)
+            .renderVerticalGridLines(false);
     
         barChart.x( d3.scale.linear()
                         .domain([ 
@@ -407,8 +573,8 @@ var BarChart = function(){
         }); 
         
         barChart
-            .width(370)
-            .height(180)
+            .width(chartWidth)
+            .height(chartHeight)
             .margins({top: 10, right: 20, bottom: 30, left: 40})
             .dimension(cluster)
             .group(cluster.group())
@@ -419,8 +585,8 @@ var BarChart = function(){
             .mouseZoomable(false)
             .brushOn(true)
             .transitionDuration(param.transitionDuration)
-            .renderHorizontalGridLines(true)
-            .renderVerticalGridLines(true);
+            .renderHorizontalGridLines(false)
+            .renderVerticalGridLines(false);
     
         barChart.centerBar(true);
         barChart.x(d3.scale.log().nice().domain([0.7,_maxDomain]));
@@ -462,6 +628,14 @@ var BarChart = function(){
         param.ndx = _param.ndx;
         param.needLogScale = _param.needLogScale;
         param.distanceArray = _param.distanceArray;
+        
+        if(typeof _param.chartWidth !== 'undefined'){
+            chartWidth = _param.chartWidth;
+        }
+        
+        if(typeof _param.chartHeight !== 'undefined'){
+            chartHeight = _param.chartHeight;
+        }
         
         distanceMinMax = param.distanceArray.diff;
     
@@ -505,6 +679,7 @@ var BarChart = function(){
                 initDCBarChart();
             }
             addFunctions();
+            addEvents();
         },
 
         getChart : function() {

@@ -7,7 +7,8 @@
 <link rel="stylesheet" type="text/css" href="css/introjs-rtl.min.css">
 
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<script src="js/src/study-view/masonry.pkgd.min.js"></script>
+<script src="js/src/study-view/packery.pkgd.min.js"></script>
+<script src="js/src/study-view/draggabilly.pkgd.min.js"></script>
 <script src="js/src/study-view/intro.min.js"></script>
 <script data-main="js/src/study-view/main.js" src="js/require.js"></script>
 

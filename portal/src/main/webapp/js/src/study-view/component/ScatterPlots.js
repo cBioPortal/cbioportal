@@ -217,7 +217,7 @@ var ScatterPlots = function() {
         elem.axisTitleGroup.append("svg:image")
             .attr("xlink:href", "images/help.png")
             .attr("class", "plots-title-x-help")
-            .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2 + _xTitle.length / 2 * 8)
+            .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2 - _xTitle.length / 2 * 8.5)
             .attr("y", canvas.yBottom + 48)
             .attr("width", "16")
             .attr("height", "16");
@@ -229,7 +229,7 @@ var ScatterPlots = function() {
                         style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                         show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
-                        position: {my:'left bottom',at:'top right'}
+                        position: {viewport: $(window)}
                     }
                 );
             }
@@ -269,7 +269,7 @@ var ScatterPlots = function() {
                         style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                         show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
-                        position: {my:'right bottom',at:'top left'}
+                        position: {viewport: $(window)}
                     }
                 );
             }
@@ -420,7 +420,7 @@ var ScatterPlots = function() {
                         style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
                         show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
-                        position: {my:'left bottom',at:'top right'}
+                        position: {viewport: $(window)}
                     }
                 );
             }
@@ -774,6 +774,20 @@ var ScatterPlots = function() {
         elem.brush.y(elem.yScale);
     }
     
+    function log2Value(_value){
+        
+        if(typeof log_scale_threshold !== 'undefined'){
+            if(_value <= log_scale_threshold){
+                _value = Math.log(log_scale_threshold) / Math.log(2);
+            }else{
+                _value = Math.log(_value) / Math.log(2);
+            }
+        }else{
+            _value = Math.log(_value) / Math.log(2);
+        }
+        return _value;
+    }
+    
     return {
         init: function(_options, _dataArr, _dataAttr, _brushOn) {    //Init with options
             initSettings(_options, _dataAttr);
@@ -824,7 +838,18 @@ var ScatterPlots = function() {
         getBrushedCases: function() {
             return brushedCases;
         },
-        
+        getHighlightCases: function() {
+            var _highLightCases = [];
+            
+            elem.dotsGroup.selectAll("path").each(function(d) {
+                var _attrType = pointClickType(this);
+                
+                if(_attrType === 'shiftClicked'){
+                    _highLightCases.push(d.case_id);
+                }
+            });
+            return _highLightCases;
+        },
         updateMutations: function(_divName, _divName_x_scale, _divName_y_scale) {
             var _showMutations = document.getElementById(_divName).checked;
             
@@ -873,18 +898,19 @@ var ScatterPlots = function() {
         updateStyle: function(_datumArr) {
             var _tmpDataArr=[];
             var dataCopy = jQuery.extend(true,[],dataArr);
+            
             if(axisXLogFlag && axisYLogFlag){
                 for(var i=0; i<dataCopy.length; i++){
-                    dataCopy[i].x_val = Math.log(dataCopy[i].x_val) / Math.log(2);
-                    dataCopy[i].y_val = Math.log(dataCopy[i].y_val) / Math.log(2);
+                    dataCopy[i].x_val = log2Value(dataCopy[i].x_val);
+                    dataCopy[i].y_val = log2Value(dataCopy[i].y_val);
                 }
             }else if(axisXLogFlag){
                 for(var i=0; i<dataCopy.length; i++){
-                    dataCopy[i].x_val = Math.log(dataCopy[i].x_val) / Math.log(2);
+                    dataCopy[i].x_val = log2Value(dataCopy[i].x_val);
                 }
             }else if(axisYLogFlag){
                 for(var i=0; i<dataCopy.length; i++){
-                    dataCopy[i].y_val = Math.log(dataCopy[i].y_val) / Math.log(2);
+                    dataCopy[i].y_val = log2Value(dataCopy[i].y_val);
                 }
             }
             

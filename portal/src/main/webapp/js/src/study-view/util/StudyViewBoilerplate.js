@@ -41,7 +41,7 @@ var StudyViewBoilerplate ={
         style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
         show: {event: "mouseover"},
         hide: {fixed:true, delay: 100, event: "mouseout"},
-        position: {my:'right bottom',at:'top left'}
+        position: {viewport: $(window)}
     },
     scatterPlotDataAttr: {
         min_x: 0,
@@ -55,6 +55,15 @@ var StudyViewBoilerplate ={
 
     scatterPlotOptions: {
         canvas: {  //position of components
+            /* //For Scatter Plot with 
+            width: 430,
+            height: 350,
+            xLeft: 100,     //The left/starting point for x axis
+            xRight: 415,   //The right/ending point for x axis
+            yTop: 10,      //The top/ending point for y axis
+            yBottom: 280   //The bottom/starting point for y axis
+            */
+           
             width: 560,
             height: 440,
             xLeft: 100,     //The left/starting point for x axis
@@ -73,7 +82,7 @@ var StudyViewBoilerplate ={
         names: { 
             div: "study-view-scatter-plot",
             header: "study-view-scatter-plot-header",
-            body: "study-view-scatter-plot-body",
+            body: "study-view-scatter-plot-body-svg",
             loading_img: "study-view-scatter-plot-loading-img",
             control_panel: "study-view-scatter-plot-control-panel",
             log_scale_x: "study-view-scatter-plot-log-scale-x",
@@ -178,7 +187,7 @@ var StudyViewBoilerplate ={
         _span3
             .attr({
                 'id': 'study-view-header-left-3',
-                'class': 'study-view-header hidden'})
+                'class': 'hidden'})
             .text('Clear selected cases');
        
         _header.append(_span1);
@@ -236,27 +245,54 @@ var StudyViewBoilerplate ={
     scatterPlotDiv: 
             "<div id='study-view-scatter-plot' class='study-view-dc-chart w3 h2'"+
             "data-step='1' data-intro='Scatter Plot<br/>x: CNA<br/>y: MUTATIONS COUNT'>" +
-            "<div id='study-view-scatter-plot-header' style='float: right'>"+
-            "<form style='display:inline-block' action='svgtopdf.do' method='post' id='study-view-scatter-plot-pdf'>"+
+            "<div id='study-view-scatter-plot-header-wrapper' style='float:right; width: 100%; height: 22px;'>"+
+            "<chartTitleH4 id='study-view-scatter-plot-title'>"+
+            "Mutation Count vs Copy Number Alterations</chartTitleH4>"+
+            "<div id='study-view-scatter-plot-header'>"+
+            "<form style='display:inline-block; margin-right:5px' action='svgtopdf.do' method='post' id='study-view-scatter-plot-pdf'>"+
             "<input type='hidden' name='svgelement' id='study-view-scatter-plot-pdf-value'>"+
             "<input type='hidden' name='filetype' value='pdf'>"+
             "<input type='hidden' id='study-view-scatter-plot-pdf-name' name='filename' value=''>"+
-            "<input type='submit' value='PDF'>"+          
+            "<input type='submit' style='font-size:10px' value='PDF'>"+          
             "</form>"+
             "<form style='display:inline-block' action='svgtopdf.do' method='post' id='study-view-scatter-plot-svg'>"+
             "<input type='hidden' name='svgelement' id='study-view-scatter-plot-svg-value'>"+
             "<input type='hidden' name='filetype' value='svg'>"+
             "<input type='hidden' id='study-view-scatter-plot-svg-name' name='filename' value=''>"+
-            "<input type='submit' value='SVG'>"+    
+            "<input type='submit' style='font-size:10px' value='SVG'>"+    
             "</form>"+
-            "<input type='checkbox' id='study-view-scatter-plot-log-scale-x'></input><span style='margin: 5px 10px 0px 0px; color: grey'>Log Scale X</span>"+
-            "<input type='checkbox' id='study-view-scatter-plot-log-scale-y'></input><span style='margin: 5px 50px 0px 0px; color: grey'>Log Scale y</span>"+
-            "<span class='study-view-scatter-plot-delete'>x</span>"+
-            "</div>"+
-            "<div id='study-view-scatter-plot-body'></div>"+
+            "<input type='checkbox' id='study-view-scatter-plot-log-scale-x'></input><span class='study-view-scatter-plot-checkbox'>Log Scale X</span>"+
+            "<input type='checkbox' id='study-view-scatter-plot-log-scale-y'></input><span class='study-view-scatter-plot-checkbox'>Log Scale y</span>"+
+            "</div><span class='study-view-scatter-plot-delete'>x</span></div>"+
+            "<div id='study-view-scatter-plot-body'>"+
+            "<div id='study-view-scatter-plot-body-top-chart'></div>"+
+            "<div id='study-view-scatter-plot-body-svg'></div>"+
+            "<div id='study-view-scatter-plot-body-right-chart'></div></div>"+
             "<div id='study-view-scatter-plot-loading-img'></div>"+
             "<div id='study-view-scatter-plot-control-panel'></div>"+
             "</div>",
+    
+    wordCloudDiv:
+            "<div id='study-view-word-cloud' "+
+            "class='study-view-dc-chart study-view-word-cloud'>" +
+                "<div id='study-view-word-cloud-side' class='study-view-pdf-svg-side'>"+
+                "<form style='display:inline-block;' action='svgtopdf.do' method='post' id='study-view-word-cloud-pdf'>"+
+                "<input type='hidden' name='svgelement' id='study-view-word-cloud-pdf-value'>"+
+                "<input type='hidden' name='filetype' value='pdf'>"+
+                "<input type='hidden' id='study-view-word-cloud-pdf-name' name='filename' value='word-cloud.pdf'>"+
+                "<input type='submit' style='font-size:10px' value='PDF'>"+          
+                "</form>"+
+                "<form style='display:inline-block' action='svgtopdf.do' method='post' id='study-view-word-cloud-svg'>"+
+                "<input type='hidden' name='svgelement' id='study-view-word-cloud-svg-value'>"+
+                "<input type='hidden' name='filetype' value='svg'>"+
+                "<input type='hidden' id='study-view-word-cloud-svg-name' name='filename' value='word-cloud.svg'>"+
+                "<input type='submit' style='font-size:10px' value='SVG'>"+    
+                "</form></div>"+
+                "<div id='study-view-word-cloud-title'>" +
+                "<chartTitleH4>Mutated Genes</chartTitleH4>" +
+                "<span class='study-view-word-cloud-delete' "+
+                "style = 'float:right;'>x</span></div>" +
+             "</div>",
     dataTableDiv: 
             "<table id='dataTable'>"+
             "<tfoot>"+

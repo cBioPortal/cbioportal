@@ -24,7 +24,25 @@ var StudyViewInitTopComponents = (function() {
         
         $('#study-view-header-left-2').unbind('click');
         $('#study-view-header-left-2').click(function (){
-            dc.filterAll();
+            var i,
+                _charts = StudyViewInitCharts.getCharts(),
+                _chartsLength = _charts.length;
+            
+            //Previous using dc.filterAll(), but this will redraw word cloud
+            //sevious times based on the number of charts. Right now, only
+            //redraw word cloud if the chart has filter
+            for( i = 0; i < _chartsLength; i++){
+                if(_charts[i] !== "" && 
+                        _charts[i].getChart().filter() !== null){
+                    
+                    _charts[i].getChart().filter(null);
+                }
+            }
+            
+            //If set the filter to null the update scatterplot in charts do
+            //not work, so need to update scatter plot here
+            StudyViewInitCharts.getSelectedCasesAndRedrawScatterPlot(null);
+            
             dc.redrawAll();
             $(StudyViewInitDataTable
                     .getDataTable()
@@ -58,15 +76,23 @@ var StudyViewInitTopComponents = (function() {
     function changeHeader(_filteredResult, _numOfCases, _removedChart){
         var _caseID = [],
             _resultLength = _filteredResult.length,
-            _charts = StudyViewInitCharts.getCharts();
+            _charts = StudyViewInitCharts.getCharts(),
+            
+            //Check whether page has been scrolled or not, The position of 
+            //left-3 will be different
+            windowScolled = false; 
     
         for(var i=0; i<_filteredResult.length ; i++){
             _caseID.push(_filteredResult[i].CASE_ID);
         }
         
 
-        $("#study-view-header-left-2").css('left','190px');
-                
+        $("#study-view-header-left-2").css('left','210px');
+        
+        //StudyViewWindowEvents will return the page scrolling status, if the
+        //header is on the top of page windowScorlled = false.
+        windowScolled = StudyViewWindowEvents.getScrollStatus();
+        
         if(_resultLength === _numOfCases){
             var _hasFilter = false;
             
@@ -97,7 +123,13 @@ var StudyViewInitTopComponents = (function() {
                 $("#study-view-header-left-3").css('display','block');
                 $("#study-view-header-left-2").text('Reset');
                 $("#study-view-header-left-3").text("No case is selected.");
-                $("#study-view-header-left-case-ids").val(_caseID.join(" "));
+                if(windowScolled){
+                    $("#study-view-header-left-2").css('left','0');
+                    $("#study-view-header-left-3").css('left','0');
+                }else{
+                    $("#study-view-header-left-2").css('left','0');
+                    $("#study-view-header-left-3").css('left','80px');
+                }$("#study-view-header-left-case-ids").val(_caseID.join(" "));
             }else if(_resultLength === 1){
                 $("#study-view-header-left-0").css('display','none');
                 $("#study-view-header-left-1").css('display','none');
@@ -106,10 +138,15 @@ var StudyViewInitTopComponents = (function() {
                 $("#study-view-header-left-2").css('left','0');
                 $("#study-view-header-left-2").text('Clear selected case');
                 $("#study-view-header-left-3").html("");
+                if(windowScolled){
+                    $("#study-view-header-left-3").css('left','0');
+                }else{
+                    $("#study-view-header-left-3").css('left','170px');
+                }
                 $("#study-view-header-left-3")
                         .append("<a title='Go to patient-centric view' " + 
                         "href='case.do?cancer_study_id=" + parObject.studyId +
-                        "&amp;case_id=" + _caseID[0] + "'><span style='color: #2986e2'>" + _caseID[0] + 
+                        "&amp;case_id=" + _caseID[0] + "'><span style='color: red'>" + _caseID[0] + 
                         "</span></a>" + " is selected.");                
             }else{
                 $("#study-view-header-left-0").css('display','none');
@@ -117,6 +154,11 @@ var StudyViewInitTopComponents = (function() {
                 $("#study-view-header-left-2").css('display','block');
                 $("#study-view-header-left-3").css('display','block');
                 $("#study-view-header-left-2").text('Clear selected cases');
+                if(windowScolled){
+                    $("#study-view-header-left-3").css('left','0');
+                }else{
+                    $("#study-view-header-left-3").css('left','410px');
+                }
                 $("#study-view-header-left-3").text(_resultLength + " cases are selected.");
                 $("#study-view-header-left-case-ids").val(_caseID.join(" "));
             }

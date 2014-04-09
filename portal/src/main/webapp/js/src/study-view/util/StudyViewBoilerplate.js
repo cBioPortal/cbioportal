@@ -220,7 +220,7 @@ var StudyViewBoilerplate ={
             "<div style='float: left'>" +
             "<input type='button' "+
                 "id='study-view-dataTable-updateTable' "+
-                "class='study-view-header-button' "+
+                "class='study-view-middle-button' "+
                 "value = 'Update Table'/>" +
             "</div>",
     
@@ -228,7 +228,7 @@ var StudyViewBoilerplate ={
             "<div style='float: left'>" +
             "<input type='button' "+
                 "id='study-view-dataTable-updateCharts' "+
-                "class='study-view-header-button' "+
+                "class='study-view-middle-button' "+
                 "value = 'Update Charts'/>" +
             "</div>",
     

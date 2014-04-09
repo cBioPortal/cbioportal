@@ -218,6 +218,11 @@
     cursor: pointer !important;
     background-color: #2986e2 !important;
     color: white !important;
+    -webkit-transition: All 0.3s ease;
+    -moz-transition: All 0.3s ease;
+    -o-transition: All 0.3s ease;
+    -ms-transition: All 0.3s ease;
+    transition: All 0.3s ease;
     /*
     -moz-box-shadow: 0 0 5px #ccc inset;
     -webkit-box-shadow: 0 0 5px #ccc inset;
@@ -461,30 +466,28 @@ pieH3{
     color: #3182bd;
     font-weight: bold;
 }
-.study-view-header-button{
-    color:white;
-    outline: none;
-    background-color:#2986e2;
-    border: none;
-    /*
-    border-radius: 10px;
-    -webkit-border-radius: 10px;
-    -moz-border-radius: 10px;
-    */
+.study-view-middle-button{
+    background-color: white;
+    color: #2986e2;
+    border: 1px solid #2986e2;
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
     cursor:pointer;
-    -webkit-transition: All 0.5s ease;
-    -moz-transition: All 0.5s ease;
-    -o-transition: All 0.5s ease;
-    -ms-transition: All 0.5s ease;
-    transition: All 0.5s ease;
 }
-.study-view-header-button:hover:enabled{
-    background-color: #3366cc;
+.study-view-middle-button:hover:enabled{
+    background-color: #2986e2;
+    color:white;
+    -webkit-transition: All 0.3s ease;
+    -moz-transition: All 0.3s ease;
+    -o-transition: All 0.3s ease;
+    -ms-transition: All 0.3s ease;
+    transition: All 0.3s ease;
 }
-.study-view-header-button:disabled {
+.study-view-middle-button:disabled {
     background-color:lightgray;
 }
-.study-view-header-button:hover:disabled{
+.study-view-middle-button:hover:disabled{
     cursor: default;
 }
 .brush .extent {
@@ -522,9 +525,37 @@ pieH3{
     white-space: nowrap;
 }
 .ColVis_Button.TableTools_Button.ColVis_MasterButton{
-    outline: none
+    outline: none;
+    background-color: white;
+    color: #2986e2;
+    border: 1px solid #2986e2;
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    cursor: pointer;
+    height: 23px;
+    padding: 0;
+}
+.ColVis_Button.TableTools_Button.ColVis_MasterButton span{
+    padding: 2px 6px 3px 6px;
+}
+.ColVis_Button.TableTools_Button.ColVis_MasterButton :hover{
+    background-color: #2986e2;
+    color:white;
+    -webkit-transition: All 0.3s ease;
+    -moz-transition: All 0.3s ease;
+    -o-transition: All 0.3s ease;
+    -ms-transition: All 0.3s ease;
+    transition: All 0.3s ease;    
 }
 
+/*Style for search box in dataTable of Summaery Tab*/
+.dataTables_filter input{
+    border: 1px solid #2986e2;
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+}
 #content ul{
     margin-bottom: 0;
 }

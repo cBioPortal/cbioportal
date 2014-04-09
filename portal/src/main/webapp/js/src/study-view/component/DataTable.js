@@ -209,8 +209,6 @@ var DataTable = function() {
     //Add all HTML events by using JQUERY
     function addEvents() {
         
-        $(".ColVis_MasterButton").css({height:'auto', padding:'0 4px'});
-        
         $(".ColVis_MasterButton").click(function() {
             $('.ColVis_collection.TableTools_collection')
                 .find('button')

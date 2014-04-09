@@ -18,11 +18,7 @@
 
 <div id="study-view-main" style="display: none;">
     <div id="study-view-header-function"></div>
-    <div style="
-        width: 100%;
-        float: left;
-        height: 60px;
-    "></div>
+    <div id="study-view-top-wrapper"></div>
     
     <div id="study-view-charts"></div>
     

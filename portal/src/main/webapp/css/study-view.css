@@ -16,13 +16,18 @@
     float:right;
     padding: 0 0 5px 0;
 }
+#study-view-top-wrapper {
+    width: 100%;
+    float: left;
+    height: 40px;
+}
 #study-view-add-chart {
     right:120px;
     position: absolute;
     z-index:21;
     display: inline-block;
     vertical-align: middle;
-    line-height: 50px;
+    line-height: 30px;
 }
 #study-view-tutorial {
     right: 0;
@@ -33,23 +38,23 @@
 #study-view-header-left-0 {
     left: 0;
     width: 160px;
-    height: 50px;
+    height: 30px;
 }
 #study-view-header-left-1 {
     left: 0;
     width: 190px;
-    height: 50px;
+    //height: 30px;
 }
 #study-view-header-left-2 {
     left: 210px;
-    height: 50px;
+    height: 30px;
 }
 #study-view-header-left-3 {
     position: absolute;
     left: 410px;
     height: 30px;
     line-height: 30px;
-    top: 12px;
+    top: 2px;
     border: 0;
     font-size: 13px;
     margin: 0;
@@ -142,7 +147,7 @@
     position: absolute;
     top: 60px;
     width: 1200px;
-    height: 50px;
+    height: 30px;
     background-color: white;
     z-index: 20;
     -webkit-backface-visibility: hidden;
@@ -207,7 +212,7 @@
     font-weight: bold;
     text-align: center;
     display: inline-block;
-    line-height: 50px;
+    line-height: 30px;
 }
 .study-view-header:hover{    
     cursor: pointer !important;

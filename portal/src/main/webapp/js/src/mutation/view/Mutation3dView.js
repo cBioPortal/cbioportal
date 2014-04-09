@@ -100,5 +100,10 @@ var Mutation3dView = Backbone.View.extend({
 
 		// just simulate click function on the 3d button to reset the view
 		button3d.click();
+	},
+	isVisible: function()
+	{
+		var self = this;
+		return self.$el.is(":visible");
 	}
 });

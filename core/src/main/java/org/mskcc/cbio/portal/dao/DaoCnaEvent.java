@@ -18,10 +18,10 @@ public final class DaoCnaEvent {
     
     public static int addCaseCnaEvent(CnaEvent cnaEvent, boolean newCnaEvent) throws DaoException {
         if (!MySQLbulkLoader.isBulkLoad()) {
-            throw new DaoException("You have to turn on MySQLbulkLoader in order to insert case_cna_event");
+            throw new DaoException("You have to turn on MySQLbulkLoader in order to insert sample_cna_event");
         }
         else {
-            MySQLbulkLoader.getMySQLbulkLoader("case_cna_event").insertRecord(
+            MySQLbulkLoader.getMySQLbulkLoader("sample_cna_event").insertRecord(
                     Long.toString(cnaEvent.getEventId()),
                     Integer.toString(cnaEvent.getSampleId()),
                     Integer.toString(cnaEvent.getCnaProfileId())

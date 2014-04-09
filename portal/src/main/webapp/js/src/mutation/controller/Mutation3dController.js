@@ -192,7 +192,9 @@ var Mutation3dController = function (mutationDetailsView, mainMutationView,
 	function view3dReloadHandler()
 	{
 		// highlight mutations on the 3D view
-		if (mutationDiagram.isHighlighted())
+		// (highlight only if the corresponding view is visible)
+		if (mut3dView.isVisible() &&
+		    mutationDiagram.isHighlighted())
 		{
 			highlightSelected();
 		}

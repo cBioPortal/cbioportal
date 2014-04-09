@@ -308,9 +308,11 @@ var PieChart = function(){
     }
     
     function setSVGElementValue(_svgParentDivId,_idNeedToSetValue){
-        var svgElement;
+        var _svgElement;
         
-        var _pieLabelString = '', 
+        var _maxlabelNameLength=0,
+            _svgWidth = 180,
+            _pieLabelString = '', 
             _pieLabelYCoord = 0,
             _svg = $("#" + _svgParentDivId + " svg"),
             _svgHeight = _svg.height(),
@@ -350,16 +352,24 @@ var PieChart = function(){
                     "style='font-size:15px'>"+  _labelName + "</text></g>";
             
             _pieLabelYCoord += 15;
+            
+            if(_labelName.toString().length > _maxlabelNameLength){
+                _maxlabelNameLength = _labelName.toString().length;
+            }
         });
         
-        svgElement = $("#" + _svgParentDivId + " svg").html();
+        _svgElement = $("#" + _svgParentDivId + " svg").html();
+        
+        if(_maxlabelNameLength * 10 > _svgWidth){
+            _svgWidth = _maxlabelNameLength * 10;
+        }
         
         $("#" + _idNeedToSetValue)
-                .val("<svg width='180' height='"+(180+_pieLabelYCoord)+"'>"+
+                .val("<svg width='"+_svgWidth+"' height='"+(180+_pieLabelYCoord)+"'>"+
                     "<g><text x='90' y='20' style='font-weight: bold;"+
                     "text-anchor: middle'>"+
                     selectedAttrDisplay+"</text></g>"+
-                    "<g transform='translate(25, 20)'>"+svgElement+ "</g>"+
+                    "<g transform='translate(25, 20)'>"+_svgElement+ "</g>"+
                     "<g transform='translate(30, "+(_svgHeight+20)+")'>"+
                     _pieLabelString+"</g></svg>");
     
@@ -412,13 +422,13 @@ var PieChart = function(){
                 "<form style='display:inline-block;' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-pdf'>"+
                 "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-pdf-value'>"+
                 "<input type='hidden' name='filetype' value='pdf'>"+
-                "<input type='hidden' id='"+DIV.chartDiv+"-pdf-name' name='filename' value='"+selectedAttrDisplay+".pdf'>"+
+                "<input type='hidden' id='"+DIV.chartDiv+"-pdf-name' name='filename' value='"+cancerStudyId + "_" +selectedAttr+".pdf'>"+
                 "<input type='submit' style='font-size:10px' value='PDF'>"+          
                 "</form>"+
                 "<form style='display:inline-block' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-svg'>"+
                 "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-svg-value'>"+
                 "<input type='hidden' name='filetype' value='svg'>"+
-                "<input type='hidden' id='"+DIV.chartDiv+"-svg-name' name='filename' value='"+selectedAttrDisplay+".svg'>"+
+                "<input type='hidden' id='"+DIV.chartDiv+"-svg-name' name='filename' value='"+cancerStudyId + "_" +selectedAttr+".svg'>"+
                 "<input type='submit' style='font-size:10px' value='SVG'>"+    
                 "</form></div>"+
                 "<div style='width:180px; float:right; text-align:center;'>"+

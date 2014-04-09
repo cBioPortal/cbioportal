@@ -144,9 +144,9 @@ var BarChart = function(){
     
         $.each(_deselectedCharts,function(index, value){
             $(value).css({
-                        'stroke': '',
-                        'fill': '#ccc'
-                    });
+                'stroke': '',
+                'fill': '#ccc'
+            });
         });
          
         //Change axis style
@@ -156,16 +156,25 @@ var BarChart = function(){
         
         $.each(_axisDomain,function(index, value){
             $(value).css({
-                        'fill': 'white',
-                        'fill-opacity': '0',
-                        'stroke': 'black'
-                    });
+                'fill': 'white',
+                'fill-opacity': '0',
+                'stroke': 'black'
+            });
         });
         
         $.each(_axisTick,function(index, value){
             $(value).css({
-                        'stroke': 'black'
-                    });
+                'stroke': 'black'
+            });
+        });
+        
+        //Change x/y axis text size
+        var _chartText = _svg.find('.axis text');
+    
+        $.each(_chartText,function(index, value){
+            $(value).css({
+                'font-size': '12px'
+            });
         });
         
         _svgElement = _svg.html();
@@ -217,6 +226,12 @@ var BarChart = function(){
                         'stroke': ''
                     });
         });
+        
+        $.each(_chartText,function(index, value){
+            $(value).css({
+                        'font-size': ''
+                    });
+        });
     }
     
     //Parse string to document recognisable SVG elements
@@ -264,13 +279,13 @@ var BarChart = function(){
                 "<form style='display:inline-block;' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-pdf'>"+
                 "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-pdf-value'>"+
                 "<input type='hidden' name='filetype' value='pdf'>"+
-                "<input type='hidden' id='"+DIV.chartDiv+"-pdf-name' name='filename' value='"+param.selectedAttrDisplay+".pdf'>"+
+                "<input type='hidden' id='"+DIV.chartDiv+"-pdf-name' name='filename' value='"+cancerStudyId + "_" +param.selectedAttr+".pdf'>"+
                 "<input type='submit' style='font-size:10px' value='PDF'>"+          
                 "</form>"+
                 "<form style='display:inline-block' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-svg'>"+
                 "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-svg-value'>"+
                 "<input type='hidden' name='filetype' value='svg'>"+
-                "<input type='hidden' id='"+DIV.chartDiv+"-svg-name' name='filename' value='"+param.selectedAttrDisplay+".svg'>"+
+                "<input type='hidden' id='"+DIV.chartDiv+"-svg-name' name='filename' value='"+cancerStudyId + "_" +param.selectedAttr+".svg'>"+
                 "<input type='submit' style='font-size:10px' value='SVG'>"+    
                 "</form></div>"+
                 "<div style='height: 18px; width:100%; float:right'>"+

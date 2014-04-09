@@ -1,37 +1,25 @@
 package org.mskcc.cbio.portal.servlet;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.AccessControl;
-import org.mskcc.cbio.portal.util.GlobalProperties;
-import org.mskcc.cbio.portal.util.XDebug;
 import org.mskcc.cbio.portal.web_api.ConnectionManager;
 import org.mskcc.cbio.portal.web_api.ProtocolException;
+import org.mskcc.cbio.portal.util.*;
+
+import org.apache.log4j.Logger;
+import org.apache.commons.httpclient.*;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.lang.StringUtils;
+
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import java.io.*;
+import java.util.*;
+import java.util.regex.*;
+import javax.servlet.*;
+import javax.servlet.http.*;
 
 /**
  *
@@ -138,14 +126,14 @@ public class PatientView extends HttpServlet {
      *
      * @author Gideon Dresdner
      */
-    public boolean hasAlleleFrequencyData(String patientId, GeneticProfile mutationProfile) throws DaoException {
+    public boolean hasAlleleFrequencyData(int sampleId, GeneticProfile mutationProfile) throws DaoException {
 
         if (mutationProfile == null) {
             // fail quietly
             return false;
         }
 
-        return DaoMutation.hasAlleleFrequencyData(mutationProfile.getGeneticProfileId(), patientId);
+        return DaoMutation.hasAlleleFrequencyData(mutationProfile.getGeneticProfileId(), sampleId);
     }
 
     private boolean validate(HttpServletRequest request) throws DaoException {
@@ -154,9 +142,9 @@ public class PatientView extends HttpServlet {
         request.setAttribute(HAS_SEGMENT_DATA, Boolean.FALSE);
         request.setAttribute(HAS_ALLELE_FREQUENCY_DATA, Boolean.FALSE);
         
-        String caseIdsStr = request.getParameter(CASE_ID);
+        String sampleIdsStr = request.getParameter(CASE_ID);
         String patientIdsStr = request.getParameter(PATIENT_ID);
-        if ((caseIdsStr == null || caseIdsStr.isEmpty())
+        if ((sampleIdsStr == null || sampleIdsStr.isEmpty())
                 && (patientIdsStr == null || patientIdsStr.isEmpty())) {
             request.setAttribute(ERROR, "Please specify at least one case ID or patient ID. ");
             return false;
@@ -174,33 +162,33 @@ public class PatientView extends HttpServlet {
             return false;
         }
 
-        Set<Case> cases = new HashSet<Case>();
+        Set<Sample> samples = new HashSet<Sample>();
         Set<String> sampleIds = new HashSet<String>();
-        if (caseIdsStr!=null) {
-            for (String caseId : caseIdsStr.split(" +")) {
-                Case _case = DaoCase.getCase(caseId, cancerStudy.getInternalId());
-                if (_case != null) {
-                    cases.add(_case);
-                    sampleIds.add(_case.getCaseId());
+        if (sampleIdsStr!=null) {
+            for (String sampleId : sampleIdsStr.split(" +")) {
+                Sample _sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudy.getInternalId(), sampleId);
+                if (_sample != null) {
+                    samples.add(_sample);
+                    sampleIds.add(_sample.getStableId());
                 }
             }
         }
         
         if (patientIdsStr!=null) {
             for (String patientId : patientIdsStr.split(" +")) {
-                List<String> samples = DaoClinicalData.getCaseIdsByAttribute(
-                    cancerStudy.getInternalId(), PATIENT_ID_ATTR_NAME, patientId);
-                for (String sample : samples) {
-                    Case _case = DaoCase.getCase(sample, cancerStudy.getInternalId());
-                    if (_case != null) {
-                        cases.add(_case);
-                        sampleIds.add(_case.getCaseId());
+                Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), patientId);
+                if (patient != null) {
+                    for (Sample sample : DaoSample.getSamplesByPatientId(patient.getInternalId())) {
+                        if (sample != null) {
+                            samples.add(sample);
+                            sampleIds.add(sample.getStableId());
+                        }
                     }
                 }
             }
         }
 
-        if (cases.isEmpty()) {
+        if (samples.isEmpty()) {
             request.setAttribute(ERROR, "We have no information about the patient.");
             return false;
         }
@@ -217,14 +205,15 @@ public class PatientView extends HttpServlet {
             return false;
         }
         
-        request.setAttribute(PATIENT_CASE_OBJ, cases);
+        request.setAttribute(PATIENT_CASE_OBJ, samples);
         request.setAttribute(CANCER_STUDY, cancerStudy);
 
         request.setAttribute(HAS_SEGMENT_DATA, DaoCopyNumberSegment
                 .segmentDataExistForCancerStudy(cancerStudy.getInternalId()));
-        String firstSampleId = sampleIds.iterator().next();
+        String firstSampleId = sampleIds.iterator().next(); 
+        Sample firstSample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudy.getInternalId(), firstSampleId);
         request.setAttribute(HAS_ALLELE_FREQUENCY_DATA, 
-                hasAlleleFrequencyData(firstSampleId, cancerStudy.getMutationProfile(firstSampleId)));
+                hasAlleleFrequencyData(firstSample.getInternalId(), cancerStudy.getMutationProfile(firstSampleId)));
         
         return true;
     }
@@ -235,31 +224,31 @@ public class PatientView extends HttpServlet {
         if (mutProfile!=null) {
             request.setAttribute(MUTATION_PROFILE, mutProfile);
             request.setAttribute(NUM_CASES_IN_SAME_MUTATION_PROFILE, 
-                    DaoCaseProfile.countCasesInProfile(mutProfile.getGeneticProfileId()));
+                    DaoSampleProfile.countSamplesInProfile(mutProfile.getGeneticProfileId()));
         }
         
         GeneticProfile cnaProfile = cancerStudy.getCopyNumberAlterationProfile(true);
         if (cnaProfile!=null) {
             request.setAttribute(CNA_PROFILE, cnaProfile);
             request.setAttribute(NUM_CASES_IN_SAME_CNA_PROFILE, 
-                    DaoCaseProfile.countCasesInProfile(cnaProfile.getGeneticProfileId()));
+                    DaoSampleProfile.countSamplesInProfile(cnaProfile.getGeneticProfileId()));
         }
         
         GeneticProfile mrnaProfile = cancerStudy.getMRnaZscoresProfile();
         if (mrnaProfile!=null) {
             request.setAttribute(MRNA_PROFILE, mrnaProfile);
             request.setAttribute(NUM_CASES_IN_SAME_MRNA_PROFILE, 
-                    DaoCaseProfile.countCasesInProfile(mrnaProfile.getGeneticProfileId()));
+                    DaoSampleProfile.countSamplesInProfile(mrnaProfile.getGeneticProfileId()));
         }
     }
 
     private void setCancerStudyMetaData(HttpServletRequest request) throws DaoException, ProtocolException {
-        request.setAttribute(CANCER_STUDY_META_DATA_KEY_STRING, DaoCaseProfile.metaData(accessControl.getCancerStudies()));
+        request.setAttribute(CANCER_STUDY_META_DATA_KEY_STRING, DaoSampleProfile.metaData(accessControl.getCancerStudies()));
     }
     
     private void setNumCases(HttpServletRequest request) throws DaoException {
         CancerStudy cancerStudy = (CancerStudy)request.getAttribute(CANCER_STUDY);
-        request.setAttribute(NUM_CASES_IN_SAME_STUDY,DaoCase.countCases(cancerStudy.getInternalId()));
+        request.setAttribute(NUM_CASES_IN_SAME_STUDY,DaoPatient.getPatientsByCancerStudyId(cancerStudy.getInternalId()).size());
     }
     
     private void setClinicalInfo(HttpServletRequest request) throws DaoException {
@@ -269,7 +258,7 @@ public class PatientView extends HttpServlet {
         List<ClinicalData> cds = DaoClinicalData.getData(cancerStudy.getInternalId(), cases);
         Map<String,Map<String,String>> clinicalData = new LinkedHashMap<String,Map<String,String>>();
         for (ClinicalData cd : cds) {
-            String caseId = cd.getCaseId();
+            String caseId = cd.getStableId();
             String attrId = cd.getAttrId();
             String attrValue = cd.getAttrVal();
             Map<String,String> attrMap = clinicalData.get(caseId);
@@ -290,6 +279,13 @@ public class PatientView extends HttpServlet {
         Map<String,String> attrMap = clinicalData.get(caseId);
         if (attrMap!=null) {
             patientId = attrMap.get(PATIENT_ID_ATTR_NAME);
+            Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), patientId);
+            if (patient != null) {
+                List<Sample> samples = DaoSample.getSamplesByPatientId(patient.getInternalId());
+                if (samples.size()>1) {
+                    request.setAttribute(PATIENT_ID_ATTR_NAME, patientId);
+                }
+            }
         }
         
         request.setAttribute("has_timeline_data", Boolean.FALSE);
@@ -305,7 +301,7 @@ public class PatientView extends HttpServlet {
         }
         
         if (patientId!=null) {
-            List<String> samples = DaoClinicalData.getCaseIdsByAttribute(
+            List<String> samples = DaoClinicalData.getSampleIdsByAttribute(
                     cancerStudy.getInternalId(), PATIENT_ID_ATTR_NAME, patientId);
             if (samples.size()>1) {
                 request.setAttribute("num_tumors", samples.size());

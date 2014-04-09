@@ -11,8 +11,8 @@ import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
  * @author jgao
  */
 public class CnaEvent {
-    private String caseId;
-    private int cnaProfileId;;
+    private int sampleId;
+    private int cnaProfileId;
     private Event event;
     
     public static enum CNA {
@@ -121,10 +121,10 @@ public class CnaEvent {
         
     }
 
-    public CnaEvent(String caseId, int cnaProfileId, long entrezGeneId, short alteration) {
+    public CnaEvent(int sampleId, int cnaProfileId, long entrezGeneId, short alteration) {
         event = new Event();
         setEntrezGeneId(entrezGeneId);
-        this.caseId = caseId;
+        this.sampleId = sampleId;
         this.cnaProfileId = cnaProfileId;
         event.setAlteration(alteration);
     }
@@ -141,12 +141,12 @@ public class CnaEvent {
         event.setAlteration(CNA.getByCode(alteration));
     }
 
-    public String getCaseId() {
-        return caseId;
+    public int getSampleId() {
+        return sampleId;
     }
 
-    public void setCaseId(String caseId) {
-        this.caseId = caseId;
+    public void setSampleId(int sampleId) {
+        this.sampleId = sampleId;
     }
 
     public int getCnaProfileId() {
@@ -203,7 +203,7 @@ public class CnaEvent {
             return false;
         }
         final CnaEvent other = (CnaEvent) obj;
-        if ((this.caseId == null) ? (other.caseId != null) : !this.caseId.equals(other.caseId)) {
+        if (!(this.sampleId == other.sampleId)) {
             return false;
         }
         if (this.cnaProfileId != other.cnaProfileId) {

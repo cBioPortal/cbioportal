@@ -32,9 +32,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Enumeration for Case List Controlled Vocabulary (CV) Category.
+ * Enumeration for Patient List Controlled Vocabulary (CV) Category.
  */
-public enum CaseListCategory {
+public enum PatientListCategory {
     ALL_CASES_IN_STUDY("all_cases_in_study"),
     ALL_CASES_WITH_MUTATION_DATA("all_cases_with_mutation_data"),
     ALL_CASES_WITH_CNA_DATA("all_cases_with_cna_data"),
@@ -49,18 +49,18 @@ public enum CaseListCategory {
     OTHER("other");
 
     // Init the look up map.
-    private static final Map<String, CaseListCategory> lookup
-            = new HashMap<String, CaseListCategory>();
+    private static final Map<String, PatientListCategory> lookup
+            = new HashMap<String, PatientListCategory>();
 
     static {
-        for(CaseListCategory c : EnumSet.allOf(CaseListCategory.class))  {
+        for(PatientListCategory c : EnumSet.allOf(PatientListCategory.class))  {
             lookup.put(c.getCategory(), c);
         }
     }
 
     private String category;
 
-    private CaseListCategory(String category) {
+    private PatientListCategory(String category) {
         this.category = category;
     }
 
@@ -69,19 +69,19 @@ public enum CaseListCategory {
     /**
      * Gets the matching category by category name.
      * @param category  category name.
-     * @return CaseListCategory Object.
+     * @return PatientListCategory Object.
      */
-    public static CaseListCategory get(String category) {
-        CaseListCategory match = lookup.get(category);
+    public static PatientListCategory get(String category) {
+        PatientListCategory match = lookup.get(category);
         if (match != null) {
             return match;
         } else {
             StringBuffer validOptions = new StringBuffer();
-            for(CaseListCategory c : EnumSet.allOf(CaseListCategory.class))  {
+            for(PatientListCategory c : EnumSet.allOf(PatientListCategory.class))  {
                 validOptions.append(c.getCategory() + ", ");
             }
             String validStr = validOptions.substring(0, validOptions.length()-2) + ".";
-            throw new IllegalArgumentException("Invalid Case List Category:  " + category
+            throw new IllegalArgumentException("Invalid Patient List Category:  " + category
                 + ".  Valid options are:  " + validStr);
         }
     }

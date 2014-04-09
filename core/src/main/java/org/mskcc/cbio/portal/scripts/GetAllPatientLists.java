@@ -25,40 +25,27 @@
 ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 **/
 
-package org.mskcc.cbio.portal.dao;
+package org.mskcc.cbio.portal.scripts;
+
+import org.mskcc.cbio.portal.dao.DaoPatientList;
+import org.mskcc.cbio.portal.model.PatientList;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 import java.util.ArrayList;
-import junit.framework.TestCase;
-import org.mskcc.cbio.portal.model.CaseList;
-import org.mskcc.cbio.portal.model.CaseListCategory;
-import org.mskcc.cbio.portal.scripts.ResetDatabase;
 
 /**
- * JUnit test for DaoCase List.
+ * Command Line Tool to Export All Patient Lists to the Console.
  */
-public class TestDaoCaseList extends TestCase {
+public class GetAllPatientLists {
 
-    public void testDaoCaseList() throws DaoException {
-        ResetDatabase.resetDatabase();
-        DaoCaseList daoCaseList = new DaoCaseList();
-
-        CaseList caseList = new CaseList();
-        caseList.setName("Name0");
-        caseList.setDescription("Description0");
-        caseList.setStableId("stable_0");
-        caseList.setCancerStudyId(2);
-        caseList.setCaseListCategory(CaseListCategory.ALL_CASES_WITH_CNA_DATA);
-        ArrayList<String> cases = new ArrayList<String>();
-        cases.add("TCGA-1");
-        cases.add("TCGA-2");
-        caseList.setCaseList(cases);
-        daoCaseList.addCaseList(caseList);
-        
-        CaseList caseListFromDb = daoCaseList.getCaseListByStableId("stable_0");
-        assertEquals("Name0", caseListFromDb.getName());
-        assertEquals("Description0", caseListFromDb.getDescription());
-        assertEquals(CaseListCategory.ALL_CASES_WITH_CNA_DATA, caseListFromDb.getCaseListCategory());
-        assertEquals("stable_0", caseListFromDb.getStableId());
-        assertEquals(2, caseListFromDb.getCaseList().size());
+    public static void main(String[] args) throws Exception {
+        ProgressMonitor pMonitor = new ProgressMonitor();
+        pMonitor.setConsoleMode(true);
+        DaoPatientList daoPatientList = new DaoPatientList();
+        ArrayList <PatientList> patientListMaster = daoPatientList.getAllPatientLists();
+        for (PatientList patientList:  patientListMaster) {
+            System.out.println (patientList.getPatientListId() + ": "
+                    + patientList.getStableId() + ": " + patientList.getName());
+        }
     }
 }

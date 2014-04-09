@@ -28,12 +28,8 @@
 package org.mskcc.cbio.portal.scripts;
 
 import junit.framework.TestCase;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
-import org.mskcc.cbio.portal.dao.DaoMutation;
-import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
-import org.mskcc.cbio.portal.model.CanonicalGene;
-import org.mskcc.cbio.portal.model.ExtendedMutation;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 import java.io.File;
@@ -49,17 +45,17 @@ public class TestImportFusionData extends TestCase
 {
 	public void testImportFusionData()
 	{
-		MySQLbulkLoader.bulkLoadOn();
+        try {
 
-		ProgressMonitor pMonitor = new ProgressMonitor();
-		pMonitor.setConsoleMode(false);
+            MySQLbulkLoader.bulkLoadOn();
 
-		// TODO change this to use getResourceAsStream()
-		File file = new File("target/test-classes/data_fusions.txt");
-		ImportFusionData parser = new ImportFusionData(file, 1, pMonitor);
+            ProgressMonitor pMonitor = new ProgressMonitor();
+            pMonitor.setConsoleMode(false);
 
-		try
-		{
+            // TODO change this to use getResourceAsStream()
+            File file = new File("target/test-classes/data_fusions.txt");
+            ImportFusionData parser = new ImportFusionData(file, 1, pMonitor);
+
 			loadGenes();
 			parser.importData();
 			MySQLbulkLoader.flushAll();
@@ -82,7 +78,7 @@ public class TestImportFusionData extends TestCase
 
 		assertEquals(2, list.size()); // all except "FAKE"
 
-		list = DaoMutation.getMutations(1, "TCGA-XX-A3XX");
+		list = DaoMutation.getMutations(1, 1);
 
 		assertEquals(1, list.size());
 		assertEquals("saturn", list.get(0).getSequencingCenter());
@@ -90,7 +86,7 @@ public class TestImportFusionData extends TestCase
 		assertEquals("Fusion", list.get(0).getMutationType());
 		assertEquals("Fusion1", list.get(0).getProteinChange());
 
-		list = DaoMutation.getMutations(1, "TCGA-YY-A2YY");
+		list = DaoMutation.getMutations(1, 2);
 
 		assertEquals(1, list.size());
 		assertEquals("jupiter", list.get(0).getSequencingCenter());
@@ -101,7 +97,7 @@ public class TestImportFusionData extends TestCase
 
 	private void loadGenes() throws DaoException
 	{
-		ResetDatabase.resetDatabase();
+        TestDaoGeneticProfile.createSmallDbms();
 		DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
 
 		// genes for "data_fusions.txt"

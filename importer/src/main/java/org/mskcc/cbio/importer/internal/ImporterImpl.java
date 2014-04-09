@@ -45,10 +45,9 @@ import org.mskcc.cbio.importer.util.Shell;
 import org.mskcc.cbio.importer.util.MetadataUtils;
 import org.mskcc.cbio.importer.util.MutationFileUtil;
 
-import org.mskcc.cbio.portal.scripts.ImportCaseList;
-import org.mskcc.cbio.portal.scripts.ImportCancerStudy;
-import org.mskcc.cbio.portal.scripts.ImportTypesOfCancers;
+import org.mskcc.cbio.portal.scripts.*;
 
+import org.apache.commons.io.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -306,7 +305,7 @@ class ImporterImpl implements Importer {
                 if (LOG.isInfoEnabled()) {
                         LOG.info("loadStagingFile(), ImportCaseList:main(), with args: " + Arrays.asList(args));
                 }
-                ImportCaseList.main(args);
+                ImportPatientList.main(args);
 
                 if (!missingCaseListFilenames.isEmpty()) {
                         if (LOG.isInfoEnabled()) {
@@ -404,6 +403,11 @@ class ImporterImpl implements Importer {
                         continue;
                     }
 				}
+
+                if (stagingFilename.contains("clinical") && clinicalFileMissingMetadata(stagingFilename)) {
+                    stagingFilename = addMetadataToClinicalFile(stagingFilename);
+                }
+
 				// if MAF, oncotate
 				if (stagingFilename.endsWith(DatatypeMetadata.MUTATIONS_STAGING_FILENAME)) {
 					stagingFilename = getOncotatedFile(stagingFilename);
@@ -412,6 +416,9 @@ class ImporterImpl implements Importer {
 					String metaFilename = getImportFilename(rootDirectory, cancerStudyMetadata, datatypeMetadata.getMetaFilename());
 					args = new String[] { "--data", stagingFilename, "--meta", metaFilename, "--loadMode", "bulkLoad" };
 				}
+                else if (stagingFilename.endsWith(DatatypeMetadata.CLINICAL_SAMPLE_FILENAME_SUFFIX)) {
+                    args = new String[] { stagingFilename, cancerStudyMetadata.toString(), "t" };
+                }
 				else {
 					args = new String[] { stagingFilename, cancerStudyMetadata.toString() };
 				}
@@ -434,7 +441,7 @@ class ImporterImpl implements Importer {
 
 			importCaseLists(portalMetadata, cancerStudyMetadata);
                         
-                        if (createdCancerStudyMetadataFile) fileUtils.deleteFile(new File(cancerStudyMetadataFile));
+            if (createdCancerStudyMetadataFile) fileUtils.deleteFile(new File(cancerStudyMetadataFile));
 		}
 	}
 
@@ -452,6 +459,42 @@ class ImporterImpl implements Importer {
 		stagingFilename = stagingFilename.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
 		return stagingFilename;
 	}
+
+    private boolean clinicalFileMissingMetadata(String stagingFile) throws Exception
+    {
+        LineIterator it = fileUtils.getFileContents(FileUtils.FILE_URL_PREFIX + stagingFile);
+        int count = -1;
+        while (it.hasNext()) {
+            if (++count > 2) break;
+            if (!it.nextLine().startsWith(ImportClinicalData.METADATA_PREFIX)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String addMetadataToClinicalFile(String stagingFile) throws Exception
+    {
+        StringBuilder newFileContents = new StringBuilder();
+
+        boolean headerProcessed = false;
+        LineIterator it = fileUtils.getFileContents(FileUtils.FILE_URL_PREFIX + stagingFile);
+        while (it.hasNext()) {
+            if (!headerProcessed) {
+                String header = it.nextLine();
+                List<String> columnHeaders = new ArrayList(Arrays.asList(header.split(ImportClinicalData.DELIMITER, -1)));
+                newFileContents.append(MetadataUtils.getClinicalMetadataHeaders(config, columnHeaders));
+                newFileContents.append(header);
+                newFileContents.append("\n");
+                headerProcessed = true;
+            }
+            else {
+                newFileContents.append(it.nextLine());
+                newFileContents.append("\n");
+            }
+        }
+        return fileUtils.createTmpFileWithContents(stagingFile, newFileContents.toString()).getCanonicalPath();
+    }
 
 	private String getOncotatedFile(String stagingFilename) throws Exception
 	{

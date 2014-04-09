@@ -29,8 +29,7 @@ package org.mskcc.cbio.portal.dao;
 
 import java.util.ArrayList;
 import junit.framework.TestCase;
-import org.mskcc.cbio.portal.model.GeneticAlterationType;
-import org.mskcc.cbio.portal.model.GeneticProfile;
+import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.scripts.ResetDatabase;
 
 /**
@@ -99,6 +98,17 @@ public class TestDaoGeneticProfile extends TestCase {
     
     public static void createSmallDbms() throws DaoException{
        ResetDatabase.resetDatabase();
+
+       TypeOfCancer aTypeOfCancer = new TypeOfCancer();
+       aTypeOfCancer.setTypeOfCancerId("gbm");
+       aTypeOfCancer.setName("Name");
+       aTypeOfCancer.setClinicalTrialKeywords("keyword");
+       aTypeOfCancer.setDedicatedColor("white");
+       aTypeOfCancer.setShortName("shortname");
+       DaoTypeOfCancer.addTypeOfCancer(aTypeOfCancer);
+
+       CancerStudy cancerStudy = new CancerStudy("GBM", "description", "gbm", "gbm", true);
+       DaoCancerStudy.addCancerStudy(cancerStudy);
 
        GeneticProfile profile1 = new GeneticProfile();
        profile1.setCancerStudyId(1);

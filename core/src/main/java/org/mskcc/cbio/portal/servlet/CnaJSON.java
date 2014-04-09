@@ -1,23 +1,17 @@
 
 package org.mskcc.cbio.portal.servlet;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.*;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.util.*;
+
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.CanonicalGene;
-import org.mskcc.cbio.portal.model.CnaEvent;
-import org.mskcc.cbio.portal.model.CopyNumberSegment;
-import org.mskcc.cbio.portal.model.GeneticProfile;
-import org.mskcc.cbio.portal.model.Gistic;
-import org.mskcc.cbio.portal.util.GlobalProperties;
+
+import java.io.*;
+import java.util.*;
+import javax.servlet.http.*;
+import javax.servlet.ServletException;
 
 /**
  *
@@ -59,7 +53,7 @@ public class CnaJSON extends HttpServlet {
     
     private void processGetCnaRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String[] caseIds = request.getParameter(PatientView.CASE_ID).split(" +");
+        String[] sampleIds = request.getParameter(PatientView.CASE_ID).split(" +");
         String cnaProfileId = request.getParameter(PatientView.CNA_PROFILE);
         String mrnaProfileId = request.getParameter(PatientView.MRNA_PROFILE);
         String drugType = request.getParameter(PatientView.DRUG_TYPE);
@@ -80,13 +74,14 @@ public class CnaJSON extends HttpServlet {
         try {
             cnaProfile = DaoGeneticProfile.getGeneticProfileByStableId(cnaProfileId);
             cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cnaProfile.getCancerStudyId());
-            cnaEvents = DaoCnaEvent.getCnaEvents(caseIds, cnaProfile.getGeneticProfileId(), Arrays.asList((short)-2,(short)2));
+            List<Integer> internalSampleIds = InternalIdUtil.getInternalSampleIds(cancerStudy.getInternalId(), Arrays.asList(sampleIds)); 
+            cnaEvents = DaoCnaEvent.getCnaEvents(internalSampleIds, cnaProfile.getGeneticProfileId(), Arrays.asList((short)-2,(short)2));
             String concatEventIds = getConcatEventIds(cnaEvents);
             int profileId = cnaProfile.getGeneticProfileId();
             drugs = getDrugs(cnaEvents, fdaOnly, cancerDrug);
             contextMap = DaoCnaEvent.countSamplesWithCnaEvents(concatEventIds, profileId);
-            if (mrnaProfileId!=null && caseIds.length==1) {
-                mrnaContext = getMrnaContext(caseIds[0], cnaEvents, mrnaProfileId);
+            if (mrnaProfileId!=null && sampleIds.length==1) {
+                mrnaContext = getMrnaContext(internalSampleIds.get(0), cnaEvents, mrnaProfileId);
             }
         } catch (DaoException ex) {
             throw new ServletException(ex);
@@ -117,30 +112,30 @@ public class CnaJSON extends HttpServlet {
             out.close();
         }
     }
-    
+
     private void processGetSegmentsRequest(HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
 
-        String[] caseIds = request.getParameter(PatientView.CASE_ID).split(" +");
+        String[] sampleIds = request.getParameter(PatientView.CASE_ID).split(" +");
         String cancerStudyId = request.getParameter(QueryBuilder.CANCER_STUDY_ID);
         
         List<CopyNumberSegment> segs = Collections.emptyList();
         
         try {
             int studyId = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId).getInternalId();
-            segs = DaoCopyNumberSegment.getSegmentForCases(Arrays.asList(caseIds), studyId);
+            segs = DaoCopyNumberSegment.getSegmentForSamples(InternalIdUtil.getInternalSampleIds(studyId, Arrays.asList(sampleIds)), studyId);
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }
         
         Map<String,List> map = new HashMap<String,List>();
-        for (String caseId : caseIds) {
-            map.put(caseId, new ArrayList());
+        for (String sampleId : sampleIds) {
+            map.put(sampleId, new ArrayList());
         }
         
         for (CopyNumberSegment seg : segs) {
-            exportCopyNumberSegment(map.get(seg.getCaseId()), seg);
+            exportCopyNumberSegment(map.get(seg.getSampleId()), seg);
         }
 
         response.setContentType("application/json");
@@ -157,16 +152,17 @@ public class CnaJSON extends HttpServlet {
     private void processCnaFractionsRequest(HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
-        String strCaseIds = request.getParameter(QueryBuilder.CASE_IDS);
-        List<String> caseIds = strCaseIds==null ? null : Arrays.asList(strCaseIds.split("[ ,]+"));
+        String strSampleIds = request.getParameter(QueryBuilder.CASE_IDS);
+        List<String> sampleIds = strSampleIds==null ? null : Arrays.asList(strSampleIds.split("[ ,]+"));
         String cancerStudyId = request.getParameter(QueryBuilder.CANCER_STUDY_ID);
         
-        Map<String, Double> fraction = Collections.emptyMap();
+        Map<Integer, Double> fraction = Collections.emptyMap();
         
         try {
             int studyId = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId).getInternalId();
-            fraction = DaoCopyNumberSegment.getCopyNumberActeredFraction(caseIds, studyId,
-                    GlobalProperties.getPatientViewGenomicOverviewCnaCutoff()[0]);
+            fraction = DaoCopyNumberSegment.getCopyNumberActeredFraction(InternalIdUtil.getInternalSampleIds(studyId, sampleIds),
+                                                                         studyId,
+                                                                        GlobalProperties.getPatientViewGenomicOverviewCnaCutoff()[0]);
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }
@@ -176,10 +172,20 @@ public class CnaJSON extends HttpServlet {
         PrintWriter out = response.getWriter();
         ObjectMapper mapper = new ObjectMapper();
         try {
-            out.write(mapper.writeValueAsString(fraction));
+            out.write(mapper.writeValueAsString(replaceInternalSampleIdsWithStableIds(fraction)));
         } finally {            
             out.close();
         }
+    }
+
+    private Map<String, Double> replaceInternalSampleIdsWithStableIds(Map<Integer, Double> fraction)
+    {
+        Map<String, Double> toReturn = new HashMap<String, Double>();
+        for (Integer internalId : fraction.keySet()) {
+            toReturn.put(DaoSample.getSampleById(internalId).getStableId(),
+                        fraction.get(internalId));
+        }
+        return toReturn;
     }
     
     private String getConcatEventIds(List<CnaEvent> cnaEvents) {
@@ -250,7 +256,7 @@ public class CnaJSON extends HttpServlet {
         return ret;
     }
     
-    private Map<Long, Map<String,Object>> getMrnaContext(String caseId, List<CnaEvent> cnaEvents,
+    private Map<Long, Map<String,Object>> getMrnaContext(Integer internalSampleId, List<CnaEvent> cnaEvents,
             String mrnaProfileId) throws DaoException {
         Map<Long, Map<String,Object>> mapGenePercentile = new HashMap<Long, Map<String,Object>>();
         DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
@@ -260,10 +266,10 @@ public class CnaJSON extends HttpServlet {
                 continue;
             }
             
-            Map<String,String> mrnaMap = daoGeneticAlteration.getGeneticAlterationMap(
+            Map<Integer,String> mrnaMap = daoGeneticAlteration.getGeneticAlterationMap(
                     DaoGeneticProfile.getGeneticProfileByStableId(mrnaProfileId).getGeneticProfileId(),
                     gene);
-            double mrnaCase = parseNumber(mrnaMap.get(caseId));
+            double mrnaCase = parseNumber(mrnaMap.get(internalSampleId));
             if (Double.isNaN(mrnaCase)) {
                 continue;
             }
@@ -324,14 +330,16 @@ public class CnaJSON extends HttpServlet {
         Long eventId = cnaEvent.getEventId();
         Integer ix = mapMutationEventIndex.get(eventId);
         if (ix!=null) { // multiple samples
-            List.class.cast(data.get("caseIds").get(ix)).add(cnaEvent.getCaseId());
+            Sample sample = DaoSample.getSampleById(cnaEvent.getSampleId());
+            List.class.cast(data.get("caseIds").get(ix)).add(sample.getStableId());
             return;
         }
         
         mapMutationEventIndex.put(eventId, data.get("id").size());
         
         List<String> samples = new ArrayList<String>();
-        samples.add(cnaEvent.getCaseId());
+        Sample sample = DaoSample.getSampleById(cnaEvent.getSampleId());
+        samples.add(sample.getStableId());
         data.get("caseIds").add(samples);
         
         data.get("id").add(cnaEvent.getEventId());
@@ -373,7 +381,7 @@ public class CnaJSON extends HttpServlet {
     private void exportCopyNumberSegment(List list, CopyNumberSegment seg) 
             throws ServletException {
         List row = new ArrayList();
-        row.add(seg.getCaseId());
+        row.add(DaoSample.getSampleById(seg.getSampleId()).getStableId());
         row.add(seg.getChr());
         row.add(seg.getStart());
         row.add(seg.getEnd());

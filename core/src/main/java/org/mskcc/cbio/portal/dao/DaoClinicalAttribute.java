@@ -27,13 +27,13 @@
 
 package org.mskcc.cbio.portal.dao;
 
+import org.mskcc.cbio.portal.model.*;
+
 import com.google.inject.internal.Join;
-import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.ClinicalAttribute;
+import org.apache.commons.lang.StringUtils;
 
 import java.sql.*;
 import java.util.*;
-import org.apache.commons.lang.StringUtils;
 
 /**
  * Data Access Object for `clinical_attribute` table
@@ -53,12 +53,14 @@ public class DaoClinicalAttribute {
                             "`ATTR_ID`," +
                             "`DISPLAY_NAME`," +
                             "`DESCRIPTION`," +
-                            "`DATATYPE`)" +
-                            " VALUES(?,?,?,?)");
+                            "`DATATYPE`," +
+                            "`PATIENT_ATTRIBUTE`)" +
+                            " VALUES(?,?,?,?,?)");
             pstmt.setString(1, attr.getAttrId());
             pstmt.setString(2, attr.getDisplayName());
             pstmt.setString(3, attr.getDescription());
             pstmt.setString(4, attr.getDatatype());
+            pstmt.setBoolean(5, attr.isPatientAttribute());
             return pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -69,9 +71,10 @@ public class DaoClinicalAttribute {
 
     private static ClinicalAttribute unpack(ResultSet rs) throws SQLException {
         return new ClinicalAttribute(rs.getString("ATTR_ID"),
-                rs.getString("DISPLAY_NAME"),
-                rs.getString("DESCRIPTION"),
-                rs.getString("DATATYPE"));
+                                     rs.getString("DISPLAY_NAME"),
+                                     rs.getString("DESCRIPTION"),
+                                     rs.getString("DATATYPE"),
+                                     rs.getBoolean("PATIENT_ATTRIBUTE"));
     }
     
     public static ClinicalAttribute getDatum(String attrId) throws DaoException {
@@ -108,6 +111,15 @@ public class DaoClinicalAttribute {
         }
     }
 
+    public static List<ClinicalAttribute> getDataBySamples(int cancerStudyId, Set<String> sampleIdSet) throws DaoException
+    {
+        List<Integer> patientIds = new ArrayList<Integer>();
+        for (Patient patient : DaoPatient.getPatientsByCancerStudyId(cancerStudyId)) {
+            patientIds.add(patient.getInternalId());
+        }
+        return getDataByInternalIds(patientIds);
+    }
+
     /**
      * Gets all the clinical attributes for a particular set of samples
      * Looks in the clinical table for all records associated with any of the samples, extracts and uniques
@@ -117,23 +129,20 @@ public class DaoClinicalAttribute {
      * @return
      * @throws DaoException
      */
-    public static List<ClinicalAttribute> getDataBySamples(int cancerStudyId, Set<String> sampleIdSet) throws DaoException {
+    private static List<ClinicalAttribute> getDataByInternalIds(List<Integer> internalIds) throws DaoException {
         
         Connection con = null;
         ResultSet rs = null;
 		PreparedStatement pstmt = null;
 
-        String sql = "SELECT DISTINCT ATTR_ID FROM clinical"
-                + " WHERE `CANCER_STUDY_ID`= "+cancerStudyId
-                + " AND `CASE_ID` IN ('"
-                + StringUtils.join(sampleIdSet, "','") + "')";
+        String sql = ("SELECT DISTINCT ATTR_ID FROM clinical_patient WHERE INTERNAL_ID IN " +
+                      "(" + generateCaseIdsSql(internalIds) + ")");
 
         Set<String> attrIds = new HashSet<String>();
         try {
             con = JdbcUtil.getDbConnection(DaoClinicalAttribute.class);
             pstmt = con.prepareStatement(sql);
             rs = pstmt.executeQuery();
-
             
              while(rs.next()) {
                 attrIds.add(rs.getString("ATTR_ID"));
@@ -146,6 +155,10 @@ public class DaoClinicalAttribute {
         }
 
         return getDatum(attrIds);
+    }
+
+    private static String generateCaseIdsSql(Collection<Integer> caseIds) {
+        return "'" + StringUtils.join(caseIds, "','") + "'";
     }
 
     private static Collection<ClinicalAttribute> getAll() throws DaoException {

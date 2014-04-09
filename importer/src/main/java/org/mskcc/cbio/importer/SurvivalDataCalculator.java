@@ -1,4 +1,4 @@
-/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+/** Copyright (c) 2013 Memorial Sloan-Kettering Cancer Center.
 **
 ** This library is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU Lesser General Public License as published
@@ -25,23 +25,22 @@
 ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 **/
 
-package org.mskcc.cbio.portal.scripts;
+// package
+package org.mskcc.cbio.importer;
 
-import org.mskcc.cbio.portal.dao.DaoCaseList;
-import org.mskcc.cbio.portal.util.ConsoleUtil;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
+import org.mskcc.cbio.importer.model.DataMatrix;
+import org.mskcc.cbio.importer.model.SurvivalStatus;
+
+import java.util.List;
 
 /**
- * Command Line Tool to Delete All Case Lists.
+ * Interface used to import portal data.
  */
-public class DeleteAllCaseLists {
-
-    public static void main(String[] args) throws Exception {
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
-        DaoCaseList daoCaseList = new DaoCaseList();
-        daoCaseList.deleteAllRecords();
-        System.out.println ("\nAll Existing Case Lists Deleted.");
-        ConsoleUtil.showWarnings(pMonitor);
-    }
+public interface SurvivalDataCalculator
+{
+    /**
+     * The list is in ascending (time) order,
+     * i.e., patient matrix would come before follow-up matrices.
+     */
+    SurvivalStatus computeSurvivalData(List<DataMatrix> dataMatrices);
 }

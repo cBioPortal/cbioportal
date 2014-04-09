@@ -29,12 +29,6 @@
 package org.mskcc.cbio.importer.model;
 
 // imports
-import com.google.common.base.Charsets;
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Table;
-import com.google.common.io.Files;
-import org.apache.commons.codec.CharEncoding;
 import org.mskcc.cbio.importer.Admin;
 import org.mskcc.cbio.importer.CaseIDs;
 import org.mskcc.cbio.importer.Converter;
@@ -86,18 +80,24 @@ public class DataMatrix {
 	// gene id column heading - may be null
 	private String geneIDColumnHeading;
 
+    private String filename;
+    public String getFilename() { return filename; }
+
 	/**
 	 * Constructor.
 	 *
-	 * @param rowData List<LinkedList<String>>
-	 * @param columnNames List<String>
+	 * @param filename
+     * @param rowData List<LinkedList<String>>
+     * @param columnNames List<String>
 	 */
-	public DataMatrix(List<LinkedList<String>> rowData, List<String> columnNames) {
+	public DataMatrix(String filename, List<LinkedList<String>> rowData, List<String> columnNames) {
 
 		// sanity checks
-		if (rowData == null || columnNames == null) {
+		if (filename == null || rowData == null || columnNames == null) {
 			throw new IllegalArgumentException("DataMatrix(): rowData or columnNames is null...");
 		}
+
+        this.filename = filename;
 
 		// set numberOfRows
 		numberOfRows = rowData.size();
@@ -146,64 +146,6 @@ public class DataMatrix {
 		initCaseIDs();
 	}
 
-    /**
-     *
-     * Creates a DataMatrix from a string by splitting on
-     * the rowDelimiter and columnDelimiter respectively.
-     *
-     * The first row becomes the columnNames, other than that, nothing fancy.
-     *
-     * @param String in
-     * @return
-     */
-    public static DataMatrix fromString(String in, String rowDelimiter, String columnDelimiter) {
-        List<LinkedList<String>> rows = new ArrayList<LinkedList<String>>();
-        for (String row : Arrays.asList(in.split(rowDelimiter))) {
-            rows.add( new LinkedList<String>(Arrays.asList(row.split(columnDelimiter))) );
-        }
-
-        return new DataMatrix(rows.subList(1, rows.size()), rows.get(0));
-    }
-
-    /**
-     * Default rowDelimiter is "\n"
-     * Default columnDelimiter is "\t"
-     *
-     * @param String in
-     * @return DataMatrix
-     */
-    public static DataMatrix fromString(String in) {
-        return fromString(in, "\n", "\t");
-    }
-
-    /**
-     *
-     * Creates a new Google Guava Table and populates it with the data from this DataMatrix
-     *
-     * The row keys are the row numbers and the column keys are the column headers in
-     * this DataMatrix.
-     *
-     * @return table
-     */
-    public Table toTable() {
-
-        Table table = HashBasedTable.create();
-        int numRows = getNumberOfRows();
-
-        for (int row_index = 0; row_index < numRows; row_index+=1) {
-
-            List<String> row = getRowData(row_index);
-            int num_columns = row.size();
-
-            for (int column_index = 0; column_index < num_columns; column_index+=1) {
-                table.put(row_index, getColumnHeaders().get(column_index), row.get(column_index));
-            }
-        }
-
-        return table;
-    }
-
-
 	/**
 	 * Converts full TCGA bar code to abbreviated version for use in portal.
 	 * Ignores any column in which the case ID is not a tumor.
@@ -223,17 +165,17 @@ public class DataMatrix {
 			if (columnHeader.ignoreColumn) {
 				continue;
 			}
-			// ignore column in during filtering if desired
+			// ignore column if desired
 			else if (columnsToIgnore != null && columnsToIgnore.contains(columnHeader.label)) {
 				continue;
 			}
-			// ignore column (case) if its not a tumor id
-			if (!caseIDsFilter.isTumorCaseID(columnHeader.label)) {
+			// ignore column (case) if its not a sample id
+			if (!caseIDsFilter.isSampleId(columnHeader.label)) {
 				columnHeader.ignoreColumn = true;
 				continue;
 			}
 			// made it here, convert the id
-			columnHeader.label = caseIDsFilter.convertCaseID(columnHeader.label);
+			columnHeader.label = caseIDsFilter.getSampleId(columnHeader.label);
 			caseIDs.add(columnHeader.label);
 		}
 	}
@@ -253,10 +195,8 @@ public class DataMatrix {
 		List<String> caseIDColumnData = getColumnData(caseIDColumn).get(0);
 		for (int lc = 0; lc < caseIDColumnData.size(); lc++) {
 			String caseID = caseIDColumnData.get(lc);
-			if (caseIDsFilter.isTumorCaseID(caseID)) {
-				caseIDColumnData.set(lc, caseIDsFilter.convertCaseID(caseID));
-				caseIDs.add(caseID);
-			}
+            caseIDColumnData.set(lc, caseIDsFilter.getSampleId(caseID));
+            caseIDs.add(caseID);
 		}
 	}
 
@@ -351,7 +291,7 @@ public class DataMatrix {
 	 * @param newColumnName String
 	 * @throws Exception
 	 */
-	public void renameColumn(String columnName, String newColumnName) throws Exception {
+	public void renameColumn(String columnName, String newColumnName) {
 		
 		boolean foundColumnHeader = false;
 		for (ColumnHeader columnHeader : columnHeaders) {
@@ -359,9 +299,6 @@ public class DataMatrix {
 				columnHeader.label = newColumnName;
 				foundColumnHeader = true;
 			}
-		}
-		if (!foundColumnHeader) {
-			throw new IllegalArgumentException("column name not found: " + columnName);
 		}
 	}
 
@@ -418,36 +355,6 @@ public class DataMatrix {
 
 		return columnHeaders.get(columnIndex).columnData;
 	}
-
-    /**
-     *
-     * Gets the data for a given row by index.  Returns
-     * a copy of the data stored in the internal data structure,
-     * so changes in the returned List will *not* be reflected
-     * in subsequent calls into the class.
-     *
-     * @param rowIndex String
-     * @return List<String>
-     */
-    public List<String> getRowData(int rowIndex) {
-        // todo: someday this might beg for refactoring
-        // w.r.t a DataMatrix class that is row/column agnostic,
-        // i.e. a two level hashmap
-        // this would be a good idea especially if this class moves
-        // to the core module, since it's so handy.
-        // Check out Google Guava Tables.
-
-        LinkedList<String> toReturn = new LinkedList<String>();
-
-        for (int col = 0 ; col < columnHeaders.size(); col++) {
-            List<String> columnData = getColumnData(col);
-            String datum =  columnData.get(rowIndex);
-
-            toReturn.add(datum);
-        }
-
-        return toReturn;
-    }
 
     /**
      *
@@ -636,7 +543,7 @@ public class DataMatrix {
 		rowData.add(new LinkedList<String>(rowThree));
 
 		// create matrix and dump
-		DataMatrix dataMatrix = new DataMatrix(rowData, columnNames);
+		DataMatrix dataMatrix = new DataMatrix("", rowData, columnNames);
 		dataMatrix.write(System.out);
 		System.out.println();
 		System.out.println();
@@ -706,18 +613,6 @@ public class DataMatrix {
 		System.out.println();
 		System.out.println();
 
-        // get a row
-        List<String> aRow = dataMatrix.getRowData(0);
-        List<String> bRow = dataMatrix.getRowData(1);
-        System.out.println("Row 0:");
-        System.out.println(aRow);
-        System.out.println("Row 1:");
-        System.out.println(bRow);
-        System.out.println("From:");
-        dataMatrix.write(System.out);
-        System.out.println();
-        System.out.println();
-
 		// ignore a few rows
 		dataMatrix.ignoreRow(0, true);
 		dataMatrix.ignoreRow(2, true);
@@ -741,7 +636,7 @@ public class DataMatrix {
 		rowData.add(new LinkedList<String>(rowThree));
 
 		// create matrix and dump
-		dataMatrix = new DataMatrix(rowData, columnNames);
+		dataMatrix = new DataMatrix("", rowData, columnNames);
 		dataMatrix.write(System.out);
 		System.out.println();
 		System.out.println();

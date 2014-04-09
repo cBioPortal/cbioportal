@@ -30,49 +30,49 @@ package org.mskcc.cbio.portal.model;
 import java.util.*;
 
 /**
- * Annotated Case Sets.
+ * Annotated Patient Sets.
  *
  * @author Ethan Cerami
  */
-public class AnnotatedCaseSets {
+public class AnnotatedPatientSets {
     private static final String ALL_COMPLETE_TUMORS = "ALL COMPLETE TUMORS";
     private static final String ALL_TUMORS = "ALL TUMORS";
     private static final String ALL = "ALL";
 
-    private CaseList defaultCaseList;
+    private PatientList defaultPatientList;
 
-    public AnnotatedCaseSets(List<CaseList> caseSetList, Integer priorityLevel) {
-        this.defaultCaseList = determineDefaultCaseSet(caseSetList, priorityLevel);
+    public AnnotatedPatientSets(List<PatientList> patientSetList, Integer priorityLevel) {
+        this.defaultPatientList = determineDefaultPatientSet(patientSetList, priorityLevel);
     }
 
-    public AnnotatedCaseSets(List<CaseList> caseSetList) {
-        this(caseSetList, 0);
+    public AnnotatedPatientSets(List<PatientList> patientSetList) {
+        this(patientSetList, 0);
     }
 
     /**
-     * Gets the "best" default case set.
+     * Gets the "best" default patient set.
      *
-     * @return "best" default case set.
+     * @return "best" default patient set.
      */
-    public CaseList getDefaultCaseList() {
-        return defaultCaseList;
+    public PatientList getDefaultPatientList() {
+        return defaultPatientList;
     }
 
     /**
-     * This code makes an attempts at selecting the "best" default case set.
+     * This code makes an attempts at selecting the "best" default patient set.
      *
      *
-     * @param caseSetList List of all Case Sets.
+     * @param patientSetList List of all Patient Sets.
      * @param priorityLevel Priority level, all priorities below this one will be ignored
-     * @return the "best" default case set.
+     * @return the "best" default patient set.
      */
-    private CaseList determineDefaultCaseSet(List<CaseList> caseSetList, Integer priorityLevel) {
-        List<CaseSetWithPriority> priCaseList = new ArrayList<CaseSetWithPriority>();
-        for (CaseList caseSet : caseSetList) {
+    private PatientList determineDefaultPatientSet(List<PatientList> patientSetList, Integer priorityLevel) {
+        List<PatientSetWithPriority> priPatientList = new ArrayList<PatientSetWithPriority>();
+        for (PatientList patientSet : patientSetList) {
             Integer priority = null;
 
             // These are the new category overrides
-            switch (caseSet.getCaseListCategory()) {
+            switch (patientSet.getPatientListCategory()) {
                 case ALL_CASES_WITH_MUTATION_AND_CNA_DATA:
                     priority = 0;
                     break;
@@ -86,54 +86,54 @@ public class AnnotatedCaseSets {
 
             // If category matches none of the overrides, fallback to the old way
             if(priority == null) {
-                registerPriorityCaseList(caseSet, ALL_COMPLETE_TUMORS, 3, priCaseList);
-                registerPriorityCaseList(caseSet, ALL_TUMORS, 4, priCaseList);
-                registerPriorityCaseList(caseSet, ALL, 5, priCaseList);
+                registerPriorityPatientList(patientSet, ALL_COMPLETE_TUMORS, 3, priPatientList);
+                registerPriorityPatientList(patientSet, ALL_TUMORS, 4, priPatientList);
+                registerPriorityPatientList(patientSet, ALL, 5, priPatientList);
             } else {
                 // If we define a higher t-hold, just shift the priority level
                 if(priority < priorityLevel)
                     priority += 10;
 
-                priCaseList.add(new CaseSetWithPriority(caseSet, priority));
+                priPatientList.add(new PatientSetWithPriority(patientSet, priority));
             }
         }
 
-        Collections.sort(priCaseList, new CaseSetWithPriorityComparator());
-        if (priCaseList.size() > 0) {
-            return priCaseList.get(0).getCaseList();
+        Collections.sort(priPatientList, new PatientSetWithPriorityComparator());
+        if (priPatientList.size() > 0) {
+            return priPatientList.get(0).getPatientList();
         } else {
-            return failSafeReturn(caseSetList);
+            return failSafeReturn(patientSetList);
         }
     }
 
-    private CaseList failSafeReturn(List<CaseList> caseSetList) {
-        if (caseSetList.size() > 0) {
-            return caseSetList.get(0);
+    private PatientList failSafeReturn(List<PatientList> patientSetList) {
+        if (patientSetList.size() > 0) {
+            return patientSetList.get(0);
         } else {
             return null;
         }
     }
 
-    private void registerPriorityCaseList (CaseList caseSet, String target, int priority,
-            List<CaseSetWithPriority> priCaseList) {
-        String name = caseSet.getName();
+    private void registerPriorityPatientList (PatientList patientSet, String target, int priority,
+            List<PatientSetWithPriority> priPatientList) {
+        String name = patientSet.getName();
         if (name.toUpperCase().startsWith(target)) {
-            priCaseList.add(new CaseSetWithPriority(caseSet, priority));
+            priPatientList.add(new PatientSetWithPriority(patientSet, priority));
         }
     }
 }
 
-class CaseSetWithPriority {
-    private CaseList caseList;
+class PatientSetWithPriority {
+    private PatientList patientList;
     private int priority;
 
-    CaseSetWithPriority(CaseList caseList, int priority) {
-        this.caseList = caseList;
+    PatientSetWithPriority(PatientList patientList, int priority) {
+        this.patientList = patientList;
         this.priority = priority;
     }
 
-    public CaseList getCaseList() {
-        return caseList;
+    public PatientList getPatientList() {
+        return patientList;
     }
 
     public int getPriority() {
@@ -141,11 +141,11 @@ class CaseSetWithPriority {
     }
 }
 
-class CaseSetWithPriorityComparator implements Comparator {
+class PatientSetWithPriorityComparator implements Comparator {
 
     public int compare(Object o0, Object o1) {
-        CaseSetWithPriority caseSet0 = (CaseSetWithPriority) o0;
-        CaseSetWithPriority caseSet1 = (CaseSetWithPriority) o1;
-        return new Integer(caseSet0.getPriority()).compareTo(caseSet1.getPriority());
+        PatientSetWithPriority patientSet0 = (PatientSetWithPriority) o0;
+        PatientSetWithPriority patientSet1 = (PatientSetWithPriority) o1;
+        return new Integer(patientSet0.getPriority()).compareTo(patientSet1.getPriority());
     }
 }

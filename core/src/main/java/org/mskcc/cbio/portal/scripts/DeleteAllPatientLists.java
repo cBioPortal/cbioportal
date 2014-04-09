@@ -25,46 +25,23 @@
 ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 **/
 
-package org.mskcc.cbio.portal.dao;
+package org.mskcc.cbio.portal.scripts;
 
-import junit.framework.TestCase;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoGeneticProfileCases;
-import org.mskcc.cbio.portal.scripts.ResetDatabase;
-
-import java.util.ArrayList;
+import org.mskcc.cbio.portal.dao.DaoPatientList;
+import org.mskcc.cbio.portal.util.ConsoleUtil;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 /**
- * JUnit Tests for the Dao Genetic Profile Cases Class.
- *
- * @author Ethan Cerami.
+ * Command Line Tool to Delete All Patient Lists.
  */
-public class TestDaoGeneticProfileCases extends TestCase {
+public class DeleteAllPatientLists {
 
-    /**
-     * Tests the Dao Genetic Profile Cases Class.
-     * @throws DaoException Database Exception.
-     */
-    public void testDaoGeneticProfileCases() throws DaoException {
-        ResetDatabase.resetDatabase();
-
-        ArrayList<String> orderedCaseList = new ArrayList<String>();
-        orderedCaseList.add("TCGA-1");
-        orderedCaseList.add("TCGA-2");
-        orderedCaseList.add("TCGA-3");
-        orderedCaseList.add("TCGA-4");
-        int numRows = DaoGeneticProfileCases.addGeneticProfileCases(1, orderedCaseList);
-
-        assertEquals (1, numRows);
-
-        orderedCaseList = DaoGeneticProfileCases.getOrderedCaseList(1);
-        assertEquals (4, orderedCaseList.size());
-
-        //  Test the Delete method
-        DaoGeneticProfileCases.deleteAllCasesInGeneticProfile(1);
-        orderedCaseList = DaoGeneticProfileCases.getOrderedCaseList(1);
-        assertEquals (0, orderedCaseList.size());
-
+    public static void main(String[] args) throws Exception {
+        ProgressMonitor pMonitor = new ProgressMonitor();
+        pMonitor.setConsoleMode(true);
+        DaoPatientList daoPatientList = new DaoPatientList();
+        daoPatientList.deleteAllRecords();
+        System.out.println ("\nAll Existing Patient Lists Deleted.");
+        ConsoleUtil.showWarnings(pMonitor);
     }
-
 }

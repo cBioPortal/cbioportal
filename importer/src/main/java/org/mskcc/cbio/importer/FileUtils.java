@@ -41,6 +41,8 @@ import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.apache.commons.io.LineIterator;
 
 import java.io.File;
+import java.io.InputStream;
+import java.util.Set;
 import java.util.List;
 import java.util.Collection;
 
@@ -50,16 +52,6 @@ import java.util.Collection;
 public interface FileUtils {
 
 	public static final String FILE_URL_PREFIX = "file://";
-
-	// clinical data file column headers
-	public static final String CASE_ID = "CASE_ID";
-	public static final String GENDER = "GENDER";
-	public static final String FMI_CASE_ID = "FMI_CASE_ID";
-	public static final String PIPELINE_VER = "PIPELINE_VER";
-	public static final String TUMOR_NUCLEI_PERCENT = "TUMOR_NUCLEI_PERCENT";
-	public static final String MEDIAN_COV = "MEDIAN_COV";
-	public static final String COV_100X = "COV>100X";
-	public static final String ERROR_PERCENT = "ERROR_PERCENT";
 
 	/**
 	 * Computes the MD5 digest for the given file.
@@ -133,7 +125,7 @@ public interface FileUtils {
 	 * @return DataMatrix
 	 * @throws Exception
 	 */
-	DataMatrix getFileContents(ImportDataRecord importDataRecord, DataMatrix methylationCorrelation) throws Exception;
+	List<DataMatrix> getDataMatrices(ImportDataRecord importDataRecord, DataMatrix methylationCorrelation) throws Exception;
 
 	/**
 	 * Returns a list of missing caselists.  Applicable to
@@ -190,6 +182,7 @@ public interface FileUtils {
 	 * @throws Exception
 	 */
 	File createFileWithContents(String filename, String fileContent) throws Exception;
+	File createFileFromStream(String filename, InputStream fileContent) throws Exception;
 
 	/**
 	 * Downloads the given file specified via url to the given canonicalDestination.

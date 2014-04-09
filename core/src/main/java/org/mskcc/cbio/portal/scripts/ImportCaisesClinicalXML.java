@@ -4,36 +4,15 @@
  */
 package org.mskcc.cbio.portal.scripts;
 
-import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import joptsimple.OptionException;
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
-import joptsimple.OptionSpec;
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.dom4j.Element;
-import org.dom4j.Node;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
+
+import org.dom4j.*;
 import org.dom4j.io.SAXReader;
-import org.mskcc.cbio.portal.dao.DaoCancerStudy;
-import org.mskcc.cbio.portal.dao.DaoClinicalAttribute;
-import org.mskcc.cbio.portal.dao.DaoClinicalData;
-import org.mskcc.cbio.portal.dao.DaoClinicalEvent;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
-import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.ClinicalAttribute;
-import org.mskcc.cbio.portal.model.ClinicalData;
-import org.mskcc.cbio.portal.model.ClinicalEvent;
+import joptsimple.*;
+
+import java.util.*;
+import java.io.FileInputStream;
 
 /**
  *
@@ -96,36 +75,6 @@ public final class ImportCaisesClinicalXML {
         System.out.println("Done!");
     }
     
-//    private static Map<String,String> readSampleIDMapping(String clinicalDataFile) throws IOException {
-//        FileReader reader =  new FileReader(clinicalDataFile);
-//        BufferedReader buff = new BufferedReader(reader);
-//
-//        Map<String,String> map = new HashMap<String,String>();
-//        
-//        String line = buff.readLine(); 
-//        while (line.startsWith("#")) {
-//            line = buff.readLine();
-//        }
-//        
-//        Map<String,Integer> mapHeaderIndex = new HashMap<String,Integer>();
-//        String[] headers = line.split("\t");
-//        for (int i=0; i<headers.length; i++) {
-//            String header = headers[i];
-//            mapHeaderIndex.put(header, i);
-//        }
-//        
-//        int ixSampleId = mapHeaderIndex.get("CASE_ID");
-//        int ixSu2cSampleId = mapHeaderIndex.get("SU2C_SAMPLE_ID");
-//        
-//        while ((line = buff.readLine()) != null) {
-//            String[] parts = line.split("\t");
-//            if (!parts[1].isEmpty()) {
-//                map.put(parts[ixSampleId], parts[ixSu2cSampleId]);
-//            }
-//        }
-//        return map;
-//    }
-    
     private static void importData(String urlXml, int cancerStudyId) throws Exception {
         MySQLbulkLoader.bulkLoadOn();
         
@@ -135,6 +84,7 @@ public final class ImportCaisesClinicalXML {
         List<Node> patientNodes = document.selectNodes("//Patients/Patient");
         
         long clinicalEventId = DaoClinicalEvent.getLargestClinicalEventId();
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
         
         Map<String, Set<String>> mapPatientIdSampleId = getMapPatientIdSampleId(cancerStudyId);
         Map<String, Set<String>> mapSu2cSampleIdSampleId = getMapSu2cSampleIdSampleId(cancerStudyId);
@@ -145,6 +95,7 @@ public final class ImportCaisesClinicalXML {
         
         for (Node patientNode : patientNodes) {
             String patientId = patientNode.selectSingleNode("PtProtocolStudyId").getText();
+            Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudyId, patientId);
             
             System.out.println("Importing "+patientId);
 
@@ -156,8 +107,8 @@ public final class ImportCaisesClinicalXML {
                     parseClinicalDataFromSpecimen(patientNode, cancerStudyId),
                     mapSu2cSampleIdSampleId));
             for (ClinicalData cd : clinicalData) {
-                if (DaoClinicalData.getDatum(cancerStudyId, cd.getCaseId(), cd.getAttrId())==null) {
-                    DaoClinicalData.addDatum(cd);
+                if (DaoClinicalData.getDatum(cancerStudy.getCancerStudyStableId(), cd.getStableId(), cd.getAttrId())==null) {
+                    DaoClinicalData.addPatientDatum(patient.getInternalId(), cd.getAttrId(), cd.getAttrVal());
                 }
             }
             // add unknow attriutes -- this 
@@ -189,12 +140,12 @@ public final class ImportCaisesClinicalXML {
             Map<String, Set<String>> mapPatientIdSampleId) throws DaoException {
         List<ClinicalData> filteredData = new ArrayList<ClinicalData>();
         for (ClinicalData cd : clinicalData) {
-            String patientId = cd.getCaseId();
+            String patientId = cd.getStableId();
             Set<String> sampleIds = mapPatientIdSampleId.get(patientId);
             if (sampleIds!=null) {
                 for (String sampleId : sampleIds) {
                     ClinicalData newCD = new ClinicalData(cd);
-                    newCD.setCaseId(sampleId);
+                    newCD.setStableId(sampleId);
                     filteredData.add(newCD);
                 }
             }
@@ -208,7 +159,7 @@ public final class ImportCaisesClinicalXML {
         Map<String, Set<String>> map = new HashMap<String, Set<String>>();
         for (ClinicalData cd : clinicalData) {
             String patientId = cd.getAttrVal();
-            String sampleId = cd.getCaseId();
+            String sampleId = cd.getStableId();
             Set<String> sampleIds = map.get(patientId);
             if (sampleIds==null) {
                 sampleIds = new HashSet<String>();
@@ -224,7 +175,7 @@ public final class ImportCaisesClinicalXML {
         Map<String, Set<String>> map = new HashMap<String, Set<String>>();
         for (ClinicalData cd : clinicalData) {
             String su2cSampleId = cd.getAttrVal();
-            String sampleId = cd.getCaseId();
+            String sampleId = cd.getStableId();
             if (null!=map.put(su2cSampleId, Collections.singleton(sampleId))) {
                 System.err.println("Something is wrong: there are two samples with the same su2c ID: "+su2cSampleId);
             }
@@ -234,23 +185,23 @@ public final class ImportCaisesClinicalXML {
     
     private static List<ClinicalAttribute> getClinicalAttributes() {
         return Arrays.asList(
-                new ClinicalAttribute("PATIENT_ID", "Patient ID", "Patient ID", "STRING"),
-                new ClinicalAttribute("RACE", "Race", "Race", "STRING"),
-                new ClinicalAttribute("AGE", "Age", "Age", "Number"),
-                new ClinicalAttribute("PATIENT_CATEGORY", "Patient category", "Patient category", "STRING"),
-                new ClinicalAttribute("CLIN_T_Stage", "Clinical T stage", "Clinical T stage", "STRING"),
-                new ClinicalAttribute("CLIN_N_Stage", "Clinical N stage", "Clinical N stage", "STRING"),
-                new ClinicalAttribute("CLIN_M_Stage", "Clinical M stage", "Clinical M stage", "STRING"),
-                new ClinicalAttribute("HISTOLOGY", "Histology", "Histology", "STRING"),
-                new ClinicalAttribute("PATH_RESULT", "Pathology result", "Pathology result", "STRING"),
-                new ClinicalAttribute("PATH_T_STAGE", "Pathology T stage", "Pathology T stage", "STRING"),
-                new ClinicalAttribute("PATH_N_STAGE", "Pathology N stage", "Pathology N stage", "STRING"),
-                new ClinicalAttribute("PATH_M_STAGE", "Pathology M stage", "Pathology M stage", "STRING"),
-                new ClinicalAttribute("GLEASON_SCORE_1", "Gleason score 1", "Gleason score 1", "Number"),
-                new ClinicalAttribute("GLEASON_SCORE_2", "Gleason score 2", "Gleason score 2", "Number"),
-                new ClinicalAttribute("GLEASON_SCORE", "Gleason score", "Gleason score", "Number"),
-                new ClinicalAttribute("TUMOR_SITE", "Tumor site", "Tumor site", "STRING"),
-                new ClinicalAttribute("PROC_INSTRUMENT", "Procedure instrument", "Procedure instrument", "STRING")
+                new ClinicalAttribute("PATIENT_ID", "Patient ID", "Patient ID", "STRING", true),
+                new ClinicalAttribute("RACE", "Race", "Race", "STRING", true),
+                new ClinicalAttribute("AGE", "Age", "Age", "Number", true),
+                new ClinicalAttribute("PATIENT_CATEGORY", "Patient category", "Patient category", "STRING", true),
+                new ClinicalAttribute("CLIN_T_Stage", "Clinical T stage", "Clinical T stage", "STRING", true),
+                new ClinicalAttribute("CLIN_N_Stage", "Clinical N stage", "Clinical N stage", "STRING", true),
+                new ClinicalAttribute("CLIN_M_Stage", "Clinical M stage", "Clinical M stage", "STRING", true),
+                new ClinicalAttribute("HISTOLOGY", "Histology", "Histology", "STRING", true),
+                new ClinicalAttribute("PATH_RESULT", "Pathology result", "Pathology result", "STRING", true),
+                new ClinicalAttribute("PATH_T_STAGE", "Pathology T stage", "Pathology T stage", "STRING", true),
+                new ClinicalAttribute("PATH_N_STAGE", "Pathology N stage", "Pathology N stage", "STRING", true),
+                new ClinicalAttribute("PATH_M_STAGE", "Pathology M stage", "Pathology M stage", "STRING", true),
+                new ClinicalAttribute("GLEASON_SCORE_1", "Gleason score 1", "Gleason score 1", "Number", true),
+                new ClinicalAttribute("GLEASON_SCORE_2", "Gleason score 2", "Gleason score 2", "Number", true),
+                new ClinicalAttribute("GLEASON_SCORE", "Gleason score", "Gleason score", "Number", true),
+                new ClinicalAttribute("TUMOR_SITE", "Tumor site", "Tumor site", "STRING", true),
+                new ClinicalAttribute("PROC_INSTRUMENT", "Procedure instrument", "Procedure instrument", "STRING", true)
         );
     }
     

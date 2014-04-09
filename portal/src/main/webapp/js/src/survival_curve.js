@@ -431,7 +431,7 @@ var survivalCurves = (function() {
         function drawOSLines() {
             var _os_altered_data = data.getOSAlteredData();
             var _os_unaltered_data = data.getOSUnalteredData();
-            if (_os_altered_data !== null) {
+            if (_os_altered_data !== null && _os_altered_data.length > 0) {
                 if (_os_altered_data[0].time !== 0) {
                     _os_altered_data.unshift(appendZeroPoint(_os_altered_data[0].num_at_risk));
                 }
@@ -440,7 +440,7 @@ var survivalCurves = (function() {
                     .style("fill", "none")
                     .style("stroke", settings.altered_line_color);
             }
-            if (_os_unaltered_data !== null) {
+            if (_os_unaltered_data !== null && _os_unaltered_data.length > 0) {
                 if (_os_unaltered_data[0].time !== 0) {
                     _os_unaltered_data.unshift(appendZeroPoint(_os_unaltered_data[0].num_at_risk));
                 }
@@ -454,7 +454,7 @@ var survivalCurves = (function() {
         function drawDFSLines() {
             var _dfs_altered_data = data.getDFSAlteredData();
             var _dfs_unaltered_data = data.getDFSUnalteredData();
-            if (_dfs_altered_data !== null) {
+            if (_dfs_altered_data !== null && _dfs_altered_data.length > 0) {
                 if (_dfs_altered_data[0].time !== 0) {
                     _dfs_altered_data.unshift(appendZeroPoint(_dfs_altered_data[0].num_at_risk));
                 }
@@ -463,7 +463,7 @@ var survivalCurves = (function() {
                     .style("fill", "none")
                     .style("stroke", settings.altered_line_color);
             }
-            if (_dfs_unaltered_data !== null) {
+            if (_dfs_unaltered_data !== null && _dfs_unaltered_data.length > 0) {
                 if (_dfs_unaltered_data[0].time !== 0) {
                     _dfs_unaltered_data.unshift(appendZeroPoint(_dfs_unaltered_data[0].num_at_risk));
                 }

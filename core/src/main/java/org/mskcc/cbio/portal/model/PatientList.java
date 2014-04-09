@@ -31,36 +31,36 @@ package org.mskcc.cbio.portal.model;
 import java.util.ArrayList;
 
 /**
- * Class to store information of case list.
+ * Class to store information of patient list.
  */
-public class CaseList {
+public class PatientList {
    private String            stableId;
-   private int               caseListId;
+   private int               patientListId;
    private int               cancerStudyId;
    private String            name;
    private String            description;
-   private CaseListCategory  caseListCategory;
-   private ArrayList<String> caseList;
+   private PatientListCategory  patientListCategory;
+   private ArrayList<String> patientList;
 
-   public CaseList() {
+   public PatientList() {
       super();
    }
 
    /**
-    * A constructor for all the NON NULL fields in a case_list
+    * A constructor for all the NON NULL fields in a patient_list
     * @param stableId
-    * @param caseListId
+    * @param patientListId
     * @param cancerStudyId
     * @param name
     */
-   public CaseList(String stableId, int caseListId, int cancerStudyId, String name,
-                   CaseListCategory caseListCategory) {
+   public PatientList(String stableId, int patientListId, int cancerStudyId, String name,
+                      PatientListCategory patientListCategory) {
       super();
       this.stableId = stableId;
-      this.caseListId = caseListId;
+      this.patientListId = patientListId;
       this.cancerStudyId = cancerStudyId;
       this.name = name;
-      this.caseListCategory = caseListCategory;
+      this.patientListCategory = patientListCategory;
    }
 
    public String getStableId() {
@@ -71,12 +71,12 @@ public class CaseList {
       this.stableId = stableId;
    }
 
-   public int getCaseListId() {
-      return caseListId;
+   public int getPatientListId() {
+      return patientListId;
    }
 
-   public void setCaseListId(int caseListId) {
-      this.caseListId = caseListId;
+   public void setPatientListId(int patientListId) {
+      this.patientListId = patientListId;
    }
 
    public int getCancerStudyId() {
@@ -95,12 +95,12 @@ public class CaseList {
       this.name = name;
    }
 
-   public CaseListCategory getCaseListCategory() {
-       return caseListCategory;
+   public PatientListCategory getPatientListCategory() {
+       return patientListCategory;
    }
 
-   public void setCaseListCategory(CaseListCategory caseListCategory) {
-       this.caseListCategory = caseListCategory;
+   public void setPatientListCategory(PatientListCategory patientListCategory) {
+       this.patientListCategory = patientListCategory;
    }
 
    public String getDescription() {
@@ -111,37 +111,37 @@ public class CaseList {
       this.description = description;
    }
 
-   public ArrayList<String> getCaseList() {
-      return caseList;
+   public ArrayList<String> getPatientList() {
+      return patientList;
    }
 
-   public void setCaseList(ArrayList<String> caseList) {
-      this.caseList = caseList;
+   public void setPatientList(ArrayList<String> patientList) {
+      this.patientList = patientList;
    }
 
     @Override
     public String toString() {
         return this.getClass().getName() + "{"
                 + "stableId " + this.stableId
-                + ", caseListId " + this.caseListId
-                + ", caseLIstId " + this.cancerStudyId
+                + ", patientListId " + this.patientListId
+                + ", patientListId " + this.cancerStudyId
                 + ", name " + this.name
                 + ", description " + this.description
-                + ", CaseListCategory " + this.caseListCategory
-                + ", caseList " + this.caseList
+                + ", PatientListCategory " + this.patientListCategory
+                + ", patientList " + this.patientList
                 + "}";
     }
 
 
     /**
-     * Gets list of all case IDs in the set as one string.
+     * Gets list of all patient IDs in the set as one string.
      *
-     * @return space-delimited list of case IDs.
+     * @return space-delimited list of patient IDs.
      */
-    public String getCaseListAsString() {
+    public String getPatientListAsString() {
         StringBuilder str = new StringBuilder();
-        for (String caseId : caseList) {
-            str.append(caseId).append(" ");
+        for (String patientId : patientList) {
+            str.append(patientId).append(" ");
         }
         return str.toString();
     }

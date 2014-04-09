@@ -29,21 +29,25 @@
 package org.mskcc.cbio.importer.util;
 
 // imports
-import org.mskcc.cbio.importer.model.PortalMetadata;
-import org.mskcc.cbio.importer.model.CancerStudyMetadata;
-import org.mskcc.cbio.importer.model.DataSourcesMetadata;
+import org.mskcc.cbio.importer.*;
+import org.mskcc.cbio.importer.model.*;
+import org.mskcc.cbio.portal.model.ClinicalAttribute;
+import org.mskcc.cbio.portal.scripts.ImportClinicalData;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.*;
+import java.util.regex.*;
+import java.lang.reflect.Method;
 
 /**
  * Class which provides utilities shared across metadata objects (yes this could be in an abstract class).
  */
 public class MetadataUtils {
 
-	// the reference metadata worksheet can contain environment vars
+	private static final Log LOG = LogFactory.getLog(MetadataUtils.class);
 	private static final Pattern ENVIRONMENT_VAR_REGEX = Pattern.compile("\\$(\\w*)");
 
 	/**
@@ -101,4 +105,61 @@ public class MetadataUtils {
 		// outta here
 		return toReturn;
 	}
+
+    public static String getClinicalMetadataHeaders(Config config, List<String> normalizedColumnHeaderNames) throws Exception
+    {
+		StringBuilder clinicalDataHeader = new StringBuilder();
+        Map<String, ClinicalAttributesMetadata> clinicalAttributesMetadata = getClinicalAttributesMetadata(config, normalizedColumnHeaderNames);
+
+        clinicalDataHeader.append(addClinicalDataHeader(normalizedColumnHeaderNames, clinicalAttributesMetadata, "getDisplayName"));
+        clinicalDataHeader.append(addClinicalDataHeader(normalizedColumnHeaderNames, clinicalAttributesMetadata, "getDescription"));
+        clinicalDataHeader.append(addClinicalDataHeader(normalizedColumnHeaderNames, clinicalAttributesMetadata, "getDatatype"));
+
+        return clinicalDataHeader.toString();
+    }
+
+    private static Map <String, ClinicalAttributesMetadata> getClinicalAttributesMetadata(Config config, List<String> normalizedColumnHeaderNames)
+    {
+        Map<String, ClinicalAttributesMetadata> toReturn = new HashMap<String, ClinicalAttributesMetadata>();
+        for (String columnHeader : normalizedColumnHeaderNames) {
+            Collection<ClinicalAttributesMetadata> metadata = config.getClinicalAttributesMetadata(columnHeader.toUpperCase());
+            if (!metadata.isEmpty()) {
+                toReturn.put(columnHeader, metadata.iterator().next());
+            }
+        }
+        return toReturn;
+    }
+
+    private static String addClinicalDataHeader(List<String> normalizedColumnHeaderNames,
+                                                Map<String, ClinicalAttributesMetadata> clinicalAttributesMetadata,
+                                                String metadataAccessor) throws Exception
+    {
+        StringBuilder header = new StringBuilder();
+        header.append(ImportClinicalData.METADATA_PREFIX);
+        for (String columnHeader : normalizedColumnHeaderNames) {
+            ClinicalAttributesMetadata metadata = clinicalAttributesMetadata.get(columnHeader);
+            if (metadata != null) {
+                Method m = clinicalAttributesMetadata.get(columnHeader).getClass().getMethod(metadataAccessor);
+                header.append((String)m.invoke(metadata) + ImportClinicalData.DELIMITER);
+            }
+            else {
+                logMessage(String.format("Unknown clinical attribute: %s", columnHeader));
+                if (metadataAccessor.equals("getDatatype")) {
+                    header.append(ClinicalAttribute.DEFAULT_DATATYPE);
+                }
+                else {
+                    header.append(ClinicalAttribute.MISSING);
+                }
+                header.append(ImportClinicalData.DELIMITER);
+            }
+        }
+        return header.toString().trim() + "\n";
+    }
+
+    private static void logMessage(String message)
+    {
+        if (LOG.isInfoEnabled()) {
+            LOG.info(message);
+        }
+    }
 }

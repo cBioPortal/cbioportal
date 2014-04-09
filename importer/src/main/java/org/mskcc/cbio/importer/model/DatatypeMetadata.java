@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.regex.Pattern;
 import java.lang.reflect.Method;
 
 /**
@@ -46,22 +47,26 @@ public class DatatypeMetadata {
 	public static final String NUM_GENES_TAG = "<NUM_GENES>";
 	public static final String TUMOR_TYPE_TAG = "<TUMOR_TYPE>";
 	public static final String CANCER_STUDY_TAG = "<CANCER_STUDY>";
+    public static final String CLINICAL_FOLLOWUP_VERSION = "<FOLLOWUP_VERSION>";
+    // this will match both patient and nte followup files - which is ok.
+    public static final Pattern CLINICAL_FOLLOWUP_FILE_REGEX = Pattern.compile("nationwidechildrens.org_clinical_follow_up_v(\\d\\.\\d+)_\\w+\\.txt");
+    public static final Pattern CLINICAL_PATIENT_FILE_REGEX = Pattern.compile("nationwidechildrens.org_clinical_patient_(\\w+)\\.txt");
+    public static final Pattern CLINICAL_NTE_FILE_REGEX = Pattern.compile("nationwidechildrens.org_clinical_nte_(\\w+)\\.txt");
+    public static final Pattern CLINICAL_NTE_FOLLOWUP_FILE_REGEX = Pattern.compile("nationwidechildrens.org_clinical_follow_up_v(\\d\\.\\d+)_nte_\\w+\\.txt");
 	
 	// delimiter when specifying datatypes on worksheet
     public static final String DATATYPES_DELIMITER = ":"; 
 
-	// MAF file extension - used (at least) by FileUtils.oncotateAllMAFs
 	public static final String MAF_FILE_EXT = ".maf.annotated";
-
-	// correlate methylation file v mrna file id - used to id a correlation file
-	// - used by at least ConverterImpl
-	public static final String CORRELATE_METHYL_FILE_ID = "Correlate";
-
-	// mutation data staging filename
 	public static final String MUTATIONS_STAGING_FILENAME = "data_mutations_extended.txt";
 
-	// clinical data staging filename
-	public static final String CLINICAL_STAGING_FILENAME = "data_clinical.txt";
+	public static final String CORRELATE_METHYL_FILE_ID = "Correlate";
+
+    public static final String COMMON_DATA_ELEMENT_ID = "CDE_ID:";
+    public static final String BCR_CLINICAL_FILENAME_PREFIX = "nationwidechildrens.org";
+    public static final String CLINICAL_SAMPLE_FILENAME_SUFFIX = "_sample.txt";
+	public static final String CLINICAL_PATIENT_FILENAME = "data_clinical_patient.txt";
+	public static final String CLINICAL_SAMPLE_FILENAME = "data_clinical_sample.txt";
 
 	// fusion data staging filename
 	public static final String FUSIONS_STAGING_FILENAME = "data_fusions.txt";

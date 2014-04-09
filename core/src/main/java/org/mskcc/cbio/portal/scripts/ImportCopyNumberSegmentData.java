@@ -1,20 +1,12 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.*;
+
+import java.io.*;
 import java.math.BigDecimal;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import org.mskcc.cbio.portal.dao.DaoCancerStudy;
-import org.mskcc.cbio.portal.dao.DaoCopyNumberSegment;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.model.CopyNumberSegment;
-import org.mskcc.cbio.portal.util.ConsoleUtil;
-import org.mskcc.cbio.portal.util.FileUtil;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 /**
  * Import protein array antibody information into database.
@@ -24,7 +16,6 @@ public class ImportCopyNumberSegmentData {
     private ProgressMonitor pMonitor;
     private int cancerStudyId;
     private File file;
-    private Pattern p = Pattern.compile("(TCGA\\-[^\\-]+-[^\\-]+).*");
     
     public ImportCopyNumberSegmentData(File file, int cancerStudyId, ProgressMonitor pMonitor) {
         this.file = file;
@@ -53,18 +44,19 @@ public class ImportCopyNumberSegmentData {
                 System.err.println("wrong format: "+line);
             }
 
-            String caseId = strs[0];
-            Matcher m = p.matcher(caseId);
-            if (m.matches()) {
-                caseId = m.group(1);
-            }
+            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
+            ImportDataUtil.addPatients(strs, cancerStudy);
+            ImportDataUtil.addSamples(strs, cancerStudy);
+
+            String sampleId = StableIdUtil.getSampleId(strs[0]);
             long start = Double.valueOf(strs[2]).longValue();
             long end = Double.valueOf(strs[3]).longValue();
             int numProbes = new BigDecimal((strs[4])).intValue();
             double segMean = Double.parseDouble(strs[5]);
             
-            CopyNumberSegment cns = new CopyNumberSegment(cancerStudyId, caseId, strs[1], start, end, numProbes, segMean);
-            DaoCopyNumberSegment.addCopyNumberSegment(cns);
+            Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId);
+            CopyNumberSegment cns = new CopyNumberSegment(cancerStudyId, s.getInternalId(), strs[1], start, end, numProbes, segMean);
+        
         }
     }
     

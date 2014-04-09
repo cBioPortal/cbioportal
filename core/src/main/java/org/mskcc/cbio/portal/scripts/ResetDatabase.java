@@ -55,20 +55,20 @@ public class ResetDatabase {
         daoMicroRna.deleteAllRecords();
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         daoGene.deleteAllRecords();
-        DaoCaseProfile.deleteAllRecords();
+        DaoSampleProfile.deleteAllRecords();
         DaoGeneticAlteration daoGenetic = DaoGeneticAlteration.getInstance();
         daoGenetic.deleteAllRecords();
         DaoMicroRnaAlteration daoMicroRnaAlteration = DaoMicroRnaAlteration.getInstance();
         daoMicroRnaAlteration.deleteAllRecords();
         DaoMutSig.deleteAllRecords();
         DaoGeneticProfile.deleteAllRecords();
-        DaoCaseList daoCaseList = new DaoCaseList();
-        daoCaseList.deleteAllRecords();
+        DaoPatientList daoPatientList = new DaoPatientList();
+        daoPatientList.deleteAllRecords();
         DaoClinicalData.deleteAllRecords();
         DaoMutation.deleteAllRecords();
         DaoMutationFrequency daoMutationFrequency = new DaoMutationFrequency();
         daoMutationFrequency.deleteAllRecords();
-        DaoGeneticProfileCases.deleteAllRecords();
+        DaoGeneticProfileSamples.deleteAllRecords();
         DaoInteraction daoInteraction = DaoInteraction.getInstance();
         daoInteraction.deleteAllRecords();
         DaoProteinArrayData.getInstance().deleteAllRecords();
@@ -83,6 +83,8 @@ public class ResetDatabase {
         daoTextCache.deleteAllKeys();
         DaoClinicalTrial daoClinicalTrial = DaoClinicalTrial.getInstance();
         daoClinicalTrial.deleteAllRecords();
+        DaoPatient.deleteAllRecords();
+        DaoSample.deleteAllRecords();
         System.out.println("all database reset.");
     }
 

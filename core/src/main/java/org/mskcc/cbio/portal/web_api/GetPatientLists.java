@@ -27,65 +27,62 @@
 
 package org.mskcc.cbio.portal.web_api;
 
-import org.mskcc.cbio.portal.dao.DaoCancerStudy;
-import org.mskcc.cbio.portal.dao.DaoCaseList;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.CaseList;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
 
 import java.util.ArrayList;
 
 /**
- * Web API for Getting Case Lists.
+ * Web API for Getting Patient Lists.
  *
  * @author Ethan Cerami.
  */
-public class GetCaseLists {
+public class GetPatientLists {
 
     /**
-     * Gets all Case Sets Associated with a specific Cancer Study.
+     * Gets all Patient Sets Associated with a specific Cancer Study.
      *
      * @param cancerStudyId Cancer Study ID.
-     * @return ArrayList of CaseSet Objects.
+     * @return ArrayList of PatientSet Objects.
      * @throws DaoException Database Error.
      */
-    public static ArrayList<CaseList> getCaseLists(String cancerStudyId)
+    public static ArrayList<PatientList> getPatientLists(String cancerStudyId)
             throws DaoException {
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
         if (cancerStudy != null) {
-            DaoCaseList daoCaseList = new DaoCaseList();
-            ArrayList<CaseList> caseList = daoCaseList.getAllCaseLists(cancerStudy.getInternalId());
-            return caseList;
+            DaoPatientList daoPatientList = new DaoPatientList();
+            ArrayList<PatientList> patientList = daoPatientList.getAllPatientLists(cancerStudy.getInternalId());
+            return patientList;
         } else {
-            ArrayList<CaseList> caseList = new ArrayList<CaseList>();
-            return caseList;
+            ArrayList<PatientList> patientList = new ArrayList<PatientList>();
+            return patientList;
         }
     }
 
     /**
-     * Get Case List for Specified Stable Cancer Study ID.
+     * Get Patient List for Specified Stable Cancer Study ID.
      *
      * @param cancerStudyStableId Stable Cancer Study ID.
      * @return Table output.
      * @throws DaoException Database Error.
      */
-    public static String getCaseListsAsTable(String cancerStudyStableId) throws DaoException {
+    public static String getPatientListsAsTable(String cancerStudyStableId) throws DaoException {
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId);
         StringBuilder buf = new StringBuilder();
         if (cancerStudy != null) {
             int cancerStudyInternalId = cancerStudy.getInternalId();
-            DaoCaseList daoCaseList = new DaoCaseList();
-            ArrayList<CaseList> list = daoCaseList.getAllCaseLists(cancerStudyInternalId);
+            DaoPatientList daoPatientList = new DaoPatientList();
+            ArrayList<PatientList> list = daoPatientList.getAllPatientLists(cancerStudyInternalId);
             if (list.size() > 0) {
                 buf.append("case_list_id\tcase_list_name\tcase_list_description\t"
                         + "cancer_study_id\t" + "case_ids\n");
-                for (CaseList caseList : list) {
-                    buf.append(caseList.getStableId()).append("\t");
-                    buf.append(caseList.getName()).append("\t");
-                    buf.append(caseList.getDescription()).append("\t");
-                    buf.append(caseList.getCancerStudyId()).append("\t");
-                    for (String aCase : caseList.getCaseList()) {
-                        buf.append(aCase).append(" ");
+                for (PatientList patientList : list) {
+                    buf.append(patientList.getStableId()).append("\t");
+                    buf.append(patientList.getName()).append("\t");
+                    buf.append(patientList.getDescription()).append("\t");
+                    buf.append(patientList.getCancerStudyId()).append("\t");
+                    for (String aPatient : patientList.getPatientList()) {
+                        buf.append(aPatient).append(" ");
                     }
                     buf.append("\n");
                 }

@@ -26,6 +26,7 @@ importer.spreadsheet=
 importer.cancer_studies_worksheet=
 importer.case_id_filters_worksheet=
 importer.case_lists_worksheet=
+importer.clinical_attributes_namespace_worksheet=
 importer.clinical_attributes_worksheet=
 importer.datatypes_worksheet=
 importer.data_sources_worksheet=
@@ -120,3 +121,7 @@ broad.bam.checking.url=
 
 # temp dir
 temporary_dir=/tmp
+
+# tcga - bcr
+tcga.clinical.url=https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/<TUMOR_TYPE>/bcr/nationwidechildrens.org/bio/clin/
+tcga.clinical.filename=nationwidechildrens.org_<TUMOR_TYPE>.bio.Level_2.0.<REVISION>.0.tar.gz

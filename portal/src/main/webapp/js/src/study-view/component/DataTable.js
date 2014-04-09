@@ -189,9 +189,9 @@ var DataTable = function() {
                     });
                     $("#dataTable_filter label input").attr("value","");
                     $.fn.dataTableExt.afnFiltering = [];
-                    disableFiltId = [0];
-                    resizeLeftColumn();         
+                    disableFiltId = [0];     
                     refreshSelectionInDataTable();
+                    resizeLeftColumn();    
                     $(".dataTableReset span").css('display','none');
                 }
             }
@@ -230,10 +230,10 @@ var DataTable = function() {
             $(this).css({'cursor': 'wait'});
             $("#dataTable_filter label input").attr("value","");
             $.fn.dataTableExt.afnFiltering = [];
-            updateTable([]);
-            resizeLeftColumn();            
+            updateTable([]);          
             refreshSelectionInDataTable();
             dataTable.fnAdjustColumnSizing();
+            resizeLeftColumn();
             showDataTableReset();
             $(this).css({'cursor': 'default'});
         });
@@ -442,15 +442,21 @@ var DataTable = function() {
     function resizeLeftColumn(){
         var _heightBody = $(".dataTables_scrollBody").css('height'),
             _heightTable = $('.dataTables_scroll').css('height'),
-            _widthBody = $("#dataTable tbody>tr>td:nth-child(1)").width();
+            _widthBody = $("#dataTable tbody>tr:nth-child(1)>td:nth-child(1)").width();
         
-        _widthBody = _widthBody + 20;
+        _widthBody = _widthBody + 22;
         _widthBody = _widthBody.toString() + 'px';
         
         $(".DTFC_LeftBodyLiner").css('height',_heightBody);
         //$(".DTFC_LeftBodyWrapper").css('height',_heightBody); 
-        //$(".DTFC_LeftWrapper").css('width',_widthBody);
-        //$(".DTFC_LeftBodyLiner").css('width',_widthBody);
+        
+        //When selecting or unselecting columns in table of summary tab,
+        //the column width will be stretched, the columns width will be changed
+        //automatically, but the width of left column needs to be changed by
+        //using following two statements.
+        $(".DTFC_LeftWrapper").css('width',_widthBody);
+        $(".DTFC_LeftBodyLiner").css('width',_widthBody);
+        
         $(".DTFC_ScrollWrapper").css('height',_heightTable);
         $(".DTFC_LeftBodyLiner").css('background-color','white');
     }
@@ -547,11 +553,11 @@ var DataTable = function() {
         updateDataTableNumericFilter();
         dataTable.fnSort([ [columnIndexMappingColumnId[_i],'asc']]);
         disableFiltId.push(_i);
-        resizeLeftColumn();
         showDataTableReset();
         $("#dataTable-" + _i + "-reset").css('display','block');
         refreshSelectionInDataTable();
         dataTable.fnAdjustColumnSizing();
+        resizeLeftColumn();  
     }
     
     function refreshSelectionInDataTable(){
@@ -575,11 +581,11 @@ var DataTable = function() {
                     dataTableNumericFilter[columnIndexMappingColumnId[i]] = '';
                     updateDataTableNumericFilter();
                     disableFiltId.splice(disableFiltId.indexOf(i),1);
-                    resizeLeftColumn();
                     showDataTableReset();
                     $("#dataTable-" + i + "-reset").css('display','none');
                     refreshSelectionInDataTable();
                     dataTable.fnAdjustColumnSizing();
+                    resizeLeftColumn();  
                 });
                 
                 $('select', this).change( function () {
@@ -603,10 +609,10 @@ var DataTable = function() {
                         disableFiltId.push(i);
                     }
                     
-                    resizeLeftColumn();
                     showDataTableReset();
                     refreshSelectionInDataTable();
                     dataTable.fnAdjustColumnSizing();
+                    resizeLeftColumn();
                 });
             }
         });
@@ -674,11 +680,11 @@ var DataTable = function() {
                 dataTable.fnFilter('');
             }
             deleteChartResetDataTable(_filteredResult);
-            resizeLeftColumn();            
-            refreshSelectionInDataTable();
+             refreshSelectionInDataTable();
             dataTable.fnAdjustColumnSizing();
             $("#dataTable_filter label input").attr("value","");
             showDataTableReset();
+            resizeLeftColumn();
         },
         
         rowClickCallback: function(_callback) {

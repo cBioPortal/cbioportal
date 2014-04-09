@@ -372,7 +372,7 @@ var ScatterPlots = function() {
             .attr("class", "legend")
             .attr("transform", function(d, i) {
                 return "translate(" + (canvas.xRight + 10) + ", " + (24 + i * 14) + ")";
-            })
+            });
         
         legend.append("path")
             .attr("d", d3.svg.symbol()
@@ -809,13 +809,16 @@ var ScatterPlots = function() {
         // !!! Log Scale are only used by using RNA Seq Profile
         updateScaleX: function(_divName) {   //_applyLogScale: boolean, true for apply scale, false for  original value)
             var _applyLogScale = document.getElementById(_divName).checked;
+            
             if (_applyLogScale) {
                 updateAxisScaleX();
             } else {
                 initScaleX();
             }
-            if(brushOn)
+            
+            if(brushOn){
                 updateBrush();
+            }
             initAxisX();
             generateAxisX();
             appendAxisTitleX(_applyLogScale);
@@ -955,8 +958,8 @@ var ScatterPlots = function() {
             });            
         }
 
-    }
-}
+    };
+};
 
 
 

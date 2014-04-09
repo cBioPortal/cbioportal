@@ -38,11 +38,7 @@ function JmolScriptGenerator()
 
 	function setColor (color)
 	{
-		// this is for Jmol compatibility
-		// (colors should start with an "x" instead of "#")
-		color = color.replace("#", "x");
-
-		return "color [" + color + "];"
+		return "color [" + formatColor(color) + "];"
 	}
 
 	function selectChain(chainId)
@@ -210,6 +206,13 @@ function JmolScriptGenerator()
 			self.generateSideChainScript(scriptPositions, displaySideChain, options, chain));
 
 		return script;
+	}
+
+	function formatColor(color)
+	{
+		// this is for Jmol compatibility
+		// (colors should start with an "x" instead of "#")
+		return color.replace("#", "x");
 	}
 
 	// override required functions

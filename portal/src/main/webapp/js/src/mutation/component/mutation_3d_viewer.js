@@ -794,6 +794,9 @@ var Mutation3dVis = function(name, options)
 		// reinitialize
 		script.push(scriptGen.reinitialize());
 
+		// set background color
+		script.push(scriptGen.bgColor(_options.appOptions.color));
+
 		// load current pdb
 		script.push(scriptGen.loadPdb(_pdbId));
 

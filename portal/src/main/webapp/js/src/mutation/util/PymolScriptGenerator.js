@@ -13,12 +13,18 @@ function PymolScriptGenerator()
 		spaceFilling: "hide everything; show spheres;",
 		ribbon: "hide everything; show ribbon;",
 		cartoon: "hide everything; show cartoon;",
-		trace: "hide everything; show lines;"
+		// TODO there is no "trace" in PyMOL, ribbon is the most similar one
+		trace: "hide everything; show ribbon;"
 	};
 
 	function reinitialize()
 	{
 		return "reinitialize;";
+	}
+
+	function bgColor(color)
+	{
+		return "bg_color " + formatColor(color) + ";";
 	}
 
 	function loadPdb(pdbId)
@@ -33,11 +39,7 @@ function PymolScriptGenerator()
 
 	function setColor (color)
 	{
-		// this is for Jmol compatibility
-		// (colors should start with an "x" instead of "#")
-		color = color.replace("#", "0x");
-
-		return "color " + color + ", sele;";
+		return "color " + formatColor(color) + ", sele;";
 	}
 
 	function selectChain(chainId)
@@ -67,13 +69,17 @@ function PymolScriptGenerator()
 
 	function setTransparency(transparency)
 	{
-		// TODO this doesn't work...
-		return "set transparency=" + (transparency / 10) + ", sele;";
+		// TODO cartoon_transparency doesn't work for chain or residue selections
+		// see issue:  http://sourceforge.net/p/pymol/bugs/129/
+		return ("set transparency, " + (transparency / 10) + ", sele;\n" +
+		        "set cartoon_transparency, " + (transparency / 10) + ", sele;\n" +
+		        "set sphere_transparency, " + (transparency / 10) + ", sele;\n" +
+		        "set stick_transparency, " + (transparency / 10) + ", sele;");
 	}
 
 	function makeOpaque()
 	{
-		return "set transparency=" + 1.0 + ", sele;";
+		return setTransparency(0);
 	}
 
 	function enableBallAndStick()
@@ -98,8 +104,16 @@ function PymolScriptGenerator()
 
 	function hideBoundMolecules()
 	{
-		// TODO restrict to protein only
-		return "";
+		// restrict to protein only
+		return "hide everything," +
+		       "not resn asp+glu+arg+lys+his+asn+thr+cys+gln+tyr+ser+gly+ala+leu+val+ile+met+trp+phe+pro";
+	}
+
+	function formatColor(color)
+	{
+		// this is for Pymol compatibility
+		// (colors should start with an "0x" instead of "#")
+		return color.replace("#", "0x");
 	}
 
 	// override required functions
@@ -119,6 +133,7 @@ function PymolScriptGenerator()
 	this.enableBallAndStick = enableBallAndStick;
 	this.disableBallAndStick = disableBallAndStick;
 	this.reinitialize = reinitialize;
+	this.bgColor = bgColor;
 }
 
 // PymolScriptGenerator extends JmolScriptGenerator...

@@ -279,13 +279,13 @@ var StudyViewBoilerplate ={
                 "<form style='display:inline-block;' action='svgtopdf.do' method='post' id='study-view-word-cloud-pdf'>"+
                 "<input type='hidden' name='svgelement' id='study-view-word-cloud-pdf-value'>"+
                 "<input type='hidden' name='filetype' value='pdf'>"+
-                "<input type='hidden' id='study-view-word-cloud-pdf-name' name='filename' value='word-cloud.pdf'>"+
+                "<input type='hidden' id='study-view-word-cloud-pdf-name' name='filename' value=''>"+
                 "<input type='submit' style='font-size:10px' value='PDF'>"+          
                 "</form>"+
                 "<form style='display:inline-block' action='svgtopdf.do' method='post' id='study-view-word-cloud-svg'>"+
                 "<input type='hidden' name='svgelement' id='study-view-word-cloud-svg-value'>"+
                 "<input type='hidden' name='filetype' value='svg'>"+
-                "<input type='hidden' id='study-view-word-cloud-svg-name' name='filename' value='word-cloud.svg'>"+
+                "<input type='hidden' id='study-view-word-cloud-svg-name' name='filename' value=''>"+
                 "<input type='submit' style='font-size:10px' value='SVG'>"+    
                 "</form></div>"+
                 "<div id='study-view-word-cloud-title'>" +

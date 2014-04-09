@@ -450,7 +450,7 @@ var DataTable = function() {
         _widthBody = _widthBody.toString() + 'px';
         
         $(".DTFC_LeftBodyLiner").css('height',_heightBody);
-        $(".DTFC_LeftBodyWrapper").css('height',_heightBody); 
+        //$(".DTFC_LeftBodyWrapper").css('height',_heightBody); 
         //$(".DTFC_LeftWrapper").css('width',_widthBody);
         //$(".DTFC_LeftBodyLiner").css('width',_widthBody);
         $(".DTFC_ScrollWrapper").css('height',_heightTable);
@@ -648,8 +648,9 @@ var DataTable = function() {
         
         //Have to add in there
         $(".DTFC_LeftBodyLiner").css("overflow-y","hidden");
-        $(".dataTables_scroll").css("overflow-x","scroll");
+        //$(".dataTables_scroll").css("overflow-x","scroll");
         $(".DTFC_LeftHeadWrapper").css("background-color","white");
+        $(".DTFC_LeftFootWrapper").css('background-color','white');
         
         //After resizing left column, the width of DTFC_LeftWrapper is different
         //with width DTFC_LeftBodyLiner, need to rewrite the width of

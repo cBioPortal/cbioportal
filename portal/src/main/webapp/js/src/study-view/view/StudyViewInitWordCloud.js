@@ -62,6 +62,8 @@ var StudyViewInitWordCloud = (function() {
     
     function initDiv(){
         $("#study-view-charts").append(StudyViewBoilerplate.wordCloudDiv);
+        $("#study-view-word-cloud-pdf-name").val("Word_Cloud_"+ parObject.studyId +".pdf");
+        $("#study-view-word-cloud-svg-name").val("Word_Cloud_"+ parObject.studyId +".svg");
     }
     
     //Add all listener events

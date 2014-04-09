@@ -655,6 +655,3 @@ ul li a:hover, ul li a:focus {
 #data-table-chart .DTFC_LeftHeadWrapper {
     background-color: white;
 }
-#data-table-chart .dataTables_scroll {
-    overflow-x: scroll
-}

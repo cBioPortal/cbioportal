@@ -220,7 +220,7 @@ var ScatterPlots = function() {
                         style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                         show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
-                        position: {my:'left bottom',at:'top right'}
+                        position: {my:'left bottom',at:'top right', viewport: $(window)}
                     }
                 );
             }
@@ -260,7 +260,7 @@ var ScatterPlots = function() {
                         style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                         show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
-                        position: {my:'right bottom',at:'top left'}
+                        position: {my:'right bottom',at:'top left', viewport: $(window)}
                     }
                 );
             }
@@ -364,7 +364,6 @@ var ScatterPlots = function() {
             .attr("transform", function(d, i) {
                 return "translate(" + (canvas.xRight + 10) + ", " + (24 + i * 14) + ")";
             })
-        
         legend.append("path")
             .attr("d", d3.svg.symbol()
                 .size(function(d) { return d.size; })
@@ -372,7 +371,6 @@ var ScatterPlots = function() {
             .attr("fill", function (d) { return d.fill; })
             .attr("stroke", function (d) { return d.stroke; })
             .attr("stroke-width", function(d) { return d.stroke_width; });
-
         legend.append("text")
             .attr("dx", ".75em")
             .attr("dy", ".35em")
@@ -381,7 +379,21 @@ var ScatterPlots = function() {
             .text(function(d) { 
                 return d.text; 
             });
+    }
 
+    function drawCoExpInfo() {
+        elem.svg.append("text")
+            .attr("x", canvas.xRight - 10)
+            .attr("y", canvas.yTop + 15)
+            .attr("text-anchor", "end")
+            .style("font-size", "11")
+            .text("Pearson: " + dataAttr.pearson);
+        elem.svg.append("text")
+            .attr("x", canvas.xRight - 10)
+            .attr("y", canvas.yTop + 25)
+            .attr("text-anchor", "end")
+            .style("font-size", "11")
+            .text("Spearman: " + dataAttr.spearman);
     }
 
     function addQtips() {
@@ -393,7 +405,7 @@ var ScatterPlots = function() {
                         style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
                         show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
-                        position: {my:'left bottom',at:'top right'}
+                        position: {my:'left bottom',at:'top right', viewport: $(window)}
                     }
                 );
             }
@@ -522,6 +534,7 @@ var ScatterPlots = function() {
             appendAxisTitleY(false);
             drawPlots();
             drawLegends();
+            drawCoExpInfo();
             addQtips();
         },
         // !!! Log Scale are only used by using RNA Seq Profile

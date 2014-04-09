@@ -18,6 +18,8 @@ The portal currently stores DNA copy-number data (putative, discrete values per 
 
 Yes, you are free to use any of the figures from the portal in your publications or presentations (many are available as PDFs for easier scaling and editing). When you do, please cite Cerami et al., Cancer Discov. 2012 and Gao et al. Sci. Signal. 2013.
 
+When using TCGA data in your publications, please adhere to the [TCGA publication guidelines](http://cancergenome.nih.gov/publications/publicationguidelines).
+
 # How do I cite the portal?
 
 You can cite the following portal papers: 

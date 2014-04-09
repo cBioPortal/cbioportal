@@ -35,7 +35,7 @@
  *
  */
 
-var CoexpPlotsView = (function() {
+var CoexpPlotsView = function() {
 
     //params
     var plotsDivId = "",
@@ -54,8 +54,7 @@ var CoexpPlotsView = (function() {
         },
         settings = {
             enable_log_scale: false
-        },
-        coExoPlots = {};
+        };
 
 
     function importDefaultSettings() {
@@ -76,7 +75,7 @@ var CoexpPlotsView = (function() {
         plotsOpts.names.control_panel = plotsDivId + plotsOpts.names.control_panel;       
         plotsOpts.names.log_scale_x = plotsDivId + plotsOpts.names.log_scale_x;       
         plotsOpts.names.log_scale_y = plotsDivId + plotsOpts.names.log_scale_y;       
-        plotsOpts.names.show_mutation = plotsDivId + plotsOpts.names.show_mutations;
+        plotsOpts.names.show_mutations = plotsDivId + plotsOpts.names.show_mutations;
         plotsOpts.names.download_pdf = plotsDivId + plotsOpts.names.download_pdf;
         plotsOpts.names.download_svg = plotsDivId + plotsOpts.names.download_svg;       
     }
@@ -139,39 +138,6 @@ var CoexpPlotsView = (function() {
         _tmp_obj["stroke_width"] = plotsOpts.style.stroke_width;
         _tmp_obj["text"] = plotsOpts.text.legends.non_mut;
         plotsOpts.legends.push(_tmp_obj);
-        //Add scores info (as art of legends)
-        var _tmp_obj = {}; //act as anb empty line
-        _tmp_obj["fill"] = plotsOpts.style.fill;
-        _tmp_obj["stroke"] = plotsOpts.style.stroke;
-        _tmp_obj["size"] = 0;
-        _tmp_obj["shape"] = plotsOpts.style.shape;
-        _tmp_obj["stroke_width"] = plotsOpts.style.stroke_width;
-        _tmp_obj["text"] = "";
-        plotsOpts.legends.push(_tmp_obj);
-        var _tmp_obj = {}; //act as an empty line
-        _tmp_obj["fill"] = plotsOpts.style.fill;
-        _tmp_obj["stroke"] = plotsOpts.style.stroke;
-        _tmp_obj["size"] = 0;
-        _tmp_obj["shape"] = plotsOpts.style.shape;
-        _tmp_obj["stroke_width"] = plotsOpts.style.stroke_width;
-        _tmp_obj["text"] = "";
-        plotsOpts.legends.push(_tmp_obj);
-        var _tmp_obj = {};
-        _tmp_obj["fill"] = plotsOpts.style.fill;
-        _tmp_obj["stroke"] = plotsOpts.style.stroke;
-        _tmp_obj["size"] = 0;
-        _tmp_obj["shape"] = plotsOpts.style.shape;
-        _tmp_obj["stroke_width"] = plotsOpts.style.stroke_width;
-        _tmp_obj["text"] = "Pearson: " + dataAttr.pearson;
-        plotsOpts.legends.push(_tmp_obj);
-        var _tmp_obj = {};
-        _tmp_obj["fill"] = plotsOpts.style.fill;
-        _tmp_obj["stroke"] = plotsOpts.style.stroke;
-        _tmp_obj["size"] = 0;
-        _tmp_obj["shape"] = plotsOpts.style.shape;
-        _tmp_obj["stroke_width"] = plotsOpts.style.stroke_width;
-        _tmp_obj["text"] = "Spearman: " + dataAttr.spearman;
-        plotsOpts.legends.push(_tmp_obj);
         //Update Mutated Cases' Styles
         $.each(dataArr, function(index, obj) {
             if (obj.hasOwnProperty("mutation")) {
@@ -218,12 +184,8 @@ var CoexpPlotsView = (function() {
 
     function initPlots() {
         //Init Plots
-        coexpPlots = new ScatterPlots();
+        var coexpPlots = new ScatterPlots();
         coexpPlots.init(plotsOpts, dataArr, dataAttr, false);
-    }
-
-    function initHeader() {
-        //Init Header
         PlotsHeader.init(
             plotsOpts.names, 
             plotsOpts.text.title, 
@@ -232,7 +194,7 @@ var CoexpPlotsView = (function() {
             coexpPlots.loadSvg
         );
         //Bind event listeners
-        $("#" + plotsOpts.names.show_mutations).change( function() {
+        $("#" + plotsOpts.names.show_mutations).change(function() {
             coexpPlots.updateMutations(
                 plotsOpts.names.show_mutations,
                 plotsOpts.names.log_scale_x,
@@ -293,8 +255,7 @@ var CoexpPlotsView = (function() {
             configHeaderSettings();
             initDivs();
             initPlots();
-            initHeader(); //Must init header after init plots (cuz event listeners are using plots interfaces)
-        },
+        }
     }
 
-}());
+}

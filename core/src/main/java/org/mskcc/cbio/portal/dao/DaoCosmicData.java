@@ -31,14 +31,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.mskcc.cbio.portal.model.CosmicMutationFrequency;
 import org.mskcc.cbio.portal.model.ExtendedMutation;
@@ -91,12 +92,35 @@ public class DaoCosmicData {
                 = new HashMap<Long, Set<CosmicMutationFrequency>>(map.size());
         for (ExtendedMutation mut : mutations) {
             String keyword = mut.getKeyword();
-            Set<CosmicMutationFrequency> cmfs = map.get(keyword);
+            Set<CosmicMutationFrequency> cmfs = filterTruncatingCosmicByPosition(mut, map.get(keyword));
+            
             if (cmfs==null || cmfs.isEmpty()) {
                 continue;
             }
             
             ret.put(mut.getMutationEventId(), cmfs);
+        }
+        return ret;
+    }
+    
+    private static Set<CosmicMutationFrequency> filterTruncatingCosmicByPosition(
+            ExtendedMutation mut, Set<CosmicMutationFrequency> cmfs) {
+        if (!mut.getKeyword().endsWith("truncating") || cmfs==null) {
+            return cmfs;
+        }
+        
+        Set<CosmicMutationFrequency> ret = new HashSet<CosmicMutationFrequency>();
+        Pattern p = Pattern.compile("[0-9]+");
+        int mutPos = mut.getOncotatorProteinPosStart();
+        for (CosmicMutationFrequency cmf : cmfs) {
+            String aa = cmf.getAminoAcidChange();
+            Matcher m = p.matcher(aa);
+            if (m.find()) {
+                int cmfPos = Integer.parseInt(m.group());
+                if (mutPos==cmfPos) {
+                    ret.add(cmf);
+                }
+            }
         }
         return ret;
     }

@@ -18,7 +18,8 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		el: "#mutation_pdb_panel_d3", // id of the container
 		elWidth: 740,       // width of the container
 		elHeight: "auto",   // height of the container
-		numRows: [5, 10, 20], // number of rows to be to be displayed for each expand request
+		maxHeight: 200,     // max height of the container
+		numRows: [Infinity], // number of rows to be to be displayed for each expand request
 		marginLeft: 45,     // left margin
 		marginRight: 30,    // right margin
 		marginTop: 2,       // top margin
@@ -34,11 +35,13 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		labelYPaddingTopH: 7,    // padding between y-axis and its label (horizontal alignment)
 		labelYPaddingRightV: 25, // padding between y-axis and its label (vertical alignment)
 		labelYPaddingTopV: 20,   // padding between y-axis and its label (vertical alignment)
+		labelAlignThreshold: 5,  // threshold to determine horizontal or vertical alignment
 		chainBorderColor: "#666666", // border color of the chain rectangles
 		chainBorderWidth: 0.5,       // border width of the chain rectangles
 		highlightBorderColor: "#FF9900", // color of the highlight rect border
 		highlightBorderWidth: 2.0,       // width of the highlight rect border
 		colors: ["#3366cc"],  // rectangle colors
+		animationDuration: 1000, // transition duration (in ms) used for resize animations
 		/**
 		 * Default chain tooltip function.
 		 *
@@ -48,11 +51,19 @@ function MutationPdbPanel(options, data, proxy, xScale)
 			var datum = element.datum();
 
 			proxy.getPdbInfo(datum.pdbId, function(pdbInfo) {
+				var summary = null;
+
+				if (pdbInfo)
+				{
+					summary = PdbDataUtil.generatePdbInfoSummary(
+						pdbInfo[datum.pdbId], datum.chain.chainId);
+				}
 
 				// init tip view
 				var tipView = new PdbChainTipView({model: {
 					pdbId: datum.pdbId,
-					pdbInfo: pdbInfo,
+					pdbInfo: summary.title,
+					molInfo: summary.molecule,
 					chain: datum.chain
 				}});
 
@@ -61,7 +72,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 				var options = {content: {text: content},
 					hide: {fixed: true, delay: 100},
 					style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'},
-					position: {my:'bottom left', at:'top center'}};
+					position: {my:'bottom left', at:'top center',viewport: $(window)}};
 
 				$(element).qtip(options);
 			});
@@ -78,7 +89,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 			var options = {content: {text: content},
 				hide: {fixed: true, delay: 100},
 				style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow qtip-wide'},
-				position: {my:'bottom left', at:'top center'}};
+				position: {my:'bottom left', at:'top center',viewport: $(window)}};
 
 			$(element).qtip(options);
 		}
@@ -118,6 +129,18 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	// indicator for an expansion level whether the rectangles drawn
 	var _levelDrawn = [];
 
+	// <pdbId:chainId> to <chain group (svg element)> map
+	var _chainMap = {};
+
+	// <pdbId:chainId> to <row index> map
+	var _rowMap = {};
+
+	// previous height before auto collapse
+	var _levelHeight = 0;
+
+	// currently highlighted chain
+	var _highlighted = null;
+
 	/**
 	 * Draws the actual content of the panel, by drawing a rectangle
 	 * for each chain
@@ -150,16 +173,13 @@ function MutationPdbPanel(options, data, proxy, xScale)
 
 					var gChain = drawChainRectangles(svg, chain, color, options, xScale, y);
 					gChain.datum(datum);
+					_chainMap[PdbDataUtil.chainKey(datum.pdbId, datum.chain.chainId)] = gChain;
 
 					// set the first drawn chain as the default chain
 					if (_defaultChainGroup == null)
 					{
 						_defaultChainGroup = gChain;
 					}
-
-					// add tooltip
-					var addTooltip = options.chainTipFn;
-					addTooltip(gChain);
 
 					// increment chain counter
 					count++;
@@ -169,6 +189,42 @@ function MutationPdbPanel(options, data, proxy, xScale)
 
 		// update global rectangle counter in the end
 		_rectCount = count;
+
+		// add chain tooltips
+		addChainTooltips(data, options);
+	}
+
+	/**
+	 * Adds tooltips to the chain rectangles.
+	 *
+	 * @param data      row data containing pdb and chain information
+	 * @param options   visual options object
+	 */
+	function addChainTooltips(data, options)
+	{
+		// this is to prevent chain tooltip functions to send
+		// too many separate requests to the server
+
+		var pdbIds = [];
+		var chains = [];
+
+		// collect pdb ids and chains
+		_.each(data, function(allocation, rowIdx) {
+			_.each(allocation, function(datum, idx) {
+				pdbIds.push(datum.pdbId);
+				chains.push(_chainMap[
+					PdbDataUtil.chainKey(datum.pdbId, datum.chain.chainId)]);
+			});
+		});
+
+		// this caches pdb info before adding the tooltips
+		proxy.getPdbInfo(pdbIds.join(" "), function(data) {
+			// add tooltip to the chain groups
+			_.each(chains, function(chain, idx) {
+				var addTooltip = options.chainTipFn;
+				addTooltip(chain);
+			});
+		});
 	}
 
 	/**
@@ -184,7 +240,10 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	 */
 	function drawChainRectangles(svg, chain, color, options, xScale, y)
 	{
-		var gChain = svg.append("g").attr("class", "pdb-chain-group");
+		var gChain = svg.append("g")
+			.attr("class", "pdb-chain-group")
+			.attr("opacity", 1);
+
 		var height = options.chainHeight;
 
 		// init the segmentor for the merged alignment object
@@ -208,19 +267,27 @@ function MutationPdbPanel(options, data, proxy, xScale)
 					.attr('y1', y + height/2)
 					.attr('x2', x + width)
 					.attr('y2', y + height/2);
+
+				// store initial position for future use
+				// TODO this is not a good way of using datum
+				line.datum({initPos: {x: x, y: (y + height/2)}});
 			}
 			// draw a rectangle for any other segment type
 			else
 			{
 				var rect = gChain.append('rect')
 					.attr('fill', color)
-					.attr('opacity', chain.mergedAlignment.score)
+					.attr('opacity', chain.mergedAlignment.identityPerc)
 					.attr('stroke', options.chainBorderColor)
 					.attr('stroke-width', options.chainBorderWidth)
 					.attr('x', x)
 					.attr('y', y)
 					.attr('width', width)
 					.attr('height', height);
+
+				// store initial position for future use
+				// TODO this is not a good way of using datum
+				rect.datum({initPos: {x: x, y: y}});
 			}
 		}
 
@@ -232,7 +299,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	 *
 	 * @param svg       svg to append the label element
 	 * @param options   general options object
-	 * @return {object} text label (svg element)
+	 * @return {object} label group (svg element)
 	 */
 	function drawYAxisLabel(svg, options)
 	{
@@ -244,7 +311,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		var orient = "vertical";
 
 		// horizontal orientation for small number of rows
-		if (_rowData.length < options.numRows[0])
+		if (_rowData.length < options.labelAlignThreshold)
 		{
 			x = options.marginLeft - options.labelYPaddingRightH;
 			y = options.marginTop + options.labelYPaddingTopH;
@@ -253,8 +320,12 @@ function MutationPdbPanel(options, data, proxy, xScale)
 			orient = "horizontal";
 		}
 
+		var gLabel = svg.append("g")
+			.attr("class", "pdb-panel-y-axis-label-group")
+			.attr("opacity", 1);
+
 		// append label
-		var label = svg.append("text")
+		var label = gLabel.append("text")
 			.attr("fill", options.labelYFontColor)
 			.attr("text-anchor", textAnchor)
 			.attr("x", x)
@@ -286,7 +357,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 			label.text(options.labelY);
 		}
 
-		var help = drawYAxisHelp(svg, x, y, orient, options);
+		var help = drawYAxisHelp(gLabel, x, y, orient, options);
 
 		var addTooltip = options.yHelpTipFn;
 		addTooltip(help);
@@ -328,87 +399,9 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	}
 
 	/**
-	 * Create row data by allocating position for each chain.
-	 * A row may have multiple chains if there is no overlap
-	 * between chains.
-	 *
-	 * @param chainData an array of <pdb id, PdbChainModel> pairs
-	 * @return {Array}  a 2D array of chain allocation
-	 */
-	function allocateRows(chainData)
-	{
-		var rows = [];
-
-		_.each(chainData, function(datum, idx) {
-			var chain = datum.chain;
-
-			if (chain.alignments.length > 0)
-			{
-				var inserted = false;
-
-				// find the first available row for this chain
-				for (var i=0; i < rows.length; i++)
-				{
-					var row = rows[i];
-					var conflict = false;
-
-					// check for conflict for this row
-					for (var j=0; j < row.length; j++)
-					{
-						if (overlaps(chain, row[j].chain))
-						{
-							// set the flag, and break the loop
-							conflict = true;
-							break;
-						}
-					}
-
-					// if there is space available in this row,
-					// insert the chain into the current row
-					if (!conflict)
-					{
-						// insert the chain, set the flag, and break the loop
-						row.push(datum);
-						inserted = true;
-						break;
-					}
-				}
-
-				// if there is no available space in any row,
-				// then insert the chain to the next row
-				if (!inserted)
-				{
-					var newAllocation = [];
-					newAllocation.push(datum);
-					rows.push(newAllocation);
-				}
-			}
-		});
-
-		// sort alignments in each row by start position (lowest comes first)
-//		_.each(rows, function(allocation, idx) {
-//			allocation.sort(function(a, b){
-//				return (a.chain.mergedAlignment.uniprotFrom -
-//				        b.chain.mergedAlignment.uniprotFrom);
-//			});
-//		});
-
-		// sort alignments in the first row by alignment length
-		if (rows.length > 0)
-		{
-			rows[0].sort(function(a, b){
-				return (b.chain.mergedAlignment.mergedString.length -
-				        a.chain.mergedAlignment.mergedString.length);
-			});
-		}
-
-		return rows;
-	}
-
-	/**
 	 * Returns the group svg element for the default chain.
 	 *
-	 * @return chain datum for the default chain.
+	 * @return chain group for the default chain.
 	 */
 	function getDefaultChainGroup()
 	{
@@ -416,42 +409,16 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	}
 
 	/**
-	 * Checks if the given two chain alignments (positions) overlaps
-	 * with each other.
+	 * Returns the group svg element for the given pdb id
+	 * and chain id pair.
 	 *
-	 * @param chain1    first chain
-	 * @param chain2    second chain
-	 * @return {boolean}    true if intersects, false if distinct
+	 * @param pdbId
+	 * @param chainId
+	 * @return chain group for the specified chain.
 	 */
-	function overlaps(chain1, chain2)
+	function getChainGroup(pdbId, chainId)
 	{
-		var overlap = true;
-
-		if (chain1.mergedAlignment.uniprotFrom >= chain2.mergedAlignment.uniprotTo ||
-		    chain2.mergedAlignment.uniprotFrom >= chain1.mergedAlignment.uniprotTo)
-		{
-			// no conflict
-			overlap = false;
-		}
-
-		return overlap;
-	}
-
-	/**
-	 * Calculates total number of chains for the given PDB data.
-	 *
-	 * @param data      PDB data (collection of PdbModel instances)
-	 * @return {number} total number of chains
-	 */
-	function calcChainCount(data)
-	{
-		var chainCount = 0;
-
-		data.each(function(pdb, idx) {
-			chainCount += pdb.chains.length;
-		});
-
-		return chainCount;
+		return _chainMap[pdbId + ":" + chainId];
 	}
 
 	/**
@@ -518,7 +485,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	 * Calculates the collapsed height of the panel wrt to provided
 	 * maxChain option.
 	 *
-	 * @param maxChain  maximum number of chains to be displayed
+	 * @param maxChain  maximum number of rows to be displayed
 	 * @return {number} calculated collapsed height
 	 */
 	function calcCollapsedHeight(maxChain)
@@ -564,20 +531,23 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	 */
 	function init()
 	{
+		// TODO get pdbRowData (or uniprot id?) as a model parameter
 		// generate row data (one row may contain more than one chain)
-		_rowData = allocateRows(PdbDataUtil.getSortedChainData(data));
+		_rowData = PdbDataUtil.allocateChainRows(data);
 		_maxExpansionLevel = calcMaxExpansionLevel(_rowData.length, _options.numRows);
 
-		// init svg container
-		var container = d3.select(_options.el);
+		// selecting using jQuery node to support both string and jQuery selector values
+		var node = $(_options.el)[0];
+		var container = d3.select(node);
 
 		// number of rows to be shown initially
 		var numRows = _options.numRows[0];
+		_levelHeight = calcCollapsedHeight(numRows);
 
 		// create svg element & update its reference
 		var svg = createSvg(container,
 		                    _options.elWidth,
-		                    calcCollapsedHeight(numRows));
+		                    _levelHeight);
 
 		_svg = svg;
 
@@ -591,8 +561,32 @@ function MutationPdbPanel(options, data, proxy, xScale)
 			drawYAxisLabel(svg, _options);
 		}
 
+		// build row map
+		_rowMap = buildRowMap(_rowData);
+
 		// add default listeners
 		addDefaultListeners();
+	}
+
+	/**
+	 * Builds a map of <pdbId:chainId>, <row index> pairs
+	 * for the given row data.
+	 *
+	 * @param rowData   rows of chain data
+	 * @return {Object} <pdbId:chainId> to <row index> map
+	 */
+	function buildRowMap(rowData)
+	{
+		var map = {};
+
+		// add a rectangle group for each chain
+		_.each(rowData, function(allocation, rowIdx) {
+			_.each(allocation, function(datum, idx) {
+				map[PdbDataUtil.chainKey(datum.pdbId, datum.chain.chainId)] = rowIdx;
+			});
+		});
+
+		return map;
 	}
 
 	/**
@@ -676,12 +670,25 @@ function MutationPdbPanel(options, data, proxy, xScale)
 
 	/**
 	 * Resizes the panel height to show only a limited number of chains.
+	 *
+	 * @param index level index
 	 */
 	function resizePanel(index)
 	{
 		// resize to collapsed height
 		var collapsedHeight = calcCollapsedHeight(_options.numRows[index]);
-		_svg.transition().duration(1000).attr("height", collapsedHeight);
+		var prevHeight = _svg.attr("height");
+
+		dispatchResizeStartEvent(collapsedHeight, prevHeight);
+
+		_svg.transition()
+			.duration(_options.animationDuration)
+			.attr("height", collapsedHeight)
+			.each("end", function() {
+				dispatchResizeEndEvent(collapsedHeight, prevHeight);
+			});
+
+		_levelHeight = collapsedHeight;
 	}
 
 	/**
@@ -691,13 +698,26 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	{
 		// resize to full size
 		var fullHeight = calcHeight(_options.elHeight);
-		_svg.transition().duration(1000).attr("height", fullHeight);
+		_svg.transition().duration(_options.animationDuration).attr("height", fullHeight);
 	}
 
 	/**
 	 * Expands/Collapses the panel.
 	 */
 	function toggleHeight()
+	{
+		 var nextLevel = drawNextLevel();
+
+		// resize panel
+		resizePanel(nextLevel);
+	}
+
+	/**
+	 * Draws the next level of rectangles.
+	 *
+	 * @return {Number} next level number
+	 */
+	function drawNextLevel()
 	{
 		// do not try to draw any further levels than max level
 		// (no rectangle to draw beyond max level)
@@ -723,8 +743,60 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		// update expansion level
 		_expansion = nextLevel;
 
-		// resize panel
-		resizePanel(nextLevel);
+		return nextLevel;
+	}
+
+	/**
+	 * Expands the panel to a specific level.
+	 *
+	 * @param level
+	 */
+	function expandToLevel(level)
+	{
+		var nextLevel = -1;
+
+		// expand until desired level
+		for (var i = _expansion;
+		     i < level && i < _maxExpansionLevel;
+		     i++)
+		{
+			nextLevel = drawNextLevel();
+		}
+
+		// if already expanded (or beyond) that level,
+		// no need to update or resize
+		if (nextLevel !== -1)
+		{
+			// resize panel
+			resizePanel(nextLevel);
+		}
+	}
+
+	/**
+	 * Expands the panel to the level of the specified chain.
+	 *
+	 * @param pdbId
+	 * @param chainId
+	 */
+	function expandToChainLevel(pdbId, chainId)
+	{
+		var chainLevel = -1;
+		var chainRow = _rowMap[PdbDataUtil.chainKey(pdbId, chainId)];
+
+		for (var i=0; i < _options.numRows.length; i++)
+		{
+			if (chainRow < _options.numRows[i])
+			{
+				chainLevel = i;
+				break;
+			}
+		}
+
+		// TODO chainLevel is beyond the visible levels, expand all?
+		if (chainLevel !== -1)
+		{
+			expandToLevel(chainLevel);
+		}
 	}
 
 	/**
@@ -747,15 +819,20 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	 */
 	function highlight(chainGroup)
 	{
+		// update the reference
+		_highlighted = chainGroup;
+
 		// calculate the bounding box
 		var bbox = boundingBox(chainGroup);
 
 		// remove the previous selection rectangle(s)
-		_svg.selectAll(".pdb-selection-rectangle").remove();
+		_svg.selectAll(".pdb-selection-rectangle-group").remove();
+		var gRect = _svg.append('g')
+			.attr('class', "pdb-selection-rectangle-group")
+			.attr('opacity', 0);
 
 		// add the selection rectangle
-		var rect = _svg.append('rect')
-			.attr('class', "pdb-selection-rectangle")
+		var rect = gRect.append('rect')
 			.attr('fill', "none")
 			.attr('stroke', _options.highlightBorderColor)
 			.attr('stroke-width', _options.highlightBorderWidth)
@@ -764,12 +841,18 @@ function MutationPdbPanel(options, data, proxy, xScale)
 			.attr('width', bbox.width)
 			.attr('height', bbox.height);
 
+		gRect.transition().duration(_options.animationDuration).attr('opacity', 1);
+
+		// store initial position for future use
+		// TODO this is not a good way of using datum
+		rect.datum({initPos: {x: bbox.x, y: bbox.y}});
+
 		// ...alternatively we can just use a yellowish color
 		// to highlight the whole background
 
 		// trigger corresponding event
 		_dispatcher.trigger(
-			MutationDetailsEvents.CHAIN_SELECTED,
+			MutationDetailsEvents.PANEL_CHAIN_SELECTED,
 			chainGroup);
 	}
 
@@ -806,15 +889,318 @@ function MutationPdbPanel(options, data, proxy, xScale)
 			height: height};
 	}
 
+	/**
+	 * Collapses the view to the currently highlighted chain group
+	 *
+	 * @param callback  function to invoke after the transition
+	 */
+	function minimizeToHighlighted(callback)
+	{
+		if (_highlighted != null)
+		{
+			minimizeToChain(_highlighted, callback);
+		}
+	}
+
+	/**
+	 * Collapses the view to the given chain group by hiding
+	 * everything other than the given chain. Also reduces
+	 * the size of the diagram to fit only a single row.
+	 *
+	 * @param chainGroup    chain group (svg element)
+	 * @param callback      function to invoke after the transition
+	 */
+	function minimizeToChain(chainGroup, callback)
+	{
+		var duration = _options.animationDuration;
+
+		// 3 transitions in parallel:
+
+		// TODO shifting all chains causes problems with multiple transitions
+		// 1) shift all chains up, such that selected chain will be on top
+		//shiftToChain(chainGroup);
+
+		// 1) reposition the given chain..
+		moveToFirstRow(chainGroup, callback);
+
+		//..and the selection rectangle if the chain is highlighted
+		if (chainGroup == _highlighted)
+		{
+			moveToFirstRow(_svg.selectAll(".pdb-selection-rectangle-group"));
+		}
+
+		// 2) fade-out all chains (except selected) and labels
+		fadeOutOthers(chainGroup);
+
+		// 3) resize the panel to a single row size
+		var collapsedHeight = calcCollapsedHeight(1);
+		var prevHeight = _svg.attr("height");
+
+		dispatchResizeStartEvent(collapsedHeight, prevHeight);
+
+		_svg.transition().duration(duration)
+			.attr("height", collapsedHeight)
+			.each("end", function(){
+				dispatchResizeEndEvent(collapsedHeight, prevHeight);
+			});
+	}
+
+	/**
+	 * Shift all the chain rectangles, such that the given chain
+	 * will be in the first row.
+	 *
+	 * @param chainGroup    chain group (svg element)
+	 * @param callback      function to invoke after the transition
+	 */
+	function shiftToChain(chainGroup, callback)
+	{
+		var duration = _options.animationDuration;
+		var datum = chainGroup.datum();
+		var key = PdbDataUtil.chainKey(datum.pdbId, datum.chain.chainId);
+		var chainRow = _rowMap[key];
+
+		// if chains are not at their original positions, then shift value should be different
+//		var shift = chainRow * (_options.chainHeight + _options.chainPadding);
+
+		// calculate shift value relative to the current position of the given chain group
+		var shift = 0;
+
+		chainGroup.selectAll("rect").each(function(datum, idx) {
+			var rect = d3.select(this);
+			shift = parseInt(rect.attr("y")) - _options.marginTop;
+		});
+
+		var shiftFn = function(target, d, attr) {
+			var ele = d3.select(target);
+			return (parseInt(ele.attr(attr)) - shift);
+		};
+
+		// shift up every chain on the y-axis
+		yShiftRect(".pdb-chain-group rect", shiftFn, duration);
+		yShiftRect(".pdb-selection-rectangle-group rect", shiftFn, duration);
+		yShiftLine(".pdb-chain-group line", shiftFn, duration);
+
+		// TODO it is better to bind this to a d3 transition
+		// ..safest way is to call after the selected chain's transition ends
+		setTimeout(callback, duration + 50);
+	}
+
+	/**
+	 * Moves the given chainGroup to the first row.
+	 *
+	 * @param chainGroup
+	 * @param callback
+	 */
+	function moveToFirstRow(chainGroup, callback)
+	{
+		var duration = _options.animationDuration;
+
+		// first row coordinates...
+		// (we can also use the default chain coordinates)
+		var y = _options.marginTop;
+		var height = _options.chainHeight;
+
+		// move chain group rectangles and lines
+		chainGroup.selectAll("line")
+			.transition().duration(duration)
+			.attr('y1', y + height/2)
+			.attr('y2', y + height/2);
+
+		chainGroup.selectAll("rect")
+			.transition().duration(duration)
+			.attr('y', y)
+			.each("end", function() {
+                if (_.isFunction(callback)) {
+					callback();
+				}
+			});
+	}
+
+	/**
+	 * Fades out all other element except the ones in
+	 * the given chain group.
+	 *
+	 * @param chainGroup    chain group to exclude from fade out
+	 * @param callback      function to invoke after the transition
+	 */
+	function fadeOutOthers(chainGroup, callback)
+	{
+		var duration = _options.animationDuration;
+		var datum = chainGroup.datum();
+		var key = PdbDataUtil.chainKey(datum.pdbId, datum.chain.chainId);
+
+		// fade out all chain rectangles but the given
+		_svg.selectAll(".pdb-chain-group")
+			.transition().duration(duration)
+			.attr("opacity", function(datum) {
+				if (PdbDataUtil.chainKey(datum.pdbId, datum.chain.chainId) === key) {
+					// do not hide the provided chain
+					return 1;
+				} else {
+					// hide all the others
+					return 0;
+				}
+			});
+
+		// also fade out selection rectangle if the given chain is not selected
+		_svg.selectAll(".pdb-selection-rectangle-group")
+			.transition().duration(duration)
+			.attr("opacity", function(datum) {
+				if (_highlighted == chainGroup) {
+					// do not hide the selection rectangle
+					return 1;
+				} else {
+					// hide the selection rectangle
+					return 0;
+				}
+			});
+
+		_svg.select(".pdb-panel-y-axis-label-group")
+			.transition().duration(duration)
+			.attr("opacity", 0)
+			.each("end", function() {
+				if (_.isFunction(callback)) {
+					callback();
+				}
+			});
+	}
+
+	function yShiftLine(selector, shiftFn, duration)
+	{
+		_svg.selectAll(selector)
+			.transition().duration(duration)
+			.attr("y1", function(d) {
+				return shiftFn(this, d, "y1");
+			})
+			.attr("y2", function(d) {
+				return shiftFn(this, d, "y2");
+			});
+	}
+
+	function yShiftRect(selector, shiftFn, duration)
+	{
+		_svg.selectAll(selector)
+			.transition().duration(duration)
+			.attr("y", function(d) {
+				return shiftFn(this, d, "y");
+			});
+	}
+
+	/**
+	 * Reverses the changes back to the state before calling
+	 * the minimizeToChain function.
+	 *
+	 * @param callback  function to invoke after the transition
+	 */
+	function restoreToFull(callback)
+	{
+		var duration = _options.animationDuration;
+
+		// put everything back to its original position
+		restoreChainPositions();
+
+		// fade-in hidden elements
+		fadeInAll();
+
+		var prevHeight = _svg.attr("height");
+
+		dispatchResizeStartEvent(_levelHeight, prevHeight);
+
+		// restore to previous height
+		_svg.transition().duration(duration)
+			.attr("height", _levelHeight)
+			.each("end", function(){
+				if (_.isFunction(callback)) {
+					callback();
+				}
+				dispatchResizeEndEvent(_levelHeight, prevHeight);
+			});
+	}
+
+	/**
+	 * Restores all chains back to their initial positions.
+	 */
+	function restoreChainPositions(callback)
+	{
+		var duration = _options.animationDuration;
+
+		var shiftFn = function(target, d, attr) {
+			return d.initPos.y;
+		};
+
+		// put everything back to its original position
+		yShiftRect(".pdb-chain-group rect", shiftFn, duration);
+		yShiftLine(".pdb-chain-group line", shiftFn, duration);
+		yShiftRect(".pdb-selection-rectangle-group rect", shiftFn, duration);
+
+		// TODO it is better to bind this to a d3 transition
+		// ..safest way is to call after the selected chain's transition ends
+		setTimeout(callback, duration + 50);
+	}
+
+	/**
+	 * Fades in all hidden components.
+	 */
+	function fadeInAll(callback)
+	{
+		var duration = _options.animationDuration;
+
+		// fade-in hidden elements
+
+		_svg.selectAll(".pdb-chain-group")
+			.transition().duration(duration)
+			.attr("opacity", 1);
+
+		_svg.selectAll(".pdb-selection-rectangle-group")
+			.transition().duration(duration)
+			.attr("opacity", 1);
+
+		_svg.selectAll(".pdb-panel-y-axis-label-group")
+			.transition().duration(duration)
+			.attr("opacity", 1)
+			.each("end", function(){
+				if (_.isFunction(callback)) {
+					callback();
+				}
+			});
+	}
+
+	function getHighlighted()
+	{
+		return _highlighted;
+	}
+
+	function dispatchResizeStartEvent(newHeight, prevHeight)
+	{
+		_dispatcher.trigger(
+			MutationDetailsEvents.PDB_PANEL_RESIZE_STARTED,
+			newHeight, prevHeight, _options.maxHeight);
+	}
+
+	function dispatchResizeEndEvent(newHeight, prevHeight)
+	{
+		_dispatcher.trigger(
+			MutationDetailsEvents.PDB_PANEL_RESIZE_ENDED,
+			newHeight, prevHeight, _options.maxHeight);
+	}
+
 	return {init: init,
 		addListener: addListener,
 		removeListener: removeListener,
+		getChainGroup: getChainGroup,
 		getDefaultChainGroup: getDefaultChainGroup,
 		show: showPanel,
 		hide: hidePanel,
 		toggleHeight: toggleHeight,
+		expandToChainLevel: expandToChainLevel,
+		minimizeToChain: minimizeToChain,
+		minimizeToHighlighted: minimizeToHighlighted,
+		restoreToFull: restoreToFull,
+		restoreChainPositions: restoreChainPositions,
+		fadeInAll: fadeInAll,
 		hasMoreChains: hasMoreChains,
 		highlight: highlight,
+		getHighlighted: getHighlighted,
 		dispatcher: _dispatcher};
 }
 

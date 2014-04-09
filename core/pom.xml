@@ -14,8 +14,16 @@
   <version>1.0-SNAPSHOT</version>
   <name>Portal Core</name>
   <description>Core libraries shared among other modules</description>
-    <!--repositories>
+    <repositories>
         <repository>
+		<id>biojava-maven-repo</id>
+		<name>BioJava repository</name>
+		<url>http://www.biojava.org/download/maven/</url>
+		<releases>
+			<enabled>true</enabled>
+		</releases>
+	</repository>
+        <!--repository>
             <id>biopax.releases</id>
             <name>BioPAX Repository at Sourceforge</name>
             <url>http://biopax.sourceforge.net/m2repo/releases/</url>
@@ -24,8 +32,8 @@
             <id>biopax.snapshots</id>
             <name>BioPAX Repository at Sourceforge</name>
             <url>http://biopax.sourceforge.net/m2repo/snapshots/</url>
-        </repository>
-    </repositories!-->
+        </repository-->
+    </repositories>
 
 
   <!-- dependencies -->
@@ -198,6 +206,18 @@
 	  <artifactId>Rserve</artifactId>
 	  <version>0.6-1</version>
 	</dependency-->
+        
+        <!-- BioJava3 -->
+        <dependency>
+                <groupId>org.biojava</groupId>
+                <artifactId>biojava3-core</artifactId>
+                <version>3.0.7</version>
+        </dependency>
+        <dependency>
+                <groupId>org.biojava</groupId>
+                <artifactId>biojava3-structure</artifactId>
+                <version>3.0.7</version>
+        </dependency>
 
     <!-- Mockito -->
     <dependency>
@@ -238,6 +258,19 @@
       <groupId>xerces</groupId>
       <artifactId>xercesImpl</artifactId>
       <version>2.11.0</version>
+    </dependency>
+    
+    <!--xml parser-->
+    <dependency>
+      <groupId>dom4j</groupId>
+      <artifactId>dom4j</artifactId>
+      <version>1.6.1</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>jaxen</groupId>
+      <artifactId>jaxen</artifactId>
+      <version>1.1.6</version>
     </dependency>
 
   </dependencies>

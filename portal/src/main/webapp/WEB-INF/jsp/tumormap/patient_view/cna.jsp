@@ -36,7 +36,7 @@
                                         ret.push("<svg width='12' height='12' class='"
                                             +table_id+"-case-label' alt='"+caseId+"'></svg>");
                                     } else {
-                                        ret.push("<span><svg width='12'></svg></span>");
+                                        ret.push("<span><svg width='12' height='12'></svg></span>");
                                     }
                                 }
                                 
@@ -285,7 +285,7 @@
 	            show: {event: "mouseover"},
                 hide: {fixed: true, delay: 200, event: "mouseout"},
                 style: { classes: 'qtip-light qtip-rounded' },
-                position: {my:'top right',at:'bottom center'}
+                position: {my:'top right',at:'bottom center',viewport: $(window)}
             });
         }
     }
@@ -371,7 +371,7 @@
                 $('#cna-summary-help').qtip({
                     content: { attr: 'title' },
                     style: { classes: 'qtip-light qtip-rounded' },
-                    position: { my:'top center',at:'bottom center' }
+                    position: { my:'top center',at:'bottom center',viewport: $(window) }
                 });
                 $('.cna-summary-table-name').addClass("datatable-name");
                 $('#cna_summary_wrapper_table').show();

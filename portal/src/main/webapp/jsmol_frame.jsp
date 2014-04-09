@@ -26,10 +26,10 @@
 				if (event.data.type == "script")
 				{
 					// run the script on the JSmol object
-					Jmol.script(_applet, event.data.content);
+					Jmol.scriptWait(_applet, event.data.content);
 
 					// send a message to parent window to indicate that execution is completed
-					_sendMessage({type: "done"});
+					_sendMessage({type: "done", scriptId: event.data.scriptId});
 				}
 				else if (event.data.type == "init")
 				{

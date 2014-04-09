@@ -291,4 +291,20 @@ public class JdbcUtil {
         }
         System.err.println(message);
     }
+    
+    // is it good to put the two methods below here?
+    static Integer readIntegerFromResultSet(ResultSet rs, String column) throws SQLException {
+        int i = rs.getInt(column);
+        return rs.wasNull() ? null : i;
+    }
+    
+    static Long readLongFromResultSet(ResultSet rs, String column) throws SQLException {
+        long l = rs.getInt(column);
+        return rs.wasNull() ? null : l;
+    }
+    
+    static Double readDoubleFromResultSet(ResultSet rs, String column) throws SQLException {
+        double d = rs.getDouble(column);
+        return rs.wasNull() ? null : d;
+    }
 }

@@ -87,12 +87,18 @@ public class CancerStudyReader {
         if ( typeOfCancer == null) {
             throw new IllegalArgumentException("type of cancer is not specified.");
         }
+        
+        String shortName = properties.getProperty("short_name");
+        if ( typeOfCancer == null) {
+            throw new IllegalArgumentException("short_name is not specified.");
+        }
 
         CancerStudy cancerStudy = new CancerStudy(name, description, cancerStudyIdentifier,
                                                   typeOfCancer, publicStudy(properties));
         cancerStudy.setPmid(properties.getProperty("pmid"));
         cancerStudy.setCitation(properties.getProperty("citation"));
         cancerStudy.setGroups(properties.getProperty("groups"));
+        cancerStudy.setShortName(shortName);
 
         return cancerStudy;
     }

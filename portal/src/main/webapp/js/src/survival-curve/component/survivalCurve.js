@@ -14,13 +14,18 @@ var SurvivalCurve = function() {
             .append("svg")
             .attr("width", settings.canvas_width)
             .attr("height", settings.canvas_height);
+        elem.dots = elem.svg.append("g");
+        elem.censoredDots = elem.svg.append("g");
     }
 
-    function initAxis(_inputDataArr) {
+    function initAxis(_inputArr) {
         var _dataset = [];
         var formatAsPercentage = d3.format(".1%");
-        $.each(_inputDataArr, function(index, data) {
-            _dataset.push(d3.max(data.getData(), function(d) { return d.time; }));
+        $.each(_inputArr, function(index, obj) {
+            var data = obj.data;
+            $.each(data.getData(), function(index, d) {
+                _dataset.push(d.time);
+            });
         });
         elem.xScale = d3.scale.linear()
             .domain([0, d3.max(_dataset) + 0.1 * d3.max(_dataset)])
@@ -64,7 +69,7 @@ var SurvivalCurve = function() {
         return _datum;
     }
 
-    function drawLines(data) {
+    function drawLines(data, opts) {
         if (data !== null) {
             if (data[0].time !== 0) {
                 data.unshift(appendZeroPoint(data[0].num_at_risk));
@@ -72,7 +77,7 @@ var SurvivalCurve = function() {
             elem.svg.append("path")
                 .attr("d", elem.line(data))
                 .style("fill", "none")
-                .style("stroke", settings.altered_line_color);
+                .style("stroke", opts.line_color);
         }
     }
 
@@ -129,8 +134,8 @@ var SurvivalCurve = function() {
                         .style("opacity", 0);
                 };
 
-                svg.selectAll("path").on("mouseover", mouseOn);
-                svg.selectAll("path").on("mouseout", mouseOff);
+                elem.svg.selectAll("path").on("mouseover", mouseOn);
+                elem.svg.selectAll("path").on("mouseout", mouseOff);
             }
         );
     }
@@ -175,8 +180,8 @@ var SurvivalCurve = function() {
 
     }
 
-    function drawCensoredDots(data) {
-        elem.svg.selectAll("path")
+    function drawCensoredDots(data, opts) {
+        elem.censoredDots.selectAll("path")
             .data(data)
             .enter()
             .append("line")
@@ -184,7 +189,7 @@ var SurvivalCurve = function() {
             .attr("x2", function(d) {return elem.xScale(d.time)})
             .attr("y1", function(d) {return elem.yScale(d.survival_rate) + style.censored_sign_size})
             .attr("y2", function(d) {return elem.yScale(d.survival_rate) - style.censored_sign_size})
-            .attr("stroke", settings.altered_line_color)
+            .attr("stroke", opts.line_color)
             .style("opacity", function(d) {
                 if (d.status === "1") {
                     return 0; //hidden
@@ -192,7 +197,7 @@ var SurvivalCurve = function() {
                     return 1;
                 }
             });
-        elem.svg.selectAll("path")
+        elem.censoredDots.selectAll("path")
             .data(data)
             .enter()
             .append("line")
@@ -200,7 +205,7 @@ var SurvivalCurve = function() {
             .attr("x2", function(d) {return elem.xScale(d.time) - style.censored_sign_size})
             .attr("y1", function(d) {return elem.yScale(d.survival_rate)})
             .attr("y2", function(d) {return elem.yScale(d.survival_rate)})
-            .attr("stroke", settings.altered_line_color)
+            .attr("stroke", opts.line_color)
             .style("opacity", function(d) {
                 if (d.status === "1") {
                     return 0; //hidden
@@ -318,7 +323,7 @@ var SurvivalCurve = function() {
     }
 
     return {
-        init: function(_inputDataArr, _divId, _opts) {
+        init: function(_inputArr, _divId, _opts) { 
             //Place parameters
             divId = _divId;
             elem = _opts.elem;
@@ -327,16 +332,18 @@ var SurvivalCurve = function() {
             style = _opts.style;
             //Init and Render
             initCanvas();
-            initAxis(_inputDataArr);
-            $.each(_inputDataArr, function(index, data) {
+            initAxis(_inputArr);
+            appendAxis(elem.xAxis, elem.yAxis);
+            appendAxisTitles(text.xTitle, text.yTitle);
+            $.each(_inputDataArr, function(index, obj) {
+                var data = obj.data;
+                var opts = obj.settings;
                 initLines();
-                drawLines(data.getData());
-                drawInvisiableDots(data.getData());
-                drawCensoredDots(data.getData());
-                addQtips();
+                drawLines(data.getData(), opts);
+                drawCensoredDots(data.getData(), opts);
+                //drawInvisiableDots(data.getData());
+                //addQtips();
             });
-            appendAxis(elem.svg, elem.xAxis, elem.yAxis);
-            appendAxisTitles(elem.svg, text.xTitle, text.yTitle);
             //addLegends(elem.svg);
             //addPvals();
             //appendInfo("os_stat_table", data.getStats(), "os");

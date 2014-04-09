@@ -12,10 +12,10 @@ var SurvivalCurveBroilerPlate = {
 	settings : {
 	    canvas_width: 1000,
 	    canvas_height: 620,
-	    altered_line_color: "red",
-	    unaltered_line_color: "blue",
-	    altered_mouseover_color: "#F5BCA9",
-	    unaltered_mouseover_color: "#81BEF7"
+	},
+	subGroupSettings : {
+		line_color: "red",
+		mouseover_color: "#F5BCA9"
 	},
 	text : {
 	    glyph1: "Cases with Alteration(s) in Query Gene(s)",

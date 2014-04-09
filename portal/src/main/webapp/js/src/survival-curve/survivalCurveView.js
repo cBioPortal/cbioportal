@@ -48,7 +48,6 @@ var SurvivalCurveView = function() {
         logRankTest = "";
         //confidenceIntervals = "";
     var divId = "",
-        opts = {},
         //data instances for each group
         alteredGroup = [],
         unalteredGroup = [];
@@ -56,15 +55,12 @@ var SurvivalCurveView = function() {
     var dataInitCallBack = function(_pVal) {
         _pVal = parseFloat(_pVal).toFixed(6);
         dataInst.getStats().pVal = _pVal; //Fill out the missing p-value
-        //Import default settings
-        //survivalCurve.init(survivalCurveInputDataInst, divId, opts);
     }
 
     return {
         init: function(_caseLists, _dataType, _divId, _opts) {
             //Place the paramteres
             divId = _divId;
-            opts = jQuery.extend(true, {}, _opts); //deep copy!
             //Get Survival Data
             var paramsGetSurvivalData = {
                 case_set_id: case_set_id,
@@ -81,7 +77,7 @@ var SurvivalCurveView = function() {
                     logRankTest = new LogRankTest();   
                     //confidenceIntervals = new ConfidenceIntervals();    
 
-                    //Split the data into altered/unaltered groups  
+                    //Split the data into different(altered/unaltered) groups  
                     for (var key in _caseLists) {  
                         if (_caseLists[key] === "altered") alteredGroup.push(key);
                         else if (_caseLists[key] === "unaltered") unalteredGroup.push(key);
@@ -93,10 +89,26 @@ var SurvivalCurveView = function() {
                     alteredDataInst.init(result, alteredGroup, kmEstimator, logRankTest);
                     unalteredDataInst.init(result, unalteredGroup, kmEstimator, logRankTest);
 
+                    //Individual settings 
+                    var unalteredSettingsInst = jQuery.extend(true, {}, SurvivalCurveBroilerPlate.subGroupSettings);
+                    unalteredSettingsInst.line_color = "blue";
+                    unalteredSettingsInst.mouseover_color = "#81BEF7";
+                    var alteredSettingsInst = jQuery.extend(true, {}, SurvivalCurveBroilerPlate.subGroupSettings);
+                    alteredSettingsInst.line_color = "red";
+                    alteredSettingsInst.mouseover_color = "#F5BCA9";
+                    
+                    //Assemble the input
+                    var alteredInputInst = {},
+                        unalteredInputInst = {};
+                    alteredInputInst.data = alteredDataInst;
+                    alteredInputInst.settings = alteredSettingsInst;
+                    unalteredInputInst.data = unalteredDataInst;
+                    unalteredInputInst.settings = unalteredSettingsInst;
+
                     //render the curve
-                    var inputDataInstArr = [alteredDataInst, unalteredDataInst];
+                    var inputArr = [alteredInputInst, unalteredInputInst];
                     survivalCurve = new SurvivalCurve();
-                    survivalCurve.init(inputDataInstArr, divId, opts);
+                    survivalCurve.init(inputArr, divId, opts);
                 }
             }
         },

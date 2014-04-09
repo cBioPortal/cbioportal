@@ -11,7 +11,7 @@ $(document).ready(function(){
     };
     
     var loadingJSCallBackFunc = function(){
-        StudyViewControl.init(parObject);
+        StudyViewMainController.init(parObject);
     };
     
     require(['util/LoadingJS'],function(){

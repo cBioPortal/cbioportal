@@ -20,7 +20,13 @@ var LoadingJS = (function(){
         var _key;
         
         var _folder = {
-                component: ['ScatterPlots','PieChart', 'BarChart', 'DataTable','AddCharts'],
+                component: [
+                    'ScatterPlots',
+                    'PieChart', 
+                    'BarChart', 
+                    'DataTable',
+                    'AddCharts'
+                ],
                 data: ['StudyViewProxy'],
                 util: [
                     'DcRedrawAllDataTable', 
@@ -30,15 +36,23 @@ var LoadingJS = (function(){
                     'StudyViewOverallFunctions'
                 ],
                 view: [
-                        'StudyViewInitCharts', 
-                        'StudyViewInitDataTable',
-                        'StudyViewInitMiddleComponents',
-                        'StudyViewInitTopComponents',
-                        'StudyViewInitScatterPlot',
-                        'StudyViewInitIntroJS',
-                        'StudyViewInitWordCloud',
-                        'StudyViewWindowEvents'],
-                controller: ['StudyViewControl']
+                    'StudyViewInitCharts', 
+                    'StudyViewInitDataTable',
+                    'StudyViewInitMiddleComponents',
+                    'StudyViewInitTopComponents',
+                    'StudyViewInitScatterPlot',
+                    'StudyViewInitIntroJS',
+                    'StudyViewInitWordCloud',
+                    'StudyViewWindowEvents',
+                    'StudyViewInitMutationsTab',
+                    'StudyViewInitCNATab'
+                ],
+                controller: [
+                    'StudyViewMainController',
+                    'StudyViewSummaryTabController',
+                    'StudyViewMutationsTabController',
+                    'StudyViewCNATabController'
+                ]
             };
             
         for(_key in _folder){

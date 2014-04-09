@@ -74,7 +74,7 @@ var StudyViewInitCharts = (function(){
         varDisplay = [], //Displayed Charts Name -- the display_name in each attribute       
         shiftClickedCaseIds = [],
         
-        WORDCLOUDTEXTSIZECONSTANT = 200;
+        WORDCLOUDTEXTSIZECONSTANT = 200,
         
         // Color scale from GOOGLE charts
         chartColors = jQuery.extend(true, [], StudyViewBoilerplate.chartColors), 

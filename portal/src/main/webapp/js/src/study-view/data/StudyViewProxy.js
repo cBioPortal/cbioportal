@@ -15,11 +15,7 @@ var StudyViewProxy = (function() {
     };
 
     var caseIdStr = '',
-        webserviceData = {},
-        clinicalAttributesData = {},
-        mutationsData = {},
-        cnaData = {},
-        mutatedGenes = {},
+        ajaxParameters = {},
         obtainDataObject = [];
         
     obtainDataObject['attr'] = [];
@@ -34,42 +30,47 @@ var StudyViewProxy = (function() {
         caseIdStr = parObject.caseIds.join(' ');
     }
     
-    //By using POST method in Ajax, the Ajax should be created.
     function initAjaxParameters(){
-        webserviceData = {
-            cmd: "getClinicalData",
-            format: "json",
-            cancer_study_id: parObject.studyId,
-            case_set_id: parObject.caseSetId
-        };
-        clinicalAttributesData = {
-            cancer_study_id: parObject.studyId,
-            case_list: caseIdStr
-        };
-        mutationsData = {
-            cmd: "count_mutations",
-            cases_ids: caseIdStr,
-            mutation_profile: parObject.mutationProfileId
-        };
-        cnaData = {
-            cmd: "get_cna_fraction",
-            case_ids: caseIdStr,
-            cancer_study_id: parObject.studyId
-        };
-        mutatedGenes = {
-            cmd: 'get_smg',
-            mutation_profile: parObject.mutationProfileId
+        ajaxParameters = {
+            webserviceData: {
+                cmd: "getClinicalData",
+                format: "json",
+                cancer_study_id: parObject.studyId,
+                case_set_id: parObject.caseSetId
+            },
+            clinicalAttributesData: {
+                cancer_study_id: parObject.studyId,
+                case_list: caseIdStr
+            },
+            mutationsData: {
+                cmd: "count_mutations",
+                cases_ids: caseIdStr,
+                mutation_profile: parObject.mutationProfileId
+            },
+            cnaData: {
+                cmd: "get_cna_fraction",
+                case_ids: caseIdStr,
+                cancer_study_id: parObject.studyId
+            },
+            mutatedGenesData: {
+                cmd: 'get_smg',
+                mutation_profile: parObject.mutationProfileId
+            },
+            gisticData: {
+                selected_cancer_type: parObject.studyId
+            }
         };
     }
     
     function getDataFunc(callbackFunc){
          $.when(  
-                $.ajax({type: "POST", url: "webservice.do", data: webserviceData}), 
-                $.ajax({type: "POST", url: "mutations.json", data: mutationsData}),
-                $.ajax({type: "POST", url: "cna.json", data: cnaData}),
-                $.ajax({type: "POST", url: "mutations.json", data: mutatedGenes}))
+                $.ajax({type: "POST", url: "webservice.do", data: ajaxParameters.webserviceData}), 
+                $.ajax({type: "POST", url: "mutations.json", data: ajaxParameters.mutationsData}),
+                $.ajax({type: "POST", url: "cna.json", data: ajaxParameters.cnaData}),
+                $.ajax({type: "POST", url: "mutations.json", data: ajaxParameters.mutatedGenesData}),
+                $.ajax({type: "POST", url: "Gistic.json", data: ajaxParameters.gisticData}))
 
-            .done(function(a1, a2, a3, a4){
+            .done(function(a1, a2, a3, a4, a5){
                 var _dataAttrMapArr = [], //Map attrbute value with attribute name for each datum
                     _keyNumMapping = [],
                     _data = a1[0]['data'],
@@ -174,6 +175,7 @@ var StudyViewProxy = (function() {
                 }
                 
                 obtainDataObject['mutatedGenes'] = a4[0];
+                obtainDataObject['cna'] = a5[0];
                 
                 callbackFunc(obtainDataObject);
             });
@@ -195,6 +197,11 @@ var StudyViewProxy = (function() {
             initLocalParameters(o);
             initAjaxParameters();
             getDataFunc(callbackFunc);
-        }
+        },
+        
+        getArrData: function(){ return obtainDataObject['arr'];},
+        getAttrData: function(){ return obtainDataObject['attr'];},
+        getMutatedGenesData: function(){ return obtainDataObject['mutatedGenes'];},
+        getCNAData: function(){return obtainDataObject['cna'];}
     };
 }());

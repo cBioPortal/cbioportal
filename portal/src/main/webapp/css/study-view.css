@@ -562,6 +562,9 @@ pieH3{
     border-color: white;
     background: white;
 }
+
+
+/* These five styles are designed for study view tabs. */
 #dc-plots {
     border: 1px solid #aaaaaa;
     border-radius: 5px;
@@ -578,6 +581,11 @@ pieH3{
     border-top-left-radius: 0;
 }
 #clinical {
+    border: 1px solid #aaaaaa;
+    border-radius: 5px;
+    border-top-left-radius: 0;
+}
+#cna {
     border: 1px solid #aaaaaa;
     border-radius: 5px;
     border-top-left-radius: 0;
@@ -631,4 +639,17 @@ ul li a:hover, ul li a:focus {
     max-width: 200px;
     min-width: 60px;
     border-top: 0;
+}
+/* Used for leftcolumnWrapper of the datatable in summary page*/
+#data-table-chart .DTFC_LeftBodyWrapper {
+    background-color: white;
+}
+#data-table-chart .DTFC_LeftBodyLiner {
+    overflow-y: hidden
+}
+#data-table-chart .DTFC_LeftHeadWrapper {
+    background-color: white;
+}
+#data-table-chart .dataTables_scroll {
+    overflow-x: scroll
 }

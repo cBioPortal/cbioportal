@@ -18,7 +18,10 @@
  *                                      called when one row is clicked and
  *                                      ShiftKeys is pressed at same time.
  * @interface: resizeTable: will be used when width of dataTable changed.
- *                                       
+ *     
+ * @note: The 'string' sorting function of datatable has been rewrited in
+ *        FnGetColumnData.js                                     
+ *                                                                                                           
  * @authur: Hongxin Zhang
  * @date: Mar. 2014
  * 
@@ -172,6 +175,7 @@ var DataTable = function() {
             "aaData": aaData,
             "sDom": '<"dataTableTop"Ci<"dataTableReset">f>rt',
             "fnDrawCallback": function(oSettings){
+                //Only used when select or unselect showed columns
                 if($(".ColVis_collection.TableTools_collection").css('display') === 'block'){
                     var _currentIndex= 0;
                     
@@ -440,17 +444,17 @@ var DataTable = function() {
     function resizeLeftColumn(){
         var _heightBody = $(".dataTables_scrollBody").css('height'),
             _heightTable = $('.dataTables_scroll').css('height'),
-            _widthBody = $("#dataTable tbody>tr>td:nth-child(1)").css('width');
+            _widthBody = $("#dataTable tbody>tr>td:nth-child(1)").width();
         
-        _widthBody = _widthBody.slice(0,_widthBody.length-2);
-        _widthBody = Number(_widthBody) + 20;
+        _widthBody = _widthBody + 20;
         _widthBody = _widthBody.toString() + 'px';
         
         $(".DTFC_LeftBodyLiner").css('height',_heightBody);
         $(".DTFC_LeftBodyWrapper").css('height',_heightBody); 
-        $(".DTFC_LeftWrapper").css('width',_widthBody);
-        $(".DTFC_LeftBodyLiner").css('width',_widthBody);
-        $('.DTFC_ScrollWrapper').css('height',_heightTable);            
+        //$(".DTFC_LeftWrapper").css('width',_widthBody);
+        //$(".DTFC_LeftBodyLiner").css('width',_widthBody);
+        $(".DTFC_ScrollWrapper").css('height',_heightTable);
+        $(".DTFC_LeftBodyLiner").css('background-color','white');
     }
     
     function showDataTableReset( ){
@@ -629,17 +633,29 @@ var DataTable = function() {
         dataTable.fnDraw();
     }
     
+    //Will be used after initializing datatable. This function is called from
+    //StudyViewSummaryTabController
     function resizeTable(){
         //Before resize data table, the window should be showed first
         $('#dc-plots-loading-wait').hide();
         $('#study-view-main').show();
-        
+         
         refreshSelectionInDataTable();
+        
+        //Resize column size first, then add left column
         dataTable.fnAdjustColumnSizing();
         new FixedColumns(dataTable);
+        
+        //Have to add in there
         $(".DTFC_LeftBodyLiner").css("overflow-y","hidden");
         $(".dataTables_scroll").css("overflow-x","scroll");
         $(".DTFC_LeftHeadWrapper").css("background-color","white");
+        
+        //After resizing left column, the width of DTFC_LeftWrapper is different
+        //with width DTFC_LeftBodyLiner, need to rewrite the width of
+        //DTFC_LeftBodyLiner width
+        var _widthLeftWrapper = $('.DTFC_LeftWrapper').width();
+        $('.DTFC_LeftBodyLiner').css('width', _widthLeftWrapper+4);//Column has table spacing
     }
     
     return {

@@ -79,9 +79,9 @@ if (cancerStudyViewError!=null) {
 <div id="study-tabs">
     <ul>
         
-    <li id="li-1"><a href='#dc-plots' class='study-tab' title='Plots'>DC Plots</a></li>
-    <li><a href='#clinical-plots' class='study-tab' title='DC Plots'>Study Summary</a></li>
-    <li><a href='#clinical' class='study-tab' title='Clinical Data'>Clinical Data</a></li>
+    <li id="li-1"><a href='#dc-plots' class='study-tab' title='Study Summary'>Study Summary</a></li>
+    <!--<li><a href='#clinical-plots' class='study-tab' title='DC Plots'>Study Summary</a></li>
+    <li><a href='#clinical' class='study-tab' title='Clinical Data'>Clinical Data</a></li>-->
     
     <%if(showMutationsTab){%>
     <li><a href='#mutations' class='study-tab' title='Mutations'>Mutated Genes</a></li>
@@ -92,19 +92,20 @@ if (cancerStudyViewError!=null) {
     <%}%>
     
     </ul>
-
+    <!--
     <div class="study-section" id="clinical-plots">
         <%@ include file="plots.jsp" %>
     </div>
-
+    -->
+    
     <div class="study-section" id="dc-plots">
         <%@ include file="dcplots.jsp" %>
     </div>
-    
+    <!--
     <div class="study-section" id="clinical">
         <%@ include file="clinical.jsp" %>
     </div>
-
+    -->
     <%if(showMutationsTab){%>
     <div class="study-section" id="mutations">
         <%@ include file="mutations.jsp" %>

@@ -14,7 +14,8 @@ var SurvivalCurve = function() {
             .append("svg")
             .attr("width", settings.canvas_width)
             .attr("height", settings.canvas_height);
-        elem.dots = elem.svg.append("g");
+        elem.curve = elem.svg.append("g");
+        elem.dots = elem.svg.append("g"); //the invisible dots
         elem.censoredDots = elem.svg.append("g");
     }
 
@@ -74,15 +75,15 @@ var SurvivalCurve = function() {
             if (data[0].time !== 0) {
                 data.unshift(appendZeroPoint(data[0].num_at_risk));
             }
-            elem.svg.append("path")
+            elem.curve = elem.svg.append("path")
                 .attr("d", elem.line(data))
                 .style("fill", "none")
                 .style("stroke", opts.line_color);
         }
     }
 
-    function drawInvisiableDots(data) {
-        elem.svg.selectAll("path")
+    function drawInvisiableDots(data, _color) {
+        elem.dots.selectAll("path")
             .data(data)
             .enter()
             .append("svg:path")
@@ -92,12 +93,12 @@ var SurvivalCurve = function() {
             .attr("transform", function(d){
                 return "translate(" + elem.xScale(d.time) + ", " + elem.yScale(d.survival_rate) + ")";
             })
-            .attr("fill", settings.altered_mouseover_color)
+            .attr("fill", _color)
             .style("opacity", 0);
     }
 
     function addQtips() {
-        elem.svg.selectAll('path').each(
+        elem.dots.selectAll('path').each(
             function(d) {
                 var content = "<font size='2'>";
                 content += "Case id: " + "<strong><a href='tumormap.do?case_id=" + d.case_id +
@@ -134,8 +135,8 @@ var SurvivalCurve = function() {
                         .style("opacity", 0);
                 };
 
-                elem.svg.selectAll("path").on("mouseover", mouseOn);
-                elem.svg.selectAll("path").on("mouseout", mouseOff);
+                elem.dots.selectAll("path").on("mouseover", mouseOn);
+                elem.dots.selectAll("path").on("mouseout", mouseOff);
             }
         );
     }
@@ -335,14 +336,14 @@ var SurvivalCurve = function() {
             initAxis(_inputArr);
             appendAxis(elem.xAxis, elem.yAxis);
             appendAxisTitles(text.xTitle, text.yTitle);
-            $.each(_inputDataArr, function(index, obj) {
+            $.each(_inputArr, function(index, obj) {
                 var data = obj.data;
                 var opts = obj.settings;
                 initLines();
                 drawLines(data.getData(), opts);
                 drawCensoredDots(data.getData(), opts);
-                //drawInvisiableDots(data.getData());
-                //addQtips();
+                drawInvisiableDots(data.getData(), opts.mouseover_color);
+                addQtips();
             });
             //addLegends(elem.svg);
             //addPvals();

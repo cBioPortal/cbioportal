@@ -48,6 +48,7 @@ var SurvivalCurveView = function() {
         logRankTest = "";
         //confidenceIntervals = "";
     var divId = "",
+        opts = "",
         //data instances for each group
         alteredGroup = [],
         unalteredGroup = [];
@@ -61,6 +62,7 @@ var SurvivalCurveView = function() {
         init: function(_caseLists, _dataType, _divId, _opts) {
             //Place the paramteres
             divId = _divId;
+            opts = _opts; //General settings
             //Get Survival Data
             var paramsGetSurvivalData = {
                 case_set_id: case_set_id,

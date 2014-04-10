@@ -30,7 +30,7 @@ package org.mskcc.cbio.portal.scripts;
 import junit.framework.*;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
+import org.mskcc.cbio.portal.util.*;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ public class TestImportExtendedMutationData extends TestCase {
             ImportExtendedMutationData parser;
 
             try {
-                TestDaoGeneticProfile.createSmallDbms();
+                TestImportUtil.createSmallDbms(true);
                 parser = new ImportExtendedMutationData(file, 1, pMonitor, "no_such_germline_whitelistfile");
                 Assert.fail("Should throw IllegalArgumentException");
             } catch (IllegalArgumentException e) {
@@ -184,7 +184,7 @@ public class TestImportExtendedMutationData extends TestCase {
     }
 
     private void loadGenes() throws DaoException {
-        TestDaoGeneticProfile.createSmallDbms();
+        TestImportUtil.createSmallDbms(true);
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
 
 	    // genes for "data_mutations_extended.txt"

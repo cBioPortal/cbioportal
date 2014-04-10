@@ -30,7 +30,7 @@ package org.mskcc.cbio.portal.web_api;
 import junit.framework.TestCase;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
+import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.scripts.*;
 
 import java.io.File;
@@ -90,7 +90,7 @@ public class TestGetProfileData extends TestCase {
 
     private void createSmallDbms() throws DaoException
     {
-        TestDaoGeneticProfile.createSmallDbms();
+        TestImportUtil.createSmallDbms(true);
 
         CancerStudy study = DaoCancerStudy.getCancerStudyByStableId("gbm");
 

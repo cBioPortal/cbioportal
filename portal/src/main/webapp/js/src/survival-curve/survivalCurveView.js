@@ -59,7 +59,7 @@ var SurvivalCurveView = function() {
     }
 
     return {
-        init: function(_caseLists, _dataType, _divId, _opts) {
+        init: function(_caseLists, _dataType, _divId, _opts, _headerDivId) {
             //Place the paramteres
             divId = _divId;
             opts = _opts; //General settings
@@ -95,9 +95,11 @@ var SurvivalCurveView = function() {
                     var unalteredSettingsInst = jQuery.extend(true, {}, SurvivalCurveBroilerPlate.subGroupSettings);
                     unalteredSettingsInst.line_color = "blue";
                     unalteredSettingsInst.mouseover_color = "#81BEF7";
+                    unalteredSettingsInst.legend = "Cases without Alteration(s) in Query Gene(s)";
                     var alteredSettingsInst = jQuery.extend(true, {}, SurvivalCurveBroilerPlate.subGroupSettings);
                     alteredSettingsInst.line_color = "red";
                     alteredSettingsInst.mouseover_color = "#F5BCA9";
+                    alteredSettingsInst.legend = "Cases with Alteration(s) in Query Gene(s)";
                     
                     //Assemble the input
                     var alteredInputInst = {},
@@ -110,7 +112,7 @@ var SurvivalCurveView = function() {
                     //render the curve
                     var inputArr = [alteredInputInst, unalteredInputInst];
                     survivalCurve = new SurvivalCurve();
-                    survivalCurve.init(inputArr, divId, opts);
+                    survivalCurve.init(inputArr, divId, opts, _headerDivId);
                 }
             }
         },

@@ -1,16 +1,15 @@
 var SurvivalCurve = function() {
 
-    var divId = "";
-        numOfGroups = 0;
     //Instances
     var elem = "",
         settings = "",
         text = "",
-        style = "";
+        style = "",
+        divs = "";
 
     function initCanvas() {
-        $('#' + divId).empty();
-        elem.svg = d3.select("#" + divId)
+        $('#' + divs.curveDivId).empty();
+        elem.svg = d3.select("#" + divs.curveDivId)
             .append("svg")
             .attr("width", settings.canvas_width)
             .attr("height", settings.canvas_height);
@@ -216,20 +215,17 @@ var SurvivalCurve = function() {
             });
     }
 
-    function addLegends(svg) {
-        var _legends_text = [
-            {
-                text: text.glyph1,                //altered
-                color: settings.altered_line_color
-            },
-            {
-                text: text.glyph2,
-                color: settings.unaltered_line_color
-            }
-        ];
+    function addLegends(_inputArr) {
+        var legends_text = [];
+        $.each(_inputArr, function(index, obj) {
+            var _tmp = {};
+            _tmp.text = obj.settings.legend;
+            _tmp.color = obj.settings.line_color;
+            legends_text.push(_tmp);
+        });
 
-        var legend = svg.selectAll(".legend")
-            .data(_legends_text)
+        var legend = elem.svg.selectAll(".legend")
+            .data(legends_text)
             .enter().append("g")
             .attr("class", "legend")
             .attr("transform", function(d, i) {
@@ -280,7 +276,7 @@ var SurvivalCurve = function() {
             .text("Logrank Test P-Value: " + data.getStats().pVal);
     }
 
-    function appendInfo(divName, vals, type) {
+    function appendInfoTable(vals, type) {
         var _m_title = "";
         var _events_title = "";
         if (type === "os") {
@@ -290,8 +286,8 @@ var SurvivalCurve = function() {
             _m_title = "median months disease free";
             _events_title = "#cases relapsed";
         }
-        $("#" + divName).empty();
-        $("#" + divName).append("<table class='survival_stats'>" +
+        $("#" + divs.curveDivId).empty();
+        $("#" + divs.curveDivId).append("<table class='survival_stats'>" +
             "<tr><td></td><td>#total cases</td><td>" + _events_title + "</td><td>" + _m_title + "</td></tr>" +
             "<tr>" +
             "<td style='width: 300px; text-align:left;'>Cases with Alteration(s) in Query Gene(s)</td>" +
@@ -306,31 +302,31 @@ var SurvivalCurve = function() {
             "</table>");
     }
 
-    function appendImgConverter(divId, svgId) {
+    function appendImgConverter() {
         var pdfConverterForm = "<form class='img_buttons' action='svgtopdf.do' method='post' " +
-            "onsubmit=\"this.elements['svgelement'].value=loadSurvivalCurveSVG('" + svgId + "');\">" +
+            "onsubmit=\"this.elements['svgelement'].value=loadSurvivalCurveSVG('" + divs.curveDivId + "');\">" +
             "<input type='hidden' name='svgelement'>" +
             "<input type='hidden' name='filetype' value='pdf'>" +
             "<input type='hidden' name='filename' value='survival_study.pdf'>" +
             "<input type='submit' value='PDF'></form>";
-        $('#' + divId).append(pdfConverterForm);
+        $('#' + divs.headerDivId).append(pdfConverterForm);
         var svgConverterForm = "<form class='img_buttons' action='svgtopdf.do' method='post' " +
-            "onsubmit=\"this.elements['svgelement'].value=loadSurvivalCurveSVG('" + svgId + "');\">" +
+            "onsubmit=\"this.elements['svgelement'].value=loadSurvivalCurveSVG('" + divs.curveDivId + "');\">" +
             "<input type='hidden' name='svgelement'>" +
             "<input type='hidden' name='filetype' value='svg'>" +
             "<input type='hidden' name='filename' value='survival_study.svg'>" +
             "<input type='submit' value='SVG'></form>";
-        $('#' + divId).append(svgConverterForm);
+        $('#' + divs.headerDivId).append(svgConverterForm);
     }
 
     return {
-        init: function(_inputArr, _divId, _opts) { 
+        init: function(_inputArr, _divId, _opts, _headerDivId) { 
             //Place parameters
-            divId = _divId;
             elem = _opts.elem;
             settings = _opts.settings;
             text = _opts.text;
             style = _opts.style;
+            divs = _opts.divs;
             //Init and Render
             initCanvas();
             initAxis(_inputArr);
@@ -344,11 +340,12 @@ var SurvivalCurve = function() {
                 drawCensoredDots(data.getData(), opts);
                 drawInvisiableDots(data.getData(), opts.mouseover_color);
                 addQtips();
+                addLegends(_inputArr);
             });
-            //addLegends(elem.svg);
+            appendImgConverter();
+
             //addPvals();
-            //appendInfo("os_stat_table", data.getStats(), "os");
-            //appendImgConverter("os_header", divId);
+            //appendInfoTable("os_stat_table", data.getStats(), "os");
         }
     }
 };

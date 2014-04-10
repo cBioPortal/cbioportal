@@ -13,14 +13,19 @@ var SurvivalCurveBroilerPlate = {
 	settings : {
 	    canvas_width: 1000,
 	    canvas_height: 620,
+	    include_info_table: false //Statistic Results from the curve
+	},
+	divs : {
+		curveDivId : "",
+		headerDivId: "",
+		infoTableDivId: ""
 	},
 	subGroupSettings : {
 		line_color: "red",
-		mouseover_color: "#F5BCA9"
+		mouseover_color: "#F5BCA9",
+		legend: ""
 	},
 	text : {
-	    glyph1: "Cases with Alteration(s) in Query Gene(s)",
-	    glyph2: "Cases without Alteration(s) in Query Gene(s)",
 	    xTitle: "",
 	    yTitle: "",
 		qTips: {

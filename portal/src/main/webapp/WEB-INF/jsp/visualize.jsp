@@ -281,5 +281,23 @@
     $(".result-tab").tipTip({defaultPosition: "bottom", delay:"100", edgeOffset: 10, maxWidth: 200});
 </script>
 
+<!-- Hidden frame for isolating download requests
+	(not used in IE) -->
+<iframe id="file_download_frame"
+        src="file_download_frame.jsp"
+        seamless="seamless"
+        width="0"
+        height="0"
+        frameBorder="0"
+        scrolling="no">
+</iframe>
+
+<!-- Will be used only in IE -->
+<form style="display:inline-block"
+      action=""
+      method="post"
+      class="global-file-download-form">
+</form>
+
 </body>
 </html>

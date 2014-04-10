@@ -44,6 +44,9 @@ var SurvivalTab = (function() {
             osOpts.divs.curveDivId = "os_survival_curve";
             osOpts.divs.headerDivId = "os_header";
             osOpts.divs.infoTableDivId = "os_stat_table";
+            osOpts.text.infoTableTitles.total_cases = "#total cases";
+            osOpts.text.infoTableTitles.num_of_events_cases = "#cases deceased";
+            osOpts.text.infoTableTitles.median = "median months survival";
     		dfsOpts.text.xTitle = "Months Disease Free";
     		dfsOpts.text.yTitle = "Disease Free";
     		dfsOpts.text.qTips.estimation = "Disease free estimate";
@@ -53,12 +56,15 @@ var SurvivalTab = (function() {
             dfsOpts.divs.curveDivId = "dfs_survival_curve";
             dfsOpts.divs.headerDivId = "dfs_header";
             dfsOpts.divs.infoTableDivId = "dfs_stat_table";
+            dfsOpts.text.infoTableTitles.total_cases = "#total cases";
+            dfsOpts.text.infoTableTitles.num_of_events_cases = "#cases relapsed";
+            dfsOpts.text.infoTableTitles.median = "median months disease free";
 
     		//Init Instances
             survivalCurveViewOS = new SurvivalCurveView();
-            survivalCurveViewOS.init(_caseList, "os", "os_survival_curve", osOpts, "os_header");
+            survivalCurveViewOS.init(_caseList, "os", osOpts);
             var survivalCurveViewDFS = new SurvivalCurveView();
-            survivalCurveViewDFS.init(_caseList, "dfs", "dfs_survival_curve", dfsOpts, "dfs_header");            
+            survivalCurveViewDFS.init(_caseList, "dfs", dfsOpts);            
         }
     }
 

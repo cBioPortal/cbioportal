@@ -47,8 +47,7 @@ var SurvivalCurveView = function() {
         kmEstimator = "",
         logRankTest = "";
         //confidenceIntervals = "";
-    var divId = "",
-        opts = "",
+    var opts = "",
         //data instances for each group
         alteredGroup = [],
         unalteredGroup = [];
@@ -59,9 +58,8 @@ var SurvivalCurveView = function() {
     }
 
     return {
-        init: function(_caseLists, _dataType, _divId, _opts, _headerDivId) {
+        init: function(_caseLists, _dataType, _opts) {
             //Place the paramteres
-            divId = _divId;
             opts = _opts; //General settings
             //Get Survival Data
             var paramsGetSurvivalData = {
@@ -112,7 +110,7 @@ var SurvivalCurveView = function() {
                     //render the curve
                     var inputArr = [alteredInputInst, unalteredInputInst];
                     survivalCurve = new SurvivalCurve();
-                    survivalCurve.init(inputArr, divId, opts, _headerDivId);
+                    survivalCurve.init(inputArr, opts);
                 }
             }
         },

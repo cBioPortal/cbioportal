@@ -276,30 +276,24 @@ var SurvivalCurve = function() {
             .text("Logrank Test P-Value: " + data.getStats().pVal);
     }
 
-    function appendInfoTable(vals, type) {
-        var _m_title = "";
-        var _events_title = "";
-        if (type === "os") {
-            _m_title = "median months survival";
-            _events_title = "#cases deceased";
-        } else if (type === "dfs") {
-            _m_title = "median months disease free";
-            _events_title = "#cases relapsed";
-        }
-        $("#" + divs.curveDivId).empty();
-        $("#" + divs.curveDivId).append("<table class='survival_stats'>" +
-            "<tr><td></td><td>#total cases</td><td>" + _events_title + "</td><td>" + _m_title + "</td></tr>" +
+    function appendInfoTable(_infoTableInputArr) {
+        $("#" + divs.infoTableDivId).empty();
+        $("#" + divs.infoTableDivId).append("<table class='survival_stats'>" +
             "<tr>" +
-            "<td style='width: 300px; text-align:left;'>Cases with Alteration(s) in Query Gene(s)</td>" +
-            "<td><b>" + vals.num_altered_cases + "</b></td>" +
-            "<td><b>" + vals.num_of_events_altered_cases + "</b></td>" +
-            "<td><b>" + vals.altered_median + "</b></td>" +
-            "</tr><tr>" +
-            "<td style='text-align:left;'>Cases without Alteration(s) in Query Gene(s)</td>" +
-            "<td><b>" + vals.num_unaltered_cases + "</b></td>" +
-            "<td><b>" + vals.num_of_events_unaltered_cases + "</b></td>" + 
-            "<td><b>" + vals.unaltered_median + "</b></td>" +
-            "</table>");
+            "<td style='width: 720px; text-align:left;'></td>" +
+            "<td style='width: 200px;'>" + text.infoTableTitles.total_cases + "</td>" + 
+            "<td style='width: 200px;'>" + text.infoTableTitles.num_of_events_cases + "</td>" +  
+            "<td style='width: 200px;'>" + text.infoTableTitles.median + "</td>" + 
+            "</tr>");
+        $.each(_infoTableInputArr, function(index, obj) {
+            $("#" + divs.infoTableDivId).append("<tr>" + 
+                                                "<td style='width: 700px; text-align:left;'>" + obj.groupName + "</td>" + 
+                                                "<td style='width: 200px;'><b>" + obj.num_cases + "</b></td>" + 
+                                                "<td style='width: 200px;'><b>" + obj.num_of_events_cases + "</b></td>" + 
+                                                "<td style='width: 200px;'><b>" + obj.median + "</b></td>" +
+                                                "</tr>");
+        });
+        $("#" + divs.infoTableDivId).append("</table>");
     }
 
     function appendImgConverter() {
@@ -320,7 +314,7 @@ var SurvivalCurve = function() {
     }
 
     return {
-        init: function(_inputArr, _divId, _opts, _headerDivId) { 
+        init: function(_inputArr, _opts) { 
             //Place parameters
             elem = _opts.elem;
             settings = _opts.settings;
@@ -343,9 +337,17 @@ var SurvivalCurve = function() {
                 addLegends(_inputArr);
             });
             appendImgConverter();
+            if (_opts.settings.include_info_table) {
+                var _infoTableInputArr = [];
+                $.each(_inputArr, function(index, obj) {
+                    var _tmp = jQuery.extend(true, {}, obj.data.getStats());
+                    _tmp.groupName = obj.settings.legend;
+                    _infoTableInputArr.push(_tmp);
+                });
+                appendInfoTable(_infoTableInputArr);
+            }
 
             //addPvals();
-            //appendInfoTable("os_stat_table", data.getStats(), "os");
         }
     }
 };

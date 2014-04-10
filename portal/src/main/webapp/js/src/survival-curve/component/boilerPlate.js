@@ -24,6 +24,7 @@ var SurvivalCurveBroilerPlate = {
 		line_color: "red",
 		mouseover_color: "#F5BCA9",
 		legend: ""
+
 	},
 	text : {
 	    xTitle: "",
@@ -33,6 +34,11 @@ var SurvivalCurveBroilerPlate = {
 			censoredEvent: "", //example: Time of last observation: 186.7 (months)
 			failureEvent: "" //example: Time of death: 86.2 (months)
 		},
+		infoTableTitles: {
+			total_cases: "#total cases",
+			num_of_events_cases: "",
+			median: ""
+		}
 	},
 	style : {
 	    censored_sign_size: 5,

@@ -45,13 +45,15 @@ var LoadingJS = (function(){
                     'StudyViewInitWordCloud',
                     'StudyViewWindowEvents',
                     'StudyViewInitMutationsTab',
-                    'StudyViewInitCNATab'
+                    'StudyViewInitCNATab',
+                    'StudyViewInitClinicalTab'
                 ],
                 controller: [
                     'StudyViewMainController',
                     'StudyViewSummaryTabController',
                     'StudyViewMutationsTabController',
-                    'StudyViewCNATabController'
+                    'StudyViewCNATabController',
+                    'StudyViewClinicalTabController'
                 ]
             };
             

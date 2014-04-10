@@ -695,6 +695,8 @@ var DataTable = function() {
             rowShiftClickCallback = _callback;
         },
         
-        resizeTable: resizeTable
+        resizeTable: resizeTable,
+        getTableHeader: function() { return aoColumns;},
+        getTableContent: function() { return aaData;}
     };
 };

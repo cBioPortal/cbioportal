@@ -32,7 +32,7 @@ import junit.framework.TestCase;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.scripts.*;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
+import org.mskcc.cbio.portal.util.*;
 
 /**
  * JUnit test for GetPatientLists class.
@@ -55,7 +55,7 @@ public class TestGetPatientList extends TestCase {
 
     private void createSmallDbms() throws DaoException
     {
-        TestDaoGeneticProfile.createSmallDbms();
+        TestImportUtil.createSmallDbms(true);
 
         CancerStudy study = DaoCancerStudy.getCancerStudyByStableId("gbm");
 

@@ -30,7 +30,7 @@ package org.mskcc.cbio.portal.scripts;
 import junit.framework.TestCase;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
+import org.mskcc.cbio.portal.util.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,7 +55,7 @@ public class TestImportTabDelimData extends TestCase {
     }
     
     private void runImportCnaData() throws DaoException, IOException{
-        createSmallDbms();
+        createSmallDbms(true);
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         DaoGeneticAlteration dao = DaoGeneticAlteration.getInstance();
         daoGene.addGene(new CanonicalGene(207, "AKT1"));
@@ -119,7 +119,7 @@ public class TestImportTabDelimData extends TestCase {
     
     private void runImportCnaData2() throws DaoException, IOException{
 
-        createSmallDbms();
+        createSmallDbms(true);
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         DaoGeneticAlteration dao = DaoGeneticAlteration.getInstance();
         daoGene.addGene(new CanonicalGene(207, "AKT1"));
@@ -181,7 +181,7 @@ public class TestImportTabDelimData extends TestCase {
     
     private void runImportRnaData1() throws DaoException, IOException{
 
-        createSmallDbms();
+        createSmallDbms(true);
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         DaoGeneticAlteration dao = DaoGeneticAlteration.getInstance();
 
@@ -218,9 +218,9 @@ public class TestImportTabDelimData extends TestCase {
         assertEquals ("0.55", value );
     }
 
-    private void createSmallDbms() throws DaoException
+    private void createSmallDbms(boolean resetDatabase) throws DaoException
     {
-        TestDaoGeneticProfile.createSmallDbms();
+        TestImportUtil.createSmallDbms(resetDatabase);
 
         CancerStudy study = DaoCancerStudy.getCancerStudyByStableId("gbm");
 

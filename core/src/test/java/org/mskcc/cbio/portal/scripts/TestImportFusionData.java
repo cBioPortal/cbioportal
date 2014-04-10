@@ -30,7 +30,7 @@ package org.mskcc.cbio.portal.scripts;
 import junit.framework.TestCase;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
+import org.mskcc.cbio.portal.util.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -97,7 +97,7 @@ public class TestImportFusionData extends TestCase
 
 	private void loadGenes() throws DaoException
 	{
-        TestDaoGeneticProfile.createSmallDbms();
+        TestImportUtil.createSmallDbms(true);
 		DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
 
 		// genes for "data_fusions.txt"

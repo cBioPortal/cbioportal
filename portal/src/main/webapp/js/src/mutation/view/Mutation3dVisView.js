@@ -183,9 +183,15 @@ var Mutation3dVisView = Backbone.View.extend({
 		// add listener to download link
 		pymolDownload.click(function(event) {
 			event.preventDefault();
-			// TODO create a download form...
+
 			var script = mut3dVis.generatePymolScript();
-			alert(script);
+			// set actual file content
+			var form = self.$el.find(".pymol-script-dowload-form");
+			var filename = self.$el.find(".mutation-3d-pdb-id").text().trim() + "_" +
+			               self.$el.find(".mutation-3d-chain-id").text().trim() + ".pml";
+			form.find('input[name="fileContent"]').val(script);
+			form.find('input[name="filename"]').val(filename);
+			form.submit();
 		});
 	},
 	/**

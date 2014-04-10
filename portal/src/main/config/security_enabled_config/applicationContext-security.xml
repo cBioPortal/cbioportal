@@ -109,6 +109,7 @@
       <intercept-url pattern="/jsmol_frame.jsp*" access="isAuthenticated()"/>
       <intercept-url pattern="/getCoExp.do*" access="isAuthenticated()"/>
       <intercept-url pattern="/getAlterationData.json" access="isAuthenticated()"/>
+	  <intercept-url pattern="/downloadfile.do*" access="isAuthenticated()"/>
 
         <!-- everything else locked down by default -->
 	  <intercept-url pattern="/**" access="denyAll"/>

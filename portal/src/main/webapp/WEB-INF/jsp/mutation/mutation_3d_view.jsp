@@ -41,13 +41,6 @@
 	</div>
 	<div class='mutation-3d-vis-container'></div>
 	<div class='mutation-3d-vis-toolbar'>
-		<form style="display:inline-block"
-		      action='downloadfile.do'
-		      method='post'
-		      class='pymol-script-dowload-form'>
-			<input type='hidden' name='fileContent'>
-			<input type='hidden' name='filename' value='3D.pml'>
-		</form>
 		<div class='mutation-3d-vis-help-init'>
 			<table>
 				<tr>

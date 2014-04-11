@@ -185,13 +185,12 @@ var Mutation3dVisView = Backbone.View.extend({
 			event.preventDefault();
 
 			var script = mut3dVis.generatePymolScript();
-			// set actual file content
-			var form = self.$el.find(".pymol-script-dowload-form");
 			var filename = self.$el.find(".mutation-3d-pdb-id").text().trim() + "_" +
 			               self.$el.find(".mutation-3d-chain-id").text().trim() + ".pml";
-			form.find('input[name="fileContent"]').val(script);
-			form.find('input[name="filename"]').val(filename);
-			form.submit();
+
+			// send download request with filename & file content info
+			cbio.util.requestDownload("downloadfile.do",
+				{fileContent: script, filename: filename});
 		});
 	},
 	/**

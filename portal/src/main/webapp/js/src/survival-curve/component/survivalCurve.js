@@ -5,7 +5,8 @@ var SurvivalCurve = function() {
         settings = "",
         text = "",
         style = "",
-        divs = "";
+        divs = "",
+        vals = "";
 
     function initCanvas() {
         $('#' + divs.curveDivId).empty();
@@ -273,7 +274,7 @@ var SurvivalCurve = function() {
             .attr("x", 710)
             .attr("y", 110)
             .style("text-anchor", "front")
-            .text("Logrank Test P-Value: " + data.getStats().pVal);
+            .text("Logrank Test P-Value: " + parseFloat(vals.pVal).toFixed(6));
     }
 
     function appendInfoTable(_infoTableInputArr) {
@@ -321,6 +322,7 @@ var SurvivalCurve = function() {
             text = _opts.text;
             style = _opts.style;
             divs = _opts.divs;
+            vals = _opts.vals;
             //Init and Render
             initCanvas();
             initAxis(_inputArr);
@@ -346,8 +348,7 @@ var SurvivalCurve = function() {
                 });
                 appendInfoTable(_infoTableInputArr);
             }
-
-            //addPvals();
+            addPvals();
         }
     }
 };

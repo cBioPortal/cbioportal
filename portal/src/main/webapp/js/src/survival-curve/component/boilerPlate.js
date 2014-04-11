@@ -48,6 +48,9 @@ var SurvivalCurveBroilerPlate = {
 	    axisY_title_pos_x: -270,
 	    axisY_title_pos_y: 45,
 	    axis_color: "black"
+	},
+	vals: {
+		pVal: 0
 	}	
 };
 

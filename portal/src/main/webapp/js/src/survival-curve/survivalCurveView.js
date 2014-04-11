@@ -50,11 +50,14 @@ var SurvivalCurveView = function() {
     var opts = "",
         //data instances for each group
         alteredGroup = [],
-        unalteredGroup = [];
+        unalteredGroup = [],
+        inputArr = [];
 
-    var dataInitCallBack = function(_pVal) {
-        _pVal = parseFloat(_pVal).toFixed(6);
-        dataInst.getStats().pVal = _pVal; //Fill out the missing p-value
+    var pValCallBackFunc = function(_pVal) {
+        opts.vals.pVal = _pVal;
+        console.log(_pVal);
+        survivalCurve = new SurvivalCurve();
+        survivalCurve.init(inputArr, opts);
     }
 
     return {
@@ -108,12 +111,11 @@ var SurvivalCurveView = function() {
                     unalteredInputInst.settings = unalteredSettingsInst;
 
                     //render the curve
-                    var inputArr = [alteredInputInst, unalteredInputInst];
-                    survivalCurve = new SurvivalCurve();
-                    survivalCurve.init(inputArr, opts);
+                    inputArr = [alteredInputInst, unalteredInputInst];
+                    logRankTest.calc(inputArr[0].data.getData(), inputArr[1].data.getData(), pValCallBackFunc);
                 }
             }
         },
-        dataInitCallBack: dataInitCallBack
+        pValCallBackFunc: pValCallBackFunc
     }
 }; // Close SurvivalCurveView

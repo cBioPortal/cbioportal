@@ -3,22 +3,6 @@
 		<a href='http://www.uniprot.org/uniprot/{{uniprotId}}'
 		   class='mutation-details-uniprot-link'
 		   target='_blank'>{{uniprotId}}</a>
-		<form style="display:inline-block"
-		      action='svgtopdf.do'
-		      method='post'
-		      class='svg-to-pdf-form'>
-			<input type='hidden' name='svgelement'>
-			<input type='hidden' name='filetype' value='pdf'>
-			<input type='hidden' name='filename' value='mutation_diagram_{{geneSymbol}}.pdf'>
-		</form>
-		<form style="display:inline-block"
-		      action='svgtopdf.do'
-		      method='post'
-		      class='svg-to-file-form'>
-			<input type='hidden' name='svgelement'>
-			<input type='hidden' name='filetype' value='svg'>
-			<input type='hidden' name='filename' value='mutation_diagram_{{geneSymbol}}.svg'>
-		</form>
 		<span class='mutation-diagram-toolbar-buttons'>
 			<button class='diagram-to-pdf'>PDF</button>
 			<button class='diagram-to-svg'>SVG</button>

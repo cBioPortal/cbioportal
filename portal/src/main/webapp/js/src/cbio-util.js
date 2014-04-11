@@ -290,16 +290,19 @@ cbio.util = (function() {
 		// TODO this is a workaround, frame download doesn't work for IE
 		if (detectBrowser().msie)
 		{
-			submitDownload(servletName, servletParams, ".global-file-download-form");
+			initDownloadForm();
+			submitDownload(servletName, servletParams, "#global_file_download_form");
 			return;
 		}
 
-		var targetWindow = getTargetWindow("file_download_frame");
+		initDownloadFrame(function() {
+			var targetWindow = getTargetWindow("global_file_download_frame");
 
-		targetWindow.postMessage(
-			{servletName: servletName,
-				servletParams: servletParams},
-			getOrigin());
+			targetWindow.postMessage(
+				{servletName: servletName,
+					servletParams: servletParams},
+				getOrigin());
+		});
 	}
 
 	/**
@@ -336,6 +339,49 @@ cbio.util = (function() {
 		}
 
 		return targetDocument;
+	}
+
+	/**
+	 * Initializes the hidden download frame for the entire document.
+	 * This is to isolate download requests from the main window.
+	 */
+	function initDownloadFrame(callback)
+	{
+		var frame = '<iframe id="global_file_download_frame" ' +
+		            'src="file_download_frame.jsp" ' +
+		            'seamless="seamless" width="0" height="0" ' +
+		            'frameBorder="0" scrolling="no">' +
+		            '</iframe>';
+
+		// only initialize if the frame doesn't exist
+		if ($("#global_file_download_frame").length === 0)
+		{
+			$(document.body).append(frame);
+
+			// TODO a workaround to enable target frame to get ready to listen messages
+			setTimeout(callback, 500);
+		}
+		else
+		{
+			callback();
+		}
+	}
+
+	/**
+	 * This form is initialized only for IE
+	 */
+	function initDownloadForm()
+	{
+		var form = '<form id="global_file_download_form"' +
+		           'style="display:inline-block"' +
+		           'action="" method="post">' +
+		           '</form>';
+
+		// only initialize if the form doesn't exist
+		if ($("#global_file_download_form").length === 0)
+		{
+			$(document.body).append(form);
+		}
 	}
 
     return {

@@ -53,7 +53,7 @@ var PlotsHeader = (function() {
 
     function appendPdfConverter() {
         var pdfConverterForm =
-            "<form style='display:inline-block' action='svgtopdf.do' method='post' id='" + downloadPdfDivId + "'>" + 
+            "<form style='display:inline-block' action='svgtopdf.do' method='post' target='_blank' id='" + downloadPdfDivId + "'>" +
                 "<input type='hidden' name='svgelement' id='" + downloadPdfDivId + "_val'>" +
                 "<input type='hidden' name='filetype' value='pdf'>" +
                 "<input type='hidden' name='filename' value='" + fileName + ".pdf'>" +
@@ -63,7 +63,7 @@ var PlotsHeader = (function() {
 
     function appendSvgConverter() {
         var svgConverterForm =
-            "<form style='display:inline-block' action='svgtopdf.do' method='post' id='" + downloadSvgDivId + "'>" + 
+            "<form style='display:inline-block' action='svgtopdf.do' method='post' target='_blank' id='" + downloadSvgDivId + "'>" +
                 "<input type='hidden' name='svgelement'>" +
                 "<input type='hidden' name='filetype' value='svg'>" +
                 "<input type='hidden' name='filename' value='" + fileName + ".svg'>" +

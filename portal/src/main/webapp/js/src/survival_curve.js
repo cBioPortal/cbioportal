@@ -708,14 +708,14 @@ var survivalCurves = (function() {
         }
 
         function appendImgConverter(divId, svgId) {
-            var pdfConverterForm = "<form class='img_buttons' action='svgtopdf.do' method='post' " +
+            var pdfConverterForm = "<form class='img_buttons' action='svgtopdf.do' method='post' target='_blank' " +
                 "onsubmit=\"this.elements['svgelement'].value=loadSurvivalCurveSVG('" + svgId + "');\">" +
                 "<input type='hidden' name='svgelement'>" +
                 "<input type='hidden' name='filetype' value='pdf'>" +
                 "<input type='hidden' name='filename' value='survival_study.pdf'>" +
                 "<input type='submit' value='PDF'></form>";
             $('#' + divId).append(pdfConverterForm);
-            var svgConverterForm = "<form class='img_buttons' action='svgtopdf.do' method='post' " +
+            var svgConverterForm = "<form class='img_buttons' action='svgtopdf.do' method='post' target='_blank' " +
                 "onsubmit=\"this.elements['svgelement'].value=loadSurvivalCurveSVG('" + svgId + "');\">" +
                 "<input type='hidden' name='svgelement'>" +
                 "<input type='hidden' name='filetype' value='svg'>" +

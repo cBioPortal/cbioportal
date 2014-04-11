@@ -958,7 +958,7 @@ var PlotsCustomView = (function() {
         $('#view_title').append("Custom View : " + menu.geneX + " vs. " + menu.geneY);
 
         var pdfConverterForm =
-            "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
+            "<form style='display:inline-block' action='svgtopdf.do' method='post' target='_blank' " +
                 "onsubmit=\"this.elements['svgelement'].value=loadPlotsSVG();\">" +
                 "<input type='hidden' name='svgelement'>" +
                 "<input type='hidden' name='filetype' value='pdf'>" +
@@ -967,7 +967,7 @@ var PlotsCustomView = (function() {
         $('#view_title').append(pdfConverterForm);
 
         var svgConverterForm =
-            "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
+            "<form style='display:inline-block' action='svgtopdf.do' method='post' target='_blank' " +
                 "onsubmit=\"this.elements['svgelement'].value=loadPlotsSVG();\">" +
                 "<input type='hidden' name='svgelement'>" +
                 "<input type='hidden' name='filetype' value='svg'>" +

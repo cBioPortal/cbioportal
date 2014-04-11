@@ -251,10 +251,10 @@ public class NetworkServlet extends HttpServlet {
                 messages.append("Download the complete network in ");
                 messages.append("<a href=\"");
                 messages.append(getNetworkServletUrl(req, true, true, false, encodedQueryAlteration));
-                messages.append("\">GraphML</a> ");
+                messages.append("\" target=\"_blank\">GraphML</a> ");
                 messages.append("or <a href=\"");
                 messages.append(getNetworkServletUrl(req, true, true, true, encodedQueryAlteration));
-                messages.append("\">SIF</a>");
+                messages.append("\" target=\"_blank\">SIF</a>");
                 messages.append(" for import into <a href=\"http://cytoscape.org\" target=\"_blank\">Cytoscape</a>");
                 messages.append(" (<a href=\"http://chianti.ucsd.edu/cyto_web/plugins/displayplugininfo.php?");
                 messages.append("name=GraphMLReader\" target=\"_blank\">GraphMLReader plugin</a>");

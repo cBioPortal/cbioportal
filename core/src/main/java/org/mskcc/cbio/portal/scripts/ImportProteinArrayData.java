@@ -89,7 +89,7 @@ public class ImportProteinArrayData {
            
             double[] zscores = convertToZscores(strs);
             for (int i=0; i<zscores.length; i++) {
-                Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleIds[i]);
+                Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, StableIdUtil.getSampleId(sampleIds[i]));
                 ProteinArrayData pad = new ProteinArrayData(cancerStudyId, arrayId, sample.getInternalId(), zscores[i]);
                 daoPAD.addProteinArrayData(pad);
                 internalSampleIds.add(sample.getInternalId());

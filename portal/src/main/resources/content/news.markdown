@@ -14,7 +14,7 @@
     * Uterine Carcinosarcoma
 * Added mutation data of 898 samples from 11 published studies:
     * Hepatocellular Carcinoma (RIKEN, Nature Genetics 2012)
-    * Hepatocellular Carcinoma (LGGM, Hepatology in press)
+    * Hepatocellular Carcinoma (AMC, Hepatology in press)
     * Medulloblastoma (Broad, Nature 2012)
     * Medulloblastoma (ICGC, Nature 2012)
     * Medulloblastoma (PCGP, Nature 2012)

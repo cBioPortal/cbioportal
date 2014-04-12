@@ -17,7 +17,7 @@
     * Hepatocellular Carcinoma (LGGM, Hepatology in press)
     * Medulloblastoma (Broad, Nature 2012)
     * Medulloblastoma (ICGC, Nature 2012)
-    * Medulloblastoma (WashU, Nature 2012)
+    * Medulloblastoma (PCGP, Nature 2012)
     * Multiple Myeloma (Broad, Cancer Cell 2014)
     * Pancreatic Adenocarcinoma (ICGC, Nature 2012)
     * Small Cell Carcinoma of the Ovary (MSKCC, Nature Genetics in press)

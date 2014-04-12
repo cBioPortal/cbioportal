@@ -73,7 +73,7 @@ var JSmolWrapper = function()
 			{
 				if (_targetWindow)
 				{
-					_targetDocument = getTargetDocument("jsmol_frame");
+					_targetDocument = cbio.util.getTargetDocument("jsmol_frame");
 
 					// TODO JSmol init doesn't work after document ready
 					//var data = {type: "init", content: _options};
@@ -149,7 +149,7 @@ var JSmolWrapper = function()
 			_container = container;
 		}
 
-		_targetWindow = getTargetWindow("jsmol_frame");
+		_targetWindow = cbio.util.getTargetWindow("jsmol_frame");
 
 		if (!_targetWindow)
 		{
@@ -176,42 +176,6 @@ var JSmolWrapper = function()
 			// queue the command, this prevents simultaneous JSmol script calls
 			queue(data, callback);
 		}
-	}
-
-	/**
-	 * Returns the content window for the given target frame.
-	 *
-	 * @param id    id of the target frame
-	 */
-	function getTargetWindow(id)
-	{
-		var frame = document.getElementById(id);
-		var targetWindow = frame;
-
-		if (frame.contentWindow)
-		{
-			targetWindow = frame.contentWindow;
-		}
-
-		return targetWindow;
-	}
-
-	/**
-	 * Returns the content document for the given target frame.
-	 *
-	 * @param id    id of the target frame
-	 */
-	function getTargetDocument(id)
-	{
-		var frame = document.getElementById(id);
-		var targetDocument = frame.contentDocument;
-
-		if (!targetDocument && frame.contentWindow)
-		{
-			targetDocument = frame.contentWindow.document;
-		}
-
-		return targetDocument;
 	}
 
 	/**

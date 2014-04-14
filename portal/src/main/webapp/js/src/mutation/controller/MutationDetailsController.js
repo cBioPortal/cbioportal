@@ -212,6 +212,12 @@ var MutationDetailsController = function(
 		var map = mutationUtil.getMutationIdMap();
 
 		_.each(mutationData, function(mutation, idx) {
+			if (mutation == null)
+			{
+				console.log('warning [processMutationData]: mutation (at index %d) is null.', idx);
+				return;
+			}
+
 			// use model instance, since raw mutation data won't work with mutationToPdb
 			var mutationModel = map[mutation.mutationId];
 			// find the matching pdb

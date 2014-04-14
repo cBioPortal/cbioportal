@@ -312,9 +312,17 @@
 .w2{
     width:370px;
 }
-
 .w3{
     width:560px;
+}
+.w4{
+    width:750px;
+}
+.w5{
+    width:940px;
+}
+.w6{
+    width:1130px;
 }
 
 .w4{
@@ -325,6 +333,9 @@
 }
 .h2{
     height:450px;
+}
+.h3{
+    height:680px;
 }
 .study-view-bar-main {
     float:left;

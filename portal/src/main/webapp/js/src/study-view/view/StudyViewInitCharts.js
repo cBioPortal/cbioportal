@@ -180,6 +180,8 @@ var StudyViewInitCharts = (function(){
         initScatterPlot(_arr);
         var _trimedData = wordCloudDataProcess(mutatedGenes);
         initWordCloud(_trimedData);
+        
+        initSurvivalPlot(_arr);
     }
     
     function redrawWordCloud(){

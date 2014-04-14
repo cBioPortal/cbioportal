@@ -7,7 +7,13 @@ var LoadingJS = (function(){
                     'crossfilter',
                     'dataTables.fixedColumns',
                     'util/StudyViewBoilerplate',
-                    'd3.layout.cloud'];
+                    'd3.layout.cloud',
+                    'js/src/survival-curve/survivalCurveProxy.js',
+                    'js/src/survival-curve/component/survivalCurve.js',
+                    'js/src/survival-curve/component/infoTable.js',
+                    'js/src/survival-curve/component/kmEstimator.js',
+                    'js/src/survival-curve/component/logRankTest.js',
+                    'js/src/survival-curve/component/boilerPlate.js'];
     
     //As input for RequireJS
     var JSarray = [];
@@ -46,7 +52,8 @@ var LoadingJS = (function(){
                     'StudyViewWindowEvents',
                     'StudyViewInitMutationsTab',
                     'StudyViewInitCNATab',
-                    'StudyViewInitClinicalTab'
+                    'StudyViewInitClinicalTab',
+                    'StudyViewInitSurvivalPlot'
                 ],
                 controller: [
                     'StudyViewMainController',

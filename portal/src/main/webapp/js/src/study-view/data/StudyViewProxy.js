@@ -174,6 +174,8 @@ var StudyViewProxy = (function() {
                 }
                 obtainDataObject['mutatedGenes'] = a4[0];
                 obtainDataObject['cna'] = a5[0];
+                
+                callbackFunc(obtainDataObject);
             });
     };
     

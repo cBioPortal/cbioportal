@@ -271,6 +271,16 @@ var StudyViewBoilerplate ={
             "<div id='study-view-scatter-plot-loading-img'></div>"+
             "<div id='study-view-scatter-plot-control-panel'></div>"+
             "</div>",
+    
+    survivalPlotDiv: 
+            "<div id='study-view-survival-plot' class='study-view-dc-chart w5 h3'>"+
+            "<div id='study-view-survival-plot-header-wrapper' style='float:left; width: 100%; height: 22px;'>"+
+            "<div id='study-view-survival-plot-header'>"+
+            "</div><span class='study-view-survival-plot-delete'>x</span></div>"+
+            "<div id='study-view-survival-plot-body' style='float:left'>"+
+            "<div id='study-view-survival-plot-body-svg'></div>"+
+            "</div></div>",
+    
     wordCloudDiv:
             "<div id='study-view-word-cloud' "+
             "class='study-view-dc-chart study-view-word-cloud'>" +

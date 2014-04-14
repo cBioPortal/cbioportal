@@ -30,10 +30,10 @@ var SurvivalCurve = function() {
         });
         elem.xScale = d3.scale.linear()
             .domain([0, d3.max(_dataset) + 0.1 * d3.max(_dataset)])
-            .range([100, 700]);
+            .range([settings.chart_left, settings.chart_left + settings.chart_width]);
         elem.yScale = d3.scale.linear()
             .domain([-0.03, 1.05]) //fixed to be 0-1
-            .range([550, 50]);
+            .range([settings.chart_top + settings.chart_height, settings.chart_top]);
         elem.xAxis = d3.svg.axis()
             .scale(elem.xScale)
             .orient("bottom")
@@ -148,14 +148,14 @@ var SurvivalCurve = function() {
             .style("stroke", style.axis_color)
             .attr("class", "survival-curve-x-axis-class")
             .style("shape-rendering", "crispEdges")
-            .attr("transform", "translate(0, 550)")
+            .attr("transform", "translate(0, " + (settings.chart_top + settings.chart_height) + ")")
             .call(elemAxisX);
         elem.svg.append("g")
             .style("stroke-width", style.axis_stroke_width)
             .style("fill", "none")
             .style("stroke", style.axis_color)
             .style("shape-rendering", "crispEdges")
-            .attr("transform", "translate(0, 50)")
+            .attr("transform", "translate(0, " + settings.chart_top + ")")
             .call(elemAxisX.orient("bottom").ticks(0));
         elem.svg.append("g")
             .style("stroke-width", style.axis_stroke_width)
@@ -163,14 +163,14 @@ var SurvivalCurve = function() {
             .style("stroke", style.axis_color)
             .attr("class", "survival-curve-y-axis-class")
             .style("shape-rendering", "crispEdges")
-            .attr("transform", "translate(100, 0)")
+            .attr("transform", "translate(" + settings.chart_left + ", 0)")
             .call(elemAxisY);
         elem.svg.append("g")
             .style("stroke-width", style.axis_stroke_width)
             .style("fill", "none")
             .style("stroke", style.axis_color)
             .style("shape-rendering", "crispEdges")
-            .attr("transform", "translate(700, 0)")
+            .attr("transform", "translate(" + (settings.chart_left + settings.chart_width) + ", 0)")
             .call(elemAxisY.orient("left").ticks(0));
         elem.svg.selectAll("text")
             .style("font-family", "sans-serif")
@@ -230,7 +230,7 @@ var SurvivalCurve = function() {
             .enter().append("g")
             .attr("class", "legend")
             .attr("transform", function(d, i) {
-                return "translate(715, " + (70 + i * 15) + ")";
+                return "translate(" + (settings.chart_left + settings.chart_width + 15) + ", " + (70 + i * 15) + ")";
             })
 
         legend.append("path")
@@ -271,7 +271,7 @@ var SurvivalCurve = function() {
 
     function addPvals() {
         elem.svg.append("text")
-            .attr("x", 710)
+            .attr("x", settings.chart_left + settings.chart_width + 10)
             .attr("y", 110)
             .style("text-anchor", "front")
             .text("Logrank Test P-Value: " + parseFloat(vals.pVal).toFixed(6));

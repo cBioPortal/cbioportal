@@ -13,6 +13,10 @@ var SurvivalCurveBroilerPlate = {
 	settings : {
 	    canvas_width: 1000,
 	    canvas_height: 620,
+	    chart_width: 600,
+	    chart_height: 500,
+	    chart_left: 100,
+	    chart_top: 50,
 	    include_info_table: false //Statistic Results from the curve
 	},
 	divs : {

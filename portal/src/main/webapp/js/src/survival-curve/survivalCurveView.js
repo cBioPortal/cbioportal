@@ -55,7 +55,6 @@ var SurvivalCurveView = function() {
 
     var pValCallBackFunc = function(_pVal) {
         opts.vals.pVal = _pVal;
-        console.log(_pVal);
         survivalCurve = new SurvivalCurve();
         survivalCurve.init(inputArr, opts);
     }

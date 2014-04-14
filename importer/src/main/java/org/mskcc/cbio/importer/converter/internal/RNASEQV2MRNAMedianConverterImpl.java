@@ -37,7 +37,6 @@ import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.util.MapperUtil;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.DataMatrix;
 import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 
@@ -47,6 +46,7 @@ import org.apache.commons.logging.LogFactory;
 import java.util.List;
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Set;
 
 /**
@@ -158,7 +158,17 @@ public class RNASEQV2MRNAMedianConverterImpl implements Converter {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), cleaning up Hybridization REF column...");
 		}
-		List<String> pairs = dataMatrix.getColumnData(HYBRIDIZATION_REF_COLUMN_HEADER_NAME).get(0);
+                
+                String geneColumnName = HYBRIDIZATION_REF_COLUMN_HEADER_NAME;
+                List<String> pairs;
+                List<LinkedList<String>> columnData = dataMatrix.getColumnData(HYBRIDIZATION_REF_COLUMN_HEADER_NAME);
+                if (!columnData.isEmpty()) {
+                    pairs = columnData.get(0);
+                } else {
+                    pairs = dataMatrix.getColumnData(0); // non standard gene column name
+                    geneColumnName = dataMatrix.getColumnHeaders().get(0);
+                }
+                
 		for (int lc = 0; lc < pairs.size(); lc++) {
 			String[] parts = pairs.get(lc).trim().split("\\|");
 			if (parts.length == 2) {
@@ -182,7 +192,7 @@ public class RNASEQV2MRNAMedianConverterImpl implements Converter {
 			LOG.info("createStagingFile(), adding & renaming columns");
 		}
 		dataMatrix.addColumn(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME, new ArrayList<String>());
-		dataMatrix.renameColumn(HYBRIDIZATION_REF_COLUMN_HEADER_NAME, Converter.GENE_ID_COLUMN_HEADER_NAME);
+		dataMatrix.renameColumn(geneColumnName, Converter.GENE_ID_COLUMN_HEADER_NAME);
 		dataMatrix.setGeneIDColumnHeading(Converter.GENE_ID_COLUMN_HEADER_NAME);
 
 		// perform gene mapping, remove records as needed

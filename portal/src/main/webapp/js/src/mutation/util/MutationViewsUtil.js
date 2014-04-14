@@ -52,10 +52,10 @@ var MutationViewsUtil = (function()
 	 * view values.
 	 */
 	var _omaScoreMap = {
-		h: {label: "H", style: "oma_high", tooltip: "High"},
-		m: {label: "M", style: "oma_medium", tooltip: "Medium"},
-		l: {label: "L", style: "oma_low", tooltip: "Low"},
-		n: {label: "N", style: "oma_neutral", tooltip: "Neutral"}
+		h: {label: "High", style: "oma_high", tooltip: "High"},
+		m: {label: "Medium", style: "oma_medium", tooltip: "Medium"},
+		l: {label: "Low", style: "oma_low", tooltip: "Low"},
+		n: {label: "Neutral", style: "oma_neutral", tooltip: "Neutral"}
 	};
 
 	/**
@@ -132,8 +132,20 @@ var MutationViewsUtil = (function()
 		};
 	}
 
+	function defaultTableTooltipOpts()
+	{
+		return {
+			content: {attr: 'alt'},
+			show: {event: 'mouseover'},
+			hide: {fixed: true, delay: 100, event: 'mouseout'},
+			style: {classes: 'mutation-details-tooltip qtip-shadow qtip-light qtip-rounded'},
+			position: {my:'top left', at:'bottom right', viewport: $(window)}
+		};
+	}
+
 	return {
-		initMutationDetailsView : delayedInitMutationDetailsView,
+		initMutationDetailsView: delayedInitMutationDetailsView,
+		defaultTableTooltipOpts: defaultTableTooltipOpts,
 		getVisualStyleMaps: getVisualStyleMaps
 	};
 })();

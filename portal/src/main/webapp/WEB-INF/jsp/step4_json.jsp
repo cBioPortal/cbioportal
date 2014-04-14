@@ -38,8 +38,8 @@ name='<%= QueryBuilder.GENE_LIST %>'><%
 			    org.mskcc.cbio.portal.oncoPrintSpecLanguage.Utilities.appendSemis(localGeneList);
 	    // this is for xss security
 	    geneListWithSemis = StringEscapeUtils.escapeJavaScript(geneListWithSemis);
-	    // ...but we want to keep newlines, so unescape the escaped newlines
-	    geneListWithSemis = geneListWithSemis.replaceAll("\\\\n", "\n");
+	    // ...but we want to keep newlines, and slashes so unescape them
+	    geneListWithSemis = geneListWithSemis.replaceAll("\\\\n", "\n").replaceAll("\\\\/", "/");
         out.print(geneListWithSemis);
     }
 %></textarea>

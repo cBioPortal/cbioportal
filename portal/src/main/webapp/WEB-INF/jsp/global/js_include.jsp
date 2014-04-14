@@ -13,6 +13,7 @@
 <script type="text/javascript" src="js/lib/jquery.quovolver.mini.js"></script>
 <script type="text/javascript" src="js/lib/jquery.dataTables.ColVis.min.js"></script>
 <script type="text/javascript" src="js/lib/jquery.dataTables.fnSetFilteringDelay.js"></script>
+<script type="text/javascript" src="js/lib/jquery.scrollTo.min.js"></script>
 <script type="text/javascript" src="js/lib/jquery.qtip.min.js"></script>
 <script type="text/javascript" src="js/lib/chosen.jquery.js"></script>
 <script type="text/javascript" src="js/lib/ui.tabs.paging.js"></script>
@@ -55,6 +56,7 @@
 <script type="text/javascript" src="js/src/mutation/component/mutation_table.js"></script>
 <script type="text/javascript" src="js/src/mutation/component/mutation_3d_viewer.js"></script>
 <script type="text/javascript" src="js/src/mutation/component/mutation_pdb_panel.js"></script>
+<script type="text/javascript" src="js/src/mutation/component/mutation_pdb_table.js"></script>
 <script type="text/javascript" src="js/src/mutation/model/MutationModel.js"></script>
 <script type="text/javascript" src="js/src/mutation/model/PdbAlignmentModel.js"></script>
 <script type="text/javascript" src="js/src/mutation/model/PdbChainModel.js"></script>
@@ -67,6 +69,7 @@
 <script type="text/javascript" src="js/src/mutation/util/PileupUtil.js"></script>
 <script type="text/javascript" src="js/src/mutation/util/JmolWrapper.js"></script>
 <script type="text/javascript" src="js/src/mutation/util/JSmolWrapper.js"></script>
+<script type="text/javascript" src="js/src/mutation/util/DataTableUtil.js"></script>
 <script type="text/javascript" src="js/src/mutation/data/PdbDataProxy.js"></script>
 <script type="text/javascript" src="js/src/mutation/data/MutationDataProxy.js"></script>
 <script type="text/javascript" src="js/src/mutation/controller/MutationDetailsEvents.js"></script>
@@ -74,6 +77,7 @@
 <script type="text/javascript" src="js/src/mutation/controller/Mutation3dController.js"></script>
 <script type="text/javascript" src="js/src/mutation/controller/MutationDetailsTableController.js"></script>
 <script type="text/javascript" src="js/src/mutation/controller/MutationDiagramController.js"></script>
+<script type="text/javascript" src="js/src/mutation/controller/MutationDetailsController.js"></script>
 
 
 

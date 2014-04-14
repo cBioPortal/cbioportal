@@ -74,12 +74,17 @@
             return d.alterations[type]/ d.caseSetLength;
         };
 
+        var isThereHetLoss = false;
+        var isThereGain = false;
         var filterAndSortData = function(histDataOrg) {
             var histData = [];
             _.each(histDataOrg, function(study) {
                 var showStudy = $("#histogram-remove-study-" + study.studyId).is(":checked");
                 if(!study.skipped && showStudy)
                     histData.push(study);
+
+                if(study.alterations.cnaLoss > 0) { isThereHetLoss = true; }
+                if(study.alterations.cnaGain > 0) { isThereGain = true; }
             });
 
             switch($("#histogram-sort-by").val()) {
@@ -243,6 +248,31 @@
                                 .attr("class", function(d, i) { return d.studyId + " alt-mut" })
                             ;
 
+                            var cnalossBarGroup = histogram.append("g");
+                            cnalossBarGroup.selectAll("rect")
+                                .data(histData, key)
+                                .enter()
+                                .append("rect")
+                                .attr("fill", "skyblue")
+                                .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
+                                .attr("y", function(d, i) {
+                                    return yScale(calculateFrequency(d, i, "cnaLoss"))
+                                        - (
+                                        ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "mutation")))
+                                            + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "other")))
+                                        )
+                                        + paddingTop;
+                                })
+                                .attr("width", studyWidth)
+                                .attr("height", function(d, i) {
+                                    return (histBottom-paddingTop) - yScale(calculateFrequency(d, i, "cnaLoss"));
+                                })
+                                .style("stroke", "white")
+                                .style("stroke-width", "1")
+                                .attr("class", function(d, i) { return d.studyId + " alt-cnaloss" })
+                            ;
+
+
                             var cnadownBarGroup = histogram.append("g");
                             cnadownBarGroup.selectAll("rect")
                                 .data(histData, key)
@@ -255,6 +285,7 @@
                                         - (
                                             ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "mutation")))
                                             + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "other")))
+                                            + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "cnaLoss")))
                                         )
                                         + paddingTop;
                                 })
@@ -279,6 +310,7 @@
                                         - (
                                             ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "mutation")))
                                             + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "other")))
+                                            + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "cnaLoss")))
                                             + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "cnaDown")))
                                         )
                                         + paddingTop;
@@ -290,6 +322,33 @@
                                 .style("stroke", "white")
                                 .style("stroke-width", "1")
                                 .attr("class", function(d, i) { return d.studyId + " alt-cnaup" })
+                            ;
+
+                            var cnagainBarGroup = histogram.append("g");
+                            cnagainBarGroup.selectAll("rect")
+                                .data(histData, key)
+                                .enter()
+                                .append("rect")
+                                .attr("fill", "lightpink")
+                                .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
+                                .attr("y", function(d, i) {
+                                    return yScale(calculateFrequency(d, i, "cnaGain"))
+                                        - (
+                                        ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "mutation")))
+                                            + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "other")))
+                                            + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "cnaLoss")))
+                                            + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "cnaDown")))
+                                            + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "cnaUp")))
+                                        )
+                                        + paddingTop;
+                                })
+                                .attr("width", studyWidth)
+                                .attr("height", function(d, i) {
+                                    return (histBottom-paddingTop) - yScale(calculateFrequency(d, i, "cnaGain"));
+                                })
+                                .style("stroke", "white")
+                                .style("stroke-width", "1")
+                                .attr("class", function(d, i) { return d.studyId + " alt-cnagain" })
                             ;
 
                             var infoBarGroup = histogram.append("g");
@@ -321,7 +380,8 @@
                                     })).render();
 
                                     var qOpts = _.extend(defaultQTipOptions, {
-                                        content: container.html()
+                                        content: container.html(),
+                                        position: { viewport: $(window) }
                                     });
                                     $(this).qtip(qOpts);
 
@@ -369,7 +429,8 @@
                                 .style("stroke-width", "1")
                                 .each(function(d, i) {
                                     var qOpts = _.extend(defaultQTipOptions, {
-                                        content: metaData.type_of_cancers[metaData.cancer_studies[d.studyId].type_of_cancer]
+                                        content: metaData.type_of_cancers[metaData.cancer_studies[d.studyId].type_of_cancer],
+                                        position: { viewport: $(window) }
                                     });
                                     $(this).qtip(qOpts);
                                 });
@@ -393,7 +454,8 @@
                                     var qOpts = _.extend(defaultQTipOptions, {
                                         content: metaData.cancer_studies[d.studyId].has_mutation_data
                                             ? "Mutation data available"
-                                            : "Mutation data not available"
+                                            : "Mutation data not available",
+                                        position: { viewport: $(window) }
                                     });
                                     $(this).qtip(qOpts);
                                 });
@@ -418,7 +480,8 @@
                                     var qOpts = _.extend(defaultQTipOptions, {
                                         content: metaData.cancer_studies[d.studyId].has_cna_data
                                             ? "CNA data available"
-                                            : "CNA data not available"
+                                            : "CNA data not available",
+                                        position: { viewport: $(window) }
                                     });
                                     $(this).qtip(qOpts);
                                 });
@@ -445,7 +508,8 @@
                                 .attr("class", function(d, i) { return d.studyId + " annotation-abbr" })
                                 .each(function(d, i) {
                                     var qOpts = _.extend(defaultQTipOptions, {
-                                        content: metaData.cancer_studies[d.studyId].name
+                                        content: metaData.cancer_studies[d.studyId].name,
+                                        position: { viewport: $(window) }
                                     });
                                     $(this).qtip(qOpts);
                                 })
@@ -475,7 +539,9 @@
                             ;
 
                             var mutLegend = { label: "Mutation", color: "green"};
+                            var lossLegend = { label: "Het. Loss", color: "skyblue"};
                             var delLegend = { label: "Deletion", color: "blue"};
+                            var gainLegend = { label: "Gain", color: "lightpink"};
                             var ampLegend = { label: "Amplification", color: "red"};
                             var multpLegend = { label: "Multiple alterations", color: "#aaaaaa" };
 
@@ -483,7 +549,9 @@
                             switch(priority * 1) {
                                 case 0:
                                     legendData.push(mutLegend);
+                                    if(isThereHetLoss) {legendData.push(lossLegend); }
                                     legendData.push(delLegend);
+                                    if(isThereGain) { legendData.push(gainLegend); }
                                     legendData.push(ampLegend);
                                     legendData.push(multpLegend);
                                     break;
@@ -491,7 +559,9 @@
                                     legendData.push(mutLegend);
                                     break;
                                 case 2:
+                                    if(isThereHetLoss) {legendData.push(lossLegend); }
                                     legendData.push(delLegend);
+                                    if(isThereGain) { legendData.push(gainLegend); }
                                     legendData.push(ampLegend);
                                     legendData.push(multpLegend);
                                     break;
@@ -614,7 +684,6 @@
                                 ;
                                 mbg.transition()
                                     .duration(animationDuration)
-                                    .attr("fill", "green")
                                     .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
                                     .attr("y", function(d, i) {
                                         return yScale(calculateFrequency(d, i, "mutation"))
@@ -628,6 +697,32 @@
                                     })
                                 ;
 
+                                var clbg = cnalossBarGroup.selectAll("rect").data(histData, key);
+                                clbg
+                                    .exit()
+                                    .transition()
+                                    .duration(animationDuration)
+                                    .attr("x", outX)
+                                ;
+                                clbg
+                                    .transition()
+                                    .duration(animationDuration)
+                                    .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
+                                    .attr("y", function(d, i) {
+                                        return yScale(calculateFrequency(d, i, "cnaLoss"))
+                                            - (
+                                            ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "mutation")))
+                                                + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "other")))
+                                            )
+                                            + paddingTop;
+                                    })
+                                    .attr("width", studyWidth)
+                                    .attr("height", function(d, i) {
+                                        return (histBottom-paddingTop) - yScale(calculateFrequency(d, i, "cnaLoss"));
+                                    })
+                                ;
+
+
                                 var cdbg = cnadownBarGroup.selectAll("rect").data(histData, key);
                                 cdbg
                                     .exit()
@@ -638,13 +733,13 @@
                                 cdbg
                                     .transition()
                                     .duration(animationDuration)
-                                    .attr("fill", "blue")
                                     .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
                                     .attr("y", function(d, i) {
                                         return yScale(calculateFrequency(d, i, "cnaDown"))
                                             - (
                                             ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "mutation")))
                                                 + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "other")))
+                                                + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "cnaLoss")))
                                             )
                                             + paddingTop;
                                     })
@@ -670,6 +765,7 @@
                                             - (
                                             ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "mutation")))
                                                 + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "other")))
+                                                + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "cnaLoss")))
                                                 + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "cnaDown")))
                                             )
                                             + paddingTop;
@@ -677,6 +773,34 @@
                                     .attr("width", studyWidth)
                                     .attr("height", function(d, i) {
                                         return (histBottom-paddingTop) - yScale(calculateFrequency(d, i, "cnaUp"));
+                                    })
+                                ;
+
+                                var cgbp = cnagainBarGroup.selectAll("rect").data(histData, key);
+                                cgbp
+                                    .exit()
+                                    .transition()
+                                    .duration(animationDuration)
+                                    .attr("x", outX)
+                                ;
+                                cgbp
+                                    .transition()
+                                    .duration(animationDuration)
+                                    .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
+                                    .attr("y", function(d, i) {
+                                        return yScale(calculateFrequency(d, i, "cnaGain"))
+                                            - (
+                                            ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "mutation")))
+                                                + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "other")))
+                                                + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "cnaLoss")))
+                                                + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "cnaDown")))
+                                                + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "cnaUp")))
+                                            )
+                                            + paddingTop;
+                                    })
+                                    .attr("width", studyWidth)
+                                    .attr("height", function(d, i) {
+                                        return (histBottom-paddingTop) - yScale(calculateFrequency(d, i, "cnaGain"));
                                     })
                                 ;
 
@@ -836,9 +960,11 @@
                                     showStats: true
                                 },
 	                            tableOpts: {
+		                            // TODO define custom functions where necessary
 		                            columnVisibility: {
-			                            // TODO "excludeIfHidden" instead?
-			                            "cancer study": "visible"
+			                            "cancer study": "visible",
+			                            // exclude tumor type for now
+			                            "tumor type": "excluded"
 		                            }
 	                            }
                             };
@@ -932,12 +1058,16 @@
                     mutationFrequency: fixFloat(calculateFrequency(study, 0, "mutation")  * 100, 1),
                     deletionFrequency: fixFloat(calculateFrequency(study, 0, "cnaDown") * 100, 1),
                     amplificationFrequency: fixFloat(calculateFrequency(study, 0, "cnaUp") * 100, 1),
+                    lossFrequency: fixFloat(calculateFrequency(study, 0, "cnaLoss") * 100, 1),
+                    gainFrequency: fixFloat(calculateFrequency(study, 0, "cnaGain") * 100, 1),
                     multipleFrequency: fixFloat(calculateFrequency(study, 0, "other") * 100, 1),
                     // raw counts
                     allCount: study.alterations.all,
                     mutationCount: study.alterations.mutation,
                     deletionCount: study.alterations.cnaDown,
                     amplificationCount: study.alterations.cnaUp,
+                    gainCount: study.alterations.cnaGain,
+                    lossCount: study.alterations.cnaLoss,
                     multipleCount: study.alterations.other,
                     // and create the link
                     studyLink: _.template($("#study-link-tmpl").html(), { study: study, genes: genes } )
@@ -1032,6 +1162,8 @@
                     mutation: 0,
                     cnaUp: 0,
                     cnaDown: 0,
+                    cnaLoss: 0,
+                    cnaGain: 0,
                     other: 0,
                     all: 0
                 }

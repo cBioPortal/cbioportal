@@ -4,28 +4,30 @@
     text-align: center;
     list-style: none;
     border-style: solid;
-    border-width:1px;
+    border-width: 1px 0 0 0;
     border-color: lightgrey;
-    margin: 2px 5px 2px 0;
     padding: 0 5px;
-    border-radius: 5px;
 }
 #study-view-add-chart li:hover{
     cursor: pointer;
     background-color: lightgrey;
 }
 #study-view-add-chart ul{
-    padding: 0;
     float:right;
-    margin: 2px 0;
+    padding: 0 0 5px 0;
+}
+#study-view-top-wrapper {
+    width: 100%;
+    float: left;
+    height: 40px;
 }
 #study-view-add-chart {
-    right:100px;
+    right:120px;
     position: absolute;
     z-index:21;
     display: inline-block;
     vertical-align: middle;
-    line-height: 50px;
+    line-height: 30px;
 }
 #study-view-tutorial {
     right: 0;
@@ -36,21 +38,36 @@
 #study-view-header-left-0 {
     left: 0;
     width: 160px;
+    height: 30px;
 }
 #study-view-header-left-1 {
     left: 0;
     width: 190px;
+    //height: 30px;
 }
 #study-view-header-left-2 {
-    left: 190px;
+    left: 210px;
+    height: 30px;
 }
 #study-view-header-left-3 {
-    left: 375px;
-    font-size: 11px;
+    position: absolute;
+    left: 410px;
+    height: 30px;
+    line-height: 30px;
+    top: 2px;
+    border: 0;
+    font-size: 13px;
+    margin: 0;
+    z-index: 21;
+    vertical-align: middle;
+    padding: 0 10px;
+    background-color: white;
+    width: auto;
+    color: #2986e2;
+    text-align: center;
 }
 #study-view-header-left-3:hover{
     cursor: default;
-    background-color: #f88508;
 }
 #study-view-main {
     margin-left: auto;
@@ -75,7 +92,6 @@
     border-style: solid;
     border-width: 1px;
     border-color: lightgrey;
-    margin-bottom: 10px;
 }
 #data-table-chart {
     max-width:1200px;
@@ -118,7 +134,7 @@
     margin:auto;
 }
 #study-view-updateContent {
-    width: 338px;
+    width: 350px;
     height: 25px;
     margin-left:auto;
     margin-right:auto;
@@ -131,9 +147,38 @@
     position: absolute;
     top: 60px;
     width: 1200px;
-    height: 50px;
-    background-color: #f88508;
+    height: 30px;
+    background-color: white;
     z-index: 20;
+    -webkit-backface-visibility: hidden;
+}
+#study-view-scatter-plot-header {
+    float: left;
+    margin-top: 2px;
+}
+#study-view-scatter-plot-title {
+    float: left;
+    margin: 5px 40px 0 5px;
+}/*
+#study-view-scatter-plot-body-top-chart {
+    width: 100%;
+    height: 80px;
+    float: left;
+}
+#study-view-scatter-plot-body-right-chart {
+    width: 130px;
+    height: 350px;
+    float: left;
+}
+#study-view-scatter-plot-body-svg {
+    width: 430px;
+    height: 350px;
+    float: left;
+}*/
+#study-view-word-cloud-title {
+    width:180px; 
+    text-align:center;
+    margin-bottom: 20px;
 }
 #study-view-selectAttr{
      display:none;
@@ -158,20 +203,31 @@
     z-index: 21;
     vertical-align: middle;
     padding: 0 10px;
-    background-color: #f88508;
+    background-color: white;
     width: auto;
-    color: white;
-    border-width: 0;
+    color: #2986e2;
+    border: 1px solid #2986e2;
+    border-radius: 5px;
     font-size: 13px;
     font-weight: bold;
     text-align: center;
     display: inline-block;
-    vertical-align: middle;
-    line-height: 50px;
+    line-height: 30px;
 }
 .study-view-header:hover{    
-    cursor: pointer;
-    background-color: orange;
+    cursor: pointer !important;
+    background-color: #2986e2 !important;
+    color: white !important;
+    -webkit-transition: All 0.3s ease;
+    -moz-transition: All 0.3s ease;
+    -o-transition: All 0.3s ease;
+    -ms-transition: All 0.3s ease;
+    transition: All 0.3s ease;
+    /*
+    -moz-box-shadow: 0 0 5px #ccc inset;
+    -webkit-box-shadow: 0 0 5px #ccc inset;
+    box-shadow: 0 0 5px #ccc inset;
+    */
 }
 .boxLeft {
     //box-shadow: 2px 2px 2px lightgrey;
@@ -186,6 +242,11 @@
     width: 75px;
     height: 15px;
     border-spacing: 0px;
+}
+.study-view-scatter-plot-checkbox {
+    margin: 5px 10px 0px 0px; 
+    color: grey;
+    font-size: 10px;
 }
 .study-view-bar-chart rect{
     fill: #2986e2;
@@ -209,7 +270,7 @@
     background-color:lightblue;
 }
 .study-view-pie-chart {
-    height:165px;
+    height:150px;
     width:180px;
     //padding-left: 15px;
     float:left;
@@ -226,7 +287,28 @@
 .study-view-pie-label table td:hover{
     cursor: pointer;
 }
-
+.study-view-word-cloud {
+    float:left;
+    width:180px;
+    height:220px;
+    border:1px;
+    border-color:lightgrey;
+    border-style:solid;
+}
+.study-view-pdf-svg-side {
+    position: absolute;
+    width: 35px;
+    border: 1px solid lightgrey;
+    left: 180px;
+    top: 15px;
+    z-index: 20;
+    padding: 2px 2px 3px 2px;
+    background-color: white;
+    border-left-width: 0;
+}
+.study-view-pdf-svg-side.bar {
+    left: 370px;
+}
 .w2{
     width:370px;
 }
@@ -251,7 +333,6 @@
     border:1px;
     border-color:lightgrey;
     border-style:solid;
-    margin-bottom: 10px;
 }
 .study-view-bar-x-log {
     float: right;
@@ -270,7 +351,6 @@
     border:1px;
     border-color:lightgrey;
     border-style:solid;
-    margin-bottom: 10px;
 }
 
 .study-view-pie-chart :active{
@@ -286,6 +366,16 @@
     margin-right: 5px;
     color: lightgray;
     cursor: pointer;
+    float: right;
+}
+.study-view-word-cloud-delete{  
+    margin-right: 5px;
+    color: lightgray;
+    cursor: pointer;
+    float: right;
+}
+.study-view-dc-chart {
+    background-color: white;
 }
 .study-view-dc-chart-change {
     float: right;
@@ -296,7 +386,7 @@
     display: none;
 }
 chartTitleH4{
-    font-size: 11px;
+    font-size: 10px;
     color: black;
     font-weight: bold;
 }
@@ -376,27 +466,28 @@ pieH3{
     color: #3182bd;
     font-weight: bold;
 }
-.study-view-header-button{
-    color:white;
-    background-color:#2986e2;
-    border: none;
-    border-radius: 10px;
-    -webkit-border-radius: 10px;
-    -moz-border-radius: 10px;
+.study-view-middle-button{
+    background-color: white;
+    color: #2986e2;
+    border: 1px solid #2986e2;
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
     cursor:pointer;
-    -webkit-transition: All 0.5s ease;
-    -moz-transition: All 0.5s ease;
-    -o-transition: All 0.5s ease;
-    -ms-transition: All 0.5s ease;
-    transition: All 0.5s ease;
 }
-.study-view-header-button:hover:enabled{
-    background-color: #3366cc;
+.study-view-middle-button:hover:enabled{
+    background-color: #2986e2;
+    color:white;
+    -webkit-transition: All 0.3s ease;
+    -moz-transition: All 0.3s ease;
+    -o-transition: All 0.3s ease;
+    -ms-transition: All 0.3s ease;
+    transition: All 0.3s ease;
 }
-.study-view-header-button:disabled {
+.study-view-middle-button:disabled {
     background-color:lightgray;
 }
-.study-view-header-button:hover:disabled{
+.study-view-middle-button:hover:disabled{
     cursor: default;
 }
 .brush .extent {
@@ -428,13 +519,43 @@ pieH3{
 .clickable:hover{
     cursor: pointer;
 }
+
+//Show/Hide columns related classes
 .ColVis_Button {
     white-space: nowrap;
 }
-.ColVis_MasterButton {
+.ColVis_Button.TableTools_Button.ColVis_MasterButton{
+    outline: none;
+    background-color: white;
+    color: #2986e2;
+    border: 1px solid #2986e2;
     border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    cursor: pointer;
+    height: 23px;
+    padding: 0;
+}
+.ColVis_Button.TableTools_Button.ColVis_MasterButton span{
+    padding: 2px 6px 3px 6px;
+}
+.ColVis_Button.TableTools_Button.ColVis_MasterButton :hover{
+    background-color: #2986e2;
+    color:white;
+    -webkit-transition: All 0.3s ease;
+    -moz-transition: All 0.3s ease;
+    -o-transition: All 0.3s ease;
+    -ms-transition: All 0.3s ease;
+    transition: All 0.3s ease;    
 }
 
+/*Style for search box in dataTable of Summaery Tab*/
+.dataTables_filter input{
+    border: 1px solid #2986e2;
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+}
 #content ul{
     margin-bottom: 0;
 }
@@ -443,21 +564,43 @@ pieH3{
 }
 .ui-widget-content {
     border: 0;
-    margin-left: 2px;
 }
 .ui-widget-header {
     border: 0;
     background: white;
 }
+.ui-tabs .ui-tabs-nav {
+    padding: 0;
+}
 .ui-state-default.ui-corner-top.ui-tabs-active.ui-state-active{
     border: 1px solid #aaaaaa;
     border-bottom: 0;
     background: white;
+    color: #2986e2;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    -moz-box-shadow: 0 0 5px lightgrey inset;
+    -webkit-box-shadow: 0 0 5px lightgrey inset;
+    box-shadow: 0 0 5px lightgrey inset;
+}
+
+.ui-state-default.ui-corner-top.ui-state-hover {
+    border: 1px solid #aaaaaa;
+    border-bottom: 0;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    -moz-box-shadow: 0 0 5px lightgrey inset;
+    -webkit-box-shadow: 0 0 5px lightgrey inset;
+    box-shadow: 0 0 5px lightgrey inset;
 }
 .ui-state-default.ui-corner-top{
-    border: 0;
+    border: 1px;
+    border-color: white;
     background: white;
 }
+
+
+/* These five styles are designed for study view tabs. */
 #dc-plots {
     border: 1px solid #aaaaaa;
     border-radius: 5px;
@@ -474,6 +617,11 @@ pieH3{
     border-top-left-radius: 0;
 }
 #clinical {
+    border: 1px solid #aaaaaa;
+    border-radius: 5px;
+    border-top-left-radius: 0;
+}
+#cna {
     border: 1px solid #aaaaaa;
     border-radius: 5px;
     border-top-left-radius: 0;
@@ -526,4 +674,15 @@ ul li a:hover, ul li a:focus {
 #data-table-chart table.dataTable>tfoot>tr>th {
     max-width: 200px;
     min-width: 60px;
+    border-top: 0;
+}
+/* Used for leftcolumnWrapper of the datatable in summary page*/
+#data-table-chart .DTFC_LeftBodyWrapper {
+    background-color: white;
+}
+#data-table-chart .DTFC_LeftBodyLiner {
+    overflow-y: hidden
+}
+#data-table-chart .DTFC_LeftHeadWrapper {
+    background-color: white;
 }

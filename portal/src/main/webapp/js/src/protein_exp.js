@@ -411,7 +411,7 @@ var rppaPlots = (function() {
                             style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                             show: {event: "mouseover"},
                             hide: {fixed:true, delay: 100, event: "mouseout"},
-                            position: {my:'left bottom',at:'top right'}
+                            position: {my:'left bottom',at:'top right', viewport: $(window)}
                         }
                     );
 

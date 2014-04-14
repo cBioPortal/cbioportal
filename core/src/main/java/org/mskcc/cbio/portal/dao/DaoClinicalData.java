@@ -46,6 +46,10 @@ import java.util.*;
  */
 public final class DaoClinicalData {
     private DaoClinicalData() {}
+    
+    public static int addDatum(ClinicalData cd) throws DaoException {
+        return addDatum(cd.getCancerStudyId(), cd.getCaseId(), cd.getAttrId(), cd.getAttrVal());
+    }
 
     /**
      * add a new clinical datum
@@ -125,8 +129,7 @@ public final class DaoClinicalData {
             if (rs.next()) {
                 return extract(rs);
             } else {
-                throw new DaoException(String.format("clincial not found for (%d, %s, %s)",
-                        cancerStudyId, caseId, attrId));
+                return null;
             }
 
         } catch (SQLException e) {

@@ -171,6 +171,10 @@ public class Admin implements Runnable {
 													   "Use \"" + Config.ALL + "\" to import all reference data.")
 									  .create("import_reference_data"));
 
+        Option importTypesOfCancer = (OptionBuilder.hasArg(false)
+									  .withDescription("Import types of cancer.")
+									  .create("import_types_of_cancer"));
+        
         Option importData = (OptionBuilder.withArgName("portal:init_portal_db:init_tumor_types:ref_data")
                              .hasArgs(4)
 							 .withValueSeparator(':')
@@ -179,6 +183,11 @@ public class Admin implements Runnable {
 											  "If init_tumor_types is 't' tumor types will be imported  " + 
 											  "If ref_data is 't', all reference data will be imported prior to importing staging files.")
                              .create("import_data"));
+        
+        Option importCaseLists = (OptionBuilder.withArgName("portal")
+                             .hasArgs(1)
+                             .withDescription("Import case lists for the given portal.")
+                             .create("import_case_lists"));
 
         Option copySegFiles = (OptionBuilder.withArgName("portal:seg_datatype:remote_user_name")
 							   .hasArgs(3)
@@ -202,7 +211,9 @@ public class Admin implements Runnable {
 		toReturn.addOption(applyOverrides);
 		toReturn.addOption(generateCaseLists);
 		toReturn.addOption(importReferenceData);
+		toReturn.addOption(importTypesOfCancer);
 		toReturn.addOption(importData);
+		toReturn.addOption(importCaseLists);
 		toReturn.addOption(copySegFiles);
 
 		// outta here
@@ -283,10 +294,20 @@ public class Admin implements Runnable {
 			else if (commandLine.hasOption("import_reference_data")) {
 				importReferenceData(commandLine.getOptionValue("import_reference_data"));
 			}
+			else if (commandLine.hasOption("import_types_of_cancer")) {
+				importTypesOfCancer();
+			}
+                        
 			// import data
 			else if (commandLine.hasOption("import_data")) {
                 String[] values = commandLine.getOptionValues("import_data");
                 importData(values[0], values[1], values[2], values[3]);
+			}
+                        
+			// import case lists
+			else if (commandLine.hasOption("import_case_lists")) {
+                String[] values = commandLine.getOptionValues("import_case_lists");
+                importCaseLists(values[0]);
 			}
 			// copy seg files
 			else if (commandLine.hasOption("copy_seg_files")) {
@@ -588,6 +609,27 @@ public class Admin implements Runnable {
 	}
 
 	/**
+	 * Helper function to import types of cancer.
+     *
+     * @param referenceType String
+	 *
+	 * @throws Exception
+	 */
+	private void importTypesOfCancer() throws Exception {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("importTypesOfCancer()");
+		}
+                
+                Importer importer = (Importer)getBean("importer");
+                importer.importTypesOfCancer();
+                        
+		if (LOG.isInfoEnabled()) {
+			LOG.info("importReferenceData(), complete");
+		}
+	}
+
+	/**
 	 * Helper function to import data.
      *
      * @param portal String
@@ -617,6 +659,25 @@ public class Admin implements Runnable {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("importData(), complete");
+		}
+	}
+        
+        /**
+         * 
+         * @param portal
+         * @throws Exception 
+         */
+	private void importCaseLists(String portal) throws Exception {
+		if (LOG.isInfoEnabled()) {
+			LOG.info("importData(), portal: " + portal);
+		}
+
+		// create an instance of Importer
+		Importer importer = (Importer)getBean("importer");
+		importer.importCaseLists(portal);
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("importCaseLists(), complete");
 		}
 	}
 

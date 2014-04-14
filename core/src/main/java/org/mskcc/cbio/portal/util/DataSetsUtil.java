@@ -125,7 +125,7 @@ public class DataSetsUtil {
                         }
 			// get genetic profiles
 			int sequenced = getCount(cancerStudy, "_sequenced");
-			int aCGH = getCount(cancerStudy, "_acgh");
+			int cna = getCount(cancerStudy, "_cna");
 			int RNASEQ = getCount(cancerStudy, "_rna_seq_v2_mrna");
 			int tumorMRNA = getCount(cancerStudy, "_mrna");
 			int normal = getCount(cancerStudy, "_normal_mrna");
@@ -138,7 +138,7 @@ public class DataSetsUtil {
 			// add to return list
 			toReturn.add(new CancerStudyStats(cancerStudy.getCancerStudyStableId(), 
 											  cancerStudy.getName(), citation, all, sequenced,
-											  aCGH, RNASEQ, tumorMRNA, normal, tumorMIRNA,
+											  cna, RNASEQ, tumorMRNA, normal, tumorMIRNA,
 											  methylationHM27, rppa, complete));
 		}
 

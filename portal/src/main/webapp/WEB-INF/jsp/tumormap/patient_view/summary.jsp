@@ -51,7 +51,6 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
             return;
         }
         
-        $('#mutation_summary_wrapper_table').hide();
         $('#cna_summary_wrapper_table').hide();
         if (!genomicEventObs.hasMut||!genomicEventObs.hasSeg) $('#mut-cna-scatter').hide();
         if (showGenomicOverview) initGenomicsOverview();
@@ -64,7 +63,7 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
     function initGenomicsOverview() {
         var chmInfo = new ChmInfo();
 
-        var genomic_overview_length = $("#td-content").width() - 50;
+        var genomic_overview_length = $("#td-content").width() - 75;
         genomic_overview_length -= ((genomicEventObs.hasMut && genomicEventObs.hasSeg) ? 110 : 0);
         genomic_overview_length -= (hasAlleleFrequencyData&&caseIds.length===1 ? 110 : 0);
         var config = new GenomicOverviewConfig(
@@ -153,7 +152,7 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
             show: {delay: 200, event: "mouseover" },
             hide: {fixed: true, delay: 100,  event: "mouseout"},
             style: { classes: 'qtip-light qtip-rounded qtip-wide' },
-            position: {my:'top right',at:'top left'},
+            position: {my:'top right',at:'top left',viewport: $(window)},
             events: {
                 render: function(event, api) {
                     openMutCnaScatterDialog();
@@ -182,12 +181,14 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
 </script>
 
 
-<%if(showPlaceHoder){%>
-<br/>Clinical timeline goes here...
-<br/><br/>
+<%if(showTimeline){%>
+<jsp:include page="clinical_timeline.jsp" flush="true" />
+<br/>
 <%}%>
 
 <%if(showGenomicOverview){%>
+<fieldset style="border-width: 1px; border-color: #ccc; border-style: solid;">
+<legend style="color:#1974b8;">Genomic Overview</legend>
 <table>
     <tr>
         <td><div id="genomics-overview"></div></td>
@@ -213,6 +214,8 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
         <input id="allelefreq_curve_toggle" type="checkbox" checked />density estimation
     </label>
 </div>
+</fieldset>
+<br/>
 <%}%>
 
 <%if(hasAlleleFrequencyData && caseIds.size() == 1) {%>
@@ -242,8 +245,7 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
 
             // create a plot on a hidden element
             var hidden_plot_id = '#allele-freq-plot-big';
-            window.allelefreqplot = AlleleFreqPlot($(hidden_plot_id)[0],
-                    AlleleFreqPlotUtils.extract_and_process(genomicEventObs, caseIds[0]));
+            window.allelefreqplot = AlleleFreqPlot($(hidden_plot_id)[0], processed_data);
 
             // add qtip on allele frequency plot thumbnail
             $(thumbnail).qtip({
@@ -290,7 +292,7 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
                 hide: {fixed: true, delay: 100, event: "mouseout"},
                 style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow', tip: false},
                 //position: {my:'left top',at:'bottom center'}
-                position: {my:'top right',at:'top right'},
+                position: {my:'top right',at:'top right',viewport: $(window)}
             });
         });
     });
@@ -303,7 +305,7 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
 <tr valign="top">
 <td>
 <div id="mutation_summary_wait"><img src="images/ajax-loader.gif"/> Loading mutations ...</div>
-<table cellpadding="0" cellspacing="0" border="0" id="mutation_summary_wrapper_table" width="100%">
+<table cellpadding="0" cellspacing="0" border="0" id="mutation_summary_wrapper_table" width="100%" style="display:none;">
     <tr>
         <td>
             <table cellpadding="0" cellspacing="0" border="0" class="display" id="mutation_summary_table">

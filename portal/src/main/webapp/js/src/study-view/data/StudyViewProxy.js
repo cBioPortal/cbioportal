@@ -15,11 +15,7 @@ var StudyViewProxy = (function() {
     };
 
     var caseIdStr = '',
-        webserviceData = {},
-        clinicalAttributesData = {},
-        mutationsData = {},
-        cnaData = {},
-        survivalData = {},
+        ajaxParameters = {},
         obtainDataObject = [];
         
     obtainDataObject['attr'] = [];
@@ -34,43 +30,46 @@ var StudyViewProxy = (function() {
         caseIdStr = parObject.caseIds.join(' ');
     }
     
-    //By using POST method in Ajax, the Ajax should be created.
     function initAjaxParameters(){
-        webserviceData = {
-            cmd: "getClinicalData",
-            format: "json",
-            cancer_study_id: parObject.studyId,
-            case_set_id: parObject.caseSetId
-        };
-        clinicalAttributesData = {
-            cancer_study_id: parObject.studyId,
-            case_list: caseIdStr
-        };
-        mutationsData = {
-            cmd: "count_mutations",
-            cases_ids: caseIdStr,
-            mutation_profile: parObject.mutationProfileId
-        };
-        cnaData = {
-            cmd: "get_cna_fraction",
-            case_ids: caseIdStr,
-            cancer_study_id: parObject.studyId
-        };
-        survivalData = {
-            case_set_id: caseSetId,
-            case_ids_key: caseIds,
-            cancer_study_id: cancerStudyId
+        ajaxParameters = {
+            webserviceData: {
+                cmd: "getClinicalData",
+                format: "json",
+                cancer_study_id: parObject.studyId,
+                case_set_id: parObject.caseSetId
+            },
+            clinicalAttributesData: {
+                cancer_study_id: parObject.studyId,
+                case_list: caseIdStr
+            },
+            mutationsData: {
+                cmd: "count_mutations",
+                cases_ids: caseIdStr,
+                mutation_profile: parObject.mutationProfileId
+            },
+            cnaData: {
+                cmd: "get_cna_fraction",
+                case_ids: caseIdStr,
+                cancer_study_id: parObject.studyId
+            },
+            mutatedGenesData: {
+                cmd: 'get_smg',
+                mutation_profile: parObject.mutationProfileId
+            },
+            gisticData: {
+                selected_cancer_type: parObject.studyId
+            }
         };
     }
     
     function getDataFunc(callbackFunc){
          $.when(  
-                $.ajax({type: "POST", url: "webservice.do", data: webserviceData}), 
-                $.ajax({type: "POST", url: "mutations.json", data: mutationsData}),
-                $.ajax({type: "POST", url: "cna.json", data: cnaData}),
-                $.ajax({type: "POST", url: "getSurvivalData.json", data: survivalData}))
-
-            .done(function(a1, a2, a3, a4){
+                $.ajax({type: "POST", url: "webservice.do", data: ajaxParameters.webserviceData}), 
+                $.ajax({type: "POST", url: "mutations.json", data: ajaxParameters.mutationsData}),
+                $.ajax({type: "POST", url: "cna.json", data: ajaxParameters.cnaData}),
+                $.ajax({type: "POST", url: "mutations.json", data: ajaxParameters.mutatedGenesData}),
+                $.ajax({type: "POST", url: "Gistic.json", data: ajaxParameters.gisticData}))
+            .done(function(a1, a2, a3, a4, a5){
                 var _dataAttrMapArr = [], //Map attrbute value with attribute name for each datum
                     _keyNumMapping = [],
                     _data = a1[0]['data'],
@@ -89,7 +88,7 @@ var StudyViewProxy = (function() {
                         _dataAttrMapArr[_data[i]["sample"]][_data[i]["attr_id"]] = _data[i]["attr_val"];
                     }
                 }
-
+                
                 //Initial data array, not all of cases has MUTAION COUND OR COPY NUMBER ALTERATIONS.
                 for(var j = 0; j <  _globalCaseIdsLength; j++){
                     var _caseDatum = {};
@@ -98,7 +97,9 @@ var StudyViewProxy = (function() {
                     _caseDatum["COPY_NUMBER_ALTERATIONS"] = "NA";
                     _keyNumMapping[parObject.caseIds[j]] = j;
                     $.each(_dataAttrOfa1,function(key,value){
-                        _caseDatum[value['attr_id']] = "NA";
+                        if(value['attr_id'] !== 'CASE_ID'){
+                            _caseDatum[value['attr_id']] = "NA";
+                        }
                     });
                     obtainDataObject['arr'].push(_caseDatum);
                 }
@@ -146,8 +147,9 @@ var StudyViewProxy = (function() {
                     _newAttri.datatype = 'NUMBER';
 
                     jQuery.each(filteredA3, function(i,val){
-                        if(val === undefined)
+                        if(val === undefined){
                             val = 'NA';
+                        }
                         obtainDataObject['arr'][_keyNumMapping[i]]['COPY_NUMBER_ALTERATIONS'] = val;
                     }); 
                     obtainDataObject['attr'].push(_newAttri);
@@ -170,9 +172,8 @@ var StudyViewProxy = (function() {
                     _newAttr.datatype = 'NUMBER';
                     obtainDataObject['attr'].push(_newAttr);
                 }
-                console.log(a4);
-                obtainDataObject.survivalData = a4[0];
-                callbackFunc(obtainDataObject);
+                obtainDataObject['mutatedGenes'] = a4[0];
+                obtainDataObject['cna'] = a5[0];
             });
     };
     
@@ -192,6 +193,11 @@ var StudyViewProxy = (function() {
             initLocalParameters(o);
             initAjaxParameters();
             getDataFunc(callbackFunc);
-        }
+        },
+        
+        getArrData: function(){ return obtainDataObject['arr'];},
+        getAttrData: function(){ return obtainDataObject['attr'];},
+        getMutatedGenesData: function(){ return obtainDataObject['mutatedGenes'];},
+        getCNAData: function(){return obtainDataObject['cna'];}
     };
 }());

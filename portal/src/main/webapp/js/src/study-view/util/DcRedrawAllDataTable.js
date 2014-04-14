@@ -51,7 +51,6 @@ dc.redrawAllDataTable = function(group) {
         $("#dataTable_filter label input").attr("value","");    
         $('#study-view-dataTable-header').click(function(){
                 if($("#dataTable_filter label input").val() !== ""){			
-                        console.log("Inside...2");
                         var items=[];
                         $('#dataTable>tbody>tr>td:nth-child(1)').each( function(){
                            items.push( $(this).text() );       

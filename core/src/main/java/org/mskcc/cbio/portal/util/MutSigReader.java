@@ -130,33 +130,22 @@ public class MutSigReader {
         {
             if (names[i].equals("rank")) {
                 rankField = i;
-            }
-
-            if (names[i].equalsIgnoreCase("gene")) {
+            } else if (names[i].equalsIgnoreCase("gene")) {
                 hugoField = i;
-            }
-
-            if (names[i].equals("N")) {
+            } else if (names[i].equals("N") || names[i].equals("Nnon") ) {
                 BasesCoveredField = i;
-            }
-
-            if (names[i].equals("n")) {
+            } else if (names[i].equals("n") || names[i].equals("nnon") ) {
                 numMutationsField = i;
-            }
-
-            if (names[i].equalsIgnoreCase("p")) {
+            } else if (names[i].equalsIgnoreCase("p")) {
                 PvalField = i;
-            }
-
-            if (names[i].equalsIgnoreCase("q") || names[i].equalsIgnoreCase("q\n")) {
+            } else if (names[i].equalsIgnoreCase("q") || names[i].equalsIgnoreCase("q\n")) {
                 QvalField = i;
             }
         }
         // end parse Column names
 
         // check to see if all fields are filled
-        if (rankField == -1
-                || hugoField == -1
+        if (hugoField == -1
                 || BasesCoveredField == -1
                 || numMutationsField == -1
                 || PvalField == -1
@@ -166,7 +155,7 @@ public class MutSigReader {
         }
 
         // parse data
-        
+        int rank = 0;
         for (String line = buf.readLine();line != null;line = buf.readLine()) {
 
             if (pMonitor != null) {
@@ -183,7 +172,11 @@ public class MutSigReader {
 
             // -- load parameters for new MutSig object --
             try {
-                int rank = Integer.parseInt(parts[rankField]);
+                if (rankField==-1) { // MutSigCV
+                    rank++;
+                } else {
+                    rank = Integer.parseInt(parts[rankField]);
+                }
                 mutSig.setRank(rank);
             } catch (java.lang.NumberFormatException e) {
             }

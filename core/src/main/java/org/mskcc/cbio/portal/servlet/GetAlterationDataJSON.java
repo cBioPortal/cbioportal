@@ -4,8 +4,11 @@ import java.io.*;
 import java.util.*;
 import java.lang.Float;
 
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.node.JsonNodeFactory;
+import org.codehaus.jackson.node.ObjectNode;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.node.ArrayNode;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -54,17 +57,23 @@ public class GetAlterationDataJSON extends HttpServlet {
         String[] geneIdList = httpServletRequest.getParameter("gene_list").split("\\s+");
         String caseSetId = httpServletRequest.getParameter("case_set_id");
         String caseIdsKey = httpServletRequest.getParameter("case_ids_key");
+        String profileId = httpServletRequest.getParameter("profile_id");
+
 
         try {
 
-            GeneticProfile final_gp = CoExpUtil.getPreferedGeneticProfile(cancerStudyIdentifier);
+            GeneticProfile final_gp = DaoGeneticProfile.getGeneticProfileByStableId(profileId);
             ArrayList<String> caseIds = CoExpUtil.getCaseIds(caseSetId, caseIdsKey);
 
-            JSONObject _result = new JSONObject();
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNodeFactory factory = JsonNodeFactory.instance;
+            JsonNode _result = mapper.createObjectNode();
+            //JSONObject _result = new JSONObject();
             DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
 
             for (String geneId: geneIdList) {
-                ArrayList<JSONObject> _geneArr = new ArrayList<>();
+                //ArrayList<ObjectNode> _geneArr = new ArrayList();
+                ArrayNode _geneArr = new ArrayNode(factory);
                 ArrayList<String> tmpProfileDataArr = 
                             GeneticAlterationUtil.getGeneticAlterationDataRow(
                                 daoGeneOptimized.getGene(geneId), 
@@ -72,20 +81,25 @@ public class GetAlterationDataJSON extends HttpServlet {
                                 final_gp
                             );
                 for (int i = 0; i < caseIds.size(); i++) {
-                    JSONObject _datum = new JSONObject();
-                    _datum.put("caseId", caseIds.get(i));
-                    _datum.put("value", Float.parseFloat(tmpProfileDataArr.get(i)));
-                    _geneArr.add(_datum);
+                    if (!tmpProfileDataArr.get(i).equals("NA") && 
+                        tmpProfileDataArr.get(i) != null &&
+                        !tmpProfileDataArr.get(i).equals("NaN")) {
+                        //JSONObject _datum = new JSONObject();
+                        ObjectNode _datum = mapper.createObjectNode();
+                        _datum.put("caseId", caseIds.get(i));
+                        _datum.put("value", Float.parseFloat(tmpProfileDataArr.get(i)));
+                        _geneArr.add(_datum);                        
+                    }
                 }
-                _result.put(geneId, _geneArr);
+                ((ObjectNode)_result).put(geneId, _geneArr);
             }
-            _result.put("profile_name", final_gp.getProfileName());
-            _result.put("profile_description", final_gp.getProfileDescription());
+            ((ObjectNode)_result).put("profile_name", final_gp.getProfileName());
+            ((ObjectNode)_result).put("profile_description", final_gp.getProfileDescription());
 
             httpServletResponse.setContentType("application/json");
             PrintWriter out = httpServletResponse.getWriter();
-            JSONValue.writeJSONString(_result, out);
-
+            //JSONValue.writeJSONString(_result, out);
+            mapper.writeValue(out, _result);
         } catch (DaoException e) {
             System.out.println(e.getMessage());
         }

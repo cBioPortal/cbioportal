@@ -52,13 +52,13 @@ var PieChart = function(){
     
     var label =[],
         labelSize = 10,
-        fontSize = labelSize +1;
+        fontSize = labelSize;
             
     var postFilterCallback,
         pieLabelClickCallback,
         scatterPlotCallback;
     
-    
+    var titleLengthCutoff = 16;
     
     //This function is designed to draw Pie Labels based on current color the
     //Pie Chart has. Pagging function will be added when the number of labels
@@ -121,11 +121,13 @@ var PieChart = function(){
                             .append('<td class="pieLabel" id="' +
                                 DIV.labelTableTdID+label[i].id + "-" + i +
                                 '" style="font-size:' + fontSize +
-                                'px"><svg width="75" height="13"><rect width="' +
+                                'px"><svg width="'+(labelSize+3)+'" height="'+
+                                labelSize+'"><rect width="' +
                                 labelSize+'" height="'+ labelSize +
                                 '" style="fill:' + label[i].color + 
-                                ';" /><text x="15" y="10">' + _tmpName +
-                                '</text></svg></td>');
+                                ';" /></svg><span value="'+
+                                label[i].name + '" style="vertical-align: top">'+
+                                _tmpName+'</span></td>');
 
                     //Only add qtip when the length of pie label bigger than 9
                     if(label[i].name.length > 9){
@@ -263,10 +265,22 @@ var PieChart = function(){
                     $("#" + DIV.mainDiv)
                             .css({'border-width':'2px', 'border-style':'inset'});
                 }
-
-                updateScatterPlot(_currentFilters);
+                
+                if(filter !== null || (filter !== null && 
+                        StudyViewInitScatterPlot
+                            .getScatterPlot()
+                            .getBrushedCases()
+                            .length > 0 
+                    )){
+                
+                    updateScatterPlot(_currentFilters);
+                }
+                
                 removeMarker();
                 postFilterCallback();
+            });
+            pieChart.on("preRedraw",function(chart){
+                removeMarker();
             });
             pieChart.on("postRedraw",function(chart){
                 addPieLabels();
@@ -275,6 +289,107 @@ var PieChart = function(){
                 addPieLabels();
             });
         }
+    }
+    
+    //Add all listener events
+    function addEvents() {
+        $("#"+DIV.chartDiv+"-pdf").submit(function(){
+            setSVGElementValue(DIV.chartDiv,
+                DIV.chartDiv+"-pdf-value");
+        });
+        $("#"+DIV.chartDiv+"-svg").submit(function(){
+            setSVGElementValue(DIV.chartDiv,
+                DIV.chartDiv+"-svg-value");
+        });
+        
+        StudyViewOverallFunctions
+                    .showHideDivision(DIV.mainDiv, 
+                                    DIV.chartDiv+"-side");
+    }
+    
+    function setSVGElementValue(_svgParentDivId,_idNeedToSetValue){
+        var _svgElement;
+        
+        var _maxlabelNameLength=0,
+            _svgWidth = 180,
+            _pieLabelString = '', 
+            _pieLabelYCoord = 0,
+            _svg = $("#" + _svgParentDivId + " svg"),
+            _svgHeight = _svg.height(),
+            _text = _svg.find('text'),
+            _slice = _svg.find('g .pie-slice'),
+            _pieLabel = $("#" + _svgParentDivId).parent().find('td.pieLabel');
+        
+        //Change pie slice text styles
+        $.each(_text, function(index, value){
+            $(value).css({
+                'fill': 'white',
+                'font-size': '14px',
+                'stroke': 'white',
+                'stroke-width': '1px'
+            });
+        });
+        
+        //Change pie slice styles
+        $.each(_slice, function(index, value){
+            
+            $($(value).find('path')[0]).css({
+                'stroke': 'white',
+                'stroke-width': '1px'
+            });
+        });
+        
+        
+        //Draw pie label into output
+        
+        $.each(_pieLabel, function(index, value){
+            var _labelName = $($(value).find('span')[0]).attr('value');
+            var _labelColormarker = $($(value).find('svg')[0]).html();
+            
+            _pieLabelString += "<g transform='translate(0, "+ 
+                    _pieLabelYCoord+")'>"+ _labelColormarker+
+                    "<text x='13' y='10' "+
+                    "style='font-size:15px'>"+  _labelName + "</text></g>";
+            
+            _pieLabelYCoord += 15;
+            
+            if(_labelName.toString().length > _maxlabelNameLength){
+                _maxlabelNameLength = _labelName.toString().length;
+            }
+        });
+        
+        _svgElement = $("#" + _svgParentDivId + " svg").html();
+        
+        if(_maxlabelNameLength * 10 > _svgWidth){
+            _svgWidth = _maxlabelNameLength * 10;
+        }
+        
+        $("#" + _idNeedToSetValue)
+                .val("<svg width='"+_svgWidth+"' height='"+(180+_pieLabelYCoord)+"'>"+
+                    "<g><text x='90' y='20' style='font-weight: bold;"+
+                    "text-anchor: middle'>"+
+                    selectedAttrDisplay+"</text></g>"+
+                    "<g transform='translate(25, 20)'>"+_svgElement+ "</g>"+
+                    "<g transform='translate(30, "+(_svgHeight+20)+")'>"+
+                    _pieLabelString+"</g></svg>");
+    
+        //Remove pie slice text styles
+        $.each(_text, function(index, value){
+            $(value).css({
+                'fill': '',
+                'font-size': '',
+                'stroke': '',
+                'stroke-width': ''
+            });
+        });
+        
+        //Remove pie slice styles
+        $.each(_slice, function(index, value){
+            $($(value).find('path')[0]).css({
+                'stroke': '',
+                'stroke-width': ''
+            });
+        });
     }
     
     //Initialize HTML tags which will be used for current Pie Chart.
@@ -292,25 +407,51 @@ var PieChart = function(){
                     "\" class='study-view-dc-chart study-view-pie-main' "+
                     "style='display:none'><div id=\"" +
                     DIV.chartDiv + "\"></div></div>");
-        }else
+        }else{
+            var _title = selectedAttrDisplay.toString();
+            if(_title.length > titleLengthCutoff) {
+                _title = _title.substring(0,(titleLengthCutoff-2)) + "...";
+            }
             $("#"+DIV.parentID).append("<div id=\"" + DIV.mainDiv +
                 "\"" + _introDiv +
                 "class='study-view-dc-chart study-view-pie-main'>"+
                 "<div id=\"" + DIV.chartDiv + "\" class='" + 
                 className + "'  value='"+ selectedAttr + "," + 
                 selectedAttrDisplay + ",pie'>"+
+                "<div id='"+DIV.chartDiv+"-side' class='study-view-pdf-svg-side'>"+
+                "<form style='display:inline-block;' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-pdf'>"+
+                "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-pdf-value'>"+
+                "<input type='hidden' name='filetype' value='pdf'>"+
+                "<input type='hidden' id='"+DIV.chartDiv+"-pdf-name' name='filename' value='"+cancerStudyId + "_" +selectedAttr+".pdf'>"+
+                "<input type='submit' style='font-size:10px' value='PDF'>"+          
+                "</form>"+
+                "<form style='display:inline-block' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-svg'>"+
+                "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-svg-value'>"+
+                "<input type='hidden' name='filetype' value='svg'>"+
+                "<input type='hidden' id='"+DIV.chartDiv+"-svg-name' name='filename' value='"+cancerStudyId + "_" +selectedAttr+".svg'>"+
+                "<input type='submit' style='font-size:10px' value='SVG'>"+    
+                "</form></div>"+
                 "<div style='width:180px; float:right; text-align:center;'>"+
                 "<span class='study-view-dc-chart-delete'>x</span>"+
                 "<a href='javascript:StudyViewInitCharts.getChartsByID("+ 
-                chartID +").getChart().filterAll();dc.redrawAll();'>" +
-                "<span title='Reset Chart' class='study-view-dc-chart-change' "+
-                "style='font-size:10px;'>RESET</span></a></div>"+
-                "<div style='width:180px;float:left;text-align:center'><chartTitleH4>" +
-                selectedAttrDisplay + "</chartTitleH4></div></div>"+
+                chartID +").getChart().filterAll();" +
+                "StudyViewInitCharts.getSelectedCasesAndRedrawScatterPlot([]);"+ 
+                "dc.redrawAll();'><span title='Reset Chart'"+
+                "class='study-view-dc-chart-change' style='font-size:10px;'>"+
+                "RESET</span></a><chartTitleH4 id='"+DIV.chartDiv +"-title'>" +
+                _title + "</chartTitleH4></div>"+
+                "<div style='width:180px;float:left;text-align:center'></div></div>"+
                 "<div class='study-view-pie-label'></div>"+
                 "<div style='width:180px; text-align:center;float:left;'></div></div>");
-        
+            //Title has been cut with 8 head character with ..., so the length
+            //still longer than titleLengthCutoff
+            if(_title.length > titleLengthCutoff) {
+                addQtip(selectedAttrDisplay, DIV.chartDiv +"-title");
+            }
+        }
     }
+    
+    
     
     //This function is designed to draw Pie Slice Marker(Arc) based on the
     //selected pie slice color.
@@ -334,17 +475,23 @@ var PieChart = function(){
 
         var _x1 = Number(_pointsInfo[1]),
             _y1 = Number(_pointsInfo[2]),
-            _largeArc = Number(_pointsInfo[6]),
+            //_largeArc = Number(_pointsInfo[6]),
             _x2 = Number(_pointsInfo[8]),
             _y2 = Number(_pointsInfo[9]),
             _r = Number(_pointsInfo[3]);
 
         if((_x1 - _x2!==0 || _y1 - _y2!==0) && _pointsInfo1.length === 2){
+            
+            //This comment function is designed to calculate the central point
+            //between start and end points. Has been abandon since using arc
+            //marker stead of red circle marker.
+            /*
             var _xm = (_x1 + _x2) /2,
                 _ym = (_y1 + _y2) /2;
-
+            
             var m = Math.sqrt((Math.pow(_xm,2)+Math.pow(_ym,2)));
 
+            
             var _tmpX = (_r + 3) / m * _xm,
                 _tmpY = (_r + 3) / m * _ym;
 
@@ -352,12 +499,12 @@ var PieChart = function(){
                 _tmpY = 0;
                 _tmpX = _r + 6;
             }
-
             if(_largeArc === 1 && Math.abs(_x1 - _x2) >0.1) {
                 _tmpX = -_tmpX;
                 _tmpY = -_tmpY;
-            }
-
+            }*/
+            
+            //
             var _pointOne = Math.atan2(_y1,_x1);
             var _pointTwo = Math.atan2(_y2,_x2);
 
@@ -372,9 +519,20 @@ var PieChart = function(){
             }else{
                 _pointTwo = Math.PI/2 +_pointTwo;
             }
+            
+            //The value of point two should always bigger than the value
+            //of point one. If the point two close to 12 oclick, we should 
+            //change it value close to 2PI instead of close to 0
+            if(_pointTwo > 0 && _pointTwo < 0.0000001){
+                _pointTwo = 2*Math.PI-_pointTwo;
+            }
+            
+            if(_pointTwo < _pointOne){
+                console.log('%cError: the end angle should always bigger' +
+                        ' than start angle.', 'color: red');
+            }
 
             var _arcID = "arc-" +_fatherID+"-"+(Number(_childID)-1);
-
             var _arc = d3.svg.arc()
                             .innerRadius(_r + 3)
                             .outerRadius(_r + 5)
@@ -497,19 +655,26 @@ var PieChart = function(){
                     .append('<td class="pieLabel" id="'+
                         DIV.labelTableTdID +label[i].id+'-'+i+
                         '"  style="font-size:'+fontSize+'px">'+
-                        '<svg width="75" height="13"><rect width="'+
+                        '<svg width="'+(labelSize+3)+'" height="'+
+                        labelSize+'"><rect width="'+
                         labelSize+'" height="'+labelSize+'" style="fill:'+
-                        label[i].color + ';" /><text x="15" y="10">'+
-                        _tmpName+'</text></svg></td>');
+                        label[i].color + ';" /></svg><span value="'+
+                        label[i].name + '" style="vertical-align: top">'+
+                        _tmpName+'</span></td>');
 
             //Only add qtip when the length of pie label bigger than 9
             if(label[i].name.length > 9){
-                var _qtip = jQuery.extend(true,{},StudyViewBoilerplate.pieLabelQtip);
-                
-                _qtip.content.text = label[i].name;
-                $('#'+DIV.labelTableTdID +label[i].id+'-'+i).qtip(_qtip);
+                addQtip(label[i].name, DIV.labelTableTdID +label[i].id+'-'+i);
             }
         }
+    }
+    
+    //Pass the qtip ID without #
+    function addQtip(_text, _DivID){
+        var _qtip = jQuery.extend(true,{},StudyViewBoilerplate.pieLabelQtip);
+                
+        _qtip.content.text = _text;
+        $('#'+_DivID).qtip(_qtip);
     }
     
     //Pie Chart will have communications with ScatterPlot, this function is used
@@ -524,6 +689,7 @@ var PieChart = function(){
             createDiv();
             initDCPieChart();
             addFunctions();
+            addEvents();
         },
 
         getChart : function(){

@@ -5,10 +5,11 @@
  *
  * @param tableView         a MutationDetailsTableView instance
  * @param mutationDiagram   a MutationDiagram instance
+ * @param mutationDetailsView   a MutationDetailsView instance
  *
  * @author Selcuk Onur Sumer
  */
-var MutationDetailsTableController = function(tableView, mutationDiagram)
+var MutationDetailsTableController = function(tableView, mutationDiagram, mutationDetailsView)
 {
 	function init()
 	{
@@ -37,6 +38,11 @@ var MutationDetailsTableController = function(tableView, mutationDiagram)
 		mutationDiagram.dispatcher.on(
 			MutationDetailsEvents.DIAGRAM_PLOT_RESET,
 			diagramResetHandler);
+
+		// add listeners for the mutation details view
+		mutationDetailsView.dispatcher.on(
+			MutationDetailsEvents.GENE_TAB_SELECTED,
+			geneTabSelectHandler);
 	}
 
 	function diagramResetHandler()
@@ -68,10 +74,26 @@ var MutationDetailsTableController = function(tableView, mutationDiagram)
 			// remove all table highlights
 			tableView.clearHighlights();
 
-			// TODO this needs revision for multiple select
-			// roll back the table to its previous state
-			// (to the last state when a manual filtering applied)
-			tableView.rollBack();
+			var mutations = [];
+
+			// get mutations for all selected elements
+			_.each(mutationDiagram.getSelectedElements(), function (ele, i) {
+				mutations = mutations.concat(ele.datum().mutations);
+			});
+
+			// reselect with the reduced selection
+			if (mutations.length > 0)
+			{
+				// filter table for the selected mutations
+				tableView.filter(mutations);
+			}
+			// rollback only if none selected
+			else
+			{
+				// roll back the table to its previous state
+				// (to the last state when a manual filtering applied)
+				tableView.rollBack();
+			}
 		}
 	}
 
@@ -82,8 +104,15 @@ var MutationDetailsTableController = function(tableView, mutationDiagram)
 			// remove all table highlights
 			tableView.clearHighlights();
 
-			// filter table for the given mutations
-			tableView.filter(datum.mutations);
+			var mutations = [];
+
+			// get mutations for all selected elements
+			_.each(mutationDiagram.getSelectedElements(), function (ele, i) {
+				mutations = mutations.concat(ele.datum().mutations);
+			});
+
+			// filter table for the selected mutations
+			tableView.filter(mutations);
 		}
 	}
 
@@ -102,6 +131,20 @@ var MutationDetailsTableController = function(tableView, mutationDiagram)
 		{
 			// remove all highlights
 			tableView.clearHighlights();
+		}
+	}
+
+	function geneTabSelectHandler(gene)
+	{
+		if (tableView)
+		{
+			var oTable = tableView.tableUtil.getDataTable();
+
+			// alternatively we can check if selected gene is this view's gene
+			if (oTable.is(":visible"))
+			{
+				oTable.fnAdjustColumnSizing();
+			}
 		}
 	}
 

@@ -5,7 +5,7 @@
  *
  * @author Selcuk Onur Sumer
  */
-var MutationDiagramController = function(mutationDiagram, mutationTable, mutationUtil)
+var MutationDiagramController = function(mutationDiagram, mutationTable, mutationUtil, tableView)
 {
 	function init()
 	{
@@ -14,6 +14,20 @@ var MutationDiagramController = function(mutationDiagram, mutationTable, mutatio
 		mutationTable.dispatcher.on(
 			MutationDetailsEvents.MUTATION_TABLE_FILTERED,
 			tableFilterHandler);
+
+		// TODO make sure to call these event handlers before 3D controller's handler,
+		// otherwise 3D update will not work properly.
+		// (this requires event handler prioritization which is not trivial)
+
+		// add listeners for the mutation table view
+
+//		tableView.dispatcher.on(
+//			MutationDetailsEvents.PROTEIN_CHANGE_LINK_CLICKED,
+//			proteinChangeLinkHandler);
+
+//		tableView.dispatcher.on(
+//			MutationDetailsEvents.PDB_LINK_CLICKED,
+//			proteinChangeLinkHandler);
 	}
 
 	function tableFilterHandler(tableSelector)
@@ -42,6 +56,19 @@ var MutationDiagramController = function(mutationDiagram, mutationTable, mutatio
 		{
 			var mutationData = new MutationCollection(currentMutations);
 			mutationDiagram.updatePlot(mutationData);
+		}
+	}
+
+	function proteinChangeLinkHandler(mutationId)
+	{
+		var mutationMap = mutationUtil.getMutationIdMap();
+		var mutation = mutationMap[mutationId];
+
+		if (mutation)
+		{
+			// highlight the corresponding pileup (without filtering the table)
+			mutationDiagram.clearHighlights();
+			mutationDiagram.highlightMutation(mutation.mutationSid);
 		}
 	}
 

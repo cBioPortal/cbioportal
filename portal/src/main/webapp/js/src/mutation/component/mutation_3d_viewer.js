@@ -34,6 +34,9 @@ var Mutation3dVis = function(name, options)
 	// spin indicator (initially off)
 	var _spin = "OFF";
 
+	// used for show/hide option (workaround)
+	var _prevTop = null;
+
 	// default visualization options
 	var defaultOpts = {
 		// applet/application (Jmol/JSmol) options
@@ -121,7 +124,7 @@ var Mutation3dVis = function(name, options)
 		// update reference
 		_container = $(container);
 
-		var appContainer = _container.find("#mutation_3d_visualizer");
+		var appContainer = _container.find(".mutation-3d-vis-container");
 
 		// set width
 		appContainer.css("width", _options.appOptions.width);
@@ -171,7 +174,21 @@ var Mutation3dVis = function(name, options)
 			_container.show();
 
 			// this is a workaround. see the hide() function below for details
-			_container.css('top', 0);
+
+			var currentTop = parseInt(_container.css('top'));
+
+			// update the top position only if it is negative
+			if (currentTop < 0)
+			{
+				if (_prevTop != null && _prevTop > 0)
+				{
+					_container.css('top', _prevTop);
+				}
+				else
+				{
+					_container.css('top', 0);
+				}
+			}
 		}
 	}
 
@@ -188,6 +205,13 @@ var Mutation3dVis = function(name, options)
 		if (_container != null)
 		{
 			//_container.hide();
+			var currentTop = parseInt(_container.css('top'));
+
+			if (currentTop > 0)
+			{
+				_prevTop = currentTop;
+			}
+
 			_container.css('top', -9999);
 		}
 	}
@@ -200,8 +224,8 @@ var Mutation3dVis = function(name, options)
 		// minimize container
 		if (_container != null)
 		{
-			_container.css("overflow", "hidden");
-			_container.css("height", _options.minimizedHeight);
+			_container.css({"overflow": "hidden",
+				"height": _options.minimizedHeight});
 			_minimized = true;
 		}
 	}
@@ -213,8 +237,7 @@ var Mutation3dVis = function(name, options)
 	{
 		if (_container != null)
 		{
-			_container.css("overflow", "");
-			_container.css("height", "");
+			_container.css({"overflow": "", "height": ""});
 			_minimized = false;
 		}
 	}
@@ -236,9 +259,9 @@ var Mutation3dVis = function(name, options)
 
 	function isVisible()
 	{
-		var top = _container.css("top").replace("px", "");
+		var top = parseInt(_container.css("top"));
 
-		var hidden = (top < 0) || _container.is(":hidden");
+		var hidden = (top == -9999) || _container.is(":hidden");
 
 		return !hidden;
 	}
@@ -310,7 +333,7 @@ var Mutation3dVis = function(name, options)
 		_highlighted = {};
 
 		// pdbId and/or chainId may be null
-		if (!_pdbId || !_chain)
+		if (_pdbId == null || _chain == null)
 		{
 			// nothing to refresh
 			return mappedMutations;
@@ -446,7 +469,7 @@ var Mutation3dVis = function(name, options)
 	function focus(pileup)
 	{
 		// no chain selected yet, terminate
-		if (!_chain)
+		if (_chain == null)
 		{
 			return false;
 		}
@@ -498,22 +521,20 @@ var Mutation3dVis = function(name, options)
 	}
 
 	/**
-	 * Highlights the residue corresponding to the given pileup. If there is
-	 * no corresponding residue for the given pileup, this function does not
-	 * perform a highlight operation, and returns false.
+	 * Highlights the residue corresponding to the given pileups. This
+	 * function returns the number of successfully mapped residues
+	 * for the given pileups (returns zero if no mapping at all).
 	 *
-	 * @param pileup    Pileup instance
+	 * @param pileups   an array of Pileup instances
 	 * @param reset     indicates whether to reset previous highlights
-	 * @return {boolean}    true if there there a matching residue, false o.w.
+	 * @return {Number} number of mapped pileups (residues)
 	 */
-	function highlight(pileup, reset)
+	function highlight(pileups, reset)
 	{
-		// TODO allow passing of a Pileup array
-
 		// no chain selected yet, terminate
-		if (!_chain)
+		if (_chain == null)
 		{
-			return false;
+			return 0;
 		}
 
 		if (reset)
@@ -525,16 +546,21 @@ var Mutation3dVis = function(name, options)
 		// init script generation
 		var script = generateVisualStyleScript(_selection, _chain);
 
-		// assuming all other mutations in the same pileup have
-		// the same (or very close) mutation position.
-		var id = pileup.mutations[0].mutationId;
-		var position = _chain.positionMap[id];
+		var numMapped = 0;
 
-		if (position)
-		{
-			// add position to the highlighted ones
-			_highlighted[id] = position;
-		}
+		_.each(pileups, function(pileup, i) {
+			// assuming all other mutations in the same pileup have
+			// the same (or very close) mutation position.
+			var id = pileup.mutations[0].mutationId;
+			var position = _chain.positionMap[id];
+
+			if (position != null)
+			{
+				// add position to the highlighted ones
+				_highlighted[id] = position;
+				numMapped++;
+			}
+		});
 
 		// add highlight script string
 		script = script.concat(generateHighlightScript(_highlighted));
@@ -545,9 +571,8 @@ var Mutation3dVis = function(name, options)
 		// send script string to the app
 		_3dApp.script(script);
 
-		// return false if no mapping position found for this pileup,
-		// return true otherwise
-		return (position != null);
+		// return number of mapped residues for the given pileups
+		return numMapped;
 	}
 
 	/**
@@ -607,7 +632,6 @@ var Mutation3dVis = function(name, options)
 
 		if (_options.colorProteins == "byAtomType")
 		{
-			// TODO is this the default coloring?
 			script.push("color atoms CPK;");
 		}
 		else if (_options.colorProteins == "bySecondaryStructure")
@@ -779,7 +803,7 @@ var Mutation3dVis = function(name, options)
 		var position = _chain.positionMap[mutationId];
 
 		// check if the mutation maps on this chain
-		if (position)
+		if (position != null)
 		{
 			var scriptPos = generateScriptPos(position);
 
@@ -835,11 +859,25 @@ var Mutation3dVis = function(name, options)
 	 */
 	function generateScriptPos(position)
 	{
-		var posStr = position.start.pdbPos;
+		var insertionStr = function(insertion) {
+			var posStr = "";
+
+			if (insertion != null &&
+			    insertion.length > 0)
+			{
+				posStr += "^" + insertion;
+			}
+
+			return posStr;
+		};
+
+		var posStr = position.start.pdbPos +
+		             insertionStr(position.start.insertion);
 
 		if (position.end.pdbPos > position.start.pdbPos)
 		{
-			posStr += "-" + position.end.pdbPos;
+			posStr += "-" + position.end.pdbPos +
+			          insertionStr(position.end.insertion);
 		}
 
 		return posStr;

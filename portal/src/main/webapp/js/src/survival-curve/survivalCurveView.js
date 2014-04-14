@@ -78,8 +78,8 @@ var SurvivalCurveView = function() {
                     //Init all the calculators
                     kmEstimator = new KmEstimator(); 
                     logRankTest = new LogRankTest();   
-                    //confidenceIntervals = new ConfidenceIntervals();    
-
+                    //confidenceIntervals = new ConfidenceIntervals();   
+                    
                     //Split the data into different(altered/unaltered) groups  
                     for (var key in _caseLists) {  
                         if (_caseLists[key] === "altered") alteredGroup.push(key);

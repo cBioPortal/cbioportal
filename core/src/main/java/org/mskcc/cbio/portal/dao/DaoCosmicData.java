@@ -105,7 +105,7 @@ public class DaoCosmicData {
     
     private static Set<CosmicMutationFrequency> filterTruncatingCosmicByPosition(
             ExtendedMutation mut, Set<CosmicMutationFrequency> cmfs) {
-        if (!mut.getKeyword().endsWith("truncating") || cmfs==null) {
+        if (mut.getKeyword()==null || !mut.getKeyword().endsWith("truncating") || cmfs==null) {
             return cmfs;
         }
         

@@ -93,6 +93,15 @@
     border-width: 1px;
     border-color: lightgrey;
 }
+#study-view-survival-plot {
+    position: relative;
+    top: 1em;
+    right: 1em;
+    text-align:center;
+    border-style: solid;
+    border-width: 1px;
+    border-color: lightgrey;
+}
 #data-table-chart {
     max-width:1200px;
     width : 100%;
@@ -373,13 +382,13 @@
     color: lightgray;
     cursor: pointer;
 }
-.study-view-scatter-plot-delete{  
+.study-view-chart-plot-delete{  
     margin-right: 5px;
     color: lightgray;
     cursor: pointer;
     float: right;
 }
-.study-view-word-cloud-delete{  
+.study-view-chart-cloud-delete{  
     margin-right: 5px;
     color: lightgray;
     cursor: pointer;

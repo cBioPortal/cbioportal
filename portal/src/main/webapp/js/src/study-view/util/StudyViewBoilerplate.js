@@ -263,7 +263,7 @@ var StudyViewBoilerplate ={
             "</form>"+
             "<input type='checkbox' id='study-view-scatter-plot-log-scale-x'></input><span class='study-view-scatter-plot-checkbox'>Log Scale X</span>"+
             "<input type='checkbox' id='study-view-scatter-plot-log-scale-y'></input><span class='study-view-scatter-plot-checkbox'>Log Scale y</span>"+
-            "</div><span class='study-view-scatter-plot-delete'>x</span></div>"+
+            "</div><span class='study-view-chart-plot-delete'>x</span></div>"+
             "<div id='study-view-scatter-plot-body'>"+
             "<div id='study-view-scatter-plot-body-top-chart'></div>"+
             "<div id='study-view-scatter-plot-body-svg'></div>"+
@@ -273,12 +273,25 @@ var StudyViewBoilerplate ={
             "</div>",
     
     survivalPlotDiv: 
-            "<div id='study-view-survival-plot' class='study-view-dc-chart w5 h3'>"+
+            "<div id='study-view-survival-plot' class='study-view-dc-chart w3 h2'>"+
             "<div id='study-view-survival-plot-header-wrapper' style='float:left; width: 100%; height: 22px;'>"+
-            "<div id='study-view-survival-plot-header'>"+
-            "</div><span class='study-view-survival-plot-delete'>x</span></div>"+
+            "<div id='study-view-survival-plot-header' style='float:left'>"+
+            "<form style='float: right; display:inline-block; margin-right:5px' action='svgtopdf.do' method='post' id='study-view-survival-plot-pdf'>"+
+            "<input type='hidden' name='svgelement' id='study-view-survival-plot-pdf-value'>"+
+            "<input type='hidden' name='filetype' value='pdf'>"+
+            "<input type='hidden' id='study-view-survival-plot-pdf-name' name='filename' value=''>"+
+            "<input type='submit' style='font-size:10px' value='PDF'>"+          
+            "</form>"+
+            "<form style='float:right; display:inline-block' action='svgtopdf.do' method='post' id='study-view-survival-plot-svg'>"+
+            "<input type='hidden' name='svgelement' id='study-view-scatter-plot-svg-value'>"+
+            "<input type='hidden' name='filetype' value='svg'>"+
+            "<input type='hidden' id='study-view-survival-plot-svg-name' name='filename' value=''>"+
+            "<input type='submit' style='font-size:10px' value='SVG'>"+    
+            "</form>"+
+            "</div><span class='study-view-chart-plot-delete'>x</span></div>"+
             "<div id='study-view-survival-plot-body' style='float:left'>"+
-            "<div id='study-view-survival-plot-body-svg'></div>"+
+            "<div id='study-view-survival-plot-body-svg' style='float:left'></div>"+
+            "<div id='study-view-survival-plot-body-label' style='float:left'></div>"+
             "</div></div>",
     
     wordCloudDiv:
@@ -299,7 +312,7 @@ var StudyViewBoilerplate ={
                 "</form></div>"+
                 "<div id='study-view-word-cloud-title'>" +
                 "<chartTitleH4>Mutated Genes</chartTitleH4>" +
-                "<span class='study-view-word-cloud-delete' "+
+                "<span class='study-view-chart-cloud-delete' "+
                 "style = 'float:right;'>x</span></div>" +
              "</div>",
     dataTableDiv: 

@@ -1,19 +1,21 @@
 var StudyViewInitSurvivalPlot = (function() {
-    var caseList,
+    var caseList = {},
         data = {},
         opts = {},
         inputArr = [],
         survivalCurve = "",
         kmEstimator = "",
         logRankTest = "";
+        
+    var curveInfo = [];
     
     function createDiv() {
         $("#study-view-charts").append(StudyViewBoilerplate.survivalPlotDiv);
     }
     
-    function dataProcess(_data){
+    function dataProcess(_caseIDs, _data, seperateAttr){
         var _dataLength = _data.length;
-        
+            console.log(_data);
         for (var i = 0; i < _dataLength; i++) {  
             var _os = _data[i].OS_MONTHS,
                 _osStatus = _data[i].OS_STATUS.toUpperCase(),
@@ -37,6 +39,20 @@ var StudyViewInitSurvivalPlot = (function() {
                 data[_caseID].months =  Number(_data[i].OS_MONTHS);
             }
         }
+        
+        //
+        if(seperateAttr){
+            for (var i = 0; i < _dataLength; i++) {  
+                var _gender = _data[i][seperateAttr].toUpperCase(),
+                    _caseID = _data[i].CASE_ID;
+                if(!caseList.hasOwnProperty(_gender)){
+                    caseList[_gender] = [];
+                }
+                caseList[_gender].push(_caseID);
+            }
+        }else{
+            caseList.ALL_CASES = _caseIDs;
+        }
     }
     
     function initParams(_caseIDs) {
@@ -52,10 +68,19 @@ var StudyViewInitSurvivalPlot = (function() {
         opts.text.qTips.estimation = "Survival estimate";
         opts.text.qTips.censoredEvent = "Time of last observation";
         opts.text.qTips.failureEvent = "Time of death";
-        opts.settings.canvas_width = 940;
-        opts.settings.canvas_height = 600;
+        opts.settings.canvas_width = 460;
+        opts.settings.canvas_height = 430;
+        opts.settings.chart_width = 370;
+        opts.settings.chart_height = 380;
+        opts.settings.chart_left = 80;
+        opts.settings.chart_top = 0;
+        opts.style.axisX_title_pos_x = 270;
+	opts.style.axisX_title_pos_y = 420;
+	opts.style.axisY_title_pos_x = -170;
+	opts.style.axisY_title_pos_y = 20;  
         opts.divs.curveDivId = "study-view-survival-plot-body-svg";
-        opts.divs.headerDivId = "study-view-survival-plot-header";
+        opts.divs.headerDivId = "";
+        opts.divs.labelDivId = "study-view-survival-plot-body-label";
         opts.divs.infoTableDivId = "study-view-survival-plot-table";
         opts.text.infoTableTitles.total_cases = "#total cases";
         opts.text.infoTableTitles.num_of_events_cases = "#cases deceased";
@@ -66,24 +91,37 @@ var StudyViewInitSurvivalPlot = (function() {
         kmEstimator = new KmEstimator(); 
         logRankTest = new LogRankTest();   
         //confidenceIntervals = new ConfidenceIntervals();   
+        var color  = jQuery.extend(true, {}, StudyViewBoilerplate.chartColors);
+        var index = 0;
+        
+        for(var key in caseList){
+             //Init data instances for different groups
+             
+            if(key !== 'NA' && caseList[key].length > 2){
+                var instanceData = new SurvivalCurveProxy();
+                instanceData.init(data, caseList[key], kmEstimator, logRankTest);
+                
+                //Individual settings 
+                var instanceSettings = jQuery.extend(true, {}, SurvivalCurveBroilerPlate.subGroupSettings);
+                instanceSettings.line_color = color[index];
+                instanceSettings.mouseover_color = color[index];
+                //instanceSettings.legend = key;
 
-        //Init data instances for different groups
-        var unalteredDataInst = new SurvivalCurveProxy();
-        unalteredDataInst.init(data, caseList, kmEstimator, logRankTest);
+                //Assemble the input
+                var instance = {};
+                instance.data = instanceData;
+                instance.settings = instanceSettings;
 
-        //Individual settings 
-        var unalteredSettingsInst = jQuery.extend(true, {}, SurvivalCurveBroilerPlate.subGroupSettings);
-        unalteredSettingsInst.line_color = "blue";
-        unalteredSettingsInst.mouseover_color = "#81BEF7";
-        unalteredSettingsInst.legend = "All cases";
-
-        //Assemble the input
-        var unalteredInputInst = {};
-        unalteredInputInst.data = unalteredDataInst;
-        unalteredInputInst.settings = unalteredSettingsInst;
-
-        //render the curve
-        inputArr = [unalteredInputInst];
+                inputArr.push(instance);
+                var _curveInfoDatum = {
+                    name: key,
+                    color: color[index]
+                };
+                
+                curveInfo.push(_curveInfoDatum);
+                index++;
+            }
+        }
         pValCallBackFunc(0);
         //logRankTest.calc(inputArr[0].data.getData(), pValCallBackFunc);
     }
@@ -93,13 +131,54 @@ var StudyViewInitSurvivalPlot = (function() {
         survivalCurve = new SurvivalCurve();
         survivalCurve.init(inputArr, opts);
     }
+    
+    //Redraw curves based on selected cases and unselected cases
+    function redraw(_caseIDs){
+        
+    }
+    
+    
+    //Draw curve labels including curve color, name and pin icon
+    function drawLabels(){
+        var _numOfLabels = curveInfo.length;
+        var _svg = d3.select("#" + opts.divs.labelDivId)
+            .append("svg")
+            .attr("width", 90)
+            .attr("height", _numOfLabels * 20);
+        
+        for(var i = 0; i < _numOfLabels; i++){
+            var _showedName = curveInfo[i].name;
+            
+            if(_showedName.length > 10){
+                _showedName = _showedName.substring(0, 10);
+            }
+            
+            var _g = _svg.append("g").attr('transform', 'translate(0, '+ (i*20) +')');
+            
+            _g.append("rect")
+                    .attr('width', 10)
+                    .attr('height', 10)
+                    .attr('fill', curveInfo[i].color);
+            
+            _g.append("text")
+                    .attr('x', 15)
+                    .attr('y', 10)
+                    .attr('fill', 'black')
+                    .text(_showedName);
+            
+        }
+    }
+    
     return {
         init: function(_caseIDs, _data) {
             createDiv();
-            initParams(_caseIDs);
+            //initParams(_caseIDs);
             initOpts();
-            dataProcess(_data);
+            dataProcess(_caseIDs, _data, 'GENDER');
             initView();
-        }  
+            drawLabels();
+        },
+        
+        redraw: redraw
     };
 })();

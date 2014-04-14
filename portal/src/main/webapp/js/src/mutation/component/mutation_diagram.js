@@ -28,7 +28,7 @@ function MutationDiagram(geneSymbol, options, data)
 	self.pileups = null; // current pileups (updated after each filtering)
 
 	self.highlighted = {}; // map of highlighted data points (initially empty)
-	self.inTransition = false; // indicates if the diagram is in a graphical transition
+	self.multiSelect = false; // indicates if multiple lollipop selection is active
 
 	// init other class members as null, will be assigned later
 	self.svg = null;    // svg element (d3)
@@ -48,6 +48,9 @@ function MutationDiagram(geneSymbol, options, data)
 
 	// color mapping for mutations: <mutation id, (pileup) color> pairs
 	self.mutationColorMap = {};
+
+	// mutation id to pileup mapping: <mutation sid, pileup group> pairs
+	self.mutationPileupMap = {};
 }
 
 // TODO use percent values instead of pixel values for some components?
@@ -94,6 +97,7 @@ MutationDiagram.prototype.defaultOpts = {
 	regionTextAnchor: "middle", // text anchor (alignment) for the region label
 	showRegionText: true,       // show/hide region text
 	showStats: false,           // show/hide mutation stats in the lollipop tooltip
+	multiSelectKeycode: 16,     // shift (default multiple selection key)
 	lollipopLabelCount: 1,          // max number of lollipop labels to display
 	lollipopLabelThreshold: 2,      // y-value threshold: points below this value won't be labeled
 	lollipopFont: "sans-serif",     // font of the lollipop label
@@ -145,6 +149,8 @@ MutationDiagram.prototype.defaultOpts = {
 	yAxisFont: "sans-serif",    // font type of the y-axis labels
 	yAxisFontSize: "10px",      // font size of the y-axis labels
 	yAxisFontColor: "#2E3436",  // font color of the y-axis labels
+	animationDuration: 1000,    // transition duration (in ms) used for highlight animations
+	fadeDuration: 1500,         // transition duration (in ms) used for fade animations
 	/**
 	 * Default lollipop tooltip function.
 	 *
@@ -161,7 +167,7 @@ MutationDiagram.prototype.defaultOpts = {
 			hide: {fixed: true, delay: 100, event: 'mouseout'},
 			show: {event: 'mouseover'},
 			style: {classes: 'qtip-light qtip-rounded qtip-shadow cc-ui-tooltip'},
-			position: {my:'bottom left', at:'top center'}};
+			position: {my:'bottom left', at:'top center',viewport: $(window)}};
 
 		$(element).qtip(options);
 	},
@@ -185,7 +191,7 @@ MutationDiagram.prototype.defaultOpts = {
 			hide: {fixed: true, delay: 100, event: 'mouseout'},
 			show: {event: 'mouseover'},
 			style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'},
-			position: {my:'bottom left', at:'top center'}};
+			position: {my:'bottom left', at:'top center',viewport: $(window)}};
 
 		$(element).qtip(options);
 	}
@@ -247,7 +253,9 @@ MutationDiagram.prototype.initDiagram = function(sequenceData)
 {
 	var self = this;
 
-	var container = d3.select(self.options.el);
+	// selecting using jQuery node to support both string and jQuery selector values
+	var node = $(self.options.el)[0];
+	var container = d3.select(node);
 
 	// calculate bounds & save a reference for future access
 	var bounds = self.bounds = this.calcBounds(self.options);
@@ -259,6 +267,7 @@ MutationDiagram.prototype.initDiagram = function(sequenceData)
 		var data = {};
 		data.pileups = self.processData(self.rawData);
 		data.sequence = sequenceData;
+		self.mutationPileupMap = PileupUtil.mapToMutations(data.pileups);
 
 		// save a reference for future access
 		self.data = data;
@@ -412,9 +421,7 @@ MutationDiagram.prototype.processData = function(mutationData)
 	{
 		var mutation = mutationData.at(i);
 
-		var proteinChange = mutation.proteinChange;
-
-		var location = proteinChange.match(/[0-9]+/);
+		var location = mutation.getProteinStartPos();
 		var type = mutation.mutationType.trim().toLowerCase();
 
 		if (location != null && type != "fusion")
@@ -435,6 +442,7 @@ MutationDiagram.prototype.processData = function(mutationData)
 	{
 		var pileup = {};
 
+		pileup.pileupId = PileupUtil.nextId();
 		pileup.mutations = mutations[key];
 		pileup.count = mutations[key].length;
 		pileup.location = parseInt(key);
@@ -1056,7 +1064,12 @@ MutationDiagram.prototype.drawLollipop = function (points, lines, pileup, option
 		.attr('fill', lollipopFillColor)
 		.attr('stroke', options.lollipopBorderColor)
 		.attr('stroke-width', options.lollipopBorderWidth)
-		.attr('class', 'mut-dia-data-point');
+		.attr('id', pileup.pileupId)
+		.attr('class', 'mut-dia-data-point')
+		.attr('opacity', 0);
+
+	// TODO add transition for y value to have a nicer effect
+	self.fadeIn(dataPoint);
 
 	// bind pileup data with the lollipop data point
 	dataPoint.datum(pileup);
@@ -1071,7 +1084,11 @@ MutationDiagram.prototype.drawLollipop = function (points, lines, pileup, option
 		.attr('y2', self.calcSequenceBounds(bounds, options).y)
 		.attr('stroke', options.lollipopStrokeColor)
 		.attr('stroke-width', options.lollipopStrokeWidth)
-		.attr('class', 'mut-dia-data-line');
+		.attr('class', 'mut-dia-data-line')
+		.attr('opacity', 0);
+
+	// TODO add transition for y2 value to have a nicer effect
+	self.fadeIn(line);
 
 	return {"dataPoint": dataPoint, "line": line};
 };
@@ -1202,6 +1219,8 @@ MutationDiagram.prototype.getLollipopFillColor = function(options, pileup)
  */
 MutationDiagram.prototype.drawLollipopLabels = function (labels, pileups, options, xScale, yScale)
 {
+	var self = this;
+
 	// helper function to adjust text position to prevent overlapping with the y-axis
 	var getTextAnchor = function(text, textAnchor)
 	{
@@ -1282,7 +1301,10 @@ MutationDiagram.prototype.drawLollipopLabels = function (labels, pileups, option
 			.attr("transform", "rotate(" + options.lollipopTextAngle + ", " + x + "," + y +")")
 			.style("font-size", options.lollipopFontSize)
 			.style("font-family", options.lollipopFont)
-			.text(pileups[i].label);
+			.text(pileups[i].label)
+			.attr("opacity", 0);
+
+		self.fadeIn(text);
 
 		// adjust anchor
 		var textAnchor = getTextAnchor(text, options.lollipopTextAnchor);
@@ -1505,6 +1527,7 @@ MutationDiagram.prototype.updatePlot = function(mutationData)
 	{
 		self.pileups = pileups = self.processData(mutationData);
 		self.currentData = mutationData;
+		self.mutationPileupMap = PileupUtil.mapToMutations(pileups);
 	}
 
 	// remove all elements in the plot area
@@ -1556,9 +1579,21 @@ MutationDiagram.prototype.cleanPlotArea = function()
 	var dataPoints = self.gData.selectAll(".mut-dia-data-point");
 
 	// remove all plot elements (no animation)
-	labels.remove();
-	lines.remove();
-	dataPoints.remove();
+//	labels.remove();
+//	lines.remove();
+//	dataPoints.remove();
+
+	self.fadeOut(labels, function(element) {
+		$(element).remove();
+	});
+
+	self.fadeOut(lines, function(element) {
+		$(element).remove();
+	});
+
+	self.fadeOut(dataPoints, function(element) {
+		$(element).remove();
+	});
 
 	// alternative animated version:
 	// fade out and then remove all
@@ -1668,42 +1703,40 @@ MutationDiagram.prototype.addDefaultListeners = function()
 
 	// diagram background click
 	self.addListener(".mut-dia-background", "click", function(datum, index) {
-		// just ignore the action if the diagram is already in a graphical transition.
+		// ignore the action (do not dispatch an event) if:
+		//  1) the diagram is already in a graphical transition:
 		// this is to prevent inconsistency due to fast clicks on the diagram.
-		if (self.isInTransition())
+		//  2) there is no previously highlighted data point
+		//  3) multi selection mode is on:
+		// this is to prevent reset due to an accidental click on background
+		var ignore = !self.isHighlighted() ||
+		             self.multiSelect;
+
+		if (!ignore)
 		{
-			return;
+			// remove all diagram highlights
+			self.clearHighlights();
+
+			// trigger corresponding event
+			self.dispatcher.trigger(
+				MutationDetailsEvents.ALL_LOLLIPOPS_DESELECTED);
 		}
-
-		// check if there is a highlighted circle
-		// no action required if no circle is highlighted
-		if (!self.isHighlighted())
-		{
-			return;
-		}
-
-		// remove all diagram highlights
-		self.clearHighlights();
-
-		// trigger corresponding event
-		self.dispatcher.trigger(
-			MutationDetailsEvents.ALL_LOLLIPOPS_DESELECTED);
 	});
 
 	// lollipop circle click
 	self.addListener(".mut-dia-data-point", "click", function(datum, index) {
-		// just ignore the action if the diagram is already in a graphical transition.
-		// this is to prevent inconsistency due to fast clicks on the diagram.
-		if (self.isInTransition())
-		{
-			return;
-		}
-
 		// if already highlighted, remove highlight on a second click
 		if (self.isHighlighted(this))
 		{
 			// remove highlight for the target circle
 			self.removeHighlight(this);
+
+			// also clear previous highlights if multiple selection is not active
+			if (!self.multiSelect)
+			{
+				// remove all diagram highlights
+				self.clearHighlights();
+			}
 
 			// trigger corresponding event
 			self.dispatcher.trigger(
@@ -1712,9 +1745,12 @@ MutationDiagram.prototype.addDefaultListeners = function()
 		}
 		else
 		{
-			// TODO do not clear previous highlights to enable multiple selection
-			// remove all diagram highlights
-			self.clearHighlights();
+			// clear previous highlights if multiple selection is not active
+			if (!self.multiSelect)
+			{
+				// remove all diagram highlights
+				self.clearHighlights();
+			}
 
 			// highlight the target circle on the diagram
 			self.highlight(this);
@@ -1740,6 +1776,37 @@ MutationDiagram.prototype.addDefaultListeners = function()
 		self.dispatcher.trigger(
 			MutationDetailsEvents.LOLLIPOP_MOUSEOVER,
 			datum, index);
+	});
+
+	// listener that prevents text selection
+	// when multi selection is activated by the shift key
+	var preventSelection = function (datum, index)
+	{
+		if (self.multiSelect)
+		{
+			// current event is stored under d3.event
+			d3.event.preventDefault();
+		}
+	};
+
+	self.addListener(".mut-dia-data-point", "mousedown", preventSelection);
+	self.addListener(".mut-dia-background", "mousedown", preventSelection);
+
+	// TODO listen to the key events only on the diagram (if possible)
+	// ...it might be better to bind window key event handlers in a global util class
+
+	$(window).on("keydown", function(event) {
+		if (event.keyCode == self.options.multiSelectKeycode)
+		{
+			self.multiSelect = true;
+		}
+	});
+
+	$(window).on("keyup", function(event) {
+		if (event.keyCode == self.options.multiSelectKeycode)
+		{
+			self.multiSelect = false;
+		}
 	});
 };
 
@@ -1783,10 +1850,31 @@ MutationDiagram.prototype.clearHighlights = function()
 	var dataPoints = self.gData.selectAll(".mut-dia-data-point");
 
 	// TODO see if it is possible to update ONLY size, not the whole 'd' attr
-	dataPoints.attr("d", d3.svg.symbol()
-		.size(self.options.lollipopSize)
-		.type(self.getLollipopShapeFn()));
+	dataPoints.transition()
+		.ease("elastic")
+		.duration(self.options.animationDuration)
+		.attr("d", d3.svg.symbol()
+			.size(self.options.lollipopSize)
+			.type(self.getLollipopShapeFn()));
 	self.highlighted = {};
+};
+
+/**
+ * Highlights the pileup containing the given mutation.
+ *
+ * @param mutationSid    id of the mutation
+ */
+MutationDiagram.prototype.highlightMutation = function(mutationSid)
+{
+	var self = this;
+
+	var pileupId = self.mutationPileupMap[mutationSid];
+	var pileup = self.svg.select("#" + pileupId);
+
+	if (pileup.length > 0)
+	{
+		self.highlight(pileup[0][0]);
+	}
 };
 
 /**
@@ -1801,18 +1889,13 @@ MutationDiagram.prototype.highlight = function(selector)
 	var self = this;
 	var element = d3.select(selector);
 
-	self.inTransition = true;
-
 	element.transition()
 		.ease("elastic")
-		.duration(600)
+		.duration(self.options.animationDuration)
 		// TODO see if it is possible to update ONLY size, not the whole 'd' attr
 		.attr("d", d3.svg.symbol()
 			.size(self.options.lollipopHighlightSize)
-			.type(self.getLollipopShapeFn()))
-		.each("end", function() {
-			self.inTransition = false;
-		});
+			.type(self.getLollipopShapeFn()));
 
 	// add data point to the map
 	var location = element.datum().location;
@@ -1831,22 +1914,45 @@ MutationDiagram.prototype.removeHighlight = function(selector)
 	var self = this;
 	var element = d3.select(selector);
 
-	self.inTransition = true;
-
 	element.transition()
 		.ease("elastic")
-		.duration(600)
+		.duration(self.options.animationDuration)
 		// TODO see if it is possible to update ONLY size, not the whole 'd' attr
 		.attr("d", d3.svg.symbol()
 			.size(self.options.lollipopSize)
-			.type(self.getLollipopShapeFn()))
-		.each("end", function() {
-			self.inTransition = false;
-		});
+			.type(self.getLollipopShapeFn()));
 
 	// remove data point from the map
 	var location = element.datum().location;
 	delete self.highlighted[location];
+};
+
+MutationDiagram.prototype.fadeIn = function(element, callback)
+{
+	var self = this;
+
+	element.transition()
+		.style("opacity", 1)
+		.duration(self.options.fadeDuration)
+		.each("end", function() {
+			      if(_.isFunction(callback)) {
+				      callback(this);
+			      }
+		      });
+};
+
+MutationDiagram.prototype.fadeOut = function(element, callback)
+{
+	var self = this;
+
+	element.transition()
+		.style("opacity", 0)
+		.duration(self.options.fadeDuration)
+		.each("end", function() {
+			      if(_.isFunction(callback)) {
+				      callback(this);
+			      }
+		      });
 };
 
 /**
@@ -1886,17 +1992,6 @@ MutationDiagram.prototype.isFiltered = function()
 	}
 
 	return filtered;
-};
-
-/**
- * Returns true if the diagram is currently in graphical transition,
- * false otherwise.
- *
- * @return {boolean} true if diagram is in transition, false o.w.
- */
-MutationDiagram.prototype.isInTransition = function()
-{
-	return this.inTransition;
 };
 
 MutationDiagram.prototype.getMaxY = function()

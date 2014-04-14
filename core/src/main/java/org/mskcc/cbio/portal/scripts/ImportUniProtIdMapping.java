@@ -33,6 +33,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -44,6 +46,7 @@ import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoUniProtIdMapping;
+import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
 import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.FileUtil;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
@@ -64,134 +67,67 @@ public final class ImportUniProtIdMapping {
     }
 
     public void importData() throws DaoException, IOException {
-        Set<String> swissProtAccs = getSwissProtAccessionHuman();
-        int rows = 0;
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new FileReader(uniProtIdMapping));
-            Map<Integer,Set<String>> mapEntrezSwissProt = new HashMap<Integer,Set<String>>();
-            Map<Integer,Set<String>> mapEntrezUniprot = new HashMap<Integer,Set<String>>();
-            while (reader.ready()) {
-                String line = reader.readLine();
-                String[] tokens = line.split("\t");
-                int entrezGeneId = Integer.parseInt(tokens[0]);
-                String uniProtId = tokens[1];
-                if (swissProtAccs.contains(uniProtId)) {
-                    Set<String> swiss = mapEntrezSwissProt.get(entrezGeneId);
-                    if (swiss==null) {
-                        swiss = new HashSet<String>();
-                        mapEntrezSwissProt.put(entrezGeneId, swiss);
-                    }
-                    swiss.add(uniProtId);
-                } else {
-                    Set<String> uniprot = mapEntrezUniprot.get(entrezGeneId);
-                    if (uniprot==null) {
-                        uniprot = new HashSet<String>();
-                        mapEntrezUniprot.put(entrezGeneId, uniprot);
-                    }
-                    uniprot.add(uniProtId);
-                }
-                progressMonitor.incrementCurValue();
-                ConsoleUtil.showProgress(progressMonitor);
-            }
-            mapEntrezUniprot.keySet().removeAll(mapEntrezSwissProt.entrySet());
-            mapEntrezUniprot.putAll(mapEntrezSwissProt);
-            for (Map.Entry<Integer,Set<String>> entry : mapEntrezUniprot.entrySet()) {
-                int entrezGeneId = entry.getKey();
-                String uniprot = pickOneUniprot(entry.getValue());
-                if (uniprot != null) {
-                    rows += DaoUniProtIdMapping.addUniProtIdMapping(entrezGeneId, uniprot);
-                }
-            }
-            System.out.println("Total number of uniprot id mappings saved: " + rows);
-        }
-        finally {
-            try {
-                reader.close();
-            }
-            catch (Exception e) {
-                // ignore
-            }
-        }
-    }
-    
-    private String pickOneUniprot(Set<String> uniprotIds) throws IOException {
-        if (uniprotIds.size()==1) {
-            return uniprotIds.iterator().next();
-        }
+        Set<String> swissAccessions = getSwissProtAccessionHuman();
         
-        int maxLength = 0;
-        String ret = null;
-        for (String id : uniprotIds) {
-            int len = getLengthOfUniprotEntry(id);
-            if (len > maxLength) {
-                ret = id;
-                maxLength = len;
+        MySQLbulkLoader.bulkLoadOn();
+        
+        BufferedReader reader = new BufferedReader(new FileReader(uniProtIdMapping));
+        
+        Map<String, Integer> mapUniprotAccEntrezGeneId = new HashMap<String, Integer>();
+        Map<String, String> mapUniprotAccUniprotId = new HashMap<String, String>();
+        for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+            progressMonitor.incrementCurValue();
+            ConsoleUtil.showProgress(progressMonitor);
+            
+            String[] parts = line.split("\t");
+            if (!swissAccessions.contains(parts[0])) {
+                continue;
             }
-        }
-        
-        return ret;
-    }
-    
-    private int getLengthOfUniprotEntry(String uniprotId) throws IOException {
-        String strURL = "http://www.uniprot.org/uniprot/"+uniprotId+".fasta";
-        HttpClient client = ConnectionManager.getHttpClient(2000);
-        GetMethod method = new GetMethod(strURL);
-        
-        try {
-            int statusCode = client.executeMethod(method);
-            if (statusCode == HttpStatus.SC_OK) {
-                BufferedReader bufReader = new BufferedReader(
-                        new InputStreamReader(method.getResponseBodyAsStream()));
-                String line = bufReader.readLine();
-                if (line==null||!line.startsWith(">")) {
-                    return 0;
-                }
-                
-                int len = 0;
-                for (line=bufReader.readLine(); line!=null; line=bufReader.readLine()) {
-                    len += line.length();
-                }
-                return len;
+            
+            if (parts[1].equals("GeneID")) {
+                mapUniprotAccEntrezGeneId.put(parts[0], Integer.valueOf(parts[2]));
+            } else if (parts[1].equals("UniProtKB-ID")) {
+                mapUniprotAccUniprotId.put(parts[0], parts[2]);
             } else {
-                //  Otherwise, throw HTTP Exception Object
-                throw new HttpException(statusCode + ": " + HttpStatus.getStatusText(statusCode)
-                        + " Base URL:  " + strURL);
+                System.err.println("Wong mapping: "+line);
             }
-        } finally {
-            //  Must release connection back to Apache Commons Connection Pool
-            method.releaseConnection();
         }
+        
+        reader.close();
+        
+        for (Map.Entry<String, String> entry : mapUniprotAccUniprotId.entrySet()) {
+            String uniprotAcc = entry.getKey();
+            String uniprotId = entry.getValue();
+            Integer entrezGeneId = mapUniprotAccEntrezGeneId.get(uniprotAcc);
+            DaoUniProtIdMapping.addUniProtIdMapping(uniprotAcc, uniprotId, entrezGeneId);
+        }
+        
+        MySQLbulkLoader.flushAll();
     }
     
-    private Set<String> getSwissProtAccessionHuman() throws IOException {
+    public static Set<String> getSwissProtAccessionHuman() throws IOException {
         String strURL = "http://www.uniprot.org/uniprot/?query="
                 + "taxonomy%3ahuman+AND+reviewed%3ayes&force=yes&format=list";
         
-        MultiThreadedHttpConnectionManager connectionManager =
-                ConnectionManager.getConnectionManager();
-        HttpClient client = new HttpClient(connectionManager);
-        GetMethod method = new GetMethod(strURL);
-        
-        try {
-            int statusCode = client.executeMethod(method);
-            if (statusCode == HttpStatus.SC_OK) {
-                BufferedReader bufReader = new BufferedReader(
-                        new InputStreamReader(method.getResponseBodyAsStream()));
-                Set<String> accs = new HashSet<String>();
-                for (String line=bufReader.readLine(); line!=null; line=bufReader.readLine()) {
-                    accs.add(line);
-                }
-                return accs;
-            } else {
-                //  Otherwise, throw HTTP Exception Object
-                throw new HttpException(statusCode + ": " + HttpStatus.getStatusText(statusCode)
-                        + " Base URL:  " + strURL);
-            }
-        } finally {
-            //  Must release connection back to Apache Commons Connection Pool
-            method.releaseConnection();
+        URL url = new URL(strURL);
+
+        URLConnection pfamConn = url.openConnection();
+
+        BufferedReader in = new BufferedReader(
+                        new InputStreamReader(pfamConn.getInputStream()));
+
+        String line;
+        Set<String> accs = new HashSet<String>();
+
+        // read all
+        while((line = in.readLine()) != null)
+        {
+                accs.add(line);
         }
+
+        in.close();
+
+	return accs;
     }
 
     public static void main(final String[] args) {
@@ -202,6 +138,7 @@ public final class ImportUniProtIdMapping {
         ProgressMonitor progressMonitor = new ProgressMonitor();
         progressMonitor.setConsoleMode(true);
         try {
+            DaoUniProtIdMapping.deleteAllRecords();
             File uniProtIdMapping = new File(args[0]);
             System.out.println("Reading uniprot id mappings from:  " + uniProtIdMapping.getAbsolutePath());
             int lines = FileUtil.getNumLines(uniProtIdMapping);

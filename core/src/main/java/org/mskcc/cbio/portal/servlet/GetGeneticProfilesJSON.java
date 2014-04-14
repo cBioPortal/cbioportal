@@ -36,6 +36,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.mskcc.cbio.portal.util.XssRequestWrapper;
+
 import org.json.simple.JSONValue;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.CancerStudy;
@@ -83,6 +85,9 @@ public class GetGeneticProfilesJSON extends HttpServlet  {
         String caseSetId = httpServletRequest.getParameter("case_set_id");
         String caseIdsKey = httpServletRequest.getParameter("case_ids_key");
         String geneListStr = httpServletRequest.getParameter("gene_list");
+        if (httpServletRequest instanceof XssRequestWrapper) {
+            geneListStr = ((XssRequestWrapper)httpServletRequest).getRawParameter("gene_list");
+        }
 
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
         if (cancerStudy != null) {

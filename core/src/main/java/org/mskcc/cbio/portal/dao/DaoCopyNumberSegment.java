@@ -186,7 +186,7 @@ public final class DaoCopyNumberSegment {
         try {
             con = JdbcUtil.getDbConnection(DaoCopyNumberSegment.class);
             pstmt = con.prepareStatement("SELECT EXISTS(SELECT 1 FROM `copy_number_seg`"
-                + " WHERE `CANCER_STUDY_ID`=? AND `CASE_ID`=?");
+                + " WHERE `CANCER_STUDY_ID`=? AND `CASE_ID`=?)");
             pstmt.setInt(1, cancerStudyId);
             pstmt.setString(2, caseId);
             rs = pstmt.executeQuery();

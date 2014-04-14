@@ -52,9 +52,9 @@ $.fn.dataTableExt.oApi.fnGetColumnData = function ( oSettings, iColumn, bUnique,
     return asResultData;
 }
 $.fn.dataTableExt.oSort['allnumeric-asc']  = function(a,b) {
-    if(a === 'NA'){
+    if(a === 'NA' || a === ''){
         return 1;
-    }else if(b === 'NA'){
+    }else if(b === 'NA' || b === ''){
         return -1;
     }else{
         var x = parseFloat(a);
@@ -64,14 +64,34 @@ $.fn.dataTableExt.oSort['allnumeric-asc']  = function(a,b) {
 };
 
 $.fn.dataTableExt.oSort['allnumeric-desc']  = function(a,b) {
-    if(a === 'NA'){
-        return -1;
-    }else if(b === 'NA'){
+    if(a === 'NA' || a === ''){
         return 1;
+    }else if(b === 'NA' || b === ''){
+        return -1;
     }else{
         var x = parseFloat(a);
         var y = parseFloat(b);
         return ((x < y) ? 1 : ((x > y) ?  -1 : 0));
+    }
+};
+
+$.fn.dataTableExt.oSort['string-asc']  = function(a,b) {
+    if(a === 'NA' || a === ''){
+        return 1;
+    }else if(b === 'NA' || b === ''){
+        return -1;
+    }else{
+        return ((a < b) ? -1 : ((a > b) ?  1 : 0));
+    }
+};
+
+$.fn.dataTableExt.oSort['string-desc']  = function(a,b) {
+    if(a === 'NA' || a === ''){
+        return 1;
+    }else if(b === 'NA' || b === ''){
+        return -1;
+    }else{
+        return ((a < b) ? 1 : ((a > b) ?  -1 : 0));
     }
 };
 }(jQuery));

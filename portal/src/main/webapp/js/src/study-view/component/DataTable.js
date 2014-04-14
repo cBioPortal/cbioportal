@@ -18,7 +18,10 @@
  *                                      called when one row is clicked and
  *                                      ShiftKeys is pressed at same time.
  * @interface: resizeTable: will be used when width of dataTable changed.
- *                                       
+ *     
+ * @note: The 'string' sorting function of datatable has been rewrited in
+ *        FnGetColumnData.js                                     
+ *                                                                                                           
  * @authur: Hongxin Zhang
  * @date: Mar. 2014
  * 
@@ -150,6 +153,10 @@ var DataTable = function() {
                         } 
                     }
                 }
+                
+                if(_selectedString === 'NA'){
+                    _selectedString = '';
+                }
                 aaData[key].push(_selectedString);
             });
         });
@@ -168,10 +175,12 @@ var DataTable = function() {
             "aaData": aaData,
             "sDom": '<"dataTableTop"Ci<"dataTableReset">f>rt',
             "fnDrawCallback": function(oSettings){
+                //Only used when select or unselect showed columns
                 if($(".ColVis_collection.TableTools_collection").css('display') === 'block'){
-                    var _currentIndex= 0 ;
+                    var _currentIndex= 0;
                     
                     columnIndexMappingColumnId = {};
+                    //Recalculate the column and Id mapping
                     $.each(dataTable.fnSettings().aoColumns, function(c){
                         if(dataTable.fnSettings().aoColumns[c].bVisible === true){
                             columnIndexMappingColumnId[_currentIndex] = c;
@@ -180,13 +189,13 @@ var DataTable = function() {
                     });
                     $("#dataTable_filter label input").attr("value","");
                     $.fn.dataTableExt.afnFiltering = [];
-                    disableFiltId = [0];
-                    resizeLeftColumn();         
+                    disableFiltId = [0];     
                     refreshSelectionInDataTable();
+                    resizeLeftColumn();    
                     $(".dataTableReset span").css('display','none');
                 }
             }
-        });
+        }).fnSetFilteringDelay();
     }
     
     //Add th tags based on number of attributes
@@ -199,8 +208,6 @@ var DataTable = function() {
     
     //Add all HTML events by using JQUERY
     function addEvents() {
-        
-        $(".ColVis_MasterButton").css({height:'auto', padding:'0 4px'});
         
         $(".ColVis_MasterButton").click(function() {
             $('.ColVis_collection.TableTools_collection')
@@ -220,24 +227,56 @@ var DataTable = function() {
             .append("<a><span class='hidden' title='Reset Chart'>RESET</span></a>");
     
         $(".dataTableReset span").click(function(){
+            $(this).css({'cursor': 'wait'});
             $("#dataTable_filter label input").attr("value","");
             $.fn.dataTableExt.afnFiltering = [];
-            updateTable([]);
-            resizeLeftColumn();            
+            updateTable([]);          
             refreshSelectionInDataTable();
             dataTable.fnAdjustColumnSizing();
+            resizeLeftColumn();
             showDataTableReset();
+            $(this).css({'cursor': 'default'});
         });
+        
+        var inputDelay = (function(){
+            var timer = 0;
+            return function(callback, ms){
+              clearTimeout (timer);
+              timer = setTimeout(callback, ms);
+            };
+        })();
         
         $("#dataTable_filter label input").keyup(function() {
-            showDataTableReset(dataTable);
-            resizeLeftColumn();
+            inputDelay(function(){
+                showDataTableReset(dataTable);
+                resizeLeftColumn();
+            }, 500 );
         });
         
+        //Set mouse down timeout to seperate click and mousedown and hold
+        var _timeOut = 0;
         $("#dataTable tbody").mousedown(function(event){
+            var _d = new Date();
+            _timeOut= _d.getTime();
+            //Tried couple times, only prevent default function in here works.
+            //The shiftKey click function should be originally combined with
+            //mousedown function.
+            if(event.shiftKey){
+                event.preventDefault();
+            }
+        }).bind('mouseup', function(event) {
+            var _d = new Date();
+            _timeOut= _d.getTime()-_timeOut;
+            
+            if(_timeOut < 500){
+                mouseDownFunc(event);
+            }
+        });;
+        
+        function mouseDownFunc(event) {
             var _selectedRowCaseId = [],
                 _deSelect = false;
-                
+        
             if(event.shiftKey){
                 event.preventDefault();
 
@@ -284,7 +323,7 @@ var DataTable = function() {
                 _selectedRowCaseId = getRowSelectedCases();
                 rowClickCallback(_deSelect, _selectedRowCaseId);
             }
-        });
+        }
     }
     
     function getRowSelectedCases() {
@@ -328,7 +367,8 @@ var DataTable = function() {
     //Create Regular Selector or Numeric Selector based on data type.
     function fnCreateSelect( aData, index ){
         var _isNumericArray = true,
-            _hasNullValue = false;
+            _hasNullValue = false,
+            _numOfKeys = aData.length;
     
         for(var i=0;i<aData.length;i++){
             if(isNaN(aData[i])){
@@ -355,32 +395,43 @@ var DataTable = function() {
         }else{
             aData.sort();
         }
-        if(!_isNumericArray || aData.length === 0){
+        
+        if(!_isNumericArray || aData.length === 0 || (_isNumericArray && _numOfKeys < 10)){
             var r='<select><option value=""></option>', i, iLen=aData.length;
-            for ( i=0 ; i<iLen ; i++ )
-            {
-                r += '<option value="'+aData[i]+'">'+aData[i]+'</option>';
+            if(iLen === 0){
+                return "";
+            }else{
+                for ( i=0 ; i<iLen ; i++ )
+                {
+                    r += '<option value="'+aData[i]+'">'+aData[i]+'</option>';
+                }
+                return r+'</select>';
             }
-            return r+'</select>';
         }else{
             var _min = aData[0],
                 _max = aData[aData.length-1],
-                _x1 = 5,
-                _x2 = 65;
+                _x1 = 15,
+                _x2 = 65,
+                _textH = 30,
+                _resetH = 32,
+                _triangelTop = 34,
+                _lineH = 33,
+                _triangelBottom = _triangelTop + 8,
+                _fontSize = '8px';
             
-            var _leftTriangelCoordinates = (_x1-5) + ",2 "+ (_x1+5)+",2 "+_x1+",10",
-                _rightTriangelCoordinates = (_x2-5) + ",2 "+ (_x2+5)+",2 "+_x2+",10",
-                _leftText = "x='"+(_x1-3)+"' y='20'",
-                _rightText = "x='"+(_x2-10)+"' y='20'",
-                _resetText = "x='"+(_x2+15)+"' y='20'";
+            var _leftTriangelCoordinates = (_x1-5) + ","+_triangelBottom+ " "+ (_x1+5)+","+_triangelBottom+ " "+_x1+","+_triangelTop,
+                _rightTriangelCoordinates = (_x2-5) + ","+_triangelBottom+ " "+ (_x2+5)+","+_triangelBottom+ " "+_x2+","+_triangelTop,
+                _leftText = "x='"+_x1+"' y='"+_textH+"'",
+                _rightText = "x='"+_x2+"' y='"+_textH+"'",
+                _resetText = "x='"+(_x2+15)+"' y='"+_resetH+"'";
            
-            var _svgLine = "<svg width='110' height='30' start='"+ _min +"' end='"+ _max +"'>" + 
-                    "<g><line x1='"+ _x1 +"' y1='10' x2='"+ _x2 +"' y2='10' style='stroke:black;stroke-width:2' /></g>"+
-                    "<g id='dataTable-"+ index +"-left' class='clickable left'><polygon points='"+_leftTriangelCoordinates+"' style='fill:grey'></polygon>"+
-                    "<text "+_leftText+" fill='black' style='font-size:8'>"+ _min +"</text></g>" + 
+            var _svgLine = "<svg width='110' height='50' start='"+ _min +"' end='"+ _max +"'>" + 
+                    "<g><line x1='"+ _x1 +"' y1='"+_lineH+"' x2='"+ _x2 +"' y2='"+_lineH+"' style='stroke:black;stroke-width:2' /></g>"+
                     "<g id='dataTable-"+ index +"-right' class='clickable right'><polygon points='"+_rightTriangelCoordinates+"' style='fill:grey'></polygon>"+
-                    "<text "+_rightText+" fill='black' style='font-size:8'>"+ _max +"</text></g>" +
-                    "<text "+ _resetText +" id='dataTable-"+ index +"-reset' class='clickable hidden'  fill='black' style='font-size:8'>RESET</text>" + 
+                    "<text "+_rightText+" fill='black' transform='rotate(-30 "+_x2+" "+_textH+")' style='font-size:"+ _fontSize +"'>"+ _max +"</text></g>" +
+                    "<g id='dataTable-"+ index +"-left' class='clickable left'><polygon points='"+_leftTriangelCoordinates+"' style='fill:grey'></polygon>"+
+                    "<text "+_leftText+" fill='black' transform='rotate(-30 "+_x1+" "+_textH+")' style='font-size:"+ _fontSize +"'>"+ _min +"</text></g>" + 
+                    "<text "+ _resetText +" id='dataTable-"+ index +"-reset' class='clickable hidden'  fill='black' style='font-size:"+ _fontSize +"'>RESET</text>" + 
                     "</svg>";
 
             return _svgLine;
@@ -391,17 +442,23 @@ var DataTable = function() {
     function resizeLeftColumn(){
         var _heightBody = $(".dataTables_scrollBody").css('height'),
             _heightTable = $('.dataTables_scroll').css('height'),
-            _widthBody = $("#dataTable tbody>tr>td:nth-child(1)").css('width');
+            _widthBody = $("#dataTable tbody>tr:nth-child(1)>td:nth-child(1)").width();
         
-        _widthBody = _widthBody.slice(0,_widthBody.length-2);
-        _widthBody = Number(_widthBody) + 20;
+        _widthBody = _widthBody + 22;
         _widthBody = _widthBody.toString() + 'px';
         
         $(".DTFC_LeftBodyLiner").css('height',_heightBody);
-        $(".DTFC_LeftBodyWrapper").css('height',_heightBody); 
+        //$(".DTFC_LeftBodyWrapper").css('height',_heightBody); 
+        
+        //When selecting or unselecting columns in table of summary tab,
+        //the column width will be stretched, the columns width will be changed
+        //automatically, but the width of left column needs to be changed by
+        //using following two statements.
         $(".DTFC_LeftWrapper").css('width',_widthBody);
         $(".DTFC_LeftBodyLiner").css('width',_widthBody);
-        $('.DTFC_ScrollWrapper').css('height',_heightTable);            
+        
+        $(".DTFC_ScrollWrapper").css('height',_heightTable);
+        $(".DTFC_LeftBodyLiner").css('background-color','white');
     }
     
     function showDataTableReset( ){
@@ -410,8 +467,10 @@ var DataTable = function() {
         
         if(_showedColumnNumber !== _totalColumnNumber){
             $(".dataTableReset span").css('display','block');
+            $(".ColVis.TableTools").css('display','none');
         }else{
             $(".dataTableReset span").css('display','none');
+            $(".ColVis.TableTools").css('display','block');
             disableFiltId = [0];
             refreshSelectionInDataTable();
         }
@@ -430,15 +489,87 @@ var DataTable = function() {
         dataTable.fnDraw();
     }
     
+    function selectorDragMove() {
+        var _start = Number($(this).parent().attr('start')),
+            _end = Number($(this).parent().attr('end')),
+            _xMoved = d3.event.x - 5,
+            _lineLength = Number($(this).parent().find('line').attr('x2')) - Number($(this).parent().find('line').attr('x1'));
+
+        if(_start > _end){
+            var _tmp = _end;
+
+            _end = _start;
+            _start = _tmp;
+        }
+
+        if(_xMoved >= 0 && _xMoved <= _lineLength){
+            var _text = (_end-_start) * _xMoved / _lineLength + _start;
+
+            _text = cbio.util.toPrecision(Number(_text),3,0.1);
+
+            if($(this).attr('id').toString().indexOf('left') !== -1){
+                d3.select(this)
+                    .attr("transform", "translate(" +_xMoved +",0)");
+            }else{
+                _xMoved -= _lineLength;
+                d3.select(this)
+                    .attr("transform", "translate(" +_xMoved +",0)");
+            }
+            $(this).find('text').text(_text);
+        }
+    }
+    
+    function selectorDragEnd() {
+        var _min = Number($(this).parent().find('g.left').find('text').text()),
+            _max = Number($(this).parent().find('g.right').find('text').text()),
+            _id = $(this).attr('id').split('-'),
+            _i = Number(_id[1]);
+
+        if(_min > _max){
+            var _tmp = _max;
+
+            _max = _min;
+            _min = _tmp;
+        }
+
+        dataTableNumericFilter[columnIndexMappingColumnId[_i]] = function( oSettings, aData, iDataIndex ) {
+            var _iMin = _min,
+                _iMax = _max,
+                _iCurrent = aData[columnIndexMappingColumnId[_i]];
+
+            if ( _iMin === "" && _iMax === "" ){
+                    return true;
+            }else if ( _iMin === "" && _iCurrent <= _iMax ){
+                    return true;
+            }else if ( _iMin <= _iCurrent && "" === _iMax ){
+                    return true;
+            }else if ( _iMin <= _iCurrent && _iCurrent <= _iMax ){
+                    return true;
+            }
+
+            return false;
+        };
+
+        updateDataTableNumericFilter();
+        dataTable.fnSort([ [columnIndexMappingColumnId[_i],'asc']]);
+        disableFiltId.push(_i);
+        showDataTableReset();
+        $("#dataTable-" + _i + "-reset").css('display','block');
+        refreshSelectionInDataTable();
+        dataTable.fnAdjustColumnSizing();
+        resizeLeftColumn();  
+    }
+    
     function refreshSelectionInDataTable(){
         $(".dataTables_scrollFoot tfoot th").each( function ( i ) {
-            if(disableFiltId.indexOf(i) === -1){                
+            
+            if(disableFiltId.indexOf(i) === -1){               
                 $(this).css('z-index','1500');
                 this.innerHTML = fnCreateSelect( dataTable.fnGetColumnData(columnIndexMappingColumnId[i]), i);
                 
                 var _drag = d3.behavior.drag()
-                        .on("drag", dragMove)
-                        .on("dragend",dragEnd);
+                        .on("drag", selectorDragMove)
+                        .on("dragend",selectorDragEnd);
                 
                 d3.select("#dataTable-" + i + "-left")
                                 .call(_drag);
@@ -450,11 +581,11 @@ var DataTable = function() {
                     dataTableNumericFilter[columnIndexMappingColumnId[i]] = '';
                     updateDataTableNumericFilter();
                     disableFiltId.splice(disableFiltId.indexOf(i),1);
-                    resizeLeftColumn();
                     showDataTableReset();
                     $("#dataTable-" + i + "-reset").css('display','none');
                     refreshSelectionInDataTable();
                     dataTable.fnAdjustColumnSizing();
+                    resizeLeftColumn();  
                 });
                 
                 $('select', this).change( function () {
@@ -462,6 +593,8 @@ var DataTable = function() {
                         dataTable.fnFilter($(this).val(), columnIndexMappingColumnId[i]);
                         disableFiltId.splice(disableFiltId.indexOf(i),1);
                     }else{
+                        //Need to process special charector which can no be
+                        //treated as special charector in regular expression.
                         var j,
                             _selectedString = $(this).val().toString(),
                             _specialChar = ['(',')','/','?','+'],
@@ -476,82 +609,11 @@ var DataTable = function() {
                         disableFiltId.push(i);
                     }
                     
-                    resizeLeftColumn();
                     showDataTableReset();
                     refreshSelectionInDataTable();
                     dataTable.fnAdjustColumnSizing();
+                    resizeLeftColumn();
                 });
-                
-                //Used by numeric selector
-                function dragMove(d) {
-                    var _start = Number($(this).parent().attr('start')),
-                        _end = Number($(this).parent().attr('end')),
-                        _xMoved = d3.event.x - 5,
-                        _lineLength = Number($(this).parent().find('line').attr('x2')) - Number($(this).parent().find('line').attr('x1'));
-                    
-                    if(_start > _end){
-                        var _tmp = _end;
-                        
-                        _end = _start;
-                        _start = _tmp;
-                    }
-                    
-                    if(_xMoved >= 0 && _xMoved <= _lineLength){
-                        var _text = (_end-_start) * _xMoved / _lineLength + _start;
-                        
-                        _text = cbio.util.toPrecision(Number(_text),3,0.1);
-                        
-                        if($(this).attr('id').toString().indexOf('left') !== -1){
-                            d3.select(this)
-                                .attr("transform", "translate(" +_xMoved +",0)");
-                        }else{
-                            _xMoved -= _lineLength;
-                            d3.select(this)
-                                .attr("transform", "translate(" +_xMoved +",0)");
-                        }
-                        $(this).find('text').text(_text);
-                    }
-                }
-                
-                //Used by numeric selector
-                function dragEnd(d) {
-                    var _min = Number($(this).parent().find('g.left').find('text').text()),
-                        _max = Number($(this).parent().find('g.right').find('text').text());
-                    
-                    if(_min > _max){
-                        var _tmp = _max;
-                        
-                        _max = _min;
-                        _min = _tmp;
-                    }
-                    
-                    dataTableNumericFilter[columnIndexMappingColumnId[i]] = function( oSettings, aData, iDataIndex ) {
-                        var _iMin = _min,
-                            _iMax = _max,
-                            _iCurrent = aData[columnIndexMappingColumnId[i]];
-                    
-                        if ( _iMin === "" && _iMax === "" ){
-                                return true;
-                        }else if ( _iMin === "" && _iCurrent < _iMax ){
-                                return true;
-                        }else if ( _iMin < _iCurrent && "" === _iMax ){
-                                return true;
-                        }else if ( _iMin < _iCurrent && _iCurrent < _iMax ){
-                                return true;
-                        }
-                        
-                        return false;
-                    };
-                        
-                    updateDataTableNumericFilter();
-                    dataTable.fnSort([ [columnIndexMappingColumnId[i],'asc']]);
-                    disableFiltId.push(i);
-                    resizeLeftColumn();
-                    showDataTableReset();
-                    $("#dataTable-" + i + "-reset").css('display','block');
-                    refreshSelectionInDataTable();
-                    dataTable.fnAdjustColumnSizing();
-                }
             }
         });
     }
@@ -575,17 +637,30 @@ var DataTable = function() {
         dataTable.fnDraw();
     }
     
+    //Will be used after initializing datatable. This function is called from
+    //StudyViewSummaryTabController
     function resizeTable(){
         //Before resize data table, the window should be showed first
         $('#dc-plots-loading-wait').hide();
         $('#study-view-main').show();
-        
+         
         refreshSelectionInDataTable();
+        
+        //Resize column size first, then add left column
         dataTable.fnAdjustColumnSizing();
         new FixedColumns(dataTable);
+        
+        //Have to add in there
         $(".DTFC_LeftBodyLiner").css("overflow-y","hidden");
-        $(".dataTables_scroll").css("overflow-x","scroll");
+        //$(".dataTables_scroll").css("overflow-x","scroll");
         $(".DTFC_LeftHeadWrapper").css("background-color","white");
+        $(".DTFC_LeftFootWrapper").css('background-color','white');
+        
+        //After resizing left column, the width of DTFC_LeftWrapper is different
+        //with width DTFC_LeftBodyLiner, need to rewrite the width of
+        //DTFC_LeftBodyLiner width
+        var _widthLeftWrapper = $('.DTFC_LeftWrapper').width();
+        $('.DTFC_LeftBodyLiner').css('width', _widthLeftWrapper+4);//Column has table spacing
     }
     
     return {
@@ -601,12 +676,15 @@ var DataTable = function() {
         },
         
         updateTable: function(_filteredResult) {
+            if( $("#dataTable_filter label input").attr("value") !== ''){
+                dataTable.fnFilter('');
+            }
             deleteChartResetDataTable(_filteredResult);
-            resizeLeftColumn();            
-            refreshSelectionInDataTable();
+             refreshSelectionInDataTable();
             dataTable.fnAdjustColumnSizing();
             $("#dataTable_filter label input").attr("value","");
             showDataTableReset();
+            resizeLeftColumn();
         },
         
         rowClickCallback: function(_callback) {
@@ -617,6 +695,8 @@ var DataTable = function() {
             rowShiftClickCallback = _callback;
         },
         
-        resizeTable: resizeTable
+        resizeTable: resizeTable,
+        getTableHeader: function() { return aoColumns;},
+        getTableContent: function() { return aaData;}
     };
 };

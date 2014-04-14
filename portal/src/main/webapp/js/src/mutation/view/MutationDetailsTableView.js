@@ -10,6 +10,13 @@
  * @author Selcuk Onur Sumer
  */
 var MutationDetailsTableView = Backbone.View.extend({
+	initialize : function (options) {
+		this.options = options || {};
+
+		// custom event dispatcher
+		this.dispatcher = {};
+		_.extend(this.dispatcher, Backbone.Events);
+	},
 	render: function()
 	{
 		var self = this;
@@ -60,7 +67,7 @@ var MutationDetailsTableView = Backbone.View.extend({
 		// add click listener for each igv link to get the actual parameters
 		// from another servlet
 		_.each(self.$el.find('.igv-link'), function(element, index) {
-			// TODO use mutation id, instead of binding url to attr alt
+			// TODO use mutation id, and dispatch an event
 			var url = $(element).attr("alt");
 
 			$(element).click(function(evt) {
@@ -71,6 +78,28 @@ var MutationDetailsTableView = Backbone.View.extend({
 					prepIGVLaunch(data.bamFileUrl, data.encodedLocus, data.referenceGenome, data.trackName);
 				});
 			});
+		});
+
+		// add click listener for each 3D link
+		self.$el.find('.mutation-table-3d-link').click(function(evt) {
+			evt.preventDefault();
+
+			var mutationId = $(this).attr("alt");
+
+			self.dispatcher.trigger(
+				MutationDetailsEvents.PDB_LINK_CLICKED,
+				mutationId);
+		});
+
+		// add click listener for each 3D link
+		self.$el.find('.mutation-table-protein-change a').click(function(evt) {
+			evt.preventDefault();
+
+			var mutationId = $(this).closest("tr").attr("id");
+
+			self.dispatcher.trigger(
+				MutationDetailsEvents.PROTEIN_CHANGE_LINK_CLICKED,
+				mutationId);
 		});
 
 		var tableSelector = self.$el.find('.mutation_details_table');
@@ -253,6 +282,11 @@ var MutationDetailsTableView = Backbone.View.extend({
 		vars.proteinChangeClass = proteinChange.style;
 		vars.proteinChangeTip = proteinChange.tip;
 
+		var tumorType = self._getTumorType(mutation);
+		vars.tumorType = tumorType.text;
+		vars.tumorTypeClass = tumorType.style;
+		vars.tumorTypeTip = tumorType.tip;
+
 		var mutationType = self._getMutationType(mutationTypeMap, mutation.mutationType);
 		vars.mutationTypeClass = mutationType.style;
 		vars.mutationTypeText = mutationType.text;
@@ -267,10 +301,11 @@ var MutationDetailsTableView = Backbone.View.extend({
 		vars.fisValue = fis.value;
 		vars.fisText = fis.text;
 
-		vars.xVarLink = mutation.xVarLink;
-		vars.msaLink = mutation.msaLink;
-		vars.pdbLink = mutation.pdbLink;
+		//vars.xVarLink = mutation.xVarLink;
+		//vars.msaLink = mutation.msaLink;
 		vars.igvLink = mutation.igvLink;
+
+		vars.pdbMatchId = self._getPdbMatchId(mutation);
 
 		var mutationStatus = self._getMutationStatus(mutationStatusMap, mutation.mutationStatus);
 		vars.mutationStatusTip = mutationStatus.tip;
@@ -532,10 +567,21 @@ var MutationDetailsTableView = Backbone.View.extend({
 
 		return {text: text, total: total, style: style, tipClass: tipStyle};
 	},
+	_getPdbMatchId: function(mutation)
+	{
+		if (mutation.pdbMatch)
+		{
+			return mutation.mutationId;
+		}
+		else
+		{
+			return "";
+		}
+	},
 	_getProteinChange: function(mutation)
 	{
-		var style = "protein_change";
-		var tip = "";
+		var style = "mutation-table-protein-change";
+		var tip = "click to highlight the position on the diagram";
 
 		// TODO disabled temporarily, enable when isoform support completely ready
 //        if (!mutation.canonicalTranscript)
@@ -550,6 +596,15 @@ var MutationDetailsTableView = Backbone.View.extend({
 //        }
 
 		return {text: mutation.proteinChange,
+			style : style,
+			tip: tip};
+	},
+	_getTumorType: function(mutation)
+	{
+		var style = "tumor_type";
+		var tip = "";
+
+		return {text: mutation.tumorType,
 			style : style,
 			tip: tip};
 	},

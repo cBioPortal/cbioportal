@@ -1,7 +1,34 @@
-# December 9, 2014
+# March 27, 2014
+* New features:
+    * Visualizing of mutations mapped on 3D structures (individual or multiple mutations, directly in the browser)
+    * Gene expression correlation analysis (find all genes with expression correlation to your query genes)
+    * The Patient-Centric View now displays mutation frequencies across all cohorts in cBioPortal for each mutation
+    * The Mutation Details Tab and the Patient-Centric View now display the copy-number status of each mutation
+<br/>![3D viewer & Co-expression](images/previews/news_3d_coexp.png)
+
+# March 18, 2014
+* All TCGA data updated to the Firehose run of January 15, 2014
+* Updated to the latest COSMIC data (v68)
+* Added two new provisional TCGA studies:
+    * Adrenocortical Carcinoma
+    * Uterine Carcinosarcoma
+* Added mutation data of 898 samples from 11 published studies:
+    * Hepatocellular Carcinoma (RIKEN, Nature Genetics 2012)
+    * Hepatocellular Carcinoma (LGGM, Hepatology in press)
+    * Medulloblastoma (Broad, Nature 2012)
+    * Medulloblastoma (ICGC, Nature 2012)
+    * Medulloblastoma (WashU, Nature 2012)
+    * Multiple Myeloma (Broad, Cancer Cell 2014)
+    * Pancreatic Adenocarcinoma (ICGC, Nature 2012)
+    * Small Cell Carcinoma of the Ovary (MSKCC, Nature Genetics in press)
+    * Small Cell Lung Cancer (CLCGP, Nature Genetics 2012)
+    * Small Cell Lung Cancer (Johns Hopkins, Nature Genetics 2012)
+    * NCI-60 Cell Lines (NCI, Cancer Res. 2012)
+
+# December 9, 2013
 * Added mutation data of 99 bladder cancer samples (BGI, Nature Genetics 2013)
 
-# December 6, 2014
+# December 6, 2013
 * Data sets matching four recently submitted or published TCGA studies are now available
     * Glioblastoma (Cell 2013)
     * Bladder carcinoma (Nature, in press)

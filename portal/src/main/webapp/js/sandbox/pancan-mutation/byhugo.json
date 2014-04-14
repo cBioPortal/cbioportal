@@ -1,0 +1,224 @@
+[
+    {
+        "cancer_type": "acc",
+        "count": 3,
+        "cancer_study": "Adenoid Cystic Carcinoma (MSKCC, Nature Genetics 2013)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "blca",
+        "count": 31,
+        "cancer_study": "Bladder Cancer (MSKCC, JCO 2013)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "blca",
+        "count": 11,
+        "cancer_study": "Bladder Urothelial Carcinoma (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "brca",
+        "count": 35,
+        "cancer_study": "Breast Invasive Carcinoma (British Columbia, Nature 2012)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "brca",
+        "count": 28,
+        "cancer_study": "Breast Invasive Carcinoma (Broad, Nature 2012)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "brca",
+        "count": 37,
+        "cancer_study": "Breast Invasive Carcinoma (Sanger, Nature 2012)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "brca",
+        "count": 256,
+        "cancer_study": "Breast Invasive Carcinoma (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "brca",
+        "count": 187,
+        "cancer_study": "Breast Invasive Carcinoma (TCGA, Nature 2012)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "ccle",
+        "count": 543,
+        "cancer_study": "Cancer Cell Line Encyclopedia (Novartis/Broad, Nature 2012)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "cesc",
+        "count": 2,
+        "cancer_study": "Cervical Squamous Cell Carcinoma and Endocervical Adenocarcinoma (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "coadread",
+        "count": 42,
+        "cancer_study": "Colorectal Cancer (Genentech, Nature 2012)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "coadread",
+        "count": 120,
+        "cancer_study": "Colon and Rectum Adenocarcinoma (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "coadread",
+        "count": 120,
+        "cancer_study": "Colon and Rectum Adenocarcinoma (TCGA, Nature 2012)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "gbm",
+        "count": 79,
+        "cancer_study": "Glioblastoma Multiforme (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "gbm",
+        "count": 31,
+        "cancer_study": "Glioblastoma (TCGA, Nature 2008)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "hnsc",
+        "count": 214,
+        "cancer_study": "Head and Neck Squamous Cell Carcinoma (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "hnsc",
+        "count": 204,
+        "cancer_study": "Head and Neck Squamous Cell Carcinoma (TCGA, In preparation)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "kirc",
+        "count": 6,
+        "cancer_study": "Kidney Renal Clear Cell Carcinoma (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "kirc",
+        "count": 9,
+        "cancer_study": "Kidney Renal Clear Cell Carcinoma (TCGA, in press)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "kirp",
+        "count": 2,
+        "cancer_study": "Kidney Renal Papillary Cell Carcinoma (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "laml",
+        "count": 14,
+        "cancer_study": "Acute Myeloid Leukemia (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "laml",
+        "count": 14,
+        "cancer_study": "Acute Myeloid Leukemia (TCGA, NEJM 2013)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "lgg",
+        "count": 113,
+        "cancer_study": "Brain Lower Grade Glioma (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "luad",
+        "count": 92,
+        "cancer_study": "Lung Adenocarcinoma (Broad, Cell 2012)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "luad",
+        "count": 119,
+        "cancer_study": "Lung Adenocarcinoma (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "luad",
+        "count": 64,
+        "cancer_study": "Lung Adenocarcinoma (TSP, Nature 2008)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "lusc",
+        "count": 141,
+        "cancer_study": "Lung Squamous Cell Carcinoma (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "lusc",
+        "count": 147,
+        "cancer_study": "Lung Squamous Cell Carcinoma (TCGA, Nature 2012)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "ov",
+        "count": 274,
+        "cancer_study": "Ovarian Serous Cystadenocarcinoma (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "ov",
+        "count": 299,
+        "cancer_study": "Ovarian Serous Cystadenocarcinoma (TCGA, Nature 2011)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "prad",
+        "count": 4,
+        "cancer_study": "Prostate Adenocarcinoma (MSKCC, Cancer Cell 2010)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "prad",
+        "count": 5,
+        "cancer_study": "Prostate Adenocarcinoma (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "skcm",
+        "count": 35,
+        "cancer_study": "Skin Cutaneous Melanoma (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "stad",
+        "count": 99,
+        "cancer_study": "Stomach Adenocarcinoma (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "thca",
+        "count": 3,
+        "cancer_study": "Thyroid Carcinoma (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "ucec",
+        "count": 69,
+        "cancer_study": "Uterine Corpus Endometrial Carcinoma (TCGA, Provisional)",
+        "hugo": "TP53"
+    },
+    {
+        "cancer_type": "ucec",
+        "count": 69,
+        "cancer_study": "Uterine Corpus Endometrioid Carcinoma (TCGA, Nature 2013)",
+        "hugo": "TP53"
+    }
+]

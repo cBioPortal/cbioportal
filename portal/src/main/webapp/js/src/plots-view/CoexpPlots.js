@@ -37,18 +37,19 @@
  *
  */
 
-var CoexpPlots = (function() {
+var CoexpPlots = function() {
 
-    function init(divName, geneX, geneY, pearson, spearman)  {
-        getAlterationData(divName, geneX, geneY, pearson, spearman);
+    function init(divName, geneX, geneY, pearson, spearman, profileId)  {
+        getAlterationData(divName, geneX, geneY, pearson, spearman, profileId);
     }
 
-    function getAlterationData(divName, geneX, geneY, pearson, spearman) {
+    function getAlterationData(divName, geneX, geneY, pearson, spearman, profileId) {
         var paramsGetAlterationData = {
             cancer_study_id: window.PortalGlobals.getCancerStudyId(),
             gene_list: geneX + " " + geneY,
             case_set_id: window.PortalGlobals.getCaseSetId(),
-            case_ids_key: window.PortalGlobals.getCaseIdsKey()
+            case_ids_key: window.PortalGlobals.getCaseIdsKey(),
+            profile_id: profileId
         };
         $.post(
             "getAlterationData.json", 
@@ -80,7 +81,8 @@ var CoexpPlots = (function() {
     function getMutationDataCallBack(_alteration_data_result, _divName, _geneX, _geneY, _pearson, _spearman) {
         return function(result) {
             CoexpPlotsProxy.init(_alteration_data_result, _geneX, _geneY, _pearson, _spearman);
-            CoexpPlotsView.init(_divName, _geneX, _geneY, CoexpPlotsProxy.getData(), CoexpPlotsProxy.getDataAttr());
+            var coexpPlotsView = new CoexpPlotsView();
+            coexpPlotsView.init(_divName, _geneX, _geneY, CoexpPlotsProxy.getData(), CoexpPlotsProxy.getDataAttr());
         }
     }
 
@@ -88,4 +90,4 @@ var CoexpPlots = (function() {
         init: init
     }
 
-}());
+}

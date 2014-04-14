@@ -58,7 +58,8 @@ var ScatterPlots = function() {
         names = {}, //ids
         legends = [],
         dataArr = [],
-        dataAttr = {};
+        dataAttr = {},
+        brushedCases = [];
 
     var axis_edge = 0.1;
         log_scale_threshold = 0.17677669529;
@@ -69,6 +70,8 @@ var ScatterPlots = function() {
 
     var axisXLogFlag = false,
         axisYLogFlag = false;
+
+    var shiftKeyDown = false;
 
     function initSettings(options, _dataAttr) { //Init with options
         style = jQuery.extend(true, {}, options.style);
@@ -214,7 +217,7 @@ var ScatterPlots = function() {
         elem.axisTitleGroup.append("svg:image")
             .attr("xlink:href", "images/help.png")
             .attr("class", "plots-title-x-help")
-            .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2 + _xTitle.length / 2 * 8)
+            .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2 - _xTitle.length / 2 * 8.5)
             .attr("y", canvas.yBottom + 48)
             .attr("width", "16")
             .attr("height", "16");
@@ -226,7 +229,7 @@ var ScatterPlots = function() {
                         style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                         show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
-                        position: {my:'left bottom',at:'top right'}
+                        position: {my:'right bottom', at:'top left', viewport: $(window)}
                     }
                 );
             }
@@ -266,7 +269,7 @@ var ScatterPlots = function() {
                         style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                         show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
-                        position: {my:'right bottom',at:'top left'}
+                        position: {my:'right bottom', at:'top left', viewport: $(window)}
                     }
                 );
             }
@@ -369,7 +372,7 @@ var ScatterPlots = function() {
             .attr("class", "legend")
             .attr("transform", function(d, i) {
                 return "translate(" + (canvas.xRight + 10) + ", " + (24 + i * 14) + ")";
-            })
+            });
         
         legend.append("path")
             .attr("d", d3.svg.symbol()
@@ -389,7 +392,25 @@ var ScatterPlots = function() {
             });
 
     }
+    
+    function addListeners() {
+        //This code is oringinally coming from Onur. Listening shiftKey down and 
+        //shiftKey up.
+        $(window).on("keydown", function(event) {
+            if (event.keyCode === 16)
+            {
+                shiftKeyDown = true;
+            }
+        });
 
+        $(window).on("keyup", function(event) {
+            if (event.keyCode === 16)
+            {
+                shiftKeyDown = false;
+            }
+        });
+    }
+    
     function addQtips() {
         elem.dotsGroup.selectAll('path').each(
             function(d) {
@@ -399,7 +420,7 @@ var ScatterPlots = function() {
                         style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
                         show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
-                        position: {my:'left bottom',at:'top right'}
+                        position: {my:'right bottom', at:'top left', viewport: $(window)}
                     }
                 );
             }
@@ -416,23 +437,22 @@ var ScatterPlots = function() {
         };
         var mouseOff = function(d) {
             var dot = d3.select(this);
-            var size = style.size;
-            var attr = $(this).attr('clicked');
-            if(typeof attr !== 'undefined' && attr !== false){
-                size = style.size * 2;
-            }
+            var size = getMouseoutPointSize(this);
             
             dot.transition()
                 .ease("elastic")
                 .duration(600)
                 .delay(100)
                 .attr("d", d3.svg.symbol().size(size).type(style.shape));
+        
+            elem.dotsGroup.selectAll("path").each(function(d) {
+                changePointSize(this);
+            });
         };
         //Click has three status: 1. Click; 2. ShiftClick; 3. Both
         var click = function(){
-            
-            if(d3.event.shiftKey){
-                d3.event.preventDefault();
+            d3.event.preventDefault();
+            if(shiftKeyDown){
                 shiftclicked(this);
             }else{
                 clicked(this);
@@ -444,6 +464,36 @@ var ScatterPlots = function() {
         elem.dotsGroup.selectAll("path").attr('pointer-events', 'all').on("click", click);
     }
     
+    function getMouseoutPointSize(_element) {
+        var _clickType = pointClickType(_element);
+        
+        switch(_clickType){
+            case 'none':
+                return style.size;
+                break;
+            default:
+                return style.size*2;
+        }
+    }
+    function changePointSize(_element) {
+        var _clickType = pointClickType(_element);
+        
+        switch(_clickType){
+            case 'clicked':
+                $(_element).attr("d", d3.svg.symbol().size(style.size*10).type(style.shape));
+                break;
+            case 'shiftClicked':
+                $(_element).attr("d", d3.svg.symbol().size(style.size*2).type(style.shape));
+                break;
+            case 'both':
+                $(_element).attr("d", d3.svg.symbol().size(style.size*2).type(style.shape));
+                break;
+            
+            //default: withOutClick
+            default:
+                $(_element).attr("d", d3.svg.symbol().size(style.size).type(style.shape));
+        }
+    }
     //Added in Study View especially
     function changeClickStyle(_element){
         var _clickType = pointClickType(_element);
@@ -451,19 +501,16 @@ var ScatterPlots = function() {
         switch(_clickType){
             case 'clicked':
                 $(_element).attr('stroke-width','3')
-                            .attr("d", d3.svg.symbol().size(style.size*10).type(style.shape))
                             .attr('fill',style.fill)
                             .attr('stroke','red');
                 break;
             case 'shiftClicked':
                 $(_element).attr('stroke-width','0')
-                            .attr("d", d3.svg.symbol().size(style.size*2).type(style.shape))
                             .attr('fill','red')
                             .attr('stroke','red');
                 break;
             case 'both':
                 $(_element).attr('stroke-width','3')
-                            .attr("d", d3.svg.symbol().size(style.size*2).type(style.shape))
                             .attr('fill','red')
                             .attr('stroke',style.stroke);
                 break;
@@ -471,7 +518,6 @@ var ScatterPlots = function() {
             //default: withOutClick
             default:
                 $(_element).attr('stroke-width',style.stroke_width)
-                            .attr("d", d3.svg.symbol().size(style.size).type(style.shape))
                             .attr('fill',style.fill)
                             .attr('stroke',style.stroke);
         }
@@ -553,9 +599,6 @@ var ScatterPlots = function() {
             var _subAttrType = pointClickType(this);
             if (_subAttrType === 'both' || _subAttrType === 'shiftClicked') {
                 _shiftClickedCases.push(d.case_id);
-                if(_subAttrType === 'shiftClicked'){
-                    onlyClickedPoint = false;
-                }
                 if(_subAttrType === 'both'){
                     $(this).attr('clicked','shiftClicked');
                     changeClickStyle(this);
@@ -575,11 +618,10 @@ var ScatterPlots = function() {
             _totalHighlightIds = [];
         
         var extent = elem.brush.extent();
-        var _isShift = window.event.shiftKey ? true : false;
         
         _brushedCases.length = 0;
         
-        if(_isShift){
+        if(shiftKeyDown){
             elem.dotsGroup.selectAll("path").each(function(d) {
                 var _attrType = pointClickType(this),
                     _x = $(this).attr("x_val"),
@@ -630,6 +672,8 @@ var ScatterPlots = function() {
             });
         }
         
+        brushedCases = _brushedCases;
+        
         if(_totalHighlightIds.length === 0){
             elem.dotsGroup.selectAll("path").each(function(d) {
                 var _attrType = pointClickType(this);
@@ -637,10 +681,13 @@ var ScatterPlots = function() {
                     $(this).removeAttr('clicked');
                     changeClickStyle(this);
                 }
-                _totalHighlightIds = []
+                _totalHighlightIds = [];
             });
         }
         
+        elem.dotsGroup.selectAll("path").each(function(d) {
+            changePointSize(this);
+        });
         
         d3.select(".brush").call(elem.brush.clear());
         updateBrushCallback(_totalHighlightIds);
@@ -727,6 +774,20 @@ var ScatterPlots = function() {
         elem.brush.y(elem.yScale);
     }
     
+    function log2Value(_value){
+        
+        if(typeof log_scale_threshold !== 'undefined'){
+            if(_value <= log_scale_threshold){
+                _value = Math.log(log_scale_threshold) / Math.log(2);
+            }else{
+                _value = Math.log(_value) / Math.log(2);
+            }
+        }else{
+            _value = Math.log(_value) / Math.log(2);
+        }
+        return _value;
+    }
+    
     return {
         init: function(_options, _dataArr, _dataAttr, _brushOn) {    //Init with options
             initSettings(_options, _dataAttr);
@@ -742,18 +803,22 @@ var ScatterPlots = function() {
             appendAxisTitleY(false);
             drawPlots(dataArr);
             drawLegends();
+            addListeners();
             addQtips();
         },
         // !!! Log Scale are only used by using RNA Seq Profile
         updateScaleX: function(_divName) {   //_applyLogScale: boolean, true for apply scale, false for  original value)
             var _applyLogScale = document.getElementById(_divName).checked;
+            
             if (_applyLogScale) {
                 updateAxisScaleX();
             } else {
                 initScaleX();
             }
-            if(brushOn)
+            
+            if(brushOn){
                 updateBrush();
+            }
             initAxisX();
             generateAxisX();
             appendAxisTitleX(_applyLogScale);
@@ -772,6 +837,21 @@ var ScatterPlots = function() {
             generateAxisY();
             appendAxisTitleY(_applyLogScale);
             updatePlotsLogScale("y", _applyLogScale);
+        },
+        getBrushedCases: function() {
+            return brushedCases;
+        },
+        getHighlightCases: function() {
+            var _highLightCases = [];
+            
+            elem.dotsGroup.selectAll("path").each(function(d) {
+                var _attrType = pointClickType(this);
+                
+                if(_attrType === 'shiftClicked'){
+                    _highLightCases.push(d.case_id);
+                }
+            });
+            return _highLightCases;
         },
         updateMutations: function(_divName, _divName_x_scale, _divName_y_scale) {
             var _showMutations = document.getElementById(_divName).checked;
@@ -821,18 +901,19 @@ var ScatterPlots = function() {
         updateStyle: function(_datumArr) {
             var _tmpDataArr=[];
             var dataCopy = jQuery.extend(true,[],dataArr);
+            
             if(axisXLogFlag && axisYLogFlag){
                 for(var i=0; i<dataCopy.length; i++){
-                    dataCopy[i].x_val = Math.log(dataCopy[i].x_val) / Math.log(2);
-                    dataCopy[i].y_val = Math.log(dataCopy[i].y_val) / Math.log(2);
+                    dataCopy[i].x_val = log2Value(dataCopy[i].x_val);
+                    dataCopy[i].y_val = log2Value(dataCopy[i].y_val);
                 }
             }else if(axisXLogFlag){
                 for(var i=0; i<dataCopy.length; i++){
-                    dataCopy[i].x_val = Math.log(dataCopy[i].x_val) / Math.log(2);
+                    dataCopy[i].x_val = log2Value(dataCopy[i].x_val);
                 }
             }else if(axisYLogFlag){
                 for(var i=0; i<dataCopy.length; i++){
-                    dataCopy[i].y_val = Math.log(dataCopy[i].y_val) / Math.log(2);
+                    dataCopy[i].y_val = log2Value(dataCopy[i].y_val);
                 }
             }
             
@@ -877,8 +958,8 @@ var ScatterPlots = function() {
             });            
         }
 
-    }
-}
+    };
+};
 
 
 

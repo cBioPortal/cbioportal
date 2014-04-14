@@ -655,8 +655,8 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	}
 
 	@Override
-	public void writeZScoresStagingFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata,
-										DatatypeMetadata datatypeMetadata, DatatypeMetadata[] dependencies) throws Exception {
+	public boolean writeZScoresStagingFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata,
+                                           DatatypeMetadata datatypeMetadata, DatatypeMetadata[] dependencies) throws Exception {
 
 		// sanity check
 		if (dependencies.length != 2) {
@@ -674,7 +674,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("writeZScoresStagingFile(), cannot find cna file dependency: " + cnaFile.getCanonicalPath());
 			}
-			return;
+			return false;
 		}
 
 		File expressionFile = org.apache.commons.io.FileUtils.getFile(stagingDirectory,
@@ -684,7 +684,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("writeZScoresStagingFile(), cannot find expression file dependency: " + expressionFile.getCanonicalPath());
 			}
-			return;
+			return false;
 		}
 
 		// we need a zscore file
@@ -710,7 +710,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			if (zScoresFile.exists()) {
 				org.apache.commons.io.FileUtils.forceDelete(zScoresFile);
 			}
-			return;
+			return false;
 		}
 		
 		// meta file
@@ -720,6 +720,8 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			}
 			writeMetadataFile(stagingDirectory, cancerStudyMetadata, datatypeMetadata, null);
 		}
+
+        return true;
 	}
 
 	@Override
@@ -831,22 +833,32 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		boolean cleanOncotatorInputFile = false;
 		File oncotatorInputFile = new File(inputMAF.getFile());
 		org.apache.commons.io.LineIterator it = org.apache.commons.io.FileUtils.lineIterator(oncotatorInputFile);
-		it.nextLine(); // skip header
 		String[] parts = it.nextLine().split("\t");
-		if (parts[3].contains("36") || parts[3].equals("hg18")) {
-			it.close();
-			File liftoverInputFile = org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
-																			 ""+System.currentTimeMillis()+".liftoverInputFile");
-			org.apache.commons.io.FileUtils.copyFile(oncotatorInputFile, liftoverInputFile);
-			oncotatorInputFile = new File(inputMAF.getFile());
-			// call lift over
-			if (LOG.isInfoEnabled()) {
-				LOG.info("oncotateMAF(), calling Hg18ToHg19...");
-			}
-			Hg18ToHg19.driver(liftoverInputFile.getCanonicalPath(), oncotatorInputFile.getCanonicalPath(), getLiftOverBinary(), getLiftOverChain());
-			org.apache.commons.io.FileUtils.forceDelete(liftoverInputFile);
-			cleanOncotatorInputFile = true;
-		}
+                int ixNcbiBuild = -1;
+                for (int ix = 0; ix < parts.length; ix++) {
+                    if (parts[ix].equalsIgnoreCase("NCBI_Build")) {
+                        ixNcbiBuild = ix;
+                        break;
+                    }
+                }
+                
+                if (ixNcbiBuild!=-1) {
+                    parts = it.nextLine().split("\t");
+                    if (parts[ixNcbiBuild].contains("36") || parts[ixNcbiBuild].equals("hg18")) {
+                            it.close();
+                            File liftoverInputFile = org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
+                                                                                                                                                             ""+System.currentTimeMillis()+".liftoverInputFile");
+                            org.apache.commons.io.FileUtils.copyFile(oncotatorInputFile, liftoverInputFile);
+                            oncotatorInputFile = new File(inputMAF.getFile());
+                            // call lift over
+                            if (LOG.isInfoEnabled()) {
+                                    LOG.info("oncotateMAF(), calling Hg18ToHg19...");
+                            }
+                            Hg18ToHg19.driver(liftoverInputFile.getCanonicalPath(), oncotatorInputFile.getCanonicalPath(), getLiftOverBinary(), getLiftOverChain());
+                            org.apache.commons.io.FileUtils.forceDelete(liftoverInputFile);
+                            cleanOncotatorInputFile = true;
+                    }
+                }
 
 		// create a temp output file from the oncotator
 		File oncotatorOutputFile = 

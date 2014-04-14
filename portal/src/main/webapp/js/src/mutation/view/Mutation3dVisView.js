@@ -91,6 +91,36 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		// init buttons
 		self._initButtons();
+
+		// make the main container draggable
+		container3d.draggable({
+			handle: ".mutation-3d-info-title",
+			start: function(event, ui) {
+				// fix the width to prevent resize during drag
+				var width = container3d.css("width");
+				container3d.css("width", width);
+			},
+			stop: function(event, ui) {
+				var top = parseInt(container3d.css("top"));
+				var left = parseInt(container3d.css("left"));
+				//var width = parseInt(container3d.css("width"));
+
+				// if the panel goes beyond the visible area, get it back!
+
+				if (top < 0)
+				{
+					container3d.css("top", 0);
+				}
+
+				//if (left < -width)
+				if (left < 0)
+				{
+					container3d.css("left", 0);
+				}
+
+				// TODO user can still take the panel out by dragging it to the bottom or right
+			}
+		});
 	},
 	/**
 	 * Initializes the control buttons.
@@ -384,9 +414,8 @@ var Mutation3dVisView = Backbone.View.extend({
 	 * @param geneSymbol    hugo gene symbol
 	 * @param pdbId         pdb id
 	 * @param chain         PdbChainModel instance
-	 * @param callback      function to be called after update
 	 */
-	updateView: function(geneSymbol, pdbId, chain, callback)
+	updateView: function(geneSymbol, pdbId, chain)
 	{
 		var self = this;
 		var mut3dVis = self.options.mut3dVis;
@@ -398,7 +427,7 @@ var Mutation3dVisView = Backbone.View.extend({
 
 			// reload the selected pdb and chain data
 			mut3dVis.show();
-			self.refreshView(pdbId, chain, callback);
+			self.refreshView(pdbId, chain);
 
 			// store pdb id and chain for future reference
 			self.pdbId = pdbId;
@@ -408,11 +437,16 @@ var Mutation3dVisView = Backbone.View.extend({
 		var infoCallback = function(pdbInfo) {
 			var model = {pdbId: pdbId,
 				chainId: chain.chainId,
-				pdbInfo: ""};
+				pdbInfo: "",
+				molInfo: ""};
 
-			if (pdbInfo)
+			if (pdbInfo && pdbInfo[pdbId])
 			{
-				model.pdbInfo = pdbInfo;
+				var summary = PdbDataUtil.generatePdbInfoSummary(
+					pdbInfo[pdbId], chain.chainId);
+
+				model.pdbInfo = summary.title;
+				model.molInfo = summary.molecule;
 			}
 
 			// init info view
@@ -436,9 +470,8 @@ var Mutation3dVisView = Backbone.View.extend({
 	 *
 	 * @param pdbId     pdb id
 	 * @param chain     PdbChainModel instance
-	 * @param callback  function to be called after refresh
 	 */
-	refreshView: function(pdbId, chain, callback)
+	refreshView: function(pdbId, chain)
 	{
 		var self = this;
 		var mut3dVis = self.options.mut3dVis;
@@ -473,14 +506,20 @@ var Mutation3dVisView = Backbone.View.extend({
 			}
 		};
 
-		// if no pdb id or chain is provided, then do not reload
-		if (!pdbId && !chain)
+		// do not reload (just refresh) if no pdb id or chain is provided,
+		// or the provided chain and the previous chain are the same
+		if ((pdbId == null && chain == null) ||
+		    (pdbId == self.pdbId && chain == self.chain))
 		{
 			// just refresh
 			var mapped = mut3dVis.refresh();
 
 			// update mapping info
 			showMapInfo(mapped);
+
+			// trigger corresponding event
+			self.dispatcher.trigger(
+				MutationDetailsEvents.VIEW_3D_STRUCTURE_RELOADED);
 		}
 		// reload the new pdb structure
 		else
@@ -498,11 +537,9 @@ var Mutation3dVisView = Backbone.View.extend({
 				var mapped = mut3dVis.reload(pdbId, chain, function() {
 					// hide the loader image after reload complete
 					self.hideLoader();
-					// call the provided custom callback function
-					if (_.isFunction(callback))
-					{
-						callback();
-					}
+					// trigger corresponding event
+					self.dispatcher.trigger(
+						MutationDetailsEvents.VIEW_3D_STRUCTURE_RELOADED);
 				});
 				// update mapping info if necessary
 				showMapInfo(mapped);
@@ -588,7 +625,7 @@ var Mutation3dVisView = Backbone.View.extend({
 			hide: {fixed: true, delay: 100, event: 'mouseout'},
 			show: {event: 'mouseover'},
 			style: {classes: 'qtip-light qtip-rounded qtip-shadow'},
-			position: {my:'top right', at:'bottom center'}};
+			position: {my:'top right', at:'bottom center', viewport: $(window)}};
 	},
 	/**
 	 * Minimizes the 3D visualizer panel.
@@ -615,6 +652,16 @@ var Mutation3dVisView = Backbone.View.extend({
 		{
 			mut3dVis.maximize();
 		}
+	},
+	/**
+	 * Resets the position of the 3D panel to its initial state.
+	 */
+	resetPanelPosition: function()
+	{
+		var self = this;
+		var container3d = self.$el;
+
+		container3d.css({"left": "", "width": "", "top": 0});
 	},
 	/**
 	 * Hides the 3D visualizer panel.
@@ -668,41 +715,28 @@ var Mutation3dVisView = Backbone.View.extend({
 	},
 	/**
 	 * Highlights the 3D visualizer for the residue
-	 * corresponding to the given pileup of mutations.
+	 * corresponding to the given array of pileups of mutations.
 	 *
-	 * @param pileup    Pileup instance
+	 * @param pileups   an array of Pileup instances
 	 * @param reset     whether to reset previous highlights
-	 * @return {boolean} true if highlight successful, false otherwise
+	 * @return {Number} number of mapped residues
 	 */
-	highlightView: function(pileup, reset)
+	highlightView: function(pileups, reset)
 	{
-		// TODO allow highlighting of multiple pileups in one function call
-
 		var self = this;
 		var mut3dVis = self.options.mut3dVis;
 
-		return mut3dVis.highlight(pileup, reset);
+		return mut3dVis.highlight(pileups, reset);
 	},
 	/**
-	 * Removes the highlight for the given pileup.
-	 *
-	 * If this function is invoked without a parameter,
-	 * then resets all residue highlights.
+	 * Resets all residue highlights.
 	 */
-	removeHighlight: function(pileup)
+	resetHighlight: function()
 	{
 		var self = this;
 		var mut3dVis = self.options.mut3dVis;
 
-		if (pileup)
-		{
-			// TODO reset only the provided pileup, not all of 'em!
-			mut3dVis.resetHighlight();
-		}
-		else
-		{
-			mut3dVis.resetHighlight();
-		}
+		mut3dVis.resetHighlight();
 	},
 	/**
 	 * Shows the loader image for the 3D vis container.
@@ -744,15 +778,28 @@ var Mutation3dVisView = Backbone.View.extend({
 	},
 	/**
 	 * Shows a warning message for unmapped residues.
+	 *
+	 * @param unmappedCount  number of unmapped selections
+	 * @param selectCount    total number of selections
 	 */
-	showResidueWarning: function()
+	showResidueWarning: function(unmappedCount, selectCount)
 	{
 		var self = this;
 		var warning = self.$el.find(".mutation-3d-residue-warning");
+		var unmapped = self.$el.find(".mutation-3d-unmapped-info");
 
 		// show warning only if no other warning is visible
 		if (!self.$el.find(".mutation-3d-nomap-warning").is(":visible"))
 		{
+			if (selectCount > 1)
+			{
+				unmapped.text(unmappedCount + " of the selections");
+			}
+			else
+			{
+				unmapped.text("Selected mutation");
+			}
+
 			warning.show();
 		}
 	},

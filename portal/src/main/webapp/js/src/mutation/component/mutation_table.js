@@ -13,57 +13,101 @@
  */
 var MutationTable = function(tableSelector, gene, mutations, options)
 {
-	// TODO add more options if necessary (for other views: patient view, cross cancer, etc)
-
 	// default options object
 	var _defaultOpts = {
-		// indicates the visibility of columns
+		// Indicates the visibility of columns
 		//
-		// - visible: column will always be visible initially
-		// - conditional: column will be visible conditionally
-		// - hidden:  column will always be hidden initially,
-		// but user can unhide the hidden columns via show/hide option
-		// - exclude: columns will be hidden initially,
-		// and the user cannot unhide these via show/hide option
-		// - excludeIfHidden: if conditionally determined to be hidden initially, then exclude
+		// - Valid string constants:
+		// "visible": column will be visible initially
+		// "hidden":  column will be hidden initially,
+		// but user can unhide the column via show/hide option
+		// "excluded": column will be hidden initially,
+		// and the user cannot unhide the column via show/hide option
 		//
-		// all other columns will be initially hidden by default
+		// - Custom function: It is also possible to set a custom function
+		// to determine the visibility of a column. A custom function
+		// should return one of the valid string constants defined above.
+		// For any unknown visibility value, column will be hidden by default.
+		//
+		// All other columns will be initially hidden by default.
 		columnVisibility: {"aa change": "visible",
 			"case id": "visible",
 			"type": "visible",
 			"cosmic": "visible",
-			"fis": "visible",
-			"cons": "visible",
-			"3d": "visible",
-			"vs": "visible",
-			"allele freq (t)": "visible",
-			"copy #" : "visible",
+			"mutation assessor": "visible",
 			"#mut in sample": "visible",
-			"mutation id": "exclude",
-			"cancer study": "exclude",
-			"bam": "excludeIfHidden",
-			"ms": "conditional"},
-		// visibility functions for conditionally visible columns,
-		// i.e: columns whose visibility set to either "conditional" or "excludeIfHidden".
-		// if no method is provided for conditionally hidden columns, then these columns
-		// will be initially visible
-		// TODO we may need more parameters than these two (util, gene)
-		visibilityFn: {
+			"mutation id": "excluded",
+			"cancer study": "excluded",
+			// TODO we may need more parameters than these two (util, gene)
+			"copy #" : function (util, gene) {
+				if (util.containsCnaData(gene)) {
+					return "visible";
+				}
+				else {
+					return "hidden";
+				}
+			},
+			"allele freq (t)": function (util, gene) {
+				if (util.containsAlleleFreqT(gene)) {
+					return "visible";
+				}
+				else {
+					return "hidden";
+				}
+			},
 			"bam": function (util, gene) {
-				return util.containsIgvLink(gene);
+				if (util.containsIgvLink(gene)) {
+					return "visible";
+				}
+				else {
+					return "excluded";
+				}
 			},
 			"ms": function (util, gene) {
-				return util.containsGermline(gene);
+				if (util.containsGermline(gene)) {
+					return "visible";
+				}
+				else {
+					return "hidden";
+				}
+			},
+			"vs": function (util, gene) {
+				if (util.containsValidStatus(gene)) {
+					return "visible";
+				}
+				else {
+					return "hidden";
+				}
+			},
+			"tumor type": function (util, gene) {
+				var count = util.distinctTumorTypeCount(gene);
+
+				if (count > 1) {
+					return "visible";
+				}
+				else if (count > 0) {
+					return "hidden";
+				}
+				else { // if (count <= 0)
+					return "excluded";
+				}
 			}
 		},
 		// WARNING: overwriting advanced DataTables options such as
 		// aoColumnDefs, oColVis, and fnDrawCallback may break column
-		// visibility and sorting behaviour. Proceed wisely ;)
+		// visibility, sorting, and filtering. Proceed wisely ;)
 		dataTableOpts: {
 			"sDom": '<"H"<"mutation_datatables_filter"f>C<"mutation_datatables_info"i>>t',
 			"bJQueryUI": true,
 			"bPaginate": false,
-			"bFilter": true
+			"bFilter": true,
+			"sScrollY": "600px",
+			"bScrollCollapse": true,
+			"oLanguage": {
+				"sInfo": "Showing _TOTAL_ mutation(s)",
+				"sInfoFiltered": "(out of _MAX_ total mutations)",
+				"sInfoEmpty": "No mutations to show"
+			}
 		}
 	};
 
@@ -90,7 +134,7 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 	var _manualSearch = "";
 
 	/**
-	 * Creates a mapping for given column headers. The mapped values
+	 * Creates a mapping for the given column headers. The mapped values
 	 * will be the array indices for each element.
 	 *
 	 * @param headers   column header names
@@ -103,8 +147,7 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 
 		for (var i=0; i < headers.length; i++)
 		{
-			if (map[headers[i].toLowerCase()] == undefined ||
-			    map[headers[i].toLowerCase()] == null)
+			if (map[headers[i].toLowerCase()] == null)
 			{
 				map[headers[i].toLowerCase()] = i;
 			}
@@ -114,64 +157,51 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 	}
 
 	/**
+	 * Creates a mapping for the given column headers. The mapped values
+	 * will be one of these visibility values: visible, hidden, excluded.
+	 *
+	 * @param headers   column header names
+	 * @return {object} map of <column name, visibility value>
+	 * @private
+	 */
+	function _buildColumnVisMap(headers)
+	{
+		var map = {};
+
+		_.each(headers, function(ele, idx) {
+			var header = ele.toLowerCase();
+
+			if (map[header] == null)
+			{
+				map[header] = _visibilityValue(header);
+			}
+		});
+
+		return map;
+	}
+
+	/**
 	 * Creates an array of indices for the columns to be hidden.
 	 *
 	 * @param headers   column header names
 	 * @param indexMap  map of <column name, column index>
+	 * @param visMap    map of <column name, column visibility value>
 	 * @return {Array}  an array of column indices
 	 * @private
 	 */
-	function _getHiddenColumns(headers, indexMap)
+	function _getHiddenColumns(headers, indexMap, visMap)
 	{
 		// set hidden column indices
 		var hiddenCols = [];
 
 		// process all headers
 		_.each(headers, function(ele, idx) {
-			var visible = false;
 			var header = ele.toLowerCase();
-			var vis = _options.columnVisibility[header];
 
-			// if not in the list, hidden by default
-			if (!vis)
+			// determine visibility
+			if (visMap[header] != "visible")
 			{
-				vis = "hidden";
-			}
-
-			// check known options
-			if (vis === "hidden" ||
-			    vis === "exclude")
-			{
-				visible = false;
-			}
-			else if (vis == "visible")
-			{
-				visible = true;
-			}
-			// check if conditionally hidden
-			else if (vis === "conditional" ||
-			    vis === "excludeIfHidden")
-			{
-				var visFn = _options.visibilityFn[header];
-
-				// visibility function checks the condition
-				if (_.isFunction(visFn))
-				{
-					visible = visFn(_mutationUtil, gene);
-				}
-				else
-				{
-					visible = true;
-				}
-			}
-			// for unknown option, hide by default
-			else
-			{
-				visible = false;
-			}
-
-			if (!visible)
-			{
+				// include in hidden columns list if not visible
 				hiddenCols.push(indexMap[header]);
 			}
 		});
@@ -182,47 +212,54 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 	/**
 	 * Creates an array of indices for the columns to be completely excluded.
 	 *
-	 * @param headers       column header names
-	 * @param indexMap      map of <column name, column index>
-	 * @param hiddenCols    indices of the hidden columns
+	 * @param headers   column header names
+	 * @param indexMap  map of <column name, column index>
+	 * @param visMap    map of <column name, column visibility value>
 	 * @return {Array}  an array of column indices
 	 * @private
 	 */
-	function _getExcludedColumns(headers, indexMap, hiddenCols)
+	function _getExcludedColumns(headers, indexMap, visMap)
 	{
 		// excluded column indices
 		var excludedCols = [];
 
 		// check all headers
 		_.each(headers, function(ele, idx) {
-			var excluded = false;
 			var header = ele.toLowerCase();
-			var vis = _options.columnVisibility[header];
 
-			// check if excluded
-			if (vis)
-			{
-				if (vis === "exclude")
-				{
-					excluded = true;
-				}
-				else if (vis === "excludeIfHidden")
-				{
-					// if the column is hidden, then exclude
-					if ($.inArray(indexMap[header], hiddenCols) != -1)
-					{
-						excluded = true;
-					}
-				}
-			}
-
-			if (excluded)
+			// determine visibility
+			if (visMap[header] == "excluded")
 			{
 				excludedCols.push(indexMap[header]);
 			}
 		});
 
 		return excludedCols;
+	}
+
+	/**
+	 * Determines the visibility value for the given column name
+	 *
+	 * @param columnName    name of the column (header)
+	 * @return {String}     visibility value for the given column
+	 */
+	function _visibilityValue(columnName)
+	{
+		var vis = _options.columnVisibility[columnName];
+		var value = vis;
+
+		// if not in the list, hidden by default
+		if (!vis)
+		{
+			value = "hidden";
+		}
+		// if function, then evaluate the value
+		else if (_.isFunction(vis))
+		{
+			value = vis(_mutationUtil, gene);
+		}
+
+		return value;
 	}
 
 	/**
@@ -242,13 +279,14 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 			count++;
 		}
 
-		// except these 4, exclude any other column from search
+		// except the ones below, exclude any other column from search
 		for (var col=0; col<count; col++)
 		{
 			var searchable = col == indexMap["case id"] ||
 					col == indexMap["mutation id"] ||
 					col == indexMap["cancer study"] ||
 					col == indexMap["aa change"] ||
+					col == indexMap["tumor type"] ||
 					col == indexMap["type"];
 
 			if (!searchable)
@@ -291,21 +329,29 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 		                indexMap["norm alt"],
 		                indexMap["norm ref"],
 	                    indexMap["#mut in sample"]]},
+		        {"sType": 'string',
+			        "sClass": "center-align-td",
+			        "aTargets": [indexMap["vs"],
+				        indexMap["ms"],
+				        indexMap["type"],
+				        indexMap["center"]]},
 	            {"sType": 'label-float-col',
 	                "sClass": "right-align-td",
 	                "aTargets": [indexMap["allele freq (t)"],
 		                indexMap["allele freq (n)"]]},
 	            {"sType": 'predicted-impact-col',
-	                "aTargets": [indexMap["fis"]]},
+		            "sClass": "center-align-td",
+	                "aTargets": [indexMap["mutation assessor"]]},
 		        {"sType": 'copy-number-col',
 			        "sClass": "center-align-td",
 			        "aTargets": [indexMap["copy #"]]},
 	            {"asSorting": ["desc", "asc"],
 	                "aTargets": [indexMap["cosmic"],
-		                indexMap["fis"],
-	                    indexMap["cons"],
-	                    indexMap["3d"],
+		                indexMap["mutation assessor"],
 	                    indexMap["#mut in sample"]]},
+		        {"sWidth": "2%",
+			        "aTargets": [indexMap["mutation assessor"],
+				        indexMap["#mut in sample"]]},
 	            {"bVisible": false,
 	                "aTargets": hiddenCols},
 		        {"bSearchable": false,
@@ -335,7 +381,13 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 
 		        // update prev search string reference for future use
 		        _prevSearch = currSearch;
-	        }
+	        },
+		    "fnHeaderCallback": function(nHead, aData, iStart, iEnd, aiDisplay) {
+			    _addHeaderTooltips(nHead);
+		    },
+		    "fnFooterCallback": function(nFoot, aData, iStart, iEnd, aiDisplay) {
+			    _addFooterTooltips(nFoot);
+		    }
 	    };
 
 		// merge with the one in the main options object
@@ -343,38 +395,33 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 
 		// format the table with the dataTable plugin
 		var oTable = tableSelector.dataTable(tableOpts);
-	    oTable.css("width", "100%");
+	    //oTable.css("width", "100%");
+
+		$(window).bind('resize', function () {
+			if (oTable.is(":visible"))
+			{
+				oTable.fnAdjustColumnSizing();
+			}
+		});
 
 		// return the data table instance
 		return oTable;
 	}
 
 	/**
-	 * Add tooltips for the table header and the table data rows.
+	 * Adds tooltips for the table data rows.
 	 *
 	 * @param tableSelector   jQuery selector for the target table
 	 * @private
 	 */
 	function _addMutationTableTooltips(tableSelector)
 	{
-	    var qTipOptions = {content: {attr: 'alt'},
-		    show: {event: 'mouseover'},
-	        hide: {fixed: true, delay: 100, event: 'mouseout'},
-	        style: {classes: 'mutation-details-tooltip qtip-shadow qtip-light qtip-rounded'},
-	        position: {my:'top left', at:'bottom right'}};
+		var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
 
-	    var qTipOptionsHeader = {};
-		var qTipOptionsFooter = {};
 	    var qTipOptionsLeft = {};
-	    jQuery.extend(true, qTipOptionsHeader, qTipOptions);
-		jQuery.extend(true, qTipOptionsFooter, qTipOptions);
 	    jQuery.extend(true, qTipOptionsLeft, qTipOptions);
-	    qTipOptionsHeader.position = {my:'bottom center', at:'top center'};
-		qTipOptionsFooter.position = {my:'top center', at:'bottom center'};
-	    qTipOptionsLeft.position = {my:'top right', at:'bottom left'};
+	    qTipOptionsLeft.position = {my:'top right', at:'bottom left', viewport: $(window)};
 
-	    tableSelector.find('thead th').qtip(qTipOptionsHeader);
-		tableSelector.find('tfoot th').qtip(qTipOptionsFooter);
 	    //$('#mutation_details .mutation_details_table td').qtip(qTipOptions);
 
 		tableSelector.find('.simple-tip').qtip(qTipOptions);
@@ -414,15 +461,20 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 			var links = $(this).attr('alt');
 			var parts = links.split("|");
 
+			var mutationId = parts[1];
+			var mutation = _mutationUtil.getMutationIdMap()[mutationId];
+
 			// copy default qTip options and modify "content"
 			// to customize for predicted impact score
 			var qTipOptsOma = {};
-			jQuery.extend(true, qTipOptsOma, qTipOptions);
+			jQuery.extend(true, qTipOptsOma, qTipOptionsLeft);
 
 			qTipOptsOma.content = {text: "NA"}; // content is overwritten on render
 			qTipOptsOma.events = {render: function(event, api) {
 				var model = {impact: parts[0],
-					xvia: parts[1]};
+					xvia: mutation.xVarLink,
+					msaLink: mutation.msaLink,
+					pdbLink: mutation.pdbLink};
 
 				var container = $(this).find('.qtip-content');
 
@@ -434,6 +486,43 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 			$(this).qtip(qTipOptsOma);
 		});
 	}
+
+	/**
+	 * Adds tooltips for the table header cells.
+	 *
+	 * @param nHead table header
+	 * @private
+	 */
+	function _addHeaderTooltips(nHead)
+	{
+		var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
+
+		var qTipOptionsHeader = {};
+		jQuery.extend(true, qTipOptionsHeader, qTipOptions);
+		qTipOptionsHeader.position = {my:'bottom center', at:'top center', viewport: $(window)};
+
+		//tableSelector.find('thead th').qtip(qTipOptionsHeader);
+		$(nHead).find("th").qtip(qTipOptionsHeader);
+	}
+
+	/**
+	 * Adds tooltips for the table footer cells.
+	 *
+	 * @param nFoot table footer
+	 * @private
+	 */
+	function _addFooterTooltips(nFoot)
+	{
+		var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
+
+		var qTipOptionsFooter = {};
+		jQuery.extend(true, qTipOptionsFooter, qTipOptions);
+		qTipOptionsFooter.position = {my:'top center', at:'bottom center', viewport: $(window)};
+
+		//tableSelector.find('tfoot th').qtip(qTipOptionsFooter);
+		$(nFoot).find("th").qtip(qTipOptionsFooter);
+	}
+
 
 	/**
 	 * Helper function for predicted impact score sorting.
@@ -532,7 +621,8 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 	{
 		if (a.indexOf("label") != -1)
 		{
-			return $(a).text().trim();
+			// TODO temp workaround
+			return $(a).find("label").text().trim() || $(a).text().trim();
 		}
 		else
 		{
@@ -781,9 +871,14 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 		// instead of integer constants for table columns
 		var indexMap = _buildColumnIndexMap(headers);
 
+		// build a visibility map for column headers
+		var visibilityMap = _buildColumnVisMap(headers);
+
 		// determine hidden and excluded columns
-        var hiddenCols = _getHiddenColumns(headers, indexMap);
-		var excludedCols = _getExcludedColumns(headers, indexMap, hiddenCols);
+        var hiddenCols = _getHiddenColumns(headers, indexMap, visibilityMap);
+		var excludedCols = _getExcludedColumns(headers, indexMap, visibilityMap);
+
+		// determine columns to exclude from filtering (through the search box)
 		var nonSearchableCols = _getNonSearchableCols(indexMap);
 
 		// add custom sort functions for specific columns

@@ -2,10 +2,13 @@
  * This class is designed to control Study View working flow.
  * 1. Get data by using StudyViewProxy
  * 2. Passing data to StudyViewInitCharts and initial all charts
+ * 
+ * 
+ * @author Hongxin Zhang
  */
 
 
-var StudyViewControl = (function() {
+var StudyViewMainController = (function() {
     var parObject = {
         studyId: "",
         caseIds: "",
@@ -15,11 +18,12 @@ var StudyViewControl = (function() {
     };
         
     var callbackFunc = function (_data) {
-        StudyViewInitDataTable.init(parObject, _data);
-        StudyViewInitCharts.init(parObject, _data);
-        StudyViewInitTopComponents.init(parObject);
-        StudyViewInitMiddleComponents.init();
-        StudyViewInitDataTable.getDataTable().resizeTable();
+        StudyViewSummaryTabController.init(parObject, _data);
+        StudyViewClinicalTabController.init();
+        if (mutationProfileId){
+            StudyViewMutationsTabController.init(parObject);
+        }
+        StudyViewCNATabController.init();
     };
     
     function initLocalParameters(o){
@@ -30,17 +34,10 @@ var StudyViewControl = (function() {
         parObject.caseSetId = o.caseSetId;
     }
     
-    function initPage(){
-        $("#data-table-chart").html("");
-        $("#data-table-chart").append(StudyViewBoilerplate.dataTableDiv);
-    }
-    
     return {
         init: function(o) {
             initLocalParameters(o);
-            initPage();
             StudyViewProxy.init(parObject,callbackFunc);
         }
     };
-
 })();

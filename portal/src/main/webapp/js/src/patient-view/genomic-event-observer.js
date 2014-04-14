@@ -3,6 +3,8 @@ function GenomicEventObserver(hasMut, hasCna, hasSeg) {
     this.fns_mut_cna = [];
     this.fns_mut = [];
     this.fns_cna = [];
+    this.fns_pancan_mutation_frequency = [];
+    this.pancan_mutation_frequencies;   // keyword or hugo -> datum { cancer_study, cancer_type, count, hugo, [keyword] }
     this.hasMut = hasMut;
     this.hasCna = hasCna;
     this.hasSeg = hasSeg;
@@ -21,6 +23,9 @@ GenomicEventObserver.prototype = {
     subscribeCna : function(fn) {
         this.fns_cna.push(fn);
     },
+    subscribePancanMutationsFrequency : function(fn) {
+        this.fns_pancan_mutation_frequency.push(fn);
+    },
     fire : function(o, thisObj) {
         var scope = thisObj || window;
 
@@ -31,9 +36,19 @@ GenomicEventObserver.prototype = {
                     el.call(scope);
                 }
             );
-        } else if (o==="cna-built") {
+        }
+
+        else if (o==="cna-built") {
             this.cnaBuilt = true;
             this.fns_cna.forEach(
+                function(el) {
+                    el.call(scope);
+                }
+            );
+        }
+
+        else if (o==="pancan-mutation-frequency-built") {
+            this.fns_pancan_mutation_frequency.forEach(
                 function(el) {
                     el.call(scope);
                 }

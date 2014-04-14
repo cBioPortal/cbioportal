@@ -79,8 +79,8 @@ if (cancerStudyViewError!=null) {
 <div id="study-tabs">
     <ul>
         
-    <li id="li-1"><a href='#dc-plots' class='study-tab' title='Plots'>DC Plots</a></li>
-    <li><a href='#clinical-plots' class='study-tab' title='DC Plots'>Study Summary</a></li>
+    <li id="li-1"><a href='#dc-plots' class='study-tab' title='Study Summary'>Study Summary</a></li>
+    <!--<li><a href='#clinical-plots' class='study-tab' title='DC Plots'>Study Summary</a></li>-->
     <li><a href='#clinical' class='study-tab' title='Clinical Data'>Clinical Data</a></li>
     
     <%if(showMutationsTab){%>
@@ -92,11 +92,12 @@ if (cancerStudyViewError!=null) {
     <%}%>
     
     </ul>
-
+    <!--
     <div class="study-section" id="clinical-plots">
         <%@ include file="plots.jsp" %>
     </div>
-
+    -->
+    
     <div class="study-section" id="dc-plots">
         <%@ include file="dcplots.jsp" %>
     </div>
@@ -104,7 +105,7 @@ if (cancerStudyViewError!=null) {
     <div class="study-section" id="clinical">
         <%@ include file="clinical.jsp" %>
     </div>
-
+    
     <%if(showMutationsTab){%>
     <div class="study-section" id="mutations">
         <%@ include file="mutations.jsp" %>
@@ -177,6 +178,7 @@ var hasCnaSegmentData = <%=hasCnaSegmentData%>;
 var hasMutSig = <%=hasMutSig%>;
 var caseSetId = '<%=caseSetId%>';
 var caseIds = <%=jsonCaseIds%>;
+var cancer_study_id = cancerStudyId; //Some components using this as global ID
 
 $(document).ready(function(){
     setUpStudyTabs();
@@ -200,6 +202,9 @@ function initTabs() {
         $('.study-tab').removeClass('selected');
         $(this).addClass('selected');
         
+        if($( "#study-tabs" ).tabs( "option", "active" ) === 1){
+            $('#clinical_table').dataTable().fnAdjustColumnSizing();
+        }
         /*
         if($( "#study-tabs" ).tabs( "option", "active" ) === 1){
             var oTable = $('#dataTable').dataTable();

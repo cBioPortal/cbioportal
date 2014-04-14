@@ -5,6 +5,8 @@
  */
 var PileupUtil = (function()
 {
+	var _idCounter = 0;
+
 	/**
 	 * Processes a Pileup instance, and creates a map of
 	 * <mutation type, mutation array> pairs.
@@ -83,7 +85,12 @@ var PileupUtil = (function()
 		for (var type in typeMap)
 		{
 			// grouping mutations by the style (not by the type)
-			var group = mutationTypeMap[type].style;
+			var group = undefined;
+
+			if (mutationTypeMap[type] != null)
+			{
+				group = mutationTypeMap[type].style;
+			}
 
 			if (group == undefined)
 			{
@@ -114,7 +121,36 @@ var PileupUtil = (function()
 		return groupArray;
 	};
 
+	var nextId = function()
+	{
+		_idCounter++;
+
+		return "pileup_" + _idCounter;
+	};
+
+	/**
+	 * Creates a map of <mutation sid>, <pileup id> pairs.
+	 *
+	 * @param pileups   list of pileups
+	 * @return {Object} <mutation sid> to <pileup id> map
+	 */
+	var mapToMutations = function(pileups)
+	{
+		var map = {};
+
+		// map each mutation sid to its corresponding pileup
+		_.each(pileups, function(pileup) {
+			_.each(pileup.mutations, function(mutation) {
+				map[mutation.mutationSid] = pileup.pileupId;
+			})
+		});
+
+		return map;
+	};
+
 	return {
+		nextId: nextId,
+		mapToMutations: mapToMutations,
 		getMutationTypeMap: generateTypeMap,
 		getMutationTypeArray: generateTypeArray,
 		getMutationTypeGroups: generateTypeGroupArray

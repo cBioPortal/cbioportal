@@ -276,8 +276,11 @@ public final class DaoCancerStudy {
                 "delete from gistic_to_gene where GISTIC_ROI_ID IN (select GISTIC_ROI_ID from gistic where CANCER_STUDY_ID=?);",
                 "delete from gistic where CANCER_STUDY_ID=?;",
                 "delete from mut_sig where CANCER_STUDY_ID=?;",
+                "delete from _case where CANCER_STUDY_ID=?;",
                 "delete from protein_array_data where CANCER_STUDY_ID=?;",
                 "delete from protein_array_cancer_study where CANCER_STUDY_ID=?;",
+                "delete from clinical_event_data where CLINICAL_EVENT_ID IN (select CLINICAL_EVENT_ID from clinical_event where CANCER_STUDY_ID=?)",
+                "delete from clinical_event where CANCER_STUDY_ID=?;",
                 "delete from cancer_study where CANCER_STUDY_ID=?;"
                 };
             for (String sql : sqls) {    

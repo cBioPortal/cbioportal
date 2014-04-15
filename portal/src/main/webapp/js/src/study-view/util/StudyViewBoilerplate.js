@@ -274,15 +274,17 @@ var StudyViewBoilerplate ={
     
     survivalPlotDiv: 
             "<div id='study-view-survival-plot' class='study-view-dc-chart w3 h2'>"+
-            "<div id='study-view-survival-plot-header-wrapper' style='float:left; width: 100%; height: 22px;'>"+
+            "<div id='study-view-survival-plot-header-wrapper'>"+
+            "<chartTitleH4 id='study-view-survival-plot-title'>"+
+            "Overall Survival Plot</chartTitleH4>"+
             "<div id='study-view-survival-plot-header' style='float:left'>"+
-            "<form style='float: right; display:inline-block; margin-right:5px' action='svgtopdf.do' method='post' id='study-view-survival-plot-pdf'>"+
+            "<form style='display:inline-block; margin-right:5px' action='svgtopdf.do' method='post' id='study-view-survival-plot-pdf'>"+
             "<input type='hidden' name='svgelement' id='study-view-survival-plot-pdf-value'>"+
             "<input type='hidden' name='filetype' value='pdf'>"+
             "<input type='hidden' id='study-view-survival-plot-pdf-name' name='filename' value=''>"+
             "<input type='submit' style='font-size:10px' value='PDF'>"+          
             "</form>"+
-            "<form style='float:right; display:inline-block' action='svgtopdf.do' method='post' id='study-view-survival-plot-svg'>"+
+            "<form style='display:inline-block' action='svgtopdf.do' method='post' id='study-view-survival-plot-svg'>"+
             "<input type='hidden' name='svgelement' id='study-view-scatter-plot-svg-value'>"+
             "<input type='hidden' name='filetype' value='svg'>"+
             "<input type='hidden' id='study-view-survival-plot-svg-name' name='filename' value=''>"+

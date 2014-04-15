@@ -168,7 +168,22 @@
 #study-view-scatter-plot-title {
     float: left;
     margin: 5px 40px 0 5px;
-}/*
+}
+#study-view-survival-plot-header {
+    float: left;
+    margin-top: 2px;
+}
+#study-view-survival-plot-title {
+    float: left;
+    margin: 5px 340px 0 5px;
+}
+#study-view-survival-plot-header-wrapper {
+    float:right;
+    width: 100%;
+    height: 22px;
+    margin-bottom: 5px;
+}
+/*
 #study-view-scatter-plot-body-top-chart {
     width: 100%;
     height: 80px;

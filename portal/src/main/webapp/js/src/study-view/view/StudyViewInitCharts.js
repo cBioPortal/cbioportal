@@ -184,11 +184,34 @@ var StudyViewInitCharts = (function(){
         initSurvivalPlot(_arr);
     }
     
+    function redrawSurvival() {
+        var _unselectedCases= [],
+            _selectedCases = getSelectedCasesID(),
+            _allCases = parObject.caseIds;
+        
+        var _passedCases = [];
+        var _selectedCasesLength = _selectedCases.length,
+            _allCasesLength = _allCases.length;
+        
+        if(_allCasesLength > _selectedCasesLength){
+            for(var i = 0; i < _allCasesLength; i++){
+                if(_selectedCases.indexOf(_allCases[i]) === -1){
+                    _unselectedCases.push(_allCases[i]);
+                }
+            }
+            _passedCases = {
+                SELECTED_CASES: _selectedCases,
+                UNSELECTED_CASES: _unselectedCases,
+                ALL_CASES: _allCases
+            };
+        }else{
+            _passedCases = {ALL_CASES: _allCases};
+        }
+        
+        StudyViewInitSurvivalPlot.redraw(_passedCases, false);
+    }
     function redrawWordCloud(){
-        var _selectedCases = varChart[attrNameMapUID["CASE_ID"]]
-                    .getChart()
-                    .dimension()
-                    .top(Infinity),
+        var _selectedCases = getSelectedCases(),
         _selectedCasesLength = _selectedCases.length,
         _selectedGeneMutatedInfo = [],
         _filteredMutatedGenes = {},
@@ -368,7 +391,7 @@ var StudyViewInitCharts = (function(){
     }
     
     function initSurvivalPlot(_data) {
-        StudyViewInitSurvivalPlot.init(parObject.caseIds, _data);
+        StudyViewInitSurvivalPlot.init({ALL_CASES: parObject.caseIds}, _data);
     }
     
     function initScatterPlot(_arr) {
@@ -432,11 +455,28 @@ var StudyViewInitCharts = (function(){
         });
     }
     
-    function getSelectedCasesAndRedrawScatterPlot(_currentPieFilters) {
-        var _tmpResult = varChart[attrNameMapUID["CASE_ID"]]
+    function getSelectedCases() {
+        return varChart[attrNameMapUID["CASE_ID"]]
                     .getChart()
                     .dimension()
-                    .top(Infinity),
+                    .top(Infinity);
+    }
+    function getSelectedCasesID() {
+        var _cases = varChart[attrNameMapUID["CASE_ID"]]
+                    .getChart()
+                    .dimension()
+                    .top(Infinity);
+        var _casesLength = _cases.length;
+        var _casesID = [];
+        
+        for(var i = 0; i < _casesLength; i++){
+            _casesID.push(_cases[i].CASE_ID);
+        }
+        
+        return _casesID;
+    }
+    function getSelectedCasesAndRedrawScatterPlot(_currentPieFilters) {
+        var _tmpResult = getSelectedCases(),
         _tmpCaseID = [];
 
         clickedCaseId = '';
@@ -472,6 +512,7 @@ var StudyViewInitCharts = (function(){
     function postFilterCallbackFunc(){
         changeHeader();
         redrawWordCloud();
+        redrawSurvival();
     }
     
     function makeNewBarChartInstance(_chartID, _barInfo, _distanceArray) {
@@ -688,8 +729,8 @@ var StudyViewInitCharts = (function(){
             }
             dc.redrawAll();
         }
-        changeHeader();
-        redrawWordCloud();
+        
+        postFilterCallbackFunc();
     }
     
     function scatterPlotClickCallBack(_clickedCaseIds) {

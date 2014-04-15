@@ -5,13 +5,11 @@ import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.web_api.*;
-import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
 
 import org.json.simple.*;
 import org.apache.commons.logging.*;
 import com.google.common.base.Joiner;
-import org.owasp.validator.html.PolicyException;
 
 import java.io.*;
 import java.util.*;
@@ -165,7 +163,7 @@ public class GeneDataJSON extends HttpServlet {
 
             GetProfileData remoteCall;
             String sampleIds =
-                Joiner.on(" ").join(InternalIdUtil.getStableSampleIdsFromPatientIds(profile.getCancerStudyId(), patientIds));
+                Joiner.on(" ").join(StableIdUtil.getStableSampleIdsFromPatientIds(profile.getCancerStudyId(), patientIds));
             try {
                 remoteCall = new GetProfileData(profile, listOfGenes, sampleIds);
             } catch (DaoException e) {

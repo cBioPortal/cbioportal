@@ -35,7 +35,6 @@ import org.mskcc.cbio.portal.util.*;
 
 import org.apache.log4j.Logger;
 import org.json.simple.JSONValue;
-import org.owasp.validator.html.PolicyException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.apache.commons.lang.StringUtils;
@@ -265,7 +264,7 @@ public class CrossCancerJSON extends HttpServlet {
         for (GeneticProfile profile : defaultGeneticProfileSet.values()) {
             GetProfileData remoteCall =
                 new GetProfileData(profile, geneList,
-                                   StringUtils.join(InternalIdUtil.getStableSampleIdsFromPatientIds(profile.getCancerStudyId(), defaultPatientSet.getPatientList()), " "));
+                                   StringUtils.join(StableIdUtil.getStableSampleIdsFromPatientIds(profile.getCancerStudyId(), defaultPatientSet.getPatientList()), " "));
             ProfileData pData = remoteCall.getProfileData();
             warningUnion.addAll(remoteCall.getWarnings());
             profileDataList.add(pData);

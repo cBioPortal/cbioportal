@@ -394,10 +394,15 @@ public class QueryBuilder extends HttpServlet {
             GeneticProfile profile = GeneticProfileUtil.getProfile(profileId, profileList);
             if( null == profile ){
                continue;
-            }
+            } 
+            
+            List<Sample.Type> excludes = new ArrayList<Sample.Type>();
+            excludes.add(Sample.Type.SOLID_NORMAL);
+            excludes.add(Sample.Type.BLOOD_NORMAL);
             List<String> stableSampleIds =
-              InternalIdUtil.getStableSampleIdsFromPatientIds(profile.getCancerStudyId(),
-                                                         new ArrayList(setOfPatientIds));
+              StableIdUtil.getStableSampleIdsFromPatientIds(profile.getCancerStudyId(),
+                                                            new ArrayList(setOfPatientIds),
+                                                            excludes);
          
             xdebug.logMsg(this, "Getting data for:  " + profile.getProfileName());
             GetProfileData remoteCall =

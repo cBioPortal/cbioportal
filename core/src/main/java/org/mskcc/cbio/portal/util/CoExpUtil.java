@@ -55,7 +55,7 @@ public class CoExpUtil {
             GeneticProfile gp = DaoGeneticProfile.getGeneticProfileById(profileId);
             //Filter out patients with no values
             List<String> sampleIds =
-                InternalIdUtil.getStableSampleIdsFromPatientIds(gp.getCancerStudyId(), getPatientIds(patientSetId, patientIdsKey));
+                StableIdUtil.getStableSampleIdsFromPatientIds(gp.getCancerStudyId(), getPatientIds(patientSetId, patientIdsKey));
             sampleIds.retainAll(DaoSampleProfile.getAllSampleIdsInProfile(profileId));
         
             DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();

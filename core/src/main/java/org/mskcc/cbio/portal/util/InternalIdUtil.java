@@ -52,17 +52,6 @@ public class InternalIdUtil
             sampleIds.add(s.getInternalId());
         }
         return sampleIds;
-    } 
-
-    public static List<String> getStableSampleIdsFromPatientIds(int cancerStudyId, List<String> stablePatientIds) {
-        ArrayList<String> sampleIds = new ArrayList<String>();
-        for (String stablePatientId : stablePatientIds) {
-            Patient p = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudyId, stablePatientId);
-            for (Sample s : DaoSample.getSamplesByPatientId(p.getInternalId())) {
-                sampleIds.add(s.getStableId()); 
-            }
-        }
-        return sampleIds;
     }
 
     public static List<Integer> getInternalSampleIdsFromPatientIds(int cancerStudyId, List<String> stablePatientIds)
@@ -77,15 +66,7 @@ public class InternalIdUtil
         return sampleIds;
     }
 
-    public static List<Integer> getNonNormalInternalSampleIdsFromPatientIds(int cancerStudyId, List<String> stablePatientIds)
-    {
-        List<Sample.Type> excludes = new ArrayList<Sample.Type>();
-        excludes.add(Sample.Type.SOLID_NORMAL);
-        excludes.add(Sample.Type.BLOOD_NORMAL);
-        return getNonNormalInternalSampleIdsFromPatientIds(cancerStudyId, stablePatientIds, excludes);
-    }
-
-    public static List<Integer> getNonNormalInternalSampleIdsFromPatientIds(int cancerStudyId, List<String> stablePatientIds, List<Sample.Type> excludes)
+    public static List<Integer> getInternalSampleIdsFromPatientIds(int cancerStudyId, List<String> stablePatientIds, List<Sample.Type> excludes)
     {
         List<Integer> sampleIds = new ArrayList<Integer>();
         for (String patientId : stablePatientIds) {
@@ -95,12 +76,6 @@ public class InternalIdUtil
                     continue;
                 }
                 sampleIds.add(sample.getInternalId());
-                /*
-                if (sample.getType() != Sample.Type.SOLID_NORMAL &&
-                    sample.getType() != Sample.Type.BLOOD_NORMAL) {
-                    sampleIds.add(sample.getInternalId());
-                }
-                */
             }
         }
         return sampleIds;

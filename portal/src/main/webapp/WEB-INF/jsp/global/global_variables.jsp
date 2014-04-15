@@ -16,7 +16,7 @@
 <%@ page import="org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintSpecification" %>
 <%@ page import="org.mskcc.cbio.portal.oncoPrintSpecLanguage.Utilities" %>
 <%@ page import="org.mskcc.cbio.portal.model.CancerStudy" %>
-<%@ page import="org.mskcc.cbio.portal.model.CaseList" %>
+<%@ page import="org.mskcc.cbio.portal.model.PatientList" %>
 <%@ page import="org.mskcc.cbio.portal.model.GeneticProfile" %>
 <%@ page import="org.mskcc.cbio.portal.model.GeneticAlterationType" %>
 <%@ page import="org.mskcc.cbio.portal.model.Patient" %>
@@ -96,20 +96,20 @@
     String genes = (String) request.getAttribute(QueryBuilder.RAW_GENE_STR);
     genes = StringEscapeUtils.escapeJavaScript(genes);
 
-    //Info about Case Set(s)/Cases
-    ArrayList<CaseList> caseSets = (ArrayList<CaseList>)request.getAttribute(QueryBuilder.CASE_SETS_INTERNAL);
-    ArrayList<String> mergedCaseList = mergedProfile.getCaseIdList();
-    int mergedCaseListSize = mergedCaseList.size();
-    String caseSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
-    String caseSetName = "";
-    for (CaseList caseSet:  caseSets) {
-        if (caseSetId.equals(caseSet.getStableId())) {
-            caseSetName = caseSet.getName();
+    //Info about Patient Set(s)/Patients
+    ArrayList<PatientList> patientSets = (ArrayList<PatientList>)request.getAttribute(QueryBuilder.CASE_SETS_INTERNAL);
+    ArrayList<String> mergedPatientList = mergedProfile.getCaseIdList();
+    int mergedPatientListSize = mergedPatientList.size();
+    String patientSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
+    String patientSetName = "";
+    for (PatientList patientSet:  patientSets) {
+        if (patientSetId.equals(patientSet.getStableId())) {
+            patientSetName = patientSet.getName();
         }
     }
-    String cases = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
+    String patients = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
     //cases = xssUtil.getCleanerInput(cases);
-    String caseIdsKey = (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY);
+    String patientIdsKey = (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY);
     //caseIdsKey = xssUtil.getCleanerInput(caseIdsKey);
 
     //Clinical Data
@@ -166,10 +166,10 @@
             var _geneList = '<%=StringUtils.join(theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes(), " ")%>';
             return _geneList.split(/\s+/);    //Gene Id list without onco query language
         },
-        getCaseSetId: function() { return '<%= caseSetId %>';},  //Id for user chosen standard case set
-        getCaseSetName: function() { return '<%= caseSetName %>'},  //Name for user chose standard case set
-        getCaseIdsKey: function() { return '<%= caseIdsKey %>'; },   //A key arrsigned to use build case set
-        getCases: function() { return '<%= cases %>'; }, // list of queried case ids
+        getCaseSetId: function() { return '<%= patientSetId %>';},  //Id for user chosen standard case set
+        getCaseSetName: function() { return '<%= patientSetName %>'},  //Name for user chose standard case set
+        getCaseIdsKey: function() { return '<%= patientIdsKey %>'; },   //A key arrsigned to use build case set
+        getCases: function() { return '<%= patients %>'; }, // list of queried case ids
         getOqlString: (function() {     // raw gene list (as it is entered by the user, it may contain onco query language)
             var oql = '<%=oql%>'
                     .replace("&gt;", ">", "gm")

@@ -1,28 +1,22 @@
 package org.mskcc.cbio.portal.servlet;
 
 
-import com.google.common.base.Joiner;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.util.WebserviceParserUtils;
-import org.mskcc.cbio.portal.web_api.GetProfileData;
-import org.mskcc.cbio.portal.web_api.ProtocolException;
+import org.mskcc.cbio.portal.util.*;
+import org.mskcc.cbio.portal.web_api.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
-import org.mskcc.cbio.portal.util.*;
+
+import org.json.simple.*;
+import org.apache.commons.logging.*;
+import com.google.common.base.Joiner;
 import org.owasp.validator.html.PolicyException;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.*;
+import javax.servlet.http.*;
+import javax.servlet.ServletException;
 
 public class GeneDataJSON extends HttpServlet {
     public static final String SELECTED_CANCER_STUDY = "selected_cancer_type";
@@ -113,14 +107,9 @@ public class GeneDataJSON extends HttpServlet {
 
         oql = oql.replaceAll("\n", " \n ");
 
-        String sampleIds;
-        // list of samples separated by a space.  This is so
-        // that you can query an arbitrary set of samples
-        // separated by a space
-
+        List<String> patientIds;
         try {
-            List<String> patientIds = WebserviceParserUtils.getPatientList(request);
-            sampleIds = Joiner.on(" ").join(patientIds);
+            patientIds = WebserviceParserUtils.getPatientList(request);
         } catch (ProtocolException e) {
             throw new ServletException(e);
         } catch (DaoException e) {
@@ -175,6 +164,8 @@ public class GeneDataJSON extends HttpServlet {
             xdebug.logMsg(this, "Getting data for:  " + profile.getProfileName());
 
             GetProfileData remoteCall;
+            String sampleIds =
+                Joiner.on(" ").join(InternalIdUtil.getStableSampleIdsFromPatientIds(profile.getCancerStudyId(), patientIds));
             try {
                 remoteCall = new GetProfileData(profile, listOfGenes, sampleIds);
             } catch (DaoException e) {

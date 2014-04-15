@@ -279,22 +279,20 @@ var SurvivalCurve = function() {
 
     function appendInfoTable(_infoTableInputArr) {
         $("#" + divs.infoTableDivId).empty();
-        $("#" + divs.infoTableDivId).append("<table class='survival_stats'>" +
-            "<tr>" +
-            "<td style='width: 720px; text-align:left;'></td>" +
+        $("#" + divs.infoTableDivId).append("<tr>" +
+            "<td style='width: 600px; text-align:left;'></td>" +
             "<td style='width: 200px;'>" + text.infoTableTitles.total_cases + "</td>" + 
             "<td style='width: 200px;'>" + text.infoTableTitles.num_of_events_cases + "</td>" +  
             "<td style='width: 200px;'>" + text.infoTableTitles.median + "</td>" + 
             "</tr>");
         $.each(_infoTableInputArr, function(index, obj) {
             $("#" + divs.infoTableDivId).append("<tr>" + 
-                                                "<td style='width: 700px; text-align:left;'>" + obj.groupName + "</td>" + 
-                                                "<td style='width: 200px;'><b>" + obj.num_cases + "</b></td>" + 
-                                                "<td style='width: 200px;'><b>" + obj.num_of_events_cases + "</b></td>" + 
-                                                "<td style='width: 200px;'><b>" + obj.median + "</b></td>" +
+                                                "<td>" + obj.groupName + "</td>" + 
+                                                "<td><b>" + obj.num_cases + "</b></td>" + 
+                                                "<td><b>" + obj.num_of_events_cases + "</b></td>" + 
+                                                "<td><b>" + obj.median + "</b></td>" +
                                                 "</tr>");
         });
-        $("#" + divs.infoTableDivId).append("</table>");
     }
 
     function appendImgConverter() {

@@ -99,12 +99,12 @@
     function getRppaPlotsCaseList() {
     <%
         JSONObject result = new JSONObject();
-        for (String caseId : mergedCaseList) {
+        for (String patientId : mergedPatientList) {
             //Is altered or not (x value)
-            if (dataSummary.isCaseAltered(caseId)) {
-                result.put(caseId, "altered");
+            if (dataSummary.isCaseAltered(patientId)) {
+                result.put(patientId, "altered");
             } else {
-                result.put(caseId, "unaltered");
+                result.put(patientId, "unaltered");
             }
         }
     %>
@@ -115,11 +115,11 @@
     function getAlterations() {
     <%
         JSONObject alterationResults = new JSONObject();
-        for (String caseId : mergedCaseList) {
+        for (String patientId : mergedPatientList) {
             JSONObject _alterationResult = new JSONObject();
             for (GeneWithScore geneWithScore : geneWithScoreList) {
                 String singleGeneResult = "";
-                String value = mergedProfile.getValue(geneWithScore.getGene(), caseId);
+                String value = mergedProfile.getValue(geneWithScore.getGene(), patientId);
                 ValueParser parser = ValueParser.generateValueParser( geneWithScore.getGene(), value,
                         zScoreThreshold, rppaScoreThreshold, theOncoPrintSpecification );
                 if( null == parser){
@@ -155,7 +155,7 @@
                 }
                 _alterationResult.put(geneWithScore.getGene(), singleGeneResult);
             }
-            alterationResults.put(caseId, _alterationResult);
+            alterationResults.put(patientId, _alterationResult);
         }
     %>
         var alterationResults = jQuery.parseJSON('<%=alterationResults%>');;

@@ -142,10 +142,10 @@
     request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Results");
 
     //Escape quotes in the returned strings
-    cases = cases.replaceAll("'", "\\'");
-    cases = cases.replaceAll("\"", "\\\"");
-    caseSetName = caseSetName.replaceAll("'", "\\'");
-    caseSetName = caseSetName.replaceAll("\"", "\\\"");
+    patients = patients.replaceAll("'", "\\'");
+    patients = patients.replaceAll("\"", "\\\"");
+    patientSetName = patientSetName.replaceAll("'", "\\'");
+    patientSetName = patientSetName.replaceAll("\"", "\\\"");
 
     //check if show co-expression tab
     boolean showCoexpTab = false;

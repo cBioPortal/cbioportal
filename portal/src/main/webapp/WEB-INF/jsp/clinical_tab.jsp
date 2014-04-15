@@ -32,10 +32,10 @@
 
 <script>
     var cancer_study_id = "<%out.print(cancer_study_id);%>",
-            case_set_id = "<%out.print(case_set_id);%>";
+            case_set_id = "<%out.print(patient_set_id);%>";
     var case_ids_key = "";
     if (case_set_id === "-1") {
-        case_ids_key = "<%out.print(caseIdsKey);%>";
+        case_ids_key = "<%out.print(patientIdsKey);%>";
     }
 </script>
 <script type="text/javascript" src="js/src/survival_curve.js"></script>
@@ -50,14 +50,14 @@
 </div>
 
 <script>
-    function getSurvivalPlotsCaseList() {
+    function getSurvivalPlotsPatientList() {
         <%
             JSONObject result = new JSONObject();
-            for (String caseId : mergedCaseList) {
-                if (dataSummary.isCaseAltered(caseId)) {
-                    result.put(caseId, "altered");
+            for (String patientId : mergedPatientList) {
+                if (dataSummary.isCaseAltered(patientId)) {
+                    result.put(patientId, "altered");
                 } else {
-                    result.put(caseId, "unaltered");
+                    result.put(patientId, "unaltered");
                 }
             }
         %>
@@ -66,6 +66,6 @@
     }
 
     $(document).ready(function() {
-        survivalCurves.init(getSurvivalPlotsCaseList());
+        survivalCurves.init(getSurvivalPlotsPatientList());
     });
 </script>

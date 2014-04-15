@@ -201,7 +201,7 @@
 <%
     // plots_tab.jsp
     String cancer_study_id = request.getParameter("cancer_study_id");
-    String case_set_id = request.getParameter("case_set_id");
+    String patient_set_id = request.getParameter("case_set_id");
     String genetic_profile_id = request.getParameter("genetic_profile_id");
 
     // Translate Onco Query Language
@@ -232,7 +232,7 @@
 
     // plots_tab.jsp
     var cancer_study_id = "<%out.print(cancer_study_id);%>",
-            case_set_id = "<%out.print(patient_set_id);%>";
+            patient_set_id = "<%out.print(patient_set_id);%>";
     patient_ids_key = "";
     if (patient_set_id === "-1") {
         patient_ids_key = "<%out.print(patientIdsKey);%>";

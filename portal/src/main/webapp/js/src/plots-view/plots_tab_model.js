@@ -171,8 +171,8 @@ var Plots = (function(){
         init: function() {
             var paramsGetProfiles = {
                 cancer_study_id: cancer_study_id,
-                case_set_id: case_set_id,
-                case_ids_key: case_ids_key,
+                case_set_id: patient_set_id,
+                case_ids_key: patient_ids_key,
                 gene_list: gene_list_str
             };
             $.post("getGeneticProfile.json", paramsGetProfiles, getGeneticProfileCallback, "json");

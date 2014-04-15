@@ -66,13 +66,16 @@ var MutationDetailsUtil = function(mutations)
 
 		var positions = [];
 
-		for(var i=0; i < mutations.length; i++)
+		if (mutations != null)
 		{
-			var position = {id: mutations[i].id,
-				start: mutations[i].getProteinStartPos(),
-				end: mutations[i].proteinPosEnd};
+			for(var i=0; i < mutations.length; i++)
+			{
+				var position = {id: mutations[i].id,
+					start: mutations[i].getProteinStartPos(),
+					end: mutations[i].proteinPosEnd};
 
-			positions.push(position);
+				positions.push(position);
+			}
 		}
 
 		return positions;
@@ -255,9 +258,10 @@ var MutationDetailsUtil = function(mutations)
     {
         var self = this;
         gene = gene.toUpperCase();
-        if (_mutationGeneMap[gene] != undefined)
+	    var mutations = _mutationGeneMap[gene];
+
+        if (mutations != null)
         {
-            var mutations = _mutationGeneMap[gene];
             var prevStudy = null;
 
             for (var i=0; i < mutations.length; i++)
@@ -371,13 +375,11 @@ var MutationDetailsUtil = function(mutations)
 	this.distinctTumorTypeCount = function(gene)
 	{
 		gene = gene.toUpperCase();
-
+		var mutations = _mutationGeneMap[gene];
 		var tumorTypeMap = {};
 
-		if (_mutationGeneMap[gene] != undefined)
+		if (mutations != null)
 		{
-			var mutations = _mutationGeneMap[gene];
-
 			for (var i=0; i < mutations.length; i++)
 			{
 				if (mutations[i].tumorType)
@@ -403,13 +405,11 @@ var MutationDetailsUtil = function(mutations)
 	this.dataFieldCount = function(gene, dataField, excludeList)
 	{
 		gene = gene.toUpperCase();
-
+		var mutations = _mutationGeneMap[gene];
 		var valueCountMap = {};
 
-		if (_mutationGeneMap[gene] != undefined)
+		if (mutations != null)
 		{
-			var mutations = _mutationGeneMap[gene];
-
 			for (var i=0; i < mutations.length; i++)
 			{
 				var value = mutations[i][dataField];

@@ -207,7 +207,6 @@ var StudyViewInitCharts = (function(){
         }else{
             _passedCases = {ALL_CASES: _allCases};
         }
-        
         StudyViewInitSurvivalPlot.redraw(_passedCases, false);
     }
     function redrawWordCloud(){
@@ -237,6 +236,7 @@ var StudyViewInitCharts = (function(){
                 }
                 _filteredMutatedGenes = wordCloudDataProcess(_selectedGeneMutatedInfo);
                 StudyViewInitWordCloud.redraw(_filteredMutatedGenes);
+                redrawSurvival();
             });
         }else{
             _filteredMutatedGenes = wordCloudDataProcess([]);
@@ -510,11 +510,16 @@ var StudyViewInitCharts = (function(){
     }
     
     function postFilterCallbackFunc(){
+        $("#study-view-survival-plot-loader").css('display', 'block');
+        removeSurvivalContent();
         changeHeader();
         redrawWordCloud();
-        redrawSurvival();
     }
     
+    function removeSurvivalContent(){
+        $("#study-view-survival-plot-body-svg svg").remove();
+        $("#study-view-survival-plot-body-label svg").remove();
+    }
     function makeNewBarChartInstance(_chartID, _barInfo, _distanceArray) {
         var param = {
                 baseID: "study-view",

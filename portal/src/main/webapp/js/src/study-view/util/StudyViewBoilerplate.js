@@ -291,7 +291,9 @@ var StudyViewBoilerplate ={
             "<input type='submit' style='font-size:10px' value='SVG'>"+    
             "</form>"+
             "</div><span class='study-view-chart-plot-delete'>x</span></div>"+
-            "<div id='study-view-survival-plot-body' style='float:left'>"+
+            "<div id='study-view-survival-plot-body'>"+
+            "<div id='study-view-survival-plot-loader' style='width: 100%'>"+
+            "<img src='images/ajax-loader.gif'/></div>"+
             "<div id='study-view-survival-plot-body-svg' style='float:left'></div>"+
             "<div id='study-view-survival-plot-body-label' style='float:left'></div>"+
             "</div></div>",

@@ -10,7 +10,7 @@ var LoadingJS = (function(){
                     'd3.layout.cloud',
                     'js/src/survival-curve/survivalCurveProxy.js',
                     'js/src/survival-curve/component/survivalCurve.js',
-                    'js/src/survival-curve/component/infoTable.js',
+                    'js/src/survival-curve/component/confidenceIntervals.js',
                     'js/src/survival-curve/component/kmEstimator.js',
                     'js/src/survival-curve/component/logRankTest.js',
                     'js/src/survival-curve/component/boilerPlate.js'];

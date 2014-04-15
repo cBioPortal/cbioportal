@@ -177,6 +177,9 @@
     float: left;
     margin: 5px 340px 0 5px;
 }
+#study-view-survival-plot-body {
+    width: 100%;
+}
 #study-view-survival-plot-header-wrapper {
     float:right;
     width: 100%;

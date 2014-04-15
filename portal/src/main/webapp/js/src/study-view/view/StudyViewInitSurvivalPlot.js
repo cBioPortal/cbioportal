@@ -79,6 +79,8 @@ var StudyViewInitSurvivalPlot = (function() {
                 });
             }
         });
+        
+        $("#study-view-survival-plot-loader").css('display', 'none');
     }
     
     function createDiv() {
@@ -205,7 +207,7 @@ var StudyViewInitSurvivalPlot = (function() {
     
     //Redraw curves based on selected cases and unselected cases
     function redraw(_caseIDs, _selectedAttr){
-        removeContent();
+        //removeContent();
         resetParams();
         grouping(_caseIDs, _selectedAttr);
         initView();

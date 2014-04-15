@@ -45,7 +45,7 @@ public class ImportCopyNumberSegmentData {
             }
 
             CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
-            ImportDataUtil.addSamples(new String[] { strs[0] }, cancerStudy);
+            ImportDataUtil.addPatients(new String[] { strs[0] }, cancerStudy);
             ImportDataUtil.addSamples(new String[] { strs[0] }, cancerStudy);
 
             String sampleId = StableIdUtil.getSampleId(strs[0]);

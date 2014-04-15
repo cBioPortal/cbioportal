@@ -36,10 +36,10 @@
             out.print(geneWithScore.getGene().toUpperCase().trim() + "\t");
         }
         out.print ("\n");
-        for (String caseId : mergedCaseList) {
-            out.print(caseId + "\t");
+        for (String patientId : mergedPatientList) {
+            out.print(patientId + "\t");
             for (GeneWithScore geneWithScore : geneWithScoreList) {
-                String value = mergedProfile.getValue(geneWithScore.getGene(), caseId);
+                String value = mergedProfile.getValue(geneWithScore.getGene(), patientId);
                 ValueParser parser = ValueParser.generateValueParser( geneWithScore.getGene(), value, 
                          zScoreThreshold, rppaScoreThreshold, theOncoPrintSpecification );
                 if( null == parser){
@@ -81,20 +81,20 @@
 
         out.println ("<P>Cases affected:  (Only cases with an alteration are included)");
         out.println ("<P><textarea rows=10 cols=80>");
-        for (String caseId : mergedCaseList) {
-            if (dataSummary.isCaseAltered(caseId)) {
-                out.println (caseId);
+        for (String patientId : mergedPatientList) {
+            if (dataSummary.isCaseAltered(patientId)) {
+                out.println (patientId);
             }
         }
         out.println ("</textarea>");
 
         out.println ("<P>Case matrix: (1= Case harbors alteration in one of the input genes)</P>");
         out.println ("<P><textarea rows=10 cols=80>");
-        for (String caseId : mergedCaseList) {
-            if (dataSummary.isCaseAltered(caseId)) {
-                out.println (caseId + "\t1");
+        for (String patientId : mergedPatientList) {
+            if (dataSummary.isCaseAltered(patientId)) {
+                out.println (patientId + "\t1");
             } else {
-                out.println (caseId + "\t0");
+                out.println (patientId + "\t0");
             }
         }
         out.println ("</textarea>");

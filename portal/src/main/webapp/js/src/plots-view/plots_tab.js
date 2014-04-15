@@ -1907,8 +1907,8 @@ var PlotsView = (function () {
         Plots.getProfileData(
             userSelection.gene,
             _profileIdsStr,
-            case_set_id,
-            case_ids_key,
+            patient_set_id,
+            patient_ids_key,
             getProfileDataCallBack
         );
     }

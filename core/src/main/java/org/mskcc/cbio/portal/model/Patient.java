@@ -41,26 +41,24 @@ public class Patient {
     private String stableId;
     private CancerStudy cancerStudy;
 
-    private String sampleId;
 	private Map<String, ClinicalData> clinicalDataMap;
     private static final Logger logger = Logger.getLogger(Patient.class);
 
     public Patient(CancerStudy cancerStudy, String stableId)
     {
-        this(cancerStudy, stableId, stableId, new HashMap<String, ClinicalData>());
+        this(cancerStudy, stableId, -1, new HashMap<String, ClinicalData>());
     }
 
-    public Patient(CancerStudy cancerStudy, int internalId, String stableId)
+    public Patient(CancerStudy cancerStudy, String stableId, int internalId)
     {
-        this(cancerStudy, stableId, stableId, new HashMap<String, ClinicalData>());
-        this.internalId = internalId;
+        this(cancerStudy, stableId, internalId, new HashMap<String, ClinicalData>());
     }
 
-    public Patient(CancerStudy cancerStudy, String stableId, String sampleId, Map<String, ClinicalData> clinicalDataMap)
+    public Patient(CancerStudy cancerStudy, String stableId, int internalId, Map<String, ClinicalData> clinicalDataMap)
     {
         this.cancerStudy = cancerStudy;
         this.stableId = stableId;
-        this.sampleId = sampleId;
+        this.internalId = internalId;
 		this.clinicalDataMap = clinicalDataMap;
     }
 
@@ -111,11 +109,6 @@ public class Patient {
         return stableId;
     }
 
-    public String getSampleId()
-    {
-        return sampleId;
-    }
-
     public Double getOverallSurvivalMonths()
     { 
 		return getDoubleValue(ClinicalAttribute.OS_MONTHS);
@@ -148,7 +141,7 @@ public class Patient {
         try {
             return Double.valueOf(data.getAttrVal());
         } catch (NumberFormatException e) {
-            logger.warn("Can't handle clinical attribute of case: " + sampleId);
+            logger.warn("Can't handle clinical attribute of patient: " + stableId);
             return null;
         }
 	}

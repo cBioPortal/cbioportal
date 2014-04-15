@@ -969,8 +969,8 @@ var survivalCurves = (function() {
     return {
         init: function(caseLists) {
             var paramsGetSurvivalData = {
-                case_set_id: case_set_id,
-                case_ids_key: case_ids_key,
+                case_set_id: patient_set_id,
+                case_ids_key: patient_ids_key,
                 cancer_study_id: cancer_study_id
             };
             $.post("getSurvivalData.json", paramsGetSurvivalData, getResultInit(caseLists), "json");

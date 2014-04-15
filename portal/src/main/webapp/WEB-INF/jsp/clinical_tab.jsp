@@ -32,10 +32,10 @@
 
 <script>
     var cancer_study_id = "<%out.print(cancer_study_id);%>",
-            case_set_id = "<%out.print(patient_set_id);%>";
-    var case_ids_key = "";
-    if (case_set_id === "-1") {
-        case_ids_key = "<%out.print(patientIdsKey);%>";
+            patient_set_id = "<%out.print(patient_set_id);%>";
+    var patient_ids_key = "";
+    if (patient_set_id === "-1") {
+        patient_ids_key = "<%out.print(patientIdsKey);%>";
     }
 </script>
 <script type="text/javascript" src="js/src/survival_curve.js"></script>

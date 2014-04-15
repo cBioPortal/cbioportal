@@ -1930,8 +1930,8 @@ var PlotsView = (function () {
             Plots.getMutationType(
                 userSelection.gene,
                 cancer_study_id + "_mutations",
-                case_set_id,
-                case_ids_key,
+                patient_set_id,
+                patient_ids_key,
                 getMutationTypeCallBack
             );
         } else {

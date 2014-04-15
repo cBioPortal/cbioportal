@@ -1,4 +1,9 @@
+<%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
+
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+
+<% request.setAttribute(QueryBuilder.HTML_TITLE, GlobalProperties.getTitle() + "::Mutation Analyzer"); %>
 
 <jsp:include page="WEB-INF/jsp/global/header.jsp" flush="true"/>
 
@@ -23,41 +28,49 @@ _mut3dVis = new Mutation3dVis("default3dView", {});
 _mut3dVis.init();
 
 // Set up Mutation View
-$(document).ready(function(){
-	//var sampleArray = PortalGlobals.getCases().trim().split(/\s+/);
-	var parser = new MutationInputParser();
+$(document).ready(function() {
+	$("#submit_mutations").click(function() {
+		//var sampleArray = PortalGlobals.getCases().trim().split(/\s+/);
+		var parser = new MutationInputParser();
 
-	// TODO pass the actual input field value
-	var mutationData = parser.parseInput("TEST");
+		// TODO pass the actual input field value
+		var mutationData = parser.parseInput(
+				$("#mutation-file-example").val());
 
-	var sampleArray = parser.getSampleArray();
+		var sampleArray = parser.getSampleArray();
 
-	var geneList = parser.getGeneList();
-	geneList = geneList.join(" ");
+		var geneList = parser.getGeneList();
+		geneList = geneList.join(" ");
 
-	// init mutation data proxy with full data
-	var proxy = new MutationDataProxy(geneList);
-	proxy.initWithData(mutationData);
+		// init mutation data proxy with full data
+		var proxy = new MutationDataProxy(geneList);
+		proxy.initWithData(mutationData);
 
-	var model = {mutationProxy: proxy,
-		sampleArray: sampleArray};
+		var model = {mutationProxy: proxy,
+			sampleArray: sampleArray};
 
-	var options = {el: "#standalone_mutation_details",
-		model: model,
-		mut3dVis: _mut3dVis};
+		// TODO add tableOpts to initially show only the columns included in the input
+		var options = {el: "#standalone_mutation_details",
+			model: model,
+			mut3dVis: _mut3dVis};
 
-	var view = new MutationDetailsView(options);
-	view.render();
-
+		var view = new MutationDetailsView(options);
+		view.render();
+	});
 });
 
 </script>
 <body>
+	<div id="standalone_mutation_input">
+		<textarea id="mutation-file-example" rows="25" cols="80"><jsp:include
+				page="WEB-INF/jsp/mutation/mutation-file-example.txt"></jsp:include></textarea>
+		<button id="submit_mutations"
+		        type="button">Submit</button>
+	</div>
 
 	<div id="standalone_mutation_details">
 
 	</div>
-
 </div>
 </td></tr></table>
 <jsp:include page="WEB-INF/jsp/global/footer.jsp" flush="true" />

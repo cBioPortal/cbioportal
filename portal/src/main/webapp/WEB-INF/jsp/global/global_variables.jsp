@@ -199,20 +199,12 @@
 
 <!------------------- Duplicate Code ------------------------->
 <%
-    //////////////from network.jsp
-//    String zScoreThesholdStr4Network =
-//            xssUtil.getCleanerInput(request.getAttribute(QueryBuilder.Z_SCORE_THRESHOLD).toString());
-//    String genes4Network = StringUtils.join((List)request.getAttribute(QueryBuilder.GENE_LIST)," ");
-//    String geneticProfileIds4Network = xssUtil.getCleanerInput(StringUtils.join(geneticProfileIdSet," "));
-//    String cancerTypeId4Network = xssUtil.getCleanerInput((String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID));
-//    String caseIdsKey4Network = xssUtil.getCleanerInput((String)request.getAttribute(QueryBuilder.CASE_IDS_KEY));
-//    String caseSetId4Network = xssUtil.getCleanerInput((String)request.getAttribute(QueryBuilder.CASE_SET_ID));
-
-    //////////////from plots_tab.jsp
+    // plots_tab.jsp
     String cancer_study_id = request.getParameter("cancer_study_id");
     String case_set_id = request.getParameter("case_set_id");
     String genetic_profile_id = request.getParameter("genetic_profile_id");
-    //Translate Onco Query Language
+
+    // Translate Onco Query Language
     ArrayList<String> _listOfGenes = theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
     String tmpGeneStr = "";
     for(String gene: _listOfGenes) {
@@ -220,7 +212,7 @@
     }
     tmpGeneStr = tmpGeneStr.trim();
 
-    //////////from protein_exp.jsp
+    // protein_exp.jsp
     String cancerStudyId_RPPA =
             (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
 
@@ -232,28 +224,22 @@
     // gene list after being processed by the onco query language parser
     var geneList = "<%=StringUtils.join(theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes(), " ")%>";
 
-    // list of samples (case ids)
-    var samples = "<%=cases%>";
+    // list of samples (patient ids)
+    var samples = "<%=patients%>";
 
     // genetic profile ids
     var geneticProfiles = "<%=geneticProfiles%>";
 
-    /////from plots_tab.jsp
+    // plots_tab.jsp
     var cancer_study_id = "<%out.print(cancer_study_id);%>",
-            case_set_id = "<%out.print(case_set_id);%>";
-    case_ids_key = "";
-    if (case_set_id === "-1") {
-        case_ids_key = "<%out.print(caseIdsKey);%>";
+            case_set_id = "<%out.print(patient_set_id);%>";
+    patient_ids_key = "";
+    if (patient_set_id === "-1") {
+        patient_ids_key = "<%out.print(patientIdsKey);%>";
     }
     var genetic_profile_id = "<%out.print(genetic_profile_id);%>";
     var gene_list_str = "<%out.print(tmpGeneStr);%>";
     var gene_list = gene_list_str.split(/\s+/);
 
-    //////////from protein_exp.jsp
-    //var case_set_id = "<//%out.print(case_set_id);%>";
-    //case_ids_key = "";
-    //if (case_set_id === "-1") {
-    //    case_ids_key = "<//%out.print(caseIdsKey);%>";
-    //}
 </script>
 

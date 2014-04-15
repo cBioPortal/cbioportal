@@ -3,8 +3,8 @@
 
 <%
     String smry = cancerStudyName +
-            "/" + caseSetName + ": (" +
-            mergedCaseListSize + ")" + "/" +
+            "/" + patientSetName + ": (" +
+            mergedPatientListSize + ")" + "/" +
             geneSetName + "/" + geneWithScoreList.size() +
             (geneWithScoreList.size() == 1?"gene":"genes");
 %>
@@ -166,7 +166,7 @@
             out.println ("<div class=\"section\" id=\"bookmark_email\">");
 
             // diable bookmark link if case set is user-defined
-            if (caseSetId.equals("-1"))
+            if (patientSetId.equals("-1"))
             {
                 out.println("<br>");
                 out.println("<h4>The bookmark option is not available for user-defined case lists.</h4>");

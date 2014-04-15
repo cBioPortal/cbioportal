@@ -91,7 +91,7 @@ public class MutationDataServlet extends HttpServlet
 			for (String profileId : geneticProfileList)
 			{
 				GeneticProfile profile = DaoGeneticProfile.getGeneticProfileByStableId(profileId);
-                List<String> targetSampleList = InternalIdUtil.getStableSampleIdsFromPatientIds(profile.getCancerStudyId(), targetPatientList);
+                List<String> targetSampleList = StableIdUtil.getStableSampleIdsFromPatientIds(profile.getCancerStudyId(), targetPatientList);
 				// add mutation data for each genetic profile
 				data.addAll(mutationDataUtils.getMutationData(profileId,
 					targetGeneList,

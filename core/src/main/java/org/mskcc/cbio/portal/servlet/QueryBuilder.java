@@ -428,7 +428,7 @@ public class QueryBuilder extends HttpServlet {
                     xdebug.logMsg(this, "Number genes requested is <= " + MUTATION_DETAIL_LIMIT);
                     xdebug.logMsg(this, "Therefore, getting extended mutation data");
                     GetMutationData remoteCallMutation = new GetMutationData();
-                    ArrayList<ExtendedMutation> tempMutationList =
+                    List<ExtendedMutation> tempMutationList =
                             remoteCallMutation.getMutationData(profile, geneList, new HashSet(stableSampleIds), xdebug);
                     if (tempMutationList != null && tempMutationList.size() > 0) {
                         xdebug.logMsg(this, "Total number of mutation records retrieved:  "

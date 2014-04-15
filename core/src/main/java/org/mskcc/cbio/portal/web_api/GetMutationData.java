@@ -59,8 +59,8 @@ public class GetMutationData {
      * @return ProfileData Object in an ArrayList.
      * @throws DaoException, as of August 2011 GetMutationData has direct access to DAO Objects.
      */
-    public ArrayList<ExtendedMutation> getMutationData(GeneticProfile profile,
-                                                       ArrayList<String> geneList, HashSet<String> sampleIdSet, XDebug xdebug) throws DaoException {
+    public List<ExtendedMutation> getMutationData(GeneticProfile profile,
+                                                       List<String> geneList, Set<String> sampleIdSet, XDebug xdebug) throws DaoException {
 
         //initialize DAO objects and ArrayLists
         ArrayList<ExtendedMutation> mutationList = new ArrayList<ExtendedMutation>();

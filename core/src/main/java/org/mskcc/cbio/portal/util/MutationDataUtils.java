@@ -102,8 +102,8 @@ public class MutationDataUtils {
      * @return                  JSONArray of mutations
      */
     public JSONArray getMutationData(String geneticProfileId,
-                                        ArrayList<String> targetGeneList,
-                                        ArrayList<String> targetSampleList) throws DaoException
+                                        List<String> targetGeneList,
+                                        List<String> targetSampleList) throws DaoException
     {
         // final object to be send as JSON
         JSONArray mutationArray = new JSONArray();
@@ -112,7 +112,7 @@ public class MutationDataUtils {
         GeneticProfile geneticProfile =
                 DaoGeneticProfile.getGeneticProfileByStableId(geneticProfileId);
 
-        ArrayList<ExtendedMutation> mutationList;
+        List<ExtendedMutation> mutationList;
 
         //convert sample list into a set (to be able to use with get mutation data)
         HashSet<String> setOfSampleIds = new HashSet<String>(targetSampleList);
@@ -166,7 +166,7 @@ public class MutationDataUtils {
         return mutationArray;
     }
 
-	protected Map<String, ClinicalData> getClinicalDataMap(ArrayList<String> targetSampleList,
+	protected Map<String, ClinicalData> getClinicalDataMap(List<String> targetSampleList,
 			CancerStudy cancerStudy,
 			String attrId) throws DaoException
 	{

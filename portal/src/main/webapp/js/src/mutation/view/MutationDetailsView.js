@@ -103,28 +103,19 @@ var MutationDetailsView = Backbone.View.extend({
 		var mainContent = "";
 		var listContent = "";
 
-		// check if there is available mutation data
-		if (!self.model.mutationProxy.hasData())
-		{
-			// display information if no data is available
-			mainContent = _.template($("#default_mutation_details_info_template").html(), {});
-		}
-		else
-		{
-			// create a div for for each gene
-			_.each(self.model.mutationProxy.getGeneList(), function(gene, idx) {
-				mainContent += _.template(
-					$("#default_mutation_details_main_content_template").html(),
-						{loaderImage: "images/ajax-loader.gif",
-							geneSymbol: gene,
-							geneId: cbio.util.safeProperty(gene)});
-
-				listContent += _.template(
-					$("#default_mutation_details_list_content_template").html(),
-					{geneSymbol: gene,
+		// create a div for for each gene
+		_.each(self.model.mutationProxy.getGeneList(), function(gene, idx) {
+			mainContent += _.template(
+				$("#default_mutation_details_main_content_template").html(),
+					{loaderImage: "images/ajax-loader.gif",
+						geneSymbol: gene,
 						geneId: cbio.util.safeProperty(gene)});
-			});
-		}
+
+			listContent += _.template(
+				$("#default_mutation_details_list_content_template").html(),
+				{geneSymbol: gene,
+					geneId: cbio.util.safeProperty(gene)});
+		});
 
 		return {mainContent: mainContent,
 			listContent: listContent};

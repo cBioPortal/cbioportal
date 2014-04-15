@@ -115,6 +115,16 @@ var MutationDetailsTableView = Backbone.View.extend({
 		// save a reference to the util for future access
 		self.tableUtil = tableUtil;
 	},
+	hideView: function()
+	{
+		var self = this;
+		self.$el.hide();
+	},
+	showView: function()
+	{
+		var self = this;
+		self.$el.show();
+	},
 	/**
 	 * Highlights the given mutations in the table.
 	 *

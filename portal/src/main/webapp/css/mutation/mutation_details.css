@@ -89,6 +89,12 @@
 	color: red;
 	margin-bottom: 10px;
 }
+.mutation-details-no-data-info {
+	font-size: 14px;
+	font-family: verdana,arial,sans-serif;
+	color: red;
+	margin-top: 10px;
+}
 .mutation-details-filter-reset {
 	color: #1974B8 !important;
 	cursor: pointer;

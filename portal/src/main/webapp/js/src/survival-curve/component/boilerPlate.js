@@ -7,7 +7,7 @@ var SurvivalCurveBroilerPlate = {
 	    yAxis : "",
 	    line: "", 
 	    curve: "",
-	    dots: "", //The invisible dots laied on top of the curve for mouse over effect
+	    dots: [], //The invisible dots laied on top of the curve for mouse over effect
 	    censoredDots: "" 
 	},
 	settings : {

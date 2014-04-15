@@ -15,7 +15,7 @@ var SurvivalCurve = function() {
             .attr("width", settings.canvas_width)
             .attr("height", settings.canvas_height);
         elem.curve = elem.svg.append("g");
-        elem.dots = elem.svg.append("g"); //the invisible dots
+        //elem.dots = elem.svg.append("g"); //the invisible dots
         elem.censoredDots = elem.svg.append("g");
     }
 
@@ -82,8 +82,8 @@ var SurvivalCurve = function() {
         }
     }
 
-    function drawInvisiableDots(data, _color) {
-        elem.dots.selectAll("path")
+    function drawInvisiableDots(_index, data, _color) {
+        elem.dots[_index].selectAll("path")
             .data(data)
             .enter()
             .append("svg:path")
@@ -97,8 +97,8 @@ var SurvivalCurve = function() {
             .style("opacity", 0);
     }
 
-    function addQtips() {
-        elem.dots.selectAll('path').each(
+    function addQtips(_index) {
+        elem.dots[_index].selectAll('path').each(
             function(d) {
                 var content = "<font size='2'>";
                 content += "Case id: " + "<strong><a href='tumormap.do?case_id=" + d.case_id +
@@ -135,8 +135,8 @@ var SurvivalCurve = function() {
                         .style("opacity", 0);
                 };
 
-                elem.dots.selectAll("path").on("mouseover", mouseOn);
-                elem.dots.selectAll("path").on("mouseout", mouseOff);
+                elem.dots[_index].selectAll("path").on("mouseover", mouseOn);
+                elem.dots[_index].selectAll("path").on("mouseout", mouseOff);
             }
         );
     }
@@ -329,13 +329,14 @@ var SurvivalCurve = function() {
             appendAxis(elem.xAxis, elem.yAxis);
             appendAxisTitles(text.xTitle, text.yTitle);
             $.each(_inputArr, function(index, obj) {
+                elem.dots[index] = elem.svg.append("g"); //the invisible dots
                 var data = obj.data;
                 var opts = obj.settings;
                 initLines();
                 drawLines(data.getData(), opts);
                 drawCensoredDots(data.getData(), opts);
-                drawInvisiableDots(data.getData(), opts.mouseover_color);
-                addQtips();
+                drawInvisiableDots(index, data.getData(), opts.mouseover_color);
+                addQtips(index);
                 addLegends(_inputArr);
             });
             appendImgConverter();

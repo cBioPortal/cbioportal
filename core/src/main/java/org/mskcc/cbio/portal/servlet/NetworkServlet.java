@@ -145,19 +145,21 @@ public class NetworkServlet extends HttpServlet {
                 
             // get cancer study id
             // if cancer study id is null, return the current network
-            String cancerTypeId = req.getParameter(QueryBuilder.CANCER_STUDY_ID);
+            String cancerStudyId = req.getParameter(QueryBuilder.CANCER_STUDY_ID);
+            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
 
-            if (network.countNodes()!=0 && cancerTypeId!=null) {
+            if (network.countNodes()!=0 && cancerStudyId!=null) {
             
                 // add attribute is_query to indicate if a node is in query genes
                 // and get the list of genes in network
                 xdebug.logMsg(this, "Retrieving data from CGDS...");
                 
                 // Get patient ids
-                Set<String> targetPatientIds = getPatientIds(req, cancerTypeId);
+                Set<String> targetPatientIds = getPatientIds(req, cancerStudyId);
+                List<Integer> internalSampleIds = InternalIdUtil.getInternalSampleIdsFromPatientIds(cancerStudy.getInternalId(), new ArrayList<String>(targetPatientIds));
                 
                 //  Get User Selected Genetic Profiles
-                Set<GeneticProfile> geneticProfileSet = getGeneticProfileSet(req, cancerTypeId);
+                Set<GeneticProfile> geneticProfileSet = getGeneticProfileSet(req, cancerStudyId);
                 
                 // getzScoreThreshold
                 double zScoreThreshold = Double.parseDouble(req.getParameter(QueryBuilder.Z_SCORE_THRESHOLD));
@@ -195,14 +197,14 @@ public class NetworkServlet extends HttpServlet {
 
                     // add attributes
                     addCGDSDataAsNodeAttribute(node, entrezGeneId, geneticProfileSet, 
-                            targetPatientIds, zScoreThreshold);
+                            internalSampleIds, zScoreThreshold);
                 }
 
                 xdebug.stopTimer();
                 xdebug.logMsg(this, "Retrived data from CGDS. Took "+xdebug.getTimeElapsed()+"ms");
                 
                 if (mapQueryGeneAlterationCaseNumber!=null) {
-                    addAttributesForQueryGenes(queryNodes, targetPatientIds.size(), mapQueryGeneAlterationCaseNumber);
+                    addAttributesForQueryGenes(queryNodes, internalSampleIds.size(), mapQueryGeneAlterationCaseNumber);
                 }
                 
                 String nLinker = req.getParameter("linkers");
@@ -580,69 +582,54 @@ public class NetworkServlet extends HttpServlet {
     }
     
     private void addCGDSDataAsNodeAttribute(Node node, long entrezGeneId,
-        Set<GeneticProfile> profiles, Set<String> targetCaseList, double zScoreThreshold) throws DaoException {
-        Set<String> alteredCases = new HashSet<String>();
+        Set<GeneticProfile> profiles, List<Integer> internalSampleIds, double zScoreThreshold) throws DaoException {
+        Set<String> alteredSamples = new HashSet<String>();
         
         for (GeneticProfile profile : profiles) {
             if (profile.getGeneticAlterationType() == GeneticAlterationType.MUTATION_EXTENDED) {
-                Set<String> cases = getMutatedCases(profile.getGeneticProfileId(),
-                        targetCaseList, entrezGeneId);
-                alteredCases.addAll(cases);
-                node.setAttribute(NODE_ATTR_PERCENT_MUTATED, 1.0*cases.size()/targetCaseList.size());
+                Set<String> samples = getMutatedSamples(profile.getGeneticProfileId(),
+                        internalSampleIds, entrezGeneId);
+                alteredSamples.addAll(samples);
+                node.setAttribute(NODE_ATTR_PERCENT_MUTATED, 1.0*samples.size()/internalSampleIds.size());
             } else if (profile.getGeneticAlterationType() == GeneticAlterationType.COPY_NUMBER_ALTERATION) {
-                Map<String,Set<String>> cnaCases = getCNACases(profile.getGeneticProfileId(),
-                        targetCaseList, entrezGeneId);
+                Map<String,Set<String>> cnaSamples = getCNASamples(profile.getGeneticProfileId(),
+                        internalSampleIds, entrezGeneId);
                 
                 //AMP
-                Set<String> cases = cnaCases.get("2");
-                if (!cases.isEmpty()) {
-                    alteredCases.addAll(cases);
-                    node.setAttribute(NODE_ATTR_PERCENT_CNA_AMPLIFIED, 1.0*cases.size()/targetCaseList.size());
+                Set<String> samples = cnaSamples.get("2");
+                if (!samples.isEmpty()) {
+                    alteredSamples.addAll(samples);
+                    node.setAttribute(NODE_ATTR_PERCENT_CNA_AMPLIFIED, 1.0*samples.size()/internalSampleIds.size());
                 }
                 
-//                //GAINED
-//                cases = cnaCases.get("1");
-//                if (!cases.isEmpty()) {
-//                alteredCases.addAll(cases);
-//                node.setAttribute(NODE_ATTR_PERCENT_CNA_GAINED, 1.0*cases.size()/targetCaseList.size());
-//                }
-//                
-//                //HETLOSS
-//                cases = cnaCases.get("-1");
-//                if (!cases.isEmpty()) {
-//                alteredCases.addAll(cases);
-//                node.setAttribute(NODE_ATTR_PERCENT_CNA_HET_LOSS, 1.0*cases.size()/targetCaseList.size());
-//                }
-                
                 //HOMDEL
-                cases = cnaCases.get("-2");
-                if (!cases.isEmpty()) {
-                    alteredCases.addAll(cases);
-                    node.setAttribute(NODE_ATTR_PERCENT_CNA_HOM_DEL, 1.0*cases.size()/targetCaseList.size());
+                samples = cnaSamples.get("-2");
+                if (!samples.isEmpty()) {
+                    alteredSamples.addAll(samples);
+                    node.setAttribute(NODE_ATTR_PERCENT_CNA_HOM_DEL, 1.0*samples.size()/internalSampleIds.size());
                 }
                 
             } else if (profile.getGeneticAlterationType() == GeneticAlterationType.MRNA_EXPRESSION) {
-                Set<String>[] cases = getMRnaAlteredCases(profile.getGeneticProfileId(),
-                        targetCaseList, entrezGeneId, zScoreThreshold);
-                alteredCases.addAll(cases[0]);
-                alteredCases.addAll(cases[1]);
-                node.setAttribute(NODE_ATTR_PERCENT_MRNA_WAY_UP, 1.0*cases[0].size()/targetCaseList.size());
-                node.setAttribute(NODE_ATTR_PERCENT_MRNA_WAY_DOWN, 1.0*cases[1].size()/targetCaseList.size());
+                Set<String>[] samples = getMRnaAlteredSamples(profile.getGeneticProfileId(),
+                        internalSampleIds, entrezGeneId, zScoreThreshold);
+                alteredSamples.addAll(samples[0]);
+                alteredSamples.addAll(samples[1]);
+                node.setAttribute(NODE_ATTR_PERCENT_MRNA_WAY_UP, 1.0*samples[0].size()/internalSampleIds.size());
+                node.setAttribute(NODE_ATTR_PERCENT_MRNA_WAY_DOWN, 1.0*samples[1].size()/internalSampleIds.size());
             }
         }
 
-        node.setAttribute(NODE_ATTR_PERCENT_ALTERED, 1.0*alteredCases.size()/targetCaseList.size());
+        node.setAttribute(NODE_ATTR_PERCENT_ALTERED, 1.0*alteredSamples.size()/internalSampleIds.size());
         
     }
     
     /**
      * 
-     * @return mutated cases.
+     * @return mutated samples.
      */
-    private Set<String> getMutatedCases(int geneticProfileId, Set<String> targetSampleList,
+    private Set<String> getMutatedSamples(int geneticProfileId, List<Integer> internalSampleIds,
             long entrezGeneId) throws DaoException {
         GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
-        List<Integer> internalSampleIds = InternalIdUtil.getInternalSampleIds(geneticProfile.getCancerStudyId(), new ArrayList<String>(targetSampleList));
         ArrayList <ExtendedMutation> mutationList =
                     DaoMutation.getMutations(geneticProfileId, internalSampleIds, entrezGeneId);
         Set<String> samples = new HashSet<String>();
@@ -657,18 +644,17 @@ public class NetworkServlet extends HttpServlet {
     /**
      * 
      * @param geneticProfileId
-     * @param targetCaseList
+     * @param internalSampleIds
      * @param entrezGeneId
      * @return map from cna status to cases
      * @throws DaoException 
      */
-    private Map<String,Set<String>> getCNACases(int geneticProfileId, Set<String> targetSampleList,
+    private Map<String,Set<String>> getCNASamples(int geneticProfileId, List<Integer> internalSampleIds,
             long entrezGeneId) throws DaoException {
         GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
-        List<Integer> internalSampleIds = InternalIdUtil.getInternalSampleIds(geneticProfile.getCancerStudyId(), new ArrayList<String>(targetSampleList));
         Map<Integer,String> sampleMap = DaoGeneticAlteration.getInstance()
                 .getGeneticAlterationMap(geneticProfileId,entrezGeneId);
-        sampleMap.keySet().retainAll(targetSampleList);
+        sampleMap.keySet().retainAll(internalSampleIds);
         Map<String,Set<String>> res = new HashMap<String,Set<String>>();
         res.put("-2", new HashSet<String>());
         //res.put("-1", new HashSet<String>());
@@ -688,19 +674,18 @@ public class NetworkServlet extends HttpServlet {
     /**
      * 
      * @param geneticProfileId
-     * @param targetCaseList
+     * @param internalSampleIds
      * @param entrezGeneId
      * @return an array of two sets: first set contains up-regulated cases; second
      * contains down-regulated cases.
      * @throws DaoException 
      */
-    private Set<String>[] getMRnaAlteredCases(int geneticProfileId, Set<String> targetSampleList,
+    private Set<String>[] getMRnaAlteredSamples(int geneticProfileId, List<Integer> internalSampleIds,
             long entrezGeneId, double zScoreThreshold) throws DaoException {
         GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
-        List<Integer> internalSampleIds = InternalIdUtil.getInternalSampleIds(geneticProfile.getCancerStudyId(), new ArrayList<String>(targetSampleList));
         Map<Integer,String> sampleMap = DaoGeneticAlteration.getInstance()
                 .getGeneticAlterationMap(geneticProfileId,entrezGeneId);
-        sampleMap.keySet().retainAll(targetSampleList);
+        sampleMap.keySet().retainAll(internalSampleIds);
         Set<String>[] samples = new Set[2];
         samples[0] = new HashSet<String>();
         samples[1] = new HashSet<String>();
@@ -775,7 +760,7 @@ public class NetworkServlet extends HttpServlet {
             boolean download, boolean sif, String strQueryAlteration) {
         String geneListStr = req.getParameter(QueryBuilder.GENE_LIST);
         String geneticProfileIdsStr = req.getParameter(QueryBuilder.GENETIC_PROFILE_IDS);
-        String cancerTypeId = req.getParameter(QueryBuilder.CANCER_STUDY_ID);
+        String cancerStudyId = req.getParameter(QueryBuilder.CANCER_STUDY_ID);
         String caseSetId = req.getParameter(QueryBuilder.CASE_SET_ID);
         String zscoreThreshold = req.getParameter(QueryBuilder.Z_SCORE_THRESHOLD);
         String netSrc = req.getParameter("netsrc");
@@ -785,7 +770,7 @@ public class NetworkServlet extends HttpServlet {
         
         String ret = "network.do?"+QueryBuilder.GENE_LIST+"="+geneListStr
                 +"&"+QueryBuilder.GENETIC_PROFILE_IDS+"="+geneticProfileIdsStr
-                +"&"+QueryBuilder.CANCER_STUDY_ID+"="+cancerTypeId
+                +"&"+QueryBuilder.CANCER_STUDY_ID+"="+cancerStudyId
                 +"&"+QueryBuilder.CASE_SET_ID+"="+caseSetId
                 +"&"+QueryBuilder.Z_SCORE_THRESHOLD+"="+zscoreThreshold
                 +"&netsrc="+netSrc

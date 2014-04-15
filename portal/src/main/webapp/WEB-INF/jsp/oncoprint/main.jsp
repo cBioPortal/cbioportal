@@ -25,7 +25,7 @@
         <%@ include file="controls-templates.jsp" %>
 
         <div style="margin-left:3;">
-            <p>Case Set: <%=StringEscapeUtils.escapeHtml(OncoPrintUtil.getCaseSetDescription(caseSetId, caseSets))%></p>
+            <p>Case Set: <%=StringEscapeUtils.escapeHtml(OncoPrintUtil.getPatientSetDescription(patientSetId, patientSets))%></p>
             <p>Altered in <%=dataSummary.getNumCasesAffected()%> (<%=OncoPrintUtil.alterationValueToString(dataSummary.getPercentCasesAffected())%>) of cases</p>
         </div>
 

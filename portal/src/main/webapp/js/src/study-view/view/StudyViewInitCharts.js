@@ -236,13 +236,21 @@ var StudyViewInitCharts = (function(){
                 }
                 _filteredMutatedGenes = wordCloudDataProcess(_selectedGeneMutatedInfo);
                 StudyViewInitWordCloud.redraw(_filteredMutatedGenes);
-                redrawSurvival();
+                callBackFunctions();
+                $("#study-view-word-cloud-loader").css('display', 'none');
             });
         }else{
             _filteredMutatedGenes = wordCloudDataProcess([]);
             StudyViewInitWordCloud.redraw(_filteredMutatedGenes);
+            $("#study-view-word-cloud-loader").css('display', 'none');
         }     
     }
+    
+    //This function defined all of callback functions.
+    function callBackFunctions(){
+        redrawSurvival();
+    }
+    
     //Only return top 10 of maximum number of mutations gene
     function wordCloudDataProcess(_data) {
         /*This data format is:
@@ -510,15 +518,18 @@ var StudyViewInitCharts = (function(){
     }
     
     function postFilterCallbackFunc(){
-        $("#study-view-survival-plot-loader").css('display', 'block');
-        removeSurvivalContent();
+        removeContentsAndStartLoading();
         changeHeader();
         redrawWordCloud();
     }
     
-    function removeSurvivalContent(){
+    function removeContentsAndStartLoading(){
         $("#study-view-survival-plot-body-svg svg").remove();
         $("#study-view-survival-plot-body-label svg").remove();
+        $("#study-view-word-cloud svg").remove();
+        
+        $("#study-view-survival-plot-loader").css('display', 'block');
+        $("#study-view-word-cloud-loader").css('display', 'block');
     }
     function makeNewBarChartInstance(_chartID, _barInfo, _distanceArray) {
         var param = {

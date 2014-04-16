@@ -636,6 +636,10 @@ pieH3{
     border-color: white;
     background: white;
 }
+.study-view-survival-label-font-1{
+    font-size: 9px;
+    font-weight: bold;
+}
 
 
 /* These five styles are designed for study view tabs. */

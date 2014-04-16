@@ -43,6 +43,37 @@ var StudyViewBoilerplate ={
         hide: {fixed:true, delay: 100, event: "mouseout"},
         position: {my:'right bottom',at:'top left', viewport: $(window)}
     },
+    warningQtip: {
+        overwrite: true,
+        content: {
+            text: $("")
+        },
+        position: {
+            my: 'left bottom',
+            at: 'top right',
+            target: '',
+            viewport: $(window)
+        },
+        show: { 
+            when: false, 
+            ready: true,
+            event: function(){
+                $(this).qtip('hide');
+            }
+        }, 
+        hide: { 
+            delay: 2000
+        },
+        style: {
+            tip: true,
+            classes: 'qtip-red'
+        },
+        event: {
+            hide: function(event, api){
+                api.destroy();
+            }
+        }
+    },
     scatterPlotDataAttr: {
         min_x: 0,
         max_x: 0,

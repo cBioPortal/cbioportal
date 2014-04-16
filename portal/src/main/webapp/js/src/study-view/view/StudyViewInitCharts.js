@@ -169,7 +169,7 @@ var StudyViewInitCharts = (function(){
                 }
                 varType[_attr[i]["attr_id"]] = "pie";
             }else {
-                console.log("%c Error: Can not identify data type.", "color:red");
+                StudyViewOverallFunctions.echoWarningMessg('Can not identify data type.');
             }
 
             varDisplay.push(_attr[i]["display_name"]);                
@@ -400,6 +400,7 @@ var StudyViewInitCharts = (function(){
     
     function initSurvivalPlot(_data) {
         StudyViewInitSurvivalPlot.init({ALL_CASES: parObject.caseIds}, _data);
+        //TODO: Add close function
     }
     
     function initScatterPlot(_arr) {
@@ -445,8 +446,7 @@ var StudyViewInitCharts = (function(){
         }
         
         if(createdChartID !== totalCharts){
-            console.log("$c Error: the number of created charts not equal to " +"\
-                number of totalCharts. --1", "color:red");
+            StudyViewOverallFunctions.echoWarningMessg('the number of created charts not equal to number of totalCharts. --1');
             return false;
         }
         

@@ -17,7 +17,12 @@ var StudyViewOverallFunctions = (function(){
         });
     }
     
+    function echoWarningMessg(_content) {
+        console.log("%c Error: "+ _content, "color:red");
+    }
+    
     return{
-        showHideDivision: showHideDivision
+        showHideDivision: showHideDivision,
+        echoWarningMessg: echoWarningMessg
     };
 })();

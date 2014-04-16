@@ -57,7 +57,11 @@ var StudyViewInitSurvivalPlot = (function() {
                 nameCurveDialog(this, saveCurveInfoFunc);
                 
             }else if($(this).attr('name') === 'close'){
-                
+                var _parent = $(this).parent(),
+                    _name = $(_parent).find('text').attr('value');
+                    
+                $(_parent).remove();
+                removeSavedCurveFunc(_name);
             }else{
                 //TODO: 
             }
@@ -74,6 +78,13 @@ var StudyViewInitSurvivalPlot = (function() {
     
         savedCurveInfo[_selectedCurveInfo.name] = _selectedCurveInfo;
         removeSaveCurveColor(_selectedCurveInfo.color);
+    }
+    
+    function removeSavedCurveFunc(_curveName){
+        var _targetCurve = savedCurveInfo[_curveName];
+        
+        delete savedCurveInfo[_curveName];
+        color.push(_targetCurve.color);
     }
     //When user click pin icon, this dialog will be popped up and remind user
     //input the curve name.
@@ -186,13 +197,13 @@ var StudyViewInitSurvivalPlot = (function() {
         }
     }
     
-    function grouping(_caseLists, seperateAttr){
+    function grouping(_caseLists, _seperateAttr){
         //If seperation attribute has been defined, the data will be put in
         //different group based on this attribute.
         var _dataLength = originalData.length;
-        if(seperateAttr !== '' && seperateAttr){
+        if(_seperateAttr !== '' && _seperateAttr){
             for (var i = 0; i < _dataLength; i++) {  
-                var _attr = originalData[i][seperateAttr].toUpperCase(),
+                var _attr = originalData[i][_seperateAttr].toUpperCase(),
                     _caseID = originalData[i].CASE_ID;
                 if(!caseList.hasOwnProperty(_attr)){
                     caseList[_attr] = [];
@@ -202,7 +213,6 @@ var StudyViewInitSurvivalPlot = (function() {
         }else{
             caseList = _caseLists;
         }
-        console.log(caseList);
     }
     
     function initOpts(){
@@ -268,7 +278,6 @@ var StudyViewInitSurvivalPlot = (function() {
             }
         }
         
-        console.log(savedCurveInfo);
         if(getSavedCurveName().length > 0){
             initSavedCurves();
         }
@@ -303,6 +312,9 @@ var StudyViewInitSurvivalPlot = (function() {
         initView();
         drawLabels();
         addEvents();
+        if(_selectedAttr === '' || !_selectedAttr){
+            resetSelection();
+        }
     }
     
     function resetParams(){
@@ -313,6 +325,12 @@ var StudyViewInitSurvivalPlot = (function() {
         curveInfo = [];
         caseList = {};
     }
+    
+    //If no separate attribute selected, the selction box should set to default
+    function resetSelection(){
+        $("#study-view-survival-plot-select").val('').prop('selected',true);
+    }
+    
     //Remove survival plot including all labels
     function removeContentAndRunLoader(){
         $("#study-view-survival-plot-loader").css('display', 'block');
@@ -402,12 +420,13 @@ var StudyViewInitSurvivalPlot = (function() {
                 .attr('x', '90')
                 .attr('y', '0')
                 .attr('height', '10px')
-                .attr('width', '10px')
-                .attr('name', 'pin');
+                .attr('width', '10px');
         if(_iconType === 'pin'){
             _image.attr('xlink:href', 'images/pin.png');
+            _image.attr('name', 'pin');
         }else if(_iconType === 'close'){
              _image.attr('xlink:href', 'images/close.png');
+            _image.attr('name', 'close');
         }else {
             //TODO:
         }

@@ -10,60 +10,63 @@ function MutationInputParser ()
 	var _sampleList = null;
 	var _idCounter = 0;
 
-	// TODO add missing values
-	// map of mutation model field names to input header names
+	// TODO add column name alternatives?
+	// map of <mutation model field name, input header name> pairs
 	var _headerMap = {
-		"proteinPosEnd": "",
-		"uniprotId": "",
-		"cancerType": "",
-		"tumorType": "",
-		"cancerStudyLink": "",
-		"codonChange": "",
-		"proteinPosStart": "",
-		"linkToPatientView": "",
-		"geneticProfileId": "",
-		"mutationCount": "",
-		"mutationType": "mutation_type",
-		"referenceAllele": "",
-		"uniprotAcc": "",
-		"fisValue": "",
-		"functionalImpactScore": "",
-		"cancerStudy": "",
-		"normalRefCount": "",
-		"ncbiBuildNo": "",
-		"normalFreq": "",
-		"cancerStudyShort": "",
-		"msaLink": "",
-		"mutationStatus": "",
-		"cna": "",
+		"proteinPosEnd": "protein_position_end",
+		"uniprotId": "uniprot_id",
+		"cancerType": "cancer_type",
+		"tumorType": "tumor_type",
+		"cancerStudyLink": "cancer_study_link",
+		"codonChange": "codon",
+		"proteinPosStart": "protein_position_start",
+		"linkToPatientView": "patient_view_link",
+		"geneticProfileId": "genetic_profile_id",
+		"mutationCount": "mutation_count",
+		"mutationType": "mutation_type", // "variant_classification"
+		"referenceAllele": "reference_allele",
+		"uniprotAcc": "uniprot_accession",
+		"fisValue": "fis_value",
+		"functionalImpactScore": "fis",
+		"cancerStudy": "cancer_study",
+		"normalRefCount": "normal_ref_count",
+		"ncbiBuildNo": "ncbi_build",
+		"normalFreq": "normal_frequency",
+		"cancerStudyShort": "cancer_study_short",
+		"msaLink": "msa_link",
+		"mutationStatus": "mutation_status",
+		"cna": "copy_number",
 		"proteinChange": "protein_change",
 		"endPos": "end_position",
-		"refseqMrnaId": "",
+		//"refseqMrnaId": "",
 		"geneSymbol": "hugo_symbol",
-		"tumorFreq": "",
+		"tumorFreq": "tumor_frequency",
 		"startPos": "start_position",
-		"keyword": "",
-		"cosmic": "",
-		"validationStatus": "",
-		"mutationSid": "",
+		"keyword": "keyword",
+		"cosmic": "cosmic",
+		"validationStatus": "validation_status",
+		"mutationSid": "mutation_sid",
 		//"canonicalTranscript": "",
-		"normalAltCount": "",
-		"variantAllele": "",
+		"normalAltCount": "normal_alt_count",
+		"variantAllele": "variant_allele",
 		//"mutationEventId": "",
-		"mutationId": "",
-		"caseId": "sample_id",
-		"xVarLink": "",
-		"pdbLink": "",
-		"tumorAltCount": "",
-		"tumorRefCount": "",
-		"sequencingCenter": "",
+		"mutationId": "mutation_id",
+		"caseId": "sample_id", // "tumor_sample_barcode"
+		"xVarLink": "xvar_link",
+		"pdbLink": "pdb_link",
+		"tumorAltCount": "tumor_alt_count",
+		"tumorRefCount": "tumor_ref_count",
+		"sequencingCenter": "center",
 		"chr": "chromosome"
 	};
 
+	/**
+	 * Initializes a default mutation object where all data fields are empty strings.
+	 *
+	 * @returns {Object}    a default "empty" mutation object
+	 */
 	function initMutation()
 	{
-		// return a default mutation object with all data fields are
-		// initialized as empty strings...
 		return {
 			"proteinPosEnd": "",
 			"uniprotId": "",
@@ -113,11 +116,15 @@ function MutationInputParser ()
 		};
 	}
 
+	/**
+	 * Parses the entire input data and creates an array of mutation objects.
+	 *
+	 * @param input     input string/file.
+	 * @returns {Array} an array of mutation objects.
+	 */
 	function parseInput(input)
 	{
 		var mutationData = [];
-
-		console.log(input);
 
 		var lines = input.split("\n");
 
@@ -142,6 +149,13 @@ function MutationInputParser ()
 		return mutationData;
 	}
 
+	/**
+	 * Parses a single line of the input and returns a new mutation object.
+	 *
+	 * @param line      single line of the input data
+	 * @param indexMap  map of <header name, index> pairs
+	 * @returns {Object}    a mutation object
+	 */
 	function parseLine(line, indexMap)
 	{
 		// init mutation fields
@@ -155,19 +169,26 @@ function MutationInputParser ()
 			mutation[key] = parseValue(key, values, indexMap);
 		});
 
-		mutation.mutationId = nextId();
+		mutation.mutationId = mutation.mutationId || nextId();
 
 		// TODO mutationSid?
-		mutation.mutationSid = mutation.mutationId;
+		mutation.mutationSid = mutation.mutationSid || mutation.mutationId;
 
 		// TODO this is to prevent invalid case id links to be removed
 		// we should override the case id render function for the table...
-		mutation.linkToPatientView = "#";
+		mutation.linkToPatientView = mutation.linkToPatientView || "#";
 
-		//mutation = jQuery.extend(true, {}, initMutation(), mutation);
 		return mutation;
 	}
 
+	/**
+	 * Parses the value of a single input cell.
+	 *
+	 * @param field     name of the mutation model field
+	 * @param values    array of values for a single input line
+	 * @param indexMap  map of <header name, index> pairs
+	 * @returns {string}    data value for the given field name.
+	 */
 	function parseValue(field, values, indexMap)
 	{
 		// get the column name for the given field name
@@ -183,6 +204,13 @@ function MutationInputParser ()
 		return value;
 	}
 
+	/**
+	 * Builds a map of <header name, index> pairs, to use header names
+	 * instead of index constants.
+	 *
+	 * @param header    header line (first line) of the input
+	 * @returns map of <header name, index> pairs
+	 */
 	function buildIndexMap(header)
 	{
 		var columns = header.split("\t");
@@ -195,6 +223,11 @@ function MutationInputParser ()
 		return map;
 	}
 
+	/**
+	 * Processes the input data and creates a list of sample (case) ids.
+	 *
+	 * @returns {Array} an array of sample ids
+	 */
 	function getSampleArray()
 	{
 		if (_data == null)

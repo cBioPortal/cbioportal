@@ -9,7 +9,7 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
         // prevents collisions with JSP tags
         _.templateSettings = {
             interpolate : /\{\{(.+?)\}\}/g
-        };
+        };                                       ma
 
         // don't want to setup the zoom slider multiple times
         var zoomSetup_once = _.once(OncoprintUtils.zoomSetup);

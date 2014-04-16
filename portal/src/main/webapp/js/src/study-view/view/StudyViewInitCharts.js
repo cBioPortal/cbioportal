@@ -65,7 +65,7 @@ var StudyViewInitCharts = (function(){
         
         //Could be displayed Charts Type 'pie,bar'.
         //Mix combination, seperate by comma
-        varType = [],
+        varType = {},
         
         //Only for NUMBER dataType, store min, max and difference value
         distanceMinMaxArray = [], 
@@ -351,7 +351,9 @@ var StudyViewInitCharts = (function(){
         for ( var i=0, len = itemElemsLength; i < len; i++ ) {
             var elem = itemElems[i];
             // make element draggable with Draggabilly
-            var draggie = new Draggabilly( elem );
+            var draggie = new Draggabilly( elem, {
+                handle: 'charttitleh4'
+            });
             
             //Set selected chart z-index bigger than others
             draggie.on( 'dragStart', function(instance, event, pointer){
@@ -957,6 +959,7 @@ var StudyViewInitCharts = (function(){
             _param.name = varName;
             _param.displayName = varDisplay;
             _param.displayedID = displayedID;
+            _param.type = varType;
             
             return _param;
         },

@@ -309,6 +309,7 @@ var StudyViewBoilerplate ={
             "<chartTitleH4 id='study-view-survival-plot-title'>"+
             "Overall Survival Plot</chartTitleH4>"+
             "<div id='study-view-survival-plot-header' style='float:left'>"+
+            "<select id='study-view-survival-plot-select'><option value=''>Draw by Attributes</option></select>"+
             "<form style='display:inline-block; margin-right:5px' action='svgtopdf.do' method='post' id='study-view-survival-plot-pdf'>"+
             "<input type='hidden' name='svgelement' id='study-view-survival-plot-pdf-value'>"+
             "<input type='hidden' name='filetype' value='pdf'>"+

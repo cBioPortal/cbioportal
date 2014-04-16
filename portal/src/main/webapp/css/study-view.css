@@ -175,7 +175,7 @@
 }
 #study-view-survival-plot-title {
     float: left;
-    margin: 5px 340px 0 5px;
+    margin: 5px 200px 0 5px;
 }
 #study-view-survival-plot-body {
     width: 100%;
@@ -185,6 +185,10 @@
     width: 100%;
     height: 22px;
     margin-bottom: 5px;
+}
+#study-view-survival-plot-select {
+    font-size:10px;
+    margin-right:5px;
 }
 /*
 #study-view-scatter-plot-body-top-chart {

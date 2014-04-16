@@ -1,5 +1,6 @@
 var StudyViewInitSurvivalPlot = (function() {
     var caseList = {},
+        originalData = [],
         data = {},
         opts = {},
         inputArr = [],
@@ -8,7 +9,7 @@ var StudyViewInitSurvivalPlot = (function() {
         logRankTest = "";
         
     var curveInfo = [];
-    
+    var allCases = [];
     var color  = jQuery.extend(true, [], StudyViewBoilerplate.chartColors);
         
     //Saved curve information is identified based on the curve name,
@@ -17,6 +18,28 @@ var StudyViewInitSurvivalPlot = (function() {
     
     function getSavedCurveName(){
         return Object.keys(savedCurveInfo);
+    }
+    
+    function initSelection(){
+        var _attrsInfo = StudyViewInitCharts.getShowedChartsInfo();
+        var _length = _attrsInfo['name'].length;
+        
+        for(var i = 0; i < _length; i++){
+            if(_attrsInfo['type'][_attrsInfo['name'][i]] === 'pie'){
+                $("#study-view-survival-plot-select").append('<option value="'+_attrsInfo['name'][i]+'">'+_attrsInfo['displayName'][i]+'</option>');
+            }
+        }
+        
+         $("#study-view-survival-plot-select").change(function(){
+             var _value = $('#study-view-survival-plot-select>option:selected')
+                     .attr('value');
+             
+             if(_value === ''){
+                 redraw(allCases, false);
+             }else{
+                 redraw([], _value);
+             }
+         });
     }
     
     function addEvents() {
@@ -135,6 +158,8 @@ var StudyViewInitSurvivalPlot = (function() {
     function dataProcess(_data){
         var _dataLength = _data.length;
         
+        
+        originalData = _data;
         //Get all of cases os information
         for (var i = 0; i < _dataLength; i++) {  
             var _os = _data[i].OS_MONTHS,
@@ -164,10 +189,11 @@ var StudyViewInitSurvivalPlot = (function() {
     function grouping(_caseLists, seperateAttr){
         //If seperation attribute has been defined, the data will be put in
         //different group based on this attribute.
+        var _dataLength = originalData.length;
         if(seperateAttr !== '' && seperateAttr){
             for (var i = 0; i < _dataLength; i++) {  
-                var _attr = _data[i][seperateAttr].toUpperCase(),
-                    _caseID = _data[i].CASE_ID;
+                var _attr = originalData[i][seperateAttr].toUpperCase(),
+                    _caseID = originalData[i].CASE_ID;
                 if(!caseList.hasOwnProperty(_attr)){
                     caseList[_attr] = [];
                 }
@@ -176,6 +202,7 @@ var StudyViewInitSurvivalPlot = (function() {
         }else{
             caseList = _caseLists;
         }
+        console.log(caseList);
     }
     
     function initOpts(){
@@ -266,12 +293,11 @@ var StudyViewInitSurvivalPlot = (function() {
         for(var key in savedCurveInfo){
             inputArr.push(savedCurveInfo[key].data);
         }
-        console.log(inputArr);
     }
     
     //Redraw curves based on selected cases and unselected cases
     function redraw(_caseIDs, _selectedAttr){
-        //removeContent();
+        removeContentAndRunLoader();
         resetParams();
         grouping(_caseIDs, _selectedAttr);
         initView();
@@ -285,9 +311,11 @@ var StudyViewInitSurvivalPlot = (function() {
         kmEstimator = "";
         logRankTest = "";
         curveInfo = [];
+        caseList = {};
     }
     //Remove survival plot including all labels
-    function removeContent(){
+    function removeContentAndRunLoader(){
+        $("#study-view-survival-plot-loader").css('display', 'block');
         $("#study-view-survival-plot-body-svg svg").remove();
         $("#study-view-survival-plot-body-label svg").remove();
     }
@@ -403,12 +431,14 @@ var StudyViewInitSurvivalPlot = (function() {
     
     return {
         init: function(_caseLists, _data) {
+            allCases = _caseLists;
             createDiv();
             initOpts();
             dataProcess(_data);
             grouping(_caseLists, '');
             initView();
             drawLabels();
+            initSelection();
             addEvents();
         },
         

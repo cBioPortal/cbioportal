@@ -376,6 +376,14 @@ var MutationDetailsUtil = function(mutations)
 		});
 	};
 
+	this.containsChr = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.chr &&
+			        mutation.chr != "NA");
+		});
+	};
+
 	this.containsStartPos = function(gene)
 	{
 		return this._contains(gene, function(mutation) {

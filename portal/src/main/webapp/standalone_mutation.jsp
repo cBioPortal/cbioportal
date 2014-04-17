@@ -74,10 +74,40 @@ $(document).ready(function() {
 		var proxy = new MutationDataProxy(geneList.join(" "));
 		proxy.initWithData(mutationData);
 
-		var model = {mutationProxy: proxy,
-			sampleArray: sampleArray};
-
 		// TODO add tableOpts to initially show only the columns included in the input
+		var tableOpts = {
+			columnVisibility: {
+				startPos: function (util, gene) {
+					if (util.containsStartPos(gene)) {
+						return "visible";
+					}
+					else {
+						return "hidden";
+					}
+				},
+				endPos: function (util, gene) {
+					if (util.containsEndPos(gene)) {
+						return "visible";
+					}
+					else {
+						return "hidden";
+					}
+				},
+				chr: function (util, gene) {
+					if (util.containsChr(gene)) {
+						return "visible";
+					}
+					else {
+						return "hidden";
+					}
+				}
+			}
+		};
+
+		var model = {mutationProxy: proxy,
+			sampleArray: sampleArray,
+			tableOpts: tableOpts};
+
 		var options = {el: "#standalone_mutation_details",
 			model: model,
 			mut3dVis: _mut3dVis};

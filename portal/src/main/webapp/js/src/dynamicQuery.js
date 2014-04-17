@@ -496,7 +496,7 @@ function cancerStudySelected() {
         }
     }
     var cancerStudyForm = " <button type='button' onclick=\"window.location.replace('study.do?cancer_study_id="
-        +cancerStudyId+"')\">View details</button>";
+        +cancerStudyId+"')\">Study summary</button>";
     $("#cancer_study_desc").html("<p> " + cancer_study.description + citation + cancerStudyForm + "</p>");
 
     //  Iterate through all genomic profiles

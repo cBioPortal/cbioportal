@@ -265,7 +265,7 @@ var rppaPlots = (function() {
         function appendHeader() {
             $("#" + divName).empty();
             $("#" + divName).append(title);
-            var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
+            var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' target='_blank' " +
                 "onsubmit=\"this.elements['svgelement'].value=loadRPPASVG('" + divName + "');\">" +
                 "<input type='hidden' name='svgelement'>" +
                 "<input type='hidden' name='filetype' value='pdf'>" +

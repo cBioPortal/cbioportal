@@ -130,22 +130,22 @@ if (patientViewError!=null) {
 <div id="patient-tabs">
     <ul>
         
-    <li><a href='#summary' class='patient-tab'>Summary</a></li>
+    <li><a id="link-summary" href='#summary' class='patient-tab'>Summary</a></li>
     
     <%if(showMutations){%>
-    <li><a href='#mutations' class='patient-tab'>Mutations</a></li>
+    <li><a id="link-mutations" href='#mutations' class='patient-tab'>Mutations</a></li>
     <%}%>
     
     <%if(showCNA){%>
-    <li><a href='#cna' class='patient-tab'>Copy Number Alterations</a></li>
+    <li><a id="link-cna" href='#cna' class='patient-tab'>Copy Number Alterations</a></li>
     <%}%>
 
     <%if(showDrugs){%>
-    <li><a href='#drugs' class='patient-tab'>Drugs</a></li>
+    <li><a id="link-drugs" href='#drugs' class='patient-tab'>Drugs</a></li>
     <%}%>
 
     <%if(showClinicalTrials){%>
-    <li><a href='#clinical-trials' class='patient-tab'>Clinical Trials</a></li>
+    <li><a id="link-clinical-trials" href='#clinical-trials' class='patient-tab'>Clinical Trials</a></li>
     <%}%>
     
     <%if(showTissueImages){%>
@@ -153,15 +153,15 @@ if (patientViewError!=null) {
     <%}%>
     
     <%if(pathReportUrl!=null){%>
-    <li><a href='#path-report' class='patient-tab'>Pathology Report</a></li>
+    <li><a id="link-path-report" href='#path-report' class='patient-tab'>Pathology Report</a></li>
     <%}%>
 
     <%if(showPathways){%>
-    <li><a href='#pathways' class='patient-tab'>Network</a></li>
+    <li><a id="link-pathways" href='#pathways' class='patient-tab'>Network</a></li>
     <%}%>
     
     <%if(showSimilarPatient){%>
-    <li><a href='#similar-patients' class='patient-tab'>Similar Patients</a></li>
+    <li><a id="link-tissue-similar-patients" href='#similar-patients' class='patient-tab'>Similar Patients</a></li>
     <%}%>
 
     </ul>
@@ -752,6 +752,15 @@ function idRegEx(ids) {
     return "(^"+ids.join("$)|(^")+"$)";
 }
 
+function guessClinicalData(clinicalData, paramNames) {
+    if (!clinicalData) return null;
+    for (var i=0, len=paramNames.length; i<len; i++) {
+        var data = clinicalData[paramNames[i]];
+        if (typeof data !== 'undefined' && data !== null) return data;
+    }
+    return null;
+}
+
 function outputClinicalData() {
     $("#clinical_div").append("<table id='clinical_table' width='100%'></table>");
     var n=caseIds.length;
@@ -971,15 +980,6 @@ function outputClinicalData() {
         return patientStatus;
     }
 
-    function guessClinicalData(clinicalData, paramNames) {
-        if (!clinicalData) return null;
-        for (var i=0, len=paramNames.length; i<len; i++) {
-            var data = clinicalData[paramNames[i]];
-            if (typeof data !== 'undefined' && data !== null) return data;
-        }
-        return null;
-    }
-
     function getCaseColor(caseType) {
         if (!caseType) return "black";
         var caseTypeNorm = normalizedCaseType(caseType.toLowerCase());
@@ -1018,13 +1018,18 @@ function plotCaseLabel(svgEl,onlyIfEmpty, noTip) {
 }
 
 function plotCaselabelInSVG(svg, caseId) {
-    var label = caseMetaData.label[caseId];
-    var color = caseMetaData.color[caseId];
+    if(!svg) return;
     var circle = svg.append("g")
         .attr("transform", "translate(6,6)");
     circle.append("circle")
-        .attr("r",6)
-        .attr("fill",color);
+        .attr("r",6);
+    fillColorAndLabelForCase(circle, caseId);
+}
+
+function fillColorAndLabelForCase(circle, caseId) {
+    var label = caseMetaData.label[caseId];
+    var color = caseMetaData.color[caseId];
+    circle.select("circle").attr("fill",color);
     circle.append("text")
         .attr("x",-3)
         .attr("y",4)

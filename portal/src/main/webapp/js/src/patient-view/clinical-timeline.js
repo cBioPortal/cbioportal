@@ -9,11 +9,13 @@
           tickTime: d3.time.hours, 
           tickNumber: 1, 
           tickSize: 6 },
-        colorCycle = d3.scale.category20(),
+        nColors = 20;
+        colorCycle = d3.scale.category20().domain(d3.range(0,nColors)),
         colorPropertyName = null,
+        opacityPropertyName = null,
         beginning = 0,
         ending = 0,
-        margin = {left: 100, right:30, top: 30, bottom:30},
+        margin = {left: 150, right:30, top: 20, bottom:6},
         stacked = false,
         rotateTicks = false,
         itemHeight = 20,
@@ -39,13 +41,13 @@
           d.forEach(function (datum, index) {
 
             // create y mapping for stacked graph
-            if (stacked && Object.keys(yAxisMapping).indexOf(index) == -1) {
+            if (stacked && Object.keys(yAxisMapping).indexOf(index) === -1) {
               yAxisMapping[index] = maxStack;
               maxStack++;
             }
 
             // figure out beginning and ending times if they are unspecified
-            if (ending == 0 && beginning == 0){
+            if (ending === 0 && beginning === 0){
               datum.times.forEach(function (time, i) {
                 if (time.starting_time < minTime)
                   minTime = time.starting_time;
@@ -83,37 +85,53 @@
         .attr("transform", "translate(" + 0 +","+(margin.top + (itemHeight + itemMargin) * maxStack)+")")
         .call(xAxis);
 
+      gParent.append('text')
+          .attr("class", "timeline-label")
+          .attr("transform", "translate("+ 0 +","+ (margin.top)+")")
+          .text("Months to diagnosis");
+
       // draw the chart
       g.each(function(d, i) {
         d.forEach( function(datum, index){
           var data = datum.times;
-          var hasLabel = (typeof(datum.label) != "undefined");
+          var hasLabel = (typeof(datum.label) !== "undefined");
           
-          g.selectAll("svg").data(data).enter()
-            .append(datum.display)
+          var sg = g.selectAll("svg").data(data).enter()
+            .append('g')
             .attr('id', function (d, i) {
-                return d[datum.id];
+                return d.id;
             })
-            .attr('x', getXPos)
-            .attr("y", getStackPosition)
-            .attr("width", function (d, i) {
-              return (d.ending_time - d.starting_time) * scaleFactor;
-            })
-            .attr("cy", getStackPosition)
-            .attr("cx", getXPos)
-            .attr("r", itemHeight/2)
-            .attr("height", 3)
+            .attr('transform',getTransform)
             .attr("tip",  function (d, i) {
               return d.tooltip;
             })
-            .attr("class", "timeline-viz-elem")
-            .style("fill", function(d, i){ 
-              if( colorPropertyName ){ 
-                return colorCycle( d[colorPropertyName] ) 
-              } 
-              return colorCycle(index);  
+            .attr("class",  function (d, i) {
+                var ret = "timeline-viz-elem";
+                if (datum.class) ret += " "+datum.class;
+                if (d.class) ret += " "+d.class;
+                return ret;
+            });
+
+            sg.append(datum.display)
+            .attr("width", function (d, i) {
+              return (d.ending_time - d.starting_time) * scaleFactor;
             })
-          ;
+            .attr("r", itemHeight/2)
+            .attr("height", 3)
+            .attr("fill", function(d, i){ 
+              if( colorPropertyName ){ 
+                  if (d[colorPropertyName]&&d[colorPropertyName].indexOf('#')===0) 
+                    return d[colorPropertyName];
+                  return colorCycle( sumCharCodes(d[colorPropertyName]) % nColors );
+              } 
+              return colorCycle(index % nColors);  
+            })
+            .attr("opacity", function(d, i){ 
+              if( opacityPropertyName ){ 
+                  return d[opacityPropertyName];
+              } 
+              return 1.0;  
+            });
 
           // add the label
           if (hasLabel) {
@@ -129,6 +147,10 @@
             } 
             return margin.top;
           }
+      
+            function getTransform(d, i) {
+                return 'translate('+getXPos(d,i)+','+getStackPosition(d,i)+")";
+            }
         });
       });
       
@@ -146,6 +168,16 @@
           
       addToolTip();
 
+      function sumCharCodes(str) {
+          if (!str) return 0;
+          var strU = str.toUpperCase();
+          var sum = 0;
+          for (var i=0; i<strU.length; i++) {
+              sum += strU.charCodeAt(i);
+          }
+          return sum;
+      }
+      
       function getXPos(d, i) {
         return margin.left + (d.starting_time - beginning) * scaleFactor;
       }
@@ -163,7 +195,7 @@
           }
           
           tickFormat = {
-            format: function(d) {return (d/daysPerMonth).toFixed(0)+" months";}, 
+            format: function(d) {return (d/daysPerMonth).toFixed(0);}, 
             tickValues: tickValues, 
             tickSize: 8
           };
@@ -207,7 +239,7 @@
         if (!height && !gParentItem.attr("height")) {
           if (itemHeight) {
             // set height based off of item height
-            height = gSize.height + gSize.top - gParentSize.top;
+            height = gSize.height + gSize.top - gParentSize.top + margin.bottom;
             // set bounding rectangle height
             d3.select(gParent[0][0]).attr("height", height);
           } else {
@@ -293,6 +325,12 @@
       colorPropertyName = colorProp;
       return timeline;
     };
+
+    timeline.opacityProperty = function(opacityProp) {
+      if (!arguments.length) return opacityPropertyName;
+      opacityPropertyName = opacityProp;
+      return timeline;
+    };
     
     return timeline;
   };
@@ -319,41 +357,64 @@
             return agent;
         }
         
-//        function separateTreatmentsByAgent(treatments) {
-//            var ret = {};
-//            treatments.forEach(function(treatment) {
-//                var agent = getTreatmentAgent(treatment);
-//                if (!(agent in ret)) {
-//                    ret[agent] = [];
-//                }
-//                ret[agent].push(treatment);
-//            });
-//            return ret;
-//        }
+        function separateEvents(events, attr) {
+            var ret = {};
+            events.forEach(function(event) {
+                var value = event["eventData"][attr];
+                if (!(value in ret)) {
+                    ret[value] = [];
+                }
+                ret[value].push(event);
+            });
+            return ret;
+        }
         
-        function separateTreatmentsByTime(treatments) {
+        function separateEventsByTime(events, allowOneDayOverlap) {
             var ret = [];
-            treatments.forEach(function(treatment) {
-                var dates = getStartStopDates(treatment);
+            events.forEach(function(event) {
+                var dates = getStartStopDates(event);
                 for (var row=0; row<ret.length; row++) {
                     var currStopDate = getStartStopDates(ret[row][ret[row].length-1])[1]; // assume sorted
-                    if (dates[0]>=currStopDate) break;
+                    if (dates[0]>currStopDate) break;
+                    if (allowOneDayOverlap && dates[0]===currStopDate) break;
                 }
                 if (row===ret.length) ret.push([]);
-                ret[row].push(treatment);
+                ret[row].push(event);
             });
             return ret;
         }
 
         function getColor(timePointData) {
             var type = timePointData["eventType"];
+            if (type==="SPECIMEN")
+                return "#999999";
             if (type==="TREATMENT")
                 return getTreatmentAgent(timePointData);
             if (type==="LAB_TEST")
-                return timePointData["eventData"]["TEST"];
+//                return timePointData["eventData"]["TEST"];
+                return "#CC0000";
             if (type==="DIAGNOSTIC")
-                return timePointData["eventData"]["TYPE"];
-            return timePointData["eventType"];
+                return "#0099CC";
+//                return timePointData["eventData"]["DIAGNOSTIC_TYPE"];
+            if (type==="STATUS")
+                return "#FF8800";
+            return type;
+        }
+        
+        function getOpacity(timePointData) {
+            var type = timePointData["eventType"];
+            if (type==="LAB_TEST") {
+                var test = timePointData["eventData"]["TEST"];
+                if (test) {
+                    if (test.toUpperCase()==='PSA') {
+                        var result = timePointData["eventData"]["RESULT"];
+                        if (!result) return 0;
+                        var psa = parseFloat(result)+1.1;
+                        return Math.log(psa)/Math.log(1000);
+                    }
+                }
+            }
+            return 1.0;
         }
         
         function formatATimePoint(timePointData) {
@@ -368,12 +429,20 @@
                 }
             }
             
-            return {
+            var ret = {
                 starting_time : dates[0],
                 ending_time : dates[1],
                 color: getColor(timePointData),
+                opacity: getOpacity(timePointData),
                 tooltip : "<table class='timeline-tooltip-table uninitialized'><thead><tr><th>&nbsp;</th><th>&nbsp;</th></tr></thead><tr>" + tooltip.join("</tr><tr>") + "</tr></table>"
             };
+            
+            var su2cSampleId = timePointData["eventData"]["SpecimenReferenceNumber"];
+            
+            if (su2cSampleId) 
+                ret['class'] = 'timeline-'+su2cSampleId;
+            
+            return ret;
         }
         
         function formatTimePoints(timePointsData) {
@@ -382,6 +451,45 @@
                 times.push(formatATimePoint(timePointData));
             });
             return times;
+        }
+        
+        function combineTimePointsByTime(sortedTimePoints) {
+            if (!sortedTimePoints || sortedTimePoints.length===0) return sortedTimePoints;
+            var pre = 0;
+            var ret = [sortedTimePoints[0]];
+            // assume sorted
+            for (var i=1; i<sortedTimePoints.length; i++) {
+                var preEvent = ret[pre];
+                var currEvent = sortedTimePoints[i];
+                if (preEvent["starting_time"]===currEvent["starting_time"]) {
+                    preEvent["tooltip"] += "<hr>"+currEvent["tooltip"];
+                } else {
+                    ret.push(currEvent);
+                    pre++;
+                }
+                
+            }
+            return ret;
+        }
+        
+        function sortByDate(timePointsData, optionalAttr) {
+            return timePointsData.sort(function(a,b){
+                if (a["startDate"]===b["startDate"] && optionalAttr) {
+                    var va = a["eventData"][optionalAttr];
+                    var vb = a["eventData"][optionalAttr];
+                    if (va===vb) return 0;
+                    if ((typeof va)!=='string') return 1;
+                    return va.localeCompare(vb);
+                }
+                return a["startDate"]-b["startDate"];
+            });
+        }
+        
+        function filter(timePointsData, key, value) {
+            return _.filter(timePointsData, function(specimen){
+                    var type = specimen["eventData"][key];
+                    return type && type.toUpperCase()===value;
+                });
         }
             
         var prepare = function(timelineData) {
@@ -396,32 +504,44 @@
             var ret = [];
             
             if ("SPECIMEN" in timelineDataByType) {
-                ret.push({
-                    label:"Specimen",
-                    display:"circle",
-                    id:"SpecimenReferenceNumber",
-                    times:formatTimePoints(timelineDataByType["SPECIMEN"])});
+                var specimens = filter(timelineDataByType["SPECIMEN"],"SpecimenType","TISSUE");
+                var eventGroups = separateEvents(sortByDate(specimens), "SpecimenPreservationType");
+                for (var type in eventGroups) {
+                    ret.push({
+                        label:type,
+                        display:"circle",
+                        class:"timeline-speciman",
+                        times:formatTimePoints(eventGroups[type])});
+                }
             }
             
             if ("STATUS" in timelineDataByType) {
                 ret.push({
                     label:"Status",
                     display:"circle",
+                    class:"timeline-status",
                     times:formatTimePoints(timelineDataByType["STATUS"])});
             }
             
             if ("DIAGNOSTIC" in timelineDataByType) {
+                var eventGroup = sortByDate(timelineDataByType["DIAGNOSTIC"],"DIAGNOSTIC_TYPE");
                 ret.push({
                     label:"Diagnostics",
                     display:"circle",
-                    times:formatTimePoints(timelineDataByType["DIAGNOSTIC"])});
+                    class:"timeline-diagnostic",
+                    times:combineTimePointsByTime(formatTimePoints(eventGroup))});
             }
             
             if ("LAB_TEST" in timelineDataByType) {
-                ret.push({
-                    label:"Lab Tests",
-                    display:"circle",
-                    times:formatTimePoints(timelineDataByType["LAB_TEST"])});
+                var lab_tests = filter(timelineDataByType["LAB_TEST"],"TEST","PSA");
+                var eventGroups = separateEvents(sortByDate(lab_tests),"TEST");
+                for (var test in eventGroups) {
+                   ret.push({
+                        label:test,
+                        display:"circle",
+                        class:"timeline-lab_test",
+                        times:formatTimePoints(eventGroups[test])});
+                }
             }
             
             if ("TREATMENT" in timelineDataByType) {
@@ -452,11 +572,12 @@
                     }
                     return a["startDate"]-b["startDate"];
                 });
-                var treatmentGroups = separateTreatmentsByTime(treatments);
+                var treatmentGroups = separateEventsByTime(treatments,true);
                 for (var i in treatmentGroups) {
                     ret.push({
-                        label:"Treatment",
+                        label:i==0?"Treatment":"",
                         display:"rect",
+                        class:"timeline-treatment",
                         times:formatTimePoints(treatmentGroups[i])});
                 }
             }

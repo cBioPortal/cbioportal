@@ -95,6 +95,16 @@ var MutationDetailsTableView = Backbone.View.extend({
 	{
 		// TODO format table if required
 	},
+	hideView: function()
+	{
+		var self = this;
+		self.$el.hide();
+	},
+	showView: function()
+	{
+		var self = this;
+		self.$el.show();
+	},
 	/**
 	 * Highlights the given mutations in the table.
 	 *

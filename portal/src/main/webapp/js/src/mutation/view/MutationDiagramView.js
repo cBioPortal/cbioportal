@@ -117,7 +117,7 @@ var MutationDiagramView = Backbone.View.extend({
 		var customizeButton = self.$el.find(".diagram-customize");
 
 		// helper function to trigger submit event for the svg and pdf button clicks
-		var submitForm = function(alterFn, diagram, formClass)
+		var submitForm = function(alterFn, diagram, type)
 		{
 			// alter diagram to have the desired output
 			alterFn(diagram, false);
@@ -129,12 +129,19 @@ var MutationDiagramView = Backbone.View.extend({
 			// restore previous settings after generating xml string
 			alterFn(diagram, true);
 
-			// set actual value of the form element (svgelement)
-			var form = self.$el.find("." + formClass);
-			form.find('input[name="svgelement"]').val(svgString);
+//			// set actual value of the form element (svgelement)
+//			var form = self.$el.find("." + formClass);
+//			form.find('input[name="svgelement"]').val(svgString);
+//
+//			// submit form
+//			form.submit();
 
-			// submit form
-			form.submit();
+			// set download parameters
+			var params = {filetype: type,
+				filename: "mutation_diagram_" + geneSymbol + "." + type,
+				svgelement: svgString};
+
+			cbio.util.requestDownload("svgtopdf.do", params);
 		};
 
 		// helper function to adjust SVG for file output
@@ -161,13 +168,15 @@ var MutationDiagramView = Backbone.View.extend({
 		//add listener to the svg button
 		svgButton.click(function (event) {
 			// submit svg form
-			submitForm(alterDiagramForSvg, diagram, "svg-to-file-form");
+			//submitForm(alterDiagramForSvg, diagram, "svg-to-file-form");
+			submitForm(alterDiagramForSvg, diagram, "svg");
 		});
 
 		// add listener to the pdf button
 		pdfButton.click(function (event) {
 			// submit pdf form
-			submitForm(alterDiagramForPdf, diagram, "svg-to-pdf-form");
+			//submitForm(alterDiagramForPdf, diagram, "svg-to-pdf-form");
+			submitForm(alterDiagramForPdf, diagram, "pdf");
 		});
 
 		// add listeners to customize button

@@ -124,7 +124,7 @@
                                         ret.push("<svg width='12' height='12' class='"
                                             +table_id+"-case-label' alt='"+caseId+"'></svg>");
                                     } else {
-                                        ret.push("<svg width='12'></svg>");
+                                        ret.push("<svg width='12' height='12'></svg>");
                                     }
                                 }
                                 

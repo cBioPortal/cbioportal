@@ -63,7 +63,7 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
     function initGenomicsOverview() {
         var chmInfo = new ChmInfo();
 
-        var genomic_overview_length = $("#td-content").width() - 80;
+        var genomic_overview_length = $("#td-content").width() - 75;
         genomic_overview_length -= ((genomicEventObs.hasMut && genomicEventObs.hasSeg) ? 110 : 0);
         genomic_overview_length -= (hasAlleleFrequencyData&&caseIds.length===1 ? 110 : 0);
         var config = new GenomicOverviewConfig(
@@ -183,9 +183,12 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
 
 <%if(showTimeline){%>
 <jsp:include page="clinical_timeline.jsp" flush="true" />
+<br/>
 <%}%>
 
 <%if(showGenomicOverview){%>
+<fieldset style="border-width: 1px; border-color: #ccc; border-style: solid;">
+<legend style="color:#1974b8;">Genomic Overview</legend>
 <table>
     <tr>
         <td><div id="genomics-overview"></div></td>
@@ -211,6 +214,8 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
         <input id="allelefreq_curve_toggle" type="checkbox" checked />density estimation
     </label>
 </div>
+</fieldset>
+<br/>
 <%}%>
 
 <%if(hasAlleleFrequencyData && caseIds.size() == 1) {%>

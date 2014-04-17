@@ -171,9 +171,10 @@ var MutationDetailsController = function(
 				uniprotAcc = uniprotInfo[0].uniprotAcc;
 			}
 
+			// if exists, also add uniprotAcc to the servlet params
 			if (uniprotAcc)
 			{
-				servletParams = {uniprotAcc: uniprotAcc};
+				servletParams.uniprotAcc = uniprotAcc;
 			}
 
 			$.getJSON("getPfamSequence.json", servletParams, function(sequenceData) {

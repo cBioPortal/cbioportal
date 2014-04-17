@@ -365,6 +365,63 @@ var MutationDetailsUtil = function(mutations)
 		});
 	};
 
+	this.containsCaseId = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.caseId != null &&
+			        mutation.caseId.length > 0);
+		});
+	};
+
+	this.containsStartPos = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.startPos != null &&
+			        mutation.startPos > 0);
+		});
+	};
+
+	this.containsEndPos = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.endPos != null &&
+			        mutation.endPos > 0);
+		});
+	};
+
+	this.containsFis = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.functionalImpactScore != null &&
+			        mutation.functionalImpactScore != "NA");
+		});
+	};
+
+	this.containsCosmic = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.cosmic != null &&
+			        mutation.cosmicCount != null &&
+					mutation.cosmicCount > 0);
+		});
+	};
+
+	this.containsMutationType = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.mutationType != null &&
+			        mutation.mutationType != "NA");
+		});
+	};
+
+	this.containsMutationCount = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.mutationCount != null &&
+			        mutation.mutationCount > 0);
+		});
+	};
+
 	/**
 	 * Returns the number of distinct tumor type values for
 	 * the given gene

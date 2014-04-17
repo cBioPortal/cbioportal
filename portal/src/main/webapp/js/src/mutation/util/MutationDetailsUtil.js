@@ -310,7 +310,8 @@ var MutationDetailsUtil = function(mutations)
 	this.containsGermline = function(gene)
 	{
 		return this._contains(gene, function(mutation) {
-			return (mutation.mutationStatus.toLowerCase() == GERMLINE);
+			return (mutation.mutationStatus &&
+			        mutation.mutationStatus.toLowerCase() == GERMLINE);
 		});
 	};
 
@@ -322,7 +323,8 @@ var MutationDetailsUtil = function(mutations)
 	this.containsValidStatus = function(gene)
 	{
 		return this._contains(gene, function(mutation) {
-			return (mutation.validationStatus.toLowerCase() == VALID);
+			return (mutation.validationStatus &&
+			        mutation.validationStatus.toLowerCase() == VALID);
 		});
 	};
 
@@ -334,7 +336,8 @@ var MutationDetailsUtil = function(mutations)
 	this.containsIgvLink = function(gene)
 	{
 		return this._contains(gene, function(mutation) {
-			return (mutation.igvLink != null);
+			return (mutation.igvLink &&
+			        mutation.igvLink != "NA");
 		});
 	};
 
@@ -362,6 +365,63 @@ var MutationDetailsUtil = function(mutations)
 			return (mutation.cna &&
 			        mutation.cna != "NA" &&
 			        mutation.cna != "unknown");
+		});
+	};
+
+	this.containsCaseId = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.caseId &&
+			        mutation.caseId != "NA");
+		});
+	};
+
+	this.containsStartPos = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.startPos &&
+			        mutation.startPos > 0);
+		});
+	};
+
+	this.containsEndPos = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.endPos &&
+			        mutation.endPos > 0);
+		});
+	};
+
+	this.containsFis = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.functionalImpactScore &&
+			        mutation.functionalImpactScore != "NA");
+		});
+	};
+
+	this.containsCosmic = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.cosmic &&
+			        mutation.cosmicCount &&
+					mutation.cosmicCount > 0);
+		});
+	};
+
+	this.containsMutationType = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.mutationType &&
+			        mutation.mutationType != "NA");
+		});
+	};
+
+	this.containsMutationCount = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.mutationCount &&
+			        mutation.mutationCount > 0);
 		});
 	};
 

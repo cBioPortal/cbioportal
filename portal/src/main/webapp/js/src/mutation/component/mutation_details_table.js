@@ -161,11 +161,46 @@ function MutationDetailsTable(options, gene, mutationUtil)
 		columnVisibility: {
 			"datum": "excluded",
 			"proteinChange": "visible",
-			"caseId": "visible",
-			"mutationType": "visible",
-			"cosmic": "visible",
-			"mutationAssessor": "visible",
-			"mutationCount": "visible",
+			"caseId": function (util, gene) {
+				if (util.containsCaseId(gene)) {
+					return "visible";
+				}
+				else {
+					return "hidden";
+				}
+			},
+			"mutationType": function (util, gene) {
+				if (util.containsMutationType(gene)) {
+					return "visible";
+				}
+				else {
+					return "hidden";
+				}
+			},
+			"mutationAssessor": function (util, gene) {
+				if (util.containsFis(gene)) {
+					return "visible";
+				}
+				else {
+					return "hidden";
+				}
+			},
+			"cosmic": function (util, gene) {
+				if (util.containsCosmic(gene)) {
+					return "visible";
+				}
+				else {
+					return "hidden";
+				}
+			},
+			"mutationCount": function (util, gene) {
+				if (util.containsMutationCount(gene)) {
+					return "visible";
+				}
+				else {
+					return "hidden";
+				}
+			},
 			"mutationId": "excluded",
 			"mutationSid": "excluded",
 			"cancerStudy": "excluded",

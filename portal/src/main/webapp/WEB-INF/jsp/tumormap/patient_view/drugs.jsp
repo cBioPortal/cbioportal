@@ -337,12 +337,23 @@
         );
     };
 
-    $(document).ready(function() {
+    var drugsClinicalTrialsTableLoaded = false;
+    function loadDrugsClinicalTrialsTable() {
+        if (drugsClinicalTrialsTableLoaded) return;
+        drugsClinicalTrialsTableLoaded = true;
         genomicEventObs.subscribeMutCna(populateDrugTable);
 
         $("#trial-filtering-options").change(function() {
             populateClinicalTrialsTable(keywords, $("#trial-filtering-options").val());
         });
+    }
+    
+    $("#link-drugs").click( function() {
+        loadDrugsClinicalTrialsTable();
+    });
+    
+    $("#link-clinical-trials").click( function() {
+        loadDrugsClinicalTrialsTable();
     });
 </script>
 

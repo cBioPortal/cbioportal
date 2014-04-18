@@ -41,7 +41,8 @@
     <h3>What's New</h3>
 
     <p>
-    &bull;<a href="jobs.jsp"> <b>We are hiring a data curator</b></a><br>
+    &bull;<a href="jobs.jsp"> We are hiring a <b>Front End Engineer</b></a><br>
+    &bull;<a href="jobs.jsp"> We are hiring a <b>Data Curator</b></a><br>
     &bull;<a href="news.jsp"> <b>New data and features released</b></a>
     </p>
     

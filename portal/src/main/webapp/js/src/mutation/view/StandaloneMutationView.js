@@ -30,14 +30,27 @@ var StandaloneMutationView = Backbone.View.extend({
 		var fullList = self.$el.find(".full-list-of-headers");
 		var visualize = self.$el.find(".submit-custom-mutations");
 		var textArea = self.$el.find(".mutation-file-example");
+		var toggleFullList = self.$el.find(".toggle-full-header-list");
+		var triangleDown = self.$el.find(".triangle-down");
+		var triangle = self.$el.find(".triangle");
 
 		self._initInputHeaderTable();
 		fullList.hide();
 
 		textArea.resizable();
 
-		self.$el.find(".toggle-full-header-list").click(function() {
+		toggleFullList.click(function(event) {
+			event.preventDefault();
 			fullList.slideToggle();
+			triangle.toggle();
+		});
+
+		triangleDown.hide();
+
+		// make triangles clickable, too
+		triangle.click(function(event) {
+			// same as clicking on the link
+			toggleFullList.click();
 		});
 
 		visualize.click(function() {

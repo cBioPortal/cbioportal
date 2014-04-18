@@ -13,18 +13,25 @@
 				<li>Hugo_Symbol</li>
 				<li>Protein_Change</li>
 			</ul>
-			<br>
-			<p>
-				All other headers are optional.
-				Click <a class="toggle-full-header-list" href="#">here</a>
-				to see the full list of valid input headers.
-			</p>
 		</div>
 
-		<div class="full-list-of-headers">
-			<table class="display header-details-table"
-			       cellpadding='0' cellspacing='0' border='0'></table>
-		</div>
+		<table>
+			<tr class='full-header-list-expander'>
+				<td>
+					<span class="triangle triangle-right ui-icon ui-icon-triangle-1-e"></span>
+					<span class="triangle triangle-down ui-icon ui-icon-triangle-1-s"></span>
+					<a href="#" class='toggle-full-header-list'>Click to see the full list of valid input headers</a>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="full-list-of-headers">
+						<table class="display header-details-table"
+						       cellpadding='0' cellspacing='0' border='0'></table>
+					</div>
+				</td>
+			</tr>
+		</table>
 
 		<textarea class="mutation-file-example"
 		          rows="25"

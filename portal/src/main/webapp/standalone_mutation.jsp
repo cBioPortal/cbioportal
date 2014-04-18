@@ -24,6 +24,13 @@
 		margin-bottom: 10px;
 		max-width: 700px;
 	}
+	.full-header-list-expander .triangle {
+		float: left;
+		cursor: pointer;
+	}
+	.mutation-file-example {
+		margin-top: 15px;
+	}
 </style>
 
 <script type="text/javascript" src="js/src/mutation/util/MutationInputParser.js"></script>

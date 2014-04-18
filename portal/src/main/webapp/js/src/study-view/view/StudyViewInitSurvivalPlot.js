@@ -25,6 +25,10 @@ var StudyViewInitSurvivalPlot = (function() {
         return Object.keys(savedCurveInfo);
     }
     
+    function getSavedCurveLength(){
+        return getSavedCurveName().length;
+    }
+    
     function initSelection(){
         var _attrsInfo = StudyViewInitCharts.getShowedChartsInfo();
         var _length = _attrsInfo['name'].length;
@@ -66,16 +70,19 @@ var StudyViewInitSurvivalPlot = (function() {
                 
             }else if($(this).attr('name') === 'close'){
                 var _parent = $(this).parent(),
-                    _name = $(_parent).find('text').attr('value');
+                    _name = $(_parent).find('text').attr('value'),
+                    _color = $(_parent).find('rect').attr('fill');
                     
                 $(_parent).remove();
                 removeSavedCurveFunc(_name);
                 redrawLabel();
+                survivalCurve.removeCurve(_color.toString().substring(1));
             }else{
-                //TODO: 
+                //TODO: Add reverse function
             }
         });
         
+        $("#study-view-survival-plot-body").css('display', 'block');
         $("#study-view-survival-plot-loader").css('display', 'none');
     }
     
@@ -101,7 +108,7 @@ var StudyViewInitSurvivalPlot = (function() {
     
     function removeSavedCurveFunc(_curveName){
         var _targetCurve = savedCurveInfo[_curveName];
-        curveInfo.push(_targetCurve);
+        //curveInfo.push(_targetCurve);
         delete savedCurveInfo[_curveName];
         resetColor(_targetCurve.color, 'no');
     }
@@ -250,12 +257,12 @@ var StudyViewInitSurvivalPlot = (function() {
         var _dataLength = originalData.length;
         if(_seperateAttr !== '' && _seperateAttr){
             for (var i = 0; i < _dataLength; i++) {  
-                var _attr = originalData[i][_seperateAttr].toUpperCase(),
+                var _arr = originalData[i][_seperateAttr].toUpperCase(),
                     _caseID = originalData[i].CASE_ID;
-                if(!caseList.hasOwnProperty(_attr)){
-                    caseList[_attr] = [];
+                if(!caseList.hasOwnProperty(_arr)){
+                    caseList[_arr] = [];
                 }
-                caseList[_attr].push(_caseID);
+                caseList[_arr].push(_caseID);
             }
         }else{
             caseList = _caseLists;
@@ -292,6 +299,8 @@ var StudyViewInitSurvivalPlot = (function() {
         opts.settings.chart_height = 380;
         opts.settings.chart_left = 80;
         opts.settings.chart_top = 0;
+        opts.settings.include_legend = false;
+        opts.settings.include_pvalue = false;
         opts.style.axisX_title_pos_x = 270;
 	opts.style.axisX_title_pos_y = 420;
 	opts.style.axisY_title_pos_x = -170;
@@ -303,6 +312,57 @@ var StudyViewInitSurvivalPlot = (function() {
         opts.text.infoTableTitles.total_cases = "#total cases";
         opts.text.infoTableTitles.num_of_events_cases = "#cases deceased";
         opts.text.infoTableTitles.median = "median months survival";
+    }
+    
+    function redrawView(_selectedAttr){
+        var _color = "";
+        
+        kmEstimator = new KmEstimator(); 
+        logRankTest = new LogRankTest();   
+        //confidenceIntervals = new ConfidenceIntervals();   
+        
+        for(var key in caseList){
+            
+            //Drawing survival curve needs at least two cases
+            if(!(key === 'NA' && _selectedAttr==='OS_MONTHS')){
+                var instanceData = new SurvivalCurveProxy();
+                
+                instanceData.init(data, caseList[key], kmEstimator, logRankTest);
+                
+                //If no data return, will no draw this curve
+                if(instanceData.getData().length > 0){
+                    var instanceSettings = jQuery.extend(true, {}, SurvivalCurveBroilerPlate.subGroupSettings);
+                    _color = colorSelection(key);
+                    instanceSettings.line_color = _color;
+                    instanceSettings.mouseover_color = _color;
+                    instanceSettings.curveId = _color.toString().substring(1);
+                    //Assemble the input
+                    var instance = {};
+                    instance.data = instanceData;
+                    instance.settings = instanceSettings;
+                    inputArr.push(instance);
+
+                    var _curveInfoDatum = {
+                        name: key,
+                        color: _color,
+                        caseList: caseList[key],
+                        data: instance
+                    };
+
+                    curveInfo.push(_curveInfoDatum);
+                }
+            }
+        }
+        
+        if(getSavedCurveName().length > 0){
+            initSavedCurves();
+        }
+        
+        var inputArrLength = inputArr.length;
+        
+        for(var i = 0; i < inputArrLength; i++){
+            survivalCurve.addCurve(inputArr[i]);
+        }
     }
     
     function initView(){
@@ -326,7 +386,7 @@ var StudyViewInitSurvivalPlot = (function() {
                     _color = colorSelection(key);
                     instanceSettings.line_color = _color;
                     instanceSettings.mouseover_color = _color;
-
+                    instanceSettings.curveId = _color.toString().substring(1);
                     //Assemble the input
                     var instance = {};
                     instance.data = instanceData;
@@ -387,10 +447,19 @@ var StudyViewInitSurvivalPlot = (function() {
     
     //Redraw curves based on selected cases and unselected cases
     function redraw(_caseIDs, _selectedAttr){
-        removeContentAndRunLoader();
+        var _curveInfoLength = curveInfo.length;
+        
+        $("#study-view-survival-plot-loader").css('display', 'block');
+        $("#study-view-survival-plot-body").css('display', 'none');
+        
+        for(var i = 0; i < _curveInfoLength; i++){
+            survivalCurve.removeCurve(curveInfo[i].color.toString().substring(1));
+        }
+        
+        //removeContentAndRunLoader();
         resetParams();
         grouping(_caseIDs, _selectedAttr);
-        initView();
+        redrawView(_selectedAttr);
         drawLabels();
         addEvents();
         if(_selectedAttr === '' || !_selectedAttr){
@@ -400,7 +469,7 @@ var StudyViewInitSurvivalPlot = (function() {
     
     function resetParams(){
         inputArr = [];
-        survivalCurve = "";
+        //survivalCurve = "";
         kmEstimator = "";
         logRankTest = "";
         curveInfo = [];
@@ -426,6 +495,10 @@ var StudyViewInitSurvivalPlot = (function() {
         var _numOfLabels = _newLabelsLength + _savedLabelsLength;
         
         var _height = _numOfLabels * 20;
+        
+        
+        $("#study-view-survival-plot-body-label svg").remove();
+        
         if(_savedLabelsLength > 0){
             _height += 20;
         }
@@ -478,7 +551,7 @@ var StudyViewInitSurvivalPlot = (function() {
     
     //Icon type has: pin or close
     function drawLabelBasicComponent(_svg, _index, _color, _textName, _iconType){
-        var _showedName = _textName;
+        var _showedName = _textName.substring(0,1) + _textName.substring(1).toLowerCase();
         var _g = _svg.append("g").attr('transform', 'translate(0, '+ (_index*20) +')');
         
         if(_showedName.length > 7){

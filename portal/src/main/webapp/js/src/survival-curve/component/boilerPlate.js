@@ -17,7 +17,9 @@ var SurvivalCurveBroilerPlate = {
 	    chart_height: 500,
 	    chart_left: 100,
 	    chart_top: 50,
-	    include_info_table: false //Statistic Results from the curve
+	    include_info_table: false, //Statistic Results from the curve
+            include_legend: true,
+            include_pvalue: true
 	},
 	divs : {
 		curveDivId : "",
@@ -27,8 +29,8 @@ var SurvivalCurveBroilerPlate = {
 	subGroupSettings : {
 		line_color: "red",
 		mouseover_color: "#F5BCA9",
-		legend: ""
-
+		legend: "",
+                curveId: ''//curve unique ID
 	},
 	text : {
 	    xTitle: "",

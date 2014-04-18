@@ -526,8 +526,8 @@ var StudyViewInitCharts = (function(){
     }
     
     function removeContentsAndStartLoading(){
-        $("#study-view-survival-plot-body-svg svg").remove();
-        $("#study-view-survival-plot-body-label svg").remove();
+        $("#study-view-survival-plot-body").css('display', 'none');
+        
         $("#study-view-word-cloud svg").remove();
         
         $("#study-view-survival-plot-loader").css('display', 'block');

@@ -7,7 +7,10 @@ var SurvivalCurve = function() {
         style = "",
         divs = "",
         vals = "";
-
+    
+    //Each curve will have unique ID which will be used to add/remove curve
+    var curvesInfo = {};
+    
     function initCanvas() {
         $('#' + divs.curveDivId).empty();
         elem.svg = d3.select("#" + divs.curveDivId)
@@ -16,7 +19,7 @@ var SurvivalCurve = function() {
             .attr("height", settings.canvas_height);
         elem.curve = elem.svg.append("g");
         //elem.dots = elem.svg.append("g"); //the invisible dots
-        elem.censoredDots = elem.svg.append("g");
+        elem.censoredDots = elem.svg.append("g").attr("id", "crossDots");
     }
 
     function initAxis(_inputArr) {
@@ -70,12 +73,13 @@ var SurvivalCurve = function() {
         return _datum;
     }
 
-    function drawLines(data, opts) {
+    function drawLines(data, opts, _curveId) {
         if (data !== null) {
             if (data[0].time !== 0) {
                 data.unshift(appendZeroPoint(data[0].num_at_risk));
             }
             elem.curve = elem.svg.append("path")
+                .attr('id', _curveId+"-line")
                 .attr("d", elem.line(data))
                 .style("fill", "none")
                 .style("stroke", opts.line_color);
@@ -311,7 +315,53 @@ var SurvivalCurve = function() {
             "<input type='submit' value='SVG'></form>";
         $('#' + divs.headerDivId).append(svgConverterForm);
     }
-
+    
+    function drawCurve(_inputArr, _obj){
+        var data = _obj.data;
+        var opts = _obj.settings;
+        var _curve = {};
+        _curve.id = opts.curveId;
+        _curve.color = opts.line_color;
+        curvesInfo[_curve.id] = _curve;
+        elem.dots[_curve.id] = elem.svg.append("g").attr('id', _curve.id+"-dots"); //the invisible dots
+        initLines();
+        drawLines(data.getData(), opts, _curve.id);
+        drawCensoredDots(data.getData(), opts, _curve.id);
+        drawInvisiableDots(_curve.id, data.getData(), opts.mouseover_color);
+        addQtips(_curve.id);
+        
+        if (settings.include_legend) {
+            addLegends(_inputArr);
+        }
+    }
+    
+    function removeCurve(_curveId){
+        $('#' + _curveId + '-dots').remove();
+        $('#' + _curveId + '-line').remove();
+        removeCurveCensoredDots(_curveId);
+        delete curvesInfo[_curveId];
+        //TODO: Add redraw curve lable function
+    }
+    
+    function removeCurveCensoredDots(_curveId){
+        var _allDots = $("#" + divs.curveDivId + " #crossDots").find('line');
+        
+        $.each(_allDots, function(index, value){
+            var _currentColor = $(value).attr('stroke');
+            if(_currentColor === curvesInfo[_curveId].color){
+                $(value).remove();
+            }
+        });
+    }
+    
+    function addCurve(_obj){
+        if(!(_obj.settings.curveId in curvesInfo)){
+            drawCurve([_obj], _obj);
+        }else{
+            console.log("%c Error: Curve ID exists", "color:red");
+        }
+    }
+    
     return {
         init: function(_inputArr, _opts) { 
             //Place parameters
@@ -327,15 +377,7 @@ var SurvivalCurve = function() {
             appendAxis(elem.xAxis, elem.yAxis);
             appendAxisTitles(text.xTitle, text.yTitle);
             $.each(_inputArr, function(index, obj) {
-                elem.dots[index] = elem.svg.append("g"); //the invisible dots
-                var data = obj.data;
-                var opts = obj.settings;
-                initLines();
-                drawLines(data.getData(), opts);
-                drawCensoredDots(data.getData(), opts);
-                drawInvisiableDots(index, data.getData(), opts.mouseover_color);
-                addQtips(index);
-                addLegends(_inputArr);
+                drawCurve(_inputArr, obj);
             });
             appendImgConverter();
             if (_opts.settings.include_info_table) {
@@ -347,7 +389,12 @@ var SurvivalCurve = function() {
                 });
                 appendInfoTable(_infoTableInputArr);
             }
-            addPvals();
-        }
-    }
+            if (_opts.settings.include_pvalue) {
+                addPvals();
+            }
+        },
+        
+        addCurve: addCurve,
+        removeCurve: removeCurve
+    };
 };

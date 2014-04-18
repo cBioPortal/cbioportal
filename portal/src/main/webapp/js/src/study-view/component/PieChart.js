@@ -302,9 +302,9 @@ var PieChart = function(){
                 DIV.chartDiv+"-svg-value");
         });
         
-        StudyViewOverallFunctions
-                    .showHideDivision(DIV.mainDiv, 
-                                    DIV.chartDiv+"-side");
+        StudyViewUtil
+            .showHideDivision(DIV.mainDiv, 
+                            DIV.chartDiv+"-side");
     }
     
     function setSVGElementValue(_svgParentDivId,_idNeedToSetValue){

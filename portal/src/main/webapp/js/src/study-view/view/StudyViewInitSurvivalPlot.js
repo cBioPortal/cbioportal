@@ -1,3 +1,5 @@
+//TODO: Colors have conflicts when user save SELECTED_CASES/UNSELECTED_CALSES/ALL_CASES
+
 var StudyViewInitSurvivalPlot = (function() {
     var caseList = {},
         originalData = [],
@@ -10,7 +12,10 @@ var StudyViewInitSurvivalPlot = (function() {
         
     var curveInfo = [];
     var allCases = [];
-    var color  = jQuery.extend(true, [], StudyViewBoilerplate.chartColors);
+    
+    /*This color will be used for ALL_CASES, SELECTED_CASES AND UNSELECTED_CASES*/
+    var uColor = ["#000000","#2986e2","#dc3912"];//
+    var color  = [];
         
     //Saved curve information is identified based on the curve name,
     //in other words, the name of each curve is identical. 
@@ -43,7 +48,7 @@ var StudyViewInitSurvivalPlot = (function() {
     }
     
     function addEvents() {
-        StudyViewOverallFunctions.showHideDivision(
+        StudyViewUtil.showHideDivision(
                 'study-view-survival-plot',
                 'study-view-survival-plot-header'
         );
@@ -54,6 +59,9 @@ var StudyViewInitSurvivalPlot = (function() {
         
         $("#study-view-survival-plot svg image").click(function(){
             if($(this).attr('name') === 'pin'){
+                
+                //The following functions will be excuted after user inputting
+                //the curve name, so we need to give it a call back function.
                 nameCurveDialog(this, saveCurveInfoFunc);
                 
             }else if($(this).attr('name') === 'close'){
@@ -62,6 +70,7 @@ var StudyViewInitSurvivalPlot = (function() {
                     
                 $(_parent).remove();
                 removeSavedCurveFunc(_name);
+                redrawLabel();
             }else{
                 //TODO: 
             }
@@ -77,14 +86,52 @@ var StudyViewInitSurvivalPlot = (function() {
             _selectedCurveInfo = curveInfo[_selectedIndex];
     
         savedCurveInfo[_selectedCurveInfo.name] = _selectedCurveInfo;
-        removeSaveCurveColor(_selectedCurveInfo.color);
+        //removeSaveCurveColor(_selectedCurveInfo.color);
+        removeElement($(_this).parent());
+        
+        //After saving curve, the related curve info should be delete from 
+        //curvesInfo
+        StudyViewUtil.arrayDeleteByIndex(curveInfo, _selectedIndex);
+        redrawLabel();
+    }
+    
+    function removeElement(_this){
+        $(_this).remove();
     }
     
     function removeSavedCurveFunc(_curveName){
         var _targetCurve = savedCurveInfo[_curveName];
-        
+        curveInfo.push(_targetCurve);
         delete savedCurveInfo[_curveName];
-        color.push(_targetCurve.color);
+        resetColor(_targetCurve.color, 'no');
+    }
+    
+    //Reset specific color element
+    function resetColor(_colorName, _status){
+        var _colorsLength = color.length;
+        
+        for(var i = 0; i < _colorsLength; i++){
+            if(color[i].name === _colorName){
+                color[i].status = _status;
+                break;
+            }
+        }
+    }
+    
+    //Reset all unselected color status to no
+    function resetColorExceptSaved(){
+        var _colorsLength = color.length,
+            _savedColors = [];
+    
+        for(var key in savedCurveInfo){
+            _savedColors.push(savedCurveInfo[key].color);
+        }
+        
+        for(var i = 0; i < _colorsLength; i++){
+            if(_savedColors.indexOf(color[i].name) === -1){
+                color[i].status = 'no';
+            }
+        } 
     }
     //When user click pin icon, this dialog will be popped up and remind user
     //input the curve name.
@@ -215,6 +262,21 @@ var StudyViewInitSurvivalPlot = (function() {
         }
     }
     
+    //Set local global params and only will be initialized once.
+    function initParams(){
+        var _colorNames = jQuery.extend(true, [], StudyViewBoilerplate.chartColors).slice(2);
+        var _colorNamesLength = _colorNames.length;
+        
+        for(var i = 0; i < _colorNamesLength; i++){
+            var _colorDatum = {
+                name : _colorNames[i],
+                status : "no"
+                };
+                
+            color.push(_colorDatum);
+        }
+    }
+    
     function initOpts(){
         opts = jQuery.extend(true, {}, SurvivalCurveBroilerPlate);
 
@@ -244,10 +306,11 @@ var StudyViewInitSurvivalPlot = (function() {
     }
     
     function initView(){
+        var _color = "";
+        
         kmEstimator = new KmEstimator(); 
         logRankTest = new LogRankTest();   
         //confidenceIntervals = new ConfidenceIntervals();   
-        var index = 0;
         
         for(var key in caseList){
             
@@ -256,25 +319,29 @@ var StudyViewInitSurvivalPlot = (function() {
                 var instanceData = new SurvivalCurveProxy();
                 
                 instanceData.init(data, caseList[key], kmEstimator, logRankTest);
+                
+                //If no data return, will no draw this curve
+                if(instanceData.getData().length > 0){
                     var instanceSettings = jQuery.extend(true, {}, SurvivalCurveBroilerPlate.subGroupSettings);
-                    instanceSettings.line_color = color[index];
-                    instanceSettings.mouseover_color = color[index];
+                    _color = colorSelection(key);
+                    instanceSettings.line_color = _color;
+                    instanceSettings.mouseover_color = _color;
 
                     //Assemble the input
                     var instance = {};
                     instance.data = instanceData;
                     instance.settings = instanceSettings;
                     inputArr.push(instance);
-                    
+
                     var _curveInfoDatum = {
                         name: key,
-                        color: color[index],
+                        color: _color,
                         caseList: caseList[key],
                         data: instance
                     };
 
                     curveInfo.push(_curveInfoDatum);
-                    index++;
+                }
             }
         }
         
@@ -286,15 +353,29 @@ var StudyViewInitSurvivalPlot = (function() {
         survivalCurve.init(inputArr, opts);
     }
     
-    //If user save curve, the related color should be delete from color array
-    function removeSaveCurveColor(_color){
-        var _index = color.indexOf(_color);
-
-        if (_index > -1) {
-            color.splice(_index, 1);
+    //Put all rule in here to select color for curves
+    function colorSelection(_key){
+        //We have unique colors and colors
+        var _color;
+        if(_key === 'ALL_CASES'){
+            _color = uColor[0];
+        }else if(_key === 'SELECTED_CASES'){
+            _color = uColor[1];
+        }else if(_key === 'UNSELECTED_CASES'){
+            _color = uColor[2];
         }else {
-            StudyViewOverallFunctions.echoWarningMessg('When delete color');
+            var _colorsLength = color.length;
+            
+            for(var i = 0; i < _colorsLength; i++){
+                if(color[i].status === 'no'){
+                    _color = color[i].name;
+                    color[i].status = "used";
+                    break;
+                }else{
+                }
+            }
         }
+        return _color;
     }
     
     //Will be called in initView when has saved cureves
@@ -324,6 +405,7 @@ var StudyViewInitSurvivalPlot = (function() {
         logRankTest = "";
         curveInfo = [];
         caseList = {};
+        resetColorExceptSaved();
     }
     
     //If no separate attribute selected, the selction box should set to default
@@ -448,10 +530,18 @@ var StudyViewInitSurvivalPlot = (function() {
         }
     }
     
+    //Will be called when user pin/delete labeles
+    function redrawLabel(){
+        $("#study-view-survival-plot-body-label svg").remove();
+        drawLabels();
+        addEvents();
+    }
+    
     return {
         init: function(_caseLists, _data) {
             allCases = _caseLists;
             createDiv();
+            initParams();
             initOpts();
             dataProcess(_data);
             grouping(_caseLists, '');
@@ -461,6 +551,7 @@ var StudyViewInitSurvivalPlot = (function() {
             addEvents();
         },
         
-        redraw: redraw
+        redraw: redraw,
+        redrawLabel: redrawLabel
     };
 })();

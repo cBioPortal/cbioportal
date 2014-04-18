@@ -110,9 +110,9 @@ var BarChart = function(){
                 DIV.chartDiv+"-svg-value");
         });
         
-        StudyViewOverallFunctions
-                    .showHideDivision(DIV.mainDiv, 
-                                    DIV.chartDiv+"-side");
+        StudyViewUtil
+            .showHideDivision(DIV.mainDiv, 
+                            DIV.chartDiv+"-side");
     }
     
     //Bar chart SVG style is controled by CSS file. In order to change 
@@ -307,9 +307,9 @@ var BarChart = function(){
         }
         
         if(param.needLogScale){
-            StudyViewOverallFunctions
-                    .showHideDivision(DIV.chartDiv, 
-                                    "StudyViewLogBarChartCheckboxWrapper");
+            StudyViewUtil
+                .showHideDivision(DIV.chartDiv, 
+                                "StudyViewLogBarChartCheckboxWrapper");
         }
     }
     

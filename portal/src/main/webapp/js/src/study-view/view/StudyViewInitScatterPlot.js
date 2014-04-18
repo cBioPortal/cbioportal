@@ -73,7 +73,7 @@ var StudyViewInitScatterPlot = (function() {
                 scatterPlot.updateScaleY(scatterPlotOptions.names.log_scale_y);
             });
             
-            StudyViewOverallFunctions
+            StudyViewUtil
                     .showHideDivision("study-view-scatter-plot", 
                                     "study-view-scatter-plot-header");
             

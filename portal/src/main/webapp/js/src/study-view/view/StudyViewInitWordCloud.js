@@ -77,7 +77,7 @@ var StudyViewInitWordCloud = (function() {
                 "study-view-word-cloud-svg-value");
         });
         
-        StudyViewOverallFunctions
+        StudyViewUtil
                     .showHideDivision("study-view-word-cloud", 
                                     "study-view-word-cloud-side");
     }

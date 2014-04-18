@@ -169,7 +169,7 @@ var StudyViewInitCharts = (function(){
                 }
                 varType[_attr[i]["attr_id"]] = "pie";
             }else {
-                StudyViewOverallFunctions.echoWarningMessg('Can not identify data type.');
+                StudyViewUtil.echoWarningMessg('Can not identify data type.');
             }
 
             varDisplay.push(_attr[i]["display_name"]);                
@@ -201,8 +201,8 @@ var StudyViewInitCharts = (function(){
             }
             _passedCases = {
                 SELECTED_CASES: _selectedCases,
-                UNSELECTED_CASES: _unselectedCases,
-                ALL_CASES: _allCases
+                UNSELECTED_CASES: _unselectedCases
+                //,ALL_CASES: _allCases
             };
         }else{
             _passedCases = {ALL_CASES: _allCases};
@@ -448,7 +448,7 @@ var StudyViewInitCharts = (function(){
         }
         
         if(createdChartID !== totalCharts){
-            StudyViewOverallFunctions.echoWarningMessg('the number of created charts not equal to number of totalCharts. --1');
+            StudyViewUtil.echoWarningMessg('the number of created charts not equal to number of totalCharts. --1');
             return false;
         }
         

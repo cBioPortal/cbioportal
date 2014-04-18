@@ -39,7 +39,7 @@ var LoadingJS = (function(){
                     'FnGetColumnData',
                     'FnColumnFilter',
                     'FnSetFilteringDelay',
-                    'StudyViewOverallFunctions'
+                    'StudyViewUtil'
                 ],
                 view: [
                     'StudyViewInitCharts', 

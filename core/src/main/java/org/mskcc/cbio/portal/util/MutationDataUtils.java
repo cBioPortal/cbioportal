@@ -156,7 +156,7 @@ public class MutationDataUtils {
         {
             Integer sampleId = mutation.getSampleId();
 
-            if (targetSampleList.contains(sampleId))
+            if (internalSampleIds.contains(sampleId))
             {
                 mutationArray.add(getMutationDataMap(
 		                mutation, geneticProfile, cancerStudy, countMap, cnaDataMap, cosmic, clinicalDataMap));

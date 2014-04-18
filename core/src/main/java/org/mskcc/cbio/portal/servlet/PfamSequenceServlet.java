@@ -56,53 +56,86 @@ public class PfamSequenceServlet extends HttpServlet
 		String uniprotAcc = request.getParameter("uniprotAcc");
 
 		// final json string to return
+		String jsonString = this.getPfamGraphics(uniprotAcc);
+
+		// TODO retrieve data for all uniprotAccs, instead of only one?
+
+		// provided uniprotAcc doesn't work, try the gene symbol
+		if (hugoGeneSymbol != null &&
+		    jsonString == null)
+		{
+			uniprotAcc = getUniprotAcc(hugoGeneSymbol, response);
+
+			if (uniprotAcc != null)
+			{
+				jsonString = this.getPfamGraphics(uniprotAcc);
+			}
+		}
+
+		if (jsonString != null)
+		{
+			this.writeOutput(response, JSONValue.parse(jsonString));
+		}
+		// else: no PFAM data available for this gene/uniprotAcc
+	}
+
+	protected String getUniprotAcc(String hugoGeneSymbol,
+			HttpServletResponse response) throws IOException
+	{
+		String uniprotAcc = null;
 		String jsonString = "";
 
-		// TODO retrieve data for all uniprot ids, instead of only one?
+		List<String> uniProtAccs =
+				this.idMappingService.mapFromHugoToUniprotAccessions(hugoGeneSymbol);
 
-		if (uniprotAcc == null ||
-		    uniprotAcc.length() == 0)
+		// if no uniprot mapping, then try to get only the sequence length
+		if (uniProtAccs.isEmpty())
 		{
-			List<String> uniProtAccs = this.idMappingService.mapFromHugoToUniprotAccessions(hugoGeneSymbol);
+			// try to create a dummy sequence data with only length info
+			JSONArray dummyData = this.generateDummyData(hugoGeneSymbol);
 
-			// if no uniprot mapping, then try to get only the sequence length
-			if (uniProtAccs.isEmpty())
+			// write dummy (or empty) output
+			if (dummyData != null)
 			{
-				// try to create a dummy sequence data with only length info
-				JSONArray dummyData = this.generateDummyData(hugoGeneSymbol);
-
-				// write dummy (or empty) output
-				if (dummyData != null)
-				{
-					this.writeOutput(response, dummyData);
-				}
-				else
-				{
-					// last resort: send empty data
-					this.writeOutput(response, JSONValue.parse(jsonString));
-				}
-
-				return;
+				this.writeOutput(response, dummyData);
 			}
-
+			else
+			{
+				// last resort: send empty data
+				this.writeOutput(response, JSONValue.parse(jsonString));
+			}
+		}
+		else
+		{
 			// TODO longest sequence is not always the desired one.
 			// (ex: BRCA1 returns E9PFC7_HUMAN instead of BRCA1_HUMAN)
 
 			uniprotAcc = this.longestAcc(uniProtAccs);
 		}
 
-		DaoPfamGraphics dao = new DaoPfamGraphics();
+		return uniprotAcc;
+	}
 
-		try
+	protected String getPfamGraphics(String uniprotAcc)
+	{
+		String jsonString = null;
+
+		if (uniprotAcc != null &&
+		    uniprotAcc.length() > 0)
 		{
-			jsonString = dao.getPfamGraphics(uniprotAcc);
-		}
-		catch (DaoException e)
-		{
-			e.printStackTrace();
+			DaoPfamGraphics dao = new DaoPfamGraphics();
+
+			try
+			{
+				jsonString = dao.getPfamGraphics(uniprotAcc);
+			}
+			catch (DaoException e)
+			{
+				e.printStackTrace();
+			}
 		}
 
-		this.writeOutput(response, JSONValue.parse(jsonString));
+		return jsonString;
 	}
 
 	protected JSONArray generateDummyData(String hugoGeneSymbol)

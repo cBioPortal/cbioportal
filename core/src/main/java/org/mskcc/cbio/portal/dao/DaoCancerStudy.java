@@ -245,6 +245,14 @@ public final class DaoCancerStudy {
         }
     }
 
+    public static void deleteCancerStudy(String cancerStudyStableId) throws DaoException
+    {
+        CancerStudy study = getCancerStudyByStableId(cancerStudyStableId);
+        if (study != null){
+            deleteCancerStudy(study.getInternalId());
+        }
+    }
+
     /**
      * Deletes the Specified Cancer Study.
      *

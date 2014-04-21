@@ -57,15 +57,15 @@ var CoExpView = (function() {
 
         function appendTabsContent() {
             $.each(window.PortalGlobals.getGeneList(), function(index, value) {
-                $("#coexp-tabs-list").append("<li><a href='#" + Prefix.divPrefix + value + 
+                $("#coexp-tabs-list").append("<li><a href='#" + Prefix.divPrefix + cbio.util.safeProperty(value) + 
                   "' class='coexp-tabs-ref'><span>" + value + "</span></a></li>");
             });
         }
 
         function appendLoadingImgs() {
             $.each(window.PortalGlobals.getGeneList(), function(index, value) {
-                $("#coexp-tabs-content").append("<div id='" + Prefix.divPrefix + value + "'>" +
-                    "<div id='" + Prefix.loadingImgPrefix + value + "'>" +
+                $("#coexp-tabs-content").append("<div id='" + Prefix.divPrefix + cbio.util.safeProperty(value) + "'>" +
+                    "<div id='" + Prefix.loadingImgPrefix + cbio.util.safeProperty(value) + "'>" +
                     "<table><tr><td><img style='padding:20px;' src='images/ajax-loader.gif'></td>" + 
                     "<td>Calculating and rendering may take up to 1 minute.</td></tr></table>" + 
                     "</div></div>");
@@ -135,20 +135,20 @@ var CoExpView = (function() {
                 var geneIds = window.PortalGlobals.getGeneList();
                 $.each(geneIds, function(index, value) {
                     //Distroy all the subview instances
-                    var element =  document.getElementById(Prefix.tableDivPrefix + value);
+                    var element =  document.getElementById(Prefix.tableDivPrefix + cbio.util.safeProperty(value));
                     if (typeof(element) !== 'undefined' && element !== null) { 
                         element.parentNode.removeChild(element); //destroy all the existing instances
                     }
-                    element =  document.getElementById(Prefix.plotPrefix + value);
+                    element =  document.getElementById(Prefix.plotPrefix + cbio.util.safeProperty(value));
                     if (typeof(element) !== 'undefined' && element !== null) { 
                         element.parentNode.removeChild(element); //destroy all the existing instances
                     }   
                     //Empty all the sub divs
-                    $("#" + Prefix.tableDivPrefix + value).empty();
-                    $("#" + Prefix.plotsPreFix + value).empty();
-                    $("#" + Prefix.loadingImgPrefix + value).empty();
+                    $("#" + Prefix.tableDivPrefix + cbio.util.safeProperty(value)).empty();
+                    $("#" + Prefix.plotsPreFix + cbio.util.safeProperty(value)).empty();
+                    $("#" + Prefix.loadingImgPrefix + cbio.util.safeProperty(value)).empty();
                     //Add back loading imgs
-                    $("#" + Prefix.loadingImgPrefix + value).append(
+                    $("#" + Prefix.loadingImgPrefix + cbio.util.safeProperty(value)).append(
                         "<table><tr><td><img style='padding:20px;' src='images/ajax-loader.gif'></td>" + 
                         "<td>Calculating and rendering may take up to 1 minute.</td></tr></table>" + 
                         "</div>");
@@ -276,12 +276,12 @@ var CoExpView = (function() {
             function attachPearsonFilter() { 
                 //Add drop down filter for positive/negative pearson display
                 $("#" + Names.tableDivId).find('.coexp-table-filter-pearson').append(
-                    "<select id='coexp-table-select-" + geneId + "' style='width: 230px; margin-left: 5px;'>" +
+                    "<select id='coexp-table-select-" + cbio.util.safeProperty(geneId) + "' style='width: 230px; margin-left: 5px;'>" +
                     "<option value='all'>Show All</option>" +
                     "<option value='positivePearson'>Show Only Positively Correlated</option>" +
                     "<option value='negativePearson'>Show Only Negatively Correlated</option>" +
                     "</select>");
-                $("select#coexp-table-select-" + geneId).change(function () {
+                $("select#coexp-table-select-" + cbio.util.safeProperty(geneId)).change(function () {
                     if ($(this).val() === "negativePearson") {
                         coExpTableInstance.fnFilter("-", 1, false);
                     } else if ($(this).val() === "positivePearson") {
@@ -381,11 +381,12 @@ var CoExpView = (function() {
 
         function assembleNames() {
             //figure out div id
-            Names.divId = Prefix.divPrefix + geneId;
-            Names.loadingImgId = Prefix.loadingImgPrefix + geneId;
-            Names.tableId = Prefix.tablePrefix + geneId + jQuery.now();
-            Names.tableDivId = Prefix.tableDivPrefix + geneId;
-            Names.plotId = Prefix.plotPrefix + geneId;
+            var safeGeneId = cbio.util.safeProperty(geneId);
+            Names.divId = Prefix.divPrefix + safeGeneId;
+            Names.loadingImgId = Prefix.loadingImgPrefix + safeGeneId;
+            Names.tableId = Prefix.tablePrefix + safeGeneId + jQuery.now();
+            Names.tableDivId = Prefix.tableDivPrefix + safeGeneId;
+            Names.plotId = Prefix.plotPrefix + safeGeneId;
         }
 
         function drawLayout() {
@@ -412,7 +413,7 @@ var CoExpView = (function() {
                 //TODO: Just a quick fix for the sub-tab collapse bug
                 $(window).trigger("resize");
                 //Get the div id of the right sub-tab
-                var element = $(".coexp_datatable_" + _geneId);
+                var element = $(".coexp_datatable_" + cbio.util.safeProperty(_geneId));
                 if (element.length === 0) { //Avoid duplication (see if the subtab instance already exists)
                     assembleNames();
                     drawLayout();

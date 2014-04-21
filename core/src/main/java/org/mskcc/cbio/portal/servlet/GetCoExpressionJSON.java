@@ -38,6 +38,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 import org.mskcc.cbio.portal.util.CoExpUtil;
+import org.mskcc.cbio.portal.util.XssRequestWrapper;
 
 /**
  * Get the top co-expressed genes for queried genes
@@ -76,6 +77,9 @@ public class GetCoExpressionJSON extends HttpServlet  {
 
         String cancerStudyIdentifier = httpServletRequest.getParameter("cancer_study_id");
         String geneSymbol = httpServletRequest.getParameter("gene");
+        if (httpServletRequest instanceof XssRequestWrapper) {
+            geneSymbol = ((XssRequestWrapper)httpServletRequest).getRawParameter("gene");
+        }
         String profileId = httpServletRequest.getParameter("profile_id");
 	      String caseSetId = httpServletRequest.getParameter("case_set_id");
         String caseIdsKey = httpServletRequest.getParameter("case_ids_key");

@@ -38,6 +38,7 @@ import org.mskcc.cbio.portal.model.CaseList;
 import org.mskcc.cbio.portal.model.Gene;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.util.CaseSetUtil;
+import org.mskcc.cbio.portal.util.XssRequestWrapper;
 
 /**
  * Retrieves genomic profile data for one or more genes.
@@ -78,7 +79,14 @@ public class GetProfileDataJSON extends HttpServlet  {
         //Get URL Parameters
         String caseSetId = httpServletRequest.getParameter("case_set_id");
         String caseIdsKey = httpServletRequest.getParameter("case_ids_key");
-        String[] geneIdList = httpServletRequest.getParameter("gene_list").split("\\s+");
+        String rawGeneIdList;
+        if (httpServletRequest instanceof XssRequestWrapper) {
+            rawGeneIdList = ((XssRequestWrapper)httpServletRequest).getRawParameter("gene_list");
+        } else {
+            rawGeneIdList = httpServletRequest.getParameter("gene_list");
+        }
+        
+        String[] geneIdList = rawGeneIdList.split("\\s+");
         String[] geneticProfileIds = httpServletRequest.getParameter("genetic_profile_id").split("\\s+");
 
         //Final result JSON

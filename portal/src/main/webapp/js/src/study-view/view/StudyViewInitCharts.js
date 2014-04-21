@@ -402,7 +402,18 @@ var StudyViewInitCharts = (function(){
     
     function initSurvivalPlot(_data) {
         StudyViewInitSurvivalPlot.init({ALL_CASES: parObject.caseIds}, _data);
-        //TODO: Add close function
+        
+        $(".study-view-survival-plot-delete").click(function (){
+           $("#study-view-survival-plot").css('display','none');
+           $('#study-view-add-chart').css('display','block');
+           $('#study-view-add-chart ul')
+                   .append($('<li></li>')
+                       .attr('id','overallSurvivalPlot')
+                       .text('Overall Survival Plot'));
+
+           bondDragForLayout();
+           AddCharts.bindliClickFunc();
+       });
     }
     
     function initScatterPlot(_arr) {
@@ -874,6 +885,8 @@ var StudyViewInitCharts = (function(){
             _chartType = ['scatter'];
         }else if(_id === 'wordCloud'){
             _chartType = ['wordCloud'];
+        }else if(_id === 'overallSurvivalPlot'){
+            _chartType = ['overallSurvivalPlot'];
         }else{
             _chartType = varType[_id].split(',');
         }
@@ -884,6 +897,8 @@ var StudyViewInitCharts = (function(){
             $("#study-view-scatter-plot").css('display','block');
         }else if(_selectedAttr==='wordCloud'){
             $("#study-view-word-cloud").css('display','block');
+        }else if(_selectedAttr==='overallSurvivalPlot'){
+            $("#study-view-survival-plot").css('display','block');
         }else{
             if(Object.keys(attrNameMapUID).indexOf(_selectedAttr) !== -1){
                 _chartID = attrNameMapUID[_selectedAttr];

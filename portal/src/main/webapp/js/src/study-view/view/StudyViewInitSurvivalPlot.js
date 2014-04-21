@@ -77,13 +77,63 @@ var StudyViewInitSurvivalPlot = (function() {
                 removeSavedCurveFunc(_name);
                 redrawLabel();
                 survivalCurve.removeCurve(_color.toString().substring(1));
+            }else if($(this).attr('name') === 'undo'){
+                var _parent = $(this).parent(),
+                    _name = $(_parent).find('text').attr('value');
+                    
+                $(_parent).remove();
+                undoSavedCurve(_name);
+                removeSavedCurveFunc(_name);
+                redrawLabel();
             }else{
-                //TODO: Add reverse function
+                //TODO: Add more function
             }
         });
         
+        
+        $("#study-view-survival-plot svg rect").hover(function(){
+            $(this).css('cursor', 'pointer');
+        });
+        
+        $("#study-view-survival-plot svg rect").click(function(){
+            var _text = $($(this).parent()).find('text:first'),
+                _rgbRect = StudyViewUtil.rgbStringConvert($(this).css('fill')),
+                _rgbText = StudyViewUtil.rgbStringConvert($(_text).css('fill')),
+                _rectColor = StudyViewUtil.rgbToHex(_rgbRect[0], _rgbRect[1], _rgbRect[2]),
+                _textColor =  StudyViewUtil.rgbToHex(_rgbText[0], _rgbText[1], _rgbText[2]);
+            
+            //console.log(_rectColor);
+            if(_textColor === '#000000'){
+                $(_text).css('fill', 'red');
+                highlightCurve(_rectColor.substring(1));
+            }else{
+                $(_text).css('fill', 'black');
+                resetCurve(_rectColor.substring(1));
+            }
+            
+        });
+        
+        
         $("#study-view-survival-plot-body").css('display', 'block');
         $("#study-view-survival-plot-loader").css('display', 'none');
+    }
+    
+    function highlightCurve(_curveId){
+        var _hiddenDots = $("#"+_curveId+"-dots").find('path');
+        
+        $.each(_hiddenDots, function(index, obj){
+            $(obj).css('opacity','.6');
+        });
+        $("#"+_curveId+"-line").css('stroke-width', '3px');
+    }
+    
+    function resetCurve(_curveId){
+        var _hiddenDots = $("#"+_curveId+"-dots").find('path');
+        
+        $.each(_hiddenDots, function(index, obj){
+            $(obj).css('opacity','0');
+        });
+        $("#"+_curveId+"-line").css('stroke-width', '');
     }
     
     //Save all related information with this curve. The saved curve(s) will be
@@ -106,9 +156,14 @@ var StudyViewInitSurvivalPlot = (function() {
         $(_this).remove();
     }
     
+    //Move saved curve infomation back to curveInfo
+    function undoSavedCurve(_curveName){
+        var _targetCurve = savedCurveInfo[_curveName];
+        curveInfo.push(_targetCurve);
+    }
+    
     function removeSavedCurveFunc(_curveName){
         var _targetCurve = savedCurveInfo[_curveName];
-        //curveInfo.push(_targetCurve);
         delete savedCurveInfo[_curveName];
         resetColor(_targetCurve.color, 'no');
     }
@@ -144,10 +199,10 @@ var StudyViewInitSurvivalPlot = (function() {
     //input the curve name.
     function nameCurveDialog(_this, _callBackFunc) {
         var _parent = $(_this).parent();
-
+        
         $(_this).qtip({
             content: {
-                text: $('<input type="text" style="float:left"/><button>OK</button>'), // Create an input (style it using CSS)
+                text: $('<input type="text" style="float:left"/><button style="float:left">OK</button><input type="checkbox"  style="float:left; font-size:200%"/>'), // Create an input (style it using CSS)
                 title: 'Please name your curve',
                 button: 'Close'
             },
@@ -210,6 +265,40 @@ var StudyViewInitSurvivalPlot = (function() {
                         }
                         //Set to True: call .hide() before destroy
                          api.destroy(true);
+                    });
+                    $('input:text', api.elements.tooltip).keyup(function(){
+                        var _currentText = $(this).attr('value');
+                        var _parentText = $($(_this).parent()).find('text').attr('value');
+                        
+                        if(_currentText === _parentText){
+                            $('input:checkbox', api.elements.tooltip).attr('checked', 'checked');
+                        }else{
+                            $('input:checkbox', api.elements.tooltip).attr('checked', false);
+                        }
+                    });
+                    $('input:checkbox', api.elements.tooltip).change(function(){
+                        var _checked = $(this).attr('checked');
+                        
+                        if(_checked === 'checked'){
+                            var _text = $($(_this).parent()).find('text').attr('value');
+                            $('input:text', api.elements.tooltip).attr('value', _text);
+                        }else{
+                            $('input:text', api.elements.tooltip).attr('value', '');
+                        }
+                    });
+                    $('input:checkbox', api.elements.tooltip).qtip({
+                        content: {
+                            text: 'Keep original name.'
+                        },
+                        position: {
+                            my: 'left bottom',
+                            at: 'top right',
+                            target: $('input:checkbox', api.elements.tooltip),
+                            viewport: $(window)
+                        },
+                        style: {
+                            classes: 'qtip-blue'
+                        }
                     });
                 }
             }
@@ -571,16 +660,31 @@ var StudyViewInitSurvivalPlot = (function() {
                 .attr('value', _textName)
                 .text(_showedName);
 
-        var _image = _g.append("image")
+        if(_iconType === 'pin'){
+            var _image = _g.append("image")
                 .attr('x', '90')
                 .attr('y', '0')
                 .attr('height', '10px')
                 .attr('width', '10px');
-        if(_iconType === 'pin'){
+        
             _image.attr('xlink:href', 'images/pin.png');
             _image.attr('name', 'pin');
         }else if(_iconType === 'close'){
-             _image.attr('xlink:href', 'images/close.png');
+            var _image = _g.append("image")
+                .attr('x', '75')
+                .attr('y', '0')
+                .attr('height', '10px')
+                .attr('width', '10px');
+            _image.attr('xlink:href', 'images/undo.svg');
+            _image.attr('name', 'undo');
+            
+            _image = _g.append("image")
+                .attr('x', '90')
+                .attr('y', '0')
+                .attr('height', '10px')
+                .attr('width', '10px');
+        
+            _image.attr('xlink:href', 'images/close.png');
             _image.attr('name', 'close');
         }else {
             //TODO:

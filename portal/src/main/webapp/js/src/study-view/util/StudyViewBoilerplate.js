@@ -294,7 +294,7 @@ var StudyViewBoilerplate ={
             "</form>"+
             "<input type='checkbox' id='study-view-scatter-plot-log-scale-x'></input><span class='study-view-scatter-plot-checkbox'>Log Scale X</span>"+
             "<input type='checkbox' id='study-view-scatter-plot-log-scale-y'></input><span class='study-view-scatter-plot-checkbox'>Log Scale y</span>"+
-            "</div><span class='study-view-chart-plot-delete'>x</span></div>"+
+            "</div><span class='study-view-chart-plot-delete study-view-scatter-plot-delete'>x</span></div>"+
             "<div id='study-view-scatter-plot-body'>"+
             "<div id='study-view-scatter-plot-body-top-chart'></div>"+
             "<div id='study-view-scatter-plot-body-svg'></div>"+
@@ -322,7 +322,7 @@ var StudyViewBoilerplate ={
             "<input type='hidden' id='study-view-survival-plot-svg-name' name='filename' value=''>"+
             "<input type='submit' style='font-size:10px' value='SVG'>"+    
             "</form>"+
-            "</div><span class='study-view-chart-plot-delete'>x</span></div>"+
+            "</div><span class='study-view-chart-plot-delete study-view-survival-plot-delete'>x</span></div>"+
             "<div id='study-view-survival-plot-loader' style='width: 100%; display:none'>"+
             "<img src='images/ajax-loader.gif'/></div>"+
             "<div id='study-view-survival-plot-body'>"+
@@ -348,7 +348,7 @@ var StudyViewBoilerplate ={
             "</form></div>"+
             "<div id='study-view-word-cloud-title'>" +
             "<chartTitleH4>Mutated Genes</chartTitleH4>" +
-            "<span class='study-view-chart-cloud-delete' "+
+            "<span class='study-view-chart-cloud-delete study-view-word-cloud-delete' "+
             "style = 'float:right;'>x</span></div>" +
             "<div id='study-view-word-cloud-loader' style='width: 100%; display:none; text-align:center'>"+
             "<img src='images/ajax-loader.gif'/></div>"+

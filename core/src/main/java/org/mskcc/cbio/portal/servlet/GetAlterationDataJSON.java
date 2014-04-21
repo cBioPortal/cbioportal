@@ -50,9 +50,17 @@ public class GetAlterationDataJSON extends HttpServlet {
                           HttpServletResponse httpServletResponse) throws ServletException, IOException {
 
         String cancerStudyIdentifier = httpServletRequest.getParameter("cancer_study_id");
-        String[] geneIdList = httpServletRequest.getParameter("gene_list").split("\\s+");
         String patientSetId = httpServletRequest.getParameter("case_set_id");
         String patientIdsKey = httpServletRequest.getParameter("case_ids_key");
+        
+        String rawGeneIdList;
+        if (httpServletRequest instanceof XssRequestWrapper) {
+            rawGeneIdList = ((XssRequestWrapper)httpServletRequest).getRawParameter("gene_list");
+        } else {
+            rawGeneIdList = httpServletRequest.getParameter("gene_list");
+        }
+        
+        String[] geneIdList = rawGeneIdList.split("\\s+");
         String profileId = httpServletRequest.getParameter("profile_id");
 
 

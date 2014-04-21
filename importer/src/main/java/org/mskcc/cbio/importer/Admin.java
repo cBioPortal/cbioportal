@@ -19,35 +19,20 @@
 package org.mskcc.cbio.importer;
 
 // imports
-import org.mskcc.cbio.importer.Config;
-import org.mskcc.cbio.importer.Fetcher;
-import org.mskcc.cbio.importer.DatabaseUtils;
-import org.mskcc.cbio.importer.model.PortalMetadata;
-import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.DataSourcesMetadata;
-import org.mskcc.cbio.importer.model.ReferenceMetadata;
+import org.mskcc.cbio.importer.*;
+import org.mskcc.cbio.importer.model.*;
+import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.PosixParser;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.*;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.*;
 import org.apache.log4j.PropertyConfigurator;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import java.io.File;
-import java.io.PrintWriter;
-import java.util.Map;
-import java.util.HashSet;
-import java.util.Collection;
-import java.util.Properties;
+import java.io.*;
+import java.util.*;
 import java.text.SimpleDateFormat;
 
 /**
@@ -188,6 +173,11 @@ public class Admin implements Runnable {
 												"command to add your identity to the authentication agent.")
 							   .create("copy_seg_files"));
 
+        Option deleteCancerStudy = (OptionBuilder.withArgName("cancer_study_id")
+									.hasArg()
+									.withDescription("Delete a cancer study matching the given cancer study id.")
+									.create("delete_cancer_study"));
+
 		// create an options instance
 		Options toReturn = new Options();
 
@@ -206,6 +196,7 @@ public class Admin implements Runnable {
 		toReturn.addOption(importData);
 		toReturn.addOption(importCaseLists);
 		toReturn.addOption(copySegFiles);
+		toReturn.addOption(deleteCancerStudy);
 
 		// outta here
 		return toReturn;
@@ -288,7 +279,6 @@ public class Admin implements Runnable {
 			else if (commandLine.hasOption("import_types_of_cancer")) {
 				importTypesOfCancer();
 			}
-                        
 			// import data
 			else if (commandLine.hasOption("import_data")) {
                 String[] values = commandLine.getOptionValues("import_data");
@@ -304,6 +294,9 @@ public class Admin implements Runnable {
 			else if (commandLine.hasOption("copy_seg_files")) {
                 String[] values = commandLine.getOptionValues("copy_seg_files");
                 copySegFiles(values[0], values[1], values[2]);
+			}
+			else if (commandLine.hasOption("delete_cancer_study")) {
+				deleteCancerStudy(commandLine.getOptionValue("delete_cancer_study"));
 			}
 			else {
 				Admin.usage(new PrintWriter(System.out, true));
@@ -709,6 +702,17 @@ public class Admin implements Runnable {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("copySegFiles(), complete");
+		}
+	}
+
+	private void deleteCancerStudy(String cancerStudyStableId) throws Exception
+	{
+		if (LOG.isInfoEnabled()) {
+			LOG.info("deleteCancerStudy(), study id: " + cancerStudyStableId);
+		}
+		DaoCancerStudy.deleteCancerStudy(cancerStudyStableId);
+		if (LOG.isInfoEnabled()) {
+			LOG.info("deleteCancerStudy(), complete");
 		}
 	}
 

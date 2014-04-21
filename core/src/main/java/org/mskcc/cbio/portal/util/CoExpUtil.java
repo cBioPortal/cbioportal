@@ -29,7 +29,7 @@ public class CoExpUtil {
             System.out.println("Caught Dao Exception: " + e.getMessage());
 			return null;
         }
-	}
+    }
 
 	public static GeneticProfile getPreferedGeneticProfile(String cancerStudyIdentifier) {
         CancerStudy cs = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
@@ -59,35 +59,29 @@ public class CoExpUtil {
             sampleIds.retainAll(DaoSampleProfile.getAllSampleIdsInProfile(profileId));
         
             DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
-        
-            Map<Long, HashMap<Integer, String>> mapStr = daoGeneticAlteration.getGeneticAlterationMap(profileId, null);
-            Map<Long, double[]> map = new HashMap<Long, double[]>(mapStr.size());
-            for (Map.Entry<Long, HashMap<Integer, String>> entry : mapStr.entrySet()) {
-                Long gene = entry.getKey();
-                Map<Integer, String> mapCaseValueStr = entry.getValue();
-                double[] values = new double[sampleIds.size()];
-                boolean isValid = true;
-                for (int i = 0; i < sampleIds.size(); i++) {
-                    String sampleId = sampleIds.get(i);
-                    String value = mapCaseValueStr.get(sampleId);
-                    Double d;
-                    try {
-                        d = Double.valueOf(value);
-                    } catch (Exception e) {
-                        d = Double.NaN;
-                    }
-                    if (d!=null && !d.isNaN()) {
-                        values[i]=d;
-                    } else {
-                        isValid = false;
-                        break;
-                    }
+
+        Map<Long, HashMap<Integer, String>> mapStr = daoGeneticAlteration.getGeneticAlterationMap(profileId, null);
+        Map<Long, double[]> map = new HashMap<Long, double[]>(mapStr.size());
+        for (Map.Entry<Long, HashMap<Integer, String>> entry : mapStr.entrySet()) {
+            Long gene = entry.getKey();
+            Map<Integer, String> mapCaseValueStr = entry.getValue();
+            double[] values = new double[sampleIds.size()];
+            for (int i = 0; i < sampleIds.size(); i++) {
+                String caseId = sampleIds.get(i);
+                String value = mapCaseValueStr.get(caseId);
+                Double d;
+                try {
+                    d = Double.valueOf(value);
+                } catch (Exception e) {
+                    d = Double.NaN;
                 }
-                if (isValid) {
-                    map.put(gene, values);
-                }
+                values[i]=d;
             }
-            return map;
+                 
+            map.put(gene, values);
         }
 
+        return map;
+    }
+	
 }

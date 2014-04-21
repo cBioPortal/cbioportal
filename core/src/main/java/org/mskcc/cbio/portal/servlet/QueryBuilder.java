@@ -91,6 +91,8 @@ public class QueryBuilder extends HttpServlet {
     public static final String INDEX_PAGE = "index.do";
     public static final String INTERNAL_EXTENDED_MUTATION_LIST = "INTERNAL_EXTENDED_MUTATION_LIST";
     public static final String DATA_PRIORITY = "data_priority";
+    private static final String DB_CONNECT_ERROR = ("An error occurred while trying to connect to the database." +
+                                                    "  This could happen if the database does not contain any cancer studies.");
 
     private ServletXssUtil servletXssUtil;
 
@@ -239,15 +241,15 @@ public class QueryBuilder extends HttpServlet {
         } catch (RemoteException e) {
             xdebug.logMsg(this, "Got Remote Exception:  " + e.getMessage());
             forwardToErrorPage(httpServletRequest, httpServletResponse,
-                               "An error occurred while trying to connect to the database.", xdebug);
+                               DB_CONNECT_ERROR, xdebug);
         } catch (DaoException e) {
             xdebug.logMsg(this, "Got Database Exception:  " + e.getMessage());
             forwardToErrorPage(httpServletRequest, httpServletResponse,
-                               "An error occurred while trying to connect to the database.", xdebug);
+                               DB_CONNECT_ERROR, xdebug);
         } catch (ProtocolException e) {
             xdebug.logMsg(this, "Got Protocol Exception:  " + e.getMessage());
             forwardToErrorPage(httpServletRequest, httpServletResponse,
-                               "An error occurred while trying to connect to the database.", xdebug);
+                               DB_CONNECT_ERROR, xdebug);
         }
     }
 

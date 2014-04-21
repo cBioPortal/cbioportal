@@ -17,6 +17,12 @@
 
 package org.mskcc.cbio.portal.servlet;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
@@ -28,8 +34,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
 
-import java.io.*;
-import java.util.*;
 
 /**
  * Retrieves genomic profile data for one or more genes.
@@ -71,7 +75,14 @@ public class GetProfileDataJSON extends HttpServlet  {
         String cancerStudyIdentifier = httpServletRequest.getParameter("cancer_study_id");
         String patientSetId = httpServletRequest.getParameter("case_set_id");
         String patientIdsKey = httpServletRequest.getParameter("case_ids_key");
-        String[] geneIdList = httpServletRequest.getParameter("gene_list").split("\\s+");
+        String rawGeneIdList;
+        if (httpServletRequest instanceof XssRequestWrapper) {
+            rawGeneIdList = ((XssRequestWrapper)httpServletRequest).getRawParameter("gene_list");
+        } else {
+            rawGeneIdList = httpServletRequest.getParameter("gene_list");
+        }
+        
+        String[] geneIdList = rawGeneIdList.split("\\s+");
         String[] geneticProfileIds = httpServletRequest.getParameter("genetic_profile_id").split("\\s+");
 
         //Final result JSON

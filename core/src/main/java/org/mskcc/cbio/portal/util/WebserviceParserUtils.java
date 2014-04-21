@@ -15,13 +15,13 @@
  * has been advised of the possibility of such damage.
 */
 
+
 package org.mskcc.cbio.portal.util;
 
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.servlet.WebService;
 import org.mskcc.cbio.portal.web_api.ProtocolException;
-import org.mskcc.cbio.portal.util.PatientSetUtil;
 
 import java.util.*;
 import java.util.regex.Pattern;

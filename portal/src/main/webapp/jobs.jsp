@@ -13,20 +13,96 @@
 
 %>
 
-<% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::FAQ"); %>
+<% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Jobs"); %>
 <jsp:include page="WEB-INF/jsp/global/header.jsp" flush="true" />
+
+<script>
+    $( "#div-jobs" ).ready(function() {
+        $("#div-jobs").accordion({
+            active: false,
+            collapsible: true            
+        });
+    });
+
+</script>
+
 <div id="main">
     <table cellspacing="2px">
         <tr>
             <td>
-            <h2>Genomic Data and Scientific Content Curator for cBioPortal</h2>
-            <div>
+                <p>
+                    To take the Portal to the next level and to transition it towards <b>use in the clinic</b>,
+                    we are looking to <b>expand its analysis and visualization options</b> as well as <b>improve
+                    and expand its data content</b>. We are looking for talented and team oriented people to
+                    join us for the following positions.
+                </p>
+                
+            <div id="div-jobs">
+                           
+            <h2><b>Software Engineer - Front End</b></h2>
+            <div id="div-job-1">
+
+                <p>As <b>one of the core engineers on the team</b>, you will be architecting
+                    the next generation of cBioPortal towards <b>rich client web applications</b>
+                    with more interactive analysis and visualization features. You
+                    will be designing new interactive features, taking them quickly
+                    from prototype to production. You'll need to understand front-end
+                    web architecture, web UI design, and web-based visualization, and
+                    adopt cutting edge web technologies.</p>
+                
+                <p>
+                <h3>Responsibilities</h3>
+                <ul>
+                    <li>Work closely with our existing team including researchers, back-end
+                        engineers, and other front-end engineers to implement and redesign
+                        web UI for analysis and visualization of cancer genomics and clinical data</li>
+                    <li>Build next-generation web applications with a focus on the client side</li>
+                    <li>Explore and evaluate client side frameworks and technologies</li>
+                    <li>Design and build UI architecture and components</li>
+                    <li>Quickly generate a prototype from UI concepts for testing and team feedback</li>
+                    <li>Pick up Java as necessary and engage with back-end systems</li>
+                </ul>
+                </p>
+                
+                <p>
+                <h3>Minimum Qualifications</h3>
+                <ul>
+                    <li>Bachelor's degree in Computer Science or related field and 2+ years
+                        of software development experience, or a master's degree</li>
+                    <li>Web application development experience</li>
+                    <li>Experience with JQuery, AJAX, HTML, and CSS</li>
+                    <li>Programming experience in Java or C/C++</li>
+                    <li>Experience developing in teams</li>
+                    <li>Self-motivated, responsible and goal-oriented</li>
+                    <li>Interest in contributing to biological research with clinical applications</li>
+                </ul>
+                </p>
+
+                <p>
+                <h3>Preferred Qualifications</h3>
+                <ul>
+                    <li>Experience with front-end framework such as Angular, Backbone, or Amber</li>
+                    <li>Experience designing modular object-oriented JavaScript</li>
+                    <li>Experience with HTML5, CSS3, and Javascript visualization libraries such as D3.js</li>
+                    <li>Experience with server-side web frameworks such as Java/Spring/Hibernate, Python/Django, Ruby/Rails etc</li>
+                    <li>User interface design knowledge</li>
+                    <li>Strong ability to learn new tools, technologies and languages as needed</li>
+                    <li>Prior involvement or interest in bioinformatics or cancer genomics domain</li>
+                </ul>
+                </p>
+                
+                <p>To apply please send your resume to: cbioportaljobs@gmail.com.
+                   In the subject line please add #SoftwareEngineer...</p>
+            </div>
+                            
+                
+            <h2><b>Genomic Data and Scientific Content Curator</b></h2>
+            <div id="div-job-2">
                 
             <p>We are looking for a <b>Genomic Data and Scientific Content Curator</b> to support cBioPortal.
-                To take the Portal to the next level and to transition it towards use in the clinic,
-                we are looking to improve and expand its data content. The Curator will be responsible
-                for the <b>collection, maintenance, and quality control of genomic alteration data</b> and
-                related <b>clinical annotation</b> for the cBioPortal.
+                The Curator will be responsible for the <b>collection, maintenance, and quality control of
+                genomic alteration data</b> and related <b>clinical annotation</b> for the cBioPortal.
+            </p>
             <p>
                 <h3>Responsibilities</h3>
                 <ul>
@@ -54,6 +130,8 @@
                 To apply please send your resume to: cbioportaljobs@gmail.com.
                 In the subject line please add #Datacurator ....
             </p>
+            </div>
+            
             </div>
             </td>
         </tr>

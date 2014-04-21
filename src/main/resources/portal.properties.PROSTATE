@@ -55,7 +55,7 @@ r_installed=true
 authenticate=true
 authorization=true
 include_networks=true
-include_google_analytics=true
+google_analytics_profile_id=
 
 faq=faq_prostate.html
 about=about_us_prostate.html

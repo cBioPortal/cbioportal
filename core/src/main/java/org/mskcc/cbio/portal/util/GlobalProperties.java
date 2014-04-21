@@ -47,7 +47,7 @@ public class GlobalProperties {
     public static final String BITLY_USER = "bitly.user";
     public static final String BITLY_API_KEY = "bitly.api_key";
     public static final String INCLUDE_NETWORKS = "include_networks";
-    public static final String INCLUDE_GOOGLE_ANALYTICS = "include_google_analytics";
+    public static final String GOOGLE_ANALYTICS_PROFILE_ID = "google_analytics_profile_id";
 
     public static final String APP_NAME = "app.name";
     public static final String DEFAULT_APP_NAME = "public_portal";
@@ -230,9 +230,9 @@ public class GlobalProperties {
         return Boolean.parseBoolean(properties.getProperty(INCLUDE_NETWORKS));
     }
 
-    public static boolean includeGoogleAnalytics()
+    public static String getGoogleAnalyticsProfileId()
     {
-        return Boolean.parseBoolean(properties.getProperty(INCLUDE_GOOGLE_ANALYTICS));
+        return properties.getProperty(GOOGLE_ANALYTICS_PROFILE_ID);
     }
 
     public static boolean showPlaceholderInPatientView()

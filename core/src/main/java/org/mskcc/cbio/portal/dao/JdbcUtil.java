@@ -71,7 +71,9 @@ public class JdbcUtil {
      * @throws java.sql.SQLException Error Connecting to Database.
      */
     private static Connection getDbConnection(String requester) throws SQLException {
-
+        // this method should be syncronized
+        // but may slow the speed?
+        
         if (ds == null) {
             ds = initDataSource();
         }
@@ -189,14 +191,15 @@ public class JdbcUtil {
                 
                 if (requester!=null) {
                     int count = activeConnectionCount.get(requester)-1;
-                    if (count==0) {
-                        activeConnectionCount.remove(requester);
-                    } else {
-                        activeConnectionCount.put(requester, count);
+                    if (count<0) {
+                        // since adding connection is not synchronized, the count may not be the real one
+                        count = 0;
                     }
+                    
+                    activeConnectionCount.put(requester, count);
                 }
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             logMessage("Problem Closed a MySQL connection from " + requester + ": " + activeConnectionCount.toString());
             e.printStackTrace();
         }

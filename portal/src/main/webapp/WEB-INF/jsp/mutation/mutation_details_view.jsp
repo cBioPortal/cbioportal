@@ -54,6 +54,9 @@
 		</table>
 	</div>
 	<div class="mutation-pdb-panel-view"></div>
+	<div class='mutation-details-no-data-info'>
+		There are no {{geneSymbol}} mutations in the selected samples.
+	</div>
 	<div class='mutation-details-filter-info'>
 		Current view shows filtered results.
 		Click <a class='mutation-details-filter-reset'>here</a> to reset all filters.

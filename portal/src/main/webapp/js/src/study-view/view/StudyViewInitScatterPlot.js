@@ -74,8 +74,12 @@ var StudyViewInitScatterPlot = (function() {
             });
             
             StudyViewUtil
-                    .showHideDivision("study-view-scatter-plot", 
-                                    "study-view-scatter-plot-header");
+                    .showHideDivision("#study-view-scatter-plot", 
+                                    "#study-view-scatter-plot-header");
+                                    
+            StudyViewUtil
+                    .showHideDivision("#study-view-scatter-plot", 
+                            "#study-view-scatter-plot .study-view-drag-icon");
             
             
             $("#study-view-scatter-plot-pdf").submit(function(){

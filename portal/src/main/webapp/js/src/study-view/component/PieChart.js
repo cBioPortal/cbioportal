@@ -303,8 +303,11 @@ var PieChart = function(){
         });
         
         StudyViewUtil
-            .showHideDivision(DIV.mainDiv, 
-                            DIV.chartDiv+"-side");
+            .showHideDivision("#"+DIV.mainDiv, 
+                            "#"+DIV.chartDiv+"-side");
+        StudyViewUtil
+            .showHideDivision("#"+DIV.mainDiv, 
+                            "#"+DIV.mainDiv +" .study-view-drag-icon");
     }
     
     function setSVGElementValue(_svgParentDivId,_idNeedToSetValue){
@@ -433,7 +436,9 @@ var PieChart = function(){
                 "</form></div>"+
                 "<div style='width:180px; float:right; text-align:center;'>"+
                 "<span class='study-view-dc-chart-delete'>x</span>"+
-                "<a href='javascript:StudyViewInitCharts.getChartsByID("+ 
+                "<div style='width:14px; height:16px;float:right'>"+
+                "<img style='width:10px; height:10px;margin-top:4px; margin-right:4px;' class='study-view-drag-icon' src='images/move.svg'/>"+
+                "</div><a href='javascript:StudyViewInitCharts.getChartsByID("+ 
                 chartID +").getChart().filterAll();" +
                 "StudyViewInitCharts.getSelectedCasesAndRedrawScatterPlot([]);"+ 
                 "dc.redrawAll();'><span title='Reset Chart'"+

@@ -20,6 +20,7 @@ var StudyViewWindowEvents = (function(){
     }
     
     function initScrollEvent(){
+        /*
         $(window).scroll(function(e){
             
             //To get offset position of charts tab header, and only initial once
@@ -98,6 +99,7 @@ var StudyViewWindowEvents = (function(){
                 $('#study-view-add-chart').css('display', 'block');
             }
         });
+        */
     }
     
     return {

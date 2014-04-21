@@ -4,14 +4,14 @@
 
 
 var StudyViewUtil = (function(){
-    function showHideDivision(_listenedDivID, _targetDivID){
-        $("#" + _targetDivID).css('display', 'none');
-        $("#" + _listenedDivID).hover(function(){
-            $("#" + _targetDivID).stop().fadeIn('slow', function(){
+    function showHideDivision(_listenedDivI, _targetDiv){
+        $(_targetDiv).css('display', 'none');
+        $(_listenedDivI).hover(function(){
+            $(_targetDiv).stop().fadeIn('slow', function(){
                 $(this).css('display', 'block');
             });
         }, function(){
-            $("#" + _targetDivID).stop().fadeOut('slow', function(){
+            $(_targetDiv).stop().fadeOut('slow', function(){
                 $(this).css('display', 'none');
             });
         });
@@ -32,6 +32,16 @@ var StudyViewUtil = (function(){
         }
     }
     
+    function arrayFindByValue(_array, _value){
+        if(_array.indexOf(_value) === -1){
+            return false;
+        }else{
+            return true;
+        }
+    }
+    
+    //Input: hex value. Exp: #000000
+    //Output: rgb values. Exp: 0, 0, 0
     function hexToRgb(hex) {
         // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
         var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
@@ -47,10 +57,14 @@ var StudyViewUtil = (function(){
         } : null;
     }
     
+    //Input: rgb values. Exp: 0, 0, 0
+    //Output: hex value. Exp: #000000
     function rgbToHex(r, g, b) {
         return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
     }
     
+    //Input: rgb string. Exp: Rgb(0, 0, 0)
+    //Output: rgb array. Exp: array(0, 0, 0)
     function rgbStringConvert(string) {
         var array = string.split("(")[1].split(")")[0].split(",");
         var arrayLength = array.length;
@@ -66,6 +80,7 @@ var StudyViewUtil = (function(){
         arrayDeleteByIndex: arrayDeleteByIndex,
         hexToRgb: hexToRgb,
         rgbToHex: rgbToHex,
-        rgbStringConvert: rgbStringConvert
+        rgbStringConvert: rgbStringConvert,
+        arrayFindByValue: arrayFindByValue
     };
 })();

@@ -352,7 +352,7 @@ var StudyViewInitCharts = (function(){
             var elem = itemElems[i];
             // make element draggable with Draggabilly
             var draggie = new Draggabilly( elem, {
-                handle: 'charttitleh4'
+                handle: '.study-view-drag-icon'
             });
             
             //Set selected chart z-index bigger than others
@@ -401,42 +401,51 @@ var StudyViewInitCharts = (function(){
     }
     
     function initSurvivalPlot(_data) {
-        StudyViewInitSurvivalPlot.init({ALL_CASES: parObject.caseIds}, _data);
-        
-        $(".study-view-survival-plot-delete").click(function (){
-           $("#study-view-survival-plot").css('display','none');
-           $('#study-view-add-chart').css('display','block');
-           $('#study-view-add-chart ul')
-                   .append($('<li></li>')
-                       .attr('id','overallSurvivalPlot')
-                       .text('Overall Survival Plot'));
+        if(
+                StudyViewUtil.arrayFindByValue(varName, 'OS_MONTHS') && 
+                StudyViewUtil.arrayFindByValue(varName, 'OS_STATUS')){
+            
+            StudyViewInitSurvivalPlot.init({ALL_CASES: parObject.caseIds}, _data);
 
-           bondDragForLayout();
-           AddCharts.bindliClickFunc();
-       });
+            $(".study-view-survival-plot-delete").click(function (){
+               $("#study-view-survival-plot").css('display','none');
+               $('#study-view-add-chart').css('display','block');
+               $('#study-view-add-chart ul')
+                       .append($('<li></li>')
+                           .attr('id','overallSurvivalPlot')
+                           .text('Overall Survival Plot'));
+
+               bondDragForLayout();
+               AddCharts.bindliClickFunc();
+           });
+        }
     }
     
     function initScatterPlot(_arr) {
-        StudyViewInitScatterPlot.init(parObject, _arr);
-        
-        $(".study-view-scatter-plot-delete").unbind('click');
-        $(".study-view-scatter-plot-delete").click(function (){
-            $("#study-view-scatter-plot").css('display','none');
-            $('#study-view-add-chart').css('display','block');
-            $('#study-view-add-chart ul')
-                    .append($('<li></li>')
-                        .attr('id','mutationCNA')
-                        .text('Number of Mutation vs Fraction of copy number altered genome'));
-            
-            bondDragForLayout();
-            clickedCaseId = '',
-            brushedCaseIds = [];
-            shiftClickedCaseIds = [];
-            AddCharts.bindliClickFunc();
-            removeMarker();
-            redrawChartsAfterDeletion();
-            setScatterPlotStyle([],[]);
-        });
+        if(
+                StudyViewUtil.arrayFindByValue(varName, 'MUTATION_COUNT') && 
+                StudyViewUtil.arrayFindByValue(varName, 'COPY_NUMBER_ALTERATIONS')){
+            StudyViewInitScatterPlot.init(parObject, _arr);
+
+            $(".study-view-scatter-plot-delete").unbind('click');
+            $(".study-view-scatter-plot-delete").click(function (){
+                $("#study-view-scatter-plot").css('display','none');
+                $('#study-view-add-chart').css('display','block');
+                $('#study-view-add-chart ul')
+                        .append($('<li></li>')
+                            .attr('id','mutationCNA')
+                            .text('Number of Mutation vs Fraction of copy number altered genome'));
+
+                bondDragForLayout();
+                clickedCaseId = '',
+                brushedCaseIds = [];
+                shiftClickedCaseIds = [];
+                AddCharts.bindliClickFunc();
+                removeMarker();
+                redrawChartsAfterDeletion();
+                setScatterPlotStyle([],[]);
+            });
+        }
     }
     
     function initCharts() {

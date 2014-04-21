@@ -81,7 +81,7 @@ $(document).ready(function() {
 		var proxy = new MutationDataProxy(geneList.join(" "));
 		proxy.initWithData(mutationData);
 
-		// TODO add tableOpts to initially show only the columns included in the input
+		// customized table options
 		var tableOpts = {
 			columnVisibility: {
 				startPos: function (util, gene) {
@@ -106,6 +106,28 @@ $(document).ready(function() {
 					}
 					else {
 						return "hidden";
+					}
+				}
+			},
+			columnRender: {
+				caseId: function(datum) {
+					var mutation = datum.mutation;
+					var caseIdFormat = MutationDetailsTableFormatter.getCaseId(mutation.caseId);
+					var vars = {};
+					vars.linkToPatientView = mutation.linkToPatientView;
+					vars.caseId = caseIdFormat.text;
+					vars.caseIdClass = caseIdFormat.style;
+					vars.caseIdTip = caseIdFormat.tip;
+
+					if (mutation.linkToPatientView)
+					{
+						return _.template(
+								$("#mutation_table_case_id_template").html(), vars);
+					}
+					else
+					{
+						return _.template(
+								$("#standalone_mutation_case_id_template").html(), vars);
 					}
 				}
 			}

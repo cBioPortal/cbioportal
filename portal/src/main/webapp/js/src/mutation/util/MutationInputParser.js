@@ -18,7 +18,7 @@ function MutationInputParser ()
 		"cancerType": "cancer_type",
 		"tumorType": "tumor_type",
 		"cancerStudyLink": "cancer_study_link",
-		"codonChange": "codon",
+		"codonChange": "codon_change",
 		"proteinPosStart": "protein_position_start",
 		"linkToPatientView": "patient_view_link",
 		"geneticProfileId": "genetic_profile_id",
@@ -173,10 +173,6 @@ function MutationInputParser ()
 
 		// TODO mutationSid?
 		mutation.mutationSid = mutation.mutationSid || mutation.mutationId;
-
-		// TODO this is to prevent invalid case id links to be removed
-		// we should override the case id render function for the table...
-		mutation.linkToPatientView = mutation.linkToPatientView || "#";
 
 		return mutation;
 	}

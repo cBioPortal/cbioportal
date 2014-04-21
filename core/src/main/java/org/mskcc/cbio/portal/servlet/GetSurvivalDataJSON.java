@@ -107,7 +107,7 @@ public class GetSurvivalDataJSON extends HttpServlet {
                 Patient clinicalData = clinicalDataList.get(i);
                 JSONObject _result = new JSONObject();
 
-                _result.put("case_id", clinicalData.getSampleId());
+                _result.put("case_id", clinicalData.getStableId());
                 if (clinicalData.getOverallSurvivalMonths() == null) {
                     _result.put("os_months", "NA");
                 } else {
@@ -134,7 +134,7 @@ public class GetSurvivalDataJSON extends HttpServlet {
                 } else if(dfsStatus.equalsIgnoreCase("DiseaseFree")) {
                     _result.put("dfs_status", "0");
                 }
-                results.put(clinicalData.getSampleId(), _result);
+                results.put(clinicalData.getStableId(), _result);
             }
 
             httpServletResponse.setContentType("application/json");

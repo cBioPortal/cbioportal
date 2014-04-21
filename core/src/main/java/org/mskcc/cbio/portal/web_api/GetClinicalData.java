@@ -73,7 +73,7 @@ public class GetClinicalData {
         List<Patient> caseSurvivalList = DaoClinicalData.getSurvivalData(cancerStudyId, caseIdList);
         Map<String,Patient> mapClinicalData = new HashMap<String,Patient>();
         for (Patient cd : caseSurvivalList) {
-            mapClinicalData.put(cd.getSampleId(), cd);
+            mapClinicalData.put(cd.getStableId(), cd);
         }
 
         Map<String,Map<String,String>> mapClinicalFreeForms = Collections.emptyMap();

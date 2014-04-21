@@ -117,7 +117,7 @@ public class DaoPatient {
             pstmt.executeUpdate();
             rs = pstmt.getGeneratedKeys();
             if (rs.next()) {
-                cachePatient(new Patient(patient.getCancerStudy(), rs.getInt(1), patient.getStableId()), patient.getCancerStudy().getInternalId());
+                cachePatient(new Patient(patient.getCancerStudy(), patient.getStableId(), rs.getInt(1)), patient.getCancerStudy().getInternalId());
                 return rs.getInt(1);
             }
             return -1;
@@ -176,7 +176,7 @@ public class DaoPatient {
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(rs.getInt("CANCER_STUDY_ID"));
         if (cancerStudy == null) return null;
         return new Patient(cancerStudy,
-                           rs.getInt("INTERNAL_ID"),
-                           rs.getString("STABLE_ID"));
+                           rs.getString("STABLE_ID"),
+                           rs.getInt("INTERNAL_ID"));
     }
 }

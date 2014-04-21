@@ -667,7 +667,7 @@ var StudyViewInitSurvivalPlot = (function() {
                 .attr('height', '10px')
                 .attr('width', '10px');
         
-            _image.attr('xlink:href', 'images/pin.png');
+            _image.attr('xlink:href', 'images/pushpin.svg');
             _image.attr('name', 'pin');
         }else if(_iconType === 'close'){
             var _image = _g.append("image")
@@ -680,11 +680,11 @@ var StudyViewInitSurvivalPlot = (function() {
             
             _image = _g.append("image")
                 .attr('x', '90')
-                .attr('y', '0')
-                .attr('height', '10px')
-                .attr('width', '10px');
+                .attr('y', '1')
+                .attr('height', '8px')
+                .attr('width', '8px');
         
-            _image.attr('xlink:href', 'images/close.png');
+            _image.attr('xlink:href', 'images/close.svg');
             _image.attr('name', 'close');
         }else {
             //TODO:

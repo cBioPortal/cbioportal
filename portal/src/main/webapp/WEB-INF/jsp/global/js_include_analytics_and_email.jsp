@@ -1,4 +1,8 @@
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
+<%
+if (GlobalProperties.includeGoogleAnalytics()) {
+%>
 <!-- Google Analytics -->
 <script type="text/javascript">
 
@@ -12,6 +16,7 @@
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 </script>
+<% } %>
 
 <!-- De-obfuscate All Email Addresses -->
 <script type="text/javascript">

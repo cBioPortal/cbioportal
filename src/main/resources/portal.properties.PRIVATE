@@ -54,6 +54,7 @@ r_installed=true
 authenticate=true
 authorization=true
 include_networks=true
+include_google_analytics=true
 
 faq=faq_tcga.html
 about=about_us.html

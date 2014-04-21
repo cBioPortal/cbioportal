@@ -112,11 +112,33 @@ public class GetCoExpressionJSON extends HttpServlet  {
                     long compared_gene_id = genes.get(i);
                     double[] compared_gene_exp = map.get(compared_gene_id);
                     if (compared_gene_exp != null && query_gene_exp != null) {
-                        double pearson = pearsonsCorrelation.correlation(query_gene_exp, compared_gene_exp);
-                        if ((pearson >= coExpScoreThreshold || pearson <= (-1) * coExpScoreThreshold ) &&
-                           (compared_gene_id != queryGeneId)){
+                      //Filter out cases with empty value on either side
+                      int min_length = query_gene_exp.length < compared_gene_exp.length ? query_gene_exp.length : compared_gene_exp.length;
+                      ArrayList<Double> new_query_gene_exp_arrlist = new ArrayList<Double>();
+                      ArrayList<Double> new_compared_gene_exp_arrlist = new ArrayList<Double>();
+                      for (int k = 0; k < min_length; k++) {
+                        if (!Double.isNaN(query_gene_exp[k]) && !Double.isNaN(compared_gene_exp[k])) {
+                          new_query_gene_exp_arrlist.add(query_gene_exp[k]);
+                          new_compared_gene_exp_arrlist.add(compared_gene_exp[k]);
+                        }
+                      }
+                      Double[] _new_query_gene_exp = new_query_gene_exp_arrlist.toArray(new Double[0]);
+                      Double[] _new_compared_gene_exp = new_compared_gene_exp_arrlist.toArray(new Double[0]);
+                      //convert double object to primitive data
+                      double[] new_query_gene_exp = new double[_new_query_gene_exp.length];
+                      double[] new_compared_gene_exp = new double[_new_compared_gene_exp.length];
+                      for (int m = 0; m < _new_query_gene_exp.length; m++) {
+                        new_query_gene_exp[m] = _new_query_gene_exp[m].doubleValue();
+                        new_compared_gene_exp[m] = _new_compared_gene_exp[m].doubleValue();
+                      }
+
+                      if (new_query_gene_exp.length != 0 && new_compared_gene_exp.length != 0) {
+                        double pearson = pearsonsCorrelation.correlation(new_query_gene_exp, new_compared_gene_exp);
+                        if ((pearson >= coExpScoreThreshold || 
+                             pearson <= (-1) * coExpScoreThreshold ) &&
+                             (compared_gene_id != queryGeneId)){
                             //Only calculate spearman with high scored pearson gene pairs.
-                            double spearman = spearmansCorrelation.correlation(query_gene_exp, compared_gene_exp);
+                            double spearman = spearmansCorrelation.correlation(new_query_gene_exp, new_compared_gene_exp);
                             if ((spearman >= coExpScoreThreshold || spearman <= (-1) * coExpScoreThreshold) &&
                                ((spearman > 0 && pearson > 0) || (spearman < 0 && pearson < 0))) {
                               CanonicalGene comparedGene = daoGeneOptimized.getGene(compared_gene_id);
@@ -127,6 +149,7 @@ public class GetCoExpressionJSON extends HttpServlet  {
                               fullResultJson.add(_scores);                             
                             }
                         }
+                      }
                     }
                 }
                 httpServletResponse.setContentType("application/json");
@@ -154,20 +177,39 @@ public class GetCoExpressionJSON extends HttpServlet  {
                   double[] query_gene_exp = map.get(queryGeneId);
                   long compared_gene_id = genes.get(i);
                   double[] compared_gene_exp = map.get(compared_gene_id);
-                  if (compared_gene_exp != null && query_gene_exp != null) {
-                      double pearson = pearsonsCorrelation.correlation(query_gene_exp, compared_gene_exp);
-                      if(compared_gene_id != queryGeneId){
-                        double spearman = spearmansCorrelation.correlation(query_gene_exp, compared_gene_exp);
-                        CanonicalGene comparedGene = daoGeneOptimized.getGene(compared_gene_id);
-                        fullResutlStr.append(
-                          comparedGene.getHugoGeneSymbolAllCaps() + "\t" + 
-                          (double)Math.round(pearson * 100) / 100 + "\t" + 
-                          (double)Math.round(spearman * 100) / 100  + "\n"
-                        );
+                  if (compared_gene_exp != null && query_gene_exp != null) {        
+                      //Filter out cases with empty value on either side
+                      int min_length = (query_gene_exp.length<compared_gene_exp.length)?query_gene_exp.length:compared_gene_exp.length;
+                      ArrayList<Double> new_query_gene_exp_arrlist = new ArrayList<Double>();
+                      ArrayList<Double> new_compared_gene_exp_arrlist = new ArrayList<Double>();
+                      for (int k = 0; k < min_length; k++) {
+                        if (!Double.isNaN(query_gene_exp[k]) && !Double.isNaN(compared_gene_exp[k])) {
+                          new_query_gene_exp_arrlist.add(query_gene_exp[k]);
+                          new_compared_gene_exp_arrlist.add(compared_gene_exp[k]);
+                        }
                       }
+                      Double[] _new_query_gene_exp = new_query_gene_exp_arrlist.toArray(new Double[0]);
+                      Double[] _new_compared_gene_exp = new_compared_gene_exp_arrlist.toArray(new Double[0]);
+                      //convert double object to primitive data
+                      double[] new_query_gene_exp = new double[_new_query_gene_exp.length];
+                      double[] new_compared_gene_exp = new double[_new_compared_gene_exp.length];
+                      for (int m = 0; m < _new_query_gene_exp.length; m++) {
+                        new_query_gene_exp[m] = _new_query_gene_exp[m].doubleValue();
+                        new_compared_gene_exp[m] = _new_compared_gene_exp[m].doubleValue();
+                      }
+                      if (new_query_gene_exp.length != 0 && new_compared_gene_exp.length != 0 &&
+                          compared_gene_id != queryGeneId) {
+                          double pearson = pearsonsCorrelation.correlation(new_query_gene_exp, new_compared_gene_exp);
+                          double spearman = spearmansCorrelation.correlation(new_query_gene_exp, new_compared_gene_exp);
+                          CanonicalGene comparedGene = daoGeneOptimized.getGene(compared_gene_id);
+                          fullResutlStr.append(
+                            comparedGene.getHugoGeneSymbolAllCaps() + "\t" + 
+                            (double)Math.round(pearson * 100) / 100 + "\t" + 
+                            (double)Math.round(spearman * 100) / 100  + "\n"
+                          );
+                      }                        
                   }
               }
-
               //construct file name
               String fileName = "coexpression_" + geneSymbol + "_" + 
                 final_gp.getProfileName().replaceAll("\\s+", "_") + "_" + 

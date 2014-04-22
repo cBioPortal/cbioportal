@@ -39,8 +39,8 @@ var CoexpPlotsProxy = (function() {
                              _obj_x["caseId"] + "&cancer_study_id=" +
                              window.PortalGlobals.getCancerStudyId() + "' target='_blank'>" + 
                              _obj_x["caseId"] + "</a></strong><br>" + 
-                             geneX + ": <strong>" + parseFloat(_obj_x["value"]).toFixed(3) + "</strong><br>" +
-                             geneY + ": <strong>" + parseFloat(_obj_y["value"]).toFixed(3) + "</strong>";
+                             geneX + ": <strong>" + parseFloat(_obj_x["value"]).toFixed(2) + "</strong><br>" +
+                             geneY + ": <strong>" + parseFloat(_obj_y["value"]).toFixed(2) + "</strong>";
                     //Find if having mutation(s)
                     if (mutationMap.hasOwnProperty(_obj_x["caseId"].toLowerCase())) {
                         var _mut_obj = {};

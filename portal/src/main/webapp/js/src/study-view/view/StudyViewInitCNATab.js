@@ -5,7 +5,7 @@ var StudyViewInitCNATab = (function(){
     function init(_data){
         data = _data;
         $('#gistic_wrapper_table').hide();
-        loadGisticData(cancerStudyId);
+        loadGisticData(StudyViewParams.params.cancerStudyId);
     }
     
     function loadGisticData(cancerStudyId) {

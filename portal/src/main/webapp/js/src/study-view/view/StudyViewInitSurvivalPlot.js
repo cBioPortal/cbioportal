@@ -152,9 +152,25 @@ var StudyViewInitSurvivalPlot = (function() {
             
         });
         
+        $("#study-view-survival-plot-pdf").submit(function(){
+                setSVGElementValue("study-view-survival-plot-body-pdf",
+                    "study-view-survival-plot-pdf-value");
+        });
+        $("#study-view-survival-plot-svg").submit(function(){
+            setSVGElementValue("study-view-survival-plot-body-svg",
+                "study-view-survival-plot-svg-value");
+        });
         
         $("#study-view-survival-plot-body").css('display', 'block');
         $("#study-view-survival-plot-loader").css('display', 'none');
+    }
+    
+    function setSVGElementValue(_svgParentDivId,_idNeedToSetValue){
+        var svgElement;
+        
+        //Remove x/y title help icon first.
+        svgElement = $("#" + _svgParentDivId).html();
+        $("#" + _idNeedToSetValue).val(svgElement);
     }
     
     function highlightCurve(_curveId){
@@ -560,6 +576,10 @@ var StudyViewInitSurvivalPlot = (function() {
         //We disabled pvalue calculation in here
         survivalCurve = new SurvivalCurve();
         survivalCurve.init(inputArr, opts);
+        
+        
+        $("#study-view-survival-plot-pdf-name").val("Survival_Plot_result-"+ StudyViewParams.params.studyId +".pdf");
+        $("#study-view-survival-plot-svg-name").val("Survival_Plot_result-"+ StudyViewParams.params.studyId +".svg");
     }
     
     //Put all rule in here to select color for curves

@@ -9,35 +9,19 @@
 
 
 var StudyViewMainController = (function() {
-    var parObject = {
-        studyId: "",
-        caseIds: "",
-        cnaProfileId: "",
-        mutationProfileId: "",
-        caseSetId: ""
-    };
-        
     var callbackFunc = function (_data) {
-        StudyViewSummaryTabController.init(parObject, _data);
+        StudyViewSummaryTabController.init(_data);
         StudyViewClinicalTabController.init();
-        if (mutationProfileId){
-            StudyViewMutationsTabController.init(parObject);
+        if (StudyViewParams.params.mutationProfileId){
+            StudyViewMutationsTabController.init();
         }
         StudyViewCNATabController.init();
     };
     
-    function initLocalParameters(o){
-        parObject.studyId = o.studyId;
-        parObject.caseIds = o.caseIds;
-        parObject.cnaProfileId = o.cnaProfileId;
-        parObject.mutationProfileId = o.mutationProfileId;
-        parObject.caseSetId = o.caseSetId;
-    }
-    
     return {
-        init: function(o) {
-            initLocalParameters(o);
-            StudyViewProxy.init(parObject,callbackFunc);
+        init: function(_params) {
+            StudyViewParams.params = _params;
+            StudyViewProxy.init(callbackFunc);
         }
     };
 })();

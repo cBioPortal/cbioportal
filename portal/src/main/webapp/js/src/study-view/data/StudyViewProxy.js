@@ -6,27 +6,16 @@
 
 var StudyViewProxy = (function() {
     
-    var parObject = {
-        studyId: "",
-        caseIds: "",
-        cnaProfileId: "",
-        mutationProfileId: "",
-        caseSetId: ""
-    };
-
-    var caseIdStr = '',
+    var parObject = {},
+        caseIdStr = '',
         ajaxParameters = {},
         obtainDataObject = [];
         
     obtainDataObject['attr'] = [];
     obtainDataObject['arr'] = [];
     
-    function initLocalParameters(o){
-        parObject.studyId = o.studyId;
-        parObject.caseIds = o.caseIds;
-        parObject.cnaProfileId = o.cnaProfileId;
-        parObject.mutationProfileId = o.mutationProfileId;        
-        parObject.caseSetId = o.caseSetId;
+    function initLocalParameters(){
+        parObject = jQuery.extend(true, {}, StudyViewParams.params);
         caseIdStr = parObject.caseIds.join(' ');
     }
     
@@ -191,8 +180,8 @@ var StudyViewProxy = (function() {
     }
     
     return {
-        init: function(o,callbackFunc){
-            initLocalParameters(o);
+        init: function(callbackFunc){
+            initLocalParameters();
             initAjaxParameters();
             getDataFunc(callbackFunc);
         },

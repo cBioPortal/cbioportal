@@ -77,22 +77,8 @@ var StudyViewInitCharts = (function(){
         WORDCLOUDTEXTSIZECONSTANT = 200,
         
         // Color scale from GOOGLE charts
-        chartColors = jQuery.extend(true, [], StudyViewBoilerplate.chartColors), 
-        parObject = {
-            studyId: "",
-            caseIds: "",
-            cnaProfileId: "",
-            mutationProfileId: "",
-            caseSetId: ""
-        };
-    
-    function initParameters(o) {
-        parObject.studyId = o.studyId;
-        parObject.caseIds = o.caseIds;
-        parObject.cnaProfileId = o.cnaProfileId;
-        parObject.mutationProfileId = o.mutationProfileId;
-        parObject.caseSetId = o.caseSetId;
-    }
+        chartColors = jQuery.extend(true, [], StudyViewBoilerplate.chartColors); 
+       
     
     function initData(dataObtained) {
         var _keys = [],
@@ -187,7 +173,7 @@ var StudyViewInitCharts = (function(){
     function redrawSurvival() {
         var _unselectedCases= [],
             _selectedCases = getSelectedCasesID(),
-            _allCases = parObject.caseIds;
+            _allCases = StudyViewParams.params.caseIds;
         
         var _passedCases = [];
         var _selectedCasesLength = _selectedCases.length,
@@ -224,7 +210,7 @@ var StudyViewInitCharts = (function(){
             var mutatedGenesObject = {
                 cmd: 'get_smg',
                 case_list: _selectedCasesIds.join(' '),
-                mutation_profile: parObject.mutationProfileId
+                mutation_profile: StudyViewParams.params.mutationProfileId
             };
 
             $.when($.ajax({type: "POST", url: "mutations.json", data: mutatedGenesObject}))
@@ -387,7 +373,7 @@ var StudyViewInitCharts = (function(){
         msnry.layout();
     }
     function initWordCloud(_data) {
-        StudyViewInitWordCloud.init(parObject, _data);
+        StudyViewInitWordCloud.init(_data);
         $(".study-view-word-cloud-delete").unbind('click');
         $(".study-view-word-cloud-delete").click(function (){
             $("#study-view-word-cloud").css('display','none');
@@ -407,7 +393,7 @@ var StudyViewInitCharts = (function(){
                 StudyViewUtil.arrayFindByValue(varName, 'OS_MONTHS') && 
                 StudyViewUtil.arrayFindByValue(varName, 'OS_STATUS')){
             
-            StudyViewInitSurvivalPlot.init({ALL_CASES: parObject.caseIds}, _data);
+            StudyViewInitSurvivalPlot.init({ALL_CASES: StudyViewParams.params.caseIds}, _data);
 
             $(".study-view-survival-plot-delete").click(function (){
                $("#study-view-survival-plot").css('display','none');
@@ -427,7 +413,7 @@ var StudyViewInitCharts = (function(){
         if(
                 StudyViewUtil.arrayFindByValue(varName, 'MUTATION_COUNT') && 
                 StudyViewUtil.arrayFindByValue(varName, 'COPY_NUMBER_ALTERATIONS')){
-            StudyViewInitScatterPlot.init(parObject, _arr);
+            StudyViewInitScatterPlot.init(_arr);
 
             $(".study-view-scatter-plot-delete").unbind('click');
             $(".study-view-scatter-plot-delete").click(function (){
@@ -666,12 +652,12 @@ var StudyViewInitCharts = (function(){
             _scatterPlot = StudyViewInitScatterPlot.getScatterPlot();
         
         if(_scatterPlot){
-            for(var i=0 ; i< parObject.caseIds.length ; i++){
+            for(var i=0 ; i< StudyViewParams.params.caseIds.length ; i++){
                 var styleDatum = {};
 
-                styleDatum.case_id = parObject.caseIds[i];
-                if(_selectedCaseID.length !== parObject.caseIds.length){
-                    if(_selectedCaseID.indexOf(parObject.caseIds[i]) !== -1){
+                styleDatum.case_id = StudyViewParams.params.caseIds[i];
+                if(_selectedCaseID.length !== StudyViewParams.params.caseIds.length){
+                    if(_selectedCaseID.indexOf(StudyViewParams.params.caseIds[i]) !== -1){
                         if(clickedCaseId !== ''){
                             styleDatum.fill = '#2986e2';
                             styleDatum.stroke = 'red';
@@ -965,8 +951,7 @@ var StudyViewInitCharts = (function(){
         }
     }
     return {
-        init: function(_params,_data) {
-            initParameters(_params);
+        init: function(_data) {
             initData(_data);
             initCharts(_data);
             createLayout();

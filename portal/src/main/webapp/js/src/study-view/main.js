@@ -7,7 +7,8 @@ $(document).ready(function(){
         caseIds: caseIds,
         cnaProfileId: cnaProfileId,
         mutationProfileId: mutationProfileId,
-        caseSetId: caseSetId
+        caseSetId: caseSetId,
+        hasMutSig: hasMutSig
     };
     
     var loadingJSCallBackFunc = function(){

@@ -3,21 +3,7 @@ var StudyViewInitScatterPlot = (function() {
     var scatterPlot,
         scatterPlotArr = [],
         scatterPlotDataAttr = {},
-        scatterPlotOptions = {},
-        
-        parObject = {
-            studyId: "",
-            caseIds: "",
-            cnaProfileId: "",
-            mutationProfileId: "",
-        };
-    
-    function initParams(_params) {
-        parObject.studyId = _params.studyId;
-        parObject.caseIds = _params.caseIds;
-        parObject.cnaProfileId = _params.cnaProfileId;
-        parObject.mutationProfileId = _params.mutationProfileId;
-    }
+        scatterPlotOptions = {};
     
     function initData(_arr) {
         var _datum = StudyViewInitCharts.getScatterPlotInitValue();
@@ -34,7 +20,7 @@ var StudyViewInitScatterPlot = (function() {
                     _scatterPlotDatumTmp.qtip = "Case ID: <strong>" +
                         "<a href='tumormap.do?case_id=" +
                         value['CASE_ID'] + "&cancer_study_id=" +
-                        parObject.studyId + "' target='_blank'>" + 
+                        StudyViewParams.params.studyId + "' target='_blank'>" + 
                         value['CASE_ID'] + "</a></strong>";
                     scatterPlotArr.push(_scatterPlotDatumTmp);
             }
@@ -83,12 +69,12 @@ var StudyViewInitScatterPlot = (function() {
             
             
             $("#study-view-scatter-plot-pdf").submit(function(){
-                setSVGElementValue("study-view-scatter-plot-body",
+                setSVGElementValue("study-view-scatter-plot-body-svg",
                     "study-view-scatter-plot-pdf-value",
                     scatterPlotOptions);
             });
             $("#study-view-scatter-plot-svg").submit(function(){
-                setSVGElementValue("study-view-scatter-plot-body",
+                setSVGElementValue("study-view-scatter-plot-body-svg",
                     "study-view-scatter-plot-svg-value",
                     scatterPlotOptions);
             });
@@ -112,14 +98,13 @@ var StudyViewInitScatterPlot = (function() {
     function initPage(){
         $("#study-view-charts").html("");
         $("#study-view-charts").append(StudyViewBoilerplate.scatterPlotDiv);
-        $("#study-view-scatter-plot-pdf-name").val("Scatter_Plot_result-"+ parObject.studyId +".pdf");
-        $("#study-view-scatter-plot-svg-name").val("Scatter_Plot_result-"+ parObject.studyId +".svg");
+        $("#study-view-scatter-plot-pdf-name").val("Scatter_Plot_result-"+ StudyViewParams.params.studyId +".pdf");
+        $("#study-view-scatter-plot-svg-name").val("Scatter_Plot_result-"+ StudyViewParams.params.studyId +".svg");
         $("#study-view-scatter-plot-header").css('display', 'none');
     }
     
     return {
-        init: function(_params, _arr) {
-            initParams(_params);
+        init: function(_arr) {
             initData(_arr);
             initPage();
             initComponent();

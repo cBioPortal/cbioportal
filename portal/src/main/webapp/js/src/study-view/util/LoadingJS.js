@@ -60,7 +60,8 @@ var LoadingJS = (function(){
                     'StudyViewSummaryTabController',
                     'StudyViewMutationsTabController',
                     'StudyViewCNATabController',
-                    'StudyViewClinicalTabController'
+                    'StudyViewClinicalTabController',
+                    'StudyViewParams'
                 ]
             };
             

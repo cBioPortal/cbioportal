@@ -320,7 +320,7 @@ var StudyViewBoilerplate ={
             "<input type='submit' style='font-size:10px' value='PDF'>"+          
             "</form>"+
             "<form style='display:inline-block' action='svgtopdf.do' method='post' id='study-view-survival-plot-svg'>"+
-            "<input type='hidden' name='svgelement' id='study-view-scatter-plot-svg-value'>"+
+            "<input type='hidden' name='svgelement' id='study-view-survival-plot-svg-value'>"+
             "<input type='hidden' name='filetype' value='svg'>"+
             "<input type='hidden' id='study-view-survival-plot-svg-name' name='filename' value=''>"+
             "<input type='submit' style='font-size:10px' value='SVG'>"+    

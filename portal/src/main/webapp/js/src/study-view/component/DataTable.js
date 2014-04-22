@@ -45,16 +45,8 @@ var DataTable = function() {
     
     var rowClickCallback,
         rowShiftClickCallback;
-
-    var parObject = {
-        studyId: "",
-        caseIds: "",
-        cnaProfileId: "",
-        mutationProfileId: "",
-        caseSetId: ""
-    };
     
-    function initParam(_param, _data) {
+    function initParam(_data) {
         var i;
         
         attr = _data.attr;
@@ -62,12 +54,6 @@ var DataTable = function() {
         
         attrLength = attr.length;
         arrLength = arr.length;
-        
-        parObject.studyId = _param.studyId;
-        parObject.caseIds = _param.caseIds;
-        parObject.cnaProfileId = _param.cnaProfileId;
-        parObject.mutationProfileId = _param.mutationProfileId;
-        parObject.caseSetId = _param.caseSetId;
         
         for( i = 0; i < attrLength; i++ ){
             if(attr[i]["datatype"] === "NUMBER"){
@@ -129,7 +115,7 @@ var DataTable = function() {
                 }else if ( value1.sTitle === 'CASE ID'){
                     _tmpValue = "<a href='tumormap.do?case_id=" + 
                     value['CASE_ID'] + "&cancer_study_id=" +
-                    parObject.studyId + "' target='_blank'><span style='color: #2986e2'>" + 
+                    StudyViewParams.params.studyId + "' target='_blank'><span style='color: #2986e2'>" + 
                     value['CASE_ID'] + "</span></a></strong>";
                 }else{
                     _tmpValue = value[value1.sTitle.replace(/[ ]/g,'_')];
@@ -664,8 +650,8 @@ var DataTable = function() {
     }
     
     return {
-        init: function(_param, _data) {
-            initParam(_param, _data);
+        init: function(_data) {
+            initParam(_data);
             initDataTableTfoot();
             initDataTable();
             addEvents();

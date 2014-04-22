@@ -8,13 +8,6 @@
  */
 
 var StudyViewInitTopComponents = (function() {
-    var parObject = {
-            studyId: "",
-            caseIds: "",
-            cnaProfileId: "",
-            mutationProfileId: "",
-        };
-        
     function liClickCallBack(_id, _text) {
         StudyViewInitCharts.createNewChart(_id, _text);
     };
@@ -145,7 +138,7 @@ var StudyViewInitTopComponents = (function() {
                 }
                 $("#study-view-header-left-3")
                         .append("<a title='Go to patient-centric view' " + 
-                        "href='case.do?cancer_study_id=" + parObject.studyId +
+                        "href='case.do?cancer_study_id=" + StudyViewParams.params.studyId +
                         "&amp;case_id=" + _caseID[0] + "'><span style='color: red'>" + _caseID[0] + 
                         "</span></a>" + " is selected.");                
             }else{
@@ -171,20 +164,13 @@ var StudyViewInitTopComponents = (function() {
         AddCharts.liClickCallback(liClickCallBack);
     }
     
-    function initParameters(o) {
-        parObject.studyId = o.studyId;
-        parObject.caseIds = o.caseIds;
-        parObject.cnaProfileId = o.cnaProfileId;
-        parObject.mutationProfileId = o.mutationProfileId;
-    }
-    
     function createDiv() {
         var _newElement = StudyViewBoilerplate.headerLeftDiv(),
             _headerLeftQtip = jQuery.extend(true, {}, StudyViewBoilerplate.headerCaseSelectCustomDialog);
         
         $("#study-view-header-function").append(_newElement);
         $("#study-view-header-function").append(StudyViewBoilerplate.customDialogDiv);
-        $("#study-view-header-left-cancer_study-ids").val(parObject.studyId);
+        $("#study-view-header-left-cancer_study-ids").val(StudyViewParams.params.studyId);
         $("#study-view-header-function").append(StudyViewBoilerplate.tutorialDiv);
         _headerLeftQtip.position.target = $(window);
         _headerLeftQtip.content.text = $('#study-view-case-select-custom-dialog');
@@ -194,8 +180,7 @@ var StudyViewInitTopComponents = (function() {
     }
     
     return {
-        init: function(_data) {
-            initParameters(_data);
+        init: function() {
             createDiv();
             addEvents();
         },

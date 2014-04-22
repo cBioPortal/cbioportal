@@ -392,6 +392,22 @@ var MutationDetailsUtil = function(mutations)
 		});
 	};
 
+	this.containsRefAllele = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.referenceAllele &&
+			        mutation.referenceAllele != "NA");
+		});
+	};
+
+	this.containsVarAllele = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.variantAllele &&
+			        mutation.variantAllele != "NA");
+		});
+	};
+
 	this.containsEndPos = function(gene)
 	{
 		return this._contains(gene, function(mutation) {

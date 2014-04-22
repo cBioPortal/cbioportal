@@ -100,6 +100,22 @@ $(document).ready(function() {
 						return "hidden";
 					}
 				},
+				variantAllele: function (util, gene) {
+					if (util.containsVarAllele(gene)) {
+						return "visible";
+					}
+					else {
+						return "hidden";
+					}
+				},
+				referenceAllele: function (util, gene) {
+					if (util.containsRefAllele(gene)) {
+						return "visible";
+					}
+					else {
+						return "hidden";
+					}
+				},
 				chr: function (util, gene) {
 					if (util.containsChr(gene)) {
 						return "visible";

@@ -122,7 +122,7 @@ public class JdbcUtil {
             if (cxt == null) {
                 throw new Exception("Context for creating data source not found!");
             }
-            ds = (DataSource)cxt.lookup( "java:/comp/env/jdbc/" + GlobalProperties.getProperty("db.tomcat_resource_name") );
+            ds = (DataSource)cxt.lookup( "java:/comp/env/" + GlobalProperties.getProperty("db.tomcat_resource_name") );
             if (ds == null) {
                 throw new Exception("Data source not found!");
             }

@@ -19,12 +19,12 @@
 package org.mskcc.cbio.importer;
 
 // imports
+import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.scripts.NormalizeExpressionLevels;                                                     
 
 import org.apache.commons.cli.*;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.*;
 import org.apache.log4j.PropertyConfigurator;
 
 import org.springframework.context.ApplicationContext;
@@ -83,6 +83,12 @@ public class PortalImporterTool implements Runnable {
                                                      "cancer studies will not be replaced.  Set force to 't' to force a cancer study replacement.")
                                     .create("i"));
 
+		 Option deleteCancerStudy = (OptionBuilder.withArgName("cancer_study_id")
+									.hasArg()
+									.withDescription("Delete a cancer study matching the given cancer study id.")
+									.create("d"));
+
+		
 		// create an options instance
 		Options toReturn = new Options();
 
@@ -92,6 +98,7 @@ public class PortalImporterTool implements Runnable {
         toReturn.addOption(validateCancerStudy);
         toReturn.addOption(normalizeDataFile );
 		toReturn.addOption(importCancerStudy);
+		toReturn.addOption(deleteCancerStudy);
 
 		// outta here
 		return toReturn;
@@ -145,6 +152,9 @@ public class PortalImporterTool implements Runnable {
                 String[] values = commandLine.getOptionValues("a");
                 annotateMAF(values[0], (values.length == 2) ? values[1] : values[0] + ".annotated");
             }
+            else if (commandLine.hasOption("d")) {
+				deleteCancerStudy(commandLine.getOptionValue("d"));
+			} 
 			else {
 				Admin.usage(new PrintWriter(System.out, true));
 			}
@@ -252,6 +262,17 @@ public class PortalImporterTool implements Runnable {
 
         logMessage("normalizeExpressionLevels(), complete");
     }
+
+    private void deleteCancerStudy(String cancerStudyStableId) throws Exception
+	{
+		if (LOG.isInfoEnabled()) {
+			LOG.info("deleteCancerStudy(), study id: " + cancerStudyStableId);
+		}
+		DaoCancerStudy.deleteCancerStudy(cancerStudyStableId);
+		if (LOG.isInfoEnabled()) {
+			LOG.info("deleteCancerStudy(), complete");
+		}
+	} 
 
 	private boolean getBoolean(String parameterValue)
     {

@@ -28,34 +28,58 @@ var StandaloneMutationView = Backbone.View.extend({
 		var self = this;
 
 		var fullList = self.$el.find(".full-list-of-headers");
+		var inputField = self.$el.find(".standalone-mutation-input");
 		var visualize = self.$el.find(".submit-custom-mutations");
 		var textArea = self.$el.find(".mutation-file-example");
 		var toggleFullList = self.$el.find(".toggle-full-header-list");
-		var triangleDown = self.$el.find(".triangle-down");
-		var triangle = self.$el.find(".triangle");
+		var toggleInputField = self.$el.find(".toggle-mutation-input-field");
+		var listTriangleDown = self.$el.find(".full-header-list-expander .triangle-down");
+		var inputTriangleRight = self.$el.find(".mutation-input-field-expander .triangle-right");
+		var listTriangle = self.$el.find(".full-header-list-expander .triangle");
+		var inputTriangle = self.$el.find(".mutation-input-field-expander .triangle");
+		var inputExpander = self.$el.find(".mutation-input-field-expander");
 
 		self._initInputHeaderTable();
 		fullList.hide();
+		inputExpander.hide();
 
 		textArea.resizable();
 
 		toggleFullList.click(function(event) {
 			event.preventDefault();
 			fullList.slideToggle();
-			triangle.toggle();
+			listTriangle.toggle();
 		});
 
-		triangleDown.hide();
+		toggleInputField.click(function(event) {
+			event.preventDefault();
+			inputField.slideToggle();
+			inputTriangle.toggle();
+		});
+
+		listTriangleDown.hide();
+		inputTriangleRight.hide();
 
 		// make triangles clickable, too
-		triangle.click(function(event) {
+
+		listTriangle.click(function(event) {
 			// same as clicking on the link
 			toggleFullList.click();
+		});
+
+		inputTriangle.click(function(event) {
+			// same as clicking on the link
+			toggleInputField.click();
 		});
 
 		visualize.click(function() {
 			var mutationForm = self.$el.find(".mutation-file-form");
 
+			// hide the input field and show the expander link
+			inputExpander.slideDown();
+			toggleInputField.click();
+
+			// upload input data and init view
 			self._postFile('echofile', new FormData(mutationForm[0]), function(data) {
 				var inputVal = textArea.val();
 

@@ -24,12 +24,19 @@
 		margin-bottom: 10px;
 		max-width: 700px;
 	}
-	.full-header-list-expander .triangle {
+	.standalone-mutation-visualizer .triangle {
 		float: left;
 		cursor: pointer;
 	}
 	.mutation-file-example {
 		margin-top: 15px;
+		white-space: pre;
+		word-wrap: normal;
+	}
+	.mutation-input-field-expander {
+		font-size: 16px;
+		font-weight: bold;
+		margin-bottom: 15px;
 	}
 </style>
 

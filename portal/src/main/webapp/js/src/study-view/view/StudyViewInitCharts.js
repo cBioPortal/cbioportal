@@ -248,7 +248,9 @@ var StudyViewInitCharts = (function(){
     
     //This function defined all of callback functions.
     function callBackFunctions(){
-        redrawSurvival();
+        if(StudyViewInitSurvivalPlot.getInitStatus()){
+            redrawSurvival();
+        }
     }
     
     //Only return top 10 of maximum number of mutations gene

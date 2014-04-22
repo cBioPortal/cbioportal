@@ -8,7 +8,10 @@ var StudyViewInitSurvivalPlot = (function() {
         inputArr = [],
         survivalCurve = "",
         kmEstimator = "",
-        logRankTest = "";
+        logRankTest = "",
+        
+        // if survival plot has been initialized, the status will be set to true.
+        initStatus = false; 
         
     var curveInfo = [];
     var allCases = [];
@@ -29,6 +32,10 @@ var StudyViewInitSurvivalPlot = (function() {
         return Object.keys(savedCurveInfo);
     }
     
+    function getInitStatus(){
+        return initStatus;
+    }
+    
     function getSavedCurveLength(){
         return getSavedCurveName().length;
     }
@@ -36,11 +43,28 @@ var StudyViewInitSurvivalPlot = (function() {
     function initSelection(){
         var _attrsInfo = StudyViewInitCharts.getShowedChartsInfo();
         var _length = _attrsInfo['name'].length;
+        var _newInfo = [];
         
         for(var i = 0; i < _length; i++){
             if(_attrsInfo['type'][_attrsInfo['name'][i]] === 'pie'){
-                $("#study-view-survival-plot-select").append('<option value="'+_attrsInfo['name'][i]+'">'+_attrsInfo['displayName'][i]+'</option>');
+                var _newInfoDatum = {};
+                _newInfoDatum.name = _attrsInfo['name'][i];
+                _newInfoDatum.displayName = _attrsInfo['displayName'][i];
+                _newInfo.push(_newInfoDatum);
             }
+        }
+        
+        _newInfo.sort(function(a, b){
+            var _aValue = a.displayName.toUpperCase();
+            var _bValue = b.displayName.toUpperCase();
+            
+            return _aValue.localeCompare(_bValue);
+        });
+        
+        _length = _newInfo.length;
+        
+        for(var i = 0; i < _length; i++){
+            $("#study-view-survival-plot-select").append('<option value="'+_newInfo[i].name+'">'+_newInfo[i].displayName+'</option>');
         }
         
          $("#study-view-survival-plot-select").change(function(){
@@ -754,6 +778,7 @@ var StudyViewInitSurvivalPlot = (function() {
             initOpts();
             dataProcess(_data);
             if(Object.keys(data).length > 0){
+                initStatus = true;
                 grouping(_caseLists, '');
                 initView();
                 drawLabels();
@@ -763,7 +788,7 @@ var StudyViewInitSurvivalPlot = (function() {
                 StudyViewUtil.echoWarningMessg("No Overall Data available, the survival plot should not be initialized.");
             }
         },
-        
+        getInitStatus: getInitStatus,
         redraw: redraw,
         redrawLabel: redrawLabel
     };

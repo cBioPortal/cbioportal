@@ -72,7 +72,7 @@ def main():
         if o == '--host':
             host = a
         if o == '--port':
-            port = a
+            port = int(a)
         elif o == '--user':
             user = a
         elif o == '--passwd':

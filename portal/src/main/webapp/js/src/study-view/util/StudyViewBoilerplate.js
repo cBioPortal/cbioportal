@@ -34,7 +34,7 @@ var StudyViewBoilerplate ={
         "#651067","#329262","#5574a6","#3b3eac",
         "#b77322","#16d620","#b91383","#f4359e",
         "#9c5935","#a9c413","#2a778d","#668d1c",
-        "#bea413","#0c5922","#743411"
+        "#bea413","#0c5922","#743411","#743440"
     ],
     pieLabelQtip: {
         content:{text: ""},
@@ -333,7 +333,7 @@ var StudyViewBoilerplate ={
             "<img src='images/ajax-loader.gif'/></div>"+
             "<div id='study-view-survival-plot-body'>"+
             "<div id='study-view-survival-plot-body-svg' style='float:left'></div>"+
-            "<div id='study-view-survival-plot-body-label' style='float:left'></div>"+
+            "<div id='study-view-survival-plot-body-label'></div>"+
             "</div></div>",
     
     wordCloudDiv:

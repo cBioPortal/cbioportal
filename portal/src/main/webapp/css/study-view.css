@@ -191,6 +191,12 @@
     margin-right:5px;
     width: 130px;
 }
+#study-view-survival-plot-body-label {
+    float: left;
+    height: 420px;
+    width: 120px;
+    overflow-y: auto;
+}
 /*
 #study-view-scatter-plot-body-top-chart {
     width: 100%;
@@ -345,7 +351,7 @@
     width:370px;
 }
 .w3{
-    width:560px;
+    width:570px;
 }
 .w4{
     width:750px;
@@ -364,14 +370,14 @@
     height:220px;
 }
 .h2{
-    height:450px;
+    height:455px;
 }
 .h3{
     height:680px;
 }
 .study-view-bar-main {
     float:left;
-    width:370px;
+    width:375px;
     height:220px;
     border:1px;
     border-color:lightgrey;

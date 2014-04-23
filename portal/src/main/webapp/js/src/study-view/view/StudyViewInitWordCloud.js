@@ -39,6 +39,7 @@ var StudyViewInitWordCloud = (function() {
     var WIDTH = 180,
         HEIGHT = 180;
     
+    var initStatus = false;
     
     function initData(_data){
         words = _data.names;
@@ -168,8 +169,12 @@ var StudyViewInitWordCloud = (function() {
             initDiv();
             initD3Cloud();
             addEvents();
+            initStatus = true;
         },
         
-        redraw: redraw
+        redraw: redraw,
+        getInitStatus: function(){
+            return initStatus;
+        }
     };
 })();

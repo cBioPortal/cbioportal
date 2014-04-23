@@ -28,18 +28,37 @@ var AddCharts = (function(){
     function initAddChartsButton(_param) {
         var _name = _param.name,
             _dispalyedID = _param.displayedID,
-            _displayName = _param.displayName;
+            _displayName = _param.displayName,
+            _showedNames = [],
+            _showedNamesLength = 0;
         
         $('#study-view-add-chart ul').find('li').remove().end();
-            
+        
         $.each(_name, function(key, value) {
             if(_dispalyedID.indexOf(value) === -1){
-                $('#study-view-add-chart ul')
-                    .append($("<li></li>")
-                        .attr("id",value)
-                        .text(_displayName[key]));
+                var _datum = {};
+                _datum.displayName = _displayName[key];
+                _datum.name = value;
+                _showedNames.push(_datum);
             }
         });
+        
+        _showedNamesLength = _showedNames.length;
+        
+        _showedNames.sort(function(a, b){
+            var _aValue = a.displayName.toUpperCase();
+            var _bValue = b.displayName.toUpperCase();
+            
+            return _aValue.localeCompare(_bValue);
+        });
+        
+        for(var i = 0; i < _showedNamesLength; i++){
+            $('#study-view-add-chart ul')
+                    .append($("<li></li>")
+                        .attr("id",_showedNames[i].name)
+                        .text(_showedNames[i].displayName));
+        }
+        
         
         if($('#study-view-add-chart ul').find('li').length === 0 ){
             $('#study-view-add-chart').css('display','none');

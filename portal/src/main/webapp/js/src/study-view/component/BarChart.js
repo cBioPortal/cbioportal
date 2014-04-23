@@ -553,9 +553,9 @@ var BarChart = function(){
             _domainLength,
             _maxDomain = 10000;
     
-        emptyValueMapping = "1000";
+        emptyValueMapping = "1000";//Will be changed later based on maximum value
         xDomain.length =0;
-
+        
         barChart = dc.barChart("#" + DIV.chartDiv);
         
         for(var i=0; ;i+=0.5){
@@ -579,7 +579,7 @@ var BarChart = function(){
             if(isNaN(_returnValue)){
                 return emptyValueMapping;
             }else{
-                
+                        
                 _returnValue = Number(_returnValue);
                 for(i = 1;i < _domainLength; i++){
                     if( d[param.selectedAttr] < xDomain[i] && 

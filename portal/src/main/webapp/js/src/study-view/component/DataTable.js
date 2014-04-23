@@ -351,10 +351,11 @@ var DataTable = function() {
     }
     
     //Create Regular Selector or Numeric Selector based on data type.
-    function fnCreateSelect( aData, index ){
+    function fnCreateSelect( aData, index, _this ){
         var _isNumericArray = true,
             _hasNullValue = false,
-            _numOfKeys = aData.length;
+            _numOfKeys = aData.length,
+            _width = $(_this).width() - 4;
     
         for(var i=0;i<aData.length;i++){
             if(isNaN(aData[i])){
@@ -383,7 +384,7 @@ var DataTable = function() {
         }
         
         if(!_isNumericArray || aData.length === 0 || (_isNumericArray && _numOfKeys < 10)){
-            var r='<select><option value=""></option>', i, iLen=aData.length;
+            var r='<select style="width: '+_width+'px"><option value=""></option>', i, iLen=aData.length;
             if(iLen === 0){
                 return "";
             }else{
@@ -551,7 +552,7 @@ var DataTable = function() {
             
             if(disableFiltId.indexOf(i) === -1){               
                 $(this).css('z-index','1500');
-                this.innerHTML = fnCreateSelect( dataTable.fnGetColumnData(columnIndexMappingColumnId[i]), i);
+                this.innerHTML = fnCreateSelect( dataTable.fnGetColumnData(columnIndexMappingColumnId[i]), i, this);
                 
                 var _drag = d3.behavior.drag()
                         .on("drag", selectorDragMove)

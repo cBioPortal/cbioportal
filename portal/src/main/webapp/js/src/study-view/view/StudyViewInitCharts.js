@@ -75,13 +75,25 @@ var StudyViewInitCharts = (function(){
         shiftClickedCaseIds = [],
         
         WORDCLOUDTEXTSIZECONSTANT = 200,
-        
+       
         // Color scale from GOOGLE charts
         chartColors = jQuery.extend(true, [], StudyViewBoilerplate.chartColors); 
        
     
+    function allNumberElements(_array){
+        var _length = _array.length;
+        var _flag = true;//all number flag;
+        for(var i = 0; i < _length; i++){
+            if(_array[i] !== 'NA' && isNaN(_array[i])){
+                _flag = false;
+                break;
+            }
+        }
+        return _flag;
+    }
+    
     function initData(dataObtained) {
-        var _keys = [],
+        var _keys = [], //number of keys for each attribute
             _attr = dataObtained.attr,
             _arr = dataObtained.arr,
             _attrLength = _attr.length,
@@ -95,6 +107,8 @@ var StudyViewInitCharts = (function(){
         //Initial varName, varType, distanceMinMaxArray, varDisplay
         for( var i = 0; i < _attrLength; i++ ){
             var _varValuesNum = [];
+            var _dataType = _attr[i]["datatype"].toUpperCase();
+            var _allNumber = false;
             
             for( var j = 0; j < _arrLength; j++ ){
                 if(_varValuesNum.hasOwnProperty(_arr[j][_attr[i]["attr_id"]])){
@@ -106,8 +120,14 @@ var StudyViewInitCharts = (function(){
             }
             
             _keys = Object.keys(_varValuesNum);
+             //If chart only has one category and it is NA, do not show this chart
+            if(_keys.length === 1 && _keys[0] === 'NA'){
+                continue;
+            }
             
-            if(_attr[i]["datatype"] === "NUMBER"){
+            _allNumber = allNumberElements(_keys);
+           
+            if(_dataType === "NUMBER" || _allNumber){
                 dataType[_attr[i]["attr_id"]] = 'allnumeric';
             }else{
                 dataType[_attr[i]["attr_id"]] = 'string';
@@ -115,7 +135,7 @@ var StudyViewInitCharts = (function(){
             
             if(_attr[i]["attr_id"] === "CASE_ID"){
                 pie.push(_attr[i]);
-            }else if(_attr[i]["datatype"] === "NUMBER" || _attr[i]["datatype"] === "BOOLEAN"){                
+            }else if(_dataType === "NUMBER" || _dataType === "BOOLEAN" || _allNumber){                
                 if(selectedCol(_attr[i]["attr_id"])){                    
                     if(_keys.length>10 || _attr[i]["attr_id"] === 'MUTATION_COUNT' 
                             || _attr[i]["attr_id"] === 'COPY_NUMBER_ALTERATIONS')
@@ -131,13 +151,12 @@ var StudyViewInitCharts = (function(){
                     varType[_attr[i]["attr_id"]] = "pie";
                 }
                 
-                if(_attr[i]["datatype"] === "NUMBER"){
+                if(_dataType === "NUMBER" || _allNumber){
                     var _varValues = [];
                     
                     for(var j=0;j<_arr.length;j++){
                         if(_arr[j][_attr[i]["attr_id"]] && 
-                                _arr[j][_attr[i]["attr_id"]]!=="NA" && 
-                                _arr[j][_attr[i]["attr_id"]]!==""){
+                                !isNaN(_arr[j][_attr[i]["attr_id"]])){
                             _varValues.push(_arr[j][_attr[i]["attr_id"]]);  
                         }
                     }
@@ -149,13 +168,14 @@ var StudyViewInitCharts = (function(){
                     };
                 }
 
-            }else if(_attr[i]["datatype"] === "STRING"){
+            }else if(_dataType === "STRING"){
                 if(selectedCol(_attr[i]["attr_id"])){
                     pie.push(_attr[i]);
                 }
                 varType[_attr[i]["attr_id"]] = "pie";
             }else {
                 StudyViewUtil.echoWarningMessg('Can not identify data type.');
+                StudyViewUtil.echoWarningMessg('The data type is ' +_dataType);
             }
 
             varDisplay.push(_attr[i]["display_name"]);                
@@ -163,13 +183,25 @@ var StudyViewInitCharts = (function(){
         }
         
         totalCharts = pie.length + bar.length;
-        initScatterPlot(_arr);
-        var _trimedData = wordCloudDataProcess(mutatedGenes);
-        initWordCloud(_trimedData);
-        
-        initSurvivalPlot(_arr);
     }
     
+    function initSpecialCharts(_arr){
+        initScatterPlot(_arr);
+        var _trimedData = wordCloudDataProcess(mutatedGenes);
+        
+        if(!( 
+                _trimedData.names.length === 1 && 
+                _trimedData.names[0] === 'No Mutated Gene')){
+        
+            initWordCloud(_trimedData);
+        }
+        if(
+                StudyViewUtil.arrayFindByValue(varName, 'OS_MONTHS') && 
+                StudyViewUtil.arrayFindByValue(varName, 'OS_STATUS')){
+            
+            initSurvivalPlot(_arr);
+        }
+    }
     function redrawSurvival() {
         var _unselectedCases= [],
             _selectedCases = getSelectedCasesID(),
@@ -389,24 +421,19 @@ var StudyViewInitCharts = (function(){
     }
     
     function initSurvivalPlot(_data) {
-        if(
-                StudyViewUtil.arrayFindByValue(varName, 'OS_MONTHS') && 
-                StudyViewUtil.arrayFindByValue(varName, 'OS_STATUS')){
-            
-            StudyViewInitSurvivalPlot.init({ALL_CASES: StudyViewParams.params.caseIds}, _data);
+        StudyViewInitSurvivalPlot.init({ALL_CASES: StudyViewParams.params.caseIds}, _data);
 
-            $(".study-view-survival-plot-delete").click(function (){
-               $("#study-view-survival-plot").css('display','none');
-               $('#study-view-add-chart').css('display','block');
-               $('#study-view-add-chart ul')
-                       .append($('<li></li>')
-                           .attr('id','overallSurvivalPlot')
-                           .text('Overall Survival Plot'));
+        $(".study-view-survival-plot-delete").click(function (){
+           $("#study-view-survival-plot").css('display','none');
+           $('#study-view-add-chart').css('display','block');
+           $('#study-view-add-chart ul')
+                   .append($('<li></li>')
+                       .attr('id','overallSurvivalPlot')
+                       .text('Overall Survival Plot'));
 
-               bondDragForLayout();
-               AddCharts.bindliClickFunc();
-           });
-        }
+           bondDragForLayout();
+           AddCharts.bindliClickFunc();
+       });
     }
     
     function initScatterPlot(_arr) {
@@ -498,7 +525,8 @@ var StudyViewInitCharts = (function(){
         _tmpCaseID = [];
 
         clickedCaseId = '';
-
+        shiftClickedCaseIds = _tmpResult;
+        
         if(StudyViewInitScatterPlot.getScatterPlot()){
             for(var i=0; i<_tmpResult.length ; i++){
                 _tmpCaseID.push(_tmpResult[i].CASE_ID);
@@ -527,10 +555,22 @@ var StudyViewInitCharts = (function(){
         varChart[_chartID].postFilterCallbackFunc(postFilterCallbackFunc);
     }
     
-    function postFilterCallbackFunc(){
+    function redrawCharts(){
         removeContentsAndStartLoading();
         changeHeader();
-        redrawWordCloud();
+        
+        if(StudyViewInitWordCloud.getInitStatus()){
+            //redrawSurvival has been added in redrawWordCloud as callback func
+            redrawWordCloud();
+        }else if(StudyViewInitSurvivalPlot.getInitStatus()){
+            redrawSurvival();
+        }
+    }
+    
+    function postFilterCallbackFunc(){
+        if(!noCaseBrushed()){
+            redrawCharts();
+        }
     }
     
     function removeContentsAndStartLoading(){
@@ -556,7 +596,7 @@ var StudyViewInitCharts = (function(){
             
         var _barchartCallbackFunction = getSelectedCasesAndRedrawScatterPlot;
         
-        if(_distanceArray.diff > 1000){
+        if(_distanceArray.diff > 1000 && _distanceArray.min >= 1){
             param.needLogScale = true;
         }else{
             param.needLogScale = false;
@@ -567,7 +607,7 @@ var StudyViewInitCharts = (function(){
         varChart[_chartID].scatterPlotCallbackFunction(_barchartCallbackFunction);
         varChart[_chartID].postFilterCallbackFunc(postFilterCallbackFunc);
 
-        if(_distanceArray.diff > 1000){
+        if(_distanceArray.diff > 1000 && _distanceArray.min >= 1){
             $("#scale-input-"+_chartID).change(function(e) {
                 $(this).parent().parent().find('svg').remove();
                 var _param = {},
@@ -756,7 +796,7 @@ var StudyViewInitCharts = (function(){
             dc.redrawAll();
         }
         
-        postFilterCallbackFunc();
+        redrawCharts();
     }
     
     function scatterPlotClickCallBack(_clickedCaseIds) {
@@ -866,8 +906,15 @@ var StudyViewInitCharts = (function(){
         _caseIDChart.filter([_ids]);
         dc.redrawAll();
         setScatterPlotStyle(_ids,_caseIDChart.filters());
-        changeHeader();
-        redrawWordCloud();
+        postFilterCallbackFunc();
+    }
+    
+    function noCaseBrushed(){
+        if(shiftClickedCaseIds.length > 0){
+            return false;
+        }else{
+            return true;
+        }
     }
     
     function createNewChartFromOutside(_id, _text) {
@@ -953,6 +1000,7 @@ var StudyViewInitCharts = (function(){
     return {
         init: function(_data) {
             initData(_data);
+            initSpecialCharts(_data.arr);
             initCharts(_data);
             createLayout();
             updateDataTableCallbackFuncs();
@@ -994,6 +1042,7 @@ var StudyViewInitCharts = (function(){
             return varChart[_index];
         },
         
+        noCaseBrushed: noCaseBrushed,
         getSelectedCasesAndRedrawScatterPlot: getSelectedCasesAndRedrawScatterPlot,
         filterChartsByGivingIDs: filterChartsByGivingIDs,
         changeHeader: changeHeader,

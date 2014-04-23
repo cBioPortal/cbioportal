@@ -431,7 +431,7 @@ var StudyViewInitSurvivalPlot = (function() {
     
     function dataProcess(_data){
         var _dataLength = _data.length;
-        
+        var _numOfValuedCase = 0;
         
         originalData = _data;
         //Get all of cases os information
@@ -459,6 +459,19 @@ var StudyViewInitSurvivalPlot = (function() {
                     data[_caseID].months =  Number(_data[i].OS_MONTHS);
                 }
             }
+        }
+        
+        
+        //Refind search data, if only one or no case has months information,
+        //the survival plot should not be initialized.
+        for(var key in data){
+            if(data[key].months !== 'NA'){
+                _numOfValuedCase++;
+            }
+        }
+        
+        if(_numOfValuedCase<2){
+            data = {};
         }
     }
     
@@ -856,12 +869,13 @@ var StudyViewInitSurvivalPlot = (function() {
     
     return {
         init: function(_caseLists, _data) {
-            allCases = _caseLists;
-            createDiv();
-            initParams();
-            initOpts();
             dataProcess(_data);
             if(Object.keys(data).length > 0){
+                allCases = _caseLists;
+                createDiv();
+                initParams();
+                initOpts();
+                //console.log(data);
                 initStatus = true;
                 grouping(_caseLists, '');
                 initView();
@@ -869,7 +883,7 @@ var StudyViewInitSurvivalPlot = (function() {
                 initSelection();
                 addEvents();
             }else{
-                StudyViewUtil.echoWarningMessg("No Overall Data available, the survival plot should not be initialized.");
+                //StudyViewUtil.echoWarningMessg("No Overall Data available, the survival plot should not be initialized.");
             }
         },
         getInitStatus: getInitStatus,

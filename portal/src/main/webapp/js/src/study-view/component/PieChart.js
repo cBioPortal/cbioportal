@@ -593,20 +593,25 @@ var PieChart = function(){
                 _color = $(this).find('path').attr('fill'),            
                 _pointsInfo = $(this).find('path').attr('d').split(/[\s,MLHVCSQTAZ]/);            
             
-            var _x1 = Number( _pointsInfo[1] ),
-                _y1 = Number( _pointsInfo[2] ),
-                _x2 = Number( _pointsInfo[8] ),
-                _y2 = Number( _pointsInfo[9] );
+            if(_pointsInfo.length >= 10){
                 
-            if(_x1 !== _x2 || _y1 !== _y2){
-                _labelDatum.id = _labelID;
-                _labelDatum.name = _labelName[0];
-                _labelDatum.color = _color;
-                _labelDatum.parentID = DIV.chartDiv;
-                _labelDatum.value = _labelName[1];
-                label.push(_labelDatum);
+                var _x1 = Number( _pointsInfo[1] ),
+                    _y1 = Number( _pointsInfo[2] ),
+                    _x2 = Number( _pointsInfo[8] ),
+                    _y2 = Number( _pointsInfo[9] );
+
+                if(_x1 !== _x2 || _y1 !== _y2){
+                    _labelDatum.id = _labelID;
+                    _labelDatum.name = _labelName[0];
+                    _labelDatum.color = _color;
+                    _labelDatum.parentID = DIV.chartDiv;
+                    _labelDatum.value = _labelName[1];
+                    label.push(_labelDatum);
+                }
+                _labelID++;
+            }else{
+                //StudyViewUtil.echoWarningMessg("Initial Lable Error");
             }
-            _labelID++;            
         });
     }
     

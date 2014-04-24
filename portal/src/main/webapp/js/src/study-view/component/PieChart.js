@@ -309,9 +309,27 @@ var PieChart = function(){
             .showHideDivision("#"+DIV.mainDiv, 
                             "#"+DIV.mainDiv +" .study-view-drag-icon");
         
+        
         $("#"+DIV.chartDiv+"-plot-data").click(function(){
-            StudyViewInitSurvivalPlot.redraw([], selectedAttr);
+            redrawSurvivalPlot();
         });
+    }
+    
+    //TODO: This function should be passed from outside. PieChart is a basic
+    //component which can not contact View Layer directly.
+    function redrawSurvivalPlot() {
+        //Since Pie Chart object does not include any data, we will only pass
+        //key and color to survival plot, the survival will reget data.
+        var _labelLength = label.length;
+        var _casesInfo = {};
+        for(var i = 0; i < _labelLength; i++){
+            var _caseInfoDatum = {};
+            _caseInfoDatum.caseIds = [];
+            _caseInfoDatum.color = label[i].color;
+            _casesInfo[label[i].name] = _caseInfoDatum;
+        }
+        
+        StudyViewInitSurvivalPlot.redraw(_casesInfo, selectedAttr);
     }
     
     function setSVGElementValue(_svgParentDivId,_idNeedToSetValue){

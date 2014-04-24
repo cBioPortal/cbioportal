@@ -1,16 +1,16 @@
 //TODO: Colors have conflicts when user save SELECTED_CASES/UNSELECTED_CALSES/ALL_CASES
 
 var StudyViewInitSurvivalPlot = (function() {
-    var caseList = {},
-            originalData = [],
-            data = {},
-            opts = {},
-            inputArr = [],
-            survivalCurve = "",
-            kmEstimator = "",
-            logRankTest = "",
-            // if survival plot has been initialized, the status will be set to true.
-            initStatus = false;
+    var casesInfo = {},
+        originalData = [],
+        data = {},
+        opts = {},
+        inputArr = [],
+        survivalCurve = "",
+        kmEstimator = "",
+        logRankTest = "",
+        // if survival plot has been initialized, the status will be set to true.
+        initStatus = false;
 
     var curveInfo = [];
 
@@ -443,21 +443,26 @@ var StudyViewInitSurvivalPlot = (function() {
         }
     }
 
-    function grouping(_caseLists, _seperateAttr) {
+    function grouping(_casesInfo, _seperateAttr) {
         //If seperation attribute has been defined, the data will be put in
         //different group based on this attribute.
         var _dataLength = originalData.length;
+        
+        casesInfo = _casesInfo;
         if (_seperateAttr !== '' && _seperateAttr) {
             for (var i = 0; i < _dataLength; i++) {
-                var _arr = originalData[i][_seperateAttr].toUpperCase(),
+                var _arr = originalData[i][_seperateAttr],
                         _caseID = originalData[i].CASE_ID;
-                if (!caseList.hasOwnProperty(_arr)) {
-                    caseList[_arr] = [];
+                if(!casesInfo.hasOwnProperty(_arr)){
+                    if(casesInfo.hasOwnProperty('NA')){
+                        casesInfo['NA'].caseIds.push(_caseID);
+                    }else{
+                        StudyViewUtil.echoWarningMessg("Unexpected attribute: " + _arr);
+                    }
+                }else{
+                    casesInfo[_arr].caseIds.push(_caseID);
                 }
-                caseList[_arr].push(_caseID);
             }
-        } else {
-            caseList = _caseLists;
         }
     }
 
@@ -513,18 +518,18 @@ var StudyViewInitSurvivalPlot = (function() {
         logRankTest = new LogRankTest();
         //confidenceIntervals = new ConfidenceIntervals();   
 
-        for (var key in caseList) {
+        for (var key in casesInfo) {
 
             //Drawing survival curve needs at least two cases
             if (!(key === 'NA' && _selectedAttr === 'OS_MONTHS')) {
                 var instanceData = new SurvivalCurveProxy();
 
-                instanceData.init(data, caseList[key], kmEstimator, logRankTest);
+                instanceData.init(data, casesInfo[key].caseIds, kmEstimator, logRankTest);
 
                 //If no data return, will no draw this curve
                 if (instanceData.getData().length > 0) {
                     var instanceSettings = jQuery.extend(true, {}, SurvivalCurveBroilerPlate.subGroupSettings);
-                    _color = colorSelection(key);
+                    _color = casesInfo[key].color;
                     if (_color) {
                         instanceSettings.line_color = _color;
                         instanceSettings.mouseover_color = _color;
@@ -542,7 +547,7 @@ var StudyViewInitSurvivalPlot = (function() {
                         var _curveInfoDatum = {
                             name: key,
                             color: _color,
-                            caseList: caseList[key],
+                            caseList: casesInfo[key].color,
                             data: instance
                         };
 
@@ -568,18 +573,18 @@ var StudyViewInitSurvivalPlot = (function() {
         logRankTest = new LogRankTest();
         //confidenceIntervals = new ConfidenceIntervals();   
 
-        for (var key in caseList) {
+        for (var key in casesInfo) {
 
             //Drawing survival curve needs at least two cases
             if (key !== 'NA') {
                 var instanceData = new SurvivalCurveProxy();
 
-                instanceData.init(data, caseList[key], kmEstimator, logRankTest);
+                instanceData.init(data, casesInfo[key].caseIds, kmEstimator, logRankTest);
 
                 //If no data return, will no draw this curve
                 if (instanceData.getData().length > 0) {
                     var instanceSettings = jQuery.extend(true, {}, SurvivalCurveBroilerPlate.subGroupSettings);
-                    _color = colorSelection(key);
+                    _color = casesInfo[key].color;
                     if (_color) {
                         instanceSettings.line_color = _color;
                         instanceSettings.mouseover_color = _color;
@@ -597,7 +602,7 @@ var StudyViewInitSurvivalPlot = (function() {
                         var _curveInfoDatum = {
                             name: key,
                             color: _color,
-                            caseList: caseList[key],
+                            caseList: casesInfo[key].caseIds,
                             data: instance
                         };
 
@@ -649,7 +654,7 @@ var StudyViewInitSurvivalPlot = (function() {
     }
 
     //Redraw curves based on selected cases and unselected cases
-    function redraw(_caseIDs, _selectedAttr) {
+    function redraw(_casesInfo, _selectedAttr) {
         var _curveInfoLength = curveInfo.length;
 
         $("#study-view-survival-plot-loader").css('display', 'block');
@@ -661,7 +666,7 @@ var StudyViewInitSurvivalPlot = (function() {
 
         //removeContentAndRunLoader();
         resetParams();
-        grouping(_caseIDs, _selectedAttr);
+        grouping(_casesInfo, _selectedAttr);
         redrawView(_selectedAttr);
         drawLabels();
         addEvents();
@@ -675,7 +680,7 @@ var StudyViewInitSurvivalPlot = (function() {
         kmEstimator = "";
         logRankTest = "";
         curveInfo = [];
-        caseList = {};
+        casesInfo = {};
         resetColorExceptSaved();
     }
 
@@ -721,50 +726,51 @@ var StudyViewInitSurvivalPlot = (function() {
                     .attr('width', _width)
                     .attr("height", _height);
 
-            drawNewLabels(_svg, 0);
+            drawNewLabels(_svg, 0, _width);
 
             if (_savedLabelsLength > 0) {
                 //separator's height is 60px;
-                drawSeparator(_svg, _newLabelsLength);
-                drawSavedLabels(_svg, _newLabelsLength + 1);
+                drawSeparator(_svg, _newLabelsLength, _width);
+                drawSavedLabels(_svg, _newLabelsLength + 1, _width);
             }
         }
     }
 
     //Draw text and black line between new labels and saved labels
-    function drawSeparator(_svg, _index) {
+    function drawSeparator(_svg, _index, _width) {
         var _g = _svg.append("g").attr('transform', 'translate(0, ' + (_index * 20) + ')');
 
         _g.append("text")
-                .attr('x', 15)
+                .attr('x', _width / 2)
                 .attr('y', 12)
                 .attr('fill', 'black')
+                .attr('text-anchor', 'middle')
                 .attr('class', 'study-view-survival-label-font-1')
                 .text('Saved Curves');
 
         _g.append("line")
                 .attr('x1', 0)
                 .attr('y1', 16)
-                .attr('x2', 100)
+                .attr('x2', _width)
                 .attr('y2', 16)
                 .attr('stroke', 'black')
                 .attr('stroke-width', '2px');
     }
     //Draw saved labels if have any
-    function drawSavedLabels(_svg, _startedIndex) {
+    function drawSavedLabels(_svg, _startedIndex, _svgWidth) {
         var _savedLabelsLength = getSavedCurveName().length;
 
         if (_savedLabelsLength > 0) {
             var _index = 0;
             for (var key in savedCurveInfo) {
-                drawLabelBasicComponent(_svg, _index + _startedIndex, savedCurveInfo[key].color, savedCurveInfo[key].name, 'close');
+                drawLabelBasicComponent(_svg, _index + _startedIndex, savedCurveInfo[key].color, savedCurveInfo[key].name, 'close', _svgWidth);
                 _index++;
             }
         }
     }
 
     //Icon type has: pin or close
-    function drawLabelBasicComponent(_svg, _index, _color, _textName, _iconType) {
+    function drawLabelBasicComponent(_svg, _index, _color, _textName, _iconType, _svgWidth) {
         var _showedName = _textName.substring(0, 1) + _textName.substring(1).toLowerCase();
         var _g = _svg.append("g").attr('transform', 'translate(0, ' + (_index * 20) + ')');
         var _textWidth = 0;
@@ -788,7 +794,7 @@ var StudyViewInitSurvivalPlot = (function() {
 
         if (_iconType === 'pin') {
             var _image = _g.append("image")
-                    .attr('x', _textWidth + 20)
+                    .attr('x', _svgWidth- 40)
                     .attr('y', '0')
                     .attr('height', '10px')
                     .attr('width', '10px');
@@ -797,7 +803,7 @@ var StudyViewInitSurvivalPlot = (function() {
             _image.attr('name', 'pin');
 
             _image = _g.append("image")
-                    .attr('x', _textWidth + 35)
+                    .attr('x', _svgWidth-25)
                     .attr('y', '1')
                     .attr('height', '8px')
                     .attr('width', '8px');
@@ -807,7 +813,7 @@ var StudyViewInitSurvivalPlot = (function() {
 
         } else if (_iconType === 'close') {
             var _image = _g.append("image")
-                    .attr('x', _textWidth + 20)
+                    .attr('x', _svgWidth-25)
                     .attr('y', '1')
                     .attr('height', '8px')
                     .attr('width', '8px');
@@ -828,10 +834,10 @@ var StudyViewInitSurvivalPlot = (function() {
         }
     }
     //Draw new curve labels including curve color, name and pin icon
-    function drawNewLabels(_svg, _startedIndex) {
+    function drawNewLabels(_svg, _startedIndex, _svgWidth) {
         var _numOfLabels = curveInfo.length;
         for (var i = 0; i < _numOfLabels; i++) {
-            drawLabelBasicComponent(_svg, i + _startedIndex, curveInfo[i].color, curveInfo[i].name, 'pin');
+            drawLabelBasicComponent(_svg, i + _startedIndex, curveInfo[i].color, curveInfo[i].name, 'pin', _svgWidth);
         }
     }
 

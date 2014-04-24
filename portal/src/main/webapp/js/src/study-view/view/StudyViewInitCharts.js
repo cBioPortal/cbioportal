@@ -225,12 +225,23 @@ var StudyViewInitCharts = (function(){
                 }
             }
             _passedCases = {
-                SELECTED_CASES: _selectedCases,
-                UNSELECTED_CASES: _unselectedCases
+                SELECTED_CASES: {
+                    caseIds: _selectedCases,
+                    color: "#dc3912"
+                },
+                UNSELECTED_CASES: {
+                    caseIds: _unselectedCases,
+                    color: "#2986e2"
+                }
                 //,ALL_CASES: _allCases
             };
         }else{
-            _passedCases = {ALL_CASES: _allCases};
+            _passedCases = {
+                ALL_CASES: {
+                    caseIds: _allCases,
+                    color: "#000000"
+                }
+            };
         }
         StudyViewInitSurvivalPlot.redraw(_passedCases, false);
     }
@@ -428,7 +439,7 @@ var StudyViewInitCharts = (function(){
     }
     
     function initSurvivalPlot(_data) {
-        StudyViewInitSurvivalPlot.init({ALL_CASES: StudyViewParams.params.caseIds}, _data);
+        StudyViewInitSurvivalPlot.init({ALL_CASES: {caseIds: StudyViewParams.params.caseIds, color: '#000000'}}, _data);
 
         $(".study-view-survival-plot-delete").click(function (){
            $("#study-view-survival-plot").css('display','none');

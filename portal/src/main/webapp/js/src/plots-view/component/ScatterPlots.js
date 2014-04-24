@@ -401,8 +401,8 @@ var ScatterPlots = function() {
             function(d) {
                 $(this).qtip(
                     {
-                        content: {text: d.qtip},
-                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                        content: {text: "<font size=2>" + d.qtip},
+                        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                         show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
                         position: {my:'left bottom',at:'top right', viewport: $(window)}

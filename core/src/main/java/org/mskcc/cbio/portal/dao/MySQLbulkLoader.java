@@ -182,6 +182,7 @@ public class MySQLbulkLoader {
       try {
          try {
             // close the file, flushing all buffers before loading the DBMS
+             tempFileWriter.flush();
              tempFileWriter.close();
          } catch (IOException e) {
             throw new DaoException(e);

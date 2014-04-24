@@ -105,7 +105,7 @@ var PdbTableView = Backbone.View.extend({
 		var pdbColl = self.model.pdbColl;
 		var pdbProxy = self.model.pdbProxy;
 
-		var options = self.model.tableOpts || {};
+		var options = jQuery.extend(true, {}, self.model.tableOpts);
 		options.el = options.el || self.$el.find(".pdb-chain-table");
 
 		var table = new MutationPdbTable(options);

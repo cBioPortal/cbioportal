@@ -16,12 +16,21 @@ function GenomicEventObserver(hasMut, hasCna, hasSeg) {
 GenomicEventObserver.prototype = {
     subscribeMutCna : function(fn) {
         this.fns_mut_cna.push(fn);
+        if (this.hasMut===this.mutBuilt && this.hasCna===this.cnaBuilt) {
+            fn.call(window);
+        }
     },
     subscribeMut : function(fn) {
         this.fns_mut.push(fn);
+        if (this.mutBuilt) {
+            fn.call(window);
+        }
     },
     subscribeCna : function(fn) {
         this.fns_cna.push(fn);
+        if (this.cnaBuilt) {
+            fn.call(window);
+        }
     },
     subscribePancanMutationsFrequency : function(fn) {
         this.fns_pancan_mutation_frequency.push(fn);

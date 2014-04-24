@@ -51,15 +51,19 @@ public class CoExpUtil {
         return final_gp;
     }
 
-	public static Map<Long,double[]> getExpressionMap(int profileId, String patientSetId, String patientIdsKey) throws DaoException {
-            GeneticProfile gp = DaoGeneticProfile.getGeneticProfileById(profileId);
-            //Filter out patients with no values
-            List<String> sampleIds =
-                StableIdUtil.getStableSampleIdsFromPatientIds(gp.getCancerStudyId(), getPatientIds(patientSetId, patientIdsKey));
-            sampleIds.retainAll(DaoSampleProfile.getAllSampleIdsInProfile(profileId));
+    public static Map<Long,double[]> getExpressionMap(int profileId, String patientSetId, String patientIdsKey) throws DaoException {
         
-            DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
+        GeneticProfile gp = DaoGeneticProfile.getGeneticProfileById(profileId);
+        List<String> sampleIdsFromPatientIds =
+            StableIdUtil.getStableSampleIdsFromPatientIds(gp.getCancerStudyId(), getPatientIds(patientSetId, patientIdsKey));
+        List<Integer> sampleIds = new ArrayList<Integer>();
+        for(String sampleId : sampleIdsFromPatientIds) {
+            Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(gp.getCancerStudyId(), sampleId);   
+            sampleIds.add(sample.getInternalId()); 
+        }   
+        sampleIds.retainAll(DaoSampleProfile.getAllSampleIdsInProfile(profileId));
 
+        DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
         Map<Long, HashMap<Integer, String>> mapStr = daoGeneticAlteration.getGeneticAlterationMap(profileId, null);
         Map<Long, double[]> map = new HashMap<Long, double[]>(mapStr.size());
         for (Map.Entry<Long, HashMap<Integer, String>> entry : mapStr.entrySet()) {
@@ -67,7 +71,7 @@ public class CoExpUtil {
             Map<Integer, String> mapCaseValueStr = entry.getValue();
             double[] values = new double[sampleIds.size()];
             for (int i = 0; i < sampleIds.size(); i++) {
-                String caseId = sampleIds.get(i);
+                Integer caseId = sampleIds.get(i);
                 String value = mapCaseValueStr.get(caseId);
                 Double d;
                 try {

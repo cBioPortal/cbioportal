@@ -1050,10 +1050,9 @@ class FoundationFetcherImpl implements Fetcher
 			// skip cases with no information
 			if (hasVariant.equals("false"))
 			{
+				LOG.info("fetch(), record has no variant data: " + fmiCaseID);
 				return null;
 			}
-
-			//System.out.println(caseID);
 
 			if (LOG.isInfoEnabled()) {
 				LOG.info("fetch(), fetching case : " + caseID);

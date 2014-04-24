@@ -311,23 +311,22 @@ var StudyViewBoilerplate ={
             "<div id='study-view-survival-plot-header-wrapper'>"+
             "<chartTitleH4 id='study-view-survival-plot-title'>"+
             "Overall Survival Plot</chartTitleH4>"+
-            "<div id='study-view-survival-plot-header' style='float:left'>"+
-            "<select id='study-view-survival-plot-select'><option value=''>Draw by Attributes</option></select>"+
-            "<form style='display:inline-block; margin-right:5px' action='svgtopdf.do' method='post' id='study-view-survival-plot-pdf'>"+
+            "<div id='study-view-survival-plot-header' style='float:right'>"+
+            "<form style='display:inline-block; float:left; margin-right:5px' action='svgtopdf.do' method='post' id='study-view-survival-plot-pdf'>"+
             "<input type='hidden' name='svgelement' id='study-view-survival-plot-pdf-value'>"+
             "<input type='hidden' name='filetype' value='pdf'>"+
             "<input type='hidden' id='study-view-survival-plot-pdf-name' name='filename' value=''>"+
             "<input type='submit' style='font-size:10px' value='PDF'>"+          
             "</form>"+
-            "<form style='display:inline-block' action='svgtopdf.do' method='post' id='study-view-survival-plot-svg'>"+
+            "<form style='display:inline-block; float:left; margin-right:5px' action='svgtopdf.do' method='post' id='study-view-survival-plot-svg'>"+
             "<input type='hidden' name='svgelement' id='study-view-survival-plot-svg-value'>"+
             "<input type='hidden' name='filetype' value='svg'>"+
             "<input type='hidden' id='study-view-survival-plot-svg-name' name='filename' value=''>"+
             "<input type='submit' style='font-size:10px' value='SVG'>"+    
             "</form>"+
-            "</div><span class='study-view-chart-plot-delete study-view-survival-plot-delete'>x</span>"+
-            "<div style='width:14px; height:16px;float:right'>"+
-            "<img style='width:10px; height:10px;margin-top:4px; margin-right:4px;' class='study-view-drag-icon' src='images/move.svg'/>"+
+            "<img id='study-view-survival-plot-menu' style='float:left; width:10px; height:10px;margin-top:4px; margin-right:4px;' class='study-view-menu-icon' src='images/menu.svg'/>"+
+            "<img style='float:left; width:10px; height:10px;margin-top:4px; margin-right:4px;' class='study-view-drag-icon' src='images/move.svg'/>"+
+            "<span class='study-view-chart-plot-delete study-view-survival-plot-delete'>x</span>"+
             "</div></div>"+
             "<div id='study-view-survival-plot-loader' style='width: 100%; display:none'>"+
             "<img src='images/ajax-loader.gif'/></div>"+

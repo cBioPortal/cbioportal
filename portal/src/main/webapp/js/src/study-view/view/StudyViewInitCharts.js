@@ -186,20 +186,27 @@ var StudyViewInitCharts = (function(){
     }
     
     function initSpecialCharts(_arr){
-        initScatterPlot(_arr);
         var _trimedData = wordCloudDataProcess(mutatedGenes);
+        
+        if(
+                StudyViewUtil.arrayFindByValue(varName, 'OS_MONTHS') && 
+                StudyViewUtil.arrayFindByValue(varName, 'OS_STATUS')){
+            
+            initSurvivalPlot(_arr);
+        }
+        
+        if(
+                StudyViewUtil.arrayFindByValue(varName, 'MUTATION_COUNT') && 
+                StudyViewUtil.arrayFindByValue(varName, 'COPY_NUMBER_ALTERATIONS')){
+         
+            initScatterPlot(_arr);
+        }
         
         if(!( 
                 _trimedData.names.length === 1 && 
                 _trimedData.names[0] === 'No Mutated Gene')){
         
             initWordCloud(_trimedData);
-        }
-        if(
-                StudyViewUtil.arrayFindByValue(varName, 'OS_MONTHS') && 
-                StudyViewUtil.arrayFindByValue(varName, 'OS_STATUS')){
-            
-            initSurvivalPlot(_arr);
         }
     }
     function redrawSurvival() {
@@ -437,33 +444,35 @@ var StudyViewInitCharts = (function(){
     }
     
     function initScatterPlot(_arr) {
-        if(
-                StudyViewUtil.arrayFindByValue(varName, 'MUTATION_COUNT') && 
-                StudyViewUtil.arrayFindByValue(varName, 'COPY_NUMBER_ALTERATIONS')){
-            StudyViewInitScatterPlot.init(_arr);
+        StudyViewInitScatterPlot.init(_arr);
 
-            $(".study-view-scatter-plot-delete").unbind('click');
-            $(".study-view-scatter-plot-delete").click(function (){
-                $("#study-view-scatter-plot").css('display','none');
-                $('#study-view-add-chart').css('display','block');
-                $('#study-view-add-chart ul')
-                        .append($('<li></li>')
-                            .attr('id','mutationCNA')
-                            .text('Number of Mutation vs Fraction of copy number altered genome'));
+        $(".study-view-scatter-plot-delete").unbind('click');
+        $(".study-view-scatter-plot-delete").click(function (){
+            $("#study-view-scatter-plot").css('display','none');
+            $('#study-view-add-chart').css('display','block');
+            $('#study-view-add-chart ul')
+                    .append($('<li></li>')
+                        .attr('id','mutationCNA')
+                        .text('Number of Mutation vs Fraction of copy number altered genome'));
 
-                bondDragForLayout();
-                clickedCaseId = '',
-                brushedCaseIds = [];
-                shiftClickedCaseIds = [];
-                AddCharts.bindliClickFunc();
-                removeMarker();
-                redrawChartsAfterDeletion();
-                setScatterPlotStyle([],[]);
-            });
-        }
+            bondDragForLayout();
+            clickedCaseId = '',
+            brushedCaseIds = [];
+            shiftClickedCaseIds = [];
+            AddCharts.bindliClickFunc();
+            removeMarker();
+            redrawChartsAfterDeletion();
+            setScatterPlotStyle([],[]);
+        });
     }
     
-    function initCharts() {
+    function initCharts(_data) { 
+        $("#study-view-charts").html("");
+        initSpecialCharts(_data.arr);
+        initDcCharts(_data);
+    }
+    
+    function initDcCharts() {
         var createdChartID = 0;
             
         for(var i=0; i< pie.length ; i++){
@@ -1000,7 +1009,6 @@ var StudyViewInitCharts = (function(){
     return {
         init: function(_data) {
             initData(_data);
-            initSpecialCharts(_data.arr);
             initCharts(_data);
             createLayout();
             updateDataTableCallbackFuncs();

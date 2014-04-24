@@ -14,10 +14,9 @@ var StudyViewInitSurvivalPlot = (function() {
         initStatus = false; 
         
     var curveInfo = [];
-    var allCases = [];
     
     /*This color will be used for ALL_CASES, SELECTED_CASES AND UNSELECTED_CASES*/
-    var uColor = ["#000000","#2986e2","#dc3912"];
+    var uColor = ["#000000","#dc3912","#2986e2"];
     var reserveName = ["ALL_CASES","SELECTED_CASES","UNSELECTED_CASES"];
     /*Store data for unique curves: the color of these will be changed when user
      * saving them, in that case, the survival plot needs to redraw this curve*/
@@ -36,66 +35,11 @@ var StudyViewInitSurvivalPlot = (function() {
         return initStatus;
     }
     
-    function getSavedCurveLength(){
-        return getSavedCurveName().length;
-    }
-    
-    function initSelection(){
-        var _attrsInfo = StudyViewInitCharts.getShowedChartsInfo();
-        var _length = _attrsInfo['name'].length;
-        var _newInfo = [];
-        
-        for(var i = 0; i < _length; i++){
-            if(_attrsInfo['type'][_attrsInfo['name'][i]] === 'pie'){
-                var _newInfoDatum = {};
-                _newInfoDatum.name = _attrsInfo['name'][i];
-                _newInfoDatum.displayName = _attrsInfo['displayName'][i];
-                _newInfo.push(_newInfoDatum);
-            }
-        }
-        
-        _newInfo.sort(function(a, b){
-            var _aValue = a.displayName.toUpperCase();
-            var _bValue = b.displayName.toUpperCase();
-            
-            return _aValue.localeCompare(_bValue);
-        });
-        
-        _length = _newInfo.length;
-        
-        for(var i = 0; i < _length; i++){
-            $("#study-view-survival-plot-select").append('<option value="'+_newInfo[i].name+'">'+_newInfo[i].displayName+'</option>');
-        }
-        
-         $("#study-view-survival-plot-select").change(function(){
-             var _value = $('#study-view-survival-plot-select>option:selected')
-                     .attr('value');
-             
-             if(_value === ''){
-                 redraw(allCases, false);
-             }else{
-                 redraw([], _value);
-             }
-         });
-    }
-    
     function addEvents() {
         StudyViewUtil.showHideDivision(
                 '#study-view-survival-plot',
                 '#study-view-survival-plot-header'
         );
-        
-        StudyViewUtil.showHideDivision(
-                "#study-view-survival-plot", 
-                "#study-view-survival-plot .study-view-drag-icon"
-        );
-        
-        //If user choose one of attribute to draw survival plot, these
-        //information should be shown.
-        if($('#study-view-survival-plot-select>option:selected').attr('value') !== ''){
-            $("#study-view-survival-plot-header").css('display', 'block');
-            $("#study-view-survival-plot .study-view-drag-icon").css('display', 'block');
-        }
         
         $("#study-view-survival-plot svg image").unbind('hover');
         $("#study-view-survival-plot svg image").hover(function(){
@@ -164,6 +108,17 @@ var StudyViewInitSurvivalPlot = (function() {
         $("#study-view-survival-plot-svg").submit(function(){
             setSVGElementValue("study-view-survival-plot-body-svg",
                 "study-view-survival-plot-svg-value");
+        });
+        
+        $("#study-view-survival-plot-menu").unbind("click");
+        $("#study-view-survival-plot-menu").click(function() {
+            var _label = $("#study-view-survival-plot-body-label");
+            var _display = _label.css('display');
+            if(_display === "none"){
+                _label.css('display', 'block');
+            }else{
+                _label.css('display', 'none');
+            }
         });
         
         $("#study-view-survival-plot-body").css('display', 'block');
@@ -517,18 +472,18 @@ var StudyViewInitSurvivalPlot = (function() {
         opts.text.qTips.estimation = "Survival estimate";
         opts.text.qTips.censoredEvent = "Time of last observation";
         opts.text.qTips.failureEvent = "Time of death";
-        opts.settings.canvas_width = 450;
-        opts.settings.canvas_height = 430;
+        opts.settings.canvas_width = 550;
+        opts.settings.canvas_height = 420;
         opts.settings.chart_width = 360;
-        opts.settings.chart_height = 380;
-        opts.settings.chart_left = 80;
-        opts.settings.chart_top = 0;
+        opts.settings.chart_height = 335;
+        opts.settings.chart_left = 120;
+        opts.settings.chart_top = 10;
         opts.settings.include_legend = false;
         opts.settings.include_pvalue = false;
         opts.style.axisX_title_pos_x = 270;
-	opts.style.axisX_title_pos_y = 420;
+	opts.style.axisX_title_pos_y = 405;
 	opts.style.axisY_title_pos_x = -170;
-	opts.style.axisY_title_pos_y = 20;  
+	opts.style.axisY_title_pos_y = 40;  
         opts.divs.curveDivId = "study-view-survival-plot-body-svg";
         opts.divs.headerDivId = "";
         opts.divs.labelDivId = "study-view-survival-plot-body-label";
@@ -680,13 +635,6 @@ var StudyViewInitSurvivalPlot = (function() {
         return _color;
     }
     
-    //Will be called in initView when has saved cureves
-    function initSavedCurves(){
-        for(var key in savedCurveInfo){
-            inputArr.push(savedCurveInfo[key].data);
-        }
-    }
-    
     //Redraw curves based on selected cases and unselected cases
     function redraw(_caseIDs, _selectedAttr){
         var _curveInfoLength = curveInfo.length;
@@ -711,7 +659,6 @@ var StudyViewInitSurvivalPlot = (function() {
     
     function resetParams(){
         inputArr = [];
-        //survivalCurve = "";
         kmEstimator = "";
         logRankTest = "";
         curveInfo = [];
@@ -722,13 +669,6 @@ var StudyViewInitSurvivalPlot = (function() {
     //If no separate attribute selected, the selction box should set to default
     function resetSelection(){
         $("#study-view-survival-plot-select").val('').prop('selected',true);
-    }
-    
-    //Remove survival plot including all labels
-    function removeContentAndRunLoader(){
-        $("#study-view-survival-plot-loader").css('display', 'block');
-        $("#study-view-survival-plot-body-svg svg").remove();
-        $("#study-view-survival-plot-body-label svg").remove();
     }
     
     function drawLabels(){
@@ -871,16 +811,13 @@ var StudyViewInitSurvivalPlot = (function() {
         init: function(_caseLists, _data) {
             dataProcess(_data);
             if(Object.keys(data).length > 0){
-                allCases = _caseLists;
                 createDiv();
                 initParams();
                 initOpts();
-                //console.log(data);
                 initStatus = true;
                 grouping(_caseLists, '');
                 initView();
                 drawLabels();
-                initSelection();
                 addEvents();
             }else{
                 //StudyViewUtil.echoWarningMessg("No Overall Data available, the survival plot should not be initialized.");

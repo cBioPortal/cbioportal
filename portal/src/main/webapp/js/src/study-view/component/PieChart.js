@@ -308,6 +308,10 @@ var PieChart = function(){
         StudyViewUtil
             .showHideDivision("#"+DIV.mainDiv, 
                             "#"+DIV.mainDiv +" .study-view-drag-icon");
+        
+        $("#"+DIV.chartDiv+"-plot-data").click(function(){
+            StudyViewInitSurvivalPlot.redraw([], selectedAttr);
+        });
     }
     
     function setSVGElementValue(_svgParentDivId,_idNeedToSetValue){
@@ -433,7 +437,8 @@ var PieChart = function(){
                 "<input type='hidden' name='filetype' value='svg'>"+
                 "<input type='hidden' id='"+DIV.chartDiv+"-svg-name' name='filename' value='"+cancerStudyId + "_" +selectedAttr+".svg'>"+
                 "<input type='submit' style='font-size:10px' value='SVG'>"+    
-                "</form></div>"+
+                "</form><input type='button' id='"+DIV.chartDiv+"-plot-data' "+
+                "style='font-size:10px' value='Plot Data'></div>"+
                 "<div style='width:180px; float:right; text-align:center;'>"+
                 "<span class='study-view-dc-chart-delete'>x</span>"+
                 "<div style='width:14px; height:16px;float:right'>"+

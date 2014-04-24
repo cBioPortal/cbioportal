@@ -172,6 +172,7 @@
 #study-view-survival-plot-header {
     float: left;
     margin-top: 2px;
+    height: 22px;
 }
 #study-view-survival-plot-title {
     float: left;
@@ -192,10 +193,20 @@
     width: 130px;
 }
 #study-view-survival-plot-body-label {
-    float: left;
-    height: 420px;
     width: 120px;
+    padding: 10px 10px 5px 0;
     overflow-y: auto;
+    display: none;
+    position: absolute;
+    top: 20px;
+    left: 570px;
+    border: 1px solid lightgray;
+    border-left: 0;
+    background-color: white;
+    z-index: 1;
+}
+#study-view-survival-plot-menu:hover{
+    cursor: pointer;
 }
 /*
 #study-view-scatter-plot-body-top-chart {
@@ -335,7 +346,7 @@
 }
 .study-view-pdf-svg-side {
     position: absolute;
-    width: 35px;
+    //width: 35px;
     border: 1px solid lightgrey;
     left: 180px;
     top: 15px;
@@ -345,7 +356,7 @@
     border-left-width: 0;
 }
 .study-view-pdf-svg-side.bar {
-    left: 370px;
+    left: 375px;
 }
 .w2{
     width:370px;
@@ -408,12 +419,12 @@
 .study-view-dc-chart-delete {
     float: right;
     margin-right: 5px;
-    color: lightgray;
+    color: grey;
     cursor: pointer;
 }
 .study-view-chart-plot-delete{  
     margin-right: 5px;
-    color: lightgray;
+    color: grey;
     cursor: pointer;
     float: right;
 }

@@ -96,7 +96,6 @@ var StudyViewInitScatterPlot = (function() {
     }
     
     function initPage(){
-        $("#study-view-charts").html("");
         $("#study-view-charts").append(StudyViewBoilerplate.scatterPlotDiv);
         $("#study-view-scatter-plot-pdf-name").val("Scatter_Plot_result-"+ StudyViewParams.params.studyId +".pdf");
         $("#study-view-scatter-plot-svg-name").val("Scatter_Plot_result-"+ StudyViewParams.params.studyId +".svg");

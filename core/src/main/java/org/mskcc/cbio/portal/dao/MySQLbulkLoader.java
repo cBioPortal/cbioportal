@@ -107,9 +107,6 @@ public class MySQLbulkLoader {
       String tmp = GlobalProperties.getTemporaryDir();
       tempFileHandle = File.createTempFile( tableName, tempTableSuffix, new File(tmp) );
 
-      // delete file when JVM exits
-      tempFileHandle.deleteOnExit();
-
       tempFileName = tempFileHandle.getAbsolutePath();
 
       if (!tempFileHandle.exists()) {
@@ -200,7 +197,9 @@ public class MySQLbulkLoader {
          System.out.println(""+updateCount+" records inserted into "+tableName);
          int nLines = FileUtil.getNumLines(tempFileHandle);
          if (nLines!=updateCount) {
-             System.out.println("... but there are "+nLines+" lines in the temp file.");
+             System.err.println("Error: but there are "+nLines+" lines in the temp file "+tempFileName);
+         } else {
+             tempFileHandle.delete();
          }
 
          // reopen empty temp file -- not necessary, this loader will be removed.

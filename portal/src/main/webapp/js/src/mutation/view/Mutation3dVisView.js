@@ -192,6 +192,8 @@ var Mutation3dVisView = Backbone.View.extend({
 			cbio.util.requestDownload("downloadfile.do",
 				{fileContent: script, filename: filename});
 		});
+
+		pymolDownload.qtip(self._generateTooltipOpts("Download PyMOL script"));
 	},
 	/**
 	 * Initializes the mutation style options UI and

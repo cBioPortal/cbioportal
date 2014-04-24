@@ -44,8 +44,12 @@
 		<div class='mutation-3d-vis-help-init'>
 			<table>
 				<tr>
-					<td align="left"><button class='mutation-3d-pymol-dload' href="#">Download</button></td>
-					<td align="right"><a class='mutation-3d-vis-help-open' href="#">how to pan/zoom/rotate?</a></td>
+					<td align="left">
+						<button class='mutation-3d-pymol-dload'>PML</button>
+					</td>
+					<td align="right">
+						<a class='mutation-3d-vis-help-open' href="#">how to pan/zoom/rotate?</a>
+					</td>
 				</tr>
 			</table>
 		</div>

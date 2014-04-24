@@ -105,7 +105,7 @@ public class MySQLbulkLoader {
       tempFileHandle = File.createTempFile( tableName, tempTableSuffix, new File(tmp) );
 
       // delete file when JVM exits
-      tempFileHandle.deleteOnExit();
+      //tempFileHandle.deleteOnExit();
 
       tempFileName = tempFileHandle.getAbsolutePath();
 
@@ -196,7 +196,7 @@ public class MySQLbulkLoader {
          int updateCount = stmt.getUpdateCount();
 
          // reopen empty temp file
-         this.tempFileWriter = new BufferedWriter(new FileWriter( this.tempFileHandle, false));
+        // this.tempFileWriter = new BufferedWriter(new FileWriter( this.tempFileHandle, false));
          return updateCount;
 
       } catch (SQLException e) {

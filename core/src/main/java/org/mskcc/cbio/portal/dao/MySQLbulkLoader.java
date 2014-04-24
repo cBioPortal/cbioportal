@@ -64,6 +64,8 @@ public class MySQLbulkLoader {
                 n += mySQLbulkLoader.loadDataFromTempFileIntoDBMS();
             }
             
+            mySQLbulkLoaders.clear();
+            
             return n;
         } catch (IOException e) {
             System.err.println("Could not open temp file");
@@ -105,7 +107,7 @@ public class MySQLbulkLoader {
       tempFileHandle = File.createTempFile( tableName, tempTableSuffix, new File(tmp) );
 
       // delete file when JVM exits
-      //tempFileHandle.deleteOnExit();
+      tempFileHandle.deleteOnExit();
 
       tempFileName = tempFileHandle.getAbsolutePath();
 
@@ -194,9 +196,11 @@ public class MySQLbulkLoader {
          String command = "LOAD DATA LOCAL INFILE '" + tempFileName + "' INTO TABLE " + tableName;
          stmt.execute( command );
          int updateCount = stmt.getUpdateCount();
+         System.out.println(""+updateCount+" record inserted into "+tableName);
 
-         // reopen empty temp file
-        // this.tempFileWriter = new BufferedWriter(new FileWriter( this.tempFileHandle, false));
+         // reopen empty temp file -- not necessary, this loader will be removed.
+         //this.tempFileWriter = new BufferedWriter(new FileWriter( this.tempFileHandle, false));
+
          return updateCount;
 
       } catch (SQLException e) {

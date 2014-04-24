@@ -29,6 +29,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
+import org.mskcc.cbio.portal.util.FileUtil;
 import org.mskcc.cbio.portal.util.GlobalProperties;
 
 /**
@@ -196,7 +197,11 @@ public class MySQLbulkLoader {
          String command = "LOAD DATA LOCAL INFILE '" + tempFileName + "' INTO TABLE " + tableName;
          stmt.execute( command );
          int updateCount = stmt.getUpdateCount();
-         System.out.println(""+updateCount+" record inserted into "+tableName);
+         System.out.println(""+updateCount+" records inserted into "+tableName);
+         int nLines = FileUtil.getNumLines(tempFileHandle);
+         if (nLines!=updateCount) {
+             System.out.println("... but there are "+nLines+" lines in the temp file.");
+         }
 
          // reopen empty temp file -- not necessary, this loader will be removed.
          //this.tempFileWriter = new BufferedWriter(new FileWriter( this.tempFileHandle, false));

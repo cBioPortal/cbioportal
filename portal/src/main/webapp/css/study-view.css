@@ -193,10 +193,10 @@
     width: 130px;
 }
 #study-view-survival-plot-body-label {
-    width: 120px;
+    width: auto;
     padding: 10px 10px 5px 0;
     overflow-y: auto;
-    display: none;
+    display: block;
     position: absolute;
     top: 20px;
     left: 570px;

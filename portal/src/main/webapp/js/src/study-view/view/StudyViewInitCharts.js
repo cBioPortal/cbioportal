@@ -753,6 +753,40 @@ var StudyViewInitCharts = (function(){
         }
     }
     
+    function redrawScatterPlotByAttribute(_casesInfo, _selctedAttr){
+        var _style = [];
+        
+        for(var key in dataArr) {
+            var _arr = dataArr[key][_selctedAttr];
+           
+            if(!_casesInfo.hasOwnProperty(_arr)){
+                if(_casesInfo.hasOwnProperty('NA')){
+                    _casesInfo['NA'].caseIds.push(key);
+                }else{
+                    StudyViewUtil.echoWarningMessg("Unexpected attribute: " + _arr);
+                }
+            }else{
+                _casesInfo[_arr].caseIds.push(key);
+            }
+        }
+        
+        for(var key in _casesInfo){
+            var _casesLength = _casesInfo[key].caseIds.length;
+            
+            for(var i = 0; i < _casesLength; i++){
+                var styleDatum = {};
+                styleDatum.case_id = _casesInfo[key].caseIds[i];
+                styleDatum.fill = _casesInfo[key].color;
+                styleDatum.stroke = _casesInfo[key].color;
+                styleDatum.strokeWidth = '0';
+                styleDatum.size = '60';
+                _style.push(styleDatum);
+            }
+        }
+        
+        StudyViewInitScatterPlot.getScatterPlot().updateStyle(_style);
+    }
+    
     function redrawChartsAfterDeletion(){
         for(var i = 0; i < varChart.length; i++){
             if(removedChart.indexOf(i) === -1){
@@ -1067,6 +1101,7 @@ var StudyViewInitCharts = (function(){
         changeHeader: changeHeader,
         scatterPlotBrushCallBack: scatterPlotBrushCallBack,
         scatterPlotClickCallBack: scatterPlotClickCallBack,
-        createNewChart: createNewChartFromOutside        
+        createNewChart: createNewChartFromOutside,
+        redrawScatterPlotByAttribute: redrawScatterPlotByAttribute
     };
 })();

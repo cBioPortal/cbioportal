@@ -218,6 +218,7 @@
     top: 22px;
     background: white;
     display: none;
+    z-index: 1;
 }
 /*
 #study-view-scatter-plot-body-top-chart {

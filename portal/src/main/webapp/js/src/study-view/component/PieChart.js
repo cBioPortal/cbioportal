@@ -312,13 +312,13 @@ var PieChart = function(){
         
         
         $("#"+DIV.chartDiv+"-plot-data").click(function(){
-            redrawSurvivalPlot();
+            redrawSpecialPlots();
         });
     }
     
     //TODO: This function should be passed from outside. PieChart is a basic
     //component which can not contact View Layer directly.
-    function redrawSurvivalPlot() {
+    function redrawSpecialPlots() {
         //Since Pie Chart object does not include any data, we will only pass
         //key and color to survival plot, the survival will reget data.
         var _labelLength = label.length;
@@ -331,6 +331,7 @@ var PieChart = function(){
         }
         
         StudyViewInitSurvivalPlot.redraw(_casesInfo, selectedAttr);
+        StudyViewInitCharts.redrawScatterPlotByAttribute(_casesInfo, selectedAttr);
     }
     
     function setSVGElementValue(_svgParentDivId,_idNeedToSetValue){

@@ -14,8 +14,11 @@
  * Memorial Sloan-Kettering Cancer Center 
  * has been advised of the possibility of such damage.
 */
+
+// package
 package org.mskcc.cbio.importer.converter.internal;
 
+// imports
 import org.mskcc.cbio.importer.*;
 import org.mskcc.cbio.importer.util.MapperUtil;
 import org.mskcc.cbio.importer.model.*;
@@ -27,13 +30,10 @@ import java.util.*;
 /**
  * Class which implements the Converter interface.
  */
-public class CNAConverterImpl implements Converter {
-
-	private static final String GENE_ID_COLUMN_HEADER_NAME = "Locus ID";
-	private static final String GENE_SYMBOL_COLUMN_HEADER_NAME = "Gene Symbol";
+public class CopyNumberSegmentConverterImpl implements Converter {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(CNAConverterImpl.class);
+	private static Log LOG = LogFactory.getLog(CopyNumberSegmentConverterImpl.class);
 
 	// ref to configuration
 	private Config config;
@@ -55,8 +55,8 @@ public class CNAConverterImpl implements Converter {
 	 * @param caseIDs CaseIDs;
 	 * @param idMapper IDMapper
 	 */
-	public CNAConverterImpl(Config config, FileUtils fileUtils,
-							CaseIDs caseIDs, IDMapper idMapper) {
+	public CopyNumberSegmentConverterImpl(Config config, FileUtils fileUtils,
+											CaseIDs caseIDs, IDMapper idMapper) {
 
 		// set members
 		this.config = config;
@@ -87,7 +87,7 @@ public class CNAConverterImpl implements Converter {
     @Override
 	public void generateCaseLists(String portal) throws Exception {
 		throw new UnsupportedOperationException();
-    }
+	}
 
     /**
 	 * Applies overrides to the given portal using the given data source.
@@ -118,47 +118,10 @@ public class CNAConverterImpl implements Converter {
 
 		// sanity check
 		if (dataMatrices.length != 1) {
-			if (LOG.isErrorEnabled()) {
-				LOG.error("createStagingFile(), dataMatrices.length != 1, aborting...");
-			}
-			return;
+			throw new IllegalArgumentException("dataMatrices.length != 1, aborting...");
 		}
 		DataMatrix dataMatrix = dataMatrices[0];
 
-		// perform gene mapping, remove records as needed
-		if (LOG.isInfoEnabled()) {
-			LOG.info("createStagingFile(), calling MapperUtil.mapGeneSymbolToID()...");
-		}
-		MapperUtil.mapGeneSymbolToID(dataMatrix, idMapper,
-									 GENE_ID_COLUMN_HEADER_NAME, GENE_SYMBOL_COLUMN_HEADER_NAME);
-
-		// rename columns
-		if (LOG.isInfoEnabled()) {
-			LOG.info("createStagingFile(), renaming columns");
-		}
-		dataMatrix.renameColumn(GENE_SYMBOL_COLUMN_HEADER_NAME, Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
-		dataMatrix.renameColumn(GENE_ID_COLUMN_HEADER_NAME, Converter.GENE_ID_COLUMN_HEADER_NAME);
-		dataMatrix.setGeneIDColumnHeading(Converter.GENE_ID_COLUMN_HEADER_NAME);
-
-		// convert case ids
-		if (LOG.isInfoEnabled()) {
-			LOG.info("createStagingFile(), filtering & converting case ids");
-		}
-		String[] columnsToIgnore = { Converter.GENE_SYMBOL_COLUMN_HEADER_NAME, Converter.GENE_ID_COLUMN_HEADER_NAME }; // drop Cytoband
-		dataMatrix.convertCaseIDs(Arrays.asList(columnsToIgnore));
-
-		// ensure the first two columns are symbol, id respectively
-		if (LOG.isInfoEnabled()) {
-			LOG.info("createStagingFile(), sorting column headers");
-		}
-		List<String> columnHeaders = dataMatrix.getColumnHeaders();
-		columnHeaders.remove(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
-		columnHeaders.add(0, Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
-		columnHeaders.remove(Converter.GENE_ID_COLUMN_HEADER_NAME);
-		columnHeaders.add(1, Converter.GENE_ID_COLUMN_HEADER_NAME);
-		dataMatrix.setColumnOrder(columnHeaders);
-
-		// we need to write out the file
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), writing staging file.");
 		}
@@ -167,12 +130,13 @@ public class CNAConverterImpl implements Converter {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), complete.");
 		}
-
+	
 		if (datatypeMetadata.requiresMetafile()){
 			if (LOG.isInfoEnabled()) {
 				LOG.info("createStagingFile(), writing metadata file.");
 			}
-			fileUtils.writeMetadataFile(portalMetadata.getStagingDirectory(), cancerStudyMetadata, datatypeMetadata, dataMatrix);
-		}
+			fileUtils.writeCopyNumberSegmentMetadataFile(portalMetadata.getStagingDirectory(), cancerStudyMetadata,
+														 datatypeMetadata, dataMatrix, portalMetadata.getIGVSegFileLinkingLocation());
+		}	
 	}
 }

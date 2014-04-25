@@ -48,7 +48,7 @@ var StudyViewInitSurvivalPlot = (function() {
                     '#study-view-survival-plot-header'
                     );
         }
-
+        
         $("#study-view-survival-plot svg image").unbind('hover');
         $("#study-view-survival-plot svg image").hover(function() {
             $(this).css('cursor', 'pointer');
@@ -124,6 +124,11 @@ var StudyViewInitSurvivalPlot = (function() {
             var _label = $("#study-view-survival-plot-body-label");
             var _display = _label.css('display');
             if (_display === "none") {
+                StudyViewUtil.changePosition(
+                        '#study-view-survival-plot',
+                        '#study-view-survival-plot-body-label',
+                        "#dc-plots");
+                $('#study-view-survival-plot-body-label').children('float', '');
                 _label.css('display', 'block');
             } else {
                 _label.css('display', 'none');
@@ -395,6 +400,7 @@ var StudyViewInitSurvivalPlot = (function() {
 
     function createDiv() {
         $("#study-view-charts").append(StudyViewBoilerplate.survivalPlotDiv);
+        $("#study-view-charts").append(StudyViewBoilerplate.survivalPlotDiv);
     }
 
     function dataProcess(_data) {
@@ -490,18 +496,18 @@ var StudyViewInitSurvivalPlot = (function() {
         opts.text.qTips.estimation = "Survival estimate";
         opts.text.qTips.censoredEvent = "Time of last observation";
         opts.text.qTips.failureEvent = "Time of death";
-        opts.settings.canvas_width = 550;
-        opts.settings.canvas_height = 420;
-        opts.settings.chart_width = 360;
-        opts.settings.chart_height = 335;
-        opts.settings.chart_left = 120;
-        opts.settings.chart_top = 10;
+        opts.settings.canvas_width = 370;
+        opts.settings.canvas_height = 320;
+        opts.settings.chart_width = 290;
+        opts.settings.chart_height = 250;
+        opts.settings.chart_left = 70;
+        opts.settings.chart_top = 5;
         opts.settings.include_legend = false;
         opts.settings.include_pvalue = false;
-        opts.style.axisX_title_pos_x = 270;
-        opts.style.axisX_title_pos_y = 405;
-        opts.style.axisY_title_pos_x = -170;
-        opts.style.axisY_title_pos_y = 40;
+        opts.style.axisX_title_pos_x = 170;
+        opts.style.axisX_title_pos_y = 305;
+        opts.style.axisY_title_pos_x = -100;
+        opts.style.axisY_title_pos_y = 20;
         opts.divs.curveDivId = "study-view-survival-plot-body-svg";
         opts.divs.headerDivId = "";
         opts.divs.labelDivId = "study-view-survival-plot-body-label";

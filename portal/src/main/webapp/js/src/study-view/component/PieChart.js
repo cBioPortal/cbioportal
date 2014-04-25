@@ -304,7 +304,8 @@ var PieChart = function(){
         
         StudyViewUtil
             .showHideDivision("#"+DIV.mainDiv, 
-                            "#"+DIV.chartDiv+"-side");
+                            "#"+DIV.chartDiv+"-side",
+                            "#dc-plots");
         StudyViewUtil
             .showHideDivision("#"+DIV.mainDiv, 
                             "#"+DIV.mainDiv +" .study-view-drag-icon");

@@ -62,11 +62,20 @@ var StudyViewInitScatterPlot = (function() {
             StudyViewUtil
                     .showHideDivision("#study-view-scatter-plot", 
                                     "#study-view-scatter-plot-header");
-                                    
-            StudyViewUtil
-                    .showHideDivision("#study-view-scatter-plot", 
-                            "#study-view-scatter-plot .study-view-drag-icon");
-            
+                               
+            $("#study-view-scatter-plot-menu-icon").unbind("click");
+            $("#study-view-scatter-plot-menu-icon").click(function() {
+                var _side = $("#study-view-scatter-plot-side");
+                var _display = _side.css('display');
+                if (_display === "none") {
+                    StudyViewUtil.changePosition("#study-view-scatter-plot", 
+                                    "#study-view-scatter-plot-side",
+                                    "#dc-plots");
+                    _side.css('display', 'block');
+                } else {
+                    _side.css('display', 'none');
+                }
+            });
             
             $("#study-view-scatter-plot-pdf").submit(function(){
                 setSVGElementValue("study-view-scatter-plot-body-svg",

@@ -375,7 +375,7 @@ var StudyViewInitCharts = (function(){
         var container = document.querySelector('#study-view-charts');
         msnry = new Packery( container, {
             columnWidth: 190,
-            rowHeight: 230,
+            rowHeight: 115,
             itemSelector: '.study-view-dc-chart',
             gutter:5
         });
@@ -988,7 +988,7 @@ var StudyViewInitCharts = (function(){
             msnry.destroy();
             msnry = new Packery( document.querySelector('#study-view-charts'), {
                 columnWidth: 190,
-                rowHeight: 230,
+                rowHeight: 115,
                 itemSelector: '.study-view-dc-chart',
                 gutter:5
             });

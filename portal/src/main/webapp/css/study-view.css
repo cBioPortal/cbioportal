@@ -162,12 +162,12 @@
     -webkit-backface-visibility: hidden;
 }
 #study-view-scatter-plot-header {
-    float: left;
+    float: right;
     margin-top: 2px;
 }
 #study-view-scatter-plot-title {
     float: left;
-    margin: 5px 20px 0 5px;
+    margin: 5px 0 0 5px;
 }
 #study-view-survival-plot-header {
     float: left;
@@ -176,7 +176,7 @@
 }
 #study-view-survival-plot-title {
     float: left;
-    margin: 5px 200px 0 5px;
+    margin: 5px 0 0 5px;
 }
 #study-view-survival-plot-body {
     width: 100%;
@@ -194,19 +194,30 @@
 }
 #study-view-survival-plot-body-label {
     width: auto;
-    padding: 10px 10px 5px 0;
     overflow-y: auto;
-    display: block;
+    display: none;
     position: absolute;
     top: 20px;
-    left: 570px;
+    left: 375px;
     border: 1px solid lightgray;
-    border-left: 0;
+    border-left-width: 0;
     background-color: white;
     z-index: 1;
+    max-height: 280px;
 }
-#study-view-survival-plot-menu:hover{
+.study-view-menu-icon:hover{
     cursor: pointer;
+}
+
+#study-view-scatter-plot-side {
+    border: 1px solid lightgray;
+    border-left-width: 0;
+    position: absolute;
+    width: auto;
+    left: 375px;
+    top: 22px;
+    background: white;
+    display: none;
 }
 /*
 #study-view-scatter-plot-body-top-chart {
@@ -351,7 +362,7 @@
     left: 180px;
     top: 15px;
     z-index: 20;
-    padding: 2px 2px 3px 2px;
+    padding: 2px 2px 4px 0;
     background-color: white;
     border-left-width: 0;
 }
@@ -359,7 +370,7 @@
     left: 375px;
 }
 .w2{
-    width:370px;
+    width:375px;
 }
 .w3{
     width:570px;
@@ -379,6 +390,9 @@
 }
 .h1{
     height:220px;
+}
+.h1half{
+    height:340px;
 }
 .h2{
     height:455px;
@@ -447,6 +461,12 @@
 }
 .study-view-drag-icon:hover{
     cursor: move;
+}
+.study-view-side-item {
+    float: left;
+    display: block;
+    clear: left;
+    white-space: nowrap;
 }
 chartTitleH4{
     font-size: 10px;

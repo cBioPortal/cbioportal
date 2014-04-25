@@ -95,12 +95,12 @@ var StudyViewBoilerplate ={
             yBottom: 280   //The bottom/starting point for y axis
             */
            
-            width: 560,
-            height: 440,
-            xLeft: 100,     //The left/starting point for x axis
-            xRight: 500,   //The right/ending point for x axis
+            width: 370,
+            height: 320,
+            xLeft: 80,     //The left/starting point for x axis
+            xRight: 350,   //The right/ending point for x axis
             yTop: 10,      //The top/ending point for y axis
-            yBottom: 350   //The bottom/starting point for y axis
+            yBottom: 240   //The bottom/starting point for y axis
         },
         style: { //Default style setting
             fill: "#2986e2", 
@@ -274,40 +274,45 @@ var StudyViewBoilerplate ={
                 "style='float: left'/>",
         
     scatterPlotDiv: 
-            "<div id='study-view-scatter-plot' class='study-view-dc-chart w3 h2'"+
+            "<div id='study-view-scatter-plot' class='study-view-dc-chart w2 h1half'"+
             "data-step='1' data-intro='Scatter Plot<br/>x: CNA<br/>y: MUTATIONS COUNT'>" +
             "<div id='study-view-scatter-plot-header-wrapper' style='float:right; width: 100%; height: 22px;'>"+
             "<chartTitleH4 id='study-view-scatter-plot-title'>"+
             "Mutation Count vs Copy Number Alterations</chartTitleH4>"+
             "<div id='study-view-scatter-plot-header'>"+
-            "<form style='display:inline-block; margin-right:5px' action='svgtopdf.do' method='post' id='study-view-scatter-plot-pdf'>"+
+            
+            "<form style='display:inline-block; margin-right:5px; float:left' action='svgtopdf.do' method='post' id='study-view-scatter-plot-pdf'>"+
             "<input type='hidden' name='svgelement' id='study-view-scatter-plot-pdf-value'>"+
             "<input type='hidden' name='filetype' value='pdf'>"+
             "<input type='hidden' id='study-view-scatter-plot-pdf-name' name='filename' value=''>"+
             "<input type='submit' style='font-size:10px' value='PDF'>"+          
             "</form>"+
-            "<form style='display:inline-block' action='svgtopdf.do' method='post' id='study-view-scatter-plot-svg'>"+
+            
+            "<form style='display:inline-block; margin-right:5px; float:left' action='svgtopdf.do' method='post' id='study-view-scatter-plot-svg'>"+
             "<input type='hidden' name='svgelement' id='study-view-scatter-plot-svg-value'>"+
             "<input type='hidden' name='filetype' value='svg'>"+
             "<input type='hidden' id='study-view-scatter-plot-svg-name' name='filename' value=''>"+
             "<input type='submit' style='font-size:10px' value='SVG'>"+    
             "</form>"+
-            "<input type='checkbox' id='study-view-scatter-plot-log-scale-x'></input><span class='study-view-scatter-plot-checkbox'>Log Scale X</span>"+
-            "<input type='checkbox' id='study-view-scatter-plot-log-scale-y'></input><span class='study-view-scatter-plot-checkbox'>Log Scale y</span>"+
-            "</div><span class='study-view-chart-plot-delete study-view-scatter-plot-delete'>x</span>"+
-            "<div style='width:14px; height:16px;float:right'>"+
-            "<img style='width:10px; height:10px;margin-top:4px; margin-right:4px;' class='study-view-drag-icon' src='images/move.svg'/>"+
+            
+            "<img id='study-view-scatter-plot-menu-icon' class='study-view-menu-icon' style='float:left; width:10px; height:10px;margin-top:4px; margin-right:4px;' class='study-view-menu-icon' src='images/menu.svg'/>"+
+            "<img style='width:10px; height:10px;margin-top:4px; margin-right:4px;float:left;' class='study-view-drag-icon' src='images/move.svg'/>"+
+            "<span style='float:left;' class='study-view-chart-plot-delete study-view-scatter-plot-delete'>x</span>"+
             "</div></div>"+
+            
             "<div id='study-view-scatter-plot-body'>"+
             "<div id='study-view-scatter-plot-body-top-chart'></div>"+
             "<div id='study-view-scatter-plot-body-svg'></div>"+
             "<div id='study-view-scatter-plot-body-right-chart'></div></div>"+
-            "<div id='study-view-scatter-plot-loading-img'></div>"+
+            "<div id='study-view-scatter-plot-side'>"+
+            "<div class='study-view-side-item'><input type='checkbox' id='study-view-scatter-plot-log-scale-x'></input><span class='study-view-scatter-plot-checkbox'>Log Scale X</span></div>"+
+            "<div class='study-view-side-item'><input type='checkbox' id='study-view-scatter-plot-log-scale-y'></input><span class='study-view-scatter-plot-checkbox'>Log Scale y</span></div>"+
+            "</div><div id='study-view-scatter-plot-loading-img'></div>"+
             "<div id='study-view-scatter-plot-control-panel'></div>"+
             "</div>",
     
     survivalPlotDiv: 
-            "<div id='study-view-survival-plot' class='study-view-dc-chart w3 h2'>"+
+            "<div id='study-view-survival-plot' class='study-view-dc-chart w2 h1half'>"+
             "<div id='study-view-survival-plot-header-wrapper'>"+
             "<chartTitleH4 id='study-view-survival-plot-title'>"+
             "Overall Survival Analysis</chartTitleH4>"+
@@ -324,7 +329,7 @@ var StudyViewBoilerplate ={
             "<input type='hidden' id='study-view-survival-plot-svg-name' name='filename' value=''>"+
             "<input type='submit' style='font-size:10px' value='SVG'>"+    
             "</form>"+
-            "<img id='study-view-survival-plot-menu' style='float:left; width:10px; height:10px;margin-top:4px; margin-right:4px;' class='study-view-menu-icon' src='images/menu.svg'/>"+
+            "<img id='study-view-survival-plot-menu' class='study-view-menu-icon' style='float:left; width:10px; height:10px;margin-top:4px; margin-right:4px;' class='study-view-menu-icon' src='images/menu.svg'/>"+
             "<img style='float:left; width:10px; height:10px;margin-top:4px; margin-right:4px;' class='study-view-drag-icon' src='images/move.svg'/>"+
             "<span class='study-view-chart-plot-delete study-view-survival-plot-delete'>x</span>"+
             "</div></div>"+

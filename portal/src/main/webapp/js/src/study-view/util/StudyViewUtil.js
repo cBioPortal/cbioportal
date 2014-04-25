@@ -4,9 +4,13 @@
 
 
 var StudyViewUtil = (function(){
-    function showHideDivision(_listenedDivI, _targetDiv){
+    function showHideDivision(_listenedDiv, _targetDiv, _parentDiv){
         $(_targetDiv).css('display', 'none');
-        $(_listenedDivI).hover(function(){
+        $(_listenedDiv).hover(function(){
+            if(typeof _parentDiv !== "undefined"){
+                changePosition(_listenedDiv, _targetDiv, _parentDiv);
+            }
+            
             $(_targetDiv).stop().fadeIn('slow', function(){
                 $(this).css('display', 'block');
             });
@@ -15,6 +19,42 @@ var StudyViewUtil = (function(){
                 $(this).css('display', 'none');
             });
         });
+    }
+    
+    function changePosition(_listenedDiv, _targetDiv, _parentDiv) {
+        var _parentOffset = $(_parentDiv).offset(),
+            _parentWidth = $(_parentDiv).width(),
+            _targetWidth = $(_targetDiv).width(),
+            _listenedOffset = $(_listenedDiv).offset(),
+            _listenedWidth = $(_listenedDiv).width();
+
+        if(_listenedWidth +_targetWidth+ _listenedOffset.left - _parentOffset.left > _parentWidth){
+            $(_targetDiv).css({
+                'left': -_targetWidth-3+'px',
+                'border-left-width': '1px',
+                'border-right-width': '0',
+                'padding': '2px 0 4px 2px'
+            });
+
+            $(_targetDiv).children().css({
+                'float': 'right',
+                'display': 'block',
+                'clear': 'right'
+            });
+        }else{
+            $(_targetDiv).css({
+                'left': _listenedWidth+'px',
+                'border-left-width': '0',
+                'border-right-width': '1px',
+                'padding': '2px 2px 4px 0'
+            });
+
+            $(_targetDiv).children().css({
+                'float': 'left',
+                'display': 'block',
+                'clear': 'left'
+            });
+        }
     }
     
     function echoWarningMessg(_content) {
@@ -74,6 +114,7 @@ var StudyViewUtil = (function(){
         }
         return array;
     }
+    
     return{
         showHideDivision: showHideDivision,
         echoWarningMessg: echoWarningMessg,
@@ -81,6 +122,7 @@ var StudyViewUtil = (function(){
         hexToRgb: hexToRgb,
         rgbToHex: rgbToHex,
         rgbStringConvert: rgbStringConvert,
-        arrayFindByValue: arrayFindByValue
+        arrayFindByValue: arrayFindByValue,
+        changePosition: changePosition
     };
 })();

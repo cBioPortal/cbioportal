@@ -109,6 +109,10 @@ public class ImportExtendedMutationData{
 
 		//  The MAF File Changes fairly frequently, and we cannot use column index constants.
 		String line = buf.readLine();
+                while (line.startsWith("#")) {
+                    line = buf.readLine(); // skip comments/meta info
+                }
+                
 		line = line.trim();
 
 		MafUtil mafUtil = new MafUtil(line);

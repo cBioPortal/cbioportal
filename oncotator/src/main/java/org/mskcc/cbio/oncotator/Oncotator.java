@@ -17,10 +17,7 @@
 
 package org.mskcc.cbio.oncotator;
 
-import org.mskcc.cbio.maf.FileIOUtil;
-import org.mskcc.cbio.maf.MafRecord;
-import org.mskcc.cbio.maf.MafUtil;
-import org.mskcc.cbio.maf.OncoMafProcessor;
+import org.mskcc.cbio.maf.*;
 
 import java.io.*;
 import java.util.List;
@@ -118,12 +115,17 @@ public class Oncotator
 
 		FileReader reader = new FileReader(inputMafFile);
 		BufferedReader bufReader = new BufferedReader(reader);
-		String headerLine = bufReader.readLine();
+		MafHeaderUtil headerUtil = new MafHeaderUtil();
+
+		String headerLine = headerUtil.extractHeader(bufReader);
 		MafUtil mafUtil = new MafUtil(headerLine);
 		OncoMafProcessor processor = this.initMafProcessor(headerLine);
 
 		this.numRecordsProcessed = 0;
 		FileWriter writer = new FileWriter(outputMafFile);
+
+		// write comments/metadata to the output
+		FileIOUtil.writeLines(writer, headerUtil.getComments());
 
 		// create new header line for output
 		List<String> columnNames = processor.newHeaderList(

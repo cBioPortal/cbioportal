@@ -17,10 +17,7 @@
 
 package org.mskcc.cbio.mutassessor;
 
-import org.mskcc.cbio.maf.FileIOUtil;
-import org.mskcc.cbio.maf.MaMafProcessor;
-import org.mskcc.cbio.maf.MafRecord;
-import org.mskcc.cbio.maf.MafUtil;
+import org.mskcc.cbio.maf.*;
 
 import java.io.*;
 import java.sql.SQLException;
@@ -81,9 +78,13 @@ public class DataImporter
 		BufferedWriter writer = new BufferedWriter(new FileWriter(outputMaf));
 
 		// process header line
-		String line = reader.readLine();
+		MafHeaderUtil headerUtil = new MafHeaderUtil();
+		String line = headerUtil.extractHeader(reader);
 		MafUtil util = new MafUtil(line);
 		MaMafProcessor processor = new MaMafProcessor(line);
+
+		// write metadata/comments to the output
+		FileIOUtil.writeLines(writer, headerUtil.getComments());
 
 		// create new header line for output
 		List<String> columnNames = processor.newHeaderList(

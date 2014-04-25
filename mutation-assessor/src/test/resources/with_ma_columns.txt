@@ -1,3 +1,8 @@
+# This is a metadata line.
+# This is another metadata line.
+
+# Yet another metadata...
+
 NCBI_Build	Chromosome	Start_position	End_position	Variant_Classification	Reference_Allele	Tumor_Seq_Allele1	Tumor_Seq_Allele2	MA:FImpact	MA:FIS	MA:link.var	MA:link.MSA	MA:link.PDB	MA:protein.change	MA:no.such.header	Custom
 37	11	56258437	56258437	Missense_Mutation	T	T	C	Unknown	Unknown	Unknown	Unknown	Unknown	Unknown	NA	custom_data
 37	3	41266137	41266137	Nonsense_Mutation	C	C	T	Unknown	Unknown	Unknown	Unknown	Unknown	Unknown	NA	custom_data

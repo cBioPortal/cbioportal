@@ -18,6 +18,7 @@
 package org.mskcc.cbio.mutassessor;
 
 import junit.framework.TestCase;
+import org.mskcc.cbio.maf.MafHeaderUtil;
 import org.mskcc.cbio.maf.MafRecord;
 import org.mskcc.cbio.maf.MafUtil;
 
@@ -47,9 +48,10 @@ public class TestMutationAssessor extends TestCase
 		try
 		{
 			BufferedReader reader = new BufferedReader(new FileReader(output));
+			MafHeaderUtil headerUtil = new MafHeaderUtil();
 
-			String line = reader.readLine();
-			MafUtil util =  new MafUtil(line);
+			String line = headerUtil.extractHeader(reader);
+			MafUtil util = new MafUtil(line);
 
 			// assert unknown MA column is removed
 			assertEquals(15, util.getHeaderCount());
@@ -92,9 +94,10 @@ public class TestMutationAssessor extends TestCase
 		try
 		{
 			BufferedReader reader = new BufferedReader(new FileReader(output));
+			MafHeaderUtil headerUtil = new MafHeaderUtil();
 
-			String line = reader.readLine();
-			MafUtil util =  new MafUtil(line);
+			String line = headerUtil.extractHeader(reader);
+			MafUtil util = new MafUtil(line);
 
 			// assert 6 new columns are added
 			assertEquals(15, util.getHeaderCount());
@@ -138,9 +141,10 @@ public class TestMutationAssessor extends TestCase
 		try
 		{
 			BufferedReader reader = new BufferedReader(new FileReader(output));
+			MafHeaderUtil headerUtil = new MafHeaderUtil();
 
-			String line = reader.readLine();
-			MafUtil util =  new MafUtil(line);
+			String line = headerUtil.extractHeader(reader);
+			MafUtil util = new MafUtil(line);
 
 			// assert number of columns (32 standard + 6 MA + 1 custom)
 			assertEquals(39, util.getHeaderCount());
@@ -190,9 +194,10 @@ public class TestMutationAssessor extends TestCase
 		try
 		{
 			BufferedReader reader = new BufferedReader(new FileReader(output));
+			MafHeaderUtil headerUtil = new MafHeaderUtil();
 
-			String line = reader.readLine();
-			MafUtil util =  new MafUtil(line);
+			String line = headerUtil.extractHeader(reader);
+			MafUtil util = new MafUtil(line);
 
 			// assert number of columns (32 standard + 6 MA + 1 custom)
 			assertEquals(39, util.getHeaderCount());

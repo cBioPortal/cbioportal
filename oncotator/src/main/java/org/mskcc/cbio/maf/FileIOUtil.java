@@ -55,6 +55,23 @@ public class FileIOUtil
 	}
 
 	/**
+	 * Writes multiple lines of data to the output MAF.
+	 *
+	 * @param writer    writer for the output MAF
+	 * @param data      list of data to write
+	 * @throws java.io.IOException
+	 */
+	public static void writeLines(Writer writer,
+			List<String> data) throws IOException
+	{
+		for (String line : data)
+		{
+			writer.write(outputField(line));
+			writer.write("\n");
+		}
+	}
+
+	/**
 	 * Returns a string representation of a single field for
 	 * the output.
 	 *

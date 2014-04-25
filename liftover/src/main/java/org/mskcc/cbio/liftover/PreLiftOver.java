@@ -23,6 +23,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import org.mskcc.cbio.maf.MafHeaderUtil;
 import org.mskcc.cbio.maf.MafRecord;
 import org.mskcc.cbio.maf.MafUtil;
 
@@ -81,16 +82,18 @@ public class PreLiftOver
 		BufferedWriter bufWriter = new BufferedWriter(
 				new FileWriter(outputFile));
 		BufferedWriter auxWriter = new BufferedWriter(
-				new FileWriter(auxFile));				
-		
-        String headerLine = bufReader.readLine();
-        MafUtil util = new MafUtil(headerLine);
+				new FileWriter(auxFile));
+
+		MafHeaderUtil headerUtil = new MafHeaderUtil();
+		String headerLine = headerUtil.extractHeader(bufReader);
+		MafUtil util = new MafUtil(headerLine);
         String line;
         MafRecord record;
         
         long startPos, endPos;
         String chr;
-        int row = 2; // including header
+		// including header & comments
+		int row = 2 + headerUtil.getComments().size();
         
         while ((line = bufReader.readLine()) != null)
         {

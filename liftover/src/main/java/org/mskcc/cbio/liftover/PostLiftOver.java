@@ -23,6 +23,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import org.mskcc.cbio.maf.MafHeaderUtil;
 import org.mskcc.cbio.maf.MafRecord;
 import org.mskcc.cbio.maf.MafUtil;
 
@@ -117,8 +118,9 @@ public class PostLiftOver
 		
 		BufferedWriter bufWriter = new BufferedWriter(
 				new FileWriter(outputFile));
-		
-        String headerLine = sourceIn.readLine();
+
+		MafHeaderUtil headerUtil = new MafHeaderUtil();
+		String headerLine = headerUtil.extractHeader(sourceIn);
         MafUtil util = new MafUtil(headerLine);
         String sourceLine;
         String mappedLine = mappedIn.readLine();
@@ -127,11 +129,19 @@ public class PostLiftOver
         MafRecord record;
         
         // for tracking purposes
-        int sourceRow = 2; // (including header)
+        int sourceRow = 2 + headerUtil.getComments().size(); // including header & comments
         int mappedRow = 1;
         int unmappedRow = 1;
         boolean modified;
-        
+
+		// TODO use FileIOUtil.writeLines()
+		// write the comment/metadata lines to the output
+		for (String line : headerUtil.getComments())
+		{
+			bufWriter.write(line);
+			bufWriter.write("\n");
+		}
+
         // write the header line to the output
         bufWriter.write(headerLine);
         bufWriter.newLine();

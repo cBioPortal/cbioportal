@@ -29,6 +29,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
+import org.mskcc.cbio.portal.util.FileUtil;
 import org.mskcc.cbio.portal.util.GlobalProperties;
 
 /**
@@ -63,6 +64,8 @@ public class MySQLbulkLoader {
             for (MySQLbulkLoader mySQLbulkLoader : mySQLbulkLoaders.values()) {
                 n += mySQLbulkLoader.loadDataFromTempFileIntoDBMS();
             }
+            
+            mySQLbulkLoaders.clear();
             
             return n;
         } catch (IOException e) {
@@ -103,9 +106,6 @@ public class MySQLbulkLoader {
       // TODO: create special directory for temp dbms load files; perhaps make OS portable
       String tmp = GlobalProperties.getTemporaryDir();
       tempFileHandle = File.createTempFile( tableName, tempTableSuffix, new File(tmp) );
-
-      // delete file when JVM exits
-      tempFileHandle.deleteOnExit();
 
       tempFileName = tempFileHandle.getAbsolutePath();
 
@@ -182,6 +182,7 @@ public class MySQLbulkLoader {
       try {
          try {
             // close the file, flushing all buffers before loading the DBMS
+             tempFileWriter.flush();
              tempFileWriter.close();
          } catch (IOException e) {
             throw new DaoException(e);
@@ -194,9 +195,17 @@ public class MySQLbulkLoader {
          String command = "LOAD DATA LOCAL INFILE '" + tempFileName + "' INTO TABLE " + tableName;
          stmt.execute( command );
          int updateCount = stmt.getUpdateCount();
+         System.out.println(""+updateCount+" records inserted into "+tableName);
+         int nLines = FileUtil.getNumLines(tempFileHandle);
+         if (nLines!=updateCount) {
+             System.err.println("Error: but there are "+nLines+" lines in the temp file "+tempFileName);
+         } else {
+             tempFileHandle.delete();
+         }
 
-         // reopen empty temp file
-         this.tempFileWriter = new BufferedWriter(new FileWriter( this.tempFileHandle, false));
+         // reopen empty temp file -- not necessary, this loader will be removed.
+         //this.tempFileWriter = new BufferedWriter(new FileWriter( this.tempFileHandle, false));
+
          return updateCount;
 
       } catch (SQLException e) {

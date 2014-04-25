@@ -285,6 +285,7 @@ public final class ExtendedMutation
             this.canonicalTranscript = canonicalTranscript;
         }
 
+        // the fields used here have to be the same as in sql file.
         @Override
         public int hashCode() {
             int hash = 3;

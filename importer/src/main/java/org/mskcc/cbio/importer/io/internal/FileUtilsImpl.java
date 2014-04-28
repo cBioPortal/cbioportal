@@ -575,10 +575,10 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			PrintWriter writer = new PrintWriter(org.apache.commons.io.FileUtils.openOutputStream(metaFile, false));
 			writer.print("cancer_study_identifier: " + cancerStudyMetadata + "\n");
 			if (datatypeMetadata.getDatatype().contains(CopyNumberSegmentFile.ReferenceGenome.HG18.toString())){
-				writer.print("genome_id: " + CopyNumberSegmentFile.ReferenceGenome.HG18.toString() + "\n");
+				writer.print("reference_genome_id: " + CopyNumberSegmentFile.ReferenceGenome.HG18.toString() + "\n");
 			}	
 			else {
-				writer.print("genome_id: " + CopyNumberSegmentFile.ReferenceGenome.HG19.toString() + "\n");
+				writer.print("reference_genome_id: " + CopyNumberSegmentFile.ReferenceGenome.HG19.toString() + "\n");
 			}
 			writer.print("url_to_file: " + segFileLinkingLocation + File.separator + datatypeMetadata.getStagingFilename());
 			String profileDescription = datatypeMetadata.getMetaProfileDescription();

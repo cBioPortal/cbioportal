@@ -59,6 +59,9 @@
 .mutation-3d-vis-help-init {
 	text-align: right;
 }
+.mutation-3d-vis-help-init table {
+	width: 100%;
+}
 .mutation-3d-vis-help-close {
 	float: right;
 }

@@ -25,7 +25,7 @@
 <script type="text/javascript" src="js/lib/backbone-min.js"></script>
 <script type="text/javascript" src="js/lib/d3.min.js"></script>
 <script type="text/javascript" src="js/lib/igv_webstart.js"></script>
-<script type="text/javascript" src="js/lib/rainbowvis.js"></script>
+<!--script type="text/javascript" src="js/lib/rainbowvis.js"></script-->
 
 <script type="text/javascript" src="js/lib/jmol/JmolCore.js"></script>
 <script type="text/javascript" src="js/lib/jmol/JmolApplet.js"></script>

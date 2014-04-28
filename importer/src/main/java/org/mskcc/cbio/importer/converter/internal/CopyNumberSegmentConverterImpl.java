@@ -136,7 +136,7 @@ public class CopyNumberSegmentConverterImpl implements Converter {
 				LOG.info("createStagingFile(), writing metadata file.");
 			}
 			fileUtils.writeCopyNumberSegmentMetadataFile(portalMetadata.getStagingDirectory(), cancerStudyMetadata,
-														 datatypeMetadata, dataMatrix, portalMetadata.getIGVSegFileLinkingLocation());
+														 datatypeMetadata, null, portalMetadata.getIGVSegFileLinkingLocation());
 		}	
 	}
 }

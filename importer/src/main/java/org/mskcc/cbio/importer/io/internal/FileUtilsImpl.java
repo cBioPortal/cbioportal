@@ -566,9 +566,10 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	public void writeCopyNumberSegmentMetadataFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata,
 								   DatatypeMetadata datatypeMetadata, DataMatrix dataMatrix, URL segFileLinkingLocation) throws Exception {
 
+			String metaFilename = datatypeMetadata.getMetaFilename().replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
 			File metaFile = org.apache.commons.io.FileUtils.getFile(stagingDirectory,
 																	cancerStudyMetadata.getStudyPath(),
-																	datatypeMetadata.getMetaFilename());
+																	metaFilename);
 			if (LOG.isInfoEnabled()) {
 				LOG.info("writeCopyNumberSegmentMetadataFile(), meta file: " + metaFile);
 			}
@@ -582,7 +583,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			}
 			String urlToFile = segFileLinkingLocation + File.separator + datatypeMetadata.getStagingFilename(); 
 			urlToFile = urlToFile.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
-			writer.print("url_to_file: " + urlToFile);
+			writer.print("url_to_file: " + urlToFile + "\n");
 			String profileDescription = datatypeMetadata.getMetaProfileDescription();
 			if (dataMatrix != null) {
 				profileDescription = profileDescription.replaceAll(DatatypeMetadata.NUM_GENES_TAG, Integer.toString(dataMatrix.getGeneIDs().size()));

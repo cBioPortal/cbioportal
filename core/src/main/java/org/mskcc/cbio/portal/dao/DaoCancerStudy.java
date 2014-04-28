@@ -270,6 +270,7 @@ public final class DaoCancerStudy {
                 "delete from case_list_list where LIST_ID IN (select LIST_ID from case_list where CANCER_STUDY_ID=?);",
                 "delete from clinical where CANCER_STUDY_ID=?;",
                 "delete from copy_number_seg where CANCER_STUDY_ID=?;",
+                "delete from copy_number_seg_file where CANCER_STUDY_ID=?;",
                 "delete from case_list where CANCER_STUDY_ID=?;",
                 "delete from genetic_profile where CANCER_STUDY_ID=?;",
                 "delete from gistic_to_gene where GISTIC_ROI_ID IN (select GISTIC_ROI_ID from gistic where CANCER_STUDY_ID=?);",

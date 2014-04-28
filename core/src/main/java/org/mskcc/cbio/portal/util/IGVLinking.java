@@ -16,10 +16,11 @@
 */
 package org.mskcc.cbio.portal.util;
 
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.web_api.ConnectionManager;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.LineIterator;
+import org.apache.commons.io.*;
 
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.*;
@@ -27,7 +28,7 @@ import org.apache.commons.httpclient.methods.*;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.io.File;
-import java.net.URLEncoder;
+import java.net.*;
 
 /**
  * Provides methods for linking to IGV.
@@ -36,20 +37,24 @@ import java.net.URLEncoder;
  */
 public class IGVLinking {
 
-	private static final String REFERENCE_GENOME_18 = "hg18";
-	private static final String REFERENCE_GENOME_19 = "hg19";
 	private static final String TOKEN_REGEX = "<TOKEN>";
     private static final String SAMPLE_REGEX = "<SAMPLE_ID>";
     private static final String KNOWN_ID = "KNOWN_ID";
-	private static final String SEG_FILE_SUFFIX = "_scna_hg18.seg";
     private static final String TUMOR_BAM_SIGNATURE = "-Tumor";
     private static final String NORMAL_BAM_SIGNATURE = "-Normal";
 
-	public static String[] getIGVArgsForSegViewing(String cancerTypeId, String encodedGeneList)
+	public static String[] getIGVArgsForSegViewing(String cancerStudyStableId, String encodedGeneList) throws Exception
 	{
-		// routine defined in igv_webstart.js
-		String segFileURL = GlobalProperties.getSegfileUrl() + cancerTypeId + SEG_FILE_SUFFIX;
-		return new String[] { segFileURL, encodedGeneList, REFERENCE_GENOME_18, cancerTypeId + SEG_FILE_SUFFIX };
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId);
+        CopyNumberSegmentFile cnsf = DaoCopyNumberSegmentFile.getCopyNumberSegmentFile(cancerStudy.getInternalId());
+
+		return new String[] { cnsf.urlToFile, encodedGeneList, cnsf.referenceGenomeId.toString(), getSegFileName(cnsf.urlToFile) };
+	}
+
+	private static String getSegFileName(String urlToFile)
+	{
+		int lastIndexOfDelimiter = urlToFile.lastIndexOf(File.separator);
+		return (lastIndexOfDelimiter > 0) ? urlToFile.substring(lastIndexOfDelimiter+1, urlToFile.length()) : urlToFile;
 	}
 
 	// returns null if exception has been thrown during processing
@@ -78,7 +83,7 @@ public class IGVLinking {
 		String encodedLocus = getEncoded(locus);
 		if (encodedLocus == null) return null;
 
-		return new String[] { tumorBAMFileURL, encodedLocus, REFERENCE_GENOME_19, trackName };
+		return new String[] { tumorBAMFileURL, encodedLocus, CopyNumberSegmentFile.ReferenceGenomeId.hg19.toString(), trackName };
 	}
 
 	public static boolean validBAMViewingArgs(String cancerStudy, String caseId, String locus)

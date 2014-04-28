@@ -1,18 +1,56 @@
 /**
- * Constructor for the MutationPdbTable class.
+ * MutationPdbTable class (extends AdvancedDataTable)
+ *
+ * Highly customizable table view built on DataTables plugin.
+ * See default options object (_defaultOpts) for details.
+ *
+ * With its default configuration, following events are dispatched by this class:
+ * - MutationDetailsEvents.TABLE_CHAIN_SELECTED:
+ *   dispatched when a PDB chain selected on the table
+ * - MutationDetailsEvents.PDB_TABLE_READY:
+ *   dispatched when the table initialization complete
  *
  * @param options   visual options object
- * @param headers   array of header names
  * @constructor
  *
  * @author Selcuk Onur Sumer
  */
-function MutationPdbTable(options, headers)
+function MutationPdbTable(options)
 {
+	var self = this;
+
 	// default options object
 	var _defaultOpts = {
 		el: "#mutation_pdb_table_d3",
 		elWidth: 740, // width of the container
+		// default column options
+		//
+		// name: internal name used to define column specific properties
+		// sTitle: display value
+		// tip: tooltip value
+		// [data table options]: sType, sClass, sWidth, asSorting, ...
+		columns: {
+			datum: {sTitle: "datum",
+				tip:""},
+			pdbId: {sTitle: "PDB Id",
+				tip:""},
+			chain: {sTitle: "Chain",
+				tip:""},
+			uniprotPos: {sTitle: "Uniprot Positions",
+				tip:"",
+				sType: "numeric"},
+			identityPercent: {sTitle: "Identity Percent",
+				tip:"",
+				sType: "numeric"},
+			organism: {sTitle: "Organism",
+				tip:""},
+			summary: {sTitle: "Summary",
+				tip:"",
+				sWidth: "65%"}
+		},
+		// display order of column headers
+		columnOrder: ["datum", "pdbId", "chain", "uniprotPos",
+			"identityPercent", "organism", "summary"],
 		// Indicates the visibility of columns
 		//
 		// - Valid string constants:
@@ -29,13 +67,12 @@ function MutationPdbTable(options, headers)
 		//
 		// All other columns will be initially hidden by default.
 		columnVisibility: {
-			"pdb id": "visible",
+			"pdbId": "visible",
 			"chain": "visible",
-			"uniprot positions": "visible",
-			"identity percent": "hidden",
+			"uniprotPos": "visible",
+			"identityPercent": "hidden",
 			"organism": "visible",
 			"summary": "visible",
-			"uniprot from": "excluded",
 			"datum": "excluded"
 		},
 		// Indicates whether a column is searchable or not.
@@ -43,14 +80,119 @@ function MutationPdbTable(options, headers)
 		//
 		// All other columns will be initially non-searchable by default.
 		columnSearch: {
-			"pdb id": true,
+			"pdbId": true,
 			"organism": true,
 			"summary": true
 		},
-		// custom width values for columns
-		columnWidth: {
-			"summary": "65%"
+		// renderer function for each column
+		columnRender: {
+			identityPercent: function(datum) {
+				// format as a percentage value
+				return Math.round(datum.chain.mergedAlignment.identityPerc * 100);
+			},
+			pdbId: function(datum) {
+				// format using the corresponding template
+				return _.template($("#mutation_pdb_table_pdb_cell_template").html(),
+		                  {pdbId: datum.pdbId});
+			},
+			chain: function(datum) {
+				// format using the corresponding template
+				return _.template($("#mutation_pdb_table_chain_cell_template").html(),
+		                  {chainId: datum.chain.chainId});
+			},
+			organism: function(datum) {
+				return datum.organism;
+			},
+			summary: function(datum) {
+				var vars = {summary: datum.summary.title,
+					molecule: datum.summary.molecule};
+
+				// format using the corresponding template
+				return _.template(
+					$("#mutation_pdb_table_summary_cell_template").html(),
+					vars);
+			},
+			uniprotPos: function(datum) {
+				// there is no data (null) for uniprot positions,
+				// so set the display value by using the hidden
+				// column "datum"
+				return datum.chain.mergedAlignment.uniprotFrom + "-" +
+				       datum.chain.mergedAlignment.uniprotTo;
+			}
 		},
+		// default tooltip functions
+		columnTooltips: {
+			"simple": function(selector) {
+				var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
+				$(selector).find('.simple-tip').qtip(qTipOptions);
+			}
+		},
+		// default event listener config
+		// TODO add more params if necessary
+		eventListeners: {
+			"pdbLink": function(dataTable, dispatcher, indexMap) {
+				$(dataTable).on("click", ".pbd-chain-table-chain-cell a", function (event) {
+					event.preventDefault();
+
+					// remove previous highlights
+					removeAllSelection();
+
+					// get selected row via event target
+					var selectedRow = $(event.target).closest("tr.pdb-chain-table-data-row");
+
+					// highlight selected row
+					selectedRow.addClass('row_selected');
+
+					//var data = _dataTable.fnGetData(this);
+					var data = dataTable.fnGetData(selectedRow[0]);
+					var datum = data[indexMap["datum"]];
+
+					// trigger corresponding event
+					dispatcher.trigger(
+						MutationDetailsEvents.TABLE_CHAIN_SELECTED,
+						datum.pdbId,
+						datum.chain.chainId);
+				});
+			}
+		},
+		// column sort functions
+		columnSort: {
+			identityPercent: function(datum) {
+				return MutationDetailsTableFormatter.assignFloatValue(
+					Math.round(datum.chain.mergedAlignment.identityPerc * 100));
+			},
+			pdbId: function(datum) {
+				return datum.pdbId;
+			},
+			chain: function(datum) {
+				return datum.chain.chainId;
+			},
+			organism: function(datum) {
+				return datum.organism;
+			},
+			summary: function(datum) {
+				return datum.summary.title + datum.summary.molecule;
+			},
+			uniprotPos: function(datum) {
+				return MutationDetailsTableFormatter.assignIntValue(
+					datum.chain.mergedAlignment.uniprotFrom);
+			}
+		},
+		// column filter functions
+		columnFilter: {
+			identityPercent: function(datum) {
+				return Math.round(datum.chain.mergedAlignment.identityPerc * 100);
+			},
+			summary: function(datum) {
+				return datum.summary.title + " " + datum.summary.molecule;
+			},
+			uniprotPos: function(datum) {
+				return datum.chain.mergedAlignment.uniprotFrom + "-" +
+				       datum.chain.mergedAlignment.uniprotTo;
+			}
+		},
+		// delay amount before applying the user entered filter query
+		filteringDelay: 0,
 		// WARNING: overwriting advanced DataTables options such as
 		// aoColumnDefs, oColVis, and fnDrawCallback may break column
 		// visibility, sorting, and filtering. Proceed wisely ;)
@@ -73,47 +215,37 @@ function MutationPdbTable(options, headers)
 	// merge options with default options to use defaults for missing values
 	var _options = jQuery.extend(true, {}, _defaultOpts, options);
 
-	// custom event dispatcher
-	var _dispatcher = {};
-	_.extend(_dispatcher, Backbone.Events);
+	// call super constructor to init options and other params
+	AdvancedDataTable.call(this, _options);
+	_options = self._options;
 
-	// reference to the data table object
-	var _dataTable = null;
+	// custom event dispatcher
+	var _dispatcher = self._dispatcher;
 
 	var _rowMap = {};
 
 	var _selectedRow = null;
 
 	/**
-	 * Initializes the data tables plug-in for the given table selector.
+	 * Generates the data table options for the given parameters.
 	 *
 	 * @param tableSelector jQuery selector for the target table
 	 * @param rows          data rows
-	 * @param headers       column headers
+	 * @param columnOpts    column options
+	 * @param nameMap       map of <column display name, column name>
 	 * @param indexMap      map of <column name, column index>
 	 * @param hiddenCols    indices of the hidden columns
 	 * @param excludedCols  indices of the excluded columns
 	 * @param nonSearchableCols    indices of the columns excluded from search
-	 * @return {object}     DataTable instance
+	 * @return {object}     DataTable options
 	 * @private
 	 */
-	function initDataTable(tableSelector, rows, headers,
+	function initDataTableOpts(tableSelector, rows, columnOpts, nameMap,
 		indexMap, hiddenCols, excludedCols, nonSearchableCols)
 	{
-		var columns = [];
-
-		// set column options
-		_.each(headers, function(header) {
-			var column = {"sTitle": header,
-				"sClass": "mutation-pdb-table-column"};
-			var sWidth = _options.columnWidth[header.toLowerCase()];
-
-			if (sWidth != null) {
-				column.sWidth = sWidth;
-			}
-
-			columns.push(column);
-		});
+		// generate column options for the data table
+		var columns = DataTableUtil.getColumnOptions(columnOpts,
+			indexMap);
 
 		// these are the parametric data tables options
 		var tableOpts = {
@@ -123,56 +255,21 @@ function MutationPdbTable(options, headers)
 				{"bVisible": false,
 					"aTargets": hiddenCols},
 				{"bSearchable": false,
-					"aTargets": nonSearchableCols},
-				{"fnRender": function(obj) {
-						// format as a percentage value
-						return Math.round(obj.aData[obj.iDataColumn] * 100);
-					},
-					"aTargets": [indexMap["identity percent"]]},
-				{"fnRender": function(obj) {
-						// format using the corresponding template
-						return _.template($("#mutation_pdb_table_pdb_cell_template").html(),
-						                  {pdbId: obj.aData[obj.iDataColumn]});
-					},
-					"aTargets": [indexMap["pdb id"]]},
-				{"fnRender": function(obj) {
-						// format using the corresponding template
-						return _.template($("#mutation_pdb_table_chain_cell_template").html(),
-						                  {chainId: obj.aData[obj.iDataColumn]});
-					},
-					"aTargets": [indexMap["chain"]]},
-				{"fnRender": function(obj) {
-						var vars = {summary: obj.aData[obj.iDataColumn].title,
-							molecule: obj.aData[obj.iDataColumn].molecule};
-
-						// format using the corresponding template
-						return _.template(
-							$("#mutation_pdb_table_summary_cell_template").html(),
-							vars);
-					},
-					"aTargets": [indexMap["summary"]]},
-				{"fnRender": function(obj) {
-						// there is no data (null) for uniprot positions,
-						// so set the display value by using the hidden
-						// column "datum"
-						var datum = obj.aData[indexMap["datum"]];
-						return datum.chain.mergedAlignment.uniprotFrom + "-" +
-						       datum.chain.mergedAlignment.uniprotTo;
-					},
-					"aTargets": [indexMap["uniprot positions"]]},
-				// sort uniprot positions wrt "uniprot from"
-				{"iDataSort": indexMap["uniprot from"],
-					"aTargets": [indexMap["uniprot positions"]]}
+					"aTargets": nonSearchableCols}
 			],
 			"oColVis": {"aiExclude": excludedCols}, // columns to always hide
 			"fnDrawCallback": function(oSettings) {
-				addDefaultTooltips();
+				self._addColumnTooltips();
+			},
+			"fnHeaderCallback": function(nHead, aData, iStart, iEnd, aiDisplay) {
+				$(nHead).find('th').addClass("mutation-pdb-table-header");
 			},
 			"fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
 				var datum = aData[indexMap["datum"]];
 				var key = PdbDataUtil.chainKey(datum.pdbId,
 				                               datum.chain.chainId);
 				_rowMap[key] = nRow;
+				$(nRow).addClass("pdb-chain-table-data-row");
 			},
 			"fnInitComplete": function(oSettings, json) {
 				// trigger corresponding event
@@ -181,17 +278,15 @@ function MutationPdbTable(options, headers)
 			}
 		};
 
-		// merge with the one in the main options object
-		tableOpts = jQuery.extend(true, {}, _defaultOpts.dataTableOpts, tableOpts);
-
-		// format the table with the dataTable plugin
-		var oTable = tableSelector.dataTable(tableOpts);
-		oTable.css("width", "100%");
-
-		// return the data table instance
-		return oTable;
+		return tableOpts;
 	}
 
+	/**
+	 * Determines the visibility value for the given column name
+	 *
+	 * @param columnName    name of the column (header)
+	 * @return {String}     visibility value for the given column
+	 */
 	function visibilityValue(columnName)
 	{
 		var vis = _options.columnVisibility[columnName];
@@ -212,6 +307,12 @@ function MutationPdbTable(options, headers)
 		return value;
 	}
 
+	/**
+	 * Determines the search value for the given column name
+	 *
+	 * @param columnName    name of the column (header)
+	 * @return {Boolean}    whether searchable or not
+	 */
 	function searchValue(columnName)
 	{
 		var searchVal = _options.columnSearch[columnName];
@@ -232,99 +333,35 @@ function MutationPdbTable(options, headers)
 		return value;
 	}
 
-	/**
-	 * Formats the table with data tables plugin for the given
-	 * row data array (each element represents a single row).
-	 *
-	 * @rows    row data as an array
-	 */
-	function renderTable(rows)
+	function addEventListeners(indexMap)
 	{
-		// build a map, to be able to use string constants
-		// instead of integer constants for table columns
-		var indexMap = DataTableUtil.buildColumnIndexMap(headers);
-
-		// build a visibility map for column headers
-		var visibilityMap = DataTableUtil.buildColumnVisMap(headers, visibilityValue);
-
-		// build a map to determine searchable columns
-		var searchMap = DataTableUtil.buildColumnSearchMap(headers, searchValue);
-
-		// determine hidden and excluded columns
-		var hiddenCols = DataTableUtil.getHiddenColumns(headers, indexMap, visibilityMap);
-		var excludedCols = DataTableUtil.getExcludedColumns(headers, indexMap, visibilityMap);
-
-		// determine columns to exclude from filtering (through the search box)
-		var nonSearchableCols = DataTableUtil.getNonSearchableColumns(headers, indexMap, searchMap);
-
-		// add custom sort functions for specific columns
-		//_addSortFunctions();
-
-		// actual initialization of the DataTables plug-in
-		_dataTable = initDataTable($(_options.el), rows, headers,
-			indexMap, hiddenCols, excludedCols, nonSearchableCols);
-
-		addDefaultListeners(indexMap);
-		// add a delay to the filter
-		//_dataTable.fnSetFilteringDelay(600);
-	}
-
-	function addDefaultListeners(indexMap)
-	{
-		//$(_options.el).on("click", "tr", function (event) {
-		$(_options.el).on("click", ".pbd-chain-table-chain-cell a", function (event) {
-			event.preventDefault();
-
-			// remove previous highlights
-			removeAllSelection();
-
-			// get selected row via event target
-			var selectedRow = $(event.target).closest("tr");
-
-			// highlight selected row
-			selectedRow.addClass('row_selected');
-
-			//var data = _dataTable.fnGetData(this);
-			var data = _dataTable.fnGetData(selectedRow[0]);
-			var datum = data[indexMap["datum"]];
-
-			// trigger corresponding event
-			_dispatcher.trigger(
-				MutationDetailsEvents.TABLE_CHAIN_SELECTED,
-				datum.pdbId,
-				datum.chain.chainId);
-		});
+		// super.addEventListeners(indexMap);
 
 		// TODO mouse over/out actions do not work as desired
 
-		$(_options.el).on("mouseleave", "table", function (event) {
-			//var data = _dataTable.fnGetData(this);
-
-			// trigger corresponding event
+//		$(_options.el).on("mouseleave", "table", function (event) {
+//			//var data = _dataTable.fnGetData(this);
+//
+//			// trigger corresponding event
 //			_dispatcher.trigger(
 //				MutationDetailsEvents.TABLE_CHAIN_MOUSEOUT);
-		});
-
-		$(_options.el).on("mouseenter", "tr", function (event) {
-			var data = _dataTable.fnGetData(this);
-
-			// trigger corresponding event
+//		});
+//
+//		$(_options.el).on("mouseenter", "tr", function (event) {
+//			var data = _dataTable.fnGetData(this);
+//
+//			// trigger corresponding event
 //			_dispatcher.trigger(
 //				MutationDetailsEvents.TABLE_CHAIN_MOUSEOVER,
 //				data[indexMap["pdb id"]],
 //				data[indexMap["chain"]]);
-		});
+//		});
 	}
 
 	function cleanFilters()
 	{
 		// just show everything
-		_dataTable.fnFilter("");
-	}
-
-	function getDataTable()
-	{
-		return _dataTable;
+		self.getDataTable().fnFilter("");
 	}
 
 	function selectRow(pdbId, chainId)
@@ -351,18 +388,18 @@ function MutationPdbTable(options, headers)
 		return _selectedRow;
 	}
 
-	function addDefaultTooltips()
-	{
-		var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
-		$(_options.el).find(".simple-tip").qtip(qTipOptions);
-	}
+	// override required functions
+	this._initDataTableOpts = initDataTableOpts;
+	this._visibilityValue = visibilityValue;
+	this._searchValue = searchValue;
 
-	return {
-		renderTable: renderTable,
-		selectRow: selectRow,
-		cleanFilters: cleanFilters,
-		getSelectedRow: getSelectedRow,
-		getDataTable: getDataTable,
-		dispatcher: _dispatcher
-	};
+	// additional public functions
+	this.selectRow = selectRow;
+	this.cleanFilters = cleanFilters;
+	this.getSelectedRow = getSelectedRow;
+	this.dispatcher = this._dispatcher;
 }
+
+// MutationPdbTable extends AdvancedDataTable...
+MutationPdbTable.prototype = new AdvancedDataTable();
+MutationPdbTable.prototype.constructor = MutationPdbTable;

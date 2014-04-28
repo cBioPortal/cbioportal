@@ -444,7 +444,17 @@
         <servlet-name>SVGtoPDFConverter</servlet-name>
         <url-pattern>/svgtopdf.do</url-pattern>
     </servlet-mapping>
-    
+
+	<servlet>
+		<servlet-name>TextFileDownloader</servlet-name>
+		<servlet-class>org.mskcc.cbio.portal.servlet.TextFileDownload</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>TextFileDownloader</servlet-name>
+		<url-pattern>/downloadfile.do</url-pattern>
+	</servlet-mapping>
+
     <servlet>
         <servlet-name>ClinicalTrialsJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.ClinicalTrialsJSON</servlet-class>

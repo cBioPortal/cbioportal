@@ -42,7 +42,16 @@
 	<div class='mutation-3d-vis-container'></div>
 	<div class='mutation-3d-vis-toolbar'>
 		<div class='mutation-3d-vis-help-init'>
-			<a href="#">how to pan/zoom/rotate?</a>
+			<table>
+				<tr>
+					<td align="left">
+						<button class='mutation-3d-pymol-dload'>PML</button>
+					</td>
+					<td align="right">
+						<a class='mutation-3d-vis-help-open' href="#">how to pan/zoom/rotate?</a>
+					</td>
+				</tr>
+			</table>
 		</div>
 		<div class='mutation-3d-vis-help-content'>
 			<div class="mutation-3d-vis-help-close">

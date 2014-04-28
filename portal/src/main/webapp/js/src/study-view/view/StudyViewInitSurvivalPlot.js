@@ -59,7 +59,7 @@ var StudyViewInitSurvivalPlot = (function() {
 
                 //The following functions will be excuted after user inputting
                 //the curve name, so we need to give it a call back function.
-                nameCurveDialog(this, saveCurveInfoFunc);
+                nameCurveDialog(this, saveCurveInfoFunc, _opts);
 
             } else if ($(this).attr('name') === 'close') {
                 var _parent = $(this).parent(),
@@ -68,17 +68,17 @@ var StudyViewInitSurvivalPlot = (function() {
                         _index = $(this).parent().index();
 
                 $(_parent).remove();
-                removeCurveFunc(_index);
-                redrawLabel();
-                survivalPlot[opts.index].removeCurve(_color.toString().substring(1));
+                removeCurveFunc(_index, _opts.index);
+                redrawLabel(_opts);
+                survivalPlot[_opts.index].removeCurve(_color.toString().substring(1)+"-"+_opts.index);
             } else if ($(this).attr('name') === 'saved-close') {
                 var _parent = $(this).parent(),
                         _name = $(_parent).find('text').attr('value');
 
                 $(_parent).remove();
-                undoSavedCurve(_name);
-                removeSavedCurveFunc(_name);
-                redrawLabel();
+                undoSavedCurve(_name, _opts.index);
+                removeSavedCurveFunc(_name, _opts.index);
+                redrawLabel(_opts);
             } else {
                 //TODO: Add more function
             }
@@ -99,10 +99,10 @@ var StudyViewInitSurvivalPlot = (function() {
 
             if (_textColor === '#000000') {
                 $(_text).css('fill', 'red');
-                highlightCurve(_rectColor.substring(1));
+                highlightCurve(_rectColor.substring(1) + "-" + _opts.index);
             } else {
                 $(_text).css('fill', 'black');
-                resetCurve(_rectColor.substring(1));
+                resetCurve(_rectColor.substring(1) + "-" + _opts.index);
             }
 
         });
@@ -142,8 +142,8 @@ var StudyViewInitSurvivalPlot = (function() {
         var _svgElement, _svgLabels, _svgTitle,
                 _labelTextMaxLength = 0,
                 _numOfLabels = 0,
-                _svgWidth = 500,
-                _svgheight = 500;
+                _svgWidth = 360,
+                _svgheight = 360;
 
         _svgElement = $("#" + _svgParentDivId + " svg").html();
         _svgLabels = $("#" + _opts.divs.bodyLabel + " svg");
@@ -163,20 +163,20 @@ var StudyViewInitSurvivalPlot = (function() {
             _numOfLabels++;
         });
 
-        _svgWidth += _labelTextMaxLength * 10;
+        _svgWidth += _labelTextMaxLength * 14;
 
         if (_svgheight < _numOfLabels * 20) {
             _svgheight = _numOfLabels * 20 + 40;
         }
-
+        
         _svgLabels = _svgLabels.html();
 
-        _svgTitle = "<g><text text-anchor='middle' x='" + _svgWidth / 2 +
-                "' y='30' style='font-weight:bold'>Survival Plot</text></g>";
+        _svgTitle = "<g><text text-anchor='middle' x='210' y='30' " +
+                "style='font-weight:bold'>Survival Plot</text></g>";
 
         _svgElement = "<svg width='" + _svgWidth + "px' height='" + _svgheight + "px' style='font-size:14px'>" +
                 _svgTitle + "<g transform='translate(0,40)'>" +
-                _svgElement + "</g><g transform='translate(450,40)'>" +
+                _svgElement + "</g><g transform='translate(370,50)'>" +
                 _svgLabels + "</g></svg>";
         $("#" + _idNeedToSetValue).val(_svgElement);
 
@@ -207,10 +207,13 @@ var StudyViewInitSurvivalPlot = (function() {
 
     //Save all related information with this curve. The saved curve(s) will be
     //showed again when redrawing survival plots
-    function saveCurveInfoFunc(_this, _id) {
+    function saveCurveInfoFunc(_this, _opts) {
         var _selectedIndex = $($(_this).parent()).index(),
-                _selectedCurveInfo = curveInfo[_id][_selectedIndex];
-
+                _selectedCurveInfo = curveInfo[_opts.index][_selectedIndex];
+        if(!savedCurveInfo.hasOwnProperty(_opts.index)){
+            savedCurveInfo[_opts.index] = {};
+        }
+        /*
         if (StudyViewUtil.arrayFindByValue(uColor, _selectedCurveInfo.color)) {
             var _color = colorSelection('');
 
@@ -220,21 +223,20 @@ var StudyViewInitSurvivalPlot = (function() {
             }
             var _data = uColorCurveData[_selectedCurveInfo.color];
 
-            survivalPlot[_id].removeCurve(_selectedCurveInfo.color.toString().substring(1));
+            survivalPlot[_opts.index].removeCurve(_selectedCurveInfo.color.toString().substring(1));
             _data.settings.line_color = _color;
             _data.settings.mouseover_color = _color;
             _data.settings.curveId = _color.toString().substring(1);
-            survivalPlot[_id].addCurve(_data);
+            survivalPlot[_opts.index].addCurve(_data);
             _selectedCurveInfo.color = _color;
-        }
-        savedCurveInfo[_selectedCurveInfo.name] = _selectedCurveInfo;
-        //removeSaveCurveColor(_selectedCurveInfo.color);
+        }*/
+        savedCurveInfo[_opts.index][_selectedCurveInfo.name] = _selectedCurveInfo;
         removeElement($(_this).parent());
 
         //After saving curve, the related curve info should be delete from 
         //curvesInfo
-        StudyViewUtil.arrayDeleteByIndex(curveInfo, _selectedIndex);
-        redrawLabel();
+        StudyViewUtil.arrayDeleteByIndex(curveInfo[_opts.index], _selectedIndex);
+        redrawLabel(_opts);
     }
 
     function removeElement(_this) {
@@ -243,14 +245,12 @@ var StudyViewInitSurvivalPlot = (function() {
 
     //Move saved curve infomation back to curveInfo
     function undoSavedCurve(_curveName, _index) {
-        var _targetCurve = savedCurveInfo[_curveName];
+        var _targetCurve = savedCurveInfo[_index][_curveName];
         curveInfo[_index].push(_targetCurve);
     }
 
     function removeSavedCurveFunc(_curveName, _plotIndex) {
-        var _targetCurve = savedCurveInfo[_plotIndex][_curveName];
         delete savedCurveInfo[_plotIndex][_curveName];
-        resetColor(_targetCurve.color, 'no');
     }
 
     function removeCurveFunc(_index, _plotIndex) {
@@ -259,7 +259,7 @@ var StudyViewInitSurvivalPlot = (function() {
     
     //When user click pin icon, this dialog will be popped up and remind user
     //input the curve name.
-    function nameCurveDialog(_this, _callBackFunc) {
+    function nameCurveDialog(_this, _callBackFunc, _opts) {
         var _parent = $(_this).parent();
         var _value = $(_parent).find("text:first").attr('value');
         var _qtipContent = '<input type="text" style="float:left"/><button style="float:left">OK</button>';
@@ -325,8 +325,8 @@ var StudyViewInitSurvivalPlot = (function() {
                                     .attr('value', _curveName);
 
                             //Update curve name with user inputted name
-                            curveInfo[$($(_this).parent()).index()].name = _curveName;
-                            _callBackFunc(_this);
+                            curveInfo[_opts.index][$($(_this).parent()).index()].name = _curveName;
+                            _callBackFunc(_this, _opts);
                         }
                         //Set to True: call .hide() before destroy
                         api.destroy(true);
@@ -525,7 +525,7 @@ var StudyViewInitSurvivalPlot = (function() {
         _opts.plot.settings.chart_top = 5;
         _opts.plot.settings.include_legend = false;
         _opts.plot.settings.include_pvalue = false;
-        _opts.plot.style.axisX_title_pos_x = 170;
+        _opts.plot.style.axisX_title_pos_x = 210;
         _opts.plot.style.axisX_title_pos_y = 305;
         _opts.plot.style.axisY_title_pos_x = -100;
         _opts.plot.style.axisY_title_pos_y = 20;
@@ -703,8 +703,8 @@ var StudyViewInitSurvivalPlot = (function() {
             }
 
             for (var key in _savedCurveInfo) {
-                if (_savedCurveInfo[key].name * 10 > _width) {
-                    _width = _savedCurveInfo[key].name;
+                if (_savedCurveInfo[key].name.length * 10 > _width) {
+                    _width = _savedCurveInfo[key].name.length * 10;
                 }
             }
 
@@ -753,12 +753,13 @@ var StudyViewInitSurvivalPlot = (function() {
     }
     //Draw saved labels if have any
     function drawSavedLabels(_opts, _svg, _startedIndex, _svgWidth) {
-        var _savedLabelsLength = getSavedCurveName(_opts.index).length;
-
+        var _savedLabelsLength = getSavedCurveName(_opts.index).length,
+                _savedCurveInfo = savedCurveInfo[_opts.index];
+            
         if (_savedLabelsLength > 0) {
             var _index = 0;
-            for (var key in savedCurveInfo) {
-                drawLabelBasicComponent(_opts, _svg, _index + _startedIndex, savedCurveInfo[key].color, savedCurveInfo[key].name, 'close', _svgWidth);
+            for (var key in _savedCurveInfo) {
+                drawLabelBasicComponent(_opts, _svg, _index + _startedIndex, _savedCurveInfo[key].color, _savedCurveInfo[key].name, 'close', _svgWidth);
                 _index++;
             }
         }
@@ -784,12 +785,9 @@ var StudyViewInitSurvivalPlot = (function() {
                 .attr('value', _textName)
                 .text(_textName);
 
-        //TODO: Get the text length, ggbox does not work in here
-        _textWidth = _textName.length * 9;
-
         if (_iconType === 'pin') {
             var _image = _g.append("image")
-                    .attr('x', _svgWidth - 40)
+                    .attr('x', _svgWidth - 30)
                     .attr('y', '0')
                     .attr('height', '10px')
                     .attr('width', '10px');
@@ -798,7 +796,7 @@ var StudyViewInitSurvivalPlot = (function() {
             _image.attr('name', 'pin');
 
             _image = _g.append("image")
-                    .attr('x', _svgWidth - 25)
+                    .attr('x', _svgWidth - 15)
                     .attr('y', '1')
                     .attr('height', '8px')
                     .attr('width', '8px');

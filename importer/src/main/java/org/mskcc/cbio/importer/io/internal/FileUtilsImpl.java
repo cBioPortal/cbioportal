@@ -574,13 +574,15 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			}
 			PrintWriter writer = new PrintWriter(org.apache.commons.io.FileUtils.openOutputStream(metaFile, false));
 			writer.print("cancer_study_identifier: " + cancerStudyMetadata + "\n");
-			if (datatypeMetadata.getDatatype().contains(CopyNumberSegmentFile.ReferenceGenome.HG18.toString())){
-				writer.print("reference_genome_id: " + CopyNumberSegmentFile.ReferenceGenome.HG18.toString() + "\n");
+			if (datatypeMetadata.getDatatype().contains(CopyNumberSegmentFile.ReferenceGenomeId.HG18.toString())){
+				writer.print("reference_genome_id: " + CopyNumberSegmentFile.ReferenceGenomeId.HG18.toString() + "\n");
 			}	
 			else {
-				writer.print("reference_genome_id: " + CopyNumberSegmentFile.ReferenceGenome.HG19.toString() + "\n");
+				writer.print("reference_genome_id: " + CopyNumberSegmentFile.ReferenceGenomeId.HG19.toString() + "\n");
 			}
-			writer.print("url_to_file: " + segFileLinkingLocation + File.separator + datatypeMetadata.getStagingFilename());
+			String urlToFile = segFileLinkingLocation + File.separator + datatypeMetadata.getStagingFilename(); 
+			urlToFile = urlToFile.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
+			writer.print("url_to_file: " + urlToFile);
 			String profileDescription = datatypeMetadata.getMetaProfileDescription();
 			if (dataMatrix != null) {
 				profileDescription = profileDescription.replaceAll(DatatypeMetadata.NUM_GENES_TAG, Integer.toString(dataMatrix.getGeneIDs().size()));

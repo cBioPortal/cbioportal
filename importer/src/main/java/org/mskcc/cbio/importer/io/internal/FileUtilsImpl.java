@@ -575,15 +575,12 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			}
 			PrintWriter writer = new PrintWriter(org.apache.commons.io.FileUtils.openOutputStream(metaFile, false));
 			writer.print("cancer_study_identifier: " + cancerStudyMetadata + "\n");
-			if (datatypeMetadata.getDatatype().contains(CopyNumberSegmentFile.ReferenceGenomeId.HG18.toString())){
-				writer.print("reference_genome_id: " + CopyNumberSegmentFile.ReferenceGenomeId.HG18.toString() + "\n");
+			if (datatypeMetadata.getDatatype().contains(CopyNumberSegmentFile.ReferenceGenomeId.hg18.toString())){
+				writer.print("reference_genome_id: " + CopyNumberSegmentFile.ReferenceGenomeId.hg18.toString() + "\n");
 			}	
 			else {
-				writer.print("reference_genome_id: " + CopyNumberSegmentFile.ReferenceGenomeId.HG19.toString() + "\n");
+				writer.print("reference_genome_id: " + CopyNumberSegmentFile.ReferenceGenomeId.hg19.toString() + "\n");
 			}
-			String urlToFile = segFileLinkingLocation + File.separator + datatypeMetadata.getStagingFilename(); 
-			urlToFile = urlToFile.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
-			writer.print("url_to_file: " + urlToFile + "\n");
 			String profileDescription = datatypeMetadata.getMetaProfileDescription();
 			if (dataMatrix != null) {
 				profileDescription = profileDescription.replaceAll(DatatypeMetadata.NUM_GENES_TAG, Integer.toString(dataMatrix.getGeneIDs().size()));
@@ -591,6 +588,9 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			}
 			profileDescription = profileDescription.replaceAll(DatatypeMetadata.TUMOR_TYPE_TAG, cancerStudyMetadata.getTumorType());
 			writer.print("description: " + profileDescription + "\n");
+			String urlToFile = segFileLinkingLocation + File.separator + datatypeMetadata.getStagingFilename(); 
+			urlToFile = urlToFile.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
+			writer.print("url_to_file: " + urlToFile + "\n");
 			writer.flush();
 			writer.close();
 	}	

@@ -133,7 +133,7 @@ var StudyViewInitSurvivalPlot = (function() {
                 _label.css('display', 'none');
             }
         });
-
+        
         $("#" + _opts.divs.body).css('display', 'block');
         $("#" + _opts.divs.loader).css('display', 'none');
     }
@@ -380,7 +380,7 @@ var StudyViewInitSurvivalPlot = (function() {
                 "' class='study-view-dc-chart w2 h1half study-view-survival-plot'>" +
                 "<div id='" + _opt.divs.headerWrapper +
                 "' class='study-view-survival-plot-header-wrapper'>" +
-                "<chartTitleH4 id='" + _opt.divs.main +
+                "<chartTitleH4 id='" + _opt.divs.title +
                 "' class='study-view-survival-plot-title'>" + _opt.title + "</chartTitleH4>" +
                 "<div id='" + _opt.divs.header +
                 "' class='study-view-survival-plot-header' style='float:right'>" +
@@ -471,7 +471,7 @@ var StudyViewInitSurvivalPlot = (function() {
                     if (_casesInfo.hasOwnProperty('NA')) {
                         _casesInfo['NA'].caseIds.push(_caseID);
                     } else {
-                        StudyViewUtil.echoWarningMessg("Unexpected attribute: " + _arr);
+                        //StudyViewUtil.echoWarningMessg("Unexpected attribute: " + _arr);
                     }
                 } else {
                     _casesInfo[_arr].caseIds.push(_caseID);
@@ -868,22 +868,7 @@ var StudyViewInitSurvivalPlot = (function() {
     }
 
     return {
-        init: function(_caseLists, _data) {
-            var _plotsInfo = {
-                '0': {
-                    name: "Overall Survival Status",
-                    property: ["OS_MONTHS", "OS_STATUS"],
-                    status: ["LIVING", "DECEASED"],
-                    caseLists: _caseLists
-                },
-                '1': {
-                    name: "Disease Free Survival Status",
-                    property: ["DFS_MONTHS", "DFS_STATUS"],
-                    status: ["DISEASEFREE", "RECURRED/PROGRESSED"],
-                    caseLists: _caseLists
-                }
-            };
-            
+        init: function(_plotsInfo, _data) {
             initParams();
             createCurves(_plotsInfo, _data);
         },

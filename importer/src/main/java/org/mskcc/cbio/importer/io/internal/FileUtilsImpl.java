@@ -338,8 +338,16 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			int mafCaseIDColumnIndex = 0;
 			boolean processHeader = true;
 			while (it.hasNext()) {
+                                String line = it.next();
+                                if (line.startsWith("#")) {
+                                    if (line.startsWith("#"+Converter.MUTATION_CASE_LIST_META_HADER+":")) {
+                                        return Arrays.asList(line.substring(Converter.MUTATION_CASE_LIST_META_HADER.length()+2).trim().split("[ \t]+"));
+                                    }
+                                    continue;
+                                }
+                                
 				// create a string list from row in file
-				List<String> thisRow = Arrays.asList(it.nextLine().split(Converter.VALUE_DELIMITER));
+				List<String> thisRow = Arrays.asList(line.split(Converter.VALUE_DELIMITER));
 				// is this the header file?
 				if (processHeader) {
 					// look for MAF file case id column header

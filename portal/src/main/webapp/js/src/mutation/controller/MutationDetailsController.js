@@ -139,11 +139,11 @@ var MutationDetailsController = function(
 				new Mutation3dController(mutationDetailsView, mainView,
 					_mut3dVisView, components.view3d, mut3dVis,
 					_pdbProxy, mutationUtil,
-					components.diagram, components.tableView, gene);
+					components.diagram, components.tableView.tableUtil, gene);
 			}
 
 			new MutationDiagramController(
-				components.diagram, components.tableView.tableUtil, mutationUtil, components.tableView);
+				components.diagram, components.tableView.tableUtil, mutationUtil);
 		};
 
 		// get mutation data for the current gene

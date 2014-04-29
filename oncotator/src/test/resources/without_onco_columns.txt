@@ -1,3 +1,8 @@
+# This is a metadata line.
+# This is another metadata line.
+
+# Yet another metadata...
+
 NCBI_Build	Chromosome	Start_position	End_position	Variant_Classification	Reference_Allele	Tumor_Seq_Allele1	Tumor_Seq_Allele2	Custom
 37	11	56258437	56258437	Missense_Mutation	T	T	C	custom_data
 37	4	83788017	83788017	Silent	G	G	A	custom_data

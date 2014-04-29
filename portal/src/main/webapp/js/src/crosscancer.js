@@ -962,9 +962,9 @@
 	                            tableOpts: {
 		                            // TODO define custom functions where necessary
 		                            columnVisibility: {
-			                            "cancer study": "visible",
+			                            "cancerStudy": "visible",
 			                            // exclude tumor type for now
-			                            "tumor type": "excluded"
+			                            "tumorType": "excluded"
 		                            }
 	                            }
                             };

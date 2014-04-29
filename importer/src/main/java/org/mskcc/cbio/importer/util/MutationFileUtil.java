@@ -39,18 +39,26 @@ public class MutationFileUtil
 	private static final String KNOWN_ONCOTATOR_HEADER = "ONCOTATOR_VARIANT_CLASSIFICATION";
 	private static final ApplicationContext context = new ClassPathXmlApplicationContext(Admin.contextFile);
 
-	public static boolean isOncotated(String filename) throws Exception
+	public static boolean isOncotated(String fileName) throws Exception
 	{
-		File file = new File(filename);
-		FileUtils fileUtils = (FileUtils)MutationFileUtil.context.getBean("fileUtils");
-		LineIterator it = fileUtils.getFileContents(FileUtils.FILE_URL_PREFIX + file.getCanonicalPath());
-		String[] columnHeaders = it.nextLine().split("\t");
-		it.close();
-		return MutationFileUtil.isOncotated(Arrays.asList(columnHeaders));
+		return MutationFileUtil.isOncotated(Arrays.asList(getColumnHeaders(fileName)));
 	}
 
 	public static boolean isOncotated(List<String> columnHeaders)
 	{
 		return columnHeaders.contains(KNOWN_ONCOTATOR_HEADER);
 	}
+        
+        public static String[] getColumnHeaders(String fileName) throws Exception {
+            File file = new File(fileName);
+            FileUtils fileUtils = (FileUtils)MutationFileUtil.context.getBean("fileUtils");
+            LineIterator it = fileUtils.getFileContents(FileUtils.FILE_URL_PREFIX + file.getCanonicalPath());
+            String line = it.next();
+            while (line.startsWith("#")) {
+                line = it.next();
+            }
+            String[] columnHeaders = line.split("\t");
+            it.close();
+            return columnHeaders;
+        }
 }

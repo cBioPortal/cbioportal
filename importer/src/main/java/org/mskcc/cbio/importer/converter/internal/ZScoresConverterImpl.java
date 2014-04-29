@@ -162,5 +162,12 @@ public class ZScoresConverterImpl implements Converter {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), complete.");
 		}
+
+		if (datatypeMetadata.requiresMetafile()){
+			if (LOG.isInfoEnabled()) {
+				LOG.info("createStagingFile(), writing metadata file.");
+			}
+			fileUtils.writeMetadataFile(portalMetadata.getStagingDirectory(), cancerStudyMetadata, datatypeMetadata, null);
+		}	
 	}
 }

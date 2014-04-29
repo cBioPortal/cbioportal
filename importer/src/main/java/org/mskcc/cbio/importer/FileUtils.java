@@ -20,19 +20,13 @@ package org.mskcc.cbio.importer;
 
 // imports
 import org.mskcc.cbio.importer.CaseIDs;
-import org.mskcc.cbio.importer.model.ImportDataRecord;
-import org.mskcc.cbio.importer.model.PortalMetadata;
-import org.mskcc.cbio.importer.model.DataMatrix;
-import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.DataSourcesMetadata;
-import org.mskcc.cbio.importer.model.CaseListMetadata;
-import org.mskcc.cbio.importer.model.CancerStudyMetadata;
+import org.mskcc.cbio.importer.model.*;
 
 import org.apache.commons.io.LineIterator;
 
+import java.util.*;
 import java.io.File;
-import java.util.List;
-import java.util.Collection;
+import java.net.URL;
 
 /**
  * Interface used to access some common file utils.
@@ -218,6 +212,8 @@ public interface FileUtils {
 	 * @throws Exception
 	 */
 	void writeMetadataFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata, DatatypeMetadata datatypeMetadata, int numCases) throws Exception;
+	void writeCopyNumberSegmentMetadataFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata,
+								   DatatypeMetadata datatypeMetadata, DataMatrix dataMatrix, URL segFileLinkingLocation) throws Exception;
 
 	/**
 	 * Method which writes a metadata file for the

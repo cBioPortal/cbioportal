@@ -14,30 +14,19 @@
  * Memorial Sloan-Kettering Cancer Center 
  * has been advised of the possibility of such damage.
 */
-
-// package
 package org.mskcc.cbio.importer.converter.internal;
 
-// imports
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table;
+import com.google.common.collect.*;
 import org.mskcc.cbio.portal.model.ClinicalAttribute;
 import org.mskcc.cbio.portal.scripts.ImportClinicalData;
-import org.mskcc.cbio.importer.Config;
-import org.mskcc.cbio.importer.CaseIDs;
-import org.mskcc.cbio.importer.IDMapper;
-import org.mskcc.cbio.importer.Converter;
-import org.mskcc.cbio.importer.FileUtils;
+import org.mskcc.cbio.importer.*;
 import org.mskcc.cbio.importer.model.*;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.*;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.regex.*;
 
 /**
  * Class which implements the Converter interface for use
@@ -528,6 +517,13 @@ public class ClinicalDataConverterImpl implements Converter {
 		if (LOG.isInfoEnabled()) { LOG.info("createStagingFile(), writing staging file."); }
         fileUtils.writeStagingFile(portalMetadata.getStagingDirectory(), cancerStudyMetadata, datatypeMetadata, outMatrix);
 		if (LOG.isInfoEnabled()) { LOG.info("createStagingFile(), complete."); }
+
+        if (datatypeMetadata.requiresMetafile()){
+            if (LOG.isInfoEnabled()) {
+                LOG.info("createStagingFile(), writing metadata file.");
+            }
+            fileUtils.writeMetadataFile(portalMetadata.getStagingDirectory(), cancerStudyMetadata, datatypeMetadata, dataMatrix);
+        } 
 
         // insert the new clinical attributes into google doc
         for (ClinicalAttributesMetadata attr : newAttributes.values()) {

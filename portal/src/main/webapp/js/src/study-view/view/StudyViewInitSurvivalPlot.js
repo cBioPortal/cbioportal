@@ -41,6 +41,8 @@ var StudyViewInitSurvivalPlot = (function() {
     }
     
     function addEvents(_opts) {
+        var _title = $("#" + _opts.divs.main + " charttitleh4").text();
+        
         if (!initStatus) {
             StudyViewUtil.showHideDivision(
                     '#' + _opts.divs.main,
@@ -110,12 +112,12 @@ var StudyViewInitSurvivalPlot = (function() {
         $("#" + _opts.divs.pdf).unbind('submit');
         $("#" + _opts.divs.pdf).submit(function() {
             setSVGElementValue(_opts.divs.bodySvg,
-                    _opts.divs.pdfValue, _opts);
+                    _opts.divs.pdfValue, _opts, _title);
         });
         $("#" + _opts.divs.svg).unbind('submit');
         $("#" + _opts.divs.svg).submit(function() {
             setSVGElementValue(_opts.divs.bodySvg,
-                    _opts.divs.svgValue, _opts);
+                    _opts.divs.svgValue, _opts, _title);
         });
 
         $("#" + _opts.divs.menu).unbind("click");
@@ -141,14 +143,13 @@ var StudyViewInitSurvivalPlot = (function() {
         if($("#" + _opts.divs.bodyLabel).css('display') === 'block'){
             var _svgWidth = $("#" + _opts.divs.bodyLabel + " svg").width();
             $("#" + _opts.divs.bodyLabel).width(_svgWidth + 15);
-            console.log(_svgWidth);
         }
         
         $("#" + _opts.divs.body).css('opacity', '1');
         $("#" + _opts.divs.loader).css('display', 'none');
     }
 
-    function setSVGElementValue(_svgParentDivId, _idNeedToSetValue, _opts) {
+    function setSVGElementValue(_svgParentDivId, _idNeedToSetValue, _opts, _title) {
         var _svgElement, _svgLabels, _svgTitle,
                 _labelTextMaxLength = 0,
                 _numOfLabels = 0,
@@ -182,7 +183,7 @@ var StudyViewInitSurvivalPlot = (function() {
         _svgLabels = _svgLabels.html();
 
         _svgTitle = "<g><text text-anchor='middle' x='210' y='30' " +
-                "style='font-weight:bold'>Survival Plot</text></g>";
+                "style='font-weight:bold'>" + _title + "</text></g>";
 
         _svgElement = "<svg width='" + _svgWidth + "px' height='" + _svgheight + "px' style='font-size:14px'>" +
                 _svgTitle + "<g transform='translate(0,40)'>" +
@@ -390,7 +391,7 @@ var StudyViewInitSurvivalPlot = (function() {
                 "' class='study-view-dc-chart w2 h1half study-view-survival-plot'>" +
                 "<div id='" + _opt.divs.headerWrapper +
                 "' class='study-view-survival-plot-header-wrapper'>" +
-                "<chartTitleH4 id='" + _opt.divs.title +
+                "<chartTitleH4 value='" +_opt.title+ "' id='" + _opt.divs.title +
                 "' class='study-view-survival-plot-title'>" + _opt.title + "</chartTitleH4>" +
                 "<div id='" + _opt.divs.header +
                 "' class='study-view-survival-plot-header' style='float:right'>" +
@@ -424,8 +425,7 @@ var StudyViewInitSurvivalPlot = (function() {
     function dataProcess(_plotInfo) {
         var _numOfValuedCase = 0;
         var _plotData = {};
-        ///oData = _data;
-        //Get all of cases os information
+        
         for (var i = 0; i < oDataLength; i++) {
             if (oData[i].hasOwnProperty(_plotInfo.property[0]) && oData[i].hasOwnProperty(_plotInfo.property[1])) {
                 var _time = oData[i][_plotInfo.property[0]],
@@ -435,9 +435,9 @@ var StudyViewInitSurvivalPlot = (function() {
 
                 _plotData[_caseID].case_id = _caseID;
 
-                if (_status === _plotInfo.status[0]) {
+                if (_plotInfo.status[0].indexOf(_status) !== -1) {
                     _plotData[_caseID].status = '0';
-                } else if (_status === _plotInfo.status[1]) {
+                } else if (_plotInfo.status[1].indexOf(_status) !== -1) {
                     _plotData[_caseID].status = '1';
                 } else if (_status === null || _status.length === 0 || _status === 'NA') {
                     _plotData[_caseID].status = 'NA';
@@ -507,7 +507,7 @@ var StudyViewInitSurvivalPlot = (function() {
         _opts.divs.main = "study-view-survival-plot-" + _index;
         _opts.divs.title = "study-view-survival-pot-title-" + _index;
         _opts.divs.header = "study-view-survival-plot-header-" + _index;
-        _opts.divs.headerWrapper = "study-view-survival-plot-header-wrapper" + _index;
+        _opts.divs.headerWrapper = "study-view-survival-plot-header-wrapper-" + _index;
         _opts.divs.body = "study-view-survival-plot-body-" + _index;
         _opts.divs.bodySvg = "study-view-survival-plot-body-svg-" + _index;
         _opts.divs.bodyLabel = "study-view-survival-plot-body-label-" + _index;
@@ -640,7 +640,7 @@ var StudyViewInitSurvivalPlot = (function() {
                         if (StudyViewUtil.arrayFindByValue(reserveName, key)) {
                             uColorCurveData[uColor[reserveName.indexOf(key)]] = instance;
                         }
-
+                        
                         var _curveInfoDatum = {
                             name: key,
                             color: _color,
@@ -655,10 +655,6 @@ var StudyViewInitSurvivalPlot = (function() {
                 }
             }
         }
-        /* There isn't any saved curve when intitialize survival plot
-         if(getSavedCurveName().length > 0){
-         initSavedCurves();
-         }*/
 
         //We disabled pvalue calculation in here
         survivalPlot[_opts.index] = new SurvivalCurve();
@@ -685,10 +681,13 @@ var StudyViewInitSurvivalPlot = (function() {
             _casesInfo = grouping(_casesInfo, _selectedAttr);
             redrawView(opts[j], _casesInfo);
             drawLabels(opts[j]);
+            if(typeof _selectedAttr !== 'undefined'){
+                StudyViewUtil.changeTitle("#" + opts[j].divs.main + " chartTitleH4", _selectedAttr, false);
+            }
             addEvents(opts[j]);
         }
     }
-
+    
     function drawLabels(_opts) {
         var _curveInfo = curveInfo[_opts.index];
         var _savedCurveInfo = savedCurveInfo[_opts.index];

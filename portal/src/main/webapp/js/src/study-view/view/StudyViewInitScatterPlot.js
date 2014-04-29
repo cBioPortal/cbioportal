@@ -36,6 +36,7 @@ var StudyViewInitScatterPlot = (function() {
     }
     
     function initComponent() {
+        var _title = $("#study-view-scatter-plot chartTitleH4").text();
         
         if(scatterPlotArr.length !== 0){
             scatterPlot = new ScatterPlots();
@@ -62,7 +63,7 @@ var StudyViewInitScatterPlot = (function() {
             StudyViewUtil
                     .showHideDivision("#study-view-scatter-plot", 
                                     "#study-view-scatter-plot-header");
-                               
+            
             $("#study-view-scatter-plot-menu-icon").unbind("click");
             $("#study-view-scatter-plot-menu-icon").click(function() {
                 var _side = $("#study-view-scatter-plot-side");
@@ -80,26 +81,32 @@ var StudyViewInitScatterPlot = (function() {
             $("#study-view-scatter-plot-pdf").submit(function(){
                 setSVGElementValue("study-view-scatter-plot-body-svg",
                     "study-view-scatter-plot-pdf-value",
-                    scatterPlotOptions);
+                    scatterPlotOptions,
+                    _title);
             });
             $("#study-view-scatter-plot-svg").submit(function(){
                 setSVGElementValue("study-view-scatter-plot-body-svg",
                     "study-view-scatter-plot-svg-value",
-                    scatterPlotOptions);
+                    scatterPlotOptions,
+                    _title);
             });
         }else{
             $('#study-view-scatter-plot').css('display','none');
         }
     }
     
-    function setSVGElementValue(_svgParentDivId,_idNeedToSetValue,scatterPlotDataAttr){
+    function setSVGElementValue(_svgParentDivId,_idNeedToSetValue,scatterPlotDataAttr, _title){
         var svgElement;
         
         $("#" + _svgParentDivId + " .plots-title-x-help").remove();
         $("#" + _svgParentDivId + " .plots-title-y-help").remove();
         
         //Remove x/y title help icon first.
-        svgElement = $("#" + _svgParentDivId).html();
+        svgElement = $("#" + _svgParentDivId + " svg").html();
+        svgElement = "<svg><g><text text-anchor='middle' x='220' y='30' " +
+                "style='font-weight:bold'>" + _title + 
+                "</text></g><g transform='translate(0,40)'>" + 
+                svgElement + "</g></svg>";
         $("#" + _idNeedToSetValue).val(svgElement);
         scatterPlot.updateTitleHelp(scatterPlotDataAttr.names.log_scale_x, scatterPlotDataAttr.names.log_scale_y);
     }

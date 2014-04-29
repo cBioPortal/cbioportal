@@ -122,6 +122,19 @@ var StudyViewUtil = (function(){
         return array;
     }
     
+    function changeTitle(_titleDiv, _text, _overrideFlag) {
+        if(typeof _overrideFlag === 'undefined' || _overrideFlag) {
+            $(_titleDiv).text(_text);
+        }else {
+            var _tmp = $(_titleDiv).attr('value');
+            if(!_text || _text === '' || _text === 'false'){
+                $(_titleDiv).text(_tmp);
+            }else{
+                $(_titleDiv).text(_tmp + " (" + _text + ")");
+            }
+        }
+    }
+    
     return{
         showHideDivision: showHideDivision,
         echoWarningMessg: echoWarningMessg,
@@ -131,6 +144,7 @@ var StudyViewUtil = (function(){
         rgbStringConvert: rgbStringConvert,
         arrayFindByValue: arrayFindByValue,
         changePosition: changePosition,
-        testM: testM
+        testM: testM,
+        changeTitle: changeTitle
     };
 })();

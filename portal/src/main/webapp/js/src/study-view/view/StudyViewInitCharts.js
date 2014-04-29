@@ -441,7 +441,7 @@ var StudyViewInitCharts = (function(){
     function initSurvivalPlot(_data) {
         var _plotsInfo = {
                 '0': {
-                    name: "Overall Survival Status",
+                    name: "Overall Survival Analysis",
                     property: ["OS_MONTHS", "OS_STATUS"],
                     status: ["LIVING", "DECEASED"],
                     caseLists: {
@@ -452,9 +452,9 @@ var StudyViewInitCharts = (function(){
                     }
                 },
                 '1': {
-                    name: "Disease Free Survival Status",
+                    name: "Disease Free Survival Analysis",
                     property: ["DFS_MONTHS", "DFS_STATUS"],
-                    status: ["DISEASEFREE", "RECURRED/PROGRESSED"],
+                    status: [["DISEASEFREE"], ["RECURRED", "RECURRED/PROGRESSED", "PROGRESSED"]],
                     caseLists: {
                         ALL_CASES: {
                             caseIds: StudyViewParams.params.caseIds, 
@@ -542,8 +542,8 @@ var StudyViewInitCharts = (function(){
         
         $('.study-view-dc-chart-delete').unbind('click');
         $('.study-view-dc-chart-delete').click(function(event){
-                var _id = $(this).parent().parent().attr("id").split("-");
-                var _valueA = $(this).parent().parent().attr('value').split(',');
+                var _id = $(this).parent().parent().parent().attr("id").split("-");
+                var _valueA = $(this).parent().parent().parent().attr('value').split(',');
                 
                 deleteChart(_id[_id.length-1],_valueA);
                 bondDragForLayout();
@@ -629,8 +629,6 @@ var StudyViewInitCharts = (function(){
         $("#study-view-word-cloud-loader").css('display', 'block');
         if(StudyViewInitSurvivalPlot.getInitStatus()) {
             var _length = StudyViewInitSurvivalPlot.getNumOfPlots();
-            
-            StudyViewUtil.testM(_length);
             
             for(var i = 0; i < _length; i++){
                 $("#study-view-survival-plot-body-" + i).css('opacity', '0.3');
@@ -1071,7 +1069,7 @@ var StudyViewInitCharts = (function(){
 
             $('#study-view-dc-chart-'+ _chartID +' .study-view-dc-chart-delete').unbind('click');
             $('#study-view-dc-chart-'+ _chartID +' .study-view-dc-chart-delete').click(function(event){
-                var valueA = $(this).parent().parent().attr("value").split(',');
+                var valueA = $(this).parent().parent().parent().attr("value").split(',');
                 deleteChart(_chartID,valueA);
                 AddCharts.bindliClickFunc();
                 bondDragForLayout();

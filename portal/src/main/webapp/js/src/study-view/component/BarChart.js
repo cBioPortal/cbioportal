@@ -115,7 +115,7 @@ var BarChart = function(){
                             "#"+DIV.chartDiv+"-side");
         StudyViewUtil
             .showHideDivision("#"+DIV.mainDiv, 
-                            "#"+DIV.mainDiv +" .study-view-drag-icon");
+                            "#"+DIV.chartDiv+"-header");
     }
     
     //Bar chart SVG style is controled by CSS file. In order to change 
@@ -264,15 +264,16 @@ var BarChart = function(){
         
         
         if(param.needLogScale){
-            _logCheckBox = "<div id='StudyViewLogBarChartCheckboxWrapper'>"+
-                "<span id='scale-span-"+param.chartID+
-                "' style='float:right; font-size:10px; margin-right: 15px;"+
-                "margin-top:3px;color: grey'>Log Scale X</span>"+
+            _logCheckBox = "<div style='float:left'>"+
                 "<input type='checkbox' value='"+ param.chartID +","+ 
                 param.distanceArray.max +","+ 
                 param.distanceArray.min + "," + param.selectedAttr+
                 "' id='scale-input-"+param.chartID+
-                "' class='study-view-bar-x-log' checked='checked'></input></div>";
+                "' class='study-view-bar-x-log' checked='checked'></input>"+
+                "<span id='scale-span-"+param.chartID+
+                "' style='float:left; font-size:10px; margin-right: 15px;"+
+                "margin-top:3px;color: grey'>Log Scale X</span>"+
+                "</div>";
        }
         
         var contentHTML = "<div id=\"" + DIV.chartDiv + 
@@ -282,25 +283,25 @@ var BarChart = function(){
                 "<form style='display:inline-block;' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-pdf'>"+
                 "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-pdf-value'>"+
                 "<input type='hidden' name='filetype' value='pdf'>"+
-                "<input type='hidden' id='"+DIV.chartDiv+"-pdf-name' name='filename' value='"+cancerStudyId + "_" +param.selectedAttr+".pdf'>"+
+                "<input type='hidden' id='"+DIV.chartDiv+"-pdf-name' name='filename' value='"+StudyViewParams.params.studyId + "_" +param.selectedAttr+".pdf'>"+
                 "<input type='submit' style='font-size:10px' value='PDF'>"+          
                 "</form>"+
                 "<form style='display:inline-block' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-svg'>"+
                 "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-svg-value'>"+
                 "<input type='hidden' name='filetype' value='svg'>"+
-                "<input type='hidden' id='"+DIV.chartDiv+"-svg-name' name='filename' value='"+cancerStudyId + "_" +param.selectedAttr+".svg'>"+
+                "<input type='hidden' id='"+DIV.chartDiv+"-svg-name' name='filename' value='"+StudyViewParams.params.studyId + "_" +param.selectedAttr+".svg'>"+
                 "<input type='submit' style='font-size:10px' value='SVG'>"+    
                 "</form></div>"+
-                "<div style='height: 18px; width:100%; float:right'>"+
-                "<span class='study-view-dc-chart-delete'>x</span>"+
-                "<div style='width:14px; height:16px;float:right'>"+
-                "<img style='width:10px; height:10px;margin-top:4px; margin-right:4px;' class='study-view-drag-icon' src='images/move.svg'/>"+
-                "</div><a href='javascript:StudyViewInitCharts.getChartsByID("+ 
+                "<div style='height: 18px;'><div style='float:right' id='"+DIV.chartDiv+"-header'>"+
+                "<a href='javascript:StudyViewInitCharts.getChartsByID("+ 
                 param.chartID +").getChart().filterAll();" +
                 "StudyViewInitCharts.getSelectedCasesAndRedrawScatterPlot([]); " +
                 "dc.redrawAll();'>"+
                 "<span title='Reset Chart' class='study-view-dc-chart-change'>"+
-                "RESET</span></a>"+_logCheckBox +"</div></div>"+
+                "RESET</span></a>"+_logCheckBox +
+                "<img class='study-view-drag-icon' src='images/move.svg'/>"+
+                "<span class='study-view-dc-chart-delete'>x</span>"+
+                "</div></div></div>"+
                 "<div style='width:100%; float:center;text-align:center;'>"+
                 "<chartTitleH4>" + param.selectedAttrDisplay + "</chartTitleH4></div>";
         
@@ -309,12 +310,6 @@ var BarChart = function(){
                     .append("<div id=\"" + DIV.mainDiv+ 
                     "\" class='study-view-dc-chart study-view-bar-main'>" + 
                     contentHTML + "</div>");
-        }
-        
-        if(param.needLogScale){
-            StudyViewUtil
-                .showHideDivision("#"+DIV.chartDiv, 
-                                "#StudyViewLogBarChartCheckboxWrapper");
         }
     }
     

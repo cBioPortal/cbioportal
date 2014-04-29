@@ -362,7 +362,7 @@
     border-style:solid;
 }
 .study-view-bar-x-log {
-    float: right;
+    float: left;
     margin-right: 2px;
     margin-top: 3px;
 }
@@ -384,7 +384,7 @@
     cursor: move;
 }
 .study-view-dc-chart-delete {
-    float: right;
+    float: left;
     margin-right: 5px;
     color: grey;
     cursor: pointer;
@@ -405,12 +405,20 @@
     background-color: white;
 }
 .study-view-dc-chart-change {
-    float: right;
+    float: left;
     margin-right: 10px;
     margin-top: 3px;
     cursor: pointer;
     font-size:10px;
     display: none;
+}
+
+.study-view-drag-icon {
+    width:10px;
+    height:10px;
+    margin-top:4px;
+    margin-right:4px;
+    float:left;
 }
 .study-view-drag-icon:hover{
     cursor: move;
@@ -657,6 +665,7 @@ pieH3{
 .study-view-survival-plot-title {
     float: left;
     margin: 5px 0 0 5px;
+    max-width: 250px;
 }
 .study-view-survival-plot-body {
     width: 100%;

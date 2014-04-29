@@ -1025,8 +1025,9 @@ var StudyViewInitCharts = (function(){
             _chartType = [],
             _selectedAttr = _id,
             _selectedAttrDisplay = _text,
-            _chartID = -1;
-    
+            _chartID = -1,
+            _createdFlag = true;
+            
         if(_id === 'mutationCNA'){
             _chartType = ['scatter'];
         }else if(_id === 'wordCloud'){
@@ -1049,57 +1050,64 @@ var StudyViewInitCharts = (function(){
             
             $("#study-view-survival-plot-" + _index).css('display','block');
         }else{
-            if(Object.keys(attrNameMapUID).indexOf(_selectedAttr) !== -1){
-                _chartID = attrNameMapUID[_selectedAttr];
+            if(totalCharts < 31) {
+                if(Object.keys(attrNameMapUID).indexOf(_selectedAttr) !== -1){
+                    _chartID = attrNameMapUID[_selectedAttr];
+                }else{
+                    _chartID = totalCharts;
+                    HTMLtagsMapUID["study-view-dc-chart-" + totalCharts] = totalCharts;
+                    attrNameMapUID[_selectedAttr] = totalCharts;
+                    totalCharts++;       
+                }
+
+                if(_selectedChartType === 'pie'){
+                    makeNewPieChartInstance(_chartID, 
+                                            {attr_id:_selectedAttr,
+                                                display_name:_selectedAttrDisplay});
+                }else{
+                    makeNewBarChartInstance(_chartID,
+                                            {attr_id:_selectedAttr,
+                                                display_name:_selectedAttrDisplay},
+                                            distanceMinMaxArray[_selectedAttr]);
+                }
+
+
+                msnry.destroy();
+                msnry = new Packery( document.querySelector('#study-view-charts'), {
+                    columnWidth: 190,
+                    rowHeight: 115,
+                    itemSelector: '.study-view-dc-chart',
+                    gutter:5
+                });
+
+                varChart[_chartID].getChart().render();
+
+                $('#study-view-dc-chart-'+ _chartID +' .study-view-dc-chart-delete').unbind('click');
+                $('#study-view-dc-chart-'+ _chartID +' .study-view-dc-chart-delete').click(function(event){
+                    var valueA = $(this).parent().parent().parent().attr("value").split(',');
+                    deleteChart(_chartID,valueA);
+                    AddCharts.bindliClickFunc();
+                    bondDragForLayout();
+                });
             }else{
-                _chartID = totalCharts;
-                HTMLtagsMapUID["study-view-dc-chart-" + totalCharts] = totalCharts;
-                attrNameMapUID[_selectedAttr] = totalCharts;
-                totalCharts++;       
+                alert("Can not create more than 30 plots.");
+                _createdFlag = false;
             }
-
-            if(_selectedChartType === 'pie'){
-                makeNewPieChartInstance(_chartID, 
-                                        {attr_id:_selectedAttr,
-                                            display_name:_selectedAttrDisplay});
-            }else{
-                makeNewBarChartInstance(_chartID,
-                                        {attr_id:_selectedAttr,
-                                            display_name:_selectedAttrDisplay},
-                                        distanceMinMaxArray[_selectedAttr]);
-            }
-
-
-            msnry.destroy();
-            msnry = new Packery( document.querySelector('#study-view-charts'), {
-                columnWidth: 190,
-                rowHeight: 115,
-                itemSelector: '.study-view-dc-chart',
-                gutter:5
-            });
-
-            varChart[_chartID].getChart().render();
-
-            $('#study-view-dc-chart-'+ _chartID +' .study-view-dc-chart-delete').unbind('click');
-            $('#study-view-dc-chart-'+ _chartID +' .study-view-dc-chart-delete').click(function(event){
-                var valueA = $(this).parent().parent().parent().attr("value").split(',');
-                deleteChart(_chartID,valueA);
-                AddCharts.bindliClickFunc();
-                bondDragForLayout();
-            });
-        }
-
-        _index = removedChart.indexOf(_chartID);
-        if (_index > -1) {
-            removedChart.splice(_index, 1);
         }
         
-        bondDragForLayout();
+        if(_createdFlag) {
+            _index = removedChart.indexOf(_chartID);
+            if (_index > -1) {
+                removedChart.splice(_index, 1);
+            }
 
-        $('#study-view-add-chart ul').find('li[id="' + _selectedAttr + '"]').remove();
+            bondDragForLayout();
 
-        if($('#study-view-add-chart ul').find('li').length === 0 ){
-            $('#study-view-add-chart').css('display','none');
+            $('#study-view-add-chart ul').find('li[id="' + _selectedAttr + '"]').remove();
+
+            if($('#study-view-add-chart ul').find('li').length === 0 ){
+                $('#study-view-add-chart').css('display','none');
+            }
         }
     }
     return {

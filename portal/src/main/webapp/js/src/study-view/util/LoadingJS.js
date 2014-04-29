@@ -53,7 +53,7 @@ var LoadingJS = (function(){
                     'StudyViewInitMutationsTab',
                     'StudyViewInitCNATab',
                     'StudyViewInitClinicalTab',
-                    'StudyViewInitSurvivalPlot'
+                    'StudyViewSurvivalPlotView'
                 ],
                 controller: [
                     'StudyViewMainController',

@@ -30,7 +30,7 @@ var StudyViewUtil = (function(){
 
         if(_listenedWidth +_targetWidth+ _listenedOffset.left - _parentOffset.left > _parentWidth){
             $(_targetDiv).css({
-                'left': -_targetWidth-3+'px',
+                'left': -_targetWidth-6+'px',
                 'border-left-width': '1px',
                 'border-right-width': '0',
                 'padding': '5px 0 5px 5px'

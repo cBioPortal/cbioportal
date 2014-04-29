@@ -186,7 +186,7 @@ var StudyViewInitCharts = (function(){
     }
     
     function initSpecialCharts(_arr){
-        var _trimedData = wordCloudDataProcess(mutatedGenes);
+        //var _trimedData = wordCloudDataProcess(mutatedGenes);
         
         if(
                 StudyViewUtil.arrayFindByValue(varName, 'OS_MONTHS') && 
@@ -202,12 +202,13 @@ var StudyViewInitCharts = (function(){
             initScatterPlot(_arr);
         }
         
+        /*
         if(!( 
                 _trimedData.names.length === 1 && 
                 _trimedData.names[0] === 'No Mutated Gene')){
         
             initWordCloud(_trimedData);
-        }
+        }*/
     }
     function redrawSurvival() {
         var _unselectedCases= [],
@@ -243,7 +244,7 @@ var StudyViewInitCharts = (function(){
                 }
             };
         }
-        StudyViewInitSurvivalPlot.redraw(_passedCases, false);
+        StudyViewSurvivalPlotView.redraw(_passedCases, false);
     }
     function redrawWordCloud(){
         var _selectedCases = getSelectedCases(),
@@ -284,7 +285,7 @@ var StudyViewInitCharts = (function(){
     
     //This function defined all of callback functions.
     function callBackFunctions(){
-        if(StudyViewInitSurvivalPlot.getInitStatus()){
+        if(StudyViewSurvivalPlotView.getInitStatus()){
             redrawSurvival();
         }
     }
@@ -415,6 +416,17 @@ var StudyViewInitCharts = (function(){
                 for(var j=0; j< _itemElemsLength; j++){
                     $("#" + _itemElems[j].id).css('z-index','');
                 }
+                
+                //if label of survival opened, close it in here
+                StudyViewSurvivalPlotView.detectLabelPosition();
+                
+                //Detect Scatter Plot
+                if($("#study-view-scatter-plot-side").css('display') === 'block'){
+                    StudyViewUtil.changePosition(
+                            '#study-view-scatter-plot',
+                            '#study-view-scatter-plot-side',
+                            "#dc-plots");
+                }
             });
             
             // bind Draggabilly events to Packery
@@ -422,6 +434,7 @@ var StudyViewInitCharts = (function(){
         }
         msnry.layout();
     }
+    
     function initWordCloud(_data) {
         StudyViewInitWordCloud.init(_data);
         $(".study-view-word-cloud-delete").unbind('click');
@@ -443,7 +456,7 @@ var StudyViewInitCharts = (function(){
                 '0': {
                     name: "Overall Survival Analysis",
                     property: ["OS_MONTHS", "OS_STATUS"],
-                    status: ["LIVING", "DECEASED"],
+                    status: [["LIVING"], ["DECEASED"]],
                     caseLists: {
                         ALL_CASES: {
                             caseIds: StudyViewParams.params.caseIds, 
@@ -465,7 +478,7 @@ var StudyViewInitCharts = (function(){
             };
             
             
-        StudyViewInitSurvivalPlot.init(_plotsInfo, _data);
+        StudyViewSurvivalPlotView.init(_plotsInfo, _data);
 
         $(".study-view-survival-plot-delete").click(function (){
             var _plotDiv = $(this).parent().parent().parent(),
@@ -613,7 +626,7 @@ var StudyViewInitCharts = (function(){
         if(StudyViewInitWordCloud.getInitStatus()){
             //redrawSurvival has been added in redrawWordCloud as callback func
             redrawWordCloud();
-        }else if(StudyViewInitSurvivalPlot.getInitStatus()){
+        }else if(StudyViewSurvivalPlotView.getInitStatus()){
             redrawSurvival();
         }
     }
@@ -627,8 +640,8 @@ var StudyViewInitCharts = (function(){
     function removeContentsAndStartLoading(){
         $("#study-view-word-cloud svg").remove();
         $("#study-view-word-cloud-loader").css('display', 'block');
-        if(StudyViewInitSurvivalPlot.getInitStatus()) {
-            var _length = StudyViewInitSurvivalPlot.getNumOfPlots();
+        if(StudyViewSurvivalPlotView.getInitStatus()) {
+            var _length = StudyViewSurvivalPlotView.getNumOfPlots();
             
             for(var i = 0; i < _length; i++){
                 $("#study-view-survival-plot-body-" + i).css('opacity', '0.3');

@@ -336,8 +336,8 @@ var PieChart = function(){
             _casesInfo[label[i].name] = _caseInfoDatum;
         }
         
-        if(StudyViewInitSurvivalPlot.getInitStatus()) {
-            var _length = StudyViewInitSurvivalPlot.getNumOfPlots();
+        if(StudyViewSurvivalPlotView.getInitStatus()) {
+            var _length = StudyViewSurvivalPlotView.getNumOfPlots();
             
             for(var i = 0; i < _length; i++){
                 $("#study-view-survival-plot-body-" + i).css('opacity', '0.3');
@@ -353,7 +353,7 @@ var PieChart = function(){
         //When redraw plots, the page will be stuck before loader display, 
         //so we need to set timeout for displaying loader.
         setTimeout(function() {
-            StudyViewInitSurvivalPlot.redraw(_casesInfo, selectedAttr);
+            StudyViewSurvivalPlotView.redraw(_casesInfo, selectedAttr);
             StudyViewInitCharts.redrawScatterPlotByAttribute(_casesInfo, selectedAttr);
             if(_scatterInit){
                 $("#study-view-scatter-plot-loader").css('display', 'none');

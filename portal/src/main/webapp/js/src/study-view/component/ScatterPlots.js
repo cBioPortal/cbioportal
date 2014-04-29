@@ -635,14 +635,13 @@ var ScatterPlots = function() {
                         $(this).attr('clicked','shiftClicked');
                         _brushedCases.push(d.case_id);
                     }
-                    changeClickStyle(this);
                 }
                 if(_attrType === 'clicked'){
                     $(this).attr('clicked','shiftClicked');
-                    changeClickStyle(this);
                     _brushedCases.push(d.case_id);
                 }
-
+                
+                changeClickStyle(this);
                 _attrType = pointClickType(this);
                 if(_attrType !== 'none'){
                     _totalHighlightIds.push(d.case_id);
@@ -664,8 +663,8 @@ var ScatterPlots = function() {
                 }else{
                     if(_attrType !== 'none'){
                         $(this).removeAttr('clicked');
-                        changeClickStyle(this);
                     }
+                    changeClickStyle(this);
                 }
                 
                 _totalHighlightIds = _brushedCases;

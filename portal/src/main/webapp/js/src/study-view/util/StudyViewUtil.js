@@ -33,7 +33,7 @@ var StudyViewUtil = (function(){
                 'left': -_targetWidth-3+'px',
                 'border-left-width': '1px',
                 'border-right-width': '0',
-                'padding': '2px 0 4px 2px'
+                'padding': '5px 0 5px 5px'
             });
 
             $(_targetDiv).children().css({
@@ -46,7 +46,7 @@ var StudyViewUtil = (function(){
                 'left': _listenedWidth+'px',
                 'border-left-width': '0',
                 'border-right-width': '1px',
-                'padding': '2px 2px 4px 0'
+                'padding': '5px 5px 5px 0'
             });
 
             $(_targetDiv).children().css({
@@ -61,6 +61,13 @@ var StudyViewUtil = (function(){
         console.log("%c Error: "+ _content, "color:red");
     }
     
+    function testM(_message, _title){
+        if(typeof _title === 'undefined'){
+            console.log(_message);
+        }else{
+            console.log(_title + ": " + _message);
+        }
+    }
     //Input: array and delete item index
     //Output: changed array or false if no item found
     function arrayDeleteByIndex(_array, _index){
@@ -123,6 +130,7 @@ var StudyViewUtil = (function(){
         rgbToHex: rgbToHex,
         rgbStringConvert: rgbStringConvert,
         arrayFindByValue: arrayFindByValue,
-        changePosition: changePosition
+        changePosition: changePosition,
+        testM: testM
     };
 })();

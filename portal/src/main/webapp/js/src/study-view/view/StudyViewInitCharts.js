@@ -625,12 +625,18 @@ var StudyViewInitCharts = (function(){
     }
     
     function removeContentsAndStartLoading(){
-        $("#study-view-survival-plot-body").css('display', 'none');
-        
         $("#study-view-word-cloud svg").remove();
-        
-        $("#study-view-survival-plot-loader").css('display', 'block');
         $("#study-view-word-cloud-loader").css('display', 'block');
+        if(StudyViewInitSurvivalPlot.getInitStatus()) {
+            var _length = StudyViewInitSurvivalPlot.getNumOfPlots();
+            
+            StudyViewUtil.testM(_length);
+            
+            for(var i = 0; i < _length; i++){
+                $("#study-view-survival-plot-body-" + i).css('opacity', '0.3');
+                $("#study-view-survival-plot-loader-" + i).css('display', 'block');
+            }
+        }
     }
     function makeNewBarChartInstance(_chartID, _barInfo, _distanceArray) {
         var param = {

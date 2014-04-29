@@ -688,6 +688,12 @@ pieH3{
 .study-view-menu-icon:hover{
     cursor: pointer;
 }
+.study-view-loader {
+    width: 100%;
+    display:none;
+    position: absolute;
+    top: 30%;
+}
 
 /* These five styles are designed for study view tabs. */
 #dc-plots {

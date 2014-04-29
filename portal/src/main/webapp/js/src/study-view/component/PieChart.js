@@ -323,6 +323,12 @@ var PieChart = function(){
         //key and color to survival plot, the survival will reget data.
         var _labelLength = label.length;
         var _casesInfo = {};
+        var _scatterInit = false;
+        
+        if($("#study-view-scatter-plot-body").length !== 0){
+            _scatterInit = true;
+        }
+            
         for(var i = 0; i < _labelLength; i++){
             var _caseInfoDatum = {};
             _caseInfoDatum.caseIds = [];
@@ -330,8 +336,32 @@ var PieChart = function(){
             _casesInfo[label[i].name] = _caseInfoDatum;
         }
         
-        StudyViewInitSurvivalPlot.redraw(_casesInfo, selectedAttr);
-        StudyViewInitCharts.redrawScatterPlotByAttribute(_casesInfo, selectedAttr);
+        if(StudyViewInitSurvivalPlot.getInitStatus()) {
+            var _length = StudyViewInitSurvivalPlot.getNumOfPlots();
+            
+            StudyViewUtil.testM(_length);
+            
+            for(var i = 0; i < _length; i++){
+                $("#study-view-survival-plot-body-" + i).css('opacity', '0.3');
+                $("#study-view-survival-plot-loader-" + i).css('display', 'block');
+            }
+        }
+        
+        if(_scatterInit){
+            $("#study-view-scatter-plot-loader").css('display', 'block');
+            $("#study-view-scatter-plot-body").css('opacity', '0.3');
+        }
+        
+        //When redraw plots, the page will be stuck before loader display, 
+        //so we need to set timeout for displaying loader.
+        setTimeout(function() {
+            StudyViewInitSurvivalPlot.redraw(_casesInfo, selectedAttr);
+            StudyViewInitCharts.redrawScatterPlotByAttribute(_casesInfo, selectedAttr);
+            if(_scatterInit){
+                $("#study-view-scatter-plot-loader").css('display', 'none');
+                $("#study-view-scatter-plot-body").css('opacity', '1');
+            }
+        }, 100);
     }
     
     function setSVGElementValue(_svgParentDivId,_idNeedToSetValue){

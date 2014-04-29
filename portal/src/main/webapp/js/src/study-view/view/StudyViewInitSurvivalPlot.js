@@ -120,8 +120,10 @@ var StudyViewInitSurvivalPlot = (function() {
 
         $("#" + _opts.divs.menu).unbind("click");
         $("#" + _opts.divs.menu).click(function() {
-            var _label = $("#" + _opts.divs.bodyLabel);
-            var _display = _label.css('display');
+            var _svgWidth = 0,
+                _label = $("#" + _opts.divs.bodyLabel),
+                _display = _label.css('display');
+                
             if (_display === "none") {
                 StudyViewUtil.changePosition(
                         '#' + _opts.divs.main,
@@ -129,12 +131,20 @@ var StudyViewInitSurvivalPlot = (function() {
                         "#dc-plots");
                 $('#' + _opts.divs.bodyLabel).children('float', '');
                 _label.css('display', 'block');
+                _svgWidth = $("#" + _opts.divs.bodyLabel + " svg").width();
+                $("#" + _opts.divs.bodyLabel).width(_svgWidth + 15);
             } else {
                 _label.css('display', 'none');
             }
         });
         
-        $("#" + _opts.divs.body).css('display', 'block');
+        if($("#" + _opts.divs.bodyLabel).css('display') === 'block'){
+            var _svgWidth = $("#" + _opts.divs.bodyLabel + " svg").width();
+            $("#" + _opts.divs.bodyLabel).width(_svgWidth + 15);
+            console.log(_svgWidth);
+        }
+        
+        $("#" + _opts.divs.body).css('opacity', '1');
         $("#" + _opts.divs.loader).css('display', 'none');
     }
 
@@ -400,7 +410,7 @@ var StudyViewInitSurvivalPlot = (function() {
                 "<img style='float:left; width:10px; height:10px;margin-top:4px; margin-right:4px;' class='study-view-drag-icon' src='images/move.svg'/>" +
                 "<span class='study-view-chart-plot-delete study-view-survival-plot-delete'>x</span>" +
                 "</div></div>" +
-                "<div id='" + _opt.divs.loader + "' style='width: 100%; display:none'>" +
+                "<div id='" + _opt.divs.loader + "' class='study-view-loader'>" +
                 "<img src='images/ajax-loader.gif'/></div>" +
                 "<div id='" + _opt.divs.body + "' class='study-view-survival-plot-body'>" +
                 "<div id='" + _opt.divs.bodySvg + "' style='float:left'></div>" +
@@ -508,7 +518,7 @@ var StudyViewInitSurvivalPlot = (function() {
         _opts.divs.svgName = "study-view-survival-plot-svg-name-" + _index;
         _opts.divs.svgValue = "study-view-survival-plot-svg-value-" + _index;
         _opts.divs.menu = "study-view-survival-plot-menu-" + _index;
-        _opts.divs.loader = "study-view-survival-groupingplot-loader-" + _index;
+        _opts.divs.loader = "study-view-survival-plot-loader-" + _index;
 
         //plot in _opts is for survival plot
         _opts.plot = jQuery.extend(true, {}, SurvivalCurveBroilerPlate);
@@ -664,9 +674,6 @@ var StudyViewInitSurvivalPlot = (function() {
         for (var j = 0; j < numOfPlots; j++){
             var _curveInfoLength = curveInfo[j].length;
             
-            $("#" + opts[j].divs.loader).css('display', 'block');
-            $("#" + opts[j].divs.body).css('display', 'none');
-
             for (var i = 0; i < _curveInfoLength; i++) {
                 survivalPlot[j].removeCurve(curveInfo[j][i].color.toString().substring(1) + "-" + opts[j].index);
             }
@@ -689,7 +696,7 @@ var StudyViewInitSurvivalPlot = (function() {
         var _savedLabelsLength = getSavedCurveName(_opts.index).length;
         var _numOfLabels = _newLabelsLength + _savedLabelsLength;
         var _width = 0;
-        var _height = _numOfLabels * 20;
+        var _height = _numOfLabels * 20 - 5;
         
         if (_numOfLabels === 0) {
             $("#" + _opts.divs.bodyLabel).css('display', 'none');
@@ -866,7 +873,11 @@ var StudyViewInitSurvivalPlot = (function() {
         drawLabels(opts[_index]);
         addEvents(opts[_index]);
     }
-
+    
+    function getNumOfPlots() {
+        return numOfPlots;
+    }
+    
     return {
         init: function(_plotsInfo, _data) {
             initParams();
@@ -874,6 +885,7 @@ var StudyViewInitSurvivalPlot = (function() {
         },
         getInitStatus: getInitStatus,
         redraw: redraw,
-        redrawLabel: redrawLabel
+        redrawLabel: redrawLabel,
+        getNumOfPlots: getNumOfPlots
     };
 })();

@@ -307,7 +307,8 @@ var StudyViewBoilerplate ={
             "<div id='study-view-scatter-plot-side'>"+
             "<div class='study-view-side-item'><input type='checkbox' id='study-view-scatter-plot-log-scale-x'></input><span class='study-view-scatter-plot-checkbox'>Log Scale X</span></div>"+
             "<div class='study-view-side-item'><input type='checkbox' id='study-view-scatter-plot-log-scale-y'></input><span class='study-view-scatter-plot-checkbox'>Log Scale y</span></div>"+
-            "</div><div id='study-view-scatter-plot-loading-img'></div>"+
+            "</div><div id='study-view-scatter-plot-loader' class='study-view-loader'>"+
+            "<img src='images/ajax-loader.gif'/></div>"+
             "<div id='study-view-scatter-plot-control-panel'></div>"+
             "</div>",
     

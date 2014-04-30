@@ -722,8 +722,9 @@ var StudyViewSurvivalPlotView = (function() {
                 }
             }
 
-            _width += 45;
-
+            //_width += 45;
+            _width += 30;
+            
             $("#" + opts[_plotIndex].divs.bodyLabel + " svg").remove();
 
             if (_savedLabelsLength > 0) {
@@ -824,16 +825,17 @@ var StudyViewSurvivalPlotView = (function() {
                 .text(_textName);
 
         if (_iconType === 'pin') {
+//            Temporary disable save curve function
+//            var _image = _g.append("image")
+//                    .attr('x', _svgWidth - 30)
+//                    .attr('y', '0')
+//                    .attr('height', '10px')
+//                    .attr('width', '10px');
+//
+//            _image.attr('xlink:href', 'images/pushpin.svg');
+//            _image.attr('name', 'pin');
+
             var _image = _g.append("image")
-                    .attr('x', _svgWidth - 30)
-                    .attr('y', '0')
-                    .attr('height', '10px')
-                    .attr('width', '10px');
-
-            _image.attr('xlink:href', 'images/pushpin.svg');
-            _image.attr('name', 'pin');
-
-            _image = _g.append("image")
                     .attr('x', _svgWidth - 15)
                     .attr('y', '1')
                     .attr('height', '8px')

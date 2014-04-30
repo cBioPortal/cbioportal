@@ -14,31 +14,15 @@
  * Memorial Sloan-Kettering Cancer Center 
  * has been advised of the possibility of such damage.
 */
-
-// package
 package org.mskcc.cbio.importer.converter.internal;
 
-// imports
-import org.mskcc.cbio.importer.Config;
-import org.mskcc.cbio.importer.CaseIDs;
-import org.mskcc.cbio.importer.IDMapper;
-import org.mskcc.cbio.importer.Converter;
-import org.mskcc.cbio.importer.FileUtils;
+import org.mskcc.cbio.importer.*;
 import org.mskcc.cbio.importer.util.MapperUtil;
-import org.mskcc.cbio.importer.model.PortalMetadata;
-import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.DataMatrix;
-import org.mskcc.cbio.importer.model.CancerStudyMetadata;
+import org.mskcc.cbio.importer.model.*;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.*;
 
-import java.util.Map;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Arrays;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Class which implements the Converter interface.
@@ -216,6 +200,13 @@ public class GisticGenesConverterImpl implements Converter {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), complete.");
 		}
+
+		if (datatypeMetadata.requiresMetafile()){
+			if (LOG.isInfoEnabled()) {
+				LOG.info("createStagingFile(), writing metadata file.");
+			}
+			fileUtils.writeMetadataFile(portalMetadata.getStagingDirectory(), cancerStudyMetadata, datatypeMetadata, dataMatrixTableConf);
+		}	
 	}
 
 	/**

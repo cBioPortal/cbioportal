@@ -19,20 +19,11 @@
 package org.mskcc.cbio.importer.io.internal;
 
 // imports
-import org.mskcc.cbio.importer.Config;
-import org.mskcc.cbio.importer.CaseIDs;
-import org.mskcc.cbio.importer.FileUtils;
-import org.mskcc.cbio.importer.Converter;
-import org.mskcc.cbio.importer.model.ImportDataRecord;
-import org.mskcc.cbio.importer.model.PortalMetadata;
-import org.mskcc.cbio.importer.model.DataMatrix;
-import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.CaseListMetadata;
+import org.mskcc.cbio.importer.*;
+import org.mskcc.cbio.importer.util.*;
+import org.mskcc.cbio.importer.model.*;
+import org.mskcc.cbio.portal.model.CopyNumberSegmentFile;
 import org.mskcc.cbio.portal.scripts.NormalizeExpressionLevels;
-import org.mskcc.cbio.importer.model.CancerStudyMetadata;
-import org.mskcc.cbio.importer.model.DataSourcesMetadata;
-import org.mskcc.cbio.importer.util.MetadataUtils;
-import org.mskcc.cbio.importer.util.Shell;
 import org.mskcc.cbio.importer.converter.internal.MethylationConverterImpl;
 
 import org.mskcc.cbio.liftover.Hg18ToHg19;
@@ -42,8 +33,7 @@ import org.mskcc.cbio.mutassessor.MutationAssessorTool;
 import org.apache.commons.io.*;
 import org.apache.commons.codec.digest.DigestUtils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.*;
 
 import org.apache.commons.compress.compressors.gzip.GzipUtils;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
@@ -52,17 +42,10 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 
 import org.springframework.beans.factory.annotation.Value;
 
-import java.io.File;
-import java.io.PrintWriter;
-import java.io.InputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ByteArrayInputStream;
-
-import java.lang.reflect.Constructor;
-
-import java.net.URL;
+import java.io.*;
 import java.util.*;
+import java.net.URL;
+import java.lang.reflect.Constructor;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -485,7 +468,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 																cancerStudyMetadata.getStudyPath(),
 																cancerStudyMetadata.getCancerStudyMetadataFilename());
 			if (LOG.isInfoEnabled()) {
-				LOG.info("writeMetadataFile(), meta file: " + metaFile);
+				LOG.info("writeCancerStudyMetadataFile(), meta file: " + metaFile);
 			}
 			PrintWriter writer = new PrintWriter(org.apache.commons.io.FileUtils.openOutputStream(metaFile, false));
 			writer.print("type_of_cancer: " + cancerStudyMetadata.getTumorType() + "\n");
@@ -588,6 +571,38 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	}
 
 	@Override
+	public void writeCopyNumberSegmentMetadataFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata,
+								   DatatypeMetadata datatypeMetadata, DataMatrix dataMatrix) throws Exception {
+
+			String metaFilename = datatypeMetadata.getMetaFilename().replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
+			File metaFile = org.apache.commons.io.FileUtils.getFile(stagingDirectory,
+																	cancerStudyMetadata.getStudyPath(),
+																	metaFilename);
+			if (LOG.isInfoEnabled()) {
+				LOG.info("writeCopyNumberSegmentMetadataFile(), meta file: " + metaFile);
+			}
+			PrintWriter writer = new PrintWriter(org.apache.commons.io.FileUtils.openOutputStream(metaFile, false));
+			writer.print("cancer_study_identifier: " + cancerStudyMetadata + "\n");
+			if (datatypeMetadata.getDatatype().contains(CopyNumberSegmentFile.ReferenceGenomeId.hg18.toString())){
+				writer.print("reference_genome_id: " + CopyNumberSegmentFile.ReferenceGenomeId.hg18.toString() + "\n");
+			}	
+			else {
+				writer.print("reference_genome_id: " + CopyNumberSegmentFile.ReferenceGenomeId.hg19.toString() + "\n");
+			}
+			String profileDescription = datatypeMetadata.getMetaProfileDescription();
+			if (dataMatrix != null) {
+				profileDescription = profileDescription.replaceAll(DatatypeMetadata.NUM_GENES_TAG, Integer.toString(dataMatrix.getGeneIDs().size()));
+				profileDescription = profileDescription.replaceAll(DatatypeMetadata.NUM_CASES_TAG, Integer.toString(dataMatrix.getCaseIDs().size()));
+			}
+			profileDescription = profileDescription.replaceAll(DatatypeMetadata.TUMOR_TYPE_TAG, cancerStudyMetadata.getTumorType());
+			writer.print("description: " + profileDescription + "\n");
+			String cnaSegFilename = datatypeMetadata.getStagingFilename().replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
+			writer.print("data_filename: " + cnaSegFilename + "\n");
+			writer.flush();
+			writer.close();
+	}	
+
+	@Override
 	public void writeStagingFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata,
 								 DatatypeMetadata datatypeMetadata, DataMatrix dataMatrix) throws Exception {
 
@@ -605,14 +620,6 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		FileOutputStream out = org.apache.commons.io.FileUtils.openOutputStream(stagingFile, false);
 		dataMatrix.write(out);
 		IOUtils.closeQuietly(out);
-
-		// meta file
-		if (datatypeMetadata.requiresMetafile()) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("writingStagingFile(), creating metadata file for staging file: " + stagingFile);
-			}
-			writeMetadataFile(stagingDirectory, cancerStudyMetadata, datatypeMetadata, dataMatrix);
-		}
 	}
 
 	@Override
@@ -635,20 +642,12 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 																   stagingFilename);
 
 		// call oncotateAF
-		oncotateMAF(FileUtils.FILE_URL_PREFIX + oncotatorInputFile.getCanonicalPath(),
-					FileUtils.FILE_URL_PREFIX + stagingFile.getCanonicalPath());
+		oncotateMAF(org.mskcc.cbio.importer.FileUtils.FILE_URL_PREFIX + oncotatorInputFile.getCanonicalPath(),
+					org.mskcc.cbio.importer.FileUtils.FILE_URL_PREFIX + stagingFile.getCanonicalPath());
 
 		// clean up
 		if (oncotatorInputFile.exists()) {
 			org.apache.commons.io.FileUtils.forceDelete(oncotatorInputFile);
-		}
-
-		// meta file
-		if (datatypeMetadata.requiresMetafile()) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("writingMutationStagingFile(), creating metadata file for staging file: " + stagingFile);
-			}
-			writeMetadataFile(stagingDirectory, cancerStudyMetadata, datatypeMetadata, dataMatrix);
 		}
 	}
 
@@ -711,14 +710,6 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			return false;
 		}
 		
-		// meta file
-		if (datatypeMetadata.requiresMetafile()) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("writingZScoresStagingFile(), creating metadata file for staging file: " + zScoresFile.getCanonicalPath());
-			}
-			writeMetadataFile(stagingDirectory, cancerStudyMetadata, datatypeMetadata, null);
-		}
-
         return true;
 	}
 
@@ -808,8 +799,8 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 														""+System.currentTimeMillis()+".oncotatorInputFile");
 			org.apache.commons.io.FileUtils.copyFile(maf, oncotatorInputFile);
 			// input is tmp file we just created, we want output to go into the original maf
-			oncotateMAF(FileUtils.FILE_URL_PREFIX + oncotatorInputFile.getCanonicalPath(),
-						FileUtils.FILE_URL_PREFIX + maf.getCanonicalPath());
+			oncotateMAF(org.mskcc.cbio.importer.FileUtils.FILE_URL_PREFIX + oncotatorInputFile.getCanonicalPath(),
+						org.mskcc.cbio.importer.FileUtils.FILE_URL_PREFIX + maf.getCanonicalPath());
 			// clean up
 			org.apache.commons.io.FileUtils.forceDelete(oncotatorInputFile);
 		}

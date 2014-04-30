@@ -34,7 +34,7 @@ var StudyViewInitTopComponents = (function() {
             
             //If set the filter to null the update scatterplot in charts do
             //not work, so need to update scatter plot here
-            StudyViewInitCharts.getSelectedCasesAndRedrawScatterPlot(null);
+            StudyViewInitCharts.redrawScatter();
             
             dc.redrawAll();
             $(StudyViewInitDataTable

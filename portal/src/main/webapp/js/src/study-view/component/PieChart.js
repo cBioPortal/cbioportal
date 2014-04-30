@@ -17,9 +17,6 @@
  * @interface: getCluster -- return the cluster of DC Pie Chart.
  * @interface: pieLabelClickCallbackFunction -- pass a function to be called when
  *                                              the pie label been clicked.
- * @interface: scatterPlotCallbackFunction -- pass a function to connect with
- *                                            Scatter Plot after filtering DC
- *                                            Pie Chart.
  * @interface: postFilterCallbackFunc -- pass a function to be called after DC Pie
  *                                       Chart filtered.
  *                                       
@@ -55,8 +52,8 @@ var PieChart = function(){
         fontSize = labelSize;
             
     var postFilterCallback,
-        pieLabelClickCallback,
-        scatterPlotCallback;
+        postRedrawCallback,
+        pieLabelClickCallback;
     
     var titleLengthCutoff = 16;
     
@@ -266,16 +263,6 @@ var PieChart = function(){
                             .css({'border-width':'2px', 'border-style':'inset'});
                 }
                 
-                if(filter !== null || (filter !== null && 
-                        StudyViewInitScatterPlot
-                            .getScatterPlot()
-                            .getBrushedCases()
-                            .length > 0 
-                    )){
-                
-                    updateScatterPlot(_currentFilters);
-                }
-                
                 removeMarker();
                 postFilterCallback();
             });
@@ -284,6 +271,7 @@ var PieChart = function(){
             });
             pieChart.on("postRedraw",function(chart){
                 addPieLabels();
+                postRedrawCallback();
             });
             pieChart.on("postRender",function(chart){
                 addPieLabels();
@@ -354,7 +342,7 @@ var PieChart = function(){
         //so we need to set timeout for displaying loader.
         setTimeout(function() {
             StudyViewSurvivalPlotView.redraw(_casesInfo, selectedAttr);
-            StudyViewInitCharts.redrawScatterPlotByAttribute(_casesInfo, selectedAttr);
+            StudyViewInitScatterPlot.redrawByAttribute(_casesInfo, selectedAttr);
             if(_scatterInit){
                 $("#study-view-scatter-plot-loader").css('display', 'none');
                 $("#study-view-scatter-plot-body").css('opacity', '1');
@@ -491,7 +479,6 @@ var PieChart = function(){
                 "<div style='height:16px;float:right' id='"+DIV.chartDiv+"-header'>"+
                 "<a href='javascript:StudyViewInitCharts.getChartsByID("+ 
                 chartID +").getChart().filterAll();" +
-                "StudyViewInitCharts.getSelectedCasesAndRedrawScatterPlot([]);"+ 
                 "dc.redrawAll();'><span title='Reset Chart'"+
                 "class='study-view-dc-chart-change' style='float:left; font-size:10px;'>"+
                 "RESET</span></a>" +
@@ -741,12 +728,6 @@ var PieChart = function(){
         $('#'+_DivID).qtip(_qtip);
     }
     
-    //Pie Chart will have communications with ScatterPlot, this function is used
-    //to call the callback function.
-    function updateScatterPlot(_currentFilters) {
-        scatterPlotCallback(_currentFilters);
-    }
-    
     return {
         init: function(_param){
             initParam(_param);
@@ -772,12 +753,11 @@ var PieChart = function(){
         
         removeMarker: removeMarker,
         
-        scatterPlotCallbackFunction: function (_callback){
-            scatterPlotCallback = _callback;
-        },
-        
         postFilterCallbackFunc: function(_callback){
             postFilterCallback = _callback;
+        },
+        postRedrawCallbackFunc: function(_callback) {
+            postRedrawCallback = _callback;
         }
     };
 };

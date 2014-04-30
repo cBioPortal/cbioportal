@@ -19,9 +19,6 @@
  *                            this _param should only pass exist keys. 
  * @interface: reDrawChart -- refresh bar chart by redrawing the DC.js Bar
  *                            chart, keep other information.
- * @interface: scatterPlotCallbackFunction -- pass a function to connect with
- *                                            Scatter Plot after filtering DC
- *                                            Bar Chart.
  * @interface: postFilterCallbackFunc -- pass a function to be called after DC
  *                                       Bar Chart filtered.
  *                                       
@@ -63,16 +60,14 @@ var BarChart = function(){
         chartWidth = 370,
         chartHeight = 180;
             
-    var postFilterCallback,
-        scatterPlotCallback;
+    var postFilterCallback;
     
     //This function is designed to add functions like click, on, or other
     //other functions added after initializing this Bar Chart.
     function addFunctions() {
         barChart.on("filtered", function(chart,filter){
             dc.events.trigger(function() {
-                var _currentFilters = barChart.filters(),
-                    _scatterPlot = StudyViewInitScatterPlot.getScatterPlot();
+                var _currentFilters = barChart.filters();
 
                 if(_currentFilters.length === 0){
                     $("#" + DIV.mainDiv + " .study-view-dc-chart-change")
@@ -84,14 +79,6 @@ var BarChart = function(){
                                 .css('display','block');
                     $("#" + DIV.mainDiv)
                             .css({'border-width':'2px', 'border-style':'inset'});
-                }
-
-                if(_scatterPlot){
-                    if(_scatterPlot.getBrushedCases().length > 0 ||
-                        filter !== null){
-
-                        updateScatterPlot(_currentFilters);
-                    }
                 }
                 removeMarker();
                 postFilterCallback();
@@ -295,7 +282,6 @@ var BarChart = function(){
                 "<div style='height: 18px;'><div style='float:right' id='"+DIV.chartDiv+"-header'>"+
                 "<a href='javascript:StudyViewInitCharts.getChartsByID("+ 
                 param.chartID +").getChart().filterAll();" +
-                "StudyViewInitCharts.getSelectedCasesAndRedrawScatterPlot([]); " +
                 "dc.redrawAll();'>"+
                 "<span title='Reset Chart' class='study-view-dc-chart-change'>"+
                 "RESET</span></a>"+_logCheckBox +
@@ -658,7 +644,6 @@ var BarChart = function(){
         DIV.chartDiv = _baseID + "-dc-chart-" + param.chartID;
         DIV.parentID = _baseID + "-charts";
     }
-
     
     //Remove drawed Bar Markder.
     function removeMarker() {
@@ -672,12 +657,6 @@ var BarChart = function(){
         _tmpString = _tmpString[0].split(",");
         
         return _tmpString;
-    }
-    
-    //Bar Chart will have communications with ScatterPlot, this function is used
-    //to call the callback function.
-    function updateScatterPlot(_currentFilters) {
-        scatterPlotCallback(_currentFilters);
     }
     
     return {
@@ -719,10 +698,6 @@ var BarChart = function(){
                 initDCBarChart();
             }
             addFunctions();
-        },
-        
-        scatterPlotCallbackFunction: function (_callback) {
-            scatterPlotCallback = _callback;
         },
         
         postFilterCallbackFunc: function(_callback) {

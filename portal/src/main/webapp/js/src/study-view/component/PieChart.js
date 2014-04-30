@@ -53,7 +53,8 @@ var PieChart = function(){
             
     var postFilterCallback,
         postRedrawCallback,
-        pieLabelClickCallback;
+        pieLabelClickCallback,
+        plotDataCallback;
     
     var titleLengthCutoff = 16;
     
@@ -300,54 +301,18 @@ var PieChart = function(){
         
         
         $("#"+DIV.chartDiv+"-plot-data").click(function(){
-            redrawSpecialPlots();
+            var _casesInfo = {},
+                _labelLength = label.length;
+            
+            for(var i = 0; i < _labelLength; i++){
+                var _caseInfoDatum = {};
+                _caseInfoDatum.caseIds = [];
+                _caseInfoDatum.color = label[i].color;
+                _casesInfo[label[i].name] = _caseInfoDatum;
+            }
+        
+            plotDataCallback(_casesInfo, selectedAttr);
         });
-    }
-    
-    //TODO: This function should be passed from outside. PieChart is a basic
-    //component which can not contact View Layer directly.
-    function redrawSpecialPlots() {
-        //Since Pie Chart object does not include any data, we will only pass
-        //key and color to survival plot, the survival will reget data.
-        var _labelLength = label.length;
-        var _casesInfo = {};
-        var _scatterInit = false;
-        
-        if($("#study-view-scatter-plot-body").length !== 0){
-            _scatterInit = true;
-        }
-            
-        for(var i = 0; i < _labelLength; i++){
-            var _caseInfoDatum = {};
-            _caseInfoDatum.caseIds = [];
-            _caseInfoDatum.color = label[i].color;
-            _casesInfo[label[i].name] = _caseInfoDatum;
-        }
-        
-        if(StudyViewSurvivalPlotView.getInitStatus()) {
-            var _length = StudyViewSurvivalPlotView.getNumOfPlots();
-            
-            for(var i = 0; i < _length; i++){
-                $("#study-view-survival-plot-body-" + i).css('opacity', '0.3');
-                $("#study-view-survival-plot-loader-" + i).css('display', 'block');
-            }
-        }
-        
-        if(_scatterInit){
-            $("#study-view-scatter-plot-loader").css('display', 'block');
-            $("#study-view-scatter-plot-body").css('opacity', '0.3');
-        }
-        
-        //When redraw plots, the page will be stuck before loader display, 
-        //so we need to set timeout for displaying loader.
-        setTimeout(function() {
-            StudyViewSurvivalPlotView.redraw(_casesInfo, selectedAttr);
-            StudyViewInitScatterPlot.redrawByAttribute(_casesInfo, selectedAttr);
-            if(_scatterInit){
-                $("#study-view-scatter-plot-loader").css('display', 'none');
-                $("#study-view-scatter-plot-body").css('opacity', '1');
-            }
-        }, 100);
     }
     
     function setSVGElementValue(_svgParentDivId,_idNeedToSetValue){
@@ -753,11 +718,14 @@ var PieChart = function(){
         
         removeMarker: removeMarker,
         
-        postFilterCallbackFunc: function(_callback){
+        postFilterCallbackFunc: function(_callback) {
             postFilterCallback = _callback;
         },
         postRedrawCallbackFunc: function(_callback) {
             postRedrawCallback = _callback;
+        },
+        plotDataCallbackFunc: function(_callback) {
+            plotDataCallback = _callback;
         }
     };
 };

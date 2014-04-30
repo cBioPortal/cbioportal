@@ -606,12 +606,16 @@ var StudyViewInitCharts = (function(){
         return _casesID;
     }
     
-    function redrawScatter() {
+    function redrawScatter(_casesInfo, _selectedAttr) {
         if(StudyViewInitScatterPlot.getInitStatus()) {
-            if(dcHasFilters()){
-                StudyViewInitScatterPlot.redraw(getSelectedCasesID());
+            if(typeof _casesInfo !== "undefined" && typeof _selectedAttr !== "undefined"){
+                StudyViewInitScatterPlot.redrawByAttribute(_casesInfo, _selectedAttr);
             }else{
-                StudyViewInitScatterPlot.redraw([]);
+                if(dcHasFilters()){
+                    StudyViewInitScatterPlot.redraw(getSelectedCasesID());
+                }else{
+                    StudyViewInitScatterPlot.redraw([]);
+                }
             }
         }
     }
@@ -632,6 +636,7 @@ var StudyViewInitCharts = (function(){
         varChart[_chartID].init(_param);
         varChart[_chartID].postFilterCallbackFunc(postFilterCallbackFunc);
         varChart[_chartID].postRedrawCallbackFunc(postRedrawCallbackFunc);
+        varChart[_chartID].plotDataCallbackFunc(redrawSpecialPlots);
     }
     
     function redrawWSCharts() {
@@ -642,33 +647,82 @@ var StudyViewInitCharts = (function(){
             //redrawSurvival has been added in redrawWordCloud as callback func
             redrawWordCloud();
         }else if(StudyViewSurvivalPlotView.getInitStatus()){
-            redrawSurvival();
+            var _length = StudyViewSurvivalPlotView.getNumOfPlots();
+            
+            for(var i = 0; i < _length; i++){
+                $("#study-view-survival-plot-body-" + i).css('opacity', '0.3');
+                $("#study-view-survival-plot-loader-" + i).css('display', 'block');
+            }
+            
+            setTimeout(function() {
+                redrawSurvival();
+            }, 100);
         } 
     }
     
-    function redrawAllCharts(){
-        redrawWSCharts();
+    
+    function redrawSpecialPlots(_casesInfo, _selectedAttr){
+        var _scatterInit = StudyViewInitScatterPlot.getInitStatus();
         
-        StudyViewInitScatterPlot.setClickedCasesId('');
-        StudyViewInitScatterPlot.setShiftClickedCasesId(getSelectedCases());
-        redrawScatter();
+        if(StudyViewSurvivalPlotView.getInitStatus()) {
+            var _length = StudyViewSurvivalPlotView.getNumOfPlots();
+            
+            for(var i = 0; i < _length; i++){
+                $("#study-view-survival-plot-body-" + i).css('opacity', '0.3');
+                $("#study-view-survival-plot-loader-" + i).css('display', 'block');
+            }
+        }
+        
+        if(_scatterInit){
+            $("#study-view-scatter-plot-loader").css('display', 'block');
+            $("#study-view-scatter-plot-body").css('opacity', '0.3');
+        }
+        
+        //When redraw plots, the page will be stuck before loader display, 
+        //so we need to set timeout for displaying loader.
+        setTimeout(function() {
+            if(typeof _casesInfo !== "undefined" && typeof _selectedAttr !== "undefined"){
+                StudyViewSurvivalPlotView.redraw(_casesInfo, _selectedAttr);
+                redrawScatter(_casesInfo, _selectedAttr);
+            }else{
+                redrawWSCharts();
+                redrawScatter();
+            }
+            
+            StudyViewInitScatterPlot.setClickedCasesId('');
+            StudyViewInitScatterPlot.setShiftClickedCasesId(getSelectedCases());
+            
+            if(_scatterInit){
+                $("#study-view-scatter-plot-loader").css('display', 'none');
+                $("#study-view-scatter-plot-body").css('opacity', '1');
+            }
+        }, 100);
     }
     
-    //DC Charts post redraw callback function
+    
+    /**
+     * DC charts post redraw callback function
+     */
     function postRedrawCallbackFunc(){
+        //If no filter exist, should reset the clear flag of Scatter Plot.
         if(!dcHasFilters()){
             StudyViewInitScatterPlot.setclearFlag(false);
         }
     }
     
+    /**
+     * DC charts post filter callback function
+     */
     function postFilterCallbackFunc(){
-        //If the 
         if(!StudyViewInitScatterPlot.getclearFlag()){
-            console.log("redraw");
-            redrawAllCharts();
+            redrawSpecialPlots();
         }
     }
     
+    /**
+     * 
+     * @returns {Boolean} whether current dc charts have filter
+     */
     function dcHasFilters() {
         var _dcLength = varChart.length,
             _hasFilters = false;
@@ -693,6 +747,7 @@ var StudyViewInitCharts = (function(){
             }
         }
     }
+    
     function makeNewBarChartInstance(_chartID, _barInfo, _distanceArray) {
         var param = {
                 baseID: "study-view",
@@ -802,7 +857,7 @@ var StudyViewInitCharts = (function(){
             }
         }
         dc.redrawAll();
-        redrawAllCharts();
+        redrawSpecialPlots();
     }
     
     function getDataAndDrawMarker(_clickedCaseIds) {
@@ -970,6 +1025,7 @@ var StudyViewInitCharts = (function(){
             }
         }
     }
+    
     return {
         init: function(_data) {
             initData(_data);
@@ -1008,6 +1064,7 @@ var StudyViewInitCharts = (function(){
         },
         
         redrawScatter: redrawScatter,
+        redrawSpecialPlots: redrawSpecialPlots,
         filterChartsByGivingIDs: filterChartsByGivingIDs,
         changeHeader: changeHeader,
         createNewChart: createNewChartFromOutside,

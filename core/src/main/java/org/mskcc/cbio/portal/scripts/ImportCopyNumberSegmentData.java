@@ -132,7 +132,7 @@ public class ImportCopyNumberSegmentData {
         copyNumSegFile.cancerStudyId = cancerStudy.getInternalId();
         copyNumSegFile.referenceGenomeId = getRefGenId(properties.getProperty("reference_genome_id")); 
         copyNumSegFile.description = properties.getProperty("description");
-        copyNumSegFile.urlToFile = properties.getProperty("url_to_file");
+        copyNumSegFile.filename = properties.getProperty("data_filename");
         DaoCopyNumberSegmentFile.addCopyNumberSegmentFile(copyNumSegFile);
     }
 

@@ -572,7 +572,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
 	@Override
 	public void writeCopyNumberSegmentMetadataFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata,
-								   DatatypeMetadata datatypeMetadata, DataMatrix dataMatrix, URL segFileLinkingLocation) throws Exception {
+								   DatatypeMetadata datatypeMetadata, DataMatrix dataMatrix) throws Exception {
 
 			String metaFilename = datatypeMetadata.getMetaFilename().replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
 			File metaFile = org.apache.commons.io.FileUtils.getFile(stagingDirectory,
@@ -596,9 +596,8 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			}
 			profileDescription = profileDescription.replaceAll(DatatypeMetadata.TUMOR_TYPE_TAG, cancerStudyMetadata.getTumorType());
 			writer.print("description: " + profileDescription + "\n");
-			String urlToFile = segFileLinkingLocation + File.separator + datatypeMetadata.getStagingFilename(); 
-			urlToFile = urlToFile.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
-			writer.print("url_to_file: " + urlToFile + "\n");
+			String cnaSegFilename = datatypeMetadata.getStagingFilename().replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
+			writer.print("data_filename: " + cnaSegFilename + "\n");
 			writer.flush();
 			writer.close();
 	}	

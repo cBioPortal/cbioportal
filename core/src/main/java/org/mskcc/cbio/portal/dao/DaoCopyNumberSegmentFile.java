@@ -19,12 +19,12 @@ public final class DaoCopyNumberSegmentFile {
         try {
             con = JdbcUtil.getDbConnection(DaoCopyNumberSegmentFile.class);
             pstmt = con.prepareStatement
-                    ("INSERT INTO copy_number_seg_file (`CANCER_STUDY_ID`, `REFERENCE_GENOME_ID`, `DESCRIPTION`,`URL_TO_FILE`)"
+                    ("INSERT INTO copy_number_seg_file (`CANCER_STUDY_ID`, `REFERENCE_GENOME_ID`, `DESCRIPTION`,`FILENAME`)"
                      + " VALUES (?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
             pstmt.setInt(1, copySegFile.cancerStudyId);
             pstmt.setString(2, copySegFile.referenceGenomeId.toString());
             pstmt.setString(3, copySegFile.description);
-            pstmt.setString(4, copySegFile.urlToFile);
+            pstmt.setString(4, copySegFile.filename);
             pstmt.executeUpdate();
             rs = pstmt.getGeneratedKeys();
             if (rs.next()) {
@@ -54,7 +54,7 @@ public final class DaoCopyNumberSegmentFile {
                 cnsf.cancerStudyId = cancerStudyId;
                 cnsf.referenceGenomeId = CopyNumberSegmentFile.ReferenceGenomeId.valueOf(rs.getString("REFERENCE_GENOME_ID"));
                 cnsf.description = rs.getString("DESCRIPTION");
-                cnsf.urlToFile = rs.getString("URL_TO_FILE");
+                cnsf.filename = rs.getString("FILENAME");
                 return cnsf;
             }
             return null;

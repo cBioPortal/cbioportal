@@ -28,5 +28,5 @@ public class CopyNumberSegmentFile
     public int cancerStudyId;
     public ReferenceGenomeId referenceGenomeId;
     public String description;
-    public String urlToFile;
+    public String filename;
 }

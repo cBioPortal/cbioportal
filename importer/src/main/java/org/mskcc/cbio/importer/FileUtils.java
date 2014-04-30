@@ -213,7 +213,7 @@ public interface FileUtils {
 	 */
 	void writeMetadataFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata, DatatypeMetadata datatypeMetadata, int numCases) throws Exception;
 	void writeCopyNumberSegmentMetadataFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata,
-								   DatatypeMetadata datatypeMetadata, DataMatrix dataMatrix, URL segFileLinkingLocation) throws Exception;
+								   DatatypeMetadata datatypeMetadata, DataMatrix dataMatrix) throws Exception;
 
 	/**
 	 * Method which writes a metadata file for the

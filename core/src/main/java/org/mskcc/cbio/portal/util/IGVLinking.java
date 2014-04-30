@@ -48,13 +48,7 @@ public class IGVLinking {
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId);
         CopyNumberSegmentFile cnsf = DaoCopyNumberSegmentFile.getCopyNumberSegmentFile(cancerStudy.getInternalId());
 
-		return new String[] { cnsf.urlToFile, encodedGeneList, cnsf.referenceGenomeId.toString(), getSegFileName(cnsf.urlToFile) };
-	}
-
-	private static String getSegFileName(String urlToFile)
-	{
-		int lastIndexOfDelimiter = urlToFile.lastIndexOf(File.separator);
-		return (lastIndexOfDelimiter > 0) ? urlToFile.substring(lastIndexOfDelimiter+1, urlToFile.length()) : urlToFile;
+		return new String[] { GlobalProperties.getSegfileUrl() + cnsf.filename, encodedGeneList, cnsf.referenceGenomeId.toString(), cnsf.filename };
 	}
 
 	// returns null if exception has been thrown during processing

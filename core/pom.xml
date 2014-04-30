@@ -159,7 +159,7 @@
 	  <groupId>javax.servlet</groupId>
 	  <artifactId>servlet-api</artifactId>
 	  <version>2.3</version>
-	  <scope>compile</scope>
+	  <scope>provided</scope>
 	</dependency>
 
 	<!-- jopt -->

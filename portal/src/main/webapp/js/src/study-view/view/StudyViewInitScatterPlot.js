@@ -131,7 +131,7 @@ var StudyViewInitScatterPlot = (function() {
     
     function redrawByAttribute(_casesInfo, _selctedAttr){
         var _style = [];
-        
+        /*
         for(var i = 0; i < arrLength; i++) {
             var _arr = arr[i][_selctedAttr],
                 _caseId = arr[i]['CASE_ID'];
@@ -146,7 +146,7 @@ var StudyViewInitScatterPlot = (function() {
                 _casesInfo[_arr].caseIds.push(_caseId);
             }
         }
-        
+        */
         for(var key in _casesInfo){
             var _casesLength = _casesInfo[key].caseIds.length;
             

@@ -126,7 +126,7 @@ var StudyViewUtil = (function(){
         if(typeof _overrideFlag === 'undefined' || _overrideFlag) {
             $(_titleDiv).text(_text);
         }else {
-            var _tmp = $(_titleDiv).attr('value');
+            var _tmp = $(_titleDiv).attr('oValue');
             if(!_text || _text === '' || _text === 'false'){
                 $(_titleDiv).text(_tmp);
             }else{

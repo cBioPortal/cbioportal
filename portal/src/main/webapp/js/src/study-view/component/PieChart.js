@@ -301,17 +301,42 @@ var PieChart = function(){
         
         $("#"+DIV.chartDiv+"-plot-data").click(function(){
             var _casesInfo = {},
-                _labelLength = label.length;
+                _labelLength = label.length,
+                _caseIds = [];
+            
+            StudyViewInitCharts.setPlotDataFlag(true);
+            
+            if(pieChart.hasFilter()){
+                pieChart.filterAll();
+                dc.redrawAll();
+            }
+            
+            _caseIds = getCaseIds();
             
             for(var i = 0; i < _labelLength; i++){
                 var _caseInfoDatum = {};
-                _caseInfoDatum.caseIds = [];
+                _caseInfoDatum.caseIds = _caseIds[label[i].name];
                 _caseInfoDatum.color = label[i].color;
                 _casesInfo[label[i].name] = _caseInfoDatum;
             }
-        
             plotDataCallback(_casesInfo, selectedAttr);
         });
+    }
+    
+    function getCaseIds(){
+        var _cases = pieChart.dimension().top(Infinity),
+            _caseIds = {},
+            _casesLength = _cases.length;
+    
+        for(var i = 0; i < _casesLength; i++){
+            var _key = _cases[i][selectedAttr];
+            if(!_caseIds.hasOwnProperty(_key)){
+                _caseIds[_key] = [];
+            }
+            _caseIds[_key].push(_cases[i].CASE_ID);
+        }
+        
+        return _caseIds;
     }
     
     function setSVGElementValue(_svgParentDivId,_idNeedToSetValue){
@@ -605,7 +630,7 @@ var PieChart = function(){
                     _x2 = Number( _pointsInfo[8] ),
                     _y2 = Number( _pointsInfo[9] );
 
-                if(_x1 !== _x2 || _y1 !== _y2){
+                if(Math.abs(_x1 - _x2) > 0.01 || Math.abs(_y1 - _y2) > 0.01){
                     _labelDatum.id = _labelID;
                     _labelDatum.name = _labelName[0];
                     _labelDatum.color = _color;

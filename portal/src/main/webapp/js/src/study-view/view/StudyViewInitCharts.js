@@ -92,7 +92,14 @@ var StudyViewInitCharts = (function(){
         WORDCLOUDTEXTSIZECONSTANT = 200,
        
         // Color scale from GOOGLE charts
-        chartColors = jQuery.extend(true, [], StudyViewBoilerplate.chartColors); 
+        chartColors = jQuery.extend(true, [], StudyViewBoilerplate.chartColors),
+        
+        //Flag for plot data button using only. Pie/Bar chart all have postdraw 
+        //and postfiltered functions which will effect the survival/scatter 
+        //plot if click filtered chart 'plot data' button because of this chart 
+        //will be clear filter and redraw first which will call the postredraw 
+        //and postfiltered functions.
+        plotDataFlag = false;
        
     
     function allNumberElements(_array){
@@ -709,13 +716,14 @@ var StudyViewInitCharts = (function(){
         if(!dcHasFilters()){
             StudyViewInitScatterPlot.setclearFlag(false);
         }
+        plotDataFlag = false;
     }
     
     /**
      * DC charts post filter callback function
      */
     function postFilterCallbackFunc(){
-        if(!StudyViewInitScatterPlot.getclearFlag()){
+        if(!StudyViewInitScatterPlot.getclearFlag() && !plotDataFlag){
             redrawSpecialPlots();
         }
     }
@@ -1061,6 +1069,14 @@ var StudyViewInitCharts = (function(){
         
         getCaseIdChartIndex: function() {
             return attrNameMapUID['CASE_ID'];
+        },
+        
+        getPlotDataFlag: function() {
+            return plotDataFlag;
+        },
+        
+        setPlotDataFlag: function(_flag) {
+            plotDataFlag = _flag;
         },
         
         redrawScatter: redrawScatter,

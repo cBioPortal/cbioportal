@@ -359,7 +359,7 @@ var StudyViewSurvivalPlotView = (function() {
                 "' class='study-view-dc-chart w2 h1half study-view-survival-plot'>" +
                 "<div id='" + _opt.divs.headerWrapper +
                 "' class='study-view-survival-plot-header-wrapper'>" +
-                "<chartTitleH4 value='" + _opt.title + "' id='" + _opt.divs.title +
+                "<chartTitleH4 oValue='" + _opt.title + "' id='" + _opt.divs.title +
                 "' class='study-view-survival-plot-title'>" + _opt.title + "</chartTitleH4>" +
                 "<div id='" + _opt.divs.header +
                 "' class='study-view-survival-plot-header' style='float:right'>" +
@@ -471,7 +471,7 @@ var StudyViewSurvivalPlotView = (function() {
         //If seperation attribute has been defined, the data will be put in
         //different group based on this attribute.
         var _trimedCasesInfo =  jQuery.extend(true, {}, _casesInfo);
-        
+        /*
         if (_seperateAttr !== '' && _seperateAttr) {
             for (var i = 0; i < oDataLength; i++) {
                 var _arr = oData[i][_seperateAttr],
@@ -487,7 +487,7 @@ var StudyViewSurvivalPlotView = (function() {
                     _trimedCasesInfo[_arr].caseIds.push(_caseID);
                 }
             }
-        }
+        }*/
         return _trimedCasesInfo;
     }
 
@@ -559,7 +559,7 @@ var StudyViewSurvivalPlotView = (function() {
         for (var key in _casesInfo) {
             var instanceData = new SurvivalCurveProxy();
             instanceData.init(aData[_plotIndex], _casesInfo[key].caseIds, kmEstimator, logRankTest);
-            
+
             //If no data return, will no draw this curve
             if (instanceData.getData().length > 0) {
                 var instanceSettings = jQuery.extend(true, {}, SurvivalCurveBroilerPlate.subGroupSettings);

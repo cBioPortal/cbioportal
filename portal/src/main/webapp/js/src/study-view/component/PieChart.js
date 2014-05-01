@@ -42,8 +42,7 @@ var PieChart = function(){
     var chartID, 
         className, 
         selectedAttr, 
-        selectedAttrDisplay, 
-        transitionDuration, 
+        selectedAttrDisplay,
         ndx, 
         chartColors;
     
@@ -579,7 +578,7 @@ var PieChart = function(){
             .radius(_pieRadius)
             .dimension(cluster)
             .group(cluster.group())
-            .transitionDuration(600)
+            .transitionDuration(StudyViewParams.summaryParams.transitionDuration)
             .ordinalColors(chartColors)
             .label(function (d) {
                 return d.value;
@@ -629,7 +628,6 @@ var PieChart = function(){
         chartID = _param.chartID;
         selectedAttr = _param.attrID;
         selectedAttrDisplay = _param.displayName;
-        transitionDuration = _param.transitionDuration;
         ndx = _param.ndx;
         chartColors = _param.chartColors;
 

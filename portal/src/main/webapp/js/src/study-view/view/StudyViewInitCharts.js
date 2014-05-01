@@ -627,7 +627,6 @@ var StudyViewInitCharts = (function(){
                 chartDivClass: 'study-view-pie-chart',
                 attrID: _pieInfo.attr_id,
                 displayName: _pieInfo.display_name,
-                transitionDuration: 800,
                 ndx: ndx,
                 chartColors: chartColors
             };
@@ -654,9 +653,10 @@ var StudyViewInitCharts = (function(){
                 $("#study-view-survival-plot-loader-" + i).css('display', 'block');
             }
             
+            //The timeout is set equal to the transition duration of dc charts.
             setTimeout(function() {
                 redrawSurvival();
-            }, 100);
+            }, StudyViewParams.summaryParams.transitionDuration);
         } 
     }
     
@@ -680,6 +680,7 @@ var StudyViewInitCharts = (function(){
         
         //When redraw plots, the page will be stuck before loader display, 
         //so we need to set timeout for displaying loader.
+        //The timeout is set equal to the transition duration of dc charts.
         setTimeout(function() {
             if(typeof _casesInfo !== "undefined" && typeof _selectedAttr !== "undefined"){
                 StudyViewSurvivalPlotView.redraw(_casesInfo, _selectedAttr);
@@ -696,7 +697,7 @@ var StudyViewInitCharts = (function(){
                 $("#study-view-scatter-plot-loader").css('display', 'none');
                 $("#study-view-scatter-plot-body").css('opacity', '1');
             }
-        }, 100);
+        }, StudyViewParams.summaryParams.transitionDuration);
     }
     
     
@@ -755,7 +756,6 @@ var StudyViewInitCharts = (function(){
                 chartDivClass: 'study-view-bar-chart',
                 attrID: _barInfo.attr_id,
                 displayName: _barInfo.display_name,
-                transitionDuration: 800,
                 ndx: ndx,
                 needLogScale: false,
                 distanceArray: _distanceArray

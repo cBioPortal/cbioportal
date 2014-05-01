@@ -495,7 +495,7 @@ var BarChart = function(){
             .turnOnControls(true)
             .mouseZoomable(false)
             .brushOn(true)
-            .transitionDuration(param.transitionDuration)
+            .transitionDuration(StudyViewParams.summaryParams.transitionDuration)
             .renderHorizontalGridLines(false)
             .renderVerticalGridLines(false);
     
@@ -585,7 +585,7 @@ var BarChart = function(){
             .turnOnControls(true)
             .mouseZoomable(false)
             .brushOn(true)
-            .transitionDuration(param.transitionDuration)
+            .transitionDuration(StudyViewParams.summaryParams.transitionDuration)
             .renderHorizontalGridLines(false)
             .renderVerticalGridLines(false);
     
@@ -625,7 +625,6 @@ var BarChart = function(){
         param.chartID = _param.chartID;
         param.selectedAttr = _param.attrID;
         param.selectedAttrDisplay = _param.displayName;
-        param.transitionDuration = _param.transitionDuration;
         param.ndx = _param.ndx;
         param.needLogScale = _param.needLogScale;
         param.distanceArray = _param.distanceArray;

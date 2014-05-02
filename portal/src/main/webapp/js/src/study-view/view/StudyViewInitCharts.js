@@ -812,6 +812,7 @@ var StudyViewInitCharts = (function(){
         if(varChart[_chartID].getChart().hasFilter()){
             varChart[_chartID].getChart().filterAll();
             dc.redrawAll();
+            redrawSpecialPlots();
         }
         dc.deregisterChart(varChart[_chartID].getChart());
         $('#study-view-add-chart ul')
@@ -820,7 +821,6 @@ var StudyViewInitCharts = (function(){
         $('#study-view-add-chart').css('display','block');
         varChart[_chartID] = "";
         removedChart.push(Number(_chartID));
-        redrawScatter();
     }
         
     function changeHeader(){

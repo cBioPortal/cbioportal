@@ -21,6 +21,8 @@ var StudyViewInitTopComponents = (function() {
                 _charts = StudyViewInitCharts.getCharts(),
                 _chartsLength = _charts.length;
             
+            StudyViewInitScatterPlot.setclearFlag(true);
+            
             //Previous using dc.filterAll(), but this will redraw word cloud
             //sevious times based on the number of charts. Right now, only
             //redraw word cloud if the chart has filter
@@ -34,9 +36,15 @@ var StudyViewInitTopComponents = (function() {
             
             //If set the filter to null the update scatterplot in charts do
             //not work, so need to update scatter plot here
-            StudyViewInitCharts.redrawScatter();
+            //StudyViewInitCharts.redrawScatter();
             
             dc.redrawAll();
+            
+            StudyViewInitCharts.redrawSpecialPlots();
+            setTimeout(function() {
+                StudyViewInitScatterPlot.setclearFlag(false);
+            }, StudyViewParams.summaryParams.transitionDuration);
+            
             $(StudyViewInitDataTable
                     .getDataTable()
                     .getDataTable()

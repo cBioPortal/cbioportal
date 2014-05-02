@@ -94,11 +94,11 @@ var StudyViewInitCharts = (function(){
         // Color scale from GOOGLE charts
         chartColors = jQuery.extend(true, [], StudyViewBoilerplate.chartColors),
         
-        //Flag for plot data button using only. Pie/Bar chart all have postdraw 
+        //Flag for plot data button using only. Pie/Bar chart all has postdraw 
         //and postfiltered functions which will effect the survival/scatter 
-        //plot if click filtered chart 'plot data' button because of this chart 
-        //will be clear filter and redraw first which will call the postredraw 
-        //and postfiltered functions.
+        //plot if click filtered chart's 'plot data' button which will clear 
+        //filter and redraw first then call the postredraw and postfiltered 
+        //functions
         plotDataFlag = false;
        
     
@@ -691,6 +691,7 @@ var StudyViewInitCharts = (function(){
         setTimeout(function() {
             if(typeof _casesInfo !== "undefined" && typeof _selectedAttr !== "undefined"){
                 StudyViewSurvivalPlotView.redraw(_casesInfo, _selectedAttr);
+                changeHeader();
                 redrawScatter(_casesInfo, _selectedAttr);
             }else{
                 redrawWSCharts();
@@ -716,7 +717,6 @@ var StudyViewInitCharts = (function(){
         if(!dcHasFilters()){
             StudyViewInitScatterPlot.setclearFlag(false);
         }
-        plotDataFlag = false;
     }
     
     /**

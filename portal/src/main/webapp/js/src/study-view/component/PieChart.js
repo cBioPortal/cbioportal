@@ -320,6 +320,10 @@ var PieChart = function(){
                 _casesInfo[label[i].name] = _caseInfoDatum;
             }
             plotDataCallback(_casesInfo, selectedAttr);
+            
+            setTimeout(function(){
+                StudyViewInitCharts.setPlotDataFlag(false);
+            }, StudyViewParams.summaryParams.transitionDuration);
         });
     }
     

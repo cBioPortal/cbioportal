@@ -261,9 +261,6 @@
     color: grey;
     font-size: 10px;
 }
-.study-view-bar-chart rect{
-    fill: #2986e2;
-}
 .study-view-bar-chart g.brush rect.extent {
     fill: #2986e2;
     fill-opacity:0.2;

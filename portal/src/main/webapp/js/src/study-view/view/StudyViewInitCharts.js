@@ -778,7 +778,9 @@ var StudyViewInitCharts = (function(){
         varChart[_chartID] = new BarChart();
         varChart[_chartID].init(param);
         varChart[_chartID].postFilterCallbackFunc(postFilterCallbackFunc);
-
+        varChart[_chartID].postRedrawCallbackFunc(postRedrawCallbackFunc);
+        varChart[_chartID].plotDataCallbackFunc(redrawSpecialPlots);
+        
         if(_distanceArray.diff > 1000 && _distanceArray.min >= 1){
             $("#scale-input-"+_chartID).change(function(e) {
                 $(this).parent().parent().find('svg').remove();

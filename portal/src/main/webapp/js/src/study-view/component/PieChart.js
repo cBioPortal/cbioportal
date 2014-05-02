@@ -334,6 +334,11 @@ var PieChart = function(){
     
         for(var i = 0; i < _casesLength; i++){
             var _key = _cases[i][selectedAttr];
+            
+            if(_key === '' || _key.toUpperCase() === 'UNKNOWN'){
+                _key = 'NA';
+            }
+            
             if(!_caseIds.hasOwnProperty(_key)){
                 _caseIds[_key] = [];
             }

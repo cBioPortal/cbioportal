@@ -50,7 +50,8 @@ var BarChart = function(){
     };
         
         
-    var seperateDistance,
+    var color = [],
+        seperateDistance,
         startPoint,
         distanceMinMax,
         emptyValueMapping,
@@ -58,10 +59,13 @@ var BarChart = function(){
         numOfGroups = 10,
         divider = 1,
         chartWidth = 370,
-        chartHeight = 180;
+        chartHeight = 180,
+        hasEmptyValue = false;
             
-    var postFilterCallback;
-    
+    var postFilterCallback,
+        postRedrawCallback,
+        plotDataCallback;
+
     //This function is designed to add functions like click, on, or other
     //other functions added after initializing this Bar Chart.
     function addFunctions() {
@@ -84,6 +88,9 @@ var BarChart = function(){
                 postFilterCallback();
             }, 400);
         });
+        barChart.on("postRedraw",function(chart){
+            postRedrawCallback();
+        });
     }
     
     //Add all listener events
@@ -103,6 +110,93 @@ var BarChart = function(){
         StudyViewUtil
             .showHideDivision("#"+DIV.mainDiv, 
                             "#"+DIV.chartDiv+"-header");
+                            
+        $("#"+DIV.chartDiv+"-plot-data").click(function(){
+            
+            var _casesInfo = {},
+                _caseIds = [];
+            
+            StudyViewInitCharts.setPlotDataFlag(true);
+            
+            if(barChart.hasFilter()){
+                barChart.filterAll();
+                dc.redrawAll();
+            }
+            
+            _caseIds = getCaseIds();
+            
+            var _index = 0;
+            for(var key in _caseIds){
+                var _caseInfoDatum = {};
+                _caseInfoDatum.caseIds = _caseIds[key];
+                _caseInfoDatum.color = color[_index];
+                _casesInfo[key] = _caseInfoDatum;
+                _index++;
+            }
+            changeBarColor();
+            plotDataCallback(_casesInfo, param.selectedAttr);
+            
+            setTimeout(function(){
+                StudyViewInitCharts.setPlotDataFlag(false);
+            }, StudyViewParams.summaryParams.transitionDuration);
+            
+        });
+    }
+    
+    function changeBarColor() {
+        var _bars = $("#" + DIV.mainDiv + " g.chart-body").find("rect");
+        
+        $.each(_bars, function(index, obj){
+            $(obj).attr('fill', color[index]);
+        });
+    }
+    
+    function getCaseIds(){
+        var _cases = barChart.dimension().top(Infinity),
+            _caseIds = {},
+            _casesLength = _cases.length,
+            _xDomainLength = xDomain.length,
+            _caseIdsLength = 0;
+        
+        //Last element in xDomain is NA mapping value, so need to minus 2.
+        if(hasEmptyValue){
+            _caseIdsLength = _xDomainLength-2;
+        }else{
+            _caseIdsLength = _xDomainLength-1;
+        }
+        
+        for(var i = 0; i< _caseIdsLength; i++) {
+            var _key = xDomain[i] + "-" + xDomain[i+1];
+            _caseIds[_key] = [];
+        }
+        
+        _caseIds['NA'] = [];
+        
+        for(var i = 0; i < _casesLength; i++){
+            var _value = Number(_cases[i][param.selectedAttr]);
+            
+            if(!isNaN(_value)){
+                _value = Number(_value);
+                for(var j = 0; j < _xDomainLength; j++){
+                    if(_value < xDomain[j]){
+                        var _key = xDomain[j-1] + "-" + xDomain[j];
+                        
+                        _caseIds[_key].push(_cases[i].CASE_ID);
+                        break;
+                    }
+                }
+            }else{
+                _caseIds['NA'].push(_cases[i].CASE_ID);
+            }
+        }
+        
+        for(var key in _caseIds) {
+            if(_caseIds[key].length === 0) {
+                delete _caseIds[key];
+            }
+        }
+        
+        return _caseIds;
     }
     
     //Bar chart SVG style is controled by CSS file. In order to change 
@@ -278,7 +372,8 @@ var BarChart = function(){
                 "<input type='hidden' name='filetype' value='svg'>"+
                 "<input type='hidden' id='"+DIV.chartDiv+"-svg-name' name='filename' value='"+StudyViewParams.params.studyId + "_" +param.selectedAttr+".svg'>"+
                 "<input type='submit' style='font-size:10px' value='SVG'>"+    
-                "</form></div>"+
+                "</form><input type='button' id='"+DIV.chartDiv+"-plot-data' "+
+                "style='font-size:10px' value='Plot Data'></div>"+
                 "<div style='height: 18px;'><div style='float:right' id='"+DIV.chartDiv+"-header'>"+
                 "<a href='javascript:StudyViewInitCharts.getChartsByID("+ 
                 param.chartID +").getChart().filterAll();" +
@@ -448,15 +543,14 @@ var BarChart = function(){
     
     //Initialize BarChart in DC.js
     function initDCBarChart() {
-        var _xunitsNum,
-            _hasEmptyValue = false;
+        var _xunitsNum;
         
         barChart = dc.barChart("#" + DIV.chartDiv);
         
         cluster = param.ndx.dimension(function (d) {
             var returnValue = d[param.selectedAttr];
             if(returnValue === "NA" || returnValue === '' || returnValue === 'NaN'){
-                _hasEmptyValue = true;
+                hasEmptyValue = true;
                 return emptyValueMapping;
             }else{
                 if(d[param.selectedAttr] >= 0){
@@ -475,7 +569,7 @@ var BarChart = function(){
             }
         });
         
-        if(_hasEmptyValue){
+        if(hasEmptyValue){
             xDomain.push( Number( 
                                 cbio.util.toPrecision( 
                                     Number(emptyValueMapping), 3, 0.1 )
@@ -638,7 +732,8 @@ var BarChart = function(){
         }
         
         distanceMinMax = param.distanceArray.diff;
-    
+        color = jQuery.extend(true, [], StudyViewBoilerplate.chartColors);
+        
         DIV.mainDiv = _baseID + "-dc-chart-main-" + param.chartID;
         DIV.chartDiv = _baseID + "-dc-chart-" + param.chartID;
         DIV.parentID = _baseID + "-charts";
@@ -701,6 +796,12 @@ var BarChart = function(){
         
         postFilterCallbackFunc: function(_callback) {
             postFilterCallback = _callback;
+        },
+        postRedrawCallbackFunc: function(_callback) {
+            postRedrawCallback = _callback;
+        },
+        plotDataCallbackFunc: function(_callback) {
+            plotDataCallback = _callback;
         },
         
         removeMarker: removeMarker,

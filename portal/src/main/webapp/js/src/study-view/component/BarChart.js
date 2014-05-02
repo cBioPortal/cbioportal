@@ -106,7 +106,8 @@ var BarChart = function(){
         
         StudyViewUtil
             .showHideDivision("#"+DIV.mainDiv, 
-                            "#"+DIV.chartDiv+"-side");
+                            "#"+DIV.chartDiv+"-side",
+                            "#dc-plots");
         StudyViewUtil
             .showHideDivision("#"+DIV.mainDiv, 
                             "#"+DIV.chartDiv+"-header");
@@ -144,10 +145,14 @@ var BarChart = function(){
     }
     
     function changeBarColor() {
-        var _bars = $("#" + DIV.mainDiv + " g.chart-body").find("rect");
+        var _bars = $("#" + DIV.mainDiv + " g.chart-body").find("rect"),
+            _index = 0;
         
         $.each(_bars, function(index, obj){
-            $(obj).attr('fill', color[index]);
+            if($(obj).attr('height') > 0){
+                $(obj).attr('fill', color[_index]);
+                _index++;
+            }
         });
     }
     

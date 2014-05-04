@@ -42,7 +42,7 @@
 
     <context-param>
         <param-name>webAppRootKey</param-name>
-        <param-value>${app.name}</param-value>
+        <param-value>${app.name}.${timestamp}</param-value>
     </context-param>
 
     <filter>

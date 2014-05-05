@@ -207,7 +207,7 @@ var PieChart = function(){
                 chartID = Number(idArray[idArray.length-3]);
 
             var arcID = chartID+"-"+(Number(childID)-1);
-
+            
             pieChart.onClick({
                 key: label[childaLabelID].name, 
                 value: label[childaLabelID].value
@@ -313,12 +313,21 @@ var PieChart = function(){
                 }
 
                 _caseIds = getCaseIds();
-
+                
+                console.log(Object.keys(_caseIds).length);
+            
                 for(var i = 0; i < _labelLength; i++){
+                    var _key = label[i].name.toString();
                     var _caseInfoDatum = {};
+                    
                     _caseInfoDatum.caseIds = _caseIds[label[i].name];
+                    if(typeof _caseIds[label[i].name] === 'undefined') {
+                        console.log(label[i].name);
+                        console.log(_caseIds[label[i].name]);
+                    }
+                    
                     _caseInfoDatum.color = label[i].color;
-                    _casesInfo[label[i].name] = _caseInfoDatum;
+                    _casesInfo[_key] = _caseInfoDatum;
                 }
                 plotDataCallback(_casesInfo, selectedAttr);
 
@@ -333,7 +342,7 @@ var PieChart = function(){
         var _cases = pieChart.dimension().top(Infinity),
             _caseIds = {},
             _casesLength = _cases.length;
-    
+        
         for(var i = 0; i < _casesLength; i++){
             var _key = _cases[i][selectedAttr];
             
@@ -641,9 +650,15 @@ var PieChart = function(){
         
         $('#' + DIV.chartDiv + '>svg>g>g').each(function(){
             var _labelDatum = {},
-                _labelName = $(this).find('title').text().split(':'),
+                _labelText = $(this).find('title').text(),
+                _labelName = "",
+                _labelValue = 0,
                 _color = $(this).find('path').attr('fill'),            
-                _pointsInfo = $(this).find('path').attr('d').split(/[\s,MLHVCSQTAZ]/);            
+                _pointsInfo = $(this).find('path').attr('d').split(/[\s,MLHVCSQTAZ]/);    
+            
+            _labelName = _labelText.substring(0, _labelText.lastIndexOf(":"));
+            _labelValue = _labelText.substring(_labelText.lastIndexOf(":"));
+            _labelValue = _labelValue.trim();
             
             if(_pointsInfo.length >= 10){
                 
@@ -654,10 +669,10 @@ var PieChart = function(){
 
                 if(Math.abs(_x1 - _x2) > 0.01 || Math.abs(_y1 - _y2) > 0.01){
                     _labelDatum.id = _labelID;
-                    _labelDatum.name = _labelName[0];
+                    _labelDatum.name = _labelName;
                     _labelDatum.color = _color;
                     _labelDatum.parentID = DIV.chartDiv;
-                    _labelDatum.value = _labelName[1];
+                    _labelDatum.value = _labelValue;
                     label.push(_labelDatum);
                 }
                 _labelID++;

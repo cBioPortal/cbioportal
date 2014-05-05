@@ -451,7 +451,7 @@ var StudyViewSurvivalPlotView = (function() {
         if (_numOfValuedCase < 2) {
             _plotData = {};
         }
-
+        
         return _plotData;
     }
 

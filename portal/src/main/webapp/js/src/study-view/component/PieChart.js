@@ -43,7 +43,8 @@ var PieChart = function(){
         className, 
         selectedAttr, 
         selectedAttrDisplay,
-        ndx, 
+        ndx,
+        plotDataButtonFlag = false,
         chartColors;
     
     var label =[],
@@ -298,33 +299,34 @@ var PieChart = function(){
             .showHideDivision("#"+DIV.mainDiv, 
                             "#"+DIV.chartDiv+"-header");
         
-        
-        $("#"+DIV.chartDiv+"-plot-data").click(function(){
-            var _casesInfo = {},
-                _labelLength = label.length,
-                _caseIds = [];
-            
-            StudyViewInitCharts.setPlotDataFlag(true);
-            
-            if(pieChart.hasFilter()){
-                pieChart.filterAll();
-                dc.redrawAll();
-            }
-            
-            _caseIds = getCaseIds();
-            
-            for(var i = 0; i < _labelLength; i++){
-                var _caseInfoDatum = {};
-                _caseInfoDatum.caseIds = _caseIds[label[i].name];
-                _caseInfoDatum.color = label[i].color;
-                _casesInfo[label[i].name] = _caseInfoDatum;
-            }
-            plotDataCallback(_casesInfo, selectedAttr);
-            
-            setTimeout(function(){
-                StudyViewInitCharts.setPlotDataFlag(false);
-            }, StudyViewParams.summaryParams.transitionDuration);
-        });
+        if(plotDataButtonFlag) {
+            $("#"+DIV.chartDiv+"-plot-data").click(function(){
+                var _casesInfo = {},
+                    _labelLength = label.length,
+                    _caseIds = [];
+
+                StudyViewInitCharts.setPlotDataFlag(true);
+
+                if(pieChart.hasFilter()){
+                    pieChart.filterAll();
+                    dc.redrawAll();
+                }
+
+                _caseIds = getCaseIds();
+
+                for(var i = 0; i < _labelLength; i++){
+                    var _caseInfoDatum = {};
+                    _caseInfoDatum.caseIds = _caseIds[label[i].name];
+                    _caseInfoDatum.color = label[i].color;
+                    _casesInfo[label[i].name] = _caseInfoDatum;
+                }
+                plotDataCallback(_casesInfo, selectedAttr);
+
+                setTimeout(function(){
+                    StudyViewInitCharts.setPlotDataFlag(false);
+                }, StudyViewParams.summaryParams.transitionDuration);
+            });
+        }
     }
     
     function getCaseIds(){
@@ -435,8 +437,9 @@ var PieChart = function(){
     
     //Initialize HTML tags which will be used for current Pie Chart.
     function createDiv() {
-        var _introDiv = '';
-        var _introNumber = Number(chartID) +2;
+        var _introDiv = '',
+            _introNumber = Number(chartID) +2;
+        
         _introDiv = "data-step='" + _introNumber + "' data-intro='Pie chart will category\n\
                          attributes by different colors' data-step='3' data-intro='Pie chart will category\n\
                          attributes by different colors'";
@@ -449,10 +452,21 @@ var PieChart = function(){
                     "style='display:none'><div id=\"" +
                     DIV.chartDiv + "\"></div></div>");
         }else{
-            var _title = selectedAttrDisplay.toString();
+            var _title = selectedAttrDisplay.toString(),
+                _plotDataButtonDiv = "";
+        
             if(_title.length > titleLengthCutoff) {
                 _title = _title.substring(0,(titleLengthCutoff-2)) + "...";
             }
+            
+            if(plotDataButtonFlag) {
+                _plotDataButtonDiv = "<input type='button' id='"+
+                                    DIV.chartDiv+"-plot-data' "+
+                                    "style='font-size:10px' value='Plot Data'>";
+            }else {
+                _plotDataButtonDiv = "";
+            }
+            
             $("#"+DIV.parentID).append("<div id=\"" + DIV.mainDiv +
                 "\"" + _introDiv +
                 "class='study-view-dc-chart study-view-pie-main'>"+
@@ -470,10 +484,9 @@ var PieChart = function(){
                 "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-svg-value'>"+
                 "<input type='hidden' name='filetype' value='svg'>"+
                 "<input type='hidden' id='"+DIV.chartDiv+"-svg-name' name='filename' value='"+cancerStudyId + "_" +selectedAttr+".svg'>"+
-                "<input type='submit' style='font-size:10px' value='SVG'>"+    
-                "</form><input type='button' id='"+DIV.chartDiv+"-plot-data' "+
-                "style='font-size:10px' value='Plot Data'></div>"+
-                "<div style='width:180px; float:right; text-align:center;'>"+
+                "<input type='submit' style='font-size:10px' value='SVG'></form>"+
+                _plotDataButtonDiv + 
+                "</div><div style='width:180px; float:right; text-align:center;'>"+
                 "<div style='height:16px;float:right' id='"+DIV.chartDiv+"-header'>"+
                 "<a href='javascript:StudyViewInitCharts.getChartsByID("+ 
                 chartID +").getChart().filterAll();" +
@@ -664,6 +677,7 @@ var PieChart = function(){
         selectedAttrDisplay = _param.displayName;
         ndx = _param.ndx;
         chartColors = _param.chartColors;
+        plotDataButtonFlag = _param.plotDataButtonFlag;
 
         DIV.mainDiv = _baseID + "-dc-chart-main-" + chartID;
         DIV.chartDiv = _baseID + "-dc-chart-" + chartID;

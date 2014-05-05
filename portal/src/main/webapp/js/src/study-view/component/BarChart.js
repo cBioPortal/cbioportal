@@ -46,6 +46,7 @@ var BarChart = function(){
         transitionDuration: "",
         ndx: "",
         needLogScale: false,
+        plotDataButtonFlag: false,
         distanceArray: {}
     };
         
@@ -111,37 +112,39 @@ var BarChart = function(){
         StudyViewUtil
             .showHideDivision("#"+DIV.mainDiv, 
                             "#"+DIV.chartDiv+"-header");
-                            
-        $("#"+DIV.chartDiv+"-plot-data").click(function(){
-            
-            var _casesInfo = {},
-                _caseIds = [];
-            
-            StudyViewInitCharts.setPlotDataFlag(true);
-            
-            if(barChart.hasFilter()){
-                barChart.filterAll();
-                dc.redrawAll();
-            }
-            
-            _caseIds = getCaseIds();
-            
-            var _index = 0;
-            for(var key in _caseIds){
-                var _caseInfoDatum = {};
-                _caseInfoDatum.caseIds = _caseIds[key];
-                _caseInfoDatum.color = color[_index];
-                _casesInfo[key] = _caseInfoDatum;
-                _index++;
-            }
-            changeBarColor();
-            plotDataCallback(_casesInfo, param.selectedAttr);
-            
-            setTimeout(function(){
-                StudyViewInitCharts.setPlotDataFlag(false);
-            }, StudyViewParams.summaryParams.transitionDuration);
-            
-        });
+    
+        if(param.plotDataButtonFlag){
+            $("#"+DIV.chartDiv+"-plot-data").click(function(){
+
+                var _casesInfo = {},
+                    _caseIds = [];
+
+                StudyViewInitCharts.setPlotDataFlag(true);
+
+                if(barChart.hasFilter()){
+                    barChart.filterAll();
+                    dc.redrawAll();
+                }
+
+                _caseIds = getCaseIds();
+
+                var _index = 0;
+                for(var key in _caseIds){
+                    var _caseInfoDatum = {};
+                    _caseInfoDatum.caseIds = _caseIds[key];
+                    _caseInfoDatum.color = color[_index];
+                    _casesInfo[key] = _caseInfoDatum;
+                    _index++;
+                }
+                changeBarColor();
+                plotDataCallback(_casesInfo, param.selectedAttr);
+
+                setTimeout(function(){
+                    StudyViewInitCharts.setPlotDataFlag(false);
+                }, StudyViewParams.summaryParams.transitionDuration);
+
+            });
+        }
     }
     
     function changeBarColor() {
@@ -346,7 +349,8 @@ var BarChart = function(){
     
     //Initialize HTML tags which will be used for current Bar Chart.
     function createDiv() {
-        var _logCheckBox = "";
+        var _logCheckBox = "",
+            _plotDataDiv = "";
         
         
         if(param.needLogScale){
@@ -362,6 +366,13 @@ var BarChart = function(){
                 "</div>";
        }
         
+        if(param.plotDataButtonFlag) {
+            _plotDataDiv = "<input type='button' id='"+DIV.chartDiv+"-plot-data' "+
+                "style='font-size:10px' value='Plot Data' />";
+        }else {
+            _plotDataDiv = "";
+        }
+        
         var contentHTML = "<div id=\"" + DIV.chartDiv + 
                 "\" class='"+ param.className +"'  value='" + param.selectedAttr + "," + 
                 param.selectedAttrDisplay + ",bar'>"+
@@ -376,10 +387,10 @@ var BarChart = function(){
                 "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-svg-value'>"+
                 "<input type='hidden' name='filetype' value='svg'>"+
                 "<input type='hidden' id='"+DIV.chartDiv+"-svg-name' name='filename' value='"+StudyViewParams.params.studyId + "_" +param.selectedAttr+".svg'>"+
-                "<input type='submit' style='font-size:10px' value='SVG'>"+    
-                "</form><input type='button' id='"+DIV.chartDiv+"-plot-data' "+
-                "style='font-size:10px' value='Plot Data'></div>"+
-                "<div style='height: 18px;'><div style='float:right' id='"+DIV.chartDiv+"-header'>"+
+                "<input type='submit' style='font-size:10px' value='SVG'></form>"+
+                _plotDataDiv +
+                "</div><div style='height: 18px;'><div style='float:right' "+
+                "id='"+DIV.chartDiv+"-header'>"+
                 "<a href='javascript:StudyViewInitCharts.getChartsByID("+ 
                 param.chartID +").getChart().filterAll();" +
                 "dc.redrawAll();'>"+
@@ -727,6 +738,7 @@ var BarChart = function(){
         param.ndx = _param.ndx;
         param.needLogScale = _param.needLogScale;
         param.distanceArray = _param.distanceArray;
+        param.plotDataButtonFlag = _param.plotDataButtonFlag;
         
         if(typeof _param.chartWidth !== 'undefined'){
             chartWidth = _param.chartWidth;

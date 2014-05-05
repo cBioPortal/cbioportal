@@ -427,17 +427,14 @@ var StudyViewSurvivalPlotView = (function() {
                     _plotData[_caseID].status = '0';
                 } else if (_plotInfo.status[1].indexOf(_status) !== -1) {
                     _plotData[_caseID].status = '1';
-                } else if (_status === null || _status.length === 0 || _status === 'NA') {
-                    _plotData[_caseID].status = 'NA';
                 } else {
-                    //Temporary put into NA group
                     _plotData[_caseID].status = 'NA';
                 }
-
-                if (_time === null || _time.length === 0 || _time === 'NA') {
+                
+                if (isNaN(_time)) {
                     _plotData[_caseID].months = 'NA';
                 } else {
-                    _plotData[_caseID].months = Number(oData[i].OS_MONTHS);
+                    _plotData[_caseID].months = Number(_time);
                 }
             }
         }
@@ -918,6 +915,15 @@ var StudyViewSurvivalPlotView = (function() {
         opts[_index] = {};
         aData[_index] = dataProcess(plotsInfo[_index]);
 
+/*
+        for(var _key in aData[_index]){
+            console.log("-----");
+            console.log(_key);
+            console.log(aData[_index][_key].months);
+            console.log(aData[_index][_key].status);
+            console.log();
+        }
+        */
         //If no data returned, this survival plot should not be initialized.
         if (Object.keys(aData[_index]).length !== 0) {
             opts[_index] = initOpts(_index);

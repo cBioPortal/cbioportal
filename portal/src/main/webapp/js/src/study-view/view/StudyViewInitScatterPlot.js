@@ -269,6 +269,7 @@ var StudyViewInitScatterPlot = (function() {
                 }
             }
             dc.redrawAll();
+            StudyViewInitCharts.resetBars();
         }
         
         StudyViewInitCharts.redrawWSCharts();

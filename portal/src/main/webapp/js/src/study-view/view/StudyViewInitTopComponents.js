@@ -24,7 +24,7 @@ var StudyViewInitTopComponents = (function() {
             StudyViewInitScatterPlot.setclearFlag(true);
             
             //Previous using dc.filterAll(), but this will redraw word cloud
-            //sevious times based on the number of charts. Right now, only
+            //several times based on the number of charts. Right now, only
             //redraw word cloud if the chart has filter
             for( i = 0; i < _chartsLength; i++){
                 if(_charts[i] !== "" && 
@@ -39,7 +39,7 @@ var StudyViewInitTopComponents = (function() {
             //StudyViewInitCharts.redrawScatter();
             
             dc.redrawAll();
-            
+            StudyViewInitCharts.resetBars();
             StudyViewInitCharts.redrawSpecialPlots();
             setTimeout(function() {
                 StudyViewInitScatterPlot.setclearFlag(false);

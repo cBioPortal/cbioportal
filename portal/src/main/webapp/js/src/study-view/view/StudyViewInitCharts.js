@@ -71,7 +71,7 @@ var StudyViewInitCharts = (function(){
         
         //The relationshio between "The unique attribute name" and 
         //"The unique ID number in whole page"
-        attrNameMapUID = [],
+        attrNameMapUID = {},
         varChart = [],
         varName = [], //Store all attributes in all data
         
@@ -90,6 +90,7 @@ var StudyViewInitCharts = (function(){
         varDisplay = [], //Displayed Charts Name -- the display_name in each attribute   
         
         WORDCLOUDTEXTSIZECONSTANT = 200,
+        barOriginalColor = "#1F77B4",
        
         // Color scale from GOOGLE charts
         chartColors = jQuery.extend(true, [], StudyViewBoilerplate.chartColors),
@@ -628,21 +629,30 @@ var StudyViewInitCharts = (function(){
     }
     
     function makeNewPieChartInstance(_chartID, _pieInfo) {
-        var _param = {
+        var _params = {
                 baseID: "study-view",
                 chartID: _chartID,
                 chartDivClass: 'study-view-pie-chart',
                 attrID: _pieInfo.attr_id,
                 displayName: _pieInfo.display_name,
                 ndx: ndx,
-                chartColors: chartColors
+                chartColors: chartColors,
+                plotDataButtonFlag: false
             };
         
+        if(StudyViewSurvivalPlotView.getInitStatus() || 
+                StudyViewInitScatterPlot.getInitStatus()) {
+            
+            _params.plotDataButtonFlag = true;
+        }else{
+            _params.plotDataButtonFlag = false;
+        }
+        
         varChart[_chartID] = new PieChart();
-        varChart[_chartID].init(_param);
+        varChart[_chartID].init(_params);
         varChart[_chartID].postFilterCallbackFunc(postFilterCallbackFunc);
         varChart[_chartID].postRedrawCallbackFunc(postRedrawCallbackFunc);
-        varChart[_chartID].plotDataCallbackFunc(redrawSpecialPlots);
+        varChart[_chartID].plotDataCallbackFunc(plotDataCallbackFunc);
     }
     
     function redrawWSCharts() {
@@ -670,6 +680,7 @@ var StudyViewInitCharts = (function(){
     
     function redrawSpecialPlots(_casesInfo, _selectedAttr){
         var _scatterInit = StudyViewInitScatterPlot.getInitStatus();
+        var _timeout = 0;
         
         if(StudyViewSurvivalPlotView.getInitStatus()) {
             var _length = StudyViewSurvivalPlotView.getNumOfPlots();
@@ -678,6 +689,9 @@ var StudyViewInitCharts = (function(){
                 $("#study-view-survival-plot-body-" + i).css('opacity', '0.3');
                 $("#study-view-survival-plot-loader-" + i).css('display', 'block');
             }
+            _timeout = StudyViewParams.summaryParams.transitionDuration;
+        }else{
+            _timeout = 0;
         }
         
         if(_scatterInit){
@@ -705,7 +719,7 @@ var StudyViewInitCharts = (function(){
                 $("#study-view-scatter-plot-loader").css('display', 'none');
                 $("#study-view-scatter-plot-body").css('opacity', '1');
             }
-        }, StudyViewParams.summaryParams.transitionDuration);
+        }, _timeout);
     }
     
     
@@ -724,8 +738,19 @@ var StudyViewInitCharts = (function(){
      */
     function postFilterCallbackFunc(){
         if(!StudyViewInitScatterPlot.getclearFlag() && !plotDataFlag){
+            resetBars();
             redrawSpecialPlots();
         }
+    }
+    
+    /**
+     * DC charts plot data button callback function
+     * @param {type} _casesInfo
+     * @param {type} _selectedAttr
+     */
+    function plotDataCallbackFunc(_casesInfo, _selectedAttr) {
+        resetBars(_selectedAttr);
+        redrawSpecialPlots(_casesInfo, _selectedAttr);
     }
     
     /**
@@ -744,6 +769,38 @@ var StudyViewInitCharts = (function(){
         return _hasFilters;
     }
     
+    function resetBars(_exceptionAttr) {
+        var _attrIds = [],
+            _attrIdsLength = 0,
+            _divIds = [];
+        
+        for( var _key in varType) {
+            if(varType[_key] === 'bar'){
+                if(typeof _exceptionAttr !== 'undefined'){
+                    if(_key !== _exceptionAttr){
+                        _attrIds.push(attrNameMapUID[_key]);
+                    }
+                }else {
+                    _attrIds.push(attrNameMapUID[_key]);
+                }
+            }
+        }
+        
+        _attrIdsLength = _attrIds.length;
+        
+        for( var i = 0; i < _attrIdsLength; i++) {
+            for( var _key in HTMLtagsMapUID){
+                if( HTMLtagsMapUID[_key] === _attrIds[i]){
+                    var _bars = $("#" + _key + " g.chart-body").find("rect");
+
+                    $.each(_bars, function(index, obj){
+                        $(obj).attr('fill', barOriginalColor);
+                    });
+                }
+            }
+        }
+    }
+    
     function removeContentsAndStartLoading(){
         $("#study-view-word-cloud svg").remove();
         $("#study-view-word-cloud-loader").css('display', 'block');
@@ -758,7 +815,7 @@ var StudyViewInitCharts = (function(){
     }
     
     function makeNewBarChartInstance(_chartID, _barInfo, _distanceArray) {
-        var param = {
+        var _params = {
                 baseID: "study-view",
                 chartID: _chartID,
                 chartDivClass: 'study-view-bar-chart',
@@ -766,20 +823,30 @@ var StudyViewInitCharts = (function(){
                 displayName: _barInfo.display_name,
                 ndx: ndx,
                 needLogScale: false,
-                distanceArray: _distanceArray
+                distanceArray: _distanceArray,
+                plotDataButtonFlag: true,
+                timeoutFlag: true
             };
         
         if(_distanceArray.diff > 1000 && _distanceArray.min >= 1){
-            param.needLogScale = true;
+            _params.needLogScale = true;
         }else{
-            param.needLogScale = false;
+            _params.needLogScale = false;
+        }
+        
+        if(StudyViewSurvivalPlotView.getInitStatus() || 
+                StudyViewInitScatterPlot.getInitStatus()) {
+            
+            _params.plotDataButtonFlag = true;
+        }else{
+            _params.plotDataButtonFlag = false;
         }
         
         varChart[_chartID] = new BarChart();
-        varChart[_chartID].init(param);
+        varChart[_chartID].init(_params);
         varChart[_chartID].postFilterCallbackFunc(postFilterCallbackFunc);
         varChart[_chartID].postRedrawCallbackFunc(postRedrawCallbackFunc);
-        varChart[_chartID].plotDataCallbackFunc(redrawSpecialPlots);
+        varChart[_chartID].plotDataCallbackFunc(plotDataCallbackFunc);
         
         if(_distanceArray.diff > 1000 && _distanceArray.min >= 1){
             $("#scale-input-"+_chartID).change(function(e) {
@@ -1088,6 +1155,7 @@ var StudyViewInitCharts = (function(){
         createNewChart: createNewChartFromOutside,
         getDataAndDrawMarker: getDataAndDrawMarker,
         removeMarker: removeMarker,
-        redrawWSCharts: redrawWSCharts
+        redrawWSCharts: redrawWSCharts,
+        resetBars: resetBars
     };
 })();

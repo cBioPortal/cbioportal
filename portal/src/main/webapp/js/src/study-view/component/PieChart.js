@@ -313,8 +313,6 @@ var PieChart = function(){
                 }
 
                 _caseIds = getCaseIds();
-                
-                console.log(Object.keys(_caseIds).length);
             
                 for(var i = 0; i < _labelLength; i++){
                     var _key = label[i].name.toString();

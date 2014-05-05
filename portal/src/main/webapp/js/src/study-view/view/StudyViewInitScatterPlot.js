@@ -184,12 +184,12 @@ var StudyViewInitScatterPlot = (function() {
                             styleDatum.fill = '#2986e2';
                             styleDatum.stroke = 'red';
                             styleDatum.strokeWidth = '3';
-                            styleDatum.size = '120';
+                            styleDatum.size = '60';
                         }else{
                             styleDatum.fill = 'red';
                             styleDatum.stroke = 'red';
                             styleDatum.strokeWidth = '0';
-                            styleDatum.size = '120';
+                            styleDatum.size = '60';
                         }
                     }else{
                         styleDatum.fill = '#2986e2';
@@ -206,7 +206,7 @@ var StudyViewInitScatterPlot = (function() {
                     styleDatum.fill = 'red';
                     styleDatum.stroke = 'red';
                     styleDatum.strokeWidth = '0';
-                    styleDatum.size = '120';
+                    styleDatum.size = '60';
                 }
                 _style.push(styleDatum);
             }

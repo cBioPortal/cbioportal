@@ -35,7 +35,6 @@ var LoadingJS = (function(){
                 ],
                 data: ['StudyViewProxy'],
                 util: [
-                    'DcRedrawAllDataTable', 
                     'FnGetColumnData',
                     'FnColumnFilter',
                     'FnSetFilteringDelay',

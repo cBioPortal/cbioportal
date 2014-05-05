@@ -152,7 +152,7 @@ var DataTable = function() {
     
     //Initialize the basic dataTable component by using jquery.dataTables.min.js
     function initDataTable() {
-        dataTable = $('#dataTable').dataTable({
+        dataTable = $('#data-table-chart #dataTable').dataTable({
             "sScrollX": "1200px",
             "sScrollY": "300px",
             "bPaginate": false,
@@ -635,19 +635,24 @@ var DataTable = function() {
         
         //Resize column size first, then add left column
         dataTable.fnAdjustColumnSizing();
-        new FixedColumns(dataTable);
         
-        //Have to add in there
-        $(".DTFC_LeftBodyLiner").css("overflow-y","hidden");
-        //$(".dataTables_scroll").css("overflow-x","scroll");
-        $(".DTFC_LeftHeadWrapper").css("background-color","white");
-        $(".DTFC_LeftFootWrapper").css('background-color','white');
-        
-        //After resizing left column, the width of DTFC_LeftWrapper is different
-        //with width DTFC_LeftBodyLiner, need to rewrite the width of
-        //DTFC_LeftBodyLiner width
-        var _widthLeftWrapper = $('.DTFC_LeftWrapper').width();
-        $('.DTFC_LeftBodyLiner').css('width', _widthLeftWrapper+4);//Column has table spacing
+        if($("#dataTable").width() > 1200) {
+            new FixedColumns(dataTable);
+
+            //Have to add in there
+            $(".DTFC_LeftBodyLiner").css("overflow-y","hidden");
+            //$(".dataTables_scroll").css("overflow-x","scroll");
+            $(".DTFC_LeftHeadWrapper").css("background-color","white");
+            $(".DTFC_LeftFootWrapper").css('background-color','white');
+
+            //After resizing left column, the width of DTFC_LeftWrapper is different
+            //with width DTFC_LeftBodyLiner, need to rewrite the width of
+            //DTFC_LeftBodyLiner width
+            var _widthLeftWrapper = $('.DTFC_LeftWrapper').width();
+            $('.DTFC_LeftBodyLiner').css('width', _widthLeftWrapper+4);//Column has table spacing
+        }else {
+            $('#data-table-chart .dataTables_scrollBody').css('overflow-x', 'hidden');
+        }
     }
     
     return {

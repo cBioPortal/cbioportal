@@ -552,11 +552,10 @@ var ScatterPlots = function() {
                 var _subAttrType = pointClickType(this);
                 if(_subAttrType === 'both'){
                     $(this).attr('clicked','shiftClicked');
-                    changeClickStyle(this);
-                }if(_subAttrType === 'clicked'){
+                }else if(_subAttrType === 'clicked'){
                     $(this).removeAttr('clicked');
-                    changeClickStyle(this);
                 }
+                changeClickStyle(this);
             });
             if(_attrType === 'shiftClicked'){
                 $(_element).attr('clicked','both');
@@ -601,13 +600,12 @@ var ScatterPlots = function() {
                 _shiftClickedCases.push(d.case_id);
                 if(_subAttrType === 'both'){
                     $(this).attr('clicked','shiftClicked');
-                    changeClickStyle(this);
                 }
             }else if(_subAttrType === 'clicked' ){
                 $(this).attr('clicked','shiftClicked');
-                changeClickStyle(this);
                 _shiftClickedCases.push(d.case_id);
             }
+            changeClickStyle(this);
         });
         clickCallback(_shiftClickedCases);
     }

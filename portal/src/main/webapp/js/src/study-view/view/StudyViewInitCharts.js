@@ -749,6 +749,7 @@ var StudyViewInitCharts = (function(){
      * @param {type} _selectedAttr
      */
     function plotDataCallbackFunc(_casesInfo, _selectedAttr) {
+        removeMarker();
         resetBars(_selectedAttr);
         redrawSpecialPlots(_casesInfo, _selectedAttr);
     }

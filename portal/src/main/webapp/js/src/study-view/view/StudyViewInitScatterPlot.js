@@ -260,6 +260,9 @@ var StudyViewInitScatterPlot = (function() {
             dcCharts[_caseIdChartIndex].getChart().filterAll();
             dcCharts[_caseIdChartIndex].getChart().filter([_caseIDs]);
             dc.redrawAll();
+        
+            StudyViewInitCharts.resetBars();
+            StudyViewInitCharts.redrawWSCharts();
         }else{
             clearFlag = true;
             for(var i=0; i< _numOfCharts ; i++){
@@ -270,9 +273,8 @@ var StudyViewInitScatterPlot = (function() {
             }
             dc.redrawAll();
             StudyViewInitCharts.resetBars();
+            StudyViewInitCharts.redrawSpecialPlots();
         }
-        
-        StudyViewInitCharts.redrawWSCharts();
     }
     
     function scatterPlotClickCallBack(_clickedCaseIds) {
@@ -293,6 +295,7 @@ var StudyViewInitScatterPlot = (function() {
         }else{
             StudyViewInitCharts.removeMarker();
         }
+        StudyViewInitCharts.resetBars();
         StudyViewInitCharts.changeHeader();
     }
     

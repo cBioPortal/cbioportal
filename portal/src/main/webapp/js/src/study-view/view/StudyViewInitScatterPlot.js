@@ -164,13 +164,20 @@ var StudyViewInitScatterPlot = (function() {
         scatterPlot.updateStyle(_style);
     }
     
-    function redraw(_selectedCaseIds) {
+    function redraw(_selectedCaseIds, _hasFilterFlag) {
         if(initStatus){
-            setStyle(_selectedCaseIds);
+            setStyle(_selectedCaseIds, _hasFilterFlag);
         }
     }
     
-    function setStyle(_selectedCaseIds) {
+    /**
+     * 
+     * @param {type} _selectedCaseIds
+     * @param {type} _hasFilterFlag     use to distinguish reset scatter or 
+     *                                  brushed no case.
+     * @returns {undefined}
+     */
+    function setStyle(_selectedCaseIds, _hasFilterFlag) {
         var _style = [];
         
         if(initStatus){
@@ -191,22 +198,34 @@ var StudyViewInitScatterPlot = (function() {
                             styleDatum.strokeWidth = '0';
                             styleDatum.size = '60';
                         }
+                        styleDatum.opacity = '1';
                     }else{
-                        styleDatum.fill = '#2986e2';
-                        styleDatum.stroke = '#2986e2';
-                        styleDatum.strokeWidth = '0';
-                        styleDatum.size = '60';
+                        if(_hasFilterFlag){
+                            styleDatum.fill = '#2986e2';
+                            styleDatum.stroke = '#2986e2';
+                            styleDatum.strokeWidth = '0';
+                            styleDatum.size = '60';
+                            styleDatum.opacity = '0.6';
+                        }else {
+                            styleDatum.fill = '#2986e2';
+                            styleDatum.stroke = '#2986e2';
+                            styleDatum.strokeWidth = '0';
+                            styleDatum.size = '60';
+                            styleDatum.opacity = '1';
+                        }
                     }
                 }else if(_selectedCaseIds.length === 0){
                     styleDatum.fill = '#2986e2';
                     styleDatum.stroke = '#2986e2';
                     styleDatum.strokeWidth = '0';
                     styleDatum.size = '60';
+                    styleDatum.opacity = '1';
                 }else{
                     styleDatum.fill = 'red';
                     styleDatum.stroke = 'red';
                     styleDatum.strokeWidth = '0';
                     styleDatum.size = '60';
+                    styleDatum.opacity = '1';
                 }
                 _style.push(styleDatum);
             }

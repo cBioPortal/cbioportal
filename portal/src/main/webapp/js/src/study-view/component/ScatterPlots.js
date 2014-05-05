@@ -445,9 +445,9 @@ var ScatterPlots = function() {
                 .delay(100)
                 .attr("d", d3.svg.symbol().size(size).type(style.shape));
         
-            elem.dotsGroup.selectAll("path").each(function(d) {
-                changePointSize(this);
-            });
+//            elem.dotsGroup.selectAll("path").each(function(d) {
+//                changePointSize(this);
+//            });
         };
         //Click has three status: 1. Click; 2. ShiftClick; 3. Both
         var click = function(){
@@ -496,30 +496,41 @@ var ScatterPlots = function() {
     }
     //Added in Study View especially
     function changeClickStyle(_element){
-        var _clickType = pointClickType(_element);
-        
-        switch(_clickType){
-            case 'clicked':
-                $(_element).attr('stroke-width','3')
-                            .attr('fill',style.fill)
-                            .attr('stroke','red');
-                break;
-            case 'shiftClicked':
-                $(_element).attr('stroke-width','0')
-                            .attr('fill','red')
-                            .attr('stroke','red');
-                break;
-            case 'both':
-                $(_element).attr('stroke-width','3')
-                            .attr('fill','red')
-                            .attr('stroke',style.stroke);
-                break;
-            
-            //default: withOutClick
-            default:
-                $(_element).attr('stroke-width','0')
-                            .attr('fill',style.fill)
-                            .attr('stroke',style.stroke);
+        if(brushedCases.length === 0) {
+            $(_element).attr('stroke-width','0')
+                        .attr('fill',style.fill)
+                        .attr('stroke',style.stroke)
+                        .attr('opacity','1');
+        }else {
+            var _clickType = pointClickType(_element);
+
+            switch(_clickType){
+                case 'clicked':
+                    $(_element).attr('stroke-width','3')
+                                .attr('fill',style.fill)
+                                .attr('stroke','red')
+                                .attr('opacity','1');
+                    break;
+                case 'shiftClicked':
+                    $(_element).attr('stroke-width','0')
+                                .attr('fill','red')
+                                .attr('stroke','red')
+                                .attr('opacity','1');
+                    break;
+                case 'both':
+                    $(_element).attr('stroke-width','3')
+                                .attr('fill','red')
+                                .attr('stroke',style.stroke)
+                                .attr('opacity','1');
+                    break;
+
+                //default: withOutClick
+                default:
+                    $(_element).attr('stroke-width','0')
+                                .attr('fill',style.fill)
+                                .attr('stroke',style.stroke)
+                                .attr('opacity','0.6');
+            } 
         }
     }
     
@@ -627,6 +638,8 @@ var ScatterPlots = function() {
             }     
         });
         
+        brushedCases = _totalHighlightIds;
+        
         if(_totalHighlightIds.length > 0) {
             _totalHighlightIds = [];
             _brushedCases.length = 0;
@@ -681,7 +694,6 @@ var ScatterPlots = function() {
                 });
             }
 
-            brushedCases = _brushedCases;
 
 //            if(_totalHighlightIds.length === 0){
 //                elem.dotsGroup.selectAll("path").each(function(d) {
@@ -693,10 +705,10 @@ var ScatterPlots = function() {
 //                    _totalHighlightIds = [];
 //                });
 //            }
-
-            elem.dotsGroup.selectAll("path").each(function(d) {
-                changePointSize(this);
-            });
+//
+//            elem.dotsGroup.selectAll("path").each(function(d) {
+//                changePointSize(this);
+//            });
 
             updateBrushCallback(_totalHighlightIds);
         }
@@ -956,6 +968,7 @@ var ScatterPlots = function() {
                     var _index = _caseIdList.indexOf(d.case_id);
                     $(this).attr("fill", _datumArr[_index].fill);
                     $(this).attr("stroke", _datumArr[_index].stroke);
+                    $(this).attr("opacity", _datumArr[_index].opacity);
                     $(this).attr("d", d3.svg.symbol().size(_datumArr[_index].size).type(style.shape));
                     $(this).attr("stroke-width", _datumArr[_index].strokeWidth);
                     if(_datumArr[_index].fill === style.fill && _datumArr[_index].stroke === 'red'){

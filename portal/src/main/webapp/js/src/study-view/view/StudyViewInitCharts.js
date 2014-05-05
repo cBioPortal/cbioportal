@@ -620,9 +620,9 @@ var StudyViewInitCharts = (function(){
                 StudyViewInitScatterPlot.redrawByAttribute(_casesInfo, _selectedAttr);
             }else{
                 if(dcHasFilters()){
-                    StudyViewInitScatterPlot.redraw(getSelectedCasesID());
+                    StudyViewInitScatterPlot.redraw(getSelectedCasesID(), true);
                 }else{
-                    StudyViewInitScatterPlot.redraw([]);
+                    StudyViewInitScatterPlot.redraw([], false);
                 }
             }
         }
@@ -674,7 +674,7 @@ var StudyViewInitCharts = (function(){
             setTimeout(function() {
                 redrawSurvival();
             }, StudyViewParams.summaryParams.transitionDuration);
-        } 
+        }
     }
     
     

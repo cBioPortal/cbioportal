@@ -179,7 +179,7 @@ var StudyViewInitTopComponents = (function() {
         $("#study-view-header-function").append(_newElement);
         $("#study-view-header-function").append(StudyViewBoilerplate.customDialogDiv);
         $("#study-view-header-left-cancer_study-ids").val(StudyViewParams.params.studyId);
-        $("#study-view-header-function").append(StudyViewBoilerplate.tutorialDiv);
+        //$("#study-view-header-function").append(StudyViewBoilerplate.tutorialDiv);
         _headerLeftQtip.position.target = $(window);
         _headerLeftQtip.content.text = $('#study-view-case-select-custom-dialog');
         $('#study-view-header-left-0').qtip(_headerLeftQtip);

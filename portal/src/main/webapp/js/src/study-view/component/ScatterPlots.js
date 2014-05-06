@@ -591,17 +591,14 @@ var ScatterPlots = function() {
     function shiftclicked(_element){
         var _shiftClickedCases = [],
             _attrType = pointClickType(_element);
-    
+        
         //UPdate click point style
         if(_attrType === 'shiftClicked' || _attrType === 'both'){
             $(_element).removeAttr('clicked');
-            changeClickStyle(_element);
         }else if(_attrType === 'clicked'){
             $(_element).attr('clicked','shiftClicked');
-            changeClickStyle(_element);
         }else{
             $(_element).attr('clicked','shiftClicked');
-            changeClickStyle(_element);
         }
         
         elem.dotsGroup.selectAll("path").each(function(d) {
@@ -615,9 +612,15 @@ var ScatterPlots = function() {
                 $(this).attr('clicked','shiftClicked');
                 _shiftClickedCases.push(d.case_id);
             }
+        });
+        
+        brushedCases = _shiftClickedCases;
+        
+        elem.dotsGroup.selectAll("path").each(function(d) {
             changeClickStyle(this);
         });
-        clickCallback(_shiftClickedCases);
+            
+        clickCallback(brushedCases);
     }
     
     //This functions has been modified from original template.
@@ -637,7 +640,7 @@ var ScatterPlots = function() {
             }     
         });
         
-        brushedCases = _totalHighlightIds;
+        
         
         if(_totalHighlightIds.length > 0) {
             _totalHighlightIds = [];
@@ -680,34 +683,17 @@ var ScatterPlots = function() {
                         _y > extent[0][1] && _y < extent[1][1]) {
                         //TODO: does not work with log scale applied scenario
                         $(this).attr('clicked','shiftClicked');
-                        changeClickStyle(this);
                         _brushedCases.push(d.case_id);
                     }else{
                         if(_attrType !== 'none'){
                             $(this).removeAttr('clicked');
                         }
-                        changeClickStyle(this);
                     }
-
+                    changeClickStyle(this);
                     _totalHighlightIds = _brushedCases;
                 });
             }
-
-
-//            if(_totalHighlightIds.length === 0){
-//                elem.dotsGroup.selectAll("path").each(function(d) {
-//                    var _attrType = pointClickType(this);
-//                    if(_attrType !== 'none'){
-//                        $(this).removeAttr('clicked');
-//                        changeClickStyle(this);
-//                    }
-//                    _totalHighlightIds = [];
-//                });
-//            }
-//
-//            elem.dotsGroup.selectAll("path").each(function(d) {
-//                changePointSize(this);
-//            });
+            brushedCases = _totalHighlightIds;
 
             updateBrushCallback(_totalHighlightIds);
         }

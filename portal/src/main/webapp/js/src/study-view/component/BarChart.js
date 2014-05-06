@@ -52,6 +52,7 @@ var BarChart = function(){
         
         
     var color = [],
+        barColor = {},
         seperateDistance,
         startPoint,
         distanceMinMax,
@@ -128,13 +129,23 @@ var BarChart = function(){
 
                 _caseIds = getCaseIds();
 
-                var _index = 0;
                 for(var key in _caseIds){
-                    var _caseInfoDatum = {};
+                    var _caseInfoDatum = {},
+                        _range = key.split("-");
+                    if(key === 'NA'){
+                        _caseInfoDatum.color = barColor['NA'];
+                    }else {
+                        for( var _key in barColor) {
+                            if( (_key < Number(_range[1]) && 
+                                    _key > Number(_range[0]))){
+
+                                _caseInfoDatum.color = barColor[_key];
+                                break;
+                            }
+                        }
+                    }
                     _caseInfoDatum.caseIds = _caseIds[key];
-                    _caseInfoDatum.color = color[_index];
                     _casesInfo[key] = _caseInfoDatum;
-                    _index++;
                 }
                 changeBarColor();
                 plotDataCallback(_casesInfo, param.selectedAttr);
@@ -148,13 +159,13 @@ var BarChart = function(){
     }
     
     function changeBarColor() {
-        var _bars = $("#" + DIV.mainDiv + " g.chart-body").find("rect"),
-            _index = 0;
+        var _bars = $("#" + DIV.mainDiv + " g.chart-body").find("rect");
         
         $.each(_bars, function(index, obj){
-            if($(obj).attr('height') > 0){
-                $(obj).attr('fill', color[_index]);
-                _index++;
+            if(index === _bars.length-1 && hasEmptyValue) {
+                $(obj).attr('fill', '#CCCCCC');
+            }else {
+                $(obj).attr('fill', color[index]);
             }
         });
     }
@@ -559,15 +570,17 @@ var BarChart = function(){
     
     //Initialize BarChart in DC.js
     function initDCBarChart() {
-        var _xunitsNum;
+        var _xunitsNum,
+            _barValue = [];
         
         barChart = dc.barChart("#" + DIV.chartDiv);
         
+       
         cluster = param.ndx.dimension(function (d) {
             var returnValue = d[param.selectedAttr];
             if(returnValue === "NA" || returnValue === '' || returnValue === 'NaN'){
                 hasEmptyValue = true;
-                return emptyValueMapping;
+                returnValue = emptyValueMapping;
             }else{
                 if(d[param.selectedAttr] >= 0){
                     returnValue =  parseInt( 
@@ -580,10 +593,28 @@ var BarChart = function(){
                                         seperateDistance ) - 1 ) * 
                                     seperateDistance + seperateDistance / 2;
                 }
-                
-                return returnValue;
+            }
+            
+            if(_barValue.indexOf(returnValue) === -1) {
+                _barValue.push(Number(returnValue));
+            }
+            
+            return returnValue;
+        });
+        
+        _barValue.sort(function(a, b) {
+            if(a < b){
+                return -1;
+            }else {
+                return 1;
             }
         });
+        
+        var _barLength = _barValue.length;
+        
+        for( var i = 0; i < _barLength-1; i++) {
+            barColor[_barValue[i]] = color[i];
+        }
         
         if(hasEmptyValue){
             xDomain.push( Number( 
@@ -591,6 +622,9 @@ var BarChart = function(){
                                     Number(emptyValueMapping), 3, 0.1 )
                                 )
                         );
+            barColor['NA'] = '#CCCCCC';
+        }else {
+            barColor[_barValue[_barLength-1]] = color[_barLength-1];
         }
         
         barChart
@@ -642,7 +676,8 @@ var BarChart = function(){
         
         var _xunitsNum,
             _domainLength,
-            _maxDomain = 10000;
+            _maxDomain = 10000,
+            _barValue = [];
     
         emptyValueMapping = "1000";//Will be changed later based on maximum value
         xDomain.length =0;
@@ -668,7 +703,8 @@ var BarChart = function(){
             var i, _returnValue = Number(d[param.selectedAttr]);
             
             if(isNaN(_returnValue)){
-                return emptyValueMapping;
+                _returnValue = emptyValueMapping;
+                hasEmptyValue = true;
             }else{
                         
                 _returnValue = Number(_returnValue);
@@ -679,9 +715,34 @@ var BarChart = function(){
                         _returnValue = parseInt( Math.pow(10, i / 2 - 0.25 ));
                     }
                 }
-                return _returnValue;
             }
+            
+            if(_barValue.indexOf(_returnValue) === -1) {
+                _barValue.push(Number(_returnValue));
+            }
+            
+            return _returnValue;
         }); 
+        
+        _barValue.sort(function(a, b) {
+            if(a < b){
+                return -1;
+            }else {
+                return 1;
+            }
+        });
+        
+        var _barLength = _barValue.length;
+        
+        for( var i = 0; i < _barLength-1; i++) {
+            barColor[_barValue[i]] = color[i];
+        }
+        
+        if(hasEmptyValue){
+            barColor['NA'] = '#E6E6E6';
+        }else {
+            barColor[_barValue[_barLength-1]] = color[_barLength-1];
+        }
         
         barChart
             .width(chartWidth)

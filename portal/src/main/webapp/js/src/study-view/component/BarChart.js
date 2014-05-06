@@ -316,29 +316,29 @@ var BarChart = function(){
                 
         for ( var i = 0; i < _deselectedChartsLength; i++) {
             $(_deselectedCharts[i]).css({
-                        'stroke': '',
-                        'fill': ''
-                    });
+                'stroke': '',
+                'fill': ''
+            });
         }
     
         for ( var i = 0; i < _axisDomainLength; i++) {
             $(_axisDomain[i]).css({
-                        'fill': '',
-                        'fill-opacity': '',
-                        'stroke': ''
-                    });
+                'fill': '',
+                'fill-opacity': '',
+                'stroke': ''
+            });
         }
         
         for ( var i = 0; i < _axisTickLength; i++) {
             $(_axisTick[i]).css({
-                        'stroke': ''
-                    });
+                'stroke': ''
+            });
         }
         
         for ( var i = 0; i < _chartTextLength; i++) {
             $(_chartText[i]).css({
-                        'font-size': ''
-                    });
+                'font-size': ''
+            });
         }
     }
     
@@ -440,26 +440,26 @@ var BarChart = function(){
         var _allBars = $('#' + DIV.chartDiv + " .chart-body").find('rect'),
             _allBarsLength = _allBars.length,
             _allAxisX = $('#' + DIV.chartDiv + " .axis.x").find("g"),
-            _allAxisXKeys = Object.keys(_allAxisX),
-            _allAxisXKeysLength = _allAxisXKeys.length,
+            _allAxisXLength = _allAxisX.length,
             _transformChartBody = trimTransformString($('#' + DIV.chartDiv + " .chart-body").attr("transform")),
             _transformAxiaX = trimTransformString($('#' + DIV.chartDiv + " .axis.x").attr("transform"));
-       
+    
         for ( var i = 0; i < _allBarsLength; i++) {
-            var _barDatum = {};
+            var _barDatum = {},
+                _bar = _allBars[i];
             
-            _barDatum.x = Number($(this).attr('x')) + Number(_transformChartBody[0]);
-            _barDatum.y = Number($(this).attr('y')) + Number(_transformChartBody[1]) - 5;
-            _barDatum.width = Number($(this).attr('width'));
+            _barDatum.x = Number($(_bar).attr('x')) + Number(_transformChartBody[0]);
+            _barDatum.y = Number($(_bar).attr('y')) + Number(_transformChartBody[1]) - 5;
+            _barDatum.width = Number($(_bar).attr('width'));
             _barInfo.push(_barDatum);
         }
         
         _numOfBar = _barInfo.length;
         
-        for ( var i = 0; i < _allAxisXKeysLength; i++) {
-            var _key = _allAxisXKeys[i];
-            _xValue[_key] = Number($(this).select('text').text());
-            _xTranslate[_key] = Number(trimTransformString($(this).attr('transform'))[0]) + Number(_transformAxiaX[0]);
+        for ( var i = 0; i < _allAxisXLength; i++) {
+            var _axisX = _allAxisX[i];
+            _xValue[i] = Number($(_axisX).select('text').text());
+            _xTranslate[i] = Number(trimTransformString($(_axisX).attr('transform'))[0]) + Number(_transformAxiaX[0]);
         }
         
         _numItemOfX = _xTranslate.length;

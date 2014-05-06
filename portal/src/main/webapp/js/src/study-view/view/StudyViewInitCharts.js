@@ -772,9 +772,8 @@ var StudyViewInitCharts = (function(){
     
     function resetBars(_exceptionAttr) {
         var _attrIds = [],
-            _attrIdsLength = 0,
-            _divIds = [];
-        
+            _attrIdsLength = 0
+    
         for( var _key in varType) {
             if(varType[_key] === 'bar'){
                 if(typeof _exceptionAttr !== 'undefined'){
@@ -795,9 +794,13 @@ var StudyViewInitCharts = (function(){
                     var _bars = $("#" + _key + " g.chart-body").find("rect"),
                         _barsLength = _bars.length;
                 
-                    for ( var i = 0; i < _barsLength; i++) {
-                        $(_bars[i]).attr('fill', barOriginalColor);
+                    for ( var j = 0; j < _barsLength; j++) {
+                        var _bar = $(_bars[j]);
+                        if(!_bar.hasClass('deselected')){
+                            _bar.attr('fill', barOriginalColor);
+                        }
                     }
+                    break;
                 }
             }
         }
@@ -904,7 +907,7 @@ var StudyViewInitCharts = (function(){
         var _dataTableRowClickCallback = function(_deSelect, _selectedRowCaseId) {
             StudyViewInitScatterPlot.setClickedCasesId(_selectedRowCaseId);
             removeMarker();
-            redrawChartsAfterDeletion();
+            //redrawChartsAfterDeletion();
             if(!_deSelect){
                 getDataAndDrawMarker(_selectedRowCaseId);
             }
@@ -955,17 +958,15 @@ var StudyViewInitCharts = (function(){
                                 _gArray = _datum.find('svg g g'),
                                 _gArrayLength = _gArray.length;
                         
-                            for ( var i = 0; i < _gArrayLength; i++) {
-                                var _title = $(this).find('title').text(),
-                                    _titleArray = _title.split(":"),
-                                    _key = _titleArray[0];
-                                
+                            for ( var j = 0; j < _gArrayLength; j++) {
+                                var _labelText = $(_gArray[j]).find('title').text(),
+                                    _key = _labelText.substring(0, _labelText.lastIndexOf(":"));
                                 if(_key === _relativeValue){
-                                    varChart[i].drawMarker(i+1,i);
+                                    varChart[i].drawMarker(j+1,i);
                                 }
                             }
                         }else if(_valueArray[2] === 'bar'){
-                             varChart[i].drawMarker(dataArr[_clickedCaseIds[0]][_valueArray[0]]);
+                            varChart[i].drawMarker(dataArr[_clickedCaseIds[0]][_valueArray[0]]);
                         }
                     }
                 }

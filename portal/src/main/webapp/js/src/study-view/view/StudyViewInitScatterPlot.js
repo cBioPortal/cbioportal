@@ -321,15 +321,25 @@ var StudyViewInitScatterPlot = (function() {
     }
     
     function scatterPlotShiftClick(_shiftClickedCaseIds){
-        var _shiftClickedCasesLength = _shiftClickedCaseIds.length;
-        
+        var _shiftClickedCasesLength = _shiftClickedCaseIds.length,
+            _numOfCharts = dcCharts.length;
+            
         StudyViewInitCharts.removeMarker();
         shiftClickedCaseIds = _shiftClickedCaseIds;
         if(_shiftClickedCasesLength !== 0){
             clickedCaseId = '';
             scatterPlotCallBack(shiftClickedCaseIds);
         }else{
-            redrawChartsAfterDeletion();
+            for(var i=0; i< _numOfCharts ; i++){
+                if(dcCharts[i] !== ''){
+                    if(dcCharts[i].getChart().filters().length > 0)
+                        dcCharts[i].getChart().filterAll();
+                }
+            }
+            dc.redrawAll();
+            StudyViewInitCharts.resetBars();
+            StudyViewInitCharts.redrawWSCharts();
+            
             if(clickedCaseId !== '')
                 StudyViewInitCharts.getDataAndDrawMarker([clickedCaseId]);
         }

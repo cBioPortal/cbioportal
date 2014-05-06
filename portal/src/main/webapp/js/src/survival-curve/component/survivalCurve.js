@@ -125,24 +125,25 @@ var SurvivalCurve = function() {
                     }
                 );
 
-                var mouseOn = function() {
-                    var dot = d3.select(this);
-                    dot.transition()
-                        .duration(400)
-                        .style("opacity", .9);
-                };
-
-                var mouseOff = function() {
-                    var dot = d3.select(this);
-                    dot.transition()
-                        .duration(400)
-                        .style("opacity", 0);
-                };
-
-                elem.dots[_index].selectAll("path").on("mouseover", mouseOn);
-                elem.dots[_index].selectAll("path").on("mouseout", mouseOff);
             }
         );
+        
+        var mouseOn = function() {
+            var dot = d3.select(this);
+            dot.transition()
+                .duration(400)
+                .style("opacity", .9);
+        };
+
+        var mouseOff = function() {
+            var dot = d3.select(this);
+            dot.transition()
+                .duration(400)
+                .style("opacity", 0);
+        };
+
+        elem.dots[_index].selectAll("path").on("mouseover", mouseOn);
+        elem.dots[_index].selectAll("path").on("mouseout", mouseOff);
     }
 
     function appendAxis(elemAxisX, elemAxisY) {

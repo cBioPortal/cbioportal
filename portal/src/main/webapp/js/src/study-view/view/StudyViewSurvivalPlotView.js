@@ -205,20 +205,22 @@ var StudyViewSurvivalPlotView = (function() {
     }
 
     function highlightCurve(_curveId) {
-        var _hiddenDots = $("#" + _curveId + "-dots").find('path');
-
-        $.each(_hiddenDots, function(index, obj) {
-            $(obj).css('opacity', '.6');
-        });
+        var _hiddenDots = $("#" + _curveId + "-dots").find('path'),
+            _hiddenDotsLength = _hiddenDots.length;
+            
+        for ( var i = 0; i < _hiddenDotsLength; i++) {
+            $(_hiddenDots[i]).css('opacity', '.6');
+        }
         $("#" + _curveId + "-line").css('stroke-width', '3px');
     }
 
     function resetCurve(_curveId) {
-        var _hiddenDots = $("#" + _curveId + "-dots").find('path');
-
-        $.each(_hiddenDots, function(index, obj) {
-            $(obj).css('opacity', '0');
-        });
+        var _hiddenDots = $("#" + _curveId + "-dots").find('path'),
+            _hiddenDotsLength = _hiddenDots.length;
+        
+        for ( var i = 0; i < _hiddenDotsLength; i++) {
+            $(_hiddenDots[i]).css('opacity', '0');
+        }
         $("#" + _curveId + "-line").css('stroke-width', '');
     }
 

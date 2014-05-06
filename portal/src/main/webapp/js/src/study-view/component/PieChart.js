@@ -367,34 +367,36 @@ var PieChart = function(){
             _svg = $("#" + _svgParentDivId + " svg"),
             _svgHeight = _svg.height(),
             _text = _svg.find('text'),
+            _textLength = _text.length,
             _slice = _svg.find('g .pie-slice'),
-            _pieLabel = $("#" + _svgParentDivId).parent().find('td.pieLabel');
+            _sliceLength = _slice.length,
+            _pieLabel = $("#" + _svgParentDivId).parent().find('td.pieLabel'),
+            _pieLabelLength = _pieLabel.length;
         
         //Change pie slice text styles
-        $.each(_text, function(index, value){
-            $(value).css({
+        for ( var i = 0; i < _textLength; i++) {
+            $(_text[i]).css({
                 'fill': 'white',
                 'font-size': '14px',
                 'stroke': 'white',
                 'stroke-width': '1px'
             });
-        });
+        }
         
         //Change pie slice styles
-        $.each(_slice, function(index, value){
-            
-            $($(value).find('path')[0]).css({
+        for ( var i = 0; i < _sliceLength; i++) {
+            $($(_slice[i]).find('path')[0]).css({
                 'stroke': 'white',
                 'stroke-width': '1px'
             });
-        });
+        }
         
         
         //Draw pie label into output
-        
-        $.each(_pieLabel, function(index, value){
-            var _labelName = $($(value).find('span')[0]).attr('value');
-            var _labelColormarker = $($(value).find('svg')[0]).html();
+        for ( var i = 0; i < _pieLabelLength; i++) {
+            var _value = _pieLabel[i],
+                _labelName = $($(_value).find('span')[0]).attr('value'),
+                _labelColormarker = $($(_value).find('svg')[0]).html();
             
             _pieLabelString += "<g transform='translate(0, "+ 
                     _pieLabelYCoord+")'>"+ _labelColormarker+
@@ -406,7 +408,7 @@ var PieChart = function(){
             if(_labelName.toString().length > _maxlabelNameLength){
                 _maxlabelNameLength = _labelName.toString().length;
             }
-        });
+        }
         
         _svgElement = $("#" + _svgParentDivId + " svg").html();
         
@@ -424,22 +426,22 @@ var PieChart = function(){
                     _pieLabelString+"</g></svg>");
     
         //Remove pie slice text styles
-        $.each(_text, function(index, value){
-            $(value).css({
+        for ( var i = 0; i < _textLength; i++) {
+            $(_text[i]).css({
                 'fill': '',
                 'font-size': '',
                 'stroke': '',
                 'stroke-width': ''
             });
-        });
+        }
         
         //Remove pie slice styles
-        $.each(_slice, function(index, value){
-            $($(value).find('path')[0]).css({
+        for ( var i = 0; i < _sliceLength; i++) {
+            $($(_slice[i]).find('path')[0]).css({
                 'stroke': '',
                 'stroke-width': ''
             });
-        });
+        }
     }
     
     //Initialize HTML tags which will be used for current Pie Chart.

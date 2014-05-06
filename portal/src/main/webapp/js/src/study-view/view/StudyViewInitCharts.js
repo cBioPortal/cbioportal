@@ -792,11 +792,12 @@ var StudyViewInitCharts = (function(){
         for( var i = 0; i < _attrIdsLength; i++) {
             for( var _key in HTMLtagsMapUID){
                 if( HTMLtagsMapUID[_key] === _attrIds[i]){
-                    var _bars = $("#" + _key + " g.chart-body").find("rect");
-
-                    $.each(_bars, function(index, obj){
-                        $(obj).attr('fill', barOriginalColor);
-                    });
+                    var _bars = $("#" + _key + " g.chart-body").find("rect"),
+                        _barsLength = _bars.length;
+                
+                    for ( var i = 0; i < _barsLength; i++) {
+                        $(_bars[i]).attr('fill', barOriginalColor);
+                    }
                 }
             }
         }
@@ -951,16 +952,18 @@ var StudyViewInitCharts = (function(){
                     
                         if(_valueArray[2] === 'pie'){
                             var _relativeValue = dataArr[_clickedCaseIds[0]][_valueArray[0]],
-                                _gArray = _datum.find('svg g g');
-                            $.each(_gArray, function(key,value){
+                                _gArray = _datum.find('svg g g'),
+                                _gArrayLength = _gArray.length;
+                        
+                            for ( var i = 0; i < _gArrayLength; i++) {
                                 var _title = $(this).find('title').text(),
                                     _titleArray = _title.split(":"),
                                     _key = _titleArray[0];
                                 
                                 if(_key === _relativeValue){
-                                    varChart[i].drawMarker(key+1,i);
+                                    varChart[i].drawMarker(i+1,i);
                                 }
-                            });
+                            }
                         }else if(_valueArray[2] === 'bar'){
                              varChart[i].drawMarker(dataArr[_clickedCaseIds[0]][_valueArray[0]]);
                         }

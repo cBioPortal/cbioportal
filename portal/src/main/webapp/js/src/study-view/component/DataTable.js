@@ -96,29 +96,34 @@ var DataTable = function() {
     
     //Initialize aaData Data
     function initContentData() {
+        var _arrKeys = Object.keys(arr),
+            _arrKeysLength = _arrKeys.length;
         aaData.length = 0;
-        
-        $.each(arr, function(key,value){ 
+        for ( var i = 0; i< _arrKeysLength; i++) {
+            var _key = _arrKeys[i],
+                _value = arr[_key],
+                _aoColumnsLength = aoColumns.length;
             
-            aaData[key] = [];
+            aaData[_key] = [];
             
-            $.each(aoColumns, function(key1,value1){
-                var _selectedString,
+            for ( var j = 0; j < _aoColumnsLength; j++) {
+                var _valueAo = aoColumns[j],
+                    _selectedString,
                     _specialCharLength,
                     _tmpValue ='',
                     _specialChar = ['(',')','/','?','+'];
 
-                if(value1.sTitle === 'CNA'){
-                    _tmpValue = value['COPY_NUMBER_ALTERATIONS'];                
-                }else if ( value1.sTitle === 'COMPLETE (ACGH, MRNA, SEQUENCING)'){
-                    _tmpValue = value[value1.sTitle];
-                }else if ( value1.sTitle === 'CASE ID'){
+                if(_valueAo.sTitle === 'CNA'){
+                    _tmpValue = _value['COPY_NUMBER_ALTERATIONS'];                
+                }else if ( _valueAo.sTitle === 'COMPLETE (ACGH, MRNA, SEQUENCING)'){
+                    _tmpValue = _value[_valueAo.sTitle];
+                }else if ( _valueAo.sTitle === 'CASE ID'){
                     _tmpValue = "<a href='tumormap.do?case_id=" + 
-                    value['CASE_ID'] + "&cancer_study_id=" +
+                    _value['CASE_ID'] + "&cancer_study_id=" +
                     StudyViewParams.params.studyId + "' target='_blank'><span style='color: #2986e2'>" + 
-                    value['CASE_ID'] + "</span></a></strong>";
+                    _value['CASE_ID'] + "</span></a></strong>";
                 }else{
-                    _tmpValue = value[value1.sTitle.replace(/[ ]/g,'_')];
+                    _tmpValue = _value[_valueAo.sTitle.replace(/[ ]/g,'_')];
                 }
                 if(!isNaN(_tmpValue) && (_tmpValue % 1 !== 0)){
                     _tmpValue = cbio.util.toPrecision(Number(_tmpValue),3,0.01);
@@ -128,14 +133,12 @@ var DataTable = function() {
                 _selectedString = _tmpValue.toString();
                 _specialCharLength = _specialChar.length;
                 
-                if ( value1.sTitle !== 'CASE ID'){
-                    var j;
-                    
-                    for( j = 0; j < _specialCharLength; j++){
-                        if(_selectedString.indexOf(_specialChar[j]) !== -1){
-                            var _re = new RegExp("\\" + _specialChar[j], "g");
+                if ( _valueAo.sTitle !== 'CASE ID'){
+                    for( var z = 0; z < _specialCharLength; z++){
+                        if(_selectedString.indexOf(_specialChar[z]) !== -1){
+                            var _re = new RegExp("\\" + _specialChar[z], "g");
                             
-                            _selectedString = _selectedString.replace(_re, _specialChar[j] + " ");
+                            _selectedString = _selectedString.replace(_re, _specialChar[z] + " ");
                         } 
                     }
                 }
@@ -143,10 +146,9 @@ var DataTable = function() {
                 if(_selectedString === 'NA'){
                     _selectedString = '';
                 }
-                aaData[key].push(_selectedString);
-            });
-        });
-        
+                aaData[_key].push(_selectedString);
+            }
+        }
         aaDataLength = aaData.length;
     }
     

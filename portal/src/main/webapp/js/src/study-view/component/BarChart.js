@@ -159,15 +159,16 @@ var BarChart = function(){
     }
     
     function changeBarColor() {
-        var _bars = $("#" + DIV.mainDiv + " g.chart-body").find("rect");
+        var _bars = $("#" + DIV.mainDiv + " g.chart-body").find("rect"),
+            _barsLength = _bars.length;
         
-        $.each(_bars, function(index, obj){
-            if(index === _bars.length-1 && hasEmptyValue) {
-                $(obj).attr('fill', '#CCCCCC');
+        for(var i = 0; i < _barsLength; i++) {
+            if(i === _bars.length-1 && hasEmptyValue) {
+                $(_bars[i]).attr('fill', '#CCCCCC');
             }else {
-                $(obj).attr('fill', color[index]);
+                $(_bars[i]).attr('fill', color[i]);
             }
-        });
+        }
     }
     
     function getCaseIds(){
@@ -243,42 +244,46 @@ var BarChart = function(){
                                     
         //Change deselected bar chart
         var _chartBody = _svg.find('.chart-body'),
-            _deselectedCharts = _chartBody.find('.bar.deselected');
+            _deselectedCharts = _chartBody.find('.bar.deselected'),
+            _deselectedChartsLength = _deselectedCharts.length;
     
-        $.each(_deselectedCharts,function(index, value){
-            $(value).css({
+        for ( var i = 0; i < _deselectedChartsLength; i++) {
+            $(_deselectedCharts[i]).css({
                 'stroke': '',
                 'fill': '#ccc'
             });
-        });
+        }
          
         //Change axis style
         var _axis = _svg.find('.axis'),
             _axisDomain = _axis.find('.domain'),
-            _axisTick = _axis.find('.tick.major line');
+            _axisDomainLength = _axisDomain.length,
+            _axisTick = _axis.find('.tick.major line'),
+            _axisTickLength = _axisTick.length;
         
-        $.each(_axisDomain,function(index, value){
-            $(value).css({
+        for ( var i = 0; i < _axisDomainLength; i++) {
+            $(_axisDomain[i]).css({
                 'fill': 'white',
                 'fill-opacity': '0',
                 'stroke': 'black'
             });
-        });
+        }
         
-        $.each(_axisTick,function(index, value){
-            $(value).css({
+        for ( var i = 0; i < _axisTickLength; i++) {
+            $(_axisTick[i]).css({
                 'stroke': 'black'
             });
-        });
+        }
         
         //Change x/y axis text size
-        var _chartText = _svg.find('.axis text');
-    
-        $.each(_chartText,function(index, value){
-            $(value).css({
+        var _chartText = _svg.find('.axis text'),
+            _chartTextLength = _chartText.length;
+            
+        for ( var i = 0; i < _chartTextLength; i++) {
+            $(_chartText[i]).css({
                 'font-size': '12px'
             });
-        });
+        }
         
         _svgElement = _svg.html();
         
@@ -309,32 +314,32 @@ var BarChart = function(){
                     'stroke': ''
                 });
                 
-        $.each(_deselectedCharts,function(index, value){
-            $(value).css({
+        for ( var i = 0; i < _deselectedChartsLength; i++) {
+            $(_deselectedCharts[i]).css({
                         'stroke': '',
                         'fill': ''
                     });
-        });
+        }
     
-        $.each(_axisDomain,function(index, value){
-            $(value).css({
+        for ( var i = 0; i < _axisDomainLength; i++) {
+            $(_axisDomain[i]).css({
                         'fill': '',
                         'fill-opacity': '',
                         'stroke': ''
                     });
-        });
+        }
         
-        $.each(_axisTick,function(index, value){
-            $(value).css({
+        for ( var i = 0; i < _axisTickLength; i++) {
+            $(_axisTick[i]).css({
                         'stroke': ''
                     });
-        });
+        }
         
-        $.each(_chartText,function(index, value){
-            $(value).css({
+        for ( var i = 0; i < _chartTextLength; i++) {
+            $(_chartText[i]).css({
                         'font-size': ''
                     });
-        });
+        }
     }
     
     //Parse string to document recognisable SVG elements
@@ -433,26 +438,29 @@ var BarChart = function(){
             _xTranslate = [];
         
         var _allBars = $('#' + DIV.chartDiv + " .chart-body").find('rect'),
+            _allBarsLength = _allBars.length,
             _allAxisX = $('#' + DIV.chartDiv + " .axis.x").find("g"),
+            _allAxisXKeys = Object.keys(_allAxisX),
+            _allAxisXKeysLength = _allAxisXKeys.length,
             _transformChartBody = trimTransformString($('#' + DIV.chartDiv + " .chart-body").attr("transform")),
             _transformAxiaX = trimTransformString($('#' + DIV.chartDiv + " .axis.x").attr("transform"));
        
-        
-        $.each(_allBars,function(key,value){
-            var _barDatum = {}
+        for ( var i = 0; i < _allBarsLength; i++) {
+            var _barDatum = {};
             
             _barDatum.x = Number($(this).attr('x')) + Number(_transformChartBody[0]);
             _barDatum.y = Number($(this).attr('y')) + Number(_transformChartBody[1]) - 5;
             _barDatum.width = Number($(this).attr('width'));
             _barInfo.push(_barDatum);
-        });
+        }
         
         _numOfBar = _barInfo.length;
         
-        $.each(_allAxisX,function(key,value){
-            _xValue[key] = Number($(this).select('text').text());
-            _xTranslate[key] = Number(trimTransformString($(this).attr('transform'))[0]) + Number(_transformAxiaX[0]);
-        });
+        for ( var i = 0; i < _allAxisXKeysLength; i++) {
+            var _key = _allAxisXKeys[i];
+            _xValue[_key] = Number($(this).select('text').text());
+            _xTranslate[_key] = Number(trimTransformString($(this).attr('transform'))[0]) + Number(_transformAxiaX[0]);
+        }
         
         _numItemOfX = _xTranslate.length;
         

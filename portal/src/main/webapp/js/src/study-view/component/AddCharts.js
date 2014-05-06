@@ -27,6 +27,8 @@ var AddCharts = (function(){
     
     function initAddChartsButton(_param) {
         var _name = _param.name,
+            _nameKeys = Object.keys(_name),
+            _nameKeyLength = _nameKeys.length,
             _dispalyedID = _param.displayedID,
             _displayName = _param.displayName,
             _showedNames = [],
@@ -34,14 +36,14 @@ var AddCharts = (function(){
         
         $('#study-view-add-chart ul').find('li').remove().end();
         
-        $.each(_name, function(key, value) {
-            if(_dispalyedID.indexOf(value) === -1){
+        for ( var i = 0 ; i < _nameKeyLength; i++) {
+            if(_dispalyedID.indexOf(_name[_nameKeys[i]]) === -1){
                 var _datum = {};
-                _datum.displayName = _displayName[key];
-                _datum.name = value;
+                _datum.displayName = _displayName[_nameKeys[i]];
+                _datum.name = _name[_nameKeys[i]];
                 _showedNames.push(_datum);
             }
-        });
+        }
         
         _showedNamesLength = _showedNames.length;
         

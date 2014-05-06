@@ -17,23 +17,25 @@ var StudyViewInitScatterPlot = (function() {
         arr = jQuery.extend(true, [], _arr);
         arrLength = arr.length;
         
-        $.each(_arr, function(i,value) {
-            if( !isNaN(value['COPY_NUMBER_ALTERATIONS']) && 
-                !isNaN(value['MUTATION_COUNT']) && 
-                value['COPY_NUMBER_ALTERATIONS'] !== "" && 
-                value['MUTATION_COUNT'] !== "") {                  
+        for ( var i = 0; i < arrLength; i++) {
+            var _value = arr[i];
+            
+            if( !isNaN(_value['COPY_NUMBER_ALTERATIONS']) && 
+                !isNaN(_value['MUTATION_COUNT']) && 
+                _value['COPY_NUMBER_ALTERATIONS'] !== "" && 
+                _value['MUTATION_COUNT'] !== "") {                  
                     var _scatterPlotDatumTmp= {};
-                    _scatterPlotDatumTmp.x_val = value['COPY_NUMBER_ALTERATIONS'];
-                    _scatterPlotDatumTmp.y_val = value['MUTATION_COUNT'];
-                    _scatterPlotDatumTmp.case_id = value['CASE_ID'];
+                    _scatterPlotDatumTmp.x_val = _value['COPY_NUMBER_ALTERATIONS'];
+                    _scatterPlotDatumTmp.y_val = _value['MUTATION_COUNT'];
+                    _scatterPlotDatumTmp.case_id = _value['CASE_ID'];
                     _scatterPlotDatumTmp.qtip = "Case ID: <strong>" +
                         "<a href='tumormap.do?case_id=" +
-                        value['CASE_ID'] + "&cancer_study_id=" +
+                        _value['CASE_ID'] + "&cancer_study_id=" +
                         StudyViewParams.params.studyId + "' target='_blank'>" + 
-                        value['CASE_ID'] + "</a></strong>";
+                        _value['CASE_ID'] + "</a></strong>";
                     scatterPlotArr.push(_scatterPlotDatumTmp);
             }
-        });
+        }
         
         dcCharts = StudyViewInitCharts.getCharts();
         

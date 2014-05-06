@@ -496,42 +496,42 @@ var ScatterPlots = function() {
     }
     //Added in Study View especially
     function changeClickStyle(_element){
-        if(brushedCases.length === 0) {
-            $(_element).attr('stroke-width','0')
-                        .attr('fill',style.fill)
-                        .attr('stroke',style.stroke)
-                        .attr('opacity','1');
-        }else {
-            var _clickType = pointClickType(_element);
+        var _clickType = pointClickType(_element);
 
-            switch(_clickType){
-                case 'clicked':
-                    $(_element).attr('stroke-width','3')
-                                .attr('fill',style.fill)
-                                .attr('stroke','red')
-                                .attr('opacity','1');
-                    break;
-                case 'shiftClicked':
-                    $(_element).attr('stroke-width','0')
-                                .attr('fill','red')
-                                .attr('stroke','red')
-                                .attr('opacity','1');
-                    break;
-                case 'both':
-                    $(_element).attr('stroke-width','3')
-                                .attr('fill','red')
-                                .attr('stroke',style.stroke)
-                                .attr('opacity','1');
-                    break;
+        switch(_clickType){
+            case 'clicked':
+                $(_element).attr('stroke-width','3')
+                            .attr('fill',style.fill)
+                            .attr('stroke','red')
+                            .attr('opacity','1');
+                break;
+            case 'shiftClicked':
+                $(_element).attr('stroke-width','0')
+                            .attr('fill','red')
+                            .attr('stroke','red')
+                            .attr('opacity','1');
+                break;
+            case 'both':
+                $(_element).attr('stroke-width','3')
+                            .attr('fill','red')
+                            .attr('stroke',style.stroke)
+                            .attr('opacity','1');
+                break;
 
-                //default: withOutClick
-                default:
+            //default: withOutClick
+            default:
+                if(brushedCases.length !== 0){
                     $(_element).attr('stroke-width','0')
-                                .attr('fill',style.fill)
-                                .attr('stroke',style.stroke)
-                                .attr('opacity','0.6');
-            } 
-        }
+                            .attr('fill',style.fill)
+                            .attr('stroke',style.stroke)
+                            .attr('opacity','0.6');
+                }else {
+                    $(_element).attr('stroke-width','0')
+                            .attr('fill',style.fill)
+                            .attr('stroke',style.stroke)
+                            .attr('opacity','1');
+                }
+        } 
     }
     
     //Added in Study View especially
@@ -570,11 +570,10 @@ var ScatterPlots = function() {
             });
             if(_attrType === 'shiftClicked'){
                 $(_element).attr('clicked','both');
-                changeClickStyle(_element);
             }else{
                 $(_element).attr('clicked','clicked');
-                changeClickStyle(_element);
             }
+            changeClickStyle(_element);
         }
         
         //Find the clicked point ID

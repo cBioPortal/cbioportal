@@ -56,7 +56,7 @@ var StudyViewSurvivalPlotView = (function() {
                     );
         }
 
-        $('#' + _opts.divs.main + ' svg image').unbind('hover');
+        //$('#' + _opts.divs.main + ' svg image').unbind('hover');
         $('#' + _opts.divs.main + ' svg image').hover(function() {
             $(this).css('cursor', 'pointer');
         });
@@ -71,9 +71,9 @@ var StudyViewSurvivalPlotView = (function() {
 
             } else if ($(this).attr('name') === 'close') {
                 var _parent = $(this).parent(),
-                        _name = $(_parent).find('text').attr('value'),
-                        _color = $(_parent).find('rect').attr('fill'),
-                        _index = $(this).parent().index();
+                        _name = $(_parent).find('text').attr('oValue'),
+                    _color = $(_parent).find('rect').attr('fill'),
+                    _index = $(this).parent().index();
 
                 $(_parent).remove();
                 removeCurveFunc(_index, _plotIndex);
@@ -81,7 +81,7 @@ var StudyViewSurvivalPlotView = (function() {
                 survivalPlot[_plotIndex].removeCurve(_color.toString().substring(1) + "-" + _plotIndex);
             } else if ($(this).attr('name') === 'saved-close') {
                 var _parent = $(this).parent(),
-                        _name = $(_parent).find('text').attr('value');
+                    _name = $(_parent).find('text').attr('oValue');
 
                 $(_parent).remove();
                 undoSavedCurve(_name, _plotIndex);
@@ -92,7 +92,7 @@ var StudyViewSurvivalPlotView = (function() {
             }
         });
 
-        $('#' + _opts.divs.main + ' svg rect').unbind('hover');
+        //$('#' + _opts.divs.main + ' svg rect').unbind('hover');
         $('#' + _opts.divs.main + ' svg rect').hover(function() {
             $(this).css('cursor', 'pointer');
         });
@@ -167,7 +167,7 @@ var StudyViewSurvivalPlotView = (function() {
 
         _svgLabels.find('image').remove();
         _svgLabels.find('text').each(function(i, obj) {
-            var _value = $(obj).attr('value');
+            var _value = $(obj).attr('oValue');
 
             if (typeof _value === 'undefined') {
                 _value = $(obj).text();
@@ -280,7 +280,7 @@ var StudyViewSurvivalPlotView = (function() {
     //input the curve name.
     function nameCurveDialog(_this, _callBackFunc, _plotIndex) {
         var _parent = $(_this).parent(),
-            _value = $(_parent).find("text:first").attr('value'),
+            _value = $(_parent).find("text:first").attr('oValue'),
             _qtipContent = '<input type="text" style="float:left" value="'+
                 _value+'"/><button style="float:left">OK</button>';
         
@@ -820,7 +820,7 @@ var StudyViewSurvivalPlotView = (function() {
                 .attr('fill', 'black')
                 .attr('font', '12px')
                 .attr('id', 'survival_label_text_' + _plotIndex + "_" + _index)
-                .attr('value', _textName)
+                .attr('oValue', _textName)
                 .text(_textName);
 
         if (_iconType === 'pin') {

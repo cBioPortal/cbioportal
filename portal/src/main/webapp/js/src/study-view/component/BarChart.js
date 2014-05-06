@@ -390,7 +390,7 @@ var BarChart = function(){
         }
         
         var contentHTML = "<div id=\"" + DIV.chartDiv + 
-                "\" class='"+ param.className +"'  value='" + param.selectedAttr + "," + 
+                "\" class='"+ param.className +"'  oValue='" + param.selectedAttr + "," + 
                 param.selectedAttrDisplay + ",bar'>"+
                 "<div id='"+DIV.chartDiv+"-side' class='study-view-pdf-svg-side bar'>"+
                 "<form style='display:inline-block;' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-pdf'>"+

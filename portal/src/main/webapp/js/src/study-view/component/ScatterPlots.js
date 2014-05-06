@@ -554,10 +554,8 @@ var ScatterPlots = function() {
         //UPdate click point style
         if(_attrType === 'both'){
             $(_element).attr('clicked','shiftClicked');
-            changeClickStyle(_element);
         }else if(_attrType === 'clicked'){
             $(_element).removeAttr('clicked');
-            changeClickStyle(_element);
         }else{
             elem.dotsGroup.selectAll("path").each(function(d) {
                 var _subAttrType = pointClickType(this);
@@ -573,17 +571,21 @@ var ScatterPlots = function() {
             }else{
                 $(_element).attr('clicked','clicked');
             }
-            changeClickStyle(_element);
         }
+        changeClickStyle(_element);
         
         //Find the clicked point ID
+        brushedCases.length = 0;
         elem.dotsGroup.selectAll("path").each(function(d) {
             var _subTyleAttr = pointClickType(this);
             if (_subTyleAttr === 'clicked' || _subTyleAttr === 'both') {
                 _clickedCase = d.case_id;
             }
+            if (_subTyleAttr === 'shiftClicked' || _subTyleAttr === 'both'){
+                brushedCases.push(d.case_id);
+            }
+            changeClickStyle(this);
         });
-        
         clickCallback(_clickedCase);
     }
     

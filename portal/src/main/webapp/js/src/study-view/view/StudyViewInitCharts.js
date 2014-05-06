@@ -585,7 +585,7 @@ var StudyViewInitCharts = (function(){
         $('.study-view-dc-chart-delete').unbind('click');
         $('.study-view-dc-chart-delete').click(function(event){
                 var _id = $(this).parent().parent().parent().attr("id").split("-");
-                var _valueA = $(this).parent().parent().parent().attr('value').split(',');
+                var _valueA = $(this).parent().parent().parent().attr('oValue').split(',');
                 
                 deleteChart(_id[_id.length-1],_valueA);
                 bondDragForLayout();
@@ -867,7 +867,7 @@ var StudyViewInitCharts = (function(){
                 }
                 dc.deregisterChart(_currentChart);
 
-                if($(this).attr('checked')){
+                if($(this).prop('checked')){
                     _param.needLogScale = true;
                 }else{
                     _param.needLogScale = false;
@@ -950,7 +950,7 @@ var StudyViewInitCharts = (function(){
                 if(removedChart.indexOf(i) === -1){
                     if(attrNameMapUID['CASE_ID'] !== i){
                         var _datum = $("#study-view-dc-chart-" + i),
-                            _value = _datum.attr('value'),
+                            _value = _datum.attr('oValue'),
                             _valueArray = _value.split(",");
                     
                         if(_valueArray[2] === 'pie'){
@@ -1081,7 +1081,7 @@ var StudyViewInitCharts = (function(){
 
                 $('#study-view-dc-chart-'+ _chartID +' .study-view-dc-chart-delete').unbind('click');
                 $('#study-view-dc-chart-'+ _chartID +' .study-view-dc-chart-delete').click(function(event){
-                    var valueA = $(this).parent().parent().parent().attr("value").split(',');
+                    var valueA = $(this).parent().parent().parent().attr("oValue").split(',');
                     deleteChart(_chartID,valueA);
                     AddCharts.bindliClickFunc();
                     bondDragForLayout();

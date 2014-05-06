@@ -123,7 +123,7 @@ var PieChart = function(){
                                 labelSize+'"><rect width="' +
                                 labelSize+'" height="'+ labelSize +
                                 '" style="fill:' + label[i].color + 
-                                ';" /></svg><span value="'+
+                                ';" /></svg><span oValue="'+
                                 label[i].name + '" style="vertical-align: top">'+
                                 _tmpName+'</span></td>');
 
@@ -395,7 +395,7 @@ var PieChart = function(){
         //Draw pie label into output
         for ( var i = 0; i < _pieLabelLength; i++) {
             var _value = _pieLabel[i],
-                _labelName = $($(_value).find('span')[0]).attr('value'),
+                _labelName = $($(_value).find('span')[0]).attr('oValue'),
                 _labelColormarker = $($(_value).find('svg')[0]).html();
             
             _pieLabelString += "<g transform='translate(0, "+ 
@@ -480,7 +480,7 @@ var PieChart = function(){
                 "\"" + _introDiv +
                 "class='study-view-dc-chart study-view-pie-main'>"+
                 "<div id=\"" + DIV.chartDiv + "\" class='" + 
-                className + "'  value='"+ selectedAttr + "," + 
+                className + "'  oValue='"+ selectedAttr + "," + 
                 selectedAttrDisplay + ",pie'>"+
                 "<div id='"+DIV.chartDiv+"-side' class='study-view-pdf-svg-side'>"+
                 "<form style='display:inline-block;' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-pdf'>"+
@@ -735,7 +735,7 @@ var PieChart = function(){
                         '<svg width="'+(labelSize+3)+'" height="'+
                         labelSize+'"><rect width="'+
                         labelSize+'" height="'+labelSize+'" style="fill:'+
-                        label[i].color + ';" /></svg><span value="'+
+                        label[i].color + ';" /></svg><span oValue="'+
                         label[i].name + '" style="vertical-align: top">'+
                         _tmpName+'</span></td>');
 

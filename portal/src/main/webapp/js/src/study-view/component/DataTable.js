@@ -670,7 +670,7 @@ var DataTable = function() {
         },
         
         updateTable: function(_filteredResult) {
-            if( $("#dataTable_filter label input").attr("value") !== ''){
+            if( $("#dataTable_filter label input").val() !== ''){
                 dataTable.fnFilter('');
             }
             deleteChartResetDataTable(_filteredResult);

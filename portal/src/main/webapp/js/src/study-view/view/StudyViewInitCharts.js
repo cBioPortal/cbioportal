@@ -74,6 +74,7 @@ var StudyViewInitCharts = (function(){
         attrNameMapUID = {},
         varChart = [],
         varName = [], //Store all attributes in all data
+        varKeys = {}, //Store all keys for each attribute
         
         //The relationshio between "The ID of div standing for each Chart
         //in HTML" and "The unique ID number in whole page".
@@ -200,7 +201,8 @@ var StudyViewInitCharts = (function(){
                 StudyViewUtil.echoWarningMessg('Can not identify data type.');
                 StudyViewUtil.echoWarningMessg('The data type is ' +_dataType);
             }
-
+            varKeys[_attr[i]["attr_id"]] = [];
+            varKeys[_attr[i]["attr_id"]] = _keys;
             varDisplay.push(_attr[i]["display_name"]);                
             varName.push(_attr[i]["attr_id"]);
         }
@@ -211,17 +213,23 @@ var StudyViewInitCharts = (function(){
     function initSpecialCharts(_arr){
         //var _trimedData = wordCloudDataProcess(mutatedGenes);
         
-        if(
-                StudyViewUtil.arrayFindByValue(varName, 'OS_MONTHS') && 
-                StudyViewUtil.arrayFindByValue(varName, 'OS_STATUS')){
+        if(     (StudyViewUtil.arrayFindByValue(varName, 'OS_MONTHS') && 
+                StudyViewUtil.arrayFindByValue(varName, 'OS_STATUS') &&
+                varKeys['OS_MONTHS'].length > 0 &&
+                varKeys['OS_STATUS'].length > 0) || 
+                (StudyViewUtil.arrayFindByValue(varName, 'DFS_MONTHS') && 
+                StudyViewUtil.arrayFindByValue(varName, 'DFS_STATUS') &&
+                varKeys['DFS_MONTHS'].length > 0 &&
+                varKeys['DFS_STATUS'].length > 0)){
             
             initSurvivalPlot(_arr);
         }
         
         if(
                 StudyViewUtil.arrayFindByValue(varName, 'MUTATION_COUNT') && 
-                StudyViewUtil.arrayFindByValue(varName, 'COPY_NUMBER_ALTERATIONS')){
-         
+                StudyViewUtil.arrayFindByValue(varName, 'COPY_NUMBER_ALTERATIONS') &&
+                varKeys['MUTATION_COUNT'].length > 0 &&
+                varKeys['COPY_NUMBER_ALTERATIONS'].length > 0){
             initScatterPlot(_arr);
         }
         
@@ -475,32 +483,43 @@ var StudyViewInitCharts = (function(){
     }
     
     function initSurvivalPlot(_data) {
-        var _plotsInfo = {
-                '0': {
-                    name: "Overall Survival Analysis",
-                    property: ["OS_MONTHS", "OS_STATUS"],
-                    status: [["LIVING"], ["DECEASED"]],
-                    caseLists: {
-                        ALL_CASES: {
-                            caseIds: StudyViewParams.params.caseIds, 
-                            color: '#000000'
-                        }
-                    }
-                },
-                '1': {
-                    name: "Disease Free Survival Analysis",
-                    property: ["DFS_MONTHS", "DFS_STATUS"],
-                    status: [["DISEASEFREE"], ["RECURRED", "RECURRED/PROGRESSED", "PROGRESSED"]],
-                    caseLists: {
-                        ALL_CASES: {
-                            caseIds: StudyViewParams.params.caseIds, 
-                            color: '#000000'
-                        }
+        var _plotsInfo = {};
+            
+        if (StudyViewUtil.arrayFindByValue(varName, 'OS_MONTHS') && 
+                StudyViewUtil.arrayFindByValue(varName, 'OS_STATUS') &&
+                varKeys['OS_MONTHS'].length > 0 &&
+                varKeys['OS_STATUS'].length > 0) {
+            _plotsInfo.OS=  {
+                name: "Overall Survival Analysis",
+                property: ["OS_MONTHS", "OS_STATUS"],
+                status: [["LIVING"], ["DECEASED"]],
+                caseLists: {
+                    ALL_CASES: {
+                        caseIds: StudyViewParams.params.caseIds, 
+                        color: '#000000'
                     }
                 }
             };
+        }
+        
+        if (StudyViewUtil.arrayFindByValue(varName, 'DFS_MONTHS') && 
+                StudyViewUtil.arrayFindByValue(varName, 'DFS_STATUS') &&
+                varKeys['DFS_MONTHS'].length > 0 &&
+                varKeys['DFS_STATUS'].length > 0) {
             
-            
+            _plotsInfo.DFS=  {
+                name: "Disease Free Survival Analysis",
+                property: ["DFS_MONTHS", "DFS_STATUS"],
+                status: [["DISEASEFREE"], ["RECURRED", "RECURRED/PROGRESSED", "PROGRESSED"]],
+                caseLists: {
+                    ALL_CASES: {
+                        caseIds: StudyViewParams.params.caseIds, 
+                        color: '#000000'
+                    }
+                }
+            };
+        }
+        
         StudyViewSurvivalPlotView.init(_plotsInfo, _data);
 
         $(".study-view-survival-plot-delete").click(function (){

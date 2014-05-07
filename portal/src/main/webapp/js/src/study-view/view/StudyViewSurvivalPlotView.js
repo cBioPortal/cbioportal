@@ -495,11 +495,12 @@ var StudyViewSurvivalPlotView = (function() {
      * @param _index The survival plot identifier
      * @return _opts The initilized option object
      */
-    function initOpts(_index) {
+    function initOpts(_index, _key) {
         var _opts = {};
 
         _opts.index = _index;
-        _opts.title = plotsInfo[_index].name;
+        _opts.key = _key;
+        _opts.title = plotsInfo[_key].name;
         _opts.divs = {};
         _opts.divs.main = "study-view-survival-plot-" + _index;
         _opts.divs.title = "study-view-survival-pot-title-" + _index;
@@ -897,25 +898,26 @@ var StudyViewSurvivalPlotView = (function() {
      * @param {type} _data      all data before prcessing, and clone it to oData.
      */
     function createCurves(_plotsInfo, _data) {
+        var _keys = Object.keys(_plotsInfo);
         numOfPlots = Object.keys(_plotsInfo).length;
         plotsInfo = _plotsInfo;
         oData = _data;
         oDataLength = _data.length;
 
         for (var i = 0; i < numOfPlots; i++) {
-            plotBasicFuncs(i);
+            plotBasicFuncs(i, _keys[i]);
         }
 
         //The initStatus will be used from other view
         initStatus = true;
     }
 
-    function plotBasicFuncs(_index) {
+    function plotBasicFuncs(_index, _key) {
         var _casesInfo;
 
         aData[_index] = {};
         opts[_index] = {};
-        aData[_index] = dataProcess(plotsInfo[_index]);
+        aData[_index] = dataProcess(plotsInfo[_key]);
 
 /*
         for(var _key in aData[_index]){
@@ -928,14 +930,14 @@ var StudyViewSurvivalPlotView = (function() {
         */
         //If no data returned, this survival plot should not be initialized.
         if (Object.keys(aData[_index]).length !== 0) {
-            opts[_index] = initOpts(_index);
+            opts[_index] = initOpts(_index, _key);
             createDiv(opts[_index]);
-            _casesInfo = grouping(plotsInfo[_index].caseLists, '');
+            _casesInfo = grouping(plotsInfo[_key].caseLists, '');
             initView(_casesInfo, aData[_index], _index);
             drawLabels(_index);
             addEvents(_index);
         } else {
-            console.log("No data for Survival Plot: " + _index);
+            console.log("No data for Survival Plot: " + _key);
         }
     }
 

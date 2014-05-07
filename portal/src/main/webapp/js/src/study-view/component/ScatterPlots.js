@@ -927,21 +927,27 @@ var ScatterPlots = function() {
                 }
             }
             
-            for(var i=0 ; i< dataCopy.length ; i++){
-                for(var j=0 ; j< _datumArr.length ; j++){
-                    if(_datumArr[j].case_id === dataCopy[i].case_id && _datumArr[j].fill !== 'red'){
-                        _tmpDataArr.push(dataCopy[i]);
-                    }
-                }
-            }
-            for(var i=0 ; i< dataCopy.length ; i++){
-                for(var j=0 ; j< _datumArr.length ; j++){
-                    if(_datumArr[j].case_id === dataCopy[i].case_id && _datumArr[j].fill === 'red'){
-                        _tmpDataArr.push(dataCopy[i]);
+            for(var j=0 ; j< _datumArr.length ; j++){
+                if(_datumArr[j].fill !== 'red') {
+                    for(var i=0 ; i< dataCopy.length ; i++){
+                        if(_datumArr[j].case_id === dataCopy[i].case_id){
+                            _tmpDataArr.push(dataCopy[i]);
+                            break;
+                        }
                     }
                 }
             }
             
+            for(var j=0 ; j< _datumArr.length ; j++){
+                if(_datumArr[j].fill === 'red') {
+                    for(var i=0 ; i< dataCopy.length ; i++){
+                        if(_datumArr[j].case_id === dataCopy[i].case_id ){
+                            _tmpDataArr.push(dataCopy[i]);
+                            break;
+                        }
+                    }
+                }
+            }
             dataCopy = _tmpDataArr;
             drawPlots(dataCopy);
             addQtips();

@@ -133,36 +133,35 @@ var StudyViewInitScatterPlot = (function() {
     
     function redrawByAttribute(_casesInfo, _selctedAttr){
         var _style = [];
-        /*
-        for(var i = 0; i < arrLength; i++) {
-            var _arr = arr[i][_selctedAttr],
-                _caseId = arr[i]['CASE_ID'];
-           
-            if(!_casesInfo.hasOwnProperty(_arr)){
-                if(_casesInfo.hasOwnProperty('NA')){
-                    _casesInfo['NA'].caseIds.push(_caseId);
-                }else{
-                    StudyViewUtil.echoWarningMessg("Unexpected attribute: " + _arr);
-                }
-            }else{
-                _casesInfo[_arr].caseIds.push(_caseId);
-            }
-        }
-        */
-        for(var key in _casesInfo){
-            var _casesLength = _casesInfo[key].caseIds.length;
+        
+        if(_casesInfo.hasOwnProperty('NA')){
+            var _casesLength = _casesInfo['NA'].caseIds.length;
             
             for(var i = 0; i < _casesLength; i++){
                 var styleDatum = {};
-                styleDatum.case_id = _casesInfo[key].caseIds[i];
-                styleDatum.fill = _casesInfo[key].color;
-                styleDatum.stroke = _casesInfo[key].color;
+                styleDatum.case_id = _casesInfo['NA'].caseIds[i];
+                styleDatum.fill = _casesInfo['NA'].color;
+                styleDatum.stroke = _casesInfo['NA'].color;
                 styleDatum.strokeWidth = '0';
                 styleDatum.size = '60';
                 _style.push(styleDatum);
             }
         }
-        
+        for(var key in _casesInfo){
+            if(key !== 'NA'){
+                var _casesLength = _casesInfo[key].caseIds.length;
+
+                for(var i = 0; i < _casesLength; i++){
+                    var styleDatum = {};
+                    styleDatum.case_id = _casesInfo[key].caseIds[i];
+                    styleDatum.fill = _casesInfo[key].color;
+                    styleDatum.stroke = _casesInfo[key].color;
+                    styleDatum.strokeWidth = '0';
+                    styleDatum.size = '60';
+                    _style.push(styleDatum);
+                }
+            }
+        }
         scatterPlot.updateStyle(_style);
     }
     

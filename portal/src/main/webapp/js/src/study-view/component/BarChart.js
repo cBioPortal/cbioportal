@@ -526,10 +526,10 @@ var BarChart = function(){
         }else if( distanceMinMax > 1 ){
             
             seperateDistance = (parseInt(distanceMinMax / (numOfGroups * divider)) + 1) * divider;
-            _tmpMaxDomain = (parseInt(param.distanceArray.max / divider) + 1) * divider;
-            startPoint = parseInt(param.distanceArray.min / divider) * divider;
+            _tmpMaxDomain = (parseInt(param.distanceArray.max / seperateDistance) + 1) * seperateDistance;
+            startPoint = parseInt(param.distanceArray.min / seperateDistance) * seperateDistance;
             emptyValueMapping = _tmpMaxDomain+seperateDistance;
-        
+            
         }else if( distanceMinMax < 1 && param.distanceArray.min >=0 ){
             
             seperateDistance = 0.1;

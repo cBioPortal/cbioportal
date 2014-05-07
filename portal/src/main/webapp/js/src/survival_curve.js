@@ -260,7 +260,11 @@ var survivalCurves = (function() {
                 setDFSGroups(result, caseLists);
                 if (os_altered_group.length === 0 && os_unaltered_group.length === 0 &&
                     dfs_altered_group.length === 0 && dfs_unaltered_group.length === 0) {
-                    $('#tab-survival').hide();
+                    //$('#tab-survival').hide();
+                    var tab = $('#tabs a').filter(function(){
+                        return $(this).text() == "Survival";
+                    }).parent();
+                    tab.hide();
                 } else {
                     if (os_altered_group.length !== 0 || os_unaltered_group.length !== 0) {
                         calcOS();
@@ -316,7 +320,7 @@ var survivalCurves = (function() {
                 dfsUnalterCensoredDots: ""
             },
             settings = {
-                canvas_width: 800,
+                canvas_width: 1000,
                 canvas_height: 620,
                 altered_line_color: "red",
                 unaltered_line_color: "blue",
@@ -426,40 +430,48 @@ var survivalCurves = (function() {
 
         function drawOSLines() {
             var _os_altered_data = data.getOSAlteredData();
-            if (_os_altered_data[0].time !== 0) {
-                _os_altered_data.unshift(appendZeroPoint(_os_altered_data[0].num_at_risk));
-            }
             var _os_unaltered_data = data.getOSUnalteredData();
-            if (_os_unaltered_data[0].time !== 0) {
-                _os_unaltered_data.unshift(appendZeroPoint(_os_unaltered_data[0].num_at_risk));
+            if (_os_altered_data !== null && _os_altered_data.length > 0) {
+                if (_os_altered_data[0].time !== 0) {
+                    _os_altered_data.unshift(appendZeroPoint(_os_altered_data[0].num_at_risk));
+                }
+                elem.svgOS.append("path")
+                    .attr("d", elem.line(_os_altered_data))
+                    .style("fill", "none")
+                    .style("stroke", settings.altered_line_color);
             }
-            elem.svgOS.append("path")
-                .attr("d", elem.line(_os_altered_data))
-                .style("fill", "none")
-                .style("stroke", settings.altered_line_color);
-            elem.svgOS.append("path")
-                .attr("d", elem.line(_os_unaltered_data))
-                .style("fill", "none")
-                .style("stroke", settings.unaltered_line_color);
+            if (_os_unaltered_data !== null && _os_unaltered_data.length > 0) {
+                if (_os_unaltered_data[0].time !== 0) {
+                    _os_unaltered_data.unshift(appendZeroPoint(_os_unaltered_data[0].num_at_risk));
+                }
+                elem.svgOS.append("path")
+                    .attr("d", elem.line(_os_unaltered_data))
+                    .style("fill", "none")
+                    .style("stroke", settings.unaltered_line_color);
+            }
         }
 
         function drawDFSLines() {
             var _dfs_altered_data = data.getDFSAlteredData();
-            if (_dfs_altered_data[0].time !== 0) {
-                _dfs_altered_data.unshift(appendZeroPoint(_dfs_altered_data[0].num_at_risk));
-            }
             var _dfs_unaltered_data = data.getDFSUnalteredData();
-            if (_dfs_unaltered_data[0].time !== 0) {
-                _dfs_unaltered_data.unshift(appendZeroPoint(_dfs_unaltered_data[0].num_at_risk));
+            if (_dfs_altered_data !== null && _dfs_altered_data.length > 0) {
+                if (_dfs_altered_data[0].time !== 0) {
+                    _dfs_altered_data.unshift(appendZeroPoint(_dfs_altered_data[0].num_at_risk));
+                }
+                elem.svgDFS.append("path")
+                    .attr("d", elem.line(_dfs_altered_data))
+                    .style("fill", "none")
+                    .style("stroke", settings.altered_line_color);
             }
-            elem.svgDFS.append("path")
-                .attr("d", elem.line(_dfs_altered_data))
-                .style("fill", "none")
-                .style("stroke", settings.altered_line_color);
-            elem.svgDFS.append("path")
-                .attr("d", elem.line(_dfs_unaltered_data))
-                .style("fill", "none")
-                .style("stroke", settings.unaltered_line_color);
+            if (_dfs_unaltered_data !== null && _dfs_unaltered_data.length > 0) {
+                if (_dfs_unaltered_data[0].time !== 0) {
+                    _dfs_unaltered_data.unshift(appendZeroPoint(_dfs_unaltered_data[0].num_at_risk));
+                }
+                elem.svgDFS.append("path")
+                    .attr("d", elem.line(_dfs_unaltered_data))
+                    .style("fill", "none")
+                    .style("stroke", settings.unaltered_line_color);
+            }
         }
 
         function drawInvisiableDots(svg, color, data) {
@@ -503,10 +515,10 @@ var survivalCurves = (function() {
                     $(this).qtip(
                         {
                             content: {text: content},
-                            style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow ui-tooltip-wide'},
+                            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow qtip-wide'},
                             show: {event: "mouseover"},
                             hide: {fixed:true, delay: 100, event: "mouseout"},
-                            position: {my:'left bottom',at:'top right'}
+                            position: {my:'left bottom',at:'top right', viewport: $(window)}
                         }
                     );
 
@@ -622,14 +634,8 @@ var survivalCurves = (function() {
                 .enter().append("g")
                 .attr("class", "legend")
                 .attr("transform", function(d, i) {
-                    return "translate(680, " + (70 + i * 15) + ")";
+                    return "translate(715, " + (70 + i * 15) + ")";
                 })
-
-            legend.append("text")
-                .attr("x", -10)
-                .attr("y", 4)
-                .style("text-anchor", "end")
-                .text(function(d) { return d.text });
 
             legend.append("path")
                 .attr("width", 18)
@@ -640,6 +646,13 @@ var survivalCurves = (function() {
                 .attr("fill", function (d) { return d.color; })
                 .attr("stroke", "black")
                 .attr("stroke-width",.9);
+
+            legend.append("text")
+                .attr("x", 15)
+                .attr("y", 4)
+                .style("text-anchor", "front")
+                .text(function(d) { return d.text });
+
         }
 
         function appendAxisTitles(svg, xTitle, yTitle) {
@@ -662,9 +675,9 @@ var survivalCurves = (function() {
 
         function addPvals(svg, pVal) {
             svg.append("text")
-                .attr("x", 680)
+                .attr("x", 710)
                 .attr("y", 110)
-                .style("text-anchor", "end")
+                .style("text-anchor", "front")
                 .text("Logrank Test P-Value: " + pVal);
         }
 
@@ -695,14 +708,14 @@ var survivalCurves = (function() {
         }
 
         function appendImgConverter(divId, svgId) {
-            var pdfConverterForm = "<form class='img_buttons' action='svgtopdf.do' method='post' " +
+            var pdfConverterForm = "<form class='img_buttons' action='svgtopdf.do' method='post' target='_blank' " +
                 "onsubmit=\"this.elements['svgelement'].value=loadSurvivalCurveSVG('" + svgId + "');\">" +
                 "<input type='hidden' name='svgelement'>" +
                 "<input type='hidden' name='filetype' value='pdf'>" +
                 "<input type='hidden' name='filename' value='survival_study.pdf'>" +
                 "<input type='submit' value='PDF'></form>";
             $('#' + divId).append(pdfConverterForm);
-            var svgConverterForm = "<form class='img_buttons' action='svgtopdf.do' method='post' " +
+            var svgConverterForm = "<form class='img_buttons' action='svgtopdf.do' method='post' target='_blank' " +
                 "onsubmit=\"this.elements['svgelement'].value=loadSurvivalCurveSVG('" + svgId + "');\">" +
                 "<input type='hidden' name='svgelement'>" +
                 "<input type='hidden' name='filetype' value='svg'>" +
@@ -956,8 +969,8 @@ var survivalCurves = (function() {
     return {
         init: function(caseLists) {
             var paramsGetSurvivalData = {
-                case_set_id: case_set_id,
-                case_ids_key: case_ids_key,
+                case_set_id: patient_set_id,
+                case_ids_key: patient_ids_key,
                 cancer_study_id: cancer_study_id
             };
             $.post("getSurvivalData.json", paramsGetSurvivalData, getResultInit(caseLists), "json");

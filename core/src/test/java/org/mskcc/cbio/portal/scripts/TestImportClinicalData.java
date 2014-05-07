@@ -1,29 +1,19 @@
 /** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
-**
-** This library is free software; you can redistribute it and/or modify it
-** under the terms of the GNU Lesser General Public License as published
-** by the Free Software Foundation; either version 2.1 of the License, or
-** any later version.
-**
-** This library is distributed in the hope that it will be useful, but
-** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
-** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
-** documentation provided hereunder is on an "as is" basis, and
-** Memorial Sloan-Kettering Cancer Center 
-** has no obligations to provide maintenance, support,
-** updates, enhancements or modifications.  In no event shall
-** Memorial Sloan-Kettering Cancer Center
-** be liable to any party for direct, indirect, special,
-** incidental or consequential damages, including lost profits, arising
-** out of the use of this software and its documentation, even if
-** Memorial Sloan-Kettering Cancer Center 
-** has been advised of the possibility of such damage.  See
-** the GNU Lesser General Public License for more details.
-**
-** You should have received a copy of the GNU Lesser General Public License
-** along with this library; if not, write to the Free Software Foundation,
-** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-**/
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 
 package org.mskcc.cbio.portal.scripts;
 
@@ -55,14 +45,17 @@ public class TestImportClinicalData extends TestCase {
      * @throws DaoException Database Access Error.
      * @throws IOException  IO Error.
      */
-    public void testImportClinicalData() throws DaoException, IOException {
+    public void testImportClinicalData() throws Exception {
         ResetDatabase.resetDatabase();
         ProgressMonitor pMonitor = new ProgressMonitor();
 		// TBD: change this to use getResourceAsStream()
-        File file = new File("target/test-classes/clinical_test.txt");
+        File patientFile = new File("target/test-classes/clinical_patient.txt");
+        File sampleFile = new File("target/test-classes/clinical_sample.txt");
         CancerStudy cancerStudy = new CancerStudy("test","test","test","test",true);
         cancerStudy.setInternalId(CANCER_STUDY_ID);
-        ImportClinicalData importClinicalData = new ImportClinicalData(cancerStudy, file, pMonitor);
+        ImportClinicalData importClinicalData = new ImportClinicalData(cancerStudy, patientFile, false, pMonitor);
+        importClinicalData.importData();
+        importClinicalData = new ImportClinicalData(cancerStudy, sampleFile, true, pMonitor);
         importClinicalData.importData();
 
         LinkedHashSet <String> caseSet = new LinkedHashSet<String>();
@@ -90,13 +83,13 @@ public class TestImportClinicalData extends TestCase {
         Patient clinical2 = clinicalCaseList.get(2);
         assertEquals (null, clinical2.getDiseaseFreeSurvivalMonths());
 
-		ClinicalParameterMap paramMap = DaoClinicalData.getDataSlice(CANCER_STUDY_ID, Arrays.asList("TUMORGRADE")).get(0);
-		assertEquals ("TUMORGRADE", paramMap.getName());
-		assertEquals("G3", paramMap.getValue("TCGA-04-1331"));
-        assertEquals("G2", paramMap.getValue("TCGA-04-1337"));
-        assertEquals(2, paramMap.getDistinctCategories().size());
+		ClinicalParameterMap paramMap = DaoClinicalData.getDataSlice(CANCER_STUDY_ID, Arrays.asList("PLATINUMSTATUS")).get(0);
+		assertEquals ("PLATINUMSTATUS", paramMap.getName());
+		assertEquals("Sensitive", paramMap.getValue("TCGA-04-1331"));
+        assertEquals("MISSING", paramMap.getValue("TCGA-04-1337"));
+        assertEquals(4, paramMap.getDistinctCategories().size());
 
 		Set<String> paramSet = DaoClinicalData.getDistinctParameters(CANCER_STUDY_ID);
-        assertEquals (12, paramSet.size());
+        assertEquals (9, paramSet.size());
     }
 }

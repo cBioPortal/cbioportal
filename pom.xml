@@ -73,6 +73,28 @@
 	  </properties>
 	</profile>
 	<profile>
+	  <id>glioma</id>
+	  <properties>
+		<web-xml-file>${PORTAL_HOME}/portal/src/main/config/security_enabled_config/web.xml</web-xml-file>
+		<application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_enabled_config</application-context-security-xml-dir>
+        <property-file-dir>${PORTAL_HOME}/src/main/resources</property-file-dir>
+        <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
+        <gpl-files-to-exclude>lorem-ipsum</gpl-files-to-exclude>
+		<final-war-name>glioma-portal</final-war-name>
+	  </properties>
+	</profile>
+	<profile>
+	  <id>acc</id>
+	  <properties>
+		<web-xml-file>${PORTAL_HOME}/portal/src/main/config/security_enabled_config/web.xml</web-xml-file>
+		<application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_enabled_config</application-context-security-xml-dir>
+        <property-file-dir>${PORTAL_HOME}/src/main/resources</property-file-dir>
+        <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
+        <gpl-files-to-exclude>lorem-ipsum</gpl-files-to-exclude>
+		<final-war-name>acc-portal</final-war-name>
+	  </properties>
+	</profile>
+	<profile>
 	  <id>ctd2-dashboard</id>
 	  <properties>
 		<web-xml-file>${PORTAL_HOME}/portal/src/main/config/security_disabled_config/web.xml</web-xml-file>
@@ -84,10 +106,21 @@
 	  </properties>
 	</profile>
 	<profile>
-	  <id>external</id>
+	  <id>external-public</id>
 	  <properties>
-		<web-xml-file>${PORTAL_HOME}/portal/src/main/config/external_lab_properties/web.xml</web-xml-file>
+		<web-xml-file>${PORTAL_HOME}/portal/src/main/config/security_disabled_config/web.xml</web-xml-file>
 		<application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_disabled_config</application-context-security-xml-dir>
+        <property-file-dir>${PORTAL_HOME}/portal/src/main/config/external_lab_properties</property-file-dir>
+        <importer-main-class>org.mskcc.cbio.importer.PortalImporterTool</importer-main-class>
+        <gpl-files-to-exclude>com/mysql/**</gpl-files-to-exclude>
+		<final-war-name>cbioportal</final-war-name>
+	  </properties>
+	</profile>
+	<profile>
+	  <id>external-private</id>
+	  <properties>
+		<web-xml-file>${PORTAL_HOME}/portal/src/main/config/security_enabled_config/web.xml</web-xml-file>
+		<application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_enabled_config</application-context-security-xml-dir>
         <property-file-dir>${PORTAL_HOME}/portal/src/main/config/external_lab_properties</property-file-dir>
         <importer-main-class>org.mskcc.cbio.importer.PortalImporterTool</importer-main-class>
         <gpl-files-to-exclude>com/mysql/**</gpl-files-to-exclude>

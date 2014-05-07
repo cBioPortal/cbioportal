@@ -360,8 +360,10 @@ function updateDefaultCaseList() {
     } else if (!mutSelect && !cnaSelect && expSelect && !rppaSelect) {
         if ($('#'+selectedCancerStudy+'_mrna_median_Zscores').prop('checked')) {
             defaultCaseList = selectedCancerStudy+"_mrna";
-        } else {
+        } else if ($('#'+selectedCancerStudy+'_rna_seq_mrna_median_Zscores').prop('checked')) {
             defaultCaseList = selectedCancerStudy+"_rna_seq_mrna";
+        } else if ($('#'+selectedCancerStudy+'_rna_seq_v2_mrna_median_Zscores').prop('checked')) {
+            defaultCaseList = selectedCancerStudy+"_rna_seq_v2_mrna";
         }
     } else if ((mutSelect || cnaSelect) && expSelect && !rppaSelect) {
         defaultCaseList = selectedCancerStudy+"_3way_complete";
@@ -370,6 +372,19 @@ function updateDefaultCaseList() {
     }
     
     $('#select_case_set').val(defaultCaseList);
+    
+    // HACKY CODE START -- TO SOLVE THE PROBLEM THAT WE HAVE BOTH _complete and _3way_complete
+    if (!$('#select_case_set').val()) {
+        if (defaultCaseList===selectedCancerStudy+"_3way_complete") {
+            $('#select_case_set').val(selectedCancerStudy+"_complete");
+        }
+    }// HACKY CODE END
+    
+    if (!$('#select_case_set').val()) {     
+        // in case no match
+        $('#select_case_set').val(selectedCancerStudy+"_all");
+    }
+    
     updateCaseListSmart();
 }
 
@@ -431,11 +446,12 @@ function updateCaseListSmart() {
             $(e).qtip({
                 content: "<font size='2'>" + $($("#select_case_set option")[i]).attr("title") + "</font>",
                 style: {
-                    classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow'
+                    classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'
                 },
                 position: {
                     my: 'left middle',
-                    at: 'middle right'
+                    at: 'middle right',
+                    viewport: $(window)
                 },
 	            show: "mouseover",
 	            hide: "mouseout"
@@ -453,8 +469,8 @@ function cancerStudySelected() {
 
     var cancerStudyId = $("#select_cancer_type").val();
 
-    while( cancerStudyId == "" ) {
-        $("#select_cancer_type option:selected").next().attr('selected','selected');
+    if( !cancerStudyId ) {
+        $("#select_cancer_type option:first").prop("selected",true);
         cancerStudyId = $("#select_cancer_type").val();
     }
 
@@ -480,7 +496,7 @@ function cancerStudySelected() {
         }
     }
     var cancerStudyForm = " <button type='button' onclick=\"window.location.replace('study.do?cancer_study_id="
-        +cancerStudyId+"')\">View details</button>";
+        +cancerStudyId+"')\">Study summary</button>";
     $("#cancer_study_desc").html("<p> " + cancer_study.description + citation + cancerStudyForm + "</p>");
 
     //  Iterate through all genomic profiles
@@ -515,7 +531,7 @@ function cancerStudySelected() {
     jQuery.each(cancer_study.case_sets,function(i, case_set) {
         $("#select_case_set").append("<option class='case_set_option' value='"
                 + case_set.id + "' title='"
-                + case_set.description + "'>" + case_set.name + "</option>");
+                + case_set.description + "'>" + case_set.name + " ("+ case_set.size +")" + "</option>");
     }); //  end for each case study loop
 
     //  Add the user-defined case list option

@@ -651,8 +651,8 @@ define("OncoprintUtils", (function() {
         els.each(function(d) {
             $(this).qtip({
                 content: {text: 'oncoprint qtip failed'},
-                position: {my:'left bottom', at:'top right'},
-                style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                position: {my:'left bottom', at:'top right', viewport: $(window)},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
 	            show: {event: "mouseover"},
                 hide: {fixed: true, delay: 100, event: "mouseout"},
                 events: {

@@ -3,8 +3,8 @@
 
 <%
     String smry = cancerStudyName +
-            "/" + caseSetName + ": (" +
-            mergedCaseListSize + ")" + "/" +
+            "/" + patientSetName + ": (" +
+            mergedPatientListSize + ")" + "/" +
             geneSetName + "/" + geneWithScoreList.size() +
             (geneWithScoreList.size() == 1?"gene":"genes");
 %>
@@ -48,7 +48,6 @@
     $(document).ready(function(){
         // Init Tool Tips
         $("#toggle_query_form").tipTip();
-
     });
 </script>
 
@@ -137,6 +136,10 @@
                  + "Mutations</a></li>");
             }
 
+            if (showCoexpTab) {
+                out.println ("<li><a href='#coexp' class='result-tab' title='List of top co-expressed genes'>Co-Expression</a></li>");
+            }
+
             if (has_rppa) {
                 out.println ("<li><a href='#protein_exp' class='result-tab' title='Protein and Phopshoprotein changes using Reverse Phase Protein Array (RPPA) data'>"
                 + "Protein Changes</a></li>");
@@ -163,7 +166,7 @@
             out.println ("<div class=\"section\" id=\"bookmark_email\">");
 
             // diable bookmark link if case set is user-defined
-            if (caseSetId.equals("-1"))
+            if (patientSetId.equals("-1"))
             {
                 out.println("<br>");
                 out.println("<h4>The bookmark option is not available for user-defined case lists.</h4>");
@@ -216,16 +219,21 @@
         <%@ include file="mutation_details.jsp" %>
             <%  } %>
 
-            <% if (has_rppa) { %>
-        <%@ include file="protein_exp.jsp" %>
-            <% } %>
+        <% if (has_rppa) { %>
+            <%@ include file="protein_exp.jsp" %>
+        <% } %>
 
-            <% if (includeNetworks) { %>
-        <%@ include file="networks.jsp" %>
-            <% } %>
+        <% if (includeNetworks) { %>
+            <%@ include file="networks.jsp" %>
+        <% } %>
 
         <%@ include file="data_download.jsp" %>
         <%@ include file="image_tabs_data.jsp" %>
+        
+        <% if (showCoexpTab) { %>
+            <%@ include file="co_expression.jsp" %>
+        <% } %>
+
 </div> <!-- end tabs div -->
 <% } %>
 
@@ -244,14 +252,19 @@
 </form>
 
 <script type="text/javascript">
-    // to initially hide the network tab
+	// initially hide network tab
+	$("div.section#network").attr('style', 'height: 0px; width: 0px; visibility: hidden;');
 
-    //index of network tab
-    var networkTabIndex = $('#tabs a[href="#network"]').parent().index();
-
-    if($.cookie(("results-tab-" + (typeof cancer_study_id_selected === 'undefined'? "" : cancer_study_id_selected))) != networkTabIndex){
-        $("div.section#network").attr('style', 'display: none !important; height: 0px; width: 0px; visibility: hidden;');
-    }
+	// it is better to check selected tab after document gets ready
+	$(document).ready(function() {
+		// check if network tab is initially selected
+		// TODO this depends on aria-hidden attribute which may not be safe...
+		if ($("div.section#network").attr('aria-hidden') == "false")
+		{
+			// make the network tab visible...
+			$("div.section#network").removeAttr('style');
+		}
+	});
 
     // to fix problem of flash repainting
     $("a.result-tab").click(function(){
@@ -259,7 +272,8 @@
         if($(this).attr("href")=="#network") {
             $("div.section#network").removeAttr('style');
         } else {
-            $("div.section#network").attr('style', 'display: block !important; height: 0px; width: 0px; visibility: hidden;');
+	        // since we never allow display:none we should adjust visibility, height, and width properties
+            $("div.section#network").attr('style', 'height: 0px; width: 0px; visibility: hidden;');
         }
     });
 

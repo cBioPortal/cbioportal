@@ -17,7 +17,7 @@
             params,
             function(data){
                 if (data===null || (typeof data) !== (typeof []) || data.length===0) {
-                    $("#mut-sig-msg").html("Not significantly mutated genes (SMGs) are detected in this cancer study.");
+                    $("#mut-sig-msg").html("No recurrently mutated genes (SMGs) are detected in this cancer study.");
                     return;
                 }
                 $("#mut-sig-msg").hide();
@@ -155,7 +155,13 @@
                 
                 oTable.css("width","100%");
                 
-                $('.smg-table-name').html(n+" significantly mutated genes");
+                $('.smg-table-name').html(n+" mutated genes <img id='mutations-summary-help' src='images/help.png' title='Genes that <ul><li>are in the top 500 (ranked by mutations per nucleotide) recurrently mutated (2 or more mutations)</li><li>or are cancer genes</li><li>or are detected by MutSig</li></ul>.'>");
+                $('#mutations-summary-help').qtip({
+                    content: { attr: 'title' },
+                    style: { classes: 'qtip-light qtip-rounded' },
+                    position: { my:'top center',at:'bottom center',viewport: $(window) }
+                });
+                
                 $('.smg-table-name').addClass('data-table-name');
                 
                 $('#smg_wrapper_table').show();

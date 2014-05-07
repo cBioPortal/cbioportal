@@ -1,0 +1,192 @@
+[
+{
+    "num_sequenced_samples": 59,
+        "cancer_type": "acc",
+        "cancer_study": "Adenoid Cystic Carcinoma (MSKCC, Nature Genetics 2013)"
+},
+{
+    "num_sequenced_samples": 64,
+    "cancer_type": "blca",
+    "cancer_study": "Bladder Cancer (MSKCC, JCO 2013)"
+},
+{
+    "num_sequenced_samples": 35,
+    "cancer_type": "blca",
+    "cancer_study": "Bladder Urothelial Carcinoma (TCGA, Provisional)"
+},
+{
+    "num_sequenced_samples": 65,
+    "cancer_type": "brca",
+    "cancer_study": "Breast Invasive Carcinoma (British Columbia, Nature 2012)"
+},
+{
+    "num_sequenced_samples": 103,
+    "cancer_type": "brca",
+    "cancer_study": "Breast Invasive Carcinoma (Broad, Nature 2012)"
+},
+{
+    "num_sequenced_samples": 100,
+    "cancer_type": "brca",
+    "cancer_study": "Breast Invasive Carcinoma (Sanger, Nature 2012)"
+},
+{
+    "num_sequenced_samples": 772,
+    "cancer_type": "brca",
+    "cancer_study": "Breast Invasive Carcinoma (TCGA, Provisional)"
+},
+{
+    "num_sequenced_samples": 507,
+    "cancer_type": "brca",
+    "cancer_study": "Breast Invasive Carcinoma (TCGA, Nature 2012)"
+},
+{
+    "num_sequenced_samples": 905,
+    "cancer_type": "ccle",
+    "cancer_study": "Cancer Cell Line Encyclopedia (Novartis/Broad, Nature 2012)"
+},
+{
+    "num_sequenced_samples": 39,
+    "cancer_type": "cesc",
+    "cancer_study": "Cervical Squamous Cell Carcinoma and Endocervical Adenocarcinoma (TCGA, Provisional)"
+},
+{
+    "num_sequenced_samples": 72,
+    "cancer_type": "coadread",
+    "cancer_study": "Colorectal Cancer (Genentech, Nature 2012)"
+},
+{
+    "num_sequenced_samples": 224,
+    "cancer_type": "coadread",
+    "cancer_study": "Colon and Rectum Adenocarcinoma (TCGA, Provisional)"
+},
+{
+    "num_sequenced_samples": 224,
+    "cancer_type": "coadread",
+    "cancer_study": "Colon and Rectum Adenocarcinoma (TCGA, Nature 2012)"
+},
+{
+    "num_sequenced_samples": 284,
+    "cancer_type": "gbm",
+    "cancer_study": "Glioblastoma Multiforme (TCGA, Provisional)"
+},
+{
+    "num_sequenced_samples": 83,
+    "cancer_type": "gbm",
+    "cancer_study": "Glioblastoma (TCGA, Nature 2008)"
+},
+{
+    "num_sequenced_samples": 306,
+    "cancer_type": "hnsc",
+    "cancer_study": "Head and Neck Squamous Cell Carcinoma (TCGA, Provisional)"
+},
+{
+    "num_sequenced_samples": 279,
+    "cancer_type": "hnsc",
+    "cancer_study": "Head and Neck Squamous Cell Carcinoma (TCGA, In preparation)"
+},
+{
+    "num_sequenced_samples": 293,
+    "cancer_type": "kirc",
+    "cancer_study": "Kidney Renal Clear Cell Carcinoma (TCGA, Provisional)"
+},
+{
+    "num_sequenced_samples": 424,
+    "cancer_type": "kirc",
+    "cancer_study": "Kidney Renal Clear Cell Carcinoma (TCGA, in press)"
+},
+{
+    "num_sequenced_samples": 111,
+    "cancer_type": "kirp",
+    "cancer_study": "Kidney Renal Papillary Cell Carcinoma (TCGA, Provisional)"
+},
+{
+    "num_sequenced_samples": 196,
+    "cancer_type": "laml",
+    "cancer_study": "Acute Myeloid Leukemia (TCGA, Provisional)"
+},
+{
+    "num_sequenced_samples": 196,
+    "cancer_type": "laml",
+    "cancer_study": "Acute Myeloid Leukemia (TCGA, NEJM 2013)"
+},
+{
+    "num_sequenced_samples": 217,
+    "cancer_type": "lgg",
+    "cancer_study": "Brain Lower Grade Glioma (TCGA, Provisional)"
+},
+{
+    "num_sequenced_samples": 183,
+    "cancer_type": "luad",
+    "cancer_study": "Lung Adenocarcinoma (Broad, Cell 2012)"
+},
+{
+    "num_sequenced_samples": 231,
+    "cancer_type": "luad",
+    "cancer_study": "Lung Adenocarcinoma (TCGA, Provisional)"
+},
+{
+    "num_sequenced_samples": 163,
+    "cancer_type": "luad",
+    "cancer_study": "Lung Adenocarcinoma (TSP, Nature 2008)"
+},
+{
+    "num_sequenced_samples": 177,
+    "cancer_type": "lusc",
+    "cancer_study": "Lung Squamous Cell Carcinoma (TCGA, Provisional)"
+},
+{
+    "num_sequenced_samples": 183,
+    "cancer_type": "lusc",
+    "cancer_study": "Lung Squamous Cell Carcinoma (TCGA, Nature 2012)"
+},
+{
+    "num_sequenced_samples": 316,
+    "cancer_type": "ov",
+    "cancer_study": "Ovarian Serous Cystadenocarcinoma (TCGA, Provisional)"
+},
+{
+    "num_sequenced_samples": 316,
+    "cancer_type": "ov",
+    "cancer_study": "Ovarian Serous Cystadenocarcinoma (TCGA, Nature 2011)"
+},
+{
+    "num_sequenced_samples": 62,
+    "cancer_type": "prad",
+    "cancer_study": "Prostate Adenocarcinoma (MSKCC, Cancer Cell 2010)"
+},
+{
+    "num_sequenced_samples": 83,
+    "cancer_type": "prad",
+    "cancer_study": "Prostate Adenocarcinoma (TCGA, Provisional)"
+},
+{
+    "num_sequenced_samples": 35,
+    "cancer_type": "sarc",
+    "cancer_study": "Sarcoma (MSKCC/Broad, Nature Genetics 2010)"
+},
+{
+    "num_sequenced_samples": 228,
+    "cancer_type": "skcm",
+    "cancer_study": "Skin Cutaneous Melanoma (TCGA, Provisional)"
+},
+{
+    "num_sequenced_samples": 242,
+    "cancer_type": "stad",
+    "cancer_study": "Stomach Adenocarcinoma (TCGA, Provisional)"
+},
+{
+    "num_sequenced_samples": 348,
+    "cancer_type": "thca",
+    "cancer_study": "Thyroid Carcinoma (TCGA, Provisional)"
+},
+{
+    "num_sequenced_samples": 248,
+    "cancer_type": "ucec",
+    "cancer_study": "Uterine Corpus Endometrial Carcinoma (TCGA, Provisional)"
+},
+{
+    "num_sequenced_samples": 248,
+    "cancer_type": "ucec",
+    "cancer_study": "Uterine Corpus Endometrioid Carcinoma (TCGA, Nature 2013)"
+}
+]

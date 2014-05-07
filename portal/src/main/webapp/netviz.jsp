@@ -17,6 +17,7 @@
 
 
 <script type="text/javascript" src="js/lib/jquery.min.js"></script>
+<script type="text/javascript" src="js/lib/jquery-migrate.js"></script>
 <script type="text/javascript" src="js/lib/jquery.tipTip.minified.js"></script>
 <script type="text/javascript" src="js/lib/jquery.address.min.js"></script>
 <script type="text/javascript" src="js/lib/jquery-ui.min.js"></script>
@@ -36,7 +37,7 @@
 <table width="100%" cellspacing="0px" cellpadding="2px" border="0px">
 	<tr valign="middle">
 		<td valign="middle" width="25%">
-			<a href="http://www.mskcc.org"><img src="images/msk_logo.png" alt="MSKCC Logo"></a>
+			<a href="http://www.mskcc.org"><img src="images/mskcc_logo_3d_grey.jpg" alt="MSKCC Logo"></a>
 		</td>
 		<td valign="middle" width="50%">
 			<span id="header_site_name">

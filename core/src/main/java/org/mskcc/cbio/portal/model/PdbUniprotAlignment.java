@@ -1,29 +1,19 @@
 /** Copyright (c) 2013 Memorial Sloan-Kettering Cancer Center.
- **
- ** This library is free software; you can redistribute it and/or modify it
- ** under the terms of the GNU Lesser General Public License as published
- ** by the Free Software Foundation; either version 2.1 of the License, or
- ** any later version.
- **
- ** This library is distributed in the hope that it will be useful, but
- ** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
- ** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
- ** documentation provided hereunder is on an "as is" basis, and
- ** Memorial Sloan-Kettering Cancer Center
- ** has no obligations to provide maintenance, support,
- ** updates, enhancements or modifications.  In no event shall
- ** Memorial Sloan-Kettering Cancer Center
- ** be liable to any party for direct, indirect, special,
- ** incidental or consequential damages, including lost profits, arising
- ** out of the use of this software and its documentation, even if
- ** Memorial Sloan-Kettering Cancer Center
- ** has been advised of the possibility of such damage.  See
- ** the GNU Lesser General Public License for more details.
- **
- ** You should have received a copy of the GNU Lesser General Public License
- ** along with this library; if not, write to the Free Software Foundation,
- ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- **/
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 
 package org.mskcc.cbio.portal.model;
 
@@ -38,12 +28,17 @@ public class PdbUniprotAlignment
 	private String pdbId;
 	private String chain;
 	private String uniprotId;
-	private Integer pdbFrom;
-	private Integer pdbTo;
+	private String pdbFrom;
+	private String pdbTo;
 	private Integer uniprotFrom;
 	private Integer uniprotTo;
 	private Float eValue;
 	private Float identity;
+	private Float identityPerc;
+
+	private String uniprotAlign;
+	private String pdbAlign;
+	private String midlineAlign;
 
 	public String getMidlineAlign()
 	{
@@ -75,10 +70,6 @@ public class PdbUniprotAlignment
 		this.pdbAlign = pdbAlign;
 	}
 
-	private String uniprotAlign;
-	private String pdbAlign;
-	private String midlineAlign;
-
 	public Float getEValue()
 	{
 		return eValue;
@@ -108,8 +99,6 @@ public class PdbUniprotAlignment
 	{
 		this.identityPerc = identityPerc;
 	}
-
-	private Float identityPerc;
 
 	public Integer getAlignmentId()
 	{
@@ -151,22 +140,22 @@ public class PdbUniprotAlignment
 		this.uniprotId = uniprotId;
 	}
 
-	public Integer getPdbFrom()
+	public String getPdbFrom()
 	{
 		return pdbFrom;
 	}
 
-	public void setPdbFrom(Integer pdbFrom)
+	public void setPdbFrom(String pdbFrom)
 	{
 		this.pdbFrom = pdbFrom;
 	}
 
-	public Integer getPdbTo()
+	public String getPdbTo()
 	{
 		return pdbTo;
 	}
 
-	public void setPdbTo(Integer pdbTo)
+	public void setPdbTo(String pdbTo)
 	{
 		this.pdbTo = pdbTo;
 	}
@@ -190,4 +179,5 @@ public class PdbUniprotAlignment
 	{
 		this.uniprotTo = uniprotTo;
 	}
+        
 }

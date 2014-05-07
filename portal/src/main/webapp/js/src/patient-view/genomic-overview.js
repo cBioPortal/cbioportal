@@ -138,19 +138,19 @@ function plotMuts(p,config,chmInfo,row,mutations,caseId) {
         numMut++;
     }
     
-    var maxCount = 0;
-    for (var i in pixelMap) {
-        var arr = pixelMap[i];
-        if (arr && arr.length>maxCount)
-            maxCount=arr.length;
-    }
+    var maxCount = 5; // set max height to 5 mutations
+//    for (var i in pixelMap) {
+//        var arr = pixelMap[i];
+//        if (arr && arr.length>maxCount)
+//            maxCount=arr.length;
+//    }
     
     var yRow = config.yRow(row)+config.rowHeight;
     for (var i in pixelMap) {
         var arr = pixelMap[i];
         var pixil = parseInt(i);
         if (arr) {
-            var h = config.rowHeight*arr.length/maxCount;
+            var h = arr.length>maxCount ? config.rowHeight : (config.rowHeight*arr.length/maxCount);
             var r = p.rect(pixil,yRow-h,config.pixelsPerBinMut,h);
             r.attr("fill","#0f0");
             r.attr("stroke", "#0f0");
@@ -225,19 +225,19 @@ function plotCnSegs(p,config,chmInfo,row,segs,chrCol,startCol,endCol,segCol,case
         var label = caseMetaData.label[caseId];
         var c = p.circle(8,yRow+config.rowHeight/2,6).attr({'stroke':caseMetaData.color[caseId], 'fill':caseMetaData.color[caseId]});
         var t = p.text(8,yRow+config.rowHeight/2,label).attr({'text-anchor': 'center', 'fill':'white'});
-        addToolTip(c.node, caseMetaData.tooltip[caseId],false,{my:'middle left',at:'middle right'});
-        addToolTip(t.node, caseMetaData.tooltip[caseId],false,{my:'middle left',at:'middle right'});
+        addToolTip(c.node, caseMetaData.tooltip[caseId],false,{my:'middle left',at:'middle right', viewport: $(window)});
+        addToolTip(t.node, caseMetaData.tooltip[caseId],false,{my:'middle left',at:'middle right', viewport: $(window)});
     } else {
         p.text(0,yRow+config.rowHeight/2,'CNA').attr({'text-anchor': 'start'});
     }
     
     var label = genomeMeasured===0 ? 'N/A' : (100*genomeAltered/genomeMeasured).toFixed(1)+'%';
     var tip = genomeMeasured===0 ? 'Copy number segment data not available' : 
-                ("Percentage of copy number altered chromosome regions (mean copy number log vaule >0.2 or <-0.2) out of measured regions.");
+                ("Percentage of copy number altered chromosome regions (mean copy number log value >0.2 or <-0.2) out of measured regions.");
     
     var t = p.text(config.xRightText(),yRow+config.rowHeight/2,label).attr({'text-anchor': 'start','font-weight': 'bold'});
     underlineText(t,p);
-    addToolTip(t.node, tip,null,{my:'top right',at:'bottom left'});
+    addToolTip(t.node, tip,null,{my:'top right',at:'bottom left', viewport: $(window)});
 }
 
 function addToolTip(node,tip,showDelay,position) {
@@ -245,7 +245,8 @@ function addToolTip(node,tip,showDelay,position) {
         content: {text:tip},
 	    show: {event: "mouseover"},
         hide: {fixed: true, delay: 100, event:"mouseout"},
-        style: { classes: 'ui-tooltip-light ui-tooltip-rounded' }
+        style: { classes: 'qtip-light qtip-rounded' },
+        position: {viewport: $(window)}
     };
     if (showDelay)
         param['show'] = { delay: showDelay };
@@ -260,8 +261,9 @@ function underlineText(textElement,p) {
 }
 
 function translateChm(chm) {
+    if (chm.toLowerCase().indexOf("chr")===0) chm=chm.substring(3);
     if (chm==='X'||chm==='x') chm = 23;
     if (chm==='Y'||chm==='y') chm = 24;
     if (isNaN(chm) || chm < 1 || chm > 24) return null;
-    return chm;
+    return parseInt(chm);
 }

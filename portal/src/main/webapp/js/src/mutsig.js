@@ -81,7 +81,7 @@ var listenCancerStudy = function() {
         // if the selected cancer study has mutsig data,
         // show the mutsig button
         if (window.json.cancer_studies[cancerStudyId].has_mutsig_data) {
-            $('#toggle_mutsig_dialog').show();
+            $('#mutsit-gistic-div').show();
         } else {
             $('#toggle_mutsig_dialog').hide();
         }
@@ -178,7 +178,7 @@ var promptMutsigTable = function() {
             "aoColumns": [
                 null,
                 null,
-                null,
+                { "sType" : "numeric"},
                 { "bSortable" : false, "sWidth": "5%" }
             ],
             "bPaginate": false,

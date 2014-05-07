@@ -113,6 +113,16 @@ var PlotsCustomMenu = (function(){
                 }
             });
         }
+
+        //----dna methylation priority list: hm450, hm27
+        if ($(plotsTypeId).val() === "methylation") {
+            $(platformId + " > option").each(function() {
+                if (this.text.toLowerCase().indexOf("hm450") !== -1) {
+                    $(this).prop('selected', true);
+                    return false;
+                }
+            });
+        }
     }
 
     function updateXselection() {
@@ -137,6 +147,7 @@ var PlotsCustomMenu = (function(){
                 $("#custom_platform_x")
                     .append("<option value='" + profile[0] + "|" + profile[2] + "'>" + profile[1] + "</option>");
             });
+            setPlatFormDefaultSelection("#custom_plots_type_x", "#custom_platform_x");
         } else if($("#custom_plots_type_x").val() === "rppa"){
             content.geneX_genetic_profiles.genetic_profile_rppa.forEach (function (profile) {
                 $("#custom_platform_x")
@@ -168,6 +179,7 @@ var PlotsCustomMenu = (function(){
                 $("#custom_platform_y")
                     .append("<option value='" + profile[0] + "|" + profile[2] + "'>" + profile[1] + "</option>");
             });
+            setPlatFormDefaultSelection("#custom_plots_type_y", "#custom_platform_y");
         } else if($("#custom_plots_type_y").val() === "rppa"){
             content.geneY_genetic_profiles.genetic_profile_rppa.forEach (function (profile) {
                 $("#custom_platform_y")
@@ -300,7 +312,7 @@ var PlotsCustomView = (function() {
         },
     //Canvas Settings
         settings = {
-            canvas_width: 720,
+            canvas_width: 722,
             canvas_height: 600
         },
     //DOMs
@@ -317,22 +329,22 @@ var PlotsCustomView = (function() {
             geneX_mut : {
                 fill : "#DBA901",
                 stroke : "#886A08",
-                text : "GeneX Mutated"
+                text : "GeneX mutated"
             },
             geneY_mut : {
                 fill : "#F5A9F2",
                 stroke : "#F7819F",
-                text : "GeneY Mutated"
+                text : "GeneY mutated"
             },
             both_mut : {
                 fill : "#FF0000",
                 stroke : "#B40404",
-                text : "Both Mutated"
+                text : "Both mutated"
             },
             non_mut : {
                 fill : "#00AAF8",
                 stroke : "#0089C6",
-                text : "Neither Mutated"
+                text : "Neither mutated"
             }
         };
 
@@ -813,6 +825,12 @@ var PlotsCustomView = (function() {
                         var tmp_legend = d.text.replace("GeneX", menu.geneX);
                     } else if (d.text.indexOf("GeneY") !== -1) {
                         var tmp_legend = d.text.replace("GeneY", menu.geneY);
+                    } else if (d.text.indexOf("Neither") !== -1) {
+                        if (menu.geneX === menu.geneY) {
+                            var tmp_legend = "No mutation";
+                        } else {
+                            var tmp_legend = d.text;
+                        }
                     } else {
                         var tmp_legend = d.text;
                     }
@@ -904,10 +922,10 @@ var PlotsCustomView = (function() {
                 $(this).qtip(
                     {
                         content: {text: content},
-                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                         show: {event: "mouseover"},
 	                    hide: {fixed:true, delay: 100, event: "mouseout"},
-                        position: {my:'left bottom',at:'top right'}
+                        position: {my:'left bottom',at:'top right', viewport: $(window)}
                     }
                 );
 
@@ -940,7 +958,7 @@ var PlotsCustomView = (function() {
         $('#view_title').append("Custom View : " + menu.geneX + " vs. " + menu.geneY);
 
         var pdfConverterForm =
-            "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
+            "<form style='display:inline-block' action='svgtopdf.do' method='post' target='_blank' " +
                 "onsubmit=\"this.elements['svgelement'].value=loadPlotsSVG();\">" +
                 "<input type='hidden' name='svgelement'>" +
                 "<input type='hidden' name='filetype' value='pdf'>" +
@@ -949,7 +967,7 @@ var PlotsCustomView = (function() {
         $('#view_title').append(pdfConverterForm);
 
         var svgConverterForm =
-            "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
+            "<form style='display:inline-block' action='svgtopdf.do' method='post' target='_blank' " +
                 "onsubmit=\"this.elements['svgelement'].value=loadPlotsSVG();\">" +
                 "<input type='hidden' name='svgelement'>" +
                 "<input type='hidden' name='filetype' value='svg'>" +

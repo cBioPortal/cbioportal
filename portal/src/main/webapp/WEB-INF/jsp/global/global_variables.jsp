@@ -16,7 +16,7 @@
 <%@ page import="org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintSpecification" %>
 <%@ page import="org.mskcc.cbio.portal.oncoPrintSpecLanguage.Utilities" %>
 <%@ page import="org.mskcc.cbio.portal.model.CancerStudy" %>
-<%@ page import="org.mskcc.cbio.portal.model.CaseList" %>
+<%@ page import="org.mskcc.cbio.portal.model.PatientList" %>
 <%@ page import="org.mskcc.cbio.portal.model.GeneticProfile" %>
 <%@ page import="org.mskcc.cbio.portal.model.GeneticAlterationType" %>
 <%@ page import="org.mskcc.cbio.portal.model.Patient" %>
@@ -46,6 +46,13 @@
 
     //Onco Query Language Parser Instance
 	String oql = request.getParameter(QueryBuilder.GENE_LIST);
+
+	// onco print spec parser needs the raw parameter
+	if (request instanceof XssRequestWrapper)
+	{
+		oql = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.GENE_LIST);
+	}
+
     ParserOutput theOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( oql,
             (HashSet<String>) request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS),
             (ArrayList<GeneticProfile>) request.getAttribute(QueryBuilder.PROFILE_LIST_INTERNAL),
@@ -89,21 +96,21 @@
     String genes = (String) request.getAttribute(QueryBuilder.RAW_GENE_STR);
     genes = StringEscapeUtils.escapeJavaScript(genes);
 
-    //Info about Case Set(s)/Cases
-    ArrayList<CaseList> caseSets = (ArrayList<CaseList>)request.getAttribute(QueryBuilder.CASE_SETS_INTERNAL);
-    ArrayList<String> mergedCaseList = mergedProfile.getCaseIdList();
-    int mergedCaseListSize = mergedCaseList.size();
-    String caseSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
-    String caseSetName = "";
-    for (CaseList caseSet:  caseSets) {
-        if (caseSetId.equals(caseSet.getStableId())) {
-            caseSetName = caseSet.getName();
+    //Info about Patient Set(s)/Patients
+    ArrayList<PatientList> patientSets = (ArrayList<PatientList>)request.getAttribute(QueryBuilder.CASE_SETS_INTERNAL);
+    ArrayList<String> mergedPatientList = mergedProfile.getCaseIdList();
+    int mergedPatientListSize = mergedPatientList.size();
+    String patientSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
+    String patientSetName = "";
+    for (PatientList patientSet:  patientSets) {
+        if (patientSetId.equals(patientSet.getStableId())) {
+            patientSetName = patientSet.getName();
         }
     }
-    String cases = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
-    cases = xssUtil.getCleanerInput(cases);
-    String caseIdsKey = (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY);
-    caseIdsKey = xssUtil.getCleanerInput(caseIdsKey);
+    String patients = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
+    //cases = xssUtil.getCleanerInput(cases);
+    String patientIdsKey = (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY);
+    //caseIdsKey = xssUtil.getCleanerInput(caseIdsKey);
 
     //Clinical Data
     ArrayList <Patient> clinicalDataList = (ArrayList<Patient>)request.getAttribute(QueryBuilder.CLINICAL_DATA_LIST);
@@ -133,19 +140,36 @@
     String bitlyKey = GlobalProperties.getBitlyApiKey();
 
     request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Results");
+
+    //Escape quotes in the returned strings
+    patients = patients.replaceAll("'", "\\'");
+    patients = patients.replaceAll("\"", "\\\"");
+    patientSetName = patientSetName.replaceAll("'", "\\'");
+    patientSetName = patientSetName.replaceAll("\"", "\\\"");
+
+    //check if show co-expression tab
+    boolean showCoexpTab = false;
+    GeneticProfile final_gp = CoExpUtil.getPreferedGeneticProfile(cancerTypeId);
+    if (final_gp != null) {
+        showCoexpTab = true;
+    } 
 %>
 
 <script type="text/javascript">
     window.PortalGlobals = {
         getCancerStudyId: function() { return '<%=cancerTypeId%>'},
-        getGenes: function() { return '<%=genes%>'},  // raw gene list (as it is entered by the user, it may contain onco query language)
-        getGeneListString: function() {  // gene list without onco query language
+        getGenes: function() { return '<%=genes%>'},  // raw gene list (as it is entered by the user, it MAY CONTAIN onco query language)
+        getGeneListString: function() {  // gene list WITHOUT onco query language
             return '<%=StringUtils.join(theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes(), " ")%>'
         },
-        getCaseSetId: function() { return '<%= caseSetId %>';},
-        getCaseIdsKey: function() { return '<%= caseIdsKey %>'; },
-        getCases: function() { return '<%= cases %>'; }, // list of queried case ids
-        getCaseSets: function() { return '<%= caseSets %>'},
+        getGeneList: function() {
+            var _geneList = '<%=StringUtils.join(theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes(), " ")%>';
+            return _geneList.split(/\s+/);    //Gene Id list without onco query language
+        },
+        getCaseSetId: function() { return '<%= patientSetId %>';},  //Id for user chosen standard case set
+        getCaseSetName: function() { return '<%= patientSetName %>'},  //Name for user chose standard case set
+        getCaseIdsKey: function() { return '<%= patientIdsKey %>'; },   //A key arrsigned to use build case set
+        getCases: function() { return '<%= patients %>'; }, // list of queried case ids
         getOqlString: (function() {     // raw gene list (as it is entered by the user, it may contain onco query language)
             var oql = '<%=oql%>'
                     .replace("&gt;", ">", "gm")
@@ -175,20 +199,12 @@
 
 <!------------------- Duplicate Code ------------------------->
 <%
-    //////////////from network.jsp
-//    String zScoreThesholdStr4Network =
-//            xssUtil.getCleanerInput(request.getAttribute(QueryBuilder.Z_SCORE_THRESHOLD).toString());
-//    String genes4Network = StringUtils.join((List)request.getAttribute(QueryBuilder.GENE_LIST)," ");
-//    String geneticProfileIds4Network = xssUtil.getCleanerInput(StringUtils.join(geneticProfileIdSet," "));
-//    String cancerTypeId4Network = xssUtil.getCleanerInput((String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID));
-//    String caseIdsKey4Network = xssUtil.getCleanerInput((String)request.getAttribute(QueryBuilder.CASE_IDS_KEY));
-//    String caseSetId4Network = xssUtil.getCleanerInput((String)request.getAttribute(QueryBuilder.CASE_SET_ID));
+    // plots_tab.jsp
+    String cancer_study_id = request.getParameter("cancer_study_id");
+    String patient_set_id = request.getParameter("case_set_id");
+    String genetic_profile_id = request.getParameter("genetic_profile_id");
 
-    //////////////from plots_tab.jsp
-    String cancer_study_id = xssUtil.getCleanerInput(request, "cancer_study_id");
-    String case_set_id = xssUtil.getCleanerInput(request, "case_set_id");
-    String genetic_profile_id = xssUtil.getCleanerInput(request, "genetic_profile_id");
-    //Translate Onco Query Language
+    // Translate Onco Query Language
     ArrayList<String> _listOfGenes = theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
     String tmpGeneStr = "";
     for(String gene: _listOfGenes) {
@@ -196,9 +212,9 @@
     }
     tmpGeneStr = tmpGeneStr.trim();
 
-    //////////from protein_exp.jsp
-    String cancerStudyId_RPPA = xssUtil.getCleanerInput(
-            (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID));
+    // protein_exp.jsp
+    String cancerStudyId_RPPA =
+            (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
 
 %>
 <script type="text/javascript">
@@ -208,28 +224,22 @@
     // gene list after being processed by the onco query language parser
     var geneList = "<%=StringUtils.join(theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes(), " ")%>";
 
-    // list of samples (case ids)
-    var samples = "<%=cases%>";
+    // list of samples (patient ids)
+    var samples = "<%=patients%>";
 
     // genetic profile ids
     var geneticProfiles = "<%=geneticProfiles%>";
 
-    /////from plots_tab.jsp
+    // plots_tab.jsp
     var cancer_study_id = "<%out.print(cancer_study_id);%>",
-            case_set_id = "<%out.print(case_set_id);%>";
-    case_ids_key = "";
-    if (case_set_id === "-1") {
-        case_ids_key = "<%out.print(caseIdsKey);%>";
+            patient_set_id = "<%out.print(patient_set_id);%>";
+    patient_ids_key = "";
+    if (patient_set_id === "-1") {
+        patient_ids_key = "<%out.print(patientIdsKey);%>";
     }
     var genetic_profile_id = "<%out.print(genetic_profile_id);%>";
     var gene_list_str = "<%out.print(tmpGeneStr);%>";
     var gene_list = gene_list_str.split(/\s+/);
 
-    //////////from protein_exp.jsp
-    //var case_set_id = "<%out.print(case_set_id);%>";
-    //case_ids_key = "";
-    //if (case_set_id === "-1") {
-    //    case_ids_key = "<%out.print(caseIdsKey);%>";
-    //}
 </script>
 

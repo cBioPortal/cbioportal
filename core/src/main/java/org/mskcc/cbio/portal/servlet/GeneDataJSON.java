@@ -1,31 +1,22 @@
 package org.mskcc.cbio.portal.servlet;
 
 
-import com.google.common.base.Joiner;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.util.WebserviceParserUtils;
-import org.mskcc.cbio.portal.web_api.GetProfileData;
-import org.mskcc.cbio.portal.web_api.ProtocolException;
-import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
 import org.mskcc.cbio.portal.util.*;
-import org.owasp.validator.html.PolicyException;
+import org.mskcc.cbio.portal.web_api.*;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
+import org.json.simple.*;
+import org.apache.commons.logging.*;
+import com.google.common.base.Joiner;
+
+import java.io.*;
 import java.util.*;
+import javax.servlet.http.*;
+import javax.servlet.ServletException;
 
 public class GeneDataJSON extends HttpServlet {
-    private ServletXssUtil servletXssUtil;
     public static final String SELECTED_CANCER_STUDY = "selected_cancer_type";
     public static final String GENE_LIST = "gene_list";
     public static final String ACTION_NAME = "Action";
@@ -47,11 +38,6 @@ public class GeneDataJSON extends HttpServlet {
      */
     public void init() throws ServletException {
         super.init();
-        try {
-            servletXssUtil = ServletXssUtil.getInstance();
-        } catch (PolicyException e) {
-            throw new ServletException(e);
-        }
     }
 
     /**
@@ -111,16 +97,17 @@ public class GeneDataJSON extends HttpServlet {
 
         // OncoQuery Language string
         String oql = request.getParameter("oql");
+
+	    if (request instanceof XssRequestWrapper)
+	    {
+		    oql = ((XssRequestWrapper)request).getRawParameter("oql");
+	    }
+
         oql = oql.replaceAll("\n", " \n ");
 
-        String sampleIds;
-        // list of samples separated by a space.  This is so
-        // that you can query an arbitrary set of samples
-        // separated by a space
-
+        List<String> patientIds;
         try {
-            List<String> caseIds = WebserviceParserUtils.getCaseList(request);
-            sampleIds = Joiner.on(" ").join(caseIds);
+            patientIds = WebserviceParserUtils.getPatientList(request);
         } catch (ProtocolException e) {
             throw new ServletException(e);
         } catch (DaoException e) {
@@ -175,6 +162,8 @@ public class GeneDataJSON extends HttpServlet {
             xdebug.logMsg(this, "Getting data for:  " + profile.getProfileName());
 
             GetProfileData remoteCall;
+            String sampleIds =
+                Joiner.on(" ").join(StableIdUtil.getStableSampleIdsFromPatientIds(profile.getCancerStudyId(), patientIds));
             try {
                 remoteCall = new GetProfileData(profile, listOfGenes, sampleIds);
             } catch (DaoException e) {

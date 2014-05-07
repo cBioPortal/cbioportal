@@ -1,29 +1,19 @@
 /** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
-**
-** This library is free software; you can redistribute it and/or modify it
-** under the terms of the GNU Lesser General Public License as published
-** by the Free Software Foundation; either version 2.1 of the License, or
-** any later version.
-**
-** This library is distributed in the hope that it will be useful, but
-** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
-** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
-** documentation provided hereunder is on an "as is" basis, and
-** Memorial Sloan-Kettering Cancer Center 
-** has no obligations to provide maintenance, support,
-** updates, enhancements or modifications.  In no event shall
-** Memorial Sloan-Kettering Cancer Center
-** be liable to any party for direct, indirect, special,
-** incidental or consequential damages, including lost profits, arising
-** out of the use of this software and its documentation, even if
-** Memorial Sloan-Kettering Cancer Center 
-** has been advised of the possibility of such damage.  See
-** the GNU Lesser General Public License for more details.
-**
-** You should have received a copy of the GNU Lesser General Public License
-** along with this library; if not, write to the Free Software Foundation,
-** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-**/
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 
 package org.mskcc.cbio.portal.util;
 
@@ -42,10 +32,10 @@ import java.util.ArrayList;
 public class TestMutationCounter extends TestCase {
     private static final String BRCA1 = "BRCA1";
     private static final String BRCA2 = "BRCA2";
-    private static final String CASE_A = "A";
-    private static final String CASE_B = "B";
-    private static final String CASE_C = "C";
-    private static final String CASE_D = "D";
+    private static final int CASE_A = 1;
+    private static final int CASE_B = 2;
+    private static final int CASE_C = 3;
+    private static final int CASE_D = 4;
 
     public void test1() {
         CanonicalGene brca1 = new CanonicalGene(672, BRCA1);
@@ -59,11 +49,11 @@ public class TestMutationCounter extends TestCase {
         ArrayList<ExtendedMutation> mutationList =
                 createMutationList(mutation1, mutation2, mutation3);
 
-        ArrayList<String> caseList = new ArrayList<String>();
-        caseList.add(CASE_A);
-        caseList.add(CASE_B);
+        ArrayList<Integer> sampleList = new ArrayList<Integer>();
+        sampleList.add(CASE_A);
+        sampleList.add(CASE_B);
 
-        ExtendedMutationMap mutationMap = new ExtendedMutationMap(mutationList, caseList);
+        ExtendedMutationMap mutationMap = new ExtendedMutationMap(mutationList, sampleList);
         MutationCounter mutationCounter = new MutationCounter (BRCA1, mutationMap);
         assertEquals (0.5, mutationCounter.getMutationRate(), 0.01);
         assertEquals (0.5, mutationCounter.getSomaticMutationRate(), 0.01);
@@ -85,11 +75,11 @@ public class TestMutationCounter extends TestCase {
         ArrayList<ExtendedMutation> mutationList =
                 createMutationList(mutation1, mutation2, mutation3);
 
-        ArrayList<String> caseList = new ArrayList<String>();
-        caseList.add(CASE_A);
-        caseList.add(CASE_B);
+        ArrayList<Integer> sampleList = new ArrayList<Integer>();
+        sampleList.add(CASE_A);
+        sampleList.add(CASE_B);
 
-        ExtendedMutationMap mutationMap = new ExtendedMutationMap(mutationList, caseList);
+        ExtendedMutationMap mutationMap = new ExtendedMutationMap(mutationList, sampleList);
         MutationCounter mutationCounter = new MutationCounter (BRCA1, mutationMap);
         assertEquals (0.5, mutationCounter.getMutationRate(), 0.01);
         assertEquals (0.5, mutationCounter.getSomaticMutationRate(), 0.01);
@@ -110,13 +100,13 @@ public class TestMutationCounter extends TestCase {
         ArrayList<ExtendedMutation> mutationList =
                 createMutationList(mutation1, mutation2, mutation3);
 
-        ArrayList<String> caseList = new ArrayList<String>();
-        caseList.add(CASE_A);
-        caseList.add(CASE_B);
-        caseList.add(CASE_C);
-        caseList.add(CASE_D);
+        ArrayList<Integer> sampleList = new ArrayList<Integer>();
+        sampleList.add(CASE_A);
+        sampleList.add(CASE_B);
+        sampleList.add(CASE_C);
+        sampleList.add(CASE_D);
 
-        ExtendedMutationMap mutationMap = new ExtendedMutationMap(mutationList, caseList);
+        ExtendedMutationMap mutationMap = new ExtendedMutationMap(mutationList, sampleList);
         MutationCounter mutationCounter = new MutationCounter (BRCA1, mutationMap);
         assertEquals (0.25, mutationCounter.getMutationRate(), 0.01);
         assertEquals (0.25, mutationCounter.getSomaticMutationRate(), 0.01);
@@ -134,10 +124,10 @@ public class TestMutationCounter extends TestCase {
     }
 
     private ExtendedMutation createMutation1(CanonicalGene
-            gene, String caseId) {
+            gene, Integer sampleId) {
         ExtendedMutation mutation2 = new ExtendedMutation();
         mutation2.setGene(gene);
-        mutation2.setCaseId(caseId);
+        mutation2.setSampleId(sampleId);
         mutation2.setProteinChange("C22G");
         return mutation2;
     }

@@ -1,29 +1,19 @@
 /** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
-**
-** This library is free software; you can redistribute it and/or modify it
-** under the terms of the GNU Lesser General Public License as published
-** by the Free Software Foundation; either version 2.1 of the License, or
-** any later version.
-**
-** This library is distributed in the hope that it will be useful, but
-** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
-** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
-** documentation provided hereunder is on an "as is" basis, and
-** Memorial Sloan-Kettering Cancer Center 
-** has no obligations to provide maintenance, support,
-** updates, enhancements or modifications.  In no event shall
-** Memorial Sloan-Kettering Cancer Center
-** be liable to any party for direct, indirect, special,
-** incidental or consequential damages, including lost profits, arising
-** out of the use of this software and its documentation, even if
-** Memorial Sloan-Kettering Cancer Center 
-** has been advised of the possibility of such damage.  See
-** the GNU Lesser General Public License for more details.
-**
-** You should have received a copy of the GNU Lesser General Public License
-** along with this library; if not, write to the Free Software Foundation,
-** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-**/
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 
 package org.mskcc.cbio.portal.dao;
 
@@ -53,11 +43,11 @@ public final class DaoPdbUniprotResidueMapping {
                 alignment.getPdbId(),
                 alignment.getChain(),
                 alignment.getUniprotId(),
-                Integer.toString(alignment.getPdbFrom()),
-                Integer.toString(alignment.getPdbTo()),
+                alignment.getPdbFrom(),
+                alignment.getPdbTo(),
                 Integer.toString(alignment.getUniprotFrom()),
                 Integer.toString(alignment.getUniprotTo()),
-                Double.toString(alignment.getEValue()),
+                alignment.getEValue()==null?null:Double.toString(alignment.getEValue()),
                 Double.toString(alignment.getIdentity()),
                 Double.toString(alignment.getIdentityPerc()),
                 alignment.getUniprotAlign(),
@@ -74,11 +64,31 @@ public final class DaoPdbUniprotResidueMapping {
         MySQLbulkLoader.getMySQLbulkLoader("pdb_uniprot_residue_mapping").insertRecord(
                 Integer.toString(mapping.getAlignmentId()),
                 Integer.toString(mapping.getPdbPos()),
+                mapping.getPdbInsertionCode(),
                 Integer.toString(mapping.getUniprotPos()),
                 mapping.getMatch());
 
         // return 1 because normal insert will return 1 if no error occurs
         return 1;
+    }
+    
+    
+    
+    public static int getLargestAlignmentId() throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoPdbUniprotResidueMapping.class);
+            pstmt = con.prepareStatement
+                    ("SELECT MAX(`ALIGNMENT_ID`) FROM `pdb_uniprot_alignment`");
+            rs = pstmt.executeQuery();
+            return rs.next() ? rs.getInt(1) : 0;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoPdbUniprotResidueMapping.class, con, pstmt, rs);
+        }
     }
 
 	/**
@@ -109,6 +119,40 @@ public final class DaoPdbUniprotResidueMapping {
 			}
 
 			return alignments;
+		} catch (SQLException e) {
+			throw new DaoException(e);
+		} finally {
+			JdbcUtil.closeAll(DaoPdbUniprotResidueMapping.class, con, pstmt, rs);
+		}
+	}
+
+	/**
+	 * Retrieves the total number alignments for the given Uniprot id.
+	 *
+	 * @param uniprotId     uniprot id
+	 * @return  total number of alignments for the given Uniprot id.
+	 * @throws DaoException
+	 */
+	public static Integer getAlignmentCount(String uniprotId) throws DaoException
+	{
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try {
+			con = JdbcUtil.getDbConnection(DaoPdbUniprotResidueMapping.class);
+			pstmt = con.prepareStatement("SELECT COUNT(*) FROM pdb_uniprot_alignment " +
+			                             "WHERE UNIPROT_ID=?");
+			pstmt.setString(1, uniprotId);
+			rs = pstmt.executeQuery();
+
+			Integer count = -1;
+
+			if (rs.next())
+			{
+				count = rs.getInt(1);
+			}
+
+			return count;
 		} catch (SQLException e) {
 			throw new DaoException(e);
 		} finally {
@@ -225,13 +269,15 @@ public final class DaoPdbUniprotResidueMapping {
 	 */
 	private static PdbUniprotResidueMapping extractResidueMapping(ResultSet rs) throws SQLException
 	{
-		Integer alignmentId = rs.getInt(1);
-		Integer pdbPosition = rs.getInt(2);
-		Integer uniprotPosition = rs.getInt(3);
-		String match = rs.getString(4);
+		Integer alignmentId = rs.getInt("ALIGNMENT_ID");
+		Integer pdbPosition = rs.getInt("PDB_POSITION");
+		String pdbInsertion = rs.getString("PDB_INSERTION_CODE");
+		Integer uniprotPosition = rs.getInt("UNIPROT_POSITION");
+		String match = rs.getString("MATCH");
 
 		return new PdbUniprotResidueMapping(alignmentId,
 				pdbPosition,
+				pdbInsertion,
 				uniprotPosition,
 				match);
 	}
@@ -247,20 +293,20 @@ public final class DaoPdbUniprotResidueMapping {
 	{
 		PdbUniprotAlignment alignment = new PdbUniprotAlignment();
 
-		Integer alignmentId = rs.getInt(1);
-		String pdbId = rs.getString(2);
-		String chain = rs.getString(3);
-		String uniprotId = rs.getString(4);
-		Integer pdbFrom = rs.getInt(5);
-		Integer pdbTo = rs.getInt(6);
-		Integer uniprotFrom = rs.getInt(7);
-		Integer uniprotTo = rs.getInt(8);
-		Float eValue = rs.getFloat(9);
-		Float identity = rs.getFloat(10);
-		Float identityProtein = rs.getFloat(11);
-		String uniprotAlign = rs.getString(12);
-		String pdbAlign = rs.getString(13);
-		String midlineAlign = rs.getString(14);
+		Integer alignmentId = rs.getInt("ALIGNMENT_ID");
+		String pdbId = rs.getString("PDB_ID");
+		String chain = rs.getString("CHAIN");
+		String uniprotId = rs.getString("UNIPROT_ID");
+		String pdbFrom = rs.getString("PDB_FROM");
+		String pdbTo = rs.getString("PDB_TO");
+		Integer uniprotFrom = rs.getInt("UNIPROT_FROM");
+		Integer uniprotTo = rs.getInt("UNIPROT_TO");
+		Float eValue = rs.getFloat("EVALUE");
+		Float identity = rs.getFloat("IDENTITY");
+		Float identityProtein = rs.getFloat("IDENTP");
+		String uniprotAlign = rs.getString("UNIPROT_ALIGN");
+		String pdbAlign = rs.getString("PDB_ALIGN");
+		String midlineAlign = rs.getString("MIDLINE_ALIGN");
 
 		alignment.setAlignmentId(alignmentId);
 		alignment.setPdbId(pdbId);

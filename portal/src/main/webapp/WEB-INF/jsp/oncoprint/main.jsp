@@ -6,7 +6,7 @@
         </h4>
 
         <span>
-            <form id="pdf-form" style="display:inline;" action="svgtopdf.do" method="post">
+            <form id="pdf-form" style="display:inline;" action="svgtopdf.do" method="post" target="_blank">
                 <input type="hidden" name="svgelement">
                 <input type="hidden" name="filetype" value="pdf">
                 <input type="hidden" name="filename" value="oncoprint.pdf">
@@ -25,7 +25,7 @@
         <%@ include file="controls-templates.jsp" %>
 
         <div style="margin-left:3;">
-            <p>Case Set: <%=StringEscapeUtils.escapeHtml(OncoPrintUtil.getCaseSetDescription(caseSetId, caseSets))%></p>
+            <p>Case Set: <%=StringEscapeUtils.escapeHtml(OncoPrintUtil.getPatientSetDescription(patientSetId, patientSets))%></p>
             <p>Altered in <%=dataSummary.getNumCasesAffected()%> (<%=OncoPrintUtil.alterationValueToString(dataSummary.getPercentCasesAffected())%>) of cases</p>
         </div>
 

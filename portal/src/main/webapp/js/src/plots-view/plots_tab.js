@@ -235,6 +235,16 @@ var PlotsMenu = (function () {
         });
     }
 
+    function setDefaultMethylationSelection() {
+        $('#data_type_dna_methylation > option').each(function() {
+            if (this.text.toLowerCase().indexOf("hm450") !== -1) {
+                $(this).prop('selected', true);
+                return false;
+            }
+        });
+
+    }
+
     function updateVisibility() {
         $("#one_gene_log_scale_x_div").remove();
         $("#one_gene_log_scale_y_div").remove();
@@ -301,6 +311,7 @@ var PlotsMenu = (function () {
                 drawMenu();
                 setDefaultMrnaSelection();
                 setDefaultCopyNoSelection();
+                setDefaultMethylationSelection();
                 updateVisibility();
             } else {
                 drawErrMsgs();
@@ -313,6 +324,7 @@ var PlotsMenu = (function () {
                 drawMenu();
                 setDefaultMrnaSelection();
                 setDefaultCopyNoSelection();
+                setDefaultMethylationSelection();
                 updateVisibility();
             } else {
                 drawErrMsgs();
@@ -321,6 +333,7 @@ var PlotsMenu = (function () {
         updateDataType: function() {
             setDefaultMrnaSelection();
             setDefaultCopyNoSelection();
+            setDefaultMethylationSelection();
             updateVisibility();
         },
         updateLogScaleOption: updateLogScaleOption,
@@ -743,9 +756,7 @@ var PlotsView = (function () {
                 }
                 analyseData();
             },
-            getCaseSetLength: function() { return caseSetLength; },
             getDotsGroup: function() { return dotsGroup; },
-            getDotsGroupLength: function() { return dotsGroup.length; },
             getDataStatus: function() { return status; },
             getDataAttr: function() { return attr; }
         };
@@ -1213,10 +1224,10 @@ var PlotsView = (function () {
                             $(this).qtip(
                                 {
                                     content: {text: content},
-                                    style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                                    style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                                     show: {event: "mouseover"},
                                     hide: {fixed:true, delay: 100, event: "mouseout"},
-                                    position: {my:'left bottom',at:'top right'}
+                                    position: {my:'left bottom',at:'top right', viewport: $(window)}
                                 }
                             );
                             if (Util.plotsTypeIsCopyNo()) {    //Handle special symbols
@@ -1332,8 +1343,8 @@ var PlotsView = (function () {
                             var _y = attr.yScale(d.yVal);
                             $(this).attr("x_pos", _x);
                             $(this).attr("y_pos", _y);
-                            $(this).attr("xVal", d.xVal);
-                            $(this).attr("yVal", d.yVal);
+                            $(this).attr("x_val", d.xVal);
+                            $(this).attr("y_val", d.yVal);
                             $(this).attr("size", 20);
                             return "translate(" + _x + "," + _y + ")";
                         })
@@ -1508,8 +1519,8 @@ var PlotsView = (function () {
                         var _y = attr.yScale(d.yVal);
                         $(this).attr("x_pos", _x);
                         $(this).attr("y_pos", _y);
-                        $(this).attr("xVal", d.xVal);
-                        $(this).attr("yVal", d.yVal);
+                        $(this).attr("x_val", d.xVal);
+                        $(this).attr("y_val", d.yVal);
                         $(this).attr("symbol", "circle");
                         $(this).attr("size", 20);
                         return "translate(" + _x + ", " + _y + ")";
@@ -1542,8 +1553,8 @@ var PlotsView = (function () {
                         var _y = attr.yScale(d.yVal);
                         $(this).attr("x_pos", _x);
                         $(this).attr("y_pos", _y);
-                        $(this).attr("xVal", d.xVal);
-                        $(this).attr("yVal", d.yVal);
+                        $(this).attr("x_val", d.xVal);
+                        $(this).attr("y_val", d.yVal);
                         $(this).attr("symbol", "circle");
                         $(this).attr("size", 35);
                         return "translate(" + attr.xScale(d.xVal) + ", " + attr.yScale(d.yVal) + ")";
@@ -1590,13 +1601,13 @@ var PlotsView = (function () {
                         .transition().duration(300)
                         .attr("transform", function() {
                             if (applyLogScale) {
-                                if(d3.select(this).attr("xVal") <= (Plots.getLogScaleThreshold())) {
+                                if(d3.select(this).attr("x_val") <= (Plots.getLogScaleThreshold())) {
                                     var _post_x = attr.xScale(Math.log(Plots.getLogScaleThreshold()) / Math.log(2));
                                 } else {
-                                    var _post_x = attr.xScale(Math.log(d3.select(this).attr("xVal")) / Math.log(2));
+                                    var _post_x = attr.xScale(Math.log(d3.select(this).attr("x_val")) / Math.log(2));
                                 }
                             } else {
-                                var _post_x = attr.xScale(d3.select(this).attr("xVal"));
+                                var _post_x = attr.xScale(d3.select(this).attr("x_val"));
                             }
                             var _pre_y = d3.select(this).attr("y_pos");
                             d3.select(this).attr("x_pos", _post_x);
@@ -1609,13 +1620,13 @@ var PlotsView = (function () {
                         .attr("transform", function() {
                             var _pre_x = d3.select(this).attr("x_pos");
                             if (applyLogScale) {
-                                if (parseFloat(d3.select(this).attr("yVal")) <= (Plots.getLogScaleThreshold())) {
+                                if (parseFloat(d3.select(this).attr("y_val")) <= (Plots.getLogScaleThreshold())) {
                                     var _post_y = attr.yScale(Math.log(Plots.getLogScaleThreshold()) / Math.log(2));
                                 } else {
-                                    var _post_y = attr.yScale(Math.log(d3.select(this).attr("yVal")) / Math.log(2));
+                                    var _post_y = attr.yScale(Math.log(d3.select(this).attr("y_val")) / Math.log(2));
                                 }
                             } else {
-                                var _post_y = attr.yScale(d3.select(this).attr("yVal"));
+                                var _post_y = attr.yScale(d3.select(this).attr("y_val"));
                             }
                             d3.select(this).attr("y_pos", _post_y);
                             return "translate(" + _pre_x + ", " + _post_y + ")";
@@ -1802,14 +1813,14 @@ var PlotsView = (function () {
             } else if (Util.plotsTypeIsRPPA()) {
                 $('#view_title').append(userSelection.gene + ": RPPA protein level v. mRNA Expression ");
             }
-            var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
+            var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' target='_blank' " +
                 "onsubmit=\"this.elements['svgelement'].value=loadPlotsSVG();\">" +
                 "<input type='hidden' name='svgelement'>" +
                 "<input type='hidden' name='filetype' value='pdf'>" +
                 "<input type='hidden' name='filename' value='correlation_plot-" + userSelection.gene + ".pdf'>" +
                 "<input type='submit' value='PDF'></form>";
             $('#view_title').append(pdfConverterForm);
-            var svgConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
+            var svgConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' target='_blank'" +
                 "onsubmit=\"this.elements['svgelement'].value=loadPlotsSVG();\">" +
                 "<input type='hidden' name='svgelement'>" +
                 "<input type='hidden' name='filetype' value='svg'>" +
@@ -1896,8 +1907,8 @@ var PlotsView = (function () {
         Plots.getProfileData(
             userSelection.gene,
             _profileIdsStr,
-            case_set_id,
-            case_ids_key,
+            patient_set_id,
+            patient_ids_key,
             getProfileDataCallBack
         );
     }
@@ -1919,8 +1930,8 @@ var PlotsView = (function () {
             Plots.getMutationType(
                 userSelection.gene,
                 cancer_study_id + "_mutations",
-                case_set_id,
-                case_ids_key,
+                patient_set_id,
+                patient_ids_key,
                 getMutationTypeCallBack
             );
         } else {

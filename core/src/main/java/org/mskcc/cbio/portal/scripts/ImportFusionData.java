@@ -1,49 +1,29 @@
 /** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
- **
- ** This library is free software; you can redistribute it and/or modify it
- ** under the terms of the GNU Lesser General Public License as published
- ** by the Free Software Foundation; either version 2.1 of the License, or
- ** any later version.
- **
- ** This library is distributed in the hope that it will be useful, but
- ** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
- ** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
- ** documentation provided hereunder is on an "as is" basis, and
- ** Memorial Sloan-Kettering Cancer Center
- ** has no obligations to provide maintenance, support,
- ** updates, enhancements or modifications.  In no event shall
- ** Memorial Sloan-Kettering Cancer Center
- ** be liable to any party for direct, indirect, special,
- ** incidental or consequential damages, including lost profits, arising
- ** out of the use of this software and its documentation, even if
- ** Memorial Sloan-Kettering Cancer Center
- ** has been advised of the possibility of such damage.  See
- ** the GNU Lesser General Public License for more details.
- **
- ** You should have received a copy of the GNU Lesser General Public License
- ** along with this library; if not, write to the Free Software Foundation,
- ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- **/
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 
 package org.mskcc.cbio.portal.scripts;
 
 import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.model.CanonicalGene;
-import org.mskcc.cbio.portal.model.ExtendedMutation;
-import org.mskcc.cbio.portal.util.ConsoleUtil;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
-import org.mskcc.cbio.maf.FusionFileUtil;
-import org.mskcc.cbio.maf.FusionRecord;
-import org.mskcc.cbio.maf.TabDelimitedFileUtil;
-import org.mskcc.cbio.portal.util.CaseIdUtil;
-import org.mskcc.cbio.portal.util.ExtendedMutationUtil;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.*;
+import org.mskcc.cbio.maf.*;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
 /**
  * Imports a fusion file.
@@ -93,6 +73,7 @@ public class ImportFusionData
 
 		boolean addEvent;
 
+        GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
 		while ((line = buf.readLine()) != null)
 		{
 			if( pMonitor != null)
@@ -107,11 +88,13 @@ public class ImportFusionData
 
 				// process case id
 				String barCode = record.getTumorSampleID();
-				String caseId = CaseIdUtil.getCaseId(barCode);
-
-				if (!DaoCaseProfile.caseExistsInGeneticProfile(caseId, geneticProfileId))
+                ImportDataUtil.addPatients(new String[] { StableIdUtil.getPatientId(barCode) }, geneticProfileId);
+                ImportDataUtil.addSamples(new String[] { StableIdUtil.getSampleId(barCode) }, geneticProfileId);
+		        Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
+                                                                            StableIdUtil.getSampleId(barCode));
+				if (!DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId))
 				{
-					DaoCaseProfile.addCaseProfile(caseId, geneticProfileId);
+					DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId);
 				}
 
 				//  Assume we are dealing with Entrez Gene Ids (this is the best / most stable option)
@@ -141,7 +124,7 @@ public class ImportFusionData
 					ExtendedMutation mutation = ExtendedMutationUtil.newMutation();
 
 					mutation.setGeneticProfileId(geneticProfileId);
-					mutation.setCaseId(caseId);
+					mutation.setSampleId(sample.getInternalId());
 					mutation.setGene(gene);
 					mutation.setSequencingCenter(record.getCenter());
 					mutation.setProteinChange(record.getFusion());

@@ -1,29 +1,20 @@
 /*
  * Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
- * This library is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published
- * by the Free Software Foundation; either version 2.1 of the License, or
- * any later version.
  *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
  * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
  * documentation provided hereunder is on an "as is" basis, and
- * Memorial Sloan-Kettering Cancer Center
+ * Memorial Sloan-Kettering Cancer Center 
  * has no obligations to provide maintenance, support,
  * updates, enhancements or modifications.  In no event shall
  * Memorial Sloan-Kettering Cancer Center
  * be liable to any party for direct, indirect, special,
  * incidental or consequential damages, including lost profits, arising
  * out of the use of this software and its documentation, even if
- * Memorial Sloan-Kettering Cancer Center
- * has been advised of the possibility of such damage.  See
- * the GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 package org.mskcc.cbio.importer.internal;
 
 import org.mskcc.cbio.importer.model.*;
@@ -33,16 +24,12 @@ import org.mskcc.cbio.importer.util.ClassLoader;
 
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
-import org.mskcc.cbio.portal.util.CancerStudyReader;
-import org.mskcc.cbio.portal.scripts.ImportCaseList;
-import org.mskcc.cbio.portal.scripts.ImportTypesOfCancers;
+import org.mskcc.cbio.portal.util.*;
+import org.mskcc.cbio.portal.scripts.*;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.*;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.*;
 
 import org.apache.commons.io.*;
 import org.apache.commons.io.filefilter.*;
@@ -140,6 +127,17 @@ class CancerStudyImporterImpl implements Importer, Validator {
 	public void importReferenceData(ReferenceMetadata referenceMetadata) throws Exception
     {
 		throw new UnsupportedOperationException();
+    }
+        
+    @Override
+        public void importTypesOfCancer() throws Exception
+    {
+		throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void importCaseLists(String portal) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -347,7 +345,7 @@ class CancerStudyImporterImpl implements Importer, Validator {
         if (caseListDirectory.exists()) {
             logMessage("Importing case lists found in directory: " + caseListDirectory.getCanonicalPath());
             String[] args = new String[] { caseListDirectory.getCanonicalPath() };
-            ImportCaseList.main(args);
+            ImportPatientList.main(args);
         }
         else {
             logMessage("Cannot find case list directory, skipping case list import: " + caseListDirectory.getCanonicalPath());

@@ -1,29 +1,19 @@
 /** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
-**
-** This library is free software; you can redistribute it and/or modify it
-** under the terms of the GNU Lesser General Public License as published
-** by the Free Software Foundation; either version 2.1 of the License, or
-** any later version.
-**
-** This library is distributed in the hope that it will be useful, but
-** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
-** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
-** documentation provided hereunder is on an "as is" basis, and
-** Memorial Sloan-Kettering Cancer Center 
-** has no obligations to provide maintenance, support,
-** updates, enhancements or modifications.  In no event shall
-** Memorial Sloan-Kettering Cancer Center
-** be liable to any party for direct, indirect, special,
-** incidental or consequential damages, including lost profits, arising
-** out of the use of this software and its documentation, even if
-** Memorial Sloan-Kettering Cancer Center 
-** has been advised of the possibility of such damage.  See
-** the GNU Lesser General Public License for more details.
-**
-** You should have received a copy of the GNU Lesser General Public License
-** along with this library; if not, write to the Free Software Foundation,
-** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-**/
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 
 package org.mskcc.cbio.portal.servlet;
 
@@ -51,24 +41,16 @@ import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.ClinicalData;
 import org.mskcc.cbio.portal.model.ClinicalParameterMap;
 import org.mskcc.cbio.portal.util.CategoryLabelReader;
-import org.owasp.validator.html.PolicyException;
 
 public class ClinicalFreeFormJSON extends HttpServlet
 {
 	public static final String STUDY_ID = "studyId";
-	
-	private ServletXssUtil servletXssUtil;
 
     /**
      * Initializes the servlet.
      */
     public void init() throws ServletException {
         super.init();
-        try {
-            servletXssUtil = ServletXssUtil.getInstance();
-        } catch (PolicyException e) {
-            throw new ServletException(e);
-        }
     }
 
     /**
@@ -97,28 +79,28 @@ public class ClinicalFreeFormJSON extends HttpServlet
         	 }
         	 else
         	 {
-                 HashSet<String> clinicalCaseSet = 
-                		 DaoClinicalData.getAllCases(cancerStudy.getInternalId());
+                 HashSet<String> clinicalPatientSet = 
+                		 DaoClinicalData.getAllPatients(cancerStudy.getInternalId());
                  
                  HashSet<String> paramSet = 
                 		 DaoClinicalData.getDistinctParameters(cancerStudy.getInternalId());
                  
                  List<ClinicalData> freeFormData = 
-                		 DaoClinicalData.getCasesByCancerStudy(cancerStudy.getInternalId());
+                		 DaoClinicalData.getDataByCancerStudy(cancerStudy.getInternalId());
 
                  // map of <param, distinctCategorySet> pairs
                  Map<String, Object> categoryMap = new HashMap<String, Object>();
                  
                  // array of clinical case IDs 
-                 JSONArray caseIds = new JSONArray();
+                 JSONArray patientIds = new JSONArray();
                  
-                 // add the clinical case set
-                 for (String caseId : clinicalCaseSet)
+                 // add the clinical patient set
+                 for (String patientId : clinicalPatientSet)
                  {
-                	 caseIds.add(caseId);
+                	 patientIds.add(patientId);
                  }
                  
-                 jsonObject.put("clinicalCaseSet", caseIds);
+                 jsonObject.put("clinicalCaseSet", patientIds);
                  
                  // get all distinct categories
                  List<ClinicalParameterMap> paramMaps = DaoClinicalData.getDataSlice(cancerStudy.getInternalId(), paramSet);
@@ -150,7 +132,7 @@ public class ClinicalFreeFormJSON extends HttpServlet
                 	 JSONObject freeFormObject = new JSONObject();
                 	 
                 	 //freeFormObject.put("cancerStudyId", data.getCancerStudyId());
-                	 freeFormObject.put("caseId", data.getCaseId());
+                	 freeFormObject.put("caseId", data.getStableId());
                 	 freeFormObject.put("paramName", CategoryLabelReader.safeCategoryName(data.getAttrId()));
                 	 freeFormObject.put("paramValue", data.getAttrVal());
                 	 

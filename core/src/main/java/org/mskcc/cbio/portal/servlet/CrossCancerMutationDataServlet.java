@@ -1,29 +1,20 @@
 /*
  * Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
- * This library is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published
- * by the Free Software Foundation; either version 2.1 of the License, or
- * any later version.
  *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
  * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
  * documentation provided hereunder is on an "as is" basis, and
- * Memorial Sloan-Kettering Cancer Center
+ * Memorial Sloan-Kettering Cancer Center 
  * has no obligations to provide maintenance, support,
  * updates, enhancements or modifications.  In no event shall
  * Memorial Sloan-Kettering Cancer Center
  * be liable to any party for direct, indirect, special,
  * incidental or consequential damages, including lost profits, arising
  * out of the use of this software and its documentation, even if
- * Memorial Sloan-Kettering Cancer Center
- * has been advised of the possibility of such damage.  See
- * the GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 
 package org.mskcc.cbio.portal.servlet;
 
@@ -63,8 +54,6 @@ public class CrossCancerMutationDataServlet extends HttpServlet
     // class which process access control to cancer studies
     private AccessControl accessControl;
 
-    private ServletXssUtil servletXssUtil;
-
     private MutationDataUtils mutationDataUtils = new MutationDataUtils();
 
     public MutationDataUtils getMutationDataUtils() {
@@ -86,12 +75,6 @@ public class CrossCancerMutationDataServlet extends HttpServlet
         ApplicationContext context =
                 new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
         accessControl = (AccessControl)context.getBean("accessControl");
-
-        try {
-            servletXssUtil = ServletXssUtil.getInstance();
-        } catch (PolicyException e) {
-            throw new ServletException(e);
-        }
     }
 
 	protected void doGet(HttpServletRequest request,
@@ -110,7 +93,7 @@ public class CrossCancerMutationDataServlet extends HttpServlet
         JSONArray data = new JSONArray();
 
         // Get the gene list
-        String geneList = servletXssUtil.getCleanInput(request, "geneList");
+        String geneList = request.getParameter("geneList");
 
         // Get the priority
         Integer dataTypePriority;
@@ -132,12 +115,12 @@ public class CrossCancerMutationDataServlet extends HttpServlet
                 //  Get all Genetic Profiles Associated with this Cancer Study ID.
                 ArrayList<GeneticProfile> geneticProfileList = GetGeneticProfiles.getGeneticProfiles(cancerStudyId);
 
-                //  Get all Case Lists Associated with this Cancer Study ID.
-                ArrayList<CaseList> caseSetList = GetCaseLists.getCaseLists(cancerStudyId);
+                //  Get all Patient Lists Associated with this Cancer Study ID.
+                ArrayList<PatientList> patientSetList = GetPatientLists.getPatientLists(cancerStudyId);
 
-                //  Get the default case set
-                AnnotatedCaseSets annotatedCaseSets = new AnnotatedCaseSets(caseSetList, dataTypePriority);
-                CaseList defaultCaseSet = annotatedCaseSets.getDefaultCaseList();
+                //  Get the default patient set
+                AnnotatedPatientSets annotatedPatientSets = new AnnotatedPatientSets(patientSetList, dataTypePriority);
+                PatientList defaultPatientSet = annotatedPatientSets.getDefaultPatientList();
 
                 //  Get the default genomic profiles
                 CategorizedGeneticProfileSet categorizedGeneticProfileSet =
@@ -157,15 +140,15 @@ public class CrossCancerMutationDataServlet extends HttpServlet
 
                 for (GeneticProfile profile : defaultGeneticProfileSet.values()) {
                     ArrayList<String> targetGeneList = this.parseValues(geneList);
-                    ArrayList<String> caseList = new ArrayList<String>();
-                    caseList.addAll(defaultCaseSet.getCaseList());
+                    ArrayList<String> patientList = new ArrayList<String>();
+                    patientList.addAll(defaultPatientSet.getPatientList());
 
                     if(!profile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED))
                             continue;
 
                     // add mutation data for each genetic profile
                     JSONArray mutationData
-                            = mutationDataUtils.getMutationData(profile.getStableId(), targetGeneList, caseList);
+                            = mutationDataUtils.getMutationData(profile.getStableId(), targetGeneList, patientList);
                     data.addAll(mutationData);
                 }
             }

@@ -22,12 +22,12 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.fileupload.FileItem;
 import org.mskcc.cbio.portal.util.FileUploadRequestWrapper;
 import org.mskcc.cbio.portal.util.XDebug;
+import org.mskcc.cbio.portal.util.XssRequestWrapper;
 import org.owasp.validator.html.PolicyException;
 
 public class SvgConverter extends HttpServlet {
 
     private Pattern svgXPosPattern;
-    private ServletXssUtil servletXssUtil;
     private static String DEFAULT_FILENAME = "result";
 
     /**
@@ -38,13 +38,7 @@ public class SvgConverter extends HttpServlet {
     public void init() throws ServletException {
 
         super.init();
-        try {
-            servletXssUtil = ServletXssUtil.getInstance();
-            svgXPosPattern = Pattern.compile("( x=\"(\\d+)\")");
-        }
-        catch (PolicyException e) {
-            throw new ServletException (e);
-        }
+	    svgXPosPattern = Pattern.compile("( x=\"(\\d+)\")");
     }
 
     /**
@@ -75,9 +69,15 @@ public class SvgConverter extends HttpServlet {
         XDebug xdebug = new XDebug( httpServletRequest );
         xdebug.logMsg(this, "Attempting to parse request parameters.");
 
-        String format = servletXssUtil.getCleanInput(httpServletRequest, "filetype");
+        String format = httpServletRequest.getParameter("filetype");
         String xml = httpServletRequest.getParameter("svgelement");
-        String filename = servletXssUtil.getCleanInput(httpServletRequest, "filename");
+        String filename = httpServletRequest.getParameter("filename");
+
+	    // TODO - update antisamy.xml to support svg-xml
+	    if (httpServletRequest instanceof XssRequestWrapper)
+	    {
+		    xml = ((XssRequestWrapper) httpServletRequest).getRawParameter("svgelement");
+	    }
 
         String xmlHeader = "<?xml version='1.0'?>";
         xml = xmlHeader + xml;

@@ -1,29 +1,19 @@
 /** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
-**
-** This library is free software; you can redistribute it and/or modify it
-** under the terms of the GNU Lesser General Public License as published
-** by the Free Software Foundation; either version 2.1 of the License, or
-** any later version.
-**
-** This library is distributed in the hope that it will be useful, but
-** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
-** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
-** documentation provided hereunder is on an "as is" basis, and
-** Memorial Sloan-Kettering Cancer Center 
-** has no obligations to provide maintenance, support,
-** updates, enhancements or modifications.  In no event shall
-** Memorial Sloan-Kettering Cancer Center
-** be liable to any party for direct, indirect, special,
-** incidental or consequential damages, including lost profits, arising
-** out of the use of this software and its documentation, even if
-** Memorial Sloan-Kettering Cancer Center 
-** has been advised of the possibility of such damage.  See
-** the GNU Lesser General Public License for more details.
-**
-** You should have received a copy of the GNU Lesser General Public License
-** along with this library; if not, write to the Free Software Foundation,
-** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-**/
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 
 package org.mskcc.cbio.portal.dao;
 
@@ -31,11 +21,15 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 
 /**
@@ -50,7 +44,7 @@ public class DaoGeneOptimized {
     private final HashMap<String, CanonicalGene> geneSymbolMap = new HashMap <String, CanonicalGene>();
     private final HashMap<Long, CanonicalGene> entrezIdMap = new HashMap <Long, CanonicalGene>();
     private final HashMap<String, List<CanonicalGene>> geneAliasMap = new HashMap<String, List<CanonicalGene>>();
-    private final Set<String> cbioCancerGenes = new HashSet<String>();
+    private final Set<CanonicalGene> cbioCancerGenes = new HashSet<CanonicalGene>();
     
     /**
      * Private Constructor, to enforce singleton pattern.
@@ -74,10 +68,10 @@ public class DaoGeneOptimized {
                 BufferedReader in = new BufferedReader(
                         new InputStreamReader(getClass().getResourceAsStream(CBIO_CANCER_GENES_FILE)));
                 for (String line=in.readLine(); line!=null; line=in.readLine()) {
-                    String symbol = line.trim();
-                    CanonicalGene gene = getNonAmbiguousGene(symbol);
+                    long entrez = Long.parseLong(line.trim().split("\t")[0]);
+                    CanonicalGene gene = getGene(entrez);
                     if (gene!=null) {
-                        cbioCancerGenes.add(symbol);
+                        cbioCancerGenes.add(gene);
                     } else {
                         System.err.println(line+" in the cbio cancer gene list is not a HUGO gene symbol.");
                     }
@@ -191,6 +185,20 @@ public class DaoGeneOptimized {
      * @return A list of genes that match, an empty list if no match.
      */
     public List<CanonicalGene> guessGene(String geneId) {
+        return guessGene(geneId, null);
+    }
+    
+    /**
+     * Look for genes with a specific ID on a chr. First look for genes with the specific
+     * Entrez Gene ID, if found return this gene; then for HUGO symbol, if found,
+     * return this gene; and lastly for aliases, if found, return a list of
+     * matched genes (could be more than one). If chr is not null, use that to match too.
+     * If nothing matches, return an empty list.
+     * @param geneId an Entrez Gene ID or HUGO symbol or gene alias
+     * @param chr chromosome
+     * @return A list of genes that match, an empty list if no match.
+     */
+    public List<CanonicalGene> guessGene(String geneId, String chr) {
         if (geneId==null) {
             return Collections.emptyList();
         }
@@ -210,10 +218,70 @@ public class DaoGeneOptimized {
         
         List<CanonicalGene> genes = geneAliasMap.get(geneId.toUpperCase());
         if (genes!=null) {
-            return Collections.unmodifiableList(genes);
+            if (chr==null) {
+                return Collections.unmodifiableList(genes);
+            }
+            
+            String nchr = normalizeChr(chr);
+            
+            List<CanonicalGene> ret = new ArrayList<CanonicalGene>();
+            for (CanonicalGene cg : genes) {
+                String gchr = getChrFromCytoband(cg.getCytoband());
+                if (gchr==null // TODO: should we exlude this?
+                        || gchr.equals(nchr)) {
+                    ret.add(cg);
+                }
+            }
+            return ret;
         }
         
         return Collections.emptyList();
+    }
+    
+    
+    private static Map<String,String> validChrValues = null;
+    public static String normalizeChr(String strChr) {
+        if (strChr==null) {
+            return null;
+        }
+        
+        if (validChrValues==null) {
+            validChrValues = new HashMap<String,String>();
+            for (int lc = 1; lc<=24; lc++) {
+                    validChrValues.put(Integer.toString(lc),Integer.toString(lc));
+                    validChrValues.put("CHR" + Integer.toString(lc),Integer.toString(lc));
+            }
+            validChrValues.put("X","23");
+            validChrValues.put("CHRX","23");
+            validChrValues.put("Y","24");
+            validChrValues.put("CHRY","24");
+            validChrValues.put("NA","NA");
+            validChrValues.put("MT","MT"); // mitochondria
+        }
+
+        return validChrValues.get(strChr);
+    }
+    
+    private static String getChrFromCytoband(String cytoband) {
+        if (cytoband==null) {
+            return null;
+        }
+        
+        if (cytoband.startsWith("X")) {
+            return "23";
+        }
+        
+        if (cytoband.startsWith("Y")) {
+            return "24";
+        }
+        
+        Pattern p = Pattern.compile("([0-9]+).*");
+        Matcher m = p.matcher(cytoband);
+        if (m.find()) {
+            return m.group(1);
+        }
+        
+        return null;
     }
     
     /**
@@ -222,7 +290,17 @@ public class DaoGeneOptimized {
      * @return a gene that can be non-ambiguously determined, or null if cannot.
      */
     public CanonicalGene getNonAmbiguousGene(String geneId) {
-        List<CanonicalGene> genes = guessGene(geneId);
+        return getNonAmbiguousGene(geneId, null);
+    }
+    
+    /**
+     * Look for gene that can be non-ambiguously determined.
+     * @param geneId an Entrez Gene ID or HUGO symbol or gene alias
+     * @param chr chromosome
+     * @return a gene that can be non-ambiguously determined, or null if cannot.
+     */
+    public CanonicalGene getNonAmbiguousGene(String geneId, String chr) {
+        List<CanonicalGene> genes = guessGene(geneId, chr);
         if (genes.isEmpty()) {
             return null;
         }
@@ -244,12 +322,20 @@ public class DaoGeneOptimized {
         return genes.get(0);
     }
     
-    public Set<String> getCbioCancerGenes() {
+    public Set<Long> getEntrezGeneIds(Collection<CanonicalGene> genes) {
+        Set<Long> entrezGeneIds = new HashSet<Long>();
+        for (CanonicalGene gene : genes) {
+            entrezGeneIds.add(gene.getEntrezGeneId());
+        }
+        return entrezGeneIds;
+    }
+    
+    public Set<CanonicalGene> getCbioCancerGenes() {
         return Collections.unmodifiableSet(cbioCancerGenes);
     }
     
-    public boolean isCbioCancerGene(String hugoSymbolUpper) {
-        return cbioCancerGenes.contains(hugoSymbolUpper);
+    public boolean isCbioCancerGene(CanonicalGene gene) {
+        return cbioCancerGenes.contains(gene);
     }
 
     /**

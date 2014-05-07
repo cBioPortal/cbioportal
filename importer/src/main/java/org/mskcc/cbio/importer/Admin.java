@@ -1,63 +1,38 @@
 /** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
-**
-** This library is free software; you can redistribute it and/or modify it
-** under the terms of the GNU Lesser General Public License as published
-** by the Free Software Foundation; either version 2.1 of the License, or
-** any later version.
-**
-** This library is distributed in the hope that it will be useful, but
-** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
-** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
-** documentation provided hereunder is on an "as is" basis, and
-** Memorial Sloan-Kettering Cancer Center 
-** has no obligations to provide maintenance, support,
-** updates, enhancements or modifications.  In no event shall
-** Memorial Sloan-Kettering Cancer Center
-** be liable to any party for direct, indirect, special,
-** incidental or consequential damages, including lost profits, arising
-** out of the use of this software and its documentation, even if
-** Memorial Sloan-Kettering Cancer Center 
-** has been advised of the possibility of such damage.  See
-** the GNU Lesser General Public License for more details.
-**
-** You should have received a copy of the GNU Lesser General Public License
-** along with this library; if not, write to the Free Software Foundation,
-** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-**/
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 
 // package
 package org.mskcc.cbio.importer;
 
 // imports
-import org.mskcc.cbio.importer.Config;
-import org.mskcc.cbio.importer.Fetcher;
-import org.mskcc.cbio.importer.DatabaseUtils;
-import org.mskcc.cbio.importer.model.PortalMetadata;
-import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.DataSourcesMetadata;
-import org.mskcc.cbio.importer.model.ReferenceMetadata;
+import org.mskcc.cbio.importer.*;
+import org.mskcc.cbio.importer.model.*;
+import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.PosixParser;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.*;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.*;
 import org.apache.log4j.PropertyConfigurator;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import java.io.File;
-import java.io.PrintWriter;
-import java.util.Map;
-import java.util.HashSet;
-import java.util.Collection;
-import java.util.Properties;
+import java.io.*;
+import java.util.*;
 import java.text.SimpleDateFormat;
 
 /**
@@ -121,7 +96,8 @@ public class Admin implements Runnable {
 							.hasArgs(2)
 							.withValueSeparator(':')
 							.withDescription("Fetch data from the given data_source and the given run date (mm/dd/yyyy).  " + 
-											 "Use \"" + Fetcher.LATEST_RUN_INDICATOR + "\" to retrieve the most current run.")
+											 "Use \"" + Fetcher.LATEST_RUN_INDICATOR + "\" to retrieve the most current run or " +
+                                             "when fetching clinical data.")
 							.create("fetch_data"));
 
         Option fetchReferenceData = (OptionBuilder.withArgName("reference_data")
@@ -171,6 +147,10 @@ public class Admin implements Runnable {
 													   "Use \"" + Config.ALL + "\" to import all reference data.")
 									  .create("import_reference_data"));
 
+        Option importTypesOfCancer = (OptionBuilder.hasArg(false)
+									  .withDescription("Import types of cancer.")
+									  .create("import_types_of_cancer"));
+        
         Option importData = (OptionBuilder.withArgName("portal:init_portal_db:init_tumor_types:ref_data")
                              .hasArgs(4)
 							 .withValueSeparator(':')
@@ -179,6 +159,11 @@ public class Admin implements Runnable {
 											  "If init_tumor_types is 't' tumor types will be imported  " + 
 											  "If ref_data is 't', all reference data will be imported prior to importing staging files.")
                              .create("import_data"));
+        
+        Option importCaseLists = (OptionBuilder.withArgName("portal")
+                             .hasArgs(1)
+                             .withDescription("Import case lists for the given portal.")
+                             .create("import_case_lists"));
 
         Option copySegFiles = (OptionBuilder.withArgName("portal:seg_datatype:remote_user_name")
 							   .hasArgs(3)
@@ -187,6 +172,11 @@ public class Admin implements Runnable {
 												"from cBio Portal web site. 'ssh-add' should be executed prior to this " +
 												"command to add your identity to the authentication agent.")
 							   .create("copy_seg_files"));
+
+        Option deleteCancerStudy = (OptionBuilder.withArgName("cancer_study_id")
+									.hasArg()
+									.withDescription("Delete a cancer study matching the given cancer study id.")
+									.create("delete_cancer_study"));
 
 		// create an options instance
 		Options toReturn = new Options();
@@ -202,8 +192,11 @@ public class Admin implements Runnable {
 		toReturn.addOption(applyOverrides);
 		toReturn.addOption(generateCaseLists);
 		toReturn.addOption(importReferenceData);
+		toReturn.addOption(importTypesOfCancer);
 		toReturn.addOption(importData);
+		toReturn.addOption(importCaseLists);
 		toReturn.addOption(copySegFiles);
+		toReturn.addOption(deleteCancerStudy);
 
 		// outta here
 		return toReturn;
@@ -283,15 +276,27 @@ public class Admin implements Runnable {
 			else if (commandLine.hasOption("import_reference_data")) {
 				importReferenceData(commandLine.getOptionValue("import_reference_data"));
 			}
+			else if (commandLine.hasOption("import_types_of_cancer")) {
+				importTypesOfCancer();
+			}
 			// import data
 			else if (commandLine.hasOption("import_data")) {
                 String[] values = commandLine.getOptionValues("import_data");
                 importData(values[0], values[1], values[2], values[3]);
 			}
+                        
+			// import case lists
+			else if (commandLine.hasOption("import_case_lists")) {
+                String[] values = commandLine.getOptionValues("import_case_lists");
+                importCaseLists(values[0]);
+			}
 			// copy seg files
 			else if (commandLine.hasOption("copy_seg_files")) {
                 String[] values = commandLine.getOptionValues("copy_seg_files");
                 copySegFiles(values[0], values[1], values[2]);
+			}
+			else if (commandLine.hasOption("delete_cancer_study")) {
+				deleteCancerStudy(commandLine.getOptionValue("delete_cancer_study"));
 			}
 			else {
 				Admin.usage(new PrintWriter(System.out, true));
@@ -588,6 +593,27 @@ public class Admin implements Runnable {
 	}
 
 	/**
+	 * Helper function to import types of cancer.
+     *
+     * @param referenceType String
+	 *
+	 * @throws Exception
+	 */
+	private void importTypesOfCancer() throws Exception {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("importTypesOfCancer()");
+		}
+                
+                Importer importer = (Importer)getBean("importer");
+                importer.importTypesOfCancer();
+                        
+		if (LOG.isInfoEnabled()) {
+			LOG.info("importReferenceData(), complete");
+		}
+	}
+
+	/**
 	 * Helper function to import data.
      *
      * @param portal String
@@ -617,6 +643,25 @@ public class Admin implements Runnable {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("importData(), complete");
+		}
+	}
+        
+        /**
+         * 
+         * @param portal
+         * @throws Exception 
+         */
+	private void importCaseLists(String portal) throws Exception {
+		if (LOG.isInfoEnabled()) {
+			LOG.info("importData(), portal: " + portal);
+		}
+
+		// create an instance of Importer
+		Importer importer = (Importer)getBean("importer");
+		importer.importCaseLists(portal);
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("importCaseLists(), complete");
 		}
 	}
 
@@ -657,6 +702,17 @@ public class Admin implements Runnable {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("copySegFiles(), complete");
+		}
+	}
+
+	private void deleteCancerStudy(String cancerStudyStableId) throws Exception
+	{
+		if (LOG.isInfoEnabled()) {
+			LOG.info("deleteCancerStudy(), study id: " + cancerStudyStableId);
+		}
+		DaoCancerStudy.deleteCancerStudy(cancerStudyStableId);
+		if (LOG.isInfoEnabled()) {
+			LOG.info("deleteCancerStudy(), complete");
 		}
 	}
 

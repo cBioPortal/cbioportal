@@ -1,57 +1,35 @@
 /** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
-**
-** This library is free software; you can redistribute it and/or modify it
-** under the terms of the GNU Lesser General Public License as published
-** by the Free Software Foundation; either version 2.1 of the License, or
-** any later version.
-**
-** This library is distributed in the hope that it will be useful, but
-** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
-** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
-** documentation provided hereunder is on an "as is" basis, and
-** Memorial Sloan-Kettering Cancer Center 
-** has no obligations to provide maintenance, support,
-** updates, enhancements or modifications.  In no event shall
-** Memorial Sloan-Kettering Cancer Center
-** be liable to any party for direct, indirect, special,
-** incidental or consequential damages, including lost profits, arising
-** out of the use of this software and its documentation, even if
-** Memorial Sloan-Kettering Cancer Center 
-** has been advised of the possibility of such damage.  See
-** the GNU Lesser General Public License for more details.
-**
-** You should have received a copy of the GNU Lesser General Public License
-** along with this library; if not, write to the Free Software Foundation,
-** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-**/
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 
 package org.mskcc.cbio.portal.servlet;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONValue;
-import org.mskcc.cbio.portal.dao.DaoCancerStudy;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoTypeOfCancer;
-import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.CaseList;
-import org.mskcc.cbio.portal.model.GeneticProfile;
-import org.mskcc.cbio.portal.model.TypeOfCancer;
-import org.mskcc.cbio.portal.util.AccessControl;
-import org.mskcc.cbio.portal.web_api.ProtocolException;
-import org.mskcc.cbio.portal.model.GeneSet;
-import org.mskcc.cbio.portal.web_api.GetCaseLists;
-import org.mskcc.cbio.portal.web_api.GetGeneticProfiles;
-import org.mskcc.cbio.portal.util.GeneSetUtil;
-import org.mskcc.cbio.portal.util.XDebug;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.*;
+import org.mskcc.cbio.portal.web_api.*;
+
+import org.json.simple.*;
+
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
+import javax.servlet.http.*;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -117,10 +95,10 @@ public class PortalMetaDataJSON extends HttpServlet {
             //  Cancer All Cancer Studies
             List<CancerStudy> cancerStudiesList = accessControl.getCancerStudies();
 
-            //  Get all Genomic Profiles and Case Sets for each Cancer Study
+            //  Get all Genomic Profiles and Patient Sets for each Cancer Study
             rootMap.put("cancer_studies", cancerStudyMap);
             for (CancerStudy cancerStudy : cancerStudiesList) {
-                ArrayList<CaseList> caseSets = GetCaseLists.getCaseLists(cancerStudy.getCancerStudyStableId());
+                ArrayList<PatientList> patientSets = GetPatientLists.getPatientLists(cancerStudy.getCancerStudyStableId());
 
                 ArrayList<GeneticProfile> geneticProfiles =
                         GetGeneticProfiles.getGeneticProfiles(cancerStudy.getCancerStudyStableId());
@@ -137,22 +115,23 @@ public class PortalMetaDataJSON extends HttpServlet {
                     jsonGenomicProfileList.add(map);
                 }
 
-                JSONArray jsonCaseList = new JSONArray();
-                for (CaseList caseSet : caseSets) {
+                JSONArray jsonPatientList = new JSONArray();
+                for (PatientList patientSet : patientSets) {
                     Map map = new LinkedHashMap();
-                    map.put("id", caseSet.getStableId());
-                    map.put("name", caseSet.getName());
-                    map.put("description", caseSet.getDescription());
-                    map.put("size", caseSet.getCaseList().size());
-                    jsonCaseList.add(map);
+                    map.put("id", patientSet.getStableId());
+                    map.put("name", patientSet.getName());
+                    map.put("description", patientSet.getDescription());
+                    map.put("size", patientSet.getPatientList().size());
+                    jsonPatientList.add(map);
                 }
                 Map jsonCancerStudySubMap = new LinkedHashMap();
                 jsonCancerStudySubMap.put("name", cancerStudy.getName());
+                jsonCancerStudySubMap.put("short_name", cancerStudy.getShortName());
                 jsonCancerStudySubMap.put("description", cancerStudy.getDescription());
                 jsonCancerStudySubMap.put("citation", cancerStudy.getCitation());
                 jsonCancerStudySubMap.put("pmid", cancerStudy.getPmid());
                 jsonCancerStudySubMap.put("genomic_profiles", jsonGenomicProfileList);
-                jsonCancerStudySubMap.put("case_sets", jsonCaseList);
+                jsonCancerStudySubMap.put("case_sets", jsonPatientList);
                 jsonCancerStudySubMap.put("has_mutation_data", cancerStudy.hasMutationData(geneticProfiles));
                 jsonCancerStudySubMap.put("has_cna_data", cancerStudy.hasCnaData());
                 jsonCancerStudySubMap.put("has_mutsig_data", cancerStudy.hasMutSigData());

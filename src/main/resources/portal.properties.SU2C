@@ -3,10 +3,11 @@ app.name=su2c-portal
 app.version=0.1
 
 # Database Settings
+db.tomcat_resource_name=cgds_gdac
 db.user=
 db.password=
 db.host=localhost
-db.portal_db_name=cgds_su2c
+db.portal_db_name=cgds_gdac
 # props used by importer
 db.importer_db_name=cgds_importer
 db.driver=com.mysql.jdbc.Driver
@@ -25,6 +26,7 @@ importer.spreadsheet=
 importer.cancer_studies_worksheet=
 importer.case_id_filters_worksheet=
 importer.case_lists_worksheet=
+importer.clinical_attributes_namespace_worksheet=
 importer.clinical_attributes_worksheet=
 importer.datatypes_worksheet=
 importer.data_sources_worksheet=
@@ -51,6 +53,7 @@ ucsc_cancer_genomics.url=https://genome-cancer.ucsc.edu/hgHeatmap/#?
 segfile.url=http://cbio.mskcc.org/cancergenomics/su2c-portal/seg/
 r_installed=true
 include_networks=true
+google_analytics_profile_id=
 about=about_us_su2c.html
 news=news_su2c.html
 examples_right_column=examples_su2c.html
@@ -119,3 +122,7 @@ broad.bam.checking.url=
 
 # temp dir
 temporary_dir=/tmp
+
+# tcga - bcr
+tcga.clinical.url=https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/<TUMOR_TYPE>/bcr/nationwidechildrens.org/bio/clin/
+tcga.clinical.filename=nationwidechildrens.org_<TUMOR_TYPE>.bio.Level_2.0.<REVISION>.0.tar.gz

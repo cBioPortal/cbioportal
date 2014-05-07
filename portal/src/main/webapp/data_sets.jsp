@@ -47,7 +47,7 @@
 				 out.println("<th>Reference</th>");
 				 out.println("<th>All</th>");
 				 out.println("<th>Sequenced</th>");
-				 out.println("<th>aCGH</th>");
+				 out.println("<th>CNA</th>");
 				 out.println("<th>Tumor mRNA (RNA-Seq V2)</th>");
 				 out.println("<th>Tumor mRNA (microarray)</th>");
 				 //out.println("<th>Normal mRNA</th>");
@@ -76,9 +76,9 @@
 					 // sequenced
 					 String sequenced = (stats.getSequenced() != 0) ? stats.getSequenced().toString() : "";
 					 out.println("<td style=\"text-align: center;\">" + sequenced + "</td>");
-					 // aCGH
-					 String aCGH = (stats.getACGH() != 0) ? stats.getACGH().toString() : "";
-					 out.println("<td style=\"text-align: center;\">" + aCGH  + "</td>");
+					 // cna
+					 String cna = (stats.getCNA() != 0) ? stats.getCNA().toString() : "";
+					 out.println("<td style=\"text-align: center;\">" + cna  + "</td>");
 					 // RNA-Seq
 					 String rnaSEQ = (stats.getRNASEQ() != 0) ? stats.getRNASEQ().toString() : "";
 					 out.println("<td style=\"text-align: center;\">" + rnaSEQ + "</td>");

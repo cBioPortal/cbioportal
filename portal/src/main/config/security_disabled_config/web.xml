@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee"
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
 
     <display-name>Cancer Genomics Portal</display-name>
     <display-name>Apache-Axis</display-name>
@@ -10,6 +10,20 @@
     <resource-ref>
       <description>DB Connection</description>
       <res-ref-name>jdbc/cbioportal</res-ref-name>
+      <res-type>javax.sql.DataSource</res-type>
+      <res-auth>Container</res-auth>
+    </resource-ref>
+
+    <resource-ref>
+      <description>DB Connection</description>
+      <res-ref-name>jdbc/cgds_gdac</res-ref-name>
+      <res-type>javax.sql.DataSource</res-type>
+      <res-auth>Container</res-auth>
+    </resource-ref>
+
+    <resource-ref>
+      <description>DB Connection</description>
+      <res-ref-name>jdbc/cgds_public</res-ref-name>
       <res-type>javax.sql.DataSource</res-type>
       <res-auth>Container</res-auth>
     </resource-ref>
@@ -26,6 +40,12 @@
 		  /WEB-INF/classes/applicationContext-security.xml
 		</param-value>
 	</context-param>
+        
+    <context-param>
+        <param-name>webAppRootKey</param-name>
+        <param-value>${app.name}</param-value>
+    </context-param>
+    
     <servlet>
         <display-name>Apache-Axis Servlet</display-name>
         <servlet-name>AxisServlet</servlet-name>
@@ -205,6 +225,11 @@
     </servlet>
 
     <servlet>
+        <servlet-name>PancancerMutationsJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.PancancerMutationsJSON</servlet-class>
+    </servlet>
+
+    <servlet>
         <servlet-name>EchoFile</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.EchoFile</servlet-class>
     </servlet>
@@ -217,6 +242,11 @@
     <servlet>
         <servlet-name>ClinicalAttributesServlet</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.ClinicalAttributesServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>ClinicalTimelineData</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.ClinicalTimelineData</servlet-class>
     </servlet>
 
     <servlet-mapping>
@@ -328,6 +358,11 @@
         <servlet-name>ClinicalAttributesServlet</servlet-name>
         <url-pattern>/clinicalAttributes.json</url-pattern>
     </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ClinicalTimelineData</servlet-name>
+        <url-pattern>/clinical_timeline_data.json</url-pattern>
+    </servlet-mapping>
     
      <!-- tumor map -->
     <servlet>
@@ -409,7 +444,17 @@
         <servlet-name>SVGtoPDFConverter</servlet-name>
         <url-pattern>/svgtopdf.do</url-pattern>
     </servlet-mapping>
-    
+
+	<servlet>
+		<servlet-name>TextFileDownloader</servlet-name>
+		<servlet-class>org.mskcc.cbio.portal.servlet.TextFileDownload</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>TextFileDownloader</servlet-name>
+		<url-pattern>/downloadfile.do</url-pattern>
+	</servlet-mapping>
+
     <servlet>
         <servlet-name>ClinicalTrialsJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.ClinicalTrialsJSON</servlet-class>
@@ -481,6 +526,11 @@
     </servlet>
 
     <servlet-mapping>
+        <servlet-name>PancancerMutationsJSON</servlet-name>
+        <url-pattern>/pancancerMutations.json</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
         <servlet-name>GetProteinArrayDataJSON</servlet-name>
         <url-pattern>/getProteinArrayData.json</url-pattern>
     </servlet-mapping>
@@ -513,6 +563,26 @@
         <url-pattern>/calcPval.do</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>GetCoExpJson</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.GetCoExpressionJSON</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>GetCoExpJson</servlet-name>
+        <url-pattern>/getCoExp.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>getAlterationData</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.GetAlterationDataJSON</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>getAlterationData</servlet-name>
+        <url-pattern>/getAlterationData.json</url-pattern>
+    </servlet-mapping>
+
     <!-- end tumor map -->
     
     <welcome-file-list>
@@ -540,10 +610,35 @@
         <url-pattern>/oncoprint_converter.svg</url-pattern>
     </filter-mapping>
 
+	<filter>
+		<filter-name>XssFilter</filter-name>
+		<display-name>Xss Filter</display-name>
+		<description>
+			Applied to all requests to filter out malicious XSS attacks.
+			Wraps the request, allowing it to be used as a regular request,
+			'as if' it were parsed by the Servlet API.
+		</description>
+		<filter-class>org.mskcc.cbio.portal.util.XssFilter</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>XssFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
     <!-- Required by the Apache FileUpload tool. -->
     <listener>
         <listener-class>
             org.apache.commons.fileupload.servlet.FileCleanerCleanup
         </listener-class>
     </listener>
+    
+   <!-- custom location for log4j config -->
+    <listener>
+      <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+    </listener>
+    <context-param>
+      <param-name>log4jConfigLocation</param-name>
+      <param-value>file://${PORTAL_HOME}/log4j.properties</param-value>
+    </context-param> 
 </web-app>

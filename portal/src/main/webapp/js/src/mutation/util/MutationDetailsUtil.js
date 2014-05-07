@@ -3,10 +3,13 @@
  *
  * @param mutations     [optional] a MutationCollection instance
  * @constructor
+ *
+ * @author Selcuk Onur Sumer
  */
 var MutationDetailsUtil = function(mutations)
 {
 	var GERMLINE = "germline"; // germline mutation constant
+	var VALID = "valid";
 
 	// init class variables
 	var _mutationGeneMap = {};
@@ -63,13 +66,16 @@ var MutationDetailsUtil = function(mutations)
 
 		var positions = [];
 
-		for(var i=0; i < mutations.length; i++)
+		if (mutations != null)
 		{
-			var position = {id: mutations[i].id,
-				start: mutations[i].proteinPosStart,
-				end: mutations[i].proteinPosEnd};
+			for(var i=0; i < mutations.length; i++)
+			{
+				var position = {id: mutations[i].id,
+					start: mutations[i].getProteinStartPos(),
+					end: mutations[i].proteinPosEnd};
 
-			positions.push(position);
+				positions.push(position);
+			}
 		}
 
 		return positions;
@@ -217,7 +223,7 @@ var MutationDetailsUtil = function(mutations)
 						continue;
 					}
 
-					if (mutations[j].mutationStatus.toLowerCase() === this.GERMLINE)
+					if (mutations[j].mutationStatus.toLowerCase() === GERMLINE)
 					{
 						// case has at least one germline mutation
 						germline = 1;
@@ -252,9 +258,10 @@ var MutationDetailsUtil = function(mutations)
     {
         var self = this;
         gene = gene.toUpperCase();
-        if (_mutationGeneMap[gene] != undefined)
+	    var mutations = _mutationGeneMap[gene];
+
+        if (mutations != null)
         {
-            var mutations = _mutationGeneMap[gene];
             var prevStudy = null;
 
             for (var i=0; i < mutations.length; i++)
@@ -271,6 +278,29 @@ var MutationDetailsUtil = function(mutations)
         return true;
     };
 
+	this._contains = function(gene, matchFn)
+	{
+		var contains = false;
+
+		gene = gene.toUpperCase();
+
+		var mutations = _mutationGeneMap[gene];
+
+		if (mutations != null)
+		{
+			for (var i=0; i < mutations.length; i++)
+			{
+				contains = matchFn(mutations[i]);
+
+				if (contains)
+				{
+					break;
+				}
+			}
+		}
+
+		return contains;
+	};
 
     /**
 	 * Checks if there is a germline mutation for the given gene.
@@ -279,26 +309,23 @@ var MutationDetailsUtil = function(mutations)
 	 */
 	this.containsGermline = function(gene)
 	{
-		var self = this;
-		var contains = false;
+		return this._contains(gene, function(mutation) {
+			return (mutation.mutationStatus &&
+			        mutation.mutationStatus.toLowerCase() == GERMLINE);
+		});
+	};
 
-		gene = gene.toUpperCase();
-
-		if (_mutationGeneMap[gene] != undefined)
-		{
-			var mutations = _mutationGeneMap[gene];
-
-			for (var i=0; i < mutations.length; i++)
-			{
-				if (mutations[i].mutationStatus.toLowerCase() == GERMLINE)
-				{
-					contains = true;
-					break;
-				}
-			}
-		}
-
-		return contains;
+	/**
+	 * Checks if there is a "valid" validation status for the given gene.
+	 *
+	 * @param gene  hugo gene symbol
+	 */
+	this.containsValidStatus = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.validationStatus &&
+			        mutation.validationStatus.toLowerCase() == VALID);
+		});
 	};
 
 	/**
@@ -308,26 +335,197 @@ var MutationDetailsUtil = function(mutations)
 	 */
 	this.containsIgvLink = function(gene)
 	{
-		var self = this;
-		var contains = false;
+		return this._contains(gene, function(mutation) {
+			return (mutation.igvLink &&
+			        mutation.igvLink != "NA");
+		});
+	};
 
+	/**
+	 * Checks if there is valid allele frequency data for the given gene.
+	 *
+	 * @param gene  hugo gene symbol
+	 */
+	this.containsAlleleFreqT = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.tumorFreq &&
+			        mutation.tumorFreq != "NA");
+		});
+	};
+
+	/**
+	 * Checks if there is valid copy number data for the given gene.
+	 *
+	 * @param gene  hugo gene symbol
+	 */
+	this.containsCnaData = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.cna &&
+			        mutation.cna != "NA" &&
+			        mutation.cna != "unknown");
+		});
+	};
+
+	this.containsCaseId = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.caseId &&
+			        mutation.caseId != "NA");
+		});
+	};
+
+	this.containsChr = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.chr &&
+			        mutation.chr != "NA");
+		});
+	};
+
+	this.containsStartPos = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.startPos &&
+			        mutation.startPos > 0);
+		});
+	};
+
+	this.containsRefAllele = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.referenceAllele &&
+			        mutation.referenceAllele != "NA");
+		});
+	};
+
+	this.containsVarAllele = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.variantAllele &&
+			        mutation.variantAllele != "NA");
+		});
+	};
+
+	this.containsEndPos = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.endPos &&
+			        mutation.endPos > 0);
+		});
+	};
+
+	this.containsFis = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.functionalImpactScore &&
+			        mutation.functionalImpactScore != "NA");
+		});
+	};
+
+	this.containsCosmic = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.cosmic &&
+			        mutation.cosmicCount &&
+					mutation.cosmicCount > 0);
+		});
+	};
+
+	this.containsMutationType = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.mutationType &&
+			        mutation.mutationType != "NA");
+		});
+	};
+
+	this.containsMutationCount = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.mutationCount &&
+			        mutation.mutationCount > 0);
+		});
+	};
+
+	/**
+	 * Returns the number of distinct tumor type values for
+	 * the given gene
+	 *
+	 * @param gene  hugo gene symbol
+	 * @returns {Number}    number of distinct tumor type values
+	 */
+	this.distinctTumorTypeCount = function(gene)
+	{
 		gene = gene.toUpperCase();
+		var mutations = _mutationGeneMap[gene];
+		var tumorTypeMap = {};
 
-		if (_mutationGeneMap[gene] != undefined)
+		if (mutations != null)
 		{
-			var mutations = _mutationGeneMap[gene];
-
 			for (var i=0; i < mutations.length; i++)
 			{
-				if (mutations[i].igvLink)
+				if (mutations[i].tumorType)
 				{
-					contains = true;
-					break;
+					tumorTypeMap[mutations[i].tumorType] = true;
 				}
 			}
 		}
 
-		return contains;
+		return _.keys(tumorTypeMap).length;
+	};
+
+	/**
+	 * Returns a sorted array of data field counts for the given gene.
+	 * Does not include counts for the values provided within
+	 * the exclude list.
+	 *
+	 * @param gene          hugo gene symbol
+	 * @param dataField     data field name
+	 * @param excludeList   data values to exclude while counting
+	 * @return {Array}  array of data value count info
+	 */
+	this.dataFieldCount = function(gene, dataField, excludeList)
+	{
+		gene = gene.toUpperCase();
+		var mutations = _mutationGeneMap[gene];
+		var valueCountMap = {};
+
+		if (mutations != null)
+		{
+			for (var i=0; i < mutations.length; i++)
+			{
+				var value = mutations[i][dataField];
+
+				if (value &&
+				    !_.contains(excludeList, value))
+				{
+					if (valueCountMap[value] === undefined)
+					{
+						valueCountMap[value] = 0;
+					}
+
+					valueCountMap[value]++;
+				}
+			}
+		}
+
+		var pairs = _.pairs(valueCountMap);
+
+		pairs.sort(function(a, b) {
+			return (b[1] - a[1]);
+		});
+
+		var result = [];
+
+		_.each(pairs, function(pair, i) {
+			var obj = {count: pair[1]};
+			obj[dataField] = pair[0];
+			result.push(obj);
+		});
+
+		return result;
 	};
 
 	// init maps by processing the initial mutations

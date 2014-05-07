@@ -1,29 +1,20 @@
 /*
  * Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
- * This library is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published
- * by the Free Software Foundation; either version 2.1 of the License, or
- * any later version.
  *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
  * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
  * documentation provided hereunder is on an "as is" basis, and
- * Memorial Sloan-Kettering Cancer Center
+ * Memorial Sloan-Kettering Cancer Center 
  * has no obligations to provide maintenance, support,
  * updates, enhancements or modifications.  In no event shall
  * Memorial Sloan-Kettering Cancer Center
  * be liable to any party for direct, indirect, special,
  * incidental or consequential damages, including lost profits, arising
  * out of the use of this software and its documentation, even if
- * Memorial Sloan-Kettering Cancer Center
- * has been advised of the possibility of such damage.  See
- * the GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 
 package org.mskcc.cbio.portal.dao;
 
@@ -134,7 +125,7 @@ public final class DaoCancerStudy {
             pstmt = con.prepareStatement("INSERT INTO cancer_study " +
                     "( `CANCER_STUDY_IDENTIFIER`, `NAME`, "
                     + "`DESCRIPTION`, `PUBLIC`, `TYPE_OF_CANCER_ID`, "
-                    + "`PMID`, `CITATION`, `GROUPS` ) VALUES (?,?,?,?,?,?,?,?)",
+                    + "`PMID`, `CITATION`, `GROUPS`, `SHORT_NAME` ) VALUES (?,?,?,?,?,?,?,?,?)",
                     Statement.RETURN_GENERATED_KEYS);
             pstmt.setString(1, stableId);
             pstmt.setString(2, cancerStudy.getName());
@@ -149,7 +140,8 @@ public final class DaoCancerStudy {
             } else {
                 pstmt.setString(8, StringUtils.join(groups, ";"));
             }
-            
+            pstmt.setString(9, cancerStudy.getShortName());
+
             pstmt.executeUpdate();
             rs = pstmt.getGeneratedKeys();
             if (rs.next()) {
@@ -244,6 +236,14 @@ public final class DaoCancerStudy {
         }
     }
 
+    public static void deleteCancerStudy(String cancerStudyStableId) throws DaoException
+    {
+        CancerStudy study = getCancerStudyByStableId(cancerStudyStableId);
+        if (study != null){
+            deleteCancerStudy(study.getInternalId());
+        }
+    }
+
     /**
      * Deletes the Specified Cancer Study.
      *
@@ -261,22 +261,27 @@ public final class DaoCancerStudy {
             // ideally database dependency should be modeled with option of delete on cascade.
             // remember to update this code if new tables are added or existing tables are changed.
             String[] sqls = {
-                "delete from case_cna_event where GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID from genetic_profile where CANCER_STUDY_ID=?);",
+                "delete from sample_cna_event where GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID from genetic_profile where CANCER_STUDY_ID=?);",
                 "delete from genetic_alteration where GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID from genetic_profile where CANCER_STUDY_ID=?);",
-                "delete from genetic_profile_cases where GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID from genetic_profile where CANCER_STUDY_ID=?);",
-                "delete from case_profile where GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID from genetic_profile where CANCER_STUDY_ID=?);",
+                "delete from genetic_profile_samples where GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID from genetic_profile where CANCER_STUDY_ID=?);",
+                "delete from sample_profile where GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID from genetic_profile where CANCER_STUDY_ID=?);",
                 "delete from mutation where GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID from genetic_profile where CANCER_STUDY_ID=?);",
                 "delete from mutation_count where GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID from genetic_profile where CANCER_STUDY_ID=?);",
-                "delete from case_list_list where LIST_ID IN (select LIST_ID from case_list where CANCER_STUDY_ID=?);",
-                "delete from clinical where CANCER_STUDY_ID=?;",
+                "delete from patient_list_list where LIST_ID IN (select LIST_ID from patient_list where CANCER_STUDY_ID=?);",
+                "delete from clinical_sample where INTERNAL_ID IN (select INTERNAL_ID from sample where PATIENT_ID in (select INTERNAL_ID from patient where CANCER_STUDY_ID=?));",
+                "delete from sample where PATIENT_ID IN (select INTERNAL_ID from patient where CANCER_STUDY_ID=?);",
+                "delete from clinical_patient where INTERNAL_ID IN (select INTERNAL_ID from patient where CANCER_STUDY_ID=?);",
+                "delete from patient where CANCER_STUDY_ID=?;",
                 "delete from copy_number_seg where CANCER_STUDY_ID=?;",
-                "delete from case_list where CANCER_STUDY_ID=?;",
+                "delete from patient_list where CANCER_STUDY_ID=?;",
                 "delete from genetic_profile where CANCER_STUDY_ID=?;",
                 "delete from gistic_to_gene where GISTIC_ROI_ID IN (select GISTIC_ROI_ID from gistic where CANCER_STUDY_ID=?);",
                 "delete from gistic where CANCER_STUDY_ID=?;",
                 "delete from mut_sig where CANCER_STUDY_ID=?;",
                 "delete from protein_array_data where CANCER_STUDY_ID=?;",
                 "delete from protein_array_cancer_study where CANCER_STUDY_ID=?;",
+                "delete from clinical_event_data where CLINICAL_EVENT_ID IN (select CLINICAL_EVENT_ID from clinical_event where CANCER_STUDY_ID=?)",
+                "delete from clinical_event where CANCER_STUDY_ID=?;",
                 "delete from cancer_study where CANCER_STUDY_ID=?;"
                 };
             for (String sql : sqls) {    
@@ -304,6 +309,7 @@ public final class DaoCancerStudy {
         cancerStudy.setPmid(rs.getString("PMID"));
         cancerStudy.setCitation(rs.getString("CITATION"));
         cancerStudy.setGroups(rs.getString("GROUPS"));
+        cancerStudy.setShortName(rs.getString("SHORT_NAME"));
 
         cancerStudy.setInternalId(rs.getInt("CANCER_STUDY_ID"));
         return cancerStudy;

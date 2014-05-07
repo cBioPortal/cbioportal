@@ -1,29 +1,19 @@
 /** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
-**
-** This library is free software; you can redistribute it and/or modify it
-** under the terms of the GNU Lesser General Public License as published
-** by the Free Software Foundation; either version 2.1 of the License, or
-** any later version.
-**
-** This library is distributed in the hope that it will be useful, but
-** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
-** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
-** documentation provided hereunder is on an "as is" basis, and
-** Memorial Sloan-Kettering Cancer Center 
-** has no obligations to provide maintenance, support,
-** updates, enhancements or modifications.  In no event shall
-** Memorial Sloan-Kettering Cancer Center
-** be liable to any party for direct, indirect, special,
-** incidental or consequential damages, including lost profits, arising
-** out of the use of this software and its documentation, even if
-** Memorial Sloan-Kettering Cancer Center 
-** has been advised of the possibility of such damage.  See
-** the GNU Lesser General Public License for more details.
-**
-** You should have received a copy of the GNU Lesser General Public License
-** along with this library; if not, write to the Free Software Foundation,
-** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-**/
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 
 // package
 package org.mskcc.cbio.importer.converter.internal;
@@ -37,7 +27,6 @@ import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.util.MapperUtil;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.DataMatrix;
 import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 
@@ -47,6 +36,7 @@ import org.apache.commons.logging.LogFactory;
 import java.util.List;
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Set;
 
 /**
@@ -158,7 +148,17 @@ public class RNASEQV2MRNAMedianConverterImpl implements Converter {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), cleaning up Hybridization REF column...");
 		}
-		List<String> pairs = dataMatrix.getColumnData(HYBRIDIZATION_REF_COLUMN_HEADER_NAME).get(0);
+                
+                String geneColumnName = HYBRIDIZATION_REF_COLUMN_HEADER_NAME;
+                List<String> pairs;
+                List<LinkedList<String>> columnData = dataMatrix.getColumnData(HYBRIDIZATION_REF_COLUMN_HEADER_NAME);
+                if (!columnData.isEmpty()) {
+                    pairs = columnData.get(0);
+                } else {
+                    pairs = dataMatrix.getColumnData(0); // non standard gene column name
+                    geneColumnName = dataMatrix.getColumnHeaders().get(0);
+                }
+                
 		for (int lc = 0; lc < pairs.size(); lc++) {
 			String[] parts = pairs.get(lc).trim().split("\\|");
 			if (parts.length == 2) {
@@ -182,7 +182,7 @@ public class RNASEQV2MRNAMedianConverterImpl implements Converter {
 			LOG.info("createStagingFile(), adding & renaming columns");
 		}
 		dataMatrix.addColumn(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME, new ArrayList<String>());
-		dataMatrix.renameColumn(HYBRIDIZATION_REF_COLUMN_HEADER_NAME, Converter.GENE_ID_COLUMN_HEADER_NAME);
+		dataMatrix.renameColumn(geneColumnName, Converter.GENE_ID_COLUMN_HEADER_NAME);
 		dataMatrix.setGeneIDColumnHeading(Converter.GENE_ID_COLUMN_HEADER_NAME);
 
 		// perform gene mapping, remove records as needed

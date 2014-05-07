@@ -2,6 +2,8 @@
  * This class is designed to retrieve PDB data on demand.
  *
  * @param mutationUtil  an instance of MutationDetailsUtil class
+ *
+ * @author Selcuk Onur Sumer
  */
 var PdbDataProxy = function(mutationUtil)
 {
@@ -15,8 +17,14 @@ var PdbDataProxy = function(mutationUtil)
 	// map of <uniprot id, PdbCollection> pairs
 	var _pdbDataCache = {};
 
+	// map of <uniprot id, PdbChain[][]> pairs
+	var _pdbRowDataCache = {};
+
 	// map of <pdb id, pdb info> pairs
 	var _pdbInfoCache = {};
+
+	// map of <uniprot id, pdb data summary> pairs
+	var _pdbDataSummaryCache = {};
 
 	/**
 	 * Retrieves the position map for the given gene and chain.
@@ -89,13 +97,22 @@ var PdbDataProxy = function(mutationUtil)
 				// re-map mutation ids with positions by using the raw position map
 				for(var i=0; i < mutations.length; i++)
 				{
-					var start = data.positionMap[mutations[i].proteinPosStart];
-					var end = data.positionMap[mutations[i].proteinPosEnd];
+					var start = data.positionMap[mutations[i].getProteinStartPos()];
+					var end = start;
+
+					var type = mutations[i].mutationType;
+
+					// ignore end position for mutation other than in frame del
+					if (type != null &&
+						type.toLowerCase() === "in_frame_del")
+					{
+						end = data.positionMap[mutations[i].proteinPosEnd] || end;
+					}
 
 					// if no start and end position found for this mutation,
 					// then it means this mutation position is not in this chain
-					if (start != undefined &&
-					    end != undefined)
+					if (start != null &&
+					    end != null)
 					{
 						positionMap[mutations[i].mutationId] =
 							{start: start, end: end};
@@ -158,47 +175,166 @@ var PdbDataProxy = function(mutationUtil)
 		}
 	}
 
-	// TODO allow more than one pdb id
-	// ...see MutationDataProxy.getMutationData for a sample implementation
 	/**
-	 * Retrieves the PDB information for the provided PDB id. Passes
-	 * the retrieved data as a parameter to the given callback function
+	 * Retrieves the PDB data for the provided uniprot id, and creates
+	 * a 2D-array of pdb chains ranked by length and other criteria.
+	 *
+	 * Forwards the processed data to the given callback function
 	 * assuming that the callback function accepts a single parameter.
 	 *
-	 * @param pdbId     PDB id
-	 * @param callback  callback function to be invoked
+	 * @param uniprotId     uniprot id
+	 * @param callback      callback function to be invoked
 	 */
-	function getPdbInfo(pdbId, callback)
+	function getPdbRowData(uniprotId, callback)
 	{
-		// retrieve data from the server if not cached
-		if (_pdbInfoCache[pdbId] == undefined)
+		// retrieve data if not cached yet
+		if (_pdbRowDataCache[uniprotId] == undefined)
 		{
-			// process & cache the raw data
-			var processData = function(data) {
+			getPdbData(uniprotId, function(pdbColl) {
+				// get the data & cache
+				var rowData = PdbDataUtil.allocateChainRows(pdbColl);
+				_pdbRowDataCache[uniprotId] = rowData;
 
-				if (data[pdbId] != null)
-				{
-					_pdbInfoCache[pdbId] = data[pdbId];
-				}
-
-				// forward the data to the provided callback function
-				callback(data[pdbId]);
-			};
-
-			// retrieve data from the servlet
-			$.getJSON(_servletName,
-			          {pdbIds: pdbId},
-			          processData);
+				// forward to the callback
+				callback(rowData);
+			});
 		}
 		else
 		{
 			// data is already cached, just forward it
-			callback(_pdbInfoCache[pdbId]);
+			callback(_pdbRowDataCache[uniprotId]);
+		}
+	}
+
+	/**
+	 * Retrieves the PDB data summary for the provided uniprot id. Passes
+	 * the retrieved data as a parameter to the given callback function
+	 * assuming that the callback function accepts a single parameter.
+	 *
+	 * @param uniprotId     uniprot id
+	 * @param callback      callback function to be invoked
+	 */
+	function getPdbDataSummary(uniprotId, callback)
+	{
+		// retrieve data from the server if not cached
+		if (_pdbDataSummaryCache[uniprotId] == undefined)
+		{
+			// process & cache the raw data
+			var processData = function(data) {
+				_pdbDataSummaryCache[uniprotId] = data;
+
+				// forward the processed data to the provided callback function
+				callback(data);
+			};
+
+			// retrieve data from the servlet
+			$.getJSON(_servletName,
+					{uniprotId: uniprotId, type: "summary"},
+					processData);
+		}
+		else
+		{
+			// data is already cached, just forward it
+			callback(_pdbDataSummaryCache[uniprotId]);
+		}
+	}
+
+	/**
+	 * Checks if there is structure (PDB) data available for the provided
+	 * uniprot id. Passes a boolean parameter to the given callback function
+	 * assuming that the callback function accepts a single parameter.
+	 *
+	 * @param uniprotId     uniprot id
+	 * @param callback      callback function to be invoked
+	 */
+	function hasPdbData(uniprotId, callback)
+	{
+		var processData = function(data) {
+			var hasData = data && (data.alignmentCount > 0);
+			callback(hasData);
+		};
+
+		getPdbDataSummary(uniprotId, processData);
+	}
+
+	/**
+	 * Retrieves the PDB information for the provided PDB id(s). Passes
+	 * the retrieved data as a parameter to the given callback function
+	 * assuming that the callback function accepts a single parameter.
+	 *
+	 * @param pdbIdList list of PDB ids as a white-space delimited string
+	 * @param callback  callback function to be invoked
+	 */
+	function getPdbInfo(pdbIdList, callback)
+	{
+		var pdbIds = pdbIdList.trim().split(/\s+/);
+		var pdbToQuery = [];
+
+		// get previously grabbed data (if any)
+
+		var pdbData = {};
+
+		// process each pdb id in the given list
+		_.each(pdbIds, function(pdbId, idx) {
+			//pdbId = pdbId.toLowerCase();
+
+			var data = _pdbInfoCache[pdbId];
+
+			if (data == undefined ||
+			    data.length == 0)
+			{
+				// data does not exist for this pdb, add it to the list
+				pdbToQuery.push(pdbId);
+			}
+			else
+			{
+				// data is already cached for this pdb id, update the data object
+				pdbData[pdbId] = data;
+			}
+		});
+
+		var servletParams = {};
+
+		// some (or all) data is missing,
+		// send ajax request for missing ids
+		if (pdbToQuery.length > 0)
+		{
+			// process & cache the raw data
+			var processData = function(data) {
+
+				_.each(pdbIds, function(pdbId, idx) {
+					if (data[pdbId] != null)
+					{
+						_pdbInfoCache[pdbId] = data[pdbId];
+
+						// concat new data with already cached data
+						pdbData[pdbId] = data[pdbId];
+					}
+				});
+
+				// forward the final data to the callback function
+				callback(pdbData);
+			};
+
+			// add pdbToQuery to the servlet params
+			servletParams.pdbIds = pdbToQuery.join(" ");
+
+			// retrieve data from the server
+			$.post(_servletName, servletParams, processData, "json");
+			//$.getJSON(_servletName, servletParams, processData, "json");
+		}
+		// data for all requested chains already cached
+		else
+		{
+			// just forward the data to the callback function
+			callback(pdbData);
 		}
 	}
 
 	return {
+		hasPdbData: hasPdbData,
 		getPdbData: getPdbData,
+		getPdbRowData: getPdbRowData,
 		getPdbInfo: getPdbInfo,
 		getPositionMap: getPositionMap
 	};

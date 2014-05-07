@@ -1,35 +1,26 @@
 /** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
-**
-** This library is free software; you can redistribute it and/or modify it
-** under the terms of the GNU Lesser General Public License as published
-** by the Free Software Foundation; either version 2.1 of the License, or
-** any later version.
-**
-** This library is distributed in the hope that it will be useful, but
-** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
-** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
-** documentation provided hereunder is on an "as is" basis, and
-** Memorial Sloan-Kettering Cancer Center 
-** has no obligations to provide maintenance, support,
-** updates, enhancements or modifications.  In no event shall
-** Memorial Sloan-Kettering Cancer Center
-** be liable to any party for direct, indirect, special,
-** incidental or consequential damages, including lost profits, arising
-** out of the use of this software and its documentation, even if
-** Memorial Sloan-Kettering Cancer Center 
-** has been advised of the possibility of such damage.  See
-** the GNU Lesser General Public License for more details.
-**
-** You should have received a copy of the GNU Lesser General Public License
-** along with this library; if not, write to the Free Software Foundation,
-** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-**/
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 
 // package
 package org.mskcc.cbio.importer;
 
 // imports
 import org.mskcc.cbio.importer.model.*;
+import java.util.Map;
 import java.util.Collection;
 
 /**
@@ -113,6 +104,15 @@ public interface Config {
 	Collection<CaseListMetadata> getCaseListMetadata(String caseListFilename);
 
 	/**
+	 * Gets a collection of ClinicalAttributesNamespace.
+	 * If clinicalAttributeNamespaceColumnHeader == Config.ALL, all are returned.
+	 *
+	 * @param clinicalAttributeNamespaceColumnHeader String
+	 * @return Collection<ClinicalAttributesNamespace>
+	 */
+	Collection<ClinicalAttributesNamespace> getClinicalAttributesNamespace(String clinicalAttributesNamespaceColumnHeader);
+
+	/**
 	 * Gets a collection of ClinicalAttributesMetadata.
 	 * If clinicalAttributeColumnHeader == Config.ALL, all are returned.
 	 *
@@ -122,32 +122,22 @@ public interface Config {
 	Collection<ClinicalAttributesMetadata> getClinicalAttributesMetadata(String clinicalAttributeColumnHeader);
 
 	/**
-	 * Updates (or inserts) the given ClinicalAttributesMetadata object.
+	 * Gets a map of ClinicalAttributesMetadata (external column header key, metadata object value) given
+     * a collection of "external" column header values (column headers from incoming datafiles).
 	 *
-	 * @param clinicalAttributesMetadata ClinicalAttributesMetadata
+	 * @param Collection<String> 
+	 * @return Map<String,ClinicalAttributesMetadata>
 	 */
-	void updateClinicalAttributesMetadata(ClinicalAttributesMetadata clinicalAttributesMetadata);
+	Map<String,ClinicalAttributesMetadata> getClinicalAttributesMetadata(Collection<String> externalColumnHeaders);
 
     /**
-     * Updates (or inserts) the given BcrClinicalAttributeEntry object.
+     * Imports the given collection of bcrs if they are unknown.
      *
-     * @param bcrClinicalAttributeEntry bcrClinicalAttributeEntry
+     * @param Collection<BCRDictEntry> bcrs
      */
-    void updateClinicalAttributesMetadata(BcrClinicalAttributeEntry bcrClinicalAttributeEntry);
+    void importBCRClinicalAttributes(Collection<BCRDictEntry> bcrs);
 
-    /**
-     * Updates (or inserts) the given collection of bcrs all as a batch.
-     *
-     * @param Collection<bcrClinicalAttributeEntry> bcrs
-     */
-    void batchUpdateClinicalAttributeMetadata(Collection<BcrClinicalAttributeEntry> bcrs);
-
-    /**
-     * Inserts the given ClinicalAttributesMetadata object without asking questions
-     *
-     * @param clinicalAttributesMetadata ClinicalAttributesMetadata
-     */
-    void insertClinicalAttributesMetadata(ClinicalAttributesMetadata clinicalAttributesMetadata);
+    void flagMissingClinicalAttributes(String cancerStudy, String tumorType, Collection<String> missingAttributeColumnHeaders);
 
 	/**
 	 * Gets a PortalMetadata object given a portal name.

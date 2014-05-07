@@ -113,7 +113,7 @@
                         <br>
                         <h5>y Axis</h5>
                         Gene<br>
-                        <select id='custom_geneY' onchange="PlotsCustomMenu.updateY();PlotsCustomView.init()"></select><br>
+                        <select id='custom_geneY' onchange="PlotsCustomMenu.updateY();PlotsCustomView.init();"></select><br>
                         Plot Type<br>
                         <select id='custom_plots_type_y' onchange='PlotsCustomMenu.updateY();PlotsCustomView.init();'></select><br>
                         Platform<br>
@@ -156,9 +156,19 @@
         $("#plots-menus").tabs("disable", 1);
     }
     
-    $(document).ready(function() {
-        Plots.init();
+    $(document).ready( function() {
+        var plots_tab_init = false;
+        $("#tabs").bind("tabsactivate", function(event, ui) {
+            if (ui.newTab.text().trim().toLowerCase() === "plots") {
+                if (plots_tab_init === false) {
+                    Plots.init();
+                    plots_tab_init = true;
+                }
+            }
+        });
     });
+
+
 </script>
 
 <script>
@@ -166,7 +176,7 @@
     $(".plots-tabs-ref").tipTip(
             {defaultPosition: "top", delay:"200", edgeOffset: 10, maxWidth: 200});
     //Patch for fixing the font size in firefox
-    if ($.browser.mozilla) {
+    if (cbio.util.browser.mozilla) {
         var element = document.getElementById("plots-menus");
         element.className += " " + "plots-firefox";
     }

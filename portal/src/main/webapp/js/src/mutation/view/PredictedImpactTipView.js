@@ -5,6 +5,8 @@
  *           model: {xvia: [link to Mutation Assessor],
  *                   impact: [impact text or value]}
  *          }
+ *
+ * @author Selcuk Onur Sumer
  */
 var PredictedImpactTipView = Backbone.View.extend({
 	render: function()
@@ -18,17 +20,45 @@ var PredictedImpactTipView = Backbone.View.extend({
 	},
 	format: function()
 	{
+		var isValidLink = function(url)
+		{
+			var valid = true;
+
+			if (url == null || url == "NA" || url.length == 0)
+			{
+				valid = false;
+			}
+
+			return valid;
+		};
+
 		var xvia = this.model.xvia;
 
-		if (xvia == null || xvia == "NA")
+		if (!isValidLink(xvia))
 		{
-			this.$el.find(".mutation-assessor-link").hide();
+			this.$el.find(".mutation-assessor-main-link").hide();
+		}
+
+		var pdbLink = this.model.pdbLink;
+
+		if (!isValidLink(pdbLink))
+		{
+			this.$el.find(".mutation-assessor-3d-link").hide();
+		}
+
+		var msaLink = this.model.msaLink;
+
+		if (!isValidLink(msaLink))
+		{
+			this.$el.find(".mutation-assessor-msa-link").hide();
 		}
 	},
 	compileTemplate: function()
 	{
 		// pass variables in using Underscore.js template
 		var variables = {linkOut: this.model.xvia,
+			msaLink: this.model.msaLink,
+			pdbLink: this.model.pdbLink,
 			impact: this.model.impact};
 
 		// compile the template using underscore

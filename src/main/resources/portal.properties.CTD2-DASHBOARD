@@ -3,10 +3,11 @@ app.name=ctd2-dashboard-portal
 app.version=0.1
 
 # Database Settings
+db.tomcat_resource_name=cgds_public
 db.user=
 db.password=
 db.host=localhost
-db.portal_db_name=cgds_ctd2_dashboard
+db.portal_db_name=cgds_public
 # props used by importer
 db.importer_db_name=cgds_importer
 db.driver=com.mysql.jdbc.Driver
@@ -25,6 +26,7 @@ importer.spreadsheet=
 importer.cancer_studies_worksheet=
 importer.case_id_filters_worksheet=
 importer.case_lists_worksheet=
+importer.clinical_attributes_namespace_worksheet=
 importer.clinical_attributes_worksheet=
 importer.datatypes_worksheet=
 importer.data_sources_worksheet=
@@ -68,6 +70,8 @@ authorization=false
 
 # Indicates whether to include networks
 include_networks=true
+
+google_analytics_profile_id=
 
 # Manager webapp username and password
 manager.username=tomcat
@@ -124,3 +128,7 @@ broad.bam.checking.url=
 
 # temp dir
 temporary_dir=/tmp
+
+# tcga - bcr
+tcga.clinical.url=https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/<TUMOR_TYPE>/bcr/nationwidechildrens.org/bio/clin/
+tcga.clinical.filename=nationwidechildrens.org_<TUMOR_TYPE>.bio.Level_2.0.<REVISION>.0.tar.gz

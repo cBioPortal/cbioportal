@@ -1,47 +1,30 @@
 /** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
-**
-** This library is free software; you can redistribute it and/or modify it
-** under the terms of the GNU Lesser General Public License as published
-** by the Free Software Foundation; either version 2.1 of the License, or
-** any later version.
-**
-** This library is distributed in the hope that it will be useful, but
-** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
-** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
-** documentation provided hereunder is on an "as is" basis, and
-** Memorial Sloan-Kettering Cancer Center 
-** has no obligations to provide maintenance, support,
-** updates, enhancements or modifications.  In no event shall
-** Memorial Sloan-Kettering Cancer Center
-** be liable to any party for direct, indirect, special,
-** incidental or consequential damages, including lost profits, arising
-** out of the use of this software and its documentation, even if
-** Memorial Sloan-Kettering Cancer Center 
-** has been advised of the possibility of such damage.  See
-** the GNU Lesser General Public License for more details.
-**
-** You should have received a copy of the GNU Lesser General Public License
-** along with this library; if not, write to the Free Software Foundation,
-** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-**/
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 
 package org.mskcc.cbio.portal.web_api;
 
-import org.mskcc.cbio.portal.dao.DaoMutation;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
-import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
-import org.mskcc.cbio.portal.model.CanonicalGene;
-import org.mskcc.cbio.portal.model.ExtendedMutation;
-import org.mskcc.cbio.portal.model.Gene;
-import org.mskcc.cbio.portal.model.GeneticProfile;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.servlet.WebService;
-import org.mskcc.cbio.portal.util.XDebug;
 
 import org.apache.commons.httpclient.URI;
 
-import java.util.HashSet;
-import java.util.ArrayList;
+import java.util.*;
 
 /**
  * Class to get mutation data
@@ -62,12 +45,12 @@ public class GetMutationData {
      *
      * @param profile  GeneticProfile Object.
      * @param geneList ArrayList of official gene symbols.
-     * @param caseIdSet HashSet of Strings which are Case Ids.
+     * @param sampleIdSet HashSet of Strings which are Sample Ids.
      * @return ProfileData Object in an ArrayList.
      * @throws DaoException, as of August 2011 GetMutationData has direct access to DAO Objects.
      */
-    public ArrayList<ExtendedMutation> getMutationData(GeneticProfile profile,
-                                                       ArrayList<String> geneList, HashSet<String> caseIdSet, XDebug xdebug) throws DaoException {
+    public List<ExtendedMutation> getMutationData(GeneticProfile profile,
+                                                       List<String> geneList, Set<String> sampleIdSet, XDebug xdebug) throws DaoException {
 
         //initialize DAO objects and ArrayLists
         ArrayList<ExtendedMutation> mutationList = new ArrayList<ExtendedMutation>();
@@ -88,13 +71,14 @@ public class GetMutationData {
                 }
             }
             try {
+                List<Integer> internalSampleIds = InternalIdUtil.getInternalSampleIds(profile.getCancerStudyId(), new ArrayList<String>(sampleIdSet));
                 //parse each Mutation List retrieved from DaoMutation and add to Main Mutation List
                 for (Long entrezID : entrezIDList) {
                     ArrayList<ExtendedMutation> tempmutationList =
                             DaoMutation.getMutations(GeneticProfile, entrezID);
                     for (ExtendedMutation mutation : tempmutationList){
-                        // seperate out mutations for the given set of caseIDS.
-                        if (caseIdSet.contains(mutation.getCaseId()))
+                        // seperate out mutations for the given set of sampleIDS.
+                        if (internalSampleIds.contains(mutation.getSampleId()))
                             mutationList.add(mutation);
                     }
 
@@ -137,7 +121,7 @@ public class GetMutationData {
 
     public static String getProfileData(String geneticProfileId,
                                         ArrayList<String> targetGeneList,
-                                        ArrayList<String> targetCaseList) throws DaoException {
+                                        ArrayList<String> targetSampleList) throws DaoException {
 
         StringBuffer buf = new StringBuffer();
 
@@ -150,6 +134,9 @@ public class GetMutationData {
             return buf.toString();
         }
 
+        List<Integer> internalSampleIds =
+            InternalIdUtil.getInternalSampleIds(geneticProfile.getCancerStudyId(), targetSampleList);
+
         //  Output Actual Data
         ArrayList<Gene> geneList = WebApiUtil.getGeneList(targetGeneList,
                 geneticProfile.getGeneticAlterationType(),
@@ -159,21 +146,9 @@ public class GetMutationData {
         buf.append("# DATA_TYPE\t ").append(geneticProfile.getProfileName()).append("\n");
 
         //  Ouput Column Headings
-        buf.append("entrez_gene_id\tgene_symbol\tcase_id\tsequencing_center\t");
-        buf.append("mutation_status\tmutation_type\tvalidation_status\t");
-        buf.append("amino_acid_change\t");
-        buf.append("functional_impact_score\t");
-        buf.append("xvar_link\t");
-        buf.append("xvar_link_pdb\t");
-        buf.append("xvar_link_msa\t");
-        buf.append("chr\t");
-        buf.append("start_position\t");
-        buf.append("end_position\t");
-	    buf.append("reference_allele\t");
-	    buf.append("variant_allele\t");
-        buf.append("genetic_profile_id");
-        buf.append("\n");
+        buf.append(getColumnHeaders()).append("\n");
 
+	    // TODO get data directly from MutationDataUtils and iterate the returned data
         //  Iterate through all validated genes, and extract mutation data.
         for (Gene gene : geneList) {
             CanonicalGene canonicalGene = (CanonicalGene) gene;
@@ -181,11 +156,12 @@ public class GetMutationData {
                     DaoMutation.getMutations(geneticProfile.getGeneticProfileId(),
                             canonicalGene.getEntrezGeneId());
             for (ExtendedMutation mutation:  mutationList) {
-                String caseId = mutation.getCaseId();
-                if (targetCaseList==null || targetCaseList.contains(caseId)) {
+                Integer sampleId = mutation.getSampleId();
+                if (targetSampleList==null || internalSampleIds.contains(sampleId)) {
                     buf.append(canonicalGene.getEntrezGeneId()).append(TAB);
                     buf.append(canonicalGene.getHugoGeneSymbolAllCaps()).append(TAB);
-                    buf.append(caseId).append(TAB);
+                    Sample s = DaoSample.getSampleById(sampleId);
+                    buf.append(s.getStableId()).append(TAB);
                     buf.append(mutation.getSequencingCenter()).append(TAB);
                     buf.append(mutation.getMutationStatus()).append(TAB);
                     buf.append(mutation.getMutationType()).append(TAB);
@@ -200,6 +176,10 @@ public class GetMutationData {
                     buf.append(mutation.getEndPosition()).append(TAB);
 	                buf.append(mutation.getReferenceAllele()).append(TAB);
 	                buf.append(mutation.getTumorSeqAllele()).append(TAB);
+	                buf.append(getAlleleCount(mutation.getTumorRefCount())).append(TAB);
+	                buf.append(getAlleleCount(mutation.getTumorAltCount())).append(TAB);
+	                buf.append(getAlleleCount(mutation.getNormalRefCount())).append(TAB);
+	                buf.append(getAlleleCount(mutation.getNormalAltCount())).append(TAB);
                     buf.append(geneticProfileId);
                     buf.append("\n");
                 }
@@ -207,4 +187,47 @@ public class GetMutationData {
         }
         return buf.toString();
     }
+
+	private static String getAlleleCount(Integer count)
+	{
+		if (count < 0)
+		{
+			return "NA";
+		}
+		else
+		{
+			return count.toString();
+		}
+	}
+
+	private static String getColumnHeaders()
+	{
+		StringBuffer buf = new StringBuffer();
+
+		// TODO externalize headers to an array and pair with corresponding data fields
+		buf.append("entrez_gene_id").append(TAB);
+		buf.append("gene_symbol").append(TAB);
+		buf.append("case_id").append(TAB);
+		buf.append("sequencing_center").append(TAB);
+		buf.append("mutation_status").append(TAB);
+		buf.append("mutation_type").append(TAB);
+		buf.append("validation_status").append(TAB);
+		buf.append("amino_acid_change").append(TAB);
+		buf.append("functional_impact_score").append(TAB);
+		buf.append("xvar_link").append(TAB);
+		buf.append("xvar_link_pdb").append(TAB);
+		buf.append("xvar_link_msa").append(TAB);
+		buf.append("chr").append(TAB);
+		buf.append("start_position").append(TAB);
+		buf.append("end_position").append(TAB);
+		buf.append("reference_allele").append(TAB);
+		buf.append("variant_allele").append(TAB);
+		buf.append("reference_read_count_tumor").append(TAB);
+		buf.append("variant_read_count_tumor").append(TAB);
+		buf.append("reference_read_count_normal").append(TAB);
+		buf.append("variant_read_count_normal").append(TAB);
+		buf.append("genetic_profile_id");
+
+		return buf.toString();
+	}
 }

@@ -18,6 +18,9 @@
     
     <div style='padding-top:10px;'>
         <select id="select_gene_set" name="<%= QueryBuilder.GENE_SET_CHOICE %>"></select>
+    </div>
+        
+    <div>
         <button id="toggle_mutsig_dialog" onclick="promptMutsigTable(); return false;" style="font-size: 1em;">Select From Recurrently Mutated Genes (MutSig)</button>
         <button id="toggle_gistic_dialog_button" onclick="Gistic.UI.open_dialog(); return false;" style="font-size: 1em; display: none;">Select Genes from Recurrent CNAs (Gistic)</button>
     </div>
@@ -35,8 +38,8 @@ name='<%= QueryBuilder.GENE_LIST %>'><%
 			    org.mskcc.cbio.portal.oncoPrintSpecLanguage.Utilities.appendSemis(localGeneList);
 	    // this is for xss security
 	    geneListWithSemis = StringEscapeUtils.escapeJavaScript(geneListWithSemis);
-	    // ...but we want to keep newlines, so unescape the escaped newlines
-	    geneListWithSemis = geneListWithSemis.replaceAll("\\\\n", "\n");
+	    // ...but we want to keep newlines, and slashes so unescape them
+	    geneListWithSemis = geneListWithSemis.replaceAll("\\\\n", "\n").replaceAll("\\\\/", "/");
         out.print(geneListWithSemis);
     }
 %></textarea>

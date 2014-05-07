@@ -1,29 +1,20 @@
 /*
  * Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
- * This library is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published
- * by the Free Software Foundation; either version 2.1 of the License, or
- * any later version.
  *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
  * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
  * documentation provided hereunder is on an "as is" basis, and
- * Memorial Sloan-Kettering Cancer Center
+ * Memorial Sloan-Kettering Cancer Center 
  * has no obligations to provide maintenance, support,
  * updates, enhancements or modifications.  In no event shall
  * Memorial Sloan-Kettering Cancer Center
  * be liable to any party for direct, indirect, special,
  * incidental or consequential damages, including lost profits, arising
  * out of the use of this software and its documentation, even if
- * Memorial Sloan-Kettering Cancer Center
- * has been advised of the possibility of such damage.  See
- * the GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 package org.mskcc.cbio.portal.servlet;
 
 import org.apache.commons.logging.Log;
@@ -48,7 +39,6 @@ import java.util.Set;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 
 public class ClinicalAttributesServlet extends HttpServlet {
-    private ServletXssUtil servletXssUtil;
     private static Log log = LogFactory.getLog(ClinicalAttributesServlet.class);
 
     /**
@@ -58,15 +48,10 @@ public class ClinicalAttributesServlet extends HttpServlet {
      */
     public void init() throws ServletException {
         super.init();
-        try {
-            servletXssUtil = ServletXssUtil.getInstance();
-        } catch (PolicyException e) {
-            throw new ServletException(e);
-        }
     }
 
     /**
-     * Takes any sort of case list parameter in the request
+     * Takes any sort of patient list parameter in the request
      *
      * Returns a list of clinical attributes in json format
      *
@@ -80,9 +65,9 @@ public class ClinicalAttributesServlet extends HttpServlet {
             response.setContentType("text/json");
 
             int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(WebserviceParserUtils.getCancerStudyId(request)).getInternalId();
-            List<String> caseIds = WebserviceParserUtils.getCaseList(request);
-            Set<String> caseIdSet = new HashSet<String>(caseIds);
-            List<ClinicalAttribute> clinicalAttributes = DaoClinicalAttribute.getDataBySamples(cancerStudyId, caseIdSet);
+            List<String> patientIds = WebserviceParserUtils.getPatientList(request);
+            Set<String> patientIdSet = new HashSet<String>(patientIds);
+            List<ClinicalAttribute> clinicalAttributes = DaoClinicalAttribute.getDataBySamples(cancerStudyId, patientIdSet);
 
             for (ClinicalAttribute attr : clinicalAttributes) {
                 toWrite.add(ClinicalJSON.reflectToMap(attr));

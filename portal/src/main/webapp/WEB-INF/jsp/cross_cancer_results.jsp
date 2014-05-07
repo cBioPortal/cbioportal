@@ -1,6 +1,7 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
+<%@ page import="org.mskcc.cbio.portal.util.XssRequestWrapper" %>
 
 <%
     String siteTitle = GlobalProperties.getTitle();
@@ -11,12 +12,21 @@
     Integer dataPriority;
     try {
         dataPriority
-                = Integer.parseInt(servletXssUtil.getCleanInput(request, QueryBuilder.DATA_PRIORITY).trim());
+                = Integer.parseInt(request.getParameter(QueryBuilder.DATA_PRIORITY).trim());
     } catch (Exception e) {
         dataPriority = 0;
     }
-	String geneList = servletXssUtil.getCleanerInput(
-			request.getParameter(QueryBuilder.GENE_LIST).replaceAll("\n", " ").replaceAll("\r", ""));
+
+	String geneList = request.getParameter(QueryBuilder.GENE_LIST);
+
+	// we need the raw gene list
+	if (request instanceof XssRequestWrapper)
+	{
+		geneList = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.GENE_LIST);
+	}
+
+	geneList = geneList.replaceAll("\n", " ").replaceAll("\r", "").replaceAll("/", "_");
+	geneList = servletXssUtil.getCleanerInput(geneList);
 
     String bitlyUser = GlobalProperties.getBitlyUser();
     String bitlyKey = GlobalProperties.getBitlyApiKey();
@@ -28,7 +38,12 @@
 <script type="text/javascript" src="js/src/crosscancer.js"></script>
 <link href="css/data_table_ColVis.css" type="text/css" rel="stylesheet" />
 <link href="css/data_table_jui.css" type="text/css" rel="stylesheet" />
-<link href="css/mutation_details.css" type="text/css" rel="stylesheet" />
+<link href="css/mutation/mutation_details.css" type="text/css" rel="stylesheet" />
+<link href="css/mutation/mutation_table.css" type="text/css" rel="stylesheet" />
+<link href="css/mutation/mutation_3d.css" type="text/css" rel="stylesheet" />
+<link href="css/mutation/mutation_diagram.css" type="text/css" rel="stylesheet" />
+<link href="css/mutation/mutation_pdb_panel.css" type="text/css" rel="stylesheet" />
+<link href="css/mutation/mutation_pdb_table.css" type="text/css" rel="stylesheet" />
 <link href="css/crosscancer.css" type="text/css" rel="stylesheet" />
 
 <%
@@ -223,9 +238,17 @@
                     <td class="cc-alt-type">Mutation</td>
                     <td>{{mutationFrequency}}% ({{mutationCount}} cases)</td>
                 </tr>
+                <tr class='{{ lossCount > 0 ? "cc-loss" : "cc-hide"}}'>
+                    <td class="cc-alt-type">Heterozygous loss</td>
+                    <td>{{lossFrequency}}% ({{lossCount}} cases)</td>
+                </tr>
                 <tr class='{{ deletionCount > 0 ? "cc-del" : "cc-hide"}}'>
                     <td class="cc-alt-type">Deletion</td>
                     <td>{{deletionFrequency}}% ({{deletionCount}} cases)</td>
+                </tr>
+                <tr class='{{ gainCount > 0 ? "cc-gain" : "cc-hide"}}'>
+                    <td class="cc-alt-type">Gain</td>
+                    <td>{{gainFrequency}}% ({{gainCount}} cases)</td>
                 </tr>
                 <tr class='{{ amplificationCount > 0 ? "cc-amp" : "cc-hide"}}'>
                     <td class="cc-alt-type">Amplification</td>
@@ -260,22 +283,6 @@
     <b class="cctitle">
         Cross-cancer alteration summary for {{genes}} ({{numOfStudies}} studies / {{numOfGenes}} gene{{numOfGenes > 1 ? "s" : ""}})
     </b>
-    <form style="display:inline-block"
-          action='svgtopdf.do'
-          method='post'
-          class='svg-to-pdf-form'>
-        <input type='hidden' name='svgelement'>
-        <input type='hidden' name='filetype' value='pdf'>
-        <input type='hidden' name='filename' value='crosscancerhistogram.pdf'>
-    </form>
-    <form style="display:inline-block"
-          action='svgtopdf.do'
-          method='post'
-          class='svg-to-file-form'>
-        <input type='hidden' name='svgelement'>
-        <input type='hidden' name='filetype' value='svg'>
-        <input type='hidden' name='filename' value='crosscancerhistogram.svg'>
-    </form>
     <button id="histogram-download-pdf" class='diagram-to-pdf'>PDF</button>
     <button id="histogram-download-svg" class='diagram-to-svg'>SVG</button>
     <button id="histogram-customize">Customize histogram</button>

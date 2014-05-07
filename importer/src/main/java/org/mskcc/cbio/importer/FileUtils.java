@@ -1,29 +1,19 @@
 /** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
-**
-** This library is free software; you can redistribute it and/or modify it
-** under the terms of the GNU Lesser General Public License as published
-** by the Free Software Foundation; either version 2.1 of the License, or
-** any later version.
-**
-** This library is distributed in the hope that it will be useful, but
-** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
-** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
-** documentation provided hereunder is on an "as is" basis, and
-** Memorial Sloan-Kettering Cancer Center 
-** has no obligations to provide maintenance, support,
-** updates, enhancements or modifications.  In no event shall
-** Memorial Sloan-Kettering Cancer Center
-** be liable to any party for direct, indirect, special,
-** incidental or consequential damages, including lost profits, arising
-** out of the use of this software and its documentation, even if
-** Memorial Sloan-Kettering Cancer Center 
-** has been advised of the possibility of such damage.  See
-** the GNU Lesser General Public License for more details.
-**
-** You should have received a copy of the GNU Lesser General Public License
-** along with this library; if not, write to the Free Software Foundation,
-** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-**/
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 
 // package
 package org.mskcc.cbio.importer;
@@ -41,6 +31,8 @@ import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.apache.commons.io.LineIterator;
 
 import java.io.File;
+import java.io.InputStream;
+import java.util.Set;
 import java.util.List;
 import java.util.Collection;
 
@@ -50,16 +42,6 @@ import java.util.Collection;
 public interface FileUtils {
 
 	public static final String FILE_URL_PREFIX = "file://";
-
-	// clinical data file column headers
-	public static final String CASE_ID = "CASE_ID";
-	public static final String GENDER = "GENDER";
-	public static final String FMI_CASE_ID = "FMI_CASE_ID";
-	public static final String PIPELINE_VER = "PIPELINE_VER";
-	public static final String TUMOR_NUCLEI_PERCENT = "TUMOR_NUCLEI_PERCENT";
-	public static final String MEDIAN_COV = "MEDIAN_COV";
-	public static final String COV_100X = "COV>100X";
-	public static final String ERROR_PERCENT = "ERROR_PERCENT";
 
 	/**
 	 * Computes the MD5 digest for the given file.
@@ -133,7 +115,7 @@ public interface FileUtils {
 	 * @return DataMatrix
 	 * @throws Exception
 	 */
-	DataMatrix getFileContents(ImportDataRecord importDataRecord, DataMatrix methylationCorrelation) throws Exception;
+	List<DataMatrix> getDataMatrices(ImportDataRecord importDataRecord, DataMatrix methylationCorrelation) throws Exception;
 
 	/**
 	 * Returns a list of missing caselists.  Applicable to
@@ -190,6 +172,7 @@ public interface FileUtils {
 	 * @throws Exception
 	 */
 	File createFileWithContents(String filename, String fileContent) throws Exception;
+	File createFileFromStream(String filename, InputStream fileContent) throws Exception;
 
 	/**
 	 * Downloads the given file specified via url to the given canonicalDestination.
@@ -278,8 +261,8 @@ public interface FileUtils {
 	 * @param dependencies DatatypeMetadata[]
 	 * @throws Exception
 	 */
-	void writeZScoresStagingFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata,
-								 DatatypeMetadata datatypeMetadata, DatatypeMetadata[] dependencies) throws Exception;
+	boolean writeZScoresStagingFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata,
+                                    DatatypeMetadata datatypeMetadata, DatatypeMetadata[] dependencies) throws Exception;
 
 	/**
 	 * Returns an override file (if it exists) for the given portal & cancer study.  The override in this case

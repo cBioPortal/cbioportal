@@ -36,7 +36,7 @@
                                         ret.push("<svg width='12' height='12' class='"
                                             +table_id+"-case-label' alt='"+caseId+"'></svg>");
                                     } else {
-                                        ret.push("<span><svg width='12'></svg></span>");
+                                        ret.push("<span><svg width='12' height='12'></svg></span>");
                                     }
                                 }
                                 
@@ -284,8 +284,8 @@
                 content: {text: tip},
 	            show: {event: "mouseover"},
                 hide: {fixed: true, delay: 200, event: "mouseout"},
-                style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
-                position: {my:'top right',at:'bottom center'}
+                style: { classes: 'qtip-light qtip-rounded' },
+                position: {my:'top right',at:'bottom center',viewport: $(window)}
             });
         }
     }
@@ -370,8 +370,8 @@
                         <li>otherwise, altered in >5% of samples in the study with &ge; 50 samples.</li></ul></li></ul>'/>");
                 $('#cna-summary-help').qtip({
                     content: { attr: 'title' },
-                    style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
-                    position: { my:'top center',at:'bottom center' }
+                    style: { classes: 'qtip-light qtip-rounded' },
+                    position: { my:'top center',at:'bottom center',viewport: $(window) }
                 });
                 $('.cna-summary-table-name').addClass("datatable-name");
                 $('#cna_summary_wrapper_table').show();

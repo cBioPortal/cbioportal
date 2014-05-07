@@ -123,6 +123,16 @@ var PlotsTwoGenesMenu = (function(){
                 }
             });
         }
+
+        //----DNA methylation priority list: hm450, hm27
+        if ($("#two_genes_plots_type").val() === "methylation") {
+            $('#two_genes_platform > option').each(function() {
+                if (this.text.toLowerCase().indexOf("hm450") !== -1) {
+                    $(this).prop('selected', true);
+                    return false;
+                }
+            });
+        }
     }
 
     function drawPlatFormList() {
@@ -273,22 +283,22 @@ var PlotsTwoGenesView = (function(){
             geneX_mut : {
                 fill : "#DBA901",
                 stroke : "#886A08",
-                text : "GeneX Mutated"
+                text : "GeneX mutated"
             },
             geneY_mut : {
                 fill : "#F5A9F2",
                 stroke : "#F7819F",
-                text : "GeneY Mutated"
+                text : "GeneY mutated"
             },
             both_mut : {
                 fill : "#FF0000",
                 stroke : "#B40404",
-                text : "Both Mutated"
+                text : "Both mutated"
             },
             non_mut : {
                 fill : "#00AAF8",
                 stroke : "#0089C6",
-                text : "Neither Mutated"
+                text : "Neither mutated"
             }
         },
         text = {
@@ -763,6 +773,12 @@ var PlotsTwoGenesView = (function(){
                         var tmp_legend = d.text.replace("GeneX", menu.geneX);
                     } else if (d.text.indexOf("GeneY") !== -1) {
                         var tmp_legend = d.text.replace("GeneY", menu.geneY);
+                    } else if (d.text.indexOf("Neither") !== -1) {
+                        if (menu.geneX === menu.geneY) {
+                            var tmp_legend = "No mutation";
+                        } else {
+                            var tmp_legend = d.text;
+                        }
                     } else {
                         var tmp_legend = d.text;
                     }
@@ -779,7 +795,7 @@ var PlotsTwoGenesView = (function(){
         var titleText = elt.options[elt.selectedIndex].text;
         $('#view_title').append(titleText + ": " + menu.geneX + " vs. " + menu.geneY);
 
-        var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
+        var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' target='_blank' " +
             "onsubmit=\"this.elements['svgelement'].value=loadPlotsSVG();\">" +
             "<input type='hidden' name='svgelement'>" +
             "<input type='hidden' name='filetype' value='pdf'>" +
@@ -787,7 +803,7 @@ var PlotsTwoGenesView = (function(){
             "<input type='submit' value='PDF'></form>";
         $('#view_title').append(pdfConverterForm);
 
-        var svgConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
+        var svgConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' target='_blank' " +
             "onsubmit=\"this.elements['svgelement'].value=loadPlotsSVG();\">" +
             "<input type='hidden' name='svgelement'>" +
             "<input type='hidden' name='filetype' value='svg'>" +
@@ -864,10 +880,10 @@ var PlotsTwoGenesView = (function(){
                 $(this).qtip(
                     {
                         content: {text: content},
-                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
-	                    show: {event: "mouseover"},
+                        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                        show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
-                        position: {my:'left bottom',at:'top right'}
+                        position: {my:'left bottom',at:'top right', viewport: $(window)}
                     }
                 );
 

@@ -549,7 +549,7 @@ var StudyViewSurvivalPlotView = (function() {
 
     function redrawView(_plotIndex, _casesInfo) {
         var _color = "";
-
+        
         inputArr = [];
         kmEstimator = new KmEstimator();
         logRankTest = new LogRankTest();
@@ -588,8 +588,8 @@ var StudyViewSurvivalPlotView = (function() {
 
                     curveInfo[_plotIndex].push(_curveInfoDatum);
                 } else {
-                    alert("Sorry, you can not create more than 30 curves.");
-                    break;
+                    //alert("Sorry, you can not create more than 30 curves.");
+                    //break;
                 }
             }
         }
@@ -618,7 +618,7 @@ var StudyViewSurvivalPlotView = (function() {
 
         for (var key in _casesInfo) {
             var instanceData = new SurvivalCurveProxy();
-
+            
             instanceData.init(_data, _casesInfo[key].caseIds, kmEstimator, logRankTest);
             //If no data return, will no draw this curve
             if (instanceData.getData().length > 0) {

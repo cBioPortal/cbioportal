@@ -104,28 +104,28 @@ var SurvivalCurve = function() {
     function addQtips(_index) {
         elem.dots[_index].selectAll('path').each(
             function(d) {
-                var content = "<font size='2'>";
-                content += "Case id: " + "<strong><a href='tumormap.do?case_id=" + d.case_id +
-                           "&cancer_study_id=" + cancer_study_id + "' target='_blank'>" + d.case_id + "</a></strong><br>";
-                content += text.qTips.estimation + ": <strong>" + (d.survival_rate * 100).toFixed(2) + "%</strong><br>";
-                if (d.status === "0") { // If censored, mark it
-                    content += text.qTips.censoredEvent + ": <strong>" + d.time.toFixed(2) + " </strong>months (censored)<br>";
-                } else { // status is 1, means event occured 
-                    content += text.qTips.failureEvent + ": <strong>" + d.time.toFixed(2) + " </strong>months<br>";
-                }
-                content += "</font>";
-
-                $(this).qtip(
-                    {
-                        content: {text: content},
-                        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow qtip-wide'},
-                        show: {event: "mouseover"},
-                        hide: {fixed:true, delay: 100, event: "mouseout"},
-                        position: {my:'left bottom',at:'top right'}
+                    var content = "<font size='2'>";
+                    content += "Case id: " + "<strong><a href='tumormap.do?case_id=" + d.case_id +
+                               "&cancer_study_id=" + cancer_study_id + "' target='_blank'>" + d.case_id + "</a></strong><br>";
+                    content += text.qTips.estimation + ": <strong>" + (d.survival_rate * 100).toFixed(2) + "%</strong><br>";
+                    if (d.status === "0") { // If censored, mark it
+                        content += text.qTips.censoredEvent + ": <strong>" + d.time.toFixed(2) + " </strong>months (censored)<br>";
+                    } else { // status is 1, means event occured 
+                        content += text.qTips.failureEvent + ": <strong>" + d.time.toFixed(2) + " </strong>months<br>";
                     }
-                );
+                    content += "</font>";
 
-            }
+                    $(this).qtip(
+                        {
+                            content: {text: content},
+                            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow qtip-wide'},
+                            show: {event: "mouseover"},
+                            hide: {fixed:true, delay: 100, event: "mouseout"},
+                            position: {my:'left bottom',at:'top right'}
+                        }
+                    );
+
+                }
         );
         
         var mouseOn = function() {
@@ -327,6 +327,11 @@ var SurvivalCurve = function() {
         elem.dots[_curve.id] = elem.svg.append("g").attr('id', _curve.id+"-dots"); //the invisible dots
         initLines();
         drawLines(data.getData(), opts, _curve.id);
+        
+        //First element is used to draw lines and its case_id is NA, this dot 
+        //will not be needed for drawing censored dots and invisiable dots. 
+        //Then remove move it in here.
+        data.getData().shift();
         drawCensoredDots(data.getData(), opts, _curve.id);
         drawInvisiableDots(_curve.id, data.getData(), opts.mouseover_color);
         addQtips(_curve.id);

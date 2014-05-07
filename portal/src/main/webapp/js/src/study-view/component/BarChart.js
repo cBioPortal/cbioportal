@@ -144,8 +144,12 @@ var BarChart = function(){
                             }
                         }
                     }
-                    _caseInfoDatum.caseIds = _caseIds[key];
-                    _casesInfo[key] = _caseInfoDatum;
+                    if(_caseInfoDatum.color !== 'undefined' && 
+                            _caseInfoDatum.color !== ''){
+                        
+                        _caseInfoDatum.caseIds = _caseIds[key];
+                        _casesInfo[key] = _caseInfoDatum;
+                    }
                 }
                 changeBarColor();
                 plotDataCallback(_casesInfo, param.selectedAttr);

@@ -476,7 +476,7 @@ var StudyViewInitCharts = (function(){
                     .append($('<li></li>')
                         .attr('id','wordCloud')
                         .text('Word Cloud'));
-            
+            $('#study-view-add-chart ul').stop().hide();
             bondDragForLayout();
             AddCharts.bindliClickFunc();
         });
@@ -534,7 +534,9 @@ var StudyViewInitCharts = (function(){
                     .append($('<li></li>')
                         .attr('id','survival-' + _plotId)
                         .text(_title));
-
+            
+            $('#study-view-add-chart ul').stop().hide();
+            $('#study-view-add-chart ul').css('height','100%');
             bondDragForLayout();
             AddCharts.bindliClickFunc();
         });
@@ -558,7 +560,9 @@ var StudyViewInitCharts = (function(){
                     .append($('<li></li>')
                         .attr('id','mutationCNA')
                         .text('Number of Mutation vs Fraction of copy number altered genome'));
-
+                
+            $('#study-view-add-chart ul').stop().hide();
+            $('#study-view-add-chart ul').css('height','100%');
             bondDragForLayout();
             StudyViewInitScatterPlot.setClickedCasesId('');
             StudyViewInitScatterPlot.setBrushedCaseId([]);
@@ -909,6 +913,8 @@ var StudyViewInitCharts = (function(){
         $('#study-view-add-chart ul')
                 .append($('<li></li>').attr('id',_value[0]).text(_value[1]));
         
+        $('#study-view-add-chart ul').stop().hide();
+        $('#study-view-add-chart ul').css('height','100%');
         $('#study-view-add-chart').css('display','block');
         varChart[_chartID] = "";
         removedChart.push(Number(_chartID));
@@ -1124,6 +1130,8 @@ var StudyViewInitCharts = (function(){
             if($('#study-view-add-chart ul').find('li').length === 0 ){
                 $('#study-view-add-chart').css('display','none');
             }
+            
+            $('#study-view-add-chart ul').css('height','100%');
         }
     }
     

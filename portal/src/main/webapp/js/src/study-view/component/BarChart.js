@@ -388,7 +388,7 @@ var BarChart = function(){
         
         if(param.plotDataButtonFlag) {
             _plotDataDiv = "<input type='button' id='"+DIV.chartDiv+"-plot-data' "+
-                "style='font-size:10px' value='Plot Data' />";
+                "style='font-size:10px' value='Survival' />";
         }else {
             _plotDataDiv = "";
         }

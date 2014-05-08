@@ -287,7 +287,7 @@ var ScatterPlots = function() {
             .attr("xlink:href", "images/help.png")
             .attr("class", "plots-title-y-help")
             .attr("x", canvas.xLeft - 72)
-            .attr("y", canvas.yBottom - (canvas.yBottom - canvas.yTop) / 2 - _yTitle.length / 2 * 8 - 5)
+            .attr("y", canvas.yBottom - (canvas.yBottom - canvas.yTop) / 2 - _yTitle.length / 2 * 8 - 10)
             .attr("width", "16")
             .attr("height", "16");
         elem.svg.select(".plots-title-y-help").each(

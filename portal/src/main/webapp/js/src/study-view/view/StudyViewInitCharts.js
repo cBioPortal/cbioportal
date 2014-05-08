@@ -663,8 +663,7 @@ var StudyViewInitCharts = (function(){
                 plotDataButtonFlag: false
             };
         
-        if(StudyViewSurvivalPlotView.getInitStatus() || 
-                StudyViewInitScatterPlot.getInitStatus()) {
+        if(StudyViewSurvivalPlotView.getInitStatus()) {
             
             _params.plotDataButtonFlag = true;
         }else{
@@ -862,8 +861,7 @@ var StudyViewInitCharts = (function(){
             _params.needLogScale = false;
         }
         
-        if(StudyViewSurvivalPlotView.getInitStatus() || 
-                StudyViewInitScatterPlot.getInitStatus()) {
+        if(StudyViewSurvivalPlotView.getInitStatus()) {
             
             _params.plotDataButtonFlag = true;
         }else{

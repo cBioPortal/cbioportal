@@ -33,7 +33,7 @@ var StudyViewInitScatterPlot = (function() {
                         _value['CASE_ID'] + "&cancer_study_id=" +
                         StudyViewParams.params.studyId + "' target='_blank'>" + 
                         _value['CASE_ID'] + "</a></strong> ("+ 
-                        cbio.util.toPrecision(_value['COPY_NUMBER_ALTERATIONS'],1,0.01) + 
+                        cbio.util.toPrecision(_value['COPY_NUMBER_ALTERATIONS'],2,0.01) + 
                         ", " + _value['MUTATION_COUNT']+")";
                     scatterPlotArr.push(_scatterPlotDatumTmp);
             }

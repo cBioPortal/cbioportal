@@ -128,7 +128,7 @@ var BarChart = function(){
                 }
 
                 _caseIds = getCaseIds();
-
+                
                 for(var key in _caseIds){
                     var _caseInfoDatum = {},
                         _range = key.split("-");
@@ -751,7 +751,7 @@ var BarChart = function(){
         }
         
         if(hasEmptyValue){
-            barColor['NA'] = '#E6E6E6';
+            barColor['NA'] = '#CCCCCC';
         }else {
             barColor[_barValue[_barLength-1]] = color[_barLength-1];
         }
@@ -875,6 +875,7 @@ var BarChart = function(){
         },
         
         reDrawChart: function() {
+            barColor = {};
             if(param.needLogScale){
                 initDCLogBarChart();
             }else{

@@ -896,6 +896,7 @@ var StudyViewInitCharts = (function(){
                 varChart[_currentID].updateParam(_param);
                 varChart[_currentID].reDrawChart();
                 varChart[_currentID].getChart().render();
+                redrawSpecialPlots();
             });
         }
     }

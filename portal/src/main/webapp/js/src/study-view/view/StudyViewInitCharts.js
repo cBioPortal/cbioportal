@@ -725,6 +725,9 @@ var StudyViewInitCharts = (function(){
         //so we need to set timeout for displaying loader.
         //The timeout is set equal to the transition duration of dc charts.
         setTimeout(function() {
+            StudyViewInitScatterPlot.setClickedCasesId('');
+            StudyViewInitScatterPlot.setShiftClickedCasesId(getSelectedCases());
+            
             if(typeof _casesInfo !== "undefined" && typeof _selectedAttr !== "undefined"){
                 StudyViewSurvivalPlotView.redraw(_casesInfo, _selectedAttr);
                 changeHeader();
@@ -733,9 +736,6 @@ var StudyViewInitCharts = (function(){
                 redrawWSCharts();
                 redrawScatter();
             }
-            
-            StudyViewInitScatterPlot.setClickedCasesId('');
-            StudyViewInitScatterPlot.setShiftClickedCasesId(getSelectedCases());
             
             if(_scatterInit){
                 $("#study-view-scatter-plot-loader").css('display', 'none');
@@ -760,6 +760,7 @@ var StudyViewInitCharts = (function(){
      */
     function postFilterCallbackFunc(){
         if(!StudyViewInitScatterPlot.getclearFlag() && !plotDataFlag){
+            removeMarker();
             resetBars();
             redrawSpecialPlots();
         }

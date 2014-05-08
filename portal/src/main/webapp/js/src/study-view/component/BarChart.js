@@ -461,8 +461,16 @@ var BarChart = function(){
         _numOfBar = _barInfo.length;
         
         for ( var i = 0; i < _allAxisXLength; i++) {
-            var _axisX = _allAxisX[i];
-            _xValue[i] = Number($(_axisX).select('text').text());
+            var _axisX = _allAxisX[i],
+                _text = $(_axisX).select('text').text();
+            if(param.needLogScale) {
+                //axis always start with 1 if log chart generated, so if this
+                //empty value happen, the previous value definitly exits.
+                if(_text === '') {
+                   _text = Math.pow(10, Math.log(_xValue[i-1]) / Math.log(10) + 0.5);
+                }
+            }
+            _xValue[i] = Number(_text);
             _xTranslate[i] = Number(trimTransformString($(_axisX).attr('transform'))[0]) + Number(_transformAxiaX[0]);
         }
         

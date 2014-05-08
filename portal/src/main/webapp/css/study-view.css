@@ -449,6 +449,12 @@ pieH3{
     stroke-width:1px;
     font-size:9px;
 }
+.dc-chart .axis text{
+    fill:black;
+    stroke:black;
+    stroke-width:0.5px;
+    font-size:9px;
+}
 .study-view-bar-chart {
     width:100%;
 }

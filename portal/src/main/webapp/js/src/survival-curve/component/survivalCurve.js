@@ -24,7 +24,9 @@ var SurvivalCurve = function() {
 
     function initAxis(_inputArr) {
         var _dataset = [];
-        var formatAsPercentage = d3.format(".1%");
+        //tick format changed from .1% to %, requested by Niki, used in
+        //Study View
+        var formatAsPercentage = d3.format("%");
         $.each(_inputArr, function(index, obj) {
             var data = obj.data;
             $.each(data.getData(), function(index, d) {

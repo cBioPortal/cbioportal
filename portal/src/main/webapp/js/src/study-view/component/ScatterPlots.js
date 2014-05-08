@@ -62,7 +62,8 @@ var ScatterPlots = function() {
         brushedCases = [];
 
     var axis_edge = 0.1;
-        log_scale_threshold = 0.17677669529;
+        //Change 0.17677669529 to 1e-10
+        log_scale_threshold = 1e-10;
 
     var updateBrushCallback = "",
         clickCallback = "",
@@ -137,6 +138,7 @@ var ScatterPlots = function() {
         elem.xAxis = d3.svg.axis()
             .scale(elem.xScale)
             .orient("bottom")
+            .ticks(5)
             .tickSize(6, 0, 0);
     }
 
@@ -144,7 +146,34 @@ var ScatterPlots = function() {
         elem.yAxis = d3.svg.axis()
             .scale(elem.yScale)
             .orient("left")
+            .ticks(5)
             .tickSize(6, 0, 0);
+    }
+    
+    function initLogAxisY() {
+        elem.yAxis = d3.svg.axis()
+            .scale(elem.yScale)
+            .orient("left")
+            .ticks(5)
+            .tickSize(6, 0, 0)
+            .tickFormat(function(v) {
+                if(v < 1) {
+                    return cbio.util.toPrecision(Math.pow(10, v),1,1);
+                }else {
+                    return parseInt(Math.pow(10, v)); 
+                }
+            });
+    }
+    
+    function initLogAxisX() {
+        elem.xAxis = d3.svg.axis()
+            .scale(elem.xScale)
+            .orient("bottom")
+            .ticks(5)
+            .tickSize(6, 0, 0)
+            .tickFormat(function(v) {
+                return cbio.util.toPrecision(Math.pow(10, v),1,1); 
+            });
     }
 
     function generateAxisX() {
@@ -202,7 +231,7 @@ var ScatterPlots = function() {
         d3.select("#" + names.body).select(".plots-title-x-help").remove();
         var _xTitle = "";
         if (_applyLogScale) {
-            _xTitle = text.xTitle + " (log2)";
+            _xTitle = text.xTitle + " (log10)";
         } else {
             _xTitle = text.xTitle;
         }
@@ -241,7 +270,7 @@ var ScatterPlots = function() {
         d3.select("#" + names.body).select(".plots-title-y-help").remove();
         var _yTitle = "";
         if (_applyLogScale) {
-            _yTitle = text.yTitle + " (log2)";
+            _yTitle = text.yTitle + " (log10)";
         } else {
             _yTitle = text.yTitle;
         }
@@ -710,23 +739,23 @@ var ScatterPlots = function() {
                 if (_applyLogScale) {
                     if (_axis === "x") {
                         if (parseFloat(d3.select(this).attr("x_val")) <= log_scale_threshold) {
-                            var _post_x = elem.xScale(Math.log(log_scale_threshold) / Math.log(2));
+                            var _post_x = elem.xScale(Math.log(log_scale_threshold) / Math.log(10));
                         } else {
-                            var _post_x = elem.xScale(Math.log(d3.select(this).attr("x_val")) / Math.log(2));
+                            var _post_x = elem.xScale(Math.log(d3.select(this).attr("x_val")) / Math.log(10));
                         }
                         var _post_y = d3.select(this).attr("y_pos");
                         
-                        d3.select(this).attr("x_val",Math.log(d3.select(this).attr("x_val")) / Math.log(2));
+                        d3.select(this).attr("x_val",Math.log(d3.select(this).attr("x_val")) / Math.log(10));
                         axisXLogFlag = true;
                         
                     } else if (_axis === "y") {
                         var _post_x = d3.select(this).attr("x_pos");
                         if (parseFloat(d3.select(this).attr("y_val")) <= log_scale_threshold) {
-                            var _post_y = elem.yScale(Math.log(log_scale_threshold) / Math.log(2));
+                            var _post_y = elem.yScale(Math.log(log_scale_threshold) / Math.log(10));
                         } else {
-                            var _post_y = elem.yScale(Math.log(d3.select(this).attr("y_val")) / Math.log(2));
+                            var _post_y = elem.yScale(Math.log(d3.select(this).attr("y_val")) / Math.log(10));
                         }
-                        d3.select(this).attr("y_val",Math.log(d3.select(this).attr("y_val")) / Math.log(2));
+                        d3.select(this).attr("y_val",Math.log(d3.select(this).attr("y_val")) / Math.log(10));
                         axisYLogFlag = true;
                     }
                     d3.select(this).attr("x_pos", _post_x);
@@ -734,12 +763,12 @@ var ScatterPlots = function() {
                     return "translate(" + _post_x + ", " + _post_y + ")";
                 } else {
                     if (_axis === "x") {
-                        d3.select(this).attr("x_val",Math.pow(2,d3.select(this).attr("x_val")));
+                        d3.select(this).attr("x_val",Math.pow(10,d3.select(this).attr("x_val")));
                         var _post_x = elem.xScale(d3.select(this).attr("x_val"));
                         var _post_y = d3.select(this).attr("y_pos");
                         axisXLogFlag = false;
                     } else if (_axis === "y") {
-                        d3.select(this).attr("y_val",Math.pow(2,d3.select(this).attr("y_val")));
+                        d3.select(this).attr("y_val",Math.pow(10,d3.select(this).attr("y_val")));
                         var _post_x = d3.select(this).attr("x_pos");
                         var _post_y = elem.yScale(d3.select(this).attr("y_val"));
                         axisYLogFlag = false;
@@ -754,11 +783,11 @@ var ScatterPlots = function() {
     function updateAxisScaleX() {
         var _min_x, _max_x, _edge_x;
         if (dataAttr.min_x <= log_scale_threshold) {
-            _min_x = Math.log(log_scale_threshold) / Math.log(2);
+            _min_x = Math.log(log_scale_threshold) / Math.log(10);
         } else {
-            _min_x = Math.log(dataAttr.min_x) / Math.log(2);
+            _min_x = Math.log(dataAttr.min_x) / Math.log(10);
         }
-        _max_x = Math.log(dataAttr.max_x) / Math.log(2);
+        _max_x = Math.log(dataAttr.max_x) / Math.log(10);
         _edge_x = (_max_x - _min_x) * axis_edge;
         elem.xScale = d3.scale.linear()
             .domain([_min_x - _edge_x, _max_x + _edge_x])
@@ -768,11 +797,11 @@ var ScatterPlots = function() {
     function updateAxisScaleY() {
         var _min_y, _max_y, _edge_y;
         if (dataAttr.min_y <= log_scale_threshold) {
-            _min_y = Math.log(log_scale_threshold) / Math.log(2);
+            _min_y = Math.log(log_scale_threshold) / Math.log(10);
         } else {
-            _min_y = Math.log(dataAttr.min_y) / Math.log(2);
+            _min_y = Math.log(dataAttr.min_y) / Math.log(10);
         }
-        _max_y = Math.log(dataAttr.max_y) / Math.log(2);
+        _max_y = Math.log(dataAttr.max_y) / Math.log(10);
         _edge_y = (_max_y - _min_y) * axis_edge;
         elem.yScale = d3.scale.linear()
             .domain([_min_y - _edge_y, _max_y + _edge_y])
@@ -794,6 +823,20 @@ var ScatterPlots = function() {
             }
         }else{
             _value = Math.log(_value) / Math.log(2);
+        }
+        return _value;
+    }
+    
+    function log10Value(_value){
+        
+        if(typeof log_scale_threshold !== 'undefined'){
+            if(_value <= log_scale_threshold){
+                _value = Math.log(log_scale_threshold) / Math.log(10);
+            }else{
+                _value = Math.log(_value) / Math.log(10);
+            }
+        }else{
+            _value = Math.log(_value) / Math.log(10);
         }
         return _value;
     }
@@ -822,14 +865,15 @@ var ScatterPlots = function() {
             
             if (_applyLogScale) {
                 updateAxisScaleX();
+                initLogAxisX();
             } else {
                 initScaleX();
+                initAxisX();
             }
             
             if(brushOn){
                 updateBrush();
             }
-            initAxisX();
             generateAxisX();
             appendAxisTitleX(_applyLogScale);
             updatePlotsLogScale("x", _applyLogScale);
@@ -838,12 +882,13 @@ var ScatterPlots = function() {
             var _applyLogScale = document.getElementById(_divName).checked;
             if (_applyLogScale) {
                 updateAxisScaleY();
+                initLogAxisY();
             } else {
                 initScaleY();
+                initAxisY();
             }
             if(brushOn)
                 updateBrush();
-            initAxisY();
             generateAxisY();
             appendAxisTitleY(_applyLogScale);
             updatePlotsLogScale("y", _applyLogScale);
@@ -914,16 +959,16 @@ var ScatterPlots = function() {
             
             if(axisXLogFlag && axisYLogFlag){
                 for(var i=0; i<dataCopy.length; i++){
-                    dataCopy[i].x_val = log2Value(dataCopy[i].x_val);
-                    dataCopy[i].y_val = log2Value(dataCopy[i].y_val);
+                    dataCopy[i].x_val = log10Value(dataCopy[i].x_val);
+                    dataCopy[i].y_val = log10Value(dataCopy[i].y_val);
                 }
             }else if(axisXLogFlag){
                 for(var i=0; i<dataCopy.length; i++){
-                    dataCopy[i].x_val = log2Value(dataCopy[i].x_val);
+                    dataCopy[i].x_val = log10Value(dataCopy[i].x_val);
                 }
             }else if(axisYLogFlag){
                 for(var i=0; i<dataCopy.length; i++){
-                    dataCopy[i].y_val = log2Value(dataCopy[i].y_val);
+                    dataCopy[i].y_val = log10Value(dataCopy[i].y_val);
                 }
             }
             

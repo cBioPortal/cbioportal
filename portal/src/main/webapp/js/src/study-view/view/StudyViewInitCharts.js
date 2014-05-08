@@ -490,7 +490,7 @@ var StudyViewInitCharts = (function(){
                 varKeys['OS_MONTHS'].length > 0 &&
                 varKeys['OS_STATUS'].length > 0) {
             _plotsInfo.OS=  {
-                name: "Overall Survival Analysis",
+                name: "Overall Survival",
                 property: ["OS_MONTHS", "OS_STATUS"],
                 status: [["LIVING"], ["DECEASED"]],
                 caseLists: {
@@ -508,7 +508,7 @@ var StudyViewInitCharts = (function(){
                 varKeys['DFS_STATUS'].length > 0) {
             
             _plotsInfo.DFS=  {
-                name: "Disease Free Survival Analysis",
+                name: "Disease Free Survival",
                 property: ["DFS_MONTHS", "DFS_STATUS"],
                 status: [["DISEASEFREE"], ["RECURRED", "RECURRED/PROGRESSED", "PROGRESSED"]],
                 caseLists: {

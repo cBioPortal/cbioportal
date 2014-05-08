@@ -95,7 +95,8 @@ var StudyViewInitTopComponents = (function() {
         windowScolled = StudyViewWindowEvents.getScrollStatus();
         
         if(_resultLength === _numOfCases){
-            var _hasFilter = false;
+            var _hasFilter = false,
+                _plotDataFlag = StudyViewInitCharts.getPlotDataFlag();
             
             for(var i=0; i<_charts.length; i++){
                 if(_removedChart.indexOf(i) === -1){
@@ -110,7 +111,12 @@ var StudyViewInitTopComponents = (function() {
                 $("#study-view-header-left-3").css('display','block');
                 $("#study-view-header-left-3").text(_resultLength + " cases are selected.");
                 $("#study-view-header-left-case-ids").val(_caseID.join(" "));
-            }else{
+            }else if(_plotDataFlag){
+                $("#study-view-header-left-0").css('display','block');
+                $("#study-view-header-left-1").css('display','none');
+                $("#study-view-header-left-2").css('display','block');
+                $("#study-view-header-left-3").css('display','none');
+            }else {
                 $("#study-view-header-left-0").css('display','block');
                 $("#study-view-header-left-1").css('display','none');
                 $("#study-view-header-left-2").css('display','none');
@@ -137,12 +143,12 @@ var StudyViewInitTopComponents = (function() {
                 $("#study-view-header-left-2").css('display','block');
                 $("#study-view-header-left-3").css('display','block');
                 $("#study-view-header-left-2").css('left','0');
-                $("#study-view-header-left-2").text('Clear selected case');
+                $("#study-view-header-left-2").text('Reset all');
                 $("#study-view-header-left-3").html("");
                 if(windowScolled){
                     $("#study-view-header-left-3").css('left','0');
                 }else{
-                    $("#study-view-header-left-3").css('left','170px');
+                    $("#study-view-header-left-3").css('left','100px');
                 }
                 $("#study-view-header-left-3")
                         .append("<a title='Go to patient-centric view' " + 
@@ -154,11 +160,11 @@ var StudyViewInitTopComponents = (function() {
                 $("#study-view-header-left-1").css('display','block');
                 $("#study-view-header-left-2").css('display','block');
                 $("#study-view-header-left-3").css('display','block');
-                $("#study-view-header-left-2").text('Clear selected cases');
+                $("#study-view-header-left-2").text('Reset all');
                 if(windowScolled){
                     $("#study-view-header-left-3").css('left','0');
                 }else{
-                    $("#study-view-header-left-3").css('left','410px');
+                    $("#study-view-header-left-3").css('left','310px');
                 }
                 $("#study-view-header-left-3").text(_resultLength + " cases are selected.");
                 $("#study-view-header-left-case-ids").val(_caseID.join(" "));

@@ -213,13 +213,13 @@ var StudyViewBoilerplate ={
             .attr({
                 'id': 'study-view-header-left-2',
                 'class': 'study-view-header hidden'})
-            .text('Clear selected cases');
+            .text('Reset all');
         
         _span3
             .attr({
                 'id': 'study-view-header-left-3',
                 'class': 'hidden'})
-            .text('Clear selected cases');
+            .text('Reset all');
        
         _header.append(_span1);
         _header.append(_form);

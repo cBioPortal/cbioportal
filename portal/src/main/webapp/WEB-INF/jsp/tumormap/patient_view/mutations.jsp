@@ -450,7 +450,7 @@
                                 
                                 if ($.isEmptyObject(refCount)||$.isEmptyObject(altCount))
                                     return "";
-                                return "<div class='"+table_id+"-tumor-freq' alt='"+source[0]+"'></div>"; 
+                                return "<div class='"+table_id+"-normal-freq' alt='"+source[0]+"'></div>"; 
                             } else if (type==='sort') {
                                 var refCount = mutations.getValue(source[0], 'normal-ref-count')[caseIds[0]];
                                 var altCount = mutations.getValue(source[0], 'normal-alt-count')[caseIds[0]];
@@ -804,7 +804,7 @@
                     if (caseIds.length>1) {
                         plotCaseLabel('.'+table_id+'-case-label',true);
                         plotAlleleFreq("."+table_id+"-tumor-freq",mutations,"alt-count","ref-count");
-                        plotAlleleFreq("."+table_id+"-tumor-freq",mutations,"normal-alt-count","normal-ref-count");
+                        plotAlleleFreq("."+table_id+"-normal-freq",mutations,"normal-alt-count","normal-ref-count");
                     }
                     plotMrna("."+table_id+"-mrna",mutations);
                     plotMutRate("."+table_id+"-mut-cohort",mutations);

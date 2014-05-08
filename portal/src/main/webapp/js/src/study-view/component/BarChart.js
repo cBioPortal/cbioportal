@@ -669,6 +669,7 @@ var BarChart = function(){
                                   xDomain[xDomain.length - 1] + seperateDistance
                                 ]));
         
+        barChart.yAxis().ticks(6);
         barChart.yAxis().tickFormat(d3.format("d"));            
         barChart.xAxis().tickFormat(function(v) {
             if(v === emptyValueMapping){
@@ -782,6 +783,7 @@ var BarChart = function(){
     
         barChart.centerBar(true);
         barChart.x(d3.scale.log().nice().domain([0.7,_maxDomain]));
+        barChart.yAxis().ticks(6);
         barChart.yAxis().tickFormat(d3.format("d"));            
         barChart.xAxis().tickFormat(function(v) {
             var _returnValue = v;

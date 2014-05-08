@@ -239,14 +239,14 @@ var ScatterPlots = function() {
             .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2)
             .attr("y", canvas.yBottom + 60)
             .style("text-anchor", "middle")
-            .style("font-size", "12px")
+            .style("font-size", "11px")
             .style("font-weight", "bold") 
             .attr("class", "plots-title-x")
             .text(_xTitle);
         elem.axisTitleGroup.append("svg:image")
             .attr("xlink:href", "images/help.png")
             .attr("class", "plots-title-x-help")
-            .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2 - _xTitle.length / 2 * 8.5)
+            .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2 - _xTitle.length / 2 * 8 + 5)
             .attr("y", canvas.yBottom + 48)
             .attr("width", "16")
             .attr("height", "16");
@@ -279,7 +279,7 @@ var ScatterPlots = function() {
             .attr("x", (canvas.yTop - canvas.yBottom) / 2 - canvas.yTop)
             .attr("y", canvas.xLeft - 60)
             .style("text-anchor", "middle")
-            .style("font-size", "12px")
+            .style("font-size", "11px")
             .style("font-weight", "bold")
             .attr("class", "plots-title-y") 
             .text(_yTitle);
@@ -287,7 +287,7 @@ var ScatterPlots = function() {
             .attr("xlink:href", "images/help.png")
             .attr("class", "plots-title-y-help")
             .attr("x", canvas.xLeft - 72)
-            .attr("y", canvas.yBottom - (canvas.yBottom - canvas.yTop) / 2 - _yTitle.length / 2 * 8 - 20)
+            .attr("y", canvas.yBottom - (canvas.yBottom - canvas.yTop) / 2 - _yTitle.length / 2 * 8 - 5)
             .attr("width", "16")
             .attr("height", "16");
         elem.svg.select(".plots-title-y-help").each(

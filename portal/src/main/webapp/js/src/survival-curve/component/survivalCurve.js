@@ -264,6 +264,7 @@ var SurvivalCurve = function() {
             .attr("x", style.axisX_title_pos_x)
             .attr("y", style.axisX_title_pos_y)
             .style("text-anchor", "middle")
+            .style("font-size", "11px")
             .style("font-weight","bold")
             .text(xTitle);
         elem.svg.append("text")
@@ -272,6 +273,7 @@ var SurvivalCurve = function() {
             .attr("x", style.axisY_title_pos_x)
             .attr("y", style.axisY_title_pos_y)
             .style("text-anchor", "middle")
+            .style("font-size", "11px")
             .style("font-weight","bold")
             .text(yTitle);
     }

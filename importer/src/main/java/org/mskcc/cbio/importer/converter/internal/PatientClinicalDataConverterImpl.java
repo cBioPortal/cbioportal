@@ -14,8 +14,6 @@
  * Memorial Sloan-Kettering Cancer Center 
  * has been advised of the possibility of such damage.
 */
-
-// package
 package org.mskcc.cbio.importer.converter.internal;
 
 // imports
@@ -32,8 +30,7 @@ import org.mskcc.cbio.portal.model.ClinicalAttribute;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.*;
 
 import java.util.*;
 import java.util.regex.*;

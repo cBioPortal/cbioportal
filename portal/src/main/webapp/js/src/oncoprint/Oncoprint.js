@@ -507,8 +507,8 @@ define("Oncoprint",
                     //
                     // *signature:* `undefined -> string`
                     var getPdfInput = function() {
-                        var width = main_svg.attr('width') + dims.label_width;
-                        var height = main_svg.attr('height');
+                        var width = dims.width + dims.label_width;
+                        var height = dims.height;
                         var svg = main_svg[0][0];
                         var x = data2xscale(state.data);
 

@@ -567,7 +567,13 @@ class ImporterImpl implements Importer {
         for (String dependency : datatypeMetadata.getDependencies()) {
             dependencies.add(config.getDatatypeMetadata(dependency).iterator().next());
         }
-        return fileUtils.writeZScoresStagingFile(rootDirectory, cancerStudyMetadata, datatypeMetadata,
+        boolean fileCreated = fileUtils.writeZScoresStagingFile(rootDirectory, cancerStudyMetadata, datatypeMetadata,
                                                  dependencies.toArray(new DatatypeMetadata[dependencies.size()]));
+
+		if (fileCreated && datatypeMetadata.requiresMetafile()){
+			fileUtils.writeMetadataFile(rootDirectory, cancerStudyMetadata, datatypeMetadata, null);
+		}	
+
+        return fileCreated;
     }
 }

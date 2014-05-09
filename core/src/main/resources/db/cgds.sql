@@ -612,6 +612,17 @@ CREATE TABLE `copy_number_seg` (
   FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
 
+drop table IF EXISTS copy_number_seg_file;
+CREATE TABLE `copy_number_seg_file` (
+  `SEG_FILE_ID` int(11) NOT NULL auto_increment,
+  `CANCER_STUDY_ID` int(11) NOT NULL,
+  `REFERENCE_GENOME_ID` varchar(10) NOT NULL,
+  `DESCRIPTION` varchar(255) NOT NULL,
+  `FILENAME` varchar(255) NOT NULL,
+  PRIMARY KEY(`SEG_FILE_ID`),
+  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
+
 drop table IF EXISTS cosmic_mutation;
 CREATE TABLE `cosmic_mutation` (
   `COSMIC_MUTATION_ID` varchar(30) NOT NULL,

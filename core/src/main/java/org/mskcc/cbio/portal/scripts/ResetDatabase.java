@@ -55,6 +55,7 @@ public class ResetDatabase {
         DaoPatientList daoPatientList = new DaoPatientList();
         daoPatientList.deleteAllRecords();
         DaoClinicalData.deleteAllRecords();
+        DaoCopyNumberSegmentFile.deleteAllRecords();
         DaoMutation.deleteAllRecords();
         DaoMutationFrequency daoMutationFrequency = new DaoMutationFrequency();
         daoMutationFrequency.deleteAllRecords();

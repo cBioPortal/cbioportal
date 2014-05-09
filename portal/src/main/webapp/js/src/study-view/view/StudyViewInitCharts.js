@@ -743,7 +743,7 @@ var StudyViewInitCharts = (function(){
             if(typeof _casesInfo !== "undefined" && typeof _selectedAttr !== "undefined"){
                 StudyViewSurvivalPlotView.redraw(_casesInfo, _selectedAttr);
                 changeHeader();
-                redrawScatter(_casesInfo, _selectedAttr);
+                redrawScatter(_casesInfo, _selectedAttr[0]);
             }else{
                 redrawWSCharts();
                 redrawScatter();
@@ -785,7 +785,7 @@ var StudyViewInitCharts = (function(){
      */
     function plotDataCallbackFunc(_casesInfo, _selectedAttr) {
         removeMarker();
-        resetBars(_selectedAttr);
+        resetBars(_selectedAttr[0]);
         redrawSpecialPlots(_casesInfo, _selectedAttr);
     }
     

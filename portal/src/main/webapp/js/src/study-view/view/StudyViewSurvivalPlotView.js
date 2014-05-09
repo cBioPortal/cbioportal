@@ -681,11 +681,11 @@ var StudyViewSurvivalPlotView = (function() {
             logRankTest = "";
             delete curveInfo[j];
 
-            var _tmpCasesInfo = grouping(_casesInfo, _selectedAttr);
+            var _tmpCasesInfo = grouping(_casesInfo, _selectedAttr[0]);
             redrawView(opts[j].index, _tmpCasesInfo);
             drawLabels(opts[j].index);
             if (typeof _selectedAttr !== 'undefined') {
-                StudyViewUtil.changeTitle("#" + opts[j].divs.main + " chartTitleH4", _selectedAttr, false);
+                StudyViewUtil.changeTitle("#" + opts[j].divs.main + " chartTitleH4", _selectedAttr[1], false);
             }
             addEvents(opts[j].index);
         }

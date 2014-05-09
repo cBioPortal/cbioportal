@@ -152,7 +152,7 @@ var BarChart = function(){
                     }
                 }
                 changeBarColor();
-                plotDataCallback(_casesInfo, param.selectedAttr);
+                plotDataCallback(_casesInfo, [param.selectedAttr, param.selectedAttrDisplay]);
 
                 setTimeout(function(){
                     StudyViewInitCharts.setPlotDataFlag(false);

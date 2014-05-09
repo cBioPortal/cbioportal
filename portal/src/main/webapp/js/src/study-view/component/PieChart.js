@@ -358,7 +358,7 @@ var PieChart = function(){
                     _caseInfoDatum.color = label[i].color;
                     _casesInfo[_key] = _caseInfoDatum;
                 }
-                plotDataCallback(_casesInfo, selectedAttr);
+                plotDataCallback(_casesInfo, [selectedAttr, selectedAttrDisplay]);
 
                 setTimeout(function(){
                     StudyViewInitCharts.setPlotDataFlag(false);

@@ -201,20 +201,20 @@ var StudyViewInitScatterPlot = (function() {
                             styleDatum.strokeWidth = '0';
                             styleDatum.size = '60';
                         }
-                        styleDatum.opacity = '1';
+//                        styleDatum.opacity = '1';
                     }else{
                         if(_hasFilterFlag){
                             styleDatum.fill = '#2986e2';
                             styleDatum.stroke = '#2986e2';
                             styleDatum.strokeWidth = '0';
                             styleDatum.size = '60';
-                            styleDatum.opacity = '0.6';
+//                            styleDatum.opacity = '0.6';
                         }else {
                             styleDatum.fill = '#2986e2';
                             styleDatum.stroke = '#2986e2';
                             styleDatum.strokeWidth = '0';
                             styleDatum.size = '60';
-                            styleDatum.opacity = '1';
+//                            styleDatum.opacity = '1';
                         }
                     }
                 }else if(_selectedCaseIds.length === 0){
@@ -222,13 +222,13 @@ var StudyViewInitScatterPlot = (function() {
                     styleDatum.stroke = '#2986e2';
                     styleDatum.strokeWidth = '0';
                     styleDatum.size = '60';
-                    styleDatum.opacity = '1';
+//                    styleDatum.opacity = '1';
                 }else{
                     styleDatum.fill = 'red';
                     styleDatum.stroke = 'red';
                     styleDatum.strokeWidth = '0';
                     styleDatum.size = '60';
-                    styleDatum.opacity = '1';
+//                    styleDatum.opacity = '1';
                 }
                 _style.push(styleDatum);
             }

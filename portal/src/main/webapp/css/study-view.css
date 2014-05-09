@@ -609,6 +609,7 @@ pieH3{
 #content li a{
     outline: none;
 }
+/*
 .ui-widget-content {
     border: 0;
 }
@@ -644,7 +645,7 @@ pieH3{
     border: 1px;
     border-color: white;
     background: white;
-}
+}*/
 .study-view-survival-label-font-1{
     font-size: 9px;
     font-weight: bold;
@@ -710,7 +711,7 @@ pieH3{
     top: 30%;
 }
 
-/* These five styles are designed for study view tabs. */
+/* These five styles are designed for study view tabs. 
 #dc-plots {
     border: 1px solid #aaaaaa;
     border-radius: 5px;
@@ -735,7 +736,7 @@ pieH3{
     border: 1px solid #aaaaaa;
     border-radius: 5px;
     border-top-left-radius: 0;
-}
+}*/
 
 /* tag styles */
 /*

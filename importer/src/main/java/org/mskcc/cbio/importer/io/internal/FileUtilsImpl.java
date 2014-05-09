@@ -831,7 +831,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
                     }
                 }
                 
-                if (ixNcbiBuild!=-1) {
+                if (ixNcbiBuild!=-1&&it.hasNext()) {
                     parts = it.nextLine().split("\t");
                     if (parts[ixNcbiBuild].contains("36") || parts[ixNcbiBuild].equals("hg18")) {
                             it.close();

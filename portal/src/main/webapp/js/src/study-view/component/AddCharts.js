@@ -34,7 +34,13 @@ var AddCharts = (function(){
             _showedNames = [],
             _showedNamesLength = 0;
         
-        $('#study-view-add-chart ul').find('li').remove().end();
+//        $('#study-view-add-chart ul').find('li').remove().end();
+        $('#study-view-add-chart')
+                .find('option')
+                .remove()
+                .end()
+                .append('<option id="">Add Chart</option>')
+                .val('whatever');
         
         for ( var i = 0 ; i < _nameKeyLength; i++) {
             if(_dispalyedID.indexOf(_name[_nameKeys[i]]) === -1){
@@ -55,14 +61,20 @@ var AddCharts = (function(){
         });
         
         for(var i = 0; i < _showedNamesLength; i++){
-            $('#study-view-add-chart ul')
-                    .append($("<li></li>")
-                        .attr("id",_showedNames[i].name)
-                        .text(_showedNames[i].displayName));
+//            $('#study-view-add-chart ul')
+//                    .append($("<li></li>")
+//                        .attr("id",_showedNames[i].name)
+//                        .text(_showedNames[i].displayName));
+            $('#study-view-add-chart')
+                .append($("<option></option>")
+                    .attr("id",_showedNames[i].name)
+                    .text(_showedNames[i].displayName));
         }
         
         
-        if($('#study-view-add-chart ul').find('li').length === 0 ){
+//        if($('#study-view-add-chart ul').find('li').length === 0 ){
+        if($('#study-view-add-chart').find('option').length === 0 && 
+                    $('#study-view-add-chart').find('option')[0].attr('id') === ''){
             $('#study-view-add-chart').css('display','none');
         }else{
             bindliClickFunc();
@@ -70,18 +82,21 @@ var AddCharts = (function(){
     }
     
     function bindliClickFunc() {
-        $('#study-view-add-chart ul li').unbind('click');
-        $('#study-view-add-chart ul li').click(function() {
-            var _id = $(this).attr('id'),
-                _text = $(this).text();
-                
+//        $('#study-view-add-chart ul li').unbind('click');
+//        $('#study-view-add-chart ul li').click(function() {
+        $('#study-view-add-chart').unbind('change');
+        $('#study-view-add-chart').change(function() {
+//            var _id = $(this).attr('id'),
+//                _text = $(this).text();
+            var _id = $(this).children(":selected").attr('id'),
+                _text = $(this).children(":selected").text()
             liClickCallback(_id, _text);
         });
     }
     return {
         init: function() {
             createDiv();
-            addEvents();
+//            addEvents();
         },
         
         initAddChartsButton: initAddChartsButton,

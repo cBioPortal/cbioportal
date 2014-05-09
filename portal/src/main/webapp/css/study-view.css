@@ -1,4 +1,5 @@
 /* main style */
+/*
 #study-view-add-chart li{
     color: white;
     text-align: center;
@@ -16,6 +17,7 @@
     float:right;
     padding: 0 0 5px 0;
 }
+*/
 #study-view-top-wrapper {
     width: 100%;
     float: left;
@@ -23,6 +25,7 @@
 }
 #study-view-add-chart {
     right:43px;
+    top: 0;
     position: absolute;
     z-index:21;
     display: inline-block;
@@ -39,21 +42,24 @@
     left: 0;
     width: 160px;
     height: 30px;
+    margin: 0 5px 0 0;
 }
 #study-view-header-left-1 {
     left: 0;
+    margin: 0 5px 0 0;
     width: 190px;
     //height: 30px;
 }
 #study-view-header-left-2 {
     left: 210px;
     height: 30px;
+    margin: 0 5px 0 0;
 }
 #study-view-header-left-3 {
     position: absolute;
     left: 410px;
-    height: 30px;
-    line-height: 30px;
+/*    height: 30px;
+    line-height: 30px;*/
     top: 2px;
     border: 0;
     font-size: 13px;

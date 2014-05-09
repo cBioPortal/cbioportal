@@ -154,9 +154,12 @@ var StudyViewBoilerplate ={
     
     headerLeftDiv: function() {
         var _header = $('<div></div>'),
-            _span1 = $('<span></span>'),
-            _span2 = $('<span></span>'),
+//            _span1 = $('<span></span>'),
+//            _span2 = $('<span></span>'),
             _span3 = $('<span></span>'),
+            _span1 = $("<input type='button' />"),
+            _span2 = $("<input type='button' />"),
+//            _span3 = $("<input type='button' />"),
             _form = $('<form></form>'),
             _input1 = $('<input></input>'),
             _input2 = $('<input></input>'),
@@ -166,9 +169,10 @@ var StudyViewBoilerplate ={
         _header.attr('id','study-view-header-left');
         _span1
             .attr({
-                'id': 'study-view-header-left-0',
-                'class': 'study-view-header study-view-header-left'})
-            .text('Select cases by IDs');
+                'id': 'study-view-header-left-0'})
+//                'class': 'study-view-header study-view-header-left'})
+//            .text('Select cases by IDs');
+            .val('Select cases by IDs');
         _form
             .attr({
                 method: "post",
@@ -202,7 +206,8 @@ var StudyViewBoilerplate ={
                 type: "submit",
                 id: "study-view-header-left-1",
                 value: "Query selected cases",
-                class: "study-view-header hidden"
+//                class: "study-view-header hidden"
+                class: "hidden"
             });
         _form.append(_input1);
         _form.append(_input2);
@@ -212,14 +217,17 @@ var StudyViewBoilerplate ={
         _span2
             .attr({
                 'id': 'study-view-header-left-2',
-                'class': 'study-view-header hidden'})
-            .text('Reset all');
+//                'class': 'study-view-header hidden'})
+//            .text('Reset all');
+                'class': 'hidden'})
+            .val('Reset all');
         
         _span3
             .attr({
                 'id': 'study-view-header-left-3',
                 'class': 'hidden'})
             .text('Reset all');
+//            .val('Reset all');
        
         _header.append(_span1);
         _header.append(_form);
@@ -236,11 +244,12 @@ var StudyViewBoilerplate ={
                 "<button type='button' id='study-view-case-select-custom-submit-btn'>Select</button>" +
             "</div>",
     addChartDiv:
-            "<div  id='study-view-add-chart' class='study-view-header'>" +
-                "<span>Add Chart</span><br>" +
-                "<ul>" +
-                "</ul>" +
-            "</div>",
+            "<select id='study-view-add-chart'><option id=''>Add Chart</option></select>",
+//            "<div  id='study-view-add-chart' class='study-view-header'>" +
+//                "<span>Add Chart</span><br>" +
+//                "<ul>" +
+//                "</ul>" +
+//            "</div>",
     
     tutorialDiv:
             "<div  id='study-view-tutorial' class='study-view-header'>" +

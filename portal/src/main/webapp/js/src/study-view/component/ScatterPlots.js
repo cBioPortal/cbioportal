@@ -231,7 +231,7 @@ var ScatterPlots = function() {
         d3.select("#" + names.body).select(".plots-title-x-help").remove();
         var _xTitle = "";
         if (_applyLogScale) {
-            _xTitle = text.xTitle + " (log10)";
+            _xTitle = text.xTitle + " (log)";
         } else {
             _xTitle = text.xTitle;
         }
@@ -270,7 +270,7 @@ var ScatterPlots = function() {
         d3.select("#" + names.body).select(".plots-title-y-help").remove();
         var _yTitle = "";
         if (_applyLogScale) {
-            _yTitle = text.yTitle + " (log10)";
+            _yTitle = text.yTitle + " (log)";
         } else {
             _yTitle = text.yTitle;
         }

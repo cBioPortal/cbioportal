@@ -257,11 +257,11 @@ var StudyViewInitCharts = (function(){
                 }
             }
             _passedCases = {
-                SELECTED_CASES: {
+                'Selected cases': {
                     caseIds: _selectedCases,
                     color: "#dc3912"
                 },
-                UNSELECTED_CASES: {
+                'Unselected cases': {
                     caseIds: _unselectedCases,
                     color: "#2986e2"
                 }
@@ -269,7 +269,7 @@ var StudyViewInitCharts = (function(){
             };
         }else{
             _passedCases = {
-                ALL_CASES: {
+                'All cases': {
                     caseIds: _allCases,
                     color: "#000000"
                 }
@@ -472,11 +472,15 @@ var StudyViewInitCharts = (function(){
         $(".study-view-word-cloud-delete").click(function (){
             $("#study-view-word-cloud").css('display','none');
             $('#study-view-add-chart').css('display','block');
-            $('#study-view-add-chart ul')
-                    .append($('<li></li>')
+//            $('#study-view-add-chart ul')
+//                    .append($('<li></li>')
+//                        .attr('id','wordCloud')
+//                        .text('Word Cloud'));
+//            $('#study-view-add-chart ul').stop().hide();
+            $('#study-view-add-chart')
+                    .append($('<option></option>')
                         .attr('id','wordCloud')
                         .text('Word Cloud'));
-            $('#study-view-add-chart ul').stop().hide();
             bondDragForLayout();
             AddCharts.bindliClickFunc();
         });
@@ -494,7 +498,7 @@ var StudyViewInitCharts = (function(){
                 property: ["OS_MONTHS", "OS_STATUS"],
                 status: [["LIVING"], ["DECEASED"]],
                 caseLists: {
-                    ALL_CASES: {
+                    'All cases': {
                         caseIds: StudyViewParams.params.caseIds, 
                         color: '#000000'
                     }
@@ -512,7 +516,7 @@ var StudyViewInitCharts = (function(){
                 property: ["DFS_MONTHS", "DFS_STATUS"],
                 status: [["DISEASEFREE"], ["RECURRED", "RECURRED/PROGRESSED", "PROGRESSED"]],
                 caseLists: {
-                    ALL_CASES: {
+                    'All cases': {
                         caseIds: StudyViewParams.params.caseIds, 
                         color: '#000000'
                     }
@@ -530,13 +534,17 @@ var StudyViewInitCharts = (function(){
            
             $($(this).parent().parent().parent()).css('display','none');
             $('#study-view-add-chart').css('display','block');
-            $('#study-view-add-chart ul')
-                    .append($('<li></li>')
+//            $('#study-view-add-chart ul')
+//                    .append($('<li></li>')
+//                        .attr('id','survival-' + _plotId)
+//                        .text(_title));
+//            
+//            $('#study-view-add-chart ul').stop().hide();
+//            $('#study-view-add-chart ul').css('height','100%');
+            $('#study-view-add-chart')
+                    .append($('<option></option>')
                         .attr('id','survival-' + _plotId)
                         .text(_title));
-            
-            $('#study-view-add-chart ul').stop().hide();
-            $('#study-view-add-chart ul').css('height','100%');
             bondDragForLayout();
             AddCharts.bindliClickFunc();
         });
@@ -556,13 +564,17 @@ var StudyViewInitCharts = (function(){
         $(".study-view-scatter-plot-delete").click(function (){
             $("#study-view-scatter-plot").css('display','none');
             $('#study-view-add-chart').css('display','block');
-            $('#study-view-add-chart ul')
-                    .append($('<li></li>')
+//            $('#study-view-add-chart ul')
+//                    .append($('<li></li>')
+//                        .attr('id','mutationCNA')
+//                        .text('Number of Mutation vs Fraction of copy number altered genome'));
+//                
+//            $('#study-view-add-chart ul').stop().hide();
+//            $('#study-view-add-chart ul').css('height','100%');
+            $('#study-view-add-chart')
+                    .append($('<option></option>')
                         .attr('id','mutationCNA')
                         .text('Number of Mutation vs Fraction of copy number altered genome'));
-                
-            $('#study-view-add-chart ul').stop().hide();
-            $('#study-view-add-chart ul').css('height','100%');
             bondDragForLayout();
             StudyViewInitScatterPlot.setClickedCasesId('');
             StudyViewInitScatterPlot.setBrushedCaseId([]);
@@ -910,11 +922,13 @@ var StudyViewInitCharts = (function(){
             redrawSpecialPlots();
         }
         dc.deregisterChart(varChart[_chartID].getChart());
-        $('#study-view-add-chart ul')
-                .append($('<li></li>').attr('id',_value[0]).text(_value[1]));
-        
-        $('#study-view-add-chart ul').stop().hide();
-        $('#study-view-add-chart ul').css('height','100%');
+//        $('#study-view-add-chart ul')
+//                .append($('<li></li>').attr('id',_value[0]).text(_value[1]));
+//        
+//        $('#study-view-add-chart ul').stop().hide();
+//        $('#study-view-add-chart ul').css('height','100%');
+        $('#study-view-add-chart')
+                .append($('<option></option>').attr('id',_value[0]).text(_value[1]));     
         $('#study-view-add-chart').css('display','block');
         varChart[_chartID] = "";
         removedChart.push(Number(_chartID));
@@ -1049,7 +1063,7 @@ var StudyViewInitCharts = (function(){
             _selectedAttrDisplay = _text,
             _chartID = -1,
             _createdFlag = true;
-            
+    
         if(_id === 'mutationCNA'){
             _chartType = ['scatter'];
         }else if(_id === 'wordCloud'){
@@ -1125,13 +1139,15 @@ var StudyViewInitCharts = (function(){
 
             bondDragForLayout();
 
-            $('#study-view-add-chart ul').find('li[id="' + _selectedAttr + '"]').remove();
-
-            if($('#study-view-add-chart ul').find('li').length === 0 ){
+//            $('#study-view-add-chart ul').find('li[id="' + _selectedAttr + '"]').remove();
+            $('#study-view-add-chart').find('option[id="' + _selectedAttr + '"]').remove();
+//            if($('#study-view-add-chart ul').find('li').length === 0 ){
+            if($('#study-view-add-chart').find('option').length === 1 && 
+                    $('#study-view-add-chart').find('option').attr('id') === ''){
                 $('#study-view-add-chart').css('display','none');
             }
             
-            $('#study-view-add-chart ul').css('height','100%');
+//            $('#study-view-add-chart ul').css('height','100%');
         }
     }
     

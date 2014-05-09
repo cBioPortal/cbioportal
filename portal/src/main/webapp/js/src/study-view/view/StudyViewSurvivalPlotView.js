@@ -22,12 +22,13 @@ var StudyViewSurvivalPlotView = (function() {
     var curveInfo = {};
 
     /*This color will be used for ALL_CASES, SELECTED_CASES AND UNSELECTED_CASES*/
-    var uColor = ["#000000", "#dc3912", "#2986e2"];
-    var reserveName = ["ALL_CASES", "SELECTED_CASES", "UNSELECTED_CASES"];
+//    var uColor = ["#000000", "#dc3912", "#2986e2"];
+//    var reserveName = ["ALL_CASES", "SELECTED_CASES", "UNSELECTED_CASES"];
+//    var reserveDisplayName = ["All cases", "Selected cases", "Unselected cases"];
 
     /*Store data for unique curves: the color of these will be changed when user
      * saving them, in that case, the survival plot needs to redraw this curve*/
-    var uColorCurveData = {};
+//    var uColorCurveData = {};
 
     //Saved curve information is identified based on the curve name,
     //in other words, the name of each curve is identical. 
@@ -575,9 +576,9 @@ var StudyViewSurvivalPlotView = (function() {
                     instance.settings = instanceSettings;
                     inputArr.push(instance);
 
-                    if (StudyViewUtil.arrayFindByValue(reserveName, key)) {
-                        uColorCurveData[uColor[reserveName.indexOf(key)]] = instance;
-                    }
+//                    if (StudyViewUtil.arrayFindByValue(reserveName, key)) {
+//                        uColorCurveData[uColor[reserveName.indexOf(key)]] = instance;
+//                    }
 
                     var _curveInfoDatum = {
                         name: key,
@@ -634,9 +635,9 @@ var StudyViewSurvivalPlotView = (function() {
                     instance.settings = instanceSettings;
                     inputArr.push(instance);
 
-                    if (StudyViewUtil.arrayFindByValue(reserveName, key)) {
-                        uColorCurveData[uColor[reserveName.indexOf(key)]] = instance;
-                    }
+//                    if (StudyViewUtil.arrayFindByValue(reserveName, key)) {
+//                        uColorCurveData[uColor[reserveName.indexOf(key)]] = instance;
+//                    }
 
                     var _curveInfoDatum = {
                         name: key,

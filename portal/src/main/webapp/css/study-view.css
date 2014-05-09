@@ -697,6 +697,9 @@ pieH3{
     z-index: 1;
     max-height: 280px;
 }
+.study-view-survival-plot-body-label svg{
+    float: left;
+}
 .study-view-menu-icon:hover{
     cursor: pointer;
 }

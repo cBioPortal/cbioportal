@@ -7,6 +7,7 @@ var StudyViewUtil = (function(){
     function showHideDivision(_listenedDiv, _targetDiv, _parentDiv){
         $(_targetDiv).css('display', 'none');
         $(_listenedDiv).hover(function(){
+            $(_listenedDiv).css('z-index', '1');
             if(typeof _parentDiv !== "undefined"){
                 changePosition(_listenedDiv, _targetDiv, _parentDiv);
             }
@@ -15,6 +16,7 @@ var StudyViewUtil = (function(){
                 $(this).css('display', 'block');
             });
         }, function(){
+            $(_listenedDiv).css('z-index', '0');
             $(_targetDiv).stop().fadeOut('slow', function(){
                 $(this).css('display', 'none');
             });

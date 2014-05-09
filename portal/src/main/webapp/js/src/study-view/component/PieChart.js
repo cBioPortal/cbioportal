@@ -56,7 +56,7 @@ var PieChart = function(){
         pieLabelClickCallback,
         plotDataCallback;
     
-    var titleLengthCutoff = 16;
+    var titleLengthCutoff = 25;
     
     //This function is designed to draw Pie Labels based on current color the
     //Pie Chart has. Pagging function will be added when the number of labels
@@ -280,6 +280,40 @@ var PieChart = function(){
         }
     }
     
+    function showHideDivision(_listenedDiv, _targetDiv, _time){
+        var _targetLength = _targetDiv.length;
+        for ( var i = 0; i < _targetLength; i++) {
+            $(_targetDiv[i]).css('display', 'none');
+        }
+        $(_listenedDiv).hover(function(){
+            $(_listenedDiv).css('z-index', '1');
+            for ( var i = 0; i < _targetLength; i++) {
+                $(_targetDiv[i]).stop().fadeIn(_time, function(){
+                    $(this).css('display', 'block');
+                });
+            }
+            $("#"+DIV.chartDiv +"-title-wrapper").width('130');
+            $("#"+DIV.chartDiv +"-title-wrapper").css('text-align', 'left');
+            if(selectedAttrDisplay.length > 7) {
+                $("#"+DIV.chartDiv +"-title").text(selectedAttrDisplay.substring(0,5) + "...");
+                addQtip(selectedAttrDisplay, DIV.chartDiv +"-title");
+            }
+        }, function(){
+            $(_listenedDiv).css('z-index', '0');
+            for ( var i = 0; i < _targetLength; i++) {
+                $(_targetDiv[i]).stop().fadeOut(_time, function(){
+                    $(this).css('display', 'none');
+                });
+            }
+            $("#"+DIV.chartDiv +"-title-wrapper").width('180');
+            $("#"+DIV.chartDiv +"-title-wrapper").css('text-align', 'center');
+//            if(selectedAttrDisplay.length < 6) {
+                $("#"+DIV.chartDiv +"-title").text(selectedAttrDisplay);
+                $('#' + DIV.chartDiv +"-title").qtip('destroy', true);
+//            }
+        });
+    }
+    
     //Add all listener events
     function addEvents() {
         $("#"+DIV.chartDiv+"-pdf").submit(function(){
@@ -291,13 +325,10 @@ var PieChart = function(){
                 DIV.chartDiv+"-svg-value");
         });
         
-        StudyViewUtil
-            .showHideDivision("#"+DIV.mainDiv, 
-                            "#"+DIV.chartDiv+"-side",
-                            "#dc-plots");
-        StudyViewUtil
-            .showHideDivision("#"+DIV.mainDiv, 
-                            "#"+DIV.chartDiv+"-header");
+        showHideDivision("#"+DIV.mainDiv, 
+                        ["#"+DIV.chartDiv+"-side"], 300);
+        showHideDivision("#"+DIV.mainDiv, 
+                        ["#"+DIV.chartDiv+"-header"],0);
         
         if(plotDataButtonFlag) {
             $("#"+DIV.chartDiv+"-plot-data").click(function(){
@@ -471,7 +502,7 @@ var PieChart = function(){
             if(plotDataButtonFlag) {
                 _plotDataButtonDiv = "<input type='button' id='"+
                                     DIV.chartDiv+"-plot-data' "+
-                                    "style='font-size:10px' value='Survival'>";
+                                    "style='font-size:10px;clear:right;float:right;' value='Survival'>";
             }else {
                 _plotDataButtonDiv = "";
             }
@@ -483,20 +514,21 @@ var PieChart = function(){
                 className + "'  oValue='"+ selectedAttr + "," + 
                 selectedAttrDisplay + ",pie'>"+
                 "<div id='"+DIV.chartDiv+"-side' class='study-view-pdf-svg-side'>"+
-                "<form style='display:inline-block;' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-pdf'>"+
+                _plotDataButtonDiv + 
+                "<form style='display:inline-block;clear:right;float:right;' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-pdf'>"+
                 "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-pdf-value'>"+
                 "<input type='hidden' name='filetype' value='pdf'>"+
-                "<input type='hidden' id='"+DIV.chartDiv+"-pdf-name' name='filename' value='"+cancerStudyId + "_" +selectedAttr+".pdf'>"+
-                "<input type='submit' style='font-size:10px' value='PDF'>"+          
+                "<input type='hidden' id='"+DIV.chartDiv+"-pdf-name' name='filename' value='"+StudyViewParams.params.studyId + "_" +selectedAttr+".pdf'>"+
+                "<input type='submit' style='font-size:10px;' value='PDF'>"+          
                 "</form>"+
-                "<form style='display:inline-block' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-svg'>"+
+                "<form style='display:inline-block;clear:right;float:right;' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-svg'>"+
                 "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-svg-value'>"+
                 "<input type='hidden' name='filetype' value='svg'>"+
-                "<input type='hidden' id='"+DIV.chartDiv+"-svg-name' name='filename' value='"+cancerStudyId + "_" +selectedAttr+".svg'>"+
-                "<input type='submit' style='font-size:10px' value='SVG'></form>"+
-                _plotDataButtonDiv + 
-                "</div><div style='width:180px; float:right; text-align:center;'>"+
-                "<div style='height:16px;float:right' id='"+DIV.chartDiv+"-header'>"+
+                "<input type='hidden' id='"+DIV.chartDiv+"-svg-name' name='filename' value='"+StudyViewParams.params.studyId + "_" +selectedAttr+".svg'>"+
+                "<input type='submit' style='font-size:10px;clear:right;float:right;' value='SVG'></form>"+
+                "</div><div id='" + DIV.chartDiv +"-title-wrapper'" +
+                " style='width:180px; float:left; text-align:center;'>"+
+                "<div style='height:16px;float:right;' id='"+DIV.chartDiv+"-header'>"+
                 "<a href='javascript:StudyViewInitCharts.getChartsByID("+ 
                 chartID +").getChart().filterAll();" +
                 "dc.redrawAll();'><span title='Reset Chart'"+
@@ -511,9 +543,9 @@ var PieChart = function(){
                 "<div style='width:180px; text-align:center;float:left;'></div></div>");
             //Title has been cut with 8 head character with ..., so the length
             //still longer than titleLengthCutoff
-            if(_title.length > titleLengthCutoff) {
-                addQtip(selectedAttrDisplay, DIV.chartDiv +"-title");
-            }
+//            if(_title.length > titleLengthCutoff) {
+//                addQtip(selectedAttrDisplay, DIV.chartDiv +"-title");
+//            }
         }
     }
     

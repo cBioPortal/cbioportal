@@ -314,13 +314,14 @@
 .study-view-pdf-svg-side {
     position: absolute;
     //width: 35px;
-    border: 1px solid lightgrey;
+    left: 130px;
+/*    border: 1px solid lightgrey;
     left: 180px;
     top: 15px;
     z-index: 20;
     padding: 2px 2px 4px 0;
     background-color: white;
-    border-left-width: 0;
+    border-left-width: 0;*/
 }
 .study-view-pdf-svg-side.bar {
     left: 375px;
@@ -436,6 +437,7 @@ chartTitleH4{
     font-size: 10px;
     color: black;
     font-weight: bold;
+    padding-left: 5px;
 }
 pieH3{
     font-size: 10px;

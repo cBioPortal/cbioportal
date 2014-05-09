@@ -629,6 +629,17 @@
                         "sClass": "center-align-td",
                         "bSearchable": false,
                         "mDataProp": function(source,type,value) {
+                            var countByKey = function() {
+                                var key = mutations.getValue(source[0], "key");
+                                var byHugoData = genomicEventObs.pancan_mutation_frequencies[key];
+
+                                var total_mutation_count = _.reduce(byHugoData, function(acc, next) {
+                                    return acc + next.count;
+                                }, 0);
+
+                                return total_mutation_count;
+                            };
+                            
                             if (type === 'display') {
                                 if (genomicEventObs.pancan_mutation_frequencies) {
 
@@ -642,28 +653,26 @@
                                     };
                                     var thumbnail_template = _.template("<div class='pancan_mutations_histogram_thumbnail' gene='{{gene}}' keyword='{{keyword}}'></div>");
 
-                                    return thumbnail_template({gene: hugo, keyword: keyword});
+                                    var ret = thumbnail_template({gene: hugo, keyword: keyword});
+                                    
+                                    var count = countByKey();
+                                    ret += "<div style='float:right'>"+count+"</div>";
+                                        
+                                    return ret;
                                 } else {
                                     return "<img width='15' height='15' id='pancan_mutations_histogram' src='images/ajax-loader.gif'/>";
                                 }
                             }
                             else if (type === "sort") {
                                 if (genomicEventObs.pancan_mutation_frequencies) {
-                                    var hugo = mutations.getValue(source[0], "gene");
-                                    var byHugoData = genomicEventObs.pancan_mutation_frequencies[hugo];
-
-                                    var total_mutation_count = _.reduce(byHugoData, function(acc, next) {
-                                        return acc + next.count;
-                                    }, 0);
-
-                                    return total_mutation_count;
+                                    return countByKey();
                                 }
                             }
                             else if (type === "type") {
                                 return 0.0;
                             }
 
-                            return "foobar";
+                            return "";
                         },
                         "asSorting": ["desc", "asc"]
                     },

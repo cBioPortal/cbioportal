@@ -1140,7 +1140,7 @@ var StudyViewInitCharts = (function(){
             initData(_data);
             initCharts(_data);
             createLayout();
-            updateDataTableCallbackFuncs();
+//            updateDataTableCallbackFuncs();
             filterCharts();
         },
         

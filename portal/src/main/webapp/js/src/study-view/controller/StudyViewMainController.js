@@ -11,7 +11,7 @@
 var StudyViewMainController = (function() {
     var callbackFunc = function (_data) {
         StudyViewSummaryTabController.init(_data);
-        StudyViewClinicalTabController.init();
+        StudyViewClinicalTabController.init(_data);
         if (StudyViewParams.params.mutationProfileId){
             StudyViewMutationsTabController.init();
         }

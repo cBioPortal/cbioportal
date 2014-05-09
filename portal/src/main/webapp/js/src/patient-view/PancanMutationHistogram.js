@@ -437,8 +437,8 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
     function qtip_template(d, total) {
         var count = d.count || 0;
         if (!('frequency' in d)) d.frequency = count / total;
-        var percent = percent_format(d.frequency || 0);
-        return (_.template("<span>{{percent}} ({{count}} of {{total}} sequenced samples)</span>"))({percent: percent, count: count, total: total});
+        var percent = (d.frequency * 100).toFixed(1)+'%';
+        return (_.template("<span><b>{{percent}}</b> (<b>{{count}}</b> of {{total}} sequenced samples)</span>"))({percent: percent, count: count, total: total});
     }
     
     function countText(bykeyword, bygene, total) {

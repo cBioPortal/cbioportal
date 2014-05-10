@@ -45,7 +45,7 @@ var StudyViewSurvivalPlotView = (function() {
     function getInitStatus() {
         return initStatus;
     }
-
+    
     function addEvents(_plotIndex) {
         var _opts = opts[_plotIndex],
             _title = $("#" + _opts.divs.main + " charttitleh4").text();
@@ -58,63 +58,7 @@ var StudyViewSurvivalPlotView = (function() {
         }
 
         //$('#' + _opts.divs.main + ' svg image').unbind('hover');
-        $('#' + _opts.divs.main + ' svg image').hover(function() {
-            $(this).css('cursor', 'pointer');
-        });
-
-        $('#' + _opts.divs.main + ' svg image').unbind('click');
-        $('#' + _opts.divs.main + ' svg image').click(function() {
-            if ($(this).attr('name') === 'pin') {
-
-                //The following functions will be excuted after user inputting
-                //the curve name, so we need to give it a call back function.
-                nameCurveDialog(this, saveCurveInfoFunc, _plotIndex);
-
-            } else if ($(this).attr('name') === 'close') {
-                var _parent = $(this).parent(),
-                        _name = $(_parent).find('text').attr('oValue'),
-                    _color = $(_parent).find('rect').attr('fill'),
-                    _index = $(this).parent().index();
-
-                $(_parent).remove();
-                removeCurveFunc(_index, _plotIndex);
-                redrawLabel(_plotIndex);
-                survivalPlot[_plotIndex].removeCurve(_color.toString().substring(1) + "-" + _plotIndex);
-            } else if ($(this).attr('name') === 'saved-close') {
-                var _parent = $(this).parent(),
-                    _name = $(_parent).find('text').attr('oValue');
-
-                $(_parent).remove();
-                undoSavedCurve(_name, _plotIndex);
-                removeSavedCurveFunc(_name, _plotIndex);
-                redrawLabel(_plotIndex);
-            } else {
-                //TODO: Add more function
-            }
-        });
-
-        //$('#' + _opts.divs.main + ' svg rect').unbind('hover');
-        $('#' + _opts.divs.main + ' svg rect').hover(function() {
-            $(this).css('cursor', 'pointer');
-        });
-
-        $('#' + _opts.divs.main + ' svg rect').unbind('click');
-        $('#' + _opts.divs.main + ' svg rect').click(function() {
-            var _text = $($(this).parent()).find('text:first'),
-                    _rgbRect = StudyViewUtil.rgbStringConvert($(this).css('fill')),
-                    _rgbText = StudyViewUtil.rgbStringConvert($(_text).css('fill')),
-                    _rectColor = StudyViewUtil.rgbToHex(_rgbRect[0], _rgbRect[1], _rgbRect[2]),
-                    _textColor = StudyViewUtil.rgbToHex(_rgbText[0], _rgbText[1], _rgbText[2]);
-
-            if (_textColor === '#000000') {
-                $(_text).css('fill', 'red');
-                highlightCurve(_rectColor.substring(1) + "-" + _plotIndex);
-            } else {
-                $(_text).css('fill', 'black');
-                resetCurve(_rectColor.substring(1) + "-" + _plotIndex);
-            }
-
-        });
+        
 
         $("#" + _opts.divs.pdf).unbind('submit');
         $("#" + _opts.divs.pdf).submit(function() {
@@ -378,7 +322,7 @@ var StudyViewSurvivalPlotView = (function() {
                 "<input type='hidden' id='" + _opt.divs.svgName + "' name='filename' value=''>" +
                 "<input type='submit' style='font-size:10px' value='SVG'>" +
                 "</form>" +
-                "<img id='" + _opt.divs.menu + "' class='study-view-menu-icon' style='float:left; width:10px; height:10px;margin-top:4px; margin-right:4px;' class='study-view-menu-icon' src='images/menu.svg'/>" +
+//                "<img id='" + _opt.divs.menu + "' class='study-view-menu-icon' style='float:left; width:10px; height:10px;margin-top:4px; margin-right:4px;' class='study-view-menu-icon' src='images/menu.svg'/>" +
                 "<img style='float:left; width:10px; height:10px;margin-top:4px; margin-right:4px;' class='study-view-drag-icon' src='images/move.svg'/>" +
                 "<span class='study-view-chart-plot-delete study-view-survival-plot-delete'>x</span>" +
                 "</div></div>" +
@@ -676,7 +620,9 @@ var StudyViewSurvivalPlotView = (function() {
             for (var i = 0; i < _curveInfoLength; i++) {
                 survivalPlot[j].removeCurve(curveInfo[j][i].color.toString().substring(1) + "-" + opts[j].index);
             }
-
+            
+            $("#" + opts[j].divs.main).qtip('destroy', true);
+            
             kmEstimator = "";
             logRankTest = "";
             delete curveInfo[j];
@@ -745,6 +691,76 @@ var StudyViewSurvivalPlotView = (function() {
                 drawSavedLabels(_plotIndex, _svg, (_newLabelsLength + 1) * 20, _width);
             }
         }
+        
+        $("#" + opts[_plotIndex].divs.main).qtip({
+            id: opts[_plotIndex].divs.bodyLabel + "-qtip",
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+            show: {event: "mouseover"},
+            hide: {fixed:true, delay: 100, event: "mouseout"},
+            position: {my:'right center',at:'center left', viewport: $(window)},
+            content: $("#" + opts[_plotIndex].divs.bodyLabel).html(),
+            events: {
+                render: function(event, api) {
+                    $('svg image', api.elements.tooltip).hover(function() {
+                        $(this).css('cursor', 'pointer');
+                    });
+
+                    $('svg image', api.elements.tooltip).unbind('click');
+                    $('svg image', api.elements.tooltip).click(function() {
+                        if ($(this).attr('name') === 'pin') {
+
+                            //The following functions will be excuted after user inputting
+                            //the curve name, so we need to give it a call back function.
+                            nameCurveDialog(this, saveCurveInfoFunc, _plotIndex);
+
+                        } else if ($(this).attr('name') === 'close') {
+                            var _parent = $(this).parent(),
+                                    _name = $(_parent).find('text').attr('oValue'),
+                                _color = $(_parent).find('rect').attr('fill'),
+                                _index = $(this).parent().index();
+
+                            $(_parent).remove();
+                            removeCurveFunc(_index, _plotIndex);
+                            redrawLabel(_plotIndex);
+                            survivalPlot[_plotIndex].removeCurve(_color.toString().substring(1) + "-" + _plotIndex);
+                        } else if ($(this).attr('name') === 'saved-close') {
+                            var _parent = $(this).parent(),
+                                _name = $(_parent).find('text').attr('oValue');
+
+                            $(_parent).remove();
+                            undoSavedCurve(_name, _plotIndex);
+                            removeSavedCurveFunc(_name, _plotIndex);
+                            redrawLabel(_plotIndex);
+                        } else {
+                            //TODO: Add more function
+                        }
+                    });
+
+                    //$('#' + _opts.divs.main + ' svg rect').unbind('hover');
+                    $('svg rect', api.elements.tooltip).hover(function() {
+                        $(this).css('cursor', 'pointer');
+                    });
+
+                    $('svg rect', api.elements.tooltip).unbind('click');
+                    $('svg rect', api.elements.tooltip).click(function() {
+                        var _text = $($(this).parent()).find('text:first'),
+                                _rgbRect = StudyViewUtil.rgbStringConvert($(this).css('fill')),
+                                _rgbText = StudyViewUtil.rgbStringConvert($(_text).css('fill')),
+                                _rectColor = StudyViewUtil.rgbToHex(_rgbRect[0], _rgbRect[1], _rgbRect[2]),
+                                _textColor = StudyViewUtil.rgbToHex(_rgbText[0], _rgbText[1], _rgbText[2]);
+
+                        if (_textColor === '#000000') {
+                            $(_text).css('fill', 'red');
+                            highlightCurve(_rectColor.substring(1) + "-" + _plotIndex);
+                        } else {
+                            $(_text).css('fill', 'black');
+                            resetCurve(_rectColor.substring(1) + "-" + _plotIndex);
+                        }
+
+                    });
+                }
+            }
+        });
     }
     
     /**
@@ -888,6 +904,7 @@ var StudyViewSurvivalPlotView = (function() {
      * @param {type} _plotIndex
      */
     function redrawLabel(_plotIndex) {
+        $("#" + opts[_plotIndex].divs.main).qtip('destroy', true);
         $("#" + opts[_plotIndex].divs.bodyLabel + " svg").remove();
         drawLabels(_plotIndex);
         addEvents(_plotIndex);

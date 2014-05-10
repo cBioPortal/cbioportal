@@ -326,7 +326,7 @@ var PieChart = function(){
         });
         
         showHideDivision("#"+DIV.mainDiv, 
-                        ["#"+DIV.chartDiv+"-side"], 300);
+                        ["#"+DIV.chartDiv+"-side"], 200);
         showHideDivision("#"+DIV.mainDiv, 
                         ["#"+DIV.chartDiv+"-header"],0);
         

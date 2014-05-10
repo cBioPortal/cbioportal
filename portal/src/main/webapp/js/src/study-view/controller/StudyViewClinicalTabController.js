@@ -20,14 +20,16 @@ var StudyViewClinicalTabController = (function(){
         dataTableNumericFilter = [];
     
     function init(_data){
-        initParam(_data);
+//        initParam(_data);
         
-        StudyViewInitClinicalTab
-                .init(
-                    'clinical_table',
-                    aoColumns,
-                    aaData
-                );
+//        StudyViewInitClinicalTab
+//                .init(
+//                    'clinical_table',
+//                    aoColumns,
+//                    aaData
+//                );
+
+        StudyViewInitClinicalTab.init('clinical_table', _data);
     }
     
     function initContentData() {

@@ -36,6 +36,7 @@ var DataTable = function() {
         aoColumnsLength,
         aaDataLength,
         dataTable,
+        tableId,
         dataType = [],
         dataTableNumericFilter = [],
         disableFiltId = [0],
@@ -46,8 +47,10 @@ var DataTable = function() {
     var rowClickCallback,
         rowShiftClickCallback;
     
-    function initParam(_data) {
+    function initParam(_tableId, _data) {
         var i;
+        
+        tableId = _tableId;
         
         attr = _data.attr;
         arr = _data.arr;
@@ -154,9 +157,9 @@ var DataTable = function() {
     
     //Initialize the basic dataTable component by using jquery.dataTables.min.js
     function initDataTable() {
-        dataTable = $('#data-table-chart #dataTable').dataTable({
+        dataTable = $('#' + tableId).dataTable({
             "sScrollX": "1200px",
-            "sScrollY": "300px",
+            "sScrollY": "200px",
             "bPaginate": false,
             "bScrollCollapse": true,
             "aoColumns": aoColumns,
@@ -189,7 +192,7 @@ var DataTable = function() {
     //Add th tags based on number of attributes
     function initDataTableTfoot() {
         for( var i = 0; i < aoColumnsLength; i++ ){
-            $("#dataTable tfoot tr").append("<th></th>");
+            $("#" + tableId+" tfoot tr").append("<th></th>");
             columnIndexMappingColumnId[i] = i;
         }
     }
@@ -242,76 +245,77 @@ var DataTable = function() {
         });
         
         //Set mouse down timeout to seperate click and mousedown and hold
-        var _timeOut = 0;
-        $("#dataTable tbody").mousedown(function(event){
-            var _d = new Date();
-            _timeOut= _d.getTime();
-            //Tried couple times, only prevent default function in here works.
-            //The shiftKey click function should be originally combined with
-            //mousedown function.
-            if(event.shiftKey){
-                event.preventDefault();
-            }
-        }).bind('mouseup', function(event) {
-            var _d = new Date();
-            _timeOut= _d.getTime()-_timeOut;
-            
-            if(_timeOut < 500){
-                mouseDownFunc(event);
-            }
-        });;
+//        var _timeOut = 0;
+//        $("#" + tableId+" tbody").mousedown(function(event){
+//            var _d = new Date();
+//            _timeOut= _d.getTime();
+//            //Tried couple times, only prevent default function in here works.
+//            //The shiftKey click function should be originally combined with
+//            //mousedown function.
+//            if(event.shiftKey){
+//                event.preventDefault();
+//            }
+//        }).bind('mouseup', function(event) {
+//            var _d = new Date();
+//            _timeOut= _d.getTime()-_timeOut;
+//            
+//            if(_timeOut < 500){
+//                mouseDownFunc(event);
+//            }
+//        });;
         
-        function mouseDownFunc(event) {
-            var _selectedRowCaseId = [],
-                _deSelect = false;
-        
-            if(event.shiftKey){
-                event.preventDefault();
-
-                if($(event.target.parentNode).hasClass('row_selected')){
-                    $(event.target.parentNode).removeClass('row_selected');
-                    if($(event.target.parentNode).hasClass('odd')){
-                       $(event.target.parentNode).css('background-color','#E2E4FF'); 
-                    }else{
-                        $(event.target.parentNode).css('background-color','white');
-                    }
-                }else{
-                    $(event.target.parentNode).addClass('row_selected');
-                    $(event.target.parentNode).css('background-color','lightgray');
-                }
-                
-                _selectedRowCaseId = getRowSelectedCases();
-                rowShiftClickCallback(_selectedRowCaseId);
-                
-            }else{
-                if($(event.target.parentNode).hasClass('row_selected')){
-                    $(event.target.parentNode).removeClass('row_selected');
-                    if($(event.target.parentNode).hasClass('odd')){
-                       $(event.target.parentNode).css('background-color','#E2E4FF'); 
-                    }else{
-                        $(event.target.parentNode).css('background-color','white');
-                    }
-                    _deSelect = true;
-                }else{
-                    $(dataTable.fnSettings().aoData).each(function (){
-                        if($(this.nTr).hasClass('row_selected')){
-                            $(this.nTr).removeClass('row_selected');
-                            if($(this.nTr).hasClass('odd')){
-                               $(this.nTr).css('background-color','#E2E4FF'); 
-                            }else{
-                                $(this.nTr).css('background-color','white');
-                            }
-                        }
-                    });
-
-                    $(event.target.parentNode).addClass('row_selected');
-                    $(event.target.parentNode).css('background-color','lightgray');
-                }
-                
-                _selectedRowCaseId = getRowSelectedCases();
-                rowClickCallback(_deSelect, _selectedRowCaseId);
-            }
-        }
+//        function mouseDownFunc(event) {
+//            var _selectedRowCaseId = [],
+//                _deSelect = false;
+//        
+//            if(event.shiftKey){
+//                event.preventDefault();
+//
+//                if($(event.target.parentNode).hasClass('row_selected')){
+//                    $(event.target.parentNode).removeClass('row_selected');
+//                    if($(event.target.parentNode).hasClass('odd')){
+//                       $(event.target.parentNode).css('background-color','#E2E4FF'); 
+//                    }else{
+//                        $(event.target.parentNode).css('background-color','white');
+//                    }
+//                }else{
+//                    $(event.target.parentNode).addClass('row_selected');
+//                    $(event.target.parentNode).css('background-color','lightgray');
+//                }
+//                
+//                _selectedRowCaseId = getRowSelectedCases();
+//                rowShiftClickCallback(_selectedRowCaseId);
+//                
+//            }else{
+//                if($(event.target.parentNode).hasClass('row_selected')){
+//                    $(event.target.parentNode).removeClass('row_selected');
+//                    if($(event.target.parentNode).hasClass('odd')){
+//                       $(event.target.parentNode).css('background-color','#E2E4FF'); 
+//                    }else{
+//                        $(event.target.parentNode).css('background-color','white');
+//                    }
+//                    _deSelect = true;
+//                }else{
+//                    $(dataTable.fnSettings().aoData).each(function (){
+//                        if($(this.nTr).hasClass('row_selected')){
+//                            $(this.nTr).removeClass('row_selected');
+//                            if($(this.nTr).hasClass('odd')){
+//                               $(this.nTr).css('background-color','#E2E4FF'); 
+//                            }else{
+//                                $(this.nTr).css('background-color','white');
+//                            }
+//                        }
+//                    });
+//
+//                    $(event.target.parentNode).addClass('row_selected');
+//                    $(event.target.parentNode).css('background-color','lightgray');
+//                }
+//                
+//                _selectedRowCaseId = getRowSelectedCases();
+//                rowClickCallback(_deSelect, _selectedRowCaseId);
+//            }
+//        }
+    
     }
     
     function getRowSelectedCases() {
@@ -431,7 +435,7 @@ var DataTable = function() {
     function resizeLeftColumn(){
         var _heightBody = $(".dataTables_scrollBody").css('height'),
             _heightTable = $('.dataTables_scroll').css('height'),
-            _widthBody = $("#dataTable tbody>tr:nth-child(1)>td:nth-child(1)").width();
+            _widthBody = $("#" + tableId + " tbody>tr:nth-child(1)>td:nth-child(1)").width();
         
         _widthBody = _widthBody + 22;
         _widthBody = _widthBody.toString() + 'px';
@@ -630,15 +634,15 @@ var DataTable = function() {
     //StudyViewSummaryTabController
     function resizeTable(){
         //Before resize data table, the window should be showed first
-        $('#dc-plots-loading-wait').hide();
-        $('#study-view-main').show();
+//        $('#dc-plots-loading-wait').hide();
+//        $('#study-view-main').show();
          
         refreshSelectionInDataTable();
         
         //Resize column size first, then add left column
-        dataTable.fnAdjustColumnSizing();
-        
-        if($("#dataTable").width() > 1200) {
+//        dataTable.fnAdjustColumnSizing();
+//        console.log($("#" + tableId).width());
+//        if($("#" + tableId).width() > 1200) {
             new FixedColumns(dataTable);
 
             //Have to add in there
@@ -652,16 +656,19 @@ var DataTable = function() {
             //DTFC_LeftBodyLiner width
             var _widthLeftWrapper = $('.DTFC_LeftWrapper').width();
             $('.DTFC_LeftBodyLiner').css('width', _widthLeftWrapper+4);//Column has table spacing
-        }else {
-            $('#data-table-chart .dataTables_scrollBody').css('overflow-x', 'hidden');
-        }
+//        }else {
+//            $('#clinical-data-table-div .dataTables_scrollBody').css('overflow-x', 'hidden');
+//        }
+        dataTable.fnAdjustColumnSizing();
+//        resizeLeftColumn();
     }
     
     return {
-        init: function(_data) {
-            initParam(_data);
+        init: function(_tableId, _data) {
+            initParam(_tableId, _data);
             initDataTableTfoot();
             initDataTable();
+            resizeTable();
             addEvents();
         },
         

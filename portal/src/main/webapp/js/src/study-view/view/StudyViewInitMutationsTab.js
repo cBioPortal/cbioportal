@@ -25,8 +25,14 @@ var StudyViewInitMutationsTab = (function(){
             ix.push([i]);
         }
 
+         tabOpened = false;
         var oTable = $('#smg_table').dataTable( {
-            "sDom": '<"H"<"smg-table-name">fr>t<"F"<"datatable-paging"pil>>', // selectable columns
+            "sScrollY": "500px",
+            "bPaginate": false,
+            "bScrollCollapse": true,
+            "sScrollX": "100%",
+            "sScrollXInner": "100%",
+            "sDom": '<"H"<"smg-table-name">fr>t>',
             "bJQueryUI": true,
             "bDestroy": true,
             "aaData": ix,
@@ -145,9 +151,7 @@ var StudyViewInitMutationsTab = (function(){
                 "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                 "sInfoFiltered": "",
                 "sLengthMenu": "Show _MENU_ per page"
-            },
-            "iDisplayLength": 25,
-            "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
+            }
         });
 
         oTable.css("width","100%");
@@ -160,8 +164,20 @@ var StudyViewInitMutationsTab = (function(){
         });
 
         $('.smg-table-name').addClass('data-table-name');
-
+        
         $('#smg_wrapper_table').show();
+        
+        if ($('#study-tab-mutations-a').hasClass('selected')) {
+            oTable.fnAdjustColumnSizing();
+            $('#study-tab-mutations-a').addClass("tab-clicked")
+        }
+        
+        $('#study-tab-mutations-a').click(function(){
+            if (!$(this).hasClass("tab-clicked")) {
+                oTable.fnAdjustColumnSizing();
+                $(this).addClass("tab-clicked");
+            }
+        });
     }
     
     return{

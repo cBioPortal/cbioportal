@@ -52,6 +52,7 @@ ucsc_cancer_genomics.url=https://genome-cancer.ucsc.edu/hgHeatmap/#?
 segfile.url=http://cbio.mskcc.org/cancergenomics/su2c-portal/seg/
 r_installed=true
 include_networks=true
+google_analytics_profile_id=
 about=about_us_su2c.html
 news=news_su2c.html
 examples_right_column=examples_su2c.html

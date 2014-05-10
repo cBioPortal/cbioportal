@@ -66,13 +66,16 @@ var MutationDetailsUtil = function(mutations)
 
 		var positions = [];
 
-		for(var i=0; i < mutations.length; i++)
+		if (mutations != null)
 		{
-			var position = {id: mutations[i].id,
-				start: mutations[i].getProteinStartPos(),
-				end: mutations[i].proteinPosEnd};
+			for(var i=0; i < mutations.length; i++)
+			{
+				var position = {id: mutations[i].id,
+					start: mutations[i].getProteinStartPos(),
+					end: mutations[i].proteinPosEnd};
 
-			positions.push(position);
+				positions.push(position);
+			}
 		}
 
 		return positions;
@@ -255,9 +258,10 @@ var MutationDetailsUtil = function(mutations)
     {
         var self = this;
         gene = gene.toUpperCase();
-        if (_mutationGeneMap[gene] != undefined)
+	    var mutations = _mutationGeneMap[gene];
+
+        if (mutations != null)
         {
-            var mutations = _mutationGeneMap[gene];
             var prevStudy = null;
 
             for (var i=0; i < mutations.length; i++)
@@ -306,7 +310,8 @@ var MutationDetailsUtil = function(mutations)
 	this.containsGermline = function(gene)
 	{
 		return this._contains(gene, function(mutation) {
-			return (mutation.mutationStatus.toLowerCase() == GERMLINE);
+			return (mutation.mutationStatus &&
+			        mutation.mutationStatus.toLowerCase() == GERMLINE);
 		});
 	};
 
@@ -318,7 +323,8 @@ var MutationDetailsUtil = function(mutations)
 	this.containsValidStatus = function(gene)
 	{
 		return this._contains(gene, function(mutation) {
-			return (mutation.validationStatus.toLowerCase() == VALID);
+			return (mutation.validationStatus &&
+			        mutation.validationStatus.toLowerCase() == VALID);
 		});
 	};
 
@@ -330,7 +336,8 @@ var MutationDetailsUtil = function(mutations)
 	this.containsIgvLink = function(gene)
 	{
 		return this._contains(gene, function(mutation) {
-			return (mutation.igvLink != null);
+			return (mutation.igvLink &&
+			        mutation.igvLink != "NA");
 		});
 	};
 
@@ -361,6 +368,87 @@ var MutationDetailsUtil = function(mutations)
 		});
 	};
 
+	this.containsCaseId = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.caseId &&
+			        mutation.caseId != "NA");
+		});
+	};
+
+	this.containsChr = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.chr &&
+			        mutation.chr != "NA");
+		});
+	};
+
+	this.containsStartPos = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.startPos &&
+			        mutation.startPos > 0);
+		});
+	};
+
+	this.containsRefAllele = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.referenceAllele &&
+			        mutation.referenceAllele != "NA");
+		});
+	};
+
+	this.containsVarAllele = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.variantAllele &&
+			        mutation.variantAllele != "NA");
+		});
+	};
+
+	this.containsEndPos = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.endPos &&
+			        mutation.endPos > 0);
+		});
+	};
+
+	this.containsFis = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.functionalImpactScore &&
+			        mutation.functionalImpactScore != "NA");
+		});
+	};
+
+	this.containsCosmic = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.cosmic &&
+			        mutation.cosmicCount &&
+					mutation.cosmicCount > 0);
+		});
+	};
+
+	this.containsMutationType = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.mutationType &&
+			        mutation.mutationType != "NA");
+		});
+	};
+
+	this.containsMutationCount = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.mutationCount &&
+			        mutation.mutationCount > 0);
+		});
+	};
+
 	/**
 	 * Returns the number of distinct tumor type values for
 	 * the given gene
@@ -371,13 +459,11 @@ var MutationDetailsUtil = function(mutations)
 	this.distinctTumorTypeCount = function(gene)
 	{
 		gene = gene.toUpperCase();
-
+		var mutations = _mutationGeneMap[gene];
 		var tumorTypeMap = {};
 
-		if (_mutationGeneMap[gene] != undefined)
+		if (mutations != null)
 		{
-			var mutations = _mutationGeneMap[gene];
-
 			for (var i=0; i < mutations.length; i++)
 			{
 				if (mutations[i].tumorType)
@@ -403,13 +489,11 @@ var MutationDetailsUtil = function(mutations)
 	this.dataFieldCount = function(gene, dataField, excludeList)
 	{
 		gene = gene.toUpperCase();
-
+		var mutations = _mutationGeneMap[gene];
 		var valueCountMap = {};
 
-		if (_mutationGeneMap[gene] != undefined)
+		if (mutations != null)
 		{
-			var mutations = _mutationGeneMap[gene];
-
 			for (var i=0; i < mutations.length; i++)
 			{
 				var value = mutations[i][dataField];

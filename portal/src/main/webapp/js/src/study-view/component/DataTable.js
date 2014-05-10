@@ -244,6 +244,18 @@ var DataTable = function() {
             }, 500 );
         });
         
+        if ($('#study-tab-clinical-a').hasClass('selected')) {
+            dataTable.fnAdjustColumnSizing();
+            $('#study-tab-cna-a').addClass("tab-clicked")
+        }
+        
+        $('#study-tab-clinical-a').click(function(){
+            if (!$(this).hasClass("tab-clicked")) {
+                dataTable.fnAdjustColumnSizing();
+                $(this).addClass("tab-clicked");
+            }
+        });
+        
         //Set mouse down timeout to seperate click and mousedown and hold
 //        var _timeOut = 0;
 //        $("#" + tableId+" tbody").mousedown(function(event){

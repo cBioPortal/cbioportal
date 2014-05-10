@@ -25,7 +25,6 @@ var StudyViewInitMutationsTab = (function(){
             ix.push([i]);
         }
 
-         tabOpened = false;
         var oTable = $('#smg_table').dataTable( {
             "sScrollY": "500px",
             "bPaginate": false,

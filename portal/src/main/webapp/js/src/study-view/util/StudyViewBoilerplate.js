@@ -135,7 +135,7 @@ var StudyViewBoilerplate ={
         text: {
             xTitle: "Fraction of copy number altered genome",
             yTitle: "# of mutations",
-            title: "Mutation Count vs Copy Number Alterations",
+            title: "Mutation Count vs CNA",
             fileName: "",
             xTitleHelp: "Fraction of genome that has log2 copy number value above 0.2 or bellow -0.2",
             yTitleHelp: "Number of sometic non-synonymous mutations"
@@ -288,7 +288,7 @@ var StudyViewBoilerplate ={
             "data-step='1' data-intro='Scatter Plot<br/>x: CNA<br/>y: MUTATIONS COUNT'>" +
             "<div id='study-view-scatter-plot-header-wrapper' style='float:right; width: 100%; height: 22px;'>"+
             "<chartTitleH4 id='study-view-scatter-plot-title'>"+
-            "Mutation Count vs Copy Number Alterations</chartTitleH4>"+
+            "Mutation Count vs CNA</chartTitleH4>"+
             "<div id='study-view-scatter-plot-header'>"+
             
             "<form style='display:inline-block; margin-right:5px; float:left' action='svgtopdf.do' method='post' id='study-view-scatter-plot-pdf'>"+

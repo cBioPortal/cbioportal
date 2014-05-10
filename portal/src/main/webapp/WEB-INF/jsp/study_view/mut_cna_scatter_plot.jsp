@@ -7,7 +7,7 @@
 </style>
 
 <fieldset style="padding:0px 1px">
-    <legend style="color:blue;font-weight:bold;">Mutation Count vs Copy Number Alterations</legend>
+    <legend style="color:blue;font-weight:bold;">Mutation Count vs CNA</legend>
     <div id="case-id-div" style="float:right;position:relative;z-index:1;margin-right:10px;"></div>
     <div id="mut-cna-scatter-plot" class="large-plot-div">
         <img src="images/ajax-loader.gif"/>

@@ -178,6 +178,7 @@ var hasCnaSegmentData = <%=hasCnaSegmentData%>;
 var hasMutSig = <%=hasMutSig%>;
 var caseSetId = '<%=caseSetId%>';
 var caseIds = <%=jsonCaseIds%>;
+var cancer_study_id = cancerStudyId; //Some components using this as global ID
 
 $(document).ready(function(){
     setUpStudyTabs();

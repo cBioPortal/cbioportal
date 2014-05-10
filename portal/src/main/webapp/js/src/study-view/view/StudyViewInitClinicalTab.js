@@ -22,7 +22,8 @@ var StudyViewInitClinicalTab = (function(){
             "aoColumns":aoColumns,
             "aaData": aaData,
             "sScrollX": "1200px",
-            "bScrollCollapse": true
+            "bScrollCollapse": true,
+            "iDisplayLength": 25
         });
         
         oTable.css("width","100%");

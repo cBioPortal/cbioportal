@@ -45,16 +45,8 @@ var DataTable = function() {
     
     var rowClickCallback,
         rowShiftClickCallback;
-
-    var parObject = {
-        studyId: "",
-        caseIds: "",
-        cnaProfileId: "",
-        mutationProfileId: "",
-        caseSetId: ""
-    };
     
-    function initParam(_param, _data) {
+    function initParam(_data) {
         var i;
         
         attr = _data.attr;
@@ -62,12 +54,6 @@ var DataTable = function() {
         
         attrLength = attr.length;
         arrLength = arr.length;
-        
-        parObject.studyId = _param.studyId;
-        parObject.caseIds = _param.caseIds;
-        parObject.cnaProfileId = _param.cnaProfileId;
-        parObject.mutationProfileId = _param.mutationProfileId;
-        parObject.caseSetId = _param.caseSetId;
         
         for( i = 0; i < attrLength; i++ ){
             if(attr[i]["datatype"] === "NUMBER"){
@@ -110,29 +96,34 @@ var DataTable = function() {
     
     //Initialize aaData Data
     function initContentData() {
+        var _arrKeys = Object.keys(arr),
+            _arrKeysLength = _arrKeys.length;
         aaData.length = 0;
-        
-        $.each(arr, function(key,value){ 
+        for ( var i = 0; i< _arrKeysLength; i++) {
+            var _key = _arrKeys[i],
+                _value = arr[_key],
+                _aoColumnsLength = aoColumns.length;
             
-            aaData[key] = [];
+            aaData[_key] = [];
             
-            $.each(aoColumns, function(key1,value1){
-                var _selectedString,
+            for ( var j = 0; j < _aoColumnsLength; j++) {
+                var _valueAo = aoColumns[j],
+                    _selectedString,
                     _specialCharLength,
                     _tmpValue ='',
                     _specialChar = ['(',')','/','?','+'];
 
-                if(value1.sTitle === 'CNA'){
-                    _tmpValue = value['COPY_NUMBER_ALTERATIONS'];                
-                }else if ( value1.sTitle === 'COMPLETE (ACGH, MRNA, SEQUENCING)'){
-                    _tmpValue = value[value1.sTitle];
-                }else if ( value1.sTitle === 'CASE ID'){
+                if(_valueAo.sTitle === 'CNA'){
+                    _tmpValue = _value['COPY_NUMBER_ALTERATIONS'];                
+                }else if ( _valueAo.sTitle === 'COMPLETE (ACGH, MRNA, SEQUENCING)'){
+                    _tmpValue = _value[_valueAo.sTitle];
+                }else if ( _valueAo.sTitle === 'CASE ID'){
                     _tmpValue = "<a href='tumormap.do?case_id=" + 
-                    value['CASE_ID'] + "&cancer_study_id=" +
-                    parObject.studyId + "' target='_blank'><span style='color: #2986e2'>" + 
-                    value['CASE_ID'] + "</span></a></strong>";
+                    _value['CASE_ID'] + "&cancer_study_id=" +
+                    StudyViewParams.params.studyId + "' target='_blank'><span style='color: #2986e2'>" + 
+                    _value['CASE_ID'] + "</span></a></strong>";
                 }else{
-                    _tmpValue = value[value1.sTitle.replace(/[ ]/g,'_')];
+                    _tmpValue = _value[_valueAo.sTitle.replace(/[ ]/g,'_')];
                 }
                 if(!isNaN(_tmpValue) && (_tmpValue % 1 !== 0)){
                     _tmpValue = cbio.util.toPrecision(Number(_tmpValue),3,0.01);
@@ -142,14 +133,12 @@ var DataTable = function() {
                 _selectedString = _tmpValue.toString();
                 _specialCharLength = _specialChar.length;
                 
-                if ( value1.sTitle !== 'CASE ID'){
-                    var j;
-                    
-                    for( j = 0; j < _specialCharLength; j++){
-                        if(_selectedString.indexOf(_specialChar[j]) !== -1){
-                            var _re = new RegExp("\\" + _specialChar[j], "g");
+                if ( _valueAo.sTitle !== 'CASE ID'){
+                    for( var z = 0; z < _specialCharLength; z++){
+                        if(_selectedString.indexOf(_specialChar[z]) !== -1){
+                            var _re = new RegExp("\\" + _specialChar[z], "g");
                             
-                            _selectedString = _selectedString.replace(_re, _specialChar[j] + " ");
+                            _selectedString = _selectedString.replace(_re, _specialChar[z] + " ");
                         } 
                     }
                 }
@@ -157,16 +146,15 @@ var DataTable = function() {
                 if(_selectedString === 'NA'){
                     _selectedString = '';
                 }
-                aaData[key].push(_selectedString);
-            });
-        });
-        
+                aaData[_key].push(_selectedString);
+            }
+        }
         aaDataLength = aaData.length;
     }
     
     //Initialize the basic dataTable component by using jquery.dataTables.min.js
     function initDataTable() {
-        dataTable = $('#dataTable').dataTable({
+        dataTable = $('#data-table-chart #dataTable').dataTable({
             "sScrollX": "1200px",
             "sScrollY": "300px",
             "bPaginate": false,
@@ -365,10 +353,11 @@ var DataTable = function() {
     }
     
     //Create Regular Selector or Numeric Selector based on data type.
-    function fnCreateSelect( aData, index ){
+    function fnCreateSelect( aData, index, _this ){
         var _isNumericArray = true,
             _hasNullValue = false,
-            _numOfKeys = aData.length;
+            _numOfKeys = aData.length,
+            _width = $(_this).width() - 4;
     
         for(var i=0;i<aData.length;i++){
             if(isNaN(aData[i])){
@@ -397,7 +386,7 @@ var DataTable = function() {
         }
         
         if(!_isNumericArray || aData.length === 0 || (_isNumericArray && _numOfKeys < 10)){
-            var r='<select><option value=""></option>', i, iLen=aData.length;
+            var r='<select style="width: '+_width+'px"><option value=""></option>', i, iLen=aData.length;
             if(iLen === 0){
                 return "";
             }else{
@@ -565,7 +554,7 @@ var DataTable = function() {
             
             if(disableFiltId.indexOf(i) === -1){               
                 $(this).css('z-index','1500');
-                this.innerHTML = fnCreateSelect( dataTable.fnGetColumnData(columnIndexMappingColumnId[i]), i);
+                this.innerHTML = fnCreateSelect( dataTable.fnGetColumnData(columnIndexMappingColumnId[i]), i, this);
                 
                 var _drag = d3.behavior.drag()
                         .on("drag", selectorDragMove)
@@ -648,24 +637,29 @@ var DataTable = function() {
         
         //Resize column size first, then add left column
         dataTable.fnAdjustColumnSizing();
-        new FixedColumns(dataTable);
         
-        //Have to add in there
-        $(".DTFC_LeftBodyLiner").css("overflow-y","hidden");
-        //$(".dataTables_scroll").css("overflow-x","scroll");
-        $(".DTFC_LeftHeadWrapper").css("background-color","white");
-        $(".DTFC_LeftFootWrapper").css('background-color','white');
-        
-        //After resizing left column, the width of DTFC_LeftWrapper is different
-        //with width DTFC_LeftBodyLiner, need to rewrite the width of
-        //DTFC_LeftBodyLiner width
-        var _widthLeftWrapper = $('.DTFC_LeftWrapper').width();
-        $('.DTFC_LeftBodyLiner').css('width', _widthLeftWrapper+4);//Column has table spacing
+        if($("#dataTable").width() > 1200) {
+            new FixedColumns(dataTable);
+
+            //Have to add in there
+            $(".DTFC_LeftBodyLiner").css("overflow-y","hidden");
+            //$(".dataTables_scroll").css("overflow-x","scroll");
+            $(".DTFC_LeftHeadWrapper").css("background-color","white");
+            $(".DTFC_LeftFootWrapper").css('background-color','white');
+
+            //After resizing left column, the width of DTFC_LeftWrapper is different
+            //with width DTFC_LeftBodyLiner, need to rewrite the width of
+            //DTFC_LeftBodyLiner width
+            var _widthLeftWrapper = $('.DTFC_LeftWrapper').width();
+            $('.DTFC_LeftBodyLiner').css('width', _widthLeftWrapper+4);//Column has table spacing
+        }else {
+            $('#data-table-chart .dataTables_scrollBody').css('overflow-x', 'hidden');
+        }
     }
     
     return {
-        init: function(_param, _data) {
-            initParam(_param, _data);
+        init: function(_data) {
+            initParam(_data);
             initDataTableTfoot();
             initDataTable();
             addEvents();
@@ -676,7 +670,7 @@ var DataTable = function() {
         },
         
         updateTable: function(_filteredResult) {
-            if( $("#dataTable_filter label input").attr("value") !== ''){
+            if( $("#dataTable_filter label input").val() !== ''){
                 dataTable.fnFilter('');
             }
             deleteChartResetDataTable(_filteredResult);

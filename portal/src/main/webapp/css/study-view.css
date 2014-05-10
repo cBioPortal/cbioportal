@@ -1,4 +1,5 @@
 /* main style */
+/*
 #study-view-add-chart li{
     color: white;
     text-align: center;
@@ -16,18 +17,26 @@
     float:right;
     padding: 0 0 5px 0;
 }
+*/
 #study-view-top-wrapper {
     width: 100%;
     float: left;
     height: 40px;
 }
 #study-view-add-chart {
-    right:120px;
+    right:43px;
+    top: 0;
     position: absolute;
     z-index:21;
     display: inline-block;
     vertical-align: middle;
     line-height: 30px;
+    font-family: Verdana,Arial,sans-serif;
+    font-size: 1.1em;
+    border: 1px solid #d3d3d3;
+    background: #e6e6e6;
+    font-weight: normal;
+    color: #555555;
 }
 #study-view-tutorial {
     right: 0;
@@ -36,25 +45,48 @@
     z-index:21;
 }
 #study-view-header-left-0 {
-    left: 0;
+/*    left: 0;*/
+    float: left;
     width: 160px;
-    height: 30px;
+    margin: 0 5px 0 0;
+    font-family: Verdana,Arial,sans-serif;
+    font-size: 1.1em;
+    border: 1px solid #d3d3d3;
+    background: #e6e6e6;
+    font-weight: normal;
+    color: #555555;
 }
 #study-view-header-left-1 {
-    left: 0;
+    /*left: 0;*/
+    float: left;
+    margin: 0 5px 0 0;
     width: 190px;
+    font-family: Verdana,Arial,sans-serif;
+    font-size: 1.1em;
+    border: 1px solid #d3d3d3;
+    background: #e6e6e6;
+    font-weight: normal;
+    color: #555555;
     //height: 30px;
 }
 #study-view-header-left-2 {
-    left: 210px;
-    height: 30px;
+    /*left: 210px;*/
+    float: left;
+    margin: 0 5px 0 0;
+    font-family: Verdana,Arial,sans-serif;
+    font-size: 1.1em;
+    border: 1px solid #d3d3d3;
+    background: #e6e6e6;
+    font-weight: normal;
+    color: #555555;
 }
 #study-view-header-left-3 {
-    position: absolute;
-    left: 410px;
-    height: 30px;
-    line-height: 30px;
-    top: 2px;
+    /*position: absolute;*/
+    /*left: 410px;*/
+/*    height: 30px;
+    line-height: 30px;*/
+    /*top: 2px;*/
+    float: left;
     border: 0;
     font-size: 13px;
     margin: 0;
@@ -63,11 +95,18 @@
     padding: 0 10px;
     background-color: white;
     width: auto;
-    color: #2986e2;
+    /*color: #2986e2;*/
+    color: black;
     text-align: center;
+    font-family: Verdana,Arial,sans-serif;
+    font-size: 1.1em;
+    margin-top: 4px;
 }
 #study-view-header-left-3:hover{
     cursor: default;
+}
+.study-view-header-button:hover {
+    cursor: pointer;
 }
 #study-view-main {
     margin-left: auto;
@@ -153,13 +192,26 @@
     -webkit-backface-visibility: hidden;
 }
 #study-view-scatter-plot-header {
-    float: left;
+    float: right;
     margin-top: 2px;
 }
 #study-view-scatter-plot-title {
     float: left;
-    margin: 5px 40px 0 5px;
-}/*
+    margin: 5px 0 0 5px;
+}
+
+#study-view-scatter-plot-side {
+    border: 1px solid lightgray;
+    border-left-width: 0;
+    position: absolute;
+    width: auto;
+    left: 375px;
+    top: 22px;
+    background: white;
+    display: none;
+    z-index: 1;
+}
+/*
 #study-view-scatter-plot-body-top-chart {
     width: 100%;
     height: 80px;
@@ -248,9 +300,6 @@
     color: grey;
     font-size: 10px;
 }
-.study-view-bar-chart rect{
-    fill: #2986e2;
-}
 .study-view-bar-chart g.brush rect.extent {
     fill: #2986e2;
     fill-opacity:0.2;
@@ -297,24 +346,34 @@
 }
 .study-view-pdf-svg-side {
     position: absolute;
-    width: 35px;
-    border: 1px solid lightgrey;
+    //width: 35px;
+    left: 130px;
+/*    border: 1px solid lightgrey;
     left: 180px;
     top: 15px;
     z-index: 20;
-    padding: 2px 2px 3px 2px;
+    padding: 2px 2px 4px 0;
     background-color: white;
-    border-left-width: 0;
+    border-left-width: 0;*/
 }
 .study-view-pdf-svg-side.bar {
-    left: 370px;
+    /*left: 375px;*/
+    left: 325px;
 }
 .w2{
-    width:370px;
+    width:375px;
 }
-
 .w3{
-    width:560px;
+    width:570px;
+}
+.w4{
+    width:750px;
+}
+.w5{
+    width:940px;
+}
+.w6{
+    width:1130px;
 }
 
 .w4{
@@ -323,19 +382,25 @@
 .h1{
     height:220px;
 }
+.h1half{
+    height:340px;
+}
 .h2{
-    height:450px;
+    height:455px;
+}
+.h3{
+    height:680px;
 }
 .study-view-bar-main {
     float:left;
-    width:370px;
+    width:375px;
     height:220px;
     border:1px;
     border-color:lightgrey;
     border-style:solid;
 }
 .study-view-bar-x-log {
-    float: right;
+    float: left;
     margin-right: 2px;
     margin-top: 3px;
 }
@@ -357,18 +422,18 @@
     cursor: move;
 }
 .study-view-dc-chart-delete {
-    float: right;
+    float: left;
     margin-right: 5px;
-    color: lightgray;
+    color: grey;
     cursor: pointer;
 }
-.study-view-scatter-plot-delete{  
+.study-view-chart-plot-delete{  
     margin-right: 5px;
-    color: lightgray;
+    color: grey;
     cursor: pointer;
     float: right;
 }
-.study-view-word-cloud-delete{  
+.study-view-chart-cloud-delete{  
     margin-right: 5px;
     color: lightgray;
     cursor: pointer;
@@ -378,17 +443,35 @@
     background-color: white;
 }
 .study-view-dc-chart-change {
-    float: right;
+    float: left;
     margin-right: 10px;
     margin-top: 3px;
     cursor: pointer;
     font-size:10px;
     display: none;
 }
+
+.study-view-drag-icon {
+    width:10px;
+    height:10px;
+    margin-top:4px;
+    margin-right:4px;
+    float:left;
+}
+.study-view-drag-icon:hover{
+    cursor: move;
+}
+.study-view-side-item {
+    float: left;
+    display: block;
+    clear: left;
+    white-space: nowrap;
+}
 chartTitleH4{
     font-size: 10px;
     color: black;
     font-weight: bold;
+    padding-left: 5px;
 }
 pieH3{
     font-size: 10px;
@@ -406,6 +489,12 @@ pieH3{
     fill:none;
     stroke:black;
     stroke-width:1px;
+    font-size:9px;
+}
+.dc-chart .axis text{
+    fill:black;
+    stroke:black;
+    stroke-width:0.5px;
     font-size:9px;
 }
 .study-view-bar-chart {
@@ -562,6 +651,7 @@ pieH3{
 #content li a{
     outline: none;
 }
+/*
 .ui-widget-content {
     border: 0;
 }
@@ -597,10 +687,73 @@ pieH3{
     border: 1px;
     border-color: white;
     background: white;
+}*/
+.study-view-survival-label-font-1{
+    font-size: 9px;
+    font-weight: bold;
 }
 
+.study-view-survival-plot {
+    position: relative;
+    top: 1em;
+    right: 1em;
+    text-align:center;
+    border-style: solid;
+    border-width: 1px;
+    border-color: lightgrey;
+}
 
-/* These five styles are designed for study view tabs. */
+.study-view-survival-plot-header {
+    float: left;
+    margin-top: 2px;
+    height: 22px;
+}
+.study-view-survival-plot-title {
+    float: left;
+    margin: 5px 0 0 5px;
+    max-width: 240px;
+}
+.study-view-survival-plot-body {
+    width: 100%;
+}
+.study-view-survival-plot-header-wrapper {
+    float:right;
+    width: 100%;
+    height: 22px;
+    margin-bottom: 5px;
+}
+.study-view-survival-plot-select {
+    font-size:10px;
+    margin-right:5px;
+    width: 130px;
+}
+.study-view-survival-plot-body-label {
+    width: auto;
+    overflow-y: auto;
+    display: none;
+    position: absolute;
+    top: 20px;
+    left: 375px;
+    border: 1px solid lightgray;
+    border-left-width: 0;
+    background-color: white;
+    z-index: 1;
+    max-height: 280px;
+}
+.study-view-survival-plot-body-label svg{
+    float: left;
+}
+.study-view-menu-icon:hover{
+    cursor: pointer;
+}
+.study-view-loader {
+    width: 100%;
+    display:none;
+    position: absolute;
+    top: 30%;
+}
+
+/* These five styles are designed for study view tabs. 
 #dc-plots {
     border: 1px solid #aaaaaa;
     border-radius: 5px;
@@ -625,7 +778,7 @@ pieH3{
     border: 1px solid #aaaaaa;
     border-radius: 5px;
     border-top-left-radius: 0;
-}
+}*/
 
 /* tag styles */
 /*

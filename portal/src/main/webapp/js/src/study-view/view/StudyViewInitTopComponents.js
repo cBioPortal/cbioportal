@@ -8,13 +8,6 @@
  */
 
 var StudyViewInitTopComponents = (function() {
-    var parObject = {
-            studyId: "",
-            caseIds: "",
-            cnaProfileId: "",
-            mutationProfileId: "",
-        };
-        
     function liClickCallBack(_id, _text) {
         StudyViewInitCharts.createNewChart(_id, _text);
     };
@@ -28,8 +21,10 @@ var StudyViewInitTopComponents = (function() {
                 _charts = StudyViewInitCharts.getCharts(),
                 _chartsLength = _charts.length;
             
+            StudyViewInitScatterPlot.setclearFlag(true);
+            
             //Previous using dc.filterAll(), but this will redraw word cloud
-            //sevious times based on the number of charts. Right now, only
+            //several times based on the number of charts. Right now, only
             //redraw word cloud if the chart has filter
             for( i = 0; i < _chartsLength; i++){
                 if(_charts[i] !== "" && 
@@ -41,23 +36,29 @@ var StudyViewInitTopComponents = (function() {
             
             //If set the filter to null the update scatterplot in charts do
             //not work, so need to update scatter plot here
-            StudyViewInitCharts.getSelectedCasesAndRedrawScatterPlot(null);
+            //StudyViewInitCharts.redrawScatter();
             
             dc.redrawAll();
-            $(StudyViewInitDataTable
-                    .getDataTable()
-                    .getDataTable()
-                    .fnSettings()
-                    .aoData).each(function (){
-                if($(this.nTr).hasClass('row_selected')){
-                    $(this.nTr).removeClass('row_selected');
-                    if($(this.nTr).hasClass('odd')){
-                       $(this.nTr).css('background-color','#E2E4FF'); 
-                    }else{
-                        $(this.nTr).css('background-color','white');
-                    }
-                }
-            });
+            StudyViewInitCharts.resetBars();
+            StudyViewInitCharts.redrawSpecialPlots();
+            setTimeout(function() {
+                StudyViewInitScatterPlot.setclearFlag(false);
+            }, StudyViewParams.summaryParams.transitionDuration);
+            
+//            $(StudyViewInitDataTable
+//                    .getDataTable()
+//                    .getDataTable()
+//                    .fnSettings()
+//                    .aoData).each(function (){
+//                if($(this.nTr).hasClass('row_selected')){
+//                    $(this.nTr).removeClass('row_selected');
+//                    if($(this.nTr).hasClass('odd')){
+//                       $(this.nTr).css('background-color','#E2E4FF'); 
+//                    }else{
+//                        $(this.nTr).css('background-color','white');
+//                    }
+//                }
+//            });
             StudyViewInitCharts.changeHeader();
         });
         
@@ -87,14 +88,15 @@ var StudyViewInitTopComponents = (function() {
         }
         
 
-        $("#study-view-header-left-2").css('left','210px');
+//        $("#study-view-header-left-2").css('left','210px');
         
         //StudyViewWindowEvents will return the page scrolling status, if the
         //header is on the top of page windowScorlled = false.
-        windowScolled = StudyViewWindowEvents.getScrollStatus();
-        
+//        windowScolled = StudyViewWindowEvents.getScrollStatus();
+         
         if(_resultLength === _numOfCases){
-            var _hasFilter = false;
+            var _hasFilter = false,
+                _plotDataFlag = StudyViewInitCharts.getPlotDataFlag();
             
             for(var i=0; i<_charts.length; i++){
                 if(_removedChart.indexOf(i) === -1){
@@ -109,7 +111,12 @@ var StudyViewInitTopComponents = (function() {
                 $("#study-view-header-left-3").css('display','block');
                 $("#study-view-header-left-3").text(_resultLength + " cases are selected.");
                 $("#study-view-header-left-case-ids").val(_caseID.join(" "));
-            }else{
+            }else if(_plotDataFlag){
+                $("#study-view-header-left-0").css('display','block');
+                $("#study-view-header-left-1").css('display','none');
+                $("#study-view-header-left-2").css('display','block');
+                $("#study-view-header-left-3").css('display','none');
+            }else {
                 $("#study-view-header-left-0").css('display','block');
                 $("#study-view-header-left-1").css('display','none');
                 $("#study-view-header-left-2").css('display','none');
@@ -121,31 +128,35 @@ var StudyViewInitTopComponents = (function() {
                 $("#study-view-header-left-1").css('display','none');
                 $("#study-view-header-left-2").css('display','block');
                 $("#study-view-header-left-3").css('display','block');
-                $("#study-view-header-left-2").text('Reset');
+//                $("#study-view-header-left-2").text('Reset');
                 $("#study-view-header-left-3").text("No case is selected.");
-                if(windowScolled){
-                    $("#study-view-header-left-2").css('left','0');
-                    $("#study-view-header-left-3").css('left','0');
-                }else{
-                    $("#study-view-header-left-2").css('left','0');
-                    $("#study-view-header-left-3").css('left','80px');
-                }$("#study-view-header-left-case-ids").val(_caseID.join(" "));
+                $("#study-view-header-left-2").val('Reset all');
+//                if(windowScolled){
+//                    $("#study-view-header-left-2").css('left','0');
+//                    $("#study-view-header-left-3").css('left','0');
+//                }else{
+//                    $("#study-view-header-left-2").css('left','0');
+//                    $("#study-view-header-left-3").css('left','80px');
+//                }
+                $("#study-view-header-left-case-ids").val(_caseID.join(" "));
             }else if(_resultLength === 1){
                 $("#study-view-header-left-0").css('display','none');
                 $("#study-view-header-left-1").css('display','none');
                 $("#study-view-header-left-2").css('display','block');
                 $("#study-view-header-left-3").css('display','block');
-                $("#study-view-header-left-2").css('left','0');
-                $("#study-view-header-left-2").text('Clear selected case');
+//                $("#study-view-header-left-2").css('left','0');
+//                $("#study-view-header-left-2").text('Reset all');
+                $("#study-view-header-left-2").val('Reset all');
                 $("#study-view-header-left-3").html("");
-                if(windowScolled){
-                    $("#study-view-header-left-3").css('left','0');
-                }else{
-                    $("#study-view-header-left-3").css('left','170px');
-                }
+//                if(windowScolled){
+//                    $("#study-view-header-left-3").css('left','0');
+//                }else{
+////                    $("#study-view-header-left-3").css('left','100px');
+//                    $("#study-view-header-left-3").css('left','70px');
+//                }
                 $("#study-view-header-left-3")
                         .append("<a title='Go to patient-centric view' " + 
-                        "href='case.do?cancer_study_id=" + parObject.studyId +
+                        "href='case.do?cancer_study_id=" + StudyViewParams.params.studyId +
                         "&amp;case_id=" + _caseID[0] + "'><span style='color: red'>" + _caseID[0] + 
                         "</span></a>" + " is selected.");                
             }else{
@@ -153,12 +164,14 @@ var StudyViewInitTopComponents = (function() {
                 $("#study-view-header-left-1").css('display','block');
                 $("#study-view-header-left-2").css('display','block');
                 $("#study-view-header-left-3").css('display','block');
-                $("#study-view-header-left-2").text('Clear selected cases');
-                if(windowScolled){
-                    $("#study-view-header-left-3").css('left','0');
-                }else{
-                    $("#study-view-header-left-3").css('left','410px');
-                }
+                $("#study-view-header-left-2").val('Reset all');
+//              $("#study-view-header-left-2").text('Reset all');
+//                if(windowScolled){
+//                    $("#study-view-header-left-3").css('left','0');
+//                }else{
+//                    $("#study-view-header-left-3").css('left','260px');
+////                    $("#study-view-header-left-3").css('left','310px');
+//                }
                 $("#study-view-header-left-3").text(_resultLength + " cases are selected.");
                 $("#study-view-header-left-case-ids").val(_caseID.join(" "));
             }
@@ -171,21 +184,14 @@ var StudyViewInitTopComponents = (function() {
         AddCharts.liClickCallback(liClickCallBack);
     }
     
-    function initParameters(o) {
-        parObject.studyId = o.studyId;
-        parObject.caseIds = o.caseIds;
-        parObject.cnaProfileId = o.cnaProfileId;
-        parObject.mutationProfileId = o.mutationProfileId;
-    }
-    
     function createDiv() {
         var _newElement = StudyViewBoilerplate.headerLeftDiv(),
             _headerLeftQtip = jQuery.extend(true, {}, StudyViewBoilerplate.headerCaseSelectCustomDialog);
         
         $("#study-view-header-function").append(_newElement);
         $("#study-view-header-function").append(StudyViewBoilerplate.customDialogDiv);
-        $("#study-view-header-left-cancer_study-ids").val(parObject.studyId);
-        $("#study-view-header-function").append(StudyViewBoilerplate.tutorialDiv);
+        $("#study-view-header-left-cancer_study-ids").val(StudyViewParams.params.studyId);
+        //$("#study-view-header-function").append(StudyViewBoilerplate.tutorialDiv);
         _headerLeftQtip.position.target = $(window);
         _headerLeftQtip.content.text = $('#study-view-case-select-custom-dialog');
         $('#study-view-header-left-0').qtip(_headerLeftQtip);
@@ -194,8 +200,7 @@ var StudyViewInitTopComponents = (function() {
     }
     
     return {
-        init: function(_data) {
-            initParameters(_data);
+        init: function() {
             createDiv();
             addEvents();
         },

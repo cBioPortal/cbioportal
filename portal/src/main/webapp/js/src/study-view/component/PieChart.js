@@ -17,9 +17,6 @@
  * @interface: getCluster -- return the cluster of DC Pie Chart.
  * @interface: pieLabelClickCallbackFunction -- pass a function to be called when
  *                                              the pie label been clicked.
- * @interface: scatterPlotCallbackFunction -- pass a function to connect with
- *                                            Scatter Plot after filtering DC
- *                                            Pie Chart.
  * @interface: postFilterCallbackFunc -- pass a function to be called after DC Pie
  *                                       Chart filtered.
  *                                       
@@ -45,9 +42,9 @@ var PieChart = function(){
     var chartID, 
         className, 
         selectedAttr, 
-        selectedAttrDisplay, 
-        transitionDuration, 
-        ndx, 
+        selectedAttrDisplay,
+        ndx,
+        plotDataButtonFlag = false,
         chartColors;
     
     var label =[],
@@ -55,10 +52,11 @@ var PieChart = function(){
         fontSize = labelSize;
             
     var postFilterCallback,
+        postRedrawCallback,
         pieLabelClickCallback,
-        scatterPlotCallback;
+        plotDataCallback;
     
-    var titleLengthCutoff = 16;
+    var titleLengthCutoff = 25;
     
     //This function is designed to draw Pie Labels based on current color the
     //Pie Chart has. Pagging function will be added when the number of labels
@@ -125,7 +123,7 @@ var PieChart = function(){
                                 labelSize+'"><rect width="' +
                                 labelSize+'" height="'+ labelSize +
                                 '" style="fill:' + label[i].color + 
-                                ';" /></svg><span value="'+
+                                ';" /></svg><span oValue="'+
                                 label[i].name + '" style="vertical-align: top">'+
                                 _tmpName+'</span></td>');
 
@@ -209,7 +207,7 @@ var PieChart = function(){
                 chartID = Number(idArray[idArray.length-3]);
 
             var arcID = chartID+"-"+(Number(childID)-1);
-
+            
             pieChart.onClick({
                 key: label[childaLabelID].name, 
                 value: label[childaLabelID].value
@@ -266,16 +264,6 @@ var PieChart = function(){
                             .css({'border-width':'2px', 'border-style':'inset'});
                 }
                 
-                if(filter !== null || (filter !== null && 
-                        StudyViewInitScatterPlot
-                            .getScatterPlot()
-                            .getBrushedCases()
-                            .length > 0 
-                    )){
-                
-                    updateScatterPlot(_currentFilters);
-                }
-                
                 removeMarker();
                 postFilterCallback();
             });
@@ -284,11 +272,46 @@ var PieChart = function(){
             });
             pieChart.on("postRedraw",function(chart){
                 addPieLabels();
+                postRedrawCallback();
             });
             pieChart.on("postRender",function(chart){
                 addPieLabels();
             });
         }
+    }
+    
+    function showHideDivision(_listenedDiv, _targetDiv, _time){
+        var _targetLength = _targetDiv.length;
+        for ( var i = 0; i < _targetLength; i++) {
+            $(_targetDiv[i]).css('display', 'none');
+        }
+        $(_listenedDiv).hover(function(){
+            $(_listenedDiv).css('z-index', '1');
+            for ( var i = 0; i < _targetLength; i++) {
+                $(_targetDiv[i]).stop().fadeIn(_time, function(){
+                    $(this).css('display', 'block');
+                });
+            }
+            $("#"+DIV.chartDiv +"-title-wrapper").width('130');
+            $("#"+DIV.chartDiv +"-title-wrapper").css('text-align', 'left');
+            if(selectedAttrDisplay.length > 7) {
+                $("#"+DIV.chartDiv +"-title").text(selectedAttrDisplay.substring(0,5) + "...");
+                addQtip(selectedAttrDisplay, DIV.chartDiv +"-title");
+            }
+        }, function(){
+            $(_listenedDiv).css('z-index', '0');
+            for ( var i = 0; i < _targetLength; i++) {
+                $(_targetDiv[i]).stop().fadeOut(_time, function(){
+                    $(this).css('display', 'none');
+                });
+            }
+            $("#"+DIV.chartDiv +"-title-wrapper").width('180');
+            $("#"+DIV.chartDiv +"-title-wrapper").css('text-align', 'center');
+//            if(selectedAttrDisplay.length < 6) {
+                $("#"+DIV.chartDiv +"-title").text(selectedAttrDisplay);
+                $('#' + DIV.chartDiv +"-title").qtip('destroy', true);
+//            }
+        });
     }
     
     //Add all listener events
@@ -302,9 +325,67 @@ var PieChart = function(){
                 DIV.chartDiv+"-svg-value");
         });
         
-        StudyViewOverallFunctions
-                    .showHideDivision(DIV.mainDiv, 
-                                    DIV.chartDiv+"-side");
+        showHideDivision("#"+DIV.mainDiv, 
+                        ["#"+DIV.chartDiv+"-side"], 200);
+        showHideDivision("#"+DIV.mainDiv, 
+                        ["#"+DIV.chartDiv+"-header"],0);
+        
+        if(plotDataButtonFlag) {
+            $("#"+DIV.chartDiv+"-plot-data").click(function(){
+                var _casesInfo = {},
+                    _labelLength = label.length,
+                    _caseIds = [];
+
+                StudyViewInitCharts.setPlotDataFlag(true);
+
+                if(pieChart.hasFilter()){
+                    pieChart.filterAll();
+                    dc.redrawAll();
+                }
+
+                _caseIds = getCaseIds();
+            
+                for(var i = 0; i < _labelLength; i++){
+                    var _key = label[i].name.toString();
+                    var _caseInfoDatum = {};
+                    
+                    _caseInfoDatum.caseIds = _caseIds[label[i].name];
+                    if(typeof _caseIds[label[i].name] === 'undefined') {
+                        console.log(label[i].name);
+                        console.log(_caseIds[label[i].name]);
+                    }
+                    
+                    _caseInfoDatum.color = label[i].color;
+                    _casesInfo[_key] = _caseInfoDatum;
+                }
+                plotDataCallback(_casesInfo, [selectedAttr, selectedAttrDisplay]);
+
+                setTimeout(function(){
+                    StudyViewInitCharts.setPlotDataFlag(false);
+                }, StudyViewParams.summaryParams.transitionDuration);
+            });
+        }
+    }
+    
+    function getCaseIds(){
+        var _cases = pieChart.dimension().top(Infinity),
+            _caseIds = {},
+            _casesLength = _cases.length;
+        
+        for(var i = 0; i < _casesLength; i++){
+            var _key = _cases[i][selectedAttr];
+            
+            if(_key === '' || _key.toUpperCase() === 'UNKNOWN'){
+                _key = 'NA';
+            }
+            
+            if(!_caseIds.hasOwnProperty(_key)){
+                _caseIds[_key] = [];
+            }
+            _caseIds[_key].push(_cases[i].CASE_ID);
+        }
+        
+        return _caseIds;
     }
     
     function setSVGElementValue(_svgParentDivId,_idNeedToSetValue){
@@ -317,34 +398,36 @@ var PieChart = function(){
             _svg = $("#" + _svgParentDivId + " svg"),
             _svgHeight = _svg.height(),
             _text = _svg.find('text'),
+            _textLength = _text.length,
             _slice = _svg.find('g .pie-slice'),
-            _pieLabel = $("#" + _svgParentDivId).parent().find('td.pieLabel');
+            _sliceLength = _slice.length,
+            _pieLabel = $("#" + _svgParentDivId).parent().find('td.pieLabel'),
+            _pieLabelLength = _pieLabel.length;
         
         //Change pie slice text styles
-        $.each(_text, function(index, value){
-            $(value).css({
+        for ( var i = 0; i < _textLength; i++) {
+            $(_text[i]).css({
                 'fill': 'white',
                 'font-size': '14px',
                 'stroke': 'white',
                 'stroke-width': '1px'
             });
-        });
+        }
         
         //Change pie slice styles
-        $.each(_slice, function(index, value){
-            
-            $($(value).find('path')[0]).css({
+        for ( var i = 0; i < _sliceLength; i++) {
+            $($(_slice[i]).find('path')[0]).css({
                 'stroke': 'white',
                 'stroke-width': '1px'
             });
-        });
+        }
         
         
         //Draw pie label into output
-        
-        $.each(_pieLabel, function(index, value){
-            var _labelName = $($(value).find('span')[0]).attr('value');
-            var _labelColormarker = $($(value).find('svg')[0]).html();
+        for ( var i = 0; i < _pieLabelLength; i++) {
+            var _value = _pieLabel[i],
+                _labelName = $($(_value).find('span')[0]).attr('oValue'),
+                _labelColormarker = $($(_value).find('svg')[0]).html();
             
             _pieLabelString += "<g transform='translate(0, "+ 
                     _pieLabelYCoord+")'>"+ _labelColormarker+
@@ -356,7 +439,7 @@ var PieChart = function(){
             if(_labelName.toString().length > _maxlabelNameLength){
                 _maxlabelNameLength = _labelName.toString().length;
             }
-        });
+        }
         
         _svgElement = $("#" + _svgParentDivId + " svg").html();
         
@@ -374,28 +457,29 @@ var PieChart = function(){
                     _pieLabelString+"</g></svg>");
     
         //Remove pie slice text styles
-        $.each(_text, function(index, value){
-            $(value).css({
+        for ( var i = 0; i < _textLength; i++) {
+            $(_text[i]).css({
                 'fill': '',
                 'font-size': '',
                 'stroke': '',
                 'stroke-width': ''
             });
-        });
+        }
         
         //Remove pie slice styles
-        $.each(_slice, function(index, value){
-            $($(value).find('path')[0]).css({
+        for ( var i = 0; i < _sliceLength; i++) {
+            $($(_slice[i]).find('path')[0]).css({
                 'stroke': '',
                 'stroke-width': ''
             });
-        });
+        }
     }
     
     //Initialize HTML tags which will be used for current Pie Chart.
     function createDiv() {
-        var _introDiv = '';
-        var _introNumber = Number(chartID) +2;
+        var _introDiv = '',
+            _introNumber = Number(chartID) +2;
+        
         _introDiv = "data-step='" + _introNumber + "' data-intro='Pie chart will category\n\
                          attributes by different colors' data-step='3' data-intro='Pie chart will category\n\
                          attributes by different colors'";
@@ -408,46 +492,60 @@ var PieChart = function(){
                     "style='display:none'><div id=\"" +
                     DIV.chartDiv + "\"></div></div>");
         }else{
-            var _title = selectedAttrDisplay.toString();
+            var _title = selectedAttrDisplay.toString(),
+                _plotDataButtonDiv = "";
+        
             if(_title.length > titleLengthCutoff) {
                 _title = _title.substring(0,(titleLengthCutoff-2)) + "...";
             }
+            
+            if(plotDataButtonFlag) {
+                _plotDataButtonDiv = "<input type='button' id='"+
+                                    DIV.chartDiv+"-plot-data' "+
+                                    "style='font-size:10px;clear:right;float:right;' value='Survival'>";
+            }else {
+                _plotDataButtonDiv = "";
+            }
+            
             $("#"+DIV.parentID).append("<div id=\"" + DIV.mainDiv +
                 "\"" + _introDiv +
                 "class='study-view-dc-chart study-view-pie-main'>"+
                 "<div id=\"" + DIV.chartDiv + "\" class='" + 
-                className + "'  value='"+ selectedAttr + "," + 
+                className + "'  oValue='"+ selectedAttr + "," + 
                 selectedAttrDisplay + ",pie'>"+
                 "<div id='"+DIV.chartDiv+"-side' class='study-view-pdf-svg-side'>"+
-                "<form style='display:inline-block;' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-pdf'>"+
+                _plotDataButtonDiv + 
+                "<form style='display:inline-block;clear:right;float:right;' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-pdf'>"+
                 "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-pdf-value'>"+
                 "<input type='hidden' name='filetype' value='pdf'>"+
-                "<input type='hidden' id='"+DIV.chartDiv+"-pdf-name' name='filename' value='"+cancerStudyId + "_" +selectedAttr+".pdf'>"+
-                "<input type='submit' style='font-size:10px' value='PDF'>"+          
+                "<input type='hidden' id='"+DIV.chartDiv+"-pdf-name' name='filename' value='"+StudyViewParams.params.studyId + "_" +selectedAttr+".pdf'>"+
+                "<input type='submit' style='font-size:10px;' value='PDF'>"+          
                 "</form>"+
-                "<form style='display:inline-block' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-svg'>"+
+                "<form style='display:inline-block;clear:right;float:right;' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-svg'>"+
                 "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-svg-value'>"+
                 "<input type='hidden' name='filetype' value='svg'>"+
-                "<input type='hidden' id='"+DIV.chartDiv+"-svg-name' name='filename' value='"+cancerStudyId + "_" +selectedAttr+".svg'>"+
-                "<input type='submit' style='font-size:10px' value='SVG'>"+    
-                "</form></div>"+
-                "<div style='width:180px; float:right; text-align:center;'>"+
-                "<span class='study-view-dc-chart-delete'>x</span>"+
+                "<input type='hidden' id='"+DIV.chartDiv+"-svg-name' name='filename' value='"+StudyViewParams.params.studyId + "_" +selectedAttr+".svg'>"+
+                "<input type='submit' style='font-size:10px;clear:right;float:right;' value='SVG'></form>"+
+                "</div><div id='" + DIV.chartDiv +"-title-wrapper'" +
+                " style='width:180px; float:left; text-align:center;'>"+
+                "<div style='height:16px;float:right;' id='"+DIV.chartDiv+"-header'>"+
                 "<a href='javascript:StudyViewInitCharts.getChartsByID("+ 
                 chartID +").getChart().filterAll();" +
-                "StudyViewInitCharts.getSelectedCasesAndRedrawScatterPlot([]);"+ 
                 "dc.redrawAll();'><span title='Reset Chart'"+
-                "class='study-view-dc-chart-change' style='font-size:10px;'>"+
-                "RESET</span></a><chartTitleH4 id='"+DIV.chartDiv +"-title'>" +
+                "class='study-view-dc-chart-change' style='float:left; font-size:10px;'>"+
+                "RESET</span></a>" +
+                "<img class='study-view-drag-icon' src='images/move.svg'/>"+
+                "<span class='study-view-dc-chart-delete'>x</span>"+
+                "</div><chartTitleH4 id='"+DIV.chartDiv +"-title'>" +
                 _title + "</chartTitleH4></div>"+
                 "<div style='width:180px;float:left;text-align:center'></div></div>"+
                 "<div class='study-view-pie-label'></div>"+
                 "<div style='width:180px; text-align:center;float:left;'></div></div>");
             //Title has been cut with 8 head character with ..., so the length
             //still longer than titleLengthCutoff
-            if(_title.length > titleLengthCutoff) {
-                addQtip(selectedAttrDisplay, DIV.chartDiv +"-title");
-            }
+//            if(_title.length > titleLengthCutoff) {
+//                addQtip(selectedAttrDisplay, DIV.chartDiv +"-title");
+//            }
         }
     }
     
@@ -568,7 +666,7 @@ var PieChart = function(){
             .radius(_pieRadius)
             .dimension(cluster)
             .group(cluster.group())
-            .transitionDuration(600)
+            .transitionDuration(StudyViewParams.summaryParams.transitionDuration)
             .ordinalColors(chartColors)
             .label(function (d) {
                 return d.value;
@@ -584,24 +682,35 @@ var PieChart = function(){
         
         $('#' + DIV.chartDiv + '>svg>g>g').each(function(){
             var _labelDatum = {},
-                _labelName = $(this).find('title').text().split(':'),
+                _labelText = $(this).find('title').text(),
+                _labelName = "",
+                _labelValue = 0,
                 _color = $(this).find('path').attr('fill'),            
-                _pointsInfo = $(this).find('path').attr('d').split(/[\s,MLHVCSQTAZ]/);            
+                _pointsInfo = $(this).find('path').attr('d').split(/[\s,MLHVCSQTAZ]/);    
             
-            var _x1 = Number( _pointsInfo[1] ),
-                _y1 = Number( _pointsInfo[2] ),
-                _x2 = Number( _pointsInfo[8] ),
-                _y2 = Number( _pointsInfo[9] );
+            _labelName = _labelText.substring(0, _labelText.lastIndexOf(":"));
+            _labelValue = _labelText.substring(_labelText.lastIndexOf(":"));
+            _labelValue = _labelValue.trim();
+            
+            if(_pointsInfo.length >= 10){
                 
-            if(_x1 !== _x2 || _y1 !== _y2){
-                _labelDatum.id = _labelID;
-                _labelDatum.name = _labelName[0];
-                _labelDatum.color = _color;
-                _labelDatum.parentID = DIV.chartDiv;
-                _labelDatum.value = _labelName[1];
-                label.push(_labelDatum);
+                var _x1 = Number( _pointsInfo[1] ),
+                    _y1 = Number( _pointsInfo[2] ),
+                    _x2 = Number( _pointsInfo[8] ),
+                    _y2 = Number( _pointsInfo[9] );
+
+                if(Math.abs(_x1 - _x2) > 0.01 || Math.abs(_y1 - _y2) > 0.01){
+                    _labelDatum.id = _labelID;
+                    _labelDatum.name = _labelName;
+                    _labelDatum.color = _color;
+                    _labelDatum.parentID = DIV.chartDiv;
+                    _labelDatum.value = _labelValue;
+                    label.push(_labelDatum);
+                }
+                _labelID++;
+            }else{
+                //StudyViewUtil.echoWarningMessg("Initial Lable Error");
             }
-            _labelID++;            
         });
     }
     
@@ -613,9 +722,9 @@ var PieChart = function(){
         chartID = _param.chartID;
         selectedAttr = _param.attrID;
         selectedAttrDisplay = _param.displayName;
-        transitionDuration = _param.transitionDuration;
         ndx = _param.ndx;
         chartColors = _param.chartColors;
+        plotDataButtonFlag = _param.plotDataButtonFlag;
 
         DIV.mainDiv = _baseID + "-dc-chart-main-" + chartID;
         DIV.chartDiv = _baseID + "-dc-chart-" + chartID;
@@ -658,7 +767,7 @@ var PieChart = function(){
                         '<svg width="'+(labelSize+3)+'" height="'+
                         labelSize+'"><rect width="'+
                         labelSize+'" height="'+labelSize+'" style="fill:'+
-                        label[i].color + ';" /></svg><span value="'+
+                        label[i].color + ';" /></svg><span oValue="'+
                         label[i].name + '" style="vertical-align: top">'+
                         _tmpName+'</span></td>');
 
@@ -675,12 +784,6 @@ var PieChart = function(){
                 
         _qtip.content.text = _text;
         $('#'+_DivID).qtip(_qtip);
-    }
-    
-    //Pie Chart will have communications with ScatterPlot, this function is used
-    //to call the callback function.
-    function updateScatterPlot(_currentFilters) {
-        scatterPlotCallback(_currentFilters);
     }
     
     return {
@@ -708,12 +811,14 @@ var PieChart = function(){
         
         removeMarker: removeMarker,
         
-        scatterPlotCallbackFunction: function (_callback){
-            scatterPlotCallback = _callback;
-        },
-        
-        postFilterCallbackFunc: function(_callback){
+        postFilterCallbackFunc: function(_callback) {
             postFilterCallback = _callback;
+        },
+        postRedrawCallbackFunc: function(_callback) {
+            postRedrawCallback = _callback;
+        },
+        plotDataCallbackFunc: function(_callback) {
+            plotDataCallback = _callback;
         }
     };
 };

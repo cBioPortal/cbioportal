@@ -1,3 +1,30 @@
+/* 
+ * Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * any later version.
+ * 
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center
+ * has been advised of the possibility of such damage.  See
+ * the GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ */
+
 /*
  * View for All Charts 
  * 
@@ -14,20 +41,12 @@
  *                                   chart.
  * @interface: getShowedChartsInfo -- return charts infomation including
  *                                    ID names, display names and displayed ID.
- * @interface: getScatterPlotInitValue -- return the max and min value of
- *                                        'COPY_NUMBER_ALTERATIONS' and
- *                                        'MUTATION_COUNT'.
  * @interface: getCharts -- return all DC charts
  * 
  * Following interfaces will call StudyViewInitCharts functions directly.
- * @interface: filterChartsByGivingIDs 
- * @interface: changeHeader 
- * @interface: scatterPlotBrushCallBack
- * @interface: scatterPlotClickCallBack
- * @interface: createNewChart
  * 
  * 
- * @authur: Hongxin Zhang
+ * @author: Hongxin Zhang
  * @date: Mar. 2014
  * 
  */
@@ -41,7 +60,6 @@ var StudyViewInitCharts = (function(){
         msnry,
         totalCharts,
         mutatedGenes = [],
-        clickedCaseId = '',
         dataArr = {},
         pie = [], //Displayed attributes info, dataType: STRING, NUMBER, OR BOOLEAN
         bar = [], //Displayed attributes info, dataType: NUMBER
@@ -53,11 +71,10 @@ var StudyViewInitCharts = (function(){
         
         //The relationshio between "The unique attribute name" and 
         //"The unique ID number in whole page"
-        attrNameMapUID = [],
-        
-        brushedCaseIds = [],
+        attrNameMapUID = {},
         varChart = [],
         varName = [], //Store all attributes in all data
+        varKeys = {}, //Store all keys for each attribute
         
         //The relationshio between "The ID of div standing for each Chart
         //in HTML" and "The unique ID number in whole page".
@@ -65,37 +82,42 @@ var StudyViewInitCharts = (function(){
         
         //Could be displayed Charts Type 'pie,bar'.
         //Mix combination, seperate by comma
-        varType = [],
+        varType = {},
         
         //Only for NUMBER dataType, store min, max and difference value
         distanceMinMaxArray = [], 
         dataType = {},
         displayedID = [], //Displayed Charts ID number
-        varDisplay = [], //Displayed Charts Name -- the display_name in each attribute       
-        shiftClickedCaseIds = [],
+        varDisplay = [], //Displayed Charts Name -- the display_name in each attribute   
         
         WORDCLOUDTEXTSIZECONSTANT = 200,
-        
+        barOriginalColor = "#1F77B4",
+       
         // Color scale from GOOGLE charts
-        chartColors = jQuery.extend(true, [], StudyViewBoilerplate.chartColors), 
-        parObject = {
-            studyId: "",
-            caseIds: "",
-            cnaProfileId: "",
-            mutationProfileId: "",
-            caseSetId: ""
-        };
+        chartColors = jQuery.extend(true, [], StudyViewBoilerplate.chartColors),
+        
+        //Flag for plot data button using only. Pie/Bar chart all has postdraw 
+        //and postfiltered functions which will effect the survival/scatter 
+        //plot if click filtered chart's 'plot data' button which will clear 
+        //filter and redraw first then call the postredraw and postfiltered 
+        //functions
+        plotDataFlag = false;
+       
     
-    function initParameters(o) {
-        parObject.studyId = o.studyId;
-        parObject.caseIds = o.caseIds;
-        parObject.cnaProfileId = o.cnaProfileId;
-        parObject.mutationProfileId = o.mutationProfileId;
-        parObject.caseSetId = o.caseSetId;
+    function allNumberElements(_array){
+        var _length = _array.length;
+        var _flag = true;//all number flag;
+        for(var i = 0; i < _length; i++){
+            if(_array[i] !== 'NA' && isNaN(_array[i])){
+                _flag = false;
+                break;
+            }
+        }
+        return _flag;
     }
     
     function initData(dataObtained) {
-        var _keys = [],
+        var _keys = [], //number of keys for each attribute
             _attr = dataObtained.attr,
             _arr = dataObtained.arr,
             _attrLength = _attr.length,
@@ -109,6 +131,8 @@ var StudyViewInitCharts = (function(){
         //Initial varName, varType, distanceMinMaxArray, varDisplay
         for( var i = 0; i < _attrLength; i++ ){
             var _varValuesNum = [];
+            var _dataType = _attr[i]["datatype"].toUpperCase();
+            var _allNumber = false;
             
             for( var j = 0; j < _arrLength; j++ ){
                 if(_varValuesNum.hasOwnProperty(_arr[j][_attr[i]["attr_id"]])){
@@ -120,8 +144,14 @@ var StudyViewInitCharts = (function(){
             }
             
             _keys = Object.keys(_varValuesNum);
+             //If chart only has one category and it is NA, do not show this chart
+            if(_keys.length === 1 && _keys[0] === 'NA'){
+                continue;
+            }
             
-            if(_attr[i]["datatype"] === "NUMBER"){
+            _allNumber = allNumberElements(_keys);
+           
+            if(_dataType === "NUMBER" || _allNumber){
                 dataType[_attr[i]["attr_id"]] = 'allnumeric';
             }else{
                 dataType[_attr[i]["attr_id"]] = 'string';
@@ -129,7 +159,7 @@ var StudyViewInitCharts = (function(){
             
             if(_attr[i]["attr_id"] === "CASE_ID"){
                 pie.push(_attr[i]);
-            }else if(_attr[i]["datatype"] === "NUMBER" || _attr[i]["datatype"] === "BOOLEAN"){                
+            }else if(_dataType === "NUMBER" || _dataType === "BOOLEAN" || _allNumber){                
                 if(selectedCol(_attr[i]["attr_id"])){                    
                     if(_keys.length>10 || _attr[i]["attr_id"] === 'MUTATION_COUNT' 
                             || _attr[i]["attr_id"] === 'COPY_NUMBER_ALTERATIONS')
@@ -145,13 +175,12 @@ var StudyViewInitCharts = (function(){
                     varType[_attr[i]["attr_id"]] = "pie";
                 }
                 
-                if(_attr[i]["datatype"] === "NUMBER"){
+                if(_dataType === "NUMBER" || _allNumber){
                     var _varValues = [];
                     
                     for(var j=0;j<_arr.length;j++){
                         if(_arr[j][_attr[i]["attr_id"]] && 
-                                _arr[j][_attr[i]["attr_id"]]!=="NA" && 
-                                _arr[j][_attr[i]["attr_id"]]!==""){
+                                !isNaN(_arr[j][_attr[i]["attr_id"]])){
                             _varValues.push(_arr[j][_attr[i]["attr_id"]]);  
                         }
                     }
@@ -163,30 +192,93 @@ var StudyViewInitCharts = (function(){
                     };
                 }
 
-            }else if(_attr[i]["datatype"] === "STRING"){
+            }else if(_dataType === "STRING"){
                 if(selectedCol(_attr[i]["attr_id"])){
                     pie.push(_attr[i]);
                 }
                 varType[_attr[i]["attr_id"]] = "pie";
             }else {
-                console.log("%c Error: Can not identify data type.", "color:red");
+                StudyViewUtil.echoWarningMessg('Can not identify data type.');
+                StudyViewUtil.echoWarningMessg('The data type is ' +_dataType);
             }
-
+            varKeys[_attr[i]["attr_id"]] = [];
+            varKeys[_attr[i]["attr_id"]] = _keys;
             varDisplay.push(_attr[i]["display_name"]);                
             varName.push(_attr[i]["attr_id"]);
         }
         
         totalCharts = pie.length + bar.length;
-        initScatterPlot(_arr);
-        var _trimedData = wordCloudDataProcess(mutatedGenes);
-        initWordCloud(_trimedData);
     }
     
+    function initSpecialCharts(_arr){
+        //var _trimedData = wordCloudDataProcess(mutatedGenes);
+        
+        if(     (StudyViewUtil.arrayFindByValue(varName, 'OS_MONTHS') && 
+                StudyViewUtil.arrayFindByValue(varName, 'OS_STATUS') &&
+                varKeys['OS_MONTHS'].length > 0 &&
+                varKeys['OS_STATUS'].length > 0) || 
+                (StudyViewUtil.arrayFindByValue(varName, 'DFS_MONTHS') && 
+                StudyViewUtil.arrayFindByValue(varName, 'DFS_STATUS') &&
+                varKeys['DFS_MONTHS'].length > 0 &&
+                varKeys['DFS_STATUS'].length > 0)){
+            
+            initSurvivalPlot(_arr);
+        }
+        
+        if(
+                StudyViewUtil.arrayFindByValue(varName, 'MUTATION_COUNT') && 
+                StudyViewUtil.arrayFindByValue(varName, 'COPY_NUMBER_ALTERATIONS') &&
+                varKeys['MUTATION_COUNT'].length > 0 &&
+                varKeys['COPY_NUMBER_ALTERATIONS'].length > 0){
+            initScatterPlot(_arr);
+        }
+        
+        /*
+        if(!( 
+                _trimedData.names.length === 1 && 
+                _trimedData.names[0] === 'No Mutated Gene')){
+        
+            initWordCloud(_trimedData);
+        }*/
+    }
+    function redrawSurvival() {
+        var _unselectedCases= [],
+            _selectedCases = getSelectedCasesID(),
+            _allCases = StudyViewParams.params.caseIds;
+        
+        var _passedCases = [];
+        var _selectedCasesLength = _selectedCases.length,
+            _allCasesLength = _allCases.length;
+        
+        if(_allCasesLength > _selectedCasesLength){
+            for(var i = 0; i < _allCasesLength; i++){
+                if(_selectedCases.indexOf(_allCases[i]) === -1){
+                    _unselectedCases.push(_allCases[i]);
+                }
+            }
+            _passedCases = {
+                'Selected cases': {
+                    caseIds: _selectedCases,
+                    color: "#dc3912"
+                },
+                'Unselected cases': {
+                    caseIds: _unselectedCases,
+                    color: "#2986e2"
+                }
+                //,ALL_CASES: _allCases
+            };
+        }else{
+            _passedCases = {
+                'All cases': {
+                    caseIds: _allCases,
+                    color: "#000000"
+                }
+            };
+        }
+        StudyViewSurvivalPlotView.redraw(_passedCases, false);
+    }
     function redrawWordCloud(){
-        var _selectedCases = varChart[attrNameMapUID["CASE_ID"]]
-                    .getChart()
-                    .dimension()
-                    .top(Infinity),
+        var _selectedCases = getSelectedCases(),
         _selectedCasesLength = _selectedCases.length,
         _selectedGeneMutatedInfo = [],
         _filteredMutatedGenes = {},
@@ -200,7 +292,7 @@ var StudyViewInitCharts = (function(){
             var mutatedGenesObject = {
                 cmd: 'get_smg',
                 case_list: _selectedCasesIds.join(' '),
-                mutation_profile: parObject.mutationProfileId
+                mutation_profile: StudyViewParams.params.mutationProfileId
             };
 
             $.when($.ajax({type: "POST", url: "mutations.json", data: mutatedGenesObject}))
@@ -212,12 +304,23 @@ var StudyViewInitCharts = (function(){
                 }
                 _filteredMutatedGenes = wordCloudDataProcess(_selectedGeneMutatedInfo);
                 StudyViewInitWordCloud.redraw(_filteredMutatedGenes);
+                callBackFunctions();
+                $("#study-view-word-cloud-loader").css('display', 'none');
             });
         }else{
             _filteredMutatedGenes = wordCloudDataProcess([]);
             StudyViewInitWordCloud.redraw(_filteredMutatedGenes);
+            $("#study-view-word-cloud-loader").css('display', 'none');
         }     
     }
+    
+    //This function defined all of callback functions.
+    function callBackFunctions(){
+        if(StudyViewSurvivalPlotView.getInitStatus()){
+            redrawSurvival();
+        }
+    }
+    
     //Only return top 10 of maximum number of mutations gene
     function wordCloudDataProcess(_data) {
         /*This data format is:
@@ -304,7 +407,7 @@ var StudyViewInitCharts = (function(){
         var container = document.querySelector('#study-view-charts');
         msnry = new Packery( container, {
             columnWidth: 190,
-            rowHeight: 230,
+            rowHeight: 115,
             itemSelector: '.study-view-dc-chart',
             gutter:5
         });
@@ -318,7 +421,9 @@ var StudyViewInitCharts = (function(){
         for ( var i=0, len = itemElemsLength; i < len; i++ ) {
             var elem = itemElems[i];
             // make element draggable with Draggabilly
-            var draggie = new Draggabilly( elem );
+            var draggie = new Draggabilly( elem, {
+                handle: '.study-view-drag-icon'
+            });
             
             //Set selected chart z-index bigger than others
             draggie.on( 'dragStart', function(instance, event, pointer){
@@ -342,6 +447,17 @@ var StudyViewInitCharts = (function(){
                 for(var j=0; j< _itemElemsLength; j++){
                     $("#" + _itemElems[j].id).css('z-index','');
                 }
+                
+                //if label of survival opened, close it in here
+                StudyViewSurvivalPlotView.detectLabelPosition();
+                
+                //Detect Scatter Plot
+                if($("#study-view-scatter-plot-side").css('display') === 'block'){
+                    StudyViewUtil.changePosition(
+                            '#study-view-scatter-plot',
+                            '#study-view-scatter-plot-side',
+                            "#dc-plots");
+                }
             });
             
             // bind Draggabilly events to Packery
@@ -349,46 +465,133 @@ var StudyViewInitCharts = (function(){
         }
         msnry.layout();
     }
+    
     function initWordCloud(_data) {
-        StudyViewInitWordCloud.init(parObject, _data);
+        StudyViewInitWordCloud.init(_data);
         $(".study-view-word-cloud-delete").unbind('click');
         $(".study-view-word-cloud-delete").click(function (){
             $("#study-view-word-cloud").css('display','none');
             $('#study-view-add-chart').css('display','block');
-            $('#study-view-add-chart ul')
-                    .append($('<li></li>')
+//            $('#study-view-add-chart ul')
+//                    .append($('<li></li>')
+//                        .attr('id','wordCloud')
+//                        .text('Word Cloud'));
+//            $('#study-view-add-chart ul').stop().hide();
+            $('#study-view-add-chart')
+                    .append($('<option></option>')
                         .attr('id','wordCloud')
                         .text('Word Cloud'));
+            bondDragForLayout();
+            AddCharts.bindliClickFunc();
+        });
+    }
+    
+    function initSurvivalPlot(_data) {
+        var _plotsInfo = {};
             
+        if (StudyViewUtil.arrayFindByValue(varName, 'OS_MONTHS') && 
+                StudyViewUtil.arrayFindByValue(varName, 'OS_STATUS') &&
+                varKeys['OS_MONTHS'].length > 0 &&
+                varKeys['OS_STATUS'].length > 0) {
+            _plotsInfo.OS=  {
+                name: "Overall Survival",
+                property: ["OS_MONTHS", "OS_STATUS"],
+                status: [["LIVING"], ["DECEASED"]],
+                caseLists: {
+                    'All cases': {
+                        caseIds: StudyViewParams.params.caseIds, 
+                        color: '#000000'
+                    }
+                }
+            };
+        }
+        
+        if (StudyViewUtil.arrayFindByValue(varName, 'DFS_MONTHS') && 
+                StudyViewUtil.arrayFindByValue(varName, 'DFS_STATUS') &&
+                varKeys['DFS_MONTHS'].length > 0 &&
+                varKeys['DFS_STATUS'].length > 0) {
+            
+            _plotsInfo.DFS=  {
+                name: "Disease Free Survival",
+                property: ["DFS_MONTHS", "DFS_STATUS"],
+                status: [["DISEASEFREE"], ["RECURRED", "RECURRED/PROGRESSED", "PROGRESSED"]],
+                caseLists: {
+                    'All cases': {
+                        caseIds: StudyViewParams.params.caseIds, 
+                        color: '#000000'
+                    }
+                }
+            };
+        }
+        
+        StudyViewSurvivalPlotView.init(_plotsInfo, _data);
+
+        $(".study-view-survival-plot-delete").click(function (){
+            var _plotDiv = $(this).parent().parent().parent(),
+                _plotIdArray = _plotDiv.attr('id').split("-"),
+                _plotId = _plotIdArray[_plotIdArray.length - 1],
+                _title = $(this).parent().parent().find("charttitleh4").text();
+           
+            $($(this).parent().parent().parent()).css('display','none');
+            $('#study-view-add-chart').css('display','block');
+//            $('#study-view-add-chart ul')
+//                    .append($('<li></li>')
+//                        .attr('id','survival-' + _plotId)
+//                        .text(_title));
+//            
+//            $('#study-view-add-chart ul').stop().hide();
+//            $('#study-view-add-chart ul').css('height','100%');
+            $('#study-view-add-chart')
+                    .append($('<option></option>')
+                        .attr('id','survival-' + _plotId)
+                        .text(_title));
             bondDragForLayout();
             AddCharts.bindliClickFunc();
         });
     }
     
     function initScatterPlot(_arr) {
-        StudyViewInitScatterPlot.init(parObject, _arr);
+        var _attr = {};
+            
+        _attr.min_x = distanceMinMaxArray['COPY_NUMBER_ALTERATIONS'].min;
+        _attr.max_x = distanceMinMaxArray['COPY_NUMBER_ALTERATIONS'].max;
+        _attr.min_y = distanceMinMaxArray['MUTATION_COUNT'].min;
+        _attr.max_y = distanceMinMaxArray['MUTATION_COUNT'].max;
         
+        StudyViewInitScatterPlot.init(_arr, _attr);
+
         $(".study-view-scatter-plot-delete").unbind('click');
         $(".study-view-scatter-plot-delete").click(function (){
             $("#study-view-scatter-plot").css('display','none');
             $('#study-view-add-chart').css('display','block');
-            $('#study-view-add-chart ul')
-                    .append($('<li></li>')
+//            $('#study-view-add-chart ul')
+//                    .append($('<li></li>')
+//                        .attr('id','mutationCNA')
+//                        .text('Number of Mutation vs Fraction of copy number altered genome'));
+//                
+//            $('#study-view-add-chart ul').stop().hide();
+//            $('#study-view-add-chart ul').css('height','100%');
+            $('#study-view-add-chart')
+                    .append($('<option></option>')
                         .attr('id','mutationCNA')
                         .text('Number of Mutation vs Fraction of copy number altered genome'));
-            
             bondDragForLayout();
-            clickedCaseId = '',
-            brushedCaseIds = [];
-            shiftClickedCaseIds = [];
+            StudyViewInitScatterPlot.setClickedCasesId('');
+            StudyViewInitScatterPlot.setBrushedCaseId([]);
+            StudyViewInitScatterPlot.setShiftClickedCasesId([]);
             AddCharts.bindliClickFunc();
             removeMarker();
             redrawChartsAfterDeletion();
-            setScatterPlotStyle([],[]);
         });
     }
     
-    function initCharts() {
+    function initCharts(_data) { 
+        $("#study-view-charts").html("");
+        initSpecialCharts(_data.arr);
+        initDcCharts(_data);
+    }
+    
+    function initDcCharts() {
         var createdChartID = 0;
             
         for(var i=0; i< pie.length ; i++){
@@ -408,8 +611,7 @@ var StudyViewInitCharts = (function(){
         }
         
         if(createdChartID !== totalCharts){
-            console.log("$c Error: the number of created charts not equal to " +"\
-                number of totalCharts. --1", "color:red");
+            StudyViewUtil.echoWarningMessg('the number of created charts not equal to number of totalCharts. --1');
             return false;
         }
         
@@ -417,8 +619,8 @@ var StudyViewInitCharts = (function(){
         
         $('.study-view-dc-chart-delete').unbind('click');
         $('.study-view-dc-chart-delete').click(function(event){
-                var _id = $(this).parent().parent().attr("id").split("-");
-                var _valueA = $(this).parent().parent().attr('value').split(',');
+                var _id = $(this).parent().parent().parent().attr("id").split("-");
+                var _valueA = $(this).parent().parent().parent().attr('oValue').split(',');
                 
                 deleteChart(_id[_id.length-1],_valueA);
                 bondDragForLayout();
@@ -426,75 +628,266 @@ var StudyViewInitCharts = (function(){
         });
     }
     
-    function getSelectedCasesAndRedrawScatterPlot(_currentPieFilters) {
-        var _tmpResult = varChart[attrNameMapUID["CASE_ID"]]
+    function getSelectedCases() {
+        return varChart[attrNameMapUID["CASE_ID"]]
                     .getChart()
                     .dimension()
-                    .top(Infinity),
-        _tmpCaseID = [];
-
-        clickedCaseId = '';
-
-        if(StudyViewInitScatterPlot.getScatterPlot()){
-            for(var i=0; i<_tmpResult.length ; i++){
-                _tmpCaseID.push(_tmpResult[i].CASE_ID);
+                    .top(Infinity);
+    }
+    function getSelectedCasesID() {
+        var _cases = varChart[attrNameMapUID["CASE_ID"]]
+                    .getChart()
+                    .dimension()
+                    .top(Infinity);
+        var _casesLength = _cases.length;
+        var _casesID = [];
+        
+        for(var i = 0; i < _casesLength; i++){
+            _casesID.push(_cases[i].CASE_ID);
+        }
+        
+        return _casesID;
+    }
+    
+    function redrawScatter(_casesInfo, _selectedAttr) {
+        if(StudyViewInitScatterPlot.getInitStatus()) {
+            if(typeof _casesInfo !== "undefined" && typeof _selectedAttr !== "undefined"){
+                StudyViewInitScatterPlot.redrawByAttribute(_casesInfo, _selectedAttr);
+            }else{
+                if(dcHasFilters()){
+                    StudyViewInitScatterPlot.redraw(getSelectedCasesID(), true);
+                }else{
+                    StudyViewInitScatterPlot.redraw([], false);
+                }
             }
-            setScatterPlotStyle(_tmpCaseID,_currentPieFilters);
         }
     }
     
     function makeNewPieChartInstance(_chartID, _pieInfo) {
-        var _param = {
+        var _params = {
                 baseID: "study-view",
                 chartID: _chartID,
                 chartDivClass: 'study-view-pie-chart',
                 attrID: _pieInfo.attr_id,
                 displayName: _pieInfo.display_name,
-                transitionDuration: 800,
                 ndx: ndx,
-                chartColors: chartColors
+                chartColors: chartColors,
+                plotDataButtonFlag: false
             };
-
-        var _piechartCallbackFunction = getSelectedCasesAndRedrawScatterPlot;
+        
+        if(StudyViewSurvivalPlotView.getInitStatus()) {
+            
+            _params.plotDataButtonFlag = true;
+        }else{
+            _params.plotDataButtonFlag = false;
+        }
         
         varChart[_chartID] = new PieChart();
-        varChart[_chartID].init(_param);
-        varChart[_chartID].scatterPlotCallbackFunction(_piechartCallbackFunction);
+        varChart[_chartID].init(_params);
         varChart[_chartID].postFilterCallbackFunc(postFilterCallbackFunc);
+        varChart[_chartID].postRedrawCallbackFunc(postRedrawCallbackFunc);
+        varChart[_chartID].plotDataCallbackFunc(plotDataCallbackFunc);
     }
     
-    function postFilterCallbackFunc(){
+    function redrawWSCharts() {
+        removeContentsAndStartLoading();
         changeHeader();
-        redrawWordCloud();
+        
+        if(StudyViewInitWordCloud.getInitStatus()){
+            //redrawSurvival has been added in redrawWordCloud as callback func
+            redrawWordCloud();
+        }else if(StudyViewSurvivalPlotView.getInitStatus()){
+            var _length = StudyViewSurvivalPlotView.getNumOfPlots();
+            
+            for(var i = 0; i < _length; i++){
+                $("#study-view-survival-plot-body-" + i).css('opacity', '0.3');
+                $("#study-view-survival-plot-loader-" + i).css('display', 'block');
+            }
+            
+            //The timeout is set equal to the transition duration of dc charts.
+            setTimeout(function() {
+                redrawSurvival();
+            }, StudyViewParams.summaryParams.transitionDuration);
+        }
+    }
+    
+    
+    function redrawSpecialPlots(_casesInfo, _selectedAttr){
+        var _scatterInit = StudyViewInitScatterPlot.getInitStatus();
+        var _timeout = 0;
+        
+        if(StudyViewSurvivalPlotView.getInitStatus()) {
+            var _length = StudyViewSurvivalPlotView.getNumOfPlots();
+            
+            for(var i = 0; i < _length; i++){
+                $("#study-view-survival-plot-body-" + i).css('opacity', '0.3');
+                $("#study-view-survival-plot-loader-" + i).css('display', 'block');
+            }
+            _timeout = StudyViewParams.summaryParams.transitionDuration;
+        }else{
+            _timeout = 0;
+        }
+        
+        if(_scatterInit){
+            $("#study-view-scatter-plot-loader").css('display', 'block');
+            $("#study-view-scatter-plot-body").css('opacity', '0.3');
+        }
+        
+        //When redraw plots, the page will be stuck before loader display, 
+        //so we need to set timeout for displaying loader.
+        //The timeout is set equal to the transition duration of dc charts.
+        setTimeout(function() {
+            StudyViewInitScatterPlot.setClickedCasesId('');
+            StudyViewInitScatterPlot.setShiftClickedCasesId(getSelectedCases());
+            
+            if(typeof _casesInfo !== "undefined" && typeof _selectedAttr !== "undefined"){
+                StudyViewSurvivalPlotView.redraw(_casesInfo, _selectedAttr);
+                changeHeader();
+                redrawScatter(_casesInfo, _selectedAttr[0]);
+            }else{
+                redrawWSCharts();
+                redrawScatter();
+            }
+            
+            if(_scatterInit){
+                $("#study-view-scatter-plot-loader").css('display', 'none');
+                $("#study-view-scatter-plot-body").css('opacity', '1');
+            }
+        }, _timeout);
+    }
+    
+    
+    /**
+     * DC charts post redraw callback function
+     */
+    function postRedrawCallbackFunc(){
+        //If no filter exist, should reset the clear flag of Scatter Plot.
+        if(!dcHasFilters()){
+            StudyViewInitScatterPlot.setclearFlag(false);
+        }
+    }
+    
+    /**
+     * DC charts post filter callback function
+     */
+    function postFilterCallbackFunc(){
+        if(!StudyViewInitScatterPlot.getclearFlag() && !plotDataFlag){
+            removeMarker();
+            resetBars();
+            redrawSpecialPlots();
+        }
+    }
+    
+    /**
+     * DC charts plot data button callback function
+     * @param {type} _casesInfo
+     * @param {type} _selectedAttr
+     */
+    function plotDataCallbackFunc(_casesInfo, _selectedAttr) {
+        removeMarker();
+        resetBars(_selectedAttr[0]);
+        redrawSpecialPlots(_casesInfo, _selectedAttr);
+    }
+    
+    /**
+     * 
+     * @returns {Boolean} whether current dc charts have filter
+     */
+    function dcHasFilters() {
+        var _dcLength = varChart.length,
+            _hasFilters = false;
+        for(var i = 0; i< _dcLength; i++) {
+            if(varChart[i] !== '' && varChart[i].getChart().hasFilter()){
+                _hasFilters = true;
+                break;
+            }
+        }
+        return _hasFilters;
+    }
+    
+    function resetBars(_exceptionAttr) {
+        var _attrIds = [],
+            _attrIdsLength = 0
+    
+        for( var _key in varType) {
+            if(varType[_key] === 'bar'){
+                if(typeof _exceptionAttr !== 'undefined'){
+                    if(_key !== _exceptionAttr){
+                        _attrIds.push(attrNameMapUID[_key]);
+                    }
+                }else {
+                    _attrIds.push(attrNameMapUID[_key]);
+                }
+            }
+        }
+        
+        _attrIdsLength = _attrIds.length;
+        
+        for( var i = 0; i < _attrIdsLength; i++) {
+            for( var _key in HTMLtagsMapUID){
+                if( HTMLtagsMapUID[_key] === _attrIds[i]){
+                    var _bars = $("#" + _key + " g.chart-body").find("rect"),
+                        _barsLength = _bars.length;
+                
+                    for ( var j = 0; j < _barsLength; j++) {
+                        var _bar = $(_bars[j]);
+                        if(!_bar.hasClass('deselected')){
+                            _bar.attr('fill', barOriginalColor);
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    
+    function removeContentsAndStartLoading(){
+        $("#study-view-word-cloud svg").remove();
+        $("#study-view-word-cloud-loader").css('display', 'block');
+        if(StudyViewSurvivalPlotView.getInitStatus()) {
+            var _length = StudyViewSurvivalPlotView.getNumOfPlots();
+            
+            for(var i = 0; i < _length; i++){
+                $("#study-view-survival-plot-body-" + i).css('opacity', '0.3');
+                $("#study-view-survival-plot-loader-" + i).css('display', 'block');
+            }
+        }
     }
     
     function makeNewBarChartInstance(_chartID, _barInfo, _distanceArray) {
-        var param = {
+        var _params = {
                 baseID: "study-view",
                 chartID: _chartID,
                 chartDivClass: 'study-view-bar-chart',
                 attrID: _barInfo.attr_id,
                 displayName: _barInfo.display_name,
-                transitionDuration: 800,
                 ndx: ndx,
                 needLogScale: false,
-                distanceArray: _distanceArray
+                distanceArray: _distanceArray,
+                plotDataButtonFlag: true,
+                timeoutFlag: true
             };
-            
-        var _barchartCallbackFunction = getSelectedCasesAndRedrawScatterPlot;
         
-        if(_distanceArray.diff > 1000){
-            param.needLogScale = true;
+        if(_distanceArray.diff > 1000 && _distanceArray.min >= 1){
+            _params.needLogScale = true;
         }else{
-            param.needLogScale = false;
+            _params.needLogScale = false;
+        }
+        
+        if(StudyViewSurvivalPlotView.getInitStatus()) {
+            
+            _params.plotDataButtonFlag = true;
+        }else{
+            _params.plotDataButtonFlag = false;
         }
         
         varChart[_chartID] = new BarChart();
-        varChart[_chartID].init(param);
-        varChart[_chartID].scatterPlotCallbackFunction(_barchartCallbackFunction);
+        varChart[_chartID].init(_params);
         varChart[_chartID].postFilterCallbackFunc(postFilterCallbackFunc);
-
-        if(_distanceArray.diff > 1000){
+        varChart[_chartID].postRedrawCallbackFunc(postRedrawCallbackFunc);
+        varChart[_chartID].plotDataCallbackFunc(plotDataCallbackFunc);
+        
+        if(_distanceArray.diff > 1000 && _distanceArray.min >= 1){
             $("#scale-input-"+_chartID).change(function(e) {
                 $(this).parent().parent().find('svg').remove();
                 var _param = {},
@@ -508,7 +901,7 @@ var StudyViewInitCharts = (function(){
                 }
                 dc.deregisterChart(_currentChart);
 
-                if($(this).attr('checked')){
+                if($(this).prop('checked')){
                     _param.needLogScale = true;
                 }else{
                     _param.needLogScale = false;
@@ -516,6 +909,7 @@ var StudyViewInitCharts = (function(){
                 varChart[_currentID].updateParam(_param);
                 varChart[_currentID].reDrawChart();
                 varChart[_currentID].getChart().render();
+                redrawSpecialPlots();
             });
         }
     }
@@ -525,15 +919,19 @@ var StudyViewInitCharts = (function(){
         if(varChart[_chartID].getChart().hasFilter()){
             varChart[_chartID].getChart().filterAll();
             dc.redrawAll();
+            redrawSpecialPlots();
         }
         dc.deregisterChart(varChart[_chartID].getChart());
-        $('#study-view-add-chart ul')
-                .append($('<li></li>').attr('id',_value[0]).text(_value[1]));
-        
+//        $('#study-view-add-chart ul')
+//                .append($('<li></li>').attr('id',_value[0]).text(_value[1]));
+//        
+//        $('#study-view-add-chart ul').stop().hide();
+//        $('#study-view-add-chart ul').css('height','100%');
+        $('#study-view-add-chart')
+                .append($('<option></option>').attr('id',_value[0]).text(_value[1]));     
         $('#study-view-add-chart').css('display','block');
         varChart[_chartID] = "";
         removedChart.push(Number(_chartID));
-        getSelectedCasesAndRedrawScatterPlot([]);
     }
         
     function changeHeader(){
@@ -546,21 +944,19 @@ var StudyViewInitCharts = (function(){
     function updateDataTableCallbackFuncs() {
         
         var _dataTableRowClickCallback = function(_deSelect, _selectedRowCaseId) {
-            clickedCaseId = _selectedRowCaseId;
+            StudyViewInitScatterPlot.setClickedCasesId(_selectedRowCaseId);
             removeMarker();
-            redrawChartsAfterDeletion();
+            //redrawChartsAfterDeletion();
             if(!_deSelect){
                 getDataAndDrawMarker(_selectedRowCaseId);
             }
-            setScatterPlotStyle(_selectedRowCaseId,varChart[attrNameMapUID['CASE_ID']].getChart().filters());
         };
         
         var _dataTableRowShiftClickCallback = function(_selectedRowCaseId) {
-            shiftClickedCaseIds = _selectedRowCaseId;
-            clickedCaseId = '';
+            StudyViewInitScatterPlot.setShiftClickedCasesId(_selectedRowCaseId);
+            StudyViewInitScatterPlot.setClickedCasesId('');
             removeMarker();
             filterChartsByGivingIDs(_selectedRowCaseId);
-            setScatterPlotStyle(_selectedRowCaseId,varChart[attrNameMapUID['CASE_ID']].getChart().filters());
         };
         
         var _dataTable = StudyViewInitDataTable.getDataTable();
@@ -574,52 +970,6 @@ var StudyViewInitCharts = (function(){
         return col.toLowerCase().match(/(^age)|(gender)|(os_status)|(os_months)|(dfs_status)|(dfs_months)|(race)|(ethnicity)|(.*grade.*)|(.*stage.*)|(histology)|(tumor_type)|(subtype)|(tumor_site)|(.*score.*)|(mutation_count)|(copy_number_alterations)/);
     }
     
-    function setScatterPlotStyle(_selectedCaseID,_filters){
-        var _style = [],
-            _scatterPlot = StudyViewInitScatterPlot.getScatterPlot();
-        
-        if(_scatterPlot){
-            for(var i=0 ; i< parObject.caseIds.length ; i++){
-                var styleDatum = {};
-
-                styleDatum.case_id = parObject.caseIds[i];
-                if(_selectedCaseID.length !== parObject.caseIds.length){
-                    if(_selectedCaseID.indexOf(parObject.caseIds[i]) !== -1){
-                        if(clickedCaseId !== ''){
-                            styleDatum.fill = '#2986e2';
-                            styleDatum.stroke = 'red';
-                            styleDatum.strokeWidth = '3';
-                            styleDatum.size = '120';
-                        }else{
-                            styleDatum.fill = 'red';
-                            styleDatum.stroke = 'red';
-                            styleDatum.strokeWidth = '0';
-                            styleDatum.size = '120';
-                        }
-                    }else{
-                        styleDatum.fill = '#2986e2';
-                        styleDatum.stroke = '#2986e2';
-                        styleDatum.strokeWidth = '0';
-                        styleDatum.size = '60';
-                    }
-                }else if(_filters === null || _filters.length === 0 ){
-                    styleDatum.fill = '#2986e2';
-                    styleDatum.stroke = '#2986e2';
-                    styleDatum.strokeWidth = '0';
-                    styleDatum.size = '60';
-                }else{
-                    styleDatum.fill = 'red';
-                    styleDatum.stroke = 'red';
-                    styleDatum.strokeWidth = '0';
-                    styleDatum.size = '120';
-                }
-                _style.push(styleDatum);
-            }
-
-            StudyViewInitScatterPlot.getScatterPlot().updateStyle(_style);
-        }
-    }
-    
     function redrawChartsAfterDeletion(){
         for(var i = 0; i < varChart.length; i++){
             if(removedChart.indexOf(i) === -1){
@@ -628,98 +978,7 @@ var StudyViewInitCharts = (function(){
             }
         }
         dc.redrawAll();
-    }
-    
-    function scatterPlotBrushCallBack(_brushedCaseIds) {
-        var _numOfCharts = varChart.length;
-        
-        brushedCaseIds = _brushedCaseIds;
-        if(_brushedCaseIds.length === 0 || (shiftClickedCaseIds.length === 1 && _brushedCaseIds.indexOf(shiftClickedCaseIds[0]) === -1)){
-            shiftClickedCaseIds = [];
-            clickedCaseId = '';
-            
-            var oTable = $("#dataTable").dataTable();
-
-            $(oTable.fnSettings().aoData).each(function (){
-                if($(this.nTr).hasClass('row_selected')){
-                    $(this.nTr).removeClass('row_selected');
-                    if($(this.nTr).hasClass('odd')){
-                       $(this.nTr).css('background-color','#E2E4FF'); 
-                    }else{
-                        $(this.nTr).css('background-color','white');
-                    }
-                }
-            });
-        }
-        
-        
-        if(_brushedCaseIds.length > 0){
-            for(var i=0; i< _numOfCharts ; i++){
-                if(varChart[i] !== ''){
-                    if(varChart[i].getChart().filters().length > 0)
-                        varChart[i].getChart().filter(null);
-                }
-            }
-        }
-        
-        scatterPlotCallBack(_brushedCaseIds);
-        removeMarker();
-    }
-    
-    function scatterPlotCallBack(_caseIDs){
-        var _numOfCharts = varChart.length;
-        
-        if(_caseIDs.length > 0){
-            varChart[attrNameMapUID['CASE_ID']].getChart().filterAll();
-            varChart[attrNameMapUID['CASE_ID']].getChart().filter([_caseIDs]);
-            dc.redrawAll();
-        }else{
-            for(var i=0; i< _numOfCharts ; i++){
-                if(varChart[i] !== ''){
-                    if(varChart[i].getChart().filters().length > 0)
-                        varChart[i].getChart().filterAll();
-                }
-            }
-            dc.redrawAll();
-        }
-        changeHeader();
-        redrawWordCloud();
-    }
-    
-    function scatterPlotClickCallBack(_clickedCaseIds) {
-        var _typeOfInputClickedCases = typeof _clickedCaseIds;
-        if(_typeOfInputClickedCases === 'string'){
-            clickedCaseId = _clickedCaseIds;
-            scatterPlotClick(_clickedCaseIds);
-        }else{
-            shiftClickedCaseIds = _clickedCaseIds;
-            scatterPlotShiftClick(_clickedCaseIds);
-        }
-    }
-    
-    function scatterPlotClick(_clickedCaseId){
-        if(_clickedCaseId !== ''){
-            removeMarker();
-            getDataAndDrawMarker([_clickedCaseId]);
-        }else{
-            removeMarker();
-        }
-        changeHeader();
-    }
-    
-    function scatterPlotShiftClick(_shiftClickedCaseIds){
-        var _shiftClickedCasesLength = _shiftClickedCaseIds.length;
-        
-        removeMarker();
-        shiftClickedCaseIds = _shiftClickedCaseIds;
-        if(_shiftClickedCasesLength !== 0){
-            clickedCaseId = '';
-            scatterPlotCallBack(shiftClickedCaseIds);
-        }else{
-            redrawChartsAfterDeletion();
-            if(clickedCaseId !== '')
-                getDataAndDrawMarker([clickedCaseId]);
-        }
+        redrawSpecialPlots();
     }
     
     function getDataAndDrawMarker(_clickedCaseIds) {
@@ -730,23 +989,23 @@ var StudyViewInitCharts = (function(){
                 if(removedChart.indexOf(i) === -1){
                     if(attrNameMapUID['CASE_ID'] !== i){
                         var _datum = $("#study-view-dc-chart-" + i),
-                            _value = _datum.attr('value'),
+                            _value = _datum.attr('oValue'),
                             _valueArray = _value.split(",");
                     
                         if(_valueArray[2] === 'pie'){
                             var _relativeValue = dataArr[_clickedCaseIds[0]][_valueArray[0]],
-                                _gArray = _datum.find('svg g g');
-                            $.each(_gArray, function(key,value){
-                                var _title = $(this).find('title').text(),
-                                    _titleArray = _title.split(":"),
-                                    _key = _titleArray[0];
-                                
+                                _gArray = _datum.find('svg g g'),
+                                _gArrayLength = _gArray.length;
+                        
+                            for ( var j = 0; j < _gArrayLength; j++) {
+                                var _labelText = $(_gArray[j]).find('title').text(),
+                                    _key = _labelText.substring(0, _labelText.lastIndexOf(":"));
                                 if(_key === _relativeValue){
-                                    varChart[i].drawMarker(key+1,i);
+                                    varChart[i].drawMarker(j+1,i);
                                 }
-                            });
+                            }
                         }else if(_valueArray[2] === 'bar'){
-                             varChart[i].drawMarker(dataArr[_clickedCaseIds[0]][_valueArray[0]]);
+                            varChart[i].drawMarker(dataArr[_clickedCaseIds[0]][_valueArray[0]]);
                         }
                     }
                 }
@@ -787,14 +1046,13 @@ var StudyViewInitCharts = (function(){
         var _caseIDChart = varChart[attrNameMapUID['CASE_ID']].getChart();
         
         if(_ids.length > 1){
-            clickedCaseId = '';
+            StudyViewInitScatterPlot.setClickedCasesId('');;
         }
         _caseIDChart.filterAll();
         _caseIDChart.filter([_ids]);
         dc.redrawAll();
-        setScatterPlotStyle(_ids,_caseIDChart.filters());
-        changeHeader();
-        redrawWordCloud();
+        
+        postFilterCallbackFunc(_ids);
     }
     
     function createNewChartFromOutside(_id, _text) {
@@ -803,83 +1061,102 @@ var StudyViewInitCharts = (function(){
             _chartType = [],
             _selectedAttr = _id,
             _selectedAttrDisplay = _text,
-            _chartID = -1;
-
+            _chartID = -1,
+            _createdFlag = true;
+    
         if(_id === 'mutationCNA'){
             _chartType = ['scatter'];
         }else if(_id === 'wordCloud'){
             _chartType = ['wordCloud'];
+        }else if(_id.indexOf('survival') !== -1){
+            _chartType = [_id];
         }else{
             _chartType = varType[_id].split(',');
         }
 
         _selectedChartType = _chartType[0];
-
+        
         if(_selectedAttr==='mutationCNA'){
             $("#study-view-scatter-plot").css('display','block');
         }else if(_selectedAttr==='wordCloud'){
             $("#study-view-word-cloud").css('display','block');
+        }else if(_selectedAttr.indexOf('survival') !== -1){
+            var tmp = _selectedAttr.split("-"),
+                _index = tmp[tmp.length - 1];
+            
+            $("#study-view-survival-plot-" + _index).css('display','block');
         }else{
-            if(Object.keys(attrNameMapUID).indexOf(_selectedAttr) !== -1){
-                _chartID = attrNameMapUID[_selectedAttr];
+            if(totalCharts < 31) {
+                if(Object.keys(attrNameMapUID).indexOf(_selectedAttr) !== -1){
+                    _chartID = attrNameMapUID[_selectedAttr];
+                }else{
+                    _chartID = totalCharts;
+                    HTMLtagsMapUID["study-view-dc-chart-" + totalCharts] = totalCharts;
+                    attrNameMapUID[_selectedAttr] = totalCharts;
+                    totalCharts++;       
+                }
+
+                if(_selectedChartType === 'pie'){
+                    makeNewPieChartInstance(_chartID, 
+                                            {attr_id:_selectedAttr,
+                                                display_name:_selectedAttrDisplay});
+                }else{
+                    makeNewBarChartInstance(_chartID,
+                                            {attr_id:_selectedAttr,
+                                                display_name:_selectedAttrDisplay},
+                                            distanceMinMaxArray[_selectedAttr]);
+                }
+
+
+                msnry.destroy();
+                msnry = new Packery( document.querySelector('#study-view-charts'), {
+                    columnWidth: 190,
+                    rowHeight: 115,
+                    itemSelector: '.study-view-dc-chart',
+                    gutter:5
+                });
+
+                varChart[_chartID].getChart().render();
+
+                $('#study-view-dc-chart-'+ _chartID +' .study-view-dc-chart-delete').unbind('click');
+                $('#study-view-dc-chart-'+ _chartID +' .study-view-dc-chart-delete').click(function(event){
+                    var valueA = $(this).parent().parent().parent().attr("oValue").split(',');
+                    deleteChart(_chartID,valueA);
+                    AddCharts.bindliClickFunc();
+                    bondDragForLayout();
+                });
             }else{
-                _chartID = totalCharts;
-                HTMLtagsMapUID["study-view-dc-chart-" + totalCharts] = totalCharts;
-                attrNameMapUID[_selectedAttr] = totalCharts;
-                totalCharts++;       
+                alert("Can not create more than 30 plots.");
+                _createdFlag = false;
             }
-
-            if(_selectedChartType === 'pie'){
-                makeNewPieChartInstance(_chartID, 
-                                        {attr_id:_selectedAttr,
-                                            display_name:_selectedAttrDisplay});
-            }else{
-                makeNewBarChartInstance(_chartID,
-                                        {attr_id:_selectedAttr,
-                                            display_name:_selectedAttrDisplay},
-                                        distanceMinMaxArray[_selectedAttr]);
-            }
-
-
-            msnry.destroy();
-            msnry = new Packery( document.querySelector('#study-view-charts'), {
-                columnWidth: 190,
-                rowHeight: 230,
-                itemSelector: '.study-view-dc-chart',
-                gutter:5
-            });
-
-            varChart[_chartID].getChart().render();
-
-            $('#study-view-dc-chart-'+ _chartID +' .study-view-dc-chart-delete').unbind('click');
-            $('#study-view-dc-chart-'+ _chartID +' .study-view-dc-chart-delete').click(function(event){
-                var valueA = $(this).parent().parent().attr("value").split(',');
-                deleteChart(_chartID,valueA);
-                AddCharts.bindliClickFunc();
-                bondDragForLayout();
-            });
-        }
-
-        _index = removedChart.indexOf(_chartID);
-        if (_index > -1) {
-            removedChart.splice(_index, 1);
         }
         
-        bondDragForLayout();
+        if(_createdFlag) {
+            _index = removedChart.indexOf(_chartID);
+            if (_index > -1) {
+                removedChart.splice(_index, 1);
+            }
 
-        $('#study-view-add-chart ul').find('li[id="' + _selectedAttr + '"]').remove();
+            bondDragForLayout();
 
-        if($('#study-view-add-chart ul').find('li').length === 0 ){
-            $('#study-view-add-chart').css('display','none');
+//            $('#study-view-add-chart ul').find('li[id="' + _selectedAttr + '"]').remove();
+            $('#study-view-add-chart').find('option[id="' + _selectedAttr + '"]').remove();
+//            if($('#study-view-add-chart ul').find('li').length === 0 ){
+            if($('#study-view-add-chart').find('option').length === 1 && 
+                    $('#study-view-add-chart').find('option').attr('id') === ''){
+                $('#study-view-add-chart').css('display','none');
+            }
+            
+//            $('#study-view-add-chart ul').css('height','100%');
         }
     }
+    
     return {
-        init: function(_params,_data) {
-            initParameters(_params);
+        init: function(_data) {
             initData(_data);
             initCharts(_data);
             createLayout();
-            updateDataTableCallbackFuncs();
+//            updateDataTableCallbackFuncs();
             filterCharts();
         },
         
@@ -894,19 +1171,9 @@ var StudyViewInitCharts = (function(){
             _param.name = varName;
             _param.displayName = varDisplay;
             _param.displayedID = displayedID;
+            _param.type = varType;
             
             return _param;
-        },
-        
-        getScatterPlotInitValue: function() {
-            var _datum = {};
-            
-            _datum.min_x = distanceMinMaxArray['COPY_NUMBER_ALTERATIONS'].min;
-            _datum.max_x = distanceMinMaxArray['COPY_NUMBER_ALTERATIONS'].max;
-            _datum.min_y = distanceMinMaxArray['MUTATION_COUNT'].min;
-            _datum.max_y = distanceMinMaxArray['MUTATION_COUNT'].max;
-            
-            return _datum;
         },
         
         getCharts: function() {
@@ -917,11 +1184,26 @@ var StudyViewInitCharts = (function(){
             return varChart[_index];
         },
         
-        getSelectedCasesAndRedrawScatterPlot: getSelectedCasesAndRedrawScatterPlot,
+        getCaseIdChartIndex: function() {
+            return attrNameMapUID['CASE_ID'];
+        },
+        
+        getPlotDataFlag: function() {
+            return plotDataFlag;
+        },
+        
+        setPlotDataFlag: function(_flag) {
+            plotDataFlag = _flag;
+        },
+        
+        redrawScatter: redrawScatter,
+        redrawSpecialPlots: redrawSpecialPlots,
         filterChartsByGivingIDs: filterChartsByGivingIDs,
         changeHeader: changeHeader,
-        scatterPlotBrushCallBack: scatterPlotBrushCallBack,
-        scatterPlotClickCallBack: scatterPlotClickCallBack,
-        createNewChart: createNewChartFromOutside        
+        createNewChart: createNewChartFromOutside,
+        getDataAndDrawMarker: getDataAndDrawMarker,
+        removeMarker: removeMarker,
+        redrawWSCharts: redrawWSCharts,
+        resetBars: resetBars
     };
 })();

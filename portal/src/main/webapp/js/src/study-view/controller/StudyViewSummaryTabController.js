@@ -1,30 +1,16 @@
 
 
 var StudyViewSummaryTabController = (function() {
-    var parObject = {
-        studyId: "",
-        caseIds: "",
-        cnaProfileId: "",
-        mutationProfileId: "",
-        caseSetId: ""
-    };
-        
     var initComponents = function (_data) {
-        StudyViewInitDataTable.init(parObject, _data);
-        StudyViewInitCharts.init(parObject, _data);
-        StudyViewInitTopComponents.init(parObject);
-        StudyViewInitMiddleComponents.init();
-        StudyViewInitDataTable.getDataTable().resizeTable();
+        //StudyViewInitDataTable.init(_data);
+        StudyViewInitCharts.init(_data);
+        StudyViewInitTopComponents.init();
+        //StudyViewInitMiddleComponents.init();
+        //StudyViewInitDataTable.getDataTable().resizeTable();
         StudyViewWindowEvents.init();
+        $('#dc-plots-loading-wait').hide();
+        $('#study-view-main').show();
     };
-    
-    function initLocalParameters(o){
-        parObject.studyId = o.studyId;
-        parObject.caseIds = o.caseIds;
-        parObject.cnaProfileId = o.cnaProfileId;
-        parObject.mutationProfileId = o.mutationProfileId;
-        parObject.caseSetId = o.caseSetId;
-    }
     
     function initPage(){
         $("#data-table-chart").html("");
@@ -32,8 +18,7 @@ var StudyViewSummaryTabController = (function() {
     }
     
     return {
-        init: function(_params, _data) {
-            initLocalParameters(_params);
+        init: function(_data) {
             initPage();
             initComponents(_data);
         }

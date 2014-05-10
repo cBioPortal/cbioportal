@@ -6,27 +6,16 @@
 
 var StudyViewProxy = (function() {
     
-    var parObject = {
-        studyId: "",
-        caseIds: "",
-        cnaProfileId: "",
-        mutationProfileId: "",
-        caseSetId: ""
-    };
-
-    var caseIdStr = '',
+    var parObject = {},
+        caseIdStr = '',
         ajaxParameters = {},
         obtainDataObject = [];
         
     obtainDataObject['attr'] = [];
     obtainDataObject['arr'] = [];
     
-    function initLocalParameters(o){
-        parObject.studyId = o.studyId;
-        parObject.caseIds = o.caseIds;
-        parObject.cnaProfileId = o.cnaProfileId;
-        parObject.mutationProfileId = o.mutationProfileId;        
-        parObject.caseSetId = o.caseSetId;
+    function initLocalParameters(){
+        parObject = jQuery.extend(true, {}, StudyViewParams.params);
         caseIdStr = parObject.caseIds.join(' ');
     }
     
@@ -69,7 +58,6 @@ var StudyViewProxy = (function() {
                 $.ajax({type: "POST", url: "cna.json", data: ajaxParameters.cnaData}),
                 $.ajax({type: "POST", url: "mutations.json", data: ajaxParameters.mutatedGenesData}),
                 $.ajax({type: "POST", url: "Gistic.json", data: ajaxParameters.gisticData}))
-
             .done(function(a1, a2, a3, a4, a5){
                 var _dataAttrMapArr = [], //Map attrbute value with attribute name for each datum
                     _keyNumMapping = [],
@@ -173,7 +161,6 @@ var StudyViewProxy = (function() {
                     _newAttr.datatype = 'NUMBER';
                     obtainDataObject['attr'].push(_newAttr);
                 }
-                
                 obtainDataObject['mutatedGenes'] = a4[0];
                 obtainDataObject['cna'] = a5[0];
                 
@@ -193,8 +180,8 @@ var StudyViewProxy = (function() {
     }
     
     return {
-        init: function(o,callbackFunc){
-            initLocalParameters(o);
+        init: function(callbackFunc){
+            initLocalParameters();
             initAjaxParameters();
             getDataFunc(callbackFunc);
         },

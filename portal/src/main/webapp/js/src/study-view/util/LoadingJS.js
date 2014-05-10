@@ -7,7 +7,13 @@ var LoadingJS = (function(){
                     'crossfilter',
                     'dataTables.fixedColumns',
                     'util/StudyViewBoilerplate',
-                    'd3.layout.cloud'];
+                    'd3.layout.cloud',
+                    'js/src/survival-curve/survivalCurveProxy.js',
+                    'js/src/survival-curve/component/survivalCurve.js',
+                    'js/src/survival-curve/component/confidenceIntervals.js',
+                    'js/src/survival-curve/component/kmEstimator.js',
+                    'js/src/survival-curve/component/logRankTest.js',
+                    'js/src/survival-curve/component/boilerPlate.js'];
     
     //As input for RequireJS
     var JSarray = [];
@@ -29,11 +35,10 @@ var LoadingJS = (function(){
                 ],
                 data: ['StudyViewProxy'],
                 util: [
-                    'DcRedrawAllDataTable', 
                     'FnGetColumnData',
                     'FnColumnFilter',
                     'FnSetFilteringDelay',
-                    'StudyViewOverallFunctions'
+                    'StudyViewUtil'
                 ],
                 view: [
                     'StudyViewInitCharts', 
@@ -46,14 +51,16 @@ var LoadingJS = (function(){
                     'StudyViewWindowEvents',
                     'StudyViewInitMutationsTab',
                     'StudyViewInitCNATab',
-                    'StudyViewInitClinicalTab'
+                    'StudyViewInitClinicalTab',
+                    'StudyViewSurvivalPlotView'
                 ],
                 controller: [
                     'StudyViewMainController',
                     'StudyViewSummaryTabController',
                     'StudyViewMutationsTabController',
                     'StudyViewCNATabController',
-                    'StudyViewClinicalTabController'
+                    'StudyViewClinicalTabController',
+                    'StudyViewParams'
                 ]
             };
             

@@ -35,35 +35,21 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 var StudyViewInitWordCloud = (function() {
     //The length of words should be same with the length of fontSize.
     var words = [],
-        fontSize = [],
-        parObject = {
-            studyId: "",
-            caseIds: "",
-            cnaProfileId: "",
-            mutationProfileId: "",
-            caseSetId: ""
-        };
+        fontSize = [];
     var WIDTH = 180,
         HEIGHT = 180;
     
+    var initStatus = false;
     
     function initData(_data){
         words = _data.names;
         fontSize = _data.size;
     }
     
-    function initParams(_params){
-        parObject.studyId = _params.studyId;
-        parObject.caseIds = _params.caseIds;
-        parObject.cnaProfileId = _params.cnaProfileId;
-        parObject.mutationProfileId = _params.mutationProfileId;
-        parObject.caseSetId = _params.caseSetId;
-    }
-    
     function initDiv(){
         $("#study-view-charts").append(StudyViewBoilerplate.wordCloudDiv);
-        $("#study-view-word-cloud-pdf-name").val("Word_Cloud_"+ parObject.studyId +".pdf");
-        $("#study-view-word-cloud-svg-name").val("Word_Cloud_"+ parObject.studyId +".svg");
+        $("#study-view-word-cloud-pdf-name").val("Word_Cloud_"+ StudyViewParams.params.studyId +".pdf");
+        $("#study-view-word-cloud-svg-name").val("Word_Cloud_"+ StudyViewParams.params.studyId +".svg");
     }
     
     //Add all listener events
@@ -77,9 +63,15 @@ var StudyViewInitWordCloud = (function() {
                 "study-view-word-cloud-svg-value");
         });
         
-        StudyViewOverallFunctions
-                    .showHideDivision("study-view-word-cloud", 
-                                    "study-view-word-cloud-side");
+        StudyViewUtil.showHideDivision(
+                "#study-view-word-cloud", 
+                "#study-view-word-cloud-side"
+        );
+                                    
+        StudyViewUtil.showHideDivision(
+                "#study-view-word-cloud", 
+                "#study-view-word-cloud .study-view-drag-icon"
+        );
     }
     
     function setSVGElementValue(_svgParentDivId,_idNeedToSetValue){
@@ -143,9 +135,9 @@ var StudyViewInitWordCloud = (function() {
             $("#study-view-word-cloud svg text").click(function(){
                 var _text = $(this).text();
                 window.open("index.do?Action=Submit&"+
-                            "genetic_profile_ids="+parObject.mutationProfileId+"&" +
-                            "case_set_id="+parObject.caseSetId+"&" +
-                            "cancer_study_id="+parObject.studyId+"&" +
+                            "genetic_profile_ids="+StudyViewParams.params.mutationProfileId+"&" +
+                            "case_set_id="+StudyViewParams.params.caseSetId+"&" +
+                            "cancer_study_id="+StudyViewParams.params.studyId+"&" +
                             "gene_list="+ _text +"&tab_index=tab_visualize&" +
                             "#mutation_details");
             });
@@ -172,14 +164,17 @@ var StudyViewInitWordCloud = (function() {
     }
     
     return {
-        init: function(_params, _data){
-            initParams(_params);
+        init: function(_data){
             initData(_data);
             initDiv();
             initD3Cloud();
             addEvents();
+            initStatus = true;
         },
         
-        redraw: redraw
+        redraw: redraw,
+        getInitStatus: function(){
+            return initStatus;
+        }
     };
 })();

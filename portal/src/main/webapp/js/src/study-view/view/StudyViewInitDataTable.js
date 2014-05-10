@@ -10,21 +10,20 @@
 
 var StudyViewInitDataTable = (function() {
     
-    var param, data, dataTable;
+    var data, dataTable;
     
-    function initParam(_param, _data) {
-        param = _param;
+    function initParam(_data) {
         data = _data;
     }
     
     function initDataTable() {
         dataTable = new DataTable();
-        dataTable.init(param, data);
+        dataTable.init(data);
     }
     
     return {
-        init: function(_param, _data) {
-            initParam(_param, _data);
+        init: function(_data) {
+            initParam(_data);
             initDataTable();
         },
         

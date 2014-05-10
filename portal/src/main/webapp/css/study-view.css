@@ -31,6 +31,12 @@
     display: inline-block;
     vertical-align: middle;
     line-height: 30px;
+    font-family: Verdana,Arial,sans-serif;
+    font-size: 1.1em;
+    border: 1px solid #d3d3d3;
+    background: #e6e6e6;
+    font-weight: normal;
+    color: #555555;
 }
 #study-view-tutorial {
     right: 0;
@@ -42,21 +48,37 @@
 /*    left: 0;*/
     float: left;
     width: 160px;
-    height: 30px;
     margin: 0 5px 0 0;
+    font-family: Verdana,Arial,sans-serif;
+    font-size: 1.1em;
+    border: 1px solid #d3d3d3;
+    background: #e6e6e6;
+    font-weight: normal;
+    color: #555555;
 }
 #study-view-header-left-1 {
     /*left: 0;*/
     float: left;
     margin: 0 5px 0 0;
     width: 190px;
+    font-family: Verdana,Arial,sans-serif;
+    font-size: 1.1em;
+    border: 1px solid #d3d3d3;
+    background: #e6e6e6;
+    font-weight: normal;
+    color: #555555;
     //height: 30px;
 }
 #study-view-header-left-2 {
     /*left: 210px;*/
     float: left;
-    height: 30px;
     margin: 0 5px 0 0;
+    font-family: Verdana,Arial,sans-serif;
+    font-size: 1.1em;
+    border: 1px solid #d3d3d3;
+    background: #e6e6e6;
+    font-weight: normal;
+    color: #555555;
 }
 #study-view-header-left-3 {
     /*position: absolute;*/
@@ -73,11 +95,18 @@
     padding: 0 10px;
     background-color: white;
     width: auto;
-    color: #2986e2;
+    /*color: #2986e2;*/
+    color: black;
     text-align: center;
+    font-family: Verdana,Arial,sans-serif;
+    font-size: 1.1em;
+    margin-top: 4px;
 }
 #study-view-header-left-3:hover{
     cursor: default;
+}
+.study-view-header-button:hover {
+    cursor: pointer;
 }
 #study-view-main {
     margin-left: auto;
@@ -328,7 +357,8 @@
     border-left-width: 0;*/
 }
 .study-view-pdf-svg-side.bar {
-    left: 375px;
+    /*left: 375px;*/
+    left: 325px;
 }
 .w2{
     width:375px;

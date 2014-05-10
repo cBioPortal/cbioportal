@@ -93,9 +93,7 @@ var StudyViewInitTopComponents = (function() {
         //StudyViewWindowEvents will return the page scrolling status, if the
         //header is on the top of page windowScorlled = false.
 //        windowScolled = StudyViewWindowEvents.getScrollStatus();
-        console.log(_resultLength);
-        console.log(_numOfCases);
-        
+         
         if(_resultLength === _numOfCases){
             var _hasFilter = false,
                 _plotDataFlag = StudyViewInitCharts.getPlotDataFlag();

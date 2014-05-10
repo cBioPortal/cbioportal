@@ -169,7 +169,8 @@ var StudyViewBoilerplate ={
         _header.attr('id','study-view-header-left');
         _span1
             .attr({
-                'id': 'study-view-header-left-0'})
+                'id': 'study-view-header-left-0',
+                'class': 'study-view-header-button'})
 //                'class': 'study-view-header study-view-header-left'})
 //            .text('Select cases by IDs');
             .val('Select cases by IDs');
@@ -207,7 +208,7 @@ var StudyViewBoilerplate ={
                 id: "study-view-header-left-1",
                 value: "Query selected cases",
 //                class: "study-view-header hidden"
-                class: "hidden"
+                class: "hidden study-view-header-button"
             });
         _form.append(_input1);
         _form.append(_input2);
@@ -219,14 +220,14 @@ var StudyViewBoilerplate ={
                 'id': 'study-view-header-left-2',
 //                'class': 'study-view-header hidden'})
 //            .text('Reset all');
-                'class': 'hidden'})
+                'class': 'hidden study-view-header-button'})
             .val('Reset all');
         
         _span3
             .attr({
                 'id': 'study-view-header-left-3',
                 'class': 'hidden'})
-            .text('Reset all');
+            .text('');
 //            .val('Reset all');
        
         _header.append(_span1);

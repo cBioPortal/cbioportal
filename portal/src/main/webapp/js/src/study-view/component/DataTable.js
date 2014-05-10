@@ -159,7 +159,7 @@ var DataTable = function() {
     function initDataTable() {
         dataTable = $('#' + tableId).dataTable({
             "sScrollX": "1200px",
-            "sScrollY": "200px",
+            "sScrollY": "500px",
             "bPaginate": false,
             "bScrollCollapse": true,
             "aoColumns": aoColumns,
@@ -251,7 +251,11 @@ var DataTable = function() {
         
         $('#study-tab-clinical-a').click(function(){
             if (!$(this).hasClass("tab-clicked")) {
+                dataTable.fnFilter('', 0);
+                showDataTableReset();
+                refreshSelectionInDataTable();
                 dataTable.fnAdjustColumnSizing();
+                resizeLeftColumn();
                 $(this).addClass("tab-clicked");
             }
         });
@@ -453,7 +457,7 @@ var DataTable = function() {
         _widthBody = _widthBody.toString() + 'px';
         
         $(".DTFC_LeftBodyLiner").css('height',_heightBody);
-        //$(".DTFC_LeftBodyWrapper").css('height',_heightBody); 
+        $(".DTFC_LeftBodyWrapper").css('height',_heightBody); 
         
         //When selecting or unselecting columns in table of summary tab,
         //the column width will be stretched, the columns width will be changed

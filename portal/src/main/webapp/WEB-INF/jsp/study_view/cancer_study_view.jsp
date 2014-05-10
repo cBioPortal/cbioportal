@@ -197,9 +197,6 @@ function initTabs() {
         $('.study-tab').removeClass('selected');
         $(this).addClass('selected');
         
-        if($( "#study-tabs" ).tabs( "option", "active" ) === 1){
-            $('#clinical_table').dataTable().fnAdjustColumnSizing();
-        }
         /*
         if($( "#study-tabs" ).tabs( "option", "active" ) === 1){
             var oTable = $('#dataTable').dataTable();

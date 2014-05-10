@@ -77,7 +77,7 @@ var DataTable = function() {
         
         aoColumns.length = 0;
         
-        aoColumns.push({sTitle:"CASE ID",sType:'string'});
+        aoColumns.push({sTitle:"CASE ID",sType:'string',sClass:'nowrap'});
 
         for( i = 0; i < attr.length; i++ ){
             if( attr[i].attr_id !== 'CASE_ID' ){
@@ -165,6 +165,10 @@ var DataTable = function() {
             "aoColumns": aoColumns,
             "aaData": aaData,
             "sDom": '<"dataTableTop"Ci<"dataTableReset">f>rt',
+            "oLanguage": {
+                "sInfo": "&nbsp;&nbsp;Showing _TOTAL_ samples&nbsp;",
+                "sInfoFiltered": "(filtered from _MAX_ samples)",
+            },
             "fnDrawCallback": function(oSettings){
                 //Only used when select or unselect showed columns
                 if($(".ColVis_collection.TableTools_collection").css('display') === 'block'){
@@ -246,7 +250,7 @@ var DataTable = function() {
         
         if ($('#study-tab-clinical-a').hasClass('selected')) {
             dataTable.fnAdjustColumnSizing();
-            $('#study-tab-cna-a').addClass("tab-clicked")
+            $('#study-tab-clinical-a').addClass("tab-clicked")
         }
         
         $('#study-tab-clinical-a').click(function(){

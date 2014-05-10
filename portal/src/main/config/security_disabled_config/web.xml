@@ -9,6 +9,13 @@
 
     <resource-ref>
       <description>DB Connection</description>
+      <res-ref-name>jdbc/cbioportal</res-ref-name>
+      <res-type>javax.sql.DataSource</res-type>
+      <res-auth>Container</res-auth>
+    </resource-ref>
+
+    <resource-ref>
+      <description>DB Connection</description>
       <res-ref-name>jdbc/cgds_gdac</res-ref-name>
       <res-type>javax.sql.DataSource</res-type>
       <res-auth>Container</res-auth>
@@ -33,6 +40,12 @@
 		  /WEB-INF/classes/applicationContext-security.xml
 		</param-value>
 	</context-param>
+        
+    <context-param>
+        <param-name>webAppRootKey</param-name>
+        <param-value>${app.name}.${timestamp}</param-value>
+    </context-param>
+    
     <servlet>
         <display-name>Apache-Axis Servlet</display-name>
         <servlet-name>AxisServlet</servlet-name>
@@ -431,7 +444,17 @@
         <servlet-name>SVGtoPDFConverter</servlet-name>
         <url-pattern>/svgtopdf.do</url-pattern>
     </servlet-mapping>
-    
+
+	<servlet>
+		<servlet-name>TextFileDownloader</servlet-name>
+		<servlet-class>org.mskcc.cbio.portal.servlet.TextFileDownload</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>TextFileDownloader</servlet-name>
+		<url-pattern>/downloadfile.do</url-pattern>
+	</servlet-mapping>
+
     <servlet>
         <servlet-name>ClinicalTrialsJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.ClinicalTrialsJSON</servlet-class>
@@ -609,4 +632,13 @@
             org.apache.commons.fileupload.servlet.FileCleanerCleanup
         </listener-class>
     </listener>
+    
+   <!-- custom location for log4j config -->
+    <listener>
+      <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+    </listener>
+    <context-param>
+      <param-name>log4jConfigLocation</param-name>
+      <param-value>file://${PORTAL_HOME}/log4j.properties</param-value>
+    </context-param> 
 </web-app>

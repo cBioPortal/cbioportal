@@ -46,6 +46,7 @@ var MainMutationView = Backbone.View.extend({
 
 		// hide the mutation diagram filter info text by default
 		self.$el.find(".mutation-details-filter-info").hide();
+		self.$el.find(".mutation-details-no-data-info").hide();
 	},
 	/**
 	 * Initializes the main components (such as the mutation diagram
@@ -248,5 +249,11 @@ var MainMutationView = Backbone.View.extend({
 	},
 	hideFilterInfo: function() {
 		this.$el.find(".mutation-details-filter-info").slideUp();
+	},
+	showNoDataInfo: function() {
+		this.$el.find(".mutation-details-no-data-info").slideDown();
+	},
+	hideNoDataInfo: function() {
+		this.$el.find(".mutation-details-no-data-info").slideUp();
 	}
 });

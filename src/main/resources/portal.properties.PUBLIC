@@ -69,6 +69,9 @@ authorization=false
 # Indicates whether to include networks
 include_networks=true
 
+# Analytics profile Web Property ID, e.g. UA-1234567-1
+google_analytics_profile_id=
+
 # Manager webapp username and password
 manager.username=tomcat
 manager.password=tomcat

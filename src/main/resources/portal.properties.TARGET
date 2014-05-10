@@ -55,6 +55,7 @@ r_installed=true
 authenticate=true
 authorization=true
 include_networks=true
+google_analytics_profile_id=
 
 faq=faq_target.html
 about=about_us_target.html

@@ -70,6 +70,8 @@ authorization=false
 # Indicates whether to include networks
 include_networks=true
 
+google_analytics_profile_id=
+
 # Manager webapp username and password
 manager.username=tomcat
 manager.password=tomcat

@@ -6,7 +6,7 @@
         </h4>
 
         <span>
-            <form id="pdf-form" style="display:inline;" action="svgtopdf.do" method="post">
+            <form id="pdf-form" style="display:inline;" action="svgtopdf.do" method="post" target="_blank">
                 <input type="hidden" name="svgelement">
                 <input type="hidden" name="filetype" value="pdf">
                 <input type="hidden" name="filename" value="oncoprint.pdf">

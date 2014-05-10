@@ -64,7 +64,7 @@
 	float: left;
 	cursor: pointer;
 }
-th.mutation-pdb-table-column {
+.mutation-pdb-table-header {
 	font-weight: bold !important;
 }
 

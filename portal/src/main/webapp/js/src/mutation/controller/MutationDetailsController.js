@@ -119,6 +119,12 @@ var MutationDetailsController = function(
 			// TODO this can be implemented in a better way in the MainMutationView class
 			var components = mainView.initComponents(_mut3dVisView);
 
+			if (mutationData == null ||
+			    mutationData.length == 0)
+			{
+				mainView.showNoDataInfo();
+				components.tableView.hideView();
+			}
 
 			// TODO init controllers in their corresponding view classes' init() method instead?
 
@@ -133,11 +139,11 @@ var MutationDetailsController = function(
 				new Mutation3dController(mutationDetailsView, mainView,
 					_mut3dVisView, components.view3d, mut3dVis,
 					_pdbProxy, mutationUtil,
-					components.diagram, components.tableView, gene);
+					components.diagram, components.tableView.tableUtil, gene);
 			}
 
 			new MutationDiagramController(
-				components.diagram, components.tableView.tableUtil, mutationUtil, components.tableView);
+				components.diagram, components.tableView.tableUtil, mutationUtil);
 		};
 
 		// get mutation data for the current gene
@@ -145,52 +151,50 @@ var MutationDetailsController = function(
 			// init reference mapping
 			_geneTabView[gene] = {};
 
-			// display a message if there is no mutation data available for this gene
-			if (data == null || data.length == 0)
+			// create an empty array if data is null
+			if (data == null)
 			{
-				mutationDetailsView.$el.find(
-					"#mutation_details_" + cbio.util.safeProperty(gene)).html(
-						_.template($("#default_mutation_details_gene_info_template").html(), {}));
+				data = [];
 			}
+
 			// get the sequence data for the current gene & init view
-			else
+
+			// get the most frequent uniprot accession string (excluding "NA")
+			var uniprotInfo = mutationProxy.getMutationUtil().dataFieldCount(
+				gene, "uniprotAcc", ["NA"]);
+
+			var uniprotAcc = null;
+			var servletParams = {geneSymbol: gene};
+
+			if (uniprotInfo.length > 0)
 			{
-				// get the most frequent uniprot accession string (excluding "NA")
-				var uniprotInfo = mutationProxy.getMutationUtil().dataFieldCount(
-					gene, "uniprotAcc", ["NA"]);
-
-				var uniprotAcc = null;
-				var servletParams = {geneSymbol: gene};
-
-				if (uniprotInfo.length > 0)
-				{
-					uniprotAcc = uniprotInfo[0].uniprotAcc;
-				}
-
-				if (uniprotAcc)
-				{
-					servletParams = {uniprotAcc: uniprotAcc};
-				}
-
-				$.getJSON("getPfamSequence.json", servletParams, function(sequenceData) {
-					// TODO sequenceData may be null for unknown genes...
-					// get the first sequence from the response
-					var sequence = sequenceData[0];
-
-					if (_pdbProxy)
-					{
-						var uniprotId = sequence.metadata.identifier;
-						_pdbProxy.getPdbRowData(uniprotId, function(pdbRowData) {
-							init(sequence, data, pdbRowData);
-						});
-					}
-					else
-					{
-						init(sequence, data);
-					}
-
-				});
+				uniprotAcc = uniprotInfo[0].uniprotAcc;
 			}
+
+			// if exists, also add uniprotAcc to the servlet params
+			if (uniprotAcc)
+			{
+				servletParams.uniprotAcc = uniprotAcc;
+			}
+
+			$.getJSON("getPfamSequence.json", servletParams, function(sequenceData) {
+				// TODO sequenceData may be null for unknown genes...
+				// get the first sequence from the response
+				var sequence = sequenceData[0];
+
+				if (_pdbProxy)
+				{
+					var uniprotId = sequence.metadata.identifier;
+					_pdbProxy.getPdbRowData(uniprotId, function(pdbRowData) {
+						init(sequence, data, pdbRowData);
+					});
+				}
+				else
+				{
+					init(sequence, data);
+				}
+
+			});
 		});
 	}
 
@@ -212,6 +216,12 @@ var MutationDetailsController = function(
 		var map = mutationUtil.getMutationIdMap();
 
 		_.each(mutationData, function(mutation, idx) {
+			if (mutation == null)
+			{
+				console.log('warning [processMutationData]: mutation (at index %d) is null.', idx);
+				return;
+			}
+
 			// use model instance, since raw mutation data won't work with mutationToPdb
 			var mutationModel = map[mutation.mutationId];
 			// find the matching pdb

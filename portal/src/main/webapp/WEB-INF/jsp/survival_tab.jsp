@@ -43,7 +43,6 @@
 <script type="text/javascript" src="js/src/survival-curve/survivalCurveView.js"></script>
 <script type="text/javascript" src="js/src/survival-curve/survivalCurveProxy.js"></script>
 <script type="text/javascript" src="js/src/survival-curve/component/survivalCurve.js"></script>
-<script type="text/javascript" src="js/src/survival-curve/component/infoTable.js"></script>
 <script type="text/javascript" src="js/src/survival-curve/component/kmEstimator.js"></script>
 <script type="text/javascript" src="js/src/survival-curve/component/logRankTest.js"></script>
 <script type="text/javascript" src="js/src/survival-curve/component/boilerPlate.js"></script>

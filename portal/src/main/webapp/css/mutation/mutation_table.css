@@ -142,7 +142,7 @@ table.display tr.odd.mutation-table-highlight td {
 .mutation-table-container {
 	margin-bottom: 40px;
 }
-.mutation-table-header {
+.mutation-details-table-header {
 	font-weight: bold !important;
 }
 
@@ -161,4 +161,8 @@ table.display tr.odd.mutation-table-highlight td {
 	float: left;
 	padding-top: 5px;
 	font-size: 90%;
+}
+
+.pancan_mutations_histogram_thumbnail {
+        float: left;
 }

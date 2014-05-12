@@ -1,40 +1,30 @@
 /** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
-**
-** This library is free software; you can redistribute it and/or modify it
-** under the terms of the GNU Lesser General Public License as published
-** by the Free Software Foundation; either version 2.1 of the License, or
-** any later version.
-**
-** This library is distributed in the hope that it will be useful, but
-** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
-** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
-** documentation provided hereunder is on an "as is" basis, and
-** Memorial Sloan-Kettering Cancer Center 
-** has no obligations to provide maintenance, support,
-** updates, enhancements or modifications.  In no event shall
-** Memorial Sloan-Kettering Cancer Center
-** be liable to any party for direct, indirect, special,
-** incidental or consequential damages, including lost profits, arising
-** out of the use of this software and its documentation, even if
-** Memorial Sloan-Kettering Cancer Center 
-** has been advised of the possibility of such damage.  See
-** the GNU Lesser General Public License for more details.
-**
-** You should have received a copy of the GNU Lesser General Public License
-** along with this library; if not, write to the Free Software Foundation,
-** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-**/
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 
 // package
 package org.mskcc.cbio.importer;
 
 // imports
+import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.scripts.NormalizeExpressionLevels;                                                     
 
 import org.apache.commons.cli.*;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.*;
 import org.apache.log4j.PropertyConfigurator;
 
 import org.springframework.context.ApplicationContext;
@@ -93,6 +83,12 @@ public class PortalImporterTool implements Runnable {
                                                      "cancer studies will not be replaced.  Set force to 't' to force a cancer study replacement.")
                                     .create("i"));
 
+		 Option deleteCancerStudy = (OptionBuilder.withArgName("cancer_study_id")
+									.hasArg()
+									.withDescription("Delete a cancer study matching the given cancer study id.")
+									.create("d"));
+
+		
 		// create an options instance
 		Options toReturn = new Options();
 
@@ -102,6 +98,7 @@ public class PortalImporterTool implements Runnable {
         toReturn.addOption(validateCancerStudy);
         toReturn.addOption(normalizeDataFile );
 		toReturn.addOption(importCancerStudy);
+		toReturn.addOption(deleteCancerStudy);
 
 		// outta here
 		return toReturn;
@@ -155,6 +152,9 @@ public class PortalImporterTool implements Runnable {
                 String[] values = commandLine.getOptionValues("a");
                 annotateMAF(values[0], (values.length == 2) ? values[1] : values[0] + ".annotated");
             }
+            else if (commandLine.hasOption("d")) {
+				deleteCancerStudy(commandLine.getOptionValue("d"));
+			} 
 			else {
 				Admin.usage(new PrintWriter(System.out, true));
 			}
@@ -262,6 +262,17 @@ public class PortalImporterTool implements Runnable {
 
         logMessage("normalizeExpressionLevels(), complete");
     }
+
+    private void deleteCancerStudy(String cancerStudyStableId) throws Exception
+	{
+		if (LOG.isInfoEnabled()) {
+			LOG.info("deleteCancerStudy(), study id: " + cancerStudyStableId);
+		}
+		DaoCancerStudy.deleteCancerStudy(cancerStudyStableId);
+		if (LOG.isInfoEnabled()) {
+			LOG.info("deleteCancerStudy(), complete");
+		}
+	} 
 
 	private boolean getBoolean(String parameterValue)
     {

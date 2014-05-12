@@ -1,3 +1,8 @@
+# May 12, 2014
+* Improved study summary page including survival analysis based on clinical attributes
+<br/>e.g. [TCGA Endometrial Cancer cohort](study.do?cancer_study_id=ucec_tcga_pub)
+<br/>![Study view](images/previews/study_view.png)
+
 # March 27, 2014
 * New features:
     * Visualizing of mutations mapped on 3D structures (individual or multiple mutations, directly in the browser)
@@ -14,10 +19,10 @@
     * Uterine Carcinosarcoma
 * Added mutation data of 898 samples from 11 published studies:
     * Hepatocellular Carcinoma (RIKEN, Nature Genetics 2012)
-    * Hepatocellular Carcinoma (LGGM, Hepatology in press)
+    * Hepatocellular Carcinoma (AMC, Hepatology in press)
     * Medulloblastoma (Broad, Nature 2012)
     * Medulloblastoma (ICGC, Nature 2012)
-    * Medulloblastoma (WashU, Nature 2012)
+    * Medulloblastoma (PCGP, Nature 2012)
     * Multiple Myeloma (Broad, Cancer Cell 2014)
     * Pancreatic Adenocarcinoma (ICGC, Nature 2012)
     * Small Cell Carcinoma of the Ovary (MSKCC, Nature Genetics in press)

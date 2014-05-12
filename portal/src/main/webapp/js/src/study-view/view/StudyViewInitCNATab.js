@@ -22,7 +22,10 @@ var StudyViewInitCNATab = (function(){
         }
 
         var oTable = $('#gistic_table').dataTable( {
-            "sDom": '<"H"<"gistic-table-name">fr>t<"F"<"datatable-paging"pil>>', // selectable columns
+            "sScrollY": "500px",
+            "bPaginate": false,
+            "bScrollCollapse": true,
+            "sDom": '<"H"<"gistic-table-name">fr>t>',
             "bJQueryUI": true,
             "bDestroy": true,
             "aaData": ix,
@@ -121,9 +124,7 @@ var StudyViewInitCNATab = (function(){
                 "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                 "sInfoFiltered": "",
                 "sLengthMenu": "Show _MENU_ per page"
-            },
-            "iDisplayLength": 25,
-            "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
+            }
         });
 
         oTable.css("width","100%");
@@ -132,6 +133,18 @@ var StudyViewInitCNATab = (function(){
         $('.gistic-table-name').addClass('data-table-name');
 
         $('#gistic_wrapper_table').show();
+        
+        if ($('#study-tab-cna-a').hasClass('selected')) {
+            oTable.fnAdjustColumnSizing();
+            $('#study-tab-cna-a').addClass("tab-clicked")
+        }
+        
+        $('#study-tab-cna-a').click(function(){
+            if (!$(this).hasClass("tab-clicked")) {
+                oTable.fnAdjustColumnSizing();
+                $(this).addClass("tab-clicked");
+            }
+        });
     }
     return{
         init: init

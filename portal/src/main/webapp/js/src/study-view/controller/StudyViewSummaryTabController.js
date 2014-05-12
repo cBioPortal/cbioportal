@@ -19,7 +19,7 @@ var StudyViewSummaryTabController = (function() {
     
     return {
         init: function(_data) {
-            initPage();
+//            initPage();
             initComponents(_data);
         }
     };

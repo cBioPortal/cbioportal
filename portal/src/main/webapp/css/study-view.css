@@ -211,6 +211,9 @@
     display: none;
     z-index: 1;
 }
+#clinical_table_info {
+    float: left;
+}
 /*
 #study-view-scatter-plot-body-top-chart {
     width: 100%;

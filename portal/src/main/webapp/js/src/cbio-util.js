@@ -261,6 +261,141 @@ cbio.util = (function() {
         array[indexB] = tmp;
     }
 
+	/**
+	 * Submits the download form.
+	 * This will send a request to the server.
+	 *
+	 * @param servletName       name of the action servlet
+	 * @param servletParams     params to send with the form submit
+	 * @param form              jQuery selector for the download form
+	 */
+	function submitDownload(servletName, servletParams, form)
+	{
+		// remove all previous input fields (if any)
+		$(form).find("input").remove();
+
+		// add new input fields
+		for (var name in servletParams)
+		{
+			var value = servletParams[name];
+			$(form).append('<input type="hidden" name="' + name + '">');
+			$(form).find('input[name="' + name + '"]').val(value);
+		}
+
+		// update target servlet for the action
+		$(form).attr("action", servletName);
+		// submit the form
+		$(form).submit();
+	}
+
+	/**
+	 * Sends a download request to the hidden frame dedicated to file download.
+	 *
+	 * This function is implemented as a workaround to prevent JSmol crash
+	 * due to window.location change after a download request.
+	 *
+	 * @param servletName
+	 * @param servletParams
+	 */
+	function requestDownload(servletName, servletParams)
+	{
+		// TODO this is a workaround, frame download doesn't work for IE
+		if (detectBrowser().msie)
+		{
+			initDownloadForm();
+			submitDownload(servletName, servletParams, "#global_file_download_form");
+			return;
+		}
+
+		initDownloadFrame(function() {
+			var targetWindow = getTargetWindow("global_file_download_frame");
+
+			targetWindow.postMessage(
+				{servletName: servletName,
+					servletParams: servletParams},
+				getOrigin());
+		});
+	}
+
+	/**
+	 * Returns the content window for the given target frame.
+	 *
+	 * @param id    id of the target frame
+	 */
+	function getTargetWindow(id)
+	{
+		var frame = document.getElementById(id);
+		var targetWindow = frame;
+
+		if (frame.contentWindow)
+		{
+			targetWindow = frame.contentWindow;
+		}
+
+		return targetWindow;
+	}
+
+	/**
+	 * Returns the content document for the given target frame.
+	 *
+	 * @param id    id of the target frame
+	 */
+	function getTargetDocument(id)
+	{
+		var frame = document.getElementById(id);
+		var targetDocument = frame.contentDocument;
+
+		if (!targetDocument && frame.contentWindow)
+		{
+			targetDocument = frame.contentWindow.document;
+		}
+
+		return targetDocument;
+	}
+
+	/**
+	 * Initializes the hidden download frame for the entire document.
+	 * This is to isolate download requests from the main window.
+	 */
+	function initDownloadFrame(callback)
+	{
+		var frame = '<iframe id="global_file_download_frame" ' +
+		            'src="file_download_frame.jsp" ' +
+		            'seamless="seamless" width="0" height="0" ' +
+		            'frameBorder="0" scrolling="no">' +
+		            '</iframe>';
+
+		// only initialize if the frame doesn't exist
+		if ($("#global_file_download_frame").length === 0)
+		{
+			$(document.body).append(frame);
+
+			// TODO a workaround to enable target frame to get ready to listen messages
+			setTimeout(callback, 500);
+		}
+		else
+		{
+			callback();
+		}
+	}
+
+	/**
+	 * This form is initialized only for IE
+	 */
+	function initDownloadForm()
+	{
+		var form = '<form id="global_file_download_form"' +
+		           'style="display:inline-block"' +
+		           'action="" method="post" target="_blank">' +
+		           '</form>';
+
+		// only initialize if the form doesn't exist
+		if ($("#global_file_download_form").length === 0)
+		{
+			$(document.body).append(form);
+		}
+	}
+
     return {
         toPrecision: toPrecision,
         getObjectLength: getObjectLength,
@@ -274,7 +409,11 @@ cbio.util = (function() {
         sortByAttribute: sortByAttribute,
         safeProperty: safeProperty,
         autoHideOnMouseLeave: autoHideOnMouseLeave,
-        swapElement: swapElement
+        swapElement: swapElement,
+	    getTargetWindow: getTargetWindow,
+	    submitDownload: submitDownload,
+	    requestDownload: requestDownload,
+	    getTargetDocument: getTargetDocument
     };
 
 })();

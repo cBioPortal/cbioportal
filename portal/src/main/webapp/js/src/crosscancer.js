@@ -962,9 +962,9 @@
 	                            tableOpts: {
 		                            // TODO define custom functions where necessary
 		                            columnVisibility: {
-			                            "cancer study": "visible",
+			                            "cancerStudy": "visible",
 			                            // exclude tumor type for now
-			                            "tumor type": "excluded"
+			                            "tumorType": "excluded"
 		                            }
 	                            }
                             };
@@ -1132,15 +1132,29 @@
 
                 // Let's bind button events
                 $("#histogram-download-pdf").click(function() {
-                    var formElement = $("form.svg-to-pdf-form");
-                    formElement.find("input[name=svgelement]").val($("#cchistogram").html());
-                    formElement.submit();
+//                    var formElement = $("form.svg-to-pdf-form");
+//                    formElement.find("input[name=svgelement]").val($("#cchistogram").html());
+//                    formElement.submit();
+
+	                // request download
+	                cbio.util.requestDownload("svgtopdf.do",
+						{filetype: "pdf",
+		                    filename: "crosscancerhistogram.pdf",
+		                    svgelement: $("#cchistogram").html()}
+	                );
                 });
 
                 $("#histogram-download-svg").click(function() {
-                    var formElement = $("form.svg-to-file-form");
-                    formElement.find("input[name=svgelement]").val($("#cchistogram").html());
-                    formElement.submit();
+//                    var formElement = $("form.svg-to-file-form");
+//                    formElement.find("input[name=svgelement]").val($("#cchistogram").html());
+//                    formElement.submit();
+
+	                  // request download
+	                cbio.util.requestDownload("svgtopdf.do",
+						{filetype: "svg",
+		                    filename: "crosscancerhistogram.svg",
+		                    svgelement: $("#cchistogram").html()}
+	                );
                 });
 
                 $("#histogram-customize").click(function() {

@@ -1,3 +1,7 @@
+# May 12, 2014
+* Improved study summary page including survival analysis based on clinical attributes
+<br/>![Study view](images/previews/study_view.png)
+
 # April 5, 2014
 * New features:
     * Visualizing and comparing multiple tumor samples in the patient-centric view

@@ -80,7 +80,7 @@
 
     <div id="download_oncoprint" style="display:none; margin-bottom:40px; margin-top:20px;">
         <span>
-            <form id="pdf-form" style="display:inline;" action="svgtopdf.do" method="post">
+            <form id="pdf-form" style="display:inline;" action="svgtopdf.do" method="post" target="_blank">
 
                 <input type="hidden" name="svgelement">
                 <input type="hidden" name="filetype" value="pdf">

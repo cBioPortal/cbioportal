@@ -18,6 +18,9 @@ package org.mskcc.cbio.portal.scripts;
 
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.model.Entity.EntityType;
+import org.mskcc.cbio.portal.model.AttributeMetadata.AttributeType;
+import org.mskcc.cbio.portal.service.*;
 import org.mskcc.cbio.portal.util.*;
 
 import java.io.*;
@@ -35,12 +38,15 @@ public class ImportClinicalData {
     private boolean isSampleData;
 	private File clinicalDataFile;
 	private CancerStudy cancerStudy;
+    private Entity cancerStudyEntity;
     private ProgressMonitor pMonitor;
 	
     public ImportClinicalData(CancerStudy cancerStudy, File clinicalDataFile, boolean isSampleData, ProgressMonitor pMonitor)
     {
         this.pMonitor = pMonitor;
         this.cancerStudy = cancerStudy;
+        this.cancerStudyEntity =
+            ImportDataUtil.entityService.getCancerStudy(cancerStudy.getCancerStudyStableId()); 
         this.isSampleData = isSampleData;
         this.clinicalDataFile = clinicalDataFile;
     }
@@ -113,6 +119,7 @@ public class ImportClinicalData {
         for (int lc = 0; lc < fields.length; lc++) {
             if (addAttributeToDatabase(lc, indexOfIdColumn, fields[lc])) {
                 addDatum(internalPatientOrSampleId, columnAttrs.get(lc).getAttrId(), fields[lc]);
+                addEntityAttribute(stablePatientOrSampleId, lc, fields, columnAttrs);
             }
         }
     }
@@ -131,12 +138,15 @@ public class ImportClinicalData {
 
     private int addPatientToDatabase(String stableId) throws Exception
     {
+        int internalPatientId = -1;
         if (validPatientId(stableId) && DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), stableId) == null) {
            Patient patient = new Patient(cancerStudy, stableId);
-           return DaoPatient.addPatient(patient);
+           internalPatientId = DaoPatient.addPatient(patient);
+           Entity patientEntity = ImportDataUtil.entityService.insertEntity(stableId, EntityType.PATIENT);
+           ImportDataUtil.entityService.insertEntityLink(cancerStudyEntity.internalId, patientEntity.internalId);
        }
 
-       return -1;
+       return internalPatientId;
     }
 
     private int addSampleToDatabase(String sampleId, String[] fields, List<ClinicalAttribute> columnAttrs) throws Exception
@@ -154,6 +164,10 @@ public class ImportClinicalData {
                 internalSampleId = DaoSample.addSample(new Sample(sampleId,
                                                                   patient.getInternalId(),
                                                                   cancerStudy.getTypeOfCancerId()));
+                Entity sampleEntity = ImportDataUtil.entityService.insertEntity(sampleId, EntityType.SAMPLE);
+                Entity patientEntity = ImportDataUtil.entityService.getPatient(cancerStudy.getCancerStudyStableId(),
+                                                                patient.getStableId());
+                ImportDataUtil.entityService.insertEntityLink(patientEntity.internalId, sampleEntity.internalId);
             }
         }
 
@@ -196,6 +210,28 @@ public class ImportClinicalData {
         }
         else {
             DaoClinicalData.addPatientDatum(internalId, attrId, attrVal);
+        }
+    }
+
+    private void addEntityAttribute(String stablePatientOrSampleId,
+                                    int attrIndex, String[] fields,
+                                    List<ClinicalAttribute> columnAttrs)
+    {
+        if (isSampleData) {
+            String stableSampleId = StableIdUtil.getSampleId(stablePatientOrSampleId);
+            String stablePatientId = getStablePatientId(stablePatientOrSampleId, fields, columnAttrs);
+            Entity sampleEntity = ImportDataUtil.entityService.getSample(cancerStudy.getCancerStudyStableId(),
+                                                                         stablePatientId, stableSampleId);
+            ImportDataUtil.entityAttributeService.insertEntityAttribute(sampleEntity.internalId,
+                                                                        columnAttrs.get(attrIndex).getAttrId(),
+                                                                        fields[attrIndex]);
+        }
+        else {
+            Entity patientEntity = ImportDataUtil.entityService.getPatient(cancerStudy.getCancerStudyStableId(),
+                                                                           stablePatientOrSampleId);
+            ImportDataUtil.entityAttributeService.insertEntityAttribute(patientEntity.internalId,
+                                                                        columnAttrs.get(attrIndex).getAttrId(),
+                                                                        fields[attrIndex]);
         }
     }
 
@@ -285,6 +321,8 @@ public class ImportClinicalData {
                 new ClinicalAttribute(colnames[i], displayNames[i], descriptions[i], datatypes[i], (isSampleData) ? false : true);
             if (null==DaoClinicalAttribute.getDatum(attr.getAttrId())) {
                 DaoClinicalAttribute.addDatum(attr);
+               ImportDataUtil.entityAttributeService.insertAttributeMetadata(colnames[i], displayNames[i],
+                                                                             descriptions[i], AttributeType.valueOf(datatypes[i]));
             }
             attrs.add(attr);
         }

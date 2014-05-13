@@ -17,10 +17,10 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.util.ConsoleUtil;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
-import org.mskcc.cbio.portal.util.CancerStudyReader;
+import org.mskcc.cbio.portal.util.*;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.model.Entity.EntityType;
+import org.mskcc.cbio.portal.service.EntityService;
 
 import java.io.File;
 
@@ -40,6 +40,7 @@ public class ImportCancerStudy {
 
         File file = new File(args[0]);
         CancerStudy cancerStudy = CancerStudyReader.loadCancerStudy(file);
+        ImportDataUtil.entityService.insertEntity(cancerStudy.getCancerStudyStableId(), EntityType.STUDY);
         System.out.println ("Loaded the following cancer study:  ");
         System.out.println ("ID:  " + cancerStudy.getInternalId());
         System.out.println ("Name:  " + cancerStudy.getName());

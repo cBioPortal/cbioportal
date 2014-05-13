@@ -149,6 +149,7 @@
 	<module>liftover</module>
 	<module>mutation-assessor</module>
     <module>importer</module>
+    <module>business</module>
   </modules>
 
   <!-- dependencies -->

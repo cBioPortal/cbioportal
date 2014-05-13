@@ -39,6 +39,12 @@
   <!-- dependencies -->
   <dependencies>
 
+	<dependency>
+	  <groupId>org.mskcc.cbio</groupId>
+	  <artifactId>business</artifactId>
+	  <version>${project.version}</version>
+	</dependency>	
+
       <!-- hgnc id mapping services -->
       <!--dependency>
           <groupId>org.biopax.paxtools</groupId>

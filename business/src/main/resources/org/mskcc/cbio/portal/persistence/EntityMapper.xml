@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.mskcc.cbio.portal.persistence.EntityMapper">
+
+<cache/>
+
+<insert id="insertEntity" useGeneratedKeys="true" keyProperty="internalId" parameterType="Entity">
+	insert into entity (STABLE_ID, ENTITY_TYPE)
+	values (#{stableId},#{type})
+</insert>
+
+<insert id="insertEntityLink" useGeneratedKeys="true" keyProperty="internalId" parameterType="EntityLink">
+	insert into entity_link (PARENT_ID, CHILD_ID)
+	values (#{parentId},#{childId})
+</insert>
+
+<select id="getByInternalId" resultType="Entity" parameterType="int">
+	select
+		INTERNAL_ID as internalId,
+		STABLE_ID as stableId,
+		ENTITY_TYPE as type
+	from entity
+	where INTERNAL_ID = #{internalId}
+</select>
+
+<select id="getByStableId" resultType="Entity" parameterType="String">
+	select
+		INTERNAL_ID as internalId,
+		STABLE_ID as stableId,
+		ENTITY_TYPE as type
+	from entity
+	where STABLE_ID = #{stableId}
+</select>
+
+<select id="getByType" resultType="Entity" parameterType="EntityType">
+	select
+		INTERNAL_ID as internalId,
+		STABLE_ID as stableId,
+		ENTITY_TYPE as type
+	from entity
+	where ENTITY_TYPE = #{type.toString()}
+</select>
+
+<select id="getChildren" resultType="Entity">
+	select
+		INTERNAL_ID as internalId,
+		STABLE_ID as stableId,
+		ENTITY_TYPE as type
+	from entity
+	where INTERNAL_ID in
+	(select
+		CHILD_ID as childId
+	from entity_link
+	where PARENT_ID = #{parentId})
+	and ENTITY_TYPE = #{type}
+</select>
+
+<select id="getParents" resultType="Entity">
+	select
+		INTERNAL_ID as internalId,
+		STABLE_ID as stableId,
+		ENTITY_TYPE as type
+	from entity
+	where INTERNAL_ID in
+	(select
+		PARENT_ID as parentId
+	from entity_link
+	where CHILD_ID = #{childId})
+	and ENTITY_TYPE = #{type}
+</select>
+
+</mapper>

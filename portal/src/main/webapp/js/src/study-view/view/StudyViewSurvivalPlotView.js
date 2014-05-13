@@ -5,6 +5,14 @@
  * @date    Apr. 2014
  */
 
+/*
+ * 
+ * Save curve function has been disabled.
+ */
+
+
+
+
 var StudyViewSurvivalPlotView = (function() {
     var oData = [], //The data before processing, orginal data
         oDataLength = 0,
@@ -34,6 +42,10 @@ var StudyViewSurvivalPlotView = (function() {
     //in other words, the name of each curve is identical. 
     var savedCurveInfo = {};
 
+    /**
+     * @param {type} _id cureve id
+     * @returns {Array} return name array of saved curves
+     */
     function getSavedCurveName(_id) {
         if (savedCurveInfo.hasOwnProperty(_id)) {
             return Object.keys(savedCurveInfo[_id]);
@@ -46,8 +58,12 @@ var StudyViewSurvivalPlotView = (function() {
         return initStatus;
     }
     
-    function addEvents(_plotIndex) {
-        var _opts = opts[_plotIndex],
+    /**
+     * Containing all jQuery related functions
+     * @param {type} _plotKey the plot key
+     */
+    function addEvents(_plotKey) {
+        var _opts = opts[_plotKey],
             _title = $("#" + _opts.divs.main + " charttitleh4").text();
 
         if (!initStatus) {
@@ -56,19 +72,15 @@ var StudyViewSurvivalPlotView = (function() {
                     '#' + _opts.divs.header
                     );
         }
-
-        //$('#' + _opts.divs.main + ' svg image').unbind('hover');
-        
-
         $("#" + _opts.divs.pdf).unbind('submit');
         $("#" + _opts.divs.pdf).submit(function() {
             setSVGElementValue(_opts.divs.bodySvg,
-                    _opts.divs.pdfValue, _plotIndex, _title);
+                    _opts.divs.pdfValue, _plotKey, _title);
         });
         $("#" + _opts.divs.svg).unbind('submit');
         $("#" + _opts.divs.svg).submit(function() {
             setSVGElementValue(_opts.divs.bodySvg,
-                    _opts.divs.svgValue, _plotIndex, _title);
+                    _opts.divs.svgValue, _plotKey, _title);
         });
 
         $("#" + _opts.divs.menu).unbind("click");
@@ -100,7 +112,17 @@ var StudyViewSurvivalPlotView = (function() {
         $("#" + _opts.divs.loader).css('display', 'none');
     }
 
-    function setSVGElementValue(_svgParentDivId, _idNeedToSetValue, _plotIndex, _title) {
+    /**
+     * Be used to create svg/pdf file
+     * @param {type} _svgParentDivId    svg container
+     * @param {type} _idNeedToSetValue  set the modified svg element value into
+     *                                  this selected element
+     * @param {type} _plotKey
+     * @param {type} _title             the title appears above saved file 
+     *                                  content, Exp. 'Scatter Plot'
+     * @returns {undefined}
+     */
+    function setSVGElementValue(_svgParentDivId, _idNeedToSetValue, _plotKey, _title) {
         var _svgElement, _svgLabels, _svgTitle,
                 _labelTextMaxLength = 0,
                 _numOfLabels = 0,
@@ -108,7 +130,7 @@ var StudyViewSurvivalPlotView = (function() {
                 _svgheight = 360;
 
         _svgElement = $("#" + _svgParentDivId + " svg").html();
-        _svgLabels = $("#" + opts[_plotIndex].divs.bodyLabel + " svg");
+        _svgLabels = $("#" + opts[_plotKey].divs.bodyLabel + " svg");
 
         _svgLabels.find('image').remove();
         _svgLabels.find('text').each(function(i, obj) {
@@ -142,11 +164,11 @@ var StudyViewSurvivalPlotView = (function() {
                 _svgLabels + "</g></svg>";
         $("#" + _idNeedToSetValue).val(_svgElement);
 
-        redrawLabel(_plotIndex);
+        redrawLabel(_plotKey);
         //The style has been reset because of the addEvents function, so we
         //need to change the related components manully 
-        $("#" + opts[_plotIndex].divs.header).css('display', 'block');
-        $("#" + opts[_plotIndex].divs.main + " .study-view-drag-icon").css('display', 'block');
+        $("#" + opts[_plotKey].divs.header).css('display', 'block');
+        $("#" + opts[_plotKey].divs.main + " .study-view-drag-icon").css('display', 'block');
     }
 
     function highlightCurve(_curveId) {
@@ -171,11 +193,11 @@ var StudyViewSurvivalPlotView = (function() {
 
     //Save all related information with this curve. The saved curve(s) will be
     //showed again when redrawing survival plots
-    function saveCurveInfoFunc(_this, _plotIndex) {
+    function saveCurveInfoFunc(_this, _plotKey) {
         var _selectedIndex = $($(_this).parent()).index(),
-                _selectedCurveInfo = curveInfo[_plotIndex][_selectedIndex];
-        if (!savedCurveInfo.hasOwnProperty(_plotIndex)) {
-            savedCurveInfo[_plotIndex] = {};
+                _selectedCurveInfo = curveInfo[_plotKey][_selectedIndex];
+        if (!savedCurveInfo.hasOwnProperty(_plotKey)) {
+            savedCurveInfo[_plotKey] = {};
         }
         /*
          if (StudyViewUtil.arrayFindByValue(uColor, _selectedCurveInfo.color)) {
@@ -194,13 +216,13 @@ var StudyViewSurvivalPlotView = (function() {
          survivalPlot[_opts.index].addCurve(_data);
          _selectedCurveInfo.color = _color;
          }*/
-        savedCurveInfo[_plotIndex][_selectedCurveInfo.name] = _selectedCurveInfo;
+        savedCurveInfo[_plotKey][_selectedCurveInfo.name] = _selectedCurveInfo;
         removeElement($(_this).parent());
 
         //After saving curve, the related curve info should be delete from 
         //curvesInfo
-        StudyViewUtil.arrayDeleteByIndex(curveInfo[_plotIndex], _selectedIndex);
-        redrawLabel(_plotIndex);
+        StudyViewUtil.arrayDeleteByIndex(curveInfo[_plotKey], _selectedIndex);
+        redrawLabel(_plotKey);
     }
 
     function removeElement(_this) {
@@ -208,22 +230,22 @@ var StudyViewSurvivalPlotView = (function() {
     }
 
     //Move saved curve infomation back to curveInfo
-    function undoSavedCurve(_curveName, _plotIndex) {
-        var _targetCurve = savedCurveInfo[_plotIndex][_curveName];
-        curveInfo[_plotIndex].push(_targetCurve);
+    function undoSavedCurve(_curveName, _plotKey) {
+        var _targetCurve = savedCurveInfo[_plotKey][_curveName];
+        curveInfo[_plotKey].push(_targetCurve);
     }
 
-    function removeSavedCurveFunc(_curveName, _plotIndex) {
-        delete savedCurveInfo[_plotIndex][_curveName];
+    function removeSavedCurveFunc(_curveName, _plotKey) {
+        delete savedCurveInfo[_plotKey][_curveName];
     }
 
-    function removeCurveFunc(_index, _plotIndex) {
-        curveInfo[_plotIndex].splice(_index, 1);
+    function removeCurveFunc(_index, _plotKey) {
+        curveInfo[_plotKey].splice(_index, 1);
     }
 
     //When user click pin icon, this dialog will be popped up and remind user
     //input the curve name.
-    function nameCurveDialog(_this, _callBackFunc, _plotIndex) {
+    function nameCurveDialog(_this, _callBackFunc, _plotKey) {
         var _parent = $(_this).parent(),
             _value = $(_parent).find("text:first").attr('oValue'),
             _qtipContent = '<input type="text" style="float:left" value="'+
@@ -286,8 +308,8 @@ var StudyViewSurvivalPlotView = (function() {
                                     .attr('value', _curveName);
 
                             //Update curve name with user inputted name
-                            curveInfo[_plotIndex][$($(_this).parent()).index()].name = _curveName;
-                            _callBackFunc(_this, _plotIndex);
+                            curveInfo[_plotKey][$($(_this).parent()).index()].name = _curveName;
+                            _callBackFunc(_this, _plotKey);
                         }
                         //Set to True: call .hide() before destroy
                         api.destroy(true);
@@ -492,18 +514,18 @@ var StudyViewSurvivalPlotView = (function() {
         return _opts;
     }
 
-    function redrawView(_plotIndex, _casesInfo) {
+    function redrawView(_plotKey, _casesInfo) {
         var _color = "";
         
         inputArr = [];
         kmEstimator = new KmEstimator();
         logRankTest = new LogRankTest();
         //confidenceIntervals = new ConfidenceIntervals();
-        curveInfo[_plotIndex] = [];
+        curveInfo[_plotKey] = [];
 
         for (var key in _casesInfo) {
             var instanceData = new SurvivalCurveProxy();
-            instanceData.init(aData[_plotIndex], _casesInfo[key].caseIds, kmEstimator, logRankTest);
+            instanceData.init(aData[_plotKey], _casesInfo[key].caseIds, kmEstimator, logRankTest);
 
             //If no data return, will no draw this curve
             if (instanceData.getData().length > 0) {
@@ -513,7 +535,7 @@ var StudyViewSurvivalPlotView = (function() {
                 if (_color) {
                     instanceSettings.line_color = _color;
                     instanceSettings.mouseover_color = _color;
-                    instanceSettings.curveId = _color.toString().substring(1) + "-" + _plotIndex;
+                    instanceSettings.curveId = _color.toString().substring(1) + "-" + _plotKey;
                     //Assemble the input
                     var instance = {};
                     instance.data = instanceData;
@@ -531,7 +553,7 @@ var StudyViewSurvivalPlotView = (function() {
                         data: instance
                     };
 
-                    curveInfo[_plotIndex].push(_curveInfoDatum);
+                    curveInfo[_plotKey].push(_curveInfoDatum);
                 } else {
                     //alert("Sorry, you can not create more than 30 curves.");
                     //break;
@@ -541,7 +563,7 @@ var StudyViewSurvivalPlotView = (function() {
 
         var inputArrLength = inputArr.length;
         for (var i = 0; i < inputArrLength; i++) {
-            survivalPlot[_plotIndex].addCurve(inputArr[i]);
+            survivalPlot[_plotKey].addCurve(inputArr[i]);
         }
     }
 
@@ -552,14 +574,14 @@ var StudyViewSurvivalPlotView = (function() {
      * @param {object}  _data       The processed data by function dataprocess.
      * @param {object}  _plotIndex  The selected plot indentifier.
      */
-    function initView(_casesInfo, _data, _plotIndex) {
+    function initView(_casesInfo, _data, _plotKey) {
         var _color = "",
                 inputArr = [];
         kmEstimator = new KmEstimator();
         logRankTest = new LogRankTest();
         //confidenceIntervals = new ConfidenceIntervals();   
 
-        curveInfo[_plotIndex] = [];
+        curveInfo[_plotKey] = [];
 
         for (var key in _casesInfo) {
             var instanceData = new SurvivalCurveProxy();
@@ -572,7 +594,7 @@ var StudyViewSurvivalPlotView = (function() {
                 if (_color) {
                     instanceSettings.line_color = _color;
                     instanceSettings.mouseover_color = _color;
-                    instanceSettings.curveId = _color.toString().substring(1) + "-" + _plotIndex;
+                    instanceSettings.curveId = _color.toString().substring(1) + "-" + _plotKey;
                     //Assemble the input
                     var instance = {};
                     instance.data = instanceData;
@@ -589,7 +611,7 @@ var StudyViewSurvivalPlotView = (function() {
                         caseList: _casesInfo[key].caseIds,
                         data: instance
                     };
-                    curveInfo[_plotIndex].push(_curveInfoDatum);
+                    curveInfo[_plotKey].push(_curveInfoDatum);
                 } else {
                     alert("Sorry, you can not create more than 30 curves.");
                     break;
@@ -598,12 +620,12 @@ var StudyViewSurvivalPlotView = (function() {
         }
 
         //We disabled pvalue calculation in here
-        survivalPlot[_plotIndex] = new SurvivalCurve();
-        survivalPlot[_plotIndex].init(inputArr, opts[_plotIndex].plot);
+        survivalPlot[_plotKey] = new SurvivalCurve();
+        survivalPlot[_plotKey].init(inputArr, opts[_plotKey].plot);
 
 
-        $("#" + opts[_plotIndex].divs.pdfName).val("Survival_Plot_result-" + StudyViewParams.params.studyId + ".pdf");
-        $("#" + opts[_plotIndex].divs.svgName).val("Survival_Plot_result-" + StudyViewParams.params.studyId + ".svg");
+        $("#" + opts[_plotKey].divs.pdfName).val("Survival_Plot_result-" + StudyViewParams.params.studyId + ".pdf");
+        $("#" + opts[_plotKey].divs.svgName).val("Survival_Plot_result-" + StudyViewParams.params.studyId + ".svg");
     }
 
     
@@ -615,45 +637,45 @@ var StudyViewSurvivalPlotView = (function() {
      *                              seperate cases. Can be false or ''.
      */
     function redraw(_casesInfo, _selectedAttr) {
-        for (var j = 0; j < numOfPlots; j++) {
-            var _curveInfoLength = curveInfo[j].length;
+        for (var key in plotsInfo) {
+            var _curveInfoLength = curveInfo[key].length;
             for (var i = 0; i < _curveInfoLength; i++) {
-                survivalPlot[j].removeCurve(curveInfo[j][i].color.toString().substring(1) + "-" + opts[j].index);
+                survivalPlot[key].removeCurve(curveInfo[key][i].color.toString().substring(1) + "-" + key);
             }
             
-            $("#" + opts[j].divs.main).qtip('destroy', true);
+            $("#" + opts[key].divs.main).qtip('destroy', true);
             
             kmEstimator = "";
             logRankTest = "";
-            delete curveInfo[j];
+            delete curveInfo[key];
 
             var _tmpCasesInfo = grouping(_casesInfo, _selectedAttr[0]);
-            redrawView(opts[j].index, _tmpCasesInfo);
-            drawLabels(opts[j].index);
+            redrawView(key, _tmpCasesInfo);
+            drawLabels(key);
             if (typeof _selectedAttr !== 'undefined') {
-                StudyViewUtil.changeTitle("#" + opts[j].divs.main + " chartTitleH4", _selectedAttr[1], false);
+                StudyViewUtil.changeTitle("#" + opts[key].divs.main + " chartTitleH4", _selectedAttr[1], false);
             }
-            addEvents(opts[j].index);
+            addEvents(key);
         }
     }
     
     /**
      * The main function to draw survival plot labels.
      * 
-     * @param {type} _plotIndex the current selected plot indentifier.
+     * @param {type} _plotKey the current selected plot indentifier.
      */
-    function drawLabels(_plotIndex) {
+    function drawLabels(_plotKey) {
         var _svg = '',
-            _curveInfo = curveInfo[_plotIndex],
-            _savedCurveInfo = savedCurveInfo[_plotIndex],
+            _curveInfo = curveInfo[_plotKey],
+            _savedCurveInfo = savedCurveInfo[_plotKey],
             _newLabelsLength = _curveInfo.length,
-            _savedLabelsLength = getSavedCurveName(_plotIndex).length,
+            _savedLabelsLength = getSavedCurveName(_plotKey).length,
             _numOfLabels = _newLabelsLength + _savedLabelsLength,
             _width = 0,
             _height = _numOfLabels * 20 - 5;
 
         if (_numOfLabels === 0) {
-            $("#" + opts[_plotIndex].divs.bodyLabel).css('display', 'none');
+            $("#" + opts[_plotKey].divs.bodyLabel).css('display', 'none');
         } else {
             //TODO: this width is calculated by maximum name length multiply
             //a constant, need to be changed later
@@ -672,33 +694,33 @@ var StudyViewSurvivalPlotView = (function() {
             //_width += 45;
             _width += 30;
             
-            $("#" + opts[_plotIndex].divs.bodyLabel + " svg").remove();
+            $("#" + opts[_plotKey].divs.bodyLabel + " svg").remove();
 
             if (_savedLabelsLength > 0) {
                 _height += 20;
             }
 
-            _svg = d3.select("#" + opts[_plotIndex].divs.bodyLabel)
+            _svg = d3.select("#" + opts[_plotKey].divs.bodyLabel)
                     .append("svg")
                     .attr('width', _width)
                     .attr("height", _height);
 
-            drawNewLabels(_plotIndex, _svg, 0, _width);
+            drawNewLabels(_plotKey, _svg, 0, _width);
 
             if (_savedLabelsLength > 0) {
                 //separator's height is 20px;
                 drawSeparator(_svg, _newLabelsLength * 20, _width);
-                drawSavedLabels(_plotIndex, _svg, (_newLabelsLength + 1) * 20, _width);
+                drawSavedLabels(_plotKey, _svg, (_newLabelsLength + 1) * 20, _width);
             }
         }
         
-        $("#" + opts[_plotIndex].divs.main).qtip({
-            id: opts[_plotIndex].divs.bodyLabel + "-qtip",
+        $("#" + opts[_plotKey].divs.main).qtip({
+            id: opts[_plotKey].divs.bodyLabel + "-qtip",
             style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
             show: {event: "mouseover"},
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'right center',at:'center left', viewport: $(window)},
-            content: $("#" + opts[_plotIndex].divs.bodyLabel).html(),
+            content: $("#" + opts[_plotKey].divs.bodyLabel).html(),
             events: {
                 render: function(event, api) {
                     $('svg image', api.elements.tooltip).hover(function() {
@@ -711,7 +733,7 @@ var StudyViewSurvivalPlotView = (function() {
 
                             //The following functions will be excuted after user inputting
                             //the curve name, so we need to give it a call back function.
-                            nameCurveDialog(this, saveCurveInfoFunc, _plotIndex);
+                            nameCurveDialog(this, saveCurveInfoFunc, _plotKey);
 
                         } else if ($(this).attr('name') === 'close') {
                             var _parent = $(this).parent(),
@@ -720,17 +742,17 @@ var StudyViewSurvivalPlotView = (function() {
                                 _index = $(this).parent().index();
 
                             $(_parent).remove();
-                            removeCurveFunc(_index, _plotIndex);
-                            redrawLabel(_plotIndex);
-                            survivalPlot[_plotIndex].removeCurve(_color.toString().substring(1) + "-" + _plotIndex);
+                            removeCurveFunc(_index, _plotKey);
+                            redrawLabel(_plotKey);
+                            survivalPlot[_plotKey].removeCurve(_color.toString().substring(1) + "-" + _plotKey);
                         } else if ($(this).attr('name') === 'saved-close') {
                             var _parent = $(this).parent(),
                                 _name = $(_parent).find('text').attr('oValue');
 
                             $(_parent).remove();
-                            undoSavedCurve(_name, _plotIndex);
-                            removeSavedCurveFunc(_name, _plotIndex);
-                            redrawLabel(_plotIndex);
+                            undoSavedCurve(_name, _plotKey);
+                            removeSavedCurveFunc(_name, _plotKey);
+                            redrawLabel(_plotKey);
                         } else {
                             //TODO: Add more function
                         }
@@ -751,10 +773,10 @@ var StudyViewSurvivalPlotView = (function() {
 
                         if (_textColor === '#000000') {
                             $(_text).css('fill', 'red');
-                            highlightCurve(_rectColor.substring(1) + "-" + _plotIndex);
+                            highlightCurve(_rectColor.substring(1) + "-" + _plotKey);
                         } else {
                             $(_text).css('fill', 'black');
-                            resetCurve(_rectColor.substring(1) + "-" + _plotIndex);
+                            resetCurve(_rectColor.substring(1) + "-" + _plotKey);
                         }
 
                     });
@@ -793,19 +815,19 @@ var StudyViewSurvivalPlotView = (function() {
     /**
      * Draw saved labels if have any
      * 
-     * @param _plotIndex the plot identifier
+     * @param _plotKey the plot identifier
      * @param _svg
      * @param _startedIndex
      * @param _svgWidth
      */
-    function drawSavedLabels(_plotIndex, _svg, _startedIndex, _svgWidth) {
-        var _savedLabelsLength = getSavedCurveName(_plotIndex).length,
-                _savedCurveInfo = savedCurveInfo[_plotIndex];
+    function drawSavedLabels(_plotKey, _svg, _startedIndex, _svgWidth) {
+        var _savedLabelsLength = getSavedCurveName(_plotKey).length,
+                _savedCurveInfo = savedCurveInfo[_plotKey];
 
         if (_savedLabelsLength > 0) {
             var _index = 0;
             for (var key in _savedCurveInfo) {
-                drawLabelBasicComponent(_plotIndex, _svg, _index + _startedIndex, _savedCurveInfo[key].color, _savedCurveInfo[key].name, 'close', _svgWidth);
+                drawLabelBasicComponent(_plotKey, _svg, _index + _startedIndex, _savedCurveInfo[key].color, _savedCurveInfo[key].name, 'close', _svgWidth);
                 _index++;
             }
         }
@@ -815,7 +837,7 @@ var StudyViewSurvivalPlotView = (function() {
      * Draw basic label componets:  one rect, one lable name, 
      *                              icons(pin or delete icons)
      * 
-     * @param {type} _plotIndex the current selected plot identifier.
+     * @param {type} _plotKey the current selected plot identifier.
      * @param {type} _svg       the svg where to draw labels.
      * @param {type} _index     the label index in current plot.
      * @param {type} _color     the label color.
@@ -824,7 +846,7 @@ var StudyViewSurvivalPlotView = (function() {
      *                          delete icon, close will only draw delete icon.
      * @param {type} _svgWidth  the svg width.
      */
-    function drawLabelBasicComponent(_plotIndex, _svg, _index, _color, _textName, _iconType, _svgWidth) {
+    function drawLabelBasicComponent(_plotKey, _svg, _index, _color, _textName, _iconType, _svgWidth) {
         var _g = _svg.append("g").attr('transform', 'translate(0, ' + (_index * 20) + ')');
        
         _g.append("rect")
@@ -837,7 +859,7 @@ var StudyViewSurvivalPlotView = (function() {
                 .attr('y', 10)
                 .attr('fill', 'black')
                 .attr('font', '12px')
-                .attr('id', 'survival_label_text_' + _plotIndex + "_" + _index)
+                .attr('id', 'survival_label_text_' + _plotKey + "_" + _index)
                 .attr('oValue', _textName)
                 .text(_textName);
 
@@ -879,20 +901,20 @@ var StudyViewSurvivalPlotView = (function() {
      * Calling drawLabelBasicComponent to draw all new labels including 
      * curve color, name and icontype = 'pin'.
      * 
-     * @param {type} _plotIndex     the selected plot identifier.
+     * @param {type} _plotKey     the selected plot identifier.
      * @param {type} _svg           the svg where to draw labels.
      * @param {type} _startedIndex  
      * @param {type} _svgWidth      the svg width.
      */
-    function drawNewLabels(_plotIndex, _svg, _startedIndex, _svgWidth) {
-        var _numOfLabels = curveInfo[_plotIndex].length;
+    function drawNewLabels(_plotKey, _svg, _startedIndex, _svgWidth) {
+        var _numOfLabels = curveInfo[_plotKey].length;
         for (var i = 0; i < _numOfLabels; i++) {
             drawLabelBasicComponent(
-                    _plotIndex, 
+                    _plotKey, 
                     _svg, 
                     i + _startedIndex, 
-                    curveInfo[_plotIndex][i].color, 
-                    curveInfo[_plotIndex][i].name, 
+                    curveInfo[_plotKey][i].color, 
+                    curveInfo[_plotKey][i].name, 
                     'pin', 
                     _svgWidth);
         }
@@ -901,13 +923,13 @@ var StudyViewSurvivalPlotView = (function() {
     
     /**
      * Will be called when user pin/delete labeles
-     * @param {type} _plotIndex
+     * @param {type} _plotKey
      */
-    function redrawLabel(_plotIndex) {
-        $("#" + opts[_plotIndex].divs.main).qtip('destroy', true);
-        $("#" + opts[_plotIndex].divs.bodyLabel + " svg").remove();
-        drawLabels(_plotIndex);
-        addEvents(_plotIndex);
+    function redrawLabel(_plotKey) {
+        $("#" + opts[_plotKey].divs.main).qtip('destroy', true);
+        $("#" + opts[_plotKey].divs.bodyLabel + " svg").remove();
+        drawLabels(_plotKey);
+        addEvents(_plotKey);
     }
     
     /**
@@ -933,9 +955,9 @@ var StudyViewSurvivalPlotView = (function() {
     function plotBasicFuncs(_index, _key) {
         var _casesInfo;
 
-        aData[_index] = {};
-        opts[_index] = {};
-        aData[_index] = dataProcess(plotsInfo[_key]);
+        aData[_key] = {};
+        opts[_key] = {};
+        aData[_key] = dataProcess(plotsInfo[_key]);
 
 /*
         for(var _key in aData[_index]){
@@ -947,13 +969,13 @@ var StudyViewSurvivalPlotView = (function() {
         }
         */
         //If no data returned, this survival plot should not be initialized.
-        if (Object.keys(aData[_index]).length !== 0) {
-            opts[_index] = initOpts(_index, _key);
-            createDiv(opts[_index]);
+        if (Object.keys(aData[_key]).length !== 0) {
+            opts[_key] = initOpts(_index, _key);
+            createDiv(opts[_key]);
             _casesInfo = grouping(plotsInfo[_key].caseLists, '');
-            initView(_casesInfo, aData[_index], _index);
-            drawLabels(_index);
-            addEvents(_index);
+            initView(_casesInfo, aData[_key], _key);
+            drawLabels(_key);
+            addEvents(_key);
         } else {
             console.log("No data for Survival Plot: " + _key);
         }

@@ -38,7 +38,14 @@
         case_ids_key = "<%out.print(caseIdsKey);%>";
     }
 </script>
-<script type="text/javascript" src="js/src/survival_curve.js"></script>
+
+<script type="text/javascript" src="js/src/survival_tab.js"></script>
+<script type="text/javascript" src="js/src/survival-curve/survivalCurveView.js"></script>
+<script type="text/javascript" src="js/src/survival-curve/survivalCurveProxy.js"></script>
+<script type="text/javascript" src="js/src/survival-curve/component/survivalCurve.js"></script>
+<script type="text/javascript" src="js/src/survival-curve/component/kmEstimator.js"></script>
+<script type="text/javascript" src="js/src/survival-curve/component/logRankTest.js"></script>
+<script type="text/javascript" src="js/src/survival-curve/component/boilerPlate.js"></script>
 
 <div class="section" id="survival">
     <h4 id='os_header'>Overall Survival Kaplan-Meier Estimate</h4>
@@ -53,7 +60,7 @@
     function getSurvivalPlotsCaseList() {
         <%
             JSONObject result = new JSONObject();
-            for (String caseId : mergedCaseList) {
+            for (String caseId : mergedCaseList) { 
                 if (dataSummary.isCaseAltered(caseId)) {
                     result.put(caseId, "altered");
                 } else {
@@ -66,6 +73,6 @@
     }
 
     $(document).ready(function() {
-        survivalCurves.init(getSurvivalPlotsCaseList());
+        SurvivalTab.init(getSurvivalPlotsCaseList());
     });
 </script>

@@ -125,6 +125,12 @@ var DataTable = function() {
                     _value['CASE_ID'] + "&cancer_study_id=" +
                     StudyViewParams.params.studyId + "' target='_blank'><span style='color: #2986e2'>" + 
                     _value['CASE_ID'] + "</span></a></strong>";
+                }else if ( _valueAo.sTitle === 'PATIENT ID' && _value['PATIENT_ID'] !== 'NA'){
+                    _tmpValue = "<a href='case.do?cancer_study_id=" +
+                    StudyViewParams.params.studyId + "&patient_id="+
+                    _value['PATIENT_ID'] +
+                    "' target='_blank'><span style='color: #2986e2'>" + 
+                    _value['PATIENT_ID'] + "</span></a></strong>";
                 }else{
                     _tmpValue = _value[_valueAo.sTitle.replace(/[ ]/g,'_')];
                 }
@@ -136,7 +142,7 @@ var DataTable = function() {
                 _selectedString = _tmpValue.toString();
                 _specialCharLength = _specialChar.length;
                 
-                if ( _valueAo.sTitle !== 'CASE ID'){
+                if ( _valueAo.sTitle !== 'CASE ID' && _valueAo.sTitle !== 'PATIENT ID'){
                     for( var z = 0; z < _specialCharLength; z++){
                         if(_selectedString.indexOf(_specialChar[z]) !== -1){
                             var _re = new RegExp("\\" + _specialChar[z], "g");
@@ -453,24 +459,23 @@ var DataTable = function() {
     
     //This function will be called when the dataTable has been resized
     function resizeLeftColumn(){
-        var _heightBody = $(".dataTables_scrollBody").css('height'),
-            _heightTable = $('.dataTables_scroll').css('height'),
+        var _heightBody = $(".dataTables_scrollBody").height(),
+            _heightTable = $('.dataTables_scroll').height(),
             _widthBody = $("#" + tableId + " tbody>tr:nth-child(1)>td:nth-child(1)").width();
         
         _widthBody = _widthBody + 22;
-        _widthBody = _widthBody.toString() + 'px';
         
-        $(".DTFC_LeftBodyLiner").css('height',_heightBody);
-        $(".DTFC_LeftBodyWrapper").css('height',_heightBody); 
+        $(".DTFC_LeftBodyLiner").height(_heightBody - 15);
+        $(".DTFC_LeftBodyWrapper").height(_heightBody); 
         
         //When selecting or unselecting columns in table of summary tab,
         //the column width will be stretched, the columns width will be changed
         //automatically, but the width of left column needs to be changed by
         //using following two statements.
-        $(".DTFC_LeftWrapper").css('width',_widthBody);
-        $(".DTFC_LeftBodyLiner").css('width',_widthBody);
+        $(".DTFC_LeftWrapper").width(_widthBody);
+        $(".DTFC_LeftBodyLiner").width(_widthBody);
         
-        $(".DTFC_ScrollWrapper").css('height',_heightTable);
+        $(".DTFC_ScrollWrapper").height(_heightTable);
         $(".DTFC_LeftBodyLiner").css('background-color','white');
     }
     

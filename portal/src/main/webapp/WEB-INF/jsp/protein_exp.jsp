@@ -89,7 +89,7 @@
      * Get altered and unaltered case lists for the rppa plots
      *
      * @global: dataSummary
-     * @global: mergedCaseLists
+     * @global: mergedPatientList
      * @return: unalteredCaseList
      * @return: alteredCaseList
      *

@@ -31,14 +31,21 @@
 </style>
 
 <script>
-    var cancer_study_id = "<%out.print(cancer_study_id);%>",
-            patient_set_id = "<%out.print(patient_set_id);%>";
+    var cancer_study_id = "<%out.print(cancer_study_id);%>";
+    var patient_set_id = "<%out.print(patient_set_id);%>";
     var patient_ids_key = "";
     if (patient_set_id === "-1") {
         patient_ids_key = "<%out.print(patientIdsKey);%>";
     }
 </script>
-<script type="text/javascript" src="js/src/survival_curve.js"></script>
+
+<script type="text/javascript" src="js/src/survival_tab.js"></script>
+<script type="text/javascript" src="js/src/survival-curve/survivalCurveView.js"></script>
+<script type="text/javascript" src="js/src/survival-curve/survivalCurveProxy.js"></script>
+<script type="text/javascript" src="js/src/survival-curve/component/survivalCurve.js"></script>
+<script type="text/javascript" src="js/src/survival-curve/component/kmEstimator.js"></script>
+<script type="text/javascript" src="js/src/survival-curve/component/logRankTest.js"></script>
+<script type="text/javascript" src="js/src/survival-curve/component/boilerPlate.js"></script>
 
 <div class="section" id="survival">
     <h4 id='os_header'>Overall Survival Kaplan-Meier Estimate</h4>
@@ -50,14 +57,14 @@
 </div>
 
 <script>
-    function getSurvivalPlotsPatientList() {
+    function getSurvivalPlotsCaseList() {
         <%
             JSONObject result = new JSONObject();
-            for (String patientId : mergedPatientList) {
-                if (dataSummary.isCaseAltered(patientId)) {
-                    result.put(patientId, "altered");
+            for (String caseId : mergedPatientList) { 
+                if (dataSummary.isCaseAltered(caseId)) {
+                    result.put(caseId, "altered");
                 } else {
-                    result.put(patientId, "unaltered");
+                    result.put(caseId, "unaltered");
                 }
             }
         %>
@@ -66,6 +73,6 @@
     }
 
     $(document).ready(function() {
-        survivalCurves.init(getSurvivalPlotsPatientList());
+        SurvivalTab.init(getSurvivalPlotsCaseList());
     });
 </script>

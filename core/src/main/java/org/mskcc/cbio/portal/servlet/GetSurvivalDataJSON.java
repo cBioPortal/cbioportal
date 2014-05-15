@@ -17,6 +17,11 @@
 
 package org.mskcc.cbio.portal.servlet;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.web_api.GetClinicalData;
@@ -25,9 +30,10 @@ import org.mskcc.cbio.portal.util.PatientSetUtil;
 import org.json.simple.*;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.*;
-import java.io.*;
-import java.util.*;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 
 /**
  * Author: yichaoS
@@ -64,6 +70,8 @@ public class GetSurvivalDataJSON extends HttpServlet {
         String cancerStudyIdentifier = httpServletRequest.getParameter("cancer_study_id");
         String patientSetId = httpServletRequest.getParameter("case_set_id");
         String patientIdsKey = httpServletRequest.getParameter("case_ids_key");
+        //So far only accept single data type
+        String dataType = httpServletRequest.getParameter("data_type");
 
         try {
 
@@ -98,31 +106,34 @@ public class GetSurvivalDataJSON extends HttpServlet {
                 JSONObject _result = new JSONObject();
 
                 _result.put("case_id", clinicalData.getStableId());
-                if (clinicalData.getOverallSurvivalMonths() == null) {
-                    _result.put("os_months", "NA");
-                } else {
-                    _result.put("os_months", clinicalData.getOverallSurvivalMonths());
-                }
-                String osStatus = clinicalData.getOverallSurvivalStatus();
-                if(osStatus == null || osStatus.length() == 0) {
-                    _result.put("os_status", "NA");
-                } else if (osStatus.equalsIgnoreCase("DECEASED")) {
-                    _result.put("os_status", "1");
-                } else if(osStatus.equalsIgnoreCase("LIVING")) {
-                    _result.put("os_status", "0");
-                }
-                if (clinicalData.getDiseaseFreeSurvivalMonths() == null) {
-                    _result.put("dfs_months", "NA");
-                } else {
-                    _result.put("dfs_months", clinicalData.getDiseaseFreeSurvivalMonths());
-                }
-                String dfsStatus = clinicalData.getDiseaseFreeSurvivalStatus();
-                if(dfsStatus == null || dfsStatus.length() == 0) {
-                    _result.put("dfs_status", "NA");
-                }else if (dfsStatus.equalsIgnoreCase("Recurred/Progressed") || dfsStatus.equalsIgnoreCase("Recurred")) {
-                    _result.put("dfs_status", "1");
-                } else if(dfsStatus.equalsIgnoreCase("DiseaseFree")) {
-                    _result.put("dfs_status", "0");
+                if (dataType.equalsIgnoreCase("os")) {
+                    if (clinicalData.getOverallSurvivalMonths() == null) {
+                        _result.put("months", "NA");
+                    } else {
+                        _result.put("months", clinicalData.getOverallSurvivalMonths());
+                    }
+                    String osStatus = clinicalData.getOverallSurvivalStatus();
+                    if(osStatus == null || osStatus.length() == 0) {
+                        _result.put("status", "NA");
+                    } else if (osStatus.equalsIgnoreCase("DECEASED")) {
+                        _result.put("status", "1");
+                    } else if(osStatus.equalsIgnoreCase("LIVING")) {
+                        _result.put("status", "0");
+                    }   
+                } else if (dataType.equalsIgnoreCase("dfs")) {
+                    if (clinicalData.getDiseaseFreeSurvivalMonths() == null) {
+                        _result.put("months", "NA");
+                    } else {
+                        _result.put("months", clinicalData.getDiseaseFreeSurvivalMonths());
+                    }
+                    String dfsStatus = clinicalData.getDiseaseFreeSurvivalStatus();
+                    if(dfsStatus == null || dfsStatus.length() == 0) {
+                        _result.put("status", "NA");
+                    }else if (dfsStatus.equalsIgnoreCase("Recurred/Progressed") || dfsStatus.equalsIgnoreCase("Recurred")) {
+                        _result.put("status", "1");
+                    } else if(dfsStatus.equalsIgnoreCase("DiseaseFree")) {
+                        _result.put("status", "0");
+                    }                     
                 }
                 results.put(clinicalData.getStableId(), _result);
             }

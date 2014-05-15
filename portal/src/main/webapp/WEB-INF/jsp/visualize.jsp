@@ -202,7 +202,7 @@
             <% } %>
 
             <% if (clinicalDataList != null && clinicalDataList.size() > 0) { %>
-        <%@ include file="clinical_tab.jsp" %>
+        <%@ include file="survival_tab.jsp" %>
             <% } %>
 
             <% if (computeLogOddsRatio && geneWithScoreList.size() > 1) { %>

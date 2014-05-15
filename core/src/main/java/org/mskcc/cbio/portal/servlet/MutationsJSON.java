@@ -1,16 +1,31 @@
 package org.mskcc.cbio.portal.servlet;
 
-import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.util.*;
-import org.mskcc.cbio.portal.model.*;
-
-import org.apache.log4j.Logger;
-import org.codehaus.jackson.map.ObjectMapper;
-
 import java.io.*;
 import java.util.*;
+import java.util.regex.Pattern;
 import javax.servlet.http.*;
 import javax.servlet.ServletException;
+import org.apache.log4j.Logger;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.mskcc.cbio.portal.dao.DaoCancerStudy;
+import org.mskcc.cbio.portal.dao.DaoCosmicData;
+import org.mskcc.cbio.portal.dao.DaoDrugInteraction;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.dao.DaoGeneticAlteration;
+import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
+import org.mskcc.cbio.portal.dao.DaoMutSig;
+import org.mskcc.cbio.portal.dao.DaoMutation;
+import org.mskcc.cbio.portal.dao.DaoSample;
+import org.mskcc.cbio.portal.dao.DaoSangerCensus;
+import org.mskcc.cbio.portal.model.CancerStudy;
+import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.CosmicMutationFrequency;
+import org.mskcc.cbio.portal.model.ExtendedMutation;
+import org.mskcc.cbio.portal.model.GeneticProfile;
+import org.mskcc.cbio.portal.model.MutSig;
+import org.mskcc.cbio.portal.model.Sample;
+import org.mskcc.cbio.portal.util.InternalIdUtil;
 
 /**
  *
@@ -72,16 +87,30 @@ public class MutationsJSON extends HttpServlet {
             mutationProfile = DaoGeneticProfile.getGeneticProfileByStableId(mutationProfileId);
             if (mutationProfile!=null) {
                 int profileId = mutationProfile.getGeneticProfileId();
+                Set<String> selectedCaseList = new HashSet<String>();
+                
+                if (request.getParameterMap().containsKey("case_list")) {
+                    String caseList = request.getParameter("case_list");
+                    Pattern p = Pattern.compile("[,\\s]+");
+                    String cases[] = p.split(caseList);
+                    for (String selectedCase : cases) {
+                        selectedCase = selectedCase.trim();
+                        if (selectedCase.length() == 0) {
+                            continue;
+                        }
+                        selectedCaseList.add("'" + selectedCase + "'");
+                    }
+                }
                 
                 // get all recurrently mutation genes
-                smgs = DaoMutation.getSMGs(profileId, null, 2, DEFAULT_THERSHOLD_NUM_SMGS);
+                smgs = DaoMutation.getSMGs(profileId, null, 2, DEFAULT_THERSHOLD_NUM_SMGS, (selectedCaseList.isEmpty()? null: selectedCaseList));
                 
                 // get all cbio cancer genes
                 Set<Long> cbioCancerGeneIds = daoGeneOptimized.getEntrezGeneIds(
                         daoGeneOptimized.getCbioCancerGenes());
                 cbioCancerGeneIds.removeAll(smgs.keySet());
                 if (!cbioCancerGeneIds.isEmpty()) {
-                    smgs.putAll(DaoMutation.getSMGs(profileId, cbioCancerGeneIds, -1, -1));
+                    smgs.putAll(DaoMutation.getSMGs(profileId, cbioCancerGeneIds, -1, -1, (selectedCaseList.isEmpty()? null: selectedCaseList)));
                 }
                 
                 // added mutsig results
@@ -91,7 +120,7 @@ public class MutationsJSON extends HttpServlet {
                     mutsigGenes.removeAll(smgs.keySet());
                     if (!mutsigGenes.isEmpty()) {
                         // append mutsig genes
-                        smgs.putAll(DaoMutation.getSMGs(profileId, mutsigGenes, -1, -1));
+                        smgs.putAll(DaoMutation.getSMGs(profileId, mutsigGenes, -1, -1, (selectedCaseList.isEmpty()? null: selectedCaseList)));
                     }
                 }
             }

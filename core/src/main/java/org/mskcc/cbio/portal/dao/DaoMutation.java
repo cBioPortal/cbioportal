@@ -541,7 +541,8 @@ public final class DaoMutation {
      * @throws DaoException 
      */
     public static Map<Long, Integer> getSMGs(int profileId, Collection<Long> entrezGeneIds,
-            int thresholdRecurrence, int thresholdNumGenes) throws DaoException {
+            int thresholdRecurrence, int thresholdNumGenes,
+            Collection<String> selectedCaseIds) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -552,6 +553,7 @@ public final class DaoMutation {
                     + " WHERE mutation.ENTREZ_GENE_ID=gene.ENTREZ_GENE_ID"
                     + " AND GENETIC_PROFILE_ID=" + profileId
                     + (entrezGeneIds==null?"":(" AND mutation.ENTREZ_GENE_ID IN("+StringUtils.join(entrezGeneIds,",")+")"))
+                    + (selectedCaseIds==null?"":(" AND mutation.CASE_ID IN("+StringUtils.join(selectedCaseIds,",")+")"))
                     + " GROUP BY mutation.ENTREZ_GENE_ID"
                     + (thresholdRecurrence>0?(" HAVING COUNT(*)>="+thresholdRecurrence):"")
                     + " ORDER BY count_per_nt DESC"

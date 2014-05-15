@@ -613,6 +613,9 @@ pieH3{
 }
 
 //Show/Hide columns related classes
+.ColVis_collection {
+    width: 500px;
+}
 .ColVis_Button {
     white-space: nowrap;
 }

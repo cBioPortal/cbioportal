@@ -39,8 +39,7 @@ var AddCharts = (function(){
                 .find('option')
                 .remove()
                 .end()
-                .append('<option id="">Add Chart</option>')
-                .val('whatever');
+                .append('<option id="">Add Chart</option>');
         
         for ( var i = 0 ; i < _nameKeyLength; i++) {
             if(_dispalyedID.indexOf(_name[_nameKeys[i]]) === -1){
@@ -73,8 +72,7 @@ var AddCharts = (function(){
         
         
 //        if($('#study-view-add-chart ul').find('li').length === 0 ){
-        if($('#study-view-add-chart').find('option').length === 0 && 
-                    $('#study-view-add-chart').find('option')[0].attr('id') === ''){
+        if($('#study-view-add-chart').find('option').length === 1){
             $('#study-view-add-chart').css('display','none');
         }else{
             bindliClickFunc();

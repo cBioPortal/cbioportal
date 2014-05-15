@@ -159,6 +159,8 @@ var StudyViewInitCharts = (function(){
             
             if(_attr[i]["attr_id"] === "CASE_ID"){
                 pie.push(_attr[i]);
+            }else if(_attr[i]["attr_id"] === "PATIENT_ID") {
+                continue;
             }else if(_dataType === "NUMBER" || _dataType === "BOOLEAN" || _allNumber){                
                 if(selectedCol(_attr[i]["attr_id"])){                    
                     if(_keys.length>10 || _attr[i]["attr_id"] === 'MUTATION_COUNT' 

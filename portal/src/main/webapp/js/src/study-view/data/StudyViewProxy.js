@@ -123,8 +123,15 @@ var StudyViewProxy = (function() {
                         if(val === undefined)
                             val = 'NA';
                         obtainDataObject['arr'][_keyNumMapping[i]]['MUTATION_COUNT'] = val;
-                    });    
+                    }); 
                     obtainDataObject['attr'].push(_newAttr);
+                }else {
+                    var cnaLength = obtainDataObject['arr'].length;
+                    for(var i = 0; i < cnaLength; i++) {
+                        if(obtainDataObject['arr'][i].hasOwnProperty('MUTATION_COUNT')) {
+                            delete obtainDataObject['arr'][i]['MUTATION_COUNT'];
+                        }
+                    }
                 }
 
                 //Add new attribute COPY NUMBER ALTERATIONS for each case if have any
@@ -142,6 +149,13 @@ var StudyViewProxy = (function() {
                         obtainDataObject['arr'][_keyNumMapping[i]]['COPY_NUMBER_ALTERATIONS'] = val;
                     }); 
                     obtainDataObject['attr'].push(_newAttri);
+                }else {
+                    var cnaLength = obtainDataObject['arr'].length;
+                    for(var i = 0; i < cnaLength; i++) {
+                        if(obtainDataObject['arr'][i].hasOwnProperty('COPY_NUMBER_ALTERATIONS')) {
+                            delete obtainDataObject['arr'][i]['COPY_NUMBER_ALTERATIONS'];
+                        }
+                    }
                 }
                 
                 //Attribute CASE_ID will be treated as identifier in Study View
@@ -172,11 +186,19 @@ var StudyViewProxy = (function() {
     //This function is designed to elimate data based on case id
     //which not inlcuded in globle caseIds Array
     function removeExtraData(_caseIds,_data){
-        var _newData = {};
+        var _newData = {},
+            _hasValue = false;
         for(var i=0; i< _caseIds.length ; i++){
             _newData[_caseIds[i]] = _data[_caseIds[i]];
+            if(_data[_caseIds[i]] !== undefined){
+                _hasValue = true;
+            }
         }
-        return _newData;
+        if(_hasValue) {
+            return _newData;
+        }else {
+            return [];
+        }
     }
     
     return {

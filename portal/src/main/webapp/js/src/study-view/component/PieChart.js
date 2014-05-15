@@ -307,10 +307,12 @@ var PieChart = function(){
             }
             $("#"+DIV.chartDiv +"-title-wrapper").width('180');
             $("#"+DIV.chartDiv +"-title-wrapper").css('text-align', 'center');
-//            if(selectedAttrDisplay.length < 6) {
+            if(selectedAttrDisplay.length > titleLengthCutoff) {
+                $("#"+DIV.chartDiv +"-title").text(selectedAttrDisplay.substring(0,(titleLengthCutoff-2)) + "...");
+            }else {
                 $("#"+DIV.chartDiv +"-title").text(selectedAttrDisplay);
-                $('#' + DIV.chartDiv +"-title").qtip('destroy', true);
-//            }
+            }
+            $('#' + DIV.chartDiv +"-title").qtip('destroy', true);
         });
     }
     

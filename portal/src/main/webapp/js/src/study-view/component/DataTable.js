@@ -121,15 +121,14 @@ var DataTable = function() {
                 }else if ( _valueAo.sTitle === 'COMPLETE (ACGH, MRNA, SEQUENCING)'){
                     _tmpValue = _value[_valueAo.sTitle];
                 }else if ( _valueAo.sTitle === 'CASE ID'){
-                    _tmpValue = "<a href='tumormap.do?case_id=" + 
-                    _value['CASE_ID'] + "&cancer_study_id=" +
-                    StudyViewParams.params.studyId + "' target='_blank'><span style='color: #2986e2'>" + 
+                    _tmpValue = "<a href='"
+                            + cbio.util.getLinkToSampleView(StudyViewParams.params.studyId, _value['CASE_ID'])
+                            + "' target='_blank'><span style='color: #2986e2'>" + 
                     _value['CASE_ID'] + "</span></a></strong>";
                 }else if ( _valueAo.sTitle === 'PATIENT ID' && _value['PATIENT_ID'] !== 'NA'){
-                    _tmpValue = "<a href='case.do?cancer_study_id=" +
-                    StudyViewParams.params.studyId + "&patient_id="+
-                    _value['PATIENT_ID'] +
-                    "' target='_blank'><span style='color: #2986e2'>" + 
+                    _tmpValue = "<a href='"
+                            + cbio.util.getLinkToPatientView(StudyViewParams.params.studyId, _value['PATIENT_ID'])
+                            + "' target='_blank'><span style='color: #2986e2'>" + 
                     _value['PATIENT_ID'] + "</span></a></strong>";
                 }else{
                     _tmpValue = _value[_valueAo.sTitle.replace(/[ ]/g,'_')];

@@ -29,9 +29,9 @@ var StudyViewInitScatterPlot = (function() {
                     _scatterPlotDatumTmp.y_val = _value['MUTATION_COUNT'];
                     _scatterPlotDatumTmp.case_id = _value['CASE_ID'];
                     _scatterPlotDatumTmp.qtip = "Case ID: <strong>" +
-                        "<a href='tumormap.do?case_id=" +
-                        _value['CASE_ID'] + "&cancer_study_id=" +
-                        StudyViewParams.params.studyId + "' target='_blank'>" + 
+                        "<a href='"
+                        +cbio.util.getLinkToSampleView(StudyViewParams.params.studyId,_value['CASE_ID'])
+                        + "' target='_blank'>" + 
                         _value['CASE_ID'] + "</a></strong> ("+ 
                         cbio.util.toPrecision(_value['COPY_NUMBER_ALTERATIONS'],2,0.01) + 
                         ", " + _value['MUTATION_COUNT']+")";

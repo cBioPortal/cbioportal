@@ -41,6 +41,7 @@ public class Sample {
         
         Type(String propertyName) { this.propertyName = propertyName; }
         public String toString() { return propertyName; }
+        public boolean isNormal() { return this==BLOOD_NORMAL || this==SOLID_NORMAL; }
 
         static public boolean has(String value)
         {

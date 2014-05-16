@@ -639,9 +639,7 @@ define("OncoprintUtils", (function() {
 
     var patientViewUrl = function(sample_id) {
         // helper function
-        var href = "case.do?case_id=" + sample_id
-            + "&cancer_study_id=" + window.cancer_study_id_selected;        // N.B.
-
+        var href = cbio.util.getLinkToSampleView(window.cancer_study_id_selected,sample_id);
         return "<a href='" + href + "'>" + sample_id + "</a>";
     };
 

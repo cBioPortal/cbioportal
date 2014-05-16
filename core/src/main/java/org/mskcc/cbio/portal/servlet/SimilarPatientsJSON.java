@@ -33,7 +33,7 @@ public class SimilarPatientsJSON extends HttpServlet {
 
         String strMutations = request.getParameter(MUTATION);
         String strCna = request.getParameter(CNA);
-        String sample = request.getParameter(PatientView.CASE_ID);
+        String sample = request.getParameter(PatientView.SAMPLE_ID);
         String cancerStudyId = request.getParameter(QueryBuilder.CANCER_STUDY_ID);
         
         try {

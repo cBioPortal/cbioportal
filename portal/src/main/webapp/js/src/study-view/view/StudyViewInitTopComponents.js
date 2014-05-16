@@ -155,9 +155,9 @@ var StudyViewInitTopComponents = (function() {
 //                    $("#study-view-header-left-3").css('left','70px');
 //                }
                 $("#study-view-header-left-3")
-                        .append("<a title='Go to patient-centric view' " + 
-                        "href='case.do?cancer_study_id=" + StudyViewParams.params.studyId +
-                        "&amp;case_id=" + _caseID[0] + "'><span style='color: red'>" + _caseID[0] + 
+                        .append("<a title='Go to sample view' href='"
+                        + cbio.util.getLinkToPatientView(StudyViewParams.params.studyId, _caseID[0])
+                        + "'><span style='color: red'>" + _caseID[0] + 
                         "</span></a>" + " is selected.");                
             }else{
                 $("#study-view-header-left-0").css('display','none');

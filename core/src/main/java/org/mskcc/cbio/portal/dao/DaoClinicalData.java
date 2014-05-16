@@ -257,8 +257,42 @@ public final class DaoClinicalData {
             patientIdsInt.add(DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudyId, patientId).getInternalId());
         }
 
-		return getDataByInternalIds(cancerStudyId, PATIENT_TABLE, patientIdsInt);
-	}
+            return getDataByInternalIds(cancerStudyId, PATIENT_TABLE, patientIdsInt);
+    }
+
+    public static List<ClinicalData> getSampleAndPatientData(int cancerStudyId, Collection<String> sampleIds) throws DaoException
+    {
+        List<Integer> sampleIdsInt = new ArrayList<Integer>();
+        List<Integer> patientIdsInt = new ArrayList<Integer>();
+        Map<String,Set<String>> mapPatientIdSampleIds = new HashMap<String,Set<String>>();
+        for (String sampleId : sampleIds) {
+            Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId);
+            sampleIdsInt.add(sample.getInternalId());
+            int patientIdInt = sample.getInternalPatientId();
+            String patientIdStable = DaoPatient.getPatientById(patientIdInt).getStableId();
+            patientIdsInt.add(patientIdInt);
+            Set<String> sampleIdsForPatient = mapPatientIdSampleIds.get(patientIdStable);
+            if (sampleIdsForPatient==null) {
+                sampleIdsForPatient = new HashSet<String>();
+                mapPatientIdSampleIds.put(patientIdStable, sampleIdsForPatient);
+            }
+            sampleIdsForPatient.add(sampleId);
+        }
+        List<ClinicalData> sampleClinicalData =  getDataByInternalIds(cancerStudyId, SAMPLE_TABLE, sampleIdsInt);
+        
+        List<ClinicalData> patientClinicalData = getDataByInternalIds(cancerStudyId, PATIENT_TABLE, patientIdsInt);
+        for (ClinicalData cd : patientClinicalData) {
+            String stablePatientId = cd.getStableId();
+            Set<String> sampleIdsForPatient = mapPatientIdSampleIds.get(stablePatientId);
+            for (String sampleId : sampleIdsForPatient) {
+                ClinicalData cdSample = new ClinicalData(cd);
+                cdSample.setStableId(sampleId);
+                sampleClinicalData.add(cdSample);
+            }
+        }
+        
+        return sampleClinicalData;
+    }
 
     public static List<ClinicalData> getSampleData(int cancerStudyId, Collection<String> sampleIds, ClinicalAttribute attr) throws DaoException
     {

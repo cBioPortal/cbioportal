@@ -53,7 +53,7 @@ public class CnaJSON extends HttpServlet {
     
     private void processGetCnaRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String[] sampleIds = request.getParameter(PatientView.CASE_ID).split(" +");
+        String[] sampleIds = request.getParameter(PatientView.SAMPLE_ID).split(" +");
         String cnaProfileId = request.getParameter(PatientView.CNA_PROFILE);
         String mrnaProfileId = request.getParameter(PatientView.MRNA_PROFILE);
         String drugType = request.getParameter(PatientView.DRUG_TYPE);
@@ -117,7 +117,7 @@ public class CnaJSON extends HttpServlet {
             HttpServletResponse response)
             throws ServletException, IOException {
 
-        String[] sampleIds = request.getParameter(PatientView.CASE_ID).split(" +");
+        String[] sampleIds = request.getParameter(PatientView.SAMPLE_ID).split(" +");
         String cancerStudyId = request.getParameter(QueryBuilder.CANCER_STUDY_ID);
         
         List<CopyNumberSegment> segs = Collections.emptyList();

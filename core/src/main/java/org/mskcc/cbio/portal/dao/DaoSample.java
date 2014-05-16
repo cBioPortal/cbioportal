@@ -39,6 +39,7 @@ public class DaoSample {
     private static final Map<Integer, HashSet<Sample>> byInternalPatientId = new ConcurrentHashMap<Integer, HashSet<Sample>>();
     private static final MultiKeyMap byInternalPatientAndStableSampleId = new MultiKeyMap();
     private static final Map<String, HashSet<Sample>> byCancerTypeId = new ConcurrentHashMap<String, HashSet<Sample>>();
+    private static final Map<String, HashSet<Sample>> normalsByCancerTypeId = new ConcurrentHashMap<String, HashSet<Sample>>();
     private static final MultiKeyMap byCancerIdAndStableSampleId = new MultiKeyMap();
 
     static {
@@ -66,7 +67,6 @@ public class DaoSample {
             con = JdbcUtil.getDbConnection(DaoSample.class);
             pstmt = con.prepareStatement("SELECT * FROM sample");
             rs = pstmt.executeQuery();
-            ArrayList<Sample> list = new ArrayList<Sample>();
             while (rs.next()) {
                 cacheSample(extractSample(rs));
             }
@@ -81,7 +81,14 @@ public class DaoSample {
 
     private static void cacheSample(Sample sample)
     {
-        cacheSample(sample, getCancerStudyId(sample));
+        if (sample.getType().isNormal()) {
+            if (!normalsByCancerTypeId.containsKey(sample.getCancerTypeId())) {
+                normalsByCancerTypeId.put(sample.getCancerTypeId(), new HashSet<Sample>());
+            }
+            normalsByCancerTypeId.get(sample.getCancerTypeId()).add(sample);
+        } else {
+            cacheTumorSample(sample, getCancerStudyId(sample));
+        }
     }
 
     private static int getCancerStudyId(Sample sample)
@@ -90,7 +97,7 @@ public class DaoSample {
         return (patient == null) ? MISSING_CANCER_STUDY_ID : patient.getCancerStudy().getInternalId();
     }
 
-    private static void cacheSample(Sample sample, int cancerStudyId)
+    private static void cacheTumorSample(Sample sample, int cancerStudyId)
     {
         if (!byStableId.containsKey(sample.getStableId())) {
             byStableId.put(sample.getStableId(), sample);

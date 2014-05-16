@@ -171,7 +171,7 @@ public class MutationsJSON extends HttpServlet {
     private void processGetMutationsRequest(HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
-        String[] samples = request.getParameter(PatientView.CASE_ID).split(" +");
+        String[] samples = request.getParameter(PatientView.SAMPLE_ID).split(" +");
         String mutationProfileId = request.getParameter(PatientView.MUTATION_PROFILE);
         String mrnaProfileId = request.getParameter(PatientView.MRNA_PROFILE);
         String cnaProfileId = request.getParameter(PatientView.CNA_PROFILE);

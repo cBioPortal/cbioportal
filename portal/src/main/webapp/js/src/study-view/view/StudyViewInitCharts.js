@@ -273,7 +273,7 @@ var StudyViewInitCharts = (function(){
             _passedCases = {
                 'All cases': {
                     caseIds: _allCases,
-                    color: "#000000"
+                    color: "#2986e2"
                 }
             };
         }
@@ -409,7 +409,7 @@ var StudyViewInitCharts = (function(){
         var container = document.querySelector('#study-view-charts');
         msnry = new Packery( container, {
             columnWidth: 190,
-            rowHeight: 115,
+            rowHeight: 170,
             itemSelector: '.study-view-dc-chart',
             gutter:5
         });
@@ -502,7 +502,7 @@ var StudyViewInitCharts = (function(){
                 caseLists: {
                     'All cases': {
                         caseIds: StudyViewParams.params.caseIds, 
-                        color: '#000000'
+                        color: '#2986e2'
                     }
                 }
             };
@@ -520,7 +520,7 @@ var StudyViewInitCharts = (function(){
                 caseLists: {
                     'All cases': {
                         caseIds: StudyViewParams.params.caseIds, 
-                        color: '#000000'
+                        color: '#2986e2'
                     }
                 }
             };
@@ -1113,7 +1113,7 @@ var StudyViewInitCharts = (function(){
                 msnry.destroy();
                 msnry = new Packery( document.querySelector('#study-view-charts'), {
                     columnWidth: 190,
-                    rowHeight: 115,
+                    rowHeight: 170,
                     itemSelector: '.study-view-dc-chart',
                     gutter:5
                 });

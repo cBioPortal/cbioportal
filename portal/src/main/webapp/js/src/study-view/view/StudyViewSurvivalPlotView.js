@@ -492,8 +492,8 @@ var StudyViewSurvivalPlotView = (function() {
         _opts.plot.text.qTips.estimation = "Survival estimate";
         _opts.plot.text.qTips.censoredEvent = "Time of last observation";
         _opts.plot.text.qTips.failureEvent = "Time of death";
-        _opts.plot.settings.canvas_width = 370;
-        _opts.plot.settings.canvas_height = 320;
+        _opts.plot.settings.canvas_width = 365;
+        _opts.plot.settings.canvas_height = 310;
         _opts.plot.settings.chart_width = 290;
         _opts.plot.settings.chart_height = 250;
         _opts.plot.settings.chart_left = 70;
@@ -673,7 +673,9 @@ var StudyViewSurvivalPlotView = (function() {
             _numOfLabels = _newLabelsLength + _savedLabelsLength,
             _width = 0,
             _height = _numOfLabels * 20 - 5;
-
+        
+        $("#" + opts[_plotKey].divs.main + " svg").qtip('destroy', true);
+       
         if (_numOfLabels === 0) {
             $("#" + opts[_plotKey].divs.bodyLabel).css('display', 'none');
         } else {
@@ -714,12 +716,12 @@ var StudyViewSurvivalPlotView = (function() {
             }
         }
         
-        $("#" + opts[_plotKey].divs.main).qtip({
+        $("#" + opts[_plotKey].divs.main + " svg").qtip({
             id: opts[_plotKey].divs.bodyLabel + "-qtip",
             style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
             show: {event: "mouseover"},
             hide: {fixed:true, delay: 100, event: "mouseout"},
-            position: {my:'right center',at:'center left', viewport: $(window)},
+            position: {my:'left top',at:'top right', viewport: $(window)},
             content: $("#" + opts[_plotKey].divs.bodyLabel).html(),
             events: {
                 render: function(event, api) {
@@ -926,7 +928,6 @@ var StudyViewSurvivalPlotView = (function() {
      * @param {type} _plotKey
      */
     function redrawLabel(_plotKey) {
-        $("#" + opts[_plotKey].divs.main).qtip('destroy', true);
         $("#" + opts[_plotKey].divs.bodyLabel + " svg").remove();
         drawLabels(_plotKey);
         addEvents(_plotKey);

@@ -61,7 +61,7 @@ var BarChart = function(){
         numOfGroups = 10,
         divider = 1,
         chartWidth = 370,
-        chartHeight = 180,
+        chartHeight = 125,
         hasEmptyValue = false;
             
     var postFilterCallback,

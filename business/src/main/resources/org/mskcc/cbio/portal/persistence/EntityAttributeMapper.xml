@@ -25,6 +25,15 @@
 	and ATTR_ID = #{attributeId}
 </select>
 
+<select id="getAllAttributeMetadata" resultType="AttributeMetadata">
+	select
+		ATTR_ID as attributeId,
+		DISPLAY_NAME as displayName,
+		DESCRIPTION as description,
+		DATATYPE as type
+	from attribute_metadata
+</select>
+
 <select id="getAttributeMetadataById" resultType="AttributeMetadata">
 	select
 		ATTR_ID as attributeId,

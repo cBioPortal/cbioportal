@@ -61,6 +61,11 @@ public class EntityAttributeService
     return entityAttributeMapper.getEntityAttributeById(entityId, attributeId);
   }
 
+  public List<AttributeMetadata> getAllAttributeMetadata()
+  {
+    return entityAttributeMapper.getAllAttributeMetadata();
+  }
+
   public AttributeMetadata getAttributeMetadata(String attributeId)
   {
     return entityAttributeMapper.getAttributeMetadataById(attributeId);

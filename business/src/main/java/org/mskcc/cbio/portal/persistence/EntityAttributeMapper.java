@@ -28,6 +28,9 @@ public interface EntityAttributeMapper
 	void insertEntityAttribute(EntityAttribute attribute);
 	void insertAttributeMetadata(AttributeMetadata attributeMetadata);
 
-	EntityAttribute getEntityAttributeById(@Param("entityId") int entityId, @Param("attributeId") String attributeId);
+	EntityAttribute getEntityAttributeById(@Param("entityId") int entityId,
+	                                       @Param("attributeId") String attributeId);
+
+	List<AttributeMetadata> getAllAttributeMetadata();
 	AttributeMetadata getAttributeMetadataById(String attributeId);
 }

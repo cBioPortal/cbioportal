@@ -291,21 +291,22 @@ var StudyViewBoilerplate ={
             "Mutation Count vs CNA</chartTitleH4>"+
             "<div id='study-view-scatter-plot-header'>"+
             
-            "<form style='display:inline-block; margin-right:5px; float:left' action='svgtopdf.do' method='post' id='study-view-scatter-plot-pdf'>"+
-            "<input type='hidden' name='svgelement' id='study-view-scatter-plot-pdf-value'>"+
-            "<input type='hidden' name='filetype' value='pdf'>"+
-            "<input type='hidden' id='study-view-scatter-plot-pdf-name' name='filename' value=''>"+
-            "<input type='submit' style='font-size:10px' value='PDF'>"+          
-            "</form>"+
+//            "<form style='display:inline-block; margin-right:5px; float:left' action='svgtopdf.do' method='post' id='study-view-scatter-plot-pdf'>"+
+//            "<input type='hidden' name='svgelement' id='study-view-scatter-plot-pdf-value'>"+
+//            "<input type='hidden' name='filetype' value='pdf'>"+
+//            "<input type='hidden' id='study-view-scatter-plot-pdf-name' name='filename' value=''>"+
+//            "<input type='submit' style='font-size:10px' value='PDF'>"+          
+//            "</form>"+
+//            
+//            "<form style='display:inline-block; margin-right:5px; float:left' action='svgtopdf.do' method='post' id='study-view-scatter-plot-svg'>"+
+//            "<input type='hidden' name='svgelement' id='study-view-scatter-plot-svg-value'>"+
+//            "<input type='hidden' name='filetype' value='svg'>"+
+//            "<input type='hidden' id='study-view-scatter-plot-svg-name' name='filename' value=''>"+
+//            "<input type='submit' style='font-size:10px' value='SVG'>"+    
+//            "</form>"+
             
-            "<form style='display:inline-block; margin-right:5px; float:left' action='svgtopdf.do' method='post' id='study-view-scatter-plot-svg'>"+
-            "<input type='hidden' name='svgelement' id='study-view-scatter-plot-svg-value'>"+
-            "<input type='hidden' name='filetype' value='svg'>"+
-            "<input type='hidden' id='study-view-scatter-plot-svg-name' name='filename' value=''>"+
-            "<input type='submit' style='font-size:10px' value='SVG'>"+    
-            "</form>"+
-            
-            "<img id='study-view-scatter-plot-menu-icon' class='study-view-menu-icon' style='float:left; width:10px; height:10px;margin-top:4px; margin-right:4px;' class='study-view-menu-icon' src='images/menu.svg'/>"+
+//            "<img id='study-view-scatter-plot-menu-icon' class='study-view-menu-icon' style='float:left; width:10px; height:10px;margin-top:4px; margin-right:4px;' class='study-view-menu-icon' src='images/menu.svg'/>"+
+            "<img id='study-view-scatter-plot-download-icon' class='study-view-download-icon' src='images/in.svg'/>" +
             "<img style='width:10px; height:10px;margin-top:4px; margin-right:4px;float:left;' class='study-view-drag-icon' src='images/move.svg'/>"+
             "<span style='float:left;' class='study-view-chart-plot-delete study-view-scatter-plot-delete'>x</span>"+
             "</div></div>"+
@@ -314,10 +315,11 @@ var StudyViewBoilerplate ={
             "<div id='study-view-scatter-plot-body-top-chart'></div>"+
             "<div id='study-view-scatter-plot-body-svg'></div>"+
             "<div id='study-view-scatter-plot-body-right-chart'></div></div>"+
-            "<div id='study-view-scatter-plot-side'>"+
-            "<div class='study-view-side-item'><input type='checkbox' id='study-view-scatter-plot-log-scale-x'></input><span class='study-view-scatter-plot-checkbox'>Log Scale X</span></div>"+
-            "<div class='study-view-side-item'><input type='checkbox' id='study-view-scatter-plot-log-scale-y'></input><span class='study-view-scatter-plot-checkbox'>Log Scale y</span></div>"+
-            "</div><div id='study-view-scatter-plot-loader' class='study-view-loader'>"+
+//            "<div id='study-view-scatter-plot-side'>"+
+//            "<div class='study-view-side-item'><input type='checkbox' id='study-view-scatter-plot-log-scale-x'></input><span class='study-view-scatter-plot-checkbox'>Log Scale X</span></div>"+
+//            "<div class='study-view-side-item'><input type='checkbox' id='study-view-scatter-plot-log-scale-y'></input><span class='study-view-scatter-plot-checkbox'>Log Scale y</span></div>"+
+//            "</div>"+
+            "<div id='study-view-scatter-plot-loader' class='study-view-loader'>"+
             "<img src='images/ajax-loader.gif'/></div>"+
             "<div id='study-view-scatter-plot-control-panel'></div>"+
             "</div>",

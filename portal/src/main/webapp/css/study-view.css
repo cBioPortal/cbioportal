@@ -294,7 +294,7 @@
     display: none;
 }
 .pieLabel {
-    width: 75px;
+    /*width: 75px;*/
     height: 15px;
     border-spacing: 0px;
 }
@@ -329,14 +329,17 @@
 }
 .study-view-pie-chart svg{
     margin-left: 25px;
+    margin-right: 10px;
+    float: left;
 }
 .study-view-pie-label {
     height:55px;
     width:150px;
     float:left;
     margin-left:25px;
+    display: none;
 }
-.study-view-pie-label table td:hover{
+.pieLabel:hover{
     cursor: pointer;
 }
 .study-view-word-cloud {
@@ -350,7 +353,9 @@
 .study-view-pdf-svg-side {
     position: absolute;
     //width: 35px;
-    left: 130px;
+    /*left: 130px;*/
+    right: 0;
+    top: 15px;
 /*    border: 1px solid lightgrey;
     left: 180px;
     top: 15px;
@@ -358,10 +363,13 @@
     padding: 2px 2px 4px 0;
     background-color: white;
     border-left-width: 0;*/
+    /*float: left;*/
+    width: 14px;
+    display: none;
 }
 .study-view-pdf-svg-side.bar {
     /*left: 375px;*/
-    left: 325px;
+    /*left: 325px;*/
 }
 .w2{
     width:375px;
@@ -383,7 +391,7 @@
     width:750px;
 }
 .h1{
-    height:220px;
+    height:165px;
 }
 .h1half{
     height:340px;
@@ -397,7 +405,7 @@
 .study-view-bar-main {
     float:left;
     width:375px;
-    height:220px;
+    height:165px;
     border:1px;
     border-color:lightgrey;
     border-style:solid;
@@ -415,7 +423,7 @@
 .study-view-pie-main {
     float:left;
     width:180px;
-    height:220px;
+    height:165px;
     border:1px;
     border-color:lightgrey;
     border-style:solid;
@@ -463,6 +471,26 @@
 }
 .study-view-drag-icon:hover{
     cursor: move;
+}
+.study-view-survival-icon {
+    width:14px;
+    height:14px;
+    margin-top:2px;
+    margin-right:2px;
+    float:left;
+}
+.study-view-survival-icon:hover{
+    cursor: pointer;
+}
+.study-view-download-icon {
+    width:10px;
+    height:10px;
+    margin-top:4px;
+    margin-right:4px;
+    float:left;
+}
+.study-view-download-icon:hover{
+    cursor: pointer;
 }
 .study-view-side-item {
     float: left;

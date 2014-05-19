@@ -229,14 +229,16 @@ var ScatterPlots = function() {
     function appendAxisTitleX(_applyLogScale) {
         d3.select("#" + names.body).select(".plots-title-x").remove();
         d3.select("#" + names.body).select(".plots-title-x-help").remove();
-        var _xTitle = "";
+        d3.select("#" + names.body).select("#plots-title-x-checkbox").remove();
+        var _xTitle = "",
+            _checked = "";
         if (_applyLogScale) {
             _xTitle = text.xTitle + " (log)";
         } else {
             _xTitle = text.xTitle;
         }
         elem.axisTitleGroup.append("text")
-            .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2)
+            .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2 - 15)
             .attr("y", canvas.yBottom + 60)
             .style("text-anchor", "middle")
             .style("font-size", "11px")
@@ -244,12 +246,12 @@ var ScatterPlots = function() {
             .attr("class", "plots-title-x")
             .text(_xTitle);
         elem.axisTitleGroup.append("svg:image")
-            .attr("xlink:href", "images/help.png")
+            .attr("xlink:href", "images/info.png")
             .attr("class", "plots-title-x-help")
-            .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2 - _xTitle.length / 2 * 8 + 5)
+            .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2 - _xTitle.length / 2 * 8 - 15)
             .attr("y", canvas.yBottom + 48)
-            .attr("width", "16")
-            .attr("height", "16");
+            .attr("width", "14")
+            .attr("height", "14");
         elem.svg.select(".plots-title-x-help").each(
             function() {
                 $(this).qtip(
@@ -263,17 +265,44 @@ var ScatterPlots = function() {
                 );
             }
         );
+
+        if(axisXLogFlag) {
+            _checked = "checked";
+        }else {
+            _checked = "";
+        }
+        
+        elem.axisTitleGroup.append("svg:foreignObject")
+            .attr("id", "plots-title-x-checkbox")
+            .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2 + _xTitle.length / 2 * 8 - 35)
+            .attr("y", canvas.yBottom + 48)
+            .attr("width", "50")
+            .attr("height", "15")
+            .append("xhtml:body")
+            .style({"font-size": "11px", "margin": "0"})
+            .html("<input id='study-view-scatter-plot-log-scale-x' type='checkbox' style='float:left; margin-top: 2px' "+_checked+"/><span style='float:left'>Log</span>");
+        
+        $("#study-view-scatter-plot-log-scale-x").change(function() {
+            if($(this).prop("checked")){
+                axisXLogFlag = true;
+            }else {
+                axisXLogFlag = false;
+            }
+            updateScaleX();
+        });
     }
 
-    function appendAxisTitleY(_applyLogScale) {
+    function appendAxisTitleY() {
         d3.select("#" + names.body).select(".plots-title-y").remove();
         d3.select("#" + names.body).select(".plots-title-y-help").remove();
-        var _yTitle = "";
-        if (_applyLogScale) {
-            _yTitle = text.yTitle + " (log)";
-        } else {
+        d3.select("#" + names.body).select("#plots-title-y-checkbox").remove();
+        var _yTitle = "",
+            _checked = "";
+//        if (_applyLogScale) {
+//            _yTitle = text.yTitle + " (log)";
+//        } else {
             _yTitle = text.yTitle;
-        }
+//        }
         elem.axisTitleGroup.append("text")
             .attr("transform", "rotate(-90)")
             .attr("x", (canvas.yTop - canvas.yBottom) / 2 - canvas.yTop)
@@ -284,12 +313,12 @@ var ScatterPlots = function() {
             .attr("class", "plots-title-y") 
             .text(_yTitle);
         elem.axisTitleGroup.append("svg:image")
-            .attr("xlink:href", "images/help.png")
+            .attr("xlink:href", "images/info.png")
             .attr("class", "plots-title-y-help")
             .attr("x", canvas.xLeft - 72)
-            .attr("y", canvas.yBottom - (canvas.yBottom - canvas.yTop) / 2 - _yTitle.length / 2 * 8 - 10)
-            .attr("width", "16")
-            .attr("height", "16");
+            .attr("y", canvas.yBottom - (canvas.yBottom - canvas.yTop) / 2 + _yTitle.length / 2 * 8 - 5)
+            .attr("width", "14")
+            .attr("height", "14");
         elem.svg.select(".plots-title-y-help").each(
             function() {
                 $(this).qtip(
@@ -303,6 +332,32 @@ var ScatterPlots = function() {
                 );
             }
         );
+        
+        if(axisYLogFlag) {
+            _checked = "checked";
+        }else {
+            _checked = "";
+        }
+        
+        elem.axisTitleGroup.append("svg:foreignObject")
+            .attr("id", "plots-title-y-checkbox")
+            .attr("transform", "rotate(-90)")
+            .attr("x", (canvas.yTop - canvas.yBottom) / 2 + _yTitle.length / 2 * 8 - 15)
+            .attr("y", canvas.xLeft - 72)
+            .attr("width", "50")
+            .attr("height", "15")
+            .append("xhtml:body")
+            .style({"font-size": "11px", "margin": "0"})
+            .html("<input id='study-view-scatter-plot-log-scale-y' type='checkbox' style='float:left' "+_checked+"/><span style='float:left; margin-top: 2px'>Log</span>");
+        
+        $("#study-view-scatter-plot-log-scale-y").change(function() {
+            if($(this).prop("checked")){
+                axisYLogFlag = true;
+            }else {
+                axisYLogFlag = false;
+            }
+            updateScaleY();
+        });
     }
 
     function drawPlots(_dataArr) {
@@ -841,6 +896,41 @@ var ScatterPlots = function() {
         return _value;
     }
     
+    function updateScaleX() {
+//        var _applyLogScale = document.getElementById(_divName).checked;
+            
+        if (axisXLogFlag) {
+            updateAxisScaleX();
+            initLogAxisX();
+        } else {
+            initScaleX();
+            initAxisX();
+        }
+
+        if(brushOn){
+            updateBrush();
+        }
+        generateAxisX();
+        appendAxisTitleX();
+        updatePlotsLogScale("x", axisXLogFlag);
+    }
+    
+    function updateScaleY() {   //_applyLogScale: boolean, true for apply scale, false for  original value)
+//        var _applyLogScale = document.getElementById(_divName).checked;
+        if (axisYLogFlag) {
+            updateAxisScaleY();
+            initLogAxisY();
+        } else {
+            initScaleY();
+            initAxisY();
+        }
+        if(brushOn)
+            updateBrush();
+        generateAxisY();
+        appendAxisTitleY();
+        updatePlotsLogScale("y", axisYLogFlag);
+    }
+        
     return {
         init: function(_options, _dataArr, _dataAttr, _brushOn) {    //Init with options
             initSettings(_options, _dataAttr);
@@ -860,38 +950,14 @@ var ScatterPlots = function() {
             addQtips();
         },
         // !!! Log Scale are only used by using RNA Seq Profile
-        updateScaleX: function(_divName) {   //_applyLogScale: boolean, true for apply scale, false for  original value)
-            var _applyLogScale = document.getElementById(_divName).checked;
-            
-            if (_applyLogScale) {
-                updateAxisScaleX();
-                initLogAxisX();
-            } else {
-                initScaleX();
-                initAxisX();
-            }
-            
-            if(brushOn){
-                updateBrush();
-            }
-            generateAxisX();
-            appendAxisTitleX(_applyLogScale);
-            updatePlotsLogScale("x", _applyLogScale);
+        updateScaleX: updateScaleX,
+        
+        updateScaleY: updateScaleY,
+        setAxisXLogFlag: function(_flag) {
+            axisXLogFlag = _flag;
         },
-        updateScaleY: function(_divName) {   //_applyLogScale: boolean, true for apply scale, false for  original value)
-            var _applyLogScale = document.getElementById(_divName).checked;
-            if (_applyLogScale) {
-                updateAxisScaleY();
-                initLogAxisY();
-            } else {
-                initScaleY();
-                initAxisY();
-            }
-            if(brushOn)
-                updateBrush();
-            generateAxisY();
-            appendAxisTitleY(_applyLogScale);
-            updatePlotsLogScale("y", _applyLogScale);
+        setAxisYLogFlag: function(_flag) {
+            axisYLogFlag = _flag;
         },
         getBrushedCases: function() {
             return brushedCases;

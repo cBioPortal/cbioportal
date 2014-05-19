@@ -4,7 +4,15 @@
 
 
 var StudyViewUtil = (function(){
-    function showHideDivision(_listenedDiv, _targetDiv, _parentDiv){
+    function showHideDivision(_listenedDiv, _targetDiv, _time, _parentDiv){
+        var _anTime = 0;
+        
+        if(typeof _time === "undefined") {
+            _anTime = 300;
+        }else {
+            _anTime = _time;
+        }
+        
         $(_targetDiv).css('display', 'none');
         $(_listenedDiv).hover(function(){
             $(_listenedDiv).css('z-index', '1');
@@ -12,12 +20,12 @@ var StudyViewUtil = (function(){
                 changePosition(_listenedDiv, _targetDiv, _parentDiv);
             }
             
-            $(_targetDiv).stop().fadeIn('slow', function(){
+            $(_targetDiv).stop().fadeIn(_anTime, function(){
                 $(this).css('display', 'block');
             });
         }, function(){
             $(_listenedDiv).css('z-index', '0');
-            $(_targetDiv).stop().fadeOut('slow', function(){
+            $(_targetDiv).stop().fadeOut(_anTime, function(){
                 $(this).css('display', 'none');
             });
         });

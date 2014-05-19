@@ -10,6 +10,7 @@
 
 var StudyViewMainController = (function() {
     var callbackFunc = function (_data) {
+        
         if(!(_data.attr.length === 1 && _data.attr[0].attr_id === 'CASE_ID')) {
             StudyViewSummaryTabController.init(_data);
         }else {
@@ -22,6 +23,7 @@ var StudyViewMainController = (function() {
             StudyViewMutationsTabController.init();
         }
         StudyViewCNATabController.init();
+        
     };
     
     return {

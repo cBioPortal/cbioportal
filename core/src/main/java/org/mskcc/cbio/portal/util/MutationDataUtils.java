@@ -197,7 +197,7 @@ public class MutationDataUtils {
         String typeOfCancer = DaoTypeOfCancer.getTypeOfCancerById(cancerStudy.getTypeOfCancerId()).getName();
         String cancerStudyStableId = cancerStudy.getCancerStudyStableId();
         Sample sample = DaoSample.getSampleById(mutation.getSampleId());
-        String linkToPatientView = GlobalProperties.cbio.util.getLinkToPatientView(sample.getStableId(), cancerStudyStableId);
+        String linkToPatientView = GlobalProperties.getLinkToPatientView(sample.getStableId(), cancerStudyStableId);
 
         // mutationId is not a unique id wrt the whole DB,
         // but it is unique wrt the returned data set

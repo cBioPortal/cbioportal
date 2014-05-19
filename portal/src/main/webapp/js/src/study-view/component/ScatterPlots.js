@@ -238,7 +238,7 @@ var ScatterPlots = function() {
             _xTitle = text.xTitle;
         }
         elem.axisTitleGroup.append("text")
-            .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2 - 30)
+            .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2 - 15)
             .attr("y", canvas.yBottom + 60)
             .style("text-anchor", "middle")
             .style("font-size", "11px")
@@ -248,7 +248,7 @@ var ScatterPlots = function() {
         elem.axisTitleGroup.append("svg:image")
             .attr("xlink:href", "images/info.png")
             .attr("class", "plots-title-x-help")
-            .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2 - _xTitle.length / 2 * 8 - 25)
+            .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2 - _xTitle.length / 2 * 8 - 15)
             .attr("y", canvas.yBottom + 48)
             .attr("width", "14")
             .attr("height", "14");
@@ -274,7 +274,7 @@ var ScatterPlots = function() {
         
         elem.axisTitleGroup.append("svg:foreignObject")
             .attr("id", "plots-title-x-checkbox")
-            .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2 + _xTitle.length / 2 * 8 - 50)
+            .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2 + _xTitle.length / 2 * 8 - 35)
             .attr("y", canvas.yBottom + 48)
             .attr("width", "50")
             .attr("height", "15")

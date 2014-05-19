@@ -355,7 +355,7 @@
     //width: 35px;
     /*left: 130px;*/
     right: 0;
-    top: 25px;
+    top: 15px;
 /*    border: 1px solid lightgrey;
     left: 180px;
     top: 15px;
@@ -364,7 +364,7 @@
     background-color: white;
     border-left-width: 0;*/
     /*float: left;*/
-    width: 15px;
+    width: 14px;
     display: none;
 }
 .study-view-pdf-svg-side.bar {

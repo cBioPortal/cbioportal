@@ -79,7 +79,14 @@ var StudyViewInitScatterPlot = (function() {
             
             StudyViewUtil
                     .showHideDivision("#study-view-scatter-plot", 
-                                    "#study-view-scatter-plot-header");
+                                    "#study-view-scatter-plot-header", 0);
+            StudyViewUtil
+                    .showHideDivision("#study-view-scatter-plot", 
+                                    "#plots-title-x-checkbox", 0);
+            StudyViewUtil
+                    .showHideDivision("#study-view-scatter-plot", 
+                                    "#plots-title-y-checkbox", 0);
+                                    
             $('#study-view-scatter-plot-download-icon').qtip('destroy', true);
             $('#study-view-scatter-plot-download-icon').qtip({
                 id: "#study-view-scatter-plot-download-icon-qtip",
@@ -163,7 +170,7 @@ var StudyViewInitScatterPlot = (function() {
         $("#" + _svgParentDivId + " #plots-title-y-checkbox").remove();
         $("#" + _svgParentDivId + " .plots-title-x")
             .attr('x', 
-                Number($("#" + _svgParentDivId + " .plots-title-x").attr('x')) + 30);
+                Number($("#" + _svgParentDivId + " .plots-title-x").attr('x')) + 15);
         //Remove x/y title help icon first.
         svgElement = $("#" + _svgParentDivId + " svg").html();
         svgElement = "<svg><g><text text-anchor='middle' x='220' y='30' " +

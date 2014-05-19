@@ -447,11 +447,11 @@ var StudyViewInitCharts = (function(){
                     _itemElemsLength = _itemElems.length;
                 
                 for(var j=0; j< _itemElemsLength; j++){
-                    $("#" + _itemElems[j].id).css('z-index','');
+                    $("#" + _itemElems[j].id).css('z-index','1');
                 }
                 
-                //if label of survival opened, close it in here
-                StudyViewSurvivalPlotView.detectLabelPosition();
+//                //if label of survival opened, close it in here
+//                StudyViewSurvivalPlotView.detectLabelPosition();
                 
                 //Detect Scatter Plot
                 if($("#study-view-scatter-plot-side").css('display') === 'block'){

@@ -39,7 +39,7 @@ public interface Converter {
 	public static final String MUTATION_CASE_ID_COLUMN_HEADER = "Tumor_Sample_Barcode";
 	public static final String MUTATION_CASE_LIST_META_HADER = "sequenced_samples";
         public static final Set<String> NON_CASE_IDS = new HashSet<String>(
-                Arrays.asList("ENTREZ_GENE_ID","HUGO_SYMBOL","LOCUS ID","CYTOBAND"));
+        Arrays.asList("MIRNA", "LOCUS", "ID", "GENE SYMBOL", "ENTREZ_GENE_ID", "HUGO_SYMBOL", "LOCUS ID", "CYTOBAND", "COMPOSITE.ELEMENT.REF", "HYBRIDIZATION REF"));
 
 	/**
 	 * Converts data for the given portal.

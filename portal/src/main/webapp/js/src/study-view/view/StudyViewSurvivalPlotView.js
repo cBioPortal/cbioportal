@@ -72,44 +72,97 @@ var StudyViewSurvivalPlotView = (function() {
                     '#' + _opts.divs.header
                     );
         }
-        $("#" + _opts.divs.pdf).unbind('submit');
-        $("#" + _opts.divs.pdf).submit(function() {
-            setSVGElementValue(_opts.divs.bodySvg,
-                    _opts.divs.pdfValue, _plotKey, _title);
-        });
-        $("#" + _opts.divs.svg).unbind('submit');
-        $("#" + _opts.divs.svg).submit(function() {
-            setSVGElementValue(_opts.divs.bodySvg,
-                    _opts.divs.svgValue, _plotKey, _title);
-        });
+//        $("#" + _opts.divs.pdf).unbind('submit');
+//        $("#" + _opts.divs.pdf).submit(function() {
+//            setSVGElementValue(_opts.divs.bodySvg,
+//                    _opts.divs.pdfValue, _plotKey, _title);
+//        });
+//        $("#" + _opts.divs.svg).unbind('submit');
+//        $("#" + _opts.divs.svg).submit(function() {
+//            setSVGElementValue(_opts.divs.bodySvg,
+//                    _opts.divs.svgValue, _plotKey, _title);
+//        });
 
-        $("#" + _opts.divs.menu).unbind("click");
-        $("#" + _opts.divs.menu).click(function() {
-            var _svgWidth = 0,
-                    _label = $("#" + _opts.divs.bodyLabel),
-                    _display = _label.css('display');
+//        $("#" + _opts.divs.menu).unbind("click");
+//        $("#" + _opts.divs.menu).click(function() {
+//            var _svgWidth = 0,
+//                    _label = $("#" + _opts.divs.bodyLabel),
+//                    _display = _label.css('display');
+//
+//            if (_display === "none") {
+//                StudyViewUtil.changePosition(
+//                        '#' + _opts.divs.main,
+//                        '#' + _opts.divs.bodyLabel,
+//                        "#dc-plots");
+//                $('#' + _opts.divs.bodyLabel).children('float', '');
+//                _label.css('display', 'block');
+//                _svgWidth = $("#" + _opts.divs.bodyLabel + " svg").width();
+//                $("#" + _opts.divs.bodyLabel).width(_svgWidth + 15);
+//            } else {
+//                _label.css('display', 'none');
+//            }
+//        });
 
-            if (_display === "none") {
-                StudyViewUtil.changePosition(
-                        '#' + _opts.divs.main,
-                        '#' + _opts.divs.bodyLabel,
-                        "#dc-plots");
-                $('#' + _opts.divs.bodyLabel).children('float', '');
-                _label.css('display', 'block');
-                _svgWidth = $("#" + _opts.divs.bodyLabel + " svg").width();
-                $("#" + _opts.divs.bodyLabel).width(_svgWidth + 15);
-            } else {
-                _label.css('display', 'none');
-            }
-        });
-
-        if ($("#" + _opts.divs.bodyLabel).css('display') === 'block') {
-            var _svgWidth = $("#" + _opts.divs.bodyLabel + " svg").width();
-            $("#" + _opts.divs.bodyLabel).width(_svgWidth + 15);
-        }
+//        if ($("#" + _opts.divs.bodyLabel).css('display') === 'block') {
+//            var _svgWidth = $("#" + _opts.divs.bodyLabel + " svg").width();
+//            $("#" + _opts.divs.bodyLabel).width(_svgWidth + 15);
+//        }
 
         $("#" + _opts.divs.body).css('opacity', '1');
         $("#" + _opts.divs.loader).css('display', 'none');
+        
+        $('#' + _opts.divs.downloadIcon).qtip('destroy', true);
+        $('#' + _opts.divs.downloadIcon).qtip({
+            id: "#" + _opts.divs.downloadIcon + "-qtip",
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+            show: {event: "click"},
+            hide: {fixed:true, delay: 100, event: "mouseout"},
+            position: {my:'top center',at:'bottom center', viewport: $(window)},
+            content: {
+                text:   "<form style='display:inline-block; float:left; margin-right:5px' action='svgtopdf.do' method='post' id='" + _opts.divs.pdf + "'>" +
+                        "<input type='hidden' name='svgelement' id='" + _opts.divs.pdfValue + "'>" +
+                        "<input type='hidden' name='filetype' value='pdf'>" +
+                        "<input type='hidden' id='" + _opts.divs.pdfName + "' name='filename' value=''>" +
+                        "<input type='submit' style='font-size:10px' value='PDF'>" +
+                        "</form>" +
+                        "<form style='display:inline-block; float:left; margin-right:5px' action='svgtopdf.do' method='post' id='" + _opts.divs.svg + "'>" +
+                        "<input type='hidden' name='svgelement' id='" + _opts.divs.svgValue + "'>" +
+                        "<input type='hidden' name='filetype' value='svg'>" +
+                        "<input type='hidden' id='" + _opts.divs.svgName + "' name='filename' value=''>" +
+                        "<input type='submit' style='font-size:10px' value='SVG'>" +
+                        "</form>"
+            },
+            events: {
+                render: function(event, api) {
+
+                    $("#" + _opts.divs.pdfName).val("Survival_Plot_result-" + StudyViewParams.params.studyId + ".pdf");
+                    $("#" + _opts.divs.svgName).val("Survival_Plot_result-" + StudyViewParams.params.studyId + ".svg");
+    
+                    $("#" + _opts.divs.pdf, api.elements.tooltip).submit(function() {
+                        setSVGElementValue(_opts.divs.bodySvg,
+                                _opts.divs.pdfValue, _plotKey, _title);
+                    });
+                    $("#" + _opts.divs.svg, api.elements.tooltip).submit(function() {
+                        setSVGElementValue(_opts.divs.bodySvg,
+                                _opts.divs.svgValue, _plotKey, _title);
+                    });
+//                    $("#study-view-scatter-plot-pdf", api.elements.tooltip).submit(function(){
+//                        $("#study-view-scatter-plot-pdf-name").val("Scatter_Plot_result-"+ StudyViewParams.params.studyId +".pdf");
+//                        setSVGElementValue("study-view-scatter-plot-body-svg",
+//                            "study-view-scatter-plot-pdf-value",
+//                            scatterPlotOptions,
+//                            _title);
+//                    });
+//                    $("#study-view-scatter-plot-svg", api.elements.tooltip).submit(function(){
+//                        $("#study-view-scatter-plot-svg-name").val("Scatter_Plot_result-"+ StudyViewParams.params.studyId +".svg");
+//                        setSVGElementValue("study-view-scatter-plot-body-svg",
+//                            "study-view-scatter-plot-svg-value",
+//                            scatterPlotOptions,
+//                            _title);
+//                    });
+                }
+            }
+        });
     }
 
     /**
@@ -163,8 +216,8 @@ var StudyViewSurvivalPlotView = (function() {
                 _svgElement + "</g><g transform='translate(370,50)'>" +
                 _svgLabels + "</g></svg>";
         $("#" + _idNeedToSetValue).val(_svgElement);
-
-        redrawLabel(_plotKey);
+        $("#" + opts[_plotKey].divs.bodyLabel + " svg").remove();
+        drawLabels(_plotKey);
         //The style has been reset because of the addEvents function, so we
         //need to change the related components manully 
         $("#" + opts[_plotKey].divs.header).css('display', 'block');
@@ -332,19 +385,20 @@ var StudyViewSurvivalPlotView = (function() {
                 "' class='study-view-survival-plot-title'>" + _opt.title + "</chartTitleH4>" +
                 "<div id='" + _opt.divs.header +
                 "' class='study-view-survival-plot-header' style='float:right'>" +
-                "<form style='display:inline-block; float:left; margin-right:5px' action='svgtopdf.do' method='post' id='" + _opt.divs.pdf + "'>" +
-                "<input type='hidden' name='svgelement' id='" + _opt.divs.pdfValue + "'>" +
-                "<input type='hidden' name='filetype' value='pdf'>" +
-                "<input type='hidden' id='" + _opt.divs.pdfName + "' name='filename' value=''>" +
-                "<input type='submit' style='font-size:10px' value='PDF'>" +
-                "</form>" +
-                "<form style='display:inline-block; float:left; margin-right:5px' action='svgtopdf.do' method='post' id='" + _opt.divs.svg + "'>" +
-                "<input type='hidden' name='svgelement' id='" + _opt.divs.svgValue + "'>" +
-                "<input type='hidden' name='filetype' value='svg'>" +
-                "<input type='hidden' id='" + _opt.divs.svgName + "' name='filename' value=''>" +
-                "<input type='submit' style='font-size:10px' value='SVG'>" +
-                "</form>" +
+//                "<form style='display:inline-block; float:left; margin-right:5px' action='svgtopdf.do' method='post' id='" + _opt.divs.pdf + "'>" +
+//                "<input type='hidden' name='svgelement' id='" + _opt.divs.pdfValue + "'>" +
+//                "<input type='hidden' name='filetype' value='pdf'>" +
+//                "<input type='hidden' id='" + _opt.divs.pdfName + "' name='filename' value=''>" +
+//                "<input type='submit' style='font-size:10px' value='PDF'>" +
+//                "</form>" +
+//                "<form style='display:inline-block; float:left; margin-right:5px' action='svgtopdf.do' method='post' id='" + _opt.divs.svg + "'>" +
+//                "<input type='hidden' name='svgelement' id='" + _opt.divs.svgValue + "'>" +
+//                "<input type='hidden' name='filetype' value='svg'>" +
+//                "<input type='hidden' id='" + _opt.divs.svgName + "' name='filename' value=''>" +
+//                "<input type='submit' style='font-size:10px' value='SVG'>" +
+//                "</form>" +
 //                "<img id='" + _opt.divs.menu + "' class='study-view-menu-icon' style='float:left; width:10px; height:10px;margin-top:4px; margin-right:4px;' class='study-view-menu-icon' src='images/menu.svg'/>" +
+                "<img id='"+_opt.divs.downloadIcon+"' class='study-view-download-icon' src='images/in.svg'/>" +
                 "<img style='float:left; width:10px; height:10px;margin-top:4px; margin-right:4px;' class='study-view-drag-icon' src='images/move.svg'/>" +
                 "<span class='study-view-chart-plot-delete study-view-survival-plot-delete'>x</span>" +
                 "</div></div>" +
@@ -484,6 +538,7 @@ var StudyViewSurvivalPlotView = (function() {
         _opts.divs.svgValue = "study-view-survival-plot-svg-value-" + _index;
         _opts.divs.menu = "study-view-survival-plot-menu-" + _index;
         _opts.divs.loader = "study-view-survival-plot-loader-" + _index;
+        _opts.divs.downloadIcon = "study-view-survival-download-icon-" + _index;
 
         //plot in _opts is for survival plot
         _opts.plot = jQuery.extend(true, {}, SurvivalCurveBroilerPlate);
@@ -622,10 +677,6 @@ var StudyViewSurvivalPlotView = (function() {
         //We disabled pvalue calculation in here
         survivalPlot[_plotKey] = new SurvivalCurve();
         survivalPlot[_plotKey].init(inputArr, opts[_plotKey].plot);
-
-
-        $("#" + opts[_plotKey].divs.pdfName).val("Survival_Plot_result-" + StudyViewParams.params.studyId + ".pdf");
-        $("#" + opts[_plotKey].divs.svgName).val("Survival_Plot_result-" + StudyViewParams.params.studyId + ".svg");
     }
 
     

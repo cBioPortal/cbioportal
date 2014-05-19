@@ -172,9 +172,9 @@ var PieChart = function(){
     }
     
     function addPieLabelEvents() {
-        $('#' + DIV.mainDiv + '-download-icon').qtip('destroy', true);
-        $('#' + DIV.mainDiv + '-download-icon').qtip({
-            id: '#' + DIV.mainDiv + "-download-icon-qtip",
+        $('#' + DIV.chartDiv + '-download-icon').qtip('destroy', true);
+        $('#' + DIV.chartDiv + '-download-icon').qtip({
+            id: '#' + DIV.chartDiv + "-download-icon-qtip",
             style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
             show: {event: "click"},
             hide: {fixed:true, delay: 100, event: "mouseout"},
@@ -243,7 +243,7 @@ var PieChart = function(){
                         });
                     });
 
-                    $('.pieLabel', api.elements.tooltip).click(function(){
+                    $('.pieLabel', api.elements.tooltip).click(function(_event){
                         var idArray = $(this).attr('id').split('-');
 
                         var childaLabelID = Number(idArray[idArray.length-1]),
@@ -265,8 +265,7 @@ var PieChart = function(){
                             'fill-opacity': '1',
                             'stroke-width': '1px'
                         });
-                        
-                        api.focus(event);
+                        api.show(_event);
                     });
 
 //                    $('.pie-label-left-pagging', api.elements.tooltip).click(function(){
@@ -324,7 +323,7 @@ var PieChart = function(){
 //                "<input type='hidden' id='"+DIV.chartDiv+"-svg-name' name='filename' value='"+StudyViewParams.params.studyId + "_" +selectedAttr+".svg'>"+
 //                "<input type='submit' style='font-size:10px;clear:right;float:right;' value='SVG'></form>"+
                 _plotDataButtonDiv + 
-                "<img id='"+ DIV.mainDiv+"-download-icon' class='study-view-download-icon' src='images/in.svg'/>"+
+                "<img id='"+ DIV.chartDiv+"-download-icon' class='study-view-download-icon' src='images/in.svg'/>"+
                 "</div>");
                 
         

@@ -60,51 +60,95 @@ var StudyViewInitScatterPlot = (function() {
             scatterPlot.jointClickCallback(scatterPlotClickCallBack);
             
             if(scatterPlotDataAttr.max_x > 1000){
-                $("#" + scatterPlotOptions.names.log_scale_x).attr('checked',true);
+//                $("#" + scatterPlotOptions.names.log_scale_x).attr('checked',true);
+                scatterPlot.setAxisXLogFlag(true);
                 scatterPlot.updateScaleX(scatterPlotOptions.names.log_scale_x);
             }
             if(scatterPlotDataAttr.max_y > 1000){
-                $("#" + scatterPlotOptions.names.log_scale_y).attr('checked',true);
+//                $("#" + scatterPlotOptions.names.log_scale_y).attr('checked',true);
+                scatterPlot.setAxisYLogFlag(true);
                 scatterPlot.updateScaleY(scatterPlotOptions.names.log_scale_y);
             }
            
-            $("#" + scatterPlotOptions.names.log_scale_x).change(function() {
-                scatterPlot.updateScaleX(scatterPlotOptions.names.log_scale_x);
-            });
-            $("#" + scatterPlotOptions.names.log_scale_y).change(function() {
-                scatterPlot.updateScaleY(scatterPlotOptions.names.log_scale_y);
-            });
+//            $("#" + scatterPlotOptions.names.log_scale_x).change(function() {
+//                scatterPlot.updateScaleX(scatterPlotOptions.names.log_scale_x);
+//            });
+//            $("#" + scatterPlotOptions.names.log_scale_y).change(function() {
+//                scatterPlot.updateScaleY(scatterPlotOptions.names.log_scale_y);
+//            });
             
             StudyViewUtil
                     .showHideDivision("#study-view-scatter-plot", 
                                     "#study-view-scatter-plot-header");
-            
-            $("#study-view-scatter-plot-menu-icon").unbind("click");
-            $("#study-view-scatter-plot-menu-icon").click(function() {
-                var _side = $("#study-view-scatter-plot-side");
-                var _display = _side.css('display');
-                if (_display === "none") {
-                    StudyViewUtil.changePosition("#study-view-scatter-plot", 
-                                    "#study-view-scatter-plot-side",
-                                    "#dc-plots");
-                    _side.css('display', 'block');
-                } else {
-                    _side.css('display', 'none');
+            $('#study-view-scatter-plot-download-icon').qtip('destroy', true);
+            $('#study-view-scatter-plot-download-icon').qtip({
+                id: "#study-view-scatter-plot-download-icon-qtip",
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+                show: {event: "click"},
+                hide: {fixed:true, delay: 100, event: "mouseout"},
+                position: {my:'top center',at:'bottom center', viewport: $(window)},
+                content: {
+                    text:   "<form style='display:inline-block; margin-right:5px; float:left' action='svgtopdf.do' method='post' id='study-view-scatter-plot-pdf'>"+
+                            "<input type='hidden' name='svgelement' id='study-view-scatter-plot-pdf-value'>"+
+                            "<input type='hidden' name='filetype' value='pdf'>"+
+                            "<input type='hidden' id='study-view-scatter-plot-pdf-name' name='filename' value=''>"+
+                            "<input type='submit' style='font-size:10px' value='PDF'>"+          
+                            "</form>"+
+
+                            "<form style='display:inline-block; margin-right:5px; float:left' action='svgtopdf.do' method='post' id='study-view-scatter-plot-svg'>"+
+                            "<input type='hidden' name='svgelement' id='study-view-scatter-plot-svg-value'>"+
+                            "<input type='hidden' name='filetype' value='svg'>"+
+                            "<input type='hidden' id='study-view-scatter-plot-svg-name' name='filename' value=''>"+
+                            "<input type='submit' style='font-size:10px' value='SVG'>"+    
+                            "</form>"
+                },
+                events: {
+                    render: function(event, api) {
+                        $("#study-view-scatter-plot-pdf", api.elements.tooltip).submit(function(){
+                            $("#study-view-scatter-plot-pdf-name").val("Scatter_Plot_result-"+ StudyViewParams.params.studyId +".pdf");
+                            setSVGElementValue("study-view-scatter-plot-body-svg",
+                                "study-view-scatter-plot-pdf-value",
+                                scatterPlotOptions,
+                                _title);
+                        });
+                        $("#study-view-scatter-plot-svg", api.elements.tooltip).submit(function(){
+                            $("#study-view-scatter-plot-svg-name").val("Scatter_Plot_result-"+ StudyViewParams.params.studyId +".svg");
+                            setSVGElementValue("study-view-scatter-plot-body-svg",
+                                "study-view-scatter-plot-svg-value",
+                                scatterPlotOptions,
+                                _title);
+                        });
+                    }
                 }
             });
             
-            $("#study-view-scatter-plot-pdf").submit(function(){
-                setSVGElementValue("study-view-scatter-plot-body-svg",
-                    "study-view-scatter-plot-pdf-value",
-                    scatterPlotOptions,
-                    _title);
-            });
-            $("#study-view-scatter-plot-svg").submit(function(){
-                setSVGElementValue("study-view-scatter-plot-body-svg",
-                    "study-view-scatter-plot-svg-value",
-                    scatterPlotOptions,
-                    _title);
-            });
+            
+//            $("#study-view-scatter-plot-menu-icon").unbind("click");
+//            $("#study-view-scatter-plot-menu-icon").click(function() {
+//                var _side = $("#study-view-scatter-plot-side");
+//                var _display = _side.css('display');
+//                if (_display === "none") {
+//                    StudyViewUtil.changePosition("#study-view-scatter-plot", 
+//                                    "#study-view-scatter-plot-side",
+//                                    "#dc-plots");
+//                    _side.css('display', 'block');
+//                } else {
+//                    _side.css('display', 'none');
+//                }
+//            });
+            
+//            $("#study-view-scatter-plot-pdf").submit(function(){
+//                setSVGElementValue("study-view-scatter-plot-body-svg",
+//                    "study-view-scatter-plot-pdf-value",
+//                    scatterPlotOptions,
+//                    _title);
+//            });
+//            $("#study-view-scatter-plot-svg").submit(function(){
+//                setSVGElementValue("study-view-scatter-plot-body-svg",
+//                    "study-view-scatter-plot-svg-value",
+//                    scatterPlotOptions,
+//                    _title);
+//            });
         }else{
             $('#study-view-scatter-plot').css('display','none');
         }
@@ -115,21 +159,24 @@ var StudyViewInitScatterPlot = (function() {
         
         $("#" + _svgParentDivId + " .plots-title-x-help").remove();
         $("#" + _svgParentDivId + " .plots-title-y-help").remove();
-        
+        $("#" + _svgParentDivId + " #plots-title-x-checkbox").remove();
+        $("#" + _svgParentDivId + " #plots-title-y-checkbox").remove();
+        $("#" + _svgParentDivId + " .plots-title-x")
+            .attr('x', 
+                Number($("#" + _svgParentDivId + " .plots-title-x").attr('x')) + 30);
         //Remove x/y title help icon first.
         svgElement = $("#" + _svgParentDivId + " svg").html();
         svgElement = "<svg><g><text text-anchor='middle' x='220' y='30' " +
                 "style='font-weight:bold'>" + _title + 
                 "</text></g><g transform='translate(0,40)'>" + 
                 svgElement + "</g></svg>";
+                            
         $("#" + _idNeedToSetValue).val(svgElement);
         scatterPlot.updateTitleHelp(scatterPlotDataAttr.names.log_scale_x, scatterPlotDataAttr.names.log_scale_y);
     }
     
     function initPage(){
         $("#study-view-charts").append(StudyViewBoilerplate.scatterPlotDiv);
-        $("#study-view-scatter-plot-pdf-name").val("Scatter_Plot_result-"+ StudyViewParams.params.studyId +".pdf");
-        $("#study-view-scatter-plot-svg-name").val("Scatter_Plot_result-"+ StudyViewParams.params.studyId +".svg");
         $("#study-view-scatter-plot-header").css('display', 'none');
     }
     

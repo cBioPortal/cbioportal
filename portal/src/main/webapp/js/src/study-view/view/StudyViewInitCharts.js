@@ -917,6 +917,8 @@ var StudyViewInitCharts = (function(){
     }
     
     function deleteChart(_chartID,_value){
+        var _options;
+        
         $("div").remove("#study-view-dc-chart-main-" + _chartID); 
         if(varChart[_chartID].getChart().hasFilter()){
             varChart[_chartID].getChart().filterAll();
@@ -931,6 +933,17 @@ var StudyViewInitCharts = (function(){
 //        $('#study-view-add-chart ul').css('height','100%');
         $('#study-view-add-chart')
                 .append($('<option></option>').attr('id',_value[0]).text(_value[1]));     
+        
+        _options = $('#study-view-add-chart').find('option:not(:first)');
+        
+        _options.sort(function(a, b) {
+            var _aValue = a.text.toUpperCase();
+            var _bValue = b.text.toUpperCase();
+            
+            return _aValue.localeCompare(_bValue);
+        });
+        $('#study-view-add-chart').find('option:not(:first)').remove();
+        $('#study-view-add-chart').append(_options);
         $('#study-view-add-chart').css('display','block');
         varChart[_chartID] = "";
         removedChart.push(Number(_chartID));

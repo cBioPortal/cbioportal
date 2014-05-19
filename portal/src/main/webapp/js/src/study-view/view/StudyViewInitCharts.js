@@ -157,7 +157,7 @@ var StudyViewInitCharts = (function(){
                 dataType[_attr[i]["attr_id"]] = 'string';
             }
             
-            if(_attr[i]["attr_id"] === "CASE_ID"){
+            if(_attr[i]["attr_id"] === "CASE_ID" ){
                 pie.push(_attr[i]);
             }else if(_attr[i]["attr_id"] === "PATIENT_ID") {
                 continue;
@@ -273,7 +273,7 @@ var StudyViewInitCharts = (function(){
             _passedCases = {
                 'All cases': {
                     caseIds: _allCases,
-                    color: "#000000"
+                    color: "#2986e2"
                 }
             };
         }
@@ -409,7 +409,7 @@ var StudyViewInitCharts = (function(){
         var container = document.querySelector('#study-view-charts');
         msnry = new Packery( container, {
             columnWidth: 190,
-            rowHeight: 115,
+            rowHeight: 170,
             itemSelector: '.study-view-dc-chart',
             gutter:5
         });
@@ -447,11 +447,11 @@ var StudyViewInitCharts = (function(){
                     _itemElemsLength = _itemElems.length;
                 
                 for(var j=0; j< _itemElemsLength; j++){
-                    $("#" + _itemElems[j].id).css('z-index','');
+                    $("#" + _itemElems[j].id).css('z-index','1');
                 }
                 
-                //if label of survival opened, close it in here
-                StudyViewSurvivalPlotView.detectLabelPosition();
+//                //if label of survival opened, close it in here
+//                StudyViewSurvivalPlotView.detectLabelPosition();
                 
                 //Detect Scatter Plot
                 if($("#study-view-scatter-plot-side").css('display') === 'block'){
@@ -502,7 +502,7 @@ var StudyViewInitCharts = (function(){
                 caseLists: {
                     'All cases': {
                         caseIds: StudyViewParams.params.caseIds, 
-                        color: '#000000'
+                        color: '#2986e2'
                     }
                 }
             };
@@ -520,7 +520,7 @@ var StudyViewInitCharts = (function(){
                 caseLists: {
                     'All cases': {
                         caseIds: StudyViewParams.params.caseIds, 
-                        color: '#000000'
+                        color: '#2986e2'
                     }
                 }
             };
@@ -917,6 +917,8 @@ var StudyViewInitCharts = (function(){
     }
     
     function deleteChart(_chartID,_value){
+        var _options;
+        
         $("div").remove("#study-view-dc-chart-main-" + _chartID); 
         if(varChart[_chartID].getChart().hasFilter()){
             varChart[_chartID].getChart().filterAll();
@@ -931,6 +933,17 @@ var StudyViewInitCharts = (function(){
 //        $('#study-view-add-chart ul').css('height','100%');
         $('#study-view-add-chart')
                 .append($('<option></option>').attr('id',_value[0]).text(_value[1]));     
+        
+        _options = $('#study-view-add-chart').find('option:not(:first)');
+        
+        _options.sort(function(a, b) {
+            var _aValue = a.text.toUpperCase();
+            var _bValue = b.text.toUpperCase();
+            
+            return _aValue.localeCompare(_bValue);
+        });
+        $('#study-view-add-chart').find('option:not(:first)').remove();
+        $('#study-view-add-chart').append(_options);
         $('#study-view-add-chart').css('display','block');
         varChart[_chartID] = "";
         removedChart.push(Number(_chartID));
@@ -1113,7 +1126,7 @@ var StudyViewInitCharts = (function(){
                 msnry.destroy();
                 msnry = new Packery( document.querySelector('#study-view-charts'), {
                     columnWidth: 190,
-                    rowHeight: 115,
+                    rowHeight: 170,
                     itemSelector: '.study-view-dc-chart',
                     gutter:5
                 });

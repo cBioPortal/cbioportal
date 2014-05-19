@@ -61,7 +61,7 @@ var BarChart = function(){
         numOfGroups = 10,
         divider = 1,
         chartWidth = 370,
-        chartHeight = 180,
+        chartHeight = 125,
         hasEmptyValue = false;
             
     var postFilterCallback,
@@ -107,7 +107,7 @@ var BarChart = function(){
                     $(this).css('display', 'block');
                 });
             }
-            $("#"+DIV.chartDiv +"-title-wrapper").width('85%');
+//            $("#"+DIV.chartDiv +"-title-wrapper").width('85%');
         }, function(){
             $(_listenedDiv).css('z-index', '0');
             for ( var i = 0; i < _targetLength; i++) {
@@ -115,23 +115,57 @@ var BarChart = function(){
                     $(this).css('display', 'none');
                 });
             }
-            $("#"+DIV.chartDiv +"-title-wrapper").width('100%');
+//            $("#"+DIV.chartDiv +"-title-wrapper").width('100%');
         });
     }
     
     //Add all listener events
     function addEvents() {
-        $("#"+DIV.chartDiv+"-pdf").submit(function(){
-            setSVGElementValue(DIV.chartDiv,
-                DIV.chartDiv+"-pdf-value");
-        });
-        $("#"+DIV.chartDiv+"-svg").submit(function(){
-            setSVGElementValue(DIV.chartDiv,
-                DIV.chartDiv+"-svg-value");
+//        $("#"+DIV.chartDiv+"-pdf").submit(function(){
+//            setSVGElementValue(DIV.chartDiv,
+//                DIV.chartDiv+"-pdf-value");
+//        });
+//        $("#"+DIV.chartDiv+"-svg").submit(function(){
+//            setSVGElementValue(DIV.chartDiv,
+//                DIV.chartDiv+"-svg-value");
+//        });
+        
+        $('#' + DIV.chartDiv + '-download-icon').qtip('destroy', true);
+        $('#' + DIV.chartDiv + '-download-icon').qtip({
+            id: '#' + DIV.chartDiv + "-download-icon-qtip",
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+            show: {event: "click"},
+            hide: {fixed:true, delay: 100, event: "mouseout"},
+            position: {my:'top center',at:'bottom center', viewport: $(window)},
+            content: {
+                text:   "<form style='display:inline-block;float:left;margin: 0 2px' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-pdf'>"+
+                        "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-pdf-value'>"+
+                        "<input type='hidden' name='filetype' value='pdf'>"+
+                        "<input type='hidden' id='"+DIV.chartDiv+"-pdf-name' name='filename' value='"+StudyViewParams.params.studyId + "_" +param.selectedAttr+".pdf'>"+
+                        "<input type='submit' style='font-size:10px;' value='PDF'>"+          
+                        "</form>"+
+                        "<form style='display:inline-block;float:left;margin: 0 2px' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-svg'>"+
+                        "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-svg-value'>"+
+                        "<input type='hidden' name='filetype' value='svg'>"+
+                        "<input type='hidden' id='"+DIV.chartDiv+"-svg-name' name='filename' value='"+StudyViewParams.params.studyId + "_" +param.selectedAttr+".svg'>"+
+                        "<input type='submit' style='font-size:10px;clear:right;float:right;' value='SVG'></form>"
+            },
+            events: {
+                render: function(event, api) {
+                    $("#"+DIV.chartDiv+"-pdf", api.elements.tooltip).submit(function(){
+                        setSVGElementValue(DIV.chartDiv,
+                            DIV.chartDiv+"-pdf-value");
+                    });
+                    $("#"+DIV.chartDiv+"-svg", api.elements.tooltip).submit(function(){
+                        setSVGElementValue(DIV.chartDiv,
+                            DIV.chartDiv+"-svg-value");
+                    });
+                }
+            }
         });
         
         showHideDivision("#"+DIV.mainDiv, 
-                            ["#"+DIV.chartDiv+"-side"], 200);
+                            ["#"+DIV.chartDiv+"-side"], 0);
         showHideDivision("#"+DIV.mainDiv, 
                             ["#"+DIV.chartDiv+"-header"], 0);
     
@@ -408,8 +442,10 @@ var BarChart = function(){
        }
         
         if(param.plotDataButtonFlag) {
-            _plotDataDiv = "<input type='button' id='"+DIV.chartDiv+"-plot-data' "+
-                "style='clear:right;float:right;font-size:10px' value='Survival' />";
+//            _plotDataDiv = "<input type='button' id='"+DIV.chartDiv+"-plot-data' "+
+//                "style='clear:right;float:right;font-size:10px' value='Survival' />";
+            _plotDataDiv = "<img id='"+
+                                DIV.chartDiv+"-plot-data' class='study-view-survival-icon' src='images/survival_icon.png'/>";
         }else {
             _plotDataDiv = "";
         }
@@ -419,17 +455,18 @@ var BarChart = function(){
                 param.selectedAttrDisplay + ",bar'>"+
                 "<div id='"+DIV.chartDiv+"-side' class='study-view-pdf-svg-side bar'>"+
                 _plotDataDiv +
-                "<form style='clear:right;float:right;display:inline-block;' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-pdf'>"+
-                "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-pdf-value'>"+
-                "<input type='hidden' name='filetype' value='pdf'>"+
-                "<input type='hidden' id='"+DIV.chartDiv+"-pdf-name' name='filename' value='"+StudyViewParams.params.studyId + "_" +param.selectedAttr+".pdf'>"+
-                "<input type='submit' style='font-size:10px' value='PDF'>"+          
-                "</form>"+
-                "<form style='clear:right;float:right;display:inline-block' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-svg'>"+
-                "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-svg-value'>"+
-                "<input type='hidden' name='filetype' value='svg'>"+
-                "<input type='hidden' id='"+DIV.chartDiv+"-svg-name' name='filename' value='"+StudyViewParams.params.studyId + "_" +param.selectedAttr+".svg'>"+
-                "<input type='submit' style='font-size:10px' value='SVG'></form>"+
+                "<img id='"+ DIV.chartDiv+"-download-icon' class='study-view-download-icon' src='images/in.svg'/>"+
+//                "<form style='clear:right;float:right;display:inline-block;' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-pdf'>"+
+//                "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-pdf-value'>"+
+//                "<input type='hidden' name='filetype' value='pdf'>"+
+//                "<input type='hidden' id='"+DIV.chartDiv+"-pdf-name' name='filename' value='"+StudyViewParams.params.studyId + "_" +param.selectedAttr+".pdf'>"+
+//                "<input type='submit' style='font-size:10px' value='PDF'>"+          
+//                "</form>"+
+//                "<form style='clear:right;float:right;display:inline-block' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-svg'>"+
+//                "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-svg-value'>"+
+//                "<input type='hidden' name='filetype' value='svg'>"+
+//                "<input type='hidden' id='"+DIV.chartDiv+"-svg-name' name='filename' value='"+StudyViewParams.params.studyId + "_" +param.selectedAttr+".svg'>"+
+//                "<input type='submit' style='font-size:10px' value='SVG'></form>"+
                 "</div><div id='"+DIV.chartDiv +"-title-wrapper' "+
                 "style='height: 18px; width: 100%'><div style='float:right' "+
                 "id='"+DIV.chartDiv+"-header'>"+
@@ -564,7 +601,7 @@ var BarChart = function(){
             startPoint = parseInt(param.distanceArray.min / seperateDistance) * seperateDistance;
             emptyValueMapping = _tmpMaxDomain+seperateDistance;
             
-        }else if( distanceMinMax < 1 && param.distanceArray.min >=0 && param.distanceArray.max <= 1 ){
+        }else if( distanceMinMax < 1 && param.distanceArray.min >=0 && param.distanceArray.max <= 1){
             
             seperateDistance = 0.1;
             startPoint = 0;

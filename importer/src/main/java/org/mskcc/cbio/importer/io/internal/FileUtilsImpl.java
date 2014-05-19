@@ -345,8 +345,8 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			while (it.hasNext()) {
                                 String line = it.next();
                                 if (line.startsWith("#")) {
-                                    if (line.startsWith("#"+Converter.MUTATION_CASE_LIST_META_HADER+":")) {
-                                        return Arrays.asList(line.substring(Converter.MUTATION_CASE_LIST_META_HADER.length()+2).trim().split("[ \t]+"));
+                                    if (line.startsWith("#"+Converter.MUTATION_CASE_LIST_META_HEADER+":")) {
+                                        return Arrays.asList(line.substring(Converter.MUTATION_CASE_LIST_META_HEADER.length()+2).trim().split("[ \t]+"));
                                     }
                                     continue;
                                 }

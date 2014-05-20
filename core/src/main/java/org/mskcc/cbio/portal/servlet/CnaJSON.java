@@ -152,15 +152,19 @@ public class CnaJSON extends HttpServlet {
     private void processCnaFractionsRequest(HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
-        String strSampleIds = request.getParameter(QueryBuilder.CASE_IDS);
-        List<String> sampleIds = strSampleIds==null ? null : Arrays.asList(strSampleIds.split("[ ,]+"));
+        String strPatientIds = request.getParameter(QueryBuilder.CASE_IDS);
+        List<Integer> sampleIds = null;
         String cancerStudyId = request.getParameter(QueryBuilder.CANCER_STUDY_ID);
         
         Map<Integer, Double> fraction = Collections.emptyMap();
         
         try {
             int studyId = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId).getInternalId();
-            fraction = DaoCopyNumberSegment.getCopyNumberActeredFraction(InternalIdUtil.getInternalSampleIds(studyId, sampleIds),
+            if (strPatientIds!=null) {
+                List<String> stablePatientIds = Arrays.asList(strPatientIds.split("[ ,]+"));
+                sampleIds = InternalIdUtil.getInternalSampleIdsFromPatientIds(studyId, stablePatientIds);
+            }
+            fraction = DaoCopyNumberSegment.getCopyNumberActeredFraction(sampleIds,
                                                                          studyId,
                                                                         GlobalProperties.getPatientViewGenomicOverviewCnaCutoff()[0]);
         } catch (DaoException ex) {

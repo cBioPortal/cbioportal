@@ -13,14 +13,6 @@
   <name>Portal Business Layer</name>
   <description>Business Module for Portal</description>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.mybatis</groupId>
-      <artifactId>mybatis-spring</artifactId>
-      <version>1.0.1</version>
-    </dependency>
-  </dependencies>
-
   <build>
 
 	<!-- plugins -->
@@ -35,47 +27,6 @@
 		  <source>1.7</source>
 		  <target>1.7</target>
 		</configuration>
-	  </plugin>
-
-	  <!-- use this instead of maven-assembly-plugin -->
-	  <!-- to prevent inclusion of org-apache-commons-dbcp -->
-	  <!-- which now lives in core and causes jar creation -->
-	  <!-- issues when using maven-assembly-plugin -->
-	  <plugin>
-		<groupId>org.apache.maven.plugins</groupId>
-		<artifactId>maven-shade-plugin</artifactId>
-		<version>2.0</version>
-		<executions>
-		  <execution>
-			<phase>package</phase>
-			<goals>
-			  <goal>shade</goal>
-			</goals>
-			<configuration>
-              <finalName>cbioportal-importer</finalName>
-			  <createDependencyReducedPom>false</createDependencyReducedPom>
-              <filters>
-                <filter>
-                  <artifact>*:*</artifact>
-                  <excludes>
-                    <exclude>${gpl-files-to-exclude}</exclude>
-                    <exclude>org/gjt/**</exclude>
-                  </excludes>
-                </filter>
-              </filters>
-			  <artifactSet>
-				<excludes>
-				  <exclude>com.kenai.nbpwr:org-apache-commons-dbcp</exclude>
-				</excludes>
-			  </artifactSet>
-			  <transformers>
-				<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-				  <mainClass>${importer-main-class}</mainClass>
-				</transformer>
-			  </transformers>
-			</configuration>
-		  </execution>
-		</executions>
 	  </plugin>
 
 	  <!-- this plugin lets us grab shared resources from our parent -->
@@ -93,7 +44,7 @@
 			  <outputDirectory>${project.build.directory}/classes</outputDirectory>
 			  <resources>
 				<resource>
-				  <directory>${property-file-dir}</directory>
+				  <directory>${PORTAL_HOME}/src/main/resources</directory>
 				  <includes>
 					<include>**/*.properties</include>
 				  </includes>

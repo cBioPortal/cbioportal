@@ -3,7 +3,6 @@ app.name=ctd2-dashboard-portal
 app.version=0.1
 
 # Database Settings
-db.tomcat_resource_name=cgds_public
 db.user=
 db.password=
 db.host=localhost

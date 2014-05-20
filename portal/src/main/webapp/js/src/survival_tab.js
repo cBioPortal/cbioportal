@@ -61,10 +61,22 @@ var SurvivalTab = (function() {
             dfsOpts.text.infoTableTitles.median = "median months disease free";
 
     		//Init Instances
-            survivalCurveViewOS = new SurvivalCurveView();
-            survivalCurveViewOS.init(_caseList, "os", osOpts);
-            var survivalCurveViewDFS = new SurvivalCurveView();
-            survivalCurveViewDFS.init(_caseList, "dfs", dfsOpts);            
+            var survivalCurveViewOS = SurvivalCurveView(osOpts);
+            var params = {
+                case_set_id: PortalGlobals.getCaseSetId(),
+                case_ids_key: PortalGlobals.getCaseIdsKey(),
+                cancer_study_id: PortalGlobals.getCancerStudyId(),
+                data_type: "os"
+            };
+            $.post("getSurvivalData.json", params, function(data) {
+                survivalCurveViewOS.getResultInit(_caseList,data);
+            }, "json");
+            
+            var survivalCurveViewDFS = new SurvivalCurveView(dfsOpts);
+            params.data_type = "dfs";
+            $.post("getSurvivalData.json", params, function(data) {
+                survivalCurveViewDFS.getResultInit(_caseList,data);
+            }, "json");
         }
     }
 

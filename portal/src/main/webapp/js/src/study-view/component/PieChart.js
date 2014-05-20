@@ -177,7 +177,7 @@ var PieChart = function(){
             id: '#' + DIV.chartDiv + "-download-icon-qtip",
             style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
             show: {event: "click"},
-            hide: {fixed:true, delay: 100, event: "mouseout"},
+            hide: {fixed:true, delay: 0, event: "mouseout"},
             position: {my:'top center',at:'bottom center', viewport: $(window)},
             content: {
                 text:   "<form style='display:inline-block;float:left;margin: 0 2px' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-pdf'>"+
@@ -192,6 +192,7 @@ var PieChart = function(){
                         "<input type='hidden' id='"+DIV.chartDiv+"-svg-name' name='filename' value='"+StudyViewParams.params.studyId + "_" +selectedAttr+".svg'>"+
                         "<input type='submit' style='font-size:10px;clear:right;float:right;' value='SVG'></form>"
             },
+//            content: "Save Image into SVG(Scalable Vector Graphics) or PDF(Portable Document Format) file"
             events: {
                 render: function(event, api) {
                     $("#"+DIV.chartDiv+"-pdf", api.elements.tooltip).submit(function(){
@@ -211,7 +212,7 @@ var PieChart = function(){
             id: '#' + DIV.mainDiv + "-qtip",
             style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
             show: {event: "mouseover", solo: true},
-            hide: {fixed:true, delay: 100, event: "mouseleave"},
+            hide: {fixed:true, delay: 0, event: "mouseleave"},
             position: {my:'left center',at:'center right', viewport: $(window)},
             content: $('#' + DIV.mainDiv + ' .study-view-pie-label').html(),
             events: {
@@ -305,7 +306,7 @@ var PieChart = function(){
 //                                    DIV.chartDiv+"-plot-data' "+
 //                                    "style='font-size:10px;clear:right;float:right;' value='Survival'>";
             _plotDataButtonDiv = "<img id='"+
-                                DIV.chartDiv+"-plot-data' class='study-view-survival-icon' src='images/survival_icon.png'/>";
+                                DIV.chartDiv+"-plot-data' class='study-view-survival-icon' src='images/survival_icon.svg'/>";
         }else {
             _plotDataButtonDiv = "";
         }

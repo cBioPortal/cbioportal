@@ -445,7 +445,7 @@ var BarChart = function(){
 //            _plotDataDiv = "<input type='button' id='"+DIV.chartDiv+"-plot-data' "+
 //                "style='clear:right;float:right;font-size:10px' value='Survival' />";
             _plotDataDiv = "<img id='"+
-                                DIV.chartDiv+"-plot-data' class='study-view-survival-icon' src='images/survival_icon.png'/>";
+                                DIV.chartDiv+"-plot-data' class='study-view-survival-icon' src='images/survival_icon.svg'/>";
         }else {
             _plotDataDiv = "";
         }

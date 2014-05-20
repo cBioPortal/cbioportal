@@ -473,8 +473,8 @@
     cursor: move;
 }
 .study-view-survival-icon {
-    width:14px;
-    height:14px;
+    width:10px;
+    height:12px;
     margin-top:2px;
     margin-right:2px;
     float:left;
@@ -488,6 +488,12 @@
     margin-top:4px;
     margin-right:4px;
     float:left;
+}
+.study-view-bar-chart path {
+    shape-rendering: crispEdges
+}
+.study-view-bar-chart .tick line {
+    shape-rendering: crispEdges
 }
 .study-view-download-icon:hover{
     cursor: pointer;
@@ -638,6 +644,9 @@ pieH3{
 }
 .clickable:hover{
     cursor: pointer;
+}
+.forceZindex {
+    z-index: 14800 !important;
 }
 
 //Show/Hide columns related classes

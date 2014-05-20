@@ -179,9 +179,9 @@ var ScatterPlots = function() {
     function generateAxisX() {
         d3.select("#" + names.body).select(".plots-x-axis").remove();
         elem.axisGroup.append("g")
-            .style("stroke-width", 2)
+            .style("stroke-width", 1)
             .style("fill", "none")
-            .style("stroke", "grey")
+            .style("stroke", "black")
             .style("shape-rendering", "crispEdges")
             .attr("class", "plots-x-axis")
             .attr("transform", "translate(0, " + canvas.yBottom + ")")
@@ -193,9 +193,9 @@ var ScatterPlots = function() {
             .style("stroke", "black")
             .style("fill", "black");
         elem.axisGroup.append("g")
-            .style("stroke-width", 2)
+            .style("stroke-width", 1)
             .style("fill", "none")
-            .style("stroke", "grey")
+            .style("stroke", "black")
             .style("shape-rendering", "crispEdges")
             .attr("transform", "translate(0, " + canvas.yTop + ")")
             .call(elem.xAxis.orient("bottom").ticks(0));
@@ -204,9 +204,9 @@ var ScatterPlots = function() {
     function generateAxisY() {
         d3.select("#" + names.body).select(".plots-y-axis").remove();
         elem.axisGroup.append("g")
-            .style("stroke-width", 2)
+            .style("stroke-width", 1)
             .style("fill", "none")
-            .style("stroke", "grey")
+            .style("stroke", "black")
             .style("shape-rendering", "crispEdges")
             .attr("class", "plots-y-axis")
             .attr("transform", "translate(" + canvas.xLeft + ", 0)")
@@ -218,9 +218,9 @@ var ScatterPlots = function() {
             .style("stroke", "black")
             .style("fill", "black");
         elem.axisGroup.append("g")
-            .style("stroke-width", 2)
+            .style("stroke-width", 1)
             .style("fill", "none")
-            .style("stroke", "grey")
+            .style("stroke", "black")
             .style("shape-rendering", "crispEdges")
             .attr("transform", "translate(" + canvas.xRight + ", 0)")
             .call(elem.yAxis.orient("left").ticks(0));
@@ -280,8 +280,7 @@ var ScatterPlots = function() {
             .attr("height", "15")
             .append("xhtml:body")
             .style({"font-size": "11px", "margin": "0"})
-            .html("<input id='study-view-scatter-plot-log-scale-x' type='checkbox' style='float:left; margin-top: 2px' "+_checked+"/><span style='float:left'>Log</span>");
-        
+            .html("<input id='study-view-scatter-plot-log-scale-x' type='checkbox' style='float:left' "+_checked+"/><span style='float:left; margin-top: 2px; font-size-adjust: 0.5;'>Log</span>");
         $("#study-view-scatter-plot-log-scale-x").change(function() {
             if($(this).prop("checked")){
                 axisXLogFlag = true;
@@ -348,7 +347,7 @@ var ScatterPlots = function() {
             .attr("height", "15")
             .append("xhtml:body")
             .style({"font-size": "11px", "margin": "0"})
-            .html("<input id='study-view-scatter-plot-log-scale-y' type='checkbox' style='float:left' "+_checked+"/><span style='float:left; margin-top: 2px'>Log</span>");
+            .html("<input id='study-view-scatter-plot-log-scale-y' type='checkbox' style='float:left' "+_checked+"/><span style='float:left; margin-top: 2px; font-size-adjust: 0.5;'>Log</span>");
         
         $("#study-view-scatter-plot-log-scale-y").change(function() {
             if($(this).prop("checked")){

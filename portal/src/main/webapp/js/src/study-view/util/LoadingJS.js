@@ -3,11 +3,7 @@ var LoadingJS = (function(){
     //Tmp include public libraries in here, will change JSarray to empty array
     //before merge study view to default branch
     var JSPublic = [
-                    'dc',
-                    'crossfilter',
-                    'dataTables.fixedColumns',
                     'util/StudyViewBoilerplate',
-                    'd3.layout.cloud',
                     'js/src/survival-curve/survivalCurveProxy.js',
                     'js/src/survival-curve/component/survivalCurve.js',
                     'js/src/survival-curve/component/confidenceIntervals.js',
@@ -22,7 +18,7 @@ var LoadingJS = (function(){
     var callbackFunc = "";
     
     //Put all self created js files into array
-    function ConstructJSarray() {
+    function constructJSarray() {
         var _key;
         
         var _folder = {
@@ -75,7 +71,7 @@ var LoadingJS = (function(){
     }
     
     function main(){
-        ConstructJSarray();
+        constructJSarray();
 
         //After loding JS files, run Study View Controller
         require(JSPublic,function(){

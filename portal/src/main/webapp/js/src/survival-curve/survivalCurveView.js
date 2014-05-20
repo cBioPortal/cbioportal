@@ -38,16 +38,15 @@
  *
  ****************************************************************************************************/
 
-var SurvivalCurveView = function() {
+var SurvivalCurveView = function(_opts) {
 
     //Instances of calculators
     var dataInst = "", //Not raw data but the ones being calculated by KM and log-tank already!
-        opts = "",
+        opts = _opts,
         survivalCurve = "",
         kmEstimator = "",
-        logRankTest = "";
-        //confidenceIntervals = "";
-    var opts = "",
+        logRankTest = "",
+        //confidenceIntervals = "",
         //data instances for each group
         alteredGroup = [],
         unalteredGroup = [],
@@ -57,23 +56,9 @@ var SurvivalCurveView = function() {
         opts.vals.pVal = _pVal;
         survivalCurve = new SurvivalCurve();
         survivalCurve.init(inputArr, opts);
-    }
-
-    return {
-        init: function(_caseLists, _dataType, _opts) {
-            //Place the paramteres
-            opts = _opts; //General settings
-            //Get Survival Data
-            var paramsGetSurvivalData = {
-                case_set_id: case_set_id,
-                case_ids_key: case_ids_key,
-                cancer_study_id: cancer_study_id,
-                data_type: _dataType
-            };
-            $.post("getSurvivalData.json", paramsGetSurvivalData, getResultInit(_caseLists), "json");
-            //Survival data callback
-            function getResultInit(_caseLists) {
-                return function(result) {
+    };
+    
+    var getResultInit = function(_caseLists, _data) {
                     //Init all the calculators
                     kmEstimator = new KmEstimator(); 
                     logRankTest = new LogRankTest();   
@@ -88,8 +73,8 @@ var SurvivalCurveView = function() {
                     //Init data instances for different groups
                     var alteredDataInst = new SurvivalCurveProxy();
                     var unalteredDataInst = new SurvivalCurveProxy();
-                    alteredDataInst.init(result, alteredGroup, kmEstimator, logRankTest);
-                    unalteredDataInst.init(result, unalteredGroup, kmEstimator, logRankTest);
+                    alteredDataInst.init(_data, alteredGroup, kmEstimator, logRankTest);
+                    unalteredDataInst.init(_data, unalteredGroup, kmEstimator, logRankTest);
 
                     //Individual settings 
                     var unalteredSettingsInst = jQuery.extend(true, {}, SurvivalCurveBroilerPlate.subGroupSettings);
@@ -112,9 +97,10 @@ var SurvivalCurveView = function() {
                     //render the curve
                     inputArr = [alteredInputInst, unalteredInputInst];
                     logRankTest.calc(inputArr[0].data.getData(), inputArr[1].data.getData(), pValCallBackFunc);
-                }
-            }
-        },
+            };
+
+    return {
+        getResultInit: getResultInit,
         pValCallBackFunc: pValCallBackFunc
-    }
+    };
 }; // Close SurvivalCurveView

@@ -39,12 +39,13 @@
         <!-- setting minIdle/maxIdle to 1 doesn't limit the number of active -->
         <bean id="businessDataSource" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">
             <property name="driverClassName" value="${db.driver}"/>
-            <property name="url" value="${db.connection_string}${db.portal_db_name}?max_allowed_packet=256M"/>
+            <property name="url" value="${db.connection_string}${db.portal_db_name}?zeroDateTimeBehavior=convertToNull"/>
             <property name="username" value="${db.user}"/>
             <property name="password" value="${db.password}"/>
             <property name="minIdle" value="0"/>
-            <property name="maxIdle" value="0"/>
-            <property name="maxActive" value="1"/>
+            <property name="maxIdle" value="10"/>
+            <property name="maxActive" value="100"/>
+            <property name="poolPreparedStatements" value="true"/>
         </bean>
     </beans>
 

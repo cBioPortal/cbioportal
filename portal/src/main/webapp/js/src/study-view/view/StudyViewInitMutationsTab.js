@@ -5,7 +5,7 @@ var StudyViewInitMutationsTab = (function(){
         data = _data;
         $('#gistic_wrapper_table').hide();
         loadMutatedGenes(
-            StudyViewParams.params.cancerStudyId, 
+            StudyViewParams.params.studyId, 
             StudyViewParams.params.mutationProfileId, 
             StudyViewParams.params.hasMutSig
         );

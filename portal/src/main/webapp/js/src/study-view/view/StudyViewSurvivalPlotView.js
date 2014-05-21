@@ -115,7 +115,7 @@ var StudyViewSurvivalPlotView = (function() {
         $('#' + _opts.divs.downloadIcon).qtip({
             id: "#" + _opts.divs.downloadIcon + "-qtip",
             style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
-            show: {event: "click"},
+            show: {event: "click", delay: 0},
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'top center',at:'bottom center', viewport: $(window)},
             content: {
@@ -769,8 +769,8 @@ var StudyViewSurvivalPlotView = (function() {
         
         $("#" + opts[_plotKey].divs.main + " svg").qtip({
             id: opts[_plotKey].divs.bodyLabel + "-qtip",
-            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
-            show: {event: "mouseover"},
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow forceZindex'},
+            show: {event: "mouseover", delay: 0},
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'left top',at:'top right', viewport: $(window)},
             content: $("#" + opts[_plotKey].divs.bodyLabel).html(),

@@ -172,11 +172,35 @@ var PieChart = function(){
     }
     
     function addPieLabelEvents() {
-        $('#' + DIV.chartDiv + '-download-icon').qtip('destroy', true);
+        $('#' + DIV.chartDiv + '-download-icon').qtip('destroy', true); 
+        $('#'+  DIV.chartDiv + '-plot-data').qtip('destroy', true);
+        $('#' + DIV.chartDiv + '-download-icon-wrapper').qtip('destroy', true);
+        
+        //Add qtip for download icon when mouse over
+        $('#' + DIV.chartDiv + '-download-icon-wrapper').qtip({
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+            show: {event: "mouseover", delay: 0},
+            hide: {fixed:true, delay: 100, event: "mouseout"},
+            position: {my:'bottom left',at:'top right', viewport: $(window)},
+            content: {
+                text:   "Download"
+            }
+        });
+        
+        //Add qtip for survival icon
+        $('#'+  DIV.chartDiv+'-plot-data').qtip({
+            style:  { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+            show:   {event: "mouseover"},
+            hide:   {fixed:true, delay: 0, event: "mouseout"},
+            position:   {my:'bottom left',at:'top right', viewport: $(window)},
+            content:    "Survival analysis"
+        });
+        
+        //Add qtip for download icon when mouse click
         $('#' + DIV.chartDiv + '-download-icon').qtip({
             id: '#' + DIV.chartDiv + "-download-icon-qtip",
             style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
-            show: {event: "click"},
+            show: {event: "click", delay: 0},
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'top center',at:'bottom center', viewport: $(window)},
             content: {
@@ -193,6 +217,9 @@ var PieChart = function(){
                         "<input type='submit' style='font-size:10px;clear:right;float:right;' value='SVG'></form>"
             },
             events: {
+                show: function() {
+                    $('#' + DIV.chartDiv + '-download-icon-wrapper').qtip('api').hide();
+                },
                 render: function(event, api) {
                     $("#"+DIV.chartDiv+"-pdf", api.elements.tooltip).submit(function(){
                         setSVGElementValue(DIV.chartDiv,
@@ -209,8 +236,8 @@ var PieChart = function(){
         $('#' + DIV.mainDiv).qtip('destroy', true);
         $('#' + DIV.mainDiv).qtip({
             id: '#' + DIV.mainDiv + "-qtip",
-            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
-            show: {event: "mouseover", solo: true},
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow forceZindex'  },
+            show: {event: "mouseover", solo: true, delay: 0},
             hide: {fixed:true, delay: 100, event: "mouseleave"},
             position: {my:'left center',at:'center right', viewport: $(window)},
             content: $('#' + DIV.mainDiv + ' .study-view-pie-label').html(),
@@ -305,7 +332,7 @@ var PieChart = function(){
 //                                    DIV.chartDiv+"-plot-data' "+
 //                                    "style='font-size:10px;clear:right;float:right;' value='Survival'>";
             _plotDataButtonDiv = "<img id='"+
-                                DIV.chartDiv+"-plot-data' class='study-view-survival-icon' src='images/survival_icon.png'/>";
+                                DIV.chartDiv+"-plot-data' class='study-view-survival-icon' src='images/survival_icon.svg'/>";
         }else {
             _plotDataButtonDiv = "";
         }
@@ -323,8 +350,10 @@ var PieChart = function(){
 //                "<input type='hidden' id='"+DIV.chartDiv+"-svg-name' name='filename' value='"+StudyViewParams.params.studyId + "_" +selectedAttr+".svg'>"+
 //                "<input type='submit' style='font-size:10px;clear:right;float:right;' value='SVG'></form>"+
                 _plotDataButtonDiv + 
-                "<img id='"+ DIV.chartDiv+"-download-icon' class='study-view-download-icon' src='images/in.svg'/>"+
-                "</div>");
+                "<div id='"+ DIV.chartDiv+"-download-icon-wrapper'" +
+                "class='study-view-download-icon'><img id='"+ 
+                DIV.chartDiv+"-download-icon'"+
+                "src='images/in.svg'/></div></div>");
                 
         
         

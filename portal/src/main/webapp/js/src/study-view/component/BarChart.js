@@ -121,21 +121,35 @@ var BarChart = function(){
     
     //Add all listener events
     function addEvents() {
-//        $("#"+DIV.chartDiv+"-pdf").submit(function(){
-//            setSVGElementValue(DIV.chartDiv,
-//                DIV.chartDiv+"-pdf-value");
-//        });
-//        $("#"+DIV.chartDiv+"-svg").submit(function(){
-//            setSVGElementValue(DIV.chartDiv,
-//                DIV.chartDiv+"-svg-value");
-//        });
-        
         $('#' + DIV.chartDiv + '-download-icon').qtip('destroy', true);
-        $('#' + DIV.chartDiv + '-download-icon').qtip({
-            id: '#' + DIV.chartDiv + "-download-icon-qtip",
+        $('#'+  DIV.chartDiv+'-plot-data').qtip('destroy', true);
+        $('#' + DIV.chartDiv + '-download-icon-wrapper').qtip('destroy', true);
+        
+        //Add qtip for download icon when mouse over
+        $('#' + DIV.chartDiv + '-download-icon-wrapper').qtip({
             style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
-            show: {event: "click"},
+            show: {event: "mouseover", delay: 0},
             hide: {fixed:true, delay: 100, event: "mouseout"},
+            position: {my:'bottom left',at:'top right', viewport: $(window)},
+            content: {
+                text:   "Download"
+            }
+        });
+        
+        //Add qtip for survival icon
+        $('#'+  DIV.chartDiv+'-plot-data').qtip({
+            style:  { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+            show:   {event: "mouseover"},
+            hide:   {fixed:true, delay: 0, event: "mouseout"},
+            position:   {my:'bottom left',at:'top right', viewport: $(window)},
+            content:    "Survival analysis"
+        });
+        
+        //Add qtip for download icon when mouse click
+        $('#' + DIV.chartDiv + '-download-icon').qtip({
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+            show: {event: "click", delay: 0},
+            hide: {fixed:true, delay: 100, event: "mouseout "},
             position: {my:'top center',at:'bottom center', viewport: $(window)},
             content: {
                 text:   "<form style='display:inline-block;float:left;margin: 0 2px' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-pdf'>"+
@@ -151,6 +165,9 @@ var BarChart = function(){
                         "<input type='submit' style='font-size:10px;clear:right;float:right;' value='SVG'></form>"
             },
             events: {
+                show: function() {
+                    $('#' + DIV.chartDiv + '-download-icon-wrapper').qtip('api').hide();
+                },
                 render: function(event, api) {
                     $("#"+DIV.chartDiv+"-pdf", api.elements.tooltip).submit(function(){
                         setSVGElementValue(DIV.chartDiv,
@@ -445,7 +462,7 @@ var BarChart = function(){
 //            _plotDataDiv = "<input type='button' id='"+DIV.chartDiv+"-plot-data' "+
 //                "style='clear:right;float:right;font-size:10px' value='Survival' />";
             _plotDataDiv = "<img id='"+
-                                DIV.chartDiv+"-plot-data' class='study-view-survival-icon' src='images/survival_icon.png'/>";
+                                DIV.chartDiv+"-plot-data' class='study-view-survival-icon' src='images/survival_icon.svg'/>";
         }else {
             _plotDataDiv = "";
         }
@@ -455,7 +472,8 @@ var BarChart = function(){
                 param.selectedAttrDisplay + ",bar'>"+
                 "<div id='"+DIV.chartDiv+"-side' class='study-view-pdf-svg-side bar'>"+
                 _plotDataDiv +
-                "<img id='"+ DIV.chartDiv+"-download-icon' class='study-view-download-icon' src='images/in.svg'/>"+
+                "<div id='"+ DIV.chartDiv+"-download-icon-wrapper' class='study-view-download-icon'><img id='"+ 
+                DIV.chartDiv+"-download-icon' src='images/in.svg'/></div>"+
 //                "<form style='clear:right;float:right;display:inline-block;' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-pdf'>"+
 //                "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-pdf-value'>"+
 //                "<input type='hidden' name='filetype' value='pdf'>"+

@@ -1,3 +1,6 @@
+# May 21, 2014
+* All TCGA data updated to the Firehose run of April 16, 2014
+
 # May 12, 2014
 * Improved study summary page including survival analysis based on clinical attributes
 <br/>e.g. [TCGA Endometrial Cancer cohort](study.do?cancer_study_id=ucec_tcga_pub)

@@ -43,13 +43,6 @@ public class AttributesController
                                                                     @RequestParam(value="patient", required=false) String patient,
                                                                     @RequestParam(value="sample", required=false) String sample)
   {
-    System.out.println("study: " + study);
-    if (patient != null) {
-      System.out.println("PATIENT: " + patient);
-    }
-    if (sample != null) {
-      System.out.println("SAMPLE: " + sample);
-    }
-    return entityAttributeService.getAttributeMetadata(name);
+    return new java.util.ArrayList<AttributeMetadata>();
   }
 }

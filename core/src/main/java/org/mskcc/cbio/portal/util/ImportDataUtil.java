@@ -23,14 +23,20 @@ import org.mskcc.cbio.portal.model.Entity.EntityType;
 import org.mskcc.cbio.portal.service.*;
 
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.context.support.GenericXmlApplicationContext;
 
 import java.util.List;
 
 public class ImportDataUtil
 {
-    private static ApplicationContext context =
-        new ClassPathXmlApplicationContext("classpath:applicationContext-business.xml");
+    private static ApplicationContext context = initContext();
+    private static ApplicationContext initContext()
+    {
+        GenericXmlApplicationContext ctx = new GenericXmlApplicationContext();
+        ctx.getEnvironment().setActiveProfiles("dbcp");
+        ctx.load("classpath:applicationContext-business.xml");
+        return ctx; 
+    }
         
     public static EntityService entityService = initEntityService();
     private static EntityService initEntityService()

@@ -262,7 +262,7 @@
 		  <configuration>
 			<forkMode>always</forkMode>
 			<filtering>true</filtering>
-			<testFailureIgnore>false</testFailureIgnore>
+			<testFailureIgnore>true</testFailureIgnore>
 			<systemProperties>
 			  <property>
 				<name>log4j.configuration</name>

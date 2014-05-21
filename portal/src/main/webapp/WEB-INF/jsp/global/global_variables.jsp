@@ -113,15 +113,13 @@
     String caseIdsKey = (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY);
     //caseIdsKey = xssUtil.getCleanerInput(caseIdsKey);
 
-    //Clinical Data
-    ArrayList <Patient> clinicalDataList = (ArrayList<Patient>)request.getAttribute(QueryBuilder.CLINICAL_DATA_LIST);
-
     //Vision Control Tokens
     boolean showIGVtab = cancerStudy.hasCnaSegmentData();
     boolean has_rppa = countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) > 0;
     boolean has_mrna = countProfiles(profileList, GeneticAlterationType.MRNA_EXPRESSION) > 0;
     boolean has_methylation = countProfiles(profileList, GeneticAlterationType.METHYLATION) > 0;
     boolean has_copy_no = countProfiles(profileList, GeneticAlterationType.COPY_NUMBER_ALTERATION) > 0;
+    boolean has_survival = cancerStudy.hasSurvivalData();
     boolean includeNetworks = GlobalProperties.includeNetworks();
     Set<String> warningUnion = (Set<String>) request.getAttribute(QueryBuilder.WARNING_UNION);
     boolean computeLogOddsRatio = true;

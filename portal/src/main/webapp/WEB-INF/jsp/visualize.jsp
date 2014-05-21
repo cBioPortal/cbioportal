@@ -145,7 +145,7 @@
                 + "Protein Changes</a></li>");
             }
 
-            if (clinicalDataList != null && clinicalDataList.size() > 0) {
+            if (has_survival) {
                 out.println ("<li><a href='#survival' class='result-tab' title='Survival analysis and Kaplan-Meier curves'>"
                 + "Survival</a></li>");
             }
@@ -201,7 +201,7 @@
         <%@ include file="igv.jsp" %>
             <% } %>
 
-            <% if (clinicalDataList != null && clinicalDataList.size() > 0) { %>
+            <% if (has_survival) { %>
         <%@ include file="survival_tab.jsp" %>
             <% } %>
 

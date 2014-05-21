@@ -266,6 +266,7 @@ public final class DaoCancerStudy {
                 "delete from genetic_profile_samples where GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID from genetic_profile where CANCER_STUDY_ID=?);",
                 "delete from sample_profile where GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID from genetic_profile where CANCER_STUDY_ID=?);",
                 "delete from mutation where GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID from genetic_profile where CANCER_STUDY_ID=?);",
+                "delete from mutation_event where MUTATION_EVENT_ID NOT IN (select MUTATION_EVENT_ID from mutation);",
                 "delete from mutation_count where GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID from genetic_profile where CANCER_STUDY_ID=?);",
                 "delete from patient_list_list where LIST_ID IN (select LIST_ID from patient_list where CANCER_STUDY_ID=?);",
                 "delete from clinical_sample where INTERNAL_ID IN (select INTERNAL_ID from sample where PATIENT_ID in (select INTERNAL_ID from patient where CANCER_STUDY_ID=?));",
@@ -286,7 +287,9 @@ public final class DaoCancerStudy {
                 };
             for (String sql : sqls) {    
                 pstmt = con.prepareStatement(sql);
-                pstmt.setInt(1, internalCancerStudyId);
+                if (sql.contains("?")) {
+                    pstmt.setInt(1, internalCancerStudyId);
+                }
                 pstmt.executeUpdate();
             }
         } catch (SQLException e) {

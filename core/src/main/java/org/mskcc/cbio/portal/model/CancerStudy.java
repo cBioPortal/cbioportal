@@ -17,11 +17,16 @@
 
 package org.mskcc.cbio.portal.model;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.web_api.GetGeneticProfiles;
 
-import java.util.*;
+
 
 /**
  * This represents a cancer study, with a set of cases and some data sets.
@@ -405,6 +410,12 @@ public class CancerStudy {
 
     public boolean hasGisticData() throws DaoException {
         return DaoGistic.hasGistic(this);
+    }
+    
+    public boolean hasSurvivalData() throws DaoException {
+        Set<String> attrs = DaoClinicalData.getDistinctParameters(studyID);
+        return attrs.contains(ClinicalAttribute.OS_STATUS) ||
+                    attrs.contains(ClinicalAttribute.DFS_STATUS);
     }
 
     public String getShortName() {

@@ -805,7 +805,7 @@ function outputClinicalData() {
         for (var i=0; i<n; i++) {
             var caseId = caseIds[i];
             var clinicalData = clinicalDataMap[caseId];
-            var state = guessClinicalData(clinicalData, ["TUMOR_TYPE"]);
+            var state = guessClinicalData(clinicalData, ["TUMOR_TYPE","SAMPLE_TYPE"]);
             caseMetaData.color[caseId] = getCaseColor(state);
         }
 
@@ -866,11 +866,11 @@ function outputClinicalData() {
     
     function formatStateInfo(clinicalData) {
         var ret = null;
-        var caseType = guessClinicalData(clinicalData, ["TUMOR_TYPE"]);
+        var caseType = guessClinicalData(clinicalData, ["TUMOR_TYPE","SAMPLE_TYPE"]);
         if (caseType!==null) {
             ret = "<font color='"+getCaseColor(caseType)+"'>"+caseType+"</font>";
             //if (normalizedCaseType(caseType.toLowerCase()) === "metastasis") {
-                var loc = guessClinicalData(clinicalData,["TUMOR_SITE"]);
+                var loc = guessClinicalData(clinicalData,["TUMOR_SITE","PRIMARY_SITE","METASTATIC_SITE"]);
                 if (loc!==null) 
                     ret += " ("+loc+")";
             //}

@@ -286,7 +286,9 @@ public final class DaoCancerStudy {
                 };
             for (String sql : sqls) {    
                 pstmt = con.prepareStatement(sql);
-                pstmt.setInt(1, internalCancerStudyId);
+                if (sql.contains("?")) {
+                    pstmt.setInt(1, internalCancerStudyId);
+                }
                 pstmt.executeUpdate();
             }
         } catch (SQLException e) {

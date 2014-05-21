@@ -62,6 +62,12 @@
 	  <scope>runtime</scope>
 	</dependency>
 	<dependency>
+		<groupId>commons-dbcp</groupId>
+		<artifactId>commons-dbcp</artifactId>
+		<version>1.2.2</version>
+		<scope>test</scope>
+	</dependency>	
+	<dependency>
 	  <groupId>commons-fileupload</groupId>
 	  <artifactId>commons-fileupload</artifactId>
 	  <version>1.2.2</version>

@@ -54,6 +54,30 @@ CREATE TABLE `cancer_study` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for `entity`
+--
+drop table IF EXISTS entity;
+CREATE TABLE `entity` (
+  `INTERNAL_ID` int(11) NOT NULL auto_increment,
+  `STABLE_ID` varchar(50) NOT NULL,
+  `ENTITY_TYPE` varchar(50) NOT NULL,
+  PRIMARY KEY (`INTERNAL_ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 COMMENT='ENTITY_TYPE can be STUDY, PATIENT, SAMPLE';
+
+--
+-- Table structure for `entity_link`
+--
+drop table IF EXISTS entity_link;
+CREATE TABLE `entity_link` (
+  `INTERNAL_ID` int(11) NOT NULL auto_increment,
+  `PARENT_ID` int(11) NOT NULL,
+  `CHILD_ID` int(11) NOT NULL,
+  PRIMARY KEY  (`INTERNAL_ID`),
+  FOREIGN KEY (`PARENT_ID`) REFERENCES `entity` (`INTERNAL_ID`) ON DELETE CASCADE,
+  FOREIGN KEY (`CHILD_ID`) REFERENCES `entity` (`INTERNAL_ID`) ON DELETE CASCADE
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
+
+--
 -- Table structure for table `users`
 --
 drop table IF EXISTS users;
@@ -366,6 +390,32 @@ CREATE TABLE `mutation_frequency` (
 
 
 -- --------------------------------------------------------
+
+--
+-- Table structure for table `entity_attributes`
+--
+drop table IF EXISTS entity_attribute;
+CREATE TABLE `entity_attribute` (
+  `ENTITY_ID` int(11) NOT NULL,
+  `ATTR_ID` varchar(255) NOT NULL,
+  `ATTR_VALUE` varchar(255) NOT NULL,
+  PRIMARY KEY (`ENTITY_ID`, `ATTR_ID`),
+  FOREIGN KEY (`ENTITY_ID`) REFERENCES `entity` (`INTERNAL_ID`) ON DELETE CASCADE,
+  FOREIGN KEY (`ATTR_ID`) REFERENCES `attribute_metadata` (`ATTR_ID`) ON DELETE CASCADE
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Table structure for table `attributes`
+--
+drop table IF EXISTS attribute_metadata;
+CREATE TABLE `attribute_metadata` (
+  `ATTR_ID` varchar(255) NOT NULL,
+  `DISPLAY_NAME` varchar(255) NOT NULL,
+  `DESCRIPTION` varchar(2048) NOT NULL,
+  `DATATYPE` varchar(255) NOT NULL,
+  PRIMARY KEY (`ATTR_ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='DATATYPE can be NUMBER, BOOLEAN, STRING';
+
 
 --
 -- Table structure for table `clinical_patient`

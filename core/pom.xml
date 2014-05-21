@@ -23,40 +23,19 @@
 			<enabled>true</enabled>
 		</releases>
 	</repository>
-        <!--repository>
-            <id>biopax.releases</id>
-            <name>BioPAX Repository at Sourceforge</name>
-            <url>http://biopax.sourceforge.net/m2repo/releases/</url>
-        </repository>
-        <repository>
-            <id>biopax.snapshots</id>
-            <name>BioPAX Repository at Sourceforge</name>
-            <url>http://biopax.sourceforge.net/m2repo/snapshots/</url>
-        </repository-->
     </repositories>
 
 
   <!-- dependencies -->
   <dependencies>
 
-      <!-- hgnc id mapping services -->
-      <!--dependency>
-          <groupId>org.biopax.paxtools</groupId>
-          <artifactId>sbgn-converter</artifactId>
-          <version>4.1.5</version>
-      </dependency>
-      <dependency>
-          <groupId>org.biopax.paxtools</groupId>
-          <artifactId>paxtools-query</artifactId>
-          <version>4.1.5</version>
-      </dependency>
-      <dependency>
-          <groupId>pathwaycommons.cpath</groupId>
-          <artifactId>cpath-client</artifactId>
-          <version>3.2.0-SNAPSHOT</version>
-      </dependency!-->
+	<dependency>
+	  <groupId>org.mskcc.cbio</groupId>
+	  <artifactId>business</artifactId>
+	  <version>${project.version}</version>
+	</dependency>	
 
-      <!-- antisamy -->
+    <!-- antisamy -->
 	<dependency>
 	  <groupId>org.owasp</groupId>
 	  <artifactId>antisamy</artifactId>
@@ -77,16 +56,17 @@
 	  <version>3.2.1</version>
 	</dependency>
 	<dependency>
-	  <groupId>com.kenai.nbpwr</groupId>
-	  <artifactId>org-apache-commons-dbcp</artifactId>
-	  <version>1.2.2-201002241055</version>
-	</dependency>
-	<dependency>
 	  <groupId>org.apache.geronimo.bundles</groupId>
 	  <artifactId>commons-discovery</artifactId>
 	  <version>0.4_1</version>
 	  <scope>runtime</scope>
 	</dependency>
+	<dependency>
+		<groupId>commons-dbcp</groupId>
+		<artifactId>commons-dbcp</artifactId>
+		<version>1.2.2</version>
+		<scope>test</scope>
+	</dependency>	
 	<dependency>
 	  <groupId>commons-fileupload</groupId>
 	  <artifactId>commons-fileupload</artifactId>
@@ -195,29 +175,17 @@
 	  <version>2.3</version>
 	</dependency>
 
-	<!-- rserve -->
-	<!--dependency>
-	  <groupId>org.nuiton.thirdparty</groupId>
-	  <artifactId>REngine</artifactId>
-	  <version>0.6-1</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.nuiton.thirdparty</groupId>
-	  <artifactId>Rserve</artifactId>
-	  <version>0.6-1</version>
-	</dependency-->
-        
-        <!-- BioJava3 -->
-        <dependency>
-                <groupId>org.biojava</groupId>
-                <artifactId>biojava3-core</artifactId>
-                <version>3.0.7</version>
-        </dependency>
-        <dependency>
-                <groupId>org.biojava</groupId>
-                <artifactId>biojava3-structure</artifactId>
-                <version>3.0.7</version>
-        </dependency>
+    <!-- BioJava3 -->
+    <dependency>
+        <groupId>org.biojava</groupId>
+        <artifactId>biojava3-core</artifactId>
+        <version>3.0.7</version>
+    </dependency>
+    <dependency>
+        <groupId>org.biojava</groupId>
+        <artifactId>biojava3-structure</artifactId>
+        <version>3.0.7</version>
+    </dependency>
 
     <!-- Mockito -->
     <dependency>
@@ -244,11 +212,6 @@
       <artifactId>batik-rasterizer</artifactId>
       <version>1.5</version>
     </dependency>
-    <!--dependency>                                                            `
-      <groupId>batik</groupId>
-      <artifactId>batik-svg-dom</artifactId>
-      <version>1.6-1</version>
-    </dependency-->
     <dependency>
       <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>fop</artifactId>
@@ -299,7 +262,7 @@
 		  <configuration>
 			<forkMode>always</forkMode>
 			<filtering>true</filtering>
-			<testFailureIgnore>false</testFailureIgnore>
+			<testFailureIgnore>true</testFailureIgnore>
 			<systemProperties>
 			  <property>
 				<name>log4j.configuration</name>

@@ -174,6 +174,12 @@
 	  <version>${project.version}</version>
 	</dependency>	
 
+	<dependency>
+	  <groupId>org.mskcc.cbio</groupId>
+	  <artifactId>business</artifactId>
+	  <version>${project.version}</version>
+	</dependency>	
+
   </dependencies>
 
   <build>
@@ -182,59 +188,47 @@
 	<plugins>
 
 	  <!-- java 1.7 support -->
-	  <plugin>
-		<groupId>org.apache.maven.plugins</groupId>
-		<artifactId>maven-compiler-plugin</artifactId>
-		<version>2.0.2</version>
-		<configuration>
-		  <source>1.7</source>
-		  <target>1.7</target>
-		</configuration>
-	  </plugin>
-
-	  <!-- use this instead of maven-assembly-plugin -->
-	  <!-- to prevent inclusion of org-apache-commons-dbcp -->
-	  <!-- which now lives in core and causes jar creation -->
-	  <!-- issues when using maven-assembly-plugin -->
-	  <plugin>
-		<groupId>org.apache.maven.plugins</groupId>
-		<artifactId>maven-shade-plugin</artifactId>
-		<version>2.0</version>
-		<executions>
-		  <execution>
-			<phase>package</phase>
-			<goals>
-			  <goal>shade</goal>
-			</goals>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-compiler-plugin</artifactId>
+			<version>2.0.2</version>
 			<configuration>
-              <finalName>cbioportal-importer</finalName>
-			  <createDependencyReducedPom>false</createDependencyReducedPom>
-              <filters>
-                <filter>
-                  <artifact>*:*</artifact>
-                  <excludes>
-                    <exclude>${gpl-files-to-exclude}</exclude>
-                    <exclude>org/gjt/**</exclude>
-                  </excludes>
-                </filter>
-              </filters>
-			  <artifactSet>
-				<excludes>
-				  <exclude>com.kenai.nbpwr:org-apache-commons-dbcp</exclude>
-				</excludes>
-			  </artifactSet>
-			  <transformers>
-				<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-				  <mainClass>${importer-main-class}</mainClass>
-				</transformer>
-			  </transformers>
+			  <source>1.7</source>
+			  <target>1.7</target>
 			</configuration>
-		  </execution>
-		</executions>
-	  </plugin>
+		</plugin>
 
-	  <!-- this plugin lets us grab shared resources from our parent -->
-	  <plugin>
+		<!-- use shade plugin to prevent META-INF resources from getting clobbered -->
+		<plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-shade-plugin</artifactId>
+            <version>2.0</version>
+            <executions>
+                <execution>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>shade</goal>
+                    </goals>
+                    <configuration>
+			            <createDependencyReducedPom>false</createDependencyReducedPom>
+                    	<finalName>cbioportal-importer</finalName>
+                        <transformers>
+                            <transformer
+                                implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <mainClass>${importer-main-class}</mainClass>
+                            </transformer>
+                            <transformer
+                                implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                <resource>META-INF/spring.handlers</resource>
+                            </transformer>
+                        </transformers>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+
+	 <!-- this plugin lets us grab shared resources from our parent -->
+	 <plugin>
 		<groupId>org.apache.maven.plugins</groupId>
 		<artifactId>maven-resources-plugin</artifactId>
 		<executions>
@@ -248,7 +242,7 @@
 			  <outputDirectory>${project.build.directory}/classes</outputDirectory>
 			  <resources>
 				<resource>
-				  <directory>${property-file-dir}</directory>
+				  <directory>${PORTAL_HOME}/src/main/resources</directory>
 				  <includes>
 					<include>**/*.properties</include>
 				  </includes>
@@ -258,11 +252,24 @@
 					<exclude>**/*.EXAMPLE</exclude>
 				  </excludes>
 				</resource>
+				<resource>
+				  <directory>${PORTAL_HOME}/business/src/main/resources</directory>
+				  <includes>
+					<include>**/*.xml</include>
+				  </includes>
+				  <filtering>true</filtering>
+				</resource>
+				<resource>
+				  <directory>${PORTAL_HOME}/web/src/main/resources</directory>
+				  <includes>
+					<include>**/*.xml</include>
+				  </includes>
+				</resource>
 			  </resources>
             </configuration>
 		  </execution>
 		</executions>
-	  </plugin>
+	  </plugin> 
 
 	</plugins>
 

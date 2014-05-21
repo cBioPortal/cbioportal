@@ -58,7 +58,12 @@ liftover/target/*
 core/target/*
 oncotator/target/*
 importer/target/*
+business/target/*
+web/target/*
 mutation-assessor/target/*
 cbioportal-client/target/*
 mondrian-cy3-app/target/*
 nbactions.xml
+*/*.iml
+*.iml
+*.class

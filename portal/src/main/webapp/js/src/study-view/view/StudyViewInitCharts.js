@@ -163,14 +163,14 @@ var StudyViewInitCharts = (function(){
                 continue;
             }else if(_dataType === "NUMBER" || _dataType === "BOOLEAN" || _allNumber){                
                 if(selectedCol(_attr[i]["attr_id"])){                    
-                    if(_keys.length>10 || _attr[i]["attr_id"] === 'MUTATION_COUNT' 
+                    if(_keys.length>10 || _attr[i]["attr_id"] === 'AGE' || _attr[i]["attr_id"] === 'MUTATION_COUNT' 
                             || _attr[i]["attr_id"] === 'COPY_NUMBER_ALTERATIONS')
                         bar.push(_attr[i]);
                     else
                         pie.push(_attr[i]);
                 }
 
-                if(_keys.length > 10 || _attr[i]["attr_id"] === 'MUTATION_COUNT' 
+                if(_keys.length > 10 || _attr[i]["attr_id"] === 'AGE' || _attr[i]["attr_id"] === 'MUTATION_COUNT' 
                         || _attr[i]["attr_id"] === 'COPY_NUMBER_ALTERATIONS'){
                     varType[_attr[i]["attr_id"]] = "bar";
                 }else{

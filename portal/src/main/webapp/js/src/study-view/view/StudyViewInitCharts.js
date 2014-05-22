@@ -1219,6 +1219,9 @@ var StudyViewInitCharts = (function(){
         getDataAndDrawMarker: getDataAndDrawMarker,
         removeMarker: removeMarker,
         redrawWSCharts: redrawWSCharts,
-        resetBars: resetBars
+        resetBars: resetBars,
+        getLayout: function() {
+            return msnry;
+        }
     };
 })();

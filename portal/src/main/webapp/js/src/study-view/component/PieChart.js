@@ -352,8 +352,14 @@ var PieChart = function(){
                 _plotDataButtonDiv + 
                 "<div id='"+ DIV.chartDiv+"-download-icon-wrapper'" +
                 "class='study-view-download-icon'><img id='"+ 
-                DIV.chartDiv+"-download-icon'"+
-                "src='images/in.svg'/></div></div>");
+                DIV.chartDiv+"-download-icon' style='float:left'"+
+                "src='images/in.svg'/></div><img id='"+ 
+                DIV.chartDiv+"-expand-icon'"+
+                " class='study-view-expand-icon' "+
+                "src='images/expand.svg'/><img id='"+ 
+                DIV.chartDiv+"-contract-icon'"+
+                " class='study-view-contract-icon' "+
+                "src='images/contract.svg'/></div>");
                 
         
         
@@ -469,6 +475,31 @@ var PieChart = function(){
                 }, StudyViewParams.summaryParams.transitionDuration);
             });
         }
+        
+        $("#"+DIV.chartDiv+"-expand-icon").click(function() {
+            $("#"+DIV.mainDiv).css('z-index', 16000);
+            $("#"+DIV.mainDiv).animate({height: "340px", width: "375px", duration: 300, queue: false}, 300, function() {
+                StudyViewInitCharts.getLayout().layout();
+                $("#"+DIV.mainDiv).css('z-index', '');
+                $("#"+DIV.chartDiv+"-expand-icon").css('display', 'none');
+                $("#"+DIV.chartDiv +"-pieLabel-table").css('display', 'block');
+                $("#"+DIV.chartDiv+"-contract-icon").css('display', 'block');
+                $('#' + DIV.mainDiv).qtip('api').hide();
+            });
+            $('#' + DIV.chartDiv + ' svg').animate({'margin-left': '125px', duration: 300, queue: false});
+        });
+        $("#"+DIV.chartDiv+"-contract-icon").click(function() {
+            $("#"+DIV.mainDiv).css('z-index', 16000);
+            $("#"+DIV.mainDiv).animate({height: "165px", width: "180px", duration: 300, queue: false}, 300, function() {
+                StudyViewInitCharts.getLayout().layout();
+                $("#"+DIV.mainDiv).css('z-index', '1');
+                $("#"+DIV.chartDiv+"-contract-icon").css('display', 'none');
+                $("#"+DIV.chartDiv+"-expand-icon").css('display', 'block');
+                $("#"+DIV.chartDiv +"-pieLabel-table").css('display', 'none');
+                $('#' + DIV.mainDiv).qtip('api').hide();
+            });
+            $('#' + DIV.chartDiv + ' svg').animate({'margin-left': '25px', duration: 300, queue: false});
+        });
     }
     
     function getCaseIds(){
@@ -612,7 +643,7 @@ var PieChart = function(){
                 className + "'  oValue='"+ selectedAttr + "," + 
                 selectedAttrDisplay + ",pie'>"+
                 "<div id='" + DIV.chartDiv +"-title-wrapper'" +
-                " style='width:180px; float:left; text-align:center;'>"+
+                " style='width:100%; float:left; text-align:center;'>"+
                 "<div style='height:16px;float:right;' id='"+DIV.chartDiv+"-header'>"+
                 "<a href='javascript:StudyViewInitCharts.getChartsByID("+ 
                 chartID +").getChart().filterAll();" +
@@ -625,7 +656,8 @@ var PieChart = function(){
                 _title + "</chartTitleH4></div>"+
                 "<div style='width:180px;float:left;text-align:center'></div></div>"+
                 "<div class='study-view-pie-label'></div>"+
-                "<div style='width:180px; text-align:center;float:left;'></div></div>");
+                "<div style='width:100%; text-align:center;float:left;display: none' id='"+DIV.chartDiv +"-pieLabel-table'><table style='" + 
+                "width: 100%;text-align: center;'><tbody><tr><th>Attribute Name</th><th>Number</th></tr><tr><td>aaa</td><td>10</td></tr><tr><td>bbb</td><td>2</td></tr></tbody></table></div></div>");
             //Title has been cut with 8 head character with ..., so the length
             //still longer than titleLengthCutoff
 //            if(_title.length > titleLengthCutoff) {
@@ -856,13 +888,13 @@ var PieChart = function(){
             
             if(i % 1 === 0){
                 $('#' + DIV.mainDiv)
-                        .find('table')
+                        .find('#' + DIV.labelTableID+"-0")
                         .append("<tr id="+ _innerID +" width='150px'></tr>");
                 _innerID++;
-            } 
+            }
             
             $('#' + DIV.mainDiv)
-                    .find('table tr:nth-child(' + _innerID +')')
+                    .find('#' + DIV.labelTableID+'-0 tr:nth-child(' + _innerID +')')
                     .append('<td class="pieLabel" id="'+
                         DIV.labelTableTdID +label[i].id+'-'+i+
                         '"  style="font-size:'+fontSize+'px">'+

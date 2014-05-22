@@ -51,7 +51,7 @@
 
     <beans profile="jndi">
         <bean id="businessDataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
-            <property name="jndiName" value="java:comp/env/jdbc/cbioportal"/>
+            <property name="jndiName" value="java:comp/env/${db.tomcat_resource_name}"/>
         </bean>
     </beans>
 </beans>

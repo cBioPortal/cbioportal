@@ -45,7 +45,7 @@ public class MutationDataUtils {
 	public static final String LINK_TO_PATIENT_VIEW = "linkToPatientView";
 	public static final String CANCER_TYPE = "cancerType";
 	public static final String TUMOR_TYPE = "tumorType";
-	public static final String TUMOR_TYPE_CLINICAL_ATTR = "TUMOR_TYPE";
+	public static final String TUMOR_TYPE_CLINICAL_ATTR = "CANCER_TYPE";
 	public static final String CANCER_STUDY = "cancerStudy";
 	public static final String CANCER_STUDY_SHORT = "cancerStudyShort";
 	public static final String CANCER_STUDY_LINK = "cancerStudyLink";

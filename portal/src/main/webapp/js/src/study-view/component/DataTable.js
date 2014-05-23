@@ -127,7 +127,7 @@ var DataTable = function() {
                     _value['CASE_ID'] + "&cancer_study_id=" +
                     StudyViewParams.params.studyId + "' target='_blank'><span style='color: #2986e2'>" + 
                     _value['CASE_ID'] + "</span></a></strong>";
-                }else if ( _valueAo.sTitle === 'Patient Identifier' && _value['PATIENT_ID'] !== 'NA'){
+                }else if ( (_valueAo.sTitle === 'Patient Identifier' || _valueAo.sTitle === 'PATIENT_ID') && _value['PATIENT_ID'] !== 'NA'){
                     _tmpValue = "<a href='case.do?cancer_study_id=" +
                     StudyViewParams.params.studyId + "&patient_id="+
                     _value['PATIENT_ID'] +
@@ -144,7 +144,7 @@ var DataTable = function() {
                 _selectedString = _tmpValue.toString();
                 _specialCharLength = _specialChar.length;
                 
-                if ( _valueAo.sTitle !== 'CASE ID' && _valueAo.sTitle !== 'Patient Identifier'){
+                if ( _valueAo.sTitle !== 'CASE ID' && (_valueAo.sTitle === 'Patient Identifier' || _valueAo.sTitle === 'PATIENT_ID') ){
                     for( var z = 0; z < _specialCharLength; z++){
                         if(_selectedString.indexOf(_specialChar[z]) !== -1){
                             var _re = new RegExp("\\" + _specialChar[z], "g");

@@ -691,8 +691,8 @@ function plotAlleleFreq(div,mutations,altReadCount,refReadCount) {
         caseIds.forEach(function(caseId){
             var ac = altCount[caseId];
             var rc = refCount[caseId];
-            if (ac&&rc) arr.push("<svg width='12' height='12' class='case-label-tip' alt='"+caseId+"'></svg>&nbsp;"
-                    +(ac/(ac+rc)).toFixed(2));
+            if (ac&&rc) arr.push("<svg width='12' height='12' class='case-label-tip' alt='"+caseId+"'></svg>&nbsp;<b>"
+                    +(ac/(ac+rc)).toFixed(2)+"</b>&nbsp;("+ac+" variant reads out of "+(ac+rc)+" total)");
         });
         var tip = arr.join("<br/>");
         $(this).qtip({

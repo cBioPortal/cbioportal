@@ -242,6 +242,15 @@
     width:auto;
     float: right;
 }
+.qtip-content .dataTables_filter {
+    width: 100%;
+}
+.qtip-content .dataTables_wrapper {
+    margin: 10px 5px;
+}
+.qtip-content td {
+    white-space: nowrap;
+}
 #dataTable_info {
     float: left;
     width: auto;

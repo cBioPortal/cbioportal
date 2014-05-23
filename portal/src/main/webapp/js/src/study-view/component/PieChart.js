@@ -44,6 +44,7 @@ var PieChart = function(){
         selectedAttr, 
         selectedAttrDisplay,
         ndx,
+        labelTable,
         plotDataButtonFlag = false,
         chartColors;
     
@@ -235,7 +236,7 @@ var PieChart = function(){
         
         $('#' + DIV.mainDiv).qtip('destroy', true);
         $('#' + DIV.mainDiv).qtip({
-            id: '#' + DIV.mainDiv + "-qtip",
+            id: DIV.mainDiv,
             style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow forceZindex'  },
             show: {event: "mouseover", solo: true, delay: 0},
             hide: {fixed:true, delay: 100, event: "mouseleave"},
@@ -243,6 +244,14 @@ var PieChart = function(){
             content: $('#' + DIV.mainDiv + ' .study-view-pie-label').html(),
             events: {
                 render: function(event, api) {
+                    $('#qtip-' + DIV.mainDiv + " table").attr('id', 'qtip-' + DIV.mainDiv + "-table");
+                    labelTable = $('#qtip-' + DIV.mainDiv + "-table").dataTable({
+                        "sDom": '<f>rt',
+                        "sScrollY": "200",
+                        "bPaginate": false,
+                        "bScrollCollapse": true
+                    });
+                    
                     $('.pieLabel', api.elements.tooltip).mouseenter(function() {
                         var idArray = $(this).attr('id').split('-'),
                             childID = Number(idArray[idArray.length-2])+1,
@@ -316,6 +325,12 @@ var PieChart = function(){
 //                            $('#'+DIV.labelTableID+'-'+nextTableID).css('display','block');
 //                        }
 //                    });
+                },
+                visible: function(event, api) {
+                    if(!$('#qtip-' + DIV.mainDiv + "-table").hasClass('clicked')){
+                        labelTable.fnAdjustColumnSizing();
+                        $('#qtip-' + DIV.mainDiv + "-table").addClass('clicked');
+                    }
                 }
             }
         });
@@ -823,8 +838,8 @@ var PieChart = function(){
                 _pointsInfo = $(this).find('path').attr('d').split(/[\s,MLHVCSQTAZ]/);    
             
             _labelName = _labelText.substring(0, _labelText.lastIndexOf(":"));
-            _labelValue = _labelText.substring(_labelText.lastIndexOf(":"));
-            _labelValue = _labelValue.trim();
+            _labelValue = _labelText.substring(_labelText.lastIndexOf(":")+1);
+            _labelValue = Number(_labelValue.trim());
             
             if(_pointsInfo.length >= 10){
                 
@@ -877,7 +892,7 @@ var PieChart = function(){
         var _innerID = 0;
         $('#' + DIV.mainDiv)
                 .find('.study-view-pie-label')
-                .append("<table id="+DIV.labelTableID+"-0></table>");
+                .append("<table id="+DIV.labelTableID+"-0><thead><th>Attribute</th><th>#</th></thead><tbody></tbody></table>");
 
         for(var i=0; i< label.length; i++){
             var _tmpName = label[i].name;
@@ -888,13 +903,13 @@ var PieChart = function(){
             
             if(i % 1 === 0){
                 $('#' + DIV.mainDiv)
-                        .find('#' + DIV.labelTableID+"-0")
+                        .find('#' + DIV.labelTableID+"-0 tbody")
                         .append("<tr id="+ _innerID +" width='150px'></tr>");
                 _innerID++;
             }
             
             $('#' + DIV.mainDiv)
-                    .find('#' + DIV.labelTableID+'-0 tr:nth-child(' + _innerID +')')
+                    .find('#' + DIV.labelTableID+'-0 tbody tr:nth-child(' + _innerID +')')
                     .append('<td class="pieLabel" id="'+
                         DIV.labelTableTdID +label[i].id+'-'+i+
                         '"  style="font-size:'+fontSize+'px">'+
@@ -903,7 +918,7 @@ var PieChart = function(){
                         labelSize+'" height="'+labelSize+'" style="fill:'+
                         label[i].color + ';" /></svg><span oValue="'+
                         label[i].name + '" style="vertical-align: top">'+
-                        _tmpName+'</span></td>');
+                        _tmpName+'</span></td><td>'+label[i].value+'</td>');
 
             //Only add qtip when the length of pie label bigger than 9
 //            if(label[i].name.length > 9){

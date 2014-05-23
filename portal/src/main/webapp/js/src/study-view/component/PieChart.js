@@ -237,7 +237,9 @@ var PieChart = function(){
         $('#' + DIV.mainDiv).qtip('destroy', true);
         $('#' + DIV.mainDiv).qtip({
             id: DIV.mainDiv,
-            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow forceZindex'  },
+            style: { 
+                classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow forceZindex qtip-max-width',
+            },
             show: {event: "mouseover", solo: true, delay: 0},
             hide: {fixed:true, delay: 100, event: "mouseleave"},
             position: {my:'left center',at:'center right', viewport: $(window)},

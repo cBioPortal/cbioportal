@@ -28,8 +28,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoCaseProfile;
+import org.mskcc.cbio.portal.dao.DaoClinicalData;
 import org.mskcc.cbio.portal.dao.DaoCopyNumberSegment;
+import static org.mskcc.cbio.portal.servlet.QueryBuilder.HAS_SURVIVAL_DATA;
 
 /**
  * This represents a cancer study, with a set of cases and some data sets.
@@ -409,6 +412,12 @@ public class CancerStudy {
 
     public boolean hasGisticData() throws DaoException {
         return DaoGistic.hasGistic(this);
+    }
+    
+    public boolean hasSurvivalData() throws DaoException {
+        Set<String> attrs = DaoClinicalData.getDistinctParameters(studyID);
+        return attrs.contains(ClinicalAttribute.OS_STATUS) ||
+                    attrs.contains(ClinicalAttribute.DFS_STATUS);
     }
 
     public String getShortName() {

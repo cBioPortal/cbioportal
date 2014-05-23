@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
+import org.mskcc.cbio.portal.dao.DaoClinicalData;
 
 import org.mskcc.cbio.portal.model.*;
 import org.springframework.context.ApplicationContext;
@@ -57,7 +58,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String PROFILE_LIST_INTERNAL = "profile_list";
     public static final String CASE_SETS_INTERNAL = "case_sets";
     public static final String CANCER_STUDY_ID = "cancer_study_id";
-    public static final String CLINICAL_DATA_LIST = "clinical_data_list";
+    public static final String HAS_SURVIVAL_DATA = "has_survival_data";
     public static final String GENETIC_PROFILE_IDS = "genetic_profile_ids";
     public static final String GENE_SET_CHOICE = "gene_set_choice";
     public static final String CASE_SET_ID = "case_set_id";
@@ -450,15 +451,6 @@ public class QueryBuilder extends HttpServlet {
             xdebug.logMsg(this, "Merging Profile Data");
             ProfileMerger merger = new ProfileMerger(profileDataList);
             ProfileData mergedProfile = merger.getMergedProfile();
-
-            //  Get Clinical Data
-            xdebug.logMsg(this, "Getting Clinical Data:");
-            List <Patient> clinicalDataList =
-                    GetClinicalData.getClinicalData(DaoCancerStudy
-                    .getCancerStudyByStableId(cancerTypeId).getInternalId(),setOfCaseIds);
-            xdebug.logMsg(this, "Got Clinical Data for:  " + clinicalDataList.size()
-                +  " cases.");
-            request.setAttribute(CLINICAL_DATA_LIST, clinicalDataList);
 
             xdebug.logMsg(this, "Merged Profile, Number of genes:  "
                     + mergedProfile.getGeneList().size());

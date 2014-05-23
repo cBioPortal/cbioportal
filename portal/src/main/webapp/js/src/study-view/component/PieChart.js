@@ -181,7 +181,7 @@ var PieChart = function(){
         $('#' + DIV.chartDiv + '-download-icon-wrapper').qtip({
             style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
             show: {event: "mouseover", delay: 0},
-            hide: {fixed:true, delay: 100, event: "mouseout"},
+            hide: {fixed:true, delay: 300, event: "mouseout"},
             position: {my:'bottom left',at:'top right', viewport: $(window)},
             content: {
                 text:   "Download"
@@ -192,7 +192,7 @@ var PieChart = function(){
         $('#'+  DIV.chartDiv+'-plot-data').qtip({
             style:  { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
             show:   {event: "mouseover"},
-            hide:   {fixed:true, delay: 0, event: "mouseout"},
+            hide:   {fixed:true, delay: 300, event: "mouseout"},
             position:   {my:'bottom left',at:'top right', viewport: $(window)},
             content:    "Survival analysis"
         });
@@ -202,7 +202,7 @@ var PieChart = function(){
             id: '#' + DIV.chartDiv + "-download-icon-qtip",
             style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
             show: {event: "click", delay: 0},
-            hide: {fixed:true, delay: 100, event: "mouseout"},
+            hide: {fixed:true, delay: 300, event: "mouseout"},
             position: {my:'top center',at:'bottom center', viewport: $(window)},
             content: {
                 text:   "<form style='display:inline-block;float:left;margin: 0 2px' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-pdf'>"+
@@ -241,7 +241,7 @@ var PieChart = function(){
                 classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow forceZindex qtip-max-width',
             },
             show: {event: "mouseover", solo: true, delay: 0},
-            hide: {fixed:true, delay: 100, event: "mouseleave"},
+            hide: {fixed:true, delay: 300, event: "mouseleave"},
             position: {my:'left center',at:'center right', viewport: $(window)},
             content: $('#' + DIV.mainDiv + ' .study-view-pie-label').html(),
             events: {
@@ -249,7 +249,7 @@ var PieChart = function(){
                     $('#qtip-' + DIV.mainDiv + " table").attr('id', 'qtip-' + DIV.mainDiv + "-table");
                     labelTable = $('#qtip-' + DIV.mainDiv + "-table").dataTable({
                         "sDom": '<f>rt',
-                        "sScrollY": "200",
+                        "sScrollY": "95",
                         "bPaginate": false,
                         "bScrollCollapse": true
                     });
@@ -894,7 +894,7 @@ var PieChart = function(){
         var _innerID = 0;
         $('#' + DIV.mainDiv)
                 .find('.study-view-pie-label')
-                .append("<table id="+DIV.labelTableID+"-0><thead><th>Attribute</th><th>#</th></thead><tbody></tbody></table>");
+                .append("<table id="+DIV.labelTableID+"-0><thead><th>"+selectedAttrDisplay+"</th><th>#</th></thead><tbody></tbody></table>");
 
         for(var i=0; i< label.length; i++){
             var _tmpName = label[i].name;

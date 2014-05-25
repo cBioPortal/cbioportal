@@ -39,7 +39,16 @@ var DataTable = function() {
         tableId,
         dataType = [],
         dataTableNumericFilter = [],
-        disableFiltId = [0],
+        permenentDisabledId = [], //Define which column is perment diabled
+
+        /*
+         * This array will be updated when user select key in column selector,
+         * Selected column selector will not be updated when user select other
+         * selectors. When resetting datatable, this array will be empty and 
+         * always get a deep copy from permenentDisabledId.
+        */
+        disableFiltId = [],
+                            
         aoColumns = [], //DataTable Title Data
         aaData = [], //DataTable Content Data
         columnIndexMappingColumnId = [],
@@ -75,7 +84,10 @@ var DataTable = function() {
     
     //Initialize aoColumns Data
     function initColumnsTitleData() {
-        var i;
+        var i,
+            _permenentDisabledTitles =  ['CASE ID', 
+                                        'PATIENT_ID', 
+                                        'Patient Identifier'];
         
         aoColumns.length = 0;
         
@@ -97,6 +109,37 @@ var DataTable = function() {
         }
         
         aoColumnsLength = aoColumns.length;
+        
+        //Sort table columns based on display name. If title is in
+        //permenentDisabledTitles, put it to front of table.
+        aoColumns.sort(function(a, b) {
+            //Case ID is the first element of permenentDisabledTitles,
+            //It will always be treated as first column.
+            //
+            //TODO: Need second sorting function for sorting pre disabled
+            //predisabled columns if needed.
+            if(_permenentDisabledTitles.indexOf(a.sTitle) !== -1) {
+                return -1;
+            }else if(_permenentDisabledTitles.indexOf(b.sTitle) !== -1) {
+                return 1;
+            }else{
+                var _a = a.sTitle.toLowerCase(),
+                    _b = b.sTitle.toLowerCase();
+                    
+                if(_a < _b) {
+                    return -1;
+                }else {
+                    return 1;
+                }
+            }
+        });
+        
+        for( var i = 0; i < aoColumnsLength; i++) {
+            if(_permenentDisabledTitles.indexOf(aoColumns[i].sTitle) !== -1) {
+                permenentDisabledId.push(i);
+            }
+        }
+        disableFiltId = jQuery.extend(true, [], permenentDisabledId);
     }
     
     //Initialize aaData Data
@@ -144,7 +187,8 @@ var DataTable = function() {
                 _selectedString = _tmpValue.toString();
                 _specialCharLength = _specialChar.length;
                 
-                if ( _valueAo.sTitle !== 'CASE ID' && (_valueAo.sTitle === 'Patient Identifier' || _valueAo.sTitle === 'PATIENT_ID') ){
+                //Only usded for columns without URL link
+                if ( _valueAo.sTitle !== 'CASE ID' && _valueAo.sTitle !== 'Patient Identifier' && _valueAo.sTitle !== 'PATIENT_ID' ){
                     for( var z = 0; z < _specialCharLength; z++){
                         if(_selectedString.indexOf(_specialChar[z]) !== -1){
                             var _re = new RegExp("\\" + _specialChar[z], "g");
@@ -192,7 +236,7 @@ var DataTable = function() {
                     });
                     $("#clinical_table_filter label input").val("");
                     $.fn.dataTableExt.afnFiltering = [];
-                    disableFiltId = [0];     
+                    disableFiltId = jQuery.extend(true, [], permenentDisabledId);     
                     refreshSelectionInDataTable();
                     resizeLeftColumn();    
                     $(".dataTableReset span").css('display','none');
@@ -264,6 +308,8 @@ var DataTable = function() {
         
         $('#study-tab-clinical-a').click(function(){
             if (!$(this).hasClass("tab-clicked")) {
+                //First time: adjust the width of data table;
+                dataTable.fnAdjustColumnSizing();
                 if($("#" + tableId).width() > 1200) {
                     noLeftColumnFlag = false;
                     new FixedColumns(dataTable);
@@ -281,6 +327,7 @@ var DataTable = function() {
                 //dataTable.fnFilter('', 0);
                 showDataTableReset();
                 refreshSelectionInDataTable();
+                //Sencond time: adjust the width of table foot;
                 dataTable.fnAdjustColumnSizing();
                 if(!noLeftColumnFlag) {
                     resizeLeftColumn();
@@ -406,7 +453,8 @@ var DataTable = function() {
         var _isNumericArray = true,
             _hasNullValue = false,
             _numOfKeys = aData.length,
-            _width = $(_this).width() - 4;
+            _width = '100%';
+//            _width = $(_this).width() - 4;
     
         for(var i=0;i<aData.length;i++){
             if(isNaN(aData[i])){
@@ -510,7 +558,7 @@ var DataTable = function() {
         }else{
             $(".dataTableReset span").css('display','none');
             $(".ColVis.TableTools").css('display','block');
-            disableFiltId = [0];
+            disableFiltId = jQuery.extend(true, [], permenentDisabledId);
             refreshSelectionInDataTable();
         }
     }

@@ -447,7 +447,7 @@ MutationDiagram.prototype.processData = function(mutationData)
 		pileup.count = mutations[key].length;
 		pileup.location = parseInt(key);
 		pileup.label = generateLabel(mutations[key]);
-        // The following calculates dist of mutations by tumor type
+        // The following calculates dist of mutations by cancer type
         pileup.stats = _.chain(mutations[key])
             .groupBy(function(mut) { return mut.cancerType; })
             .sortBy(function(stat) { return -stat.length; })

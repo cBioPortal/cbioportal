@@ -20,8 +20,8 @@ if (numCancerGenes > 0) {
 <table width=98%>
     <tr>
         <th>Gene</th>
-        <th>Tumor Types (Somatic)</th>
-        <th>Tumor Types (Germline)</th>
+        <th>Cancer Types (Somatic)</th>
+        <th>Cancer Types (Germline)</th>
         <th>Tissue Types</th>
         <th>Mutation Types</th>
     </tr>

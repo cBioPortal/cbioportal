@@ -450,11 +450,11 @@ var MutationDetailsUtil = function(mutations)
 	};
 
 	/**
-	 * Returns the number of distinct tumor type values for
+	 * Returns the number of distinct cancer type values for
 	 * the given gene
 	 *
 	 * @param gene  hugo gene symbol
-	 * @returns {Number}    number of distinct tumor type values
+	 * @returns {Number}    number of distinct cancer type values
 	 */
 	this.distinctTumorTypeCount = function(gene)
 	{

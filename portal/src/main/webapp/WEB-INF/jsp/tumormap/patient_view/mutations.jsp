@@ -111,6 +111,7 @@
                     {// case_ids
                         "aTargets": [ mutTableIndices["case_ids"] ],
                         "sClass": "center-align-td",
+                        "bSearchable": false,
                         "bVisible": caseIds.length>1,
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {

@@ -60,14 +60,17 @@
     function getSurvivalPlotsCaseList() {
         <%
             JSONObject result = new JSONObject();
-            for (String caseId : mergedPatientList) { 
-                if (dataSummary.isCaseAltered(caseId)) {
-                    result.put(caseId, "altered");
+            String delims = "[ ]+";
+            String[] patientIds = patients.split(delims);
+            for (int i = 0; i < patientIds.length; i++) {
+                if (dataSummary.isCaseAltered(patientIds[i])) {
+                    result.put(patientIds[i], "altered");
                 } else {
-                    result.put(caseId, "unaltered");
+                    result.put(patientIds[i], "unaltered");
                 }
             }
         %>
+        //console.log('<%=patientIds%>');
         var obj = jQuery.parseJSON('<%=result%>');
         return obj;
     }

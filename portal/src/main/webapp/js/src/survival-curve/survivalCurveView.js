@@ -64,19 +64,13 @@ var SurvivalCurveView = function(_opts) {
         logRankTest = new LogRankTest();   
         //confidenceIntervals = new ConfidenceIntervals();   
         
-        //TODO: this is just a tmp conversation for sample id to patient id
-        function convertId(_sampleId) {
-            var indexOfSampleIndicator = _sampleId.lastIndexOf("-");
-            return _sampleId.substring(0, indexOfSampleIndicator);
-        }
         //Split the data into different(altered/unaltered) groups  
-        
         for (var key in _caseLists) {  
             if (_caseLists[key] === "altered") {
-                alteredGroup.push(convertId(key));
+                alteredGroup.push(key);
             }
             else if (_caseLists[key] === "unaltered") {
-                unalteredGroup.push(convertId(key));    
+                unalteredGroup.push(key);    
             }
         }
 

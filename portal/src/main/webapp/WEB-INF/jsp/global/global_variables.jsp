@@ -172,7 +172,8 @@
         })(),
         getGeneticProfiles: function() { return '<%=geneticProfiles%>'; },
         getZscoreThreshold: function() { return '<%=zScoreThreshold%>'; },
-        getRppaScoreThreshold: function() { return '<%=rppaScoreThreshold%>'; }
+        getRppaScoreThreshold: function() { return '<%=rppaScoreThreshold%>'; },
+        getPatients: function() { return '<%=patients%>'; }
     };
 </script>
 

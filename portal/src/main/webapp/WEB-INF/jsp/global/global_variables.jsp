@@ -144,6 +144,10 @@
     if (final_gp != null) {
         showCoexpTab = true;
     } 
+
+    //Get the patient/sample Id map
+    Object patientSampleIdMap = request.getAttribute(QueryBuilder.SELECTED_PATIENT_SAMPLE_ID_MAP);
+
 %>
 
 <script type="text/javascript">
@@ -173,7 +177,8 @@
         getGeneticProfiles: function() { return '<%=geneticProfiles%>'; },
         getZscoreThreshold: function() { return '<%=zScoreThreshold%>'; },
         getRppaScoreThreshold: function() { return '<%=rppaScoreThreshold%>'; },
-        getPatients: function() { return '<%=patients%>'; }
+        getPatientIds: function() { return '<%=patients%>'; },
+        getPatientSampleIdMap: function() { return '<%=patientSampleIdMap%>'; }
     };
 </script>
 

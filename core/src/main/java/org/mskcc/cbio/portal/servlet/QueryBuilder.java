@@ -92,8 +92,10 @@ public class QueryBuilder extends HttpServlet {
     public static final String INDEX_PAGE = "index.do";
     public static final String INTERNAL_EXTENDED_MUTATION_LIST = "INTERNAL_EXTENDED_MUTATION_LIST";
     public static final String DATA_PRIORITY = "data_priority";
+    public static final String SELECTED_PATIENT_SAMPLE_ID_MAP = "selected_patient_sample_id_map";
     private static final String DB_CONNECT_ERROR = ("An error occurred while trying to connect to the database." +
                                                     "  This could happen if the database does not contain any cancer studies.");
+    
 
     private ServletXssUtil servletXssUtil;
 
@@ -220,6 +222,8 @@ public class QueryBuilder extends HttpServlet {
 	        {
 		        patientIds = patientIds.replaceAll("\\\\n", "\n").replaceAll("\\\\t", "\t");
 	        }
+
+
 
             httpServletRequest.setAttribute(XDEBUG_OBJECT, xdebug);
 
@@ -365,10 +369,34 @@ public class QueryBuilder extends HttpServlet {
 
         patientIds = patientIds.replaceAll("\\s+", " ");
         request.setAttribute(SET_OF_CASE_IDS, patientIds);
+        
+        // Map user selected samples Ids to patient Ids
+        CancerStudy selectedCancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerTypeId);
+        Integer cancerStudyInternalId = selectedCancerStudy.getInternalId();
+        HashMap<String, ArrayList<String>> patientSampleIdMap = new HashMap<String, ArrayList<String>>();
+        
+        Iterator<String> itr = setOfPatientIds.iterator();
+        while(itr.hasNext()){
+            String tmpPatientId = itr.next();
+            ArrayList<String> tmpPatientIdList = new ArrayList<String>(); 
+            tmpPatientIdList.add(tmpPatientId);
+            List<String> tmpSampleIdsArr =
+              StableIdUtil.getStableSampleIdsFromPatientIds(cancerStudyInternalId,
+                                                            tmpPatientIdList);  
+            ArrayList<String> sampleIdsArr = new ArrayList<String>(tmpSampleIdsArr);
+            patientSampleIdMap.put(tmpPatientId, sampleIdsArr);               
+        }
+        // Iterator it = patientSampleIdMap.entrySet().iterator();
+        // while (it.hasNext()) {
+        //     Map.Entry pairs = (Map.Entry)it.next();
+        //     System.out.println(pairs.getKey() + " = " + pairs.getValue());
+        //     it.remove(); // avoids a ConcurrentModificationException
+        // }
+        request.setAttribute(SELECTED_PATIENT_SAMPLE_ID_MAP, patientSampleIdMap);
 
         if (patientIdsKey == null)
         {
-        	patientIdsKey = PatientSetUtil.shortenPatientIds(patientIds);
+            patientIdsKey = PatientSetUtil.shortenPatientIds(patientIds);
         }
         
         // this will create a key even if the patient set is a predefined set,

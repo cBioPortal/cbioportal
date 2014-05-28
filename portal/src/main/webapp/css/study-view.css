@@ -659,11 +659,11 @@ pieH3{
 .ColVis_Button.TableTools_Button.ColVis_MasterButton{
     outline: none;
     background-color: white;
-    color: #2986e2;
+/*    color: #2986e2;
     border: 1px solid #2986e2;
     border-radius: 5px;
     -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
+    -moz-border-radius: 5px;*/
     cursor: pointer;
     height: 23px;
     padding: 0;
@@ -671,7 +671,7 @@ pieH3{
 .ColVis_Button.TableTools_Button.ColVis_MasterButton span{
     padding: 2px 6px 3px 6px;
 }
-.ColVis_Button.TableTools_Button.ColVis_MasterButton :hover{
+/*.ColVis_Button.TableTools_Button.ColVis_MasterButton :hover{
     background-color: #2986e2;
     color:white;
     -webkit-transition: All 0.3s ease;
@@ -681,13 +681,13 @@ pieH3{
     transition: All 0.3s ease;    
 }
 
-/*Style for search box in dataTable of Summaery Tab*/
+Style for search box in dataTable of Summaery Tab
 .dataTables_filter input{
     border: 1px solid #2986e2;
     border-radius: 5px;
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
-}
+}*/
 #content ul{
     margin-bottom: 0;
 }
@@ -881,4 +881,7 @@ ul li a:hover, ul li a:focus {
 }
 #data-table-chart .DTFC_LeftHeadWrapper {
     background-color: white;
+}
+#clinical_table_wrapper table.dataTable>tbody>tr>td {
+    white-space: nowrap;
 }

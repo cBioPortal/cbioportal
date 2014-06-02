@@ -242,6 +242,9 @@
     width:auto;
     float: right;
 }
+.study-view-pie-label .dataTables_filter {
+    width: 100%;
+}
 .qtip-content .dataTables_filter {
     width: 100%;
 }
@@ -302,6 +305,9 @@
 .hidden {
     display: none;
 }
+.show {
+    display: block;
+}
 .pieLabel {
     /*width: 75px;*/
     height: 15px;
@@ -343,9 +349,9 @@
 }
 .study-view-pie-label {
     height:55px;
-    width:150px;
+    width:95%;
     float:left;
-    margin-left:25px;
+    padding: 0 10px;
     display: none;
 }
 .pieLabel:hover{
@@ -501,7 +507,22 @@
     margin-right:4px;
     float:left;
 }
-.study-view-expand-icon {
+#study-view-transfer-icon {
+    width:9px;
+    height:9px;
+    margin-top:6px;
+    margin-right:4px;
+    margin-left:1px;
+    float:left;
+}
+.hover:hover{
+    cursor: pointer;
+}
+.study-view-arrow-icon {
+    width: 13px;
+    margin: 0 auto;
+}
+/*.study-view-expand-icon {
     width:9px;
     height:9px;
     margin-top:6px;
@@ -517,7 +538,7 @@
     margin-left:1px;
     float:left;
     display: none;
-}
+}*/
 .study-view-bar-chart path {
     shape-rendering: crispEdges
 }

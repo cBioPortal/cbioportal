@@ -50,6 +50,8 @@ var PieChart = function(){
     
     var label =[],
         labelSize = 10,
+        maxLabelNameLength = 0,
+        maxLabelValue = 0,
         fontSize = labelSize;
             
     var postFilterCallback,
@@ -59,6 +61,8 @@ var PieChart = function(){
     
     var titleLengthCutoff = 25;
     
+    //Pie chart categories: regular, extendable
+    var category = 'regular';
     //This function is designed to draw Pie Labels based on current color the
     //Pie Chart has. Pagging function will be added when the number of labels
     //bigger than 5.
@@ -235,6 +239,18 @@ var PieChart = function(){
         });
         
         $('#' + DIV.mainDiv).qtip('destroy', true);
+        
+        var _sDom = 'rt',
+            _sScrollY = '200';
+        if(category === 'regular') {
+//            _sDom = 'rt';
+//            _sScrollY = '200';
+//        }else {
+//            _sDom = '<f>rt';
+//            _sScrollY = '150';
+//            $("#"+ DIV.chartDiv +"-extend").css('display', 'block');
+//        }
+        
         $('#' + DIV.mainDiv).qtip({
             id: DIV.mainDiv,
             style: { 
@@ -248,61 +264,23 @@ var PieChart = function(){
                 render: function(event, api) {
                     $('#qtip-' + DIV.mainDiv + " table").attr('id', 'qtip-' + DIV.mainDiv + "-table");
                     labelTable = $('#qtip-' + DIV.mainDiv + "-table").dataTable({
-                        "sDom": '<f>rt',
-                        "sScrollY": "95",
+                        "sDom": _sDom,
+                        "sScrollY": _sScrollY,
                         "bPaginate": false,
-                        "bScrollCollapse": true
+                        "bScrollCollapse": true,
+                        "aaSorting": [[1, 'desc']]
                     });
                     
                     $('.pieLabel', api.elements.tooltip).mouseenter(function() {
-                        var idArray = $(this).attr('id').split('-'),
-                            childID = Number(idArray[idArray.length-2])+1,
-                            fatherID = Number(idArray[idArray.length-3]);
-
-                        $('#' + DIV.chartDiv + ' svg>g>g:nth-child(' + childID+')').css({
-                            'fill-opacity': '.5',
-                            'stroke-width': '3'
-                        });
-
-                        drawMarker(childID,fatherID);
+                        pieLabelMouseEnter(this);
                     });
                     
                     $('.pieLabel', api.elements.tooltip).mouseleave(function(){
-                        var idArray = $(this).attr('id').split('-');
-                        var childID = Number(idArray[idArray.length-2])+1;
-                        var fatherID = Number(idArray[idArray.length-3]);
-                        var arcID = fatherID+"-"+(Number(childID)-1);
-
-                        $("#" + DIV.chartDiv + " svg g #arc-" + arcID).remove();
-
-                        $('#' + DIV.chartDiv + ' svg>g>g:nth-child(' + childID+')').css({
-                            'fill-opacity': '1',
-                            'stroke-width': '1px'
-                        });
+                        pieLabelMouseLeave(this);
                     });
 
                     $('.pieLabel', api.elements.tooltip).click(function(_event){
-                        var idArray = $(this).attr('id').split('-');
-
-                        var childaLabelID = Number(idArray[idArray.length-1]),
-                            childID = Number(idArray[idArray.length-2])+1,
-                            chartID = Number(idArray[idArray.length-3]);
-
-                        var arcID = chartID+"-"+(Number(childID)-1);
-
-                        pieChart.onClick({
-                            key: label[childaLabelID].name, 
-                            value: label[childaLabelID].value
-                        });       
-
-                        pieChart.redraw;           
-
-                        $("#" + DIV.chartDiv + " svg g #" + arcID).remove();
-
-                        $('#' + DIV.chartDiv + ' svg>g>g:nth-child(' + childID+')').css({
-                            'fill-opacity': '1',
-                            'stroke-width': '1px'
-                        });
+                        pieLabelClick(this);
                         api.show(_event);
                     });
 
@@ -337,7 +315,9 @@ var PieChart = function(){
             }
         });
 
-        
+        }else if(category === 'extendable'){
+            $("#"+ DIV.chartDiv +"-extend").css('display', 'block');
+        }
     }
     
     //This function is designed to add functions like click, on, or other
@@ -370,13 +350,17 @@ var PieChart = function(){
                 "<div id='"+ DIV.chartDiv+"-download-icon-wrapper'" +
                 "class='study-view-download-icon'><img id='"+ 
                 DIV.chartDiv+"-download-icon' style='float:left'"+
-                "src='images/in.svg'/></div><img id='"+ 
-                DIV.chartDiv+"-expand-icon'"+
-                " class='study-view-expand-icon' "+
-                "src='images/expand.svg'/><img id='"+ 
-                DIV.chartDiv+"-contract-icon'"+
-                " class='study-view-contract-icon' "+
-                "src='images/contract.svg'/></div>");
+                "src='images/in.svg'/></div>"+
+//                "<img id='"+ DIV.chartDiv+"-transfer-icon'"+
+//                " class='study-view-transfer-icon hover' "+
+//                "src='images/transfer.svg'/>"+
+//                "<img id='"+ DIV.chartDiv+"-expand-icon'"+
+//                " class='study-view-expand-icon' "+
+//                "src='images/expand.svg'/><img id='"+ 
+//                DIV.chartDiv+"-contract-icon'"+
+//                " class='study-view-contract-icon' "+
+//                "src='images/contract.svg'/>"+
+                "</div>");
                 
         
         
@@ -493,27 +477,45 @@ var PieChart = function(){
             });
         }
         
-        $("#"+DIV.chartDiv+"-expand-icon").click(function() {
+//        $("#"+DIV.chartDiv+"-transfer-icon").click(function() {
+////            $("#"+DIV.mainDiv).css('z-index', 16000);
+////            $("#"+DIV.mainDiv).animate({height: "340px", width: "375px", duration: 300, queue: false}, 300, function() {
+////                StudyViewInitCharts.getLayout().layout();
+////                $("#"+DIV.mainDiv).css('z-index', '');
+////                $("#"+DIV.chartDiv+"-expand-icon").css('display', 'none');
+////                $("#"+DIV.chartDiv +"-pieLabel-table").css('display', 'block');
+////                $("#"+DIV.chartDiv+"-contract-icon").css('display', 'block');
+////                $('#' + DIV.mainDiv).qtip('api').hide();
+////            });
+//            var _svg = $(pieChart.svg()[0]),
+//                _svgHtml = _svg.html(),
+//                _svgWidth = _svg.width(),
+//                _svgHeight = _svg.height();
+//                
+//            $('#' + DIV.mainDiv).qtip('api').set('content.text', "<svg width="+_svgWidth+" height="+_svgHeight+">"+_svgHtml+"</svg>");
+////            $('#' + DIV.chartDiv + ' svg').animate({'margin-left': '125px', duration: 300, queue: false});
+//        });
+//        
+        $("#"+DIV.chartDiv+"-arrow-down-icon").click(function() {
             $("#"+DIV.mainDiv).css('z-index', 16000);
             $("#"+DIV.mainDiv).animate({height: "340px", width: "375px", duration: 300, queue: false}, 300, function() {
                 StudyViewInitCharts.getLayout().layout();
                 $("#"+DIV.mainDiv).css('z-index', '');
-                $("#"+DIV.chartDiv+"-expand-icon").css('display', 'none');
-                $("#"+DIV.chartDiv +"-pieLabel-table").css('display', 'block');
-                $("#"+DIV.chartDiv+"-contract-icon").css('display', 'block');
-                $('#' + DIV.mainDiv).qtip('api').hide();
+                $("#"+DIV.chartDiv+"-arrow-up-icon").css('display', 'block');
+                $("#"+DIV.chartDiv+"-arrow-down-icon").css('display', 'none');
+                $("#"+DIV.mainDiv + " .study-view-pie-label").css('display','block');
+                labelTable.fnAdjustColumnSizing();
             });
             $('#' + DIV.chartDiv + ' svg').animate({'margin-left': '125px', duration: 300, queue: false});
         });
-        $("#"+DIV.chartDiv+"-contract-icon").click(function() {
+        $("#"+DIV.chartDiv+"-arrow-up-icon").click(function() {
             $("#"+DIV.mainDiv).css('z-index', 16000);
             $("#"+DIV.mainDiv).animate({height: "165px", width: "180px", duration: 300, queue: false}, 300, function() {
                 StudyViewInitCharts.getLayout().layout();
                 $("#"+DIV.mainDiv).css('z-index', '1');
-                $("#"+DIV.chartDiv+"-contract-icon").css('display', 'none');
-                $("#"+DIV.chartDiv+"-expand-icon").css('display', 'block');
-                $("#"+DIV.chartDiv +"-pieLabel-table").css('display', 'none');
-                $('#' + DIV.mainDiv).qtip('api').hide();
+                $("#"+DIV.chartDiv+"-arrow-up-icon").css('display', 'none');
+                $("#"+DIV.chartDiv+"-arrow-down-icon").css('display', 'block');
+                $("#"+DIV.mainDiv + " .study-view-pie-label").css('display','none');
             });
             $('#' + DIV.chartDiv + ' svg').animate({'margin-left': '25px', duration: 300, queue: false});
         });
@@ -543,8 +545,8 @@ var PieChart = function(){
     function setSVGElementValue(_svgParentDivId,_idNeedToSetValue){
         var _svgElement;
         
-        var _maxlabelNameLength=0,
-            _svgWidth = 180,
+        var _svgWidth = (maxLabelNameLength>selectedAttrDisplay.length?maxLabelNameLength:selectedAttrDisplay.length + maxLabelValue.toString().length) * 10 + 20,
+            _valueXCo = 0,
             _pieLabelString = '', 
             _pieLabelYCoord = 0,
             _svg = $("#" + _svgParentDivId + " svg"),
@@ -575,37 +577,55 @@ var PieChart = function(){
         }
         
         
+        if(_svgWidth < 180){
+            _svgWidth = 180;
+        }
+        
+        _valueXCo = _svgWidth - maxLabelValue.toString().length * 8 -30;
+        
+        //Draw label header
+        _pieLabelString += "<g transform='translate(0, "+ 
+                    _pieLabelYCoord+")'>"+ _labelColormarker+
+                    "<text x='13' y='10' "+
+                    "style='font-size:15px; font-weight:bold'>"+
+                    selectedAttrDisplay + "</text>"+
+                    "<text x='"+_valueXCo+"' y='10' "+
+                    "style='font-size:15px; font-weight:bold'>#</text>"+
+                    "<line x1='0' y1='12' x2='"+ (_valueXCo - 20) +"' y2='12' "+
+                    "style='stroke:black;stroke-width:2'></line>" + 
+                    "<line x1='"+ (_valueXCo - 10) +"' y1='12' x2='"+ (_svgWidth-20) +"' y2='12' "+
+                    "style='stroke:black;stroke-width:2'></line>" + 
+                    "</g>";
+            
+        _pieLabelYCoord += 15;
+        
         //Draw pie label into output
         for ( var i = 0; i < _pieLabelLength; i++) {
             var _value = _pieLabel[i],
+                _number = Number($($(_value).parent().find('td.pieLabelValue')[0]).text()),
                 _labelName = $($(_value).find('span')[0]).attr('oValue'),
                 _labelColormarker = $($(_value).find('svg')[0]).html();
             
             _pieLabelString += "<g transform='translate(0, "+ 
                     _pieLabelYCoord+")'>"+ _labelColormarker+
                     "<text x='13' y='10' "+
-                    "style='font-size:15px'>"+  _labelName + "</text></g>";
+                    "style='font-size:15px'>"+  _labelName + "</text>"+
+                    "<text x='"+_valueXCo+"' y='10' "+
+                    "style='font-size:15px'>"+  _number + "</text>"+
+                    "</g>";
             
             _pieLabelYCoord += 15;
-            
-            if(_labelName.toString().length > _maxlabelNameLength){
-                _maxlabelNameLength = _labelName.toString().length;
-            }
         }
         
         _svgElement = $("#" + _svgParentDivId + " svg").html();
         
-        if(_maxlabelNameLength * 10 > _svgWidth){
-            _svgWidth = _maxlabelNameLength * 10;
-        }
-        
         $("#" + _idNeedToSetValue)
                 .val("<svg width='"+_svgWidth+"' height='"+(180+_pieLabelYCoord)+"'>"+
-                    "<g><text x='90' y='20' style='font-weight: bold;"+
+                    "<g><text x='"+(_svgWidth/2)+"' y='20' style='font-weight: bold;"+
                     "text-anchor: middle'>"+
                     selectedAttrDisplay+"</text></g>"+
-                    "<g transform='translate(25, 20)'>"+_svgElement+ "</g>"+
-                    "<g transform='translate(30, "+(_svgHeight+20)+")'>"+
+                    "<g transform='translate("+(_svgWidth / 2 - 65)+", 20)'>"+_svgElement+ "</g>"+
+                    "<g transform='translate(10, "+(_svgHeight+20)+")'>"+
                     _pieLabelString+"</g></svg>");
     
         //Remove pie slice text styles
@@ -672,9 +692,15 @@ var PieChart = function(){
                 "</div><chartTitleH4 id='"+DIV.chartDiv +"-title'>" +
                 _title + "</chartTitleH4></div>"+
                 "<div style='width:180px;float:left;text-align:center'></div></div>"+
-                "<div class='study-view-pie-label'></div>"+
-                "<div style='width:100%; text-align:center;float:left;display: none' id='"+DIV.chartDiv +"-pieLabel-table'><table style='" + 
-                "width: 100%;text-align: center;'><tbody><tr><th>Attribute Name</th><th>Number</th></tr><tr><td>aaa</td><td>10</td></tr><tr><td>bbb</td><td>2</td></tr></tbody></table></div></div>");
+                "<div id='"+ DIV.chartDiv +"-extend' style='text-align:center;width: 100%;height:15px;float:left;display:none'>" + 
+                "<img id='"+ DIV.chartDiv +"-arrow-down-icon'"+
+                "class='study-view-arrow-icon show hover'" + 
+                "src='images/arrow-down.svg'/>"+
+                "<img id='"+ DIV.chartDiv +"-arrow-up-icon'"+
+                "class='study-view-arrow-icon hidden hover'" + 
+                "src='images/arrow-up.svg'/>"+
+                "</div>" + 
+                "<div class='study-view-pie-label'></div></div>");
             //Title has been cut with 8 head character with ..., so the length
             //still longer than titleLengthCutoff
 //            if(_title.length > titleLengthCutoff) {
@@ -810,6 +836,12 @@ var PieChart = function(){
             if(_keys.indexOf('NA') !== -1) {
                 _color[_keys.indexOf('NA')] = '#CCCCCC';
             }
+        
+            if(_keys.length > 10) {
+                category = 'extendable';
+            }else {
+                category = 'regular';
+            }
         }
         pieChart
             .width(_pieWidth)
@@ -829,7 +861,7 @@ var PieChart = function(){
     function initLabelInfo() {
         var _labelID = 0;
 
-        label = [];
+        label.length = 0;
         
         $('#' + DIV.chartDiv + '>svg>g>g').each(function(){
             var _labelDatum = {},
@@ -863,6 +895,17 @@ var PieChart = function(){
                 //StudyViewUtil.echoWarningMessg("Initial Lable Error");
             }
         });
+        
+        label.sort(function(a, b) {
+            var _a = Number(a.value),
+                _b = Number(b.value);
+                
+            if(_a < _b) {
+                return 1;
+            }else {
+                return -1;
+            }
+        });
     }
     
     //Initial global parameters by using passed object .
@@ -876,7 +919,7 @@ var PieChart = function(){
         ndx = _param.ndx;
         chartColors = _param.chartColors;
         plotDataButtonFlag = _param.plotDataButtonFlag;
-
+        
         DIV.mainDiv = _baseID + "-dc-chart-main-" + chartID;
         DIV.chartDiv = _baseID + "-dc-chart-" + chartID;
         DIV.labelTableID = "table-" + _baseID + "-dc-chart-" + chartID;
@@ -920,13 +963,92 @@ var PieChart = function(){
                         labelSize+'" height="'+labelSize+'" style="fill:'+
                         label[i].color + ';" /></svg><span oValue="'+
                         label[i].name + '" style="vertical-align: top">'+
-                        _tmpName+'</span></td><td>'+label[i].value+'</td>');
-
+                        _tmpName+'</span></td><td class="pieLabelValue">'+label[i].value+'</td>');
+            if(maxLabelNameLength < _tmpName.length) {
+                maxLabelNameLength = _tmpName.length;
+            }
+            
+            if(maxLabelValue < label[i].value) {
+                maxLabelValue = label[i].value;
+            }
             //Only add qtip when the length of pie label bigger than 9
 //            if(label[i].name.length > 9){
 //                addQtip(label[i].name, DIV.labelTableTdID +label[i].id+'-'+i);
 //            }
         }
+        
+        if(category === 'extendable') {
+            labelTable = $('#' + DIV.labelTableID+'-0').dataTable({
+                "sDom": "<f>rt",
+                "sScrollY": "110",
+                "bPaginate": false,
+                "bScrollCollapse": true,
+                "aaSorting": [[1, 'desc']]
+            });
+
+            $('.pieLabel').mouseenter(function() {
+                pieLabelMouseEnter(this);
+            });
+
+            $('.pieLabel').mouseleave(function(){
+                pieLabelMouseLeave(this);
+            });
+
+            $('.pieLabel').click(function(_event){
+                pieLabelClick(this);
+            });
+        }
+    }
+    
+    function pieLabelMouseEnter(_this) {
+        var idArray = $(_this).attr('id').split('-'),
+            childID = Number(idArray[idArray.length-2])+1,
+            fatherID = Number(idArray[idArray.length-3]);
+
+        $('#' + DIV.chartDiv + ' svg>g>g:nth-child(' + childID+')').css({
+            'fill-opacity': '.5',
+            'stroke-width': '3'
+        });
+
+        drawMarker(childID,fatherID);
+    }
+    
+    function pieLabelMouseLeave(_this) {
+        var idArray = $(_this).attr('id').split('-'),
+            childID = Number(idArray[idArray.length-2])+1,
+            fatherID = Number(idArray[idArray.length-3]),
+            arcID = fatherID+"-"+(Number(childID)-1);
+
+        $("#" + DIV.chartDiv + " svg g #arc-" + arcID).remove();
+
+        $('#' + DIV.chartDiv + ' svg>g>g:nth-child(' + childID+')').css({
+            'fill-opacity': '1',
+            'stroke-width': '1px'
+        });
+    }
+    
+    function pieLabelClick(_this) {
+        var idArray = $(_this).attr('id').split('-');
+
+        var childaLabelID = Number(idArray[idArray.length-1]),
+            childID = Number(idArray[idArray.length-2])+1,
+            chartID = Number(idArray[idArray.length-3]);
+
+        var arcID = chartID+"-"+(Number(childID)-1);
+
+        pieChart.onClick({
+            key: label[childaLabelID].name, 
+            value: label[childaLabelID].value
+        });       
+
+        pieChart.redraw;           
+
+        $("#" + DIV.chartDiv + " svg g #" + arcID).remove();
+
+        $('#' + DIV.chartDiv + ' svg>g>g:nth-child(' + childID+')').css({
+            'fill-opacity': '1',
+            'stroke-width': '1px'
+        });
     }
     
     //Pass the qtip ID without #

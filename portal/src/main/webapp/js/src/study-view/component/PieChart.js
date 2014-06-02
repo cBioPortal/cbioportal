@@ -498,6 +498,7 @@ var PieChart = function(){
 //        
         $("#"+DIV.chartDiv+"-arrow-down-icon").click(function() {
             $("#"+DIV.mainDiv).css('z-index', 16000);
+            $('#' + DIV.chartDiv ).css('display','none');
             $("#"+DIV.mainDiv).animate({height: "340px", width: "375px", duration: 300, queue: false}, 300, function() {
                 StudyViewInitCharts.getLayout().layout();
                 $("#"+DIV.mainDiv).css('z-index', '');
@@ -506,18 +507,17 @@ var PieChart = function(){
                 $("#"+DIV.mainDiv + " .study-view-pie-label").css('display','block');
                 labelTable.fnAdjustColumnSizing();
             });
-            $('#' + DIV.chartDiv + ' svg').animate({'margin-left': '125px', duration: 300, queue: false});
         });
         $("#"+DIV.chartDiv+"-arrow-up-icon").click(function() {
             $("#"+DIV.mainDiv).css('z-index', 16000);
+             $("#"+DIV.mainDiv + " .study-view-pie-label").css('display','none');
             $("#"+DIV.mainDiv).animate({height: "165px", width: "180px", duration: 300, queue: false}, 300, function() {
                 StudyViewInitCharts.getLayout().layout();
                 $("#"+DIV.mainDiv).css('z-index', '1');
                 $("#"+DIV.chartDiv+"-arrow-up-icon").css('display', 'none');
                 $("#"+DIV.chartDiv+"-arrow-down-icon").css('display', 'block');
-                $("#"+DIV.mainDiv + " .study-view-pie-label").css('display','none');
-            });
-            $('#' + DIV.chartDiv + ' svg').animate({'margin-left': '25px', duration: 300, queue: false});
+               });
+            $('#' + DIV.chartDiv ).css('display','block');
         });
     }
     
@@ -980,7 +980,7 @@ var PieChart = function(){
         if(category === 'extendable') {
             labelTable = $('#' + DIV.labelTableID+'-0').dataTable({
                 "sDom": "<f>rt",
-                "sScrollY": "110",
+                "sScrollY": "255",
                 "bPaginate": false,
                 "bScrollCollapse": true,
                 "aaSorting": [[1, 'desc']]
@@ -1059,11 +1059,29 @@ var PieChart = function(){
         $('#'+_DivID).qtip(_qtip);
     }
     
+    //Display pie chart or dataTable
+    function displayArrange() {
+        if(category === 'extendable') {
+            $('#' + DIV.chartDiv ).css('display','none');
+            $("#"+DIV.mainDiv).css({height: "340px", width: "375px"});
+            $("#"+DIV.chartDiv+"-arrow-up-icon").css('display', 'block');
+            $("#"+DIV.chartDiv+"-arrow-down-icon").css('display', 'none');
+            $("#"+DIV.mainDiv + " .study-view-pie-label").css('display','block');
+        }else {
+            $('#' + DIV.chartDiv ).css('display','block');
+            $("#"+DIV.mainDiv).css({height: "165px", width: "180px"});
+            $("#"+DIV.chartDiv+"-arrow-up-icon").css('display', 'none');
+            $("#"+DIV.chartDiv+"-arrow-down-icon").css('display', 'block');
+            $("#"+DIV.mainDiv + " .study-view-pie-label").css('display','none');
+        }
+    }
+    
     return {
         init: function(_param){
             initParam(_param);
             createDiv();
             initDCPieChart();
+            displayArrange();
             addFunctions();
             addEvents();
         },

@@ -534,6 +534,9 @@
     width: 13px;
     margin: 0 auto;
 }
+.heightlightRow {
+    background-color: lightgrey !important;
+}
 /*.study-view-expand-icon {
     width:9px;
     height:9px;

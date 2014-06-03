@@ -59,7 +59,7 @@ var PieChart = function(){
         postRedrawCallback,
         pieLabelClickCallback,
         plotDataCallback;
-    
+
     var titleLengthCutoff = 25;
     
     //Pie chart categories: regular, extendable
@@ -68,7 +68,8 @@ var PieChart = function(){
     //Pie Chart has. Pagging function will be added when the number of labels
     //bigger than 5.
     function addPieLabels() {
-       
+        var _filters =[];
+        
         $('#' + DIV.mainDiv + ' .study-view-pie-label').html("");
           
         initLabelInfo();
@@ -78,6 +79,16 @@ var PieChart = function(){
 //        }else{
             smallLabelFunction();
 //        }
+
+        _filters = pieChart.filters();
+         
+        $('#' + DIV.labelTableID+'-0').find('tr').each(function(index, value) {
+            if(_filters.indexOf($($($(value).find('td')[0])).find('span').text()) !== -1) {
+                $(value).find('td').each(function (index1, value1) {
+                    $(value1).addClass('heightlightRow');
+                });
+            }
+        });
         
         addPieLabelEvents();
     }
@@ -393,7 +404,7 @@ var PieChart = function(){
                 postRedrawCallback();
             });
             pieChart.on("postRender",function(chart){
-                addPieLabels();
+                    addPieLabels();
             });
         }
     }
@@ -524,6 +535,13 @@ var PieChart = function(){
         });
         
         $("#"+DIV.chartDiv+"-reload-icon").click(function() {
+            $('#' + DIV.labelTableID+'-0').find('tr').each(function(index, value) {
+                $(value).find('td').each(function (index1, value1) {
+                    if($(value1).hasClass('heightlightRow')) {
+                        $(value1).removeClass('heightlightRow');
+                    }
+                });
+            });
             pieChart.filterAll();
             dc.redrawAll();
         });
@@ -1070,13 +1088,21 @@ var PieChart = function(){
             chartID = Number(idArray[idArray.length-3]);
 
         var arcID = chartID+"-"+(Number(childID)-1);
-
+        
+        $(_this).parent().find('td').each(function(index, value) {
+            if($(value).hasClass('heightlightRow')) {
+                $(value).removeClass('heightlightRow');
+            }else {
+                $(value).addClass('heightlightRow');
+            }
+        });
+        
         pieChart.onClick({
             key: label[childaLabelID].name, 
             value: label[childaLabelID].value
         });       
-
-        pieChart.redraw;           
+        
+//        pieChart.redraw;      
 
         $("#" + DIV.chartDiv + " svg g #" + arcID).remove();
 

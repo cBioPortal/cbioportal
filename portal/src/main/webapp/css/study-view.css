@@ -507,6 +507,18 @@
     margin-right:4px;
     float:left;
 }
+.study-view-title-icon {
+    width:12px;
+    height:12px;
+    margin-top:2px;
+    margin-right:4px;
+    float:left;
+}
+.study-view-table-icon {
+    width:11px;
+    margin-top:3px;
+    margin-right:5px;
+}
 #study-view-transfer-icon {
     width:9px;
     height:9px;

@@ -34,6 +34,7 @@ var PieChart = function(){
     var DIV = {
         parentID : "",
         mainDiv : "",
+        titleDiv: "",
         chartDiv : "",
         labelTableID : "",
         labelTableTdID : ""
@@ -323,44 +324,44 @@ var PieChart = function(){
     //This function is designed to add functions like click, on, or other
     //other functions added after initializing this Pie Chart.
     function addFunctions() {
-        var _plotDataButtonDiv;
-        if(plotDataButtonFlag) {
-//                _plotDataButtonDiv = "<input type='button' id='"+
-//                                    DIV.chartDiv+"-plot-data' "+
-//                                    "style='font-size:10px;clear:right;float:right;' value='Survival'>";
-            _plotDataButtonDiv = "<img id='"+
-                                DIV.chartDiv+"-plot-data' class='study-view-survival-icon' src='images/survival_icon.svg'/>";
-        }else {
-            _plotDataButtonDiv = "";
-        }
-        $("#"+DIV.chartDiv).append("<div id='"+DIV.chartDiv+"-side' class='study-view-pdf-svg-side'>"+
+//        var _plotDataButtonDiv;
+//        if(plotDataButtonFlag) {
+////                _plotDataButtonDiv = "<input type='button' id='"+
+////                                    DIV.chartDiv+"-plot-data' "+
+////                                    "style='font-size:10px;clear:right;float:right;' value='Survival'>";
+//            _plotDataButtonDiv = "<img id='"+
+//                                DIV.chartDiv+"-plot-data' class='study-view-survival-icon' src='images/survival_icon.svg'/>";
+//        }else {
+//            _plotDataButtonDiv = "";
+//        }
+//        $("#"+DIV.chartDiv).append("<div id='"+DIV.chartDiv+"-side' class='study-view-pdf-svg-side'>"+
+////                _plotDataButtonDiv + 
+////                "<form style='display:inline-block;clear:right;float:right;' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-pdf'>"+
+////                "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-pdf-value'>"+
+////                "<input type='hidden' name='filetype' value='pdf'>"+
+////                "<input type='hidden' id='"+DIV.chartDiv+"-pdf-name' name='filename' value='"+StudyViewParams.params.studyId + "_" +selectedAttr+".pdf'>"+
+////                "<input type='submit' style='font-size:10px;' value='PDF'>"+          
+////                "</form>"+
+////                "<form style='display:inline-block;clear:right;float:right;' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-svg'>"+
+////                "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-svg-value'>"+
+////                "<input type='hidden' name='filetype' value='svg'>"+
+////                "<input type='hidden' id='"+DIV.chartDiv+"-svg-name' name='filename' value='"+StudyViewParams.params.studyId + "_" +selectedAttr+".svg'>"+
+////                "<input type='submit' style='font-size:10px;clear:right;float:right;' value='SVG'></form>"+
 //                _plotDataButtonDiv + 
-//                "<form style='display:inline-block;clear:right;float:right;' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-pdf'>"+
-//                "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-pdf-value'>"+
-//                "<input type='hidden' name='filetype' value='pdf'>"+
-//                "<input type='hidden' id='"+DIV.chartDiv+"-pdf-name' name='filename' value='"+StudyViewParams.params.studyId + "_" +selectedAttr+".pdf'>"+
-//                "<input type='submit' style='font-size:10px;' value='PDF'>"+          
-//                "</form>"+
-//                "<form style='display:inline-block;clear:right;float:right;' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-svg'>"+
-//                "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-svg-value'>"+
-//                "<input type='hidden' name='filetype' value='svg'>"+
-//                "<input type='hidden' id='"+DIV.chartDiv+"-svg-name' name='filename' value='"+StudyViewParams.params.studyId + "_" +selectedAttr+".svg'>"+
-//                "<input type='submit' style='font-size:10px;clear:right;float:right;' value='SVG'></form>"+
-                _plotDataButtonDiv + 
-                "<div id='"+ DIV.chartDiv+"-download-icon-wrapper'" +
-                "class='study-view-download-icon'><img id='"+ 
-                DIV.chartDiv+"-download-icon' style='float:left'"+
-                "src='images/in.svg'/></div>"+
-//                "<img id='"+ DIV.chartDiv+"-transfer-icon'"+
-//                " class='study-view-transfer-icon hover' "+
-//                "src='images/transfer.svg'/>"+
-//                "<img id='"+ DIV.chartDiv+"-expand-icon'"+
-//                " class='study-view-expand-icon' "+
-//                "src='images/expand.svg'/><img id='"+ 
-//                DIV.chartDiv+"-contract-icon'"+
-//                " class='study-view-contract-icon' "+
-//                "src='images/contract.svg'/>"+
-                "</div>");
+//                "<div id='"+ DIV.chartDiv+"-download-icon-wrapper'" +
+//                "class='study-view-download-icon'><img id='"+ 
+//                DIV.chartDiv+"-download-icon' style='float:left'"+
+//                "src='images/in.svg'/></div>"+
+////                "<img id='"+ DIV.chartDiv+"-transfer-icon'"+
+////                " class='study-view-transfer-icon hover' "+
+////                "src='images/transfer.svg'/>"+
+////                "<img id='"+ DIV.chartDiv+"-expand-icon'"+
+////                " class='study-view-expand-icon' "+
+////                "src='images/expand.svg'/><img id='"+ 
+////                DIV.chartDiv+"-contract-icon'"+
+////                " class='study-view-contract-icon' "+
+////                "src='images/contract.svg'/>"+
+//                "</div>");
                 
         
         
@@ -370,12 +371,12 @@ var PieChart = function(){
                 var _currentFilters = pieChart.filters();
                 
                 if(_currentFilters.length === 0){
-                    $("#" + DIV.mainDiv + " .study-view-dc-chart-change")
+                    $("#"+DIV.chartDiv+"-reload-icon")
                                 .css('display','none');
                     $("#" + DIV.mainDiv)
                             .css({'border-width':'1px', 'border-style':'solid'});
                 }else{
-                    $("#" + DIV.mainDiv + " .study-view-dc-chart-change")
+                    $("#"+DIV.chartDiv+"-reload-icon")
                                 .css('display','block');
                     $("#" + DIV.mainDiv)
                             .css({'border-width':'2px', 'border-style':'inset'});
@@ -496,28 +497,35 @@ var PieChart = function(){
 ////            $('#' + DIV.chartDiv + ' svg').animate({'margin-left': '125px', duration: 300, queue: false});
 //        });
 //        
-        $("#"+DIV.chartDiv+"-arrow-down-icon").click(function() {
+        $("#"+DIV.chartDiv+"-table-icon").click(function() {
             $("#"+DIV.mainDiv).css('z-index', 16000);
             $('#' + DIV.chartDiv ).css('display','none');
+            $('#' + DIV.titleDiv ).css('display','none');
             $("#"+DIV.mainDiv).animate({height: "340px", width: "375px", duration: 300, queue: false}, 300, function() {
                 StudyViewInitCharts.getLayout().layout();
                 $("#"+DIV.mainDiv).css('z-index', '');
-                $("#"+DIV.chartDiv+"-arrow-up-icon").css('display', 'block');
-                $("#"+DIV.chartDiv+"-arrow-down-icon").css('display', 'none');
+                $("#"+DIV.chartDiv+"-pie-icon").css('display', 'block');
+                $("#"+DIV.chartDiv+"-table-icon").css('display', 'none');
                 $("#"+DIV.mainDiv + " .study-view-pie-label").css('display','block');
                 labelTable.fnAdjustColumnSizing();
             });
         });
-        $("#"+DIV.chartDiv+"-arrow-up-icon").click(function() {
+        $("#"+DIV.chartDiv+"-pie-icon").click(function() {
             $("#"+DIV.mainDiv).css('z-index', 16000);
-             $("#"+DIV.mainDiv + " .study-view-pie-label").css('display','none');
+            $("#"+DIV.mainDiv + " .study-view-pie-label").css('display','none');
             $("#"+DIV.mainDiv).animate({height: "165px", width: "180px", duration: 300, queue: false}, 300, function() {
                 StudyViewInitCharts.getLayout().layout();
                 $("#"+DIV.mainDiv).css('z-index', '1');
-                $("#"+DIV.chartDiv+"-arrow-up-icon").css('display', 'none');
-                $("#"+DIV.chartDiv+"-arrow-down-icon").css('display', 'block');
+                $("#"+DIV.chartDiv+"-pie-icon").css('display', 'none');
+                $("#"+DIV.chartDiv+"-table-icon").css('display', 'block');
                });
             $('#' + DIV.chartDiv ).css('display','block');
+            $('#' + DIV.titleDiv ).css('display','block');
+        });
+        
+        $("#"+DIV.chartDiv+"-reload-icon").click(function() {
+            pieChart.filterAll();
+            dc.redrawAll();
         });
     }
     
@@ -550,14 +558,25 @@ var PieChart = function(){
             _pieLabelString = '', 
             _pieLabelYCoord = 0,
             _svg = $("#" + _svgParentDivId + " svg"),
-            _svgHeight = _svg.height(),
+            _previousHidden = false;
+        
+        if($("#" + DIV.chartDiv).css('display') === 'none') {
+            _previousHidden = true;
+            $("#" + DIV.chartDiv).css('display', 'block');
+        }
+        
+        
+        var _svgHeight = _svg.height(),
             _text = _svg.find('text'),
             _textLength = _text.length,
             _slice = _svg.find('g .pie-slice'),
             _sliceLength = _slice.length,
             _pieLabel = $("#" + _svgParentDivId).parent().find('td.pieLabel'),
             _pieLabelLength = _pieLabel.length;
-        
+    
+        if(_previousHidden) {
+            $("#" + DIV.chartDiv).css('display', 'none');
+        }
         //Change pie slice text styles
         for ( var i = 0; i < _textLength; i++) {
             $(_text[i]).css({
@@ -587,17 +606,17 @@ var PieChart = function(){
         _pieLabelString += "<g transform='translate(0, "+ 
                     _pieLabelYCoord+")'>"+ _labelColormarker+
                     "<text x='13' y='10' "+
-                    "style='font-size:15px; font-weight:bold'>"+
+                    "style='font-size:12px; font-weight:bold'>"+
                     selectedAttrDisplay + "</text>"+
                     "<text x='"+_valueXCo+"' y='10' "+
-                    "style='font-size:15px; font-weight:bold'>#</text>"+
-                    "<line x1='0' y1='12' x2='"+ (_valueXCo - 20) +"' y2='12' "+
+                    "style='font-size:12px; font-weight:bold'>#</text>"+
+                    "<line x1='0' y1='14' x2='"+ (_valueXCo - 20) +"' y2='14' "+
                     "style='stroke:black;stroke-width:2'></line>" + 
-                    "<line x1='"+ (_valueXCo - 10) +"' y1='12' x2='"+ (_svgWidth-20) +"' y2='12' "+
+                    "<line x1='"+ (_valueXCo - 10) +"' y1='14' x2='"+ (_svgWidth-20) +"' y2='14' "+
                     "style='stroke:black;stroke-width:2'></line>" + 
                     "</g>";
             
-        _pieLabelYCoord += 15;
+        _pieLabelYCoord += 18;
         
         //Draw pie label into output
         for ( var i = 0; i < _pieLabelLength; i++) {
@@ -671,35 +690,50 @@ var PieChart = function(){
                 _title = _title.substring(0,(titleLengthCutoff-2)) + "...";
             }
             
+            if(plotDataButtonFlag) {
+                _plotDataButtonDiv = "<img id='"+
+                        DIV.chartDiv+"-plot-data' class='study-view-survival-icon' src='images/survival_icon.svg'/>";
+            }else {
+                _plotDataButtonDiv = "";
+            }
             
             
             $("#"+DIV.parentID).append("<div id=\"" + DIV.mainDiv +
                 "\"" + _introDiv +
                 "class='study-view-dc-chart study-view-pie-main'>"+
-                "<div id=\"" + DIV.chartDiv + "\" class='" + 
-                className + "'  oValue='"+ selectedAttr + "," + 
-                selectedAttrDisplay + ",pie'>"+
                 "<div id='" + DIV.chartDiv +"-title-wrapper'" +
-                " style='width:100%; float:left; text-align:center;'>"+
+                " style='height: 16px; width:100%; float:left; text-align:center;'>"+
                 "<div style='height:16px;float:right;' id='"+DIV.chartDiv+"-header'>"+
-                "<a href='javascript:StudyViewInitCharts.getChartsByID("+ 
-                chartID +").getChart().filterAll();" +
-                "dc.redrawAll();'><span title='Reset Chart'"+
-                "class='study-view-dc-chart-change' style='float:left; font-size:10px;'>"+
-                "RESET</span></a>" +
+//                "<a href='javascript:StudyViewInitCharts.getChartsByID("+ 
+//                chartID +").getChart().filterAll();" +
+//                "dc.redrawAll();'><span title='Reset Chart'"+
+//                "class='study-view-dc-chart-change' style='float:left; font-size:10px;'>"+
+//                "RESET</span></a>" +
+                "<img id='"+ DIV.chartDiv +"-reload-icon' class='study-view-title-icon hidden hover' src='images/reload-alt.svg'/>"+    
+                _plotDataButtonDiv + 
+                "<img id='"+ DIV.chartDiv +"-pie-icon' class='study-view-title-icon hover' src='images/pie.svg'/>"+
+                "<img id='"+ DIV.chartDiv +"-table-icon' class='study-view-title-icon study-view-table-icon hover' src='images/table.svg'/>"+
+                "<div id='"+ DIV.chartDiv+"-download-icon-wrapper'" +
+                "class='study-view-download-icon'><img id='"+ 
+                DIV.chartDiv+"-download-icon' style='float:left'"+
+                "src='images/in.svg'/></div>"+
                 "<img class='study-view-drag-icon' src='images/move.svg'/>"+
                 "<span class='study-view-dc-chart-delete'>x</span>"+
                 "</div><chartTitleH4 id='"+DIV.chartDiv +"-title'>" +
                 _title + "</chartTitleH4></div>"+
+                "<div id=\"" + DIV.chartDiv + "\" class='" + 
+                className + "'  oValue='"+ selectedAttr + "," + 
+                selectedAttrDisplay + ",pie'>"+
+                
                 "<div style='width:180px;float:left;text-align:center'></div></div>"+
-                "<div id='"+ DIV.chartDiv +"-extend' style='text-align:center;width: 100%;height:15px;float:left;display:none'>" + 
-                "<img id='"+ DIV.chartDiv +"-arrow-down-icon'"+
-                "class='study-view-arrow-icon show hover'" + 
-                "src='images/arrow-down.svg'/>"+
-                "<img id='"+ DIV.chartDiv +"-arrow-up-icon'"+
-                "class='study-view-arrow-icon hidden hover'" + 
-                "src='images/arrow-up.svg'/>"+
-                "</div>" + 
+//                "<div id='"+ DIV.chartDiv +"-extend' style='text-align:center;width: 100%;height:15px;float:left;display:none'>" + 
+//                "<img id='"+ DIV.chartDiv +"-arrow-down-icon'"+
+//                "class='study-view-arrow-icon show hover'" + 
+//                "src='images/arrow-down.svg'/>"+
+//                "<img id='"+ DIV.chartDiv +"-arrow-up-icon'"+
+//                "class='study-view-arrow-icon hidden hover'" + 
+//                "src='images/arrow-up.svg'/>"+
+//                "</div>" + 
                 "<div class='study-view-pie-label'></div></div>");
             //Title has been cut with 8 head character with ..., so the length
             //still longer than titleLengthCutoff
@@ -922,6 +956,7 @@ var PieChart = function(){
         
         DIV.mainDiv = _baseID + "-dc-chart-main-" + chartID;
         DIV.chartDiv = _baseID + "-dc-chart-" + chartID;
+        DIV.titleDiv = _baseID + "-dc-chart-" + chartID + '-title';
         DIV.labelTableID = "table-" + _baseID + "-dc-chart-" + chartID;
         DIV.labelTableTdID = "pieLabel-" + _baseID + "-dc-chart-" + chartID + "-";
         DIV.parentID = _baseID + "-charts";
@@ -1062,16 +1097,18 @@ var PieChart = function(){
     //Display pie chart or dataTable
     function displayArrange() {
         if(category === 'extendable') {
-            $('#' + DIV.chartDiv ).css('display','none');
+            $('#' + DIV.chartDiv).css('display','none');
+            $('#' + DIV.titleDiv).css('display','none');
             $("#"+DIV.mainDiv).css({height: "340px", width: "375px"});
-            $("#"+DIV.chartDiv+"-arrow-up-icon").css('display', 'block');
-            $("#"+DIV.chartDiv+"-arrow-down-icon").css('display', 'none');
+            $("#"+DIV.chartDiv+"-pie-icon").css('display', 'block');
+            $("#"+DIV.chartDiv+"-table-icon").css('display', 'none');
             $("#"+DIV.mainDiv + " .study-view-pie-label").css('display','block');
         }else {
             $('#' + DIV.chartDiv ).css('display','block');
+            $('#' + DIV.titleDiv).css('display','block');
             $("#"+DIV.mainDiv).css({height: "165px", width: "180px"});
-            $("#"+DIV.chartDiv+"-arrow-up-icon").css('display', 'none');
-            $("#"+DIV.chartDiv+"-arrow-down-icon").css('display', 'block');
+            $("#"+DIV.chartDiv+"-pie-icon").css('display', 'none');
+            $("#"+DIV.chartDiv+"-table-icon").css('display', 'none');
             $("#"+DIV.mainDiv + " .study-view-pie-label").css('display','none');
         }
     }
@@ -1092,6 +1129,10 @@ var PieChart = function(){
         
         getCluster: function(){
             return cluster;
+        },
+        
+        chartValue: function() {
+            return {attr: selectedAttr, display: selectedAttrDisplay};
         },
         
         drawMarker: drawMarker,

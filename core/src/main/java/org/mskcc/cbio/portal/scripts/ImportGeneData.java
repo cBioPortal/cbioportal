@@ -175,6 +175,7 @@ public class ImportGeneData {
                 }
                 daoGene.addGene(gene);
             }
+            line = buf.readLine();
         }
     }
 

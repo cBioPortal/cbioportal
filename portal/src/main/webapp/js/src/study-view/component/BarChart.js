@@ -76,12 +76,12 @@ var BarChart = function(){
                 var _currentFilters = barChart.filters();
 
                 if(_currentFilters.length === 0){
-                    $("#" + DIV.mainDiv + " .study-view-dc-chart-change")
+                    $("#"+DIV.chartDiv+"-reload-icon")
                                 .css('display','none');
                     $("#" + DIV.mainDiv)
                             .css({'border-width':'1px', 'border-style':'solid'});
                 }else{
-                    $("#" + DIV.mainDiv + " .study-view-dc-chart-change")
+                    $("#"+DIV.chartDiv+"-reload-icon")
                                 .css('display','block');
                     $("#" + DIV.mainDiv)
                             .css({'border-width':'2px', 'border-style':'inset'});
@@ -232,6 +232,11 @@ var BarChart = function(){
 
             });
         }
+    
+        $("#"+DIV.chartDiv+"-reload-icon").click(function() {
+            barChart.filterAll();
+            dc.redrawAll();
+        });
     }
     
     function changeBarColor() {
@@ -467,13 +472,26 @@ var BarChart = function(){
             _plotDataDiv = "";
         }
         
-        var contentHTML = "<div id=\"" + DIV.chartDiv + 
+        var contentHTML = "<div id='"+DIV.chartDiv +"-title-wrapper' "+
+                "style='height: 18px; width: 100%'><div style='float:right' "+
+                "id='"+DIV.chartDiv+"-header'>"+
+//                "<a href='javascript:StudyViewInitCharts.getChartsByID("+ 
+//                param.chartID +").getChart().filterAll();" +
+//                "dc.redrawAll();'>"+
+//                "<span title='Reset Chart' class='study-view-dc-chart-change'>"+
+//                "RESET</span></a>"+
+                "<img id='"+ DIV.chartDiv +"-reload-icon' class='study-view-title-icon hidden hover' src='images/reload-alt.svg'/>"+    
+                _logCheckBox +
+                _plotDataDiv +
+                "<div id='"+ DIV.chartDiv+"-download-icon-wrapper' class='study-view-download-icon'><img id='"+ 
+                DIV.chartDiv+"-download-icon' style='float:left' src='images/in.svg'/></div>"+
+                "<img class='study-view-drag-icon' src='images/move.svg'/>"+
+                "<span chartID="+param.chartID+" class='study-view-dc-chart-delete'>x</span>"+
+                "</div></div><div id=\"" + DIV.chartDiv + 
                 "\" class='"+ param.className +"'  oValue='" + param.selectedAttr + "," + 
                 param.selectedAttrDisplay + ",bar'>"+
                 "<div id='"+DIV.chartDiv+"-side' class='study-view-pdf-svg-side bar'>"+
-                _plotDataDiv +
-                "<div id='"+ DIV.chartDiv+"-download-icon-wrapper' class='study-view-download-icon'><img id='"+ 
-                DIV.chartDiv+"-download-icon' src='images/in.svg'/></div>"+
+                
 //                "<form style='clear:right;float:right;display:inline-block;' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-pdf'>"+
 //                "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-pdf-value'>"+
 //                "<input type='hidden' name='filetype' value='pdf'>"+
@@ -485,17 +503,7 @@ var BarChart = function(){
 //                "<input type='hidden' name='filetype' value='svg'>"+
 //                "<input type='hidden' id='"+DIV.chartDiv+"-svg-name' name='filename' value='"+StudyViewParams.params.studyId + "_" +param.selectedAttr+".svg'>"+
 //                "<input type='submit' style='font-size:10px' value='SVG'></form>"+
-                "</div><div id='"+DIV.chartDiv +"-title-wrapper' "+
-                "style='height: 18px; width: 100%'><div style='float:right' "+
-                "id='"+DIV.chartDiv+"-header'>"+
-                "<a href='javascript:StudyViewInitCharts.getChartsByID("+ 
-                param.chartID +").getChart().filterAll();" +
-                "dc.redrawAll();'>"+
-                "<span title='Reset Chart' class='study-view-dc-chart-change'>"+
-                "RESET</span></a>"+_logCheckBox +
-                "<img class='study-view-drag-icon' src='images/move.svg'/>"+
-                "<span class='study-view-dc-chart-delete'>x</span>"+
-                "</div></div></div>"+
+                "</div></div>"+
                 "<div style='width:100%; float:center;text-align:center;'>"+
                 "<chartTitleH4>" + param.selectedAttrDisplay + "</chartTitleH4></div>";
         

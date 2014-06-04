@@ -43,6 +43,7 @@ var StudyViewProxy = (function() {
             },
             mutatedGenesData: {
                 cmd: 'get_smg',
+                case_list: caseIdStr,
                 mutation_profile: parObject.mutationProfileId
             },
             gisticData: {

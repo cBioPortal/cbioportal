@@ -46,6 +46,14 @@ var PieChart = function(){
         selectedAttrDisplay,
         ndx,
         labelTable,
+        
+        //Remember customize order after user clicking header.
+        labelTableOrder = [],
+        
+        //Remember previosu filters, if filters changed, dont refresh table
+        //beause the user is modiftying the current chart. If do not changed,
+        //and chart still got redraw, then refresh table.
+        previousFilters = [],
         plotDataButtonFlag = false,
         chartColors;
     
@@ -400,11 +408,15 @@ var PieChart = function(){
                 removeMarker();
             });
             pieChart.on("postRedraw",function(chart){
-                addPieLabels();
+                var _filters = pieChart.filters();
+                if(previousFilters.equals(_filters)) {
+                    addPieLabels();
+                }
+                previousFilters = jQuery.extend(true, [], _filters);
                 postRedrawCallback();
             });
             pieChart.on("postRender",function(chart){
-                    addPieLabels();
+                addPieLabels();
             });
         }
     }
@@ -1031,14 +1043,28 @@ var PieChart = function(){
         }
         
         if(category === 'extendable') {
+            var _aaSorting = [];
+            
+            if(labelTableOrder.length === 0) {
+                _aaSorting = [[1, 'desc']];
+            }else {
+                _aaSorting = labelTableOrder;
+            }
             labelTable = $('#' + DIV.labelTableID+'-0').dataTable({
                 "sDom": "<f>rt",
                 "sScrollY": "255",
                 "bPaginate": false,
                 "bScrollCollapse": true,
-                "aaSorting": [[1, 'desc']]
+                "aaSorting": _aaSorting,
+                "fnInitComplete": function(oSettings, json) {
+                    labelTableOrder = oSettings.aaSorting;
+                }
             });
-
+            
+            $('#' + DIV.mainDiv+' .study-view-pie-label th').click(function() {
+               labelTableOrder = labelTable.fnSettings().aaSorting; 
+            });
+            
             $('.pieLabel').mouseenter(function() {
                 pieLabelMouseEnter(this);
             });
@@ -1048,7 +1074,11 @@ var PieChart = function(){
             });
 
             $('.pieLabel').click(function(_event){
-                pieLabelClick(this);
+                var _shiftClicked = _event.shiftKey;
+                if(_shiftClicked) {
+                    _event.preventDefault();
+                }
+                pieLabelClick(this, _shiftClicked);
             });
         }
     }
@@ -1080,7 +1110,7 @@ var PieChart = function(){
         });
     }
     
-    function pieLabelClick(_this) {
+    function pieLabelClick(_this, _shiftKeyDown) {
         var idArray = $(_this).attr('id').split('-');
 
         var childaLabelID = Number(idArray[idArray.length-1]),
@@ -1089,18 +1119,29 @@ var PieChart = function(){
 
         var arcID = chartID+"-"+(Number(childID)-1);
         
-        $(_this).parent().find('td').each(function(index, value) {
-            if($(value).hasClass('heightlightRow')) {
-                $(value).removeClass('heightlightRow');
-            }else {
+        if(_shiftKeyDown) {
+            $(_this).parent().find('td').each(function(index, value) {
+                if($(value).hasClass('heightlightRow')) {
+                    $(value).removeClass('heightlightRow');
+                }else {
+                    $(value).addClass('heightlightRow');
+                }
+            });
+        }else {
+            $(_this).parent().parent().find('td').each(function(index, value) {
+                if($(value).hasClass('heightlightRow')) {
+                    $(value).removeClass('heightlightRow');
+                }
+            });
+            $(_this).parent().find('td').each(function(index, value) {
                 $(value).addClass('heightlightRow');
-            }
-        });
-        
+            });
+            pieChart.filterAll();
+        }
         pieChart.onClick({
             key: label[childaLabelID].name, 
             value: label[childaLabelID].value
-        });       
+        });
         
 //        pieChart.redraw;      
 

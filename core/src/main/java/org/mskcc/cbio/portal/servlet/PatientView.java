@@ -320,7 +320,7 @@ public class PatientView extends HttpServlet {
         
         // path report
         String typeOfCancer = cancerStudy.getTypeOfCancerId();
-        if (cancerStudy.getCancerStudyStableId().contains(typeOfCancer+"_tcga")) {
+        if (caseId.startsWith("TCGA-")) {
             String pathReport = getTCGAPathReport(typeOfCancer, caseId);
             if (pathReport!=null) {
                 request.setAttribute(PATH_REPORT_URL, pathReport);
@@ -410,7 +410,7 @@ public class PatientView extends HttpServlet {
     }
     
     private static List<String> extractLinksByPattern(String reportsUrl, Pattern p) {
-        HttpClient client = ConnectionManager.getHttpClient(5000);
+        HttpClient client = ConnectionManager.getHttpClient(20000);
         GetMethod method = new GetMethod(reportsUrl);
         try {
             int statusCode = client.executeMethod(method);

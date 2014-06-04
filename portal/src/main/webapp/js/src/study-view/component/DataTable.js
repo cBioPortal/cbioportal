@@ -533,7 +533,7 @@ var DataTable = function() {
                 _widthBody = $("#" + tableId + " tbody>tr:nth-child(2)>td:nth-child(1)").width();
             
             if(_widthBody === null) {
-                 $(".DTFC_LeftWrapper").css('display', 'none');
+                $(".DTFC_LeftWrapper").css('display', 'none');
             }else {
                 _widthBody = _widthBody + 22;
                 if($("#" + tableId).width() > 1200) {
@@ -545,7 +545,6 @@ var DataTable = function() {
                     $(".DTFC_LeftBodyLiner").css('background-color','white');
                 }
             }
-
             //When selecting or unselecting columns in table of summary tab,
             //the column width will be stretched, the columns width will be changed
             //automatically, but the width of left column needs to be changed by

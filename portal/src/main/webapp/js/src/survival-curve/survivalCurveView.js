@@ -65,12 +65,15 @@ var SurvivalCurveView = function(_opts) {
         //confidenceIntervals = new ConfidenceIntervals();   
         
         //Split the data into different(altered/unaltered) groups  
+        var patientSampleIdMap = window.PortalGlobals.getPatientSampleIdMap();
         for (var key in _caseLists) {  
             if (_caseLists[key] === "altered") {
-                alteredGroup.push(key);
+                var tmpPatientId = patientSampleIdMap[key];        
+                alteredGroup.push(tmpPatientId);
             }
             else if (_caseLists[key] === "unaltered") {
-                unalteredGroup.push(key);    
+                var tmpPatientId = patientSampleIdMap[key];  
+                unalteredGroup.push(tmpPatientId);    
             }
         }
 

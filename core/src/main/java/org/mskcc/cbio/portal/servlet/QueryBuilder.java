@@ -39,6 +39,10 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import java.rmi.RemoteException;
 
+// import org.codehaus.jackson.node.*;
+// import org.codehaus.jackson.JsonNode;
+// import org.codehaus.jackson.map.ObjectMapper;
+
 /**
  * Central Servlet for building queries.
  */
@@ -223,8 +227,6 @@ public class QueryBuilder extends HttpServlet {
 		        patientIds = patientIds.replaceAll("\\\\n", "\n").replaceAll("\\\\t", "\t");
 	        }
 
-
-
             httpServletRequest.setAttribute(XDEBUG_OBJECT, xdebug);
 
             boolean errorsExist = validateForm(action, profileList, geneticProfileIdSet, geneList,
@@ -371,27 +373,21 @@ public class QueryBuilder extends HttpServlet {
         request.setAttribute(SET_OF_CASE_IDS, patientIds);
         
         // Map user selected samples Ids to patient Ids
+        HashMap<String, String> patientSampleIdMap = new HashMap<String, String>();
         CancerStudy selectedCancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerTypeId);
         Integer cancerStudyInternalId = selectedCancerStudy.getInternalId();
-        HashMap<String, ArrayList<String>> patientSampleIdMap = new HashMap<String, ArrayList<String>>();
-        
         Iterator<String> itr = setOfPatientIds.iterator();
         while(itr.hasNext()){
             String tmpPatientId = itr.next();
-            ArrayList<String> tmpPatientIdList = new ArrayList<String>(); 
+            ArrayList<String> tmpPatientIdList = new ArrayList<String>();
             tmpPatientIdList.add(tmpPatientId);
             List<String> tmpSampleIdsArr =
               StableIdUtil.getStableSampleIdsFromPatientIds(cancerStudyInternalId,
                                                             tmpPatientIdList);  
-            ArrayList<String> sampleIdsArr = new ArrayList<String>(tmpSampleIdsArr);
-            patientSampleIdMap.put(tmpPatientId, sampleIdsArr);               
+            for (String tmpSampleId : tmpSampleIdsArr) {
+                patientSampleIdMap.put(tmpSampleId, tmpPatientId);
+            }    
         }
-        // Iterator it = patientSampleIdMap.entrySet().iterator();
-        // while (it.hasNext()) {
-        //     Map.Entry pairs = (Map.Entry)it.next();
-        //     System.out.println(pairs.getKey() + " = " + pairs.getValue());
-        //     it.remove(); // avoids a ConcurrentModificationException
-        // }
         request.setAttribute(SELECTED_PATIENT_SAMPLE_ID_MAP, patientSampleIdMap);
 
         if (patientIdsKey == null)

@@ -376,11 +376,35 @@ var MutationDetailsUtil = function(mutations)
 		});
 	};
 
+	this.containsChr = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.chr &&
+			        mutation.chr != "NA");
+		});
+	};
+
 	this.containsStartPos = function(gene)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.startPos &&
 			        mutation.startPos > 0);
+		});
+	};
+
+	this.containsRefAllele = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.referenceAllele &&
+			        mutation.referenceAllele != "NA");
+		});
+	};
+
+	this.containsVarAllele = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.variantAllele &&
+			        mutation.variantAllele != "NA");
 		});
 	};
 
@@ -426,11 +450,11 @@ var MutationDetailsUtil = function(mutations)
 	};
 
 	/**
-	 * Returns the number of distinct tumor type values for
+	 * Returns the number of distinct cancer type values for
 	 * the given gene
 	 *
 	 * @param gene  hugo gene symbol
-	 * @returns {Number}    number of distinct tumor type values
+	 * @returns {Number}    number of distinct cancer type values
 	 */
 	this.distinctTumorTypeCount = function(gene)
 	{

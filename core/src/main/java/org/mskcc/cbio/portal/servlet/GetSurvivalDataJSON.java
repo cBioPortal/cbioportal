@@ -1,29 +1,19 @@
 /** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
- **
- ** This library is free software; you can redistribute it and/or modify it
- ** under the terms of the GNU Lesser General Public License as published
- ** by the Free Software Foundation; either version 2.1 of the License, or
- ** any later version.
- **
- ** This library is distributed in the hope that it will be useful, but
- ** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
- ** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
- ** documentation provided hereunder is on an "as is" basis, and
- ** Memorial Sloan-Kettering Cancer Center
- ** has no obligations to provide maintenance, support,
- ** updates, enhancements or modifications.  In no event shall
- ** Memorial Sloan-Kettering Cancer Center
- ** be liable to any party for direct, indirect, special,
- ** incidental or consequential damages, including lost profits, arising
- ** out of the use of this software and its documentation, even if
- ** Memorial Sloan-Kettering Cancer Center
- ** has been advised of the possibility of such damage.  See
- ** the GNU Lesser General Public License for more details.
- **
- ** You should have received a copy of the GNU Lesser General Public License
- ** along with this library; if not, write to the Free Software Foundation,
- ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- **/
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 
 package org.mskcc.cbio.portal.servlet;
 
@@ -45,6 +35,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.HashSet;
 
@@ -83,6 +74,8 @@ public class GetSurvivalDataJSON extends HttpServlet {
         String cancerStudyIdentifier = httpServletRequest.getParameter("cancer_study_id");
         String caseSetId = httpServletRequest.getParameter("case_set_id");
         String caseIdsKey = httpServletRequest.getParameter("case_ids_key");
+        //So far only accept single data type
+        String dataType = httpServletRequest.getParameter("data_type");
 
         try {
 
@@ -117,31 +110,34 @@ public class GetSurvivalDataJSON extends HttpServlet {
                 JSONObject _result = new JSONObject();
 
                 _result.put("case_id", clinicalData.getCaseId());
-                if (clinicalData.getOverallSurvivalMonths() == null) {
-                    _result.put("os_months", "NA");
-                } else {
-                    _result.put("os_months", clinicalData.getOverallSurvivalMonths());
-                }
-                String osStatus = clinicalData.getOverallSurvivalStatus();
-                if(osStatus == null || osStatus.length() == 0) {
-                    _result.put("os_status", "NA");
-                } else if (osStatus.equalsIgnoreCase("DECEASED")) {
-                    _result.put("os_status", "1");
-                } else if(osStatus.equalsIgnoreCase("LIVING")) {
-                    _result.put("os_status", "0");
-                }
-                if (clinicalData.getDiseaseFreeSurvivalMonths() == null) {
-                    _result.put("dfs_months", "NA");
-                } else {
-                    _result.put("dfs_months", clinicalData.getDiseaseFreeSurvivalMonths());
-                }
-                String dfsStatus = clinicalData.getDiseaseFreeSurvivalStatus();
-                if(dfsStatus == null || dfsStatus.length() == 0) {
-                    _result.put("dfs_status", "NA");
-                }else if (dfsStatus.equalsIgnoreCase("Recurred/Progressed") || dfsStatus.equalsIgnoreCase("Recurred")) {
-                    _result.put("dfs_status", "1");
-                } else if(dfsStatus.equalsIgnoreCase("DiseaseFree")) {
-                    _result.put("dfs_status", "0");
+                if (dataType.equalsIgnoreCase("os")) {
+                    if (clinicalData.getOverallSurvivalMonths() == null) {
+                        _result.put("months", "NA");
+                    } else {
+                        _result.put("months", clinicalData.getOverallSurvivalMonths());
+                    }
+                    String osStatus = clinicalData.getOverallSurvivalStatus();
+                    if(osStatus == null || osStatus.length() == 0) {
+                        _result.put("status", "NA");
+                    } else if (osStatus.equalsIgnoreCase("DECEASED")) {
+                        _result.put("status", "1");
+                    } else if(osStatus.equalsIgnoreCase("LIVING")) {
+                        _result.put("status", "0");
+                    }   
+                } else if (dataType.equalsIgnoreCase("dfs")) {
+                    if (clinicalData.getDiseaseFreeSurvivalMonths() == null) {
+                        _result.put("months", "NA");
+                    } else {
+                        _result.put("months", clinicalData.getDiseaseFreeSurvivalMonths());
+                    }
+                    String dfsStatus = clinicalData.getDiseaseFreeSurvivalStatus();
+                    if(dfsStatus == null || dfsStatus.length() == 0) {
+                        _result.put("status", "NA");
+                    }else if (dfsStatus.equalsIgnoreCase("Recurred/Progressed") || dfsStatus.equalsIgnoreCase("Recurred")) {
+                        _result.put("status", "1");
+                    } else if(dfsStatus.equalsIgnoreCase("DiseaseFree")) {
+                        _result.put("status", "0");
+                    }                     
                 }
                 results.put(clinicalData.getCaseId(), _result);
             }

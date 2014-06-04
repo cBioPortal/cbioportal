@@ -111,6 +111,7 @@
                     {// case_ids
                         "aTargets": [ mutTableIndices["case_ids"] ],
                         "sClass": "center-align-td",
+                        "bSearchable": false,
                         "bVisible": caseIds.length>1,
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
@@ -450,7 +451,7 @@
                                 
                                 if ($.isEmptyObject(refCount)||$.isEmptyObject(altCount))
                                     return "";
-                                return "<div class='"+table_id+"-tumor-freq' alt='"+source[0]+"'></div>"; 
+                                return "<div class='"+table_id+"-normal-freq' alt='"+source[0]+"'></div>"; 
                             } else if (type==='sort') {
                                 var refCount = mutations.getValue(source[0], 'normal-ref-count')[caseIds[0]];
                                 var altCount = mutations.getValue(source[0], 'normal-alt-count')[caseIds[0]];
@@ -629,6 +630,17 @@
                         "sClass": "center-align-td",
                         "bSearchable": false,
                         "mDataProp": function(source,type,value) {
+                            var countByKey = function() {
+                                var key = mutations.getValue(source[0], "key");
+                                var byHugoData = genomicEventObs.pancan_mutation_frequencies[key];
+
+                                var total_mutation_count = _.reduce(byHugoData, function(acc, next) {
+                                    return acc + next.count;
+                                }, 0);
+
+                                return total_mutation_count;
+                            };
+                            
                             if (type === 'display') {
                                 if (genomicEventObs.pancan_mutation_frequencies) {
 
@@ -642,28 +654,26 @@
                                     };
                                     var thumbnail_template = _.template("<div class='pancan_mutations_histogram_thumbnail' gene='{{gene}}' keyword='{{keyword}}'></div>");
 
-                                    return thumbnail_template({gene: hugo, keyword: keyword});
+                                    var ret = thumbnail_template({gene: hugo, keyword: keyword});
+                                    
+                                    var count = countByKey();
+                                    ret += "<div style='float:right'>"+count+"</div>";
+                                        
+                                    return ret;
                                 } else {
                                     return "<img width='15' height='15' id='pancan_mutations_histogram' src='images/ajax-loader.gif'/>";
                                 }
                             }
                             else if (type === "sort") {
                                 if (genomicEventObs.pancan_mutation_frequencies) {
-                                    var hugo = mutations.getValue(source[0], "gene");
-                                    var byHugoData = genomicEventObs.pancan_mutation_frequencies[hugo];
-
-                                    var total_mutation_count = _.reduce(byHugoData, function(acc, next) {
-                                        return acc + next.count;
-                                    }, 0);
-
-                                    return total_mutation_count;
+                                    return countByKey();
                                 }
                             }
                             else if (type === "type") {
                                 return 0.0;
                             }
 
-                            return "foobar";
+                            return "";
                         },
                         "asSorting": ["desc", "asc"]
                     },
@@ -804,7 +814,7 @@
                     if (caseIds.length>1) {
                         plotCaseLabel('.'+table_id+'-case-label',true);
                         plotAlleleFreq("."+table_id+"-tumor-freq",mutations,"alt-count","ref-count");
-                        plotAlleleFreq("."+table_id+"-tumor-freq",mutations,"normal-alt-count","normal-ref-count");
+                        plotAlleleFreq("."+table_id+"-normal-freq",mutations,"normal-alt-count","normal-ref-count");
                     }
                     plotMrna("."+table_id+"-mrna",mutations);
                     plotMutRate("."+table_id+"-mut-cohort",mutations);

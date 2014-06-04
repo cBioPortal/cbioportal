@@ -199,7 +199,19 @@ cbio.util = (function() {
 
 		return origin;
 	};
-
+        
+        var sortByAttribute = function(objs, attrName) {
+            function compare(a,b) {
+                if (a[attrName] < b[attrName])
+                    return -1;
+                if (a[attrName] > b[attrName])
+                    return 1;
+                return 0;
+            }
+            objs.sort(compare);
+            return objs;
+        };
+        
 	/**
 	 * Replaces problematic characters with an underscore for the given string.
 	 * Those characters cause problems with the properties of an HTML object,
@@ -392,10 +404,11 @@ cbio.util = (function() {
         arrayToAssociatedArrayIndices: arrayToAssociatedArrayIndices,
         alterAxesAttrForPDFConverter: alterAxesAttrForPDFConverter,
         lcss: lcss,
-	    browser: detectBrowser(), // returning the browser object, not the function itself
-	    getWindowOrigin: getOrigin,
-	    safeProperty: safeProperty,
-	    autoHideOnMouseLeave: autoHideOnMouseLeave,
+        browser: detectBrowser(), // returning the browser object, not the function itself
+        getWindowOrigin: getOrigin,
+        sortByAttribute: sortByAttribute,
+        safeProperty: safeProperty,
+        autoHideOnMouseLeave: autoHideOnMouseLeave,
         swapElement: swapElement,
 	    getTargetWindow: getTargetWindow,
 	    submitDownload: submitDownload,

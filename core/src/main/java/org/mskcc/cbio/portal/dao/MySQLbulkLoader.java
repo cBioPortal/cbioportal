@@ -1,29 +1,19 @@
 /** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
-**
-** This library is free software; you can redistribute it and/or modify it
-** under the terms of the GNU Lesser General Public License as published
-** by the Free Software Foundation; either version 2.1 of the License, or
-** any later version.
-**
-** This library is distributed in the hope that it will be useful, but
-** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
-** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
-** documentation provided hereunder is on an "as is" basis, and
-** Memorial Sloan-Kettering Cancer Center 
-** has no obligations to provide maintenance, support,
-** updates, enhancements or modifications.  In no event shall
-** Memorial Sloan-Kettering Cancer Center
-** be liable to any party for direct, indirect, special,
-** incidental or consequential damages, including lost profits, arising
-** out of the use of this software and its documentation, even if
-** Memorial Sloan-Kettering Cancer Center 
-** has been advised of the possibility of such damage.  See
-** the GNU Lesser General Public License for more details.
-**
-** You should have received a copy of the GNU Lesser General Public License
-** along with this library; if not, write to the Free Software Foundation,
-** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-**/
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 
 package org.mskcc.cbio.portal.dao;
 
@@ -39,6 +29,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
+import org.mskcc.cbio.portal.util.FileUtil;
 import org.mskcc.cbio.portal.util.GlobalProperties;
 
 /**
@@ -73,6 +64,8 @@ public class MySQLbulkLoader {
             for (MySQLbulkLoader mySQLbulkLoader : mySQLbulkLoaders.values()) {
                 n += mySQLbulkLoader.loadDataFromTempFileIntoDBMS();
             }
+            
+            mySQLbulkLoaders.clear();
             
             return n;
         } catch (IOException e) {
@@ -113,9 +106,6 @@ public class MySQLbulkLoader {
       // TODO: create special directory for temp dbms load files; perhaps make OS portable
       String tmp = GlobalProperties.getTemporaryDir();
       tempFileHandle = File.createTempFile( tableName, tempTableSuffix, new File(tmp) );
-
-      // delete file when JVM exits
-      tempFileHandle.deleteOnExit();
 
       tempFileName = tempFileHandle.getAbsolutePath();
 
@@ -192,6 +182,7 @@ public class MySQLbulkLoader {
       try {
          try {
             // close the file, flushing all buffers before loading the DBMS
+             tempFileWriter.flush();
              tempFileWriter.close();
          } catch (IOException e) {
             throw new DaoException(e);
@@ -204,9 +195,17 @@ public class MySQLbulkLoader {
          String command = "LOAD DATA LOCAL INFILE '" + tempFileName + "' INTO TABLE " + tableName;
          stmt.execute( command );
          int updateCount = stmt.getUpdateCount();
+         System.out.println(""+updateCount+" records inserted into "+tableName);
+         int nLines = FileUtil.getNumLines(tempFileHandle);
+         if (nLines!=updateCount) {
+             System.err.println("Error: but there are "+nLines+" lines in the temp file "+tempFileName);
+         } else {
+             tempFileHandle.delete();
+         }
 
-         // reopen empty temp file
-         this.tempFileWriter = new BufferedWriter(new FileWriter( this.tempFileHandle, false));
+         // reopen empty temp file -- not necessary, this loader will be removed.
+         //this.tempFileWriter = new BufferedWriter(new FileWriter( this.tempFileHandle, false));
+
          return updateCount;
 
       } catch (SQLException e) {

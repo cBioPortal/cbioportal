@@ -1,29 +1,19 @@
 /** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
- **
- ** This library is free software; you can redistribute it and/or modify it
- ** under the terms of the GNU Lesser General Public License as published
- ** by the Free Software Foundation; either version 2.1 of the License, or
- ** any later version.
- **
- ** This library is distributed in the hope that it will be useful, but
- ** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
- ** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
- ** documentation provided hereunder is on an "as is" basis, and
- ** Memorial Sloan-Kettering Cancer Center
- ** has no obligations to provide maintenance, support,
- ** updates, enhancements or modifications.  In no event shall
- ** Memorial Sloan-Kettering Cancer Center
- ** be liable to any party for direct, indirect, special,
- ** incidental or consequential damages, including lost profits, arising
- ** out of the use of this software and its documentation, even if
- ** Memorial Sloan-Kettering Cancer Center
- ** has been advised of the possibility of such damage.  See
- ** the GNU Lesser General Public License for more details.
- **
- ** You should have received a copy of the GNU Lesser General Public License
- ** along with this library; if not, write to the Free Software Foundation,
- ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- **/
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 
 package org.mskcc.cbio.portal.servlet;
 
@@ -48,6 +38,7 @@ import org.mskcc.cbio.portal.model.CaseList;
 import org.mskcc.cbio.portal.model.Gene;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.util.CaseSetUtil;
+import org.mskcc.cbio.portal.util.XssRequestWrapper;
 
 /**
  * Retrieves genomic profile data for one or more genes.
@@ -88,7 +79,14 @@ public class GetProfileDataJSON extends HttpServlet  {
         //Get URL Parameters
         String caseSetId = httpServletRequest.getParameter("case_set_id");
         String caseIdsKey = httpServletRequest.getParameter("case_ids_key");
-        String[] geneIdList = httpServletRequest.getParameter("gene_list").split("\\s+");
+        String rawGeneIdList;
+        if (httpServletRequest instanceof XssRequestWrapper) {
+            rawGeneIdList = ((XssRequestWrapper)httpServletRequest).getRawParameter("gene_list");
+        } else {
+            rawGeneIdList = httpServletRequest.getParameter("gene_list");
+        }
+        
+        String[] geneIdList = rawGeneIdList.split("\\s+");
         String[] geneticProfileIds = httpServletRequest.getParameter("genetic_profile_id").split("\\s+");
 
         //Final result JSON

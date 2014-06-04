@@ -162,8 +162,9 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		var helpContent = self.$el.find(".mutation-3d-vis-help-content");
 		var helpInit = self.$el.find(".mutation-3d-vis-help-init");
-		var helpInitLink = self.$el.find(".mutation-3d-vis-help-init a");
+		var helpInitLink = self.$el.find(".mutation-3d-vis-help-open");
 		var helpClose = self.$el.find(".mutation-3d-vis-help-close");
+		var pymolDownload = self.$el.find(".mutation-3d-pymol-dload");
 
 		// add listener to help link
 		helpInitLink.click(function(event) {
@@ -178,6 +179,21 @@ var Mutation3dVisView = Backbone.View.extend({
 			helpContent.slideToggle();
 			helpInit.slideToggle();
 		});
+
+		// add listener to download link
+		pymolDownload.click(function(event) {
+			event.preventDefault();
+
+			var script = mut3dVis.generatePymolScript();
+			var filename = self.$el.find(".mutation-3d-pdb-id").text().trim() + "_" +
+			               self.$el.find(".mutation-3d-chain-id").text().trim() + ".pml";
+
+			// send download request with filename & file content info
+			cbio.util.requestDownload("downloadfile.do",
+				{fileContent: script, filename: filename});
+		});
+
+		pymolDownload.qtip(self._generateTooltipOpts("Download PyMOL script"));
 	},
 	/**
 	 * Initializes the mutation style options UI and

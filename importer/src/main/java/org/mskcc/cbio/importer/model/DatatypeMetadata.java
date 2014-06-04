@@ -43,6 +43,7 @@ public class DatatypeMetadata {
     public static final Pattern CLINICAL_PATIENT_FILE_REGEX = Pattern.compile("nationwidechildrens.org_clinical_patient_(\\w+)\\.txt");
     public static final Pattern CLINICAL_NTE_FILE_REGEX = Pattern.compile("nationwidechildrens.org_clinical_nte_(\\w+)\\.txt");
     public static final Pattern CLINICAL_NTE_FOLLOWUP_FILE_REGEX = Pattern.compile("nationwidechildrens.org_clinical_follow_up_v(\\d\\.\\d+)_nte_\\w+\\.txt");
+    public static final Pattern CLINICAL_SAMPLE_FILE_REGEX = Pattern.compile("nationwidechildrens.org_biospecimen_sample_(\\w+)\\.txt");
 	
 	// delimiter when specifying datatypes on worksheet
     public static final String DATATYPES_DELIMITER = ":"; 

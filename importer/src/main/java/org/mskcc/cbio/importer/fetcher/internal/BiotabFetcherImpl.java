@@ -28,6 +28,7 @@ import org.mskcc.cbio.portal.web_api.ConnectionManager;
 import org.apache.commons.logging.*;
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.auth.*;
+import org.apache.commons.httpclient.params.*;
 import org.apache.commons.httpclient.methods.*;
 
 import org.jsoup.*;
@@ -41,7 +42,8 @@ import java.util.regex.*;
 
 class BiotabFetcherImpl extends FetcherBaseImpl implements Fetcher
 {
-    private static final int DEFAULT_LATEST_REVISION = 0;
+    private static final int READ_TIMEOUT = 60000; // ms
+    private static final int NO_REVISION_FOUND = -1;
     private static final String TUMOR_TYPE_REGEX = "<TUMOR_TYPE>";
     private static final String REVISION_REGEX = "<REVISION>";
 	private static final Log LOG = LogFactory.getLog(BiotabFetcherImpl.class);
@@ -100,17 +102,20 @@ class BiotabFetcherImpl extends FetcherBaseImpl implements Fetcher
     private void fetchData() throws Exception
     {
         for (String tumorType : config.getTumorTypesToDownload()) {
-            saveClinicalForTumorType(tumorType, getRevision(tumorType));
+            int latestRevision = getRevision(tumorType);
+            if (latestRevision != NO_REVISION_FOUND) {
+                saveClinicalForTumorType(tumorType, Integer.toString(latestRevision));
+            } 
         }
     }
     
-    private String getRevision(String tumorType) throws Exception
+    private int getRevision(String tumorType)
     {
-        Integer latestRevision = DEFAULT_LATEST_REVISION;
+        Integer latestRevision = NO_REVISION_FOUND;
         Pattern revisionPattern = getRevisionPattern(tumorType);
 
         try {
-            Document doc = Jsoup.connect(getURLToFileIndex(tumorType)).get();
+            Document doc = Jsoup.connect(getURLToFileIndex(tumorType)).timeout(READ_TIMEOUT).get();
             for (Element link : doc.select("a[href]")) {
                 Matcher revisionMatcher = revisionPattern.matcher(link.text());
                 if (revisionMatcher.find()) {
@@ -121,11 +126,12 @@ class BiotabFetcherImpl extends FetcherBaseImpl implements Fetcher
                 }
             }
         }
-        catch(HttpStatusException e) {
-            logMessage(LOG, "http status exception - getRevision(), skipping, tumorType: " + tumorType);
+        catch(Exception e) {
+            logMessage(LOG, "getRevision(), skipping, tumorType: " + tumorType);
+            logMessage(LOG, e.getMessage());
         }
 
-        return Integer.toString(latestRevision);
+        return latestRevision;
     }
 
     private String getURLToFileIndex(String tumorType)
@@ -141,6 +147,8 @@ class BiotabFetcherImpl extends FetcherBaseImpl implements Fetcher
     private void saveClinicalForTumorType(String tumorType, String revision)
     {
         HttpClient client = getHttpClient();
+        HttpMethodParams params = client.getParams();
+        params.setSoTimeout(READ_TIMEOUT);
         GetMethod method = new GetMethod(getURLToFile(tumorType, revision));
 
         try {

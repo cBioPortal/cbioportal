@@ -396,22 +396,48 @@ public class DataMatrix {
 		return toReturn;
 	}
 
-	/**
-	 * Inserts row data to beginning of matrix.
-	 * 
-	 * @param List<String> rowData
-	 */
-	public void insertRow(List<String> rowData) {
-		addRow(rowData, 0);
+	public List<String> getRowData(int rowIndex)
+	{
+		List<String> toReturn = new ArrayList<String>(columnHeaders.size());
+		for (int lc = 0; lc < columnHeaders.size(); lc++) {
+			ColumnHeader columnHeader = columnHeaders.get(lc);
+			toReturn.add(columnHeader.columnData.get(rowIndex));
+		}
+		return toReturn;
 	}
 
 	/**
-	 * Appends a row to the end of the matrix.
-	 * 
+	 * Function to insert row at a given given index.
+	 *
 	 * @param List<String> rowData
+	 * @param rowIndex long
 	 */
-	public void appendRow(List<String> rowData) {
-		addRow(rowData, -1);
+	public void insertRow(List<String> rowData, int rowIndex) {
+
+		// sanity checks
+		if (rowData.size() < columnHeaders.size()) {
+			throw new IllegalArgumentException("rowData size < number in matrix, aborting.");
+		}
+
+		// iterate across all column headers
+		for (int lc = 0; lc < columnHeaders.size(); lc++) {
+			ColumnHeader columnHeader = columnHeaders.get(lc);
+			// for each columnHeader->columnData, insert row data at rowIndex
+			columnHeader.columnData.add(rowIndex, rowData.get(lc));
+		}
+
+		// adjust ignoreRow set
+		// we just inserted at beginning, increment all values in existing set by 1.
+		if (rowIndex == 0) {
+			HashSet<Integer> rowsToIgnoreCopy = (HashSet<Integer>)rowsToIgnore.clone();
+			rowsToIgnore.clear();
+			for (Integer integer : rowsToIgnoreCopy) {
+				rowsToIgnore.add(++integer);
+			}
+		}
+
+		// inc number of rows property
+		++numberOfRows;
 	}
 
 	/**
@@ -472,45 +498,6 @@ public class DataMatrix {
 	}
 
 	/**
-	 * Private helper function to insert row at a given given index.
-	 *
-	 * @param List<String> rowData
-	 * @param rowIndex long
-	 */
-	private void addRow(List<String> rowData, int rowIndex) {
-
-		// sanity checks
-		if (rowData.size() < columnHeaders.size()) {
-			throw new IllegalArgumentException("rowData size < number in matrix, aborting.");
-		}
-
-		// iterate across all column headers
-		for (int lc = 0; lc < columnHeaders.size(); lc++) {
-			ColumnHeader columnHeader = columnHeaders.get(lc);
-			// for each columnHeader->columnData, insert row data at rowIndex
-			if (rowIndex == 0) {
-				columnHeader.columnData.addFirst(rowData.get(lc));
-			}
-			else {
-				columnHeader.columnData.addLast(rowData.get(lc));
-			}
-		}
-
-		// adjust ignoreRow set
-		// we just inserted at beginning, increment all values in existing set by 1.
-		if (rowIndex == 0) {
-			HashSet<Integer> rowsToIgnoreCopy = (HashSet<Integer>)rowsToIgnore.clone();
-			rowsToIgnore.clear();
-			for (Integer integer : rowsToIgnoreCopy) {
-				rowsToIgnore.add(++integer);
-			}
-		}
-
-		// inc number of rows property
-		++numberOfRows;
-	}
-
-	/**
 	 * Private function to init ref to CaseId.
 	 */
 	private void initCaseIDs() {
@@ -534,20 +521,6 @@ public class DataMatrix {
 
 		// create matrix and dump
 		DataMatrix dataMatrix = new DataMatrix("", rowData, columnNames);
-		dataMatrix.write(System.out);
-		System.out.println();
-		System.out.println();
-
-		// insert a row
-		List<String> newRowToInsert = java.util.Arrays.asList("-2", "-1", "0");
-		dataMatrix.insertRow(newRowToInsert);
-		dataMatrix.write(System.out);
-		System.out.println();
-		System.out.println();
-
-		// append a row
-		List<String> newRowToAppend = java.util.Arrays.asList("d", "e", "f");
-		dataMatrix.appendRow(newRowToAppend);
 		dataMatrix.write(System.out);
 		System.out.println();
 		System.out.println();

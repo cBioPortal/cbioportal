@@ -108,7 +108,7 @@ var SurvivalCurve = function() {
             function(d) {
                     var content = "<font size='2'>";
                     content += "Case id: " + "<strong><a href='"
-                            +cbio.util.getLinkToSampleView(cancer_study_id,d.caseId)
+                            + cbio.util.getLinkToPatientView(cancer_study_id, d.case_id)
                             + "' target='_blank'>" + d.case_id + "</a></strong><br>";
                     content += text.qTips.estimation + ": <strong>" + (d.survival_rate * 100).toFixed(2) + "%</strong><br>";
                     if (d.status === "0") { // If censored, mark it
@@ -186,7 +186,6 @@ var SurvivalCurve = function() {
             .style("stroke-width", 0.5)
             .style("stroke", "black")
             .style("fill", "black");
-
     }
 
     function drawCensoredDots(data, opts) {

@@ -621,10 +621,10 @@ var StudyViewInitCharts = (function(){
         
         $('.study-view-dc-chart-delete').unbind('click');
         $('.study-view-dc-chart-delete').click(function(event){
-                var _id = $(this).parent().parent().parent().attr("id").split("-");
-                var _valueA = $(this).parent().parent().parent().attr('oValue').split(',');
+                var _id = $(this).attr("chartID");
+                var _valueA = $("#study-view-dc-chart-" + _id).attr('oValue').split(',');
                 
-                deleteChart(_id[_id.length-1],_valueA);
+                deleteChart(_id,_valueA);
                 bondDragForLayout();
                 AddCharts.bindliClickFunc();
         });
@@ -1132,10 +1132,12 @@ var StudyViewInitCharts = (function(){
                 });
 
                 varChart[_chartID].getChart().render();
-
-                $('#study-view-dc-chart-'+ _chartID +' .study-view-dc-chart-delete').unbind('click');
-                $('#study-view-dc-chart-'+ _chartID +' .study-view-dc-chart-delete').click(function(event){
-                    var valueA = $(this).parent().parent().parent().attr("oValue").split(',');
+                
+                $('#study-view-dc-chart-'+ _chartID +'-header .study-view-dc-chart-delete').unbind('click');
+                $('#study-view-dc-chart-'+ _chartID +'-header .study-view-dc-chart-delete').click(function(event){
+                    var _ID = _chartID;
+                    var valueA = $("#study-view-dc-chart-" + _ID).attr("oValue").split(',');
+//                    var valueA = $(this).parent().parent().parent().find().attr("oValue").split(',');
                     deleteChart(_chartID,valueA);
                     AddCharts.bindliClickFunc();
                     bondDragForLayout();

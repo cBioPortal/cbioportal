@@ -34,7 +34,8 @@ var LoadingJS = (function(){
                     'FnGetColumnData',
                     'FnColumnFilter',
                     'FnSetFilteringDelay',
-                    'StudyViewUtil'
+                    'StudyViewUtil',
+                    'StudyViewPrototypes'
                 ],
                 view: [
                     'StudyViewInitCharts', 

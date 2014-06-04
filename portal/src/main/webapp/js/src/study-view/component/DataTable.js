@@ -214,7 +214,8 @@ var DataTable = function() {
             "bScrollCollapse": true,
             "aoColumns": aoColumns,
             "aaData": aaData,
-            "sDom": '<"dataTableTop"Ci<"dataTableReset">f>rt',
+            "bJQueryUI": true,
+            "sDom": '<"H"Ci<"dataTableReset">f>rt',
             "oLanguage": {
                 "sInfo": "&nbsp;&nbsp;Showing _TOTAL_ samples&nbsp;",
                 "sInfoFiltered": "(filtered from _MAX_ samples)",
@@ -527,17 +528,21 @@ var DataTable = function() {
         if(!noLeftColumnFlag) {
             var _heightBody = $(".dataTables_scrollBody").height(),
                 _heightTable = $('.dataTables_scroll').height(),
-                _widthBody = $("#" + tableId + " tbody>tr:nth-child(1)>td:nth-child(1)").width();
+                _widthBody = $("#" + tableId + " tbody>tr:nth-child(2)>td:nth-child(1)").width();
             
-            _widthBody = _widthBody + 22;
-            if($("#" + tableId).width() > 1200) {
-                $(".DTFC_LeftBodyLiner").height(_heightBody - 15);
-                $(".DTFC_LeftBodyWrapper").height(_heightBody - 15); 
-                $(".DTFC_LeftWrapper").width(_widthBody);
-                $(".DTFC_LeftBodyLiner").width(_widthBody);
-                $(".DTFC_LeftBodyLiner").css('background-color','white');
+            if(_widthBody === null) {
+                $(".DTFC_LeftWrapper").css('display', 'none');
+            }else {
+                _widthBody = _widthBody + 22;
+                if($("#" + tableId).width() > 1200) {
+                    $(".DTFC_LeftWrapper").css('display', 'block');
+                    $(".DTFC_LeftBodyLiner").height(_heightBody - 15);
+                    $(".DTFC_LeftBodyWrapper").height(_heightBody - 15); 
+                    $(".DTFC_LeftWrapper").width(_widthBody);
+                    $(".DTFC_LeftBodyLiner").width(_widthBody);
+                    $(".DTFC_LeftBodyLiner").css('background-color','white');
+                }
             }
-
             //When selecting or unselecting columns in table of summary tab,
             //the column width will be stretched, the columns width will be changed
             //automatically, but the width of left column needs to be changed by

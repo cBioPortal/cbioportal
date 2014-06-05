@@ -75,6 +75,7 @@
       <intercept-url pattern="/omaRedirect.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/swf/*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/link.do*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/ln*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/oncoprint_converter.svg*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/histogram_converter.svg*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/MutSig.json*" access="isAuthenticated()"/>

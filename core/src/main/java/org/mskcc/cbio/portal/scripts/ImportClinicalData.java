@@ -34,7 +34,7 @@ public class ImportClinicalData {
 
     public static final String METADATA_PREIX = "#";
     public static final String DELIMITER = "\t";
-    public static final String CASE_ID_COLUMN_NAME = "CASE_ID";
+    //public static final String CASE_ID_COLUMN_NAME = "SAMPLE_ID";
 
 	private File clinicalDataFile;
 	private CancerStudy cancerStudy;
@@ -184,12 +184,13 @@ public class ImportClinicalData {
     
     private int findCaseIDColumn(List<ClinicalAttribute> attrs) {
         for (int i=0; i<attrs.size(); i++) {
-            if (attrs.get(i).getAttrId().equals(CASE_ID_COLUMN_NAME)) {
+            String attrId = attrs.get(i).getAttrId();
+            if (attrId.equalsIgnoreCase("SAMPLE_ID")||attrId.equalsIgnoreCase("CASE_ID")) {
                 return i;
             }
         }
         
-        throw new java.lang.UnsupportedOperationException("Clinicla file must contain a column of "+CASE_ID_COLUMN_NAME);
+        throw new java.lang.UnsupportedOperationException("Clinicla file must contain a column of SAMPLE_ID");
     }
 
     /**

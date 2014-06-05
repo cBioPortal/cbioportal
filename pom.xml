@@ -94,7 +94,8 @@
 	<slf4j.version>1.6.6</slf4j.version>
 	<spring.version>3.1.0.RELEASE</spring.version>
 	<spring.security.version>3.1.0.RELEASE</spring.security.version>
-	<mybatis.version>1.0.1</mybatis.version>
+	<mybatis.spring.version>1.2.2</mybatis.spring.version>
+	<mybatis.version>3.2.7</mybatis.version>
 	<hibernate.version>3.6.9.Final</hibernate.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -242,6 +243,12 @@
     <dependency>
       <groupId>org.mybatis</groupId>
       <artifactId>mybatis-spring</artifactId>
+      <version>${mybatis.spring.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mybatis</groupId>
+      <artifactId>mybatis</artifactId>
       <version>${mybatis.version}</version>
     </dependency>
   </dependencies>

@@ -17,7 +17,6 @@
 package org.mskcc.cbio.portal.service;
 
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.model.Entity.EntityType;
 import org.mskcc.cbio.portal.persistence.EntityMapper;
 
 import org.springframework.stereotype.Service;
@@ -29,15 +28,20 @@ import java.util.List;
 @Service
 public class EntityService
 {
-	@Autowired
 	private EntityMapper entityMapper;
+
+  @Autowired
+  public void setEntityMapper(EntityMapper entityMapper)
+  {
+    this.entityMapper = entityMapper;
+  }
 
 	@Transactional
 	public Entity insertEntity(String stableId, EntityType type)
 	{
-        Entity entity = new Entity();
-        entity.stableId = stableId;
-        entity.type = type;
+    Entity entity = new Entity();
+    entity.stableId = stableId;
+    entity.type = type;
 		entityMapper.insertEntity(entity);
 		return entity;
 	}
@@ -45,17 +49,17 @@ public class EntityService
 	@Transactional
   	public EntityLink insertEntityLink(int parentId, int childId)
   	{
-        EntityLink entityLink = new EntityLink();
-        entityLink.parentId = parentId;
-        entityLink.childId = childId;
+      EntityLink entityLink = new EntityLink();
+      entityLink.parentId = parentId;
+      entityLink.childId = childId;
   		entityMapper.insertEntityLink(entityLink);
   		return entityLink;
   	}
 
   	public Entity getCancerStudy(String stableId)
   	{
-  		List<Entity> cancerStudyEntities =
-  			entityMapper.getByStableId(stableId);
+      List<Entity> cancerStudyEntities =
+  	  entityMapper.getByStableId(stableId);
   		assert cancerStudyEntities.size() == 1;
   		return cancerStudyEntities.get(0);
   	}
@@ -64,7 +68,7 @@ public class EntityService
   	{
   		Entity cancerStudyEntity = getCancerStudy(cancerStudyStableId);
   		return filterByStableId(entityMapper.getChildren(cancerStudyEntity.internalId, EntityType.PATIENT),
-  								patientStableId);
+                              patientStableId);
   	}
 
   	public Entity getSample(String cancerStudyStableId, String patientStableId, String sampleStableId)

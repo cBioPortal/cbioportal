@@ -17,7 +17,6 @@
 package org.mskcc.cbio.portal.persistence;
 
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.model.AttributeMetadata.AttributeType;
 
 import org.apache.ibatis.annotations.Param;
 

@@ -25,18 +25,6 @@ import java.io.Serializable;
  */
 public class Entity implements Serializable
 {
-    public static enum EntityType
-    {
-        STUDY("STUDY"),
-        PATIENT("PATIENT"),
-        SAMPLE("SAMPLE");
-
-        private String propertyName;
-        
-        EntityType(String propertyName) { this.propertyName = propertyName; }
-        public String toString() { return propertyName; }
-    }
-
     public EntityType type;
     public int internalId;
     public String stableId;

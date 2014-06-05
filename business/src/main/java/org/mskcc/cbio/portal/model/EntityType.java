@@ -16,22 +16,14 @@
 */
 package org.mskcc.cbio.portal.model;
 
-import java.io.Serializable;
-
-public class AttributeMetadata implements Serializable
+public enum EntityType
 {
-    public AttributeType type;
-    public String attributeId;
-    public String displayName;
-    public String description;
+    STUDY("STUDY"),
+    PATIENT("PATIENT"),
+    SAMPLE("SAMPLE");
 
-    @Override
-    public String toString()
-    {
-        return "AttributeMetadata [" +
-			attributeId + "," +
-			displayName + "," +
-			description + "," +
-			type.toString() + "]";
-    }
+    private String propertyName;
+        
+    EntityType(String propertyName) { this.propertyName = propertyName; }
+    public String toString() { return propertyName; }
 }

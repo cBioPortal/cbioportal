@@ -18,8 +18,6 @@ package org.mskcc.cbio.portal.scripts;
 
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.model.Entity.EntityType;
-import org.mskcc.cbio.portal.model.AttributeMetadata.AttributeType;
 import org.mskcc.cbio.portal.service.*;
 import org.mskcc.cbio.portal.util.*;
 

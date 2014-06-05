@@ -19,7 +19,6 @@ package org.mskcc.cbio.portal.util;
 
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.model.Entity.EntityType;
 import org.mskcc.cbio.portal.service.*;
 
 import org.springframework.context.ApplicationContext;
@@ -41,13 +40,13 @@ public class ImportDataUtil
     public static EntityService entityService = initEntityService();
     private static EntityService initEntityService()
     {
-        return (EntityService)context.getBean(EntityService.class);
+        return (EntityService)context.getBean("entityService");
     }
 
     public static EntityAttributeService entityAttributeService = initEntityAttributeService();
     private static EntityAttributeService initEntityAttributeService()
     {
-        return (EntityAttributeService)context.getBean(EntityAttributeService.class);
+        return (EntityAttributeService)context.getBean("entityAttributeService");
     }
 
     public static void addPatients(String barcodes[], int geneticProfileId) throws DaoException

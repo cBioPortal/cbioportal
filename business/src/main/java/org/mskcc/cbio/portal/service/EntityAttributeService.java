@@ -17,7 +17,6 @@
 package org.mskcc.cbio.portal.service;
 
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.model.AttributeMetadata.AttributeType;
 import org.mskcc.cbio.portal.persistence.EntityAttributeMapper;
 
 import org.springframework.stereotype.Service;
@@ -29,8 +28,13 @@ import java.util.List;
 @Service
 public class EntityAttributeService
 {
-	@Autowired
 	private EntityAttributeMapper entityAttributeMapper;
+
+  @Autowired
+  public void setEntityAttributeMapper(EntityAttributeMapper entityAttributeMapper)
+  {
+    this.entityAttributeMapper = entityAttributeMapper;
+  }
 
 	@Transactional
 	public EntityAttribute insertEntityAttribute(int entityId, String attributeId, String attributeValue)

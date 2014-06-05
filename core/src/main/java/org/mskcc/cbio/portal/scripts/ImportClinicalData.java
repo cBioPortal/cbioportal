@@ -34,7 +34,7 @@ public class ImportClinicalData {
 
     public static final String METADATA_PREIX = "#";
     public static final String DELIMITER = "\t";
-    //public static final String CASE_ID_COLUMN_NAME = "SAMPLE_ID";
+    public static final String CASE_ID_COLUMN_NAME = "SAMPLE_ID";
 
 	private File clinicalDataFile;
 	private CancerStudy cancerStudy;

@@ -49,13 +49,10 @@ public class TestImportClinicalData extends TestCase {
         ResetDatabase.resetDatabase();
         ProgressMonitor pMonitor = new ProgressMonitor();
 		// TBD: change this to use getResourceAsStream()
-        File patientFile = new File("target/test-classes/clinical_patient.txt");
-        File sampleFile = new File("target/test-classes/clinical_sample.txt");
+        File clinicalFile = new File("target/test-classes/clinical_data.txt");
         CancerStudy cancerStudy = new CancerStudy("test","test","test","test",true);
         cancerStudy.setInternalId(CANCER_STUDY_ID);
-        ImportClinicalData importClinicalData = new ImportClinicalData(cancerStudy, patientFile, false, pMonitor);
-        importClinicalData.importData();
-        importClinicalData = new ImportClinicalData(cancerStudy, sampleFile, true, pMonitor);
+        ImportClinicalData importClinicalData = new ImportClinicalData(cancerStudy, clinicalFile);
         importClinicalData.importData();
 
         LinkedHashSet <String> caseSet = new LinkedHashSet<String>();

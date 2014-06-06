@@ -104,6 +104,7 @@ public class MetadataUtils {
         clinicalDataHeader.append(addClinicalDataHeader(normalizedColumnHeaderNames, clinicalAttributesMetadata, "getDisplayName"));
         clinicalDataHeader.append(addClinicalDataHeader(normalizedColumnHeaderNames, clinicalAttributesMetadata, "getDescription"));
         clinicalDataHeader.append(addClinicalDataHeader(normalizedColumnHeaderNames, clinicalAttributesMetadata, "getDatatype"));
+        clinicalDataHeader.append(addClinicalDataHeader(normalizedColumnHeaderNames, clinicalAttributesMetadata, "getAttributeType"));
 
         return clinicalDataHeader.toString();
     }

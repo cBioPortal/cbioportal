@@ -55,17 +55,12 @@ class FoundationFetcherImpl implements Fetcher
 
 	private static final String FOUNDATION_FILE_EXTENSION = ".xml";
 	private static final Log LOG = LogFactory.getLog(FoundationFetcherImpl.class);
-    private static final List<String> sampleClinicalAttributes = initializeSampleClinicalAttributes();
-    private static List<String> initializeSampleClinicalAttributes()
-    {
-        String[] attributes = { "PATIENT_ID", "SAMPLE_ID", "FMI_CASE_ID", "PIPELINE_VER",
-                                "TUMOR_NUCLEI_PERCENT", "MEDIAN_COV", "COV>100X", "ERROR_PERCENT" };
-        return Arrays.asList(attributes);
-    }
+
     private static final List<String> patientClinicalAttributes = initializePatientClinicalAttributes();
     private static List<String> initializePatientClinicalAttributes()
     {
-        String[] attributes = { "PATIENT_ID", "GENDER" };
+        String[] attributes = { "PATIENT_ID", "GENDER", "SAMPLE_ID", "FMI_CASE_ID", "PIPELINE_VER",
+        						"TUMOR_NUCLEI_PERCENT", "MEDIAN_COV", "COV>100X", "ERROR_PERCENT" };
         return Arrays.asList(attributes);
     }
 
@@ -133,7 +128,6 @@ class FoundationFetcherImpl implements Fetcher
 
 		// clinical data content
 		StringBuilder dataPatientClinicalContent = new StringBuilder();
-		StringBuilder dataSampleClinicalContent = new StringBuilder();
 
 		// mutation data content
 		StringBuilder dataMutationsContent = new StringBuilder();
@@ -162,7 +156,7 @@ class FoundationFetcherImpl implements Fetcher
 				Document doc = dBuilder.parse(new InputSource(
 						new StringReader(caseRecord)));
 
-				this.addClinicalData(doc, dataPatientClinicalContent, dataSampleClinicalContent);
+				this.addClinicalData(doc, dataPatientClinicalContent);
 				this.addMutationData(doc, dataMutationsContent);
 				this.addFusionData(doc, dataFusionsContent);
 				this.addCNAData(doc, valueMap, caseSet, geneSet);
@@ -173,8 +167,7 @@ class FoundationFetcherImpl implements Fetcher
 		}
 
 		// generate data files
-		this.generateClinicalDataFile(dataPatientClinicalContent, patientClinicalAttributes, DatatypeMetadata.CLINICAL_PATIENT_FILENAME);
-		this.generateClinicalDataFile(dataSampleClinicalContent, sampleClinicalAttributes, DatatypeMetadata.CLINICAL_SAMPLE_FILENAME);
+		this.generateClinicalDataFile(dataPatientClinicalContent, patientClinicalAttributes, DatatypeMetadata.CLINICAL_FILENAME);
 		this.generateMutationDataFile(dataMutationsContent);
 		this.generateFusionDataFile(dataFusionsContent);
 		this.generateCNADataFile(valueMap, caseSet, geneSet);
@@ -379,7 +372,7 @@ class FoundationFetcherImpl implements Fetcher
 			numCases);
 	}
 
-	protected void addClinicalData(Document caseDoc, StringBuilder patientContent, StringBuilder sampleContent)
+	protected void addClinicalData(Document caseDoc, StringBuilder patientContent)
 	{
 		String fmiCaseID = "";
 		String caseID = "";
@@ -445,24 +438,21 @@ class FoundationFetcherImpl implements Fetcher
         patientContent.append(caseID);
 		patientContent.append("\t");
         patientContent.append(gender);
+		patientContent.append("\t");
+        patientContent.append(caseID);
+		patientContent.append("\t");
+		patientContent.append(fmiCaseID);
+		patientContent.append("\t");
+		patientContent.append(pipelineVer);
+		patientContent.append("\t");
+		patientContent.append(percentTumorNuclei);
+		patientContent.append("\t");
+		patientContent.append(medianCov);
+		patientContent.append("\t");
+		patientContent.append(covGreaterThan100x);
+		patientContent.append("\t");
+		patientContent.append(errorPercent);
 		patientContent.append("\n");
-
-        sampleContent.append(caseID);
-		sampleContent.append("\t");
-        sampleContent.append(caseID);
-		sampleContent.append("\t");
-		sampleContent.append(fmiCaseID);
-		sampleContent.append("\t");
-		sampleContent.append(pipelineVer);
-		sampleContent.append("\t");
-		sampleContent.append(percentTumorNuclei);
-		sampleContent.append("\t");
-		sampleContent.append(medianCov);
-		sampleContent.append("\t");
-		sampleContent.append(covGreaterThan100x);
-		sampleContent.append("\t");
-		sampleContent.append(errorPercent);
-		sampleContent.append("\n");
 	}
 
 	protected void addFusionData(Document caseDoc, StringBuilder content)

@@ -406,9 +406,6 @@ class ImporterImpl implements Importer {
 					String metaFilename = getImportFilename(rootDirectory, cancerStudyMetadata, datatypeMetadata.getMetaFilename());
 					args = new String[] { "--data", stagingFilename, "--meta", metaFilename, "--loadMode", "bulkLoad" };
 				}
-                else if (stagingFilename.endsWith(DatatypeMetadata.CLINICAL_SAMPLE_FILENAME_SUFFIX)) {
-                    args = new String[] { stagingFilename, cancerStudyMetadata.toString(), "t" };
-                }
 				else {
 					args = new String[] { stagingFilename, cancerStudyMetadata.toString() };
 				}
@@ -471,7 +468,7 @@ class ImporterImpl implements Importer {
         LineIterator it = fileUtils.getFileContents(FileUtils.FILE_URL_PREFIX + stagingFile);
         while (it.hasNext()) {
             if (!headerProcessed) {
-                String header = it.nextLine();
+                String header = it.nextLine().trim();
                 List<String> columnHeaders = new ArrayList(Arrays.asList(header.split(ImportClinicalData.DELIMITER, -1)));
                 newFileContents.append(MetadataUtils.getClinicalMetadataHeaders(config, columnHeaders));
                 newFileContents.append(header);

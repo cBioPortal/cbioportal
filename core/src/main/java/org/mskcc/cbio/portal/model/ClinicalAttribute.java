@@ -26,6 +26,8 @@ public class ClinicalAttribute  {
 	// some defined statics
 	public static final String NA = "NA";
     public static final String DEFAULT_DATATYPE = "STRING";
+    public static final String PATIENT_ATTRIBUTE = "PATIENT";
+    public static final String SAMPLE_ATTRIBUTE = "SAMPLE";
 	public static final String MISSING = "MISSING";
 	public static final String OS_STATUS = "OS_STATUS";
 	public static final String OS_MONTHS = "OS_MONTHS";

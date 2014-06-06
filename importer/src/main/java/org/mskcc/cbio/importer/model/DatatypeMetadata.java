@@ -55,9 +55,7 @@ public class DatatypeMetadata {
 
     public static final String COMMON_DATA_ELEMENT_ID = "CDE_ID:";
     public static final String BCR_CLINICAL_FILENAME_PREFIX = "nationwidechildrens.org";
-    public static final String CLINICAL_SAMPLE_FILENAME_SUFFIX = "_sample.txt";
-	public static final String CLINICAL_PATIENT_FILENAME = "data_clinical_patient.txt";
-	public static final String CLINICAL_SAMPLE_FILENAME = "data_clinical_sample.txt";
+	public static final String CLINICAL_FILENAME = "data_clinical_patient.txt";
 
 	// fusion data staging filename
 	public static final String FUSIONS_STAGING_FILENAME = "data_fusions.txt";

@@ -158,6 +158,7 @@ public class ClinicalDataConverterImpl extends ConverterBaseImpl implements Conv
             getClinicalAttributes(patientMatrix.getColumnHeaders(), true);
         removeUnknownColumnsFromMatrix(patientMatrix, clinicalAttributes);
         addSurvivalDataToMatrix(patientMatrix, computeSurvivalData(patientMatrix, followUps));
+        normalizeHeaders(patientMatrix, clinicalAttributes);
     }
 
     private SurvivalStatus computeSurvivalData(DataMatrix patientMatrix, List<DataMatrix> followUps)
@@ -174,6 +175,16 @@ public class ClinicalDataConverterImpl extends ConverterBaseImpl implements Conv
         dataMatrix.addColumn(ClinicalAttribute.OS_MONTHS, oss.osMonths);
         dataMatrix.addColumn(ClinicalAttribute.DFS_STATUS, oss.dfStatus);
         dataMatrix.addColumn(ClinicalAttribute.DFS_MONTHS, oss.dfMonths);
+    }
+
+    private void normalizeHeaders(DataMatrix dataMatrix, Map<String, ClinicalAttributesMetadata> clinicalAttributes)
+    {
+        for (String externalColumnHeader : dataMatrix.getColumnHeaders()) {
+            if (clinicalAttributes.containsKey(externalColumnHeader)) {
+                ClinicalAttributesMetadata metadata = clinicalAttributes.get(externalColumnHeader);
+                dataMatrix.renameColumn(externalColumnHeader, metadata.getNormalizedColumnHeader());
+            }
+        }
     }
 
     private Map<String, ClinicalAttributesMetadata> getClinicalAttributes(List<String> externalColumnHeaders,
@@ -219,6 +230,7 @@ public class ClinicalDataConverterImpl extends ConverterBaseImpl implements Conv
         Map<String, ClinicalAttributesMetadata> clinicalAttributes =
             getClinicalAttributes(sampleMatrix.getColumnHeaders(), false);
         removeUnknownColumnsFromMatrix(sampleMatrix, clinicalAttributes);
+        normalizeHeaders(sampleMatrix, clinicalAttributes);
     }
 
     private void mergeSampleIntoPatientMatrix(DataMatrix patientMatrix, DataMatrix sampleMatrix)

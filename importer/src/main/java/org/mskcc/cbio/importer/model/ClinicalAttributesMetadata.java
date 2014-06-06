@@ -26,10 +26,11 @@ public class ClinicalAttributesMetadata
     private String displayName;
     private String description;
     private String datatype;
+    private String attributeType;
 
     public ClinicalAttributesMetadata(String[] properties) {
 
-		if (properties.length < 4) {
+		if (properties.length < 5) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
 
@@ -37,10 +38,12 @@ public class ClinicalAttributesMetadata
         this.displayName = properties[1].trim();
         this.description = properties[2].trim();
 		this.datatype = properties[3].trim();
+		this.attributeType = properties[4].trim();
 	}
 
 	public String getNormalizedColumnHeader() { return normalizedColumnHeader; }
 	public String getDisplayName() { return displayName; }
 	public String getDescription() { return description; }
 	public String getDatatype() { return datatype; }
+	public String getAttributeType() { return attributeType; }
 }

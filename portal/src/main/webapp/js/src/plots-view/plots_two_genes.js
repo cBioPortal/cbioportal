@@ -863,7 +863,7 @@ var PlotsTwoGenesView = (function(){
             function(d) {
                 var content = "<font size='2'>";
                 content += "Case ID: " + "<strong><a href='"
-                        +cbio.util.getLinkToSampleView(cancer_study_id,d.caseId)
+                        +cbio.util.getLinkToSampleView(cancer_study_id,d.case_id)
                         + "' target = '_blank'>" + d.case_id + "</a></strong><br>";
                 content += menu.geneX + ": <strong>" + parseFloat(d.x_value).toFixed(3) + "</strong><br>" +
                     menu.geneY + ": <strong>" + parseFloat(d.y_value).toFixed(3) + "</strong><br>";
@@ -935,8 +935,10 @@ var PlotsTwoGenesView = (function(){
         Plots.getProfileData(
             menu.geneX + " " + menu.geneY,
             menu.genetic_profile_id + " " + cancer_study_id + "_mutations",
-            case_set_id,
-            case_ids_key,
+            //case_set_id,
+            patient_set_id,
+            //case_ids_key,
+            patient_ids_key,
             getProfileDataCallBack
         );
     }
@@ -965,7 +967,7 @@ var PlotsTwoGenesView = (function(){
             drawAxisY();
             drawPlots();
             dotsLogScaleUpdate("x", applyLogScale_x);
-            dotsLogScaleUpdate("y", applyLogScale_y)
+            dotsLogScaleUpdate("y", applyLogScale_y);
             drawLegends();
             addXaxisTitle(applyLogScale_x);
             addYaxisTitle(applyLogScale_y);

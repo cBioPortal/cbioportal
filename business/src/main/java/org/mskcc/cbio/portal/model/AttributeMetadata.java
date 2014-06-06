@@ -20,10 +20,11 @@ import java.io.Serializable;
 
 public class AttributeMetadata implements Serializable
 {
-    public AttributeType type;
+    public AttributeDatatype datatype;
     public String attributeId;
     public String displayName;
     public String description;
+    public String type;
 
     @Override
     public String toString()
@@ -32,6 +33,7 @@ public class AttributeMetadata implements Serializable
 			attributeId + "," +
 			displayName + "," +
 			description + "," +
-			type.toString() + "]";
+			datatype.toString() +
+            type +  "]";
     }
 }

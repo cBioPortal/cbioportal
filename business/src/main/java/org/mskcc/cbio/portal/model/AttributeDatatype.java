@@ -16,7 +16,7 @@
 */
 package org.mskcc.cbio.portal.model;
 
-public enum AttributeType
+public enum AttributeDatatype
 {
     NUMBER("NUMBER"),
     BOOLEAN("BOOLEAN"),
@@ -24,6 +24,6 @@ public enum AttributeType
 
     private String propertyName;
       
-    AttributeType(String propertyName) { this.propertyName = propertyName; }
+    AttributeDatatype(String propertyName) { this.propertyName = propertyName; }
     public String toString() { return propertyName; }
 }

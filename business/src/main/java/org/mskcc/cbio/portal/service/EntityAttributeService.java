@@ -49,13 +49,15 @@ public class EntityAttributeService
 
 	@Transactional
   public AttributeMetadata insertAttributeMetadata(String attributeId, String displayName,
-                                                   String description, AttributeType type)
+                                                   String description, AttributeDatatype datatype,
+                                                   String type)
   {
     AttributeMetadata attributeMetadata = new AttributeMetadata();
-    attributeMetadata.type = type;
+    attributeMetadata.datatype = datatype;
     attributeMetadata.attributeId = attributeId;
     attributeMetadata.displayName = displayName;
     attributeMetadata.description = description;
+    attributeMetadata.type = type;
     entityAttributeMapper.insertAttributeMetadata(attributeMetadata);
     return attributeMetadata;
   }

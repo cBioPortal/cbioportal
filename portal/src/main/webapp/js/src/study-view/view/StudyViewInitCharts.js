@@ -121,7 +121,8 @@ var StudyViewInitCharts = (function(){
             _attr = dataObtained.attr,
             _arr = dataObtained.arr,
             _attrLength = _attr.length,
-            _arrLength = _arr.length;
+            _arrLength = _arr.length,
+            _studyDesc = "";
         
         mutatedGenes = dataObtained.mutatedGenes;   
         numOfCases = _arr.length;        
@@ -160,7 +161,9 @@ var StudyViewInitCharts = (function(){
             if(_attr[i]["attr_id"] === "CASE_ID" ){
                 pie.push(_attr[i]);
             }else if(_attr[i]["attr_id"] === "PATIENT_ID") {
-                continue;
+                if(_keys.length !== Object.keys(dataArr).length) {
+                    _studyDesc = "from " + _keys.length + " patients";
+                }
             }else if(_dataType === "NUMBER" || _dataType === "BOOLEAN" || _allNumber){                
                 if(selectedCol(_attr[i]["attr_id"])){                    
                     if(_keys.length>10 || _attr[i]["attr_id"] === 'AGE' || _attr[i]["attr_id"] === 'MUTATION_COUNT' 
@@ -208,6 +211,8 @@ var StudyViewInitCharts = (function(){
             varDisplay.push(_attr[i]["display_name"]);                
             varName.push(_attr[i]["attr_id"]);
         }
+        
+        $("#study-desc").append("&nbsp;&nbsp;<b>"+ Object.keys(dataArr).length +" samples " + _studyDesc+"</b>.");
         
         totalCharts = pie.length + bar.length;
     }

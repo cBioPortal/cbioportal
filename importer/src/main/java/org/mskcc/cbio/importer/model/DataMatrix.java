@@ -274,6 +274,16 @@ public class DataMatrix {
 		columnHeaders.get(columnIndex).ignoreColumn = ignoreColumn;
 	}
 
+	public boolean isColumnIgnored(String columnName)
+	{
+		for (ColumnHeader columnHeader : columnHeaders) {
+			if (columnHeader.label.equals(columnName)) {
+				return columnHeader.ignoreColumn;
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * Rename a column
 	 *

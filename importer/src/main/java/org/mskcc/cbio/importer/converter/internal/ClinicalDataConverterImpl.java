@@ -154,10 +154,9 @@ public class ClinicalDataConverterImpl extends ConverterBaseImpl implements Conv
 
     private void processPatientMatrix(CancerStudyMetadata cancerStudyMetadata, DataMatrix patientMatrix, List<DataMatrix> followUps)
     {
-        Map<String, ClinicalAttributesMetadata> clinicalAttributes = getClinicalAttributes(patientMatrix.getColumnHeaders());
-
-        config.flagMissingClinicalAttributes(cancerStudyMetadata.toString(), cancerStudyMetadata.getTumorType(),
-                                             removeUnknownColumnsFromMatrix(patientMatrix, clinicalAttributes));
+        Map<String, ClinicalAttributesMetadata> clinicalAttributes =
+            getClinicalAttributes(patientMatrix.getColumnHeaders(), true);
+        removeUnknownColumnsFromMatrix(patientMatrix, clinicalAttributes);
         addSurvivalDataToMatrix(patientMatrix, computeSurvivalData(patientMatrix, followUps));
     }
 
@@ -177,35 +176,35 @@ public class ClinicalDataConverterImpl extends ConverterBaseImpl implements Conv
         dataMatrix.addColumn(ClinicalAttribute.DFS_MONTHS, oss.dfMonths);
     }
 
-    private Map<String, ClinicalAttributesMetadata> getClinicalAttributes(List<String> externalColumnHeaders)
+    private Map<String, ClinicalAttributesMetadata> getClinicalAttributes(List<String> externalColumnHeaders,
+                                                                          boolean addSurvival)
     {
         Map<String, ClinicalAttributesMetadata> clinicalAttributes =
             config.getClinicalAttributesMetadata(externalColumnHeaders);
 
-        // add overall survival attributes
-        clinicalAttributes.put(ClinicalAttribute.OS_STATUS,
-                               config.getClinicalAttributesMetadata(ClinicalAttribute.OS_STATUS).iterator().next());
-        clinicalAttributes.put(ClinicalAttribute.OS_MONTHS,
-                               config.getClinicalAttributesMetadata(ClinicalAttribute.OS_MONTHS).iterator().next());
-
-        // add disease free attributes
-        clinicalAttributes.put(ClinicalAttribute.DFS_STATUS,
-                               config.getClinicalAttributesMetadata(ClinicalAttribute.DFS_STATUS).iterator().next());
-        clinicalAttributes.put(ClinicalAttribute.DFS_MONTHS,
-                               config.getClinicalAttributesMetadata(ClinicalAttribute.DFS_MONTHS).iterator().next());
+        if (addSurvival) {
+            // add overall survival attributes
+            clinicalAttributes.put(ClinicalAttribute.OS_STATUS,
+                                   config.getClinicalAttributesMetadata(ClinicalAttribute.OS_STATUS).iterator().next());
+            clinicalAttributes.put(ClinicalAttribute.OS_MONTHS,
+                                   config.getClinicalAttributesMetadata(ClinicalAttribute.OS_MONTHS).iterator().next());
+            // add disease free attributes
+            clinicalAttributes.put(ClinicalAttribute.DFS_STATUS,
+                                   config.getClinicalAttributesMetadata(ClinicalAttribute.DFS_STATUS).iterator().next());
+            clinicalAttributes.put(ClinicalAttribute.DFS_MONTHS,
+                                   config.getClinicalAttributesMetadata(ClinicalAttribute.DFS_MONTHS).iterator().next());
+        }
         
         return clinicalAttributes;
     }
 
-    private Set<String> removeUnknownColumnsFromMatrix(DataMatrix dataMatrix, Map<String, ClinicalAttributesMetadata> clinicalAttributes)
+    private void removeUnknownColumnsFromMatrix(DataMatrix dataMatrix, Map<String, ClinicalAttributesMetadata> clinicalAttributes)
     {
-        Set<String> missingAttributes = new HashSet<String>();
-
         for (String externalColumnHeader : dataMatrix.getColumnHeaders()) {
             if (!clinicalAttributes.containsKey(externalColumnHeader)) {
                 dataMatrix.ignoreColumn(externalColumnHeader, true);
-                missingAttributes.add(externalColumnHeader);
-                logMessage(LOG, "removeUnknownColumnsFromMatrix(), unknown clinical attribute: " +
+                logMessage(LOG, "removeUnknownColumnsFromMatrix(), " +
+                           "unknown clinical attribute (or missing normalized mapping): " +
                            externalColumnHeader + " (" + dataMatrix.getFilename() + ")");
             }
             // tcga data has "patient_id" in addition to "bcr_patient_barcode"
@@ -213,16 +212,13 @@ public class ClinicalDataConverterImpl extends ConverterBaseImpl implements Conv
                 dataMatrix.ignoreColumn(externalColumnHeader, true);
             }
         }
-
-        return missingAttributes;
     }
 
     private void processSampleMatrix(CancerStudyMetadata cancerStudyMetadata, DataMatrix sampleMatrix)
     {
-        Map<String, ClinicalAttributesMetadata> clinicalAttributes = getClinicalAttributes(sampleMatrix.getColumnHeaders());
-
-        config.flagMissingClinicalAttributes(cancerStudyMetadata.toString() + " (sample file)", cancerStudyMetadata.getTumorType(),
-                                             removeUnknownColumnsFromMatrix(sampleMatrix, clinicalAttributes));
+        Map<String, ClinicalAttributesMetadata> clinicalAttributes =
+            getClinicalAttributes(sampleMatrix.getColumnHeaders(), false);
+        removeUnknownColumnsFromMatrix(sampleMatrix, clinicalAttributes);
     }
 
     private void mergeSampleIntoPatientMatrix(DataMatrix patientMatrix, DataMatrix sampleMatrix)
@@ -234,7 +230,11 @@ public class ClinicalDataConverterImpl extends ConverterBaseImpl implements Conv
     private void addSampleColumnsToPatientMatrix(DataMatrix patientMatrix, DataMatrix sampleMatrix)
     {
         for (String sampleColumnHeader : sampleMatrix.getColumnHeaders()) {
-            patientMatrix.addColumn(sampleColumnHeader, new ArrayList<String>(patientMatrix.getNumberOfRows()));
+            patientMatrix.addColumn(sampleColumnHeader,
+                                    new ArrayList<String>(patientMatrix.getNumberOfRows()));
+            if (sampleMatrix.isColumnIgnored(sampleColumnHeader)) {
+                patientMatrix.ignoreColumn(sampleColumnHeader, true);
+            }
         }
     }
 
@@ -247,10 +247,37 @@ public class ClinicalDataConverterImpl extends ConverterBaseImpl implements Conv
             String patientId = caseIDs.getPatientId(sampleId);
             List<String> patientIdsColumn = patientMatrix.getColumnData(0);
             int patientMatrixIndex = patientIdsColumn.indexOf(patientId);
-            List<String> newRowData = new ArrayList<String>(newRowDataSize);
-            newRowData.add(0, patientId);
-            newRowData.addAll(newRowData.size()-1, sampleMatrix.getRowData(lc));
-            patientMatrix.insertRow(newRowData, patientMatrixIndex);
+            if (patientMatrixIndex == -1) {
+                logMessage(LOG, "addSampleRowsToPatientMatrix(), corresponding patient id " +
+                                "not found for sample: " + sampleId);
+                continue;
+            }
+            List<String> newRowData = getNewRowData(sampleMatrix, lc,
+                                                    initNewRowData(newRowDataSize));
+            newRowData.set(0, patientId);
+            // insert sample row after patient row
+            patientMatrix.insertRow(newRowData, patientMatrixIndex+1);
         }
+    }
+
+    private ArrayList<String> getNewRowData(DataMatrix sampleMatrix, int sampleRowIndex, ArrayList<String> newRowData)
+    {
+        List<String> sampleRowData = sampleMatrix.getRowData(sampleRowIndex);
+
+        int sampleRowDataIndex = -1;
+        int startIndex = newRowData.size()-sampleMatrix.getColumnHeaders().size();
+        for (int lc = startIndex; lc < newRowData.size(); lc++) {
+            newRowData.set(lc, sampleRowData.get(++sampleRowDataIndex));
+        }
+        return newRowData;
+    }
+
+    private ArrayList<String> initNewRowData(int newRowDataSize)
+    {
+        ArrayList<String> newRowData = new ArrayList<String>(newRowDataSize);
+        for (int lc = 0; lc < newRowDataSize; lc++) {
+            newRowData.add("");
+        }
+        return newRowData;
     }
 }

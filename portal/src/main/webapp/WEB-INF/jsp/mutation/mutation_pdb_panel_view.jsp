@@ -1,3 +1,4 @@
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <script type="text/template" id="pdb_panel_view_template">
 	<table class='mutation-pdb-main-container'>
 		<tr>

@@ -1,3 +1,4 @@
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <script type="text/template" id="default_mutation_details_template">
 	<div class='mutation-3d-container'></div>
 	<div class='mutation-details-loader'>

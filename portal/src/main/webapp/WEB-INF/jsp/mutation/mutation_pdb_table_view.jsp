@@ -1,3 +1,4 @@
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <script type="text/template" id="pdb_table_view_template">
 	<div class='pdb-chain-table-loader'>
 		<img src='{{loaderImage}}'/>

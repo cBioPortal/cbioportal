@@ -38,11 +38,11 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
 %>
 
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<script type="text/javascript" src="js/lib/underscore-min.js"></script>
+<script type="text/javascript" src="js/lib/underscore-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
-<script type="text/javascript" src="js/src/patient-view/genomic-overview.js"></script>
-<script type="text/javascript" src="js/src/cancer-study-view/scatter-plot-mut-cna.js"></script>
-<script type="text/javascript" src="js/src/cancer-study-view/load-clinical-data.js"></script>
+<script type="text/javascript" src="js/src/patient-view/genomic-overview.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/cancer-study-view/scatter-plot-mut-cna.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/cancer-study-view/load-clinical-data.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript">
     google.load('visualization', '1', {packages:['table','corechart']}); 
     $(document).ready(function(){
@@ -219,7 +219,7 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
 <%}%>
 
 <%if(hasAlleleFrequencyData && caseIds.size() == 1) {%>
-<script type="text/javascript" src="js/src/patient-view/AlleleFreqPlot.js"></script>
+<script type="text/javascript" src="js/src/patient-view/AlleleFreqPlot.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript">
     $(document).ready(function() {
         genomicEventObs.subscribeMut(function()  {

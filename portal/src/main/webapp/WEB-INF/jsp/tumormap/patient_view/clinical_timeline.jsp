@@ -1,5 +1,5 @@
 
-  <script src="js/src/patient-view/clinical-timeline.js"></script>
+  <script src="js/src/patient-view/clinical-timeline.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
   <style type="text/css">
     .axis path,

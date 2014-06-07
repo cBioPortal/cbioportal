@@ -155,6 +155,6 @@
 	</div>
 </script>
 
-<script type="text/javascript" src="js/src/mutation/view/MutationDetailsTableView.js"></script>
-<script type="text/javascript" src="js/src/mutation/view/PredictedImpactTipView.js"></script>
-<script type="text/javascript" src="js/src/mutation/view/CosmicTipView.js"></script>
+<script type="text/javascript" src="js/src/mutation/view/MutationDetailsTableView.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/mutation/view/PredictedImpactTipView.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/mutation/view/CosmicTipView.js?<%=GlobalProperties.getAppVersion()%>"></script>

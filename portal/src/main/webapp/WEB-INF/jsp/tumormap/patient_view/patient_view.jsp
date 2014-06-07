@@ -237,11 +237,11 @@ if (patientViewError!=null) {
 </div>
 <jsp:include page="../../global/xdebug.jsp" flush="true" />
 
-<link href="css/jquery.qtip.min.css" type="text/css" rel="stylesheet"/>
+<link href="css/jquery.qtip.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
 
 <style type="text/css" title="currentStyle"> 
-        @import "css/data_table_jui.css";
-        @import "css/data_table_ColVis.css";
+        @import "css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>";
+        @import "css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>";
         .ColVis {
                 float: left;
                 margin-bottom: 0
@@ -314,7 +314,7 @@ if (patientViewError!=null) {
 	}
 </style>
 
-<script type="text/javascript" src="js/src/patient-view/genomic-event-observer.js"></script>
+<script type="text/javascript" src="js/src/patient-view/genomic-event-observer.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript">
 
 var print = <%=print%>;

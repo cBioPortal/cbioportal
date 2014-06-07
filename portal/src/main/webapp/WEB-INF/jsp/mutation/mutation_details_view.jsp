@@ -66,6 +66,6 @@
 	</div>
 </script>
 
-<script type="text/javascript" src="js/src/mutation/view/MainMutationView.js"></script>
-<script type="text/javascript" src="js/src/mutation/view/MutationDetailsView.js"></script>
+<script type="text/javascript" src="js/src/mutation/view/MainMutationView.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/mutation/view/MutationDetailsView.js?<%=GlobalProperties.getAppVersion()%>"></script>
 

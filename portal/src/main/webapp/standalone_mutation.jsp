@@ -40,15 +40,15 @@
 	}
 </style>
 
-<script type="text/javascript" src="js/src/mutation/util/MutationInputParser.js"></script>
-<link href="css/data_table_ColVis.css" type="text/css" rel="stylesheet" />
-<link href="css/data_table_jui.css" type="text/css" rel="stylesheet" />
-<link href="css/mutation/mutation_details.css" type="text/css" rel="stylesheet" />
-<link href="css/mutation/mutation_table.css" type="text/css" rel="stylesheet" />
-<link href="css/mutation/mutation_3d.css" type="text/css" rel="stylesheet" />
-<link href="css/mutation/mutation_diagram.css" type="text/css" rel="stylesheet" />
-<link href="css/mutation/mutation_pdb_panel.css" type="text/css" rel="stylesheet" />
-<link href="css/mutation/mutation_pdb_table.css" type="text/css" rel="stylesheet" />
+<script type="text/javascript" src="js/src/mutation/util/MutationInputParser.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<link href="css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link href="css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link href="css/mutation/mutation_details.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link href="css/mutation/mutation_table.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link href="css/mutation/mutation_3d.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link href="css/mutation/mutation_diagram.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link href="css/mutation/mutation_pdb_panel.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link href="css/mutation/mutation_pdb_table.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 
 <jsp:include page="WEB-INF/jsp/mutation_views.jsp" flush="true"/>
 <jsp:include page="WEB-INF/jsp/mutation/standalone_mutation_view.jsp" flush="true"/>

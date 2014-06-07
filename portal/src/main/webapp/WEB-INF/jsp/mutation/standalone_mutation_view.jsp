@@ -70,4 +70,4 @@
 	<b alt="{{caseIdTip}}" class="{{caseIdClass}}">{{caseId}}</b>
 </script>
 
-<script type="text/javascript" src="js/src/mutation/view/StandaloneMutationView.js"></script>
+<script type="text/javascript" src="js/src/mutation/view/StandaloneMutationView.js?<%=GlobalProperties.getAppVersion()%>"></script>

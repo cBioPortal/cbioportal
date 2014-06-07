@@ -65,25 +65,49 @@ public class LinkOut extends HttpServlet {
         PrintWriter writer = httpServletResponse.getWriter();
         try {
             LinkOutRequest linkOutRequest = new LinkOutRequest(httpServletRequest);
-            String cancerStudyId = linkOutRequest.getCancerStudyId();
-            String output = linkOutRequest.getReport();
-            String geneList = linkOutRequest.getGeneList();
-            HashMap<String, GeneticProfile> defaultGeneticProfileSet = getDefaultGeneticProfileSet(cancerStudyId);
-            PatientList defaultPatientList = getDefaultPatientList(cancerStudyId);
-            ForwardingRequest forwardingRequest = new ForwardingRequest(httpServletRequest);
-            createForwardingUrl(forwardingRequest, cancerStudyId, geneList, defaultGeneticProfileSet,
-                defaultPatientList, output);
-            ServletContext context = getServletContext();
-            RequestDispatcher dispatcher = context.getRequestDispatcher("/index.do");
-            dispatcher.forward(forwardingRequest, httpServletResponse);
-        } catch(ProtocolException e) {
-            writer.write("Link out error:  " + e.getMsg());
+            if (linkOutRequest.isIsCrossCancerQuery()) {
+                handleCrossCancerLink(linkOutRequest, httpServletRequest, httpServletResponse);
+            } else {
+                handleStudySpecificLink(linkOutRequest, httpServletRequest, httpServletResponse);
+            }
         } catch (Exception e) {
-            writer.write("Link out error:  " + e.toString());
+            writer.write("Link out error:  " + e.getMessage());
         }
     }
+    
+    private void handleCrossCancerLink(LinkOutRequest linkOutRequest,
+            HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
+            throws Exception {
+        String geneList = linkOutRequest.getGeneList();
+        ForwardingRequest forwardingRequest = new ForwardingRequest(httpServletRequest);
+        createCrossCancerForwardingUrl(forwardingRequest, geneList);
+        ServletContext context = getServletContext();
+        RequestDispatcher dispatcher = context.getRequestDispatcher("/cross_cancer.do");
+        dispatcher.forward(forwardingRequest, httpServletResponse);
+    }
 
-    private void createForwardingUrl(ForwardingRequest forwardingRequest, String cancerStudyId, String geneList,
+    private void createCrossCancerForwardingUrl(ForwardingRequest forwardingRequest, String geneList) {
+        forwardingRequest.setParameterValue(QueryBuilder.GENE_LIST , geneList);
+        forwardingRequest.setParameterValue(QueryBuilder.ACTION_NAME, QueryBuilder.ACTION_SUBMIT);
+    }
+    
+    private void handleStudySpecificLink(LinkOutRequest linkOutRequest,
+            HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
+            throws Exception {
+        String cancerStudyId = linkOutRequest.getCancerStudyId();
+        String output = linkOutRequest.getReport();
+        String geneList = linkOutRequest.getGeneList();
+        HashMap<String, GeneticProfile> defaultGeneticProfileSet = getDefaultGeneticProfileSet(cancerStudyId);
+        PatientList defaultCaseList = getDefaultPatientList(cancerStudyId);
+        ForwardingRequest forwardingRequest = new ForwardingRequest(httpServletRequest);
+        createStudySpecificForwardingUrl(forwardingRequest, cancerStudyId, geneList, defaultGeneticProfileSet,
+            defaultCaseList, output);
+        ServletContext context = getServletContext();
+        RequestDispatcher dispatcher = context.getRequestDispatcher("/index.do");
+        dispatcher.forward(forwardingRequest, httpServletResponse);
+    }
+
+    private void createStudySpecificForwardingUrl(ForwardingRequest forwardingRequest, String cancerStudyId, String geneList,
             HashMap<String, GeneticProfile> defaultGeneticProfileSet, PatientList defaultPatientList, String output) {
         forwardingRequest.setParameterValue(QueryBuilder.GENE_LIST , geneList);
         forwardingRequest.setParameterValue(QueryBuilder.CANCER_STUDY_ID, cancerStudyId);

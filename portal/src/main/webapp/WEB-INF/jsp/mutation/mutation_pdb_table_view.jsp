@@ -38,4 +38,4 @@
 	<b>chain:</b> {{molecule}}
 </script>
 
-<script type="text/javascript" src="js/src/mutation/view/PdbTableView.js"></script>
+<script type="text/javascript" src="js/src/mutation/view/PdbTableView.js?<%=GlobalProperties.getAppVersion()%>"></script>

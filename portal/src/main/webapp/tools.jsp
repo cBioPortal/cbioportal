@@ -16,7 +16,7 @@
     }
 </style>
 
-<link href="css/bootstrap.min.css" type="text/css" rel="stylesheet" />
+<link href="css/bootstrap.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 
 <body>
 
@@ -76,7 +76,7 @@
     <jsp:include page="WEB-INF/jsp/oncoprint/controls-templates.jsp"></jsp:include>
 
     <div id='oncoprint'></div>
-    <script data-main="js/src/oncoprint/custom-boilerplate.js" type="text/javascript" src="js/require.js"></script>
+    <script data-main="js/src/oncoprint/custom-boilerplate.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript" src="js/require.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
     <div id="download_oncoprint" style="display:none; margin-bottom:40px; margin-top:20px;">
         <span>

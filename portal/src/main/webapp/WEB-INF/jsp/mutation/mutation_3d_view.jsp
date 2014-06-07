@@ -271,6 +271,6 @@
 	does not contain any co-crystalized bound molecules.
 </script>
 
-<script type="text/javascript" src="js/src/mutation/view/Mutation3dView.js"></script>
-<script type="text/javascript" src="js/src/mutation/view/Mutation3dVisView.js"></script>
-<script type="text/javascript" src="js/src/mutation/view/Mutation3dVisInfoView.js"></script>
+<script type="text/javascript" src="js/src/mutation/view/Mutation3dView.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/mutation/view/Mutation3dVisView.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/mutation/view/Mutation3dVisInfoView.js?<%=GlobalProperties.getAppVersion()%>"></script>

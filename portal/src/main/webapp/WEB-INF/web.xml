@@ -263,6 +263,10 @@
         <servlet-name>link_out</servlet-name>
         <url-pattern>/link.do</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>link_out</servlet-name>
+        <url-pattern>/ln</url-pattern>
+    </servlet-mapping>
 
 	<servlet>
 		<servlet-name>pfam_sequence_json</servlet-name>

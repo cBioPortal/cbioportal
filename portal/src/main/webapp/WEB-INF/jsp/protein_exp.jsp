@@ -9,8 +9,8 @@
 %>
 
 <style type="text/css" title="currentStyle"> 
-        @import "css/data_table_jui.css";
-        @import "css/data_table_ColVis.css";
+        @import "css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>";
+        @import "css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>";
         #protein_exp .ColVis {
                 float: left;
                 margin-bottom: 0
@@ -35,7 +35,7 @@
         }
 </style>
 
-<script type="text/javascript" src="js/src/protein_exp.js"></script>
+<script type="text/javascript" src="js/src/protein_exp.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <script type="text/javascript">
     function parsePValue(str) {

@@ -51,6 +51,8 @@ public class GlobalProperties {
 
     public static final String APP_NAME = "app.name";
     public static final String DEFAULT_APP_NAME = "public_portal";
+    
+    public static final String APP_VERSION = "app.version";
 
     public static final String SKIN_TITLE = "skin.title";
     public static final String DEFAULT_SKIN_TITLE = "cBioPortal for Cancer Genomics";
@@ -189,6 +191,12 @@ public class GlobalProperties {
     {
         String appName = properties.getProperty(APP_NAME);
         return (appName == null) ? DEFAULT_APP_NAME : appName;
+    }
+
+    public static String getAppVersion()
+    {
+        String appVersion = properties.getProperty(APP_VERSION);
+        return (appVersion == null) ? "1.0" : appVersion;
     }
 
     public static String getTitle()

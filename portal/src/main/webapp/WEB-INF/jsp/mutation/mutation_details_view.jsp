@@ -1,3 +1,4 @@
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <script type="text/template" id="default_mutation_details_template">
 	<div class='mutation-3d-container'></div>
 	<div class='mutation-details-loader'>
@@ -66,6 +67,6 @@
 	</div>
 </script>
 
-<script type="text/javascript" src="js/src/mutation/view/MainMutationView.js"></script>
-<script type="text/javascript" src="js/src/mutation/view/MutationDetailsView.js"></script>
+<script type="text/javascript" src="js/src/mutation/view/MainMutationView.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/mutation/view/MutationDetailsView.js?<%=GlobalProperties.getAppVersion()%>"></script>
 

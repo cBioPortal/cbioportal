@@ -2,10 +2,10 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.MutationsJSON" %>
 <%@ page import="org.mskcc.cbio.portal.dao.DaoMutSig" %>
 
-<script type="text/javascript" src="js/lib/igv_webstart.js"></script>
+<script type="text/javascript" src="js/lib/igv_webstart.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
-<script type="text/javascript" src="js/src/patient-view/PancanMutationHistogram.js"></script>
-<link href="css/mutation/mutation_table.css" type="text/css" rel="stylesheet"/>
+<script type="text/javascript" src="js/src/patient-view/PancanMutationHistogram.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<link href="css/mutation/mutation_table.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
 
 <script type="text/javascript">
     var mutTableIndices =

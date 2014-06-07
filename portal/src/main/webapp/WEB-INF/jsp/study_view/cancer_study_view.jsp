@@ -133,8 +133,8 @@ if (cancerStudyViewError!=null) {
 <jsp:include page="../global/xdebug.jsp" flush="true" />    
 
 <style type="text/css">
-        @import "css/data_table_jui.css";
-        @import "css/data_table_ColVis.css";
+        @import "css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>";
+        @import "css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>";
         .ColVis {
                 float: left;
                 margin-bottom: 0
@@ -163,7 +163,7 @@ if (cancerStudyViewError!=null) {
         }
 </style>
 
-<script type="text/javascript" src="js/src/cancer-study-view/load-clinical-data.js"></script>
+<script type="text/javascript" src="js/src/cancer-study-view/load-clinical-data.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <script type="text/javascript">
 var cancerStudyId = '<%=cancerStudy.getCancerStudyStableId()%>';

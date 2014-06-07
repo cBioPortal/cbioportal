@@ -31,18 +31,18 @@
         diffusion = "0";
 %>
 
-<link href="css/network/network_ui.css" type="text/css" rel="stylesheet"/>
+<link href="css/network/network_ui.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
 
-<script type="text/javascript" src="js/lib/json2.js"></script>
-<script type="text/javascript" src="js/lib/cytoscape_web/AC_OETags.min.js"></script>
-<script type="text/javascript" src="js/lib/cytoscape_web/cytoscapeweb.min.js"></script>
+<script type="text/javascript" src="js/lib/json2.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/cytoscape_web/AC_OETags.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/cytoscape_web/cytoscapeweb.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
-<!-- <script type="text/javascript" src="js/src/network/network-ui.js"></script> -->
-<script type="text/javascript" src="js/src/network/network-visualization.js"></script>
-<script type="text/javascript" src="js/src/network/network-viz.js"></script>
+<!-- <script type="text/javascript" src="js/src/network/network-ui.js?<%=GlobalProperties.getAppVersion()%>"></script> -->
+<script type="text/javascript" src="js/src/network/network-visualization.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/network/network-viz.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <!-- for genomic data post request -->
-<script type="text/javascript" src="js/lib/d3.min.js"></script>
+<script type="text/javascript" src="js/lib/d3.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <script type="text/javascript">
 

@@ -7,9 +7,9 @@
 	  <title><%= GlobalProperties.getTitle() %>::OpenID Login</title>
 
 	  <!-- Simple OpenID Selector -->
-	  <link type="text/css" rel="stylesheet" href="css/openid.css" />
-	  <script type="text/javascript" src="js/lib/jquery-1.4.2.min.js"></script>
-	  <script type="text/javascript" src="js/lib/openid-jquery.js"></script>
+	  <link type="text/css" rel="stylesheet" href="css/openid.css?<%=GlobalProperties.getAppVersion()%>" />
+	  <script type="text/javascript" src="js/lib/jquery-1.4.2.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+	  <script type="text/javascript" src="js/lib/openid-jquery.js?<%=GlobalProperties.getAppVersion()%>"></script>
 	  <script type="text/javascript">
 	      $(document).ready(function() {
 				  openid.init('openid_identifier');

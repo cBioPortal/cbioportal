@@ -2,6 +2,7 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.MutationsJSON" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.CnaJSON" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.PatientView" %>
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
 <style type="text/css">
 .small-plot-div {
@@ -22,8 +23,8 @@
 </style>
 
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<script type="text/javascript" src="js/src/cancer-study-view/plot-clinical-data.js"></script>
-<script type="text/javascript" src="js/src/cancer-study-view/scatter-plot-mut-cna.js"></script>
+<script type="text/javascript" src="js/src/cancer-study-view/plot-clinical-data.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/cancer-study-view/scatter-plot-mut-cna.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript">   
     google.load('visualization', '1', {packages:['table','corechart']}); 
     $(document).ready(function(){

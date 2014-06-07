@@ -18,7 +18,6 @@ package org.mskcc.cbio.portal.scripts;
 
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.service.*;
 import org.mskcc.cbio.portal.util.*;
 
 import java.io.*;
@@ -343,5 +342,5 @@ public class ImportClinicalData {
 		finally {
             ConsoleUtil.showWarnings(pMonitor);
         }
-	}
+    }
 }

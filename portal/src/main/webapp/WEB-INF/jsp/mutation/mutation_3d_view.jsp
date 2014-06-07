@@ -1,3 +1,4 @@
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <script type="text/template" id="mutation_3d_view_template">
 	<button class='mutation-3d-vis'>
 		<label>3D Structure &#187</label>
@@ -271,6 +272,6 @@
 	does not contain any co-crystalized bound molecules.
 </script>
 
-<script type="text/javascript" src="js/src/mutation/view/Mutation3dView.js"></script>
-<script type="text/javascript" src="js/src/mutation/view/Mutation3dVisView.js"></script>
-<script type="text/javascript" src="js/src/mutation/view/Mutation3dVisInfoView.js"></script>
+<script type="text/javascript" src="js/src/mutation/view/Mutation3dView.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/mutation/view/Mutation3dVisView.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/mutation/view/Mutation3dVisInfoView.js?<%=GlobalProperties.getAppVersion()%>"></script>

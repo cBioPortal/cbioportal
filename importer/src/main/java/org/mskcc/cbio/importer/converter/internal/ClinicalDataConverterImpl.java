@@ -156,7 +156,8 @@ public class ClinicalDataConverterImpl extends ConverterBaseImpl implements Conv
     {
         Map<String, ClinicalAttributesMetadata> clinicalAttributes =
             getClinicalAttributes(patientMatrix.getColumnHeaders(), true);
-        removeUnknownColumnsFromMatrix(patientMatrix, clinicalAttributes);
+        config.flagMissingClinicalAttributes(cancerStudyMetadata.toString(), cancerStudyMetadata.getTumorType(),
+                                             removeUnknownColumnsFromMatrix(patientMatrix, clinicalAttributes));
         addSurvivalDataToMatrix(patientMatrix, computeSurvivalData(patientMatrix, followUps));
         normalizeHeaders(patientMatrix, clinicalAttributes);
     }
@@ -209,11 +210,14 @@ public class ClinicalDataConverterImpl extends ConverterBaseImpl implements Conv
         return clinicalAttributes;
     }
 
-    private void removeUnknownColumnsFromMatrix(DataMatrix dataMatrix, Map<String, ClinicalAttributesMetadata> clinicalAttributes)
+    private Set<String> removeUnknownColumnsFromMatrix(DataMatrix dataMatrix, Map<String, ClinicalAttributesMetadata> clinicalAttributes)
     {
+        Set<String> missingAttributes = new HashSet<String>();
+
         for (String externalColumnHeader : dataMatrix.getColumnHeaders()) {
             if (!clinicalAttributes.containsKey(externalColumnHeader)) {
                 dataMatrix.ignoreColumn(externalColumnHeader, true);
+                missingAttributes.add(externalColumnHeader);
                 logMessage(LOG, "removeUnknownColumnsFromMatrix(), " +
                            "unknown clinical attribute (or missing normalized mapping): " +
                            externalColumnHeader + " (" + dataMatrix.getFilename() + ")");
@@ -223,13 +227,16 @@ public class ClinicalDataConverterImpl extends ConverterBaseImpl implements Conv
                 dataMatrix.ignoreColumn(externalColumnHeader, true);
             }
         }
+
+        return missingAttributes;
     }
 
     private void processSampleMatrix(CancerStudyMetadata cancerStudyMetadata, DataMatrix sampleMatrix)
     {
         Map<String, ClinicalAttributesMetadata> clinicalAttributes =
             getClinicalAttributes(sampleMatrix.getColumnHeaders(), false);
-        removeUnknownColumnsFromMatrix(sampleMatrix, clinicalAttributes);
+        config.flagMissingClinicalAttributes(cancerStudyMetadata.toString(), cancerStudyMetadata.getTumorType(),
+                                             removeUnknownColumnsFromMatrix(sampleMatrix, clinicalAttributes));
         normalizeHeaders(sampleMatrix, clinicalAttributes);
     }
 

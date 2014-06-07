@@ -528,6 +528,22 @@ class GDataImpl implements Config {
                                                                              ClinicalAttributesNamespace.DATE_FORMAT.format(Calendar.getInstance().getTime())));
                 updatedClinicalAttributes = true;
             }
+            else {
+            	ClinicalAttributesNamespace ns = clinicalAttributesNamespace.get(missingAttribute);
+            	if (!ns.getCancerStudy().contains(cancerStudy)) {
+            		bcr.id = ns.getExternalColumnHeader();
+            		bcr.displayName = ns.getDisplayName();
+            		bcr.description = ns.getDescription();
+            		bcr.tumorType = (ns.getTumorType().contains(tumorType)) ? ns.getTumorType() : ns.getTumorType() + "," + tumorType;
+            		bcr.cancerStudy = ns.getCancerStudy() + "," + cancerStudy;
+	                updateWorksheet(gdataSpreadsheet, clinicalAttributesNamespaceWorksheet,
+	                                false, ClinicalAttributesNamespace.WORKSHEET_UPDATE_COLUMN_KEY,
+                                	ns.getExternalColumnHeader(),
+                                ClinicalAttributesNamespace.getPropertiesMap(bcr,
+                                                                             ClinicalAttributesNamespace.DATE_FORMAT.format(Calendar.getInstance().getTime())));
+                	updatedClinicalAttributes = true;
+            	}
+            }
         }
         if (updatedClinicalAttributes) {
             clinicalAttributesNamespaceMatrix = null;

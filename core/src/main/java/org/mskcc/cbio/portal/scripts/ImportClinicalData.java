@@ -126,13 +126,8 @@ public class ImportClinicalData {
                 continue;
             }
 
-            String[] fields = line.split(DELIMITER);
-            if (validLine(fields, columnAttrs)) {
-                addDatum(fields, columnAttrs);
-            }
-            else {
-                System.err.println("Corrupt line in data file, skipping: " + line);
-            }
+            String[] fields = getFields(line, columnAttrs);
+            addDatum(fields, columnAttrs);
         }
     }
 
@@ -141,38 +136,40 @@ public class ImportClinicalData {
         return (line.isEmpty() || line.substring(0,1).equals(METADATA_PREFIX));
     }
 
-    private boolean validLine(String[] fields, List<ClinicalAttribute> columnAttrs)
+    private String[] getFields(String line, List<ClinicalAttribute> columnAttrs)
     {
+        String[] fields = line.split(DELIMITER, -1);
         if (fields.length < columnAttrs.size()) {
             int origFieldsLen = fields.length;
             fields = Arrays.copyOf(fields, columnAttrs.size());
             Arrays.fill(fields, origFieldsLen, columnAttrs.size(), "");
         }
-        return (fields.length == columnAttrs.size());
+        return fields; 
     }
 
     private void addDatum(String[] fields, List<ClinicalAttribute> columnAttrs) throws Exception
     {
         // attempt to add both a patient and sample to database
         int patientIdIndex = findPatientIdColumn(columnAttrs); 
-        int internalPatientId = addPatientToDatabase(fields[patientIdIndex]); 
+        int[] internalPatientId = addPatientToDatabase(fields[patientIdIndex]); 
         int sampleIdIndex = findSampleIdColumn(columnAttrs);
         String stableSampleId = fields[sampleIdIndex];
-        int internalSampleId = addSampleToDatabase(stableSampleId, fields, columnAttrs);
+        int[] internalSampleId = (stableSampleId.length() > 0) ?
+            addSampleToDatabase(stableSampleId, fields, columnAttrs) : new int[] {-1,-1};
 
         for (int lc = 0; lc < fields.length; lc++) {
             boolean isPatientAttribute = columnAttrs.get(lc).isPatientAttribute(); 
             int indexOfIdColumn = (isPatientAttribute) ? patientIdIndex : sampleIdIndex; 
             if (addAttributeToDatabase(lc, indexOfIdColumn, fields[lc])) {
-                if (isPatientAttribute && internalPatientId != -1) {
-                    addDatum(internalPatientId, columnAttrs.get(lc).getAttrId(), fields[lc],
+                if (isPatientAttribute && internalPatientId[0] != -1 && internalPatientId[1] != -1) {
+                    addDatum(internalPatientId[0], columnAttrs.get(lc).getAttrId(), fields[lc],
                              ClinicalAttribute.PATIENT_ATTRIBUTE);
-                    addEntityAttribute(internalPatientId, lc, fields, columnAttrs);
+                    addEntityAttribute(internalPatientId[1], lc, fields, columnAttrs);
                 }
-                else if (internalSampleId != -1) {
-                    addDatum(internalSampleId, columnAttrs.get(lc).getAttrId(), fields[lc],
+                else if (internalSampleId[0] != -1 && internalSampleId[1] != -1) {
+                    addDatum(internalSampleId[0], columnAttrs.get(lc).getAttrId(), fields[lc],
                              ClinicalAttribute.SAMPLE_ATTRIBUTE);
-                    addEntityAttribute(internalSampleId, lc, fields, columnAttrs);
+                    addEntityAttribute(internalSampleId[1], lc, fields, columnAttrs);
                 }
             }
         }
@@ -198,24 +195,35 @@ public class ImportClinicalData {
         return -1;
     }
 
-    private int addPatientToDatabase(String stableId) throws Exception
+    private int[] addPatientToDatabase(String patientId) throws Exception
     {
-        int internalPatientId = -1;
-        if (validPatientId(stableId)) {
-            Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), stableId);
-            if (patient != null) return patient.getInternalId();
-            patient = new Patient(cancerStudy, stableId);
-            internalPatientId = DaoPatient.addPatient(patient);
-            Entity patientEntity = ImportDataUtil.entityService.insertEntity(stableId, EntityType.PATIENT);
-            ImportDataUtil.entityService.insertEntityLink(cancerStudyEntity.internalId, patientEntity.internalId);
+        int[] internalPatientId = {-1,-1};
+        if (validPatientId(patientId)) {
+            Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), patientId);
+            if (patient != null) {
+                internalPatientId[0] = patient.getInternalId();
+            }
+            else {
+                patient = new Patient(cancerStudy, patientId);
+                internalPatientId[0] = DaoPatient.addPatient(patient);
+            }
+            Entity patientEntity = ImportDataUtil.entityService.getPatient(cancerStudy.getCancerStudyStableId(), patientId);
+            if (patientEntity != null) {
+                internalPatientId[1] = patientEntity.internalId;
+            }
+            else {
+                patientEntity = ImportDataUtil.entityService.insertEntity(patientId, EntityType.PATIENT);
+                internalPatientId[1] = patientEntity.internalId;
+                ImportDataUtil.entityService.insertEntityLink(cancerStudyEntity.internalId, patientEntity.internalId);
+            }
         }
 
         return internalPatientId;
     }
 
-    private int addSampleToDatabase(String sampleId, String[] fields, List<ClinicalAttribute> columnAttrs) throws Exception
+    private int[] addSampleToDatabase(String sampleId, String[] fields, List<ClinicalAttribute> columnAttrs) throws Exception
     {
-        int internalSampleId = -1;
+        int[] internalSampleId = {-1,-1};
         if (validSampleId(sampleId)) {
             String stablePatientId = getStablePatientId(sampleId, fields, columnAttrs);
             if (validPatientId(stablePatientId)) {
@@ -227,14 +235,26 @@ public class ImportClinicalData {
                 sampleId = StableIdUtil.getSampleId(sampleId);
                 if (patient != null) {
                     Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudy.getInternalId(), sampleId);
-                    if (sample != null) return sample.getInternalId();
-                    internalSampleId = DaoSample.addSample(new Sample(sampleId,
-                                                                      patient.getInternalId(),
-                                                                      cancerStudy.getTypeOfCancerId()));
-                    Entity sampleEntity = ImportDataUtil.entityService.insertEntity(sampleId, EntityType.SAMPLE);
-                    Entity patientEntity = ImportDataUtil.entityService.getPatient(cancerStudy.getCancerStudyStableId(),
-                                                                                   patient.getStableId());
-                    ImportDataUtil.entityService.insertEntityLink(patientEntity.internalId, sampleEntity.internalId);
+                    if (sample != null) {
+                        internalSampleId[0] = sample.getInternalId();
+                    }
+                    else {
+                        internalSampleId[0] = DaoSample.addSample(new Sample(sampleId,
+                                                                  patient.getInternalId(),
+                                                                  cancerStudy.getTypeOfCancerId()));
+                    }
+                    Entity sampleEntity = ImportDataUtil.entityService.getSample(cancerStudy.getCancerStudyStableId(),
+                                                                                 patient.getStableId(), sampleId);
+                    if (sampleEntity != null) {
+                        internalSampleId[1] = sampleEntity.internalId;
+                    }
+                    else {
+                        sampleEntity = ImportDataUtil.entityService.insertEntity(sampleId, EntityType.SAMPLE);
+                        internalSampleId[1] = sampleEntity.internalId;
+                        Entity patientEntity = ImportDataUtil.entityService.getPatient(cancerStudy.getCancerStudyStableId(),
+                                                                                       patient.getStableId());
+                        ImportDataUtil.entityService.insertEntityLink(patientEntity.internalId, sampleEntity.internalId);
+                    }
                 }
             }
         }
@@ -290,15 +310,20 @@ public class ImportClinicalData {
                                     int attrIndex, String[] fields,
                                     List<ClinicalAttribute> columnAttrs)
     {
-        if (columnAttrs.get(attrIndex).isPatientAttribute()) {
-            ImportDataUtil.entityAttributeService.insertEntityAttribute(internalId,
-                                                                        columnAttrs.get(attrIndex).getAttrId(),
-                                                                        fields[attrIndex]);
-        }
-        else {
-            ImportDataUtil.entityAttributeService.insertEntityAttribute(internalId,
-                                                                        columnAttrs.get(attrIndex).getAttrId(),
-                                                                        fields[attrIndex]);
+        EntityAttribute entityAttribute = 
+            ImportDataUtil.entityAttributeService.getAttribute(internalId,
+                                                               columnAttrs.get(attrIndex).getAttrId());
+        if (entityAttribute == null) {
+            if (columnAttrs.get(attrIndex).isPatientAttribute()) {
+                ImportDataUtil.entityAttributeService.insertEntityAttribute(internalId,
+                                                                            columnAttrs.get(attrIndex).getAttrId(),
+                                                                            fields[attrIndex]);
+            }
+            else {
+                ImportDataUtil.entityAttributeService.insertEntityAttribute(internalId,
+                                                                            columnAttrs.get(attrIndex).getAttrId(),
+                                                                            fields[attrIndex]);
+            }
         }
     }
 

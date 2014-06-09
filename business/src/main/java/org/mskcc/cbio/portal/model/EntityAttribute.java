@@ -17,7 +17,9 @@
 
 package org.mskcc.cbio.portal.model;
 
-public class EntityAttribute
+import java.io.Serializable;
+
+public class EntityAttribute implements Serializable
 {
     public int entityId;
     public String attributeId;

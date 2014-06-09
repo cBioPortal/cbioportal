@@ -465,22 +465,33 @@ class ImporterImpl implements Importer {
         StringBuilder newFileContents = new StringBuilder();
 
         boolean headerProcessed = false;
+        List<Boolean> headersWithMissingMetadata = new ArrayList<Boolean>();
         LineIterator it = fileUtils.getFileContents(FileUtils.FILE_URL_PREFIX + stagingFile);
         while (it.hasNext()) {
             if (!headerProcessed) {
                 String header = it.nextLine().trim();
                 List<String> columnHeaders = new ArrayList(Arrays.asList(header.split(ImportClinicalData.DELIMITER, -1)));
+                headersWithMissingMetadata = MetadataUtils.getHeadersMissingMetadata(config, columnHeaders);
                 newFileContents.append(MetadataUtils.getClinicalMetadataHeaders(config, columnHeaders));
-                newFileContents.append(header);
-                newFileContents.append("\n");
                 headerProcessed = true;
             }
             else {
-                newFileContents.append(it.nextLine());
-                newFileContents.append("\n");
+                newFileContents.append(getLineFromClinical(it.nextLine(), headersWithMissingMetadata));
             }
         }
         return fileUtils.createTmpFileWithContents(stagingFile, newFileContents.toString()).getCanonicalPath();
+    }
+
+    private String getLineFromClinical(String nextLine, List<Boolean> headersWithMissingMetadata)
+    {
+    	StringBuilder lineBuilder = new StringBuilder();
+    	String[] parts = nextLine.split(ImportClinicalData.DELIMITER, -1);
+    	for (int lc = 0; lc < headersWithMissingMetadata.size(); lc++) {
+    		if (!headersWithMissingMetadata.get(lc)) {
+    			lineBuilder.append(parts[lc] + ImportClinicalData.DELIMITER);
+    		}
+    	}
+    	return lineBuilder.toString().trim() + "\n";
     }
 
 	private String getOncotatedFile(String stagingFilename) throws Exception

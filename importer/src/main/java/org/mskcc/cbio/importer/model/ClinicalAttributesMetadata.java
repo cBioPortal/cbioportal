@@ -46,4 +46,12 @@ public class ClinicalAttributesMetadata
 	public String getDescription() { return description; }
 	public String getDatatype() { return datatype; }
 	public String getAttributeType() { return attributeType; }
+
+	public boolean missingAttributes()
+	{
+		return (displayName.isEmpty() ||
+		        description.isEmpty() ||
+		        datatype.isEmpty() ||
+		        attributeType.isEmpty());
+	}
 }

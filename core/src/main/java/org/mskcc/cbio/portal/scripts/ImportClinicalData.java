@@ -111,7 +111,7 @@ public class ImportClinicalData {
 
     private String[] splitFields(String line) throws IOException {
         line = line.replaceAll("^"+METADATA_PREFIX+"+", "");
-        String[] fields = line.split(DELIMITER);
+        String[] fields = line.split(DELIMITER, -1);
 
         return fields;
     }

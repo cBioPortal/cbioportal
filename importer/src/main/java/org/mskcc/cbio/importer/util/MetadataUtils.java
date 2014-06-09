@@ -96,6 +96,25 @@ public class MetadataUtils {
 		return toReturn;
 	}
 
+	public static List<Boolean> getHeadersMissingMetadata(Config config, List<String> normalizedColumnHeaderNames)
+	{
+		List<Boolean> headersWithMissingMetadata = new ArrayList<Boolean>();
+        Map<String, ClinicalAttributesMetadata> clinicalAttributesMetadata =
+        	getClinicalAttributesMetadata(config, normalizedColumnHeaderNames);
+
+        int lc = -1;
+        for (String columnHeader : normalizedColumnHeaderNames) {
+            Collection<ClinicalAttributesMetadata> metadata = config.getClinicalAttributesMetadata(columnHeader.toUpperCase());
+            if (!metadata.isEmpty() && !metadata.iterator().next().missingAttributes()) {
+                headersWithMissingMetadata.add(++lc, false);
+            }
+            else {
+            	headersWithMissingMetadata.add(++lc, true);
+            }
+        }
+        return headersWithMissingMetadata;
+	}
+
     public static String getClinicalMetadataHeaders(Config config, List<String> normalizedColumnHeaderNames) throws Exception
     {
 		StringBuilder clinicalDataHeader = new StringBuilder();
@@ -105,7 +124,7 @@ public class MetadataUtils {
         clinicalDataHeader.append(addClinicalDataHeader(normalizedColumnHeaderNames, clinicalAttributesMetadata, "getDescription"));
         clinicalDataHeader.append(addClinicalDataHeader(normalizedColumnHeaderNames, clinicalAttributesMetadata, "getDatatype"));
         clinicalDataHeader.append(addClinicalDataHeader(normalizedColumnHeaderNames, clinicalAttributesMetadata, "getAttributeType"));
-
+        clinicalDataHeader.append(addClinicalDataColumnHeaders(normalizedColumnHeaderNames, clinicalAttributesMetadata));
         return clinicalDataHeader.toString();
     }
 
@@ -129,19 +148,26 @@ public class MetadataUtils {
         header.append(ImportClinicalData.METADATA_PREFIX);
         for (String columnHeader : normalizedColumnHeaderNames) {
             ClinicalAttributesMetadata metadata = clinicalAttributesMetadata.get(columnHeader);
-            if (metadata != null) {
+            if (metadata != null && !metadata.missingAttributes()) {
                 Method m = clinicalAttributesMetadata.get(columnHeader).getClass().getMethod(metadataAccessor);
                 header.append((String)m.invoke(metadata) + ImportClinicalData.DELIMITER);
             }
             else {
-                logMessage(String.format("Unknown clinical attribute: %s", columnHeader));
-                if (metadataAccessor.equals("getDatatype")) {
-                    header.append(ClinicalAttribute.DEFAULT_DATATYPE);
-                }
-                else {
-                    header.append(ClinicalAttribute.MISSING);
-                }
-                header.append(ImportClinicalData.DELIMITER);
+                logMessage(String.format("Unknown clinical attribute (or missing metadata): %s", columnHeader));
+                continue;
+            }
+        }
+        return header.toString().trim() + "\n";
+    }
+
+    private static String addClinicalDataColumnHeaders(List<String> normalizedColumnHeaderNames,
+                                                       Map<String, ClinicalAttributesMetadata> clinicalAttributesMetadata)
+    {
+        StringBuilder header = new StringBuilder();
+    	for (String columnHeader : normalizedColumnHeaderNames) {
+            ClinicalAttributesMetadata metadata = clinicalAttributesMetadata.get(columnHeader);
+            if (metadata != null && !metadata.missingAttributes()) {
+            	header.append(columnHeader + ImportClinicalData.DELIMITER);
             }
         }
         return header.toString().trim() + "\n";

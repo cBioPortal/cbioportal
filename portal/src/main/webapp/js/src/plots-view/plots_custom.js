@@ -287,7 +287,9 @@ var PlotsCustomView = (function() {
     //Dots collection
     var pData = {
             case_set_length : 0,
-            dotsData : []
+            dotsData : [],
+            pearson: 0,
+            spearman: 0
         },
     //Data Set Status (empty)
         errStatus = {
@@ -355,134 +357,6 @@ var PlotsCustomView = (function() {
         return true;
     }
 
-    function pDataInit(result) {
-        var tmp_singleDot = {
-            case_id : "",
-            value: "",
-            annotation: ""
-        };
-        var tmp_pDataX = [];
-        var tmp_pDataY = [];
-        pData.dotsData.length = 0;
-        pData.case_set_length = 0;
-        if (menu.geneX === menu.geneY) {    //same gene situation
-            for (var gene in result) {
-                var geneObj = result[gene];
-                for (var case_id in geneObj) {
-                    var obj = geneObj[case_id];
-                    var new_tmp_singleDot_x = jQuery.extend(true, {}, tmp_singleDot);
-                    var new_tmp_singleDot_y = jQuery.extend(true, {}, tmp_singleDot);
-                    new_tmp_singleDot_x.case_id = case_id;
-                    new_tmp_singleDot_y.case_id = case_id;
-                    for (var i = 0; i < Object.keys(obj).length; i++) {
-                        if (Object.keys(obj)[i] === menu.genetic_profile_id_x) {
-                            var tmp_profile_x_index = i;
-                        }
-                    }
-                    for (var i = 0; i < Object.keys(obj).length; i++) {
-                        if (Object.keys(obj)[i] === menu.genetic_profile_id_y) {
-                            var tmp_profile_y_index = i;
-                        }
-                    }
-                    var tmp_profile_annotation_index = Object.keys(obj).length - 1;
-                    new_tmp_singleDot_x.value = obj[Object.keys(obj)[tmp_profile_x_index]];
-                    new_tmp_singleDot_x.annotation = obj[Object.keys(obj)[tmp_profile_annotation_index]];//mutation
-                    new_tmp_singleDot_y.value = obj[Object.keys(obj)[tmp_profile_y_index]];
-                    new_tmp_singleDot_y.annotation = obj[Object.keys(obj)[tmp_profile_annotation_index]];//mutation
-                    tmp_pDataX.push(new_tmp_singleDot_x);
-                    tmp_pDataY.push(new_tmp_singleDot_y);
-                }
-            }
-        } else {
-            for (var gene in result) {
-                if (gene === menu.geneX) {
-                    var geneObj = result[gene];
-                    for (var case_id in geneObj) {
-                        var obj = geneObj[case_id];
-                        var new_tmp_singleDot = jQuery.extend(true, {}, tmp_singleDot);
-                        new_tmp_singleDot.case_id = case_id;
-                        for (var i = 0; i < Object.keys(obj).length; i++) {
-                            if (Object.keys(obj)[i] === menu.genetic_profile_id_x) {
-                                var tmp_profile_x_index = i;
-                            }
-                        }
-                        new_tmp_singleDot.value = obj[Object.keys(obj)[tmp_profile_x_index]];
-                        if (obj.hasOwnProperty(cancer_study_id + "_mutations")) { //mutation
-                            var tmp_profile_annotation_index = Object.keys(obj).indexOf(cancer_study_id + "_mutations");
-                            new_tmp_singleDot.annotation = obj[Object.keys(obj)[tmp_profile_annotation_index]];
-                        } else {
-                            new_tmp_singleDot.annotation = "NaN";
-                        }
-                        tmp_pDataX.push(new_tmp_singleDot);
-                    }
-                } else if (gene === menu.geneY) {
-                    var geneObj = result[gene];
-                    for (var case_id in geneObj) {
-                        var obj = geneObj[case_id];
-                        var new_tmp_singleDot = jQuery.extend(true, {}, tmp_singleDot);
-                        new_tmp_singleDot.case_id = case_id;
-                        for (var i = 0; i < Object.keys(obj).length; i++) {
-                            if (Object.keys(obj)[i] === menu.genetic_profile_id_y) {
-                                var tmp_profile_y_index = i;
-                            }
-                        }
-                        new_tmp_singleDot.value = obj[Object.keys(obj)[tmp_profile_y_index]];//profile id
-                        if (obj.hasOwnProperty(cancer_study_id + "_mutations")) { //mutation
-                            var tmp_profile_annotation_index = Object.keys(obj).indexOf(cancer_study_id + "_mutations");
-                            new_tmp_singleDot.annotation = obj[Object.keys(obj)[tmp_profile_annotation_index]];
-                        } else {
-                            new_tmp_singleDot.annotation = "NaN";
-                        }
-                        tmp_pDataY.push(new_tmp_singleDot);
-                    }
-                }
-            }
-        }
-
-        //Error Handle: spot empty dataset
-        errStatus.xHasData = false;
-        errStatus.yHasData = false;
-        $.each(tmp_pDataX, function(key, obj) {
-            if (!isEmpty(obj.value)) {
-                errStatus.xHasData = true;
-            }
-        });
-        $.each(tmp_pDataY, function(key, obj) {
-            if (!isEmpty(obj.value)) {
-                errStatus.yHasData = true;
-            }
-        });
-
-        //merge tmp_pDataX, tmp_pDataY, and filter empty data
-        for (var i = 0; i < tmp_pDataY.length; i++) {
-            if (!isEmpty(tmp_pDataX[i].value) && !isEmpty(tmp_pDataY[i].value)) {
-                pData.case_set_length += 1;
-
-                var new_singleDot = jQuery.extend(true, {}, singleDot);
-                new_singleDot.case_id = tmp_pDataX[i].case_id;
-                new_singleDot.x_value = tmp_pDataX[i].value;
-                new_singleDot.y_value = tmp_pDataY[i].value;
-
-                var tmp_annotation_str = "";
-                if (!isEmpty(tmp_pDataX[i].annotation)) {
-                    tmp_annotation_str +=
-                        menu.geneX + ": " + tmp_pDataX[i].annotation + "&nbsp;&nbsp;";
-                }
-                if (!isEmpty(tmp_pDataY[i].annotation)) {
-                    tmp_annotation_str +=
-                        menu.geneY + ": " + tmp_pDataY[i].annotation;
-                }
-
-                //handle same gene situation
-                if (menu.geneX === menu.geneY) {
-                    tmp_annotation_str = tmp_annotation_str.substring(0, tmp_annotation_str.length/2);
-                }
-
-                new_singleDot.annotation = tmp_annotation_str.trim();
-                pData.dotsData.push(new_singleDot);
-            }
-        }
-    }
 
     function initCanvas() {
         $('#plots_box').empty();
@@ -784,6 +658,21 @@ var PlotsCustomView = (function() {
     }
 
     function drawLegends() {
+        var coExpLegend = elem.svg.selectAll(".legend")
+            .data(["Correlation", pData.pearson, pData.spearman])
+            .enter().append("g")
+            .attr("class", "coexp_legend")
+            .attr("transform", function(d, i) {
+                return "translate(600, " + (30 + i * 15) + ")";
+            })
+        coExpLegend.append("text")
+                .attr("dx", ".75em")
+                .attr("dy", ".35em")
+                .style("text-anchor", "front")
+                .text(function(d) {
+                    return d;
+                });
+        
         var showMutation = document.getElementById("show_mutation_custom_view").checked;
         if (showMutation) {
             var twoGenesStyleArr = [];
@@ -805,7 +694,7 @@ var PlotsCustomView = (function() {
                 .enter().append("g")
                 .attr("class", "legend")
                 .attr("transform", function(d, i) {
-                    return "translate(610, " + (30 + i * 15) + ")";
+                    return "translate(610, " + (85 + i * 15) + ")";
                 })
 
             legend.append("path")
@@ -1043,8 +932,153 @@ var PlotsCustomView = (function() {
         updatePlotsLogScale("y", applyLogScale_y);
     }
 
-    function getProfileDataCallBack(result) {
-        pDataInit(result);
+    function pDataInit(result) {
+        var tmp_singleDot = {
+            case_id : "",
+            value: "",
+            annotation: ""
+        };
+        var tmp_pDataX = [];
+        var tmp_pDataY = [];
+        pData.dotsData.length = 0;
+        pData.case_set_length = 0;
+        if (menu.geneX === menu.geneY) {    //same gene situation
+            for (var gene in result) {
+                var geneObj = result[gene];
+                for (var case_id in geneObj) {
+                    var obj = geneObj[case_id];
+                    var new_tmp_singleDot_x = jQuery.extend(true, {}, tmp_singleDot);
+                    var new_tmp_singleDot_y = jQuery.extend(true, {}, tmp_singleDot);
+                    new_tmp_singleDot_x.case_id = case_id;
+                    new_tmp_singleDot_y.case_id = case_id;
+                    for (var i = 0; i < Object.keys(obj).length; i++) {
+                        if (Object.keys(obj)[i] === menu.genetic_profile_id_x) {
+                            var tmp_profile_x_index = i;
+                        }
+                    }
+                    for (var i = 0; i < Object.keys(obj).length; i++) {
+                        if (Object.keys(obj)[i] === menu.genetic_profile_id_y) {
+                            var tmp_profile_y_index = i;
+                        }
+                    }
+                    var tmp_profile_annotation_index = Object.keys(obj).length - 1;
+                    new_tmp_singleDot_x.value = obj[Object.keys(obj)[tmp_profile_x_index]];
+                    new_tmp_singleDot_x.annotation = obj[Object.keys(obj)[tmp_profile_annotation_index]];//mutation
+                    new_tmp_singleDot_y.value = obj[Object.keys(obj)[tmp_profile_y_index]];
+                    new_tmp_singleDot_y.annotation = obj[Object.keys(obj)[tmp_profile_annotation_index]];//mutation
+                    tmp_pDataX.push(new_tmp_singleDot_x);
+                    tmp_pDataY.push(new_tmp_singleDot_y);
+                }
+            }
+        } else {
+            for (var gene in result) {
+                if (gene === menu.geneX) {
+                    var geneObj = result[gene];
+                    for (var case_id in geneObj) {
+                        var obj = geneObj[case_id];
+                        var new_tmp_singleDot = jQuery.extend(true, {}, tmp_singleDot);
+                        new_tmp_singleDot.case_id = case_id;
+                        for (var i = 0; i < Object.keys(obj).length; i++) {
+                            if (Object.keys(obj)[i] === menu.genetic_profile_id_x) {
+                                var tmp_profile_x_index = i;
+                            }
+                        }
+                        new_tmp_singleDot.value = obj[Object.keys(obj)[tmp_profile_x_index]];
+                        if (obj.hasOwnProperty(cancer_study_id + "_mutations")) { //mutation
+                            var tmp_profile_annotation_index = Object.keys(obj).indexOf(cancer_study_id + "_mutations");
+                            new_tmp_singleDot.annotation = obj[Object.keys(obj)[tmp_profile_annotation_index]];
+                        } else {
+                            new_tmp_singleDot.annotation = "NaN";
+                        }
+                        tmp_pDataX.push(new_tmp_singleDot);
+                    }
+                } else if (gene === menu.geneY) {
+                    var geneObj = result[gene];
+                    for (var case_id in geneObj) {
+                        var obj = geneObj[case_id];
+                        var new_tmp_singleDot = jQuery.extend(true, {}, tmp_singleDot);
+                        new_tmp_singleDot.case_id = case_id;
+                        for (var i = 0; i < Object.keys(obj).length; i++) {
+                            if (Object.keys(obj)[i] === menu.genetic_profile_id_y) {
+                                var tmp_profile_y_index = i;
+                            }
+                        }
+                        new_tmp_singleDot.value = obj[Object.keys(obj)[tmp_profile_y_index]];//profile id
+                        if (obj.hasOwnProperty(cancer_study_id + "_mutations")) { //mutation
+                            var tmp_profile_annotation_index = Object.keys(obj).indexOf(cancer_study_id + "_mutations");
+                            new_tmp_singleDot.annotation = obj[Object.keys(obj)[tmp_profile_annotation_index]];
+                        } else {
+                            new_tmp_singleDot.annotation = "NaN";
+                        }
+                        tmp_pDataY.push(new_tmp_singleDot);
+                    }
+                }
+            }
+        }
+
+        //Error Handle: spot empty dataset
+        errStatus.xHasData = false;
+        errStatus.yHasData = false;
+        $.each(tmp_pDataX, function(key, obj) {
+            if (!isEmpty(obj.value)) {
+                errStatus.xHasData = true;
+            }
+        });
+        $.each(tmp_pDataY, function(key, obj) {
+            if (!isEmpty(obj.value)) {
+                errStatus.yHasData = true;
+            }
+        });
+
+        //merge tmp_pDataX, tmp_pDataY, and filter empty data
+        for (var i = 0; i < tmp_pDataY.length; i++) {
+            if (!isEmpty(tmp_pDataX[i].value) && !isEmpty(tmp_pDataY[i].value)) {
+                pData.case_set_length += 1;
+
+                var new_singleDot = jQuery.extend(true, {}, singleDot);
+                new_singleDot.case_id = tmp_pDataX[i].case_id;
+                new_singleDot.x_value = tmp_pDataX[i].value;
+                new_singleDot.y_value = tmp_pDataY[i].value;
+
+                var tmp_annotation_str = "";
+                if (!isEmpty(tmp_pDataX[i].annotation)) {
+                    tmp_annotation_str +=
+                        menu.geneX + ": " + tmp_pDataX[i].annotation + "&nbsp;&nbsp;";
+                }
+                if (!isEmpty(tmp_pDataY[i].annotation)) {
+                    tmp_annotation_str +=
+                        menu.geneY + ": " + tmp_pDataY[i].annotation;
+                }
+
+                //handle same gene situation
+                if (menu.geneX === menu.geneY) {
+                    tmp_annotation_str = tmp_annotation_str.substring(0, tmp_annotation_str.length/2);
+                }
+
+                new_singleDot.annotation = tmp_annotation_str.trim();
+                pData.dotsData.push(new_singleDot);
+            }
+        }
+
+        var tmpGeneXcoExpStr = "",
+            tmpGeneYcoExpStr = "";
+        $.each(pData.dotsData, function(index, obj) {
+            tmpGeneXcoExpStr += obj.x_value + " ";
+            tmpGeneYcoExpStr += obj.y_value + " ";
+        });
+        var paramsCalcCoexp = {
+            gene_x : tmpGeneXcoExpStr,
+            gene_y : tmpGeneYcoExpStr
+        };
+        $.post("calcCoExp.do", paramsCalcCoexp, getCalcCoExpCallBack, "json");
+    }
+
+    function getCalcCoExpCallBack(result) {
+        //Parse the coexp scoring result
+        var tmpArrCoexpScores = result.split(" ");
+        pData.pearson = "Pearson: " + parseFloat(tmpArrCoexpScores[0]).toFixed(3);
+        pData.spearman = "Spearman: " + parseFloat(tmpArrCoexpScores[1]).toFixed(3);
+        //start rendering
         initCanvas();
         if (pData.dotsData.length !== 0) {
             $("#show_mutation_custom_view").attr("disabled", false);
@@ -1077,7 +1111,11 @@ var PlotsCustomView = (function() {
             $('#plots_box').show();
             $('#loading-image').hide();
             drawErrorMsg();
-        }
+        }       
+    }
+
+    function getProfileDataCallBack(result) {
+        pDataInit(result);
     }
 
     return {

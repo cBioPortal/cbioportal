@@ -68,6 +68,7 @@
   <b:bean id="spreadsheetService" class="com.google.gdata.client.spreadsheet.SpreadsheetService">
 	<b:constructor-arg index="0"><b:value>${importer.spreadsheet_service_appname}</b:value></b:constructor-arg>
   </b:bean>
+  <b:bean id="ncicaDSRFetcher" class="org.mskcc.cbio.importer.fetcher.internal.NCIcaDSRFetcherImpl"/>
   <b:bean id="config" class="org.mskcc.cbio.importer.config.internal.GDataImpl">
 	<b:constructor-arg index="0"><b:value>${google.id}</b:value></b:constructor-arg>
 	<b:constructor-arg index="1"><b:value>${google.pw}</b:value></b:constructor-arg>
@@ -83,6 +84,7 @@
 	<b:constructor-arg index="11"><b:value>${importer.reference_data_worksheet}</b:value></b:constructor-arg>
 	<b:constructor-arg index="12"><b:value>${importer.data_sources_worksheet}</b:value></b:constructor-arg>
 	<b:constructor-arg index="13"><b:value>${importer.cancer_studies_worksheet}</b:value></b:constructor-arg>
+	<b:constructor-arg index="14" ref="ncicaDSRFetcher"/>
   </b:bean>
   <b:bean id="caseIDs" class="org.mskcc.cbio.importer.caseids.internal.CaseIDsImpl">
 	<b:constructor-arg ref="config"/>

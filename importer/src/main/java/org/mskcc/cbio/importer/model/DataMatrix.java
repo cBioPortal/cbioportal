@@ -456,8 +456,8 @@ public class DataMatrix {
 	 *
 	 * @param rowNumber int
 	 */
-	public void ignoreRow(int rowNumber, boolean ignoreColumn) {
-		if (ignoreColumn) {
+	public void ignoreRow(int rowNumber, boolean ignoreRow) {
+		if (ignoreRow) {
 			rowsToIgnore.add(rowNumber);
 		}
 		else if (rowsToIgnore.contains(rowNumber)) {

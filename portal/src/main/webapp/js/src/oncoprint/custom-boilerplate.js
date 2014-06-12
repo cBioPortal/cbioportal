@@ -167,6 +167,69 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
 
                     var data = mutation_data.concat(cna_data);
 
+                    var datasamples = new Array(); datasamples.push(data[0].sample);
+                    var datagene = new Array(); datagene.push(data[0].gene);
+                    for(var i = 0; i<data.length;i++)
+                    {
+                        var samplelength = datasamples.length;
+                        var genelength = datagene.length;
+                        
+
+                        var samplefalse = false;                         
+//                        var samplefound = _.find(datasamples, function(index) { return datasamples[index] === data[i].sample});
+//                        if(samplefound) samplefalse = true;
+                        for(var j=0;j<samplelength;j++)
+                        {
+
+                            if(data[i].sample === datasamples[j])
+                            {
+                                samplefalse = true;
+                                break;
+                            }
+                        }
+                        
+                        if(!samplefalse) datasamples.push(data[i].sample);
+                        
+                        var genefalse = false;
+//                        var genefound = _.find(datasamples, function(index) { return datagene[index] === data[i].gene});
+//                        if(genefound) genefalse = true;
+                        for(var k=0;k<genelength;k++)
+                        {
+                            if(data[i].gene === datagene[k])
+                            {
+                                genefalse = true;
+                                break;
+                            }
+                        }
+                        
+                        if(!genefalse) datagene.push(data[i].gene);
+                    }
+                    
+                    for(var j=0;j<datasamples.length;j++)
+                    {
+                        for(var i=0; i<datagene.length;i++)
+                        {
+                            var datafalse = false;
+                            for(var n=0; n<data.length;n++)
+                            {
+                                if(data[n].gene === datagene[i] && data[n].sample === datasamples[j])
+                                {
+                                    datafalse = true;
+                                    break;
+                                }
+                            }
+                            
+                            if(!datafalse)
+                            {
+                                var newdata = new Object();
+                                newdata.gene = datagene[i];
+                                newdata.sample = datasamples[j];
+                                data.push(newdata);
+                            }
+                        }
+                    }
+                    
+                    
                     cases = EchoedDataUtils.samples(data);
 
                     var $error_box = $('#error-box');

@@ -47,13 +47,17 @@ class NCIcaDSRFetcherImpl extends FetcherBaseImpl implements NCIcaDSRFetcher
 {
     private static final int READ_TIMEOUT = 60000; // ms
     private static final int NO_REVISION_FOUND = -1;
-    private static final String NAME_EXP = "/queryResponse/field[@name='longName']";
-    private static final String DESC_EXP = "/queryResponse/field[@name='preferredDefinition']";
-	private static final Log LOG = LogFactory.getLog(BiotabFetcherImpl.class);
+    private static final String NAME_EXP = "/httpQuery/queryResponse/class[@name='gov.nih.nci.cadsr.domain.DataElement']/field[@name='longName']";
+    private static final String DESC_EXP = "/httpQuery/queryResponse/class[@name='gov.nih.nci.cadsr.domain.DataElement']/field[@name='preferredDefinition']";
+	private static final Log LOG = LogFactory.getLog(NCIcaDSRFetcherImpl.class);
 
 	private String caDSRURL;
 	@Value("${nci.cadsr.url}")
 	public void setCADSRURL(String caDSRURL) { this.caDSRURL = caDSRURL; }
+
+    private String caDSRQuery;
+    @Value("${nci.cadsr.query}")
+    public void setCADSRQuery(String caDSRQuery) { this.caDSRQuery = caDSRQuery; }
 
     private XPathExpression preferredNameExp;
     private XPathExpression preferredDescExp;
@@ -68,24 +72,28 @@ class NCIcaDSRFetcherImpl extends FetcherBaseImpl implements NCIcaDSRFetcher
 	@Override
     public NCIcaDSREntry fetchDSREntry(String cdiId)
     {
+        NCIcaDSREntry entry = null;
         HttpClient client = getHttpClient();
         HttpMethodParams params = client.getParams();
         params.setSoTimeout(READ_TIMEOUT);
-        GetMethod method = new GetMethod(getURLToXML(cdiId));
+        GetMethod method = null;
 
         try {
+            method = new GetMethod(getURLToXML(cdiId));
             if (client.executeMethod(method) == HttpStatus.SC_OK) {
-                returnEntry(method.getResponseBodyAsStream());
+                entry = returnEntry(method.getResponseBodyAsStream());
             }
         }
         catch (Exception e) {
             logMessage(LOG, e.getMessage());
         }
         finally {
-            method.releaseConnection();
+            if (method != null) {
+                method.releaseConnection();
+            }
         }
 
-        return null;
+        return entry;
 	}
 
     private HttpClient getHttpClient()
@@ -97,13 +105,15 @@ class NCIcaDSRFetcherImpl extends FetcherBaseImpl implements NCIcaDSRFetcher
 
     private String getURLToXML(String cdiId)
     {
-        String encoded = null;
+        String encoded = caDSRURL;
+        String query = caDSRQuery.replace(ClinicalAttributesNamespace.CDE_TAG, cdiId);
 
         try {
-            encoded = 
-                URLEncoder.encode(caDSRURL.replace(ClinicalAttributesNamespace.CDE_TAG, cdiId), "US-ASCII");
+            encoded += URLEncoder.encode(query, "UTF-8");
         }
-        catch(Exception e) {}
+        catch(Exception e) {
+            logMessage(LOG, e.getMessage());
+        }
 
         return encoded;
     }

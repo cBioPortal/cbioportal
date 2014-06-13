@@ -523,7 +523,7 @@ class GDataImpl implements Config {
         for (String missingAttribute : missingAttributeColumnHeaders) {
         	String[] parts = missingAttribute.split(ClinicalAttributesNamespace.CDE_DELIM);
             if (!clinicalAttributesNamespace.containsKey(parts[0])) {
-            	NCIcaDSREntry entry = (parts[1].length() > 0) ?
+            	NCIcaDSREntry entry = (parts.length == 2 && parts[1].length() > 0) ?
             		nciDSRFetcher.fetchDSREntry(parts[1]) : null;
                 bcr.id = parts[0];
                 bcr.displayName = (entry == null) ? "" : entry.preferredName;

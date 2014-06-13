@@ -8,6 +8,8 @@
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
 <%@ page import="org.apache.commons.fileupload.FileItem" %>
 <%@ page import="org.apache.commons.codec.binary.Base64" %>
+<%@ page import="org.mskcc.cbio.portal.util.XssRequestWrapper" %>
+
 <html>
 <body>
 
@@ -67,6 +69,12 @@ String graphml = null;
 
 if (format!=null) {
     graphml = request.getParameter("graphml");
+
+	if (request instanceof XssRequestWrapper)
+	{
+		graphml = ((XssRequestWrapper)request).getRawParameter("graphml");
+	}
+
     if (graphml!=null&&!graphml.isEmpty()) {
         if (!format.equalsIgnoreCase("graphml")) {
             try {
@@ -131,9 +139,9 @@ if (graphml!=null&&!graphml.isEmpty()) {
     boolean showProfileData = "true".equalsIgnoreCase(request.getParameter("show_profile_data"));
 
     String msgs = request.getParameter("msg");
-    if (msgs!=null) {
-        msgs = StringEscapeUtils.escapeJavaScript(msgs);
-    }
+//    if (msgs!=null) {
+//        msgs = StringEscapeUtils.escapeJavaScript(msgs);
+//    }
 %>
 
 <script type="text/javascript">

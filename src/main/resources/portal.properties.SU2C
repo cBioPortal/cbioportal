@@ -129,3 +129,5 @@ tcga.clinical.filename=nationwidechildrens.org_<TUMOR_TYPE>.bio.Level_2.0.<REVIS
 
 genomespace=false
 
+nci.cadsr.url=http://cadsrapi.nci.nih.gov/cadsrapi40/GetXML?query=
+nci.cadsr.query=DataElement[@publicId=CDE_ID:]

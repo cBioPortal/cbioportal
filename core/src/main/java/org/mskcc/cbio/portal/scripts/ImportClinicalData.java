@@ -85,7 +85,7 @@ public class ImportClinicalData {
             String caseId = fields[iCaseId];
             for (int i = 0; i < fields.length; i++) {
                 if (i!=iCaseId && !fields[i].isEmpty()) {
-                    DaoClinicalData.addDatum(cancerStudy.getInternalId(), caseId, columnAttrs.get(i).getAttrId(), fields[i]);
+                    DaoClinicalData.addDatum(cancerStudy.getInternalId(), caseId, columnAttrs.get(i).getAttrId(), fields[i].trim());
                 }
             }
         }

@@ -151,7 +151,9 @@
                         "class=\"ui-button ui-widget ui-state-default ui-corner-all\" " +
                         "style=\"height: 34px;\" " +
                         "title=\"Send data matrix to GenomeSpace.\" " +
-                        "href=\"#\" onclick=\"prepGSLaunch($('#main_form'), $('#genomic_profiles'));\"><img src=\"images/send-to-gs.png\" alt=\"\"/></a>");
+                        "href=\"#\" onclick=\"prepGSLaunch($('#main_form'), " +
+                        "$('#select_cancer_type').val(), " +
+                        "$('#genomic_profiles'));\"><img src=\"images/send-to-gs.png\" alt=\"\"/></a>");
         }
     }
 %>

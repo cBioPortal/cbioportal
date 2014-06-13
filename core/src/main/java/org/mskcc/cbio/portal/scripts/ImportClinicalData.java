@@ -299,10 +299,10 @@ public class ImportClinicalData {
     private void addDatum(int internalId, String attrId, String attrVal, String attrType) throws Exception
     {
         if (attrType.equals(ClinicalAttribute.PATIENT_ATTRIBUTE)) {
-            DaoClinicalData.addPatientDatum(internalId, attrId, attrVal);
+            DaoClinicalData.addPatientDatum(internalId, attrId, attrVal.trim());
         }
         else {
-            DaoClinicalData.addSampleDatum(internalId, attrId, attrVal);
+            DaoClinicalData.addSampleDatum(internalId, attrId, attrVal.trim());
         }
     }
 
@@ -317,12 +317,12 @@ public class ImportClinicalData {
             if (columnAttrs.get(attrIndex).isPatientAttribute()) {
                 ImportDataUtil.entityAttributeService.insertEntityAttribute(internalId,
                                                                             columnAttrs.get(attrIndex).getAttrId(),
-                                                                            fields[attrIndex]);
+                                                                            fields[attrIndex].trim());
             }
             else {
                 ImportDataUtil.entityAttributeService.insertEntityAttribute(internalId,
                                                                             columnAttrs.get(attrIndex).getAttrId(),
-                                                                            fields[attrIndex]);
+                                                                            fields[attrIndex].trim());
             }
         }
     }

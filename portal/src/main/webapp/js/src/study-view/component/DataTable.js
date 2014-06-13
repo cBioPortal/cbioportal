@@ -332,6 +332,7 @@ var DataTable = function() {
                 dataTable.fnAdjustColumnSizing();
                 if(!noLeftColumnFlag) {
                     resizeLeftColumn();
+                    $(window).resize();
                 }
                 $(this).addClass("tab-clicked");
             }

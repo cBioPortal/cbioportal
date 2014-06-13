@@ -1,3 +1,4 @@
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <script type="text/template" id="mutation_details_table_template">
 	<table class='display mutation_details_table'
 	       cellpadding='0' cellspacing='0' border='0'>
@@ -155,6 +156,6 @@
 	</div>
 </script>
 
-<script type="text/javascript" src="js/src/mutation/view/MutationDetailsTableView.js"></script>
-<script type="text/javascript" src="js/src/mutation/view/PredictedImpactTipView.js"></script>
-<script type="text/javascript" src="js/src/mutation/view/CosmicTipView.js"></script>
+<script type="text/javascript" src="js/src/mutation/view/MutationDetailsTableView.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/mutation/view/PredictedImpactTipView.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/mutation/view/CosmicTipView.js?<%=GlobalProperties.getAppVersion()%>"></script>

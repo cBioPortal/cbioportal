@@ -1,3 +1,4 @@
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <script type="text/template" id="pdb_panel_view_template">
 	<table class='mutation-pdb-main-container'>
 		<tr>
@@ -63,5 +64,5 @@
 	</span>
 </script>
 
-<script type="text/javascript" src="js/src/mutation/view/PdbChainTipView.js"></script>
-<script type="text/javascript" src="js/src/mutation/view/PdbPanelView.js"></script>
+<script type="text/javascript" src="js/src/mutation/view/PdbChainTipView.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/mutation/view/PdbPanelView.js?<%=GlobalProperties.getAppVersion()%>"></script>

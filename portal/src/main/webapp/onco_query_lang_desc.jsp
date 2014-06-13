@@ -6,8 +6,8 @@
 %>
 
 <head>
-<link href="css/cancergenomics.css" type="text/css" rel="stylesheet" />
-<link href="css/style.css" type="text/css" rel="stylesheet" />
+<link href="css/cancergenomics.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link href="css/style.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 </head>
 
 <% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Onco Query Language (OQL) Instructions"); %>

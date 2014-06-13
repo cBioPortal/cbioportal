@@ -52,7 +52,7 @@
     }
 
 </style>
-<script type="text/javascript" src="js/lib/jquery.highlight-4.js"></script>
+<script type="text/javascript" src="js/lib/jquery.highlight-4.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript">
     var keywords = [];
     // A map from drug names to drug ids

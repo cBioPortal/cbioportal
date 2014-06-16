@@ -24,6 +24,7 @@ define("Oncoprint",
                     return i;
                 });
 
+
                 var data = clinicalData.concat(params.geneData);
 
                 var clinical_attrs = params.clinical_attrs      // extract attr_ids
@@ -37,6 +38,7 @@ define("Oncoprint",
                 var attributes = clinical_attrs.concat(params.genes);
 
                 data = utils.process_data(data, attributes);
+                PortalDataColl.setOncoprintData(data); 
 
                 // keeps track of the order specified by the user (translates to vertical
                 // order in the visualization)

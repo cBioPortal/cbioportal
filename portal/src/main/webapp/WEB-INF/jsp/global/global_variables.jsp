@@ -152,41 +152,6 @@
     } 
 
     Object patientSampleIdMap = request.getAttribute(QueryBuilder.SELECTED_PATIENT_SAMPLE_ID_MAP);
-    //Get the patient/sample Id map
-    // ObjectMapper mapper = new ObjectMapper();
-    // JsonFactory factory = mapper.getFactory();
-    // JsonParser parser = factory.createParser(QueryBuilder.SELECTED_PATIENT_SAMPLE_ID_MAP);
-    // JsonNode patientSampleIdMap = mapper.readTree(parser);
-
-    // String jsonString = "{\"k1\":\"v1\",\"k2\":\"v2\"}";
-    // ObjectMapper mapper = new ObjectMapper();
-    // JsonNode patientSampleIdMap = mapper.readTree(jsonString);
-
-    // String jsonString = "{\"k1\":\"v1\",\"k2\":\"v2\"}";
-    // JsonFactory factory = new JsonFactory();
-    // JsonParser parser = factory.createJsonParser(jsonString);
-    // JsonNode patientSampleIdMap = mapper.readTree(parser);
-
-    // ObjectMapper mapper = new ObjectMapper(); 
-    // String json = mapper.writeValueAsString(QueryBuilder.SELECTED_PATIENT_SAMPLE_ID_MAP);
-    // JsonNode patientSampleIdMap = mapper.readTree(json);
-
-    //ObjectMapper mapper = new ObjectMapper();
-    // JsonFactory factory = new JsonFactory(); // since 2.1 use mapper.getFactory() instead
-    // JsonParser jp = factory.createJsonParser("{\"k1\":\"v1\"}");
-    // JsonNode patientSampleIdMap = mapper.readTree(jp);
-
-    // ObjectMapper mapper = new ObjectMapper();
-    // JsonFactory factory = mapper.getFactory();
-    // JsonParser parser = factory.createParser(QueryBuilder.SELECTED_PATIENT_SAMPLE_ID_MAP);
-    // JsonNode patientSampleIdMap = mapper.readTree(parser);
-
-    //JsonNode patientSampleIdMap = mapper.readTree(QueryBuilder.SELECTED_PATIENT_SAMPLE_ID_MAP);
-    //JsonNode patientSampleIdMap = mapper.createObjectNode();
-    //patientSampleIdMap = mapper.valueToTree(QueryBuilder.SELECTED_PATIENT_SAMPLE_ID_MAP);
-    //patientSampleIdMap = mapper.convertValue(QueryBuilder.SELECTED_PATIENT_SAMPLE_ID_MAP, JsonNode.class);
-    //patientSampleIdMap = request.getAttribute(QueryBuilder.SELECTED_PATIENT_SAMPLE_ID_MAP);
-
 %>
 
 <script type="text/javascript">

@@ -1042,52 +1042,52 @@ function fillColorAndLabelForCase(circle, caseId) {
         .text(label);
 }
 
-var SampleNavigation = (function(currSampleId){
-    var navSampleIds = (function(){
-        var idStr = /nav_sample_ids=(.+)/.exec(location.hash);
+var CaseNavigation = (function(currCaseId){
+    var navCaseIds = (function(){
+        var idStr = /nav_case_ids=(.+)/.exec(location.hash);
         if (!idStr) return [];
         return idStr[1].split(/[ ,]+/);
     })();
     
     var currPosition = (function(){
-        return $.inArray(currSampleId, navSampleIds);
+        return $.inArray(currCaseId, navCaseIds);
     })();
     
-    function hasNavSampleIds() {
-        return navSampleIds.length>0;
+    function hasNavCaseIds() {
+        return navCaseIds.length>0;
     }
     
     function hasPrevious() {
-        return hasNavSampleIds() && currPosition>0;
+        return hasNavCaseIds() && currPosition>0;
     }
     
-    function previousSampleId() {
-        return hasPrevious() ? navSampleIds[currPosition-1] : null;
+    function previousCaseId() {
+        return hasPrevious() ? navCaseIds[currPosition-1] : null;
     }
     
     function navTo(id) {
-        var url = window.location.href.replace("="+currSampleId, "="+id);
+        var url = window.location.href.replace("="+currCaseId, "="+id);
         window.location.replace(url);
     }
     
     function navToPrevious() {
-        navTo(previousSampleId());
+        navTo(previousCaseId());
     }
     
     function hasNext() {
-        return hasNavSampleIds() && (currPosition<navSampleIds.length-1);
+        return hasNavCaseIds() && (currPosition<navCaseIds.length-1);
     }
     
-    function nextSampleId() {
-        return hasNext ? navSampleIds[currPosition+1] : null;
+    function nextCaseId() {
+        return hasNext ? navCaseIds[currPosition+1] : null;
     }
     
     function navToNext() {
-        navTo(nextSampleId());
+        navTo(nextCaseId());
     }
     
     return {
-        hasNavSampleIds : hasNavSampleIds,
+        hasNavCaseIds : hasNavCaseIds,
         hasPrevious : hasPrevious,
         hasNext : hasNext,
         navToPrevious : navToPrevious,
@@ -1096,15 +1096,15 @@ var SampleNavigation = (function(currSampleId){
 })(caseIds[0]);
 
 function setUpNavgationButtons() {
-    if (!SampleNavigation.hasPrevious()) {
+    if (!CaseNavigation.hasPrevious()) {
         $("#patient-navigate-previous").hide();
     } else {
-        $("#patient-navigate-previous").click(SampleNavigation.navToPrevious);
+        $("#patient-navigate-previous").click(CaseNavigation.navToPrevious);
     }
-    if (!SampleNavigation.hasNext()) {
+    if (!CaseNavigation.hasNext()) {
         $("#patient-navigate-next").hide();
     } else {
-        $("#patient-navigate-next").click(SampleNavigation.navToNext);
+        $("#patient-navigate-next").click(CaseNavigation.navToNext);
     }
 }
 

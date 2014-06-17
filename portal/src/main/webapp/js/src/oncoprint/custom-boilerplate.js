@@ -152,21 +152,7 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
                     processData: false
                 });
             };
-
-            postFile('echofile', new FormData($cnaForm[0]), function(cnaResponse) {
-                postFile('echofile', new FormData($mutationForm[0]), function(mutationResponse) {
-
-                    var mutationTextAreaString = $mutation_file_example.val().trim(),
-                        cnaTextAreaString = $cna_file_example.val().trim();
-
-                    var rawMutationString = _.isEmpty(mutationResponse) ? mutationTextAreaString : mutationResponse.mutation;
-                    mutation_data = EchoedDataUtils.munge_mutation(rawMutationString);
-
-                    var rawCnaString = _.isEmpty(cnaResponse) ? cnaTextAreaString : cnaResponse.cna;
-                    cna_data = EchoedDataUtils.munge_cna(rawCnaString);
-
-                    var data = mutation_data.concat(cna_data);
-
+            var padData = function(data){
                     var datasamples = new Array(); datasamples.push(data[0].sample);
                     var datagene = new Array(); datagene.push(data[0].gene);
                     for(var i = 0; i<data.length;i++)
@@ -174,7 +160,6 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
                         var samplelength = datasamples.length;
                         var genelength = datagene.length;
                         
-
                         var samplefalse = false;                         
 //                        var samplefound = _.find(datasamples, function(index) { return datasamples[index] === data[i].sample});
 //                        if(samplefound) samplefalse = true;
@@ -227,8 +212,129 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
                                 data.push(newdata);
                             }
                         }
+                    }    
+            };
+
+            function concatData(mutationdata,data){
+                var mutationEmpty = _.isEmpty(mutationdata);
+                var dataEmpty = _.isEmpty(data);
+                var resultdata;
+                
+                if(mutationEmpty) 
+                {
+                    resultdata = data;
+                    return resultdata;
+                }
+                
+                padData(mutationdata);
+                if(dataEmpty) 
+                {
+                    resultdata = mutationdata;
+                    return resultdata;
+                }
+                
+                for(var i = 0 ; i < data.length; i++)
+                {
+                    var datafalse = true;
+                    var mutationvalue;
+                    for(var j=0; j < mutationdata.length; j++)
+                    {
+                        if(data[i].gene === mutationdata[j].gene && data[i].sample === mutationdata[j].sample)
+                        {
+                            datafalse = false;
+                            mutationvalue = mutationdata[j].mutation;
+                            mutationdata.splice(j,1);
+                            break;
+                        }
                     }
                     
+                    if(!datafalse)
+                    {
+                        data[i].mutation = mutationvalue;
+                    }
+                }
+
+                return data.concat(mutationdata);
+            };
+            
+            postFile('echofile', new FormData($cnaForm[0]), function(cnaResponse) {
+                postFile('echofile', new FormData($mutationForm[0]), function(mutationResponse) {
+
+                    var mutationTextAreaString = $mutation_file_example.val().trim(),
+                        cnaTextAreaString = $cna_file_example.val().trim();
+
+                    var rawMutationString = _.isEmpty(mutationResponse) ? mutationTextAreaString : mutationResponse.mutation;
+                    mutation_data = EchoedDataUtils.munge_mutation(rawMutationString);
+
+                    var rawCnaString = _.isEmpty(cnaResponse) ? cnaTextAreaString : cnaResponse.cna;
+                    cna_data = EchoedDataUtils.munge_cna(rawCnaString);
+                    
+                    var data = concatData(mutation_data,cna_data);
+                    //var data = mutation_data.concat(cna_data);
+                    //var data = cna_data.concat(mutation_data);
+                    
+//                    var datasamples = new Array(); datasamples.push(data[0].sample);
+//                    var datagene = new Array(); datagene.push(data[0].gene);
+//                    for(var i = 0; i<data.length;i++)
+//                    {
+//                        var samplelength = datasamples.length;
+//                        var genelength = datagene.length;
+//                        
+//
+//                        var samplefalse = false;                         
+////                        var samplefound = _.find(datasamples, function(index) { return datasamples[index] === data[i].sample});
+////                        if(samplefound) samplefalse = true;
+//                        for(var j=0;j<samplelength;j++)
+//                        {
+//
+//                            if(data[i].sample === datasamples[j])
+//                            {
+//                                samplefalse = true;
+//                                break;
+//                            }
+//                        }
+//                        
+//                        if(!samplefalse) datasamples.push(data[i].sample);
+//                        
+//                        var genefalse = false;
+////                        var genefound = _.find(datasamples, function(index) { return datagene[index] === data[i].gene});
+////                        if(genefound) genefalse = true;
+//                        for(var k=0;k<genelength;k++)
+//                        {
+//                            if(data[i].gene === datagene[k])
+//                            {
+//                                genefalse = true;
+//                                break;
+//                            }
+//                        }
+//                        
+//                        if(!genefalse) datagene.push(data[i].gene);
+//                    }
+//                    
+//                    for(var j=0;j<datasamples.length;j++)
+//                    {
+//                        for(var i=0; i<datagene.length;i++)
+//                        {
+//                            var datafalse = false;
+//                            for(var n=0; n<data.length;n++)
+//                            {
+//                                if(data[n].gene === datagene[i] && data[n].sample === datasamples[j])
+//                                {
+//                                    datafalse = true;
+//                                    break;
+//                                }
+//                            }
+//                            
+//                            if(!datafalse)
+//                            {
+//                                var newdata = new Object();
+//                                newdata.gene = datagene[i];
+//                                newdata.sample = datasamples[j];
+//                                data.push(newdata);
+//                            }
+//                        }
+//                    }
+                    //padData(data);
                     
                     cases = EchoedDataUtils.samples(data);
 

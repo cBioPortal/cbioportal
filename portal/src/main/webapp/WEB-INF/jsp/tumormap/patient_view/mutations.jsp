@@ -63,7 +63,11 @@
                             var invisible_container = document.getElementById("pancan_mutations_histogram_container");
                             var histogram = PancanMutationHistogram(byKeywordData, byHugoData, window.cancer_study_meta_data, invisible_container, {this_cancer_study: window.cancerStudyName});
 
-                            var content = invisible_container.innerHTML;
+                            var title = "<div><div><h3>"+gene+" mutations across all cancer studies</h3></div>" +
+                                        "<div style='float:right;'><button class='cross-cancer-download' file-type='pdf'>PDF</button>"+
+                                        "<button class='cross-cancer-download' file-type='svg'>SVG</button></div></div>"+
+                                        "<div><p>"+histogram.overallCountText()+"</p></div>";
+                            var content = title+invisible_container.innerHTML;
                             api.set('content.text', content);
 
                             // correct the qtip width
@@ -72,6 +76,17 @@
 
                             var this_svg = $(this).find('svg')[0];
                             histogram.qtip(this_svg);
+                            
+                            $(".cross-cancer-download").click(function() {
+                                var fileType = $(this).attr("file-type");
+                                var params = {
+                                    filetype: fileType,
+                                    filename: gene + "_mutations." + fileType,
+                                    svgelement: (new XMLSerializer()).serializeToString(this_svg)
+                                };
+
+                                cbio.util.requestDownload("svgtopdf.do", params);
+                            });
 
                             $(invisible_container).empty();     // N.B.
                         }

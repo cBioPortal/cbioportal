@@ -130,90 +130,90 @@ if (patientViewError!=null) {
 <div id="patient-tabs">
     <ul>
         
-    <li><a id="link-summary" href='#summary' class='patient-tab'>Summary</a></li>
+    <li><a id="link-summary" href='#tab_summary' class='patient-tab'>Summary</a></li>
     
     <%if(showMutations){%>
-    <li><a id="link-mutations" href='#mutations' class='patient-tab'>Mutations</a></li>
+    <li><a id="link-mutations" href='#tab_mutations' class='patient-tab'>Mutations</a></li>
     <%}%>
     
     <%if(showCNA){%>
-    <li><a id="link-cna" href='#cna' class='patient-tab'>Copy Number Alterations</a></li>
+    <li><a id="link-cna" href='#tab_cna' class='patient-tab'>Copy Number Alterations</a></li>
     <%}%>
 
     <%if(showDrugs){%>
-    <li><a id="link-drugs" href='#drugs' class='patient-tab'>Drugs</a></li>
+    <li><a id="link-drugs" href='#tab_drugs' class='patient-tab'>Drugs</a></li>
     <%}%>
 
     <%if(showClinicalTrials){%>
-    <li><a id="link-clinical-trials" href='#clinical-trials' class='patient-tab'>Clinical Trials</a></li>
+    <li><a id="link-clinical-trials" href='#tab_clinical-trials' class='patient-tab'>Clinical Trials</a></li>
     <%}%>
     
     <%if(showTissueImages){%>
-    <li><a id="link-tissue-images" href='#images' class='patient-tab'>Tissue Images</a></li>
+    <li><a id="link-tissue-images" href='#tab_images' class='patient-tab'>Tissue Images</a></li>
     <%}%>
     
     <%if(pathReportUrl!=null){%>
-    <li><a id="link-path-report" href='#path-report' class='patient-tab'>Pathology Report</a></li>
+    <li><a id="link-path-report" href='#tab_path-report' class='patient-tab'>Pathology Report</a></li>
     <%}%>
 
     <%if(showPathways){%>
-    <li><a id="link-pathways" href='#pathways' class='patient-tab'>Network</a></li>
+    <li><a id="link-pathways" href='#tab_pathways' class='patient-tab'>Network</a></li>
     <%}%>
     
     <%if(showSimilarPatient){%>
-    <li><a id="link-tissue-similar-patients" href='#similar-patients' class='patient-tab'>Similar Patients</a></li>
+    <li><a id="link-tissue-similar-patients" href='#tab_similar-patients' class='patient-tab'>Similar Patients</a></li>
     <%}%>
 
     </ul>
 
-    <div class="patient-section" id="summary">
+    <div class="patient-section" id="tab_summary">
         <%@ include file="summary.jsp" %>
     </div>
 
     <%if(showMutations){%>
-    <div class="patient-section" id="mutations">
+    <div class="patient-section" id="tab_mutations">
         <%@ include file="mutations.jsp" %>
     </div>
     <%}%>
 
     <%if(showCNA){%>
-    <div class="patient-section" id="cna">
+    <div class="patient-section" id="tab_cna">
         <%@ include file="cna.jsp" %>
     </div>
     <%}%>
 
     <%if(showTissueImages){%>
-    <div class="patient-section" id="images">
+    <div class="patient-section" id="tab_images">
         <%@ include file="tissue_images.jsp" %>
     </div>
     <%}%>
 
     <%if(pathReportUrl!=null){%>
-    <div class="patient-section" id="path-report">
+    <div class="patient-section" id="tab_path-report">
         <%@ include file="path_report.jsp" %>
     </div>
     <%}%>
 
     <%if(showPathways){%>
-    <div class="patient-section" id="pathways">
+    <div class="patient-section" id="tab_pathways">
         <%@ include file="pathways.jsp" %>
     </div>
     <%}%>
 
     <%if(showSimilarPatient){%>
-    <div class="patient-section" id="similar-patients">
+    <div class="patient-section" id="tab_similar-patients">
         <%@ include file="similar_patients.jsp" %>
     </div>
     <%}%>
 
     <%if(showDrugs){%>
-    <div class="patient-section" id="drugs">
+    <div class="patient-section" id="tab_drugs">
         <%@ include file="drugs.jsp" %>
     </div>
     <%}%>
 
     <%if(showClinicalTrials){%>
-        <div class="patient-section" id="clinical-trials">
+        <div class="patient-section" id="tab_clinical-trials">
             <%@ include file="clinical_trials.jsp" %>
         </div>
     <%}%>
@@ -236,6 +236,9 @@ if (patientViewError!=null) {
 </center>
 </div>
 <jsp:include page="../../global/xdebug.jsp" flush="true" />
+
+<button class="patient-navigate" id="patient-navigate-previous" style="position: fixed; left: 0; top: 50%;"> &lt;</button><br/>
+<button class="patient-navigate" id="patient-navigate-next" style="position: fixed; right: 0; top: 50%;"> &gt;</button>
 
 <link href="css/jquery.qtip.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
 
@@ -345,10 +348,11 @@ $(document).ready(function(){
     outputClinicalData();
     setUpPatientTabs();
     initTabs();
-    var openTab = window.location.hash.substr(1);
+    var openTab = /(tab_[^&]+)/.exec(window.location.hash);
     if (openTab) {
-        switchToTab(openTab);
+        switchToTab(openTab[1]);
     }
+    setUpNavgationButtons();
 });
 
 function setUpPatientTabs() {
@@ -1036,6 +1040,72 @@ function fillColorAndLabelForCase(circle, caseId) {
         .attr("font-size",10)
         .attr("fill","white")
         .text(label);
+}
+
+var SampleNavigation = (function(currSampleId){
+    var navSampleIds = (function(){
+        var idStr = /nav_sample_ids=(.+)/.exec(location.hash);
+        if (!idStr) return [];
+        return idStr[1].split(/[ ,]+/);
+    })();
+    
+    var currPosition = (function(){
+        return $.inArray(currSampleId, navSampleIds);
+    })();
+    
+    function hasNavSampleIds() {
+        return navSampleIds.length>0;
+    }
+    
+    function hasPrevious() {
+        return hasNavSampleIds() && currPosition>0;
+    }
+    
+    function previousSampleId() {
+        return hasPrevious() ? navSampleIds[currPosition-1] : null;
+    }
+    
+    function navTo(id) {
+        var url = window.location.href.replace("="+currSampleId, "="+id);
+        window.location.replace(url);
+    }
+    
+    function navToPrevious() {
+        navTo(previousSampleId());
+    }
+    
+    function hasNext() {
+        return hasNavSampleIds() && (currPosition<navSampleIds.length-1);
+    }
+    
+    function nextSampleId() {
+        return hasNext ? navSampleIds[currPosition+1] : null;
+    }
+    
+    function navToNext() {
+        navTo(nextSampleId());
+    }
+    
+    return {
+        hasNavSampleIds : hasNavSampleIds,
+        hasPrevious : hasPrevious,
+        hasNext : hasNext,
+        navToPrevious : navToPrevious,
+        navToNext : navToNext
+    };
+})(caseIds[0]);
+
+function setUpNavgationButtons() {
+    if (!SampleNavigation.hasPrevious()) {
+        $("#patient-navigate-previous").hide();
+    } else {
+        $("#patient-navigate-previous").click(SampleNavigation.navToPrevious);
+    }
+    if (!SampleNavigation.hasNext()) {
+        $("#patient-navigate-next").hide();
+    } else {
+        $("#patient-navigate-next").click(SampleNavigation.navToNext);
+    }
 }
 
 window["<%=PatientView.CANCER_STUDY_META_DATA_KEY_STRING%>"]

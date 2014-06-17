@@ -158,6 +158,14 @@
     }
 %>
 
+<script type="text/javascript" src="js/src/mutex/dataProxy.js?<%=GlobalProperties.getAppVersion()%>"></script>
+
+<script>
+    $(document).ready( function() {
+        MutexData.init();
+    });    
+</script>
+
 <style type="text/css">
 #mutex-wrapper {
     width: 1000px;

@@ -118,3 +118,8 @@ temporary_dir=/tmp
 # tcga - bcr
 tcga.clinical.url=https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/<TUMOR_TYPE>/bcr/nationwidechildrens.org/bio/clin/
 tcga.clinical.filename=nationwidechildrens.org_<TUMOR_TYPE>.bio.Level_2.0.<REVISION>.0.tar.gz
+
+genomespace=false
+
+nci.cadsr.url=http://cadsrapi.nci.nih.gov/cadsrapi40/GetXML?query=
+nci.cadsr.query=DataElement[@publicId=CDE_ID:]

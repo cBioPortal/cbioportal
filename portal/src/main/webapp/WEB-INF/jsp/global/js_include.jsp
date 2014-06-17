@@ -26,6 +26,8 @@
 <script type="text/javascript" src="js/lib/backbone-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/d3.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/igv_webstart.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/genomespace.js"></script>
+<script src="https://gsui.genomespace.org/jsui/upload/gsuploadwindow.js" type="text/javascript"></script>
 
 <script type="text/javascript" src="js/lib/jmol/JmolCore.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/jmol/JmolApplet.js?<%=GlobalProperties.getAppVersion()%>"></script>
@@ -54,6 +56,7 @@
 <script type="text/javascript" src="js/src/DataProxyFactory.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/AdvancedDataTable.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/DataTableUtil.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/download-data-form-validation.js"></script>
 
 <script type="text/javascript" src="js/src/mutation/component/mutation_diagram.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/mutation/component/mutation_details_table.js?<%=GlobalProperties.getAppVersion()%>"></script>

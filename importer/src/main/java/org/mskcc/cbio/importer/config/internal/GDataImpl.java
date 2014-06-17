@@ -21,6 +21,7 @@ package org.mskcc.cbio.importer.config.internal;
 // imports
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.model.*;
+import org.mskcc.cbio.importer.NCIcaDSRFetcher;
 import org.mskcc.cbio.importer.util.ClassLoader;
 
 import org.apache.commons.logging.Log;
@@ -59,6 +60,7 @@ class GDataImpl implements Config {
 	private String gdataPassword;
 	// ref to spreadsheet client
 	private SpreadsheetService spreadsheetService;
+	private NCIcaDSRFetcher nciDSRFetcher;
 
 	// for performance optimization - we try to limit the number of accesses to google
 	ArrayList<ArrayList<String>> cancerStudiesMatrix;
@@ -112,12 +114,15 @@ class GDataImpl implements Config {
 					 String gdataSpreadsheet, String tumorTypesWorksheet, String datatypesWorksheet,
 					 String caseIDFiltersWorksheet, String caseListWorksheet,
                      String clinicalAttributesNamespaceWorksheet, String clinicalAttributesWorksheet,
-					 String portalsWorksheet, String referenceDataWorksheet, String dataSourcesWorksheet, String cancerStudiesWorksheet) {
+					 String portalsWorksheet, String referenceDataWorksheet, String dataSourcesWorksheet, String cancerStudiesWorksheet,
+					 NCIcaDSRFetcher nciDSRFetcher)
+	{
 
 		// set members
 		this.gdataUser = gdataUser;
 		this.gdataPassword = gdataPassword;
 		this.spreadsheetService = spreadsheetService;
+		this.nciDSRFetcher = nciDSRFetcher;
 
 		// save name(s) of worksheet we update later
 		this.gdataSpreadsheet = gdataSpreadsheet;
@@ -516,10 +521,13 @@ class GDataImpl implements Config {
 
         boolean updatedClinicalAttributes = false;
         for (String missingAttribute : missingAttributeColumnHeaders) {
-            if (!clinicalAttributesNamespace.containsKey(missingAttribute)) {
-                bcr.id = missingAttribute;
-                bcr.displayName = "";
-                bcr.description = "";
+        	String[] parts = missingAttribute.split(ClinicalAttributesNamespace.CDE_DELIM);
+            if (!clinicalAttributesNamespace.containsKey(parts[0])) {
+            	NCIcaDSREntry entry = (parts.length == 2 && parts[1].length() > 0) ?
+            		nciDSRFetcher.fetchDSREntry(parts[1]) : null;
+                bcr.id = parts[0];
+                bcr.displayName = (entry == null) ? "" : entry.preferredName;
+                bcr.description = (entry == null) ? "" : entry.preferredDefinition;
                 bcr.tumorType = tumorType;
                 bcr.cancerStudy = cancerStudy;
                 updateWorksheet(gdataSpreadsheet, clinicalAttributesNamespaceWorksheet,
@@ -529,7 +537,7 @@ class GDataImpl implements Config {
                 updatedClinicalAttributes = true;
             }
             else {
-            	ClinicalAttributesNamespace ns = clinicalAttributesNamespace.get(missingAttribute);
+            	ClinicalAttributesNamespace ns = clinicalAttributesNamespace.get(parts[0]);
             	if (!ns.getCancerStudy().contains(cancerStudy)) {
             		bcr.id = ns.getExternalColumnHeader();
             		bcr.displayName = ns.getDisplayName();

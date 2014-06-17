@@ -160,6 +160,7 @@ public class ClinicalDataConverterImpl extends ConverterBaseImpl implements Conv
                                              removeUnknownColumnsFromMatrix(patientMatrix, clinicalAttributes));
         addSurvivalDataToMatrix(patientMatrix, computeSurvivalData(patientMatrix, followUps));
         normalizeHeaders(patientMatrix, clinicalAttributes);
+        patientMatrix.ignoreRow(0, true);
     }
 
     private SurvivalStatus computeSurvivalData(DataMatrix patientMatrix, List<DataMatrix> followUps)
@@ -214,10 +215,15 @@ public class ClinicalDataConverterImpl extends ConverterBaseImpl implements Conv
     {
         Set<String> missingAttributes = new HashSet<String>();
 
+        List<String> cdeIds = dataMatrix.getRowData(0);
         for (String externalColumnHeader : dataMatrix.getColumnHeaders()) {
             if (!clinicalAttributes.containsKey(externalColumnHeader)) {
                 dataMatrix.ignoreColumn(externalColumnHeader, true);
-                missingAttributes.add(externalColumnHeader);
+                String cdeId = cdeIds.get(dataMatrix.getColumnHeaders().indexOf(externalColumnHeader));
+                cdeId = cdeId.replace(ClinicalAttributesNamespace.CDE_TAG, "");
+                missingAttributes.add(externalColumnHeader +
+                                      ClinicalAttributesNamespace.CDE_DELIM +
+                                      cdeId);
                 logMessage(LOG, "removeUnknownColumnsFromMatrix(), " +
                            "unknown clinical attribute (or missing normalized mapping): " +
                            externalColumnHeader + " (" + dataMatrix.getFilename() + ")");

@@ -271,8 +271,12 @@ function chooseAction() {
     $("#exp_error_box").remove();
 
     if ($("#select_cancer_type").val() == 'all') {
-        $("#main_form").get(0).setAttribute('action','cross_cancer.do');
-
+        if ($("#tab_index").val() == 'tab_download') {
+            $("#main_form").get(0).setAttribute('action','index.do');
+        }
+        else {
+            $("#main_form").get(0).setAttribute('action','cross_cancer.do');
+        }
         if ( haveExpInQuery ) {
             createAnEXPError("Expression filtering in the gene list is not supported when doing cross cancer queries.");
             return false;

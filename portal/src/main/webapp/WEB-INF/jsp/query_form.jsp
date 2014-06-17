@@ -4,6 +4,7 @@
 <%@ page import="java.io.IOException" %>
 <%@ page import="java.net.URLEncoder" %>
 <%@ page import="org.apache.commons.lang.*" %>
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
 <%
     org.mskcc.cbio.portal.servlet.ServletXssUtil localXssUtil = ServletXssUtil.getInstance();
@@ -110,6 +111,7 @@
         &nbsp;<br/>
         <input id="main_submit" class="ui-button ui-widget ui-state-default ui-corner-all" style="height: 34px;"
                    type=submit name="<%= QueryBuilder.ACTION_NAME%>" value="<%= QueryBuilder.ACTION_SUBMIT %>"/>
+        <% conditionallyOutputGenomespaceOption(localTabIndex, out); %>
         </form>
     </div>
 </div>
@@ -139,6 +141,19 @@
             return "checked";
         } else {
             return "";
+        }
+    }
+
+    private void conditionallyOutputGenomespaceOption(String localTabIndex, JspWriter out)
+            throws IOException {
+        if (GlobalProperties.genomespaceEnabled() && localTabIndex.equals(QueryBuilder.TAB_DOWNLOAD)) {
+            out.println("<a id=\"gs_submit\" " +
+                        "class=\"ui-button ui-widget ui-state-default ui-corner-all\" " +
+                        "style=\"height: 34px;\" " +
+                        "title=\"Send data matrix to GenomeSpace.\" " +
+                        "href=\"#\" onclick=\"prepGSLaunch($('#main_form'), " +
+                        "$('#select_cancer_type').val(), " +
+                        "$('#genomic_profiles'));\"><img src=\"images/send-to-gs.png\" alt=\"\"/></a>");
         }
     }
 %>

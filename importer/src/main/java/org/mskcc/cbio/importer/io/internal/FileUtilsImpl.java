@@ -1138,6 +1138,6 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
     private boolean skipClinicalDataRow(LinkedList<String> row)
     {
-        return (!row.getFirst().startsWith("TCGA"));
+        return (!row.getFirst().startsWith("TCGA") && !row.getFirst().startsWith(ClinicalAttributesNamespace.CDE_TAG));
     }
 }

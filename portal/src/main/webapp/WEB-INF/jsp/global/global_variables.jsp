@@ -229,6 +229,42 @@
             return result;
         }
     };
+
+    //Global Data Objects -- to be re-used
+    var PortalDataColl = (function() {
+        var oncoprintData = null;
+        return {
+            setOncoprintData : function(obj) { 
+                if (oncoprintData === null) {
+                    oncoprintData = obj;    
+                }
+                PortalDataCollManager.fire("oncoprint-data-fetched");
+            },
+            getOncoprintData : function() { return oncoprintData; }
+        }
+    }());
+
+    var PortalDataCollManager = (function() {
+        var fns_oncoprint = [];
+        var subscribeOncoprint = function(fn){
+            fns_oncoprint.push(fn);
+        };
+
+        return {
+            subscribeOncoprint: subscribeOncoprint,
+            fire: function(o) {
+                if (o === "oncoprint-data-fetched") {
+                    fns_oncoprint.forEach(
+                        function(el) {
+                            el.call();
+                        }
+                    );
+                }
+            }
+        }
+
+    }());
+
 </script>
 
 <%!

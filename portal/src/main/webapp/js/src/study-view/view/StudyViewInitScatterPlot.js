@@ -29,7 +29,7 @@ var StudyViewInitScatterPlot = (function() {
                     _scatterPlotDatumTmp.y_val = _value['MUTATION_COUNT'];
                     _scatterPlotDatumTmp.case_id = _value['CASE_ID'];
                     _scatterPlotDatumTmp.qtip = "Case ID: <strong>" +
-                        "<a href='tumormap.do?case_id=" +
+                        "<a href='case.do?case_id=" +
                         _value['CASE_ID'] + "&cancer_study_id=" +
                         StudyViewParams.params.studyId + "' target='_blank'>" + 
                         _value['CASE_ID'] + "</a></strong> ("+ 

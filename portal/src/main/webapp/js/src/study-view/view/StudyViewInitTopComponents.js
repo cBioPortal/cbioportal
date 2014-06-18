@@ -75,8 +75,7 @@ var StudyViewInitTopComponents = (function() {
 
         $("#study-view-header-left-4").click(function() {
             var _selectedCaseIds = StudyViewInitCharts.getSelectedCasesID(),
-                _url = window.location.origin + 
-                        "/tumormap.do?cancer_study_id="+
+                _url =  "case.do?cancer_study_id="+
                         StudyViewParams.params.studyId+
                         "&case_id="+_selectedCaseIds[0]+
                         "#nav_case_ids="+_selectedCaseIds.join(",");

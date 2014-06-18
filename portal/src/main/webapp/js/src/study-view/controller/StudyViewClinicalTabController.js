@@ -29,7 +29,7 @@ var StudyViewClinicalTabController = (function(){
 //                    aaData
 //                );
 
-        StudyViewInitClinicalTab.init('clinical_table', _data);
+        StudyViewInitClinicalTab.init('clinical_table', 'clinical-data-table-div', _data);
     }
     
     function initContentData() {

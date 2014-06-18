@@ -37,6 +37,7 @@ var DataTable = function() {
         aaDataLength,
         dataTable,
         tableId,
+        tableContainerId,
         dataType = [],
         dataTableNumericFilter = [],
         permenentDisabledId = [], //Define which column is perment diabled
@@ -58,11 +59,11 @@ var DataTable = function() {
     var rowClickCallback,
         rowShiftClickCallback;
     
-    function initParam(_tableId, _data) {
+    function initParam(_tableId, _tableContainerId, _data) {
         var i;
         
         tableId = _tableId;
-        
+        tableContainerId = _tableContainerId;
         attr = _data.attr;
         arr = _data.arr;
         
@@ -529,9 +530,9 @@ var DataTable = function() {
     //This function will be called when the dataTable has been resized
     function resizeLeftColumn(){
         if(!noLeftColumnFlag) {
-            var _heightBody = $(".dataTables_scrollBody").height(),
-                _heightTable = $('.dataTables_scroll').height(),
-                _widthBody = $("#" + tableId + " tbody>tr:nth-child(2)>td:nth-child(1)").width();
+            var _heightBody = $("#" + tableContainerId+ " .dataTables_scrollBody").height(),
+                _heightTable = $("#" + tableContainerId+ " .dataTables_scroll").height(),
+                _widthBody = $("#" + tableContainerId+ " tbody>tr:nth-child(2)>td:nth-child(1)").width();
             
             if(_widthBody === null) {
                 $(".DTFC_LeftWrapper").css('display', 'none');
@@ -764,8 +765,8 @@ var DataTable = function() {
     }
     
     return {
-        init: function(_tableId, _data) {
-            initParam(_tableId, _data);
+        init: function(_tableId, _tableContainerId, _data) {
+            initParam(_tableId, _tableContainerId, _data);
             initDataTableTfoot();
             initDataTable();
             //resizeTable();

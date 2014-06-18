@@ -47,6 +47,12 @@ public class EntityAttributeService
     return entityAttribute;
 	}
 
+  @Transactional
+  public void updateEntityAttribute(EntityAttribute entityAttribute)
+  {
+    entityAttributeMapper.updateEntityAttribute(entityAttribute);
+  } 
+
 	@Transactional
   public AttributeMetadata insertAttributeMetadata(String attributeId, String displayName,
                                                    String description, AttributeDatatype datatype,

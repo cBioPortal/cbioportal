@@ -25,6 +25,7 @@ import java.util.List;
 public interface EntityAttributeMapper
 {
 	void insertEntityAttribute(EntityAttribute attribute);
+	void updateEntityAttribute(EntityAttribute attribute);
 	void insertAttributeMetadata(AttributeMetadata attributeMetadata);
 
 	EntityAttribute getEntityAttributeById(@Param("entityId") int entityId,

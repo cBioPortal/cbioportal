@@ -192,7 +192,7 @@ public class MySQLbulkLoader {
          stmt = con.createStatement();
          
          // will throw error if attempts to overwrite primary keys in table
-         String command = "LOAD DATA LOCAL INFILE '" + tempFileName + "' INTO TABLE " + tableName;
+         String command = "LOAD DATA LOCAL INFILE '" + tempFileName + "' REPLACE INTO TABLE " + tableName;
          stmt.execute( command );
          int updateCount = stmt.getUpdateCount();
          System.out.println(""+updateCount+" records inserted into "+tableName);

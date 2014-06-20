@@ -296,7 +296,8 @@ class FoundationFetcherImpl implements Fetcher
 	protected File generateClinicalDataFile(StringBuilder content,
 			String outputDir) throws Exception
 	{
-		String header = FileUtils.CASE_ID + "\t" +
+		String header = //FileUtils.CASE_ID + "\t" +
+						FileUtils.SAMPLE_ID + "\t" +
 		                FileUtils.GENDER + "\t" +
 		                FileUtils.FMI_CASE_ID + "\t" +
 		                FileUtils.PIPELINE_VER + "\t" +

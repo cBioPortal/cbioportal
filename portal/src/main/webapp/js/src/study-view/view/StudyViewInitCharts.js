@@ -1227,6 +1227,7 @@ var StudyViewInitCharts = (function(){
         removeMarker: removeMarker,
         redrawWSCharts: redrawWSCharts,
         resetBars: resetBars,
+        getSelectedCasesID: getSelectedCasesID,
         getLayout: function() {
             return msnry;
         }

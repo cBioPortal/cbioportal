@@ -159,6 +159,7 @@ var StudyViewBoilerplate ={
             _span3 = $('<span></span>'),
             _span1 = $("<input type='button' />"),
             _span2 = $("<input type='button' />"),
+            _span4 = $("<input type='button' />"),
 //            _span3 = $("<input type='button' />"),
             _form = $('<form></form>'),
             _input1 = $('<input></input>'),
@@ -174,6 +175,8 @@ var StudyViewBoilerplate ={
 //                'class': 'study-view-header study-view-header-left'})
 //            .text('Select cases by IDs');
             .val('Select cases by IDs');
+
+        // Build query button
         _form
             .attr({
                 method: "post",
@@ -206,15 +209,16 @@ var StudyViewBoilerplate ={
             .attr({
                 type: "submit",
                 id: "study-view-header-left-1",
-                value: "Query selected cases",
+                value: "Query all cases",
 //                class: "study-view-header hidden"
-                class: "hidden study-view-header-button"
+                class: "study-view-header-button"
             });
         _form.append(_input1);
         _form.append(_input2);
         _form.append(_input3);
         _form.append(_input4);
-        
+
+
         _span2
             .attr({
                 'id': 'study-view-header-left-2',
@@ -229,9 +233,21 @@ var StudyViewBoilerplate ={
                 'class': 'hidden'})
             .text('');
 //            .val('Reset all');
-       
+
+       // tumormap.do?cancer_study_id=acyc_mskcc&case_id=9534#nav_case_ids=9534,6277
+        //Build View cases button linking to patient view
+        _span4
+            .attr({
+                'id': 'study-view-header-left-4',
+//                'class': 'study-view-header hidden'})
+//            .text('Reset all');
+                'class': 'study-view-header-button'})
+            .val('View all cases');
+
+
         _header.append(_span1);
         _header.append(_form);
+        _header.append(_span4);
         _header.append(_span2);
         _header.append(_span3);
         

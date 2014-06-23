@@ -120,9 +120,26 @@ class FoundationFetcherImpl implements Fetcher
 			LOG.info("fetch(), creating CaseInfoService endpoint.");
 		}
 
-		CaseInfoService caseInfoService = new CaseInfoService();
-		this.authenticate(caseInfoService);
-		ICaseInfoService foundationService = caseInfoService.getICaseInfoService();
+		// enable this to get data from the remote service...
+//		CaseInfoService caseInfoService = new CaseInfoService();
+//		this.authenticate(caseInfoService);
+//		ICaseInfoService foundationService = caseInfoService.getICaseInfoService();
+
+		for (File input: this.getStudyFiles())
+		{
+			this.fetchStudy(input);
+		}
+	}
+
+	private void fetchStudy(File inputXml) throws Exception
+	{
+		String inputFilename = inputXml.getAbsolutePath();
+
+		ICaseInfoService foundationService = new FoundationLocalService(inputFilename);
+
+		String outputDir = inputXml.getName().
+				substring(0, inputXml.getName().lastIndexOf(".")).
+				replaceAll("_", "/");
 
 		NodeList cases = this.fetchCaseList(foundationService);
 
@@ -160,23 +177,42 @@ class FoundationFetcherImpl implements Fetcher
 				this.addMutationData(doc, dataMutationsContent);
 				this.addFusionData(doc, dataFusionsContent);
 				this.addCNAData(doc, valueMap, caseSet, geneSet);
-				this.generateCaseFile(doc, caseRecord);
+				this.generateCaseFile(doc, caseRecord, outputDir);
 
 				numCases++;
 			}
 		}
 
 		// generate data files
-		this.generateClinicalDataFile(dataPatientClinicalContent, patientClinicalAttributes, DatatypeMetadata.CLINICAL_FILENAME);
-		this.generateMutationDataFile(dataMutationsContent);
-		this.generateFusionDataFile(dataFusionsContent);
-		this.generateCNADataFile(valueMap, caseSet, geneSet);
+		this.generateClinicalDataFile(dataPatientClinicalContent, patientClinicalAttributes, DatatypeMetadata.CLINICAL_FILENAME, outputDir);
+		this.generateMutationDataFile(dataMutationsContent, outputDir);
+		this.generateFusionDataFile(dataFusionsContent, outputDir);
+		this.generateCNADataFile(valueMap, caseSet, geneSet, outputDir);
 
 		// generate meta files
-		this.generateStudyMetaFile(numCases);
-		this.generateMutationMetaFile(numCases);
-		this.generateFusionMetaFile(numCases);
-		this.generateCNAMetaFile(numCases);
+		this.generateStudyMetaFile(numCases, outputDir);
+		this.generateMutationMetaFile(numCases, outputDir);
+		this.generateFusionMetaFile(numCases, outputDir);
+		this.generateCNAMetaFile(numCases, outputDir);
+	}
+
+	private File[] getStudyFiles()
+	{
+		File dlDir = new File(this.dataSourceMetadata.getDownloadDirectory());
+
+		if (dlDir.isDirectory())
+		{
+			return dlDir.listFiles(new FilenameFilter()
+			{
+				@Override
+				public boolean accept(File dir, String name)
+				{
+					return name.toLowerCase().endsWith(".xml");
+				}
+			});
+		}
+
+		return null;
 	}
 
 	/**
@@ -199,7 +235,9 @@ class FoundationFetcherImpl implements Fetcher
 	 * @param content   actual content of the file to generate
 	 * @return          data file representing a single case
 	 */
-	protected File generateCaseFile(Document caseDoc, String content) throws Exception
+	protected File generateCaseFile(Document caseDoc,
+			String content,
+			String outputDir) throws Exception
 	{
 		File caseFile = null;
 		Element caseNode = this.extractCaseNode(caseDoc);
@@ -216,7 +254,7 @@ class FoundationFetcherImpl implements Fetcher
 		return caseFile;
 	}
 
-	protected File generateClinicalDataFile(StringBuilder content, List<String> clinicalAttributes, String filename) throws Exception
+	protected File generateClinicalDataFile(StringBuilder content, List<String> clinicalAttributes, String filename, String outputDir) throws Exception
 	{
 		StringBuilder headerBuilder = new StringBuilder();
         headerBuilder.append(MetadataUtils.getClinicalMetadataHeaders(config, clinicalAttributes));
@@ -226,13 +264,14 @@ class FoundationFetcherImpl implements Fetcher
         String header = headerBuilder.toString().trim() + "\n";
 
 		File clinicalFile = fileUtils.createFileWithContents(
-			dataSourceMetadata.getDownloadDirectory() + File.separator + filename,
+			dataSourceMetadata.getDownloadDirectory() + File.separator + outputDir + File.separator + filename,
 			header + content.toString());
 
 		return clinicalFile;
 	}
 
-	protected File generateFusionDataFile(StringBuilder content) throws Exception
+	protected File generateFusionDataFile(StringBuilder content,
+			String outputDir) throws Exception
 	{
 		String header = MafUtil.HUGO_SYMBOL + "\t" +
 		                MafUtil.ENTREZ_GENE_ID + "\t" +
@@ -246,13 +285,15 @@ class FoundationFetcherImpl implements Fetcher
 
 		File fusionFile = fileUtils.createFileWithContents(
 				dataSourceMetadata.getDownloadDirectory() + File.separator +
+					outputDir + File.separator +
 					DatatypeMetadata.FUSIONS_STAGING_FILENAME,
 				header + content.toString());
 
 		return fusionFile;
 	}
 
-	protected File generateMutationDataFile(StringBuilder content) throws Exception
+	protected File generateMutationDataFile(StringBuilder content,
+			String outputDir) throws Exception
 	{
 		String header = MafUtil.HUGO_SYMBOL + "\t" +
 		                MafUtil.CENTER + "\t" +
@@ -275,14 +316,17 @@ class FoundationFetcherImpl implements Fetcher
 
 		File mafFile = fileUtils.createFileWithContents(
 			dataSourceMetadata.getDownloadDirectory() + File.separator +
+				outputDir + File.separator +
 				DatatypeMetadata.MUTATIONS_STAGING_FILENAME,
 			header + content.toString());
 
 		return mafFile;
 	}
 
-	protected File generateCNADataFile(HashMap<String, Integer> valueMap, Set<String> caseSet,
-			Set<String> geneSet) throws Exception
+	protected File generateCNADataFile(HashMap<String, Integer> valueMap,
+			Set<String> caseSet,
+			Set<String> geneSet,
+			String outputDir) throws Exception
 	{
 		StringBuilder content = new StringBuilder();
 
@@ -323,50 +367,54 @@ class FoundationFetcherImpl implements Fetcher
 
 		File cnaFile = fileUtils.createFileWithContents(
 				dataSourceMetadata.getDownloadDirectory() + File.separator +
+					outputDir + File.separator +
 					metadata.getStagingFilename(),
 				content.toString());
 
 		return cnaFile;
 	}
 
-	protected void generateStudyMetaFile(Integer numCases) throws Exception
+	protected void generateStudyMetaFile(Integer numCases, String outputDir) throws Exception
 	{
 		CancerStudyMetadata cancerMetadata = this.config.getCancerStudyMetadataByName(CANCER_STUDY);
 
-		// TODO this creates subdirectories, we should fix it
-		this.fileUtils.writeCancerStudyMetadataFile(dataSourceMetadata.getDownloadDirectory(),
+		this.fileUtils.writeCancerStudyMetadataFile(
+			dataSourceMetadata.getDownloadDirectory() + File.separator + outputDir,
 			cancerMetadata,
 			numCases);
 	}
 
-	protected void generateCNAMetaFile(Integer numCases) throws Exception
+	protected void generateCNAMetaFile(Integer numCases, String outputDir) throws Exception
 	{
 		DatatypeMetadata datatypeMetadata = this.getDatatypeMetadata(CNA_METADATA);
 		CancerStudyMetadata cancerMetadata = this.config.getCancerStudyMetadataByName(CANCER_STUDY);
 
-		this.fileUtils.writeMetadataFile(dataSourceMetadata.getDownloadDirectory(),
+		this.fileUtils.writeMetadataFile(
+			dataSourceMetadata.getDownloadDirectory() + File.separator + outputDir,
 			cancerMetadata,
 			datatypeMetadata,
 			numCases);
 	}
 
-	protected void generateMutationMetaFile(Integer numCases) throws Exception
+	protected void generateMutationMetaFile(Integer numCases, String outputDir) throws Exception
 	{
 		DatatypeMetadata datatypeMetadata = this.getDatatypeMetadata(MUTATION_METADATA);
 		CancerStudyMetadata cancerMetadata = this.config.getCancerStudyMetadataByName(CANCER_STUDY);
 
-		this.fileUtils.writeMetadataFile(dataSourceMetadata.getDownloadDirectory(),
+		this.fileUtils.writeMetadataFile(
+			dataSourceMetadata.getDownloadDirectory() + File.separator + outputDir,
 			cancerMetadata,
 			datatypeMetadata,
 			numCases);
 	}
 
-	protected void generateFusionMetaFile(Integer numCases) throws Exception
+	protected void generateFusionMetaFile(Integer numCases, String outputDir) throws Exception
 	{
 		DatatypeMetadata datatypeMetadata = this.getDatatypeMetadata(FUSION_METADATA);
 		CancerStudyMetadata cancerMetadata = this.config.getCancerStudyMetadataByName(CANCER_STUDY);
 
-		this.fileUtils.writeMetadataFile(dataSourceMetadata.getDownloadDirectory(),
+		this.fileUtils.writeMetadataFile(
+			dataSourceMetadata.getDownloadDirectory() + File.separator + outputDir,
 			cancerMetadata,
 			datatypeMetadata,
 			numCases);

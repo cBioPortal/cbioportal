@@ -669,6 +669,10 @@ function addMetaDataToPage() {
     orderedTypes.sort(function(a, b) {
         return a.name.localeCompare(b.name);
     });
+    
+    // This is a hack to move the dmp study to the top.
+    orderedTypes.unshift({key:"dmp", name: "MSKCC DMP"});
+    
     // Then add them in alphanumeric order
     for(var j=0; j < orderedTypes.length; j ++) {
         $("<optgroup id='"+ orderedTypes[j].key + "-study-group' label='" + orderedTypes[j].name + "'></optgroup>")
@@ -690,7 +694,12 @@ function addMetaDataToPage() {
             if(key == "all") {
                 cancerTypeContainer.prepend(newOption);
             } else {
-                $("#" + cancer_study.type_of_cancer + "-study-group").append(newOption);
+                var type_of_cancer = cancer_study.type_of_cancer;
+                
+                // This is a hack to move the dmp study to the top.
+                if (key.indexOf("_dmp_")>=0) type_of_cancer = "dmp";
+                
+                $("#" + type_of_cancer + "-study-group").append(newOption);
             }
         }
     });  //  end 1st for each cancer study loop

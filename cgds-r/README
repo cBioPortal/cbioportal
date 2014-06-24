@@ -1,0 +1,7 @@
+# Building
+> R CMD check cgdsr
+> R CMD build cgdsr
+
+# Installing
+
+> R CMD INSTALL cgdsr_1.0.1.tar.gz

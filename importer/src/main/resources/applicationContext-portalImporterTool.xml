@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<b:beans xmlns:b="http://www.springframework.org/schema/beans"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xmlns:context="http://www.springframework.org/schema/context"
+		 xmlns:util="http://www.springframework.org/schema/util"
+		 xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+							 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+							 http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+ 
+  <context:annotation-config />
+  <b:bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <b:property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+    <b:property name="searchSystemEnvironment" value="true" />
+    <b:property name="locations">
+      <b:list>
+        <b:value>file:///${PORTAL_HOME}/portal.properties</b:value>
+      </b:list>
+    </b:property>
+  </b:bean>  
+
+  <!-- importer beans -->
+  <b:bean id="cancerStudyImporter" class="org.mskcc.cbio.importer.internal.CancerStudyImporterImpl"/>
+  <b:bean id="cancerStudyValidator" class="org.mskcc.cbio.importer.internal.CancerStudyImporterImpl"/>
+  <b:bean id="fileUtils" class="org.mskcc.cbio.importer.io.internal.FileUtilsImpl">
+	<b:constructor-arg index="0"><b:null/></b:constructor-arg>
+	<b:constructor-arg index="1"><b:null/></b:constructor-arg>
+  </b:bean>
+
+  <b:bean name="importerClassMap" class="java.util.HashMap">
+    <b:constructor-arg index="0" type="java.util.Map">
+      <b:map key-type="java.lang.String" value-type="java.lang.String">
+        <!-- genetic alteration type is key, import class is value -->
+        <b:entry key="CLINICAL" value="org.mskcc.cbio.portal.scripts.ImportClinicalData"/>
+        <b:entry key="COPY_NUMBER_ALTERATION" value="org.mskcc.cbio.portal.scripts.ImportProfileData"/>
+        <b:entry key="FUSION" value="org.mskcc.cbio.portal.scripts.ImportProfileData"/>
+        <b:entry key="GISTIC" value="org.mskcc.cbio.portal.scripts.ImportGisticData"/>
+        <b:entry key="METHYLATION" value="org.mskcc.cbio.portal.scripts.ImportProfileData"/>
+        <b:entry key="MRNA_EXPRESSION" value="org.mskcc.cbio.portal.scripts.ImportProfileData"/>
+        <b:entry key="MUTATION_EXTENDED" value="org.mskcc.cbio.portal.scripts.ImportProfileData"/>
+        <b:entry key="MUTATION_SIGNIFICANCE" value="org.mskcc.cbio.portal.scripts.ImportMutSigData"/>
+        <b:entry key="RPPA" value="org.mskcc.cbio.portal.scripts.ImportProteinArrayData"/>
+        <b:entry key="SEGMENT" value="org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData"/>
+      </b:map>
+    </b:constructor-arg>
+  </b:bean>
+
+  <b:bean name="importerClassArgsMap" class="java.util.HashMap">
+    <b:constructor-arg index="0" type="java.util.Map">
+      <b:map key-type="java.lang.String" value-type="java.lang.String">
+        <!-- import class is key, boolean indicating import needs metadata file is value -->
+        <b:entry key="org.mskcc.cbio.portal.scripts.ImportClinicalData" value="false"/>
+        <b:entry key="org.mskcc.cbio.portal.scripts.ImportProfileData" value="true"/>
+        <b:entry key="org.mskcc.cbio.portal.scripts.ImportGisticData" value="false"/>
+        <b:entry key="org.mskcc.cbio.portal.scripts.ImportMutSigData" value="false"/>
+        <b:entry key="org.mskcc.cbio.portal.scripts.ImportProteinArrayData" value="false"/>
+        <b:entry key="org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData" value="false"/>
+      </b:map>
+    </b:constructor-arg>
+  </b:bean>
+
+</b:beans>

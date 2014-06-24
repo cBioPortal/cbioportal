@@ -1,5 +1,0 @@
-coadread_tcga
-gbm_tcga
-ov_tcga
-prad_mskcc
-sarc_mskcc

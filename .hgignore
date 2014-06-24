@@ -1,3 +1,5 @@
+nb-configuration.xml
+oncotator/src/main/resources/db.properties
 portal/Portal-Google-Code.ipr
 portal/Portal-Google-Code.iws
 portal/Portal.iml
@@ -9,6 +11,13 @@ portal/.DS_Store
 portal/Portal.ipr
 portal/Portal.iws
 portal/checkstyle_report.xml
+core/nbactions.xml
+logs
+importer/nbactions.xml
+portal/nb-configuration.xml
+portal/nbactions.xml
+portal/src/main/webapp/META-INF/context.xml
+portal/src/main/webapp/WEB-INF/web.xml
 \.orig\..*$
 \.orig$
 \.chg\..*$
@@ -31,3 +40,31 @@ cron-job-properties-files/
 cbio-cancer-genomics-portal.ipr
 cbio-cancer-genomics-portal.iws
 portal/db/oncotator_cache.sql
+portal/src/main/resources/build.properties
+portal/src/main/resources/log4j.properties
+portal/src/main/resources/logging.properties
+src/main/resources/build.properties
+src/main/resources/log4j.properties
+src/main/resources/logging.properties
+firehose-importer/reference_data/gene_info
+portal.properties
+log4j.properties
+build.properties
+# use glob syntax
+syntax: glob
+importer/*.log
+firehose-importer/*.txt
+portal/target/*
+liftover/target/*
+core/target/*
+oncotator/target/*
+importer/target/*
+business/target/*
+web/target/*
+mutation-assessor/target/*
+cbioportal-client/target/*
+mondrian-cy3-app/target/*
+nbactions.xml
+*/*.iml
+*.iml
+*.class

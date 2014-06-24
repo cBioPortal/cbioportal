@@ -1,0 +1,165 @@
+/*
+ * Copyright (c) 2013 Memorial Sloan-Kettering Cancer Center.
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center
+ * has been advised of the possibility of such damage.  See
+ * the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ */
+
+#cchistogram {
+}
+
+#crosscancer-container #tabs {
+    min-width: 1024px;
+}
+
+#cctitlecontainer {
+    text-align: center;
+    margin-right: 25px;
+}
+
+.cctitle {
+    font-size: 16px;
+}
+
+#studies-with-no-data {
+    margin-top: 10px;
+    padding: 25px;
+}
+
+#studies-with-no-data div.ui-state-highlight {
+    padding: 10px;
+}
+
+#studies-with-no-data div.ui-state-highlight li {
+    font-size: 13px;
+}
+
+.cc-study-tip {
+    font-size: 13px;
+    text-align: center;
+}
+
+.cc-remove-single-study {
+    width: 350px;
+    float: left;
+    overflow-x: hidden;
+}
+
+.cc-remove-single-study label {
+    width: 350px;
+}
+
+.cc-hide {
+    display: none;
+}
+
+.cc-triangle {
+    float: left;
+}
+
+#customize-controls {
+    padding: 5px;
+    background-color: #eeeeee;
+    border: 1px solid #d3d3d3;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+#customize-controls table {
+    width: 100%;
+}
+
+#customize-controls table tr td {
+    padding: 5px;
+}
+
+#show-hide-studies-toggle {
+    color: #2153AA;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#show-hide-studies-toggle:hover {
+    text-decoration: underline;
+}
+
+#cancerbycancer-controls {
+    clear: both;
+    padding: 10px;
+}
+
+.close-customize {
+    float: right;
+    padding: 5px;
+}
+
+.cc-alt-type {
+    font-weight: bold;
+}
+
+.cc-loss .cc-alt-type {
+    color: skyblue;
+}
+
+.cc-gain .cc-alt-type {
+    color: lightpink;
+}
+
+
+.cc-del .cc-alt-type {
+    color: blue;
+}
+
+.cc-amp .cc-alt-type {
+    color: red;
+}
+
+.cc-mutation .cc-alt-type {
+    color: green;
+}
+
+.cc-mtpl .cc-alt-type {
+    color: gray;
+}
+
+/*
+ * The rest is for the mutation details.
+ * This is the style specific to cross cancer view only,
+ * other common styles (for all mutation views) is in
+ * the file mutation_details.css
+ */
+.cc-ui-tooltip {
+	max-width: 400px;
+}
+
+#histogram-customize {
+	margin-left: 25px;
+}
+
+.diagram-lollipop-tip {
+	padding: 5px;
+}
+
+.lollipop-stats {
+	margin-top: 10px;
+}

@@ -1,0 +1,1 @@
+$JAVA_HOME/bin/java -Xmx1524M -jar liftover.jar $@

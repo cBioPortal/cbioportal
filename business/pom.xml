@@ -1,0 +1,81 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <!-- our parent -->
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.mskcc.cbio</groupId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+
+  <!-- module metadata -->
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>business</artifactId>
+  <name>Portal Business Layer</name>
+  <description>Business Module for Portal</description>
+
+  <build>
+
+	<!-- plugins -->
+	<plugins>
+
+	  <!-- java 1.7 support -->
+	  <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-compiler-plugin</artifactId>
+		<version>2.0.2</version>
+		<configuration>
+		  <source>1.7</source>
+		  <target>1.7</target>
+		</configuration>
+	  </plugin>
+
+	  <!-- this plugin lets us grab shared resources from our parent -->
+	  <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-resources-plugin</artifactId>
+		<executions>
+		  <execution>
+            <id>copy-parent-resources</id>
+            <phase>process-sources</phase>
+            <goals>
+			  <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+			  <outputDirectory>${project.build.directory}/classes</outputDirectory>
+			  <resources>
+				<resource>
+				  <directory>${PORTAL_HOME}/src/main/resources</directory>
+				  <includes>
+					<include>**/*.properties</include>
+				  </includes>
+				  <excludes>
+					<exclude>**/portal.properties.*</exclude>
+					<exclude>**/log4j.properties.*</exclude>
+					<exclude>**/*.EXAMPLE</exclude>
+				  </excludes>
+				</resource>
+			  </resources>
+            </configuration>
+		  </execution>
+		</executions>
+	  </plugin>
+
+	</plugins>
+
+	<!-- properties file used for filter our context file in resources -->
+	<filters>
+	  <filter>${PORTAL_HOME}/src/main/resources/portal.properties</filter>
+	</filters>
+
+	<!-- prevent some resources from getting into package -->
+	<resources>
+	  <resource>
+		<directory>src/main/resources</directory>
+		<!-- we want to filter application context files with values from portal.properties -->
+		<filtering>true</filtering>
+	  </resource>
+	</resources>
+
+  </build>
+  
+</project>

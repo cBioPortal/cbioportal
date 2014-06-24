@@ -1,0 +1,4 @@
+type_of_cancer: GBM
+cancer_study_identifier: tcga_gbm
+name: Glioblastoma (TCGA)
+description: <a href="http://cancergenome.nih.gov/">The Cancer Genome Atlas (TCGA)</a> Glioblastoma project. 206 primary glioblastoma samples.<br><a href="http://www.ncbi.nlm.nih.gov/sites/pubmed/18772890">Nature 2008</a>. <a href="http://tcga-data.nci.nih.gov/tcga/">Raw data via the TCGA Data Portal</a>.

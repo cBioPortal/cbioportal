@@ -1,2 +1,0 @@
-KIRC.seg kirc
-LUSC.seg lusc

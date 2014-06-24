@@ -1,0 +1,153 @@
+/*
+ * Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center
+ * has been advised of the possibility of such damage.  See
+ * the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ */
+
+.mutation-3d-initializer {
+	padding-bottom: 30px;
+}
+/**
+ * 3D visualizer panel
+ */
+.mutation-3d-container {
+	position: fixed;
+	float: right;
+	right: 0;
+	top: 0;
+	z-index: 100;
+	border-style: outset;
+	border-color: #BABDB6;
+	border-radius: 15px;
+	background-color: #FFFFFF;
+	padding: 5px 10px 10px;
+	-moz-border-radius: 15px;
+	-webkit-border-radius: 15px;
+}
+.mutation-3d-vis-header {
+	padding-bottom: 5px;
+}
+.mutation-3d-vis-container {
+	position: relative;
+	z-index: 2;
+	overflow: hidden;
+}
+.mutation-3d-vis-loader {
+	text-align: center;
+}
+.mutation-3d-vis-help-init {
+	text-align: right;
+}
+.mutation-3d-vis-help-init table {
+	width: 100%;
+}
+.mutation-3d-vis-help-close {
+	float: right;
+}
+.mutation-3d-vis-help-content {
+	width: 386px;
+	padding: 5px;
+	background-color: #eeeeee;
+	border: 1px solid #d3d3d3;
+}
+.mutation-3d-residue-warning,
+.mutation-3d-nomap-warning {
+	text-align: center;
+	color: red;
+	font-weight: bold;
+}
+.mutation-3d-alpha-helix {
+	font-weight: bold;
+	color: #FFA500;
+}
+.mutation-3d-beta-sheet {
+	font-weight: bold;
+	color: #0000FF;
+}
+.mutation-3d-loop {
+	font-weight: bold;
+	color: #888888;
+}
+.mutation-3d-tied {
+	color: #800080;
+	font-weight: bold;
+}
+.mutation-3d-highlighted {
+	color: #FFDD00;
+	font-weight: bold;
+}
+.mutation-3d-info {
+	font-size: 13px;
+	width: 400px;
+}
+.mutation-3d-info-title {
+	border-bottom: 1px solid #888888;
+	margin-bottom: 5px;
+}
+.mutation-3d-minimize,
+.mutation-3d-maximize,
+.mutation-3d-close {
+	float: right;
+	cursor: pointer;
+	opacity: 0.6;
+}
+.mutation-3d-button {
+	padding-bottom: 4px;
+	padding-top: 4px;
+}
+.mutation-3d-buttons {
+	padding-right: 10px;
+	width: 250px; /* TODO not a good solution to align right */
+}
+.mutation-3d-pdb-id,
+.mutation-3d-chain-id {
+	font-weight: bold;
+	font-style: italic;
+}
+.mutation-3d-spin {
+	margin-left: 12px;
+}
+.mutation-3d-zoom-label {
+	text-align: right;
+}
+.mutation-3d-zoom-slider {
+	margin-left: 2px;
+	width: 80px;
+}
+.mutation-3d-protein-style-menu {
+	border-right: 1px solid #AAAAAA;
+}
+.mutation-3d-style-header {
+	text-align: center;
+	font-weight: bold;
+}
+.mutation-3d-vis img {
+	width: 24px;
+	height: 24px;
+}
+.mutation-3d-mutation-style-menu input,
+.mutation-3d-protein-style-menu input,
+{
+	margin: 0;
+}

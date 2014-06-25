@@ -28,13 +28,15 @@ var StudyViewInitScatterPlot = (function() {
                     _scatterPlotDatumTmp.x_val = _value['COPY_NUMBER_ALTERATIONS'];
                     _scatterPlotDatumTmp.y_val = _value['MUTATION_COUNT'];
                     _scatterPlotDatumTmp.case_id = _value['CASE_ID'];
-                    _scatterPlotDatumTmp.qtip = "Case ID: <strong>" +
+                    _scatterPlotDatumTmp.qtip = "# of mutations:  <strong>"+
+                        _value['MUTATION_COUNT'] + 
+                        "</strong></br>Fraction of CNA: <strong>"+
+                        cbio.util.toPrecision(_value['COPY_NUMBER_ALTERATIONS'],2,0.01)+
+                        "</strong><br/>Case ID: <strong>" +
                         "<a href='case.do?case_id=" +
                         _value['CASE_ID'] + "&cancer_study_id=" +
                         StudyViewParams.params.studyId + "' target='_blank'>" + 
-                        _value['CASE_ID'] + "</a></strong> ("+ 
-                        cbio.util.toPrecision(_value['COPY_NUMBER_ALTERATIONS'],2,0.01) + 
-                        ", " + _value['MUTATION_COUNT']+")";
+                        _value['CASE_ID'] + "</a></strong>";
                     scatterPlotArr.push(_scatterPlotDatumTmp);
             }
         }

@@ -184,8 +184,7 @@ var StudyViewInitCharts = (function(){
                     var _varValues = [];
                     
                     for(var j=0;j<_arr.length;j++){
-                        if(_arr[j][_attr[i]["attr_id"]] && 
-                                !isNaN(_arr[j][_attr[i]["attr_id"]])){
+                        if(!isNaN(_arr[j][_attr[i]["attr_id"]])){
                             _varValues.push(_arr[j][_attr[i]["attr_id"]]);  
                         }
                     }

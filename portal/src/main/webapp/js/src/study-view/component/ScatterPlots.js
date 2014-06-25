@@ -851,12 +851,24 @@ var ScatterPlots = function() {
                     return "translate(" + _post_x + ", " + _post_y + ")";
                 } else {
                     if (_axis === "x") {
-                        d3.select(this).attr("x_val",Math.pow(10,d3.select(this).attr("x_val")));
+                        var _post_x_val = "";
+                        if(hasZeroX && d3.select(this).attr("x_val") === zeroMappedLogValX.toString()) {
+                            _post_x_val = 0;
+                        }else {
+                            _post_x_val = Math.pow(10,d3.select(this).attr("x_val"));
+                        }
+                        d3.select(this).attr("x_val",_post_x_val);
                         var _post_x = elem.xScale(d3.select(this).attr("x_val"));
                         var _post_y = d3.select(this).attr("y_pos");
                         axisXLogFlag = false;
                     } else if (_axis === "y") {
-                        d3.select(this).attr("y_val",Math.pow(10,d3.select(this).attr("y_val")));
+                        var _post_y_val = "";
+                        if(hasZeroY && d3.select(this).attr("y_val") === zeroMappedLogValY.toString()) {
+                            _post_y_val = 0;
+                        }else {
+                            _post_y_val = Math.pow(10,d3.select(this).attr("y_val"));
+                        }
+                        d3.select(this).attr("y_val",_post_y_val);
                         var _post_x = d3.select(this).attr("x_pos");
                         var _post_y = elem.yScale(d3.select(this).attr("y_val"));
                         axisYLogFlag = false;

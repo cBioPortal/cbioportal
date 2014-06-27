@@ -94,6 +94,12 @@ var StudyViewProxy = (function() {
                     obtainDataObject['arr'].push(_caseDatum);
                 }
                 
+                $.each(_dataAttrOfa1,function(key,value){
+                    if(!value['display_name']){
+                        value['display_name'] = value['attr_id'];
+                    }
+                });
+                
                 for(var key in _dataAttrMapArr){
                     for (var i = 0 ; i < _dataAttrOfa1.length ; i++){
                         var tmpValue = _dataAttrMapArr[key][_dataAttrOfa1[i]['attr_id']];
@@ -106,7 +112,7 @@ var StudyViewProxy = (function() {
                        
                 }
                 
-                obtainDataObject['attr'] = a1[0]['attributes'];
+                obtainDataObject['attr'] = _dataAttrOfa1;
                 
                 //Filter extra data
                 var filteredA2 = removeExtraData(parObject.caseIds,a2[0]);

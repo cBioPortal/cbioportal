@@ -205,10 +205,13 @@ var StudyViewInitCharts = (function(){
                 StudyViewUtil.echoWarningMessg('Can not identify data type.');
                 StudyViewUtil.echoWarningMessg('The data type is ' +_dataType);
             }
-            varKeys[_attr[i]["attr_id"]] = [];
-            varKeys[_attr[i]["attr_id"]] = _keys;
-            varDisplay.push(_attr[i]["display_name"]);                
-            varName.push(_attr[i]["attr_id"]);
+            
+            if(_attr[i]["attr_id"] !== "PATIENT_ID") {
+                varKeys[_attr[i]["attr_id"]] = [];
+                varKeys[_attr[i]["attr_id"]] = _keys;
+                varDisplay.push(_attr[i]["display_name"]);                
+                varName.push(_attr[i]["attr_id"]);
+            }
         }
         
         $("#study-desc").append("&nbsp;&nbsp;<b>"+ Object.keys(dataArr).length +" samples " + _studyDesc+"</b>.");

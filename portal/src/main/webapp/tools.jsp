@@ -68,6 +68,9 @@
             </form>
         </div>
 
+        <div style="margin-top:20px;">
+            <textarea id="mutation-examples" rows=2 style="width:40%;"></textarea>
+        </div>
         <button id="create_oncoprint" type="button" class="btn" style="margin-top:20px; margin-bottom:20px;">Create</button>
     </div>
 

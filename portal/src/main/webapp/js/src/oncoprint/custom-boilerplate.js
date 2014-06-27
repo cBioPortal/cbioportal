@@ -2,8 +2,8 @@
 //
 // Gideon Dresdner July 2013
 
-requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
-    function(   Oncoprint,      OncoprintUtils, EchoedDataUtils) {
+requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'],
+    function(   Oncoprint,      OncoprintUtils, EchoedDataUtils, InputData) {
 
         // This is for the moustache-like templates
         // prevents collisions with JSP tags
@@ -152,6 +152,7 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
                     processData: false
                 });
             };
+            
             var padData = function(data){
                     var datasamples = new Array(); datasamples.push(data[0].sample);
                     var datagene = new Array(); datagene.push(data[0].gene);
@@ -214,7 +215,33 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
                         }
                     }    
             };
-
+            
+            var  reduceData= function (inputData)
+            {
+                for( var i = 1; i < inputData.length-1; i++ )
+                {
+                    for(var j= i +1 ; j < inputData.length; j++)
+                    {
+                        if(inputData[i].gene === inputData[j].gene && inputData[i].sample === inputData[j].sample)
+                        {
+                            if(inputData[j].mutation !== undefine )
+                            {
+                                inputData[i].mutation = inputData[j].mutation;
+                                inputData.splice(j,1);
+                                break;
+                            }
+                            
+                            if(inputData[j].cna !== undefine )
+                            {
+                                inputData[i].cna = inputData[j].cna;
+                                inputData.splice(j,1);
+                                break;
+                            }
+                        }
+                    }
+                }
+            };
+            
             function concatData(mutationdata,data){
                 var mutationEmpty = _.isEmpty(mutationdata);
                 var dataEmpty = _.isEmpty(data);
@@ -264,77 +291,13 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
                         cnaTextAreaString = $cna_file_example.val().trim();
 
                     var rawMutationString = _.isEmpty(mutationResponse) ? mutationTextAreaString : mutationResponse.mutation;
-                    mutation_data = EchoedDataUtils.munge_mutation(rawMutationString);
+                    //mutation_data = EchoedDataUtils.munge_mutation(rawMutationString);
+                    mutation_data = InputData.munge_the_mutation(rawMutationString);
 
                     var rawCnaString = _.isEmpty(cnaResponse) ? cnaTextAreaString : cnaResponse.cna;
                     cna_data = EchoedDataUtils.munge_cna(rawCnaString);
                     
                     var data = concatData(mutation_data,cna_data);
-                    //var data = mutation_data.concat(cna_data);
-                    //var data = cna_data.concat(mutation_data);
-                    
-//                    var datasamples = new Array(); datasamples.push(data[0].sample);
-//                    var datagene = new Array(); datagene.push(data[0].gene);
-//                    for(var i = 0; i<data.length;i++)
-//                    {
-//                        var samplelength = datasamples.length;
-//                        var genelength = datagene.length;
-//                        
-//
-//                        var samplefalse = false;                         
-////                        var samplefound = _.find(datasamples, function(index) { return datasamples[index] === data[i].sample});
-////                        if(samplefound) samplefalse = true;
-//                        for(var j=0;j<samplelength;j++)
-//                        {
-//
-//                            if(data[i].sample === datasamples[j])
-//                            {
-//                                samplefalse = true;
-//                                break;
-//                            }
-//                        }
-//                        
-//                        if(!samplefalse) datasamples.push(data[i].sample);
-//                        
-//                        var genefalse = false;
-////                        var genefound = _.find(datasamples, function(index) { return datagene[index] === data[i].gene});
-////                        if(genefound) genefalse = true;
-//                        for(var k=0;k<genelength;k++)
-//                        {
-//                            if(data[i].gene === datagene[k])
-//                            {
-//                                genefalse = true;
-//                                break;
-//                            }
-//                        }
-//                        
-//                        if(!genefalse) datagene.push(data[i].gene);
-//                    }
-//                    
-//                    for(var j=0;j<datasamples.length;j++)
-//                    {
-//                        for(var i=0; i<datagene.length;i++)
-//                        {
-//                            var datafalse = false;
-//                            for(var n=0; n<data.length;n++)
-//                            {
-//                                if(data[n].gene === datagene[i] && data[n].sample === datasamples[j])
-//                                {
-//                                    datafalse = true;
-//                                    break;
-//                                }
-//                            }
-//                            
-//                            if(!datafalse)
-//                            {
-//                                var newdata = new Object();
-//                                newdata.gene = datagene[i];
-//                                newdata.sample = datasamples[j];
-//                                data.push(newdata);
-//                            }
-//                        }
-//                    }
-                    //padData(data);
                     
                     cases = EchoedDataUtils.samples(data);
 

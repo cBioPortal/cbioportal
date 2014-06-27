@@ -37,7 +37,7 @@ public class DataImporter
 	protected boolean addMissingCols;
 
 	/**
-	 * Default constructor with the default oncotator service.
+	 * Default constructor with the default mutation assessor service.
 	 */
 	public DataImporter()
 	{
@@ -50,7 +50,7 @@ public class DataImporter
 	}
 
 	/**
-	 * Alternative constructor with a specific oncotator service.
+	 * Alternative constructor with a specific mutation assessor service.
 	 */
 	public DataImporter(MutationAssessorService maService)
 	{
@@ -60,6 +60,7 @@ public class DataImporter
 		// update mutation assessor service
 		this.maService = maService;
 	}
+
 	/**
 	 * Adds mutation assessor information to the given input MAF
 	 * by using the information in the mutation assessor cache.

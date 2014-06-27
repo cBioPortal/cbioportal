@@ -115,6 +115,7 @@
     <module>importer</module>
     <module>business</module>
     <module>web</module>
+    <module>annotator</module>
   </modules>
 
   <!-- dependencies -->

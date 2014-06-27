@@ -95,7 +95,7 @@ public class MaMafProcessor extends MafProcessor
 	}
 
 	/**
-	 * Adds new nutation assessor column names into the header list.
+	 * Adds new mutation assessor column names into the header list.
 	 *
 	 * @param headerData    list of header names
 	 */
@@ -105,7 +105,7 @@ public class MaMafProcessor extends MafProcessor
 		{
 			if (!headerData.contains(maHeader))
 			{
-				// add missing oncotator headers
+				// add missing mutation assessor headers
 				headerData.add(maHeader);
 			}
 		}

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<artifactId>master</artifactId>
+		<groupId>org.mskcc.cbio</groupId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+
+	<artifactId>annotator</artifactId>
+
+	<!-- dependencies -->
+	<dependencies>
+
+		<!-- oncotator -->
+		<dependency>
+			<groupId>org.mskcc.cbio</groupId>
+			<artifactId>oncotator</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<!-- apache commons logging -->
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+
+		<!-- portal core -->
+		<dependency>
+			<groupId>org.mskcc.cbio</groupId>
+			<artifactId>core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+	</dependencies>
+
+</project>

@@ -11,6 +11,9 @@ public class Annotator
 	protected boolean sortColumns;
 	protected boolean addMissingCols;
 
+	// intermediate annotator files
+	public static final String INTERMEDIATE_IN = "annotator_in.txt";
+	public static final String INTERMEDIATE_OUT = "annotator_out.txt";
 
 	public Annotator()
 	{
@@ -84,6 +87,54 @@ public class Annotator
 		reader.close();
 		writer.close();
 
+	}
+
+	// TODO code duplication! -- we have the same code in liftover module
+	/**
+	 * Executes an external process via system call.
+	 *
+	 * @param args          process arguments (including the process itself)
+	 * @return              exit value of the process
+	 * @throws IOException  if an IO error occurs
+	 */
+	public static int execProcess(String[] args) throws IOException
+	{
+		Process process = Runtime.getRuntime().exec(args);
+
+		InputStream stdin = process.getInputStream();
+		InputStream stderr = process.getErrorStream();
+		InputStreamReader isr = new InputStreamReader(stdin);
+		InputStreamReader esr = new InputStreamReader(stderr);
+		BufferedReader inReader = new BufferedReader(isr);
+		BufferedReader errReader = new BufferedReader(esr);
+
+		// echo output messages to stdout
+		String line = null;
+
+		while ((line = inReader.readLine()) != null)
+		{
+			System.out.println(line);
+		}
+
+		// also echo error messages
+		while ((line = errReader.readLine()) != null)
+		{
+			System.out.println(line);
+		}
+
+		int exitValue = -1;
+
+		// wait for process to complete
+		try
+		{
+			exitValue = process.waitFor();
+		}
+		catch (InterruptedException e)
+		{
+			e.printStackTrace();
+		}
+
+		return exitValue;
 	}
 
 	protected void outputFileNames(File input, File output)

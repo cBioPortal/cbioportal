@@ -29,7 +29,7 @@ function PymolScriptGenerator()
 
 	function loadPdb(pdbId)
 	{
-		return "fetch " + pdbId + ";";
+		return "fetch " + pdbId + ", async=0;";
 	}
 
 	function setScheme(schemeName)

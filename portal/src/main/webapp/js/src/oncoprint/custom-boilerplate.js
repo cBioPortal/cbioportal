@@ -133,6 +133,7 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
         var $mutationForm = $('#mutation-form');
         var $mutation_file_example = $('#mutation-file-example');
         var $cna_file_example = $('#cna-file-example');
+        var $filter_example = $('#filter_example');
 
         // delete text when a file is selected
         $cnaForm.find("#cna").change(function() { $cna_file_example.html(""); });
@@ -284,21 +285,50 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
                 return data.concat(mutationdata);
             };
             
-            postFile('echofile', new FormData($cnaForm[0]), function(cnaResponse) {
+            function filterData(filterElement, filterData){
+                
+                var afterFilter = [];
+                
+                for(var i=0; i < filterData.length; i++)
+                {
+                    for(var j=0; j< filterElement.length; j++)
+                    {
+                        if(filterData[i].gene === filterElement[j])
+                        {
+                            afterFilter.push(filterData[i]);
+                            break;
+                        }
+                    }
+                }
+
+                return afterFilter;
+            } 
+ //           postFile('echofile', new FormData($cnaForm[0]), function(cnaResponse) {
                 postFile('echofile', new FormData($mutationForm[0]), function(mutationResponse) {
 
                     var mutationTextAreaString = $mutation_file_example.val().trim(),
                         cnaTextAreaString = $cna_file_example.val().trim();
+                    var filterExample = $filter_example.val().trim();
+                    
+                    var filterString = filterExample.split(/[\s,]+/); 
+                    
+                    cnaTextAreaString = "";
 
                     var rawMutationString = _.isEmpty(mutationResponse) ? mutationTextAreaString : mutationResponse.mutation;
                     //mutation_data = EchoedDataUtils.munge_mutation(rawMutationString);
                     mutation_data = InputData.munge_the_mutation(rawMutationString);
-
-                    var rawCnaString = _.isEmpty(cnaResponse) ? cnaTextAreaString : cnaResponse.cna;
+                    
+ //                   var rawCnaString = _.isEmpty(cnaResponse) ? cnaTextAreaString : cnaResponse.cna;
+                    var rawCnaString = cnaTextAreaString;
                     cna_data = EchoedDataUtils.munge_cna(rawCnaString);
                     
                     var data = concatData(mutation_data,cna_data);
-                    
+
+                    if(filterString[0] !== "")
+                    {
+                        data = filterData(filterString,data);
+                    }
+
                     cases = EchoedDataUtils.samples(data);
 
                     var $error_box = $('#error-box');
@@ -314,6 +344,6 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
                         $error_box.show();
                     }
                 });
-            });
+//            });
         });
 });

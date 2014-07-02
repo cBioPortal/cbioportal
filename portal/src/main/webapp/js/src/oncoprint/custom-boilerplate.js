@@ -84,19 +84,16 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
             $('#oncoprint_controls').show();
 
             // setup the download buttons
-            var $pdf_form = $('#pdf-form');
-            $pdf_form.submit(function() {
-                var that = $(this)[0];
-                that.elements['svgelement'].value=oncoprint.getPdfInput();
-                return;
-            });
+            $(".oncoprint-download").click(function() {
+                                var fileType = $(this).attr("type");
+                                var params = {
+                                    filetype: fileType,
+                                    filename:"oncoprint." + fileType,
+                                    svgelement: oncoprint.getPdfInput()
+                                };
 
-            var $svg_form = $('#svg-form');
-            $svg_form.submit(function() {
-                var that = $(this)[0];
-                that.elements['xml'].value=oncoprint.getPdfInput();
-                return;
-            });
+                                cbio.util.requestDownload("svgtopdf.do", params);
+                            });
 
             var $all_cna_levels_checkbox = $('#all_cna_levels');
             function update_oncoprint_cna_levels() {
@@ -306,13 +303,12 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
  //           postFile('echofile', new FormData($cnaForm[0]), function(cnaResponse) {
                 postFile('echofile', new FormData($mutationForm[0]), function(mutationResponse) {
 
-                    var mutationTextAreaString = $mutation_file_example.val().trim(),
-                        cnaTextAreaString = $cna_file_example.val().trim();
+                    var mutationTextAreaString = $mutation_file_example.val().trim();
                     var filterExample = $filter_example.val().trim();
                     
                     var filterString = filterExample.split(/[\s,]+/); 
                     
-                    cnaTextAreaString = "";
+                    var cnaTextAreaString = "";
 
                     var rawMutationString = _.isEmpty(mutationResponse) ? mutationTextAreaString : mutationResponse.mutation;
                     //mutation_data = EchoedDataUtils.munge_mutation(rawMutationString);

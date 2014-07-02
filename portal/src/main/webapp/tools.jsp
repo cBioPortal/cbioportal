@@ -23,44 +23,34 @@
 <div id="container" style="margin-left:50px; margin-top:50px;">
     <h1>Oncoprint</h1>
     <p>(<a href="faq.jsp#what-are-oncoprints">What are Oncoprints?</a>)</p>
-
-    <div id="inner-conainter" style="width:70%;">
-        <div id="error-box" style="display:none;" class="alert alert-error">There was an error with your file formats.</div>
-
-        <p>
-            Copy Number files should be tab delimited. They should also have
-            the following fields, in this order, on the first line:
-            <code>Hugo_Symbol</code>, <code>Entrez_Gene_Id</code>, followed by
-            sample ids.  Subsequent lines have data for hugo gene symbols,
-            entrez gene ids, and for each sample.  Data for each sample is
-            discrete, ranging from <code>-2</code> to <code>+2</code>.
-        </p>
-
-        <textarea id="cna-file-example" rows=5><jsp:include page="WEB-INF/jsp/oncoprint/cna-file-example.txt"></jsp:include></textarea>
-
-        <form id="cna-form" class="form-horizontal" enctype="multipart/form-data" method="post">
-            <div class="control-group" style="margin-bottom:0;">
-                <label class="control-label" for="cna">Copy Number File</label>
-                <div class="controls">
-                    <input id="cna" name="cna" type="file">
-                </div>
-            </div>
-        </form>
-
+        
         <div style="margin-top:20px;">
             <p>
                 Mutation files should be tab delimited.  They should also have the
                 following fields, in this order, on the first line:
-                <code>Hugo_Symbol</code>, <code>Entrez_Gene_Id</code>,
-                <code>sample_id</code>, <code>protein_change</code> (ignores case).
-                All other fields are ignored.
+                <code>Sample</code>, <code>Gene</code>,
+                <code>Alteration</code>.
+                All other fields are ignored. <button id="importData" style="font-size: 13px; width: 100px;" >Input Data</button>
             </p>
-
-            <textarea id="mutation-file-example" rows=5 style="width:40%;"><jsp:include page="WEB-INF/jsp/oncoprint/mutation-example-copy.txt"></jsp:include></textarea>
+            <script type="text/javascript">
+            $('#importData').click(function()
+            {
+                document.getElementById("mutation-file-example").value="Sample	Gene	Alteration\n\
+s1	BRCA1	MUT: E123A\n\
+s2	BRCA2	MUT: T56fs\n\
+s3	BRCA3	MUT: S50*\n\
+s4	BRCA4	CNA: AMPLIFIED\n\
+s5	PTEN	CNA: HOMODELETED\n\
+s2	PTEN	CNA: HOMODELETED\n\
+s3	BRCA1	MUT: E123A\n\
+s7";
+            });
+            </script>
+            <textarea id="mutation-file-example" rows=5 style="width:40%;"></textarea>
 
             <form id="mutation-form" class="form-horizontal" enctype="multipart/form-data" method="post">
                 <div class="control-group">
-                    <label class="control-label" for="mutation">Mutation File</label>
+                    <label class="control-label" for="mutation">Input Data File</label>
                     <div class="controls">
                         <input id="mutation" name="mutation" type="file">
                     </div>
@@ -69,6 +59,7 @@
         </div>
 
         <div style="margin-top:20px;">
+            <p>Please input the Genes your want to show in the table</p>
             <textarea id="filter_example" rows=2 style="width:40%;"></textarea>
         </div>
         <button id="create_oncoprint" type="button" class="btn" style="margin-top:20px; margin-bottom:20px;">Create</button>
@@ -83,19 +74,8 @@
 
     <div id="download_oncoprint" style="display:none; margin-bottom:40px; margin-top:20px;">
         <span>
-            <form id="pdf-form" style="display:inline;" action="svgtopdf.do" method="post" target="_blank">
-
-                <input type="hidden" name="svgelement">
-                <input type="hidden" name="filetype" value="pdf">
-                <input type="submit" value="PDF">
-            </form>
-
-            <form id="svg-form" style="display:inline;" action="oncoprint_converter.svg" enctype="multipart/form-data" method="POST" target="_blank">
-                <input type="hidden" name="xml">
-                <input type="hidden" name="longest_label_length">
-                <input type="hidden" name="format" value="svg">
-                <input type="submit" value="SVG">
-            </form>
+        <button class="oncoprint-download" type="pdf" style="display:inline;font-size: 13px; width: 50px;">PDF</button>
+        <button class="oncoprint-download" type="svg" style="display:inline;font-size: 13px; width: 50px;">SVG</button>
         </span>
     </div>
 

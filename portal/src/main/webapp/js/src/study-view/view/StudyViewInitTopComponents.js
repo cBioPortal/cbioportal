@@ -74,11 +74,26 @@ var StudyViewInitTopComponents = (function() {
         });
 
         $("#study-view-header-left-4").click(function() {
-            var _selectedCaseIds = StudyViewInitCharts.getSelectedCasesID(),
+            var _url;
+            var _selectedCaseIds = StudyViewInitCharts.getSelectedCasesID();
+            var _sampleidToPatientidMap = StudyViewProxy.getSampleidToPatientidMap();
+            if (_sampleidToPatientidMap && _.size(_sampleidToPatientidMap)===_.size(_selectedCaseIds)) {
+                // only if all sampes have patient id
+                var _selectedPatientIds = _.map(_selectedCaseIds, function(sampleId) {
+                    return _sampleidToPatientidMap[sampleId];
+                }).sort();
+                _selectedPatientIds = _.uniq(_selectedPatientIds, true);
+                _url =  "case.do?cancer_study_id="+
+                        StudyViewParams.params.studyId+
+                        "&patient_id="+_selectedPatientIds[0]+
+                        "#nav_case_ids="+_selectedPatientIds.join(",");
+            } else {
+                _selectedCaseIds = _selectedCaseIds.sort();
                 _url =  "case.do?cancer_study_id="+
                         StudyViewParams.params.studyId+
                         "&case_id="+_selectedCaseIds[0]+
                         "#nav_case_ids="+_selectedCaseIds.join(",");
+            }
 
             window.open(_url);
         });

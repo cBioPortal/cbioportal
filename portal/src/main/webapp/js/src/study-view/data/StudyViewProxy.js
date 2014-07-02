@@ -169,9 +169,13 @@ var StudyViewProxy = (function() {
                 //If the case data does not have CASE_ID column, new CASE_ID attribute
                 //should be created.d
                 var caseidExist = false;
+                var patientidExist = false;
                 for(var i=0 ; i<obtainDataObject['attr'].length; i++){
                     if(obtainDataObject['attr'][i].attr_id === 'CASE_ID'){
                         caseidExist = true;
+                    }
+                    if(obtainDataObject['attr'][i].attr_id === 'PATIENT_ID'){
+                        patientidExist = true;
                     }
                 }
                 if(!caseidExist){
@@ -184,6 +188,17 @@ var StudyViewProxy = (function() {
                 }
                 obtainDataObject['mutatedGenes'] = a4[0];
                 obtainDataObject['cna'] = a5[0];
+                
+                if (patientidExist) {
+                    obtainDataObject['sampleidToPatientidMap'] = _.reduce(obtainDataObject['arr'],
+                        function(memo, sampleObj) {
+                            if ('PATIENT_ID' in sampleObj) {
+                                memo[sampleObj['CASE_ID']] = sampleObj['PATIENT_ID'];
+                                return memo;
+                            }
+                        }
+                        ,{}); 
+               }
                 
                 callbackFunc(obtainDataObject);
             });
@@ -218,6 +233,7 @@ var StudyViewProxy = (function() {
         getArrData: function(){ return obtainDataObject['arr'];},
         getAttrData: function(){ return obtainDataObject['attr'];},
         getMutatedGenesData: function(){ return obtainDataObject['mutatedGenes'];},
-        getCNAData: function(){return obtainDataObject['cna'];}
+        getCNAData: function(){return obtainDataObject['cna'];},
+        getSampleidToPatientidMap: function(){return obtainDataObject['sampleidToPatientidMap'];}
     };
 }());

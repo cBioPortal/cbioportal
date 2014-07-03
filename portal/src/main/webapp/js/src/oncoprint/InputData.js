@@ -15,14 +15,24 @@ define("InputData", function() {
  
             if(d.Alteration !== undefined)
             {
-                var res = d.Alteration.split(":");
-                if(res[0] === "MUT")
+//                var res = d.Alteration.split(":");
+//                if(res[0] === "MUT")
+//                {
+//                    toReturn.mutation = res[1].trim();
+//                }
+//                else if(res[0] === "CNA")
+//                {
+//                    toReturn.cna = res[1].trim();
+//                }
+
+                var res = d.Alteration.trim();
+                if(res === "AMP" || res === "GAIN"||res === "DIPLOID"||res === "HETLOSS"||res === "HOMDEL")
                 {
-                    toReturn.mutation = res[1].trim();
+                    toReturn.cna = res;
                 }
-                else if(res[0] === "CNA")
+                else
                 {
-                    toReturn.cna = res[1].trim();
+                    toReturn.mutation = res;
                 }
             }
             

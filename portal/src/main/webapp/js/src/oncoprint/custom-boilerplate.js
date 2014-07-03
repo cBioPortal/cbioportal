@@ -22,11 +22,11 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
 
             var data_thresholded = (function() {
                 var cna_threshold_mapping = {
-                    "AMPLIFIED": "AMPLIFIED",
-                    "GAINED": "DIPLOID",
+                    "AMP": "AMPLIFIED",
+                    "GAIN": "GAINED",
                     "DIPLOID": "DIPLOID",
-                    "HEMIZYGOUSLYDELETED": "DIPLOID",
-                    "HOMODELETED": "HOMODELETED"
+                    "HETLOSS": "HEMIZYGOUSLYDELETED",
+                    "HOMDEL": "HOMODELETED"
                 };
 
                 // maps cna values of GAINED, HEMIZYGOUSLYDELETED to DIPLOID, using the above map,
@@ -93,6 +93,21 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
                                 };
 
                                 cbio.util.requestDownload("svgtopdf.do", params);
+                            });
+            $(".sample-download").click(function() {
+                                var mutationTextAreaString = $mutation_file_example.val().trim();
+                                var mutation_data = InputData.munge_the_mutation(mutationTextAreaString);
+                                
+                                var samples = "samples show above are: ";
+                                for(var i = 0; i< mutation_data.length; i++)
+                                {
+                                    samples= samples + mutation_data[i].sample+" ";
+                                }
+                                var a=document.createElement('a');
+                                a.href='data:text/plain;base64,'+btoa(samples);
+                                a.textContent='download';
+                                a.download='text.txt';
+                                a.click();
                             });
 
             var $all_cna_levels_checkbox = $('#all_cna_levels');
@@ -286,14 +301,13 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
                 
                 var afterFilter = [];
                 
-                for(var i=0; i < filterData.length; i++)
+                for(var i=0; i < filterElement.length; i++)
                 {
-                    for(var j=0; j< filterElement.length; j++)
+                    for(var j=0; j< filterData.length; j++)
                     {
-                        if(filterData[i].gene === filterElement[j])
+                        if(filterData[j].gene === filterElement[i])
                         {
-                            afterFilter.push(filterData[i]);
-                            break;
+                            afterFilter.push(filterData[j]);
                         }
                     }
                 }

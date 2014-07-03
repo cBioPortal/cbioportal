@@ -30,19 +30,20 @@
                 following fields, in this order, on the first line:
                 <code>Sample</code>, <code>Gene</code>,
                 <code>Alteration</code>.
-                All other fields are ignored. <button id="importData" style="font-size: 13px; width: 100px;" >Input Data</button>
+                All other fields are ignored. </br>
+                <a id="importData" style="font-size: 14px; width: 100px;" >(Load example data)</a>
             </p>
             <script type="text/javascript">
             $('#importData').click(function()
             {
                 document.getElementById("mutation-file-example").value="Sample	Gene	Alteration\n\
-s1	BRCA1	MUT: E123A\n\
-s2	BRCA2	MUT: T56fs\n\
-s3	BRCA3	MUT: S50*\n\
-s4	BRCA4	CNA: AMPLIFIED\n\
-s5	PTEN	CNA: HOMODELETED\n\
-s2	PTEN	CNA: HOMODELETED\n\
-s3	BRCA1	MUT: E123A\n\
+s1	BRCA1	E123A\n\
+s2	BRCA2	T56fs\n\
+s3	BRCA3	S50*\n\
+s4	BRCA4	AMP\n\
+s5	PTEN	HOMDEL\n\
+s2	PTEN	HOMDEL\n\
+s3	BRCA1	E123A\n\
 s7";
             });
             </script>
@@ -76,6 +77,7 @@ s7";
         <span>
         <button class="oncoprint-download" type="pdf" style="display:inline;font-size: 13px; width: 50px;">PDF</button>
         <button class="oncoprint-download" type="svg" style="display:inline;font-size: 13px; width: 50px;">SVG</button>
+        <button class="sample-download" type="txt" style="display:inline;font-size: 13px; width: 75px;">SAMPLES</button>
         </span>
     </div>
 

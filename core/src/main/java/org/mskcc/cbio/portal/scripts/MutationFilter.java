@@ -163,11 +163,13 @@ public class MutationFilter {
          return false;
       }
       
-      if( safeStringTest( mutation.getMutationType(), "5'Flank" ) &&
-              !whiteListGenesForPromoterMutations.contains(mutation.getEntrezGeneId())){
-                  mutation.setMutationType("Promoter");
+      if( safeStringTest( mutation.getMutationType(), "5'Flank" ) ) { 
+            if (whiteListGenesForPromoterMutations.contains(mutation.getEntrezGeneId())){
 		  utrRejects++;
-         return false;
+                  return false;
+            } else {
+                  mutation.setMutationType("Promoter");
+            }
       }
 
       // Do not accept IGR Mutations

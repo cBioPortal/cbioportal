@@ -1,17 +1,26 @@
 package org.mskcc.cbio.maf;
 
-
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+/**
+ * MAF Processor specific to the Annotator tool.
+ *
+ * @author Selcuk Onur Sumer
+ */
 public class AnnoMafProcessor extends MafProcessor
 {
 	protected List<String> annoHeaders;
 
+	/**
+	 * Constructor.
+	 *
+	 * @param headerLine    header line of the input MAF.
+	 * @param annoHeaders   headers specific to the annotator.
+	 */
 	public AnnoMafProcessor(String headerLine, List<String> annoHeaders)
 	{
 		super(headerLine);
-		//this.annoHeaders = this.initAnnoHeaderList();
 		this.annoHeaders = annoHeaders;
 	}
 
@@ -69,24 +78,12 @@ public class AnnoMafProcessor extends MafProcessor
 	 *
 	 * @param data              data representing a single line in the input
 	 */
-	public void updateAnnoData(List<String> data/*, TODO AnnoRecord? record*/)
+	public void updateAnnoData(List<String> data, Map<String, String> annoData)
 	{
-		// TODO update the data using the annotator data
-	}
-
-	/**
-	 * Initializes the Annotator header list.
-	 * The order of the elements in this list is directly related
-	 * to the order of the columns in the output file.
-	 *
-	 * @return  a list of annotator column names
-	 */
-	protected List<String> initAnnoHeaderList()
-	{
-		List<String> headers = new ArrayList<String>();
-
-		// TODO set columns names here...
-
-		return headers;
+		// update the data using the annotator data
+		for (String header: this.annoHeaders)
+		{
+			data.set(this.mafUtil.getColumnIndex(header), annoData.get(header));
+		}
 	}
 }

@@ -165,10 +165,10 @@ public class MutationFilter {
       
       if( safeStringTest( mutation.getMutationType(), "5'Flank" ) ) { 
             if (whiteListGenesForPromoterMutations.contains(mutation.getEntrezGeneId())){
+                  mutation.setMutationType("Promoter");
+            } else {
 		  utrRejects++;
                   return false;
-            } else {
-                  mutation.setMutationType("Promoter");
             }
       }
 

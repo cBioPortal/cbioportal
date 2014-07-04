@@ -349,7 +349,7 @@
                 var numFiltered = genomicEventObs.cnas.getNumEvents(true);
                 var numAll = genomicEventObs.cnas.getNumEvents(false);
                 if (numAll>0) {
-                    $('.cna-show-more').html("<a href='#cna' onclick='switchToTab(\"cna\");return false;' \n\
+                    $('.cna-show-more').html("<a href='#cna' onclick='switchToTab(\"tab_cna\");return false;' \n\
                         title='Show more copy number alterations of this patient'>Show all "
                         +numAll+" CNAs</a>");
                     $('.cna-show-more').addClass('datatable-show-more');
@@ -358,7 +358,7 @@
                     "CNA of interest"
                     +(numAll==0?"":(" ("
                         +numFiltered
-                        +" of <a href='#cna' onclick='switchToTab(\"cna\");return false;'\n\
+                        +" of <a href='#cna' onclick='switchToTab(\"tab_cna\");return false;'\n\
                          title='Show more copy number alterations of this patient'>"
                         +numAll
                         +"</a>)"))

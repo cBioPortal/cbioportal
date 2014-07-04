@@ -1026,7 +1026,7 @@
                             '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pl>>', 25, "No mutation events of interest", true);
                 var numFiltered = genomicEventObs.mutations.getNumEvents(true);
                 var numAll = genomicEventObs.mutations.getNumEvents(false);
-                 $('.mutation-show-more').html("<a href='#mutations' onclick='switchToTab(\"mutations\");return false;'\n\
+                 $('.mutation-show-more').html("<a href='#mutations' onclick='switchToTab(\"tab_mutations\");return false;'\n\
                       title='Show more mutations of this patient'>Show all "
                         +numAll+" mutations</a>");
                 $('.mutation-show-more').addClass('datatable-show-more');
@@ -1034,7 +1034,7 @@
                     "Mutations of interest"
                      +(numAll==0?"":(" ("
                         +numFiltered
-                        +" of <a href='#mutations' onclick='switchToTab(\"mutations\");return false;'\n\
+                        +" of <a href='#mutations' onclick='switchToTab(\"tab_mutations\");return false;'\n\
                          title='Show more mutations of this patient'>"
                         +numAll
                         +"</a>)"))

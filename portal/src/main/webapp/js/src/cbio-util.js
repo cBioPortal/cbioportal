@@ -443,26 +443,3 @@ if (!Array.prototype.forEach) {
         }
     };
 }
-
-if (!Array.prototype.ordinate) {
-    Number.prototype.ordinate = function(){
-        var num = this,
-            last = num.toString().slice(-1),
-            ord = '';
-        switch (last) {
-            case '1':
-                ord = 'st';
-                break;
-            case '2':
-                ord = 'nd';
-                break;
-            case '3':
-                ord = 'rd';
-                break;
-            default:
-                ord = 'th';
-                break;
-        }
-        return num.toString() + ord;
-    };
-}

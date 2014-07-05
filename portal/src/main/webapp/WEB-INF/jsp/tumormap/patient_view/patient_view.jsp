@@ -875,7 +875,7 @@ function outputClinicalData() {
 
     function formatNav() {
         if (!CaseNavigation.hasNavCaseIds()) return "";
-        return "Viewing "+(CaseNavigation.currPosition()+1).ordinate()+" of "+CaseNavigation.numOfNavCases()+" cases" 
+        return "Viewing #"+(CaseNavigation.currPosition()+1)+" of "+CaseNavigation.numOfNavCases()+" cases" 
                     + "&nbsp;&nbsp;<button id='case-navigate-first'>&nbsp;&lt;&lt;&nbsp;</button>"
                     + "&nbsp;&nbsp;<button id='case-navigate-previous'>&nbsp;&lt;&nbsp;</button>"
                     + "&nbsp;&nbsp;<button id='case-navigate-next'>&nbsp;&gt;&nbsp;</button>"

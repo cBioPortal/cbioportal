@@ -95,9 +95,6 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
                                 cbio.util.requestDownload("svgtopdf.do", params);
                             });
             $(".sample-download").click(function() {
-                                var mutationTextAreaString = $mutation_file_example.val().trim();
-                                var mutation_data = InputData.munge_the_mutation(mutationTextAreaString);
-                                
                                 var samples = "samples show above are: ";
                                 var genesValue = oncoprint.getData();
                                 for(var i = 0; i< genesValue.length; i++)
@@ -109,6 +106,7 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
                                 a.textContent='download';
                                 a.download='text.txt';
                                 a.click();
+                                a.delete();
                             });
 
             var $all_cna_levels_checkbox = $('#all_cna_levels');

@@ -23,7 +23,7 @@
 <div id="container" style="margin-left:50px; margin-top:50px;">
     <h1>Oncoprint</h1>
     <p>(<a href="faq.jsp#what-are-oncoprints">What are Oncoprints?</a>)</p>
-        
+       <div id="inner-conainter" style="width:70%;"> 
         <div style="margin-top:20px;">
             <p>
                 Mutation files should be tab delimited.  They should also have the
@@ -64,7 +64,6 @@ s7";
             <textarea id="filter_example" rows=2 style="width:40%;"></textarea>
         </div>
         <button id="create_oncoprint" type="button" class="btn" style="margin-top:20px; margin-bottom:20px;">Create</button>
-    </div>
 
     <div id="oncoprint_controls" style="margin-bottom: 20px;"></div>
 
@@ -80,7 +79,6 @@ s7";
         <button class="sample-download" type="txt" style="display:inline;font-size: 13px; width: 75px;">SAMPLES</button>
         </span>
     </div>
-
 </div>
 
 </div>

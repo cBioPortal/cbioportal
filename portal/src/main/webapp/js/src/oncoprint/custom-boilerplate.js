@@ -99,9 +99,10 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
                                 var mutation_data = InputData.munge_the_mutation(mutationTextAreaString);
                                 
                                 var samples = "samples show above are: ";
-                                for(var i = 0; i< mutation_data.length; i++)
+                                var genesValue = oncoprint.getData();
+                                for(var i = 0; i< genesValue.length; i++)
                                 {
-                                    samples= samples + mutation_data[i].sample+" ";
+                                    samples= samples + genesValue[i].key+" ";
                                 }
                                 var a=document.createElement('a');
                                 a.href='data:text/plain;base64,'+btoa(samples);

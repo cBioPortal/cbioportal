@@ -409,7 +409,9 @@
                     if (test.toUpperCase()==='PSA') {
                         var result = timePointData["eventData"]["RESULT"];
                         if (!result) return 0;
-                        var psa = parseFloat(result)+1.1;
+                        result = result.replace(/[^0-9.]/g,"");
+                        var psa = parseFloat(result)+2;
+                        if (psa===NaN) return 0;
                         return Math.log(psa)/Math.log(1000);
                     }
                 }

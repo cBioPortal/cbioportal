@@ -15,16 +15,6 @@ define("InputData", function() {
  
             if(d.Alteration !== undefined)
             {
-//                var res = d.Alteration.split(":");
-//                if(res[0] === "MUT")
-//                {
-//                    toReturn.mutation = res[1].trim();
-//                }
-//                else if(res[0] === "CNA")
-//                {
-//                    toReturn.cna = res[1].trim();
-//                }
-
                 var res = d.Alteration.trim();
                 if(res === "AMP" || res === "GAIN"||res === "DIPLOID"||res === "HETLOSS"||res === "HOMDEL")
                 {
@@ -42,15 +32,21 @@ define("InputData", function() {
             {
                 toReturn.gene = d.Gene;
             }
-            else
-            {
-                toReturn.gene = "BRCA1";
-            }
             
             return toReturn;
         };
 
-        return data.map(munge);
+        data = data.map(munge);
+        
+        for(var i = 0; i<data.length; i++)
+        {
+            if(data[i].gene == undefined)
+            {
+                data[i].gene = data[0].gene;
+            }
+        }
+
+        return data;
     };
 
     // joins on gene and sample to create a single object with

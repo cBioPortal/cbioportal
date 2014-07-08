@@ -26,11 +26,11 @@
        <div id="inner-conainter" style="width:70%;"> 
         <div style="margin-top:20px;">
             <p>
-                Mutation files should be tab delimited.  They should also have the
+                Alteration data should be tab delimited.  They should also have the
                 following fields, in this order, on the first line:
                 <code>Sample</code>, <code>Gene</code>,
                 <code>Alteration</code>.
-                All other fields are ignored. </br>
+                All other fields are ignored. Alteration includes Mutation and CNA. There are 5 different kinds of CNA: AMP(AMPLIFIED), GAINED, DIPLOID, HETLOSS(HEMIZYGOUSLYDELETED), HOMDEL(HOMODELETED). </br>
                 <a id="importData" style="font-size: 14px; width: 100px;" >(Load example data)</a>
             </p>
             <script type="text/javascript">

@@ -95,7 +95,7 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
                                 cbio.util.requestDownload("svgtopdf.do", params);
                             });
             $(".sample-download").click(function() {
-                                var samples = "samples show above are: ";
+                                var samples = "samples order in Oncoprinter is: ";
                                 var genesValue = oncoprint.getData();
                                 for(var i = 0; i< genesValue.length; i++)
                                 {

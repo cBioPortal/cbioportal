@@ -814,8 +814,16 @@ class FoundationFetcherImpl implements Fetcher
 			// rip off everything except nucleotides
 			String ripped = cdsEffect.replaceAll("[^tcga]", " ").trim();
 			String[] parts = ripped.split(" ");
-			refAllele = parts[0];
-			varAllele = parts[1];
+
+			if (parts.length < 2)
+			{
+				LOG.info("parseCdsEffect(), unable to process: " + cdsEffect);
+			}
+			else
+			{
+				refAllele = parts[0];
+				varAllele = parts[1];
+			}
 		}
 
 		// take complement if strand is minus

@@ -36,15 +36,7 @@
             <script type="text/javascript">
             $('#importData').click(function()
             {
-                document.getElementById("mutation-file-example").value="Sample	Gene	Alteration\n\
-s1	BRCA1	E123A\n\
-s2	BRCA2	T56fs\n\
-s3	BRCA3	S50*\n\
-s4	BRCA4	AMP\n\
-s5	PTEN	HOMDEL\n\
-s2	PTEN	HOMDEL\n\
-s3	BRCA1	E123A\n\
-s7";
+                document.getElementById("mutation-file-example").value="<jsp:include page="WEB-INF/jsp/oncoprint/example-genomic-events.txt"/>";
             });
             </script>
             <textarea id="mutation-file-example" rows=5 style="width:40%;"></textarea>

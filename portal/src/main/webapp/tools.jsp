@@ -26,20 +26,47 @@
        <div id="inner-conainter" style="width:70%;"> 
         <div style="margin-top:20px;">
             <p>
-                Alteration data should be tab delimited.  They should also have the
-                following fields, in this order, on the first line:
-                <code>Sample</code>, <code>Gene</code>,
-                <code>Alteration</code>.
-                All other fields are ignored. Alteration includes Mutation and CNA. There are 5 different kinds of CNA: AMP(AMPLIFIED), GAINED, DIPLOID, HETLOSS(HEMIZYGOUSLYDELETED), HOMDEL(HOMODELETED). </br>
-                <a id="importData" style="font-size: 14px; width: 100px;" >(Load example data)</a>
+                Please input <b>tab-delimited</b> genomic alteration events.&nbsp;&nbsp;
+                <u><a id="data-format" href="#">Data format</a></u>&nbsp;&nbsp;
+                <u><a id="load-example-data" href="#">Load example data</a></u>
             </p>
+            
+            <div id="div-data-format-exp" style="background-color:#eee;display:none;">
+                <h4>Data format</h4>
+                The data should contains three columns separated by tab.
+                The first row is always <code>Sample Gene   Alteration</code>.
+                Every other row should contain one genomic event (mutation or copy number alteration) in one sample.
+                You can also input samples without any events at the end so that the percentages can be properly calculated. 
+               <ol>
+                    <li>Sample column: sample ID or barcode</li>
+                    <li>Gene column: gene symbol or any gene ID</li>
+                    <li>Alteration column
+                        <ul>
+                            <li>Mutation event: amino acid change or any other information about the mutation</li>
+                            <li>Copy number alteration (CNA): supported CNA events include
+                                <ul>
+                                    <li>AMP: high level amplification</li>
+                                    <li>GAIN: low level gain</li>
+                                    <li>HETLOSS: heterozygous deletion</li>
+                                    <li>HOMDEL: homozygous deletion</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+            
             <script type="text/javascript">
-            $('#importData').click(function()
+            $('#data-format').click(function()
+            {
+                $("#div-data-format-exp").slideToggle();
+            });
+            $('#load-example-data').click(function()
             {
                 document.getElementById("mutation-file-example").value="<jsp:include page="WEB-INF/jsp/oncoprint/example-genomic-events.txt"/>";
             });
             </script>
-            <textarea id="mutation-file-example" rows=5 style="width:40%;"></textarea>
+            <textarea id="mutation-file-example" rows=10 style="width:40%;"></textarea>
 
             <form id="mutation-form" class="form-horizontal" enctype="multipart/form-data" method="post">
                 <div class="control-group">
@@ -52,7 +79,7 @@
         </div>
 
         <div style="margin-top:20px;">
-            <p>Please input the Genes your want to show in the table</p>
+            <p>Please define the order of genes (optional).</p>
             <textarea id="filter_example" rows=2 style="width:40%;"></textarea>
         </div>
         <button id="create_oncoprint" type="button" class="btn" style="margin-top:20px; margin-bottom:20px;">Create</button>

@@ -35,7 +35,7 @@
                 <h4>Data format</h4>
                 The data should contains three columns separated by tab.
                 The first row is always <code>Sample Gene   Alteration</code>.
-                Every other row should contain one genomic event (mutation or copy number alteration) in one sample.
+                Every other row can contain one genomic event (mutation or copy number alteration) in one sample.
                 You can also input samples without any events at the end so that the percentages can be properly calculated. 
                <ol>
                     <li>Sample column: sample ID or barcode</li>

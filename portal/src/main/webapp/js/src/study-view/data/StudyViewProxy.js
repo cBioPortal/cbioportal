@@ -94,6 +94,12 @@ var StudyViewProxy = (function() {
                     obtainDataObject['arr'].push(_caseDatum);
                 }
                 
+                $.each(_dataAttrOfa1,function(key,value){
+                    if(!value['display_name']){
+                        value['display_name'] = value['attr_id'];
+                    }
+                });
+                
                 for(var key in _dataAttrMapArr){
                     for (var i = 0 ; i < _dataAttrOfa1.length ; i++){
                         var tmpValue = _dataAttrMapArr[key][_dataAttrOfa1[i]['attr_id']];
@@ -106,7 +112,7 @@ var StudyViewProxy = (function() {
                        
                 }
                 
-                obtainDataObject['attr'] = a1[0]['attributes'];
+                obtainDataObject['attr'] = _dataAttrOfa1;
                 
                 //Filter extra data
                 var filteredA2 = removeExtraData(parObject.caseIds,a2[0]);
@@ -163,9 +169,13 @@ var StudyViewProxy = (function() {
                 //If the case data does not have CASE_ID column, new CASE_ID attribute
                 //should be created.d
                 var caseidExist = false;
+                var patientidExist = false;
                 for(var i=0 ; i<obtainDataObject['attr'].length; i++){
                     if(obtainDataObject['attr'][i].attr_id === 'CASE_ID'){
                         caseidExist = true;
+                    }
+                    if(obtainDataObject['attr'][i].attr_id === 'PATIENT_ID'){
+                        patientidExist = true;
                     }
                 }
                 if(!caseidExist){
@@ -178,6 +188,17 @@ var StudyViewProxy = (function() {
                 }
                 obtainDataObject['mutatedGenes'] = a4[0];
                 obtainDataObject['cna'] = a5[0];
+                
+                if (patientidExist) {
+                    obtainDataObject['sampleidToPatientidMap'] = _.reduce(obtainDataObject['arr'],
+                        function(memo, sampleObj) {
+                            if ('PATIENT_ID' in sampleObj) {
+                                memo[sampleObj['CASE_ID']] = sampleObj['PATIENT_ID'];
+                                return memo;
+                            }
+                        }
+                        ,{}); 
+               }
                 
                 callbackFunc(obtainDataObject);
             });
@@ -212,6 +233,7 @@ var StudyViewProxy = (function() {
         getArrData: function(){ return obtainDataObject['arr'];},
         getAttrData: function(){ return obtainDataObject['attr'];},
         getMutatedGenesData: function(){ return obtainDataObject['mutatedGenes'];},
-        getCNAData: function(){return obtainDataObject['cna'];}
+        getCNAData: function(){return obtainDataObject['cna'];},
+        getSampleidToPatientidMap: function(){return obtainDataObject['sampleidToPatientidMap'];}
     };
 }());

@@ -2,15 +2,15 @@
 request.setAttribute("include_network_help_tab", Boolean.FALSE);
 request.setAttribute("include_network_legend", Boolean.FALSE);
 %>
-<!--link href="css/network/jquery-ui-1.8.14.custom.css" type="text/css" rel="stylesheet"/-->
-<link href="css/network/network_ui.css" type="text/css" rel="stylesheet"/>
+<!--link href="css/network/jquery-ui-1.8.14.custom.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/-->
+<link href="css/network/network_ui.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
 
-<script type="text/javascript" src="js/lib/cytoscape_web/AC_OETags.min.js"></script>
-<script type="text/javascript" src="js/lib/cytoscape_web/cytoscapeweb.min.js"></script>
+<script type="text/javascript" src="js/lib/cytoscape_web/AC_OETags.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/cytoscape_web/cytoscapeweb.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
-<!--script type="text/javascript" src="js/src/network/jquery-ui.min.js"></script-->
-<!--script type="text/javascript" src="js/src/network/network-ui.js"></script-->
-<script type="text/javascript" src="js/src/network/network-viz.js"></script>
+<!--script type="text/javascript" src="js/src/network/jquery-ui.min.js?<%=GlobalProperties.getAppVersion()%>"></script-->
+<!--script type="text/javascript" src="js/src/network/network-ui.js?<%=GlobalProperties.getAppVersion()%>"></script-->
+<script type="text/javascript" src="js/src/network/network-viz.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <script type="text/javascript">
     function buildCytoscapeWeb() {

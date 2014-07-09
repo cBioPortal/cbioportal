@@ -1,5 +1,7 @@
 
-  <script src="js/src/patient-view/clinical-timeline.js"></script>
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
+
+  <script src="js/src/patient-view/clinical-timeline.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
   <style type="text/css">
     .axis path,

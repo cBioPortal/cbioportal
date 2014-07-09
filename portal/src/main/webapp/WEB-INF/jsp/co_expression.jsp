@@ -1,10 +1,10 @@
-<script type="text/javascript" src="js/src/coExpression.js"></script>
-<script type="text/javascript" src="js/src/plots-view/PlotsBoilerplate.js"></script>
-<script type="text/javascript" src="js/src/plots-view/data/CoexpPlotsProxy.js"></script>
-<script type="text/javascript" src="js/src/plots-view/view/CoexpPlotsView.js"></script>
-<script type="text/javascript" src="js/src/plots-view/CoexpPlots.js"></script>
-<script type="text/javascript" src="js/src/plots-view/component/ScatterPlots.js"></script>
-<script type="text/javascript" src="js/src/plots-view/component/PlotsHeader.js"></script>
+<script type="text/javascript" src="js/src/coExpression.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/plots-view/PlotsBoilerplate.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/plots-view/data/CoexpPlotsProxy.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/plots-view/view/CoexpPlotsView.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/plots-view/CoexpPlots.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/plots-view/component/ScatterPlots.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/plots-view/component/PlotsHeader.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <style>
     #coexp .coexp-table-filter-custom {

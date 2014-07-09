@@ -1,3 +1,4 @@
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <script type="text/template" id="mutation_diagram_view_template">
 	<div class='mutation-diagram-toolbar'>
 		<a href='http://www.uniprot.org/uniprot/{{uniprotId}}'
@@ -76,8 +77,8 @@
 	</tr>
 </script>
 
-<script type="text/javascript" src="js/src/mutation/view/MutationCustomizePanelView.js"></script>
-<script type="text/javascript" src="js/src/mutation/view/MutationDiagramView.js"></script>
-<script type="text/javascript" src="js/src/mutation/view/RegionTipView.js"></script>
-<script type="text/javascript" src="js/src/mutation/view/LollipopTipStatsView.js"></script>
-<script type="text/javascript" src="js/src/mutation/view/LollipopTipView.js"></script>
+<script type="text/javascript" src="js/src/mutation/view/MutationCustomizePanelView.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/mutation/view/MutationDiagramView.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/mutation/view/RegionTipView.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/mutation/view/LollipopTipStatsView.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/mutation/view/LollipopTipView.js?<%=GlobalProperties.getAppVersion()%>"></script>

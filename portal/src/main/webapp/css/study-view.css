@@ -60,7 +60,7 @@
     /*left: 0;*/
     float: left;
     margin: 0 5px 0 0;
-    width: 190px;
+    /*width: 190px;*/
     font-family: Verdana,Arial,sans-serif;
     font-size: 1.1em;
     border: 1px solid #d3d3d3;
@@ -102,8 +102,21 @@
     font-size: 1.1em;
     margin-top: 4px;
 }
+#study-view-header-left-4 {
+    font-size: 1.1em;
+}
 #study-view-header-left-3:hover{
     cursor: default;
+}
+.study-view-header-button {
+    float: left;
+    margin: 0 5px 0 0;
+    font-family: Verdana,Arial,sans-serif;
+    font-size: 1.1em;
+    border: 1px solid #d3d3d3;
+    background: #e6e6e6;
+    font-weight: normal;
+    color: #555555;
 }
 .study-view-header-button:hover {
     cursor: pointer;

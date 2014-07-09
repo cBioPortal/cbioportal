@@ -8,36 +8,38 @@
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
 <%@ page import="org.apache.commons.fileupload.FileItem" %>
 <%@ page import="org.apache.commons.codec.binary.Base64" %>
+<%@ page import="org.mskcc.cbio.portal.util.XssRequestWrapper" %>
+
 <html>
 <body>
 
     <jsp:include page="WEB-INF/jsp/global/css_include.jsp" flush="true" />
 
-<link href="css/network/network_ui.css" type="text/css" rel="stylesheet"/>
+<link href="css/network/network_ui.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
 
 
-<script type="text/javascript" src="js/lib/jquery.min.js"></script>
-<script type="text/javascript" src="js/lib/jquery-migrate.js"></script>
-<script type="text/javascript" src="js/lib/jquery.tipTip.minified.js"></script>
-<script type="text/javascript" src="js/lib/jquery.address.min.js"></script>
-<script type="text/javascript" src="js/lib/jquery-ui.min.js"></script>
-<script type="text/javascript" src="js/lib/responsiveslides.min.js"></script>
-<script type="text/javascript" src="js/lib/jquery.quovolver.mini.js"></script>
-<script type="text/javascript" src="js/lib/jquery.expander.min.js"></script>
-<script type="text/javascript" src="js/lib/underscore-min.js"></script>
-<script type="text/javascript" src="js/lib/backbone-min.js"></script>
-<script type="text/javascript" src="js/lib/cytoscape_web/AC_OETags.min.js"></script>
-<script type="text/javascript" src="js/lib/cytoscape_web/cytoscapeweb.min.js"></script>
+<script type="text/javascript" src="js/lib/jquery.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/jquery-migrate.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/jquery.tipTip.minified.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/jquery.address.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/jquery-ui.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/responsiveslides.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/jquery.quovolver.mini.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/jquery.expander.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/underscore-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/backbone-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/cytoscape_web/AC_OETags.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/cytoscape_web/cytoscapeweb.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
-<script type="text/javascript" src="js/src/network/network-visualization.js"></script>
-<script type="text/javascript" src="js/src/network/network-viz.js"></script>
+<script type="text/javascript" src="js/src/network/network-visualization.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/network/network-viz.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <jsp:include page="WEB-INF/jsp/network_views.jsp"/>
 
 <table width="100%" cellspacing="0px" cellpadding="2px" border="0px">
 	<tr valign="middle">
 		<td valign="middle" width="25%">
-			<a href="http://www.mskcc.org"><img src="images/mskcc_logo_3d_grey.jpg" alt="MSKCC Logo"></a>
+			<a href="http://www.mskcc.org"><img src="images/mskcc_logo_3d_grey.jpg" height="50px" alt="MSKCC Logo"></a>
 		</td>
 		<td valign="middle" width="50%">
 			<span id="header_site_name">
@@ -67,6 +69,12 @@ String graphml = null;
 
 if (format!=null) {
     graphml = request.getParameter("graphml");
+
+	if (request instanceof XssRequestWrapper)
+	{
+		graphml = ((XssRequestWrapper)request).getRawParameter("graphml");
+	}
+
     if (graphml!=null&&!graphml.isEmpty()) {
         if (!format.equalsIgnoreCase("graphml")) {
             try {
@@ -131,9 +139,9 @@ if (graphml!=null&&!graphml.isEmpty()) {
     boolean showProfileData = "true".equalsIgnoreCase(request.getParameter("show_profile_data"));
 
     String msgs = request.getParameter("msg");
-    if (msgs!=null) {
-        msgs = StringEscapeUtils.escapeJavaScript(msgs);
-    }
+//    if (msgs!=null) {
+//        msgs = StringEscapeUtils.escapeJavaScript(msgs);
+//    }
 %>
 
 <script type="text/javascript">

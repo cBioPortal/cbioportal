@@ -187,8 +187,26 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
 <%}%>
 
 <%if(showGenomicOverview){%>
-<fieldset style="border-width: 1px; border-color: #ccc; border-style: solid;">
-<legend style="color:#1974b8;">Genomic Overview</legend>
+<style>
+fieldset.genomic-overview-border {
+    border: 1px solid #ccc !important;
+    -webkit-box-shadow:  0px 0px 0px 0px #000;
+            box-shadow:  0px 0px 0px 0px #000;
+}
+
+legend.genomic-overview-border {
+    font-size: 12px !important;
+    text-align: left !important;
+    width:auto;
+    padding:0 10px;
+    border-bottom:none;
+    color:#1974b8;
+    margin-bottom: 0px;
+}
+</style>
+
+<fieldset class="genomic-overview-border">
+<legend class="genomic-overview-border">Genomic Overview</legend>
 <table>
     <tr>
         <td><div id="genomics-overview"></div></td>

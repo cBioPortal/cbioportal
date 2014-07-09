@@ -237,6 +237,7 @@ if (patientViewError!=null) {
 <jsp:include page="../../global/xdebug.jsp" flush="true" />
 
 <link href="css/jquery.qtip.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
+<link href="css/bootstrap.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 
 <style type="text/css" title="currentStyle"> 
         @import "css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>";
@@ -341,6 +342,7 @@ var caseMetaData = {
 
 $(document).ready(function(){
     if (print) $('#page_wrapper_table').css('width', '900px');
+    tweaksStyles();
     outputClinicalData();
     setUpPatientTabs();
     initTabs();
@@ -349,6 +351,11 @@ $(document).ready(function(){
         switchToTab(openTab[1]);
     }
 });
+
+function tweaksStyles() {
+    $("div#content").css("margin-top","0px");
+    $("body").css("background-color", "#E0E0E0");
+}
 
 function setUpPatientTabs() {
     $('#patient-tabs').tabs();
@@ -761,7 +768,7 @@ function outputClinicalData() {
     if (n>1) initCaseMetaData();
     
     // first row -- cancer study and nav
-    $("#clinical_table").append("<tr><td>"+formatCancerStudyInfo()+"</td><td align='right'>"+formatNav()+"</td></tr>");
+    $("#clinical_table").append("<tr><td>"+formatCancerStudyInfo()+"</td><td>"+formatNav()+"</td></tr>");
     initNav();
     
     // for each sample
@@ -875,25 +882,25 @@ function outputClinicalData() {
 
     function formatNav() {
         if (!CaseNavigation.hasNavCaseIds()) return "";
-        return "Viewing #"+(CaseNavigation.currPosition()+1)+" of "+CaseNavigation.numOfNavCases()+" cases" 
-                    + "&nbsp;&nbsp;<button id='case-navigate-first'>&nbsp;&lt;&lt;&nbsp;</button>"
-                    + "&nbsp;&nbsp;<button id='case-navigate-previous'>&nbsp;&lt;&nbsp;</button>"
-                    + "&nbsp;&nbsp;<button id='case-navigate-next'>&nbsp;&gt;&nbsp;</button>"
-                    + "&nbsp;&nbsp;<button id='case-navigate-last'>&nbsp;&gt;&gt;&nbsp;</button>";
+        return "<ul class='pager' style='float:right;'>Viewing #"+(CaseNavigation.currPosition()+1)+" of "+CaseNavigation.numOfNavCases()+" cases&nbsp&nbsp;"
+                    + "<li id='case-navigate-first'><a "+(CaseNavigation.hasPrevious()?("href='"+CaseNavigation.first()+"'"):"")+">&lt;&lt;</a></li>&nbsp;"
+                    + "<li id='case-navigate-previous'><a "+(CaseNavigation.hasPrevious()?("href='"+CaseNavigation.previous()+"'"):"")+">&nbsp;&lt;&nbsp;</a></li>&nbsp;"
+                    + "<li id='case-navigate-next'><a "+(CaseNavigation.hasNext()?("href='"+CaseNavigation.next()+"'"):"")+">&nbsp;&gt;&nbsp;</a></li>&nbsp;"
+                    + "<li id='case-navigate-last'><a "+(CaseNavigation.hasNext()?("href='"+CaseNavigation.last()+"'"):"")+">&gt;&gt;</a></li></ul>";
     }
     
     function initNav() {
         if (!CaseNavigation.hasNavCaseIds()) return;
         if (!CaseNavigation.hasPrevious()) {
-            $("#case-navigate-first").attr("disabled",true);
-            $("#case-navigate-previous").attr("disabled",true);
+            $("#case-navigate-first").addClass("disabled");
+            $("#case-navigate-previous").addClass("disabled");
         } else {
-            $("#case-navigate-first").click(CaseNavigation.navToFirst);
+            //$("#case-navigate-first").click(CaseNavigation.navToFirst);
             $("#case-navigate-previous").click(CaseNavigation.navToPrevious);
         }
         if (!CaseNavigation.hasNext()) {
-            $("#case-navigate-last").attr("disabled",true);
-            $("#case-navigate-next").attr("disabled",true);
+            $("#case-navigate-last").addClass("disabled");
+            $("#case-navigate-next").addClass("disabled");
         } else {
             $("#case-navigate-last").click(CaseNavigation.navToLast);
             $("#case-navigate-next").click(CaseNavigation.navToNext);
@@ -1081,9 +1088,12 @@ var CaseNavigation = (function(currCaseId){
         return hasPrevious() ? navCaseIds[currPosition-1] : null;
     }
     
+    function getUrlTo(id) {
+        return window.location.href.replace("="+currCaseId, "="+id);
+    }
+    
     function navTo(id) {
-        var url = window.location.href.replace("="+currCaseId, "="+id);
-        window.location.replace(url);
+        window.location.replace(getUrlTo(id));
     }
     
     function hasNext() {
@@ -1100,6 +1110,18 @@ var CaseNavigation = (function(currCaseId){
         hasNavCaseIds : hasNavCaseIds,
         hasPrevious : hasPrevious,
         hasNext : hasNext,
+        first: function() {
+            return getUrlTo(navCaseIds[0]);
+        },
+        previous: function() {
+            return getUrlTo(previousCaseId());
+        },
+        next: function() {
+            return getUrlTo(nextCaseId());
+        },
+        last: function() {
+            return getUrlTo(navCaseIds[navCaseIds.length-1]);
+        },
         navToFirst: function() {
                 navTo(navCaseIds[0]);
             },

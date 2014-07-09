@@ -180,13 +180,6 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
     }
 </script>
 
-
-<%if(showTimeline){%>
-<jsp:include page="clinical_timeline.jsp" flush="true" />
-<br/>
-<%}%>
-
-<%if(showGenomicOverview){%>
 <style>
 fieldset.genomic-overview-border {
     border: 1px solid #ccc !important;
@@ -205,6 +198,12 @@ legend.genomic-overview-border {
 }
 </style>
 
+<%if(showTimeline){%>
+<jsp:include page="clinical_timeline.jsp" flush="true" />
+<br/>
+<%}%>
+
+<%if(showGenomicOverview){%>
 <fieldset class="genomic-overview-border">
 <legend class="genomic-overview-border">Genomic Overview</legend>
 <table>

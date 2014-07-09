@@ -35,16 +35,16 @@
 <jsp:include page="global/header.jsp" flush="true"/>
 
 <!-- for now, let's include these guys here and prevent clashes with the rest of the portal -->
-<script type="text/javascript" src="js/src/crosscancer.js"></script>
-<link href="css/data_table_ColVis.css" type="text/css" rel="stylesheet" />
-<link href="css/data_table_jui.css" type="text/css" rel="stylesheet" />
-<link href="css/mutation/mutation_details.css" type="text/css" rel="stylesheet" />
-<link href="css/mutation/mutation_table.css" type="text/css" rel="stylesheet" />
-<link href="css/mutation/mutation_3d.css" type="text/css" rel="stylesheet" />
-<link href="css/mutation/mutation_diagram.css" type="text/css" rel="stylesheet" />
-<link href="css/mutation/mutation_pdb_panel.css" type="text/css" rel="stylesheet" />
-<link href="css/mutation/mutation_pdb_table.css" type="text/css" rel="stylesheet" />
-<link href="css/crosscancer.css" type="text/css" rel="stylesheet" />
+<script type="text/javascript" src="js/src/crosscancer.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<link href="css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link href="css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link href="css/mutation/mutation_details.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link href="css/mutation/mutation_table.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link href="css/mutation/mutation_3d.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link href="css/mutation/mutation_diagram.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link href="css/mutation/mutation_pdb_panel.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link href="css/mutation/mutation_pdb_table.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link href="css/crosscancer.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 
 <%
     // Means that user landed on this page with the old way.

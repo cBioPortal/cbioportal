@@ -1,3 +1,5 @@
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
+
 <script type="text/template" id="standalone_mutation_view_template">
 	<div class="standalone-mutation-visualizer">
 		<h1>Mutation Visualizer</h1>
@@ -70,4 +72,4 @@
 	<b alt="{{caseIdTip}}" class="{{caseIdClass}}">{{caseId}}</b>
 </script>
 
-<script type="text/javascript" src="js/src/mutation/view/StandaloneMutationView.js"></script>
+<script type="text/javascript" src="js/src/mutation/view/StandaloneMutationView.js?<%=GlobalProperties.getAppVersion()%>"></script>

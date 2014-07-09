@@ -1,3 +1,4 @@
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <script type="text/template" id="pdb_table_view_template">
 	<div class='pdb-chain-table-loader'>
 		<img src='{{loaderImage}}'/>
@@ -38,4 +39,4 @@
 	<b>chain:</b> {{molecule}}
 </script>
 
-<script type="text/javascript" src="js/src/mutation/view/PdbTableView.js"></script>
+<script type="text/javascript" src="js/src/mutation/view/PdbTableView.js?<%=GlobalProperties.getAppVersion()%>"></script>

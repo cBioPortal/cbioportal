@@ -360,6 +360,11 @@
         <url-pattern>/link.do</url-pattern>
     </servlet-mapping>
 
+    <servlet-mapping>
+        <servlet-name>link_out</servlet-name>
+        <url-pattern>/ln</url-pattern>
+    </servlet-mapping>
+
      <servlet-mapping>
         <servlet-name>oncoprint_converter</servlet-name>
         <url-pattern>/oncoprint_converter.svg</url-pattern>

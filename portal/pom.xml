@@ -118,6 +118,7 @@
 			  <resources>
 				<resource>
 				  <directory>${property-file-dir}</directory>
+                                  <filtering>true</filtering>
 				  <includes>
 					<include>**/*.properties</include>
 				  </includes>

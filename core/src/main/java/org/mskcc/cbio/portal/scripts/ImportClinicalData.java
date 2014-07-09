@@ -34,7 +34,7 @@ public class ImportClinicalData {
 
     public static final String METADATA_PREIX = "#";
     public static final String DELIMITER = "\t";
-    public static final String CASE_ID_COLUMN_NAME = "CASE_ID";
+    public static final String CASE_ID_COLUMN_NAME = "SAMPLE_ID";
 
 	private File clinicalDataFile;
 	private CancerStudy cancerStudy;
@@ -67,6 +67,8 @@ public class ImportClinicalData {
         List<ClinicalAttribute> columnAttrs = grabAttrs(buff);
         int iCaseId = findCaseIDColumn(columnAttrs);
 
+        Set<String> caseIds = new HashSet<String>();
+        
         String line;
         while ((line = buff.readLine()) != null) {
             line = line.trim();
@@ -85,14 +87,20 @@ public class ImportClinicalData {
             String caseId = fields[iCaseId];
             for (int i = 0; i < fields.length; i++) {
                 if (i!=iCaseId && !fields[i].isEmpty()) {
-                    DaoClinicalData.addDatum(cancerStudy.getInternalId(), caseId, columnAttrs.get(i).getAttrId(), fields[i]);
+                    DaoClinicalData.addDatum(cancerStudy.getInternalId(), caseId, columnAttrs.get(i).getAttrId(), fields[i].trim());
+                    caseIds.add(caseId);
                 }
             }
         }
         
-        if (MySQLbulkLoader.isBulkLoad()) {
-            MySQLbulkLoader.flushAll();
+        Set<String> attrIds = new HashSet<String>();
+        for (ClinicalAttribute attr : columnAttrs) {
+            attrIds.add(attr.getAttrId());
         }
+        // overwrite the old data
+        DaoClinicalData.removeData(cancerStudy.getInternalId(), caseIds, attrIds);
+        
+        MySQLbulkLoader.flushAll();
     }
 
     /**
@@ -184,12 +192,13 @@ public class ImportClinicalData {
     
     private int findCaseIDColumn(List<ClinicalAttribute> attrs) {
         for (int i=0; i<attrs.size(); i++) {
-            if (attrs.get(i).getAttrId().equals(CASE_ID_COLUMN_NAME)) {
+            String attrId = attrs.get(i).getAttrId();
+            if (attrId.equalsIgnoreCase("SAMPLE_ID")||attrId.equalsIgnoreCase("CASE_ID")) {
                 return i;
             }
         }
         
-        throw new java.lang.UnsupportedOperationException("Clinicla file must contain a column of "+CASE_ID_COLUMN_NAME);
+        throw new java.lang.UnsupportedOperationException("Clinicla file must contain a column of SAMPLE_ID");
     }
 
     /**

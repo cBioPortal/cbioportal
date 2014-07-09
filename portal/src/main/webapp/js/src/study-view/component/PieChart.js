@@ -409,7 +409,7 @@ var PieChart = function(){
             });
             pieChart.on("postRedraw",function(chart){
                 var _filters = pieChart.filters();
-                if(previousFilters.equals(_filters)) {
+                if(previousFilters.equals(_filters) || pieChart.filters()) {
                     addPieLabels();
                 }
                 previousFilters = jQuery.extend(true, [], _filters);

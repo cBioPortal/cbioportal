@@ -36,6 +36,6 @@
         <div id="oncoprint_legend"></div>
         <%@ include file="legend-template.jsp" %>
 
-        <script data-main="js/src/oncoprint/main-boilerplate.js" type="text/javascript" src="js/require.js"></script>
+        <script data-main="js/src/oncoprint/main-boilerplate.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript" src="js/require.js?<%=GlobalProperties.getAppVersion()%>"></script>
     </div>
 </div>

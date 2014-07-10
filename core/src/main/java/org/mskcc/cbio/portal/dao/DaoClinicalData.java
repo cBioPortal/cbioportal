@@ -138,6 +138,7 @@ public final class DaoClinicalData {
         return DaoCancerStudy.getCancerStudyByStableId(cancerStudyId).getInternalId();
     }
 
+
     private static String getAttributeTable(String attrId) throws DaoException
     {
         if (sampleAttributes.containsKey(attrId)) {

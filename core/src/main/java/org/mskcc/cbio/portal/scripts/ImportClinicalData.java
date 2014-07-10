@@ -46,6 +46,10 @@ public class ImportClinicalData {
 
     public void importData() throws Exception
     {
+        // if bulkLoading is ever turned off,
+        // code has to be added to check whether
+        // a clinical attribute update should be
+        // perform instead of an insert
         MySQLbulkLoader.bulkLoadOn();
 
         FileReader reader =  new FileReader(clinicalDataFile);
@@ -151,9 +155,10 @@ public class ImportClinicalData {
     {
         // attempt to add both a patient and sample to database
         int patientIdIndex = findPatientIdColumn(columnAttrs); 
-        int[] internalPatientId = addPatientToDatabase(fields[patientIdIndex]); 
+        int[] internalPatientId = (patientIdIndex >= 0) ?
+            addPatientToDatabase(fields[patientIdIndex]) : new int[] {-1,-1}; 
         int sampleIdIndex = findSampleIdColumn(columnAttrs);
-        String stableSampleId = fields[sampleIdIndex];
+        String stableSampleId = (sampleIdIndex >= 0) ? fields[sampleIdIndex] : "";
         int[] internalSampleId = (stableSampleId.length() > 0) ?
             addSampleToDatabase(stableSampleId, fields, columnAttrs) : new int[] {-1,-1};
 
@@ -298,6 +303,8 @@ public class ImportClinicalData {
 
     private void addDatum(int internalId, String attrId, String attrVal, String attrType) throws Exception
     {
+        // if bulk loading is ever turned off, we need to check if
+        // attribute value exists and if so, perfom an update
         if (attrType.equals(ClinicalAttribute.PATIENT_ATTRIBUTE)) {
             DaoClinicalData.addPatientDatum(internalId, attrId, attrVal.trim());
         }
@@ -314,16 +321,13 @@ public class ImportClinicalData {
             ImportDataUtil.entityAttributeService.getAttribute(internalId,
                                                                columnAttrs.get(attrIndex).getAttrId());
         if (entityAttribute == null) {
-            if (columnAttrs.get(attrIndex).isPatientAttribute()) {
-                ImportDataUtil.entityAttributeService.insertEntityAttribute(internalId,
-                                                                            columnAttrs.get(attrIndex).getAttrId(),
-                                                                            fields[attrIndex].trim());
-            }
-            else {
-                ImportDataUtil.entityAttributeService.insertEntityAttribute(internalId,
-                                                                            columnAttrs.get(attrIndex).getAttrId(),
-                                                                            fields[attrIndex].trim());
-            }
+            ImportDataUtil.entityAttributeService.insertEntityAttribute(internalId,
+                                                                        columnAttrs.get(attrIndex).getAttrId(),
+                                                                        fields[attrIndex].trim());
+        }
+        else if (!entityAttribute.attributeValue.equals(fields[attrIndex].trim())) {
+            entityAttribute.attributeValue = fields[attrIndex].trim();
+            ImportDataUtil.entityAttributeService.updateEntityAttribute(entityAttribute);
         }
     }
 

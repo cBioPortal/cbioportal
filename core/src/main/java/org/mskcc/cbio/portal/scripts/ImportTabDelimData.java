@@ -238,7 +238,6 @@ public class ImportTabDelimData {
                                         + "and all tab-delimited data associated with it!");
                                 }
                             } else if (genes.size()==1) {
-                                storeGeneticAlterations(values, daoGeneticAlteration, genes.get(0));
                                 if (discritizedCnaProfile) {
                                     long entrezGeneId = genes.get(0).getEntrezGeneId();
                                     int n = values.length;
@@ -246,6 +245,12 @@ public class ImportTabDelimData {
                                         System.out.println();
                                     int i = values[0].equals(""+entrezGeneId) ? 1:0;
                                     for (; i<n; i++) {
+                                        
+                                        // temporary solution -- change partial deletion back to full deletion.
+                                        if (values[i].equals(GeneticAlterationType.PARTIAL_DELETION)) {
+                                            values[i] = GeneticAlterationType.HOMOZYGOUS_DELETION;
+                                        }
+                                        
                                         if (values[i].equals(GeneticAlterationType.AMPLIFICATION) 
                                                // || values[i].equals(GeneticAlterationType.GAIN)
                                                // || values[i].equals(GeneticAlterationType.ZERO)
@@ -264,6 +269,7 @@ public class ImportTabDelimData {
                                         }
                                     }
                                 }
+                                storeGeneticAlterations(values, daoGeneticAlteration, genes.get(0));
                                 
                                 numRecordsStored++;
                             } else {

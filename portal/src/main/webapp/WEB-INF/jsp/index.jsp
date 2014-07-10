@@ -88,14 +88,11 @@ $(document).ready(function(){
                    <td valign=top>
 	              <div style="position: relative; z-index: 999;">
                         <p><%= GlobalProperties.getBlurb() %></p>
-                        <p>Please adhere to <a href="http://cancergenome.nih.gov/abouttcga/policies/publicationguidelines">
-                            the TCGA publication guidelines</a> when using any TCGA data in your publications.</p>
-                        <p>The portal is developed and maintained by
-                            the <a href="http://cbio.mskcc.org/">Computational Biology Center</a>
-                            at <a href="http://www.mskcc.org/">Memorial
-                            Sloan-Kettering Cancer Center</a>. </p>
-                        <p>References: <a href="http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract">Cerami et al. <i>Cancer Discov.</i> 2012</a>
-                                &amp;  <a href="http://www.cbioportal.org/public-portal/sci_signal_reprint.jsp">Gao et al. <i>Sci. Signal.</i> 2013.</p>
+                        <p>Please adhere to <u><a href="http://cancergenome.nih.gov/abouttcga/policies/publicationguidelines">
+                            the TCGA publication guidelines</a></u> when using TCGA data in your publications.</p>
+                        <p><b>Please cite</b> <a href="http://www.cbioportal.org/public-portal/sci_signal_reprint.jsp">Gao et al. <i>Sci. Signal.</i> 2013</a> 
+                                &amp;  <a href="http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract">Cerami et al. <i>Cancer Discov.</i> 2012</a>
+                                when publishing results based on cBioPortal.</p>
                         </div>
                         <br/>
                    </td>

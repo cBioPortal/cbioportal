@@ -10,6 +10,13 @@
 	values (#{entityId},#{attributeId},#{attributeValue})
 </insert>
 
+<update id="updateEntityAttribute" parameterType="EntityAttribute">
+	update entity_attribute
+	set ATTR_VALUE = #{attributeValue}
+	where ENTITY_ID = #{entityId}
+	and ATTR_ID = #{attributeId}
+</update>
+
 <insert id="insertAttributeMetadata" parameterType="AttributeMetadata">
 	insert into attribute_metadata (ATTR_ID, DISPLAY_NAME, DESCRIPTION, DATATYPE, TYPE)
 	values (#{attributeId},#{displayName},#{description},#{datatype}, #{type})

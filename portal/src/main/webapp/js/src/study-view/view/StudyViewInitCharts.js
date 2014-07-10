@@ -184,8 +184,7 @@ var StudyViewInitCharts = (function(){
                     var _varValues = [];
                     
                     for(var j=0;j<_arr.length;j++){
-                        if(_arr[j][_attr[i]["attr_id"]] && 
-                                !isNaN(_arr[j][_attr[i]["attr_id"]])){
+                        if(!isNaN(_arr[j][_attr[i]["attr_id"]])){
                             _varValues.push(_arr[j][_attr[i]["attr_id"]]);  
                         }
                     }
@@ -206,10 +205,13 @@ var StudyViewInitCharts = (function(){
                 StudyViewUtil.echoWarningMessg('Can not identify data type.');
                 StudyViewUtil.echoWarningMessg('The data type is ' +_dataType);
             }
-            varKeys[_attr[i]["attr_id"]] = [];
-            varKeys[_attr[i]["attr_id"]] = _keys;
-            varDisplay.push(_attr[i]["display_name"]);                
-            varName.push(_attr[i]["attr_id"]);
+            
+            if(_attr[i]["attr_id"] !== "PATIENT_ID") {
+                varKeys[_attr[i]["attr_id"]] = [];
+                varKeys[_attr[i]["attr_id"]] = _keys;
+                varDisplay.push(_attr[i]["display_name"]);                
+                varName.push(_attr[i]["attr_id"]);
+            }
         }
         
         $("#study-desc").append("&nbsp;&nbsp;<b>"+ Object.keys(dataArr).length +" samples " + _studyDesc+"</b>.");
@@ -1227,6 +1229,7 @@ var StudyViewInitCharts = (function(){
         removeMarker: removeMarker,
         redrawWSCharts: redrawWSCharts,
         resetBars: resetBars,
+        getSelectedCasesID: getSelectedCasesID,
         getLayout: function() {
             return msnry;
         }

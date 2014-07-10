@@ -77,6 +77,9 @@ public class DaoClinicalAttribute {
     }
 
     public static List<ClinicalAttribute> getDatum(Collection<String> attrIds) throws DaoException {
+        if(attrIds == null || attrIds.isEmpty() ) {
+            return Collections.emptyList();
+        }
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;

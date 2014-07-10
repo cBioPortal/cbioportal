@@ -339,6 +339,6 @@ class ImportDataRecordComparator implements Comparator {
 	public int compare (Object o, Object o1) {
 		ImportDataRecord record0 = (ImportDataRecord)o;
 		ImportDataRecord record1 = (ImportDataRecord)o1;
-		return (record1.getDataFilename().contains(DatatypeMetadata.CORRELATE_METHYL_FILE_ID)) ? 1 : 0;
+		return (record1.getDataFilename().contains(DatatypeMetadata.CORRELATE_METHYL_FILE_ID)) ? 1 : -1;
 	}
 }

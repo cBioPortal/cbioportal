@@ -510,9 +510,9 @@
                 var eventGroups = separateEvents(sortByDate(specimens), "SpecimenPreservationType");
                 for (var type in eventGroups) {
                     ret.push({
-                        label:type,
+                        label:type?type:"Specimen",
                         display:"circle",
-                        class:"timeline-speciman",
+                        class:"timeline-specimen",
                         times:formatTimePoints(eventGroups[type])});
                 }
             }

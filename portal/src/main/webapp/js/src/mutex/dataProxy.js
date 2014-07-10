@@ -37,9 +37,55 @@
 
 var MutexData = (function() {
 
+	var oncoprintData = {};
+
 	var getData = function() {
-		conso
-		le.log(PortalDataColl.getOncoprintData());
+		oncoprintData = PortalDataColl.getOncoprintData(); 
+		countEventCombinations();
+	}
+
+	function countEventCombinations() {
+		var _geneArr = window.PortalGlobals.getGeneList();
+		$.each(_geneArr, function(outterIndex, outterObj) {
+			for (var innerIndex = outterIndex + 1; innerIndex < _geneArr.length; innerIndex++) {
+				var _geneA = _geneArr[outterIndex],
+					_geneB = _geneArr[innerIndex];
+				var _a = 0, //--
+					_b = 0, //-+
+					_c = 0, //+-
+					_d = 0; //++
+				console.log("geneA: " + _geneA);
+				console.log("geneB: " + _geneB);
+
+				$.each(oncoprintData, function(singleCaseIndex, singleCaseObj) {
+					var _alteredGeneA = false,
+						_alteredGeneB = false;
+					$.each(singleCaseObj.values, function(singleGeneIndex, singleGeneObj) {
+						if (singleGeneObj.gene === _geneA) {
+							if (Object.keys(singleGeneObj).length > 2) { 
+							//if more than two fields(gene and sample) -- meaning there's alterations
+								_alteredGeneA = true;
+							}
+						} else if(singleGeneObj.gene === _geneB) {
+							if (Object.keys(singleGeneObj).length > 2) { 
+							//if more than two fields(gene and sample) -- meaning there's alterations
+								_alteredGeneB = true;
+							}
+						}					
+					});
+					if (_alteredGeneA === true && _alteredGeneB === true) {
+						_d += 1;
+					} else if (_alteredGeneA === true && _alteredGeneB === false) {
+						_c += 1;
+					} else if (_alteredGeneA === false && _alteredGeneB === true) {
+						_b += 1;
+					} else if (_alteredGeneA === false && _alteredGeneB === false) {
+						_a += 1;
+					}
+				});
+				console.log("a, b, c, d: " + _a + ", " + _b + ", " + _c + ", " + _d);
+			}
+		});
 	}
 
 	return {

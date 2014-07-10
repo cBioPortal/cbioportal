@@ -70,7 +70,6 @@ public class OddsRatio {
         x.append (")");
         y.append (")");
 
-        System.out.println("a, b, c, d: " + a + ", " + b + ", " + c + ", " + d);
         oddsRatio = ((double) (a * d)) / ((double) (b * c));
         FisherExact fisher = new FisherExact(a + b + c + d);
         pValue = fisher.getCumlativeP(a, b, c, d);

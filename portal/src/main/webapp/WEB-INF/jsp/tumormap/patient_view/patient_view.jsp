@@ -18,6 +18,7 @@
 ServletXssUtil xssUtil = ServletXssUtil.getInstance();
 ObjectMapper jsonMapper = new ObjectMapper();
 boolean print = "1".equals(request.getParameter("print"));
+boolean isPatientView = "patient".equals(request.getAttribute(PatientView.VIEW_TYPE));
 request.setAttribute("tumormap", true);
 Set<String> caseIds = (Set<String>)request.getAttribute(PatientView.SAMPLE_ID);
 String jsonCaseIds = jsonMapper.writeValueAsString(caseIds);
@@ -318,6 +319,7 @@ if (patientViewError!=null) {
 <script type="text/javascript">
 
 var print = <%=print%>;
+var isPatientView = <%=isPatientView%>;
 var placeHolder = <%=Boolean.toString(showPlaceHoder)%>;
 var mutationProfileId = <%=mutationProfileStableId==null%>?null:'<%=mutationProfileStableId%>';
 var cnaProfileId = <%=cnaProfileStableId==null%>?null:'<%=cnaProfileStableId%>';
@@ -1135,7 +1137,7 @@ var CaseNavigation = (function(currCaseId){
                 navTo(navCaseIds[navCaseIds.length-1]);
             }
     };
-})(caseIds[0]);
+})(isPatientView?patientId:caseIds[0]);
 
 window["<%=PatientView.CANCER_STUDY_META_DATA_KEY_STRING%>"]
         = <%=jsonMapper.writeValueAsString(request.getAttribute(PatientView.CANCER_STUDY_META_DATA_KEY_STRING))%>;

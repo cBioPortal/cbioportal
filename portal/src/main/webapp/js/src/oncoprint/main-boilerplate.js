@@ -176,16 +176,32 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             oncoprint.toggleWhiteSpace();
         });
 
-        $('#pdf-form').submit(function() {
-            var that = $(this)[0];
-            that.elements['svgelement'].value=oncoprint.getPdfInput();
-            return;
-        });
+        $('.oncoprint-diagram-download').click(function() {
+            var fileType = $(this).attr("type");
+            var params = {
+                filetype: fileType,
+                filename:"oncoprint." + fileType,
+                svgelement: oncoprint.getPdfInput()
+            };
 
-        $('#svg-form').submit(function() {
-            var that = $(this)[0];
-            that.elements['xml'].value=oncoprint.getPdfInput();
-            return;
+            cbio.util.requestDownload("svgtopdf.do", params);
         });
+        
+        $('.oncoprint-sample-download').click(function() {
+            var samples = "samples order in Oncoprinter is: ";
+            var genesValue = oncoprint.getData();
+            for(var i = 0; i< genesValue.length; i++)
+            {
+                samples= samples + genesValue[i].key+" ";
+            }
+            var a=document.createElement('a');
+            a.href='data:text/plain;base64,'+btoa(samples);
+            a.textContent='download';
+            a.download='text.txt';
+            a.click();
+            //a.delete();
+        });
+        
+        cbio.util.autoHideOnMouseLeave($("#oncoprint_whole_body"), $(".oncoprint-diagram-toolbar-buttons"));
     });
 });

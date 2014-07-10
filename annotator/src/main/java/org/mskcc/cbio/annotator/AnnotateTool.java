@@ -13,9 +13,6 @@ public class AnnotateTool
 {
 	public static void main(String[] args)
 	{
-		String input = null;
-		String output = null;
-
 		// default config params
 		boolean sort = false;       // sort output MAF cols or not
 		boolean addMissing = false; // add missing standard cols or not
@@ -46,12 +43,32 @@ public class AnnotateTool
 		if (args.length - i < 2)
 		{
 			System.out.println("command line usage: annotateMaf.sh [-sort] [-std] " +
-			                   "<input_maf_file> <output_maf_file>");
+			                   "<input_maf_file> <output_maf_file> " +
+			                   "[maf2maf_script_file] [vcf2maf_script_file] [vep_path]");
+
 			return;
 		}
 
-		input = args[i];
-		output = args[i+1];
+		String input = args[i];
+		String output = args[i+1];
+		String maf2maf = Annotator.DEFAULT_MAF2MAF;
+		String vcf2maf = Annotator.DEFAULT_VCF2MAF;
+		String vepPath = Annotator.DEFAULT_VEP_PATH;
+
+		if (args.length > i + 2)
+		{
+			maf2maf = args[i + 2];
+		}
+
+		if (args.length > i + 3)
+		{
+			vcf2maf = args[i + 3];
+		}
+
+		if (args.length > i + 4)
+		{
+			vepPath = args[i + 4];
+		}
 
 		int result = 0;
 
@@ -60,7 +77,10 @@ public class AnnotateTool
 			result = driver(input,
 				output,
 				sort,
-				addMissing);
+				addMissing,
+				maf2maf,
+				vcf2maf,
+				vepPath);
 		}
 		catch (RuntimeException e)
 		{
@@ -72,7 +92,6 @@ public class AnnotateTool
 			// check errors at the end
 			if (result != 0)
 			{
-				// TODO produce different error codes, for different types of errors?
 				System.out.println("Process completed with " + result + " error(s).");
 			}
 		}
@@ -81,7 +100,10 @@ public class AnnotateTool
 	public static int driver(String inputMaf,
 			String outputMaf,
 			boolean sort,
-			boolean addMissing)
+			boolean addMissing,
+			String maf2MafScript,
+			String vcf2MafScript,
+			String vepPath)
 	{
 		Date start = new Date();
 		int result = 0;
@@ -89,6 +111,9 @@ public class AnnotateTool
 		Annotator annotator = new Annotator();
 		annotator.setSortColumns(sort);
 		annotator.setAddMissingCols(addMissing);
+		annotator.setMaf2MafScript(maf2MafScript);
+		annotator.setVcf2MafScript(vcf2MafScript);
+		annotator.setVepPath(vepPath);
 
 		try {
 			annotator.annotateFile(new File(inputMaf), new File(outputMaf));

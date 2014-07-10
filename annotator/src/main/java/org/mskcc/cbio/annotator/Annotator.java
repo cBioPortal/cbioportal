@@ -18,17 +18,24 @@ public class Annotator
 	// config params (TODO create a config class instead?)
 	protected boolean sortColumns;
 	protected boolean addMissingCols;
+	protected String vepPath;
+	protected String maf2MafScript;
+	protected String vcf2MafScript;
 
 	// intermediate annotator files
-	public static final String INTERMEDIATE_OUT_MAF = "annotator_out.maf";
-	public static final String INTERMEDIATE_DIR = "annotator_dir";
-	public static final String VEP_PATH = "~/MSKCC/portal/vep/";
+	public static final String DEFAULT_INTERMEDIATE_MAF = "annotator_out.maf";
+	public static final String DEFAULT_INTERMEDIATE_DIR = "annotator_dir";
+	public static final String DEFAULT_MAF2MAF = "maf2maf.pl";
+	public static final String DEFAULT_VCF2MAF = "vcf2maf.pl";
+	public static final String DEFAULT_VEP_PATH = "";
 
 	public Annotator()
 	{
 		// init default settings
 		this.sortColumns = false;
 		this.addMissingCols = false;
+		this.maf2MafScript = DEFAULT_MAF2MAF;
+		this.vcf2MafScript = DEFAULT_VCF2MAF;
 	}
 
 	public void annotateFile(File input,
@@ -45,10 +52,10 @@ public class Annotator
 			this.runMaf2Maf(input);
 		}
 
-		List<String> annoHeaders = this.extractAnnoHeaders(INTERMEDIATE_OUT_MAF);
+		List<String> annoHeaders = this.extractAnnoHeaders(DEFAULT_INTERMEDIATE_MAF);
 
 		FileReader reader = new FileReader(input);
-		//FileReader reader = new FileReader(INTERMEDIATE_OUT_MAF);
+		//FileReader reader = new FileReader(DEFAULT_INTERMEDIATE_MAF);
 
 		BufferedReader bufReader = new BufferedReader(reader);
 		MafHeaderUtil headerUtil = new MafHeaderUtil();
@@ -107,17 +114,17 @@ public class Annotator
 
 	public void runMaf2Maf(File input) throws IOException
 	{
-		// TODO enable configuration of hard-coded params
 		String inputMaf = input.getAbsolutePath();
-		String interDir = INTERMEDIATE_DIR;
-		String outMaf = INTERMEDIATE_OUT_MAF;
-		String vepPath = VEP_PATH;
+
+		// TODO enable configuration of hard-coded params
+		String interDir = DEFAULT_INTERMEDIATE_DIR;
+		String outMaf = DEFAULT_INTERMEDIATE_MAF;
 
 		String[] args = {
 			"perl",
-			"maf2maf.pl",
+			this.getMaf2MafScript(),
 			"--vep-path",
-			vepPath,
+			this.getVepPath(),
 			"--input-maf",
 			inputMaf,
 			"--output-dir",
@@ -131,16 +138,16 @@ public class Annotator
 
 	public void runVcf2Maf(File input) throws IOException
 	{
-		// TODO enable configuration of hard-coded params
-		String vepPath = VEP_PATH;
 		String inVcf = input.getAbsolutePath();
-		String outMaf = INTERMEDIATE_OUT_MAF;
+
+		// TODO enable configuration of hard-coded params
+		String outMaf = DEFAULT_INTERMEDIATE_MAF;
 
 		String[] args = {
 			"perl",
-			"vcf2maf.pl",
+			this.getVcf2MafScript(),
 			"--vep-path",
-			vepPath,
+			this.getVepPath(),
 			"--input-vcf",
 			inVcf,
 			"--output-maf",
@@ -239,5 +246,35 @@ public class Annotator
 	public void setAddMissingCols(boolean addMissingCols)
 	{
 		this.addMissingCols = addMissingCols;
+	}
+
+	public String getVepPath()
+	{
+		return vepPath;
+	}
+
+	public void setVepPath(String vepPath)
+	{
+		this.vepPath = vepPath;
+	}
+
+	public String getMaf2MafScript()
+	{
+		return maf2MafScript;
+	}
+
+	public void setMaf2MafScript(String maf2MafScript)
+	{
+		this.maf2MafScript = maf2MafScript;
+	}
+
+	public String getVcf2MafScript()
+	{
+		return vcf2MafScript;
+	}
+
+	public void setVcf2MafScript(String vcf2MafScript)
+	{
+		this.vcf2MafScript = vcf2MafScript;
 	}
 }

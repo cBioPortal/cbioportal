@@ -28,9 +28,9 @@ public class AnnotatorService
 		try
 		{
 			// TODO make the input source configurable
-			// (instead of using INTERMEDIATE_OUT_MAF)
+			// (instead of using DEFAULT_INTERMEDIATE_MAF)
 			this.reader = new BufferedReader(
-				new FileReader(Annotator.INTERMEDIATE_OUT_MAF));
+				new FileReader(Annotator.DEFAULT_INTERMEDIATE_MAF));
 
 			MafHeaderUtil headerUtil = new MafHeaderUtil();
 

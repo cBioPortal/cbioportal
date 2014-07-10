@@ -206,7 +206,7 @@
             <% } %>
 
             <% if (computeLogOddsRatio && geneWithScoreList.size() > 1) { %>
-        <%@ include file="correlation.jsp" %>
+                <%@ include file="mutex_tab.jsp" %>
             <% } %>
 
             <% if (mutationDetailLimitReached != null) {

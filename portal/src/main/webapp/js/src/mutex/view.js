@@ -27,25 +27,9 @@
 
 /**
  * 
- * Handling data reformating/calculation (odds-ratio, fisher exact test)
- * Reusing data from onco-print
+ * Render the datatable for the mutex tab
  *
  * @Author: yichao
  * @Date: Jul 2014
  *
  **/
-
-var MutexData = (function() {
-
-	var getData = function() {
-		conso
-		le.log(PortalDataColl.getOncoprintData());
-	}
-
-	return {
-		init: function() {
-	        PortalDataCollManager.subscribeOncoprint(getData);
-		}
-	}
-
-}());

@@ -59,6 +59,8 @@
             }
           });
         });
+        
+        if (maxTime===minTime) maxTime++;
 
         beginning = minTime;
         ending = maxTime;

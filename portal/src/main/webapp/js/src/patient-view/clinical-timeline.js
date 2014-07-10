@@ -511,8 +511,9 @@
                 var specimens = filter(timelineDataByType["SPECIMEN"],"SpecimenType","TISSUE");
                 var eventGroups = separateEvents(sortByDate(specimens), "SpecimenPreservationType");
                 for (var type in eventGroups) {
+                    var label = type&&type!=="undefined"?type:"Specimen";
                     ret.push({
-                        label:type?type:"Specimen",
+                        label:label,
                         display:"circle",
                         class:"timeline-specimen",
                         times:formatTimePoints(eventGroups[type])});

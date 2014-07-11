@@ -37,26 +37,40 @@
 
 var MutexData = (function() {
 
-	var oncoprintData = {};
+	var oncoprintData = {},
+		datum = { //template
+			geneA: "",
+			geneB: "",
+			a: 0, //--
+			b: 0, //-+
+			c: 0, //+-
+			d: 0, //++
+			odds_ratio: 0,
+			p_value: 0,
+			lower_confidence_interval: 0,
+			upper_confidence_interval: 0
+		},
+		dataArr = [];
 
-	var getData = function() {
+	var processData = function() {
 		oncoprintData = PortalDataColl.getOncoprintData(); 
 		countEventCombinations();
+		calc();
 	}
 
 	function countEventCombinations() {
 		var _geneArr = window.PortalGlobals.getGeneList();
 		$.each(_geneArr, function(outterIndex, outterObj) {
 			for (var innerIndex = outterIndex + 1; innerIndex < _geneArr.length; innerIndex++) {
+
 				var _geneA = _geneArr[outterIndex],
 					_geneB = _geneArr[innerIndex];
 				var _a = 0, //--
 					_b = 0, //-+
 					_c = 0, //+-
 					_d = 0; //++
-				console.log("geneA: " + _geneA);
-				console.log("geneB: " + _geneB);
 
+				//Count mutex
 				$.each(oncoprintData, function(singleCaseIndex, singleCaseObj) {
 					var _alteredGeneA = false,
 						_alteredGeneB = false;
@@ -83,14 +97,63 @@ var MutexData = (function() {
 						_a += 1;
 					}
 				});
-				console.log("a, b, c, d: " + _a + ", " + _b + ", " + _c + ", " + _d);
+
+				//store the result
+				var _datum = $.extend(true, {}, datum);
+				_datum.geneA = _geneA;
+				_datum.geneB = _geneB;
+				_datum.a = _a;
+				_datum.b = _b;
+				_datum.c = _c;
+				_datum.d = _d;
+				dataArr.push(_datum);
 			}
 		});
 	}
 
+	function calc() {
+		$.each(dataArr, function(index, obj) {
+			//calc p-value out of fisher exact test
+			var params = {
+				a: obj.a,
+				b: obj.b,
+				c: obj.c,
+				d: obj.d 
+			}
+			if (index === dataArr.length - 1) {
+				$.post("calcFisherExact.do", params, function(result) {
+					obj.p_value = parseFloat(result).toFixed(3);
+					//calc odds radio
+					obj.odds_ratio = ((obj.a * obj.d) / (obj.b * obj.c)).toFixed(3);
+					//calc lower/upper confidence interval
+			        obj.lower_confidence_interval = (Math.exp(Math.log(obj.odds_ratio) - 1.96 * (Math.sqrt(1 / obj.a
+			                + 1 / obj.b + 1 / obj.c + 1 / obj.d)))).toFixed(3);
+			        obj.upper_confidence_interval = (Math.exp(Math.log(obj.odds_ratio) + 1.96 * (Math.sqrt(1 / obj.a
+			                + 1 / obj.b + 1 / obj.c + 1 / obj.d)))).toFixed(3);	
+					MutexView.init();
+				});
+			} else {
+				$.post("calcFisherExact.do", params, function(result) {
+					obj.p_value = parseFloat(result).toFixed(3);
+					//calc odds radio
+					obj.odds_ratio = ((obj.a * obj.d) / (obj.b * obj.c)).toFixed(3);
+					//calc lower/upper confidence interval
+			        obj.lower_confidence_interval = (Math.exp(Math.log(obj.odds_ratio) - 1.96 * (Math.sqrt(1 / obj.a
+			                + 1 / obj.b + 1 / obj.c + 1 / obj.d)))).toFixed(3);
+			        obj.upper_confidence_interval = (Math.exp(Math.log(obj.odds_ratio) + 1.96 * (Math.sqrt(1 / obj.a
+			                + 1 / obj.b + 1 / obj.c + 1 / obj.d)))).toFixed(3);	
+				});
+			}
+
+	    });
+	}
+
 	return {
 		init: function() {
-	        PortalDataCollManager.subscribeOncoprint(getData);
+	        PortalDataCollManager.subscribeOncoprint(processData);
+		},
+		getDataArr: function() {
+			return dataArr;
 		}
 	}
 

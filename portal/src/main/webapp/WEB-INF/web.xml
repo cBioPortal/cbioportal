@@ -574,5 +574,14 @@
         <servlet-name>calcCoExp</servlet-name>
         <url-pattern>/calcCoExp.do</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>calcFisherExactTest</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.CalcFisherExactTest</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>calcFisherExactTest</servlet-name>
+        <url-pattern>/calcFisherExact.do</url-pattern>
+    </servlet-mapping>
     
 </web-app>

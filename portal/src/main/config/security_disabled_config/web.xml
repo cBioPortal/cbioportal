@@ -644,6 +644,6 @@
     </listener>
     <context-param>
       <param-name>log4jConfigLocation</param-name>
-      <param-value>file://${PORTAL_HOME}/log4j.properties</param-value>
+      <param-value>file://${PORTAL_HOME}/portal/target/portal/WEB-INF/classes/log4j.properties</param-value>
     </context-param> 
 </web-app>

@@ -28,6 +28,7 @@ import javax.servlet.http.*;
 public class PatientView extends HttpServlet {
     private static Logger logger = Logger.getLogger(PatientView.class);
     public static final String ERROR = "user_error_message";
+    public static final String VIEW_TYPE = "view_type";
     public static final String SAMPLE_ID = "sample_id";
     public static final String PATIENT_ID = "case_id";
     public static final String PATIENT_ID_ATTR_NAME = "PATIENT_ID";
@@ -174,7 +175,9 @@ public class PatientView extends HttpServlet {
             }
         }
         
+        request.setAttribute(VIEW_TYPE, "sample");
         if (patientIdsStr!=null) {
+            request.setAttribute(VIEW_TYPE, "patient");
             for (String patientId : patientIdsStr.split(" +")) {
                 Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), patientId);
                 if (patient != null) {

@@ -70,4 +70,20 @@
 	and ENTITY_TYPE = #{type}
 </select>
 
+<delete id="deleteEntity" flushCache="true">
+	delete from entity where INTERNAL_ID = #{internalId}
+</delete>
+
+<delete id="deleteEntityLinks" flushCache="true">
+	delete from entity_link where PARENT_ID = #{parentId}
+</delete>
+
+<delete id="deleteAllEntity" flushCache="true">
+	delete from entity
+</delete>
+
+<delete id="deleteAllEntityLinks" flushCache="true">
+	delete from entity_link
+</delete>
+
 </mapper>

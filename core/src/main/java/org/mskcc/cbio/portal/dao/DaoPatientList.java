@@ -229,11 +229,20 @@ public class DaoPatientList {
 
         PreparedStatement pstmt  ;
         ResultSet rs = null;
+        int skippedPatients = 0;
         try {
             StringBuilder sql = new StringBuilder("INSERT INTO patient_list_list (`LIST_ID`, `PATIENT_ID`) VALUES ");
             for (String patientId : patientList.getPatientList()) {
                 Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(patientList.getCancerStudyId(), patientId);
+                if (patient == null) {
+                    System.out.println("null patient: " + patientId + ":" + patientList.getStableId());
+                    ++skippedPatients;
+                    continue;
+                }
                 sql.append("('").append(patientListId).append("','").append(patient.getInternalId()).append("'),");
+            }
+            if (skippedPatients == patientList.getPatientList().size()) {
+                return 0;
             }
             sql.deleteCharAt(sql.length()-1);
             pstmt = con.prepareStatement(sql.toString());

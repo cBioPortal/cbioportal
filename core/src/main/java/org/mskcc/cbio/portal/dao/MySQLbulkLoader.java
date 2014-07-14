@@ -191,13 +191,14 @@ public class MySQLbulkLoader {
          con = JdbcUtil.getDbConnection(MySQLbulkLoader.class);
          stmt = con.createStatement();
          
-         // will throw error if attempts to overwrite primary keys in table
-         String command = "LOAD DATA LOCAL INFILE '" + tempFileName + "' REPLACE INTO TABLE " + tableName;
+         // will throw error if attempts to overwrite primary keys in table (except for clinical data)
+         String replace = (processingClinicalData()) ? " REPLACE" : "";
+         String command = "LOAD DATA LOCAL INFILE '" + tempFileName + "'" + replace + " INTO TABLE " + tableName;
          stmt.execute( command );
          int updateCount = stmt.getUpdateCount();
          System.out.println(""+updateCount+" records inserted into "+tableName);
          int nLines = FileUtil.getNumLines(tempFileHandle);
-         if (nLines!=updateCount) {
+         if (nLines!=updateCount && !processingClinicalData()) {
              System.err.println("Error: but there are "+nLines+" lines in the temp file "+tempFileName);
          } else {
              tempFileHandle.delete();
@@ -234,5 +235,10 @@ public class MySQLbulkLoader {
    public static void bulkLoadOff() {
       MySQLbulkLoader.bulkLoad = false;
    }
-   
+
+   private boolean processingClinicalData()
+   {
+      return (tempFileName.contains(DaoClinicalData.SAMPLE_TABLE) ||
+              tempFileName.contains(DaoClinicalData.PATIENT_TABLE));
+   }
 }

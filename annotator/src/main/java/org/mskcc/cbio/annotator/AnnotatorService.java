@@ -1,5 +1,7 @@
 package org.mskcc.cbio.annotator;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.mskcc.cbio.maf.MafHeaderUtil;
 import org.mskcc.cbio.maf.MafRecord;
 import org.mskcc.cbio.maf.MafUtil;
@@ -19,6 +21,8 @@ import java.util.Map;
  */
 public class AnnotatorService
 {
+	private static Log LOG = LogFactory.getLog(AnnotatorService.class);
+
 	private BufferedReader reader;
 	private MafUtil mafUtil;
 	private String headerLine;
@@ -58,8 +62,14 @@ public class AnnotatorService
 		// ..and retrieve annotator data by using the key
 
 		String line = this.reader.readLine();
+		MafRecord record = this.mafUtil.parseRecord(line);
 
 		// TODO make sure that this line actually corresponds to the given maf record...
+		if (!MafUtil.generateKey(record).equals(
+				MafUtil.generateKey(mafRecord)))
+		{
+			LOG.warn("annotateRecord(), possibly merging with an incorrect line...");
+		}
 
 		for (String header: this.headerLine.split("\t"))
 		{

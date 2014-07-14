@@ -41,16 +41,21 @@ public class Annotator
 	public void annotateFile(File input,
 			File output) throws IOException
 	{
+		int retVal = -1;
+
 		// script to run depends on the extension
 		if (input.getName().toLowerCase().endsWith(".vcf"))
 		{
-			this.runVcf2Maf(input);
+			retVal = this.runVcf2Maf(input);
+			return;
 		}
 		// assuming it is a maf..
 		else
 		{
-			this.runMaf2Maf(input);
+			retVal = this.runMaf2Maf(input);
 		}
+
+		// TODO check return value?
 
 		List<String> annoHeaders = this.extractAnnoHeaders(DEFAULT_INTERMEDIATE_MAF);
 
@@ -112,7 +117,7 @@ public class Annotator
 
 	}
 
-	public void runMaf2Maf(File input) throws IOException
+	public int runMaf2Maf(File input) throws IOException
 	{
 		String inputMaf = input.getAbsolutePath();
 
@@ -133,10 +138,10 @@ public class Annotator
 			outMaf
 		};
 
-		execProcess(args);
+		return execProcess(args);
 	}
 
-	public void runVcf2Maf(File input) throws IOException
+	public int runVcf2Maf(File input) throws IOException
 	{
 		String inVcf = input.getAbsolutePath();
 
@@ -154,7 +159,7 @@ public class Annotator
 			outMaf
 		};
 
-		execProcess(args);
+		return execProcess(args);
 	}
 
 	// TODO code duplication! -- we have the same code in liftover module

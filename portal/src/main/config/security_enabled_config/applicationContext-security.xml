@@ -20,7 +20,7 @@
     <!-- Google+ connection factory definition -->
     <context:annotation-config/>
     <!-- Ensures that configuration properties are read from a property file -->
-    <context:property-placeholder location="classpath:socialConnection.properties"/>    
+  <!--   <context:property-placeholder location="classpath:socialConnection.properties"/>    -->
     <!--  Connection Factory to Google +  -->
     <!-- Provider id = google -->
     <!-- mod 08Jul2014 - use custom google connection factory to support email as id -->
@@ -241,8 +241,6 @@
         <b:constructor-arg ref="portalUserDAO"/>
     </b:bean>
 
-
-   
 
     <!-- 
              Our datasource

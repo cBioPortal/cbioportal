@@ -18,6 +18,7 @@
 package org.mskcc.cbio.portal.scripts;
 
 import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.util.ImportDataUtil;
 
 /**
  * Empty the database.
@@ -76,6 +77,9 @@ public class ResetDatabase {
         daoClinicalTrial.deleteAllRecords();
         DaoPatient.deleteAllRecords();
         DaoSample.deleteAllRecords();
+        ImportDataUtil.entityMapper.deleteAllEntity();
+        ImportDataUtil.entityMapper.deleteAllEntityLinks();
+        ImportDataUtil.entityAttributeMapper.deleteAllEntityAttributes();
         System.out.println("all database reset.");
     }
 

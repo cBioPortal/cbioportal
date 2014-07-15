@@ -20,6 +20,7 @@ package org.mskcc.cbio.portal.util;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.service.*;
+import org.mskcc.cbio.portal.persistence.*;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
@@ -47,6 +48,18 @@ public class ImportDataUtil
     private static EntityAttributeService initEntityAttributeService()
     {
         return (EntityAttributeService)context.getBean("entityAttributeService");
+    }
+
+    public static EntityMapper entityMapper = initEntityMapper();
+    private static EntityMapper initEntityMapper()
+    {
+        return (EntityMapper)context.getBean("entityMapper");
+    }
+
+    public static EntityAttributeMapper entityAttributeMapper = initEntityAttributeMapper();
+    private static EntityAttributeMapper initEntityAttributeMapper()
+    {
+        return (EntityAttributeMapper)context.getBean("entityAttributeMapper");
     }
 
     public static void addPatients(String barcodes[], int geneticProfileId) throws DaoException
@@ -80,7 +93,7 @@ public class ImportDataUtil
     private static void addPatient(String stableId, CancerStudy cancerStudy, Entity cancerStudyEntity) throws DaoException
     {
         DaoPatient.addPatient(new Patient(cancerStudy, stableId));
-        Entity patientEntity = entityService.insertEntity(stableId, EntityType.PATIENT);
+        Entity patientEntity = entityService.insertPatientEntity(cancerStudy.getCancerStudyStableId(), stableId);
         entityService.insertEntityLink(cancerStudyEntity.internalId, patientEntity.internalId);
     }
 
@@ -116,7 +129,8 @@ public class ImportDataUtil
         DaoSample.addSample(new Sample(sampleId,
                                        patient.getInternalId(),
                                        cancerStudy.getTypeOfCancerId()));
-        Entity sampleEntity = entityService.insertEntity(sampleId, EntityType.SAMPLE);
+        Entity sampleEntity = entityService.insertSampleEntity(cancerStudy.getCancerStudyStableId(),
+                                                               patient.getStableId(), sampleId);
         Entity patientEntity = entityService.getPatient(cancerStudy.getCancerStudyStableId(),
                                                         patient.getStableId());
         entityService.insertEntityLink(patientEntity.internalId, sampleEntity.internalId);

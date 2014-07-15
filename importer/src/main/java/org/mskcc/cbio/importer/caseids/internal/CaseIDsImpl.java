@@ -39,10 +39,12 @@ public class CaseIDsImpl implements CaseIDs {
 
     private static final String SAMPLE_REGEX = "tcga-sample-pattern";
     private static final String PATIENT_REGEX = "tcga-patient-pattern";
+    private static final String NON_TCGA_REGEX = "non-tcga-pattern";
 
 	// ref to our matchers
     private Pattern samplePattern;
     private Pattern patientPattern;
+    private Pattern nonTCGAPattern;
 
 	/**
 	 * Constructor.
@@ -67,7 +69,9 @@ public class CaseIDsImpl implements CaseIDs {
             else if (caseIDFilter.getFilterName().equals(SAMPLE_REGEX)) {
                 samplePattern = Pattern.compile(caseIDFilter.getRegex());
             }
-
+            else if (caseIDFilter.getFilterName().equals(NON_TCGA_REGEX)) {
+                nonTCGAPattern = Pattern.compile(caseIDFilter.getRegex());
+            }
 		}
 	}
 
@@ -81,7 +85,8 @@ public class CaseIDsImpl implements CaseIDs {
 	public boolean isSampleId(String caseId)
     {
         caseId = clean(caseId);
-        return (samplePattern.matcher(caseId).matches());
+        return (samplePattern.matcher(caseId).matches() ||
+                nonTCGAPattern.matcher(caseId).matches());
 	}
 
     @Override

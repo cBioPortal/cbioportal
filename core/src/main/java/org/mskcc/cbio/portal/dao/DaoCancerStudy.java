@@ -18,8 +18,8 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.TypeOfCancer;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.ImportDataUtil;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -297,7 +297,29 @@ public final class DaoCancerStudy {
         } finally {
             JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);
         }
+        deleteCancerStudyEntities(internalCancerStudyId);
         reCache();
+    }
+
+    private static void deleteCancerStudyEntities(int internalCancerStudyId) throws DaoException
+    {
+        CancerStudy study = getCancerStudyByInternalId(internalCancerStudyId);
+        Entity studyEntity = ImportDataUtil.entityService.getCancerStudy(study.getCancerStudyStableId());
+
+        for (Entity patientEntity : ImportDataUtil.entityMapper.getChildren(studyEntity.internalId, EntityType.PATIENT)) {
+            for (Entity sampleEntity : ImportDataUtil.entityMapper.getChildren(patientEntity.internalId, EntityType.SAMPLE)) {
+                deleteEntity(sampleEntity.internalId);
+            }
+            deleteEntity(patientEntity.internalId);
+        }
+        deleteEntity(studyEntity.internalId);
+    }
+
+    private static void deleteEntity(int entityId)
+    {
+        ImportDataUtil.entityMapper.deleteEntity(entityId);
+        ImportDataUtil.entityMapper.deleteEntityLinks(entityId);
+        ImportDataUtil.entityAttributeMapper.deleteEntityAttributes(entityId);
     }
 
     /**

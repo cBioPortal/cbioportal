@@ -217,7 +217,7 @@ public class ImportClinicalData {
                 internalPatientId[1] = patientEntity.internalId;
             }
             else {
-                patientEntity = ImportDataUtil.entityService.insertEntity(patientId, EntityType.PATIENT);
+                patientEntity = ImportDataUtil.entityService.insertPatientEntity(cancerStudy.getCancerStudyStableId(), patientId);
                 internalPatientId[1] = patientEntity.internalId;
                 ImportDataUtil.entityService.insertEntityLink(cancerStudyEntity.internalId, patientEntity.internalId);
             }
@@ -254,7 +254,8 @@ public class ImportClinicalData {
                         internalSampleId[1] = sampleEntity.internalId;
                     }
                     else {
-                        sampleEntity = ImportDataUtil.entityService.insertEntity(sampleId, EntityType.SAMPLE);
+                        sampleEntity = ImportDataUtil.entityService.insertSampleEntity(cancerStudy.getCancerStudyStableId(),
+                                                                                       patient.getStableId(), sampleId);
                         internalSampleId[1] = sampleEntity.internalId;
                         Entity patientEntity = ImportDataUtil.entityService.getPatient(cancerStudy.getCancerStudyStableId(),
                                                                                        patient.getStableId());

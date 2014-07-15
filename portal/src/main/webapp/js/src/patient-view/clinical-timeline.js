@@ -59,6 +59,8 @@
             }
           });
         });
+        
+        if (maxTime===minTime) maxTime++;
 
         beginning = minTime;
         ending = maxTime;
@@ -509,10 +511,11 @@
                 var specimens = filter(timelineDataByType["SPECIMEN"],"SpecimenType","TISSUE");
                 var eventGroups = separateEvents(sortByDate(specimens), "SpecimenPreservationType");
                 for (var type in eventGroups) {
+                    var label = type&&type!=="undefined"?type:"Specimen";
                     ret.push({
-                        label:type,
+                        label:label,
                         display:"circle",
-                        class:"timeline-speciman",
+                        class:"timeline-specimen",
                         times:formatTimePoints(eventGroups[type])});
                 }
             }

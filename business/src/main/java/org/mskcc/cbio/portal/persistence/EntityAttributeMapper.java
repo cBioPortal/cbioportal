@@ -33,4 +33,7 @@ public interface EntityAttributeMapper
 
 	List<AttributeMetadata> getAllAttributeMetadata();
 	AttributeMetadata getAttributeMetadataById(String attributeId);
+
+	void deleteEntityAttributes(@Param("entityId") int entityId);
+	void deleteAllEntityAttributes();
 }

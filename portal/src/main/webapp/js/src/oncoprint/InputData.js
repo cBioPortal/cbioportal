@@ -61,23 +61,29 @@ define("InputData", function() {
                 return function(list) {
                     return _.reduce(list, function(curr, acc) {
 
-                        acc = _.extend(acc, curr);
+//                        acc = _.extend(acc, curr);
 
-//                        var new_mutation_str = _.compact([acc.mutation, curr.mutation]).join(on)    // append mutation to end
-//                            || undefined;                                                           // or undefined if === ""
-//
-//                        acc.mutation = new_mutation_str;
+                        var new_mutation_str = _.compact([curr.mutation, acc.mutation]).join(on)    // append mutation to end
+                            || undefined;                                                           // or undefined if === ""
+
+                        acc.mutation = new_mutation_str;
 
                         return acc;
                     }, {});
                 };
             };
 
+//            var result1 = coll.groupBy(function(d) {
+//                return d.sample + " " + d.gene;
+//            })
+//                .values();
             return coll.groupBy(function(d) {
                 return d.sample + " " + d.gene;
             })
                 .values()
                 .map(join_mutation_on(","));
+//               var result2 = result1.map(join_mutation_on(","));
+//               return result2;
         }
     };
 

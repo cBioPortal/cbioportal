@@ -81,29 +81,25 @@ var openid = {
 		this.provider_id = box_id;
 		this.provider_url = provider['url'];
                 
-                Console.log('signin function url = ' +url);
-		
 		// prompt user for input?
 		if (provider['label']) {
 			this.useInputBox(provider);
 		} else {
 			$('#openid_input_area').empty();
 			if (! onload) {
-                                 Console.log('signin function submitting');
 				$('#openid_form').submit();
 			}
 		}
     },
     /* Sign-in button click */
     submit: function() {
-         Console.log('signin function url = ' +url);
     	var url = openid.provider_url; 
-         Console.log('submir function provider url = ' +url);
+        /*
     	if (url) {
     		url = url.replace('{username}', $('#openid_username').val());
-                Console.log('submir function modified url = ' +url);
     		openid.setOpenIdUrl(url);
     	}
+        */
     	if(openid.ajaxHandler) {
     		openid.ajaxHandler(openid.provider_id, document.getElementById(openid.input_id).value);
     		return false;

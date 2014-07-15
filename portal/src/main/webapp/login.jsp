@@ -50,8 +50,8 @@
 	     <tr>
 	       <td>
 	         <!-- Simple OpenID Selector -->
-	         <form style="width:  100%;" action="<c:url value='j_spring_openid_security_check'/>" method="post" id="openid_form">
-	           <input type="hidden" name="action" value="verify" />
+	         <form style="width:  100%;" action="<c:url value='auth/google'/>" method="post" id="openid_form">
+	           <!--<input type="hidden" name="action" value="verify" />-->
                <p/>
                <fieldset>
 	             <legend>

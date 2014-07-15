@@ -26,6 +26,7 @@ public class AnnotatorService
 	private BufferedReader reader;
 	private MafUtil mafUtil;
 	private String headerLine;
+	private Map<String, String> lineCache;
 
 	public AnnotatorService()
 	{
@@ -33,13 +34,7 @@ public class AnnotatorService
 		{
 			// TODO make the input source configurable
 			// (instead of using DEFAULT_INTERMEDIATE_MAF)
-			this.reader = new BufferedReader(
-				new FileReader(Annotator.DEFAULT_INTERMEDIATE_MAF));
-
-			MafHeaderUtil headerUtil = new MafHeaderUtil();
-
-			this.headerLine = headerUtil.extractHeader(reader);
-			this.mafUtil = new MafUtil(headerLine);
+			this.lineCache = this.buildMap(Annotator.DEFAULT_INTERMEDIATE_MAF);
 		}
 		catch (IOException e)
 		{
@@ -49,26 +44,50 @@ public class AnnotatorService
 		}
 	}
 
-	public Map<String, String> annotateRecord(MafRecord mafRecord) throws IOException
+	private Map<String, String> buildMap(String filename) throws IOException
+	{
+		Map<String, String> cache = new HashMap<String, String>();
+		BufferedReader reader = new BufferedReader(new FileReader(filename));
+		MafHeaderUtil headerUtil = new MafHeaderUtil();
+		String headerLine = headerUtil.extractHeader(reader);
+		MafUtil mafUtil = new MafUtil(headerLine);
+
+		String line;
+
+		while ((line = reader.readLine()) != null)
+		{
+			MafRecord record = mafUtil.parseRecord(line);
+
+			cache.put(MafUtil.generateKey(record), line);
+		}
+
+		reader.close();
+
+		this.headerLine = headerLine;
+		this.mafUtil = mafUtil;
+
+		return cache;
+	}
+
+	public Map<String, String> annotateRecordWithoutCache(MafRecord mafRecord) throws IOException
 	{
 		Map<String, String> data = new HashMap<String, String>();
 
 		if (this.reader == null)
 		{
-			return data;
+			// TODO make the input source configurable
+			this.reader = new BufferedReader(
+					new FileReader(Annotator.DEFAULT_INTERMEDIATE_MAF));
 		}
-
-		// TODO ideally we should generate a key from the mafRecord,
-		// ..and retrieve annotator data by using the key
 
 		String line = this.reader.readLine();
 		MafRecord record = this.mafUtil.parseRecord(line);
 
-		// TODO make sure that this line actually corresponds to the given maf record...
+		// make sure that this line actually corresponds to the given maf record...
 		if (!MafUtil.generateKey(record).equals(
 				MafUtil.generateKey(mafRecord)))
 		{
-			LOG.warn("annotateRecord(), possibly merging with an incorrect line...");
+			LOG.warn("annotateRecordWithoutCache(), possibly merging with an incorrect line.");
 		}
 
 		for (String header: this.headerLine.split("\t"))
@@ -81,6 +100,29 @@ public class AnnotatorService
 		if (line == null)
 		{
 			this.reader.close();
+		}
+
+		return data;
+	}
+
+	public Map<String, String> annotateRecord(MafRecord mafRecord) throws IOException
+	{
+		Map<String, String> data = new HashMap<String, String>();
+
+		String line = this.lineCache.get(MafUtil.generateKey(mafRecord));
+
+		if (line == null)
+		{
+			LOG.warn("annotateRecord(), record cannot be found in the intermediate output file.");
+		}
+		else
+		{
+			for (String header: this.headerLine.split("\t"))
+			{
+				String parts[] = line.split("\t", -1);
+
+				data.put(header, parts[this.mafUtil.getColumnIndex(header)]);
+			}
 		}
 
 		return data;

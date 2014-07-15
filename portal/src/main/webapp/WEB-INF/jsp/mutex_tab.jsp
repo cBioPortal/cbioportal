@@ -15,27 +15,13 @@
     <div id='mutex-loading-image'>
         <img style='padding:200px;' src='images/ajax-loader.gif'>
     </div>
-    <div id="mutex-table-div"></div>
-    <div id="mutex-info-div" style='margin-top: 10px;'>
-        <table class='mutex-info-table'>
-            <tr>
-                <td> ** </td>
-                <td>
-                    p-values are derived via Fisher's Exact Test. (p-values are not adjust for FDR.)
-                </td>
-            </tr>
-            <tr>
-                <td> ** </td>
-                <td>
-                    Strong tendency towards mutual exclusivity (0 < Odds Ratio < 0.1)<br>
-                    Some tendency towards mutual exclusivity (0.1 < Odds Ratio < 0.5)<br>
-                    No association (0.5 < Odds Ratio < 2)<br>
-                    Tendency toward co-occurrence (2 < Odds Ratio < 10)<br>
-                    Strong tendendency towards co-occurrence (Odds Ratio > 10)<br>
-                    No events recorded for one or both genes
-                </td>
-            </tr>
-        </table>
+    <div id='mutex-header'>
+        This table lists the queried gene pairs with Odds Ratio and p-Values (derived from <a href="http://en.wikipedia.org/wiki/Fisher's_exact_test" target="_blank">Fisher's Exact Test</a>), <br>as a reference to measure mutual exclusive / co-occurrence.
+    </div>
+    <div id="mutex-table-div" style='margin-top:10px;'></div>
+    <div id="mutex-info-div" style='margin-top:10px;'>
+        ** Odds Ratio(log) > 0 Tendency towards co-occurrence <br>
+        ** Odds Ratio(log) < 0 Tendency towards mutual exclusivity
     </div>
 </div>
 
@@ -47,7 +33,14 @@
 </script>
 
 <style type="text/css">
-    .mutex-info-table td {
-        vertical-align: top;
+    #mutex-info-div {
+        font-size: 10px;
+        margin-top: 10px;
+    }
+    #mutex-table-div {
+        width: 50%;
+    }
+    #mutex-table thead {
+        font-size:70%;
     }
 </style>

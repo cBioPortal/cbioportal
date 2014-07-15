@@ -62,17 +62,24 @@ public class CalcFisherExactTest extends HttpServlet  {
     protected void doPost(HttpServletRequest httpServletRequest,
                           HttpServletResponse httpServletResponse) throws ServletException, IOException {
 
-    	int a = Integer.parseInt(httpServletRequest.getParameter("a"));
-    	int b = Integer.parseInt(httpServletRequest.getParameter("b"));
-    	int c = Integer.parseInt(httpServletRequest.getParameter("c"));
-    	int d = Integer.parseInt(httpServletRequest.getParameter("d"));
-
-        FisherExact fisher = new FisherExact(a + b + c + d);
-        double pValue = fisher.getCumlativeP(a, b, c, d);
+        String[] dataSets = httpServletRequest.getParameter("params").split(":");
+        String result = "";
+        for (String dataSet : dataSets) {
+            if (!dataSet.isEmpty()) {
+                int a = Integer.parseInt(dataSet.split(" ")[0]);
+                int b = Integer.parseInt(dataSet.split(" ")[1]);
+                int c = Integer.parseInt(dataSet.split(" ")[2]);
+                int d = Integer.parseInt(dataSet.split(" ")[3]);    
+                FisherExact fisher = new FisherExact(a + b + c + d);
+                double pValue = fisher.getCumlativeP(a, b, c, d);
+                result = result.concat(String.valueOf(pValue) + " ");                
+            }
+        }
+        result = result.replaceAll("\\s+$", "");
 
         httpServletResponse.setContentType("text/html");
         PrintWriter out = httpServletResponse.getWriter();
-        JSONValue.writeJSONString(pValue, out);
+        JSONValue.writeJSONString(result, out);
     }
 }
 

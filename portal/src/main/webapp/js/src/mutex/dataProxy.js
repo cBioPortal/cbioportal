@@ -46,9 +46,7 @@ var MutexData = (function() {
 			c: 0, //+-
 			d: 0, //++
 			odds_ratio: 0,
-			p_value: 0,
-			lower_confidence_interval: 0,
-			upper_confidence_interval: 0
+			p_value: 0
 		},
 		dataArr = [];
 
@@ -112,40 +110,32 @@ var MutexData = (function() {
 	}
 
 	function calc() {
-		$.each(dataArr, function(index, obj) {
-			//calc p-value out of fisher exact test
-			var params = {
-				a: obj.a,
-				b: obj.b,
-				c: obj.c,
-				d: obj.d 
-			}
-			if (index === dataArr.length - 1) {
-				$.post("calcFisherExact.do", params, function(result) {
-					obj.p_value = parseFloat(result).toFixed(3);
-					//calc odds radio
-					obj.odds_ratio = ((obj.a * obj.d) / (obj.b * obj.c)).toFixed(3);
-					//calc lower/upper confidence interval
-			        obj.lower_confidence_interval = (Math.exp(Math.log(obj.odds_ratio) - 1.96 * (Math.sqrt(1 / obj.a
-			                + 1 / obj.b + 1 / obj.c + 1 / obj.d)))).toFixed(3);
-			        obj.upper_confidence_interval = (Math.exp(Math.log(obj.odds_ratio) + 1.96 * (Math.sqrt(1 / obj.a
-			                + 1 / obj.b + 1 / obj.c + 1 / obj.d)))).toFixed(3);	
-					MutexView.init();
-				});
-			} else {
-				$.post("calcFisherExact.do", params, function(result) {
-					obj.p_value = parseFloat(result).toFixed(3);
-					//calc odds radio
-					obj.odds_ratio = ((obj.a * obj.d) / (obj.b * obj.c)).toFixed(3);
-					//calc lower/upper confidence interval
-			        obj.lower_confidence_interval = (Math.exp(Math.log(obj.odds_ratio) - 1.96 * (Math.sqrt(1 / obj.a
-			                + 1 / obj.b + 1 / obj.c + 1 / obj.d)))).toFixed(3);
-			        obj.upper_confidence_interval = (Math.exp(Math.log(obj.odds_ratio) + 1.96 * (Math.sqrt(1 / obj.a
-			                + 1 / obj.b + 1 / obj.c + 1 / obj.d)))).toFixed(3);	
-				});
-			}
 
+		//Calculate odds-ratio and p-value
+		var params = { params: "" };
+		$.each(dataArr, function(index, obj) {
+			params.params += obj.a + " " + obj.b + " " + obj.c + " " + obj.d + ":";
 	    });
+	    params.params = params.params.substring(0, params.params.length - 1);
+		$.post("calcFisherExact.do", params, function(result) {
+			result = result.replace(/\"/g, '');
+			if (result.split(" ").length === dataArr.length) {
+				$.each(result.split(" "), function(index, value) {
+					var _dataObj = dataArr[index];
+					_dataObj.p_value = parseFloat(value).toFixed(3);
+					if (_dataObj.b !== 0 && _dataObj.c !== 0) {
+						if (_dataObj.a !== 0 && _dataObj.d !== 0) {
+							_dataObj.odds_ratio = Math.log((_dataObj.a * _dataObj.d) / (_dataObj.b * _dataObj.c)).toFixed(3);
+						} else {
+							_dataObj.odds_ratio = 0;
+						}
+					} else {
+						_dataObj.odds_ratio = "--";
+					}
+				});
+			}
+			MutexView.init();
+		});
 	}
 
 	return {

@@ -96,6 +96,7 @@
             "bDeferRender": true,
             "iDisplayLength": 30,
             "fnRowCallback": function(nRow, aData) {
+                $('td:eq(2)', nRow).css("font-weight", "bold");
                 if (aData[2] < 0) { 
                     $('td:eq(2)', nRow).css("color", "red");
                 } else if (aData[2] > 0) {

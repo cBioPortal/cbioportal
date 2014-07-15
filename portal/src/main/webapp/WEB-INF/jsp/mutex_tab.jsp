@@ -16,12 +16,12 @@
         <img style='padding:200px;' src='images/ajax-loader.gif'>
     </div>
     <div id='mutex-header'>
-        This table lists the queried gene pairs with Odds Ratio and p-Values (derived from <a href="http://en.wikipedia.org/wiki/Fisher's_exact_test" target="_blank">Fisher's Exact Test</a>), <br>as a reference to measure mutual exclusive / co-occurrence.
+        This table lists the queried gene pairs with <a href='http://en.wikipedia.org/wiki/Odds_ratio'>Odds Ratio</a> and p-Values (derived from <a href="http://en.wikipedia.org/wiki/Fisher's_exact_test" target="_blank">Fisher's Exact Test</a>), <br>as references to measure mutual exclusive / co-occurrence.
     </div>
     <div id="mutex-table-div" style='margin-top:10px;'></div>
     <div id="mutex-info-div" style='margin-top:10px;'>
-        ** Odds Ratio(log) > 0 Tendency towards co-occurrence <br>
-        ** Odds Ratio(log) < 0 Tendency towards mutual exclusivity
+        ** Odds Ratio(log) > 0 -- Tendency towards co-occurrence <br>
+        ** Odds Ratio(log) < 0 -- Tendency towards mutual exclusivity
     </div>
 </div>
 

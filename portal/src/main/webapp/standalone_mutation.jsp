@@ -3,7 +3,7 @@
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
-<% request.setAttribute(QueryBuilder.HTML_TITLE, GlobalProperties.getTitle() + "::Mutation Analyzer"); %>
+<% request.setAttribute(QueryBuilder.HTML_TITLE, GlobalProperties.getTitle() + "::Mutation Mapper"); %>
 
 <jsp:include page="WEB-INF/jsp/global/header.jsp" flush="true"/>
 
@@ -21,7 +21,8 @@
 		font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 	}
 	.full-list-of-headers {
-		margin-bottom: 10px;
+		margin-left: 20px;
+		margin-top: 15px;
 		max-width: 700px;
 	}
 	.standalone-mutation-visualizer .triangle {
@@ -32,11 +33,24 @@
 		margin-top: 15px;
 		white-space: pre;
 		word-wrap: normal;
+		width: 40%;
 	}
 	.mutation-input-field-expander {
 		font-size: 16px;
 		font-weight: bold;
 		margin-bottom: 15px;
+		margin-top: 15px;
+	}
+	.standalone-mutation-visualizer {
+		margin-left: 50px;
+		margin-top: 20px;
+		margin-bottom: 20px;
+	}
+	.load-example-data {
+		margin-left: 20px;
+	}
+	.mutation-input-format-info {
+		margin-bottom: 20px;
 	}
 </style>
 

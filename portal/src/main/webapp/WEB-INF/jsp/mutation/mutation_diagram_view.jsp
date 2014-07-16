@@ -8,8 +8,10 @@
 			<button class='diagram-to-pdf'>PDF</button>
 			<button class='diagram-to-svg'>SVG</button>
 			<button class="diagram-customize">Customize</button>
+			<button class="diagram-help">Color Codes</button>
 		</span>
 	</div>
+	<div class="mutation-diagram-help ui-widget"></div>
 	<div class="mutation-diagram-customize ui-widget"></div>
 	<div class='mutation-diagram-container'></div>
 </script>
@@ -42,6 +44,31 @@
 	</table>
 </script>
 
+<script type="text/template" id="mutation_help_panel_template">
+	<div class="diagram-help-close">
+		<a href="#">&times;</a>
+	</div>
+	<h4>Color Codes</h4>
+	<div>
+		Mutation diagram circles are colored with respect to
+		the corresponding mutation types. In case of different mutation<br>
+		types at a single position, color of the circle is determined
+		with respect to the most frequent mutation type.<br><br>
+		Mutation types and corresponding color codes are as follows:
+		<ul>
+			<li><span class='missense_mutation'>Missense Mutations</span></li>
+			<li><span class='trunc_mutation'>Truncating Mutations</span>
+				: Nonsense, Nonstop, Frameshift deletion, Frameshift insertion, Splice site</li>
+			<li><span class='inframe_mutation'>Inframe Mutations</span>
+				: Inframe deletion, Inframe insertion</li>
+			<li><span class='other_mutation'>Other Mutations</span>
+				: All other types of mutations</li>
+			<li>Circles colored with <span class='mutation-3d-tied'>purple</span>
+				indicate residues that are affected by different mutation types<br>
+				at the same proportion.</li>
+		</ul>
+	</div>
+</script>
 
 <script type="text/template" id="mutation_details_region_tip_template">
 	<span class="diagram-region-tip">
@@ -78,6 +105,7 @@
 </script>
 
 <script type="text/javascript" src="js/src/mutation/view/MutationCustomizePanelView.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/mutation/view/MutationHelpPanelView.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/mutation/view/MutationDiagramView.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/mutation/view/RegionTipView.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/mutation/view/LollipopTipStatsView.js?<%=GlobalProperties.getAppVersion()%>"></script>

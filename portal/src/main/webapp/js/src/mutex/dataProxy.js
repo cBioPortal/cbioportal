@@ -125,9 +125,15 @@ var MutexData = (function() {
 					_dataObj.p_value = parseFloat(value).toFixed(3);
 					if (_dataObj.b !== 0 && _dataObj.c !== 0) {
 						if (_dataObj.a !== 0 && _dataObj.d !== 0) {
-							_dataObj.odds_ratio = Math.log((_dataObj.a * _dataObj.d) / (_dataObj.b * _dataObj.c)).toFixed(3);
+							if (Math.log((_dataObj.a * _dataObj.d) / (_dataObj.b * _dataObj.c)) > 3) {
+								_dataObj.odds_ratio = ">3";
+							} else if (Math.log((_dataObj.a * _dataObj.d) / (_dataObj.b * _dataObj.c)) < -3) {
+								_dataObj.odds_ratio = "<-3";
+							} else {
+								_dataObj.odds_ratio = Math.log((_dataObj.a * _dataObj.d) / (_dataObj.b * _dataObj.c)).toFixed(3);
+							}
 						} else {
-							_dataObj.odds_ratio = 0;
+							_dataObj.odds_ratio = "<-3";
 						}
 					} else {
 						_dataObj.odds_ratio = "--";

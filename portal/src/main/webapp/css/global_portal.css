@@ -1363,3 +1363,7 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
     z-index: -1;
 } 
 
+.qtip-ui-wide {
+    max-width: 600px;
+}
+

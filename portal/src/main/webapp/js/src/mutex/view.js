@@ -40,18 +40,27 @@
         names = {
             tabldId: "mutex-table",
             divId: "mutex-table-div"
-        };
+        },
+        index = {
+            geneA : 0,
+            geneB : 1,
+            pVal : 2,
+            oddsRatio : 3
+        },
+        colorCode = {
+            mutexOddsRatio: "#CC6666",
+            coocOddsRatio: "#3399FF",
+            sigPVal: "#CC6666"
+        }
 
     function configTable() {
         $("#mutex-table-div").append(
             "<table id='" + names.tableId + "'>" +
             "<thead style='font-size:70%'>" +
-            "<tr>" + 
             "<th>Gene A</th>" +
             "<th>Gene B</th>" +
-            "<th>Odds Ratio (log)</th>" +
-            "<th>p Value</th>" + 
-            "</tr>" +
+            "<th>p-Value</th>" + 
+            "<th>Log Odds Ratio</th>" +
             "</thead>" +
             "<tbody></tbody>" + 
             "</table>"
@@ -65,28 +74,28 @@
             "bJQueryUI": true,
             "bAutoWidth": false,
             "aaData" : mutexTableDataArr,
-            "aaSorting": [[2, 'desc']], //sort by odds-ratio
+            "aaSorting": [[2, 'asc']], //sort by p-Value
             "aoColumnDefs": [
                 {
                     "bSearchable": true,
-                    "aTargets": [ 0 ],
-                    "sWidth": "25%"
+                    "aTargets": [ index.geneA ],
+                    //"sWidth": "25%"
                 },
                 {
                     "bSearchable": true,
-                    "aTargets": [ 1 ],
-                    "sWidth": "25%"
+                    "aTargets": [ index.geneB ],
+                    //"sWidth": "25%"
                 },
                 {
-                    "sType": 'mutex-absolute-value',
+                    "sType": 'mutex-value',
                     "bSearchable": false,
-                    "aTargets": [ 2 ],
-                    "sWidth": "25%"
+                    "aTargets": [ index.pVal ],
+                    //"sWidth": "25%"
                 },
                 {
                     "bSearchable": false,
-                    "aTargets": [ 3 ],
-                    "sWidth": "25%"
+                    "aTargets": [ index.oddsRatio ],
+                    //"sWidth": "25%"
                 }
             ],
             "oLanguage": {
@@ -96,11 +105,15 @@
             "bDeferRender": true,
             "iDisplayLength": 30,
             "fnRowCallback": function(nRow, aData) {
-                $('td:eq(2)', nRow).css("font-weight", "bold");
-                if (aData[2] < 0) { 
-                    $('td:eq(2)', nRow).css("color", "red");
-                } else if (aData[2] > 0) {
-                    $('td:eq(2)', nRow).css("color", "green");
+                $('td:eq(' + index.pVal + ')', nRow).css("font-weight", "bold");
+                $('td:eq(' + index.oddsRatio + ')', nRow).css("font-weight", "bold");
+                if (aData[index.oddsRatio] < 0 || aData[index.oddsRatio] === "<-3") { //significate odds ratio value
+                    $('td:eq(' + index.oddsRatio + ')', nRow).css("color", colorCode.mutexOddsRatio);
+                } else if (aData[index.oddsRatio] > 0 || aData[index.oddsRatio] === ">3") {
+                    $('td:eq(' + index.oddsRatio + ')', nRow).css("color", colorCode.coocOddsRatio);
+                }
+                if (aData[index.pVal] < 0.05) { //significate p value
+                    $('td:eq(' + index.pVal + ')', nRow).css("color", colorCode.sigPVal);
                 }
             }
         });  
@@ -112,22 +125,30 @@
                 var _arr = [];
                 _arr.push(obj.geneA);
                 _arr.push(obj.geneB);            
-                _arr.push(obj.odds_ratio);
                 _arr.push(obj.p_value);
+                _arr.push(obj.odds_ratio);
                 mutexTableDataArr.push(_arr);       
             }
     	});
     }
 
     function overWriteFilters() {
-        jQuery.fn.dataTableExt.oSort['mutex-absolute-value-desc'] = function(a,b) {
-            if (Math.abs(a) > Math.abs(b)) return -1;
-            else if (Math.abs(a) < Math.abs(b)) return 1;
+        jQuery.fn.dataTableExt.oSort['mutex-value-desc'] = function(a,b) {
+            if (a == "<-3") { a = -3 };
+            if (b == "<-3") { b = -3 };
+            if (a == ">3") { a = 3 };
+            if (b == ">3") { b = 3 };
+            if (a > b) return -1;
+            else if (a < b) return 1;
             else return 0;
         };
-        jQuery.fn.dataTableExt.oSort['mutex-absolute-value-asc'] = function(a,b) {
-            if (Math.abs(a) > Math.abs(b)) return 1;
-            else if (Math.abs(a) < Math.abs(b)) return -1;
+        jQuery.fn.dataTableExt.oSort['mutex-value-asc'] = function(a,b) {
+            if (a == "<-3") { a = -3 };
+            if (b == "<-3") { b = -3 };
+            if (a == ">3") { a = 3 };
+            if (b == ">3") { b = 3 };
+            if (a > b) return 1;
+            else if (a < b) return -1;
             else return 0;
         };
     }

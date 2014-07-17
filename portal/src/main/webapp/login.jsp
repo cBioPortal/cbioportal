@@ -49,6 +49,20 @@
        <br>
            <p>Please select an authentication provider:</p>
        <table cellspacing="2px" width="100%">
+           <tr>
+               <td>
+                 <fieldset>
+	             <legend>
+                     Login to Portal:
+                 </legend>
+                 <p>
+                     <span style="font-size:145%">
+                     <%= GlobalProperties.getAuthorizationMessage() %>
+                     </span>
+                 </p>
+  
+               </td>
+           </tr>
 	     <tr>
 	       <td>
                    <button type="button"><a href="auth/google"><IMG alt="Google+" src="images/login/images.large/google.gif" /></a></button>

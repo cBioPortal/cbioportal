@@ -9,7 +9,8 @@
 	  <!-- Simple OpenID Selector -->
 	  <link type="text/css" rel="stylesheet" href="css/openid.css?<%=GlobalProperties.getAppVersion()%>" />
 	  <script type="text/javascript" src="js/lib/jquery-1.4.2.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
-	  <script type="text/javascript" src="js/lib/openid-jquery.js?<%=GlobalProperties.getAppVersion()%>"></script>
+          <!-- remove reference to openif javascript  -->
+	<!--  <script type="text/javascript" src="js/lib/openid-jquery.js?<%=GlobalProperties.getAppVersion()%>"></script> -->
 	  <script type="text/javascript">
 	      $(document).ready(function() {
 				  openid.init('openid_identifier');
@@ -46,14 +47,11 @@
         </div>
     <% } %>
        <br>
+           <p>Please select an authentication provider:</p>
        <table cellspacing="2px" width="100%">
-	     <tr>
-	       <td>
-	         <!-- Simple OpenID Selector -->
-	         <form style="width:  100%;" action="<c:url value='j_spring_openid_security_check'/>" method="post" id="openid_form">
-	           <input type="hidden" name="action" value="verify" />
-               <p/>
-               <fieldset>
+           <tr>
+               <td>
+                 <fieldset>
 	             <legend>
                      Login to Portal:
                  </legend>
@@ -62,21 +60,13 @@
                      <%= GlobalProperties.getAuthorizationMessage() %>
                      </span>
                  </p>
-	             <div id="openid_choice">
-	               <p>Please click your account provider:</p>
-	               <div id="openid_btns"></div>
-	             </div>
-	             <div id="openid_input_area">
-	               <input id="openid_identifier" name="openid_identifier" type="text" value="http://" />
-	               <input id="openid_submit" type="submit" value="Sign-In"/>
-	             </div>
-	             <noscript>
-	               <p>OpenID is a service that allows you to log-on to many different websites using a single identity.
-	                 Find out <a href="http://openid.net/what/">more about OpenID</a> and <a href="http://openid.net/get/">how to get an OpenID enabled account</a>.</p>
-	             </noscript>
-	           </fieldset>
-	         </form>
-	         <!-- /Simple OpenID Selector -->
+  
+               </td>
+           </tr>
+	     <tr>
+	       <td>
+                   <button type="button"><a href="auth/google"><IMG alt="Google+" src="images/login/images.large/google.gif" /></a></button>
+	         
 	       </td>
 	     </tr>
        </table>

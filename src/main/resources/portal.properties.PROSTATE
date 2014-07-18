@@ -2,6 +2,7 @@
 app.name=prostate-portal
 app.version=0.1
 
+
 # Database Settinbuildgs
 db.tomcat_resource_name=cgds_gdac
 db.user=
@@ -17,6 +18,8 @@ db.portal_schema=$PORTAL_HOME/core/src/main/resources/db/cgds.sql
 # google settings
 google.id=
 google.pw=
+
+
 # portal users spreadsheet properties
 users.spreadsheet=
 users.worksheet=
@@ -56,6 +59,11 @@ authenticate=true
 authorization=true
 include_networks=true
 google_analytics_profile_id=
+
+#Google+
+googleplus.consumer.key=
+googleplus.consumer.secret=
+
 
 faq=faq_prostate.html
 about=about_us_prostate.html

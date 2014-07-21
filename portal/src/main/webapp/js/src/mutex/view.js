@@ -93,6 +93,7 @@
                     //"sWidth": "25%"
                 },
                 {
+                    "sType": 'mutex-value',
                     "bSearchable": false,
                     "aTargets": [ index.oddsRatio ],
                     //"sWidth": "25%"

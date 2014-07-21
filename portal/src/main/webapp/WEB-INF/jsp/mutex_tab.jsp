@@ -15,7 +15,7 @@
     <div id='mutex-wrapper' style='width: 600px; margin-top: 20px; margin-left: 20px;'>
         <div id='mutex-header'>
             Co-occurrence and mutual exclusivity for all gene pairs:
-            For each gene pair, this table lists the odds ratio<img src='images/help.png' id='odds-ratio-help'> and p-Values for the observed co-occurrence in the queried data set.
+            For each gene pair, this table lists the odds ratio<img src='images/help.png' id='odds-ratio-help'> and p-Values<img src='images/help.png' id='p-value-help'> for the observed co-occurrence in the queried data set.
         </div>
         <div id='mutex-loading-image'>
             <img style='padding:200px;' src='images/ajax-loader.gif'>
@@ -35,7 +35,14 @@
         show: {event: "mouseover"},
         hide: {fixed:true, delay: 100, event: "mouseout"},
         position: {my:'left bottom',at:'top right',viewport: $(window)}
-    })    
+    })  
+    $("#p-value-help").qtip({
+        content: { text:'Drived from Fisher Exact Test'},
+        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
+        show: {event: "mouseover"},
+        hide: {fixed:true, delay: 100, event: "mouseout"},
+        position: {my:'left bottom',at:'top right',viewport: $(window)}
+    })     
 </script>
 
 <style type="text/css">

@@ -37,6 +37,7 @@ var DataTable = function() {
         aaDataLength,
         dataTable,
         tableId,
+        tableContainerId,
         dataType = [],
         dataTableNumericFilter = [],
         permenentDisabledId = [], //Define which column is perment diabled
@@ -58,11 +59,11 @@ var DataTable = function() {
     var rowClickCallback,
         rowShiftClickCallback;
     
-    function initParam(_tableId, _data) {
+    function initParam(_tableId, _tableContainerId, _data) {
         var i;
         
         tableId = _tableId;
-        
+        tableContainerId = _tableContainerId;
         attr = _data.attr;
         arr = _data.arr;
         
@@ -166,7 +167,7 @@ var DataTable = function() {
                 }else if ( _valueAo.sTitle === 'COMPLETE (ACGH, MRNA, SEQUENCING)'){
                     _tmpValue = _value[_valueAo.sTitle];
                 }else if ( _valueAo.sTitle === 'CASE ID'){
-                    _tmpValue = "<a href='tumormap.do?case_id=" + 
+                    _tmpValue = "<a href='case.do?case_id=" + 
                     _value['CASE_ID'] + "&cancer_study_id=" +
                     StudyViewParams.params.studyId + "' target='_blank'><span style='color: #2986e2'>" + 
                     _value['CASE_ID'] + "</span></a></strong>";
@@ -332,6 +333,7 @@ var DataTable = function() {
                 dataTable.fnAdjustColumnSizing();
                 if(!noLeftColumnFlag) {
                     resizeLeftColumn();
+                    $(window).resize();
                 }
                 $(this).addClass("tab-clicked");
             }
@@ -528,9 +530,9 @@ var DataTable = function() {
     //This function will be called when the dataTable has been resized
     function resizeLeftColumn(){
         if(!noLeftColumnFlag) {
-            var _heightBody = $(".dataTables_scrollBody").height(),
-                _heightTable = $('.dataTables_scroll').height(),
-                _widthBody = $("#" + tableId + " tbody>tr:nth-child(2)>td:nth-child(1)").width();
+            var _heightBody = $("#" + tableContainerId+ " .dataTables_scrollBody").height(),
+                _heightTable = $("#" + tableContainerId+ " .dataTables_scroll").height(),
+                _widthBody = $("#" + tableContainerId+ " tbody>tr:nth-child(2)>td:nth-child(1)").width();
             
             if(_widthBody === null) {
                 $(".DTFC_LeftWrapper").css('display', 'none');
@@ -763,8 +765,8 @@ var DataTable = function() {
     }
     
     return {
-        init: function(_tableId, _data) {
-            initParam(_tableId, _data);
+        init: function(_tableId, _tableContainerId, _data) {
+            initParam(_tableId, _tableContainerId, _data);
             initDataTableTfoot();
             initDataTable();
             //resizeTable();

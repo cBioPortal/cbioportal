@@ -39,13 +39,13 @@
     }
 </script>
 
-<script type="text/javascript" src="js/src/survival_tab.js"></script>
-<script type="text/javascript" src="js/src/survival-curve/survivalCurveView.js"></script>
-<script type="text/javascript" src="js/src/survival-curve/survivalCurveProxy.js"></script>
-<script type="text/javascript" src="js/src/survival-curve/component/survivalCurve.js"></script>
-<script type="text/javascript" src="js/src/survival-curve/component/kmEstimator.js"></script>
-<script type="text/javascript" src="js/src/survival-curve/component/logRankTest.js"></script>
-<script type="text/javascript" src="js/src/survival-curve/component/boilerPlate.js"></script>
+<script type="text/javascript" src="js/src/survival_tab.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/survival-curve/survivalCurveView.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/survival-curve/survivalCurveProxy.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/survival-curve/component/survivalCurve.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/survival-curve/component/kmEstimator.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/survival-curve/component/logRankTest.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/survival-curve/component/boilerPlate.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <div class="section" id="survival">
     <h4 id='os_header'>Overall Survival Kaplan-Meier Estimate</h4>

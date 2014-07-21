@@ -7,9 +7,12 @@
 
 <jsp:include page="WEB-INF/jsp/global/header.jsp" flush="true"/>
 
-<link href="css/bootstrap.min.css" type="text/css" rel="stylesheet" />
+<link href="css/bootstrap.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 
 <style>
+  body {
+    background-color: #E0E0E0 !important;
+  }
   .tile {
     float: left;
     margin-left: 20px;

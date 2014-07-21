@@ -96,6 +96,21 @@
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
 
+    <servlet>
+        <description>Spring Social Authentication Servlet</description>
+        <servlet-name>googleauth-servlet</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>/WEB-INF/classes/applicationContext-web.xml</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>googleauth-servlet</servlet-name>
+        <url-pattern>*.do</url-pattern>
+    </servlet-mapping>
+
     <!-- SPRING SECURITY SETTINGS END -->
 
     <!-- Required by the Apache FileUpload tool. -->
@@ -111,7 +126,7 @@
     </listener>
     <context-param>
       <param-name>log4jConfigLocation</param-name>
-      <param-value>file://${PORTAL_HOME}/log4j.properties</param-value>
+      <param-value>file://${PORTAL_HOME}/portal/target/portal/WEB-INF/classes/log4j.properties</param-value>
     </context-param> 
 
 	<!--

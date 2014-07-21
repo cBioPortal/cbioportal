@@ -34,8 +34,10 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             case_list: window.PortalGlobals.getCases() },
         success: function(attrs) {
             var totalAttrs = attrs.toJSON();
-            var tem={attr_id: "mutations", datatype: "NUMBER",description: "Number of mutation", display_name: "Mutations"};
-            totalAttrs.push(tem);
+            if(window.PortalGlobals.gerMutationProfileId()!==null){
+                var tem={attr_id: "mutations", datatype: "NUMBER",description: "Number of mutation", display_name: "Mutations"};
+                totalAttrs.unshift(tem);
+            }
             utils.populate_clinical_attr_select(document.getElementById('select_clinical_attributes'), totalAttrs);
             $(select_clinical_attributes_id).chosen({width: "240px", "font-size": "12px", search_contains: true});
         }
@@ -127,7 +129,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                     type: "POST",
 
                     data: {
-                            mutation_profile: cancer_study_id_selected+"_mutations",
+                            mutation_profile: window.PortalGlobals.gerMutationProfileId(),
                             cmd: "count_mutations",
                             case_ids: cases
                     },

@@ -48,7 +48,7 @@
             oddsRatio : 3
         },
         colorCode = {
-            mutexOddsRatio: "#CC6666",
+            mutexOddsRatio: "#339999",
             coocOddsRatio: "#3399FF",
             sigPVal: "#CC6666"
         }
@@ -97,6 +97,13 @@
                     "bSearchable": false,
                     "aTargets": [ index.oddsRatio ],
                     //"sWidth": "25%"
+                    'fnCreatedCell': function(nTd, sData, oData, iRow, iCol) {
+                        if (sData === ">3" || sData.indexOf("-") === -1) {
+                            nTd.title = "Co-occurrence";
+                        } else {
+                            nTd.title = "Mutual Exclusive";
+                        } 
+                    }
                 }
             ],
             "oLanguage": {
@@ -152,6 +159,7 @@
             else if (a < b) return -1;
             else return 0;
         };
+
     }
 
     function attachFilter() { 
@@ -163,13 +171,20 @@
             "</select>");
         $("select#mutex-table-filter-select").change(function () {
             if ($(this).val() === "mutex") {
-                mutexTableInstance.fnFilter("-", 2, false);
+                mutexTableInstance.fnFilter("-", 3, false);
             } else if ($(this).val() === "cooccur") {
-                mutexTableInstance.fnFilter('^[+]?([1-9][0-9]*(?:[\.][0-9]*)?|0*\.0*[1-9][0-9]*)(?:[eE][+-][0-9]+)?$', 2, true);
+                mutexTableInstance.fnFilter('^[+]?([1-9][0-9]*(?:[\.][0-9]*)?|0*\.0*[1-9][0-9]*)(?:[eE][+-][0-9]+)?$', 3, true);
             } else if ($(this).val() === "all") {
-                mutexTableInstance.fnFilter("", 2);
+                mutexTableInstance.fnFilter("", 3);
             }
         });
+        mutexTableInstance.$('td').qtip({
+            content: { attr: 'title' },
+            style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+            show: {event: "mouseover", delay: 0},
+            hide: {fixed:true, delay: 10, event: "mouseout"},
+            position: {my:'left bottom',at:'top right',viewport: $(window), adjust: {x: -150, y: 10}}
+        })
     }      
 
  	return {

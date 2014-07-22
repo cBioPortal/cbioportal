@@ -47,7 +47,7 @@
         </div>
     <% } %>
        <br>
-           <p>Please select an authentication provider:</p>
+          
        <table cellspacing="2px" width="100%">
            <tr>
                <td>
@@ -60,12 +60,15 @@
                      <%= GlobalProperties.getAuthorizationMessage() %>
                      </span>
                  </p>
-  
+            <p><span style="font-size:145%"> 
+                Please select an authentication provider:
+                </span>
+            </p>
                </td>
            </tr>
 	     <tr>
 	       <td>
-                   <button type="button"><a href="auth/google"><IMG alt="Google+" src="images/login/images.large/google.gif" /></a></button>
+                   <button type="button"><a href="auth/google" ><IMG alt="Google+" src="images/login/images.large/google_dna.gif"  /></a></button>
 	         
 	       </td>
 	     </tr>

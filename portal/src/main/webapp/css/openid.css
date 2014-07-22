@@ -20,10 +20,11 @@
 		float: left;
 	}
 	.openid_large_btn {
-		width: 128px;
-		height: 128px;
-		border: 1px solid #DDD;
-		margin: 3px;
+		width: 100px;
+		height: 35px;
+                background-color: #FFFFFF;
+		border: 0px solid #DDD;
+		margin: 1px;
 		float: left;
 	}
 	.openid_small_btn {

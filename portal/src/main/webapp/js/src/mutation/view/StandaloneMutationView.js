@@ -27,7 +27,7 @@ var StandaloneMutationView = Backbone.View.extend({
 	{
 		var self = this;
 
-		var fullList = self.$el.find(".full-list-of-headers");
+		var fullList = self.$el.find(".mutation-data-info");
 		var inputField = self.$el.find(".standalone-mutation-input");
 		var visualize = self.$el.find(".submit-custom-mutations");
 		var textArea = self.$el.find(".mutation-file-example");
@@ -38,6 +38,7 @@ var StandaloneMutationView = Backbone.View.extend({
 		var listTriangle = self.$el.find(".full-header-list-expander .triangle");
 		var inputTriangle = self.$el.find(".mutation-input-field-expander .triangle");
 		var inputExpander = self.$el.find(".mutation-input-field-expander");
+		var loadExampleData = self.$el.find(".load-example-data-link");
 
 		self._initInputHeaderTable();
 		fullList.hide();
@@ -70,6 +71,11 @@ var StandaloneMutationView = Backbone.View.extend({
 		inputTriangle.click(function(event) {
 			// same as clicking on the link
 			toggleInputField.click();
+		});
+
+		loadExampleData.click(function(event) {
+			event.preventDefault();
+			textArea.val(_.template($("#example_mutation_data_template").html(), {}).trim());
 		});
 
 		visualize.click(function() {

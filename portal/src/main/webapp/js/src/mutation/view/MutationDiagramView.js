@@ -53,6 +53,7 @@ var MutationDiagramView = Backbone.View.extend({
 		// hide the toolbar & customization panel by default
 		self.$el.find(".mutation-diagram-toolbar").hide();
 		self.$el.find(".mutation-diagram-customize").hide();
+		self.$el.find(".mutation-diagram-help").hide();
 		self.$el.find(".mutation-diagram-toolbar-buttons").css("visibility", "hidden");
 
 		// init toolbar if the diagram is initialized successfully
@@ -115,6 +116,7 @@ var MutationDiagramView = Backbone.View.extend({
 		var pdfButton = self.$el.find(".diagram-to-pdf");
 		var svgButton = self.$el.find(".diagram-to-svg");
 		var customizeButton = self.$el.find(".diagram-customize");
+		var helpButton = self.$el.find(".diagram-help");
 
 		// helper function to trigger submit event for the svg and pdf button clicks
 		var submitForm = function(alterFn, diagram, type)
@@ -192,6 +194,24 @@ var MutationDiagramView = Backbone.View.extend({
 				panel.render();
 
 				self.customizePanelView = panel;
+			}
+
+			// toggle view
+			panel.toggleView();
+		});
+
+		// add listeners to customize button
+		helpButton.click(function(event) {
+			var panel = self.helpPanelView;
+
+			// init view if not init yet
+			if (!panel)
+			{
+				panel = new MutationHelpPanelView({
+					el: self.$el.find(".mutation-diagram-help")});
+				panel.render();
+
+				self.helpPanelView = panel;
 			}
 
 			// toggle view

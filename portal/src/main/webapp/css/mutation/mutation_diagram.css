@@ -33,16 +33,27 @@
 	padding-top: 10px;
 	padding-left: 10px;
 }
-.mutation-diagram-customize {
+.mutation-diagram-customize,
+.mutation-diagram-help {
 	margin-top: 5px;
 	padding: 5px;
 	background-color: #eeeeee;
 	border: 1px solid #d3d3d3;
 }
+.mutation-diagram-help {
+	color: #222222;
+}
 .mutation-diagram-customize table {
 	width: 100%;
 }
-.diagram-customize-close {
+.mutation-diagram-help li {
+	font-size: 80% !important;
+}
+.mutation-diagram-help ul {
+	padding-top: 0;
+}
+.diagram-customize-close,
+.diagram-help-close {
 	float: right;
 }
 .diagram-customize {

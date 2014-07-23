@@ -73,7 +73,7 @@ var ClinicalMutationColl = Backbone.Collection.extend({
  
         return result;    // but the data is what is to be model-ed
     },
-    url: "/portal/mutations.json"
+    url: "mutations.json"
 });
 
 var GeneDataColl = Backbone.Collection.extend({

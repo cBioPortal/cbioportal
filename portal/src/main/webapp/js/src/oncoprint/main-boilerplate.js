@@ -100,6 +100,26 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         sortBy.prop('disabled', enable_disable).trigger("liszt:updated");
     };
 
+    var resetclinicalAttribute = function()
+    {
+        oncoprint.remove_oncoprint();
+        inner_loader_img.show();
+        toggleControls(false);
+
+        inner_loader_img.hide();
+
+        oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
+            geneData: geneDataColl.toJSON(),
+            genes: genes,
+            legend: document.getElementById('oncoprint_legend')
+        });
+
+        oncoprint.sortBy(sortBy.val(), cases.split(" "));
+
+        // disable the option to sort by clinical data
+        $(sortBy.add('option[value="clinical"]')[1]).prop('disabled', true);
+    }
+
     // handler for when user selects a clinical attribute to visualization
     var clinicalAttributeSelected = function() {
         oncoprint.remove_oncoprint();
@@ -161,6 +181,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
                         oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
                         utils.make_mouseover(d3.selectAll('.sample rect'));        // hack =(
+                        
+                        $('.special_delete').click(resetclinicalAttribute);
                     }
                 });
             }
@@ -203,6 +225,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
                         oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
                         utils.make_mouseover(d3.selectAll('.sample rect'));        // hack =(
+                        
+                        $('.special_delete').click(resetclinicalAttribute);
                     }
                 });
             }
@@ -215,7 +239,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         $('#oncoprint_controls #sort_by').change(function() {
             oncoprint.sortBy(sortBy.val(), cases.split(" "));
         });
-
+        
         $('#toggle_unaltered_cases').click(function() {
             oncoprint.toggleUnalteredCases();
             utils.make_mouseover(d3.selectAll('.sample rect'));     // hack =(
@@ -238,16 +262,16 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         });
         
         $('.oncoprint-sample-download').click(function() {
-            var samples = "samples order in Oncoprinter is: ";
+            var samples = "Sample order in the Oncoprint is: \n";
             var genesValue = oncoprint.getData();
             for(var i = 0; i< genesValue.length; i++)
             {
-                samples= samples + genesValue[i].key+" ";
+                samples= samples + genesValue[i].key+"\n";
             }
             var a=document.createElement('a');
             a.href='data:text/plain;base64,'+btoa(samples);
             a.textContent='download';
-            a.download='text.txt';
+            a.download='OncoPrintSamples.txt';
             a.click();
             //a.delete();
         });

@@ -95,16 +95,16 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
                                 cbio.util.requestDownload("svgtopdf.do", params);
                             });
             $(".sample-download").click(function() {
-                                var samples = "samples order in Oncoprinter is: ";
+                                var samples = "Sample order in the Oncoprint is: \n";
                                 var genesValue = oncoprint.getData();
                                 for(var i = 0; i< genesValue.length; i++)
                                 {
-                                    samples= samples + genesValue[i].key+" ";
+                                    samples= samples + genesValue[i].key+"\n";
                                 }
                                 var a=document.createElement('a');
                                 a.href='data:text/plain;base64,'+btoa(samples);
                                 a.textContent='download';
-                                a.download='text.txt';
+                                a.download='OncoPrintSample.txt';
                                 a.click();
                                 a.delete();
                             });
@@ -145,13 +145,15 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
         var $mutation_file_example = $('#mutation-file-example');
         var $cna_file_example = $('#cna-file-example');
         var $filter_example = $('#filter_example');
+        
+        var oncoprint_loader_img = $('#oncoprint_loader_img');
 
         // delete text when a file is selected
         $cnaForm.find("#cna").change(function() { $cna_file_example.html(""); });
         $mutationForm.find("#mutation").change(function() { $mutation_file_example.html(""); });
 
         $('#create_oncoprint').click(function() {
-
+            oncoprint_loader_img.show();
             var postFile = function(url, formData, callback) {
                 $.ajax({
                     url: url,
@@ -344,6 +346,7 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
                     try {
                         exec(data);
                         $error_box.hide();
+                        oncoprint_loader_img.hide();
                         $('#download_oncoprint').show();
                     } catch(e) {
                         // catch all errors and console.log them,

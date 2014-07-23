@@ -17,7 +17,7 @@
             <span class='oncoprint-diagram-toolbar-buttons'>
             <button class='oncoprint-diagram-download' type="pdf">PDF</button>
             <button class='oncoprint-diagram-download' type="svg">SVG</button>
-            <button class='oncoprint-sample-download' type="txt">Sample</button>
+            <button class='oncoprint-sample-download' type="txt">Samples</button>
             </span>
             </p>
         <img id="inner_loader_img" src="images/ajax-loader.gif" style="display:none;">

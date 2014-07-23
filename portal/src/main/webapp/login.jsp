@@ -7,17 +7,8 @@
 	  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	  <title><%= GlobalProperties.getTitle() %>::cBioPortal Login</title>
 
-	  <!-- Simple OpenID Selector -->
-	  <link type="text/css" rel="stylesheet" href="css/openid.css?<%=GlobalProperties.getAppVersion()%>" />
 	  <script type="text/javascript" src="js/lib/jquery-1.4.2.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
-          <!-- remove reference to openif javascript  -->
-	<!--  <script type="text/javascript" src="js/lib/openid-jquery.js?<%=GlobalProperties.getAppVersion()%>"></script> -->
-	  <script type="text/javascript">
-	      $(document).ready(function() {
-				  openid.init('openid_identifier');
-				  //openid.setDemoMode(false); // if true, Stops form submission for client javascript-only test purposes
-		  });
-      </script>
+          
 </head>
 
 <%
@@ -46,7 +37,8 @@
             <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
             <strong>You are not authorized to access this resource. If you think you have received this
             message in error, please contact us at
-            <a href="mailto:cbioportal@cbio.mskcc.org">cbioportal@cbio.mskcc.org</a>.
+            <a style="color:#FF0000" href="mailto:cbioportal@cbio.mskcc.org">cbioportal@cbio.mskcc.org</a>
+           
             </strong></p>
         </div>
     <% } %>
@@ -72,7 +64,7 @@
            </tr>
 	     <tr>
 	       <td>
-                   <button type="button"><a href="auth/google" ><IMG alt="Google+" src="images/login/images.large/google_dna.gif"  /></a></button>
+                   <button onclick="window.location='auth/google'"><IMG alt="Google+" src="images/login/images.large/google_dna.gif"  /></button>
 	         
 	       </td>
 	     </tr>

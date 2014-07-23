@@ -7,6 +7,11 @@
 #googleplus_choice {
 	display: none;
 }
+
+#googleplus_mailto {
+    color: #FF0000;
+}
+
 #googleplus_input_area {
 	clear: both;
 	padding: 10px;

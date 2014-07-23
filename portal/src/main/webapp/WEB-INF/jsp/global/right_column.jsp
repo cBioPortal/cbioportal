@@ -31,6 +31,7 @@
 	<tr>
         <td align="right" style="font-size:10px;">
             You are logged in as <sec:authentication property='principal.username' />. <a href="j_spring_security_logout">Sign out</a>.
+            
         </td>
         </tr>
     </table>

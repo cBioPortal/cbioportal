@@ -1,10 +1,11 @@
 <%@ taglib prefix='c' uri='http://java.sun.com/jsp/jstl/core' %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	  <title><%= GlobalProperties.getTitle() %>::OpenID Login</title>
+	  <title><%= GlobalProperties.getTitle() %>::cBioPortal Login</title>
 
 	  <!-- Simple OpenID Selector -->
 	  <link type="text/css" rel="stylesheet" href="css/openid.css?<%=GlobalProperties.getAppVersion()%>" />
@@ -43,7 +44,10 @@
     <% if (login_error != null) { %>
         <div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em;width:90%;margin-top:50px">
             <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-            <strong>You are not authorized to access this resource.</strong></p>
+            <strong>You are not authorized to access this resource. If you think you have received this
+            message in error, please contact us at
+            <a href="mailto:cbioportal@cbio.mskcc.org">cbioportal@cbio.mskcc.org</a>.
+            </strong></p>
         </div>
     <% } %>
        <br>

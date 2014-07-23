@@ -34,17 +34,17 @@
             
             <div id="div-data-format-exp" style="background-color:#eee;display:none;">
                 <h4>Data format</h4>
-                The data should contains three columns separated by tab.
-                The first row is always <code>Sample Gene   Alteration</code>.
-                Every other row can contain one genomic event (mutation or copy number alteration) in one sample.
-                You can also input samples without any events at the end so that the percentages can be properly calculated. 
+                The data should contain three tab-delimited columns. 
+                The first row is a header row, which contains: <code>Sample Gene   Alteration</code>. 
+                Each following row contains a single genomic event (currently limited to mutations or copy number alterations) in a single sample. 
+                You can also list samples without any events at the end of the list so that the percentages can be properly calculated.
                <ol>
-                    <li>Sample column: sample ID or barcode</li>
-                    <li>Gene column: gene symbol or any gene ID</li>
-                    <li>Alteration column
+                    <li>Sample: Sample ID</li>
+                    <li>Gene: Gene symbol (or other gene identifier)</li>
+                    <li>Alteration: Definition of the alteration event
                         <ul>
-                            <li>Mutation event: amino acid change or any other information about the mutation</li>
-                            <li>Copy number alteration (CNA): supported CNA events include
+                            <li>Supported alteration types: Mutation event: amino acid change or any other information about the mutation</li>
+                            <li>Copy number alteration (CNA) - please use one of the four events below: 
                                 <ul>
                                     <li>AMP: high level amplification</li>
                                     <li>GAIN: low level gain</li>
@@ -68,7 +68,35 @@
             });
             </script>
             <textarea id="mutation-file-example" rows=10 style="width:40%;"></textarea>
+            <script>
+                //enable user to input tab in the textarea
+                function enableTab(id) {
+                    var el = document.getElementById(id);
+                    el.onkeydown = function(e) {
+                        if (e.keyCode === 9) { // tab was pressed
 
+                            // get caret position/selection
+                            var val = this.value,
+                                start = this.selectionStart,
+                                end = this.selectionEnd;
+
+                            // set textarea value to: text before caret + tab + text after caret
+                            this.value = val.substring(0, start) + '\t' + val.substring(end);
+
+                            // put caret at right position again
+                            this.selectionStart = this.selectionEnd = start + 1;
+
+                            // prevent the focus lose
+                            return false;
+
+                        }
+                    };
+                }
+
+                // Enable the tab character onkeypress (onkeydown) inside textarea...
+                // ... for a textarea that has an `id="mutation-file-example"`
+                enableTab('mutation-file-example');
+            </script>
             <form id="mutation-form" class="form-horizontal" enctype="multipart/form-data" method="post">
                 <div class="control-group">
                     <label class="control-label" for="mutation">Input Data File</label>
@@ -88,7 +116,9 @@
     <div id="oncoprint_controls" style="margin-bottom: 20px;"></div>
 
     <jsp:include page="WEB-INF/jsp/oncoprint/controls-templates.jsp"></jsp:include>
-
+    <div>
+    <img id="oncoprint_loader_img" src="images/ajax-loader.gif" style="display:none;">
+    </div>
     <div id='oncoprint'></div>
     <script data-main="js/src/oncoprint/custom-boilerplate.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript" src="js/require.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
@@ -96,7 +126,7 @@
         <span>
         <button class="oncoprint-download" type="pdf" style="display:inline;font-size: 13px; width: 50px;">PDF</button>
         <button class="oncoprint-download" type="svg" style="display:inline;font-size: 13px; width: 50px;">SVG</button>
-        <button class="sample-download" type="txt" style="display:inline;font-size: 13px; width: 75px;">SAMPLES</button>
+        <button title="Download the list of samples, sorted in the order in which they are displayed in OncoPrint(left to right)" class="sample-download" type="txt" style="display:inline;font-size: 13px; width: 75px;">SAMPLES</button>
         </span>
     </div>
 </div>

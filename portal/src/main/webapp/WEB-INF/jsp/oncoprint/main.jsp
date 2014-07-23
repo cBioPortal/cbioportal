@@ -5,34 +5,24 @@
             <small>(<a href="faq.jsp#what-are-oncoprints">What are OncoPrints?</a>)</small>
         </h4>
 
-        <span>
-            <form id="pdf-form" style="display:inline;" action="svgtopdf.do" method="post" target="_blank">
-                <input type="hidden" name="svgelement">
-                <input type="hidden" name="filetype" value="pdf">
-                <input type="hidden" name="filename" value="oncoprint.pdf">
-                <input type="submit" value="PDF">
-            </form>
-
-            <form id="svg-form" style="display:inline;" action="oncoprint_converter.svg" enctype="multipart/form-data" method="POST" target="_blank">
-                <input type="hidden" name="xml">
-                <input type="hidden" name="longest_label_length">
-                <input type="hidden" name="format" value="svg">
-                <input type="submit" value="SVG">
-            </form>
-        </span>
-
         <div id="oncoprint_controls" style="margin-top:10px; margin-bottom:20px;"></div>
         <%@ include file="controls-templates.jsp" %>
 
-        <div style="margin-left:3;">
-            <p>Case Set: <%=StringEscapeUtils.escapeHtml(OncoPrintUtil.getCaseSetDescription(caseSetId, caseSets))%></p>
-            <p>Altered in <%=dataSummary.getNumCasesAffected()%> (<%=OncoPrintUtil.alterationValueToString(dataSummary.getPercentCasesAffected())%>) of cases</p>
+        <div id="oncoprint-statment" style="margin-left:3;">
+            <p>Case Set: <%=StringEscapeUtils.escapeHtml(OncoPrintUtil.getCaseSetDescription(caseSetId, caseSets))%></p>   
         </div>
-
+        
+        <div id="oncoprint_whole_body">
+            <p> Altered in <%=dataSummary.getNumCasesAffected()%> (<%=OncoPrintUtil.alterationValueToString(dataSummary.getPercentCasesAffected())%>) of cases
+            <span class='oncoprint-diagram-toolbar-buttons'>
+            <button class='oncoprint-diagram-download' type="pdf">PDF</button>
+            <button class='oncoprint-diagram-download' type="svg">SVG</button>
+            <button class='oncoprint-sample-download' type="txt">Sample</button>
+            </span>
+            </p>
         <img id="inner_loader_img" src="images/ajax-loader.gif" style="display:none;">
-
         <div id="oncoprint_body"></div>
-
+        </div>
         <div id="oncoprint_legend"></div>
         <%@ include file="legend-template.jsp" %>
 

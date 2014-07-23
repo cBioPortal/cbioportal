@@ -16,6 +16,7 @@
 <%@ page import="org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintSpecification" %>
 <%@ page import="org.mskcc.cbio.portal.oncoPrintSpecLanguage.Utilities" %>
 <%@ page import="org.mskcc.cbio.portal.model.CancerStudy" %>
+<%@ page import="org.mskcc.cbio.portal.model.GeneticProfile" %>
 <%@ page import="org.mskcc.cbio.portal.model.CaseList" %>
 <%@ page import="org.mskcc.cbio.portal.model.GeneticProfile" %>
 <%@ page import="org.mskcc.cbio.portal.model.GeneticAlterationType" %>
@@ -77,7 +78,9 @@
             break;
         }
     }
-    String cancerStudyName = cancerStudy.getName();
+    String cancerStudyName = cancerStudy.getName(); 
+    GeneticProfile mutationProfile = cancerStudy.getMutationProfile();
+    String mutationProfileID = mutationProfile==null ? null : mutationProfile.getStableId();
 
     //Info about Genes
     ArrayList<String> listOfGenes = theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
@@ -149,6 +152,7 @@
 <script type="text/javascript">
     window.PortalGlobals = {
         getCancerStudyId: function() { return '<%=cancerTypeId%>'},
+        gerMutationProfileId: function() { return <%=(mutationProfileID==null?"null":("'"+mutationProfileID+"'"))%>},
         getGenes: function() { return '<%=genes%>'},  // raw gene list (as it is entered by the user, it MAY CONTAIN onco query language)
         getGeneListString: function() {  // gene list WITHOUT onco query language
             return '<%=StringUtils.join(theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes(), " ")%>'

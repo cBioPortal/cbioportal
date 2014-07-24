@@ -18,7 +18,12 @@
 
 package org.mskcc.cbio.importer.converter.internal;
 
+import org.mskcc.cbio.importer.CaseIDs;
+import org.mskcc.cbio.importer.model.*;
+
 import org.apache.commons.logging.Log;
+
+import java.util.List;
 
 public abstract class ConverterBaseImpl
 {
@@ -28,4 +33,28 @@ public abstract class ConverterBaseImpl
             log.info(message);
         }
     }
+
+    protected void filterColumnsBySampleType(CaseIDs caseIDs, DataMatrix dataMatrix, ConversionType conversionType)
+	{
+		List<String> columnHeaders = dataMatrix.getColumnHeaders();
+		for (int lc = 2; lc < columnHeaders.size(); lc++) {
+			if (caseIDs.isSampleId(columnHeaders.get(lc))) {
+				switch (conversionType) {
+					case TUMOR_ONLY:
+						if (caseIDs.isNormalId(columnHeaders.get(lc))) {
+							dataMatrix.ignoreColumn(lc, true);
+						}
+						break;
+					case NORMAL_ONLY:
+						if (!caseIDs.isNormalId(columnHeaders.get(lc))) {
+							dataMatrix.ignoreColumn(lc, true);
+						}
+						break;
+					default:
+						break;
+				}
+			}
+		}
+
+	}
 }

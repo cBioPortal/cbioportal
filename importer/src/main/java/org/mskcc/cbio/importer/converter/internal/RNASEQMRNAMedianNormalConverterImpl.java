@@ -41,14 +41,14 @@ import java.util.ArrayList;
 /**
  * Class which implements the Converter interface for processing rna-seq (v1) - RPKM files.
  */
-public class RNASEQMRNAMedianConverterImpl extends RNASEQV2MRNAMedianConverterImpl implements Converter {
+public class RNASEQMRNAMedianNormalConverterImpl extends RNASEQV2MRNAMedianConverterImpl implements Converter {
 
-	public RNASEQMRNAMedianConverterImpl(Config config, FileUtils fileUtils,
-										 CaseIDs caseIDs, IDMapper idMapper)
+	public RNASEQMRNAMedianNormalConverterImpl(Config config, FileUtils fileUtils,
+	                                           CaseIDs caseIDs, IDMapper idMapper)
 	{
 		super(config, fileUtils, caseIDs, idMapper,
-		      LogFactory.getLog(RNASEQMRNAMedianConverterImpl.class),
-		      ConversionType.TUMOR_ONLY);
+		      LogFactory.getLog(RNASEQMRNAMedianNormalConverterImpl.class),
+		      ConversionType.NORMAL_ONLY);
 	}
 
 	@Override

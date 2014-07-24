@@ -34,6 +34,7 @@ public class ImportDataUtil
     {
         GenericXmlApplicationContext ctx = new GenericXmlApplicationContext();
         ctx.getEnvironment().setActiveProfiles("dbcp");
+        ctx.refresh();
         ctx.load("classpath:applicationContext-business.xml");
         return ctx; 
     }

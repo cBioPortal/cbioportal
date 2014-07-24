@@ -68,8 +68,10 @@
 
         mutexTableInstance = $("#" + names.tableId).dataTable({
             "sDom": '<"H"f<"mutex-table-filter">>t<"F"ip>',
-            "bPaginate": true,
-            "sPaginationType": "two_button",
+            "bPaginate": false,
+            "sScrollY": "600px",
+            "paging": false,
+            "scrollCollapse": true,
             "bInfo": true,
             "bJQueryUI": true,
             "bAutoWidth": false,
@@ -79,24 +81,36 @@
                 {
                     "bSearchable": true,
                     "aTargets": [ index.geneA ],
-                    //"sWidth": "25%"
+                    "sWidth" : "25%"
                 },
                 {
                     "bSearchable": true,
                     "aTargets": [ index.geneB ],
-                    //"sWidth": "25%"
+                    "sWidth" : "25%"
                 },
                 {
                     "sType": 'mutex-value',
                     "bSearchable": false,
                     "aTargets": [ index.pVal ],
-                    //"sWidth": "25%"
+                    "sWidth" : "25%"
                 },
                 {
                     "sType": 'mutex-value',
                     "bSearchable": false,
+                    "sWidth" : "25%",
                     "aTargets": [ index.oddsRatio ],
-                    //"sWidth": "25%"
+                    'fnCreatedCell': function(nTd, sData, oData, iRow, iCol) {
+                        if (sData === ">3" || sData.indexOf("-") === -1) {
+                            nTd.title = "Co-occurrence";
+                        } else {
+                            nTd.title = "Mutual Exclusive";
+                        } 
+                    }
+                },
+                {
+                    "bSearchable": false,
+                    "sWidth" : "25%",
+                    "aTargets": [ index.oddsRatio ],
                     'fnCreatedCell': function(nTd, sData, oData, iRow, iCol) {
                         if (sData === ">3" || sData.indexOf("-") === -1) {
                             nTd.title = "Co-occurrence";
@@ -111,7 +125,6 @@
             },
             "bScrollCollapse": true,
             "bDeferRender": true,
-            "iDisplayLength": 30,
             "fnRowCallback": function(nRow, aData) {
                 $('td:eq(' + index.pVal + ')', nRow).css("font-weight", "bold");
                 $('td:eq(' + index.oddsRatio + ')', nRow).css("font-weight", "bold");

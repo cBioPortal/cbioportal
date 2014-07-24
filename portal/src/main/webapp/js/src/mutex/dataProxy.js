@@ -46,9 +46,14 @@ var MutexData = (function() {
 			c: 0, //+-
 			d: 0, //++
 			odds_ratio: 0,
-			p_value: 0
+			log_odds_ratio: 0,
+			p_value: 0,
+			tendency: "" //
 		},
-		dataArr = [];
+		dataArr = [],
+		settings = {
+
+		};
 
 	var processData = function() {
 		oncoprintData = PortalDataColl.getOncoprintData(); 
@@ -60,14 +65,12 @@ var MutexData = (function() {
 		var _geneArr = window.PortalGlobals.getGeneList();
 		$.each(_geneArr, function(outterIndex, outterObj) {
 			for (var innerIndex = outterIndex + 1; innerIndex < _geneArr.length; innerIndex++) {
-
 				var _geneA = _geneArr[outterIndex],
 					_geneB = _geneArr[innerIndex];
 				var _a = 0, //--
 					_b = 0, //-+
 					_c = 0, //+-
 					_d = 0; //++
-
 				//Count mutex
 				$.each(oncoprintData, function(singleCaseIndex, singleCaseObj) {
 					var _alteredGeneA = false,
@@ -124,23 +127,28 @@ var MutexData = (function() {
 					var _dataObj = dataArr[index];
 					_dataObj.p_value = parseFloat(value).toFixed(3);
 					if (_dataObj.b !== 0 && _dataObj.c !== 0) {
-						if (_dataObj.a !== 0 && _dataObj.d !== 0) {
-							if (Math.log((_dataObj.a * _dataObj.d) / (_dataObj.b * _dataObj.c)) > 3) {
-								_dataObj.odds_ratio = ">3";
-							} else if (Math.log((_dataObj.a * _dataObj.d) / (_dataObj.b * _dataObj.c)) < -3) {
-								_dataObj.odds_ratio = "<-3";
-							} else {
-								_dataObj.odds_ratio = Math.log((_dataObj.a * _dataObj.d) / (_dataObj.b * _dataObj.c)).toFixed(3);
-							}
-						} else {
-							_dataObj.odds_ratio = "<-3";
+						_dataObj.odds_ratio = (_dataObj.a * _dataObj.d) / (_dataObj.b * _dataObj.c);
+						_dataObj.log_odds_ratio = Math.log((_dataObj.a * _dataObj.d) / (_dataObj.b * _dataObj.c)).toFixed(3);
+						//categorize
+						if (0 <= _dataObj.odds_ratio < 0.1) {
+							_dataObj.tendency = "Strong tendency towards mutual exclusivity";
+						} else if (0.1 < _dataObj.odds_ratio < 0.5) {
+							_dataObj.tendency = "Tendency towards mutual exclusivity";
+						} else if (0.5 < _dataObj.odds_ratio < 2) {
+							_dataObj.tendency = "No association";
+						} else if (2 < _dataObj.odds_ratio < 10) {
+							_dataObj.tendency = "Tendency toward co-occurrence";
+						} else if (10 < _dataObj.odds_ratio) {
+							_dataObj.tendency = "Strong tendendency towards co-occurrence";
 						}
 					} else {
-						_dataObj.odds_ratio = "--";
+						_dataObj.odds_ratio = "--"; 
+						_dataObj.log_odds_ratio = "--"; 
 					}
 				});
 			}
-			MutexView.init();
+			console.log(dataArr);
+			//MutexView.init();
 		});
 	}
 

@@ -34,8 +34,9 @@ public abstract class ConverterBaseImpl
         }
     }
 
-    protected void filterColumnsBySampleType(CaseIDs caseIDs, DataMatrix dataMatrix, ConversionType conversionType)
+    protected int filterColumnsBySampleType(CaseIDs caseIDs, DataMatrix dataMatrix, ConversionType conversionType)
 	{
+		int columnsIgnored = 0;
 		List<String> columnHeaders = dataMatrix.getColumnHeaders();
 		for (int lc = 2; lc < columnHeaders.size(); lc++) {
 			if (caseIDs.isSampleId(columnHeaders.get(lc))) {
@@ -43,11 +44,13 @@ public abstract class ConverterBaseImpl
 					case TUMOR_ONLY:
 						if (caseIDs.isNormalId(columnHeaders.get(lc))) {
 							dataMatrix.ignoreColumn(lc, true);
+							++columnsIgnored;
 						}
 						break;
 					case NORMAL_ONLY:
 						if (!caseIDs.isNormalId(columnHeaders.get(lc))) {
 							dataMatrix.ignoreColumn(lc, true);
+							++columnsIgnored;
 						}
 						break;
 					default:
@@ -55,6 +58,6 @@ public abstract class ConverterBaseImpl
 				}
 			}
 		}
-
+		return columnsIgnored;
 	}
 }

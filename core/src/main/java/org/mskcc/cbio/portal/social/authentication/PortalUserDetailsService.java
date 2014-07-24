@@ -51,10 +51,15 @@ public class PortalUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(username), "A username is required");
         if (log.isDebugEnabled()) {
-            log.debug("loadUserDetails(), attempting to fetch portal user, email: " + username);
+            log.debug("loadUserByUsername(), attempting to fetch portal user, email: " + username);
         }
         SocialUserDetails toReturn = null;
-        User user = portalUserDAO.getPortalUser(username);
+        User user = null;
+        try {
+            user = portalUserDAO.getPortalUser(username);
+        } catch (Exception e ){
+            log.debug("User " +username +" was not found in the cbio users table");
+        }
         if (user != null && user.isEnabled()) {
             if (log.isDebugEnabled()) {
                 log.debug("loadUserByUsername(), attempting to fetch portal user authorities, username: " + username);
@@ -67,19 +72,21 @@ public class PortalUserDetailsService implements UserDetailsService {
                 toReturn = new SocialUserDetails(username, grantedAuthorities);
                 toReturn.setEmail(user.getEmail());
                 toReturn.setName(user.getName());
+             
+                
             }
         }
 
     // outta here
     if (toReturn == null) {
-            if (log.isDebugEnabled()) {
-            log.debug("loadUserByUsername(), user and/or user authorities is null, user name: " +username);
-        }
+           
+        log.debug("loadUserByUsername(), user and/or user authorities is null, user name: " +username);
+        
         throw new UsernameNotFoundException("Error:  Unknown user or account disabled");
     }    
         else {
             if (log.isDebugEnabled()) {
-            log.debug("loadUserDetails(), successfully authenticated user, user name: " + username);
+            log.debug("loadUserByUsername(), successfully authenticated user, user name: " + username);
         }
         return toReturn;
     }

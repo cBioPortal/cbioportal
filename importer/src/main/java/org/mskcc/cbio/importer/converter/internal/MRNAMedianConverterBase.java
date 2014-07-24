@@ -87,15 +87,20 @@ public abstract class MRNAMedianConverterBase extends ConverterBaseImpl implemen
 
 		// filter out tumor or sample data as required
 		logMessage(LOG, "createStagingFile(), filtering columns by sample type.");
-		filterColumnsBySampleType(caseIDs, dataMatrix, conversionType);
+		int columnsIgnored = filterColumnsBySampleType(caseIDs, dataMatrix, conversionType);
 
-		// we need to write out the file
-		logMessage(LOG, "createStagingFile(), writing staging file.");
-		fileUtils.writeStagingFile(portalMetadata.getStagingDirectory(), cancerStudyMetadata, datatypeMetadata, dataMatrix);
+		if (columnsIgnored == dataMatrix.getColumnHeaders().size()-2) {
+			logMessage(LOG, "createStagingFile(), all columns ignored, skipping staging file creation.");
+		} 
+		else {
+			// we need to write out the file
+			logMessage(LOG, "createStagingFile(), writing staging file.");
+			fileUtils.writeStagingFile(portalMetadata.getStagingDirectory(), cancerStudyMetadata, datatypeMetadata, dataMatrix);
 
-		if (datatypeMetadata.requiresMetafile()){
-			logMessage(LOG, "createStagingFile(), writing metadata file.");
-			fileUtils.writeMetadataFile(portalMetadata.getStagingDirectory(), cancerStudyMetadata, datatypeMetadata, dataMatrix);
+			if (datatypeMetadata.requiresMetafile()){
+				logMessage(LOG, "createStagingFile(), writing metadata file.");
+				fileUtils.writeMetadataFile(portalMetadata.getStagingDirectory(), cancerStudyMetadata, datatypeMetadata, dataMatrix);
+			}	
 		}	
 
 		logMessage(LOG, "createStagingFile(), complete.");

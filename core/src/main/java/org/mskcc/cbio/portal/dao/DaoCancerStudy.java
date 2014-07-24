@@ -19,7 +19,7 @@
 package org.mskcc.cbio.portal.dao;
 
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.util.ImportDataUtil;
+//import org.mskcc.cbio.portal.util.ImportDataUtil;
 
 import java.sql.*;
 import java.util.ArrayList;

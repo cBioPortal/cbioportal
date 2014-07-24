@@ -1,3 +1,4 @@
+<%@ page import="org.mskcc.cbio.portal.util.DynamicState" %>
 <%@ taglib prefix='c' uri='http://java.sun.com/jsp/jstl/core' %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <?xml version="1.0" encoding="utf-8"?>
@@ -35,7 +36,9 @@
     <% if (login_error != null) { %>
         <div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em;width:90%;margin-top:50px">
             <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-            <strong>You are not authorized to access this resource. If you think you have received this
+            <strong>You are not authorized to access this resource. 
+            You have attempted to log in as <%= DynamicState.INSTANCE.getCurrentUser() %>.
+            If you think you have received this
             message in error, please contact us at
             <a style="color:#FF0000" href="mailto:cbioportal@cbio.mskcc.org">cbioportal@cbio.mskcc.org</a>
            

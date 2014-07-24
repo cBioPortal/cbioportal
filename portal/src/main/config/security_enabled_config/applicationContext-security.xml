@@ -124,6 +124,7 @@
         <intercept-url pattern="/clinicalAttributes.json*" access="isAuthenticated()"/>
         <intercept-url pattern="/clinical_timeline_data.json*" access="isAuthenticated()"/>
         <intercept-url pattern="/tools.jsp*" access="isAuthenticated()"/>
+        <intercept-url pattern="/oncoprinter.jsp*" access="isAuthenticated()"/>
         <intercept-url pattern="/echofile*" access="isAuthenticated()"/>
         <intercept-url pattern="/getGeneticProfile.json*" access="isAuthenticated()"/>
         <intercept-url pattern="/getProfileData.json*" access="isAuthenticated()"/>

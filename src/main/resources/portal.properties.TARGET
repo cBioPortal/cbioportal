@@ -2,6 +2,7 @@
 app.name=target-portal
 app.version=1.0
 
+
 # Database Settings
 db.user=
 db.password=
@@ -57,6 +58,11 @@ authenticate=true
 authorization=true
 include_networks=true
 google_analytics_profile_id=
+
+
+#Google+
+googleplus.consumer.key=
+googleplus.consumer.secret=
 
 faq=faq_target.html
 about=about_us_target.html

@@ -16,9 +16,10 @@
 */
 
 // package
-package org.mskcc.cbio.portal.openIDlogin;
+package org.mskcc.cbio.portal.social.authentication;
 
 // imports
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
@@ -35,7 +36,7 @@ import java.util.Collection;
  *
  * @author Benjamin Gross
  */
-public class OpenIDUserDetails extends User {
+public class SocialUserDetails extends User {
 
     private String email;
     private String name;
@@ -49,7 +50,7 @@ public class OpenIDUserDetails extends User {
 	 * Username is what is presented to the authentication provider.
 	 * Authorities is what should  be granted to the caller.
 	 */
-    public OpenIDUserDetails(String username, Collection<GrantedAuthority> authorities) {
+    public SocialUserDetails(String username, Collection<GrantedAuthority> authorities) {
         super(username, "unused", authorities);
     }
 

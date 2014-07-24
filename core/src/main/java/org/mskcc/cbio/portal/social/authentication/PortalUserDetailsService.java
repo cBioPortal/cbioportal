@@ -13,6 +13,7 @@ import org.apache.commons.logging.LogFactory;
 import org.mskcc.cbio.portal.dao.PortalUserDAO;
 import org.mskcc.cbio.portal.model.User;
 import org.mskcc.cbio.portal.model.UserAuthorities;
+import org.mskcc.cbio.portal.util.DynamicState;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -50,6 +51,9 @@ public class PortalUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(username), "A username is required");
+        // set the username into the global state so other components can find out who
+        // logged in or tried to log in most recently
+        DynamicState.INSTANCE.setCurrentUser(username);
         if (log.isDebugEnabled()) {
             log.debug("loadUserByUsername(), attempting to fetch portal user, email: " + username);
         }

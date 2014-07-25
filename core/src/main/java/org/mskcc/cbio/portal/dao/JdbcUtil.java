@@ -91,7 +91,7 @@ public class JdbcUtil {
         try {
             ds = (DataSource)ctx.getBean("businessDataSource");
         }
-        catch (BeanCreationException e) {
+        catch (Exception e) {
             logMessage("Problem creating jndi datasource, opening dbcp datasource.");
             ctx = getContext("dbcp");
             ds = (DataSource)ctx.getBean("businessDataSource");
@@ -106,6 +106,7 @@ public class JdbcUtil {
     {
         GenericXmlApplicationContext ctx = new GenericXmlApplicationContext();
         ctx.getEnvironment().setActiveProfiles(profile);
+        ctx.refresh();
         ctx.load("classpath:applicationContext-business.xml");
         return ctx; 
     }

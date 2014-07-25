@@ -535,7 +535,8 @@ var PieChart = function(){
                 $("#"+DIV.chartDiv+"-pie-icon").css('display', 'block');
                 $("#"+DIV.chartDiv+"-table-icon").css('display', 'none');
                 $("#"+DIV.mainDiv + " .study-view-pie-label").css('display','block');
-                labelTable.fnAdjustColumnSizing();
+                if (labelTable)
+                    labelTable.fnAdjustColumnSizing();
             });
         });
         $("#"+DIV.chartDiv+"-pie-icon").click(function() {

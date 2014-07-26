@@ -58,11 +58,11 @@
     <http pattern="/js/**" security="none"/>
     <http pattern="/gfx/**" security="none"/>
 
-
     <!-- Google+ required reference to authentication entry point  -->
     <http  entry-point-ref="authenticationEntryPoint" use-expressions="true">  
         <intercept-url pattern="/auth/*" access="permitAll"/>  
          <intercept-url pattern="/login.jsp*" access="permitAll"/>
+         <!--<intercept-url pattern="/api/**" access="permitAll"/>--> <!-- need to figure this out -->
         <intercept-url pattern="/monitoring*" access="isAuthenticated()"/>
         <intercept-url pattern="/video.jsp" access="isAuthenticated()"/>
         <intercept-url pattern="/news.jsp" access="isAuthenticated()"/>

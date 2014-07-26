@@ -2,8 +2,8 @@
 <jsp:include page="global/header.jsp" flush="true" />
 
 <%
-    String smry = cancerStudyName +
-            "/" + patientSetName + ": (" +
+    String smry = "<a href=\"study.do?cancer_study_id="+cancerTypeId+"\">"+cancerStudyName +
+            "</a>/" + patientSetName + ": (" +
             mergedPatientListSize + ")" + "/" +
             geneSetName + "/" + geneWithScoreList.size() +
             (geneWithScoreList.size() == 1?"gene":"genes");

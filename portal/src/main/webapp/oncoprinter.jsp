@@ -17,6 +17,21 @@
         height: 18px;
         border-radius: 9px;
     }
+    .tooltip-sample{
+    display:none;
+    background-color:white;
+    position:absolute;
+    border:1px solid red;
+    border-radius: 5px;
+    padding:5px;
+    top:-30px;
+    left:20px;
+    width: 200px;
+    }
+    
+    .sample-download:hover .tooltip-sample{
+    display:block;
+    }
 </style>
 
 <link href="css/bootstrap.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
@@ -126,11 +141,19 @@
         <span>
         <button class="oncoprint-download" type="pdf" style="display:inline;font-size: 13px; width: 50px;">PDF</button>
         <button class="oncoprint-download" type="svg" style="display:inline;font-size: 13px; width: 50px;">SVG</button>
-        <button title="Download the list of samples, sorted in the order in which they are displayed in OncoPrint(left to right)" class="sample-download" type="txt" style="display:inline;font-size: 13px; width: 75px;">SAMPLES</button>
+        <button class="sample-download" type="txt" style="display:inline;font-size: 13px; width: 75px;">SAMPLES</button>
         </span>
     </div>
 </div>
-
+        <script type="text/javascript"> 
+               $('.sample-download').qtip({
+                content: {text: 'Download the list of samples, sorted in the order in which they are displayed in the OncoPrint(left to right)'},
+                position: {my:'left bottom', at:'top right', viewport: $(window)},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                show: {event: "mouseover"},
+                hide: {fixed: true, delay: 100, event: "mouseout"}
+            });
+        </script>
 </div>
 </td>
 </tr>

@@ -60,8 +60,8 @@
             "<thead style='font-size:70%'>" +
             "<th>Gene A</th>" +
             "<th>Gene B</th>" +
-            "<th>p-Value</th>" + 
-            "<th>Log Odds Ratio</th>" +
+            "<th>p-Value<img src='images/help.png' id='p-value-help'></th>" + 
+            "<th>Log Odds Ratio<img src='images/help.png' id='odds-ratio-help'></th>" +
             "<th>Tendency</th>" + 
             "</thead>" +
             "<tbody></tbody>" + 
@@ -92,13 +92,13 @@
                     "sWidth": "100px"
                 },
                 {
-                    "sType": 'mutex-value',
+                    "sType": 'mutex-p-value',
                     "bSearchable": false,
                     "aTargets": [ index.pVal ],
                     "sWidth": "150px"
                 },
                 {
-                    "sType": 'mutex-value',
+                    "sType": 'mutex-odds-ratio',
                     "bSearchable": false,
                     "aTargets": [ index.oddsRatio ],
                     "sWidth": "150px"
@@ -118,7 +118,7 @@
                 } else if (aData[index.oddsRatio] > 0 || aData[index.oddsRatio] === ">3") {
                     $('td:eq(' + index.oddsRatio + ')', nRow).css("color", colorCode.coocOddsRatio);
                 }
-                if (aData[index.pVal] < 0.05) { //significate p value
+                if (aData[index.pVal] < 0.05 || aData[index.pVal] === "<0.001") { //significate p value
                     $('td:eq(' + index.pVal + ')', nRow).css("font-weight", "bold");
                     $('td:eq(' + index.pVal + ')', nRow).css("color", colorCode.sigPVal);
                 }
@@ -141,7 +141,7 @@
     }
 
     function overWriteFilters() {
-        jQuery.fn.dataTableExt.oSort['mutex-value-desc'] = function(a,b) {
+        jQuery.fn.dataTableExt.oSort['mutex-odds-ratio-desc'] = function(a,b) {
             if (a == "<-3") { a = -3 };
             if (b == "<-3") { b = -3 };
             if (a == ">3") { a = 3 };
@@ -150,11 +150,25 @@
             else if (a < b) return 1;
             else return 0;
         };
-        jQuery.fn.dataTableExt.oSort['mutex-value-asc'] = function(a,b) {
+        jQuery.fn.dataTableExt.oSort['mutex-odds-ratio-asc'] = function(a,b) {
             if (a == "<-3") { a = -3 };
             if (b == "<-3") { b = -3 };
             if (a == ">3") { a = 3 };
             if (b == ">3") { b = 3 };
+            if (a > b) return 1;
+            else if (a < b) return -1;
+            else return 0;
+        };
+        jQuery.fn.dataTableExt.oSort['mutex-p-value-desc'] = function(a,b) {
+            if (a == "<0.001") { a = 0.0009 };
+            if (b == "<0.001") { b = 0.0009 };
+            if (a > b) return -1;
+            else if (a < b) return 1;
+            else return 0;
+        };
+        jQuery.fn.dataTableExt.oSort['mutex-p-value-asc'] = function(a,b) {
+            if (a == "<0.001") { a = 0.0009 };
+            if (b == "<0.001") { b = 0.0009 };
             if (a > b) return 1;
             else if (a < b) return -1;
             else return 0;
@@ -194,6 +208,20 @@
             overWriteFilters();
  			configTable();
             attachFilter();
+            $("#odds-ratio-help").qtip({
+                content: { text:'Log odds ratio > 0 : Tendency towards co-occurrence <br>Log odds ratio < 0 : Tendency towards mutual exclusivity'},
+                style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
+                show: {event: "mouseover"},
+                hide: {fixed:true, delay: 100, event: "mouseout"},
+                position: {my:'left bottom',at:'top right',viewport: $(window)}
+            })  
+            $("#p-value-help").qtip({
+                content: { text:'Drived from Fisher Exact Test'},
+                style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
+                show: {event: "mouseover"},
+                hide: {fixed:true, delay: 100, event: "mouseout"},
+                position: {my:'left bottom',at:'top right',viewport: $(window)}
+            })  
   		}
  	}
  }());

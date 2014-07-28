@@ -125,7 +125,12 @@ var MutexData = (function() {
 			if (result.split(" ").length === dataArr.length) {
 				$.each(result.split(" "), function(index, value) {
 					var _dataObj = dataArr[index];
+					
 					_dataObj.p_value = parseFloat(value).toFixed(3);
+					if (_dataObj.p_value === "0.000") {
+						_dataObj.p_value = "<0.001";
+					}
+
 					if (_dataObj.b !== 0 && _dataObj.c !== 0) {
 						_dataObj.odds_ratio = (_dataObj.a * _dataObj.d) / (_dataObj.b * _dataObj.c);
 						
@@ -156,7 +161,6 @@ var MutexData = (function() {
 					}
 				});
 			}
-			console.log(dataArr);
 			MutexView.init();
 		});
 	}

@@ -128,15 +128,24 @@ var MutexData = (function() {
 					_dataObj.p_value = parseFloat(value).toFixed(3);
 					if (_dataObj.b !== 0 && _dataObj.c !== 0) {
 						_dataObj.odds_ratio = (_dataObj.a * _dataObj.d) / (_dataObj.b * _dataObj.c);
-						_dataObj.log_odds_ratio = Math.log((_dataObj.a * _dataObj.d) / (_dataObj.b * _dataObj.c)).toFixed(3);
+						
+						//Omit the real value of log 
+						_dataObj.log_odds_ratio = Math.log(_dataObj.odds_ratio).toFixed(3);
+						if (_dataObj.log_odds_ratio < -3 || _dataObj.log_odds_ratio === "-Infinity") {
+							_dataObj.log_odds_ratio = "<-3";
+						} else if (_dataObj.log_odds_ratio > 3) {
+							_dataObj.log_odds_ratio = ">3";
+						}
+
+						console.log(_dataObj.odds_ratio);
 						//categorize
-						if (0 <= _dataObj.odds_ratio < 0.1) {
+						if (0 <= _dataObj.odds_ratio && _dataObj.odds_ratio < 0.1) {
 							_dataObj.tendency = "Strong tendency towards mutual exclusivity";
-						} else if (0.1 < _dataObj.odds_ratio < 0.5) {
+						} else if (0.1 < _dataObj.odds_ratio && _dataObj.odds_ratio < 0.5) {
 							_dataObj.tendency = "Tendency towards mutual exclusivity";
-						} else if (0.5 < _dataObj.odds_ratio < 2) {
+						} else if (0.5 < _dataObj.odds_ratio && _dataObj.odds_ratio< 2) {
 							_dataObj.tendency = "No association";
-						} else if (2 < _dataObj.odds_ratio < 10) {
+						} else if (2 < _dataObj.odds_ratio && _dataObj.odds_ratio < 10) {
 							_dataObj.tendency = "Tendency toward co-occurrence";
 						} else if (10 < _dataObj.odds_ratio) {
 							_dataObj.tendency = "Strong tendendency towards co-occurrence";
@@ -148,7 +157,7 @@ var MutexData = (function() {
 				});
 			}
 			console.log(dataArr);
-			//MutexView.init();
+			MutexView.init();
 		});
 	}
 

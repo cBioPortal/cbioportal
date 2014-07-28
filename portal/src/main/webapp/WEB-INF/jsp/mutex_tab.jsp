@@ -12,7 +12,7 @@
 <script type="text/javascript" src="js/src/mutex/view.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <div class="section" id="mutex" class="mutex">
-    <div id='mutex-wrapper' style='width: 600px; margin-top: 20px; margin-left: 20px;'>
+    <div id='mutex-wrapper' style='width: 1000px; margin-top: 20px; margin-left: 20px;'>
         <div id='mutex-header'>
             Co-occurrence and mutual exclusivity for all gene pairs:
             For each gene pair, this table lists the odds ratio<img src='images/help.png' id='odds-ratio-help'> and p-Values<img src='images/help.png' id='p-value-help'> for the observed co-occurrence in the queried data set.

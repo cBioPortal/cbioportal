@@ -45,7 +45,8 @@
             geneA : 0,
             geneB : 1,
             pVal : 2,
-            oddsRatio : 3
+            oddsRatio : 3,
+            tendency: 4
         },
         colorCode = {
             mutexOddsRatio: "#339999",
@@ -61,17 +62,19 @@
             "<th>Gene B</th>" +
             "<th>p-Value</th>" + 
             "<th>Log Odds Ratio</th>" +
+            "<th>Tendency</th>" + 
             "</thead>" +
             "<tbody></tbody>" + 
             "</table>"
         );
 
         mutexTableInstance = $("#" + names.tableId).dataTable({
-            "sDom": '<"H"f<"mutex-table-filter">>t<"F"ip>',
+            "sDom": '<"H"f<"mutex-table-filter">>t<"F"i>',
             "bPaginate": false,
             "sScrollY": "600px",
             "paging": false,
             "scrollCollapse": true,
+            "bScrollCollapse": true,
             "bInfo": true,
             "bJQueryUI": true,
             "bAutoWidth": false,
@@ -81,59 +84,42 @@
                 {
                     "bSearchable": true,
                     "aTargets": [ index.geneA ],
-                    "sWidth" : "25%"
+                    "sWidth": "100px"
                 },
                 {
                     "bSearchable": true,
                     "aTargets": [ index.geneB ],
-                    "sWidth" : "25%"
+                    "sWidth": "100px"
                 },
                 {
                     "sType": 'mutex-value',
                     "bSearchable": false,
                     "aTargets": [ index.pVal ],
-                    "sWidth" : "25%"
+                    "sWidth": "150px"
                 },
                 {
                     "sType": 'mutex-value',
                     "bSearchable": false,
-                    "sWidth" : "25%",
                     "aTargets": [ index.oddsRatio ],
-                    'fnCreatedCell': function(nTd, sData, oData, iRow, iCol) {
-                        if (sData === ">3" || sData.indexOf("-") === -1) {
-                            nTd.title = "Co-occurrence";
-                        } else {
-                            nTd.title = "Mutual Exclusive";
-                        } 
-                    }
+                    "sWidth": "150px"
                 },
                 {
                     "bSearchable": false,
-                    "sWidth" : "25%",
-                    "aTargets": [ index.oddsRatio ],
-                    'fnCreatedCell': function(nTd, sData, oData, iRow, iCol) {
-                        if (sData === ">3" || sData.indexOf("-") === -1) {
-                            nTd.title = "Co-occurrence";
-                        } else {
-                            nTd.title = "Mutual Exclusive";
-                        } 
-                    }
+                    "aTargets": [ index.tendency ],
+                    "sWidth": "500px"
                 }
             ],
             "oLanguage": {
                 "sSearch": "Search Gene"
             },
-            "bScrollCollapse": true,
-            "bDeferRender": true,
             "fnRowCallback": function(nRow, aData) {
-                $('td:eq(' + index.pVal + ')', nRow).css("font-weight", "bold");
-                $('td:eq(' + index.oddsRatio + ')', nRow).css("font-weight", "bold");
                 if (aData[index.oddsRatio] < 0 || aData[index.oddsRatio] === "<-3") { //significate odds ratio value
                     $('td:eq(' + index.oddsRatio + ')', nRow).css("color", colorCode.mutexOddsRatio);
                 } else if (aData[index.oddsRatio] > 0 || aData[index.oddsRatio] === ">3") {
                     $('td:eq(' + index.oddsRatio + ')', nRow).css("color", colorCode.coocOddsRatio);
                 }
                 if (aData[index.pVal] < 0.05) { //significate p value
+                    $('td:eq(' + index.pVal + ')', nRow).css("font-weight", "bold");
                     $('td:eq(' + index.pVal + ')', nRow).css("color", colorCode.sigPVal);
                 }
             }
@@ -142,12 +128,13 @@
 
     function convertData() {
     	$.each(MutexData.getDataArr(), function(index, obj){
-            if (obj.odds_ratio !== "--") {
+            if (obj.log_odds_ratio !== "--") {
                 var _arr = [];
                 _arr.push(obj.geneA);
                 _arr.push(obj.geneB);            
                 _arr.push(obj.p_value);
-                _arr.push(obj.odds_ratio);
+                _arr.push(obj.log_odds_ratio);
+                _arr.push(obj.tendency);
                 mutexTableDataArr.push(_arr);       
             }
     	});
@@ -184,11 +171,11 @@
             "</select>");
         $("select#mutex-table-filter-select").change(function () {
             if ($(this).val() === "mutex") {
-                mutexTableInstance.fnFilter("-", 3, false);
+                mutexTableInstance.fnFilter("-", index.oddsRatio, false);
             } else if ($(this).val() === "cooccur") {
-                mutexTableInstance.fnFilter('^[+]?([1-9][0-9]*(?:[\.][0-9]*)?|0*\.0*[1-9][0-9]*)(?:[eE][+-][0-9]+)?$', 3, true);
+                mutexTableInstance.fnFilter('^[+]?([1-9][0-9]*(?:[\.][0-9]*)?|0*\.0*[1-9][0-9]*)(?:[eE][+-][0-9]+)?$', index.oddsRatio, true);
             } else if ($(this).val() === "all") {
-                mutexTableInstance.fnFilter("", 3);
+                mutexTableInstance.fnFilter("", index.oddsRatio);
             }
         });
         mutexTableInstance.$('td').qtip({

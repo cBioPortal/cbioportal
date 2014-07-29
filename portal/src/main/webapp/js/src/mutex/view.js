@@ -199,7 +199,32 @@
             hide: {fixed:true, delay: 10, event: "mouseout"},
             position: {my:'left bottom',at:'top right',viewport: $(window), adjust: {x: -150, y: 10}}
         })
-    }      
+    }   
+
+    function addHeaderQtips() {
+        $("#odds-ratio-help").qtip({
+            content: { text:'Log odds ratio > 0 : Tendency towards co-occurrence <br>Log odds ratio < 0 : Tendency towards mutual exclusivity'},
+            style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
+            show: {event: "mouseover"},
+            hide: {fixed:true, delay: 100, event: "mouseout"},
+            position: {my:'left bottom',at:'top right',viewport: $(window)}
+        });  
+        $("#p-value-help").qtip({
+            content: { text:'Drived from Fisher Exact Test'},
+            style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
+            show: {event: "mouseover"},
+            hide: {fixed:true, delay: 100, event: "mouseout"},
+            position: {my:'left bottom',at:'top right',viewport: $(window)}
+        });  
+    }
+
+    function addStatInfo() {
+        var _stat = MutexData.getDataStat();
+        $("#num_of_mutex").append(_stat.num_of_mutex);
+        $("#num_of_sig_mutex").append(_stat.num_of_sig_mutex);
+        $("#num_of_co_oc").append(_stat.num_of_co_oc);
+        $("#num_of_sig_co_oc").append(_stat.num_of_sig_co_oc);
+    }
 
  	return {
  		init: function() {
@@ -208,20 +233,8 @@
             overWriteFilters();
  			configTable();
             attachFilter();
-            $("#odds-ratio-help").qtip({
-                content: { text:'Log odds ratio > 0 : Tendency towards co-occurrence <br>Log odds ratio < 0 : Tendency towards mutual exclusivity'},
-                style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
-                show: {event: "mouseover"},
-                hide: {fixed:true, delay: 100, event: "mouseout"},
-                position: {my:'left bottom',at:'top right',viewport: $(window)}
-            })  
-            $("#p-value-help").qtip({
-                content: { text:'Drived from Fisher Exact Test'},
-                style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
-                show: {event: "mouseover"},
-                hide: {fixed:true, delay: 100, event: "mouseout"},
-                position: {my:'left bottom',at:'top right',viewport: $(window)}
-            })  
+            addHeaderQtips();
+            addStatInfo();
   		}
  	}
  }());

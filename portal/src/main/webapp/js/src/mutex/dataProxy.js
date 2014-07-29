@@ -51,8 +51,11 @@ var MutexData = (function() {
 			tendency: "" //
 		},
 		dataArr = [],
-		settings = {
-
+		stat = { //Simple statistics of the result
+			num_of_co_oc: 0, //number of co-occurance
+			num_of_sig_co_oc: 0, //number of significant co-occurance (p value < 0.05)
+			num_of_mutex: 0, //number of mutual exclusive
+			num_of_sig_mutex: 0 //number of significant mutual exclusive (p value < 0.05)
 		};
 
 	var processData = function() {
@@ -142,7 +145,6 @@ var MutexData = (function() {
 							_dataObj.log_odds_ratio = ">3";
 						}
 
-						console.log(_dataObj.odds_ratio);
 						//categorize
 						if (0 <= _dataObj.odds_ratio && _dataObj.odds_ratio < 0.1) {
 							_dataObj.tendency = "Strong tendency towards mutual exclusivity";
@@ -161,8 +163,29 @@ var MutexData = (function() {
 					}
 				});
 			}
-			MutexView.init();
+			buildStat();
 		});
+	}
+
+	function buildStat() {
+		$.each(dataArr, function(index, obj) {
+			if (obj.log_odds_ratio > 0 ||
+				obj.log_odds_ratio === ">3") {
+				stat.num_of_co_oc += 1;
+				if (obj.p_value === "<0.001" ||
+					obj.p_value < 0.05) {
+					stat.num_of_sig_co_oc += 1;
+				}		
+			} else if (obj.log_odds_ratio < 0 ||
+				obj.log_odds_ratio === "<-3") {
+				stat.num_of_mutex += 1;
+				if (obj.p_value === "<0.001" ||
+					obj.p_value < 0.05) {
+					stat.num_of_sig_mutex += 1;
+				}		
+			}
+		});
+		MutexView.init();
 	}
 
 	return {
@@ -171,6 +194,9 @@ var MutexData = (function() {
 		},
 		getDataArr: function() {
 			return dataArr;
+		},
+		getDataStat: function() {
+			return stat;
 		}
 	}
 

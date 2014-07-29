@@ -16,6 +16,10 @@
         <div id='mutex-loading-image'>
             <img style='padding:200px;' src='images/ajax-loader.gif'>
         </div>
+        <div id="mutex-info-div">
+            <p>Gene set has <span id='num_of_mutex'></span> pairs of mutual exclusive (<span id='num_of_sig_mutex'></span> significant<img src='images/help.png' id='mutex-stat-sig-help'>),
+            and <span id='num_of_co_oc'></span> pairs of co-occurance (<span id='num_of_sig_co_oc'></span> significant).</p>
+        </div>
         <div id="mutex-table-div" style='margin-top:10px;'></div>
     </div>
 </div>
@@ -25,7 +29,13 @@
     $(document).ready( function() {
         MutexData.init();
     });
-   
+    $("#mutex-stat-sig-help").qtip({
+        content: { text:'p value < 0.05'},
+        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
+        show: {event: "mouseover"},
+        hide: {fixed:true, delay: 100, event: "mouseout"},
+        position: {my:'left bottom',at:'top right',viewport: $(window)}
+    });  
 </script>
 
 <style type="text/css">

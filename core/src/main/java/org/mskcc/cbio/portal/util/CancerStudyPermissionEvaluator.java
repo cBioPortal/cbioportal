@@ -19,24 +19,18 @@
 package org.mskcc.cbio.portal.util;
 
 // imports
-import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.openIDlogin.OpenIDUserDetails;
-import org.mskcc.cbio.portal.util.AccessControl;
-
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.access.PermissionEvaluator;
-import org.springframework.security.core.authority.AuthorityUtils;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.util.Set;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.mskcc.cbio.portal.model.CancerStudy;
+import org.springframework.security.access.PermissionEvaluator;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.social.security.SocialUser;
 
-import org.mskcc.cbio.portal.util.GlobalProperties;
 
 /**
  * A custom PermissionEvaluator implementation that checks whether a
@@ -55,6 +49,7 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 	 * Implementation of {@code PermissionEvaluator}.
 	 * We do not support this method call.
 	 */
+        @Override
 	public boolean hasPermission(Authentication authentication, Serializable targetId,
 								 String targetType, Object permission) {
 		throw new UnsupportedOperationException();
@@ -91,16 +86,14 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 				return false;
 			}
 
-			UserDetails userDetails = (UserDetails)authentication.getPrincipal();
-			if (userDetails != null && userDetails instanceof OpenIDUserDetails) {
-				return hasPermission(cancerStudy, (OpenIDUserDetails)userDetails);
+			SocialUser socialUser = (SocialUser) authentication.getPrincipal();
+			if (socialUser != null && socialUser instanceof SocialUser) {
+				return hasPermission(cancerStudy, socialUser);
 			}
 			else {
 				return false;
 			}
-		}
-		// users do not have to be authorized
-		else {
+		}		else {
 			if (log.isDebugEnabled()) {
 				log.debug("hasPermission(), authorization is false, returning true...");
 			}
@@ -109,13 +102,13 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 	}
 
 	/**
-	 * Helpher function to determine if given user has access to given cancer study.
+	 * Helper function to determine if given user has access to given cancer study.
 	 *
 	 * @param stableStudyID String
-	 * @param user OpenIDUserDetails
+	 * @param user SocialUserDetails
 	 * @return boolean
 	 */
-	private boolean hasPermission(CancerStudy cancerStudy, OpenIDUserDetails user) {
+	private boolean hasPermission(CancerStudy cancerStudy, SocialUser user) {
 
 		/*
 		  boolean publicStudy = cancerStudy.isPublicStudy();
@@ -141,7 +134,7 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 
 		if (log.isDebugEnabled()) {
 			log.debug("hasPermission(), cancer study stable id: " + stableStudyID);
-			log.debug("hasPermission(), user: " + user.getEmail());
+			log.debug("hasPermission(), user: " + user.getUsername());
 			for (String authority : grantedAuthorities) {
 				log.debug("hasPermission(), authority: " + authority);
 			}
@@ -201,10 +194,10 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 		return toReturn;
 	}
         
-        private Set<String> getGrantedAuthorities(OpenIDUserDetails user) {
+        private Set<String> getGrantedAuthorities(SocialUser user) {
             String appName = GlobalProperties.getAppName().toUpperCase();
             Set<String> allAuthorities = AuthorityUtils.authorityListToSet(user.getAuthorities());
-            Set<String> grantedAuthorities = new HashSet<String>();
+            Set<String> grantedAuthorities = new HashSet<>();
             for (String au : allAuthorities) {
                 if (au.toUpperCase().startsWith(appName+":")) {
                     grantedAuthorities.add(au.substring(appName.length()+1));

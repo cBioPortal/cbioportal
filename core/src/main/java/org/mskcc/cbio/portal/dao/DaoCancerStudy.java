@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang.StringUtils;
+import org.mskcc.cbio.portal.util.ImportDataUtil;
 
 /**
  * Analogous to and replaces the old DaoCancerType. A CancerStudy has a NAME and

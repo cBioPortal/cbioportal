@@ -6,14 +6,10 @@ This code is licenced under the New BSD License.
 */
 
 var providers_large = {
-    google: {
-        name: 'Google',
-        url: 'https://www.google.com/accounts/o8/id'
-    },
-    openid: {
-        name: 'OpenID',     
-        label: 'Enter your OpenID.',
-        url: null
+  
+    googleplus: {
+        name: 'GooglePlus',
+        url: 'http://localhost:8080/gdac-portal/auth/google'
     }
 };
 
@@ -45,7 +41,7 @@ var openid = {
         // add box for each provider
         for (id in providers_large) {
         
-           	openid_btns.append(this.getBoxHTML(providers_large[id], 'large', '.gif'));
+           	openid_btns.append(this.getBoxHTML(providers_large[id], 'large', '.jpeg'));
         }
 
         $('#openid_form').submit(this.submit);
@@ -84,7 +80,7 @@ var openid = {
 		
 		this.provider_id = box_id;
 		this.provider_url = provider['url'];
-		
+                
 		// prompt user for input?
 		if (provider['label']) {
 			this.useInputBox(provider);
@@ -97,12 +93,13 @@ var openid = {
     },
     /* Sign-in button click */
     submit: function() {
-        
     	var url = openid.provider_url; 
+        /*
     	if (url) {
     		url = url.replace('{username}', $('#openid_username').val());
     		openid.setOpenIdUrl(url);
     	}
+        */
     	if(openid.ajaxHandler) {
     		openid.ajaxHandler(openid.provider_id, document.getElementById(openid.input_id).value);
     		return false;

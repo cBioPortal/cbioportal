@@ -1030,8 +1030,11 @@
                       title='Show more mutations of this patient'>Show all "
                         +numAll+" mutations</a>");
                 $('.mutation-show-more').addClass('datatable-show-more');
-                $('.mutation-summary-table-name').html(
-                    "Mutations of interest"
+                var mutationSummary;
+                if (numAll===numFiltered) {
+                    mutationSummary = ""+numAll+" mutations";
+                } else {
+                    mutationSummary = "Mutations of interest"
                      +(numAll==0?"":(" ("
                         +numFiltered
                         +" of <a href='#mutations' onclick='switchToTab(\"tab_mutations\");return false;'\n\
@@ -1044,7 +1047,9 @@
                         <li>or recurrently mutated, namely\n\
                             <ul><li>MutSig Q < 0.05, if MutSig results are available</li>\n\
                             <li>otherwise, mutated in > 5% of samples in the study with &ge; 50 samples</li></ul> </li>\n\
-                        <li>or with > 5 overlapping entries in COSMIC.</li></ul>'/>");
+                        <li>or with > 5 overlapping entries in COSMIC.</li></ul>'/>";
+                }
+                $('.mutation-summary-table-name').html(mutationSummary);
                 $('#mutations-summary-help').qtip({
                     content: { attr: 'title' },
                     style: { classes: 'qtip-light qtip-rounded' },

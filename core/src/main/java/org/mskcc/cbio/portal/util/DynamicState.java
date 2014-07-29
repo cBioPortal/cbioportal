@@ -1,4 +1,4 @@
-/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+/** Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
@@ -15,20 +15,25 @@
  * has been advised of the possibility of such damage.
 */
 
-// package
-package org.mskcc.cbio.importer;
-
-// imports
-import org.mskcc.cbio.importer.model.DataMatrix;
-
-import java.util.Collection;
+package org.mskcc.cbio.portal.util;
 
 /**
- * Interface used to manage case ids within import data matrices.
+ * A Java Singleton implemented as an enum to support a common dynamic state across the cBioPortal application
+ * @author criscuof
  */
-public interface CaseIDs {
-	boolean isSampleId(String caseId);
-    boolean isNormalId(String caseId);
-    String getSampleId(String caseId);
-	String getPatientId(String caseId);
+public enum DynamicState {
+    INSTANCE;
+    
+    private String currentUser = "";
+    
+    public void setCurrentUser(String aUser) {
+        // n.b allow property yo be set to null or empty
+        currentUser = aUser;
+    }
+    
+    public String getCurrentUser() {
+        return currentUser;
+    }
+    
+    
 }

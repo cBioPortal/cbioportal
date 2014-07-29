@@ -1,4 +1,4 @@
-/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+/** Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
@@ -14,21 +14,10 @@
  * Memorial Sloan-Kettering Cancer Center 
  * has been advised of the possibility of such damage.
 */
+package org.mskcc.cbio.importer.converter.internal;
 
-// package
-package org.mskcc.cbio.importer;
-
-// imports
-import org.mskcc.cbio.importer.model.DataMatrix;
-
-import java.util.Collection;
-
-/**
- * Interface used to manage case ids within import data matrices.
- */
-public interface CaseIDs {
-	boolean isSampleId(String caseId);
-    boolean isNormalId(String caseId);
-    String getSampleId(String caseId);
-	String getPatientId(String caseId);
+public enum ConversionType
+{
+    TUMOR_ONLY,
+    NORMAL_ONLY
 }

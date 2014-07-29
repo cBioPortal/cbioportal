@@ -1,4 +1,4 @@
-/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+/** Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
@@ -25,18 +25,18 @@ import org.apache.commons.logging.*;
 import java.util.*;
 
 /**
- * Class which implements the Converter interface.
+ * Class which implements the Converter interface for processing rna-seq (v2) RSEM files.
  */
-public class MRNAMedianConverterImpl extends MRNAMedianConverterBase implements Converter {
+public class RNASEQV2MRNAMedianNormalConverterImpl extends RNASEQV2MRNAMedianConverterBase implements Converter {
 
-	public MRNAMedianConverterImpl(Config config, FileUtils fileUtils,
-								   CaseIDs caseIDs, IDMapper idMapper)
+	public RNASEQV2MRNAMedianNormalConverterImpl(Config config, FileUtils fileUtils,
+	                                             CaseIDs caseIDs, IDMapper idMapper)
 	{
 		this.config = config;
         this.fileUtils = fileUtils;
 		this.caseIDs = caseIDs;
 		this.idMapper = idMapper;
-		this.LOG = LogFactory.getLog(MRNAMedianConverterImpl.class);
-		this.conversionType = ConversionType.TUMOR_ONLY;
+		this.LOG = LogFactory.getLog(RNASEQV2MRNAMedianNormalConverterImpl.class);
+		this.conversionType = ConversionType.NORMAL_ONLY;
 	}
 }

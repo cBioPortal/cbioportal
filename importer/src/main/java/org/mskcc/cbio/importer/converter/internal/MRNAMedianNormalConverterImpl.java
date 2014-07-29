@@ -14,21 +14,29 @@
  * Memorial Sloan-Kettering Cancer Center 
  * has been advised of the possibility of such damage.
 */
+package org.mskcc.cbio.importer.converter.internal;
 
-// package
-package org.mskcc.cbio.importer;
+import org.mskcc.cbio.importer.*;
+import org.mskcc.cbio.importer.util.MapperUtil;
+import org.mskcc.cbio.importer.model.*;
 
-// imports
-import org.mskcc.cbio.importer.model.DataMatrix;
+import org.apache.commons.logging.*;
 
-import java.util.Collection;
+import java.util.*;
 
 /**
- * Interface used to manage case ids within import data matrices.
+ * Class which implements the Converter interface.
  */
-public interface CaseIDs {
-	boolean isSampleId(String caseId);
-    boolean isNormalId(String caseId);
-    String getSampleId(String caseId);
-	String getPatientId(String caseId);
+public class MRNAMedianNormalConverterImpl extends MRNAMedianConverterBase implements Converter {
+
+	public MRNAMedianNormalConverterImpl(Config config, FileUtils fileUtils,
+	                                     CaseIDs caseIDs, IDMapper idMapper)
+	{
+		this.config = config;
+        this.fileUtils = fileUtils;
+		this.caseIDs = caseIDs;
+		this.idMapper = idMapper;
+		this.LOG = LogFactory.getLog(MRNAMedianNormalConverterImpl.class);
+		this.conversionType = ConversionType.NORMAL_ONLY;
+	}
 }

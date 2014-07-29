@@ -647,7 +647,7 @@ define("OncoprintUtils", (function() {
 
     // params: els, list of d3 selected elements with either gene data or
     // clinical bound to them
-    var make_mouseover = function(els) {
+    var make_mouseover = function(els,params) {
         els.each(function(d) {
             $(this).qtip({
                 content: {text: 'oncoprint qtip failed'},
@@ -658,17 +658,18 @@ define("OncoprintUtils", (function() {
                 events: {
                     render: function(event, api) {
                         var content;
+                        var sampleLink = params.linkage?patientViewUrl(d.sample):d.sample;
                         if (d.attr_id) {
                             content = '<font size="2">'
                                 + format.clinical(d)
-                                + patientViewUrl(d.sample) + '</font>';
+                                + '<font color="blue">' +sampleLink+'</font>' + '</font>';
                         } else {
                             content = '<font size="2">'
                                 + format.mutation(d)
                                 + format.cna(d)
                                 + format.mrna(d)
                                 + format.rppa(d)
-                                + patientViewUrl(d.sample) + '</font>';
+                                +'<font color="blue">' +sampleLink+'</font>' + '</font>';
 
                         }
                         api.set('content.text', content);

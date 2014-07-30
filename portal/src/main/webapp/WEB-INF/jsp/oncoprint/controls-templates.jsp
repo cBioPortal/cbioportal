@@ -60,10 +60,10 @@
                 <td style="padding-right: 15px;"><span>Zoom&nbsp;</span><div id="zoom" style="display: inline-table;"></div></td>
             </tr>
             <tr>
-                <td><label><input id='toggle_unaltered_cases' type='checkbox'>Remove Unaltered Cases</label></td>
+                <td><label><input id='toggle_unaltered_cases' type='checkbox'>&nbsp;Remove Unaltered Cases</label></td>
             </tr>
             <tr>
-                <td><label><input id='toggle_whitespace' type='checkbox'>Remove Whitespace</label></td>
+                <td><label><input id='toggle_whitespace' type='checkbox'>&nbsp;Remove Whitespace</label></td>
             </tr>
             <%--<tr>
                 <td><label><input id='all_cna_levels' type='checkbox' >Show All CNA levels</label></td>

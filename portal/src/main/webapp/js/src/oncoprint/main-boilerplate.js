@@ -184,6 +184,13 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
                         
                         $('.special_delete').click(resetClinicalAttribute);// enable delete symbol "x" function
+                        //tooltip for the track deletion function
+                        $('.special_delete').qtip({
+                                    content: {text: 'click here to delete this track!'},
+                                    position: {my:'left bottom', at:'top right', viewport: $(window)},
+                                    style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                                    show: {event: "mouseover"},
+                                    hide: {fixed: true, delay: 100, event: "mouseout"}});
                     }
                 });
             }
@@ -228,11 +235,19 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
                         
                         $('.special_delete').click(resetClinicalAttribute);// enable delete symbol "x" function
+                        //tooltip for the track deletion function
+                        $('.special_delete').qtip({
+                                    content: {text: 'click here to delete this track!'},
+                                    position: {my:'left bottom', at:'top right', viewport: $(window)},
+                                    style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                                    show: {event: "mouseover"},
+                                    hide: {fixed: true, delay: 100, event: "mouseout"}});
                     }
                 });
             }
         }
     };
+    
     $(select_clinical_attributes_id).change(clinicalAttributeSelected);
 
     $(document).ready(function() {

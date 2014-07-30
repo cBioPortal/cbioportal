@@ -146,10 +146,10 @@ define("Oncoprint",
                     .attr('fill',function(d){ return (d in gene2percent) ? 'black':'blue'})
                     .attr('class',function(d){ return (d in gene2percent) ? 'regular':'special_delete'})
                     .attr('x', '' + dims.label_width)
-                    .attr('text-anchor', 'end')
+                    .attr('text-anchor', 'end');
                     // remove the tspan that would have contained the percent altered
                     // because it messes with the label placement in the pdf download
-                    .filter(function(d) { return gene2percent[d] === undefined; }).remove();
+//                    .filter(function(d) { return gene2percent[d] === undefined; }).remove();
 
 //                label.append('tspan')       // percent_altered
 //                    .text(function(d) {

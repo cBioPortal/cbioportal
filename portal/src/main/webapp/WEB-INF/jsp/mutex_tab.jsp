@@ -13,12 +13,12 @@
 
 <div class="section" id="mutex" class="mutex">
     <div id='mutex-wrapper' style='width: 1000px; margin-top: 20px; margin-left: 20px;'>
-        <div id='mutex-loading-image'>
-            <img style='padding:200px;' src='images/ajax-loader.gif'>
-        </div>
         <div id="mutex-info-div">
             <p>Gene set has <span id='num_of_mutex'></span> pairs of mutual exclusive (<span id='num_of_sig_mutex'></span> significant<img src='images/help.png' id='mutex-stat-sig-help'>),
             and <span id='num_of_co_oc'></span> pairs of co-occurance (<span id='num_of_sig_co_oc'></span> significant).</p>
+        </div>
+        <div id='mutex-loading-image'>
+            <img style='padding:200px;' src='images/ajax-loader.gif'>
         </div>
         <div id="mutex-table-div" style='margin-top:10px;'></div>
     </div>
@@ -28,7 +28,13 @@
 <script>
     $(document).ready( function() {
         MutexData.init();
+        $("#tabs").bind("tabsactivate", function(event, ui) {
+            if (ui.newTab.text().trim().toLowerCase() === "mutual exclusivity") {
+                MutexView.resize();
+            }
+        });
     });
+
     $("#mutex-stat-sig-help").qtip({
         content: { text:'p value < 0.05'},
         style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},

@@ -123,7 +123,8 @@
                     $('td:eq(' + index.pVal + ')', nRow).css("color", colorCode.sigPVal);
                 }
             }
-        });  
+        }); 
+
     }
 
     function convertData() {
@@ -235,6 +236,9 @@
             attachFilter();
             addHeaderQtips();
             addStatInfo();
-  		}
+  		},
+        resize: function() {
+            mutexTableInstance.fnAdjustColumnSizing();
+        }
  	}
  }());

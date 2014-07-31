@@ -14,8 +14,8 @@
 <div class="section" id="mutex" class="mutex">
     <div id='mutex-wrapper' style='width: 1000px; margin-top: 20px; margin-left: 20px;'>
         <div id="mutex-info-div">
-            <p>Gene set has <span id='num_of_mutex'></span> pairs of mutual exclusive (<span id='num_of_sig_mutex'></span> significant<img src='images/help.png' id='mutex-stat-sig-help'>),
-            and <span id='num_of_co_oc'></span> pairs of co-occurance (<span id='num_of_sig_co_oc'></span> significant).</p>
+            <p>The query contains <span id='num_of_mutex'></span> gene pairs with mutually exclusive alterations (<span id='num_of_sig_mutex'></span> significant<img src='images/help.png' id='mutex-stat-sig-help'>),
+            and <span id='num_of_co_oc'></span> pairs of co-occurrent alterations (<span id='num_of_sig_co_oc'></span> significant).</p>
         </div>
         <div id='mutex-loading-image'>
             <img style='padding:200px;' src='images/ajax-loader.gif'>

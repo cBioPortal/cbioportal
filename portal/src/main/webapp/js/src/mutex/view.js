@@ -113,14 +113,14 @@
                 "sSearch": "Search Gene"
             },
             "fnRowCallback": function(nRow, aData) {
-                if (aData[index.oddsRatio] < 0 || aData[index.oddsRatio] === "<-3") { //significate odds ratio value
-                    $('td:eq(' + index.oddsRatio + ')', nRow).css("color", colorCode.mutexOddsRatio);
-                } else if (aData[index.oddsRatio] > 0 || aData[index.oddsRatio] === ">3") {
-                    $('td:eq(' + index.oddsRatio + ')', nRow).css("color", colorCode.coocOddsRatio);
-                }
+                //if (aData[index.oddsRatio] < 0 || aData[index.oddsRatio] === "<-3") { //significate odds ratio value
+                //    $('td:eq(' + index.oddsRatio + ')', nRow).css("color", colorCode.mutexOddsRatio);
+                //} else if (aData[index.oddsRatio] > 0 || aData[index.oddsRatio] === ">3") {
+                //    $('td:eq(' + index.oddsRatio + ')', nRow).css("color", colorCode.coocOddsRatio);
+                //}
                 if (aData[index.pVal] < 0.05 || aData[index.pVal] === "<0.001") { //significate p value
                     $('td:eq(' + index.pVal + ')', nRow).css("font-weight", "bold");
-                    $('td:eq(' + index.pVal + ')', nRow).css("color", colorCode.sigPVal);
+                    //$('td:eq(' + index.pVal + ')', nRow).css("color", colorCode.sigPVal);
                 }
             }
         }); 
@@ -221,6 +221,11 @@
 
     function addStatInfo() {
         var _stat = MutexData.getDataStat();
+        for (var key in _stat) {
+            if (_stat[key] === 0) {
+                _stat[key] = "Non"; //replace 0 (text) with "non"
+            }
+        }
         $("#num_of_mutex").append(_stat.num_of_mutex);
         $("#num_of_sig_mutex").append(_stat.num_of_sig_mutex);
         $("#num_of_co_oc").append(_stat.num_of_co_oc);

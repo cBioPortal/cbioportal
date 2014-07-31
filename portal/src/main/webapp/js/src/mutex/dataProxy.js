@@ -48,7 +48,7 @@ var MutexData = (function() {
 			odds_ratio: 0,
 			log_odds_ratio: 0,
 			p_value: 0,
-			tendency: "" //
+			association: "" //
 		},
 		dataArr = [],
 		stat = { //Simple statistics of the result
@@ -146,17 +146,21 @@ var MutexData = (function() {
 						}
 
 						//categorize
-						if (0 <= _dataObj.odds_ratio && _dataObj.odds_ratio < 0.1) {
-							_dataObj.tendency = "Strong tendency towards mutual exclusivity";
-						} else if (0.1 < _dataObj.odds_ratio && _dataObj.odds_ratio < 0.5) {
-							_dataObj.tendency = "Tendency towards mutual exclusivity";
+						if (0 <= _dataObj.odds_ratio && _dataObj.odds_ratio < 0.5) {
+							if (_dataObj.p_val < 0.005 || _dataObj.p_value === "<0.001") {
+								_dataObj.association = "Significant tendency towards mutual exclusivity";
+							} else {
+								_dataObj.association = "Tendency towards mutual exclusivity";
+							}
 						} else if (0.5 < _dataObj.odds_ratio && _dataObj.odds_ratio< 2) {
-							_dataObj.tendency = "No association";
-						} else if (2 < _dataObj.odds_ratio && _dataObj.odds_ratio < 10) {
-							_dataObj.tendency = "Tendency toward co-occurrence";
-						} else if (10 < _dataObj.odds_ratio) {
-							_dataObj.tendency = "Strong tendendency towards co-occurrence";
-						}
+							_dataObj.association = "No association";
+						} else if (2 < _dataObj.odds_ratio) {
+							if (_dataObj.p_val < 0.005 || _dataObj.p_value === "<0.001") {
+								_dataObj.association = "Significant tendency towards co-occurrence";
+							} else {
+								_dataObj.association = "Tendency towards co-occurrence";
+							}
+						} 
 					} else {
 						_dataObj.odds_ratio = "--"; 
 						_dataObj.log_odds_ratio = "--"; 

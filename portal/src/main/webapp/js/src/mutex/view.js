@@ -46,12 +46,12 @@
             geneB : 1,
             pVal : 2,
             oddsRatio : 3,
-            tendency: 4
+            association: 4
         },
         colorCode = {
             mutexOddsRatio: "#339999",
             coocOddsRatio: "#3399FF",
-            sigPVal: "#CC6666"
+            pVal: "#344D9A"
         }
 
     function configTable() {
@@ -62,7 +62,7 @@
             "<th>Gene B</th>" +
             "<th>p-Value<img src='images/help.png' id='p-value-help'></th>" + 
             "<th>Log Odds Ratio<img src='images/help.png' id='odds-ratio-help'></th>" +
-            "<th>Tendency</th>" + 
+            "<th>Association<img src='images/help.png' id='association-help'></th>" + 
             "</thead>" +
             "<tbody></tbody>" + 
             "</table>"
@@ -105,7 +105,7 @@
                 },
                 {
                     "bSearchable": false,
-                    "aTargets": [ index.tendency ],
+                    "aTargets": [ index.association ],
                     "sWidth": "500px"
                 }
             ],
@@ -113,14 +113,11 @@
                 "sSearch": "Search Gene"
             },
             "fnRowCallback": function(nRow, aData) {
-                //if (aData[index.oddsRatio] < 0 || aData[index.oddsRatio] === "<-3") { //significate odds ratio value
-                //    $('td:eq(' + index.oddsRatio + ')', nRow).css("color", colorCode.mutexOddsRatio);
-                //} else if (aData[index.oddsRatio] > 0 || aData[index.oddsRatio] === ">3") {
-                //    $('td:eq(' + index.oddsRatio + ')', nRow).css("color", colorCode.coocOddsRatio);
-                //}
-                if (aData[index.pVal] < 0.05 || aData[index.pVal] === "<0.001") { //significate p value
+                $('td:eq(' + index.geneA + ')', nRow).css("font-weight", "bold");
+                $('td:eq(' + index.geneB + ')', nRow).css("font-weight", "bold");
+                $('td:eq(' + index.pVal + ')', nRow).css("color", colorCode.pVal);
+                if (aData[index.pVal] <= 0.05 || aData[index.pVal] === "<0.001") { //significate p value
                     $('td:eq(' + index.pVal + ')', nRow).css("font-weight", "bold");
-                    //$('td:eq(' + index.pVal + ')', nRow).css("color", colorCode.sigPVal);
                 }
             }
         }); 
@@ -135,7 +132,7 @@
                 _arr.push(obj.geneB);            
                 _arr.push(obj.p_value);
                 _arr.push(obj.log_odds_ratio);
-                _arr.push(obj.tendency);
+                _arr.push(obj.association);
                 mutexTableDataArr.push(_arr);       
             }
     	});
@@ -203,15 +200,24 @@
     }   
 
     function addHeaderQtips() {
-        $("#odds-ratio-help").qtip({
-            content: { text:'Log odds ratio > 0 : Tendency towards co-occurrence <br>Log odds ratio < 0 : Tendency towards mutual exclusivity'},
+        $("#association-help").qtip({
+            content: { text:'Log odds ratio < -0.3 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : Association towards co-occurrence<br>' +
+                            '-0.3 < Log odds ratio < 0.3 : No association<br>' +   
+                            '0.3 < Log odds ratio &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : Association towards mutual exclusivity<br>' + 
+                            'p-Value < 0.005 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : Significate association'},
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
             show: {event: "mouseover"},
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'left bottom',at:'top right',viewport: $(window)}
         });  
+        $("#odds-ratio-help").qtip({
+            content: { text:''},
+            show: {event: "mouseover"},
+            hide: {fixed:true, delay: 100, event: "mouseout"},
+            position: {my:'left bottom',at:'top right',viewport: $(window)}
+        });  
         $("#p-value-help").qtip({
-            content: { text:'Drived from Fisher Exact Test'},
+            content: { text:'Derived from Fisher Exact Test'},
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
             show: {event: "mouseover"},
             hide: {fixed:true, delay: 100, event: "mouseout"},

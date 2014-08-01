@@ -36,7 +36,8 @@
 
  var MutexView = (function() {
 
- 	var mutexTableDataArr = [],
+ 	var mutexTableInstance = "",
+        mutexTableDataArr = [],
         names = {
             tabldId: "mutex-table",
             divId: "mutex-table-div"
@@ -49,9 +50,8 @@
             association: 4
         },
         colorCode = {
-            mutexOddsRatio: "#339999",
-            coocOddsRatio: "#3399FF",
-            pVal: "#344D9A"
+            oddsRatio: "#296CCF",
+            pVal: "#296CCF"
         }
 
     function configTable() {
@@ -95,13 +95,16 @@
                     "sType": 'mutex-p-value',
                     "bSearchable": false,
                     "aTargets": [ index.pVal ],
-                    "sWidth": "150px"
+                    "sWidth": "150px",
+                    "sClass": "classMutexTable"
+
                 },
                 {
                     "sType": 'mutex-odds-ratio',
                     "bSearchable": false,
                     "aTargets": [ index.oddsRatio ],
-                    "sWidth": "150px"
+                    "sWidth": "150px",
+                    "sClass": "classMutexTable"
                 },
                 {
                     "bSearchable": false,
@@ -116,6 +119,7 @@
                 $('td:eq(' + index.geneA + ')', nRow).css("font-weight", "bold");
                 $('td:eq(' + index.geneB + ')', nRow).css("font-weight", "bold");
                 $('td:eq(' + index.pVal + ')', nRow).css("color", colorCode.pVal);
+                $('td:eq(' + index.oddsRatio + ')', nRow).css("color", colorCode.oddsRatio);
                 if (aData[index.pVal] <= 0.05 || aData[index.pVal] === "<0.001") { //significate p value
                     $('td:eq(' + index.pVal + ')', nRow).css("font-weight", "bold");
                 }
@@ -211,7 +215,7 @@
             position: {my:'left bottom',at:'top right',viewport: $(window)}
         });  
         $("#odds-ratio-help").qtip({
-            content: { text:''},
+            content: { text:'Quantify how strongly the presence or absence of property A is associated with the presence or absence of property B in a given population.'},
             show: {event: "mouseover"},
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'left bottom',at:'top right',viewport: $(window)}

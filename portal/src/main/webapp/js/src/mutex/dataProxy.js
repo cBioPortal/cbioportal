@@ -147,18 +147,18 @@ var MutexData = (function() {
 
 						//categorize
 						if (0 <= _dataObj.odds_ratio && _dataObj.odds_ratio < 0.5) {
-							if (_dataObj.p_val < 0.005 || _dataObj.p_value === "<0.001") {
-								_dataObj.association = "Significant tendency towards mutual exclusivity";
+							if (_dataObj.p_value < 0.05 || _dataObj.p_value === "<0.001") {
+								_dataObj.association = "Significant association towards <b>mutual exclusivity</b>";
 							} else {
-								_dataObj.association = "Tendency towards mutual exclusivity";
+								_dataObj.association = "Association towards <b>mutual exclusivity</b>";
 							}
 						} else if (0.5 < _dataObj.odds_ratio && _dataObj.odds_ratio< 2) {
 							_dataObj.association = "No association";
 						} else if (2 < _dataObj.odds_ratio) {
-							if (_dataObj.p_val < 0.005 || _dataObj.p_value === "<0.001") {
-								_dataObj.association = "Significant tendency towards co-occurrence";
+							if (_dataObj.p_value < 0.05 || _dataObj.p_value === "<0.001") {
+								_dataObj.association = "Significant association towards <b>co-occurrence</b>";
 							} else {
-								_dataObj.association = "Tendency towards co-occurrence";
+								_dataObj.association = "Association towards <b>co-occurrence</b>";
 							}
 						} 
 					} else {

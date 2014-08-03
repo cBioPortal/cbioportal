@@ -574,7 +574,7 @@ define("Oncoprint",
                     };
                 })();
 
-                utils.make_mouseover(d3.selectAll('#' + div.id + ' .sample *'));
+                utils.make_mouseover(d3.selectAll('#' + div.id + ' .sample *'),{linkage:true});
 
                 return State;
             };

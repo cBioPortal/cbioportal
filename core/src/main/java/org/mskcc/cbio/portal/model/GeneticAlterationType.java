@@ -22,6 +22,7 @@ package org.mskcc.cbio.portal.model;
  */
 public class GeneticAlterationType {
     public static final String HOMOZYGOUS_DELETION = "-2";
+    public static final String PARTIAL_DELETION = "-1.5";
     public static final String HEMIZYGOUS_DELETION = "-1";
     public static final String ZERO = "0";
     public static final String GAIN = "1";

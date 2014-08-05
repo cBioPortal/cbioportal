@@ -37,6 +37,7 @@ public interface FileUtils {
 
 	// clinical data file column headers
 	public static final String CASE_ID = "CASE_ID";
+	public static final String SAMPLE_ID = "SAMPLE_ID";
 	public static final String GENDER = "GENDER";
 	public static final String FMI_CASE_ID = "FMI_CASE_ID";
 	public static final String PIPELINE_VER = "PIPELINE_VER";

@@ -46,14 +46,14 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
     params = params || {};
     if (params.sparkline) {
         params = _.extend({
-            margin: {top: 0, right: 0, bottom: 0, left: 0},
+            margin: {top: -12, right: 0, bottom: 0, left: 0},
             width: 30,
             height: 12,
             this_cancer_study: undefined
         }, params);
     } else {
         params = _.extend({
-            margin: {top: 43, right: 10, bottom: 20, left: 40},
+            margin: {top:6, right: 10, bottom: 20, left: 40},
             width: 600,
             height: 300,
             this_cancer_study: undefined
@@ -189,7 +189,7 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
                 count: 0,
                 cancer_type: cancer_study2meta_data[cancer_study].cancer_type,
                 num_sequenced_samples: cancer_study2meta_data[cancer_study].num_sequenced_samples
-            }
+            };
         }
 
         return _.chain(all_cancer_studies)
@@ -335,27 +335,6 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
 
     var hugo_gene_name = _.find(layers[0], function(d) { return d.hugo !== undefined; }).hugo;
     var keyword = _.find(layers[0], function(d) { return d.keyword !== undefined; }).keyword;
-    
-    // title
-    var title_string = hugo_gene_name + " mutations across all cancer studies";
-    svg.append('text')
-        .text(title_string)
-        .attr('x', 10)
-        .attr('y', -28)
-        .style("font-family", "Helvetica Neue, Helvetica, Arial, sans-serif")
-        .style("font-size", "18px");
-
-    // count
-    var count_string = countText({count:totalByKeyword}, {count:totalByGene}, totalSequenced);
-    svg.append('foreignobject')
-        .attr('x', 10)
-        .attr('y', -23)
-        .attr('width',400)
-        .attr('height',30)
-        .append("xhtml:body")
-        .style("font-family", "Helvetica Neue, Helvetica, Arial, sans-serif")
-        .style("font-size", "11px")
-        .html(count_string);
 
     // star the current cancer study if this_cancer_study is provided.
     if (!_.isUndefined(params.this_cancer_study)) {
@@ -454,6 +433,7 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
 
     return {
         el: el,
-        qtip: qtip
+        qtip: qtip,
+        overallCountText: function() {return countText({count:totalByKeyword}, {count:totalByGene}, totalSequenced);}
     };
 };

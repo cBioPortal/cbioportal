@@ -46,7 +46,7 @@
 			<table>
 				<tr>
 					<td align="left">
-						<button class='mutation-3d-pymol-dload'>PML</button>
+						<button class='mutation-3d-pymol-dload'>PyMOL</button>
 					</td>
 					<td align="right">
 						<a class='mutation-3d-vis-help-open' href="#">how to pan/zoom/rotate?</a>

@@ -1,6 +1,8 @@
 # Application Name and Version
 app.name=su2c-portal
-app.version=0.1
+app.version=
+
+
 
 # Database Settings
 db.tomcat_resource_name=cgds_gdac
@@ -53,6 +55,12 @@ segfile.url=http://cbio.mskcc.org/cancergenomics/su2c-portal/seg/
 r_installed=true
 include_networks=true
 google_analytics_profile_id=
+
+
+#Google+
+googleplus.consumer.key=
+googleplus.consumer.secret=
+
 about=about_us_su2c.html
 news=news_su2c.html
 examples_right_column=examples_su2c.html

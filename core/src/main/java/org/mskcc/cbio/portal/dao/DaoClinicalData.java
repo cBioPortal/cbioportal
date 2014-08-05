@@ -95,6 +95,25 @@ public final class DaoClinicalData {
         return DaoClinicalData.getDatum(cancerStudy.getInternalId(), caseId, attrId);
     }
 
+    public static int removeData(int cancerStudyId, Collection<String> caseIds, Collection<String> attrIds) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoClinicalData.class);
+            pstmt = con.prepareStatement
+                    ("DELETE FROM clinical WHERE CANCER_STUDY_ID=? AND CASE_ID IN ('"
+                            + StringUtils.join(caseIds, "','") + "') AND ATTR_ID IN ('"
+                            + StringUtils.join(attrIds, "','") + "')");
+            pstmt.setInt(1, cancerStudyId);
+            return pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoClinicalData.class, con, pstmt, rs);
+        }
+    }
+    
     public static ClinicalData getDatum(int cancerStudyId, String caseId, String attrId)
             throws DaoException {
 

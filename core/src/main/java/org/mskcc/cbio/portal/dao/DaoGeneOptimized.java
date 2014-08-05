@@ -68,8 +68,13 @@ public class DaoGeneOptimized {
                 BufferedReader in = new BufferedReader(
                         new InputStreamReader(getClass().getResourceAsStream(CBIO_CANCER_GENES_FILE)));
                 for (String line=in.readLine(); line!=null; line=in.readLine()) {
-                    long entrez = Long.parseLong(line.trim().split("\t")[0]);
-                    CanonicalGene gene = getGene(entrez);
+                    String[] parts = line.trim().split("\t",-1);
+                    CanonicalGene gene = null;
+                    if (parts.length>1) {
+                        gene = getGene(Long.parseLong(parts[1]));
+                    } else {
+                        gene = getGene(parts[0]);
+                    }
                     if (gene!=null) {
                         cbioCancerGenes.add(gene);
                     } else {

@@ -63,7 +63,11 @@
                             var invisible_container = document.getElementById("pancan_mutations_histogram_container");
                             var histogram = PancanMutationHistogram(byKeywordData, byHugoData, window.cancer_study_meta_data, invisible_container, {this_cancer_study: window.cancerStudyName});
 
-                            var content = invisible_container.innerHTML;
+                            var title = "<div><div><h3>"+gene+" mutations across all cancer studies</h3></div>" +
+                                        "<div style='float:right;'><button class='cross-cancer-download' file-type='pdf'>PDF</button>"+
+                                        "<button class='cross-cancer-download' file-type='svg'>SVG</button></div></div>"+
+                                        "<div><p>"+histogram.overallCountText()+"</p></div>";
+                            var content = title+invisible_container.innerHTML;
                             api.set('content.text', content);
 
                             // correct the qtip width
@@ -72,6 +76,17 @@
 
                             var this_svg = $(this).find('svg')[0];
                             histogram.qtip(this_svg);
+                            
+                            $(".cross-cancer-download").click(function() {
+                                var fileType = $(this).attr("file-type");
+                                var params = {
+                                    filetype: fileType,
+                                    filename: gene + "_mutations." + fileType,
+                                    svgelement: (new XMLSerializer()).serializeToString(this_svg)
+                                };
+
+                                cbio.util.requestDownload("svgtopdf.do", params);
+                            });
 
                             $(invisible_container).empty();     // N.B.
                         }
@@ -1011,15 +1026,18 @@
                             '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pl>>', 25, "No mutation events of interest", true);
                 var numFiltered = genomicEventObs.mutations.getNumEvents(true);
                 var numAll = genomicEventObs.mutations.getNumEvents(false);
-                 $('.mutation-show-more').html("<a href='#mutations' onclick='switchToTab(\"mutations\");return false;'\n\
+                 $('.mutation-show-more').html("<a href='#mutations' onclick='switchToTab(\"tab_mutations\");return false;'\n\
                       title='Show more mutations of this patient'>Show all "
                         +numAll+" mutations</a>");
                 $('.mutation-show-more').addClass('datatable-show-more');
-                $('.mutation-summary-table-name').html(
-                    "Mutations of interest"
+                var mutationSummary;
+                if (numAll===numFiltered) {
+                    mutationSummary = ""+numAll+" mutations";
+                } else {
+                    mutationSummary = "Mutations of interest"
                      +(numAll==0?"":(" ("
                         +numFiltered
-                        +" of <a href='#mutations' onclick='switchToTab(\"mutations\");return false;'\n\
+                        +" of <a href='#mutations' onclick='switchToTab(\"tab_mutations\");return false;'\n\
                          title='Show more mutations of this patient'>"
                         +numAll
                         +"</a>)"))
@@ -1029,7 +1047,9 @@
                         <li>or recurrently mutated, namely\n\
                             <ul><li>MutSig Q < 0.05, if MutSig results are available</li>\n\
                             <li>otherwise, mutated in > 5% of samples in the study with &ge; 50 samples</li></ul> </li>\n\
-                        <li>or with > 5 overlapping entries in COSMIC.</li></ul>'/>");
+                        <li>or with > 5 overlapping entries in COSMIC.</li></ul>'/>";
+                }
+                $('.mutation-summary-table-name').html(mutationSummary);
                 $('#mutations-summary-help').qtip({
                     content: { attr: 'title' },
                     style: { classes: 'qtip-light qtip-rounded' },

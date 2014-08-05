@@ -256,7 +256,7 @@
             position: {my:'left bottom',at:'top right',viewport: $(window)}
         });  
         $("#odds-ratio-help").qtip({
-            content: { text:'Quantify how strongly the presence or absence of property A is associated with the presence or absence of property B in a given population.'},
+            content: { text:'Quantifies how strongly the presence or absence of alterations in gene A are associated with the presence or absence of alterations in gene B in the selected tumors.'},
             show: {event: "mouseover"},
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'left bottom',at:'top right',viewport: $(window)}
@@ -274,7 +274,7 @@
         var _stat = MutexData.getDataStat();
         for (var key in _stat) {
             if (_stat[key] === 0) {
-                _stat[key] = "Non"; //replace 0 (text) with "non"
+                _stat[key] = "none"; //replace 0 (text) with "non"
             }
         }
         $("#num_of_mutex").append(_stat.num_of_mutex);

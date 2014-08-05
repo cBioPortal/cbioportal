@@ -179,28 +179,69 @@
     }
 
     function attachFilter() { 
+
         $("#mutex-table-div").find('.mutex-table-filter').append(
-            "<select id='mutex-table-filter-select'>" +
-            "<option value='all'>Show All</option>" +
-            "<option value='mutex'>Show Only Mutual Exclusive</option>" +
-            "<option value='cooccur'>Show Only Co-occurrence</option>" +
-            "</select>");
-        $("select#mutex-table-filter-select").change(function () {
-            if ($(this).val() === "mutex") {
-                mutexTableInstance.fnFilter("-", index.oddsRatio, false);
-            } else if ($(this).val() === "cooccur") {
-                mutexTableInstance.fnFilter('^[+]?([1-9][0-9]*(?:[\.][0-9]*)?|0*\.0*[1-9][0-9]*)(?:[eE][+-][0-9]+)?$', index.oddsRatio, true);
-            } else if ($(this).val() === "all") {
+            "<input type='checkbox' class='mutex-table-checkbox' checked id='mutex-table-checkbox-mutex'>Mutual exclusive</option> &nbsp;&nbsp;" +
+            "<input type='checkbox' class='mutex-table-checkbox' checked id='mutex-table-checkbox-co-oc'>Co-occurrence</option> &nbsp;&nbsp;" +
+            "<input type='checkbox' class='mutex-table-checkbox' id='mutex-table-checkbox-sig-only'>Significant pairs only</option> &nbsp; &nbsp;");
+        
+        var _sig_only_all_fn = function() {
+                mutexTableInstance.fnFilter("", index.association);
                 mutexTableInstance.fnFilter("", index.oddsRatio);
+                mutexTableInstance.fnFilter("Significant", index.association);
+            },
+            _sig_only_mutex_fn = function() {
+                mutexTableInstance.fnFilter("", index.association);
+                mutexTableInstance.fnFilter("", index.oddsRatio);
+                mutexTableInstance.fnFilter("-", index.oddsRatio, false);
+                mutexTableInstance.fnFilter("Significant", index.association);
+            },
+            _sig_only_co_oc_fn = function() {
+                mutexTableInstance.fnFilter("", index.association);
+                mutexTableInstance.fnFilter("", index.oddsRatio);
+                mutexTableInstance.fnFilter('^[+]?([1-9][0-9]*(?:[\.][0-9]*)?|0*\.0*[1-9][0-9]*)(?:[eE][+-][0-9]+)?$', index.oddsRatio, true);
+                mutexTableInstance.fnFilter("Significant", index.association);
+            },
+            _mutex_fn = function() {
+                mutexTableInstance.fnFilter("", index.association);
+                mutexTableInstance.fnFilter("", index.oddsRatio);
+                mutexTableInstance.fnFilter("-", index.oddsRatio, false);
+            },
+            _co_oc_fn = function() {
+                mutexTableInstance.fnFilter("", index.association);
+                mutexTableInstance.fnFilter("", index.oddsRatio);
+                mutexTableInstance.fnFilter('^[+]?([1-9][0-9]*(?:[\.][0-9]*)?|0*\.0*[1-9][0-9]*)(?:[eE][+-][0-9]+)?$', index.oddsRatio, true);
+            }, 
+            _all_fn = function() {
+                mutexTableInstance.fnFilter("", index.association);
+                mutexTableInstance.fnFilter("", index.oddsRatio);
+            },
+            _empty_fn = function() {
+                mutexTableInstance.fnFilter("&", index.oddsRatio);
+            };
+
+        $(".mutex-table-checkbox").change(function () {
+            var _mutex_checked = false,
+                _co_oc_checked = false,
+                _sig_only_checked = false;
+
+            if ($("#mutex-table-checkbox-mutex").is(':checked')) _mutex_checked = true;
+            if ($("#mutex-table-checkbox-co-oc").is(':checked')) _co_oc_checked = true;
+            if ($("#mutex-table-checkbox-sig-only").is(':checked')) _sig_only_checked = true;
+
+            if (_mutex_checked && _co_oc_checked) {
+                if (_sig_only_checked) _sig_only_all_fn();
+                else _all_fn();
+            } else if (_mutex_checked && !_co_oc_checked) {
+                if (_sig_only_checked) _sig_only_mutex_fn();
+                else _mutex_fn();
+            } else if (!_mutex_checked && _co_oc_checked) {
+                if (_sig_only_checked) _sig_only_co_oc_fn();
+                else _co_oc_fn();
+            } else {
+                _empty_fn();
             }
         });
-        mutexTableInstance.$('td').qtip({
-            content: { attr: 'title' },
-            style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
-            show: {event: "mouseover", delay: 0},
-            hide: {fixed:true, delay: 10, event: "mouseout"},
-            position: {my:'left bottom',at:'top right',viewport: $(window), adjust: {x: -150, y: 10}}
-        })
     }   
 
     function addHeaderQtips() {

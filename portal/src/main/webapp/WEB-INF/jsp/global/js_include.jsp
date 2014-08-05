@@ -33,6 +33,8 @@
 <script type="text/javascript" src="js/lib/jmol/JmolControls.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/jmol/JmolApi.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
+<script type="text/javascript" src="js/lib/mutationMapper.js?<%=GlobalProperties.getAppVersion()%>"></script>
+
 <script type="text/javascript">
     // This is for the moustache-like templates
     // prevents collisions with JSP tags
@@ -53,38 +55,36 @@
 <script type="text/javascript" src="js/src/gene-symbol-validator.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/d3.right-menu-stats.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/DataProxyFactory.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/AdvancedDataTable.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/DataTableUtil.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
-<script type="text/javascript" src="js/src/mutation/component/mutation_diagram.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/mutation/component/mutation_details_table.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/mutation/component/mutation_3d_viewer.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/mutation/component/mutation_pdb_panel.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/mutation/component/mutation_pdb_table.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/mutation/model/MutationModel.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/mutation/model/PdbAlignmentModel.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/mutation/model/PdbChainModel.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/mutation/model/PdbModel.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/mutation/model/Pileup.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/mutation/util/MutationDetailsUtil.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/mutation/util/MutationViewsUtil.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/mutation/util/MutationDetailsTableFormatter.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/mutation/util/MergedAlignmentSegmentor.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/mutation/util/PdbDataUtil.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/mutation/util/PileupUtil.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/mutation/util/JmolWrapper.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/mutation/util/JSmolWrapper.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/mutation/util/MolScriptGenerator.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/mutation/util/JmolScriptGenerator.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/mutation/util/PymolScriptGenerator.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/mutation/data/PdbDataProxy.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/mutation/data/MutationDataProxy.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/mutation/controller/MutationDetailsEvents.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/mutation/controller/MainMutationController.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/mutation/controller/Mutation3dController.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/mutation/controller/MutationDetailsTableController.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/mutation/controller/MutationDiagramController.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/mutation/controller/MutationDetailsController.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<%--<script type="text/javascript" src="js/src/mutation/component/mutation_diagram.js?<%=GlobalProperties.getAppVersion()%>"></script>--%>
+<%--<script type="text/javascript" src="js/src/mutation/component/mutation_details_table.js?<%=GlobalProperties.getAppVersion()%>"></script>--%>
+<%--<script type="text/javascript" src="js/src/mutation/component/mutation_3d_viewer.js?<%=GlobalProperties.getAppVersion()%>"></script>--%>
+<%--<script type="text/javascript" src="js/src/mutation/component/mutation_pdb_panel.js?<%=GlobalProperties.getAppVersion()%>"></script>--%>
+<%--<script type="text/javascript" src="js/src/mutation/component/mutation_pdb_table.js?<%=GlobalProperties.getAppVersion()%>"></script>--%>
+<%--<script type="text/javascript" src="js/src/mutation/model/MutationModel.js?<%=GlobalProperties.getAppVersion()%>"></script>--%>
+<%--<script type="text/javascript" src="js/src/mutation/model/PdbAlignmentModel.js?<%=GlobalProperties.getAppVersion()%>"></script>--%>
+<%--<script type="text/javascript" src="js/src/mutation/model/PdbChainModel.js?<%=GlobalProperties.getAppVersion()%>"></script>--%>
+<%--<script type="text/javascript" src="js/src/mutation/model/PdbModel.js?<%=GlobalProperties.getAppVersion()%>"></script>--%>
+<%--<script type="text/javascript" src="js/src/mutation/model/Pileup.js?<%=GlobalProperties.getAppVersion()%>"></script>--%>
+<%--<script type="text/javascript" src="js/src/mutation/util/MutationDetailsUtil.js?<%=GlobalProperties.getAppVersion()%>"></script>--%>
+<%--<script type="text/javascript" src="js/src/mutation/util/MutationViewsUtil.js?<%=GlobalProperties.getAppVersion()%>"></script>--%>
+<%--<script type="text/javascript" src="js/src/mutation/util/MutationDetailsTableFormatter.js?<%=GlobalProperties.getAppVersion()%>"></script>--%>
+<%--<script type="text/javascript" src="js/src/mutation/util/MergedAlignmentSegmentor.js?<%=GlobalProperties.getAppVersion()%>"></script>--%>
+<%--<script type="text/javascript" src="js/src/mutation/util/PdbDataUtil.js?<%=GlobalProperties.getAppVersion()%>"></script>--%>
+<%--<script type="text/javascript" src="js/src/mutation/util/PileupUtil.js?<%=GlobalProperties.getAppVersion()%>"></script>--%>
+<%--<script type="text/javascript" src="js/src/mutation/util/JmolWrapper.js?<%=GlobalProperties.getAppVersion()%>"></script>--%>
+<%--<script type="text/javascript" src="js/src/mutation/util/JSmolWrapper.js?<%=GlobalProperties.getAppVersion()%>"></script>--%>
+<%--<script type="text/javascript" src="js/src/mutation/util/MolScriptGenerator.js?<%=GlobalProperties.getAppVersion()%>"></script>--%>
+<%--<script type="text/javascript" src="js/src/mutation/util/JmolScriptGenerator.js?<%=GlobalProperties.getAppVersion()%>"></script>--%>
+<%--<script type="text/javascript" src="js/src/mutation/util/PymolScriptGenerator.js?<%=GlobalProperties.getAppVersion()%>"></script>--%>
+<%--<script type="text/javascript" src="js/src/mutation/data/PdbDataProxy.js?<%=GlobalProperties.getAppVersion()%>"></script>--%>
+<%--<script type="text/javascript" src="js/src/mutation/data/MutationDataProxy.js?<%=GlobalProperties.getAppVersion()%>"></script>--%>
+<%--<script type="text/javascript" src="js/src/mutation/controller/MutationDetailsEvents.js?<%=GlobalProperties.getAppVersion()%>"></script>--%>
+<%--<script type="text/javascript" src="js/src/mutation/controller/MainMutationController.js?<%=GlobalProperties.getAppVersion()%>"></script>--%>
+<%--<script type="text/javascript" src="js/src/mutation/controller/Mutation3dController.js?<%=GlobalProperties.getAppVersion()%>"></script>--%>
+<%--<script type="text/javascript" src="js/src/mutation/controller/MutationDetailsTableController.js?<%=GlobalProperties.getAppVersion()%>"></script>--%>
+<%--<script type="text/javascript" src="js/src/mutation/controller/MutationDiagramController.js?<%=GlobalProperties.getAppVersion()%>"></script>--%>
+<%--<script type="text/javascript" src="js/src/mutation/controller/MutationDetailsController.js?<%=GlobalProperties.getAppVersion()%>"></script>--%>
 
 
 

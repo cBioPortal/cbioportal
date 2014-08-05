@@ -100,11 +100,12 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         sortBy.prop('disabled', enable_disable).trigger("liszt:updated");
     };
 
-    var resetclinicalAttribute = function()
+    //delete clinicalAttribute added before
+    var resetClinicalAttribute = function()
     {
         oncoprint.remove_oncoprint();
         inner_loader_img.show();
-        toggleControls(false);
+        toggleControls(false); //disable toggleControls
 
         inner_loader_img.hide();
 
@@ -115,9 +116,9 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         });
 
         oncoprint.sortBy(sortBy.val(), cases.split(" "));
-
-        // disable the option to sort by clinical data
-        $(sortBy.add('option[value="clinical"]')[1]).prop('disabled', true);
+        toggleControls(true);
+//        // disable the option to sort by clinical data
+//        $(sortBy.add('option[value="clinical"]')[1]).prop('disabled', true);
     }
 
     // handler for when user selects a clinical attribute to visualization
@@ -180,9 +181,9 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         oncoprint.zoom(zoom.slider("value"));
                         oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
                         oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
-                        utils.make_mouseover(d3.selectAll('.sample rect'));        // hack =(
+                        utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
                         
-                        $('.special_delete').click(resetclinicalAttribute);
+                        $('.special_delete').click(resetClinicalAttribute);// enable delete symbol "x" function
                     }
                 });
             }
@@ -224,9 +225,9 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         oncoprint.zoom(zoom.slider("value"));
                         oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
                         oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
-                        utils.make_mouseover(d3.selectAll('.sample rect'));        // hack =(
+                        utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
                         
-                        $('.special_delete').click(resetclinicalAttribute);
+                        $('.special_delete').click(resetClinicalAttribute);// enable delete symbol "x" function
                     }
                 });
             }
@@ -242,7 +243,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         
         $('#toggle_unaltered_cases').click(function() {
             oncoprint.toggleUnalteredCases();
-            utils.make_mouseover(d3.selectAll('.sample rect'));     // hack =(
+            utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});     // hack =(
 //            oncoprint.sortBy(sortBy.val());
         });
 

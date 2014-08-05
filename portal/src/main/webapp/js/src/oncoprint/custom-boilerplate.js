@@ -72,7 +72,7 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
 
             $('#toggle_unaltered_cases').click(function() {
                 oncoprint.toggleUnalteredCases();
-                OncoprintUtils.make_mouseover(d3.selectAll('.sample rect'));     // hack =(
+                OncoprintUtils.make_mouseover(d3.selectAll('.sample rect'), {linkage:false});     // hack =(
 //            oncoprint.sortBy(sortBy.val());
             });
 
@@ -104,7 +104,7 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
                                 var a=document.createElement('a');
                                 a.href='data:text/plain;base64,'+btoa(samples);
                                 a.textContent='download';
-                                a.download='OncoPrintSample.txt';
+                                a.download='OncoPrintSamples.txt';
                                 a.click();
                                 a.delete();
                             });
@@ -132,7 +132,7 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
             oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
             oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
 //            oncoprint.sortBy(sortBy.val());
-            OncoprintUtils.make_mouseover(d3.selectAll('.sample rect'));        // hack =(
+            OncoprintUtils.make_mouseover(d3.selectAll('.sample rect'), {linkage:false});        // hack =(
 
             return false;
         };

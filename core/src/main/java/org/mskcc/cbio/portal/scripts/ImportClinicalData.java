@@ -35,6 +35,40 @@ public class ImportClinicalData {
 	private File clinicalDataFile;
 	private CancerStudy cancerStudy;
     private Entity cancerStudyEntity;
+
+    public static enum MissingAttributeValues
+    {
+        NOT_APPLICABLE("Not Applicable"),
+        NOT_AVAILABLE("Not Available"),
+        PENDING("Pending"),
+        DISCREPANCY("Discrepancy"),
+        COMPLETED("Completed"),
+        NULL("null"),
+        MISSING("");
+
+        private String propertyName;
+        
+        MissingAttributeValues(String propertyName) { this.propertyName = propertyName; }
+        public String toString() { return propertyName; }
+
+        static public boolean has(String value) {
+            if (value == null) return false;
+            if (value.equals("")) return true;
+            try { 
+                value = value.replaceAll("[\\[|\\]]", "");
+                value = value.replaceAll(" ", "_");
+                return valueOf(value.toUpperCase()) != null; 
+            }
+            catch (IllegalArgumentException x) { 
+                return false;
+            }
+        }
+
+        static public String getNotAvailable()
+        {
+            return "[" + NOT_AVAILABLE.toString() + "]";
+        }
+    }
 	
     public ImportClinicalData(CancerStudy cancerStudy, File clinicalDataFile)
     {
@@ -163,6 +197,9 @@ public class ImportClinicalData {
             addSampleToDatabase(stableSampleId, fields, columnAttrs) : new int[] {-1,-1};
 
         for (int lc = 0; lc < fields.length; lc++) {
+            if (MissingAttributeValues.has(fields[lc])) {
+                continue;
+            }
             boolean isPatientAttribute = columnAttrs.get(lc).isPatientAttribute(); 
             int indexOfIdColumn = (isPatientAttribute) ? patientIdIndex : sampleIdIndex; 
             if (addAttributeToDatabase(lc, indexOfIdColumn, fields[lc])) {

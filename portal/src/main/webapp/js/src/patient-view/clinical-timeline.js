@@ -90,7 +90,7 @@
       gParent.append('text')
           .attr("class", "timeline-label")
           .attr("transform", "translate("+ 0 +","+ (margin.top)+")")
-          .text("Months to diagnosis");
+          .text("Months since diagnosis");
 
       // draw the chart
       g.each(function(d, i) {

@@ -30,7 +30,7 @@
 	// TODO 3d Visualizer should be initialized before document get ready
 	// ...due to incompatible Jmol initialization behavior
 	var _mut3dVis = null;
-	_mut3dVis = new Mutation3dVis("crossCancer3dView", {});
+	_mut3dVis = new Mutation3dVis("crossCancer3dView", {frame: "jsmol_frame.jsp"});
 	_mut3dVis.init();
 
 	// Prepare eveything only if the page is ready to load
@@ -952,31 +952,45 @@
                             // init mutation data proxy with the data servlet config
                             var proxy = new MutationDataProxy(genes.join(" "));
                             proxy.initWithoutData(servletName, servletParams);
+
                             // init default mutation details view
-                            var model = {
-                                mutationProxy: proxy,
-                                sampleArray: [],
-                                diagramOpts: {
-                                    showStats: true
-                                },
-	                            tableOpts: {
-		                            // TODO define custom functions where necessary
-		                            columnVisibility: {
-			                            "cancerStudy": "visible",
-			                            // exclude tumor type for now
-			                            "tumorType": "excluded"
-		                            }
-	                            }
-                            };
 
-                            var el = "#mutation_details";
-                            $(el).html("");
+	                        var el = "#mutation_details";
+	                        $(el).html("");
 
-                            var defaultView = MutationViewsUtil.initMutationDetailsView(
+	                        var options = {
+		                        el: el,
+		                        data: {
+			                        geneList: proxy.getRawGeneList(),
+			                        sampleList: []
+		                        },
+		                        proxy: {
+			                        mutation: {
+				                        instance: proxy
+			                        }
+		                        },
+		                        view: {
+			                        mutationDiagram: {
+				                        showStats: true
+			                        },
+			                        mutationTable: {
+				                        // TODO define custom functions where necessary
+				                        columnVisibility: {
+					                        "cancerStudy": "visible",
+					                        // exclude tumor type for now
+					                        "tumorType": "excluded"
+				                        }
+			                        }
+		                        }
+	                        };
+
+                            var defaultMapper = MutationViewsUtil.initMutationMapper(
 	                            el, // target div
-	                            {el: el, model: model, mut3dVis: _mut3dVis}, // view options
+	                            options, // mapper (view) options
 	                            "#tabs", // main tabs (containing the mutations tab)
-	                            "Mutations"); // name of the mutations tab
+	                            "Mutations", // name of the mutations tab
+	                            _mut3dVis);
+
                             // end of mutation details
 
                         });

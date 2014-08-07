@@ -11,7 +11,7 @@
 	<div class="standalone-mutation-visualizer">
         <h1 style="display:inline;">MutationMapper</h1>
         interprets mutations with protein annotations
-        (<a href="release_notes_oncoprinter.jsp" onclick="return popitup('release_notes_oncoprinter.jsp');">v1.0</a>)
+        (<a href="release_notes_mutation_mapper.jsp" onclick="return popitup('release_notes_mutation_mapper.jsp');">v1.0</a>)
 
 		<div class='mutation-input-field-expander' style="margin-top:10px">
 			<span class="triangle triangle-right ui-icon ui-icon-triangle-1-e"></span>

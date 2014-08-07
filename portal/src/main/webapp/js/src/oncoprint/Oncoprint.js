@@ -12,7 +12,7 @@
 define("Oncoprint",
         [           "OncoprintUtils",  "MemoSort"],
         function(   utils,              MemoSort) {
-            return function(div, params) {
+            return function(div, params,tracks) {
                 params.clinicalData = params.clinicalData || [];        // initialize
                 params.clinical_attrs = params.clinical_attrs || [];
 
@@ -34,7 +34,8 @@ define("Oncoprint",
                 clinical_attrs = clinical_attrs.filter(function(i) { return i !== undefined; });
                 clinical_attrs = clinical_attrs || params.clinical_attrs;
 
-                var attributes = clinical_attrs.concat(params.genes);
+//                var attributes = clinical_attrs.concat(params.genes);
+                var attributes = tracks.concat(params.genes);
 
                 data = utils.process_data(data, attributes);
 
@@ -142,10 +143,12 @@ define("Oncoprint",
 
                 label.append('tspan')       // percent_altered
                     .text(function(d) {
-                        return (d in gene2percent) ? gene2percent[d].toString() + "%" : "X"; })
-                    .attr('fill',function(d){ return (d in gene2percent) ? 'black':'blue'})
+                        return (d in gene2percent) ? gene2percent[d].toString() + "%" : "x"; })
+                    .attr('fill',function(d){ return (d in gene2percent) ? 'black':'#87CEFA'})
                     .attr('class',function(d){ return (d in gene2percent) ? 'regular':'special_delete'})
+                    .attr('alt',function(d){ return (d in gene2percent) ? 'regular':d})
                     .attr('x', '' + dims.label_width)
+                    .attr('cursor', 'pointer')
                     .attr('text-anchor', 'end');
                     // remove the tspan that would have contained the percent altered
                     // because it messes with the label placement in the pdf download
@@ -217,9 +220,10 @@ define("Oncoprint",
                                 return utils.cna_fills[d.cna];
                             }
                             else if (utils.is_clinical(d)) {
+                                var result = attr2range[d.attr_id](d.attr_val);
                                 return d.attr_val === "NA"
                             ? colors.grey       // attrs with value of NA are colored grey
-                            : attr2range[d.attr_id](d.attr_val);
+                            : result;
                             }
                         })
                     .attr('height', function(d) {

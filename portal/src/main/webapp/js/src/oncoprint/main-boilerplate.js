@@ -44,7 +44,10 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
     });
 
     var oncoprint;
-
+    
+    var extraTracks=[]; // used to record tracks add customized
+    var extraGenes=[]; // used to record genes add customized
+    var extraAttributes=[]; // used to record attributes add customized
     var cases = window.PortalGlobals.getCases();
     var genes = window.PortalGlobals.getGeneListString().split(" ");
 
@@ -67,7 +70,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 geneData: data.toJSON(),
                 genes: genes,
                 legend: document.getElementById('oncoprint_legend')
-            });
+            },extraTracks);
             outer_loader_img.hide();
             $('#oncoprint #everything').show();
 
@@ -101,7 +104,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
     };
 
     //delete clinicalAttribute added before
-    var resetClinicalAttribute = function()
+    var removeClinicalAttribute = function()
     {
         oncoprint.remove_oncoprint();
         inner_loader_img.show();
@@ -111,12 +114,41 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
         oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
             geneData: geneDataColl.toJSON(),
+            clinicalData: extraGenes,
             genes: genes,
+            clinical_attrs: extraAttributes,
             legend: document.getElementById('oncoprint_legend')
-        });
+        },extraTracks);
 
         oncoprint.sortBy(sortBy.val(), cases.split(" "));
         toggleControls(true);
+        $('.special_delete').click(function() {
+            var attr = $(this).attr("alt");
+            var indexNum = extraTracks.indexOf(attr);
+            extraTracks.splice(indexNum, 1);
+            extraGenes.splice(indexNum, 1);
+            extraAttributes.splice(indexNum, 1);
+            removeClinicalAttribute();
+        });// enable delete symbol "x" function
+        //
+        //tooltip for the track deletion function
+        $('.special_delete').qtip({
+                    content: {text: 'click here to delete this track!'},
+                    position: {my:'left bottom', at:'top right', viewport: $(window)},
+                    style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                    show: {event: "mouseover"},
+                    hide: {fixed: true, delay: 100, event: "mouseout"}
+                    });
+        $('.special_delete').hover(
+                    function () {
+                    $(this).css('fill', '#0000FF');
+                    $(this).css('font-size', '18px');
+                    },
+                    function () {
+                    $(this).css('fill', '#87CEFA');
+                    $(this).css('font-size', '12px');
+                    });
+        oncoprint.sortBy(sortBy.val(), cases.split(" "));
 //        // disable the option to sort by clinical data
 //        $(sortBy.add('option[value="clinical"]')[1]).prop('disabled', true);
     }
@@ -136,7 +168,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 geneData: geneDataColl.toJSON(),
                 genes: genes,
                 legend: document.getElementById('oncoprint_legend')
-            });
+            },extraTracks);
 
             oncoprint.sortBy(sortBy.val(), cases.split(" "));
 
@@ -156,25 +188,37 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                     },
                     success: function(response) {
                         inner_loader_img.hide();
-
+                        
+                        extraTracks = extraTracks.concat(response.attributes().map(function(attr) { return attr.attr_id; }));
+                        extraGenes = extraGenes.concat(response.toJSON());
+                        extraAttributes=extraAttributes.concat(response.attributes());
                         oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
                             geneData: geneDataColl.toJSON(),
-                            clinicalData: response.toJSON(),
+                            clinicalData: extraGenes,
                             genes: genes,
-                            clinical_attrs: response.attributes(),
+                            clinical_attrs: extraAttributes,
                             legend: document.getElementById('oncoprint_legend')
-                        });
-
+                        },extraTracks);
+                             
                         oncoprint.sortBy(sortBy.val(), cases.split(" "));
 
                         // enable the option to sort by clinical data
                         $(sortBy.add('option[value="clinical"]')[1]).prop('disabled', false);
 
-                        // sort by genes by default
-                        sortBy.val('genes');
+//                        // sort by genes by default
+//                        sortBy.val('genes');
 
                         toggleControls(true);
-
+                        
+                        $('.special_delete').click(function() {
+                            var attr = $(this).attr("alt");
+                            var indexNum = extraTracks.indexOf(attr);
+                            extraTracks.splice(indexNum, 1);
+                            extraGenes.splice(indexNum, 1);
+                            extraAttributes.splice(indexNum, 1);
+                            removeClinicalAttribute();
+                        });// enable delete symbol "x" function
+                        
                         zoom = reset_zoom();
 
                         // sync
@@ -182,15 +226,26 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
                         oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
                         utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
-                        
-                        $('.special_delete').click(resetClinicalAttribute);// enable delete symbol "x" function
+
+
                         //tooltip for the track deletion function
                         $('.special_delete').qtip({
                                     content: {text: 'click here to delete this track!'},
                                     position: {my:'left bottom', at:'top right', viewport: $(window)},
                                     style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                                     show: {event: "mouseover"},
-                                    hide: {fixed: true, delay: 100, event: "mouseout"}});
+                                    hide: {fixed: true, delay: 100, event: "mouseout"}
+                                });
+                                
+                        $('.special_delete').hover(
+                                    function () {
+                                    $(this).css('fill', '#0000FF');
+                                    $(this).css('font-size', '18px');
+                                    },
+                                    function () {
+                                    $(this).css('fill', '#87CEFA');
+                                    $(this).css('font-size', '12px');
+                                    });
                     }
                 });
             }
@@ -207,24 +262,38 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                     },
                     success: function(response) {
                         inner_loader_img.hide();
-
+                        
+                        extraTracks = extraTracks.concat(response.attributes().map(function(attr) { return attr.attr_id; }));
+                        extraGenes = extraGenes.concat(response.toJSON());
+                        extraAttributes=extraAttributes.concat(response.attributes());
                         oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
                             geneData: geneDataColl.toJSON(),
-                            clinicalData: response.toJSON(),
+                            clinicalData: extraGenes,
                             genes: genes,
-                            clinical_attrs: response.attributes(),
+                            clinical_attrs: extraAttributes,
                             legend: document.getElementById('oncoprint_legend')
-                        });
+                        },extraTracks);
 
                         oncoprint.sortBy(sortBy.val(), cases.split(" "));
 
                         // enable the option to sort by clinical data
                         $(sortBy.add('option[value="clinical"]')[1]).prop('disabled', false);
 
-                        // sort by genes by default
-                        sortBy.val('genes');
+//                        // sort by genes by default
+//                        sortBy.val('genes');
 
                         toggleControls(true);
+
+                        $('.special_delete').click(function() {
+                            var attr = $(this).attr("alt");
+                            var indexNum = extraTracks.indexOf(attr);
+                            extraTracks.splice(indexNum, 1);
+                            extraGenes.splice(indexNum, 1);
+                            extraAttributes.splice(indexNum, 1);
+                            removeClinicalAttribute();
+                            //removeClinicalAttribute($(this).attr("alt"));
+                            //resetClinicalAttribute
+                        });// enable delete symbol "x" function
 
                         zoom = reset_zoom();
 
@@ -233,15 +302,25 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
                         oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
                         utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
-                        
-                        $('.special_delete').click(resetClinicalAttribute);// enable delete symbol "x" function
+
                         //tooltip for the track deletion function
                         $('.special_delete').qtip({
                                     content: {text: 'click here to delete this track!'},
                                     position: {my:'left bottom', at:'top right', viewport: $(window)},
                                     style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                                     show: {event: "mouseover"},
-                                    hide: {fixed: true, delay: 100, event: "mouseout"}});
+                                    hide: {fixed: true, delay: 100, event: "mouseout"}
+                                });
+                                
+                        $('.special_delete').hover(
+                                    function () {
+                                    $(this).css('fill', '#0000FF');
+                                    $(this).css('font-size', '18px');
+                                    },
+                                    function () {
+                                    $(this).css('fill', '#87CEFA');
+                                    $(this).css('font-size', '12px');
+                                    });
                     }
                 });
             }

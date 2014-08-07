@@ -22,9 +22,10 @@ define("OncoprintUtils", (function() {
     //
     // returns: data nested by the key, "sample"
     var nest_data = function(data) {
-        return d3.nest()
+        var result = d3.nest()
     .key(function(d) { return d.sample; })
     .entries(data);
+        return result;
     };
 
     // returns the gene name or the attr_id, whatever the piece of data has
@@ -46,10 +47,10 @@ define("OncoprintUtils", (function() {
         trues = _.map(trues, function() { return true; });
 
         var attribute_set = _.object(attributes, trues);
-
-        return _.filter(data, function(datum) {
+        var result = _.filter(data, function(datum) {
             return attribute_set[get_attr(datum)];
         });
+        return result;
     };
 
     // params: element of a nested list, list of attributes
@@ -275,7 +276,7 @@ define("OncoprintUtils", (function() {
             return colors.google.slice(0, attrId2range[attr_id].length);
         };
 
-        return _.chain(attrs)
+        var result = _.chain(attrs)
             .map(function(attr) {
                 // attr -> [attr_id, d3 scale]
                 var scale;
@@ -326,6 +327,8 @@ define("OncoprintUtils", (function() {
             })
         .object()
             .value();
+    
+            return result;
     };
 
     // params: sample

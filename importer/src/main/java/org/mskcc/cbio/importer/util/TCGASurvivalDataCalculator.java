@@ -19,8 +19,9 @@ package org.mskcc.cbio.importer.util;
 
 import org.mskcc.cbio.importer.model.DataMatrix;
 import org.mskcc.cbio.importer.SurvivalDataCalculator;
-import org.mskcc.cbio.portal.model.ClinicalAttribute;
 import org.mskcc.cbio.importer.model.SurvivalStatus;
+import org.mskcc.cbio.portal.model.ClinicalAttribute;
+import org.mskcc.cbio.portal.scripts.ImportClinicalData.MissingAttributeValues;
 
 import java.util.*;
 import java.util.regex.*;
@@ -40,40 +41,6 @@ public class TCGASurvivalDataCalculator implements SurvivalDataCalculator
     private static final Pattern FOLLOW_UP_PATIENT_ID_REGEX = Pattern.compile("^(TCGA-\\w\\w-\\w\\w\\w\\w)-.*$");
     
     private List<String> canonicalPatientList;
-
-    private static enum MissingAttributeValues
-    {
-        NOT_APPLICABLE("Not Applicable"),
-        NOT_AVAILABLE("Not Available"),
-        PENDING("Pending"),
-        DISCREPANCY("Discrepancy"),
-        COMPLETED("Completed"),
-        NULL("null"),
-        MISSING("");
-
-        private String propertyName;
-        
-        MissingAttributeValues(String propertyName) { this.propertyName = propertyName; }
-        public String toString() { return propertyName; }
-
-        static public boolean has(String value) {
-            if (value == null) return false;
-            if (value.equals("")) return true;
-            try { 
-                value = value.replaceAll("[\\[|\\]]", "");
-                value = value.replaceAll(" ", "_");
-                return valueOf(value.toUpperCase()) != null; 
-            }
-            catch (IllegalArgumentException x) { 
-                return false;
-            }
-        }
-
-        static public String getNotAvailable()
-        {
-            return "[" + NOT_AVAILABLE.toString() + "]";
-        }
-    }
 
     private static enum VitalStatusAlive
     {

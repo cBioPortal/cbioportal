@@ -1,3 +1,8 @@
+# August 8, 2014
+* [Two new standalone tools](tools.jsp) for visualization user-uploaded data
+    * [Oncoprinter](oncoprinter.jsp) for generating oncoprints
+    * [MutationMapper](mutation_mapper.jsp) for interpreting mutations with protein annotations
+
 # May 21, 2014
 * All TCGA data updated to the Firehose run of April 16, 2014
 

@@ -26,7 +26,6 @@
 # September 5, 2013:
 
 * Linked to BAM files for single mutations via IGV.
-* [New standalone oncoprint tool](tools.jsp)
 * Updated COSMIC data (v66 Release)
 * Improved / interactive visualization on the "Protein changes" tab
 * Enhanced mutation diagrams: color-coding by mutation time and syncing with table filters

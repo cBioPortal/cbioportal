@@ -35,6 +35,40 @@ public class ImportClinicalData {
 	private File clinicalDataFile;
 	private CancerStudy cancerStudy;
     private Entity cancerStudyEntity;
+
+    public static enum MissingAttributeValues
+    {
+        NOT_APPLICABLE("Not Applicable"),
+        NOT_AVAILABLE("Not Available"),
+        PENDING("Pending"),
+        DISCREPANCY("Discrepancy"),
+        COMPLETED("Completed"),
+        NULL("null"),
+        MISSING("");
+
+        private String propertyName;
+        
+        MissingAttributeValues(String propertyName) { this.propertyName = propertyName; }
+        public String toString() { return propertyName; }
+
+        static public boolean has(String value) {
+            if (value == null) return false;
+            if (value.equals("")) return true;
+            try { 
+                value = value.replaceAll("[\\[|\\]]", "");
+                value = value.replaceAll(" ", "_");
+                return valueOf(value.toUpperCase()) != null; 
+            }
+            catch (IllegalArgumentException x) { 
+                return false;
+            }
+        }
+
+        static public String getNotAvailable()
+        {
+            return "[" + NOT_AVAILABLE.toString() + "]";
+        }
+    }
 	
     public ImportClinicalData(CancerStudy cancerStudy, File clinicalDataFile)
     {
@@ -68,18 +102,20 @@ public class ImportClinicalData {
 
         String line = buff.readLine();
         String[] displayNames = splitFields(line);
-        String[] descriptions, datatypes, attributeTypes, colnames;
+        String[] descriptions, datatypes, attributeTypes, priorities, colnames;
         if (line.startsWith(METADATA_PREFIX)) {
             // contains meta data about the attributes
             descriptions = splitFields(buff.readLine());
             datatypes = splitFields(buff.readLine());
             attributeTypes = splitFields(buff.readLine());
+            priorities = splitFields(buff.readLine());
             colnames = splitFields(buff.readLine());
 
             if (displayNames.length != colnames.length
                 ||  descriptions.length != colnames.length
                 ||  datatypes.length != colnames.length
-                ||  attributeTypes.length != colnames.length) {
+                ||  attributeTypes.length != colnames.length
+                ||  priorities.length != colnames.length) {
                 throw new DaoException("attribute and metadata mismatch in clinical staging file");
             }
         } else {
@@ -91,6 +127,8 @@ public class ImportClinicalData {
             Arrays.fill(datatypes, ClinicalAttribute.DEFAULT_DATATYPE);
             attributeTypes = new String[colnames.length];
             Arrays.fill(attributeTypes, ClinicalAttribute.SAMPLE_ATTRIBUTE);
+            priorities = new String[colnames.length];
+            Arrays.fill(priorities, "1");
             displayNames = new String[colnames.length];
             Arrays.fill(displayNames, ClinicalAttribute.MISSING);
         }
@@ -99,7 +137,8 @@ public class ImportClinicalData {
             ClinicalAttribute attr =
                 new ClinicalAttribute(colnames[i], displayNames[i],
                                       descriptions[i], datatypes[i],
-                                      attributeTypes[i].equals(ClinicalAttribute.PATIENT_ATTRIBUTE));
+                                      attributeTypes[i].equals(ClinicalAttribute.PATIENT_ATTRIBUTE),
+                                      priorities[i]);
             if (null==DaoClinicalAttribute.getDatum(attr.getAttrId())) {
                 DaoClinicalAttribute.addDatum(attr);
                 ImportDataUtil.entityAttributeService.insertAttributeMetadata(colnames[i], displayNames[i],
@@ -163,6 +202,9 @@ public class ImportClinicalData {
             addSampleToDatabase(stableSampleId, fields, columnAttrs) : new int[] {-1,-1};
 
         for (int lc = 0; lc < fields.length; lc++) {
+            if (MissingAttributeValues.has(fields[lc])) {
+                continue;
+            }
             boolean isPatientAttribute = columnAttrs.get(lc).isPatientAttribute(); 
             int indexOfIdColumn = (isPatientAttribute) ? patientIdIndex : sampleIdIndex; 
             if (addAttributeToDatabase(lc, indexOfIdColumn, fields[lc])) {

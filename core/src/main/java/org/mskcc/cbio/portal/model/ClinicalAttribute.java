@@ -44,13 +44,16 @@ public class ClinicalAttribute  {
     private String description;
     private String datatype;
     private boolean patientAttribute;
+    private String priority;
 
-    public ClinicalAttribute(String attributeId, String displayName, String description, String datatype, boolean patientAttribute) {
+    public ClinicalAttribute(String attributeId, String displayName, String description,
+                             String datatype, boolean patientAttribute, String priority) {
         this.attributeId = attributeId;
 		this.displayName = displayName;
 		this.description = description;
         this.datatype = datatype;
         this.patientAttribute = patientAttribute;
+        this.priority = priority;
     }
 
     @Override
@@ -59,6 +62,7 @@ public class ClinicalAttribute  {
 			attributeId + "," +
 			displayName + "," +
 			description + "," +
+            priority + "," +
 			datatype + "]";
     }
 
@@ -101,4 +105,12 @@ public class ClinicalAttribute  {
 	public void setPatientAttribute(boolean patientAttribute) {
 		this.patientAttribute = patientAttribute;
 	}
+
+    public String getPriority() {
+        return priority;
+    }
+
+    public void setPriority(String priority) {
+        this.priority = priority;
+    }
 }

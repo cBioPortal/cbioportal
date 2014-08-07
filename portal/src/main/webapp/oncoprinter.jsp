@@ -17,13 +17,37 @@
         height: 18px;
         border-radius: 9px;
     }
+    .tooltip-sample{
+    display:none;
+    background-color:white;
+    position:absolute;
+    border:1px solid red;
+    border-radius: 5px;
+    padding:5px;
+    top:-30px;
+    left:20px;
+    width: 200px;
+    }
+    
+    .sample-download:hover .tooltip-sample{
+    display:block;
+    }
 </style>
 
 <link href="css/bootstrap.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 
-<div id="container" style="margin-left:50px;">
-    <h1>Oncoprinter</h1>
-    <p>(<a href="faq.jsp#what-are-oncoprints">What are Oncoprints?</a>)</p>
+<div id="container" style="margin-left:20px;">
+    <h1 style="display:inline;">OncoPrinter</h1>
+    <script type="text/javascript">
+        function popitup(url) {
+            var newwindow=window.open(url,'OncoPrinterReleaseNotes','height=600,width=800,left=400,top=0,scrollbars=yes');
+            if (window.focus) {newwindow.focus();}
+            return false;
+        }
+    </script>
+    generates <a href="faq.jsp#what-are-oncoprints">Oncoprints</a> from you own data
+    (<a href="release_notes_oncoprinter.jsp" onclick="return popitup('release_notes_oncoprinter.jsp');">v1.0</a>)
+    
        <div id="inner-conainter" style="width:70%;"> 
         <div style="margin-top:20px;">
             <p>
@@ -126,11 +150,19 @@
         <span>
         <button class="oncoprint-download" type="pdf" style="display:inline;font-size: 13px; width: 50px;">PDF</button>
         <button class="oncoprint-download" type="svg" style="display:inline;font-size: 13px; width: 50px;">SVG</button>
-        <button title="Download the list of samples, sorted in the order in which they are displayed in OncoPrint(left to right)" class="sample-download" type="txt" style="display:inline;font-size: 13px; width: 75px;">SAMPLES</button>
+        <button class="sample-download" type="txt" style="display:inline;font-size: 13px; width: 75px;">SAMPLES</button>
         </span>
     </div>
 </div>
-
+        <script type="text/javascript"> 
+               $('.sample-download').qtip({
+                content: {text: 'Download the list of samples, sorted in the order in which they are displayed in the OncoPrint (left to right)'},
+                position: {my:'left bottom', at:'top right', viewport: $(window)},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                show: {event: "mouseover"},
+                hide: {fixed: true, delay: 100, event: "mouseout"}
+            });
+        </script>
 </div>
 </td>
 </tr>

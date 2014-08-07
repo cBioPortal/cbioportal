@@ -23,6 +23,15 @@
         <img id="inner_loader_img" src="images/ajax-loader.gif" style="display:none;">
         <div id="oncoprint_body"></div>
         </div>
+        <script type="text/javascript"> 
+               $('.oncoprint-sample-download').qtip({
+                content: {text: 'Download the list of samples, sorted in the order in which they are displayed in the OncoPrint (left to right)'},
+                position: {my:'left bottom', at:'top right', viewport: $(window)},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                show: {event: "mouseover"},
+                hide: {fixed: true, delay: 100, event: "mouseout"}
+            });
+        </script>    
         <div id="oncoprint_legend"></div>
         <%@ include file="legend-template.jsp" %>
 

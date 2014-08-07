@@ -37,6 +37,9 @@ $MARKDOWN -x toc visualize_your_data.markdown > ../../webapp/content/visualize_y
 
 $MARKDOWN -x toc data_sets_public_right_column.markdown > ../../webapp/content/data_sets_public_right_column.html
 
+$MARKDOWN -x toc release_notes_oncoprinter.markdown > ../../webapp/content/release_notes_oncoprinter.html
+$MARKDOWN -x toc release_notes_mutation_mapper.markdown > ../../webapp/content/release_notes_mutation_mapper.html
+
 cp data_sets_tcga.html ../../webapp/content/
 cp data_sets_su2c.html ../../webapp/content/
 cp data_sets_public.html ../../webapp/content/

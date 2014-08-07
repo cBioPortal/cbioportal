@@ -47,10 +47,13 @@
 		margin-bottom: 20px;
 	}
 	.load-example-data {
+		margin-left: 10px;
+	}
+	.mutation-data-format {
 		margin-left: 20px;
 	}
 	.mutation-input-format-info {
-		margin-bottom: 20px;
+		/*margin-bottom: 20px;*/
 	}
 </style>
 

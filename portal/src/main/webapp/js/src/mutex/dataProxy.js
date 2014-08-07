@@ -57,6 +57,10 @@ var MutexData = (function() {
 			num_of_mutex: 0, //number of mutual exclusive
 			num_of_sig_mutex: 0, //number of significant mutual exclusive (p value < 0.05)
 			num_of_no_association: 0 //number of no association
+		},
+		settings = {
+			p_val_threshold: 0.05,
+			log_odds_ratio_threshold: 0
 		};
 
 	var processData = function() {
@@ -131,32 +135,26 @@ var MutexData = (function() {
 					var _dataObj = dataArr[index];
 					
 					_dataObj.p_value = parseFloat(value).toFixed(3);
-					if (_dataObj.p_value === "0.000") {
-						_dataObj.p_value = "<0.001";
-					}
-
 					if (_dataObj.b !== 0 && _dataObj.c !== 0) {
 						_dataObj.odds_ratio = (_dataObj.a * _dataObj.d) / (_dataObj.b * _dataObj.c);
 						
-						//Omit the real value of log 
+						//normalize the large log values
 						_dataObj.log_odds_ratio = Math.log(_dataObj.odds_ratio).toFixed(3);
 						if (_dataObj.log_odds_ratio < -3 || _dataObj.log_odds_ratio === "-Infinity") {
-							_dataObj.log_odds_ratio = "<-3";
+							_dataObj.log_odds_ratio = -4;
 						} else if (_dataObj.log_odds_ratio > 3) {
-							_dataObj.log_odds_ratio = ">3";
+							_dataObj.log_odds_ratio = 4;
 						}
 
 						//categorize
-						if (0 <= _dataObj.odds_ratio && _dataObj.odds_ratio <= 0.5) {
-							if (_dataObj.p_value < 0.05 || _dataObj.p_value === "<0.001") {
+						if (_dataObj.log_odds_ratio <= settings.log_odds_ratio_threshold) {
+							if (_dataObj.p_value < settings.p_val_threshold) {
 								_dataObj.association = "Significant tendency towards <b>mutual exclusivity</b>";
 							} else {
 								_dataObj.association = "Tendency towards <b>mutual exclusivity</b>";
 							}
-						} else if (0.5 < _dataObj.odds_ratio && _dataObj.odds_ratio < 2) {
-							_dataObj.association = "No association";
-						} else if (2 <= _dataObj.odds_ratio) {
-							if (_dataObj.p_value < 0.05 || _dataObj.p_value === "<0.001") {
+						} else if (_dataObj.log_odds_ratio > settings.log_odds_ratio_threshold) {
+							if (_dataObj.p_value < settings.p_val_threshold) {
 								_dataObj.association = "Significant tendency towards <b>co-occurrence</b>";
 							} else {
 								_dataObj.association = "Tendency towards <b>co-occurrence</b>";
@@ -174,22 +172,17 @@ var MutexData = (function() {
 
 	function buildStat() {
 		$.each(dataArr, function(index, obj) {
-			if (obj.odds_ratio >= 2) {
-				stat.num_of_co_oc += 1;
-				if (obj.p_value === "<0.001" ||
-					obj.p_value < 0.05) {
-					stat.num_of_sig_co_oc += 1;
-				}
-			} else if (obj.odds_ratio <= 0.5 &&
-					   obj.odds_ratio >= 0) {		
+			if (obj.odds_ratio <= settings.log_odds_ratio_threshold) {		
 				stat.num_of_mutex += 1;
-				if (obj.p_value === "<0.001" ||
-					obj.p_value < 0.05) {
+				if (obj.p_value < settings.p_val_threshold) {
 					stat.num_of_sig_mutex += 1;
 				}		
-			} else {
-				stat.num_of_no_association += 1;
-			}
+			} else if (obj.log_odds_ratio > settings.log_odds_ratio_threshold) {
+				stat.num_of_co_oc += 1;
+				if (obj.p_value < settings.p_val_threshold) {
+					stat.num_of_sig_co_oc += 1;
+				}
+			}  
 		});
 		MutexView.init();
 	}

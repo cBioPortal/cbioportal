@@ -15,8 +15,7 @@
     <div id='mutex-wrapper' style='width: 1000px; margin-top: 20px; margin-left: 20px;'>
         <div id="mutex-info-div">
             <p>The query contains <span id='num_of_mutex' class='stat_num'></span> gene pairs with mutually exclusive alterations (<span id='num_of_sig_mutex' class='stat_num'></span> significant),
-            <span id='num_of_co_oc' class='stat_num'></span> gene pairs with co-occurrent alterations (<span id='num_of_sig_co_oc' class='stat_num'></span> significant) and <span id='num_of_no_association' class='stat_num'></span> gene pairs with no association.</p>
-        </div>
+            and <span id='num_of_co_oc' class='stat_num'></span> gene pairs with co-occurrent alterations (<span id='num_of_sig_co_oc' class='stat_num'></span> significant).
         <div id='mutex-loading-image'>
             <img style='padding:200px;' src='images/ajax-loader.gif'>
         </div>
@@ -28,15 +27,9 @@
 <script>
     $(document).ready( function() {
         MutexData.init();
-        var mutex_tab_init = false;
         $("#tabs").bind("tabsactivate", function(event, ui) {
             if (ui.newTab.text().trim().toLowerCase() === "mutual exclusivity") {
-                if (mutex_tab_init === false) {
-                    MutexData.init();
-                    MutexView.resize();
-                } else {
-                    MutexView.resize();
-                }
+                MutexView.resize();
             }
         });
     });

@@ -120,7 +120,7 @@
                 $('td:eq(' + index.geneB + ')', nRow).css("font-weight", "bold");
                 $('td:eq(' + index.pVal + ')', nRow).css("color", colorCode.pVal);
                 $('td:eq(' + index.oddsRatio + ')', nRow).css("color", colorCode.oddsRatio);
-                if (aData[index.pVal] <= 0.05 || aData[index.pVal] === "<0.001") { //significate p value
+                if (aData[index.association].indexOf("Significant") !== -1) { //significate p value
                     $('td:eq(' + index.pVal + ')', nRow).css("font-weight", "bold");
                 }
             }
@@ -133,9 +133,19 @@
             if (obj.log_odds_ratio !== "--") {
                 var _arr = [];
                 _arr.push(obj.geneA);
-                _arr.push(obj.geneB);            
-                _arr.push(obj.p_value);
-                _arr.push(obj.log_odds_ratio);
+                _arr.push(obj.geneB); 
+                if (obj.p_value < 0.001) {
+                    _arr.push("<0.001");
+                } else {
+                    _arr.push(obj.p_value);
+                }
+                if (obj.log_odds_ratio === 4) {
+                    _arr.push(">3");
+                } else if (obj.log_odds_ratio === -4) {
+                    _arr.push("<-3");
+                } else {
+                    _arr.push(obj.log_odds_ratio);
+                }
                 _arr.push(obj.association);
                 mutexTableDataArr.push(_arr);       
             }
@@ -183,54 +193,73 @@
         $("#mutex-table-div").find('.mutex-table-filter').append(
             "<input type='checkbox' class='mutex-table-checkbox' checked id='mutex-table-checkbox-mutex'>Mutual exclusive</option> &nbsp;&nbsp;" +
             "<input type='checkbox' class='mutex-table-checkbox' checked id='mutex-table-checkbox-co-oc'>Co-occurrence</option> &nbsp;&nbsp;" +
-            //"<input type='checkbox' class='mutex-table-checkbox' checked id='mutex-table-checkbox-no-association' checked>No association</option> &nbsp;&nbsp;" + 
-            "<input type='checkbox' class='mutex-table-checkbox' id='mutex-table-checkbox-sig-only'>Significant pairs</option> &nbsp; &nbsp;");
+            "<input type='checkbox' class='mutex-table-checkbox' id='mutex-table-checkbox-sig-only'>Significant pairs</option> &nbsp; &nbsp;"
+        );
+
+        var _sig_only_all_fn = function() {
+                mutexTableInstance.fnFilter("", index.association);
+                mutexTableInstance.fnFilter("", index.oddsRatio);
+                mutexTableInstance.fnFilter("Significant", index.association);
+            },
+            _sig_only_mutex_fn = function() {
+                mutexTableInstance.fnFilter("", index.association);
+                mutexTableInstance.fnFilter("", index.oddsRatio);
+                mutexTableInstance.fnFilter("-", index.oddsRatio, false);
+                mutexTableInstance.fnFilter("Significant", index.association);
+            },
+            _sig_only_co_oc_fn = function() {
+                mutexTableInstance.fnFilter("", index.association);
+                mutexTableInstance.fnFilter("", index.oddsRatio);
+                mutexTableInstance.fnFilter('^[+]?([1-9][0-9]*(?:[\.][0-9]*)?|0*\.0*[1-9][0-9]*)(?:[eE][+-][0-9]+)?$', index.oddsRatio, true);
+                mutexTableInstance.fnFilter("Significant", index.association);
+            },
+            _mutex_fn = function() {
+                mutexTableInstance.fnFilter("", index.association);
+                mutexTableInstance.fnFilter("", index.oddsRatio);
+                mutexTableInstance.fnFilter("-", index.oddsRatio, false);
+            },
+            _co_oc_fn = function() {
+                mutexTableInstance.fnFilter("", index.association);
+                mutexTableInstance.fnFilter("", index.oddsRatio);
+                mutexTableInstance.fnFilter('^[+]?([1-9][0-9]*(?:[\.][0-9]*)?|0*\.0*[1-9][0-9]*)(?:[eE][+-][0-9]+)?$', index.oddsRatio, true);
+            }, 
+            _all_fn = function() {
+                mutexTableInstance.fnFilter("", index.association);
+                mutexTableInstance.fnFilter("", index.oddsRatio);
+            },
+            _empty_fn = function() {
+                mutexTableInstance.fnFilter("&", index.oddsRatio);
+            };
 
         $(".mutex-table-checkbox").change(function () {
             var _mutex_checked = false,
                 _co_oc_checked = false,
-                _no_association_checked = false,
                 _sig_only_checked = false;
 
             if ($("#mutex-table-checkbox-mutex").is(':checked')) _mutex_checked = true;
             if ($("#mutex-table-checkbox-co-oc").is(':checked')) _co_oc_checked = true;
             if ($("#mutex-table-checkbox-sig-only").is(':checked')) _sig_only_checked = true;
-            //if ($("#mutex-table-checkbox-no-association").is(':checked')) _no_association_checked = true;
 
-            mutexTableInstance.fnFilter("", index.association);
-            if (_sig_only_checked) {
-                if (_mutex_checked && _co_oc_checked) {
-                    mutexTableInstance.fnFilter("occurrence|exclusivity", index.association, true);
-                    mutexTableInstance.fnFilter("Significant", index.association);
-                } else if (!_mutex_checked && _co_oc_checked) {
-                    mutexTableInstance.fnFilter("occurrence", index.association);
-                    mutexTableInstance.fnFilter("Significant", index.association);
-                } else if (_mutex_checked && !_co_oc_checked) {
-                    mutexTableInstance.fnFilter("mutual exclusivity", index.association);
-                    mutexTableInstance.fnFilter("Significant", index.association);
-                }
+            if (_mutex_checked && _co_oc_checked) {
+                if (_sig_only_checked) _sig_only_all_fn();
+                else _all_fn();
+            } else if (_mutex_checked && !_co_oc_checked) {
+                if (_sig_only_checked) _sig_only_mutex_fn();
+                else _mutex_fn();
+            } else if (!_mutex_checked && _co_oc_checked) {
+                if (_sig_only_checked) _sig_only_co_oc_fn();
+                else _co_oc_fn();
             } else {
-                if (_mutex_checked && _co_oc_checked) {
-                    mutexTableInstance.fnFilter("occurrence|exclusivity", index.association, true);
-                } else if (!_mutex_checked && _co_oc_checked) {
-                    mutexTableInstance.fnFilter("occurrence", index.association);
-                } else if (_mutex_checked && !_co_oc_checked) {
-                    mutexTableInstance.fnFilter("mutual exclusivity", index.association);
-                }              
+                _empty_fn();
             }
-
-            // if (_no_association_checked) {
-            //     mutexTableInstance.fnFilter("No association", index.association);
-            // }
         });
-    }   
+    }
 
     function addHeaderQtips() {
         $("#association-help").qtip({
-            content: { text:'Log odds ratio < -0.3 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : Association towards co-occurrence<br>' +
-                            '-0.3 < Log odds ratio < 0.3 : No association<br>' +   
-                            '0.3 < Log odds ratio &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : Association towards mutual exclusivity<br>' + 
-                            'p-Value < 0.005 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : Significate association'},
+            content: { text:'Log odds ratio > 0&nbsp;&nbsp;&nbsp;: Association towards co-occurrence<br>' +
+                            'Log odds ratio <= 0&nbsp;: Association towards mutual exclusivity<br>' + 
+                            'p-Value < 0.05&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: Significate association'},
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
             show: {event: "mouseover"},
             hide: {fixed:true, delay: 100, event: "mouseout"},
@@ -277,7 +306,16 @@
             mutexTableInstance.fnAdjustColumnSizing();
   		},
         resize: function() {
-            mutexTableInstance.fnAdjustColumnSizing();
+            var tid = setInterval(detectInstance, 300);
+            function detectInstance() {
+                if (mutexTableInstance !== "" && (typeof mutexTableInstance !== "undefined")) {
+                    abortTimer();                    
+                }
+            }
+            function abortTimer() { 
+                clearInterval(tid);
+                mutexTableInstance.fnAdjustColumnSizing();
+            }
         }
  	}
  }());

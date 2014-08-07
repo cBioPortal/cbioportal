@@ -616,7 +616,9 @@ var StudyViewInitCharts = (function(){
             displayedID.push(pie[i]["attr_id"]);
             
             if (pie[i].attr_id==="CANCER_TYPE") {
-                tableIcons.push("#study-view-dc-chart-" + createdChartID + "-table-icon");
+                var tableIcon = $("#study-view-dc-chart-" + createdChartID + "-table-icon");
+                if (tableIcon.css("display")!=="none")
+                    tableIcons.push(tableIcon);
             }
             
             createdChartID++;
@@ -648,7 +650,7 @@ var StudyViewInitCharts = (function(){
         });
         
         tableIcons.forEach(function(tableIcon) {
-            $(tableIcon).click();
+            tableIcon.click();
         });
     }
     

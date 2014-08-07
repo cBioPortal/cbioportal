@@ -9,7 +9,7 @@
           tickTime: d3.time.hours, 
           tickNumber: 1, 
           tickSize: 6 },
-        nColors = 20;
+        nColors = 20,
         colorCycle = d3.scale.category20().domain(d3.range(0,nColors)),
         colorPropertyName = null,
         opacityPropertyName = null,
@@ -90,7 +90,7 @@
       gParent.append('text')
           .attr("class", "timeline-label")
           .attr("transform", "translate("+ 0 +","+ (margin.top)+")")
-          .text("Months to diagnosis");
+          .text("Months since diagnosis");
 
       // draw the chart
       g.each(function(d, i) {

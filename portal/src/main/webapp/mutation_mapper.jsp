@@ -3,7 +3,7 @@
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
-<% request.setAttribute(QueryBuilder.HTML_TITLE, GlobalProperties.getTitle() + "::Mutation Mapper"); %>
+<% request.setAttribute(QueryBuilder.HTML_TITLE, GlobalProperties.getTitle() + "::MutationMapper"); %>
 
 <jsp:include page="WEB-INF/jsp/global/header.jsp" flush="true"/>
 

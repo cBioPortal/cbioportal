@@ -1,10 +1,19 @@
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
-<script type="text/template" id="standalone_mutation_view_template">
+        <script type="text/javascript">
+            function popitup(url) {
+                var newwindow=window.open(url,'MutationMapperReleaseNotes','height=600,width=800,left=400,top=0,scrollbars=yes');
+                if (window.focus) {newwindow.focus();}
+                return false;
+            }
+        </script>
+        <script type="text/template" id="standalone_mutation_view_template">
 	<div class="standalone-mutation-visualizer">
-		<h1>Mutation Mapper</h1>
+        <h1 style="display:inline;">MutationMapper</h1>
+        interprets mutations with protein annotations
+        (<a href="release_notes_oncoprinter.jsp" onclick="return popitup('release_notes_oncoprinter.jsp');">v1.0</a>)
 
-		<div class='mutation-input-field-expander'>
+		<div class='mutation-input-field-expander' style="margin-top:10px">
 			<span class="triangle triangle-right ui-icon ui-icon-triangle-1-e"></span>
 			<span class="triangle triangle-down ui-icon ui-icon-triangle-1-s"></span>
 			<a href="#" class='toggle-mutation-input-field'>Modify Input</a>
@@ -31,9 +40,9 @@
 							<div class="mutation-input-format-info">
 								<p>
 									You can either copy and paste your input into the text field below or
-									select an input file to upload your mutation data.<br>
+									select a file with mutation data for upload.<br>
 									Mutation files should be tab delimited, and should at least have the
-									following headers on the first line:
+									following headers in the first line:
 								</p>
 								<ul>
 									<li>Hugo_Symbol</li>

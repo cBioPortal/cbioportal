@@ -31,9 +31,9 @@
 							<div class="mutation-input-format-info">
 								<p>
 									You can either copy and paste your input into the text field below or
-									select an input file to upload your mutation data.<br>
+									select a file with mutation data for upload.<br>
 									Mutation files should be tab delimited, and should at least have the
-									following headers on the first line:
+									following headers in the first line:
 								</p>
 								<ul>
 									<li>Hugo_Symbol</li>

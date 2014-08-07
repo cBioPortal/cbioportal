@@ -118,7 +118,7 @@ var StandaloneMutationView = Backbone.View.extend({
 				description: 'Amino acid change',
 				example: 'V600E'},
 			{columnHeader: 'Sample_ID',
-				description: 'Tumor sample barcode',
+				description: 'Tumor sample ID',
 				example: 'TCGA-B5-A11E'},
 			{columnHeader: 'Mutation_Type',
 				description: 'Translational effect of variant allele',
@@ -145,7 +145,7 @@ var StandaloneMutationView = Backbone.View.extend({
 				description: 'Mutation status',
 				example: 'Somatic, Germline, etc.'},
 			{columnHeader: 'Center',
-				description: 'Genome sequencing center reporting the variant',
+				description: 'Center/Institute reporting the variant',
 				example: 'mskcc.org'}
 		];
 

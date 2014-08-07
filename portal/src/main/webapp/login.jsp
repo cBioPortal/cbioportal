@@ -59,18 +59,12 @@
                      <%= GlobalProperties.getAuthorizationMessage() %>
                      </span>
                  </p>
-            <p><span style="font-size:145%"> 
-                Please select an authentication provider:
-                </span>
-            </p>
+           
+                      <div background-color:white>
+                   <button onclick="window.location='auth/google'"><IMG alt="Google+" src="images/login/images.large/google_dna.png" /></button>
+                   </div>
                </td>
-           </tr>
-	     <tr>
-	       <td>
-                   <button onclick="window.location='auth/google'"><IMG alt="Google+" src="images/login/images.large/google_dna.gif"  /></button>
-	         
-	       </td>
-	     </tr>
+          
        </table>
 </td>
 </tr>

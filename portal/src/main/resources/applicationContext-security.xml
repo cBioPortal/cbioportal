@@ -130,7 +130,6 @@
         <intercept-url pattern="/clinicalAttributes.json*" access="isAuthenticated()"/>
         <intercept-url pattern="/clinical_timeline_data.json*" access="isAuthenticated()"/>
         <intercept-url pattern="/tools.jsp*" access="isAuthenticated()"/>
-        <intercept-url pattern="/oncoprinter.jsp*" access="isAuthenticated()"/>
         <intercept-url pattern="/echofile*" access="isAuthenticated()"/>
         <intercept-url pattern="/getGeneticProfile.json*" access="isAuthenticated()"/>
         <intercept-url pattern="/getProfileData.json*" access="isAuthenticated()"/>
@@ -144,7 +143,10 @@
         <intercept-url pattern="/getCoExp.do*" access="isAuthenticated()"/>
         <intercept-url pattern="/getAlterationData.json" access="isAuthenticated()"/>
         <intercept-url pattern="/downloadfile.do*" access="isAuthenticated()"/>
-        <intercept-url pattern="/standalone_mutation.jsp*" access="isAuthenticated()"/>
+        <intercept-url pattern="/mutation_mapper.jsp*" access="isAuthenticated()"/>
+        <intercept-url pattern="/release_notes_mutation_mapper.jsp*" access="isAuthenticated()"/>
+        <intercept-url pattern="/oncoprinter.jsp*" access="isAuthenticated()"/>
+        <intercept-url pattern="/release_notes_oncoprinter.jsp*" access="isAuthenticated()"/>
 
 
         <!-- everything else locked down by default -->

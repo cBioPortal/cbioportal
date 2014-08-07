@@ -36,9 +36,18 @@
 
 <link href="css/bootstrap.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 
-<div id="container" style="margin-left:50px;">
-    <h1>Oncoprinter</h1>
-    <p>(<a href="faq.jsp#what-are-oncoprints">What are Oncoprints?</a>)</p>
+<div id="container" style="margin-left:20px;">
+    <h1 style="display:inline;">OncoPrinter</h1>
+    <script type="text/javascript">
+        function popitup(url) {
+            var newwindow=window.open(url,'OncoPrinterReleaseNotes','height=600,width=800,left=400,top=0,scrollbars=yes');
+            if (window.focus) {newwindow.focus();}
+            return false;
+        }
+    </script>
+    generates <a href="faq.jsp#what-are-oncoprints">Oncoprints</a> from you own data
+    (<a href="release_notes_oncoprinter.jsp" onclick="return popitup('release_notes_oncoprinter.jsp');">v1.0</a>)
+    
        <div id="inner-conainter" style="width:70%;"> 
         <div style="margin-top:20px;">
             <p>

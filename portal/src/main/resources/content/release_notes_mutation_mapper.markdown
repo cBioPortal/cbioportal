@@ -1,7 +1,7 @@
 # MutationMapper Release Notes
 
-## Planned features for the next release
-* Support annotating mutation effects from genomic changes
+## Planned features
+* Support for genomic coordinates to annotate variants
 
 ## Version 1.0 (August 8, 2014)
 * Support mutation data with annotated protein effects

@@ -1,6 +1,6 @@
 # OncoPrinter Release Notes
 
-## Planned features for the next release
+## Planned features
 * Support for new alteration types:
     * DNA fusions
     * mRNA expression changes (over- or under-expression)

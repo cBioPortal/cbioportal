@@ -61,7 +61,7 @@
                  </p>
            
                       <div background-color:white>
-                   <button onclick="window.location='auth/google'"><IMG alt="Google+" src="images/login/images.large/google_dna.png" /></button>
+                   <button onclick="window.location='auth/google'"><IMG alt="Google+" src="images/login/images.large/googleplus_signin.png" /></button>
                    </div>
                </td>
           

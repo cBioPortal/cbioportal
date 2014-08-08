@@ -39,8 +39,8 @@
 
 <div id="container">
 
-<p>The following tools are for visualization and analysis of custom datasets. When you using these tools
-in your publication, <b>please cite</b> <a href="http://www.cbioportal.org/public-portal/sci_signal_reprint.jsp">Gao et al. <i>Sci. Signal.</i> 2013</a> 
+<p>The following tools are for visualization and analysis of custom datasets. When using these tools in your publication,
+    <b>please cite</b> <a href="http://www.cbioportal.org/public-portal/sci_signal_reprint.jsp">Gao et al. <i>Sci. Signal.</i> 2013</a> 
  &amp;  <a href="http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract">Cerami et al. <i>Cancer Discov.</i> 2012</a>.</p>
 
     <div class="tile">
@@ -51,7 +51,7 @@ in your publication, <b>please cite</b> <a href="http://www.cbioportal.org/publi
 
     <div class="tile">
       <a class="btn btn-large btn-block btn-primary" href="mutation_mapper.jsp">MutationMapper</a>
-      <p>Interprets mutations with protein annotations</p>
+      <p>Maps mutations on a linear protein and its domains (lollipop plots)</p>
       <img class="tile-image top-image" alt="lollipop" src="images/lollipop_example.png">
     </div>
 </div>

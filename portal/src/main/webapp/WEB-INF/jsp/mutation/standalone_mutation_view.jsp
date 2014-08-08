@@ -15,17 +15,18 @@
 			<div class="mutation-input-format-info">
 				<p>
 					Please input <b>tab-delimited</b> mutation data.
+					<span class="mutation-data-format"><a href="#" class='toggle-full-header-list'>Data Format</a></span>
 					<span class="load-example-data"><a href="#" class="load-example-data-link">Load example data</a></span>
 				</p>
 			</div>
 			<table class="data-format-expander">
-				<tr class='full-header-list-expander'>
+				<!--tr class='full-header-list-expander'>
 					<td>
 						<span class="triangle triangle-right ui-icon ui-icon-triangle-1-e"></span>
 						<span class="triangle triangle-down ui-icon ui-icon-triangle-1-s"></span>
 						<a href="#" class='toggle-full-header-list'>Data Format</a>
 					</td>
-				</tr>
+				</tr-->
 				<tr>
 					<td>
 						<div class="mutation-data-info">

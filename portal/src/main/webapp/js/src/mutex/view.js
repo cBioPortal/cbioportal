@@ -115,6 +115,7 @@
             "oLanguage": {
                 "sSearch": "Search Gene"
             },
+            "bDestory": true,
             "fnRowCallback": function(nRow, aData) {
                 $('td:eq(' + index.geneA + ')', nRow).css("font-weight", "bold");
                 $('td:eq(' + index.geneB + ')', nRow).css("font-weight", "bold");

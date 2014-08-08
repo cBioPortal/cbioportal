@@ -172,7 +172,7 @@ var MutexData = (function() {
 
 	function buildStat() {
 		$.each(dataArr, function(index, obj) {
-			if (obj.odds_ratio <= settings.log_odds_ratio_threshold) {		
+			if (obj.log_odds_ratio <= settings.log_odds_ratio_threshold) {		
 				stat.num_of_mutex += 1;
 				if (obj.p_value < settings.p_val_threshold) {
 					stat.num_of_sig_mutex += 1;

@@ -208,7 +208,7 @@
             <% if (computeLogOddsRatio && geneWithScoreList.size() > 1) { %>
                 <%@ include file="mutex_tab.jsp" %>
             <% } %>
-
+            
             <% if (mutationDetailLimitReached != null) {
         out.println("<div class=\"section\" id=\"mutation_details\">");
         out.println("<P>To retrieve mutation details, please specify "

@@ -13,6 +13,12 @@
                         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
                         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
+
+    <!-- this bean is shared between profiles -->
+    <b:bean id="accessControl" class="org.mskcc.cbio.portal.util.internal.AccessControlImpl"/>
+
+    <!-- authenticate=true -->
+    <b:beans profile="true">
     <!--
         Required for custom signature method factory to be autowired into
         the ProtectedResourceProcessingFilter
@@ -242,23 +248,24 @@
         <b:constructor-arg ref="portalUserDAO"/>
     </b:bean>
 
-
     <!-- 
-             Our datasource
+        some beans to help with access control
     -->
+    <b:bean id="portalUserDAO" class="org.mskcc.cbio.portal.dao.internal.PortalUserJDBCDAO">
+        <b:constructor-arg ref="dataSource"/>
+    </b:bean>
     <b:bean id="dataSource" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">
         <b:property name="driverClassName" value="com.mysql.jdbc.Driver"/>
         <b:property name="url" value="jdbc:mysql://${db.host}/${db.portal_db_name}"/>
         <b:property name="username" value="${db.user}"/>
         <b:property name="password" value="${db.password}"/>
     </b:bean>
+    </b:beans>
 
-    <!-- 
-         some beans to help with access control
-    -->
-    <b:bean id="accessControl" class="org.mskcc.cbio.portal.util.internal.AccessControlImpl"/>
-    <b:bean id="portalUserDAO" class="org.mskcc.cbio.portal.dao.internal.PortalUserJDBCDAO">
-        <b:constructor-arg ref="dataSource"/>
-    </b:bean>
+    <!-- authenticate=false --> 
+    <b:beans profile="false">
+    <global-method-security pre-post-annotations="disabled"/>
+    <http pattern="/**" security="none"/>
+    </b:beans>
 
 </b:beans>

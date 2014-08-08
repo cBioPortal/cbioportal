@@ -74,14 +74,7 @@
 	  </properties>
 	</profile>
 	<profile>
-	  <id>external-public</id>
-	  <properties>
-        <importer-main-class>org.mskcc.cbio.importer.PortalImporterTool</importer-main-class>
-		<final-war-name>cbioportal</final-war-name>
-	  </properties>
-	</profile>
-	<profile>
-	  <id>external-private</id>
+	  <id>external</id>
 	  <properties>
         <importer-main-class>org.mskcc.cbio.importer.PortalImporterTool</importer-main-class>
 		<final-war-name>cbioportal</final-war-name>

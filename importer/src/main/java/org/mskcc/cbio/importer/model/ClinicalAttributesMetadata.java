@@ -27,10 +27,11 @@ public class ClinicalAttributesMetadata
     private String description;
     private String datatype;
     private String attributeType;
+    private String priority;
 
     public ClinicalAttributesMetadata(String[] properties) {
 
-		if (properties.length < 5) {
+		if (properties.length < 6) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
 
@@ -39,6 +40,8 @@ public class ClinicalAttributesMetadata
         this.description = properties[2].trim();
 		this.datatype = properties[3].trim();
 		this.attributeType = properties[4].trim();
+		String priority = properties[5].trim();
+		this.priority = (priority.isEmpty()) ? "1" : priority;
 	}
 
 	public String getNormalizedColumnHeader() { return normalizedColumnHeader; }
@@ -46,6 +49,7 @@ public class ClinicalAttributesMetadata
 	public String getDescription() { return description; }
 	public String getDatatype() { return datatype; }
 	public String getAttributeType() { return attributeType; }
+	public String getPriority() { return priority; }
 
 	public boolean missingAttributes()
 	{

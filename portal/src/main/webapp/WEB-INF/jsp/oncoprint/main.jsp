@@ -25,7 +25,7 @@
         </div>
         <script type="text/javascript"> 
                $('.oncoprint-sample-download').qtip({
-                content: {text: 'Download the list of samples, sorted in the order in which they are displayed in the OncoPrint(left to right)'},
+                content: {text: 'Download the list of samples, sorted in the order in which they are displayed in the OncoPrint (left to right)'},
                 position: {my:'left bottom', at:'top right', viewport: $(window)},
                 style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                 show: {event: "mouseover"},

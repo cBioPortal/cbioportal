@@ -47,6 +47,10 @@
         <param-name>spring.profiles.active</param-name>
         <param-value>jndi,${authenticate}</param-value>
     </context-param>
+    <context-param>  
+        <param-name>spring.liveBeansView.mbeanDomain</param-name>  
+        <param-value>jndi,${authenticate}</param-value>  
+    </context-param> 
 
     <context-param>
         <param-name>contextConfigLocation</param-name>

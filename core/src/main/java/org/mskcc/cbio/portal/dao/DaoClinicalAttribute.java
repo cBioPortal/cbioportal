@@ -44,13 +44,15 @@ public class DaoClinicalAttribute {
                             "`DISPLAY_NAME`," +
                             "`DESCRIPTION`," +
                             "`DATATYPE`," +
-                            "`PATIENT_ATTRIBUTE`)" +
-                            " VALUES(?,?,?,?,?)");
+                            "`PATIENT_ATTRIBUTE`," +
+                            "`PRIORITY`)" +
+                            " VALUES(?,?,?,?,?,?)");
             pstmt.setString(1, attr.getAttrId());
             pstmt.setString(2, attr.getDisplayName());
             pstmt.setString(3, attr.getDescription());
             pstmt.setString(4, attr.getDatatype());
             pstmt.setBoolean(5, attr.isPatientAttribute());
+            pstmt.setString(6, attr.getPriority());
             return pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -64,7 +66,8 @@ public class DaoClinicalAttribute {
                                      rs.getString("DISPLAY_NAME"),
                                      rs.getString("DESCRIPTION"),
                                      rs.getString("DATATYPE"),
-                                     rs.getBoolean("PATIENT_ATTRIBUTE"));
+                                     rs.getBoolean("PATIENT_ATTRIBUTE"),
+                                     rs.getString("PRIORITY"));
     }
     
     public static ClinicalAttribute getDatum(String attrId) throws DaoException {

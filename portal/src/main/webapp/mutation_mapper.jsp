@@ -3,7 +3,7 @@
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
-<% request.setAttribute(QueryBuilder.HTML_TITLE, GlobalProperties.getTitle() + "::Mutation Mapper"); %>
+<% request.setAttribute(QueryBuilder.HTML_TITLE, GlobalProperties.getTitle() + "::MutationMapper"); %>
 
 <jsp:include page="WEB-INF/jsp/global/header.jsp" flush="true"/>
 
@@ -47,22 +47,19 @@
 		margin-bottom: 20px;
 	}
 	.load-example-data {
+		margin-left: 10px;
+	}
+	.mutation-data-format {
 		margin-left: 20px;
 	}
 	.mutation-input-format-info {
-		margin-bottom: 20px;
+		/*margin-bottom: 20px;*/
 	}
 </style>
 
-<script type="text/javascript" src="js/src/mutation/util/MutationInputParser.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <link href="css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
-<link href="css/mutation/mutation_details.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
-<link href="css/mutation/mutation_table.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
-<link href="css/mutation/mutation_3d.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
-<link href="css/mutation/mutation_diagram.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
-<link href="css/mutation/mutation_pdb_panel.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
-<link href="css/mutation/mutation_pdb_table.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link href="css/mutationMapper.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 
 <jsp:include page="WEB-INF/jsp/mutation_views.jsp" flush="true"/>
 <jsp:include page="WEB-INF/jsp/mutation/standalone_mutation_view.jsp" flush="true"/>
@@ -72,7 +69,7 @@
 // TODO 3d Visualizer should be initialized before document get ready
 // ...due to incompatible Jmol initialization behavior
 var _mut3dVis = null;
-_mut3dVis = new Mutation3dVis("default3dView", {});
+_mut3dVis = new Mutation3dVis("default3dView", {frame: "jsmol_frame.jsp"});
 _mut3dVis.init();
 
 // Set up Mutation View
@@ -97,10 +94,6 @@ $(document).ready(function() {
 
 			return;
 		}
-
-		// init mutation data proxy with full data
-		var proxy = new MutationDataProxy(geneList.join(" "));
-		proxy.initWithData(mutationData);
 
 		// customized table options
 		var tableOpts = {
@@ -170,16 +163,27 @@ $(document).ready(function() {
 			}
 		};
 
-		var model = {mutationProxy: proxy,
-			sampleArray: sampleArray,
-			tableOpts: tableOpts};
+		// customized main mapper options
+		var options = {
+			el: "#standalone_mutation_details",
+			data: {
+				geneList: geneList,
+				sampleList: sampleArray
+			},
+			proxy: {
+				mutation: {
+					lazy: false,
+					data: mutationData
+				}
+			},
+			view: {
+				mutationTable: tableOpts
+			}
+		};
 
-		var options = {el: "#standalone_mutation_details",
-			model: model,
-			mut3dVis: _mut3dVis};
-
-		var view = new MutationDetailsView(options);
-		view.render();
+		// init mutation mapper
+		var mutationMapper = new MutationMapper(options);
+		mutationMapper.init(_mut3dVis);
 	}
 
 	var standaloneView = new StandaloneMutationView({el: "#standalone_mutation_view"});

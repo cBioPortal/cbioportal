@@ -60,14 +60,12 @@
                 Please select an authentication provider:
                 </span>
             </p>
+                     <p>
+                           <button onclick="window.location='auth/google'"><IMG alt="Google+" src="images/login/images.large/googleplus_signin.png"  /></button>
+                     </p>
                </td>
            </tr>
-	     <tr>
-	       <td>
-                   <button onclick="window.location='auth/google'"><IMG alt="Google+" src="images/login/images.large/google_dna.gif"  /></button>
-	         
-	       </td>
-	     </tr>
+	   
        </table>
 </td>
 </tr>

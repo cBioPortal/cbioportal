@@ -293,6 +293,12 @@
         $("#num_of_co_oc").append(_stat.num_of_co_oc);
         $("#num_of_sig_co_oc").append(_stat.num_of_sig_co_oc);
         $("#num_of_no_association").append(_stat.num_of_no_association);
+        if (_stat.num_of_mutex > 1) {
+            $("#plu_s_mutex").append("s");
+        }
+        if (_stat.num_of_co_oc > 1) {
+            $("#plu_s_co_oc").append("s");
+        }
     }
 
  	return {

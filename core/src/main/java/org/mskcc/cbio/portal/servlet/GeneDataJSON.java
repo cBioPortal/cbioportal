@@ -162,13 +162,9 @@ public class GeneDataJSON extends HttpServlet {
             xdebug.logMsg(this, "Getting data for:  " + profile.getProfileName());
 
             GetProfileData remoteCall;
-            List<Sample.Type> excludes = new ArrayList<Sample.Type>();
-            excludes.add(Sample.Type.SOLID_NORMAL);
-            excludes.add(Sample.Type.BLOOD_NORMAL);
             String sampleIds =
-              Joiner.on(" ").join(StableIdUtil.getStableSampleIdsFromPatientIds(profile.getCancerStudyId(),
-                                                            patientIds,
-                                                            excludes));
+                Joiner.on(" ").join(StableIdUtil.getStableSampleIdsFromPatientIds(profile.getCancerStudyId(), patientIds));
+            
             try {
                 remoteCall = new GetProfileData(profile, listOfGenes, sampleIds);
             } catch (DaoException e) {

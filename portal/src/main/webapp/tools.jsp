@@ -12,6 +12,7 @@
 <style>
   body {
     background-color: #E0E0E0 !important;
+    margin-top: 10px !important;
   }
   .tile {
     float: left;

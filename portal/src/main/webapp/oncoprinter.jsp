@@ -8,9 +8,6 @@
 <jsp:include page="WEB-INF/jsp/global/header.jsp" flush="true"/>
 
 <style type="text/css">
-    body {
-      background-color: #E0E0E0 !important;
-    }
     progress {
         background-color: #f3f3f3;
         border: 0;

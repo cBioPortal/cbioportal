@@ -83,6 +83,47 @@
 				</configuration>
 			</plugin>
 
+			<!-- use this instead of maven-assembly-plugin -->
+			<!-- to prevent inclusion of org-apache-commons-dbcp -->
+			<!-- which now lives in core and causes jar creation -->
+			<!-- issues when using maven-assembly-plugin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>2.0</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<createDependencyReducedPom>false</createDependencyReducedPom>
+							<minimizeJar>true</minimizeJar>
+							<filters>
+								<filter>
+									<artifact>commons-logging:commons-logging</artifact>
+									<includes>
+										<include>**</include>
+									</includes>
+								</filter>
+							</filters>
+							<artifactSet>
+								<excludes>
+									<exclude>com.kenai.nbpwr:org-apache-commons-dbcp</exclude>
+									<exclude>org.springframework*</exclude>
+								</excludes>
+							</artifactSet>
+							<transformers>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>org.mskcc.cbio.annotator.AnnotateTool</mainClass>
+								</transformer>
+							</transformers>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
 		</plugins>
 
 		<!-- prevent some resources from getting into jar -->

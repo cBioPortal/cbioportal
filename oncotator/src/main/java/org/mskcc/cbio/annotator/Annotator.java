@@ -168,7 +168,7 @@ public class Annotator
 	 *
 	 * @param args          process arguments (including the process itself)
 	 * @return              exit value of the process
-	 * @throws IOException  if an IO error occurs
+	 * @throws java.io.IOException  if an IO error occurs
 	 */
 	public static int execProcess(String[] args) throws IOException
 	{

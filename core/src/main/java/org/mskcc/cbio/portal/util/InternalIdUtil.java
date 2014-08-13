@@ -56,7 +56,7 @@ public class InternalIdUtil
         return sampleIds;
     }
 
-    public static List<Integer> getInternalSampleIdsFromPatientIds(int cancerStudyId, List<String> stablePatientIds, List<Sample.Type> excludes)
+    public static List<Integer> getInternalSampleIdsFromPatientIds(int cancerStudyId, List<String> stablePatientIds, Set<Sample.Type> excludes)
     {
         List<Integer> sampleIds = new ArrayList<Integer>();
         for (String patientId : stablePatientIds) {
@@ -69,5 +69,17 @@ public class InternalIdUtil
             }
         }
         return sampleIds;
+    }
+    
+    
+    public static List<Sample> getSamplesById(Collection<Integer> sampleIds) {
+        List<Sample> samples = new ArrayList<Sample>();
+        for (int id : sampleIds) {
+            Sample sample = DaoSample.getSampleById(id);
+            if (sample!=null) {
+                samples.add(sample);
+            }
+        }
+        return samples;
     }
 }

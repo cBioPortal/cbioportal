@@ -121,6 +121,14 @@ public class CrossCancerMutationDataServlet extends HttpServlet
                 //  Get the default patient set
                 AnnotatedPatientSets annotatedPatientSets = new AnnotatedPatientSets(patientSetList, dataTypePriority);
                 PatientList defaultPatientSet = annotatedPatientSets.getDefaultPatientList();
+                
+                List<Sample> defaultSamples = InternalIdUtil.getSamplesById(
+                        InternalIdUtil.getInternalSampleIdsFromPatientIds(cancerStudy.getInternalId(),
+                                defaultPatientSet.getPatientList(), Sample.Type.nortalTypes()));
+                ArrayList<String> sampleList = new ArrayList<String>();
+                for (Sample sample : defaultSamples) {
+                    sampleList.add(sample.getStableId());
+                }
 
                 //  Get the default genomic profiles
                 CategorizedGeneticProfileSet categorizedGeneticProfileSet =
@@ -140,15 +148,13 @@ public class CrossCancerMutationDataServlet extends HttpServlet
 
                 for (GeneticProfile profile : defaultGeneticProfileSet.values()) {
                     ArrayList<String> targetGeneList = this.parseValues(geneList);
-                    ArrayList<String> patientList = new ArrayList<String>();
-                    patientList.addAll(defaultPatientSet.getPatientList());
 
                     if(!profile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED))
                             continue;
 
                     // add mutation data for each genetic profile
                     JSONArray mutationData
-                            = mutationDataUtils.getMutationData(profile.getStableId(), targetGeneList, patientList);
+                            = mutationDataUtils.getMutationData(profile.getStableId(), targetGeneList, sampleList);
                     data.addAll(mutationData);
                 }
             }

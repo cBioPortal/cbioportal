@@ -283,10 +283,18 @@
 
     function addStatInfo() {
         var _stat = MutexData.getDataStat();
-        for (var key in _stat) {
-            if (_stat[key] === 0) {
-                _stat[key] = "none"; //replace 0 (text) with "non"
-            }
+        //replace 0 (text) with "non"
+        if (_stat.num_of_sig_mutex === 0) {
+            _stat.num_of_sig_mutex = "none";
+        }
+        if (_stat.num_of_sig_co_oc === 0) {
+            _stat.num_of_sig_co_oc = "none";
+        }
+        if (_stat.num_of_mutex === 0) {
+            _stat.num_of_mutex = "no";
+        }
+        if (_stat.num_of_co_oc === 0) {
+            _stat.num_of_co_oc = "no";
         }
         $("#num_of_mutex").append(_stat.num_of_mutex);
         $("#num_of_sig_mutex").append(_stat.num_of_sig_mutex);

@@ -149,7 +149,6 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         
         utils.populate_clinical_attr_select(document.getElementById('select_clinical_attributes'), totalAttrs);
         
-        toggleControls(true);
         
         $('.special_delete').click(function() {
             var attr = $(this).attr("alt");
@@ -188,10 +187,12 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             $('.oncoprint-diagram-top').css("display","none");
             if(extraAttributes.length<1)
             {
-                $('.select_clinical_attributes_from').css("data-placeholder","Add a clinical attribute track");
+                $('.select_clinical_attributes_from').attr("data-placeholder","Add a clinical attribute track");
             }
         }
         oncoprint.sortBy(sortBy.val(), cases.split(" "));
+        
+        toggleControls(true);
 //        // disable the option to sort by clinical data
 //        $(sortBy.add('option[value="clinical"]')[1]).prop('disabled', true);
     }
@@ -219,7 +220,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             $(sortBy.add('option[value="clinical"]')[1]).prop('disabled', true);
         } else {
             
-            $('.select_clinical_attributes_from').css("data-placeholder","Add another clinical attribute track");
+            $('.select_clinical_attributes_from').attr("data-placeholder","Add another clinical attribute track");
             
             if(clinicalAttribute.attr_id === "mutations")
             {
@@ -364,7 +365,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         $('.special_delete').click(function() {
                             var attr = $(this).attr("alt");
                             var indexNum = extraTracks.indexOf(attr);
-                            extraTracks.splice(indexNum, 1);
+                            extraTracks.splice(indexNum, 1);+
+                            
                             extraGenes.splice(indexNum, 1);
                             extraAttributes.splice(indexNum, 1);
                             removeClinicalAttribute();

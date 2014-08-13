@@ -60,8 +60,8 @@ var StudyViewProxy = (function() {
                 $.ajax({type: "POST", url: "mutations.json", data: ajaxParameters.mutatedGenesData}),
                 $.ajax({type: "POST", url: "Gistic.json", data: ajaxParameters.gisticData}))
             .done(function(a1, a2, a3, a4, a5){
-                var _dataAttrMapArr = [], //Map attrbute value with attribute name for each datum
-                    _keyNumMapping = [],
+                var _dataAttrMapArr = {}, //Map attrbute value with attribute name for each datum
+                    _keyNumMapping = {},
                     _data = a1[0]['data'],
                     _dataAttrOfa1 = a1[0]['attributes'],
                     _dataLength = _data.length,
@@ -105,9 +105,8 @@ var StudyViewProxy = (function() {
                         var tmpValue = _dataAttrMapArr[key][_dataAttrOfa1[i]['attr_id']];
                         if(tmpValue === '' || tmpValue === undefined || tmpValue === 'na' || tmpValue === 'NA'){
                             tmpValue = 'NA';
-                            obtainDataObject['arr'][_keyNumMapping[key]][_dataAttrOfa1[i]['attr_id']] = tmpValue;
-                        }else
-                            obtainDataObject['arr'][_keyNumMapping[key]][_dataAttrOfa1[i]['attr_id']] = _dataAttrMapArr[key][_dataAttrOfa1[i]['attr_id']];
+                        }
+                        obtainDataObject['arr'][_keyNumMapping[key]][_dataAttrOfa1[i]['attr_id']] = tmpValue;
                     }
                        
                 }

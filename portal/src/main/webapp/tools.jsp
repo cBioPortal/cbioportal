@@ -44,14 +44,14 @@ in your publication, <b>please cite</b> <a href="http://www.cbioportal.org/publi
  &amp;  <a href="http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract">Cerami et al. <i>Cancer Discov.</i> 2012</a>.</p>
 
     <div class="tile">
-      <a class="btn btn-large btn-block btn-primary" href="oncoprinter.jsp">Oncoprinter</a>
-      <p>Generates oncoprints from user uploaded datasets</p>
+      <a class="btn btn-large btn-block btn-primary" href="oncoprinter.jsp">OncoPrinter</a>
+      <p>Generates oncoprints from your own data</p>
       <img class="tile-image top-image" alt="Oncoprint" src="images/oncoprint_example_small.png">
     </div>
 
     <div class="tile">
-      <a class="btn btn-large btn-block btn-primary" href="standalone_mutation.jsp">Mutation Lollipopper</a>
-      <p>Generates lollipop diagrams from user uploaded mutation data</p>
+      <a class="btn btn-large btn-block btn-primary" href="mutation_mapper.jsp">MutationMapper</a>
+      <p>Interprets mutations with protein annotations</p>
       <img class="tile-image top-image" alt="lollipop" src="images/lollipop_example.png">
     </div>
 </div>

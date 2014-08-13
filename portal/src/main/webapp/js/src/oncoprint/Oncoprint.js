@@ -19,7 +19,7 @@ define("Oncoprint",
                 // make strings of numbers into numbers
                 var clinicalData = params.clinicalData.map(function(i) {
                     if (!utils.is_discrete(i.attr_val)) {
-                        i.attr_val = parseInt(i.attr_val);
+                        i.attr_val = parseFloat(i.attr_val);
                     }
                     return i;
                 });
@@ -60,7 +60,7 @@ define("Oncoprint",
                         && params.clinical_attrs !== undefined) {
                     throw {
                         name: "Data Mismatch Error",
-                            message: "There are clinical attributes for nonexistant clinical data"
+                        message: "There are clinical attributes for nonexistant clinical data"
                     }
                 }
 
@@ -101,6 +101,7 @@ define("Oncoprint",
                 var table = d3.select(div)
                     .append('table')
                     .append('tr')
+                    .attr('id','oncoprint_table')
                     .attr('valign','top');
                     
                 var remove_oncoprint = function() {
@@ -148,7 +149,7 @@ define("Oncoprint",
                     .attr('class',function(d){ return (d in gene2percent) ? 'regular':'special_delete'})
                     .attr('alt',function(d){ return (d in gene2percent) ? 'regular':d})
                     .attr('x', '' + dims.label_width)
-                    .attr('cursor', 'pointer')
+//                    .attr('cursor', 'pointer')
                     .attr('text-anchor', 'end');
                     // remove the tspan that would have contained the percent altered
                     // because it messes with the label placement in the pdf download
@@ -288,7 +289,7 @@ define("Oncoprint",
                 };
 
                 update(data);
-                cbio.util.autoHideOnMouseLeave($("#oncoprint_whole_body"), $(".special_delete"));
+                cbio.util.autoHideOnMouseLeave($("#oncoprint_table"), $(".special_delete"));
 
                 var altered
                     = utils.filter_altered(utils.nest_data(params.geneData));

@@ -587,7 +587,7 @@ define("OncoprintUtils", (function() {
         clinical_attributes = [{display_name: 'none', attr_id: undefined}].concat(clinical_attributes);
 
         var select_el = d3.select(select_el);
-
+        select_el.html("<option value=\"\"></option>");
         select_el.selectAll('option')
             .data(clinical_attributes)
             .enter()
@@ -635,6 +635,10 @@ define("OncoprintUtils", (function() {
             },
 
             clinical: function(d) {
+                if(typeof d.attr_val === "number"){
+                    return "value: <b>" + cbio.util.toPrecision(d.attr_val,2,0.001) + "</b><br/>";
+                }
+                
                 return "value: <b>" + d.attr_val + "</b><br/>";
             }
         };

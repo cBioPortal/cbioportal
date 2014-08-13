@@ -22,7 +22,7 @@
             <tr>
                 <td>
                     <div id="disable_select_clinical_attributes" style="display: none; z-index: 1000; opacity: 0.7; background-color: grey; width: 22.5%; height: 6%; position: absolute;"></div>
-                    <select data-placeholder="add clinical attribute track" id="select_clinical_attributes" style="width: 350px;">
+                    <select data-placeholder="Add a clinical attribute track" id="select_clinical_attributes" class="select_clinical_attributes_from" style="width: 350px;">
     <option value=""></option>
                     </select>
                 </td>

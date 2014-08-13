@@ -18,7 +18,9 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
     var $zoom_el = $('#oncoprint_controls #zoom');
     var zoom;
-
+    var totalAttrs=[];
+    var recordAttrs;//make a record of all attrs
+    
     // basically a hack to prevent the zoom function from a particular oncoprint
     // from getting bound to the UI slider forever
     var reset_zoom = function() {
@@ -33,11 +35,18 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         data: { cancer_study_id: cancer_study_id_selected,
             case_list: window.PortalGlobals.getCases() },
         success: function(attrs) {
-            var totalAttrs = attrs.toJSON();
-            if(window.PortalGlobals.gerMutationProfileId()!==null){
+            totalAttrs = attrs.toJSON();
+            if(window.PortalGlobals.getMutationProfileId()!==null){
                 var tem={attr_id: "mutations", datatype: "NUMBER",description: "Number of mutation", display_name: "Mutations"};
                 totalAttrs.unshift(tem);
             }
+            
+            if(window.PortalGlobals.getCancerStudyId()!==null){
+                var tem={attr_id: "FRACTION_GENOME_ALTERED", datatype: "NUMBER",description: "Fraction Genome Altered", display_name: "Fraction Genome Altered"};
+                totalAttrs.unshift(tem);
+            }
+            
+            recordAttrs=totalAttrs.slice(0);// record the original total attributes
             utils.populate_clinical_attr_select(document.getElementById('select_clinical_attributes'), totalAttrs);
             $(select_clinical_attributes_id).chosen({width: "240px", "font-size": "12px", search_contains: true});
         }
@@ -45,9 +54,9 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
     var oncoprint;
     
-    var extraTracks=[]; // used to record tracks add customized
+    var extraTracks=[]; // used to record clinical attributes added
     var extraGenes=[]; // used to record genes add customized
-    var extraAttributes=[]; // used to record attributes add customized
+    var extraAttributes=[]; // used to record attributes names add customized
     var cases = window.PortalGlobals.getCases();
     var genes = window.PortalGlobals.getGeneListString().split(" ");
 
@@ -111,7 +120,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         toggleControls(false); //disable toggleControls
 
         inner_loader_img.hide();
-
+        
         oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
             geneData: geneDataColl.toJSON(),
             clinicalData: extraGenes,
@@ -121,7 +130,27 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         },extraTracks);
 
         oncoprint.sortBy(sortBy.val(), cases.split(" "));
+        
+        totalAttrs = recordAttrs.slice(0);
+
+        for(attributeElemValue in extraAttributes)
+        {
+            var attributeElemValueIndex;
+            
+            for(m in totalAttrs) 
+            {
+                if(totalAttrs[m].display_name === extraAttributes[attributeElemValue].display_name)
+                {
+                    attributeElemValueIndex=m; 
+                    totalAttrs.splice(attributeElemValueIndex,1);
+                }
+            }  
+        }
+        
+        utils.populate_clinical_attr_select(document.getElementById('select_clinical_attributes'), totalAttrs);
+        
         toggleControls(true);
+        
         $('.special_delete').click(function() {
             var attr = $(this).attr("alt");
             var indexNum = extraTracks.indexOf(attr);
@@ -130,7 +159,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             extraAttributes.splice(indexNum, 1);
             removeClinicalAttribute();
         });// enable delete symbol "x" function
-        //
+
         //tooltip for the track deletion function
         $('.special_delete').qtip({
                     content: {text: 'click here to delete this track!'},
@@ -143,11 +172,25 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                     function () {
                     $(this).css('fill', '#0000FF');
                     $(this).css('font-size', '18px');
+                    $(this).css('cursor', 'pointer');
                     },
                     function () {
                     $(this).css('fill', '#87CEFA');
                     $(this).css('font-size', '12px');
                     });
+                    
+        if(extraAttributes.length>1)
+        {
+            $('.oncoprint-diagram-top').css("display","inline");
+        }
+        else
+        {
+            $('.oncoprint-diagram-top').css("display","none");
+            if(extraAttributes.length<1)
+            {
+                $('.select_clinical_attributes_from').css("data-placeholder","Add a clinical attribute track");
+            }
+        }
         oncoprint.sortBy(sortBy.val(), cases.split(" "));
 //        // disable the option to sort by clinical data
 //        $(sortBy.add('option[value="clinical"]')[1]).prop('disabled', true);
@@ -175,6 +218,9 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             // disable the option to sort by clinical data
             $(sortBy.add('option[value="clinical"]')[1]).prop('disabled', true);
         } else {
+            
+            $('.select_clinical_attributes_from').css("data-placeholder","Add another clinical attribute track");
+            
             if(clinicalAttribute.attr_id === "mutations")
             {
                     oncoprintClinicals = new ClinicalMutationColl();
@@ -182,7 +228,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                     type: "POST",
 
                     data: {
-                            mutation_profile: window.PortalGlobals.gerMutationProfileId(),
+                            mutation_profile: window.PortalGlobals.getMutationProfileId(),
                             cmd: "count_mutations",
                             case_ids: cases
                     },
@@ -207,7 +253,22 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
 //                        // sort by genes by default
 //                        sortBy.val('genes');
+                        for(attributeElemValue in extraAttributes)
+                        {
+                            var attributeElemValueIndex;
+                            
+                            for(m in totalAttrs) 
+                            {
+                                if(totalAttrs[m].display_name === extraAttributes[attributeElemValue].display_name)
+                                {
+                                    attributeElemValueIndex=m; 
+                                    totalAttrs.splice(attributeElemValueIndex,1);
+                                }
+                            }  
+                        }
 
+                        utils.populate_clinical_attr_select(document.getElementById('select_clinical_attributes'), totalAttrs);
+                        
                         toggleControls(true);
                         
                         $('.special_delete').click(function() {
@@ -241,6 +302,97 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                                     function () {
                                     $(this).css('fill', '#0000FF');
                                     $(this).css('font-size', '18px');
+                                    $(this).css('cursor', 'pointer');
+                                    },
+                                    function () {
+                                    $(this).css('fill', '#87CEFA');
+                                    $(this).css('font-size', '12px');
+                                    });
+                    }
+                });
+            }
+            else if(clinicalAttribute.attr_id === "FRACTION_GENOME_ALTERED")
+            {
+                    oncoprintClinicals = new ClinicalCNAColl();
+                    oncoprintClinicals.fetch({
+                    type: "POST",
+
+                    data: {
+                            cancer_study_id:window.PortalGlobals.getCancerStudyId(),
+                            cmd: "get_cna_fraction",
+                            case_ids: cases
+                    },
+                    success: function(response) {
+                        inner_loader_img.hide();
+                        
+                        extraTracks = extraTracks.concat(response.attributes().map(function(attr) { return attr.attr_id; }));
+                        extraGenes = extraGenes.concat(response.toJSON());
+                        extraAttributes=extraAttributes.concat(response.attributes());
+                        oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
+                            geneData: geneDataColl.toJSON(),
+                            clinicalData: extraGenes,
+                            genes: genes,
+                            clinical_attrs: extraAttributes,
+                            legend: document.getElementById('oncoprint_legend')
+                        },extraTracks);
+                             
+                        oncoprint.sortBy(sortBy.val(), cases.split(" "));
+
+                        // enable the option to sort by clinical data
+                        $(sortBy.add('option[value="clinical"]')[1]).prop('disabled', false);
+
+//                        // sort by genes by default
+//                        sortBy.val('genes');
+                        for(attributeElemValue in extraAttributes)
+                        {
+                            var attributeElemValueIndex;
+                            
+                            for(m in totalAttrs) 
+                            {
+                                if(totalAttrs[m].display_name === extraAttributes[attributeElemValue].display_name)
+                                {
+                                    attributeElemValueIndex=m; 
+                                    totalAttrs.splice(attributeElemValueIndex,1);
+                                }
+                            }  
+                        }
+
+                        utils.populate_clinical_attr_select(document.getElementById('select_clinical_attributes'), totalAttrs);
+                        
+                        toggleControls(true);
+                        
+                        $('.special_delete').click(function() {
+                            var attr = $(this).attr("alt");
+                            var indexNum = extraTracks.indexOf(attr);
+                            extraTracks.splice(indexNum, 1);
+                            extraGenes.splice(indexNum, 1);
+                            extraAttributes.splice(indexNum, 1);
+                            removeClinicalAttribute();
+                        });// enable delete symbol "x" function
+                        
+                        zoom = reset_zoom();
+
+                        // sync
+                        oncoprint.zoom(zoom.slider("value"));
+                        oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
+                        oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
+                        utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
+
+
+                        //tooltip for the track deletion function
+                        $('.special_delete').qtip({
+                                    content: {text: 'click here to delete this track!'},
+                                    position: {my:'left bottom', at:'top right', viewport: $(window)},
+                                    style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                                    show: {event: "mouseover"},
+                                    hide: {fixed: true, delay: 100, event: "mouseout"}
+                                });
+                                
+                        $('.special_delete').hover(
+                                    function () {
+                                    $(this).css('fill', '#0000FF');
+                                    $(this).css('font-size', '18px');
+                                    $(this).css('cursor', 'pointer');
                                     },
                                     function () {
                                     $(this).css('fill', '#87CEFA');
@@ -282,6 +434,23 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 //                        // sort by genes by default
 //                        sortBy.val('genes');
 
+                        for(attributeElemValue in extraAttributes)
+                        {
+                            var attributeElemValueIndex;
+                            
+                            for(m in totalAttrs) 
+                            {
+                                if(totalAttrs[m].display_name === extraAttributes[attributeElemValue].display_name)
+                                {
+                                    attributeElemValueIndex=m; 
+                                    totalAttrs.splice(attributeElemValueIndex,1);
+                                }
+                            }
+                            
+                        }
+
+                        utils.populate_clinical_attr_select(document.getElementById('select_clinical_attributes'), totalAttrs);
+                        
                         toggleControls(true);
 
                         $('.special_delete').click(function() {
@@ -291,8 +460,6 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                             extraGenes.splice(indexNum, 1);
                             extraAttributes.splice(indexNum, 1);
                             removeClinicalAttribute();
-                            //removeClinicalAttribute($(this).attr("alt"));
-                            //resetClinicalAttribute
                         });// enable delete symbol "x" function
 
                         zoom = reset_zoom();
@@ -316,6 +483,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                                     function () {
                                     $(this).css('fill', '#0000FF');
                                     $(this).css('font-size', '18px');
+                                    $(this).css('cursor', 'pointer');
                                     },
                                     function () {
                                     $(this).css('fill', '#87CEFA');
@@ -324,11 +492,220 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                     }
                 });
             }
+//            alert(extraAttributes.length);
+            if(extraAttributes.length>0)
+            {
+                $('.oncoprint-diagram-top').css("display","inline");
+            }
         }
     };
     
     $(select_clinical_attributes_id).change(clinicalAttributeSelected);
+     
+    //delete clinicalAttribute added before
+    var shiftGeneData = function()
+    {
+        oncoprint.remove_oncoprint();
+        inner_loader_img.show();
+        toggleControls(false); //disable toggleControls
 
+        inner_loader_img.hide();
+        var firstGene = genes[0];
+        genes.splice(0,1);
+        genes.push(firstGene);
+        oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
+            geneData: geneDataColl.toJSON(),
+            clinicalData: extraGenes,
+            genes: genes,
+            clinical_attrs: extraAttributes,
+            legend: document.getElementById('oncoprint_legend')
+        },extraTracks);
+
+        oncoprint.sortBy(sortBy.val(), cases.split(" "));
+        toggleControls(true);
+        $('.special_delete').click(function() {
+            var attr = $(this).attr("alt");
+            var indexNum = extraTracks.indexOf(attr);
+            extraTracks.splice(indexNum, 1);
+            extraGenes.splice(indexNum, 1);
+            extraAttributes.splice(indexNum, 1);
+            removeClinicalAttribute();
+        });// enable delete symbol "x" function
+        //
+        //tooltip for the track deletion function
+        $('.special_delete').qtip({
+                    content: {text: 'click here to delete this track!'},
+                    position: {my:'left bottom', at:'top right', viewport: $(window)},
+                    style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                    show: {event: "mouseover"},
+                    hide: {fixed: true, delay: 100, event: "mouseout"}
+                    });
+        $('.special_delete').hover(
+                    function () {
+                    $(this).css('fill', '#0000FF');
+                    $(this).css('font-size', '18px');
+                    $(this).css('cursor', 'pointer');
+                    },
+                    function () {
+                    $(this).css('fill', '#87CEFA');
+                    $(this).css('font-size', '12px');
+                    });
+    }
+    
+    //delete clinicalAttribute added before
+    var shiftClinicData = function()
+    {
+        oncoprint.remove_oncoprint();
+        inner_loader_img.show();
+        toggleControls(false); //disable toggleControls
+
+        inner_loader_img.hide();
+        var sizeOfSamples = extraGenes.length/extraAttributes.length;//calculate length of samples
+        //shift clinical attrs samples
+        var firstClinic = extraGenes.slice(0,sizeOfSamples);
+        extraGenes.slice(0,sizeOfSamples)
+        extraGenes.concat(firstClinic);
+        //shift clinical attrs names
+        var firstClinicAttribute = extraTracks[0];
+        extraTracks.splice(0,1);
+        extraTracks.push(firstClinicAttribute);
+        
+        var firstClinicAttrs = extraAttributes[0];
+        extraAttributes.splice(0,1);
+        extraAttributes.push(firstClinicAttrs);
+        
+        oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
+            geneData: geneDataColl.toJSON(),
+            clinicalData: extraGenes,
+            genes: genes,
+            clinical_attrs: extraAttributes,
+            legend: document.getElementById('oncoprint_legend')
+        },extraTracks);
+
+        oncoprint.sortBy(sortBy.val(), cases.split(" "));
+        toggleControls(true);
+        $('.special_delete').click(function() {
+            var attr = $(this).attr("alt");
+            var indexNum = extraTracks.indexOf(attr);
+            extraTracks.splice(indexNum, 1);
+            extraGenes.splice(indexNum, 1);
+            extraAttributes.splice(indexNum, 1);
+            removeClinicalAttribute();
+        });// enable delete symbol "x" function
+        //
+        //tooltip for the track deletion function
+        $('.special_delete').qtip({
+                    content: {text: 'click here to delete this track!'},
+                    position: {my:'left bottom', at:'top right', viewport: $(window)},
+                    style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                    show: {event: "mouseover"},
+                    hide: {fixed: true, delay: 100, event: "mouseout"}
+                    });
+        $('.special_delete').hover(
+                    function () {
+                    $(this).css('fill', '#0000FF');
+                    $(this).css('font-size', '18px');
+                    $(this).css('cursor', 'pointer');
+                    },
+                    function () {
+                    $(this).css('fill', '#87CEFA');
+                    $(this).css('font-size', '12px');
+                    });
+    }
+    
+//    var _startX = 0;            // mouse starting positions
+//    var _startY = 0;
+//    var _offsetX = 0;           // current element offset
+//    var _offsetY = 0;
+//    var _dragElement;           // needs to be passed from OnMouseDown to OnMouseMove
+//            
+//    function OnMouseDown(e)
+//    {
+//        // IE is retarded and doesn't pass the event object
+//        if (e == null) 
+//            e = window.event; 
+//
+//        // IE uses srcElement, others use target
+//        var target = e.target != null ? e.target : e.srcElement;
+//
+//        _debug.innerHTML = target.className == 'drag' 
+//            ? 'draggable element clicked' 
+//            : 'NON-draggable element clicked';
+//
+//        // for IE, left click == 1
+//        // for Firefox, left click == 0
+//        if ((e.button == 1 && window.event != null || 
+//            e.button == 0) && 
+//            target.className == 'drag')
+//        {
+//            // grab the mouse position
+//            _startX = e.clientX;
+//            _startY = e.clientY;
+//
+//            // grab the clicked element's position
+//            _offsetX = ExtractNumber(target.style.left);
+//            _offsetY = ExtractNumber(target.style.top);
+//
+//            // bring the clicked element to the front while it is being dragged
+//            _oldZIndex = target.style.zIndex;
+//            target.style.zIndex = 10000;
+//
+//            // we need to access the element in OnMouseMove
+//            _dragElement = target;
+//
+//            // tell our code to start moving the element with the mouse
+//            document.onmousemove = OnMouseMove;
+//
+//            // cancel out any text selections
+//            document.body.focus();
+//
+//            // prevent text selection in IE
+//            document.onselectstart = function () { return false; };
+//            // prevent IE from trying to drag an image
+//            target.ondragstart = function() { return false; };
+//
+//            // prevent text selection (except IE)
+//            return false;
+//        }
+//    }
+//    
+//    function OnMouseUp(e)
+//    {
+//        if (_dragElement != null)
+//        {
+//            _dragElement.style.zIndex = _oldZIndex;
+//
+//            // we're done with these events until the next OnMouseDown
+//            document.onmousemove = null;
+//            document.onselectstart = null;
+//            _dragElement.ondragstart = null;
+//
+//            // this is how we know we're not dragging      
+//            _dragElement = null;
+//
+//            _debug.innerHTML = 'mouse up';
+//        }
+//    }
+//    
+//    function OnMouseMove(e)
+//    {
+//        if (e == null) 
+//            var e = window.event; 
+//
+//        // this is the actual "drag code"
+//        _dragElement.style.left = (_offsetX + e.clientX - _startX) + 'px';
+//        _dragElement.style.top = (_offsetY + e.clientY - _startY) + 'px';
+//
+//        _debug.innerHTML = '(' + _dragElement.style.left + ', ' + 
+//            _dragElement.style.top + ')';   
+//    }
+//
+//    function InitDragDrop()
+//    {
+//        document.onmousedown = OnMouseDown;
+//        document.onmouseup = OnMouseUp;
+//    }
+    
     $(document).ready(function() {
         // bind away
         $('#oncoprint_controls #sort_by').change(function() {
@@ -369,6 +746,14 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             a.download='OncoPrintSamples.txt';
             a.click();
             //a.delete();
+        });
+        
+        $('.oncoprint-diagram-Shift').click(function() {
+            shiftGeneData();
+        });
+        
+        $('.oncoprint-diagram-top').click(function() {
+            shiftClinicData();
         });
         
         cbio.util.autoHideOnMouseLeave($("#oncoprint_whole_body"), $(".oncoprint-diagram-toolbar-buttons"));

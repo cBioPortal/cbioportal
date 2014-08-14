@@ -47,6 +47,7 @@ var MutexData = (function() {
 			d: 0, //++
 			odds_ratio: 0,
 			log_odds_ratio: 0,
+			log_odds_ratio_text: "",
 			p_value: 0,
 			association: "" //
 		},
@@ -62,12 +63,6 @@ var MutexData = (function() {
 			p_val_threshold: 0.05,
 			log_odds_ratio_threshold: 0
 		};
-
-	var processData = function() {
-		oncoprintData = PortalDataColl.getOncoprintData(); 
-		countEventCombinations();
-		calc();
-	}
 
 	function countEventCombinations() {
 		var _geneArr = window.PortalGlobals.getGeneList();
@@ -140,14 +135,15 @@ var MutexData = (function() {
 						
 						//normalize the large log values
 						_dataObj.log_odds_ratio = Math.log(_dataObj.odds_ratio).toFixed(3);
+
 						if (_dataObj.log_odds_ratio < -3 || _dataObj.log_odds_ratio === "-Infinity") {
-							_dataObj.log_odds_ratio = -4;
+							_dataObj.log_odds_ratio_text = "<-3";
 						} else if (_dataObj.log_odds_ratio > 3) {
-							_dataObj.log_odds_ratio = 4;
-						}
+							_dataObj.log_odds_ratio_text = ">3";
+						} else _dataObj.log_odds_ratio_text = _dataObj.log_odds_ratio;
 
 						//categorize
-						if (_dataObj.log_odds_ratio <= settings.log_odds_ratio_threshold) {
+						if (_dataObj.log_odds_ratio <= settings.log_odds_ratio_threshold || _dataObj.log_odds_ratio === "-Infinity") {
 							if (_dataObj.p_value < settings.p_val_threshold) {
 								_dataObj.association = "Significant tendency towards <b>mutual exclusivity</b>";
 							} else {
@@ -161,42 +157,59 @@ var MutexData = (function() {
 							}
 						} 
 					} else {
-						_dataObj.odds_ratio = "--"; 
-						_dataObj.log_odds_ratio = "--"; 
+						_dataObj.odds_ratio = "Infinity"; 
+						_dataObj.log_odds_ratio = "Infinity"; 
+						_dataObj.log_odds_ratio_text = ">3";
+						_dataObj.association = "Significant tendency towards <b>co-occurrence</b>";
 					}
 				});
 			}
-			buildStat();
 		});
 	}
 
 	function buildStat() {
 		$.each(dataArr, function(index, obj) {
-			if (obj.log_odds_ratio <= settings.log_odds_ratio_threshold) {		
+			if (obj.log_odds_ratio <= settings.log_odds_ratio_threshold || obj.log_odds_ratio === "-Infinity") {		
 				stat.num_of_mutex += 1;
 				if (obj.p_value < settings.p_val_threshold) {
 					stat.num_of_sig_mutex += 1;
 				}		
-			} else if (obj.log_odds_ratio > settings.log_odds_ratio_threshold) {
+			} else if (obj.log_odds_ratio > settings.log_odds_ratio_threshold || obj.log_odds_ratio === "Infinity") {
 				stat.num_of_co_oc += 1;
 				if (obj.p_value < settings.p_val_threshold) {
 					stat.num_of_sig_co_oc += 1;
 				}
 			}  
 		});
-		MutexView.init();
 	}
 
 	return {
+		setOncoprintData: function(inputDataObj) {
+			oncoprintData = inputDataObj;
+		},
 		init: function() {
-	        PortalDataCollManager.subscribeOncoprint(processData);
+    		countEventCombinations();
+			calc();
+  			
+            var tid = setInterval(detectInstance, 600);
+            function detectInstance() {
+                if (dataArr.length !== 0) {
+                    abortTimer();                    
+                }
+            }
+            function abortTimer() { 
+            	clearInterval(tid);
+            	buildStat();
+				MutexView.init();
+            }
 		},
 		getDataArr: function() {
 			return dataArr;
 		},
 		getDataStat: function() {
 			return stat;
-		}
+		},
+
 	}
 
 }());

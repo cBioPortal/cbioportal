@@ -14,8 +14,8 @@
 <div class="section" id="mutex" class="mutex">
     <div id='mutex-wrapper' style='width: 1000px; margin-top: 20px; margin-left: 20px;'>
         <div id="mutex-info-div">
-            <p>The query contains <span id='num_of_mutex' class='stat_num'></span> gene pair<span id='plu_s_mutex'></span> with mutually exclusive alterations (<span id='num_of_sig_mutex' class='stat_num'></span> significant),
-            and <span id='num_of_co_oc' class='stat_num'></span> gene pair<span id='plu_s_co_oc'></span> with co-occurrent alterations (<span id='num_of_sig_co_oc' class='stat_num'></span> significant).
+            <p>The query contains <span id='num_of_mutex' class='stat_num'></span> gene pair<span id='plu_s_mutex'></span> with mutually exclusive alterations<span id='stat_sig_mutex'> (<span id='num_of_sig_mutex' class='stat_num'></span> significant)</span>,
+            and <span id='num_of_co_oc' class='stat_num'></span> gene pair<span id='plu_s_co_oc'></span> with co-occurrent alterations<span id='stat_sig_co_oc'> (<span id='num_of_sig_co_oc' class='stat_num'></span> significant)</span>.
         <div id='mutex-loading-image'>
             <img style='padding:200px;' src='images/ajax-loader.gif'>
         </div>
@@ -26,10 +26,15 @@
 
 <script>
     $(document).ready( function() {
-        MutexData.init();
+        PortalDataCollManager.subscribeOncoprint(function() {
+            MutexData.setOncoprintData(PortalDataColl.getOncoprintData()); 
+        });
         $("#tabs").bind("tabsactivate", function(event, ui) {
-            if (ui.newTab.text().trim().toLowerCase() === "mutual exclusivity") {
-                MutexView.resize();
+            if (!MutexView.isTableInstanceExisted()) {
+                MutexData.init();
+                if (ui.newTab.text().trim().toLowerCase() === "mutual exclusivity") {
+                    MutexView.resize();
+                }
             }
         });
     });

@@ -115,7 +115,6 @@
             "oLanguage": {
                 "sSearch": "Search Gene"
             },
-            "bDestory": true,
             "fnRowCallback": function(nRow, aData) {
                 $('td:eq(' + index.geneA + ')', nRow).css("font-weight", "bold");
                 $('td:eq(' + index.geneB + ')', nRow).css("font-weight", "bold");
@@ -140,13 +139,7 @@
                 } else {
                     _arr.push(obj.p_value);
                 }
-                if (obj.log_odds_ratio === 4) {
-                    _arr.push(">3");
-                } else if (obj.log_odds_ratio === -4) {
-                    _arr.push("<-3");
-                } else {
-                    _arr.push(obj.log_odds_ratio);
-                }
+                _arr.push(obj.log_odds_ratio_text);
                 _arr.push(obj.association);
                 mutexTableDataArr.push(_arr);       
             }
@@ -284,18 +277,17 @@
     function addStatInfo() {
         var _stat = MutexData.getDataStat();
         //replace 0 (text) with "non"
-        if (_stat.num_of_sig_mutex === 0) {
-            _stat.num_of_sig_mutex = "none";
-        }
-        if (_stat.num_of_sig_co_oc === 0) {
-            _stat.num_of_sig_co_oc = "none";
-        }
+        if (_stat.num_of_sig_mutex === 0) _stat.num_of_sig_mutex = "none";
+        if (_stat.num_of_sig_co_oc === 0) _stat.num_of_sig_co_oc = "none";
         if (_stat.num_of_mutex === 0) {
-            _stat.num_of_mutex = "no";
+            _stat.num_of_mutex = "no";    
+            $("#stat_sig_mutex").remove(); 
         }
         if (_stat.num_of_co_oc === 0) {
             _stat.num_of_co_oc = "no";
+            $("#stat_sig_co_oc").remove();
         }
+
         $("#num_of_mutex").append(_stat.num_of_mutex);
         $("#num_of_sig_mutex").append(_stat.num_of_sig_mutex);
         $("#num_of_co_oc").append(_stat.num_of_co_oc);
@@ -331,6 +323,10 @@
                 clearInterval(tid);
                 mutexTableInstance.fnAdjustColumnSizing();
             }
+        },
+        isTableInstanceExisted: function() {
+            if (mutexTableInstance !== "" && (typeof mutexTableInstance !== "undefined")) return true;
+            else return false;
         }
  	}
  }());

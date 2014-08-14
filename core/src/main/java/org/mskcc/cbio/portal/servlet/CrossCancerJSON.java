@@ -106,8 +106,8 @@ public class CrossCancerJSON extends HttpServlet {
                 AnnotatedPatientSets annotatedPatientSets = new AnnotatedPatientSets(patientSetList, dataTypePriority);
                 PatientList defaultPatientSet = annotatedPatientSets.getDefaultPatientList();
                 List<Sample> defaultSamples = InternalIdUtil.getSamplesById(
-                        InternalIdUtil.getInternalSampleIdsFromPatientIds(cancerStudy.getInternalId(),
-                                defaultPatientSet.getPatientList(), Sample.Type.nortalTypes()));
+                        InternalIdUtil.getInternalNonNormalSampleIdsFromPatientIds(cancerStudy.getInternalId(),
+                                defaultPatientSet.getPatientList()));
 
                 //  Get the default genomic profiles
                 CategorizedGeneticProfileSet categorizedGeneticProfileSet =

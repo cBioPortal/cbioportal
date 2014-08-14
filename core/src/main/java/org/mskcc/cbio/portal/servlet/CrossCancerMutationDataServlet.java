@@ -123,8 +123,8 @@ public class CrossCancerMutationDataServlet extends HttpServlet
                 PatientList defaultPatientSet = annotatedPatientSets.getDefaultPatientList();
                 
                 List<Sample> defaultSamples = InternalIdUtil.getSamplesById(
-                        InternalIdUtil.getInternalSampleIdsFromPatientIds(cancerStudy.getInternalId(),
-                                defaultPatientSet.getPatientList(), Sample.Type.nortalTypes()));
+                        InternalIdUtil.getInternalNonNormalSampleIdsFromPatientIds(cancerStudy.getInternalId(),
+                                defaultPatientSet.getPatientList()));
                 ArrayList<String> sampleList = new ArrayList<String>();
                 for (Sample sample : defaultSamples) {
                     sampleList.add(sample.getStableId());

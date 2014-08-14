@@ -44,7 +44,7 @@ public class CalculateMutationFrequencies {
         PatientList patientSet = daoPatientList.getPatientListByStableId(patientSetName);
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(args[1]);
         HashSet <Integer> masterSampleSet = new HashSet<Integer>();
-        masterSampleSet.addAll(InternalIdUtil.getInternalSampleIdsFromPatientIds(cancerStudy.getInternalId(), patientSet.getPatientList()));
+        masterSampleSet.addAll(InternalIdUtil.getInternalNonNormalSampleIdsFromPatientIds(cancerStudy.getInternalId(), patientSet.getPatientList()));
 
         if (patientSet == null) {
             System.out.println ("Patient set id:  " + patientSetName + " does not exist in database.");

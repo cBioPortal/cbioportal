@@ -1,6 +1,10 @@
 
 If you want to visualize your own data in cBioPortal, you have the following options:
 
+## Use our [tools](tools.jsp) to visualize your data
+* [Oncoprinter](oncoprinter.jsp) lets you create Oncoprints from your own, custom data.
+* [MutationMapper](mutation_mapper.jsp) draws mutation diagrams (lollipop plots) from your custom data.
+
 ## Download and install a local version of cBioPortal
 * Free for academic researchers. Please [contact us](mailto:cbioportal@cbio.mskcc.org?subject=Installing a local cBioPortal - academic use) for details.
 * For commercial use, please [contact us](mailto:cbioportal@cbio.mskcc.org?subject=Installing a local cBioPortal - commercial use) about license terms.

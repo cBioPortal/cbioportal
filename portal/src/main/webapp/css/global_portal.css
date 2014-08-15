@@ -4,10 +4,10 @@ body {
   font-family: verdana, arial, sans-serif;
   table-layout:fixed;
   text-align: center;
-  margin-top:10px;
-  margin-bottom:10px;
+  margin-top:10px !important;
+  margin-bottom:10px !important;
   color:#666666;
-  background-color: #E0E0E0;
+  background-color: #E0E0E0 !important;
 }
 
 #page_wrapper {

@@ -15,27 +15,12 @@ import java.util.Map;
  */
 public class Annotator
 {
-	// config params (TODO create a config class instead?)
-	protected boolean sortColumns;
-	protected boolean addMissingCols;
-	protected String vepPath;
-	protected String maf2MafScript;
-	protected String vcf2MafScript;
+	private AnnotatorConfig config;
 
-	// intermediate annotator files
-	public static final String DEFAULT_INTERMEDIATE_MAF = "annotator_out.maf";
-	public static final String DEFAULT_INTERMEDIATE_DIR = "annotator_dir";
-	public static final String DEFAULT_MAF2MAF = "maf2maf.pl";
-	public static final String DEFAULT_VCF2MAF = "vcf2maf.pl";
-	public static final String DEFAULT_VEP_PATH = "";
-
-	public Annotator()
+	public Annotator(AnnotatorConfig config)
 	{
 		// init default settings
-		this.sortColumns = false;
-		this.addMissingCols = false;
-		this.maf2MafScript = DEFAULT_MAF2MAF;
-		this.vcf2MafScript = DEFAULT_VCF2MAF;
+		this.config = config;
 	}
 
 	public void annotateFile(File input,
@@ -57,7 +42,7 @@ public class Annotator
 
 		// TODO check return value?
 
-		List<String> annoHeaders = this.extractAnnoHeaders(DEFAULT_INTERMEDIATE_MAF);
+		List<String> annoHeaders = this.extractAnnoHeaders(this.config.getIntermediateMaf());
 
 		FileReader reader = new FileReader(input);
 		//FileReader reader = new FileReader(DEFAULT_INTERMEDIATE_MAF);
@@ -77,13 +62,13 @@ public class Annotator
 
 		// create new header line for output
 		List<String> columnNames = processor.newHeaderList(
-				this.sortColumns, this.addMissingCols);
+				this.config.isSort(), this.config.isAddMissing());
 
 		// write the header line to output
 		FileIOUtil.writeLine(writer, columnNames);
 
 		String dataLine = bufReader.readLine();
-		AnnotatorService service = new AnnotatorService();
+		AnnotatorService service = new AnnotatorService(this.config);
 
 		// process the file line by line
 		while (dataLine != null)
@@ -121,21 +106,17 @@ public class Annotator
 	{
 		String inputMaf = input.getAbsolutePath();
 
-		// TODO enable configuration of hard-coded params
-		String interDir = DEFAULT_INTERMEDIATE_DIR;
-		String outMaf = DEFAULT_INTERMEDIATE_MAF;
-
 		String[] args = {
 			"perl",
-			this.getMaf2MafScript(),
+			this.config.getMaf2maf(),
 			"--vep-path",
-			this.getVepPath(),
+			this.config.getVepPath(),
 			"--input-maf",
 			inputMaf,
 			"--output-dir",
-			interDir,
+			this.config.getIntermediateDir(),
 			"--output-maf",
-			outMaf
+			this.config.getIntermediateMaf()
 		};
 
 		return execProcess(args);
@@ -145,18 +126,15 @@ public class Annotator
 	{
 		String inVcf = input.getAbsolutePath();
 
-		// TODO enable configuration of hard-coded params
-		String outMaf = DEFAULT_INTERMEDIATE_MAF;
-
 		String[] args = {
 			"perl",
-			this.getVcf2MafScript(),
+			this.config.getVcf2maf(),
 			"--vep-path",
-			this.getVepPath(),
+			this.config.getVepPath(),
 			"--input-vcf",
 			inVcf,
 			"--output-maf",
-			outMaf
+			this.config.getIntermediateMaf()
 		};
 
 		return execProcess(args);
@@ -233,53 +211,13 @@ public class Annotator
 
 	// Getters and Setters
 
-	public boolean isSortColumns()
+	public AnnotatorConfig getConfig()
 	{
-		return sortColumns;
+		return config;
 	}
 
-	public void setSortColumns(boolean sortColumns)
+	public void setConfig(AnnotatorConfig config)
 	{
-		this.sortColumns = sortColumns;
-	}
-
-	public boolean isAddMissingCols()
-	{
-		return addMissingCols;
-	}
-
-	public void setAddMissingCols(boolean addMissingCols)
-	{
-		this.addMissingCols = addMissingCols;
-	}
-
-	public String getVepPath()
-	{
-		return vepPath;
-	}
-
-	public void setVepPath(String vepPath)
-	{
-		this.vepPath = vepPath;
-	}
-
-	public String getMaf2MafScript()
-	{
-		return maf2MafScript;
-	}
-
-	public void setMaf2MafScript(String maf2MafScript)
-	{
-		this.maf2MafScript = maf2MafScript;
-	}
-
-	public String getVcf2MafScript()
-	{
-		return vcf2MafScript;
-	}
-
-	public void setVcf2MafScript(String vcf2MafScript)
-	{
-		this.vcf2MafScript = vcf2MafScript;
+		this.config = config;
 	}
 }

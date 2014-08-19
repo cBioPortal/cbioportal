@@ -57,7 +57,7 @@ firehose-importer/*.txt
 portal/target/*
 liftover/target/*
 core/target/*
-oncotator/target/*
+annotator/target/*
 importer/target/*
 business/target/*
 web/target/*

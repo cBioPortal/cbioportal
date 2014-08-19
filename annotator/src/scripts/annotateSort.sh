@@ -1,1 +1,1 @@
-$JAVA_HOME/bin/java -Xmx1524M -jar annotator.jar -sort -std $@
+$JAVA_HOME/bin/java -Xmx1524M -jar annotator.jar -s -a $@

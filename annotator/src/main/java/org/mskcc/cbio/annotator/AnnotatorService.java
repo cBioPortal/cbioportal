@@ -27,14 +27,14 @@ public class AnnotatorService
 	private MafUtil mafUtil;
 	private String headerLine;
 	private Map<String, String> lineCache;
+	private AnnotatorConfig config;
 
-	public AnnotatorService()
+	public AnnotatorService(AnnotatorConfig config)
 	{
 		try
 		{
-			// TODO make the input source configurable
-			// (instead of using DEFAULT_INTERMEDIATE_MAF)
-			this.lineCache = this.buildMap(Annotator.DEFAULT_INTERMEDIATE_MAF);
+			this.config = config;
+			this.lineCache = this.buildMap(config.getIntermediateMaf());
 		}
 		catch (IOException e)
 		{
@@ -75,9 +75,8 @@ public class AnnotatorService
 
 		if (this.reader == null)
 		{
-			// TODO make the input source configurable
 			this.reader = new BufferedReader(
-					new FileReader(Annotator.DEFAULT_INTERMEDIATE_MAF));
+					new FileReader(this.config.getIntermediateMaf()));
 		}
 
 		String line = this.reader.readLine();

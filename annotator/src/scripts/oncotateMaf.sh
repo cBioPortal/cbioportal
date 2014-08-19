@@ -1,1 +1,1 @@
-$JAVA_HOME/bin/java -Xmx1524M -jar oncotator.jar $@
+$JAVA_HOME/bin/java -Xmx1524M -jar annotator.jar -t oncotator $@

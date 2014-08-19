@@ -17,6 +17,8 @@
 
 package org.mskcc.cbio.oncotator;
 
+import org.mskcc.cbio.annotator.AnnotatorConfig;
+
 import java.io.*;
 import java.util.Date;
 
@@ -27,97 +29,36 @@ import java.util.Date;
  */
 public class OncotateTool
 {
-    public static void main(String[] args)
-    {
-        String inputMaf = null;
-	    String outputMaf = null;
-
-	    // default config params
-	    boolean useCache = true;    // use cache or not
-	    boolean sort = false;       // sort output MAF cols or not
-	    boolean addMissing = false; // add missing standard cols or not
-
-
-	    // process program arguments
-
-	    int i;
-
-	    for (i = 0; i < args.length; i++)
-	    {
-		    if (args[i].startsWith("-"))
-		    {
-			    if (args[i].equalsIgnoreCase("-nocache"))
-			    {
-				    useCache = false;
-			    }
-			    else if (args[i].equalsIgnoreCase("-sort"))
-			    {
-				    sort = true;
-			    }
-			    else if (args[i].equalsIgnoreCase("-std"))
-			    {
-				    addMissing = true;
-			    }
-		    }
-		    else
-		    {
-			    break;
-		    }
-	    }
-
-	    if (args.length - i < 2)
-	    {
-		    System.out.println("command line usage: oncotateMaf.sh [-nocache] [-sort] [-std] " +
-		                       "<input_maf_file> <output_maf_file>");
-                        return;
-	    }
-
-	    inputMaf = args[i];
-	    outputMaf = args[i+1];
-
-	    int oncoResult = 0;
-
-        try
-        {
-	        oncoResult = driver(inputMaf,
-				outputMaf,
-				useCache,
-				sort,
-				addMissing);
-        }
-        catch (RuntimeException e)
-        {
-            System.out.println("Fatal error: " + e.getMessage());
-            e.printStackTrace();
-                        return;
-        }
-        finally
-        {
-	        // check errors at the end
-	        if (oncoResult != 0)
-	        {
-		        // TODO produce different error codes, for different types of errors?
-		        System.out.println("Process completed with " + oncoResult + " error(s).");
-	        }
-        }
-    }
-
+	// TODO remove this after updating the importer
 	public static int driver(String inputMaf,
 			String outputMaf,
 			boolean useCache,
 			boolean sort,
 			boolean addMissing)
 	{
+		AnnotatorConfig config = new AnnotatorConfig();
+
+		config.setInput(inputMaf);
+		config.setOutput(outputMaf);
+		config.setNoCache(!useCache);
+		config.setSort(sort);
+		config.setAddMissing(addMissing);
+
+		return driver(config);
+	}
+
+	public static int driver(AnnotatorConfig config)
+	{
 		Date start = new Date();
 		int oncoResult = 0;
 
-		Oncotator tool = new Oncotator(useCache);
-		tool.setSortColumns(sort);
-		tool.setAddMissingCols(addMissing);
+		Oncotator tool = new Oncotator(!config.isNoCache());
+		tool.setSortColumns(config.isSort());
+		tool.setAddMissingCols(config.isAddMissing());
 
 		try {
-			oncoResult = tool.oncotateMaf(new File(inputMaf),
-			                 new File(outputMaf));
+			oncoResult = tool.oncotateMaf(new File(config.getInput()),
+			                              new File(config.getOutput()));
 		} catch (IOException e) {
 			System.out.println("IO error occurred: " + e.getMessage());
 			e.printStackTrace();

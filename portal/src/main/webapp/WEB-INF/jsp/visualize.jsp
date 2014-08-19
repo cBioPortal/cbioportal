@@ -122,7 +122,7 @@
             out.println ("<li><a href='#summary' class='result-tab' title='Compact visualization of genomic alterations'>OncoPrint</a></li>");
 
             if (computeLogOddsRatio && geneWithScoreList.size() > 1) {
-                out.println ("<li><a href='#gene_correlation' class='result-tab' title='Mutual exclusivity and co-occurrence analysis'>"
+                out.println ("<li><a href='#mutex' class='result-tab' title='Mutual exclusivity and co-occurrence analysis'>"
                 + "Mutual Exclusivity</a></li>");
             }
 
@@ -206,9 +206,9 @@
             <% } %>
 
             <% if (computeLogOddsRatio && geneWithScoreList.size() > 1) { %>
-        <%@ include file="correlation.jsp" %>
+                <%@ include file="mutex_tab.jsp" %>
             <% } %>
-
+            
             <% if (mutationDetailLimitReached != null) {
         out.println("<div class=\"section\" id=\"mutation_details\">");
         out.println("<P>To retrieve mutation details, please specify "

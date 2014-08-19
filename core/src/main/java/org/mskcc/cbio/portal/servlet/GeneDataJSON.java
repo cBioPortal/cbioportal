@@ -164,6 +164,7 @@ public class GeneDataJSON extends HttpServlet {
             GetProfileData remoteCall;
             String sampleIds =
                 Joiner.on(" ").join(StableIdUtil.getStableSampleIdsFromPatientIds(profile.getCancerStudyId(), patientIds));
+            
             try {
                 remoteCall = new GetProfileData(profile, listOfGenes, sampleIds);
             } catch (DaoException e) {

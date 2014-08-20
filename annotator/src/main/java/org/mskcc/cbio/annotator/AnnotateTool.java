@@ -25,8 +25,11 @@ public class AnnotateTool
 			parser.parseArgument(args);
 		} catch( CmdLineException e ) {
 			// print the error message
+			System.out.println("Error: ");
 			System.out.println(e.getMessage());
+			System.out.println("");
 			// print the usage
+			System.out.println("Usage: ");
 			parser.printUsage(System.out);
 			// terminate
 			return;

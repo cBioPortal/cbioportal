@@ -136,6 +136,8 @@ define("Oncoprint",
                 label.append('tspan')       // name
                     .attr('text-anchor', 'start')
                     .attr('font-weight', 'bold')
+                    .attr('fill','black')
+                    .attr('class','attribute_name')
                     .text(function(d) {
                         var maybe = utils.maybe_map(id2ClinicalAttr);
                         var value = maybe(d);
@@ -221,7 +223,9 @@ define("Oncoprint",
                                 return utils.cna_fills[d.cna];
                             }
                             else if (utils.is_clinical(d)) {
+
                                 var result = attr2range[d.attr_id](d.attr_val);
+                                
                                 return d.attr_val === "NA"
                             ? colors.grey       // attrs with value of NA are colored grey
                             : result;

@@ -122,7 +122,7 @@ define("OncoprintUtils", (function() {
             }
             else {
                 // just keep the min and max -- an interval of values
-                val = parseInt(val);
+                //val = parseInt(val);
                 var min = a2r[0],
                     max = a2r[1];
 
@@ -270,6 +270,7 @@ define("OncoprintUtils", (function() {
     //
     // returns a map of attr_id to d3 scale
     var make_attribute2scale = function(attrs, raw_clinical_data) {
+
         var attrId2range = attr2range(raw_clinical_data);
 
         var slice_googlecolors = function(attr_id) {
@@ -307,8 +308,8 @@ define("OncoprintUtils", (function() {
                 }
 
                 else if (attr.datatype.toUpperCase() === "NUMBER") {
-                    scale = d3.scale.linear()
-                        .range([colors.white, colors.continuous]);
+                        scale = d3.scale.linear()
+                            .range([colors.white, colors.continuous]);
                 }
 
                 else if (attr.datatype.toUpperCase() === "STRING") {
@@ -322,12 +323,11 @@ define("OncoprintUtils", (function() {
                         .range( slice_googlecolors(attr.attr_id));
                 }
                 scale.domain(attrId2range[attr.attr_id]);
-
                 return [attr.attr_id, scale];
             })
         .object()
             .value();
-    
+            
             return result;
     };
 

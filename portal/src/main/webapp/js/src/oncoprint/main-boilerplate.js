@@ -85,6 +85,20 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
             oncoprint.sortBy(sortBy.val(), cases.split(" "));
 
+//            $('.attribute_name').attr('fill','#FF0000');
+            $('.attribute_name').hover(
+                    function(){
+                    $(this).css('cursor','pointer');
+                    },
+                    function () {
+                    $(this).css('cursor', 'auto');
+                    }); 
+                    
+//            $('.attribute_name').click(
+//                    function() {
+//                    $(this).attr('fill', 'red');
+//                    }); 
+
             zoom = reset_zoom();
         }
     });
@@ -111,6 +125,52 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         zoom.attr('disabled', enable_disable);
         sortBy.prop('disabled', enable_disable).trigger("liszt:updated");
     };
+    
+    var selectedTitle;
+    var functionFunctions = function()
+    {
+        $('.special_delete').click(function() {
+            var attr = $(this).attr("alt");
+            var indexNum = extraTracks.indexOf(attr);
+            extraTracks.splice(indexNum, 1);
+            extraGenes.splice(indexNum, 1);
+            extraAttributes.splice(indexNum, 1);
+            removeClinicalAttribute();
+        });// enable delete symbol "x" function
+
+        //tooltip for the track deletion function
+        $('.special_delete').qtip({
+                    content: {text: 'click here to delete this track!'},
+                    position: {my:'left bottom', at:'top right', viewport: $(window)},
+                    style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                    show: {event: "mouseover"},
+                    hide: {fixed: true, delay: 100, event: "mouseout"}
+                    });
+        $('.special_delete').hover(
+                    function () {
+                    $(this).css('fill', '#0000FF');
+                    $(this).css('font-size', '18px');
+                    $(this).css('cursor', 'pointer');
+                    },
+                    function () {
+                    $(this).css('fill', '#87CEFA');
+                    $(this).css('font-size', '12px');
+                    });
+                    
+        $('.attribute_name').hover(
+                    function(){
+                    $(this).css('cursor','pointer');
+                    },
+                    function() {
+                    $(this).css('cursor', 'auto');
+                    }); 
+                    
+        $('.attribute_name').click(
+                    function() {
+                    selectedTitle =$(this);
+                    $(this).attr('fill', 'red');
+                    }); 
+    }
 
     //delete clinicalAttribute added before
     var removeClinicalAttribute = function()
@@ -150,33 +210,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         utils.populate_clinical_attr_select(document.getElementById('select_clinical_attributes'), totalAttrs);
         
         
-        $('.special_delete').click(function() {
-            var attr = $(this).attr("alt");
-            var indexNum = extraTracks.indexOf(attr);
-            extraTracks.splice(indexNum, 1);
-            extraGenes.splice(indexNum, 1);
-            extraAttributes.splice(indexNum, 1);
-            removeClinicalAttribute();
-        });// enable delete symbol "x" function
-
-        //tooltip for the track deletion function
-        $('.special_delete').qtip({
-                    content: {text: 'click here to delete this track!'},
-                    position: {my:'left bottom', at:'top right', viewport: $(window)},
-                    style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
-                    show: {event: "mouseover"},
-                    hide: {fixed: true, delay: 100, event: "mouseout"}
-                    });
-        $('.special_delete').hover(
-                    function () {
-                    $(this).css('fill', '#0000FF');
-                    $(this).css('font-size', '18px');
-                    $(this).css('cursor', 'pointer');
-                    },
-                    function () {
-                    $(this).css('fill', '#87CEFA');
-                    $(this).css('font-size', '12px');
-                    });
+        functionFunctions();
                     
         if(extraAttributes.length>1)
         {
@@ -195,6 +229,26 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         toggleControls(true);
 //        // disable the option to sort by clinical data
 //        $(sortBy.add('option[value="clinical"]')[1]).prop('disabled', true);
+    }
+
+    var refreshOncoPrint = function(){
+        oncoprint.remove_oncoprint();
+        inner_loader_img.show();
+        toggleControls(false); //disable toggleControls
+
+        inner_loader_img.hide();
+        
+        oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
+            geneData: geneDataColl.toJSON(),
+            clinicalData: extraGenes,
+            genes: genes,
+            clinical_attrs: extraAttributes,
+            legend: document.getElementById('oncoprint_legend')
+        },extraTracks);
+
+        functionFunctions();
+        oncoprint.sortBy(sortBy.val(), cases.split(" "));      
+        toggleControls(true);
     }
 
     // handler for when user selects a clinical attribute to visualization
@@ -272,14 +326,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         
                         toggleControls(true);
                         
-                        $('.special_delete').click(function() {
-                            var attr = $(this).attr("alt");
-                            var indexNum = extraTracks.indexOf(attr);
-                            extraTracks.splice(indexNum, 1);
-                            extraGenes.splice(indexNum, 1);
-                            extraAttributes.splice(indexNum, 1);
-                            removeClinicalAttribute();
-                        });// enable delete symbol "x" function
+                        functionFunctions();
                         
                         zoom = reset_zoom();
 
@@ -289,26 +336,6 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
                         utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
 
-
-                        //tooltip for the track deletion function
-                        $('.special_delete').qtip({
-                                    content: {text: 'click here to delete this track!'},
-                                    position: {my:'left bottom', at:'top right', viewport: $(window)},
-                                    style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
-                                    show: {event: "mouseover"},
-                                    hide: {fixed: true, delay: 100, event: "mouseout"}
-                                });
-                                
-                        $('.special_delete').hover(
-                                    function () {
-                                    $(this).css('fill', '#0000FF');
-                                    $(this).css('font-size', '18px');
-                                    $(this).css('cursor', 'pointer');
-                                    },
-                                    function () {
-                                    $(this).css('fill', '#87CEFA');
-                                    $(this).css('font-size', '12px');
-                                    });
                     }
                 });
             }
@@ -362,15 +389,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         
                         toggleControls(true);
                         
-                        $('.special_delete').click(function() {
-                            var attr = $(this).attr("alt");
-                            var indexNum = extraTracks.indexOf(attr);
-                            extraTracks.splice(indexNum, 1);+
-                            
-                            extraGenes.splice(indexNum, 1);
-                            extraAttributes.splice(indexNum, 1);
-                            removeClinicalAttribute();
-                        });// enable delete symbol "x" function
+                        functionFunctions();
                         
                         zoom = reset_zoom();
 
@@ -379,27 +398,6 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
                         oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
                         utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
-
-
-                        //tooltip for the track deletion function
-                        $('.special_delete').qtip({
-                                    content: {text: 'click here to delete this track!'},
-                                    position: {my:'left bottom', at:'top right', viewport: $(window)},
-                                    style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
-                                    show: {event: "mouseover"},
-                                    hide: {fixed: true, delay: 100, event: "mouseout"}
-                                });
-                                
-                        $('.special_delete').hover(
-                                    function () {
-                                    $(this).css('fill', '#0000FF');
-                                    $(this).css('font-size', '18px');
-                                    $(this).css('cursor', 'pointer');
-                                    },
-                                    function () {
-                                    $(this).css('fill', '#87CEFA');
-                                    $(this).css('font-size', '12px');
-                                    });
                     }
                 });
             }
@@ -455,15 +453,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         
                         toggleControls(true);
 
-                        $('.special_delete').click(function() {
-                            var attr = $(this).attr("alt");
-                            var indexNum = extraTracks.indexOf(attr);
-                            extraTracks.splice(indexNum, 1);
-                            extraGenes.splice(indexNum, 1);
-                            extraAttributes.splice(indexNum, 1);
-                            removeClinicalAttribute();
-                        });// enable delete symbol "x" function
-
+                        functionFunctions();
+                        
                         zoom = reset_zoom();
 
                         // sync
@@ -472,25 +463,6 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
                         utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
 
-                        //tooltip for the track deletion function
-                        $('.special_delete').qtip({
-                                    content: {text: 'click here to delete this track!'},
-                                    position: {my:'left bottom', at:'top right', viewport: $(window)},
-                                    style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
-                                    show: {event: "mouseover"},
-                                    hide: {fixed: true, delay: 100, event: "mouseout"}
-                                });
-                                
-                        $('.special_delete').hover(
-                                    function () {
-                                    $(this).css('fill', '#0000FF');
-                                    $(this).css('font-size', '18px');
-                                    $(this).css('cursor', 'pointer');
-                                    },
-                                    function () {
-                                    $(this).css('fill', '#87CEFA');
-                                    $(this).css('font-size', '12px');
-                                    });
                     }
                 });
             }
@@ -615,98 +587,254 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                     });
     }
     
-//    var _startX = 0;            // mouse starting positions
-//    var _startY = 0;
-//    var _offsetX = 0;           // current element offset
-//    var _offsetY = 0;
-//    var _dragElement;           // needs to be passed from OnMouseDown to OnMouseMove
-//            
-//    function OnMouseDown(e)
-//    {
-//        // IE is retarded and doesn't pass the event object
-//        if (e == null) 
-//            e = window.event; 
-//
-//        // IE uses srcElement, others use target
-//        var target = e.target != null ? e.target : e.srcElement;
-//
-//        _debug.innerHTML = target.className == 'drag' 
-//            ? 'draggable element clicked' 
-//            : 'NON-draggable element clicked';
-//
-//        // for IE, left click == 1
-//        // for Firefox, left click == 0
-//        if ((e.button == 1 && window.event != null || 
-//            e.button == 0) && 
-//            target.className == 'drag')
-//        {
-//            // grab the mouse position
-//            _startX = e.clientX;
-//            _startY = e.clientY;
-//
-//            // grab the clicked element's position
-//            _offsetX = ExtractNumber(target.style.left);
-//            _offsetY = ExtractNumber(target.style.top);
-//
-//            // bring the clicked element to the front while it is being dragged
-//            _oldZIndex = target.style.zIndex;
-//            target.style.zIndex = 10000;
-//
-//            // we need to access the element in OnMouseMove
-//            _dragElement = target;
-//
-//            // tell our code to start moving the element with the mouse
-//            document.onmousemove = OnMouseMove;
-//
-//            // cancel out any text selections
-//            document.body.focus();
-//
-//            // prevent text selection in IE
-//            document.onselectstart = function () { return false; };
-//            // prevent IE from trying to drag an image
-//            target.ondragstart = function() { return false; };
-//
-//            // prevent text selection (except IE)
-//            return false;
-//        }
-//    }
-//    
-//    function OnMouseUp(e)
-//    {
-//        if (_dragElement != null)
-//        {
-//            _dragElement.style.zIndex = _oldZIndex;
-//
-//            // we're done with these events until the next OnMouseDown
-//            document.onmousemove = null;
-//            document.onselectstart = null;
-//            _dragElement.ondragstart = null;
-//
-//            // this is how we know we're not dragging      
-//            _dragElement = null;
-//
-//            _debug.innerHTML = 'mouse up';
-//        }
-//    }
-//    
-//    function OnMouseMove(e)
-//    {
-//        if (e == null) 
-//            var e = window.event; 
-//
-//        // this is the actual "drag code"
-//        _dragElement.style.left = (_offsetX + e.clientX - _startX) + 'px';
-//        _dragElement.style.top = (_offsetY + e.clientY - _startY) + 'px';
-//
-//        _debug.innerHTML = '(' + _dragElement.style.left + ', ' + 
-//            _dragElement.style.top + ')';   
-//    }
-//
-//    function InitDragDrop()
-//    {
-//        document.onmousedown = OnMouseDown;
-//        document.onmouseup = OnMouseUp;
-//    }
+    var _startX = 0;            // mouse starting positions
+    var _startY = 0;
+    var _endX=0;                // mouse ending positions
+    var _endY=0;
+    var _offsetX = 0;           // current element offset
+    var _offsetY = 0;
+    var _dragElement;           // needs to be passed from OnMouseDown to OnMouseMove
+    var _dragElementIndex;      //index of the selected title
+    var spaceHeight = 0;
+    var selectedNotMutation= false;
+    
+    function ExtractNumber(value)
+    {
+        var n = parseInt(value);
+
+        return n == null || isNaN(n) ? 0 : n;
+    }
+    
+    function calculateGeneMovement(yMovement)
+    {
+        var tem = genes[yMovement];
+        genes[yMovement] = genes[_dragElementIndex];
+        genes[_dragElementIndex]=tem;
+        refreshOncoPrint();
+    }
+    
+    function calculateClinicMovement(yMovement)
+    {
+        var sizeOfSamples = extraGenes.length/extraAttributes.length;//calculate length of samples
+
+        //shift clinical attrs samples
+        for(var i=0; i<sizeOfSamples; i++)
+        {
+            var temClinic = extraGenes[yMovement*sizeOfSamples+i];
+            extraGenes[yMovement*sizeOfSamples+i]=extraGenes[_dragElementIndex*sizeOfSamples+i];
+            extraGenes[_dragElementIndex*sizeOfSamples+i] = temClinic;
+        }
+        
+        //shift clinical attrs names
+        var tempClinicAttribute = extraTracks[yMovement];
+        extraTracks[yMovement]=extraTracks[_dragElementIndex];
+        extraTracks[_dragElementIndex] = tempClinicAttribute;
+        
+        var tempClinicAttrs = extraAttributes[yMovement];
+        extraAttributes[yMovement]=extraAttributes[_dragElementIndex];
+        extraAttributes[_dragElementIndex] = tempClinicAttrs;
+        
+        refreshOncoPrint();
+    }
+                
+    function OnMouseDown(e)
+    {
+        // IE is retarded and doesn't pass the event object
+        if (e == null) 
+            e = window.event; 
+        
+        // grab the mouse position
+        _startX = e.clientX;
+        _startY = e.clientY;
+
+        // IE uses srcElement, others use target
+        var target = e.target != null ? e.target : e.srcElement;
+        
+        //alert('mouse position is:X '+_startX+'Y '+_startY);
+        //
+        // for IE, left click == 1
+        // for Firefox, left click == 0
+        if ((e.button == 1 && window.event != null || e.button == 0)&& target.className.animVal==="attribute_name")
+        {        
+            target.attributes.fill.value = "red";
+            
+            // grab the clicked element's position
+            _offsetX = ExtractNumber(target.parentElement.attributes.x.value);
+            _offsetY = ExtractNumber(target.parentElement.attributes.y.value);
+            
+//            selectedNotMutation = false;
+//            _dragElementIndex=undefined;
+            
+            for(m in genes) 
+            {
+                if(genes[m] === target.textContent)
+                {
+                    _dragElementIndex = parseInt(m); 
+                    break;
+                }
+            }
+            
+            if(_dragElementIndex === undefined)
+            {
+                selectedNotMutation = true;
+                for(n in extraAttributes)
+                {
+                    if(extraAttributes[n].display_name === target.textContent)
+                    {
+                        _dragElementIndex = parseInt(n);
+                        break;
+                    }
+                }
+            }
+            
+            spaceHeight=(ExtractNumber(target.parentElement.parentElement.children[2].attributes.y.value)-ExtractNumber(target.parentElement.parentElement.children[0].attributes.y.value))/2; //get the height of each table row
+
+            // bring the clicked element to the front while it is being dragged
+            _oldZIndex = target.style.zIndex;
+            target.style.zIndex = 10000;
+
+            // we need to access the element in OnMouseMove
+            _dragElement = target;
+
+            // tell our code to start moving the element with the mouse
+            document.onmousemove = OnMouseMove;
+
+            // cancel out any text selections
+            document.body.focus();
+
+            // prevent text selection in IE
+            document.onselectstart = function () { return false; };
+            // prevent IE from trying to drag an image
+            target.ondragstart = function() { return false; };
+
+            // prevent text selection (except IE)
+            return false;
+        }
+    }
+    
+    function OnMouseUp(e)
+    {
+        $('.attribute_name').attr('fill','black');
+        
+        var yPosition=_offsetY + e.clientY - _startY;
+        
+        if(selectedNotMutation)
+        {
+            if(yPosition > (extraAttributes.length*spaceHeight - 7))
+            {
+                yPosition = extraAttributes.length*spaceHeight - 7;
+            }
+            else if(yPosition<10)
+            {
+                yPosition = 10;
+            }
+        }
+        else
+        {
+            if(yPosition > (extraAttributes.length*spaceHeight + genes.length*spaceHeight - 7))
+            {
+                yPosition = extraAttributes.length*spaceHeight + genes.length*spaceHeight - 7;
+            }
+            else if(yPosition<(extraAttributes.length*spaceHeight+10))
+            {
+                yPosition = extraAttributes.length*spaceHeight + 10;
+            }
+        }
+        
+        var indexValue;
+        
+        if(selectedNotMutation)
+        {
+           indexValue = parseInt(yPosition/spaceHeight); 
+        }
+        else
+        {
+            indexValue = parseInt((yPosition-extraAttributes.length*spaceHeight)/spaceHeight);
+        }
+        
+        if(indexValue != _dragElementIndex && !isNaN(indexValue))
+        {
+            if(selectedNotMutation)
+            {
+                calculateClinicMovement(indexValue);
+            }
+            else
+            {
+                calculateGeneMovement(indexValue);
+            }
+        }
+        else
+        {
+            if(_dragElement!=undefined)
+            {
+                _dragElement.parentElement.attributes.y.value=_offsetY.toString();
+            }
+        }
+
+        if (_dragElement != null)
+        {
+            _dragElement.style.zIndex = _oldZIndex;
+
+            // we're done with these events until the next OnMouseDown
+            document.onmousemove = null;
+            document.onselectstart = null;
+            _dragElement.ondragstart = null;
+
+            // this is how we know we're not dragging      
+            _dragElement = null;
+            
+            _startX = 0;            // mouse starting positions
+            _startY = 0;
+            _endX=0;                // mouse ending positions
+            _endY=0;
+            _offsetX = 0;           // current element offset
+            _offsetY = 0;
+            _dragElement=undefined;           // needs to be passed from OnMouseDown to OnMouseMove
+            _dragElementIndex=undefined;      //index of the selected title
+            spaceHeight = 0;
+            selectedNotMutation= false;
+        }
+    }
+    
+    function OnMouseMove(e)
+    {
+        if (e == null) 
+            var e = window.event; 
+
+        // this is the actual "drag code"
+        var yPosition=_offsetY + e.clientY - _startY;
+        
+        if(selectedNotMutation)
+        {
+            if(yPosition > (extraAttributes.length*spaceHeight - 7))
+            {
+                yPosition = extraAttributes.length*spaceHeight - 7;
+            }
+            else if(yPosition<10)
+            {
+                yPosition = 10;
+            }
+        }
+        else
+        {
+            if(yPosition > (extraAttributes.length*spaceHeight + genes.length*spaceHeight - 7))
+            {
+                yPosition = extraAttributes.length*spaceHeight + genes.length*spaceHeight - 7;
+            }
+            else if(yPosition<(extraAttributes.length*spaceHeight+10))
+            {
+                yPosition = extraAttributes.length*spaceHeight + 10;
+            }
+        }
+        
+        _dragElement.parentElement.attributes.y.value = yPosition.toString(); 
+    }
+
+    function InitDragDrop()
+    {
+        document.onmousedown = OnMouseDown;
+        document.onmouseup = OnMouseUp;
+    }
     
     $(document).ready(function() {
         // bind away
@@ -759,5 +887,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         });
         
         cbio.util.autoHideOnMouseLeave($("#oncoprint_whole_body"), $(".oncoprint-diagram-toolbar-buttons"));
+        
+        InitDragDrop();
     });
 });

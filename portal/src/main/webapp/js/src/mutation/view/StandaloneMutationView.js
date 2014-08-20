@@ -27,7 +27,7 @@ var StandaloneMutationView = Backbone.View.extend({
 	{
 		var self = this;
 
-		var fullList = self.$el.find(".full-list-of-headers");
+		var fullList = self.$el.find(".mutation-data-info");
 		var inputField = self.$el.find(".standalone-mutation-input");
 		var visualize = self.$el.find(".submit-custom-mutations");
 		var textArea = self.$el.find(".mutation-file-example");
@@ -38,6 +38,8 @@ var StandaloneMutationView = Backbone.View.extend({
 		var listTriangle = self.$el.find(".full-header-list-expander .triangle");
 		var inputTriangle = self.$el.find(".mutation-input-field-expander .triangle");
 		var inputExpander = self.$el.find(".mutation-input-field-expander");
+		var loadExampleData = self.$el.find(".load-example-data-link");
+		var releaseNotes = self.$el.find(".standalone-release-notes");
 
 		self._initInputHeaderTable();
 		fullList.hide();
@@ -70,6 +72,25 @@ var StandaloneMutationView = Backbone.View.extend({
 		inputTriangle.click(function(event) {
 			// same as clicking on the link
 			toggleInputField.click();
+		});
+
+		loadExampleData.click(function(event) {
+			event.preventDefault();
+			textArea.val(_.template($("#example_mutation_data_template").html(), {}).trim());
+		});
+
+		releaseNotes.click(function(event) {
+			event.preventDefault();
+
+			var url = "release_notes_mutation_mapper.jsp";
+
+			var newWindow = window.open(url,
+				"MutationMapperReleaseNotes",
+				"height=600,width=800,left=400,top=0,scrollbars=yes");
+
+			if (window.focus) {
+				newWindow.focus();
+			}
 		});
 
 		visualize.click(function() {
@@ -112,7 +133,7 @@ var StandaloneMutationView = Backbone.View.extend({
 				description: 'Amino acid change',
 				example: 'V600E'},
 			{columnHeader: 'Sample_ID',
-				description: 'Tumor sample barcode',
+				description: 'Tumor sample ID',
 				example: 'TCGA-B5-A11E'},
 			{columnHeader: 'Mutation_Type',
 				description: 'Translational effect of variant allele',
@@ -139,7 +160,7 @@ var StandaloneMutationView = Backbone.View.extend({
 				description: 'Mutation status',
 				example: 'Somatic, Germline, etc.'},
 			{columnHeader: 'Center',
-				description: 'Genome sequencing center reporting the variant',
+				description: 'Center/Institute reporting the variant',
 				example: 'mskcc.org'}
 		];
 
@@ -179,5 +200,11 @@ var StandaloneMutationView = Backbone.View.extend({
 			contentType: false,
 			processData: false
 		});
+	},
+	popitup: function(url)
+	{
+
+
+		return false;
 	}
 });

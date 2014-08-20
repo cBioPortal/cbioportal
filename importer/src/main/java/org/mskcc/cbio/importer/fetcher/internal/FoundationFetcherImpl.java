@@ -1,29 +1,19 @@
 /** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
-**
-** This library is free software; you can redistribute it and/or modify it
-** under the terms of the GNU Lesser General Public License as published
-** by the Free Software Foundation; either version 2.1 of the License, or
-** any later version.
-**
-** This library is distributed in the hope that it will be useful, but
-** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
-** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
-** documentation provided hereunder is on an "as is" basis, and
-** Memorial Sloan-Kettering Cancer Center 
-** has no obligations to provide maintenance, support,
-** updates, enhancements or modifications.  In no event shall
-** Memorial Sloan-Kettering Cancer Center
-** be liable to any party for direct, indirect, special,
-** incidental or consequential damages, including lost profits, arising
-** out of the use of this software and its documentation, even if
-** Memorial Sloan-Kettering Cancer Center 
-** has been advised of the possibility of such damage.  See
-** the GNU Lesser General Public License for more details.
-**
-** You should have received a copy of the GNU Lesser General Public License
-** along with this library; if not, write to the Free Software Foundation,
-** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-**/
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 
 // package
 package org.mskcc.cbio.importer.fetcher.internal;
@@ -49,6 +39,7 @@ import org.apache.commons.logging.LogFactory;
 import com.sun.xml.ws.fault.ServerSOAPFaultException;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.*;
@@ -167,9 +158,26 @@ class FoundationFetcherImpl implements Fetcher
 			LOG.info("fetch(), creating CaseInfoService endpoint.");
 		}
 
-		CaseInfoService caseInfoService = new CaseInfoService();
-		this.authenticate(caseInfoService);
-		ICaseInfoService foundationService = caseInfoService.getICaseInfoService();
+		// enable this to get data from the remote service...
+//		CaseInfoService caseInfoService = new CaseInfoService();
+//		this.authenticate(caseInfoService);
+//		ICaseInfoService foundationService = caseInfoService.getICaseInfoService();
+
+		for (File input: this.getStudyFiles())
+		{
+			this.fetchStudy(input);
+		}
+	}
+
+	private void fetchStudy(File inputXml) throws Exception
+	{
+		String inputFilename = inputXml.getAbsolutePath();
+
+		ICaseInfoService foundationService = new FoundationLocalService(inputFilename);
+
+		String outputDir = inputXml.getName().
+				substring(0, inputXml.getName().lastIndexOf(".")).
+				replaceAll("_", "/");
 
 		NodeList cases = this.fetchCaseList(foundationService);
 
@@ -207,23 +215,42 @@ class FoundationFetcherImpl implements Fetcher
 				this.addMutationData(doc, dataMutationsContent);
 				this.addFusionData(doc, dataFusionsContent);
 				this.addCNAData(doc, valueMap, caseSet, geneSet);
-				this.generateCaseFile(doc, caseRecord);
+				this.generateCaseFile(doc, caseRecord, outputDir);
 
 				numCases++;
 			}
 		}
 
 		// generate data files
-		this.generateClinicalDataFile(dataClinicalContent);
-		this.generateMutationDataFile(dataMutationsContent);
-		this.generateFusionDataFile(dataFusionsContent);
-		this.generateCNADataFile(valueMap, caseSet, geneSet);
+		this.generateClinicalDataFile(dataClinicalContent, outputDir);
+		this.generateMutationDataFile(dataMutationsContent, outputDir);
+		this.generateFusionDataFile(dataFusionsContent, outputDir);
+		this.generateCNADataFile(valueMap, caseSet, geneSet, outputDir);
 
 		// generate meta files
-		this.generateStudyMetaFile(numCases);
-		this.generateMutationMetaFile(numCases);
-		this.generateFusionMetaFile(numCases);
-		this.generateCNAMetaFile(numCases);
+		this.generateStudyMetaFile(numCases, outputDir);
+		this.generateMutationMetaFile(numCases, outputDir);
+		this.generateFusionMetaFile(numCases, outputDir);
+		this.generateCNAMetaFile(numCases, outputDir);
+	}
+
+	private File[] getStudyFiles()
+	{
+		File dlDir = new File(this.dataSourceMetadata.getDownloadDirectory());
+
+		if (dlDir.isDirectory())
+		{
+			return dlDir.listFiles(new FilenameFilter()
+			{
+				@Override
+				public boolean accept(File dir, String name)
+				{
+					return name.toLowerCase().endsWith(".xml");
+				}
+			});
+		}
+
+		return null;
 	}
 
 	/**
@@ -246,7 +273,9 @@ class FoundationFetcherImpl implements Fetcher
 	 * @param content   actual content of the file to generate
 	 * @return          data file representing a single case
 	 */
-	protected File generateCaseFile(Document caseDoc, String content) throws Exception
+	protected File generateCaseFile(Document caseDoc,
+			String content,
+			String outputDir) throws Exception
 	{
 		File caseFile = null;
 		Element caseNode = this.extractCaseNode(caseDoc);
@@ -256,16 +285,19 @@ class FoundationFetcherImpl implements Fetcher
 			String fmiCaseID = caseNode.getAttribute("fmiCase");
 
 			caseFile = fileUtils.createFileWithContents(dataSourceMetadata.getDownloadDirectory() +
-				File.separator + fmiCaseID + FOUNDATION_FILE_EXTENSION,
+					File.separator + outputDir +
+					File.separator + fmiCaseID + FOUNDATION_FILE_EXTENSION,
 					content);
 		}
 
 		return caseFile;
 	}
 
-	protected File generateClinicalDataFile(StringBuilder content) throws Exception
+	protected File generateClinicalDataFile(StringBuilder content,
+			String outputDir) throws Exception
 	{
-		String header = FileUtils.CASE_ID + "\t" +
+		String header = //FileUtils.CASE_ID + "\t" +
+						FileUtils.SAMPLE_ID + "\t" +
 		                FileUtils.GENDER + "\t" +
 		                FileUtils.FMI_CASE_ID + "\t" +
 		                FileUtils.PIPELINE_VER + "\t" +
@@ -276,13 +308,15 @@ class FoundationFetcherImpl implements Fetcher
 
 		File clinicalFile = fileUtils.createFileWithContents(
 			dataSourceMetadata.getDownloadDirectory() + File.separator +
+				outputDir + File.separator +
 				DatatypeMetadata.CLINICAL_STAGING_FILENAME,
 			header + content.toString());
 
 		return clinicalFile;
 	}
 
-	protected File generateFusionDataFile(StringBuilder content) throws Exception
+	protected File generateFusionDataFile(StringBuilder content,
+			String outputDir) throws Exception
 	{
 		String header = MafUtil.HUGO_SYMBOL + "\t" +
 		                MafUtil.ENTREZ_GENE_ID + "\t" +
@@ -296,13 +330,15 @@ class FoundationFetcherImpl implements Fetcher
 
 		File fusionFile = fileUtils.createFileWithContents(
 				dataSourceMetadata.getDownloadDirectory() + File.separator +
+					outputDir + File.separator +
 					DatatypeMetadata.FUSIONS_STAGING_FILENAME,
 				header + content.toString());
 
 		return fusionFile;
 	}
 
-	protected File generateMutationDataFile(StringBuilder content) throws Exception
+	protected File generateMutationDataFile(StringBuilder content,
+			String outputDir) throws Exception
 	{
 		String header = MafUtil.HUGO_SYMBOL + "\t" +
 		                MafUtil.CENTER + "\t" +
@@ -325,14 +361,17 @@ class FoundationFetcherImpl implements Fetcher
 
 		File mafFile = fileUtils.createFileWithContents(
 			dataSourceMetadata.getDownloadDirectory() + File.separator +
+				outputDir + File.separator +
 				DatatypeMetadata.MUTATIONS_STAGING_FILENAME,
 			header + content.toString());
 
 		return mafFile;
 	}
 
-	protected File generateCNADataFile(HashMap<String, Integer> valueMap, Set<String> caseSet,
-			Set<String> geneSet) throws Exception
+	protected File generateCNADataFile(HashMap<String, Integer> valueMap,
+			Set<String> caseSet,
+			Set<String> geneSet,
+			String outputDir) throws Exception
 	{
 		StringBuilder content = new StringBuilder();
 
@@ -373,50 +412,54 @@ class FoundationFetcherImpl implements Fetcher
 
 		File cnaFile = fileUtils.createFileWithContents(
 				dataSourceMetadata.getDownloadDirectory() + File.separator +
+					outputDir + File.separator +
 					metadata.getStagingFilename(),
 				content.toString());
 
 		return cnaFile;
 	}
 
-	protected void generateStudyMetaFile(Integer numCases) throws Exception
+	protected void generateStudyMetaFile(Integer numCases, String outputDir) throws Exception
 	{
 		CancerStudyMetadata cancerMetadata = this.config.getCancerStudyMetadataByName(CANCER_STUDY);
 
-		// TODO this creates subdirectories, we should fix it
-		this.fileUtils.writeCancerStudyMetadataFile(dataSourceMetadata.getDownloadDirectory(),
+		this.fileUtils.writeCancerStudyMetadataFile(
+			dataSourceMetadata.getDownloadDirectory() + File.separator + outputDir,
 			cancerMetadata,
 			numCases);
 	}
 
-	protected void generateCNAMetaFile(Integer numCases) throws Exception
+	protected void generateCNAMetaFile(Integer numCases, String outputDir) throws Exception
 	{
 		DatatypeMetadata datatypeMetadata = this.getDatatypeMetadata(CNA_METADATA);
 		CancerStudyMetadata cancerMetadata = this.config.getCancerStudyMetadataByName(CANCER_STUDY);
 
-		this.fileUtils.writeMetadataFile(dataSourceMetadata.getDownloadDirectory(),
+		this.fileUtils.writeMetadataFile(
+			dataSourceMetadata.getDownloadDirectory() + File.separator + outputDir,
 			cancerMetadata,
 			datatypeMetadata,
 			numCases);
 	}
 
-	protected void generateMutationMetaFile(Integer numCases) throws Exception
+	protected void generateMutationMetaFile(Integer numCases, String outputDir) throws Exception
 	{
 		DatatypeMetadata datatypeMetadata = this.getDatatypeMetadata(MUTATION_METADATA);
 		CancerStudyMetadata cancerMetadata = this.config.getCancerStudyMetadataByName(CANCER_STUDY);
 
-		this.fileUtils.writeMetadataFile(dataSourceMetadata.getDownloadDirectory(),
+		this.fileUtils.writeMetadataFile(
+			dataSourceMetadata.getDownloadDirectory() + File.separator + outputDir,
 			cancerMetadata,
 			datatypeMetadata,
 			numCases);
 	}
 
-	protected void generateFusionMetaFile(Integer numCases) throws Exception
+	protected void generateFusionMetaFile(Integer numCases, String outputDir) throws Exception
 	{
 		DatatypeMetadata datatypeMetadata = this.getDatatypeMetadata(FUSION_METADATA);
 		CancerStudyMetadata cancerMetadata = this.config.getCancerStudyMetadataByName(CANCER_STUDY);
 
-		this.fileUtils.writeMetadataFile(dataSourceMetadata.getDownloadDirectory(),
+		this.fileUtils.writeMetadataFile(
+			dataSourceMetadata.getDownloadDirectory() + File.separator + outputDir,
 			cancerMetadata,
 			datatypeMetadata,
 			numCases);
@@ -771,8 +814,16 @@ class FoundationFetcherImpl implements Fetcher
 			// rip off everything except nucleotides
 			String ripped = cdsEffect.replaceAll("[^tcga]", " ").trim();
 			String[] parts = ripped.split(" ");
-			refAllele = parts[0];
-			varAllele = parts[1];
+
+			if (parts.length < 2)
+			{
+				LOG.info("parseCdsEffect(), unable to process: " + cdsEffect);
+			}
+			else
+			{
+				refAllele = parts[0];
+				varAllele = parts[1];
+			}
 		}
 
 		// take complement if strand is minus
@@ -1060,10 +1111,9 @@ class FoundationFetcherImpl implements Fetcher
 			// skip cases with no information
 			if (hasVariant.equals("false"))
 			{
+				LOG.info("fetch(), record has no variant data: " + fmiCaseID);
 				return null;
 			}
-
-			//System.out.println(caseID);
 
 			if (LOG.isInfoEnabled()) {
 				LOG.info("fetch(), fetching case : " + caseID);

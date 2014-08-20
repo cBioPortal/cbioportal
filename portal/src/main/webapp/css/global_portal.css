@@ -4,10 +4,10 @@ body {
   font-family: verdana, arial, sans-serif;
   table-layout:fixed;
   text-align: center;
-  margin-top:10px;
-  margin-bottom:10px;
+  margin-top:10px !important;
+  margin-bottom:10px !important;
   color:#666666;
-  background-color: #E0E0E0;
+  background-color: #E0E0E0 !important;
 }
 
 #page_wrapper {
@@ -55,7 +55,7 @@ body {
 }
 
 #content {
-  margin-top: 10px;
+  /* margin-top: 10px; */
   margin-bottom: 0px;
 }
 
@@ -260,7 +260,7 @@ A:hover {
 }
 
 h1 {
-  margin:0px;
+  /* margin:0px; */
   font-family: verdana, arial, sans-serif;
   font-size: 28px;
   color:gray;
@@ -675,7 +675,7 @@ html { min-height: 100%; margin-bottom: 1px; min-width: 100%; margin-right: 1px;
 
 
 #content p {
-  margin-top:0px; margin-bottom: 15px;
+  /* margin-top:0px; */ margin-bottom: 15px;
   font-family: verdana, arial, sans-serif;
   font-size: 14px;
   line-height: 18px;

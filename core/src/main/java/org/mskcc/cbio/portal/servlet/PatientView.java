@@ -40,6 +40,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 public class PatientView extends HttpServlet {
     private static Logger logger = Logger.getLogger(PatientView.class);
     public static final String ERROR = "user_error_message";
+    public static final String VIEW_TYPE = "view_type";
     public static final String CASE_ID = "case_id";
     public static final String PATIENT_ID = "patient_id";
     public static final String PATIENT_ID_ATTR_NAME = "PATIENT_ID";
@@ -186,7 +187,9 @@ public class PatientView extends HttpServlet {
             }
         }
         
+        request.setAttribute(VIEW_TYPE, "sample");
         if (patientIdsStr!=null) {
+            request.setAttribute(VIEW_TYPE, "patient");
             for (String patientId : patientIdsStr.split(" +")) {
                 List<String> samples = DaoClinicalData.getCaseIdsByAttribute(
                     cancerStudy.getInternalId(), PATIENT_ID_ATTR_NAME, patientId);
@@ -320,7 +323,7 @@ public class PatientView extends HttpServlet {
         
         // path report
         String typeOfCancer = cancerStudy.getTypeOfCancerId();
-        if (cancerStudy.getCancerStudyStableId().contains(typeOfCancer+"_tcga")) {
+        if (caseId.startsWith("TCGA-")) {
             String pathReport = getTCGAPathReport(typeOfCancer, caseId);
             if (pathReport!=null) {
                 request.setAttribute(PATH_REPORT_URL, pathReport);
@@ -410,7 +413,7 @@ public class PatientView extends HttpServlet {
     }
     
     private static List<String> extractLinksByPattern(String reportsUrl, Pattern p) {
-        HttpClient client = ConnectionManager.getHttpClient(5000);
+        HttpClient client = ConnectionManager.getHttpClient(20000);
         GetMethod method = new GetMethod(reportsUrl);
         try {
             int statusCode = client.executeMethod(method);

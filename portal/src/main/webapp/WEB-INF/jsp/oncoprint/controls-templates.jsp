@@ -65,9 +65,9 @@
             <tr>
                 <td><label><input id='toggle_whitespace' type='checkbox'>Remove Whitespace</label></td>
             </tr>
-            <tr>
-                <td><label><input id='all_cna_levels' type='checkbox'>Show All CNA levels</label></td>
-            </tr>
+            <%--<tr>
+                <td><label><input id='all_cna_levels' type='checkbox' >Show All CNA levels</label></td>
+            </tr>--%>
             <%--<td>--%>
             <%--<span>Sort by: </span>--%>
             <%--<select id="sort_by" style="width: 200px;">--%>

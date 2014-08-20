@@ -2,8 +2,8 @@
 <jsp:include page="global/header.jsp" flush="true" />
 
 <%
-    String smry = cancerStudyName +
-            "/" + caseSetName + ": (" +
+    String smry = "<a href=\"study.do?cancer_study_id="+cancerTypeId+"\">"+cancerStudyName +
+            "</a>/" + caseSetName + ": (" +
             mergedCaseListSize + ")" + "/" +
             geneSetName + "/" + geneWithScoreList.size() +
             (geneWithScoreList.size() == 1?"gene":"genes");
@@ -145,7 +145,7 @@
                 + "Protein Changes</a></li>");
             }
 
-            if (clinicalDataList != null && clinicalDataList.size() > 0) {
+            if (has_survival) {
                 out.println ("<li><a href='#survival' class='result-tab' title='Survival analysis and Kaplan-Meier curves'>"
                 + "Survival</a></li>");
             }
@@ -201,8 +201,8 @@
         <%@ include file="igv.jsp" %>
             <% } %>
 
-            <% if (clinicalDataList != null && clinicalDataList.size() > 0) { %>
-        <%@ include file="clinical_tab.jsp" %>
+            <% if (has_survival) { %>
+        <%@ include file="survival_tab.jsp" %>
             <% } %>
 
             <% if (computeLogOddsRatio && geneWithScoreList.size() > 1) { %>

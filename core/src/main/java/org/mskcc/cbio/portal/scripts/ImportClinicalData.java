@@ -1,29 +1,19 @@
 /** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
- **
- ** This library is free software; you can redistribute it and/or modify it
- ** under the terms of the GNU Lesser General Public License as published
- ** by the Free Software Foundation; either version 2.1 of the License, or
- ** any later version.
- **
- ** This library is distributed in the hope that it will be useful, but
- ** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
- ** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
- ** documentation provided hereunder is on an "as is" basis, and
- ** Memorial Sloan-Kettering Cancer Center_
- ** has no obligations to provide maintenance, support,
- ** updates, enhancements or modifications.  In no event shall
- ** Memorial Sloan-Kettering Cancer Center
- ** be liable to any party for direct, indirect, special,
- ** incidental or consequential damages, including lost profits, arising
- ** out of the use of this software and its documentation, even if
- ** Memorial Sloan-Kettering Cancer Center_
- ** has been advised of the possibility of such damage.  See
- ** the GNU Lesser General Public License for more details.
- **
- ** You should have received a copy of the GNU Lesser General Public License
- ** along with this library; if not, write to the Free Software Foundation,
- ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- **/
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 package org.mskcc.cbio.portal.scripts;
 
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
@@ -44,7 +34,7 @@ public class ImportClinicalData {
 
     public static final String METADATA_PREIX = "#";
     public static final String DELIMITER = "\t";
-    public static final String CASE_ID_COLUMN_NAME = "CASE_ID";
+    public static final String CASE_ID_COLUMN_NAME = "SAMPLE_ID";
 
 	private File clinicalDataFile;
 	private CancerStudy cancerStudy;
@@ -77,6 +67,8 @@ public class ImportClinicalData {
         List<ClinicalAttribute> columnAttrs = grabAttrs(buff);
         int iCaseId = findCaseIDColumn(columnAttrs);
 
+        Set<String> caseIds = new HashSet<String>();
+        
         String line;
         while ((line = buff.readLine()) != null) {
             line = line.trim();
@@ -92,17 +84,23 @@ public class ImportClinicalData {
                 continue;
             }
             
-            String caseId = fields[iCaseId];
+            String caseId = fields[iCaseId].trim();
             for (int i = 0; i < fields.length; i++) {
                 if (i!=iCaseId && !fields[i].isEmpty()) {
-                    DaoClinicalData.addDatum(cancerStudy.getInternalId(), caseId, columnAttrs.get(i).getAttrId(), fields[i]);
+                    DaoClinicalData.addDatum(cancerStudy.getInternalId(), caseId, columnAttrs.get(i).getAttrId(), fields[i].trim());
+                    caseIds.add(caseId);
                 }
             }
         }
         
-        if (MySQLbulkLoader.isBulkLoad()) {
-            MySQLbulkLoader.flushAll();
+        Set<String> attrIds = new HashSet<String>();
+        for (ClinicalAttribute attr : columnAttrs) {
+            attrIds.add(attr.getAttrId());
         }
+        // overwrite the old data
+        DaoClinicalData.removeData(cancerStudy.getInternalId(), caseIds, attrIds);
+        
+        MySQLbulkLoader.flushAll();
     }
 
     /**
@@ -194,12 +192,13 @@ public class ImportClinicalData {
     
     private int findCaseIDColumn(List<ClinicalAttribute> attrs) {
         for (int i=0; i<attrs.size(); i++) {
-            if (attrs.get(i).getAttrId().equals(CASE_ID_COLUMN_NAME)) {
+            String attrId = attrs.get(i).getAttrId();
+            if (attrId.equalsIgnoreCase("SAMPLE_ID")||attrId.equalsIgnoreCase("CASE_ID")) {
                 return i;
             }
         }
         
-        throw new java.lang.UnsupportedOperationException("Clinicla file must contain a column of "+CASE_ID_COLUMN_NAME);
+        throw new java.lang.UnsupportedOperationException("Clinicla file must contain a column of SAMPLE_ID");
     }
 
     /**

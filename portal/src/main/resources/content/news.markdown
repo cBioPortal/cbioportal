@@ -1,3 +1,16 @@
+# August 8, 2014
+* Released two new tools
+    * [Oncoprinter](oncoprinter.jsp) lets you create Oncoprints from your own, custom data
+    * [MutationMapper](mutation_mapper.jsp) draws mutation diagrams (lollipop plots) from your custom data
+
+# May 21, 2014
+* All TCGA data updated to the Firehose run of April 16, 2014
+
+# May 12, 2014
+* Improved study summary page including survival analysis based on clinical attributes
+<br/>e.g. [TCGA Endometrial Cancer cohort](study.do?cancer_study_id=ucec_tcga_pub)
+<br/>![Study view](images/previews/study_view.png)
+
 # March 27, 2014
 * New features:
     * Visualizing of mutations mapped on 3D structures (individual or multiple mutations, directly in the browser)

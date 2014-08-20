@@ -1,3 +1,7 @@
+# May 12, 2014
+* Improved study summary page including survival analysis based on clinical attributes
+<br/>![Study view](images/previews/study_view.png)
+
 # April 5, 2014
 * New features:
     * Visualizing and comparing multiple tumor samples in the patient-centric view
@@ -22,7 +26,6 @@
 # September 5, 2013:
 
 * Linked to BAM files for single mutations via IGV.
-* [New standalone oncoprint tool](tools.jsp)
 * Updated COSMIC data (v66 Release)
 * Improved / interactive visualization on the "Protein changes" tab
 * Enhanced mutation diagrams: color-coding by mutation time and syncing with table filters

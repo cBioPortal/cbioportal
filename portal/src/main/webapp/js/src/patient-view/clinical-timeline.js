@@ -9,7 +9,7 @@
           tickTime: d3.time.hours, 
           tickNumber: 1, 
           tickSize: 6 },
-        nColors = 20;
+        nColors = 20,
         colorCycle = d3.scale.category20().domain(d3.range(0,nColors)),
         colorPropertyName = null,
         opacityPropertyName = null,
@@ -59,6 +59,8 @@
             }
           });
         });
+        
+        if (maxTime===minTime) maxTime++;
 
         beginning = minTime;
         ending = maxTime;
@@ -88,7 +90,7 @@
       gParent.append('text')
           .attr("class", "timeline-label")
           .attr("transform", "translate("+ 0 +","+ (margin.top)+")")
-          .text("Months to diagnosis");
+          .text("Months since diagnosis");
 
       // draw the chart
       g.each(function(d, i) {
@@ -409,7 +411,9 @@
                     if (test.toUpperCase()==='PSA') {
                         var result = timePointData["eventData"]["RESULT"];
                         if (!result) return 0;
-                        var psa = parseFloat(result)+1.1;
+                        result = result.replace(/[^0-9.]/g,"");
+                        var psa = parseFloat(result)+2;
+                        if (psa===NaN) return 0;
                         return Math.log(psa)/Math.log(1000);
                     }
                 }
@@ -507,10 +511,11 @@
                 var specimens = filter(timelineDataByType["SPECIMEN"],"SpecimenType","TISSUE");
                 var eventGroups = separateEvents(sortByDate(specimens), "SpecimenPreservationType");
                 for (var type in eventGroups) {
+                    var label = type&&type!=="undefined"?type:"Specimen";
                     ret.push({
-                        label:type,
+                        label:label,
                         display:"circle",
-                        class:"timeline-speciman",
+                        class:"timeline-specimen",
                         times:formatTimePoints(eventGroups[type])});
                 }
             }

@@ -1,29 +1,19 @@
 /** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
-**
-** This library is free software; you can redistribute it and/or modify it
-** under the terms of the GNU Lesser General Public License as published
-** by the Free Software Foundation; either version 2.1 of the License, or
-** any later version.
-**
-** This library is distributed in the hope that it will be useful, but
-** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
-** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
-** documentation provided hereunder is on an "as is" basis, and
-** Memorial Sloan-Kettering Cancer Center 
-** has no obligations to provide maintenance, support,
-** updates, enhancements or modifications.  In no event shall
-** Memorial Sloan-Kettering Cancer Center
-** be liable to any party for direct, indirect, special,
-** incidental or consequential damages, including lost profits, arising
-** out of the use of this software and its documentation, even if
-** Memorial Sloan-Kettering Cancer Center 
-** has been advised of the possibility of such damage.  See
-** the GNU Lesser General Public License for more details.
-**
-** You should have received a copy of the GNU Lesser General Public License
-** along with this library; if not, write to the Free Software Foundation,
-** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-**/
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 
 package org.mskcc.cbio.portal.servlet;
 
@@ -86,25 +76,49 @@ public class LinkOut extends HttpServlet {
         PrintWriter writer = httpServletResponse.getWriter();
         try {
             LinkOutRequest linkOutRequest = new LinkOutRequest(httpServletRequest);
-            String cancerStudyId = linkOutRequest.getCancerStudyId();
-            String output = linkOutRequest.getReport();
-            String geneList = linkOutRequest.getGeneList();
-            HashMap<String, GeneticProfile> defaultGeneticProfileSet = getDefaultGeneticProfileSet(cancerStudyId);
-            CaseList defaultCaseList = getDefaultCaseList(cancerStudyId);
-            ForwardingRequest forwardingRequest = new ForwardingRequest(httpServletRequest);
-            createForwardingUrl(forwardingRequest, cancerStudyId, geneList, defaultGeneticProfileSet,
-                defaultCaseList, output);
-            ServletContext context = getServletContext();
-            RequestDispatcher dispatcher = context.getRequestDispatcher("/index.do");
-            dispatcher.forward(forwardingRequest, httpServletResponse);
-        } catch(ProtocolException e) {
-            writer.write("Link out error:  " + e.getMsg());
+            if (linkOutRequest.isIsCrossCancerQuery()) {
+                handleCrossCancerLink(linkOutRequest, httpServletRequest, httpServletResponse);
+            } else {
+                handleStudySpecificLink(linkOutRequest, httpServletRequest, httpServletResponse);
+            }
         } catch (Exception e) {
-            writer.write("Link out error:  " + e.toString());
+            writer.write("Link out error:  " + e.getMessage());
         }
     }
+    
+    private void handleCrossCancerLink(LinkOutRequest linkOutRequest,
+            HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
+            throws Exception {
+        String geneList = linkOutRequest.getGeneList();
+        ForwardingRequest forwardingRequest = new ForwardingRequest(httpServletRequest);
+        createCrossCancerForwardingUrl(forwardingRequest, geneList);
+        ServletContext context = getServletContext();
+        RequestDispatcher dispatcher = context.getRequestDispatcher("/cross_cancer.do");
+        dispatcher.forward(forwardingRequest, httpServletResponse);
+    }
 
-    private void createForwardingUrl(ForwardingRequest forwardingRequest, String cancerStudyId, String geneList,
+    private void createCrossCancerForwardingUrl(ForwardingRequest forwardingRequest, String geneList) {
+        forwardingRequest.setParameterValue(QueryBuilder.GENE_LIST , geneList);
+        forwardingRequest.setParameterValue(QueryBuilder.ACTION_NAME, QueryBuilder.ACTION_SUBMIT);
+    }
+    
+    private void handleStudySpecificLink(LinkOutRequest linkOutRequest,
+            HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
+            throws Exception {
+        String cancerStudyId = linkOutRequest.getCancerStudyId();
+        String output = linkOutRequest.getReport();
+        String geneList = linkOutRequest.getGeneList();
+        HashMap<String, GeneticProfile> defaultGeneticProfileSet = getDefaultGeneticProfileSet(cancerStudyId);
+        CaseList defaultCaseList = getDefaultCaseList(cancerStudyId);
+        ForwardingRequest forwardingRequest = new ForwardingRequest(httpServletRequest);
+        createStudySpecificForwardingUrl(forwardingRequest, cancerStudyId, geneList, defaultGeneticProfileSet,
+            defaultCaseList, output);
+        ServletContext context = getServletContext();
+        RequestDispatcher dispatcher = context.getRequestDispatcher("/index.do");
+        dispatcher.forward(forwardingRequest, httpServletResponse);
+    }
+
+    private void createStudySpecificForwardingUrl(ForwardingRequest forwardingRequest, String cancerStudyId, String geneList,
             HashMap<String, GeneticProfile> defaultGeneticProfileSet, CaseList defaultCaseList, String output) {
         forwardingRequest.setParameterValue(QueryBuilder.GENE_LIST , geneList);
         forwardingRequest.setParameterValue(QueryBuilder.CANCER_STUDY_ID, cancerStudyId);

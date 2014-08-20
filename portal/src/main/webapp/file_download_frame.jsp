@@ -1,10 +1,11 @@
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <!DOCTYPE HTML>
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 
-	<script type="text/javascript" src="js/lib/jquery.min.js"></script>
-	<script type="text/javascript" src="js/src/cbio-util.js"></script>
+	<script type="text/javascript" src="js/lib/jquery.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+	<script type="text/javascript" src="js/src/cbio-util.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 	<script type="text/javascript">
 		function _processMessage(event)

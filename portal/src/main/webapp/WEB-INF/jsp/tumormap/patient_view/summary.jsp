@@ -38,11 +38,11 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
 %>
 
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<script type="text/javascript" src="js/lib/underscore-min.js"></script>
+<script type="text/javascript" src="js/lib/underscore-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
-<script type="text/javascript" src="js/src/patient-view/genomic-overview.js"></script>
-<script type="text/javascript" src="js/src/cancer-study-view/scatter-plot-mut-cna.js"></script>
-<script type="text/javascript" src="js/src/cancer-study-view/load-clinical-data.js"></script>
+<script type="text/javascript" src="js/src/patient-view/genomic-overview.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/cancer-study-view/scatter-plot-mut-cna.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/cancer-study-view/load-clinical-data.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript">
     google.load('visualization', '1', {packages:['table','corechart']}); 
     $(document).ready(function(){
@@ -180,6 +180,23 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
     }
 </script>
 
+<style>
+fieldset.fieldset-border {
+    border: 1px solid #ccc !important;
+    -webkit-box-shadow:  0px 0px 0px 0px #000;
+            box-shadow:  0px 0px 0px 0px #000;
+}
+
+legend.legend-border {
+    font-size: 12px !important;
+    text-align: left !important;
+    width:auto;
+    padding:0 10px;
+    border-bottom:none;
+    color:#1974b8;
+    margin-bottom: 0px;
+}
+</style>
 
 <%if(showTimeline){%>
 <jsp:include page="clinical_timeline.jsp" flush="true" />
@@ -187,8 +204,8 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
 <%}%>
 
 <%if(showGenomicOverview){%>
-<fieldset style="border-width: 1px; border-color: #ccc; border-style: solid;">
-<legend style="color:#1974b8;">Genomic Overview</legend>
+<fieldset class="fieldset-border">
+<legend class="legend-border">Genomic Overview</legend>
 <table>
     <tr>
         <td><div id="genomics-overview"></div></td>
@@ -219,7 +236,7 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
 <%}%>
 
 <%if(hasAlleleFrequencyData && caseIds.size() == 1) {%>
-<script type="text/javascript" src="js/src/patient-view/AlleleFreqPlot.js"></script>
+<script type="text/javascript" src="js/src/patient-view/AlleleFreqPlot.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript">
     $(document).ready(function() {
         genomicEventObs.subscribeMut(function()  {

@@ -1,3 +1,11 @@
+# May 21, 2014
+* All TCGA data updated to the Firehose run of April 16, 2014
+
+# May 12, 2014
+* Improved study summary page including survival analysis based on clinical attributes
+<br/>e.g. [TCGA Endometrial Cancer cohort](study.do?cancer_study_id=ucec_tcga_pub)
+<br/>![Study view](images/previews/study_view.png)
+
 # March 27, 2014
 * New features:
     * Visualizing of mutations mapped on 3D structures (individual or multiple mutations, directly in the browser)
@@ -28,7 +36,6 @@
 
 # September 5, 2013:
 
-* [New standalone oncoprint tool](tools.jsp)
 * Updated COSMIC data (v66 Release)
 * Improved / interactive visualization on the "Protein changes" tab
 * Enhanced mutation diagrams: color-coding by mutation time and syncing with table filters

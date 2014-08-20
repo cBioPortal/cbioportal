@@ -46,14 +46,14 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
     params = params || {};
     if (params.sparkline) {
         params = _.extend({
-            margin: {top: 0, right: 0, bottom: 0, left: 0},
+            margin: {top: -12, right: 0, bottom: 0, left: 0},
             width: 30,
             height: 12,
             this_cancer_study: undefined
         }, params);
     } else {
         params = _.extend({
-            margin: {top: 20, right: 10, bottom: 20, left: 40},
+            margin: {top:6, right: 10, bottom: 20, left: 40},
             width: 600,
             height: 300,
             this_cancer_study: undefined
@@ -79,7 +79,7 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
         bykeyword: generate_cancer_study2datum(bykeyword_data),
         bygene: generate_cancer_study2datum(bygene_data)
     };
-
+    
     var commonKeys = _.intersection( _.keys(cancer_study2datum.bykeyword), _.keys(cancer_study2datum.bygene) );
     bykeyword_data = [];
     bygene_data = [];
@@ -111,6 +111,10 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
 
         bygene_datum.count = new_count;
     });
+    
+    var totalByGene = _.reduce(bygene_data, function(memo, datum){ return memo + datum.count; }, 0);
+    var totalByKeyword = _.reduce(bykeyword_data, function(memo, datum){ return memo + datum.count; }, 0);
+    var totalSequenced = _.reduce(cancer_study2meta_data, function(memo, datum){ return memo + datum.num_sequenced_samples; }, 0);
 
     _.mixin({
         unzip: function(array) {
@@ -185,7 +189,7 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
                 count: 0,
                 cancer_type: cancer_study2meta_data[cancer_study].cancer_type,
                 num_sequenced_samples: cancer_study2meta_data[cancer_study].num_sequenced_samples
-            }
+            };
         }
 
         return _.chain(all_cancer_studies)
@@ -329,15 +333,8 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
         .attr('stroke', '#000')
         .attr('shape-rendering', 'crispEdges');
 
-    // title
     var hugo_gene_name = _.find(layers[0], function(d) { return d.hugo !== undefined; }).hugo;
-    var title_string = hugo_gene_name + " mutations across all cancer studies";
-    svg.append('text')
-        .text(title_string)
-        .attr('x', 10)
-        .attr('y', -5)
-        .style("font-family", "Helvetica Neue, Helvetica, Arial, sans-serif")
-        .style("font-size", "18px")
+    var keyword = _.find(layers[0], function(d) { return d.keyword !== undefined; }).keyword;
 
     // star the current cancer study if this_cancer_study is provided.
     if (!_.isUndefined(params.this_cancer_study)) {
@@ -392,21 +389,12 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
             .on('mouseover', function() { d3.select(this).attr('opacity', '0.25'); })
             .on('mouseout', function() { d3.select(this).attr('opacity', '0'); });
 
-        function qtip_template(d) {
-            var percent = percent_format(d.frequency || 0);
-            var count = d.count || 0;
-            var metadata = cancer_study2meta_data[d.cancer_study];
-            var total = metadata.num_sequenced_samples;
-
-            return (_.template("<span>{{percent}} ({{count}} / {{total}})</span>"))({percent: percent, count: count, total: total});
-        }
-
         // add qtips for each bar
         mouseOverBar.each(function(d) {
             $(this).qtip({
                 content: {text: 'mouseover failed'},
                 position: {my:'left top', at:'center right', viewport: $(window)},
-                style: { classes: 'qtip-light qtip-rounded qtip-shadow' },
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-wide' },
                 hide: { fixed: true, delay: 100 },
                 events: {
                     render: function(event, api) {
@@ -414,11 +402,9 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
                         var bykeyword = data.filter(function(d) { return _.has(d, "keyword"); })[0] || {};
                         var bygene = data.filter(function(d) { return !_.has(d, "keyword"); })[0] || {};
                         var cancer_study = bygene.cancer_study;     // there should always be a bygene datum
+                        var total = cancer_study2meta_data[cancer_study].num_sequenced_samples;
                         var text = "<p style='font-weight:bold;'>" + cancer_study + "</p>"
-                            + "<p style='color: " + googlered + "; margin-bottom:0;'>"
-                            + bykeyword.keyword  + ": "  + qtip_template(bykeyword) + "</p>"
-                            + "<p style='color: " + googleblue + "; margin-top:0;'>"
-                            + "Other " + hugo_gene_name +  " mutations: "  + qtip_template(bygene) + "</p>";
+                            + countText(bykeyword, bygene, total);
 
                         api.set('content.text', text);
                     }
@@ -427,12 +413,27 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
         });
     }
 
+    function qtip_template(d, total) {
+        var count = d.count || 0;
+        if (!('frequency' in d)) d.frequency = count / total;
+        var percent = (d.frequency * 100).toFixed(1)+'%';
+        return (_.template("<span><b>{{percent}}</b> (<b>{{count}}</b> of {{total}} sequenced samples)</span>"))({percent: percent, count: count, total: total});
+    }
+    
+    function countText(bykeyword, bygene, total) {
+        return "<p style='color: " + googlered + "; margin-bottom:0;'>"
+                + keyword  + ": "  + qtip_template(bykeyword, total) + "</p>"
+                + "<p style='color: " + googleblue + "; margin-top:0;'>"
+                + "Other " + hugo_gene_name +  " mutations: "  + qtip_template(bygene, total) + "</p>";
+    }
+
     function getRectsByCancerStudy(cancer_study) {
         return rect.filter(function(d) { return d.cancer_study === cancer_study; });
     }
 
     return {
         el: el,
-        qtip: qtip
+        qtip: qtip,
+        overallCountText: function() {return countText({count:totalByKeyword}, {count:totalByGene}, totalSequenced);}
     };
 };

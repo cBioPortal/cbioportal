@@ -44,7 +44,7 @@
 		</tr>
 		<tr align="left" class="cancerdrug-data-row">
 			<td>
-				<strong>Cancer Drug: </strong> Yes<br>
+				<strong>Cancer Drug: </strong> {{cancerDrug}}<br>
 			</td>
 		</tr>
 		<tr align="left" class="clinicaltrials-data-row">
@@ -245,6 +245,7 @@
 				options.idPlaceHolder);
 			var atcCodeLinks = this.generateAtcCodes(data["ATC_CODE"]);
 			var synonymList = this.generateSynonyms(data["SYNONYMS"]);
+			var cancerDrug = (data["CANCER_DRUG"] == "true") ? "Yes" : "No";
 			var fdaApproval = (data["FDA_APPROVAL"] == "true") ? "Approved" : "Not Approved";
 			var pubmedIdLinks = this.generatePubMedIdLinks(data,
 				options.edges,
@@ -262,6 +263,7 @@
 				atcCodeLinks: atcCodeLinks,
 				synonymList: synonymList,
 				drugDescription: desc,
+                                cancerDrug: cancerDrug,
 				fdaApproval: fdaApproval,
 				pubmedIdLinks: pubmedIdLinks};
 

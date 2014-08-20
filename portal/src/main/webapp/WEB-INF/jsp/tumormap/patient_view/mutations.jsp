@@ -2,10 +2,10 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.MutationsJSON" %>
 <%@ page import="org.mskcc.cbio.portal.dao.DaoMutSig" %>
 
-<script type="text/javascript" src="js/lib/igv_webstart.js"></script>
+<script type="text/javascript" src="js/lib/igv_webstart.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
-<script type="text/javascript" src="js/src/patient-view/PancanMutationHistogram.js"></script>
-<link href="css/mutation/mutation_table.css" type="text/css" rel="stylesheet"/>
+<script type="text/javascript" src="js/src/patient-view/PancanMutationHistogram.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<link href="css/mutationMapper.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
 
 <script type="text/javascript">
     var mutTableIndices =
@@ -63,7 +63,11 @@
                             var invisible_container = document.getElementById("pancan_mutations_histogram_container");
                             var histogram = PancanMutationHistogram(byKeywordData, byHugoData, window.cancer_study_meta_data, invisible_container, {this_cancer_study: window.cancerStudyName});
 
-                            var content = invisible_container.innerHTML;
+                            var title = "<div><div><h3>"+gene+" mutations across all cancer studies</h3></div>" +
+                                        "<div style='float:right;'><button class='cross-cancer-download' file-type='pdf'>PDF</button>"+
+                                        "<button class='cross-cancer-download' file-type='svg'>SVG</button></div></div>"+
+                                        "<div><p>"+histogram.overallCountText()+"</p></div>";
+                            var content = title+invisible_container.innerHTML;
                             api.set('content.text', content);
 
                             // correct the qtip width
@@ -72,6 +76,17 @@
 
                             var this_svg = $(this).find('svg')[0];
                             histogram.qtip(this_svg);
+                            
+                            $(".cross-cancer-download").click(function() {
+                                var fileType = $(this).attr("file-type");
+                                var params = {
+                                    filetype: fileType,
+                                    filename: gene + "_mutations." + fileType,
+                                    svgelement: (new XMLSerializer()).serializeToString(this_svg)
+                                };
+
+                                cbio.util.requestDownload("svgtopdf.do", params);
+                            });
 
                             $(invisible_container).empty();     // N.B.
                         }
@@ -111,6 +126,7 @@
                     {// case_ids
                         "aTargets": [ mutTableIndices["case_ids"] ],
                         "sClass": "center-align-td",
+                        "bSearchable": false,
                         "bVisible": caseIds.length>1,
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
@@ -450,7 +466,7 @@
                                 
                                 if ($.isEmptyObject(refCount)||$.isEmptyObject(altCount))
                                     return "";
-                                return "<div class='"+table_id+"-tumor-freq' alt='"+source[0]+"'></div>"; 
+                                return "<div class='"+table_id+"-normal-freq' alt='"+source[0]+"'></div>"; 
                             } else if (type==='sort') {
                                 var refCount = mutations.getValue(source[0], 'normal-ref-count')[caseIds[0]];
                                 var altCount = mutations.getValue(source[0], 'normal-alt-count')[caseIds[0]];
@@ -629,6 +645,17 @@
                         "sClass": "center-align-td",
                         "bSearchable": false,
                         "mDataProp": function(source,type,value) {
+                            var countByKey = function() {
+                                var key = mutations.getValue(source[0], "key");
+                                var byHugoData = genomicEventObs.pancan_mutation_frequencies[key];
+
+                                var total_mutation_count = _.reduce(byHugoData, function(acc, next) {
+                                    return acc + next.count;
+                                }, 0);
+
+                                return total_mutation_count;
+                            };
+                            
                             if (type === 'display') {
                                 if (genomicEventObs.pancan_mutation_frequencies) {
 
@@ -642,28 +669,26 @@
                                     };
                                     var thumbnail_template = _.template("<div class='pancan_mutations_histogram_thumbnail' gene='{{gene}}' keyword='{{keyword}}'></div>");
 
-                                    return thumbnail_template({gene: hugo, keyword: keyword});
+                                    var ret = thumbnail_template({gene: hugo, keyword: keyword});
+                                    
+                                    var count = countByKey();
+                                    ret += "<div style='float:right'>"+count+"</div>";
+                                        
+                                    return ret;
                                 } else {
                                     return "<img width='15' height='15' id='pancan_mutations_histogram' src='images/ajax-loader.gif'/>";
                                 }
                             }
                             else if (type === "sort") {
                                 if (genomicEventObs.pancan_mutation_frequencies) {
-                                    var hugo = mutations.getValue(source[0], "gene");
-                                    var byHugoData = genomicEventObs.pancan_mutation_frequencies[hugo];
-
-                                    var total_mutation_count = _.reduce(byHugoData, function(acc, next) {
-                                        return acc + next.count;
-                                    }, 0);
-
-                                    return total_mutation_count;
+                                    return countByKey();
                                 }
                             }
                             else if (type === "type") {
                                 return 0.0;
                             }
 
-                            return "foobar";
+                            return "";
                         },
                         "asSorting": ["desc", "asc"]
                     },
@@ -804,7 +829,7 @@
                     if (caseIds.length>1) {
                         plotCaseLabel('.'+table_id+'-case-label',true);
                         plotAlleleFreq("."+table_id+"-tumor-freq",mutations,"alt-count","ref-count");
-                        plotAlleleFreq("."+table_id+"-tumor-freq",mutations,"normal-alt-count","normal-ref-count");
+                        plotAlleleFreq("."+table_id+"-normal-freq",mutations,"normal-alt-count","normal-ref-count");
                     }
                     plotMrna("."+table_id+"-mrna",mutations);
                     plotMutRate("."+table_id+"-mut-cohort",mutations);
@@ -1001,15 +1026,18 @@
                             '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pl>>', 25, "No mutation events of interest", true);
                 var numFiltered = genomicEventObs.mutations.getNumEvents(true);
                 var numAll = genomicEventObs.mutations.getNumEvents(false);
-                 $('.mutation-show-more').html("<a href='#mutations' onclick='switchToTab(\"mutations\");return false;'\n\
+                 $('.mutation-show-more').html("<a href='#mutations' onclick='switchToTab(\"tab_mutations\");return false;'\n\
                       title='Show more mutations of this patient'>Show all "
                         +numAll+" mutations</a>");
                 $('.mutation-show-more').addClass('datatable-show-more');
-                $('.mutation-summary-table-name').html(
-                    "Mutations of interest"
+                var mutationSummary;
+                if (numAll===numFiltered) {
+                    mutationSummary = ""+numAll+" mutations";
+                } else {
+                    mutationSummary = "Mutations of interest"
                      +(numAll==0?"":(" ("
                         +numFiltered
-                        +" of <a href='#mutations' onclick='switchToTab(\"mutations\");return false;'\n\
+                        +" of <a href='#mutations' onclick='switchToTab(\"tab_mutations\");return false;'\n\
                          title='Show more mutations of this patient'>"
                         +numAll
                         +"</a>)"))
@@ -1019,7 +1047,9 @@
                         <li>or recurrently mutated, namely\n\
                             <ul><li>MutSig Q < 0.05, if MutSig results are available</li>\n\
                             <li>otherwise, mutated in > 5% of samples in the study with &ge; 50 samples</li></ul> </li>\n\
-                        <li>or with > 5 overlapping entries in COSMIC.</li></ul>'/>");
+                        <li>or with > 5 overlapping entries in COSMIC.</li></ul>'/>";
+                }
+                $('.mutation-summary-table-name').html(mutationSummary);
                 $('#mutations-summary-help').qtip({
                     content: { attr: 'title' },
                     style: { classes: 'qtip-light qtip-rounded' },

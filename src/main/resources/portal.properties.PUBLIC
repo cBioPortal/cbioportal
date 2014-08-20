@@ -2,6 +2,9 @@
 app.name=public-portal
 app.version=0.1
 
+
+
+
 # Database Settings
 db.tomcat_resource_name=cgds_public
 db.user=
@@ -63,11 +66,20 @@ r_installed=true
 # Indicates whether site is protected, and users must authenticate via Open ID to gain access
 authenticate=false
 
+
+#Google+
+googleplus.consumer.key=
+googleplus.consumer.secret=
+
+
 # Indicates whether users must be authorized to access a particular cancer study
 authorization=false
 
 # Indicates whether to include networks
 include_networks=true
+
+# Analytics profile Web Property ID, e.g. UA-1234567-1
+google_analytics_profile_id=
 
 # Manager webapp username and password
 manager.username=tomcat

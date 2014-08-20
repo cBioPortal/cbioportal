@@ -8,6 +8,13 @@
 
     <resource-ref>
       <description>DB Connection</description>
+      <res-ref-name>jdbc/cbioportal</res-ref-name>
+      <res-type>javax.sql.DataSource</res-type>
+      <res-auth>Container</res-auth>
+    </resource-ref>
+
+    <resource-ref>
+      <description>DB Connection</description>
       <res-ref-name>jdbc/cgds_gdac</res-ref-name>
       <res-type>javax.sql.DataSource</res-type>
       <res-auth>Container</res-auth>
@@ -35,7 +42,7 @@
 
     <context-param>
         <param-name>webAppRootKey</param-name>
-        <param-value>openid.root</param-value>
+        <param-value>${app.name}.${timestamp}</param-value>
     </context-param>
 
     <filter>
@@ -89,6 +96,23 @@
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
 
+    <servlet>
+        <description>Spring Social Authentication Servlet</description>
+        <servlet-name>googleauth-servlet</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>/WEB-INF/classes/applicationContext-web.xml</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>googleauth-servlet</servlet-name>
+        <url-pattern>*.do</url-pattern>
+    </servlet-mapping>
+
+    <!-- SPRING SECURITY SETTINGS END -->
+
     <!-- Required by the Apache FileUpload tool. -->
     <listener>
         <listener-class>
@@ -96,7 +120,14 @@
         </listener-class>
     </listener>
 
-	<!-- SPRING SECURITY SETTINGS END -->
+   <!-- custom location for log4j config -->
+    <listener>
+      <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+    </listener>
+    <context-param>
+      <param-name>log4jConfigLocation</param-name>
+      <param-value>file://${PORTAL_HOME}/portal/target/portal/WEB-INF/classes/log4j.properties</param-value>
+    </context-param> 
 
 	<!--
 	  - timeout after 12 hrs (default is 30 min)
@@ -342,6 +373,11 @@
     <servlet-mapping>
         <servlet-name>link_out</servlet-name>
         <url-pattern>/link.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>link_out</servlet-name>
+        <url-pattern>/ln</url-pattern>
     </servlet-mapping>
 
      <servlet-mapping>

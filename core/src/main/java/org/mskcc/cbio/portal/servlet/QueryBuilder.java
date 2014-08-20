@@ -1,29 +1,19 @@
 /** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
-**
-** This library is free software; you can redistribute it and/or modify it
-** under the terms of the GNU Lesser General Public License as published
-** by the Free Software Foundation; either version 2.1 of the License, or
-** any later version.
-**
-** This library is distributed in the hope that it will be useful, but
-** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
-** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
-** documentation provided hereunder is on an "as is" basis, and
-** Memorial Sloan-Kettering Cancer Center 
-** has no obligations to provide maintenance, support,
-** updates, enhancements or modifications.  In no event shall
-** Memorial Sloan-Kettering Cancer Center
-** be liable to any party for direct, indirect, special,
-** incidental or consequential damages, including lost profits, arising
-** out of the use of this software and its documentation, even if
-** Memorial Sloan-Kettering Cancer Center 
-** has been advised of the possibility of such damage.  See
-** the GNU Lesser General Public License for more details.
-**
-** You should have received a copy of the GNU Lesser General Public License
-** along with this library; if not, write to the Free Software Foundation,
-** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-**/
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 
 package org.mskcc.cbio.portal.servlet;
 
@@ -43,6 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
+import org.mskcc.cbio.portal.dao.DaoClinicalData;
 
 import org.mskcc.cbio.portal.model.*;
 import org.springframework.context.ApplicationContext;
@@ -67,7 +58,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String PROFILE_LIST_INTERNAL = "profile_list";
     public static final String CASE_SETS_INTERNAL = "case_sets";
     public static final String CANCER_STUDY_ID = "cancer_study_id";
-    public static final String CLINICAL_DATA_LIST = "clinical_data_list";
+    public static final String HAS_SURVIVAL_DATA = "has_survival_data";
     public static final String GENETIC_PROFILE_IDS = "genetic_profile_ids";
     public static final String GENE_SET_CHOICE = "gene_set_choice";
     public static final String CASE_SET_ID = "case_set_id";
@@ -111,6 +102,8 @@ public class QueryBuilder extends HttpServlet {
     public static final String INDEX_PAGE = "index.do";
     public static final String INTERNAL_EXTENDED_MUTATION_LIST = "INTERNAL_EXTENDED_MUTATION_LIST";
     public static final String DATA_PRIORITY = "data_priority";
+    private static final String DB_CONNECT_ERROR = ("An error occurred while trying to connect to the database." +
+                                                    "  This could happen if the database does not contain any cancer studies.");
 
     private ServletXssUtil servletXssUtil;
 
@@ -259,15 +252,15 @@ public class QueryBuilder extends HttpServlet {
         } catch (RemoteException e) {
             xdebug.logMsg(this, "Got Remote Exception:  " + e.getMessage());
             forwardToErrorPage(httpServletRequest, httpServletResponse,
-                               "An error occurred while trying to connect to the database.", xdebug);
+                               DB_CONNECT_ERROR, xdebug);
         } catch (DaoException e) {
             xdebug.logMsg(this, "Got Database Exception:  " + e.getMessage());
             forwardToErrorPage(httpServletRequest, httpServletResponse,
-                               "An error occurred while trying to connect to the database.", xdebug);
+                               DB_CONNECT_ERROR, xdebug);
         } catch (ProtocolException e) {
             xdebug.logMsg(this, "Got Protocol Exception:  " + e.getMessage());
             forwardToErrorPage(httpServletRequest, httpServletResponse,
-                               "An error occurred while trying to connect to the database.", xdebug);
+                               DB_CONNECT_ERROR, xdebug);
         }
     }
 
@@ -458,15 +451,6 @@ public class QueryBuilder extends HttpServlet {
             xdebug.logMsg(this, "Merging Profile Data");
             ProfileMerger merger = new ProfileMerger(profileDataList);
             ProfileData mergedProfile = merger.getMergedProfile();
-
-            //  Get Clinical Data
-            xdebug.logMsg(this, "Getting Clinical Data:");
-            List <Patient> clinicalDataList =
-                    GetClinicalData.getClinicalData(DaoCancerStudy
-                    .getCancerStudyByStableId(cancerTypeId).getInternalId(),setOfCaseIds);
-            xdebug.logMsg(this, "Got Clinical Data for:  " + clinicalDataList.size()
-                +  " cases.");
-            request.setAttribute(CLINICAL_DATA_LIST, clinicalDataList);
 
             xdebug.logMsg(this, "Merged Profile, Number of genes:  "
                     + mergedProfile.getGeneList().size());

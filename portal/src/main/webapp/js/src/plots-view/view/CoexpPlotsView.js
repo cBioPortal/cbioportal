@@ -163,7 +163,7 @@ var CoexpPlotsView = function() {
     }
 
     function configHeaderSettings() {
-        plotsOpts.text.title = "Co-expression in mRNA Expression: " + geneX + " vs. " + geneY + "  ";
+        plotsOpts.text.title = "mRNA co-expression: " + geneX + " vs. " + geneY + "  ";
         plotsOpts.text.fileName = "co_expression_result-" + geneX + "-" + geneY;
         //determine if turn on log scale 
         if (dataAttr.profile_name.indexOf("RNA Seq") !== -1) {

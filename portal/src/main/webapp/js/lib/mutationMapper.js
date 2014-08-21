@@ -8017,23 +8017,12 @@ function Mutation3dVis(name, options)
 	 */
 	function init()
 	{
-		// TODO parametrize this initialization?
-
-		if (cbio.util.browser.msie)
-		{
-			// TODO workaround: using Jmol in IE for now
-			// JSmol cannot retrieve data from an external DB in IE
-			// (it needs a server side component to do this)
-			_3dApp = new JmolWrapper(true);
-		}
-		else
-		{
-			//_3dApp = new JSmolWrapper();
-			_3dApp = new JmolWrapper(false);
-		}
+		// init html5 version (Jsmol)
+		_3dApp = new JmolWrapper(false);
 
 		// init app
-		_3dApp.init(name, _options.appOptions, _options.frame);
+		//_3dApp.init(name, _options.appOptions, _options.frame);
+		_3dApp.init(name, _options.appOptions);
 
 		// TODO memory leak -- eventually crashes the browser
 //		if (_options.addGlowEffect)

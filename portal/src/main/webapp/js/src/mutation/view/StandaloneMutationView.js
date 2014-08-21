@@ -39,6 +39,7 @@ var StandaloneMutationView = Backbone.View.extend({
 		var inputTriangle = self.$el.find(".mutation-input-field-expander .triangle");
 		var inputExpander = self.$el.find(".mutation-input-field-expander");
 		var loadExampleData = self.$el.find(".load-example-data-link");
+		var releaseNotes = self.$el.find(".standalone-release-notes");
 
 		self._initInputHeaderTable();
 		fullList.hide();
@@ -76,6 +77,20 @@ var StandaloneMutationView = Backbone.View.extend({
 		loadExampleData.click(function(event) {
 			event.preventDefault();
 			textArea.val(_.template($("#example_mutation_data_template").html(), {}).trim());
+		});
+
+		releaseNotes.click(function(event) {
+			event.preventDefault();
+
+			var url = "release_notes_mutation_mapper.jsp";
+
+			var newWindow = window.open(url,
+				"MutationMapperReleaseNotes",
+				"height=600,width=800,left=400,top=0,scrollbars=yes");
+
+			if (window.focus) {
+				newWindow.focus();
+			}
 		});
 
 		visualize.click(function() {
@@ -185,5 +200,11 @@ var StandaloneMutationView = Backbone.View.extend({
 			contentType: false,
 			processData: false
 		});
+	},
+	popitup: function(url)
+	{
+
+
+		return false;
 	}
 });

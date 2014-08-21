@@ -1,18 +1,10 @@
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
-        <script type="text/javascript">
-            function popitup(url) {
-                var newwindow=window.open(url,'MutationMapperReleaseNotes','height=600,width=800,left=400,top=0,scrollbars=yes');
-                if (window.focus) {newwindow.focus();}
-                return false;
-            }
-        </script>
-        <script type="text/template" id="standalone_mutation_view_template">
+<script type="text/template" id="standalone_mutation_view_template">
 	<div class="standalone-mutation-visualizer">
         <h1 style="display:inline;">MutationMapper</h1>
         interprets mutations with protein annotations
-        (<a href="release_notes_mutation_mapper.jsp" onclick="return popitup('release_notes_mutation_mapper.jsp');">v1.0</a>)
-
+		(<a href="release_notes_mutation_mapper.jsp" class="standalone-release-notes">v1.0</a>)
 		<div class='mutation-input-field-expander' style="margin-top:10px">
 			<span class="triangle triangle-right ui-icon ui-icon-triangle-1-e"></span>
 			<span class="triangle triangle-down ui-icon ui-icon-triangle-1-s"></span>
@@ -23,17 +15,18 @@
 			<div class="mutation-input-format-info">
 				<p>
 					Please input <b>tab-delimited</b> mutation data.
+					<span class="mutation-data-format"><a href="#" class='toggle-full-header-list'>Data Format</a></span>
 					<span class="load-example-data"><a href="#" class="load-example-data-link">Load example data</a></span>
 				</p>
 			</div>
 			<table class="data-format-expander">
-				<tr class='full-header-list-expander'>
+				<!--tr class='full-header-list-expander'>
 					<td>
 						<span class="triangle triangle-right ui-icon ui-icon-triangle-1-e"></span>
 						<span class="triangle triangle-down ui-icon ui-icon-triangle-1-s"></span>
 						<a href="#" class='toggle-full-header-list'>Data Format</a>
 					</td>
-				</tr>
+				</tr-->
 				<tr>
 					<td>
 						<div class="mutation-data-info">

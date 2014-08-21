@@ -15,8 +15,10 @@
         <div id="oncoprint_whole_body">
             <p> Altered in <%=dataSummary.getNumCasesAffected()%> (<%=OncoPrintUtil.alterationValueToString(dataSummary.getPercentCasesAffected())%>) of cases
             <span class='oncoprint-diagram-toolbar-buttons' style="float:right;margin-right:20px;display: none;">
+            <%--
             <button class='oncoprint-diagram-top' type="shift" style="cursor:pointer;display: none;">top</button>
             <button class='oncoprint-diagram-Shift' type="shift" style="cursor:pointer">Shift</button>
+            --%>
             <button class='oncoprint-diagram-download' type="pdf" style="cursor:pointer">PDF</button>
             <button class='oncoprint-diagram-download' type="svg" style="cursor:pointer">SVG</button>
             <button class='oncoprint-sample-download'  type="txt" style="cursor:pointer">Samples</button>

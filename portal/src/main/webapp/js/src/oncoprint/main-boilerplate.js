@@ -85,19 +85,21 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
             oncoprint.sortBy(sortBy.val(), cases.split(" "));
 
-//            $('.attribute_name').attr('fill','#FF0000');
             $('.attribute_name').hover(
                     function(){
-                    $(this).css('cursor','pointer');
+                    $(this).css('cursor','move');
                     },
                     function () {
-                    $(this).css('cursor', 'auto');
+                    $(this).css('cursor', 'default');
                     }); 
+            $('.attribute_name').qtip({
+                content: {text: 'Click to drag '},
+                position: {my:'left bottom', at:'top right', viewport: $(window)},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                show: {event: "mouseover"},
+                hide: {fixed: true, delay: 100, event: "mouseout"}
+            });
                     
-//            $('.attribute_name').click(
-//                    function() {
-//                    $(this).attr('fill', 'red');
-//                    }); 
 
             zoom = reset_zoom();
         }
@@ -159,11 +161,19 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                     
         $('.attribute_name').hover(
                     function(){
-                    $(this).css('cursor','pointer');
+                    $(this).css('cursor','move');
                     },
                     function() {
-                    $(this).css('cursor', 'auto');
+                    $(this).css('cursor', 'default');
                     }); 
+                    
+        $('.attribute_name').qtip({
+                content: {text: 'Click to drag '},
+                position: {my:'left bottom', at:'top right', viewport: $(window)},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                show: {event: "mouseover"},
+                hide: {fixed: true, delay: 100, event: "mouseout"}
+            });
                     
         $('.attribute_name').click(
                     function() {
@@ -657,6 +667,14 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         if ((e.button == 1 && window.event != null || e.button == 0)&& target.className.animVal==="attribute_name")
         {        
             target.attributes.fill.value = "red";
+            
+            $('.attribute_name').hover(
+            function(){
+            $(this).css('cursor','move');
+            },
+            function() {
+            $(this).css('cursor', 'default');
+            }); 
             
             // grab the clicked element's position
             _offsetX = ExtractNumber(target.parentElement.attributes.x.value);

@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.g3d");
-Clazz.load (["J.util.P3", "$.Shader"], "J.g3d.SphereRenderer", ["J.util.GData"], function () {
+Clazz.load (["JU.P3"], "J.g3d.SphereRenderer", ["JU.GData"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.g3d = null;
 this.shader = null;
@@ -37,7 +37,7 @@ Clazz.instantialize (this, arguments);
 }, J.g3d, "SphereRenderer");
 Clazz.prepareFields (c$, function () {
 this.zroot =  Clazz.newDoubleArray (2, 0);
-this.ptTemp =  new J.util.P3 ();
+this.ptTemp =  new JU.P3 ();
 this.planeShades =  Clazz.newIntArray (3, 0);
 this.dxyz =  Clazz.newFloatArray (3, 3, 0);
 });
@@ -46,7 +46,7 @@ function (g3d) {
 this.g3d = g3d;
 this.shader = g3d.shader;
 }, "J.g3d.Graphics3D");
-$_M(c$, "render", 
+Clazz.defineMethod (c$, "render", 
 function (shades, tScreened, diameter, x, y, z, mat, coef, mDeriv, selectedOctant, octantPoints, addAllPixels) {
 if (z == 1) return;
 this.width = this.g3d.width;
@@ -87,19 +87,16 @@ this.coef = null;
 this.mDeriv = null;
 this.octantPoints = null;
 }} else {
-var ss = this.getSphereShape (diameter);
-if (this.minX < 0 || this.maxX >= this.width || this.minY < 0 || this.maxY >= this.height || this.minZ < this.slab || z > this.depth) this.renderShapeClipped (ss);
- else this.renderShapeUnclipped (ss);
+var ss = this.shader.sphereShapeCache[diameter - 1];
+if (ss == null) ss = this.createSphereShape (diameter);
+if (this.minX < 0 || this.maxX >= this.width || this.minY < 0 || this.maxY >= this.height || this.minZ < this.slab || z > this.depth) this.renderShapeClipped (ss, x, y, z, diameter);
+ else this.renderShapeUnclipped (ss, x, y, z, diameter);
 }this.shades = null;
 this.zbuf = null;
-}, "~A,~B,~N,~N,~N,~N,J.util.Matrix3f,~A,J.util.Matrix4f,~N,~A,~B");
-$_M(c$, "getSphereShape", 
-($fz = function (diameter) {
-var ss;
-return ((ss = this.shader.sphereShapeCache[diameter - 1]) == null ? this.createSphereShape (diameter) : ss);
-}, $fz.isPrivate = true, $fz), "~N");
-$_M(c$, "createSphereShape", 
-($fz = function (diameter) {
+}, "~A,~B,~N,~N,~N,~N,JU.M3,~A,JU.M4,~N,~A,~B");
+Clazz.defineMethod (c$, "createSphereShape", 
+ function (diameter) {
+var shader = this.shader;
 var countSE = 0;
 var oddDiameter = (diameter & 1) != 0;
 var radiusF = diameter / 2.0;
@@ -127,24 +124,28 @@ var z2 = radiusF2 - y2 - x2;
 if (z2 >= 0) {
 var z = Math.sqrt (z2);
 var height = Clazz.floatToInt (z);
-var shadeIndexSE = this.shader.getShadeN (x, y, z, radiusF);
-var shadeIndexSW = this.shader.getShadeN (-x, y, z, radiusF);
-var shadeIndexNE = this.shader.getShadeN (x, -y, z, radiusF);
-var shadeIndexNW = this.shader.getShadeN (-x, -y, z, radiusF);
+var shadeIndexSE = shader.getShadeN (x, y, z, radiusF);
+var shadeIndexSW = shader.getShadeN (-x, y, z, radiusF);
+var shadeIndexNE = shader.getShadeN (x, -y, z, radiusF);
+var shadeIndexNW = shader.getShadeN (-x, -y, z, radiusF);
 var packed = (height | (shadeIndexSE << 7) | (shadeIndexSW << 13) | (shadeIndexNE << 19) | (shadeIndexNW << 25));
 sphereShape[offset++] = packed;
 }}
 sphereShape[offset - 1] |= 0x80000000;
 }
-return this.shader.sphereShapeCache[diameter - 1] = sphereShape;
-}, $fz.isPrivate = true, $fz), "~N");
-$_M(c$, "renderShapeUnclipped", 
-($fz = function (sphereShape) {
+return shader.sphereShapeCache[diameter - 1] = sphereShape;
+}, "~N");
+Clazz.defineMethod (c$, "renderShapeUnclipped", 
+ function (sphereShape, x, y, z, diameter) {
 var offsetSphere = 0;
-var evenSizeCorrection = 1 - (this.diameter & 1);
+var evenSizeCorrection = 1 - (diameter & 1);
 var offsetSouthCenter = this.offsetPbufBeginLine;
 var offsetNorthCenter = offsetSouthCenter - evenSizeCorrection * this.width;
-var nLines = Clazz.doubleToInt ((this.diameter + 1) / 2);
+var nLines = Clazz.doubleToInt ((diameter + 1) / 2);
+var shades = this.shades;
+var g3d = this.g3d;
+var zbuf = this.zbuf;
+var width = this.width;
 if (!this.tScreened) {
 do {
 var offsetSE = offsetSouthCenter;
@@ -154,21 +155,21 @@ var offsetNW = offsetNorthCenter - evenSizeCorrection;
 var packed;
 do {
 packed = sphereShape[offsetSphere++];
-var zPixel = this.z - (packed & 0x7F);
-if (zPixel < this.zbuf[offsetSE]) this.g3d.addPixel (offsetSE, zPixel, this.shades[((packed >> 7) & 0x3F)]);
-if (zPixel < this.zbuf[offsetSW]) this.g3d.addPixel (offsetSW, zPixel, this.shades[((packed >> 13) & 0x3F)]);
-if (zPixel < this.zbuf[offsetNE]) this.g3d.addPixel (offsetNE, zPixel, this.shades[((packed >> 19) & 0x3F)]);
-if (zPixel < this.zbuf[offsetNW]) this.g3d.addPixel (offsetNW, zPixel, this.shades[((packed >> 25) & 0x3F)]);
+var zPixel = z - (packed & 0x7F);
+if (zPixel < zbuf[offsetSE]) g3d.addPixel (offsetSE, zPixel, shades[((packed >> 7) & 0x3F)]);
+if (zPixel < zbuf[offsetSW]) g3d.addPixel (offsetSW, zPixel, shades[((packed >> 13) & 0x3F)]);
+if (zPixel < zbuf[offsetNE]) g3d.addPixel (offsetNE, zPixel, shades[((packed >> 19) & 0x3F)]);
+if (zPixel < zbuf[offsetNW]) g3d.addPixel (offsetNW, zPixel, shades[((packed >> 25) & 0x3F)]);
 ++offsetSE;
 --offsetSW;
 ++offsetNE;
 --offsetNW;
 } while (packed >= 0);
-offsetSouthCenter += this.width;
-offsetNorthCenter -= this.width;
+offsetSouthCenter += width;
+offsetNorthCenter -= width;
 } while (--nLines > 0);
 return;
-}var flipflopSouthCenter = (this.x ^ this.y) & 1;
+}var flipflopSouthCenter = (x ^ y) & 1;
 var flipflopNorthCenter = flipflopSouthCenter ^ evenSizeCorrection;
 var flipflopSE = flipflopSouthCenter;
 var flipflopSW = flipflopSouthCenter ^ evenSizeCorrection;
@@ -184,38 +185,41 @@ var packed;
 var flipflops = (flipflopsCenter = ~flipflopsCenter);
 do {
 packed = sphereShape[offsetSphere++];
-var zPixel = this.z - (packed & 0x7F);
-if ((flipflops & 1) != 0 && zPixel < this.zbuf[offsetSE]) this.g3d.addPixel (offsetSE, zPixel, this.shades[((packed >> 7) & 0x3F)]);
-if ((flipflops & 2) != 0 && zPixel < this.zbuf[offsetSW]) this.g3d.addPixel (offsetSW, zPixel, this.shades[((packed >> 13) & 0x3F)]);
-if ((flipflops & 4) != 0 && zPixel < this.zbuf[offsetNE]) this.g3d.addPixel (offsetNE, zPixel, this.shades[((packed >> 19) & 0x3F)]);
-if ((flipflops & 8) != 0 && zPixel < this.zbuf[offsetNW]) this.g3d.addPixel (offsetNW, zPixel, this.shades[((packed >> 25) & 0x3F)]);
+var zPixel = z - (packed & 0x7F);
+if ((flipflops & 1) != 0 && zPixel < zbuf[offsetSE]) g3d.addPixel (offsetSE, zPixel, shades[((packed >> 7) & 0x3F)]);
+if ((flipflops & 2) != 0 && zPixel < zbuf[offsetSW]) g3d.addPixel (offsetSW, zPixel, shades[((packed >> 13) & 0x3F)]);
+if ((flipflops & 4) != 0 && zPixel < zbuf[offsetNE]) g3d.addPixel (offsetNE, zPixel, shades[((packed >> 19) & 0x3F)]);
+if ((flipflops & 8) != 0 && zPixel < zbuf[offsetNW]) g3d.addPixel (offsetNW, zPixel, shades[((packed >> 25) & 0x3F)]);
 ++offsetSE;
 --offsetSW;
 ++offsetNE;
 --offsetNW;
 flipflops = ~flipflops;
 } while (packed >= 0);
-offsetSouthCenter += this.width;
-offsetNorthCenter -= this.width;
+offsetSouthCenter += width;
+offsetNorthCenter -= width;
 } while (--nLines > 0);
-}, $fz.isPrivate = true, $fz), "~A");
-$_M(c$, "renderShapeClipped", 
-($fz = function (sphereShape) {
+}, "~A,~N,~N,~N,~N");
+Clazz.defineMethod (c$, "renderShapeClipped", 
+ function (sphereShape, x, y, z, diameter) {
 var offsetSphere = 0;
-var evenSizeCorrection = 1 - (this.diameter & 1);
+var evenSizeCorrection = 1 - (diameter & 1);
 var offsetSouthCenter = this.offsetPbufBeginLine;
 var offsetNorthCenter = offsetSouthCenter - evenSizeCorrection * this.width;
-var nLines = Clazz.doubleToInt ((this.diameter + 1) / 2);
-var ySouth = this.y;
-var yNorth = this.y - evenSizeCorrection;
-var randu = (this.x << 16) + (this.y << 1) ^ 0x33333333;
-var flipflopSouthCenter = (this.x ^ this.y) & 1;
+var nLines = Clazz.doubleToInt ((diameter + 1) / 2);
+var ySouth = y;
+var yNorth = y - evenSizeCorrection;
+var randu = (x << 16) + (y << 1) ^ 0x33333333;
+var flipflopSouthCenter = (x ^ y) & 1;
 var flipflopNorthCenter = flipflopSouthCenter ^ evenSizeCorrection;
 var flipflopSE = flipflopSouthCenter;
 var flipflopSW = flipflopSouthCenter ^ evenSizeCorrection;
 var flipflopNE = flipflopNorthCenter;
 var flipflopNW = flipflopNorthCenter ^ evenSizeCorrection;
 var flipflopsCenter = flipflopSE | (flipflopSW << 1) | (flipflopNE << 2) | (flipflopNW << 3);
+var shades = this.shades;
+var g3d = this.g3d;
+var zbuf = this.zbuf;
 do {
 var tSouthVisible = ySouth >= 0 && ySouth < this.height;
 var tNorthVisible = yNorth >= 0 && yNorth < this.height;
@@ -225,8 +229,8 @@ var offsetNE = offsetNorthCenter;
 var offsetNW = offsetNorthCenter - evenSizeCorrection;
 var packed;
 var flipflops = (flipflopsCenter = ~flipflopsCenter);
-var xEast = this.x;
-var xWest = this.x - evenSizeCorrection;
+var xEast = x;
+var xWest = x - evenSizeCorrection;
 do {
 var tWestVisible = xWest >= 0 && xWest < this.width;
 var tEastVisible = xEast >= 0 && xEast < this.width;
@@ -234,28 +238,28 @@ packed = sphereShape[offsetSphere++];
 var isCore;
 var zOffset = packed & 0x7F;
 var zPixel;
-if (this.z < this.slab) {
-zPixel = this.z + zOffset;
+if (z < this.slab) {
+zPixel = z + zOffset;
 isCore = (zPixel >= this.slab);
 } else {
-zPixel = this.z - zOffset;
+zPixel = z - zOffset;
 isCore = (zPixel < this.slab);
 }if (isCore) zPixel = this.slab;
 if (zPixel >= this.slab && zPixel <= this.depth) {
 if (tSouthVisible) {
-if (tEastVisible && (this.addAllPixels || (flipflops & 1) != 0) && zPixel < this.zbuf[offsetSE]) {
-var i = (isCore ? J.g3d.SphereRenderer.SHADE_SLAB_CLIPPED - 3 + ((randu >> 7) & 0x07) : (packed >> 7) & 0x3F);
-this.g3d.addPixel (offsetSE, zPixel, this.shades[i]);
-}if (tWestVisible && (this.addAllPixels || (flipflops & 2) != 0) && zPixel < this.zbuf[offsetSW]) {
-var i = (isCore ? J.g3d.SphereRenderer.SHADE_SLAB_CLIPPED - 3 + ((randu >> 13) & 0x07) : (packed >> 13) & 0x3F);
-this.g3d.addPixel (offsetSW, zPixel, this.shades[i]);
+if (tEastVisible && (this.addAllPixels || (flipflops & 1) != 0) && zPixel < zbuf[offsetSE]) {
+var i = (isCore ? 44 + ((randu >> 7) & 0x07) : (packed >> 7) & 0x3F);
+g3d.addPixel (offsetSE, zPixel, shades[i]);
+}if (tWestVisible && (this.addAllPixels || (flipflops & 2) != 0) && zPixel < zbuf[offsetSW]) {
+var i = (isCore ? 44 + ((randu >> 13) & 0x07) : (packed >> 13) & 0x3F);
+g3d.addPixel (offsetSW, zPixel, shades[i]);
 }}if (tNorthVisible) {
-if (tEastVisible && (!this.tScreened || (flipflops & 4) != 0) && zPixel < this.zbuf[offsetNE]) {
-var i = (isCore ? J.g3d.SphereRenderer.SHADE_SLAB_CLIPPED - 3 + ((randu >> 19) & 0x07) : (packed >> 19) & 0x3F);
-this.g3d.addPixel (offsetNE, zPixel, this.shades[i]);
-}if (tWestVisible && (!this.tScreened || (flipflops & 8) != 0) && zPixel < this.zbuf[offsetNW]) {
-var i = (isCore ? J.g3d.SphereRenderer.SHADE_SLAB_CLIPPED - 3 + ((randu >> 25) & 0x07) : (packed >> 25) & 0x3F);
-this.g3d.addPixel (offsetNW, zPixel, this.shades[i]);
+if (tEastVisible && (!this.tScreened || (flipflops & 4) != 0) && zPixel < zbuf[offsetNE]) {
+var i = (isCore ? 44 + ((randu >> 19) & 0x07) : (packed >> 19) & 0x3F);
+g3d.addPixel (offsetNE, zPixel, shades[i]);
+}if (tWestVisible && (!this.tScreened || (flipflops & 8) != 0) && zPixel < zbuf[offsetNW]) {
+var i = (isCore ? 44 + ((randu >> 25) & 0x07) : (packed >> 25) & 0x3F);
+g3d.addPixel (offsetNW, zPixel, shades[i]);
 }}}++offsetSE;
 --offsetSW;
 ++offsetNE;
@@ -270,20 +274,19 @@ offsetNorthCenter -= this.width;
 ++ySouth;
 --yNorth;
 } while (--nLines > 0);
-}, $fz.isPrivate = true, $fz), "~A");
-$_M(c$, "renderLarge", 
-($fz = function () {
+}, "~A,~N,~N,~N,~N");
+Clazz.defineMethod (c$, "renderLarge", 
+ function () {
 if (this.mat != null) {
 if (this.shader.ellipsoidShades == null) this.shader.createEllipsoidShades ();
 if (this.octantPoints != null) this.setPlaneDerivatives ();
-} else if (!this.shader.sphereShadingCalculated) this.shader.calcSphereShading ();
-this.renderQuadrant (-1, -1);
+}this.renderQuadrant (-1, -1);
 this.renderQuadrant (-1, 1);
 this.renderQuadrant (1, -1);
 this.renderQuadrant (1, 1);
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "renderQuadrant", 
-($fz = function (xSign, ySign) {
+});
+Clazz.defineMethod (c$, "renderQuadrant", 
+ function (xSign, ySign) {
 var radius = Clazz.doubleToInt (this.diameter / 2);
 var t = this.x + radius * xSign;
 var xStatus = (this.x < 0 ? -1 : this.x < this.width ? 0 : 1) + (t < 0 ? -2 : t < this.width ? 0 : 2);
@@ -294,9 +297,9 @@ if (yStatus == -3 || yStatus == 3) return;
 var unclipped = (this.mat == null && xStatus == 0 && yStatus == 0 && this.z - radius >= this.slab && this.z <= this.depth);
 if (unclipped) this.renderQuadrantUnclipped (radius, xSign, ySign);
  else this.renderQuadrantClipped (radius, xSign, ySign);
-}, $fz.isPrivate = true, $fz), "~N,~N");
-$_M(c$, "renderQuadrantUnclipped", 
-($fz = function (radius, xSign, ySign) {
+}, "~N,~N");
+Clazz.defineMethod (c$, "renderQuadrantUnclipped", 
+ function (radius, xSign, ySign) {
 var r2 = radius * radius;
 var dDivisor = radius * 2 + 1;
 var flipflopBeginLine = ((this.x ^ this.y) & 1) == 0;
@@ -318,9 +321,9 @@ var x8 = Clazz.doubleToInt (((j * xSign + radius) << 8) / dDivisor);
 this.g3d.addPixel (offset, z0, this.shades[this.shader.sphereShadeIndexes[((y8 << 8) + x8)]]);
 }}
 }
-}, $fz.isPrivate = true, $fz), "~N,~N,~N");
-$_M(c$, "renderQuadrantClipped", 
-($fz = function (radius, xSign, ySign) {
+}, "~N,~N,~N");
+Clazz.defineMethod (c$, "renderQuadrantClipped", 
+ function (radius, xSign, ySign) {
 var isEllipsoid = (this.mat != null);
 var checkOctant = (this.selectedOctant >= 0);
 var r2 = radius * radius;
@@ -367,8 +370,8 @@ mode = 2;
 this.z0 = zPixel;
 if (checkOctant) {
 this.ptTemp.set (xCurrent - this.x, yCurrent - this.y, zPixel - this.z);
-this.mat.transform (this.ptTemp);
-var thisOctant = J.util.GData.getScreenOctant (this.ptTemp);
+this.mat.rotate (this.ptTemp);
+var thisOctant = JU.GData.getScreenOctant (this.ptTemp);
 if (thisOctant == this.selectedOctant) {
 iShade = this.getPlaneShade (xCurrent, yCurrent, this.zroot);
 zPixel = Clazz.doubleToInt (this.zroot[0]);
@@ -388,7 +391,7 @@ mode = 0;
 }if (zPixel < this.slab || zPixel > this.depth || this.zbuf[offset] <= zPixel) continue;
 }switch (mode) {
 case 0:
-iShade = (J.g3d.SphereRenderer.SHADE_SLAB_CLIPPED - 3 + ((randu >> 8) & 0x07));
+iShade = (44 + ((randu >> 8) & 0x07));
 randu = ((randu << 16) + (randu << 1) + randu) & 0x7FFFFFFF;
 mode = 1;
 break;
@@ -407,9 +410,9 @@ this.g3d.addPixel (offset, zPixel, this.shades[iShade]);
 }
 randu = ((randu + xCurrent + yCurrent) | 1) & 0x7FFFFFFF;
 }
-}, $fz.isPrivate = true, $fz), "~N,~N,~N");
-c$.getQuardricZ = $_M(c$, "getQuardricZ", 
-($fz = function (x, y, coef, zroot) {
+}, "~N,~N,~N");
+c$.getQuardricZ = Clazz.defineMethod (c$, "getQuardricZ", 
+ function (x, y, coef, zroot) {
 var b_2a = (coef[4] * x + coef[5] * y + coef[8]) / coef[2] / 2;
 var c_a = (coef[0] * x * x + coef[1] * y * y + coef[3] * x * y + coef[6] * x + coef[7] * y - 1) / coef[2];
 var f = b_2a * b_2a - c_a;
@@ -418,9 +421,9 @@ f = Math.sqrt (f);
 zroot[0] = (-b_2a - f);
 zroot[1] = (-b_2a + f);
 return true;
-}, $fz.isPrivate = true, $fz), "~N,~N,~A,~A");
-$_M(c$, "setPlaneDerivatives", 
-($fz = function () {
+}, "~N,~N,~A,~A");
+Clazz.defineMethod (c$, "setPlaneDerivatives", 
+ function () {
 this.planeShade = -1;
 for (var i = 0; i < 3; i++) {
 var dx = this.dxyz[i][0] = this.octantPoints[i].x - this.x;
@@ -431,9 +434,9 @@ if (dx == 0 && dy == 0) {
 this.planeShade = this.planeShades[i];
 return;
 }}
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "getPlaneShade", 
-($fz = function (xCurrent, yCurrent, zroot) {
+});
+Clazz.defineMethod (c$, "getPlaneShade", 
+ function (xCurrent, yCurrent, zroot) {
 if (this.planeShade >= 0) return this.planeShade;
 var iMin = 3;
 var dz;
@@ -450,10 +453,10 @@ iMin = 0;
 zMin = this.z;
 }zroot[0] = zMin;
 return this.planeShades[iMin];
-}, $fz.isPrivate = true, $fz), "~N,~N,~A");
+}, "~N,~N,~A");
 Clazz.defineStatics (c$,
 "maxOddSizeSphere", 49,
 "maxSphereDiameter", 1000,
-"maxSphereDiameter2", 2000);
-c$.SHADE_SLAB_CLIPPED = c$.prototype.SHADE_SLAB_CLIPPED = J.util.Shader.shadeIndexNormal - 5;
+"maxSphereDiameter2", 2000,
+"SHADE_SLAB_CLIPPED", 47);
 });

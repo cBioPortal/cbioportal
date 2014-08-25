@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.shape");
-Clazz.load (["J.shape.Shape", "java.util.Hashtable"], "J.shape.Object2dShape", ["J.util.Logger", "$.P3", "$.TextFormat"], function () {
+Clazz.load (["J.shape.Shape", "java.util.Hashtable"], "J.shape.Object2dShape", ["JU.P3", "JU.Logger", "$.Txt"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.objects = null;
 this.currentObject = null;
@@ -16,7 +16,7 @@ Clazz.instantialize (this, arguments);
 Clazz.prepareFields (c$, function () {
 this.objects =  new java.util.Hashtable ();
 });
-$_M(c$, "setPropOS", 
+Clazz.defineMethod (c$, "setPropOS", 
 function (propertyName, value, bsSelected) {
 if ("allOff" === propertyName) {
 this.currentObject = null;
@@ -29,7 +29,7 @@ if (this.isAll || this.thisID != null) {
 var e = this.objects.values ().iterator ();
 while (e.hasNext ()) {
 var text = e.next ();
-if (this.isAll || J.util.TextFormat.isMatch (text.target.toUpperCase (), this.thisID, true, true)) {
+if (this.isAll || JU.Txt.isMatch (text.target.toUpperCase (), this.thisID, true, true)) {
 e.remove ();
 }}
 }return;
@@ -60,7 +60,7 @@ if (this.currentObject == null) {
 if (this.isAll) for (var obj, $obj = this.objects.values ().iterator (); $obj.hasNext () && ((obj = $obj.next ()) || true);) obj.setAlignmentLCR (align);
 
 return;
-}if (!this.currentObject.setAlignmentLCR (align)) J.util.Logger.error ("unrecognized align:" + align);
+}if (!this.currentObject.setAlignmentLCR (align)) JU.Logger.error ("unrecognized align:" + align);
 return;
 }if ("bgcolor" === propertyName) {
 this.currentBgColor = value;
@@ -80,7 +80,7 @@ if (this.isAll || this.thisID != null) {
 var e = this.objects.values ().iterator ();
 while (e.hasNext ()) {
 var text = e.next ();
-if (this.isAll || J.util.TextFormat.isMatch (text.target.toUpperCase (), this.thisID, true, true)) {
+if (this.isAll || JU.Txt.isMatch (text.target.toUpperCase (), this.thisID, true, true)) {
 text.setColixO (value);
 }}
 }return;
@@ -118,52 +118,52 @@ text.modelIndex--;
 }}
 return;
 }this.setPropS (propertyName, value, bsSelected);
-}, "~S,~O,J.util.BS");
+}, "~S,~O,JU.BS");
 Clazz.overrideMethod (c$, "initModelSet", 
 function () {
 this.currentObject = null;
 this.isAll = false;
 });
 Clazz.overrideMethod (c$, "setVisibilityFlags", 
-function (bs) {
-if (!this.isHover) for (var t, $t = this.objects.values ().iterator (); $t.hasNext () && ((t = $t.next ()) || true);) t.setVisibility (t.modelIndex < 0 || bs.get (t.modelIndex));
+function (bsModels) {
+if (!this.isHover) for (var t, $t = this.objects.values ().iterator (); $t.hasNext () && ((t = $t.next ()) || true);) t.setVisibility (t.modelIndex < 0 || bsModels.get (t.modelIndex));
 
-}, "J.util.BS");
+}, "JU.BS");
 Clazz.overrideMethod (c$, "checkObjectClicked", 
 function (x, y, modifiers, bsVisible, drawPicking) {
 if (this.isHover || modifiers == 0) return null;
-var isAntialiased = this.viewer.isAntialiased ();
+var isAntialiased = this.vwr.antialiased;
 for (var obj, $obj = this.objects.values ().iterator (); $obj.hasNext () && ((obj = $obj.next ()) || true);) {
 if (obj.checkObjectClicked (isAntialiased, x, y, bsVisible)) {
 var s = obj.getScript ();
 if (s != null) {
-this.viewer.evalStringQuiet (s);
+this.vwr.evalStringQuiet (s);
 }var map =  new java.util.Hashtable ();
-map.put ("pt", (obj.xyz == null ?  new J.util.P3 () : obj.xyz));
+map.put ("pt", (obj.xyz == null ?  new JU.P3 () : obj.xyz));
 var modelIndex = obj.modelIndex;
 if (modelIndex < 0) modelIndex = 0;
 map.put ("modelIndex", Integer.$valueOf (modelIndex));
-map.put ("model", this.viewer.getModelNumberDotted (modelIndex));
+map.put ("model", this.vwr.getModelNumberDotted (modelIndex));
 map.put ("id", obj.target);
 map.put ("type", "echo");
 return map;
 }}
 return null;
-}, "~N,~N,~N,J.util.BS,~B");
+}, "~N,~N,~N,JU.BS,~B");
 Clazz.overrideMethod (c$, "checkObjectHovered", 
 function (x, y, bsVisible) {
 if (this.isHover) return false;
 var haveScripts = false;
-var isAntialiased = this.viewer.isAntialiased ();
+var isAntialiased = this.vwr.antialiased;
 for (var obj, $obj = this.objects.values ().iterator (); $obj.hasNext () && ((obj = $obj.next ()) || true);) {
 var s = obj.getScript ();
 if (s != null) {
 haveScripts = true;
 if (obj.checkObjectClicked (isAntialiased, x, y, bsVisible)) {
-this.viewer.setCursor (1);
+this.vwr.setCursor (12);
 return true;
 }}}
-if (haveScripts) this.viewer.setCursor (0);
+if (haveScripts) this.vwr.setCursor (0);
 return false;
-}, "~N,~N,J.util.BS");
+}, "~N,~N,JU.BS");
 });

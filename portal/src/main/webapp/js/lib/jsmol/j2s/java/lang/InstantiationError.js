@@ -1,3 +1,3 @@
-$_L(["java.lang.IncompatibleClassChangeError"],"java.lang.InstantiationError",null,function(){
-c$=$_T(java.lang,"InstantiationError",IncompatibleClassChangeError);
+Clazz.load(["java.lang.IncompatibleClassChangeError"],"java.lang.InstantiationError",null,function(){
+c$=Clazz.declareType(java.lang,"InstantiationError",IncompatibleClassChangeError);
 });

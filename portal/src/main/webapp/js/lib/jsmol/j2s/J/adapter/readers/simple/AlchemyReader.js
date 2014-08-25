@@ -1,43 +1,52 @@
 Clazz.declarePackage ("J.adapter.readers.simple");
 Clazz.load (["J.adapter.smarter.AtomSetCollectionReader"], "J.adapter.readers.simple.AlchemyReader", ["java.lang.Character", "J.adapter.smarter.Atom"], function () {
 c$ = Clazz.decorateAsClass (function () {
-this.atomCount = 0;
+this.isM3D = false;
+this.ac = 0;
 this.bondCount = 0;
 Clazz.instantialize (this, arguments);
 }, J.adapter.readers.simple, "AlchemyReader", J.adapter.smarter.AtomSetCollectionReader);
 Clazz.overrideMethod (c$, "initializeReader", 
 function () {
-this.atomSetCollection.newAtomSet ();
-var tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.readLine ());
-this.atomCount = this.parseIntStr (tokens[0]);
-this.bondCount = this.parseIntStr (tokens[2]);
+this.asc.newAtomSet ();
+this.rd ();
+if (this.line.indexOf ("ATOMS") < 0) {
+this.isM3D = true;
+this.rd ();
+}var tokens = this.getTokens ();
+this.ac = this.parseIntStr (tokens[0]);
+this.bondCount = this.parseIntStr (tokens[this.isM3D ? 1 : 2]);
 this.readAtoms ();
 this.readBonds ();
 this.continuing = false;
 });
-$_M(c$, "readAtoms", 
-($fz = function () {
-for (var i = this.atomCount; --i >= 0; ) {
-var tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.readLine ());
+Clazz.defineMethod (c$, "readAtoms", 
+ function () {
+var pt = (this.isM3D ? 3 : 2);
+for (var i = this.ac; --i >= 0; ) {
+var tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.rd ());
 var atom =  new J.adapter.smarter.Atom ();
 atom.atomSerial = this.parseIntStr (tokens[0]);
-var name = atom.atomName = tokens[1];
+var name = tokens[1];
+if (!this.isM3D) {
+atom.atomName = name;
 atom.elementSymbol = name.substring (0, 1);
 var c1 = name.charAt (0);
 var c2 = ' ';
 var nChar = (name.length == 2 && (J.adapter.smarter.Atom.isValidElementSymbol2 (c1, c2 = Character.toLowerCase (name.charAt (1))) || name.equals ("Du")) ? 2 : 1);
-atom.elementSymbol = (nChar == 1 ? "" + c1 : "" + c1 + c2);
-this.setAtomCoordXYZ (atom, this.parseFloatStr (tokens[2]), this.parseFloatStr (tokens[3]), this.parseFloatStr (tokens[4]));
-atom.partialCharge = (tokens.length >= 6 ? this.parseFloatStr (tokens[5]) : 0);
-this.atomSetCollection.addAtomWithMappedSerialNumber (atom);
+name = (nChar == 1 ? "" + c1 : "" + c1 + c2);
+}atom.elementSymbol = name;
+this.setAtomCoordTokens (atom, tokens, pt);
+atom.partialCharge = (tokens.length >= 6 ? this.parseFloatStr (tokens[pt + 3]) : 0);
+this.asc.addAtomWithMappedSerialNumber (atom);
 }
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "readBonds", 
-($fz = function () {
+});
+Clazz.defineMethod (c$, "readBonds", 
+ function () {
 for (var i = this.bondCount; --i >= 0; ) {
-var tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.readLine ());
-var atomSerial1 = this.parseIntStr (tokens[1]);
-var atomSerial2 = this.parseIntStr (tokens[2]);
+var tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.rd ());
+var atomSerial1 = tokens[1];
+var atomSerial2 = tokens[2];
 var sOrder = (tokens.length < 4 ? "1" : tokens[3].toUpperCase ());
 var order = 0;
 switch (sOrder.charAt (0)) {
@@ -61,7 +70,7 @@ case 'H':
 order = 2048;
 break;
 }
-this.atomSetCollection.addNewBondWithMappedSerialNumbers (atomSerial1, atomSerial2, order);
+this.asc.addNewBondFromNames (atomSerial1, atomSerial2, order);
 }
-}, $fz.isPrivate = true, $fz));
+});
 });

@@ -1,1 +1,1 @@
-$_I(java.io,"Closeable");
+Clazz.declareInterface(java.io,"Closeable");

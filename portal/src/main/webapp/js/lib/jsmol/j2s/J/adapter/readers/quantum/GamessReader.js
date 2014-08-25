@@ -1,34 +1,34 @@
 Clazz.declarePackage ("J.adapter.readers.quantum");
-Clazz.load (["J.adapter.readers.quantum.MOReader"], "J.adapter.readers.quantum.GamessReader", ["java.lang.Float", "java.util.Hashtable", "J.api.JmolAdapter", "J.util.ArrayUtil", "$.JmolList", "$.Logger", "$.TextFormat"], function () {
+Clazz.load (["J.adapter.readers.quantum.MOReader"], "J.adapter.readers.quantum.GamessReader", ["java.lang.Float", "java.util.Hashtable", "JU.AU", "$.Lst", "$.PT", "J.api.JmolAdapter", "JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.atomNames = null;
 this.calcOptions = null;
 this.isTypeSet = false;
 Clazz.instantialize (this, arguments);
 }, J.adapter.readers.quantum, "GamessReader", J.adapter.readers.quantum.MOReader);
-$_M(c$, "readEnergy", 
+Clazz.defineMethod (c$, "readEnergy", 
 function () {
 var tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.line.substring (this.line.indexOf ("ENERGY")));
 if (tokens.length < 3) return;
 var strEnergy = tokens[2];
 var e = this.parseFloatStr (strEnergy);
-if (!Float.isNaN (e)) this.atomSetCollection.setAtomSetEnergy (strEnergy, e);
+if (!Float.isNaN (e)) this.asc.setAtomSetEnergy (strEnergy, e);
 });
-$_M(c$, "readGaussianBasis", 
+Clazz.defineMethod (c$, "readGaussianBasis", 
 function (initiator, terminator) {
-var gdata =  new J.util.JmolList ();
+var gdata =  new JU.Lst ();
 this.gaussianCount = 0;
 var nGaussians = 0;
 this.shellCount = 0;
 var thisShell = "0";
 var tokens;
 this.discardLinesUntilContains (initiator);
-this.readLine ();
+this.rd ();
 var slater = null;
 var shellsByAtomType =  new java.util.Hashtable ();
-var slatersByAtomType =  new J.util.JmolList ();
+var slatersByAtomType =  new JU.Lst ();
 var atomType = null;
-while (this.readLine () != null && this.line.indexOf (terminator) < 0) {
+while (this.rd () != null && this.line.indexOf (terminator) < 0) {
 if (this.line.indexOf ("(") >= 0) this.line = J.adapter.readers.quantum.GamessReader.fixBasisLine (this.line);
 tokens = this.getTokens ();
 switch (tokens.length) {
@@ -39,7 +39,7 @@ slater[2] = nGaussians;
 slatersByAtomType.addLast (slater);
 slater = null;
 }shellsByAtomType.put (atomType, slatersByAtomType);
-}slatersByAtomType =  new J.util.JmolList ();
+}slatersByAtomType =  new JU.Lst ();
 atomType = tokens[0];
 break;
 case 0:
@@ -62,32 +62,32 @@ if (slater != null) {
 slater[2] = nGaussians;
 slatersByAtomType.addLast (slater);
 }if (atomType != null) shellsByAtomType.put (atomType, slatersByAtomType);
-this.gaussians = J.util.ArrayUtil.newFloat2 (this.gaussianCount);
+this.gaussians = JU.AU.newFloat2 (this.gaussianCount);
 for (var i = 0; i < this.gaussianCount; i++) {
 tokens = gdata.get (i);
 this.gaussians[i] =  Clazz.newFloatArray (tokens.length - 3, 0);
 for (var j = 3; j < tokens.length; j++) this.gaussians[i][j - 3] = this.parseFloatStr (tokens[j]);
 
 }
-var atomCount = this.atomNames.size ();
-if (this.shells == null && atomCount > 0) {
-this.shells =  new J.util.JmolList ();
-for (var i = 0; i < atomCount; i++) {
+var ac = this.atomNames.size ();
+if (this.shells == null && ac > 0) {
+this.shells =  new JU.Lst ();
+for (var i = 0; i < ac; i++) {
 atomType = this.atomNames.get (i);
 var slaters = shellsByAtomType.get (atomType);
 if (slaters == null) {
-J.util.Logger.error ("slater for atom " + i + " atomType " + atomType + " was not found in listing. Ignoring molecular orbitals");
+JU.Logger.error ("slater for atom " + i + " atomType " + atomType + " was not found in listing. Ignoring molecular orbitals");
 return;
 }for (var j = 0; j < slaters.size (); j++) {
 slater = slaters.get (j);
 this.shells.addLast ([i, slater[0], slater[1], slater[2]]);
 }
 }
-}if (J.util.Logger.debugging) {
-J.util.Logger.debug (this.shellCount + " slater shells read");
-J.util.Logger.debug (this.gaussianCount + " gaussian primitives read");
+}if (JU.Logger.debugging) {
+JU.Logger.debug (this.shellCount + " slater shells read");
+JU.Logger.debug (this.gaussianCount + " gaussian primitives read");
 }}, "~S,~S");
-$_M(c$, "readFrequencies", 
+Clazz.defineMethod (c$, "readFrequencies", 
 function () {
 this.discardLinesUntilContains ("FREQUENCY:");
 var haveFreq = false;
@@ -100,38 +100,38 @@ var frequency = this.parseFloatStr (tokens[i]);
 if (tokens[i].equals ("I")) frequencies[frequencyCount - 1] = -frequencies[frequencyCount - 1];
 if (Float.isNaN (frequency)) continue;
 frequencies[frequencyCount++] = frequency;
-if (J.util.Logger.debugging) {
-J.util.Logger.debug ((this.vibrationNumber + 1) + " frequency=" + frequency);
+if (JU.Logger.debugging) {
+JU.Logger.debug ((this.vibrationNumber + 1) + " frequency=" + frequency);
 }}
 var red_masses = null;
 var intensities = null;
-this.readLine ();
+this.rd ();
 if (this.line.indexOf ("MASS") >= 0) {
 red_masses = this.getTokens ();
-this.readLine ();
+this.rd ();
 }if (this.line.indexOf ("INTENS") >= 0) {
 intensities = this.getTokens ();
-}var atomCount = this.atomSetCollection.getLastAtomSetAtomCount ();
-var iAtom0 = this.atomSetCollection.getAtomCount ();
+}var ac = this.asc.getLastAtomSetAtomCount ();
+var iAtom0 = this.asc.ac;
 var ignore =  Clazz.newBooleanArray (frequencyCount, false);
 for (var i = 0; i < frequencyCount; i++) {
 ignore[i] = !this.doGetVibration (++this.vibrationNumber);
 if (ignore[i]) continue;
 if (haveFreq) {
-this.atomSetCollection.cloneLastAtomSet ();
+this.asc.cloneLastAtomSet ();
 } else {
 haveFreq = true;
-iAtom0 -= atomCount;
-}this.atomSetCollection.setAtomSetFrequency (null, null, "" + frequencies[i], null);
-if (red_masses != null) this.atomSetCollection.setAtomSetModelProperty ("ReducedMass", red_masses[red_masses.length - frequencyCount + i] + " AMU");
-if (intensities != null) this.atomSetCollection.setAtomSetModelProperty ("IRIntensity", intensities[intensities.length - frequencyCount + i] + " D^2/AMU-Angstrom^2");
+iAtom0 -= ac;
+}this.asc.setAtomSetFrequency (null, null, "" + frequencies[i], null);
+if (red_masses != null) this.asc.setAtomSetModelProperty ("ReducedMass", red_masses[red_masses.length - frequencyCount + i] + " AMU");
+if (intensities != null) this.asc.setAtomSetModelProperty ("IRIntensity", intensities[intensities.length - frequencyCount + i] + " D^2/AMU-Angstrom^2");
 }
 this.discardLinesUntilBlank ();
-this.fillFrequencyData (iAtom0, atomCount, atomCount, ignore, false, 20, 12, null, 0);
+this.fillFrequencyData (iAtom0, ac, ac, ignore, false, 20, 12, null, 0);
 this.readLines (13);
 }
 });
-c$.fixBasisLine = $_M(c$, "fixBasisLine", 
+c$.fixBasisLine = Clazz.defineMethod (c$, "fixBasisLine", 
 function (line) {
 var pt;
 var pt1;
@@ -146,7 +146,7 @@ line = line.substring (0, ++pt1) + line.substring (pt + 1);
 }
 return line;
 }, "~S");
-$_M(c$, "setCalculationType", 
+Clazz.defineMethod (c$, "setCalculationType", 
 function () {
 if (this.calcOptions == null || this.isTypeSet) return;
 this.isTypeSet = true;
@@ -188,7 +188,7 @@ recognized = true;
 }if (!recognized) this.calculationType += gbasis;
 } else {
 if (this.calculationType.length > 0) this.calculationType += " ";
-this.calculationType += igauss + "-" + J.util.TextFormat.simpleReplace (gbasis, "N", "");
+this.calculationType += igauss + "-" + JU.PT.rep (gbasis, "N", "");
 if ("T".equals (this.calcOptions.get ("basis_options_DIFFSP"))) {
 if ("T".equals (this.calcOptions.get ("basis_options_DIFFS"))) this.calculationType += "+";
 this.calculationType += "+";
@@ -219,28 +219,28 @@ this.calculationType += "MP" + perturb;
 if (this.calculationType.length > 0) this.calculationType += " ";
 this.calculationType += SCFtype + " " + Runtype;
 }}});
-$_M(c$, "readControlInfo", 
+Clazz.defineMethod (c$, "readControlInfo", 
 function () {
 this.readCalculationInfo ("contrl_options_");
 });
-$_M(c$, "readBasisInfo", 
+Clazz.defineMethod (c$, "readBasisInfo", 
 function () {
 this.readCalculationInfo ("basis_options_");
 });
-$_M(c$, "readCalculationInfo", 
-($fz = function (type) {
+Clazz.defineMethod (c$, "readCalculationInfo", 
+ function (type) {
 if (this.calcOptions == null) {
 this.calcOptions =  new java.util.Hashtable ();
-this.atomSetCollection.setAtomSetCollectionAuxiliaryInfo ("calculationOptions", this.calcOptions);
-}while (this.readLine () != null && (this.line = this.line.trim ()).length > 0) {
+this.asc.setInfo ("calculationOptions", this.calcOptions);
+}while (this.rd () != null && (this.line = this.line.trim ()).length > 0) {
 if (this.line.indexOf ("=") < 0) continue;
-var tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (J.util.TextFormat.simpleReplace (this.line, "=", " = ") + " ?");
+var tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (JU.PT.rep (this.line, "=", " = ") + " ?");
 for (var i = 0; i < tokens.length; i++) {
 if (!tokens[i].equals ("=")) continue;
 try {
 var key = type + tokens[i - 1];
 var value = (key.equals ("basis_options_SPLIT3") ? tokens[++i] + " " + tokens[++i] + " " + tokens[++i] : tokens[++i]);
-if (J.util.Logger.debugging) J.util.Logger.debug (key + " = " + value);
+if (JU.Logger.debugging) JU.Logger.debug (key + " = " + value);
 this.calcOptions.put (key, value);
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
@@ -250,5 +250,5 @@ throw e;
 }
 }
 }
-}, $fz.isPrivate = true, $fz), "~S");
+}, "~S");
 });

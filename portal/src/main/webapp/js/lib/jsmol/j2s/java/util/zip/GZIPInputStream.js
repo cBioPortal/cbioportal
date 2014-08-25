@@ -11,11 +11,11 @@ Clazz.prepareFields (c$, function () {
 this.crc =  new java.util.zip.CRC32 ();
 this.tmpbuf =  Clazz.newByteArray (128, 0);
 });
-$_M(c$, "ensureOpen", 
-($fz = function () {
+Clazz.defineMethod (c$, "ensureOpen", 
+ function () {
 if (this.$closed) {
 throw  new java.io.IOException ("Stream closed");
-}}, $fz.isPrivate = true, $fz));
+}});
 Clazz.makeConstructor (c$, 
 function ($in, size) {
 Clazz.superConstructor (this, java.util.zip.GZIPInputStream, [$in,  new java.util.zip.Inflater ().init (0, true), size]);
@@ -34,16 +34,16 @@ if (this.readTrailer ()) this.eos = true;
 this.crc.update (buf, off, n);
 }return n;
 }, "~A,~N,~N");
-$_M(c$, "close", 
+Clazz.defineMethod (c$, "close", 
 function () {
 if (!this.$closed) {
 Clazz.superCall (this, java.util.zip.GZIPInputStream, "close", []);
 this.eos = true;
 this.$closed = true;
 }});
-$_M(c$, "readHeader", 
-($fz = function (this_in) {
-var $in =  new java.util.zip.CheckedInputStream (this_in, this.crc);
+Clazz.defineMethod (c$, "readHeader", 
+ function (this_in) {
+var $in =  new java.util.zip.CheckedInputStream (this_in).set (this.crc);
 this.crc.reset ();
 if (this.readUShort ($in) != 35615) {
 throw  new java.util.zip.ZipException ("Not in GZIP format");
@@ -71,34 +71,34 @@ throw  new java.util.zip.ZipException ("Corrupt GZIP header");
 }n += 2;
 }this.crc.reset ();
 return n;
-}, $fz.isPrivate = true, $fz), "java.io.InputStream");
-$_M(c$, "readTrailer", 
-($fz = function () {
+}, "java.io.InputStream");
+Clazz.defineMethod (c$, "readTrailer", 
+ function () {
 return true;
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "readUShort", 
-($fz = function ($in) {
+});
+Clazz.defineMethod (c$, "readUShort", 
+ function ($in) {
 var b = this.readUByte ($in);
 return (this.readUByte ($in) << 8) | b;
-}, $fz.isPrivate = true, $fz), "java.io.InputStream");
-$_M(c$, "readUByte", 
-($fz = function ($in) {
+}, "java.io.InputStream");
+Clazz.defineMethod (c$, "readUByte", 
+ function ($in) {
 var b = $in.readByteAsInt ();
 if (b == -1) {
 throw  new java.io.EOFException ();
 }if (b < -1 || b > 255) {
 throw  new java.io.IOException (this.$in.getClass ().getName () + ".read() returned value out of range -1..255: " + b);
 }return b;
-}, $fz.isPrivate = true, $fz), "java.io.InputStream");
-$_M(c$, "skipBytes", 
-($fz = function ($in, n) {
+}, "java.io.InputStream");
+Clazz.defineMethod (c$, "skipBytes", 
+ function ($in, n) {
 while (n > 0) {
 var len = $in.read (this.tmpbuf, 0, n < this.tmpbuf.length ? n : this.tmpbuf.length);
 if (len == -1) {
 throw  new java.io.EOFException ();
 }n -= len;
 }
-}, $fz.isPrivate = true, $fz), "java.io.InputStream,~N");
+}, "java.io.InputStream,~N");
 Clazz.defineStatics (c$,
 "GZIP_MAGIC", 0x8b1f,
 "FHCRC", 2,

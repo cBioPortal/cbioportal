@@ -22,65 +22,60 @@ if (this.doGetModel (++this.modelNumber, null)) this.readAtomsCartGeomThenCell (
 return true;
 }return true;
 });
-$_M(c$, "setCell", 
-($fz = function () {
+Clazz.defineMethod (c$, "setCell", 
+ function () {
 this.fillFloatArray (null, 0, this.unitCellData);
 this.addPrimitiveLatticeVector (0, this.unitCellData, 0);
 this.addPrimitiveLatticeVector (1, this.unitCellData, 3);
 this.addPrimitiveLatticeVector (2, this.unitCellData, 6);
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "readCellThenAtomsCartesian", 
-($fz = function () {
+});
+Clazz.defineMethod (c$, "readCellThenAtomsCartesian", 
+ function () {
 this.newAtomSet ();
 this.setCell ();
 this.discardLinesUntilContains ("AtomicCoordinatesFormat Ang");
-this.readLine ();
+this.rd ();
 this.setFractionalCoordinates (false);
-while (this.readLine () != null && this.line.indexOf ("%endblock Atomic") < 0) {
+while (this.rd () != null && this.line.indexOf ("%endblock Atomic") < 0) {
 var tokens = this.getTokens ();
-var atom = this.atomSetCollection.addNewAtom ();
-atom.atomName = tokens[4];
-var x = this.parseFloatStr (tokens[0]);
-var y = this.parseFloatStr (tokens[1]);
-var z = this.parseFloatStr (tokens[2]);
-this.setAtomCoordXYZ (atom, x, y, z);
+this.addAtomXYZSymName (tokens, 0, null, tokens[4]);
 }
-this.noAtoms = this.atomSetCollection.getAtomCount ();
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "newAtomSet", 
-($fz = function () {
+this.noAtoms = this.asc.ac;
+});
+Clazz.defineMethod (c$, "newAtomSet", 
+ function () {
 this.applySymmetryAndSetTrajectory ();
-this.atomSetCollection.newAtomSet ();
+this.asc.newAtomSet ();
 this.setSpaceGroupName ("P1");
 this.setFractionalCoordinates (false);
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "readAtomsCartGeomThenCell", 
-($fz = function () {
+});
+Clazz.defineMethod (c$, "readAtomsCartGeomThenCell", 
+ function () {
 this.readLines (1);
 this.newAtomSet ();
-var atom0 = this.atomSetCollection.getAtomCount ();
+var atom0 = this.asc.ac;
 for (var i = 0; i < this.noAtoms; i++) {
 var tokens = this.getTokens ();
-var atom = this.atomSetCollection.addNewAtom ();
+var atom = this.asc.addNewAtom ();
 atom.atomName = tokens[4];
 var x = this.parseFloatStr (tokens[0]);
 var y = this.parseFloatStr (tokens[1]);
 var z = this.parseFloatStr (tokens[2]);
 atom.set (x, y, z);
-this.readLine ();
+this.rd ();
 }
 this.discardLinesUntilContains ("outcell: Unit cell vectors");
 this.setCell ();
-var atoms = this.atomSetCollection.getAtoms ();
-var atomCount = this.atomSetCollection.getAtomCount ();
-for (var i = atom0; i < atomCount; i++) this.setAtomCoord (atoms[i]);
+var atoms = this.asc.atoms;
+var ac = this.asc.ac;
+for (var i = atom0; i < ac; i++) this.setAtomCoord (atoms[i]);
 
 this.discardLinesUntilContains ("siesta: E_KS(eV) = ");
 var tokens = this.getTokens ();
 var energy = Double.$valueOf (Double.parseDouble (tokens[3]));
-this.atomSetCollection.setAtomSetEnergy ("" + energy, energy.floatValue ());
-this.atomSetCollection.setAtomSetAuxiliaryInfo ("Energy", energy);
-this.atomSetCollection.setAtomSetCollectionAuxiliaryInfo ("Energy", energy);
-this.atomSetCollection.setAtomSetName ("Energy = " + energy + " eV");
-}, $fz.isPrivate = true, $fz));
+this.asc.setAtomSetEnergy ("" + energy, energy.floatValue ());
+this.asc.setAtomSetAuxiliaryInfo ("Energy", energy);
+this.asc.setInfo ("Energy", energy);
+this.asc.setAtomSetName ("Energy = " + energy + " eV");
+});
 });

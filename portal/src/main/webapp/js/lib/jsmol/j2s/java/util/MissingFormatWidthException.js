@@ -1,20 +1,20 @@
-$_L(["java.util.IllegalFormatException"],"java.util.MissingFormatWidthException",["java.lang.NullPointerException"],function(){
-c$=$_C(function(){
+Clazz.load(["java.util.IllegalFormatException"],"java.util.MissingFormatWidthException",["java.lang.NullPointerException"],function(){
+c$=Clazz.decorateAsClass(function(){
 this.s=null;
-$_Z(this,arguments);
+Clazz.instantialize(this,arguments);
 },java.util,"MissingFormatWidthException",java.util.IllegalFormatException);
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(s){
-$_R(this,java.util.MissingFormatWidthException,[]);
+Clazz.superConstructor(this,java.util.MissingFormatWidthException,[]);
 if(null==s){
 throw new NullPointerException();
 }this.s=s;
 },"~S");
-$_M(c$,"getFormatSpecifier",
+Clazz.defineMethod(c$,"getFormatSpecifier",
 function(){
 return this.s;
 });
-$_V(c$,"getMessage",
+Clazz.overrideMethod(c$,"getMessage",
 function(){
 return this.s;
 });

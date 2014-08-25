@@ -7,11 +7,11 @@ Clazz.makeConstructor (c$,
 function (address) {
 this.$address = address;
 }, "~N");
-$_M(c$, "address", 
+Clazz.defineMethod (c$, "address", 
 function () {
 return this.$address;
 });
-$_M(c$, "clear", 
+Clazz.defineMethod (c$, "clear", 
 function () {
 this.$address = 0;
 });

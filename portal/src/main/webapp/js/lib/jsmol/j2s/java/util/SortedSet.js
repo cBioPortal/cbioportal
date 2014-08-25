@@ -1,3 +1,3 @@
-$_L(["java.util.Set"],"java.util.SortedSet",null,function(){
-$_I(java.util,"SortedSet",java.util.Set);
+Clazz.load(["java.util.Set"],"java.util.SortedSet",null,function(){
+Clazz.declareInterface(java.util,"SortedSet",java.util.Set);
 });

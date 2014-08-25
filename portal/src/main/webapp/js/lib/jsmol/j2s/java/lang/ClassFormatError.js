@@ -1,3 +1,3 @@
-$_L(["java.lang.LinkageError"],"java.lang.ClassFormatError",null,function(){
-c$=$_T(java.lang,"ClassFormatError",LinkageError);
+Clazz.load(["java.lang.LinkageError"],"java.lang.ClassFormatError",null,function(){
+c$=Clazz.declareType(java.lang,"ClassFormatError",LinkageError);
 });

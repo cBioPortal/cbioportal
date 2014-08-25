@@ -1,18 +1,18 @@
-$_L(["java.util.IllegalFormatException"],"java.util.IllegalFormatWidthException",null,function(){
-c$=$_C(function(){
+Clazz.load(["java.util.IllegalFormatException"],"java.util.IllegalFormatWidthException",null,function(){
+c$=Clazz.decorateAsClass(function(){
 this.w=0;
-$_Z(this,arguments);
+Clazz.instantialize(this,arguments);
 },java.util,"IllegalFormatWidthException",java.util.IllegalFormatException);
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(w){
-$_R(this,java.util.IllegalFormatWidthException,[]);
+Clazz.superConstructor(this,java.util.IllegalFormatWidthException,[]);
 this.w=w;
 },"~N");
-$_M(c$,"getWidth",
+Clazz.defineMethod(c$,"getWidth",
 function(){
 return this.w;
 });
-$_V(c$,"getMessage",
+Clazz.overrideMethod(c$,"getMessage",
 function(){
 return String.valueOf(this.w);
 });

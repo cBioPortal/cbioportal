@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.adapter.readers.quantum");
-Clazz.load (["J.adapter.readers.quantum.MOReader", "java.util.Hashtable"], "J.adapter.readers.quantum.NWChemReader", ["java.lang.Character", "$.Float", "J.adapter.readers.quantum.BasisFunctionReader", "J.adapter.smarter.SmarterJmolAdapter", "J.api.JmolAdapter", "J.util.ArrayUtil", "$.JmolList", "$.Logger"], function () {
+Clazz.load (["J.adapter.readers.quantum.MOReader", "java.util.Hashtable"], "J.adapter.readers.quantum.NWChemReader", ["java.lang.Character", "$.Float", "JU.AU", "$.Lst", "J.adapter.readers.quantum.BasisFunctionReader", "J.adapter.smarter.SmarterJmolAdapter", "J.api.JmolAdapter", "JU.Elements", "$.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.taskNumber = 1;
 this.equivalentAtomSets = 0;
@@ -52,7 +52,7 @@ return true;
 }if (this.line.startsWith ("      Symmetry information")) {
 this.readSymmetry ();
 return true;
-}if (this.line.indexOf ("Output coordinates in angstroms") >= 0) {
+}if (this.line.indexOf ("Output coordinates in ") >= 0) {
 if (!this.doGetModel (++this.modelNumber, null)) return this.checkLastModel ();
 this.equivalentAtomSets++;
 this.readAtoms ();
@@ -80,38 +80,38 @@ function () {
 this.checkMOs ();
 this.finalizeReaderASCR ();
 });
-$_M(c$, "init", 
-($fz = function () {
+Clazz.defineMethod (c$, "init", 
+ function () {
 this.haveEnergy = false;
 this.haveAt = false;
 this.converged = false;
 this.inInput = false;
 this.equivalentAtomSets = 0;
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "setEnergies", 
-($fz = function (key, value, nAtomSets) {
+});
+Clazz.defineMethod (c$, "setEnergies", 
+ function (key, value, nAtomSets) {
 this.energyKey = key;
 this.energyValue = value;
-this.atomSetCollection.setAtomSetPropertyForSets (this.energyKey, this.energyValue, this.equivalentAtomSets);
-this.atomSetCollection.setAtomSetNames (this.energyKey + " = " + this.energyValue, this.equivalentAtomSets, null);
-this.atomSetCollection.setAtomSetEnergy (value, this.parseFloatStr (value));
+this.asc.setAtomSetPropertyForSets (this.energyKey, this.energyValue, this.equivalentAtomSets);
+this.asc.setAtomSetNames (this.energyKey + " = " + this.energyValue, this.equivalentAtomSets, null);
+this.asc.setAtomSetEnergy (value, this.parseFloatStr (value));
 this.haveEnergy = true;
-}, $fz.isPrivate = true, $fz), "~S,~S,~N");
-$_M(c$, "setEnergy", 
-($fz = function (key, value) {
+}, "~S,~S,~N");
+Clazz.defineMethod (c$, "setEnergy", 
+ function (key, value) {
 this.energyKey = key;
 this.energyValue = value;
-this.atomSetCollection.setAtomSetModelProperty (this.energyKey, this.energyValue);
-this.atomSetCollection.setAtomSetName (this.energyKey + " = " + this.energyValue);
+this.asc.setAtomSetModelProperty (this.energyKey, this.energyValue);
+this.asc.setAtomSetName (this.energyKey + " = " + this.energyValue);
 this.haveEnergy = true;
-}, $fz.isPrivate = true, $fz), "~S,~S");
-$_M(c$, "readSymmetry", 
-($fz = function () {
+}, "~S,~S");
+Clazz.defineMethod (c$, "readSymmetry", 
+ function () {
 var tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.readLines (3));
-this.atomSetCollection.setAtomSetPropertyForSets ("Symmetry group name", tokens[tokens.length - 1], this.equivalentAtomSets);
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "readTotal", 
-($fz = function () {
+this.asc.setAtomSetPropertyForSets ("Symmetry group name", tokens[tokens.length - 1], this.equivalentAtomSets);
+});
+Clazz.defineMethod (c$, "readTotal", 
+ function () {
 var tokens = this.getTokens ();
 try {
 if (tokens[2].startsWith ("energy")) {
@@ -122,9 +122,9 @@ if (Clazz.exceptionOf (e, Exception)) {
 throw e;
 }
 }
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "readAtSign", 
-($fz = function () {
+});
+Clazz.defineMethod (c$, "readAtSign", 
+ function () {
 if (this.line.charAt (2) == 'S') {
 if (this.readLines (2) == null) return;
 }var tokens = this.getTokens ();
@@ -132,95 +132,92 @@ if (!this.haveEnergy) {
 this.setEnergies ("E", tokens[2], this.equivalentAtomSets);
 } else {
 this.setEnergies (this.energyKey, this.energyValue, this.equivalentAtomSets);
-}this.atomSetCollection.setAtomSetPropertyForSets ("Step", tokens[1], this.equivalentAtomSets);
+}this.asc.setAtomSetPropertyForSets ("Step", tokens[1], this.equivalentAtomSets);
 this.haveAt = true;
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "readAtoms", 
-($fz = function () {
+});
+Clazz.defineMethod (c$, "readAtoms", 
+ function () {
+var scale = (this.line.indexOf ("angstroms") < 0 ? 0.5291772 : 1);
 this.readLines (3);
 var tokens;
 this.haveEnergy = false;
-this.atomSetCollection.newAtomSet ();
-this.atomSetCollection.setAtomSetModelProperty (".PATH", "Task " + this.taskNumber + (this.inInput ? J.adapter.smarter.SmarterJmolAdapter.PATH_SEPARATOR + "Input" : J.adapter.smarter.SmarterJmolAdapter.PATH_SEPARATOR + "Geometry"));
-this.atomTypes =  new J.util.JmolList ();
-while (this.readLine () != null && this.line.length > 0) {
+this.asc.newAtomSet ();
+this.asc.setAtomSetModelProperty (".PATH", "Task " + this.taskNumber + (this.inInput ? J.adapter.smarter.SmarterJmolAdapter.PATH_SEPARATOR + "Input" : J.adapter.smarter.SmarterJmolAdapter.PATH_SEPARATOR + "Geometry"));
+this.atomTypes =  new JU.Lst ();
+while (this.rd () != null && this.line.length > 0) {
 tokens = this.getTokens ();
 if (tokens.length < 6) break;
-var atom = this.atomSetCollection.addNewAtom ();
-atom.atomName = this.fixTag (tokens[1]);
-this.atomTypes.addLast (atom.atomName);
-this.setAtomCoordXYZ (atom, this.parseFloatStr (tokens[3]), this.parseFloatStr (tokens[4]), this.parseFloatStr (tokens[5]));
+var name = this.fixTag (tokens[1]);
+this.setAtomCoordScaled (null, tokens, 3, scale).atomName = name;
+this.atomTypes.addLast (name);
 }
 if (this.converged) {
 this.setEnergy (this.energyKey, this.energyValue);
-this.atomSetCollection.setAtomSetModelProperty ("Step", "converged");
+this.asc.setAtomSetModelProperty ("Step", "converged");
 } else if (this.inInput) {
-this.atomSetCollection.setAtomSetName ("Input");
-}}, $fz.isPrivate = true, $fz));
-$_M(c$, "readGradients", 
-($fz = function () {
+this.asc.setAtomSetName ("Input");
+}});
+Clazz.defineMethod (c$, "readGradients", 
+ function () {
 this.readLines (3);
 var tokens;
-this.atomSetCollection.newAtomSet ();
-if (this.equivalentAtomSets > 1) this.atomSetCollection.cloneLastAtomSetProperties ();
-this.atomSetCollection.setAtomSetModelProperty ("vector", "gradient");
-this.atomSetCollection.setAtomSetModelProperty (".PATH", "Task " + this.taskNumber + J.adapter.smarter.SmarterJmolAdapter.PATH_SEPARATOR + "Gradients");
-while (this.readLine () != null && this.line.length > 0) {
+this.asc.newAtomSet ();
+if (this.equivalentAtomSets > 1) this.asc.cloneLastAtomSetProperties ();
+this.asc.setAtomSetModelProperty ("vector", "gradient");
+this.asc.setAtomSetModelProperty (".PATH", "Task " + this.taskNumber + J.adapter.smarter.SmarterJmolAdapter.PATH_SEPARATOR + "Gradients");
+while (this.rd () != null && this.line.length > 0) {
 tokens = this.getTokens ();
 if (tokens.length < 8) break;
-var atom = this.atomSetCollection.addNewAtom ();
+var atom = this.setAtomCoordScaled (null, tokens, 2, 0.5291772);
 atom.atomName = this.fixTag (tokens[1]);
-this.setAtomCoordXYZ (atom, this.parseFloatStr (tokens[2]) * 0.5291772, this.parseFloatStr (tokens[3]) * 0.5291772, this.parseFloatStr (tokens[4]) * 0.5291772);
-this.atomSetCollection.addVibrationVector (atom.index, -this.parseFloatStr (tokens[5]), -this.parseFloatStr (tokens[6]), -this.parseFloatStr (tokens[7]));
+this.asc.addVibrationVector (atom.index, -this.parseFloatStr (tokens[5]), -this.parseFloatStr (tokens[6]), -this.parseFloatStr (tokens[7]));
 }
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "readFrequencies", 
-($fz = function () {
-var firstFrequencyAtomSetIndex = this.atomSetCollection.getAtomSetCount ();
+});
+Clazz.defineMethod (c$, "readFrequencies", 
+ function () {
+var firstFrequencyAtomSetIndex = this.asc.atomSetCount;
 var path = "Task " + this.taskNumber + J.adapter.smarter.SmarterJmolAdapter.PATH_SEPARATOR + "Frequencies";
 this.discardLinesUntilContains ("Atom information");
 this.readLines (2);
-this.atomSetCollection.newAtomSet ();
+this.asc.newAtomSet ();
 var tokens;
-while (this.readLine () != null && this.line.indexOf ("---") < 0) {
+while (this.rd () != null && this.line.indexOf ("---") < 0) {
 tokens = this.getTokens ();
-var atom = this.atomSetCollection.addNewAtom ();
-atom.atomName = this.fixTag (tokens[0]);
-this.setAtomCoordXYZ (atom, this.parseFloatStr (tokens[2]) * 0.5291772, this.parseFloatStr (tokens[3]) * 0.5291772, this.parseFloatStr (tokens[4]) * 0.5291772);
+this.setAtomCoordScaled (null, tokens, 2, 0.5291772).atomName = this.fixTag (tokens[0]);
 }
 this.discardLinesUntilContains ("(Projected Frequencies expressed in cm-1)");
 this.readLines (3);
 var firstTime = true;
-while (this.readLine () != null && this.line.indexOf ("P.Frequency") >= 0) {
+while (this.rd () != null && this.line.indexOf ("P.Frequency") >= 0) {
 tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensAt (this.line, 12);
 var frequencyCount = tokens.length;
-var iAtom0 = this.atomSetCollection.getAtomCount ();
-var atomCount = this.atomSetCollection.getLastAtomSetAtomCount ();
-if (firstTime) iAtom0 -= atomCount;
+var iAtom0 = this.asc.ac;
+var ac = this.asc.getLastAtomSetAtomCount ();
+if (firstTime) iAtom0 -= ac;
 var ignore =  Clazz.newBooleanArray (frequencyCount, false);
 for (var i = 0; i < frequencyCount; ++i) {
 ignore[i] = (tokens[i].equals ("0.00") || !this.doGetVibration (++this.vibrationNumber));
 if (ignore[i]) continue;
-if (!firstTime) this.atomSetCollection.cloneLastAtomSet ();
+if (!firstTime) this.asc.cloneLastAtomSet ();
 firstTime = false;
-this.atomSetCollection.setAtomSetFrequency (path, null, tokens[i], null);
+this.asc.setAtomSetFrequency (path, null, tokens[i], null);
 }
 this.readLines (1);
-this.fillFrequencyData (iAtom0, atomCount, atomCount, ignore, false, 0, 0, null, 0);
+this.fillFrequencyData (iAtom0, ac, ac, ignore, false, 0, 0, null, 0);
 this.readLines (3);
 }
 try {
 this.discardLinesUntilContains ("Projected Infra Red Intensities");
 this.readLines (2);
 for (var i = this.vibrationNumber, idx = firstFrequencyAtomSetIndex; --i >= 0; ) {
-if (this.readLine () == null) return;
+if (this.rd () == null) return;
 if (!this.doGetVibration (i + 1)) continue;
 tokens = this.getTokens ();
-var iset = this.atomSetCollection.getCurrentAtomSetIndex ();
-this.atomSetCollection.setCurrentAtomSetIndex (idx++);
-this.atomSetCollection.setAtomSetFrequency (null, null, tokens[i], null);
-this.atomSetCollection.setAtomSetModelProperty ("IRIntensity", tokens[5] + " KM/mol");
-this.atomSetCollection.setCurrentAtomSetIndex (iset);
+var iset = this.asc.iSet;
+this.asc.iSet = idx++;
+this.asc.setAtomSetFrequency (null, null, tokens[i], null);
+this.asc.setAtomSetModelProperty ("IRIntensity", tokens[5] + " KM/mol");
+this.asc.iSet = iset;
 }
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
@@ -228,32 +225,32 @@ if (Clazz.exceptionOf (e, Exception)) {
 throw e;
 }
 }
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "readPartialCharges", 
+});
+Clazz.defineMethod (c$, "readPartialCharges", 
 function () {
 var tokens;
 this.readLines (4);
-var atomCount = this.atomSetCollection.getAtomCount ();
-var i0 = this.atomSetCollection.getLastAtomSetAtomIndex ();
-var atoms = this.atomSetCollection.getAtoms ();
-for (var i = i0; i < atomCount; ++i) {
+var ac = this.asc.ac;
+var i0 = this.asc.getLastAtomSetAtomIndex ();
+var atoms = this.asc.atoms;
+for (var i = i0; i < ac; ++i) {
 while (atoms[i].elementNumber == 0) ++i;
 
 do {
-if (this.readLine () == null || this.line.length < 3) return;
+if (this.rd () == null || this.line.length < 3) return;
 tokens = this.getTokens ();
 } while (tokens[0].indexOf (".") >= 0);
 atoms[i].partialCharge = this.parseIntStr (tokens[2]) - this.parseFloatStr (tokens[3]);
 }
 });
-$_M(c$, "fixTag", 
-($fz = function (tag) {
+Clazz.defineMethod (c$, "fixTag", 
+ function (tag) {
 if (tag.equalsIgnoreCase ("bq")) return "X";
 if (tag.toLowerCase ().startsWith ("bq")) tag = tag.substring (2) + "-Bq";
 return "" + Character.toUpperCase (tag.charAt (0)) + (tag.length == 1 ? "" : "" + Character.toLowerCase (tag.charAt (1)));
-}, $fz.isPrivate = true, $fz), "~S");
-$_M(c$, "readBasis", 
-($fz = function () {
+}, "~S");
+Clazz.defineMethod (c$, "readBasis", 
+ function () {
 this.gaussianCount = 0;
 this.shellCount = 0;
 this.nBasisFunctions = 0;
@@ -264,7 +261,7 @@ this.getDFMap (J.adapter.readers.quantum.NWChemReader.$FC_LIST, J.api.JmolAdapte
 } else {
 this.getDFMap (J.adapter.readers.quantum.NWChemReader.$DS_LIST, J.api.JmolAdapter.SHELL_D_SPHERICAL, J.adapter.readers.quantum.BasisFunctionReader.CANONICAL_DS_LIST, 2);
 this.getDFMap (J.adapter.readers.quantum.NWChemReader.$FS_LIST, J.api.JmolAdapter.SHELL_F_SPHERICAL, J.adapter.readers.quantum.BasisFunctionReader.CANONICAL_FS_LIST, 2);
-}this.shells =  new J.util.JmolList ();
+}this.shells =  new JU.Lst ();
 var atomInfo =  new java.util.Hashtable ();
 var atomSym = null;
 var atomData = null;
@@ -272,29 +269,30 @@ var shellData = null;
 while (this.line != null) {
 var nBlankLines = 0;
 while (this.line.length < 3 || this.line.charAt (2) == ' ') {
-shellData =  new J.util.JmolList ();
-this.readLine ();
+shellData =  new JU.Lst ();
+this.rd ();
 if (this.line.length < 3) nBlankLines++;
 }
 if (nBlankLines >= 2) break;
 if (this.parseIntStr (this.line) == -2147483648) {
 atomSym = this.getTokens ()[0];
-atomData =  new J.util.JmolList ();
+if (atomSym.length > 2) atomSym = J.api.JmolAdapter.getElementSymbol (JU.Elements.elementNumberFromName (atomSym));
+atomData =  new JU.Lst ();
 atomInfo.put (atomSym, atomData);
-this.readLine ();
-this.readLine ();
+this.rd ();
+this.rd ();
 continue;
 }while (this.line != null && this.line.length > 3) {
 var tokens = this.getTokens ();
 var o = [tokens[1], [this.parseFloatStr (tokens[2]), this.parseFloatStr (tokens[3])]];
 shellData.addLast (o);
-this.readLine ();
+this.rd ();
 }
 atomData.addLast (shellData);
 }
 var nD = (isD6F10 ? 6 : 5);
 var nF = (isD6F10 ? 10 : 7);
-var gdata =  new J.util.JmolList ();
+var gdata =  new JU.Lst ();
 for (var i = 0; i < this.atomTypes.size (); i++) {
 atomData = atomInfo.get (this.atomTypes.get (i));
 var nShells = atomData.size ();
@@ -328,27 +326,27 @@ for (var ifunc = 0; ifunc < nGaussians; ifunc++) gdata.addLast (shellData.get (i
 this.gaussianCount += nGaussians;
 }
 }
-this.gaussians = J.util.ArrayUtil.newFloat2 (this.gaussianCount);
+this.gaussians = JU.AU.newFloat2 (this.gaussianCount);
 for (var i = 0; i < this.gaussianCount; i++) this.gaussians[i] = gdata.get (i);
 
-J.util.Logger.info (this.gaussianCount + " Gaussians read");
+JU.Logger.info (this.gaussianCount + " Gaussians read");
 return true;
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "readMOs", 
-($fz = function () {
-var lines =  new J.util.JmolList ();
+});
+Clazz.defineMethod (c$, "readMOs", 
+ function () {
+var lines =  new JU.Lst ();
 this.htMOs.put (this.line, lines);
 lines.addLast (this.line);
 var nblank = 0;
-while (nblank != 2 && this.readLine () != null) {
+while (nblank != 2 && this.rd () != null) {
 lines.addLast (this.line);
 if (this.line.length < 2) nblank++;
  else nblank = 0;
 }
 return true;
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "checkMOs", 
-($fz = function () {
+});
+Clazz.defineMethod (c$, "checkMOs", 
+ function () {
 if (this.shells == null) return;
 for (var entry, $entry = this.htMOs.entrySet ().iterator (); $entry.hasNext () && ((entry = $entry.next ()) || true);) {
 this.line = entry.getKey ();
@@ -357,7 +355,7 @@ var moCount = 0;
 if (!this.filterMO ()) continue;
 var list = entry.getValue ();
 var n = list.size ();
-J.util.Logger.info (this.line);
+JU.Logger.info (this.line);
 for (var i = 3; i < n; i++) {
 while (i < n && ((this.line = list.get (i)).length < 2 || this.line.charAt (1) != 'V')) i++;
 
@@ -389,14 +387,14 @@ this.energyUnits = "a.u.";
 this.setMOData (true);
 this.shells = null;
 this.htMOs.clear ();
-}, $fz.isPrivate = true, $fz));
-Clazz.overrideMethod (c$, "readLine", 
+});
+Clazz.overrideMethod (c$, "rd", 
 function () {
 this.RL ();
 if (!this.purging && this.line != null && this.line.startsWith ("--")) {
 this.purging = true;
 this.discardLinesUntilStartsWith ("*");
-this.readLine ();
+this.rd ();
 this.purging = false;
 this.RL ();
 }return this.line;

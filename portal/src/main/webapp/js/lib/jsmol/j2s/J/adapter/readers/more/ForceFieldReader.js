@@ -8,12 +8,12 @@ Clazz.instantialize (this, arguments);
 Clazz.prepareFields (c$, function () {
 this.atomTypes =  new java.util.Properties ();
 });
-$_M(c$, "setUserAtomTypes", 
+Clazz.defineMethod (c$, "setUserAtomTypes", 
 function () {
 this.userAtomTypes = this.htParams.get ("atomTypes");
 if (this.userAtomTypes != null) this.userAtomTypes = ";" + this.userAtomTypes + ";";
 });
-$_M(c$, "getElementSymbol", 
+Clazz.defineMethod (c$, "getElementSymbol", 
 function (atom, atomType) {
 var elementSymbol = this.atomTypes.get (atomType);
 if (elementSymbol != null) {
@@ -62,7 +62,7 @@ haveSymbol = true;
 if (haveSymbol) this.atomTypes.put (atomType, elementSymbol);
 return haveSymbol;
 }, "J.adapter.smarter.Atom,~S");
-c$.deducePdbElementSymbol = $_M(c$, "deducePdbElementSymbol", 
+c$.deducePdbElementSymbol = Clazz.defineMethod (c$, "deducePdbElementSymbol", 
 function (isHetero, XX, group3) {
 var i = XX.indexOf ('\0');
 var atomType = null;

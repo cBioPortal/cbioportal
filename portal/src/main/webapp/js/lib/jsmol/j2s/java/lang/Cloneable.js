@@ -1,1 +1,1 @@
-$_I(java.lang,"Cloneable");
+Clazz.declareInterface(java.lang,"Cloneable");

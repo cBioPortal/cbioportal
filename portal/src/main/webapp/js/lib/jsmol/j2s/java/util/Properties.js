@@ -1,16 +1,16 @@
-$_L(["java.util.Hashtable"],"java.util.Properties",["java.lang.NullPointerException","$.StringBuffer"],function(){
-c$=$_C(function(){
+Clazz.load(["java.util.Hashtable"],"java.util.Properties",["java.lang.NullPointerException","$.StringBuffer"],function(){
+c$=Clazz.decorateAsClass(function(){
 this.builder=null;
 this.defaults=null;
-$_Z(this,arguments);
+Clazz.instantialize(this,arguments);
 },java.util,"Properties",java.util.Hashtable);
 
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(properties){
-$_R(this,java.util.Properties,[]);
+Clazz.superConstructor(this,java.util.Properties,[]);
 this.defaults=properties;
 },"java.util.Properties");
-$_M(c$,"dumpString",
+Clazz.defineMethod(c$,"dumpString",
 ($fz=function(buffer,string,key){
 var i=0;
 if(!key&&i<string.length&&(string.charAt(i)).charCodeAt(0)==(' ').charCodeAt(0)){
@@ -46,25 +46,25 @@ buffer.append(hex);
 }}
 }
 },$fz.isPrivate=true,$fz),"StringBuilder,~S,~B");
-$_M(c$,"getProperty",
+Clazz.defineMethod(c$,"getProperty",
 function(name){
 var result=this.get(name);
-var property=$_O(result,String)?result:null;
+var property=Clazz.instanceOf(result,String)?result:null;
 if(property==null&&this.defaults!=null){
 property=this.defaults.getProperty(name);
 }return property;
 },"~S");
-$_M(c$,"getProperty",
+Clazz.defineMethod(c$,"getProperty",
 function(name,defaultValue){
 var result=this.get(name);
-var property=$_O(result,String)?result:null;
+var property=Clazz.instanceOf(result,String)?result:null;
 if(property==null&&this.defaults!=null){
 property=this.defaults.getProperty(name);
 }if(property==null){
 return defaultValue;
 }return property;
 },"~S,~S");
-$_M(c$,"list",
+Clazz.defineMethod(c$,"list",
 function(out){
 if(out==null){
 throw new NullPointerException();
@@ -89,7 +89,7 @@ buffer.append(property);
 buffer.setLength(0);
 }
 },"java.io.PrintStream");
-$_M(c$,"list",
+Clazz.defineMethod(c$,"list",
 function(writer){
 if(writer==null){
 throw new NullPointerException();
@@ -114,11 +114,11 @@ buffer.append(property);
 buffer.setLength(0);
 }
 },"java.io.PrintWriter");
-$_M(c$,"load",
+Clazz.defineMethod(c$,"load",
 function($in){
 
 },"java.io.InputStream");
-$_M(c$,"propertyNames",
+Clazz.defineMethod(c$,"propertyNames",
 function(){
 if(this.defaults==null){
 return this.keys();
@@ -133,42 +133,42 @@ set.put(keys.nextElement(),set);
 }
 return set.keys();
 });
-$_M(c$,"save",
+Clazz.defineMethod(c$,"save",
 function(out,comment){
 try{
 this.store(out,comment);
 }catch(e){
-if($_O(e,java.io.IOException)){
+if(Clazz.instanceOf(e,java.io.IOException)){
 }else{
 throw e;
 }
 }
 },"java.io.OutputStream,~S");
-$_M(c$,"setProperty",
+Clazz.defineMethod(c$,"setProperty",
 function(name,value){
 return this.put(name,value);
 },"~S,~S");
-$_M(c$,"store",
+Clazz.defineMethod(c$,"store",
 function(out,comment){
 
 },"java.io.OutputStream,~S");
-$_M(c$,"loadFromXML",
+Clazz.defineMethod(c$,"loadFromXML",
 function($in){
 
 },"java.io.InputStream");
-$_M(c$,"storeToXML",
+Clazz.defineMethod(c$,"storeToXML",
 function(os,comment){
 
 },"java.io.OutputStream,~S");
-$_M(c$,"storeToXML",
+Clazz.defineMethod(c$,"storeToXML",
 function(os,comment,encoding){
 
 },"java.io.OutputStream,~S,~S");
-$_M(c$,"substitutePredefinedEntries",
+Clazz.defineMethod(c$,"substitutePredefinedEntries",
 ($fz=function(s){
 return s.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll("\u0027","&apos;").replaceAll("\"","&quot;");
 },$fz.isPrivate=true,$fz),"~S");
-$_S(c$,
+Clazz.defineStatics(c$,
 "PROP_DTD_NAME","http://java.sun.com/dtd/properties.dtd",
 "PROP_DTD","<?xml version=\"1.0\" encoding=\"UTF-8\"?>    <!ELEMENT properties (comment?, entry*) >    <!ATTLIST properties version CDATA #FIXED \"1.0\" >    <!ELEMENT comment (#PCDATA) >    <!ELEMENT entry (#PCDATA) >    <!ATTLIST entry key CDATA #REQUIRED >",
 "NONE",0,

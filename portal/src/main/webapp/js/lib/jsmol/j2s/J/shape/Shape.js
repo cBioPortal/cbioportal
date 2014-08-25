@@ -1,11 +1,11 @@
 Clazz.declarePackage ("J.shape");
-Clazz.load (null, "J.shape.Shape", ["J.constant.EnumPalette", "J.util.C", "$.Logger", "J.viewer.JC"], function () {
+Clazz.load (null, "J.shape.Shape", ["J.c.PAL", "JU.C", "$.Logger", "JV.JC"], function () {
 c$ = Clazz.decorateAsClass (function () {
-this.viewer = null;
-this.modelSet = null;
+this.vwr = null;
+this.ms = null;
 this.gdata = null;
 this.shapeID = 0;
-this.myVisibilityFlag = 0;
+this.vf = 0;
 this.translucentLevel = 0;
 this.translucentAllowed = true;
 this.isBioShape = false;
@@ -13,60 +13,67 @@ this.bsSizeSet = null;
 this.bsColixSet = null;
 Clazz.instantialize (this, arguments);
 }, J.shape, "Shape");
-$_M(c$, "getViewer", 
+Clazz.defineMethod (c$, "getViewer", 
 function () {
-return this.viewer;
+return this.vwr;
 });
-$_M(c$, "initializeShape", 
-function (viewer, g3d, modelSet, shapeID) {
-this.viewer = viewer;
+Clazz.defineMethod (c$, "initializeShape", 
+function (vwr, g3d, modelSet, shapeID) {
+this.vwr = vwr;
 this.gdata = g3d;
 this.shapeID = shapeID;
-this.myVisibilityFlag = J.viewer.JC.getShapeVisibilityFlag (shapeID);
+this.vf = JV.JC.getShapeVisibilityFlag (shapeID);
 this.setModelSet (modelSet);
 this.initShape ();
-}, "J.viewer.Viewer,J.util.GData,J.modelset.ModelSet,~N");
-$_M(c$, "getSize", 
+}, "JV.Viewer,JU.GData,JM.ModelSet,~N");
+Clazz.defineMethod (c$, "setVisibilityFlags", 
+function (bsModels) {
+}, "JU.BS");
+Clazz.defineMethod (c$, "getSize", 
 function (atomIndex) {
 return 0;
 }, "~N");
-$_M(c$, "getSizeG", 
+Clazz.defineMethod (c$, "getSizeG", 
 function (group) {
 return 0;
-}, "J.modelset.Group");
-$_M(c$, "setModelSet", 
+}, "JM.Group");
+Clazz.defineMethod (c$, "setModelSet", 
 function (modelSet) {
-this.modelSet = modelSet;
+this.ms = modelSet;
 this.initModelSet ();
-}, "J.modelset.ModelSet");
-$_M(c$, "initModelSet", 
+}, "JM.ModelSet");
+Clazz.defineMethod (c$, "initModelSet", 
 function () {
 });
-$_M(c$, "initShape", 
+Clazz.defineMethod (c$, "setShapeVisibility", 
+function (atom, isVisible) {
+atom.setShapeVisibility (this.vf, isVisible);
+}, "JM.Atom,~B");
+Clazz.defineMethod (c$, "initShape", 
 function () {
 });
-$_M(c$, "merge", 
+Clazz.defineMethod (c$, "merge", 
 function (shape) {
 }, "J.shape.Shape");
-$_M(c$, "setShapeSizeRD", 
+Clazz.defineMethod (c$, "setShapeSizeRD", 
 function (size, rd, bsSelected) {
 if (rd == null) this.setSize (size, bsSelected);
  else this.setSizeRD (rd, bsSelected);
-}, "~N,J.atomdata.RadiusData,J.util.BS");
-$_M(c$, "setSize", 
+}, "~N,J.atomdata.RadiusData,JU.BS");
+Clazz.defineMethod (c$, "setSize", 
 function (size, bsSelected) {
-}, "~N,J.util.BS");
-$_M(c$, "setSizeRD", 
+}, "~N,JU.BS");
+Clazz.defineMethod (c$, "setSizeRD", 
 function (rd, bsSelected) {
-}, "J.atomdata.RadiusData,J.util.BS");
-$_M(c$, "getPropertyData", 
+}, "J.atomdata.RadiusData,JU.BS");
+Clazz.defineMethod (c$, "getPropertyData", 
 function (property, data) {
 return false;
 }, "~S,~A");
-$_M(c$, "setPropS", 
+Clazz.defineMethod (c$, "setPropS", 
 function (propertyName, value, bsSelected) {
 if (propertyName === "setProperties") {
-if (bsSelected == null) bsSelected = this.viewer.getSelectionSet (false);
+if (bsSelected == null) bsSelected = this.vwr.bsA ();
 var propertyList = value;
 while (propertyList.size () > 0) {
 var data = propertyList.remove (0);
@@ -78,98 +85,95 @@ this.translucentLevel = (value).floatValue ();
 return;
 }if (propertyName === "refreshTrajectories") {
 return;
-}J.util.Logger.warn ("unassigned " + J.viewer.JC.shapeClassBases[this.shapeID] + " + shape setProperty:" + propertyName + ":" + value);
-}, "~S,~O,J.util.BS");
-$_M(c$, "getProperty", 
+}JU.Logger.warn ("unassigned " + JV.JC.shapeClassBases[this.shapeID] + " + shape setProperty:" + propertyName + ":" + value);
+}, "~S,~O,JU.BS");
+Clazz.defineMethod (c$, "getProperty", 
 function (property, index) {
 return null;
 }, "~S,~N");
-$_M(c$, "getIndexFromName", 
+Clazz.defineMethod (c$, "getIndexFromName", 
 function (thisID) {
 return -1;
 }, "~S");
-$_M(c$, "wasClicked", 
+Clazz.defineMethod (c$, "wasClicked", 
 function (x, y) {
 return false;
 }, "~N,~N");
-$_M(c$, "findNearestAtomIndex", 
+Clazz.defineMethod (c$, "findNearestAtomIndex", 
 function (xMouse, yMouse, closest, bsNot) {
-}, "~N,~N,~A,J.util.BS");
-$_M(c$, "checkBoundsMinMax", 
+}, "~N,~N,~A,JU.BS");
+Clazz.defineMethod (c$, "checkBoundsMinMax", 
 function (pointMin, pointMax) {
-}, "J.util.P3,J.util.P3");
-$_M(c$, "setModelClickability", 
+}, "JU.P3,JU.P3");
+Clazz.defineMethod (c$, "setModelClickability", 
 function () {
 });
-$_M(c$, "checkObjectClicked", 
+Clazz.defineMethod (c$, "checkObjectClicked", 
 function (x, y, modifiers, bsVisible, drawPicking) {
 return null;
-}, "~N,~N,~N,J.util.BS,~B");
-$_M(c$, "checkObjectHovered", 
+}, "~N,~N,~N,JU.BS,~B");
+Clazz.defineMethod (c$, "checkObjectHovered", 
 function (x, y, bsVisible) {
 return false;
-}, "~N,~N,J.util.BS");
-$_M(c$, "checkObjectDragged", 
+}, "~N,~N,JU.BS");
+Clazz.defineMethod (c$, "checkObjectDragged", 
 function (prevX, prevY, x, y, dragAction, bsVisible) {
 return false;
-}, "~N,~N,~N,~N,~N,J.util.BS");
-$_M(c$, "coordinateInRange", 
+}, "~N,~N,~N,~N,~N,JU.BS");
+Clazz.defineMethod (c$, "coordinateInRange", 
 function (x, y, vertex, dmin2, ptXY) {
-this.viewer.transformPtScr (vertex, ptXY);
+this.vwr.tm.transformPtScr (vertex, ptXY);
 var d2 = (x - ptXY.x) * (x - ptXY.x) + (y - ptXY.y) * (y - ptXY.y);
 return (d2 < dmin2 ? d2 : -1);
-}, "~N,~N,J.util.P3,~N,J.util.P3i");
-$_M(c$, "getColixI", 
+}, "~N,~N,JU.T3,~N,JU.P3i");
+Clazz.defineMethod (c$, "getColixI", 
 function (colix, paletteID, atomIndex) {
-return this.getColixA (colix, paletteID, this.modelSet.atoms[atomIndex]);
+return this.getColixA (colix, paletteID, this.ms.at[atomIndex]);
 }, "~N,~N,~N");
-$_M(c$, "getColixA", 
+Clazz.defineMethod (c$, "getColixA", 
 function (colix, paletteID, atom) {
-return (colix == 2 ? this.viewer.getColixAtomPalette (atom, paletteID) : colix);
-}, "~N,~N,J.modelset.Atom");
-$_M(c$, "getColixB", 
+return (colix == 2 ? this.vwr.getColixAtomPalette (atom, paletteID) : colix);
+}, "~N,~N,JM.Atom");
+Clazz.defineMethod (c$, "getColixB", 
 function (colix, pid, bond) {
-return (colix == 2 ? this.viewer.getColixBondPalette (bond, pid) : colix);
-}, "~N,~N,J.modelset.Bond");
-$_M(c$, "getShapeDetail", 
+return (colix == 2 ? this.vwr.getColixBondPalette (bond, pid) : colix);
+}, "~N,~N,JM.Bond");
+Clazz.defineMethod (c$, "getShapeDetail", 
 function () {
 return null;
 });
-$_M(c$, "setVisibilityFlags", 
-function (bs) {
-}, "J.util.BS");
-c$.getColix = $_M(c$, "getColix", 
+c$.getColix = Clazz.defineMethod (c$, "getColix", 
 function (colixes, i, atom) {
-return J.util.C.getColixInherited ((colixes == null || i >= colixes.length ? 0 : colixes[i]), atom.getColix ());
-}, "~A,~N,J.modelset.Atom");
-c$.getFontCommand = $_M(c$, "getFontCommand", 
+return JU.C.getColixInherited ((colixes == null || i >= colixes.length ? 0 : colixes[i]), atom.getColix ());
+}, "~A,~N,JM.Atom");
+c$.getFontCommand = Clazz.defineMethod (c$, "getFontCommand", 
 function (type, font) {
 if (font == null) return "";
 return "font " + type + " " + font.getInfo ();
-}, "~S,J.util.JmolFont");
-c$.getColorCommandUnk = $_M(c$, "getColorCommandUnk", 
+}, "~S,javajs.awt.Font");
+c$.getColorCommandUnk = Clazz.defineMethod (c$, "getColorCommandUnk", 
 function (type, colix, translucentAllowed) {
-return J.shape.Shape.getColorCommand (type, J.constant.EnumPalette.UNKNOWN.id, colix, translucentAllowed);
+return J.shape.Shape.getColorCommand (type, J.c.PAL.UNKNOWN.id, colix, translucentAllowed);
 }, "~S,~N,~B");
-c$.getColorCommand = $_M(c$, "getColorCommand", 
+c$.getColorCommand = Clazz.defineMethod (c$, "getColorCommand", 
 function (type, pid, colix, translucentAllowed) {
-if (pid == J.constant.EnumPalette.UNKNOWN.id && colix == 0) return "";
-var s = (pid == J.constant.EnumPalette.UNKNOWN.id && colix == 0 ? "" : (translucentAllowed ? J.shape.Shape.getTranslucentLabel (colix) + " " : "") + (pid != J.constant.EnumPalette.UNKNOWN.id && !J.constant.EnumPalette.isPaletteVariable (pid) ? J.constant.EnumPalette.getPaletteName (pid) : J.shape.Shape.encodeColor (colix)));
+if (pid == J.c.PAL.UNKNOWN.id && colix == 0) return "";
+var s = (pid == J.c.PAL.UNKNOWN.id && colix == 0 ? "" : (translucentAllowed ? J.shape.Shape.getTranslucentLabel (colix) + " " : "") + (pid != J.c.PAL.UNKNOWN.id && !J.c.PAL.isPaletteVariable (pid) ? J.c.PAL.getPaletteName (pid) : J.shape.Shape.encodeColor (colix)));
 return "color " + type + " " + s;
 }, "~S,~N,~N,~B");
-c$.encodeColor = $_M(c$, "encodeColor", 
+c$.encodeColor = Clazz.defineMethod (c$, "encodeColor", 
 function (colix) {
-return (J.util.C.isColixColorInherited (colix) ? "none" : J.util.C.getHexCode (colix));
+return (JU.C.isColixColorInherited (colix) ? "none" : JU.C.getHexCode (colix));
 }, "~N");
-c$.getTranslucentLabel = $_M(c$, "getTranslucentLabel", 
+c$.getTranslucentLabel = Clazz.defineMethod (c$, "getTranslucentLabel", 
 function (colix) {
-return (J.util.C.isColixTranslucent (colix) ? "translucent " + J.util.C.getColixTranslucencyFractional (colix) : "opaque");
+return (JU.C.isColixTranslucent (colix) ? "translucent " + JU.C.getColixTranslucencyFractional (colix) : "opaque");
 }, "~N");
-c$.appendCmd = $_M(c$, "appendCmd", 
+c$.appendCmd = Clazz.defineMethod (c$, "appendCmd", 
 function (s, cmd) {
 if (cmd.length == 0) return;
 s.append ("  ").append (cmd).append (";\n");
-}, "J.util.SB,~S");
+}, "JU.SB,~S");
 Clazz.defineStatics (c$,
 "RADIUS_MAX", 4);
 });

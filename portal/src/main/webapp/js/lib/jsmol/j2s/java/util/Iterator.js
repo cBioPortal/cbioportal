@@ -1,1 +1,1 @@
-$_I(java.util,"Iterator");
+Clazz.declareInterface(java.util,"Iterator");

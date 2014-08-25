@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.jvxl.readers");
-Clazz.load (["J.jvxl.readers.VolumeFileReader"], "J.jvxl.readers.UhbdReader", ["J.util.SB"], function () {
+Clazz.load (["J.jvxl.readers.VolumeFileReader"], "J.jvxl.readers.UhbdReader", ["JU.SB"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.planeCount = 0;
 this.voxelCount = 0;
@@ -20,7 +20,7 @@ this.nSurfaces = 1;
 Clazz.overrideMethod (c$, "readParameters", 
 function () {
 this.readLine ();
-this.jvxlFileHeaderBuffer = J.util.SB.newS (this.line);
+this.jvxlFileHeaderBuffer = JU.SB.newS (this.line);
 this.jvxlFileHeaderBuffer.append ("UHBD format ").append (this.line).append ("\n");
 this.jvxlFileHeaderBuffer.append ("see http://sourceforge.net/p/apbs/code/ci/9527462a39126fb6cd880924b3cc4880ec4b78a9/tree/src/mg/vgrid.c\n");
 this.readLine ();

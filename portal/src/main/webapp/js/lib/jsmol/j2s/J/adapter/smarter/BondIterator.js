@@ -9,11 +9,11 @@ this.bondCount = 0;
 Clazz.instantialize (this, arguments);
 }, J.adapter.smarter, "BondIterator", J.api.JmolAdapterBondIterator);
 Clazz.makeConstructor (c$, 
-function (atomSetCollection) {
+function (asc) {
 Clazz.superConstructor (this, J.adapter.smarter.BondIterator, []);
-this.bsAtoms = atomSetCollection.bsAtoms;
-this.bonds = atomSetCollection.getBonds ();
-this.bondCount = atomSetCollection.getBondCount ();
+this.bsAtoms = asc.bsAtoms;
+this.bonds = asc.bonds;
+this.bondCount = asc.bondCount;
 this.ibond = 0;
 }, "J.adapter.smarter.AtomSetCollection");
 Clazz.overrideMethod (c$, "hasNext", 

@@ -3,13 +3,13 @@ Clazz.load (["J.rendersurface.IsosurfaceRenderer"], "J.rendersurface.MolecularOr
 c$ = Clazz.declareType (J.rendersurface, "MolecularOrbitalRenderer", J.rendersurface.IsosurfaceRenderer);
 Clazz.overrideMethod (c$, "render", 
 function () {
-this.imageFontScaling = this.viewer.getImageFontScaling ();
+this.imageFontScaling = this.vwr.getImageFontScaling ();
 this.renderIso ();
 return this.needTranslucent;
 });
 Clazz.overrideMethod (c$, "renderInfo", 
 function () {
-if (this.viewer.getCurrentModelIndex () < 0 || this.mesh.title == null || !this.g3d.setColix (this.viewer.getColixBackgroundContrast ())) return;
+if (this.vwr.am.cmi < 0 || this.mesh.title == null || !this.g3d.setC (this.vwr.getColixBackgroundContrast ())) return;
 var fid = this.g3d.getFontFidFS ("Serif", 14 * this.imageFontScaling);
 this.g3d.setFontFid (fid);
 var lineheight = Math.round (15 * this.imageFontScaling);

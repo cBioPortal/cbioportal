@@ -1,3 +1,3 @@
-$_L(["java.lang.Exception"],"java.lang.IllegalAccessException",null,function(){
-c$=$_T(java.lang,"IllegalAccessException",Exception);
+Clazz.load(["java.lang.Exception"],"java.lang.IllegalAccessException",null,function(){
+c$=Clazz.declareType(java.lang,"IllegalAccessException",Exception);
 });

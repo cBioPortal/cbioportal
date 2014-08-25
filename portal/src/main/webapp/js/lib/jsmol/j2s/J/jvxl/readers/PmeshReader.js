@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.jvxl.readers");
-Clazz.load (["J.jvxl.readers.PolygonFileReader"], "J.jvxl.readers.PmeshReader", ["J.jvxl.data.JvxlCoder", "J.util.Logger", "$.P3"], function () {
+Clazz.load (["J.jvxl.readers.PolygonFileReader"], "J.jvxl.readers.PmeshReader", ["JU.P3", "J.jvxl.data.JvxlCoder", "JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.isBinary = false;
 this.nPolygons = 0;
@@ -25,7 +25,7 @@ Clazz.overrideMethod (c$, "init2",
 function (sg, br) {
 this.init2PR (sg, br);
 }, "J.jvxl.readers.SurfaceGenerator,java.io.BufferedReader");
-$_M(c$, "init2PR", 
+Clazz.defineMethod (c$, "init2PR", 
 function (sg, br) {
 this.init2PFR (sg, br);
 var fileName = (sg.getReaderData ())[0];
@@ -35,12 +35,12 @@ this.setHeader ();
 this.isBinary = this.checkBinary (fileName);
 this.isClosedFace = !this.isBinary;
 }, "J.jvxl.readers.SurfaceGenerator,java.io.BufferedReader");
-$_M(c$, "setHeader", 
+Clazz.defineMethod (c$, "setHeader", 
 function () {
 this.jvxlFileHeaderBuffer.append (this.type + " file format\nvertices and triangles only\n");
 J.jvxl.data.JvxlCoder.jvxlCreateHeaderWithoutTitleOrAtoms (this.volumeData, this.jvxlFileHeaderBuffer);
 });
-$_M(c$, "checkBinary", 
+Clazz.defineMethod (c$, "checkBinary", 
 function (fileName) {
 try {
 this.br.mark (4);
@@ -62,10 +62,10 @@ return false;
 }, "~S");
 Clazz.overrideMethod (c$, "getSurfaceData", 
 function () {
-if (this.readVerticesAndPolygons ()) J.util.Logger.info ((this.isBinary ? "binary " : "") + this.type + " file contains " + this.nVertices + " vertices and " + this.nPolygons + " polygons for " + this.nTriangles + " triangles");
- else J.util.Logger.error (this.params.fileName + ": " + (this.pmeshError == null ? "Error reading pmesh data " : this.pmeshError));
+if (this.readVerticesAndPolygons ()) JU.Logger.info ((this.isBinary ? "binary " : "") + this.type + " file contains " + this.nVertices + " vertices and " + this.nPolygons + " polygons for " + this.nTriangles + " triangles");
+ else JU.Logger.error (this.params.fileName + ": " + (this.pmeshError == null ? "Error reading pmesh data " : this.pmeshError));
 });
-$_M(c$, "readVerticesAndPolygons", 
+Clazz.defineMethod (c$, "readVerticesAndPolygons", 
 function () {
 try {
 if (this.isBinary && !this.readBinaryHeader ()) return false;
@@ -79,7 +79,7 @@ throw e;
 }
 return false;
 });
-$_M(c$, "readBinaryHeader", 
+Clazz.defineMethod (c$, "readBinaryHeader", 
 function () {
 this.pmeshError = "could not read binary Pmesh file header";
 try {
@@ -100,11 +100,11 @@ throw e;
 this.pmeshError = null;
 return true;
 });
-$_M(c$, "readVertices", 
+Clazz.defineMethod (c$, "readVertices", 
 function () {
 return this.readVerticesPM ();
 });
-$_M(c$, "readVerticesPM", 
+Clazz.defineMethod (c$, "readVerticesPM", 
 function () {
 this.pmeshError = this.type + " ERROR: vertex count must be positive";
 if (!this.isBinary) this.nVertices = this.getInt ();
@@ -113,23 +113,22 @@ if (this.nVertices <= 0) {
 this.pmeshError += " (" + this.nVertices + ")";
 return false;
 }this.pmeshError = this.type + " ERROR: invalid vertex list";
-var pt =  new J.util.P3 ();
 this.vertexMap =  Clazz.newIntArray (this.nVertices, 0);
 for (var i = 0; i < this.nVertices; i++) {
-pt.set (this.getFloat (), this.getFloat (), this.getFloat ());
+var pt = JU.P3.new3 (this.getFloat (), this.getFloat (), this.getFloat ());
 if (this.isAnisotropic) this.setVertexAnisotropy (pt);
-if (J.util.Logger.debugging) J.util.Logger.debug (i + ": " + pt);
-this.vertexMap[i] = this.addVertexCopy (pt, 0, i);
+if (JU.Logger.debugging) JU.Logger.debug (i + ": " + pt);
+this.vertexMap[i] = this.addVertexCopy (pt, 0, i, false);
 if (this.onePerLine) this.iToken = 2147483647;
 }
 this.pmeshError = null;
 return true;
 });
-$_M(c$, "readPolygons", 
+Clazz.defineMethod (c$, "readPolygons", 
 function () {
 return this.readPolygonsPM ();
 });
-$_M(c$, "readPolygonsPM", 
+Clazz.defineMethod (c$, "readPolygonsPM", 
 function () {
 this.pmeshError = this.type + " ERROR: polygon count must be zero or positive";
 if (!this.isBinary) this.nPolygons = this.getInt ();
@@ -166,21 +165,21 @@ this.addTriangleCheck (vertices[0], vertices[1], vertices[2], 7, 0, false, 0);
 if (this.isBinary) this.nBytes = this.binarydoc.getPosition ();
 return true;
 });
-$_M(c$, "nextToken", 
-($fz = function () {
+Clazz.defineMethod (c$, "nextToken", 
+ function () {
 while (this.iToken >= this.tokens.length) {
 this.iToken = 0;
 this.readLine ();
 this.tokens = this.getTokens ();
 }
 return this.tokens[this.iToken++];
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "getInt", 
-($fz = function () {
+});
+Clazz.defineMethod (c$, "getInt", 
+ function () {
 return (this.isBinary ? this.binarydoc.readInt () : this.parseIntStr (this.nextToken ()));
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "getFloat", 
-($fz = function () {
+});
+Clazz.defineMethod (c$, "getFloat", 
+ function () {
 return (this.isBinary ? this.binarydoc.readFloat () : this.parseFloatStr (this.nextToken ()));
-}, $fz.isPrivate = true, $fz));
+});
 });

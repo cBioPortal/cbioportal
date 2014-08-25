@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.jvxl.readers");
-Clazz.load (["J.jvxl.readers.VolumeFileReader"], "J.jvxl.readers.ApbsReader", ["J.util.Parser", "$.SB"], function () {
+Clazz.load (["J.jvxl.readers.VolumeFileReader"], "J.jvxl.readers.ApbsReader", ["JU.PT", "$.SB"], function () {
 c$ = Clazz.declareType (J.jvxl.readers, "ApbsReader", J.jvxl.readers.VolumeFileReader);
 Clazz.makeConstructor (c$, 
 function () {
@@ -14,13 +14,13 @@ this.nSurfaces = 1;
 }, "J.jvxl.readers.SurfaceGenerator,java.io.BufferedReader");
 Clazz.overrideMethod (c$, "readParameters", 
 function () {
-this.jvxlFileHeaderBuffer = J.util.SB.newS (this.skipComments (false));
+this.jvxlFileHeaderBuffer = JU.SB.newS (this.skipComments (false));
 while (this.line != null && this.line.length == 0) this.readLine ();
 
 this.jvxlFileHeaderBuffer.append ("APBS OpenDx DATA ").append (this.line).append ("\n");
 this.jvxlFileHeaderBuffer.append ("see http://apbs.sourceforge.net\n");
 var atomLine = this.readLine ();
-var tokens = J.util.Parser.getTokens (atomLine);
+var tokens = JU.PT.getTokens (atomLine);
 if (tokens.length >= 4) {
 this.volumetricOrigin.set (this.parseFloatStr (tokens[1]), this.parseFloatStr (tokens[2]), this.parseFloatStr (tokens[3]));
 }J.jvxl.readers.VolumeFileReader.checkAtomLine (this.isXLowToHigh, this.isAngstroms, tokens[0], atomLine, this.jvxlFileHeaderBuffer);

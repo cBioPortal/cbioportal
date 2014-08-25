@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.jvxl.readers");
-Clazz.load (["J.jvxl.readers.PmeshReader"], "J.jvxl.readers.MsmsReader", ["J.io.JmolBinary", "J.util.Logger", "$.TextFormat"], function () {
+Clazz.load (["J.jvxl.readers.PmeshReader"], "J.jvxl.readers.MsmsReader", ["JU.PT", "$.Rdr", "JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.fileName = null;
 Clazz.instantialize (this, arguments);
@@ -27,13 +27,13 @@ return this.readVerticesPM ();
 Clazz.overrideMethod (c$, "readPolygons", 
 function () {
 this.br.close ();
-this.fileName = J.util.TextFormat.simpleReplace (this.fileName, ".vert", ".face");
-J.util.Logger.info ("reading from file " + this.fileName);
+this.fileName = JU.PT.rep (this.fileName, ".vert", ".face");
+JU.Logger.info ("reading from file " + this.fileName);
 try {
-this.br = J.io.JmolBinary.getBufferedReader (this.sg.getAtomDataServer ().getBufferedInputStream (this.fileName), null);
+this.br = JU.Rdr.getBufferedReader (this.sg.getAtomDataServer ().getBufferedInputStream (this.fileName), null);
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
-J.util.Logger.info ("Note: file " + this.fileName + " was not found");
+JU.Logger.info ("Note: file " + this.fileName + " was not found");
 this.br = null;
 return true;
 } else {
@@ -44,11 +44,11 @@ this.sg.addRequiredFile (this.fileName);
 this.skipHeader ();
 return this.readPolygonsPM ();
 });
-$_M(c$, "skipHeader", 
-($fz = function () {
+Clazz.defineMethod (c$, "skipHeader", 
+ function () {
 while (this.readLine () != null && this.line.indexOf ("#") >= 0) {
 }
 this.tokens = this.getTokens ();
 this.iToken = 0;
-}, $fz.isPrivate = true, $fz));
+});
 });

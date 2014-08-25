@@ -30,23 +30,23 @@ Clazz.makeConstructor (c$,
 function (source, id, when, modifiers, keyCode, keyChar) {
 this.construct (source, id, when, modifiers, keyCode, keyChar, 0);
 }, "java.awt.Component,~N,~N,~N,~N,~S");
-$_M(c$, "getKeyCode", 
+Clazz.defineMethod (c$, "getKeyCode", 
 function () {
 return this.keyCode;
 });
-$_M(c$, "setKeyCode", 
+Clazz.defineMethod (c$, "setKeyCode", 
 function (keyCode) {
 this.keyCode = keyCode;
 }, "~N");
-$_M(c$, "getKeyChar", 
+Clazz.defineMethod (c$, "getKeyChar", 
 function () {
 return this.keyChar;
 });
-$_M(c$, "setKeyChar", 
+Clazz.defineMethod (c$, "setKeyChar", 
 function (keyChar) {
 this.keyChar = keyChar;
 }, "~S");
-$_M(c$, "setModifiers", 
+Clazz.defineMethod (c$, "setModifiers", 
 function (modifiers) {
 this.modifiers = modifiers;
 if ((this.getModifiers () != 0) && (this.getModifiersEx () == 0)) {
@@ -54,19 +54,19 @@ this.setNewModifiers ();
 } else if ((this.getModifiers () == 0) && (this.getModifiersEx () != 0)) {
 this.setOldModifiers ();
 }}, "~N");
-$_M(c$, "getKeyLocation", 
+Clazz.defineMethod (c$, "getKeyLocation", 
 function () {
 return this.keyLocation;
 });
-c$.getKeyText = $_M(c$, "getKeyText", 
+c$.getKeyText = Clazz.defineMethod (c$, "getKeyText", 
 function (keyCode) {
 return "[" + keyCode + "]";
 }, "~N");
-c$.getKeyModifiersText = $_M(c$, "getKeyModifiersText", 
+c$.getKeyModifiersText = Clazz.defineMethod (c$, "getKeyModifiersText", 
 function (modifiers) {
 return "[" + modifiers + "]";
 }, "~N");
-$_M(c$, "isActionKey", 
+Clazz.defineMethod (c$, "isActionKey", 
 function () {
 switch (this.keyCode) {
 case 36:
@@ -148,12 +148,12 @@ return true;
 }
 return false;
 });
-$_M(c$, "paramString", 
+Clazz.defineMethod (c$, "paramString", 
 function () {
 return "" + this;
 });
-$_M(c$, "setNewModifiers", 
-($fz = function () {
+Clazz.defineMethod (c$, "setNewModifiers", 
+ function () {
 if ((this.modifiers & 1) != 0) {
 this.modifiers |= 64;
 }if ((this.modifiers & 8) != 0) {
@@ -166,9 +166,9 @@ this.modifiers |= 256;
 this.modifiers |= 8192;
 }if ((this.modifiers & 16) != 0) {
 this.modifiers |= 1024;
-}}, $fz.isPrivate = true, $fz));
-$_M(c$, "setOldModifiers", 
-($fz = function () {
+}});
+Clazz.defineMethod (c$, "setOldModifiers", 
+ function () {
 if ((this.modifiers & 64) != 0) {
 this.modifiers |= 1;
 }if ((this.modifiers & 512) != 0) {
@@ -181,7 +181,7 @@ this.modifiers |= 4;
 this.modifiers |= 32;
 }if ((this.modifiers & 1024) != 0) {
 this.modifiers |= 16;
-}}, $fz.isPrivate = true, $fz));
+}});
 Clazz.defineStatics (c$,
 "KEY_FIRST", 400,
 "KEY_LAST", 402,
@@ -377,7 +377,7 @@ Clazz.defineStatics (c$,
 "VK_ALT_GRAPH", 0xFF7E,
 "VK_BEGIN", 0xFF58,
 "VK_UNDEFINED", 0x0,
-"CHAR_UNDEFINED", 0xFFFF,
+"CHAR_UNDEFINED", String.fromCharCode (0xFFFF),
 "KEY_LOCATION_UNKNOWN", 0,
 "KEY_LOCATION_STANDARD", 1,
 "KEY_LOCATION_LEFT", 2,

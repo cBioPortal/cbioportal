@@ -1,3 +1,3 @@
-$_L(["java.lang.RuntimeException"],"java.lang.ArrayStoreException",null,function(){
-c$=$_T(java.lang,"ArrayStoreException",RuntimeException);
+Clazz.load(["java.lang.RuntimeException"],"java.lang.ArrayStoreException",null,function(){
+c$=Clazz.declareType(java.lang,"ArrayStoreException",RuntimeException);
 });

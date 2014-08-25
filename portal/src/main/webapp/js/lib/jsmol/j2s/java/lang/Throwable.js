@@ -1,34 +1,34 @@
-c$=$_C(function(){
+c$=Clazz.decorateAsClass(function(){
 this.detailMessage=null;
 this.cause=null;
 this.stackTrace=null;
-$_Z(this,arguments);
+Clazz.instantialize(this,arguments);
 },java.lang,"Throwable",null,java.io.Serializable);
-$_Y(c$,function(){
+Clazz.prepareFields(c$,function(){
 this.cause=this;
 });
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(){
 this.fillInStackTrace();
 });
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(message){
 this.fillInStackTrace();
 this.detailMessage=message;
 },"~S");
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(message,cause){
 this.fillInStackTrace();
 this.detailMessage=message;
 this.cause=cause;
 },"~S,Throwable");
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(cause){
 this.fillInStackTrace();
 this.detailMessage=(cause==null?null:cause.toString());
 this.cause=cause;
 },"Throwable");
-$_M(c$,"getMessage",
+Clazz.defineMethod(c$,"getMessage",
 function(){
 {
 if(typeof this.message!="undefined"){
@@ -36,28 +36,28 @@ return this.message;
 }
 }return this.detailMessage;
 });
-$_M(c$,"getLocalizedMessage",
+Clazz.defineMethod(c$,"getLocalizedMessage",
 function(){
 return this.getMessage();
 });
-$_M(c$,"getCause",
+Clazz.defineMethod(c$,"getCause",
 function(){
 return(this.cause===this?null:this.cause);
 });
-$_M(c$,"initCause",
+Clazz.defineMethod(c$,"initCause",
 function(cause){
 if(this.cause!==this)throw new IllegalStateException("Can't overwrite cause");
 if(cause===this)throw new IllegalArgumentException("Self-causation not permitted");
 this.cause=cause;
 return this;
 },"Throwable");
-$_V(c$,"toString",
+Clazz.overrideMethod(c$,"toString",
 function(){
 var s=this.getClass().getName();
 var message=this.getLocalizedMessage();
 return(message!=null)?(s+": "+message):s;
 });
-$_M(c$,"printStackTrace",
+Clazz.defineMethod(c$,"printStackTrace",
 function(){
 System.err.println(this);
 for(var i=0;i<this.stackTrace.length;i++){
@@ -70,15 +70,15 @@ System.err.println(t);
 }
 }
 });
-$_M(c$,"printStackTrace",
+Clazz.defineMethod(c$,"printStackTrace",
 function(s){
 this.printStackTrace();
 },"java.io.PrintStream");
-$_M(c$,"printStackTrace",
+Clazz.defineMethod(c$,"printStackTrace",
 function(s){
 this.printStackTrace();
 },"java.io.PrintWriter");
-$_M(c$,"fillInStackTrace",
+Clazz.defineMethod(c$,"fillInStackTrace",
 function(){
 this.stackTrace=new Array();
 var caller=arguments.callee.caller;
@@ -89,7 +89,7 @@ var noLooping=true;
 while(index>-1||caller!=null){
 var clazzName=null;
 var nativeClazz=null;
-if(!noLooping||caller==Clazz.tryToSearchAndExecute||caller==$_U||caller==null){
+if(!noLooping||caller==Clazz.tryToSearchAndExecute||caller==Clazz.superCall||caller==null){
 if(index<0){
 break;
 }
@@ -131,7 +131,7 @@ caller=superCaller.arguments.callee.caller;
 Clazz.initializingException=false;
 return this;
 });
-$_M(c$,"setStackTrace",
+Clazz.defineMethod(c$,"setStackTrace",
 function(stackTrace){
 var defensiveCopy=stackTrace.clone();
 for(var i=0;i<defensiveCopy.length;i++)if(defensiveCopy[i]==null)throw new NullPointerException("stackTrace["+i+"]");

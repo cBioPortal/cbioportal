@@ -18,7 +18,7 @@ this.atomRadius = null;
 this.atomicNumber = null;
 this.atomMolecule = null;
 this.hAtoms = null;
-this.atomCount = 0;
+this.ac = 0;
 this.hydrogenAtomCount = 0;
 this.adpMode = 0;
 Clazz.instantialize (this, arguments);

@@ -1,7 +1,7 @@
-$_L(["java.lang.Error"],"java.lang.ThreadDeath",null,function(){
-c$=$_T(java.lang,"ThreadDeath",Error);
-$_K(c$,
+Clazz.load(["java.lang.Error"],"java.lang.ThreadDeath",null,function(){
+c$=Clazz.declareType(java.lang,"ThreadDeath",Error);
+Clazz.makeConstructor(c$,
 function(){
-$_R(this,ThreadDeath,[]);
+Clazz.superConstructor(this,ThreadDeath,[]);
 });
 });

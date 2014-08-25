@@ -17,23 +17,23 @@ this.scrollType = scrollType;
 this.scrollAmount = scrollAmount;
 this.wheelRotation = wheelRotation;
 }, "java.awt.Component,~N,~N,~N,~N,~N,~N,~N,~N,~B,~N,~N,~N");
-$_M(c$, "getScrollType", 
+Clazz.defineMethod (c$, "getScrollType", 
 function () {
 return this.scrollType;
 });
-$_M(c$, "getScrollAmount", 
+Clazz.defineMethod (c$, "getScrollAmount", 
 function () {
 return this.scrollAmount;
 });
-$_M(c$, "getWheelRotation", 
+Clazz.defineMethod (c$, "getWheelRotation", 
 function () {
 return this.wheelRotation;
 });
-$_M(c$, "getUnitsToScroll", 
+Clazz.defineMethod (c$, "getUnitsToScroll", 
 function () {
 return this.scrollAmount * this.wheelRotation;
 });
-$_M(c$, "paramString", 
+Clazz.defineMethod (c$, "paramString", 
 function () {
 var scrollTypeStr = null;
 if (this.getScrollType () == 0) {

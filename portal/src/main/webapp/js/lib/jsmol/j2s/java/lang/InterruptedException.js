@@ -1,3 +1,3 @@
-$_L(["java.lang.Exception"],"java.lang.InterruptedException",null,function(){
-c$=$_T(java.lang,"InterruptedException",Exception);
+Clazz.load(["java.lang.Exception"],"java.lang.InterruptedException",null,function(){
+c$=Clazz.declareType(java.lang,"InterruptedException",Exception);
 });

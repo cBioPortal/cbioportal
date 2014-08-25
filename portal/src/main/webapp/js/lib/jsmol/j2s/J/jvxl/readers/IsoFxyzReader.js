@@ -13,7 +13,7 @@ function (isMapData) {
 if (this.params.functionInfo.size () > 5) this.$data = this.params.functionInfo.get (5);
 this.setupType ("functionXYZ");
 }, "~B");
-$_M(c$, "getValue", 
+Clazz.defineMethod (c$, "getValue", 
 function (x, y, z) {
 return (this.$data == null ? this.evaluateValue (x, y, z) : this.$data[x][y][z]);
 }, "~N,~N,~N");

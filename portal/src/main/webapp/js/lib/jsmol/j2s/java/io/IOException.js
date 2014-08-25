@@ -1,3 +1,3 @@
-$_L(["java.lang.Exception"],"java.io.IOException",null,function(){
-c$=$_T(java.io,"IOException",Exception);
+Clazz.load(["java.lang.Exception"],"java.io.IOException",null,function(){
+c$=Clazz.declareType(java.io,"IOException",Exception);
 });

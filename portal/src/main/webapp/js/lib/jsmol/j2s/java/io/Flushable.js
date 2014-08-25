@@ -1,1 +1,1 @@
-$_I(java.io,"Flushable");
+Clazz.declareInterface(java.io,"Flushable");

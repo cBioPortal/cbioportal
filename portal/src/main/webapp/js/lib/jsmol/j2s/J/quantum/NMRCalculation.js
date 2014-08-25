@@ -1,7 +1,7 @@
 Clazz.declarePackage ("J.quantum");
-Clazz.load (["J.api.JmolNMRInterface", "java.util.Hashtable"], "J.quantum.NMRCalculation", ["java.io.BufferedInputStream", "java.lang.Character", "$.Double", "$.Float", "$.NullPointerException", "J.io.JmolBinary", "J.util.BS", "$.Escape", "$.JmolList", "$.Logger", "$.Parser", "$.V3"], function () {
+Clazz.load (["J.api.JmolNMRInterface", "java.util.Hashtable"], "J.quantum.NMRCalculation", ["java.lang.Character", "$.Double", "$.Float", "$.NullPointerException", "JU.BS", "$.Lst", "$.PT", "$.V3", "J.io.JmolBinary", "JU.Escape", "$.Logger", "$.Tensor"], function () {
 c$ = Clazz.decorateAsClass (function () {
-this.viewer = null;
+this.vwr = null;
 this.isotopeData = null;
 this.shiftRefsPPM = null;
 Clazz.instantialize (this, arguments);
@@ -11,28 +11,28 @@ this.shiftRefsPPM =  new java.util.Hashtable ();
 });
 Clazz.makeConstructor (c$, 
 function () {
-this.getData ();
 });
 Clazz.overrideMethod (c$, "setViewer", 
-function (viewer) {
-this.viewer = viewer;
+function (vwr) {
+this.vwr = vwr;
+this.getData ();
 return this;
-}, "J.viewer.Viewer");
+}, "JV.Viewer");
 Clazz.overrideMethod (c$, "getQuadrupolarConstant", 
 function (efg) {
 if (efg == null) return 0;
-var a = this.viewer.modelSet.atoms[efg.atomIndex1];
+var a = this.vwr.ms.at[efg.atomIndex1];
 return (this.getIsotopeData (a, 2) * efg.eigenValues[2] * 2.349647144641375E8);
-}, "J.util.Tensor");
-$_M(c$, "getInteractionTensorList", 
-($fz = function (type, bsA) {
+}, "JU.Tensor");
+Clazz.defineMethod (c$, "getInteractionTensorList", 
+ function (type, bsA) {
 if (type != null) type = type.toLowerCase ();
-var bsModels = this.viewer.getModelBitSet (bsA, false);
+var bsModels = this.vwr.ms.getModelBS (bsA, false);
 var bs1 = this.getAtomSiteBS (bsA);
 var iAtom = (bs1.cardinality () == 1 ? bs1.nextSetBit (0) : -1);
-var list =  new J.util.JmolList ();
+var list =  new JU.Lst ();
 for (var i = bsModels.nextSetBit (0); i >= 0; i = bsModels.nextSetBit (i + 1)) {
-var tensors = this.viewer.getModelAuxiliaryInfoValue (i, "interactionTensors");
+var tensors = this.vwr.getModelAuxiliaryInfoValue (i, "interactionTensors");
 if (tensors == null) continue;
 var n = tensors.size ();
 for (var j = 0; j < n; j++) {
@@ -41,29 +41,29 @@ if (type == null || t.type.equals (type) && t.isSelected (bs1, iAtom)) list.addL
 }
 }
 return list;
-}, $fz.isPrivate = true, $fz), "~S,J.util.BS");
-$_M(c$, "getAtomSiteBS", 
-($fz = function (bsA) {
+}, "~S,JU.BS");
+Clazz.defineMethod (c$, "getAtomSiteBS", 
+ function (bsA) {
 if (bsA == null) return null;
-var bs =  new J.util.BS ();
-var atoms = this.viewer.modelSet.atoms;
-var models = this.viewer.modelSet.models;
+var bs =  new JU.BS ();
+var atoms = this.vwr.ms.at;
+var models = this.vwr.ms.am;
 for (var i = bsA.nextSetBit (0); i >= 0; i = bsA.nextSetBit (i + 1)) {
 if (!bsA.get (i)) continue;
 var a = atoms[i];
-bs.set (models[a.modelIndex].firstAtomIndex - 1 + a.atomSite);
+bs.set (models[a.mi].firstAtomIndex - 1 + a.atomSite);
 }
 return bs;
-}, $fz.isPrivate = true, $fz), "J.util.BS");
+}, "JU.BS");
 Clazz.overrideMethod (c$, "getUniqueTensorSet", 
 function (bsAtoms) {
-var bs =  new J.util.BS ();
-var atoms = this.viewer.modelSet.atoms;
-for (var i = this.viewer.getModelCount (); --i >= 0; ) {
-var bsModelAtoms = this.viewer.getModelUndeletedAtomsBitSet (i);
+var bs =  new JU.BS ();
+var atoms = this.vwr.ms.at;
+for (var i = this.vwr.getModelCount (); --i >= 0; ) {
+var bsModelAtoms = this.vwr.getModelUndeletedAtomsBitSet (i);
 bsModelAtoms.and (bsAtoms);
-if (this.viewer.getModelUnitCell (i) == null) continue;
-for (var j = bsModelAtoms.nextSetBit (0); j >= 0; j = bsModelAtoms.nextSetBit (j + 1)) if (atoms[j].atomSite != atoms[j].index + 1) bsModelAtoms.clear (j);
+if (this.vwr.getModelUnitCell (i) == null) continue;
+for (var j = bsModelAtoms.nextSetBit (0); j >= 0; j = bsModelAtoms.nextSetBit (j + 1)) if (atoms[j].atomSite != atoms[j].i + 1) bsModelAtoms.clear (j);
 
 bs.or (bsModelAtoms);
 for (var j = bsModelAtoms.nextSetBit (0); j >= 0; j = bsModelAtoms.nextSetBit (j + 1)) {
@@ -86,96 +86,93 @@ break;
 }
 }
 return bs;
-}, "J.util.BS");
-$_M(c$, "getJCouplingHz", 
+}, "JU.BS");
+Clazz.defineMethod (c$, "getJCouplingHz", 
 function (a1, a2, type, isc) {
 return this.getIsoOrAnisoHz (true, a1, a2, type, isc);
-}, "J.modelset.Atom,J.modelset.Atom,~S,J.util.Tensor");
+}, "JM.Atom,JM.Atom,~S,JU.Tensor");
 Clazz.overrideMethod (c$, "getIsoOrAnisoHz", 
 function (isIso, a1, a2, type, isc) {
 if (isc == null) {
 type = this.getISCtype (a1, type);
-if (type == null || a1.modelIndex != a2.modelIndex) return 0;
-var bs =  new J.util.BS ();
-bs.set (a1.index);
-bs.set (a2.index);
+if (type == null || a1.mi != a2.mi) return 0;
+var bs =  new JU.BS ();
+bs.set (a1.i);
+bs.set (a2.i);
 var list = this.getInteractionTensorList (type, bs);
 if (list.size () == 0) return NaN;
 isc = list.get (0);
 } else {
-a1 = this.viewer.modelSet.atoms[isc.atomIndex1];
-a2 = this.viewer.modelSet.atoms[isc.atomIndex2];
+a1 = this.vwr.ms.at[isc.atomIndex1];
+a2 = this.vwr.ms.at[isc.atomIndex2];
 }return (this.getIsotopeData (a1, 1) * this.getIsotopeData (a2, 1) * (isIso ? isc.isotropy () : isc.anisotropy ()) * 0.0167840302932219);
-}, "~B,J.modelset.Atom,J.modelset.Atom,~S,J.util.Tensor");
-$_M(c$, "getISCtype", 
-($fz = function (a1, type) {
-var tensors = this.viewer.getModelAuxiliaryInfoValue (a1.modelIndex, "interactionTensors");
+}, "~B,JM.Atom,JM.Atom,~S,JU.Tensor");
+Clazz.defineMethod (c$, "getISCtype", 
+ function (a1, type) {
+var tensors = this.vwr.getModelAuxiliaryInfoValue (a1.mi, "interactionTensors");
 if (tensors == null) return null;
 type = (type == null ? "" : type.toLowerCase ());
 var pt = -1;
 if ((pt = type.indexOf ("_hz")) >= 0 || (pt = type.indexOf ("_khz")) >= 0 || (pt = type.indexOf ("hz")) >= 0 || (pt = type.indexOf ("khz")) >= 0) type = type.substring (0, pt);
 if (type.length == 0) type = "isc";
 return type;
-}, $fz.isPrivate = true, $fz), "J.modelset.Atom,~S");
+}, "JM.Atom,~S");
 Clazz.overrideMethod (c$, "getDipolarConstantHz", 
 function (a1, a2) {
-if (J.util.Logger.debugging) J.util.Logger.debug (a1 + " g=" + this.getIsotopeData (a1, 1) + "; " + a2 + " g=" + this.getIsotopeData (a2, 1));
+if (JU.Logger.debugging) JU.Logger.debug (a1 + " g=" + this.getIsotopeData (a1, 1) + "; " + a2 + " g=" + this.getIsotopeData (a2, 1));
 var v = (-this.getIsotopeData (a1, 1) * this.getIsotopeData (a2, 1) / Math.pow (a1.distance (a2), 3) * 1054.5717253362893);
 return (v == 0 || a1 === a2 ? NaN : v);
-}, "J.modelset.Atom,J.modelset.Atom");
+}, "JM.Atom,JM.Atom");
 Clazz.overrideMethod (c$, "getDipolarCouplingHz", 
 function (a1, a2, vField) {
-var v12 = J.util.V3.newVsub (a2, a1);
+var v12 = JU.V3.newVsub (a2, a1);
 var r = v12.length ();
 var costheta = v12.dot (vField) / r / vField.length ();
 return (this.getDipolarConstantHz (a1, a2) * (3 * costheta - 1) / 2);
-}, "J.modelset.Atom,J.modelset.Atom,J.util.V3");
-$_M(c$, "getIsotopeData", 
-($fz = function (a, iType) {
+}, "JM.Atom,JM.Atom,JU.V3");
+Clazz.defineMethod (c$, "getIsotopeData", 
+ function (a, iType) {
 var iso = a.getIsotopeNumber ();
 var sym = a.getElementSymbolIso (false);
 var d = this.isotopeData.get (iso == 0 ? sym : "" + iso + sym);
 return (d == null ? 0 : d[iType]);
-}, $fz.isPrivate = true, $fz), "J.modelset.Atom,~N");
-$_M(c$, "getData", 
-($fz = function () {
+}, "JM.Atom,~N");
+Clazz.defineMethod (c$, "getData", 
+ function () {
 var br = null;
-var debugging = J.util.Logger.debugging;
 try {
-var is;
-var url = null;
-if ((url = this.getClass ().getResource ("nmr_data.txt")) == null) {
-J.util.Logger.error ("Couldn\'t find file: J/quantum/nmr_data.txt");
-return;
-}is = url.getContent ();
-br = J.io.JmolBinary.getBufferedReader ( new java.io.BufferedInputStream (is), null);
-var line;
+var debugging = JU.Logger.debugging;
+br = J.io.JmolBinary.getBufferedReaderForResource (this.vwr, this, "J/quantum/", "nmr_data.txt");
 this.isotopeData =  new java.util.Hashtable ();
+var line;
 while ((line = br.readLine ()) != null) {
-if (debugging) J.util.Logger.info (line);
+if (debugging) JU.Logger.info (line);
 if (line.indexOf ("#") >= 0) continue;
-var tokens = J.util.Parser.getTokens (line);
+var tokens = JU.PT.getTokens (line);
 var name = tokens[0];
 var defaultIso = tokens[2] + name;
-if (debugging) J.util.Logger.info (name + " default isotope " + defaultIso);
+if (debugging) JU.Logger.info (name + " default isotope " + defaultIso);
 for (var i = 3; i < tokens.length; i += 3) {
 var n = Integer.parseInt (tokens[i]);
 var isoname = n + name;
 var dataGQ = [n, Double.parseDouble (tokens[i + 1]), Double.parseDouble (tokens[i + 2])];
-if (debugging) J.util.Logger.info (isoname + "  " + J.util.Escape.eAD (dataGQ));
+if (debugging) JU.Logger.info (isoname + "  " + JU.Escape.eAD (dataGQ));
 this.isotopeData.put (isoname, dataGQ);
 }
 var defdata = this.isotopeData.get (defaultIso);
 if (defdata == null) {
-J.util.Logger.error ("Cannot find default NMR data in nmr_data.txt for " + defaultIso);
+JU.Logger.error ("Cannot find default NMR data in nmr_data.txt for " + defaultIso);
 throw  new NullPointerException ();
 }defdata[0] = -defdata[0];
 this.isotopeData.put (name, defdata);
 }
-br.close ();
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
-J.util.Logger.error ("Exception " + e.toString () + " reading " + "J/quantum/nmr_data.txt");
+JU.Logger.error ("Exception " + e.toString () + " reading " + "nmr_data.txt");
+} else {
+throw e;
+}
+} finally {
 try {
 br.close ();
 } catch (ee) {
@@ -184,11 +181,8 @@ if (Clazz.exceptionOf (ee, Exception)) {
 throw ee;
 }
 }
-} else {
-throw e;
 }
-}
-}, $fz.isPrivate = true, $fz));
+});
 Clazz.overrideMethod (c$, "getInfo", 
 function (what) {
 if (what.equals ("all")) {
@@ -197,7 +191,7 @@ map.put ("isotopes", this.isotopeData);
 map.put ("shiftRefsPPM", this.shiftRefsPPM);
 return map;
 }if (Character.isDigit (what.charAt (0))) return this.isotopeData.get (what);
-var info =  new J.util.JmolList ();
+var info =  new JU.Lst ();
 for (var e, $e = this.isotopeData.entrySet ().iterator (); $e.hasNext () && ((e = $e.next ()) || true);) {
 var key = e.getKey ();
 if (Character.isDigit (key.charAt (0)) && key.endsWith (what)) info.addLast (e.getValue ());
@@ -210,19 +204,19 @@ var v = this.getMagneticShielding (atom);
 if (Float.isNaN (v)) return v;
 var ref = this.shiftRefsPPM.get (atom.getElementSymbol ());
 return (ref == null ? 0 : ref.floatValue ()) - v;
-}, "J.modelset.Atom");
+}, "JM.Atom");
 Clazz.overrideMethod (c$, "getMagneticShielding", 
 function (atom) {
-var t = this.viewer.modelSet.getAtomTensor (atom.index, "ms");
+var t = this.vwr.ms.getAtomTensor (atom.i, "ms");
 return (t == null ? NaN : t.isotropy ());
-}, "J.modelset.Atom");
+}, "JM.Atom");
 Clazz.overrideMethod (c$, "getState", 
 function (sb) {
 if (this.shiftRefsPPM.isEmpty ()) return false;
 for (var nuc, $nuc = this.shiftRefsPPM.entrySet ().iterator (); $nuc.hasNext () && ((nuc = $nuc.next ()) || true);) sb.append ("  set shift_").append (nuc.getKey ()).append (" ").appendO (nuc.getValue ()).append ("\n");
 
 return true;
-}, "J.util.SB");
+}, "JU.SB");
 Clazz.overrideMethod (c$, "setChemicalShiftReference", 
 function (element, value) {
 if (element == null) {
@@ -236,14 +230,14 @@ Clazz.overrideMethod (c$, "getTensorInfo",
 function (tensorType, infoType, bs) {
 if ("".equals (tensorType)) tensorType = null;
 infoType = (infoType == null ? ";all." : ";" + infoType + ".");
-var data =  new J.util.JmolList ();
+var data =  new JU.Lst ();
 var list1;
 if (";dc.".equals (infoType)) {
-var atoms = this.viewer.modelSet.atoms;
+var atoms = this.vwr.ms.at;
 for (var i = bs.nextSetBit (0); i >= 0; i = bs.nextSetBit (i + 1)) for (var j = bs.nextSetBit (i + 1); j >= 0; j = bs.nextSetBit (j + 1)) {
-list1 =  new J.util.JmolList ();
-list1.addLast (Integer.$valueOf (atoms[i].index));
-list1.addLast (Integer.$valueOf (atoms[j].index));
+list1 =  new JU.Lst ();
+list1.addLast (Integer.$valueOf (atoms[i].i));
+list1.addLast (Integer.$valueOf (atoms[j].i));
 list1.addLast (Float.$valueOf (this.getDipolarConstantHz (atoms[i], atoms[j])));
 data.addLast (list1);
 }
@@ -256,7 +250,7 @@ var list = this.getInteractionTensorList (tensorType, bs);
 var n = (list == null ? 0 : list.size ());
 for (var i = 0; i < n; i++) {
 var t = list.get (i);
-list1 =  new J.util.JmolList ();
+list1 =  new JU.Lst ();
 list1.addLast (Integer.$valueOf (t.atomIndex1));
 list1.addLast (Integer.$valueOf (t.atomIndex2));
 list1.addLast (isEta || isJ ? Float.$valueOf (this.getIsoOrAnisoHz (isJ, null, null, null, t)) : t.getInfo (infoType));
@@ -264,27 +258,28 @@ data.addLast (list1);
 }
 if (tensorType != null) return data;
 }var isChi = tensorType != null && tensorType.startsWith ("efg") && infoType.equals (";chi.");
+var isFloat = (isChi || JU.Tensor.isFloatInfo (infoType));
 for (var i = bs.nextSetBit (0); i >= 0; i = bs.nextSetBit (i + 1)) {
 if (tensorType == null) {
-var a = this.viewer.modelSet.getAtomTensorList (i);
-if (a != null) for (var j = 0; j < a.length; j++) data.addLast (a[j].getInfo (infoType));
+var a = this.vwr.ms.getAtomTensorList (i);
+if (a != null) for (var j = 0; j < a.length; j++) data.addLast ((a[j]).getInfo (infoType));
 
 } else {
-var t = this.viewer.modelSet.getAtomTensor (i, tensorType);
-if (t != null) data.addLast (isChi ? Float.$valueOf (this.getQuadrupolarConstant (t)) : t.getInfo (infoType));
+var t = this.vwr.ms.getAtomTensor (i, tensorType);
+data.addLast (t == null ? (isFloat ? Float.$valueOf (0) : "") : isChi ? Float.$valueOf (this.getQuadrupolarConstant (t)) : t.getInfo (infoType));
 }}
 return data;
-}, "~S,~S,J.util.BS");
+}, "~S,~S,JU.BS");
 Clazz.overrideMethod (c$, "getMinDistances", 
 function (md) {
 var bsPoints1 = md.points.get (0);
 var n1 = bsPoints1.cardinality ();
-if (n1 == 0 || !(Clazz.instanceOf (md.points.get (1), J.util.BS))) return null;
+if (n1 == 0 || !(Clazz.instanceOf (md.points.get (1), JU.BS))) return null;
 var bsPoints2 = md.points.get (1);
 var n2 = bsPoints2.cardinality ();
 if (n1 < 2 && n2 < 2) return null;
 var htMin =  new java.util.Hashtable ();
-var atoms = this.viewer.modelSet.atoms;
+var atoms = this.vwr.ms.at;
 for (var i = bsPoints1.nextSetBit (0); i >= 0; i = bsPoints1.nextSetBit (i + 1)) {
 var a1 = atoms[i];
 var name = a1.getAtomName ();
@@ -303,7 +298,7 @@ continue;
 }
 }
 return htMin;
-}, "J.modelset.MeasurementData");
+}, "JM.MeasurementData");
 Clazz.defineStatics (c$,
 "MAGNETOGYRIC_RATIO", 1,
 "QUADRUPOLE_MOMENT", 2,
@@ -313,5 +308,5 @@ Clazz.defineStatics (c$,
 "DIPOLAR_FACTOR", 1054.5717253362893,
 "J_FACTOR", 0.0167840302932219,
 "Q_FACTOR", 2.349647144641375E8,
-"resource", "J/quantum/nmr_data.txt");
+"resource", "nmr_data.txt");
 });

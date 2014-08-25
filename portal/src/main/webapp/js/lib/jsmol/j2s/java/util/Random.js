@@ -1,42 +1,42 @@
-$_L(null,"java.util.Random",["java.lang.IllegalArgumentException"],function(){
-c$=$_C(function(){
+Clazz.load(null,"java.util.Random",["java.lang.IllegalArgumentException"],function(){
+c$=Clazz.decorateAsClass(function(){
 this.haveNextNextGaussian=false;
 this.seed=0;
 this.nextNextGaussian=0;
-$_Z(this,arguments);
+Clazz.instantialize(this,arguments);
 },java.util,"Random",null,java.io.Serializable);
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(){
 this.setSeed(System.currentTimeMillis());
 });
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(seed){
 this.setSeed(seed);
 },"~N");
-$_M(c$,"next",
+Clazz.defineMethod(c$,"next",
 function(bits){
 this.seed=(this.seed*25214903917+0xb)&(281474976710655);
 return(this.seed>>>(48-bits));
 },"~N");
-$_M(c$,"nextBoolean",
+Clazz.defineMethod(c$,"nextBoolean",
 function(){
 return Math.random()>0.5;
 });
-$_M(c$,"nextBytes",
+Clazz.defineMethod(c$,"nextBytes",
 function(buf){
 for(var i=0;i<bytes.length;i++){
 bytes[i]=Math.round(0x100*Math.random());
 }
 },"~A");
-$_M(c$,"nextDouble",
+Clazz.defineMethod(c$,"nextDouble",
 function(){
 return Math.random();
 });
-$_M(c$,"nextFloat",
+Clazz.defineMethod(c$,"nextFloat",
 function(){
 return Math.random();
 });
-$_M(c$,"nextGaussian",
+Clazz.defineMethod(c$,"nextGaussian",
 function(){
 if(this.haveNextNextGaussian){
 this.haveNextNextGaussian=false;
@@ -54,11 +54,11 @@ this.nextNextGaussian=v2*norm;
 this.haveNextNextGaussian=true;
 return v1*norm;
 });
-$_M(c$,"nextInt",
+Clazz.defineMethod(c$,"nextInt",
 function(){
 return Math.ceil(0xffff*Math.random())-0x8000;
 });
-$_M(c$,"nextInt",
+Clazz.defineMethod(c$,"nextInt",
 function(n){
 if(n>0){
 if((n&-n)==n){
@@ -72,15 +72,15 @@ val=bits%n;
 return val;
 }throw new IllegalArgumentException();
 },"~N");
-$_M(c$,"nextLong",
+Clazz.defineMethod(c$,"nextLong",
 function(){
 return Math.ceil(0xffffffff*Math.random())-0x80000000;
 });
-$_M(c$,"setSeed",
+Clazz.defineMethod(c$,"setSeed",
 function(seed){
 this.seed=(seed^25214903917)&(281474976710655);
 this.haveNextNextGaussian=false;
 },"~N");
-$_S(c$,
+Clazz.defineStatics(c$,
 "multiplier",0x5deece66d);
 });

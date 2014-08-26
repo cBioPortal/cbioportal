@@ -149,6 +149,7 @@
         <intercept-url pattern="/release_notes_mutation_mapper.jsp*" access="isAuthenticated()"/>
         <intercept-url pattern="/oncoprinter.jsp*" access="isAuthenticated()"/>
         <intercept-url pattern="/release_notes_oncoprinter.jsp*" access="isAuthenticated()"/>
+        <intercept-url pattern="/mutexdownload.do*" access="isAuthenticated()"/>
 
         <!-- everything else locked down by default -->
         <intercept-url pattern="/**" access="denyAll"/>

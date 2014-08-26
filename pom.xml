@@ -102,7 +102,7 @@
 
   <!-- modules -->
   <modules>
-	<module>portal</module>
+    <module>portal</module>
 	<module>core</module>
 	<module>oncotator</module>
 	<module>liftover</module>

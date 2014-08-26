@@ -301,6 +301,21 @@
         }
     }
 
+    function appendDownloadButton() {
+        // $("#mutex-table-div").append("<button type='button' id='mutex-download-button'>Download Full Results</button>");
+        // $("#mutex-download-button").click(function() {
+        //     var _params = {
+        //         datatable_str: "something random extra extra1"
+        //     }
+        //     cbio.util.requestDownload('mutexdownload.do', _params);             
+        // });
+
+        var downloadResultForm = "<form style='float:right;' action='mutexdownload.do' method='post'>" +
+            "<input type='hidden' name='datatable_str' value='some random input'>" +
+            "<input type='submit' value='Download Full Results'></form>";
+        $("#mutex-table-div").append(downloadResultForm);  
+    }
+
  	return {
  		init: function() {
  			$("#mutex-loading-image").hide();
@@ -311,6 +326,7 @@
             addHeaderQtips();
             addStatInfo();
             mutexTableInstance.fnAdjustColumnSizing();
+            appendDownloadButton();
   		},
         resize: function() {
             var tid = setInterval(detectInstance, 300);

@@ -588,4 +588,13 @@
         <url-pattern>/calcFisherExact.do</url-pattern>
     </servlet-mapping>
     
+    <servlet>
+        <servlet-name>mutexDownload</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.MutexDownload</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>mutexDownload</servlet-name>
+        <url-pattern>/mutexdownload.do</url-pattern>
+    </servlet-mapping>
+
 </web-app>

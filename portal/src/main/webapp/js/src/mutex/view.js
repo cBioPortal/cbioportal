@@ -302,18 +302,16 @@
     }
 
     function appendDownloadButton() {
-        // $("#mutex-table-div").append("<button type='button' id='mutex-download-button'>Download Full Results</button>");
-        // $("#mutex-download-button").click(function() {
-        //     var _params = {
-        //         datatable_str: "something random extra extra1"
-        //     }
-        //     cbio.util.requestDownload('mutexdownload.do', _params);             
-        // });
-
+        var _tmpHeader = ['geneA', 'geneB', 'p-Value', 'Log Odds Ratio', 'Association', '&'];
+        var _str = _tmpHeader.join('+');
+        $.each(MutexData.getDataArr(), function(index, obj) {
+            var _tmpArr = [obj.geneA, obj.geneB, obj.p_value, obj.log_odds_ratio, obj.association + "&"];
+            _str += _tmpArr.join('+');
+        });
         var downloadResultForm = "<form style='float:right;' action='mutexdownload.do' method='post'>" +
-            "<input type='hidden' name='datatable_str' value='some random input'>" +
+            "<input type='hidden' name='datatable_str' value='" + _str + "'>" +
             "<input type='submit' value='Download Full Results'></form>";
-        $("#mutex-table-div").append(downloadResultForm);  
+        $("#mutex-table-div").append(downloadResultForm); 
     }
 
  	return {

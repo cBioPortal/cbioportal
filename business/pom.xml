@@ -72,7 +72,7 @@
 
 	<!-- properties file used for filter our context file in resources -->
 	<filters>
-	  <filter>${PORTAL_HOME}/src/main/resources/portal.properties</filter>
+	  <filter>${PORTAL_HOME}/src/main/resources/portal.properties</filter> 
 	</filters>
 
 	<!-- prevent some resources from getting into package -->

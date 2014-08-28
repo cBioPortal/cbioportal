@@ -13,13 +13,17 @@
 		</td>
 	</tr>
          <!-- Display Sign Out Button for Real (Non-Anonymous) User -->
-    <sec:authorize access="!hasRole('ROLE_ANONYMOUS')">    
+
+    <sec:authorize access="!hasRole('ROLE_ANONYMOUS')">
+    
 	<tr>
-        <td align="right" style="font-size:10px; background-color:white;">
-            You are logged in as <sec:authentication property='principal.username' />. <a href="j_spring_security_logout">Sign out</a>.          
+
+        <td align="right" style="font-size:10px;background-color:white">
+            You are logged in as <sec:authentication property='principal.username' />. <a href="j_spring_security_logout">Sign out</a>.
+            
         </td>
         </tr>
-    
+
     </sec:authorize>
     <%
        if (GlobalProperties.usersMustAuthenticate()) {

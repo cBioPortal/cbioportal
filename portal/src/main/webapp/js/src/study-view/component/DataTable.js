@@ -311,31 +311,40 @@ var DataTable = function() {
         $('#study-tab-clinical-a').click(function(){
             if (!$(this).hasClass("tab-clicked")) {
                 //First time: adjust the width of data table;
-                dataTable.fnAdjustColumnSizing();
-                if($("#" + tableId).width() > 1200) {
-                    noLeftColumnFlag = false;
-                    new FixedColumns(dataTable);
-                    $(".DTFC_LeftBodyLiner").css("overflow-y","hidden");
-                    //$(".dataTables_scroll").css("overflow-x","scroll");
-                    $(".DTFC_LeftHeadWrapper").css("background-color","white");
-                    $(".DTFC_LeftFootWrapper").css('background-color','white');
+                $("#clinical-data-table-loading-wait").css('display', 'block');
+                $("#clinical-data-table-div").css('display','none');
+                setTimeout(function () {
+                    dataTable.fnAdjustColumnSizing();
+                    if($("#" + tableId).width() > 1200) {
+                        noLeftColumnFlag = false;
+                        new FixedColumns(dataTable);
+                        $(".DTFC_LeftBodyLiner").css("overflow-y","hidden");
+                        //$(".dataTables_scroll").css("overflow-x","scroll");
+                        $(".DTFC_LeftHeadWrapper").css("background-color","white");
+                        $(".DTFC_LeftFootWrapper").css('background-color','white');
 
-                    //After resizing left column, the width of DTFC_LeftWrapper is different
-                    //with width DTFC_LeftBodyLiner, need to rewrite the width of
-                    //DTFC_LeftBodyLiner width
-                    var _widthLeftWrapper = $('.DTFC_LeftWrapper').width();
-                    $('.DTFC_LeftBodyLiner').css('width', _widthLeftWrapper+4);
-                }
-                //dataTable.fnFilter('', 0);
-                showDataTableReset();
-                refreshSelectionInDataTable();
-                //Sencond time: adjust the width of table foot;
-                dataTable.fnAdjustColumnSizing();
-                if(!noLeftColumnFlag) {
-                    resizeLeftColumn();
-                    $(window).resize();
-                }
-                $(this).addClass("tab-clicked");
+                        //After resizing left column, the width of DTFC_LeftWrapper is different
+                        //with width DTFC_LeftBodyLiner, need to rewrite the width of
+                        //DTFC_LeftBodyLiner width
+                        var _widthLeftWrapper = $('.DTFC_LeftWrapper').width();
+                        $('.DTFC_LeftBodyLiner').css('width', _widthLeftWrapper+4);
+                    }
+                    //dataTable.fnFilter('', 0);
+                    showDataTableReset();
+                    refreshSelectionInDataTable();
+                    
+                    $("#clinical-data-table-loading-wait").css('display', 'none');
+                    $("#clinical-data-table-div").css('display','block');
+                    //Sencond time: adjust the width of table foot;
+                    dataTable.fnAdjustColumnSizing();
+                    if(!noLeftColumnFlag) {
+                        resizeLeftColumn();
+                        $(window).resize();
+                    }
+                    $('#study-tab-clinical-a').addClass("tab-clicked");
+                }, 500);
+                
+                
             }
         });
         
@@ -540,8 +549,11 @@ var DataTable = function() {
                 _widthBody = _widthBody + 22;
                 if($("#" + tableId).width() > 1200) {
                     $(".DTFC_LeftWrapper").css('display', 'block');
-                    $(".DTFC_LeftBodyLiner").height(_heightBody - 15);
-                    $(".DTFC_LeftBodyWrapper").height(_heightBody - 15); 
+//                    $(".DTFC_LeftBodyLiner").height(_heightBody - 15);
+//                    
+                    //Changed from _heightBody-15, 15px was designed for
+                    //horizontal scroller
+                    $(".DTFC_LeftBodyWrapper").height(_heightBody); 
                     $(".DTFC_LeftWrapper").width(_widthBody);
                     $(".DTFC_LeftBodyLiner").width(_widthBody);
                     $(".DTFC_LeftBodyLiner").css('background-color','white');

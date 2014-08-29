@@ -23,6 +23,7 @@ SFTPPASSWD=`grep "nci.cancer.sftp.password" $1 |cut -f2 -d"="`
 SSHPASSPATH=`grep "sshpass.path" $1 |cut -f2 -d"="`
 
 mkdir -p $PORTAL_DATA_HOME/reference-data
+rm -rf $PORTAL_DATA_HOME/reference-data/clinical-trials
 
 echo -ne "Downloading the PDQ XML files...\t\t" &&
 cd $PORTAL_DATA_HOME/reference-data &&

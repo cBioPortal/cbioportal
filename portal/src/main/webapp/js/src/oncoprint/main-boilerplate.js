@@ -754,6 +754,10 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         extraAttributes[yMovement]=extraAttributes[_dragElementIndex];
         extraAttributes[_dragElementIndex] = tempClinicAttrs;
         
+        var tempSortStatus = sortStatus[yMovement];
+        sortStatus[yMovement]=sortStatus[_dragElementIndex];
+        sortStatus[_dragElementIndex] = tempSortStatus;
+        
         refreshOncoPrint();
     }
                 

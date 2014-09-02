@@ -162,7 +162,7 @@ define("Oncoprint",
                             var indexOfClinicAttr = _.indexOf(attributes,d);
                             if(params.sortStatus[indexOfClinicAttr] === "nonSort")
                             {
-                                return "images/sort_asc_disabled.png";
+                                return "images/nonSort.svg";
                             }
                             
                             if(params.sortStatus[indexOfClinicAttr] === "decresort")
@@ -170,7 +170,7 @@ define("Oncoprint",
                                 return "images/decreaseSort.svg";
                             }
                             
-                            return "images/sort_asc.png";
+                            return "images/increaseSort.svg";
                         }
 
                             return "";
@@ -504,7 +504,7 @@ define("Oncoprint",
                             for(var i = 0; i < clinical_attrs.length; i++)
                             {
                                 // delete clinic i from attrs list if the icon is non-sort
-                                if($('.oncoprint_Sort_Button')[i].attributes.href.value!=="images/sort_asc_disabled.png")
+                                if($('.oncoprint_Sort_Button')[i].attributes.href.value!=="images/nonSort.svg")
                                 {
                                     state.attrs.push(clinical_attrs[i]);
                                 }

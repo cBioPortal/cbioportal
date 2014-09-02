@@ -29,8 +29,8 @@
                 <td>
                     <span>Sort by: </span>
                     <select id="sort_by" style="width: 200px;">
-    <option value="genes">gene data</option>
-                        <option value="clinical" disabled>clinical data</option>
+    <option value="genes">gene data first</option>
+                        <option value="clinical" disabled>clinical data first</option>
                         <option value="alphabetical">alphabetically by case id</option>
                         <option value="custom">user-defined case list / default</option>
                     </select>

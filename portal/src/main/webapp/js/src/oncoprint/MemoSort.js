@@ -93,42 +93,42 @@ define(function() {
         }());
 
         var comp = function(x,y) {
-            for (var i = 0; i < x.values.length; i+=1) {
+            // sort attributes according to the order specified by the user
+            var x_attrs = x.values
+                .sort(function(x,y) { return attr2index[getAttr(x)] - attr2index[getAttr(y)]; });
+            x_attrs=_.filter(x_attrs,function(e){return (e.attr_id in attr2index || e.gene in attr2index)});
 
-                // sort attributes according to the order specified by the user
-                var x_attrs = x.values
-                    .sort(function(x,y) { return attr2index[getAttr(x)] - attr2index[getAttr(y)]; });
-                var y_attrs = y.values
-                    .sort(function(x,y) { return attr2index[getAttr(x)] - attr2index[getAttr(y)]; });
+            var y_attrs = y.values
+                .sort(function(x,y) { return attr2index[getAttr(x)] - attr2index[getAttr(y)]; });
+            y_attrs=_.filter(y_attrs,function(e){return (e.attr_id in attr2index || e.gene in attr2index)});
 
-                // this is a hack
-                // if there is missing data, just put the one with less data to the right
-                if (x_attrs.length !== y_attrs.length) {
-                    return y_attrs.length - x_attrs.length;
-                }
+            // this is a hack
+            // if there is missing data, just put the one with less data to the right
+            if (x_attrs.length !== y_attrs.length) {
+                return y_attrs.length - x_attrs.length;
+            }
 
-                // iterate over the attributes of x and y in the user defined
-                // order, comparing along the way
-                for (var j = 0; j < x_attrs.length; j+=1) {
+            // iterate over the attributes of x and y in the user defined
+            // order, comparing along the way
+            for (var j = 0; j < x_attrs.length; j+=1) {
 
-                    var xj = x_attrs[j];
-                    var yj = y_attrs[j];
+                var xj = x_attrs[j];
+                var yj = y_attrs[j];
 
-                    assert(xj.gene === yj.gene);        // what we are comparing are comparable
-                    assert(xj.attr_id === yj.attr_id);
+                assert(xj.gene === yj.gene);        // what we are comparing are comparable
+                assert(xj.attr_id === yj.attr_id);
 
-                    var diff = (xj.gene === undefined
-                        ? comp_clinical(xj, yj)
-                        :  comp_genes(xj, yj));
+                var diff = (xj.gene === undefined
+                    ? comp_clinical(xj, yj)
+                    :  comp_genes(xj, yj));
 
-                    // return the first nonzero diff
-                    if (diff !== 0) {
-                        return diff;
-                    }
+                // return the first nonzero diff
+                if (diff !== 0) {
+                    return diff;
                 }
             }
             // if they are equal in all diffs, then they are truly equal.
-            return 0;
+            return x_attrs[0].sample.localeCompare(y_attrs[0].sample);
         };
 
         return data.sort(comp);

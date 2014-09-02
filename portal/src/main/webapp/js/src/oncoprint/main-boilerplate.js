@@ -57,6 +57,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
     var extraTracks=[]; // used to record clinical attributes added
     var extraGenes=[]; // used to record genes add customized
     var extraAttributes=[]; // used to record attributes names add customized
+    var sortStatus=[];
     var cases = window.PortalGlobals.getCases();
     var genes = window.PortalGlobals.getGeneListString().split(" ");
 
@@ -85,16 +86,9 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
             oncoprint.sortBy(sortBy.val(), cases.split(" "));
 
-            $('.attribute_name').hover(
-                    function(){
-                    $(this).css('cursor','move');
-                    },
-                    function () {
-                    $(this).css('cursor', 'default');
-                    }); 
             $('.attribute_name').qtip({
                 content: {text: 'Click to drag '},
-                position: {my:'left bottom', at:'top right', viewport: $(window)},
+                position: {my:'left bottom', at:'top middle', viewport: $(window)},
                 style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                 show: {event: "mouseover"},
                 hide: {fixed: true, delay: 100, event: "mouseout"}
@@ -137,6 +131,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             extraTracks.splice(indexNum, 1);
             extraGenes.splice(indexNum, 1);
             extraAttributes.splice(indexNum, 1);
+            sortStatus.splice(indexNum, 1);
             removeClinicalAttribute();
         });// enable delete symbol "x" function
 
@@ -159,22 +154,65 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                     $(this).css('font-size', '12px');
                     });
                     
-        $('.attribute_name').hover(
-                    function(){
-                    $(this).css('cursor','move');
-                    },
-                    function() {
-                    $(this).css('cursor', 'default');
-                    }); 
-                    
         $('.attribute_name').qtip({
                 content: {text: 'Click to drag '},
-                position: {my:'left bottom', at:'top right', viewport: $(window)},
+                position: {my:'left bottom', at:'top middle', viewport: $(window)},
                 style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                 show: {event: "mouseover"},
                 hide: {fixed: true, delay: 100, event: "mouseout"}
             });
-                    
+            
+        $(".oncoprint_Sort_Button").qtip({
+                content: {text: 'Click to sort '},
+                position: {my:'left bottom', at:'top middle', viewport: $(window)},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                show: {event: "mouseover"},
+                hide: {fixed: true, delay: 100, event: "mouseout"}
+            });
+        $('.oncoprint_Sort_Button').hover(
+            function () {
+            $(this).css('fill', '#0000FF');
+            $(this).css('font-size', '18px');
+            $(this).css('cursor', 'pointer');
+            },
+            function () {
+            $(this).css('fill', '#87CEFA');
+            $(this).css('font-size', '12px');
+            });
+        
+        $('.oncoprint_Sort_Button').click(function() {
+            
+            var sortButtonYValue = $(this)[0].attributes.y.value;
+            var indexSortButton=parseInt(sortButtonYValue/29);
+            if($(this)[0].attributes.href.value==="images/increaseSort.svg")
+            {
+                sortStatus[indexSortButton] = 'nonSort';
+            }
+            else if($(this)[0].attributes.href.value==="images/nonSort.svg")
+            {
+                sortStatus[indexSortButton] ='increSort';
+            }
+            
+            oncoprint.remove_oncoprint();
+            inner_loader_img.show();
+            toggleControls(false); //disable toggleControls
+
+            inner_loader_img.hide();
+
+            oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
+                geneData: geneDataColl.toJSON(),
+                clinicalData: extraGenes,
+                genes: genes,
+                clinical_attrs: extraAttributes,
+                legend: document.getElementById('oncoprint_legend'),
+                sortStatus:sortStatus
+            },extraTracks);
+
+            oncoprint.sortBy(sortBy.val(), cases.split(" "));
+            functionFunctions();
+            toggleControls(true);
+        });
+        
         $('.attribute_name').click(
                     function() {
                     selectedTitle =$(this);
@@ -196,7 +234,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             clinicalData: extraGenes,
             genes: genes,
             clinical_attrs: extraAttributes,
-            legend: document.getElementById('oncoprint_legend')
+            legend: document.getElementById('oncoprint_legend'),
+            sortStatus:sortStatus
         },extraTracks);
 
         oncoprint.sortBy(sortBy.val(), cases.split(" "));
@@ -253,7 +292,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             clinicalData: extraGenes,
             genes: genes,
             clinical_attrs: extraAttributes,
-            legend: document.getElementById('oncoprint_legend')
+            legend: document.getElementById('oncoprint_legend'),
+            sortStatus:sortStatus
         },extraTracks);
 
         functionFunctions();
@@ -303,12 +343,14 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         extraTracks = extraTracks.concat(response.attributes().map(function(attr) { return attr.attr_id; }));
                         extraGenes = extraGenes.concat(response.toJSON());
                         extraAttributes=extraAttributes.concat(response.attributes());
+                        sortStatus = sortStatus.concat('increSort');
                         oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
                             geneData: geneDataColl.toJSON(),
                             clinicalData: extraGenes,
                             genes: genes,
                             clinical_attrs: extraAttributes,
-                            legend: document.getElementById('oncoprint_legend')
+                            legend: document.getElementById('oncoprint_legend'),
+                            sortStatus:sortStatus
                         },extraTracks);
                              
                         oncoprint.sortBy(sortBy.val(), cases.split(" "));
@@ -366,12 +408,14 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         extraTracks = extraTracks.concat(response.attributes().map(function(attr) { return attr.attr_id; }));
                         extraGenes = extraGenes.concat(response.toJSON());
                         extraAttributes=extraAttributes.concat(response.attributes());
+                        sortStatus = sortStatus.concat('increSort');
                         oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
                             geneData: geneDataColl.toJSON(),
                             clinicalData: extraGenes,
                             genes: genes,
                             clinical_attrs: extraAttributes,
-                            legend: document.getElementById('oncoprint_legend')
+                            legend: document.getElementById('oncoprint_legend'),
+                            sortStatus:sortStatus
                         },extraTracks);
                              
                         oncoprint.sortBy(sortBy.val(), cases.split(" "));
@@ -428,12 +472,14 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         extraTracks = extraTracks.concat(response.attributes().map(function(attr) { return attr.attr_id; }));
                         extraGenes = extraGenes.concat(response.toJSON());
                         extraAttributes=extraAttributes.concat(response.attributes());
+                        sortStatus = sortStatus.concat('increSort');
                         oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
                             geneData: geneDataColl.toJSON(),
                             clinicalData: extraGenes,
                             genes: genes,
                             clinical_attrs: extraAttributes,
-                            legend: document.getElementById('oncoprint_legend')
+                            legend: document.getElementById('oncoprint_legend'),
+                            sortStatus:sortStatus
                         },extraTracks);
 
                         oncoprint.sortBy(sortBy.val(), cases.split(" "));
@@ -534,6 +580,38 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                     $(this).css('fill', '#87CEFA');
                     $(this).css('font-size', '12px');
                     });
+                    
+        $(".oncoprint_Sort_Button").qtip({
+                content: {text: 'Click to sort '},
+                position: {my:'left bottom', at:'top middle', viewport: $(window)},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                show: {event: "mouseover"},
+                hide: {fixed: true, delay: 100, event: "mouseout"}
+            });
+        $('.oncoprint_Sort_Button').hover(
+            function () {
+            $(this).css('fill', '#0000FF');
+            $(this).css('font-size', '18px');
+            $(this).css('cursor', 'pointer');
+            },
+            function () {
+            $(this).css('fill', '#87CEFA');
+            $(this).css('font-size', '12px');
+            });
+        $('.oncoprint_Sort_Button').click(function() {
+            if($(this)[0].attributes.href.value==="images/nonSort.svg")
+            {
+                $(this)[0].attributes.href.value="images/increaseSort.svg";
+            }
+            else if($(this)[0].attributes.href.value==="images/increaseSort.svg")
+            {
+               $(this)[0].attributes.href.value="images/decreaseSort.svg"; 
+            }
+            else if($(this)[0].attributes.href.value==="images/decreaseSort.svg")
+            {
+                $(this)[0].attributes.href.value="images/nonSort.svg";
+            }
+        });
     }
     
     //delete clinicalAttribute added before
@@ -595,6 +673,38 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                     $(this).css('fill', '#87CEFA');
                     $(this).css('font-size', '12px');
                     });
+                    
+        $(".oncoprint_Sort_Button").qtip({
+                content: {text: 'Click to sort '},
+                position: {my:'left bottom', at:'top middle', viewport: $(window)},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                show: {event: "mouseover"},
+                hide: {fixed: true, delay: 100, event: "mouseout"}
+            });
+        $('.oncoprint_Sort_Button').hover(
+            function () {
+            $(this).css('fill', '#0000FF');
+            $(this).css('font-size', '18px');
+            $(this).css('cursor', 'pointer');
+            },
+            function () {
+            $(this).css('fill', '#87CEFA');
+            $(this).css('font-size', '12px');
+            });  
+        $('.oncoprint_Sort_Button').click(function() {
+            if($(this)[0].attributes.href.value==="images/nonSort.svg")
+            {
+                $(this)[0].attributes.href.value="images/increaseSort.svg";
+            }
+            else if($(this)[0].attributes.href.value==="images/increaseSort.svg")
+            {
+               $(this)[0].attributes.href.value="images/decreaseSort.svg"; 
+            }
+            else if($(this)[0].attributes.href.value==="images/decreaseSort.svg")
+            {
+                $(this)[0].attributes.href.value="images/nonSort.svg";
+            }
+        });
     }
     
     var _startX = 0;            // mouse starting positions
@@ -667,14 +777,6 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         if ((e.button == 1 && window.event != null || e.button == 0)&& target.className.animVal==="attribute_name")
         {        
             target.attributes.fill.value = "red";
-            
-            $('.attribute_name').hover(
-            function(){
-            $(this).css('cursor','move');
-            },
-            function() {
-            $(this).css('cursor', 'default');
-            }); 
             
             // grab the clicked element's position
             _offsetX = ExtractNumber(target.parentElement.attributes.x.value);

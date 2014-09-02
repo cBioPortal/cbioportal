@@ -48,8 +48,9 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
             params.legend =  document.getElementById("oncoprint_legend");
 
             function main(params) {
+                var extraTracks=[];
                 $oncoprint_el.empty();    // clear out the div each time
-                oncoprint = Oncoprint(oncoprint_el, params);
+                oncoprint = Oncoprint(oncoprint_el, params,extraTracks);
                 oncoprint.memoSort(genes);
             }
 
@@ -57,6 +58,21 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
 
             // remove text: "Copy number alterations are putative."
             $('#oncoprint_legend p').remove();
+
+//            $('.attribute_name').hover(
+//                function(){
+//                $(this).css('cursor','move');
+//                },
+//                function () {
+//                $(this).css('cursor', 'default');
+//            }); 
+//            $('.attribute_name').qtip({
+//                content: {text: 'Click to drag '},
+//                position: {my:'left bottom', at:'top right', viewport: $(window)},
+//                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+//                show: {event: "mouseover"},
+//                hide: {fixed: true, delay: 100, event: "mouseout"}
+//            });
 
             // set up the controls
             var zoom = zoomSetup_once($('#oncoprint_controls #zoom'), oncoprint.zoom);
@@ -94,6 +110,7 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
 
                                 cbio.util.requestDownload("svgtopdf.do", params);
                             });
+            
             $(".sample-download").click(function() {
                                 var samples = "Sample order in the Oncoprint is: \n";
                                 var genesValue = oncoprint.getData();
@@ -108,7 +125,7 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
                                 a.click();
                                 a.delete();
                             });
-
+            
             var $all_cna_levels_checkbox = $('#all_cna_levels');
             function update_oncoprint_cna_levels() {
                 var bool = $all_cna_levels_checkbox.is(":checked");
@@ -315,47 +332,46 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
 
                 return afterFilter;
             } 
- //           postFile('echofile', new FormData($cnaForm[0]), function(cnaResponse) {
-                postFile('echofile', new FormData($mutationForm[0]), function(mutationResponse) {
 
-                    var mutationTextAreaString = $mutation_file_example.val().trim();
-                    var filterExample = $filter_example.val().trim();
-                    
-                    var filterString = filterExample.split(/[\s,]+/); 
-                    
-                    var cnaTextAreaString = "";
+            postFile('echofile', new FormData($mutationForm[0]), function(mutationResponse) {
 
-                    var rawMutationString = _.isEmpty(mutationResponse) ? mutationTextAreaString : mutationResponse.mutation;
-                    //mutation_data = EchoedDataUtils.munge_mutation(rawMutationString);
-                    mutation_data = InputData.munge_the_mutation(rawMutationString);
-                    
- //                   var rawCnaString = _.isEmpty(cnaResponse) ? cnaTextAreaString : cnaResponse.cna;
-                    var rawCnaString = cnaTextAreaString;
-                    cna_data = EchoedDataUtils.munge_cna(rawCnaString);
-                    
-                    var data = concatData(mutation_data,cna_data);
+                var mutationTextAreaString = $mutation_file_example.val().trim();
+                var filterExample = $filter_example.val().trim();
 
-                    if(filterString[0] !== "")
-                    {
-                        data = filterData(filterString,data);
-                    }
+                var filterString = filterExample.split(/[\s,]+/); 
 
-                    cases = EchoedDataUtils.samples(data);
+                var cnaTextAreaString = "";
 
-                    var $error_box = $('#error-box');
-                    try {
-                        exec(data);
-                        $error_box.hide();
-                        oncoprint_loader_img.hide();
-                        $('#download_oncoprint').show();
-                    } catch(e) {
-                        // catch all errors and console.log them,
-                        // make sure that nothing is shown in the oncoprint box
-                        console.log("error creating oncoprint ", e);
-                        $oncoprint_el.empty();
-                        $error_box.show();
-                    }
-                });
-//            });
+                var rawMutationString = _.isEmpty(mutationResponse) ? mutationTextAreaString : mutationResponse.mutation;
+                //mutation_data = EchoedDataUtils.munge_mutation(rawMutationString);
+                mutation_data = InputData.munge_the_mutation(rawMutationString);
+
+//                   var rawCnaString = _.isEmpty(cnaResponse) ? cnaTextAreaString : cnaResponse.cna;
+                var rawCnaString = cnaTextAreaString;
+                cna_data = EchoedDataUtils.munge_cna(rawCnaString);
+
+                var data = concatData(mutation_data,cna_data);
+
+                if(filterString[0] !== "")
+                {
+                    data = filterData(filterString,data);
+                }
+
+                cases = EchoedDataUtils.samples(data);
+
+                var $error_box = $('#error-box');
+                try {
+                    exec(data);
+                    $error_box.hide();
+                    oncoprint_loader_img.hide();
+                    $('#download_oncoprint').show();
+                } catch(e) {
+                    // catch all errors and console.log them,
+                    // make sure that nothing is shown in the oncoprint box
+                    console.log("error creating oncoprint ", e);
+                    $oncoprint_el.empty();
+                    $error_box.show();
+                }
+            });
         });
 });

@@ -131,20 +131,66 @@ define("Oncoprint",
                     .attr('y', function(d) {
                         return (dims.vert_space / 1.80) + vertical_pos(d); });
 
-                var gene2percent = utils.percent_altered(params.geneData);
-
                 label.append('tspan')       // name
                     .attr('text-anchor', 'start')
                     .attr('font-weight', 'bold')
                     .attr('fill','black')
+                    .attr('cursor','move')
                     .attr('class','attribute_name')
                     .text(function(d) {
                         var maybe = utils.maybe_map(id2ClinicalAttr);
                         var value = maybe(d);
                         return value === d ? value : value.display_name;
                     });
+                    
 
-                label.append('tspan')       // percent_altered
+                var group=label_svg.append('g');
+                
+                group.selectAll('p')
+                    .data(attributes)
+                    .enter()
+                    .append('svg:image')
+                    .attr('class','oncoprint_Sort_Button')
+                    .attr('width', 15)
+                    .attr('height', 15)
+                    .attr("xlink:href",function(d){
+                        var maybe = utils.maybe_map(id2ClinicalAttr);
+                        var value = maybe(d);
+                        value === d ? value : value.display_name;
+                        if(_.indexOf(params.genes,d)<0) 
+                        {
+                            var indexOfClinicAttr = _.indexOf(attributes,d);
+                            if(params.sortStatus[indexOfClinicAttr] === "nonSort")
+                            {
+                                return "images/sort_asc_disabled.png";
+                            }
+                            
+                            if(params.sortStatus[indexOfClinicAttr] === "decresort")
+                            {
+                                return "images/decreaseSort.svg";
+                            }
+                            
+                            return "images/sort_asc.png";
+                        }
+
+                            return "";
+                        })
+                    .attr('x', '' + dims.label_width-40)
+                    .attr('text-anchor', 'end')
+                    .attr('y', function(d) {
+                        return (dims.vert_space / 1.80) + vertical_pos(d)-10; });  
+           
+                var percentLabel = group.selectAll('text')
+                    .data(attributes)
+                    .enter()
+                    .append('text')
+                    .attr('font-size', '12px')
+                    .attr('x', 0)
+                    .attr('y', function(d) {
+                        return (dims.vert_space / 1.80) + vertical_pos(d); });
+            
+                var gene2percent = utils.percent_altered(params.geneData);
+                percentLabel.append('tspan')       // percent_altered
                     .text(function(d) {
                         return (d in gene2percent) ? gene2percent[d].toString() + "%" : "x"; })
                     .attr('fill',function(d){ return (d in gene2percent) ? 'black':'#87CEFA'})
@@ -294,6 +340,15 @@ define("Oncoprint",
 
                 update(data);
                 cbio.util.autoHideOnMouseLeave($("#oncoprint_table"), $(".special_delete"));
+                cbio.util.autoHideOnMouseLeave($("#oncoprint_table"), $(".oncoprint_Sort_Button"));
+
+                $('.attribute_name').qtip({
+                content: {text: 'Click to drag '},
+                position: {my:'left bottom', at:'top middle', viewport: $(window)},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                show: {event: "mouseover"},
+                hide: {fixed: true, delay: 100, event: "mouseout"}
+                });
 
                 var altered
                     = utils.filter_altered(utils.nest_data(params.geneData));
@@ -444,8 +499,31 @@ define("Oncoprint",
                             state.data = MemoSort(state.data, state.attrs);
                         }
                         else if (by === 'clinical') {
-                            state.attrs = clinical_attrs.concat(params.genes);
+                            state.attrs = [];
+                           
+                            for(var i = 0; i < clinical_attrs.length; i++)
+                            {
+                                // delete clinic i from attrs list if the icon is non-sort
+                                if($('.oncoprint_Sort_Button')[i].attributes.href.value!=="images/sort_asc_disabled.png")
+                                {
+                                    state.attrs.push(clinical_attrs[i]);
+                                }
+                            }
+                            
+                            state.attrs = state.attrs.concat(params.genes);
                             state.data = MemoSort(state.data, state.attrs);
+                            
+                            for(var i = 0; i < clinical_attrs.length; i++)
+                            {
+                                if($('.oncoprint_Sort_Button')[i].attributes.href.value==="images/decreaseSort.svg")
+                                {
+                                    //reverse the order of clinic attribute i
+                                    for(var j=0; j< state.data.length/2; j++)
+                                    {
+                                        state.data[j].values[i]=state.data[state.data.length -1 - j].values[i];
+                                    }
+                                }
+                            }
                         }
                         else if (by === 'alphabetical') {
                             state.data = state.data.sort(function(x,y) {

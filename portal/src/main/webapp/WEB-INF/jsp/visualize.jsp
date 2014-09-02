@@ -11,12 +11,20 @@
 
 <p>
     <div class='gene_set_summary'>
-        Gene Set / Pathway is altered in <%=percentCasesAffected%> of all cases. <br>
+        <!--Gene Set / Pathway is altered in <%=percentCasesAffected%> of all cases. <br>-->
+        Gene Set / Pathway is altered in <div id='main_query_result_cases_affected_percent'></div> of all cases. <br>
     </div>
 </p>
 <p>
-    <small><strong><%=smry%></strong></small>
+    <!--small><strong><%=smry%></strong></small-->
+    <small><strong><div id='main_query_result_smry'></div></strong></small>
 </p>
+
+<script>
+    $("#main_query_result_smry").attach("XXXXX");
+    $("#main_query_result_cases_affected_percent").attach("XXXX");
+        
+</script>
 
 <%
     if (warningUnion.size() > 0) {

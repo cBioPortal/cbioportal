@@ -30,15 +30,6 @@
     }
 </style>
 
-<script>
-    var cancer_study_id = "<%out.print(cancer_study_id);%>";
-    var patient_set_id = "<%out.print(patient_set_id);%>";
-    var patient_ids_key = "";
-    if (patient_set_id === "-1") {
-        patient_ids_key = "<%out.print(patientIdsKey);%>";
-    }
-</script>
-
 <script type="text/javascript" src="js/src/survival_tab.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/survival-curve/survivalCurveView.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/survival-curve/survivalCurveProxy.js?<%=GlobalProperties.getAppVersion()%>"></script>

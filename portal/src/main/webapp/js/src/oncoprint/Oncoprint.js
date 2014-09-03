@@ -24,7 +24,6 @@ define("Oncoprint",
                     return i;
                 });
 
-
                 var data = clinicalData.concat(params.geneData);
 
                 var clinical_attrs = params.clinical_attrs      // extract attr_ids

@@ -495,7 +495,16 @@ define("Oncoprint",
                     // above is given.
                     var sortBy = function(by, cases) {
                         if (by === 'genes') {
-                            state.attrs = params.genes.concat(clinical_attrs);
+//                            state.attrs = params.genes.concat(clinical_attrs);
+                            state.attrs = params.genes.slice(0);
+                            for(var i = 0; i < clinical_attrs.length; i++)
+                            {
+                                // delete clinic i from attrs list if the icon is non-sort
+                                if($('.oncoprint_Sort_Button')[i].attributes.href.value!=="images/nonSort.svg")
+                                {
+                                    state.attrs.push(clinical_attrs[i]);
+                                }
+                            }
                             state.data = MemoSort(state.data, state.attrs);
                         }
                         else if (by === 'clinical') {

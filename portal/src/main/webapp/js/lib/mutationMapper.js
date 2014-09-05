@@ -5665,7 +5665,7 @@ var MutationDetailsTableView = Backbone.View.extend({
 		// load the compiled HTML into the Backbone "el"
 		self.$el.html(template);
 
-		// init pdb table
+		// init mutation table
 		self._initMutationTable();
 
 		// format after rendering
@@ -5852,6 +5852,8 @@ var MutationDetailsTableView = Backbone.View.extend({
 	 */
 	_applyFilter: function(oTable, filterStr, asRegex, updateBox, limit)
 	{
+		var self = this;
+
 		if (limit == undefined)
 		{
 			limit = null;
@@ -5866,7 +5868,15 @@ var MutationDetailsTableView = Backbone.View.extend({
 		var smartFilter = true;
 		var caseInsensitive = true;
 
+		var prevValue = self.$el.find(".mutation_datatables_filter input[type=search]").val();
+
 		oTable.fnFilter(filterStr, limit, asRegex, smartFilter, updateBox, caseInsensitive);
+
+		// reset to previous value if updateBox is set to false
+		if (!updateBox)
+		{
+			self.$el.find(".mutation_datatables_filter input[type=search]").val(prevValue);
+		}
 	}
 });
 
@@ -8802,8 +8812,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				tip: "Mutation ID"},
 			mutationSid: {sTitle: "Mutation SID",
 				tip: ""},
-			caseId: {sTitle: "Case ID",
-				tip: "Case ID"},
+			caseId: {sTitle: "Sample ID",
+				tip: "Sample ID"},
 			cancerStudy: {sTitle: "Cancer Study",
 				tip: "Cancer Study"},
 			tumorType: {sTitle: "Cancer Type",
@@ -9603,7 +9613,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 		// aoColumnDefs, oColVis, and fnDrawCallback may break column
 		// visibility, sorting, and filtering. Proceed wisely ;)
 		dataTableOpts: {
-			"sDom": '<"H"<"mutation_datatables_filter"f>C<"mutation_datatables_info"i>>t<"F">>',
+			"sDom": '<"H"<"mutation_datatables_filter"f>C<"mutation_datatables_info"i>>t<"F">',
 			"bJQueryUI": true,
 			"bPaginate": false,
 			//"sPaginationType": "two_button",
@@ -14647,22 +14657,30 @@ function MutationDiagramController(mutationDiagram, mutationTable, mutationUtil)
 
 	function tableFilterHandler(tableSelector)
 	{
-		var mutationMap = mutationUtil.getMutationIdMap();
 		var currentMutations = [];
 
-		// add current mutations into an array
-		var rows = tableSelector.find("tr");
-		_.each(rows, function(element, index) {
-			var mutationId = $(element).attr("id");
+		// add current (filtered) mutations into an array
+		var rowData = [];
 
-			if (mutationId)
+		// TODO this try/catch block is for backward compatibility,
+		// we will no longer need this once we completely migrate to DataTables 1.10
+		try {
+			// first, try new API.
+			// this is not backward compatible, requires DataTables 1.10 or later.
+			rowData = $(tableSelector).DataTable().rows({filter: "applied"}).data();
+		} catch(err) {
+			// if DataTables 1.10 is not available, try the old API function.
+			// DataTables 1.9.4 compatible code (which doesn't work with deferRender):
+			rowData = $(tableSelector).dataTable()._('tr', {filter: "applied"});
+		}
+
+		_.each(rowData, function(data, index) {
+			// assuming only the first element contains the datum
+			var mutation = data[0].mutation;
+
+			if (mutation)
 			{
-				var mutation = mutationMap[mutationId];
-
-				if (mutation)
-				{
-					currentMutations.push(mutation);
-				}
+				currentMutations.push(mutation);
 			}
 		});
 

@@ -1,10 +1,11 @@
 Clazz.declarePackage ("J.thread");
-Clazz.load (["java.lang.Thread"], "J.thread.JmolThread", ["J.util.Logger"], function () {
+Clazz.load (["java.lang.Thread"], "J.thread.JmolThread", ["JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.$name = "JmolThread";
-this.viewer = null;
+this.vwr = null;
 this.eval = null;
 this.sc = null;
+this.haveReference = false;
 this.hoverEnabled = false;
 this.startTime = 0;
 this.targetTime = 0;
@@ -18,24 +19,24 @@ this.useTimeout = true;
 this.junk = 0;
 Clazz.instantialize (this, arguments);
 }, J.thread, "JmolThread", Thread);
-$_M(c$, "setManager", 
-function (manager, viewer, params) {
+Clazz.defineMethod (c$, "setManager", 
+function (manager, vwr, params) {
 return 0;
-}, "~O,J.viewer.Viewer,~O");
-$_M(c$, "setViewer", 
-function (viewer, name) {
+}, "~O,JV.Viewer,~O");
+Clazz.defineMethod (c$, "setViewer", 
+function (vwr, name) {
 this.setName (name);
-this.$name = name + "_" + (($t$ = ++ J.thread.JmolThread.threadIndex, J.thread.JmolThread.prototype.threadIndex = J.thread.JmolThread.threadIndex, $t$));
-this.viewer = viewer;
-this.isJS = viewer.isSingleThreaded;
-}, "J.viewer.Viewer,~S");
-$_M(c$, "setEval", 
+this.$name = name + "_" + (++J.thread.JmolThread.threadIndex);
+this.vwr = vwr;
+this.isJS = vwr.isSingleThreaded;
+}, "JV.Viewer,~S");
+Clazz.defineMethod (c$, "setEval", 
 function (eval) {
 this.eval = eval;
-this.sc = this.viewer.getEvalContextAndHoldQueue (eval);
+this.sc = this.vwr.getEvalContextAndHoldQueue (eval);
 if (this.sc != null) this.useTimeout = eval.getAllowJSThreads ();
 }, "J.api.JmolScriptEvaluator");
-$_M(c$, "resumeEval", 
+Clazz.defineMethod (c$, "resumeEval", 
 function () {
 if (this.eval == null || !this.isJS || !this.useTimeout) return;
 this.sc.mustResumeEval = !this.stopped;
@@ -43,10 +44,9 @@ this.eval.resumeEval (this.sc);
 this.eval = null;
 this.sc = null;
 });
-$_M(c$, "start", 
+Clazz.defineMethod (c$, "start", 
 function () {
 if (this.isJS) {
-J.util.Logger.info ("starting " + this.$name);
 this.run ();
 } else {
 Clazz.superCall (this, J.thread.JmolThread, "start", []);
@@ -60,7 +60,7 @@ this.run1 (-1);
 if (Clazz.exceptionOf (e$$, InterruptedException)) {
 var e = e$$;
 {
-if (J.util.Logger.debugging && !(Clazz.instanceOf (this, J.thread.HoverWatcherThread))) this.oops (e);
+if (JU.Logger.debugging && !(Clazz.instanceOf (this, J.thread.HoverWatcherThread))) this.oops (e);
 }
 } else if (Clazz.exceptionOf (e$$, Exception)) {
 var e = e$$;
@@ -72,13 +72,13 @@ throw e$$;
 }
 }
 });
-$_M(c$, "oops", 
+Clazz.defineMethod (c$, "oops", 
 function (e) {
-J.util.Logger.debug (this.$name + " exception " + e);
-if (!this.viewer.isJS) e.printStackTrace ();
-this.viewer.queueOnHold = false;
+JU.Logger.debug (this.$name + " exception " + e);
+if (!this.vwr.isJS) e.printStackTrace ();
+this.vwr.queueOnHold = false;
 }, "Exception");
-$_M(c$, "runSleep", 
+Clazz.defineMethod (c$, "runSleep", 
 function (millis, runPtr) {
 if (this.isJS && !this.useTimeout) {
 return true;
@@ -87,18 +87,19 @@ var me = this;
 setTimeout(function(){me.run1(runPtr)}, Math.max(millis, 0));
 return false;
 }}, "~N,~N");
-$_M(c$, "interrupt", 
+Clazz.defineMethod (c$, "interrupt", 
 function () {
 this.stopped = true;
-this.viewer.startHoverWatcher (true);
+this.vwr.startHoverWatcher (true);
 if (!this.isJS) Clazz.superCall (this, J.thread.JmolThread, "interrupt", []);
 });
-$_M(c$, "checkInterrupted", 
-function () {
+Clazz.defineMethod (c$, "checkInterrupted", 
+function (ref) {
+if (this.haveReference && (ref == null || !ref.$name.equals (this.$name))) return true;
 {
 return this.stopped;
-}});
-$_M(c$, "reset", 
+}}, "J.thread.JmolThread");
+Clazz.defineMethod (c$, "reset", 
 function () {
 this.isReset = true;
 this.interrupt ();

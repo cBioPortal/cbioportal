@@ -1,7 +1,7 @@
-$_L(["java.lang.IllegalArgumentException"],"java.util.IllegalFormatException",null,function(){
-c$=$_T(java.util,"IllegalFormatException",IllegalArgumentException,java.io.Serializable);
-$_K(c$,
+Clazz.load(["java.lang.IllegalArgumentException"],"java.util.IllegalFormatException",null,function(){
+c$=Clazz.declareType(java.util,"IllegalFormatException",IllegalArgumentException,java.io.Serializable);
+Clazz.makeConstructor(c$,
 function(){
-$_R(this,java.util.IllegalFormatException,[]);
+Clazz.superConstructor(this,java.util.IllegalFormatException,[]);
 });
 });

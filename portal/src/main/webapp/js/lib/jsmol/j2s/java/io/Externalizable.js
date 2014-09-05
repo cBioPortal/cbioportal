@@ -1,1 +1,1 @@
-$_I(java.io,"Externalizable",java.io.Serializable);
+Clazz.declareInterface(java.io,"Externalizable",java.io.Serializable);

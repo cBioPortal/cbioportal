@@ -1,15 +1,15 @@
-$_L(["java.util.AbstractCollection","$.Set"],"java.util.AbstractSet",null,function(){
-c$=$_T(java.util,"AbstractSet",java.util.AbstractCollection,java.util.Set);
-$_V(c$,"equals",
+Clazz.load(["java.util.AbstractCollection","$.Set"],"java.util.AbstractSet",null,function(){
+c$=Clazz.declareType(java.util,"AbstractSet",java.util.AbstractCollection,java.util.Set);
+Clazz.overrideMethod(c$,"equals",
 function(object){
 if(this===object){
 return true;
-}if($_O(object,java.util.Set)){
+}if(Clazz.instanceOf(object,java.util.Set)){
 var s=object;
 return this.size()==s.size()&&this.containsAll(s);
 }return false;
 },"~O");
-$_V(c$,"hashCode",
+Clazz.overrideMethod(c$,"hashCode",
 function(){
 var result=0;
 var it=this.iterator();
@@ -19,7 +19,7 @@ result+=next==null?0:next.hashCode();
 }
 return result;
 });
-$_V(c$,"removeAll",
+Clazz.overrideMethod(c$,"removeAll",
 function(collection){
 var result=false;
 if(this.size()<=collection.size()){

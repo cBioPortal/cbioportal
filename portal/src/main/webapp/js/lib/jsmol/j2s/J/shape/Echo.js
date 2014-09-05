@@ -1,7 +1,7 @@
 Clazz.declarePackage ("J.shape");
-Clazz.load (["J.shape.TextShape"], "J.shape.Echo", ["J.modelset.Object2d", "$.Text", "J.util.TextFormat"], function () {
+Clazz.load (["J.shape.TextShape"], "J.shape.Echo", ["JM.Object2d", "$.Text", "JU.Txt"], function () {
 c$ = Clazz.declareType (J.shape, "Echo", J.shape.TextShape);
-$_M(c$, "initShape", 
+Clazz.defineMethod (c$, "initShape", 
 function () {
 Clazz.superCall (this, J.shape.Echo, "initShape", []);
 this.setProperty ("target", "top", null);
@@ -20,7 +20,7 @@ t.pointerPt = (value == null ? null : value);
 t.pointer = (value == null ? 0 : 1);
 return;
 }if ("xyz" === propertyName) {
-if (this.currentObject != null && this.viewer.getBoolean (603979845)) this.currentObject.setScalePixelsPerMicron (this.viewer.getScalePixelsPerAngstrom (false) * 10000);
+if (this.currentObject != null && this.vwr.getBoolean (603979845)) this.currentObject.setScalePixelsPerMicron (this.vwr.getScalePixelsPerAngstrom (false) * 10000);
 }if ("scale" === propertyName) {
 if (this.currentObject == null) {
 if (this.isAll) for (var t, $t = this.objects.values ().iterator (); $t.hasNext () && ((t = $t.next ()) || true);) t.setScale ((value).floatValue ());
@@ -38,17 +38,17 @@ return;
 }if ("thisID" === propertyName) {
 var target = value;
 this.currentObject = this.objects.get (target);
-if (this.currentObject == null && J.util.TextFormat.isWild (target)) this.thisID = target.toUpperCase ();
+if (this.currentObject == null && JU.Txt.isWild (target)) this.thisID = target.toUpperCase ();
 return;
 }if ("hidden" === propertyName) {
 var isHidden = (value).booleanValue ();
 if (this.currentObject == null) {
-if (this.isAll || this.thisID != null) for (var t, $t = this.objects.values ().iterator (); $t.hasNext () && ((t = $t.next ()) || true);) if (this.isAll || J.util.TextFormat.isMatch (t.target.toUpperCase (), this.thisID, true, true)) t.hidden = isHidden;
+if (this.isAll || this.thisID != null) for (var t, $t = this.objects.values ().iterator (); $t.hasNext () && ((t = $t.next ()) || true);) if (this.isAll || JU.Txt.isMatch (t.target.toUpperCase (), this.thisID, true, true)) t.hidden = isHidden;
 
 return;
 }(this.currentObject).hidden = isHidden;
 return;
-}if (J.modelset.Object2d.setProperty (propertyName, value, this.currentObject)) return;
+}if (JM.Object2d.setProperty (propertyName, value, this.currentObject)) return;
 if ("target" === propertyName) {
 this.thisID = null;
 var target = (value).intern ().toLowerCase ();
@@ -67,7 +67,7 @@ valign = 3;
 halign = 2;
 } else if ("bottom" === target) {
 valign = 2;
-}text = J.modelset.Text.newEcho (this.viewer, this.gdata, this.gdata.getFont3DFS ("Serif", 20), target, 10, valign, halign, 0);
+}text = JM.Text.newEcho (this.vwr, this.gdata, this.gdata.getFont3DFS ("Serif", 20), target, 10, valign, halign, 0);
 text.setAdjustForWindow (true);
 this.objects.put (target, text);
 if (this.currentFont != null) text.setFont (this.currentFont, true);
@@ -78,17 +78,17 @@ if (this.currentBgTranslucentLevel != 0) text.setTranslucent (this.currentBgTran
 }this.currentObject = text;
 return;
 }}this.setPropTS (propertyName, value, null);
-}, "~S,~O,J.util.BS");
+}, "~S,~O,JU.BS");
 Clazz.overrideMethod (c$, "getPropertyData", 
 function (property, data) {
 if ("currentTarget" === property) {
 return (this.currentObject != null && (data[0] = this.currentObject.target) != null);
 }if (property === "checkID") {
 var key = (data[0]).toUpperCase ();
-var isWild = J.util.TextFormat.isWild (key);
+var isWild = JU.Txt.isWild (key);
 for (var t, $t = this.objects.values ().iterator (); $t.hasNext () && ((t = $t.next ()) || true);) {
 var id = t.target;
-if (id.equalsIgnoreCase (key) || isWild && J.util.TextFormat.isMatch (id.toUpperCase (), key, true, true)) {
+if (id.equalsIgnoreCase (key) || isWild && JU.Txt.isMatch (id.toUpperCase (), key, true, true)) {
 data[1] = id;
 return true;
 }}
@@ -97,7 +97,7 @@ return false;
 }, "~S,~A");
 Clazz.overrideMethod (c$, "getShapeState", 
 function () {
-return this.viewer.getShapeState (this);
+return this.vwr.getShapeState (this);
 });
 Clazz.defineStatics (c$,
 "FONTFACE", "Serif",

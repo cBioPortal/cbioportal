@@ -4,11 +4,12 @@ c$ = Clazz.decorateAsClass (function () {
 this.cksum = null;
 Clazz.instantialize (this, arguments);
 }, java.util.zip, "CheckedInputStream", java.io.FilterInputStream);
-Clazz.makeConstructor (c$, 
-function ($in, cksum) {
-Clazz.superConstructor (this, java.util.zip.CheckedInputStream, [$in]);
+Clazz.defineMethod (c$, "set", 
+function (cksum) {
+this.$in = this.$in;
 this.cksum = cksum;
-}, "java.io.InputStream,JZ.Checksum");
+return this;
+}, "JU.Checksum");
 Clazz.overrideMethod (c$, "readByteAsInt", 
 function () {
 var b = this.$in.readByteAsInt ();
@@ -36,7 +37,7 @@ return total;
 }
 return total;
 }, "~N");
-$_M(c$, "getChecksum", 
+Clazz.defineMethod (c$, "getChecksum", 
 function () {
 return this.cksum;
 });

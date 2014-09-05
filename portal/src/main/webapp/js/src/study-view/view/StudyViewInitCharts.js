@@ -136,12 +136,17 @@ var StudyViewInitCharts = (function(){
             var _allNumber = false;
             
             for( var j = 0; j < _arrLength; j++ ){
-                if(_varValuesNum.hasOwnProperty(_arr[j][_attr[i]["attr_id"]])){
-                    _varValuesNum[_arr[j][_attr[i]["attr_id"]]]++;
-                }else{
-                    _varValuesNum[_arr[j][_attr[i]["attr_id"]]]=0;
+                if(_attr[i]["attr_id"] === "PATIENT_ID" && 
+                        _arr[j]["PATIENT_ID"] === 'NA') {
+                    _varValuesNum.hasOwnProperty(_arr[j].CASE_ID)? _varValuesNum[_arr[j].CASE_ID]++ :_varValuesNum[_arr[j].CASE_ID]=0;
+                }else {
+                    if(_varValuesNum.hasOwnProperty(_arr[j][_attr[i]["attr_id"]])){
+                        _varValuesNum[_arr[j][_attr[i]["attr_id"]]]++;
+                    }else{
+                        _varValuesNum[_arr[j][_attr[i]["attr_id"]]]=0;
+                    }
+                    dataArr[_arr[j].CASE_ID] = _arr[j];
                 }
-                dataArr[_arr[j].CASE_ID] = _arr[j];   
             }
             
             _keys = Object.keys(_varValuesNum);
@@ -833,7 +838,7 @@ var StudyViewInitCharts = (function(){
     
     function resetBars(_exceptionAttr) {
         var _attrIds = [],
-            _attrIdsLength = 0
+            _attrIdsLength = 0;
     
         for( var _key in varType) {
             if(varType[_key] === 'bar'){

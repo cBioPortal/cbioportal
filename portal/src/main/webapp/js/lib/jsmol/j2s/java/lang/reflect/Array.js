@@ -1,7 +1,7 @@
 Array.getComponentType=function(){
 return Object;
-};c$=$_T(java.lang.reflect,"Array");
-c$.newInstance=$_M(c$,"newInstance",
+};c$=Clazz.declareType(java.lang.reflect,"Array");
+c$.newInstance=Clazz.defineMethod(c$,"newInstance",
 function(componentType,size){
-return $_A(length);
+return Clazz.newArray(length);
 },"Class,~N");

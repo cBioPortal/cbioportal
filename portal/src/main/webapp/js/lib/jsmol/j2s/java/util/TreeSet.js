@@ -1,29 +1,29 @@
-$_L(["java.util.AbstractSet","$.SortedSet","$.TreeMap"],"java.util.TreeSet",["java.lang.IllegalArgumentException"],function(){
-c$=$_C(function(){
+Clazz.load(["java.util.AbstractSet","$.SortedSet","$.TreeMap"],"java.util.TreeSet",["java.lang.IllegalArgumentException"],function(){
+c$=Clazz.decorateAsClass(function(){
 this.backingMap=null;
-$_Z(this,arguments);
+Clazz.instantialize(this,arguments);
 },java.util,"TreeSet",java.util.AbstractSet,[java.util.SortedSet,Cloneable,java.io.Serializable]);
-$_K(c$,
+Clazz.makeConstructor(c$,
 ($fz=function(map){
-$_R(this,java.util.TreeSet,[]);
+Clazz.superConstructor(this,java.util.TreeSet,[]);
 this.backingMap=map;
 },$fz.isPrivate=true,$fz),"java.util.SortedMap");
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(){
-$_R(this,java.util.TreeSet,[]);
+Clazz.superConstructor(this,java.util.TreeSet,[]);
 this.backingMap=new java.util.TreeMap();
 });
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(collection){
 this.construct();
 this.addAll(collection);
 },"java.util.Collection");
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(comparator){
-$_R(this,java.util.TreeSet,[]);
+Clazz.superConstructor(this,java.util.TreeSet,[]);
 this.backingMap=new java.util.TreeMap(comparator);
 },"java.util.Comparator");
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(set){
 this.construct(set.comparator());
 var it=set.iterator();
@@ -31,44 +31,44 @@ while(it.hasNext()){
 this.add(it.next());
 }
 },"java.util.SortedSet");
-$_V(c$,"add",
+Clazz.overrideMethod(c$,"add",
 function(object){
 return this.backingMap.put(object,object)==null;
 },"~O");
-$_V(c$,"clear",
+Clazz.overrideMethod(c$,"clear",
 function(){
 this.backingMap.clear();
 });
-$_M(c$,"clone",
+Clazz.defineMethod(c$,"clone",
 function(){
 try{
-var clone=$_U(this,java.util.TreeSet,"clone",[]);
-if($_O(this.backingMap,java.util.TreeMap)){
+var clone=Clazz.superCall(this,java.util.TreeSet,"clone",[]);
+if(Clazz.instanceOf(this.backingMap,java.util.TreeMap)){
 clone.backingMap=(this.backingMap).clone();
 }else{
 clone.backingMap=new java.util.TreeMap(this.backingMap);
 }return clone;
 }catch(e){
-if($_O(e,CloneNotSupportedException)){
+if(Clazz.instanceOf(e,CloneNotSupportedException)){
 return null;
 }else{
 throw e;
 }
 }
 });
-$_M(c$,"comparator",
+Clazz.defineMethod(c$,"comparator",
 function(){
 return this.backingMap.comparator();
 });
-$_V(c$,"contains",
+Clazz.overrideMethod(c$,"contains",
 function(object){
 return this.backingMap.containsKey(object);
 },"~O");
-$_V(c$,"first",
+Clazz.overrideMethod(c$,"first",
 function(){
 return this.backingMap.firstKey();
 });
-$_V(c$,"headSet",
+Clazz.overrideMethod(c$,"headSet",
 function(end){
 var c=this.backingMap.comparator();
 if(c==null){
@@ -77,27 +77,27 @@ if(c==null){
 c.compare(end,end);
 }return new java.util.TreeSet(this.backingMap.headMap(end));
 },"~O");
-$_V(c$,"isEmpty",
+Clazz.overrideMethod(c$,"isEmpty",
 function(){
 return this.backingMap.isEmpty();
 });
-$_M(c$,"iterator",
+Clazz.defineMethod(c$,"iterator",
 function(){
 return this.backingMap.keySet().iterator();
 });
-$_V(c$,"last",
+Clazz.overrideMethod(c$,"last",
 function(){
 return this.backingMap.lastKey();
 });
-$_V(c$,"remove",
+Clazz.overrideMethod(c$,"remove",
 function(object){
 return this.backingMap.remove(object)!=null;
 },"~O");
-$_V(c$,"size",
+Clazz.overrideMethod(c$,"size",
 function(){
 return this.backingMap.size();
 });
-$_V(c$,"subSet",
+Clazz.overrideMethod(c$,"subSet",
 function(start,end){
 var c=this.backingMap.comparator();
 if(c==null){
@@ -108,7 +108,7 @@ if(c.compare(start,end)<=0){
 return new java.util.TreeSet(this.backingMap.subMap(start,end));
 }}throw new IllegalArgumentException();
 },"~O,~O");
-$_V(c$,"tailSet",
+Clazz.overrideMethod(c$,"tailSet",
 function(start){
 var c=this.backingMap.comparator();
 if(c==null){

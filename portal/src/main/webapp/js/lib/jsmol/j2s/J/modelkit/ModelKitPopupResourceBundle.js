@@ -5,15 +5,11 @@ Clazz.overrideMethod (c$, "getMenuName",
 function () {
 return "modelkitMenu";
 });
-Clazz.makeConstructor (c$, 
-function () {
-Clazz.superConstructor (this, J.modelkit.ModelKitPopupResourceBundle, [null, null]);
-});
 Clazz.overrideMethod (c$, "buildStructure", 
 function (menuStructure) {
 this.addItems (J.modelkit.ModelKitPopupResourceBundle.menuContents);
 this.addItems (J.modelkit.ModelKitPopupResourceBundle.structureContents);
-this.setStructure (menuStructure);
+if (menuStructure != null) this.setStructure (menuStructure,  new J.i18n.GT ());
 }, "~S");
 Clazz.overrideMethod (c$, "getWordContents", 
 function () {
@@ -22,6 +18,10 @@ var words = ["atomMenu", "<atoms.png>", "moreAtomMenu", "<dotdotdot.png>", "bond
 J.i18n.GT.setDoTranslate (wasTranslating);
 return words;
 });
+Clazz.overrideMethod (c$, "getMenuAsText", 
+function (title) {
+return this.getStuctureAsText (title, J.modelkit.ModelKitPopupResourceBundle.menuContents, J.modelkit.ModelKitPopupResourceBundle.structureContents);
+}, "~S");
 Clazz.defineStatics (c$,
 "MENU_NAME", "modelkitMenu");
 c$.menuContents = c$.prototype.menuContents = [["modelkitMenu", "atomMenu bondMenu optionsMenu"], ["optionsMenu", "new center addh minimize hmin  - undo redo - SIGNEDsaveFile SIGNEDsaveState exit"], ["atomMenu", "assignAtom_XP!CB assignAtom_XxP!CB dragAtomP!CB dragMinimizeP!CB dragMoleculeP!CB dragMinimizeMoleculeP!CB invertStereoP!CB - assignAtom_CP!CB assignAtom_HP!CB assignAtom_NP!CB assignAtom_OP!CB assignAtom_FP!CB assignAtom_ClP!CB assignAtom_BrP!CB _??P!CB _??P!CB _??P!CB moreAtomMenu - assignAtom_PlP!CB assignAtom_MiP!CB"], ["moreAtomMenu", "clearQ - _??P!CB _??P!CB _??P!CB _??P!CB _??P!CB _??P!CB "], ["bondMenu", "assignBond_0P!CB assignBond_1P!CB assignBond_2P!CB assignBond_3P!CB - assignBond_pP!CB assignBond_mP!CB - rotateBondP!CB"]];

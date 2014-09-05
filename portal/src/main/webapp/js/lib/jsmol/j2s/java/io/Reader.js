@@ -10,7 +10,7 @@ if (lock == null) {
 throw  new NullPointerException ();
 }this.lock = lock;
 }, "~O");
-$_M(c$, "skip", 
+Clazz.defineMethod (c$, "skip", 
 function (n) {
 if (n < 0) throw  new IllegalArgumentException ("skip value is negative");
 var nn = Math.min (n, 8192);
@@ -24,22 +24,22 @@ r -= nc;
 }
 return n - r;
 }}, "~N");
-$_M(c$, "ready", 
+Clazz.defineMethod (c$, "ready", 
 function () {
 return false;
 });
-$_M(c$, "markSupported", 
+Clazz.defineMethod (c$, "markSupported", 
 function () {
 return false;
 });
-$_M(c$, "mark", 
+Clazz.defineMethod (c$, "mark", 
 function (readAheadLimit) {
 throw  new java.io.IOException ("mark() not supported");
 }, "~N");
-$_M(c$, "reset", 
+Clazz.defineMethod (c$, "reset", 
 function () {
 throw  new java.io.IOException ("reset() not supported");
 });
 Clazz.defineStatics (c$,
-"maxSkipBufferSize", 8192);
+"MAX_SKIP_BUFFE_SIZE", 8192);
 });

@@ -1,3 +1,3 @@
-$_L(["java.lang.RuntimeException"],"java.lang.IllegalMonitorStateException",null,function(){
-c$=$_T(java.lang,"IllegalMonitorStateException",RuntimeException);
+Clazz.load(["java.lang.RuntimeException"],"java.lang.IllegalMonitorStateException",null,function(){
+c$=Clazz.declareType(java.lang,"IllegalMonitorStateException",RuntimeException);
 });

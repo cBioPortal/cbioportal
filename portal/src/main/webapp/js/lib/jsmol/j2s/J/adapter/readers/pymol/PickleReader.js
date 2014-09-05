@@ -1,7 +1,7 @@
 Clazz.declarePackage ("J.adapter.readers.pymol");
-Clazz.load (["java.util.Hashtable", "J.util.JmolList"], "J.adapter.readers.pymol.PickleReader", ["java.lang.Double", "$.Long", "J.util.Logger", "$.SB"], function () {
+Clazz.load (["java.util.Hashtable", "JU.Lst"], "J.adapter.readers.pymol.PickleReader", ["java.lang.Double", "$.Long", "JU.SB", "JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
-this.viewer = null;
+this.vwr = null;
 this.binaryDoc = null;
 this.stack = null;
 this.marks = null;
@@ -15,27 +15,26 @@ this.emptyListPt = 0;
 this.thisSection = null;
 this.inMovie = false;
 this.inNames = false;
-this.thisName = null;
 this.lastMark = 0;
 this.retrieveCount = 0;
 Clazz.instantialize (this, arguments);
 }, J.adapter.readers.pymol, "PickleReader");
 Clazz.prepareFields (c$, function () {
-this.stack =  new J.util.JmolList ();
-this.marks =  new J.util.JmolList ();
-this.build =  new J.util.JmolList ();
+this.stack =  new JU.Lst ();
+this.marks =  new JU.Lst ();
+this.build =  new JU.Lst ();
 this.memo =  new java.util.Hashtable ();
 });
 Clazz.makeConstructor (c$, 
-function (doc, viewer) {
+function (doc, vwr) {
 this.binaryDoc = doc;
-this.viewer = viewer;
-}, "J.api.JmolDocument,J.viewer.Viewer");
-$_M(c$, "log", 
-($fz = function (s) {
-this.viewer.log (s + "\0");
-}, $fz.isPrivate = true, $fz), "~S");
-$_M(c$, "getMap", 
+this.vwr = vwr;
+}, "javajs.api.GenericBinaryDocument,JV.Viewer");
+Clazz.defineMethod (c$, "log", 
+ function (s) {
+this.vwr.log (s + "\0");
+}, "~S");
+Clazz.defineMethod (c$, "getMap", 
 function (logging) {
 this.logging = logging;
 var s;
@@ -62,8 +61,7 @@ case 101:
 l = this.getObjects (this.getMark ());
 if (this.inNames && this.markCount == 2) {
 var pt = this.binaryDoc.getPosition ();
-System.out.println (" " + this.thisName + " " + this.filePt + " " + (pt - this.filePt));
-var l2 =  new J.util.JmolList ();
+var l2 =  new JU.Lst ();
 l2.addLast (Integer.$valueOf (this.filePt));
 l2.addLast (Integer.$valueOf (pt - this.filePt));
 l.addLast (l2);
@@ -102,7 +100,7 @@ case 106:
 i = this.binaryDoc.readIntLE ();
 o = this.getMemo (i);
 if (o == null) {
-J.util.Logger.error ("did not find memo item for " + i);
+JU.Logger.error ("did not find memo item for " + i);
 this.push ("LONG_BINGET" + (++this.id));
 } else {
 this.push (o);
@@ -113,7 +111,6 @@ a =  Clazz.newByteArray (i, 0);
 this.binaryDoc.readByteArray (a, 0, i);
 s =  String.instantialize (a, "UTF-8");
 if (this.inNames && this.markCount == 3 && this.lastMark == this.stack.size ()) {
-this.thisName = s;
 this.filePt = this.emptyListPt;
 }this.push (s);
 break;
@@ -133,10 +130,10 @@ this.push (s);
 break;
 case 93:
 this.emptyListPt = this.binaryDoc.getPosition () - 1;
-this.push ( new J.util.JmolList ());
+this.push ( new JU.Lst ());
 break;
 case 99:
-l =  new J.util.JmolList ();
+l =  new JU.Lst ();
 l.addLast ("global");
 l.addLast (this.readString ());
 l.addLast (this.readString ());
@@ -157,7 +154,7 @@ this.push (this.getObjects (this.getMark ()));
 break;
 case 115:
 o = this.pop ();
-if (!(Clazz.instanceOf (this.peek (), String))) J.util.Logger.error (this.peek () + " is not a string");
+if (!(Clazz.instanceOf (this.peek (), String))) JU.Logger.error (this.peek () + " is not a string");
 s = this.pop ();
 (this.peek ()).put (s, o);
 break;
@@ -165,7 +162,7 @@ case 117:
 mark = this.getMark ();
 l = this.getObjects (mark);
 o = this.peek ();
-if (Clazz.instanceOf (o, J.util.JmolList)) {
+if (Clazz.instanceOf (o, JU.Lst)) {
 for (i = 0; i < l.size (); i++) (o).addLast (l.get (i));
 
 } else {
@@ -196,11 +193,11 @@ throw e;
 }
 break;
 default:
-J.util.Logger.error ("Pickle reader error: " + b + " " + this.binaryDoc.getPosition ());
+JU.Logger.error ("Pickle reader error: " + b + " " + this.binaryDoc.getPosition ());
 }
 }
 if (logging) this.log ("");
-J.util.Logger.info ("PyMOL Pickle reader cached " + this.memo.size () + " tokens; retrieved " + this.retrieveCount);
+JU.Logger.info ("PyMOL Pickle reader cached " + this.memo.size () + " tokens; retrieved " + this.retrieveCount);
 this.memo = null;
 map = this.stack.remove (0);
 if (map.size () == 0) for (i = this.stack.size (); --i >= 0; ) {
@@ -210,43 +207,42 @@ map.put (s, o);
 }
 return map;
 }, "~B");
-$_M(c$, "putMemo", 
-($fz = function (i, doCheck) {
+Clazz.defineMethod (c$, "putMemo", 
+ function (i, doCheck) {
 var o = this.peek ();
 if (Clazz.instanceOf (o, String)) {
 if (doCheck && this.markCount >= 6 || this.markCount == 3 && this.inMovie) return;
 this.memo.put (Integer.$valueOf (i), o);
-}}, $fz.isPrivate = true, $fz), "~N,~B");
-$_M(c$, "getMemo", 
-($fz = function (i) {
+}}, "~N,~B");
+Clazz.defineMethod (c$, "getMemo", 
+ function (i) {
 var o = this.memo.get (Integer.$valueOf (i));
 if (o == null) return o;
-System.out.println ("retrieving string " + o + " at " + this.binaryDoc.getPosition ());
 this.retrieveCount++;
 return o;
-}, $fz.isPrivate = true, $fz), "~N");
-$_M(c$, "getObjects", 
-($fz = function (mark) {
+}, "~N");
+Clazz.defineMethod (c$, "getObjects", 
+ function (mark) {
 var n = this.stack.size () - mark;
-var args =  new J.util.JmolList ();
+var args =  new JU.Lst ();
 for (var j = 0; j < n; j++) args.addLast (null);
 
 for (var j = n, i = this.stack.size (); --i >= mark; ) args.set (--j, this.stack.remove (i));
 
 return args;
-}, $fz.isPrivate = true, $fz), "~N");
-$_M(c$, "readString", 
-($fz = function () {
-var sb =  new J.util.SB ();
+}, "~N");
+Clazz.defineMethod (c$, "readString", 
+ function () {
+var sb =  new JU.SB ();
 while (true) {
 var b = this.binaryDoc.readByte ();
 if (b == 0xA) break;
 sb.appendC (String.fromCharCode (b));
 }
 return sb.toString ();
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "putMark", 
-($fz = function (i) {
+});
+Clazz.defineMethod (c$, "putMark", 
+ function (i) {
 if (this.logging) this.log ("\n " + Integer.toHexString (this.binaryDoc.getPosition ()) + " [");
 this.marks.addLast (Integer.$valueOf (this.lastMark = i));
 this.markCount++;
@@ -259,24 +255,24 @@ break;
 default:
 break;
 }
-}, $fz.isPrivate = true, $fz), "~N");
-$_M(c$, "getMark", 
-($fz = function () {
+}, "~N");
+Clazz.defineMethod (c$, "getMark", 
+ function () {
 return this.marks.remove (--this.markCount).intValue ();
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "push", 
-($fz = function (o) {
+});
+Clazz.defineMethod (c$, "push", 
+ function (o) {
 if (this.logging && (Clazz.instanceOf (o, String) || Clazz.instanceOf (o, Double) || Clazz.instanceOf (o, Integer))) this.log ((Clazz.instanceOf (o, String) ? "'" + o + "'" : o) + ", ");
 this.stack.addLast (o);
-}, $fz.isPrivate = true, $fz), "~O");
-$_M(c$, "peek", 
-($fz = function () {
+}, "~O");
+Clazz.defineMethod (c$, "peek", 
+ function () {
 return this.stack.get (this.stack.size () - 1);
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "pop", 
-($fz = function () {
+});
+Clazz.defineMethod (c$, "pop", 
+ function () {
 return this.stack.remove (this.stack.size () - 1);
-}, $fz.isPrivate = true, $fz));
+});
 Clazz.defineStatics (c$,
 "APPEND", 97,
 "APPENDS", 101,

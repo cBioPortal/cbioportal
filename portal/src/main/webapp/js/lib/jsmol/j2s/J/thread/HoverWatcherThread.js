@@ -8,14 +8,14 @@ this.hoverDelay = 0;
 Clazz.instantialize (this, arguments);
 }, J.thread, "HoverWatcherThread", J.thread.JmolThread);
 Clazz.makeConstructor (c$, 
-function (actionManager, current, moved, viewer) {
+function (actionManager, current, moved, vwr) {
 Clazz.superConstructor (this, J.thread.HoverWatcherThread);
-this.setViewer (viewer, "HoverWatcher");
+this.setViewer (vwr, "HoverWatcher");
 this.actionManager = actionManager;
 this.current = current;
 this.moved = moved;
 this.start ();
-}, "J.viewer.ActionManager,J.viewer.MouseState,J.viewer.MouseState,J.viewer.Viewer");
+}, "JV.ActionManager,JV.MouseState,JV.MouseState,JV.Viewer");
 Clazz.overrideMethod (c$, "run1", 
 function (mode) {
 while (true) switch (mode) {
@@ -24,7 +24,7 @@ if (!this.isJS) Thread.currentThread ().setPriority (1);
 mode = 0;
 break;
 case 0:
-this.hoverDelay = this.viewer.getHoverDelay ();
+this.hoverDelay = this.vwr.getHoverDelay ();
 if (this.stopped || this.hoverDelay <= 0 || !this.runSleep (this.hoverDelay, 1)) return;
 mode = 1;
 break;

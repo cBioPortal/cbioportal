@@ -1,3 +1,8 @@
+# August 8, 2014
+* Released two new tools
+    * [Oncoprinter](oncoprinter.jsp) lets you create Oncoprints from your own, custom data
+    * [MutationMapper](mutation_mapper.jsp) draws mutation diagrams (lollipop plots) from your custom data
+
 # May 21, 2014
 * All TCGA data updated to the Firehose run of April 16, 2014
 

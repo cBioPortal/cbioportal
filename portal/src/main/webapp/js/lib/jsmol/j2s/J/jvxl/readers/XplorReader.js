@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.jvxl.readers");
-Clazz.load (["J.jvxl.readers.MapFileReader"], "J.jvxl.readers.XplorReader", ["J.util.Logger", "$.SB", "J.viewer.Viewer"], function () {
+Clazz.load (["J.jvxl.readers.MapFileReader"], "J.jvxl.readers.XplorReader", ["JU.SB", "JU.Logger", "JV.Viewer"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.nBlock = 0;
 this.linePt = 2147483647;
@@ -18,14 +18,14 @@ this.nSurfaces = 1;
 }, "J.jvxl.readers.SurfaceGenerator,java.io.BufferedReader");
 Clazz.overrideMethod (c$, "readParameters", 
 function () {
-this.jvxlFileHeaderBuffer =  new J.util.SB ();
+this.jvxlFileHeaderBuffer =  new JU.SB ();
 var nLines = this.parseIntStr (this.getLine ());
 for (var i = nLines; --i >= 0; ) {
 this.line = this.br.readLine ().trim ();
-J.util.Logger.info ("XplorReader: " + this.line);
+JU.Logger.info ("XplorReader: " + this.line);
 this.jvxlFileHeaderBuffer.append ("# ").append (this.line).appendC ('\n');
 }
-this.jvxlFileHeaderBuffer.append ("Xplor data\nJmol " + J.viewer.Viewer.getJmolVersion () + '\n');
+this.jvxlFileHeaderBuffer.append ("Xplor data\nJmol " + JV.Viewer.getJmolVersion () + '\n');
 this.na = this.parseIntStr (this.getLine ());
 this.nxyzStart[0] = this.parseInt ();
 this.nx = this.parseInt () - this.nxyzStart[0] + 1;
@@ -49,13 +49,13 @@ this.getVectorsAndOrigin ();
 this.setCutoffAutomatic ();
 this.nBlock = this.voxelCounts[2] * this.voxelCounts[1];
 });
-$_M(c$, "getLine", 
-($fz = function () {
+Clazz.defineMethod (c$, "getLine", 
+ function () {
 this.readLine ();
 while (this.line != null && (this.line.length == 0 || this.line.indexOf ("REMARKS") >= 0 || this.line.indexOf ("XPLOR:") >= 0)) this.readLine ();
 
 return this.line;
-}, $fz.isPrivate = true, $fz));
+});
 Clazz.overrideMethod (c$, "nextVoxel", 
 function () {
 if (this.linePt >= this.line.length) {

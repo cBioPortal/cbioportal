@@ -632,7 +632,7 @@ Clazz.load = function (musts, clazz, optionals, declaration) {
  * TODO: make sure that invading Object prototype does not affect other
  * existed library, such as Dojo, YUI, Prototype, ...
  */
-java.lang.Object = JavaObject;
+java.lang.Object = Clazz._O;
 
 JavaObject.getName = Clazz.innerFunctions.getName;
 
@@ -683,13 +683,13 @@ System = {
 		}
 	}
 };
-System.out = new JavaObject ();
+System.out = new Clazz._O ();
 System.out.__CLASS_NAME__ = "java.io.PrintStream";
 System.out.print = function () {};
 System.out.printf = function () {};
 System.out.println = function () {};
 
-System.err = new JavaObject ();
+System.err = new Clazz._O ();
 System.err.__CLASS_NAME__ = "java.io.PrintStream";
 System.err.print = function () {};
 System.err.printf = function () {};

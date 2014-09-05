@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.jvxl.readers");
-Clazz.load (["J.jvxl.readers.SurfaceFileReader"], "J.jvxl.readers.PolygonFileReader", ["java.util.Date", "J.util.SB"], function () {
+Clazz.load (["J.jvxl.readers.SurfaceFileReader"], "J.jvxl.readers.PolygonFileReader", ["java.util.Date", "JU.SB"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.nVertices = 0;
 this.nTriangles = 0;
@@ -9,10 +9,10 @@ Clazz.makeConstructor (c$,
 function () {
 Clazz.superConstructor (this, J.jvxl.readers.PolygonFileReader, []);
 });
-$_M(c$, "init2PFR", 
+Clazz.defineMethod (c$, "init2PFR", 
 function (sg, br) {
 this.init2SFR (sg, br);
-this.jvxlFileHeaderBuffer =  new J.util.SB ();
+this.jvxlFileHeaderBuffer =  new JU.SB ();
 this.jvxlFileHeaderBuffer.append ("#created ").append ("" +  new java.util.Date ()).append ("\n");
 this.vertexDataOnly = true;
 }, "J.jvxl.readers.SurfaceGenerator,java.io.BufferedReader");

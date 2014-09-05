@@ -1,3 +1,3 @@
-$_L(["java.lang.IncompatibleClassChangeError"],"java.lang.AbstractMethodError",null,function(){
-c$=$_T(java.lang,"AbstractMethodError",IncompatibleClassChangeError);
+Clazz.load(["java.lang.IncompatibleClassChangeError"],"java.lang.AbstractMethodError",null,function(){
+c$=Clazz.declareType(java.lang,"AbstractMethodError",IncompatibleClassChangeError);
 });

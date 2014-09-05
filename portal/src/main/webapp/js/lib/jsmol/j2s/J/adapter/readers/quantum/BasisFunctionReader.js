@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.adapter.readers.quantum");
-Clazz.load (["J.adapter.smarter.AtomSetCollectionReader", "java.util.Hashtable", "J.util.JmolList"], "J.adapter.readers.quantum.BasisFunctionReader", ["java.lang.Character", "java.util.Arrays", "J.api.JmolAdapter", "J.util.Logger"], function () {
+Clazz.load (["J.adapter.smarter.AtomSetCollectionReader", "java.util.Hashtable", "JU.Lst"], "J.adapter.readers.quantum.BasisFunctionReader", ["java.lang.Character", "java.util.Arrays", "J.api.JmolAdapter", "JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.shells = null;
 this.moData = null;
@@ -18,9 +18,9 @@ Clazz.instantialize (this, arguments);
 }, J.adapter.readers.quantum, "BasisFunctionReader", J.adapter.smarter.AtomSetCollectionReader);
 Clazz.prepareFields (c$, function () {
 this.moData =  new java.util.Hashtable ();
-this.orbitals =  new J.util.JmolList ();
+this.orbitals =  new JU.Lst ();
 });
-$_M(c$, "filterMO", 
+Clazz.defineMethod (c$, "filterMO", 
 function () {
 var isHeader = (this.line.indexOf ('\n') == 0);
 if (!isHeader && !this.doReadMolecularOrbitals) return false;
@@ -40,19 +40,19 @@ break;
 nOK++;
 }
 isOK = (nOK == this.filterTokens.length);
-if (!isHeader) J.util.Logger.info ("filter MOs: " + isOK + " for \"" + this.line + "\"");
+if (!isHeader) JU.Logger.info ("filter MOs: " + isOK + " for \"" + this.line + "\"");
 return isOK;
 });
-$_M(c$, "setMO", 
+Clazz.defineMethod (c$, "setMO", 
 function (mo) {
 if (this.dfCoefMaps != null) mo.put ("dfCoefMaps", this.dfCoefMaps);
 this.orbitals.addLast (mo);
 }, "java.util.Map");
-$_M(c$, "isQuantumBasisSupported", 
+Clazz.defineMethod (c$, "isQuantumBasisSupported", 
 function (ch) {
 return ("SPLDF".indexOf (Character.toUpperCase (ch)) >= 0);
 }, "~S");
-$_M(c$, "getDFMap", 
+Clazz.defineMethod (c$, "getDFMap", 
 function (fileList, shellType, jmolList, minLength) {
 if (fileList.equals (jmolList)) return true;
 this.getDfCoefMaps ();
@@ -69,16 +69,16 @@ continue;
 }}isOK = false;
 }
 if (!isOK) {
-J.util.Logger.error ("Disabling orbitals of type " + shellType + " -- Cannot read orbital order for: " + fileList + "\n expecting: " + jmolList);
+JU.Logger.error ("Disabling orbitals of type " + shellType + " -- Cannot read orbital order for: " + fileList + "\n expecting: " + jmolList);
 this.dfCoefMaps[shellType][0] = -2147483648;
 }return isOK;
 }, "~S,~N,~S,~N");
-$_M(c$, "getDfCoefMaps", 
+Clazz.defineMethod (c$, "getDfCoefMaps", 
 function () {
 if (this.dfCoefMaps == null) this.dfCoefMaps = J.api.JmolAdapter.getNewDfCoefMap ();
 return this.dfCoefMaps;
 });
-c$.canonicalizeQuantumSubshellTag = $_M(c$, "canonicalizeQuantumSubshellTag", 
+c$.canonicalizeQuantumSubshellTag = Clazz.defineMethod (c$, "canonicalizeQuantumSubshellTag", 
 function (tag) {
 var firstChar = tag.charAt (0);
 if (firstChar == 'X' || firstChar == 'Y' || firstChar == 'Z') {
@@ -87,7 +87,7 @@ java.util.Arrays.sort (sorted);
 return  String.instantialize (sorted);
 }return tag;
 }, "~S");
-$_M(c$, "fixSlaterTypes", 
+Clazz.defineMethod (c$, "fixSlaterTypes", 
 function (typeOld, typeNew) {
 if (this.shells == null) return 0;
 this.nCoef = 0;
@@ -100,7 +100,7 @@ this.nCoef += m;
 return this.nCoef;
 }, "~N,~N");
 c$.$BasisFunctionReader$MOEnergySorter$ = function () {
-Clazz.pu$h ();
+Clazz.pu$h(self.c$);
 c$ = Clazz.decorateAsClass (function () {
 Clazz.prepareCallback (this, arguments);
 Clazz.instantialize (this, arguments);

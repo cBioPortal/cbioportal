@@ -8,9 +8,6 @@
 <jsp:include page="WEB-INF/jsp/global/header.jsp" flush="true"/>
 
 <style type="text/css">
-    body {
-      background-color: #E0E0E0 !important;
-    }
     progress {
         background-color: #f3f3f3;
         border: 0;
@@ -36,9 +33,18 @@
 
 <link href="css/bootstrap.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 
-<div id="container" style="margin-left:50px;">
-    <h1>Oncoprinter</h1>
-    <p>(<a href="faq.jsp#what-are-oncoprints">What are Oncoprints?</a>)</p>
+<div id="container" style="margin-left:20px;">
+    <h1 style="display:inline;">OncoPrinter</h1>
+    <script type="text/javascript">
+        function popitup(url) {
+            var newwindow=window.open(url,'OncoPrinterReleaseNotes','height=600,width=800,left=400,top=0,scrollbars=yes');
+            if (window.focus) {newwindow.focus();}
+            return false;
+        }
+    </script>
+    generates <a href="faq.jsp#what-are-oncoprints">Oncoprints</a> from you own data
+    (<a href="release_notes_oncoprinter.jsp" onclick="return popitup('release_notes_oncoprinter.jsp');">v1.0</a>)
+    
        <div id="inner-conainter" style="width:70%;"> 
         <div style="margin-top:20px;">
             <p>
@@ -147,7 +153,7 @@
 </div>
         <script type="text/javascript"> 
                $('.sample-download').qtip({
-                content: {text: 'Download the list of samples, sorted in the order in which they are displayed in the OncoPrint(left to right)'},
+                content: {text: 'Download the list of samples, sorted in the order in which they are displayed in the OncoPrint (left to right)'},
                 position: {my:'left bottom', at:'top right', viewport: $(window)},
                 style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                 show: {event: "mouseover"},

@@ -10,9 +10,6 @@
 <link href="css/bootstrap.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 
 <style>
-  body {
-    background-color: #E0E0E0 !important;
-  }
   .tile {
     float: left;
     margin-left: 20px;
@@ -39,19 +36,19 @@
 
 <div id="container">
 
-<p>The following tools are for visualization and analysis of custom datasets. When you using these tools
-in your publication, <b>please cite</b> <a href="http://www.cbioportal.org/public-portal/sci_signal_reprint.jsp">Gao et al. <i>Sci. Signal.</i> 2013</a> 
+<p>The following tools are for visualization and analysis of custom datasets. When using these tools in your publication,
+    <b>please cite</b> <a href="http://www.cbioportal.org/public-portal/sci_signal_reprint.jsp">Gao et al. <i>Sci. Signal.</i> 2013</a> 
  &amp;  <a href="http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract">Cerami et al. <i>Cancer Discov.</i> 2012</a>.</p>
 
     <div class="tile">
-      <a class="btn btn-large btn-block btn-primary" href="oncoprinter.jsp">Oncoprinter</a>
-      <p>Generates oncoprints from user uploaded datasets</p>
+      <a class="btn btn-large btn-block btn-primary" href="oncoprinter.jsp">OncoPrinter</a>
+      <p>Generates oncoprints from your own data</p>
       <img class="tile-image top-image" alt="Oncoprint" src="images/oncoprint_example_small.png">
     </div>
 
     <div class="tile">
-      <a class="btn btn-large btn-block btn-primary" href="standalone_mutation.jsp">Mutation Lollipopper</a>
-      <p>Generates lollipop diagrams from user uploaded mutation data</p>
+      <a class="btn btn-large btn-block btn-primary" href="mutation_mapper.jsp">MutationMapper</a>
+      <p>Maps mutations on a linear protein and its domains (lollipop plots)</p>
       <img class="tile-image top-image" alt="lollipop" src="images/lollipop_example.png">
     </div>
 </div>

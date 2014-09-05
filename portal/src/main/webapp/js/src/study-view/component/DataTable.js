@@ -314,6 +314,7 @@ var DataTable = function() {
                 $("#clinical-data-table-loading-wait").css('display', 'block');
                 $("#clinical-data-table-div").css('display','none');
                 setTimeout(function () {
+                    $("#clinical-data-table-div").css('display','block');
                     dataTable.fnAdjustColumnSizing();
                     if($("#" + tableId).width() > 1200) {
                         noLeftColumnFlag = false;
@@ -334,9 +335,8 @@ var DataTable = function() {
                     refreshSelectionInDataTable();
                     
                     $("#clinical-data-table-loading-wait").css('display', 'none');
-                    $("#clinical-data-table-div").css('display','block');
                     //Sencond time: adjust the width of table foot;
-                    dataTable.fnAdjustColumnSizing();
+                    dataTable.fnFilter('', 0);
                     if(!noLeftColumnFlag) {
                         resizeLeftColumn();
                         $(window).resize();
@@ -551,9 +551,9 @@ var DataTable = function() {
                     $(".DTFC_LeftWrapper").css('display', 'block');
 //                    $(".DTFC_LeftBodyLiner").height(_heightBody - 15);
 //                    
-                    //Changed from _heightBody-15, 15px was designed for
+                    //Changed from _heightBody, 15px was designed for
                     //horizontal scroller
-                    $(".DTFC_LeftBodyWrapper").height(_heightBody); 
+                    $(".DTFC_LeftBodyWrapper").height(_heightBody - 15); 
                     $(".DTFC_LeftWrapper").width(_widthBody);
                     $(".DTFC_LeftBodyLiner").width(_widthBody);
                     $(".DTFC_LeftBodyLiner").css('background-color','white');

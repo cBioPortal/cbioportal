@@ -87,6 +87,8 @@ A genomic overview with events aligned across patients goes here...
                         }
                     }
                 ],
+                "bPaginate": true,
+                "sPaginationType": "two_button",
                 "aaSorting": [[2,'desc']],
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",

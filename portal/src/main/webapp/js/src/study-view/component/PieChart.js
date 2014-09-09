@@ -93,7 +93,7 @@ var PieChart = function(){
         $('#' + DIV.labelTableID+'-0').find('tr').each(function(index, value) {
             if(_filters.indexOf($($($(value).find('td')[0])).find('span').text()) !== -1) {
                 $(value).find('td').each(function (index1, value1) {
-                    $(value1).addClass('heightlightRow');
+                    $(value1).addClass('highlightRow');
                 });
             }
         });
@@ -300,7 +300,9 @@ var PieChart = function(){
                     });
 
                     $('.pieLabel', api.elements.tooltip).click(function(_event){
-                        pieLabelClick(this);
+                        var _shiftClicked = StudyViewWindowEvents.getShiftKeyDown();
+                        _event.preventDefault();
+                        pieLabelClick(this, _shiftClicked);
                         api.show(_event);
                     });
 
@@ -405,11 +407,23 @@ var PieChart = function(){
                 postFilterCallback();
             });
             pieChart.on("preRedraw",function(chart){
+                var _filters = pieChart.filters();
                 removeMarker();
+                if(category !== "extendable") {
+                    $('#qtip-' + DIV.mainDiv + "-table").find("tr").each(function(index, value) {
+                        if(_filters.indexOf($(value).find('td').first().find('span').text()) !== -1) {
+                            $(value).find('td').addClass("highlightRow");
+                        }
+                    });
+                }
             });
             pieChart.on("postRedraw",function(chart){
                 var _filters = pieChart.filters();
-                if(previousFilters.equals(_filters) || pieChart.filters()) {
+                
+                if(
+                        (!previousFilters.equals(_filters) 
+                            && _filters.length === 0) 
+                        || previousFilters.equals(_filters) ){
                     addPieLabels();
                 }
                 previousFilters = jQuery.extend(true, [], _filters);
@@ -475,8 +489,8 @@ var PieChart = function(){
 
                 if(pieChart.hasFilter()){
                     $("#"+DIV.labelTableID+"-0").find('td').each(function(index, value) {
-                        if($(value).hasClass('heightlightRow')) {
-                            $(value).removeClass('heightlightRow');
+                        if($(value).hasClass('highlightRow')) {
+                            $(value).removeClass('highlightRow');
                         }
                     });
                     pieChart.filterAll();
@@ -555,8 +569,8 @@ var PieChart = function(){
         $("#"+DIV.chartDiv+"-reload-icon").click(function() {
             $('#' + DIV.labelTableID+'-0').find('tr').each(function(index, value) {
                 $(value).find('td').each(function (index1, value1) {
-                    if($(value1).hasClass('heightlightRow')) {
-                        $(value1).removeClass('heightlightRow');
+                    if($(value1).hasClass('highlightRow')) {
+                        $(value1).removeClass('highlightRow');
                     }
                 });
             });
@@ -1069,11 +1083,11 @@ var PieChart = function(){
                             .filter(function(){
                                 return this.nodeType === 3;
                             }).remove();
-                    
+
                     $('#'+ DIV.mainDiv + ' .dataTables_filter')
                             .find('input')
                             .attr('placeholder', 'Search...');
-                    
+
                     labelTableOrder = oSettings.aaSorting;
                 }
             });
@@ -1092,10 +1106,8 @@ var PieChart = function(){
             
             $('#' + DIV.mainDiv+' .pieLabel').unbind('click');
             $('#' + DIV.mainDiv+' .pieLabel').click(function(_event){
-                var _shiftClicked = _event.shiftKey;
-                if(_shiftClicked) {
-                    _event.preventDefault();
-                }
+                var _shiftClicked = StudyViewWindowEvents.getShiftKeyDown();
+                _event.preventDefault();
                 pieLabelClick(this, _shiftClicked);
             });
         }
@@ -1139,10 +1151,10 @@ var PieChart = function(){
         
         if(_shiftKeyDown) {
             $(_this).parent().find('td').each(function(index, value) {
-                if($(value).hasClass('heightlightRow')) {
-                    $(value).removeClass('heightlightRow');
+                if($(value).hasClass('highlightRow')) {
+                    $(value).removeClass('highlightRow');
                 }else {
-                    $(value).addClass('heightlightRow');
+                    $(value).addClass('highlightRow');
                 }
             });
             
@@ -1156,8 +1168,8 @@ var PieChart = function(){
             
             $(_this).parent().parent().find('tr').each(function(index, value) {
                 $(value).find('td').each(function(index1, value1) {
-                    if($(value1).hasClass('heightlightRow')) {
-                        $(value1).removeClass('heightlightRow');
+                    if($(value1).hasClass('highlightRow')) {
+                        $(value1).removeClass('highlightRow');
                         if(index === _trIndex) {
                             _selfClicked = true;
                         }
@@ -1169,7 +1181,7 @@ var PieChart = function(){
             
             if(!_selfClicked) {
                 $(_this).parent().find('td').each(function(index, value) {
-                    $(value).addClass('heightlightRow');
+                    $(value).addClass('highlightRow');
                 });
                 
                 pieChart.onClick({

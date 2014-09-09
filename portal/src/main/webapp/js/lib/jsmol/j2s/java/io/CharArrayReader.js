@@ -1,20 +1,20 @@
-$_L(["java.io.Reader"],"java.io.CharArrayReader",["java.io.IOException","java.lang.ArrayIndexOutOfBoundsException","$.IllegalArgumentException"],function(){
-c$=$_C(function(){
+Clazz.load(["java.io.Reader"],"java.io.CharArrayReader",["java.io.IOException","java.lang.ArrayIndexOutOfBoundsException","$.IllegalArgumentException"],function(){
+c$=Clazz.decorateAsClass(function(){
 this.buf=null;
 this.pos=0;
 this.markedPos=-1;
 this.count=0;
-$_Z(this,arguments);
+Clazz.instantialize(this,arguments);
 },java.io,"CharArrayReader",java.io.Reader);
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(buf){
-$_R(this,java.io.CharArrayReader,[buf]);
+Clazz.superConstructor(this,java.io.CharArrayReader,[buf]);
 this.buf=buf;
 this.count=buf.length;
 },"~A");
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(buf,offset,length){
-$_R(this,java.io.CharArrayReader,[buf]);
+Clazz.superConstructor(this,java.io.CharArrayReader,[buf]);
 if(0<=offset&&offset<=buf.length&&length>=0){
 this.buf=buf;
 this.pos=offset;
@@ -22,17 +22,17 @@ this.count=this.pos+length<buf.length?length:buf.length;
 }else{
 throw new IllegalArgumentException();
 }},"~A,~N,~N");
-$_V(c$,"close",
+Clazz.overrideMethod(c$,"close",
 function(){
 {
 if(this.isOpen()){
 this.buf=null;
 }}});
-$_M(c$,"isOpen",
+Clazz.defineMethod(c$,"isOpen",
 ($fz=function(){
 return this.buf!=null;
 },$fz.isPrivate=true,$fz));
-$_V(c$,"mark",
+Clazz.overrideMethod(c$,"mark",
 function(readLimit){
 {
 if(this.isOpen()){
@@ -40,11 +40,11 @@ this.markedPos=this.pos;
 }else{
 throw new java.io.IOException(("K0060"));
 }}},"~N");
-$_V(c$,"markSupported",
+Clazz.overrideMethod(c$,"markSupported",
 function(){
 return true;
 });
-$_M(c$,"read",
+Clazz.defineMethod(c$,"read",
 function(){
 {
 if(this.isOpen()){
@@ -53,7 +53,7 @@ return this.buf[this.pos++];
 }return-1;
 }throw new java.io.IOException(("K0060"));
 }});
-$_M(c$,"read",
+Clazz.defineMethod(c$,"read",
 function(buffer,offset,len){
 if(0<=offset&&offset<=buffer.length&&0<=len&&len<=buffer.length-offset){
 {
@@ -67,14 +67,14 @@ return bytesRead;
 }throw new java.io.IOException(("K0060"));
 }}throw new ArrayIndexOutOfBoundsException();
 },"~A,~N,~N");
-$_V(c$,"ready",
+Clazz.overrideMethod(c$,"ready",
 function(){
 {
 if(this.isOpen()){
 return this.pos!=this.count;
 }throw new java.io.IOException(("K0060"));
 }});
-$_V(c$,"reset",
+Clazz.overrideMethod(c$,"reset",
 function(){
 {
 if(this.isOpen()){
@@ -82,7 +82,7 @@ this.pos=this.markedPos!=-1?this.markedPos:0;
 }else{
 throw new java.io.IOException(("K0060"));
 }}});
-$_V(c$,"skip",
+Clazz.overrideMethod(c$,"skip",
 function(n){
 {
 if(this.isOpen()){

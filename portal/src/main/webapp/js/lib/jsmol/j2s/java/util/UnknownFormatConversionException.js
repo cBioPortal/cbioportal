@@ -1,18 +1,18 @@
-$_L(["java.util.IllegalFormatException"],"java.util.UnknownFormatConversionException",null,function(){
-c$=$_C(function(){
+Clazz.load(["java.util.IllegalFormatException"],"java.util.UnknownFormatConversionException",null,function(){
+c$=Clazz.decorateAsClass(function(){
 this.s=null;
-$_Z(this,arguments);
+Clazz.instantialize(this,arguments);
 },java.util,"UnknownFormatConversionException",java.util.IllegalFormatException);
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(s){
-$_R(this,java.util.UnknownFormatConversionException,[]);
+Clazz.superConstructor(this,java.util.UnknownFormatConversionException,[]);
 this.s=s;
 },"~S");
-$_M(c$,"getConversion",
+Clazz.defineMethod(c$,"getConversion",
 function(){
 return this.s;
 });
-$_V(c$,"getMessage",
+Clazz.overrideMethod(c$,"getMessage",
 function(){
 return"Conversion = '"+this.s+"'";
 });

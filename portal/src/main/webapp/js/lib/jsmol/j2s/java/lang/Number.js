@@ -3,7 +3,7 @@ java.lang.Number = Number;
 if (Clazz.supportsNativeObject) {
 	for (var i = 0; i < Clazz.extendedObjectMethods.length; i++) {
 		var p = Clazz.extendedObjectMethods[i];
-		Number.prototype[p] = JavaObject.prototype[p];
+		Number.prototype[p] = Clazz._O.prototype[p];
 	}
 }
 //Clazz.decorateAsType (Number, "Number", null, java.io.Serializable, null, true);
@@ -14,37 +14,37 @@ Number.getName = Clazz.innerFunctions.getName;
 
 Number.serialVersionUID = Number.prototype.serialVersionUID = -8742448824652078965;
 
-$_M(Number, "shortValue", 
+Clazz.defineMethod (Number, "shortValue", 
 function () {
 return Math.round (this) & 0xffff;
 });
 
-$_M(Number, "byteValue", 
+Clazz.defineMethod (Number, "byteValue", 
 function () {
 return Math.round (this) & 0xff;
 });
 
-$_M(Number, "intValue", 
+Clazz.defineMethod (Number, "intValue", 
 function () {
 return Math.round (this) & 0xffffffff;
 });
 
-$_M(Number, "longValue", 
+Clazz.defineMethod (Number, "longValue", 
 function () {
 return Math.round (this);
 });
 
-$_M(Number, "floatValue", 
+Clazz.defineMethod (Number, "floatValue", 
 function () {
 return this.valueOf();
 });
 
-$_M(Number, "doubleValue", 
+Clazz.defineMethod (Number, "doubleValue", 
 function () {
 return this.valueOf();
 });
 
-$_V (Number, "hashCode", 
+Clazz.overrideMethod(Number, "hashCode", 
 function () {
 return this.valueOf ();
 });

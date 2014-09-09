@@ -1,1 +1,1 @@
-$_I(java.lang,"Runnable");
+Clazz.declareInterface(java.lang,"Runnable");

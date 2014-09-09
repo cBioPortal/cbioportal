@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.jvxl.readers");
-Clazz.load (["J.jvxl.readers.VolumeFileReader"], "J.jvxl.readers.JvxlXmlReader", ["java.lang.Float", "$.NullPointerException", "java.util.Hashtable", "J.io.XmlReader", "J.jvxl.data.JvxlCoder", "$.MeshData", "J.shapesurface.IsosurfaceMesh", "J.util.ArrayUtil", "$.BS", "$.C", "$.ColorEncoder", "$.ColorUtil", "$.Escape", "$.JmolList", "$.Logger", "$.P3", "$.P4", "$.Parser", "$.SB"], function () {
+Clazz.load (["J.jvxl.readers.VolumeFileReader"], "J.jvxl.readers.JvxlXmlReader", ["java.lang.Float", "$.NullPointerException", "java.util.Hashtable", "JU.AU", "$.BS", "$.CU", "$.Lst", "$.P3", "$.P4", "$.PT", "$.SB", "J.jvxl.data.JvxlCoder", "$.MeshData", "J.jvxl.readers.XmlReader", "J.shapesurface.IsosurfaceMesh", "JU.C", "$.ColorEncoder", "$.Escape", "$.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.JVXL_VERSION = "2.3";
 this.surfaceDataCount = 0;
@@ -33,12 +33,12 @@ Clazz.overrideMethod (c$, "init2",
 function (sg, br) {
 this.init2JXR (sg, br);
 }, "J.jvxl.readers.SurfaceGenerator,java.io.BufferedReader");
-$_M(c$, "init2JXR", 
+Clazz.defineMethod (c$, "init2JXR", 
 function (sg, br) {
 this.init2VFR (sg, br);
 this.jvxlData.wasJvxl = this.isJvxl = true;
 this.isXLowToHigh = false;
-this.xr =  new J.io.XmlReader (br);
+this.xr =  new J.jvxl.readers.XmlReader (br);
 }, "J.jvxl.readers.SurfaceGenerator,java.io.BufferedReader");
 Clazz.overrideMethod (c$, "readVolumeData", 
 function (isMapData) {
@@ -70,17 +70,17 @@ if (this.haveContourData) this.jvxlDecodeContourData (this.jvxlData, this.xr.get
 if (this.jvxlDataIsColorMapped && this.jvxlData.nVertexColors > 0) {
 this.jvxlData.vertexColorMap =  new java.util.Hashtable ();
 var vdata = this.xr.getXmlData ("jvxlVertexColorData", null, true, false);
-var baseColor = J.io.XmlReader.getXmlAttrib (vdata, "baseColor");
+var baseColor = J.jvxl.readers.XmlReader.getXmlAttrib (vdata, "baseColor");
 this.jvxlData.baseColor = (baseColor.length > 0 ? baseColor : null);
 for (var i = 0; i < this.jvxlData.nVertexColors; i++) {
 var s = this.xr.getXmlData ("jvxlColorMap", vdata, true, false);
-var color = J.io.XmlReader.getXmlAttrib (s, "color");
+var color = J.jvxl.readers.XmlReader.getXmlAttrib (s, "color");
 var bs = J.jvxl.data.JvxlCoder.jvxlDecodeBitSet (this.xr.getXmlData ("jvxlColorMap", s, false, false));
 this.jvxlData.vertexColorMap.put (color, bs);
 }
 }} catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
-J.util.Logger.error (e.toString ());
+JU.Logger.error (e.toString ());
 return false;
 } else {
 throw e;
@@ -91,7 +91,7 @@ return true;
 Clazz.overrideMethod (c$, "readParameters", 
 function () {
 var s = this.xr.getXmlData ("jvxlFileTitle", null, false, false);
-this.jvxlFileHeaderBuffer = J.util.SB.newS (s);
+this.jvxlFileHeaderBuffer = JU.SB.newS (s);
 this.xr.toTag ("jvxlVolumeData");
 var data = this.tempDataXml = this.xr.getXmlData ("jvxlVolumeData", null, true, false);
 this.volumetricOrigin.setT (this.xr.getXmlPoint (data, "origin"));
@@ -100,17 +100,17 @@ this.readVector (0);
 this.readVector (1);
 this.readVector (2);
 this.line = this.xr.toTag ("jvxlSurfaceSet");
-this.nSurfaces = this.parseIntStr (J.io.XmlReader.getXmlAttrib (this.line, "count"));
-J.util.Logger.info ("jvxl file surfaces: " + this.nSurfaces);
-J.util.Logger.info ("using default edge fraction base and range");
-J.util.Logger.info ("using default color fraction base and range");
+this.nSurfaces = this.parseIntStr (J.jvxl.readers.XmlReader.getXmlAttrib (this.line, "count"));
+JU.Logger.info ("jvxl file surfaces: " + this.nSurfaces);
+JU.Logger.info ("using default edge fraction base and range");
+JU.Logger.info ("using default color fraction base and range");
 this.cJvxlEdgeNaN = String.fromCharCode (this.edgeFractionBase + this.edgeFractionRange);
 });
-$_M(c$, "readVector", 
+Clazz.defineMethod (c$, "readVector", 
 function (voxelVectorIndex) {
 var data = this.xr.getXmlData ("jvxlVolumeVector", this.tempDataXml, true, true);
 this.tempDataXml = this.tempDataXml.substring (this.tempDataXml.indexOf (data) + data.length);
-var n = this.parseIntStr (J.io.XmlReader.getXmlAttrib (data, "count"));
+var n = this.parseIntStr (J.jvxl.readers.XmlReader.getXmlAttrib (data, "count"));
 if (n == -2147483648) this.vertexDataOnly = true;
 this.voxelCounts[voxelVectorIndex] = (n < 0 ? 0 : n);
 this.volumetricVectors[voxelVectorIndex].setT (this.xr.getXmlPoint (data, "vector"));
@@ -118,7 +118,7 @@ if (this.isAnisotropic) this.setVectorAnisotropy (this.volumetricVectors[voxelVe
 }, "~N");
 Clazz.overrideMethod (c$, "gotoData", 
 function (n, nPoints) {
-if (n > 0) J.util.Logger.info ("skipping " + n + " data sets, " + nPoints + " points each");
+if (n > 0) JU.Logger.info ("skipping " + n + " data sets, " + nPoints + " points each");
 this.vertexDataOnly = this.jvxlData.vertexDataOnly = (nPoints == 0);
 for (var i = 0; i < n; i++) {
 this.jvxlSkipData (nPoints, true);
@@ -126,73 +126,73 @@ this.jvxlSkipData (nPoints, true);
 this.xr.toTag ("jvxlSurface");
 this.jvxlReadSurfaceInfo ();
 }, "~N,~N");
-$_M(c$, "jvxlSkipData", 
+Clazz.defineMethod (c$, "jvxlSkipData", 
 function (nPoints, doSkipColorData) {
 this.readLine ();
 this.xr.skipTag ("jvxlSurface");
 }, "~N,~B");
-$_M(c$, "jvxlReadSurfaceInfo", 
+Clazz.defineMethod (c$, "jvxlReadSurfaceInfo", 
 function () {
 var s;
 var data = this.xr.getXmlData ("jvxlSurfaceInfo", null, true, true);
-this.isXLowToHigh = J.io.XmlReader.getXmlAttrib (data, "isXLowToHigh").equals ("true");
-this.jvxlCutoff = this.parseFloatStr (J.io.XmlReader.getXmlAttrib (data, "cutoff"));
-if (!Float.isNaN (this.jvxlCutoff)) J.util.Logger.info ("JVXL read: cutoff " + this.jvxlCutoff);
-var nContourData = this.parseIntStr (J.io.XmlReader.getXmlAttrib (data, "nContourData"));
+this.isXLowToHigh = J.jvxl.readers.XmlReader.getXmlAttrib (data, "isXLowToHigh").equals ("true");
+this.jvxlCutoff = this.parseFloatStr (J.jvxl.readers.XmlReader.getXmlAttrib (data, "cutoff"));
+if (!Float.isNaN (this.jvxlCutoff)) JU.Logger.info ("JVXL read: cutoff " + this.jvxlCutoff);
+var nContourData = this.parseIntStr (J.jvxl.readers.XmlReader.getXmlAttrib (data, "nContourData"));
 this.haveContourData = (nContourData > 0);
-this.params.isContoured = J.io.XmlReader.getXmlAttrib (data, "contoured").equals ("true");
+this.params.isContoured = J.jvxl.readers.XmlReader.getXmlAttrib (data, "contoured").equals ("true");
 if (this.params.isContoured) {
-var nContoursRead = this.parseIntStr (J.io.XmlReader.getXmlAttrib (data, "nContours"));
+var nContoursRead = this.parseIntStr (J.jvxl.readers.XmlReader.getXmlAttrib (data, "nContours"));
 if (nContoursRead <= 0) {
 nContoursRead = 0;
 } else {
-s = J.io.XmlReader.getXmlAttrib (data, "contourValues");
+s = J.jvxl.readers.XmlReader.getXmlAttrib (data, "contourValues");
 if (s.length > 0) {
 this.jvxlData.contourValues = this.params.contoursDiscrete = this.parseFloatArrayStr (s);
-J.util.Logger.info ("JVXL read: contourValues " + J.util.Escape.eAF (this.jvxlData.contourValues));
-}s = J.io.XmlReader.getXmlAttrib (data, "contourColors");
+JU.Logger.info ("JVXL read: contourValues " + JU.Escape.eAF (this.jvxlData.contourValues));
+}s = J.jvxl.readers.XmlReader.getXmlAttrib (data, "contourColors");
 if (s.length > 0) {
-this.jvxlData.contourColixes = this.params.contourColixes = J.util.C.getColixArray (s);
-this.jvxlData.contourColors = J.util.C.getHexCodes (this.jvxlData.contourColixes);
-J.util.Logger.info ("JVXL read: contourColixes " + J.util.C.getHexCodes (this.jvxlData.contourColixes));
-}this.params.contourFromZero = J.io.XmlReader.getXmlAttrib (data, "contourFromZero").equals ("true");
+this.jvxlData.contourColixes = this.params.contourColixes = JU.C.getColixArray (s);
+this.jvxlData.contourColors = JU.C.getHexCodes (this.jvxlData.contourColixes);
+JU.Logger.info ("JVXL read: contourColixes " + JU.C.getHexCodes (this.jvxlData.contourColixes));
+}this.params.contourFromZero = J.jvxl.readers.XmlReader.getXmlAttrib (data, "contourFromZero").equals ("true");
 }this.params.nContours = (this.haveContourData ? nContourData : nContoursRead);
-}this.jvxlData.nVertexColors = this.parseIntStr (J.io.XmlReader.getXmlAttrib (data, "nVertexColors"));
-this.params.isBicolorMap = J.io.XmlReader.getXmlAttrib (data, "bicolorMap").equals ("true");
+}this.jvxlData.nVertexColors = this.parseIntStr (J.jvxl.readers.XmlReader.getXmlAttrib (data, "nVertexColors"));
+this.params.isBicolorMap = J.jvxl.readers.XmlReader.getXmlAttrib (data, "bicolorMap").equals ("true");
 if (this.params.isBicolorMap) {
-s = J.io.XmlReader.getXmlAttrib (data, "colorPositive");
-if (s.length > 0 && this.params.colorRgb == -2147483648 && this.params.colorPos == -16776961) this.params.colorPos = J.util.ColorUtil.getArgbFromString (s);
-s = J.io.XmlReader.getXmlAttrib (data, "colorNegative");
-if (s.length > 0 && this.params.colorRgb == -2147483648 && this.params.colorNeg == -65536) this.params.colorNeg = J.util.ColorUtil.getArgbFromString (s);
+s = J.jvxl.readers.XmlReader.getXmlAttrib (data, "colorPositive");
+if (s.length > 0 && this.params.colorRgb == -2147483648 && this.params.colorPos == -16776961) this.params.colorPos = JU.CU.getArgbFromString (s);
+s = J.jvxl.readers.XmlReader.getXmlAttrib (data, "colorNegative");
+if (s.length > 0 && this.params.colorRgb == -2147483648 && this.params.colorNeg == -65536) this.params.colorNeg = JU.CU.getArgbFromString (s);
 }if (this.params.isBicolorMap || this.params.colorBySign) this.jvxlCutoff = 0;
-this.jvxlDataIsColorMapped = ((this.params.colorRgb == -2147483648 || this.params.colorRgb == 2147483647) && (this.params.isBicolorMap || J.io.XmlReader.getXmlAttrib (data, "colorMapped").equals ("true")));
-this.jvxlData.isJvxlPrecisionColor = J.io.XmlReader.getXmlAttrib (data, "precisionColor").equals ("true");
-this.jvxlData.jvxlDataIsColorDensity = this.params.colorDensity = (this.params.colorRgb == -2147483648 && J.io.XmlReader.getXmlAttrib (data, "colorDensity").equals ("true"));
+this.jvxlDataIsColorMapped = ((this.params.colorRgb == -2147483648 || this.params.colorRgb == 2147483647) && (this.params.isBicolorMap || J.jvxl.readers.XmlReader.getXmlAttrib (data, "colorMapped").equals ("true")));
+this.jvxlData.isJvxlPrecisionColor = J.jvxl.readers.XmlReader.getXmlAttrib (data, "precisionColor").equals ("true");
+this.jvxlData.jvxlDataIsColorDensity = this.params.colorDensity = (this.params.colorRgb == -2147483648 && J.jvxl.readers.XmlReader.getXmlAttrib (data, "colorDensity").equals ("true"));
 if (this.jvxlData.jvxlDataIsColorDensity && Float.isNaN (this.params.pointSize)) {
-s = J.io.XmlReader.getXmlAttrib (data, "pointSize");
+s = J.jvxl.readers.XmlReader.getXmlAttrib (data, "pointSize");
 if (s.length > 0) this.jvxlData.pointSize = this.params.pointSize = this.parseFloatStr (s);
-}s = J.io.XmlReader.getXmlAttrib (data, "allowVolumeRender");
+}s = J.jvxl.readers.XmlReader.getXmlAttrib (data, "allowVolumeRender");
 this.jvxlData.allowVolumeRender = this.params.allowVolumeRender = (s.length == 0 || s.equalsIgnoreCase ("true"));
-s = J.io.XmlReader.getXmlAttrib (data, "plane");
+s = J.jvxl.readers.XmlReader.getXmlAttrib (data, "plane");
 if (s.indexOf ("{") >= 0) {
 this.params.thePlane = null;
 this.params.mapLattice = null;
 try {
-this.params.thePlane = J.util.Escape.uP (s);
-s = J.io.XmlReader.getXmlAttrib (data, "maplattice");
-J.util.Logger.info ("JVXL read: plane " + this.params.thePlane);
+this.params.thePlane = JU.Escape.uP (s);
+s = J.jvxl.readers.XmlReader.getXmlAttrib (data, "maplattice");
+JU.Logger.info ("JVXL read: plane " + this.params.thePlane);
 if (s.indexOf ("{") >= 0) {
-this.params.mapLattice = J.util.Escape.uP (s);
-J.util.Logger.info ("JVXL read: mapLattice " + this.params.mapLattice);
-}if (this.params.scale3d == 0) this.params.scale3d = this.parseFloatStr (J.io.XmlReader.getXmlAttrib (data, "scale3d"));
+this.params.mapLattice = JU.Escape.uP (s);
+JU.Logger.info ("JVXL read: mapLattice " + this.params.mapLattice);
+}if (this.params.scale3d == 0) this.params.scale3d = this.parseFloatStr (J.jvxl.readers.XmlReader.getXmlAttrib (data, "scale3d"));
 if (Float.isNaN (this.params.scale3d)) this.params.scale3d = 0;
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
 if (this.params.thePlane == null) {
-J.util.Logger.error ("JVXL Error reading plane definition -- setting to 0 0 1 0  (z=0)");
-this.params.thePlane = J.util.P4.new4 (0, 0, 1, 0);
+JU.Logger.error ("JVXL Error reading plane definition -- setting to 0 0 1 0  (z=0)");
+this.params.thePlane = JU.P4.new4 (0, 0, 1, 0);
 } else {
-J.util.Logger.error ("JVXL Error reading mapLattice definition -- ignored");
+JU.Logger.error ("JVXL Error reading mapLattice definition -- ignored");
 }} else {
 throw e;
 }
@@ -201,50 +201,50 @@ this.surfaceDataCount = 0;
 this.edgeDataCount = 0;
 } else {
 this.params.thePlane = null;
-this.surfaceDataCount = this.parseIntStr (J.io.XmlReader.getXmlAttrib (data, "nSurfaceInts"));
-this.edgeDataCount = this.parseIntStr (J.io.XmlReader.getXmlAttrib (data, "nBytesUncompressedEdgeData"));
-}this.excludedVertexCount = this.parseIntStr (J.io.XmlReader.getXmlAttrib (data, "nExcludedVertexes"));
-this.excludedTriangleCount = this.parseIntStr (J.io.XmlReader.getXmlAttrib (data, "nExcludedTriangles"));
-this.invalidatedVertexCount = this.parseIntStr (J.io.XmlReader.getXmlAttrib (data, "nInvalidatedVertexes"));
-s = J.io.XmlReader.getXmlAttrib (data, "slabInfo");
+this.surfaceDataCount = this.parseIntStr (J.jvxl.readers.XmlReader.getXmlAttrib (data, "nSurfaceInts"));
+this.edgeDataCount = this.parseIntStr (J.jvxl.readers.XmlReader.getXmlAttrib (data, "nBytesUncompressedEdgeData"));
+}this.excludedVertexCount = this.parseIntStr (J.jvxl.readers.XmlReader.getXmlAttrib (data, "nExcludedVertexes"));
+this.excludedTriangleCount = this.parseIntStr (J.jvxl.readers.XmlReader.getXmlAttrib (data, "nExcludedTriangles"));
+this.invalidatedVertexCount = this.parseIntStr (J.jvxl.readers.XmlReader.getXmlAttrib (data, "nInvalidatedVertexes"));
+s = J.jvxl.readers.XmlReader.getXmlAttrib (data, "slabInfo");
 if (s.length > 0) this.jvxlData.slabInfo = s;
-this.colorDataCount = Math.max (0, this.parseIntStr (J.io.XmlReader.getXmlAttrib (data, "nBytesUncompressedColorData")));
+this.colorDataCount = Math.max (0, this.parseIntStr (J.jvxl.readers.XmlReader.getXmlAttrib (data, "nBytesUncompressedColorData")));
 this.jvxlDataIs2dContour = (this.params.thePlane != null && this.jvxlDataIsColorMapped);
-this.jvxlData.color = J.io.XmlReader.getXmlAttrib (data, "color");
+this.jvxlData.color = J.jvxl.readers.XmlReader.getXmlAttrib (data, "color");
 if (this.jvxlData.color.length == 0 || this.jvxlData.color.indexOf ("null") >= 0) this.jvxlData.color = "orange";
-this.jvxlData.translucency = this.parseFloatStr (J.io.XmlReader.getXmlAttrib (data, "translucency"));
+this.jvxlData.translucency = this.parseFloatStr (J.jvxl.readers.XmlReader.getXmlAttrib (data, "translucency"));
 if (Float.isNaN (this.jvxlData.translucency)) this.jvxlData.translucency = 0;
-s = J.io.XmlReader.getXmlAttrib (data, "meshColor");
+s = J.jvxl.readers.XmlReader.getXmlAttrib (data, "meshColor");
 if (s.length > 0) this.jvxlData.meshColor = s;
-s = J.io.XmlReader.getXmlAttrib (data, "rendering");
+s = J.jvxl.readers.XmlReader.getXmlAttrib (data, "rendering");
 if (s.length > 0) this.jvxlData.rendering = s;
-this.jvxlData.colorScheme = J.io.XmlReader.getXmlAttrib (data, "colorScheme");
+this.jvxlData.colorScheme = J.jvxl.readers.XmlReader.getXmlAttrib (data, "colorScheme");
 if (this.jvxlData.colorScheme.length == 0) this.jvxlData.colorScheme = null;
 if (this.jvxlData.thisSet < 0) {
-var n = this.parseIntStr (J.io.XmlReader.getXmlAttrib (data, "set"));
+var n = this.parseIntStr (J.jvxl.readers.XmlReader.getXmlAttrib (data, "set"));
 if (n > 0) this.jvxlData.thisSet = n - 1;
-}this.jvxlData.slabValue = this.parseIntStr (J.io.XmlReader.getXmlAttrib (data, "slabValue"));
-this.jvxlData.isSlabbable = (J.io.XmlReader.getXmlAttrib (data, "slabbable").equalsIgnoreCase ("true"));
-this.jvxlData.diameter = this.parseIntStr (J.io.XmlReader.getXmlAttrib (data, "diameter"));
+}this.jvxlData.slabValue = this.parseIntStr (J.jvxl.readers.XmlReader.getXmlAttrib (data, "slabValue"));
+this.jvxlData.isSlabbable = (J.jvxl.readers.XmlReader.getXmlAttrib (data, "slabbable").equalsIgnoreCase ("true"));
+this.jvxlData.diameter = this.parseIntStr (J.jvxl.readers.XmlReader.getXmlAttrib (data, "diameter"));
 if (this.jvxlData.diameter == -2147483648) this.jvxlData.diameter = 0;
 if (this.jvxlDataIs2dContour) this.params.isContoured = true;
 if (this.params.colorBySign) this.params.isBicolorMap = true;
-var insideOut = J.io.XmlReader.getXmlAttrib (data, "insideOut").equals ("true");
+var insideOut = J.jvxl.readers.XmlReader.getXmlAttrib (data, "insideOut").equals ("true");
 var dataMin = NaN;
 var dataMax = NaN;
 var red = NaN;
 var blue = NaN;
 if (this.jvxlDataIsColorMapped) {
-dataMin = this.parseFloatStr (J.io.XmlReader.getXmlAttrib (data, "dataMinimum"));
-dataMax = this.parseFloatStr (J.io.XmlReader.getXmlAttrib (data, "dataMaximum"));
-red = this.parseFloatStr (J.io.XmlReader.getXmlAttrib (data, "valueMappedToRed"));
-blue = this.parseFloatStr (J.io.XmlReader.getXmlAttrib (data, "valueMappedToBlue"));
+dataMin = this.parseFloatStr (J.jvxl.readers.XmlReader.getXmlAttrib (data, "dataMinimum"));
+dataMax = this.parseFloatStr (J.jvxl.readers.XmlReader.getXmlAttrib (data, "dataMaximum"));
+red = this.parseFloatStr (J.jvxl.readers.XmlReader.getXmlAttrib (data, "valueMappedToRed"));
+blue = this.parseFloatStr (J.jvxl.readers.XmlReader.getXmlAttrib (data, "valueMappedToBlue"));
 if (Float.isNaN (dataMin)) {
 dataMin = red = -1.0;
 dataMax = blue = 1;
 }}this.jvxlSetColorRanges (dataMin, dataMax, red, blue, insideOut);
 });
-$_M(c$, "jvxlSetColorRanges", 
+Clazz.defineMethod (c$, "jvxlSetColorRanges", 
 function (dataMin, dataMax, red, blue, insideOut) {
 if (this.jvxlDataIsColorMapped) {
 if (!Float.isNaN (dataMin) && !Float.isNaN (dataMax)) {
@@ -253,7 +253,7 @@ dataMin = -1;
 dataMax = 1;
 }this.params.mappedDataMin = dataMin;
 this.params.mappedDataMax = dataMax;
-J.util.Logger.info ("JVXL read: data_min/max " + this.params.mappedDataMin + "/" + this.params.mappedDataMax);
+JU.Logger.info ("JVXL read: data_min/max " + this.params.mappedDataMin + "/" + this.params.mappedDataMax);
 }if (!this.params.rangeDefined) if (!Float.isNaN (red) && !Float.isNaN (blue)) {
 if (red == 0 && blue == 0) {
 red = -1;
@@ -266,7 +266,7 @@ this.params.rangeDefined = true;
 this.params.valueMappedToRed = 0;
 this.params.valueMappedToBlue = 1;
 this.params.rangeDefined = true;
-}J.util.Logger.info ("JVXL read: color red/blue: " + this.params.valueMappedToRed + "/" + this.params.valueMappedToBlue);
+}JU.Logger.info ("JVXL read: color red/blue: " + this.params.valueMappedToRed + "/" + this.params.valueMappedToBlue);
 }this.jvxlData.valueMappedToRed = this.params.valueMappedToRed;
 this.jvxlData.valueMappedToBlue = this.params.valueMappedToBlue;
 this.jvxlData.mappedDataMin = this.params.mappedDataMin;
@@ -284,7 +284,7 @@ this.tempDataXml = this.xr.getXmlData ("jvxlEdgeData", null, true, false);
 this.bsVoxelBitSet = J.jvxl.data.JvxlCoder.jvxlDecodeBitSet (this.xr.getXmlData ("jvxlEdgeData", this.tempDataXml, false, false));
 this.readSurfaceDataJXR ();
 }, "~B");
-$_M(c$, "readSurfaceDataXML", 
+Clazz.defineMethod (c$, "readSurfaceDataXML", 
 function () {
 if (this.vertexDataOnly) {
 this.getEncodedVertexData ();
@@ -298,24 +298,24 @@ this.jvxlData.scale3d = this.params.scale3d;
 return true;
 }return false;
 });
-$_M(c$, "readSurfaceDataJXR", 
+Clazz.defineMethod (c$, "readSurfaceDataJXR", 
 function () {
 this.readSurfaceDataVFR (false);
 this.volumeData.setMappingPlane (null);
 });
-$_M(c$, "jvxlReadFractionData", 
+Clazz.defineMethod (c$, "jvxlReadFractionData", 
 function (type, nPoints) {
 var str;
 try {
 if (type.equals ("edge")) {
-str = J.jvxl.data.JvxlCoder.jvxlDecompressString (J.io.XmlReader.getXmlAttrib (this.tempDataXml, "data"));
+str = J.jvxl.data.JvxlCoder.jvxlDecompressString (J.jvxl.readers.XmlReader.getXmlAttrib (this.tempDataXml, "data"));
 } else {
 var data = this.xr.getXmlData ("jvxlColorData", null, true, false);
 this.jvxlData.isJvxlPrecisionColor = J.jvxl.readers.JvxlXmlReader.getEncoding (data).endsWith ("2");
-str = J.jvxl.data.JvxlCoder.jvxlDecompressString (J.io.XmlReader.getXmlAttrib (data, "data"));
+str = J.jvxl.data.JvxlCoder.jvxlDecompressString (J.jvxl.readers.XmlReader.getXmlAttrib (data, "data"));
 }} catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
-J.util.Logger.error ("Error reading " + type + " data " + e);
+JU.Logger.error ("Error reading " + type + " data " + e);
 throw  new NullPointerException ();
 } else {
 throw e;
@@ -326,7 +326,7 @@ return str;
 Clazz.overrideMethod (c$, "getVoxelBitSet", 
 function (nPoints) {
 if (this.bsVoxelBitSet != null) return this.bsVoxelBitSet;
-var bs =  new J.util.BS ();
+var bs =  new JU.BS ();
 var bsVoxelPtr = 0;
 if (this.surfaceDataCount <= 0) return bs;
 var nThisValue = 0;
@@ -335,7 +335,7 @@ nThisValue = this.parseInt ();
 if (nThisValue == -2147483648) {
 this.readLine ();
 if (this.line == null || (nThisValue = this.parseIntStr (this.line)) == -2147483648) {
-if (!this.endOfData) J.util.Logger.error ("end of file in JvxlReader?" + " line=" + this.line);
+if (!this.endOfData) JU.Logger.error ("end of file in JvxlReader?" + " line=" + this.line);
 this.endOfData = true;
 nThisValue = 10000;
 }}this.thisInside = !this.thisInside;
@@ -351,9 +351,9 @@ if (this.edgeDataCount <= 0) return this.getSPFv (cutoff, isCutoffAbsolute, valu
 ptReturn.scaleAdd2 (fReturn[0] = this.jvxlGetNextFraction (this.edgeFractionBase, this.edgeFractionRange, 0.5), edgeVector, pointA);
 if (Float.isNaN (this.valueMin)) this.setValueMinMax ();
 return (this.valueCount == 0 || this.includeValueNaN && Float.isNaN (fReturn[0]) ? fReturn[0] : this.getNextValue ());
-}, "~N,~B,~N,~N,J.util.P3,J.util.V3,~N,~N,~N,~N,~N,~A,J.util.P3");
-$_M(c$, "getNextValue", 
-($fz = function () {
+}, "~N,~B,~N,~N,JU.T3,JU.V3,~N,~N,~N,~N,~N,~A,JU.T3");
+Clazz.defineMethod (c$, "getNextValue", 
+ function () {
 var fraction = NaN;
 while (this.colorPtr < this.valueCount && Float.isNaN (fraction)) {
 if (this.jvxlData.isJvxlPrecisionColor) {
@@ -363,37 +363,37 @@ fraction = J.jvxl.data.JvxlCoder.jvxlFractionFromCharacter (this.jvxlColorDataRe
 }break;
 }
 return this.valueMin + fraction * this.valueRange;
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "setValueMinMax", 
-($fz = function () {
+});
+Clazz.defineMethod (c$, "setValueMinMax", 
+ function () {
 this.valueCount = this.jvxlColorDataRead.length;
 if (this.jvxlData.isJvxlPrecisionColor) this.valueCount /= 2;
 this.includeValueNaN = (this.valueCount != this.jvxlEdgeDataRead.length);
 this.valueMin = (!this.jvxlData.isJvxlPrecisionColor ? this.params.valueMappedToRed : this.params.mappedDataMin == 3.4028235E38 ? 0.0 : this.params.mappedDataMin);
 this.valueRange = (!this.jvxlData.isJvxlPrecisionColor ? this.params.valueMappedToBlue : this.params.mappedDataMin == 3.4028235E38 ? 1.0 : this.params.mappedDataMax) - this.valueMin;
 this.haveReadColorData = true;
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "jvxlGetNextFraction", 
-($fz = function (base, range, fracOffset) {
+});
+Clazz.defineMethod (c$, "jvxlGetNextFraction", 
+ function (base, range, fracOffset) {
 if (this.fractionPtr >= this.strFractionTemp.length) {
-if (!this.endOfData) J.util.Logger.error ("end of file reading compressed fraction data");
+if (!this.endOfData) JU.Logger.error ("end of file reading compressed fraction data");
 this.endOfData = true;
 this.strFractionTemp = "" + String.fromCharCode (base);
 this.fractionPtr = 0;
 }return J.jvxl.data.JvxlCoder.jvxlFractionFromCharacter (this.strFractionTemp.charCodeAt (this.fractionPtr++), base, range, fracOffset);
-}, $fz.isPrivate = true, $fz), "~N,~N,~N");
+}, "~N,~N,~N");
 Clazz.overrideMethod (c$, "readColorData", 
 function () {
 if (!this.jvxlDataIsColorMapped) return "";
-var vertexCount = this.jvxlData.vertexCount = this.meshData.vertexCount;
-var colixes = this.meshData.vertexColixes;
-var vertexValues = this.meshData.vertexValues;
+var vertexCount = this.jvxlData.vertexCount = this.meshData.vc;
+var colixes = this.meshData.vcs;
+var vertexValues = this.meshData.vvs;
 if ("none".equals (this.jvxlColorEncodingRead)) {
 this.jvxlData.vertexColors =  Clazz.newIntArray (vertexCount, 0);
 var nextc =  Clazz.newIntArray (1, 0);
-var n = J.util.Parser.parseIntNext (this.jvxlColorDataRead, nextc);
+var n = JU.PT.parseIntNext (this.jvxlColorDataRead, nextc);
 n = Math.min (n, vertexCount);
-var tokens = J.util.Parser.getTokens (this.jvxlColorDataRead.substring (nextc[0]));
+var tokens = JU.PT.getTokens (this.jvxlColorDataRead.substring (nextc[0]));
 var haveTranslucent = false;
 var trans = this.jvxlData.translucency;
 var lastColor = 0;
@@ -401,12 +401,12 @@ for (var i = 0; i < n; i++) try {
 var c = J.jvxl.readers.JvxlXmlReader.getColor (tokens[i]);
 if (c == 0) c = lastColor;
  else lastColor = c;
-colixes[i] = J.util.C.getColixTranslucent (this.jvxlData.vertexColors[i] = c);
-if (J.util.C.isColixTranslucent (colixes[i])) haveTranslucent = true;
- else if (trans != 0) colixes[i] = J.util.C.getColixTranslucent3 (colixes[i], true, trans);
+colixes[i] = JU.C.getColixTranslucent (this.jvxlData.vertexColors[i] = c);
+if (JU.C.isColixTranslucent (colixes[i])) haveTranslucent = true;
+ else if (trans != 0) colixes[i] = JU.C.getColixTranslucent3 (colixes[i], true, trans);
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
-J.util.Logger.info ("JvxlXmlReader: Cannot interpret color code: " + tokens[i]);
+JU.Logger.info ("JvxlXmlReader: Cannot interpret color code: " + tokens[i]);
 } else {
 throw e;
 }
@@ -415,21 +415,21 @@ throw e;
 if (haveTranslucent && trans == 0) {
 this.jvxlData.translucency = 0.5;
 }return "-";
-}if (this.params.colorEncoder == null) this.params.colorEncoder =  new J.util.ColorEncoder (null);
+}if (this.params.colorEncoder == null) this.params.colorEncoder =  new JU.ColorEncoder (null);
 this.params.colorEncoder.setColorScheme (null, false);
 this.params.colorEncoder.setRange (this.params.valueMappedToRed, this.params.valueMappedToBlue, this.params.isColorReversed);
-J.util.Logger.info ("JVXL reading color data mapped min/max: " + this.params.mappedDataMin + "/" + this.params.mappedDataMax + " for " + vertexCount + " vertices." + " using encoding keys " + this.colorFractionBase + " " + this.colorFractionRange);
-J.util.Logger.info ("mapping red-->blue for " + this.params.valueMappedToRed + " to " + this.params.valueMappedToBlue + " colorPrecision:" + this.jvxlData.isJvxlPrecisionColor);
+JU.Logger.info ("JVXL reading color data mapped min/max: " + this.params.mappedDataMin + "/" + this.params.mappedDataMax + " for " + vertexCount + " vertices." + " using encoding keys " + this.colorFractionBase + " " + this.colorFractionRange);
+JU.Logger.info ("mapping red-->blue for " + this.params.valueMappedToRed + " to " + this.params.valueMappedToBlue + " colorPrecision:" + this.jvxlData.isJvxlPrecisionColor);
 var getValues = (Float.isNaN (this.valueMin));
 if (getValues) this.setValueMinMax ();
 var contourPlaneMinimumValue = 3.4028235E38;
 var contourPlaneMaximumValue = -3.4028235E38;
-if (colixes == null || colixes.length < vertexCount) this.meshData.vertexColixes = colixes =  Clazz.newShortArray (vertexCount, 0);
+if (colixes == null || colixes.length < vertexCount) this.meshData.vcs = colixes =  Clazz.newShortArray (vertexCount, 0);
 var colixNeg = 0;
 var colixPos = 0;
 if (this.params.colorBySign) {
-colixPos = J.util.C.getColix (this.params.isColorReversed ? this.params.colorNeg : this.params.colorPos);
-colixNeg = J.util.C.getColix (this.params.isColorReversed ? this.params.colorPos : this.params.colorNeg);
+colixPos = JU.C.getColix (this.params.isColorReversed ? this.params.colorNeg : this.params.colorPos);
+colixNeg = JU.C.getColix (this.params.isColorReversed ? this.params.colorPos : this.params.colorNeg);
 }var vertexIncrement = this.meshData.vertexIncrement;
 var needContourMinMax = (this.params.mappedDataMin == 3.4028235E38);
 for (var i = 0; i < vertexCount; i += vertexIncrement) {
@@ -449,23 +449,23 @@ if (this.marchingSquares != null && this.params.isContoured) {
 this.marchingSquares.setContourData (i, value);
 continue;
 }var colix = (!this.params.colorBySign ? this.params.colorEncoder.getColorIndex (value) : (this.params.isColorReversed ? value > 0 : value <= 0) ? colixNeg : colixPos);
-colixes[i] = J.util.C.getColixTranslucent3 (colix, true, this.jvxlData.translucency);
+colixes[i] = JU.C.getColixTranslucent3 (colix, true, this.jvxlData.translucency);
 }
 return this.jvxlColorDataRead + "\n";
 });
-c$.getColor = $_M(c$, "getColor", 
-($fz = function (c) {
+c$.getColor = Clazz.defineMethod (c$, "getColor", 
+ function (c) {
 var n = 0;
 try {
 switch (c.charAt (0)) {
 case '[':
-n = J.util.ColorUtil.getArgbFromString (c);
+n = JU.CU.getArgbFromString (c);
 break;
 case '0':
-n = J.util.Parser.parseIntRadix (c.substring (2), 16);
+n = JU.PT.parseIntRadix (c.substring (2), 16);
 break;
 default:
-n = J.util.Parser.parseIntRadix (c, 10);
+n = JU.PT.parseIntRadix (c, 10);
 }
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
@@ -474,8 +474,8 @@ throw e;
 }
 }
 return n;
-}, $fz.isPrivate = true, $fz), "~S");
-$_M(c$, "getEncodedVertexData", 
+}, "~S");
+Clazz.defineMethod (c$, "getEncodedVertexData", 
 function () {
 var sdata = this.xr.getXmlData ("jvxlSurfaceData", null, true, false);
 this.jvxlDecodeVertexData (this.xr.getXmlData ("jvxlVertexData", sdata, true, false), false);
@@ -491,36 +491,35 @@ this.jvxlColorDataRead = (this.jvxlColorEncodingRead.equals ("none") ? cData : J
 this.jvxlDataIsColorMapped = ((this.params.colorRgb == -2147483648 || this.params.colorRgb == 2147483647) && this.jvxlColorDataRead.length > 0);
 if (this.haveContourData) this.jvxlDecodeContourData (this.jvxlData, this.xr.getXmlData ("jvxlContourData", null, false, false));
 });
-$_M(c$, "getData", 
-($fz = function (sdata, name) {
-var data = J.io.XmlReader.getXmlAttrib (sdata, "data");
+Clazz.defineMethod (c$, "getData", 
+ function (sdata, name) {
+var data = J.jvxl.readers.XmlReader.getXmlAttrib (sdata, "data");
 if (data.length == 0) data = this.xr.getXmlData (name, sdata, false, false);
 return data;
-}, $fz.isPrivate = true, $fz), "~S,~S");
-c$.getEncoding = $_M(c$, "getEncoding", 
-($fz = function (data) {
-if (J.io.XmlReader.getXmlAttrib (data, "len").length > 0) return "";
-var s = J.io.XmlReader.getXmlAttrib (data, "encoding");
+}, "~S,~S");
+c$.getEncoding = Clazz.defineMethod (c$, "getEncoding", 
+ function (data) {
+if (J.jvxl.readers.XmlReader.getXmlAttrib (data, "len").length > 0) return "";
+var s = J.jvxl.readers.XmlReader.getXmlAttrib (data, "encoding");
 return (s.length == 0 ? "none" : s);
-}, $fz.isPrivate = true, $fz), "~S");
-$_M(c$, "jvxlDecodeVertexData", 
+}, "~S");
+Clazz.defineMethod (c$, "jvxlDecodeVertexData", 
 function (data, asArray) {
-var vertexCount = this.parseIntStr (J.io.XmlReader.getXmlAttrib (data, "count"));
-if (!asArray) J.util.Logger.info ("Reading " + vertexCount + " vertices");
+var vertexCount = this.parseIntStr (J.jvxl.readers.XmlReader.getXmlAttrib (data, "count"));
+if (!asArray) JU.Logger.info ("Reading " + vertexCount + " vertices");
 var ptCount = vertexCount * 3;
 var vertices = (asArray ?  new Array (vertexCount) : null);
-var p = (asArray ? null :  new J.util.P3 ());
 var fraction;
-var vData = J.io.XmlReader.getXmlAttrib (data, "data");
+var vData = J.jvxl.readers.XmlReader.getXmlAttrib (data, "data");
 var encoding = J.jvxl.readers.JvxlXmlReader.getEncoding (data);
 if ("none".equals (encoding)) {
 if (vData.length == 0) vData = this.xr.getXmlData ("jvxlVertexData", data, false, false);
-var fdata = J.util.Parser.parseFloatArray (vData);
-if (fdata[0] != vertexCount * 3) J.util.Logger.info ("JvxlXmlReader: vertexData count=" + (Clazz.floatToInt (fdata[0])) + "; expected " + (vertexCount * 3));
+var fdata = JU.PT.parseFloatArray (vData);
+if (fdata[0] != vertexCount * 3) JU.Logger.info ("JvxlXmlReader: vertexData count=" + (Clazz.floatToInt (fdata[0])) + "; expected " + (vertexCount * 3));
 for (var i = 0, pt = 1; i < vertexCount; i++) {
-p = J.util.P3.new3 (fdata[pt++], fdata[pt++], fdata[pt++]);
+var p = JU.P3.new3 (fdata[pt++], fdata[pt++], fdata[pt++]);
 if (asArray) vertices[i] = p;
- else this.addVertexCopy (p, 0, i);
+ else this.addVertexCopy (p, 0, i, false);
 }
 } else {
 var min = this.xr.getXmlPoint (data, "min");
@@ -531,25 +530,26 @@ var colorFractionRange = this.jvxlData.colorFractionRange;
 var s = J.jvxl.data.JvxlCoder.jvxlDecompressString (vData);
 if (s.length == 0) s = this.xr.getXmlData ("jvxlVertexData", data, false, false);
 for (var i = 0, pt = -1; i < vertexCount; i++) {
-if (asArray) p = vertices[i] =  new J.util.P3 ();
+var p =  new JU.P3 ();
 fraction = J.jvxl.data.JvxlCoder.jvxlFractionFromCharacter2 (s.charCodeAt (++pt), s.charCodeAt (pt + ptCount), colorFractionBase, colorFractionRange);
 p.x = min.x + fraction * range.x;
 fraction = J.jvxl.data.JvxlCoder.jvxlFractionFromCharacter2 (s.charCodeAt (++pt), s.charCodeAt (pt + ptCount), colorFractionBase, colorFractionRange);
 p.y = min.y + fraction * range.y;
 fraction = J.jvxl.data.JvxlCoder.jvxlFractionFromCharacter2 (s.charCodeAt (++pt), s.charCodeAt (pt + ptCount), colorFractionBase, colorFractionRange);
 p.z = min.z + fraction * range.z;
-if (!asArray) this.addVertexCopy (p, 0, i);
+if (asArray) vertices[i] = p;
+ else this.addVertexCopy (p, 0, i, false);
 }
 }return vertices;
 }, "~S,~B");
-$_M(c$, "jvxlDecodeTriangleData", 
+Clazz.defineMethod (c$, "jvxlDecodeTriangleData", 
 function (tdata, edgeData, colorData) {
-var nTriangles = this.parseIntStr (J.io.XmlReader.getXmlAttrib (tdata, "count"));
+var nTriangles = this.parseIntStr (J.jvxl.readers.XmlReader.getXmlAttrib (tdata, "count"));
 if (nTriangles < 0) return;
 var nextc =  Clazz.newIntArray (1, 0);
-var nColors = (colorData == null ? -1 : J.util.Parser.parseIntNext (colorData, nextc));
+var nColors = (colorData == null ? -1 : JU.PT.parseIntNext (colorData, nextc));
 var color = 0;
-J.util.Logger.info ("Reading " + nTriangles + " triangles");
+JU.Logger.info ("Reading " + nTriangles + " triangles");
 var encoding = J.jvxl.readers.JvxlXmlReader.getEncoding (tdata);
 tdata = this.getData (tdata, "jvxlTriangleData");
 var edata = this.getData (edgeData, "jvxlTriangleEdgeData");
@@ -564,13 +564,13 @@ tdata = J.jvxl.data.JvxlCoder.jvxlDecompressString (tdata);
 edata = J.jvxl.data.JvxlCoder.jvxlDecompressString (edata).trim ();
 haveEdgeInfo = (edata.length == nTriangles);
 } else {
-var n = J.util.Parser.parseIntNext (tdata, nextp);
+var n = JU.PT.parseIntNext (tdata, nextp);
 haveEdgeInfo = (edata.length > 0);
 if (haveEdgeInfo) {
 nexte =  Clazz.newIntArray (1, 0);
-J.util.Parser.parseIntNext (edata, nexte);
+JU.PT.parseIntNext (edata, nexte);
 } else if (n > 0) {
-J.util.Logger.info ("JvxlXmlReader: jvxlTriangleEdgeData count=" + n + "; expected " + nTriangles);
+JU.Logger.info ("JvxlXmlReader: jvxlTriangleEdgeData count=" + n + "; expected " + nTriangles);
 }}for (var i = 0, v = 0, p = 0, pt = -1; i < nTriangles; ) {
 if (haveEncoding) {
 var ch = tdata.charAt (++pt);
@@ -599,7 +599,7 @@ case '7':
 case '8':
 case '9':
 nextp[0] = pt;
-diff = J.util.Parser.parseIntNext (tdata, nextp);
+diff = JU.PT.parseIntNext (tdata, nextp);
 pt = nextp[0] - 1;
 break;
 default:
@@ -607,15 +607,15 @@ diff = ch.charCodeAt (0) - 92;
 }
 v += diff;
 } else {
-v = J.util.Parser.parseIntNext (tdata, nextp) - 1;
+v = JU.PT.parseIntNext (tdata, nextp) - 1;
 }vertex[p] = v;
 if (++p == 3) {
 p = 0;
 if (haveEdgeInfo) {
-edgeMask = (nexte == null ? edata.charCodeAt (i) - 48 : J.util.Parser.parseIntNext (edata, nexte));
+edgeMask = (nexte == null ? edata.charCodeAt (i) - 48 : JU.PT.parseIntNext (edata, nexte));
 if (edgeMask < 0 || edgeMask > 7) edgeMask = 7;
 }if (nColors > 0) {
-var c = J.util.Parser.parseIntNext (colorData, nextc);
+var c = JU.PT.parseIntNext (colorData, nextc);
 if (c == -2147483648) nColors = 0;
  else color = c;
 nColors--;
@@ -623,31 +623,31 @@ nColors--;
 i++;
 }}
 }, "~S,~S,~S");
-$_M(c$, "jvxlDecodeContourData", 
+Clazz.defineMethod (c$, "jvxlDecodeContourData", 
 function (jvxlData, data) {
-var vs =  new J.util.JmolList ();
-var values =  new J.util.SB ();
-var colors =  new J.util.SB ();
+var vs =  new JU.Lst ();
+var values =  new JU.SB ();
+var colors =  new JU.SB ();
 var pt = -1;
 jvxlData.vContours = null;
 if (data == null) return;
 while ((pt = data.indexOf ("<jvxlContour", pt + 1)) >= 0) {
-var v =  new J.util.JmolList ();
+var v =  new JU.Lst ();
 var s = this.xr.getXmlData ("jvxlContour", data.substring (pt), true, false);
-var value = this.parseFloatStr (J.io.XmlReader.getXmlAttrib (s, "value"));
+var value = this.parseFloatStr (J.jvxl.readers.XmlReader.getXmlAttrib (s, "value"));
 values.append (" ").appendF (value);
-var color = J.jvxl.readers.JvxlXmlReader.getColor (J.io.XmlReader.getXmlAttrib (s, "color"));
-var colix = J.util.C.getColix (color);
-colors.append (" ").append (J.util.Escape.escapeColor (color));
-var fData = J.jvxl.data.JvxlCoder.jvxlDecompressString (J.io.XmlReader.getXmlAttrib (s, "data"));
+var color = J.jvxl.readers.JvxlXmlReader.getColor (J.jvxl.readers.XmlReader.getXmlAttrib (s, "color"));
+var colix = JU.C.getColix (color);
+colors.append (" ").append (JU.Escape.escapeColor (color));
+var fData = J.jvxl.data.JvxlCoder.jvxlDecompressString (J.jvxl.readers.XmlReader.getXmlAttrib (s, "data"));
 var bs = J.jvxl.data.JvxlCoder.jvxlDecodeBitSet (this.xr.getXmlData ("jvxlContour", s, false, false));
 var n = bs.length ();
-J.shapesurface.IsosurfaceMesh.setContourVector (v, n, bs, value, colix, color, J.util.SB.newS (fData));
+J.shapesurface.IsosurfaceMesh.setContourVector (v, n, bs, value, colix, color, JU.SB.newS (fData));
 vs.addLast (v);
 }
 var n = vs.size ();
 if (n > 0) {
-jvxlData.vContours = J.util.ArrayUtil.createArrayOfArrayList (n);
+jvxlData.vContours = JU.AU.createArrayOfArrayList (n);
 jvxlData.contourColixes = this.params.contourColixes =  Clazz.newShortArray (n, 0);
 jvxlData.contourValues = this.params.contoursDiscrete =  Clazz.newFloatArray (n, 0);
 for (var i = 0; i < n; i++) {
@@ -655,10 +655,10 @@ jvxlData.vContours[i] = vs.get (i);
 jvxlData.contourValues[i] = (jvxlData.vContours[i].get (2)).floatValue ();
 jvxlData.contourColixes[i] = (jvxlData.vContours[i].get (3))[0];
 }
-jvxlData.contourColors = J.util.C.getHexCodes (jvxlData.contourColixes);
-J.util.Logger.info ("JVXL read: " + n + " discrete contours");
-J.util.Logger.info ("JVXL read: contour values: " + values);
-J.util.Logger.info ("JVXL read: contour colors: " + colors);
+jvxlData.contourColors = JU.C.getHexCodes (jvxlData.contourColixes);
+JU.Logger.info ("JVXL read: " + n + " discrete contours");
+JU.Logger.info ("JVXL read: contour values: " + values);
+JU.Logger.info ("JVXL read: contour colors: " + colors);
 }}, "J.jvxl.data.JvxlData,~S");
 Clazz.overrideMethod (c$, "postProcessVertices", 
 function () {

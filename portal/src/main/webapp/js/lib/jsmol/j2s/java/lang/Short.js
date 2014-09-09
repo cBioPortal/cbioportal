@@ -37,7 +37,7 @@ Short.MIN_VALUE = Short.prototype.MIN_VALUE = -32768;
 Short.MAX_VALUE = Short.prototype.MAX_VALUE = 32767;
 Short.TYPE = Short.prototype.TYPE = Short;
 
-$_M(Short, "parseShort", 
+Clazz.defineMethod (Short, "parseShort", 
 function (s, radix) {
 if (s == null) {
 throw  new NumberFormatException ("null");
@@ -53,30 +53,30 @@ throw  new NumberFormatException ("Not a Number : " + s);
 return integer;
 }, "String, Number");
 Short.parseShort = Short.prototype.parseShort;
-$_M(Short, "parseShort", 
+Clazz.defineMethod (Short, "parseShort", 
 function (s) {
 return Short.parseShort (s, 10);
 }, "String");
 
 Short.parseShort = Short.prototype.parseShort;
 
-$_M(Short, "$valueOf", 
+Clazz.defineMethod (Short, "$valueOf", 
 function (s) {
 return new Short(Short.parseShort (s, 10));
 }, "String");
 
-$_M(Short, "$valueOf", 
+Clazz.defineMethod (Short, "$valueOf", 
 function (s) {
 return new Short(s);
 }, "Number");
 
-$_M(Short, "$valueOf", 
+Clazz.defineMethod (Short, "$valueOf", 
 function (s, r) {
 return new Short(Short.parseShort (s, r));
 }, "String, Number");
 
 Short.$valueOf = Short.prototype.$valueOf;
-$_M(Short, "equals", 
+Clazz.defineMethod (Short, "equals", 
 function (s) {
 if(s == null || !Clazz.instanceOf(s, Short) ){
 	return false;
@@ -92,7 +92,7 @@ Short.toOctalString = Short.prototype.toOctalString = function (i) {
 Short.toBinaryString = Short.prototype.toBinaryString = function (i) {
 	return i.toString (2);
 };
-Short.decode = $_M(Short, "decode", 
+Short.decode = Clazz.defineMethod (Short, "decode", 
 function (nm) {
 var radix = 10;
 var index = 0;

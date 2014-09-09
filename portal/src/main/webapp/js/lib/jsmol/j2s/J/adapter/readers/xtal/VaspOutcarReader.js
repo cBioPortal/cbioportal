@@ -1,12 +1,12 @@
 Clazz.declarePackage ("J.adapter.readers.xtal");
-Clazz.load (["J.adapter.smarter.AtomSetCollectionReader"], "J.adapter.readers.xtal.VaspOutcarReader", ["java.lang.Double", "J.util.JmolList", "$.TextFormat"], function () {
+Clazz.load (["J.adapter.smarter.AtomSetCollectionReader", "JU.Lst"], "J.adapter.readers.xtal.VaspOutcarReader", ["java.lang.Double", "JU.DF"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.atomNames = null;
-this.elementNames = null;
-this.atomCount = 0;
+this.ac = 0;
 this.inputOnly = false;
 this.mDsimulation = false;
 this.isVersion5 = false;
+this.elementNames = null;
 this.unitCellData = null;
 this.gibbsEnergy = null;
 this.gibbsEntropy = null;
@@ -17,6 +17,7 @@ this.temp = 0;
 Clazz.instantialize (this, arguments);
 }, J.adapter.readers.xtal, "VaspOutcarReader", J.adapter.smarter.AtomSetCollectionReader);
 Clazz.prepareFields (c$, function () {
+this.elementNames =  new JU.Lst ();
 this.unitCellData =  Clazz.newFloatArray (18, 0);
 });
 Clazz.overrideMethod (c$, "initializeReader", 
@@ -29,7 +30,7 @@ Clazz.overrideMethod (c$, "checkLine",
 function () {
 if (this.line.contains (" vasp.5")) {
 this.isVersion5 = true;
-} else if (this.line.toUpperCase ().contains ("INCAR:")) {
+} else if (this.line.toUpperCase ().contains ("TITEL")) {
 this.readElementNames ();
 } else if (this.line.contains ("ions per type")) {
 this.readAtomCountAndSetNames ();
@@ -55,150 +56,124 @@ Clazz.overrideMethod (c$, "finalizeReader",
 function () {
 this.setSymmetry ();
 });
-$_M(c$, "readElementNames", 
-($fz = function () {
-this.elementNames =  new J.util.JmolList ();
-var elementList = "";
-while (this.readLine () != null && this.line.indexOf ("VRHFIN") < 0) {
-var pt = (this.line.contains ("_") ? 2 : 1);
-if (pt == 2) this.line = this.line.$replace ('_', ' ');
-var tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.line.substring (this.line.indexOf (":") + 1));
-var sym = tokens[pt];
-var key = ";" + sym + ";";
-if (elementList.indexOf (key) >= 0) continue;
-elementList += key;
-this.elementNames.addLast (sym);
-}
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "readAtomCountAndSetNames", 
-($fz = function () {
+Clazz.defineMethod (c$, "readElementNames", 
+ function () {
+this.elementNames.addLast (this.getTokens ()[3]);
+});
+Clazz.defineMethod (c$, "readAtomCountAndSetNames", 
+ function () {
 var numofElement =  Clazz.newIntArray (100, 0);
 var tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.line.substring (this.line.indexOf ("=") + 1));
-this.atomCount = 0;
-for (var i = 0; i < tokens.length; i++) this.atomCount += (numofElement[i] = this.parseIntStr (tokens[i].trim ()));
+this.ac = 0;
+for (var i = 0; i < tokens.length; i++) this.ac += (numofElement[i] = this.parseIntStr (tokens[i].trim ()));
 
-this.atomNames =  new Array (this.atomCount);
+this.atomNames =  new Array (this.ac);
 var nElements = this.elementNames.size ();
 for (var pt = 0, i = 0; i < nElements; i++) for (var j = 0; j < numofElement[i]; j++) this.atomNames[pt++] = this.elementNames.get (i);
 
 
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "readUnitCellVectors", 
-($fz = function () {
-if (this.atomSetCollection.getAtomCount () > 0) {
+});
+Clazz.defineMethod (c$, "readUnitCellVectors", 
+ function () {
+if (this.asc.ac > 0) {
 this.setSymmetry ();
-this.atomSetCollection.newAtomSet ();
+this.asc.newAtomSet ();
 this.setAtomSetInfo ();
 }this.fillFloatArray (null, 0, this.unitCellData);
 this.setUnitCell ();
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "setUnitCell", 
-($fz = function () {
+});
+Clazz.defineMethod (c$, "setUnitCell", 
+ function () {
 this.addPrimitiveLatticeVector (0, this.unitCellData, 0);
 this.addPrimitiveLatticeVector (1, this.unitCellData, 6);
 this.addPrimitiveLatticeVector (2, this.unitCellData, 12);
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "setSymmetry", 
-($fz = function () {
+});
+Clazz.defineMethod (c$, "setSymmetry", 
+ function () {
 this.applySymmetryAndSetTrajectory ();
 this.setSpaceGroupName ("P1");
 this.setFractionalCoordinates (false);
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "readInitialCoordinates", 
-($fz = function () {
+});
+Clazz.defineMethod (c$, "readInitialCoordinates", 
+ function () {
 var counter = 0;
-while (this.readLine () != null && this.line.length > 10) {
-var atom = this.atomSetCollection.addNewAtom ();
-var tokens = this.getTokens ();
-atom.atomName = this.atomNames[counter++];
-var x = this.parseFloatStr (tokens[0]);
-var y = this.parseFloatStr (tokens[1]);
-var z = this.parseFloatStr (tokens[2]);
-this.setAtomCoordXYZ (atom, x, y, z);
-}
-this.atomSetCollection.setAtomSetName ("Initial Coordinates");
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "readPOSITION", 
-($fz = function () {
+while (this.rd () != null && this.line.length > 10) this.addAtomXYZSymName (this.getTokens (), 0, null, this.atomNames[counter++]);
+
+this.asc.setAtomSetName ("Initial Coordinates");
+});
+Clazz.defineMethod (c$, "readPOSITION", 
+ function () {
 var counter = 0;
 this.readLines (1);
-while (this.readLine () != null && this.line.indexOf ("----------") < 0) {
-var atom = this.atomSetCollection.addNewAtom ();
-var tokens = this.getTokens ();
-atom.atomName = this.atomNames[counter];
-var x = this.parseFloatStr (tokens[0]);
-var y = this.parseFloatStr (tokens[1]);
-var z = this.parseFloatStr (tokens[2]);
-this.setAtomCoordXYZ (atom, x, y, z);
-counter++;
-}
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "readEnergy", 
-($fz = function () {
-this.readLine ();
-var tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.readLine ());
+while (this.rd () != null && this.line.indexOf ("----------") < 0) this.addAtomXYZSymName (this.getTokens (), 0, null, this.atomNames[counter++]);
+
+});
+Clazz.defineMethod (c$, "readEnergy", 
+ function () {
+this.rd ();
+var tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.rd ());
 this.gibbsEnergy = Double.$valueOf (Double.parseDouble (tokens[4]));
-this.readLine ();
-tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.readLine ());
+this.rd ();
+tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.rd ());
 var enthalpy = Double.parseDouble (tokens[3]);
 this.gibbsEntropy = Double.$valueOf (enthalpy - this.gibbsEnergy.doubleValue ());
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "setAtomSetInfo", 
-($fz = function () {
+});
+Clazz.defineMethod (c$, "setAtomSetInfo", 
+ function () {
 if (this.gibbsEnergy == null) return;
-this.atomSetCollection.setAtomSetEnergy ("" + this.gibbsEnergy, this.gibbsEnergy.floatValue ());
-this.atomSetCollection.setAtomSetAuxiliaryInfo ("Energy", this.gibbsEnergy);
-this.atomSetCollection.setAtomSetAuxiliaryInfo ("Entropy", this.gibbsEntropy);
-this.atomSetCollection.setAtomSetCollectionAuxiliaryInfo ("Energy", this.gibbsEnergy);
-this.atomSetCollection.setAtomSetCollectionAuxiliaryInfo ("Entropy", this.gibbsEntropy);
-this.atomSetCollection.setAtomSetName ("G = " + this.gibbsEnergy + " eV, T*S = " + this.gibbsEntropy + " eV");
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "readMdyn", 
-($fz = function () {
+this.asc.setAtomSetEnergy ("" + this.gibbsEnergy, this.gibbsEnergy.floatValue ());
+this.asc.setAtomSetAuxiliaryInfo ("Energy", this.gibbsEnergy);
+this.asc.setAtomSetAuxiliaryInfo ("Entropy", this.gibbsEntropy);
+this.asc.setInfo ("Energy", this.gibbsEnergy);
+this.asc.setInfo ("Entropy", this.gibbsEntropy);
+this.asc.setAtomSetName ("G = " + this.gibbsEnergy + " eV, T*S = " + this.gibbsEntropy + " eV");
+});
+Clazz.defineMethod (c$, "readMdyn", 
+ function () {
 var tokens = this.getTokens ();
-this.readLine ();
-tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.readLine ());
+this.rd ();
+tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.rd ());
 this.electronEne = Double.$valueOf (Double.parseDouble (tokens[4]));
-tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.readLine ());
+tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.rd ());
 this.kinEne = Double.$valueOf (Double.parseDouble (tokens[4]));
 this.temp = this.parseFloatStr (tokens[6]);
 this.readLines (3);
-tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.readLine ());
+tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.rd ());
 this.totEne = Double.$valueOf (Double.parseDouble (tokens[4]));
 this.setAtomSetInfoMd ();
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "setAtomSetInfoMd", 
-($fz = function () {
-this.atomSetCollection.setAtomSetName ("Temp. = " + J.util.TextFormat.formatDecimal ((this.temp), 2) + " K, Energy = " + this.totEne + " eV");
-this.atomSetCollection.setAtomSetAuxiliaryInfo ("Energy", this.totEne);
-this.atomSetCollection.setAtomSetCollectionAuxiliaryInfo ("Energy", this.totEne);
-this.atomSetCollection.setAtomSetAuxiliaryInfo ("EleEnergy", this.kinEne);
-this.atomSetCollection.setAtomSetCollectionAuxiliaryInfo ("EleEnergy", this.electronEne);
-this.atomSetCollection.setAtomSetAuxiliaryInfo ("Kinetic", this.electronEne);
-this.atomSetCollection.setAtomSetCollectionAuxiliaryInfo ("Kinetic", this.kinEne);
-this.atomSetCollection.setAtomSetAuxiliaryInfo ("Temperature", J.util.TextFormat.formatDecimal ((this.temp), 2));
-this.atomSetCollection.setAtomSetCollectionAuxiliaryInfo ("Temperature", J.util.TextFormat.formatDecimal ((this.temp), 2));
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "readFrequency", 
-($fz = function () {
-var pt = this.atomSetCollection.getCurrentAtomSetIndex ();
-this.atomSetCollection.setBaseSymmetryAtomCount (this.atomCount);
+});
+Clazz.defineMethod (c$, "setAtomSetInfoMd", 
+ function () {
+this.asc.setAtomSetName ("Temp. = " + JU.DF.formatDecimal ((this.temp), 2) + " K, Energy = " + this.totEne + " eV");
+this.asc.setAtomSetAuxiliaryInfo ("Energy", this.totEne);
+this.asc.setInfo ("Energy", this.totEne);
+this.asc.setAtomSetAuxiliaryInfo ("EleEnergy", this.kinEne);
+this.asc.setInfo ("EleEnergy", this.electronEne);
+this.asc.setAtomSetAuxiliaryInfo ("Kinetic", this.electronEne);
+this.asc.setInfo ("Kinetic", this.kinEne);
+this.asc.setAtomSetAuxiliaryInfo ("Temperature", JU.DF.formatDecimal ((this.temp), 2));
+this.asc.setInfo ("Temperature", JU.DF.formatDecimal ((this.temp), 2));
+});
+Clazz.defineMethod (c$, "readFrequency", 
+ function () {
+var pt = this.asc.iSet;
+this.asc.baseSymmetryAtomCount = this.ac;
 if (this.isVersion5) {
 this.readLines (3);
 } else {
 this.discardLinesUntilContains ("Eigenvectors after division by SQRT(mass)");
 this.readLines (5);
 }var ignore =  Clazz.newBooleanArray (1, false);
-while (this.readLine () != null && (this.line.contains ("f  = ") || this.line.contains ("f/i= "))) {
+while (this.rd () != null && (this.line.contains ("f  = ") || this.line.contains ("f/i= "))) {
 this.applySymmetryAndSetTrajectory ();
-var iAtom0 = this.atomSetCollection.getAtomCount ();
-this.cloneLastAtomSet (this.atomCount, null);
+var iAtom0 = this.asc.ac;
+this.cloneLastAtomSet (this.ac, null);
 if (!ignore[0]) {
-this.atomSetCollection.setCurrentAtomSetIndex (++pt);
-this.atomSetCollection.setAtomSetFrequency (null, null, this.line.substring (this.line.indexOf ("2PiTHz") + 6, this.line.indexOf ("c") - 1).trim (), null);
-}this.readLine ();
-this.fillFrequencyData (iAtom0, this.atomCount, this.atomCount, ignore, true, 35, 12, null, 0);
-this.readLine ();
+this.asc.iSet = ++pt;
+this.asc.setAtomSetFrequency (null, null, this.line.substring (this.line.indexOf ("2PiTHz") + 6, this.line.indexOf ("c") - 1).trim (), null);
+}this.rd ();
+this.fillFrequencyData (iAtom0, this.ac, this.ac, ignore, true, 35, 12, null, 0);
+this.rd ();
 }
-}, $fz.isPrivate = true, $fz));
+});
 });

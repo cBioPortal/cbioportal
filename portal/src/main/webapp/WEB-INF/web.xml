@@ -22,7 +22,7 @@
 
     <resource-ref>
       <description>DB Connection</description>
-      <res-ref-name>jdbc/cbioportal</res-ref-name>
+      <res-ref-name>jdbc/cbioportal-gdac</res-ref-name>
       <res-type>javax.sql.DataSource</res-type>
       <res-auth>Container</res-auth>
     </resource-ref>
@@ -578,5 +578,23 @@
         <servlet-name>calcCoExp</servlet-name>
         <url-pattern>/calcCoExp.do</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>calcFisherExactTest</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.CalcFisherExactTest</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>calcFisherExactTest</servlet-name>
+        <url-pattern>/calcFisherExact.do</url-pattern>
+    </servlet-mapping>
     
+    <servlet>
+        <servlet-name>mutexDownload</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.MutexDownload</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>mutexDownload</servlet-name>
+        <url-pattern>/mutexdownload.do</url-pattern>
+    </servlet-mapping>
+
 </web-app>

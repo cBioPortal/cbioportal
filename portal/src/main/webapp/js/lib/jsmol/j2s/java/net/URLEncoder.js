@@ -1,12 +1,12 @@
-$_J("java.net");
-c$=$_T(java.net,"URLEncoder");
-c$.encode=$_M(c$,"encode",
+Clazz.declarePackage("java.net");
+c$=Clazz.declareType(java.net,"URLEncoder");
+c$.encode=Clazz.defineMethod(c$,"encode",
 function(s){
 return encodeURIComponent(arguments[0]);
 },"~S");
-c$.encode=$_M(c$,"encode",
+c$.encode=Clazz.defineMethod(c$,"encode",
 function(s,enc){
 return encodeURIComponent(arguments[0]);
 },"~S,~S");
-$_S(c$,
+Clazz.defineStatics(c$,
 "digits","0123456789ABCDEF");

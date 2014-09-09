@@ -1,1 +1,1 @@
-$_I(java.util,"Enumeration");
+Clazz.declareInterface(java.util,"Enumeration");

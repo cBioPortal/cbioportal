@@ -16,6 +16,8 @@
 */
 package org.mskcc.cbio.portal.model;
 
+import java.util.EnumSet;
+import java.util.Set;
 import org.mskcc.cbio.portal.util.StableIdUtil;
 
 import java.util.regex.*;
@@ -42,6 +44,7 @@ public class Sample {
         Type(String propertyName) { this.propertyName = propertyName; }
         public String toString() { return propertyName; }
         public boolean isNormal() { return this==BLOOD_NORMAL || this==SOLID_NORMAL; }
+        public static Set<Type> normalTypes() {return EnumSet.of(BLOOD_NORMAL, SOLID_NORMAL);}
 
         static public boolean has(String value)
         {

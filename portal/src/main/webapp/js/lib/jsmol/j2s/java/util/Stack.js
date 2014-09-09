@@ -1,22 +1,22 @@
-$_L(["java.util.Vector"],"java.util.Stack",["java.util.EmptyStackException"],function(){
-c$=$_T(java.util,"Stack",java.util.Vector);
-$_M(c$,"empty",
+Clazz.load(["java.util.Vector"],"java.util.Stack",["java.util.EmptyStackException"],function(){
+c$=Clazz.declareType(java.util,"Stack",java.util.Vector);
+Clazz.defineMethod(c$,"empty",
 function(){
 return this.elementCount==0;
 });
-$_M(c$,"peek",
+Clazz.defineMethod(c$,"peek",
 function(){
 try{
 return this.elementData[this.elementCount-1];
 }catch(e){
-if($_O(e,IndexOutOfBoundsException)){
+if(Clazz.instanceOf(e,IndexOutOfBoundsException)){
 throw new java.util.EmptyStackException();
 }else{
 throw e;
 }
 }
 });
-$_M(c$,"pop",
+Clazz.defineMethod(c$,"pop",
 function(){
 try{
 var index=this.elementCount-1;
@@ -24,19 +24,19 @@ var obj=this.elementData[index];
 this.removeElementAt(index);
 return obj;
 }catch(e){
-if($_O(e,IndexOutOfBoundsException)){
+if(Clazz.instanceOf(e,IndexOutOfBoundsException)){
 throw new java.util.EmptyStackException();
 }else{
 throw e;
 }
 }
 });
-$_M(c$,"push",
+Clazz.defineMethod(c$,"push",
 function(object){
 this.addElement(object);
 return object;
 },"~O");
-$_M(c$,"search",
+Clazz.defineMethod(c$,"search",
 function(o){
 var index=this.lastIndexOf(o);
 if(index>=0)return(this.elementCount-index);

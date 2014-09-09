@@ -11,12 +11,20 @@
 
 <p>
     <div class='gene_set_summary'>
-        Gene Set / Pathway is altered in <%=percentCasesAffected%> of all cases. <br>
+        <!--Gene Set / Pathway is altered in <%=percentCasesAffected%> of all cases. <br>-->
+        Gene Set / Pathway is altered in <div id='main_query_result_cases_affected_percent'></div> of all cases. <br>
     </div>
 </p>
 <p>
-    <small><strong><%=smry%></strong></small>
+    <!--small><strong><%=smry%></strong></small-->
+    <small><strong><div id='main_query_result_smry'></div></strong></small>
 </p>
+
+<script>
+    $("#main_query_result_smry").attach("XXXXX");
+    $("#main_query_result_cases_affected_percent").attach("XXXX");
+        
+</script>
 
 <%
     if (warningUnion.size() > 0) {
@@ -122,7 +130,7 @@
             out.println ("<li><a href='#summary' class='result-tab' title='Compact visualization of genomic alterations'>OncoPrint</a></li>");
 
             if (computeLogOddsRatio && geneWithScoreList.size() > 1) {
-                out.println ("<li><a href='#gene_correlation' class='result-tab' title='Mutual exclusivity and co-occurrence analysis'>"
+                out.println ("<li><a href='#mutex' class='result-tab' title='Mutual exclusivity and co-occurrence analysis'>"
                 + "Mutual Exclusivity</a></li>");
             }
 
@@ -206,9 +214,9 @@
             <% } %>
 
             <% if (computeLogOddsRatio && geneWithScoreList.size() > 1) { %>
-        <%@ include file="correlation.jsp" %>
+                <%@ include file="mutex_tab.jsp" %>
             <% } %>
-
+            
             <% if (mutationDetailLimitReached != null) {
         out.println("<div class=\"section\" id=\"mutation_details\">");
         out.println("<P>To retrieve mutation details, please specify "

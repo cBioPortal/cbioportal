@@ -1,11 +1,11 @@
 Clazz.declarePackage ("java.net");
 Clazz.load (null, "java.net.URLStreamHandler", ["java.lang.IllegalArgumentException", "$.SecurityException", "$.UnsupportedOperationException"], function () {
 c$ = Clazz.declareType (java.net, "URLStreamHandler");
-$_M(c$, "openConnectionProxy", 
+Clazz.defineMethod (c$, "openConnectionProxy", 
 function (u, p) {
 throw  new UnsupportedOperationException ("Method not implemented.");
 }, "java.net.URL,java.net.Proxy");
-$_M(c$, "parseURL", 
+Clazz.defineMethod (c$, "parseURL", 
 function (u, spec, start, limit) {
 var protocol = u.getProtocol ();
 var authority = u.getAuthority ();
@@ -95,17 +95,17 @@ if (path.startsWith ("./") && path.length > 2) path = path.substring (2);
 if (path.endsWith ("/.")) path = path.substring (0, path.length - 1);
 }this.setURL (u, protocol, host, port, authority, userInfo, path, query, ref);
 }, "java.net.URL,~S,~N,~N");
-$_M(c$, "getDefaultPort", 
+Clazz.defineMethod (c$, "getDefaultPort", 
 function () {
 return -1;
 });
-$_M(c$, "equals2", 
+Clazz.defineMethod (c$, "equals2", 
 function (u1, u2) {
 var ref1 = u1.getRef ();
 var ref2 = u2.getRef ();
 return (ref1 === ref2 || (ref1 != null && ref1.equals (ref2))) && this.sameFile (u1, u2);
 }, "java.net.URL,java.net.URL");
-$_M(c$, "hashCode", 
+Clazz.defineMethod (c$, "hashCode", 
 function (u) {
 var h = 0;
 var protocol = u.getProtocol ();
@@ -119,7 +119,7 @@ var ref = u.getRef ();
 if (ref != null) h += ref.hashCode ();
 return h;
 }, "java.net.URL");
-$_M(c$, "sameFile", 
+Clazz.defineMethod (c$, "sameFile", 
 function (u1, u2) {
 if (!((u1.getProtocol () === u2.getProtocol ()) || (u1.getProtocol () != null && u1.getProtocol ().equalsIgnoreCase (u2.getProtocol ())))) return false;
 if (!(u1.getFile () === u2.getFile () || (u1.getFile () != null && u1.getFile ().equals (u2.getFile ())))) return false;
@@ -131,22 +131,22 @@ if (port1 != port2) return false;
 if (!this.hostsEqual (u1, u2)) return false;
 return true;
 }, "java.net.URL,java.net.URL");
-$_M(c$, "hostsEqual", 
+Clazz.defineMethod (c$, "hostsEqual", 
 function (u1, u2) {
 if (u1.getHost () != null && u2.getHost () != null) return u1.getHost ().equalsIgnoreCase (u2.getHost ());
 return u1.getHost () == null && u2.getHost () == null;
 }, "java.net.URL,java.net.URL");
-$_M(c$, "toExternalForm", 
+Clazz.defineMethod (c$, "toExternalForm", 
 function (u) {
 return "";
 }, "java.net.URL");
-$_M(c$, "setURL", 
+Clazz.defineMethod (c$, "setURL", 
 function (u, protocol, host, port, authority, userInfo, path, query, ref) {
 if (this !== u.handler) {
 throw  new SecurityException ("handler for url different from this handler");
 }u.set (u.getProtocol (), host, port, authority, userInfo, path, query, ref);
 }, "java.net.URL,~S,~S,~N,~S,~S,~S,~S,~S");
-$_M(c$, "setURLDeprecated", 
+Clazz.defineMethod (c$, "setURLDeprecated", 
 function (u, protocol, host, port, file, ref) {
 var authority = null;
 var userInfo = null;

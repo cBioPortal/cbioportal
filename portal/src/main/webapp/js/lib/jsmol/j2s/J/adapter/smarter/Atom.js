@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.adapter.smarter");
-Clazz.load (["J.util.P3"], "J.adapter.smarter.Atom", ["java.lang.Float", "J.util.ArrayUtil", "$.JmolList", "$.Tensor", "$.V3"], function () {
+Clazz.load (["JU.P3"], "J.adapter.smarter.Atom", ["java.lang.Float", "JU.AU", "$.Lst", "$.V3", "JU.Vibration"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.atomSetIndex = 0;
 this.index = 0;
@@ -17,7 +17,7 @@ this.radius = NaN;
 this.isHetero = false;
 this.atomSerial = -2147483648;
 this.chainID = 0;
-this.alternateLocationID = '\0';
+this.altLoc = '\0';
 this.group3 = null;
 this.sequenceNumber = -2147483648;
 this.insertionCode = '\0';
@@ -25,31 +25,35 @@ this.anisoBorU = null;
 this.tensors = null;
 this.ignoreSymmetry = false;
 Clazz.instantialize (this, arguments);
-}, J.adapter.smarter, "Atom", J.util.P3, Cloneable);
-$_M(c$, "addTensor", 
+}, J.adapter.smarter, "Atom", JU.P3, Cloneable);
+Clazz.defineMethod (c$, "addTensor", 
 function (tensor, type, reset) {
 if (tensor == null) return null;
-if (reset || this.tensors == null) this.tensors =  new J.util.JmolList ();
+if (reset || this.tensors == null) this.tensors =  new JU.Lst ();
 this.tensors.addLast (tensor);
 if (type != null) tensor.setType (type);
 return tensor;
-}, "J.util.Tensor,~S,~B");
+}, "JU.Tensor,~S,~B");
 Clazz.overrideConstructor (c$, 
 function () {
 this.set (NaN, NaN, NaN);
 });
-$_M(c$, "getClone", 
+Clazz.defineMethod (c$, "getClone", 
 function () {
 var a = this.clone ();
-if (this.vib != null) a.vib = J.util.V3.newV (a.vib);
-if (this.anisoBorU != null) a.anisoBorU = J.util.ArrayUtil.arrayCopyF (this.anisoBorU, -1);
+if (this.vib != null) {
+if (Clazz.instanceOf (this.vib, JU.Vibration)) {
+a.vib = (this.vib).clone ();
+} else {
+a.vib = JU.V3.newV (a.vib);
+}}if (this.anisoBorU != null) a.anisoBorU = JU.AU.arrayCopyF (this.anisoBorU, -1);
 if (this.tensors != null) {
-a.tensors =  new J.util.JmolList ();
-for (var i = this.tensors.size (); --i >= 0; ) a.tensors.addLast (J.util.Tensor.copyTensor (this.tensors.get (i)));
+a.tensors =  new JU.Lst ();
+for (var i = this.tensors.size (); --i >= 0; ) a.tensors.addLast ((this.tensors.get (i)).copyTensor ());
 
 }return a;
 });
-$_M(c$, "getElementSymbol", 
+Clazz.defineMethod (c$, "getElementSymbol", 
 function () {
 if (this.elementSymbol == null) if (this.atomName != null) {
 var len = this.atomName.length;
@@ -71,26 +75,25 @@ break;
 }
 }return this.elementSymbol;
 });
-c$.isValidElementSymbol = $_M(c$, "isValidElementSymbol", 
+c$.isValidElementSymbol = Clazz.defineMethod (c$, "isValidElementSymbol", 
 function (ch) {
 return ch >= 'A' && ch <= 'Z' && J.adapter.smarter.Atom.elementCharMasks[ch.charCodeAt (0) - 65] < 0;
 }, "~S");
-c$.isValidElementSymbol2 = $_M(c$, "isValidElementSymbol2", 
+c$.isValidElementSymbol2 = Clazz.defineMethod (c$, "isValidElementSymbol2", 
 function (chFirst, chSecond) {
-if (chFirst < 'A' || chFirst > 'Z' || chSecond < 'a' || chSecond > 'z') return false;
-return ((J.adapter.smarter.Atom.elementCharMasks[chFirst.charCodeAt (0) - 65] >> (chSecond.charCodeAt (0) - 97)) & 1) != 0;
+return (chFirst >= 'A' && chFirst <= 'Z' && chSecond >= 'a' && chSecond <= 'z' && ((J.adapter.smarter.Atom.elementCharMasks[chFirst.charCodeAt (0) - 65] >> (chSecond.charCodeAt (0) - 97)) & 1) != 0);
 }, "~S,~S");
-c$.isValidElementSymbolNoCaseSecondChar2 = $_M(c$, "isValidElementSymbolNoCaseSecondChar2", 
+c$.isValidElementSymbolNoCaseSecondChar2 = Clazz.defineMethod (c$, "isValidElementSymbolNoCaseSecondChar2", 
 function (chFirst, chSecond) {
 if (chSecond >= 'A' && chSecond <= 'Z') chSecond = String.fromCharCode (chSecond.charCodeAt (0) + 32);
 if (chFirst < 'A' || chFirst > 'Z' || chSecond < 'a' || chSecond > 'z') return false;
 return ((J.adapter.smarter.Atom.elementCharMasks[chFirst.charCodeAt (0) - 65] >> (chSecond.charCodeAt (0) - 97)) & 1) != 0;
 }, "~S,~S");
-c$.isValidFirstSymbolChar = $_M(c$, "isValidFirstSymbolChar", 
+c$.isValidFirstSymbolChar = Clazz.defineMethod (c$, "isValidFirstSymbolChar", 
 function (ch) {
 return ch >= 'A' && ch <= 'Z' && J.adapter.smarter.Atom.elementCharMasks[ch.charCodeAt (0) - 65] != 0;
 }, "~S");
-c$.isValidElementSymbolNoCaseSecondChar = $_M(c$, "isValidElementSymbolNoCaseSecondChar", 
+c$.isValidElementSymbolNoCaseSecondChar = Clazz.defineMethod (c$, "isValidElementSymbolNoCaseSecondChar", 
 function (str) {
 if (str == null) return false;
 var length = str.length;
@@ -101,7 +104,7 @@ if (length > 2) return false;
 var chSecond = str.charAt (1);
 return J.adapter.smarter.Atom.isValidElementSymbolNoCaseSecondChar2 (chFirst, chSecond);
 }, "~S");
-$_M(c$, "scaleVector", 
+Clazz.defineMethod (c$, "scaleVector", 
 function (vibScale) {
 if (this.vib == null || Float.isNaN (this.vib.z)) return;
 this.vib.scale (vibScale);

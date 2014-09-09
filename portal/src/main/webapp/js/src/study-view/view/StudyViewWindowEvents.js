@@ -13,12 +13,28 @@ var StudyViewWindowEvents = (function(){
         //Whether the is scrolled, and here is specific to detect whether
         //the header of Charts Tab is on the page top or not.
         //Will be used outside function
-        scrolled = false;
+        scrolled = false,
+        shiftKeyDown = false;
         
     function initEvents(){
         initScrollEvent();
+        listenShiftKeyDown();
     }
     
+    function listenShiftKeyDown() {
+        $(window).on("keydown", function(event) {
+            if (event.keyCode === 16){
+                shiftKeyDown = true;
+                shiftKeyDownEvent = event;
+            }
+        });
+        $(window).on("keyup", function(event) {
+            if (event.keyCode === 16){
+                shiftKeyDown = false;
+                shiftKeyDownEvent = null;
+            }
+        });
+    }
     function initScrollEvent(){
         /*
         $(window).scroll(function(e){
@@ -103,11 +119,15 @@ var StudyViewWindowEvents = (function(){
     }
     
     return {
-      init: initEvents,
+        init: initEvents,
       
         getScrollStatus: function() {
-          return scrolled;
-      }
+            return scrolled;
+        },
+        
+        getShiftKeyDown: function() {
+            return shiftKeyDown;
+        }
     };
 })();
 

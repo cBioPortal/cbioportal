@@ -98,6 +98,8 @@ var StudyViewProxy = (function() {
                     if(!value['display_name']){
                         value['display_name'] = value['attr_id'];
                     }
+                    
+                    value['display_name'] = toPascalCase(value['display_name']);
                 });
                 
                 for(var key in _dataAttrMapArr){
@@ -222,6 +224,15 @@ var StudyViewProxy = (function() {
         }
     }
     
+    function toPascalCase(str) {
+        var arr = str.split(/\s|_/);
+//        for(var i=0,l=arr.length; i<l; i++) {
+//            arr[i] = arr[i].substr(0,1).toUpperCase() + 
+//                     (arr[i].length > 1 ? arr[i].substr(1).toLowerCase() : "");
+//        } 
+        return arr.join(" ");
+    }
+
     return {
         init: function(callbackFunc){
             initLocalParameters();

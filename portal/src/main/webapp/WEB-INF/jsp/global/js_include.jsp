@@ -29,11 +29,7 @@
 <script type="text/javascript" src="js/lib/genomespace.js"></script>
 <script src="https://gsui.genomespace.org/jsui/upload/gsuploadwindow.js" type="text/javascript"></script>
 
-<script type="text/javascript" src="js/lib/jmol/JmolCore.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/lib/jmol/JmolApplet.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/lib/jmol/JmolControls.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/lib/jmol/JmolApi.js?<%=GlobalProperties.getAppVersion()%>"></script>
-
+<script type="text/javascript" src="js/lib/jsmol/JSmol.min.nojq.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/mutationMapper.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <script type="text/javascript">

@@ -1,3 +1,3 @@
-$_L(["java.io.IOException"],"java.io.CharConversionException",null,function(){
-c$=$_T(java.io,"CharConversionException",java.io.IOException);
+Clazz.load(["java.io.IOException"],"java.io.CharConversionException",null,function(){
+c$=Clazz.declareType(java.io,"CharConversionException",java.io.IOException);
 });

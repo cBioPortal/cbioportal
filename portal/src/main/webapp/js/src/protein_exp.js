@@ -510,9 +510,9 @@ var rppaPlots = (function() {
 
     function generatePlots(proteinArrayId, alterationsObj) {
         var paramsGetProteinArrayData = {
-            cancer_study_id: cancer_study_id,
-            case_set_id: case_set_id,
-            case_ids_key: case_ids_key,
+            cancer_study_id: window.PortalGlobals.getCancerStudyId(),
+            case_set_id: window.PortalGlobals.getCaseSetId(),
+            case_ids_key: window.PortalGlobals.getCaseIdsKey(),
             protein_array_id: proteinArrayId
         };
         $.post("getProteinArrayData.json", paramsGetProteinArrayData, getProfileDataCallBack(alterationsObj), "json");

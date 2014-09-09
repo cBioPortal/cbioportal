@@ -1,17 +1,17 @@
-$_J("java.text");
-c$=$_C(function(){
+Clazz.declarePackage("java.text");
+c$=Clazz.decorateAsClass(function(){
 this.value=null;
-$_Z(this,arguments);
+Clazz.instantialize(this,arguments);
 },java.text,"Annotation");
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(attribute){
 this.value=attribute;
 },"~O");
-$_M(c$,"getValue",
+Clazz.defineMethod(c$,"getValue",
 function(){
 return this.value;
 });
-$_V(c$,"toString",
+Clazz.overrideMethod(c$,"toString",
 function(){
 return this.getClass().getName()+"[value="+this.value+']';
 });

@@ -1,7 +1,7 @@
 Clazz.declarePackage ("J.adapter.readers.simple");
-Clazz.load (["J.adapter.smarter.AtomSetCollectionReader", "java.util.Hashtable", "J.util.JmolList", "$.P3", "$.P4", "$.V3"], "J.adapter.readers.simple.ZMatrixReader", ["java.lang.Character", "$.Exception", "$.Float", "J.adapter.smarter.Atom", "$.Bond", "J.api.JmolAdapter", "J.util.Logger", "$.Measure", "$.Quaternion"], function () {
+Clazz.load (["J.adapter.smarter.AtomSetCollectionReader", "java.util.Hashtable", "JU.Lst", "$.P3", "$.P4", "$.V3"], "J.adapter.readers.simple.ZMatrixReader", ["java.lang.Character", "$.Exception", "$.Float", "JU.Measure", "$.Quat", "J.adapter.smarter.Atom", "$.Bond", "J.api.JmolAdapter", "JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
-this.atomCount = 0;
+this.ac = 0;
 this.vAtoms = null;
 this.atomMap = null;
 this.tokens = null;
@@ -18,15 +18,15 @@ this.plane2 = null;
 Clazz.instantialize (this, arguments);
 }, J.adapter.readers.simple, "ZMatrixReader", J.adapter.smarter.AtomSetCollectionReader);
 Clazz.prepareFields (c$, function () {
-this.vAtoms =  new J.util.JmolList ();
+this.vAtoms =  new JU.Lst ();
 this.atomMap =  new java.util.Hashtable ();
-this.lineBuffer =  new J.util.JmolList ();
+this.lineBuffer =  new JU.Lst ();
 this.symbolicMap =  new java.util.Hashtable ();
-this.pt0 =  new J.util.P3 ();
-this.v1 =  new J.util.V3 ();
-this.v2 =  new J.util.V3 ();
-this.plane1 =  new J.util.P4 ();
-this.plane2 =  new J.util.P4 ();
+this.pt0 =  new JU.P3 ();
+this.v1 =  new JU.V3 ();
+this.v2 =  new JU.V3 ();
+this.plane1 =  new JU.P4 ();
+this.plane2 =  new JU.P4 ();
 });
 Clazz.overrideMethod (c$, "checkLine", 
 function () {
@@ -45,15 +45,15 @@ return true;
 }this.lineBuffer.addLast (this.tokens);
 return true;
 });
-$_M(c$, "cleanLine", 
-($fz = function () {
+Clazz.defineMethod (c$, "cleanLine", 
+ function () {
 this.line = this.line.$replace (',', ' ');
 var pt1;
 var pt2;
 while ((pt1 = this.line.indexOf ('(')) >= 0 && (pt2 = this.line.indexOf ('(', pt1)) >= 0) this.line = this.line.substring (0, pt1) + " " + this.line.substring (pt2 + 1);
 
 this.line = this.line.trim ();
-}, $fz.isPrivate = true, $fz));
+});
 Clazz.overrideMethod (c$, "finalizeReader", 
 function () {
 var firstLine = 0;
@@ -61,15 +61,15 @@ for (var i = firstLine; i < this.lineBuffer.size (); i++) if ((this.tokens = thi
 
 this.finalizeReaderASCR ();
 });
-$_M(c$, "getSymbolic", 
-($fz = function () {
+Clazz.defineMethod (c$, "getSymbolic", 
+ function () {
 if (this.symbolicMap.containsKey (this.tokens[0])) return;
 var f = this.parseFloatStr (this.tokens[1]);
 this.symbolicMap.put (this.tokens[0], Float.$valueOf (f));
-J.util.Logger.info ("symbolic " + this.tokens[0] + " = " + f);
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "getAtom", 
-($fz = function () {
+JU.Logger.info ("symbolic " + this.tokens[0] + " = " + f);
+});
+Clazz.defineMethod (c$, "getAtom", 
+ function () {
 var f;
 var atom =  new J.adapter.smarter.Atom ();
 var element = this.tokens[0];
@@ -78,7 +78,7 @@ while (--i >= 0 && Character.isDigit (element.charAt (i))) {
 }
 if (++i == 0) throw  new Exception ("Bad Z-matrix atom name");
 if (i == element.length) {
-atom.atomName = element + (this.atomCount + 1);
+atom.atomName = element + (this.ac + 1);
 } else {
 atom.atomName = element;
 element = element.substring (0, i);
@@ -98,7 +98,7 @@ break;
 }case 7:
 var ib;
 var ic;
-if (this.tokens.length < 7 && this.atomCount != 2 || (ib = this.getAtomIndex (3)) < 0 || (ic = (this.tokens.length < 7 ? -2 : this.getAtomIndex (5))) == -1) {
+if (this.tokens.length < 7 && this.ac != 2 || (ib = this.getAtomIndex (3)) < 0 || (ic = (this.tokens.length < 7 ? -2 : this.getAtomIndex (5))) == -1) {
 atom = null;
 } else {
 var d = this.getValue (2);
@@ -114,13 +114,13 @@ break;
 }bondOrder = Clazz.floatToInt (this.getValue (3));
 case 3:
 f = this.getValue (2);
-if (this.atomCount != 1 || (ia = this.getAtomIndex (1)) != 0) {
+if (this.ac != 1 || (ia = this.getAtomIndex (1)) != 0) {
 atom = null;
 } else {
 atom.set (f, 0, 0);
 }break;
 case 1:
-if (this.atomCount != 0) atom = null;
+if (this.ac != 0) atom = null;
  else atom.set (0, 0, 0);
 break;
 default:
@@ -128,33 +128,33 @@ atom = null;
 }
 if (atom == null) throw  new Exception ("bad Z-Matrix line");
 this.vAtoms.addLast (atom);
-this.atomMap.put (atom.atomName, Integer.$valueOf (this.atomCount));
-this.atomCount++;
+this.atomMap.put (atom.atomName, Integer.$valueOf (this.ac));
+this.ac++;
 if (element.startsWith ("X") && J.api.JmolAdapter.getElementNumber (element) < 1) {
-J.util.Logger.info ("#dummy atom ignored: atom " + this.atomCount + " - " + atom.atomName);
+JU.Logger.info ("#dummy atom ignored: atom " + this.ac + " - " + atom.atomName);
 } else {
-this.atomSetCollection.addAtom (atom);
+this.asc.addAtom (atom);
 this.setAtomCoord (atom);
-J.util.Logger.info (atom.atomName + " " + atom.x + " " + atom.y + " " + atom.z);
-if (this.isJmolZformat && bondOrder > 0) this.atomSetCollection.addBond ( new J.adapter.smarter.Bond (atom.index, this.vAtoms.get (ia).index, bondOrder));
-}}, $fz.isPrivate = true, $fz));
-$_M(c$, "getSymbolic", 
-($fz = function (key) {
+JU.Logger.info (atom.atomName + " " + atom.x + " " + atom.y + " " + atom.z);
+if (this.isJmolZformat && bondOrder > 0) this.asc.addBond ( new J.adapter.smarter.Bond (atom.index, this.vAtoms.get (ia).index, bondOrder));
+}});
+Clazz.defineMethod (c$, "getSymbolic", 
+ function (key) {
 var isNeg = key.startsWith ("-");
 var F = this.symbolicMap.get (isNeg ? key.substring (1) : key);
 if (F == null) return NaN;
 var f = F.floatValue ();
 return (isNeg ? -f : f);
-}, $fz.isPrivate = true, $fz), "~S");
-$_M(c$, "getValue", 
-($fz = function (i) {
+}, "~S");
+Clazz.defineMethod (c$, "getValue", 
+ function (i) {
 var f = this.getSymbolic (this.tokens[i]);
 if (Float.isNaN (f)) f = this.parseFloatStr (this.tokens[i]);
 if (Float.isNaN (f)) throw  new Exception ("Bad Z-matrix value: " + this.tokens[i]);
 return f;
-}, $fz.isPrivate = true, $fz), "~N");
-$_M(c$, "getAtomIndex", 
-($fz = function (i) {
+}, "~N");
+Clazz.defineMethod (c$, "getAtomIndex", 
+ function (i) {
 var name;
 if (i >= this.tokens.length || (name = this.tokens[i]).indexOf (".") >= 0 || !Character.isLetterOrDigit (name.charAt (0))) return -1;
 var ia = this.parseIntStr (name);
@@ -172,8 +172,8 @@ break;
 } else {
 ia--;
 }return ia;
-}, $fz.isPrivate = true, $fz), "~N");
-$_M(c$, "setAtom", 
+}, "~N");
+Clazz.defineMethod (c$, "setAtom", 
 function (atom, ia, ib, ic, d, theta1, theta2) {
 if (Float.isNaN (theta1) || Float.isNaN (theta2)) return null;
 this.pt0.setT (this.vAtoms.get (ia));
@@ -181,16 +181,16 @@ this.v1.sub2 (this.vAtoms.get (ib), this.pt0);
 this.v1.normalize ();
 if (theta2 == 3.4028235E38) {
 this.v2.set (0, 0, 1);
-(J.util.Quaternion.newVA (this.v2, theta1)).transformP2 (this.v1, this.v2);
+(JU.Quat.newVA (this.v2, theta1)).transformP2 (this.v1, this.v2);
 } else if (d >= 0) {
 this.v2.sub2 (this.vAtoms.get (ic), this.pt0);
 this.v2.cross (this.v1, this.v2);
-(J.util.Quaternion.newVA (this.v2, theta1)).transformP2 (this.v1, this.v2);
-(J.util.Quaternion.newVA (this.v1, -theta2)).transformP2 (this.v2, this.v2);
+(JU.Quat.newVA (this.v2, theta1)).transformP2 (this.v1, this.v2);
+(JU.Quat.newVA (this.v1, -theta2)).transformP2 (this.v2, this.v2);
 } else {
-J.util.Measure.getPlaneThroughPoint (this.setAtom (atom, ia, ib, ic, -d, theta1, 0), this.v1, this.plane1);
-J.util.Measure.getPlaneThroughPoint (this.setAtom (atom, ia, ic, ib, -d, theta2, 0), this.v1, this.plane2);
-var list = J.util.Measure.getIntersectionPP (this.plane1, this.plane2);
+JU.Measure.getPlaneThroughPoint (this.setAtom (atom, ia, ib, ic, -d, theta1, 0), this.v1, this.plane1);
+JU.Measure.getPlaneThroughPoint (this.setAtom (atom, ia, ic, ib, -d, theta2, 0), this.v1, this.plane2);
+var list = JU.Measure.getIntersectionPP (this.plane1, this.plane2);
 if (list.size () == 0) return null;
 this.pt0.setT (list.get (0));
 d = Math.sqrt (d * d - this.pt0.distanceSquared (this.vAtoms.get (ia))) * Math.signum (theta1) * Math.signum (theta2);

@@ -47,9 +47,8 @@ var MutexData = (function() {
 			d: 0, //++
 			odds_ratio: 0,
 			log_odds_ratio: 0,
-			log_odds_ratio_text: "",
 			p_value: 0,
-			association: "" //
+			association: ""
 		},
 		dataArr = [],
 		stat = { //Simple statistics of the result
@@ -62,6 +61,11 @@ var MutexData = (function() {
 		settings = {
 			p_val_threshold: 0.05,
 			log_odds_ratio_threshold: 0
+		},
+		label = {
+			co_occurance: "Co-occurrence",
+			mutual_exclusivity: "Mutual-Exclusivity",
+			significant: "(Significant)"
 		};
 
 	function countEventCombinations() {
@@ -128,39 +132,24 @@ var MutexData = (function() {
 			if (result.split(" ").length === dataArr.length) {
 				$.each(result.split(" "), function(index, value) {
 					var _dataObj = dataArr[index];
-					
-					_dataObj.p_value = parseFloat(value).toFixed(3);
+
+					_dataObj.p_value = parseFloat(value);
 					if (_dataObj.b !== 0 && _dataObj.c !== 0) {
 						_dataObj.odds_ratio = (_dataObj.a * _dataObj.d) / (_dataObj.b * _dataObj.c);
-						
-						//normalize the large log values
-						_dataObj.log_odds_ratio = Math.log(_dataObj.odds_ratio).toFixed(3);
-
-						if (_dataObj.log_odds_ratio < -3 || _dataObj.log_odds_ratio === "-Infinity") {
-							_dataObj.log_odds_ratio_text = "<-3";
-						} else if (_dataObj.log_odds_ratio > 3) {
-							_dataObj.log_odds_ratio_text = ">3";
-						} else _dataObj.log_odds_ratio_text = _dataObj.log_odds_ratio;
+						_dataObj.log_odds_ratio = Math.log(_dataObj.odds_ratio);
 
 						//categorize
 						if (_dataObj.log_odds_ratio <= settings.log_odds_ratio_threshold || _dataObj.log_odds_ratio === "-Infinity") {
-							if (_dataObj.p_value < settings.p_val_threshold) {
-								_dataObj.association = "Significant tendency towards <b>mutual exclusivity</b>";
-							} else {
-								_dataObj.association = "Tendency towards <b>mutual exclusivity</b>";
-							}
+							_dataObj.association = label.mutual_exclusivity;
+							if (_dataObj.p_value < settings.p_val_threshold) _dataObj.association += label.significant;
 						} else if (_dataObj.log_odds_ratio > settings.log_odds_ratio_threshold) {
-							if (_dataObj.p_value < settings.p_val_threshold) {
-								_dataObj.association = "Significant tendency towards <b>co-occurrence</b>";
-							} else {
-								_dataObj.association = "Tendency towards <b>co-occurrence</b>";
-							}
+							_dataObj.association = label.co_occurance;
+							if (_dataObj.p_value < settings.p_val_threshold) _dataObj.association += label.significant;
 						} 
 					} else {
 						_dataObj.odds_ratio = "Infinity"; 
 						_dataObj.log_odds_ratio = "Infinity"; 
-						_dataObj.log_odds_ratio_text = ">3";
-						_dataObj.association = "Significant tendency towards <b>co-occurrence</b>";
+						_dataObj.association = label.co_occurance + label.significant;
 					}
 				});
 			}
@@ -209,6 +198,9 @@ var MutexData = (function() {
 		getDataStat: function() {
 			return stat;
 		},
+		getSignificantLabel: function() {
+			return label.significant;
+		}
 
 	}
 

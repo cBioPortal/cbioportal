@@ -11,8 +11,9 @@
 <script type="text/javascript" src="js/src/mutex/dataProxy.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/mutex/view.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
+
 <div class="section" id="mutex" class="mutex">
-    <div id='mutex-wrapper' style='width: 1000px; margin-top: 20px; margin-left: 20px;'>
+    <div id='mutex-wrapper' style='width: 800px; margin-top: 10px; margin-left: 10px;'>
         <div id="mutex-info-div">
             <p>The query contains <span id='num_of_mutex' class='stat_num'></span> gene pair<span id='plu_s_mutex'></span> with mutually exclusive alterations<span id='stat_sig_mutex'> (<span id='num_of_sig_mutex' class='stat_num'></span> significant)</span>,
             and <span id='num_of_co_oc' class='stat_num'></span> gene pair<span id='plu_s_co_oc'></span> with co-occurrent alterations<span id='stat_sig_co_oc'> (<span id='num_of_sig_co_oc' class='stat_num'></span> significant)</span>.
@@ -22,7 +23,6 @@
         <div id="mutex-table-div" style='margin-top:10px;'></div>
     </div>
 </div>
-
 
 <script>
     $(document).ready( function() {
@@ -38,7 +38,6 @@
             }
         });
     });
-
 </script>
 
 <style type="text/css">
@@ -46,10 +45,8 @@
         font-size: 10px;
         margin-top: 10px;
     }
-    #mutex-table thead {
-        font-size:70%;
-    }
     #mutex table.dataTable thead th div.DataTables_sort_wrapper {
+        font-size: 150%;
         position: relative;
         padding-right: 20px;
     }
@@ -63,8 +60,6 @@
         text-align: right; 
     }
     #mutex .stat_num {
-        font-size: 105%;
-        color: #3366CC;
         font-weight:bold;
     }
 </style>

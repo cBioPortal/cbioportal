@@ -1,10 +1,30 @@
-<%@ include file="global/global_variables.jsp" %>
 <jsp:include page="global/header.jsp" flush="true" />
+<link href="css/bootstrap.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<%@ include file="global/global_variables.jsp" %>
 
-<p><div class='gene_set_summary'>
-    Gene Set / Pathway is altered in <span id='main_query_result_cases_affected_percent'></span>% of all cases. <br>
-</div></p>
-<p><small><strong><span id='main_query_result_smry'></span></strong></small></p>
+<div class='main_smry'>
+    <div id='main_smry_line'></div>
+    <div style="margin-left:5px;display:none;" id="query_form_on_results_page">
+        <%@ include file="query_form.jsp" %>
+    </div>
+</div>
+
+<script>
+    var _smry = "<h3 style='font-size:110%';><a href='study.do?cancer_study_id=" + 
+                window.PortalGlobals.getCancerStudyId() + "' target='_blank'>" + 
+                window.PortalGlobals.getCancerStudyName() + "</a>" + " " +  
+                "<small>" + window.PortalGlobals.getPatientSetName() + " (" + window.PortalGlobals.getNumOfTotalCases() + " samples)" + " " + 
+                "<button type='button' class='btn btn-default btn-xs' data-toggle='button' id='modify_query_btn' style='margin-left:20px;'>Modify Query</button></small></h3>";
+    $("#main_smry_line").append(_smry);
+    $("#modify_query_btn").click(function () {
+        $("#query_form_on_results_page").toggle();
+        if($("#modify_query_btn").hasClass("active")) {
+            $("#modify_query_btn").removeClass("active");
+        } else {
+            $("#modify_query_btn").addClass("active");    
+        }
+    });
+</script>
 
 <script>
     PortalDataCollManager.subscribeOncoprint(function() {
@@ -18,18 +38,16 @@
                 }
             });
         });
-        $("#main_query_result_cases_affected_percent").append(window.PortalGlobals.getPercentageOfAlteredCases());
-        var _smry = 
-            "<a href='study.do?cancer_study_id=" + window.PortalGlobals.getCancerStudyId() + "'>" + 
-            window.PortalGlobals.getCancerStudyName() + "</a>" + "/" + 
-            window.PortalGlobals.getPatientSetName() + ":(" + window.PortalGlobals.getNumOfTotalCases() + ")" + "/" + 
-            window.PortalGlobals.getGeneSetName() + "/" + 
-            window.PortalGlobals.getGeneList().length + " " + (window.PortalGlobals.getGeneList().length == 1?"gene":"genes");
-        $("#main_query_result_smry").append(_smry);
         $("#oncoprint_num_of_altered_cases").append(window.PortalGlobals.getNumOfAlteredCases());
         $("#oncoprint_percentage_of_altered_cases").append(window.PortalGlobals.getPercentageOfAlteredCases());
-        $("#oncoprint_sample_set_name").append(window.PortalGlobals.getPatientSetName());
-        $("#oncoprint_total_num_samples").append(window.PortalGlobals.getNumOfTotalCases());
+
+        //  Set up Event Handler for View/Hide Query Form, when it is on the results page
+        $("#toggle_query_form").click(function(event) {
+          event.preventDefault();
+          $('#query_form_on_results_page').toggle();
+          //  Toggle the icons
+          $(".query-toggle").toggle();
+        });
 
     });
 </script>
@@ -60,14 +78,10 @@
     } else {
 %>
 
-<p><a href="" title="Modify your original query.  Recommended over hitting your browser's back button." id="toggle_query_form">
-    <span class='query-toggle ui-icon ui-icon-triangle-1-e' style='float:left;'></span>
-    <span class='query-toggle ui-icon ui-icon-triangle-1-s' style='float:left; display:none;'></span><b>Modify Query</b></a>
+<p>
 <p/>
 
-<div style="margin-left:5px;display:none;" id="query_form_on_results_page">
-    <%@ include file="query_form.jsp" %>
-</div>
+
 
 <div id="tabs">
     <ul>
@@ -266,11 +280,6 @@
 
     // it is better to check selected tab after document gets ready
     $(document).ready(function() {
-        
-        //Calculate and append statics result
-        calcStat();
-        appendSummaryStatics();
-
         $("#toggle_query_form").tipTip();
         // check if network tab is initially selected
         // TODO this depends on aria-hidden attribute which may not be safe...

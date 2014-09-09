@@ -226,6 +226,11 @@ A:hover {
     font-weight:bold;
 }
 
+.main_smry {
+    padding-top:10px;
+    padding-left: 10px;
+}
+
 .warning h4{
     color:red !important;
 }

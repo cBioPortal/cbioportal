@@ -111,9 +111,11 @@
     int mergedPatientListSize = mergedPatientList.size();
     String patientSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
     String patientSetName = "";
+    String patientSetDescription = "";
     for (PatientList patientSet:  patientSets) {
         if (patientSetId.equals(patientSet.getStableId())) {
             patientSetName = patientSet.getName();
+            patientSetDescription = patientSet.getDescription();
         }
     }
     String patients = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
@@ -233,6 +235,7 @@
         getRppaScoreThreshold: function() { return '<%=rppaScoreThreshold%>'; },
         getPatientIds: function() { return '<%=patients%>'; },
         getPatientSetName: function() { return '<%=patientSetName%>'; },
+        getPatientSetDescription: function() { return '<%=patientSetDescription%>' },
         getPatientSampleIdMap: function() { 
             var _tmpPatientSampleIdMap = '<%=patientSampleIdMap%>'; 
             var tmpPatientSampleIdMap = _tmpPatientSampleIdMap.substring(1, _tmpPatientSampleIdMap.length-1);
@@ -246,9 +249,6 @@
         }
     };
 </script>
-
-
-
 
 <%!
     public int countProfiles (ArrayList<GeneticProfile> profileList, GeneticAlterationType type) {

@@ -76,7 +76,7 @@ var SurvivalCurve = function() {
     }
 
     function drawLines(data, opts, _curveId) {
-        if (data !== null) {
+        if (data !== null && data.length > 0) {
             if (data[0].time !== 0) {
                 data.unshift(appendZeroPoint(data[0].num_at_risk));
             }

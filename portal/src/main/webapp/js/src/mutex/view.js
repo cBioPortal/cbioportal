@@ -120,9 +120,9 @@
                 $('td:eq(' + index.geneB + ')', nRow).css("font-weight", "bold");
                 $('td:eq(' + index.pVal + ')', nRow).css("color", colorCode.pVal);
                 $('td:eq(' + index.oddsRatio + ')', nRow).css("color", colorCode.oddsRatio);
-                // if (aData[index.association].indexOf("Significant") !== -1) { //significate p value
-                //     $('td:eq(' + index.pVal + ')', nRow).css("font-weight", "bold");
-                // }
+                if (aData[index.association].indexOf("Significant") !== -1) { //significate p value
+                    $('td:eq(' + index.pVal + ')', nRow).css("font-weight", "bold");
+                }
             }
         }); 
 

@@ -103,13 +103,13 @@
                     "sType": 'mutex-odds-ratio',
                     "bSearchable": false,
                     "aTargets": [ index.oddsRatio ],
-                    "sWidth": "150px",
+                    "sWidth": "200px",
                     "sClass": "classMutexTable"
                 },
                 {
                     "bSearchable": false,
                     "aTargets": [ index.association ],
-                    "sWidth": "500px"
+                    "sWidth": "250px"
                 }
             ],
             "oLanguage": {

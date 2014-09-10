@@ -235,7 +235,12 @@
         getRppaScoreThreshold: function() { return '<%=rppaScoreThreshold%>'; },
         getPatientIds: function() { return '<%=patients%>'; },
         getPatientSetName: function() { return '<%=patientSetName%>'; },
-        getPatientSetDescription: function() { return '<%=patientSetDescription%>' },
+        //TODO: this is just temporary solution of getting the right total number of samples -- should update the number in the database table instead.
+        getPatientSetDescription: function() { 
+            var _str = '<%=patientSetDescription%>';
+            _str = _str.substring(0, _str.indexOf("("));
+            return _str;
+        },
         getPatientSampleIdMap: function() { 
             var _tmpPatientSampleIdMap = '<%=patientSampleIdMap%>'; 
             var tmpPatientSampleIdMap = _tmpPatientSampleIdMap.substring(1, _tmpPatientSampleIdMap.length-1);

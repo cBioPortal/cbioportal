@@ -9,25 +9,10 @@
     </div>
 </div>
 
-<script>
-    var _smry = "<h3 style='font-size:110%';><a href='study.do?cancer_study_id=" + 
-                window.PortalGlobals.getCancerStudyId() + "' target='_blank'>" + 
-                window.PortalGlobals.getCancerStudyName() + "</a>" + " " +  
-                "<small>" + window.PortalGlobals.getPatientSetName() + " (" + window.PortalGlobals.getNumOfTotalCases() + " samples)" + " " + 
-                "<button type='button' class='btn btn-default btn-xs' data-toggle='button' id='modify_query_btn' style='margin-left:20px;'>Modify Query</button></small></h3>";
-    $("#main_smry_line").append(_smry);
-    $("#modify_query_btn").click(function () {
-        $("#query_form_on_results_page").toggle();
-        if($("#modify_query_btn").hasClass("active")) {
-            $("#modify_query_btn").removeClass("active");
-        } else {
-            $("#modify_query_btn").addClass("active");    
-        }
-    });
-</script>
 
 <script>
     PortalDataCollManager.subscribeOncoprint(function() {
+        //calculate total alteration
         var _dataArr = PortalDataColl.getOncoprintData();
         num_total_cases = _dataArr.length;
         $.each(_dataArr, function(outerIndex, outerObj) {
@@ -37,11 +22,27 @@
                     return false;
                 }
             });
-        });
-        $("#oncoprint_num_of_altered_cases").append(window.PortalGlobals.getNumOfAlteredCases());
-        $("#oncoprint_percentage_of_altered_cases").append(window.PortalGlobals.getPercentageOfAlteredCases());
+        });        
 
-        //  Set up Event Handler for View/Hide Query Form, when it is on the results page
+        //Configure the summary line
+        var _smry = "<h3 style='font-size:110%;'><a href='study.do?cancer_study_id=" + 
+            window.PortalGlobals.getCancerStudyId() + "' target='_blank'>" + 
+            window.PortalGlobals.getCancerStudyName() + "</a><br>" + " " +  
+            "<small>" + window.PortalGlobals.getPatientSetName() + " (<b>" + window.PortalGlobals.getNumOfTotalCases() + "</b> samples)" + " / " + 
+            "Gene Set/Pathway is altered in <b>" + window.PortalGlobals.getNumOfAlteredCases() + " (" + window.PortalGlobals.getPercentageOfAlteredCases() + "%)" + "</b> of all samples" + " / " + 
+            "<b>" + window.PortalGlobals.getGeneList().length + "</b>" + (window.PortalGlobals.getGeneList().length===1?" Gene":" Genes") + "<br></small></h3>" + 
+            "<button type='button' class='btn btn-default btn-xs' data-toggle='button' id='modify_query_btn'>Modify Query</button>";
+        $("#main_smry_line").append(_smry);
+
+        //Set Event listener for the modify query button (expand the hidden form)
+        $("#modify_query_btn").click(function () {
+            $("#query_form_on_results_page").toggle();
+            if($("#modify_query_btn").hasClass("active")) {
+                $("#modify_query_btn").removeClass("active");
+            } else {
+                $("#modify_query_btn").addClass("active");    
+            }
+        });
         $("#toggle_query_form").click(function(event) {
           event.preventDefault();
           $('#query_form_on_results_page').toggle();

@@ -236,6 +236,15 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
     $(select_clinical_attributes_id).change(clinicalAttributeSelected);
 
     $(document).ready(function() {
+        //Append summary info 
+        PortalDataCollManager.subscribeOncoprint(function() {
+            $("#oncoprint_sample_set_description").append(window.PortalGlobals.getPatientSetDescription() + 
+                "(" + window.PortalGlobals.getNumOfTotalCases() + " samples)");
+            $("#oncoprint_sample_set_name").append(window.PortalGlobals.getPatientSetName());
+            $("#oncoprint_num_of_altered_cases").append(window.PortalGlobals.getNumOfAlteredCases());
+            $("#oncoprint_percentage_of_altered_cases").append(window.PortalGlobals.getPercentageOfAlteredCases());
+        });
+
         // bind away
         $('#oncoprint_controls #sort_by').change(function() {
             oncoprint.sortBy(sortBy.val(), cases.split(" "));

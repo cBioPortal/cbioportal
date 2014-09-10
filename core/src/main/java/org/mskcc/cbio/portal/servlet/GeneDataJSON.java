@@ -161,9 +161,18 @@ public class GeneDataJSON extends HttpServlet {
 
             xdebug.logMsg(this, "Getting data for:  " + profile.getProfileName());
 
+            // GetProfileData remoteCall;
+            // String sampleIds =
+            //     Joiner.on(" ").join(StableIdUtil.getStableSampleIdsFromPatientIds(profile.getCancerStudyId(), patientIds));
+
             GetProfileData remoteCall;
+            List<Sample.Type> excludes = new ArrayList<Sample.Type>();
+            excludes.add(Sample.Type.SOLID_NORMAL);
+            excludes.add(Sample.Type.BLOOD_NORMAL);
             String sampleIds =
-                Joiner.on(" ").join(StableIdUtil.getStableSampleIdsFromPatientIds(profile.getCancerStudyId(), patientIds));
+              Joiner.on(" ").join(StableIdUtil.getStableSampleIdsFromPatientIds(profile.getCancerStudyId(),
+                                                            patientIds,
+                                                            excludes));
             
             try {
                 remoteCall = new GetProfileData(profile, listOfGenes, sampleIds);

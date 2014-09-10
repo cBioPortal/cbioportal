@@ -150,7 +150,7 @@
                     _arr.push(obj.log_odds_ratio.toFixed(3));
                 }
                 //append significant label (replace plain text)
-                var _label_str = "&nbsp;&nbsp;&nbsp;<span class='label label-info'>Significant</span>";
+                var _label_str = "&nbsp;&nbsp;&nbsp;<span class='label label-mutex-significant'>Significant</span>";
                 if (obj.association.indexOf(MutexData.getSignificantLabel()) !== -1) {
                     var _association_str = obj.association.replace(MutexData.getSignificantLabel(), _label_str);
                     _arr.push(_association_str);

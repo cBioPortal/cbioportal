@@ -62,4 +62,7 @@
     #mutex .stat_num {
         font-weight:bold;
     }
+    #mutex .label-mutex-significant {
+        background-color: #58ACFA;
+    }
 </style>

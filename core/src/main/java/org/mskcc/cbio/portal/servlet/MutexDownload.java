@@ -58,6 +58,7 @@ public class MutexDownload extends HttpServlet  {
                           HttpServletResponse httpServletResponse) throws ServletException, IOException {
 
         String inputStr = httpServletRequest.getParameter("datatable_str");
+        System.out.println(inputStr);
         inputStr = inputStr.replace("&amp;", "\n");
         inputStr = inputStr.replace("+", "\t");
         String fileName = "mutex_result.txt";

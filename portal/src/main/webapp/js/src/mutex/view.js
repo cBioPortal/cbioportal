@@ -52,7 +52,7 @@
         colorCode = {
             oddsRatio: "#296CCF",
             pVal: "#296CCF"
-        }
+        };
 
     function configTable() {
         $("#mutex-table-div").append(
@@ -60,9 +60,9 @@
             "<thead style='font-size:70%'>" +
             "<th>Gene A</th>" +
             "<th>Gene B</th>" +
-            "<th>p-Value<img src='images/help.png' id='p-value-help'></th>" + 
-            "<th>Log Odds Ratio<img src='images/help.png' id='odds-ratio-help'></th>" +
-            "<th>Association<img src='images/help.png' id='association-help'></th>" + 
+            "<th>p-Value&nbsp;<img src='images/help.png' id='p-value-help'></th>" + 
+            "<th>Log Odds Ratio&nbsp;<img src='images/help.png' id='odds-ratio-help'></th>" +
+            "<th>Association&nbsp;<img src='images/help.png' id='association-help'></th>" +
             "</thead>" +
             "<tbody></tbody>" + 
             "</table>"
@@ -132,15 +132,29 @@
     	$.each(MutexData.getDataArr(), function(index, obj){
             if (obj.log_odds_ratio !== "--") {
                 var _arr = [];
+                //gene names
                 _arr.push(obj.geneA);
                 _arr.push(obj.geneB); 
+                //convert p-value
                 if (obj.p_value < 0.001) {
                     _arr.push("<0.001");
                 } else {
-                    _arr.push(obj.p_value);
+                    _arr.push(obj.p_value.toFixed(3));
                 }
-                _arr.push(obj.log_odds_ratio_text);
-                _arr.push(obj.association);
+                //convert log odds ratio
+                if (obj.log_odds_ratio < -3 || obj.log_odds_ratio === "-Infinity") {
+                    _arr.push("<-3");                    
+                } else if (obj.log_odds_ratio > 3){
+                    _arr.push(">3");
+                } else {
+                    _arr.push(obj.log_odds_ratio.toFixed(3));
+                }
+                //append significant label (replace plain text)
+                var _label_str = "&nbsp;&nbsp;&nbsp;<span class='label label-info'>Significant</span>";
+                if (obj.association.indexOf(MutexData.getSignificantLabel()) !== -1) {
+                    var _association_str = obj.association.replace(MutexData.getSignificantLabel(), _label_str);
+                    _arr.push(_association_str);
+                } else _arr.push(obj.association);
                 mutexTableDataArr.push(_arr);       
             }
     	});
@@ -185,7 +199,7 @@
     function attachFilter() { 
 
         $("#mutex-table-div").find('.mutex-table-filter').append(
-            "<input type='checkbox' class='mutex-table-checkbox' checked id='mutex-table-checkbox-mutex'>Mutual exclusive</option> &nbsp;&nbsp;" +
+            "<input type='checkbox' class='mutex-table-checkbox' checked id='mutex-table-checkbox-mutex'>Mutual exclusivity</option> &nbsp;&nbsp;" +
             "<input type='checkbox' class='mutex-table-checkbox' checked id='mutex-table-checkbox-co-oc'>Co-occurrence</option> &nbsp;&nbsp;" +
             "<input type='checkbox' class='mutex-table-checkbox' id='mutex-table-checkbox-sig-only'>Significant pairs</option> &nbsp; &nbsp;"
         );
@@ -253,7 +267,7 @@
         $("#association-help").qtip({
             content: { text:'Log odds ratio > 0&nbsp;&nbsp;&nbsp;: Association towards co-occurrence<br>' +
                             'Log odds ratio <= 0&nbsp;: Association towards mutual exclusivity<br>' + 
-                            'p-Value < 0.05&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: Significate association'},
+                            'p-Value < 0.05&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: Significant association'},
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
             show: {event: "mouseover"},
             hide: {fixed:true, delay: 100, event: "mouseout"},
@@ -308,10 +322,11 @@
             var _tmpArr = [obj.geneA, obj.geneB, obj.p_value, obj.log_odds_ratio, obj.association + "&"];
             _str += _tmpArr.join('+');
         });
-        var downloadResultForm = "<form style='float:right;' action='mutexdownload.do' method='post'>" +
-            "<input type='hidden' name='datatable_str' value='" + _str + "'>" +
-            "<input type='submit' value='Download Full Results'></form>";
-        $("#mutex-table-div").append(downloadResultForm); 
+        var mutexDownloadForm =
+            "<form style='display:inline-block' action='mutexdownload.do' method='post' target='_blank'>" +
+                "<input type='hidden' name='datatable_str' value='" + _str + "'>" +
+                "<input type='submit' value='Download Full Result'></form>";
+        $("#mutex-table-div").append(mutexDownloadForm); 
     }
 
  	return {

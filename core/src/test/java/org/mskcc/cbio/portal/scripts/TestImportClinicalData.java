@@ -18,17 +18,13 @@
 package org.mskcc.cbio.portal.scripts;
 
 import junit.framework.TestCase;
-import org.mskcc.cbio.portal.dao.DaoClinicalData;
-import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
-import org.mskcc.cbio.portal.model.Patient;
-import org.mskcc.cbio.portal.model.ClinicalParameterMap;
+import org.mskcc.cbio.portal.scripts.ImportClinicalData;
 
+import java.io.*;
 import java.util.*;
-import java.io.File;
-import java.io.IOException;
-
-import org.mskcc.cbio.portal.model.CancerStudy;
 
 /**
  * Tests Import of Clinical Data.

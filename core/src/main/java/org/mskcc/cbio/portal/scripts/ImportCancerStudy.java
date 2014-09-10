@@ -39,7 +39,6 @@ public class ImportCancerStudy {
 
         File file = new File(args[0]);
         CancerStudy cancerStudy = CancerStudyReader.loadCancerStudy(file);
-        ImportDataUtil.entityService.insertCancerStudyEntity(cancerStudy.getCancerStudyStableId());
         System.out.println ("Loaded the following cancer study:  ");
         System.out.println ("ID:  " + cancerStudy.getInternalId());
         System.out.println ("Name:  " + cancerStudy.getName());

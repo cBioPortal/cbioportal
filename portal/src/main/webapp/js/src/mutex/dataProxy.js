@@ -137,7 +137,6 @@ var MutexData = (function() {
 					if (_dataObj.b !== 0 && _dataObj.c !== 0) {
 						_dataObj.odds_ratio = (_dataObj.a * _dataObj.d) / (_dataObj.b * _dataObj.c);
 						_dataObj.log_odds_ratio = Math.log(_dataObj.odds_ratio);
-						console.log(_dataObj);
 
 						//categorize
 						if (_dataObj.log_odds_ratio <= settings.log_odds_ratio_threshold || _dataObj.log_odds_ratio === "-Infinity") {

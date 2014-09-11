@@ -30,7 +30,7 @@
     <!--  Connection Factory to Google +  -->
     <!-- Provider id = google -->
     <!-- mod 08Jul2014 - use custom google connection factory to support email as id -->
-    <b:bean id="googleplusConnectionFactory" class="org.mskcc.cbio.portal.social.authentication.googleplus.GoogleplusConnectionFactory" >
+    <b:bean id="googleplusConnectionFactory" class="org.mskcc.cbio.portal.authentication.googleplus.GoogleplusConnectionFactory" >
         <b:constructor-arg value="${googleplus.consumer.key}" />
         <b:constructor-arg value="${googleplus.consumer.secret}" />
     </b:bean>
@@ -174,7 +174,7 @@
     <context:annotation-config></context:annotation-config>
     
     <!-- Google+ in memory user connection repository  -->
-    <b:bean id="connectionSignUp" class="org.mskcc.cbio.portal.social.authentication.googleplus.GoogleplusConnectionSignUp"/>
+    <b:bean id="connectionSignUp" class="org.mskcc.cbio.portal.authentication.googleplus.GoogleplusConnectionSignUp"/>
     <b:bean id="usersConnectionRepository" 
             class="org.springframework.social.connect.mem.InMemoryUsersConnectionRepository">
         <b:constructor-arg ref="connectionFactoryLocator" />
@@ -224,7 +224,7 @@
     </b:bean>
     
     <!-- definition for SocialUserDetailsService  uses portal database to authenticate user-->
-    <b:bean id="socialUserDetailsService" class="org.mskcc.cbio.portal.social.authentication.googleplus.GoogleplusUserDetailsService">
+    <b:bean id="socialUserDetailsService" class="org.mskcc.cbio.portal.authentication.googleplus.GoogleplusUserDetailsService">
         <b:constructor-arg index="0" ref="userDetailsService" />
     </b:bean>
    
@@ -246,7 +246,7 @@
 
     <!--  Google+  PortalUserDeatilsService  -->
     <!-- utilizes legacy DAO to lookup registered users in the database -->
-    <b:bean id="userDetailsService" class="org.mskcc.cbio.portal.social.authentication.PortalUserDetailsService">
+    <b:bean id="userDetailsService" class="org.mskcc.cbio.portal.authentication.PortalUserDetailsService">
         <b:constructor-arg ref="portalUserDAO"/>
     </b:bean>
 

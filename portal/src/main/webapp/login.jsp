@@ -80,43 +80,6 @@
         </table>
         </center>
         </div>
-<<<<<<< local
-    <% } %>
-       <br>
-          
-       <table cellspacing="2px" width="100%">
-           <tr>
-               <td>
-                 <fieldset>
-	             <legend>
-                     Login to Portal:
-                 </legend>
-                 <p>
-                     <span style="font-size:145%">
-                     <%= GlobalProperties.getAuthorizationMessage() %>
-                     </span>
-                 </p>
-           
-                      <div background-color:white>
-                   <button onclick="window.location='auth/google'"><IMG alt="Google+" src="images/login/images.large/googleplus_signin.png" /></button>
-                   </div>
-               </td>
-          
-       </table>
-</td>
-</tr>
-<tr>
-  <td colspan="3">
-	<jsp:include page="WEB-INF/jsp/global/footer.jsp" flush="true" />
-  </td>
-</tr>
-</table>
-</center>
-</div>
-<jsp:include page="WEB-INF/jsp/global/xdebug.jsp" flush="true" />
-</body>
-=======
         <jsp:include page="WEB-INF/jsp/global/xdebug.jsp" flush="true" />
         </body>
->>>>>>> other
 </html>

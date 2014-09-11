@@ -57,7 +57,7 @@
     function configTable() {
         $("#mutex-table-div").append(
             "<table id='" + names.tableId + "'>" +
-            "<thead style='font-size:70%'>" +
+            "<thead style='font-size:40%'>" +
             "<th>Gene A</th>" +
             "<th>Gene B</th>" +
             "<th>p-Value&nbsp;<img src='images/help.png' id='p-value-help'></th>" + 

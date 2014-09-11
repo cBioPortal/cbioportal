@@ -1,6 +1,6 @@
-<jsp:include page="global/header.jsp" flush="true" />
 <link href="css/bootstrap.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <%@ include file="global/global_variables.jsp" %>
+<jsp:include page="global/header.jsp" flush="true" />
 
 <div class='main_smry'>
     <div id='main_smry_line'></div>
@@ -11,7 +11,9 @@
 
 
 <script>
+
     PortalDataCollManager.subscribeOncoprint(function() {
+
         //calculate total alteration
         var _dataArr = PortalDataColl.getOncoprintData();
         num_total_cases = _dataArr.length;
@@ -44,13 +46,21 @@
             }
         });
         $("#toggle_query_form").click(function(event) {
-          event.preventDefault();
-          $('#query_form_on_results_page').toggle();
-          //  Toggle the icons
-          $(".query-toggle").toggle();
+            event.preventDefault();
+            $('#query_form_on_results_page').toggle();
+            //  Toggle the icons
+            $(".query-toggle").toggle();
         });
 
+        //Oncoprint summary lines
+        $("#oncoprint_sample_set_description").append(window.PortalGlobals.getPatientSetDescription() + 
+            "(" + window.PortalGlobals.getNumOfTotalCases() + " samples)");
+        $("#oncoprint_sample_set_name").append(window.PortalGlobals.getPatientSetName());
+        $("#oncoprint_num_of_altered_cases").append(window.PortalGlobals.getNumOfAlteredCases());
+        $("#oncoprint_percentage_of_altered_cases").append(window.PortalGlobals.getPercentageOfAlteredCases());
+
     });
+
 </script>
 
 <%
@@ -253,10 +263,7 @@
 
         <%@ include file="data_download.jsp" %>
         <%@ include file="image_tabs_data.jsp" %>
-        
-        <% if (showCoexpTab) { %>
-            <%@ include file="co_expression.jsp" %>
-        <% } %>
+        <%@ include file="co_expression.jsp" %>
 
 </div> <!-- end tabs div -->
 <% } %>

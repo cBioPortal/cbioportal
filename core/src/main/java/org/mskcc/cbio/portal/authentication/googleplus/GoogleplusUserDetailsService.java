@@ -15,7 +15,7 @@
  * has been advised of the possibility of such damage.
 */
 
-package org.mskcc.cbio.portal.social.authentication.googleplus;
+package org.mskcc.cbio.portal.authentication.googleplus;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;

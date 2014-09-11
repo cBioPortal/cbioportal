@@ -1,24 +1,37 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package org.mskcc.cbio.portal.social.authentication;
+/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
+package org.mskcc.cbio.portal.authentication;
+
+import org.mskcc.cbio.portal.model.User;
+import org.mskcc.cbio.portal.model.UserAuthorities;
+import org.mskcc.cbio.portal.dao.PortalUserDAO;
+import org.mskcc.cbio.portal.util.DynamicState;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.google.common.base.Strings;
 import com.google.inject.internal.Preconditions;
-import java.util.List;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.mskcc.cbio.portal.dao.PortalUserDAO;
-import org.mskcc.cbio.portal.model.User;
-import org.mskcc.cbio.portal.model.UserAuthorities;
-import org.mskcc.cbio.portal.util.DynamicState;
+
+import org.springframework.security.core.userdetails.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import java.util.List;
 
 /**
  * Responsible for verifying that a social site user name has been registered in the
@@ -57,7 +70,7 @@ public class PortalUserDetailsService implements UserDetailsService {
         if (log.isDebugEnabled()) {
             log.debug("loadUserByUsername(), attempting to fetch portal user, email: " + username);
         }
-        SocialUserDetails toReturn = null;
+        PortalUserDetails toReturn = null;
         User user = null;
         try {
             user = portalUserDAO.getPortalUser(username);
@@ -73,7 +86,7 @@ public class PortalUserDetailsService implements UserDetailsService {
                 List<GrantedAuthority> grantedAuthorities
                         = AuthorityUtils.createAuthorityList(
                                 authorities.getAuthorities().toArray(new String[authorities.getAuthorities().size()]));
-                toReturn = new SocialUserDetails(username, grantedAuthorities);
+                toReturn = new PortalUserDetails(username, grantedAuthorities);
                 toReturn.setEmail(user.getEmail());
                 toReturn.setName(user.getName());
              
@@ -81,19 +94,18 @@ public class PortalUserDetailsService implements UserDetailsService {
             }
         }
 
-    // outta here
-    if (toReturn == null) {
-           
-        log.debug("loadUserByUsername(), user and/or user authorities is null, user name: " +username);
-        
-        throw new UsernameNotFoundException("Error:  Unknown user or account disabled");
-    }    
+        // outta here
+        if (toReturn == null) {
+            if (log.isDebugEnabled()) {
+                log.debug("loadUserByUsername(), user and/or user authorities is null, user name: " +username);
+            }
+            throw new UsernameNotFoundException("Error:  Unknown user or account disabled");
+        }    
         else {
             if (log.isDebugEnabled()) {
-            log.debug("loadUserByUsername(), successfully authenticated user, user name: " + username);
+                log.debug("loadUserByUsername(), successfully authenticated user, user name: " + username);
+            }
+            return toReturn;
         }
-        return toReturn;
     }
-}
-
 }

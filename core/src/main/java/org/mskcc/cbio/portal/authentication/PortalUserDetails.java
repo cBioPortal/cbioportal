@@ -14,11 +14,7 @@
  * Memorial Sloan-Kettering Cancer Center 
  * has been advised of the possibility of such damage.
 */
-
-// package
-package org.mskcc.cbio.portal.social.authentication;
-
-// imports
+package org.mskcc.cbio.portal.authentication;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -28,15 +24,11 @@ import java.util.Collection;
 /**
  * A class which extends User and provides
  * methods to set and get properties obtained
- * via OpenID authentication.
- *
- * Properties have also been added to store
- * CGDS credentials rather than create
- * another "portal user" class.
+ * via an authentication protocol.
  *
  * @author Benjamin Gross
  */
-public class SocialUserDetails extends User {
+public class PortalUserDetails extends User {
 
     private String email;
     private String name;
@@ -50,7 +42,7 @@ public class SocialUserDetails extends User {
 	 * Username is what is presented to the authentication provider.
 	 * Authorities is what should  be granted to the caller.
 	 */
-    public SocialUserDetails(String username, Collection<GrantedAuthority> authorities) {
+    public PortalUserDetails(String username, Collection<GrantedAuthority> authorities) {
         super(username, "unused", authorities);
     }
 

@@ -18,7 +18,7 @@ var StudyViewMainController = (function() {
             $("#dc-plots").append("<div style='width:100%'>"+
                     "There isn't any information for this study.</div>");
         }
-        StudyViewClinicalTabController.init(_data);
+//        StudyViewClinicalTabController.init(_data);
         if (StudyViewParams.params.mutationProfileId){
             StudyViewMutationsTabController.init();
         }

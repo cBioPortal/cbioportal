@@ -8,19 +8,7 @@
  *                      case. Each case should include all attributes as key and
  *                      their relative value. If attribute of this case doesn't
  *                      exist, the NA value will still give to this attribute.
- *                  
- * @interface: getDataTable -- return DataTable Object.
- * @interface: updateTable -- giving filteredResultList, the dateTable will be
- *                            refreshed.
- * @interface: rowClickCallback -- pass a function to dataTable. It will be
- *                                 called when one row is clicked.
- * @interface: rowShiftClickCallback -- pass a function to dataTable. It will be
- *                                      called when one row is clicked and
- *                                      ShiftKeys is pressed at same time.
- * @interface: resizeTable: will be used when width of dataTable changed.
- *     
- * @note: The 'string' sorting function of datatable has been rewrited in
- *        FnGetColumnData.js                                     
+ *                                                    
  *                                                                                                           
  * @authur: Hongxin Zhang
  * @date: Mar. 2014
@@ -50,7 +38,7 @@ var DataTable = function() {
          * always get a deep copy from permenentDisabledId.
         */
         disableFiltId = [],
-                            
+        noLeftColumnFlag = false,                    
         aoColumns = [], //DataTable Title Data
         aaData = [], //DataTable Content Data
         columnIndexMappingColumnId = [],
@@ -209,12 +197,13 @@ var DataTable = function() {
     function initDataTable() {
         dataTable = $('#' + tableId).dataTable({
             "scrollX": "100%",
-            "scrollY": "500px",
+            "scrollY": "500",
             "paging": false,
             "scrollCollapse": true,
             "aoColumns": aoColumns,
             "aaData": aaData,
             "bJQueryUI": true,
+            "autoWidth": true,
             "sDom": '<"H"Ci<"dataTableReset">f>rt',
             "oLanguage": {
                 "sInfo": "&nbsp;&nbsp;Showing _TOTAL_ samples&nbsp;",
@@ -238,10 +227,17 @@ var DataTable = function() {
                     disableFiltId = jQuery.extend(true, [], permenentDisabledId);     
                     refreshSelectionInDataTable();
                     $(".dataTableReset span").css('display','none');
-                }
+                } 
+                console.log($("#" + tableContainerId+ " .dataTables_scrollBody").height());
+                updateFrozedColStyle();
+                updateTableHeight();
             }
-        }).fnSetFilteringDelay();
+        });
+        dataTable.fnSetFilteringDelay(1000);
         refreshSelectionInDataTable();
+        forzedLeftCol = new $.fn.dataTable.FixedColumns( dataTable, {
+            "sHeightMatch": "none"
+        } );
     }
     
     //Add th tags based on number of attributes
@@ -272,81 +268,101 @@ var DataTable = function() {
         $(".dataTableReset")
             .append("<a><span class='hidden' title='Reset Chart'>RESET</span></a>");
     
-        $("#clinical-data-table-div .dataTableReset span").click(function(){
-            $(this).css({'cursor': 'wait'});
-            $("#clinical_table_filter label input").val("");
-            $.fn.dataTableExt.afnFiltering = [];
-            updateTable([]);          
-            refreshSelectionInDataTable();
-            dataTable.fnAdjustColumnSizing();
+        $("#" + tableContainerId + " .dataTableReset span").click(function(){
+            
+            $("#" + tableId + "-search input").val("");
+            
+            for(var key in dataTableNumericFilter) {
+                dataTableNumericFilter[key] = '';
+            }
+            
+            var oSettings = dataTable.fnSettings();
+            for(var iCol = 0; iCol < oSettings.aoPreSearchCols.length; iCol++) {
+                oSettings.aoPreSearchCols[ iCol ].sSearch = '';
+            }
+            dataTable.fnFilter('');
+    
+            disableFiltId = jQuery.extend(true, [], permenentDisabledId);
             showDataTableReset();
-            $(this).css({'cursor': 'default'});
+            refreshSelectionInDataTable();
+            modifyTableStyle();
         });
         
-        var inputDelay = (function(){
-            var timer = 0;
-            return function(callback, ms){
-              clearTimeout (timer);
-              timer = setTimeout(callback, ms);
-            };
-        })();
-        
-        $("#clinical_table_filter label input").keyup(function() {
-            inputDelay(function(){
-                showDataTableReset(dataTable);
-                refreshSelectionInDataTable();
-            }, 500 );
-        });
-        
-        if ($('#study-tab-clinical-a').hasClass('selected')) {
-            dataTable.fnAdjustColumnSizing();
-            $('#study-tab-clinical-a').addClass("tab-clicked")
-        }
-        
-        $('#study-tab-clinical-a').click(function(){
-            if (!$(this).hasClass("tab-clicked")) {
-                //First time: adjust the width of data table;
-                $("#clinical-data-table-loading-wait").css('display', 'block');
-                $("#clinical-data-table-div").css('display','none');
-                setTimeout(function () {
-                    $("#clinical-data-table-div").css('display','block');
-                    dataTable.fnAdjustColumnSizing();
-                    if($("#" + tableId).width() > 1200) {
-                        new $.fn.dataTable.FixedColumns( dataTable );
-                        $(".DTFC_LeftBodyLiner").css("overflow-y","hidden");
-                        //$(".dataTables_scroll").css("overflow-x","scroll");
-                        $(".DTFC_LeftHeadWrapper").css("background-color","white");
-                        $(".DTFC_LeftFootWrapper").css('background-color','white');
-
-                        //After resizing left column, the width of DTFC_LeftWrapper is different
-                        //with width DTFC_LeftBodyLiner, need to rewrite the width of
-                        //DTFC_LeftBodyLiner width
-                        var _widthLeftWrapper = $('.DTFC_LeftWrapper').width();
-                        $('.DTFC_LeftBodyLiner').css('width', _widthLeftWrapper+4);
-                    }
-                    
-                    $("#clinical-data-table-loading-wait").css('display', 'none');
-                    
-                    $('#study-tab-clinical-a').addClass("tab-clicked");
-                }, 500);
-                
-                
-            }
+//        $('#study-tab-clinical-a').click(function(){
+//            if (!$(this).hasClass("tab-clicked")) {
+//                //First time: adjust the width of data table;
+//                $("#clinical-data-table-loading-wait").css('display', 'block');
+//                $("#clinical-data-table-div").css('display','none');
+//                setTimeout(function () {
+//                    $("#clinical-data-table-div").css('display','block');
+//                    
+//                    modifyTableStyle();
+//                    if($("#" + tableId).width() > 1200) {
+//                        $(".DTFC_LeftBodyLiner").css("overflow-y","hidden");
+//                        //$(".dataTables_scroll").css("overflow-x","scroll");
+//                        $(".DTFC_LeftHeadWrapper").css("background-color","white");
+//                        $(".DTFC_LeftFootWrapper").css('background-color','white');
+//
+//                        //After resizing left column, the width of DTFC_LeftWrapper is different
+//                        //with width DTFC_LeftBodyLiner, need to rewrite the width of
+//                        //DTFC_LeftBodyLiner width
+//                        var _widthLeftWrapper = $('.DTFC_LeftWrapper').width();
+//                        $('.DTFC_LeftBodyLiner').css('width', _widthLeftWrapper+4);
+//                    }
+//                    
+//                    $("#clinical-data-table-loading-wait").css('display', 'none');
+//                    $('#study-tab-clinical-a').addClass("tab-clicked");
+//                }, 500);
+//            }
+//        });
+        $(window).resize(function() {
+           updateFrozedColStyle(); 
         });
     }
     
-    function updateTable(_exceptionColumns){
-        var _oSettings = dataTable.fnSettings();
-        
-        for(var iCol = 0; iCol < _oSettings.aoPreSearchCols.length; iCol++) {
-            if(_exceptionColumns.indexOf(iCol) === -1){
-                _oSettings.aoPreSearchCols[ iCol ].sSearch = '';
-            }
-        }
-        _oSettings.oPreviousSearch.sSearch = '';
-        dataTable.fnDraw();
+    function modifyTableStyle() {
+        dataTable.api().columns.adjust();
+        forzedLeftCol.fnUpdate();
+        updateFrozedColStyle();
+        //When selecting or unselecting columns in table of summary tab,
+        //the column width will be stretched, the columns width will be changed
+        //automatically, but the width of left column needs to be changed by
+        //using following two statements.
+//            $(".DTFC_ScrollWrapper").height(_heightTable);
+        updateTableHeight();
     }
     
+    function updateTableHeight() {
+        if($("#" + tableContainerId+ " .dataTables_scrollBody").height() < 500) {
+            $("#" + tableContainerId+ " .dataTables_scrollBody").height("100%");
+        }
+    }
+    function updateFrozedColStyle() {
+        var _heightBody = $("#" + tableContainerId+ " .dataTables_scrollBody").height(),
+            _widthBody = $("#" + tableContainerId+ " tbody>tr:nth-child(2)>td:nth-child(1)").width();
+        
+        if(_widthBody === null) {
+            $(".DTFC_LeftWrapper").css('display', 'none');
+        }else {
+            _widthBody = _widthBody + 22;
+            if($("#" + tableId).width() > 1200) {
+                $(".DTFC_LeftWrapper").css('display', 'block');
+                if(_heightBody < 0) {
+                    $(".DTFC_LeftBodyLiner").height('');
+                }else {
+                    $(".DTFC_LeftBodyLiner").height(_heightBody - 15);
+    //                    
+                    //Changed from _heightBody, 15px was designed for
+                    //horizontal scroller
+                    $(".DTFC_LeftBodyWrapper").height(_heightBody - 15); 
+                }
+                $(".DTFC_LeftWrapper").width(_widthBody);
+                $(".DTFC_LeftBodyLiner").width(_widthBody);
+                $(".DTFC_LeftBodyLiner").css('background-color','white');
+                $(".DTFC_LeftFootWrapper").css('top', '15px');
+            }
+        }
+    }
     //Create Regular Selector or Numeric Selector based on data type.
     function fnCreateSelect( aData, index, _this ){
         var _isNumericArray = true,
@@ -433,8 +449,6 @@ var DataTable = function() {
         }else{
             $(".dataTableReset span").css('display','none');
             $(".ColVis.TableTools").css('display','block');
-            disableFiltId = jQuery.extend(true, [], permenentDisabledId);
-            refreshSelectionInDataTable();
         }
     }
     
@@ -518,7 +532,7 @@ var DataTable = function() {
         showDataTableReset();
         $("#dataTable-" + _i + "-reset").css('display','block');
         refreshSelectionInDataTable();
-        dataTable.fnAdjustColumnSizing();
+        modifyTableStyle();
     }
     
     function refreshSelectionInDataTable(){
@@ -545,7 +559,7 @@ var DataTable = function() {
                     showDataTableReset();
                     $("#dataTable-" + i + "-reset").css('display','none');
                     refreshSelectionInDataTable();
-                    dataTable.fnAdjustColumnSizing();
+                    modifyTableStyle();
                 });
                 
                 $('select', this).change( function () {
@@ -571,38 +585,14 @@ var DataTable = function() {
                     
                     showDataTableReset();
                     refreshSelectionInDataTable();
-                    dataTable.fnAdjustColumnSizing();
+                    modifyTableStyle();
+                    if($(this).val() !== ''){
+                        $(window).resize();
+                        updateFrozedColStyle();
+                    }
                 });
             }
         });
-    }
-    
-    function deleteChartResetDataTable(_filteredResult) {
-        var _filterArray = [];
-
-        for(var i=0 ; i<_filteredResult.length ; i++){
-            _filterArray.push(_filteredResult[i].CASE_ID);
-        }
-
-        $.fn.dataTableExt.afnFiltering = [function( oSettings, aData, iDataIndex ) {
-            var _data = aData[0],
-                _dataContent = $(_data).text();
-                
-            if ( _filterArray.indexOf(_dataContent) !== -1){
-                return true;
-            }
-            return false;
-        }];
-        dataTable.fnDraw();
-    }
-    
-    //Will be used after initializing datatable. This function is called from
-    //StudyViewSummaryTabController
-    function resizeTable(){
-         
-        refreshSelectionInDataTable();
-        dataTable.fnAdjustColumnSizing();
-        forzedLeftCol.fnRedrawLayout();
     }
     
     return {
@@ -613,23 +603,6 @@ var DataTable = function() {
             addEvents();
         },
         
-        getDataTable: function() {
-            return dataTable;
-        },
-        
-        updateTable: function(_filteredResult) {
-            if( $("#clinical_table_filter label input").val() !== ''){
-                dataTable.fnFilter('');
-            }
-            deleteChartResetDataTable(_filteredResult);
-             refreshSelectionInDataTable();
-            dataTable.fnAdjustColumnSizing();
-            $("#clinical_table_filter label input").val("");
-            showDataTableReset();
-        },
-        
-        resizeTable: resizeTable,
-        getTableHeader: function() { return aoColumns;},
-        getTableContent: function() { return aaData;}
+        updateFrozedColStyle: updateFrozedColStyle
     };
 };

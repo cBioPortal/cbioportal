@@ -174,9 +174,34 @@ var hasMutSig = <%=hasMutSig%>;
 var caseSetId = '<%=caseSetId%>';
 var caseIds = <%=jsonCaseIds%>;
 var cancer_study_id = cancerStudyId; //Some components using this as global ID
-$("#study-tabs").tabs( {
-    "activate": function(event, ui) {
-        $( $.fn.dataTable.tables( true ) ).DataTable().columns.adjust();
+$("#study-tabs").tabs();
+$('#study-tab-clinical-a').click(function(){
+    if (!$(this).hasClass("tab-clicked")) {
+        //First time: adjust the width of data table;
+        $("#clinical-data-table-loading-wait").css('display', 'block');
+        $("#clinical-data-table-div").css('display','none');
+        setTimeout(function () {
+            $("#clinical-data-table-div").css('display','block');
+
+            StudyViewClinicalTabController.init({
+                "arr": StudyViewProxy.getArrData(),
+                "attr": StudyViewProxy.getAttrData()
+            });
+            
+            if($("#clinical-data-table-div .dataTables_scrollBody table").width() > 1200) {
+                $(".DTFC_LeftBodyLiner").css("overflow-y","hidden");
+                $(".DTFC_LeftHeadWrapper").css("background-color","white");
+                $(".DTFC_LeftFootWrapper").css('background-color','white');
+
+                //After resizing left column, the width of DTFC_LeftWrapper is different
+                //with width DTFC_LeftBodyLiner, need to rewrite the width of
+                //DTFC_LeftBodyLiner width
+                var _widthLeftWrapper = $('.DTFC_LeftWrapper').width();
+                $('.DTFC_LeftBodyLiner').css('width', _widthLeftWrapper+4);
+            }
+            $("#clinical-data-table-loading-wait").css('display', 'none');
+            $('#study-tab-clinical-a').addClass("tab-clicked");
+        }, 500);
     }
 });
 </script>

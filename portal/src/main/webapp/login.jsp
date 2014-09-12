@@ -13,6 +13,7 @@
         String authenticationMethod = GlobalProperties.authenticationMethod();
         if (authenticationMethod.equals("openid")) {
         %>
+        <link type="text/css" rel="stylesheet" href="css/openid.css" />
         <script type="text/javascript" src="js/lib/openid-jquery.js"></script>
         <script type="text/javascript">
           $(document).ready(function() {

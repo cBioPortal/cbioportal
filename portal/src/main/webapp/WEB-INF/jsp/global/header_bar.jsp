@@ -14,12 +14,23 @@
 	</tr>
          <!-- Display Sign Out Button for Real (Non-Anonymous) User -->
 
+    <%
+    String principal = "";
+    String authenticationMethod = GlobalProperties.authenticationMethod();
+	if (authenticationMethod.equals("openid")) {
+		principal = "principal.name";
+	}
+	else if (authenticationMethod.equals("googleplus")) {
+		principal = "principal.username";
+	}
+    %>
+
     <sec:authorize access="!hasRole('ROLE_ANONYMOUS')">
     
 	<tr>
 
         <td align="right" style="font-size:10px;background-color:white">
-            You are logged in as <sec:authentication property='principal.username' />. <a href="j_spring_security_logout">Sign out</a>.
+            You are logged in as <sec:authentication property='<%=principal%>' />. <a href="j_spring_security_logout">Sign out</a>.
         </td>
         </tr>
 

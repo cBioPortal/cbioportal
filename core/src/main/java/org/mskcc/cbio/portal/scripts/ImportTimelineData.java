@@ -73,8 +73,8 @@ public class ImportTimelineData {
             throw new Exception("Unknown cancer study: " + properties.getProperty("cancer_study_identifier"));
         }
         
-        int cancerStudyId = cancerStudy.getInternalId();
-        DaoClinicalEvent.deleteByCancerStudyId(cancerStudyId);
+        //int cancerStudyId = cancerStudy.getInternalId();
+        //DaoClinicalEvent.deleteByCancerStudyId(cancerStudyId);
         
         importData(dataFile, cancerStudy.getInternalId());
 

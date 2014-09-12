@@ -13,7 +13,7 @@
     <b:bean id="accessControl" class="org.mskcc.cbio.portal.util.internal.AccessControlImpl"/>
 
     <!-- beans shared across any authentication system -->
-    <b:beans profile="true,googleplus,openid">
+    <b:beans profile="googleplus,openid,activedirectory">
 
     <!-- support for general annotations within class definitions (used in AccessControl) -->
     <context:annotation-config/>
@@ -46,93 +46,14 @@
     <http pattern="/js/**" security="none"/>
     <http pattern="/gfx/**" security="none"/>
 
+    <!-- end beans shared across any authentication provider -->
+    </b:beans>
+
+    <!-- googleplus beans -->
+    <b:beans profile="googleplus">
+
     <http entry-point-ref="authenticationEntryPoint" use-expressions="true"> 
-        <intercept-url pattern="/auth/*" access="permitAll"/>  
-         <intercept-url pattern="/login.jsp*" access="permitAll"/>
-         <!--<intercept-url pattern="/api/**" access="permitAll"/>--> <!-- need to figure this out -->
-        <intercept-url pattern="/monitoring*" access="isAuthenticated()"/>
-        <intercept-url pattern="/video.jsp" access="isAuthenticated()"/>
-        <intercept-url pattern="/news.jsp" access="isAuthenticated()"/>
-        <intercept-url pattern="/faq.jsp" access="isAuthenticated()"/>
-        <intercept-url pattern="/data_sets.jsp" access="isAuthenticated()"/>
-        <intercept-url pattern="/about_us.jsp" access="isAuthenticated()"/>
-        <intercept-url pattern="/web_api.jsp" access="isAuthenticated()"/>
-        <intercept-url pattern="/jobs.jsp" access="isAuthenticated()"/>
-        <intercept-url pattern="/cgds_r.jsp" access="isAuthenticated()"/>  
-        <intercept-url pattern="/networks.jsp" access="isAuthenticated()"/>
-        <intercept-url pattern="/protein_exp.jsp" access="isAuthenticated()"/>
-        <intercept-url pattern="/co_expression.jsp" access="isAuthenticated()"/>
-        <intercept-url pattern="/tutorial.jsp" access="isAuthenticated()"/>
-        <intercept-url pattern="/onco_query_lang_desc.jsp" access="isAuthenticated()"/>
-        <intercept-url pattern="/visualize_your_data.jsp" access="isAuthenticated()"/>
-        <intercept-url pattern="/index.do*" access="isAuthenticated()"/>
-        <intercept-url pattern="/cross_cancer.do*" access="isAuthenticated()"/>
-        <intercept-url pattern="/cross_cancer_summary.do*" access="isAuthenticated()"/>
-        <intercept-url pattern="/portal_meta_data.json*" access="isAuthenticated()"/>
-        <intercept-url pattern="/mutation_diagram_data.json*" access="isAuthenticated()"/>
-        <intercept-url pattern="/mutation_table_data.json*" access="isAuthenticated()"/>
-        <intercept-url pattern="/getMutationData.json*" access="isAuthenticated()"/>
-        <intercept-url pattern="/getPfamSequence.json*" access="isAuthenticated()"/>
-        <intercept-url pattern="/get3dPdb.json*" access="isAuthenticated()"/>
-        <intercept-url pattern="/ClinicalFreeForm.json*" access="isAuthenticated()"/>
-        <intercept-url pattern="/CheckGeneSymbol.json*" access="isAuthenticated()"/>
-        <intercept-url pattern="/show_data.do*" access="isAuthenticated()"/>
-        <intercept-url pattern="/svgtopdf.do*" access="isAuthenticated()"/>
-        <intercept-url pattern="/generatePlots.do*" access="isAuthenticated()"/>
-        <intercept-url pattern="/plot-test.do*" access="isAuthenticated()"/>
-        <intercept-url pattern="/network.do*" access="isAuthenticated()"/>
-        <intercept-url pattern="/networkSbgn.do*" access="isAuthenticated()"/>
-        <intercept-url pattern="/bioGeneQuery.do*" access="isAuthenticated()"/>
-        <intercept-url pattern="/ProteinArraySignificanceTest.json*" access="isAuthenticated()"/>
-        <intercept-url pattern="/omaRedirect.do*" access="isAuthenticated()"/>
-        <intercept-url pattern="/swf/*" access="isAuthenticated()"/>
-        <intercept-url pattern="/link.do*" access="isAuthenticated()"/>
-        <intercept-url pattern="/ln*" access="isAuthenticated()"/>
-        <intercept-url pattern="/oncoprint_converter.svg*" access="isAuthenticated()"/>
-        <intercept-url pattern="/histogram_converter.svg*" access="isAuthenticated()"/>
-        <intercept-url pattern="/MutSig.json*" access="isAuthenticated()"/>
-        <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
-        <intercept-url pattern="/Gistic.json*" access="isAuthenticated()"/>
-        <intercept-url pattern="/Oncoprint.json*" access="isAuthenticated()"/>
-        <intercept-url pattern="/study.do*" access="isAuthenticated()"/>
-        <intercept-url pattern="/drugs.json*" access="isAuthenticated()"/>
-        <intercept-url pattern="/index.tumormap*" access="isAuthenticated()"/>
-        <intercept-url pattern="/tumormap.json*" access="isAuthenticated()"/>
-        <intercept-url pattern="/tumormap.do*" access="isAuthenticated()"/>
-        <intercept-url pattern="/case.do*" access="isAuthenticated()"/>
-        <intercept-url pattern="/mutations.json*" access="isAuthenticated()"/>
-        <intercept-url pattern="/cna.json*" access="isAuthenticated()"/>
-        <intercept-url pattern="/clinicaltrials.json*" access="isAuthenticated()"/>
-        <intercept-url pattern="/similar_patients.json*" access="isAuthenticated()"/>
-        <intercept-url pattern="/GeneData.json*" access="isAuthenticated()"/>
-        <intercept-url pattern="/crosscancerquery.json*" access="isAuthenticated()"/>
-        <intercept-url pattern="/crosscancermutation.json*" access="isAuthenticated()"/>
-        <intercept-url pattern="/clinical.json*" access="isAuthenticated()"/>
-        <intercept-url pattern="/clinicalAttributes.json*" access="isAuthenticated()"/>
-        <intercept-url pattern="/clinical_timeline_data.json*" access="isAuthenticated()"/>
-        <intercept-url pattern="/tools.jsp*" access="isAuthenticated()"/>
-        <intercept-url pattern="/echofile*" access="isAuthenticated()"/>
-        <intercept-url pattern="/getGeneticProfile.json*" access="isAuthenticated()"/>
-        <intercept-url pattern="/getProfileData.json*" access="isAuthenticated()"/>
-        <intercept-url pattern="/getProteinArrayData.json*" access="isAuthenticated()"/>
-        <intercept-url pattern="/getSurvivalData.json*" access="isAuthenticated()"/>
-        <intercept-url pattern="/igvlinking.json*" access="isAuthenticated()"/>
-        <intercept-url pattern="/calcPval.do*" access="isAuthenticated()"/>
-        <intercept-url pattern="/pancancerMutations.json*" access="isAuthenticated()"/>
-        <intercept-url pattern="/jsmol_frame.jsp*" access="isAuthenticated()"/>
-        <intercept-url pattern="/file_download_frame.jsp*" access="isAuthenticated()"/>
-        <intercept-url pattern="/getCoExp.do*" access="isAuthenticated()"/>
-        <intercept-url pattern="/getAlterationData.json" access="isAuthenticated()"/>
-        <intercept-url pattern="/downloadfile.do*" access="isAuthenticated()"/>
-        <intercept-url pattern="/standalone_mutation.jsp*" access="isAuthenticated()"/>
-        <intercept-url pattern="/calcFisherExact.do*" access="isAuthenticated()"/>
-        <intercept-url pattern="/mutation_mapper.jsp*" access="isAuthenticated()"/>
-        <intercept-url pattern="/release_notes_mutation_mapper.jsp*" access="isAuthenticated()"/>
-        <intercept-url pattern="/oncoprinter.jsp*" access="isAuthenticated()"/>
-        <intercept-url pattern="/release_notes_oncoprinter.jsp*" access="isAuthenticated()"/>
-        <intercept-url pattern="/mutexdownload.do*" access="isAuthenticated()"/>
-        <!-- everything else locked down by default -->
-        <intercept-url pattern="/**" access="denyAll"/>
+        ${url.intercepts}
 
         <!-- used for google+ authentication (spring social) -->
         <custom-filter ref="socialAuthenticationFilter" before="PRE_AUTH_FILTER" />
@@ -142,12 +63,6 @@
         <!-- to enable access from matlab, r, python, etc clients -->
         <session-management session-fixation-protection="none"/>
     </http>
-    
-    <!-- end beans shared across any authentication provider -->
-    </b:beans>
-
-    <!-- googleplus beans -->
-    <b:beans profile="true,googleplus">
 
     <b:bean id="authenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
         <b:property name="loginFormUrl" value="/login.jsp" />
@@ -216,6 +131,44 @@
     <b:bean id="textEncryptor" class="org.springframework.security.crypto.encrypt.Encryptors" factory-method="noOpText" />
     
     <!-- end googleplus beans -->
+    </b:beans>
+
+    <!-- openid beans -->
+    <b:beans profile="openid">
+
+    <http use-expressions="true"> 
+        ${url.intercepts}
+
+        <openid-login login-page="/login.jsp" default-target-url="/index.do" user-service-ref="customUserService" authentication-failure-url="/login.jsp?login_error=true">
+            <attribute-exchange identifier-match="https://www.google.com/.*">
+                <openid-attribute name="email" type="http://axschema.org/contact/email" required="true" count="1"/>
+                <openid-attribute name="firstname" type="http://axschema.org/namePerson/first" required="true"/>
+                <openid-attribute name="lastname" type="http://axschema.org/namePerson/last" required="true"/>
+            </attribute-exchange>
+            <attribute-exchange identifier-match=".*yahoo.com.*">
+                <openid-attribute name="email" type="http://axschema.org/contact/email" required="true"/>
+                <openid-attribute name="fullname" type="http://axschema.org/namePerson" required="true"/>
+            </attribute-exchange>
+            <attribute-exchange identifier-match=".*myopenid.com.*">
+                <openid-attribute name="email" type="http://schema.openid.net/contact/email" required="true"/>
+                <openid-attribute name="fullname" type="http://schema.openid.net/namePerson" required="true"/>
+            </attribute-exchange>
+      </openid-login>
+
+        <!--  logout actions -->      
+        <logout logout-success-url="/login.jsp?logout_success=true"/>
+        <!-- to enable access from matlab, r, python, etc clients -->
+        <session-management session-fixation-protection="none"/>
+    </http>
+
+    <b:bean id="customUserService" class="org.mskcc.cbio.portal.authentication.openID.OpenIDUserDetailsService">
+        <b:constructor-arg ref="portalUserDAO"/>
+    </b:bean>
+
+    </b:beans>
+
+    <!-- openid beans -->
+    <b:beans profile="activedirectory">
     </b:beans>
 
     <!-- authenticate is off beans --> 

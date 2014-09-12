@@ -14,7 +14,7 @@
  * Memorial Sloan-Kettering Cancer Center 
  * has been advised of the possibility of such damage.
 */
-package org.mskcc.cbio.portal.authentication.openIDlogin;
+package org.mskcc.cbio.portal.authentication.openID;
 
 // imports
 import org.mskcc.cbio.portal.model.User;

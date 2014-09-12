@@ -9397,7 +9397,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 			"igvLink": function(dataTable, dispatcher, mutationUtil, gene) {
 				// add click listener for each igv link to get the actual parameters
 				// from another servlet
-				$(dataTable).find('.igv-link').click(function(evt) {
+				$(dataTable).find('.igv-link').off("click").on("click", function(evt) {
 					evt.preventDefault();
 
 					var mutationId = $(this).closest("tr.mutation-table-data-row").attr("id");
@@ -9415,7 +9415,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 			},
 			"proteinChange3d": function(dataTable, dispatcher, mutationUtil, gene) {
 				// add click listener for each 3D link
-				$(dataTable).find('.mutation-table-3d-link').click(function(evt) {
+				$(dataTable).find('.mutation-table-3d-link').off("click").on("click", function(evt) {
 					evt.preventDefault();
 
 					var mutationId = $(this).closest("tr.mutation-table-data-row").attr("id");
@@ -9427,7 +9427,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 			},
 			"proteinChange": function(dataTable, dispatcher, mutationUtil, gene) {
 				// add click listener for each protein change link
-				$(dataTable).find('.mutation-table-protein-change a').click(function(evt) {
+				$(dataTable).find('.mutation-table-protein-change a').off("click").on("click", function(evt) {
 					evt.preventDefault();
 
 					var mutationId = $(this).closest("tr.mutation-table-data-row").attr("id");
@@ -9694,6 +9694,7 @@ function MutationDetailsTable(options, gene, mutationUtil)
 			"oColVis": {"aiExclude": excludedCols}, // columns to always hide
 			"fnDrawCallback": function(oSettings) {
 				self._addColumnTooltips();
+				self._addEventListeners(indexMap);
 
 				var currSearch = oSettings.oPreviousSearch.sSearch;
 

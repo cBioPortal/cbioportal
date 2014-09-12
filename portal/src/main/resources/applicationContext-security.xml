@@ -12,7 +12,7 @@
     <!-- this bean is shared between profiles -->
     <b:bean id="accessControl" class="org.mskcc.cbio.portal.util.internal.AccessControlImpl"/>
 
-    <!-- authenticate=true -->
+    <!-- beans shared across any authentication system -->
     <b:beans profile="true,googleplus,openid">
 
     <!-- support for general annotations within class definitions (used in AccessControl) -->
@@ -46,7 +46,7 @@
     <http pattern="/js/**" security="none"/>
     <http pattern="/gfx/**" security="none"/>
 
-    <http  entry-point-ref="authenticationEntryPoint" use-expressions="true">  
+    <http entry-point-ref="authenticationEntryPoint" use-expressions="true"> 
         <intercept-url pattern="/auth/*" access="permitAll"/>  
          <intercept-url pattern="/login.jsp*" access="permitAll"/>
          <!--<intercept-url pattern="/api/**" access="permitAll"/>--> <!-- need to figure this out -->
@@ -142,8 +142,14 @@
         <!-- to enable access from matlab, r, python, etc clients -->
         <session-management session-fixation-protection="none"/>
     </http>
+    
+    <!-- end beans shared across any authentication provider -->
+    </b:beans>
 
-     <b:bean id="authenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+    <!-- googleplus beans -->
+    <b:beans profile="true,googleplus">
+
+    <b:bean id="authenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
         <b:property name="loginFormUrl" value="/login.jsp" />
     </b:bean>
 
@@ -209,9 +215,10 @@
    
     <b:bean id="textEncryptor" class="org.springframework.security.crypto.encrypt.Encryptors" factory-method="noOpText" />
     
+    <!-- end googleplus beans -->
     </b:beans>
 
-    <!-- authenticate=false --> 
+    <!-- authenticate is off beans --> 
     <b:beans profile="false">
     <global-method-security pre-post-annotations="disabled"/>
     <http pattern="/**" security="none"/>

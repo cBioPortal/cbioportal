@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!--
--  Namespace-based Google+ configuration
-   mod 10July2014 FJC - all google+ modifications highlighted by Google+ comments
--->
-
 <b:beans xmlns="http://www.springframework.org/schema/security"
          xmlns:b="http://www.springframework.org/schema/beans"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -18,53 +13,39 @@
     <b:bean id="accessControl" class="org.mskcc.cbio.portal.util.internal.AccessControlImpl"/>
 
     <!-- authenticate=true -->
-    <b:beans profile="true">
-    <!--
-        Required for custom signature method factory to be autowired into
-        the ProtectedResourceProcessingFilter
-    -->
-    <!-- Google+ connection factory definition -->
-    <context:annotation-config/>
-    <!-- Ensures that configuration properties are read from a property file -->
-  <!--   <context:property-placeholder location="classpath:socialConnection.properties"/>    -->
-    <!--  Connection Factory to Google +  -->
-    <!-- Provider id = google -->
-    <!-- mod 08Jul2014 - use custom google connection factory to support email as id -->
-    <b:bean id="googleplusConnectionFactory" class="org.mskcc.cbio.portal.authentication.googleplus.GoogleplusConnectionFactory" >
-        <b:constructor-arg value="${googleplus.consumer.key}" />
-        <b:constructor-arg value="${googleplus.consumer.secret}" />
-    </b:bean>
-    <!-- Google+ connection factory locator -->
-    <b:bean id="connectionFactoryLocator" class="org.springframework.social.security.SocialAuthenticationServiceRegistry">
-        <b:property name="authenticationServices">
-            <b:list>
-                <b:bean class="org.springframework.social.google.security.GoogleAuthenticationService">
-                    <b:constructor-arg value="${googleplus.consumer.key}" />
-                    <b:constructor-arg value="${googleplus.consumer.secret}" />
-                    <b:property name="connectionFactory" ref="googleplusConnectionFactory" />
-                    <!-- Important: The next property name changed from "scope" to "defaultScope" in 1.1.0.M4 -->
-                    <b:property name="defaultScope" value="email" />
-                </b:bean>
-            </b:list>
-        </b:property>
-    </b:bean>
+    <b:beans profile="true,googleplus,openid">
 
-    <!--
-            Should come from another file with value conditional based on portal.properties
-    -->
+    <!-- support for general annotations within class definitions (used in AccessControl) -->
+    <context:annotation-config/>
+
+    <!-- we do post filtering within AccessControl -->
     <global-method-security pre-post-annotations="enabled">
         <expression-handler ref="expressionHandler"/>
     </global-method-security>
 
-    <!--
-            Static resources not processed by spring security filters 
-    -->
+    <!-- custom expression handler -->
+    <b:bean id="expressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
+        <b:property name="permissionEvaluator" ref="customPermissionEvaluator"/>
+    </b:bean>
+    <b:bean id="customPermissionEvaluator" class="org.mskcc.cbio.portal.util.CancerStudyPermissionEvaluator"/>
+
+    <!-- beans used to access portal user db tables -->
+    <b:bean id="portalUserDAO" class="org.mskcc.cbio.portal.dao.internal.PortalUserJDBCDAO">
+        <b:constructor-arg ref="dataSource"/>
+    </b:bean>
+    <b:bean id="dataSource" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">
+        <b:property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <b:property name="url" value="jdbc:mysql://${db.host}/${db.portal_db_name}"/>
+        <b:property name="username" value="${db.user}"/>
+        <b:property name="password" value="${db.password}"/>
+    </b:bean>
+
+    <!-- static resources not processed by spring security filters -->
     <http pattern="/css/**" security="none"/>
     <http pattern="/images/**" security="none"/>
     <http pattern="/js/**" security="none"/>
     <http pattern="/gfx/**" security="none"/>
 
-    <!-- Google+ required reference to authentication entry point  -->
     <http  entry-point-ref="authenticationEntryPoint" use-expressions="true">  
         <intercept-url pattern="/auth/*" access="permitAll"/>  
          <intercept-url pattern="/login.jsp*" access="permitAll"/>
@@ -150,118 +131,84 @@
         <intercept-url pattern="/oncoprinter.jsp*" access="isAuthenticated()"/>
         <intercept-url pattern="/release_notes_oncoprinter.jsp*" access="isAuthenticated()"/>
         <intercept-url pattern="/mutexdownload.do*" access="isAuthenticated()"/>
-
         <!-- everything else locked down by default -->
         <intercept-url pattern="/**" access="denyAll"/>
-        
-        <!-- Google+  -Add social authentication filter to the Spring Security filter chain. -->
+
+        <!-- used for google+ authentication (spring social) -->
         <custom-filter ref="socialAuthenticationFilter" before="PRE_AUTH_FILTER" />
-        
+
         <!--  logout actions -->      
-        <!-- Remove Google+ entriy from repository at signout -->
-    
         <logout logout-success-url="/login.jsp?logout_success=true" delete-cookies="JSESSIONID"/>
         <!-- to enable access from matlab, r, python, etc clients -->
         <session-management session-fixation-protection="none"/>
-    
     </http>
-    <!-- Google+ required authentication entry point -->
+
      <b:bean id="authenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
         <b:property name="loginFormUrl" value="/login.jsp" />
     </b:bean>
-    <!-- Google+  -->
-    <!--  required -->
-    <context:annotation-config></context:annotation-config>
-    
-    <!-- Google+ in memory user connection repository  -->
-    <b:bean id="connectionSignUp" class="org.mskcc.cbio.portal.authentication.googleplus.GoogleplusConnectionSignUp"/>
-    <b:bean id="usersConnectionRepository" 
-            class="org.springframework.social.connect.mem.InMemoryUsersConnectionRepository">
-        <b:constructor-arg ref="connectionFactoryLocator" />
-        <b:property name="connectionSignUp" ref="connectionSignUp"/>
-    </b:bean>
-    
-    <b:bean id="textEncryptor" class="org.springframework.security.crypto.encrypt.Encryptors" 
-             factory-method="noOpText" >
-    </b:bean>
-     
-    <!-- Google+ authentication manager -->
-      
-    <authentication-manager alias="authenticationManager">
-        <authentication-provider user-service-ref="userDetailsService">
-        </authentication-provider>
-        <authentication-provider ref="socialAuthenticationProvider"/>
-    </authentication-manager>
 
-    <!--  Google+ authentication filter  -->
-    <!-- configure the social authentication filter which integrates with spring social -->
-    <!-- Filter for handling the provider sign-in flow within the Spring Security filter chain. 
-    Should be injected into the chain at or before the PRE_AUTH_FILTER location -->
+    <!-- google+ beans -->
     <b:bean id="socialAuthenticationFilter" class="org.springframework.social.security.SocialAuthenticationFilter">
         <b:constructor-arg index="0" ref="authenticationManager" />
         <b:constructor-arg index="1" ref="userIdSource" />
         <b:constructor-arg index="2" ref="usersConnectionRepository" />
         <b:constructor-arg index="3" ref="connectionFactoryLocator" />
-        <!-- Set the URLs for authentication targets -->
-        <!-- Original OpenID authentication targets-->
-        <!--login-page="/login.jsp" default-target-url="/index.do" 
-        user-service-ref="customUserService" 
-        authentication-failure-url="/login.jsp?login_error=true" -->
-        <!-- Google+ authentication targets-->
         <b:property name="signupUrl" value="/login.jsp" />
-        <!-- URL for authentication failure  -->
         <b:property name="defaultFailureUrl" value="/login.jsp?login_error=true" />
-        <!-- URL for successful authentication -->
         <b:property name="postLoginUrl" value="/index.do" />
     </b:bean>
-     
-    <!-- Google+  authentication provider  -->
-    <!-- configure the social authentication provider which processes authentication requests -->
-    <b:bean id="socialAuthenticationProvider" class="org.springframework.social.security.SocialAuthenticationProvider">
-        <b:constructor-arg index="0" ref="usersConnectionRepository" />
-        <!-- Google+ use new social user details service -->
-        <b:constructor-arg index="1" ref="socialUserDetailsService" />
-    </b:bean>
-    
-    <!-- definition for SocialUserDetailsService  uses portal database to authenticate user-->
-    <b:bean id="socialUserDetailsService" class="org.mskcc.cbio.portal.authentication.googleplus.GoogleplusUserDetailsService">
-        <b:constructor-arg index="0" ref="userDetailsService" />
-    </b:bean>
-   
-    
-    <!-- Google+ user id source -->
-    <!-- returns the spring security account id for the user -->
-    <!--Implementation of UserIdSource that returns the Spring Security Authentication's name as the user ID -->
-    <b:bean id="userIdSource" class="org.springframework.social.security.AuthenticationNameUserIdSource"></b:bean>
 
-    <!--
-            To use hasPermission() expressions, we have to configure a custom expression handler
-            with our own PermissionEvaluator.  See 15.3.2 Built-In Expression:
-            @http://static.springsource.org/spring-security/site/docs/3.0.x/reference/el-access.html#el-permission-evaluator
-    -->
-    <b:bean id="expressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
-        <b:property name="permissionEvaluator" ref="customPermissionEvaluator"/>
-    </b:bean>
-    <b:bean id="customPermissionEvaluator" class="org.mskcc.cbio.portal.util.CancerStudyPermissionEvaluator"/>
-
-    <!--  Google+  PortalUserDeatilsService  -->
-    <!-- utilizes legacy DAO to lookup registered users in the database -->
+    <authentication-manager alias="authenticationManager">
+        <authentication-provider user-service-ref="userDetailsService">
+        </authentication-provider>
+        <authentication-provider ref="socialAuthenticationProvider"/>
+    </authentication-manager>
+    
+    <!-- beans used to compare token returned by authentication-provider against portal user db tables -->
     <b:bean id="userDetailsService" class="org.mskcc.cbio.portal.authentication.PortalUserDetailsService">
         <b:constructor-arg ref="portalUserDAO"/>
     </b:bean>
 
-    <!-- 
-        some beans to help with access control
-    -->
-    <b:bean id="portalUserDAO" class="org.mskcc.cbio.portal.dao.internal.PortalUserJDBCDAO">
-        <b:constructor-arg ref="dataSource"/>
+     <!-- configure the social authentication provider which processes authentication requests -->
+    <b:bean id="socialAuthenticationProvider" class="org.springframework.social.security.SocialAuthenticationProvider">
+        <b:constructor-arg index="0" ref="usersConnectionRepository" />
+        <b:constructor-arg index="1" ref="socialUserDetailsService" />
     </b:bean>
-    <b:bean id="dataSource" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">
-        <b:property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-        <b:property name="url" value="jdbc:mysql://${db.host}/${db.portal_db_name}"/>
-        <b:property name="username" value="${db.user}"/>
-        <b:property name="password" value="${db.password}"/>
+    
+    <b:bean id="socialUserDetailsService" class="org.mskcc.cbio.portal.authentication.googleplus.GoogleplusUserDetailsService">
+        <b:constructor-arg index="0" ref="userDetailsService" />
     </b:bean>
+
+    <!-- returns the spring security account id for the user -->
+    <!--Implementation of UserIdSource that returns the Spring Security Authentication's name as the user ID -->
+    <b:bean id="userIdSource" class="org.springframework.social.security.AuthenticationNameUserIdSource"/>
+
+    <b:bean id="usersConnectionRepository" 
+            class="org.springframework.social.connect.mem.InMemoryUsersConnectionRepository">
+        <b:constructor-arg ref="connectionFactoryLocator" />
+        <b:property name="connectionSignUp" ref="connectionSignUp"/>
+    </b:bean>
+    <b:bean id="connectionSignUp" class="org.mskcc.cbio.portal.authentication.googleplus.GoogleplusConnectionSignUp"/>
+    <b:bean id="connectionFactoryLocator" class="org.springframework.social.security.SocialAuthenticationServiceRegistry">
+        <b:property name="authenticationServices">
+            <b:list>
+                <b:bean class="org.springframework.social.google.security.GoogleAuthenticationService">
+                    <b:constructor-arg value="${googleplus.consumer.key}" />
+                    <b:constructor-arg value="${googleplus.consumer.secret}" />
+                    <b:property name="connectionFactory" ref="googleplusConnectionFactory" />
+                    <!-- Important: The next property name changed from "scope" to "defaultScope" in 1.1.0.M4 -->
+                    <b:property name="defaultScope" value="email" />
+                </b:bean>
+            </b:list>
+        </b:property>
+    </b:bean>
+    <b:bean id="googleplusConnectionFactory" class="org.mskcc.cbio.portal.authentication.googleplus.GoogleplusConnectionFactory" >
+        <b:constructor-arg value="${googleplus.consumer.key}" />
+        <b:constructor-arg value="${googleplus.consumer.secret}" />
+    </b:bean>
+   
+    <b:bean id="textEncryptor" class="org.springframework.security.crypto.encrypt.Encryptors" factory-method="noOpText" />
+    
     </b:beans>
 
     <!-- authenticate=false --> 

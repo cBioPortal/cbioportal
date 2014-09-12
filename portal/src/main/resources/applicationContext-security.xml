@@ -128,8 +128,6 @@
         <b:constructor-arg value="${googleplus.consumer.secret}" />
     </b:bean>
    
-    <b:bean id="textEncryptor" class="org.springframework.security.crypto.encrypt.Encryptors" factory-method="noOpText" />
-    
     <!-- end googleplus beans -->
     </b:beans>
 

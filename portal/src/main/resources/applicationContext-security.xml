@@ -161,6 +161,8 @@
         <session-management session-fixation-protection="none"/>
     </http>
 
+    <authentication-manager alias="authenticationManager"/>
+
     <b:bean id="customUserService" class="org.mskcc.cbio.portal.authentication.openID.OpenIDUserDetailsService">
         <b:constructor-arg ref="portalUserDAO"/>
     </b:bean>

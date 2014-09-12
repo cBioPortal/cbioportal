@@ -20,13 +20,8 @@
 
         <td align="right" style="font-size:10px;background-color:white">
             You are logged in as <sec:authentication property='principal.username' />. <a href="j_spring_security_logout">Sign out</a>.
-            
         </td>
         </tr>
 
     </sec:authorize>
-    <%
-       if (GlobalProperties.usersMustAuthenticate()) {
-    %>
-    <% } %>
 </table>

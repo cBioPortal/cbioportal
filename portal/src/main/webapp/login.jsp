@@ -72,15 +72,15 @@
                     <p/>
                 <% } %>
                     <fieldset>
-                        <legend>
-                            Login to Portal:
-                        </legend>
-                        <p>
-                            <span style="font-size:145%">
-                                <%= GlobalProperties.getAuthorizationMessage() %>
-                            </span>
-                        </p>
-                        <% if (authenticationMethod.equals("openid")) { %>
+                    <legend>
+                        Login to Portal:
+                    </legend>
+                    <p>
+                        <span style="font-size:145%">
+                            <%= GlobalProperties.getAuthorizationMessage() %>
+                        </span>
+                    </p>
+                    <% if (authenticationMethod.equals("openid")) { %>
                         <div id="openid_choice">
                             <p>Please click your account provider:</p>
                             <div id="openid_btns"></div>
@@ -95,13 +95,19 @@
                         </noscript>
                     </fieldset>
                     </form>
-                    <!-- /Simple OpenID Selector -->
-                        <% } else if (authenticationMethod.equals("googleplus")) { %>
+                    <% } else if (authenticationMethod.equals("googleplus")) { %>
                         <p>
                             <button onclick="window.location = 'auth/google'" style="padding: 0; border:none; background: none" >
-                                <IMG alt="Google+" src="images/login/images.large/googleplus_signin.png"  /></button>
+                                <IMG alt="Google+" src="images/login/googleplus_signin.png"  /></button>
                         </p>
-                        <% } %>
+                    </fieldset>
+                    <% } else if (authenticationMethod.equals("activedirectory")) { %>
+                        <p>
+                            <button onclick="window.location = '<c:url value="j_spring_security_check"/>'" style="padding: 0; border:none; background: none" >
+                                <IMG alt="MSKCC" style="width:250px;" src="images/mskcc_logo_3d_grey.jpg"  /></button>
+                        </p>
+                    </fieldset>
+                    <% } %>
                 </td>
             </tr>
 

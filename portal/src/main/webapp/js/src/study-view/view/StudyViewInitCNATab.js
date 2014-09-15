@@ -1,4 +1,4 @@
-
+//
 var StudyViewInitCNATab = (function(){
     var data = [];
     
@@ -25,7 +25,7 @@ var StudyViewInitCNATab = (function(){
             "sScrollY": "500px",
             "bPaginate": false,
             "bScrollCollapse": true,
-            "sDom": '<"H"<"gistic-table-name">fr>t>',
+            "sDom": '<<"H"<"gistic-table-name">fr>t>',
             "bJQueryUI": true,
             "bDestroy": true,
             "aaData": ix,

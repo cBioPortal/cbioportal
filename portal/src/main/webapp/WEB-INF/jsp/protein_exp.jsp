@@ -222,8 +222,8 @@
                               "aTargets": [ 3 ]
                             },
                             { //"sTitle": "Target Gene",
-                              "fnRender": function(obj) {
-                                    return '<b>'+obj.aData[ obj.iDataColumn ]+'</b>';
+                              "mRender": function(data) {
+                                    return '<b>'+data+'</b>';
                               },
                               "aTargets": [ 4 ] 
                             },
@@ -241,8 +241,8 @@
                             { //"sTitle": "Ave. Altered<sup>1</sup>",
                               "sType": "num-nan-col",
                               "bSearchable": false,
-                              "fnRender": function(obj) {
-                                    var value = parseFloat(obj.aData[ obj.iDataColumn ]);
+                              "mRender": function(data) {
+                                    var value = parseFloat(data);
                                     if (isNaN(value))
                                         return "NaN";
                                     return value.toFixed(2);
@@ -253,8 +253,8 @@
                             { //"sTitle": "Ave. Unaltered<sup>1</sup>",
                               "sType": "num-nan-col",
                               "bSearchable": false,
-                              "fnRender": function(obj) {
-                                    var value = parseFloat(obj.aData[ obj.iDataColumn ]);
+                              "mRender": function(data) {
+                                    var value = parseFloat(data);
                                     if (isNaN(value))
                                         return "NaN";
                                     return value.toFixed(2);
@@ -265,16 +265,16 @@
                             { //"sTitle": "abs diff",
                               "bVisible": showAbsDiffColumn,
                               "sType": "num-nan-col",
-                              "fnRender": function(obj) {
-                                    var value = parseFloat(obj.aData[ obj.iDataColumn ]);
+                              "mRender": function(data, type, full) {
+                                    var value = parseFloat(data);
                                     if (isNaN(value))
                                         return "NaN";
                                     
                                     var ret = value.toFixed(2);
                                     
                                     var eps = 10e-5;
-                                    var abunUnaltered = parseFloat(obj.aData[6]);
-                                    var abunAltered = parseFloat(obj.aData[7]);
+                                    var abunUnaltered = parseFloat(full[6]);
+                                    var abunAltered = parseFloat(full[7]);
                                     
                                     if (value<eps)
                                         return ret;
@@ -289,8 +289,8 @@
                             { //"sTitle": "p-value",
                               "bVisible": showPValueColumn,
                               "sType": "num-nan-col",
-                              "fnRender": function(obj) {
-                                    var value = parseFloat(obj.aData[ obj.iDataColumn ]);
+                              "mRender": function(data, display, full) {
+                                    var value = parseFloat(data);
                                     if (isNaN(value))
                                         return "NaN";
                                     
@@ -299,8 +299,8 @@
                                         ret = '<b>'+ret+'</b>';
                                     
                                     var eps = 10e-5;
-                                    var abunUnaltered = parseFloat(obj.aData[6]);
-                                    var abunAltered = parseFloat(obj.aData[7]);
+                                    var abunUnaltered = parseFloat(full[6]);
+                                    var abunAltered = parseFloat(full[7]);
                                     
                                     if (Math.abs(abunUnaltered-abunAltered)<eps)
                                         return ret;
@@ -321,7 +321,7 @@
                             { //"sTitle": "plot",
                               "bSearchable": false,
                               "bSortable": false,
-                              "fnRender": function(obj) {
+                              "mRender": function(data) {
                                     return "<img class=\"details_img\" src=\"images/details_open.png\">";
                               },
                               "aTargets": [ 11 ]

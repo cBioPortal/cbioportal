@@ -101,16 +101,17 @@
                     <table>
                         <tr>
                             <td>Username:</td>
-                            <td><input type='text' name='username' value=''></td>
+                            <td><input type='text' name='j_username'></td>
                         </tr>
                         <tr>
                             <td>Password:</td>
-                            <td><input type='password' name='password' /></td>
+                            <td><input type='password' name='j_password'></td>
                         </tr>
                         <tr>
                             <td colspan='2'><input name="submit" type="submit" value="MSKCC Login" /></td>
                         </tr>
                     </table>
+                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
                     </fieldSet>
                     </form>
                     <% } else if (authenticationMethod.equals("googleplus")) { %>

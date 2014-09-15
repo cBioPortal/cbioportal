@@ -68,12 +68,6 @@
         <session-management session-fixation-protection="none"/>
     </http>
 
-    <!--
-    <b:bean id="authenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
-        <b:property name="loginFormUrl" value="/login.jsp" />
-    </b:bean>
-    -->
-
     <!-- google+ beans -->
     <b:bean id="socialAuthenticationFilter" class="org.springframework.social.security.SocialAuthenticationFilter">
         <b:constructor-arg index="0" ref="authenticationManager" />
@@ -187,13 +181,9 @@
         <logout logout-success-url="/login.jsp?logout_success=true"/>
         <!-- to enable access from matlab, r, python, etc clients -->
         <session-management session-fixation-protection="none"/>
+        <!-- support cross site request forging -->
+        <csrf/>
     </http>
-
-    <!--
-    <b:bean id="authenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
-        <b:property name="loginFormUrl" value="/login.jsp" />
-    </b:bean>
-    -->
 
     <b:bean id="activeDirectoryFilter" class="org.mskcc.cbio.portal.authentication.activedirectory.ADAuthFilter">
         <b:property name="authenticationManager" ref="authenticationManager" />
@@ -208,6 +198,7 @@
     <b:bean id="ldapActiveDirectoryAuthProvider" class="org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider">
         <b:constructor-arg value="${ldap.domain}" />
         <b:constructor-arg value="${ldap.url}" />
+        <b:property name="convertSubErrorCodesToExceptions" value="true"/>
     </b:bean>
 
     <b:bean id="successHandler" class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler">

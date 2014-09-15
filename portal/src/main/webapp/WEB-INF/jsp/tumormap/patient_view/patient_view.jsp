@@ -459,8 +459,8 @@ function addMoreClinicalTooltip(elem) {
                                 {
                                     "aTargets": [ 0 ],
                                     "sClass": "left-align-td",
-                                    "fnRender": function(obj) {
-                                        return '<b>'+obj.aData[ obj.iDataColumn ]+'</b>';
+                                    "mRender": function ( data, type, full ) {
+                                        return '<b>'+data+'</b>';
                                     }
                                 },
                                 {

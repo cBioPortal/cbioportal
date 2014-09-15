@@ -31,7 +31,7 @@ var StudyViewInitMutationsTab = (function(){
             "bScrollCollapse": true,
             "sScrollX": "100%",
             "sScrollXInner": "100%",
-            "sDom": '<"H"<"smg-table-name">fr>t>',
+            "sDom": '<<"H"<"smg-table-name">fr>t>',
             "bJQueryUI": true,
             "bDestroy": true,
             "aaData": ix,

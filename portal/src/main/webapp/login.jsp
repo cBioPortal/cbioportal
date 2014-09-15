@@ -70,6 +70,8 @@
                     <form style="width:  100%;" action="<c:url value='j_spring_openid_security_check'/>" method="post" id="openid_form">
                     <input type="hidden" name="action" value="verify" />
                     <p/>
+                <% } else if (authenticationMethod.equals("activedirectory")) { %>
+                    <form style="width: 100%;" action="<c:url value='j_spring_security_check' />" method="post">
                 <% } %>
                     <fieldset>
                     <legend>
@@ -95,16 +97,26 @@
                         </noscript>
                     </fieldset>
                     </form>
+                    <% } else if (authenticationMethod.equals("activedirectory")) { %>
+                    <table>
+                        <tr>
+                            <td>Username:</td>
+                            <td><input type='text' name='username' value=''></td>
+                        </tr>
+                        <tr>
+                            <td>Password:</td>
+                            <td><input type='password' name='password' /></td>
+                        </tr>
+                        <tr>
+                            <td colspan='2'><input name="submit" type="submit" value="MSKCC Login" /></td>
+                        </tr>
+                    </table>
+                    </fieldSet>
+                    </form>
                     <% } else if (authenticationMethod.equals("googleplus")) { %>
                         <p>
                             <button onclick="window.location = 'auth/google'" style="padding: 0; border:none; background: none" >
                                 <IMG alt="Google+" src="images/login/googleplus_signin.png"  /></button>
-                        </p>
-                    </fieldset>
-                    <% } else if (authenticationMethod.equals("activedirectory")) { %>
-                        <p>
-                            <button onclick="window.location = '<c:url value="j_spring_security_check"/>'" style="padding: 0; border:none; background: none" >
-                                <IMG alt="MSKCC" style="width:250px;" src="images/mskcc_logo_3d_grey.jpg"  /></button>
                         </p>
                     </fieldset>
                     <% } %>

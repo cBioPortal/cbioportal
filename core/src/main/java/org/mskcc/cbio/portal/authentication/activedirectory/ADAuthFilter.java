@@ -16,7 +16,7 @@
 */
 package org.mskcc.cbio.portal.authentication.activedirectory;
 
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.*;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.*;
@@ -33,5 +33,13 @@ public class ADAuthFilter extends UsernamePasswordAuthenticationFilter
 		super.successfulAuthentication(request, response, filterChain, authResult);
 		String username = super.obtainUsername(request);
 		System.out.println("Authenticated as: " + username);
+	}
+
+	@Override
+	protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+	                                          AuthenticationException failed) throws IOException, ServletException
+	{
+		String msg = failed.getMessage();
+		System.out.println("Failure: " + msg);
 	}
 }

@@ -14,35 +14,25 @@
  * Memorial Sloan-Kettering Cancer Center 
  * has been advised of the possibility of such damage.
 */
-package org.mskcc.cbio.portal.authentication;
+package org.mskcc.cbio.portal.authentication.activeDirectory;
 
 import org.mskcc.cbio.portal.model.User;
 import org.mskcc.cbio.portal.model.UserAuthorities;
 import org.mskcc.cbio.portal.dao.PortalUserDAO;
-import org.mskcc.cbio.portal.util.DynamicState;
+import org.mskcc.cbio.portal.authentication.PortalUserDetails;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.google.common.base.Strings;
-import com.google.inject.internal.Preconditions;
-
 import org.springframework.security.core.userdetails.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.ldap.core.*;
+import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 
-import java.util.List;
+import java.util.*;
 
-/**
- * Responsible for verifying that a social site user name has been registered in the
- * portal database For registered users, an instance of GoogleplusUserDetails is
- * completed and returned. Null is returned for non-registered users
- *
- * Implementation based on code in OpenIDUserDetailsService
- *
- * @author criscuof
- */
-public class PortalUserDetailsService implements UserDetailsService {
+public class PortalUserDetailsService implements UserDetailsContextMapper {
 
     private static final Log log = LogFactory.getLog(PortalUserDetailsService.class);
 
@@ -62,14 +52,18 @@ public class PortalUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(username), "A username is required");
-        // set the username into the global state so other components can find out who
-        // logged in or tried to log in most recently
-        DynamicState.INSTANCE.setCurrentUser(username);
+    public void mapUserToContext(UserDetails user, DirContextAdapter ctx)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public UserDetails mapUserFromContext(DirContextOperations ctx, String username, Collection<? extends GrantedAuthority> authority)
+    {
         if (log.isDebugEnabled()) {
             log.debug("loadUserByUsername(), attempting to fetch portal user, email: " + username);
         }
+
         PortalUserDetails toReturn = null;
         User user = null;
         try {
@@ -89,8 +83,6 @@ public class PortalUserDetailsService implements UserDetailsService {
                 toReturn = new PortalUserDetails(username, grantedAuthorities);
                 toReturn.setEmail(user.getEmail());
                 toReturn.setName(user.getName());
-             
-                
             }
         }
 

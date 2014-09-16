@@ -38,11 +38,11 @@ import java.util.List;
  *
  * @author Benjamin Gross
  */
-public class OpenIDUserDetailsService
+public class PortalUserDetailsService
 	implements UserDetailsService, AuthenticationUserDetailsService<OpenIDAuthenticationToken> {
 
 	// logger
-	private static final Log log = LogFactory.getLog(OpenIDUserDetailsService.class);
+	private static final Log log = LogFactory.getLog(PortalUserDetailsService.class);
 
 	// ref to our user dao
     private final PortalUserDAO portalUserDAO;
@@ -55,7 +55,7 @@ public class OpenIDUserDetailsService
      *
      * @param portalUserDAO PortalUserDAO
      */
-    public OpenIDUserDetailsService(PortalUserDAO portalUserDAO) {
+    public PortalUserDetailsService(PortalUserDAO portalUserDAO) {
         this.portalUserDAO = portalUserDAO;
     }
           

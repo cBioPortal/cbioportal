@@ -198,7 +198,7 @@
     <b:bean id="ldapActiveDirectoryAuthProvider" class="org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider">
         <b:constructor-arg value="${ldap.domain}" />
         <b:constructor-arg value="${ldap.url}" />
-        <property name="userDetailsContextMapper" ref="portalUserDetailsService"/>
+        <b:property name="userDetailsContextMapper" ref="portalUserDetailsService"/>
         <b:property name="convertSubErrorCodesToExceptions" value="true"/>
     </b:bean>
 

@@ -147,11 +147,19 @@
 		<directory>src/main/resources</directory>
 		<filtering>true</filtering>
 		<excludes>
+		  <exclude>**/*.jks</exclude>
 		  <exclude>artwork/**</exclude>
 		  <exclude>content/**</exclude>
 		  <exclude>tutorials/**</exclude>
 		</excludes>
 	  </resource>
+	  <resource>
+      	<directory>src/main/resources</directory>
+        <filtering>false</filtering>
+        <includes>
+        	<include>**/*.jks</include>
+        </includes>
+      </resource>
 	</resources>
 
   </build>

@@ -210,6 +210,11 @@
                         <goal>shade</goal>
                     </goals>
                     <configuration>
+						<artifactSet>
+                		<excludes>
+                  			<exclude>org.bouncycastle:bcprov-jdk15</exclude>
+                		</excludes>
+              			</artifactSet>
 			            <createDependencyReducedPom>false</createDependencyReducedPom>
                     	<finalName>cbioportal-importer</finalName>
                         <transformers>

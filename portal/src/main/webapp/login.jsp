@@ -114,6 +114,12 @@
                     <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
                     </fieldSet>
                     </form>
+                    <% } else if (authenticationMethod.equals("saml")) { %>
+                        <p>
+                            <button onclick="window.location = 'saml/login'" style="padding: 0; border:none; background: none" >
+                                <IMG alt="saml" src="images/mskcc_logo_3d_grey.jpg" height="250px" /></button>
+                        </p>
+                    </fieldset>
                     <% } else if (authenticationMethod.equals("googleplus")) { %>
                         <p>
                             <button onclick="window.location = 'auth/google'" style="padding: 0; border:none; background: none" >

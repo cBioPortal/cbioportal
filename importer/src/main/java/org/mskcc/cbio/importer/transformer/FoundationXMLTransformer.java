@@ -1,6 +1,5 @@
 package org.mskcc.cbio.importer.transformer;
 
-import com.google.common.base.CharMatcher;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
@@ -16,7 +15,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import com.google.gdata.util.common.base.Pair;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.Charset;
@@ -32,7 +30,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
 import javax.xml.bind.JAXBElement;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.foundation.jaxb.*;

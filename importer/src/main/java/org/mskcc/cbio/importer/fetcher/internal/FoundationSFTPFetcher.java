@@ -15,23 +15,16 @@
 package org.mskcc.cbio.importer.fetcher.internal;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
 import com.google.inject.internal.Preconditions;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
 import joptsimple.internal.Strings;
 import org.apache.log4j.Logger;
-import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.Fetcher;
 import org.mskcc.cbio.importer.FileTransformer;
 import org.mskcc.cbio.importer.extractor.FileDataSource;
 import org.mskcc.cbio.importer.extractor.FileExtractor;
 import org.mskcc.cbio.importer.foundation.support.FoundationMetaDataGenerator;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
-import org.mskcc.cbio.importer.transformer.FoundationXMLTransformer;
 
 /**
  * This represents a Fetcher implementation that will copy a Foundation cancer

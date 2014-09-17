@@ -1,51 +1,51 @@
-$_L(["java.io.Closeable","$.InputStream"],"java.io.FileInputStream",["java.lang.IndexOutOfBoundsException","$.NullPointerException"],function(){
-c$=$_C(function(){
+Clazz.load(["java.io.Closeable","$.InputStream"],"java.io.FileInputStream",["java.lang.IndexOutOfBoundsException","$.NullPointerException"],function(){
+c$=Clazz.decorateAsClass(function(){
 this.fd=null;
 this.innerFD=false;
-$_Z(this,arguments);
+Clazz.instantialize(this,arguments);
 },java.io,"FileInputStream",java.io.InputStream,java.io.Closeable);
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(file){
-$_R(this,java.io.FileInputStream);
+Clazz.superConstructor(this,java.io.FileInputStream);
 },"java.io.File");
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(fd){
-$_R(this,java.io.FileInputStream);
+Clazz.superConstructor(this,java.io.FileInputStream);
 if(fd==null){
 throw new NullPointerException();
 }},"java.io.FileDescriptor");
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(fileName){
 this.construct(null==fileName?null:null);
 },"~S");
-$_V(c$,"available",
+Clazz.overrideMethod(c$,"available",
 function(){
 return 0;
 });
-$_V(c$,"close",
+Clazz.overrideMethod(c$,"close",
 function(){
 if(this.fd==null){
 return;
 }});
-$_V(c$,"finalize",
+Clazz.overrideMethod(c$,"finalize",
 function(){
 this.close();
 });
-$_M(c$,"getFD",
+Clazz.defineMethod(c$,"getFD",
 function(){
 return this.fd;
 });
-$_M(c$,"read",
+Clazz.defineMethod(c$,"read",
 function(){
-var readed=$_A(1,0);
+var readed=Clazz.newArray(1,0);
 var result=this.read(readed,0,1);
 return result==-1?-1:readed[0]&0xff;
 });
-$_M(c$,"read",
+Clazz.defineMethod(c$,"read",
 function(buffer){
 return this.read(buffer,0,buffer.length);
 },"~A");
-$_M(c$,"read",
+Clazz.defineMethod(c$,"read",
 function(buffer,offset,count){
 if(count>buffer.length-offset||count<0||offset<0){
 throw new IndexOutOfBoundsException();
@@ -53,7 +53,7 @@ throw new IndexOutOfBoundsException();
 return 0;
 }return 0;
 },"~A,~N,~N");
-$_V(c$,"skip",
+Clazz.overrideMethod(c$,"skip",
 function(count){
 return 0;
 },"~N");

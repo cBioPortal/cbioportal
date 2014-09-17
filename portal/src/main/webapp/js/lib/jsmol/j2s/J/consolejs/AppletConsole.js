@@ -9,11 +9,11 @@ function () {
 Clazz.superConstructor (this, J.consolejs.AppletConsole, []);
 });
 Clazz.overrideMethod (c$, "start", 
-function (viewer) {
-this.setViewer (viewer);
+function (vwr) {
+this.setViewer (vwr);
 this.setLabels ();
 this.displayConsole ();
-}, "J.api.JmolViewer");
+}, "JV.Viewer");
 Clazz.overrideMethod (c$, "layoutWindow", 
 function (enabledButtons) {
 {

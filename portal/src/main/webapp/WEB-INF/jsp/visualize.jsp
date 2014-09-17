@@ -1,22 +1,67 @@
+<link href="css/bootstrap.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <%@ include file="global/global_variables.jsp" %>
 <jsp:include page="global/header.jsp" flush="true" />
 
-<%
-    String smry = "<a href=\"study.do?cancer_study_id="+cancerTypeId+"\">"+cancerStudyName +
-            "</a>/" + patientSetName + ": (" +
-            mergedPatientListSize + ")" + "/" +
-            geneSetName + "/" + geneWithScoreList.size() +
-            (geneWithScoreList.size() == 1?"gene":"genes");
-%>
-
-<p>
-    <div class='gene_set_summary'>
-        Gene Set / Pathway is altered in <%=percentCasesAffected%> of all cases. <br>
+<div class='main_smry'>
+    <div id='main_smry_line'></div>
+    <div style="margin-left:5px;display:none;" id="query_form_on_results_page">
+        <%@ include file="query_form.jsp" %>
     </div>
-</p>
-<p>
-    <small><strong><%=smry%></strong></small>
-</p>
+</div>
+
+
+<script>
+
+    PortalDataCollManager.subscribeOncoprint(function() {
+
+        //calculate total alteration
+        var _dataArr = PortalDataColl.getOncoprintData();
+        num_total_cases = _dataArr.length;
+        $.each(_dataArr, function(outerIndex, outerObj) {
+            $.each(outerObj.values, function(innerIndex, innerObj) {
+                if(Object.keys(innerObj).length > 2) { // has more than 2 fields -- indicates existence of alteration
+                    num_altered_cases += 1;
+                    return false;
+                }
+            });
+        });        
+
+        //Configure the summary line
+        var _smry = "<h3 style='font-size:110%;'><a href='study.do?cancer_study_id=" + 
+            window.PortalGlobals.getCancerStudyId() + "' target='_blank'>" + 
+            window.PortalGlobals.getCancerStudyName() + "</a><br>" + " " +  
+            "<small>" + window.PortalGlobals.getPatientSetName() + " (<b>" + window.PortalGlobals.getNumOfTotalCases() + "</b> samples)" + " / " + 
+            "Gene Set/Pathway is altered in <b>" + window.PortalGlobals.getNumOfAlteredCases() + " (" + window.PortalGlobals.getPercentageOfAlteredCases() + "%)" + "</b> of all samples" + " / " + 
+            "<b>" + window.PortalGlobals.getGeneList().length + "</b>" + (window.PortalGlobals.getGeneList().length===1?" Gene":" Genes") + "<br></small></h3>" + 
+            "<button type='button' class='btn btn-default btn-xs' data-toggle='button' id='modify_query_btn'>Modify Query</button>";
+        $("#main_smry_line").append(_smry);
+
+        //Set Event listener for the modify query button (expand the hidden form)
+        $("#modify_query_btn").click(function () {
+            $("#query_form_on_results_page").toggle();
+            if($("#modify_query_btn").hasClass("active")) {
+                $("#modify_query_btn").removeClass("active");
+            } else {
+                $("#modify_query_btn").addClass("active");    
+            }
+        });
+        $("#toggle_query_form").click(function(event) {
+            event.preventDefault();
+            $('#query_form_on_results_page').toggle();
+            //  Toggle the icons
+            $(".query-toggle").toggle();
+        });
+
+        //Oncoprint summary lines
+        $("#oncoprint_sample_set_description").append(window.PortalGlobals.getPatientSetDescription() + 
+            "(" + window.PortalGlobals.getNumOfTotalCases() + " samples)");
+        $("#oncoprint_sample_set_name").append(window.PortalGlobals.getPatientSetName());
+        $("#oncoprint_num_of_altered_cases").append(window.PortalGlobals.getNumOfAlteredCases());
+        $("#oncoprint_percentage_of_altered_cases").append(window.PortalGlobals.getPercentageOfAlteredCases());
+
+    });
+
+</script>
 
 <%
     if (warningUnion.size() > 0) {
@@ -44,21 +89,10 @@
     } else {
 %>
 
-<script type="text/javascript">
-    $(document).ready(function(){
-        // Init Tool Tips
-        $("#toggle_query_form").tipTip();
-    });
-</script>
-
-<p><a href="" title="Modify your original query.  Recommended over hitting your browser's back button." id="toggle_query_form">
-    <span class='query-toggle ui-icon ui-icon-triangle-1-e' style='float:left;'></span>
-    <span class='query-toggle ui-icon ui-icon-triangle-1-s' style='float:left; display:none;'></span><b>Modify Query</b></a>
+<p>
 <p/>
 
-<div style="margin-left:5px;display:none;" id="query_form_on_results_page">
-    <%@ include file="query_form.jsp" %>
-</div>
+
 
 <div id="tabs">
     <ul>
@@ -122,7 +156,7 @@
             out.println ("<li><a href='#summary' class='result-tab' title='Compact visualization of genomic alterations'>OncoPrint</a></li>");
 
             if (computeLogOddsRatio && geneWithScoreList.size() > 1) {
-                out.println ("<li><a href='#gene_correlation' class='result-tab' title='Mutual exclusivity and co-occurrence analysis'>"
+                out.println ("<li><a href='#mutex' class='result-tab' title='Mutual exclusivity and co-occurrence analysis'>"
                 + "Mutual Exclusivity</a></li>");
             }
 
@@ -206,9 +240,9 @@
             <% } %>
 
             <% if (computeLogOddsRatio && geneWithScoreList.size() > 1) { %>
-        <%@ include file="correlation.jsp" %>
+                <%@ include file="mutex_tab.jsp" %>
             <% } %>
-
+            
             <% if (mutationDetailLimitReached != null) {
         out.println("<div class=\"section\" id=\"mutation_details\">");
         out.println("<P>To retrieve mutation details, please specify "
@@ -229,10 +263,7 @@
 
         <%@ include file="data_download.jsp" %>
         <%@ include file="image_tabs_data.jsp" %>
-        
-        <% if (showCoexpTab) { %>
-            <%@ include file="co_expression.jsp" %>
-        <% } %>
+        <%@ include file="co_expression.jsp" %>
 
 </div> <!-- end tabs div -->
 <% } %>
@@ -252,19 +283,21 @@
 </form>
 
 <script type="text/javascript">
-	// initially hide network tab
-	$("div.section#network").attr('style', 'height: 0px; width: 0px; visibility: hidden;');
+    // initially hide network tab
+    $("div.section#network").attr('style', 'height: 0px; width: 0px; visibility: hidden;');
 
-	// it is better to check selected tab after document gets ready
-	$(document).ready(function() {
-		// check if network tab is initially selected
-		// TODO this depends on aria-hidden attribute which may not be safe...
-		if ($("div.section#network").attr('aria-hidden') == "false")
-		{
-			// make the network tab visible...
-			$("div.section#network").removeAttr('style');
-		}
-	});
+    // it is better to check selected tab after document gets ready
+    $(document).ready(function() {
+        $("#toggle_query_form").tipTip();
+        // check if network tab is initially selected
+        // TODO this depends on aria-hidden attribute which may not be safe...
+        
+        if ($("div.section#network").attr('aria-hidden') == "false"){
+            // make the network tab visible...
+            $("div.section#network").removeAttr('style');
+        }
+
+    });
 
     // to fix problem of flash repainting
     $("a.result-tab").click(function(){
@@ -272,7 +305,7 @@
         if($(this).attr("href")=="#network") {
             $("div.section#network").removeAttr('style');
         } else {
-	        // since we never allow display:none we should adjust visibility, height, and width properties
+            // since we never allow display:none we should adjust visibility, height, and width properties
             $("div.section#network").attr('style', 'height: 0px; width: 0px; visibility: hidden;');
         }
     });

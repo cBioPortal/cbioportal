@@ -111,9 +111,11 @@
     int mergedPatientListSize = mergedPatientList.size();
     String patientSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
     String patientSetName = "";
+    String patientSetDescription = "";
     for (PatientList patientSet:  patientSets) {
         if (patientSetId.equals(patientSet.getStableId())) {
             patientSetName = patientSet.getName();
+            patientSetDescription = patientSet.getDescription();
         }
     }
     String patients = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
@@ -152,88 +154,11 @@
     if (final_gp != null) {
         showCoexpTab = true;
     } 
-
     Object patientSampleIdMap = request.getAttribute(QueryBuilder.SELECTED_PATIENT_SAMPLE_ID_MAP);
-    //Get the patient/sample Id map
-    // ObjectMapper mapper = new ObjectMapper();
-    // JsonFactory factory = mapper.getFactory();
-    // JsonParser parser = factory.createParser(QueryBuilder.SELECTED_PATIENT_SAMPLE_ID_MAP);
-    // JsonNode patientSampleIdMap = mapper.readTree(parser);
-
-    // String jsonString = "{\"k1\":\"v1\",\"k2\":\"v2\"}";
-    // ObjectMapper mapper = new ObjectMapper();
-    // JsonNode patientSampleIdMap = mapper.readTree(jsonString);
-
-    // String jsonString = "{\"k1\":\"v1\",\"k2\":\"v2\"}";
-    // JsonFactory factory = new JsonFactory();
-    // JsonParser parser = factory.createJsonParser(jsonString);
-    // JsonNode patientSampleIdMap = mapper.readTree(parser);
-
-    // ObjectMapper mapper = new ObjectMapper(); 
-    // String json = mapper.writeValueAsString(QueryBuilder.SELECTED_PATIENT_SAMPLE_ID_MAP);
-    // JsonNode patientSampleIdMap = mapper.readTree(json);
-
-    //ObjectMapper mapper = new ObjectMapper();
-    // JsonFactory factory = new JsonFactory(); // since 2.1 use mapper.getFactory() instead
-    // JsonParser jp = factory.createJsonParser("{\"k1\":\"v1\"}");
-    // JsonNode patientSampleIdMap = mapper.readTree(jp);
-
-    // ObjectMapper mapper = new ObjectMapper();
-    // JsonFactory factory = mapper.getFactory();
-    // JsonParser parser = factory.createParser(QueryBuilder.SELECTED_PATIENT_SAMPLE_ID_MAP);
-    // JsonNode patientSampleIdMap = mapper.readTree(parser);
-
-    //JsonNode patientSampleIdMap = mapper.readTree(QueryBuilder.SELECTED_PATIENT_SAMPLE_ID_MAP);
-    //JsonNode patientSampleIdMap = mapper.createObjectNode();
-    //patientSampleIdMap = mapper.valueToTree(QueryBuilder.SELECTED_PATIENT_SAMPLE_ID_MAP);
-    //patientSampleIdMap = mapper.convertValue(QueryBuilder.SELECTED_PATIENT_SAMPLE_ID_MAP, JsonNode.class);
-    //patientSampleIdMap = request.getAttribute(QueryBuilder.SELECTED_PATIENT_SAMPLE_ID_MAP);
-
 %>
 
+<!--Global Data Objects Manager-->
 <script type="text/javascript">
-    window.PortalGlobals = {
-        getCancerStudyId: function() { return '<%=cancerTypeId%>'},
-        gerMutationProfileId: function() { return <%=(mutationProfileID==null?"null":("'"+mutationProfileID+"'"))%>},
-        getGenes: function() { return '<%=genes%>'},  // raw gene list (as it is entered by the user, it MAY CONTAIN onco query language)
-        getGeneListString: function() {  // gene list WITHOUT onco query language
-            return '<%=StringUtils.join(theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes(), " ")%>'
-        },
-        getGeneList: function() {
-            var _geneList = '<%=StringUtils.join(theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes(), " ")%>';
-            return _geneList.split(/\s+/);    //Gene Id list without onco query language
-        },
-        getCaseSetId: function() { return '<%= patientSetId %>';},  //Id for user chosen standard case set
-        getCaseSetName: function() { return '<%= patientSetName %>'},  //Name for user chose standard case set
-        getCaseIdsKey: function() { return '<%= patientIdsKey %>'; },   //A key arrsigned to use build case set
-        getCases: function() { return '<%= patients %>'; }, // list of queried case ids
-        getMergedCases: function() { return '<%=  mergedPatientList %>'; },
-        getOqlString: (function() {     // raw gene list (as it is entered by the user, it may contain onco query language)
-            var oql = '<%=oql%>'
-                    .replace("&gt;", ">", "gm")
-                    .replace("&lt;", "<", "gm")
-                    .replace("&eq;", "=", "gm")
-                    .replace(/[\r\n]/g, "\\n");
-            return function() { return oql; };
-        })(),
-        getGeneticProfiles: function() { return '<%=geneticProfiles%>'; },
-        getZscoreThreshold: function() { return '<%=zScoreThreshold%>'; },
-        getRppaScoreThreshold: function() { return '<%=rppaScoreThreshold%>'; },
-        getPatientIds: function() { return '<%=patients%>'; },
-        getPatientSampleIdMap: function() { 
-            var _tmpPatientSampleIdMap = '<%=patientSampleIdMap%>'; 
-            var tmpPatientSampleIdMap = _tmpPatientSampleIdMap.substring(1, _tmpPatientSampleIdMap.length-1);
-            var _arrPatientSampleMap = tmpPatientSampleIdMap.split(",");
-            var result = {};
-            $.each(_arrPatientSampleMap, function(index, obj) {
-                var _arr = obj.split("=");
-                result[(_arr[0].replace(/\s+/, ""))] = (_arr[1].replace(/\s+/, ""));
-            });
-            return result;
-        }
-    };
-
-    //Global Data Objects -- to be re-used
     var PortalDataColl = (function() {
         var oncoprintData = null;
         return {
@@ -254,7 +179,9 @@
         };
 
         return {
-            subscribeOncoprint: subscribeOncoprint,
+            //to subscribe the functions that would re-use oncoprint data -- by subscribing, once the oncoprint
+            //data is fetched, the functions would be called/executed. 
+            subscribeOncoprint: subscribeOncoprint, 
             fire: function(o) {
                 if (o === "oncoprint-data-fetched") {
                     fns_oncoprint.forEach(
@@ -267,7 +194,65 @@
         }
 
     }());
+</script>
 
+<!-- Global variables : basic information about the main query -->
+<script type="text/javascript">
+
+    var num_total_cases = 0, num_altered_cases = 0;
+
+    window.PortalGlobals = {
+        getNumOfTotalCases: function() { return num_total_cases; },
+        getNumOfAlteredCases: function() { return num_altered_cases; },
+        getPercentageOfAlteredCases: function() { return ((num_altered_cases / num_total_cases) * 100).toFixed(1); },
+        getCancerStudyId: function() { return '<%=cancerTypeId%>'},
+        getCancerStudyName: function() { return '<%=cancerStudyName%>'},
+        gerMutationProfileId: function() { return <%=(mutationProfileID==null?"null":("'"+mutationProfileID+"'"))%>},
+        getGenes: function() { return '<%=genes%>'},  // raw gene list (as it is entered by the user, it MAY CONTAIN onco query language)
+        getGeneListString: function() {  // gene list WITHOUT onco query language
+            return '<%=StringUtils.join(theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes(), " ")%>'
+        },
+        getGeneList: function() {
+            var _geneList = '<%=StringUtils.join(theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes(), " ")%>';
+            return _geneList.split(/\s+/);    //Gene Id list without onco query language
+        },
+        getGeneSetName: function() { return '<%=geneSetName%>'; },
+        getCaseSetId: function() { return '<%= patientSetId %>';},  //Id for user chosen standard case set
+        getCaseSetName: function() { return '<%= patientSetName %>'},  //Name for user chose standard case set
+        getCaseIdsKey: function() { return '<%= patientIdsKey %>'; },   //A key arrsigned to use build case set
+        getCases: function() { return '<%= patients %>'; }, // list of queried case ids
+        getMergedCases: function() { return '<%=  mergedPatientList %>'; },
+        getOqlString: (function() {     // raw gene list (as it is entered by the user, it may contain onco query language)
+            var oql = '<%=oql%>'
+                    .replace("&gt;", ">", "gm")
+                    .replace("&lt;", "<", "gm")
+                    .replace("&eq;", "=", "gm")
+                    .replace(/[\r\n]/g, "\\n");
+            return function() { return oql; };
+        })(),
+        getGeneticProfiles: function() { return '<%=geneticProfiles%>'; },
+        getZscoreThreshold: function() { return '<%=zScoreThreshold%>'; },
+        getRppaScoreThreshold: function() { return '<%=rppaScoreThreshold%>'; },
+        getPatientIds: function() { return '<%=patients%>'; },
+        getPatientSetName: function() { return '<%=patientSetName%>'; },
+        //TODO: this is just temporary solution of getting the right total number of samples -- should update the number in the database table instead.
+        getPatientSetDescription: function() { 
+            var _str = '<%=patientSetDescription%>';
+            _str = _str.substring(0, _str.indexOf("("));
+            return _str;
+        },
+        getPatientSampleIdMap: function() { 
+            var _tmpPatientSampleIdMap = '<%=patientSampleIdMap%>'; 
+            var tmpPatientSampleIdMap = _tmpPatientSampleIdMap.substring(1, _tmpPatientSampleIdMap.length-1);
+            var _arrPatientSampleMap = tmpPatientSampleIdMap.split(",");
+            var result = {};
+            $.each(_arrPatientSampleMap, function(index, obj) {
+                var _arr = obj.split("=");
+                result[(_arr[0].replace(/\s+/, ""))] = (_arr[1].replace(/\s+/, ""));
+            });
+            return result;
+        }
+    };
 </script>
 
 <%!

@@ -77,9 +77,6 @@ public class ResetDatabase {
         daoClinicalTrial.deleteAllRecords();
         DaoPatient.deleteAllRecords();
         DaoSample.deleteAllRecords();
-        ImportDataUtil.entityMapper.deleteAllEntity();
-        ImportDataUtil.entityMapper.deleteAllEntityLinks();
-        ImportDataUtil.entityAttributeMapper.deleteAllEntityAttributes();
         System.out.println("all database reset.");
     }
 

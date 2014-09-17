@@ -105,6 +105,9 @@ public class CrossCancerJSON extends HttpServlet {
                 //  Get the default patient set
                 AnnotatedPatientSets annotatedPatientSets = new AnnotatedPatientSets(patientSetList, dataTypePriority);
                 PatientList defaultPatientSet = annotatedPatientSets.getDefaultPatientList();
+                List<Sample> defaultSamples = InternalIdUtil.getSamplesById(
+                        InternalIdUtil.getInternalNonNormalSampleIdsFromPatientIds(cancerStudy.getInternalId(),
+                                defaultPatientSet.getPatientList()));
 
                 //  Get the default genomic profiles
                 CategorizedGeneticProfileSet categorizedGeneticProfileSet =
@@ -136,7 +139,7 @@ public class CrossCancerJSON extends HttpServlet {
                 cancerMap.put("cnaProfile", cnaProfile);
 
                 cancerMap.put("caseSetId", defaultPatientSet.getStableId());
-                cancerMap.put("caseSetLength", defaultPatientSet.getPatientList().size());
+                cancerMap.put("caseSetLength", defaultSamples.size());
 
 
                 ProfileDataSummary genomicData = getGenomicData(
@@ -163,8 +166,10 @@ public class CrossCancerJSON extends HttpServlet {
 
                 boolean skipStudy = defaultGeneticProfileSet.isEmpty();
                 if(!skipStudy) {
-                    for (String patientId: defaultPatientSet.getPatientList()) {
-                        if(!genomicData.isCaseAltered(patientId)) continue;
+                    
+                    for (Sample sample: defaultSamples) {
+                        String sampleId = sample.getStableId();
+                        if(!genomicData.isCaseAltered(sampleId)) continue;
 
                         boolean isAnyMutated = false,
                                 isAnyCnaUp = false,
@@ -174,8 +179,8 @@ public class CrossCancerJSON extends HttpServlet {
                         ;
 
                         for (String gene : genes) {
-                            isAnyMutated |= genomicData.isGeneMutated(gene, patientId);
-                            GeneticTypeLevel cnaLevel = genomicData.getCNALevel(gene, patientId);
+                            isAnyMutated |= genomicData.isGeneMutated(gene, sampleId);
+                            GeneticTypeLevel cnaLevel = genomicData.getCNALevel(gene, sampleId);
                             boolean isCnaUp = cnaLevel != null && cnaLevel.equals(GeneticTypeLevel.Amplified);
                             isAnyCnaUp |= isCnaUp;
                             boolean isCnaDown = cnaLevel != null && cnaLevel.equals(GeneticTypeLevel.HomozygouslyDeleted);

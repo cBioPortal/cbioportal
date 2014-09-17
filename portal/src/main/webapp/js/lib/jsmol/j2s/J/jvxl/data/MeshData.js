@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.jvxl.data");
-Clazz.load (["J.util.MeshSurface"], "J.jvxl.data.MeshData", ["java.lang.Float", "java.util.Arrays", "J.util.ArrayUtil", "$.BS", "$.V3"], function () {
+Clazz.load (["JU.MeshSurface"], "J.jvxl.data.MeshData", ["java.lang.Float", "java.util.Arrays", "JU.AU", "$.BS", "$.V3"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.setsSuccessful = false;
 this.vertexIncrement = 1;
@@ -11,25 +11,25 @@ if (!Clazz.isClassDefined ("J.jvxl.data.MeshData.SortSet")) {
 J.jvxl.data.MeshData.$MeshData$SortSet$ ();
 }
 Clazz.instantialize (this, arguments);
-}, J.jvxl.data, "MeshData", J.util.MeshSurface);
-$_M(c$, "addVertexCopy", 
-function (vertex, value, assocVertex) {
+}, J.jvxl.data, "MeshData", JU.MeshSurface);
+Clazz.defineMethod (c$, "addVertexCopy", 
+function (vertex, value, assocVertex, asCopy) {
 if (assocVertex < 0) this.vertexIncrement = -assocVertex;
-return this.addVCVal (vertex, value);
-}, "J.util.P3,~N,~N");
-$_M(c$, "getSurfaceSet", 
+return this.addVCVal (vertex, value, asCopy);
+}, "JU.T3,~N,~N,~B");
+Clazz.defineMethod (c$, "getSurfaceSet", 
 function () {
 return (this.surfaceSet == null ? this.getSurfaceSetForLevel (0) : this.surfaceSet);
 });
-$_M(c$, "getSurfaceSetForLevel", 
-($fz = function (level) {
+Clazz.defineMethod (c$, "getSurfaceSetForLevel", 
+ function (level) {
 if (level == 0) {
 this.surfaceSet =  new Array (100);
 this.nSets = 0;
 }this.setsSuccessful = true;
-for (var i = 0; i < this.polygonCount; i++) if (this.polygonIndexes[i] != null) {
+for (var i = 0; i < this.pc; i++) if (this.pis[i] != null) {
 if (this.bsSlabDisplay != null && !this.bsSlabDisplay.get (i)) continue;
-var p = this.polygonIndexes[i];
+var p = this.pis[i];
 var pt0 = this.findSet (p[0]);
 var pt1 = this.findSet (p[1]);
 var pt2 = this.findSet (p[2]);
@@ -65,17 +65,17 @@ if (level == 0) {
 this.sortSurfaceSets ();
 this.setVertexSets (false);
 }return this.surfaceSet;
-}, $fz.isPrivate = true, $fz), "~N");
-$_M(c$, "sortSurfaceSets", 
-($fz = function () {
+}, "~N");
+Clazz.defineMethod (c$, "sortSurfaceSets", 
+ function () {
 var sets =  new Array (this.nSets);
 for (var i = 0; i < this.nSets; i++) sets[i] = Clazz.innerTypeInstance (J.jvxl.data.MeshData.SSet, this, null, this.surfaceSet[i]);
 
 java.util.Arrays.sort (sets, Clazz.innerTypeInstance (J.jvxl.data.MeshData.SortSet, this, null));
 for (var i = 0; i < this.nSets; i++) this.surfaceSet[i] = sets[i].bs;
 
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "setVertexSets", 
+});
+Clazz.defineMethod (c$, "setVertexSets", 
 function (onlyIfNull) {
 if (this.surfaceSet == null) return;
 var nNull = 0;
@@ -91,41 +91,41 @@ this.surfaceSet = bsNew;
 this.nSets -= nNull;
 } else if (onlyIfNull) {
 return;
-}this.vertexSets =  Clazz.newIntArray (this.vertexCount, 0);
+}this.vertexSets =  Clazz.newIntArray (this.vc, 0);
 for (var i = 0; i < this.nSets; i++) for (var j = this.surfaceSet[i].nextSetBit (0); j >= 0; j = this.surfaceSet[i].nextSetBit (j + 1)) this.vertexSets[j] = i;
 
 
 }, "~B");
-$_M(c$, "findSet", 
-($fz = function (vertex) {
+Clazz.defineMethod (c$, "findSet", 
+ function (vertex) {
 for (var i = 0; i < this.nSets; i++) if (this.surfaceSet[i] != null && this.surfaceSet[i].get (vertex)) return i;
 
 return -1;
-}, $fz.isPrivate = true, $fz), "~N");
-$_M(c$, "createSet", 
-($fz = function (v1, v2, v3) {
+}, "~N");
+Clazz.defineMethod (c$, "createSet", 
+ function (v1, v2, v3) {
 var i;
 for (i = 0; i < this.nSets; i++) if (this.surfaceSet[i] == null) break;
 
-if (i == this.surfaceSet.length) this.surfaceSet = J.util.ArrayUtil.ensureLength (this.surfaceSet, this.surfaceSet.length + 100);
-this.surfaceSet[i] =  new J.util.BS ();
+if (i == this.surfaceSet.length) this.surfaceSet = JU.AU.ensureLength (this.surfaceSet, this.surfaceSet.length + 100);
+this.surfaceSet[i] =  new JU.BS ();
 this.surfaceSet[i].set (v1);
 this.surfaceSet[i].set (v2);
 this.surfaceSet[i].set (v3);
 if (i == this.nSets) this.nSets++;
-}, $fz.isPrivate = true, $fz), "~N,~N,~N");
-$_M(c$, "mergeSets", 
-($fz = function (a, b) {
+}, "~N,~N,~N");
+Clazz.defineMethod (c$, "mergeSets", 
+ function (a, b) {
 this.surfaceSet[a].or (this.surfaceSet[b]);
 this.surfaceSet[b] = null;
-}, $fz.isPrivate = true, $fz), "~N,~N");
-$_M(c$, "invalidateSurfaceSet", 
+}, "~N,~N");
+Clazz.defineMethod (c$, "invalidateSurfaceSet", 
 function (i) {
-for (var j = this.surfaceSet[i].nextSetBit (0); j >= 0; j = this.surfaceSet[i].nextSetBit (j + 1)) this.vertexValues[j] = NaN;
+for (var j = this.surfaceSet[i].nextSetBit (0); j >= 0; j = this.surfaceSet[i].nextSetBit (j + 1)) this.vvs[j] = NaN;
 
 this.surfaceSet[i] = null;
 }, "~N");
-c$.checkCutoff = $_M(c$, "checkCutoff", 
+c$.checkCutoff = Clazz.defineMethod (c$, "checkCutoff", 
 function (iA, iB, iC, vertexValues) {
 if (iA < 0 || iB < 0 || iC < 0) return false;
 var val1 = vertexValues[iA];
@@ -133,29 +133,29 @@ var val2 = vertexValues[iB];
 var val3 = vertexValues[iC];
 return (val1 >= 0 && val2 >= 0 && val3 >= 0 || val1 <= 0 && val2 <= 0 && val3 <= 0);
 }, "~N,~N,~N,~A");
-$_M(c$, "calculateVolumeOrArea", 
+Clazz.defineMethod (c$, "calculateVolumeOrArea", 
 function (thisSet, isArea, getSets) {
 if (getSets || this.nSets == 0) this.getSurfaceSet ();
 var justOne = (thisSet >= -1);
 var n = (justOne || this.nSets == 0 ? 1 : this.nSets);
 var v =  Clazz.newDoubleArray (n, 0);
-var vAB =  new J.util.V3 ();
-var vAC =  new J.util.V3 ();
-var vTemp =  new J.util.V3 ();
-for (var i = this.polygonCount; --i >= 0; ) {
+var vAB =  new JU.V3 ();
+var vAC =  new JU.V3 ();
+var vTemp =  new JU.V3 ();
+for (var i = this.pc; --i >= 0; ) {
 if (!this.setABC (i)) continue;
 var iSet = (this.nSets == 0 ? 0 : this.vertexSets[this.iA]);
 if (thisSet >= 0 && iSet != thisSet) continue;
 if (isArea) {
-vAB.sub2 (this.vertices[this.iB], this.vertices[this.iA]);
-vAC.sub2 (this.vertices[this.iC], this.vertices[this.iA]);
+vAB.sub2 (this.vs[this.iB], this.vs[this.iA]);
+vAC.sub2 (this.vs[this.iC], this.vs[this.iA]);
 vTemp.cross (vAB, vAC);
 v[justOne ? 0 : iSet] += vTemp.length ();
 } else {
-vAB.setT (this.vertices[this.iB]);
-vAC.setT (this.vertices[this.iC]);
+vAB.setT (this.vs[this.iB]);
+vAC.setT (this.vs[this.iC]);
 vTemp.cross (vAB, vAC);
-vAC.setT (this.vertices[this.iA]);
+vAC.setT (this.vs[this.iA]);
 v[justOne ? 0 : iSet] += vAC.dot (vTemp);
 }}
 var factor = (isArea ? 2 : 6);
@@ -164,19 +164,19 @@ for (var i = 0; i < n; i++) v[i] /= factor;
 if (justOne) return Float.$valueOf (v[0]);
 return v;
 }, "~N,~B,~B");
-$_M(c$, "updateInvalidatedVertices", 
+Clazz.defineMethod (c$, "updateInvalidatedVertices", 
 function (bs) {
 bs.clearAll ();
-for (var i = 0, ipt = 0; i < this.vertexCount; i += this.vertexIncrement, ipt++) if (Float.isNaN (this.vertexValues[i])) bs.set (i);
+for (var i = 0; i < this.vc; i += this.vertexIncrement) if (Float.isNaN (this.vvs[i])) bs.set (i);
 
-}, "J.util.BS");
-$_M(c$, "invalidateVertices", 
+}, "JU.BS");
+Clazz.defineMethod (c$, "invalidateVertices", 
 function (bsInvalid) {
-for (var i = bsInvalid.nextSetBit (0); i >= 0; i = bsInvalid.nextSetBit (i + 1)) this.vertexValues[i] = NaN;
+for (var i = bsInvalid.nextSetBit (0); i >= 0; i = bsInvalid.nextSetBit (i + 1)) this.vvs[i] = NaN;
 
-}, "J.util.BS");
+}, "JU.BS");
 c$.$MeshData$SSet$ = function () {
-Clazz.pu$h ();
+Clazz.pu$h(self.c$);
 c$ = Clazz.decorateAsClass (function () {
 Clazz.prepareCallback (this, arguments);
 this.bs = null;
@@ -187,11 +187,11 @@ Clazz.makeConstructor (c$,
 function (a) {
 this.bs = a;
 this.n = a.cardinality ();
-}, "J.util.BS");
+}, "JU.BS");
 c$ = Clazz.p0p ();
 };
 c$.$MeshData$SortSet$ = function () {
-Clazz.pu$h ();
+Clazz.pu$h(self.c$);
 c$ = Clazz.decorateAsClass (function () {
 Clazz.prepareCallback (this, arguments);
 Clazz.instantialize (this, arguments);

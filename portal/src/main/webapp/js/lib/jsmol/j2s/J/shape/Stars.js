@@ -4,5 +4,5 @@ c$ = Clazz.declareType (J.shape, "Stars", J.shape.AtomShape);
 Clazz.overrideMethod (c$, "setProperty", 
 function (propertyName, value, bs) {
 this.setPropAS (propertyName, value, bs);
-}, "~S,~O,J.util.BS");
+}, "~S,~O,JU.BS");
 });

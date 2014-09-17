@@ -226,6 +226,11 @@ A:hover {
     font-weight:bold;
 }
 
+.main_smry {
+    padding-top:10px;
+    padding-left: 10px;
+}
+
 .warning h4{
     color:red !important;
 }
@@ -1362,4 +1367,8 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
     shape-rendering: crispEdges;
     z-index: -1;
 } 
+
+.qtip-ui-wide {
+    max-width: 600px;
+}
 

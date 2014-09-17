@@ -12,10 +12,10 @@ Clazz.superConstructor (this, java.io.StringReader, [s]);
 this.str = s;
 this.length = s.length;
 }, "~S");
-$_M(c$, "ensureOpen", 
-($fz = function () {
+Clazz.defineMethod (c$, "ensureOpen", 
+ function () {
 if (this.str == null) throw  new java.io.IOException ("Stream closed");
-}, $fz.isPrivate = true, $fz));
+});
 Clazz.overrideMethod (c$, "read", 
 function (cbuf, off, len) {
 {

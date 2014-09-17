@@ -211,6 +211,7 @@ public class ImportProteinArrayData {
     }
     
     public static void main(String[] args) throws Exception {
+//        args = new String[] {"/Users/jgao/projects/cbio-portal-data/studies/cellline/douglevine_ccl/data_rppa.txt","cellline_douglevine_ccl"};
         if (args.length < 2) {
             System.out.println("command line usage:  importRPPAData.pl <RPPA_data.txt> <Cancer study identifier>");
             return;

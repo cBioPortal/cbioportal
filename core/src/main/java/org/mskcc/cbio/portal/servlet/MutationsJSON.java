@@ -297,7 +297,7 @@ public class MutationsJSON extends HttpServlet {
             mutationProfile = DaoGeneticProfile.getGeneticProfileByStableId(mutationProfileId);
             if (strPatientIds!=null) {
                 List<String> stablePatientIds = Arrays.asList(strPatientIds.split("[ ,]+"));
-                sampleIds = InternalIdUtil.getInternalSampleIdsFromPatientIds(mutationProfile.getCancerStudyId(), stablePatientIds);
+                sampleIds = InternalIdUtil.getInternalNonNormalSampleIdsFromPatientIds(mutationProfile.getCancerStudyId(), stablePatientIds);
             }
             if (mutationProfile!=null) {
                 count = convertMapSampleKeys(DaoMutation.countMutationEvents(mutationProfile.getGeneticProfileId(),sampleIds));

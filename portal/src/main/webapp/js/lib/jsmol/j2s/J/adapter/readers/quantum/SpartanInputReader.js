@@ -1,18 +1,18 @@
 Clazz.declarePackage ("J.adapter.readers.quantum");
-Clazz.load (["J.adapter.readers.quantum.BasisFunctionReader"], "J.adapter.readers.quantum.SpartanInputReader", ["J.adapter.smarter.Bond", "J.util.Logger"], function () {
+Clazz.load (["J.adapter.readers.quantum.BasisFunctionReader"], "J.adapter.readers.quantum.SpartanInputReader", ["J.adapter.smarter.Bond", "JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.modelName = null;
 this.modelAtomCount = 0;
-this.atomCount = 0;
+this.ac = 0;
 this.bondData = "";
 this.constraints = "";
 Clazz.instantialize (this, arguments);
 }, J.adapter.readers.quantum, "SpartanInputReader", J.adapter.readers.quantum.BasisFunctionReader);
-$_M(c$, "readInputRecords", 
+Clazz.defineMethod (c$, "readInputRecords", 
 function () {
-var atomCount0 = this.atomCount;
+var ac0 = this.ac;
 this.readInputHeader ();
-while (this.readLine () != null) {
+while (this.rd () != null) {
 var tokens = this.getTokens ();
 if (tokens.length == 2 && this.parseIntStr (tokens[0]) != -2147483648 && this.parseIntStr (tokens[1]) >= 0) break;
 }
@@ -22,77 +22,75 @@ this.discardLinesUntilContains ("ATOMLABELS");
 if (this.line != null) this.readAtomNames ();
 if (this.modelAtomCount > 1) {
 this.discardLinesUntilContains ("HESSIAN");
-if (this.line != null) this.readBonds (atomCount0);
+if (this.line != null) this.readBonds (ac0);
 if (this.line != null && this.line.indexOf ("BEGINCONSTRAINTS") >= 0) this.readConstraints ();
-}while (this.line != null && this.line.indexOf ("END ") < 0 && this.line.indexOf ("MOLSTATE") < 0) this.readLine ();
+}while (this.line != null && this.line.indexOf ("END ") < 0 && this.line.indexOf ("MOLSTATE") < 0) this.rd ();
 
 if (this.line != null && this.line.indexOf ("MOLSTATE") >= 0) this.readTransform ();
-if (this.atomSetCollection.getAtomCount () > 0) this.atomSetCollection.setAtomSetName (this.modelName);
+if (this.asc.ac > 0) this.asc.setAtomSetName (this.modelName);
 });
-$_M(c$, "readConstraints", 
-($fz = function () {
+Clazz.defineMethod (c$, "readConstraints", 
+ function () {
 this.constraints = "";
-while (this.readLine () != null && this.line.indexOf ("END") < 0) this.constraints += (this.constraints === "" ? "" : "\n") + this.line;
+while (this.rd () != null && this.line.indexOf ("END") < 0) this.constraints += (this.constraints === "" ? "" : "\n") + this.line;
 
-this.readLine ();
+this.rd ();
 if (this.constraints.length == 0) return;
-this.atomSetCollection.setAtomSetAuxiliaryInfo ("constraints", this.constraints);
-this.atomSetCollection.setAtomSetModelProperty (".PATH", "EnergyProfile");
-this.atomSetCollection.setAtomSetModelProperty ("Constraint", this.constraints);
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "readTransform", 
-($fz = function () {
-this.readLine ();
-var tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.readLine () + " " + this.readLine ());
+this.asc.setAtomSetAuxiliaryInfo ("constraints", this.constraints);
+this.asc.setAtomSetModelProperty (".PATH", "EnergyProfile");
+this.asc.setAtomSetModelProperty ("Constraint", this.constraints);
+});
+Clazz.defineMethod (c$, "readTransform", 
+ function () {
+this.rd ();
+var tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.rd () + " " + this.rd ());
 this.setTransform (this.parseFloatStr (tokens[0]), this.parseFloatStr (tokens[1]), this.parseFloatStr (tokens[2]), this.parseFloatStr (tokens[4]), this.parseFloatStr (tokens[5]), this.parseFloatStr (tokens[6]), this.parseFloatStr (tokens[8]), this.parseFloatStr (tokens[9]), this.parseFloatStr (tokens[10]));
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "readInputHeader", 
-($fz = function () {
-while (this.readLine () != null && !this.line.startsWith (" ")) {
+});
+Clazz.defineMethod (c$, "readInputHeader", 
+ function () {
+while (this.rd () != null && !this.line.startsWith (" ")) {
 }
-this.readLine ();
+this.rd ();
 this.modelName = this.line + ";";
 this.modelName = this.modelName.substring (0, this.modelName.indexOf (";")).trim ();
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "readInputAtoms", 
-($fz = function () {
+});
+Clazz.defineMethod (c$, "readInputAtoms", 
+ function () {
 this.modelAtomCount = 0;
-while (this.readLine () != null && !this.line.startsWith ("ENDCART")) {
+while (this.rd () != null && !this.line.startsWith ("ENDCART")) {
 var tokens = this.getTokens ();
-var atom = this.atomSetCollection.addNewAtom ();
-atom.elementSymbol = J.adapter.smarter.AtomSetCollectionReader.getElementSymbol (this.parseIntStr (tokens[0]));
-this.setAtomCoordXYZ (atom, this.parseFloatStr (tokens[1]), this.parseFloatStr (tokens[2]), this.parseFloatStr (tokens[3]));
+this.addAtomXYZSymName (tokens, 1, J.adapter.smarter.AtomSetCollectionReader.getElementSymbol (this.parseIntStr (tokens[0])), null);
 this.modelAtomCount++;
 }
-this.atomCount = this.atomSetCollection.getAtomCount ();
-if (J.util.Logger.debugging) J.util.Logger.debug (this.atomCount + " atoms read");
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "readAtomNames", 
-($fz = function () {
-var atom0 = this.atomCount - this.modelAtomCount;
+this.ac = this.asc.ac;
+if (JU.Logger.debugging) JU.Logger.debug (this.ac + " atoms read");
+});
+Clazz.defineMethod (c$, "readAtomNames", 
+ function () {
+var atom0 = this.ac - this.modelAtomCount;
 for (var i = 0; i < this.modelAtomCount; i++) {
-this.line = this.readLine ().trim ();
+this.line = this.rd ().trim ();
 var name = this.line.substring (1, this.line.length - 1);
-this.atomSetCollection.getAtom (atom0 + i).atomName = name;
+this.asc.atoms[atom0 + i].atomName = name;
 }
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "readBonds", 
-($fz = function (atomCount0) {
+});
+Clazz.defineMethod (c$, "readBonds", 
+ function (ac0) {
 var nAtoms = this.modelAtomCount;
 this.bondData = "";
-while (this.readLine () != null && !this.line.startsWith ("ENDHESS")) {
+while (this.rd () != null && !this.line.startsWith ("ENDHESS")) {
 var tokens = this.getTokens ();
 this.bondData += this.line + " ";
 if (nAtoms == 0) {
-var sourceIndex = this.parseIntStr (tokens[0]) - 1 + atomCount0;
-var targetIndex = this.parseIntStr (tokens[1]) - 1 + atomCount0;
+var sourceIndex = this.parseIntStr (tokens[0]) - 1 + ac0;
+var targetIndex = this.parseIntStr (tokens[1]) - 1 + ac0;
 var bondOrder = this.parseIntStr (tokens[2]);
 if (bondOrder > 0) {
-this.atomSetCollection.addBond ( new J.adapter.smarter.Bond (sourceIndex, targetIndex, bondOrder < 4 ? bondOrder : bondOrder == 5 ? 515 : 1));
+this.asc.addBond ( new J.adapter.smarter.Bond (sourceIndex, targetIndex, bondOrder < 4 ? bondOrder : bondOrder == 5 ? 515 : 1));
 }} else {
 nAtoms -= tokens.length;
 }}
-this.readLine ();
-if (J.util.Logger.debugging) J.util.Logger.debug (this.atomSetCollection.getBondCount () + " bonds read");
-}, $fz.isPrivate = true, $fz), "~N");
+this.rd ();
+if (JU.Logger.debugging) JU.Logger.debug (this.asc.bondCount + " bonds read");
+}, "~N");
 });

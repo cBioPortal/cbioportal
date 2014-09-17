@@ -236,6 +236,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
     $(select_clinical_attributes_id).change(clinicalAttributeSelected);
 
     $(document).ready(function() {
+
         // bind away
         $('#oncoprint_controls #sort_by').change(function() {
             oncoprint.sortBy(sortBy.val(), cases.split(" "));

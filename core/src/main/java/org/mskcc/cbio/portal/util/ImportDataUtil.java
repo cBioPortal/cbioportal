@@ -19,50 +19,11 @@ package org.mskcc.cbio.portal.util;
 
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.service.*;
-import org.mskcc.cbio.portal.persistence.*;
-
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.GenericXmlApplicationContext;
 
 import java.util.List;
 
 public class ImportDataUtil
 {
-    private static ApplicationContext context = initContext();
-    private static ApplicationContext initContext()
-    {
-        GenericXmlApplicationContext ctx = new GenericXmlApplicationContext();
-        ctx.getEnvironment().setActiveProfiles("dbcp");
-        ctx.refresh();
-        ctx.load("classpath:applicationContext-business.xml");
-        return ctx; 
-    }
-        
-    public static EntityService entityService = initEntityService();
-    private static EntityService initEntityService()
-    {
-        return (EntityService)context.getBean("entityService");
-    }
-
-    public static EntityAttributeService entityAttributeService = initEntityAttributeService();
-    private static EntityAttributeService initEntityAttributeService()
-    {
-        return (EntityAttributeService)context.getBean("entityAttributeService");
-    }
-
-    public static EntityMapper entityMapper = initEntityMapper();
-    private static EntityMapper initEntityMapper()
-    {
-        return (EntityMapper)context.getBean("entityMapper");
-    }
-
-    public static EntityAttributeMapper entityAttributeMapper = initEntityAttributeMapper();
-    private static EntityAttributeMapper initEntityAttributeMapper()
-    {
-        return (EntityAttributeMapper)context.getBean("entityAttributeMapper");
-    }
-
     public static void addPatients(String barcodes[], int geneticProfileId) throws DaoException
     {
         addPatients(barcodes, getCancerStudy(geneticProfileId));
@@ -76,12 +37,10 @@ public class ImportDataUtil
 
     public static void addPatients(String barcodes[], CancerStudy cancerStudy) throws DaoException
     {
-        Entity cancerStudyEntity =
-            entityService.getCancerStudy(cancerStudy.getCancerStudyStableId());
         for (String barcode : barcodes) {
             String patientId = StableIdUtil.getPatientId(barcode);
             if (unknownPatient(cancerStudy, patientId)) {
-                addPatient(patientId, cancerStudy, cancerStudyEntity);
+                addPatient(patientId, cancerStudy);
             }
         }
     }
@@ -91,11 +50,9 @@ public class ImportDataUtil
         return (DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), stableId) == null);
     }
 
-    private static void addPatient(String stableId, CancerStudy cancerStudy, Entity cancerStudyEntity) throws DaoException
+    private static void addPatient(String stableId, CancerStudy cancerStudy) throws DaoException
     {
         DaoPatient.addPatient(new Patient(cancerStudy, stableId));
-        Entity patientEntity = entityService.insertPatientEntity(cancerStudy.getCancerStudyStableId(), stableId);
-        entityService.insertEntityLink(cancerStudyEntity.internalId, patientEntity.internalId);
     }
 
     public static void addSamples(String barcodes[], int geneticProfileId) throws DaoException
@@ -130,10 +87,5 @@ public class ImportDataUtil
         DaoSample.addSample(new Sample(sampleId,
                                        patient.getInternalId(),
                                        cancerStudy.getTypeOfCancerId()));
-        Entity sampleEntity = entityService.insertSampleEntity(cancerStudy.getCancerStudyStableId(),
-                                                               patient.getStableId(), sampleId);
-        Entity patientEntity = entityService.getPatient(cancerStudy.getCancerStudyStableId(),
-                                                        patient.getStableId());
-        entityService.insertEntityLink(patientEntity.internalId, sampleEntity.internalId);
     }
 }

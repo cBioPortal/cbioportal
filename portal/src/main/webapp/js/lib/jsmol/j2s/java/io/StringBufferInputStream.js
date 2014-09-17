@@ -1,28 +1,28 @@
-$_L(["java.io.InputStream"],"java.io.StringBufferInputStream",["java.lang.ArrayIndexOutOfBoundsException","$.NullPointerException"],function(){
-c$=$_C(function(){
+Clazz.load(["java.io.InputStream"],"java.io.StringBufferInputStream",["java.lang.ArrayIndexOutOfBoundsException","$.NullPointerException"],function(){
+c$=Clazz.decorateAsClass(function(){
 this.buffer=null;
 this.count=0;
 this.pos=0;
-$_Z(this,arguments);
+Clazz.instantialize(this,arguments);
 },java.io,"StringBufferInputStream",java.io.InputStream);
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(str){
-$_R(this,java.io.StringBufferInputStream,[]);
+Clazz.superConstructor(this,java.io.StringBufferInputStream,[]);
 if(str!=null){
 this.buffer=str;
 this.count=str.length;
 }else{
 throw new NullPointerException();
 }},"~S");
-$_V(c$,"available",
+Clazz.overrideMethod(c$,"available",
 function(){
 return this.count-this.pos;
 });
-$_M(c$,"read",
+Clazz.defineMethod(c$,"read",
 function(){
 return this.pos<this.count?(this.buffer.charAt(this.pos++)).charCodeAt(0)&0xFF:-1;
 });
-$_M(c$,"read",
+Clazz.defineMethod(c$,"read",
 function(b,offset,length){
 if(this.pos>=this.count){
 return-1;
@@ -39,11 +39,11 @@ return copylen;
 }throw new ArrayIndexOutOfBoundsException();
 }throw new NullPointerException(("K0047"));
 },"~A,~N,~N");
-$_V(c$,"reset",
+Clazz.overrideMethod(c$,"reset",
 function(){
 this.pos=0;
 });
-$_V(c$,"skip",
+Clazz.overrideMethod(c$,"skip",
 function(n){
 if(n<=0){
 return 0;

@@ -23,11 +23,11 @@ if (localName.equalsIgnoreCase ("normalCoordinate")) {
 this.keepChars = false;
 if (!this.parent.doGetVibration (++this.vibrationNumber)) return;
 try {
-this.atomSetCollection.cloneLastAtomSet ();
+this.asc.cloneLastAtomSet ();
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
-System.out.println (e.getMessage ());
-this.atomSetCollection.errorMessage = "Error processing normalCoordinate: " + e.getMessage ();
+System.out.println ("" + e);
+this.asc.errorMessage = "Error processing normalCoordinate: " + e.getMessage ();
 this.vibrationNumber = 0;
 return;
 } else {
@@ -40,7 +40,7 @@ var units = "cm^-1";
 if (this.atts.containsKey ("units")) {
 units = this.atts.get ("units");
 if (units.startsWith ("inverseCent")) units = "cm^-1";
-}this.atomSetCollection.setAtomSetFrequency (null, null, wavenumber, units);
+}this.asc.setAtomSetFrequency (null, null, wavenumber, units);
 this.keepChars = true;
 }return;
 }if (localName.equals ("vibrations")) {
@@ -51,11 +51,11 @@ Clazz.overrideMethod (c$, "processEndElement",
 function (localName) {
 if (localName.equalsIgnoreCase ("normalCoordinate")) {
 if (!this.keepChars) return;
-var atomCount = this.atomSetCollection.getLastAtomSetAtomCount ();
-var baseAtomIndex = this.atomSetCollection.getLastAtomSetAtomIndex ();
+var ac = this.asc.getLastAtomSetAtomCount ();
+var baseAtomIndex = this.asc.getLastAtomSetAtomIndex ();
 this.tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.chars);
-for (var offset = this.tokens.length - atomCount * 3, i = 0; i < atomCount; i++) {
-this.atomSetCollection.addVibrationVector (i + baseAtomIndex, this.parseFloatStr (this.tokens[offset++]), this.parseFloatStr (this.tokens[offset++]), this.parseFloatStr (this.tokens[offset++]));
+for (var offset = this.tokens.length - ac * 3, i = 0; i < ac; i++) {
+this.asc.addVibrationVector (i + baseAtomIndex, this.parseFloatStr (this.tokens[offset++]), this.parseFloatStr (this.tokens[offset++]), this.parseFloatStr (this.tokens[offset++]));
 }
 }this.processEnd2 (localName);
 }, "~S");

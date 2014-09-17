@@ -1,50 +1,50 @@
-$_L(["java.lang.reflect.AccessibleObject","$.GenericDeclaration","$.Member","java.lang.Void"],"java.lang.reflect.Constructor",null,function(){
-c$=$_C(function(){
+Clazz.load(["java.lang.reflect.AccessibleObject","$.GenericDeclaration","$.Member","java.lang.Void"],"java.lang.reflect.Constructor",null,function(){
+c$=Clazz.decorateAsClass(function(){
 this.clazz=null;
 this.parameterTypes=null;
 this.exceptionTypes=null;
 this.modifiers=0;
-$_Z(this,arguments);
+Clazz.instantialize(this,arguments);
 },java.lang.reflect,"Constructor",java.lang.reflect.AccessibleObject,[java.lang.reflect.GenericDeclaration,java.lang.reflect.Member]);
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(declaringClass,parameterTypes,checkedExceptions,modifiers){
-$_R(this,java.lang.reflect.Constructor,[]);
+Clazz.superConstructor(this,java.lang.reflect.Constructor,[]);
 this.clazz=declaringClass;
 this.parameterTypes=parameterTypes;
 this.exceptionTypes=checkedExceptions;
 this.modifiers=modifiers;
 },"Class,~A,~A,~N");
-$_V(c$,"getTypeParameters",
+Clazz.overrideMethod(c$,"getTypeParameters",
 function(){
 return null;
 });
-$_M(c$,"toGenericString",
+Clazz.defineMethod(c$,"toGenericString",
 function(){
 return null;
 });
-$_M(c$,"getGenericParameterTypes",
+Clazz.defineMethod(c$,"getGenericParameterTypes",
 function(){
 return null;
 });
-$_M(c$,"getGenericExceptionTypes",
+Clazz.defineMethod(c$,"getGenericExceptionTypes",
 function(){
 return null;
 });
-$_M(c$,"getParameterAnnotations",
+Clazz.defineMethod(c$,"getParameterAnnotations",
 function(){
 return null;
 });
-$_M(c$,"isVarArgs",
+Clazz.defineMethod(c$,"isVarArgs",
 function(){
 return false;
 });
-$_V(c$,"isSynthetic",
+Clazz.overrideMethod(c$,"isSynthetic",
 function(){
 return false;
 });
-$_V(c$,"equals",
+Clazz.overrideMethod(c$,"equals",
 function(object){
-if(object!=null&&$_O(object,java.lang.reflect.Constructor)){
+if(object!=null&&Clazz.instanceOf(object,java.lang.reflect.Constructor)){
 var other=object;
 if(this.getDeclaringClass()===other.getDeclaringClass()){
 var params1=this.parameterTypes;
@@ -56,37 +56,37 @@ if(params1[i]!==params2[i])return false;
 return true;
 }}}return false;
 },"~O");
-$_V(c$,"getDeclaringClass",
+Clazz.overrideMethod(c$,"getDeclaringClass",
 function(){
 return this.clazz;
 });
-$_M(c$,"getExceptionTypes",
+Clazz.defineMethod(c$,"getExceptionTypes",
 function(){
 return this.exceptionTypes;
 });
-$_V(c$,"getModifiers",
+Clazz.overrideMethod(c$,"getModifiers",
 function(){
 return this.modifiers;
 });
-$_V(c$,"getName",
+Clazz.overrideMethod(c$,"getName",
 function(){
 return this.getDeclaringClass().getName();
 });
-$_M(c$,"getParameterTypes",
+Clazz.defineMethod(c$,"getParameterTypes",
 function(){
 return this.parameterTypes;
 });
-$_V(c$,"hashCode",
+Clazz.overrideMethod(c$,"hashCode",
 function(){
 return this.getDeclaringClass().getName().hashCode();
 });
-$_M(c$,"newInstance",
+Clazz.defineMethod(c$,"newInstance",
 function(args){
-var instance=new this.clazz($_G);
-$_Z(instance,args);
+var instance=new this.clazz(Clazz.inheritArgs);
+Clazz.instantialize(instance,args);
 return instance;
 },"~A");
-$_V(c$,"toString",
+Clazz.overrideMethod(c$,"toString",
 function(){
 return null;
 });

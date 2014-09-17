@@ -295,9 +295,20 @@ define("Oncoprint",
                     fusion.filter(function(d) {
                         return d.mutation === undefined || !/fusion($|,)/i.test(d.mutation.toLowerCase());
                     }).remove();
-
+                    
+                    //seperate the mutation type
+                    var seperateMuation = function(mutation){
+                        if((/^[A-z]([0-9]+)[A-z]$/g).test(mutation))
+                            {
+                                return 'blue';
+                            }
+                            else
+                            {
+                                return 'green';
+                            }
+                    };
                     var mut = enter.append('rect')
-                        .attr('fill', 'green')
+                        .attr('fill', function (d){ return seperateMuation(d.mutation);})
                         .attr('height', dims.mut_height)
                         .attr('width', dims.rect_width)
                         .attr('y', function(d) {
@@ -563,11 +574,14 @@ define("Oncoprint",
                     };
 
                     // create a legend if user asked for it
+                    var attr2rangeValue = utils.attr_data_type2range(params.clinicalData, params.clinical_attrs.length);
+                    var attr2rangeFuntion = utils.make_attribute2scale(params.clinical_attrs, params.clinicalData);
                     if (params.legend) {
                         utils.legend(params.legend,
-                                utils.gene_data_type2range(params.geneData), dims.label_width);
+                                utils.gene_data_type2range(params.geneData), dims.label_width, attr2rangeValue,attr2rangeFuntion);
                     }
-
+                    
+                    
                     var memoSort = function(attributes, animation) {
                         state.data = MemoSort(state.data, attributes);
                         if (animation) { horizontal_translate(ANIMATION_DURATION); }
@@ -615,7 +629,7 @@ define("Oncoprint",
                     // *signature:* `undefined -> string`
                     var getPdfInput = function() {
                         var width = dims.width + dims.label_width;
-                        var height = dims.height;
+                        var height = dims.height+200;
                         var svg = main_svg[0][0];
                         var x = data2xscale(state.data);
 
@@ -642,11 +656,18 @@ define("Oncoprint",
                                 });
 
                         var labels = $('#oncoprint svg#label').children().clone();
+                        labels.find("image").remove();
                         labels = map_join(labels, function(index, label) {
                             return serialize(label);
                         });
 
+                        var legends = $('#oncoprint #oncoprint_legend table').children().clone();
+                        legends = map_join(legends, function(index,legend) {
+                            return serialize(legend);
+                        });
+                        legends = "<g transform=\"translate(0,"+ 251 + ")\">" + legends + "</g> ";
                         out += labels;
+                        out += legends;
 
                         return "<svg height=\"" + height + "\" width=\"" + width + "\">" + out + "</svg>";
                     };

@@ -213,7 +213,44 @@ define("OncoprintUtils", (function() {
 
         return to_return;
     };
-
+    
+    var attr_data_type2range = function(raw_attr_and_gene_data,attrs_number)
+    {
+        var extract_unique = function(raw_data, length, filter) {
+            
+            var finalAfterProcess = [];
+            var testFinalAfterProcess = [];
+            var per_attr_data_length = raw_data.length/length;
+            for(var i = 0; i < length; i++)
+            {
+                var seperate_raw_data = raw_data.slice(i*per_attr_data_length, (i+1)*per_attr_data_length);
+                var afterProcess = _.uniq(seperate_raw_data,function (item) { return item.attr_id + item.attr_val;});
+                afterProcess = afterProcess.filter( function(d) {
+                        return d !== undefined && (!filter || filter(d));
+                    });
+                    
+                if(typeof(afterProcess[0].attr_val)==='number')
+                {
+                    if(afterProcess.length > 1)
+                    {
+                        var min = _.min(afterProcess,function(x,y){return x.attr_val < y.attr_val? x:y;});
+                        var max = _.max(afterProcess,function(x,y){return x.attr_val > y.attr_val? x:y;});
+                        
+                        afterProcess = [min,max];
+                    }
+                }
+                
+                finalAfterProcess = finalAfterProcess.concat(afterProcess);
+                testFinalAfterProcess[i] = afterProcess;
+                raw_data = raw_data.concat(seperate_raw_data);
+            }
+            return testFinalAfterProcess;
+        };
+        
+        var attrs = extract_unique(raw_attr_and_gene_data,attrs_number);
+        
+        return attrs;
+    }
     var colors = {
         continuous: '#A62459',
         white: '#FFFAF0',
@@ -456,13 +493,340 @@ define("OncoprintUtils", (function() {
         HOMODELETED: '#0000FF'
     };
 
+    var CreateLegendII = function (datas,attr2rangeFuntion)
+    {
+        d3.selectAll("#legend_table").remove();
+        var dims = (function() {
+            var rect_height = 23;
+            var mut_height = rect_height / 3;
+            var vert_padding = 6;
+            var Legend_label_width = label_width(datas.map(
+                    function(attr) {
+                        return  attr.attr_id;
+                    }));
+
+            var clinical_height = (2/3) * rect_height;
+            var clinical_offset = (1/6) * rect_height;
+
+            return {
+                width: datas.length * (5.5 + 3),
+            height: (rect_height + vert_padding) * datas.length * 2,
+            rect_height: rect_height,
+            rect_width: 5.5,
+            vert_padding: vert_padding,
+            vert_space: rect_height + vert_padding,
+            hor_padding: 3,
+            mut_height: mut_height,
+            legend_width: Legend_label_width,
+            clinical_height: clinical_height,
+            clinical_offset: clinical_offset
+            };
+        }());
+        
+//        var attr2index = (function() {
+//                var to_return = {};
+//                var listNum = 0;
+//                to_return[datas[0].attr_id] = listNum;
+//                for(var i = 1; i < datas.length; i++){
+//                    
+//                    to_return[datas[i].attr_id] = listNum;
+//                    if(datas[i].attr_id !== datas[i-1].attr_id)
+//                    {
+//                        listNum=listNum+1;
+//                        to_return[datas[i].attr_id] = listNum; 
+//                    }
+//                     
+//                }
+//                return to_return;
+//            }());
+
+//        var vertical_pos = function(attr){
+//                        return dims.vert_space * attr2index[attr];
+//                    }
+                    
+        var is_firefox = navigator.userAgent.indexOf("Firefox") !== -1;
+        var browser_offset = is_firefox ? 16 : 0;
+        for(var n = 0; n < datas.length; n++)
+        {
+            var intraData = datas[n];
+        var table = d3.select(document.getElementById('oncoprint_legend'))
+        .append('table')
+        .attr('height',function(){
+            return 1 *(dims.rect_height + browser_offset);
+        })
+        .attr('id','legend_table')
+        .attr('valign','top');
+
+
+        var calculateDistance = function (valueName)
+        {
+            var indexValue = _.indexOf(datas[n],valueName);
+            var totalLength = 0;
+            for(var i = 0 ; i < indexValue; i++)
+            {
+                totalLength += datas[n][i].attr_val.length *6.5 + dims.rect_width * 5;
+            }
+            return totalLength;
+        };
+
+        var calculateHeight = function (valueName)
+        {
+            var indexValue = _.indexOf(datas,valueName);
+            var totalHeight = 1;
+            for(var i = 1; i < indexValue; i++)
+            {
+                if(datas[i].attr_id !== datas[i-1].attr_id)
+                {
+                    totalHeight +=1;
+                }
+            }
+            
+            return totalHeight;
+        }
+        var legend_name = table.append('text')
+                .attr('font-size', '14px')
+                .append('tspan')
+                .attr('font-weight', 'bold')
+                .attr('fill','black')
+                .text(function(){
+                   return intraData[0].attr_id.toString(); 
+                });
+        var legend_svg = table.selectAll('td')        
+            .data(intraData)
+            .enter()
+            .append('svg')
+            .attr('height', function(d){
+                    return (dims.vert_space / 1.80);
+            })
+            .attr('width', function(d)
+            {
+                return d.attr_val.toString().length * 6.5 + dims.rect_width * 5;
+            })
+            .attr('x', function(d)
+            {
+                return calculateDistance(d);
+            })
+            .attr('id', 'legend');
+    
+        // N.B. fill doubles as cna
+        var fill = legend_svg.append('rect')
+            .attr('fill', function(d) {
+                if (is_gene(d)) {
+                    return cna_fills[d.cna];
+                }
+                else if (is_clinical(d)) {
+
+                    var result = attr2rangeFuntion[d.attr_id](d.attr_val);
+
+                    return d.attr_val === "NA"
+                ? colors.grey       // attrs with value of NA are colored grey
+                : result;
+                }
+            })
+        .attr('height', function(d) {
+            return d.attr_id === undefined ? dims.rect_height : dims.clinical_height;
+        })
+        .attr('width', dims.rect_width)
+        .attr('x', dims.rect_width)
+            .attr('y', function(d) {
+                return d.attr_id === undefined
+                ? 0
+                : 0 + dims.clinical_offset;
+            //     return vertical_pos(utils.get_attr(d));
+            });
+            
+        var label = legend_svg.append('text')
+            .attr('font-size', '12px')
+            .attr('width', function(d)
+            {
+                return d.attr_val.toString().length * 6.5;
+            })
+            .attr('x', dims.rect_width*3)
+            .attr('y', function(d) {
+                return (dims.vert_space / 1.80); });
+
+        label.append('tspan')       // name
+            .attr('text-anchor', 'start')
+            .attr('fill','black')
+            .attr('cursor','move')
+            .attr('class','legend_name')
+            .text(function(d) {
+                return d.attr_val;
+            });  
+        }
+    }
+    
+    
+    
+
+    var CreateLegend = function (datas,attr2rangeFuntion)
+    {
+        d3.select("#legend_table").remove();
+        var dims = (function() {
+            var rect_height = 23;
+            var mut_height = rect_height / 3;
+            var vert_padding = 6;
+            var Legend_label_width = label_width(datas.map(
+                    function(attr) {
+                        return  attr.attr_id;
+                    }));
+
+            var clinical_height = (2/3) * rect_height;
+            var clinical_offset = (1/6) * rect_height;
+
+            return {
+                width: datas.length * (5.5 + 3),
+            height: (rect_height + vert_padding) * datas.length * 2,
+            rect_height: rect_height,
+            rect_width: 5.5,
+            vert_padding: vert_padding,
+            vert_space: rect_height + vert_padding,
+            hor_padding: 3,
+            mut_height: mut_height,
+            legend_width: Legend_label_width,
+            clinical_height: clinical_height,
+            clinical_offset: clinical_offset
+            };
+        }());
+        
+        var attr2index = (function() {
+                var to_return = {};
+                var listNum = 0;
+                to_return[datas[0].attr_id] = listNum;
+                for(var i = 1; i < datas.length; i++){
+                    
+                    to_return[datas[i].attr_id] = listNum;
+                    if(datas[i].attr_id !== datas[i-1].attr_id)
+                    {
+                        listNum=listNum+1;
+                        to_return[datas[i].attr_id] = listNum; 
+                    }
+                     
+                }
+                return to_return;
+            }());
+
+        var vertical_pos = function(attr){
+                        return dims.vert_space * attr2index[attr];
+                    }
+                    
+        var is_firefox = navigator.userAgent.indexOf("Firefox") !== -1;
+        var browser_offset = is_firefox ? 16 : 0;
+        
+        var table = d3.select(document.getElementById('oncoprint_legend'))
+        .append('table')
+        .attr('height',function()
+        {
+            return datas.length *(dims.rect_height + browser_offset)
+        })
+        .attr('id','legend_table')
+        .attr('valign','top');
+
+
+        var calculateDistance = function (valueName)
+        {
+            var indexValue = _.indexOf(datas,valueName);
+            var totalLength = 0;
+            for(var i = 0 ; i < indexValue; i++)
+            {
+                if(datas.attr_id === valueName.attr_id)
+                {
+                    totalLength += datas[i].attr_val.length *6.5 + dims.rect_width * 5;
+                }
+                else
+                {
+                    continue;
+                }
+            }
+            return totalLength;
+        };
+
+        var calculateHeight = function (valueName)
+        {
+            var indexValue = _.indexOf(datas,valueName);
+            var totalHeight = 1;
+            for(var i = 1; i < indexValue; i++)
+            {
+                if(datas[i].attr_id !== datas[i-1].attr_id)
+                {
+                    totalHeight +=1;
+                }
+            }
+            
+            return totalHeight;
+        }
+
+
+        var legend_svg = table.selectAll('td')
+            .data(datas)
+            .enter()
+            .append('svg')
+            .attr('height', function(d){
+                    return (dims.vert_space / 1.80);
+            })
+            .attr('width', function(d)
+            {
+                return d.attr_val.length * 6.5 + dims.rect_width * 5;
+            })
+            .attr('x', function(d)
+            {
+                return calculateDistance(d);
+            })
+            .attr('id', 'legend');
+    
+        // N.B. fill doubles as cna
+        var fill = legend_svg.append('rect')
+            .attr('fill', function(d) {
+                if (is_gene(d)) {
+                    return cna_fills[d.cna];
+                }
+                else if (is_clinical(d)) {
+
+                    var result = attr2rangeFuntion[d.attr_id](d.attr_val);
+
+                    return d.attr_val === "NA"
+                ? colors.grey       // attrs with value of NA are colored grey
+                : result;
+                }
+            })
+        .attr('height', function(d) {
+            return d.attr_id === undefined ? dims.rect_height : dims.clinical_height;
+        })
+        .attr('width', dims.rect_width)
+        .attr('x', dims.rect_width)
+            .attr('y', function(d) {
+                return d.attr_id === undefined
+                ? 0
+                : 0 + dims.clinical_offset;
+            //     return vertical_pos(utils.get_attr(d));
+            });
+            
+        var label = legend_svg.append('text')
+            .attr('font-size', '12px')
+            .attr('width', function(d)
+            {
+                return d.attr_val.length * 6.5;
+            })
+            .attr('x', dims.rect_width*3)
+            .attr('y', function(d) {
+                return (dims.vert_space / 1.80); });
+
+        label.append('tspan')       // name
+            .attr('text-anchor', 'start')
+            .attr('fill','black')
+            .attr('cursor','move')
+            .attr('class','legend_name')
+            .text(function(d) {
+                return d.attr_val;
+            });
+    }
     // puts a legend in the div according to range for each datatype.  If the
     // range for a datatype is undefined, then it doesn't get represented in
     // the legend
     //
     // *signature:* `DOM el, { string : [string] }, number -> DOM el`
     // * accepts an optional DOM element containing an item template
-    var legend = function(el, datatype2range, left_adjust, item_template) {
+    var legend = function(el, datatype2range, left_adjust, attrtype2range,attr2rangeFuntion,item_template ) {
 
         // *signature:* object -> string (html)
         // options can be:
@@ -563,7 +927,7 @@ define("OncoprintUtils", (function() {
                         return val2template.rppa[val];
                     }).filter(function(x) { return x !== undefined; })
                     );
-        }
+        }     
 
         var row = _.chain(templates)
             .map(function(t) {
@@ -571,13 +935,43 @@ define("OncoprintUtils", (function() {
             })
         .join("")
             .value();
+        row = "<tr>" +row+ "</tr>";
+        
+        if(attrtype2range.length > 0)
+        {
+            CreateLegendII(attrtype2range,attr2rangeFuntion);
+//            var templeates_attr=[];
+//            var row_attr;
+//            var i = 0;
+//            while(i < attrtype2range.length)
+//            {
+//                 templeates_attr = templeates_attr.concat(
+//                         item_templater({
+//                                bg_color: attr2rangeFuntion[attrtype2range[i].attr_id](attrtype2range[i].attr_val),
+//                                text: attrtype2range[i].attr_val}));
+//                if(i+1<attrtype2range.length && attrtype2range[i].attr_id !==attrtype2range[i+1].attr_id)
+//                {
+//                    var tem_row_attr =_.chain(templeates_attr)
+//                    .map(function(t) {
+//                        return "<td style='padding-right:10px;'>" + t + "</td>";
+//                    })
+//                    .join("")
+//                    .value();
+//                    templeates_attr=[];
+//                    row_attr=row_attr + "<tr>" +tem_row_attr+ "</tr>";
+//                }
+//                i++;
+//            }
+//            
+//            row = row.concat(row_attr);
+        }
+        
+//        el.style.paddingLeft = left_adjust + 4 + "px";;
+//
+//        el.innerHTML = "<table>" + row  + "</table>"
+//            + "<p style='margin-top: 5px; margin-bottom: 5px;'>Copy number alterations are putative.</p>";
 
-        el.style.paddingLeft = left_adjust + 4 + "px";;
-
-        el.innerHTML = "<table><tr>" + row  + "</tr></table>"
-            + "<p style='margin-top: 5px; margin-bottom: 5px;'>Copy number alterations are putative.</p>";
-
-        return el;
+//        return el;
     };
 
     // params: select_el (a DOM <select> element), clinical_attributes (list of
@@ -714,9 +1108,11 @@ define("OncoprintUtils", (function() {
         maybe_map: maybe_map,
         normalize_clinical_attributes: normalize_clinical_attributes,
         normalize_nested_values: normalize_nested_values,
+        CreateLegend: CreateLegend,
         legend: legend,
         make_attribute2scale: make_attribute2scale,
         gene_data_type2range: gene_data_type2range,
+        attr_data_type2range: attr_data_type2range,
         is_gene: is_gene,
         is_clinical: is_clinical,
         cna_fills: cna_fills,

@@ -63,8 +63,8 @@ var MutexData = (function() {
 			log_odds_ratio_threshold: 0
 		},
 		label = {
-			co_occurance: "Co-occurrence",
-			mutual_exclusivity: "Mutual-Exclusivity",
+			co_occurance: "Tendency towards co-occurrence",
+			mutual_exclusivity: "Tendency towards mutual exclusivity",
 			significant: "(Significant)"
 		};
 

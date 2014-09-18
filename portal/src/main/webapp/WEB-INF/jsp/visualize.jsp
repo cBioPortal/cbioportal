@@ -1,4 +1,5 @@
 <%@ include file="global/global_variables.jsp" %>
+
 <jsp:include page="global/header.jsp" flush="true" />
 
 <div class='main_smry'>
@@ -7,60 +8,6 @@
         <%@ include file="query_form.jsp" %>
     </div>
 </div>
-
-
-<script>
-
-    PortalDataCollManager.subscribeOncoprint(function() {
-
-        //calculate total alteration
-        var _dataArr = PortalDataColl.getOncoprintData();
-        num_total_cases = _dataArr.length;
-        $.each(_dataArr, function(outerIndex, outerObj) {
-            $.each(outerObj.values, function(innerIndex, innerObj) {
-                if(Object.keys(innerObj).length > 2) { // has more than 2 fields -- indicates existence of alteration
-                    num_altered_cases += 1;
-                    return false;
-                }
-            });
-        });        
-
-        //Configure the summary line
-        var _smry = "<h3 style='font-size:110%;'><a href='study.do?cancer_study_id=" + 
-            window.PortalGlobals.getCancerStudyId() + "' target='_blank'>" + 
-            window.PortalGlobals.getCancerStudyName() + "</a><br>" + " " +  
-            "<small>" + window.PortalGlobals.getPatientSetName() + " (<b>" + window.PortalGlobals.getNumOfTotalCases() + "</b> samples)" + " / " + 
-            "Gene Set/Pathway is altered in <b>" + window.PortalGlobals.getNumOfAlteredCases() + " (" + window.PortalGlobals.getPercentageOfAlteredCases() + "%)" + "</b> of all samples" + " / " + 
-            "<b>" + window.PortalGlobals.getGeneList().length + "</b>" + (window.PortalGlobals.getGeneList().length===1?" Gene":" Genes") + "<br></small></h3>" + 
-            "<button type='button' class='btn btn-default btn-xs' data-toggle='button' id='modify_query_btn'>Modify Query</button>";
-        $("#main_smry_line").append(_smry);
-
-        //Set Event listener for the modify query button (expand the hidden form)
-        $("#modify_query_btn").click(function () {
-            $("#query_form_on_results_page").toggle();
-            if($("#modify_query_btn").hasClass("active")) {
-                $("#modify_query_btn").removeClass("active");
-            } else {
-                $("#modify_query_btn").addClass("active");    
-            }
-        });
-        $("#toggle_query_form").click(function(event) {
-            event.preventDefault();
-            $('#query_form_on_results_page').toggle();
-            //  Toggle the icons
-            $(".query-toggle").toggle();
-        });
-
-        //Oncoprint summary lines
-        $("#oncoprint_sample_set_description").append(window.PortalGlobals.getPatientSetDescription() + 
-            "(" + window.PortalGlobals.getNumOfTotalCases() + " samples)");
-        $("#oncoprint_sample_set_name").append(window.PortalGlobals.getPatientSetName());
-        $("#oncoprint_num_of_altered_cases").append(window.PortalGlobals.getNumOfAlteredCases());
-        $("#oncoprint_percentage_of_altered_cases").append(window.PortalGlobals.getPercentageOfAlteredCases());
-
-    });
-
-</script>
 
 <%
     if (warningUnion.size() > 0) {
@@ -87,11 +34,6 @@
         out.println ("</div>");
     } else {
 %>
-
-<p>
-<p/>
-
-
 
 <div id="tabs">
     <ul>
@@ -287,6 +229,7 @@
 
     // it is better to check selected tab after document gets ready
     $(document).ready(function() {
+
         $("#toggle_query_form").tipTip();
         // check if network tab is initially selected
         // TODO this depends on aria-hidden attribute which may not be safe...

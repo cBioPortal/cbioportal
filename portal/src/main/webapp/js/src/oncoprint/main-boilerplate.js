@@ -73,7 +73,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
             oncoprint.sortBy(sortBy.val(), cases.split(" "));
 
-            zoom = reset_zoom();
+            zoom = reset_zoom();   
         }
     });
 

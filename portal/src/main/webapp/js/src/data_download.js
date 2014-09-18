@@ -4,9 +4,67 @@ var DataDownloadTab = (function() {
         _rawStatObj = {},
         _isRendered = false;
 
+    var strs = {
+        alt_freq: "",
+        alt_type: "",
+        case_affected: "",
+        case_matrix: ""
+    };
+
+    var calc_alt_freq = function() {
+            strs.alt_freq = "GENE_SYMBOL" + "\t" + "NUM_CASES_ALTERED" + "\t" + "PERCENT_CASES_ALTERED" + "\n";
+            $.each(_rawStatObj, function(key, value) {
+                strs.alt_freq += key + "\t" + value.total_alter_num + "\t" + value.percent + "%" + "\n";
+            });        
+        },
+        calc_alt_type = function() {
+            strs.alt_type = "Case ID" + "\t";
+            $.each(Object.keys(_rawStatObj), function(index, val) {
+                strs.alt_type += val + "\t";    
+            });
+            strs.alt_type += "\n";
+            $.each(_rawDataObj, function(outer_index, outer_obj) {
+                strs.alt_type += outer_obj.key + "\t";
+                $.each(outer_obj.values, function(inner_key, inner_obj) {
+                    if (Object.keys(inner_obj).length === 2) {
+                        strs.alt_type += "  " + "\t";
+                    } else {
+                        strs.alt_type += "altered" + "\t";
+                    }
+                });
+                strs.alt_type += "\n";
+            });
+        },
+        calc_case_affected = function() {
+            $.each(_rawDataObj, function(outer_index, outer_obj) {
+                $.each(outer_obj.values, function(inner_index, inner_obj) {
+                    if (Object.keys(inner_obj).length !== 2) {
+                        strs.case_affected += outer_obj.key + "\n";
+                        return false;
+                    }
+                });
+            });
+        },
+        calc_case_matrix = function() {
+            $.each(_rawDataObj, function(outer_index, outer_obj) {
+                var _affected = false;
+                $.each(outer_obj.values, function(inner_index, inner_obj) {
+                    if (Object.keys(inner_obj).length !== 2) {
+                        _affected = true;
+                        return false;
+                    } 
+
+                });
+                if (_affected) strs.case_matrix += outer_obj.key + "\t" + "1" + "\n";
+                else strs.case_matrix += outer_obj.key + "\t" + "0" + "\n";
+            });
+        };
+
     function processData() {
-        console.log(_rawDataObj);
-        console.log(_rawStatObj);
+        calc_alt_freq();
+        calc_alt_type();
+        calc_case_affected();
+        calc_case_matrix();
     }
 
     function renderDownloadLinks() {
@@ -14,17 +72,10 @@ var DataDownloadTab = (function() {
     }
 
     function renderTextareas() {
-        
-        var _str_freq = "GENE_SYMBOL" + "\t" + "NUM_CASES_ALTERED" + "\t" + "PERCENT_CASES_ALTERED" + "\n";
-        $.each(_rawStatObj, function(key, value) {
-            _str_freq += key + "\t" + value.total_alter_num + "\t" + value.percent + "%" + "\n";
-        });
-        $("#text_area_frenquency").append(_str_freq);
-
-
-        $("#text_area_type_of_alteration").append();
-        $("#text_area_case_affected").append();
-        $("#text_area_case_matrix").append();
+        $("#text_area_gene_alteration_freq").append(strs.alt_freq);
+        $("#text_area_gene_alteration_type").append(strs.alt_type);
+        $("#text_area_case_affected").append(strs.case_affected);
+        $("#text_area_case_matrix").append(strs.case_matrix);
     }
 
     return {

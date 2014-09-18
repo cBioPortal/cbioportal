@@ -50,8 +50,8 @@
             association: 4
         },
         colorCode = {
-            oddsRatio: "#296CCF",
-            pVal: "#296CCF"
+            oddsRatio: "#000000",
+            pVal: "#000000"
         };
 
     function configTable() {
@@ -95,7 +95,7 @@
                     "sType": 'mutex-p-value',
                     "bSearchable": false,
                     "aTargets": [ index.pVal ],
-                    "sWidth": "150px",
+                    "sWidth": "100px",
                     "sClass": "classMutexTable"
 
                 },
@@ -103,13 +103,13 @@
                     "sType": 'mutex-odds-ratio',
                     "bSearchable": false,
                     "aTargets": [ index.oddsRatio ],
-                    "sWidth": "200px",
+                    "sWidth": "100px",
                     "sClass": "classMutexTable"
                 },
                 {
                     "bSearchable": false,
                     "aTargets": [ index.association ],
-                    "sWidth": "250px"
+                    "sWidth": "400px"
                 }
             ],
             "oLanguage": {

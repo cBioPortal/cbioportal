@@ -300,11 +300,11 @@ define("Oncoprint",
                     var seperateMuation = function(mutation){
                         if((/^[A-z]([0-9]+)[A-z]$/g).test(mutation))
                             {
-                                return 'blue';
+                                return 'green';
                             }
                             else
                             {
-                                return 'green';
+                                return 'blue';
                             }
                     };
                     var mut = enter.append('rect')

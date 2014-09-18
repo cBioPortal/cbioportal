@@ -495,7 +495,6 @@ define("OncoprintUtils", (function() {
 
     var CreateLegendII = function (datas,attr2rangeFuntion)
     {
-        d3.selectAll("#legend_table").remove();
         var dims = (function() {
             var rect_height = 23;
             var mut_height = rect_height / 3;
@@ -556,7 +555,6 @@ define("OncoprintUtils", (function() {
         })
         .attr('id','legend_table')
         .attr('valign','top');
-
 
         var calculateDistance = function (valueName)
         {
@@ -661,7 +659,7 @@ define("OncoprintUtils", (function() {
 
     var CreateLegend = function (datas,attr2rangeFuntion)
     {
-        d3.select("#legend_table").remove();
+//        d3.select("#legend_table").remove();
         var dims = (function() {
             var rect_height = 23;
             var mut_height = rect_height / 3;
@@ -820,6 +818,7 @@ define("OncoprintUtils", (function() {
                 return d.attr_val;
             });
     }
+    
     // puts a legend in the div according to range for each datatype.  If the
     // range for a datatype is undefined, then it doesn't get represented in
     // the legend
@@ -936,6 +935,100 @@ define("OncoprintUtils", (function() {
         .join("")
             .value();
         row = "<tr>" +row+ "</tr>";
+        
+        d3.selectAll("#legend_table").remove();
+        
+        var table = d3.select(document.getElementById('oncoprint_legend'))
+        .append('table')
+        .attr('height',function(){
+            return 23+6;
+        })
+        .attr('id','legend_table')
+        .attr('valign','top');
+
+        var legend_name = table.append('text')
+        .attr('font-size', '14px')
+        .append('tspan')
+        .attr('font-weight', 'bold')
+        .attr('fill','black')
+        .text('Gene Data');
+        
+        if (datatype2range.cna !== undefined) 
+        {
+            if (datatype2range.cna !== undefined && datatype2range.cna !== "DIPLOID") 
+            {
+                return item_templater({ bg_color: cna_fills[datatype2range.cna],text: captions.cna[datatype2range.cna]});
+            }
+        }
+//        var legend_svg = table.selectAll('td')        
+//        .data(datatype2range)
+//        .enter()
+//        .append('svg')
+//        .attr('height', function(d){
+//                return ((23+6) / 1.80);
+//        })
+//        .attr('width', function(d)
+//        {
+//            return d.attr_val.toString().length * 6.5 + dims.rect_width * 5;
+//        })
+//        .attr('x', function(d)
+//        {
+//            return calculateDistance(d);
+//        })
+//        .attr('id', 'legend');
+//        
+//        var legend_label = legend_svg.append('text')
+//            .attr('font-size', '12px')
+//            .attr('width', function(d)
+//            {
+//                return d.attr_val.length * 6.5;
+//            })
+//            .attr('x', dims.rect_width*3)
+//            .attr('y', function(d) {
+//                return ((23+6) / 1.80); });
+//
+//        legend_label.append('tspan')       // name
+//            .attr('text-anchor', 'start')
+//            .attr('fill','black')
+//            .attr('cursor','move')
+//            .attr('class','legend_name')
+//            .text(function(d) {
+//                return d.attr_val;
+//            });
+            
+//        var legend_svg = table.selectAll('td')        
+//        .data(intraData)
+//        .enter()
+//        .append('svg')
+//        .attr('height', function(d){
+//                return (dims.vert_space / 1.80);
+//        })
+//        .attr('width', function(d)
+//        {
+//            return d.attr_val.toString().length * 6.5 + dims.rect_width * 5;
+//        })
+//        .attr('x', function(d)
+//        {
+//            return calculateDistance(d);
+//        })
+//        .attr('id', 'legend');
+        
+        
+        
+//        <svg height="23" width="6">
+//            <rect fill="{{bg_color}}" width="5.5" height="23"></rect>
+//
+//            <rect display="{{display_mutation}}" fill="#008000" y="7.666666666666667" width="5.5" height="7.666666666666667"></rect>
+//            <path display="{{display_fusion}}" d="M0,0L0,23 5.5,11.5Z"></path>
+//
+//            <path display="{{display_down_rppa}}" d="M0,2.672958956142353L3.0864671457232173,-2.672958956142353 -3.0864671457232173,-2.672958956142353Z" transform="translate(2.75,20.909090909090907)"></path>
+//            <path display="{{display_up_rppa}}" d="M0,-2.672958956142353L3.0864671457232173,2.672958956142353 -3.0864671457232173,2.672958956142353Z" transform="translate(2.75,2.3000000000000003)"></path>
+//
+//            <rect display="{{display_down_mrna}}" height="23" width="5.5" stroke-width="2" stroke-opacity="1" stroke="#6699CC" fill="none"></rect>
+//            <rect display="{{display_up_mrna}}" height="23" width="5.5" stroke-width="2" stroke-opacity="1" stroke="#FF9999" fill="none"></rect>
+//        </svg>
+//        <span style="position: relative; bottom: 6px;">{{text}}</span>
+
         
         if(attrtype2range.length > 0)
         {

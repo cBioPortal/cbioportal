@@ -6,6 +6,29 @@
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 
+<script type="text/javascript" src="js/src/data_download.js?<%=GlobalProperties.getAppVersion()%>"></script>
+
+<div class="section" id="data_download">
+
+    <div id='data_download_tab_links_li_div'>
+        <h3>The following are tab-delimited data files:</h3>
+        <ul id='data_downlonad_links_li'></ul>
+    </div><!-- end data_download_tab_info_div -->
+
+    <div id='data_download_tab_copy_tables_div'>
+        <h3>Contents can be copied and pasted into Excel.</h3>
+        <h3><small>Frequency of Gene Alteration:</small></h3>
+        <textarea rows="10" cols="40" id="text_area_frenquency"></textarea><br><br>
+        <h3><small>Type of Genetic alterations across all cases: (Alterations are summarized as MUT, Gain, HetLoss, etc.)</small></h3>
+        <textarea rows="10" cols="40" id="text_area_type_of_alteration"></textarea><br><br>
+        <h3><small>Cases affected: (Only cases with an alteration are included)</small></h3>
+        <textarea rows="10" cols="40" id="text_area_case_affected"></textarea><br><br>
+        <h3><small>Case matrix: (1= Case harbors alteration in one of the input genes)</small></h3>
+        <textarea rows="10" cols="40" id="text_area_case_matrix"></textarea><br><br>
+    </div><!-- end data_download_tab_copy_tables_div -->
+
+</div><!-- end data download div -->
+
 <%
     String debugStr = request.getParameter("xdebug");
     boolean debug = false;
@@ -15,100 +38,23 @@
     String textOnly = request.getParameter("text_only");
 %>
 
-<div class="section" id="data_download">
+<!--
+<ul>
+<%
+    ArrayList<DownloadLink> downloadLinkList = (ArrayList<DownloadLink>)
+            request.getSession().getAttribute(QueryBuilder.DOWNLOAD_LINKS);
 
-    <div id='data_download_tab_links_li_div'>
-        <h4>The following are tab-delimited data files:</h4>
-        <ul id='data_downlonad_links_li'>
-
-        </ul>
-
-        <ul>
-        <%
-            ArrayList<DownloadLink> downloadLinkList = (ArrayList<DownloadLink>)
-                    request.getSession().getAttribute(QueryBuilder.DOWNLOAD_LINKS);
-
-            int i = 0;
-            for (DownloadLink link:  downloadLinkList) {
-                out.println ("<li><a href='show_data.do?" + ShowData.INDEX + "=" + i + "'>"
-                        + link.getProfile().getProfileName() +"</a>:  ["
-                        + link.getGeneList().size() + " genes]");
-                out.println ("&nbsp;<a href='show_data.do?transpose_matrix=1&" + ShowData.INDEX + "=" + i + "'>" 
-                        + "[Transposed Matrix]</a></li>");
-                i++;
-            }
-        %>
-        </ul>
-    </div><!-- end data_download_tab_info_div -->
-
-    <div id='data_download_tab_copy_tables_div'>
-        <h3>Contents can be copied and pasted into Excel.</h3>
-        <h4>Frequency of Gene Alteration:</h4>
-        <textarea rows="10" cols="40" id="copy_tables_text_area_div"></textarea><br><br>
-        <h4>Type of Genetic alterations across all cases: (Alterations are summarized as MUT, Gain, HetLoss, etc.)</h4>
-        <textarea rows="10" cols="40" id="copy_tables_text_area_div"></textarea><br><br>
-        <h4>Cases affected: (Only cases with an alteration are included)</h4>
-        <textarea rows="10" cols="40" id="copy_tables_text_area_div"></textarea><br><br>
-        <h4>Case matrix: (1= Case harbors alteration in one of the input genes)</h4>
-        <textarea rows="10" cols="40" id="copy_tables_text_area_div"></textarea><br><br>
-    </div><!-- end data_download_tab_copy_tables_div -->
-
-</div><!-- end data download div -->
-
-
-<script>
-
-    var DataDownloadTab = (function() {
-
-        var _rawDataObj = {},
-            _isRendered = false;
-
-        function processData() {
-            console.log(_rawDataObj);
-        }
-
-        function render() {
-            //Append the download links
-            $("#data_downlonad_links_li").append();
-
-            _isRendered = true;
-        }
-
-        return {
-            setInput: function(_inputData) {
-                _rawDataObj = _inputData;
-            },
-            init: function() {
-                processData();
-                render();
-            },
-            isRendered: function() {
-                return _isRendered;
-            }
-        };
-
-    }());
-
-    $(document).ready( function() {
-        
-        PortalDataCollManager.subscribeOncoprint(function() {
-            DataDownloadTab.setInput(PortalDataColl.getOncoprintData());
-        });
-
-        $("#tabs").bind("tabsactivate", function(event, ui) {
-            if (!DataDownloadTab.isRendered()) {
-                DataDownloadTab.init();
-            }
-        });
-
-        if ($("#data_download").is(":visible")) {
-            if (!DataDownloadTab.isRendered()) {
-                DataDownloadTab.init();
-            }
-        }
-
-    });
-</script>
+    int i = 0;
+    for (DownloadLink link:  downloadLinkList) {
+        out.println ("<li><a href='show_data.do?" + ShowData.INDEX + "=" + i + "'>"
+                + link.getProfile().getProfileName() +"</a>:  ["
+                + link.getGeneList().size() + " genes]");
+        out.println ("&nbsp;<a href='show_data.do?transpose_matrix=1&" + ShowData.INDEX + "=" + i + "'>" 
+                + "[Transposed Matrix]</a></li>");
+        i++;
+    }
+%>
+</ul>
 
 <%
         out.print ("GENE_SYMBOL\tNUM_CASES_ALTERED\tPERCENT_CASES_ALTERED\n");
@@ -192,4 +138,5 @@
         }
         out.println ("</textarea>");
 %>
+-->
 

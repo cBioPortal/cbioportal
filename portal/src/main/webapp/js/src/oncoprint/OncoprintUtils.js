@@ -387,6 +387,35 @@ define("OncoprintUtils", (function() {
         return attr2percent;
     };
 
+    var alteration_info = function(raw_gene_data) {
+        var data = d3.nest()
+            .key(function(d) { return get_attr(d); })
+            .entries(raw_gene_data);
+
+        var alterinfo = {};
+
+        data.forEach(function(gene) {
+            var total = gene.values.length;
+            var altered = _.chain(gene.values)
+            .map(function(sample_gene) {
+                return altered_gene(sample_gene) ? 1 : 0;
+            })
+            .reduce(function(sum, zero_or_one) {
+                return sum + zero_or_one;
+            }, 0)
+            .value();
+
+            var percent = (altered / total) * 100;
+            alterinfo[gene.key] = {
+                "total_alter_num" : altered,
+                "percent" : Math.round(percent)
+            }
+        });
+
+        return alterinfo;
+    };
+
+
     // params: array of strings (names of attributes)
     // returns: length (number)
     //
@@ -714,7 +743,8 @@ define("OncoprintUtils", (function() {
         colors: colors,
         populate_clinical_attr_select: populate_clinical_attr_select,
         make_mouseover: make_mouseover,
-        zoomSetup: zoomSetup
+        zoomSetup: zoomSetup,
+        alteration_info: alteration_info
     };
 })()
 );

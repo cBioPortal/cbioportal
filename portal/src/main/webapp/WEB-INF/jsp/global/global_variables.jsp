@@ -160,7 +160,8 @@
 <!--Global Data Objects Manager-->
 <script type="text/javascript">
     var PortalDataColl = (function() {
-        var oncoprintData = null;
+        var oncoprintData = null,
+            oncoprintStat = null;
         return {
             setOncoprintData : function(obj) { 
                 if (oncoprintData === null) {
@@ -168,23 +169,43 @@
                 }
                 PortalDataCollManager.fire("oncoprint-data-fetched");
             },
-            getOncoprintData : function() { return oncoprintData; }
+            setOncoprintStat : function(obj) {
+                if (oncoprintStat === null) {
+                    oncoprintStat = obj;
+                }
+                PortalDataCollManager.fire("oncoprint-stat-fetched");
+            },
+            getOncoprintData : function() { return oncoprintData; },
+            getOncoprintStat : function() { return oncoprintStat; }
         }
     }());
 
     var PortalDataCollManager = (function() {
-        var fns_oncoprint = [];
+        var fns_oncoprint = [],
+            fns_oncoprint_stat = [];
+        
         var subscribeOncoprint = function(fn){
             fns_oncoprint.push(fn);
         };
+
+        var subscribeOncoprintStat = function(fn) {
+            fns_oncoprint_stat.push(fn);
+        }
 
         return {
             //to subscribe the functions that would re-use oncoprint data -- by subscribing, once the oncoprint
             //data is fetched, the functions would be called/executed. 
             subscribeOncoprint: subscribeOncoprint, 
+            subscribeOncoprintStat: subscribeOncoprintStat,
             fire: function(o) {
                 if (o === "oncoprint-data-fetched") {
                     fns_oncoprint.forEach(
+                        function(el) {
+                            el.call();
+                        }
+                    );
+                } else if(o === "oncoprint-stat-fetched") {
+                    fns_oncoprint_stat.forEach(
                         function(el) {
                             el.call();
                         }

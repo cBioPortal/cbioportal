@@ -159,37 +159,7 @@ public class FoundationXMLTransformer implements FileTransformer {
         this.generateCNAReport(cnaTable);
     }
     
-    private void generateCNATableOld() {
-        CasesType casesType = this.casesTypeSupplier.get();
-        Table<String, String, Integer> cnaTable = HashBasedTable.create();
-        for (CaseType ct : casesType.getCase()) {
-            VariantReportType vrt = ct.getVariantReport();
-            CopyNumberAlterationsType cnat = vrt.getCopyNumberAlterations();
-            if (null != cnat) {
-                List<Serializable> cnaList = cnat.getContent();
-                for (Serializable s : cnaList) {
-                    if (s instanceof JAXBElement) {
-                        JAXBElement je = (JAXBElement) s;
-                        CopyNumberAlterationType cna = (CopyNumberAlterationType) je.getValue();
-                        // map cna to gene and case
-                        switch (cna.getType()) {
-                            case CommonNames.CNA_AMPLIFICATION:
-                                cnaTable.put(cna.getGene(), ct.getCase(), 2);
-                                break;
-                            case CommonNames.CNA_LOSS:
-                                cnaTable.put(cna.getGene(), ct.getCase(), -2);
-                                break;
-                            default:
-                                logger.error("CNA type " + cna.getType() + " is not supported");
-                                break;
-                            
-                        }
-                    }
-                }
-            }
-        } // all CNAs have been mapped, output the tanle
-        this.generateCNAReport(cnaTable);
-    }
+  
     
     private void generateCNAReport(Table<String, String, Integer> cnaTable) {
         Optional<Path> optPath = this.fileGenerator.getCNAReportPath();

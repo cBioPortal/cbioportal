@@ -953,13 +953,15 @@ define("OncoprintUtils", (function() {
         .attr('fill','black')
         .text('Gene Data');
         
-        if (datatype2range.cna !== undefined) 
-        {
-            if (datatype2range.cna !== undefined && datatype2range.cna !== "DIPLOID") 
-            {
-                return item_templater({ bg_color: cna_fills[datatype2range.cna],text: captions.cna[datatype2range.cna]});
-            }
-        }
+//        if (datatype2range.cna !== undefined) 
+//        {
+//            if (datatype2range.cna !== undefined && datatype2range.cna !== "DIPLOID") 
+//            {
+//                return item_templater({ bg_color: cna_fills[datatype2range.cna],text: captions.cna[datatype2range.cna]});
+//            }
+//        }
+//        
+//        
 //        var legend_svg = table.selectAll('td')        
 //        .data(datatype2range)
 //        .enter()

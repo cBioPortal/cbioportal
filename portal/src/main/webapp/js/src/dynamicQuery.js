@@ -227,7 +227,7 @@ function reviewCurrentSelections(){
         var setDefaults = true;
 
         // if no checkboxes are checked, make default selections
-        $('input:checkbox').each(function(){
+        $('#genomic_profiles input:checkbox').each(function(){
             if ($(this).prop('checked')){
                 setDefaults = false;
                 return;

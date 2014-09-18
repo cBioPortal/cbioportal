@@ -47,9 +47,9 @@ import org.mskcc.cbio.icgc.support.MafTransformationFunctionMapSupplier;
 import org.mskcc.cbio.importer.FileTransformer;
 import scala.Tuple2;
 
-public class ICGCFileTransformer implements FileTransformer {
+public class ICGCSimpleSomaticFileTransformer implements FileTransformer {
 
-    private static final Logger logger = Logger.getLogger(ICGCFileTransformer.class);
+    private static final Logger logger = Logger.getLogger(ICGCSimpleSomaticFileTransformer.class);
     private static final Joiner tabJoiner = Joiner.on('\t').useForNull(" ");
     private Path icgcFilePath;
     private final String mafExtension = "maf";
@@ -66,7 +66,7 @@ public class ICGCFileTransformer implements FileTransformer {
     private Supplier< Map< String, Function<Tuple2<String, Optional<String>>, String>>> mafTransformationFunctionMapSupplier
             = Suppliers.memoize(new MafTransformationFunctionMapSupplier());
 
-    public ICGCFileTransformer() {
+    public ICGCSimpleSomaticFileTransformer() {
     }
 
     @Override
@@ -105,19 +105,29 @@ public class ICGCFileTransformer implements FileTransformer {
             // generate a new Bloom Filter
             this.icgcRecordFilter = BloomFilter.create(ICGCRecordFunnel.INSTANCE, 5000);
             final CSVParser parser = new CSVParser(reader, CSVFormat.TDF.withHeader());
+            int tsvCount = 0;
+            int mafCount = 0;
+            int dupCount = 0;
             for (CSVRecord record : parser) {
+                tsvCount++;
                 Map<String, String> recordMap = record.toMap();
                 // confirm that this ICGC record is not a duplicate of a previous one
                 ICGCRecord icgcRecord = new ICGCRecord(recordMap);
                 if(!this.icgcRecordFilter.mightContain(icgcRecord)) {
                     this.icgcRecordFilter.put(icgcRecord);
                     this.processIcgcRecord(recordMap, writer);
+                    mafCount++;
                 } else {
                    dupWriter.append(icgcRecord.toTSV());
                    dupWriter.newLine();
+                   dupCount++;
                 }
                     
             }
+            // output line counts
+          logger.info("Line counts for " +this.icgcFilePath +" tsv= " +tsvCount +"  maf = "
+            +mafCount +" dup = " +dupCount);
+          
             writer.flush();
             dupWriter.flush();
         } catch (Exception ex) {
@@ -192,9 +202,9 @@ public class ICGCFileTransformer implements FileTransformer {
      main method to support standalone testing
      */
     public static void main(String... args) {
-        ICGCFileTransformer transformer = new ICGCFileTransformer();
+        ICGCSimpleSomaticFileTransformer transformer = new ICGCSimpleSomaticFileTransformer();
         try {
-            transformer.transform(Paths.get("/tmp/PBCA-DE.tsv"));
+            transformer.transform(Paths.get("/tmp/BRCA-UK.tsv"));
         } catch (IOException ex) {
             logger.error(ex.getMessage());
         }

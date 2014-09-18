@@ -15,6 +15,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.log4j.Logger;
+import org.mskcc.cbio.importer.Config;
 
 /**
  * Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
@@ -30,19 +31,24 @@ import org.apache.log4j.Logger;
  * software and its documentation, even if Memorial Sloan-Kettering Cancer
  * Center has been advised of the possibility of such damage.
  */
-public class IcgcCancerStudyUrlSupplier implements Supplier<List<String>> {
+public class IcgcCancerStudyCliinicalSampleUrlSupplier implements Supplier<List<String>> {
 
-    private final String studyFileName ;
+    
+    /*
+    repsonsible for providing a List of URL addresses (Strings) that point to
+    the current ICGC clinical sample files for non-US studies
+    */
+    private  final String studyFileName ;
 
     private static final Splitter blankSplitter = Splitter.on(' ');
-    private static final Logger logger = Logger.getLogger(IcgcCancerStudyUrlSupplier.class);
+    private static final Logger logger = Logger.getLogger(IcgcCancerStudyCliinicalSampleUrlSupplier.class);
     private static final String US = "US";
-    private static final String urlTemplate
-            = "https://dcc.icgc.org/api/v1/download?fn=/current/Projects/XXXX/simple_somatic_mutation.open.XXXX.tsv.gz";
+    
+    
 
-    public IcgcCancerStudyUrlSupplier(String dataSource) {
+    public IcgcCancerStudyCliinicalSampleUrlSupplier(String dataSource) {
         
-      Preconditions.checkArgument(!Strings.isNullOrEmpty(dataSource), "A source for ICSC cancer studies is required");
+      Preconditions.checkArgument(!Strings.isNullOrEmpty(dataSource), "A source for ICSC cancer study data is required");
       this.studyFileName = dataSource;
     }
 
@@ -63,7 +69,9 @@ public class IcgcCancerStudyUrlSupplier implements Supplier<List<String>> {
                     .transform(new Function<String, String>() {
 
                         public String apply(String f) {
-                            return urlTemplate.replaceAll("XXXX", blankSplitter.splitToList(f).get(0));
+                            return IcgcSupportService.INSTANCE.getClinicalSampleBaseUrl()
+                                    .replaceAll("PROJECT", blankSplitter.splitToList(f)
+                                            .get(0));
                         }
 
                     }).toList();
@@ -73,5 +81,5 @@ public class IcgcCancerStudyUrlSupplier implements Supplier<List<String>> {
         }
         return new ArrayList<String>();  // return empty string
     }
-
+   
 }

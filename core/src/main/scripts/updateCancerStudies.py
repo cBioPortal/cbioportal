@@ -414,7 +414,7 @@ def main():
             send_mail(MESSAGE_RECIPIENTS_ON_ERROR, MESSAGE_SUBJECT + " ERROR", message_body)
         elif message_body is MESSAGE_BODY_SUCCESS:
             for cancer_study in cancer_studies_updated_map.values():
-                message_body += "cancer study: %s [%s]\n" % (cancer_study.cancer_study_stable_id, cancer_study.groups)
+                message_body += "%s [%s]\n" % (cancer_study.cancer_study_stable_id, cancer_study.groups)
             send_mail(MESSAGE_RECIPIENTS, MESSAGE_SUBJECT, message_body)
 
 # ------------------------------------------------------------------------------

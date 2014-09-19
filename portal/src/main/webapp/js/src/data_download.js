@@ -33,7 +33,35 @@ var DataDownloadTab = (function() {
                     if (Object.keys(inner_obj).length === 2) {
                         strs.alt_type += "  " + "\t";
                     } else {
-                        strs.alt_type += "altered" + "\t";
+                        if (inner_obj.hasOwnProperty("mutation")) {
+                            strs.alt_type += "MUT;";
+                        }
+                        if (inner_obj.hasOwnProperty("cna")) {
+                            if (inner_obj.cna === "AMPLIFIED") {
+                                strs.alt_type += "AMP;";
+                            } else if (inner_obj.cna === "GAINED") {
+                                strs.alt_type += "GAIN;";
+                            } else if (inner_obj.cna === "HEMIZYGOUSLYDELETED") {
+                                strs.alt_type += "HETLOSS;";
+                            } else if (inner_obj.cna === "HOMODELETED") {
+                                strs.alt_type += "HOMDEL;";
+                            }
+                        }
+                        if (inner_obj.hasOwnProperty("mrna")) {
+                            if (inner_obj.mrna === "UPREGULATED") {
+                                strs.alt_type += "UP;";
+                            } else if (inner_obj.mrna === "DOWNREGULATED") {
+                                strs.alt_type += "DOWN;";
+                            }
+                        }
+                        if (inner_obj.hasOwnProperty("rppa")) {
+                            if (inner_obj.rppa === "UPREGULATED") {
+                                strs.alt_type += "RPPA-UP;";
+                            } else if (inner_obj.rppa === "DOWNREGULATED") {
+                                strs.alt_type += "RPPA-DOWN;";
+                            }
+                        }
+                        strs.alt_type += "\t";
                     }
                 });
                 strs.alt_type += "\n";

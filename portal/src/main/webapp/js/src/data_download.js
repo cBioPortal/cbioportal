@@ -1,8 +1,12 @@
 var DataDownloadTab = (function() {
 
-    var _rawDataObj = {},
-        _rawStatObj = {},
-        _isRendered = false;
+    var _rawDataObj = [],
+        _rawStatObj = {};
+
+    var data = [],
+        stat = {};
+        
+    var _isRendered = false;
 
     var strs = {
         alt_freq: "",
@@ -13,17 +17,17 @@ var DataDownloadTab = (function() {
 
     var calc_alt_freq = function() {
             strs.alt_freq = "GENE_SYMBOL" + "\t" + "NUM_CASES_ALTERED" + "\t" + "PERCENT_CASES_ALTERED" + "\n";
-            $.each(_rawStatObj, function(key, value) {
+            $.each(stat, function(key, value) {
                 strs.alt_freq += key + "\t" + value.total_alter_num + "\t" + value.percent + "%" + "\n";
             });        
         },
         calc_alt_type = function() {
             strs.alt_type = "Case ID" + "\t";
-            $.each(Object.keys(_rawStatObj), function(index, val) {
+            $.each(Object.keys(stat), function(index, val) {
                 strs.alt_type += val + "\t";    
             });
             strs.alt_type += "\n";
-            $.each(_rawDataObj, function(outer_index, outer_obj) {
+            $.each(data, function(outer_index, outer_obj) {
                 strs.alt_type += outer_obj.key + "\t";
                 $.each(outer_obj.values, function(inner_key, inner_obj) {
                     if (Object.keys(inner_obj).length === 2) {
@@ -36,7 +40,7 @@ var DataDownloadTab = (function() {
             });
         },
         calc_case_affected = function() {
-            $.each(_rawDataObj, function(outer_index, outer_obj) {
+            $.each(data, function(outer_index, outer_obj) {
                 $.each(outer_obj.values, function(inner_index, inner_obj) {
                     if (Object.keys(inner_obj).length !== 2) {
                         strs.case_affected += outer_obj.key + "\n";
@@ -46,7 +50,7 @@ var DataDownloadTab = (function() {
             });
         },
         calc_case_matrix = function() {
-            $.each(_rawDataObj, function(outer_index, outer_obj) {
+            $.each(data, function(outer_index, outer_obj) {
                 var _affected = false;
                 $.each(outer_obj.values, function(inner_index, inner_obj) {
                     if (Object.keys(inner_obj).length !== 2) {
@@ -61,6 +65,18 @@ var DataDownloadTab = (function() {
         };
 
     function processData() {
+        //sort the data arra by original sample order
+        $.each(window.PortalGlobals.getSampleIds(), function(index, sampleId) {
+            $.grep(_rawDataObj, function( n, i ) {
+                if (n.key === sampleId) {
+                    data.push(n);
+                }
+            });
+        });
+        //set status object
+        stat = _rawStatObj;
+
+        //Calculation and configuration of the textarea strings
         calc_alt_freq();
         calc_alt_type();
         calc_case_affected();

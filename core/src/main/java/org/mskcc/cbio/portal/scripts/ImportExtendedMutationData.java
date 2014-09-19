@@ -206,7 +206,8 @@ public class ImportExtendedMutationData{
 					codonChange,
 					refseqMrnaId,
 					uniprotName,
-					uniprotAccession;
+					uniprotAccession,
+                                        oncotatorGeneSymbol;
 
 				int proteinPosStart,
 					proteinPosEnd;
@@ -263,6 +264,7 @@ public class ImportExtendedMutationData{
 					uniprotAccession = record.getOncotatorUniprotAccessionBestEffect();
 					proteinPosStart = record.getOncotatorProteinPosStartBestEffect();
 					proteinPosEnd = record.getOncotatorProteinPosEndBestEffect();
+                                        oncotatorGeneSymbol = record.getOncotatorGeneSymbolBestEffect();
 				}
 				else
 				{
@@ -273,11 +275,13 @@ public class ImportExtendedMutationData{
 					uniprotAccession = record.getOncotatorUniprotAccession();
 					proteinPosStart = record.getOncotatorProteinPosStart();
 					proteinPosEnd = record.getOncotatorProteinPosEnd();
+                                        oncotatorGeneSymbol = record.getOncotatorGeneSymbol();
 				}
 
 				//  Assume we are dealing with Entrez Gene Ids (this is the best / most stable option)
 				String geneSymbol = record.getHugoGeneSymbol();
 				long entrezGeneId = record.getEntrezGeneId();
+                                
 				CanonicalGene gene = null;
                                 if (entrezGeneId != TabDelimitedFileUtil.NA_LONG) {
                                     gene = daoGene.getGene(entrezGeneId);
@@ -287,6 +291,10 @@ public class ImportExtendedMutationData{
 					// If Entrez Gene ID Fails, try Symbol.
 					gene = daoGene.getNonAmbiguousGene(geneSymbol, chr);
 				}
+                                
+                                if (gene == null) { // should we use this first??
+                                    gene = daoGene.getNonAmbiguousGene(oncotatorGeneSymbol, chr);
+                                }
 
 				if(gene == null) {
 					pMonitor.logWarning("Gene not found:  " + geneSymbol + " ["

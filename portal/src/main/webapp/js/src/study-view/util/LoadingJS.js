@@ -73,7 +73,12 @@ var LoadingJS = (function(){
     
     function main(){
         constructJSarray();
-
+        
+        //Add appVerion after all included js files
+        require.config({
+            urlArgs: appVersion
+        });
+        
         //After loding JS files, run Study View Controller
         require(JSPublic,function(){
              require(JSarray, function(){

@@ -112,6 +112,17 @@ var DataDownloadTab = (function() {
     }
 
     function renderDownloadLinks() {
+        var _paramsGetProfiles = {
+            cancer_study_id: window.PortalGlobals.getCancerStudyId(),
+            case_set_id: window.PortalGlobals.getCaseSetId(),
+            case_ids_key: window.PortalGlobals.getCaseIdsKey(),
+            gene_list: window.PortalGlobals.getGeneListString()
+        };
+        $.post("getGeneticProfile.json", _paramsGetProfiles, getGeneticProfileCallback, "json");
+        function getGeneticProfileCallback(result) {
+            console.log(result);
+            console.log(window.PortalGlobals.getGeneticProfiles());
+        }
         $("#data_downlonad_links_li").append();
     }
 
@@ -143,6 +154,8 @@ var DataDownloadTab = (function() {
 }());
 
 $(document).ready( function() {
+
+
     
     //Sign up getting oncoprint data
     PortalDataCollManager.subscribeOncoprint(function() {

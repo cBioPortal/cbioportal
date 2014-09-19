@@ -298,11 +298,35 @@ define("Oncoprint",
                     
                     //seperate the mutation type
                     var seperateMuation = function(mutation){
-                        if((/^[A-z]([0-9]+)[A-z]$/g).test(mutation))
+                        
+                        var mutationSplit;
+                        if(mutation !== undefined)
+                        {
+                            mutationSplit = mutation.split(',');
+                            
+                            if(mutationSplit.length > 1)
                             {
-                                return 'green';
+                                return '#FF00FF';
                             }
-                            else
+                        }
+
+                        if((/^[A-z]([0-9]+)[A-z]$/g).test(mutationSplit))
+                            {
+                                return 'green';//Missense_mutation
+                            }
+                            else if((/^[A-z*]([0-9]+)[A-z]{2}$/g).test(mutationSplit))
+                            {
+                                return 'black'; //Frame_shift_del
+                            }
+                            else if((/^[A-Z]([0-9]+)[*]$/g).test(mutationSplit))
+                            {
+                                return 'Yellow'; //Nonsense_Mutation
+                            }
+                            else if((/^[A-Z]([0-9]+)_splice$/g).test(mutationSplit))
+                            {
+                                return 'white'; //Splice_Site
+                            }
+                            else 
                             {
                                 return 'blue';
                             }

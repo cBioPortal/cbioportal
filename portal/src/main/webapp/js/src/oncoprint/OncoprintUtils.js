@@ -231,10 +231,10 @@ define("OncoprintUtils", (function() {
                     
                 if(typeof(afterProcess[0].attr_val)==='number')
                 {
-                    if(afterProcess.length > 1)
+                    if(afterProcess.length > 12)
                     {
-                        var min = _.min(afterProcess,function(x,y){return x.attr_val < y.attr_val? x:y;});
-                        var max = _.max(afterProcess,function(x,y){return x.attr_val > y.attr_val? x:y;});
+                        var min = _.min(afterProcess,function(x){return x.attr_val;});
+                        var max = _.max(afterProcess,function(x){return x.attr_val;});
                         
                         afterProcess = [min,max];
                     }
@@ -587,7 +587,7 @@ define("OncoprintUtils", (function() {
                 .attr('font-weight', 'bold')
                 .attr('fill','black')
                 .text(function(){
-                   return intraData[0].attr_id.toString(); 
+                   return intraData[0].attr_id.toString().toLowerCase(); 
                 });
         var legend_svg = table.selectAll('td')        
             .data(intraData)
@@ -649,7 +649,13 @@ define("OncoprintUtils", (function() {
             .attr('cursor','move')
             .attr('class','legend_name')
             .text(function(d) {
-                return d.attr_val;
+                if(typeof(d.attr_val) === 'number')
+                {
+                    return cbio.util.toPrecision(d.attr_val,4,0.00001);
+                }
+                else{
+                    return d.attr_val;
+                }
             });  
         }
     }
@@ -951,17 +957,15 @@ define("OncoprintUtils", (function() {
         .append('tspan')
         .attr('font-weight', 'bold')
         .attr('fill','black')
-        .text('Gene Data');
+        .text('gene data');
         
-//        if (datatype2range.cna !== undefined) 
+//        if (datatype2range.cna !== undefined && datatype2range.cna !== "DIPLOID") 
 //        {
-//            if (datatype2range.cna !== undefined && datatype2range.cna !== "DIPLOID") 
-//            {
-//                return item_templater({ bg_color: cna_fills[datatype2range.cna],text: captions.cna[datatype2range.cna]});
-//            }
+//            return item_templater({ bg_color: cna_fills[datatype2range.cna],text: captions.cna[datatype2range.cna]});
 //        }
-//        
-//        
+        
+
+        
 //        var legend_svg = table.selectAll('td')        
 //        .data(datatype2range)
 //        .enter()
@@ -1125,7 +1129,7 @@ define("OncoprintUtils", (function() {
 
             clinical: function(d) {
                 if(typeof d.attr_val === "number"){
-                    return "value: <b>" + cbio.util.toPrecision(d.attr_val,2,0.001) + "</b><br/>";
+                    return "value: <b>" + cbio.util.toPrecision(d.attr_val,4,0.00001) + "</b><br/>";
                 }
                 
                 return "value: <b>" + d.attr_val + "</b><br/>";

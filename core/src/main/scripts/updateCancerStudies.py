@@ -6,7 +6,7 @@
 # the portal_importer_configuration google spreadsheet.
 # The following properties must be specified in portal.properties:
 #
-# db.name
+# db.portal_db_name
 # db.user
 # db.password
 # db.host
@@ -67,10 +67,8 @@ CANCER_STUDY_GROUPS_KEY = 'groups'
 # consts used in email
 SMTP_SERVER = "cbio.mskcc.org"
 MESSAGE_FROM = "cbioportal@cbio.mskcc.org"
-MESSAGE_RECIPIENTS = ["grossb@cbio.mskcc.org", "benjamin.gross@gmail.com"]
-MESSAGE_RECIPIENTS_ON_ERROR = ["grossb@cbio.mskcc.org"]
-#MESSAGE_RECIPIENTS = ["jgao@cbio.mskcc.org", "schultz@cbio.mskcc.org", "grossb@cbio.mskcc.org", "socci@cbio.mskcc.org"]
-#MESSAGE_RECIPIENTS_ON_ERROR = ["jgao@cbio.mskcc.org", "schultz@cbio.mskcc.org", "grossb@cbio.mskcc.org"]
+MESSAGE_RECIPIENTS = []
+MESSAGE_RECIPIENTS_ON_ERROR = []
 MESSAGE_SUBJECT = "cBioPortal cancer study updates"
 MESSAGE_BODY_ERROR = "There was an error attempting to update cancer study groups in the portal database."
 MESSAGE_BODY_SUCCESS = "Successfully updated the following cancer study group permissions:\n\n"

@@ -138,6 +138,16 @@ $(document).ready(function(){
 });  //  end document ready function
 
 
+//  Load study Meta Data, i.e. everything except the name, which we load earlier to
+//  	populate the dropdown menu.
+function loadStudyMetaData(cancerStudyId) {
+	// 1. Loader stuff
+	// 2. Get JSON with ajax
+	// 3. window.studyMetaData[cancerStudyId] = loadedData;
+	// 4. Once loaded, call updateCancerStudyInformation(studyId)
+	throw new Error("loadStudyMetaData not yet written")
+}
+	
 //  Load Portal JSON Meta Data, while showing loader image
 function loadMetaData() {
     $('#load').remove();
@@ -153,6 +163,7 @@ function loadMetaData() {
         jQuery.getJSON("portal_meta_data.json",function(json){
             //  Store JSON Data in global variable for later use
             window.metaDataJson = json;
+	    window.studyMetaData = {}; // map containing metadata pertaining to a study
 
             //  Add Meta Data to current page
             addMetaDataToPage();
@@ -460,21 +471,11 @@ function updateCaseListSmart() {
     );
 }
 
-//  Triggered when a cancer study has been selected, either by the user
-//  or programatically.
-function cancerStudySelected() {
-
-    //  make sure submit button is enabled unless determined otherwise by lack of data
-    $("#main_submit").attr("disabled",false);
-
-    var cancerStudyId = $("#select_cancer_type").val();
-
-    if( !cancerStudyId ) {
-        $("#select_cancer_type option:first").prop("selected",true);
-        cancerStudyId = $("#select_cancer_type").val();
-    }
-
-    var cancer_study = window.metaDataJson.cancer_studies[cancerStudyId];
+// Called when and only when a cancer study is selected from the dropdown menu
+function updateCancerStudyInformation(cancerStudyId) {
+    var cancer_study = window.studyMetaData[cancerStudyId];
+    // old (delete when done): 
+    // var cancer_study = window.metaDataJson.cancer_studies[cancerStudyId];
 
     // toggle every time a new cancer study is selected
     toggleByCancerStudy(cancer_study);
@@ -616,6 +617,26 @@ function cancerStudySelected() {
 				$("#build_custom_case_set").show();
 			}
 		});
+}
+//  Triggered when a cancer study has been selected, either by the user
+//  or programatically.
+function cancerStudySelected() {
+
+    //  make sure submit button is enabled unless determined otherwise by lack of data
+    $("#main_submit").attr("disabled",false);
+
+    var cancerStudyId = $("#select_cancer_type").val();
+
+    if( !cancerStudyId ) {
+        $("#select_cancer_type option:first").prop("selected",true);
+        cancerStudyId = $("#select_cancer_type").val();
+    }
+
+    if (!(cancerStudyId in window.studyMetaData)) {
+	    loadStudyMetaData(cancerStudyId);
+    } else {
+	    updateCancerStudyInformation(cancerStudyId);
+    }
 }
 
 //  Triggered when a case set has been selected, either by the user

@@ -290,7 +290,7 @@ def get_cancer_studies_to_update(worksheet_cancer_studies, database_cancer_studi
     for db_cancer_study in database_cancer_studies.values():
         worksheet_cancer_study = worksheet_cancer_studies.get(db_cancer_study.cancer_study_stable_id)
         if (worksheet_cancer_study is None): continue
-        if set(db_cancer_study.groups.split(';')).isdisjoint(worksheet_cancer_study.groups.split(';')):
+        if set(worksheet_cancer_study.groups.split(';')).symmetric_difference(set(db_cancer_study.groups.split(';'))):
             to_return[db_cancer_study.cancer_study_stable_id] = CancerStudy(db_cancer_study.cancer_study_id,
                                                                             db_cancer_study.cancer_study_stable_id,
                                                                             worksheet_cancer_study.groups)

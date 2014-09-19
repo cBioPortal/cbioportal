@@ -66,6 +66,8 @@ define("Oncoprint",
 
                 var id2ClinicalAttr = utils.createId2ClinicalAttr(params.clinical_attrs);
 
+                var gapSpaceGeneClinic = 10;
+
                 var dims = (function() {
                     var rect_height = 23;
                     var mut_height = rect_height / 3;
@@ -128,8 +130,14 @@ define("Oncoprint",
                     .append('text')
                     .attr('font-size', '12px')
                     .attr('x', 0)
-                    .attr('y', function(d) {
-                        return (dims.vert_space / 1.80) + vertical_pos(d); });
+                    .attr('y', function(d) { 
+                        if(_.find(params.genes, function(num){ return num === d; }) !==undefined && params.clinical_attrs.length > 0)
+                        {
+                            return (dims.vert_space / 1.80) + gapSpaceGeneClinic + vertical_pos(d); 
+                        }
+                        
+                        return (dims.vert_space / 1.80) + vertical_pos(d);
+                    });
 
                 label.append('tspan')       // name
                     .attr('text-anchor', 'start')
@@ -187,7 +195,14 @@ define("Oncoprint",
                     .attr('font-size', '12px')
                     .attr('x', 0)
                     .attr('y', function(d) {
-                        return (dims.vert_space / 1.80) + vertical_pos(d); });
+                        if(_.find(params.genes, function(num){ return num === d; }) !==undefined && params.clinical_attrs.length > 0)
+                        {
+                            return (dims.vert_space / 1.80) + gapSpaceGeneClinic + vertical_pos(d); 
+                        }
+                        
+                        return (dims.vert_space / 1.80) + vertical_pos(d);
+                
+                    });
             
                 var gene2percent = utils.percent_altered(params.geneData);
                 percentLabel.append('tspan')       // percent_altered
@@ -283,10 +298,19 @@ define("Oncoprint",
                     })
                     .attr('width', dims.rect_width)
                         .attr('y', function(d) {
-                            return d.attr_id === undefined
-                            ? vertical_pos(utils.get_attr(d))
-                            : vertical_pos(utils.get_attr(d)) + dims.clinical_offset;
-                        //     return vertical_pos(utils.get_attr(d));
+                            
+                            if(params.clinical_attrs.length > 0)
+                            {
+                                return d.attr_id === undefined
+                                ? vertical_pos(utils.get_attr(d)) + gapSpaceGeneClinic
+                                : vertical_pos(utils.get_attr(d)) + dims.clinical_offset;
+                            }
+                            else
+                            {
+                                return d.attr_id === undefined
+                                ? vertical_pos(utils.get_attr(d))
+                                : vertical_pos(utils.get_attr(d)) + dims.clinical_offset;
+                            }
                         });
 
                     var fusion = enter.append('path')
@@ -336,7 +360,11 @@ define("Oncoprint",
                         .attr('height', dims.mut_height)
                         .attr('width', dims.rect_width)
                         .attr('y', function(d) {
-                            return dims.mut_height + vertical_pos(utils.get_attr(d)); });
+                            if(params.clinical_attrs.length === 0) //to check are there clinic data input
+                            {
+                                gapSpaceGeneClinic = 0;
+                            }
+                            return dims.mut_height + gapSpaceGeneClinic + vertical_pos(utils.get_attr(d)); });
                     mut.filter(function(d) {
                         if (d.mutation === undefined) return true;
                         var aas = d.mutation.split(","); // e.g. A32G,fusion

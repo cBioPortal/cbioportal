@@ -1237,6 +1237,53 @@ var PileupUtil = (function()
 	};
 })();
 /**
+ * Singleton utility class to precompile & cache backbone templates.
+ * Using precompiled templates increases rendering speed dramatically.
+ *
+ * @author Selcuk Onur Sumer
+ */
+var BackboneTemplateCache = (function () {
+	var _cache = {};
+
+	/**
+	 * Compiles the template for the given template id
+	 * by using underscore template function.
+	 *
+	 * @param templateId    html id of the template content
+	 * @returns function    compiled template function
+	 */
+	function compileTemplate(templateId)
+	{
+		return _.template($("#" + templateId).html());
+	}
+
+	/**
+	 * Gets the template function corresponding to the given template id.
+	 *
+	 * @param templateId    html id of the template content
+	 * @returns function    template function
+	 */
+	function getTemplateFn(templateId)
+	{
+		// try to use the cached value first
+		var templateFn = _cache[templateId];
+
+		// compile if not compiled yet
+		if (templateFn == null)
+		{
+			templateFn = compileTemplate(templateId);
+			_cache[templateId] = templateFn;
+		}
+
+		return templateFn;
+	}
+
+	return {
+		getTemplateFn: getTemplateFn
+	};
+})();
+
+/**
  * Utility class to initialize the 3D mutation visualizer with JSmol (HTML5)
  * instance.
  *
@@ -2242,7 +2289,7 @@ var MutationDetailsUtil = function(mutations)
 		_mutationGeneMap = this._updateGeneMap(mutations);
 		_mutationCaseMap = this._updateCaseMap(mutations);
 		_mutationIdMap = this._updateIdMap(mutations);
-		_mutations = _mutations.concat(mutations);
+		_mutations = _mutations.concat(mutations.models);
 	};
 
 	/**
@@ -4129,9 +4176,8 @@ var CosmicTipView = Backbone.View.extend({
 			mutationKeyword: this.model.keyword};
 
 		// compile the template using underscore
-		return _.template(
-				$("#mutation_details_cosmic_tip_template").html(),
-				variables);
+		var templateFn = BackboneTemplateCache.getTemplateFn("mutation_details_cosmic_tip_template");
+		return templateFn(variables);
 	}
 });
 /**
@@ -4141,14 +4187,14 @@ var CosmicTipView = Backbone.View.extend({
 var LollipopTipStatsView = Backbone.View.extend({
 	initialize: function()
 	{
-		this.template = _.template($("#mutation_details_lollipop_tip_stats_template").html());
+
 	},
     render: function()
     {
-        var template = this.template;
+        var templateFn = BackboneTemplateCache.getTemplateFn("mutation_details_lollipop_tip_stats_template");
         var thatEl = this.$el.find("table tbody");
         _.each(this.model, function(statItem) {
-            thatEl.append(template(statItem));
+            thatEl.append(templateFn(statItem));
         });
         return this;
     }
@@ -4199,7 +4245,8 @@ var LollipopTipView = Backbone.View.extend({
         };
 
 		// compile the template using underscore
-        var compiledEl = $(_.template( $("#mutation_details_lollipop_tip_template").html(), variables));
+		var templateFn = BackboneTemplateCache.getTemplateFn("mutation_details_lollipop_tip_template");
+        var compiledEl = $(templateFn(variables));
 
         var statsEl = compiledEl.find(".lollipop-stats");
         if(this.showStats)
@@ -4256,9 +4303,8 @@ var MainMutationView = Backbone.View.extend({
 			uniprotId: self.model.sequence.metadata.identifier};
 
 		// compile the template using underscore
-		var template = _.template(
-			$("#mutation_view_template").html(),
-			variables);
+		var templateFn = BackboneTemplateCache.getTemplateFn("mutation_view_template");
+		var template = templateFn(variables);
 
 		// load the compiled HTML into the Backbone "el"
 		self.$el.html(template);
@@ -4515,8 +4561,8 @@ var Mutation3dView = Backbone.View.extend({
 		var gene = self.model.geneSymbol;
 
 		// compile the template using underscore
-		var template = _.template(
-				$("#mutation_3d_view_template").html(), {});
+		var templateFn = BackboneTemplateCache.getTemplateFn("mutation_3d_view_template");
+		var template = templateFn({});
 
 		// load the compiled HTML into the Backbone "el"
 		this.$el.html(template);
@@ -4611,9 +4657,8 @@ var Mutation3dVisInfoView = Backbone.View.extend({
 		var self = this;
 
 		// compile the template using underscore
-		var template = _.template(
-			$("#mutation_3d_vis_info_template").html(),
-			self.model);
+		var templateFn = BackboneTemplateCache.getTemplateFn("mutation_3d_vis_info_template");
+		var template = templateFn(self.model);
 
 		// load the compiled HTML into the Backbone "el"
 		self.$el.html(template);
@@ -4702,9 +4747,9 @@ var Mutation3dVisView = Backbone.View.extend({
 		var self = this;
 
 		// compile the template using underscore
-		var template = _.template(
-			$("#mutation_3d_vis_template").html(),
-			// TODO make the images customizable?
+		var templateFn = BackboneTemplateCache.getTemplateFn("mutation_3d_vis_template");
+		// TODO make the images customizable?
+		var template = templateFn(
 			{loaderImage: "images/ajax-loader.gif",
 				helpImage: "images/help.png"});
 
@@ -5251,7 +5296,8 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		var info = self.$el.find(".mutation-type-color-help");
 
-		var content = _.template($("#mutation_3d_type_color_tip_template").html());
+		var templateFn = BackboneTemplateCache.getTemplateFn("mutation_3d_type_color_tip_template");
+		var content = templateFn({});
 		var options = self._generateTooltipOpts(content);
 
 		// make it wider
@@ -5269,7 +5315,8 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		var info = self.$el.find(".protein-struct-color-help");
 
-		var content = _.template($("#mutation_3d_structure_color_tip_template").html());
+		var templateFn = BackboneTemplateCache.getTemplateFn("mutation_3d_structure_color_tip_template");
+		var content = templateFn({});
 		var options = self._generateTooltipOpts(content);
 
 		// make it wider
@@ -5287,7 +5334,8 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		var info = self.$el.find(".display-side-chain-help");
 
-		var content = _.template($("#mutation_3d_side_chain_tip_template").html());
+		var templateFn = BackboneTemplateCache.getTemplateFn("mutation_3d_side_chain_tip_template");
+		var content = templateFn({});
 
 		var options = self._generateTooltipOpts(content);
 		info.qtip(options);
@@ -5302,7 +5350,8 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		var info = self.$el.find(".display-non-protein-help");
 
-		var content = _.template($("#mutation_3d_non_protein_tip_template").html());
+		var templateFn = BackboneTemplateCache.getTemplateFn("mutation_3d_non_protein_tip_template");
+		var content = templateFn({});
 
 		var options = self._generateTooltipOpts(content);
 		info.qtip(options);
@@ -5555,9 +5604,8 @@ var MutationCustomizePanelView = Backbone.View.extend({
 			maxY: diagram.getMaxY()};
 
 		// compile the template using underscore
-		var template = _.template(
-				$("#mutation_customize_panel_template").html(),
-				variables);
+		var templateFn = BackboneTemplateCache.getTemplateFn("mutation_customize_panel_template");
+		var template = templateFn(variables);
 
 		// load the compiled HTML into the Backbone "el"
 		self.$el.html(template);
@@ -5659,8 +5707,9 @@ var MutationDetailsTableView = Backbone.View.extend({
 		var self = this;
 
 		// compile the template using underscore
-		var template = _.template($("#mutation_details_table_template").html(),
-		                          {loaderImage: "images/ajax-loader.gif"});
+		var templateFn = BackboneTemplateCache.getTemplateFn("mutation_details_table_template");
+		// TODO customize loader image
+		var template = templateFn({loaderImage: "images/ajax-loader.gif"});
 
 		// load the compiled HTML into the Backbone "el"
 		self.$el.html(template);
@@ -5916,9 +5965,8 @@ var MutationDetailsView = Backbone.View.extend({
 			mainContent: content.mainContent};
 
 		// compile the template using underscore
-		var template = _.template(
-			$("#default_mutation_details_template").html(),
-			variables);
+		var templateFn = BackboneTemplateCache.getTemplateFn("default_mutation_details_template");
+		var template = templateFn(variables);
 
 		// load the compiled HTML into the Backbone "el"
 		self.$el.html(template);
@@ -5979,14 +6027,16 @@ var MutationDetailsView = Backbone.View.extend({
 
 		// create a div for for each gene
 		_.each(self.model.mutationProxy.getGeneList(), function(gene, idx) {
-			mainContent += _.template(
-				$("#default_mutation_details_main_content_template").html(),
+			var templateFn = BackboneTemplateCache.getTemplateFn("default_mutation_details_main_content_template");
+
+			mainContent += templateFn(
 					{loaderImage: "images/ajax-loader.gif",
 						geneSymbol: gene,
 						geneId: cbio.util.safeProperty(gene)});
 
-			listContent += _.template(
-				$("#default_mutation_details_list_content_template").html(),
+			templateFn = BackboneTemplateCache.getTemplateFn("default_mutation_details_list_content_template");
+
+			listContent += templateFn(
 				{geneSymbol: gene,
 					geneId: cbio.util.safeProperty(gene)});
 		});
@@ -6068,9 +6118,8 @@ var MutationDiagramView = Backbone.View.extend({
 			uniprotId: self.model.sequence.metadata.identifier};
 
 		// compile the template using underscore
-		var template = _.template(
-			$("#mutation_diagram_view_template").html(),
-			variables);
+		var templateFn = BackboneTemplateCache.getTemplateFn("mutation_diagram_view_template");
+		var template = templateFn(variables);
 
 		// load the compiled HTML into the Backbone "el"
 		self.$el.html(template);
@@ -6298,9 +6347,8 @@ var MutationHelpPanelView = Backbone.View.extend({
 		var self = this;
 
 		// compile the template using underscore
-		var template = _.template(
-				$("#mutation_help_panel_template").html(),
-				{});
+		var templateFn = BackboneTemplateCache.getTemplateFn("mutation_help_panel_template");
+		var template = templateFn({});
 
 		// load the compiled HTML into the Backbone "el"
 		self.$el.html(template);
@@ -6377,9 +6425,8 @@ var PdbChainTipView = Backbone.View.extend({
 		}
 
 		// compile the template using underscore
-		return _.template(
-				$("#mutation_details_pdb_chain_tip_template").html(),
-				variables);
+		var templateFn = BackboneTemplateCache.getTemplateFn("mutation_details_pdb_chain_tip_template");
+		return templateFn(variables);
 	}
 });
 /**
@@ -6407,7 +6454,8 @@ var PdbPanelView = Backbone.View.extend({
 		var self = this;
 
 		// compile the template using underscore
-		var template = _.template($("#pdb_panel_view_template").html(), {});
+		var templateFn = BackboneTemplateCache.getTemplateFn("pdb_panel_view_template");
+		var template = templateFn({});
 
 		// load the compiled HTML into the Backbone "el"
 		self.$el.html(template);
@@ -6743,8 +6791,9 @@ var PdbTableView = Backbone.View.extend({
 		var self = this;
 
 		// compile the template using underscore
-		var template = _.template($("#pdb_table_view_template").html(),
-		                          {loaderImage: "images/ajax-loader.gif"});
+		var templateFn = BackboneTemplateCache.getTemplateFn("pdb_table_view_template");
+		// TODO customize loader image
+		var template = templateFn({loaderImage: "images/ajax-loader.gif"});
 
 		// load the compiled HTML into the Backbone "el"
 		self.$el.html(template);
@@ -6950,9 +6999,8 @@ var PredictedImpactTipView = Backbone.View.extend({
 			impact: this.model.impact};
 
 		// compile the template using underscore
-		return _.template(
-				$("#mutation_details_fis_tip_template").html(),
-				variables);
+		var templateFn = BackboneTemplateCache.getTemplateFn("mutation_details_fis_tip_template");
+		return templateFn(variables);
 	}
 });
 
@@ -6994,9 +7042,8 @@ var RegionTipView = Backbone.View.extend({
 			end: this.model.end};
 
 		// compile the template using underscore
-		return _.template(
-				$("#mutation_details_region_tip_template").html(),
-				variables);
+		var templateFn = BackboneTemplateCache.getTemplateFn("mutation_details_region_tip_template");
+		return templateFn(variables);
 	}
 });
 
@@ -9076,8 +9123,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				vars.caseIdClass = caseIdFormat.style;
 				vars.caseIdTip = caseIdFormat.tip;
 
-				return _.template(
-					$("#mutation_table_case_id_template").html(), vars);
+				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_case_id_template");
+				return templateFn(vars);
 			},
 			"proteinChange": function(datum) {
 				var mutation = datum.mutation;
@@ -9088,8 +9135,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				vars.proteinChangeTip = proteinChange.tip;
 				vars.pdbMatchLink = MutationDetailsTableFormatter.getPdbMatchLink(mutation);
 
-				return _.template(
-					$("#mutation_table_protein_change_template").html(), vars);
+				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_protein_change_template");
+				return templateFn(vars);
 			},
 			"cancerStudy": function(datum) {
 				var mutation = datum.mutation;
@@ -9099,8 +9146,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				vars.cancerStudyShort = mutation.cancerStudyShort;
 				vars.cancerStudyLink = mutation.cancerStudyLink;
 
-				return _.template(
-					$("#mutation_table_cancer_study_template").html(), vars);
+				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_cancer_study_template");
+				return templateFn(vars);
 			},
 			"tumorType": function(datum) {
 				var mutation = datum.mutation;
@@ -9110,8 +9157,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				vars.tumorTypeClass = tumorType.style;
 				vars.tumorTypeTip = tumorType.tip;
 
-				return _.template(
-					$("#mutation_table_tumor_type_template").html(), vars);
+				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_tumor_type_template");
+				return templateFn(vars);
 			},
 			"mutationType": function(datum) {
 				var mutation = datum.mutation;
@@ -9120,8 +9167,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				vars.mutationTypeClass = mutationType.style;
 				vars.mutationTypeText = mutationType.text;
 
-				return _.template(
-					$("#mutation_table_mutation_type_template").html(), vars);
+				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_mutation_type_template");
+				return templateFn(vars);
 			},
 			"cosmic": function(datum) {
 				var mutation = datum.mutation;
@@ -9130,8 +9177,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				vars.cosmicClass = cosmic.style;
 				vars.cosmicCount = cosmic.count;
 
-				return _.template(
-					$("#mutation_table_cosmic_template").html(), vars);
+				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_cosmic_template");
+				return templateFn(vars);
 			},
 			"cna": function(datum) {
 				var mutation = datum.mutation;
@@ -9141,8 +9188,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				vars.cnaClass = cna.style;
 				vars.cnaTip = cna.tip;
 
-				return _.template(
-					$("#mutation_table_cna_template").html(), vars);
+				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_cna_template");
+				return templateFn(vars);
 			},
 			"mutationCount": function(datum) {
 				var mutation = datum.mutation;
@@ -9151,8 +9198,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				vars.mutationCount = mutationCount.text;
 				vars.mutationCountClass = mutationCount.style;
 
-				return _.template(
-					$("#mutation_table_mutation_count_template").html(), vars);
+				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_mutation_count_template");
+				return templateFn(vars);
 			},
 			"normalFreq": function(datum) {
 				var mutation = datum.mutation;
@@ -9168,8 +9215,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				vars.normalTotalCount = normalFreq.total;
 				vars.normalAltCount = alleleCount.text;
 
-				return _.template(
-					$("#mutation_table_normal_freq_template").html(), vars);
+				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_normal_freq_template");
+				return templateFn(vars);
 			},
 			"tumorFreq": function(datum) {
 				var mutation = datum.mutation;
@@ -9185,8 +9232,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				vars.tumorTotalCount = tumorFreq.total;
 				vars.tumorAltCount = alleleCount.text;
 
-				return _.template(
-					$("#mutation_table_tumor_freq_template").html(), vars);
+				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_tumor_freq_template");
+				return templateFn(vars);
 			},
 			"mutationAssessor": function(datum) {
 				var mutation = datum.mutation;
@@ -9197,8 +9244,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				vars.omaClass = fis.omaClass;
 				vars.fisText = fis.text;
 
-				return _.template(
-					$("#mutation_table_mutation_assessor_template").html(), vars);
+				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_mutation_assessor_template");
+				return templateFn(vars);
 			},
 			"mutationStatus": function(datum) {
 				var mutation = datum.mutation;
@@ -9208,8 +9255,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				vars.mutationStatusClass = mutationStatus.style;
 				vars.mutationStatusText = mutationStatus.text;
 
-				return _.template(
-					$("#mutation_table_mutation_status_template").html(), vars);
+				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_mutation_status_template");
+				return templateFn(vars);
 			},
 			"validationStatus": function(datum) {
 				var mutation = datum.mutation;
@@ -9219,8 +9266,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				vars.validationStatusClass = validationStatus.style;
 				vars.validationStatusText = validationStatus.text;
 
-				return _.template(
-					$("#mutation_table_validation_status_template").html(), vars);
+				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_validation_status_template");
+				return templateFn(vars);
 			},
 			"normalRefCount": function(datum) {
 				var mutation = datum.mutation;
@@ -9229,8 +9276,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				vars.normalRefCount = alleleCount.text;
 				vars.normalRefCountClass = alleleCount.style;
 
-				return _.template(
-					$("#mutation_table_normal_ref_count_template").html(), vars);
+				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_normal_ref_count_template");
+				return templateFn(vars);
 			},
 			"normalAltCount": function(datum) {
 				var mutation = datum.mutation;
@@ -9239,8 +9286,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				vars.normalAltCount = alleleCount.text;
 				vars.normalAltCountClass = alleleCount.style;
 
-				return _.template(
-					$("#mutation_table_normal_alt_count_template").html(), vars);
+				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_normal_alt_count_template");
+				return templateFn(vars);
 			},
 			"tumorRefCount": function(datum) {
 				var mutation = datum.mutation;
@@ -9249,8 +9296,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				vars.tumorRefCount = alleleCount.text;
 				vars.tumorRefCountClass = alleleCount.style;
 
-				return _.template(
-					$("#mutation_table_tumor_ref_count_template").html(), vars);
+				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_tumor_ref_count_template");
+				return templateFn(vars);
 			},
 			"tumorAltCount": function(datum) {
 				var mutation = datum.mutation;
@@ -9259,8 +9306,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				vars.tumorAltCount = alleleCount.text;
 				vars.tumorAltCountClass = alleleCount.style;
 
-				return _.template(
-					$("#mutation_table_tumor_alt_count_template").html(), vars);
+				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_tumor_alt_count_template");
+				return templateFn(vars);
 			},
 			"startPos": function(datum) {
 				var mutation = datum.mutation;
@@ -9269,8 +9316,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				vars.startPos = startPos.text;
 				vars.startPosClass = startPos.style;
 
-				return _.template(
-					$("#mutation_table_start_pos_template").html(), vars);
+				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_start_pos_template");
+				return templateFn(vars);
 			},
 			"endPos": function(datum) {
 				var mutation = datum.mutation;
@@ -9279,8 +9326,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				vars.endPos = endPos.text;
 				vars.endPosClass = endPos.style;
 
-				return _.template(
-					$("#mutation_table_end_pos_template").html(), vars);
+				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_end_pos_template");
+				return templateFn(vars);
 			},
 			"sequencingCenter": function(datum) {
 				var mutation = datum.mutation;
@@ -9306,8 +9353,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				var vars = {};
 				vars.igvLink = MutationDetailsTableFormatter.getIgvLink(mutation);
 
-				return _.template(
-					$("#mutation_table_igv_link_template").html(), vars);
+				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_igv_link_template");
+				return templateFn(vars);
 			}
 		},
 		// default tooltip functions
@@ -12072,8 +12119,10 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		 * @param element   target svg element (help icon)
 		 */
 		yHelpTipFn: function (element) {
-			var content = _.template(
-				$("#mutation_details_pdb_help_tip_template").html());
+			var templateFn = BackboneTemplateCache.getTemplateFn(
+				"mutation_details_pdb_help_tip_template");
+
+			var content = templateFn({});
 
 			var options = {content: {text: content},
 				hide: {fixed: true, delay: 100},
@@ -13229,9 +13278,11 @@ function MutationPdbTable(options)
 			datum: {sTitle: "datum",
 				tip:""},
 			pdbId: {sTitle: "PDB Id",
-				tip:""},
+				tip:"",
+				sType: "string"},
 			chain: {sTitle: "Chain",
-				tip:""},
+				tip:"",
+				sType: "string"},
 			uniprotPos: {sTitle: "Uniprot Positions",
 				tip:"",
 				sType: "numeric"},
@@ -13239,9 +13290,11 @@ function MutationPdbTable(options)
 				tip:"",
 				sType: "numeric"},
 			organism: {sTitle: "Organism",
-				tip:""},
+				tip:"",
+				sType: "string"},
 			summary: {sTitle: "Summary",
 				tip:"",
+				sType: "string",
 				sWidth: "65%"}
 		},
 		// display order of column headers
@@ -13288,13 +13341,13 @@ function MutationPdbTable(options)
 			},
 			pdbId: function(datum) {
 				// format using the corresponding template
-				return _.template($("#mutation_pdb_table_pdb_cell_template").html(),
-		                  {pdbId: datum.pdbId});
+				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_pdb_table_pdb_cell_template");
+				return templateFn({pdbId: datum.pdbId});
 			},
 			chain: function(datum) {
 				// format using the corresponding template
-				return _.template($("#mutation_pdb_table_chain_cell_template").html(),
-		                  {chainId: datum.chain.chainId});
+				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_pdb_table_chain_cell_template");
+				return templateFn({chainId: datum.chain.chainId});
 			},
 			organism: function(datum) {
 				return datum.organism;
@@ -13304,9 +13357,8 @@ function MutationPdbTable(options)
 					molecule: datum.summary.molecule};
 
 				// format using the corresponding template
-				return _.template(
-					$("#mutation_pdb_table_summary_cell_template").html(),
-					vars);
+				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_pdb_table_summary_cell_template");
+				return templateFn(vars);
 			},
 			uniprotPos: function(datum) {
 				// there is no data (null) for uniprot positions,

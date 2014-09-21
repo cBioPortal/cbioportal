@@ -70,8 +70,6 @@
                     <form style="width:  100%;" action="<c:url value='j_spring_openid_security_check'/>" method="post" id="openid_form">
                     <input type="hidden" name="action" value="verify" />
                     <p/>
-                <% } else if (authenticationMethod.equals("activedirectory")) { %>
-                    <form style="width: 100%;" action="<c:url value='j_spring_security_check' />" method="post">
                 <% } %>
                     <fieldset>
                     <legend>
@@ -96,23 +94,6 @@
                             Find out <a href="http://openid.net/what/">more about OpenID</a> and <a href="http://openid.net/get/">how to get an OpenID enabled account</a>.</p>
                         </noscript>
                     </fieldset>
-                    </form>
-                    <% } else if (authenticationMethod.equals("activedirectory")) { %>
-                    <table>
-                        <tr>
-                            <td>Username:</td>
-                            <td><input type='text' name='j_username'></td>
-                        </tr>
-                        <tr>
-                            <td>Password:</td>
-                            <td><input type='password' name='j_password'></td>
-                        </tr>
-                        <tr>
-                            <td colspan='2'><input name="submit" type="submit" value="MSKCC Login" /></td>
-                        </tr>
-                    </table>
-                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-                    </fieldSet>
                     </form>
                     <% } else if (authenticationMethod.equals("saml")) { %>
                         <p>

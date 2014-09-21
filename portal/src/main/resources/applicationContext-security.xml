@@ -13,7 +13,7 @@
     <b:bean id="accessControl" class="org.mskcc.cbio.portal.util.internal.AccessControlImpl"/>
 
     <!-- beans shared across any authentication system -->
-    <b:beans profile="googleplus,openid,activedirectory,saml">
+    <b:beans profile="googleplus,openid,saml">
 
     <!-- support for general annotations within class definitions (used in AccessControl) -->
     <context:annotation-config/>
@@ -40,19 +40,6 @@
         <b:property name="password" value="${db.password}"/>
     </b:bean>
 
-    <b:bean id="authenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
-        <b:property name="loginFormUrl" value="/login.jsp" />
-    </b:bean>
-
-    <b:bean id="successHandler" class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler">
-        <b:property name="defaultTargetUrl" value="/index.do"/>
-        <b:property name="alwaysUseDefaultTargetUrl" value="true"/>
-    </b:bean>
-    <b:bean id="failureHandler" class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
-        <!--<b:property name="useForward" value="true"/>-->
-        <b:property name="defaultFailureUrl" value="/login.jsp?login_error=true"/>
-    </b:bean>
-
     <!-- static resources not processed by spring security filters -->
     <http pattern="/css/**" security="none"/>
     <http pattern="/images/**" security="none"/>
@@ -76,6 +63,10 @@
         <!-- to enable access from matlab, r, python, etc clients -->
         <session-management session-fixation-protection="none"/>
     </http>
+
+    <b:bean id="authenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+        <b:property name="loginFormUrl" value="/login.jsp" />
+    </b:bean>
 
     <!-- google+ beans -->
     <b:bean id="socialAuthenticationFilter" class="org.springframework.social.security.SocialAuthenticationFilter">
@@ -177,47 +168,6 @@
     <!-- end openid beans -->
     </b:beans>
 
-    <!-- openid beans -->
-    <b:beans profile="activedirectory">
-
-    <http auto-config="false" entry-point-ref="authenticationEntryPoint" use-expressions="true"> 
-        ${url.intercepts}
-
-        <!-- used for AD authentication -->
-        <custom-filter ref="activeDirectoryFilter" before="FORM_LOGIN_FILTER" />
-
-        <!--  logout actions -->      
-        <logout logout-success-url="/login.jsp?logout_success=true"/>
-        <!-- to enable access from matlab, r, python, etc clients -->
-        <session-management session-fixation-protection="none"/>
-        <!-- support cross site request forging -->
-        <csrf/>
-    </http>
-
-    <b:bean id="activeDirectoryFilter" class="org.mskcc.cbio.portal.authentication.activedirectory.ADAuthFilter">
-        <b:property name="authenticationManager" ref="authenticationManager" />
-        <b:property name="authenticationFailureHandler" ref="failureHandler" />
-        <b:property name="authenticationSuccessHandler" ref="successHandler" />
-    </b:bean>
-
-    <authentication-manager alias="authenticationManager">
-        <authentication-provider ref="ldapActiveDirectoryAuthProvider"/>
-    </authentication-manager>
-
-    <b:bean id="ldapActiveDirectoryAuthProvider" class="org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider">
-        <b:constructor-arg value="${ldap.domain}" />
-        <b:constructor-arg value="${ldap.url}" />
-        <b:property name="userDetailsContextMapper" ref="portalUserDetailsService"/>
-        <b:property name="convertSubErrorCodesToExceptions" value="true"/>
-    </b:bean>
-
-    <b:bean id="portalUserDetailsService" class="org.mskcc.cbio.portal.authentication.activedirectory.PortalUserDetailsService">
-        <b:constructor-arg ref="portalUserDAO"/>
-    </b:bean>
-
-    <!-- end active directory beans -->
-    </b:beans>
-
     <!-- saml beans -->
     <b:beans profile="saml">
 
@@ -241,6 +191,18 @@
             <filter-chain pattern="/saml/SingleLogout/**" filters="samlLogoutProcessingFilter"/>
             <filter-chain pattern="/saml/discovery/**" filters="samlIDPDiscovery"/>
         </filter-chain-map>
+    </b:bean>
+
+    <!-- Handler deciding where to redirect user after successful login -->
+    <b:bean id="successRedirectHandler" class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler">
+        <b:property name="defaultTargetUrl" value="/index.do"/>
+        <b:property name="alwaysUseDefaultTargetUrl" value="true"/>
+    </b:bean>
+
+    <!-- Handler deciding where to redirect user after failed login -->
+    <b:bean id="failureRedirectHandler" class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
+        <!--<b:property name="useForward" value="true"/>-->
+        <b:property name="defaultFailureUrl" value="/login.jsp?login_error=true"/>
     </b:bean>
 
    <!-- Handler for successful logout -->
@@ -379,15 +341,15 @@
     <!-- Processing filter for WebSSO profile messages -->
     <b:bean id="samlWebSSOProcessingFilter" class="org.springframework.security.saml.SAMLProcessingFilter">
         <b:property name="authenticationManager" ref="authenticationManager"/>
-        <b:property name="authenticationSuccessHandler" ref="successHandler"/>
-        <b:property name="authenticationFailureHandler" ref="failureHandler"/>
+        <b:property name="authenticationSuccessHandler" ref="successRedirectHandler"/>
+        <b:property name="authenticationFailureHandler" ref="failureRedirectHandler"/>
     </b:bean>
 
     <!-- Processing filter for WebSSO Holder-of-Key profile -->
     <b:bean id="samlWebSSOHoKProcessingFilter" class="org.springframework.security.saml.SAMLWebSSOHoKProcessingFilter">
         <b:property name="authenticationManager" ref="authenticationManager"/>
-        <b:property name="authenticationSuccessHandler" ref="successHandler"/>
-        <b:property name="authenticationFailureHandler" ref="failureHandler"/>
+        <b:property name="authenticationSuccessHandler" ref="successRedirectHandler"/>
+        <b:property name="authenticationFailureHandler" ref="failureRedirectHandler"/>
     </b:bean>
 
     <!-- Logout handler terminating local session -->

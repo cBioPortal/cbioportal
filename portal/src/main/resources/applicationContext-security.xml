@@ -231,15 +231,7 @@
         <session-management session-fixation-protection="none"/>
     </http>
 
-    <b:bean id="samlEntryPoint" class="org.springframework.security.saml.SAMLEntryPoint">
-        <b:property name="defaultProfileOptions">
-            <b:bean class="org.springframework.security.saml.websso.WebSSOProfileOptions">
-                <b:property name="includeScoping" value="false"/>
-            </b:bean>
-        </b:property>
-    </b:bean>
-
-    <b:bean id="samlFilter" class="org.springframework.security.web.FilterChainProxy">
+     <b:bean id="samlFilter" class="org.springframework.security.web.FilterChainProxy">
         <filter-chain-map request-matcher="ant">
             <filter-chain pattern="/saml/login/**" filters="samlEntryPoint"/>
             <filter-chain pattern="/saml/logout/**" filters="samlLogoutFilter"/>
@@ -251,16 +243,57 @@
         </filter-chain-map>
     </b:bean>
 
+   <!-- Handler for successful logout -->
+    <b:bean id="successLogoutHandler" class="org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler">
+        <b:property name="defaultTargetUrl" value="/logout.jsp?logout_success=true"/>
+    </b:bean>
+
     <authentication-manager alias="authenticationManager">
         <authentication-provider ref="samlAuthenticationProvider"/>
     </authentication-manager>
 
-    <b:bean id="samlAuthenticationProvider" class="org.springframework.security.saml.SAMLAuthenticationProvider">
-        <!-- OPTIONAL property: can be used to store/load user data after login -->
-        <!--
-        <b:property name="userDetails" ref="bean" />
-        -->
+    <!-- Logger for SAML messages and events -->
+    <b:bean id="samlLogger" class="org.springframework.security.saml.log.SAMLDefaultLogger"/>
+
+    <!-- Central storage of cryptographic keys -->
+    <b:bean id="keyManager" class="org.springframework.security.saml.key.JKSKeyManager">
+        <b:constructor-arg value="classpath:samlKeystore.jks"/>
+        <b:constructor-arg type="java.lang.String" value="nalle123"/>
+        <b:constructor-arg>
+            <b:map>
+                <b:entry key="apollo" value="nalle123"/>
+            </b:map>
+        </b:constructor-arg>
+        <b:constructor-arg type="java.lang.String" value="apollo"/>
     </b:bean>
+
+    <b:bean id="samlEntryPoint" class="org.springframework.security.saml.SAMLEntryPoint">
+        <b:property name="defaultProfileOptions">
+            <b:bean class="org.springframework.security.saml.websso.WebSSOProfileOptions">
+                <b:property name="includeScoping" value="false"/>
+            </b:bean>
+        </b:property>
+    </b:bean>
+
+    <!-- IDP Discovery Service -->
+    <b:bean id="samlIDPDiscovery" class="org.springframework.security.saml.SAMLDiscovery">
+        <b:property name="idpSelectionPath" value="/login.jsp"/>
+    </b:bean>
+
+    <!-- Filter automatically generates default SP metadata -->
+    <!--
+    <b:bean id="metadataGeneratorFilter" class="org.springframework.security.saml.metadata.MetadataGeneratorFilter">
+        <b:constructor-arg>
+            <b:bean class="org.springframework.security.saml.metadata.MetadataGenerator">
+                <b:property name="extendedMetadata">
+                    <b:bean class="org.springframework.security.saml.metadata.ExtendedMetadata">
+                        <b:property name="idpDiscoveryEnabled" value="true"/>
+                    </b:bean>
+                </b:property>
+            </b:bean>
+        </b:constructor-arg>
+    </b:bean>
+    -->
 
     <!-- The filter is waiting for connections on URL suffixed with filterSuffix and presents SP metadata there -->
     <b:bean id="metadataDisplayFilter" class="org.springframework.security.saml.metadata.MetadataDisplayFilter"/>
@@ -283,6 +316,7 @@
                         <b:bean class="org.springframework.security.saml.metadata.ExtendedMetadata">
                            <b:property name="local" value="true"/>
                            <b:property name="alias" value="miso-dev.cbio.mskcc.org"/>
+                           <!--
                            <b:property name="securityProfile" value="metaiop"/>
                            <b:property name="sslSecurityProfile" value="pkix"/>
                            <b:property name="sslHostnameVerification" value="default"/>
@@ -291,10 +325,11 @@
                            <b:property name="requireArtifactResolveSigned" value="false"/>
                            <b:property name="requireLogoutRequestSigned" value="false"/>
                            <b:property name="requireLogoutResponseSigned" value="false"/>
-                           <b:property name="idpDiscoveryEnabled" value="false"/>
+                           -->
+                           <b:property name="idpDiscoveryEnabled" value="true"/>
                         </b:bean>
                     </b:constructor-arg>
-                    <!--<property name="metadataTrustCheck" value="false"/>-->
+                    <b:property name="metadataTrustCheck" value="false"/>
                 </b:bean>
                 <b:bean class="org.springframework.security.saml.metadata.ExtendedMetadataDelegate">
                     <b:constructor-arg>
@@ -307,23 +342,21 @@
                     </b:constructor-arg>
                     <b:constructor-arg>
                         <b:bean class="org.springframework.security.saml.metadata.ExtendedMetadata">
-                            <!--
-                           <property name="local" value="true"/>
-                           <property name="alias" value="testaccess2.mskcc.org"/>
-                           <property name="securityProfile" value="metaiop"/>
-                           <property name="sslSecurityProfile" value="pkix"/>
-                           <property name="sslHostnameVerification" value="default"/>
-                           <property name="signingKey" value="apollo"/>
-                           <property name="encryptionKey" value="apollo"/>
-                           <property name="requireArtifactResolveSigned" value="false"/>
-                           <property name="requireLogoutRequestSigned" value="false"/>
-                           <property name="requireLogoutResponseSigned" value="false"/>
-                           <property name="idpDiscoveryEnabled" value="false"/>
-                       -->
                         </b:bean>
                     </b:constructor-arg>
                     <b:property name="metadataTrustCheck" value="false"/>
                 </b:bean>
+                <!--
+                <b:bean class="org.opensaml.saml2.metadata.provider.HTTPMetadataProvider">
+                    <b:constructor-arg>
+                        <b:value type="java.lang.String">https://testaccess2.mskcc.org/nidp/saml2/metadata</b:value>
+                    </b:constructor-arg>
+                    <b:constructor-arg>
+                        <b:value type="int">15000</b:value>
+                    </b:constructor-arg>
+                    <b:property name="parserPool" ref="parserPool"/>
+                </b:bean>
+                -->
             </b:list>
         </b:constructor-arg>
         <!-- OPTIONAL used when one of the metadata files contains information about this service provider -->
@@ -331,10 +364,13 @@
         <!-- OPTIONAL property: can tell the system which IDP should be used for authenticating user by default. -->
         <!--<property name="defaultIDP" value="https://testaccess2.mskcc.org/nidp/saml2/metadata"/>-->
     </b:bean>
-    
-    <!-- IDP Discovery Service -->
-    <b:bean id="samlIDPDiscovery" class="org.springframework.security.saml.SAMLDiscovery">
-        <b:property name="idpSelectionPath" value="/WEB-INF/security/idpSelection.jsp"/>
+
+    <!-- SAML Authentication Provider responsible for validating of received SAML messages -->
+    <b:bean id="samlAuthenticationProvider" class="org.springframework.security.saml.SAMLAuthenticationProvider">
+        <!-- OPTIONAL property: can be used to store/load user data after login -->
+        <!--
+        <b:property name="userDetails" ref="bean" />
+        -->
     </b:bean>
 
     <!-- Provider of default SAML Context -->
@@ -352,11 +388,6 @@
         <b:property name="authenticationManager" ref="authenticationManager"/>
         <b:property name="authenticationSuccessHandler" ref="successHandler"/>
         <b:property name="authenticationFailureHandler" ref="failureHandler"/>
-    </b:bean>
-
-    <!-- Handler for successful logout -->
-    <b:bean id="successLogoutHandler" class="org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler">
-        <b:property name="defaultTargetUrl" value="/logout.jsp?logout_success=true"/>
     </b:bean>
 
     <!-- Logout handler terminating local session -->
@@ -455,23 +486,16 @@
     <b:bean id="velocityEngine" class="org.springframework.security.saml.util.VelocityFactory" factory-method="getEngine"/>
 
     <!-- XML parser pool needed for OpenSAML parsing -->
-    <b:bean id="parserPool" class="org.opensaml.xml.parse.StaticBasicParserPool" init-method="initialize"/>
-    <b:bean id="parserPoolHolder" class="org.springframework.security.saml.parser.ParserPoolHolder"/>
-
-    <!-- Logger for SAML messages and events -->
-    <b:bean id="samlLogger" class="org.springframework.security.saml.log.SAMLDefaultLogger"/>
-
-    <!-- Central storage of cryptographic keys -->
-    <b:bean id="keyManager" class="org.springframework.security.saml.key.JKSKeyManager">
-        <b:constructor-arg value="classpath:samlKeystore.jks"/>
-        <b:constructor-arg type="java.lang.String" value="nalle123"/>
-        <b:constructor-arg>
+    <!--<b:bean id="parserPool" class="org.opensaml.xml.parse.StaticBasicParserPool" init-method="initialize"/>-->
+    <b:bean id="parserPool" class="org.opensaml.xml.parse.StaticBasicParserPool" init-method="initialize">
+        <b:property name="builderFeatures">
             <b:map>
-                <b:entry key="apollo" value="nalle123"/>
+                <b:entry key="http://apache.org/xml/features/dom/defer-node-expansion" value="false"/>
             </b:map>
-        </b:constructor-arg>
-        <b:constructor-arg type="java.lang.String" value="apollo"/>
+        </b:property>
     </b:bean>
+
+    <b:bean id="parserPoolHolder" class="org.springframework.security.saml.parser.ParserPoolHolder"/>
 
     <!-- end saml beans -->
     </b:beans>

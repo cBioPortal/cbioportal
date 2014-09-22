@@ -22,10 +22,7 @@ import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.ImportDataUtil;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import org.apache.commons.lang.StringUtils;
 import org.mskcc.cbio.portal.util.ImportDataUtil;
 
@@ -242,6 +239,30 @@ public final class DaoCancerStudy {
         CancerStudy study = getCancerStudyByStableId(cancerStudyStableId);
         if (study != null){
             deleteCancerStudy(study.getInternalId());
+        }
+    }
+
+    public static Set<String> getFreshGroups(int internalCancerStudyId) throws DaoException
+    {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoCancerStudy.class);
+            pstmt = con.prepareStatement("SELECT * FROM cancer_study where cancer_study_id = ?");
+            pstmt.setInt(1, internalCancerStudyId);
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                CancerStudy cancerStudy = extractCancerStudy(rs);
+                return cancerStudy.getGroups();
+            }
+            else {
+                return Collections.emptySet();
+            }
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);
         }
     }
 

@@ -979,6 +979,18 @@
 					                        "cancerStudy": "visible",
 					                        // exclude tumor type for now
 					                        "tumorType": "excluded"
+				                        },
+				                        dataTableOpts: {
+					                        "sDom": '<"H"<"mutation_datatables_filter"f>C<"mutation_datatables_info"i>>t<"F"<"datatable-paging"pl>>',
+					                        "deferRender": true,
+					                        "bPaginate": true,
+					                        "sPaginationType": "two_button",
+					                        "bLengthChange": true,
+					                        "iDisplayLength": 50,
+					                        "aLengthMenu": [[5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]],
+					                        "oLanguage": {
+						                        "sLengthMenu": "Show _MENU_ per page"
+					                        }
 				                        }
 			                        }
 		                        }

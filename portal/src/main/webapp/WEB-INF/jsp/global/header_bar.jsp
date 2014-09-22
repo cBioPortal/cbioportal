@@ -7,7 +7,7 @@
 	if (authenticationMethod.equals("openid")) {
 		principal = "principal.name";
 	}
-	else if (authenticationMethod.equals("googleplus")) {
+	else if (authenticationMethod.equals("googleplus") || authenticationMethod.equals("saml")) {
 		principal = "principal.username";
 	}
 	String tagLineImage = (authenticationMethod.equals("saml")) ?

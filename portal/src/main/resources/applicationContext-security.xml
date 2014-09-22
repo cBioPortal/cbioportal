@@ -329,10 +329,11 @@
 
     <!-- SAML Authentication Provider responsible for validating of received SAML messages -->
     <b:bean id="samlAuthenticationProvider" class="org.springframework.security.saml.SAMLAuthenticationProvider">
-        <!-- OPTIONAL property: can be used to store/load user data after login -->
-        <!--
-        <b:property name="userDetails" ref="bean" />
-        -->
+        <b:property name="userDetails" ref="customUserService" />
+    </b:bean>
+
+    <b:bean id="customUserService" class="org.mskcc.cbio.portal.authentication.saml.PortalUserDetailsService">
+        <b:constructor-arg ref="portalUserDAO"/>
     </b:bean>
 
     <!-- Provider of default SAML Context -->

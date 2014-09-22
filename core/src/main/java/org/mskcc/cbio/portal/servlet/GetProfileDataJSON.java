@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Iterator;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
@@ -81,9 +82,10 @@ public class GetProfileDataJSON extends HttpServlet  {
         } else {
             rawGeneIdList = httpServletRequest.getParameter("gene_list");
         }
-        
         String[] geneIdList = rawGeneIdList.split("\\s+");
         String[] geneticProfileIds = httpServletRequest.getParameter("genetic_profile_id").split("\\s+");
+        String forceDownload = httpServletRequest.getParameter("force_download");
+        String format = httpServletRequest.getParameter("format");
 
         //Final result JSON
         ObjectMapper mapper = new ObjectMapper();
@@ -162,9 +164,74 @@ public class GetProfileDataJSON extends HttpServlet  {
             System.out.println("Caught DaoException: " + e.getMessage());
         }
 
-        httpServletResponse.setContentType("application/json");
-        PrintWriter out = httpServletResponse.getWriter();
-        mapper.writeValue(out, result);
+        if (forceDownload == null) {
+            httpServletResponse.setContentType("application/json");
+            PrintWriter out = httpServletResponse.getWriter();
+            mapper.writeValue(out, result);
+        } else {
+            String result_str = "";
+            if (format.equals("tab")) {
+                String sampleId_str = "GENE_ID" + "\t" + "COMMON" + "\t";
+                Iterator<String> sampleIds = result.get(geneIdList[0]).getFieldNames();
+                while (sampleIds.hasNext()) {
+                    sampleId_str += sampleIds.next() + "\t";
+                }
+                sampleId_str += "\n";
+
+                String val_str = "";
+                DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+                Iterator<String> geneSymbols = result.getFieldNames();
+                while (geneSymbols.hasNext()) {
+                    String geneSymbol = geneSymbols.next();
+                    CanonicalGene gene = daoGene.getGene(geneSymbol);
+                    long entrezGeneId = gene.getEntrezGeneId();
+                    val_str += geneSymbol + "\t" + entrezGeneId + "\t";
+                    JsonNode dataObj = result.get(geneSymbol);
+                    Iterator<String> sampleIds_val = dataObj.getFieldNames();
+                    while (sampleIds_val.hasNext()) {
+                        String sampleId = sampleIds_val.next();
+                        val_str += dataObj.get(sampleId).get(geneticProfileIds[0]) + "\t";                        
+                    }
+                    val_str += "\n";
+                }
+                result_str += sampleId_str + val_str;
+            } else if (format.equals("matrix")) {
+
+                String  gene_str = "",
+                        val_str = "";
+
+                gene_str += "GENE_ID" + "\t";
+                Iterator<String> geneSymbols = result.getFieldNames();
+                DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+                while (geneSymbols.hasNext()) {
+                    String geneSymbol = geneSymbols.next();
+                    CanonicalGene gene = daoGene.getGene(geneSymbol);
+                    gene_str += gene.getEntrezGeneId() + "\t";
+                }
+                gene_str += "\n" + "COMMON" + "\t";
+                for(String geneId : geneIdList) {
+                    gene_str += geneId + "\t";
+                }
+                gene_str += "\n";
+
+                Iterator<String> sampleIds = result.get(geneIdList[0]).getFieldNames();
+                while (sampleIds.hasNext()) {
+                    String sampleId = sampleIds.next();
+                    val_str += sampleId + "\t";
+                    for (String geneId : geneIdList) {
+                        val_str += result.get(geneId).get(sampleId).get(geneticProfileIds[0]) + "\t";
+                    }
+                    val_str += "\n";
+                }
+                result_str += gene_str + val_str;
+            }
+
+            String fileName = "result.txt";
+            httpServletResponse.setContentType("application/octet-stream");
+            httpServletResponse.setHeader("content-disposition", "attachment; filename='" + fileName + "'");
+            PrintWriter out = httpServletResponse.getWriter();
+            out.write(result_str);
+        }
 
     }
 }

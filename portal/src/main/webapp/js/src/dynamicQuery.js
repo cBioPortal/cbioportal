@@ -172,7 +172,7 @@ function loadMetaData() {
 
     function loadContent() {
         //  Get Portal JSON Meta Data via JQuery AJAX
-        jQuery.getJSON("portal_meta_data.json?partial=true",function(json){
+        jQuery.getJSON("portal_meta_data.json?partial_studies=true",function(json){
             //  Store JSON Data in global variable for later use
             window.metaDataJson = json;
 	        window.studyMetaData = {}; // map containing metadata pertaining to a study

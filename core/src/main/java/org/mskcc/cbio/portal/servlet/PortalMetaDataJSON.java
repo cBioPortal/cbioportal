@@ -79,7 +79,7 @@ public class PortalMetaDataJSON extends HttpServlet {
             IOException {
         XDebug xdebug = new XDebug(httpServletRequest);
         String studyId = httpServletRequest.getParameter(STUDY_ID);
-        String partial = httpServletRequest.getParameter(PARTIAL_STUDIES);
+     
         try {
             if (studyId != null) {
                 // check if it's a valid study ID first
@@ -186,7 +186,10 @@ public class PortalMetaDataJSON extends HttpServlet {
                     visibleTypeOfCancerMap.put(typeOfCancerId, typeOfCancerMap.get(typeOfCancerId));
                     visibleCancerColors.put(typeOfCancerId, cancerColors.get(typeOfCancerId));
                     visibleShortNames.put(typeOfCancerId, shortNames.get(typeOfCancerId));
-                    if (partial == null || partial.equals("true")) {
+                    
+                    String partial = httpServletRequest.getParameter(PARTIAL_STUDIES);
+                    
+                    if (partial == null || partial.equals("false")) {
                         ArrayList<CaseList> caseSets = GetCaseLists.getCaseLists(cancerStudy.getCancerStudyStableId());
 
                         ArrayList<GeneticProfile> geneticProfiles

@@ -26,6 +26,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mskcc.cbio.portal.model.CancerStudy;
+import org.mskcc.cbio.portal.dao.DaoException;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -171,7 +172,13 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 		}
                 
                 // for groups
-                Set<String> groups = cancerStudy.getGroups();
+				Set<String> groups = Collections.emptySet();
+				try {
+                	groups = cancerStudy.getFreshGroups();
+                }
+                catch (DaoException e) {
+					groups = cancerStudy.getGroups();
+                }
                 if (!Collections.disjoint(groups, grantedAuthorities)) {
 			if (log.isDebugEnabled()) {
 				log.debug("hasPermission(), user has access by groups return true");

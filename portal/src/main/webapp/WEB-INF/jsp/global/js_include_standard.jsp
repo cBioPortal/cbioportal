@@ -9,6 +9,7 @@
 <script type="text/javascript" src="js/lib/responsiveslides.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/mailme.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/jquery.dataTables.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/jquery.dataTables.two_button.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/jquery.quovolver.mini.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/jquery.dataTables.ColVis.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/jquery.dataTables.fnSetFilteringDelay.js?<%=GlobalProperties.getAppVersion()%>"></script>

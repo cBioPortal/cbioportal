@@ -985,29 +985,6 @@ var StudyViewInitCharts = (function(){
         StudyViewInitTopComponents.changeHeader(_result, numOfCases, removedChart);
     }
     
-    function updateDataTableCallbackFuncs() {
-        
-        var _dataTableRowClickCallback = function(_deSelect, _selectedRowCaseId) {
-            StudyViewInitScatterPlot.setClickedCasesId(_selectedRowCaseId);
-            removeMarker();
-            //redrawChartsAfterDeletion();
-            if(!_deSelect){
-                getDataAndDrawMarker(_selectedRowCaseId);
-            }
-        };
-        
-        var _dataTableRowShiftClickCallback = function(_selectedRowCaseId) {
-            StudyViewInitScatterPlot.setShiftClickedCasesId(_selectedRowCaseId);
-            StudyViewInitScatterPlot.setClickedCasesId('');
-            removeMarker();
-            filterChartsByGivingIDs(_selectedRowCaseId);
-        };
-        
-        var _dataTable = StudyViewInitDataTable.getDataTable();
-        _dataTable.rowClickCallback(_dataTableRowClickCallback);
-        _dataTable.rowShiftClickCallback(_dataTableRowShiftClickCallback);
-    }
-    
     //This filter is the same one which used in previous Google Charts Version,
     //should be revised later.
     function selectedCol(col) {

@@ -53,17 +53,81 @@ public class PortalMetaDataJSON extends HttpServlet {
     private AccessControl accessControl;
     public static final String STUDY_ID = "study_id";
     public static final String PARTIAL_STUDIES = "partial_studies";
-            /**
-             * Initializes the servlet.
-             *
-             * @throws ServletException Serlvet Init Error.
-             */
+
+    /**
+     * Initializes the servlet.
+     *
+     * @throws ServletException Serlvet Init Error.
+     */
 
     public void init() throws ServletException {
         super.init();
         ApplicationContext context
                 = new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
         accessControl = (AccessControl) context.getBean("accessControl");
+    }
+
+    /**
+     * Generates a Map which will be turned into JSON representing a cancer
+     * study
+     *
+     * @param cancerStudy A CancerStudy object to be turned into a map
+     * @param partial Whether the generated Map should be "partial", i.e.
+     * including only the name and type of cancer of the study, or not,
+     * including all information about a cancer study.
+     * @return A Map representing the given study.
+     * @throws DaoException
+     */
+    protected Map cancerStudyMap(CancerStudy cancerStudy, boolean partial) throws DaoException {
+        Map ret = new LinkedHashMap();
+        ret.put("name", cancerStudy.getName());
+        ret.put("type_of_cancer", cancerStudy.getTypeOfCancerId());
+
+        if (partial) {
+            ret.put("partial", "true");
+        } else {
+            // at this point we have the study corresponding to the given ID
+            ArrayList<CaseList> caseSets = GetCaseLists.getCaseLists(cancerStudy.getCancerStudyStableId());
+
+            ArrayList<GeneticProfile> geneticProfiles
+                    = GetGeneticProfiles.getGeneticProfiles(cancerStudy.getCancerStudyStableId());
+
+            JSONArray jsonGenomicProfileList = new JSONArray();
+            for (GeneticProfile geneticProfile : geneticProfiles) {
+                Map map = new LinkedHashMap();
+                map.put("id", geneticProfile.getStableId());
+                map.put("alteration_type", geneticProfile.getGeneticAlterationType().toString());
+                map.put("show_in_analysis_tab", geneticProfile.showProfileInAnalysisTab());
+                map.put("name", geneticProfile.getProfileName());
+                map.put("description", geneticProfile.getProfileDescription());
+                map.put("datatype", geneticProfile.getDatatype());
+                jsonGenomicProfileList.add(map);
+            }
+
+            JSONArray jsonCaseList = new JSONArray();
+            for (CaseList caseSet : caseSets) {
+                Map map = new LinkedHashMap();
+                map.put("id", caseSet.getStableId());
+                map.put("name", caseSet.getName());
+                map.put("description", caseSet.getDescription());
+                map.put("size", caseSet.getCaseList().size());
+                jsonCaseList.add(map);
+            }
+            ret.put("short_name", cancerStudy.getShortName());
+            ret.put("description", cancerStudy.getDescription());
+            ret.put("citation", cancerStudy.getCitation());
+            ret.put("pmid", cancerStudy.getPmid());
+            ret.put("genomic_profiles", jsonGenomicProfileList);
+            ret.put("case_sets", jsonCaseList);
+            ret.put("has_mutation_data", cancerStudy.hasMutationData(geneticProfiles));
+            ret.put("has_cna_data", cancerStudy.hasCnaData());
+            ret.put("has_mutsig_data", cancerStudy.hasMutSigData());
+            ret.put("has_gistic_data", cancerStudy.hasGisticData());
+
+            ret.put("partial", "false");
+        }
+
+        return ret;
     }
 
     /**
@@ -79,7 +143,7 @@ public class PortalMetaDataJSON extends HttpServlet {
             IOException {
         XDebug xdebug = new XDebug(httpServletRequest);
         String studyId = httpServletRequest.getParameter(STUDY_ID);
-     
+
         try {
             if (studyId != null) {
                 // check if it's a valid study ID first
@@ -100,49 +164,9 @@ public class PortalMetaDataJSON extends HttpServlet {
                     writer.close();
                     return;
                 }
-                // at this point we have the study corresponding to the given ID
-                ArrayList<CaseList> caseSets = GetCaseLists.getCaseLists(cancerStudy.getCancerStudyStableId());
-
-                ArrayList<GeneticProfile> geneticProfiles
-                        = GetGeneticProfiles.getGeneticProfiles(cancerStudy.getCancerStudyStableId());
-
-                JSONArray jsonGenomicProfileList = new JSONArray();
-                for (GeneticProfile geneticProfile : geneticProfiles) {
-                    Map map = new LinkedHashMap();
-                    map.put("id", geneticProfile.getStableId());
-                    map.put("alteration_type", geneticProfile.getGeneticAlterationType().toString());
-                    map.put("show_in_analysis_tab", geneticProfile.showProfileInAnalysisTab());
-                    map.put("name", geneticProfile.getProfileName());
-                    map.put("description", geneticProfile.getProfileDescription());
-                    map.put("datatype", geneticProfile.getDatatype());
-                    jsonGenomicProfileList.add(map);
-                }
-
-                JSONArray jsonCaseList = new JSONArray();
-                for (CaseList caseSet : caseSets) {
-                    Map map = new LinkedHashMap();
-                    map.put("id", caseSet.getStableId());
-                    map.put("name", caseSet.getName());
-                    map.put("description", caseSet.getDescription());
-                    map.put("size", caseSet.getCaseList().size());
-                    jsonCaseList.add(map);
-                }
-                Map jsonCancerStudySubMap = new LinkedHashMap();
-                jsonCancerStudySubMap.put("name", cancerStudy.getName());
-                jsonCancerStudySubMap.put("short_name", cancerStudy.getShortName());
-                jsonCancerStudySubMap.put("description", cancerStudy.getDescription());
-                jsonCancerStudySubMap.put("citation", cancerStudy.getCitation());
-                jsonCancerStudySubMap.put("pmid", cancerStudy.getPmid());
-                jsonCancerStudySubMap.put("genomic_profiles", jsonGenomicProfileList);
-                jsonCancerStudySubMap.put("case_sets", jsonCaseList);
-                jsonCancerStudySubMap.put("has_mutation_data", cancerStudy.hasMutationData(geneticProfiles));
-                jsonCancerStudySubMap.put("has_cna_data", cancerStudy.hasCnaData());
-                jsonCancerStudySubMap.put("has_mutsig_data", cancerStudy.hasMutSigData());
-                jsonCancerStudySubMap.put("has_gistic_data", cancerStudy.hasGisticData());
-
-                String typeOfCancerId = cancerStudy.getTypeOfCancerId();
-                jsonCancerStudySubMap.put("type_of_cancer", typeOfCancerId);
-
+                // at this point we have a CancerStudy object corresponding to
+                //  the given study
+                Map jsonCancerStudySubMap = cancerStudyMap(cancerStudy, false);
                 httpServletResponse.setContentType("application/json");
                 String jsonText = JSONValue.toJSONString(jsonCancerStudySubMap);
                 PrintWriter writer = httpServletResponse.getWriter();
@@ -178,56 +202,17 @@ public class PortalMetaDataJSON extends HttpServlet {
 
                 //  Get all Genomic Profiles and Case Sets for each Cancer Study
                 rootMap.put("cancer_studies", cancerStudyMap);
+                String partial_s = httpServletRequest.getParameter(PARTIAL_STUDIES);
+                
+                boolean full_data = (partial_s == null || partial_s.equals("false"));
+                
                 for (CancerStudy cancerStudy : cancerStudiesList) {
-                    Map jsonCancerStudySubMap = new LinkedHashMap();
-                    jsonCancerStudySubMap.put("name", cancerStudy.getName());
+                    Map jsonCancerStudySubMap = cancerStudyMap(cancerStudy, !full_data);
+                    cancerStudyMap.put(cancerStudy.getCancerStudyStableId(), jsonCancerStudySubMap);
                     String typeOfCancerId = cancerStudy.getTypeOfCancerId();
-                    jsonCancerStudySubMap.put("type_of_cancer", typeOfCancerId);
                     visibleTypeOfCancerMap.put(typeOfCancerId, typeOfCancerMap.get(typeOfCancerId));
                     visibleCancerColors.put(typeOfCancerId, cancerColors.get(typeOfCancerId));
                     visibleShortNames.put(typeOfCancerId, shortNames.get(typeOfCancerId));
-                    
-                    String partial = httpServletRequest.getParameter(PARTIAL_STUDIES);
-                    
-                    if (partial == null || partial.equals("false")) {
-                        ArrayList<CaseList> caseSets = GetCaseLists.getCaseLists(cancerStudy.getCancerStudyStableId());
-
-                        ArrayList<GeneticProfile> geneticProfiles
-                                = GetGeneticProfiles.getGeneticProfiles(cancerStudy.getCancerStudyStableId());
-
-                        JSONArray jsonGenomicProfileList = new JSONArray();
-                        for (GeneticProfile geneticProfile : geneticProfiles) {
-                            Map map = new LinkedHashMap();
-                            map.put("id", geneticProfile.getStableId());
-                            map.put("alteration_type", geneticProfile.getGeneticAlterationType().toString());
-                            map.put("show_in_analysis_tab", geneticProfile.showProfileInAnalysisTab());
-                            map.put("name", geneticProfile.getProfileName());
-                            map.put("description", geneticProfile.getProfileDescription());
-                            map.put("datatype", geneticProfile.getDatatype());
-                            jsonGenomicProfileList.add(map);
-                        }
-
-                        JSONArray jsonCaseList = new JSONArray();
-                        for (CaseList caseSet : caseSets) {
-                            Map map = new LinkedHashMap();
-                            map.put("id", caseSet.getStableId());
-                            map.put("name", caseSet.getName());
-                            map.put("description", caseSet.getDescription());
-                            map.put("size", caseSet.getCaseList().size());
-                            jsonCaseList.add(map);
-                        }
-                        jsonCancerStudySubMap.put("short_name", cancerStudy.getShortName());
-                        jsonCancerStudySubMap.put("description", cancerStudy.getDescription());
-                        jsonCancerStudySubMap.put("citation", cancerStudy.getCitation());
-                        jsonCancerStudySubMap.put("pmid", cancerStudy.getPmid());
-                        jsonCancerStudySubMap.put("genomic_profiles", jsonGenomicProfileList);
-                        jsonCancerStudySubMap.put("case_sets", jsonCaseList);
-                        jsonCancerStudySubMap.put("has_mutation_data", cancerStudy.hasMutationData(geneticProfiles));
-                        jsonCancerStudySubMap.put("has_cna_data", cancerStudy.hasCnaData());
-                        jsonCancerStudySubMap.put("has_mutsig_data", cancerStudy.hasMutSigData());
-                        jsonCancerStudySubMap.put("has_gistic_data", cancerStudy.hasGisticData());
-                    }
-                    cancerStudyMap.put(cancerStudy.getCancerStudyStableId(), jsonCancerStudySubMap);
                 }
 
                 // Only put visible ones

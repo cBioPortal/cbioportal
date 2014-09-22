@@ -150,7 +150,7 @@ function loadStudyMetaData(cancerStudyId) {
     function loadContent() {
         $.getJSON("portal_meta_data.json?study_id="+cancerStudyId, function(json){
             // 3. window.studyMetaData[cancerStudyId] = loadedData;
-            window.studyMetaData[cancerStudyId] = json;
+            window.metaDataJson.cancer_studies[cancerStudyId] = json;
             // 4. Once loaded, call updateCancerStudyInformation(studyId)
             updateCancerStudyInformation(cancerStudyId);
             $('#load').fadeOut('fast', function() {
@@ -175,7 +175,6 @@ function loadMetaData() {
         jQuery.getJSON("portal_meta_data.json?partial_studies=true",function(json){
             //  Store JSON Data in global variable for later use
             window.metaDataJson = json;
-	        window.studyMetaData = {}; // map containing metadata pertaining to a study
 
             //  Add Meta Data to current page
             addMetaDataToPage();
@@ -485,9 +484,7 @@ function updateCaseListSmart() {
 
 // Called when and only when a cancer study is selected from the dropdown menu
 function updateCancerStudyInformation(cancerStudyId) {
-    var cancer_study = window.studyMetaData[cancerStudyId];
-    // old (delete when done): 
-    // var cancer_study = window.metaDataJson.cancer_studies[cancerStudyId];
+    var cancer_study = window.metaDataJson.cancer_studies[cancerStudyId];
 
     // toggle every time a new cancer study is selected
     toggleByCancerStudy(cancer_study);
@@ -645,7 +642,7 @@ function cancerStudySelected() {
         cancerStudyId = $("#select_cancer_type").val();
     }
 
-    if (!(cancerStudyId in window.studyMetaData)) {
+    if (window.metaDataJson.cancer_studies[cancerStudyId].partial) {
 	    loadStudyMetaData(cancerStudyId);
     } else {
 	    updateCancerStudyInformation(cancerStudyId);

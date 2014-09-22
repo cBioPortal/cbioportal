@@ -65,8 +65,6 @@ $(document).ready(function(){
          caseSetSelectionOverriddenByUser = false; // reset
          console.log("#select_cancer_type change ( cancerStudySelected() )");
          cancerStudySelected();
-         console.log("#select_cancer_type change ( reviewCurrentSelections() )");
-         reviewCurrentSelections();
          
          caseSetSelected();
          $('#custom_case_set_ids').empty(); // reset the custom case set textarea
@@ -142,10 +140,24 @@ $(document).ready(function(){
 //  	populate the dropdown menu.
 function loadStudyMetaData(cancerStudyId) {
 	// 1. Loader stuff
+     $('#load').remove();
+    //  show ajax loader image; loader is background image of div 'load' as set in css
+    $('.main_query_panel').append('<div id="load">&nbsp;</div>');
+    $('#load').fadeIn('slow');
 	// 2. Get JSON with ajax
-	// 3. window.studyMetaData[cancerStudyId] = loadedData;
-	// 4. Once loaded, call updateCancerStudyInformation(studyId)
-	throw new Error("loadStudyMetaData not yet written")
+    loadContent();
+
+    function loadContent() {
+        $.getJSON("portal_meta_data.json?study_id="+cancerStudyId, function(json){
+            // 3. window.studyMetaData[cancerStudyId] = loadedData;
+            window.studyMetaData[cancerStudyId] = json;
+            // 4. Once loaded, call updateCancerStudyInformation(studyId)
+            updateCancerStudyInformation(cancerStudyId);
+            $('#load').fadeOut('fast', function() {
+                $('#load').remove();
+            });
+        });
+    }
 }
 	
 //  Load Portal JSON Meta Data, while showing loader image
@@ -160,10 +172,10 @@ function loadMetaData() {
 
     function loadContent() {
         //  Get Portal JSON Meta Data via JQuery AJAX
-        jQuery.getJSON("portal_meta_data.json",function(json){
+        jQuery.getJSON("portal_meta_data.json?partial=true",function(json){
             //  Store JSON Data in global variable for later use
             window.metaDataJson = json;
-	    window.studyMetaData = {}; // map containing metadata pertaining to a study
+	        window.studyMetaData = {}; // map containing metadata pertaining to a study
 
             //  Add Meta Data to current page
             addMetaDataToPage();
@@ -570,7 +582,8 @@ function updateCancerStudyInformation(cancerStudyId) {
     // Set default selections and make sure all steps are visible
     console.log("cancerStudySelected ( singleCancerStudySelected() )");
     singleCancerStudySelected();
-    
+    console.log("cancerStudySelected ( reviewCurrentSelections() )");
+    reviewCurrentSelections();
     // check if cancer study has a clinical_free_form data to filter,
     // if there is data to filter, then enable "build custom case set" link,
     // otherwise disable the button

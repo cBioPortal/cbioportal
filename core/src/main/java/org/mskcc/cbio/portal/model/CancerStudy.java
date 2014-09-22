@@ -331,6 +331,11 @@ public class CancerStudy {
         return DaoCopyNumberSegment.segmentDataExistForCancerStudy(studyID);
     }
 
+    public Set<String> getFreshGroups() throws DaoException
+    {
+        return DaoCancerStudy.getFreshGroups(studyID);
+    }
+
     public Set<String> getGroups() {
         if (groups==null) {
             return Collections.emptySet();

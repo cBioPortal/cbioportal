@@ -32,15 +32,12 @@ var LoadingJS = (function(){
                 data: ['StudyViewProxy'],
                 util: [
                     'FnGetColumnData',
-                    'FnColumnFilter',
-                    'FnSetFilteringDelay',
                     'StudyViewUtil',
                     'StudyViewPrototypes'
                 ],
                 view: [
                     'StudyViewInitCharts', 
                     'StudyViewInitDataTable',
-                    'StudyViewInitMiddleComponents',
                     'StudyViewInitTopComponents',
                     'StudyViewInitScatterPlot',
                     'StudyViewInitIntroJS',

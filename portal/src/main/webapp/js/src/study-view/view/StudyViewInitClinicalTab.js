@@ -11,7 +11,7 @@ var StudyViewInitClinicalTab = (function(){
 //        aoColumns = _aoColumns;
         dataTable = new DataTable();
         dataTable.init(_tableID, _tableContainerId, _data);
-        
+        dataTable.updateFrozedColStyle();
         //initDataTable();
     }
     

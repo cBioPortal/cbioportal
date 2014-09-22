@@ -57,6 +57,7 @@ public class MutationFilter {
    private int missenseGermlineRejects=0;
 	private int utrRejects=0;
 	private int igrRejects=0;
+	private int redactedRejects=0;
 
    /**
     * Construct a MutationFilter with no white lists. 
@@ -155,6 +156,13 @@ public class MutationFilter {
              }
          }         
       }
+
+		// Do not accept Redacted mutations
+		if (safeStringTest(mutation.getValidationStatus(), "Redacted"))
+		{
+		   redactedRejects++;
+		   return false;
+		}
 
       // Do not accept 3'UTR or 5' UTR Mutations
       if( safeStringTest( mutation.getMutationType(), "3'UTR" ) ||
@@ -273,6 +281,11 @@ public class MutationFilter {
    public int getUnknownAccepts(){
       return this.unknownAccepts;
    }
+
+	public int getRedactedRejects()
+	{
+		return this.redactedRejects;
+	}
 
    /**
     * Provide number of REJECT (return false) decisions made by this MutationFilter.

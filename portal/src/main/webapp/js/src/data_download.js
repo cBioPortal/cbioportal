@@ -117,23 +117,49 @@ var DataDownloadTab = (function() {
             { name: "Tab limited Format", value: "tab"},
             { name: "Transposed Matrix", value: "matrix"}
         ]
+
         $.each(window.PortalGlobals.getGeneticProfiles().split(" "), function(index, val) {
-            $("#data_download_links_li").append("<li>" + profiles[val].NAME + ": ");       
+            var _str = "<li>" + profiles[val].NAME + ": "; 
             $.each(_formats, function(inner_index, inner_obj) {
+                // var _href_str = "<a href='#' onclick=\"DataDownloadTab.onClick('" + val + "', '" + inner_obj.value + "');\">" + inner_obj.name + "</a>";
+                // $("#data_download_links_li").append(_href_str);                 
                 var _download_form =
-                    "<form style='display:inline-block' action='getProfileData.json' method='post' target='_blank'>" +
+                    "<form name='download_tab_form_" + val + "_" + inner_obj.value + "' style='display:inline-block' action='getProfileData.json' method='post' target='_blank'>" +
                         "<input type='hidden' name='cancer_study_id' value='" + window.PortalGlobals.getCancerStudyId() + "'>" +
                         "<input type='hidden' name='case_set_id' value='" + window.PortalGlobals.getCaseSetId() + "'>" +
                         "<input type='hidden' name='genetic_profile_id' value='" + val + "'>" +
                         "<input type='hidden' name='gene_list' value='" + window.PortalGlobals.getGeneListString() + "'>" +
                         "<input type='hidden' name='force_download' value='true'>" +
                         "<input type='hidden' name='format' value='"  + inner_obj.value + "'>" +
-                        "<input type='submit' value='" + inner_obj.name + "'></form>";
-                $("#data_download_links_li").append(_download_form);                 
+                        //"<button type='submit' value='" + inner_obj.name + "'></form>";
+                        "<a href='#' onclick=\"document.forms['download_tab_form_" + val + "_" + inner_obj.value + "'].submit();return false;\"> [ " + inner_obj.name + " ]</a>" + 
+                        "</form>&nbsp;&nbsp;&nbsp;";
+                _str += _download_form;                 
             });      
-            $("#data_download_links_li").append("</li>");
+            _str += "</li>";
+            $("#data_download_links_li").append(_str);
         });
-        $("#data_download_links_li").append("<li>Click to data download from other genetic profiles ...</li>");
+
+        //configure the download link (link back to the home page download data tab)
+        var _sample_ids_str = "";
+        if (!(window.PortalGlobals.getCaseSetId() !== "" ||
+            window.PortalGlobals.getCaseIdsKey() !== "" ||
+            window.PortalGlobals.getCaseSetId() !== null ||
+            window.PortalGlobals.getCaseIdsKey() !== null)) {
+            $.each(window.PortalGlobals.getSampleIds(), function(index, val) {
+                _sample_ids_str += val + "+";
+            });
+            _sample_ids_str = _sample_ids_str.substring(0, (_sample_ids_str.length - 1));
+        }
+        var _link = "index.do?" + 
+                    "cancer_study_id=" + window.PortalGlobals.getCancerStudyId() + "&" + 
+                    "case_ids_key=" + window.PortalGlobals.getCaseIdsKey() + "&" + 
+                    "case_set_id=" + window.PortalGlobals.getCaseSetId() + "&" +
+                    "case_ids=" + _sample_ids_str + "&" + 
+                    "gene_list=" + window.PortalGlobals.getGeneListString()+ "&" + 
+                    "tab_index=tab_download";
+        $("#data_download_redirect_home_page").append(
+            "<a href='" + _link + "' target='_blank' style='margin-left:20px;'>Click to download data with other genetic profiles ...</a>");
     }
 
     function renderTextareas() {
@@ -161,7 +187,19 @@ var DataDownloadTab = (function() {
         },
         isRendered: function() {
             return _isRendered;
-        }
+        },
+        // onClick: function(genetic_profile_id, format) {
+        //     var _params = {
+        //         cancer_study_id: window.PortalGlobals.getCancerStudyId(),
+        //         case_set_id: window.PortalGlobals.getCaseSetId(),
+        //         case_ids_key: window.PortalGlobals.getCaseIdsKey(),
+        //         genetic_profile_id: genetic_profile_id,
+        //         gene_list: window.PortalGlobals.getGeneListString(),
+        //         force_download: true,
+        //         format: format
+        //     };
+        //     $.post("getProfileData.json", _params);
+        // }
     };
 
 }());

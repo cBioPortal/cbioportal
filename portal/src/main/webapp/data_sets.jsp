@@ -156,6 +156,12 @@
                 width: auto;
                 float: right;
         }
+        table.display thead th{
+            border: 1px solid #d3d3d3;
+            background: #e6e6e6 url(images/ui-bg_glass_75_e6e6e6_1x400.png) 50% 50% repeat-x;
+            font-weight: bold;
+            color: #555555;
+        }
 </style>
 
 <script type="text/javascript">

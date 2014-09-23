@@ -840,6 +840,8 @@
                     listenToBamIgvClick(".igv-link");
                     drawPanCanThumbnails(this);
                 },
+                "bPaginate": true,
+                "sPaginationType": "two_button",
                 "aaSorting": [[mutTableIndices["cosmic"],'desc'],[mutTableIndices["altrate"],'desc']],
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",

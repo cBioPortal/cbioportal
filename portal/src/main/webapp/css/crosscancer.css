@@ -163,3 +163,18 @@
 .lollipop-stats {
 	margin-top: 10px;
 }
+
+.dataTables_length {
+	width: auto;
+	float: right;
+}
+
+.dataTables_length {
+	width: auto;
+	float: right;
+}
+
+.div.datatable-paging {
+	width: auto;
+	float: right;
+}

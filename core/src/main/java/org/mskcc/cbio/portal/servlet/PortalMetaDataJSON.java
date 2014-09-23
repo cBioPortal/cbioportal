@@ -53,6 +53,8 @@ public class PortalMetaDataJSON extends HttpServlet {
     private AccessControl accessControl;
     public static final String STUDY_ID = "study_id";
     public static final String PARTIAL_STUDIES = "partial_studies";
+    public static final String GENESET_ID = "geneset_id";
+    public static final String PARTIAL_GENESETS = "partial_genesets";
 
     /**
      * Initializes the servlet.
@@ -143,8 +145,28 @@ public class PortalMetaDataJSON extends HttpServlet {
             IOException {
         XDebug xdebug = new XDebug(httpServletRequest);
         String studyId = httpServletRequest.getParameter(STUDY_ID);
+        String geneSetId = httpServletRequest.getParameter(GENESET_ID);
 
         try {
+            if (geneSetId != null) {
+                String geneList = "";
+                GeneSetUtil geneSetUtil = GeneSetUtil.getInstance();
+                ArrayList<GeneSet> geneSetList = geneSetUtil.getGeneSetList();
+                for (GeneSet geneSet : geneSetList) {
+                    if (geneSet.getId().replace("/", "").equals(geneSetId)) {
+                        geneList = geneSet.getGeneList();
+                        break;
+                    }
+                }
+                Map obj = new LinkedHashMap();
+                obj.put("list", geneList);
+                String jsonText = JSONValue.toJSONString(obj);
+                PrintWriter writer = httpServletResponse.getWriter();
+                writer.write(jsonText);
+                writer.flush();
+                writer.close();
+                return;
+            }
             if (studyId != null) {
                 // check if it's a valid study ID first
                 // If not, return {}
@@ -202,12 +224,12 @@ public class PortalMetaDataJSON extends HttpServlet {
 
                 //  Get all Genomic Profiles and Case Sets for each Cancer Study
                 rootMap.put("cancer_studies", cancerStudyMap);
-                String partial_s = httpServletRequest.getParameter(PARTIAL_STUDIES);
+                String partial_studies_s = httpServletRequest.getParameter(PARTIAL_STUDIES);
                 
-                boolean full_data = (partial_s == null || partial_s.equals("false"));
+                boolean full_studies_data = (partial_studies_s == null || partial_studies_s.equals("false"));
                 
                 for (CancerStudy cancerStudy : cancerStudiesList) {
-                    Map jsonCancerStudySubMap = cancerStudyMap(cancerStudy, !full_data);
+                    Map jsonCancerStudySubMap = cancerStudyMap(cancerStudy, !full_studies_data);
                     cancerStudyMap.put(cancerStudy.getCancerStudyStableId(), jsonCancerStudySubMap);
                     String typeOfCancerId = cancerStudy.getTypeOfCancerId();
                     visibleTypeOfCancerMap.put(typeOfCancerId, typeOfCancerMap.get(typeOfCancerId));
@@ -225,10 +247,17 @@ public class PortalMetaDataJSON extends HttpServlet {
                 Map jsonGeneSetMap = new LinkedHashMap();
                 rootMap.put("gene_sets", jsonGeneSetMap);
                 ArrayList<GeneSet> geneSetList = geneSetUtil.getGeneSetList();
+                String partial_genesets_s = httpServletRequest.getParameter(PARTIAL_GENESETS);
+                boolean full_genesets_data = (partial_genesets_s == null || partial_genesets_s.equals("false"));
+                
                 for (GeneSet geneSet : geneSetList) {
                     Map geneSetMap = new LinkedHashMap();
                     geneSetMap.put("name", geneSet.getName());
-                    geneSetMap.put("gene_list", geneSet.getGeneList());
+                    if (full_genesets_data) {
+                        geneSetMap.put("gene_list", geneSet.getGeneList());
+                    } else {
+                        geneSetMap.put("gene_list", "");
+                    }
                     jsonGeneSetMap.put(geneSet.getId(), geneSetMap);
                 }
 

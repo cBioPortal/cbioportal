@@ -139,25 +139,24 @@ $(document).ready(function(){
 //  Load study Meta Data, i.e. everything except the name, which we load earlier to
 //  	populate the dropdown menu.
 function loadStudyMetaData(cancerStudyId) {
-	// 1. Loader stuff
-     $('#load').remove();
-    //  show ajax loader image; loader is background image of div 'load' as set in css
-    $('.main_query_panel').append('<div id="load">&nbsp;</div>');
-    $('#load').fadeIn('slow');
-	// 2. Get JSON with ajax
-    loadContent();
+	$('.main_query_panel').fadeTo("fast",0.6);
+	
+    $.getJSON("portal_meta_data.json?study_id="+cancerStudyId, function(json){
+        window.metaDataJson.cancer_studies[cancerStudyId] = json;
+        updateCancerStudyInformation(cancerStudyId);
+        $('.main_query_panel').stop().fadeTo("fast",1);
+    });
+}
 
-    function loadContent() {
-        $.getJSON("portal_meta_data.json?study_id="+cancerStudyId, function(json){
-            // 3. window.studyMetaData[cancerStudyId] = loadedData;
-            window.metaDataJson.cancer_studies[cancerStudyId] = json;
-            // 4. Once loaded, call updateCancerStudyInformation(studyId)
-            updateCancerStudyInformation(cancerStudyId);
-            $('#load').fadeOut('fast', function() {
-                $('#load').remove();
-            });
-        });
-    }
+// Load geneset gene list
+function loadGeneList(geneSetId) {
+    $('.main_query_panel').fadeTo("fast",0.6);
+
+    $.getJSON("portal_meta_data.json?geneset_id="+geneSetId.replace(/\//g,""), function(json){
+        window.metaDataJson.gene_sets[geneSetId].gene_list = json.list;
+        $("#gene_list").val(json.list);
+        $('.main_query_panel').stop().fadeTo("fast",1);
+    });
 }
 	
 //  Load Portal JSON Meta Data, while showing loader image
@@ -172,7 +171,7 @@ function loadMetaData() {
 
     function loadContent() {
         //  Get Portal JSON Meta Data via JQuery AJAX
-        jQuery.getJSON("portal_meta_data.json?partial_studies=true",function(json){
+        jQuery.getJSON("portal_meta_data.json?partial_studies=true&partial_genesets=true",function(json){
             //  Store JSON Data in global variable for later use
             window.metaDataJson = json;
 
@@ -672,11 +671,15 @@ function geneSetSelected() {
     //  Get the selected ID from the pull-down menu
     var geneSetId = $("#select_gene_set").val();
 
-    //  Get the gene set meta data from global JSON variable
-    var gene_set = window.metaDataJson.gene_sets[geneSetId];
+    if (window.metaDataJson.gene_sets[geneSetId].gene_list == "") {
+        loadGeneList(geneSetId);
+    } else {
+        //  Get the gene set meta data from global JSON variable
+        var gene_set = window.metaDataJson.gene_sets[geneSetId];
 
-    //  Set the gene list text area
-    $("#gene_list").val(gene_set.gene_list);
+        //  Set the gene list text area
+        $("#gene_list").val(gene_set.gene_list);
+    }
 }
 
 //  Adds Meta Data to the Page.

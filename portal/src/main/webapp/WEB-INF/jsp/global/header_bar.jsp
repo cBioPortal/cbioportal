@@ -29,6 +29,7 @@
     <!-- Display Sign Out Button for Real (Non-Anonymous) User -->
     <sec:authorize access="!hasRole('ROLE_ANONYMOUS')">
 	<tr>
+		<td></td><td></td>
         <td align="right" style="font-size:10px;background-color:white">
         <% if (authenticationMethod.equals("saml")) { %>
         You are logged in as <sec:authentication property='<%=principal%>' />. <a href="<c:url value="/saml/logout?local=true"/>">Sign out</a>.

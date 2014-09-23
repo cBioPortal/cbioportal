@@ -284,12 +284,6 @@
     };
 </script>
 
-<script> 
-
-
-
-</script>
-
 <script>
 
     PortalDataCollManager.subscribeOncoprint(function() {
@@ -315,15 +309,21 @@
         });
         window.PortalGlobals.setSampleIds(_sampleIds);
 
-        //Configure the summary line
-        var _smry = "<h3 style='font-size:110%;'><a href='study.do?cancer_study_id=" + 
+        //Configure the summary line of alteration statstics
+        var _stat_smry = "<h2><small>Gene Set/Pathway is altered in <b>" + window.PortalGlobals.getNumOfAlteredCases() + " (" + window.PortalGlobals.getPercentageOfAlteredCases() + "%)" + "</b> of all samples</small></h2>";
+        $("#main_smry_stat_div").append(_stat_smry);
+
+        //Configure the summary line of query
+        var _query_smry = "<h3 style='font-size:110%;'><a href='study.do?cancer_study_id=" + 
             window.PortalGlobals.getCancerStudyId() + "' target='_blank'>" + 
             window.PortalGlobals.getCancerStudyName() + "</a><br>" + " " +  
             "<small>" + window.PortalGlobals.getPatientSetName() + " (<b>" + window.PortalGlobals.getNumOfTotalCases() + "</b> samples)" + " / " + 
-            "Gene Set/Pathway is altered in <b>" + window.PortalGlobals.getNumOfAlteredCases() + " (" + window.PortalGlobals.getPercentageOfAlteredCases() + "%)" + "</b> of all samples" + " / " + 
-            "<b>" + window.PortalGlobals.getGeneList().length + "</b>" + (window.PortalGlobals.getGeneList().length===1?" Gene":" Genes") + "<br></small></h3>" + 
-            "<button type='button' class='btn btn-default btn-xs' data-toggle='button' id='modify_query_btn'>Modify Query</button>";
-        $("#main_smry_line").append(_smry);
+            "<b>" + window.PortalGlobals.getGeneList().length + "</b>" + (window.PortalGlobals.getGeneList().length===1?" Gene":" Genes") + "<br></small></h3>"; 
+        $("#main_smry_query_div").append(_query_smry);
+
+        //Append the modify query button
+        var _modify_query_btn = "<button type='button' class='btn btn-primary' data-toggle='button' id='modify_query_btn'>Modify Query</button>";
+        $("#main_smry_modify_query_btn").append(_modify_query_btn);
 
         //Set Event listener for the modify query button (expand the hidden form)
         $("#modify_query_btn").click(function () {

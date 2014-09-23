@@ -159,10 +159,10 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
     }
 
     @Override
-	public Collection<String> listFiles(File directory, String filePrefix) throws Exception
+	public Collection<String> listFiles(File directory, String wildcard) throws Exception
     {
     	ArrayList toReturn = new ArrayList<String>();
-    	IOFileFilter filter = FileFilterUtils.prefixFileFilter(filePrefix);
+    	IOFileFilter filter = new WildcardFileFilter(wildcard);
     	for (File file : org.apache.commons.io.FileUtils.listFiles(directory, filter, null)) {
     		toReturn.add(file.getCanonicalPath());
     	} 

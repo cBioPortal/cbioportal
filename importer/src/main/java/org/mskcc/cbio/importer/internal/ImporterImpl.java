@@ -452,10 +452,8 @@ class ImporterImpl implements Importer {
 		List<String> toReturn = new ArrayList<String>();
 		String studyDirectory = rootDirectory + File.separator + cancerStudyMetadata.getStudyPath() + File.separator;
 		String stagingFilename = filename.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
-		int wildCardIndex = stagingFilename.indexOf("*");
-		if (wildCardIndex > -1) {
-			String prefix = stagingFilename.substring(0, wildCardIndex);
-			toReturn.addAll(fileUtils.listFiles(new File(studyDirectory), prefix));
+		if (stagingFilename.indexOf("*") > -1) {
+			toReturn.addAll(fileUtils.listFiles(new File(studyDirectory), stagingFilename));
 		}
 		else {
 			toReturn.add(studyDirectory + stagingFilename);

@@ -13,6 +13,7 @@
     <div id='data_download_tab_links_li_div'>
         <h4>The following are downloadable data files (click to donwload) </h4>
         <ul id='data_download_links_li'></ul>
+        <div id='data_download_redirect_home_page'></div>
     </div><!-- end data_download_tab_info_div -->
 
     <div id='data_download_tab_text_areas'>

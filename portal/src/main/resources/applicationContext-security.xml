@@ -242,21 +242,6 @@
         <b:property name="idpSelectionPath" value="/login.jsp"/>
     </b:bean>
 
-    <!-- Filter automatically generates default SP metadata -->
-    <!--
-    <b:bean id="metadataGeneratorFilter" class="org.springframework.security.saml.metadata.MetadataGeneratorFilter">
-        <b:constructor-arg>
-            <b:bean class="org.springframework.security.saml.metadata.MetadataGenerator">
-                <b:property name="extendedMetadata">
-                    <b:bean class="org.springframework.security.saml.metadata.ExtendedMetadata">
-                        <b:property name="idpDiscoveryEnabled" value="true"/>
-                    </b:bean>
-                </b:property>
-            </b:bean>
-        </b:constructor-arg>
-    </b:bean>
-    -->
-
     <!-- The filter is waiting for connections on URL suffixed with filterSuffix and presents SP metadata there -->
     <b:bean id="metadataDisplayFilter" class="org.springframework.security.saml.metadata.MetadataDisplayFilter"/>
 
@@ -329,6 +314,7 @@
 
     <!-- SAML Authentication Provider responsible for validating of received SAML messages -->
     <b:bean id="samlAuthenticationProvider" class="org.springframework.security.saml.SAMLAuthenticationProvider">
+        <b:property name="forcePrincipalAsString" value="false" />
         <b:property name="userDetails" ref="customUserService" />
     </b:bean>
 

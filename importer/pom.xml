@@ -160,10 +160,10 @@
 	  <version>${project.version}</version>
 	</dependency>
 
-	<!-- oncotator -->
+	<!-- annotator -->
 	<dependency>
 	  <groupId>org.mskcc.cbio</groupId>
-	  <artifactId>oncotator</artifactId>
+	  <artifactId>annotator</artifactId>
 	  <version>${project.version}</version>
 	</dependency>	
 

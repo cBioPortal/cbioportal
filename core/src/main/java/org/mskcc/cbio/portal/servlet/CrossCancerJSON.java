@@ -101,7 +101,6 @@ public class CrossCancerJSON extends HttpServlet {
                 Map cancerMap = new LinkedHashMap();
                 cancerMap.put("studyId", cancerStudyId);
                 cancerMap.put("typeOfCancer", cancerStudy.getTypeOfCancerId());
-                resultsList.add(cancerMap);
 
                 //  Get all Genetic Profiles Associated with this Cancer Study ID.
                 ArrayList<GeneticProfile> geneticProfileList = GetGeneticProfiles.getGeneticProfiles(cancerStudyId);
@@ -112,6 +111,9 @@ public class CrossCancerJSON extends HttpServlet {
                 //  Get the default case set
                 AnnotatedCaseSets annotatedCaseSets = new AnnotatedCaseSets(caseSetList, dataTypePriority);
                 CaseList defaultCaseSet = annotatedCaseSets.getDefaultCaseList();
+                if (defaultCaseSet == null) {
+                    continue;
+                }
 
                 //  Get the default genomic profiles
                 CategorizedGeneticProfileSet categorizedGeneticProfileSet =
@@ -222,6 +224,8 @@ public class CrossCancerJSON extends HttpServlet {
                 alterations.put("other", noOfOther);
                 cancerMap.put("genes", genes);
                 cancerMap.put("skipped", skipStudy);
+                
+                resultsList.add(cancerMap);
             }
 
             JSONValue.writeJSONString(resultsList, writer);

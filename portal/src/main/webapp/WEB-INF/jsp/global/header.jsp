@@ -84,9 +84,9 @@
 					    <a href="visualize_your_data.jsp" float="right"><b><i>VISUALIZE YOUR DATA</i></b></a>
 					    </li>
 					    
-                                            <li class="internal" style="float:right">
+                                            <!--li class="internal" style="float:right">
 					    <a href="jobs.jsp" float="right"><b><i>JOBS</i></b></a>
-					    </li>
+					    </li-->
                                         </ul>
                                     </td>
                                 </tr>

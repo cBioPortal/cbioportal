@@ -350,6 +350,10 @@ define("Oncoprint",
                             {
                                 return 'white'; //Splice_Site
                             }
+                            else if((/^([A-Z]+)([0-9]+)del$/g).test(mutationSplit))
+                            {
+                                return 'Pink'; //IN_frame_del
+                            }
                             else 
                             {
                                 return 'blue';

@@ -21,6 +21,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
     var totalAttrs=[];
     var recordAttrs;//make a record of all attrs
     
+    var gapSpaceGeneClinic = 10;// Gap between gene data and clinic 
+    
     // basically a hack to prevent the zoom function from a particular oncoprint
     // from getting bound to the UI slider forever
     var reset_zoom = function() {
@@ -855,14 +857,39 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         }
         else
         {
-            if(yPosition > (extraAttributes.length*spaceHeight + genes.length*spaceHeight - 7))
+            
+            if(extraAttributes.length>0)
             {
-                yPosition = extraAttributes.length*spaceHeight + genes.length*spaceHeight - 7;
+                if(yPosition > (extraAttributes.length*spaceHeight - gapSpaceGeneClinic + genes.length*spaceHeight - 7))
+                {
+                    yPosition = extraAttributes.length*spaceHeight - gapSpaceGeneClinic + genes.length*spaceHeight - 7;
+                }
+                else if(yPosition<(extraAttributes.length*spaceHeight - gapSpaceGeneClinic +10))
+                {
+                    yPosition = extraAttributes.length*spaceHeight - gapSpaceGeneClinic + 10;
+                }
             }
-            else if(yPosition<(extraAttributes.length*spaceHeight+10))
+            else
             {
-                yPosition = extraAttributes.length*spaceHeight + 10;
+                if(yPosition > (extraAttributes.length*spaceHeight + genes.length*spaceHeight - 7))
+                {
+                    yPosition = extraAttributes.length*spaceHeight + genes.length*spaceHeight - 7;
+                }
+                else if(yPosition<(extraAttributes.length*spaceHeight+10))
+                {
+                    yPosition = extraAttributes.length*spaceHeight + 10;
+                }
             }
+            
+            
+//            if(yPosition > (extraAttributes.length*spaceHeight + genes.length*spaceHeight - 7))
+//            {
+//                yPosition = extraAttributes.length*spaceHeight + genes.length*spaceHeight - 7;
+//            }
+//            else if(yPosition<(extraAttributes.length*spaceHeight+10))
+//            {
+//                yPosition = extraAttributes.length*spaceHeight + 10;
+//            }
         }
         
         var indexValue;
@@ -873,7 +900,14 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         }
         else
         {
-            indexValue = parseInt((yPosition-extraAttributes.length*spaceHeight)/spaceHeight);
+            if(extraAttributes.length>0)
+            {
+                indexValue = parseInt((yPosition-extraAttributes.length * spaceHeight - gapSpaceGeneClinic)/spaceHeight);
+            }
+            else
+            {
+                indexValue = parseInt((yPosition-extraAttributes.length * spaceHeight)/spaceHeight);
+            }
         }
         
         if(indexValue != _dragElementIndex && !isNaN(indexValue))
@@ -941,14 +975,39 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         }
         else
         {
-            if(yPosition > (extraAttributes.length*spaceHeight + genes.length*spaceHeight - 7))
+            if(extraAttributes.length>0)
             {
-                yPosition = extraAttributes.length*spaceHeight + genes.length*spaceHeight - 7;
+                if(yPosition > (extraAttributes.length*spaceHeight - gapSpaceGeneClinic + genes.length*spaceHeight - 7))
+                {
+                    yPosition = extraAttributes.length*spaceHeight - gapSpaceGeneClinic + genes.length*spaceHeight - 7;
+                }
+                else if(yPosition<(extraAttributes.length*spaceHeight - gapSpaceGeneClinic +10))
+                {
+                    yPosition = extraAttributes.length*spaceHeight - gapSpaceGeneClinic + 10;
+                }
             }
-            else if(yPosition<(extraAttributes.length*spaceHeight+10))
+            else
             {
-                yPosition = extraAttributes.length*spaceHeight + 10;
+                if(yPosition > (extraAttributes.length*spaceHeight + genes.length*spaceHeight - 7))
+                {
+                    yPosition = extraAttributes.length*spaceHeight + genes.length*spaceHeight - 7;
+                }
+                else if(yPosition<(extraAttributes.length*spaceHeight+10))
+                {
+                    yPosition = extraAttributes.length*spaceHeight + 10;
+                }
             }
+            
+            console.log(yPosition);
+            
+//            if(yPosition > (extraAttributes.length*spaceHeight + genes.length*spaceHeight - 7))
+//            {
+//                yPosition = extraAttributes.length*spaceHeight + genes.length*spaceHeight - 7;
+//            }
+//            else if(yPosition<(extraAttributes.length*spaceHeight+10))
+//            {
+//                yPosition = extraAttributes.length*spaceHeight + 10;
+//            }
         }
         
         _dragElement.parentElement.attributes.y.value = yPosition.toString(); 

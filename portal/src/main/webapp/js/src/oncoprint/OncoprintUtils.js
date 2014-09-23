@@ -508,7 +508,7 @@ define("OncoprintUtils", (function() {
             var clinical_offset = (1/6) * rect_height;
 
             return {
-                width: datas.length * (5.5 + 3),
+            width: datas.length * (5.5 + 3),
             height: (rect_height + vert_padding) * datas.length * 2,
             rect_height: rect_height,
             rect_width: 5.5,
@@ -938,33 +938,98 @@ define("OncoprintUtils", (function() {
             .map(function(t) {
                 return "<td style='padding-right:10px;'>" + t + "</td>";
             })
-        .join("")
+            .join("")
             .value();
         row = "<tr>" +row+ "</tr>";
         
         d3.selectAll("#legend_table").remove();
         
         var table = d3.select(document.getElementById('oncoprint_legend'))
-        .append('table')
-        .attr('height',function(){
-            return 23+6;
-        })
-        .attr('id','legend_table')
-        .attr('valign','top');
+            .append('table')
+            .attr('height',function(){
+                return 23+6;
+            })
+            .attr('id','legend_table')
+            .attr('valign','top');
 
         var legend_name = table.append('text')
-        .attr('font-size', '14px')
-        .append('tspan')
-        .attr('font-weight', 'bold')
-        .attr('fill','black')
-        .text('gene data');
+            .attr('font-size', '14px')
+            .append('tspan')
+            .attr('font-weight', 'bold')
+            .attr('fill','black')
+            .text('gene data');
         
-//        if (datatype2range.cna !== undefined && datatype2range.cna !== "DIPLOID") 
-//        {
-//            return item_templater({ bg_color: cna_fills[datatype2range.cna],text: captions.cna[datatype2range.cna]});
-//        }
         
+        
+        if (datatype2range.cna !== undefined && datatype2range.cna !== "DIPLOID") 
+        {
+            var inter_item_templater;
+            inter_item_templater = item_templater({ bg_color: cna_fills[datatype2range.cna],text: captions.cna[datatype2range.cna]});
+            
+            var legend_svg = table.append('svg')
+                        .attr('height', 23 )
+                        .attr('width', captions.cna[datatype2range.cna].length * 6.5 + 5.5*3 )
+                        .attr('id', 'legend');
+                
+            legend_svg.append('rect')
+                        .attr('height', 23)
+                        .attr('width', 5.5)
+                        .attr('fill', cna_fills[datatype2range.cna]);
+                
+            var label = legend_svg.append('text')
+                .attr('font-size', '12px')
+                .attr('width', function()
+                {
+                    return captions.cna[datatype2range.cna].length * 6.5;
+                })
+                .attr('x', 5.5*3)
+                .attr('y', 21);
 
+            label.append('tspan')       // name
+                .attr('text-anchor', 'start')
+                .attr('fill','black')
+                .attr('cursor','move')
+                .attr('class','legend_name')
+                .text(captions.cna[datatype2range.cna]);  
+        }   
+        
+        if(datatype2range.mutation !== undefined)
+        {   
+            var inter_item_templater;
+            inter_item_templater = item_templater({ display_mutation: "inherit", text: captions.mutation});
+            
+            var legend_svg = table.append('svg')
+                        .attr('height', 23 )
+                        .attr('width', captions.cna[datatype2range.cna].length * 6.5 + 5.5*3 )
+                        .attr('id', 'legend');
+                
+            legend_svg.append('rect')
+                        .attr('height', 23)
+                        .attr('width', 5.5)
+                        .attr('fill', colors.grey);
+                
+            legend_svg.append('rect')
+                    .attr('display',"inherit")
+                    .attr('height', 7.666666666666667)
+                    .attr('width', 5.5)
+                    .attr('y',7.666666666666667)
+                    .attr('fill', '#008000');      
+            var label = legend_svg.append('text')
+            .attr('font-size', '12px')
+            .attr('width', function()
+            {
+                return captions.cna[datatype2range.cna].length * 6.5;
+            })
+            .attr('x', 5.5*3)
+            .attr('y', 21);
+
+            label.append('tspan')       // name
+                .attr('text-anchor', 'start')
+                .attr('fill','black')
+                .attr('cursor','move')
+                .attr('class','legend_name')
+                .text(captions.mutation); 
+        }
         
 //        var legend_svg = table.selectAll('td')        
 //        .data(datatype2range)
@@ -1018,8 +1083,23 @@ define("OncoprintUtils", (function() {
 //            return calculateDistance(d);
 //        })
 //        .attr('id', 'legend');
+
         
-        
+//    <svg height="23" width="6">
+//        <rect fill="#FF0000" width="5.5" height="23"></rect>
+//
+//        <rect display="none" fill="#008000" y="7.666666666666667" width="5.5" height="7.666666666666667"></rect>
+//        <path display="none" d="M0,0L0,23 5.5,11.5Z"></path>
+//
+//        <path display="none" d="M0,2.672958956142353L3.0864671457232173,-2.672958956142353 -3.0864671457232173,-2.672958956142353Z" transform="translate(2.75,20.909090909090907)"></path>
+//        <path display="none" d="M0,-2.672958956142353L3.0864671457232173,2.672958956142353 -3.0864671457232173,2.672958956142353Z" transform="translate(2.75,2.3000000000000003)"></path>
+//
+//        <rect display="none" height="23" width="5.5" stroke-width="2" stroke-opacity="1" stroke="#6699CC" fill="none"></rect>
+//        <rect display="none" height="23" width="5.5" stroke-width="2" stroke-opacity="1" stroke="#FF9999" fill="none"></rect>
+//    </svg>
+//    <span style="position: relative; bottom: 6px;">Amplification</span>    
+
+
         
 //        <svg height="23" width="6">
 //            <rect fill="{{bg_color}}" width="5.5" height="23"></rect>

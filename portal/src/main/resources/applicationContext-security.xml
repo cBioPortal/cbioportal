@@ -280,17 +280,6 @@
                     </b:constructor-arg>
                     <b:property name="metadataTrustCheck" value="false"/>
                 </b:bean>
-                <!--
-                <b:bean class="org.opensaml.saml2.metadata.provider.HTTPMetadataProvider">
-                    <b:constructor-arg>
-                        <b:value type="java.lang.String">https://testaccess2.mskcc.org/nidp/saml2/metadata</b:value>
-                    </b:constructor-arg>
-                    <b:constructor-arg>
-                        <b:value type="int">15000</b:value>
-                    </b:constructor-arg>
-                    <b:property name="parserPool" ref="parserPool"/>
-                </b:bean>
-                -->
             </b:list>
         </b:constructor-arg>
     </b:bean>

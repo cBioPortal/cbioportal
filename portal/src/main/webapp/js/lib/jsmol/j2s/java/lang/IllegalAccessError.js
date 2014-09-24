@@ -1,3 +1,3 @@
-$_L(["java.lang.IncompatibleClassChangeError"],"java.lang.IllegalAccessError",null,function(){
-c$=$_T(java.lang,"IllegalAccessError",IncompatibleClassChangeError);
+Clazz.load(["java.lang.IncompatibleClassChangeError"],"java.lang.IllegalAccessError",null,function(){
+c$=Clazz.declareType(java.lang,"IllegalAccessError",IncompatibleClassChangeError);
 });

@@ -28,6 +28,7 @@ import java.util.Collection;
  */
 public interface CaseIDs {
 	boolean isSampleId(String caseId);
+    boolean isNormalId(String caseId);
     String getSampleId(String caseId);
 	String getPatientId(String caseId);
 }

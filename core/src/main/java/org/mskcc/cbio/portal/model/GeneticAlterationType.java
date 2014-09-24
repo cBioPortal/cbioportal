@@ -22,6 +22,7 @@ package org.mskcc.cbio.portal.model;
  */
 public class GeneticAlterationType {
     public static final String HOMOZYGOUS_DELETION = "-2";
+    public static final String PARTIAL_DELETION = "-1.5";
     public static final String HEMIZYGOUS_DELETION = "-1";
     public static final String ZERO = "0";
     public static final String GAIN = "1";
@@ -66,6 +67,8 @@ public class GeneticAlterationType {
             return COPY_NUMBER_ALTERATION;
         } else if (type.equals(MRNA_EXPRESSION.toString())) {
             return MRNA_EXPRESSION;
+        } else if (type.equals(MRNA_EXPRESSION_NORMALS.toString())) {
+            return MRNA_EXPRESSION_NORMALS;
         } else if (type.equals(MICRO_RNA_EXPRESSION.toString())) {
             return MICRO_RNA_EXPRESSION;
         } else if (type.equals(METHYLATION.toString())) {
@@ -118,6 +121,8 @@ public class GeneticAlterationType {
      */
     public static final GeneticAlterationType MRNA_EXPRESSION
             = new GeneticAlterationType("MRNA_EXPRESSION");
+    public static final GeneticAlterationType MRNA_EXPRESSION_NORMALS
+            = new GeneticAlterationType("MRNA_EXPRESSION_NORMALS");
 
     /**
      * Methylation alteration type.

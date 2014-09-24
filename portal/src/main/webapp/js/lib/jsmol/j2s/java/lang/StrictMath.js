@@ -1,78 +1,78 @@
-$_L(null,"java.lang.StrictMath",["java.lang.Double","$.Float"],function(){
-c$=$_T(java.lang,"StrictMath");
-c$.abs=$_M(c$,"abs",
+Clazz.load(null,"java.lang.StrictMath",["java.lang.Double","$.Float"],function(){
+c$=Clazz.declareType(java.lang,"StrictMath");
+c$.abs=Clazz.defineMethod(c$,"abs",
 function(d){
 return Math.abs(d);
 },"~N");
-c$.acos=$_M(c$,"acos",
+c$.acos=Clazz.defineMethod(c$,"acos",
 function(d){
 return Math.acos(d);
 },"~N");
-c$.asin=$_M(c$,"asin",
+c$.asin=Clazz.defineMethod(c$,"asin",
 function(d){
 return Math.asin(d);
 },"~N");
-c$.atan=$_M(c$,"atan",
+c$.atan=Clazz.defineMethod(c$,"atan",
 function(d){
 return Math.atan(d);
 },"~N");
-c$.atan2=$_M(c$,"atan2",
+c$.atan2=Clazz.defineMethod(c$,"atan2",
 function(d1,d2){
 return Math.atan2(d1,d2);
 },"~N,~N");
-c$.ceil=$_M(c$,"ceil",
+c$.ceil=Clazz.defineMethod(c$,"ceil",
 function(d){
 return Math.ceil(d);
 },"~N");
-c$.cosh=$_M(c$,"cosh",
+c$.cosh=Clazz.defineMethod(c$,"cosh",
 function(d){
 return Math.cosh(d);
 },"~N");
-c$.cos=$_M(c$,"cos",
+c$.cos=Clazz.defineMethod(c$,"cos",
 function(d){
 return Math.cos(d);
 },"~N");
-c$.exp=$_M(c$,"exp",
+c$.exp=Clazz.defineMethod(c$,"exp",
 function(d){
 return Math.exp(d);
 },"~N");
-c$.floor=$_M(c$,"floor",
+c$.floor=Clazz.defineMethod(c$,"floor",
 function(d){
 return Math.floor(d);
 },"~N");
-c$.log=$_M(c$,"log",
+c$.log=Clazz.defineMethod(c$,"log",
 function(d){
 return Math.log(d);
 },"~N");
-c$.log10=$_M(c$,"log10",
+c$.log10=Clazz.defineMethod(c$,"log10",
 function(d){
 return Math.log10(d);
 },"~N");
-c$.max=$_M(c$,"max",
+c$.max=Clazz.defineMethod(c$,"max",
 function(d1,d2){
 return Math.max(d1,d2);
 },"~N,~N");
-c$.min=$_M(c$,"min",
+c$.min=Clazz.defineMethod(c$,"min",
 function(d1,d2){
 return Math.min(d1,d2);
 },"~N,~N");
-c$.pow=$_M(c$,"pow",
+c$.pow=Clazz.defineMethod(c$,"pow",
 function(d1,d2){
 return Math.pow(d1,d2);
 },"~N,~N");
-c$.random=$_M(c$,"random",
+c$.random=Clazz.defineMethod(c$,"random",
 function(){
 return Math.random();
 });
-c$.rint=$_M(c$,"rint",
+c$.rint=Clazz.defineMethod(c$,"rint",
 function(d){
 return Math.round(d);
 },"~N");
-c$.round=$_M(c$,"round",
+c$.round=Clazz.defineMethod(c$,"round",
 function(d){
 return Math.round(d);
 },"~N");
-c$.signum=$_M(c$,"signum",
+c$.signum=Clazz.defineMethod(c$,"signum",
 function(d){
 if(Double.isNaN(d)){
 return NaN;
@@ -83,7 +83,7 @@ sig=1.0;
 sig=-1.0;
 }return sig;
 },"~N");
-c$.signum=$_M(c$,"signum",
+c$.signum=Clazz.defineMethod(c$,"signum",
 function(f){
 if(Float.isNaN(f)){
 return NaN;
@@ -94,35 +94,35 @@ sig=1.0;
 sig=-1.0;
 }return sig;
 },"~N");
-c$.sinh=$_M(c$,"sinh",
+c$.sinh=Clazz.defineMethod(c$,"sinh",
 function(d){
 return Math.sinh(d);
 },"~N");
-c$.sin=$_M(c$,"sin",
+c$.sin=Clazz.defineMethod(c$,"sin",
 function(d){
 return Math.sin(d);
 },"~N");
-c$.sqrt=$_M(c$,"sqrt",
+c$.sqrt=Clazz.defineMethod(c$,"sqrt",
 function(d){
 return Math.sqrt(d);
 },"~N");
-c$.tan=$_M(c$,"tan",
+c$.tan=Clazz.defineMethod(c$,"tan",
 function(d){
 return Math.tan(d);
 },"~N");
-c$.tanh=$_M(c$,"tanh",
+c$.tanh=Clazz.defineMethod(c$,"tanh",
 function(d){
 return Math.tanh(d);
 },"~N");
-c$.toDegrees=$_M(c$,"toDegrees",
+c$.toDegrees=Clazz.defineMethod(c$,"toDegrees",
 function(angrad){
 return angrad*180/3.141592653589793;
 },"~N");
-c$.toRadians=$_M(c$,"toRadians",
+c$.toRadians=Clazz.defineMethod(c$,"toRadians",
 function(angdeg){
 return angdeg/180*3.141592653589793;
 },"~N");
-$_S(c$,
+Clazz.defineStatics(c$,
 "E",2.718281828459045,
 "PI",3.141592653589793,
 "$random",null);

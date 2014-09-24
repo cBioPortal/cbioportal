@@ -32,8 +32,8 @@ import java.util.*;
  */
 public final class DaoClinicalData {
 
-    private static final String SAMPLE_TABLE = "clinical_sample";
-    private static final String PATIENT_TABLE = "clinical_patient";
+    public static final String SAMPLE_TABLE = "clinical_sample";
+    public static final String PATIENT_TABLE = "clinical_patient";
 
     private static final String SAMPLE_INSERT = "INSERT INTO " + SAMPLE_TABLE + "(`INTERAL_ID`,`ATTR_ID`,`ATTR_VALUE` VALUES(?,?,?)";
     private static final String PATIENT_INSERT = "INSERT INTO " + PATIENT_TABLE + "(`INTERNAL_ID`,`ATTR_ID`,`ATTR_VALUE` VALUES(?,?,?)";

@@ -88,7 +88,7 @@ public class GetProteinArrayDataJSON extends HttpServlet {
             JSONObject result = new JSONObject();
             DaoProteinArrayData daoPAD = DaoProteinArrayData.getInstance();
             for (ProteinArrayData pad : daoPAD.getProteinArrayData(cancerStudyId, proteinArrayId,
-                                                                    InternalIdUtil.getInternalSampleIdsFromPatientIds(cancerStudyId, patientIdList))) {
+                                                                    InternalIdUtil.getInternalNonNormalSampleIdsFromPatientIds(cancerStudyId, patientIdList))) {
                 Sample s = DaoSample.getSampleById(pad.getSampleId());
                 result.put(s.getStableId(), pad.getAbundance());
             }

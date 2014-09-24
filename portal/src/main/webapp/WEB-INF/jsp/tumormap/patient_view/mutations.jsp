@@ -5,7 +5,7 @@
 <script type="text/javascript" src="js/lib/igv_webstart.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <script type="text/javascript" src="js/src/patient-view/PancanMutationHistogram.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<link href="css/mutation/mutation_table.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
+<link href="css/mutationMapper.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
 
 <script type="text/javascript">
     var mutTableIndices =
@@ -840,6 +840,8 @@
                     listenToBamIgvClick(".igv-link");
                     drawPanCanThumbnails(this);
                 },
+                "bPaginate": true,
+                "sPaginationType": "two_button",
                 "aaSorting": [[mutTableIndices["cosmic"],'desc'],[mutTableIndices["altrate"],'desc']],
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
@@ -1026,15 +1028,18 @@
                             '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pl>>', 25, "No mutation events of interest", true);
                 var numFiltered = genomicEventObs.mutations.getNumEvents(true);
                 var numAll = genomicEventObs.mutations.getNumEvents(false);
-                 $('.mutation-show-more').html("<a href='#mutations' onclick='switchToTab(\"mutations\");return false;'\n\
+                 $('.mutation-show-more').html("<a href='#mutations' onclick='switchToTab(\"tab_mutations\");return false;'\n\
                       title='Show more mutations of this patient'>Show all "
                         +numAll+" mutations</a>");
                 $('.mutation-show-more').addClass('datatable-show-more');
-                $('.mutation-summary-table-name').html(
-                    "Mutations of interest"
+                var mutationSummary;
+                if (numAll===numFiltered) {
+                    mutationSummary = ""+numAll+" mutations";
+                } else {
+                    mutationSummary = "Mutations of interest"
                      +(numAll==0?"":(" ("
                         +numFiltered
-                        +" of <a href='#mutations' onclick='switchToTab(\"mutations\");return false;'\n\
+                        +" of <a href='#mutations' onclick='switchToTab(\"tab_mutations\");return false;'\n\
                          title='Show more mutations of this patient'>"
                         +numAll
                         +"</a>)"))
@@ -1044,7 +1049,9 @@
                         <li>or recurrently mutated, namely\n\
                             <ul><li>MutSig Q < 0.05, if MutSig results are available</li>\n\
                             <li>otherwise, mutated in > 5% of samples in the study with &ge; 50 samples</li></ul> </li>\n\
-                        <li>or with > 5 overlapping entries in COSMIC.</li></ul>'/>");
+                        <li>or with > 5 overlapping entries in COSMIC.</li></ul>'/>";
+                }
+                $('.mutation-summary-table-name').html(mutationSummary);
                 $('#mutations-summary-help').qtip({
                     content: { attr: 'title' },
                     style: { classes: 'qtip-light qtip-rounded' },

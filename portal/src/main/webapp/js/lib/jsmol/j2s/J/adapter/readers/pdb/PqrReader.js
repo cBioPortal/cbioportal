@@ -4,7 +4,7 @@ c$ = Clazz.decorateAsClass (function () {
 this.$gromacsWideFormat = false;
 Clazz.instantialize (this, arguments);
 }, J.adapter.readers.pdb, "PqrReader", J.adapter.readers.pdb.PdbReader);
-$_M(c$, "initializeReader", 
+Clazz.defineMethod (c$, "initializeReader", 
 function () {
 this.isPQR = true;
 Clazz.superCall (this, J.adapter.readers.pdb.PqrReader, "initializeReader", []);

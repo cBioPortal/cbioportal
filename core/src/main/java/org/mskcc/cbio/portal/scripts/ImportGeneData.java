@@ -154,9 +154,9 @@ public class ImportGeneData {
         MySQLbulkLoader.bulkLoadOn();
         FileReader reader = new FileReader(suppGeneFile);
         BufferedReader buf = new BufferedReader(reader);
-        String line = buf.readLine();
+        String line;
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-        while (line != null) {
+        while ((line = buf.readLine()) != null) {
             if (pMonitor != null) {
                 pMonitor.incrementCurValue();
                 ConsoleUtil.showProgress(pMonitor);

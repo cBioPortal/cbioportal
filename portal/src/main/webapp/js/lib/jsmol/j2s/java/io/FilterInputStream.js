@@ -8,35 +8,35 @@ function ($in) {
 Clazz.superConstructor (this, java.io.FilterInputStream, []);
 this.$in = $in;
 }, "java.io.InputStream");
-$_M(c$, "readByteAsInt", 
+Clazz.defineMethod (c$, "readByteAsInt", 
 function () {
 return this.$in.readByteAsInt ();
 });
-$_M(c$, "read", 
+Clazz.defineMethod (c$, "read", 
 function (b, off, len) {
 return this.$in.read (b, off, len);
 }, "~A,~N,~N");
-$_M(c$, "skip", 
+Clazz.defineMethod (c$, "skip", 
 function (n) {
 return this.$in.skip (n);
 }, "~N");
-$_M(c$, "available", 
+Clazz.defineMethod (c$, "available", 
 function () {
 return this.$in.available ();
 });
-$_M(c$, "close", 
+Clazz.defineMethod (c$, "close", 
 function () {
 this.$in.close ();
 });
-$_M(c$, "mark", 
+Clazz.defineMethod (c$, "mark", 
 function (readlimit) {
 this.$in.mark (readlimit);
 }, "~N");
-$_M(c$, "reset", 
+Clazz.defineMethod (c$, "reset", 
 function () {
 this.$in.reset ();
 });
-$_M(c$, "markSupported", 
+Clazz.defineMethod (c$, "markSupported", 
 function () {
 return this.$in.markSupported ();
 });

@@ -161,7 +161,7 @@ function plotMuts(p,config,chmInfo,row,mutations,caseId) {
             var mutGeneAA = getMutGeneAA(arr.slice(0,10));
             var tip = mutGeneAA.join('<br/>')
                 +'<br/><a href="#" onclick="filterMutationsTableByIds(\''
-                +idRegEx(arr)+'\');switchToTab(\'mutations\');return false;">'
+                +idRegEx(arr)+'\');switchToTab(\'tab_mutations\');return false;">'
                 +(arr.length<=10?'show details':('show all '+arr.length+' mutations'))+'</a>';
             addToolTip(r.node,tip,100);
         }

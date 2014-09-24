@@ -57,6 +57,25 @@ var ClinicalColl = Backbone.Collection.extend({
     url: "webservice.do?cmd=getClinicalData&format=json"
 });
 
+var ClinicalMutationColl = Backbone.Collection.extend({
+    model: Backbone.Model.extend({}),
+    parse: function(response) {
+        this.attributes=function() { return [{attr_id: "mutations", datatype: "NUMBER",description: "Number of mutation", display_name: "Mutations"}]; };   // save the attributes
+        var result = new Array();
+        for (var property in response)
+        {
+            var tem = new Object();
+            tem.attr_val = response[property];
+            tem.sample =property;
+            tem.attr_id = "mutations";
+            result.push(tem);
+        }
+ 
+        return result;    // but the data is what is to be model-ed
+    },
+    url: "mutations.json"
+});
+
 var GeneDataColl = Backbone.Collection.extend({
     model: Backbone.Model.extend({}),
     url: "GeneData.json"

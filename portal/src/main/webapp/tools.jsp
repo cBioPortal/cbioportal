@@ -7,99 +7,56 @@
 
 <jsp:include page="WEB-INF/jsp/global/header.jsp" flush="true"/>
 
-<style type="text/css">
-    progress {
-        background-color: #f3f3f3;
-        border: 0;
-        height: 18px;
-        border-radius: 9px;
-    }
-</style>
-
 <link href="css/bootstrap.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 
-<body>
+<style>
+  .tile {
+    float: left;
+    margin-left: 20px;
+    background-color: #ecf0f5;
+    border-radius: 6px;
+    padding: 14px;
+    position: relative;
+    text-align: center;
+    width: 270px;
+    height: 290px;}
+  .tile p {
+    font-size: 15px;
+    margin-top: 10px !important;
+    margin-bottom: 33px; }
+  .tile-image {
+    width: 200px;
+    vertical-align: bottom; }
+  .btn {
+      color: white !important;
+  }
+</style>
 
-<div id="container" style="margin-left:50px; margin-top:50px;">
-    <h1>Oncoprint</h1>
-    <p>(<a href="faq.jsp#what-are-oncoprints">What are Oncoprints?</a>)</p>
+<h1>cBioPortal Tools</h1>
 
-    <div id="inner-conainter" style="width:70%;">
-        <div id="error-box" style="display:none;" class="alert alert-error">There was an error with your file formats.</div>
+<div id="container">
 
-        <p>
-            Copy Number files should be tab delimited. They should also have
-            the following fields, in this order, on the first line:
-            <code>Hugo_Symbol</code>, <code>Entrez_Gene_Id</code>, followed by
-            sample ids.  Subsequent lines have data for hugo gene symbols,
-            entrez gene ids, and for each sample.  Data for each sample is
-            discrete, ranging from <code>-2</code> to <code>+2</code>.
-        </p>
+<p>The following tools are for visualization and analysis of custom datasets. When using these tools in your publication,
+    <b>please cite</b> <a href="http://www.cbioportal.org/public-portal/sci_signal_reprint.jsp">Gao et al. <i>Sci. Signal.</i> 2013</a> 
+ &amp;  <a href="http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract">Cerami et al. <i>Cancer Discov.</i> 2012</a>.</p>
 
-        <textarea id="cna-file-example" rows=5><jsp:include page="WEB-INF/jsp/oncoprint/cna-file-example.txt"></jsp:include></textarea>
-
-        <form id="cna-form" class="form-horizontal" enctype="multipart/form-data" method="post">
-            <div class="control-group" style="margin-bottom:0;">
-                <label class="control-label" for="cna">Copy Number File</label>
-                <div class="controls">
-                    <input id="cna" name="cna" type="file">
-                </div>
-            </div>
-        </form>
-
-        <div style="margin-top:20px;">
-            <p>
-                Mutation files should be tab delimited.  They should also have the
-                following fields, in this order, on the first line:
-                <code>Hugo_Symbol</code>, <code>Entrez_Gene_Id</code>,
-                <code>sample_id</code>, <code>protein_change</code> (ignores case).
-                All other fields are ignored.
-            </p>
-
-            <textarea id="mutation-file-example" rows=5 style="width:40%;"><jsp:include page="WEB-INF/jsp/oncoprint/mutation-file-example.txt"></jsp:include></textarea>
-
-            <form id="mutation-form" class="form-horizontal" enctype="multipart/form-data" method="post">
-                <div class="control-group">
-                    <label class="control-label" for="mutation">Mutation File</label>
-                    <div class="controls">
-                        <input id="mutation" name="mutation" type="file">
-                    </div>
-                </div>
-            </form>
-        </div>
-
-        <button id="create_oncoprint" type="button" class="btn" style="margin-top:20px; margin-bottom:20px;">Create</button>
+    <div class="tile">
+      <a class="btn btn-large btn-block btn-primary" href="oncoprinter.jsp">OncoPrinter</a>
+      <p>Generates oncoprints from your own data</p>
+      <img class="tile-image top-image" alt="Oncoprint" src="images/oncoprint_example_small.png">
     </div>
 
-    <div id="oncoprint_controls" style="margin-bottom: 20px;"></div>
-
-    <jsp:include page="WEB-INF/jsp/oncoprint/controls-templates.jsp"></jsp:include>
-
-    <div id='oncoprint'></div>
-    <script data-main="js/src/oncoprint/custom-boilerplate.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript" src="js/require.js?<%=GlobalProperties.getAppVersion()%>"></script>
-
-    <div id="download_oncoprint" style="display:none; margin-bottom:40px; margin-top:20px;">
-        <span>
-            <form id="pdf-form" style="display:inline;" action="svgtopdf.do" method="post" target="_blank">
-
-                <input type="hidden" name="svgelement">
-                <input type="hidden" name="filetype" value="pdf">
-                <input type="submit" value="PDF">
-            </form>
-
-            <form id="svg-form" style="display:inline;" action="oncoprint_converter.svg" enctype="multipart/form-data" method="POST" target="_blank">
-                <input type="hidden" name="xml">
-                <input type="hidden" name="longest_label_length">
-                <input type="hidden" name="format" value="svg">
-                <input type="submit" value="SVG">
-            </form>
-        </span>
+    <div class="tile">
+      <a class="btn btn-large btn-block btn-primary" href="mutation_mapper.jsp">MutationMapper</a>
+      <p>Maps mutations on a linear protein and its domains (lollipop plots)</p>
+      <img class="tile-image top-image" alt="lollipop" src="images/lollipop_example.png">
     </div>
-
 </div>
 
-</div>
 </td>
+    <td width="172">
+	<jsp:include page="WEB-INF/jsp/global/right_column.jsp" flush="true" />
+    </td>
 </tr>
 </table>
 <jsp:include page="WEB-INF/jsp/global/footer.jsp" flush="true" />

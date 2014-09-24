@@ -18,6 +18,7 @@
 package org.mskcc.cbio.portal.scripts;
 
 import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.util.ImportDataUtil;
 
 /**
  * Empty the database.

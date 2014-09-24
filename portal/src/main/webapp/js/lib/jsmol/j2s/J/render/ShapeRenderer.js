@@ -1,9 +1,10 @@
 Clazz.declarePackage ("J.render");
-Clazz.load (null, "J.render.ShapeRenderer", ["J.viewer.JC"], function () {
+Clazz.load (null, "J.render.ShapeRenderer", ["JV.JC"], function () {
 c$ = Clazz.decorateAsClass (function () {
-this.viewer = null;
+this.vwr = null;
+this.tm = null;
 this.g3d = null;
-this.modelSet = null;
+this.ms = null;
 this.shape = null;
 this.myVisibilityFlag = 0;
 this.shapeID = 0;
@@ -16,20 +17,21 @@ this.exportType = 0;
 this.isExport = false;
 Clazz.instantialize (this, arguments);
 }, J.render, "ShapeRenderer");
-$_M(c$, "initRenderer", 
+Clazz.defineMethod (c$, "initRenderer", 
 function () {
 });
-$_M(c$, "setViewerG3dShapeID", 
-function (viewer, shapeID) {
-this.viewer = viewer;
+Clazz.defineMethod (c$, "setViewerG3dShapeID", 
+function (vwr, shapeID) {
+this.vwr = vwr;
+this.tm = vwr.tm;
 this.shapeID = shapeID;
-this.myVisibilityFlag = J.viewer.JC.getShapeVisibilityFlag (shapeID);
+this.myVisibilityFlag = JV.JC.getShapeVisibilityFlag (shapeID);
 this.initRenderer ();
-}, "J.viewer.Viewer,~N");
-$_M(c$, "renderShape", 
+}, "JV.Viewer,~N");
+Clazz.defineMethod (c$, "renderShape", 
 function (g3d, modelSet, shape) {
 this.g3d = g3d;
-this.modelSet = modelSet;
+this.ms = modelSet;
 this.shape = shape;
 this.exportType = g3d.getExportType ();
 this.isExport = (this.exportType != 0);
@@ -37,5 +39,9 @@ var needsTranslucent = this.render ();
 this.exportType = 0;
 this.isExport = false;
 return needsTranslucent;
-}, "J.api.JmolRendererInterface,J.modelset.ModelSet,J.shape.Shape");
+}, "J.api.JmolRendererInterface,JM.ModelSet,J.shape.Shape");
+Clazz.defineMethod (c$, "isVisibleForMe", 
+function (a) {
+return a.isVisible (this.myVisibilityFlag | 9);
+}, "JM.Atom");
 });

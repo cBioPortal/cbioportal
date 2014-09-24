@@ -3,14 +3,14 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.mskcc.cbio</groupId>
-	<artifactId>master</artifactId>
-	<packaging>pom</packaging>
-	<name>Portal Master</name>
-	<version>1.0-SNAPSHOT</version>
-	<description>master maven module</description>
-	<url>http://code.google.com/p/cbio-cancer-genomics-portal/</url>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.mskcc.cbio</groupId>
+    <artifactId>master</artifactId>
+    <packaging>pom</packaging>
+    <name>Portal Master</name>
+    <version>1.0-SNAPSHOT</version>
+    <description>master maven module</description>
+    <url>http://code.google.com/p/cbio-cancer-genomics-portal/</url>
 
   <!-- profiles -->
   <profiles>
@@ -74,14 +74,7 @@
 	  </properties>
 	</profile>
 	<profile>
-	  <id>external-public</id>
-	  <properties>
-        <importer-main-class>org.mskcc.cbio.importer.PortalImporterTool</importer-main-class>
-		<final-war-name>cbioportal</final-war-name>
-	  </properties>
-	</profile>
-	<profile>
-	  <id>external-private</id>
+	  <id>external</id>
 	  <properties>
         <importer-main-class>org.mskcc.cbio.importer.PortalImporterTool</importer-main-class>
 		<final-war-name>cbioportal</final-war-name>
@@ -92,9 +85,11 @@
   <!-- properties -->
   <properties>
 	<slf4j.version>1.6.6</slf4j.version>
-	<spring.version>3.1.0.RELEASE</spring.version>
+	<spring.version>4.0.4.RELEASE</spring.version>
 	<spring.security.version>3.1.0.RELEASE</spring.security.version>
 	<mybatis.spring.version>1.2.2</mybatis.spring.version>
+    <spring.social.version>1.1.0.RELEASE</spring.social.version>
+    <org.springframework.social.google-version>1.0.0.RELEASE</org.springframework.social.google-version>
 	<mybatis.version>3.2.7</mybatis.version>
 	<hibernate.version>3.6.9.Final</hibernate.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -107,7 +102,7 @@
 
   <!-- modules -->
   <modules>
-	<module>portal</module>
+    <module>portal</module>
 	<module>core</module>
 	<module>liftover</module>
 	<module>mutation-assessor</module>
@@ -117,29 +112,49 @@
     <module>annotator</module>
   </modules>
 
-  <!-- dependencies -->
-  <dependencies>
+    <!-- dependencies -->
+    <dependencies>
 
-    <!-- apache commons logging -->
-	<dependency>
-	  <groupId>log4j</groupId>
-	  <artifactId>apache-log4j-extras</artifactId>
-	  <version>1.1</version>
-	</dependency>
+        <!-- apache commons logging -->
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>apache-log4j-extras</artifactId>
+            <version>1.1</version>
+        </dependency>
+        
+        <dependency>
+	<groupId>commons-dbcp</groupId>
+	<artifactId>commons-dbcp</artifactId>
+	<version>1.4</version>
+        </dependency>
 
-	<!-- junit -->
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.8.2</version>
-    </dependency>
+        
+        <!-- Apache http components -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.3.4</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+            <version>4.3.2</version>
+        </dependency>
 
-	<!-- log4j -->
-	<dependency>
-	  <groupId>log4j</groupId>
-	  <artifactId>log4j</artifactId>
-	  <version>1.2.16</version>
-	</dependency>
+        <!-- junit -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.2</version>
+        </dependency>
+
+        <!-- log4j -->
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.16</version>
+        </dependency>
 
 	<!-- mysql -->
 	<dependency>
@@ -149,17 +164,17 @@
 	  <scope>provided</scope>
 	</dependency>
 
-	<!-- slf4j -->
-	<dependency>
-	  <groupId>org.slf4j</groupId>
-	  <artifactId>slf4j-log4j12</artifactId>
-	  <version>${slf4j.version}</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.slf4j</groupId>
-	  <artifactId>slf4j-api</artifactId>
-	  <version>${slf4j.version}</version>
-	</dependency>
+        <!-- slf4j -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
 
 	<!-- spring -->
 	<dependency>
@@ -207,6 +222,41 @@
       <artifactId>spring-webmvc</artifactId>
       <version>${spring.version}</version>
     </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>${spring.version}</version>
+        </dependency>	
+        <dependency>		
+            <groupId>org.springframework</groupId>		
+            <artifactId>spring-beans</artifactId>		
+            <version>${spring.version}</version>		
+        </dependency>		
+        <dependency>		
+            <groupId>org.springframework</groupId>		
+            <artifactId>spring-aop</artifactId>		
+            <version>${spring.version}</version>		
+        </dependency>		
+        <dependency>		
+            <groupId>org.springframework</groupId>		
+            <artifactId>spring-context</artifactId>		
+            <version>${spring.version}</version>		
+        </dependency>		
+        <dependency>		
+            <groupId>org.springframework</groupId>		
+            <artifactId>spring-tx</artifactId>		
+            <version>${spring.version}</version>		
+        </dependency>		
+        <dependency>		
+            <groupId>org.springframework</groupId>		
+            <artifactId>spring-orm</artifactId>		
+            <version>${spring.version}</version>		
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
 
 	<!-- spring security -->
 	<dependency>
@@ -251,55 +301,84 @@
       <artifactId>mybatis</artifactId>
       <version>${mybatis.version}</version>
     </dependency>
-  </dependencies>
+        
+        <!-- Spring Social -->
+        <dependency>
+            <groupId>org.springframework.social</groupId>
+            <artifactId>spring-social-config</artifactId>
+            <version>${spring.social.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.social</groupId>
+            <artifactId>spring-social-core</artifactId>
+            <version>${spring.social.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.social</groupId>
+            <artifactId>spring-social-security</artifactId>
+            <version>${spring.social.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.social</groupId>
+            <artifactId>spring-social-web</artifactId>
+            <version>${spring.social.version}</version>
+        </dependency>
+        
+        <!-- Spring Social Google-->
+        <dependency>
+            <groupId>org.springframework.social</groupId>
+            <artifactId>spring-social-google</artifactId>
+            <version>${org.springframework.social.google-version}</version>
+        </dependency>
+    </dependencies>
 
-  <build>
-	<!-- this plugin will allow us to share resources with children -->
-	<plugins>
-	  <plugin>
-		<groupId>org.apache.maven.plugins</groupId>
-		<artifactId>maven-resources-plugin</artifactId>
-		<version>2.6</version>
-	  </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-site-plugin</artifactId>
-        <version>3.3</version>
-      </plugin>
-	</plugins>
-  </build>
+    <build>
+        <!-- this plugin will allow us to share resources with children -->
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.6</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.3</version>
+            </plugin>
+        </plugins>
+    </build>
 
-  <reporting>
-	<plugins>
-	  <plugin>
-		<groupId>org.apache.maven.plugins</groupId>
-		<artifactId>maven-javadoc-plugin</artifactId>
-		<version>2.7</version>
-	  </plugin>
-	  <plugin>
-		<groupId>org.codehaus.mojo</groupId>
-		<artifactId>jxr-maven-plugin</artifactId>
-		<version>2.0-beta-1</version>
-	  </plugin>
-	  <plugin>
-		<groupId>org.apache.maven.plugins</groupId>
-		<artifactId>maven-project-info-reports-plugin</artifactId>
-		<version>2.7</version>
-	  </plugin>
-	</plugins>
-  </reporting>
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.7</version>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jxr-maven-plugin</artifactId>
+                <version>2.0-beta-1</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>2.7</version>
+            </plugin>
+        </plugins>
+    </reporting>
   
-        <distributionManagement>
-                <snapshotRepository>
-                        <id>portal.snapshots</id>
-                        <name>cBio Portal Snapshots Repository</name>
-                        <url>${portal.snapshot.url}</url>
-                </snapshotRepository>
-                <repository>
-                        <id>portal.releases</id>
-                        <name>cBio Portal Releases Repository</name>
-                        <url>${portal.release.url}</url>
-                </repository>
-        </distributionManagement>
+    <distributionManagement>
+        <snapshotRepository>
+            <id>portal.snapshots</id>
+            <name>cBio Portal Snapshots Repository</name>
+            <url>${portal.snapshot.url}</url>
+        </snapshotRepository>
+        <repository>
+            <id>portal.releases</id>
+            <name>cBio Portal Releases Repository</name>
+            <url>${portal.release.url}</url>
+        </repository>
+    </distributionManagement>
 
 </project>

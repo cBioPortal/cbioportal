@@ -146,7 +146,7 @@ public class NetworkServlet extends HttpServlet {
                 
                 // Get patient ids
                 Set<String> targetPatientIds = getPatientIds(req, cancerStudyId);
-                List<Integer> internalSampleIds = InternalIdUtil.getInternalSampleIdsFromPatientIds(cancerStudy.getInternalId(), new ArrayList<String>(targetPatientIds));
+                List<Integer> internalSampleIds = InternalIdUtil.getInternalNonNormalSampleIdsFromPatientIds(cancerStudy.getInternalId(), new ArrayList<String>(targetPatientIds));
                 
                 //  Get User Selected Genetic Profiles
                 Set<GeneticProfile> geneticProfileSet = getGeneticProfileSet(req, cancerStudyId);

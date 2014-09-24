@@ -141,9 +141,14 @@ class ConverterImpl implements Converter {
 
 				// get converter and create staging file
 				Object[] args = { config, fileUtils, caseIDs, idMapper };
-				Converter converter =
-					(Converter)ClassLoader.getInstance(datatypeMetadata.getConverterClassName(), args);
-				converter.createStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrices.toArray(new DataMatrix[0]));
+				Converter converter;
+                                try {
+					converter = (Converter)ClassLoader.getInstance(datatypeMetadata.getConverterClassName(), args);
+				} catch (ClassNotFoundException ex) {
+                                    ex.printStackTrace();
+                                    continue;
+                                }
+                                converter.createStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrices.toArray(new DataMatrix[0]));
 			}
 
 			if (createCancerStudyMetadataFile) {
@@ -339,6 +344,6 @@ class ImportDataRecordComparator implements Comparator {
 	public int compare (Object o, Object o1) {
 		ImportDataRecord record0 = (ImportDataRecord)o;
 		ImportDataRecord record1 = (ImportDataRecord)o1;
-		return (record1.getDataFilename().contains(DatatypeMetadata.CORRELATE_METHYL_FILE_ID)) ? 1 : 0;
+		return (record1.getDataFilename().contains(DatatypeMetadata.CORRELATE_METHYL_FILE_ID)) ? 1 : -1;
 	}
 }

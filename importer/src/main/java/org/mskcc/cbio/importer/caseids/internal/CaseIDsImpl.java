@@ -19,18 +19,13 @@
 package org.mskcc.cbio.importer.caseids.internal;
 
 // imports
-import org.mskcc.cbio.importer.Config;
-import org.mskcc.cbio.importer.CaseIDs;
-import org.mskcc.cbio.importer.model.DataMatrix;
-import org.mskcc.cbio.importer.model.CaseIDFilterMetadata;
+import org.mskcc.cbio.importer.*;
+import org.mskcc.cbio.importer.model.*;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.*;
 
-import java.util.Collection;
-import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.*;
+import java.util.regex.*;
 
 /**
  * Class which implements the CaseIDs interface.
@@ -39,10 +34,18 @@ public class CaseIDsImpl implements CaseIDs {
 
     private static final String SAMPLE_REGEX = "tcga-sample-pattern";
     private static final String PATIENT_REGEX = "tcga-patient-pattern";
+    private static final String NON_TCGA_REGEX = "non-tcga-pattern";
+
+    private static final List<String> tcgaNormalTypes = initTCGANormalTypes();
+    private static final List<String> initTCGANormalTypes()
+    {
+        return Arrays.asList(new String[] { "10","11","12","13","14","15","16","17","18","19" });
+    }
 
 	// ref to our matchers
     private Pattern samplePattern;
     private Pattern patientPattern;
+    private Pattern nonTCGAPattern;
 
 	/**
 	 * Constructor.
@@ -67,7 +70,9 @@ public class CaseIDsImpl implements CaseIDs {
             else if (caseIDFilter.getFilterName().equals(SAMPLE_REGEX)) {
                 samplePattern = Pattern.compile(caseIDFilter.getRegex());
             }
-
+            else if (caseIDFilter.getFilterName().equals(NON_TCGA_REGEX)) {
+                nonTCGAPattern = Pattern.compile(caseIDFilter.getRegex());
+            }
 		}
 	}
 
@@ -81,8 +86,17 @@ public class CaseIDsImpl implements CaseIDs {
 	public boolean isSampleId(String caseId)
     {
         caseId = clean(caseId);
-        return (samplePattern.matcher(caseId).matches());
+        return (samplePattern.matcher(caseId).matches() ||
+                nonTCGAPattern.matcher(caseId).matches());
 	}
+
+    @Override
+    public boolean isNormalId(String caseId)
+    {
+        String cleanId = clean(caseId);
+        Matcher matcher = samplePattern.matcher(cleanId);
+        return (matcher.find()) ? tcgaNormalTypes.contains(matcher.group(2)) : false;
+    }
 
     @Override
     public String getSampleId(String caseId)

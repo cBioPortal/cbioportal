@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.shape");
-Clazz.load (["J.shape.TextShape"], "J.shape.Hover", ["J.modelset.Text", "J.util.ArrayUtil", "$.C"], function () {
+Clazz.load (["J.shape.TextShape"], "J.shape.Hover", ["JU.AU", "JM.Text", "JU.C"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.hoverText = null;
 this.atomIndex = -1;
@@ -10,14 +10,14 @@ this.atomFormats = null;
 this.specialLabel = null;
 Clazz.instantialize (this, arguments);
 }, J.shape, "Hover", J.shape.TextShape);
-$_M(c$, "initShape", 
+Clazz.defineMethod (c$, "initShape", 
 function () {
 Clazz.superCall (this, J.shape.Hover, "initShape", []);
 this.isHover = true;
 var font3d = this.gdata.getFont3DFSS ("SansSerif", "Plain", 12);
-var bgcolix = J.util.C.getColixS ("#FFFFC3");
+var bgcolix = JU.C.getColixS ("#FFFFC3");
 var colix = 4;
-this.currentObject = this.hoverText = J.modelset.Text.newLabel (this.gdata, font3d, null, colix, bgcolix, 1, 0, null);
+this.currentObject = this.hoverText = JM.Text.newLabel (this.gdata, font3d, null, colix, bgcolix, 1, 0, null);
 this.hoverText.setAdjustForWindow (true);
 });
 Clazz.overrideMethod (c$, "setProperty", 
@@ -37,7 +37,7 @@ return;
 }if ("atomLabel" === propertyName) {
 var text = value;
 if (text != null && text.length == 0) text = null;
-var count = this.viewer.getAtomCount ();
+var count = this.vwr.getAtomCount ();
 if (this.atomFormats == null || this.atomFormats.length < count) this.atomFormats =  new Array (count);
 for (var i = bsSelected.nextSetBit (0); i >= 0; i = bsSelected.nextSetBit (i + 1)) this.atomFormats[i] = text;
 
@@ -53,14 +53,14 @@ return;
 if (this.atomFormats != null) {
 var firstAtomDeleted = ((value)[2])[1];
 var nAtomsDeleted = ((value)[2])[2];
-this.atomFormats = J.util.ArrayUtil.deleteElements (this.atomFormats, firstAtomDeleted, nAtomsDeleted);
+this.atomFormats = JU.AU.deleteElements (this.atomFormats, firstAtomDeleted, nAtomsDeleted);
 }this.atomIndex = -1;
 return;
 }this.setPropTS (propertyName, value, null);
-}, "~S,~O,J.util.BS");
+}, "~S,~O,JU.BS");
 Clazz.overrideMethod (c$, "getShapeState", 
 function () {
-return this.viewer.getShapeState (this);
+return this.vwr.getShapeState (this);
 });
 Clazz.defineStatics (c$,
 "FONTFACE", "SansSerif",

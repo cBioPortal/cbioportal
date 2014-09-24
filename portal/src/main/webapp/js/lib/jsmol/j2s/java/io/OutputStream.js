@@ -1,6 +1,6 @@
 Clazz.load (["java.io.Closeable", "$.Flushable"], "java.io.OutputStream", ["java.lang.IndexOutOfBoundsException", "$.NullPointerException"], function () {
 c$ = Clazz.declareType (java.io, "OutputStream", null, [java.io.Closeable, java.io.Flushable]);
-$_M(c$, "write", 
+Clazz.defineMethod (c$, "write", 
 function (b, off, len) {
 if (b == null) {
 throw  new NullPointerException ();

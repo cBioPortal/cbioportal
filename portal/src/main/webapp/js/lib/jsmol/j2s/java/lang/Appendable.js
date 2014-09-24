@@ -1,1 +1,1 @@
-$_I(java.lang,"Appendable");
+Clazz.declareInterface(java.lang,"Appendable");

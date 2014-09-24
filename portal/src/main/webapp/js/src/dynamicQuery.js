@@ -89,16 +89,6 @@ $(document).ready(function(){
       $('#cancer_results').toggle();
     });
 
-    //  Set up Event Handler for View/Hide Query Form, when it is on the results page
-    $("#toggle_query_form").click(function(event) {
-      event.preventDefault();
-      $('#query_form_on_results_page').toggle();
-
-      //  Toggle the icons
-      $(".query-toggle").toggle();
-
-    });
-
     //  Set up an Event Handler to intercept form submission
     $("#main_form").submit(function() {
        return chooseAction();

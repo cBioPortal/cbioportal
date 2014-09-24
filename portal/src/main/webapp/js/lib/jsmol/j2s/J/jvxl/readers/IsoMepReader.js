@@ -12,7 +12,7 @@ Clazz.overrideMethod (c$, "init",
 function (sg) {
 this.initIMR (sg);
 }, "J.jvxl.readers.SurfaceGenerator");
-$_M(c$, "initIMR", 
+Clazz.defineMethod (c$, "initIMR", 
 function (sg) {
 this.initADR (sg);
 this.type = "Mep";
@@ -28,7 +28,7 @@ this.setRanges (this.params.mep_ptsPerAngstrom, this.params.mep_gridMax, 0);
 Clazz.overrideMethod (c$, "generateCube", 
 function () {
 this.newVoxelDataCube ();
-var m = J.api.Interface.getOptionInterface ("quantum." + this.type + "Calculation");
+var m = J.api.Interface.getOption ("quantum." + this.type + "Calculation");
 m.calculate (this.volumeData, this.bsMySelected, this.atomData.atomXyz, this.params.theProperty, this.params.mep_calcType);
 });
 });

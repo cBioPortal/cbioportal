@@ -23,12 +23,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import org.apache.commons.collections.map.MultiKeyMap;
+
+import java.util.*;
 
 @Service
 public class EntityAttributeService
 {
 	private EntityAttributeMapper entityAttributeMapper;
+  private static final MultiKeyMap entityAttributeMap = new MultiKeyMap();
+  private static final Map<String,AttributeMetadata> attributeMetadataMap = new HashMap<String, AttributeMetadata>();
 
   @Autowired
   public void setEntityAttributeMapper(EntityAttributeMapper entityAttributeMapper)
@@ -44,6 +48,9 @@ public class EntityAttributeService
     entityAttribute.attributeId = attributeId;
     entityAttribute.attributeValue = attributeValue;
     entityAttributeMapper.insertEntityAttribute(entityAttribute);
+    if (!entityAttributeMap.containsKey(entityId, attributeId)) {
+      entityAttributeMap.put(entityId, attributeId, entityAttribute);
+    }
     return entityAttribute;
 	}
 
@@ -51,6 +58,12 @@ public class EntityAttributeService
   public void updateEntityAttribute(EntityAttribute entityAttribute)
   {
     entityAttributeMapper.updateEntityAttribute(entityAttribute);
+    if (entityAttributeMap.containsKey(entityAttribute.entityId, entityAttribute.attributeId)) {
+      entityAttributeMap.remove(entityAttribute.entityId, entityAttribute.attributeId);
+    }
+    entityAttributeMap.put(entityAttribute.entityId,
+                           entityAttribute.attributeId,
+                           entityAttribute.attributeValue);
   } 
 
 	@Transactional
@@ -65,12 +78,23 @@ public class EntityAttributeService
     attributeMetadata.description = description;
     attributeMetadata.type = type;
     entityAttributeMapper.insertAttributeMetadata(attributeMetadata);
+    if (!attributeMetadataMap.containsKey(attributeId)) {
+      attributeMetadataMap.put(attributeId, attributeMetadata);
+    }
     return attributeMetadata;
   }
 
   public EntityAttribute getAttribute(int entityId, String attributeId)
   {
-    return entityAttributeMapper.getEntityAttributeById(entityId, attributeId);
+    if (entityAttributeMap.containsKey(entityId, attributeId)) {
+      return (EntityAttribute)entityAttributeMap.get(entityId, attributeId);
+    }
+    EntityAttribute entityAttribute =
+      entityAttributeMapper.getEntityAttributeById(entityId, attributeId);
+    if (entityAttribute != null) {
+      entityAttributeMap.put(entityId, attributeId, entityAttribute);
+    }
+    return entityAttribute;
   }
 
   public List<AttributeMetadata> getAllAttributeMetadata()
@@ -80,6 +104,14 @@ public class EntityAttributeService
 
   public AttributeMetadata getAttributeMetadata(String attributeId)
   {
-    return entityAttributeMapper.getAttributeMetadataById(attributeId);
+    if (attributeMetadataMap.containsKey(attributeId)) {
+      return (AttributeMetadata)attributeMetadataMap.get(attributeId);
+    }
+    AttributeMetadata attributeMetadata =
+      entityAttributeMapper.getAttributeMetadataById(attributeId);
+    if (attributeMetadata != null) {
+      attributeMetadataMap.put(attributeId, attributeMetadata);
+    }
+    return attributeMetadata;
   }
 }

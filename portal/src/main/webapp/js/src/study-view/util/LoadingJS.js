@@ -32,15 +32,12 @@ var LoadingJS = (function(){
                 data: ['StudyViewProxy'],
                 util: [
                     'FnGetColumnData',
-                    'FnColumnFilter',
-                    'FnSetFilteringDelay',
                     'StudyViewUtil',
                     'StudyViewPrototypes'
                 ],
                 view: [
                     'StudyViewInitCharts', 
                     'StudyViewInitDataTable',
-                    'StudyViewInitMiddleComponents',
                     'StudyViewInitTopComponents',
                     'StudyViewInitScatterPlot',
                     'StudyViewInitIntroJS',
@@ -73,7 +70,12 @@ var LoadingJS = (function(){
     
     function main(){
         constructJSarray();
-
+        
+        //Add appVerion after all included js files
+        require.config({
+            urlArgs: appVersion
+        });
+        
         //After loding JS files, run Study View Controller
         require(JSPublic,function(){
              require(JSarray, function(){

@@ -3,7 +3,7 @@
 <%@ page import="org.mskcc.cbio.portal.model.CancerStudyStats" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.ArrayList" %>
-<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+
 <%
    String examplesHtml = GlobalProperties.getProperty("examples_right_column");
    if (examplesHtml == null) {
@@ -25,25 +25,15 @@
    }
 %>
 
-    <!-- Display Sign Out Button for Real (Non-Anonymous) User -->
-    <sec:authorize access="!hasRole('ROLE_ANONYMOUS')">
-        <table width="100%">
-	<tr>
-        <td align="right" style="font-size:10px;">
-            You are logged in as <sec:authentication property='principal.name' />. <a href="j_spring_security_logout">Sign out</a>.
-        </td>
-        </tr>
-    </table>
-    </sec:authorize>
+
 <div id="right_side">
     
     
     <h3>What's New</h3>
 
     <p>
-    &bull;<a href="jobs.jsp"> We are hiring a <b>Front End Engineer</b></a><br>
-    &bull;<a href="jobs.jsp"> We are hiring a <b>Data Curator</b></a><br>
-    &bull;<a href="news.jsp"> <b>New data and features released</b></a>
+    &bull;<a href="news.jsp"> <b>TCGA data updated</b></a>
+    &bull;<a href="news.jsp"> <b>New studies released</b></a>
     </p>
     
     <form action="http://groups.google.com/group/cbioportal-news/boxsubscribe">

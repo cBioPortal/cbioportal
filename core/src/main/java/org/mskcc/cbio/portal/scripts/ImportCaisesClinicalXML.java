@@ -23,8 +23,8 @@ public final class ImportCaisesClinicalXML {
     private ImportCaisesClinicalXML() {}
     
     public static void main(String[] args) throws Exception {
-//        args = new String[] {"--data","/Users/gaoj/projects/cbio-portal-data/studies/prad/su2c/data_clinical_caises.xml",
-//            "--meta","/Users/gaoj/projects/cbio-portal-data/studies/prad/su2c/meta_clinical_caises.txt",
+//        args = new String[] {"--data","/Users/jgao/projects/cbio-portal-data/studies/prad/su2c/data_clinical_caises.xml",
+//            "--meta","/Users/jgao/projects/cbio-portal-data/studies/prad/su2c/meta_clinical_caises.txt",
 //            "--loadMode", "bulkLoad"};
         if (args.length < 4) {
             System.out.println("command line usage:  importCaisesXml --data <data_clinical_caises.xml> --meta <meta_clinical_caises.txt>");
@@ -185,23 +185,23 @@ public final class ImportCaisesClinicalXML {
     
     private static List<ClinicalAttribute> getClinicalAttributes() {
         return Arrays.asList(
-                new ClinicalAttribute("PATIENT_ID", "Patient ID", "Patient ID", "STRING", true),
-                new ClinicalAttribute("RACE", "Race", "Race", "STRING", true),
-                new ClinicalAttribute("AGE", "Age", "Age", "Number", true),
-                new ClinicalAttribute("PATIENT_CATEGORY", "Patient category", "Patient category", "STRING", true),
-                new ClinicalAttribute("CLIN_T_Stage", "Clinical T stage", "Clinical T stage", "STRING", true),
-                new ClinicalAttribute("CLIN_N_Stage", "Clinical N stage", "Clinical N stage", "STRING", true),
-                new ClinicalAttribute("CLIN_M_Stage", "Clinical M stage", "Clinical M stage", "STRING", true),
-                new ClinicalAttribute("HISTOLOGY", "Histology", "Histology", "STRING", true),
-                new ClinicalAttribute("PATH_RESULT", "Pathology result", "Pathology result", "STRING", true),
-                new ClinicalAttribute("PATH_T_STAGE", "Pathology T stage", "Pathology T stage", "STRING", true),
-                new ClinicalAttribute("PATH_N_STAGE", "Pathology N stage", "Pathology N stage", "STRING", true),
-                new ClinicalAttribute("PATH_M_STAGE", "Pathology M stage", "Pathology M stage", "STRING", true),
-                new ClinicalAttribute("GLEASON_SCORE_1", "Gleason score 1", "Gleason score 1", "Number", true),
-                new ClinicalAttribute("GLEASON_SCORE_2", "Gleason score 2", "Gleason score 2", "Number", true),
-                new ClinicalAttribute("GLEASON_SCORE", "Gleason score", "Gleason score", "Number", true),
-                new ClinicalAttribute("TUMOR_SITE", "Tumor site", "Tumor site", "STRING", true),
-                new ClinicalAttribute("PROC_INSTRUMENT", "Procedure instrument", "Procedure instrument", "STRING", true)
+                new ClinicalAttribute("PATIENT_ID", "Patient ID", "Patient ID", "STRING", true, "1"),
+                new ClinicalAttribute("RACE", "Race", "Race", "STRING", true, "1"),
+                new ClinicalAttribute("AGE", "Age", "Age", "Number", true, "1"),
+                new ClinicalAttribute("PATIENT_CATEGORY", "Patient category", "Patient category", "STRING", true, "1"),
+                new ClinicalAttribute("CLIN_T_Stage", "Clinical T stage", "Clinical T stage", "STRING", true, "1"),
+                new ClinicalAttribute("CLIN_N_Stage", "Clinical N stage", "Clinical N stage", "STRING", true, "1"),
+                new ClinicalAttribute("CLIN_M_Stage", "Clinical M stage", "Clinical M stage", "STRING", true, "1"),
+                new ClinicalAttribute("HISTOLOGY", "Histology", "Histology", "STRING", true, "1"),
+                new ClinicalAttribute("PATH_RESULT", "Pathology result", "Pathology result", "STRING", true, "1"),
+                new ClinicalAttribute("PATH_T_STAGE", "Pathology T stage", "Pathology T stage", "STRING", true, "1"),
+                new ClinicalAttribute("PATH_N_STAGE", "Pathology N stage", "Pathology N stage", "STRING", true, "1"),
+                new ClinicalAttribute("PATH_M_STAGE", "Pathology M stage", "Pathology M stage", "STRING", true, "1"),
+                new ClinicalAttribute("GLEASON_SCORE_1", "Gleason score 1", "Gleason score 1", "Number", true, "1"),
+                new ClinicalAttribute("GLEASON_SCORE_2", "Gleason score 2", "Gleason score 2", "Number", true, "1"),
+                new ClinicalAttribute("GLEASON_SCORE", "Gleason score", "Gleason score", "Number", true, "1"),
+                new ClinicalAttribute("TUMOR_SITE", "Tumor site", "Tumor site", "STRING", true, "1"),
+                new ClinicalAttribute("PROC_INSTRUMENT", "Procedure instrument", "Procedure instrument", "STRING", true, "1")
         );
     }
     

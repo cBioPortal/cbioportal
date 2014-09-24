@@ -1,20 +1,20 @@
-$_L(null,"java.lang.ThreadGroup",["java.lang.NullPointerException","$.Thread"],function(){
-c$=$_C(function(){
+Clazz.load(null,"java.lang.ThreadGroup",["java.lang.NullPointerException","$.Thread"],function(){
+c$=Clazz.decorateAsClass(function(){
 this.parent=null;
 this.name=null;
 this.maxPriority=0;
-$_Z(this,arguments);
+Clazz.instantialize(this,arguments);
 },java.lang,"ThreadGroup");
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(){
 this.name="system";
 this.maxPriority=10;
 });
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(name){
 this.construct(Thread.currentThread().getThreadGroup(),name);
 },"~S");
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(parent,name){
 if(parent==null){
 throw new NullPointerException();
@@ -22,15 +22,15 @@ throw new NullPointerException();
 this.parent=parent;
 this.maxPriority=10;
 },"ThreadGroup,~S");
-$_M(c$,"getName",
+Clazz.defineMethod(c$,"getName",
 function(){
 return this.name;
 });
-$_M(c$,"getParent",
+Clazz.defineMethod(c$,"getParent",
 function(){
 return this.parent;
 });
-$_M(c$,"getMaxPriority",
+Clazz.defineMethod(c$,"getMaxPriority",
 function(){
 return this.maxPriority;
 });

@@ -57,7 +57,7 @@ public class ImportSangerCensusData {
                 pMonitor.incrementCurValue();
                 ConsoleUtil.showProgress(pMonitor);
             }
-            String parts[] = line.split("\t");
+            String parts[] = line.split(",");
             long entrezGeneId = Long.parseLong(parts[2]);
             CanonicalGene gene = daoGene.getGene(entrezGeneId);
             if (gene != null) {

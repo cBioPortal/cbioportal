@@ -1,7 +1,7 @@
 Clazz.declarePackage ("J.render");
-Clazz.load (["J.api.JmolRepaintManager", "J.util.BS"], "J.render.RepaintManager", ["J.util.Logger", "J.viewer.JC"], function () {
+Clazz.load (["J.api.JmolRepaintManager", "JU.BS"], "J.render.RepaintManager", ["J.api.Interface", "JU.Logger", "JV.JC"], function () {
 c$ = Clazz.decorateAsClass (function () {
-this.viewer = null;
+this.vwr = null;
 this.shapeManager = null;
 this.renderers = null;
 this.bsTranslucent = null;
@@ -10,16 +10,16 @@ this.repaintPending = false;
 Clazz.instantialize (this, arguments);
 }, J.render, "RepaintManager", null, J.api.JmolRepaintManager);
 Clazz.prepareFields (c$, function () {
-this.bsTranslucent = J.util.BS.newN (36);
+this.bsTranslucent = JU.BS.newN (36);
 });
 Clazz.makeConstructor (c$, 
 function () {
 });
 Clazz.overrideMethod (c$, "set", 
-function (viewer, shapeManager) {
-this.viewer = viewer;
+function (vwr, shapeManager) {
+this.vwr = vwr;
 this.shapeManager = shapeManager;
-}, "J.viewer.Viewer,J.viewer.ShapeManager");
+}, "JV.Viewer,JV.ShapeManager");
 Clazz.overrideMethod (c$, "isRepaintPending", 
 function () {
 return this.repaintPending;
@@ -41,7 +41,7 @@ Clazz.overrideMethod (c$, "requestRepaintAndWait",
 function (why) {
 {
 if (typeof Jmol != "undefined" && Jmol._repaint)
-Jmol._repaint(this.viewer.applet, false);
+Jmol._repaint(this.vwr.html5Applet, false);
 this.repaintDone();
 }}, "~S");
 Clazz.overrideMethod (c$, "repaintIfReady", 
@@ -51,13 +51,11 @@ this.repaintPending = true;
 if (this.holdRepaint == 0) this.repaintNow (why);
 return true;
 }, "~S");
-$_M(c$, "repaintNow", 
-($fz = function (why) {
-if (!this.viewer.haveDisplay) return;
-{
-if (typeof Jmol != "undefined" && Jmol._repaint)
-Jmol._repaint(this.viewer.applet,true);
-}}, $fz.isPrivate = true, $fz), "~S");
+Clazz.defineMethod (c$, "repaintNow", 
+ function (why) {
+if (!this.vwr.haveDisplay) return;
+this.vwr.apiPlatform.repaint (this.vwr.getDisplay ());
+}, "~S");
 Clazz.overrideMethod (c$, "repaintDone", 
 function () {
 this.repaintPending = false;
@@ -70,81 +68,71 @@ if (iShape >= 0) this.renderers[iShape] = null;
  else for (var i = 0; i < 36; ++i) this.renderers[i] = null;
 
 }, "~N");
-$_M(c$, "getRenderer", 
-($fz = function (shapeID) {
+Clazz.defineMethod (c$, "getRenderer", 
+ function (shapeID) {
 if (this.renderers[shapeID] != null) return this.renderers[shapeID];
-var className = J.viewer.JC.getShapeClassName (shapeID, true) + "Renderer";
-try {
-var shapeClass = Class.forName (className);
-var renderer = shapeClass.newInstance ();
-renderer.setViewerG3dShapeID (this.viewer, shapeID);
+var className = JV.JC.getShapeClassName (shapeID, true) + "Renderer";
+var renderer;
+if ((renderer = J.api.Interface.getInterface (className)) == null) return null;
+renderer.setViewerG3dShapeID (this.vwr, shapeID);
 return this.renderers[shapeID] = renderer;
-} catch (e) {
-if (Clazz.exceptionOf (e, Exception)) {
-J.util.Logger.errorEx ("Could not instantiate renderer:" + className, e);
-return null;
-} else {
-throw e;
-}
-}
-}, $fz.isPrivate = true, $fz), "~N");
+}, "~N");
 Clazz.overrideMethod (c$, "render", 
 function (gdata, modelSet, isFirstPass, minMax) {
-var logTime = this.viewer.getBoolean (603979934);
+var logTime = this.vwr.getBoolean (603979934);
 try {
 var g3d = gdata;
 g3d.renderBackground (null);
 if (isFirstPass) {
 this.bsTranslucent.clearAll ();
-if (minMax != null) g3d.renderCrossHairs (minMax, this.viewer.getScreenWidth (), this.viewer.getScreenHeight (), this.viewer.getNavigationOffset (), this.viewer.getNavigationDepthPercent ());
-var band = this.viewer.getRubberBandSelection ();
-if (band != null && g3d.setColix (this.viewer.getColixRubberband ())) g3d.drawRect (band.x, band.y, 0, 0, band.width, band.height);
+if (minMax != null) g3d.renderCrossHairs (minMax, this.vwr.getScreenWidth (), this.vwr.getScreenHeight (), this.vwr.tm.getNavigationOffset (), this.vwr.tm.getNavigationDepthPercent ());
+var band = this.vwr.getRubberBandSelection ();
+if (band != null && g3d.setC (this.vwr.cm.colixRubberband)) g3d.drawRect (band.x, band.y, 0, 0, band.width, band.height);
 }if (this.renderers == null) this.renderers =  new Array (36);
 var msg = null;
 for (var i = 0; i < 36 && g3d.currentlyRendering (); ++i) {
 var shape = this.shapeManager.getShape (i);
 if (shape == null) continue;
 if (logTime) {
-msg = "rendering " + J.viewer.JC.getShapeClassName (i, false);
-J.util.Logger.startTimer (msg);
+msg = "rendering " + JV.JC.getShapeClassName (i, false);
+JU.Logger.startTimer (msg);
 }if ((isFirstPass || this.bsTranslucent.get (i)) && this.getRenderer (i).renderShape (g3d, modelSet, shape)) this.bsTranslucent.set (i);
-if (logTime) J.util.Logger.checkTimer (msg, false);
+if (logTime) JU.Logger.checkTimer (msg, false);
 }
 g3d.renderAllStrings (null);
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
-if (!this.viewer.isJS) e.printStackTrace ();
-J.util.Logger.error ("rendering error? " + e);
+if (!this.vwr.isJS) e.printStackTrace ();
+JU.Logger.error ("rendering error? " + e);
 } else {
 throw e;
 }
 }
-}, "J.util.GData,J.modelset.ModelSet,~B,~A");
+}, "JU.GData,JM.ModelSet,~B,~A");
 Clazz.overrideMethod (c$, "renderExport", 
-function (type, gdata, modelSet, fileName) {
+function (gdata, modelSet, params) {
 var isOK;
-var logTime = this.viewer.getBoolean (603979934);
-this.viewer.finalizeTransformParameters ();
+var logTime = this.vwr.getBoolean (603979934);
+this.vwr.finalizeTransformParameters ();
 this.shapeManager.finalizeAtoms (null, null);
-this.shapeManager.transformAtoms ();
-var g3dExport = this.viewer.initializeExporter (type, fileName);
-isOK = (g3dExport != null);
+var exporter3D = this.vwr.initializeExporter (params);
+isOK = (exporter3D != null);
 if (!isOK) {
-J.util.Logger.error ("Cannot export " + type);
+JU.Logger.error ("Cannot export " + params.get ("type"));
 return null;
-}g3dExport.renderBackground (g3dExport);
+}exporter3D.renderBackground (exporter3D);
 if (this.renderers == null) this.renderers =  new Array (36);
 var msg = null;
 for (var i = 0; i < 36; ++i) {
 var shape = this.shapeManager.getShape (i);
 if (shape == null) continue;
 if (logTime) {
-msg = "rendering " + J.viewer.JC.getShapeClassName (i, false);
-J.util.Logger.startTimer (msg);
-}this.getRenderer (i).renderShape (g3dExport, modelSet, shape);
-if (logTime) J.util.Logger.checkTimer (msg, false);
+msg = "rendering " + JV.JC.getShapeClassName (i, false);
+JU.Logger.startTimer (msg);
+}this.getRenderer (i).renderShape (exporter3D, modelSet, shape);
+if (logTime) JU.Logger.checkTimer (msg, false);
 }
-g3dExport.renderAllStrings (g3dExport);
-return g3dExport.finalizeOutput ();
-}, "~S,J.util.GData,J.modelset.ModelSet,~S");
+exporter3D.renderAllStrings (exporter3D);
+return exporter3D.finalizeOutput ();
+}, "JU.GData,JM.ModelSet,java.util.Map");
 });

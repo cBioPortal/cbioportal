@@ -5,12 +5,7 @@
 <style type="text/css" title="currentStyle">
 	@import "css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>";
 	@import "css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>";
-	@import "css/mutation/mutation_details.css?<%=GlobalProperties.getAppVersion()%>";
-	@import "css/mutation/mutation_table.css?<%=GlobalProperties.getAppVersion()%>";
-	@import "css/mutation/mutation_3d.css?<%=GlobalProperties.getAppVersion()%>";
-	@import "css/mutation/mutation_diagram.css?<%=GlobalProperties.getAppVersion()%>";
-	@import "css/mutation/mutation_pdb_panel.css?<%=GlobalProperties.getAppVersion()%>";
-	@import "css/mutation/mutation_pdb_table.css?<%=GlobalProperties.getAppVersion()%>";
+	@import "css/mutationMapper.min.css?<%=GlobalProperties.getAppVersion()%>";
 </style>
 
 <script type="text/javascript">
@@ -18,26 +13,34 @@
 // TODO 3d Visualizer should be initialized before document get ready
 // ...due to incompatible Jmol initialization behavior
 var _mut3dVis = null;
-_mut3dVis = new Mutation3dVis("default3dView", {});
+_mut3dVis = new Mutation3dVis("default3dView");
 _mut3dVis.init();
 
 // Set up Mutation View
-$(document).ready(function(){
-	var sampleArray = PortalGlobals.getCases().trim().split(/\s+/);
+$(document).ready(function() {
+	var sampleArray = _.keys(PortalGlobals.getPatientSampleIdMap());
+	var mutationProxy = DataProxyFactory.getDefaultMutationDataProxy();
 
 	// init default mutation details view
 
-	var model = {mutationProxy: DataProxyFactory.getDefaultMutationDataProxy(),
-		sampleArray: sampleArray};
+	var options = {
+		el: "#mutation_details",
+		data: {
+			geneList: mutationProxy.getRawGeneList(),
+			sampleList: sampleArray
+		},
+		proxy: {
+			mutation: {
+				instance: mutationProxy
+			}
+		}
+	};
 
-	var options = {el: "#mutation_details",
-		model: model,
-		mut3dVis: _mut3dVis};
-
-	var defaultView = MutationViewsUtil.initMutationDetailsView("#mutation_details",
+	var defaultView = MutationViewsUtil.initMutationMapper("#mutation_details",
 		options,
 		"#tabs",
-		"Mutations");
+		"Mutations",
+		_mut3dVis);
 });
 
 </script>

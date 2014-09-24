@@ -2,8 +2,8 @@
 //
 // Gideon Dresdner July 2013
 
-requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
-    function(   Oncoprint,      OncoprintUtils, EchoedDataUtils) {
+requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'],
+    function(   Oncoprint,      OncoprintUtils, EchoedDataUtils, InputData) {
 
         // This is for the moustache-like templates
         // prevents collisions with JSP tags
@@ -22,11 +22,11 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
 
             var data_thresholded = (function() {
                 var cna_threshold_mapping = {
-                    "AMPLIFIED": "AMPLIFIED",
-                    "GAINED": "DIPLOID",
+                    "AMP": "AMPLIFIED",
+                    "GAIN": "GAINED",
                     "DIPLOID": "DIPLOID",
-                    "HEMIZYGOUSLYDELETED": "DIPLOID",
-                    "HOMODELETED": "HOMODELETED"
+                    "HETLOSS": "HEMIZYGOUSLYDELETED",
+                    "HOMDEL": "HOMODELETED"
                 };
 
                 // maps cna values of GAINED, HEMIZYGOUSLYDELETED to DIPLOID, using the above map,
@@ -72,7 +72,7 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
 
             $('#toggle_unaltered_cases').click(function() {
                 oncoprint.toggleUnalteredCases();
-                OncoprintUtils.make_mouseover(d3.selectAll('.sample rect'));     // hack =(
+                OncoprintUtils.make_mouseover(d3.selectAll('.sample rect'), {linkage:false});     // hack =(
 //            oncoprint.sortBy(sortBy.val());
             });
 
@@ -84,19 +84,30 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
             $('#oncoprint_controls').show();
 
             // setup the download buttons
-            var $pdf_form = $('#pdf-form');
-            $pdf_form.submit(function() {
-                var that = $(this)[0];
-                that.elements['svgelement'].value=oncoprint.getPdfInput();
-                return;
-            });
+            $(".oncoprint-download").click(function() {
+                                var fileType = $(this).attr("type");
+                                var params = {
+                                    filetype: fileType,
+                                    filename:"oncoprint." + fileType,
+                                    svgelement: oncoprint.getPdfInput()
+                                };
 
-            var $svg_form = $('#svg-form');
-            $svg_form.submit(function() {
-                var that = $(this)[0];
-                that.elements['xml'].value=oncoprint.getPdfInput();
-                return;
-            });
+                                cbio.util.requestDownload("svgtopdf.do", params);
+                            });
+            $(".sample-download").click(function() {
+                                var samples = "Sample order in the Oncoprint is: \n";
+                                var genesValue = oncoprint.getData();
+                                for(var i = 0; i< genesValue.length; i++)
+                                {
+                                    samples= samples + genesValue[i].key+"\n";
+                                }
+                                var a=document.createElement('a');
+                                a.href='data:text/plain;base64,'+btoa(samples);
+                                a.textContent='download';
+                                a.download='OncoPrintSamples.txt';
+                                a.click();
+                                a.delete();
+                            });
 
             var $all_cna_levels_checkbox = $('#all_cna_levels');
             function update_oncoprint_cna_levels() {
@@ -121,7 +132,7 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
             oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
             oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
 //            oncoprint.sortBy(sortBy.val());
-            OncoprintUtils.make_mouseover(d3.selectAll('.sample rect'));        // hack =(
+            OncoprintUtils.make_mouseover(d3.selectAll('.sample rect'), {linkage:false});        // hack =(
 
             return false;
         };
@@ -133,13 +144,16 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
         var $mutationForm = $('#mutation-form');
         var $mutation_file_example = $('#mutation-file-example');
         var $cna_file_example = $('#cna-file-example');
+        var $filter_example = $('#filter_example');
+        
+        var oncoprint_loader_img = $('#oncoprint_loader_img');
 
         // delete text when a file is selected
         $cnaForm.find("#cna").change(function() { $cna_file_example.html(""); });
         $mutationForm.find("#mutation").change(function() { $mutation_file_example.html(""); });
 
         $('#create_oncoprint').click(function() {
-
+            oncoprint_loader_img.show();
             var postFile = function(url, formData, callback) {
                 $.ajax({
                     url: url,
@@ -152,6 +166,7 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
                     processData: false
                 });
             };
+            
             var padData = function(data){
                     var datasamples = new Array(); datasamples.push(data[0].sample);
                     var datagene = new Array(); datagene.push(data[0].gene);
@@ -214,7 +229,33 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
                         }
                     }    
             };
-
+            
+            var  reduceData= function (inputData)
+            {
+                for( var i = 1; i < inputData.length-1; i++ )
+                {
+                    for(var j= i +1 ; j < inputData.length; j++)
+                    {
+                        if(inputData[i].gene === inputData[j].gene && inputData[i].sample === inputData[j].sample)
+                        {
+                            if(inputData[j].mutation !== undefine )
+                            {
+                                inputData[i].mutation = inputData[j].mutation;
+                                inputData.splice(j,1);
+                                break;
+                            }
+                            
+                            if(inputData[j].cna !== undefine )
+                            {
+                                inputData[i].cna = inputData[j].cna;
+                                inputData.splice(j,1);
+                                break;
+                            }
+                        }
+                    }
+                }
+            };
+            
             function concatData(mutationdata,data){
                 var mutationEmpty = _.isEmpty(mutationdata);
                 var dataEmpty = _.isEmpty(data);
@@ -257,91 +298,55 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
                 return data.concat(mutationdata);
             };
             
-            postFile('echofile', new FormData($cnaForm[0]), function(cnaResponse) {
+            function filterData(filterElement, filterData){
+                
+                var afterFilter = [];
+                
+                for(var i=0; i < filterElement.length; i++)
+                {
+                    for(var j=0; j< filterData.length; j++)
+                    {
+                        if(filterData[j].gene === filterElement[i])
+                        {
+                            afterFilter.push(filterData[j]);
+                        }
+                    }
+                }
+
+                return afterFilter;
+            } 
+ //           postFile('echofile', new FormData($cnaForm[0]), function(cnaResponse) {
                 postFile('echofile', new FormData($mutationForm[0]), function(mutationResponse) {
 
-                    var mutationTextAreaString = $mutation_file_example.val().trim(),
-                        cnaTextAreaString = $cna_file_example.val().trim();
+                    var mutationTextAreaString = $mutation_file_example.val().trim();
+                    var filterExample = $filter_example.val().trim();
+                    
+                    var filterString = filterExample.split(/[\s,]+/); 
+                    
+                    var cnaTextAreaString = "";
 
                     var rawMutationString = _.isEmpty(mutationResponse) ? mutationTextAreaString : mutationResponse.mutation;
-                    mutation_data = EchoedDataUtils.munge_mutation(rawMutationString);
-
-                    var rawCnaString = _.isEmpty(cnaResponse) ? cnaTextAreaString : cnaResponse.cna;
+                    //mutation_data = EchoedDataUtils.munge_mutation(rawMutationString);
+                    mutation_data = InputData.munge_the_mutation(rawMutationString);
+                    
+ //                   var rawCnaString = _.isEmpty(cnaResponse) ? cnaTextAreaString : cnaResponse.cna;
+                    var rawCnaString = cnaTextAreaString;
                     cna_data = EchoedDataUtils.munge_cna(rawCnaString);
                     
                     var data = concatData(mutation_data,cna_data);
-                    //var data = mutation_data.concat(cna_data);
-                    //var data = cna_data.concat(mutation_data);
-                    
-//                    var datasamples = new Array(); datasamples.push(data[0].sample);
-//                    var datagene = new Array(); datagene.push(data[0].gene);
-//                    for(var i = 0; i<data.length;i++)
-//                    {
-//                        var samplelength = datasamples.length;
-//                        var genelength = datagene.length;
-//                        
-//
-//                        var samplefalse = false;                         
-////                        var samplefound = _.find(datasamples, function(index) { return datasamples[index] === data[i].sample});
-////                        if(samplefound) samplefalse = true;
-//                        for(var j=0;j<samplelength;j++)
-//                        {
-//
-//                            if(data[i].sample === datasamples[j])
-//                            {
-//                                samplefalse = true;
-//                                break;
-//                            }
-//                        }
-//                        
-//                        if(!samplefalse) datasamples.push(data[i].sample);
-//                        
-//                        var genefalse = false;
-////                        var genefound = _.find(datasamples, function(index) { return datagene[index] === data[i].gene});
-////                        if(genefound) genefalse = true;
-//                        for(var k=0;k<genelength;k++)
-//                        {
-//                            if(data[i].gene === datagene[k])
-//                            {
-//                                genefalse = true;
-//                                break;
-//                            }
-//                        }
-//                        
-//                        if(!genefalse) datagene.push(data[i].gene);
-//                    }
-//                    
-//                    for(var j=0;j<datasamples.length;j++)
-//                    {
-//                        for(var i=0; i<datagene.length;i++)
-//                        {
-//                            var datafalse = false;
-//                            for(var n=0; n<data.length;n++)
-//                            {
-//                                if(data[n].gene === datagene[i] && data[n].sample === datasamples[j])
-//                                {
-//                                    datafalse = true;
-//                                    break;
-//                                }
-//                            }
-//                            
-//                            if(!datafalse)
-//                            {
-//                                var newdata = new Object();
-//                                newdata.gene = datagene[i];
-//                                newdata.sample = datasamples[j];
-//                                data.push(newdata);
-//                            }
-//                        }
-//                    }
-                    //padData(data);
-                    
+
+                    if(filterString[0] !== "")
+                    {
+                        data = filterData(filterString,data);
+                    }
+
                     cases = EchoedDataUtils.samples(data);
 
                     var $error_box = $('#error-box');
                     try {
                         exec(data);
                         $error_box.hide();
+                        oncoprint_loader_img.hide();
                         $('#download_oncoprint').show();
                     } catch(e) {
                         // catch all errors and console.log them,
@@ -351,6 +356,6 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
                         $error_box.show();
                     }
                 });
-            });
+//            });
         });
 });

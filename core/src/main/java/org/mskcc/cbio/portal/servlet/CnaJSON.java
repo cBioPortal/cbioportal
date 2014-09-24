@@ -162,7 +162,7 @@ public class CnaJSON extends HttpServlet {
             int studyId = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId).getInternalId();
             if (strPatientIds!=null) {
                 List<String> stablePatientIds = Arrays.asList(strPatientIds.split("[ ,]+"));
-                sampleIds = InternalIdUtil.getInternalSampleIdsFromPatientIds(studyId, stablePatientIds);
+                sampleIds = InternalIdUtil.getInternalNonNormalSampleIdsFromPatientIds(studyId, stablePatientIds);
             }
             fraction = DaoCopyNumberSegment.getCopyNumberActeredFraction(sampleIds,
                                                                          studyId,

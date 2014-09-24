@@ -53,4 +53,12 @@
 	where ATTR_ID = #{attributeId}
 </select>
 
+<delete id="deleteEntityAttributes" flushCache="true">
+	delete from entity_attribute where ENTITY_ID = #{entityId}
+</delete>
+
+<delete id="deleteAllEntityAttributes" flushCache="true">
+	delete from entity_attribute
+</delete>
+
 </mapper>

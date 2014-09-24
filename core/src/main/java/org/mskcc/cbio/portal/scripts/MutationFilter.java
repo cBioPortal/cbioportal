@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-import org.mskcc.cbio.portal.dao.DaoException;
+import java.util.Set;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.ExtendedMutation;
@@ -42,6 +42,8 @@ public class MutationFilter {
 
    // text lists of the gene lists, for reporting
    private ArrayList<String> cancerSpecificGermlineWhiteListGeneNames = new ArrayList<String>();
+   
+   private Set<Long> whiteListGenesForPromoterMutations;
 
    private int accepts=0;
    private int germlineWhitelistAccepts=0;
@@ -55,6 +57,7 @@ public class MutationFilter {
    private int missenseGermlineRejects=0;
 	private int utrRejects=0;
 	private int igrRejects=0;
+	private int redactedRejects=0;
 
    /**
     * Construct a MutationFilter with no white lists. 
@@ -80,7 +83,8 @@ public class MutationFilter {
    }
    
    private void __internalConstructor(String germlineWhiteListFile) throws IllegalArgumentException{
-
+      whiteListGenesForPromoterMutations = new HashSet<Long>();
+      whiteListGenesForPromoterMutations.add(Long.valueOf(7015)); // TERT
       // read germlineWhiteListFile (e.g., ova: BRCA1 BRCA2)
       if( null != germlineWhiteListFile){
          cancerSpecificGermlineWhiteList = getContents(
@@ -153,12 +157,27 @@ public class MutationFilter {
          }         
       }
 
+		// Do not accept Redacted mutations
+		if (safeStringTest(mutation.getValidationStatus(), "Redacted"))
+		{
+		   redactedRejects++;
+		   return false;
+		}
+
       // Do not accept 3'UTR or 5' UTR Mutations
       if( safeStringTest( mutation.getMutationType(), "3'UTR" ) ||
-		  safeStringTest( mutation.getMutationType(), "5'UTR" ) ||
-		  safeStringTest( mutation.getMutationType(), "5'Flank" ) ){
+		  safeStringTest( mutation.getMutationType(), "5'UTR" ) ){
 		  utrRejects++;
          return false;
+      }
+      
+      if( safeStringTest( mutation.getMutationType(), "5'Flank" ) ) { 
+            if (whiteListGenesForPromoterMutations.contains(mutation.getEntrezGeneId())){
+                  mutation.setProteinChange("Promoter");
+            } else {
+		  utrRejects++;
+                  return false;
+            }
       }
 
       // Do not accept IGR Mutations
@@ -262,6 +281,11 @@ public class MutationFilter {
    public int getUnknownAccepts(){
       return this.unknownAccepts;
    }
+
+	public int getRedactedRejects()
+	{
+		return this.redactedRejects;
+	}
 
    /**
     * Provide number of REJECT (return false) decisions made by this MutationFilter.

@@ -33,4 +33,9 @@ public interface EntityMapper
 
 	List<Entity> getParents(@Param("childId") int childId, @Param("type") EntityType type);
 	List<Entity> getChildren(@Param("parentId") int parentId, @Param("type") EntityType type);
+
+	void deleteEntity(@Param("internalId") int internalId);
+	void deleteEntityLinks(@Param("parentId") int parentId);
+	void deleteAllEntity();
+	void deleteAllEntityLinks();
 }

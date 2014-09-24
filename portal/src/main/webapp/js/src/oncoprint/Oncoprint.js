@@ -13,6 +13,7 @@ define("Oncoprint",
         [           "OncoprintUtils",  "MemoSort"],
         function(   utils,              MemoSort) {
             return function(div, params) {
+
                 params.clinicalData = params.clinicalData || [];        // initialize
                 params.clinical_attrs = params.clinical_attrs || [];
 
@@ -23,7 +24,6 @@ define("Oncoprint",
                     }
                     return i;
                 });
-
 
                 var data = clinicalData.concat(params.geneData);
 
@@ -38,7 +38,12 @@ define("Oncoprint",
                 var attributes = clinical_attrs.concat(params.genes);
 
                 data = utils.process_data(data, attributes);
+
+                //TODO: tmp solution for re-using data
+                window.PortalGlobals.setGeneData(params.geneData);
                 PortalDataColl.setOncoprintData(data); 
+                var alterInfo = utils.alteration_info(params.geneData);
+                PortalDataColl.setOncoprintStat(alterInfo);
 
                 // keeps track of the order specified by the user (translates to vertical
                 // order in the visualization)
@@ -97,13 +102,13 @@ define("Oncoprint",
                     };
                 }());
                 //    var margin = { top: 80, right: 80, left: 80, bottom: 80 };
-
+                    
                 // make labels and set up the table for proper scrolling, etc.
                 var table = d3.select(div)
                     .append('table')
                     .append('tr')
                     .attr('valign','top');
-
+                    
                 var remove_oncoprint = function() {
                     d3.select("#" + div.id + ' table').remove();
                 };
@@ -133,6 +138,7 @@ define("Oncoprint",
 
                 var gene2percent = utils.percent_altered(params.geneData);
 
+
                 label.append('tspan')       // name
                     .attr('text-anchor', 'start')
                     .attr('font-weight', 'bold')
@@ -141,15 +147,25 @@ define("Oncoprint",
                         var value = maybe(d);
                         return value === d ? value : value.display_name;
                     });
+
                 label.append('tspan')       // percent_altered
                     .text(function(d) {
-                        return (d in gene2percent) ? gene2percent[d].toString() + "%" : ""; })
+                        return (d in gene2percent) ? gene2percent[d].toString() + "%" : "X"; })
+                    .attr('fill',function(d){ return (d in gene2percent) ? 'black':'blue'})
+                    .attr('class',function(d){ return (d in gene2percent) ? 'regular':'special_delete'})
                     .attr('x', '' + dims.label_width)
                     .attr('text-anchor', 'end')
                     // remove the tspan that would have contained the percent altered
                     // because it messes with the label placement in the pdf download
                     .filter(function(d) { return gene2percent[d] === undefined; }).remove();
 
+//                label.append('tspan')       // percent_altered
+//                    .text(function(d) {
+//                        return (d in gene2percent) ? gene2percent[d].toString() + "%" : " "; })
+//                    .attr('text-anchor', 'end')
+//                    // remove the tspan that would have contained the percent altered
+//                    // because it messes with the label placement in the pdf download
+//                    .filter(function(d) { return gene2percent[d] === undefined; }).remove();
 
                 var container_width = $('#td-content').width();              // snatch this from the main portal page
                 container_width = (container_width ? container_width : params.width);    // see if this has specified by user
@@ -276,6 +292,7 @@ define("Oncoprint",
                 };
 
                 update(data);
+                cbio.util.autoHideOnMouseLeave($("#oncoprint_whole_body"), $(".special_delete"));
 
                 var altered
                     = utils.filter_altered(utils.nest_data(params.geneData));
@@ -563,7 +580,7 @@ define("Oncoprint",
                     };
                 })();
 
-                utils.make_mouseover(d3.selectAll('#' + div.id + ' .sample *'));
+                utils.make_mouseover(d3.selectAll('#' + div.id + ' .sample *'),{linkage:true});
 
                 return State;
             };

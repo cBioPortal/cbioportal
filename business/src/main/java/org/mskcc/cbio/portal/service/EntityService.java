@@ -23,12 +23,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.apache.commons.collections.map.MultiKeyMap;
+
 import java.util.List;
 
 @Service
 public class EntityService
 {
 	private EntityMapper entityMapper;
+  private static final MultiKeyMap patientMap = new MultiKeyMap();
+  private static final MultiKeyMap sampleMap = new MultiKeyMap();
 
   @Autowired
   public void setEntityMapper(EntityMapper entityMapper)
@@ -36,13 +40,41 @@ public class EntityService
     this.entityMapper = entityMapper;
   }
 
+  @Transactional
+  public Entity insertCancerStudyEntity(String cancerStudyStableId)
+  {
+    Entity entity = new Entity();
+    entity.stableId = cancerStudyStableId;
+    entity.type = EntityType.STUDY;
+    entityMapper.insertEntity(entity);
+    return entity;
+  }
+
+  @Transactional
+  public Entity insertPatientEntity(String cancerStudyStableId, String patientStableId)
+  {
+    Entity entity = new Entity();
+    entity.stableId = patientStableId;
+    entity.type = EntityType.PATIENT;
+    entityMapper.insertEntity(entity);
+    if (!patientMap.containsKey(cancerStudyStableId, patientStableId)) {
+      patientMap.put(cancerStudyStableId, patientStableId, entity);
+    }
+    return entity;
+  }
+
 	@Transactional
-	public Entity insertEntity(String stableId, EntityType type)
+	public Entity insertSampleEntity(String cancerStudyStableId,
+                                   String patientStableId,
+                                   String sampleStableId)
 	{
     Entity entity = new Entity();
-    entity.stableId = stableId;
-    entity.type = type;
+    entity.stableId = sampleStableId;
+    entity.type = EntityType.SAMPLE;
 		entityMapper.insertEntity(entity);
+    if (!sampleMap.containsKey(cancerStudyStableId, patientStableId, sampleStableId)) {
+      sampleMap.put(cancerStudyStableId, patientStableId, sampleStableId, entity);
+    }
 		return entity;
 	}
 
@@ -66,16 +98,30 @@ public class EntityService
 
   	public Entity getPatient(String cancerStudyStableId, String patientStableId)
   	{
+      if (patientMap.containsKey(cancerStudyStableId, patientStableId)) {
+        return (Entity)patientMap.get(cancerStudyStableId, patientStableId);
+      }
   		Entity cancerStudyEntity = getCancerStudy(cancerStudyStableId);
-  		return filterByStableId(entityMapper.getChildren(cancerStudyEntity.internalId, EntityType.PATIENT),
-                              patientStableId);
+  		Entity patientEntity = filterByStableId(entityMapper.getChildren(cancerStudyEntity.internalId, EntityType.PATIENT),
+                                              patientStableId);
+      if (patientEntity != null) {
+        patientMap.put(cancerStudyStableId, patientStableId, patientEntity);
+      }
+      return patientEntity;
   	}
 
   	public Entity getSample(String cancerStudyStableId, String patientStableId, String sampleStableId)
   	{
+      if (sampleMap.containsKey(cancerStudyStableId, patientStableId, sampleStableId)) {
+        return (Entity)sampleMap.get(cancerStudyStableId, patientStableId, sampleStableId);
+      }
   		Entity patientEntity = getPatient(cancerStudyStableId, patientStableId);
-  		return filterByStableId(entityMapper.getChildren(patientEntity.internalId, EntityType.SAMPLE),
-  		                        sampleStableId);
+  		Entity sampleEntity = filterByStableId(entityMapper.getChildren(patientEntity.internalId, EntityType.SAMPLE),
+                                             sampleStableId);
+      if (sampleEntity != null) {
+        sampleMap.put(cancerStudyStableId, patientStableId, sampleStableId, sampleEntity);
+      }
+      return sampleEntity;
   	}
 
   	private Entity filterByStableId(List<Entity> entities, String stableIdFilter)
@@ -90,5 +136,4 @@ public class EntityService
   		assert entityToReturn != null;
   		return entityToReturn;
   	}
-
 }

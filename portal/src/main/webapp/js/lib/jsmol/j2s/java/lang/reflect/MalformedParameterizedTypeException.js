@@ -1,3 +1,3 @@
-$_L(["java.lang.RuntimeException"],"java.lang.reflect.MalformedParameterizedTypeException",null,function(){
-c$=$_T(java.lang.reflect,"MalformedParameterizedTypeException",RuntimeException);
+Clazz.load(["java.lang.RuntimeException"],"java.lang.reflect.MalformedParameterizedTypeException",null,function(){
+c$=Clazz.declareType(java.lang.reflect,"MalformedParameterizedTypeException",RuntimeException);
 });

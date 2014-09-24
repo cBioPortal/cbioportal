@@ -1,3 +1,3 @@
-$_L(["java.lang.Exception"],"java.lang.CloneNotSupportedException",null,function(){
-c$=$_T(java.lang,"CloneNotSupportedException",Exception);
+Clazz.load(["java.lang.Exception"],"java.lang.CloneNotSupportedException",null,function(){
+c$=Clazz.declareType(java.lang,"CloneNotSupportedException",Exception);
 });

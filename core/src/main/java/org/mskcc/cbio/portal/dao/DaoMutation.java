@@ -553,7 +553,7 @@ public final class DaoMutation {
                     + " WHERE mutation.ENTREZ_GENE_ID=gene.ENTREZ_GENE_ID"
                     + " AND GENETIC_PROFILE_ID=" + profileId
                     + (entrezGeneIds==null?"":(" AND mutation.ENTREZ_GENE_ID IN("+StringUtils.join(entrezGeneIds,",")+")"))
-                    + (selectedCaseIds==null?"":(" AND mutation.CASE_ID IN("+StringUtils.join(selectedCaseIds,",")+")"))
+                    + (selectedCaseIds==null?"":(" AND mutation.SAMPLE_ID IN("+StringUtils.join(selectedCaseIds,",")+")"))
                     + " GROUP BY mutation.ENTREZ_GENE_ID"
                     + (thresholdRecurrence>0?(" HAVING COUNT(*)>="+thresholdRecurrence):"")
                     + " ORDER BY count_per_nt DESC"
@@ -615,17 +615,16 @@ public final class DaoMutation {
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
             String sql;
-            if (sampleIds == null) {
-                sql = "SELECT `SAMPLE_ID`, count(DISTINCT `MUTATION_EVENT_ID`) FROM mutation"
-                        + " WHERE `GENETIC_PROFILE_ID`=" + profileId
-                        + " GROUP BY `SAMPLE_ID`";
+            if (sampleIds==null) {
+                sql = "SELECT `SAMPLE_ID`, `MUTATION_COUNT` FROM mutation_count"
+                        + " WHERE `GENETIC_PROFILE_ID`=" + profileId;
                 
             } else {
-                sql = "SELECT `SAMPLE_ID`, count(DISTINCT `MUTATION_EVENT_ID`) FROM mutation"
+                sql = "SELECT `SAMPLE_ID`, `MUTATION_COUNT` FROM mutation_count"
                         + " WHERE `GENETIC_PROFILE_ID`=" + profileId
                         + " AND `SAMPLE_ID` IN ('"
                         + StringUtils.join(sampleIds,"','")
-                        + "') GROUP BY `SAMPLE_ID`";
+                        + "')";
             }
             pstmt = con.prepareStatement(sql);
             

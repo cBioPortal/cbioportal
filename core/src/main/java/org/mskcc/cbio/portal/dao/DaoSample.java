@@ -86,9 +86,8 @@ public class DaoSample {
                 normalsByCancerTypeId.put(sample.getCancerTypeId(), new HashSet<Sample>());
             }
             normalsByCancerTypeId.get(sample.getCancerTypeId()).add(sample);
-        } else {
-            cacheTumorSample(sample, getCancerStudyId(sample));
         }
+        cacheSample(sample, getCancerStudyId(sample));
     }
 
     private static int getCancerStudyId(Sample sample)
@@ -97,7 +96,7 @@ public class DaoSample {
         return (patient == null) ? MISSING_CANCER_STUDY_ID : patient.getCancerStudy().getInternalId();
     }
 
-    private static void cacheTumorSample(Sample sample, int cancerStudyId)
+    private static void cacheSample(Sample sample, int cancerStudyId)
     {
         if (!byStableId.containsKey(sample.getStableId())) {
             byStableId.put(sample.getStableId(), sample);

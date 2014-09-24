@@ -1,25 +1,25 @@
-$_L(["java.lang.RuntimeException"],"java.lang.reflect.UndeclaredThrowableException",null,function(){
-c$=$_C(function(){
+Clazz.load(["java.lang.RuntimeException"],"java.lang.reflect.UndeclaredThrowableException",null,function(){
+c$=Clazz.decorateAsClass(function(){
 this.undeclaredThrowable=null;
-$_Z(this,arguments);
+Clazz.instantialize(this,arguments);
 },java.lang.reflect,"UndeclaredThrowableException",RuntimeException);
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(exception){
-$_R(this,java.lang.reflect.UndeclaredThrowableException);
+Clazz.superConstructor(this,java.lang.reflect.UndeclaredThrowableException);
 this.undeclaredThrowable=exception;
 this.initCause(exception);
 },"Throwable");
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(exception,detailMessage){
-$_R(this,java.lang.reflect.UndeclaredThrowableException,[detailMessage]);
+Clazz.superConstructor(this,java.lang.reflect.UndeclaredThrowableException,[detailMessage]);
 this.undeclaredThrowable=exception;
 this.initCause(exception);
 },"Throwable,~S");
-$_M(c$,"getUndeclaredThrowable",
+Clazz.defineMethod(c$,"getUndeclaredThrowable",
 function(){
 return this.undeclaredThrowable;
 });
-$_V(c$,"getCause",
+Clazz.overrideMethod(c$,"getCause",
 function(){
 return this.undeclaredThrowable;
 });

@@ -5,14 +5,16 @@
         }
         .onco-customize:hover { text-decoration: underline; }
     </style>
+    <%--
     <p onclick="$('#oncoprint_controls #main').toggle(); $('#oncoprint_controls .triangle').toggle();"
     style="margin-bottom: 0px;">
     <span class="triangle ui-icon ui-icon-triangle-1-e" style="float: left; display: block;"></span>
         <span class="triangle ui-icon ui-icon-triangle-1-s" style="float: left; display: none;"></span>
         <span class='onco-customize'>Customize</span>
     </p>
+    --%>
 
-    <div id="main" style="display:none;">
+    <div id="main" style="display:inline;">
     <table style="padding-left:13px; padding-top:5px">
     <tr>
                 <td style="padding-right: 15px;"><span>Zoom</span><div id="zoom" style="display: inline-table;"></div></td>

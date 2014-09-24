@@ -205,27 +205,17 @@ public class ImportExtendedMutationData{
 				int proteinPosStart,
 					proteinPosEnd;
 
-				boolean bestEffectTranscript;
-
 				// determine whether to use canonical or best effect transcript
 
 				// try canonical first
-				if (ExtendedMutationUtil.isAcceptableMutation(record.getOncotatorVariantClassification()))
+				if (ExtendedMutationUtil.isAcceptableMutation(record.getVariantClassification()))
 				{
-					mutationType = record.getOncotatorVariantClassification();
-					bestEffectTranscript = false;
+					mutationType = record.getVariantClassification();
 				}
-				// if canonical is not acceptable (silent, etc.), try best effect
-				else if (ExtendedMutationUtil.isAcceptableMutation(record.getOncotatorVariantClassificationBestEffect()))
-				{
-					mutationType = record.getOncotatorVariantClassificationBestEffect();
-					bestEffectTranscript = true;
-				}
-				// if best effect is not acceptable either, use the default value
+				// if not acceptable either, use the default value
 				else
 				{
 					mutationType = ExtendedMutationUtil.getMutationType(record);
-					bestEffectTranscript = false;
 				}
 
 				// skip RNA mutations
@@ -236,40 +226,19 @@ public class ImportExtendedMutationData{
 					continue;
 				}
 
-				// set values according to the selected transcript
-				if (bestEffectTranscript)
-				{
+				// TODO simplify protein change...
+				proteinChange = ExtendedMutationUtil.getProteinChange(parts, record);
 
-					if (!ExtendedMutationUtil.isValidProteinChange(record.getOncotatorProteinChangeBestEffect()))
-					{
-						proteinChange = "MUTATED";
-					}
-					else
-					{
-						// remove starting "p." if any
-						proteinChange = ExtendedMutationUtil.normalizeProteinChange(
-							record.getOncotatorProteinChangeBestEffect());
-					}
 
-					codonChange = record.getOncotatorCodonChangeBestEffect();
-					refseqMrnaId = record.getOncotatorRefseqMrnaIdBestEffect();
-					uniprotName = record.getOncotatorUniprotNameBestEffect();
-					uniprotAccession = record.getOncotatorUniprotAccessionBestEffect();
-					proteinPosStart = record.getOncotatorProteinPosStartBestEffect();
-					proteinPosEnd = record.getOncotatorProteinPosEndBestEffect();
-                                        oncotatorGeneSymbol = record.getOncotatorGeneSymbolBestEffect();
-				}
-				else
-				{
-					proteinChange = ExtendedMutationUtil.getProteinChange(parts, record);
-					codonChange = record.getOncotatorCodonChange();
-					refseqMrnaId = record.getOncotatorRefseqMrnaId();
-					uniprotName = record.getOncotatorUniprotName();
-					uniprotAccession = record.getOncotatorUniprotAccession();
-					proteinPosStart = record.getOncotatorProteinPosStart();
-					proteinPosEnd = record.getOncotatorProteinPosEnd();
-                                        oncotatorGeneSymbol = record.getOncotatorGeneSymbol();
-				}
+				// TODO these are not standard columns, we don't have them in "record" yet
+				codonChange = record.getOncotatorCodonChange();
+				refseqMrnaId = record.getOncotatorRefseqMrnaId();
+				uniprotName = record.getOncotatorUniprotName();
+				uniprotAccession = record.getOncotatorUniprotAccession();
+				proteinPosStart = record.getOncotatorProteinPosStart();
+				proteinPosEnd = record.getOncotatorProteinPosEnd();
+				oncotatorGeneSymbol = record.getOncotatorGeneSymbol();
+
 
 				//  Assume we are dealing with Entrez Gene Ids (this is the best / most stable option)
 				String geneSymbol = record.getHugoGeneSymbol();
@@ -336,6 +305,8 @@ public class ImportExtendedMutationData{
                     mutation.setTumorRefCount(ExtendedMutationUtil.getTumorRefCount(record));
 					mutation.setNormalAltCount(ExtendedMutationUtil.getNormalAltCount(record));
 					mutation.setNormalRefCount(ExtendedMutationUtil.getNormalRefCount(record));
+
+					// TODO oncotator columns shouldn't be included anymore
 					mutation.setOncotatorDbSnpRs(record.getOncotatorDbSnpRs());
 					mutation.setOncotatorCodonChange(codonChange);
 					mutation.setOncotatorRefseqMrnaId(refseqMrnaId);
@@ -343,7 +314,9 @@ public class ImportExtendedMutationData{
 					mutation.setOncotatorUniprotAccession(uniprotAccession);
 					mutation.setOncotatorProteinPosStart(proteinPosStart);
 					mutation.setOncotatorProteinPosEnd(proteinPosEnd);
-					mutation.setCanonicalTranscript(!bestEffectTranscript);
+
+					// TODO probably we won't need this anymore
+					mutation.setCanonicalTranscript(true);
 
 					sequencedCaseSet.add(sample.getStableId());
 

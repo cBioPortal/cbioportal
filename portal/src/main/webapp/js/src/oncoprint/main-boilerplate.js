@@ -130,8 +130,9 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         $('.special_delete').click(function() {
             var attr = $(this).attr("alt");
             var indexNum = extraTracks.indexOf(attr);
+            var sampleNumbers = extraGenes.length/extraAttributes.length;
             extraTracks.splice(indexNum, 1);
-            extraGenes.splice(indexNum, 1);
+            extraGenes.splice(indexNum, sampleNumbers);
             extraAttributes.splice(indexNum, 1);
             sortStatus.splice(indexNum, 1);
             removeClinicalAttribute();

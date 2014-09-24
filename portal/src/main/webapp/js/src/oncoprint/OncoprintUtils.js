@@ -966,9 +966,12 @@ define("OncoprintUtils", (function() {
             var inter_item_templater;
             inter_item_templater = item_templater({ bg_color: cna_fills[datatype2range.cna],text: captions.cna[datatype2range.cna]});
             
-            var legend_svg = table.append('svg')
+            var legend_svg = table
+//                        .selectAll('td')
+                        .append('svg')
                         .attr('height', 23 )
                         .attr('width', captions.cna[datatype2range.cna].length * 6.5 + 5.5*3 )
+                        .attr('x', 0)
                         .attr('id', 'legend');
                 
             legend_svg.append('rect')
@@ -1030,91 +1033,6 @@ define("OncoprintUtils", (function() {
                 .attr('class','legend_name')
                 .text(captions.mutation); 
         }
-        
-//        var legend_svg = table.selectAll('td')        
-//        .data(datatype2range)
-//        .enter()
-//        .append('svg')
-//        .attr('height', function(d){
-//                return ((23+6) / 1.80);
-//        })
-//        .attr('width', function(d)
-//        {
-//            return d.attr_val.toString().length * 6.5 + dims.rect_width * 5;
-//        })
-//        .attr('x', function(d)
-//        {
-//            return calculateDistance(d);
-//        })
-//        .attr('id', 'legend');
-//        
-//        var legend_label = legend_svg.append('text')
-//            .attr('font-size', '12px')
-//            .attr('width', function(d)
-//            {
-//                return d.attr_val.length * 6.5;
-//            })
-//            .attr('x', dims.rect_width*3)
-//            .attr('y', function(d) {
-//                return ((23+6) / 1.80); });
-//
-//        legend_label.append('tspan')       // name
-//            .attr('text-anchor', 'start')
-//            .attr('fill','black')
-//            .attr('cursor','move')
-//            .attr('class','legend_name')
-//            .text(function(d) {
-//                return d.attr_val;
-//            });
-            
-//        var legend_svg = table.selectAll('td')        
-//        .data(intraData)
-//        .enter()
-//        .append('svg')
-//        .attr('height', function(d){
-//                return (dims.vert_space / 1.80);
-//        })
-//        .attr('width', function(d)
-//        {
-//            return d.attr_val.toString().length * 6.5 + dims.rect_width * 5;
-//        })
-//        .attr('x', function(d)
-//        {
-//            return calculateDistance(d);
-//        })
-//        .attr('id', 'legend');
-
-        
-//    <svg height="23" width="6">
-//        <rect fill="#FF0000" width="5.5" height="23"></rect>
-//
-//        <rect display="none" fill="#008000" y="7.666666666666667" width="5.5" height="7.666666666666667"></rect>
-//        <path display="none" d="M0,0L0,23 5.5,11.5Z"></path>
-//
-//        <path display="none" d="M0,2.672958956142353L3.0864671457232173,-2.672958956142353 -3.0864671457232173,-2.672958956142353Z" transform="translate(2.75,20.909090909090907)"></path>
-//        <path display="none" d="M0,-2.672958956142353L3.0864671457232173,2.672958956142353 -3.0864671457232173,2.672958956142353Z" transform="translate(2.75,2.3000000000000003)"></path>
-//
-//        <rect display="none" height="23" width="5.5" stroke-width="2" stroke-opacity="1" stroke="#6699CC" fill="none"></rect>
-//        <rect display="none" height="23" width="5.5" stroke-width="2" stroke-opacity="1" stroke="#FF9999" fill="none"></rect>
-//    </svg>
-//    <span style="position: relative; bottom: 6px;">Amplification</span>    
-
-
-        
-//        <svg height="23" width="6">
-//            <rect fill="{{bg_color}}" width="5.5" height="23"></rect>
-//
-//            <rect display="{{display_mutation}}" fill="#008000" y="7.666666666666667" width="5.5" height="7.666666666666667"></rect>
-//            <path display="{{display_fusion}}" d="M0,0L0,23 5.5,11.5Z"></path>
-//
-//            <path display="{{display_down_rppa}}" d="M0,2.672958956142353L3.0864671457232173,-2.672958956142353 -3.0864671457232173,-2.672958956142353Z" transform="translate(2.75,20.909090909090907)"></path>
-//            <path display="{{display_up_rppa}}" d="M0,-2.672958956142353L3.0864671457232173,2.672958956142353 -3.0864671457232173,2.672958956142353Z" transform="translate(2.75,2.3000000000000003)"></path>
-//
-//            <rect display="{{display_down_mrna}}" height="23" width="5.5" stroke-width="2" stroke-opacity="1" stroke="#6699CC" fill="none"></rect>
-//            <rect display="{{display_up_mrna}}" height="23" width="5.5" stroke-width="2" stroke-opacity="1" stroke="#FF9999" fill="none"></rect>
-//        </svg>
-//        <span style="position: relative; bottom: 6px;">{{text}}</span>
-
         
         if(attrtype2range.length > 0)
         {

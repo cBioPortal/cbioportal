@@ -265,7 +265,6 @@
     <b:bean id="metadata" class="org.springframework.security.saml.metadata.CachingMetadataManager">
         <b:constructor-arg>
             <b:list>
-                <!--
                 <b:bean class="org.springframework.security.saml.metadata.ExtendedMetadataDelegate">
                     <b:constructor-arg>
                         <b:bean class="org.opensaml.saml2.metadata.provider.FilesystemMetadataProvider">
@@ -281,7 +280,7 @@
                     </b:constructor-arg>
                     <b:property name="metadataTrustCheck" value="false"/>
                 </b:bean>
-                -->
+                <!--
                 <b:bean class="org.opensaml.saml2.metadata.provider.HTTPMetadataProvider">
                     <b:constructor-arg>
                         <b:value type="java.lang.String">https://testaccess2.mskcc.org/nidp/saml2/metadata</b:value>
@@ -291,6 +290,7 @@
                     </b:constructor-arg>
                     <b:property name="parserPool" ref="parserPool"/>
                 </b:bean>
+                -->
             </b:list>
         </b:constructor-arg>
     </b:bean>

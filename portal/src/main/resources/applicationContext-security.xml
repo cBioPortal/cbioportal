@@ -254,7 +254,7 @@
                     <b:constructor-arg>
                         <b:bean class="org.opensaml.saml2.metadata.provider.FilesystemMetadataProvider">
                             <b:constructor-arg>
-                                <b:value type="java.io.File">classpath:cmocbioportal_sp.xml</b:value>
+                                <b:value type="java.io.File">${saml.sp.metadata.location}</b:value>
                             </b:constructor-arg>
                             <b:property name="parserPool" ref="parserPool"/>
                         </b:bean>
@@ -282,7 +282,7 @@
                     <b:constructor-arg>
                         <b:bean class="org.opensaml.saml2.metadata.provider.FilesystemMetadataProvider">
                             <b:constructor-arg>
-                                <b:value type="java.io.File">classpath:mskcc-saml-metadata.xml</b:value>
+                                <b:value type="java.io.File">${saml.idp.metadata.location}</b:value>
                             </b:constructor-arg>
                             <b:property name="parserPool" ref="parserPool"/>
                         </b:bean>

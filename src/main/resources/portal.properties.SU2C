@@ -62,6 +62,11 @@ google_analytics_profile_id=
 googleplus.consumer.key=
 googleplus.consumer.secret=
 
+#SAML
+saml.sp.metadata.location=
+saml.idp.metadata.location=
+
+
 about=about_us_su2c.html
 news=news_su2c.html
 examples_right_column=examples_su2c.html

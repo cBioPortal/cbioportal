@@ -62,6 +62,9 @@ google_analytics_profile_id=
 googleplus.consumer.key=
 googleplus.consumer.secret=
 
+#SAML
+saml.sp.metadata.location=
+saml.idp.metadata.location=
 
 faq=faq_tcga.html
 about=about_us.html

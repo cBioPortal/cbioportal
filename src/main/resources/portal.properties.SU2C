@@ -65,6 +65,11 @@ googleplus.consumer.secret=
 #SAML
 saml.sp.metadata.location=
 saml.idp.metadata.location=
+saml.keystore.location=
+saml.keystore.password=
+saml.keystore.private-key.key=
+saml.keystore.private-key.password=
+saml.keystore.default-key=
 
 
 about=about_us_su2c.html

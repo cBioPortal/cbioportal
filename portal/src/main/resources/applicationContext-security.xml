@@ -219,14 +219,14 @@
 
     <!-- Central storage of cryptographic keys -->
     <b:bean id="keyManager" class="org.springframework.security.saml.key.JKSKeyManager">
-        <b:constructor-arg value="classpath:samlKeystore.jks"/>
-        <b:constructor-arg type="java.lang.String" value="nalle123"/>
+        <b:constructor-arg value="${saml.keystore.location}"/>
+        <b:constructor-arg type="java.lang.String" value="${saml.keystore.password}"/>
         <b:constructor-arg>
             <b:map>
-                <b:entry key="apollo" value="nalle123"/>
+                <b:entry key="${saml.keystore.private-key.key}" value="${saml.keystore.private-key.password}"/>
             </b:map>
         </b:constructor-arg>
-        <b:constructor-arg type="java.lang.String" value="apollo"/>
+        <b:constructor-arg type="java.lang.String" value="${saml.keystore.default-key}"/>
     </b:bean>
 
     <b:bean id="samlEntryPoint" class="org.springframework.security.saml.SAMLEntryPoint">

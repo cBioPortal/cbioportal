@@ -175,6 +175,7 @@
         ${url.intercepts}
 
         <!-- used for saml authentication -->
+        <custom-filter after="FIRST" ref="metadataGeneratorFilter"/>
         <custom-filter after="BASIC_AUTH_FILTER" ref="samlFilter"/>
 
         <!-- to enable access from matlab, r, python, etc clients -->
@@ -242,6 +243,20 @@
         <b:property name="idpSelectionPath" value="/login.jsp"/>
     </b:bean>
 
+    <b:bean id="metadataGeneratorFilter" class="org.springframework.security.saml.metadata.MetadataGeneratorFilter">
+        <b:constructor-arg>
+            <b:bean class="org.springframework.security.saml.metadata.MetadataGenerator">
+                <b:property name="entityId" value="${saml.sp.metadata.entityid}"/>
+                <b:property name="extendedMetadata">
+                    <b:bean class="org.springframework.security.saml.metadata.ExtendedMetadata">
+                        <b:property name="idpDiscoveryEnabled" value="true"/>
+                        <b:property name="signMetadata" value="false"/>
+                    </b:bean>
+                </b:property>
+            </b:bean>
+        </b:constructor-arg>
+    </b:bean>
+
     <!-- The filter is waiting for connections on URL suffixed with filterSuffix and presents SP metadata there -->
     <b:bean id="metadataDisplayFilter" class="org.springframework.security.saml.metadata.MetadataDisplayFilter"/>
 
@@ -250,34 +265,7 @@
     <b:bean id="metadata" class="org.springframework.security.saml.metadata.CachingMetadataManager">
         <b:constructor-arg>
             <b:list>
-                <b:bean class="org.springframework.security.saml.metadata.ExtendedMetadataDelegate">
-                    <b:constructor-arg>
-                        <b:bean class="org.opensaml.saml2.metadata.provider.FilesystemMetadataProvider">
-                            <b:constructor-arg>
-                                <b:value type="java.io.File">${saml.sp.metadata.location}</b:value>
-                            </b:constructor-arg>
-                            <b:property name="parserPool" ref="parserPool"/>
-                        </b:bean>
-                    </b:constructor-arg>
-                    <b:constructor-arg>
-                        <b:bean class="org.springframework.security.saml.metadata.ExtendedMetadata">
-                           <b:property name="local" value="true"/>
-                           <b:property name="alias" value="miso-dev.cbio.mskcc.org"/>
-                           <!--
-                           <b:property name="securityProfile" value="metaiop"/>
-                           <b:property name="sslSecurityProfile" value="pkix"/>
-                           <b:property name="sslHostnameVerification" value="default"/>
-                           <b:property name="signingKey" value="apollo"/>
-                           <b:property name="encryptionKey" value="apollo"/>
-                           <b:property name="requireArtifactResolveSigned" value="false"/>
-                           <b:property name="requireLogoutRequestSigned" value="false"/>
-                           <b:property name="requireLogoutResponseSigned" value="false"/>
-                           -->
-                           <b:property name="idpDiscoveryEnabled" value="true"/>
-                        </b:bean>
-                    </b:constructor-arg>
-                    <b:property name="metadataTrustCheck" value="false"/>
-                </b:bean>
+                <!--
                 <b:bean class="org.springframework.security.saml.metadata.ExtendedMetadataDelegate">
                     <b:constructor-arg>
                         <b:bean class="org.opensaml.saml2.metadata.provider.FilesystemMetadataProvider">
@@ -293,7 +281,7 @@
                     </b:constructor-arg>
                     <b:property name="metadataTrustCheck" value="false"/>
                 </b:bean>
-                <!--
+                -->
                 <b:bean class="org.opensaml.saml2.metadata.provider.HTTPMetadataProvider">
                     <b:constructor-arg>
                         <b:value type="java.lang.String">https://testaccess2.mskcc.org/nidp/saml2/metadata</b:value>
@@ -303,13 +291,8 @@
                     </b:constructor-arg>
                     <b:property name="parserPool" ref="parserPool"/>
                 </b:bean>
-                -->
             </b:list>
         </b:constructor-arg>
-        <!-- OPTIONAL used when one of the metadata files contains information about this service provider -->
-        <!--<property name="hostedSPName" value="cmo:cbioportal"/>-->
-        <!-- OPTIONAL property: can tell the system which IDP should be used for authenticating user by default. -->
-        <!--<property name="defaultIDP" value="https://testaccess2.mskcc.org/nidp/saml2/metadata"/>-->
     </b:bean>
 
     <!-- SAML Authentication Provider responsible for validating of received SAML messages -->

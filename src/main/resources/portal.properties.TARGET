@@ -65,7 +65,7 @@ googleplus.consumer.key=
 googleplus.consumer.secret=
 
 #SAML
-saml.sp.metadata.location=
+saml.sp.metadata.entityid=
 saml.idp.metadata.location=
 saml.keystore.location=
 saml.keystore.password=

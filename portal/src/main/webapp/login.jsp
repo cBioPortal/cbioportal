@@ -97,8 +97,8 @@
                     </form>
                     <% } else if (authenticationMethod.equals("saml")) { %>
                         <p>
-                            <button onclick="window.location = 'saml/login?idp=https://testaccess2.mskcc.org/nidp/saml2/metadata'" style="padding: 0; border:none; background: none" >
-                                <IMG alt="saml" src="<c:url value="/images/mskcc_logo_3d_grey.jpg"/>" height="50px" /></button>
+                            <button type="button" class="btn btn-danger btn-lg" onclick="window.location = 'saml/login?idp=https://testaccess2.mskcc.org/nidp/saml2/metadata'" >
+                            Sign in with MSK</button>
                         </p>
                     </fieldset>
                     <% } else if (authenticationMethod.equals("googleplus")) { %>

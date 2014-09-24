@@ -15,6 +15,10 @@
     String globalStyleCSSPath = (authenticationMethod.equals("saml")) ?
         "/" + global_style : global_style;
     pageContext.setAttribute("globalStyleCSSPath", globalStyleCSSPath);
+    String bootstrapCSSPath = "css/bootstrap.min.css"+"?"+GlobalProperties.getAppVersion();
+    bootstrapCSSPath = (authenticationMethod.equals("saml")) ?
+        "/" + bootstrapCSSPath : bootstrapCSSPath;
+    pageContext.setAttribute("bootstrapCSSPath", bootstrapCSSPath);
 %>
 
 <!-- Include Global Style Sheets -->
@@ -33,3 +37,4 @@
 <link href="css/custom_case_set.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
 <link href="css/ui.dropdownchecklist.themeroller.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
 <link href="css/chosen.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
+<link href="<c:url value="${bootstrapCSSPath}"/>" type="text/css" rel="stylesheet"/>

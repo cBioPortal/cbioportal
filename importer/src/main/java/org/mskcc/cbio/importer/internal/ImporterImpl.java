@@ -373,53 +373,57 @@ class ImporterImpl implements Importer {
 			for (DatatypeMetadata datatypeMetadata : config.getDatatypeMetadata(portalMetadata, cancerStudyMetadata)) {
 
 				// get the metafile/staging file for this cancer_study / datatype
-				String stagingFilename = getImportFilename(rootDirectory, cancerStudyMetadata, datatypeMetadata.getStagingFilename());
+				for (String stagingFilename : getImportFilenames(rootDirectory, cancerStudyMetadata, datatypeMetadata.getStagingFilename())) {
+					String origName = stagingFilename;
 
-				// datatype might not exists for cancer study
-                boolean createdZScoreFile = false;
-				if (!(new File(stagingFilename)).exists()) {
-                    if (isZScoreFile(stagingFilename, datatypeMetadata) &&
-                        canCreateZScoreFile(rootDirectory, cancerStudyMetadata, datatypeMetadata)) {
-                        if (createZScoreFile(rootDirectory, cancerStudyMetadata, datatypeMetadata)) {
-                            createdZScoreFile = true;
-                        }
-                        else {
-                            continue;
-                        }
-                    }
-                    else {
-                        if (LOG.isInfoEnabled()) {
-                            LOG.info("loadStagingFile(), cannot find staging file: " + stagingFilename + ", skipping...");
-                        }
-                        continue;
-                    }
-				}
-				// if MAF, oncotate
-				if (stagingFilename.endsWith(DatatypeMetadata.MUTATIONS_STAGING_FILENAME)) {
-					stagingFilename = getOncotatedFile(stagingFilename);
-				}
-				if (datatypeMetadata.requiresMetafile()) {
-					String metaFilename = getImportFilename(rootDirectory, cancerStudyMetadata, datatypeMetadata.getMetaFilename());
-					args = new String[] { "--data", stagingFilename, "--meta", metaFilename, "--loadMode", "bulkLoad" };
-				}
-				else {
-					args = new String[] { stagingFilename, cancerStudyMetadata.toString() };
-				}
-				if (LOG.isInfoEnabled()) {
-					LOG.info("loadStagingFile(), attempting to run: " + datatypeMetadata.getImporterClassName() +
-							 ":main(), with args: " + Arrays.asList(args));
-				}
-				Method mainMethod = ClassLoader.getMethod(datatypeMetadata.getImporterClassName(), "main");
-				mainMethod.invoke(null, (Object)args);
+					// datatype might not exists for cancer study
+	                boolean createdZScoreFile = false;
+					if (!(new File(stagingFilename)).exists()) {
+	                    if (isZScoreFile(stagingFilename, datatypeMetadata) &&
+	                        canCreateZScoreFile(rootDirectory, cancerStudyMetadata, datatypeMetadata)) {
+	                        if (createZScoreFile(rootDirectory, cancerStudyMetadata, datatypeMetadata)) {
+	                            createdZScoreFile = true;
+	                        }
+	                        else {
+	                            continue;
+	                        }
+	                    }
+	                    else {
+	                        if (LOG.isInfoEnabled()) {
+	                            LOG.info("loadStagingFile(), cannot find staging file: " + stagingFilename + ", skipping...");
+	                        }
+	                        continue;
+	                    }
+					}
+					// if MAF, oncotate
+					if (stagingFilename.endsWith(DatatypeMetadata.MUTATIONS_STAGING_FILENAME)) {
+						stagingFilename = getOncotatedFile(stagingFilename);
+					}
+					if (datatypeMetadata.requiresMetafile()) {
+						Collection<String> importFilenames = getImportFilenames(rootDirectory, cancerStudyMetadata, datatypeMetadata.getMetaFilename());
+						assert importFilenames.size() == 1;
+						String metaFilename = importFilenames.iterator().next();
+						args = new String[] { "--data", stagingFilename, "--meta", metaFilename, "--loadMode", "bulkLoad" };
+					}
+					else {
+						args = new String[] { stagingFilename, cancerStudyMetadata.toString() };
+					}
+					if (LOG.isInfoEnabled()) {
+						LOG.info("loadStagingFile(), attempting to run: " + datatypeMetadata.getImporterClassName() +
+								 ":main(), with args: " + Arrays.asList(args));
+					}
+					Method mainMethod = ClassLoader.getMethod(datatypeMetadata.getImporterClassName(), "main");
+					mainMethod.invoke(null, (Object)args);
 
-				// clean up
-				if (!stagingFilename.equals(getImportFilename(rootDirectory, cancerStudyMetadata, datatypeMetadata.getStagingFilename()))) {
-					fileUtils.deleteFile(new File(stagingFilename));
-				}
-                if (createdZScoreFile) {
-					fileUtils.deleteFile(new File(stagingFilename));
-                    fileUtils.deleteFile(new File(stagingFilename.replace("data_", "meta_")));
-                }
+					// clean up
+					if (!stagingFilename.equals(origName)) {
+						fileUtils.deleteFile(new File(stagingFilename));
+					}
+	                if (createdZScoreFile) {
+						fileUtils.deleteFile(new File(stagingFilename));
+	                    fileUtils.deleteFile(new File(stagingFilename.replace("data_", "meta_")));
+	                }
+	            }
 			}
 
 			importCaseLists(portalMetadata, cancerStudyMetadata);
@@ -437,10 +441,27 @@ class ImporterImpl implements Importer {
 	 * @return String
 	 * @throws Exception
 	 */
+	/*
 	private String getImportFilename(String rootDirectory, CancerStudyMetadata cancerStudyMetadata, String filename) throws Exception {
 		String stagingFilename = (rootDirectory + File.separator + cancerStudyMetadata.getStudyPath() + File.separator + filename);
 		stagingFilename = stagingFilename.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
 		return stagingFilename;
+	}
+	*/
+	private List<String> getImportFilenames(String rootDirectory, CancerStudyMetadata cancerStudyMetadata, String filename) throws Exception {
+		List<String> toReturn = new ArrayList<String>();
+		String studyDirectory = rootDirectory + File.separator + cancerStudyMetadata.getStudyPath() + File.separator;
+		String stagingFilename = filename.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
+		if (stagingFilename.indexOf("*") > -1) {
+			toReturn.addAll(fileUtils.listFiles(new File(studyDirectory), stagingFilename));
+		}
+		else {
+			toReturn.add(studyDirectory + stagingFilename);
+		}
+		if (LOG.isInfoEnabled()) {
+			LOG.info("getImportFilenames: " + toReturn);
+		}
+		return toReturn;
 	}
 
 	private String getOncotatedFile(String stagingFilename) throws Exception
@@ -509,7 +530,9 @@ class ImporterImpl implements Importer {
                 break;
             }
             DatatypeMetadata dependencyDatatypeMetadata = config.getDatatypeMetadata(dependency).iterator().next();
-            String dependencyStagingFilename = getImportFilename(rootDirectory, cancerStudyMetadata, dependencyDatatypeMetadata.getStagingFilename());
+            Collection<String> importFilenames = getImportFilenames(rootDirectory, cancerStudyMetadata, dependencyDatatypeMetadata.getStagingFilename());
+            assert importFilenames.size() == 1;
+            String dependencyStagingFilename = importFilenames.iterator().next();
             if (!(new File(dependencyStagingFilename)).exists()) {
                 canCreateZScoreFile = false;
                 break;

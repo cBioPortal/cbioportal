@@ -14,6 +14,7 @@ public class AnnotatorConfig
 	public static final String DEFAULT_MAF2MAF = "maf2maf.pl";
 	public static final String DEFAULT_VCF2MAF = "vcf2maf.pl";
 	public static final String DEFAULT_VEP_PATH = ".";
+	public static final String DEFAULT_VEP_DATA = ".";
 	public static final String DEFAULT_INTERMEDIATE_MAF = "annotator_out.maf";
 	public static final String DEFAULT_INTERMEDIATE_DIR = "annotator_dir";
 
@@ -58,6 +59,11 @@ public class AnnotatorConfig
 	        aliases={"--vep-path"},
 	        usage="Directory containing variant_effect_predictor.pl")
 	protected String vepPath = DEFAULT_VEP_PATH;
+
+	@Option(name="-vd",
+	        aliases={"--vep-data"},
+	        usage="Directory containing variant_effect_predictor.pl")
+	protected String vepData = DEFAULT_VEP_DATA;
 
 	@Option(name="-t",
 	        aliases={"--annotator"},
@@ -172,6 +178,16 @@ public class AnnotatorConfig
 	public void setVepPath(String vepPath)
 	{
 		this.vepPath = vepPath;
+	}
+
+	public String getVepData()
+	{
+		return vepData;
+	}
+
+	public void setVepData(String vepData)
+	{
+		this.vepData = vepData;
 	}
 
 	public String getAnnotator()

@@ -31,7 +31,7 @@ public class Annotator
 		// script to run depends on the extension
 		if (input.getName().toLowerCase().endsWith(".vcf"))
 		{
-			retVal = this.runVcf2Maf(input);
+			retVal = this.runVcf2Maf(input, output);
 			return;
 		}
 		// assuming it is a maf..
@@ -86,7 +86,7 @@ public class Annotator
 			MafRecord mafRecord = mafUtil.parseRecord(dataLine);
 			Map<String, String> annoData = service.annotateRecord(mafRecord);
 
-			// get the data and update/add new oncotator columns
+			// get the data and update/add new annotator columns
 			List<String> data = processor.newDataList(dataLine);
 
 			processor.updateAnnoData(data, annoData);
@@ -97,7 +97,7 @@ public class Annotator
 			dataLine = bufReader.readLine();
 		}
 
-		reader.close();
+		bufReader.close();
 		writer.close();
 
 	}
@@ -111,6 +111,8 @@ public class Annotator
 			this.config.getMaf2maf(),
 			"--vep-path",
 			this.config.getVepPath(),
+			"--vep-data",
+			this.config.getVepData(),
 			"--input-maf",
 			inputMaf,
 			"--output-dir",
@@ -122,25 +124,30 @@ public class Annotator
 		return execProcess(args);
 	}
 
-	public int runVcf2Maf(File input) throws IOException
+	public int runVcf2Maf(File input, File output) throws IOException
 	{
 		String inVcf = input.getAbsolutePath();
+		String outMaf = output.getAbsolutePath();
 
 		String[] args = {
 			"perl",
 			this.config.getVcf2maf(),
 			"--vep-path",
 			this.config.getVepPath(),
+			"--vep-data",
+			this.config.getVepData(),
 			"--input-vcf",
 			inVcf,
 			"--output-maf",
-			this.config.getIntermediateMaf()
+			outMaf
 		};
 
 		return execProcess(args);
 	}
 
 	// TODO code duplication! -- we have the same code in liftover module
+	// also, this is not always safe if there are too many error messages
+	// both buffers should be emptied at the same time (using threads)
 	/**
 	 * Executes an external process via system call.
 	 *

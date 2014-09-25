@@ -199,8 +199,7 @@ public class ImportExtendedMutationData{
 					codonChange,
 					refseqMrnaId,
 					uniprotName,
-					uniprotAccession,
-                                        oncotatorGeneSymbol;
+					uniprotAccession;
 
 				int proteinPosStart,
 					proteinPosEnd;
@@ -237,26 +236,25 @@ public class ImportExtendedMutationData{
 				uniprotAccession = record.getOncotatorUniprotAccession();
 				proteinPosStart = record.getOncotatorProteinPosStart();
 				proteinPosEnd = record.getOncotatorProteinPosEnd();
-				oncotatorGeneSymbol = record.getOncotatorGeneSymbol();
-
 
 				//  Assume we are dealing with Entrez Gene Ids (this is the best / most stable option)
 				String geneSymbol = record.getHugoGeneSymbol();
 				long entrezGeneId = record.getEntrezGeneId();
                                 
 				CanonicalGene gene = null;
-                                if (entrezGeneId != TabDelimitedFileUtil.NA_LONG) {
-                                    gene = daoGene.getGene(entrezGeneId);
-                                }
+				if (entrezGeneId != TabDelimitedFileUtil.NA_LONG) {
+				    gene = daoGene.getGene(entrezGeneId);
+				}
 
 				if(gene == null) {
 					// If Entrez Gene ID Fails, try Symbol.
 					gene = daoGene.getNonAmbiguousGene(geneSymbol, chr);
 				}
                                 
-                                if (gene == null) { // should we use this first??
-                                    gene = daoGene.getNonAmbiguousGene(oncotatorGeneSymbol, chr);
-                                }
+				if (gene == null) { // should we use this first??
+					//gene = daoGene.getNonAmbiguousGene(oncotatorGeneSymbol, chr);
+					gene = daoGene.getNonAmbiguousGene(geneSymbol, chr);
+				}
 
 				if(gene == null) {
 					pMonitor.logWarning("Gene not found:  " + geneSymbol + " ["
@@ -307,7 +305,6 @@ public class ImportExtendedMutationData{
 					mutation.setNormalRefCount(ExtendedMutationUtil.getNormalRefCount(record));
 
 					// TODO oncotator columns shouldn't be included anymore
-					mutation.setOncotatorDbSnpRs(record.getOncotatorDbSnpRs());
 					mutation.setOncotatorCodonChange(codonChange);
 					mutation.setOncotatorRefseqMrnaId(refseqMrnaId);
 					mutation.setOncotatorUniprotName(uniprotName);

@@ -72,7 +72,7 @@
                     <p/>
                 <% } %>
                     <fieldset>
-                    <legend style="width:96px;color:#666666;font-family:verdana,arial,sans-serif;font-size:12px;">
+                    <legend style="width:96px;border-bottom:none;color:#666666;font-family:verdana,arial,sans-serif;font-size:12px;">
                         Login to Portal:
                     </legend>
                     <p>

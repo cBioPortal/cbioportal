@@ -72,11 +72,11 @@
                     <p/>
                 <% } %>
                     <fieldset>
-                    <legend>
+                    <legend style="width:96px;color:#666666;font-family:verdana,arial,sans-serif;font-size:12px;">
                         Login to Portal:
                     </legend>
                     <p>
-                        <span style="font-size:145%">
+                        <span style="color:#666666;font-family:verdana,arial,sans-serif;font-size:145%">
                             <%= GlobalProperties.getAuthorizationMessage() %>
                         </span>
                     </p>

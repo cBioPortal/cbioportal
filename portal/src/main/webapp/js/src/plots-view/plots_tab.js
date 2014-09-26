@@ -153,9 +153,11 @@ var PlotsMenu = (function () {
                     "<select id='" + singleDataTypeObj.value + "' onchange='PlotsView.init();PlotsMenu.updateLogScaleOption();' class='plots-select'></select></div>"
             );
             for (var index in singleDataTypeObj.genetic_profile) { //genetic_profile is ARRAY!
-                var item_profile = singleDataTypeObj.genetic_profile[index];
-                $("#" + singleDataTypeObj.value).append(
-                    "<option value='" + item_profile[0] + "|" + item_profile[2] + "'>" + item_profile[1] + "</option>");
+                if (index.length === 1) { //TODO: this is temp solution
+                    var item_profile = singleDataTypeObj.genetic_profile[index];
+                    $("#" + singleDataTypeObj.value).append(
+                        "<option value='" + item_profile[0] + "|" + item_profile[2] + "'>" + item_profile[1] + "</option>");
+                }
             }
         }
     }

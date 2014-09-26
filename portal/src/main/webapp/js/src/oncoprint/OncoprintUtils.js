@@ -832,7 +832,7 @@ define("OncoprintUtils", (function() {
                 .text(captions.cna[datatype2range.cna]);  
         }   
         
-        if(datatype2range.mutation !== undefined)
+        if(datatype2range.cna !== undefined && datatype2range.mutation !== undefined)
         {   
             var inter_item_templater;
             inter_item_templater = item_templater({ display_mutation: "inherit", text: captions.mutation});

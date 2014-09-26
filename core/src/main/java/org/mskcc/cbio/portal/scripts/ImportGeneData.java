@@ -151,7 +151,7 @@ public class ImportGeneData {
     }
     
     private static void importSuppGeneData(ProgressMonitor pMonitor, File suppGeneFile) throws IOException, DaoException {
-        MySQLbulkLoader.bulkLoadOn();
+        MySQLbulkLoader.bulkLoadOff();
         FileReader reader = new FileReader(suppGeneFile);
         BufferedReader buf = new BufferedReader(reader);
         String line;
@@ -177,6 +177,7 @@ public class ImportGeneData {
             }
             line = buf.readLine();
         }
+        reader.close(); 
     }
 
     public static void main(String[] args) throws Exception {
@@ -215,7 +216,7 @@ public class ImportGeneData {
             System.out.println(" --> total number of lines:  " + numLines);
             pMonitor.setMaxValue(numLines);
             ImportMicroRNAIDs.importData(pMonitor, miRNAFile);
-        }
+    }
         
         if (args.length>=4) {
             File lociFile = new File(args[3]);

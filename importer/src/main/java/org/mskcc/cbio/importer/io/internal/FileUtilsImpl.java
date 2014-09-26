@@ -31,6 +31,7 @@ import org.mskcc.cbio.oncotator.OncotateTool;
 import org.mskcc.cbio.mutassessor.MutationAssessorTool;
 
 import org.apache.commons.io.*;
+import org.apache.commons.io.filefilter.*;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import org.apache.commons.logging.*;
@@ -156,6 +157,17 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
     public Collection<File> listFiles(File directory, String[] extensions, boolean recursive) throws Exception {
 
         return org.apache.commons.io.FileUtils.listFiles(directory, extensions, recursive);
+    }
+
+    @Override
+	public Collection<String> listFiles(File directory, String wildcard) throws Exception
+    {
+    	ArrayList toReturn = new ArrayList<String>();
+    	IOFileFilter filter = new WildcardFileFilter(wildcard);
+    	for (File file : org.apache.commons.io.FileUtils.listFiles(directory, filter, null)) {
+    		toReturn.add(file.getCanonicalPath());
+    	} 
+    	return toReturn;
     }
 
     @Override

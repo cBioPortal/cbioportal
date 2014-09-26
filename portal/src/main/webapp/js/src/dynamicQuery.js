@@ -129,7 +129,8 @@ $(document).ready(function(){
 //  Load study Meta Data, i.e. everything except the name, which we load earlier to
 //  	populate the dropdown menu.
 function loadStudyMetaData(cancerStudyId) {
-	$('.main_query_panel').fadeTo("fast",0.6);
+    console.log("loadStudyMetaData ("+cancerStudyId+")");
+    $('.main_query_panel').fadeTo("fast",0.6);
 	
     $.getJSON("portal_meta_data.json?study_id="+cancerStudyId, function(json){
         window.metaDataJson.cancer_studies[cancerStudyId] = json;
@@ -165,9 +166,15 @@ function loadMetaData() {
             //  Store JSON Data in global variable for later use
             window.metaDataJson = json;
 
-            //  Add Meta Data to current page
-            addMetaDataToPage();
-            showNewContent();
+            // Load data of selected study right at the outset before continuing
+            $.getJSON("portal_meta_data.json?study_id="+window.cancer_study_id_selected, function(json) {
+                console.log("Loading metadata for "+window.cancer_study_id_selected);
+                // this code should be about the same as in loadStudyMetaData
+                window.metaDataJson.cancer_studies[window.cancer_study_id_selected] = json;
+                //  Add Meta Data to current page
+                addMetaDataToPage();
+                showNewContent();
+            });
         });
     }
 
@@ -231,48 +238,51 @@ function makeDefaultSelections(){
 // and sets the visibility of each step based on current selections
 function reviewCurrentSelections(){
 
-   // Unless the download tab has been chosen or 'All Cancer Studies' is
-   // selected, iterate through checkboxes to see if any are selected; if not,
-   // make default selections
-   if (window.tab_index != "tab_download" && $("#select_cancer_type").val() != 'all'){
-        var setDefaults = true;
+   //HACK TO DEAL WITH ASYNCHRONOUS STUFF SO WE DONT DO THIS UNTIL AFTER METADATA ADDED
+   if (window.metaDataAdded === true) {  
+    // Unless the download tab has been chosen or 'All Cancer Studies' is
+    // selected, iterate through checkboxes to see if any are selected; if not,
+    // make default selections
+    if (window.tab_index != "tab_download" && $("#select_cancer_type").val() != 'all'){
+         var setDefaults = true;
 
-        // if no checkboxes are checked, make default selections
-        $('#genomic_profiles input:checkbox').each(function(){
-            if ($(this).prop('checked')){
-                setDefaults = false;
-                return;
-            }
-        });
+         // if no checkboxes are checked, make default selections
+         $('#genomic_profiles input:checkbox').each(function(){
+             if ($(this).prop('checked')){
+                 setDefaults = false;
+                 return;
+             }
+         });
 
-        if (setDefaults){
-            console.log("reviewCurrentSelections ( makeDefaultSelections() )");
-            makeDefaultSelections();
-        }
-   } 
+         if (setDefaults){
+             console.log("reviewCurrentSelections ( makeDefaultSelections() )");
+             makeDefaultSelections();
+         }
+    } 
 
-   updateDefaultCaseList();
+    updateDefaultCaseList();
 
-   // determine whether mRNA threshold field should be shown or hidden
-   // based on which, if any mRNA profiles are selected
-   toggleThresholdPanel($("." + PROFILE_MRNA_EXPRESSION+"[type=checkbox]"), PROFILE_MRNA_EXPRESSION, "#z_score_threshold");
+    // determine whether mRNA threshold field should be shown or hidden
+    // based on which, if any mRNA profiles are selected
+    toggleThresholdPanel($("." + PROFILE_MRNA_EXPRESSION+"[type=checkbox]"), PROFILE_MRNA_EXPRESSION, "#z_score_threshold");
 
-   // similarly with RPPA
-   toggleThresholdPanel($("." + PROFILE_RPPA+"[type=checkbox]"), PROFILE_RPPA, "#rppa_score_threshold");
+    // similarly with RPPA
+    toggleThresholdPanel($("." + PROFILE_RPPA+"[type=checkbox]"), PROFILE_RPPA, "#rppa_score_threshold");
 
-   // determine whether optional arguments section should be shown or hidden
-//   if ($("#optional_args > input").length >= 1){
-//       $("#optional_args > input").each(function(){
-//           if ($(this).prop('checked')){
-//               // hide/show is ugly, but not sure exactly how toggle works
-//               // and couldn't get it to work.. this will do for now
-//               $("#step5 > .step_header > .ui-icon-triangle-1-e").hide();
-//               $("#step5 > .step_header > .ui-icon-triangle-1-s").show();
-//               $("#optional_args").toggle();
-//               return;
-//           }
-//       });
-//   }
+    // determine whether optional arguments section should be shown or hidden
+ //   if ($("#optional_args > input").length >= 1){
+ //       $("#optional_args > input").each(function(){
+ //           if ($(this).prop('checked')){
+ //               // hide/show is ugly, but not sure exactly how toggle works
+ //               // and couldn't get it to work.. this will do for now
+ //               $("#step5 > .step_header > .ui-icon-triangle-1-e").hide();
+ //               $("#step5 > .step_header > .ui-icon-triangle-1-s").show();
+ //               $("#optional_args").toggle();
+ //               return;
+ //           }
+ //       });
+ //   }
+   }
 }
 
 //  Determine whether to submit a cross-cancer query or
@@ -635,7 +645,8 @@ function cancerStudySelected() {
         cancerStudyId = $("#select_cancer_type").val();
     }
 
-    if (window.metaDataJson.cancer_studies[cancerStudyId].partial) {
+    if (window.metaDataJson.cancer_studies[cancerStudyId].partial==="true") {
+            console.log("cancerStudySelected( loadStudyMetaData )");
 	    loadStudyMetaData(cancerStudyId);
     } else {
 	    updateCancerStudyInformation(cancerStudyId);
@@ -777,6 +788,9 @@ function addMetaDataToPage() {
         }
     });  //  end for each genomic profile option
 
+    
+    // HACK TO DEAL WITH ASYNCHRONOUS STUFF
+    window.metaDataAdded = true;
     // determine whether any selections have already been made
     // to make sure all of the fields are shown/hidden as appropriate
     console.log("addMetaDataToPage ( reviewCurrentSelections() )");

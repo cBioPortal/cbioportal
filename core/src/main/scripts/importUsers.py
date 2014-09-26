@@ -88,15 +88,15 @@ STATUS_APPROVED = "APPROVED"
 
 # consts used in email
 SMTP_SERVER = "cbio.mskcc.org"
-MESSAGE_FROM = "cbioportal@cbio.mskcc.org"
+MESSAGE_FROM = "cbioportal-access@cbio.mskcc.org"
 MESSAGE_BCC = ["jgao@cbio.mskcc.org", "schultz@cbio.mskcc.org", "grossb@cbio.mskcc.org"]
-MESSAGE_SUBJECT = { GDAC_USER_SPREADSHEET : "cBioPortal for TCGA Access",
+MESSAGE_SUBJECT = { GDAC_USER_SPREADSHEET : "You have been granted access to the private instance of cBioPortal",
                     PROSTATE_USER_SPREADSHEET : "cBioPortal for Prostate Cancer Access",
-                    SU2C_USER_SPREADSHEET : "cBioPortal for SU2C Access",
                     GLIOMA_USER_SPREADSHEET : "cBioPortal for Glioma Access",
                     ACC_USER_SPREADSHEET : "cBioPortal for ACC Access",
+                    SU2C_USER_SPREADSHEET : "cBioPortal for SU2C Access",
                     TARGET_USER_SPREADSHEET : "cBioPortal for NCI-TARGET" }
-GDAC_MESSAGE_BODY = """Thank you for your interest in the cBioPortal for TCGA. We have granted you access. You can login at http://cbioportal.org/gdac-portal/. Please let us know if you have any problems logging in.
+GDAC_MESSAGE_BODY = """Thank you for your interest in the private instance of cBioPortal. We have granted you access. You can login at http://cbioportal.org/gdac-portal/. Please let us know if you have any problems logging in.
 
 Please keep in mind that the data provided in this Portal are preliminary and subject to change. The data are only available to researchers funded through TCGA or involved in the TCGA Disease and Analysis Working Groups.
 """
@@ -392,7 +392,7 @@ def manage_users(cursor, worksheet_feed, portal_name):
     # get list of new users and insert
     print >> OUTPUT_FILE, 'Checking for new users'
     new_user_map = get_new_user_map(worksheet_feed, current_user_map, portal_name)
-    if (len(new_user_map) > 0):
+    if (len(new_user_map) > 0 and len(new_user_map) < 50):
         print >> OUTPUT_FILE, 'We have %s new user(s) to add' % len(new_user_map)
         success = insert_new_users(cursor, new_user_map.values())
         if success:

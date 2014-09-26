@@ -65,6 +65,15 @@ google_analytics_profile_id=
 googleplus.consumer.key=
 googleplus.consumer.secret=
 
+#SAML
+saml.sp.metadata.entityid=
+saml.idp.metadata.location=
+saml.keystore.location=
+saml.keystore.password=
+saml.keystore.private-key.key=
+saml.keystore.private-key.password=
+saml.keystore.default-key=
+
 
 faq=faq_prostate.html
 about=about_us_prostate.html

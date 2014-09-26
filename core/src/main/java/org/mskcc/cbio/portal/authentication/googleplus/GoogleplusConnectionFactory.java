@@ -14,7 +14,8 @@
  * Memorial Sloan-Kettering Cancer Center 
  * has been advised of the possibility of such damage.
 */
-package org.mskcc.cbio.portal.social.authentication.googleplus;
+package org.mskcc.cbio.portal.authentication.googleplus;
+
 import org.springframework.social.connect.UserProfile;
 import org.springframework.social.connect.support.OAuth2ConnectionFactory;
 import org.springframework.social.google.api.Google;

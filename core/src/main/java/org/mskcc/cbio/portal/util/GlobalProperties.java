@@ -180,7 +180,13 @@ public class GlobalProperties {
 
     public static boolean usersMustAuthenticate()
     {
-		return Boolean.parseBoolean(properties.getProperty(AUTHENTICATE));
+        String prop = properties.getProperty(AUTHENTICATE);
+        return (!prop.isEmpty() && !prop.equals("false"));
+    }
+
+    public static String authenticationMethod()
+    {
+        return properties.getProperty(AUTHENTICATE);
     }
 
 	public static boolean usersMustBeAuthorized()

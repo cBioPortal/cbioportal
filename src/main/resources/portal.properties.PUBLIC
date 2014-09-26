@@ -72,6 +72,15 @@ authenticate=false
 googleplus.consumer.key=
 googleplus.consumer.secret=
 
+#SAML
+saml.sp.metadata.entityid=
+saml.idp.metadata.location=
+saml.keystore.location=
+saml.keystore.password=
+saml.keystore.private-key.key=
+saml.keystore.private-key.password=
+saml.keystore.default-key=
+
 
 # Indicates whether users must be authorized to access a particular cancer study
 authorization=false

@@ -114,7 +114,7 @@ var DataDownloadTab = (function() {
 
     function renderDownloadLinks() {
         var _formats = [
-            { name: "Tab limited Format", value: "tab"},
+            { name: "Tab-delimited Format", value: "tab"},
             { name: "Transposed Matrix", value: "matrix"}
         ]
 
@@ -131,7 +131,6 @@ var DataDownloadTab = (function() {
                         "<input type='hidden' name='gene_list' value='" + window.PortalGlobals.getGeneListString() + "'>" +
                         "<input type='hidden' name='force_download' value='true'>" +
                         "<input type='hidden' name='format' value='"  + inner_obj.value + "'>" +
-                        //"<button type='submit' value='" + inner_obj.name + "'></form>";
                         "<a href='#' onclick=\"document.forms['download_tab_form_" + val + "_" + inner_obj.value + "'].submit();return false;\"> [ " + inner_obj.name + " ]</a>" + 
                         "</form>&nbsp;&nbsp;&nbsp;";
                 _str += _download_form;                 
@@ -220,21 +219,22 @@ $(document).ready( function() {
 
         function getGeneticProfileCallback(result) {
             DataDownloadTab.setProfiles(result);
-            DataDownloadTab.init();
+            //DataDownloadTab.init();
+            //Bind tab clicking event listener
+            $("#tabs").bind("tabsactivate", function(event, ui) {
+                if (ui.newTab.text().trim().toLowerCase() === "download") {
+                    if (!DataDownloadTab.isRendered()) {
+                        DataDownloadTab.init();
+                    } 
+                }
+            });
+            if ($("#data_download").is(":visible")) {
+                if (!DataDownloadTab.isRendered()) {
+                    DataDownloadTab.init();
+                }
+            }
         }
     });
 });
 
-//Bind tab clicking event listener
-$("#tabs").bind("tabsactivate", function(event, ui) {
-    if (ui.newTab.text().trim().toLowerCase() === "download") {
-        if (!DataDownloadTab.isRendered()) {
-            DataDownloadTab.init();
-        } 
-    }
-});
-if ($("#data_download").is(":visible")) {
-    if (!DataDownloadTab.isRendered()) {
-        DataDownloadTab.init();
-    }
-}
+

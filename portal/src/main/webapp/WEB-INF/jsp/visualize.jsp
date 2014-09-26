@@ -3,15 +3,15 @@
 <jsp:include page="global/header.jsp" flush="true" />
 
 <div class='main_smry'>
-    <div id='main_smry_stat_div' style='margin-left:10px;'></div>
-
-    <table style='margin-left:10px;'>
-        <tr>
-            <td><div id='main_smry_modify_query_btn'><div></td>
-            <td><div id='main_smry_query_div' style='padding-left: 5px;'></div></td>
-        </tr>
-    </table>
-    
+    <div id='main_smry_stat_div' style='float:right;margin-right:15px;width:50%;padding-top:10px;text-align:right;'></div>
+    <div id='main_smry_info_div'>
+        <table style='margin-left:10px;width=40%;' >
+            <tr>
+                <td><div id='main_smry_modify_query_btn'><div></td>
+                <td><div id='main_smry_query_div' style='padding-left: 5px;'></div></td>
+            </tr>
+        </table>
+    </div>
     <div style="margin-left:5px;display:none;" id="query_form_on_results_page">
         <%@ include file="query_form.jsp" %>
     </div>

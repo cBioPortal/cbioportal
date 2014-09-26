@@ -26,10 +26,8 @@
 </div>
 
 <script>
-    $(document).ready( function() {
-        PortalDataCollManager.subscribeOncoprint(function() {
-            MutexData.setOncoprintData(PortalDataColl.getOncoprintData()); 
-        });
+    PortalDataCollManager.subscribeOncoprint(function() {
+        MutexData.setOncoprintData(PortalDataColl.getOncoprintData()); 
         $("#tabs").bind("tabsactivate", function(event, ui) {
             if (!MutexView.isTableInstanceExisted()) {
                 MutexData.init();
@@ -38,6 +36,12 @@
                 }
             }
         });
+        if ($("#mutex").is(":visible")) {
+            if (!MutexView.isTableInstanceExisted()) {
+                MutexData.init();
+                MutexView.resize();
+            }
+        }
     });
 </script>
 

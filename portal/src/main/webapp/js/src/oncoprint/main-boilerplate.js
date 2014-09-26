@@ -1036,30 +1036,72 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             oncoprint.toggleWhiteSpace();
         });
 
-        $('.oncoprint-diagram-download').click(function() {
-            var fileType = $(this).attr("type");
-            var params = {
-                filetype: fileType,
-                filename:"oncoprint." + fileType,
-                svgelement: oncoprint.getPdfInput()
-            };
-
-            cbio.util.requestDownload("svgtopdf.do", params);
-        });
+//        $('.oncoprint-diagram-download').click(function() {
+//            var fileType = $(this).attr("type");
+//            var params = {
+//                filetype: fileType,
+//                filename:"oncoprint." + fileType,
+//                svgelement: oncoprint.getPdfInput()
+//            };
+//
+//            cbio.util.requestDownload("svgtopdf.do", params);
+//        });
+//        
+//        $('.oncoprint-sample-download').click(function() {
+//            var samples = "Sample order in the Oncoprint is: \n";
+//            var genesValue = oncoprint.getData();
+//            for(var i = 0; i< genesValue.length; i++)
+//            {
+//                samples= samples + genesValue[i].key+"\n";
+//            }
+//            var a=document.createElement('a');
+//            a.href='data:text/plain;base64,'+btoa(samples);
+//            a.textContent='download';
+//            a.download='OncoPrintSamples.txt';
+//            a.click();
+//            //a.delete();
+//        });
         
-        $('.oncoprint-sample-download').click(function() {
-            var samples = "Sample order in the Oncoprint is: \n";
-            var genesValue = oncoprint.getData();
-            for(var i = 0; i< genesValue.length; i++)
-            {
-                samples= samples + genesValue[i].key+"\n";
+            $('.oncoprint-diagram-downloads-icon').qtip({
+            //id: "#oncoprint-diagram-downloads-icon-qtip",
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite'  },
+            show: {event: "click"},
+            hide: {fixed:true, delay: 100, event: "mouseout"},
+            position: {my:'top center',at:'bottom center', viewport: $(window)},
+            content: {
+                text:   "<button class='oncoprint-diagram-download' type='pdf' style='cursor:pointer'>PDF</button>"+
+                        "<button class='oncoprint-diagram-download' type='svg' style='cursor:pointer'>SVG</button>"+
+                        "<button class='oncoprint-sample-download'  type='txt' style='cursor:pointer'>Samples</button>"
+            },
+
+            events:{
+                render:function(event){     
+                        $('.oncoprint-diagram-download').click(function() {
+                        var fileType = $(this).attr("type");
+                        var params = {
+                            filetype: fileType,
+                            filename:"oncoprint." + fileType,
+                            svgelement: oncoprint.getPdfInput()
+                        };
+
+                        cbio.util.requestDownload("svgtopdf.do", params);
+                    });
+
+                    $('.oncoprint-sample-download').click(function() {
+                        var samples = "Sample order in the Oncoprint is: \n";
+                        var genesValue = oncoprint.getData();
+                        for(var i = 0; i< genesValue.length; i++)
+                        {
+                            samples= samples + genesValue[i].key+"\n";
+                        }
+                        var a=document.createElement('a');
+                        a.href='data:text/plain;base64,'+btoa(samples);
+                        a.textContent='download';
+                        a.download='OncoPrintSamples.txt';
+                        a.click();
+                    });
+                }
             }
-            var a=document.createElement('a');
-            a.href='data:text/plain;base64,'+btoa(samples);
-            a.textContent='download';
-            a.download='OncoPrintSamples.txt';
-            a.click();
-            //a.delete();
         });
         
         $('.oncoprint-diagram-Shift').click(function() {

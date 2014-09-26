@@ -16,11 +16,13 @@
 
     <div id="main" style="display:inline;">
     <table style="padding-left:13px; padding-top:5px">
-    <tr>
+    <%--
+            <tr>
                 <td style="padding-right: 15px;"><span>Zoom</span><div id="zoom" style="display: inline-table;"></div></td>
                 <td><label><input id='toggle_unaltered_cases' type='checkbox'>Remove Unaltered Cases</label></td>
                 <td><label><input id='toggle_whitespace' type='checkbox'><label>Remove Whitespace</label></td>
             </tr>
+    --%>
             <tr>
                 <td>
                     <div id="disable_select_clinical_attributes" style="display: none; z-index: 1000; opacity: 0.7; background-color: grey; width: 22.5%; height: 6%; position: absolute;"></div>
@@ -37,6 +39,10 @@
                         <option value="custom">user-defined case list / default</option>
                     </select>
                 </td>
+        
+                <td style="padding-right: 15px;"><span>Zoom</span><div id="zoom" style="display: inline-table;"></div></td>
+                <td><label><input id='toggle_unaltered_cases' type='checkbox'>Remove Unaltered Cases</label></td>
+                <td><label><input id='toggle_whitespace' type='checkbox'><label>Remove Whitespace</label></td>
             </tr>
         </table>
     </div>

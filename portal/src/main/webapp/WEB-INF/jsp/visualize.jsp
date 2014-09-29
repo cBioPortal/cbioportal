@@ -210,9 +210,12 @@
             <%@ include file="networks.jsp" %>
         <% } %>
 
+        <% if (showCoexpTab) { %>
+            <%@ include file="co_expression.jsp" %>
+        <% } %>
+
         <%@ include file="data_download.jsp" %>
         <%@ include file="image_tabs_data.jsp" %>
-        <%@ include file="co_expression.jsp" %>
 
 </div> <!-- end tabs div -->
 <% } %>

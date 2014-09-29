@@ -1112,6 +1112,11 @@
                     ]
                 });
 
+	            // TODO this is a workaround to remove the sort icons,
+	            // we should fix this thru the data tables API
+	            this.$el.find("span.DataTables_sort_icon").remove();
+	            this.$el.find("table.cc-tip-table th").removeClass("sorting_desc");
+
                 return this;
             }
         });

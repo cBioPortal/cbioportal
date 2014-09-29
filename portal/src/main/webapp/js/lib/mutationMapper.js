@@ -9435,9 +9435,11 @@ function MutationDetailsTable(options, gene, mutationUtil)
 			"windowResize": function(dataTable, dispatcher, mutationUtil, gene) {
 				// add resize listener to the window to adjust column sizing
 				$(window).bind('resize', function () {
-					if (dataTable.is(":visible"))
-					{
-						dataTable.fnAdjustColumnSizing();
+					if (dataTable !== null) {
+						if (dataTable.is(":visible"))
+						{
+							dataTable.fnAdjustColumnSizing();
+						}
 					}
 				});
 			},

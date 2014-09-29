@@ -25,8 +25,7 @@ public final class DaoClinicalEvent {
         
         MySQLbulkLoader.getMySQLbulkLoader("clinical_event").insertRecord(
                 Long.toString(clinicalEvent.getClinicalEventId()),
-                Integer.toString(clinicalEvent.getCancerStudyId()),
-                clinicalEvent.getPatientId(),
+                Integer.toString(clinicalEvent.getPatient().getInternalId()),
                 clinicalEvent.getStartDate().toString(),
                 clinicalEvent.getStopDate()==null?null:clinicalEvent.getStopDate().toString(),
                 clinicalEvent.getEventType()
@@ -91,8 +90,7 @@ public final class DaoClinicalEvent {
     private static ClinicalEvent extractClinicalEvent(ResultSet rs) throws SQLException {
         ClinicalEvent clinicalEvent = new ClinicalEvent();
         clinicalEvent.setClinicalEventId(rs.getLong("CLINICAL_EVENT_ID"));
-        clinicalEvent.setCancerStudyId(rs.getInt("CANCER_STUDY_ID"));
-        clinicalEvent.setPatientId(rs.getString("PATIENT_ID"));
+        clinicalEvent.setPatient(DaoPatient.getPatientById(rs.getInt("PATIENT_ID")));
         clinicalEvent.setStartDate(JdbcUtil.readLongFromResultSet(rs, "START_DATE"));
         clinicalEvent.setStopDate(JdbcUtil.readLongFromResultSet(rs, "STOP_DATE"));
         clinicalEvent.setEventType(rs.getString("EVENT_TYPE"));

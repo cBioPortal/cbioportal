@@ -17,9 +17,11 @@ import joptsimple.OptionSpec;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoClinicalEvent;
 import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoPatient;
 import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.ClinicalEvent;
+import org.mskcc.cbio.portal.model.Patient;
 /**
  *
  * @author jgao
@@ -104,10 +106,10 @@ public class ImportTimelineData {
                 continue;
             }
             
+            Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudyId, fields[0]);
             ClinicalEvent event = new ClinicalEvent();
             event.setClinicalEventId(++clinicalEventId);
-            event.setCancerStudyId(cancerStudyId);
-            event.setPatientId(fields[0]);
+            event.setPatient(patient);
             event.setStartDate(Long.valueOf(fields[1]));
             if (!fields[2].isEmpty()) {
                 event.setStopDate(Long.valueOf(fields[2]));

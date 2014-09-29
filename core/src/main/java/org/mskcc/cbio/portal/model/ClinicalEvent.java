@@ -11,8 +11,7 @@ import java.util.Map;
  */
 public class ClinicalEvent {
     private Long clinicalEventId;
-    private Integer cancerStudyId;
-    private String patientId;
+    private Patient patient;
     private String eventType;
     private Long startDate;
     private Long stopDate;
@@ -26,20 +25,15 @@ public class ClinicalEvent {
         this.clinicalEventId = clinicalEventId;
     }
 
-    public Integer getCancerStudyId() {
-        return cancerStudyId;
+    public Patient getPatient() {
+        return patient;
     }
 
-    public void setCancerStudyId(Integer cancerStudyId) {
-        this.cancerStudyId = cancerStudyId;
-    }
-
-    public String getPatientId() {
-        return patientId;
-    }
-
-    public void setPatientId(String patientId) {
-        this.patientId = patientId;
+    public void setPatient(Patient patient) {
+        if (patient==null) {
+            throw new IllegalArgumentException("Patient ID cannot be null");
+        }
+        this.patient = patient;
     }
 
     public String getEventType() {

@@ -115,8 +115,8 @@ public class Annotator
 			this.config.getVepData(),
 			"--input-maf",
 			inputMaf,
-			"--output-dir",
-			this.config.getIntermediateDir(),
+			//"--output-dir",
+			//this.config.getIntermediateDir(),
 			"--output-maf",
 			this.config.getIntermediateMaf()
 		};

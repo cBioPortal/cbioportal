@@ -80,10 +80,14 @@ public class AnnoMafProcessor extends MafProcessor
 	 */
 	public void updateAnnoData(List<String> data, Map<String, String> annoData)
 	{
+		// create a new maf util for the new header line to get new indices
+		String newHeaderLine = this.newHeaderLineAsString();
+		MafUtil mafUtil = new MafUtil(newHeaderLine);
+
 		// update the data using the annotator data
 		for (String header: this.annoHeaders)
 		{
-			data.set(this.mafUtil.getColumnIndex(header), annoData.get(header));
+			data.set(mafUtil.getColumnIndex(header), annoData.get(header));
 		}
 	}
 }

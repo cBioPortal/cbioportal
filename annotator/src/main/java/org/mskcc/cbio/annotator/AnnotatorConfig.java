@@ -15,6 +15,7 @@ public class AnnotatorConfig
 	public static final String DEFAULT_VCF2MAF = "vcf2maf.pl";
 	public static final String DEFAULT_VEP_PATH = ".";
 	public static final String DEFAULT_VEP_DATA = ".";
+	public static final String DEFAULT_REF_FASTA = "Homo_sapiens.GRCh37.75.dna.primary_assembly.fa";
 	public static final String DEFAULT_INTERMEDIATE_MAF = "annotator_out.maf";
 	public static final String DEFAULT_INTERMEDIATE_DIR = "annotator_dir";
 
@@ -62,8 +63,13 @@ public class AnnotatorConfig
 
 	@Option(name="-vd",
 	        aliases={"--vep-data"},
-	        usage="Directory containing variant_effect_predictor.pl")
+	        usage="VEP's base cache/plugin directory")
 	protected String vepData = DEFAULT_VEP_DATA;
+
+	@Option(name="-rf",
+	        aliases={"--ref-fasta"},
+	        usage="Reference FASTA file")
+	protected String refFasta = DEFAULT_REF_FASTA;
 
 	@Option(name="-t",
 	        aliases={"--annotator"},
@@ -188,6 +194,16 @@ public class AnnotatorConfig
 	public void setVepData(String vepData)
 	{
 		this.vepData = vepData;
+	}
+
+	public String getRefFasta()
+	{
+		return refFasta;
+	}
+
+	public void setRefFasta(String refFasta)
+	{
+		this.refFasta = refFasta;
 	}
 
 	public String getAnnotator()

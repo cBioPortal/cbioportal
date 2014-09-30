@@ -41,6 +41,10 @@ public class Annotator
 		}
 
 		// TODO check return value?
+		if (retVal != 0)
+		{
+			return;
+		}
 
 		List<String> annoHeaders = this.extractAnnoHeaders(this.config.getIntermediateMaf());
 
@@ -113,6 +117,8 @@ public class Annotator
 			this.config.getVepPath(),
 			"--vep-data",
 			this.config.getVepData(),
+			"--ref-fasta",
+			this.config.getRefFasta(),
 			"--input-maf",
 			inputMaf,
 			//"--output-dir",
@@ -136,6 +142,8 @@ public class Annotator
 			this.config.getVepPath(),
 			"--vep-data",
 			this.config.getVepData(),
+			"--ref-fasta",
+			this.config.getRefFasta(),
 			"--input-vcf",
 			inVcf,
 			"--output-maf",

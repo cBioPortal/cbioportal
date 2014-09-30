@@ -1,7 +1,6 @@
 <svg width="25" height="25" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
  <!-- Created with SVG-edit - http://svg-edit.googlecode.com/ -->
- <g>
-   <rect fill="#ffffff" stroke-width="3" width="24" height="24" id="svg_1" stroke="#000000" y="0" x="0"/>
-   <path fill="#7f7f7f" stroke-width="3" stroke-dasharray="null" stroke-linejoin="null" stroke-linecap="null" d="m3.08893,17.2135l7.98108,-10.99525l7.98109,10.99525l-15.96217,0z" id="svg_5" transform="rotate(-89.63401794433594 11.07001495361328,11.715874671936033) " stroke="#000000"/>
- </g>
+    <g transform="rotate(-179.8924102783203 13.07001495361328,12.715868949890135) " id="svg_1">
+     <path fill="#00afff" stroke-width="3" stroke-dasharray="null" stroke-linejoin="null" stroke-linecap="null" d="m5.08893,18.2135l7.98108,-10.99525l7.98109,10.99525l-15.96217,0z" id="svg_5" transform="rotate(91.34367370605469 13.070016860961914,12.715871810913086) " stroke="#00afff"/>
+    </g>
 </svg>

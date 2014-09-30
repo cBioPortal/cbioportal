@@ -31,6 +31,7 @@
         <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
         <final-war-name>mskcc-portal</final-war-name>
       </properties>
+    </profile>
 	<profile>
 	  <id>gdac</id>
 	  <properties>

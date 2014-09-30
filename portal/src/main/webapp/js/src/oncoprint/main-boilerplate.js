@@ -1080,6 +1080,13 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
               {
                 oncoprint.toggleUnalteredCases();
                 utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});     // hack =(
+                $(this)[0].attributes.src.value = 'images/unremoveUCases.svg';
+              }
+              else
+              {
+                oncoprint.toggleUnalteredCases();
+                utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});     // hack =(
+                $(this)[0].attributes.src.value = 'images/removeUCases.svg';
               }
             });
             $('.oncoprint-diagram-removeUCases-icon').hover(
@@ -1097,6 +1104,12 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
               if($(this)[0].attributes.src.value === 'images/removeWhitespace.svg')
               {
                   oncoprint.toggleWhiteSpace();
+                  $(this)[0].attributes.src.value = 'images/unremoveWhitespace.svg';
+              }
+              else
+              {
+                 oncoprint.toggleWhiteSpace();
+                 $(this)[0].attributes.src.value = 'images/removeWhitespace.svg'; 
               }
             });
             $('.oncoprint-diagram-removeWhitespace-icon').hover(

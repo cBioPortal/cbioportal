@@ -33,11 +33,8 @@
     <b:bean id="portalUserDAO" class="org.mskcc.cbio.portal.dao.internal.PortalUserJDBCDAO">
         <b:constructor-arg ref="dataSource"/>
     </b:bean>
-    <b:bean id="dataSource" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">
-        <b:property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-        <b:property name="url" value="jdbc:mysql://${db.host}/${db.portal_db_name}"/>
-        <b:property name="username" value="${db.user}"/>
-        <b:property name="password" value="${db.password}"/>
+    <b:bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+        <b:property name="jndiName" value="java:comp/env/${db.tomcat_resource_name}"/>
     </b:bean>
 
     <!-- static resources not processed by spring security filters -->

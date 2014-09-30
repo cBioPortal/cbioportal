@@ -17,6 +17,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
     var clinicalAttributes = new ClinicalAttributesColl();
 
     var $zoom_el = $('#oncoprint_controls #zoom');
+    var $new_zoom_el = $('#oncoprint_whole_body .oncoprint-diagram-toolbar-buttons');
     var zoom;
     var totalAttrs=[];
     var recordAttrs;//make a record of all attrs
@@ -27,7 +28,18 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
     // from getting bound to the UI slider forever
     var reset_zoom = function() {
         $zoom_el.empty();
-        zoom = utils.zoomSetup($zoom_el, oncoprint.zoom);
+        zoom = utils.zoomSetup($new_zoom_el, oncoprint.zoom);
+        
+        $('#oncoprint_zoom_slider').hover(
+        function () {
+        $(this).css('fill', '#0000FF');
+        $(this).css('font-size', '18px');
+        $(this).css('cursor', 'pointer');
+        },
+        function () {
+        $(this).css('fill', '#87CEFA');
+        $(this).css('font-size', '12px');
+        });
 
         return zoom;
     };
@@ -1061,11 +1073,47 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 //            a.click();
 //            //a.delete();
 //        });
+
         
+            $('.oncoprint-diagram-removeUCases-icon').click(function(){
+              if($(this)[0].attributes.src.value === 'images/removeUCases.svg')
+              {
+                oncoprint.toggleUnalteredCases();
+                utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});     // hack =(
+              }
+            });
+            $('.oncoprint-diagram-removeUCases-icon').hover(
+            function () {
+            $(this).css('fill', '#0000FF');
+            $(this).css('font-size', '18px');
+            $(this).css('cursor', 'pointer');
+            },
+            function () {
+            $(this).css('fill', '#87CEFA');
+            $(this).css('font-size', '12px');
+            });
+    
+            $('.oncoprint-diagram-removeWhitespace-icon').click(function(){
+              if($(this)[0].attributes.src.value === 'images/removeWhitespace.svg')
+              {
+                  oncoprint.toggleWhiteSpace();
+              }
+            });
+            $('.oncoprint-diagram-removeWhitespace-icon').hover(
+            function () {
+            $(this).css('fill', '#0000FF');
+            $(this).css('font-size', '18px');
+            $(this).css('cursor', 'pointer');
+            },
+            function () {
+            $(this).css('fill', '#87CEFA');
+            $(this).css('font-size', '12px');
+            });
+            
             $('.oncoprint-diagram-downloads-icon').qtip({
             //id: "#oncoprint-diagram-downloads-icon-qtip",
             style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite'  },
-            show: {event: "click"},
+            show: {event: "mouseover"},
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'top center',at:'bottom center', viewport: $(window)},
             content: {

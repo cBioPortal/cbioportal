@@ -1017,14 +1017,20 @@ define("OncoprintUtils", (function() {
     // It calls the function fun on the change event of the zoombar
     //
     // *signature:* `DOM el, function -> DOM el`
+//    var zoomSetup = function(div, fun) {
+//        return $('<div>', { id: "width_slider", width: "100"})
+//            .slider({ text: "Adjust Width ", min: .1, max: 1, step: .01, value: 1,
+//                change: function(event, ui) {
+//                    fun(ui.value, 'animation');       // N.B.
+//                }}).appendTo($(div));
+//    };
+
     var zoomSetup = function(div, fun) {
-        return $('<div>', { id: "width_slider", width: "100"})
-            .slider({ text: "Adjust Width ", min: .1, max: 1, step: .01, value: 1,
-                change: function(event, ui) {
-                    fun(ui.value, 'animation');       // N.B.
+        
+        return $('<input>', { id: "oncoprint_zoom_slider",type:'range', width: "80",height:"10", min: .1, max: 1, step: .01, value: 1, change: function(event, ui) {
+                    fun(this.value, 'animation');       // N.B.
                 }}).appendTo($(div));
     };
-
     return {
         is_discrete: is_discrete,
         nest_data: nest_data,

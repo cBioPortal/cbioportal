@@ -15,9 +15,9 @@
         <div id="oncoprint_whole_body">
             <p> Altered in <%=dataSummary.getNumCasesAffected()%> (<%=OncoPrintUtil.alterationValueToString(dataSummary.getPercentCasesAffected())%>) of cases
             <span class='oncoprint-diagram-toolbar-buttons' style="float:right;margin-right:20px;display: none;">
-                
-            <input type="range" min="0" max="50" value="50" style="width:100px;top: 5px;" step="5" />
-            <img id="oncoprint-diagram-downloads-icon" class="oncoprint-diagram-downloads-icon" src="images/in.svg">
+            <img id="oncoprint-diagram-removeUCases-icon" checked="0" style="width: 12px; height: 12px" class="oncoprint-diagram-removeUCases-icon" src="images/removeUCases.svg">
+            <img id="oncoprint-diagram-removeWhitespace-icon" checked="0" style="width: 12px; height: 12px" class="oncoprint-diagram-removeWhitespace-icon" src="images/removeWhitespace.svg">
+            <img id="oncoprint-diagram-downloads-icon" style="width: 12px; height: 12px" class="oncoprint-diagram-downloads-icon" src="images/in.svg">
             </span>
             </p>
         <img id="inner_loader_img" src="images/ajax-loader.gif" style="display:none;">

@@ -395,7 +395,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         
                         functionFunctions();
                         
-                        zoom = reset_zoom();
+//                        zoom = reset_zoom();
 
                         // sync
                         oncoprint.zoom(zoom.slider("value"));
@@ -460,7 +460,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         
                         functionFunctions();
                         
-                        zoom = reset_zoom();
+//                        zoom = reset_zoom();
 
                         // sync
                         oncoprint.zoom(zoom.slider("value"));
@@ -526,7 +526,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
                         functionFunctions();
                         
-                        zoom = reset_zoom();
+//                        zoom = reset_zoom();
 
                         // sync
                         oncoprint.zoom(zoom.slider("value"));

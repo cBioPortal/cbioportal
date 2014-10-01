@@ -42,7 +42,9 @@ var DataTable = function() {
         aoColumns = [], //DataTable Title Data
         aaData = [], //DataTable Content Data
         columnIndexMappingColumnId = [],
-        displayMapName = {};
+        displayMapName = {},
+        selectorData = [],
+        filters = {};
     
     function initParam(_tableId, _tableContainerId, _data) {
         var i;
@@ -66,6 +68,60 @@ var DataTable = function() {
         
         initColumnsTitleData();
         initContentData();
+        selectorData = tfootData();
+    }
+    
+    function numberBetween(value, min, max) {
+        return value > min && value < max;
+    }
+    
+    function tfootData() {
+        var tfootInfo = [];
+        var filteredAAData = [];
+        var attrL = attr.length;
+        
+        for(var  i= 0; i < attrL; i++) {
+            tfootInfo.push([]);
+        }
+        
+        if($.isEmptyObject(filters)) {
+            filteredAAData = aaData;
+        }else {
+            for(var i = 0 , aaDataL = aaData.length; i < aaDataL; i++) {
+                var statisfy = true;
+                for(var key in filters) {
+                    var index = Number(key);
+                    var keyword = "";
+                    
+                    if(typeof filters[key] === "object") {
+                        var start = Number(filters[key]["start"]);
+                        var end = Number(filters[key]["end"]);
+                        if(!numberBetween(Number(aaData[i][index]), start, end)) {
+                            statisfy = false;
+                        }
+                    }else {
+                        keyword = filters[key].toString();
+                        if(aaData[i][index].toString().toLowerCase() !== keyword.toString().toLowerCase()) {
+                            statisfy = false;
+                        }
+                    }
+                }
+                if(statisfy) {
+                    filteredAAData.push(aaData[i]);
+                }
+            }
+        }
+        
+        
+        for(var i = 0, filteredL = filteredAAData.length; i < filteredL; i++) {
+            for(var j = 0; j < attrL; j++) {
+                if(tfootInfo[j].indexOf(filteredAAData[i][j]) === -1 && filteredAAData[i][j] !== "") {
+                    tfootInfo[j].push(filteredAAData[i][j]);
+                }
+            }
+        }
+        
+        return tfootInfo;
     }
     
     //Initialize aoColumns Data
@@ -291,7 +347,7 @@ var DataTable = function() {
                 oSettings.aoPreSearchCols[ iCol ].sSearch = '';
             }
             dataTable.fnFilter('');
-    
+            filters = {};
             disableFiltId = jQuery.extend(true, [], permenentDisabledId);
             showDataTableReset();
             refreshSelectionInDataTable();
@@ -516,7 +572,10 @@ var DataTable = function() {
 
             return false;
         };
-        
+        filters[columnIndexMappingColumnId[_i]] = {
+            start: _min,
+            end: _max
+        };
         updateDataTableNumericFilter();
 //        dataTable.fnSort([ [columnIndexMappingColumnId[_i],'asc']]);
         pushDisableFiltId(_i);
@@ -533,11 +592,13 @@ var DataTable = function() {
     }
     
     function refreshSelectionInDataTable(){
+        selectorData = tfootData();
         $(".dataTables_scrollFoot tfoot td").each( function ( i ) {
             
             if(disableFiltId.indexOf(i) === -1){               
                 $(this).css('z-index','1500');
-                this.innerHTML = fnCreateSelect( dataTable.fnGetColumnData(columnIndexMappingColumnId[i]), i, this);
+                
+                this.innerHTML = fnCreateSelect( selectorData[columnIndexMappingColumnId[i]], i, this);
                 
                 var _drag = d3.behavior.drag()
                         .on("drag", selectorDragMove)
@@ -550,6 +611,7 @@ var DataTable = function() {
                         
                 $("#dataTable-" + i + "-reset").unbind('click');
                 $("#dataTable-" + i + "-reset").click(function(){
+                    delete filters[columnIndexMappingColumnId[i]];
                     dataTableNumericFilter[columnIndexMappingColumnId[i]] = '';
                     updateDataTableNumericFilter();
                     disableFiltId.splice(disableFiltId.indexOf(i),1);
@@ -563,6 +625,7 @@ var DataTable = function() {
                     if($(this).val() === ''){
                         dataTable.fnFilter($(this).val(), columnIndexMappingColumnId[i]);
                         disableFiltId.splice(disableFiltId.indexOf(i),1);
+                        delete filters[columnIndexMappingColumnId[i]];
                     }else{
                         //Need to process special charector which can no be
                         //treated as special charector in regular expression.
@@ -578,6 +641,7 @@ var DataTable = function() {
                         }
                         dataTable.fnFilter("^"+_selectedString+"$", columnIndexMappingColumnId[i], true);
                         pushDisableFiltId(i);
+                        filters[columnIndexMappingColumnId[i]] = $(this).val();
                     }
                     
                     showDataTableReset();

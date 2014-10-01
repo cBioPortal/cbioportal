@@ -127,8 +127,12 @@ public final class DaoClinicalData {
     public static ClinicalData getDatum(String cancerStudyId, String patientId, String attrId) throws DaoException
     {
         int internalCancerStudyId = getInternalCancerStudyId(cancerStudyId);
+        String table = getAttributeTable(attrId);
+        if (table==null) {
+            return null;
+        }
         return getDatum(internalCancerStudyId,
-                        getAttributeTable(attrId),
+                        table,
                         DaoPatient.getPatientByCancerStudyAndPatientId(internalCancerStudyId, patientId).getInternalId(),
                         attrId);
     }
@@ -148,7 +152,7 @@ public final class DaoClinicalData {
             return (PATIENT_TABLE);
         }
         else {
-            throw new DaoException("Unknown clinical attribute: " + attrId);
+            return null;
         }
     }
 

@@ -79,6 +79,13 @@ public final class ImportCaisesClinicalXML {
     static void importData(File xmlFile, int cancerStudyId) throws Exception {
         MySQLbulkLoader.bulkLoadOn();
         
+        // add unknow attriutes -- this 
+        for (ClinicalAttribute ca : getClinicalAttributes()) {
+            if (DaoClinicalAttribute.getDatum(ca.getAttrId())==null) {
+                DaoClinicalAttribute.addDatum(ca);
+            }
+        }
+        
         SAXReader reader = new SAXReader();
         Document document = reader.read(xmlFile);
         
@@ -87,31 +94,20 @@ public final class ImportCaisesClinicalXML {
         long clinicalEventId = DaoClinicalEvent.getLargestClinicalEventId();
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
         
-        Set<String> pateintIds = getPatientIds(cancerStudyId);
         Map<String, String> mapSu2cSampleIdSampleId = getMapSu2cSampleIdSampleId(cancerStudyId);
-        
-        if (pateintIds.isEmpty()) {
-            throw new Exception("clinical data need to be imported first");
-        }
         
         for (Node patientNode : patientNodes) {
             String patientId = patientNode.selectSingleNode("PtProtocolStudyId").getText();
             Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudyId, patientId);
+            if (patient==null) {
+                continue;
+            }
             
             System.out.println("Importing "+patientId);
-
-            // add unknow attriutes -- this 
-            for (ClinicalAttribute ca : getClinicalAttributes()) {
-                if (DaoClinicalAttribute.getDatum(ca.getAttrId())==null) {
-                    DaoClinicalAttribute.addDatum(ca);
-                }
-            }
             
             // processing clinical data
             // patient clinical data
-            List<ClinicalData> patientClinicalData = filterClinicalData(
-                    parsePatientClinicalData(patientNode, patientId, cancerStudyId),
-                    pateintIds);
+            List<ClinicalData> patientClinicalData = parsePatientClinicalData(patientNode, patientId, cancerStudyId);
             for (ClinicalData cd : patientClinicalData) {
                 if (DaoClinicalData.getDatum(cancerStudy.getCancerStudyStableId(), cd.getStableId(), cd.getAttrId())==null) {
                     DaoClinicalData.addPatientDatum(patient.getInternalId(), cd.getAttrId(), cd.getAttrVal());
@@ -142,30 +138,6 @@ public final class ImportCaisesClinicalXML {
         }
         
         MySQLbulkLoader.flushAll();
-    }
-    
-    private static List<ClinicalData> filterClinicalData(List<ClinicalData> clinicalData,
-            Set<String> patientIds) throws DaoException {
-        List<ClinicalData> filteredData = new ArrayList<ClinicalData>();
-        for (ClinicalData cd : clinicalData) {
-            String patientId = cd.getStableId();
-            if (patientIds.contains(patientId)) {
-                filteredData.add(cd);
-            }
-        }
-        
-        return filteredData;
-    }
-    
-    private static Set<String> getPatientIds(int cancerStudyId) throws DaoException {
-        Set<Patient> patients = DaoPatient.getPatientsByCancerStudyId(cancerStudyId);
-        
-        Set<String> set = new HashSet<String>(patients.size());
-        for (Patient patient : patients) {
-            set.add(patient.getStableId());
-        }
-        
-        return set;
     }
     
     private static Map<String, String> getMapSu2cSampleIdSampleId(int cancerStudyId) throws DaoException {
@@ -591,7 +563,8 @@ public final class ImportCaisesClinicalXML {
             
             List<Node> specimenNodes = specimenAccessionNode.selectNodes("Specimens/Specimen");
             for (Node specimenNode : specimenNodes) {
-            Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudyId, patientId);
+                Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudyId, patientId);
+
                 ClinicalEvent clinicalEvent = new ClinicalEvent();
                 clinicalEvent.setPatient(patient);
                 clinicalEvent.setEventType("SPECIMEN");

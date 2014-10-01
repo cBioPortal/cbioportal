@@ -4,6 +4,7 @@
  */
 package org.mskcc.cbio.portal.scripts;
 
+import java.io.File;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 
@@ -70,26 +71,26 @@ public final class ImportCaisesClinicalXML {
         int cancerStudyId = cancerStudy.getInternalId();
         DaoClinicalEvent.deleteByCancerStudyId(cancerStudyId);
         
-        importData(dataFile, cancerStudy.getInternalId());
+        importData(new File(dataFile), cancerStudy.getInternalId());
 
         System.out.println("Done!");
     }
     
-    private static void importData(String urlXml, int cancerStudyId) throws Exception {
+    static void importData(File xmlFile, int cancerStudyId) throws Exception {
         MySQLbulkLoader.bulkLoadOn();
         
         SAXReader reader = new SAXReader();
-        Document document = reader.read(urlXml);
+        Document document = reader.read(xmlFile);
         
         List<Node> patientNodes = document.selectNodes("//Patients/Patient");
         
         long clinicalEventId = DaoClinicalEvent.getLargestClinicalEventId();
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
         
-        Map<String, Set<String>> mapPatientIdSampleId = getMapPatientIdSampleId(cancerStudyId);
-        Map<String, Set<String>> mapSu2cSampleIdSampleId = getMapSu2cSampleIdSampleId(cancerStudyId);
+        Set<String> pateintIds = getPatientIds(cancerStudyId);
+        Map<String, String> mapSu2cSampleIdSampleId = getMapSu2cSampleIdSampleId(cancerStudyId);
         
-        if (mapPatientIdSampleId.isEmpty()) {
+        if (pateintIds.isEmpty()) {
             throw new Exception("clinical data need to be imported first");
         }
         
@@ -99,22 +100,29 @@ public final class ImportCaisesClinicalXML {
             
             System.out.println("Importing "+patientId);
 
-            // processing clinical data
-            List<ClinicalData> clinicalData = filterClinicalData(
-                    parsePatientClinicalData(patientNode, patientId, cancerStudyId),
-                    mapPatientIdSampleId);
-            clinicalData.addAll(filterClinicalData(
-                    parseClinicalDataFromSpecimen(patientNode, cancerStudyId),
-                    mapSu2cSampleIdSampleId));
-            for (ClinicalData cd : clinicalData) {
-                if (DaoClinicalData.getDatum(cancerStudy.getCancerStudyStableId(), cd.getStableId(), cd.getAttrId())==null) {
-                    DaoClinicalData.addPatientDatum(patient.getInternalId(), cd.getAttrId(), cd.getAttrVal());
-                }
-            }
             // add unknow attriutes -- this 
             for (ClinicalAttribute ca : getClinicalAttributes()) {
                 if (DaoClinicalAttribute.getDatum(ca.getAttrId())==null) {
                     DaoClinicalAttribute.addDatum(ca);
+                }
+            }
+            
+            // processing clinical data
+            // patient clinical data
+            List<ClinicalData> patientClinicalData = filterClinicalData(
+                    parsePatientClinicalData(patientNode, patientId, cancerStudyId),
+                    pateintIds);
+            for (ClinicalData cd : patientClinicalData) {
+                if (DaoClinicalData.getDatum(cancerStudy.getCancerStudyStableId(), cd.getStableId(), cd.getAttrId())==null) {
+                    DaoClinicalData.addPatientDatum(patient.getInternalId(), cd.getAttrId(), cd.getAttrVal());
+                }
+            }
+            // sample clinical data
+            List<ClinicalData> sampleClinicalData = parseClinicalDataFromSpecimen(patientNode, cancerStudyId, mapSu2cSampleIdSampleId);
+            for (ClinicalData cd : sampleClinicalData) {
+                if (DaoClinicalData.getDatum(cancerStudy.getCancerStudyStableId(), cd.getStableId(), cd.getAttrId())==null) {
+                    Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, cd.getStableId());
+                    DaoClinicalData.addSampleDatum(sample.getInternalId(), cd.getAttrId(), cd.getAttrVal());
                 }
             }
             
@@ -137,46 +145,36 @@ public final class ImportCaisesClinicalXML {
     }
     
     private static List<ClinicalData> filterClinicalData(List<ClinicalData> clinicalData,
-            Map<String, Set<String>> mapPatientIdSampleId) throws DaoException {
+            Set<String> patientIds) throws DaoException {
         List<ClinicalData> filteredData = new ArrayList<ClinicalData>();
         for (ClinicalData cd : clinicalData) {
             String patientId = cd.getStableId();
-            Set<String> sampleIds = mapPatientIdSampleId.get(patientId);
-            if (sampleIds!=null) {
-                for (String sampleId : sampleIds) {
-                    ClinicalData newCD = new ClinicalData(cd);
-                    newCD.setStableId(sampleId);
-                    filteredData.add(newCD);
-                }
+            if (patientIds.contains(patientId)) {
+                filteredData.add(cd);
             }
         }
         
         return filteredData;
     }
     
-    private static Map<String, Set<String>> getMapPatientIdSampleId(int cancerStudyId) throws DaoException {
-        List<ClinicalData> clinicalData = DaoClinicalData.getDataByAttributeIds(cancerStudyId, Arrays.asList("PATIENT_ID"));
-        Map<String, Set<String>> map = new HashMap<String, Set<String>>();
-        for (ClinicalData cd : clinicalData) {
-            String patientId = cd.getAttrVal();
-            String sampleId = cd.getStableId();
-            Set<String> sampleIds = map.get(patientId);
-            if (sampleIds==null) {
-                sampleIds = new HashSet<String>();
-                map.put(patientId, sampleIds);
-            }
-            sampleIds.add(sampleId);
+    private static Set<String> getPatientIds(int cancerStudyId) throws DaoException {
+        Set<Patient> patients = DaoPatient.getPatientsByCancerStudyId(cancerStudyId);
+        
+        Set<String> set = new HashSet<String>(patients.size());
+        for (Patient patient : patients) {
+            set.add(patient.getStableId());
         }
-        return map;
+        
+        return set;
     }
     
-    private static Map<String, Set<String>> getMapSu2cSampleIdSampleId(int cancerStudyId) throws DaoException {
+    private static Map<String, String> getMapSu2cSampleIdSampleId(int cancerStudyId) throws DaoException {
         List<ClinicalData> clinicalData = DaoClinicalData.getDataByAttributeIds(cancerStudyId, Arrays.asList("SU2C_SAMPLE_ID"));
-        Map<String, Set<String>> map = new HashMap<String, Set<String>>();
+        Map<String, String> map = new HashMap<String, String>();
         for (ClinicalData cd : clinicalData) {
             String su2cSampleId = cd.getAttrVal();
             String sampleId = cd.getStableId();
-            if (null!=map.put(su2cSampleId, Collections.singleton(sampleId))) {
+            if (null!=map.put(su2cSampleId, sampleId)) {
                 System.err.println("Something is wrong: there are two samples with the same su2c ID: "+su2cSampleId);
             }
         }
@@ -185,7 +183,7 @@ public final class ImportCaisesClinicalXML {
     
     private static List<ClinicalAttribute> getClinicalAttributes() {
         return Arrays.asList(
-                new ClinicalAttribute("PATIENT_ID", "Patient ID", "Patient ID", "STRING", true, "1"),
+//                new ClinicalAttribute("PATIENT_ID", "Patient ID", "Patient ID", "STRING", true, "1"),
                 new ClinicalAttribute("RACE", "Race", "Race", "STRING", true, "1"),
                 new ClinicalAttribute("AGE", "Age", "Age", "Number", true, "1"),
                 new ClinicalAttribute("PATIENT_CATEGORY", "Patient category", "Patient category", "STRING", true, "1"),
@@ -200,20 +198,20 @@ public final class ImportCaisesClinicalXML {
                 new ClinicalAttribute("GLEASON_SCORE_1", "Gleason score 1", "Gleason score 1", "Number", true, "1"),
                 new ClinicalAttribute("GLEASON_SCORE_2", "Gleason score 2", "Gleason score 2", "Number", true, "1"),
                 new ClinicalAttribute("GLEASON_SCORE", "Gleason score", "Gleason score", "Number", true, "1"),
-                new ClinicalAttribute("TUMOR_SITE", "Tumor site", "Tumor site", "STRING", true, "1"),
-                new ClinicalAttribute("PROC_INSTRUMENT", "Procedure instrument", "Procedure instrument", "STRING", true, "1")
+                new ClinicalAttribute("TUMOR_SITE", "Tumor site", "Tumor site", "STRING", false, "1"),
+                new ClinicalAttribute("PROC_INSTRUMENT", "Procedure instrument", "Procedure instrument", "STRING", false, "1")
         );
     }
     
     private static List<ClinicalData> parsePatientClinicalData(
             Node patientNode, String patientId, int cancerStudyId) {
         List<ClinicalData> clinicalData = new ArrayList<ClinicalData>();
-        Node node = patientNode.selectSingleNode("PtProtocolStudyId");
-        if (node!=null) {
-            clinicalData.add(new ClinicalData(cancerStudyId, patientId, "PATIENT_ID", node.getText()));
-        }
+//        Node node = patientNode.selectSingleNode("PtProtocolStudyId");
+//        if (node!=null) {
+//            clinicalData.add(new ClinicalData(cancerStudyId, patientId, "PATIENT_ID", node.getText()));
+//        }
         
-        node = patientNode.selectSingleNode("PtRace");
+        Node node = patientNode.selectSingleNode("PtRace");
         if (node!=null) {
             clinicalData.add(new ClinicalData(cancerStudyId, patientId, "RACE", node.getText()));
         }
@@ -615,7 +613,7 @@ public final class ImportCaisesClinicalXML {
         }
     }
     
-    private static List<ClinicalData> parseClinicalDataFromSpecimen(Node patientNode, int cancerStudyId) {
+    private static List<ClinicalData> parseClinicalDataFromSpecimen(Node patientNode, int cancerStudyId, Map<String, String> mapSu2cSampleIdSampleId) {
         List<ClinicalData> clinicalData = new ArrayList<ClinicalData>();
         List<Node> specimenAccessionNodes = patientNode.selectNodes("SpecimenAccessions/SpecimenAccession");
         for (Node specimenAccessionNode : specimenAccessionNodes) {
@@ -636,14 +634,18 @@ public final class ImportCaisesClinicalXML {
                     continue;
                 }
                 String su2cSampleId = node.getText();
+                String sampleId = mapSu2cSampleIdSampleId.get(su2cSampleId);
+                if (sampleId == null) {
+                    continue;
+                }
                 
                 if (site!=null) {
-                    ClinicalData clinicalDatum = new ClinicalData(cancerStudyId, su2cSampleId, "TUMOR_SITE", site);
+                    ClinicalData clinicalDatum = new ClinicalData(cancerStudyId, sampleId, "TUMOR_SITE", site);
                     clinicalData.add(clinicalDatum);
                 }
                 
                 if (instrument!=null) {
-                    ClinicalData clinicalDatum = new ClinicalData(cancerStudyId, su2cSampleId, "PROC_INSTRUMENT", instrument);
+                    ClinicalData clinicalDatum = new ClinicalData(cancerStudyId, sampleId, "PROC_INSTRUMENT", instrument);
                     clinicalData.add(clinicalDatum);
                 }
             }

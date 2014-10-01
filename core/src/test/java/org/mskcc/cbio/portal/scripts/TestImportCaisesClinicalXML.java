@@ -34,27 +34,12 @@ public class TestImportCaisesClinicalXML {
     public static void setUpClass() {
         try {
             ResetDatabase.resetDatabase();
+            
             TypeOfCancer typeOfCancer = new TypeOfCancer();
-            typeOfCancer.setTypeOfCancerId("test");
-            typeOfCancer.setName("test");
-            typeOfCancer.setShortName("test");
+            typeOfCancer.setTypeOfCancerId("prad");
+            typeOfCancer.setName("prad");
+            typeOfCancer.setShortName("prad");
             DaoTypeOfCancer.addTypeOfCancer(typeOfCancer);
-
-            CancerStudy cancerStudy = new CancerStudy("test","test","test","test",true);
-            cancerStudy.setInternalId(1);
-            DaoCancerStudy.addCancerStudy(cancerStudy);
-            
-            DaoPatient.addPatient(new Patient(cancerStudy, "97115001"));
-            DaoPatient.addPatient(new Patient(cancerStudy, "97115002"));
-            DaoPatient.addPatient(new Patient(cancerStudy, "97115003"));
-            
-            int patient1 = DaoPatient.getPatientByCancerStudyAndPatientId(1, "97115001").getInternalId();
-            int patient2 = DaoPatient.getPatientByCancerStudyAndPatientId(1, "97115002").getInternalId();
-            //int patient3 = DaoPatient.getPatientByCancerStudyAndPatientId(1, "97115003").getInternalId();
-            
-            DaoSample.addSample(new Sample("SC_9022-Tumor", patient1, "test"));
-            DaoSample.addSample(new Sample("SC_9023-Tumor", patient2, "test"));
-            //DaoSample.addSample(new Sample("SC_9024-Tumor", patient3, "test"));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -78,7 +63,35 @@ public class TestImportCaisesClinicalXML {
     //
      @Test
      public void test() throws Exception {
+        CancerStudy cancerStudy = new CancerStudy("prad","prad","prad","prad",true);
+        cancerStudy.setInternalId(1);
+        DaoCancerStudy.addCancerStudy(cancerStudy);
+
+        DaoPatient.addPatient(new Patient(cancerStudy, "97115001"));
+        DaoPatient.addPatient(new Patient(cancerStudy, "97115002"));
+        DaoPatient.addPatient(new Patient(cancerStudy, "97115003"));
+
+        int patient1 = DaoPatient.getPatientByCancerStudyAndPatientId(1, "97115001").getInternalId();
+        int patient2 = DaoPatient.getPatientByCancerStudyAndPatientId(1, "97115002").getInternalId();
+        //int patient3 = DaoPatient.getPatientByCancerStudyAndPatientId(1, "97115003").getInternalId();
+
+        DaoSample.addSample(new Sample("SC_9022-Tumor", patient1, "prad"));
+        DaoSample.addSample(new Sample("SC_9023-Tumor", patient2, "prad"));
+        //DaoSample.addSample(new Sample("SC_9024-Tumor", patient3, "test"));
+         
         File xmlFile = new File("target/test-classes/data_clinical_caises.xml");
         ImportCaisesClinicalXML.importData(xmlFile, 1);
      }
+     
+//     @Test
+//     public void temp() throws Exception {
+//        CancerStudy cancerStudy = new CancerStudy("prad_su2c","prad_su2c","prad_su2c","prad",true);
+//        cancerStudy.setInternalId(1);
+//        DaoCancerStudy.addCancerStudy(cancerStudy);
+//        
+//        ImportClinicalData.main(new String[]{"/Users/jgao/projects/cbio-portal-data/studies/prad/su2c/data_clinical.txt", "prad_su2c"});
+//        ImportCaisesClinicalXML.main(new String[] {"--data","/Users/jgao/projects/cbio-portal-data/studies/prad/su2c/data_clinical_caises.xml",
+//            "--meta","/Users/jgao/projects/cbio-portal-data/studies/prad/su2c/meta_clinical_caises.txt",
+//            "--loadMode", "bulkLoad"});
+//     }
 }

@@ -4,12 +4,13 @@ function GenomicEventObserver(hasMut, hasCna, hasSeg) {
     this.fns_mut = [];
     this.fns_cna = [];
     this.fns_pancan_mutation_frequency = [];
-    this.pancan_mutation_frequencies;   // keyword or hugo -> datum { cancer_study, cancer_type, count, hugo, [keyword] }
+    this.pancan_mutation_frequencies = new PancanMutationFrequencies;   // keyword or hugo -> datum { cancer_study, cancer_type, count, hugo, [keyword] }
     this.hasMut = hasMut;
     this.hasCna = hasCna;
     this.hasSeg = hasSeg;
     this.mutBuilt = false;
     this.cnaBuilt = false;
+    this.pancanFreqBuilt = false;
     this.mutations = new GenomicEventContainer;
     this.cnas = new GenomicEventContainer;
 }
@@ -28,12 +29,15 @@ GenomicEventObserver.prototype = {
     },
     subscribeCna : function(fn) {
         this.fns_cna.push(fn);
-        if (this.cnaBuilt) {
+        if (this.pancanFreqBuilt) {
             fn.call(window);
         }
     },
     subscribePancanMutationsFrequency : function(fn) {
         this.fns_pancan_mutation_frequency.push(fn);
+        if (this.pancanFreqBuilt) {
+            fn.call(window);
+        }
     },
     fire : function(o, thisObj) {
         var scope = thisObj || window;
@@ -57,6 +61,7 @@ GenomicEventObserver.prototype = {
         }
 
         else if (o==="pancan-mutation-frequency-built") {
+            this.pancanFreqBuilt = true;
             this.fns_pancan_mutation_frequency.forEach(
                 function(el) {
                     el.call(scope);
@@ -71,6 +76,24 @@ GenomicEventObserver.prototype = {
                 }
             );
         }
+    }
+};
+
+function PancanMutationFrequencies() {
+    this.data = null;
+}
+PancanMutationFrequencies.prototype = {
+    setData: function(data) {
+        this.data = data;
+    },
+    countByKey : function(key) {
+        var byHugoData = this.data[key];
+
+        var total_mutation_count = _.reduce(byHugoData, function(acc, next) {
+            return acc + next.count;
+        }, 0);
+
+        return total_mutation_count;
     }
 };
 

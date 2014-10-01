@@ -1,0 +1,11 @@
+<jxb:bindings version="2.0"
+xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<jxb:bindings schemaLocation="foundation0.xsd" node="/xsd:schema">
+<jxb:bindings node="//xsd:complexType[@name='metricType']">
+<jxb:bindings node=".//xsd:attribute[@name='value']">
+<jxb:property name="metricTypeValue"/>
+</jxb:bindings>
+</jxb:bindings>
+</jxb:bindings>
+</jxb:bindings>

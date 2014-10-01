@@ -38,10 +38,10 @@ import org.apache.log4j.Logger;
  * Represents a specialized file extractor responsible for copying FMI XML
  * files from a base directory to subdirectories based on the MSKCC cancer
  * study name. After a successful copy the original XML file is renamed to
- * reflect the copy date. This class is also responsible for providing a list
- * of MSKCC cancer studies that have received one or more new/updated XML
- * files. The primary input to this class is a FileDataSource object that 
- * contains the base directory and the XML files to be processed
+ reflect the copy date. This class is also responsible for providing a list
+ of MSKCC cancer studies that have received one or more new/updated XML
+ files. The primary input to this class is a FileDataSource object that 
+ contains the base directory and the XML files to be processed
  *
  * @author fcriscuo
  */

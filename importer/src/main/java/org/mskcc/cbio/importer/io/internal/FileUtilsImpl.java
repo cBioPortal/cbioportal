@@ -53,7 +53,7 @@ import java.util.zip.GZIPInputStream;
 /**
  * Class which implements the FileUtils interface.
  */
-public class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
+class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
     // used in unzip method
     private static int BUFFER = 2048;

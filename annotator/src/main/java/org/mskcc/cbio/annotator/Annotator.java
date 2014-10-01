@@ -1,5 +1,9 @@
 package org.mskcc.cbio.annotator;
 
+import org.apache.commons.exec.CommandLine;
+import org.apache.commons.exec.DefaultExecuteResultHandler;
+import org.apache.commons.exec.DefaultExecutor;
+import org.apache.commons.exec.Executor;
 import org.mskcc.cbio.maf.*;
 
 import java.io.*;
@@ -110,24 +114,23 @@ public class Annotator
 	{
 		String inputMaf = input.getAbsolutePath();
 
-		String[] args = {
-			"perl",
-			this.config.getMaf2maf(),
-			"--vep-path",
-			this.config.getVepPath(),
-			"--vep-data",
-			this.config.getVepData(),
-			"--ref-fasta",
-			this.config.getRefFasta(),
-			"--input-maf",
-			inputMaf,
-			//"--output-dir",
-			//this.config.getIntermediateDir(),
-			"--output-maf",
-			this.config.getIntermediateMaf()
-		};
+		CommandLine cmdLine = new CommandLine("perl");
 
-		return execProcess(args);
+		cmdLine.addArgument(this.config.getMaf2maf());
+		cmdLine.addArgument("--vep-path");
+		cmdLine.addArgument(this.config.getVepPath());
+		cmdLine.addArgument("--vep-data");
+		cmdLine.addArgument(this.config.getVepData());
+		cmdLine.addArgument("--ref-fasta");
+		cmdLine.addArgument(this.config.getRefFasta());
+		cmdLine.addArgument("--input-maf");
+		cmdLine.addArgument(inputMaf);
+		//cmdLine.addArgument("--output-dir");
+		//cmdLine.addArgument(this.config.getIntermediateDir());
+		cmdLine.addArgument("--output-maf");
+		cmdLine.addArgument(this.config.getIntermediateMaf());
+
+		return execProcess(cmdLine);
 	}
 
 	public int runVcf2Maf(File input, File output) throws IOException
@@ -135,72 +138,51 @@ public class Annotator
 		String inVcf = input.getAbsolutePath();
 		String outMaf = output.getAbsolutePath();
 
-		String[] args = {
-			"perl",
-			this.config.getVcf2maf(),
-			"--vep-path",
-			this.config.getVepPath(),
-			"--vep-data",
-			this.config.getVepData(),
-			"--ref-fasta",
-			this.config.getRefFasta(),
-			"--input-vcf",
-			inVcf,
-			"--output-maf",
-			outMaf
-		};
+		CommandLine cmdLine = new CommandLine("perl");
 
-		return execProcess(args);
+		cmdLine.addArgument(this.config.getVcf2maf());
+		cmdLine.addArgument("--vep-path");
+		cmdLine.addArgument(this.config.getVepPath());
+		cmdLine.addArgument("--vep-data");
+		cmdLine.addArgument(this.config.getVepData());
+		cmdLine.addArgument("--ref-fasta");
+		cmdLine.addArgument(this.config.getRefFasta());
+		cmdLine.addArgument("--input-vcf");
+		cmdLine.addArgument(inVcf);
+		cmdLine.addArgument("--output-maf");
+		cmdLine.addArgument(outMaf);
+
+		return execProcess(cmdLine);
 	}
 
-	// TODO code duplication! -- we have the same code in liftover module
-	// also, this is not always safe if there are too many error messages
-	// both buffers should be emptied at the same time (using threads)
 	/**
 	 * Executes an external process via system call.
 	 *
-	 * @param args          process arguments (including the process itself)
-	 * @return              exit value of the process
-	 * @throws java.io.IOException  if an IO error occurs
+	 * @param cmdLine   process arguments (including the process itself)
+	 * @return          exit value of the process
+	 * @throws IOException  if an IO error occurs
 	 */
-	public static int execProcess(String[] args) throws IOException
+	public static int execProcess(CommandLine cmdLine) throws IOException
 	{
-		Process process = Runtime.getRuntime().exec(args);
+		DefaultExecuteResultHandler resultHandler = new DefaultExecuteResultHandler();
 
-		InputStream stdin = process.getInputStream();
-		InputStream stderr = process.getErrorStream();
-		InputStreamReader isr = new InputStreamReader(stdin);
-		InputStreamReader esr = new InputStreamReader(stderr);
-		BufferedReader inReader = new BufferedReader(isr);
-		BufferedReader errReader = new BufferedReader(esr);
-
-		// echo output messages to stdout
-		String line = null;
-
-		while ((line = inReader.readLine()) != null)
-		{
-			System.out.println(line);
-		}
-
-		// also echo error messages
-		while ((line = errReader.readLine()) != null)
-		{
-			System.out.println(line);
-		}
-
-		int exitValue = -1;
+		//ExecuteWatchdog watchdog = new ExecuteWatchdog(60*1000);
+		Executor executor = new DefaultExecutor();
+		//executor.setExitValue(1);
+		//executor.setWatchdog(watchdog);
+		executor.execute(cmdLine, resultHandler);
 
 		// wait for process to complete
 		try
 		{
-			exitValue = process.waitFor();
+			resultHandler.waitFor();
 		}
 		catch (InterruptedException e)
 		{
 			e.printStackTrace();
 		}
 
-		return exitValue;
+		return resultHandler.getExitValue();
 	}
 
 	protected void outputFileNames(File input, File output)

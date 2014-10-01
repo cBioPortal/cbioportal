@@ -42,8 +42,8 @@ var Plots = (function(){
             genetic_profile_rppa : [],
             genetic_profile_dna_methylation : []
         },
-        genetic_profiles = {}
-        log_scale_threshold = 1/1024;
+        genetic_profiles = {},
+        log_scale_threshold_down = 0.17677669529, log_scale_threshold_up = 1024;  // -2.5 to 10
 
     function getGeneticProfileCallback(result) {
         for (var gene in result) {
@@ -72,12 +72,13 @@ var Plots = (function(){
         PlotsCustomMenu.init();
         PlotsView.init();
 
-        $('#plots-menus').bind('tabsshow', function(event, ui) {
-            if (ui.index === 0) {
+        $('#plots-menus').bind('tabsactivate', function(event, ui) {
+	        // note: ui.index is replaced with ui.newTab.index() after jQuery 1.9
+	        if (ui.newTab.index() === 0) {
                 PlotsView.init();
-            } else if (ui.index === 1) {
+            } else if (ui.newTab.index() === 1) {
                 PlotsTwoGenesView.init();
-            } else if (ui.index === 2) {
+            } else if (ui.newTab.index() === 2) {
                 PlotsCustomView.init();
             } else {
                 //TODO: error handle
@@ -99,10 +100,10 @@ var Plots = (function(){
                 $(this).qtip(
                     {
                         content: {text: "<font size=2>" + xText + "</font>" },
-                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                         show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
-                        position: {my:'left bottom',at:'top right'}
+                        position: {my:'left bottom',at:'top right', viewport: $(window)}
                     }
                 );
             }
@@ -122,10 +123,10 @@ var Plots = (function(){
                 $(this).qtip(
                     {
                         content: {text: "<font size=2>" + yText + "</font>"},
-                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                         show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
-                        position: {my:'right bottom',at:'top left'}
+                        position: {my:'right bottom',at:'top left', viewport: $(window)}
                     }
                 );
             }
@@ -170,8 +171,8 @@ var Plots = (function(){
         init: function() {
             var paramsGetProfiles = {
                 cancer_study_id: cancer_study_id,
-                case_set_id: case_set_id,
-                case_ids_key: case_ids_key,
+                case_set_id: patient_set_id,
+                case_ids_key: patient_ids_key,
                 gene_list: gene_list_str
             };
             $.post("getGeneticProfile.json", paramsGetProfiles, getGeneticProfileCallback, "json");
@@ -181,6 +182,7 @@ var Plots = (function(){
         },
         getProfileData: function(gene, genetic_profile_id, case_set_id, case_ids_key, callback_func) {
             var paramsGetProfileData = {
+                cancer_study_id: cancer_study_id,
                 gene_list: gene,
                 genetic_profile_id: genetic_profile_id,
                 case_set_id: case_set_id,
@@ -189,19 +191,17 @@ var Plots = (function(){
             $.post("getProfileData.json", paramsGetProfileData, callback_func, "json");
         },
         getMutationType: function(gene, genetic_profile_id, case_set_id, case_ids_key, callback_func) {
-            var paramsGetMutationType = {
-                geneList: gene,
-                geneticProfiles: genetic_profile_id,  //Here is simply cancer_study_id + "_mutations"
-                caseSetId: case_set_id,
-                caseIdsKey: case_ids_key
-            };
-            $.post("getMutationData.json", paramsGetMutationType, callback_func, "json");
+            var proxy = DataProxyFactory.getDefaultMutationDataProxy();
+            proxy.getMutationData(gene, callback_func);
         },
         addxAxisHelp: addxAxisHelp,
         addyAxisHelp: addyAxisHelp,
         searchPlots: searchPlots,
-        getLogScaleThreshold: function() {
-            return log_scale_threshold;
+        getLogScaleThresholdUp: function() {
+            return log_scale_threshold_up;
+        },
+        getLogScaleThresholdDown: function() {
+            return log_scale_threshold_down;
         }
     };
 
@@ -222,17 +222,17 @@ function loadPlotsSVG() {
     $(".axis").append(elemYHelp);
     $(".x-title-help").qtip({
         content: {text: elemXHelpTxt },
-        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
         show: {event: "mouseover"},
         hide: {fixed:true, delay: 100, event: "mouseout"},
         position: {my:'left bottom',at:'top right'}
     });
     $(".y-title-help").qtip({
         content: {text: elemYHelpTxt },
-        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
         show: {event: "mouseover"},
         hide: {fixed:true, delay: 100, event: "mouseout"},
-        position: {my:'right bottom',at:'top left'}
+        position: {my:'right bottom',at:'top left', viewport: $(window)}
     });
 
     return result;

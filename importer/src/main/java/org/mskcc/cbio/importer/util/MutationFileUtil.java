@@ -1,29 +1,19 @@
 /** Copyright (c) 2013 Memorial Sloan-Kettering Cancer Center.
-**
-** This library is free software; you can redistribute it and/or modify it
-** under the terms of the GNU Lesser General Public License as published
-** by the Free Software Foundation; either version 2.1 of the License, or
-** any later version.
-**
-** This library is distributed in the hope that it will be useful, but
-** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
-** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
-** documentation provided hereunder is on an "as is" basis, and
-** Memorial Sloan-Kettering Cancer Center 
-** has no obligations to provide maintenance, support,
-** updates, enhancements or modifications.  In no event shall
-** Memorial Sloan-Kettering Cancer Center
-** be liable to any party for direct, indirect, special,
-** incidental or consequential damages, including lost profits, arising
-** out of the use of this software and its documentation, even if
-** Memorial Sloan-Kettering Cancer Center 
-** has been advised of the possibility of such damage.  See
-** the GNU Lesser General Public License for more details.
-**
-** You should have received a copy of the GNU Lesser General Public License
-** along with this library; if not, write to the Free Software Foundation,
-** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-**/
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 
 // package
 package org.mskcc.cbio.importer.util;
@@ -49,18 +39,26 @@ public class MutationFileUtil
 	private static final String KNOWN_ONCOTATOR_HEADER = "ONCOTATOR_VARIANT_CLASSIFICATION";
 	private static final ApplicationContext context = new ClassPathXmlApplicationContext(Admin.contextFile);
 
-	public static boolean isOncotated(String filename) throws Exception
+	public static boolean isOncotated(String fileName) throws Exception
 	{
-		File file = new File(filename);
-		FileUtils fileUtils = (FileUtils)MutationFileUtil.context.getBean("fileUtils");
-		LineIterator it = fileUtils.getFileContents(FileUtils.FILE_URL_PREFIX + file.getCanonicalPath());
-		String[] columnHeaders = it.nextLine().split("\t");
-		it.close();
-		return MutationFileUtil.isOncotated(Arrays.asList(columnHeaders));
+		return MutationFileUtil.isOncotated(Arrays.asList(getColumnHeaders(fileName)));
 	}
 
 	public static boolean isOncotated(List<String> columnHeaders)
 	{
 		return columnHeaders.contains(KNOWN_ONCOTATOR_HEADER);
 	}
+        
+        public static String[] getColumnHeaders(String fileName) throws Exception {
+            File file = new File(fileName);
+            FileUtils fileUtils = (FileUtils)MutationFileUtil.context.getBean("fileUtils");
+            LineIterator it = fileUtils.getFileContents(FileUtils.FILE_URL_PREFIX + file.getCanonicalPath());
+            String line = it.next();
+            while (line.startsWith("#")) {
+                line = it.next();
+            }
+            String[] columnHeaders = line.split("\t");
+            it.close();
+            return columnHeaders;
+        }
 }

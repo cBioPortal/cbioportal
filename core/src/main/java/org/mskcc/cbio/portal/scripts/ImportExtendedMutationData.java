@@ -1,56 +1,35 @@
 /** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
-**
-** This library is free software; you can redistribute it and/or modify it
-** under the terms of the GNU Lesser General Public License as published
-** by the Free Software Foundation; either version 2.1 of the License, or
-** any later version.
-**
-** This library is distributed in the hope that it will be useful, but
-** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
-** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
-** documentation provided hereunder is on an "as is" basis, and
-** Memorial Sloan-Kettering Cancer Center 
-** has no obligations to provide maintenance, support,
-** updates, enhancements or modifications.  In no event shall
-** Memorial Sloan-Kettering Cancer Center
-** be liable to any party for direct, indirect, special,
-** incidental or consequential damages, including lost profits, arising
-** out of the use of this software and its documentation, even if
-** Memorial Sloan-Kettering Cancer Center 
-** has been advised of the possibility of such damage.  See
-** the GNU Lesser General Public License for more details.
-**
-** You should have received a copy of the GNU Lesser General Public License
-** along with this library; if not, write to the Free Software Foundation,
-** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-**/
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 
 package org.mskcc.cbio.portal.scripts;
+
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.model.ExtendedMutation.MutationEvent;
+import org.mskcc.cbio.portal.util.*;
+import org.mskcc.cbio.maf.*;
+
+import org.apache.commons.lang.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import org.apache.commons.lang.StringUtils;
-import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.model.CanonicalGene;
-import org.mskcc.cbio.portal.model.ExtendedMutation;
-import org.mskcc.cbio.portal.model.ExtendedMutation.MutationEvent;
-import org.mskcc.cbio.portal.util.ConsoleUtil;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
-import org.mskcc.cbio.maf.MafRecord;
-import org.mskcc.cbio.maf.MafUtil;
-import org.mskcc.cbio.maf.TabDelimitedFileUtil;
-import org.mskcc.cbio.portal.util.CaseIdUtil;
-import org.mskcc.cbio.portal.util.ExtendedMutationUtil;
+import java.util.*;
 
 /**
  * Import an extended mutation file.
@@ -68,24 +47,6 @@ public class ImportExtendedMutationData{
 	private File mutationFile;
 	private int geneticProfileId;
 	private MutationFilter myMutationFilter;
-	private static Map<String,String> validChrValues = null;
-	private static String normalizeChr(String strChr) {
-	    if (validChrValues==null) {
-		validChrValues = new HashMap<String,String>();
-		for (int lc = 1; lc<=24; lc++) {
-			validChrValues.put(Integer.toString(lc),Integer.toString(lc));
-			validChrValues.put("CHR" + Integer.toString(lc),Integer.toString(lc));
-		}
-		validChrValues.put("X","23");
-		validChrValues.put("CHRX","23");
-		validChrValues.put("Y","24");
-		validChrValues.put("CHRY","24");
-		validChrValues.put("NA","NA");
-		validChrValues.put("MT","MT"); // mitochondria
-	    }
-	    
-	    return validChrValues.get(strChr);
-	}
 
 	/**
 	 * construct an ImportExtendedMutationData with no white lists.
@@ -137,6 +98,10 @@ public class ImportExtendedMutationData{
 
 		//  The MAF File Changes fairly frequently, and we cannot use column index constants.
 		String line = buf.readLine();
+                while (line.startsWith("#")) {
+                    line = buf.readLine(); // skip comments/meta info
+                }
+                
 		line = line.trim();
 
 		MafUtil mafUtil = new MafUtil(line);
@@ -156,6 +121,7 @@ public class ImportExtendedMutationData{
 
 		line = buf.readLine();
 
+        GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
 		while( line != null)
 		{
 			if( pMonitor != null) {
@@ -170,10 +136,13 @@ public class ImportExtendedMutationData{
 
 				// process case id
 				String barCode = record.getTumorSampleID();
-				String caseId = CaseIdUtil.getCaseId(barCode);
+                ImportDataUtil.addPatients(new String[] { barCode }, geneticProfileId);
+                ImportDataUtil.addSamples(new String[] { barCode }, geneticProfileId);
+		        Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
+                                                                            StableIdUtil.getSampleId(barCode));
 
-				if( !DaoCaseProfile.caseExistsInGeneticProfile(caseId, geneticProfileId)) {
-					DaoCaseProfile.addCaseProfile(caseId, geneticProfileId);
+				if( !DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId)) {
+					DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId);
 				}
 
 				String validationStatus = record.getValidationStatus();
@@ -186,7 +155,7 @@ public class ImportExtendedMutationData{
 					continue;
 				}
 
-				String chr = normalizeChr(record.getChr().toUpperCase());
+				String chr = DaoGeneOptimized.normalizeChr(record.getChr().toUpperCase());
 				if (chr==null) {
 					pMonitor.logWarning("Skipping entry with chromosome value: " + record.getChr());
 					line = buf.readLine();
@@ -230,7 +199,8 @@ public class ImportExtendedMutationData{
 					codonChange,
 					refseqMrnaId,
 					uniprotName,
-					uniprotAccession;
+					uniprotAccession,
+                                        oncotatorGeneSymbol;
 
 				int proteinPosStart,
 					proteinPosEnd;
@@ -287,6 +257,7 @@ public class ImportExtendedMutationData{
 					uniprotAccession = record.getOncotatorUniprotAccessionBestEffect();
 					proteinPosStart = record.getOncotatorProteinPosStartBestEffect();
 					proteinPosEnd = record.getOncotatorProteinPosEndBestEffect();
+                                        oncotatorGeneSymbol = record.getOncotatorGeneSymbolBestEffect();
 				}
 				else
 				{
@@ -297,11 +268,13 @@ public class ImportExtendedMutationData{
 					uniprotAccession = record.getOncotatorUniprotAccession();
 					proteinPosStart = record.getOncotatorProteinPosStart();
 					proteinPosEnd = record.getOncotatorProteinPosEnd();
+                                        oncotatorGeneSymbol = record.getOncotatorGeneSymbol();
 				}
 
 				//  Assume we are dealing with Entrez Gene Ids (this is the best / most stable option)
 				String geneSymbol = record.getHugoGeneSymbol();
 				long entrezGeneId = record.getEntrezGeneId();
+                                
 				CanonicalGene gene = null;
                                 if (entrezGeneId != TabDelimitedFileUtil.NA_LONG) {
                                     gene = daoGene.getGene(entrezGeneId);
@@ -309,8 +282,12 @@ public class ImportExtendedMutationData{
 
 				if(gene == null) {
 					// If Entrez Gene ID Fails, try Symbol.
-					gene = daoGene.getNonAmbiguousGene(geneSymbol);
+					gene = daoGene.getNonAmbiguousGene(geneSymbol, chr);
 				}
+                                
+                                if (gene == null) { // should we use this first??
+                                    gene = daoGene.getNonAmbiguousGene(oncotatorGeneSymbol, chr);
+                                }
 
 				if(gene == null) {
 					pMonitor.logWarning("Gene not found:  " + geneSymbol + " ["
@@ -320,7 +297,7 @@ public class ImportExtendedMutationData{
 					ExtendedMutation mutation = new ExtendedMutation();
 
 					mutation.setGeneticProfileId(geneticProfileId);
-					mutation.setCaseId(caseId);
+					mutation.setSampleId(sample.getInternalId());
 					mutation.setGene(gene);
 					mutation.setSequencingCenter(record.getCenter());
 					mutation.setSequencer(record.getSequencer());
@@ -368,7 +345,7 @@ public class ImportExtendedMutationData{
 					mutation.setOncotatorProteinPosEnd(proteinPosEnd);
 					mutation.setCanonicalTranscript(!bestEffectTranscript);
 
-					sequencedCaseSet.add(caseId);
+					sequencedCaseSet.add(sample.getStableId());
 
 					//  Filter out Mutations
 					if( myMutationFilter.acceptMutation( mutation )) {

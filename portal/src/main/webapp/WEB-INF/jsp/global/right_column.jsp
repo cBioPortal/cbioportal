@@ -3,6 +3,7 @@
 <%@ page import="org.mskcc.cbio.portal.model.CancerStudyStats" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.ArrayList" %>
+
 <%
    String examplesHtml = GlobalProperties.getProperty("examples_right_column");
    if (examplesHtml == null) {
@@ -24,12 +25,15 @@
    }
 %>
 
+
 <div id="right_side">
+    
     
     <h3>What's New</h3>
 
     <p>
-    <b>&bull; <a href="http://www.cbioportal.org/public-portal/sci_signal_reprint.jsp">New <i>Protocol</i> paper in Science Signaling</a></b>
+    &bull;<a href="news.jsp"> <b>TCGA data updated</b></a>
+    &bull;<a href="news.jsp"> <b>New studies released</b></a>
     </p>
     
     <form action="http://groups.google.com/group/cbioportal-news/boxsubscribe">

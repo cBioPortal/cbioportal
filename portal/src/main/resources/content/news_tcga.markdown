@@ -1,3 +1,30 @@
+# September 26, 2014
+* All TCGA data updated to the Firehose run of July 15, 2014
+
+# May 21, 2014
+* All TCGA data updated to the Firehose run of April 16, 2014
+
+# May 12, 2014
+* Improved study summary page including survival analysis based on clinical attributes
+<br/>e.g. [TCGA Endometrial Cancer cohort](study.do?cancer_study_id=ucec_tcga_pub)
+<br/>![Study view](images/previews/study_view.png)
+
+# March 27, 2014
+* New features:
+    * Visualizing of mutations mapped on 3D structures (individual or multiple mutations, directly in the browser)
+    * Gene expression correlation analysis (find all genes with expression correlation to your query genes)
+    * The Patient-Centric View now displays mutation frequencies across all cohorts in cBioPortal for each mutation
+    * The Mutation Details Tab and the Patient-Centric View now display the copy-number status of each mutation
+<br/>![3D viewer & Co-expression](images/previews/news_3d_coexp.png)
+
+# March 18, 2014
+* All TCGA data updated to the Firehose run of January 15, 2014
+* Updated to the latest COSMIC data (v68)
+* Added two new provisional TCGA studies
+    * Adrenocortical Carcinoma
+    * Uterine Carcinosarcoma
+* Added genomic data from multiple studies from the literature
+
 # November 8, 2013
 
 * All TCGA data updated to the Firehose run of September 23, 2013.
@@ -12,7 +39,6 @@
 
 # September 5, 2013:
 
-* [New standalone oncoprint tool](tools.jsp)
 * Updated COSMIC data (v66 Release)
 * Improved / interactive visualization on the "Protein changes" tab
 * Enhanced mutation diagrams: color-coding by mutation time and syncing with table filters

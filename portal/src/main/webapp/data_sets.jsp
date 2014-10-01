@@ -47,7 +47,7 @@
 				 out.println("<th>Reference</th>");
 				 out.println("<th>All</th>");
 				 out.println("<th>Sequenced</th>");
-				 out.println("<th>aCGH</th>");
+				 out.println("<th>CNA</th>");
 				 out.println("<th>Tumor mRNA (RNA-Seq V2)</th>");
 				 out.println("<th>Tumor mRNA (microarray)</th>");
 				 //out.println("<th>Normal mRNA</th>");
@@ -76,9 +76,9 @@
 					 // sequenced
 					 String sequenced = (stats.getSequenced() != 0) ? stats.getSequenced().toString() : "";
 					 out.println("<td style=\"text-align: center;\">" + sequenced + "</td>");
-					 // aCGH
-					 String aCGH = (stats.getACGH() != 0) ? stats.getACGH().toString() : "";
-					 out.println("<td style=\"text-align: center;\">" + aCGH  + "</td>");
+					 // cna
+					 String cna = (stats.getCNA() != 0) ? stats.getCNA().toString() : "";
+					 out.println("<td style=\"text-align: center;\">" + cna  + "</td>");
 					 // RNA-Seq
 					 String rnaSEQ = (stats.getRNASEQ() != 0) ? stats.getRNASEQ().toString() : "";
 					 out.println("<td style=\"text-align: center;\">" + rnaSEQ + "</td>");
@@ -137,8 +137,8 @@
 <jsp:include page="WEB-INF/jsp/global/xdebug.jsp" flush="true" />
 
 <style type="text/css" title="currentStyle"> 
-        @import "css/data_table_jui.css";
-        @import "css/data_table_ColVis.css";
+        @import "css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>";
+        @import "css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>";
         .ColVis {
                 float: left;
                 margin-bottom: 0
@@ -155,6 +155,12 @@
         .div.datatable-paging {
                 width: auto;
                 float: right;
+        }
+        table.display thead th{
+            border: 1px solid #d3d3d3;
+            background: #e6e6e6 url(images/ui-bg_glass_75_e6e6e6_1x400.png) 50% 50% repeat-x;
+            font-weight: bold;
+            color: #555555;
         }
 </style>
 

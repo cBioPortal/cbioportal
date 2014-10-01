@@ -1,29 +1,19 @@
 /** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
- **
- ** This library is free software; you can redistribute it and/or modify it
- ** under the terms of the GNU Lesser General Public License as published
- ** by the Free Software Foundation; either version 2.1 of the License, or
- ** any later version.
- **
- ** This library is distributed in the hope that it will be useful, but
- ** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
- ** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
- ** documentation provided hereunder is on an "as is" basis, and
- ** Memorial Sloan-Kettering Cancer Center
- ** has no obligations to provide maintenance, support,
- ** updates, enhancements or modifications.  In no event shall
- ** Memorial Sloan-Kettering Cancer Center
- ** be liable to any party for direct, indirect, special,
- ** incidental or consequential damages, including lost profits, arising
- ** out of the use of this software and its documentation, even if
- ** Memorial Sloan-Kettering Cancer Center
- ** has been advised of the possibility of such damage.  See
- ** the GNU Lesser General Public License for more details.
- **
- ** You should have received a copy of the GNU Lesser General Public License
- ** along with this library; if not, write to the Free Software Foundation,
- ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- **/
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 
 // package
 package org.mskcc.cbio.portal.servlet;
@@ -40,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.fileupload.FileItem;
+import org.mskcc.cbio.portal.util.XssRequestWrapper;
 import org.owasp.validator.html.PolicyException;
 
 import java.io.PrintWriter;
@@ -53,7 +44,6 @@ import java.util.regex.Pattern;
 public class OncoPrintConverter extends HttpServlet {
 
 	private Pattern svgXPosPattern;
-    private ServletXssUtil servletXssUtil;
 
     /**
      * Initializes the servlet.
@@ -63,13 +53,7 @@ public class OncoPrintConverter extends HttpServlet {
     public void init() throws ServletException {
 
         super.init();
-        try {
-            servletXssUtil = ServletXssUtil.getInstance();
-			svgXPosPattern = Pattern.compile("( x=\"(\\d+)\")");
-        }
-		catch (PolicyException e) {
-            throw new ServletException (e);
-        }
+	    svgXPosPattern = Pattern.compile("( x=\"(\\d+)\")");
     }
 
     /**
@@ -114,15 +98,27 @@ public class OncoPrintConverter extends HttpServlet {
 			xml = wrapper.getParameter("xml");
 		}
 		else {
-			format = servletXssUtil.getCleanInput(httpServletRequest, "format");
-			// TODO - update antisamy.xml to support svg-xml
+			httpServletRequest.getParameter("format");
 			xml = httpServletRequest.getParameter("xml");
+
+			// TODO - update antisamy.xml to support svg-xml
+			if (httpServletRequest instanceof XssRequestWrapper)
+			{
+				xml = ((XssRequestWrapper) httpServletRequest).getRawParameter("xml");
+			}
+
 		}
 
-		// sanity check
-		if (!format.equals("svg")) {
-			forwardToErrorPage(getServletContext(), httpServletRequest, httpServletResponse, xdebug);
-		}
+        String xmlHeader = "<?xml version='1.0'?>";
+        xml = xmlHeader + xml;
+        if(!xml.contains("svg xmlns")) {
+            xml = xml.replace("<svg", "<svg xmlns='http://www.w3.org/2000/svg' version='1.1'");
+        }
+
+        // sanity check
+		//if (!format.equals("svg")) {
+		//	forwardToErrorPage(getServletContext(), httpServletRequest, httpServletResponse, xdebug);
+		//}
 
 		// outta here
 		convertToSVG(httpServletResponse, xml);

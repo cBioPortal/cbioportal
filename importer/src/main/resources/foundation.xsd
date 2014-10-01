@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="ClientCaseInfo" type="ClientCaseInfoType"/>
+  <xs:complexType name="sampleType" mixed="true">
+    <xs:sequence>
+      <xs:element type="xs:string" name="comment" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="bait-set" use="optional"/>
+    <xs:attribute type="xs:float" name="mean-exon-depth" use="optional"/>
+    <xs:attribute type="xs:string" name="name" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="samplesType">
+    <xs:sequence>
+      <xs:element type="sampleType" name="sample"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="metricType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="criterion" use="optional"/>
+        <xs:attribute type="xs:string" name="name" use="optional"/>
+        <xs:attribute type="xs:string" name="status" use="optional"/>
+        <xs:attribute type="xs:string" name="value" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="metricsType">
+    <xs:sequence>
+      <xs:element type="metricType" name="metric" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="quality-controlType">
+    <xs:sequence>
+      <xs:element type="metricsType" name="metrics"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="status" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="short-variantType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="cds-effect" use="optional"/>
+        <xs:attribute type="xs:short" name="depth" use="optional"/>
+        <xs:attribute type="xs:string" name="functional-effect" use="optional"/>
+        <xs:attribute type="xs:string" name="gene" use="optional"/>
+        <xs:attribute type="xs:float" name="percent-reads" use="optional"/>
+        <xs:attribute type="xs:string" name="position" use="optional"/>
+        <xs:attribute type="xs:string" name="protein-effect" use="optional"/>
+        <xs:attribute type="xs:string" name="status" use="optional"/>
+        <xs:attribute type="xs:string" name="strand" use="optional"/>
+        <xs:attribute type="xs:string" name="transcript" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="short-variantsType">
+    <xs:sequence>
+      <xs:element type="short-variantType" name="short-variant" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="copy-number-alterationType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:byte" name="copy-number" use="optional"/>
+        <xs:attribute type="xs:string" name="gene" use="optional"/>
+        <xs:attribute type="xs:string" name="number-of-exons" use="optional"/>
+        <xs:attribute type="xs:string" name="position" use="optional"/>
+        <xs:attribute type="xs:float" name="ratio" use="optional"/>
+        <xs:attribute type="xs:string" name="status" use="optional"/>
+        <xs:attribute type="xs:string" name="type" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="copy-number-alterationsType" mixed="true">
+    <xs:sequence>
+      <xs:element type="copy-number-alterationType" name="copy-number-alteration" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="variant-reportType">
+    <xs:sequence>
+      <xs:element type="samplesType" name="samples"/>
+      <xs:element type="quality-controlType" name="quality-control"/>
+      <xs:element type="short-variantsType" name="short-variants"/>
+      <xs:element type="copy-number-alterationsType" name="copy-number-alterations"/>
+      <xs:element name="rearrangements">
+        <xs:complexType mixed="true">
+          <xs:sequence>
+            <xs:element type="rearrangementType" name="rearrangement" maxOccurs="unbounded" minOccurs="0"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="gender" use="optional"/>
+    <xs:attribute type="xs:string" name="pipeline-version" use="optional"/>
+    <xs:attribute type="xs:string" name="study" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="CaseType">
+    <xs:sequence>
+      <xs:element type="variant-reportType" name="variant-report"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="case" use="optional"/>
+    <xs:attribute type="xs:string" name="fmiCase" use="optional"/>
+    <xs:attribute type="xs:byte" name="hasVariant" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="rearrangementType" mixed="true">
+    <xs:sequence>
+      <xs:element type="xs:string" name="comment" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="description" use="optional"/>
+    <xs:attribute type="xs:string" name="in-frame" use="optional"/>
+    <xs:attribute type="xs:string" name="other-gene" use="optional"/>
+    <xs:attribute type="xs:string" name="pos1" use="optional"/>
+    <xs:attribute type="xs:string" name="pos2" use="optional"/>
+    <xs:attribute type="xs:string" name="status" use="optional"/>
+    <xs:attribute type="xs:short" name="supporting-read-pairs" use="optional"/>
+    <xs:attribute type="xs:string" name="targeted-gene" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="rearrangementsType">
+    <xs:sequence>
+      <xs:element type="rearrangementType" name="rearrangement" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="CasesType">
+    <xs:sequence>
+      <xs:element type="CaseType" name="Case" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ClientCaseInfoType">
+    <xs:sequence>
+      <xs:element type="CasesType" name="Cases"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

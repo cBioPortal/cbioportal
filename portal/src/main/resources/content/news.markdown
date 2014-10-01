@@ -1,3 +1,71 @@
+# September 30, 2014
+* All TCGA data updated to the Firehose run of July 15, 2014
+* Added two new provisional TCGA studies:
+    * [Esophageal Carcinoma](study.do?cancer_study_id=esca_tcga)
+    * [Pheochromocytoma and Paraganglioma](study.do?cancer_study_id=pcpg_tcga)
+* Added data of 885 samples from 11 published studies:
+    * [Colorectal Adenocarcinoma Triplets (MSKCC, Genome Biology 2014)](study.do?cancer_study_id=coadread_mskcc)
+    * [Esophageal Squamous Cell Carcinoma (ICGC, Nature 2014)](study.do?cancer_study_id=escc_icgc)
+    * [Malignant Peripheral Nerve Sheath Tumor (MSKCC, Nature Genetics 2014)](study.do?cancer_study_id=mpnst_mskcc)
+    * [Melanoma (Broad/Dana Fareber, Nature 2012)](study.do?cancer_study_id=skcm_broad_dfarber)
+    * [Nasopharyngeal Carcinoma(National University Singapore, Nature Genetics 2014)](study.do?cancer_study_id=npc_nusingapore)
+    * [Prostate Adenocarcinoma-CNA data (MSKCC, PNAS 2014)](index.do?cancer_study_id=prad_mskcc_2014)
+    * [Prostate Adenocarcinoma Organoids (MSKCC, Cell 2014)](study.do?cancer_study_id=prad_mskcc_cheny1_organoids_2014)
+    * [Stomach Adenocarcinoma (TCGA, Nature 2014)](study.do?cancer_study_id=stad_tcga_pub)
+    * [Stomach adenocarcinoma (Pfizer and University of Hong Kong, Nature Genetics 2014)](study.do?cancer_study_id=stad_pfizer_uhongkong)
+    * [Stomach adenocarcinoma (University of Hong Kong, Nature Genetics 2011)](study.do?cancer_study_id=stad_uhongkong)
+    * [Stomach adenocarcinoma (University of Tokyo, Nature Genetics 2014)](study.do?cancer_study_id=stad_utokyo)
+
+# August 8, 2014
+* Released two new tools
+    * [Oncoprinter](oncoprinter.jsp) lets you create Oncoprints from your own, custom data
+    * [MutationMapper](mutation_mapper.jsp) draws mutation diagrams (lollipop plots) from your custom data
+
+# May 21, 2014
+* All TCGA data updated to the Firehose run of April 16, 2014
+
+# May 12, 2014
+* Improved study summary page including survival analysis based on clinical attributes
+<br/>e.g. [TCGA Endometrial Cancer cohort](study.do?cancer_study_id=ucec_tcga_pub)
+<br/>![Study view](images/previews/study_view.png)
+
+# March 27, 2014
+* New features:
+    * Visualizing of mutations mapped on 3D structures (individual or multiple mutations, directly in the browser)
+    * Gene expression correlation analysis (find all genes with expression correlation to your query genes)
+    * The Patient-Centric View now displays mutation frequencies across all cohorts in cBioPortal for each mutation
+    * The Mutation Details Tab and the Patient-Centric View now display the copy-number status of each mutation
+<br/>![3D viewer & Co-expression](images/previews/news_3d_coexp.png)
+
+# March 18, 2014
+* All TCGA data updated to the Firehose run of January 15, 2014
+* Updated to the latest COSMIC data (v68)
+* Added two new provisional TCGA studies:
+    * Adrenocortical Carcinoma
+    * Uterine Carcinosarcoma
+* Added mutation data of 898 samples from 11 published studies:
+    * Hepatocellular Carcinoma (RIKEN, Nature Genetics 2012)
+    * Hepatocellular Carcinoma (AMC, Hepatology in press)
+    * Medulloblastoma (Broad, Nature 2012)
+    * Medulloblastoma (ICGC, Nature 2012)
+    * Medulloblastoma (PCGP, Nature 2012)
+    * Multiple Myeloma (Broad, Cancer Cell 2014)
+    * Pancreatic Adenocarcinoma (ICGC, Nature 2012)
+    * Small Cell Carcinoma of the Ovary (MSKCC, Nature Genetics in press)
+    * Small Cell Lung Cancer (CLCGP, Nature Genetics 2012)
+    * Small Cell Lung Cancer (Johns Hopkins, Nature Genetics 2012)
+    * NCI-60 Cell Lines (NCI, Cancer Res. 2012)
+
+# December 9, 2013
+* Added mutation data of 99 bladder cancer samples (BGI, Nature Genetics 2013)
+
+# December 6, 2013
+* Data sets matching four recently submitted or published TCGA studies are now available
+    * Glioblastoma (Cell 2013)
+    * Bladder carcinoma (Nature, in press)
+    * Head & neck squamous cell carcinoma (submitted)
+    * Lung adenocarcinoma (submitted)
+
 # November 8, 2013
 
 * All TCGA data updated to the Firehose run of September 23, 2013.

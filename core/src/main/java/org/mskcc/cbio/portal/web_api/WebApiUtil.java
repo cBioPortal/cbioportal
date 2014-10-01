@@ -1,39 +1,31 @@
 /** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
-**
-** This library is free software; you can redistribute it and/or modify it
-** under the terms of the GNU Lesser General Public License as published
-** by the Free Software Foundation; either version 2.1 of the License, or
-** any later version.
-**
-** This library is distributed in the hope that it will be useful, but
-** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
-** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
-** documentation provided hereunder is on an "as is" basis, and
-** Memorial Sloan-Kettering Cancer Center 
-** has no obligations to provide maintenance, support,
-** updates, enhancements or modifications.  In no event shall
-** Memorial Sloan-Kettering Cancer Center
-** be liable to any party for direct, indirect, special,
-** incidental or consequential damages, including lost profits, arising
-** out of the use of this software and its documentation, even if
-** Memorial Sloan-Kettering Cancer Center 
-** has been advised of the possibility of such damage.  See
-** the GNU Lesser General Public License for more details.
-**
-** You should have received a copy of the GNU Lesser General Public License
-** along with this library; if not, write to the Free Software Foundation,
-** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-**/
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 
 package org.mskcc.cbio.portal.web_api;
 
 import org.mskcc.cbio.portal.model.Gene;
 import org.mskcc.cbio.portal.model.MicroRna;
 import org.mskcc.cbio.portal.model.GeneticAlterationType;
+import org.mskcc.cbio.portal.servlet.ServletXssUtil;
 import org.mskcc.cbio.portal.util.GeneComparator;
 import org.mskcc.cbio.portal.dao.DaoMicroRna;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
+import org.owasp.validator.html.PolicyException;
 
 import java.util.Date;
 import java.util.ArrayList;
@@ -59,7 +51,15 @@ public class WebApiUtil {
             variantMicroRnaIdSet = daoMicroRna.getEntireVariantSet();
         }
 
-        //  Iterate through all the genes specified by the client
+	    ServletXssUtil xssUtil = null;
+
+	    try {
+		    xssUtil = ServletXssUtil.getInstance();
+	    }
+	    catch (Exception e) {
+	    }
+
+	    //  Iterate through all the genes specified by the client
         //  Genes might be specified as Integers, e.g. Entrez Gene Ids or Strings, e.g. HUGO
         //  Symbols or microRNA Ids or aliases.
         ArrayList <Gene> geneList = new ArrayList<Gene>();
@@ -90,11 +90,17 @@ public class WebApiUtil {
                             geneList.add(microRna);
                         }
                     } else {
+	                    if (xssUtil != null) {
+		                    geneId = xssUtil.getCleanerInput(geneId);
+	                    }
                         String msg = "# Warning:  Unknown microRNA:  " + geneId;
                         warningBuffer.append(msg).append ("\n");
                         warningList.add(msg);
                     }
                 } else {
+	                if (xssUtil != null) {
+		                geneId = xssUtil.getCleanerInput(geneId);
+	                }
                     String msg = "# Warning:  Unknown gene:  " + geneId;
                     warningBuffer.append(msg).append ("\n");
                     warningList.add(msg);

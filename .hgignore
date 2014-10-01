@@ -12,6 +12,7 @@ portal/Portal.ipr
 portal/Portal.iws
 portal/checkstyle_report.xml
 core/nbactions.xml
+logs
 importer/nbactions.xml
 portal/nb-configuration.xml
 portal/nbactions.xml
@@ -57,7 +58,15 @@ liftover/target/*
 core/target/*
 oncotator/target/*
 importer/target/*
+business/target/*
+web/target/*
 mutation-assessor/target/*
 cbioportal-client/target/*
 mondrian-cy3-app/target/*
 nbactions.xml
+*/*.iml
+*.iml
+*.class
+*/.settings/*
+*/.classpath
+*/.project

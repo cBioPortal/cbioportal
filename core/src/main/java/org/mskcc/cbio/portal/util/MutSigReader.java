@@ -1,29 +1,19 @@
 /** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
-**
-** This library is free software; you can redistribute it and/or modify it
-** under the terms of the GNU Lesser General Public License as published
-** by the Free Software Foundation; either version 2.1 of the License, or
-** any later version.
-**
-** This library is distributed in the hope that it will be useful, but
-** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
-** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
-** documentation provided hereunder is on an "as is" basis, and
-** Memorial Sloan-Kettering Cancer Center 
-** has no obligations to provide maintenance, support,
-** updates, enhancements or modifications.  In no event shall
-** Memorial Sloan-Kettering Cancer Center
-** be liable to any party for direct, indirect, special,
-** incidental or consequential damages, including lost profits, arising
-** out of the use of this software and its documentation, even if
-** Memorial Sloan-Kettering Cancer Center 
-** has been advised of the possibility of such damage.  See
-** the GNU Lesser General Public License for more details.
-**
-** You should have received a copy of the GNU Lesser General Public License
-** along with this library; if not, write to the Free Software Foundation,
-** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-**/
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 
 package org.mskcc.cbio.portal.util;
 
@@ -130,33 +120,22 @@ public class MutSigReader {
         {
             if (names[i].equals("rank")) {
                 rankField = i;
-            }
-
-            if (names[i].equalsIgnoreCase("gene")) {
+            } else if (names[i].equalsIgnoreCase("gene")) {
                 hugoField = i;
-            }
-
-            if (names[i].equals("N")) {
+            } else if (names[i].equals("N") || names[i].equals("Nnon") ) {
                 BasesCoveredField = i;
-            }
-
-            if (names[i].equals("n")) {
+            } else if (names[i].equals("n") || names[i].equals("nnon") ) {
                 numMutationsField = i;
-            }
-
-            if (names[i].equalsIgnoreCase("p")) {
+            } else if (names[i].equalsIgnoreCase("p")) {
                 PvalField = i;
-            }
-
-            if (names[i].equalsIgnoreCase("q") || names[i].equalsIgnoreCase("q\n")) {
+            } else if (names[i].equalsIgnoreCase("q") || names[i].equalsIgnoreCase("q\n")) {
                 QvalField = i;
             }
         }
         // end parse Column names
 
         // check to see if all fields are filled
-        if (rankField == -1
-                || hugoField == -1
+        if (hugoField == -1
                 || BasesCoveredField == -1
                 || numMutationsField == -1
                 || PvalField == -1
@@ -166,7 +145,7 @@ public class MutSigReader {
         }
 
         // parse data
-        
+        int rank = 0;
         for (String line = buf.readLine();line != null;line = buf.readLine()) {
 
             if (pMonitor != null) {
@@ -183,7 +162,11 @@ public class MutSigReader {
 
             // -- load parameters for new MutSig object --
             try {
-                int rank = Integer.parseInt(parts[rankField]);
+                if (rankField==-1) { // MutSigCV
+                    rank++;
+                } else {
+                    rank = Integer.parseInt(parts[rankField]);
+                }
                 mutSig.setRank(rank);
             } catch (java.lang.NumberFormatException e) {
             }

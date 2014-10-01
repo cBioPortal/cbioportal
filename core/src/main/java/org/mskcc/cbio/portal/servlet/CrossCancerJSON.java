@@ -1,54 +1,38 @@
 /*
  * Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
- * This library is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published
- * by the Free Software Foundation; either version 2.1 of the License, or
- * any later version.
  *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
  * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
  * documentation provided hereunder is on an "as is" basis, and
- * Memorial Sloan-Kettering Cancer Center
+ * Memorial Sloan-Kettering Cancer Center 
  * has no obligations to provide maintenance, support,
  * updates, enhancements or modifications.  In no event shall
  * Memorial Sloan-Kettering Cancer Center
  * be liable to any party for direct, indirect, special,
  * incidental or consequential damages, including lost profits, arising
  * out of the use of this software and its documentation, even if
- * Memorial Sloan-Kettering Cancer Center
- * has been advised of the possibility of such damage.  See
- * the GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 
 package org.mskcc.cbio.portal.servlet;
 
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.*;
+import org.mskcc.cbio.portal.web_api.*;
+import org.mskcc.cbio.portal.util.*;
+
 import org.apache.log4j.Logger;
 import org.json.simple.JSONValue;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoTypeOfCancer;
-import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
-import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
-import org.mskcc.cbio.portal.web_api.GetCaseLists;
-import org.mskcc.cbio.portal.web_api.GetGeneticProfiles;
-import org.mskcc.cbio.portal.util.*;
-import org.mskcc.cbio.portal.web_api.GetProfileData;
-import org.mskcc.cbio.portal.web_api.ProtocolException;
-import org.owasp.validator.html.PolicyException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
+import javax.servlet.http.*;
+import java.io.*;
 import java.util.*;
 
 public class CrossCancerJSON extends HttpServlet {
@@ -56,9 +40,6 @@ public class CrossCancerJSON extends HttpServlet {
 
     // class which process access control to cancer studies
     private AccessControl accessControl;
-
-    private ServletXssUtil servletXssUtil;
-
 
     /**
      * Initializes the servlet.
@@ -70,12 +51,6 @@ public class CrossCancerJSON extends HttpServlet {
         ApplicationContext context =
                 new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
         accessControl = (AccessControl)context.getBean("accessControl");
-
-        try {
-            servletXssUtil = ServletXssUtil.getInstance();
-        } catch (PolicyException e) {
-            throw new ServletException(e);
-        }
     }
 
     /**
@@ -98,7 +73,7 @@ public class CrossCancerJSON extends HttpServlet {
             List resultsList = new LinkedList();
 
             // Get the gene list
-            String geneList = servletXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
+            String geneList = request.getParameter(QueryBuilder.GENE_LIST);
 
             // Get the priority
             Integer dataTypePriority;
@@ -119,17 +94,23 @@ public class CrossCancerJSON extends HttpServlet {
                 Map cancerMap = new LinkedHashMap();
                 cancerMap.put("studyId", cancerStudyId);
                 cancerMap.put("typeOfCancer", cancerStudy.getTypeOfCancerId());
-                resultsList.add(cancerMap);
 
                 //  Get all Genetic Profiles Associated with this Cancer Study ID.
                 ArrayList<GeneticProfile> geneticProfileList = GetGeneticProfiles.getGeneticProfiles(cancerStudyId);
 
-                //  Get all Case Lists Associated with this Cancer Study ID.
-                ArrayList<CaseList> caseSetList = GetCaseLists.getCaseLists(cancerStudyId);
+                //  Get all Patient Lists Associated with this Cancer Study ID.
+                ArrayList<PatientList> patientSetList = GetPatientLists.getPatientLists(cancerStudyId);
 
-                //  Get the default case set
-                AnnotatedCaseSets annotatedCaseSets = new AnnotatedCaseSets(caseSetList, dataTypePriority);
-                CaseList defaultCaseSet = annotatedCaseSets.getDefaultCaseList();
+                //  Get the default patient set
+                AnnotatedPatientSets annotatedPatientSets = new AnnotatedPatientSets(patientSetList, dataTypePriority);
+                PatientList defaultPatientSet = annotatedPatientSets.getDefaultPatientList();
+                if (defaultPatientSet == null) {
+                    continue;
+                }
+                
+                List<Sample> defaultSamples = InternalIdUtil.getSamplesById(
+                        InternalIdUtil.getInternalNonNormalSampleIdsFromPatientIds(cancerStudy.getInternalId(),
+                                defaultPatientSet.getPatientList()));
 
                 //  Get the default genomic profiles
                 CategorizedGeneticProfileSet categorizedGeneticProfileSet =
@@ -160,16 +141,16 @@ public class CrossCancerJSON extends HttpServlet {
                 cancerMap.put("mutationProfile", mutationProfile);
                 cancerMap.put("cnaProfile", cnaProfile);
 
-                cancerMap.put("caseSetId", defaultCaseSet.getStableId());
-                cancerMap.put("caseSetLength", defaultCaseSet.getCaseList().size());
+                cancerMap.put("caseSetId", defaultPatientSet.getStableId());
+                cancerMap.put("caseSetLength", defaultSamples.size());
 
 
                 ProfileDataSummary genomicData = getGenomicData(
                         cancerStudyId,
                         defaultGeneticProfileSet,
-                        defaultCaseSet,
+                        defaultPatientSet,
                         geneList,
-                        caseSetList,
+                        patientSetList,
                         request,
                         response
                 );
@@ -181,25 +162,36 @@ public class CrossCancerJSON extends HttpServlet {
                 int noOfMutated = 0,
                         noOfCnaUp = 0,
                         noOfCnaDown = 0,
+                        noOfCnaLoss = 0,
+                        noOfCnaGain = 0,
                         noOfOther = 0,
                         noOfAll = 0;
 
                 boolean skipStudy = defaultGeneticProfileSet.isEmpty();
                 if(!skipStudy) {
-                    for (String caseId: defaultCaseSet.getCaseList()) {
-                        if(!genomicData.isCaseAltered(caseId)) continue;
+                    
+                    for (Sample sample: defaultSamples) {
+                        String sampleId = sample.getStableId();
+                        if(!genomicData.isCaseAltered(sampleId)) continue;
 
                         boolean isAnyMutated = false,
                                 isAnyCnaUp = false,
-                                isAnyCnaDown = false;
+                                isAnyCnaDown = false,
+                                isAnyCnaLoss = false,
+                                isAnyCnaGain = false
+                        ;
 
                         for (String gene : genes) {
-                            isAnyMutated |= genomicData.isGeneMutated(gene, caseId);
-                            GeneticTypeLevel cnaLevel = genomicData.getCNALevel(gene, caseId);
+                            isAnyMutated |= genomicData.isGeneMutated(gene, sampleId);
+                            GeneticTypeLevel cnaLevel = genomicData.getCNALevel(gene, sampleId);
                             boolean isCnaUp = cnaLevel != null && cnaLevel.equals(GeneticTypeLevel.Amplified);
                             isAnyCnaUp |= isCnaUp;
                             boolean isCnaDown = cnaLevel != null && cnaLevel.equals(GeneticTypeLevel.HomozygouslyDeleted);
                             isAnyCnaDown |= isCnaDown;
+                            boolean isCnaLoss = cnaLevel != null && cnaLevel.equals(GeneticTypeLevel.HemizygouslyDeleted);
+                            isAnyCnaLoss |= isCnaLoss;
+                            boolean isCnaGain = cnaLevel != null && cnaLevel.equals(GeneticTypeLevel.Gained);
+                            isAnyCnaGain |= isCnaGain;
                         }
 
                         boolean isAnyCnaChanged = isAnyCnaUp || isAnyCnaDown;
@@ -211,6 +203,10 @@ public class CrossCancerJSON extends HttpServlet {
                             noOfCnaUp++;
                         else if(isAnyCnaDown)
                             noOfCnaDown++;
+                        else if(isAnyCnaGain)
+                            noOfCnaGain++;
+                        else if(isAnyCnaLoss)
+                            noOfCnaLoss++;
 
                         noOfAll++;
                     }
@@ -222,9 +218,13 @@ public class CrossCancerJSON extends HttpServlet {
                 alterations.put("mutation", noOfMutated);
                 alterations.put("cnaUp", noOfCnaUp);
                 alterations.put("cnaDown", noOfCnaDown);
+                alterations.put("cnaLoss", noOfCnaLoss);
+                alterations.put("cnaGain", noOfCnaGain);
                 alterations.put("other", noOfOther);
                 cancerMap.put("genes", genes);
                 cancerMap.put("skipped", skipStudy);
+                
+                resultsList.add(cancerMap);
             }
 
             JSONValue.writeJSONString(resultsList, writer);
@@ -241,7 +241,7 @@ public class CrossCancerJSON extends HttpServlet {
      * Gets all Genomic Data.
      */
     private ProfileDataSummary getGenomicData(String cancerStudyId, HashMap<String, GeneticProfile> defaultGeneticProfileSet,
-                                              CaseList defaultCaseSet, String geneListStr, ArrayList<CaseList> caseList,
+                                              PatientList defaultPatientSet, String geneListStr, ArrayList<PatientList> patientList,
                                               HttpServletRequest request,
                                               HttpServletResponse response) throws IOException,
             ServletException, DaoException {
@@ -262,10 +262,10 @@ public class CrossCancerJSON extends HttpServlet {
         ArrayList<ProfileData> profileDataList = new ArrayList<ProfileData>();
         Set<String> warningUnion = new HashSet<String>();
 
-        String caseIds = defaultCaseSet.getCaseListAsString();
-
         for (GeneticProfile profile : defaultGeneticProfileSet.values()) {
-            GetProfileData remoteCall = new GetProfileData(profile, geneList, caseIds);
+            GetProfileData remoteCall =
+                new GetProfileData(profile, geneList,
+                                   StringUtils.join(StableIdUtil.getStableSampleIdsFromPatientIds(profile.getCancerStudyId(), defaultPatientSet.getPatientList()), " "));
             ProfileData pData = remoteCall.getProfileData();
             warningUnion.addAll(remoteCall.getWarnings());
             profileDataList.add(pData);

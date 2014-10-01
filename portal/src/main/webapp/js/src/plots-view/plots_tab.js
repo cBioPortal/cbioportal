@@ -153,9 +153,11 @@ var PlotsMenu = (function () {
                     "<select id='" + singleDataTypeObj.value + "' onchange='PlotsView.init();PlotsMenu.updateLogScaleOption();' class='plots-select'></select></div>"
             );
             for (var index in singleDataTypeObj.genetic_profile) { //genetic_profile is ARRAY!
-                var item_profile = singleDataTypeObj.genetic_profile[index];
-                $("#" + singleDataTypeObj.value).append(
-                    "<option value='" + item_profile[0] + "|" + item_profile[2] + "'>" + item_profile[1] + "</option>");
+                if (index.length === 1) { //TODO: this is temp solution
+                    var item_profile = singleDataTypeObj.genetic_profile[index];
+                    $("#" + singleDataTypeObj.value).append(
+                        "<option value='" + item_profile[0] + "|" + item_profile[2] + "'>" + item_profile[1] + "</option>");
+                }
             }
         }
     }
@@ -235,6 +237,16 @@ var PlotsMenu = (function () {
         });
     }
 
+    function setDefaultMethylationSelection() {
+        $('#data_type_dna_methylation > option').each(function() {
+            if (this.text.toLowerCase().indexOf("hm450") !== -1) {
+                $(this).prop('selected', true);
+                return false;
+            }
+        });
+
+    }
+
     function updateVisibility() {
         $("#one_gene_log_scale_x_div").remove();
         $("#one_gene_log_scale_y_div").remove();
@@ -301,6 +313,7 @@ var PlotsMenu = (function () {
                 drawMenu();
                 setDefaultMrnaSelection();
                 setDefaultCopyNoSelection();
+                setDefaultMethylationSelection();
                 updateVisibility();
             } else {
                 drawErrMsgs();
@@ -313,6 +326,7 @@ var PlotsMenu = (function () {
                 drawMenu();
                 setDefaultMrnaSelection();
                 setDefaultCopyNoSelection();
+                setDefaultMethylationSelection();
                 updateVisibility();
             } else {
                 drawErrMsgs();
@@ -321,6 +335,7 @@ var PlotsMenu = (function () {
         updateDataType: function() {
             setDefaultMrnaSelection();
             setDefaultCopyNoSelection();
+            setDefaultMethylationSelection();
             updateVisibility();
         },
         updateLogScaleOption: updateLogScaleOption,
@@ -587,11 +602,12 @@ var PlotsView = (function () {
                 min_x: 0,
                 max_x: 0,
                 min_y: 0,
-                max_y: 0
+                max_y: 0,
+                pearson: 0,
+                spearman: 0
             };
 
         function fetchPlotsData(profileDataResult) {
-
             var resultObj = profileDataResult[userSelection.gene];
             for (var key in resultObj) {  //key is case id
                 caseSetLength += 1;
@@ -684,7 +700,6 @@ var PlotsView = (function () {
                         }
                     });
                     dot.mutationType = _primaryMutation;
-
                 }
             });
         }
@@ -727,6 +742,38 @@ var PlotsView = (function () {
             attr.max_x = Math.max.apply(Math, tmp_xData);
             attr.min_y = Math.min.apply(Math, tmp_yData);
             attr.max_y = Math.max.apply(Math, tmp_yData);
+
+            //Calculate the co-express/correlation scores
+            //(When data is discretized)
+            if (!Util.plotsIsDiscretized()) {
+                var tmpGeneXcoExpStr = "",
+                    tmpGeneYcoExpStr = "";
+                $.each(PlotsData.getDotsGroup(), function(index, obj) {
+                    tmpGeneXcoExpStr += obj.xVal + " ";
+                    tmpGeneYcoExpStr += obj.yVal + " ";
+                });
+                var paramsCalcCoexp = {
+                    gene_x : tmpGeneXcoExpStr,
+                    gene_y : tmpGeneYcoExpStr
+                };
+                $.post("calcCoExp.do", paramsCalcCoexp, getCalcCoExpCallBack, "json");
+            } else {
+                $('#view_title').show();
+                $('#plots_box').show();
+                $('#loading-image').hide();
+                View.init();                
+            }
+        }
+
+        function getCalcCoExpCallBack(result) {
+            //Parse the coexp scoring result
+            var tmpArrCoexpScores = result.split(" ");
+            attr.pearson = parseFloat(tmpArrCoexpScores[0]).toFixed(3);
+            attr.spearman = parseFloat(tmpArrCoexpScores[1]).toFixed(3);
+            $('#view_title').show();
+            $('#plots_box').show();
+            $('#loading-image').hide();
+            View.init();
         }
 
         return {
@@ -743,9 +790,7 @@ var PlotsView = (function () {
                 }
                 analyseData();
             },
-            getCaseSetLength: function() { return caseSetLength; },
             getDotsGroup: function() { return dotsGroup; },
-            getDotsGroupLength: function() { return dotsGroup.length; },
             getDataStatus: function() { return status; },
             getDataAttr: function() { return attr; }
         };
@@ -760,7 +805,7 @@ var PlotsView = (function () {
                 boxPlots: ""
             },   //DOM elements
             settings = {
-                canvas_width: 700,
+                canvas_width: 750,
                 canvas_height: 600
             },   //basic d3 canvas settings
             attr = {
@@ -1070,7 +1115,7 @@ var PlotsView = (function () {
                     addXaxisTitle(axisTitleGroup, xTitle);
                     addYaxisTitle(axisTitleGroup, yTitle);
                     addxAxisHelp(axisTitleGroup, xTitle);
-                    addyAxisHelp(axisTitleGroup, yTitle);
+                    addyAxisHelp(axisTitleGroup, yTitle);  
                 },
                 getXHelp: function() {
                     return xTitleHelp;
@@ -1084,13 +1129,13 @@ var PlotsView = (function () {
                     d3.select("#plots_box").select(".x-title-help").remove();
                     var _dataAttr = PlotsData.getDataAttr();
                     if (applyLogScale) {
-                        if (_dataAttr.min_x <= (Plots.getLogScaleThreshold())) {
-                            var min_x = Math.log(Plots.getLogScaleThreshold()) / Math.log(2);
+                        if (_dataAttr.min_x <= (Plots.getLogScaleThresholdDown())) {
+                            var min_x = Math.log(Plots.getLogScaleThresholdDown()) / Math.log(2);
                         } else {
                             var min_x = Math.log(_dataAttr.min_x) / Math.log(2);
                         }
-                        if (_dataAttr.max_x <= (Plots.getLogScaleThreshold())) {
-                            var max_x = Math.log(Plots.getLogScaleThreshold()) / Math.log(2);
+                        if (_dataAttr.max_x >= (Plots.getLogScaleThresholdUp())) {
+                            var max_x = Math.log(Plots.getLogScaleThresholdUp()) / Math.log(2);
                         } else {
                             var max_x = Math.log(_dataAttr.max_x) / Math.log(2);
                         }
@@ -1122,13 +1167,13 @@ var PlotsView = (function () {
                     d3.select("#plots_box").select(".y-title-help").remove();
                     var _dataAttr = PlotsData.getDataAttr();
                     if (applyLogScale) {
-                        if (_dataAttr.min_y <= (Plots.getLogScaleThreshold())) {
-                            var min_y = Math.log(Plots.getLogScaleThreshold()) / Math.log(2);
+                        if (_dataAttr.min_y <= (Plots.getLogScaleThresholdDown())) {
+                            var min_y = Math.log(Plots.getLogScaleThresholdDown()) / Math.log(2);
                         } else {
                             var min_y = Math.log(_dataAttr.min_y) / Math.log(2);
                         }
-                        if (_dataAttr.max_y <= (Plots.getLogScaleThreshold())) {
-                            var max_y = Math.log(Plots.getLogScaleThreshold()) / Math.log(2);
+                        if (_dataAttr.max_y >= (Plots.getLogScaleThresholdUp())) {
+                            var max_y = Math.log(Plots.getLogScaleThresholdUp()) / Math.log(2);
                         } else {
                             var max_y = Math.log(_dataAttr.max_y) / Math.log(2);
                         }
@@ -1155,8 +1200,6 @@ var PlotsView = (function () {
                     drawContinuousAxisMainY();
                 }
             };
-
-
         }());
 
         var Qtips = (function() {
@@ -1170,8 +1213,9 @@ var PlotsView = (function () {
                         content += "CNA: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
                             "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
                     }
-                    content += "Case ID: <strong><a href='tumormap.do?case_id=" + d.caseId +
-                        "&cancer_study_id=" + cancer_study_id + "' target = '_blank'>" + d.caseId +
+                    content += "Case ID: <strong><a href='"+
+                            +cbio.util.getLinkToSampleView(cancer_study_id,d.caseId)
+                            +"' target = '_blank'>" + d.caseId +
                         "</a></strong><br>";
                     if (d.mutationType !== 'non') {
                         content = content + "Mutation: " + "<strong>" + d.mutationDetail.replace(/,/g, ", ") + "<br>";
@@ -1182,8 +1226,9 @@ var PlotsView = (function () {
                     if (d.gisticType !== "Diploid") {
                         content = content + "CNA: " + "<strong>" + d.gisticType + "</strong><br>";
                     }
-                    content += "Case ID: <strong><a href='tumormap.do?case_id=" + d.caseId +
-                        "&cancer_study_id=" + cancer_study_id + "'>" + d.caseId +
+                    content += "Case ID: <strong><a href='"
+                            +cbio.util.getLinkToSampleView(cancer_study_id,d.caseId)
+                            + "'>" + d.caseId +
                         "</a></strong><br>";
                     if (d.mutationType !== 'non') {
                         content = content + "Mutation: " + "<strong>" + d.mutationDetail.replace(/,/g, ", ") + "<br>";
@@ -1194,8 +1239,9 @@ var PlotsView = (function () {
                     if (d.gisticType !== "Diploid") {
                         content = content + "CNA: " + "<strong>" + d.gisticType + "</strong><br>";
                     }
-                    content += "Case ID: <strong><a href='tumormap.do?case_id=" + d.caseId +
-                        "&cancer_study_id=" + cancer_study_id + "'>" + d.caseId +
+                    content += "Case ID: <strong><a href='"
+                            +cbio.util.getLinkToSampleView(cancer_study_id,d.caseId)
+                            + "'>" + d.caseId +
                         "</a></strong><br>";
                     if (d.mutationType !== 'non') {
                         content = content + "Mutation: " + "<strong>" + d.mutationDetail.replace(/,/g, ", ") + "<br>";
@@ -1213,10 +1259,10 @@ var PlotsView = (function () {
                             $(this).qtip(
                                 {
                                     content: {text: content},
-                                    style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                                    style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                                     show: {event: "mouseover"},
                                     hide: {fixed:true, delay: 100, event: "mouseout"},
-                                    position: {my:'left bottom',at:'top right'}
+                                    position: {my:'left bottom',at:'top right', viewport: $(window)}
                                 }
                             );
                             if (Util.plotsTypeIsCopyNo()) {    //Handle special symbols
@@ -1285,7 +1331,6 @@ var PlotsView = (function () {
                     );
                 }
             };
-
         }());
 
         var ScatterPlots = (function() {
@@ -1332,8 +1377,8 @@ var PlotsView = (function () {
                             var _y = attr.yScale(d.yVal);
                             $(this).attr("x_pos", _x);
                             $(this).attr("y_pos", _y);
-                            $(this).attr("xVal", d.xVal);
-                            $(this).attr("yVal", d.yVal);
+                            $(this).attr("x_val", d.xVal);
+                            $(this).attr("y_val", d.yVal);
                             $(this).attr("size", 20);
                             return "translate(" + _x + "," + _y + ")";
                         })
@@ -1365,8 +1410,10 @@ var PlotsView = (function () {
                 _dotsGroup = jQuery.extend(true, {}, PlotsData.getDotsGroup());
                 if (applyLogScale) {
                     $.each(_dotsGroup, function(index, value) {
-                        if (value.yVal <= (Plots.getLogScaleThreshold())) {
-                            value.yVal = Math.log(Plots.getLogScaleThreshold()) / Math.log(2);
+                        if (value.yVal <= (Plots.getLogScaleThresholdDown())) {
+                            value.yVal = Math.log(Plots.getLogScaleThresholdDown()) / Math.log(2);
+                        } else if (value.yVal >= (Plots.getLogScaleThresholdUp())) {
+                            value.yVal = Math.log(Plots.getLogScaleThresholdUp() / Math.log(2));
                         } else {
                             value.yVal = Math.log(value.yVal) / Math.log(2);
                         }
@@ -1508,8 +1555,8 @@ var PlotsView = (function () {
                         var _y = attr.yScale(d.yVal);
                         $(this).attr("x_pos", _x);
                         $(this).attr("y_pos", _y);
-                        $(this).attr("xVal", d.xVal);
-                        $(this).attr("yVal", d.yVal);
+                        $(this).attr("x_val", d.xVal);
+                        $(this).attr("y_val", d.yVal);
                         $(this).attr("symbol", "circle");
                         $(this).attr("size", 20);
                         return "translate(" + _x + ", " + _y + ")";
@@ -1542,8 +1589,8 @@ var PlotsView = (function () {
                         var _y = attr.yScale(d.yVal);
                         $(this).attr("x_pos", _x);
                         $(this).attr("y_pos", _y);
-                        $(this).attr("xVal", d.xVal);
-                        $(this).attr("yVal", d.yVal);
+                        $(this).attr("x_val", d.xVal);
+                        $(this).attr("y_val", d.yVal);
                         $(this).attr("symbol", "circle");
                         $(this).attr("size", 35);
                         return "translate(" + attr.xScale(d.xVal) + ", " + attr.yScale(d.yVal) + ")";
@@ -1590,13 +1637,15 @@ var PlotsView = (function () {
                         .transition().duration(300)
                         .attr("transform", function() {
                             if (applyLogScale) {
-                                if(d3.select(this).attr("xVal") <= (Plots.getLogScaleThreshold())) {
-                                    var _post_x = attr.xScale(Math.log(Plots.getLogScaleThreshold()) / Math.log(2));
+                                if(d3.select(this).attr("x_val") <= (Plots.getLogScaleThresholdDown())) {
+                                    var _post_x = attr.xScale(Math.log(Plots.getLogScaleThresholdDown()) / Math.log(2));
+                                } else if (d3.select(this).attr("x_val") >= (Plots.getLogScaleThresholdUp())) {
+                                    var _post_x = attr.xScale(Math.log(Plots.getLogScaleThresholdUp()) / Math.log(2));
                                 } else {
-                                    var _post_x = attr.xScale(Math.log(d3.select(this).attr("xVal")) / Math.log(2));
+                                    var _post_x = attr.xScale(Math.log(d3.select(this).attr("x_val")) / Math.log(2));
                                 }
                             } else {
-                                var _post_x = attr.xScale(d3.select(this).attr("xVal"));
+                                var _post_x = attr.xScale(d3.select(this).attr("x_val"));
                             }
                             var _pre_y = d3.select(this).attr("y_pos");
                             d3.select(this).attr("x_pos", _post_x);
@@ -1609,13 +1658,15 @@ var PlotsView = (function () {
                         .attr("transform", function() {
                             var _pre_x = d3.select(this).attr("x_pos");
                             if (applyLogScale) {
-                                if (parseFloat(d3.select(this).attr("yVal")) <= (Plots.getLogScaleThreshold())) {
-                                    var _post_y = attr.yScale(Math.log(Plots.getLogScaleThreshold()) / Math.log(2));
+                                if (parseFloat(d3.select(this).attr("y_val")) <= (Plots.getLogScaleThresholdDown())) {
+                                    var _post_y = attr.yScale(Math.log(Plots.getLogScaleThresholdDown()) / Math.log(2));
+                                } else if (parseFloat(d3.select(this).attr("y_val")) >= (Plots.getLogScaleThresholdUp())) {
+                                    var _post_y = attr.yScale(Math.log(Plots.getLogScaleThresholdUp()) / Math.log(2));
                                 } else {
-                                    var _post_y = attr.yScale(Math.log(d3.select(this).attr("yVal")) / Math.log(2));
+                                    var _post_y = attr.yScale(Math.log(d3.select(this).attr("y_val")) / Math.log(2));
                                 }
                             } else {
-                                var _post_y = attr.yScale(d3.select(this).attr("yVal"));
+                                var _post_y = attr.yScale(d3.select(this).attr("y_val"));
                             }
                             d3.select(this).attr("y_pos", _post_y);
                             return "translate(" + _pre_x + ", " + _post_y + ")";
@@ -1625,7 +1676,6 @@ var PlotsView = (function () {
                     }
                 }
             }
-
         }());
 
         var Legends = (function() {
@@ -1725,9 +1775,27 @@ var PlotsView = (function () {
                     } else {
                         drawOtherViewLegends();
                     }
+                    if (!Util.plotsIsDiscretized()) {
+                        var tmpDataAttr = PlotsData.getDataAttr();
+                        var tmpPearson = "Pearson: " + tmpDataAttr.pearson,
+                            tmpSpearman = "Spearman: " + tmpDataAttr.spearman;
+                        var coExpLegend = elem.svg.selectAll(".coexp_legend")
+                            .data(["Correlation", tmpPearson, tmpSpearman])
+                            .enter().append("g")
+                            .attr("class", "coexp_legend")
+                            .attr("transform", function(d, i) {
+                                return "translate(600, " + (150 + i * 15) + ")";
+                            });
+                        coExpLegend.append("text")
+                                .attr("dx", ".75em")
+                                .attr("dy", ".35em")
+                                .style("text-anchor", "front")
+                                .text(function(d) {
+                                    return d;
+                                });                      
+                    }
                 }
             }
-
         }());
 
         function initCanvas() {
@@ -1802,14 +1870,14 @@ var PlotsView = (function () {
             } else if (Util.plotsTypeIsRPPA()) {
                 $('#view_title').append(userSelection.gene + ": RPPA protein level v. mRNA Expression ");
             }
-            var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
+            var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' target='_blank' " +
                 "onsubmit=\"this.elements['svgelement'].value=loadPlotsSVG();\">" +
                 "<input type='hidden' name='svgelement'>" +
                 "<input type='hidden' name='filetype' value='pdf'>" +
                 "<input type='hidden' name='filename' value='correlation_plot-" + userSelection.gene + ".pdf'>" +
                 "<input type='submit' value='PDF'></form>";
             $('#view_title').append(pdfConverterForm);
-            var svgConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
+            var svgConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' target='_blank'" +
                 "onsubmit=\"this.elements['svgelement'].value=loadPlotsSVG();\">" +
                 "<input type='hidden' name='svgelement'>" +
                 "<input type='hidden' name='filetype' value='svg'>" +
@@ -1896,8 +1964,8 @@ var PlotsView = (function () {
         Plots.getProfileData(
             userSelection.gene,
             _profileIdsStr,
-            case_set_id,
-            case_ids_key,
+            patient_set_id,
+            patient_ids_key,
             getProfileDataCallBack
         );
     }
@@ -1919,26 +1987,18 @@ var PlotsView = (function () {
             Plots.getMutationType(
                 userSelection.gene,
                 cancer_study_id + "_mutations",
-                case_set_id,
-                case_ids_key,
+                patient_set_id,
+                patient_ids_key,
                 getMutationTypeCallBack
             );
         } else {
             PlotsData.init(profileDataResult, "");
-            $('#view_title').show();
-            $('#plots_box').show();
-            $('#loading-image').hide();
-            View.init();
         }
 
         function getMutationTypeCallBack(mutationTypeResult) {
             PlotsData.init(profileDataResult, mutationTypeResult);
-            $('#view_title').show();
-            $('#plots_box').show();
-            $('#loading-image').hide();
-            View.init();
-        }
 
+        }
     }
 
     return {

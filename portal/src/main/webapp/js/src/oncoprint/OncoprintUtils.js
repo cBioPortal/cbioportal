@@ -387,6 +387,35 @@ define("OncoprintUtils", (function() {
         return attr2percent;
     };
 
+    var alteration_info = function(raw_gene_data) {
+        var data = d3.nest()
+            .key(function(d) { return get_attr(d); })
+            .entries(raw_gene_data);
+
+        var alterinfo = {};
+
+        data.forEach(function(gene) {
+            var total = gene.values.length;
+            var altered = _.chain(gene.values)
+            .map(function(sample_gene) {
+                return altered_gene(sample_gene) ? 1 : 0;
+            })
+            .reduce(function(sum, zero_or_one) {
+                return sum + zero_or_one;
+            }, 0)
+            .value();
+
+            var percent = (altered / total) * 100;
+            alterinfo[gene.key] = {
+                "total_alter_num" : altered,
+                "percent" : Math.round(percent)
+            }
+        });
+
+        return alterinfo;
+    };
+
+
     // params: array of strings (names of attributes)
     // returns: length (number)
     //
@@ -639,36 +668,35 @@ define("OncoprintUtils", (function() {
 
     var patientViewUrl = function(sample_id) {
         // helper function
-        var href = "case.do?case_id=" + sample_id
-            + "&cancer_study_id=" + window.cancer_study_id_selected;        // N.B.
-
+        var href = cbio.util.getLinkToSampleView(window.cancer_study_id_selected,sample_id);
         return "<a href='" + href + "'>" + sample_id + "</a>";
     };
 
     // params: els, list of d3 selected elements with either gene data or
     // clinical bound to them
-    var make_mouseover = function(els) {
+    var make_mouseover = function(els,params) {
         els.each(function(d) {
             $(this).qtip({
                 content: {text: 'oncoprint qtip failed'},
-                position: {my:'left bottom', at:'top right'},
-                style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                position: {my:'left bottom', at:'top right', viewport: $(window)},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
 	            show: {event: "mouseover"},
                 hide: {fixed: true, delay: 100, event: "mouseout"},
                 events: {
                     render: function(event, api) {
                         var content;
+                        var sampleLink = params.linkage?patientViewUrl(d.sample):d.sample;
                         if (d.attr_id) {
                             content = '<font size="2">'
                                 + format.clinical(d)
-                                + patientViewUrl(d.sample) + '</font>';
+                                + '<font color="blue">' +sampleLink+'</font>' + '</font>';
                         } else {
                             content = '<font size="2">'
                                 + format.mutation(d)
                                 + format.cna(d)
                                 + format.mrna(d)
                                 + format.rppa(d)
-                                + patientViewUrl(d.sample) + '</font>';
+                                +'<font color="blue">' +sampleLink+'</font>' + '</font>';
 
                         }
                         api.set('content.text', content);
@@ -715,7 +743,8 @@ define("OncoprintUtils", (function() {
         colors: colors,
         populate_clinical_attr_select: populate_clinical_attr_select,
         make_mouseover: make_mouseover,
-        zoomSetup: zoomSetup
+        zoomSetup: zoomSetup,
+        alteration_info: alteration_info
     };
 })()
 );

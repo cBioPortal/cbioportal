@@ -1,4 +1,1 @@
-Hugo_Symbol	Entrez_Gene_Id	Center	Tumor_Sample_Barcode	Fusion	DNA support	RNA support	Method	Frame
-FGFR3	2261	saturn	TCGA-XX-A3XX	Fusion1	unknown	unknown	unknown	unknown
-ERBB2	2064	jupiter	TCGA-YY-A2YY	Fusion2	unknown	unknown	unknown	unknown
-FAKE	6666	uranus	TCGA-ZZ-A166	Fusion	unknown	unknown	unknown	unknown
+Hugo_Symbol	Entrez_Gene_Id	Center	Tumor_Sample_Barcode	Fusion	DNA support	RNA support	Method	FrameFGFR3	2261	saturn	TCGA-XX-A3XX-01	Fusion1	unknown	unknown	unknown	unknownERBB2	2064	jupiter	TCGA-YY-A2YY-01	Fusion2	unknown	unknown	unknown	unknownFAKE	6666	uranus	TCGA-ZZ-A166-01	Fusion	unknown	unknown	unknown	unknown

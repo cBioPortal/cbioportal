@@ -70,7 +70,7 @@ A tab-delimited file with two columns:
 
 ### Example
 
-[Get all Types of Cancer.](http://cbio.mskcc.org/cgx/webservice.do?cmd=getTypesOfCancer)
+[Get all Types of Cancer.](webservice.do?cmd=getTypesOfCancer)
 
 ## Get All Cancer Studies
 
@@ -316,12 +316,17 @@ If the parameter of array_info is 1, you will receive a tab-delimited matrix wit
 
 # Linking to Us
 
-Once you have a cancer\_study\_id, it is very easy to create stable links from your web site to the cBio Portal.  Stable links must point to link.do, and can include the following parameters:
+Once you have a cancer\_study\_id, it is very easy to create stable links from your web site to the cBio Portal.  Stable links must point to ln, and can include the following parameters:
 
-* **cancer\_study\_id**=[cancer study ID] (required)
-* **gene\_list**=[a space separated list of HUGO gene symbols] (required)
+* **q**=[a query following [Onco Query Language](onco_query_lang_desc.jsp), e.g. a space separated list of HUGO gene symbols] (required)
+* **cancer\_study\_id**=[cancer study ID] (if not specified, do a cross cancer query)
 * **report**=[report to display;  can be one of:  full (default), oncoprint_html]
 
-For example, the following links to the TCGA GBM data for EGFR and NF1:
+For example, here is a link to the TCGA GBM data for EGFR and NF1:
 
-[link.do?cancer_study_id=gbm_tcga&gene_list=EGFR+NF1](link.do?cancer_study_id=gbm_tcga&gene_list=EGFR+NF1)
+[ln?cancer_study_id=gbm_tcga&q=EGFR+NF1](ln?cancer_study_id=gbm_tcga&q=EGFR+NF1)
+
+And a link to TP53 mutations across all cancer studies:
+
+[ln?q=EGFR:MUT](ln?q=TP53:MUT)
+

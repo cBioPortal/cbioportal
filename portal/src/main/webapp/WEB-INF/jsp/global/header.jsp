@@ -21,8 +21,6 @@
     <script type="text/javascript">
         $(document).ready(function(){
             $(".oncoprint_help").tipTip({defaultPosition: "right", delay:"100", edgeOffset: 25});
-
-
         });
     </script>
     <title><%= request.getAttribute(QueryBuilder.HTML_TITLE)%></title>
@@ -75,15 +73,19 @@
                                                 <a href="news.jsp">News</a>
                                             </li>
                                             <% } %>
-                                            <!--li class="internal">
+                                            <li class="internal">
                                                 <a href="tools.jsp">Tools</a>
-                                            </li-->
+                                            </li>
                                             <li class="internal">
                                                 <a href="about_us.jsp">About</a>
                                             </li>
 					    
-                                            <!--li class="internal">
-					    <a href="submit-datasets.jsp" float="right">Submit Datasets</a>
+                                            <li class="internal" style="float:right">
+					    <a href="visualize_your_data.jsp" float="right"><b><i>VISUALIZE YOUR DATA</i></b></a>
+					    </li>
+					    
+                                            <!--li class="internal" style="float:right">
+					    <a href="jobs.jsp" float="right"><b><i>JOBS</i></b></a>
 					    </li-->
                                         </ul>
                                     </td>

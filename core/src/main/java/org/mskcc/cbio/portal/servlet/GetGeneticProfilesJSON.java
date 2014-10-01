@@ -1,48 +1,37 @@
 /** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
- **
- ** This library is free software; you can redistribute it and/or modify it
- ** under the terms of the GNU Lesser General Public License as published
- ** by the Free Software Foundation; either version 2.1 of the License, or
- ** any later version.
- **
- ** This library is distributed in the hope that it will be useful, but
- ** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
- ** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
- ** documentation provided hereunder is on an "as is" basis, and
- ** Memorial Sloan-Kettering Cancer Center
- ** has no obligations to provide maintenance, support,
- ** updates, enhancements or modifications.  In no event shall
- ** Memorial Sloan-Kettering Cancer Center
- ** be liable to any party for direct, indirect, special,
- ** incidental or consequential damages, including lost profits, arising
- ** out of the use of this software and its documentation, even if
- ** Memorial Sloan-Kettering Cancer Center
- ** has been advised of the possibility of such damage.  See
- ** the GNU Lesser General Public License for more details.
- **
- ** You should have received a copy of the GNU Lesser General Public License
- ** along with this library; if not, write to the Free Software Foundation,
- ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- **/
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 
 package org.mskcc.cbio.portal.servlet;
 
-import java.io.*;
-import java.util.ArrayList;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.util.*;
+import org.mskcc.cbio.portal.model.*;
 
-import org.json.simple.JSONObject;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.mskcc.cbio.portal.util.XssRequestWrapper;
 
 import org.json.simple.JSONValue;
-import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.CaseList;
-import org.mskcc.cbio.portal.model.Gene;
-import org.mskcc.cbio.portal.model.GeneticProfile;
-import org.mskcc.cbio.portal.util.CaseSetUtil;
+import org.json.simple.JSONObject;
+
+import javax.servlet.http.*;
+import javax.servlet.http.*;
+import javax.servlet.ServletException;
+
+import java.io.*;
+import java.util.*;
 
 /**
  * Get the genetic profiles for a cancer study
@@ -80,9 +69,12 @@ public class GetGeneticProfilesJSON extends HttpServlet  {
                           HttpServletResponse httpServletResponse) throws ServletException, IOException {
 
         String cancerStudyIdentifier = httpServletRequest.getParameter("cancer_study_id");
-        String caseSetId = httpServletRequest.getParameter("case_set_id");
-        String caseIdsKey = httpServletRequest.getParameter("case_ids_key");
+        String patientSetId = httpServletRequest.getParameter("case_set_id");
+        String patientIdsKey = httpServletRequest.getParameter("case_ids_key");
         String geneListStr = httpServletRequest.getParameter("gene_list");
+        if (httpServletRequest instanceof XssRequestWrapper) {
+            geneListStr = ((XssRequestWrapper)httpServletRequest).getRawParameter("gene_list");
+        }
 
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
         if (cancerStudy != null) {
@@ -95,7 +87,7 @@ public class GetGeneticProfilesJSON extends HttpServlet  {
 
             if (list.size() > 0) {
                 //Retrieve all the profiles available for this cancer study
-                if (caseSetId == null && geneListStr == null) {
+                if (patientSetId == null && geneListStr == null) {
                     for (GeneticProfile geneticProfile : list) {
                         JSONObject tmpProfileObj = new JSONObject();
                         tmpProfileObj.put("STABLE_ID", geneticProfile.getStableId());
@@ -109,23 +101,24 @@ public class GetGeneticProfilesJSON extends HttpServlet  {
                     httpServletResponse.setContentType("application/json");
                     PrintWriter out = httpServletResponse.getWriter();
                     JSONValue.writeJSONString(result, out);
-                } else if (geneListStr != null && caseSetId != null && caseIdsKey != null) { //Only return data available profiles for each queried gene
+                } else if (geneListStr != null && patientSetId != null && patientIdsKey != null) { //Only return data available profiles for each queried gene
                     String[] geneList = geneListStr.split("\\s+");
                     try {
-                        //Get Case case ID list
-                        DaoCaseList daoCaseList = new DaoCaseList();
-                        CaseList caseList;
-                        ArrayList<String> caseIdList = new ArrayList<String>();
-                        if (caseSetId.equals("-1") && caseIdsKey.length() != 0) {
-                            String strCaseIds = CaseSetUtil.getCaseIds(caseIdsKey);
-                            String[] caseArray = strCaseIds.split("\\s+");
-                            for (String item : caseArray) {
-                                caseIdList.add(item);
+                        //Get patient ID list
+                        DaoPatientList daoPatientList = new DaoPatientList();
+                        PatientList patientList;
+                        ArrayList<String> patientIdList = new ArrayList<String>();
+                        if (patientSetId.equals("-1") && patientIdsKey.length() != 0) {
+                            String strPatientIds = PatientSetUtil.getPatientIds(patientIdsKey);
+                            String[] patientArray = strPatientIds.split("\\s+");
+                            for (String item : patientArray) {
+                                patientIdList.add(item);
                             }
                         } else {
-                            caseList = daoCaseList.getCaseListByStableId(caseSetId);
-                            caseIdList = caseList.getCaseList();
+                            patientList = daoPatientList.getPatientListByStableId(patientSetId);
+                            patientIdList = patientList.getPatientList();
                         }
+                        List<Integer> internalSampleIds = InternalIdUtil.getInternalNonNormalSampleIdsFromPatientIds(cancerStudyId, patientIdList);
 
                         for (String geneId : geneList) {
                             //Get gene
@@ -136,7 +129,7 @@ public class GetGeneticProfilesJSON extends HttpServlet  {
                             for (GeneticProfile geneticProfile : list) {
                                 ArrayList<String> tmpProfileDataArr = GeneticAlterationUtil.getGeneticAlterationDataRow(
                                         gene,
-                                        caseIdList,
+                                        internalSampleIds,
                                         DaoGeneticProfile.getGeneticProfileByStableId(geneticProfile.getStableId()));
                                 if (isDataAvailable(tmpProfileDataArr)) {
                                     JSONObject tmpProfileObj = new JSONObject();

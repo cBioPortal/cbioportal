@@ -9,33 +9,33 @@
 %>
 
 <style type="text/css" title="currentStyle"> 
-        @import "css/data_table_jui.css";
-        @import "css/data_table_ColVis.css";
-        .ColVis {
+        @import "css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>";
+        @import "css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>";
+        #protein_exp .ColVis {
                 float: left;
                 margin-bottom: 0
         }
         .datatable-filter-custom {
                 float: left
         }
-        .dataTables_length {
+        #protein_exp .dataTables_length {
                 width: auto;
                 float: right;
         }
-        .dataTables_info {
+        #protein_exp .dataTables_info {
                 width: auto;
                 float: right;
         }
-        .div.datatable-paging {
+        #protein_exp .div.datatable-paging {
                 width: auto;
                 float: right;
         }
-        td.rppa-details {
+        #protein_exp td.rppa-details {
                 background-color : white;
         }
 </style>
 
-<script type="text/javascript" src="js/src/protein_exp.js"></script>
+<script type="text/javascript" src="js/src/protein_exp.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <script type="text/javascript">
     function parsePValue(str) {
@@ -43,25 +43,25 @@
     }
     
     jQuery.fn.dataTableExt.oSort['num-nan-col-asc']  = function(a,b) {
-	var x = parsePValue(a);
-	var y = parsePValue(b);
-        if (isNaN(x)) {
-            return isNaN(y) ? 0 : 1;
-        }
-        if (isNaN(y))
-            return -1;
-	return ((x < y) ? -1 : ((x > y) ?  1 : 0));
+    	var x = parsePValue(a);
+    	var y = parsePValue(b);
+            if (isNaN(x)) {
+                return isNaN(y) ? 0 : 1;
+            }
+            if (isNaN(y))
+                return -1;
+    	return ((x < y) ? -1 : ((x > y) ?  1 : 0));
     };
 
     jQuery.fn.dataTableExt.oSort['num-nan-col-desc'] = function(a,b) {
-	var x = parsePValue(a);
-	var y = parsePValue(b);
-        if (isNaN(x)) {
-            return isNaN(y) ? 0 : 1;
-        }
-        if (isNaN(y))
-            return -1;
-	return ((x < y) ? 1 : ((x > y) ?  -1 : 0));
+    	var x = parsePValue(a);
+    	var y = parsePValue(b);
+            if (isNaN(x)) {
+                return isNaN(y) ? 0 : 1;
+            }
+            if (isNaN(y))
+                return -1;
+    	return ((x < y) ? 1 : ((x > y) ?  -1 : 0));
     };
     
     function getProteinArrayTypes() {
@@ -73,24 +73,23 @@
         return ret;
     }
 
-    function fnCreateSelect(aData, id, defaultOpt)
-    {
-            var r='<select id="'+id+'">', i, iLen=aData.length;
-            for ( i=0 ; i<iLen ; i++ )
-            {
-                if (defaultOpt!=null && aData[i]==defaultOpt)
-                    r += '<option value="'+aData[i]+'" selected="selected">'+aData[i]+'</option>';
-                else
-                    r += '<option value="'+aData[i]+'">'+aData[i]+'</option>';
-            }
-            return r+'</select>';
+    function fnCreateSelect(aData, id, defaultOpt) {
+        var r='<select id="'+id+'">', i, iLen=aData.length;
+        for ( i=0 ; i<iLen ; i++ )
+        {
+            if (defaultOpt!=null && aData[i]==defaultOpt)
+                r += '<option value="'+aData[i]+'" selected="selected">'+aData[i]+'</option>';
+            else
+                r += '<option value="'+aData[i]+'">'+aData[i]+'</option>';
+        }
+        return r+'</select>';
     }
 
     /**
      * Get altered and unaltered case lists for the rppa plots
      *
      * @global: dataSummary
-     * @global: mergedCaseLists
+     * @global: mergedPatientList
      * @return: unalteredCaseList
      * @return: alteredCaseList
      *
@@ -100,12 +99,12 @@
     function getRppaPlotsCaseList() {
     <%
         JSONObject result = new JSONObject();
-        for (String caseId : mergedCaseList) {
+        for (String patientId : mergedPatientList) {
             //Is altered or not (x value)
-            if (dataSummary.isCaseAltered(caseId)) {
-                result.put(caseId, "altered");
+            if (dataSummary.isCaseAltered(patientId)) {
+                result.put(patientId, "altered");
             } else {
-                result.put(caseId, "unaltered");
+                result.put(patientId, "unaltered");
             }
         }
     %>
@@ -116,11 +115,11 @@
     function getAlterations() {
     <%
         JSONObject alterationResults = new JSONObject();
-        for (String caseId : mergedCaseList) {
+        for (String patientId : mergedPatientList) {
             JSONObject _alterationResult = new JSONObject();
             for (GeneWithScore geneWithScore : geneWithScoreList) {
                 String singleGeneResult = "";
-                String value = mergedProfile.getValue(geneWithScore.getGene(), caseId);
+                String value = mergedProfile.getValue(geneWithScore.getGene(), patientId);
                 ValueParser parser = ValueParser.generateValueParser( geneWithScore.getGene(), value,
                         zScoreThreshold, rppaScoreThreshold, theOncoPrintSpecification );
                 if( null == parser){
@@ -156,7 +155,7 @@
                 }
                 _alterationResult.put(geneWithScore.getGene(), singleGeneResult);
             }
-            alterationResults.put(caseId, _alterationResult);
+            alterationResults.put(patientId, _alterationResult);
         }
     %>
         var alterationResults = jQuery.parseJSON('<%=alterationResults%>');;
@@ -170,7 +169,7 @@
             <%=ProteinArraySignificanceTestJSON.GENE%>:'Any',
             <%=ProteinArraySignificanceTestJSON.ALTERATION_TYPE%>:'Any'
         };
-        if ($.browser.msie) //TODO: this is a temporary fix for bug #74
+        if (cbio.util.browser.msie) //TODO: this is a temporary fix for bug #74
             params['<%=ProteinArraySignificanceTestJSON.DATA_SCALE%>'] = '100';
                         
         $.post("ProteinArraySignificanceTest.json", 
@@ -223,8 +222,8 @@
                               "aTargets": [ 3 ]
                             },
                             { //"sTitle": "Target Gene",
-                              "fnRender": function(obj) {
-                                    return '<b>'+obj.aData[ obj.iDataColumn ]+'</b>';
+                              "mRender": function(data) {
+                                    return '<b>'+data+'</b>';
                               },
                               "aTargets": [ 4 ] 
                             },
@@ -242,8 +241,8 @@
                             { //"sTitle": "Ave. Altered<sup>1</sup>",
                               "sType": "num-nan-col",
                               "bSearchable": false,
-                              "fnRender": function(obj) {
-                                    var value = parseFloat(obj.aData[ obj.iDataColumn ]);
+                              "mRender": function(data) {
+                                    var value = parseFloat(data);
                                     if (isNaN(value))
                                         return "NaN";
                                     return value.toFixed(2);
@@ -254,8 +253,8 @@
                             { //"sTitle": "Ave. Unaltered<sup>1</sup>",
                               "sType": "num-nan-col",
                               "bSearchable": false,
-                              "fnRender": function(obj) {
-                                    var value = parseFloat(obj.aData[ obj.iDataColumn ]);
+                              "mRender": function(data) {
+                                    var value = parseFloat(data);
                                     if (isNaN(value))
                                         return "NaN";
                                     return value.toFixed(2);
@@ -266,16 +265,16 @@
                             { //"sTitle": "abs diff",
                               "bVisible": showAbsDiffColumn,
                               "sType": "num-nan-col",
-                              "fnRender": function(obj) {
-                                    var value = parseFloat(obj.aData[ obj.iDataColumn ]);
+                              "mRender": function(data, type, full) {
+                                    var value = parseFloat(data);
                                     if (isNaN(value))
                                         return "NaN";
                                     
                                     var ret = value.toFixed(2);
                                     
                                     var eps = 10e-5;
-                                    var abunUnaltered = parseFloat(obj.aData[6]);
-                                    var abunAltered = parseFloat(obj.aData[7]);
+                                    var abunUnaltered = parseFloat(full[6]);
+                                    var abunAltered = parseFloat(full[7]);
                                     
                                     if (value<eps)
                                         return ret;
@@ -290,8 +289,8 @@
                             { //"sTitle": "p-value",
                               "bVisible": showPValueColumn,
                               "sType": "num-nan-col",
-                              "fnRender": function(obj) {
-                                    var value = parseFloat(obj.aData[ obj.iDataColumn ]);
+                              "mRender": function(data, display, full) {
+                                    var value = parseFloat(data);
                                     if (isNaN(value))
                                         return "NaN";
                                     
@@ -300,8 +299,8 @@
                                         ret = '<b>'+ret+'</b>';
                                     
                                     var eps = 10e-5;
-                                    var abunUnaltered = parseFloat(obj.aData[6]);
-                                    var abunAltered = parseFloat(obj.aData[7]);
+                                    var abunUnaltered = parseFloat(full[6]);
+                                    var abunAltered = parseFloat(full[7]);
                                     
                                     if (Math.abs(abunUnaltered-abunAltered)<eps)
                                         return ret;
@@ -322,7 +321,7 @@
                             { //"sTitle": "plot",
                               "bSearchable": false,
                               "bSortable": false,
-                              "fnRender": function(obj) {
+                              "mRender": function(data) {
                                     return "<img class=\"details_img\" src=\"images/details_open.png\">";
                               },
                               "aTargets": [ 11 ]
@@ -357,7 +356,7 @@
                  * Note that the indicator for showing which row is open is not controlled by DataTables,
                  * rather it is done here
                  */
-                $('.details_img').live('click', function () {
+	            $(document).on('click', '.details_img', function () {
                     var nTr = this.parentNode.parentNode;
                     if ( this.src.match('details_close') ) {
                             /* This row is already open - close it */

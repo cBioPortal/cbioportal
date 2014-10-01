@@ -1,6 +1,7 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
+<%@ page import="org.mskcc.cbio.portal.util.XssRequestWrapper" %>
 
 <%
     String siteTitle = GlobalProperties.getTitle();
@@ -11,12 +12,21 @@
     Integer dataPriority;
     try {
         dataPriority
-                = Integer.parseInt(servletXssUtil.getCleanInput(request, QueryBuilder.DATA_PRIORITY).trim());
+                = Integer.parseInt(request.getParameter(QueryBuilder.DATA_PRIORITY).trim());
     } catch (Exception e) {
         dataPriority = 0;
     }
-	String geneList = servletXssUtil.getCleanerInput(
-			request.getParameter(QueryBuilder.GENE_LIST).replaceAll("\n", " ").replaceAll("\r", ""));
+
+	String geneList = request.getParameter(QueryBuilder.GENE_LIST);
+
+	// we need the raw gene list
+	if (request instanceof XssRequestWrapper)
+	{
+		geneList = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.GENE_LIST);
+	}
+
+	geneList = geneList.replaceAll("\n", " ").replaceAll("\r", "").replaceAll("/", "_");
+	geneList = servletXssUtil.getCleanerInput(geneList);
 
     String bitlyUser = GlobalProperties.getBitlyUser();
     String bitlyKey = GlobalProperties.getBitlyApiKey();
@@ -25,11 +35,11 @@
 <jsp:include page="global/header.jsp" flush="true"/>
 
 <!-- for now, let's include these guys here and prevent clashes with the rest of the portal -->
-<script type="text/javascript" src="js/src/crosscancer.js"></script>
-<link href="css/data_table_ColVis.css" type="text/css" rel="stylesheet" />
-<link href="css/data_table_jui.css" type="text/css" rel="stylesheet" />
-<link href="css/mutation_details.css" type="text/css" rel="stylesheet" />
-<link href="css/crosscancer.css" type="text/css" rel="stylesheet" />
+<script type="text/javascript" src="js/src/crosscancer.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<link href="css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link href="css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link href="css/mutationMapper.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link href="css/crosscancer.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 
 <%
     // Means that user landed on this page with the old way.
@@ -223,9 +233,17 @@
                     <td class="cc-alt-type">Mutation</td>
                     <td>{{mutationFrequency}}% ({{mutationCount}} cases)</td>
                 </tr>
+                <tr class='{{ lossCount > 0 ? "cc-loss" : "cc-hide"}}'>
+                    <td class="cc-alt-type">Heterozygous loss</td>
+                    <td>{{lossFrequency}}% ({{lossCount}} cases)</td>
+                </tr>
                 <tr class='{{ deletionCount > 0 ? "cc-del" : "cc-hide"}}'>
                     <td class="cc-alt-type">Deletion</td>
                     <td>{{deletionFrequency}}% ({{deletionCount}} cases)</td>
+                </tr>
+                <tr class='{{ gainCount > 0 ? "cc-gain" : "cc-hide"}}'>
+                    <td class="cc-alt-type">Gain</td>
+                    <td>{{gainFrequency}}% ({{gainCount}} cases)</td>
                 </tr>
                 <tr class='{{ amplificationCount > 0 ? "cc-amp" : "cc-hide"}}'>
                     <td class="cc-alt-type">Amplification</td>
@@ -260,22 +278,6 @@
     <b class="cctitle">
         Cross-cancer alteration summary for {{genes}} ({{numOfStudies}} studies / {{numOfGenes}} gene{{numOfGenes > 1 ? "s" : ""}})
     </b>
-    <form style="display:inline-block"
-          action='svgtopdf.do'
-          method='post'
-          class='svg-to-pdf-form'>
-        <input type='hidden' name='svgelement'>
-        <input type='hidden' name='filetype' value='pdf'>
-        <input type='hidden' name='filename' value='crosscancerhistogram.pdf'>
-    </form>
-    <form style="display:inline-block"
-          action='svgtopdf.do'
-          method='post'
-          class='svg-to-file-form'>
-        <input type='hidden' name='svgelement'>
-        <input type='hidden' name='filetype' value='svg'>
-        <input type='hidden' name='filename' value='crosscancerhistogram.svg'>
-    </form>
     <button id="histogram-download-pdf" class='diagram-to-pdf'>PDF</button>
     <button id="histogram-download-svg" class='diagram-to-svg'>SVG</button>
     <button id="histogram-customize">Customize histogram</button>

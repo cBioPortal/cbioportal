@@ -1,29 +1,19 @@
 /** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
-**
-** This library is free software; you can redistribute it and/or modify it
-** under the terms of the GNU Lesser General Public License as published
-** by the Free Software Foundation; either version 2.1 of the License, or
-** any later version.
-**
-** This library is distributed in the hope that it will be useful, but
-** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
-** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
-** documentation provided hereunder is on an "as is" basis, and
-** Memorial Sloan-Kettering Cancer Center 
-** has no obligations to provide maintenance, support,
-** updates, enhancements or modifications.  In no event shall
-** Memorial Sloan-Kettering Cancer Center
-** be liable to any party for direct, indirect, special,
-** incidental or consequential damages, including lost profits, arising
-** out of the use of this software and its documentation, even if
-** Memorial Sloan-Kettering Cancer Center 
-** has been advised of the possibility of such damage.  See
-** the GNU Lesser General Public License for more details.
-**
-** You should have received a copy of the GNU Lesser General Public License
-** along with this library; if not, write to the Free Software Foundation,
-** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-**/
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 package org.mskcc.cbio.portal.util;
 
 import org.mskcc.cbio.portal.servlet.QueryBuilder;
@@ -39,7 +29,7 @@ import java.util.*;
  */
 public class GlobalProperties {
 
-    private static final String HOME_DIR = "PORTAL_HOME";
+    public static final String HOME_DIR = "PORTAL_HOME";
     private static final String propertiesFilename = "portal.properties";
 
     public static final String PATHWAY_COMMONS_URL = "pathway_commons.url";
@@ -57,9 +47,13 @@ public class GlobalProperties {
     public static final String BITLY_USER = "bitly.user";
     public static final String BITLY_API_KEY = "bitly.api_key";
     public static final String INCLUDE_NETWORKS = "include_networks";
+    public static final String GOOGLE_ANALYTICS_PROFILE_ID = "google_analytics_profile_id";
+    public static final String GENOMESPACE = "genomespace";
 
     public static final String APP_NAME = "app.name";
     public static final String DEFAULT_APP_NAME = "public_portal";
+    
+    public static final String APP_VERSION = "app.version";
 
     public static final String SKIN_TITLE = "skin.title";
     public static final String DEFAULT_SKIN_TITLE = "cBioPortal for Cancer Genomics";
@@ -186,7 +180,13 @@ public class GlobalProperties {
 
     public static boolean usersMustAuthenticate()
     {
-		return Boolean.parseBoolean(properties.getProperty(AUTHENTICATE));
+        String prop = properties.getProperty(AUTHENTICATE);
+        return (!prop.isEmpty() && !prop.equals("false"));
+    }
+
+    public static String authenticationMethod()
+    {
+        return properties.getProperty(AUTHENTICATE);
     }
 
 	public static boolean usersMustBeAuthorized()
@@ -198,6 +198,12 @@ public class GlobalProperties {
     {
         String appName = properties.getProperty(APP_NAME);
         return (appName == null) ? DEFAULT_APP_NAME : appName;
+    }
+
+    public static String getAppVersion()
+    {
+        String appVersion = properties.getProperty(APP_VERSION);
+        return (appVersion == null) ? "1.0" : appVersion;
     }
 
     public static String getTitle()
@@ -237,6 +243,16 @@ public class GlobalProperties {
     public static boolean includeNetworks()
     {
         return Boolean.parseBoolean(properties.getProperty(INCLUDE_NETWORKS));
+    }
+
+    public static String getGoogleAnalyticsProfileId()
+    {
+        return properties.getProperty(GOOGLE_ANALYTICS_PROFILE_ID);
+    }
+
+    public static boolean genomespaceEnabled()
+    {
+        return Boolean.parseBoolean(properties.getProperty(GENOMESPACE));
     }
 
     public static boolean showPlaceholderInPatientView()
@@ -304,7 +320,14 @@ public class GlobalProperties {
     public static String getLinkToPatientView(String caseId, String cancerStudyId)
     {
         return "case.do?" + QueryBuilder.CANCER_STUDY_ID + "=" + cancerStudyId
-                 + "&"+ org.mskcc.cbio.portal.servlet.PatientView.CASE_ID + "=" + caseId;
+                 //+ "&"+ org.mskcc.cbio.portal.servlet.PatientView.PATIENT_ID + "=" + caseId;
+                 + "&"+ org.mskcc.cbio.portal.servlet.PatientView.SAMPLE_ID + "=" + caseId;
+    }
+
+    public static String getLinkToSampleView(String caseId, String cancerStudyId)
+    {
+        return "case.do?" + QueryBuilder.CANCER_STUDY_ID + "=" + cancerStudyId
+                 + "&"+ org.mskcc.cbio.portal.servlet.PatientView.SAMPLE_ID + "=" + caseId;
     }
 
     public static String getLinkToCancerStudyView(String cancerStudyId)
@@ -344,6 +367,6 @@ public class GlobalProperties {
     
     public static String getTemporaryDir() {
         String tmp = GlobalProperties.getProperty(TEMPORARY_DIR);
-        return tmp == null ? "/tmp" : tmp;
+        return tmp == null || tmp.isEmpty() ? "/tmp" : tmp;
     }
 }

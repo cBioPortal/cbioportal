@@ -1,9 +1,14 @@
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
+<%
+String googleAnalyticsProfileId = GlobalProperties.getGoogleAnalyticsProfileId();
+if (googleAnalyticsProfileId!=null && !googleAnalyticsProfileId.isEmpty()) {
+%>
 <!-- Google Analytics -->
 <script type="text/javascript">
 
   var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-17134933-1']);
+  _gaq.push(['_setAccount', '<%=googleAnalyticsProfileId%>']);
   _gaq.push(['_trackPageview']);
 
   (function() {
@@ -12,6 +17,7 @@
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 </script>
+<% } %>
 
 <!-- De-obfuscate All Email Addresses -->
 <script type="text/javascript">

@@ -9,8 +9,8 @@ request.setAttribute("tumormap", true);
 <jsp:include page="../global/header.jsp" flush="true" />
 <!--content start-->
 <style type="text/css" title="currentStyle"> 
-        @import "css/data_table_jui.css";
-        @import "css/data_table_ColVis.css";
+        @import "css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>";
+        @import "css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>";
         .tumormap-datatable-name {
                 float: left;
                 font-weight: bold;

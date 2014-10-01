@@ -29,7 +29,16 @@ $MARKDOWN -x toc faqs_target.markdown > ../../webapp/content/faq_target.html
 $MARKDOWN -x toc examples_target.markdown > ../../webapp/content/examples_target.html
 $MARKDOWN -x toc about_us_target.markdown > ../../webapp/content/about_us_target.html
 
+$MARKDOWN -x toc examples_acc.markdown > ../../webapp/content/examples_acc.html
+
+$MARKDOWN -x toc examples_glioma.markdown > ../../webapp/content/examples_glioma.html
+
+$MARKDOWN -x toc visualize_your_data.markdown > ../../webapp/content/visualize_your_data.html
+
 $MARKDOWN -x toc data_sets_public_right_column.markdown > ../../webapp/content/data_sets_public_right_column.html
+
+$MARKDOWN -x toc release_notes_oncoprinter.markdown > ../../webapp/content/release_notes_oncoprinter.html
+$MARKDOWN -x toc release_notes_mutation_mapper.markdown > ../../webapp/content/release_notes_mutation_mapper.html
 
 cp data_sets_tcga.html ../../webapp/content/
 cp data_sets_su2c.html ../../webapp/content/

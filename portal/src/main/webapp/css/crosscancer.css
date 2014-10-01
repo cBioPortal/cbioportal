@@ -117,6 +117,15 @@
     font-weight: bold;
 }
 
+.cc-loss .cc-alt-type {
+    color: skyblue;
+}
+
+.cc-gain .cc-alt-type {
+    color: lightpink;
+}
+
+
 .cc-del .cc-alt-type {
     color: blue;
 }
@@ -153,4 +162,19 @@
 
 .lollipop-stats {
 	margin-top: 10px;
+}
+
+.dataTables_length {
+	width: auto;
+	float: right;
+}
+
+.dataTables_length {
+	width: auto;
+	float: right;
+}
+
+.div.datatable-paging {
+	width: auto;
+	float: right;
 }

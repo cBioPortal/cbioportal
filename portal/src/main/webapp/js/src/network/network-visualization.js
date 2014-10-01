@@ -168,11 +168,11 @@ NetworkVis.prototype.initNetworkUI = function(vis)
         self.hideDialogs(evt, ui);
     };
 
-    $("#tabs").bind("tabsshow", hideDialogs);
+    $("#tabs").bind("tabsactivate", hideDialogs);
 
     // this is required to prevent hideDialogs function to be invoked
     // when clicked on a network tab
-    $(this.networkTabsSelector).bind("tabsshow", false);
+    $(this.networkTabsSelector).bind("tabsactivate", false);
 
     // init tabs
     $(this.networkTabsSelector).tabs();
@@ -1837,7 +1837,7 @@ NetworkVis.prototype._defaultOptsArray = function()
  */
 NetworkVis.prototype._xrefArray = function()
 {
-    var linkMap = new Array();
+    var linkMap = {};
 
     // TODO find missing links (Nucleotide Sequence Database)
     //linkMap["refseq"] =   "http://www.genome.jp/dbget-bin/www_bget?refseq:";
@@ -1879,7 +1879,7 @@ NetworkVis.prototype._xrefArray = function()
  */
 NetworkVis.prototype._edgeTypeArray = function()
 {
-    var typeArray = new Array();
+    var typeArray = {};
 
     // by default every edge type is visible
     typeArray[this.IN_SAME_COMPONENT] = true;
@@ -1898,7 +1898,7 @@ NetworkVis.prototype._edgeTypeArray = function()
  */
 NetworkVis.prototype._edgeSourceArray = function()
 {
-    var sourceArray = new Array();
+    var sourceArray = {};
 
     // dynamically collect all sources
 
@@ -1934,7 +1934,7 @@ NetworkVis.prototype._edgeSourceArray = function()
  */
 NetworkVis.prototype._geneWeightArray = function(coeff)
 {
-    var weightArray = new Array();
+    var weightArray = {};
 
     if (coeff > 1)
     {
@@ -2659,7 +2659,7 @@ NetworkVis.prototype._refreshGenesTab = function()
     var self = this;
 
     var showGeneDetails = function(evt){
-        $(self.networkTabsSelector).tabs("select", 2);
+        $(self.networkTabsSelector).tabs("option", "active", 2);
     };
 
     // get visible genes
@@ -2760,7 +2760,7 @@ NetworkVis.prototype._refreshRelationsTab = function()
     var edges = this._vis.edges();
 
     // initialize percentages of each edge type
-    var percentages = new Array();
+    var percentages = {};
 
     percentages[this.IN_SAME_COMPONENT] = 0;
     percentages[this.REACTS_WITH] = 0;
@@ -2887,7 +2887,7 @@ NetworkVis.prototype._initControlFunctions = function()
     // (this is required to pass "this" instance to the listener functions)
     var showNodeDetails = function(evt) {
         // open details tab instead
-        $(self.networkTabsSelector).tabs("select", 2);
+        $(self.networkTabsSelector).tabs("option", "active", 2);
     };
 
     var handleEdgeSelect = function(evt) {
@@ -2897,7 +2897,7 @@ NetworkVis.prototype._initControlFunctions = function()
 
     var showEdgeDetails = function(evt) {
         self.isEdgeClicked = true;
-        $(self.networkTabsSelector).tabs("select", 2);
+        $(self.networkTabsSelector).tabs("option", "active", 2);
         self.updateDetailsTab(evt);
     };
 
@@ -3006,7 +3006,7 @@ NetworkVis.prototype._initControlFunctions = function()
         self.handleMenuEvent(evt.target.id);
     };
 
-    this._controlFunctions = new Array();
+    this._controlFunctions = {};
 
     //_controlFunctions["hide_selected"] = _hideSelected;
     this._controlFunctions["hide_selected"] = filterSelectedGenes;

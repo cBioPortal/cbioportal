@@ -1,29 +1,19 @@
 /** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
-**
-** This library is free software; you can redistribute it and/or modify it
-** under the terms of the GNU Lesser General Public License as published
-** by the Free Software Foundation; either version 2.1 of the License, or
-** any later version.
-**
-** This library is distributed in the hope that it will be useful, but
-** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
-** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
-** documentation provided hereunder is on an "as is" basis, and
-** Memorial Sloan-Kettering Cancer Center 
-** has no obligations to provide maintenance, support,
-** updates, enhancements or modifications.  In no event shall
-** Memorial Sloan-Kettering Cancer Center
-** be liable to any party for direct, indirect, special,
-** incidental or consequential damages, including lost profits, arising
-** out of the use of this software and its documentation, even if
-** Memorial Sloan-Kettering Cancer Center 
-** has been advised of the possibility of such damage.  See
-** the GNU Lesser General Public License for more details.
-**
-** You should have received a copy of the GNU Lesser General Public License
-** along with this library; if not, write to the Free Software Foundation,
-** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-**/
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 
 package org.mskcc.cbio.portal.dao;
 
@@ -31,14 +21,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.mskcc.cbio.portal.model.CosmicMutationFrequency;
 import org.mskcc.cbio.portal.model.ExtendedMutation;
@@ -91,7 +82,8 @@ public class DaoCosmicData {
                 = new HashMap<Long, Set<CosmicMutationFrequency>>(map.size());
         for (ExtendedMutation mut : mutations) {
             String keyword = mut.getKeyword();
-            Set<CosmicMutationFrequency> cmfs = map.get(keyword);
+            Set<CosmicMutationFrequency> cmfs = filterTruncatingCosmicByPosition(mut, map.get(keyword));
+            
             if (cmfs==null || cmfs.isEmpty()) {
                 continue;
             }
@@ -101,9 +93,31 @@ public class DaoCosmicData {
         return ret;
     }
     
+    private static Set<CosmicMutationFrequency> filterTruncatingCosmicByPosition(
+            ExtendedMutation mut, Set<CosmicMutationFrequency> cmfs) {
+        if (mut.getKeyword()==null || !mut.getKeyword().endsWith("truncating") || cmfs==null) {
+            return cmfs;
+        }
+        
+        Set<CosmicMutationFrequency> ret = new HashSet<CosmicMutationFrequency>();
+        Pattern p = Pattern.compile("[0-9]+");
+        int mutPos = mut.getOncotatorProteinPosStart();
+        for (CosmicMutationFrequency cmf : cmfs) {
+            String aa = cmf.getAminoAcidChange();
+            Matcher m = p.matcher(aa);
+            if (m.find()) {
+                int cmfPos = Integer.parseInt(m.group());
+                if (mutPos==cmfPos) {
+                    ret.add(cmf);
+                }
+            }
+        }
+        return ret;
+    }
+    
     /**
      * 
-     * @param keyword
+     * @param keywordS
      * @return Map<keyword, List<cosmic>>
      * @throws DaoException 
      */

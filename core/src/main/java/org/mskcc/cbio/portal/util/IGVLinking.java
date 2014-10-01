@@ -1,35 +1,26 @@
 /** Copyright (c) 2013 Memorial Sloan-Kettering Cancer Center.
-**
-** This library is free software; you can redistribute it and/or modify it
-** under the terms of the GNU Lesser General Public License as published
-** by the Free Software Foundation; either version 2.1 of the License, or
-** any later version.
-**
-** This library is distributed in the hope that it will be useful, but
-** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
-** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
-** documentation provided hereunder is on an "as is" basis, and
-** Memorial Sloan-Kettering Cancer Center 
-** has no obligations to provide maintenance, support,
-** updates, enhancements or modifications.  In no event shall
-** Memorial Sloan-Kettering Cancer Center
-** be liable to any party for direct, indirect, special,
-** incidental or consequential damages, including lost profits, arising
-** out of the use of this software and its documentation, even if
-** Memorial Sloan-Kettering Cancer Center 
-** has been advised of the possibility of such damage.  See
-** the GNU Lesser General Public License for more details.
-**
-** You should have received a copy of the GNU Lesser General Public License
-** along with this library; if not, write to the Free Software Foundation,
-** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-**/
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 package org.mskcc.cbio.portal.util;
 
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.web_api.ConnectionManager;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.LineIterator;
+import org.apache.commons.io.*;
 
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.*;
@@ -37,7 +28,7 @@ import org.apache.commons.httpclient.methods.*;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.io.File;
-import java.net.URLEncoder;
+import java.net.*;
 
 /**
  * Provides methods for linking to IGV.
@@ -46,20 +37,18 @@ import java.net.URLEncoder;
  */
 public class IGVLinking {
 
-	private static final String REFERENCE_GENOME_18 = "hg18";
-	private static final String REFERENCE_GENOME_19 = "hg19";
 	private static final String TOKEN_REGEX = "<TOKEN>";
     private static final String SAMPLE_REGEX = "<SAMPLE_ID>";
     private static final String KNOWN_ID = "KNOWN_ID";
-	private static final String SEG_FILE_SUFFIX = "_scna_hg18.seg";
     private static final String TUMOR_BAM_SIGNATURE = "-Tumor";
     private static final String NORMAL_BAM_SIGNATURE = "-Normal";
 
-	public static String[] getIGVArgsForSegViewing(String cancerTypeId, String encodedGeneList)
+	public static String[] getIGVArgsForSegViewing(String cancerStudyStableId, String encodedGeneList) throws Exception
 	{
-		// routine defined in igv_webstart.js
-		String segFileURL = GlobalProperties.getSegfileUrl() + cancerTypeId + SEG_FILE_SUFFIX;
-		return new String[] { segFileURL, encodedGeneList, REFERENCE_GENOME_18, cancerTypeId + SEG_FILE_SUFFIX };
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId);
+        CopyNumberSegmentFile cnsf = DaoCopyNumberSegmentFile.getCopyNumberSegmentFile(cancerStudy.getInternalId());
+
+		return new String[] { GlobalProperties.getSegfileUrl() + cnsf.filename, encodedGeneList, cnsf.referenceGenomeId.toString(), cnsf.filename };
 	}
 
 	// returns null if exception has been thrown during processing
@@ -88,7 +77,7 @@ public class IGVLinking {
 		String encodedLocus = getEncoded(locus);
 		if (encodedLocus == null) return null;
 
-		return new String[] { tumorBAMFileURL, encodedLocus, REFERENCE_GENOME_19, trackName };
+		return new String[] { tumorBAMFileURL, encodedLocus, CopyNumberSegmentFile.ReferenceGenomeId.hg19.toString(), trackName };
 	}
 
 	public static boolean validBAMViewingArgs(String cancerStudy, String caseId, String locus)
@@ -316,7 +305,7 @@ public class IGVLinking {
     {
         String encodedCaseId = getEncoded(caseId);
         String url = GlobalProperties.getProperty(GlobalProperties.BROAD_BAM_CHECKING_URL);
-        return (url != null & !url.isEmpty() && encodedCaseId != null) ?
+        return (url != null && !url.isEmpty() && encodedCaseId != null) ?
             url.replace(SAMPLE_REGEX, encodedCaseId) : null;
     }
 

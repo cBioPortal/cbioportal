@@ -2,12 +2,110 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.MutationsJSON" %>
 <%@ page import="org.mskcc.cbio.portal.dao.DaoMutSig" %>
 
-<script type="text/javascript" src="js/lib/igv_webstart.js"></script>
+<script type="text/javascript" src="js/lib/igv_webstart.js?<%=GlobalProperties.getAppVersion()%>"></script>
+
+<script type="text/javascript" src="js/src/patient-view/PancanMutationHistogram.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<link href="css/mutationMapper.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
 
 <script type="text/javascript">
-    var mutTableIndices = {id:0,case_ids:1,gene:2,aa:3,chr:4,start:5,end:6,ref:7,_var:8,validation:9,type:10,
-                  tumor_freq:11,tumor_var_reads:12,tumor_ref_reads:13,norm_freq:14,norm_var_reads:15,
-                  norm_ref_reads:16,bam:17,mrna:18,altrate:19,cosmic:20,ma:21,cons:22,'3d':23,drug:24};
+    var mutTableIndices =
+            ["id","case_ids","gene","aa","chr","start","end","ref","_var","validation","type",
+             "tumor_freq","tumor_var_reads","tumor_ref_reads","norm_freq","norm_var_reads",
+             "norm_ref_reads","bam","cna","mrna","altrate","pancan_mutations", "cosmic","ma","drug"];
+
+    mutTableIndices = cbio.util.arrayToAssociatedArrayIndices(mutTableIndices);
+
+    var drawPanCanThumbnails = function(oTable) {
+        var num_rows = oTable.fnSettings().fnRecordsTotal();
+        var pancan_column = mutTableIndices['pancan_mutations'];
+        var dummy = false;      // doesn't matter
+        // now that there's data, iterate throw the pancan column which checks whether there is pancan data or not
+        for (var i = 0; i < num_rows; i+=1) {
+            oTable.fnUpdate(dummy, i, pancan_column, false, false);
+        }
+
+        // batch bar chart and sparkline generation
+        (function($thumbnails) {
+            var createOneThumbNail = function(idx, thumbnail) {
+
+                // qtip on each pancan mutations histogram thumbnail
+                var $thumbnail = $(thumbnail);
+
+                // if already drawn, then quit
+                if($thumbnail.attr("data-pancan-done")) {
+                    return;
+                }
+
+                var gene = $thumbnail.attr('gene');
+                var keyword = $thumbnail.attr('keyword');
+
+                // i want to use this once and not use it again until qtip time,
+                // that's why this is duplicated
+                var byKeywordData = genomicEventObs.pancan_mutation_frequencies[keyword];
+                var byHugoData = genomicEventObs.pancan_mutation_frequencies[gene];
+
+                // -- sparkline --
+
+                var invisible_container = document.getElementById("pancan_mutations_histogram_container");
+                PancanMutationHistogram(byKeywordData, byHugoData, window.cancer_study_meta_data, invisible_container, {sparkline: true});
+                var content = invisible_container.innerHTML;
+                $thumbnail.html(content);
+                $(invisible_container).empty();     // N.B.
+
+                $thumbnail.children('svg').qtip({
+                    content: {text: 'pancancer mutation bar chart is broken'},
+                    events: {
+                        render: function(event, api) {
+                            var gene = $thumbnail.attr('gene');
+                            var keyword = $thumbnail.attr('keyword');
+                            var byKeywordData = genomicEventObs.pancan_mutation_frequencies[keyword];
+                            var byHugoData = genomicEventObs.pancan_mutation_frequencies[gene];
+                            var invisible_container = document.getElementById("pancan_mutations_histogram_container");
+                            var histogram = PancanMutationHistogram(byKeywordData, byHugoData, window.cancer_study_meta_data, invisible_container, {this_cancer_study: window.cancerStudyName});
+
+                            var title = "<div><div><h3>"+gene+" mutations across all cancer studies</h3></div>" +
+                                        "<div style='float:right;'><button class='cross-cancer-download' file-type='pdf'>PDF</button>"+
+                                        "<button class='cross-cancer-download' file-type='svg'>SVG</button></div></div>"+
+                                        "<div><p>"+histogram.overallCountText()+"</p></div>";
+                            var content = title+invisible_container.innerHTML;
+                            api.set('content.text', content);
+
+                            // correct the qtip width
+                            var svg_width = $(invisible_container).find('svg').attr('width');
+                            $(this).css('max-width', parseInt(svg_width));
+
+                            var this_svg = $(this).find('svg')[0];
+                            histogram.qtip(this_svg);
+                            
+                            $(".cross-cancer-download").click(function() {
+                                var fileType = $(this).attr("file-type");
+                                var params = {
+                                    filetype: fileType,
+                                    filename: gene + "_mutations." + fileType,
+                                    svgelement: (new XMLSerializer()).serializeToString(this_svg)
+                                };
+
+                                cbio.util.requestDownload("svgtopdf.do", params);
+                            });
+
+                            $(invisible_container).empty();     // N.B.
+                        }
+                    },
+                    hide: { fixed: true, delay: 100 },
+                    style: { classes: 'qtip-light qtip-rounded qtip-shadow', tip: true },
+                    position: {my:'center right',at:'center left',viewport: $(window)}
+                });
+
+                $thumbnail.attr("data-pancan-done", true);
+            };
+
+            // Defer the function so that the table works much faster
+            $thumbnails.each(function(idx, thumbnail) {
+                _.defer(createOneThumbNail, idx, thumbnail);
+            });
+        })($(oTable).find('.pancan_mutations_histogram_thumbnail'));
+    };
+
     function buildMutationsDataTable(mutations,mutEventIds, table_id, sDom, iDisplayLength, sEmptyInfo, compact) {
         var data = [];
         for (var i=0, nEvents=mutEventIds.length; i<nEvents; i++) {
@@ -28,6 +126,7 @@
                     {// case_ids
                         "aTargets": [ mutTableIndices["case_ids"] ],
                         "sClass": "center-align-td",
+                        "bSearchable": false,
                         "bVisible": caseIds.length>1,
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
@@ -41,7 +140,7 @@
                                         ret.push("<svg width='12' height='12' class='"
                                             +table_id+"-case-label' alt='"+caseId+"'></svg>");
                                     } else {
-                                        ret.push("<svg width='12'></svg>");
+                                        ret.push("<svg width='12' height='12'></svg>");
                                     }
                                 }
                                 
@@ -206,7 +305,7 @@
                             } else if (type==='display'||type==='filter') {
                                 var mutType = mutations.getValue(source[0], "type");
                                 var abbr, color;
-                                if (mutType==='Missense_Mutation') {
+                                if (mutType==='Missense_Mutation'||mutType==='missense') {
                                     abbr = 'Missense';
                                     color = 'green';
                                 } else if (mutType==='Nonsense_Mutation') {
@@ -258,7 +357,7 @@
                     {// tumor read count frequency
                         "aTargets": [ mutTableIndices["tumor_freq"] ],
                         "bVisible": hasAlleleFrequencyData,
-                        "sClass": caseIds.length>1 ? "center-align-td":"right-align-td",
+                        "sClass": "center-align-td",
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 return;
@@ -367,7 +466,7 @@
                                 
                                 if ($.isEmptyObject(refCount)||$.isEmptyObject(altCount))
                                     return "";
-                                return "<div class='"+table_id+"-tumor-freq' alt='"+source[0]+"'></div>"; 
+                                return "<div class='"+table_id+"-normal-freq' alt='"+source[0]+"'></div>"; 
                             } else if (type==='sort') {
                                 var refCount = mutations.getValue(source[0], 'normal-ref-count')[caseIds[0]];
                                 var altCount = mutations.getValue(source[0], 'normal-alt-count')[caseIds[0]];
@@ -462,6 +561,42 @@
                         },
                         "asSorting": ["desc", "asc"]
                     },
+                    {// cna
+                        "aTargets": [ mutTableIndices['cna'] ],
+                        "bVisible": !mutations.colAllNull('cna'),
+                        "sClass": "center-align-td",
+                        "bSearchable": false,
+                        "mDataProp": 
+                            function(source,type,value) {
+                            if (type==='set') {
+                                return;
+                            } else if (type==='display') {
+                                var cna = mutations.getValue(source[0], 'cna');
+                                switch (cna) {
+                                    case "-2": return "<span style='color:blue;' class='"
+                                           +table_id+"-tip' alt='Homozygously deleted'><b>HOMDEL</b></span>";
+                                    case "-1": return "<span style='color:blue;font-size:smaller;' class='"
+                                           +table_id+"-tip' alt='Heterozygously deleted'><b>hetloss</b></span>";
+                                    case "0": return "<span style='color:black;font-size:xx-small;' class='"
+                                           +table_id+"-tip' alt='Diploid / normal'>diploid</span>";
+                                    case "1": return "<span style='color:red;font-size:smaller;' class='"
+                                           +table_id+"-tip' alt='Low-level gain'><b>gain</b></span>";
+                                    case "2": return "<span style='color:red;' class='"
+                                           +table_id+"-tip' alt='High-level amplification'><b>AMP</b></span>";
+                                    default: return "<span style='color:gray;font-size:xx-small;' class='"
+                                           +table_id+"-tip' alt='CNA data is not available for this gene.'>NA</span>";
+                                }
+                            } else if (type==='sort') {
+                                var cna = mutations.getValue(source[0], 'cna');
+                                return cna?cna:0;
+                            } else if (type==='type') {
+                                return 0.0;
+                            } else {
+                                return '';
+                            }
+                        },
+                        "asSorting": ["desc", "asc"]
+                    },
                     {// mrna
                         "aTargets": [ mutTableIndices['mrna'] ],
                         "bVisible": !mutations.colAllNull('mrna'),
@@ -473,7 +608,7 @@
                                 return;
                             } else if (type==='display') {
                                 var mrna = mutations.getValue(source[0], 'mrna');
-                                if (mrna===null) return "<span style='color:gray;' class='"
+                                if (mrna===null) return "<span style='color:gray;font-size:xx-small;' class='"
                                            +table_id+"-tip' alt='mRNA data is not available for this gene.'>NA</span>";
                                 return "<div class='"+table_id+"-mrna' alt='"+source[0]+"'></div>";
                             } else if (type==='sort') {
@@ -502,6 +637,58 @@
                             } else {
                                 return mutations.getValue(source[0], 'genemutrate');
                             }
+                        },
+                        "asSorting": ["desc", "asc"]
+                    },
+                    {// pancan mutations
+                        "aTargets": [ mutTableIndices["pancan_mutations"] ],
+                        "sClass": "center-align-td",
+                        "bSearchable": false,
+                        "mDataProp": function(source,type,value) {
+                            var countByKey = function() {
+                                var key = mutations.getValue(source[0], "key");
+                                var byHugoData = genomicEventObs.pancan_mutation_frequencies[key];
+
+                                var total_mutation_count = _.reduce(byHugoData, function(acc, next) {
+                                    return acc + next.count;
+                                }, 0);
+
+                                return total_mutation_count;
+                            };
+                            
+                            if (type === 'display') {
+                                if (genomicEventObs.pancan_mutation_frequencies) {
+
+                                    var keyword = mutations.getValue(source[0], "key");
+                                    var hugo = mutations.getValue(source[0], "gene");
+
+                                    // This is for the moustache-like templates
+                                    // prevents collisions with JSP tags
+                                    _.templateSettings = {
+                                        interpolate : /\{\{(.+?)\}\}/g
+                                    };
+                                    var thumbnail_template = _.template("<div class='pancan_mutations_histogram_thumbnail' gene='{{gene}}' keyword='{{keyword}}'></div>");
+
+                                    var ret = thumbnail_template({gene: hugo, keyword: keyword});
+                                    
+                                    var count = countByKey();
+                                    ret += "<div style='float:right'>"+count+"</div>";
+                                        
+                                    return ret;
+                                } else {
+                                    return "<img width='15' height='15' id='pancan_mutations_histogram' src='images/ajax-loader.gif'/>";
+                                }
+                            }
+                            else if (type === "sort") {
+                                if (genomicEventObs.pancan_mutation_frequencies) {
+                                    return countByKey();
+                                }
+                            }
+                            else if (type === "type") {
+                                return 0.0;
+                            }
+
+                            return "";
                         },
                         "asSorting": ["desc", "asc"]
                     },
@@ -583,19 +770,38 @@
                                 var ma = mutations.getValue(source[0], 'ma');
                                 
                                 var score = ma['score'];
-                                var bgColor,impact;
-                                if (score==='N') {bgColor="white"; impact='Neutral';}
-                                else if (score==='L') {bgColor="#E8E894"; impact='Low';}
-                                else if (score==='M') {bgColor="#C79060"; impact='Medium';}
-                                else if (score==='H') {bgColor="#C83C3C"; impact='High';}
+                                var maclass,impact;
+                                if (score==='N') {maclass="oma_link oma_neutral"; impact='Neutral';}
+                                else if (score==='L') {maclass="oma_link oma_low"; impact='Low';}
+                                else if (score==='M') {maclass="oma_link oma_medium"; impact='Medium';}
+                                else if (score==='H') {maclass="oma_link oma_high"; impact='High';}
                                 
                                 var ret = "";
                                 if (impact) {
-                                    var tip = "Predicted impact: <b>"+impact+"</b><br/>Click to go to MutationAssessor.";
+                                    var tip = "";
                                     var xvia = ma['xvia'];
-                                    if (xvia!=null && xvia.indexOf('http://')!==0) xvia='http://'+xvia;
-                                    ret += "<a href='"+xvia+"' style='background-color:"+bgColor+";' class='"
-                                                +table_id+"-tip' alt=\""+tip+"\">&nbsp;&nbsp;"+score+"&nbsp;&nbsp;</a>";
+                                    if (xvia!=null) {
+                                        if (xvia.indexOf('http://')!==0) xvia='http://'+xvia;
+                                        
+                                        tip += "<div class=\"mutation-assessor-main-link mutation-assessor-link\">" +
+                                                "<a href=\""+xvia+"\" target=\"_blank\"><img height=\"15\" width=\"19\" src=\"images/ma.png\"> Go to Mutation Assessor</a></div>";
+                                    }
+                                    
+                                    var msa = ma['msa'];
+                                    if (msa&&msa!=='NA') {
+                                        if (msa.indexOf('http://')!==0) msa='http://'+msa;
+                                        tip += "<div class=\"mutation-assessor-msa-link mutation-assessor-link\">"+
+                                               "<a href=\""+msa+"\" target=\"_blank\"><span class=\"ma-msa-icon\">msa</span> Multiple Sequence Alignment</a></div>";
+                                    }
+                                    
+                                    var pdb = ma['pdb'];
+                                    if (pdb&&pdb!=='NA') {
+                                        if (pdb.indexOf('http://')!==0) pdb='http://'+pdb;
+                                        tip += "<div class=\"mutation-assessor-3d-link mutation-assessor-link\">"+
+                                               "<a href=\""+pdb+"\" target=\"_blank\"><span class=\"ma-3d-icon\">3D</span> Mutation Assessor 3D View</a></div>";
+                                    }
+
+                                    ret += "<span class='"+maclass+" "+table_id+"-ma-tip' alt='"+tip+"'>"+impact+"</span>";
                                 }
                                 
                                 return ret;
@@ -617,86 +823,25 @@
                             }
                         },
                         "asSorting": ["desc", "asc"]
-                    },
-                    {
-                        "aTargets": [ mutTableIndices["cons"] ],
-                        "sClass": "center-align-td",
-                        "mDataProp": function(source,type,value) {
-                            if (type==='set') {
-                                return;
-                            } else if (type==='display') {
-                                var ma = mutations.getValue(source[0], 'ma');
-                                var ret = '';
-                                var msa = ma['msa'];
-                                if (msa&&msa!=='NA') {
-                                    if (msa.indexOf('http://')!==0) msa='http://'+msa;
-                                    ret += "&nbsp;<a class='"
-                                            +table_id+"-tip' alt='Click to view multiple sequence alignment' href='"+msa
-                                            +"'><span style='background-color:#88C;color:white;'>&nbsp;MSA&nbsp;</span></a>";
-                                }
-                                
-                                return ret;
-                            } else if (type==='sort' || type==='filter') {
-                                var ma = mutations.getValue(source[0], 'ma');
-                                var msa = ma['msa'];
-                                if (msa&&msa!=='NA') return 'msa';
-                                else return '';
-                            } else {
-                                var ma = mutations.getValue(source[0], 'ma');
-                                var msa = ma['msa'];
-                                if (msa&&msa!=='NA') return msa;
-                                else return '';
-                            }
-                        },
-                        "asSorting": ["desc", "asc"]
-                    },
-                    {
-                        "aTargets": [ mutTableIndices["3d"] ],
-                        "sClass": "center-align-td",
-                        "mDataProp": function(source,type,value) {
-                            if (type==='set') {
-                                return;
-                            } else if (type==='display') {
-                                var ma = mutations.getValue(source[0], 'ma');
-                                
-                                var ret = '';
-                                var pdb = ma['pdb'];
-                                if (pdb&&pdb!=='NA') {
-                                    if (pdb.indexOf('http://')!==0) pdb='http://'+pdb;
-                                    ret += "&nbsp;<a class='"
-                                            +table_id+"-tip' alt='Click to view protein 3D structure' href='"+pdb
-                                            +"'><span style='background-color:#88C;color:white;'>&nbsp;3D&nbsp;</span></a>";
-                                }
-                                
-                                return ret;
-                            } else if (type==='sort'||type==='filter') {
-                                var ma = mutations.getValue(source[0], 'ma');
-                                var pdb = ma['pdb'];
-                                if (pdb&&pdb!=='NA') return '3d';
-                                else return '';
-                            } else {
-                                var ma = mutations.getValue(source[0], 'ma');
-                                var pdb = ma['pdb'];
-                                if (pdb&&pdb!=='NA') return pdb;
-                                else return '';
-                            }
-                        },
-                        "asSorting": ["desc", "asc"]
                     }
                 ],
                 "fnDrawCallback": function( oSettings ) {
                     if (caseIds.length>1) {
                         plotCaseLabel('.'+table_id+'-case-label',true);
                         plotAlleleFreq("."+table_id+"-tumor-freq",mutations,"alt-count","ref-count");
-                        plotAlleleFreq("."+table_id+"-tumor-freq",mutations,"normal-alt-count","normal-ref-count");
+                        plotAlleleFreq("."+table_id+"-normal-freq",mutations,"normal-alt-count","normal-ref-count");
                     }
                     plotMrna("."+table_id+"-mrna",mutations);
                     plotMutRate("."+table_id+"-mut-cohort",mutations);
                     addNoteTooltip("."+table_id+"-tip");
+                    addNoteTooltip("."+table_id+"-ma-tip",null,{my:'top right',at:'bottom center',viewport: $(window)});
                     addDrugsTooltip("."+table_id+"-drug-tip", 'top right', 'bottom center');
                     addCosmicTooltip(table_id);
                     listenToBamIgvClick(".igv-link");
+                    drawPanCanThumbnails(this);
                 },
+                "bPaginate": true,
+                "sPaginationType": "two_button",
                 "aaSorting": [[mutTableIndices["cosmic"],'desc'],[mutTableIndices["altrate"],'desc']],
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
@@ -710,6 +855,13 @@
 
         oTable.css("width","100%");
         addNoteTooltip("#"+table_id+" th.mut-header");
+
+        genomicEventObs.subscribePancanMutationsFrequency(function() {
+            drawPanCanThumbnails(oTable);
+            // redraw based on the update
+            oTable.fnDraw();
+        });
+
         return oTable;
     }
     
@@ -781,8 +933,8 @@
                 content: {text: tip},
 	            show: {event: "mouseover"},
                 hide: {fixed: true, delay: 200, event: "mouseout"},
-                style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
-                position: {my:'top right',at:'bottom center'}
+                style: { classes: 'qtip-light qtip-rounded' },
+                position: {my:'top right',at:'bottom center',viewport: $(window)}
             });
         }
     }
@@ -838,8 +990,8 @@
             },
 	        show: {event: "mouseover"},
             hide: {fixed: true, delay: 100, event: "mouseout"},
-            style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-wide' },
-            position: {my:'top right',at:'bottom center'}
+            style: { classes: 'qtip-light qtip-rounded qtip-wide' },
+            position: {my:'top right',at:'bottom center',viewport: $(window)}
         });
     }
     
@@ -847,11 +999,14 @@
     
     $(document).ready(function(){
         $('#mutation_id_filter_msg').hide();
-        $('#mutation_wrapper_table').hide();
         var params = {
-            <%=PatientView.CASE_ID%>:caseIdsStr,
+            <%=PatientView.SAMPLE_ID%>:caseIdsStr,
             <%=PatientView.MUTATION_PROFILE%>:mutationProfileId
         };
+        
+        if (cnaProfileId) {
+            params['<%=PatientView.CNA_PROFILE%>'] = cnaProfileId;
+        }
         
         if (mrnaProfileId) {
             params['<%=PatientView.MRNA_PROFILE%>'] = mrnaProfileId;
@@ -863,25 +1018,28 @@
                         
         $.post("mutations.json", 
             params,
-            function(data){
+            function(data) {
                 determineOverviewMutations(data);
                 genomicEventObs.mutations.setData(data);
                 genomicEventObs.fire('mutations-built');
-                
+
                 // summary table
                 buildMutationsDataTable(genomicEventObs.mutations,genomicEventObs.mutations.getEventIds(true), 'mutation_summary_table', 
                             '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pl>>', 25, "No mutation events of interest", true);
                 var numFiltered = genomicEventObs.mutations.getNumEvents(true);
                 var numAll = genomicEventObs.mutations.getNumEvents(false);
-                 $('.mutation-show-more').html("<a href='#mutations' onclick='switchToTab(\"mutations\");return false;'\n\
+                 $('.mutation-show-more').html("<a href='#mutations' onclick='switchToTab(\"tab_mutations\");return false;'\n\
                       title='Show more mutations of this patient'>Show all "
                         +numAll+" mutations</a>");
                 $('.mutation-show-more').addClass('datatable-show-more');
-                $('.mutation-summary-table-name').html(
-                    "Mutations of interest"
+                var mutationSummary;
+                if (numAll===numFiltered) {
+                    mutationSummary = ""+numAll+" mutations";
+                } else {
+                    mutationSummary = "Mutations of interest"
                      +(numAll==0?"":(" ("
                         +numFiltered
-                        +" of <a href='#mutations' onclick='switchToTab(\"mutations\");return false;'\n\
+                        +" of <a href='#mutations' onclick='switchToTab(\"tab_mutations\");return false;'\n\
                          title='Show more mutations of this patient'>"
                         +numAll
                         +"</a>)"))
@@ -891,11 +1049,13 @@
                         <li>or recurrently mutated, namely\n\
                             <ul><li>MutSig Q < 0.05, if MutSig results are available</li>\n\
                             <li>otherwise, mutated in > 5% of samples in the study with &ge; 50 samples</li></ul> </li>\n\
-                        <li>or with > 5 overlapping entries in COSMIC.</li></ul>'/>");
+                        <li>or with > 5 overlapping entries in COSMIC.</li></ul>'/>";
+                }
+                $('.mutation-summary-table-name').html(mutationSummary);
                 $('#mutations-summary-help').qtip({
                     content: { attr: 'title' },
-                    style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
-                    position: { my:'top center',at:'bottom center' }
+                    style: { classes: 'qtip-light qtip-rounded' },
+                    position: { my:'top center',at:'bottom center',viewport: $(window) }
                 });
                 $('.mutation-summary-table-name').addClass("datatable-name");
                 $('#mutation_summary_wrapper_table').show();
@@ -909,6 +1069,58 @@
                 $('.all-mutation-table-name').addClass("datatable-name");
                 $('#mutation_wrapper_table').show();
                 $('#mutation_wait').remove();
+
+                var pancanMutationsUrl = "pancancerMutations.json";
+                var byKeywordResponse = [];
+                var byHugoResponse = [];
+
+                function munge(response, key) {
+                    // munge data to get it into the format: keyword -> corresponding datum
+                    return d3.nest().key(function(d) { return d[key]; }).entries(response)
+                            .reduce(function(acc, next) { acc[next.key] = next.values; return acc;}, {});
+                }
+
+                var splitJobs = function(cmd, reqData, type) {
+                    var jobs = [];
+                    var batchSize = 1000;
+
+                    var numOfBatches = Math.ceil(reqData.length / batchSize);
+                    for(var b=0; b<numOfBatches; b++) {
+                        var first = b*batchSize;
+                        var last = Math.min((b+1)*batchSize, reqData.length);
+
+                        var accData = reqData.slice(first, last).join(",");
+
+                        jobs.push(
+                                $.post(pancanMutationsUrl,
+                                        {
+                                            cmd: cmd,
+                                            q: accData
+                                        }, function(batchData) {
+                                            if(cmd == "byKeywords") {
+                                                byKeywordResponse = byKeywordResponse.concat(batchData);
+                                            } else if( cmd == "byHugos") {
+                                                byHugoResponse = byHugoResponse.concat(batchData);
+                                            } else {
+                                                console.trace("Ooops! Something is wrong!");
+                                            }
+                                        }
+                                )
+                        );
+
+                    }
+
+                    return jobs;
+                };
+
+                var jobs = splitJobs("byKeywords", genomicEventObs.mutations.data.key)
+                                .concat(splitJobs("byHugos", genomicEventObs.mutations.data.gene));
+                $.when.apply($, jobs).done(function() {
+                    genomicEventObs.pancan_mutation_frequencies
+                            = _.extend(munge(byKeywordResponse, "keyword"), munge(byHugoResponse, "hugo"));
+                    genomicEventObs.fire("pancan-mutation-frequency-built");
+                });
+
             }
             ,"json"
         );
@@ -999,7 +1211,8 @@
 <div id="mutation_wait"><img src="images/ajax-loader.gif"/></div>
 <div id="mutation_id_filter_msg"><font color="red">The following table contains filtered mutations.</font>
 <button onclick="unfilterMutationsTableByIds(); return false;" style="font-size: 1em;">Show all mutations</button></div>
-<table cellpadding="0" cellspacing="0" border="0" id="mutation_wrapper_table" width="100%">
+<div  id="pancan_mutations_histogram_container"></div>
+<table cellpadding="0" cellspacing="0" border="0" id="mutation_wrapper_table" width="100%" style="display:none;">
     <tr>
         <td>
             <table cellpadding="0" cellspacing="0" border="0" class="display" id="mutation_table">

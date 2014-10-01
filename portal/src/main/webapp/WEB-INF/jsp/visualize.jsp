@@ -1,22 +1,21 @@
 <%@ include file="global/global_variables.jsp" %>
+
 <jsp:include page="global/header.jsp" flush="true" />
 
-<%
-    String smry = cancerStudyName +
-            "/" + caseSetName + ": (" +
-            mergedCaseListSize + ")" + "/" +
-            geneSetName + "/" + geneWithScoreList.size() +
-            (geneWithScoreList.size() == 1?"gene":"genes");
-%>
-
-<p>
-    <div class='gene_set_summary'>
-        Gene Set / Pathway is altered in <%=percentCasesAffected%> of all cases. <br>
+<div class='main_smry'>
+    <div id='main_smry_stat_div' style='float:right;margin-right:15px;width:50%;padding-top:10px;text-align:right;'></div>
+    <div id='main_smry_info_div'>
+        <table style='margin-left:10px;width=40%;' >
+            <tr>
+                <td><div id='main_smry_modify_query_btn'><div></td>
+                <td><div id='main_smry_query_div' style='padding-left: 5px;'></div></td>
+            </tr>
+        </table>
     </div>
-</p>
-<p>
-    <small><strong><%=smry%></strong></small>
-</p>
+    <div style="margin-left:5px;display:none;" id="query_form_on_results_page">
+        <%@ include file="query_form.jsp" %>
+    </div>
+</div>
 
 <%
     if (warningUnion.size() > 0) {
@@ -43,23 +42,6 @@
         out.println ("</div>");
     } else {
 %>
-
-<script type="text/javascript">
-    $(document).ready(function(){
-        // Init Tool Tips
-        $("#toggle_query_form").tipTip();
-
-    });
-</script>
-
-<p><a href="" title="Modify your original query.  Recommended over hitting your browser's back button." id="toggle_query_form">
-    <span class='query-toggle ui-icon ui-icon-triangle-1-e' style='float:left;'></span>
-    <span class='query-toggle ui-icon ui-icon-triangle-1-s' style='float:left; display:none;'></span><b>Modify Query</b></a>
-<p/>
-
-<div style="margin-left:5px;display:none;" id="query_form_on_results_page">
-    <%@ include file="query_form.jsp" %>
-</div>
 
 <div id="tabs">
     <ul>
@@ -123,7 +105,7 @@
             out.println ("<li><a href='#summary' class='result-tab' title='Compact visualization of genomic alterations'>OncoPrint</a></li>");
 
             if (computeLogOddsRatio && geneWithScoreList.size() > 1) {
-                out.println ("<li><a href='#gene_correlation' class='result-tab' title='Mutual exclusivity and co-occurrence analysis'>"
+                out.println ("<li><a href='#mutex' class='result-tab' title='Mutual exclusivity and co-occurrence analysis'>"
                 + "Mutual Exclusivity</a></li>");
             }
 
@@ -137,12 +119,16 @@
                  + "Mutations</a></li>");
             }
 
+            if (showCoexpTab) {
+                out.println ("<li><a href='#coexp' class='result-tab' title='List of top co-expressed genes'>Co-Expression</a></li>");
+            }
+
             if (has_rppa) {
                 out.println ("<li><a href='#protein_exp' class='result-tab' title='Protein and Phopshoprotein changes using Reverse Phase Protein Array (RPPA) data'>"
                 + "Protein Changes</a></li>");
             }
 
-            if (clinicalDataList != null && clinicalDataList.size() > 0) {
+            if (has_survival) {
                 out.println ("<li><a href='#survival' class='result-tab' title='Survival analysis and Kaplan-Meier curves'>"
                 + "Survival</a></li>");
             }
@@ -163,7 +149,7 @@
             out.println ("<div class=\"section\" id=\"bookmark_email\">");
 
             // diable bookmark link if case set is user-defined
-            if (caseSetId.equals("-1"))
+            if (patientSetId.equals("-1"))
             {
                 out.println("<br>");
                 out.println("<h4>The bookmark option is not available for user-defined case lists.</h4>");
@@ -198,14 +184,14 @@
         <%@ include file="igv.jsp" %>
             <% } %>
 
-            <% if (clinicalDataList != null && clinicalDataList.size() > 0) { %>
-        <%@ include file="clinical_tab.jsp" %>
+            <% if (has_survival) { %>
+        <%@ include file="survival_tab.jsp" %>
             <% } %>
 
             <% if (computeLogOddsRatio && geneWithScoreList.size() > 1) { %>
-        <%@ include file="correlation.jsp" %>
+                <%@ include file="mutex_tab.jsp" %>
             <% } %>
-
+            
             <% if (mutationDetailLimitReached != null) {
         out.println("<div class=\"section\" id=\"mutation_details\">");
         out.println("<P>To retrieve mutation details, please specify "
@@ -216,16 +202,21 @@
         <%@ include file="mutation_details.jsp" %>
             <%  } %>
 
-            <% if (has_rppa) { %>
-        <%@ include file="protein_exp.jsp" %>
-            <% } %>
+        <% if (has_rppa) { %>
+            <%@ include file="protein_exp.jsp" %>
+        <% } %>
 
-            <% if (includeNetworks) { %>
-        <%@ include file="networks.jsp" %>
-            <% } %>
+        <% if (includeNetworks) { %>
+            <%@ include file="networks.jsp" %>
+        <% } %>
+
+        <% if (showCoexpTab) { %>
+            <%@ include file="co_expression.jsp" %>
+        <% } %>
 
         <%@ include file="data_download.jsp" %>
         <%@ include file="image_tabs_data.jsp" %>
+
 </div> <!-- end tabs div -->
 <% } %>
 
@@ -244,14 +235,22 @@
 </form>
 
 <script type="text/javascript">
-    // to initially hide the network tab
+    // initially hide network tab
+    $("div.section#network").attr('style', 'height: 0px; width: 0px; visibility: hidden;');
 
-    //index of network tab
-    var networkTabIndex = $('#tabs a[href="#network"]').parent().index();
+    // it is better to check selected tab after document gets ready
+    $(document).ready(function() {
 
-    if($.cookie(("results-tab-" + (typeof cancer_study_id_selected === 'undefined'? "" : cancer_study_id_selected))) != networkTabIndex){
-        $("div.section#network").attr('style', 'display: none !important; height: 0px; width: 0px; visibility: hidden;');
-    }
+        $("#toggle_query_form").tipTip();
+        // check if network tab is initially selected
+        // TODO this depends on aria-hidden attribute which may not be safe...
+        
+        if ($("div.section#network").attr('aria-hidden') == "false"){
+            // make the network tab visible...
+            $("div.section#network").removeAttr('style');
+        }
+
+    });
 
     // to fix problem of flash repainting
     $("a.result-tab").click(function(){
@@ -259,7 +258,8 @@
         if($(this).attr("href")=="#network") {
             $("div.section#network").removeAttr('style');
         } else {
-            $("div.section#network").attr('style', 'display: block !important; height: 0px; width: 0px; visibility: hidden;');
+            // since we never allow display:none we should adjust visibility, height, and width properties
+            $("div.section#network").attr('style', 'height: 0px; width: 0px; visibility: hidden;');
         }
     });
 

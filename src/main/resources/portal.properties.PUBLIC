@@ -2,11 +2,15 @@
 app.name=public-portal
 app.version=0.1
 
+
+
+
 # Database Settings
 db.user=
 db.password=
 db.host=localhost
 db.portal_db_name=cgds_public
+db.tomcat_resource_name=jdbc/cbioportal
 # props used by importer
 db.importer_db_name=cgds_importer
 db.driver=com.mysql.jdbc.Driver
@@ -25,6 +29,7 @@ importer.spreadsheet=
 importer.cancer_studies_worksheet=
 importer.case_id_filters_worksheet=
 importer.case_lists_worksheet=
+importer.clinical_attributes_namespace_worksheet=
 importer.clinical_attributes_worksheet=
 importer.datatypes_worksheet=
 importer.data_sources_worksheet=
@@ -62,11 +67,29 @@ r_installed=true
 # Indicates whether site is protected, and users must authenticate via Open ID to gain access
 authenticate=false
 
+
+#Google+
+googleplus.consumer.key=
+googleplus.consumer.secret=
+
+#SAML
+saml.sp.metadata.entityid=
+saml.idp.metadata.location=
+saml.keystore.location=
+saml.keystore.password=
+saml.keystore.private-key.key=
+saml.keystore.private-key.password=
+saml.keystore.default-key=
+
+
 # Indicates whether users must be authorized to access a particular cancer study
 authorization=false
 
 # Indicates whether to include networks
 include_networks=true
+
+# Analytics profile Web Property ID, e.g. UA-1234567-1
+google_analytics_profile_id=
 
 # Manager webapp username and password
 manager.username=tomcat
@@ -124,3 +147,12 @@ broad.bam.checking.url=
 
 # temp dir
 temporary_dir=/tmp
+
+# tcga - bcr
+tcga.clinical.url=https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/<TUMOR_TYPE>/bcr/nationwidechildrens.org/bio/clin/
+tcga.clinical.filename=nationwidechildrens.org_<TUMOR_TYPE>.bio.Level_2.0.<REVISION>.0.tar.gz
+
+genomespace=true
+
+nci.cadsr.url=http://cadsrapi.nci.nih.gov/cadsrapi40/GetXML?query=
+nci.cadsr.query=DataElement[@publicId=CDE_ID:]

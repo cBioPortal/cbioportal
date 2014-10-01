@@ -1,45 +1,32 @@
 /** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
-**
-** This library is free software; you can redistribute it and/or modify it
-** under the terms of the GNU Lesser General Public License as published
-** by the Free Software Foundation; either version 2.1 of the License, or
-** any later version.
-**
-** This library is distributed in the hope that it will be useful, but
-** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
-** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
-** documentation provided hereunder is on an "as is" basis, and
-** Memorial Sloan-Kettering Cancer Center 
-** has no obligations to provide maintenance, support,
-** updates, enhancements or modifications.  In no event shall
-** Memorial Sloan-Kettering Cancer Center
-** be liable to any party for direct, indirect, special,
-** incidental or consequential damages, including lost profits, arising
-** out of the use of this software and its documentation, even if
-** Memorial Sloan-Kettering Cancer Center 
-** has been advised of the possibility of such damage.  See
-** the GNU Lesser General Public License for more details.
-**
-** You should have received a copy of the GNU Lesser General Public License
-** along with this library; if not, write to the Free Software Foundation,
-** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-**/
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 
 package org.mskcc.cbio.portal.model;
-
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoGistic;
-import org.mskcc.cbio.portal.dao.DaoMutSig;
-import org.mskcc.cbio.portal.util.EqualsUtil;
-import org.mskcc.cbio.portal.web_api.GetGeneticProfiles;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import org.mskcc.cbio.portal.dao.DaoCaseProfile;
-import org.mskcc.cbio.portal.dao.DaoCopyNumberSegment;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.util.*;
+import org.mskcc.cbio.portal.web_api.GetGeneticProfiles;
+
+
 
 /**
  * This represents a cancer study, with a set of cases and some data sets.
@@ -61,6 +48,7 @@ public class CancerStudy {
     private String pmid;
     private String citation;
     private Set<String> groups;
+    private String shortName;
     
 
     /**
@@ -76,6 +64,7 @@ public class CancerStudy {
         super();
         this.studyID = CancerStudy.NO_SUCH_STUDY;
         this.name = name;
+        this.shortName = "";
         this.description = description;
         this.cancerStudyIdentifier = cancerStudyIdentifier;
         this.typeOfCancerId = typeOfCancerId;
@@ -209,14 +198,20 @@ public class CancerStudy {
     public GeneticProfile getMutationProfile(ArrayList<GeneticProfile> geneticProfiles,
             String caseId) throws DaoException {
         for(GeneticProfile geneticProfile: geneticProfiles) {
-            if(geneticProfile.getGeneticAlterationType()
-                    .equals(GeneticAlterationType.MUTATION_EXTENDED)
-                    && (caseId==null || DaoCaseProfile.caseExistsInGeneticProfile(caseId,geneticProfile.getGeneticProfileId()))) {
+            if(geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED) &&
+               acceptableCaseId(caseId, geneticProfile)) {
                 return geneticProfile;
             }
         }
 
         return null;
+    }
+
+    private boolean acceptableCaseId(String caseId, GeneticProfile geneticProfile) throws DaoException {
+        if (caseId == null) return true;
+        Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
+                                                                    StableIdUtil.getSampleId(caseId));
+        return DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfile.getGeneticProfileId());
     }
     
     public GeneticProfile getMutationProfile(String caseId) throws DaoException {
@@ -264,10 +259,9 @@ public class CancerStudy {
     public GeneticProfile getCopyNumberAlterationProfile(String caseId, boolean showInAnalysisOnly)
             throws DaoException {
         for(GeneticProfile geneticProfile: getGeneticProfiles()) {
-            if(geneticProfile.getGeneticAlterationType()
-                    .equals(GeneticAlterationType.COPY_NUMBER_ALTERATION)
-                    && (!showInAnalysisOnly || geneticProfile.showProfileInAnalysisTab())
-                    && (caseId==null || DaoCaseProfile.caseExistsInGeneticProfile(caseId,geneticProfile.getGeneticProfileId()))) {
+            if(geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.COPY_NUMBER_ALTERATION) &&
+               (!showInAnalysisOnly || geneticProfile.showProfileInAnalysisTab()) &&
+               acceptableCaseId(caseId, geneticProfile)) {
                 return geneticProfile;
             }
         }
@@ -301,9 +295,8 @@ public class CancerStudy {
             throws DaoException {
         GeneticProfile ret = null;
         for(GeneticProfile geneticProfile: getGeneticProfiles()) {
-            if(geneticProfile.getGeneticAlterationType()
-                    .equals(GeneticAlterationType.MRNA_EXPRESSION)
-                    && (caseId==null || DaoCaseProfile.caseExistsInGeneticProfile(caseId,geneticProfile.getGeneticProfileId()))) {
+            if(geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MRNA_EXPRESSION) &&
+               acceptableCaseId(caseId, geneticProfile)) {
                 String stableId = geneticProfile.getStableId().toLowerCase();
                 if (stableId.matches(".+rna_seq.*_zscores")) {
                     return geneticProfile;
@@ -336,6 +329,11 @@ public class CancerStudy {
      */
     public boolean hasCnaSegmentData() throws DaoException {
         return DaoCopyNumberSegment.segmentDataExistForCancerStudy(studyID);
+    }
+
+    public Set<String> getFreshGroups() throws DaoException
+    {
+        return DaoCancerStudy.getFreshGroups(studyID);
     }
 
     public Set<String> getGroups() {
@@ -418,5 +416,18 @@ public class CancerStudy {
     public boolean hasGisticData() throws DaoException {
         return DaoGistic.hasGistic(this);
     }
+    
+    public boolean hasSurvivalData() throws DaoException {
+        Set<String> attrs = DaoClinicalData.getDistinctParameters(studyID);
+        return attrs.contains(ClinicalAttribute.OS_STATUS) ||
+                    attrs.contains(ClinicalAttribute.DFS_STATUS);
+    }
 
+    public String getShortName() {
+        return shortName;
+    }
+
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
+    }
 }

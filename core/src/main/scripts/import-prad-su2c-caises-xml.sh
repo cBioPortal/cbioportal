@@ -1,0 +1,1 @@
+importCaisesXml $PORTAL_DATA_HOME/studies/prad/su2c/data_clinical_caises.xml $PORTAL_DATA_HOME/studies/prad/su2c/patient_id_mapping.txt $PORTAL_DATA_HOME/studies/prad/su2c/meta_clinical_caises.txt

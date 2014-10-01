@@ -1,6 +1,6 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.CnaJSON" %>
-<%@ page import="org.mskcc.cbio.portal.dao.DaoCase" %>
-<%@ page import="org.mskcc.cbio.portal.model.Case" %>
+<%@ page import="org.mskcc.cbio.portal.dao.DaoSample" %>
+<%@ page import="org.mskcc.cbio.portal.model.Sample" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.List" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
@@ -27,22 +27,22 @@
 <%
 String jsonCaseIdsInStudy = "[]";
 if (mutationProfile!=null && hasCnaSegmentData) {
-    List<Case> cases = DaoCase.getAllCaseIdsInCancer(cancerStudy.getInternalId());
-    List<String> caseIdsInStudy = new ArrayList<String>(cases.size());
-    for (Case c : cases) {
-        caseIdsInStudy.add(c.getCaseId());
+    List<Sample> samples = DaoSample.getSamplesByCancerTypeId(cancerStudy.getCancerStudyStableId());
+    List<String> sampleIdsInStudy = new ArrayList<String>(samples.size());
+    for (Sample sample : samples) {
+        sampleIdsInStudy.add(sample.getStableId());
     }
-    jsonCaseIdsInStudy = jsonMapper.writeValueAsString(caseIdsInStudy);
+    jsonCaseIdsInStudy = jsonMapper.writeValueAsString(sampleIdsInStudy);
 }
 String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy.getCancerStudyStableId());
 %>
 
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<script type="text/javascript" src="js/lib/underscore-min.js"></script>
+<script type="text/javascript" src="js/lib/underscore-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
-<script type="text/javascript" src="js/src/patient-view/genomic-overview.js"></script>
-<script type="text/javascript" src="js/src/cancer-study-view/scatter-plot-mut-cna.js"></script>
-<script type="text/javascript" src="js/src/cancer-study-view/load-clinical-data.js"></script>
+<script type="text/javascript" src="js/src/patient-view/genomic-overview.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/cancer-study-view/scatter-plot-mut-cna.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/cancer-study-view/load-clinical-data.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript">
     google.load('visualization', '1', {packages:['table','corechart']}); 
     $(document).ready(function(){
@@ -51,7 +51,6 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
             return;
         }
         
-        $('#mutation_summary_wrapper_table').hide();
         $('#cna_summary_wrapper_table').hide();
         if (!genomicEventObs.hasMut||!genomicEventObs.hasSeg) $('#mut-cna-scatter').hide();
         if (showGenomicOverview) initGenomicsOverview();
@@ -64,7 +63,7 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
     function initGenomicsOverview() {
         var chmInfo = new ChmInfo();
 
-        var genomic_overview_length = $("#td-content").width() - 50;
+        var genomic_overview_length = $("#td-content").width() - 75;
         genomic_overview_length -= ((genomicEventObs.hasMut && genomicEventObs.hasSeg) ? 110 : 0);
         genomic_overview_length -= (hasAlleleFrequencyData&&caseIds.length===1 ? 110 : 0);
         var config = new GenomicOverviewConfig(
@@ -90,7 +89,7 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
 
         var params = {
             <%=CnaJSON.CMD%>:'<%=CnaJSON.GET_SEGMENT_CMD%>',
-            <%=PatientView.CASE_ID%>:caseIdsStr,
+            <%=PatientView.SAMPLE_ID%>:caseIdsStr,
             cancer_study_id: cancerStudyId
         };
         $.post("cna.json", 
@@ -152,8 +151,8 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
             content: $('#mut_cna_scatter_dialog').remove(),
             show: {delay: 200, event: "mouseover" },
             hide: {fixed: true, delay: 100,  event: "mouseout"},
-            style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-wide' },
-            position: {my:'top right',at:'top left'},
+            style: { classes: 'qtip-light qtip-rounded qtip-wide' },
+            position: {my:'top right',at:'top left',viewport: $(window)},
             events: {
                 render: function(event, api) {
                     openMutCnaScatterDialog();
@@ -175,24 +174,45 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
             if (s.length>1) return;
             if (caseIdDiv) {
                 var caseId = s.length===0 ? null : dt.getValue(s[0].row,0);
-                $('#case-id-div').html(formatPatientLink(caseId,cancerStudyId));
+                $('#case-id-div').html("<a href='"+cbio.util.getLinkToSampleView(cancerStudyId,caseId)+"'>"+caseId+"</a>");
             }
         });
     }
 </script>
 
+<style>
+fieldset.fieldset-border {
+    border: 1px solid #ccc !important;
+    -webkit-box-shadow:  0px 0px 0px 0px #000;
+            box-shadow:  0px 0px 0px 0px #000;
+}
 
-<%if(showPlaceHoder){%>
-<br/>Clinical timeline goes here...
-<br/><br/>
+legend.legend-border {
+    font-size: 12px !important;
+    text-align: left !important;
+    width:auto;
+    padding:0 10px;
+    border-bottom:none;
+    color:#1974b8;
+    margin-bottom: 0px;
+}
+</style>
+
+<%if(showTimeline){%>
+<jsp:include page="clinical_timeline.jsp" flush="true" />
+<br/>
 <%}%>
 
 <%if(showGenomicOverview){%>
+<fieldset class="fieldset-border">
+<legend class="legend-border">Genomic Overview</legend>
 <table>
     <tr>
         <td><div id="genomics-overview"></div></td>
         <td valign="top">
             <span style="float: left;" id="allele-freq-plot-thumbnail"></span>
+        </td>
+        <td valign="top">
             <span style="float: right;" id="mut-cna-scatter"><img src="images/ajax-loader.gif"/></span>
         </td>
     </tr>
@@ -211,10 +231,12 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
         <input id="allelefreq_curve_toggle" type="checkbox" checked />density estimation
     </label>
 </div>
+</fieldset>
+<br/>
 <%}%>
 
 <%if(hasAlleleFrequencyData && caseIds.size() == 1) {%>
-<script type="text/javascript" src="js/src/patient-view/AlleleFreqPlot.js"></script>
+<script type="text/javascript" src="js/src/patient-view/AlleleFreqPlot.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript">
     $(document).ready(function() {
         genomicEventObs.subscribeMut(function()  {
@@ -240,8 +262,7 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
 
             // create a plot on a hidden element
             var hidden_plot_id = '#allele-freq-plot-big';
-            window.allelefreqplot = AlleleFreqPlot($(hidden_plot_id)[0],
-                    AlleleFreqPlotUtils.extract_and_process(genomicEventObs, caseIds[0]));
+            window.allelefreqplot = AlleleFreqPlot($(hidden_plot_id)[0], processed_data);
 
             // add qtip on allele frequency plot thumbnail
             $(thumbnail).qtip({
@@ -286,9 +307,9 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
                 },
 	            show: {event: "mouseover"},
                 hide: {fixed: true, delay: 100, event: "mouseout"},
-                style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow', tip: false },
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow', tip: false},
                 //position: {my:'left top',at:'bottom center'}
-                position: {my:'top right',at:'top right'},
+                position: {my:'top right',at:'top right',viewport: $(window)}
             });
         });
     });
@@ -301,7 +322,7 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
 <tr valign="top">
 <td>
 <div id="mutation_summary_wait"><img src="images/ajax-loader.gif"/> Loading mutations ...</div>
-<table cellpadding="0" cellspacing="0" border="0" id="mutation_summary_wrapper_table" width="100%">
+<table cellpadding="0" cellspacing="0" border="0" id="mutation_summary_wrapper_table" width="100%" style="display:none;">
     <tr>
         <td>
             <table cellpadding="0" cellspacing="0" border="0" class="display" id="mutation_summary_table">

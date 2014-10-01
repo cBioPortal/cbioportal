@@ -265,7 +265,7 @@ var rppaPlots = (function() {
         function appendHeader() {
             $("#" + divName).empty();
             $("#" + divName).append(title);
-            var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
+            var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' target='_blank' " +
                 "onsubmit=\"this.elements['svgelement'].value=loadRPPASVG('" + divName + "');\">" +
                 "<input type='hidden' name='svgelement'>" +
                 "<input type='hidden' name='filetype' value='pdf'>" +
@@ -397,8 +397,9 @@ var rppaPlots = (function() {
             elem.dotsGroup.selectAll('path').each(
                 function(d) {
                     var content = "<font size='2'>";
-                    content += "Case ID: " + "<strong><a href='tumormap.do?case_id=" + d.caseId +
-                        "&cancer_study_id=" + cancer_study_id + "' target = '_blank'>" + d.caseId + "</a></strong><br>";
+                    content += "Case ID: " + "<strong><a href='"
+                            +cbio.util.getLinkToSampleView(cancer_study_id,d.caseId)
+                            + "' target = '_blank'>" + d.caseId + "</a></strong><br>";
                     content += "RPPA score: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
                     if (d.hasOwnProperty("annotation")) {
                         content += "Altertions: <strong>" + d.annotation + "</strong>";
@@ -408,10 +409,10 @@ var rppaPlots = (function() {
                     $(this).qtip(
                         {
                             content: {text: content},
-                            style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                             show: {event: "mouseover"},
                             hide: {fixed:true, delay: 100, event: "mouseout"},
-                            position: {my:'left bottom',at:'top right'}
+                            position: {my:'left bottom',at:'top right', viewport: $(window)}
                         }
                     );
 
@@ -509,9 +510,9 @@ var rppaPlots = (function() {
 
     function generatePlots(proteinArrayId, alterationsObj) {
         var paramsGetProteinArrayData = {
-            cancer_study_id: cancer_study_id,
-            case_set_id: case_set_id,
-            case_ids_key: case_ids_key,
+            cancer_study_id: window.PortalGlobals.getCancerStudyId(),
+            case_set_id: window.PortalGlobals.getCaseSetId(),
+            case_ids_key: window.PortalGlobals.getCaseIdsKey(),
             protein_array_id: proteinArrayId
         };
         $.post("getProteinArrayData.json", paramsGetProteinArrayData, getProfileDataCallBack(alterationsObj), "json");

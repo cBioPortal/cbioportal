@@ -1,29 +1,19 @@
 /** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
-**
-** This library is free software; you can redistribute it and/or modify it
-** under the terms of the GNU Lesser General Public License as published
-** by the Free Software Foundation; either version 2.1 of the License, or
-** any later version.
-**
-** This library is distributed in the hope that it will be useful, but
-** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
-** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
-** documentation provided hereunder is on an "as is" basis, and
-** Memorial Sloan-Kettering Cancer Center 
-** has no obligations to provide maintenance, support,
-** updates, enhancements or modifications.  In no event shall
-** Memorial Sloan-Kettering Cancer Center
-** be liable to any party for direct, indirect, special,
-** incidental or consequential damages, including lost profits, arising
-** out of the use of this software and its documentation, even if
-** Memorial Sloan-Kettering Cancer Center 
-** has been advised of the possibility of such damage.  See
-** the GNU Lesser General Public License for more details.
-**
-** You should have received a copy of the GNU Lesser General Public License
-** along with this library; if not, write to the Free Software Foundation,
-** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-**/
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 
 package org.mskcc.cbio.portal.dao;
 
@@ -56,7 +46,7 @@ public class DaoGistic {
      * @throws DaoException
      */
 
-    private static Log log = LogFactory.getLog(DaoGistic.class);
+    private static final Log log = LogFactory.getLog(DaoGistic.class);
 
     public static void addGistic(Gistic gistic) throws DaoException, validationException {
         if (gistic == null) {
@@ -113,9 +103,9 @@ public class DaoGistic {
      * @throws SQLException
      * @throws DaoException
      */
-    private static void addGisticGenes(Gistic gistic, Connection con) throws SQLException, DaoException {
+    private static void addGisticGenes(Gistic gistic, Connection con) throws DaoException {
         ArrayList<CanonicalGene> genes = gistic.getGenes_in_ROI();
-        PreparedStatement pstmt = null;
+        PreparedStatement pstmt;
 
         try {
             if (!genes.isEmpty()) {
@@ -165,7 +155,7 @@ public class DaoGistic {
 
         // get the genes from the SQL gistic_to_gene table
         // associated with a particular GISTIC_ROI_ID
-        PreparedStatement pstmt = null;
+        PreparedStatement pstmt  ;
         ResultSet _rs = null;
         Gistic gistic;
         ArrayList<CanonicalGene> genes = new ArrayList<CanonicalGene>();
@@ -198,7 +188,7 @@ public class DaoGistic {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(pstmt, _rs);
+            JdbcUtil.closeAll(_rs);
         }
 
         return gistic;

@@ -22,8 +22,8 @@
 </style>
 
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<script type="text/javascript" src="js/src/cancer-study-view/plot-clinical-data.js"></script>
-<script type="text/javascript" src="js/src/cancer-study-view/scatter-plot-mut-cna.js"></script>
+<script type="text/javascript" src="js/src/cancer-study-view/plot-clinical-data.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/cancer-study-view/scatter-plot-mut-cna.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript">   
     google.load('visualization', '1', {packages:['table','corechart']}); 
     $(document).ready(function(){
@@ -47,7 +47,7 @@
                 $('#clinical-msg').hide();
                 $('#case-select-custom').show();
             } else if ((typeof caseId)==(typeof '')) {
-                $('#clinical-msg').html("&nbsp;"+formatPatientLink(caseId,cancerStudyId)+
+                $('#clinical-msg').html("&nbsp;"+"<a href='"+cbio.util.getLinkToSampleView(cancerStudyId,caseId)+"'>"+caseId+"</a>"
                     " is selected. <button type='button' onclick='csObs.fireSelection(null,null);'>Clear selection</button>");
                 $('#clinical-msg').show();
                 $('#case-select-custom').hide();
@@ -60,7 +60,7 @@
                     $('#clinical-msg').hide();
                     $('#case-select-custom').show();
                 } else if (numSelected==1) {
-                    $('#clinical-msg').html("&nbsp;"+formatPatientLink(id,cancerStudyId)+
+                    $('#clinical-msg').html("&nbsp;"+"<a href='"+cbio.util.getLinkToSampleView(cancerStudyId,id)+"'>"+caseId+"</a>"
                         " is selected. <button type='button' onclick='csObs.fireSelection(null,null);'>Clear selection</button>");
                     $('#clinical-msg').show();
                     $('#case-select-custom').hide();
@@ -97,14 +97,15 @@
             position: {
                     my: 'center', // ...at the center of the viewport
                     at: 'center',
-                    target: $(window)
+                    target: $(window),
+                    viewport: $(window)
             },
             show: {
                     event: 'click', // Show it on click...
                     solo: true // ...and hide all other tooltips...
             },
             hide: false,
-            style: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-wide'
+            style: 'qtip-light qtip-rounded qtip-wide'
         });
         
         $("#case-select-custom-submit-btn").click(function() {

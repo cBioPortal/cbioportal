@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xmlns:tx="http://www.springframework.org/schema/tx"
+     xmlns:context="http://www.springframework.org/schema/context"
+     xsi:schemaLocation="
+     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!-- scan for mappers and let them be autowired -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="org.mskcc.cbio.portal.persistence" />
+    </bean>
+
+    <!-- these are required to get properly autowired mappers into our service classes -->
+    <!-- when creating services via manually loading this context file -->
+    <bean id="entityMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.EntityMapper" />
+        <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+    </bean>
+    <bean id="entityAttributeMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.EntityAttributeMapper" />
+        <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+    </bean>
+    <bean id="entityService" class="org.mskcc.cbio.portal.service.EntityService">
+        <property name="entityMapper" ref="entityMapper" />
+    </bean>
+    <bean id="entityAttributeService" class="org.mskcc.cbio.portal.service.EntityAttributeService">
+        <property name="entityAttributeMapper" ref="entityAttributeMapper" />
+    </bean>
+
+    <!-- enable component scanning (beware that this does not enable mapper scanning!) -->    
+    <context:component-scan base-package="org.mskcc.cbio.portal.service" />
+
+    <!-- enable autowire -->
+    <context:annotation-config />
+
+    <!-- enable transaction demarcation with annotations -->
+    <tx:annotation-driven />
+
+    <!-- transaction manager, use JtaTransactionManager for global tx -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="businessDataSource" />
+    </bean>
+
+    <!-- define the SqlSessionFactory -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="businessDataSource" />
+        <property name="typeAliasesPackage" value="org.mskcc.cbio.portal.model" />
+    </bean>
+  
+    <beans profile="dbcp">
+        <!-- business data source -->
+        <!-- setting minIdle/maxIdle to 1 doesn't limit the number of active -->
+        <bean id="businessDataSource" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">
+            <property name="driverClassName" value="${db.driver}"/>
+            <property name="url" value="${db.connection_string}${db.portal_db_name}?zeroDateTimeBehavior=convertToNull"/>
+            <property name="username" value="${db.user}"/>
+            <property name="password" value="${db.password}"/>
+            <property name="minIdle" value="0"/>
+            <property name="maxIdle" value="10"/>
+            <property name="maxActive" value="100"/>
+            <property name="poolPreparedStatements" value="true"/>
+        </bean>
+    </beans>
+
+    <beans profile="jndi">
+        <bean id="businessDataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+            <property name="jndiName" value="java:comp/env/${db.tomcat_resource_name}"/>
+        </bean>
+    </beans>
+</beans>

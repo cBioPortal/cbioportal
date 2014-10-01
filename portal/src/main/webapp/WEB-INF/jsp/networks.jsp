@@ -13,35 +13,36 @@
     String caseSetId4Network = xssUtil.getCleanerInput((String)request.getAttribute(QueryBuilder.CASE_SET_ID));
     String zScoreThesholdStr4Network =
 		    xssUtil.getCleanerInput(request.getAttribute(QueryBuilder.Z_SCORE_THRESHOLD).toString());
-    String useXDebug = xssUtil.getCleanInput(request, "xdebug");
+    //String useXDebug = xssUtil.getCleanInput(request, "xdebug");
+	String useXDebug = request.getParameter("xdebug");
     if (useXDebug==null)
         useXDebug = "0";
-    String netSrc = xssUtil.getCleanerInput(request, "netsrc");
+    String netSrc = request.getParameter("netsrc");
     if (netSrc==null)
         netSrc = "cgds";
-    String netSize = xssUtil.getCleanerInput(request, "netsize");
+    String netSize = request.getParameter("netsize");
     if (netSize==null)
         netSize = "large";
-    String nLinker = xssUtil.getCleanerInput(request, "linkers");
+    String nLinker = request.getParameter("linkers");
     if (nLinker==null)
         nLinker = "50";
-    String diffusion = xssUtil.getCleanerInput(request, "diffusion");
+    String diffusion = request.getParameter("diffusion");
     if (diffusion==null)
         diffusion = "0";
 %>
 
-<link href="css/network/network_ui.css" type="text/css" rel="stylesheet"/>
+<link href="css/network/network_ui.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
 
-<script type="text/javascript" src="js/lib/json2.js"></script>
-<script type="text/javascript" src="js/lib/cytoscape_web/AC_OETags.min.js"></script>
-<script type="text/javascript" src="js/lib/cytoscape_web/cytoscapeweb.min.js"></script>
+<script type="text/javascript" src="js/lib/json2.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/cytoscape_web/AC_OETags.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/cytoscape_web/cytoscapeweb.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
-<!-- <script type="text/javascript" src="js/src/network/network-ui.js"></script> -->
-<script type="text/javascript" src="js/src/network/network-visualization.js"></script>
-<script type="text/javascript" src="js/src/network/network-viz.js"></script>
+<!-- <script type="text/javascript" src="js/src/network/network-ui.js?<%=GlobalProperties.getAppVersion()%>"></script> -->
+<script type="text/javascript" src="js/src/network/network-visualization.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/network/network-viz.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <!-- for genomic data post request -->
-<script type="text/javascript" src="js/lib/d3.min.js"></script>
+<script type="text/javascript" src="js/lib/d3.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <script type="text/javascript">
 

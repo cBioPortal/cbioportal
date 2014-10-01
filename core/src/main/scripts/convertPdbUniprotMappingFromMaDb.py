@@ -56,13 +56,14 @@ def main():
 
     # parse command line options
     try:
-        opts, args = getopt.getopt(sys.argv[1:], '', ['host=', 'user=', 'passwd=', 'db=', 'output='])
+        opts, args = getopt.getopt(sys.argv[1:], '', ['host=', 'port=', 'user=', 'passwd=', 'db=', 'output='])
     except getopt.error, msg:
         print >>f, msg
         sys.exit(2)
 
     # process the options
     host = ''
+    port = 3306
     user = ''
     passwd = ''
     db = ''
@@ -70,6 +71,8 @@ def main():
     for o, a in opts:
         if o == '--host':
             host = a
+        if o == '--port':
+            port = int(a)
         elif o == '--user':
             user = a
         elif o == '--passwd':
@@ -80,7 +83,7 @@ def main():
             output = a
     #identpThreshold = '90'
         
-    db = MySQLdb.connect(host,user,passwd,db)
+    db = MySQLdb.connect(host=host,port=port,user=user,passwd=passwd,db=db)
 
     f = open(output, 'w')
     cursor = db.cursor()

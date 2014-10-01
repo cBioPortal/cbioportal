@@ -36,7 +36,7 @@
                                         ret.push("<svg width='12' height='12' class='"
                                             +table_id+"-case-label' alt='"+caseId+"'></svg>");
                                     } else {
-                                        ret.push("<span><svg width='12'></svg></span>");
+                                        ret.push("<span><svg width='12' height='12'></svg></span>");
                                     }
                                 }
                                 
@@ -217,6 +217,8 @@
                     addNoteTooltip("."+table_id+"-tip");
                     addDrugsTooltip("."+table_id+"-drug-tip", 'top right', 'bottom center');
                 },
+                "bPaginate": true,
+                "sPaginationType": "two_button",
                 "aaSorting": [[cnaTableIndices['altrate'],'desc']],
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
@@ -284,8 +286,8 @@
                 content: {text: tip},
 	            show: {event: "mouseover"},
                 hide: {fixed: true, delay: 200, event: "mouseout"},
-                style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
-                position: {my:'top right',at:'bottom center'}
+                style: { classes: 'qtip-light qtip-rounded' },
+                position: {my:'top right',at:'bottom center',viewport: $(window)}
             });
         }
     }
@@ -323,7 +325,7 @@
     $(document).ready(function(){
         $('#cna_wrapper_table').hide();
         $('#cna_id_filter_msg').hide();
-        var params = {<%=PatientView.CASE_ID%>:caseIdsStr,
+        var params = {<%=PatientView.SAMPLE_ID%>:caseIdsStr,
             <%=PatientView.CNA_PROFILE%>:cnaProfileId
         };
         
@@ -349,7 +351,7 @@
                 var numFiltered = genomicEventObs.cnas.getNumEvents(true);
                 var numAll = genomicEventObs.cnas.getNumEvents(false);
                 if (numAll>0) {
-                    $('.cna-show-more').html("<a href='#cna' onclick='switchToTab(\"cna\");return false;' \n\
+                    $('.cna-show-more').html("<a href='#cna' onclick='switchToTab(\"tab_cna\");return false;' \n\
                         title='Show more copy number alterations of this patient'>Show all "
                         +numAll+" CNAs</a>");
                     $('.cna-show-more').addClass('datatable-show-more');
@@ -358,7 +360,7 @@
                     "CNA of interest"
                     +(numAll==0?"":(" ("
                         +numFiltered
-                        +" of <a href='#cna' onclick='switchToTab(\"cna\");return false;'\n\
+                        +" of <a href='#cna' onclick='switchToTab(\"tab_cna\");return false;'\n\
                          title='Show more copy number alterations of this patient'>"
                         +numAll
                         +"</a>)"))
@@ -370,8 +372,8 @@
                         <li>otherwise, altered in >5% of samples in the study with &ge; 50 samples.</li></ul></li></ul>'/>");
                 $('#cna-summary-help').qtip({
                     content: { attr: 'title' },
-                    style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
-                    position: { my:'top center',at:'bottom center' }
+                    style: { classes: 'qtip-light qtip-rounded' },
+                    position: { my:'top center',at:'bottom center',viewport: $(window) }
                 });
                 $('.cna-summary-table-name').addClass("datatable-name");
                 $('#cna_summary_wrapper_table').show();

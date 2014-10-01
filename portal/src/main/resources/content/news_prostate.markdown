@@ -1,3 +1,21 @@
+# May 12, 2014
+* Improved study summary page including survival analysis based on clinical attributes
+<br/>![Study view](images/previews/study_view.png)
+
+# April 5, 2014
+* New features:
+    * Visualizing and comparing multiple tumor samples in the patient-centric view
+    * Visualizing clinical events (diagnostics, lab tests, treatment, etc.) in the patient-centric view
+<br/>![3D viewer & Co-expression](images/previews/multitumor-and-timeline.png)
+
+# March 27, 2014
+* New features:
+    * Visualizing of mutations mapped on 3D structures (individual or multiple mutations, directly in the browser)
+    * Gene expression correlation analysis (find all genes with expression correlation to your query genes)
+    * The Patient-Centric View now displays mutation frequencies across all cohorts in cBioPortal for each mutation
+    * The Mutation Details Tab and the Patient-Centric View now display the copy-number status of each mutation
+<br/>![3D viewer & Co-expression](images/previews/news_3d_coexp.png)
+
 # October 18, 2013
  
 * Improved interface for survival plots, including information on individual samples via mouse-over
@@ -8,7 +26,6 @@
 # September 5, 2013:
 
 * Linked to BAM files for single mutations via IGV.
-* [New standalone oncoprint tool](tools.jsp)
 * Updated COSMIC data (v66 Release)
 * Improved / interactive visualization on the "Protein changes" tab
 * Enhanced mutation diagrams: color-coding by mutation time and syncing with table filters

@@ -151,7 +151,7 @@ function drawDataTable(tableId,dt,caseMap,cancerStudyId) {
                     if (type==='set') {
                         source[0]=value;
                     } else if (type==='display') {
-                        return formatPatientLink(source[0],cancerStudyId);
+                        return "<a href='"+cbio.util.getLinkToSampleView(cancerStudyId,source[0])+"'>"+source[0]+"</a>";
                     } else {
                         return source[0];
                     }
@@ -166,7 +166,7 @@ function drawDataTable(tableId,dt,caseMap,cancerStudyId) {
                 if (type==='set') {
                     source[colPatientIdCol]=value;
                 } else if (type==='display') {
-                    return formatPatientLink(source[colPatientIdCol],cancerStudyId,true);
+                    return "<a href='" +cbio.util.getLinkToPatientView(cancerStudyId,source[colPatientIdCol])+ "'>" + source[colPatientIdCol] + "</a>";
                 } else {
                     return source[colPatientIdCol];
                 }
@@ -212,8 +212,8 @@ function drawDataTable(tableId,dt,caseMap,cancerStudyId) {
             oTable.fnFilter("(^"+ids.join("$)|(^")+"$)",0,true);
         }
     },true);
-    
-    $('#'+tableId+' tbody tr').live('click', function () {
+
+	$(document).on('click', '#'+tableId+' tbody tr', function () {
         var nTds = $('td', this);
         var caseId = $(nTds[0]).text();
         csObs.fireSelection(caseId,tableId);

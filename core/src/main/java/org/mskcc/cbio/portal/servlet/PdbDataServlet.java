@@ -1,39 +1,33 @@
 /** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
- **
- ** This library is free software; you can redistribute it and/or modify it
- ** under the terms of the GNU Lesser General Public License as published
- ** by the Free Software Foundation; either version 2.1 of the License, or
- ** any later version.
- **
- ** This library is distributed in the hope that it will be useful, but
- ** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
- ** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
- ** documentation provided hereunder is on an "as is" basis, and
- ** Memorial Sloan-Kettering Cancer Center
- ** has no obligations to provide maintenance, support,
- ** updates, enhancements or modifications.  In no event shall
- ** Memorial Sloan-Kettering Cancer Center
- ** be liable to any party for direct, indirect, special,
- ** incidental or consequential damages, including lost profits, arising
- ** out of the use of this software and its documentation, even if
- ** Memorial Sloan-Kettering Cancer Center
- ** has been advised of the possibility of such damage.  See
- ** the GNU Lesser General Public License for more details.
- **
- ** You should have received a copy of the GNU Lesser General Public License
- ** along with this library; if not, write to the Free Software Foundation,
- ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- **/
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center 
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center 
+ * has been advised of the possibility of such damage.
+*/
 
 package org.mskcc.cbio.portal.servlet;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoPdbUniprotResidueMapping;
+import org.mskcc.cbio.portal.dao.DaoTextCache;
 import org.mskcc.cbio.portal.model.PdbUniprotAlignment;
 import org.mskcc.cbio.portal.model.PdbUniprotResidueMapping;
+import org.mskcc.cbio.portal.util.PdbFileParser;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -77,6 +71,7 @@ public class PdbDataServlet extends HttpServlet
 	{
 		// TODO sanitize id if necessary... and, allow more than one uniprot id?
 		String uniprotId = request.getParameter("uniprotId");
+		String type = request.getParameter("type");
 
 		Set<Integer> positions = this.parseIntValues(request.getParameter("positions"));
 		Set<Integer> alignments = this.parseIntValues(request.getParameter("alignments"));
@@ -95,6 +90,12 @@ public class PdbDataServlet extends HttpServlet
 				JSONObject pdbInfo = this.getPdbInfo(pdbIds);
 				this.writeOutput(response, pdbInfo);
 			}
+			else if (type != null &&
+			         type.equals("summary"))
+			{
+				JSONObject summary = this.getAlignmentSummary(uniprotId);
+				this.writeOutput(response, summary);
+			}
 			else
 			{
 				// write back array of alignments for this uniprot id
@@ -110,74 +111,72 @@ public class PdbDataServlet extends HttpServlet
 	}
 
 	/**
-	 * Retrieves PDB info data from the service
-	 * for each pdb id in the given set.
+	 * Retrieves PDB info data for each pdb id in the given set.
 	 *
 	 * @param pdbIds    a set of PDB ids
 	 * @return  a map of info string keyed on pdb id
 	 */
 	protected JSONObject getPdbInfo(Set<String> pdbIds)
 	{
-		JSONObject infoMap = new JSONObject();
+		JSONObject info = new JSONObject();
 
 		for (String pdbId: pdbIds)
 		{
 			try
 			{
-				String info = this.makeRequest(pdbId);
-				infoMap.put(pdbId, this.parsePdbInfo(info));
+				info.put(pdbId, this.getInfoJson(pdbId));
 			}
-			catch (IOException e)
+			catch (Exception e)
 			{
 				// unable to retrieve pdb info
-				infoMap.put(pdbId, null);
+				info.put(pdbId, null);
 			}
 		}
 
-		return infoMap;
+		return info;
 	}
 
 	/**
-	 * Parses the raw PDB info returned by the service, and creates
-	 * a human readable info string.
+	 * Retrieves PDB info data from web service or from the cache
+	 * for the given id.
 	 *
-	 * @param rawInfo   raw data retrieved from the service
-	 * @return  a human readable info string
+	 * @param pdbId    PDB id string
+	 * @return  a JSON object containing the pdb info
 	 */
-	protected String parsePdbInfo(String rawInfo)
+	protected JSONObject getInfoJson(String pdbId)
+			throws IOException, DaoException, ParseException
 	{
-		String[] lines = rawInfo.split("\n");
-		StringBuilder sb = new StringBuilder();
+		JSONObject info = null;
 
-		// count for the number of "TITLE" lines
-		Integer count = 0;
+		DaoTextCache cache = new DaoTextCache();
+		String key = "PDB_FILE_" + pdbId;
 
-		for (String line: lines)
+		// try to get the JSON string from the cache
+		String jsonString = cache.getText(key);
+
+		// not cached yet, request from service and parse raw data
+		if (jsonString == null)
 		{
-			count++;
+			PdbFileParser pdbParser = new PdbFileParser();
+			String rawData = this.makeRequest(pdbId);
+			Map<String, String> content = pdbParser.parsePdbFile(rawData);
 
-			String str = line;
+			info = new JSONObject();
+			info.put("title", pdbParser.parseTitle(content.get("title")));
+			info.put("compound", pdbParser.parseCompound(content.get("compnd")));
+			info.put("source", pdbParser.parseCompound(content.get("source")));
 
-			// if there is more than one "TITLE" lines,
-			// than the line starts with the line number
-			// we should get rid of the line number as well
-			if (count > 1)
-			{
-				str = str.replace(count.toString(), "");
-			}
-
-			// get rid of the "TITLE"
-			str = str.toLowerCase().replaceAll("title", "").trim();
-			sb.append(str);
-
-			// whether to add a space at the end or not
-			if (!str.endsWith("-"))
-			{
-				sb.append(" ");
-			}
+			// cache json data as a string
+			cache.cacheText(key, info.toJSONString());
+		}
+		// already cached, just parse the JSON string
+		else
+		{
+			JSONParser jsonParser = new JSONParser();
+			info = (JSONObject) jsonParser.parse(jsonString);
 		}
 
-		return sb.toString().trim();
+		return info;
 	}
 
 	/**
@@ -205,11 +204,13 @@ public class PdbDataServlet extends HttpServlet
 		String line;
 		StringBuilder sb = new StringBuilder();
 
-		// TODO break the loop after "TITLE" lines?
+		// TODO no need to read until the end of the file
 		while((line = in.readLine()) != null)
 		{
-			// only append "TITLE" lines
-			if (line.toLowerCase().startsWith("title"))
+			// only append specific lines
+			if (line.toLowerCase().startsWith("title") ||
+			    line.toLowerCase().startsWith("compnd") ||
+			    line.toLowerCase().startsWith("source"))
 			{
 				sb.append(line).append("\n");
 			}
@@ -249,11 +250,22 @@ public class PdbDataServlet extends HttpServlet
 			alignmentJson.put("eValue", alignment.getEValue());
 			alignmentJson.put("identityPerc", alignment.getIdentityPerc());
 			alignmentJson.put("alignmentString", this.alignmentString(alignment));
+			//alignmentJson.put("alignmentString", alignment.getMidlineAlign());
 
 			alignmentArray.add(alignmentJson);
 		}
 
 		return alignmentArray;
+	}
+
+	protected JSONObject getAlignmentSummary(String uniprotId) throws DaoException
+	{
+		Integer count = DaoPdbUniprotResidueMapping.getAlignmentCount(uniprotId);
+
+		JSONObject summary = new JSONObject();
+		summary.put("alignmentCount", count);
+
+		return summary;
 	}
 
 	protected JSONObject getPositionMap(Set<Integer> alignments,
@@ -331,7 +343,8 @@ public class PdbDataServlet extends HttpServlet
 			JSONObject residueMappingJson = new JSONObject();
 
 			residueMappingJson.put("pdbPos", mapping.getPdbPos());
-			residueMappingJson.put("match", mapping.getMatch());
+			//residueMappingJson.put("match", mapping.getMatch());
+			residueMappingJson.put("insertion", mapping.getPdbInsertionCode());
 
 			map.put(position, residueMappingJson);
 		}

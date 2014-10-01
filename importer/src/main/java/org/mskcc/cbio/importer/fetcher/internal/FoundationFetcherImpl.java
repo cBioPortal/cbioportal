@@ -50,7 +50,7 @@ import org.mskcc.cbio.importer.model.ReferenceMetadata;
  *
  * @author criscuof
  */
-public class FoundationDataFetcher implements Fetcher {
+public class FoundationFetcherImpl implements Fetcher {
 
     private final Logger logger = Logger.getLogger(FoundationDataFetcher.class);
     private FoundationMetadataGenerator metaDataGenerator;

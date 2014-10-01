@@ -49,7 +49,7 @@
     </div>
 </script>
 
-<script type="text/template" id="custom-controls-template">
+<script type="text/template" id="custom-controls-template">                
     <style>
         .onco-customize {
         color:#2153AA; font-weight: bold; cursor: pointer;

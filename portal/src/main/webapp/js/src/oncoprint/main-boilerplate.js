@@ -40,6 +40,13 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         $(this).css('fill', '#87CEFA');
         $(this).css('font-size', '12px');
         });
+        $('#oncoprint_zoom_slider').qtip({
+            content: {text: 'move the slider to zoom in and out oncoprint'},
+            position: {my:'left bottom', at:'top middle', viewport: $(window)},
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
+            show: {event: "mouseover"},
+            hide: {fixed: true, delay: 100, event: "mouseout"}
+        });
 
         return zoom;
     };
@@ -1099,7 +1106,24 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             $(this).css('fill', '#87CEFA');
             $(this).css('font-size', '12px');
             });
-    
+            $('.oncoprint-diagram-removeUCases-icon').qtip({
+            content: {text: 
+                        function(){
+                        if($(this)[0].attributes.src.value === 'images/removeUCases.svg')
+                        {return 'click here to remove unaltered cases!'}
+                        else
+                        {
+                            return 'click here to get unaltered cases back!'
+                        }
+                    }
+                },
+            position: {my:'left bottom', at:'top right', viewport: $(window)},
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
+            show: {event: "mouseover"},
+            hide: {fixed: true, delay: 100, event: "mouseout"}
+            });
+
+
             $('.oncoprint-diagram-removeWhitespace-icon').click(function(){
               if($(this)[0].attributes.src.value === 'images/removeWhitespace.svg')
               {
@@ -1122,6 +1146,23 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             $(this).css('fill', '#87CEFA');
             $(this).css('font-size', '12px');
             });
+            $('.oncoprint-diagram-removeWhitespace-icon').qtip({
+            content: {text: 
+                        function(){
+                        if($(this)[0].attributes.src.value === 'images/removeWhitespace.svg')
+                        {return 'click here to remove whitespace!'}
+                        else
+                        {
+                            return 'click here to get whitespace back!'
+                        }
+                    }
+            },
+            position: {my:'left bottom', at:'top right', viewport: $(window)},
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
+            show: {event: "mouseover"},
+            hide: {fixed: true, delay: 100, event: "mouseout"}
+            });           
+            
             
             $('.oncoprint-diagram-downloads-icon').qtip({
             //id: "#oncoprint-diagram-downloads-icon-qtip",

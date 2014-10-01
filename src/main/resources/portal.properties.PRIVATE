@@ -34,6 +34,7 @@ importer.data_sources_worksheet=
 importer.portals_worksheet=
 importer.reference_data_worksheet=
 importer.tumor_types_worksheet=
+importer.foundation_worksheet=
 
 # Location of log file
 log.file.path=/srv/www/sander-tomcat/tomcat6/logs/gdac-portal.log

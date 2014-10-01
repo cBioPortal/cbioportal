@@ -117,7 +117,7 @@ liftover_binary=
 liftover_chain_file=
 
 # foundation medicine
-foundation.root.directory
+foundation.root.directory=
 
 # darwin database
 darwin.db.host=

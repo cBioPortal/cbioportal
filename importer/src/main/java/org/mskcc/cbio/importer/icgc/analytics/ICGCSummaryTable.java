@@ -15,19 +15,18 @@
  *  Memorial Sloan-Kettering Cancer Center 
  *  has been advised of the possibility of such damage.
  */
-package org.mskcc.cbio.icgc.support;
+package org.mskcc.cbio.importer.icgc.analytics;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import com.google.gdata.util.common.base.Preconditions;
 import com.google.inject.internal.Lists;
+import com.google.inject.internal.Maps;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -38,12 +37,11 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 
@@ -59,11 +57,14 @@ public class ICGCSummaryTable {
     private Table<String, String, Integer> icgcTable;
     private Set<String> varClassSet;
     private Set<String> studySet;
+    private Map<String,Integer> tumorSampleIdMap;
+    private Integer totalSampleCount = 0;
     private static final Joiner tabJoiner = Joiner.on('\t').useForNull(" ");
     private final String mafDirectoryName;
     private final List<File> mafFileList;
     private static final String MAF_FILE_EXTENSION = ".maf";
     private static final String OUTPUT_FILE_NAME = "icgc_summary_table.tsv";
+    private Set<String> tumorSampleIdSet;
     private final Joiner pathJoiner = Joiner.on(System.getProperty("file.separator"));
 
     public ICGCSummaryTable(final String dirName) {
@@ -75,6 +76,13 @@ public class ICGCSummaryTable {
         this.mafDirectoryName = dirName;
         this.mafFileList = this.resolveFileList(mafDirectoryName);
         this.icgcTable.put("total", "total", 0);
+         this.tumorSampleIdMap = Maps.newHashMap();
+        try {
+            this.processMafFiles();
+        } catch (IOException ex) {
+            logger.error(ex.getMessage());
+        }
+        
     }
 
     /*
@@ -84,15 +92,28 @@ public class ICGCSummaryTable {
     private void processMafFiles() throws IOException {
         for (File mafFile : this.mafFileList) {
             logger.info("Processing MAF file " + mafFile.getAbsolutePath());
+            // clear the tumor sample id set
+           this.tumorSampleIdSet = Sets.newHashSet();
             try (BufferedReader reader = Files.newBufferedReader(Paths.get(mafFile.getAbsolutePath()), Charset.defaultCharset())) {
                 final CSVParser parser = new CSVParser(reader, CSVFormat.TDF.withHeader());
                 for (CSVRecord record : parser) {
                     this.incrementVariationCounts(record.get("Center"), record.get("Variant_Classification"));
+                    this.processTumorSampleBarcode(record.get("Center"), record.get("Tumor_Sample_Barcode"));
                 }
             }
         }
         // all the variant counts have been entered in the table - now write it out to a file 
         this.outputTable();
+    }
+    
+    private void processTumorSampleBarcode(String center, String barcode){
+        //the barcode may be empty
+        if(Strings.isNullOrEmpty(barcode)) { return; }
+        if(!this.tumorSampleIdSet.contains(barcode)){
+            this.tumorSampleIdSet.add(barcode);
+            this.tumorSampleIdMap.put(center, this.tumorSampleIdSet.size());
+            this.totalSampleCount++;
+        }
     }
 
     private void outputTable() throws IOException {
@@ -103,16 +124,17 @@ public class ICGCSummaryTable {
     }
     /*
      private method to format the variant table rows into a list of
-     tab-delimited Strings
-    
+     tab-delimited Strings  
      */
 
     private List<String> formatTable() {
         List<String> tableData = Lists.newArrayList();
-        tableData.add(tabJoiner.join("Center", tabJoiner.join(this.getSortedListWithTotal(varClassSet))));
+        tableData.add(tabJoiner.join("Center", "Samples",tabJoiner.join(this.getSortedListWithTotal(varClassSet))));
         StringBuilder sb = null;
         for (String rowName : this.getSortedListWithTotal(studySet)) {
             sb = new StringBuilder(rowName);
+             sb.append("\t");
+            sb.append(this.tumorSampleIdMap.get(rowName));
             for (String colName : this.getSortedListWithTotal(varClassSet)) {
                 sb.append("\t");
                 if (this.icgcTable.contains(rowName, colName)) {
@@ -121,13 +143,15 @@ public class ICGCSummaryTable {
             }
             tableData.add(sb.toString());
         }
+        
+        //add the total sample count as a separate line
+        tableData.add("Total Sample Count\t" +this.totalSampleCount);
         return tableData;
     }
 
     private List<String> getSortedListWithTotal(Set<String> unsortedSet) {
-        List<String> sorted = Ordering.natural().sortedCopy(unsortedSet);
-      
-        // add the the "total" to the end
+        List<String> sorted = Ordering.natural().sortedCopy(unsortedSet);    
+        // add the "total" to the end of the table      
         sorted.add("total");
         return sorted;
     }
@@ -192,14 +216,9 @@ public class ICGCSummaryTable {
         //Preconditions.checkArgument(args.length > 0,
         //        "Usage: java ICGCSummaryTable maf-file-directory ");
 
-        String mafDirectory = (null != args && args.length > 0) ? args[0] : "/tmp/maftest";
+        String mafDirectory = (null != args && args.length > 0) ? args[0] : "/data/icgctest/maffiles";
         logger.info("ICGC MAF files will be read from " + mafDirectory);
         ICGCSummaryTable table = new ICGCSummaryTable(mafDirectory);
-        try {
-            table.processMafFiles();
-        } catch (IOException ex) {
-            logger.error(ex.getMessage());
-            ex.printStackTrace();
-        }
+      
     }
 }

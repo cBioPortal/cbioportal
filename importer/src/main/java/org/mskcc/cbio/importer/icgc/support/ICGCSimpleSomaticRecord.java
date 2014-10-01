@@ -20,17 +20,18 @@
 POJO for ICGC attributes used to support ICGC duplicate detection using
 a Bllom Filter
 */
-package org.mskcc.cbio.icgc.support;
+package org.mskcc.cbio.importer.icgc.support;
 
 import com.google.common.base.Joiner;
 import com.google.inject.internal.Lists;
 import com.google.inject.internal.Preconditions;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
 
-public class ICGCRecord {
+public class IcgcSimpleSomaticRecord {
     
     
     private final String id;
@@ -47,7 +48,7 @@ public class ICGCRecord {
     
     private static final Joiner tabJoiner = Joiner.on('\t').useForNull(" ");
     
-    public ICGCRecord (Map<String, String> recordMap ){
+    public IcgcSimpleSomaticRecord (Map<String, String> recordMap ){
         Preconditions.checkArgument(null != recordMap, "A map if ICGC column names and values is required");
         Preconditions.checkArgument(!recordMap.isEmpty(), "The supplied Map object is empty");
         this.id = recordMap.get("icgc_mutation_id");
@@ -115,7 +116,25 @@ public class ICGCRecord {
         return tabJoiner.join(Lists.newArrayList(this.getId(), this.getProjectCode(), this.getSampleId(), this.getChromosome(), this.getStart(), this.getEnd(),
                 this.getRefAllele(), this.getMutAllele(),this.getTotalReads(),this.getMutReads()));
     }
-            
+    
+    public boolean equals(Object other) {
+        if(this == other) { return true;}
+        if (other == null || other.getClass() != this.getClass()) { return false;}
+        IcgcSimpleSomaticRecord record2 = (IcgcSimpleSomaticRecord) other;
+        return new EqualsBuilder()
+                .append(this.getId(),record2.getId())
+                .append(this.getChromosome(),record2.getChromosome())
+                .append(this.getEnd(), record2.getEnd())
+                .append(this.getMutAllele(), record2.getMutAllele())
+                .append(this.getProjectCode(), record2.getProjectCode())
+                .append(this.getRefAllele(), record2.getRefAllele())
+                .append(this.getSampleId(), record2.getSampleId())
+                .append(this.getStart(), record2.getStart())
+                .append(this.getTotalReads(),record2.getTotalReads())
+                .isEquals();
+        
+        
+    }
     
     public String toString() {
         return new ReflectionToStringBuilder(this).toString();

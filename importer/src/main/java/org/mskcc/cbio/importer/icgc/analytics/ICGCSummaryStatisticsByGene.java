@@ -15,7 +15,7 @@
  *  Memorial Sloan-Kettering Cancer Center 
  *  has been advised of the possibility of such damage.
  */
-package org.mskcc.cbio.icgc.support;
+package org.mskcc.cbio.importer.icgc.analytics;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
@@ -51,16 +51,15 @@ import scala.Tuple2;
 /*
 
  represents a Java application that can produce  variant classification summary 
- statitics for an ICGC based on gene and varaint type.
- the default value for variant type filter and variant classification is ALL
+ statitics for an ICGC study 
  
  */
-public final class ICGCSummaryStatistics implements Serializable {
+public final class ICGCSummaryStatisticsByGene implements Serializable {
 
     private static final String MAF_FILE_EXTENSION = ".maf";
     private static final String DEFAULT_FILTER_VALUE = "ALL";
-    private static final Boolean DEFAULT_GENE_FLAG = true;
-    private static final Logger logger = Logger.getLogger(ICGCSummaryStatistics.class);
+    private static final Boolean DEFAULT_GENE_FLAG = false;
+    private static final Logger logger = Logger.getLogger(ICGCSummaryStatisticsByGene.class);
     // tuple substitute for null
     private static final Tuple2<String, Integer> Tuple2Null = new Tuple2("null", 0);
     private static final Joiner scJoiner = Joiner.on(';').useForNull(" ");
@@ -73,7 +72,7 @@ public final class ICGCSummaryStatistics implements Serializable {
     private static JavaSparkContext ctx;
     private static Boolean geneFlag;
 
-    public ICGCSummaryStatistics(String dirName, String vc, String vt, Boolean gf) {
+    public ICGCSummaryStatisticsByGene(String dirName, String vc, String vt, Boolean gf) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(dirName),
                 "A directory containing MAF files is required");
         Preconditions.checkArgument(!Strings.isNullOrEmpty(vt),
@@ -251,11 +250,11 @@ public final class ICGCSummaryStatistics implements Serializable {
             //Preconditions.checkArgument(args.length > 0,
             //        "Usage: java ICGCSummaryStatistics maf-file-directory [variant-classification variant-type gene-flag]");
 
-            String mafDirectory = (null != args && args.length > 0) ? args[0] : "/tmp/maftest";
+            String mafDirectory = (null != args && args.length > 0) ? args[0] : "/data/icgctest";
 
             String vc = (args.length > 1) ? args[1] : DEFAULT_FILTER_VALUE;
             String vt = (args.length > 2) ? args[2] : DEFAULT_FILTER_VALUE;
-            Boolean gf = DEFAULT_GENE_FLAG;
+            Boolean gf = false;
             if (args.length > 3) {
                 if (Lists.newArrayList("true", "false").contains(args[3])) {
                     gf = Boolean.valueOf(args[3]);
@@ -264,7 +263,7 @@ public final class ICGCSummaryStatistics implements Serializable {
 
             logger.info("ICGCSummaryStatistics: dir = " + mafDirectory + " variant classificaton = "
                     + vc + " variation type = " + vt + " gene flag = " + gf);
-            ICGCSummaryStatistics stats = new ICGCSummaryStatistics(mafDirectory, vc, vt, gf);
+            ICGCSummaryStatisticsByGene stats = new ICGCSummaryStatisticsByGene(mafDirectory, vc, vt, gf);
             stats.processMafFiles();
         } catch (IOException ex) {
             logger.error(ex.getMessage());

@@ -67,3 +67,6 @@ nbactions.xml
 */*.iml
 *.iml
 *.class
+*/.settings/*
+*/.classpath
+*/.project

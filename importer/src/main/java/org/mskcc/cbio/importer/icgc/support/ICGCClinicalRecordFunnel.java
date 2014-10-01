@@ -16,7 +16,7 @@
  *  has been advised of the possibility of such damage.
  */
 
-package org.mskcc.cbio.icgc.support;
+package org.mskcc.cbio.importer.icgc.support;
 
 import com.google.common.hash.Funnel;
 import com.google.common.hash.PrimitiveSink;
@@ -26,22 +26,17 @@ import java.nio.charset.Charset;
  *
  * @author criscuof
  */
-public enum ICGCRecordFunnel  implements Funnel<ICGCRecord>{
+public enum IcgcClinicalRecordFunnel  implements Funnel<IcgcClinicalRecord>{
 
     INSTANCE;
 
     @Override
-    public void funnel(ICGCRecord t, PrimitiveSink into) {
-        into.putString(t.getId(), Charset.defaultCharset())
-                .putString(t.getProjectCode(),  Charset.defaultCharset())
-                .putString(t.getSampleId(), Charset.defaultCharset())
-                .putString(t.getChromosome(), Charset.defaultCharset())
-                .putString(t.getStart(), Charset.defaultCharset())
-                .putString(t.getEnd(), Charset.defaultCharset())
-                .putString(t.getRefAllele(), Charset.defaultCharset())
-                .putString(t.getMutAllele(), Charset.defaultCharset())
-                .putString(t.getTotalReads(), Charset.defaultCharset())
-                .putString(t.getMutReads(), Charset.defaultCharset());
+    public void funnel(IcgcClinicalRecord t, PrimitiveSink into) {
+        into.putString(t.getDonorId(), Charset.defaultCharset())
+                .putString(t.getIcgcSpecimenId(),  Charset.defaultCharset())
+                .putString(t.getSubmittedDonorId(), Charset.defaultCharset())
+                .putString(t.getSubmittedSpecimenId(), Charset.defaultCharset());
+                
     }
     
 }

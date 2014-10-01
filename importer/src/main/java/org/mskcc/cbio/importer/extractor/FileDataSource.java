@@ -2,11 +2,13 @@
 
 package org.mskcc.cbio.importer.extractor;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -42,13 +44,24 @@ public class FileDataSource {
      this.directoryName = dirName;
      this.filenameList = Lists.newArrayList();
  }
+ /*
+ constructor completes the file list using the supplied filename filter
+ only the specified directory is evaluated (i.e. no recursion)
+ */
+ public FileDataSource(String dirName, Predicate fileFilter) throws IOException{
+     this(dirName);
+     Preconditions.checkArgument(null != fileFilter," A file filter is required");
+     this.setFilenameList(FluentIterable
+             .from(Files.newDirectoryStream((Paths.get(this.directoryName))))
+             .toList());
+ }
  
  public String getDirectoryName() { return this.directoryName;}
  
  public List<Path> getFilenameList() { return this.filenameList;}
  
  void setFilenameList (List<Path> aList){
-     Preconditions.checkArgument(null != aList, "The filename list cannot be null");
+     
      this.filenameList = aList;
  }
   

@@ -848,7 +848,7 @@ class FoundationFetcherImpl implements Fetcher
 		String startPos = "";
 		String endPos = "";
 
-		// extract position information
+		// fetch position information
 
 		String[] parts = position.split(":");
 

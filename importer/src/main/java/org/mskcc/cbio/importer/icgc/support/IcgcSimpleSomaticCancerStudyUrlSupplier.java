@@ -1,4 +1,4 @@
-package org.mskcc.cbio.icgc.support;
+package org.mskcc.cbio.importer.icgc.support;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -37,12 +37,7 @@ public class IcgcSimpleSomaticCancerStudyUrlSupplier implements Supplier<List<St
 
     private static final Splitter blankSplitter = Splitter.on(' ');
     private static final Logger logger = Logger.getLogger(IcgcSimpleSomaticCancerStudyUrlSupplier.class);
-    private static final String US = "US";
-    private static final String urlTemplate
-            = "https://dcc.icgc.org/api/v1/download?fn=/current/Projects/XXXX/simple_somatic_mutation.open.XXXX.tsv.gz";
     
-
-   
     
     public IcgcSimpleSomaticCancerStudyUrlSupplier(String dataSource) {
         
@@ -50,32 +45,28 @@ public class IcgcSimpleSomaticCancerStudyUrlSupplier implements Supplier<List<St
       this.studyFileName = dataSource;
     }
 
-    Predicate usStudyFilter = new Predicate<String>() {
-        public boolean apply(String t) {
-            return (!(t.endsWith(US)) && !Strings.isNullOrEmpty(t));
-        }
-
-    };
-
     @Override
     public List<String> get() {
 
         try {
             List<String> allStudies = Files.readLines(new File(studyFileName), Charset.defaultCharset());
             return FluentIterable.from(allStudies)
-                    .filter(usStudyFilter)
+                    .filter(IcgcImportService.INSTANCE.usStudyFilter)
                     .transform(new Function<String, String>() {
 
                         public String apply(String f) {
-                            return urlTemplate.replaceAll("XXXX", blankSplitter.splitToList(f).get(0));
-                        }
+                            return IcgcImportService.INSTANCE.getSimpleSomaticBaseUrl()
+                                    .replaceAll("PROJECT", blankSplitter.splitToList(f)
+                                            .get(0));
+                          
+                        }                      
 
                     }).toList();
 
         } catch (IOException ex) {
             logger.error(ex.getMessage());
         }
-        return new ArrayList<String>();  // return empty string
+        return new ArrayList<>();  // return empty string
     }
    
 }

@@ -29,7 +29,7 @@ import joptsimple.internal.Strings;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.Fetcher;
-import org.mskcc.cbio.importer.foundation.support.FoundationMetaDataGenerator;
+import org.mskcc.cbio.importer.foundation.support.FoundationMetadataGenerator;
 import org.mskcc.cbio.importer.transformer.FoundationXMLTransformer;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 
@@ -43,10 +43,10 @@ public class FoundationSFTPFetcherOld implements Fetcher{
     private final String sourceDirectoryName;
     private final String outputBaseDir;
     private final Config config;
-    private final FoundationMetaDataGenerator metaDataGenerator;
+    private final FoundationMetadataGenerator metaDataGenerator;
     
     // constructor consistent with portal_importer_configuration constructor_args
-    public FoundationSFTPFetcherOld(Config config,String sourceDirectoryName ,String outDir, FoundationMetaDataGenerator meta){
+    public FoundationSFTPFetcherOld(Config config,String sourceDirectoryName ,String outDir, FoundationMetadataGenerator meta){
         // check for arguments to support non-Spring invocations
         Preconditions.checkArgument(null != config, "ERROR - Config implementation is required");
         Preconditions.checkArgument(!Strings.isNullOrEmpty(sourceDirectoryName), "ERROR: a source directory name is required");
@@ -73,7 +73,7 @@ public class FoundationSFTPFetcherOld implements Fetcher{
            transformer.processFoundationData();
            //Integer numCases = transformer.getNumCases();
            Integer numCases = 0;
-           this.metaDataGenerator.generateCancerStudyMetaData(transformer.getStudyId(), numCases);
+          // this.metaDataGenerator.generateCancerStudyMetaData(transformer.getStudyId(), numCases);
            
        }
     }

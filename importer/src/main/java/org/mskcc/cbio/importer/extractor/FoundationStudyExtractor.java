@@ -5,12 +5,16 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
+import com.google.inject.internal.Lists;
+import com.google.inject.internal.Sets;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
+import java.util.Set;
 import org.apache.log4j.Logger;
 
 /**
@@ -31,61 +35,68 @@ import org.apache.log4j.Logger;
  * 
 */
 /**
- * represents a class that can extract data from an input DataSource and copy
- * them to an output DataSource
+ * Represents a specialized file extractor responsible for copying FMI XML
+ * files from a base directory to subdirectories based on the MSKCC cancer
+ * study name. After a successful copy the original XML file is renamed to
+ * reflect the copy date. This class is also responsible for providing a list
+ * of MSKCC cancer studies that have received one or more new/updated XML
+ * files. The primary input to this class is a FileDataSource object that 
+ * contains the base directory and the XML files to be processed
  *
  * @author fcriscuo
  */
-public class FileExtractor {
+public class FoundationStudyExtractor {
 
     private final FileDataSource inputDataSource;
-    private final FileDataSource extractedDataSource;
+    private Set<Path> cancerStudyPathSet;
 
-    private final Predicate fileFilter;
+    
     private final Joiner pathJoiner = Joiner.on(System.getProperty("file.separator"));
-    private final Logger logger = Logger.getLogger(FileExtractor.class);
+    private final Logger logger = Logger.getLogger(FoundationStudyExtractor.class);
 
-    public FileExtractor(final FileDataSource inSource, FileDataSource outSource,
-            Predicate filter) {
-        Preconditions.checkArgument(null != inSource, "An input DataSource is required");
-        Preconditions.checkArgument(null != outSource, "An extraction DataSource is required");
-        this.inputDataSource = inSource;
-        this.extractedDataSource = outSource;
-        this.fileFilter = filter;
+    public FoundationStudyExtractor(final FileDataSource xmlSource) {
+        Preconditions.checkArgument(null != xmlSource, 
+                "An input FileDataSource of XML files is required");
+       
+        this.inputDataSource = xmlSource;
+        this.cancerStudyPathSet = Sets.newHashSet();
+        
     }
 
-    public FileDataSource getExtractedDataSource() {
-        return this.extractedDataSource;
-    }
-
+    
     public void extractData() throws IOException {
-        this.filterAndExtractFiles();
+        this.processFoundationFiles();
+    }
+    
+    private Path resolveDestinationPath(Path sourcePath) {
+        //TODO: complete implementation
+        return Paths.get("/tmp/foundation");
     }
 
     /**
-     * Copy the files listed in the input source to the specified target
-     * directory and list the new files in the extractedDataSource Use the
-     * supplied Predicate to filter which files are copied
+     * Process each XML file in the input source. Determine the copy destination from the
+     * cancer study the file belongs to, copy the file and rename the original. Add the
+     * affected cancer study to the Set
+     * 
      */
-    private void filterAndExtractFiles() throws IOException {
-        this.extractedDataSource.setFilenameList(
+    private void processFoundationFiles() throws IOException {
+       List<Path> destinationPathList =
                 FluentIterable
                 .from(Files.newDirectoryStream((Paths.get(inputDataSource.getDirectoryName()))))
-                .filter(fileFilter)
+               
                 .transform(new Function<Path, Path>() {
                     @Override
-                    public Path apply(Path f) {
-                        Path outPath = Paths.get(pathJoiner.join(extractedDataSource.getDirectoryName(), f.toFile().getName()));
-
+                    public Path apply(Path inPath) {                 
+                        Path outPath = resolveDestinationPath(inPath);
                         try {
-                            Files.copy(f, outPath, StandardCopyOption.REPLACE_EXISTING);
+                            Files.copy(inPath, outPath, StandardCopyOption.REPLACE_EXISTING);
                         } catch (IOException ex) {
                             logger.error(ex.getMessage());
                         }
                         
                         return outPath;
                     }
-                }).toList());
+                }).toList();
 
     }
 

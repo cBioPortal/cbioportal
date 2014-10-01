@@ -1,6 +1,7 @@
-package org.mskcc.cbio.icgc.support;
+package org.mskcc.cbio.importer.icgc.support;
 
 import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.Maps;
 import java.io.BufferedReader;
 import java.io.File;
@@ -42,6 +43,10 @@ public class GeneNameMapSupplier implements Supplier<Map<String, Tuple2<String, 
             
     }
 
+    /*
+    public method to create and supply a Map of Ensemble gene ids as keys
+    and Tuple2s containing Hugo symbol & Entrez id as values
+    */
     @Override
     public Map<String, Tuple2<String, String>> get() {
 
@@ -52,15 +57,24 @@ public class GeneNameMapSupplier implements Supplier<Map<String, Tuple2<String, 
                 ensemblMap.put(record.get("Ensembl"), new Tuple2(record.get("Symbol"), record.get("Entrez")));
             }
             logger.info("HGNC - Entrez - Ensembl symbol map completed.");
-        } catch (FileNotFoundException e) {
+        } catch (IOException  e) {
             logger.error(e.getMessage());
             e.printStackTrace();
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-            e.printStackTrace();
-        }
+        } 
+        
         return ensemblMap;
 
     }
 
+    /*
+    main method to facilitate standalone testing
+    */
+    public static void main (String... args){
+        Map<String,Tuple2<String,String>>
+                gnMap = Suppliers.memoize(new GeneNameMapSupplier()).get();
+        // get the map size
+        System.out.println("map size " +gnMap.size());
+        // lookup some ensembl gene names
+        
+    }
 }

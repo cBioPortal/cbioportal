@@ -182,6 +182,13 @@ public interface Config {
 	 * @return CancerStudyMetadata or null if not found
 	 */
 	CancerStudyMetadata getCancerStudyMetadataByName(String cancerStudyName);
+
+	/**
+	 * Gets FoundationMetadata.
+	 *
+	 * @return Collection<FoundationMetadata>
+	 */
+	Collection<FoundationMetadata> getFoundationMetadata();
         
    /**
     * Returns a list of cancer study names which incorporate the supplied

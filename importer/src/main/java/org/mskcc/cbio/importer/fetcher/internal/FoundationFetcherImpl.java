@@ -52,7 +52,7 @@ import org.mskcc.cbio.importer.model.ReferenceMetadata;
  */
 public class FoundationFetcherImpl implements Fetcher {
 
-    private final Logger logger = Logger.getLogger(FoundationDataFetcher.class);
+    private final Logger logger = Logger.getLogger(FoundationFetcherImpl.class);
     private FoundationMetadataGenerator metaDataGenerator;
 
     private static final String xmlFileExtension = "xml";
@@ -69,7 +69,7 @@ public class FoundationFetcherImpl implements Fetcher {
     private DatabaseUtils databaseUtils;
     private DataSourcesMetadata dataSourceMetadata;
 
-    public FoundationDataFetcher(Config config, FileUtils fileUtils,
+    public FoundationFetcherImpl(Config config, FileUtils fileUtils,
             DatabaseUtils databaseUtils, ImportDataRecordDAO importDataRecordDAO) {
 
         // set members
@@ -79,6 +79,24 @@ public class FoundationFetcherImpl implements Fetcher {
         this.importDataRecordDAO = importDataRecordDAO;
 
     }
+
+/*
+     // constructor consistent with portal_importer_configuration constructor_args
+    public FoundationFetcherImpl(FileDataSource inSource, FileDataSource outSource,
+                                 FoundationMetadataGenerator meta,
+                                 FileTransformer aTrans) {
+
+        // check for arguments to support non-Spring invocations
+        Preconditions.checkArgument(null != inSource, "Error an input FileDataSource instance is required");
+        Preconditions.checkArgument(null != outSource, "Error an output FileDataSource instance is required");
+        Preconditions.checkArgument(null != aTrans, "ERROR: a FileTransformer implementation is required");
+
+        this.metaDataGenerator = meta;
+        this.extractor = new FileExtractor(inSource, outSource, xmlFileExtensionFilter);
+        this.fileTransformer = aTrans;
+        this.outputBaseDir = outSource.getDirectoryName();
+    }
+*/
 
     /*
      private method to complete the input and output file data sources
@@ -98,25 +116,8 @@ public class FoundationFetcherImpl implements Fetcher {
         } catch (IOException ex) {
             logger.error(ex.getMessage());
         }
-       
-
     }
     
-    // constructor consistent with portal_importer_configuration constructor_args
-    public FoundationDataFetcher(FileDataSource inSource, FileDataSource outSource,
-            FoundationMetadataGenerator meta,
-            FileTransformer aTrans) {
-        // check for arguments to support non-Spring invocations
-        Preconditions.checkArgument(null != inSource, "Error an input FileDataSource instance is required");
-        Preconditions.checkArgument(null != outSource, "Error an output FileDataSource instance is required");
-        Preconditions.checkArgument(null != aTrans, "ERROR: a FileTransformer implementation is required");
-
-        this.metaDataGenerator = meta;
-        this.extractor = new FileExtractor(inSource, outSource, xmlFileExtensionFilter);
-        this.fileTransformer = aTrans;
-        this.outputBaseDir = outSource.getDirectoryName();
-
-    }
     /*
      * we only want to fetch xml files
      */
@@ -140,10 +141,12 @@ public class FoundationFetcherImpl implements Fetcher {
             // use the Foundation XML Parser to generate the data files
             logger.info("Transforming data from " + xmlPath.toString());
             this.fileTransformer.transform(xmlPath);
+            /*
             this.metaDataGenerator.generateFoundationMetadataFiles(dataSource,
                     fileTransformer.getPrimaryIdentifier(),
                     fileTransformer.getPrimaryEntityCount(),
                     outputBaseDir);
+                    */
         }
     }
 

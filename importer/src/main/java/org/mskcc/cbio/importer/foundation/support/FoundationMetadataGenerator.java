@@ -11,8 +11,6 @@ import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.CaseIDs;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.FileUtils;
-import org.mskcc.cbio.importer.caseids.internal.CaseIDsImpl;
-import org.mskcc.cbio.importer.io.internal.FileUtilsImpl;
 import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
@@ -38,7 +36,7 @@ import org.mskcc.cbio.importer.model.DatatypeMetadata;
  * @author criscuof
  */
 public class FoundationMetadataGenerator {
-    
+/*    
     private final Config config;
     private final String outputDirectory;
     private final Logger logger = Logger.getLogger(FoundationMetadataGenerator.class);
@@ -168,5 +166,5 @@ public class FoundationMetadataGenerator {
         Collection<DatatypeMetadata> list = this.config.getDatatypeMetadata(datatype);
         return list.iterator().next();
     }
-    
+*/    
 }

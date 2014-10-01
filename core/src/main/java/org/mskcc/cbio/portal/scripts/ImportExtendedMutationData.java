@@ -225,17 +225,13 @@ public class ImportExtendedMutationData{
 					continue;
 				}
 
-				// TODO simplify protein change...
 				proteinChange = ExtendedMutationUtil.getProteinChange(parts, record);
-
-
-				// TODO these are not standard columns, we don't have them in "record" yet
-				codonChange = record.getOncotatorCodonChange();
-				refseqMrnaId = record.getOncotatorRefseqMrnaId();
-				uniprotName = record.getOncotatorUniprotName();
-				uniprotAccession = record.getOncotatorUniprotAccession();
-				proteinPosStart = record.getOncotatorProteinPosStart();
-				proteinPosEnd = record.getOncotatorProteinPosEnd();
+				codonChange = record.getCodons();
+				refseqMrnaId = record.getRefSeq();
+				uniprotName = record.getSwissprot();
+				uniprotAccession = DaoUniProtIdMapping.mapFromUniprotIdToAccession(record.getSwissprot());
+				proteinPosStart = ExtendedMutationUtil.getProteinPosStart(record.getProteinPosition());
+				proteinPosEnd = ExtendedMutationUtil.getProteinPosEnd(record.getProteinPosition());
 
 				//  Assume we are dealing with Entrez Gene Ids (this is the best / most stable option)
 				String geneSymbol = record.getHugoGeneSymbol();
@@ -304,7 +300,7 @@ public class ImportExtendedMutationData{
 					mutation.setNormalAltCount(ExtendedMutationUtil.getNormalAltCount(record));
 					mutation.setNormalRefCount(ExtendedMutationUtil.getNormalRefCount(record));
 
-					// TODO oncotator columns shouldn't be included anymore
+					// TODO rename the oncotator column names (remove "oncotator")
 					mutation.setOncotatorCodonChange(codonChange);
 					mutation.setOncotatorRefseqMrnaId(refseqMrnaId);
 					mutation.setOncotatorUniprotName(uniprotName);
@@ -312,7 +308,7 @@ public class ImportExtendedMutationData{
 					mutation.setOncotatorProteinPosStart(proteinPosStart);
 					mutation.setOncotatorProteinPosEnd(proteinPosEnd);
 
-					// TODO probably we won't need this anymore
+					// TODO we don't use this info right now...
 					mutation.setCanonicalTranscript(true);
 
 					sequencedCaseSet.add(sample.getStableId());

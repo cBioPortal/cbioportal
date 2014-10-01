@@ -71,12 +71,16 @@ public class ExtendedMutationUtil
 	 */
 	public static String getProteinChange(String[] parts, MafRecord record)
 	{
+		// TODO simplify? (exclude MA, etc.)
 		// Note: MA may sometimes use a different isoform than Oncotator.
 
 		// try oncotator value first
-		String aminoAcidChange = record.getOncotatorProteinChange();
+		//String aminoAcidChange = record.getOncotatorProteinChange();
 
-		// if no oncotator value, try mutation assessor value
+		// try annotator value first
+		String aminoAcidChange = record.getProteinChange();
+
+		// if no annotator value, try mutation assessor value
 		if (!isValidProteinChange(aminoAcidChange))
 		{
 			aminoAcidChange = record.getMaProteinChange();
@@ -118,6 +122,34 @@ public class ExtendedMutationUtil
 		}
 
 		return aminoAcidChange;
+	}
+
+	public static int getProteinPosStart(String proteinPosition)
+	{
+		// TODO there is a case where the protein change is "-",
+		// we need to find the closest position in this case...
+
+		// parts[0] is the protein start-end positions, parts[1] is the length
+		String[] parts = proteinPosition.split("/");
+
+		return TabDelimitedFileUtil.getPartInt(0, parts[0].split("-"));
+	}
+
+	public static int getProteinPosEnd(String proteinPosition)
+	{
+		// parts[0] is the protein start-end positions, parts[1] is the length
+		String[] parts = proteinPosition.split("/");
+
+		int end = TabDelimitedFileUtil.getPartInt(1, parts[0].split("-"));
+
+		// if no end position is provided,
+		// then use start position as end position
+		if (end == -1)
+		{
+			end = getProteinPosStart(proteinPosition);
+		}
+
+		return end;
 	}
 
 	public static boolean isValidProteinChange(String proteinChange)

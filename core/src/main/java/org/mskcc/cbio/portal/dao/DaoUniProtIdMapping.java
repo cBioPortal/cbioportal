@@ -118,6 +118,28 @@ public final class DaoUniProtIdMapping {
         }
     }
 
+	public static String mapFromUniprotIdToAccession(final String uniprotId) throws DaoException {
+		Connection connection = null;
+		PreparedStatement preparedStatement = null;
+		ResultSet resultSet = null;
+		try {
+			connection = JdbcUtil.getDbConnection(DaoUniProtIdMapping.class);
+			preparedStatement = connection.prepareStatement("select UNIPROT_ACC from uniprot_id_mapping where UNIPROT_ID = ?");
+			preparedStatement.setString(1, uniprotId);
+			resultSet = preparedStatement.executeQuery();
+			if (resultSet.next()) {
+				return resultSet.getString(1);
+			}
+			return null;
+		}
+		catch (SQLException e) {
+			throw new DaoException(e);
+		}
+		finally {
+			JdbcUtil.closeAll(DaoUniProtIdMapping.class, connection, preparedStatement, resultSet);
+		}
+	}
+
     public static void deleteAllRecords() throws DaoException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;

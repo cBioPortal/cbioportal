@@ -122,8 +122,7 @@ liftover_binary=
 liftover_chain_file=
 
 # foundation medicine
-foundation.service.user=
-foundation.service.password=
+foundation.root.directory=
 
 # darwin database
 darwin.db.host=

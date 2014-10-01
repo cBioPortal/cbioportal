@@ -23,6 +23,8 @@
         genomicEventObs.subscribePancanMutationsFrequency(function() {
             $(oTable).find('.pancan_mutations_histogram_wait').remove();
             $(oTable).find('.pancan_mutations_histogram_count').each(function() {
+                if ($(this).hasClass("initialized")) return;
+                $(this).addClass("initialized");
                 var keyword = $(this).attr('keyword');
                 var gene = $(this).attr('gene');
                 $(this).html(genomicEventObs.pancan_mutation_frequencies.countByKey(keyword));

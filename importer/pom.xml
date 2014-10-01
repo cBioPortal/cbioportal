@@ -22,38 +22,6 @@
 	</repository>
   </repositories>
 
-  <!-- profiles -->
-  <profiles>
-	<!-- foundation -->
-	<profile>
-	  <id>foundation</id>
-	  <build>
-        <plugins>
-		  <plugin>
-			<groupId>org.codehaus.mojo</groupId>
-			<artifactId>jaxws-maven-plugin</artifactId>
-			<version>1.10</version>
-			<executions>
-			  <execution>
-				<goals>
-				  <goal>wsimport</goal>
-				</goals>
-				<configuration>
-				  <wsdlUrls>
-					<wsdlUrl>https://mskcc.foundationmedicine.com/Fmi.CaseInfoService/CaseInfoService.svc?wsdl</wsdlUrl>
-				  </wsdlUrls>
-				  <packageName>org.foundation</packageName>
-				  <sourceDestDir>${project.build.directory}/generated-sources</sourceDestDir>
-				  <staleFile>${project.build.directory}/generated-sources</staleFile>
-				</configuration>
-			  </execution>
-			</executions>
-		  </plugin>
-        </plugins>
-      </build>
-	</profile>
-  </profiles>
-
   <dependencies>
 
     <!-- JUnit -->
@@ -108,11 +76,6 @@
       <groupId>org.apache.directory.studio</groupId>
       <artifactId>org.apache.commons.io</artifactId>
       <version>2.1</version>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.spark</groupId>
-        <artifactId>spark-core_2.10</artifactId>
-        <version>1.0.2</version>
     </dependency>
 
 	<!-- for foundation -->
@@ -180,6 +143,12 @@
 	  <artifactId>business</artifactId>
 	  <version>${project.version}</version>
 	</dependency>	
+
+	<dependency>
+		<groupId>org.scala-lang</groupId>
+		<artifactId>scala-library</artifactId>
+		<version>2.10.4</version>
+	</dependency>
 
   </dependencies>
 

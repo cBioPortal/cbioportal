@@ -191,5 +191,14 @@ public interface Config {
         * @return 
         */
         List<String> findCancerStudiesBySubstring(String substring);
+
+        /**
+        * Returns a list of cancer study names which incorporate the supplied
+        * substring. Comparisons are standardized to 
+        * lower case. An empty list is returned if no matches are found.
+        * @param organizationName
+        * @return 
+        */
+        List<String> findCancerStudiesBySubstring(String substring);
         
 }

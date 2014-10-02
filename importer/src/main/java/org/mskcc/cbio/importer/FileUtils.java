@@ -92,6 +92,7 @@ public interface FileUtils {
 	 * @throws Exception
      */
     Collection<File> listFiles(File directory, String[] extensions, boolean recursive) throws Exception;
+    Collection<String> listFiles(File directory, String wildcard) throws Exception;
 
 	/**
 	 * Returns the contents of the datafile as specified by ImportDataRecord

@@ -34,6 +34,7 @@ importer.data_sources_worksheet=
 importer.portals_worksheet=
 importer.reference_data_worksheet=
 importer.tumor_types_worksheet=
+importer.foundation_worksheet=
 
 # Location of log file
 log.file.path=/srv/www/sander-tomcat/tomcat6/logs/ctd2-dashboard-portal.log
@@ -70,6 +71,14 @@ authenticate=false
 googleplus.consumer.key=
 googleplus.consumer.secret=
 
+#SAML
+saml.sp.metadata.entityid=
+saml.idp.metadata.location=
+saml.keystore.location=
+saml.keystore.password=
+saml.keystore.private-key.key=
+saml.keystore.private-key.password=
+saml.keystore.default-key=
 
 # Indicates whether users must be authorized to access a particular cancer study
 authorization=false
@@ -109,8 +118,7 @@ liftover_binary=
 liftover_chain_file=
 
 # foundation medicine
-foundation.service.user=
-foundation.service.password=
+foundation.root.directory=
 
 # darwin database
 darwin.db.host=

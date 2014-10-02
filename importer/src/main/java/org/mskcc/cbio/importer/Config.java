@@ -19,9 +19,10 @@
 package org.mskcc.cbio.importer;
 
 // imports
-import org.mskcc.cbio.importer.model.*;
-import java.util.Map;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import org.mskcc.cbio.importer.model.*;
 
 /**
  * Interface used to get/set configuration properties.
@@ -181,4 +182,20 @@ public interface Config {
 	 * @return CancerStudyMetadata or null if not found
 	 */
 	CancerStudyMetadata getCancerStudyMetadataByName(String cancerStudyName);
+
+	/**
+	 * Gets FoundationMetadata.
+	 *
+	 * @return Collection<FoundationMetadata>
+	 */
+	Collection<FoundationMetadata> getFoundationMetadata();
+        
+   /**
+    * Returns a list of cancer study names which incorporate the supplied
+    * substring. Comparisons are standardized to 
+    * lower case. An empty list is returned if no matches are found.
+    * @param organizationName
+    * @return 
+    */
+    List<String> findCancerStudiesBySubstring(String substring);
 }

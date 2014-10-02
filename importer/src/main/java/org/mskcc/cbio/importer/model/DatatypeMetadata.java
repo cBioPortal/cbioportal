@@ -48,6 +48,7 @@ public class DatatypeMetadata {
 	// delimiter when specifying datatypes on worksheet
     public static final String DATATYPES_DELIMITER = ":"; 
 
+    public static final String MUT_PACK_CALLS_FILE = "Mutation_Packager_Calls";
 	public static final String MAF_FILE_EXT = ".maf.annotated";
 	public static final String MUTATIONS_STAGING_FILENAME = "data_mutations_extended.txt";
 

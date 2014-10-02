@@ -65,8 +65,6 @@ $(document).ready(function(){
          caseSetSelectionOverriddenByUser = false; // reset
          console.log("#select_cancer_type change ( cancerStudySelected() )");
          cancerStudySelected();
-         console.log("#select_cancer_type change ( reviewCurrentSelections() )");
-         reviewCurrentSelections();
          
          caseSetSelected();
          $('#custom_case_set_ids').empty(); // reset the custom case set textarea
@@ -128,6 +126,30 @@ $(document).ready(function(){
 });  //  end document ready function
 
 
+//  Load study Meta Data, i.e. everything except the name, which we load earlier to
+//  	populate the dropdown menu.
+function loadStudyMetaData(cancerStudyId) {
+    console.log("loadStudyMetaData ("+cancerStudyId+")");
+    $('.main_query_panel').fadeTo("fast",0.6);
+	
+    $.getJSON("portal_meta_data.json?study_id="+cancerStudyId, function(json){
+        window.metaDataJson.cancer_studies[cancerStudyId] = json;
+        updateCancerStudyInformation(cancerStudyId);
+        $('.main_query_panel').stop().fadeTo("fast",1);
+    });
+}
+
+// Load geneset gene list
+function loadGeneList(geneSetId) {
+    $('.main_query_panel').fadeTo("fast",0.6);
+
+    $.getJSON("portal_meta_data.json?geneset_id="+geneSetId.replace(/\//g,""), function(json){
+        window.metaDataJson.gene_sets[geneSetId].gene_list = json.list;
+        $("#gene_list").val(json.list);
+        $('.main_query_panel').stop().fadeTo("fast",1);
+    });
+}
+	
 //  Load Portal JSON Meta Data, while showing loader image
 function loadMetaData() {
     $('#load').remove();
@@ -140,13 +162,19 @@ function loadMetaData() {
 
     function loadContent() {
         //  Get Portal JSON Meta Data via JQuery AJAX
-        jQuery.getJSON("portal_meta_data.json",function(json){
+        jQuery.getJSON("portal_meta_data.json?partial_studies=true&partial_genesets=true",function(json){
             //  Store JSON Data in global variable for later use
             window.metaDataJson = json;
 
-            //  Add Meta Data to current page
-            addMetaDataToPage();
-            showNewContent();
+            // Load data of selected study right at the outset before continuing
+            $.getJSON("portal_meta_data.json?study_id="+window.cancer_study_id_selected, function(json) {
+                console.log("Loading metadata for "+window.cancer_study_id_selected);
+                // this code should be about the same as in loadStudyMetaData
+                window.metaDataJson.cancer_studies[window.cancer_study_id_selected] = json;
+                //  Add Meta Data to current page
+                addMetaDataToPage();
+                showNewContent();
+            });
         });
     }
 
@@ -210,48 +238,51 @@ function makeDefaultSelections(){
 // and sets the visibility of each step based on current selections
 function reviewCurrentSelections(){
 
-   // Unless the download tab has been chosen or 'All Cancer Studies' is
-   // selected, iterate through checkboxes to see if any are selected; if not,
-   // make default selections
-   if (window.tab_index != "tab_download" && $("#select_cancer_type").val() != 'all'){
-        var setDefaults = true;
+   //HACK TO DEAL WITH ASYNCHRONOUS STUFF SO WE DONT DO THIS UNTIL AFTER METADATA ADDED
+   if (window.metaDataAdded === true) {  
+    // Unless the download tab has been chosen or 'All Cancer Studies' is
+    // selected, iterate through checkboxes to see if any are selected; if not,
+    // make default selections
+    if (window.tab_index != "tab_download" && $("#select_cancer_type").val() != 'all'){
+         var setDefaults = true;
 
-        // if no checkboxes are checked, make default selections
-        $('input:checkbox').each(function(){
-            if ($(this).prop('checked')){
-                setDefaults = false;
-                return;
-            }
-        });
+         // if no checkboxes are checked, make default selections
+         $('#genomic_profiles input:checkbox').each(function(){
+             if ($(this).prop('checked')){
+                 setDefaults = false;
+                 return;
+             }
+         });
 
-        if (setDefaults){
-            console.log("reviewCurrentSelections ( makeDefaultSelections() )");
-            makeDefaultSelections();
-        }
-   } 
+         if (setDefaults){
+             console.log("reviewCurrentSelections ( makeDefaultSelections() )");
+             makeDefaultSelections();
+         }
+    } 
 
-   updateDefaultCaseList();
+    updateDefaultCaseList();
 
-   // determine whether mRNA threshold field should be shown or hidden
-   // based on which, if any mRNA profiles are selected
-   toggleThresholdPanel($("." + PROFILE_MRNA_EXPRESSION+"[type=checkbox]"), PROFILE_MRNA_EXPRESSION, "#z_score_threshold");
+    // determine whether mRNA threshold field should be shown or hidden
+    // based on which, if any mRNA profiles are selected
+    toggleThresholdPanel($("." + PROFILE_MRNA_EXPRESSION+"[type=checkbox]"), PROFILE_MRNA_EXPRESSION, "#z_score_threshold");
 
-   // similarly with RPPA
-   toggleThresholdPanel($("." + PROFILE_RPPA+"[type=checkbox]"), PROFILE_RPPA, "#rppa_score_threshold");
+    // similarly with RPPA
+    toggleThresholdPanel($("." + PROFILE_RPPA+"[type=checkbox]"), PROFILE_RPPA, "#rppa_score_threshold");
 
-   // determine whether optional arguments section should be shown or hidden
-//   if ($("#optional_args > input").length >= 1){
-//       $("#optional_args > input").each(function(){
-//           if ($(this).prop('checked')){
-//               // hide/show is ugly, but not sure exactly how toggle works
-//               // and couldn't get it to work.. this will do for now
-//               $("#step5 > .step_header > .ui-icon-triangle-1-e").hide();
-//               $("#step5 > .step_header > .ui-icon-triangle-1-s").show();
-//               $("#optional_args").toggle();
-//               return;
-//           }
-//       });
-//   }
+    // determine whether optional arguments section should be shown or hidden
+ //   if ($("#optional_args > input").length >= 1){
+ //       $("#optional_args > input").each(function(){
+ //           if ($(this).prop('checked')){
+ //               // hide/show is ugly, but not sure exactly how toggle works
+ //               // and couldn't get it to work.. this will do for now
+ //               $("#step5 > .step_header > .ui-icon-triangle-1-e").hide();
+ //               $("#step5 > .step_header > .ui-icon-triangle-1-s").show();
+ //               $("#optional_args").toggle();
+ //               return;
+ //           }
+ //       });
+ //   }
+   }
 }
 
 //  Determine whether to submit a cross-cancer query or
@@ -454,20 +485,8 @@ function updateCaseListSmart() {
     );
 }
 
-//  Triggered when a cancer study has been selected, either by the user
-//  or programatically.
-function cancerStudySelected() {
-
-    //  make sure submit button is enabled unless determined otherwise by lack of data
-    $("#main_submit").attr("disabled",false);
-
-    var cancerStudyId = $("#select_cancer_type").val();
-
-    if( !cancerStudyId ) {
-        $("#select_cancer_type option:first").prop("selected",true);
-        cancerStudyId = $("#select_cancer_type").val();
-    }
-
+// Called when and only when a cancer study is selected from the dropdown menu
+function updateCancerStudyInformation(cancerStudyId) {
     var cancer_study = window.metaDataJson.cancer_studies[cancerStudyId];
 
     // toggle every time a new cancer study is selected
@@ -563,7 +582,8 @@ function cancerStudySelected() {
     // Set default selections and make sure all steps are visible
     console.log("cancerStudySelected ( singleCancerStudySelected() )");
     singleCancerStudySelected();
-    
+    console.log("cancerStudySelected ( reviewCurrentSelections() )");
+    reviewCurrentSelections();
     // check if cancer study has a clinical_free_form data to filter,
     // if there is data to filter, then enable "build custom case set" link,
     // otherwise disable the button
@@ -611,6 +631,27 @@ function cancerStudySelected() {
 			}
 		});
 }
+//  Triggered when a cancer study has been selected, either by the user
+//  or programatically.
+function cancerStudySelected() {
+
+    //  make sure submit button is enabled unless determined otherwise by lack of data
+    $("#main_submit").attr("disabled",false);
+
+    var cancerStudyId = $("#select_cancer_type").val();
+
+    if( !cancerStudyId ) {
+        $("#select_cancer_type option:first").prop("selected",true);
+        cancerStudyId = $("#select_cancer_type").val();
+    }
+
+    if (window.metaDataJson.cancer_studies[cancerStudyId].partial==="true") {
+            console.log("cancerStudySelected( loadStudyMetaData )");
+	    loadStudyMetaData(cancerStudyId);
+    } else {
+	    updateCancerStudyInformation(cancerStudyId);
+    }
+}
 
 //  Triggered when a case set has been selected, either by the user
 //  or programatically.
@@ -635,11 +676,15 @@ function geneSetSelected() {
     //  Get the selected ID from the pull-down menu
     var geneSetId = $("#select_gene_set").val();
 
-    //  Get the gene set meta data from global JSON variable
-    var gene_set = window.metaDataJson.gene_sets[geneSetId];
+    if (window.metaDataJson.gene_sets[geneSetId].gene_list == "") {
+        loadGeneList(geneSetId);
+    } else {
+        //  Get the gene set meta data from global JSON variable
+        var gene_set = window.metaDataJson.gene_sets[geneSetId];
 
-    //  Set the gene list text area
-    $("#gene_list").val(gene_set.gene_list);
+        //  Set the gene list text area
+        $("#gene_list").val(gene_set.gene_list);
+    }
 }
 
 //  Adds Meta Data to the Page.
@@ -743,6 +788,9 @@ function addMetaDataToPage() {
         }
     });  //  end for each genomic profile option
 
+    
+    // HACK TO DEAL WITH ASYNCHRONOUS STUFF
+    window.metaDataAdded = true;
     // determine whether any selections have already been made
     // to make sure all of the fields are shown/hidden as appropriate
     console.log("addMetaDataToPage ( reviewCurrentSelections() )");

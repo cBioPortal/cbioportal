@@ -27,16 +27,11 @@ import org.mskcc.cbio.importer.util.ClassLoader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.google.gdata.data.spreadsheet.ListFeed;
-import com.google.gdata.data.spreadsheet.ListEntry;
-import com.google.gdata.data.spreadsheet.ListFeed;
-import com.google.gdata.data.spreadsheet.ListEntry;
-import com.google.gdata.data.spreadsheet.WorksheetFeed;
-import com.google.gdata.data.spreadsheet.WorksheetEntry;
-import com.google.gdata.data.spreadsheet.SpreadsheetFeed;
-import com.google.gdata.data.spreadsheet.SpreadsheetEntry;
-import com.google.gdata.client.spreadsheet.SpreadsheetService;
-import com.google.gdata.client.spreadsheet.FeedURLFactory;
+import com.google.common.base.Strings;
+import com.google.gdata.data.spreadsheet.*;
+import com.google.gdata.client.spreadsheet.*;
+import com.google.gdata.util.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 import org.springframework.beans.factory.annotation.Value;
 
@@ -73,6 +68,7 @@ class GDataImpl implements Config {
 	ArrayList<ArrayList<String>> portalsMatrix;
 	ArrayList<ArrayList<String>> referenceMatrix;
 	ArrayList<ArrayList<String>> tumorTypesMatrix;
+	ArrayList<ArrayList<String>> foundationMatrix;
 
 	// worksheet names we need for updates
 	private String gdataSpreadsheet;
@@ -86,6 +82,7 @@ class GDataImpl implements Config {
 	private String referenceDataWorksheet;
 	private String dataSourcesWorksheet;
 	private String cancerStudiesWorksheet;
+	private String foundationWorksheet;
 
 	/**
 	 * Constructor.
@@ -109,13 +106,14 @@ class GDataImpl implements Config {
 	 * @param referenceDataWorksheet String
 	 * @param dataSourceseWorksheet String
 	 * @param cancerStudiesWorksheet String
+	 * @param foundationWorksheet String
 	 */
 	public GDataImpl(String gdataUser, String gdataPassword, SpreadsheetService spreadsheetService,
 					 String gdataSpreadsheet, String tumorTypesWorksheet, String datatypesWorksheet,
 					 String caseIDFiltersWorksheet, String caseListWorksheet,
                      String clinicalAttributesNamespaceWorksheet, String clinicalAttributesWorksheet,
 					 String portalsWorksheet, String referenceDataWorksheet, String dataSourcesWorksheet, String cancerStudiesWorksheet,
-					 NCIcaDSRFetcher nciDSRFetcher)
+					 String foundationWorksheet, NCIcaDSRFetcher nciDSRFetcher)
 	{
 
 		// set members
@@ -136,6 +134,7 @@ class GDataImpl implements Config {
 		this.referenceDataWorksheet = referenceDataWorksheet;
 		this.dataSourcesWorksheet = dataSourcesWorksheet;
 		this.cancerStudiesWorksheet = cancerStudiesWorksheet;
+		this.foundationWorksheet = foundationWorksheet;
 	}
 
 	/**
@@ -716,6 +715,28 @@ class GDataImpl implements Config {
         // outta here
         return toReturn;
 	}
+
+
+	/**
+	 * Gets FoundationMetadata.
+	 *
+	 * @return Collection<FoundationMetadata>
+	 */
+    @Override
+	public Collection<FoundationMetadata> getFoundationMetadata()
+	{
+
+		if (foundationMatrix == null) {
+			foundationMatrix = getWorksheetData(gdataSpreadsheet, dataSourcesWorksheet);
+		}
+
+		Collection<FoundationMetadata> foundationMetadatas =
+			(Collection<FoundationMetadata>)getMetadataCollection(foundationMatrix,
+																   "org.mskcc.cbio.importer.model.FoundationMetadata");
+
+        // outta here
+        return foundationMetadatas;
+	}
 	
 	/**
 	 * Gets a CancerStudyMetadata for the given cancer study.
@@ -749,11 +770,32 @@ class GDataImpl implements Config {
 	}
 
 	/**
+     * public method to return a List of registered cancer
+     * studies by organization name
+     * @param organizationName
+     * @return List<String>
+     */
+    @Override
+    public List<String> findCancerStudiesBySubstring(final String organizationName) {
+       Preconditions.checkArgument(!Strings.isNullOrEmpty(organizationName), 
+              "An organization name is required");
+       // column 0 contains the cancer study names
+       List<String> cancerStudyList = Lists.newArrayList();
+       for( List<String> study: cancerStudiesMatrix) {
+           if(study.get(0).contains(organizationName.toLowerCase())){
+               cancerStudyList.add(study.get(0));
+           }
+       }
+     return cancerStudyList;
+      
+    }
+
+	/**
 	 * Constructs a collection of objects of the given classname from the given matrix.
 	 *
 	 * @param metadataMatrix ArrayList<ArrayList<String>>
 	 * @param className String
-	 * @return Collection<?>
+	 * @return Collection<Object>
 	 */
 	public Collection<?> getMetadataCollection(ArrayList<ArrayList<String>> metadataMatrix, String className) {
 
@@ -880,7 +922,8 @@ class GDataImpl implements Config {
 			}
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+                        System.err.println("Problem connecting to "+spreadsheetName+":"+worksheetName);
+                        throw new RuntimeException(e);
 		}
 
 		// outta here

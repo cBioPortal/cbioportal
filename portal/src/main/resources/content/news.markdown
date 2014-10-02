@@ -1,3 +1,21 @@
+# September 30, 2014
+* All TCGA data updated to the Firehose run of July 15, 2014
+* Added two new provisional TCGA studies:
+    * [Esophageal Carcinoma](study.do?cancer_study_id=esca_tcga)
+    * [Pheochromocytoma and Paraganglioma](study.do?cancer_study_id=pcpg_tcga)
+* Added data of 885 samples from 11 published studies:
+    * [Colorectal Adenocarcinoma Triplets (MSKCC, Genome Biology 2014)](study.do?cancer_study_id=coadread_mskcc)
+    * [Esophageal Squamous Cell Carcinoma (ICGC, Nature 2014)](study.do?cancer_study_id=escc_icgc)
+    * [Malignant Peripheral Nerve Sheath Tumor (MSKCC, Nature Genetics 2014)](study.do?cancer_study_id=mpnst_mskcc)
+    * [Melanoma (Broad/Dana Fareber, Nature 2012)](study.do?cancer_study_id=skcm_broad_dfarber)
+    * [Nasopharyngeal Carcinoma(National University Singapore, Nature Genetics 2014)](study.do?cancer_study_id=npc_nusingapore)
+    * [Prostate Adenocarcinoma-CNA data (MSKCC, PNAS 2014)](index.do?cancer_study_id=prad_mskcc_2014)
+    * [Prostate Adenocarcinoma Organoids (MSKCC, Cell 2014)](study.do?cancer_study_id=prad_mskcc_cheny1_organoids_2014)
+    * [Stomach Adenocarcinoma (TCGA, Nature 2014)](study.do?cancer_study_id=stad_tcga_pub)
+    * [Stomach adenocarcinoma (Pfizer and University of Hong Kong, Nature Genetics 2014)](study.do?cancer_study_id=stad_pfizer_uhongkong)
+    * [Stomach adenocarcinoma (University of Hong Kong, Nature Genetics 2011)](study.do?cancer_study_id=stad_uhongkong)
+    * [Stomach adenocarcinoma (University of Tokyo, Nature Genetics 2014)](study.do?cancer_study_id=stad_utokyo)
+
 # August 8, 2014
 * Released two new tools
     * [Oncoprinter](oncoprinter.jsp) lets you create Oncoprints from your own, custom data

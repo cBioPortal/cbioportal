@@ -31,6 +31,7 @@ import org.mskcc.cbio.oncotator.OncotateTool;
 import org.mskcc.cbio.mutassessor.MutationAssessorTool;
 
 import org.apache.commons.io.*;
+import org.apache.commons.io.filefilter.*;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import org.apache.commons.logging.*;
@@ -156,6 +157,17 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
     public Collection<File> listFiles(File directory, String[] extensions, boolean recursive) throws Exception {
 
         return org.apache.commons.io.FileUtils.listFiles(directory, extensions, recursive);
+    }
+
+    @Override
+	public Collection<String> listFiles(File directory, String wildcard) throws Exception
+    {
+    	ArrayList toReturn = new ArrayList<String>();
+    	IOFileFilter filter = new WildcardFileFilter(wildcard);
+    	for (File file : org.apache.commons.io.FileUtils.listFiles(directory, filter, null)) {
+    		toReturn.add(file.getCanonicalPath());
+    	} 
+    	return toReturn;
     }
 
     @Override
@@ -962,6 +974,10 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
         List<DataMatrix> toReturn = new ArrayList<DataMatrix>();
 
+        if (importDataRecord.getCanonicalPathToData().contains(DatatypeMetadata.MUT_PACK_CALLS_FILE)) {
+        	return processMutPackCalls(importDataRecord, methylationCorrelation);
+        }
+
         try {
             File dataFile = new File(importDataRecord.getCanonicalPathToData());
             InputStream is = org.apache.commons.io.FileUtils.openInputStream(dataFile);
@@ -1016,6 +1032,40 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
         }
         
         // outta here
+        return toReturn;
+    }
+
+    private List<DataMatrix> processMutPackCalls(ImportDataRecord importDataRecord, DataMatrix methylationCorrelation) throws Exception
+    {
+    	List<DataMatrix> toReturn = new ArrayList<DataMatrix>();
+
+    	File tmpFile = org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectoryPath(),
+															   DatatypeMetadata.MUT_PACK_CALLS_FILE + ".txt");
+    	logMessage(LOG, "processMutPackCalls, tmp file: " + tmpFile.getCanonicalPath());
+
+		File dataFile = new File(importDataRecord.getCanonicalPathToData());
+    	InputStream unzippedContent =
+    		new GzipCompressorInputStream(org.apache.commons.io.FileUtils.openInputStream(dataFile));
+    	TarArchiveInputStream tis = new TarArchiveInputStream(unzippedContent);
+        TarArchiveEntry entry = null;
+        boolean first = true;
+        while ((entry = tis.getNextTarEntry()) != null) {
+    		logMessage(LOG, "processMutPackCalls, entry: " + entry.getFile().getCanonicalPath());
+        	List<String> contents = org.apache.commons.io.FileUtils.readLines(entry.getFile(), "UTF-8");
+        	if (!first) {
+        		contents.remove(0);
+        	}
+        	org.apache.commons.io.FileUtils.writeLines(tmpFile, contents, true);
+        }
+        IOUtils.closeQuietly(tis);
+        FileInputStream fis = org.apache.commons.io.FileUtils.openInputStream(tmpFile);
+        DataMatrix m = getDataMatrix(tmpFile.getCanonicalPath(), fis, methylationCorrelation);
+        IOUtils.closeQuietly(fis);
+
+        if (m != null) {
+        	toReturn.add(m);
+        }
+
         return toReturn;
     }
 
@@ -1139,5 +1189,12 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
     private boolean skipClinicalDataRow(LinkedList<String> row)
     {
         return (!row.getFirst().startsWith("TCGA") && !row.getFirst().startsWith(ClinicalAttributesNamespace.CDE_TAG));
+    }
+
+    private void logMessage(Log log, String message)
+    {
+        if (log.isInfoEnabled()) {
+            log.info(message);
+        }
     }
 }

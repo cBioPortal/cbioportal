@@ -1,153 +1,198 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <b:beans xmlns:b="http://www.springframework.org/schema/beans"
-		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xmlns:tx="http://www.springframework.org/schema/tx"
-		 xmlns:context="http://www.springframework.org/schema/context"
-		 xmlns:util="http://www.springframework.org/schema/util"
-		 xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:tx="http://www.springframework.org/schema/tx"
+         xmlns:context="http://www.springframework.org/schema/context"
+         xmlns:util="http://www.springframework.org/schema/util"
+         xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 							 http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
 							 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
 							 http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
  
-  <context:annotation-config />
-  <context:property-placeholder location="classpath:/portal.properties"/>
+    <context:annotation-config />
+    <context:property-placeholder location="classpath:/portal.properties"/>
 
-  <!-- enable the configuration of transactional behavior based on annotations -->
-  <tx:annotation-driven transaction-manager="importerTransactionManager"/>
+    <!-- enable the configuration of transactional behavior based on annotations -->
+    <tx:annotation-driven transaction-manager="importerTransactionManager"/>
 
-  <!-- datasource -->
-   <b:bean id="importerDataSource" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">
-     <b:property name="driverClassName" value="${db.driver}"/>
-     <b:property name="url" value="${db.connection_string}${db.importer_db_name}?max_allowed_packet=256M"/>
-     <b:property name="username" value="${db.user}"/>
-     <b:property name="password" value="${db.password}"/>
-	 <!-- setting minIdle/maxIdle to 1 doesn't limit the number of active -->
-	 <b:property name="minIdle" value="0"/>
-	 <b:property name="maxIdle" value="0"/>
-	 <b:property name="maxActive" value="1"/>
-   </b:bean>
+    <!-- datasource -->
+    <b:bean id="importerDataSource" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">
+        <b:property name="driverClassName" value="${db.driver}"/>
+        <b:property name="url" value="${db.connection_string}${db.importer_db_name}?max_allowed_packet=256M"/>
+        <b:property name="username" value="${db.user}"/>
+        <b:property name="password" value="${db.password}"/>
+        <!-- setting minIdle/maxIdle to 1 doesn't limit the number of active -->
+        <b:property name="minIdle" value="0"/>
+        <b:property name="maxIdle" value="0"/>
+        <b:property name="maxActive" value="1"/>
+    </b:bean>
 
-  <!-- hibernate session factory -->
-  <b:bean id="importerSessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
-	<b:property name="dataSource" ref="importerDataSource" />
-	<b:property name="annotatedClasses">
-	  <b:list>
-		<b:value>org.mskcc.cbio.importer.model.ImportDataRecord</b:value>
-	  </b:list>
-	</b:property>
-	<b:property name="hibernateProperties">
-	  <util:properties>
-		<b:prop key="hibernate.show_sql">true</b:prop>
-		<b:prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</b:prop>
-		<b:prop key="hibernate.hbm2ddl.auto"></b:prop> <!-- no value - to prevent accidental tables drop -->
-		<b:prop key="hibernate.connection.release_mode">after_transaction</b:prop>
-	  </util:properties>
-	</b:property>
-  </b:bean>
+    <!-- hibernate session factory -->
+    <b:bean id="importerSessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+        <b:property name="dataSource" ref="importerDataSource" />
+        <b:property name="annotatedClasses">
+            <b:list>
+                <b:value>org.mskcc.cbio.importer.model.ImportDataRecord</b:value>
+            </b:list>
+        </b:property>
+        <b:property name="hibernateProperties">
+            <util:properties>
+                <b:prop key="hibernate.show_sql">true</b:prop>
+                <b:prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</b:prop>
+                <b:prop key="hibernate.hbm2ddl.auto"></b:prop> <!-- no value - to prevent accidental tables drop -->
+                <b:prop key="hibernate.connection.release_mode">after_transaction</b:prop>
+            </util:properties>
+        </b:property>
+    </b:bean>
 
-  <!-- transaction manager -->
-  <b:bean id="importerTransactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
-	<b:property name="sessionFactory" ref="importerSessionFactory"/>
-  </b:bean>
-  <b:bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
+    <!-- transaction manager -->
+    <b:bean id="importerTransactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+        <b:property name="sessionFactory" ref="importerSessionFactory"/>
+    </b:bean>
+    <b:bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
 
-  <!-- datasource for darwin -->
-  <b:bean id="darwinDataSource" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">
-	<!--b:property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
-	<b:property name="url" value="jdbc:sqlserver://${darwin.db.host};databaseName=${darwin.db.name}"/-->
-	<b:property name="driverClassName" value="net.sourceforge.jtds.jdbc.Driver"/>
-	<b:property name="url" value="jdbc:jtds:sqlserver://${darwin.db.host}/${darwin.db.name}"/>
-	<b:property name="username" value="${darwin.db.user}"/>
-	<b:property name="password" value="${darwin.db.password}"/>
-  </b:bean>
+    <!-- datasource for darwin -->
+    <b:bean id="darwinDataSource" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">
+        <!--b:property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
+        <b:property name="url" value="jdbc:sqlserver://${darwin.db.host};databaseName=${darwin.db.name}"/-->
+        <b:property name="driverClassName" value="net.sourceforge.jtds.jdbc.Driver"/>
+        <b:property name="url" value="jdbc:jtds:sqlserver://${darwin.db.host}/${darwin.db.name}"/>
+        <b:property name="username" value="${darwin.db.user}"/>
+        <b:property name="password" value="${darwin.db.password}"/>
+    </b:bean>
 
-  <!-- importer beans -->
-  <b:bean id="dataSourceFactory" class="org.mskcc.cbio.importer.io.internal.DataSourceFactoryBean"/>
-  <b:bean id="databaseUtils" class="org.mskcc.cbio.importer.io.internal.DatabaseUtilsImpl"/>
-  <b:bean id="idMapper" class="org.mskcc.cbio.importer.mapper.internal.DAOGeneOptimizedIDMapper"/>
-  <b:bean id="spreadsheetService" class="com.google.gdata.client.spreadsheet.SpreadsheetService">
-	<b:constructor-arg index="0"><b:value>${importer.spreadsheet_service_appname}</b:value></b:constructor-arg>
-  </b:bean>
-  <b:bean id="ncicaDSRFetcher" class="org.mskcc.cbio.importer.fetcher.internal.NCIcaDSRFetcherImpl"/>
-  <b:bean id="config" class="org.mskcc.cbio.importer.config.internal.GDataImpl">
-	<b:constructor-arg index="0"><b:value>${google.id}</b:value></b:constructor-arg>
-	<b:constructor-arg index="1"><b:value>${google.pw}</b:value></b:constructor-arg>
-	<b:constructor-arg index="2" ref="spreadsheetService"/>
-	<b:constructor-arg index="3"><b:value>${importer.spreadsheet}</b:value></b:constructor-arg>
-	<b:constructor-arg index="4"><b:value>${importer.tumor_types_worksheet}</b:value></b:constructor-arg>
-	<b:constructor-arg index="5"><b:value>${importer.datatypes_worksheet}</b:value></b:constructor-arg>
-	<b:constructor-arg index="6"><b:value>${importer.case_id_filters_worksheet}</b:value></b:constructor-arg>
-	<b:constructor-arg index="7"><b:value>${importer.case_lists_worksheet}</b:value></b:constructor-arg>
-	<b:constructor-arg index="8"><b:value>${importer.clinical_attributes_namespace_worksheet}</b:value></b:constructor-arg>
-	<b:constructor-arg index="9"><b:value>${importer.clinical_attributes_worksheet}</b:value></b:constructor-arg>
-	<b:constructor-arg index="10"><b:value>${importer.portals_worksheet}</b:value></b:constructor-arg>
-	<b:constructor-arg index="11"><b:value>${importer.reference_data_worksheet}</b:value></b:constructor-arg>
-	<b:constructor-arg index="12"><b:value>${importer.data_sources_worksheet}</b:value></b:constructor-arg>
-	<b:constructor-arg index="13"><b:value>${importer.cancer_studies_worksheet}</b:value></b:constructor-arg>
-	<b:constructor-arg index="14" ref="ncicaDSRFetcher"/>
-  </b:bean>
-  <b:bean id="caseIDs" class="org.mskcc.cbio.importer.caseids.internal.CaseIDsImpl">
-	<b:constructor-arg ref="config"/>
-  </b:bean>
-  <b:bean id="fileUtils" class="org.mskcc.cbio.importer.io.internal.FileUtilsImpl">
-	<b:constructor-arg ref="config"/>
-	<b:constructor-arg ref="caseIDs"/>
-  </b:bean>
-  <b:bean id="importDataRecordDAO" class="org.mskcc.cbio.importer.dao.internal.ImportDataRecordHibernateDAO">
-	<b:property name="sessionFactory" ref="importerSessionFactory"/>
-  </b:bean>
-  <b:bean id="darwinDAO" class="org.mskcc.cbio.importer.dao.internal.DarwinDAO">
-	  <b:property name="dataSource" ref="darwinDataSource" />
-  </b:bean>
-  <b:bean id="tcgaFetcher" class="org.mskcc.cbio.importer.fetcher.internal.FirehoseFetcherImpl">
-	<b:constructor-arg ref="config"/>
-	<b:constructor-arg ref="fileUtils"/>
-	<b:constructor-arg ref="databaseUtils"/>
-	<b:constructor-arg ref="importDataRecordDAO"/>
-  </b:bean>
-  <b:bean id="tcgaClinicalFetcher" class="org.mskcc.cbio.importer.fetcher.internal.BiotabFetcherImpl">
-	<b:constructor-arg ref="config"/>
-	<b:constructor-arg ref="fileUtils"/>
-	<b:constructor-arg ref="databaseUtils"/>
-	<b:constructor-arg ref="importDataRecordDAO"/>
-  </b:bean>
-  <b:bean id="darwinFetcher" class="org.mskcc.cbio.importer.fetcher.internal.DarwinFetcherImpl">
-    <b:constructor-arg ref="config"/>
-    <b:constructor-arg ref="fileUtils"/>
-    <b:constructor-arg ref="darwinDAO"/>
-  </b:bean>
-  <b:bean id="foundationFetcher" class="org.mskcc.cbio.importer.fetcher.internal.FoundationFetcherImpl">
-	<b:constructor-arg ref="config"/>
-	<b:constructor-arg ref="fileUtils"/>
-	<b:constructor-arg ref="databaseUtils"/>
-	<b:constructor-arg ref="importDataRecordDAO"/>
-  </b:bean>
-  <b:bean id="tcgaOverrideFetcher" class="org.mskcc.cbio.importer.fetcher.internal.MercurialFetcherImpl">
-	<b:constructor-arg ref="config"/>
-	<b:constructor-arg ref="fileUtils"/>
-	<b:constructor-arg ref="databaseUtils"/>
-	<b:constructor-arg ref="importDataRecordDAO"/>
-  </b:bean>
-  <b:bean id="studiesFetcher" class="org.mskcc.cbio.importer.fetcher.internal.MercurialFetcherImpl">
-	<b:constructor-arg ref="config"/>
-	<b:constructor-arg ref="fileUtils"/>
-	<b:constructor-arg ref="databaseUtils"/>
-	<b:constructor-arg ref="importDataRecordDAO"/>
-  </b:bean>
-  <b:bean id="referenceDataFetcher" class="org.mskcc.cbio.importer.fetcher.internal.ReferenceDataFetcherImpl">
-	<b:constructor-arg ref="fileUtils"/>
-  </b:bean>
-  <b:bean id="importer" class="org.mskcc.cbio.importer.internal.ImporterImpl">
-	<b:constructor-arg ref="config"/>
-	<b:constructor-arg ref="fileUtils"/>
-	<b:constructor-arg ref="databaseUtils"/>
-  </b:bean>
-  <b:bean id="converter" class="org.mskcc.cbio.importer.converter.internal.ConverterImpl">
-	<b:constructor-arg ref="config"/>
-	<b:constructor-arg ref="fileUtils"/>
-	<b:constructor-arg ref="importDataRecordDAO"/>
-	<b:constructor-arg ref="caseIDs"/>
-	<b:constructor-arg ref="idMapper"/>
-  </b:bean>
-  <b:bean id="tcgaSurvivalDataCalculator" class="org.mskcc.cbio.importer.util.TCGASurvivalDataCalculator"/>
+    <!-- importer beans -->
+    <b:bean id="dataSourceFactory" class="org.mskcc.cbio.importer.io.internal.DataSourceFactoryBean"/>
+    <b:bean id="databaseUtils" class="org.mskcc.cbio.importer.io.internal.DatabaseUtilsImpl"/>
+    <b:bean id="idMapper" class="org.mskcc.cbio.importer.mapper.internal.DAOGeneOptimizedIDMapper"/>
+    <b:bean id="spreadsheetService" class="com.google.gdata.client.spreadsheet.SpreadsheetService">
+        <b:constructor-arg index="0">
+            <b:value>${importer.spreadsheet_service_appname}</b:value>
+        </b:constructor-arg>
+    </b:bean>
+    
+    <b:bean id="ncicaDSRFetcher" class="org.mskcc.cbio.importer.fetcher.internal.NCIcaDSRFetcherImpl"/>
+   
+    <b:bean id="config" class="org.mskcc.cbio.importer.config.internal.GDataImpl">
+        <b:constructor-arg index="0">
+            <b:value>${google.id}</b:value>
+        </b:constructor-arg>
+        <b:constructor-arg index="1">
+            <b:value>${google.pw}</b:value>
+        </b:constructor-arg>
+        <b:constructor-arg index="2" ref="spreadsheetService"/>
+        <b:constructor-arg index="3">
+            <b:value>${importer.spreadsheet}</b:value>
+        </b:constructor-arg>
+        <b:constructor-arg index="4">
+            <b:value>${importer.tumor_types_worksheet}</b:value>
+        </b:constructor-arg>
+        <b:constructor-arg index="5">
+            <b:value>${importer.datatypes_worksheet}</b:value>
+        </b:constructor-arg>
+        <b:constructor-arg index="6">
+            <b:value>${importer.case_id_filters_worksheet}</b:value>
+        </b:constructor-arg>
+        <b:constructor-arg index="7">
+            <b:value>${importer.case_lists_worksheet}</b:value>
+        </b:constructor-arg>
+        <b:constructor-arg index="8">
+            <b:value>${importer.clinical_attributes_namespace_worksheet}</b:value>
+        </b:constructor-arg>
+        <b:constructor-arg index="9">
+            <b:value>${importer.clinical_attributes_worksheet}</b:value>
+        </b:constructor-arg>
+        <b:constructor-arg index="10">
+            <b:value>${importer.portals_worksheet}</b:value>
+        </b:constructor-arg>
+        <b:constructor-arg index="11">
+            <b:value>${importer.reference_data_worksheet}</b:value>
+        </b:constructor-arg>
+        <b:constructor-arg index="12">
+            <b:value>${importer.data_sources_worksheet}</b:value>
+        </b:constructor-arg>
+        <b:constructor-arg index="13">
+            <b:value>${importer.cancer_studies_worksheet}</b:value>
+        </b:constructor-arg>
+        <b:constructor-arg index="14">
+            <b:value>${importer.foundation_worksheet}</b:value>
+        </b:constructor-arg>
+       <b:constructor-arg index="15" ref="ncicaDSRFetcher"/>  
+    </b:bean>
+    <b:bean id="caseIDs" class="org.mskcc.cbio.importer.caseids.internal.CaseIDsImpl">
+        <b:constructor-arg ref="config"/>
+    </b:bean>
+    <b:bean id="fileUtils" class="org.mskcc.cbio.importer.io.internal.FileUtilsImpl">
+        <b:constructor-arg ref="config"/>
+        <b:constructor-arg ref="caseIDs"/>
+    </b:bean>
+    <b:bean id="importDataRecordDAO" class="org.mskcc.cbio.importer.dao.internal.ImportDataRecordHibernateDAO">
+        <b:property name="sessionFactory" ref="importerSessionFactory"/>
+    </b:bean>
+    <b:bean id="darwinDAO" class="org.mskcc.cbio.importer.dao.internal.DarwinDAO">
+        <b:property name="dataSource" ref="darwinDataSource" />
+    </b:bean>
+    <b:bean id="tcgaFetcher" class="org.mskcc.cbio.importer.fetcher.internal.FirehoseFetcherImpl">
+        <b:constructor-arg ref="config"/>
+        <b:constructor-arg ref="fileUtils"/>
+        <b:constructor-arg ref="databaseUtils"/>
+        <b:constructor-arg ref="importDataRecordDAO"/>
+    </b:bean>
+    <b:bean id="tcgaClinicalFetcher" class="org.mskcc.cbio.importer.fetcher.internal.BiotabFetcherImpl">
+        <b:constructor-arg ref="config"/>
+        <b:constructor-arg ref="fileUtils"/>
+        <b:constructor-arg ref="databaseUtils"/>
+        <b:constructor-arg ref="importDataRecordDAO"/>
+    </b:bean>
+    <b:bean id="darwinFetcher" class="org.mskcc.cbio.importer.fetcher.internal.DarwinFetcherImpl">
+        <b:constructor-arg ref="config"/>
+        <b:constructor-arg ref="fileUtils"/>
+        <b:constructor-arg ref="darwinDAO"/>
+    </b:bean>
+    <b:bean id="foundationFetcher" class="org.mskcc.cbio.importer.fetcher.internal.FoundationFetcherImpl">
+        <b:constructor-arg ref="config"/>
+        <b:constructor-arg ref="fileUtils"/>
+        <b:constructor-arg ref="databaseUtils"/>
+        <b:constructor-arg ref="importDataRecordDAO"/>
+    </b:bean>
+    
+    <b:bean id="xmlTransformer" class="org.mskcc.cbio.importer.transformer.FoundationXMLTransformer">
+         <b:constructor-arg ref="config"/>
+    </b:bean>
+   <!-- 
+    <b:bean id="foundationMetadataGenerator" class="org.mskcc.cbio.importer.foundation.support.FoundationMetadataGenerator">
+         <b:constructor-arg ref="config"/>
+          <b:constructor-arg >
+            <b:value>${foundation.root.directory}</b:value>
+        </b:constructor-arg>
+    </b:bean>
+-->
+    <b:bean id="tcgaOverrideFetcher" class="org.mskcc.cbio.importer.fetcher.internal.MercurialFetcherImpl">
+        <b:constructor-arg ref="config"/>
+        <b:constructor-arg ref="fileUtils"/>
+        <b:constructor-arg ref="databaseUtils"/>
+        <b:constructor-arg ref="importDataRecordDAO"/>
+    </b:bean>
+    <b:bean id="studiesFetcher" class="org.mskcc.cbio.importer.fetcher.internal.MercurialFetcherImpl">
+        <b:constructor-arg ref="config"/>
+        <b:constructor-arg ref="fileUtils"/>
+        <b:constructor-arg ref="databaseUtils"/>
+        <b:constructor-arg ref="importDataRecordDAO"/>
+    </b:bean>
+    <b:bean id="referenceDataFetcher" class="org.mskcc.cbio.importer.fetcher.internal.ReferenceDataFetcherImpl">
+        <b:constructor-arg ref="fileUtils"/>
+    </b:bean>
+    <b:bean id="importer" class="org.mskcc.cbio.importer.internal.ImporterImpl">
+        <b:constructor-arg ref="config"/>
+        <b:constructor-arg ref="fileUtils"/>
+        <b:constructor-arg ref="databaseUtils"/>
+    </b:bean>
+    <b:bean id="converter" class="org.mskcc.cbio.importer.converter.internal.ConverterImpl">
+        <b:constructor-arg ref="config"/>
+        <b:constructor-arg ref="fileUtils"/>
+        <b:constructor-arg ref="importDataRecordDAO"/>
+        <b:constructor-arg ref="caseIDs"/>
+        <b:constructor-arg ref="idMapper"/>
+    </b:bean>
+    <b:bean id="tcgaSurvivalDataCalculator" class="org.mskcc.cbio.importer.util.TCGASurvivalDataCalculator"/>
 </b:beans>

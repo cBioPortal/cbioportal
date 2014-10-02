@@ -12,8 +12,26 @@
     <description>master maven module</description>
     <url>http://code.google.com/p/cbio-cancer-genomics-portal/</url>
 
+    <repositories>
+    <repository>
+        <id>spring-milestones</id>
+        <name>Spring Milestones</name>
+        <url>http://repo.spring.io/milestone</url>
+        <snapshots>
+            <enabled>false</enabled>
+        </snapshots>
+    </repository>
+    </repositories>
+
   <!-- profiles -->
   <profiles>
+    <profile>
+      <id>mskcc</id>
+      <properties>
+        <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
+        <final-war-name>mskcc-portal</final-war-name>
+      </properties>
+    </profile>
 	<profile>
 	  <id>gdac</id>
 	  <properties>
@@ -86,7 +104,8 @@
   <properties>
 	<slf4j.version>1.6.6</slf4j.version>
 	<spring.version>4.0.4.RELEASE</spring.version>
-	<spring.security.version>3.1.0.RELEASE</spring.security.version>
+	<spring.security.version>3.2.3.RELEASE</spring.security.version>
+    <spring.security.saml.version>1.0.0.RELEASE</spring.security.saml.version>
 	<mybatis.spring.version>1.2.2</mybatis.spring.version>
     <spring.social.version>1.1.0.RELEASE</spring.social.version>
     <org.springframework.social.google-version>1.0.0.RELEASE</org.springframework.social.google-version>
@@ -274,11 +293,21 @@
 	  <artifactId>spring-security-core</artifactId>
 	  <version>${spring.security.version}</version>
 	</dependency>
+    <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-ldap</artifactId>
+        <version>${spring.security.version}</version>
+    </dependency>
 	<dependency>
 	  <groupId>org.springframework.security</groupId>
 	  <artifactId>spring-security-openid</artifactId>
 	  <version>${spring.security.version}</version>
 	</dependency>
+    <dependency>
+      <groupId>org.springframework.security.extensions</groupId>
+      <artifactId>spring-security-saml2-core</artifactId>
+      <version>${spring.security.saml.version}</version>
+    </dependency>
 	<dependency>
 	  <groupId>org.springframework.security</groupId>
 	  <artifactId>spring-security-taglibs</artifactId>

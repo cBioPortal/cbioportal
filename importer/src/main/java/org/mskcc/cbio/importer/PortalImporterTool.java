@@ -59,7 +59,7 @@ public class PortalImporterTool implements Runnable {
         Option annotateMAF = (OptionBuilder.withArgName("maf:output")
                               .hasArgs(2)
                               .withValueSeparator(':')
-                              .withDescription("Annotates the MAF file with additional information from mutationassessor.org and Oncotator." +
+                              .withDescription("Annotates the MAF file with additional information from mutationassessor.org and Annotator." +
                                                "If output filename is not given, input filename will be used with a '.annotated' extension.")
                               .create("a"));
 
@@ -243,8 +243,8 @@ public class PortalImporterTool implements Runnable {
 		File outputMAF = 
 			org.apache.commons.io.FileUtils.getFile(outputFilename);
 
-		fileUtils.oncotateMAF(FileUtils.FILE_URL_PREFIX + mafFile.getCanonicalPath(),
-                              FileUtils.FILE_URL_PREFIX + outputMAF.getCanonicalPath());
+		fileUtils.annotateMAF(FileUtils.FILE_URL_PREFIX + mafFile.getCanonicalPath(),
+		                      FileUtils.FILE_URL_PREFIX + outputMAF.getCanonicalPath());
 
         logMessage("annotateMAF(), complete");
 	}

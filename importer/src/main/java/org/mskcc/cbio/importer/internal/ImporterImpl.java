@@ -24,7 +24,6 @@ import org.mskcc.cbio.importer.Importer;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.DatabaseUtils;
 import org.mskcc.cbio.importer.util.ClassLoader;
-import org.mskcc.cbio.importer.model.CaseListMetadata;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
@@ -399,9 +398,9 @@ class ImporterImpl implements Importer {
                     	stagingFilename = addMetadataToClinicalFile(stagingFilename);
                 	}
 
-					// if MAF, oncotate
+					// if MAF, annotate
 					if (stagingFilename.endsWith(DatatypeMetadata.MUTATIONS_STAGING_FILENAME)) {
-						stagingFilename = getOncotatedFile(stagingFilename);
+						stagingFilename = getAnnotatedFile(stagingFilename);
 					}
 					if (datatypeMetadata.requiresMetafile()) {
 						Collection<String> importFilenames = getImportFilenames(rootDirectory, cancerStudyMetadata, datatypeMetadata.getMetaFilename());
@@ -515,18 +514,18 @@ class ImporterImpl implements Importer {
     	return lineBuilder.toString().trim() + "\n";
     }
 
-	private String getOncotatedFile(String stagingFilename) throws Exception
+	private String getAnnotatedFile(String stagingFilename) throws Exception
 	{
-		if (MutationFileUtil.isOncotated(stagingFilename)) {
+		if (MutationFileUtil.isAnnotated(stagingFilename)) {
 			return stagingFilename;
 		}
 		File stagingFile = new File(stagingFilename);
 		File tmpMAF = org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
 															  ""+System.currentTimeMillis()+".tmpMAF");
 
-		// oncotate the MAF (input is tmp maf, output is original maf)
-		fileUtils.oncotateMAF(FileUtils.FILE_URL_PREFIX + stagingFile.getCanonicalPath(),
-							  FileUtils.FILE_URL_PREFIX + tmpMAF.getCanonicalPath());
+		// annotate the MAF (input is tmp maf, output is original maf)
+		fileUtils.annotateMAF(FileUtils.FILE_URL_PREFIX + stagingFile.getCanonicalPath(),
+		                      FileUtils.FILE_URL_PREFIX + tmpMAF.getCanonicalPath());
 		return tmpMAF.getCanonicalPath();
 	}
 

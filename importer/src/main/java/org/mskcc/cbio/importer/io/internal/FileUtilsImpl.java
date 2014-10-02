@@ -19,6 +19,8 @@
 package org.mskcc.cbio.importer.io.internal;
 
 // imports
+import org.mskcc.cbio.annotator.AnnotateTool;
+import org.mskcc.cbio.annotator.AnnotatorConfig;
 import org.mskcc.cbio.importer.*;
 import org.mskcc.cbio.importer.model.*;
 import org.mskcc.cbio.portal.scripts.*;
@@ -27,7 +29,6 @@ import org.mskcc.cbio.portal.model.CopyNumberSegmentFile;
 import org.mskcc.cbio.importer.converter.internal.MethylationConverterImpl;
 
 import org.mskcc.cbio.liftover.Hg18ToHg19;
-import org.mskcc.cbio.oncotator.OncotateTool;
 import org.mskcc.cbio.mutassessor.MutationAssessorTool;
 
 import org.apache.commons.io.*;
@@ -47,7 +48,6 @@ import java.io.*;
 import java.util.*;
 import java.net.URL;
 import java.util.regex.Matcher;
-import java.lang.reflect.Constructor;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -78,6 +78,42 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	@Value("${liftover_chain_file}")
 	public void setLiftOverChain(String property) { this.liftoverChain = property; }
 	public String getLiftOverChain() { return MetadataUtils.getCanonicalPath(liftoverChain); }
+
+	// location of the maf2maf script file
+	private String maf2mafScript;
+	@Value("${annotator.maf2maf}")
+	public void setMaf2mafScript(String maf2mafScript) { this.maf2mafScript = maf2mafScript;}
+	public String getMaf2mafScript() { return MetadataUtils.getCanonicalPath(maf2mafScript); }
+
+	// location of the maf2maf script file
+	private String vcf2mafScript;
+	@Value("${annotator.vcf2maf}")
+	public void setVcf2mafScript(String vcf2mafScript) { this.vcf2mafScript = vcf2mafScript; }
+	public String getVcf2mafScript() { return MetadataUtils.getCanonicalPath(vcf2mafScript); }
+
+	// directory containing the vep script (variant_effect_predictor.pl)
+	private String vepPath;
+	@Value("${annotator.vep_path}")
+	public void setVepPath(String vepPath) { this.vepPath = vepPath; }
+	public String getVepPath() { return MetadataUtils.getCanonicalPath(vepPath); }
+
+	// vep data directory
+	private String vepData;
+	@Value("${annotator.vep_data}")
+	public void setVepData(String vepData) { this.vepData = vepData; }
+	public String getVepData() { return MetadataUtils.getCanonicalPath(vepData); }
+
+	// path to the reference FASTA file
+	private String refFasta;
+	@Value("${annotator.ref_fasta}")
+	public void setRefFasta(String refFasta) { this.refFasta = refFasta; }
+	public String getRefFasta() { return MetadataUtils.getCanonicalPath(refFasta); }
+
+	// path to the temporary maf output file used by annotator
+	private String intermediateMaf;
+	@Value("${annotator.intermediate_maf}")
+	public void setIntermediateMaf(String intermediateMaf) { this.intermediateMaf = intermediateMaf; }
+	public String getIntermediateMaf() { return MetadataUtils.getCanonicalPath(intermediateMaf); }
 
 	public FileUtilsImpl(Config config, CaseIDs caseIDs) {
 
@@ -654,10 +690,10 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 										 DatatypeMetadata datatypeMetadata, DataMatrix dataMatrix) throws Exception {
 
 		// we only have data matrix at this point, we need to create a temp with its contents
-		File oncotatorInputFile =
+		File annotatorInputFile =
 			org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
-													""+System.currentTimeMillis()+".oncotatorInputFile");
-		FileOutputStream out = org.apache.commons.io.FileUtils.openOutputStream(oncotatorInputFile);
+													""+System.currentTimeMillis()+".annotatorInputFile");
+		FileOutputStream out = org.apache.commons.io.FileUtils.openOutputStream(annotatorInputFile);
 		dataMatrix.write(out);
 		IOUtils.closeQuietly(out);
 
@@ -668,13 +704,13 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 																   cancerStudyMetadata.getStudyPath(),
 																   stagingFilename);
 
-		// call oncotateAF
-		oncotateMAF(org.mskcc.cbio.importer.FileUtils.FILE_URL_PREFIX + oncotatorInputFile.getCanonicalPath(),
-					org.mskcc.cbio.importer.FileUtils.FILE_URL_PREFIX + stagingFile.getCanonicalPath());
+		// call annotateAF
+		annotateMAF(org.mskcc.cbio.importer.FileUtils.FILE_URL_PREFIX + annotatorInputFile.getCanonicalPath(),
+		            org.mskcc.cbio.importer.FileUtils.FILE_URL_PREFIX + stagingFile.getCanonicalPath());
 
 		// clean up
-		if (oncotatorInputFile.exists()) {
-			org.apache.commons.io.FileUtils.forceDelete(oncotatorInputFile);
+		if (annotatorInputFile.exists()) {
+			org.apache.commons.io.FileUtils.forceDelete(annotatorInputFile);
 		}
 	}
 
@@ -808,47 +844,47 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	}
 
 	/**
-	 * Runs all MAFs for the given dataaSourcesMetadata through
-	 * the Oncotator and OMA tools.
+	 * Runs all MAFs for the given dataSourcesMetadata through
+	 * the Annotator and OMA tools.
 	 *
 	 * @param dataSourcesMetadata DataSourcesMetadata
 	 * @throws Exception
 	 */
 	@Override
-	public void oncotateAllMAFs(DataSourcesMetadata dataSourcesMetadata) throws Exception {
+	public void annotateAllMAFs(DataSourcesMetadata dataSourcesMetadata) throws Exception {
 
 		// iterate over datasource download directory and process all MAFs
 		String[] extensions = new String[] { DatatypeMetadata.MAF_FILE_EXT };
 		for (File maf : listFiles(new File(dataSourcesMetadata.getDownloadDirectory()), extensions, true)) {
 			// create temp for given maf
-			File oncotatorInputFile =
+			File annotatorInputFile =
 				org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
-														""+System.currentTimeMillis()+".oncotatorInputFile");
-			org.apache.commons.io.FileUtils.copyFile(maf, oncotatorInputFile);
+														""+System.currentTimeMillis()+".annotatorInputFile");
+			org.apache.commons.io.FileUtils.copyFile(maf, annotatorInputFile);
 			// input is tmp file we just created, we want output to go into the original maf
-			oncotateMAF(org.mskcc.cbio.importer.FileUtils.FILE_URL_PREFIX + oncotatorInputFile.getCanonicalPath(),
-						org.mskcc.cbio.importer.FileUtils.FILE_URL_PREFIX + maf.getCanonicalPath());
+			annotateMAF(org.mskcc.cbio.importer.FileUtils.FILE_URL_PREFIX + annotatorInputFile.getCanonicalPath(),
+			            org.mskcc.cbio.importer.FileUtils.FILE_URL_PREFIX + maf.getCanonicalPath());
 			// clean up
-			org.apache.commons.io.FileUtils.forceDelete(oncotatorInputFile);
+			org.apache.commons.io.FileUtils.forceDelete(annotatorInputFile);
 		}
 	}
 
 	@Override
-	public void oncotateMAF(String inputMAFURL, String outputMAFURL) throws Exception {
+	public void annotateMAF(String inputMAFURL, String outputMAFURL) throws Exception {
 
 		// sanity check
 		if (inputMAFURL == null || inputMAFURL.length() == 0 ||
 			outputMAFURL == null || outputMAFURL.length() == 0) {
-			throw new IllegalArgumentException("oncotateMAFdownloadFile(): url or urlDestination argument is null...");
+			throw new IllegalArgumentException("annotateMAF(): url or urlDestination argument is null...");
 		}
 
 		URL inputMAF = new URL(inputMAFURL);
 		URL outputMAF = new URL(outputMAFURL);
 
 		// determine if we have to call liftover
-		boolean cleanOncotatorInputFile = false;
-		File oncotatorInputFile = new File(inputMAF.getFile());
-		org.apache.commons.io.LineIterator it = org.apache.commons.io.FileUtils.lineIterator(oncotatorInputFile);
+		boolean cleanAnnotatorInputFile = false;
+		File annotatorInputFile = new File(inputMAF.getFile());
+		org.apache.commons.io.LineIterator it = org.apache.commons.io.FileUtils.lineIterator(annotatorInputFile);
 		String[] parts = it.nextLine().split("\t");
                 int ixNcbiBuild = -1;
                 for (int ix = 0; ix < parts.length; ix++) {
@@ -864,39 +900,51 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
                             it.close();
                             File liftoverInputFile = org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
                                                                                                                                                              ""+System.currentTimeMillis()+".liftoverInputFile");
-                            org.apache.commons.io.FileUtils.copyFile(oncotatorInputFile, liftoverInputFile);
-                            oncotatorInputFile = new File(inputMAF.getFile());
+                            org.apache.commons.io.FileUtils.copyFile(annotatorInputFile, liftoverInputFile);
+                            annotatorInputFile = new File(inputMAF.getFile());
                             // call lift over
                             if (LOG.isInfoEnabled()) {
-                                    LOG.info("oncotateMAF(), calling Hg18ToHg19...");
+                                    LOG.info("annotateMAF(), calling Hg18ToHg19...");
                             }
-                            Hg18ToHg19.driver(liftoverInputFile.getCanonicalPath(), oncotatorInputFile.getCanonicalPath(), getLiftOverBinary(), getLiftOverChain());
+                            Hg18ToHg19.driver(liftoverInputFile.getCanonicalPath(), annotatorInputFile.getCanonicalPath(), getLiftOverBinary(), getLiftOverChain());
                             org.apache.commons.io.FileUtils.forceDelete(liftoverInputFile);
-                            cleanOncotatorInputFile = true;
+                            cleanAnnotatorInputFile = true;
                     }
                 }
 
-		// create a temp output file from the oncotator
-		File oncotatorOutputFile = 
+		// create a temp output file from the annotator
+		File annotatorOutputFile =
 			org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
-													""+System.currentTimeMillis()+".oncotatorOutputFile");
-		// call oncotator
+													""+System.currentTimeMillis()+".annotatorOutputFile");
+		// call annotator
 		if (LOG.isInfoEnabled()) {
-			LOG.info("oncotateMAF(), calling OncotateTool...");
+			LOG.info("annotateMAF(), calling AnnotateTool...");
 		}
-		OncotateTool.driver(oncotatorInputFile.getCanonicalPath(), oncotatorOutputFile.getCanonicalPath(), true, true, true);
+
+		AnnotatorConfig config = new AnnotatorConfig();
+		config.setInput(annotatorInputFile.getCanonicalPath());
+		config.setOutput(annotatorOutputFile.getCanonicalPath());
+		config.setIntermediateMaf(getIntermediateMaf());
+		config.setMaf2maf(getMaf2mafScript());
+		config.setVcf2maf(getVcf2mafScript());
+		config.setVepPath(getVepPath());
+		config.setVepData(getVepData());
+		config.setRefFasta(getRefFasta());
+		AnnotateTool.driver(config);
+//		OncotateTool.driver(oncotatorInputFile.getCanonicalPath(), oncotatorOutputFile.getCanonicalPath(), true, true, true);
+
 		// we call OMA here -
-		// we use output from oncotator as input file
+		// we use output from annotator as input file
 		if (LOG.isInfoEnabled()) {
-			LOG.info("oncotateMAF(), calling MutationAssessorTool...");
+			LOG.info("annotateMAF(), calling MutationAssessorTool...");
 		}
 		File outputMAFFile = new File(outputMAF.getFile());
 		outputMAFFile.createNewFile();
-		MutationAssessorTool.driver(oncotatorOutputFile.getCanonicalPath(), outputMAFFile.getCanonicalPath(), false, true, true);
+		MutationAssessorTool.driver(annotatorOutputFile.getCanonicalPath(), outputMAFFile.getCanonicalPath(), false, true, true);
 
 		// clean up
-		org.apache.commons.io.FileUtils.forceDelete(oncotatorOutputFile);
-		if (cleanOncotatorInputFile) org.apache.commons.io.FileUtils.forceDelete(oncotatorInputFile);
+		org.apache.commons.io.FileUtils.forceDelete(annotatorOutputFile);
+		if (cleanAnnotatorInputFile) org.apache.commons.io.FileUtils.forceDelete(annotatorInputFile);
 	}
 
 	/**

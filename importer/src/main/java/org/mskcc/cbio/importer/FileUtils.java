@@ -234,7 +234,7 @@ public interface FileUtils {
 
 	/**
 	 * Creates a staging file for mutation data (and meta file) with contents from the given DataMatrix.
-	 * This is called when the mutation file needs to be run through the Oncotator and Mutation Assessor Tools.
+	 * This is called when the mutation file needs to be run through the Annotator and Mutation Assessor Tools.
 	 *
      * @param stagingDirectory String
 	 * @param cancerStudy CancerStudyMetadata
@@ -301,21 +301,21 @@ public interface FileUtils {
 
 	/**
 	 * Runs all MAFs for the given dataaSourcesMetadata through
-	 * the Oncotator and OMA tools.
+	 * the Annotator and OMA tools.
 	 *
 	 * @param dataSourcesMetadata DataSourcesMetadata
 	 * @throws Exception
 	 */
-	void oncotateAllMAFs(DataSourcesMetadata dataSourcesMetadata) throws Exception;
+	void annotateAllMAFs(DataSourcesMetadata dataSourcesMetadata) throws Exception;
 
 	/**
-	 * Runs a MAF file through the Oncotator and OMA tools.
+	 * Runs a MAF file through the Annotator and OMA tools.
 	 *
 	 * @param inputMAFURL String
 	 * @param outputMAFURL String
 	 * @throws Exception
 	 */
-	void oncotateMAF(String inputMAFURL, String outputMAFURL) throws Exception;
+	void annotateMAF(String inputMAFURL, String outputMAFURL) throws Exception;
 
 	/**
 	 * Copy's the given portal's seg files to location used for linking to IGV from cBio Portal web site.

@@ -22,8 +22,6 @@ package org.mskcc.cbio.importer.util;
 import org.mskcc.cbio.importer.Admin;
 import org.mskcc.cbio.importer.FileUtils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.commons.io.LineIterator;
 
 import org.springframework.context.ApplicationContext;
@@ -35,18 +33,18 @@ import java.util.Arrays;
 
 public class MutationFileUtil
 {
-
-	private static final String KNOWN_ONCOTATOR_HEADER = "ONCOTATOR_VARIANT_CLASSIFICATION";
+	// TODO ONCOTATOR_VARIANT_CLASSIFICATION doesn't work anymore
+	private static final String KNOWN_ANNOTATOR_HEADER = "ONCOTATOR_VARIANT_CLASSIFICATION";
 	private static final ApplicationContext context = new ClassPathXmlApplicationContext(Admin.contextFile);
 
-	public static boolean isOncotated(String fileName) throws Exception
+	public static boolean isAnnotated(String fileName) throws Exception
 	{
-		return MutationFileUtil.isOncotated(Arrays.asList(getColumnHeaders(fileName)));
+		return MutationFileUtil.isAnnotated(Arrays.asList(getColumnHeaders(fileName)));
 	}
 
-	public static boolean isOncotated(List<String> columnHeaders)
+	public static boolean isAnnotated(List<String> columnHeaders)
 	{
-		return columnHeaders.contains(KNOWN_ONCOTATOR_HEADER);
+		return columnHeaders.contains(KNOWN_ANNOTATOR_HEADER);
 	}
         
         public static String[] getColumnHeaders(String fileName) throws Exception {

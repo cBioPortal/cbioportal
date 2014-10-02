@@ -19,7 +19,6 @@
 package org.mskcc.cbio.importer;
 
 // imports
-import org.mskcc.cbio.importer.*;
 import org.mskcc.cbio.importer.model.*;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 
@@ -106,15 +105,15 @@ public class Admin implements Runnable {
 													   "  Use \"" + Config.ALL + "\" to retrieve all reference data.")
 									  .create("fetch_reference_data"));
 
-        Option oncotateMAF = (OptionBuilder.withArgName("maf_file")
+        Option annotateMAF = (OptionBuilder.withArgName("maf_file")
 							  .hasArg()
-							  .withDescription("Run the given MAF though the Oncotator and OMA tools.")
-							  .create("oncotate_maf"));
+							  .withDescription("Run the given MAF though the Annotator and OMA tools.")
+							  .create("annotate_maf"));
 
-        Option oncotateAllMAFs = (OptionBuilder.withArgName("data_source")
+        Option annotateAllMAFs = (OptionBuilder.withArgName("data_source")
 							  .hasArg()
-							  .withDescription("Run all MAFs in the given datasource though the Oncotator and OMA tools.")
-							  .create("oncotate_mafs"));
+							  .withDescription("Run all MAFs in the given datasource though the Annotator and OMA tools.")
+							  .create("annotate_mafs"));
 
         Option convertData = (OptionBuilder.withArgName("portal:run_date:apply_overrides")
                               .hasArgs(3)
@@ -186,8 +185,8 @@ public class Admin implements Runnable {
 		toReturn.addOption(initializeDatabase);
 		toReturn.addOption(fetchData);
 		toReturn.addOption(fetchReferenceData);
-		toReturn.addOption(oncotateMAF);
-		toReturn.addOption(oncotateAllMAFs);
+		toReturn.addOption(annotateMAF);
+		toReturn.addOption(annotateAllMAFs);
 		toReturn.addOption(convertData);
 		toReturn.addOption(applyOverrides);
 		toReturn.addOption(generateCaseLists);
@@ -250,13 +249,13 @@ public class Admin implements Runnable {
 			else if (commandLine.hasOption("fetch_reference_data")) {
 				fetchReferenceData(commandLine.getOptionValue("fetch_reference_data"));
 			}
-			// oncotate MAF
-			else if (commandLine.hasOption("oncotate_maf")) {
-				oncotateMAF(commandLine.getOptionValue("oncotate_maf"));
+			// annotate MAF
+			else if (commandLine.hasOption("annotate_maf")) {
+				annotateMAF(commandLine.getOptionValue("annotate_maf"));
 			}
-			// oncotate MAFs
-			else if (commandLine.hasOption("oncotate_mafs")) {
-				oncotateAllMAFs(commandLine.getOptionValue("oncotate_mafs"));
+			// annotate MAFs
+			else if (commandLine.hasOption("annotate_mafs")) {
+				annotateAllMAFs(commandLine.getOptionValue("annotate_mafs"));
 			}
             // apply overrides		
 			else if (commandLine.hasOption("apply_overrides")) {		
@@ -408,16 +407,16 @@ public class Admin implements Runnable {
 	}
 
 	/**
-	 * Helper function to oncotate the give MAF.
+	 * Helper function to annotate the given MAF.
      *
-     * @param mafFile String
+     * @param mafFileName String
      *
 	 * @throws Exception
 	 */
-	private void oncotateMAF(String mafFileName) throws Exception {
+	private void annotateMAF(String mafFileName) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("oncotateMAF(), mafFile: " + mafFileName);
+			LOG.info("annotateMAF(), mafFile: " + mafFileName);
 		}
 
 		// sanity check
@@ -436,40 +435,40 @@ public class Admin implements Runnable {
 													""+System.currentTimeMillis()+".tmpMAF");
 		org.apache.commons.io.FileUtils.copyFile(mafFile, tmpMAF);
 
-		// oncotate the MAF (input is tmp maf, output is original maf)
-		fileUtils.oncotateMAF(FileUtils.FILE_URL_PREFIX + tmpMAF.getCanonicalPath(),
-							  FileUtils.FILE_URL_PREFIX + mafFile.getCanonicalPath());
+		// annotate the MAF (input is tmp maf, output is original maf)
+		fileUtils.annotateMAF(FileUtils.FILE_URL_PREFIX + tmpMAF.getCanonicalPath(),
+		                      FileUtils.FILE_URL_PREFIX + mafFile.getCanonicalPath());
 
 		// clean up
 		org.apache.commons.io.FileUtils.forceDelete(tmpMAF);
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("oncotateMAF(), complete");
+			LOG.info("annotateMAF(), complete");
 		}
 	}
 
 	/**
-	 * Helper function to oncotate MAFs.
+	 * Helper function to annotate MAFs.
      *
      * @param dataSource String
      *
 	 * @throws Exception
 	 */
-	private void oncotateAllMAFs(String dataSource) throws Exception {
+	private void annotateAllMAFs(String dataSource) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("oncotateAllMAFs(), dataSource: " + dataSource);
+			LOG.info("annotateAllMAFs(), dataSource: " + dataSource);
 		}
 
 		// get the data source metadata object
 		DataSourcesMetadata dataSourcesMetadata = getDataSourcesMetadata(dataSource);
 
-		// oncotate all the files of the given data source
+		// annotate all the files of the given data source
 		FileUtils fileUtils = (FileUtils)getBean("fileUtils");
-		fileUtils.oncotateAllMAFs(dataSourcesMetadata);
+		fileUtils.annotateAllMAFs(dataSourcesMetadata);
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("oncotateAllMAFs(), complete");
+			LOG.info("annotateAllMAFs(), complete");
 		}
 	}
 

@@ -68,6 +68,7 @@ class GDataImpl implements Config {
 	ArrayList<ArrayList<String>> portalsMatrix;
 	ArrayList<ArrayList<String>> referenceMatrix;
 	ArrayList<ArrayList<String>> tumorTypesMatrix;
+	ArrayList<ArrayList<String>> foundationMatrix;
 
 	// worksheet names we need for updates
 	private String gdataSpreadsheet;
@@ -81,6 +82,7 @@ class GDataImpl implements Config {
 	private String referenceDataWorksheet;
 	private String dataSourcesWorksheet;
 	private String cancerStudiesWorksheet;
+	private String foundationWorksheet;
 
 	/**
 	 * Constructor.
@@ -104,13 +106,14 @@ class GDataImpl implements Config {
 	 * @param referenceDataWorksheet String
 	 * @param dataSourceseWorksheet String
 	 * @param cancerStudiesWorksheet String
+	 * @param foundationWorksheet String
 	 */
 	public GDataImpl(String gdataUser, String gdataPassword, SpreadsheetService spreadsheetService,
 					 String gdataSpreadsheet, String tumorTypesWorksheet, String datatypesWorksheet,
 					 String caseIDFiltersWorksheet, String caseListWorksheet,
                      String clinicalAttributesNamespaceWorksheet, String clinicalAttributesWorksheet,
 					 String portalsWorksheet, String referenceDataWorksheet, String dataSourcesWorksheet, String cancerStudiesWorksheet,
-					 NCIcaDSRFetcher nciDSRFetcher)
+					 String foundationWorksheet, NCIcaDSRFetcher nciDSRFetcher)
 	{
 
 		// set members
@@ -131,6 +134,7 @@ class GDataImpl implements Config {
 		this.referenceDataWorksheet = referenceDataWorksheet;
 		this.dataSourcesWorksheet = dataSourcesWorksheet;
 		this.cancerStudiesWorksheet = cancerStudiesWorksheet;
+		this.foundationWorksheet = foundationWorksheet;
 	}
 
 	/**
@@ -711,6 +715,28 @@ class GDataImpl implements Config {
         // outta here
         return toReturn;
 	}
+
+
+	/**
+	 * Gets FoundationMetadata.
+	 *
+	 * @return Collection<FoundationMetadata>
+	 */
+    @Override
+	public Collection<FoundationMetadata> getFoundationMetadata()
+	{
+
+		if (foundationMatrix == null) {
+			foundationMatrix = getWorksheetData(gdataSpreadsheet, dataSourcesWorksheet);
+		}
+
+		Collection<FoundationMetadata> foundationMetadatas =
+			(Collection<FoundationMetadata>)getMetadataCollection(foundationMatrix,
+																   "org.mskcc.cbio.importer.model.FoundationMetadata");
+
+        // outta here
+        return foundationMetadatas;
+	}
 	
 	/**
 	 * Gets a CancerStudyMetadata for the given cancer study.
@@ -769,7 +795,7 @@ class GDataImpl implements Config {
 	 *
 	 * @param metadataMatrix ArrayList<ArrayList<String>>
 	 * @param className String
-	 * @return Collection<?>
+	 * @return Collection<Object>
 	 */
 	public Collection<?> getMetadataCollection(ArrayList<ArrayList<String>> metadataMatrix, String className) {
 

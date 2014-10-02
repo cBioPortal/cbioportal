@@ -92,9 +92,9 @@
         <version>18.0</version>
     </dependency>
 	<dependency>
-	  <groupId>com.google.gdata.gdata-java-client</groupId>
-	  <artifactId>gdata-spreadsheet-3.0</artifactId>
-	  <version>1.46.0</version>
+		<groupId>com.google.gdata</groupId>
+		<artifactId>core</artifactId>
+		<version>1.47.1</version>
 	</dependency>
 
 	<!-- hibernate -->

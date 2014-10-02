@@ -769,7 +769,7 @@ class GDataImpl implements Config {
 	 *
 	 * @param metadataMatrix ArrayList<ArrayList<String>>
 	 * @param className String
-	 * @return Collection<?>
+	 * @return Collection<Object>
 	 */
 	public Collection<?> getMetadataCollection(ArrayList<ArrayList<String>> metadataMatrix, String className) {
 

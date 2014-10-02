@@ -1,13 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 16.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 width="512px" height="512px" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve">
-<g>
-	<path d="M497.938,430.063L380.469,312.594c-17.5,27.219-40.656,50.375-67.875,67.875l117.469,117.469
-		c18.75,18.75,49.156,18.75,67.875,0C516.688,479.219,516.688,448.813,497.938,430.063z"/>
-	<path d="M384,192C384,85.969,298.031,0,192,0S0,85.969,0,192s85.969,192,192,192S384,298.031,384,192z M192,336
-		c-79.406,0-144-64.594-144-144S112.594,48,192,48s144,64.594,144,144S271.406,336,192,336z"/>
-	<path d="M80,192h32c0-44.109,35.891-80,80-80V80C130.25,80,80,130.25,80,192z"/>
-</g>
+<svg width="60" height="45" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+ <g>
+   <rect fill="#3f3f3f" stroke="null" stroke-width="5" x="1" y="3.5" width="6" height="38" id="svg_14"/>
+   <rect fill="#3f3f3f" stroke="null" stroke-width="5" x="11" y="3.5" width="6" height="38" id="svg_16"/>
+   <rect fill="#3f3f3f" stroke="null" stroke-width="5" x="20" y="3.5" width="6" height="38" id="svg_15"/>
+   <rect fill="#3f3f3f" stroke="null" stroke-width="5" x="29" y="3.5" width="6" height="38" id="svg_18"/>
+   <path stroke="null" transform="rotate(-178.82675170898438 44.996131896972656,21.94611740112304) " id="svg_19" d="m42.42108,6.30866l-7.23531,13.80801c-0.56511,1.07838 -0.56511,2.82701 0,3.90539l7.23531,13.80801c0.56511,1.07842 1.48133,1.07842 2.04645,0c0.56517,-1.07839 0.56517,-2.82701 0,-3.90544l-4.76507,-9.09368l13.87124,0c0.79919,0 1.44707,-1.23633 1.44707,-2.76161c0,-1.52519 -0.64787,-2.76161 -1.44707,-2.76161l-13.87124,0l4.76503,-9.09368c0.28254,-0.53921 0.42388,-1.24599 0.42388,-1.95274s-0.14128,-1.41348 -0.42382,-1.95269c-0.56516,-1.07851 -1.48133,-1.07851 -2.04644,0l0,0l-0.00001,0.00002l0,0.00001l-0.00001,0z" fill="3f3f3f"/> </g>
 </svg>

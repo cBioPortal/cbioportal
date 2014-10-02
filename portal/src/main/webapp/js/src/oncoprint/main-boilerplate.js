@@ -1167,14 +1167,11 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             $('.oncoprint-diagram-showlegend-icon').click(function(){
               if($(this)[0].attributes.src.value === 'images/showlegend.svg')
               {
-
-//                $("#oncoprint_legend").hide();
                 $("#oncoprint_legend").css("display","inline");
                 $(this)[0].attributes.src.value = 'images/hidelegend.svg';
               }
               else
               {
-//                $("#oncoprint_legend").show();
                 $("#oncoprint_legend").css("display","none");
                 $(this)[0].attributes.src.value = 'images/showlegend.svg'; 
               }
@@ -1197,6 +1194,44 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         else
                         {
                             return 'click here to hide legends!'
+                        }
+                    }
+            },
+            position: {my:'left bottom', at:'top right', viewport: $(window)},
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
+            show: {event: "mouseover"},
+            hide: {fixed: true, delay: 100, event: "mouseout"}
+            }); 
+            
+            //color different mutation with different color
+            $('.oncoprint_diagram_showmutationcolor_icon').click(function(){
+              if($(this)[0].attributes.src.value === 'images/colormutations.svg')
+              {
+                $(this)[0].attributes.src.value = 'images/uncolormutations.svg';
+              }
+              else
+              {
+                $(this)[0].attributes.src.value = 'images/colormutations.svg'; 
+              }
+            });
+            $('.oncoprint_diagram_showmutationcolor_icon').hover(
+            function () {
+            $(this).css('fill', '#0000FF');
+            $(this).css('font-size', '18px');
+            $(this).css('cursor', 'pointer');
+            },
+            function () {
+            $(this).css('fill', '#87CEFA');
+            $(this).css('font-size', '12px');
+            });
+            $('.oncoprint_diagram_showmutationcolor_icon').qtip({
+            content: {text: 
+                        function(){
+                        if($(this)[0].attributes.src.value === 'images/uncolormutations.svg')
+                        {return 'click here to change all mutations color to green!'}
+                        else
+                        {
+                            return 'click here to color different mutation with different color!'
                         }
                     }
             },

@@ -24,7 +24,7 @@
         <img id="inner_loader_img" src="images/ajax-loader.gif" style="display:none;">
         <div id="oncoprint_body"></div>
         </div>
-        <div id="oncoprint_legend"></div>
+            <div id="oncoprint_legend" style="display: none;"></div>
         <%@ include file="legend-template.jsp" %>
 
         <script data-main="js/src/oncoprint/main-boilerplate.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript" src="js/require.js?<%=GlobalProperties.getAppVersion()%>"></script>

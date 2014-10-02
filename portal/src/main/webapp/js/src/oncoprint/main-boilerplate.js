@@ -1167,11 +1167,16 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             $('.oncoprint-diagram-showlegend-icon').click(function(){
               if($(this)[0].attributes.src.value === 'images/showlegend.svg')
               {
-                  $(this)[0].attributes.src.value = 'images/hidelegend.svg';
+
+//                $("#oncoprint_legend").hide();
+                $("#oncoprint_legend").css("display","inline");
+                $(this)[0].attributes.src.value = 'images/hidelegend.svg';
               }
               else
               {
-                 $(this)[0].attributes.src.value = 'images/showlegend.svg'; 
+//                $("#oncoprint_legend").show();
+                $("#oncoprint_legend").css("display","none");
+                $(this)[0].attributes.src.value = 'images/showlegend.svg'; 
               }
             });
             $('.oncoprint-diagram-showlegend-icon').hover(

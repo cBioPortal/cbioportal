@@ -1161,7 +1161,45 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
             show: {event: "mouseover"},
             hide: {fixed: true, delay: 100, event: "mouseout"}
-            });           
+            });   
+            
+            //show or hide legends of oncoprint
+            $('.oncoprint-diagram-showlegend-icon').click(function(){
+              if($(this)[0].attributes.src.value === 'images/showlegend.svg')
+              {
+                  $(this)[0].attributes.src.value = 'images/hidelegend.svg';
+              }
+              else
+              {
+                 $(this)[0].attributes.src.value = 'images/showlegend.svg'; 
+              }
+            });
+            $('.oncoprint-diagram-showlegend-icon').hover(
+            function () {
+            $(this).css('fill', '#0000FF');
+            $(this).css('font-size', '18px');
+            $(this).css('cursor', 'pointer');
+            },
+            function () {
+            $(this).css('fill', '#87CEFA');
+            $(this).css('font-size', '12px');
+            });
+            $('.oncoprint-diagram-showlegend-icon').qtip({
+            content: {text: 
+                        function(){
+                        if($(this)[0].attributes.src.value === 'images/showlegend.svg')
+                        {return 'click here to show legends!'}
+                        else
+                        {
+                            return 'click here to hide legends!'
+                        }
+                    }
+            },
+            position: {my:'left bottom', at:'top right', viewport: $(window)},
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
+            show: {event: "mouseover"},
+            hide: {fixed: true, delay: 100, event: "mouseout"}
+            }); 
             
             
             $('.oncoprint-diagram-downloads-icon').qtip({

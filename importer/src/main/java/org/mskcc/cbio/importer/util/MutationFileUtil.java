@@ -33,8 +33,7 @@ import java.util.Arrays;
 
 public class MutationFileUtil
 {
-	// TODO ONCOTATOR_VARIANT_CLASSIFICATION doesn't work anymore
-	private static final String KNOWN_ANNOTATOR_HEADER = "ONCOTATOR_VARIANT_CLASSIFICATION";
+	private static final String KNOWN_ANNOTATOR_HEADER = "HGVSp_Short";
 	private static final ApplicationContext context = new ClassPathXmlApplicationContext(Admin.contextFile);
 
 	public static boolean isAnnotated(String fileName) throws Exception

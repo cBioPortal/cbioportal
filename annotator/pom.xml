@@ -124,6 +124,7 @@
 							</filters>
 							<artifactSet>
 								<excludes>
+									<exclude>org.bouncycastle:bcprov-jdk15</exclude>
 									<exclude>com.kenai.nbpwr:org-apache-commons-dbcp</exclude>
 									<exclude>org.springframework*</exclude>
 								</excludes>

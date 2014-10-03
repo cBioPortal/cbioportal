@@ -260,7 +260,20 @@ var DataTable = function() {
             "aaData": aaData,
             "bJQueryUI": true,
             "autoWidth": true,
-            "sDom": '<"H"Ci<"dataTableReset">f>rt',
+            "sDom": '<"H"TCi<"dataTableReset">f>rt',
+            "tableTools": {
+                "aButtons": [
+                    {
+                        "sExtends": "copy",
+                        "bFooter": false
+                    },
+                    {
+                        "sExtends": "csv",
+                        "bFooter": false
+                    }
+                ],
+                "sSwfPath": "swf/copy_csv_xls_pdf.swf"
+            },
             "oLanguage": {
                 "sInfo": "&nbsp;&nbsp;Showing _TOTAL_ samples&nbsp;",
                 "sInfoFiltered": "(filtered from _MAX_ samples)",
@@ -294,7 +307,7 @@ var DataTable = function() {
             dataTableSettings.paging = true;
             dataTableSettings.sPaginationType = "two_button";
             dataTableSettings.iDisplayLength = 30;
-            dataTableSettings.sDom = '<"H"pCi<"dataTableReset">f>rt'
+            dataTableSettings.sDom = '<"H"TpCi<"dataTableReset">f>rt';
         }
         
         dataTable = $('#' + tableId).dataTable(dataTableSettings);
@@ -356,6 +369,7 @@ var DataTable = function() {
 
         if(forzedLeftCol) {
             $(".DTFC_LeftBodyLiner").css("overflow-y","hidden");
+            $(".DTFC_LeftBodyLiner").css("overflow-x","hidden");
             $(".DTFC_LeftHeadWrapper").css("background-color","white");
             $(".DTFC_LeftFootWrapper").css('background-color','white');
 

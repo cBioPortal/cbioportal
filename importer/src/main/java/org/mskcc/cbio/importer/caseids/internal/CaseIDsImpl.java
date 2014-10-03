@@ -22,6 +22,9 @@ package org.mskcc.cbio.importer.caseids.internal;
 import org.mskcc.cbio.importer.*;
 import org.mskcc.cbio.importer.model.*;
 
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
+
 import org.apache.commons.logging.*;
 
 import java.util.*;
@@ -76,18 +79,23 @@ public class CaseIDsImpl implements CaseIDs {
 		}
 	}
 
-	/**
-	 * Determines if given case id is a tumor case id.
-	 *
-     * @param caseID String
-	 * @return boolean
-	 */
-	@Override
-	public boolean isSampleId(String caseId)
+    @Override
+    public boolean isSampleId(String caseId)
     {
-        caseId = clean(caseId);
-        return (samplePattern.matcher(caseId).matches() ||
-                nonTCGAPattern.matcher(caseId).matches());
+        return isSampleId(0, caseId);
+    }
+
+	@Override
+	public boolean isSampleId(int cancerStudyId, String caseId)
+    {
+        if (nonTCGAPattern.matcher(caseId).matches()) {
+            Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, caseId);
+            return (s != null);
+        }
+        else {
+            caseId = clean(caseId);
+            return (samplePattern.matcher(caseId).matches());
+        }
 	}
 
     @Override
@@ -101,17 +109,41 @@ public class CaseIDsImpl implements CaseIDs {
     @Override
     public String getSampleId(String caseId)
     {
-        String cleanId = clean(caseId);
-        Matcher matcher = samplePattern.matcher(cleanId);
-        return (matcher.find()) ? matcher.group(1) : caseId;
+        return getSampleId(0, caseId);
+    }
+
+    @Override
+    public String getSampleId(int cancerStudyId, String caseId)
+    {
+        if (nonTCGAPattern.matcher(caseId).matches()) {
+            Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, caseId);
+            return (s != null) ? s.getStableId() : caseId;
+        }
+        else {
+            String cleanId = clean(caseId);
+            Matcher matcher = samplePattern.matcher(cleanId);
+            return (matcher.find()) ? matcher.group(1) : caseId;
+        }
+    }
+
+    @Override
+    public String getPatientId(String caseId)
+    {
+        return getPatientId(0, caseId);
     }
 
 	@Override
-	public String getPatientId(String caseId)
+	public String getPatientId(int cancerStudyId, String caseId)
     {
-        String cleanId = clean(caseId);
-        Matcher matcher = patientPattern.matcher(cleanId);
-        return (matcher.find()) ? matcher.group(1) : caseId;
+        if (nonTCGAPattern.matcher(caseId).matches()) {
+            Patient p = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudyId, caseId);
+            return (p != null) ? p.getStableId() : caseId;
+        }
+        else {
+            String cleanId = clean(caseId);
+            Matcher matcher = patientPattern.matcher(cleanId);
+            return (matcher.find()) ? matcher.group(1) : caseId;
+        }
 	}
 
     private String clean(String caseId)

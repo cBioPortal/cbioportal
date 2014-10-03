@@ -84,7 +84,7 @@ define("Oncoprint",
                     var clinical_offset = (1/6) * rect_height;
 
                     return {
-                        width: data.length * (5.5 + 3),
+                    width: data.length * (5.5 + 3),
                     height: (rect_height + vert_padding) * attributes.length,
                     rect_height: rect_height,
                     rect_width: 5.5,
@@ -323,41 +323,48 @@ define("Oncoprint",
                     //seperate the mutation type
                     var seperateMuation = function(mutation){
                         
-                        var mutationSplit;
-                        if(mutation !== undefined)
+                        if(params.mutationColor === 'singleColor' || params.mutationColor === undefined)
                         {
-                            mutationSplit = mutation.split(',');
-                            
-                            if(mutationSplit.length > 1)
-                            {
-                                return '#FF00FF';
-                            }
+                            return 'green';
                         }
+                        else
+                        {             
+                            var mutationSplit;
+                            if(mutation !== undefined)
+                            {
+                                mutationSplit = mutation.split(',');
 
-                        if((/^[A-z]([0-9]+)[A-z]$/g).test(mutationSplit))
+                                if(mutationSplit.length > 1)
+                                {
+                                    return '#FF00FF';
+                                }
+                            }
+
+                            if((/^[A-z]([0-9]+)[A-z]$/g).test(mutationSplit))
                             {
                                 return 'green';//Missense_mutation
                             }
-                            else if((/^[A-z*]([0-9]+)[A-z]{2}$/g).test(mutationSplit))
+                                else if((/^[A-z*]([0-9]+)[A-z]{2}$/g).test(mutationSplit))
                             {
                                 return 'black'; //Frame_shift_del
                             }
-                            else if((/^[A-Z]([0-9]+)[*]$/g).test(mutationSplit))
+                                else if((/^[A-Z]([0-9]+)[*]$/g).test(mutationSplit))
                             {
                                 return 'Yellow'; //Nonsense_Mutation
                             }
-                            else if((/^[A-Z]([0-9]+)_splice$/g).test(mutationSplit))
+                                else if((/^[A-Z]([0-9]+)_splice$/g).test(mutationSplit))
                             {
                                 return 'white'; //Splice_Site
                             }
-                            else if((/^([A-Z]+)([0-9]+)del$/g).test(mutationSplit))
+                                else if((/^([A-Z]+)([0-9]+)del$/g).test(mutationSplit))
                             {
                                 return 'Pink'; //IN_frame_del
                             }
-                            else 
+                                else 
                             {
                                 return 'blue';
                             }
+                        }
                     };
                     var mut = enter.append('rect')
                         .attr('fill', function (d){ return seperateMuation(d.mutation);})

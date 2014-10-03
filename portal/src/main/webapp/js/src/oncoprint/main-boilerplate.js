@@ -23,6 +23,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
     var recordAttrs;//make a record of all attrs
     
     var gapSpaceGeneClinic = 10;// Gap between gene data and clinic 
+    var mutationColorControl = 'multiColor';
     
     // basically a hack to prevent the zoom function from a particular oncoprint
     // from getting bound to the UI slider forever
@@ -115,7 +116,6 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 hide: {fixed: true, delay: 100, event: "mouseout"}
             });
                     
-
             zoom = reset_zoom();
         }
     });
@@ -227,7 +227,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 genes: genes,
                 clinical_attrs: extraAttributes,
                 legend: document.getElementById('oncoprint_legend'),
-                sortStatus:sortStatus
+                sortStatus:sortStatus,
+                mutationColor:mutationColorControl
             },extraTracks);
 
             oncoprint.sortBy(sortBy.val(), cases.split(" "));
@@ -257,7 +258,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             genes: genes,
             clinical_attrs: extraAttributes,
             legend: document.getElementById('oncoprint_legend'),
-            sortStatus:sortStatus
+            sortStatus:sortStatus,
+            mutationColor:mutationColorControl
         },extraTracks);
 
         oncoprint.sortBy(sortBy.val(), cases.split(" "));
@@ -315,7 +317,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             genes: genes,
             clinical_attrs: extraAttributes,
             legend: document.getElementById('oncoprint_legend'),
-            sortStatus:sortStatus
+            sortStatus:sortStatus,
+            mutationColor:mutationColorControl
         },extraTracks);
 
         functionFunctions();
@@ -372,7 +375,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                             genes: genes,
                             clinical_attrs: extraAttributes,
                             legend: document.getElementById('oncoprint_legend'),
-                            sortStatus:sortStatus
+                            sortStatus:sortStatus,
+                            mutationColor:mutationColorControl
                         },extraTracks);
                              
                         oncoprint.sortBy(sortBy.val(), cases.split(" "));
@@ -437,7 +441,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                             genes: genes,
                             clinical_attrs: extraAttributes,
                             legend: document.getElementById('oncoprint_legend'),
-                            sortStatus:sortStatus
+                            sortStatus:sortStatus,
+                            mutationColor:mutationColorControl
                         },extraTracks);
                              
                         oncoprint.sortBy(sortBy.val(), cases.split(" "));
@@ -501,7 +506,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                             genes: genes,
                             clinical_attrs: extraAttributes,
                             legend: document.getElementById('oncoprint_legend'),
-                            sortStatus:sortStatus
+                            sortStatus:sortStatus,
+                            mutationColor:mutationColorControl
                         },extraTracks);
 
                         oncoprint.sortBy(sortBy.val(), cases.split(" "));
@@ -1187,8 +1193,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             $(this).css('font-size', '12px');
             });
             $('.oncoprint-diagram-showlegend-icon').qtip({
-            content: {text: 
-                        function(){
+            content: {text:function(){
                         if($(this)[0].attributes.src.value === 'images/showlegend.svg')
                         {return 'click here to show legends!'}
                         else
@@ -1205,13 +1210,17 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             
             //color different mutation with different color
             $('.oncoprint_diagram_showmutationcolor_icon').click(function(){
-              if($(this)[0].attributes.src.value === 'images/colormutations.svg')
+              if($(this)[0].attributes.src.value === 'images/uncolormutations.svg')
               {
-                $(this)[0].attributes.src.value = 'images/uncolormutations.svg';
+                mutationColorControl = 'singleColor';
+                refreshOncoPrint();
+                $(this)[0].attributes.src.value = 'images/colormutations.svg';
               }
               else
               {
-                $(this)[0].attributes.src.value = 'images/colormutations.svg'; 
+                mutationColorControl = 'multiColor';
+                refreshOncoPrint();
+                $(this)[0].attributes.src.value = 'images/uncolormutations.svg'; 
               }
             });
             $('.oncoprint_diagram_showmutationcolor_icon').hover(
@@ -1253,7 +1262,6 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         "<button class='oncoprint-diagram-download' type='svg' style='cursor:pointer'>SVG</button>"+
                         "<button class='oncoprint-sample-download'  type='txt' style='cursor:pointer'>Samples</button>"
             },
-
             events:{
                 render:function(event){     
                         $('.oncoprint-diagram-download').click(function() {

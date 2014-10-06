@@ -728,11 +728,19 @@ define("Oncoprint",
                         legends = map_join(legends, function(index,legend) {
                             return serialize(legend);
                         });
-                        legends = "<g transform=\"translate(0,"+ 251 + ")\">" + legends + "</g> ";
+                        var find1 = '<svg xmlns="http://www.w3.org/2000/svg"';
+                        var find2 = '</svg>';
+                        var re1 = new RegExp(find1, 'g');
+                        var re2 = new RegExp(find2, 'g');
+                        legends = legends.replace(re1, '<g').replace(re2, '</g>');
+
+                        var spaceHeight = dims.rect_height + dims.vert_padding;
+                        var moveDownDistance = (params.clinical_attrs.length + params.genes.length)*spaceHeight + gapSpaceGeneClinic;
+                        legends = "<g transform=\"translate(0,"+ moveDownDistance + ")\">" + legends + "</g> ";
                         out += labels;
                         out += legends;
 
-                        return "<svg height=\"" + height + "\" width=\"" + width + "\">" + out + "</svg>";
+                        return "<svg height=\"" + (height + moveDownDistance) + "\" width=\"" + width + "\">" + out + "</svg>";
                     };
 
                     return {

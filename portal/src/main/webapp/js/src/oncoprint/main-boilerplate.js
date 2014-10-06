@@ -1237,7 +1237,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             content: {text: 
                         function(){
                         if($(this)[0].attributes.src.value === 'images/uncolormutations.svg')
-                        {return 'click here to change all mutations color to green!'}
+                        {return 'click here to change all mutations color to green color!'}
                         else
                         {
                             return 'click here to color different mutation with different color!'

@@ -31,35 +31,26 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DMPsession {
 
-    private String name;
-    private String about;
-    private String phone;
-    private String website;
-    private boolean can_post;
-    private String description;
+        private String session_id;
+        private String time_created;
+        private String time_expired;
 
-    public String getDescription() {
-        return description;
-    }
+        public DMPsession(String _session_id, String _time_created, String _time_expired) {
+            session_id = _session_id;
+            time_created = _time_created;
+            time_expired = _time_expired;
+        }
 
-    public boolean getCanPost() {
-        return can_post;
-    }
+        public String getSessionId() {
+            return session_id;
+        }
 
-    public String getName() {
-        return name;
-    }
+        public String getTimeCreated() {
+            return time_created;
+        }
 
-    public String getAbout() {
-        return about;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public String getWebsite() {
-        return website;
-    }
+        public String getTimeExpired() {
+            return time_expired;
+        }
 
 }

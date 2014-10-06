@@ -187,7 +187,7 @@ $('#study-tab-clinical-a').click(function(){
             StudyViewClinicalTabController.init();
             $("#clinical-data-table-loading-wait").css('display', 'none');
             $('#study-tab-clinical-a').addClass("tab-clicked");
-        }, 500);
+        }, 200);
     }
 });
 

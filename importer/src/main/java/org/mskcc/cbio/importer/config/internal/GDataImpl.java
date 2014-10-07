@@ -807,16 +807,16 @@ class GDataImpl implements Config {
 
     }
 
-    /**
-     * Constructs a collection of objects of the given classname from the given
-     * matrix.
-     *
-     * @param metadataMatrix ArrayList<ArrayList<String>>
-	 * @para
-     * m className String
-     * @return Collection<?>
-     */
-    public Collection<?> getMetadataCollection(ArrayList<ArrayList<String>> metadataMatrix, String className) {
+
+	/**
+	 * Constructs a collection of objects of the given classname from the given matrix.
+	 *
+	 * @param metadataMatrix ArrayList<ArrayList<String>>
+	 * @param className String
+	 * @return Collection<Object>
+	 */
+	public Collection<?> getMetadataCollection(ArrayList<ArrayList<String>> metadataMatrix, String className) {
+
 
         Collection<Object> toReturn = new ArrayList<Object>();
 

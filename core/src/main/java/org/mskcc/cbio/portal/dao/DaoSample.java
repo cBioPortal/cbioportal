@@ -86,8 +86,10 @@ public class DaoSample {
                 normalsByCancerTypeId.put(sample.getCancerTypeId(), new HashSet<Sample>());
             }
             normalsByCancerTypeId.get(sample.getCancerTypeId()).add(sample);
+        } else {
+            // only non-normal samples
+            cacheSample(sample, getCancerStudyId(sample));
         }
-        cacheSample(sample, getCancerStudyId(sample));
     }
 
     private static int getCancerStudyId(Sample sample)

@@ -74,17 +74,23 @@ var SurvivalCurveProxy  = function() {
         }
 
         function calcMedian(inputArr) {
+            var _result = 0;
             if (inputArr.length !== 0) {
                 var _mIndex = 0;
                 for (var i in inputArr) {
                     if (inputArr[i].survival_rate <= 0.5) {
                         _mIndex = i;
+                        _result = parseFloat(inputArr[_mIndex].time);
                         break;
                     } else {
                         continue;
                     }
                 }
-                return parseFloat(inputArr[_mIndex].time).toFixed(2);
+                if (_result === 0) {
+                    return "NA";
+                } else {
+                    return _result;
+                }
             }
             return "NA";
         }

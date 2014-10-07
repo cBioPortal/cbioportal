@@ -22,6 +22,8 @@ package org.mskcc.cbio.importer.io.internal;
 import org.mskcc.cbio.importer.*;
 import org.mskcc.cbio.importer.model.*;
 import org.mskcc.cbio.portal.scripts.*;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.importer.util.*;
 import org.mskcc.cbio.portal.model.CopyNumberSegmentFile;
 import org.mskcc.cbio.importer.converter.internal.MethylationConverterImpl;
@@ -329,6 +331,8 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		// we use set here
 		HashSet<String> caseSet = new HashSet<String>();
 
+		CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyMetadata.getStableId());
+
 		// if we are processing mutations data and a sequencedSamplesFile exists, use it
 		if (stagingFilename.equals(DatatypeMetadata.MUTATIONS_STAGING_FILENAME)) {
 			File sequencedSamplesFile = org.apache.commons.io.FileUtils.getFile(stagingDirectory,
@@ -373,12 +377,12 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 					if (mafCaseIDColumnIndex  == -1) {
 						if (LOG.isInfoEnabled()) LOG.info("getCaseListFromStagingFile(), this is not a MAF header contains sample ids...");
 						for (String potentialCaseID : thisRow) {
-							if (!strict || caseIDs.isSampleId(potentialCaseID)) {
+							if (!strict || caseIDs.isSampleId(cancerStudy.getInternalId(), potentialCaseID)) {
 								// check to filter out column headers other than sample ids
 								if (Converter.NON_CASE_IDS.contains(potentialCaseID.toUpperCase())) {
 									continue;
 								}
-								caseSet.add(caseIDs.getPatientId(potentialCaseID));
+								caseSet.add(caseIDs.getPatientId(cancerStudy.getInternalId(), potentialCaseID));
 							}
 						}
 						break;
@@ -392,7 +396,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 				// we want to add the value at mafCaseIDColumnIndex into return set - this is a case ID
 				String potentialCaseID = thisRow.get(mafCaseIDColumnIndex);
 				if (!strict || caseIDs.isSampleId(potentialCaseID)) {
-					caseSet.add(caseIDs.getPatientId(potentialCaseID));
+					caseSet.add(caseIDs.getPatientId(cancerStudy.getInternalId(), potentialCaseID));
 				}
 			}
 		} finally {
@@ -974,6 +978,10 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
         List<DataMatrix> toReturn = new ArrayList<DataMatrix>();
 
+        if (importDataRecord.getCanonicalPathToData().contains(DatatypeMetadata.MUT_PACK_CALLS_FILE)) {
+        	return processMutPackCalls(importDataRecord, methylationCorrelation);
+        }
+
         try {
             File dataFile = new File(importDataRecord.getCanonicalPathToData());
             InputStream is = org.apache.commons.io.FileUtils.openInputStream(dataFile);
@@ -1028,6 +1036,44 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
         }
         
         // outta here
+        return toReturn;
+    }
+
+    private List<DataMatrix> processMutPackCalls(ImportDataRecord importDataRecord, DataMatrix methylationCorrelation) throws Exception
+    {
+    	List<DataMatrix> toReturn = new ArrayList<DataMatrix>();
+
+    	File tmpFile = org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectoryPath(),
+															   DatatypeMetadata.MUT_PACK_CALLS_FILE + ".txt");
+    	logMessage(LOG, "processMutPackCalls, tmp file: " + tmpFile.getCanonicalPath());
+
+		File dataFile = new File(importDataRecord.getCanonicalPathToData());
+    	InputStream unzippedContent =
+    		new GzipCompressorInputStream(org.apache.commons.io.FileUtils.openInputStream(dataFile));
+    	TarArchiveInputStream tis = new TarArchiveInputStream(unzippedContent);
+        TarArchiveEntry entry = null;
+        boolean first = true;
+        while ((entry = tis.getNextTarEntry()) != null) {
+    		logMessage(LOG, "processMutPackCalls, entry: " + entry.getName());
+        	List<String> contents = IOUtils.readLines(tis, "UTF-8");
+        	if (first) {
+        		first = false;
+	        	org.apache.commons.io.FileUtils.writeLines(tmpFile, contents, false);
+        	}
+        	else {
+        		contents.remove(0);
+        		org.apache.commons.io.FileUtils.writeLines(tmpFile, contents, true);
+        	}
+        }
+        IOUtils.closeQuietly(tis);
+        FileInputStream fis = org.apache.commons.io.FileUtils.openInputStream(tmpFile);
+        DataMatrix m = getDataMatrix(tmpFile.getCanonicalPath(), fis, methylationCorrelation);
+        IOUtils.closeQuietly(fis);
+
+        if (m != null) {
+        	toReturn.add(m);
+        }
+
         return toReturn;
     }
 
@@ -1151,5 +1197,12 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
     private boolean skipClinicalDataRow(LinkedList<String> row)
     {
         return (!row.getFirst().startsWith("TCGA") && !row.getFirst().startsWith(ClinicalAttributesNamespace.CDE_TAG));
+    }
+
+    private void logMessage(Log log, String message)
+    {
+        if (log.isInfoEnabled()) {
+            log.info(message);
+        }
     }
 }

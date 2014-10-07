@@ -1054,12 +1054,16 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
         TarArchiveEntry entry = null;
         boolean first = true;
         while ((entry = tis.getNextTarEntry()) != null) {
-    		logMessage(LOG, "processMutPackCalls, entry: " + entry.getFile().getCanonicalPath());
-        	List<String> contents = org.apache.commons.io.FileUtils.readLines(entry.getFile(), "UTF-8");
-        	if (!first) {
-        		contents.remove(0);
+    		logMessage(LOG, "processMutPackCalls, entry: " + entry.getName());
+        	List<String> contents = IOUtils.readLines(tis, "UTF-8");
+        	if (first) {
+        		first = false;
+	        	org.apache.commons.io.FileUtils.writeLines(tmpFile, contents, false);
         	}
-        	org.apache.commons.io.FileUtils.writeLines(tmpFile, contents, true);
+        	else {
+        		contents.remove(0);
+        		org.apache.commons.io.FileUtils.writeLines(tmpFile, contents, true);
+        	}
         }
         IOUtils.closeQuietly(tis);
         FileInputStream fis = org.apache.commons.io.FileUtils.openInputStream(tmpFile);

@@ -8,7 +8,11 @@ package org.mskcc.cbio.importer.foundation.support;
  * @author criscuof
  */
 public interface CommonNames {
-    
+   
+    public static final String MUTATION_REPORT_TYPE = "mutationReport";
+    public static final String CNA_REPORT_TYPE = "cnaReport";
+    public static final String CLINICAL_REPORT_TYPE = "clinicalReport";
+    public static final String FUSION_REPORT_TYPE = "fusionReport";
     
     public static final String[]  MUTATIONS_REPORT_HEADINGS = {"Hugo_Symbol", "Center", "NCBI_Build","Chromosome","Start_Position",	
             "End_Position","Strand","Variant_Classification", "Reference_Allele","Tumor_Seq_Allele1","Tumor_Seq_Allele2","Tumor_Sample_Barcode",

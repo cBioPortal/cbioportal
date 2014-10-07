@@ -4,19 +4,21 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import com.google.inject.internal.Lists;
-import com.google.inject.internal.Sets;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.Config;
+import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.FoundationMetadata;
 
 /**
@@ -37,79 +39,145 @@ import org.mskcc.cbio.importer.model.FoundationMetadata;
  * 
 */
 /**
- * Represents a specialized file extractor responsible for copying FMI XML files
+ * Represents a FileExtractor subclass responsible for copying FMI XML files
  * from a base directory to subdirectories based on the MSKCC cancer study name.
- * After a successful copy the original XML file is renamed to reflect the copy
- * date. This class is also responsible for providing a list of MSKCC cancer
- * studies that have received one or more new/updated XML files. The primary
- * input to this class is a FileDataSource object that contains the base
- * directory and the XML files to be processed
+ * Responsibilities: 
+ * 1. for each XML file in the foundation base directory 
+ *   a.determine the appropriate subdirectory based on the associated cancer study
+ *      (FoundationMetadata) 
+ *   b. copy the new XML file to that subdirectory 
+ *   c. add the affected cancer study to a Set 
+ * 2. return a Set of Foundation cancer studies that have new XML files
  *
  * @author fcriscuo
  */
 public class FoundationStudyExtractor {
-
-    private final FileDataSource inputDataSource;
-    private Set<Path> cancerStudyPathSet;
+    private  final FileDataSource inputDataSource;
     private final Config config;
-
     private final Joiner pathJoiner = Joiner.on(System.getProperty("file.separator"));
-    private final Logger logger = Logger.getLogger(FoundationStudyExtractor.class);
+    private final Logger logger = Logger.getLogger(FoundationStudyExtractor.class);  
+    private final String foundationDataDirectory;
 
-    public FoundationStudyExtractor(final FileDataSource xmlSource, Config config) {
-        Preconditions.checkArgument(null != xmlSource,
-                "An input FileDataSource of XML files is required");
-        Preconditions.checkArgument(null != config, "A Config implementation is required");
-        this.inputDataSource = xmlSource;
-        this.cancerStudyPathSet = Sets.newHashSet();
-        this.config = config;
-
+    public FoundationStudyExtractor(final Config aConfig) {
+        Preconditions.checkArgument(null != aConfig, "A Config implementation is required");   
+        this.config = aConfig;
+        this.foundationDataDirectory = this.resolveFoundationDataDirectory();
+       this.inputDataSource = this.resolveInputDataSource();
     }
-
+    
+    private FileDataSource resolveInputDataSource() {
+         try {
+            return  new FileDataSource(this.foundationDataDirectory, this.xmlFileExtensionFilter);
+        } catch (IOException ex) {
+            logger.error(ex.getMessage());
+        }
+         return null;
+    }
+    
+     private String resolveFoundationDataDirectory() {   
+        Collection<DataSourcesMetadata> dsmc = config.getDataSourcesMetadata("foundation");
+        if(null == dsmc || dsmc.isEmpty()) {
+            logger.error("Configuration error: unable to find FMI data source metadata");
+        } else if  (dsmc.size()>1) {
+            logger.error("Configuration error: multiple data sources registered for FMI");
+        } else {
+           return  Lists.newArrayList(dsmc).get(0).getDownloadDirectory();
+        }
+        return ""; 
+    }
+     
+     Predicate xmlFileExtensionFilter = new Predicate<Path>() {
+        @Override
+        public boolean apply(Path input) {
+            return (input.toString().endsWith("xml"));
+        }
+     };
+     
     private String resolveCancerStudyFromFilename(final String filename) {
-        
-        List<FoundationMetadata> fmList= FluentIterable.from(config.getFoundationMetadata())
+        final Collection<FoundationMetadata> mdc = config.getFoundationMetadata();
+        final List<String> fileList = Lists.newArrayList(filename);
+        List<String> affectedStudyList = FluentIterable.from(mdc)
                 .filter(new Predicate<FoundationMetadata>() {
                     @Override
-                    public boolean apply(FoundationMetadata meta) {
-                        
+                    public boolean apply(final FoundationMetadata meta) {
+                        List<String> fl = FluentIterable.from(fileList).filter(meta.getRelatedFileFilter()).toList();
+                        return (!fl.isEmpty());
+
+                    }
+                }).transform(new Function<FoundationMetadata, String>() {
+
+                    @Override
+                    public String apply(FoundationMetadata f) {
+                        return f.getCancerStudy();
                     }
                 }).toList();
+        // there should only be zero or one match
+        if(affectedStudyList.size() == 1) {
+            return affectedStudyList.get(0);
+        }
+        if(affectedStudyList.isEmpty()) {
+            logger.error("File " +filename +" is not associated with a registered FMI cancer study and will not be processed" );
+        } else {
+            logger.error("File " +filename +" is associated with >1 registered FMI Cancer studies and will not be processed");
+        }
+        // return an empty String
+        return "";
     }
 
-    public void extractData() throws IOException {
-        this.processFoundationFiles();
+    public Set<Path> extractData() throws IOException {
+        return this.processFoundationFiles();
     }
 
     private Path resolveDestinationPath(Path sourcePath) {
-        //TODO: complete implementation
-        return Paths.get("/tmp/foundation");
+        String study = this.resolveCancerStudyFromFilename(sourcePath.toString());
+        if(!Strings.isNullOrEmpty(study)){
+            try {
+                // ensure that required directories exist
+                Path subDirPath = Paths.get(pathJoiner.join(this.foundationDataDirectory, study));
+                Files.createDirectories(subDirPath);   
+                return Paths.get(pathJoiner.join(this.foundationDataDirectory, study,
+                        sourcePath.getFileName().toString()));
+            } catch (IOException ex) {
+                logger.error(ex.getMessage());
+            }
+        }
+        return sourcePath; // copy the file to itself
     }
 
+      private Path resolveArchivePath(Path sourcePath){
+          return Paths.get(pathJoiner.join(this.foundationDataDirectory,"archive", 
+                  sourcePath.getFileName().toString()));
+      }
+      
     /**
      * Process each XML file in the input source. Determine the copy destination
      * from the cancer study the file belongs to, copy the file and rename the
      * original. Add the affected cancer study to the Set
      *
      */
-    private void processFoundationFiles() throws IOException {
-        List<Path> destinationPathList
-                = FluentIterable
-                .from(Files.newDirectoryStream((Paths.get(inputDataSource.getDirectoryName()))))
+    private Set<Path> processFoundationFiles() throws IOException {
+        
+               return FluentIterable
+                .from(inputDataSource.getFilenameList())
                 .transform(new Function<Path, Path>() {
                     @Override
                     public Path apply(Path inPath) {
                         Path outPath = resolveDestinationPath(inPath);
+                        
                         try {
-                            Files.copy(inPath, outPath, StandardCopyOption.REPLACE_EXISTING);
+                            if (outPath != inPath) {
+                                Files.move(inPath, outPath, StandardCopyOption.REPLACE_EXISTING);                          
+                            }
                         } catch (IOException ex) {
                             logger.error(ex.getMessage());
                         }
 
-                        return outPath;
+                        return outPath.getParent();
                     }
-                }).toList();
-
+                }).toSet();
+        
     }
+
+   
 
 }

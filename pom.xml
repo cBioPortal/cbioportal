@@ -246,6 +246,7 @@
             <artifactId>spring-web</artifactId>
             <version>${spring.version}</version>
         </dependency>	
+        <!-- duplicated
         <dependency>		
             <groupId>org.springframework</groupId>		
             <artifactId>spring-beans</artifactId>		
@@ -276,7 +277,7 @@
             <artifactId>spring-jdbc</artifactId>
             <version>${spring.version}</version>
         </dependency>
-
+ -->
 	<!-- spring security -->
 	<dependency>
 	  <groupId>org.springframework.security</groupId>

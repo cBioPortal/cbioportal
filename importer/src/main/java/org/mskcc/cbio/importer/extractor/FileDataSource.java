@@ -32,7 +32,7 @@ import java.util.List;
 *
 */
 /**
- * Represents a source of data for the import process
+ * Represents a source of files for the import process
  * @author fcriscuo
  */
 public class FileDataSource {
@@ -60,8 +60,11 @@ public class FileDataSource {
  
  public List<Path> getFilenameList() { return this.filenameList;}
  
+
  final void setFilenameList (List<Path> aList){  
+
      this.filenameList = aList;
+     
  }
   
    

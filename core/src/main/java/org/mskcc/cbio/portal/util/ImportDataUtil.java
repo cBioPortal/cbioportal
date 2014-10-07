@@ -82,11 +82,9 @@ public class ImportDataUtil
     {
         // if we get here, all we can do is find a patient that owns the sample using the sample id.
         // if we can't find a patient, create a patient using the sample id
-        int pId = 0;
         Patient p = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), sampleId);
-        if (p == null) {
-            pId = DaoPatient.addPatient(new Patient(cancerStudy, sampleId));
-        }
+        int pId = (p == null) ?
+            DaoPatient.addPatient(new Patient(cancerStudy, sampleId)) : p.getInternalId();
         DaoSample.addSample(new Sample(sampleId, pId,
                                        cancerStudy.getTypeOfCancerId()));
     }

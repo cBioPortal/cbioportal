@@ -1055,6 +1055,10 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
         boolean first = true;
         while ((entry = tis.getNextTarEntry()) != null) {
     		logMessage(LOG, "processMutPackCalls, entry: " + entry.getName());
+    		if (!entry.getName().endsWith(".maf.txt")) {
+    			logMessage(LOG, "skipping: " + entry.getName());
+    			continue;
+    		}
         	List<String> contents = IOUtils.readLines(tis, "UTF-8");
         	if (first) {
         		first = false;

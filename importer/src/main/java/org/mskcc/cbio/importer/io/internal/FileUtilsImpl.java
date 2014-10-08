@@ -395,7 +395,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 				}
 				// we want to add the value at mafCaseIDColumnIndex into return set - this is a case ID
 				String potentialCaseID = thisRow.get(mafCaseIDColumnIndex);
-				if (!strict || caseIDs.isSampleId(potentialCaseID)) {
+				if (!strict || caseIDs.isSampleId(cancerStudy.getInternalId(), potentialCaseID)) {
 					caseSet.add(caseIDs.getPatientId(cancerStudy.getInternalId(), potentialCaseID));
 				}
 			}

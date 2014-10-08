@@ -122,6 +122,14 @@ firehose_get_script=$PORTAL_HOME/importer/src/main/scripts/firehose_get
 liftover_binary=
 liftover_chain_file=
 
+# annotator tool
+annotator.maf2maf=
+annotator.vcf2maf=
+annotator.vep_path=
+annotator.vep_data=
+annotator.ref_fasta=
+annotator.intermediate_maf=
+
 # foundation medicine
 foundation.root.directory=
 

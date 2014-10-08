@@ -47,9 +47,9 @@ public class ImportDataUtil
 
     private static boolean unknownPatient(CancerStudy cancerStudy, String stableId)
     {
-        // we can't have a patient without a sample and samples belong to only one patient.
-        Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudy.getInternalId(), stableId);
-        return (s == null || s.getInternalPatientId() <= 0);
+        // note if clinical data only contains patient ids, but genomic data contains sample ids, 
+        // this routine will return that the patient is unknown and create a patient record for the sample
+        return (DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), stableId) == null);
     }
 
     private static void addPatient(String stableId, CancerStudy cancerStudy) throws DaoException
@@ -82,9 +82,10 @@ public class ImportDataUtil
     {
         // if we get here, all we can do is find a patient that owns the sample using the sample id.
         // if we can't find a patient, create a patient using the sample id
-        Patient p = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), sampleId);
+        String patientId = StableIdUtil.getPatientId(sampleId);
+        Patient p = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), patientId);
         int pId = (p == null) ?
-            DaoPatient.addPatient(new Patient(cancerStudy, sampleId)) : p.getInternalId();
+            DaoPatient.addPatient(new Patient(cancerStudy, patientId)) : p.getInternalId();
         DaoSample.addSample(new Sample(sampleId, pId,
                                        cancerStudy.getTypeOfCancerId()));
     }

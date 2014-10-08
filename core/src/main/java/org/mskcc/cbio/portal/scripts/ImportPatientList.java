@@ -75,7 +75,7 @@ public class ImportPatientList {
       String[] patientIds = patientListStr.split("\\s");
       for (String patientId : patientIds) {
          Patient p = DaoPatient.getPatientByCancerStudyAndPatientId(theCancerStudy.getInternalId(), patientId);
-         if (p != null) {
+         if (p != null && !patientIDsList.contains(p.getStableId())) {
             patientIDsList.add(p.getStableId());
          }
          else {

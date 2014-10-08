@@ -778,7 +778,7 @@ function outputClinicalData() {
         var caseId = caseIds[i];
         var clinicalData = clinicalDataMap[caseId];
         
-        var row = "<tr><td><b><u>"+cbio.util.getLinkToSampleView(cancerStudyId,caseId)+"</b></u>&nbsp;";
+        var row = "<tr><td><b><u><a href='"+cbio.util.getLinkToSampleView(cancerStudyId,caseId)+"'>"+caseId+"<a></b></u>&nbsp;";
         if (n>1) {
             row += "<svg width='12' height='12' class='case-label-header' alt='"+caseId+"'></svg>&nbsp;";
         }

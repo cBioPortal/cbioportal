@@ -6,7 +6,6 @@ import com.google.inject.internal.Preconditions;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
-import java.util.logging.Level;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.CaseIDs;
 import org.mskcc.cbio.importer.Config;
@@ -36,7 +35,7 @@ import org.mskcc.cbio.importer.model.DatatypeMetadata;
  * @author criscuof
  */
 public class FoundationMetadataGenerator {
-/*    
+   
     private final Config config;
     private final String outputDirectory;
     private final Logger logger = Logger.getLogger(FoundationMetadataGenerator.class);
@@ -49,15 +48,15 @@ public class FoundationMetadataGenerator {
     private DataSourcesMetadata dataSourceMetadata;
     private final Joiner pathJoiner = Joiner.on(System.getProperty("file.separator"));
     
-    public FoundationMetadataGenerator(Config aConfig, String aDirectory) {
+    public FoundationMetadataGenerator(Config aConfig, String aDirectory, FileUtils fileUtils, CaseIDs caseIDs) {
         Preconditions.checkArgument(null != aConfig, "A Config implemntation is required");
         Preconditions.checkArgument(!Strings.isNullOrEmpty(aDirectory), "An metadata file output directory is required");
-        
+        Preconditions.checkArgument(null != fileUtils, "A FileUtils implementation is required");
+        Preconditions.checkArgument(null != caseIDs, "A CaseIDs implementation is required");
         this.config = aConfig;
         this.outputDirectory = aDirectory;
-        this.caseIDs = new CaseIDsImpl(this.config);
-        this.fileUtils = new FileUtilsImpl(this.config,
-                this.caseIDs);
+       this.caseIDs = caseIDs;
+       this.fileUtils = fileUtils;
         
     }
     
@@ -79,8 +78,7 @@ public class FoundationMetadataGenerator {
             this.generateFusionMetaFile(cancerStudyIdentifier, numCases, outputDir);
         } catch (Exception ex) {
             logger.error(ex.getMessage());
-        }
-        
+        }      
     }
     
     private void resolveDataSourceMetadata( String dataSource) {
@@ -133,7 +131,7 @@ public class FoundationMetadataGenerator {
         CancerStudyMetadata cancerMetadata = this.config.getCancerStudyMetadataByName(cancerStudyIdentifier);
         
         this.fileUtils.writeMetadataFile(
-                dataSourceMetadata.getDownloadDirectory() + File.separator + outputDir,
+                  pathJoiner.join(dataSourceMetadata.getDownloadDirectory(),outputDir),
                 cancerMetadata,
                 datatypeMetadata,
                 numCases);
@@ -166,5 +164,5 @@ public class FoundationMetadataGenerator {
         Collection<DatatypeMetadata> list = this.config.getDatatypeMetadata(datatype);
         return list.iterator().next();
     }
-*/    
+  
 }

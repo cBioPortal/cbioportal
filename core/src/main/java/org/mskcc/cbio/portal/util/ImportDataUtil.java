@@ -47,6 +47,8 @@ public class ImportDataUtil
 
     private static boolean unknownPatient(CancerStudy cancerStudy, String stableId)
     {
+        // note if clinical data only contains patient ids, but genomic data contains sample ids, 
+        // this routine will return that the patient is unknown and create a patient record for the sample
         return (DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), stableId) == null);
     }
 
@@ -63,29 +65,28 @@ public class ImportDataUtil
     public static void addSamples(String barcodes[], CancerStudy cancerStudy) throws DaoException
     {
         for (String barcode : barcodes) {
-            String patientId = StableIdUtil.getPatientId(barcode);
-            Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), patientId);
             String sampleId = StableIdUtil.getSampleId(barcode);
-            if (unknownSample(patient, sampleId)) {
-                addSample(sampleId, patient, cancerStudy);
+            if (unknownSample(cancerStudy, sampleId)) {
+                addSample(sampleId, cancerStudy);
             }
         }
     }
 
-    private static boolean unknownSample(Patient patient, String stableId)
+    private static boolean unknownSample(CancerStudy cancerStudy, String stableId)
     {
-        for (Sample knownSample : DaoSample.getSamplesByPatientId(patient.getInternalId())) {
-          if (knownSample.getStableId().equals(stableId)) {
-            return false;
-          }
-        }
-        return true;
+        Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudy.getInternalId(), stableId);
+        return (s == null);
     }
 
-    private static void addSample(String sampleId, Patient patient, CancerStudy cancerStudy) throws DaoException
+    private static void addSample(String sampleId, CancerStudy cancerStudy) throws DaoException
     {
-        DaoSample.addSample(new Sample(sampleId,
-                                       patient.getInternalId(),
+        // if we get here, all we can do is find a patient that owns the sample using the sample id.
+        // if we can't find a patient, create a patient using the sample id
+        String patientId = StableIdUtil.getPatientId(sampleId);
+        Patient p = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), patientId);
+        int pId = (p == null) ?
+            DaoPatient.addPatient(new Patient(cancerStudy, patientId)) : p.getInternalId();
+        DaoSample.addSample(new Sample(sampleId, pId,
                                        cancerStudy.getTypeOfCancerId()));
     }
 }

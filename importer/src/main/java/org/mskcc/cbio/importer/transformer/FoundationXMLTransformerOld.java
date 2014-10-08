@@ -2,8 +2,8 @@ package org.mskcc.cbio.importer.transformer;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
@@ -20,17 +20,19 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import static java.nio.file.StandardOpenOption.APPEND;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.DSYNC;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import javax.xml.bind.JAXBElement;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.foundation.jaxb.*;
@@ -40,6 +42,8 @@ import org.mskcc.cbio.importer.extractor.FileDataSource;
 import org.mskcc.cbio.importer.foundation.support.CasesTypeSupplier;
 import org.mskcc.cbio.importer.foundation.support.CommonNames;
 import org.mskcc.cbio.importer.foundation.support.FoundationUtils;
+import org.mskcc.cbio.importer.model.CancerStudyMetadata;
+import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import scala.Tuple2;
 
 /*
@@ -57,27 +61,28 @@ import scala.Tuple2;
  4. close staging files
     
  */
-public class FoundationXMLTransformer implements FileTransformer {
+public class FoundationXMLTransformerOld implements FileTransformer {
 
     private String xmlFilename;
-    private static final Logger logger = Logger.getLogger(FoundationXMLTransformer.class);
+    private static final Logger logger = Logger.getLogger(FoundationXMLTransformerOld.class);
     private static final Joiner tabJoiner = Joiner.on('\t').useForNull(" ");
     private final Joiner pathJoiner = Joiner.on(System.getProperty("file.separator"));
     private static final Splitter posSplitter = Splitter.on(':');
     private static final Splitter blankSplitter = Splitter.on(' ').omitEmptyStrings();
-    private FoundationStagingFileManager fileManager;
-    private Table<String, String, Integer> cnaTable;
 
+    private FoundationStagingFileGenerator fileGenerator;
     private Supplier<CasesType> casesTypeSupplier;
     //private final String baseStagingDirectory;
     private final Config config;
 
-    public FoundationXMLTransformer(Config aConfig) {
+    public FoundationXMLTransformerOld(Config aConfig) {
+
         Preconditions.checkArgument(null != aConfig, "A Config object is required");
         this.config = aConfig;
+
     }
 
-    public FoundationXMLTransformer(String filename, String outDir) {
+    public FoundationXMLTransformerOld(String filename, String outDir) {
 
         Preconditions.checkArgument(!Strings.isNullOrEmpty(filename), "An XML filename is required");
         Preconditions.checkArgument(!Strings.isNullOrEmpty(outDir), "An output directory is required");
@@ -101,36 +106,60 @@ public class FoundationXMLTransformer implements FileTransformer {
      to the staging files
      */
 
-    @Override
     public void transform(FileDataSource xmlSource) {
         Preconditions.checkArgument(null != xmlSource,
                 "A FileDataSource for XML input files is required");
         Preconditions.checkArgument(!xmlSource.getFilenameList().isEmpty(),
                 "The FileDataSource does not contain any XML files");
         // instantiate a new FoundationStagingFileManager
-        this.fileManager
+        FoundationStagingFileManager fileManager
                 = new FoundationStagingFileManager(Paths.get(xmlSource.getDirectoryName()));
-        // the CNA table must be persisted across all the XML files in a study
-        this.cnaTable = HashBasedTable.create();
         for (Path xmlPath : xmlSource.getFilenameList()) {
             this.casesTypeSupplier = Suppliers.memoize(new CasesTypeSupplier(xmlPath.toString()));
             this.processFoundationData();
         }
-        // the CNA report can only be written after all the XML files have been processed
-        this.generateCNAReport(cnaTable);
+
     }
 
     @Override
     public void transform(Path aPath) throws IOException {
 
+        this.fileGenerator = new FoundationStagingFileGenerator(aPath);
+        this.casesTypeSupplier = Suppliers.memoize(new CasesTypeSupplier(aPath.toString()));
+        this.processFoundationData();
     }
 
-    private void processFoundationData() {
+    public void processFoundationData() {
 
         this.generateMutationsDataReport();
         this.generateCNATable();
         this.generateClinicalDataReport();
         this.generateFusionDataReport();
+    }
+
+    @Override
+    /*
+     * The primary identifier for Doundata Medicine cases is the study id
+     */
+    public String getPrimaryIdentifier() {
+        CasesType casesType = this.casesTypeSupplier.get();
+        // get the study from the first case
+        return casesType.getCase().get(0).getVariantReport().getStudy();
+    }
+
+    @Override
+    /*
+     * the prrimary entity for Foundation Medicine XML data is the Case
+     */
+    public Integer getPrimaryEntityCount() {
+        CasesType casesType = this.casesTypeSupplier.get();
+        return casesType.getCase().size();
+    }
+
+    public String getStudyId() {
+        CasesType casesType = this.casesTypeSupplier.get();
+        // get the study from the first case
+        return casesType.getCase().get(0).getVariantReport().getStudy();
     }
 
     Function<JAXBElement, Tuple2<String, Integer>> cnaFumction = new Function<JAXBElement, Tuple2<String, Integer>>() {
@@ -146,11 +175,12 @@ public class FoundationXMLTransformer implements FileTransformer {
                     return new Tuple2(cna.getGene(), 0);
             }
         }
+
     };
 
     private void generateCNATable() {
         CasesType casesType = this.casesTypeSupplier.get();
-
+        Table<String, String, Integer> cnaTable = HashBasedTable.create();
         for (CaseType ct : casesType.getCase()) {
             VariantReportType vrt = ct.getVariantReport();
             CopyNumberAlterationsType cnat = vrt.getCopyNumberAlterations();
@@ -160,17 +190,26 @@ public class FoundationXMLTransformer implements FileTransformer {
                         .filter(JAXBElement.class)
                         .transform(cnaFumction)
                         .toList()) {
-                    this.cnaTable.put(cnaTuple._1(), ct.getCase(), cnaTuple._2());
+
+                    cnaTable.put(cnaTuple._1(), ct.getCase(), cnaTuple._2());
                 }
+
             }
+
         }
+
+        this.generateCNAReport(cnaTable);
     }
 
-    /*
-     write out the CNA table
-     */
     private void generateCNAReport(Table<String, String, Integer> cnaTable) {
-        Path cnaReportPath = this.fileManager.stagingReportWriterPath.get(CommonNames.CNA_REPORT_TYPE);
+        Optional<Path> optPath = this.fileGenerator.getCNAReportPath();
+        Path cnaReportPath;
+        if (optPath.isPresent()) {
+            cnaReportPath = optPath.get();
+        } else {
+            logger.error("Failed to create output file for CNA report");
+            return;
+        }
         try (BufferedWriter writer = Files.newBufferedWriter(
                 cnaReportPath, Charset.defaultCharset())) {
             Set<String> geneSet = cnaTable.rowKeySet();
@@ -183,30 +222,16 @@ public class FoundationXMLTransformer implements FileTransformer {
                 for (String sample : sampleSet) {
                     Integer value = (cnaTable.get(gene, sample) != null) ? cnaTable.get(gene, sample) : 0;
                     geneLine = tabJoiner.join(geneLine, value);
+
                 }
                 writer.append(geneLine + "\n");
             }
 
         } catch (IOException ex) {
-            logger.error(ex.getMessage());
+
         }
     }
-    private String fusionCase;
 
-    private void generateFusionDataReport() {
-        CasesType casesType = this.casesTypeSupplier.get();
-
-        for (CaseType caseType : casesType.getCase()) {
-            // put case id into global scope
-            this.fusionCase = caseType.getCase();
-            List<Serializable> contentList = caseType.getVariantReport().getRearrangements().getContent();
-            if (contentList.size() > 0) {
-                List<JAXBElement> jaxbList = Lists.newArrayList(Iterables.filter(contentList, JAXBElement.class));
-                this.fileManager.generateDataReport(CommonNames.FUSION_REPORT_TYPE, jaxbList, rearrangementDataFunction);
-            }
-        }
-
-    }
     /**
      * function to transform a collection of JAXBElement objects representing
      * RearrangementType XML elements into a collection of tab-delimited String
@@ -231,6 +256,39 @@ public class FoundationXMLTransformer implements FileTransformer {
         }
 
     };
+
+    private String fusionCase;
+
+    private void generateFusionDataReport() {
+        CasesType casesType = this.casesTypeSupplier.get();
+        Optional<Path> optPath = this.fileGenerator.getFusionReportPath();
+        Path fusionReportPath;
+        if (optPath.isPresent()) {
+            fusionReportPath = optPath.get();
+        } else {
+            logger.error("Failed to create output file for fusion report");
+            return;
+        }
+
+        OpenOption[] options = new OpenOption[]{CREATE, APPEND};
+        try (BufferedWriter writer = Files.newBufferedWriter(
+                fusionReportPath, Charset.defaultCharset())) {
+            writer.append(tabJoiner.join(CommonNames.FUSION_DATA_HEADINGS) + "\n");
+            writer.flush();
+            for (CaseType caseType : casesType.getCase()) {
+                // put case id into global scope
+                this.fusionCase = caseType.getCase();
+                List<Serializable> contentList = caseType.getVariantReport().getRearrangements().getContent();
+                if (contentList.size() > 0) {
+                    List<JAXBElement> jaxbList = Lists.newArrayList(Iterables.filter(contentList, JAXBElement.class));
+                    Files.write(fusionReportPath, Lists.transform(jaxbList, rearrangementDataFunction), Charset.defaultCharset(), options);
+                }
+            }
+
+        } catch (IOException ex) {
+            logger.error(ex.getMessage());
+        }
+    }
 
     private String parseFusionFrame(RearrangementType rt) {
         if (Strings.isNullOrEmpty(rt.getInFrame()) || rt.getInFrame().equals(CommonNames.UNKNOWN)) {
@@ -269,88 +327,65 @@ public class FoundationXMLTransformer implements FileTransformer {
      */
     private void generateClinicalDataReport() {
         CasesType casesType = this.casesTypeSupplier.get();
-        this.fileManager.generateDataReport(CommonNames.CLINICAL_REPORT_TYPE,
+        Optional<Path> optPath = this.fileGenerator.getClinicalDataReportPath();
+        Path clinicalReportPath;
+        if (optPath.isPresent()) {
+            clinicalReportPath = optPath.get();
+        } else {
+            logger.error("Failed to create output file for clinical data report");
+            return;
+        }
+
+        this.generateDataReport(clinicalReportPath, CommonNames.CLINICAL_DATA_HEADINGS,
                 casesType.getCase(), clinicalDataFunction);
     }
-    /*
-     private method to generate mutation report from short variant elements
-     */
+
+    private void generateDataReport(Path aPath, String[] headings, List aList, Function aFunction) {
+        OpenOption[] options = new OpenOption[]{CREATE, APPEND, DSYNC};
+        try (BufferedWriter writer = Files.newBufferedWriter(
+                aPath, Charset.defaultCharset())) {
+            writer.append(tabJoiner.join(headings) + "\n");
+            writer.flush();
+            Files.write(aPath, Lists.transform(aList, aFunction), Charset.defaultCharset(), options);
+        } catch (IOException ex) {
+            logger.error(ex.getMessage());
+        }
+    }
 
     private void generateMutationsDataReport() {
         CasesType casesType = this.casesTypeSupplier.get();
-        this.fileManager.generateDataReportFromFluentIterable(CommonNames.MUTATION_REPORT_TYPE, casesType.getCase(), shortVariantTypeFunction);
-        //this.fileManager.generateDataReport(CommonNames.MUTATION_REPORT_TYPE, casesType.getCase(), shortVariantTypeFunction);
-    }
+        Optional<Path> optPath = this.fileGenerator.getMutationsReportPath();
+        Path mutationReportPath;
+        if (optPath.isPresent()) {
+            mutationReportPath = optPath.get();
+        } else {
+            logger.error("Failed to create output file for mutations data report");
+            return;
+        }
 
-    Function<CaseType, List<String>> shortVariantTypeFunction = new Function<CaseType, List<String>>() {
-        @Override
-        public List<String> apply(CaseType ct) {
-            final String sample = ct.getCase(); // case is a reserved word use sample instead
-
-            return FluentIterable.from(ct.getVariantReport().getShortVariants().getShortVariant())
-                    .filter(new Predicate<ShortVariantType>(){
-
-                @Override
-                public boolean apply(ShortVariantType svt) {
-                    return !Strings.isNullOrEmpty(svt.getGene());
-                }
-            })
-                    .transform(new Function<ShortVariantType, String>() {
-                        @Override
-                        public String apply(ShortVariantType svt) {
-                            ChromosomePosition cp = new ChromosomePosition(svt.getPosition());
-                            CdsEffect cdsEffect = new CdsEffect(svt.getCdsEffect(), svt.getFunctionalEffect(), svt.getStrand());
-                            Integer end = cp.getStart() + cdsEffect.getLength() - 1;
-                            List<String> attributeList = Lists.newArrayList();
-                            attributeList.add(svt.getGene());
-                            attributeList.add(CommonNames.CENTER_FOUNDATION);
-                            attributeList.add(CommonNames.BUILD);
-                            attributeList.add(cp.getChromosome());
-                            attributeList.add(cp.getStart().toString());
-                            attributeList.add(end.toString());
-                            attributeList.add(svt.getStrand());
-                            attributeList.add(svt.getFunctionalEffect());
-                            attributeList.add(cdsEffect.getRefAllele());
-                            attributeList.add(cdsEffect.getTumorAllele1());
-                            attributeList.add(cdsEffect.getTumorAllele2());
-                            attributeList.add(sample);
-                            attributeList.add(CommonNames.DEFAULT_TUMOR_SAMPLE_BARCODE);  // unknown
-                            attributeList.add(CommonNames.DEFAULT_VALIDATION_STATUS);   // unknown
-                            attributeList.add(svt.getProteinEffect());
-                            attributeList.add(svt.getTranscript());
-                            attributeList.add(FoundationUtils.INSTANCE.displayTumorRefCount(svt));
-                            attributeList.add(FoundationUtils.INSTANCE.displayTumorAltCount(svt));
-                            attributeList.add("\n");
-                            return tabJoiner.join(attributeList);
+        try (BufferedWriter writer = Files.newBufferedWriter(
+                mutationReportPath, Charset.defaultCharset())) {
+            // write out the headers
+            writer.append(tabJoiner.join(CommonNames.MUTATIONS_REPORT_HEADINGS) + "\n");
+            for (CaseType ct : casesType.getCase()) {
+                // case is a Java reserved term, use sample instead
+                String sample = ct.getCase();
+                // process variants
+                VariantReportType vrt = ct.getVariantReport();
+                if (null != vrt) {
+                    ShortVariantsType svts = vrt.getShortVariants();
+                    if (null != svts) {
+                        List<ShortVariantType> svtList = svts.getShortVariant();
+                        for (ShortVariantType svt : svtList) {
+                            writer.append(this.processShortVariantType(sample, svt) + "\n");
                         }
-                    }).toList();
+
+                    }
+                }
+            }
+        } catch (IOException ex) {
 
         }
-    };
-
-    @Override
-    /*
-     * The primary identifier for Foundation Medicine cases is the study id
-     */
-    public String getPrimaryIdentifier() {
-        CasesType casesType = this.casesTypeSupplier.get();
-        // get the study from the first case
-        return casesType.getCase().get(0).getVariantReport().getStudy();
-    }
-
-    @Override
-    /*
-     * the prrimary entity for Foundation Medicine XML data is the Case
-     */
-    public Integer getPrimaryEntityCount() {
-        CasesType casesType = this.casesTypeSupplier.get();
-        return casesType.getCase().size();
-    }
-
-    public String getStudyId() {
-        CasesType casesType = this.casesTypeSupplier.get();
-        // get the study from the first case
-        return casesType.getCase().get(0).getVariantReport().getStudy();
     }
 
     /**
@@ -371,8 +406,43 @@ public class FoundationXMLTransformer implements FileTransformer {
         return "";
     }
 
+    /**
+     * private method to map the attributes in a ShortVariantType to a
+     * tab-delimited line for the data_mutations_extended.txt file
+     *
+     * @param svt
+     * @return
+     */
+    private String processShortVariantType(String sample, ShortVariantType svt) {
+        ChromosomePosition cp = new ChromosomePosition(svt.getPosition());
+        CdsEffect cdsEffect = new CdsEffect(svt.getCdsEffect(), svt.getFunctionalEffect(), svt.getStrand());
+        Integer end = cp.getStart() + cdsEffect.getLength() - 1;
+
+        List<String> attributeList = Lists.newArrayList();
+        attributeList.add(svt.getGene());
+        attributeList.add(CommonNames.CENTER_FOUNDATION);
+        attributeList.add(CommonNames.BUILD);
+        attributeList.add(cp.getChromosome());
+        attributeList.add(cp.getStart().toString());
+        attributeList.add(end.toString());
+        attributeList.add(svt.getStrand());
+        attributeList.add(svt.getFunctionalEffect());
+        attributeList.add(cdsEffect.getRefAllele());
+        attributeList.add(cdsEffect.getTumorAllele1());
+        attributeList.add(cdsEffect.getTumorAllele2());
+        attributeList.add(sample);
+        attributeList.add(CommonNames.DEFAULT_TUMOR_SAMPLE_BARCODE);  // unknown
+        attributeList.add(CommonNames.DEFAULT_VALIDATION_STATUS);   // unknown
+        attributeList.add(svt.getProteinEffect());
+        attributeList.add(svt.getTranscript());
+        attributeList.add(FoundationUtils.INSTANCE.displayTumorRefCount(svt));
+        attributeList.add(FoundationUtils.INSTANCE.displayTumorAltCount(svt));
+        return tabJoiner.join(attributeList);
+
+    }
+
     /*
-     inner class representing the components of the CDS effect data
+     inner class representing the componenst of the CDS effect data
      */
     public class CdsEffect {
 
@@ -391,7 +461,7 @@ public class FoundationXMLTransformer implements FileTransformer {
             Preconditions.checkArgument(strand.equals(CommonNames.PLUS_STRAND) || strand.equals(CommonNames.MINUS_STRAND),
                     "The stand argument must be either " + CommonNames.PLUS_STRAND + " or " + CommonNames.MINUS_STRAND);
 
-            this.plusStrand = !(strand.equals(CommonNames.MINUS_STRAND));
+            this.plusStrand = (strand.equals(CommonNames.MINUS_STRAND)) ? false : true;
             this.determinePositionsAndLength(cdsEffect);
             this.determineAlleles(cdsEffect);
 
@@ -488,134 +558,182 @@ public class FoundationXMLTransformer implements FileTransformer {
     private class FoundationStagingFileManager {
 
         private final Path stagingFilePath;
-        private Map<String, Path> stagingReportWriterPath = Maps.newConcurrentMap();
-        private Map<String, List<String>> reportHeadingsMap = Maps.newConcurrentMap();
+        private Map<String, Path> stagingPathMap;
+
         private final Map<String, String> reportFileMap
                 = Maps.newConcurrentMap();
 
-        /*
-         BufferedWriter writer = Files.newBufferedWriter(
-         aPath, Charset.defaultCharset()))
-         */
         public FoundationStagingFileManager(Path aPath) {
 
             this.stagingFilePath = aPath;
-            reportFileMap.put(CommonNames.MUTATION_REPORT_TYPE, "data_mutations_extended.txt");
-            reportFileMap.put(CommonNames.CNA_REPORT_TYPE, "data_CNA.txt");
-            reportFileMap.put(CommonNames.CLINICAL_REPORT_TYPE, "data_clinical.txt");
-            reportFileMap.put(CommonNames.FUSION_REPORT_TYPE, "data_fusions.txt");
+            reportFileMap.put("mutationsReport", "data_mutations_extended.txt");
+            reportFileMap.put("cnaReport", "data_CNA.txt");
+            reportFileMap.put("clinicalReport", "data_clinical.txt");
+            reportFileMap.put("fusionReport", "data_fusions.txt");
+            this.resolveStagingFileMap();
+            this.createNewStagingFiles();
 
-            reportHeadingsMap.put(CommonNames.MUTATION_REPORT_TYPE, Arrays.asList(CommonNames.MUTATIONS_REPORT_HEADINGS));
-            reportHeadingsMap.put(CommonNames.CLINICAL_REPORT_TYPE, Arrays.asList(CommonNames.CLINICAL_DATA_HEADINGS));
-            reportHeadingsMap.put(CommonNames.FUSION_REPORT_TYPE, Arrays.asList(CommonNames.FUSION_DATA_HEADINGS));
-            this.resolveStagingReportWriterPathMap();
         }
 
-        /*
-         create a Map of report specific file paths, create the report files and
-         write out any report headings
-         */
-        private void resolveStagingReportWriterPathMap() {
+        private void resolveStagingFileMap() {
             for (Map.Entry<String, String> entry : reportFileMap.entrySet()) {
-                try {
-                    Path reportPath = Paths.get(pathJoiner.join(stagingFilePath.toString(), entry.getValue()));
-                    this.createNewStagingFile(reportPath);
-                    this.stagingReportWriterPath.put(entry.getKey(), reportPath);
-                    // write out any report headings
-                    if (reportHeadingsMap.containsKey(entry.getKey())) {
-                        BufferedWriter writer = Files.newBufferedWriter(reportPath, Charset.defaultCharset());
-                        writer.append(tabJoiner.join(reportHeadingsMap.get(entry.getKey())));
-                        writer.newLine();
-                        writer.flush();
-                    }
-                } catch (IOException ex) {
-                    logger.error(ex.getMessage());
-                }
-            }
-        }
-        /*
-         special method to handle foundation mutations dataß
-         */
-
-        private void generateDataReportFromFluentIterable(String reportType, List<CaseType> dataList, Function fluentIterableFunction) {
-            if (this.stagingReportWriterPath.containsKey(reportType)) {
-                Path aPath = this.stagingReportWriterPath.get(reportType);
-                OpenOption[] options = new OpenOption[]{CREATE, APPEND, DSYNC};
-
-                try {
-                    List<String> outList = FluentIterable.from(dataList).transform(fluentIterableFunction)
-                            .filter(new Predicate<List<String>>(){
-
-                        @Override
-                        public boolean apply(List<String> t) {
-                            return !t.isEmpty();
-                        }
-                    })
-                            .transform(new Function<List<String>, String>() {
-
-                                @Override
-                                public String apply(List<String> f) {
-
-                                    StringBuilder sb = new StringBuilder();
-                                    for (String s : f) {
-                                        if (!Strings.isNullOrEmpty(s) && s.length()>1) {
-                                            sb.append(s);
-                                        }
-                                    }
-                                    return sb.toString();
-                                }
-                            })
-                            .toList();
-
-                    Files.write(aPath, outList, Charset.defaultCharset(), options);
-                } catch (IOException ex) {
-                    logger.error(ex.getMessage());
-                }
-            } else {
-                logger.error(reportType + " is not a supported report type.");
-            }
-        }
-
-        private void generateDataReport(String reportType, List aList, Function aFunction) {
-            if (this.stagingReportWriterPath.containsKey(reportType)) {
-                Path aPath = this.stagingReportWriterPath.get(reportType);
-                OpenOption[] options = new OpenOption[]{CREATE, APPEND, DSYNC};
-                // create the file if it doesn't exist, append to it if it does
-                try {
-                    Files.write(aPath, Lists.transform(aList, aFunction), Charset.defaultCharset(), options);
-                } catch (IOException ex) {
-                    logger.error(ex.getMessage());
-                }
-            } else {
-                logger.error(reportType + " is not a supported report type.");
+                Path reportPath = Paths.get(pathJoiner.join(stagingFilePath.toString(), entry.getValue()));
+                this.stagingPathMap.put(entry.getKey(), reportPath);
             }
         }
 
         /*
-         create a new staging filefor this study
-         delete an older ones if it exist
+         create new staging files for this study
+         delete older ones if they exist
          */
-        private void createNewStagingFile(Path path) throws IOException {
-            Files.deleteIfExists(path);
-            Files.createFile(path); // accept default file attributes
-            logger.info("Staging file " + path.toString() + " created");
-        }
-        /*
-         method that will append a line to an existing report file based
-         on the type parameter
-         */
-
-        void appendLineToRport(String type, String reportLine) {
-            if (this.stagingReportWriterPath.containsKey(type)) {
-                try (BufferedWriter writer = Files.newBufferedWriter(
-                        this.stagingReportWriterPath.get(type), Charset.defaultCharset())) {
-                    writer.append(reportLine);
-                    writer.newLine();
-
-                } catch (IOException e) {
-                    logger.error(e.getMessage());
+        private void createNewStagingFiles() {
+            for (Path path : this.stagingPathMap.values()) {
+                try {
+                    Files.deleteIfExists(path);
+                    Files.createFile(path); // accept default file attributes
+                    logger.info("Staging file " + path.toString() + " created");
+                } catch (IOException ex) {
+                    logger.error(ex.getMessage());
                 }
             }
+
+        }
+
+        /*
+         return a Path to a staging file based on a report name
+         use an Optional wrapper so caller knows to check for an
+         unsupported report type
+         */
+        Optional<Path> accessStaingFileByReportName(String reportName) {
+            if (this.stagingPathMap.containsKey(reportName)) {
+                return Optional.of(this.stagingPathMap.get(reportName));
+            }
+            logger.error(reportName + " is not a supported report name");
+            return Optional.absent();
+        }
+
+    }
+
+    public class FoundationStagingFileGenerator {
+
+        private static final String mutationsReportName = "data_mutations_extended.txt";
+        private static final String cnaReportName = "data_CNA.txt";
+        private static final String clinicalReportName = "data_clinical.txt";
+        private static final String fusionReportName = "data_fusions.txt";
+        private final Joiner pathJoiner = Joiner.on(System.getProperty("file.separator"));
+        private Path baseStagingPath;
+        private Path stagingDirectory;
+        private CancerStudyMetadata cancerStudymetadata;
+
+        public FoundationStagingFileGenerator(Path xmlFile) {
+            Preconditions.checkArgument(!Strings.isNullOrEmpty(xmlFile.toString()), "An XML file Path is required");
+            try {
+                this.baseStagingPath = resolveBaseStagingPath();
+                this.cancerStudymetadata = this.resolveCancerStudyByName(xmlFile);
+                this.stagingDirectory = this.resolveOutputDirectory(xmlFile);
+                logger.info("Foundation staging files will be located in: " + this.stagingDirectory.toString());
+                Files.copy(xmlFile, this.stagingDirectory.resolve(xmlFile.getFileName()));
+            } catch (IOException ex) {
+                logger.error("Exception copying source xml file " + xmlFile.toString());
+                logger.error(ex.getMessage());
+            }
+
+        }
+
+        /*
+         * the XML file name without its extension is appended to the
+         * base staging directory to get the output subdirectory
+    
+         */
+        private Path resolveBaseStagingPath() throws IOException {
+            Collection<DataSourcesMetadata> dataSourcesMetadata = config.getDataSourcesMetadata(CommonNames.FOUNDATION_DATA_SOURCE_NAME);
+            if (dataSourcesMetadata.isEmpty()) {
+                throw new IllegalArgumentException("Cannot instantiate a proper DataSourcesMetadata object for Foundation data source");
+            }
+            DataSourcesMetadata dsm = dataSourcesMetadata.iterator().next();
+            logger.info("DataSourcesMetadata download directory " + dsm.getDownloadDirectory());
+            return Paths.get(dsm.getDownloadDirectory());
+        }
+
+        private CancerStudyMetadata resolveCancerStudyByName(Path path) {
+
+            String cancerStudyName = this.resolveCancerStudyName(com.google.common.io.Files.getNameWithoutExtension(path.toString()));
+            if (!Strings.isNullOrEmpty(cancerStudyName)) {
+                return config.getCancerStudyMetadataByName(cancerStudyName);
+            }
+            return null;
+        }
+
+        private String resolveCancerStudyName(String studySubstring) {
+
+            List<String> cancerStudyList = config.findCancerStudiesBySubstring(studySubstring.toLowerCase());
+            if (null == cancerStudyList || cancerStudyList.isEmpty()) {
+                logger.info("There are no cancer study names associated with: " + studySubstring);
+                return "";
+            }
+            if (cancerStudyList.size() > 1) {
+                logger.error("The cancer study name: " + studySubstring + " is not specific");
+                for (String study : cancerStudyList) {
+                    logger.info(study);
+                }
+            }
+
+            return cancerStudyList.get(0);
+        }
+
+        private Path resolveOutputDirectory(Path path) throws IOException {
+            String subdir = pathJoiner.join(baseStagingPath.toString(),
+                    this.cancerStudymetadata.getStudyPath());
+
+            Path subPath = Paths.get(subdir);
+            if (Files.isDirectory(subPath, LinkOption.NOFOLLOW_LINKS)) {
+                org.apache.commons.io.FileUtils.deleteQuietly(subPath.toFile());
+                logger.info("Deleted existing  sub directory: " + subPath.toString());
+            }
+            Files.createDirectory(subPath);
+            logger.info("Created sub directory for cancer study  "
+                    + this.cancerStudymetadata.getName() + " at "
+                    + subPath.toString());
+            return subPath;
+
+        }
+
+        public Optional<Path> getCNAReportPath() {
+            return this.generateOutputPath(cnaReportName);
+        }
+
+        public Optional<Path> getMutationsReportPath() {
+            return this.generateOutputPath(mutationsReportName);
+        }
+
+        public Optional<Path> getClinicalDataReportPath() {
+            return this.generateOutputPath(clinicalReportName);
+        }
+
+        public Optional<Path> getFusionReportPath() {
+            return this.generateOutputPath(fusionReportName);
+        }
+
+        /**
+         * private method that returns an Optional containing a Path object to
+         * the specified file Use of an Optional return object informs the
+         * caller that the method may not return a usuable object
+         *
+         * @param fileName
+         * @return
+         */
+        private Optional<Path> generateOutputPath(String aName) {
+            String filename = pathJoiner.join(this.stagingDirectory.toString(), aName);
+            try {
+
+                Path outFile = Paths.get(filename);
+                Files.deleteIfExists(outFile);
+                return Optional.of(Files.createFile(outFile));
+            } catch (IOException ex) {
+                logger.error("Failed to create staging file " + filename);
+                logger.error(ex.getMessage());
+            }
+            return Optional.absent();  // return an empty Optional
         }
 
     }

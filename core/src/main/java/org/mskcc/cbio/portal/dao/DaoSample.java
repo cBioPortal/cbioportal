@@ -39,7 +39,7 @@ public class DaoSample {
     private static final Map<Integer, HashSet<Sample>> byInternalPatientId = new ConcurrentHashMap<Integer, HashSet<Sample>>();
     private static final MultiKeyMap byInternalPatientAndStableSampleId = new MultiKeyMap();
     private static final Map<String, HashSet<Sample>> byCancerTypeId = new ConcurrentHashMap<String, HashSet<Sample>>();
-    private static final Map<String, HashSet<Sample>> normalsByCancerTypeId = new ConcurrentHashMap<String, HashSet<Sample>>();
+    private static final MultiKeyMap normalsByCancerIdAndStableSampleId = new MultiKeyMap();
     private static final MultiKeyMap byCancerIdAndStableSampleId = new MultiKeyMap();
 
     static {
@@ -82,12 +82,14 @@ public class DaoSample {
     private static void cacheSample(Sample sample)
     {
         if (sample.getType().isNormal()) {
-            if (!normalsByCancerTypeId.containsKey(sample.getCancerTypeId())) {
-                normalsByCancerTypeId.put(sample.getCancerTypeId(), new HashSet<Sample>());
+            int cancerStudyId = getCancerStudyId(sample);
+            if (!normalsByCancerIdAndStableSampleId.containsKey(cancerStudyId, sample.getStableId())) {
+                normalsByCancerIdAndStableSampleId.put(cancerStudyId, sample.getStableId(), sample);
             }
-            normalsByCancerTypeId.get(sample.getCancerTypeId()).add(sample);
+        } else {
+            // only non-normal samples
+            cacheSample(sample, getCancerStudyId(sample));
         }
-        cacheSample(sample, getCancerStudyId(sample));
     }
 
     private static int getCancerStudyId(Sample sample)
@@ -191,6 +193,11 @@ public class DaoSample {
     public static Sample getSampleByCancerStudyAndSampleId(int cancerStudyId, String stableSampleId)
     {
         return (Sample)byCancerIdAndStableSampleId.get(cancerStudyId, stableSampleId);
+    }
+
+    public static Sample getNormalSampleByCancerStudyAndSampleId(int cancerStudyId, String stableSampleId)
+    {
+        return (Sample)normalsByCancerIdAndStableSampleId.get(cancerStudyId, stableSampleId);
     }
 
     public static void deleteAllRecords() throws DaoException

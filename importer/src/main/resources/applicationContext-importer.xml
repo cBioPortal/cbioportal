@@ -4,10 +4,14 @@
          xmlns:tx="http://www.springframework.org/schema/tx"
          xmlns:context="http://www.springframework.org/schema/context"
          xmlns:util="http://www.springframework.org/schema/util"
-         xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-							 http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
-							 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-							 http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+         xsi:schemaLocation="http://www.springframework.org/schema/beans 
+http://www.springframework.org/schema/beans/spring-beans.xsd 
+http://www.springframework.org/schema/tx 
+http://www.springframework.org/schema/tx/spring-tx.xsd 
+http://www.springframework.org/schema/context
+ http://www.springframework.org/schema/context/spring-context.xsd
+ http://www.springframework.org/schema/util 
+http://www.springframework.org/schema/util/spring-util.xsd">
  
     <context:annotation-config />
     <context:property-placeholder location="classpath:/portal.properties"/>
@@ -117,7 +121,7 @@
         <b:constructor-arg index="14">
             <b:value>${importer.foundation_worksheet}</b:value>
         </b:constructor-arg>
-       <b:constructor-arg index="15" ref="ncicaDSRFetcher"/>  
+        <b:constructor-arg index="15" ref="ncicaDSRFetcher"/>  
     </b:bean>
     <b:bean id="caseIDs" class="org.mskcc.cbio.importer.caseids.internal.CaseIDsImpl">
         <b:constructor-arg ref="config"/>
@@ -157,12 +161,19 @@
     </b:bean>
     
     <b:bean id="xmlTransformer" class="org.mskcc.cbio.importer.transformer.FoundationXMLTransformer">
-         <b:constructor-arg ref="config"/>
+        <b:constructor-arg ref="config"/>
     </b:bean>
+
+    
+    <b:bean id="foundationMetadataGenerator" class="org.mskcc.cbio.importer.foundation.support.FoundationMetaDataGenerator">
+        <b:constructor-arg ref="config"/>
+        <b:constructor-arg >
+
    <!-- 
     <b:bean id="foundationMetadataGenerator" class="org.mskcc.cbio.importer.foundation.support.FoundationMetadataGenerator">
          <b:constructor-arg ref="config"/>
           <b:constructor-arg >
+
             <b:value>${foundation.root.directory}</b:value>
         </b:constructor-arg>
     </b:bean>

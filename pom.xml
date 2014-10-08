@@ -32,6 +32,13 @@
         <final-war-name>mskcc-portal</final-war-name>
       </properties>
     </profile>
+    <profile>
+      <id>triage</id>
+      <properties>
+        <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
+        <final-war-name>mskcc-triage-portal</final-war-name>
+      </properties>
+    </profile>
 	<profile>
 	  <id>gdac</id>
 	  <properties>
@@ -246,6 +253,7 @@
             <artifactId>spring-web</artifactId>
             <version>${spring.version}</version>
         </dependency>	
+        <!-- duplicated
         <dependency>		
             <groupId>org.springframework</groupId>		
             <artifactId>spring-beans</artifactId>		
@@ -276,7 +284,7 @@
             <artifactId>spring-jdbc</artifactId>
             <version>${spring.version}</version>
         </dependency>
-
+ -->
 	<!-- spring security -->
 	<dependency>
 	  <groupId>org.springframework.security</groupId>

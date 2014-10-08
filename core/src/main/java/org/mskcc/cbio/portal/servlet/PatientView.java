@@ -106,10 +106,12 @@ public class PatientView extends HttpServlet {
             }
         
         } catch (DaoException e) {
+            e.printStackTrace();
             xdebug.logMsg(this, "Got Database Exception:  " + e.getMessage());
             forwardToErrorPage(request, response,
                     "An error occurred while trying to connect to the database.", xdebug);
         } catch (ProtocolException e) {
+            e.printStackTrace();
             xdebug.logMsg(this, "Got Protocol Exception " + e.getMessage());
             forwardToErrorPage(request, response,
                     "An error occurred while trying to authenticate.", xdebug);
@@ -289,8 +291,7 @@ public class PatientView extends HttpServlet {
         
         request.setAttribute("has_timeline_data", Boolean.FALSE);
         if (patientId!=null) {
-            request.setAttribute("has_timeline_data", DaoClinicalEvent.timeEventsExistForPatient(
-                    cancerStudy.getInternalId(), patientId));
+            request.setAttribute("has_timeline_data", DaoClinicalEvent.timeEventsExistForPatient(patient.getInternalId()));
         }
 
         request.setAttribute(PATIENT_ID, patientId);

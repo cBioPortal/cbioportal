@@ -189,6 +189,10 @@ public interface Config {
 	 * @return Collection<FoundationMetadata>
 	 */
 	Collection<FoundationMetadata> getFoundationMetadata();
+        /*
+        return the collection of icgc metadata objects
+        */
+        Collection<IcgcMetadata> getIcgcMetadata();
         
    /**
     * Returns a list of cancer study names which incorporate the supplied

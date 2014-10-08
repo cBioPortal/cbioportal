@@ -124,7 +124,8 @@ public class ImportTabDelimData {
            Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
                                                                        StableIdUtil.getSampleId(sampleIds[i]));
            if (sample == null) {
-                sample = DaoSample.getNormalSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(), sampleIds[i]);
+                sample = DaoSample.getNormalSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
+                                                                           StableIdUtil.getSampleId(sampleIds[i]));
            }
            if (!DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId)) {
                DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId);

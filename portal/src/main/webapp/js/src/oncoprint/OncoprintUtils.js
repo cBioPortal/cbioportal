@@ -493,6 +493,185 @@ define("OncoprintUtils", (function() {
         HOMODELETED: '#0000FF'
     };
 
+//    var CreateLegendII = function (datas,attr2rangeFuntion)
+//    {
+//        var dims = (function() {
+//            var rect_height = 23;
+//            var mut_height = rect_height / 3;
+//            var vert_padding = 6;
+//            var Legend_label_width = label_width(datas.map(
+//                    function(attr) {
+//                        return  attr.attr_id;
+//                    }));
+//
+//            var clinical_height = (2/3) * rect_height;
+//            var clinical_offset = (1/6) * rect_height;
+//
+//            return {
+//            width: datas.length * (5.5 + 3),
+//            height: (rect_height + vert_padding) * datas.length * 2,
+//            rect_height: rect_height,
+//            rect_width: 5.5,
+//            vert_padding: vert_padding,
+//            vert_space: rect_height + vert_padding,
+//            hor_padding: 3,
+//            mut_height: mut_height,
+//            legend_width: Legend_label_width,
+//            clinical_height: clinical_height,
+//            clinical_offset: clinical_offset
+//            };
+//        }());
+//        
+////        var attr2index = (function() {
+////                var to_return = {};
+////                var listNum = 0;
+////                to_return[datas[0].attr_id] = listNum;
+////                for(var i = 1; i < datas.length; i++){
+////                    
+////                    to_return[datas[i].attr_id] = listNum;
+////                    if(datas[i].attr_id !== datas[i-1].attr_id)
+////                    {
+////                        listNum=listNum+1;
+////                        to_return[datas[i].attr_id] = listNum; 
+////                    }
+////                     
+////                }
+////                return to_return;
+////            }());
+//
+////        var vertical_pos = function(attr){
+////                        return dims.vert_space * attr2index[attr];
+////                    }
+//        var maxLabelLength = 100;
+//        var is_firefox = navigator.userAgent.indexOf("Firefox") !== -1;
+//        var browser_offset = is_firefox ? 16 : 0;
+//        for(var n = 0; n < datas.length; n++)
+//        {
+//            var intraData = datas[n];
+//        var table = d3.select(document.getElementById('oncoprint_legend'))
+//        .append('table')
+//        .attr('height',function(){
+//            return 1 *(dims.rect_height + browser_offset);
+//        })
+//        .attr('id','legend_table')
+//        .attr('valign','top');
+//
+//        var calculateDistance = function (valueName)
+//        {
+//            var indexValue = _.indexOf(datas[n],valueName);
+//            var totalLength = 0;
+//            for(var i = 0 ; i < indexValue; i++)
+//            {
+//                totalLength += datas[n][i].attr_val.toString().length *6.5 + dims.rect_width * 5;
+//            }
+//            return totalLength;
+//        };
+//
+//        var calculateHeight = function (valueName)
+//        {
+//            var indexValue = _.indexOf(datas,valueName);
+//            var totalHeight = 1;
+//            for(var i = 1; i < indexValue; i++)
+//            {
+//                if(datas[i].attr_id !== datas[i-1].attr_id)
+//                {
+//                    totalHeight +=1;
+//                }
+//            }
+//            
+//            return totalHeight;
+//        }
+//        
+//        var legend_name = table.append('text')
+//                .attr('width',function(){return maxLabelLength;})
+//                .attr('height', function(d){
+//                    return (dims.vert_space / 1.80);
+//                })
+//                .attr('y', function(d){
+//                    return ((n+1)*dims.vert_space / 1.80);
+//                })
+//                .attr('font-size', '14px')
+//                .attr('width',function(){return maxLabelLength;})
+//                .append('tspan')
+//                .attr('font-weight', 'bold')
+//                .attr('fill','gray')
+//                .text(function(){
+//                   return intraData[0].attr_id.toString().toLowerCase(); 
+//                });
+//                
+//        var legend_svg = table.selectAll('td')        
+//            .data(intraData)
+//            .enter()
+//            .append('svg')
+//            .attr('height', function(d){
+//                    return (dims.vert_space / 1.80);
+//            })
+//            .attr('width', function(d)
+//            {
+//                return d.attr_val.toString().length * 6.5 + dims.rect_width * 5;
+//            })
+//            .attr('x', function(d)
+//            {
+//                return calculateDistance(d)+ maxLabelLength;
+//            })
+//            .attr('transform',function(d) {return 'translate('+(calculateDistance(d) + maxLabelLength)+',' +((n+1)*dims.vert_space / 1.80)+ ')';})//add to move position
+//            .attr('id', 'legend');
+//    
+//        // N.B. fill doubles as cna
+//        var fill = legend_svg.append('rect')
+//            .attr('fill', function(d) {
+//                if (is_gene(d)) {
+//                    return cna_fills[d.cna];
+//                }
+//                else if (is_clinical(d)) {
+//
+//                    var result = attr2rangeFuntion[d.attr_id](d.attr_val);
+//
+//                    return d.attr_val === "NA"
+//                ? colors.grey       // attrs with value of NA are colored grey
+//                : result;
+//                }
+//            })
+//        .attr('height', function(d) {
+//            return d.attr_id === undefined ? dims.rect_height : dims.clinical_height;
+//        })
+//        .attr('width', dims.rect_width)
+//        .attr('x', dims.rect_width)
+//            .attr('y', function(d) {
+//                return d.attr_id === undefined
+//                ? 0
+//                : 0 + dims.clinical_offset;
+//            //     return vertical_pos(utils.get_attr(d));
+//            });
+//            
+//        var label = legend_svg.append('text')
+//            .attr('font-size', '12px')
+//            .attr('width', function(d)
+//            {
+//                return d.attr_val.toString().length * 6.5;
+//            })
+//            .attr('x', dims.rect_width*3)
+//            .attr('y', function(d) {
+//                return (dims.vert_space / 1.80); });
+//
+//        label.append('tspan')       // name
+//            .attr('text-anchor', 'start')
+//            .attr('fill','black')
+//            .attr('cursor','move')
+//            .attr('class','legend_name')
+//            .text(function(d) {
+//                if(typeof(d.attr_val) === 'number')
+//                {
+//                    return cbio.util.toPrecision(d.attr_val,4,0.00001);
+//                }
+//                else{
+//                    return d.attr_val;
+//                }
+//            });  
+//        }
+//    }
+   
+    
     var CreateLegendII = function (datas,attr2rangeFuntion)
     {
         var dims = (function() {
@@ -509,63 +688,34 @@ define("OncoprintUtils", (function() {
 
             return {
             width: datas.length * (5.5 + 3),
-            height: (rect_height + vert_padding) * datas.length * 2,
+            height: (rect_height + vert_padding) * datas.length,
             rect_height: rect_height,
             rect_width: 5.5,
             vert_padding: vert_padding,
             vert_space: rect_height + vert_padding,
             hor_padding: 3,
+            character_length:7.5,
             mut_height: mut_height,
             legend_width: Legend_label_width,
             clinical_height: clinical_height,
             clinical_offset: clinical_offset
             };
         }());
-        
-//        var attr2index = (function() {
-//                var to_return = {};
-//                var listNum = 0;
-//                to_return[datas[0].attr_id] = listNum;
-//                for(var i = 1; i < datas.length; i++){
-//                    
-//                    to_return[datas[i].attr_id] = listNum;
-//                    if(datas[i].attr_id !== datas[i-1].attr_id)
-//                    {
-//                        listNum=listNum+1;
-//                        to_return[datas[i].attr_id] = listNum; 
-//                    }
-//                     
-//                }
-//                return to_return;
-//            }());
 
-//        var vertical_pos = function(attr){
-//                        return dims.vert_space * attr2index[attr];
-//                    }
-                    
-        var is_firefox = navigator.userAgent.indexOf("Firefox") !== -1;
-        var browser_offset = is_firefox ? 16 : 0;
-        for(var n = 0; n < datas.length; n++)
+        var calculateMaxLabelLength = function ()
         {
-            var intraData = datas[n];
-        var table = d3.select(document.getElementById('oncoprint_legend'))
-        .append('table')
-        .attr('height',function(){
-            return 1 *(dims.rect_height + browser_offset);
-        })
-        .attr('id','legend_table')
-        .attr('valign','top');
-
-        var calculateDistance = function (valueName)
-        {
-            var indexValue = _.indexOf(datas[n],valueName);
-            var totalLength = 0;
-            for(var i = 0 ; i < indexValue; i++)
+            var labelNumbers = datas.length;
+            var maxlength = datas[0][0].attr_id.length*dims.character_length;
+            for(var i = 0; i < labelNumbers; i ++)
             {
-                totalLength += datas[n][i].attr_val.length *6.5 + dims.rect_width * 5;
+                datas[i][0].attr_id.length*dims.character_length;
+                maxlength = (datas[i][0].attr_id.length*dims.character_length) > maxlength ? (datas[i][0].attr_id.length*dims.character_length) : maxlength;
             }
-            return totalLength;
+            
+            return maxlength;
         };
+        
+        var maxLabelLength = calculateMaxLabelLength() + 60;
 
         var calculateHeight = function (valueName)
         {
@@ -577,38 +727,168 @@ define("OncoprintUtils", (function() {
                 {
                     totalHeight +=1;
                 }
+                else
+                {
+                    totalHeight +=1;
+                    return totalHeight;
+                }
             }
             
             return totalHeight;
         }
-        var legend_name = table.append('text')
-                .attr('font-size', '14px')
-                .append('tspan')
-                .attr('font-weight', 'bold')
-                .attr('fill','black')
-                .text(function(){
-                   return intraData[0].attr_id.toString().toLowerCase(); 
-                });
-        var legend_svg = table.selectAll('td')        
-            .data(intraData)
-            .enter()
+        
+        var table = d3.select(document.getElementById('oncoprint_legend'))
+            .append('table')
+            .append('tr')
+            .attr('id','legend_table')
+            .attr('valign','top');
+
+        // hack to get the label flush with the tracks in Firefox
+        // the discrepancy is due to the difference in the way browsers display
+        // <table>.  Assume that other browsers behave like chrome and that Firefox
+        // is the exception.
+        var is_firefox = navigator.userAgent.indexOf("Firefox") !== -1;
+        var browser_offset = is_firefox ? 16 : 0;
+
+        var label_svg = table
+            .append('td')
             .append('svg')
-            .attr('height', function(d){
-                    return (dims.vert_space / 1.80);
-            })
-            .attr('width', function(d)
-            {
-                return d.attr_val.toString().length * 6.5 + dims.rect_width * 5;
-            })
-            .attr('x', function(d)
-            {
-                return calculateDistance(d);
-            })
+            .attr('height', dims.height + browser_offset)
+            .attr('width', '' + maxLabelLength)
             .attr('id', 'legend');
+
+        var label = label_svg.selectAll('text')
+            .data(datas)
+            .enter()
+            .append('text')
+            .attr('font-size', '12px')
+            .attr('x', 0)
+            .attr('y', function(d) { 
+                return (_.indexOf(datas,d) + 1 ) * dims.vert_space - dims.vert_padding;
+            });
+
+        label.append('tspan')       // name
+            .attr('text-anchor', 'start')
+            .attr('font-weight', 'bold')
+            .attr('fill','gray')
+            .attr('cursor','move')
+            .attr('class','attribute_legend')
+            .text(function(d) {
+                return d[0].attr_id.toString().toLowerCase();
+            });
+            
+        var calculateDistance = function (idName,valueName)
+        {
+            var indexValue;
+            var dataIndexValue;
+
+            for(var n = 0; n < datas.length; n++)
+            {
+                if(datas[n][0].attr_id === idName)
+                {
+                    indexValue = n;
+                    dataIndexValue = datas[n].length;
+                    break;
+                }
+            }
+            var totalLength = 0;
+            for(var i = 0 ; i < dataIndexValue; i++)
+            {
+                if(datas[indexValue][i].attr_val!==valueName)
+                {
+                    totalLength += datas[indexValue][i].attr_val.toString().length *6.5 + dims.rect_width * 5;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return totalLength;
+        };
+            
+        var calculateLongestLegend = function()
+        {
+            var longestLegendLength = 0;
+            
+            for( i = 0; i < datas.length; i++ )
+            {
+                var longestEachData = 0;
+                longestEachData = calculateDistance(datas[i][datas[i].length - 1].attr_id, datas[i][datas[i].length - 1].attr_val) + datas[i][datas[i].length - 1].attr_val.toString().length *6.5 + dims.rect_width * 5;
+                longestLegendLength= longestEachData > longestLegendLength ? longestEachData: longestLegendLength;
+            }
+            
+            return longestLegendLength;
+        }; 
+        
+        var container_width = $('#oncoprint_table div').width();              // default setting 
+        var longest_legend_width = calculateLongestLegend();
+        var legend_td = table.append('td')
+                            .append('div')      // control overflow to the right
+                            .style('width', container_width + 'px') // buffer of, say, 70
+                            .style('display', 'inline-block')
+                            .style('overflow-x', function(){
+                                
+                                if(longest_legend_width > container_width){
+                                    return'auto';} 
+                        
+                                    return 'hidden';
+                                })
+                            .style('overflow-y', 'hidden'); 
+                    
+        var legend_rec_text =legend_td.append('svg')
+                            .attr('height', datas.length*dims.vert_space)
+                            .attr('width', longest_legend_width)
+                            .attr('id', 'legend_svg');
+                    
+        var translate = function(x,y) { return "translate(" + x + "," + y + ")"; };
+   
+        var legend_svg_main = legend_rec_text.selectAll('g')        
+            .data(datas)
+            .enter()
+            .append('g')
+//            .attr('transform',function(d){ return translate( maxLabelLength,_.indexOf(datas,d) * dims.vert_space);})
+            .attr('transform',function(d){ return translate( 0, _.indexOf(datas,d) * dims.vert_space );})
+            .attr('height', dims.vert_space);
     
+        var legend_svg=legend_svg_main.selectAll('g')
+            .data(function(d) { 
+                return d;
+            })
+            .enter()
+            .append('g');
+        
+            var calculateDistance = function (idName,valueName)
+            {
+                var indexValue;
+                var dataIndexValue;
+                
+                for(var n = 0; n < datas.length; n++)
+                {
+                    if(datas[n][0].attr_id === idName)
+                    {
+                        indexValue = n;
+                        dataIndexValue = datas[n].length;
+                        break;
+                    }
+                }
+                var totalLength = 0;
+                for(var i = 0 ; i < dataIndexValue; i++)
+                {
+                    if(datas[indexValue][i].attr_val!==valueName)
+                    {
+                        totalLength += datas[indexValue][i].attr_val.toString().length *6.5 + dims.rect_width * 5;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                return totalLength;
+            };
+
         // N.B. fill doubles as cna
         var fill = legend_svg.append('rect')
-            .attr('fill', function(d) {
+                .attr('fill', function(d) {
                 if (is_gene(d)) {
                     return cna_fills[d.cna];
                 }
@@ -621,45 +901,41 @@ define("OncoprintUtils", (function() {
                 : result;
                 }
             })
-        .attr('height', function(d) {
+            .attr('height', function(d) {
             return d.attr_id === undefined ? dims.rect_height : dims.clinical_height;
-        })
-        .attr('width', dims.rect_width)
-        .attr('x', dims.rect_width)
-            .attr('y', function(d) {
-                return d.attr_id === undefined
-                ? 0
-                : 0 + dims.clinical_offset;
-            //     return vertical_pos(utils.get_attr(d));
-            });
-            
-        var label = legend_svg.append('text')
-            .attr('font-size', '12px')
-            .attr('width', function(d)
-            {
-                return d.attr_val.toString().length * 6.5;
             })
-            .attr('x', dims.rect_width*3)
-            .attr('y', function(d) {
-                return (dims.vert_space / 1.80); });
+            .attr('width', dims.rect_width)
+            .attr('x', function(d){
+                return calculateDistance(d.attr_id,d.attr_val);})
+            .attr('y', function() {
+                    return dims.vert_padding + 4;
+            });
 
-        label.append('tspan')       // name
-            .attr('text-anchor', 'start')
-            .attr('fill','black')
-            .attr('cursor','move')
-            .attr('class','legend_name')
-            .text(function(d) {
-                if(typeof(d.attr_val) === 'number')
+            var label = legend_svg.append('text')
+                .attr('font-size', '12px')
+                .attr('width', function(d)
                 {
-                    return cbio.util.toPrecision(d.attr_val,4,0.00001);
-                }
-                else{
-                    return d.attr_val;
-                }
-            });  
-        }
+                    return d.attr_val.toString().length * 6.5;
+                })
+                .attr('x', function(d){
+                    return calculateDistance(d.attr_id,d.attr_val) + dims.rect_width*3;} )
+                .attr('y', function() {
+                    return dims.rect_height; });
+
+            label.append('tspan')       // name
+                .attr('text-anchor', 'start')
+                .attr('fill','black')
+                .attr('class','legend_name')
+                .text(function(d) {
+                    if(typeof(d.attr_val) === 'number')
+                    {
+                        return cbio.util.toPrecision(d.attr_val,4,0.00001);
+                    }
+                    else{
+                        return d.attr_val;
+                    }
+                }); 
     }
-    
     
     // puts a legend in the div according to range for each datatype.  If the
     // range for a datatype is undefined, then it doesn't get represented in
@@ -793,7 +1069,7 @@ define("OncoprintUtils", (function() {
             .append('tspan')
             .attr('font-weight', 'bold')
             .attr('fill','black')
-            .text('gene data');
+            .text('genetic alteration');
         
         
         

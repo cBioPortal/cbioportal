@@ -42,7 +42,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         $(this).css('font-size', '12px');
         });
         $('#oncoprint_zoom_slider').qtip({
-            content: {text: 'move the slider to zoom in and out oncoprint'},
+            content: {text: 'zoom in and out oncoprint'},
             position: {my:'left bottom', at:'top middle', viewport: $(window)},
             style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
             show: {event: "mouseover"},
@@ -151,7 +151,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             var indexNum = extraTracks.indexOf(attr);
             var sampleNumbers = extraGenes.length/extraAttributes.length;
             extraTracks.splice(indexNum, 1);
-            extraGenes.splice(indexNum, sampleNumbers);
+            extraGenes.splice(indexNum*sampleNumbers, sampleNumbers);
             extraAttributes.splice(indexNum, 1);
             sortStatus.splice(indexNum, 1);
             removeClinicalAttribute();
@@ -240,7 +240,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                     function() {
                     selectedTitle =$(this);
                     $(this).attr('fill', 'red');
-                    }); 
+                    });
     }
 
     //delete clinicalAttribute added before
@@ -1116,10 +1116,10 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             content: {text: 
                         function(){
                         if($(this)[0].attributes.src.value === 'images/removeUCases.svg')
-                        {return 'click here to remove unaltered cases!'}
+                        {return 'remove unaltered cases!'}
                         else
                         {
-                            return 'click here to get unaltered cases back!'
+                            return 'get unaltered cases back!'
                         }
                     }
                 },
@@ -1156,10 +1156,10 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             content: {text: 
                         function(){
                         if($(this)[0].attributes.src.value === 'images/removeWhitespace.svg')
-                        {return 'click here to remove whitespace!'}
+                        {return 'remove whitespace!'}
                         else
                         {
-                            return 'click here to get whitespace back!'
+                            return 'get whitespace back!'
                         }
                     }
             },
@@ -1195,10 +1195,10 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             $('.oncoprint-diagram-showlegend-icon').qtip({
             content: {text:function(){
                         if($(this)[0].attributes.src.value === 'images/showlegend.svg')
-                        {return 'click here to show legends!'}
+                        {return 'show legends!'}
                         else
                         {
-                            return 'click here to hide legends!'
+                            return 'hide legends!'
                         }
                     }
             },
@@ -1237,10 +1237,10 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             content: {text: 
                         function(){
                         if($(this)[0].attributes.src.value === 'images/uncolormutations.svg')
-                        {return 'click here to change all mutations color to green color!'}
+                        {return 'color mutations green!'}
                         else
                         {
-                            return 'click here to color different mutation with different color!'
+                            return 'color mutations differently!'
                         }
                     }
             },

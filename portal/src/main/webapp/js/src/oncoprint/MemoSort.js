@@ -17,7 +17,31 @@ define(function() {
         var comp_genes = function(attr1, attr2) {
             var cna_order = {AMPLIFIED:4, HOMODELETED:3, GAINED:2, HEMIZYGOUSLYDELETED:1, DIPLOID: 0, undefined: 0},
                 regulated_order = {UPREGULATED: 2, DOWNREGULATED: 1, undefined: 0},
-                mutation_order_f = function(m) { return m === undefined ? 0 : (/fusion($|,)/i.test(m)?2:1); };
+                mutation_order_f = function(m) { 
+                    
+                    if(m !== undefined)//multiply mutations
+                    {
+                        m = m.split(',');
+
+                        if(m.length > 1)
+                        {
+                            return 8;
+                        }
+                    }
+                    
+                    if((/^[A-Z]([0-9]+)[*]$/g).test(m))//Nonsense_Mutation
+                    {return 7;}
+                    if((/^[A-z*]([0-9]+)[A-z]{2}$/g).test(m))//Frame_shift_del
+                    {return 6;}
+                    if((/^([A-Z]+)([0-9]+)del$/g).test(m))//IN_frame_del
+                    {return 5;}
+                    if((/^[A-Z]([0-9]+)_splice$/g).test(m))//Splice_Site
+                    {return 4;}
+                    if((/^([A-Z]+)([0-9]+)del$/g).test(m))//IN_frame_del
+                    {return 3;}
+                    
+                    return m === undefined ? 0 : (/fusion($|,)/i.test(m)?2:1); 
+                };
 
             var cna_diff = cna_order[attr2.cna] - cna_order[attr1.cna];
             if (cna_diff !== 0) {

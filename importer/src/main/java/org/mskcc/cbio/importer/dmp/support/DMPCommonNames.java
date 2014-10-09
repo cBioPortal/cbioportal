@@ -15,17 +15,16 @@
  *  Memorial Sloan-Kettering Cancer Center 
  *  has been advised of the possibility of such damage.
  */
-package org.mskcc.cbio.importer.dmp.transformer;
-
-import org.mskcc.cbio.importer.dmp.model.Result;
-import org.mskcc.cbio.importer.dmp.support.DMPStagingFileManager;
+package org.mskcc.cbio.importer.dmp.support;
 
 /**
- *
+ * a collection of literal values used throughout the DMP importer application
  * @author criscuof
  */
-public interface DMPTransformable {
-   
-    public void transform(Result result, DMPStagingFileManager fileManager);
+public interface DMPCommonNames {
+    public static final String REPORT_TYPE_CNV_INTRAGENIC = "CnvIntragenicVariant";
+    public static final String REPORT_TYPE_CNV = "CnvVariant";
+    public static final String REPORT_TYPE_SNP_EXONIC = "SnpExonic";
+    public static final String REPORT_TYPE_SNP_SILENT = "SnpSilent";
     
 }

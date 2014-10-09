@@ -1,89 +1,76 @@
 /*
  *  Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
-  * 
-  *  This library is distributed in the hope that it will be useful, but
-  *  WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
-  *  MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
-  *  documentation provided hereunder is on an "as is" basis, and
-  *  Memorial Sloan-Kettering Cancer Center 
-  *  has no obligations to provide maintenance, support,
-  *  updates, enhancements or modifications.  In no event shall
-  *  Memorial Sloan-Kettering Cancer Center
-  *  be liable to any party for direct, indirect, special,
-  *  incidental or consequential damages, including lost profits, arising
-  *  out of the use of this software and its documentation, even if
-  *  Memorial Sloan-Kettering Cancer Center 
-  *  has been advised of the possibility of such damage.
+ * 
+ *  This library is distributed in the hope that it will be useful, but
+ *  WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ *  MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ *  documentation provided hereunder is on an "as is" basis, and
+ *  Memorial Sloan-Kettering Cancer Center 
+ *  has no obligations to provide maintenance, support,
+ *  updates, enhancements or modifications.  In no event shall
+ *  Memorial Sloan-Kettering Cancer Center
+ *  be liable to any party for direct, indirect, special,
+ *  incidental or consequential damages, including lost profits, arising
+ *  out of the use of this software and its documentation, even if
+ *  Memorial Sloan-Kettering Cancer Center 
+ *  has been advised of the possibility of such damage.
  */
-
 package org.mskcc.cbio.importer.dmp.transformer;
 
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Maps;
 import com.google.gdata.util.common.base.Joiner;
-import com.google.inject.internal.Preconditions;
+import com.google.gdata.util.common.base.Preconditions;
 import java.util.List;
 import java.util.Map;
 import org.mskcc.cbio.importer.dmp.model.CnvVariant;
-import scala.Tuple2;
-
+import org.mskcc.cbio.importer.dmp.model.Result;
+import org.mskcc.cbio.importer.dmp.support.DMPCommonNames;
+import org.mskcc.cbio.importer.dmp.support.DMPStagingFileManager;
 
 public class CnvVariantDataTransformer implements DMPTransformable {
-    
-    private final List<CnvVariant> cnvVariantList;
-    private static final String DATA_TYPE = "CNV_Variant";
+
+    private static final String REPORT_TYPE = DMPCommonNames.REPORT_TYPE_CNV;
     public static final Joiner tabJoiner = Joiner.on("\t");
-    private Map<String,String> baseMap;
+
+    private Map<String, String> baseMap;
+
+    public CnvVariantDataTransformer() {
+    }
+
+    @Override
+    public void transform(Result result, DMPStagingFileManager fileManager) {
+
+        Preconditions.checkArgument(null != result, "A DMP Result object is required");
+        Preconditions.checkArgument(null != fileManager, "A DMPStagingFileManager is required");
+        if (result.getCnvVariants().isEmpty()) {
+            return;
+        }
+        this.baseMap = MetaDataTransformer.getBaseTransformationMap(result);
+
+        fileManager.appendDMPDataToStagingFile(REPORT_TYPE, result.getCnvVariants(), transformationFunction);
+
+    }
    
     
-     public CnvVariantDataTransformer(final Map<String,String> aMap, final List<CnvVariant> aList){
-        Preconditions.checkArgument(null != aMap, "A Map of metadata values is required");
-        Preconditions.checkArgument(!aList.isEmpty(),
-                "A List of CnvVariant objects is required");
-        this.cnvVariantList = aList;
-        this.baseMap = aMap;
+    public Function getTransormationFunction() {
+        return this.transformationFunction;
     }
-     
-       @Override
-    public Tuple2<String, Function> getTransformationFunction() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-       
-    /*
-    function to add the CnvVariant attributes to the metadata attributes
-    */
-    private Function<CnvVariant,Map<String,String>> cnvMapFunction
-            = new Function<CnvVariant,Map<String,String>>() {
 
-        @Override
-        public Map<String, String> apply(CnvVariant cnv) {
-            Map<String,String> cnvMap = Maps.newTreeMap(); 
-            cnvMap.putAll(baseMap);
-          cnvMap.put("100Chromosome", cnv.getChromosome());
-            cnvMap.put("101CNV_Class",cnv.getCnvClassName());
-            return cnvMap;
-        }
-    };
-     
-    
-    private Function<Map<String,String>,String> cnvTransformationFunction = 
-            new Function<Map<String,String>,String>() {
-        @Override
-        public String apply(Map<String, String> cnvMap) {
-            return tabJoiner.join(cnvMap.values());
-        }
-    };
-    /*
-    method to transform a list of CnvVariant objects to a List of Strings
-    prepends the Cnv data with metadata attributes
-    */
-  public  List<String> transform() {
-        return FluentIterable.from(this.cnvVariantList)
-                .transform(cnvMapFunction)
-                .transform(cnvTransformationFunction)
-                .toList();
-    }
+    public Function<CnvVariant, String> transformationFunction
+            = new Function<CnvVariant, String>() {
+
+                @Override
+                public String apply(CnvVariant cnv) {
+                    Map<String, String> cnvMap = Maps.newTreeMap();
+                    cnvMap.putAll(baseMap);
+                    cnvMap.put("100Chromosome", cnv.getChromosome());
+                    cnvMap.put("101CNV_Class", cnv.getCnvClassName());
+                    return tabJoiner.join(cnvMap.values());
+                }
+
+            };
 
 }
 /*

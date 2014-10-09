@@ -29,14 +29,21 @@
       <id>mskcc</id>
       <properties>
         <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
-        <final-war-name>mskcc-portal</final-war-name>
+        <final-war-name>mskcc</final-war-name>
+      </properties>
+    </profile>
+    <profile>
+      <id>private</id>
+      <properties>
+        <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
+        <final-war-name>private</final-war-name>
       </properties>
     </profile>
     <profile>
       <id>triage</id>
       <properties>
         <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
-        <final-war-name>mskcc-triage-portal</final-war-name>
+        <final-war-name>triage</final-war-name>
       </properties>
     </profile>
 	<profile>

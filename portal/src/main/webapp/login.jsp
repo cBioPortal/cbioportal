@@ -50,15 +50,11 @@
 
         <div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em;width:90%;margin-top:50px">
             <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-            <strong>You are not authorized to access this resource.
+            <strong>You are not authorized to access this resource.&nbsp;
             <% if (authenticationMethod.equals("googleplus")) { %>
             You have attempted to log in as <%= DynamicState.INSTANCE.getCurrentUser() %>.
             <% } %>
-            If you think you have received this
-            message in error, please contact us at
-            <a style="color:#FF0000" href="mailto:cbioportal@cbio.mskcc.org">cbioportal@cbio.mskcc.org</a>
-           
-
+            If you think you have received this message in error, please contact us at <a style="color:#FF0000" href="mailto:cbioportal@cbio.mskcc.org">cbioportal@cbio.mskcc.org</a>
             </strong></p>
     </div>
     <% } %>
@@ -99,7 +95,7 @@
                     </form>
                     <% } else if (authenticationMethod.equals("saml")) { %>
                         <p>
-                            <button type="button" class="btn btn-danger btn-lg" onclick="window.location = 'saml/login?idp=https://testaccess2.mskcc.org/nidp/saml2/metadata'" >
+                            <button type="button" class="btn btn-danger btn-lg" onclick="window.location = 'saml/login?idp=https://msklogin.mskcc.org/nidp/saml2/metadata'" >
                             Sign in with MSK</button>
                         </p>
                     </fieldset>

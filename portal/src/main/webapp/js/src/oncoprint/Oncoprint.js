@@ -330,7 +330,7 @@ define("Oncoprint",
                         else
                         {             
                             var mutationSplit;
-                            if(mutation !== undefined)
+                            if(mutation !== undefined)//multiple mutations
                             {
                                 mutationSplit = mutation.split(',');
 
@@ -632,7 +632,7 @@ define("Oncoprint",
                         else {
                             throw new Error("unsupported sort option: ") + JSON.stringify(by);
                         }
-                        horizontal_translate(ANIMATION_DURATION);
+                        horizontal_translate(ANIMATION_DURATION);                       
                         return state.data;
                     };
 
@@ -640,8 +640,7 @@ define("Oncoprint",
                     var attr2rangeValue = utils.attr_data_type2range(params.clinicalData, params.clinical_attrs.length);
                     var attr2rangeFuntion = utils.make_attribute2scale(params.clinical_attrs, params.clinicalData);
                     if (params.legend) {
-                        utils.legend(params.legend,
-                                utils.gene_data_type2range(params.geneData), dims.label_width, attr2rangeValue,attr2rangeFuntion);
+                        utils.legend(params.legend,utils.gene_data_type2range(params.geneData), dims.label_width, attr2rangeValue,attr2rangeFuntion);
                     }
                     
                     
@@ -724,15 +723,17 @@ define("Oncoprint",
                             return serialize(label);
                         });
 
-                        var legends = $('#oncoprint #oncoprint_legend table').children().clone();
+                        var legends = $('#oncoprint #oncoprint_legend svg').children().clone();
                         legends = map_join(legends, function(index,legend) {
                             return serialize(legend);
                         });
                         var find1 = '<svg xmlns="http://www.w3.org/2000/svg"';
                         var find2 = '</svg>';
+                        var find3 = 'xmlns="http://www.w3.org/1999/xhtml"';
                         var re1 = new RegExp(find1, 'g');
                         var re2 = new RegExp(find2, 'g');
-                        legends = legends.replace(re1, '<g').replace(re2, '</g>');
+                        var re3 = new RegExp(find3, 'g');
+                        legends = legends.replace(re1, '<g').replace(re2, '</g>').replace(re3, '');
 
                         var spaceHeight = dims.rect_height + dims.vert_padding;
                         var moveDownDistance = (params.clinical_attrs.length + params.genes.length)*spaceHeight + gapSpaceGeneClinic;

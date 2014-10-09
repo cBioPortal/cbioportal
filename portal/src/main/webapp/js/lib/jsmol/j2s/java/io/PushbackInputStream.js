@@ -4,10 +4,10 @@ this.buf = null;
 this.pos = 0;
 Clazz.instantialize (this, arguments);
 }, java.io, "PushbackInputStream", java.io.FilterInputStream);
-$_M(c$, "ensureOpen", 
-($fz = function () {
+Clazz.defineMethod (c$, "ensureOpen", 
+ function () {
 if (this.$in == null) throw  new java.io.IOException ("Stream closed");
-}, $fz.isPrivate = true, $fz));
+});
 Clazz.makeConstructor (c$, 
 function ($in, size) {
 Clazz.superConstructor (this, java.io.PushbackInputStream, [$in]);
@@ -47,14 +47,14 @@ return avail == 0 ? -1 : avail;
 }return avail + len;
 }return avail;
 }, "~A,~N,~N");
-$_M(c$, "unreadByte", 
+Clazz.defineMethod (c$, "unreadByte", 
 function (b) {
 this.ensureOpen ();
 if (this.pos == 0) {
 throw  new java.io.IOException ("Push back buffer is full");
 }this.buf[--this.pos] = b;
 }, "~N");
-$_M(c$, "unread", 
+Clazz.defineMethod (c$, "unread", 
 function (b, off, len) {
 this.ensureOpen ();
 if (len > this.pos) {

@@ -9,7 +9,7 @@ Clazz.overrideMethod (c$, "initShape",
 function () {
 this.translucentAllowed = false;
 });
-$_M(c$, "setPropFS", 
+Clazz.defineMethod (c$, "setPropFS", 
 function (propertyName, value) {
 if ("font" === propertyName) {
 this.font3d = value;

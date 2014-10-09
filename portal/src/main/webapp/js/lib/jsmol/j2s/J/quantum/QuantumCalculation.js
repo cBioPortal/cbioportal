@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.quantum");
-Clazz.load (null, "J.quantum.QuantumCalculation", ["J.quantum.QMAtom", "J.util.Escape", "$.Logger", "$.P3"], function () {
+Clazz.load (null, "J.quantum.QuantumCalculation", ["JU.P3", "J.quantum.QMAtom", "JU.Escape", "$.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.doDebug = false;
 this.bsExcluded = null;
@@ -41,11 +41,11 @@ Clazz.prepareFields (c$, function () {
 this.originBohr =  Clazz.newFloatArray (3, 0);
 this.stepBohr =  Clazz.newFloatArray (3, 0);
 });
-$_M(c$, "initialize", 
+Clazz.defineMethod (c$, "initialize", 
 function (nX, nY, nZ, points) {
 this.initialize0 (nX, nY, nZ, points);
 }, "~N,~N,~N,~A");
-$_M(c$, "initialize0", 
+Clazz.defineMethod (c$, "initialize0", 
 function (nX, nY, nZ, points) {
 if (points != null) {
 this.points = points;
@@ -64,7 +64,7 @@ this.X2 =  Clazz.newFloatArray (nX, 0);
 this.Y2 =  Clazz.newFloatArray (nY, 0);
 this.Z2 =  Clazz.newFloatArray (nZ, 0);
 }, "~N,~N,~N,~A");
-$_M(c$, "setupCoordinates", 
+Clazz.defineMethod (c$, "setupCoordinates", 
 function (originXYZ, stepsXYZ, bsSelected, atomCoordAngstroms, points, renumber) {
 if (points == null) {
 this.volume = 1;
@@ -73,15 +73,15 @@ this.originBohr[i] = originXYZ[i] * this.unitFactor;
 this.stepBohr[i] = stepsXYZ[i] * this.unitFactor;
 this.volume *= this.stepBohr[i];
 }
-J.util.Logger.info ("QuantumCalculation:\n origin = " + J.util.Escape.eAF (originXYZ) + "\n steps = " + J.util.Escape.eAF (stepsXYZ) + "\n origin(Bohr)= " + J.util.Escape.eAF (this.originBohr) + "\n steps(Bohr)= " + J.util.Escape.eAF (this.stepBohr) + "\n counts= " + this.nX + " " + this.nY + " " + this.nZ);
+JU.Logger.info ("QuantumCalculation:\n origin = " + JU.Escape.eAF (originXYZ) + "\n steps = " + JU.Escape.eAF (stepsXYZ) + "\n origin(Bohr)= " + JU.Escape.eAF (this.originBohr) + "\n steps(Bohr)= " + JU.Escape.eAF (this.stepBohr) + "\n counts= " + this.nX + " " + this.nY + " " + this.nZ);
 }if (atomCoordAngstroms != null) {
 this.qmAtoms =  new Array (renumber ? bsSelected.cardinality () : atomCoordAngstroms.length);
 var isAll = (bsSelected == null);
 var i0 = (isAll ? this.qmAtoms.length - 1 : bsSelected.nextSetBit (0));
 for (var i = i0, j = 0; i >= 0; i = (isAll ? i - 1 : bsSelected.nextSetBit (i + 1))) this.qmAtoms[renumber ? j++ : i] =  new J.quantum.QMAtom (i, atomCoordAngstroms[i], this.X, this.Y, this.Z, this.X2, this.Y2, this.Z2, this.unitFactor);
 
-}}, "~A,~A,J.util.BS,~A,~A,~B");
-$_M(c$, "processPt", 
+}}, "~A,~A,JU.BS,~A,~A,~B");
+Clazz.defineMethod (c$, "processPt", 
 function (pt) {
 this.doDebug = false;
 if (this.points == null || this.nX != 1) this.initializeOnePoint ();
@@ -90,19 +90,19 @@ this.voxelDataTemp[0][0][0] = 0;
 this.setXYZBohr (this.points);
 this.processPoints ();
 return this.voxelData[0][0][0];
-}, "J.util.P3");
-$_M(c$, "processPoints", 
+}, "JU.T3");
+Clazz.defineMethod (c$, "processPoints", 
 function () {
 this.process ();
 });
-$_M(c$, "initializeOnePoint", 
+Clazz.defineMethod (c$, "initializeOnePoint", 
 function () {
 this.initializeOnePointQC ();
 });
-$_M(c$, "initializeOnePointQC", 
+Clazz.defineMethod (c$, "initializeOnePointQC", 
 function () {
 this.points =  new Array (1);
-this.points[0] =  new J.util.P3 ();
+this.points[0] =  new JU.P3 ();
 if (this.voxelData == null || this.voxelData === this.voxelDataTemp) {
 this.voxelData = this.voxelDataTemp =  Clazz.newFloatArray (1, 1, 1, 0);
 } else {
@@ -111,14 +111,14 @@ this.voxelDataTemp =  Clazz.newFloatArray (1, 1, 1, 0);
 }this.xMin = this.yMin = this.zMin = 0;
 this.initialize (1, 1, 1, this.points);
 });
-$_M(c$, "setXYZBohr", 
+Clazz.defineMethod (c$, "setXYZBohr", 
 function (points) {
 this.setXYZBohrI (this.xBohr, 0, this.nX, points);
 this.setXYZBohrI (this.yBohr, 1, this.nY, points);
 this.setXYZBohrI (this.zBohr, 2, this.nZ, points);
 }, "~A");
-$_M(c$, "setXYZBohrI", 
-($fz = function (bohr, i, n, points) {
+Clazz.defineMethod (c$, "setXYZBohrI", 
+ function (bohr, i, n, points) {
 if (points != null) {
 var x = 0;
 for (var j = 0; j < n; j++) {
@@ -140,8 +140,8 @@ return;
 var inc = this.stepBohr[i];
 for (var j = 0; ++j < n; ) bohr[j] = bohr[j - 1] + inc;
 
-}, $fz.isPrivate = true, $fz), "~A,~N,~N,~A");
-$_M(c$, "setMinMax", 
+}, "~A,~N,~N,~A");
+Clazz.defineMethod (c$, "setMinMax", 
 function (ix) {
 this.yMax = this.zMax = (ix < 0 ? this.xMax : ix + 1);
 this.yMin = this.zMin = (ix < 0 ? 0 : ix);

@@ -1,7 +1,7 @@
 Clazz.declarePackage ("J.adapter.readers.pymol");
-Clazz.load (["java.util.Hashtable"], "J.adapter.readers.pymol.PyMOL", ["J.util.Logger"], function () {
+Clazz.load (["java.util.Hashtable"], "J.adapter.readers.pymol.PyMOL", ["JU.Logger"], function () {
 c$ = Clazz.declareType (J.adapter.readers.pymol, "PyMOL");
-c$.getRGB = $_M(c$, "getRGB", 
+c$.getRGB = Clazz.defineMethod (c$, "getRGB", 
 function (color) {
 if (J.adapter.readers.pymol.PyMOL.moreColors != null) {
 var key = Integer.$valueOf (color);
@@ -10,11 +10,11 @@ if (c != null) return c.intValue ();
 }if (color < J.adapter.readers.pymol.PyMOL.colors.length) return (J.adapter.readers.pymol.PyMOL.colors[color]);
 return 0;
 }, "~N");
-c$.addColor = $_M(c$, "addColor", 
+c$.addColor = Clazz.defineMethod (c$, "addColor", 
 function (id, value) {
 J.adapter.readers.pymol.PyMOL.moreColors.put (id, Integer.$valueOf (value));
 }, "Integer,~N");
-c$.getDefaultSetting = $_M(c$, "getDefaultSetting", 
+c$.getDefaultSetting = Clazz.defineMethod (c$, "getDefaultSetting", 
 function (i, pymolVersion) {
 switch (i) {
 case 453:
@@ -32,7 +32,7 @@ case 327:
 case 569:
 return 1;
 default:
-J.util.Logger.info ("PyMOL " + pymolVersion + " does not have setting " + i);
+JU.Logger.info ("PyMOL " + pymolVersion + " does not have setting " + i);
 case 571:
 case 666:
 case 524:

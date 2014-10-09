@@ -1,13 +1,13 @@
-$_L(["java.util.EventListener"],"java.util.EventListenerProxy",null,function(){
-c$=$_C(function(){
+Clazz.load(["java.util.EventListener"],"java.util.EventListenerProxy",null,function(){
+c$=Clazz.decorateAsClass(function(){
 this.listener=null;
-$_Z(this,arguments);
+Clazz.instantialize(this,arguments);
 },java.util,"EventListenerProxy",null,java.util.EventListener);
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(listener){
 this.listener=listener;
 },"java.util.EventListener");
-$_M(c$,"getListener",
+Clazz.defineMethod(c$,"getListener",
 function(){
 return this.listener;
 });

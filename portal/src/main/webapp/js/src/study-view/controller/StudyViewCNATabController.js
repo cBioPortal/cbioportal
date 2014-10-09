@@ -2,15 +2,15 @@
 
 
 var StudyViewCNATabController = (function() {
-    var initComponents = function (){
-        var _data = StudyViewProxy.getCNAData();
-        StudyViewInitCNATab.init(_data);
+    var init = function (){
+        StudyViewInitCNATab.init(
+            StudyViewProxy.getCNAData()
+        );
     };
     
     return {
         init: function() {
-            initComponents();
+            init();
         }
     };
-
 })();

@@ -1,12 +1,12 @@
 Clazz.declarePackage ("J.adapter.readers.xml");
-Clazz.load (["J.adapter.readers.xml.XmlReader", "J.util.JmolList"], "J.adapter.readers.xml.XmlChem3dReader", ["java.lang.Boolean", "$.Float", "java.util.Hashtable", "J.adapter.smarter.Atom", "J.api.Interface", "J.util.Logger"], function () {
+Clazz.load (["J.adapter.readers.xml.XmlReader", "JU.Lst"], "J.adapter.readers.xml.XmlChem3dReader", ["java.lang.Boolean", "$.Float", "java.util.Hashtable", "J.adapter.smarter.Atom", "J.api.Interface", "JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.orbitals = null;
 this.moData = null;
 Clazz.instantialize (this, arguments);
 }, J.adapter.readers.xml, "XmlChem3dReader", J.adapter.readers.xml.XmlReader);
 Clazz.prepareFields (c$, function () {
-this.orbitals =  new J.util.JmolList ();
+this.orbitals =  new JU.Lst ();
 });
 Clazz.makeConstructor (c$, 
 function () {
@@ -25,7 +25,7 @@ Clazz.overrideMethod (c$, "processStartElement",
 function (localName) {
 var tokens;
 if ("model".equals (localName)) {
-this.atomSetCollection.newAtomSet ();
+this.asc.newAtomSet ();
 return;
 }if ("atom".equals (localName)) {
 this.atom =  new J.adapter.smarter.Atom ();
@@ -41,12 +41,12 @@ var atom1 = this.atts.get ("bondAtom1");
 var atom2 = this.atts.get ("bondAtom2");
 var order = 1;
 if (this.atts.containsKey ("bondOrder")) order = this.parseIntStr (this.atts.get ("bondOrder"));
-this.atomSetCollection.addNewBondFromNames (atom1, atom2, order);
+this.asc.addNewBondFromNames (atom1, atom2, order);
 return;
 }if ("electronicStructureCalculation".equalsIgnoreCase (localName)) {
 tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.atts.get ("calcPartialCharges"));
 var tokens2 = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.atts.get ("calcAtoms"));
-for (var i = this.parseIntStr (tokens[0]); --i >= 0; ) this.atomSetCollection.mapPartialCharge (tokens2[i + 1], this.parseFloatStr (tokens[i + 1]));
+for (var i = this.parseIntStr (tokens[0]); --i >= 0; ) this.asc.mapPartialCharge (tokens2[i + 1], this.parseFloatStr (tokens[i + 1]));
 
 }if ("gridData".equalsIgnoreCase (localName)) {
 var nPointsX = this.parseIntStr (this.atts.get ("gridDatXDim"));
@@ -76,7 +76,7 @@ voxelData[x][y][z] *= sum;
 }
 
 
-var vd = J.api.Interface.getOptionInterface ("jvxl.data.VolumeData");
+var vd = J.api.Interface.getOption ("jvxl.data.VolumeData");
 vd.setVoxelCounts (nPointsX, nPointsY, nPointsZ);
 vd.setVolumetricVector (0, xStep, 0, 0);
 vd.setVolumetricVector (1, 0, yStep, 0);
@@ -88,12 +88,12 @@ this.moData =  new java.util.Hashtable ();
 this.moData.put ("defaultCutoff", Float.$valueOf (0.01));
 this.moData.put ("haveVolumeData", Boolean.TRUE);
 this.moData.put ("calculationType", "Chem3D");
-this.orbitals =  new J.util.JmolList ();
+this.orbitals =  new JU.Lst ();
 this.moData.put ("mos", this.orbitals);
 }var mo =  new java.util.Hashtable ();
 mo.put ("volumeData", vd);
 this.orbitals.addLast (mo);
-J.util.Logger.info ("Chem3D molecular orbital data displayable using ISOSURFACE MO " + this.orbitals.size ());
+JU.Logger.info ("Chem3D molecular orbital data displayable using ISOSURFACE MO " + this.orbitals.size ());
 return;
 }}, "~S");
 Clazz.overrideMethod (c$, "processEndElement", 
@@ -101,7 +101,7 @@ function (localName) {
 if ("atom".equals (localName)) {
 if (this.atom.elementSymbol != null && !Float.isNaN (this.atom.z)) {
 this.parent.setAtomCoord (this.atom);
-this.atomSetCollection.addAtomWithMappedName (this.atom);
+this.asc.addAtomWithMappedName (this.atom);
 }this.atom = null;
 return;
 }this.keepChars = false;

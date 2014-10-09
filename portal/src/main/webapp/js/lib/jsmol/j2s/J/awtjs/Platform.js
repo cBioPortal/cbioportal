@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.awtjs");
-Clazz.load (["J.awtjs2d.Platform"], "J.awtjs.Platform", ["J.awtjs.Font", "$.Image"], function () {
+Clazz.load (["J.awtjs2d.Platform"], "J.awtjs.Platform", ["J.awtjs.Image", "$.JSFont"], function () {
 c$ = Clazz.declareType (J.awtjs, "Platform", J.awtjs2d.Platform);
 Clazz.overrideMethod (c$, "allocateRgbImage", 
 function (windowWidth, windowHeight, pBuffer, windowSize, backgroundTransparent, isImageWrite) {
@@ -11,7 +11,6 @@ J.awtjs.Image.disposeGraphics (gOffscreen);
 }, "~O");
 Clazz.overrideMethod (c$, "drawImage", 
 function (g, img, x, y, width, height) {
-J.awtjs.Image.drawImage (g, img, x, y, width, height);
 }, "~O,~O,~N,~N,~N,~N");
 Clazz.overrideMethod (c$, "grabPixels", 
 function (imageobj, width, height, pixels, startRow, nRows) {
@@ -24,7 +23,7 @@ return J.awtjs.Image.drawImageToBuffer (gOffscreen, imageOffscreen, imageobj, wi
 Clazz.overrideMethod (c$, "getTextPixels", 
 function (text, font3d, gObj, image, width, height, ascent) {
 return J.awtjs.Image.getTextPixels (text, font3d, gObj, image, width, height, ascent);
-}, "~S,J.util.JmolFont,~O,~O,~N,~N,~N");
+}, "~S,javajs.awt.Font,~O,~O,~N,~N,~N");
 Clazz.overrideMethod (c$, "flushImage", 
 function (imagePixelBuffer) {
 J.awtjs.Image.flush (imagePixelBuffer);
@@ -46,23 +45,23 @@ function (w, h) {
 return J.awtjs.Image.newBufferedImage (w, h);
 }, "~N,~N");
 Clazz.overrideMethod (c$, "fontStringWidth", 
-function (font, fontMetrics, text) {
-return J.awtjs.Font.stringWidth (font, fontMetrics, text);
-}, "J.util.JmolFont,~O,~S");
+function (font, text) {
+return J.awtjs.JSFont.stringWidth (font, text);
+}, "javajs.awt.Font,~S");
 Clazz.overrideMethod (c$, "getFontAscent", 
 function (fontMetrics) {
-return J.awtjs.Font.getAscent (fontMetrics);
+return J.awtjs.JSFont.getAscent (fontMetrics);
 }, "~O");
 Clazz.overrideMethod (c$, "getFontDescent", 
 function (fontMetrics) {
-return J.awtjs.Font.getDescent (fontMetrics);
+return J.awtjs.JSFont.getDescent (fontMetrics);
 }, "~O");
 Clazz.overrideMethod (c$, "getFontMetrics", 
 function (font, graphics) {
-return J.awtjs.Font.getFontMetrics (graphics, font);
-}, "J.util.JmolFont,~O");
+return J.awtjs.JSFont.getFontMetrics (graphics, font);
+}, "javajs.awt.Font,~O");
 Clazz.overrideMethod (c$, "newFont", 
 function (fontFace, isBold, isItalic, fontSize) {
-return J.awtjs.Font.newFont (fontFace, isBold, isItalic, fontSize);
+return J.awtjs.JSFont.newFont (fontFace, isBold, isItalic, fontSize);
 }, "~S,~B,~B,~N");
 });

@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.g3d");
-Clazz.load (["java.util.Hashtable"], "J.g3d.LineRenderer", ["java.lang.Float", "J.util.BSUtil", "$.Logger", "$.Shader"], function () {
+Clazz.load (["java.util.Hashtable"], "J.g3d.LineRenderer", ["java.lang.Float", "JU.BS", "JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.g3d = null;
 this.shader = null;
@@ -29,13 +29,13 @@ function (g3d) {
 this.g3d = g3d;
 this.shader = g3d.shader;
 }, "J.g3d.Graphics3D");
-$_M(c$, "setLineBits", 
+Clazz.defineMethod (c$, "setLineBits", 
 function (dx, dy) {
 this.slope = (dx != 0 ? dy / dx : dy >= 0 ? 3.4028235E38 : -3.4028235E38);
 this.lineTypeX = (this.slope <= 1 && this.slope >= -1);
 this.nBits = (this.lineTypeX ? this.g3d.getRenderWidth () : this.g3d.getRenderHeight ());
 if (this.getCachedLine ()) return;
-this.lineBits = J.util.BSUtil.newBitSet (this.nBits);
+this.lineBits = JU.BS.newN (this.nBits);
 dy = Math.abs (dy);
 dx = Math.abs (dx);
 if (dy > dx) {
@@ -54,12 +54,12 @@ twoDError -= twoDx;
 this.lineCache.put (this.slopeKey, this.lineBits);
 this.nCached++;
 }, "~N,~N");
-$_M(c$, "clearLineCache", 
+Clazz.defineMethod (c$, "clearLineCache", 
 function () {
 this.lineCache.clear ();
 this.nCached = 0;
 });
-$_M(c$, "plotLine", 
+Clazz.defineMethod (c$, "plotLine", 
 function (argbA, tScreenedA, argbB, tScreenedB, xA, yA, zA, xB, yB, zB, clipped) {
 this.x1t = xA;
 this.x2t = xB;
@@ -76,7 +76,7 @@ return;
 }
 this.plotLineClipped (argbA, tScreenedA, argbB, tScreenedB, xA, yA, zA, xB - xA, yB - yA, zB - zA, clipped, 0, 0);
 }, "~N,~B,~N,~B,~N,~N,~N,~N,~N,~N,~B");
-$_M(c$, "plotLineDelta", 
+Clazz.defineMethod (c$, "plotLineDelta", 
 function (argbA, tScreenedA, argbB, tScreenedB, xA, yA, zA, dxBA, dyBA, dzBA, clipped) {
 this.x1t = xA;
 this.x2t = xA + dxBA;
@@ -93,7 +93,7 @@ break;
 }
 this.plotLineClipped (argbA, tScreenedA, argbB, tScreenedB, xA, yA, zA, dxBA, dyBA, dzBA, clipped, 0, 0);
 }, "~N,~B,~N,~B,~N,~N,~N,~N,~N,~N,~B");
-$_M(c$, "plotLineDeltaA", 
+Clazz.defineMethod (c$, "plotLineDeltaA", 
 function (shades1, tScreened1, shades2, tScreened2, shadeIndex, xA, yA, zA, dxBA, dyBA, dzBA, clipped) {
 this.x1t = xA;
 this.x2t = xA + dxBA;
@@ -109,7 +109,7 @@ clipped = false;
 }
 this.plotLineClippedA (shades1, tScreened1, shades2, tScreened2, shadeIndex, xA, yA, zA, dxBA, dyBA, dzBA, clipped, 0, 0);
 }, "~A,~B,~A,~B,~N,~N,~N,~N,~N,~N,~N,~B");
-$_M(c$, "plotLineDeltaBits", 
+Clazz.defineMethod (c$, "plotLineDeltaBits", 
 function (shades1, tScreened1, shades2, tScreened2, shadeIndex, xA, yA, zA, dxBA, dyBA, dzBA, clipped) {
 this.x1t = xA;
 this.x2t = xA + dxBA;
@@ -120,7 +120,7 @@ this.z2t = zA + dzBA;
 if (clipped && this.getTrimmedLine () == 2) return;
 this.plotLineClippedBits (shades1, tScreened1, shades2, tScreened2, shadeIndex, xA, yA, zA, dxBA, dyBA, dzBA, 0, 0);
 }, "~A,~B,~A,~B,~N,~N,~N,~N,~N,~N,~N,~B");
-$_M(c$, "plotDashedLine", 
+Clazz.defineMethod (c$, "plotDashedLine", 
 function (argb, tScreened, run, rise, xA, yA, zA, xB, yB, zB, clipped) {
 this.x1t = xA;
 this.x2t = xB;
@@ -137,18 +137,18 @@ break;
 }
 this.plotLineClipped (argb, tScreened, argb, tScreened, xA, yA, zA, xB - xA, yB - yA, zB - zA, clipped, run, rise);
 }, "~N,~B,~N,~N,~N,~N,~N,~N,~N,~N,~B");
-$_M(c$, "getCachedLine", 
-($fz = function () {
+Clazz.defineMethod (c$, "getCachedLine", 
+ function () {
 this.slopeKey = Float.$valueOf (this.slope);
 if (!this.lineCache.containsKey (this.slopeKey)) return false;
 this.lineBits = this.lineCache.get (this.slopeKey);
-if (J.util.Logger.debugging) {
+if (JU.Logger.debugging) {
 this.nFound++;
-if (this.nFound == 1000000) J.util.Logger.debug ("nCached/nFound lines: " + this.nCached + " " + this.nFound);
+if (this.nFound == 1000000) JU.Logger.debug ("nCached/nFound lines: " + this.nCached + " " + this.nFound);
 }return true;
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "getTrimmedLine", 
-($fz = function () {
+});
+Clazz.defineMethod (c$, "getTrimmedLine", 
+ function () {
 this.cc1 = this.g3d.clipCode3 (this.x1t, this.y1t, this.z1t);
 this.cc2 = this.g3d.clipCode3 (this.x2t, this.y2t, this.z2t);
 if ((this.cc1 | this.cc2) == 0) return 0;
@@ -163,61 +163,61 @@ var dy = this.y2t - this.y1t;
 var dz = this.z2t - this.z1t;
 if (this.cc1 != 0) {
 if ((this.cc1 & 8) != 0) {
-this.y1t += (-this.x1t * dy) / dx;
-this.z1t += (-this.x1t * dz) / dx;
+this.y1t += Clazz.floatToInt ((-this.x1t * dy) / dx);
+this.z1t += Clazz.floatToInt ((-this.x1t * dz) / dx);
 this.x1t = 0;
 } else if ((this.cc1 & 4) != 0) {
-this.y1t += ((xLast - this.x1t) * dy) / dx;
-this.z1t += ((xLast - this.x1t) * dz) / dx;
+this.y1t += Clazz.floatToInt (((xLast - this.x1t) * dy) / dx);
+this.z1t += Clazz.floatToInt (((xLast - this.x1t) * dz) / dx);
 this.x1t = xLast;
 } else if ((this.cc1 & 2) != 0) {
-this.x1t += (-this.y1t * dx) / dy;
-this.z1t += (-this.y1t * dz) / dy;
+this.x1t += Clazz.floatToInt ((-this.y1t * dx) / dy);
+this.z1t += Clazz.floatToInt ((-this.y1t * dz) / dy);
 this.y1t = 0;
 } else if ((this.cc1 & 1) != 0) {
-this.x1t += ((yLast - this.y1t) * dx) / dy;
-this.z1t += ((yLast - this.y1t) * dz) / dy;
+this.x1t += Clazz.floatToInt (((yLast - this.y1t) * dx) / dy);
+this.z1t += Clazz.floatToInt (((yLast - this.y1t) * dz) / dy);
 this.y1t = yLast;
 } else if ((this.cc1 & 32) != 0) {
-this.x1t += ((slab - this.z1t) * dx) / dz;
-this.y1t += ((slab - this.z1t) * dy) / dz;
+this.x1t += Clazz.floatToInt (((slab - this.z1t) * dx) / dz);
+this.y1t += Clazz.floatToInt (((slab - this.z1t) * dy) / dz);
 this.z1t = slab;
 } else {
-this.x1t += ((depth - this.z1t) * dx) / dz;
-this.y1t += ((depth - this.z1t) * dy) / dz;
+this.x1t += Clazz.floatToInt (((depth - this.z1t) * dx) / dz);
+this.y1t += Clazz.floatToInt (((depth - this.z1t) * dy) / dz);
 this.z1t = depth;
 }this.cc1 = this.g3d.clipCode3 (this.x1t, this.y1t, this.z1t);
 } else {
 if ((this.cc2 & 8) != 0) {
-this.y2t += (-this.x2t * dy) / dx;
-this.z2t += (-this.x2t * dz) / dx;
+this.y2t += Clazz.floatToInt ((-this.x2t * dy) / dx);
+this.z2t += Clazz.floatToInt ((-this.x2t * dz) / dx);
 this.x2t = 0;
 } else if ((this.cc2 & 4) != 0) {
-this.y2t += ((xLast - this.x2t) * dy) / dx;
-this.z2t += ((xLast - this.x2t) * dz) / dx;
+this.y2t += Clazz.floatToInt (((xLast - this.x2t) * dy) / dx);
+this.z2t += Clazz.floatToInt (((xLast - this.x2t) * dz) / dx);
 this.x2t = xLast;
 } else if ((this.cc2 & 2) != 0) {
-this.x2t += (-this.y2t * dx) / dy;
-this.z2t += (-this.y2t * dz) / dy;
+this.x2t += Clazz.floatToInt ((-this.y2t * dx) / dy);
+this.z2t += Clazz.floatToInt ((-this.y2t * dz) / dy);
 this.y2t = 0;
 } else if ((this.cc2 & 1) != 0) {
-this.x2t += ((yLast - this.y2t) * dx) / dy;
-this.z2t += ((yLast - this.y2t) * dz) / dy;
+this.x2t += Clazz.floatToInt (((yLast - this.y2t) * dx) / dy);
+this.z2t += Clazz.floatToInt (((yLast - this.y2t) * dz) / dy);
 this.y2t = yLast;
 } else if ((this.cc2 & 32) != 0) {
-this.x2t += ((slab - this.z2t) * dx) / dz;
-this.y2t += ((slab - this.z2t) * dy) / dz;
+this.x2t += Clazz.floatToInt (((slab - this.z2t) * dx) / dz);
+this.y2t += Clazz.floatToInt (((slab - this.z2t) * dy) / dz);
 this.z2t = slab;
 } else {
-this.x2t += ((depth - this.z2t) * dx) / dz;
-this.y2t += ((depth - this.z2t) * dy) / dz;
+this.x2t += Clazz.floatToInt (((depth - this.z2t) * dx) / dz);
+this.y2t += Clazz.floatToInt (((depth - this.z2t) * dy) / dz);
 this.z2t = depth;
 }this.cc2 = this.g3d.clipCode3 (this.x2t, this.y2t, this.z2t);
 }} while ((this.cc1 | this.cc2) != 0);
 return 1;
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "plotLineClipped", 
-($fz = function (argb1, tScreened1, argb2, tScreened2, x, y, z, dx, dy, dz, clipped, run, rise) {
+});
+Clazz.defineMethod (c$, "plotLineClipped", 
+ function (argb1, tScreened1, argb2, tScreened2, x, y, z, dx, dy, dz, clipped, run, rise) {
 var zbuf = this.g3d.zbuf;
 var width = this.g3d.getRenderWidth ();
 var runIndex = 0;
@@ -294,9 +294,9 @@ var zCurrent = zCurrentScaled >> 10;
 if (zCurrent < zbuf[offset]) this.g3d.addPixel (offset, zCurrent, argb);
 }runIndex = (runIndex + 1) % run;
 }
-}}, $fz.isPrivate = true, $fz), "~N,~B,~N,~B,~N,~N,~N,~N,~N,~N,~B,~N,~N");
-$_M(c$, "plotLineClippedA", 
-($fz = function (shades1, tScreened1, shades2, tScreened2, shadeIndex, x, y, z, dx, dy, dz, clipped, run, rise) {
+}}, "~N,~B,~N,~B,~N,~N,~N,~N,~N,~N,~B,~N,~N");
+Clazz.defineMethod (c$, "plotLineClippedA", 
+ function (shades1, tScreened1, shades2, tScreened2, shadeIndex, x, y, z, dx, dy, dz, clipped, run, rise) {
 var zbuf = this.g3d.zbuf;
 var width = this.g3d.getRenderWidth ();
 var runIndex = 0;
@@ -305,7 +305,7 @@ rise = 2147483647;
 run = 1;
 }var offset = y * width + x;
 var offsetMax = this.g3d.bufferSize;
-var shadeIndexUp = (shadeIndex < J.util.Shader.shadeIndexLast ? shadeIndex + 1 : shadeIndex);
+var shadeIndexUp = (shadeIndex < 63 ? shadeIndex + 1 : shadeIndex);
 var shadeIndexDn = (shadeIndex > 0 ? shadeIndex - 1 : shadeIndex);
 var argb1 = shades1[shadeIndex];
 var argb1Up = shades1[shadeIndexUp];
@@ -398,16 +398,16 @@ var rand8 = this.g3d.shader.nextRandom8Bit ();
 this.g3d.addPixel (offset, zCurrent, rand8 < 85 ? argbDn : (rand8 > 170 ? argbUp : argb));
 }}runIndex = (runIndex + 1) % run;
 }
-}}, $fz.isPrivate = true, $fz), "~A,~B,~A,~B,~N,~N,~N,~N,~N,~N,~N,~B,~N,~N");
-$_M(c$, "plotLineClippedBits", 
-($fz = function (shades1, tScreened1, shades2, tScreened2, shadeIndex, x, y, z, dx, dy, dz, run, rise) {
+}}, "~A,~B,~A,~B,~N,~N,~N,~N,~N,~N,~N,~B,~N,~N");
+Clazz.defineMethod (c$, "plotLineClippedBits", 
+ function (shades1, tScreened1, shades2, tScreened2, shadeIndex, x, y, z, dx, dy, dz, run, rise) {
 var zbuf = this.g3d.zbuf;
 var width = this.g3d.width;
 var runIndex = 0;
 if (run == 0) {
 rise = 2147483647;
 run = 1;
-}var shadeIndexUp = (shadeIndex < J.util.Shader.shadeIndexLast ? shadeIndex + 1 : shadeIndex);
+}var shadeIndexUp = (shadeIndex < 63 ? shadeIndex + 1 : shadeIndex);
 var shadeIndexDn = (shadeIndex > 0 ? shadeIndex - 1 : shadeIndex);
 var argb1 = shades1[shadeIndex];
 var argb1Up = shades1[shadeIndexUp];
@@ -474,7 +474,7 @@ while (iBits < 0) iBits += this.nBits;
 if (this.lineBits.get (iBits % this.nBits)) offset += yIncrement;
 zFloat += zIncrement;
 }
-}, $fz.isPrivate = true, $fz), "~A,~B,~A,~B,~N,~N,~N,~N,~N,~N,~N,~N,~N");
+}, "~A,~B,~A,~B,~N,~N,~N,~N,~N,~N,~N,~N,~N");
 Clazz.defineStatics (c$,
 "VISIBILITY_UNCLIPPED", 0,
 "VISIBILITY_CLIPPED", 1,

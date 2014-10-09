@@ -23,30 +23,30 @@ this.processCharges ();
 return true;
 }return true;
 });
-$_M(c$, "processHeader", 
+Clazz.defineMethod (c$, "processHeader", 
 function () {
 });
-$_M(c$, "processInfo", 
+Clazz.defineMethod (c$, "processInfo", 
 function () {
 });
-$_M(c$, "processAtoms", 
+Clazz.defineMethod (c$, "processAtoms", 
 function () {
-var atomCount = this.parseIntAt (this.line, 6);
-for (var i = 0; i < atomCount; ++i) {
-if (this.atomSetCollection.getAtomCount () != i) throw  new Exception ("GhemicalMMReader error #1");
-this.readLine ();
+var ac = this.parseIntAt (this.line, 6);
+for (var i = 0; i < ac; ++i) {
+if (this.asc.ac != i) throw  new Exception ("GhemicalMMReader error #1");
+this.rd ();
 var atomIndex = this.parseIntStr (this.line);
 if (atomIndex != i) throw  new Exception ("bad atom index in !Atomsexpected: " + i + " saw:" + atomIndex);
 var elementNumber = this.parseInt ();
-var atom = this.atomSetCollection.addNewAtom ();
+var atom = this.asc.addNewAtom ();
 atom.elementNumber = elementNumber;
 }
 });
-$_M(c$, "processBonds", 
+Clazz.defineMethod (c$, "processBonds", 
 function () {
 var bondCount = this.parseIntAt (this.line, 6);
 for (var i = 0; i < bondCount; ++i) {
-this.readLine ();
+this.rd ();
 var atomIndex1 = this.parseIntStr (this.line);
 var atomIndex2 = this.parseInt ();
 var orderCode = this.parseToken ();
@@ -65,26 +65,22 @@ case 'S':
 default:
 order = 1;
 }
-this.atomSetCollection.addNewBondWithOrder (atomIndex1, atomIndex2, order);
+this.asc.addNewBondWithOrder (atomIndex1, atomIndex2, order);
 }
 });
-$_M(c$, "processCoord", 
+Clazz.defineMethod (c$, "processCoord", 
 function () {
-var atoms = this.atomSetCollection.getAtoms ();
-var atomCount = this.atomSetCollection.getAtomCount ();
-for (var i = 0; i < atomCount; ++i) {
-this.readLine ();
-var atomIndex = this.parseIntStr (this.line);
-if (atomIndex != i) throw  new Exception ("bad atom index in !Coordexpected: " + i + " saw:" + atomIndex);
-this.setAtomCoordXYZ (atoms[i], this.parseFloat () * 10, this.parseFloat () * 10, this.parseFloat () * 10);
-}
+var atoms = this.asc.atoms;
+var ac = this.asc.ac;
+for (var i = 0; i < ac; ++i) this.setAtomCoordScaled (atoms[i], J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.rd ()), 1, 10);
+
 });
-$_M(c$, "processCharges", 
+Clazz.defineMethod (c$, "processCharges", 
 function () {
-var atoms = this.atomSetCollection.getAtoms ();
-var atomCount = this.atomSetCollection.getAtomCount ();
-for (var i = 0; i < atomCount; ++i) {
-this.readLine ();
+var atoms = this.asc.atoms;
+var ac = this.asc.ac;
+for (var i = 0; i < ac; ++i) {
+this.rd ();
 var atomIndex = this.parseIntStr (this.line);
 if (atomIndex != i) throw  new Exception ("bad atom index in !Chargesexpected: " + i + " saw:" + atomIndex);
 atoms[i].partialCharge = this.parseFloat ();

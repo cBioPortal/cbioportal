@@ -199,6 +199,7 @@
                             "sLengthMenu": "Show _MENU_ per page",
                             "sEmptyTable": "Could not find any drugs of interest."
                         },
+                        "sPaginationType": "two_button",
                         "iDisplayLength": 25,
                         "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
                     });
@@ -299,6 +300,8 @@
                     // Build the table
                     clinicalTrialsDataTable = $("#pv-trials-table").dataTable({
                         "sDom": '<"H"<"trials-summary-table-name">fr>t<"F"<"trials-show-more"><"datatable-paging"pl>>',
+                        "bPaginate": true,
+                        "sPaginationType": "two_button",
                         "bJQueryUI": true,
                         "bDestroy": true,
                         "aaSorting": [[2, 'asc'], [0, 'desc']],

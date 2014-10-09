@@ -14,52 +14,26 @@
              "norm_ref_reads","bam","cna","mrna","altrate","pancan_mutations", "cosmic","ma","drug"];
 
     mutTableIndices = cbio.util.arrayToAssociatedArrayIndices(mutTableIndices);
+    
+    _.templateSettings = {
+        interpolate : /\{\{(.+?)\}\}/g
+    };
 
     var drawPanCanThumbnails = function(oTable) {
-        var num_rows = oTable.fnSettings().fnRecordsTotal();
-        var pancan_column = mutTableIndices['pancan_mutations'];
-        var dummy = false;      // doesn't matter
-        // now that there's data, iterate throw the pancan column which checks whether there is pancan data or not
-        for (var i = 0; i < num_rows; i+=1) {
-            oTable.fnUpdate(dummy, i, pancan_column, false, false);
-        }
-
-        // batch bar chart and sparkline generation
-        (function($thumbnails) {
-            var createOneThumbNail = function(idx, thumbnail) {
-
-                // qtip on each pancan mutations histogram thumbnail
-                var $thumbnail = $(thumbnail);
-
-                // if already drawn, then quit
-                if($thumbnail.attr("data-pancan-done")) {
-                    return;
-                }
-
-                var gene = $thumbnail.attr('gene');
-                var keyword = $thumbnail.attr('keyword');
-
-                // i want to use this once and not use it again until qtip time,
-                // that's why this is duplicated
-                var byKeywordData = genomicEventObs.pancan_mutation_frequencies[keyword];
-                var byHugoData = genomicEventObs.pancan_mutation_frequencies[gene];
-
-                // -- sparkline --
-
-                var invisible_container = document.getElementById("pancan_mutations_histogram_container");
-                PancanMutationHistogram(byKeywordData, byHugoData, window.cancer_study_meta_data, invisible_container, {sparkline: true});
-                var content = invisible_container.innerHTML;
-                $thumbnail.html(content);
-                $(invisible_container).empty();     // N.B.
-
-                $thumbnail.children('svg').qtip({
+        genomicEventObs.subscribePancanMutationsFrequency(function() {
+            $(oTable).find('.pancan_mutations_histogram_wait').remove();
+            $(oTable).find('.pancan_mutations_histogram_count').each(function() {
+                if ($(this).hasClass("initialized")) return;
+                $(this).addClass("initialized");
+                var keyword = $(this).attr('keyword');
+                var gene = $(this).attr('gene');
+                $(this).html(genomicEventObs.pancan_mutation_frequencies.countByKey(keyword));
+                $(this).qtip({
                     content: {text: 'pancancer mutation bar chart is broken'},
                     events: {
                         render: function(event, api) {
-                            var gene = $thumbnail.attr('gene');
-                            var keyword = $thumbnail.attr('keyword');
-                            var byKeywordData = genomicEventObs.pancan_mutation_frequencies[keyword];
-                            var byHugoData = genomicEventObs.pancan_mutation_frequencies[gene];
+                            var byKeywordData = genomicEventObs.pancan_mutation_frequencies.data[keyword];
+                            var byHugoData = genomicEventObs.pancan_mutation_frequencies.data[gene];
                             var invisible_container = document.getElementById("pancan_mutations_histogram_container");
                             var histogram = PancanMutationHistogram(byKeywordData, byHugoData, window.cancer_study_meta_data, invisible_container, {this_cancer_study: window.cancerStudyName});
 
@@ -95,15 +69,8 @@
                     style: { classes: 'qtip-light qtip-rounded qtip-shadow', tip: true },
                     position: {my:'center right',at:'center left',viewport: $(window)}
                 });
-
-                $thumbnail.attr("data-pancan-done", true);
-            };
-
-            // Defer the function so that the table works much faster
-            $thumbnails.each(function(idx, thumbnail) {
-                _.defer(createOneThumbNail, idx, thumbnail);
             });
-        })($(oTable).find('.pancan_mutations_histogram_thumbnail'));
+        });
     };
 
     function buildMutationsDataTable(mutations,mutEventIds, table_id, sDom, iDisplayLength, sEmptyInfo, compact) {
@@ -645,43 +612,22 @@
                         "sClass": "center-align-td",
                         "bSearchable": false,
                         "mDataProp": function(source,type,value) {
-                            var countByKey = function() {
-                                var key = mutations.getValue(source[0], "key");
-                                var byHugoData = genomicEventObs.pancan_mutation_frequencies[key];
-
-                                var total_mutation_count = _.reduce(byHugoData, function(acc, next) {
-                                    return acc + next.count;
-                                }, 0);
-
-                                return total_mutation_count;
-                            };
-                            
                             if (type === 'display') {
-                                if (genomicEventObs.pancan_mutation_frequencies) {
+                                var keyword = mutations.getValue(source[0], "key");
+                                var hugo = mutations.getValue(source[0], "gene");
 
-                                    var keyword = mutations.getValue(source[0], "key");
-                                    var hugo = mutations.getValue(source[0], "gene");
-
-                                    // This is for the moustache-like templates
-                                    // prevents collisions with JSP tags
-                                    _.templateSettings = {
-                                        interpolate : /\{\{(.+?)\}\}/g
-                                    };
-                                    var thumbnail_template = _.template("<div class='pancan_mutations_histogram_thumbnail' gene='{{gene}}' keyword='{{keyword}}'></div>");
-
-                                    var ret = thumbnail_template({gene: hugo, keyword: keyword});
+                                var ret = "<div class='pancan_mutations_histogram_thumbnail' gene='"+hugo+"' keyword='"+keyword+"'></div>";
+                                    ret += "<img width='15' height='15' class='pancan_mutations_histogram_wait' src='images/ajax-loader.gif'/>";
+                                    ret += "<div class='pancan_mutations_histogram_count' style='float:right' gene='"+hugo+"' keyword='"+keyword+"'></div>";
                                     
-                                    var count = countByKey();
-                                    ret += "<div style='float:right'>"+count+"</div>";
-                                        
-                                    return ret;
-                                } else {
-                                    return "<img width='15' height='15' id='pancan_mutations_histogram' src='images/ajax-loader.gif'/>";
-                                }
+                                return ret;
                             }
                             else if (type === "sort") {
                                 if (genomicEventObs.pancan_mutation_frequencies) {
-                                    return countByKey();
+                                    var key = mutations.getValue(source[0], "key");
+                                    return genomicEventObs.pancan_mutation_frequencies.countByKey(key);
+                                } else {
+                                    return 0;
                                 }
                             }
                             else if (type === "type") {
@@ -840,6 +786,8 @@
                     listenToBamIgvClick(".igv-link");
                     drawPanCanThumbnails(this);
                 },
+                "bPaginate": true,
+                "sPaginationType": "two_button",
                 "aaSorting": [[mutTableIndices["cosmic"],'desc'],[mutTableIndices["altrate"],'desc']],
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
@@ -854,11 +802,9 @@
         oTable.css("width","100%");
         addNoteTooltip("#"+table_id+" th.mut-header");
 
-        genomicEventObs.subscribePancanMutationsFrequency(function() {
-            drawPanCanThumbnails(oTable);
-            // redraw based on the update
-            oTable.fnDraw();
-        });
+//        genomicEventObs.subscribePancanMutationsFrequency(function() {
+//            drawPanCanThumbnails(oTable);
+//        });
 
         return oTable;
     }
@@ -1114,8 +1060,8 @@
                 var jobs = splitJobs("byKeywords", genomicEventObs.mutations.data.key)
                                 .concat(splitJobs("byHugos", genomicEventObs.mutations.data.gene));
                 $.when.apply($, jobs).done(function() {
-                    genomicEventObs.pancan_mutation_frequencies
-                            = _.extend(munge(byKeywordResponse, "keyword"), munge(byHugoResponse, "hugo"));
+                    genomicEventObs.pancan_mutation_frequencies.setData(
+                            _.extend(munge(byKeywordResponse, "keyword"), munge(byHugoResponse, "hugo")));
                     genomicEventObs.fire("pancan-mutation-frequency-built");
                 });
 

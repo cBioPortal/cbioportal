@@ -1,15 +1,15 @@
 Clazz.declarePackage ("J.render");
-Clazz.load (["J.render.ShapeRenderer"], "J.render.FrankRenderer", ["J.util.C"], function () {
+Clazz.load (["J.render.ShapeRenderer"], "J.render.FrankRenderer", ["JU.C"], function () {
 c$ = Clazz.declareType (J.render, "FrankRenderer", J.render.ShapeRenderer);
 Clazz.overrideMethod (c$, "render", 
 function () {
 var frank = this.shape;
-var allowKeys = this.viewer.getBooleanProperty ("allowKeyStrokes");
-var modelKitMode = this.viewer.getBoolean (603979883);
-this.colix = (modelKitMode ? 20 : this.viewer.isSignedApplet () ? (allowKeys || this.viewer.isJS && !this.viewer.isWebGL ? 5 : 10) : allowKeys ? 7 : 12);
-if (this.isExport || !this.viewer.getShowFrank ()) return false;
-if (!this.g3d.setColix (J.util.C.getColixTranslucent3 (this.colix, this.g3d.haveTranslucentObjects (), 0.5))) return true;
-var imageFontScaling = this.viewer.getImageFontScaling ();
+var allowKeys = this.vwr.getBooleanProperty ("allowKeyStrokes");
+var modelKitMode = this.vwr.getBoolean (603979883);
+this.colix = (modelKitMode ? 20 : this.vwr.isSignedApplet () ? (allowKeys || this.vwr.isJS && !this.vwr.isWebGL ? 5 : 10) : allowKeys ? 7 : 12);
+if (this.isExport || !this.vwr.getShowFrank ()) return false;
+if (!this.g3d.setC (JU.C.getColixTranslucent3 (this.colix, this.g3d.haveTranslucentObjects (), 0.5))) return true;
+var imageFontScaling = this.vwr.getImageFontScaling ();
 frank.getFont (imageFontScaling);
 var dx = Clazz.floatToInt (frank.frankWidth + 4 * imageFontScaling);
 var dy = frank.frankDescent;

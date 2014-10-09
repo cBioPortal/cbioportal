@@ -1,46 +1,46 @@
-$_L(["java.util.Vector"],"java.util.Observable",["java.lang.NullPointerException"],function(){
-c$=$_C(function(){
+Clazz.load(["java.util.Vector"],"java.util.Observable",["java.lang.NullPointerException"],function(){
+c$=Clazz.decorateAsClass(function(){
 this.observers=null;
 this.changed=false;
-$_Z(this,arguments);
+Clazz.instantialize(this,arguments);
 },java.util,"Observable");
-$_Y(c$,function(){
+Clazz.prepareFields(c$,function(){
 this.observers=new java.util.Vector();
 });
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(){
 });
-$_M(c$,"addObserver",
+Clazz.defineMethod(c$,"addObserver",
 function(observer){
 if(observer==null){
 throw new NullPointerException();
 }if(!this.observers.contains(observer))this.observers.addElement(observer);
 },"java.util.Observer");
-$_M(c$,"clearChanged",
+Clazz.defineMethod(c$,"clearChanged",
 function(){
 this.changed=false;
 });
-$_M(c$,"countObservers",
+Clazz.defineMethod(c$,"countObservers",
 function(){
 return this.observers.size();
 });
-$_M(c$,"deleteObserver",
+Clazz.defineMethod(c$,"deleteObserver",
 function(observer){
 this.observers.removeElement(observer);
 },"java.util.Observer");
-$_M(c$,"deleteObservers",
+Clazz.defineMethod(c$,"deleteObservers",
 function(){
 this.observers.setSize(0);
 });
-$_M(c$,"hasChanged",
+Clazz.defineMethod(c$,"hasChanged",
 function(){
 return this.changed;
 });
-$_M(c$,"notifyObservers",
+Clazz.defineMethod(c$,"notifyObservers",
 function(){
 this.notifyObservers(null);
 });
-$_M(c$,"notifyObservers",
+Clazz.defineMethod(c$,"notifyObservers",
 function(data){
 if(this.changed){
 var clone=this.observers.clone();
@@ -50,7 +50,7 @@ clone.elementAt(i).update(this,data);
 }
 this.clearChanged();
 }},"~O");
-$_M(c$,"setChanged",
+Clazz.defineMethod(c$,"setChanged",
 function(){
 this.changed=true;
 });

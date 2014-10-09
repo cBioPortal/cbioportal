@@ -919,7 +919,8 @@ class GDataImpl implements Config {
 			}
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+                        System.err.println("Problem connecting to "+spreadsheetName+":"+worksheetName);
+                        throw new RuntimeException(e);
 		}
 
 		// outta here

@@ -1,20 +1,20 @@
-$_L(["java.util.Enumeration"],"java.util.StringTokenizer",["java.lang.NullPointerException","java.util.NoSuchElementException"],function(){
-c$=$_C(function(){
+Clazz.load(["java.util.Enumeration"],"java.util.StringTokenizer",["java.lang.NullPointerException","java.util.NoSuchElementException"],function(){
+c$=Clazz.decorateAsClass(function(){
 this.string=null;
 this.delimiters=null;
 this.returnDelimiters=false;
 this.position=0;
-$_Z(this,arguments);
+Clazz.instantialize(this,arguments);
 },java.util,"StringTokenizer",null,java.util.Enumeration);
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(string){
 this.construct(string," \t\n\r\f",false);
 },"~S");
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(string,delimiters){
 this.construct(string,delimiters,false);
 },"~S,~S");
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(string,delimiters,returnDelimiters){
 if(string!=null){
 this.string=string;
@@ -23,7 +23,7 @@ this.returnDelimiters=returnDelimiters;
 this.position=0;
 }else throw new NullPointerException();
 },"~S,~S,~B");
-$_M(c$,"countTokens",
+Clazz.defineMethod(c$,"countTokens",
 function(){
 var count=0;
 var inToken=false;
@@ -39,11 +39,11 @@ inToken=true;
 if(inToken)count++;
 return count;
 });
-$_V(c$,"hasMoreElements",
+Clazz.overrideMethod(c$,"hasMoreElements",
 function(){
 return this.hasMoreTokens();
 });
-$_M(c$,"hasMoreTokens",
+Clazz.defineMethod(c$,"hasMoreTokens",
 function(){
 var length=this.string.length;
 if(this.position<length){
@@ -52,11 +52,11 @@ for(var i=this.position;i<length;i++)if(this.delimiters.indexOf(this.string.char
 
 }return false;
 });
-$_V(c$,"nextElement",
+Clazz.overrideMethod(c$,"nextElement",
 function(){
 return this.nextToken();
 });
-$_M(c$,"nextToken",
+Clazz.defineMethod(c$,"nextToken",
 function(){
 var i=this.position;
 var length=this.string.length;
@@ -75,7 +75,7 @@ for(this.position++;this.position<length;this.position++)if(this.delimiters.inde
 return this.string.substring(i);
 }}throw new java.util.NoSuchElementException();
 });
-$_M(c$,"nextToken",
+Clazz.defineMethod(c$,"nextToken",
 function(delims){
 this.delimiters=delims;
 return this.nextToken();

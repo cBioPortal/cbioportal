@@ -13,6 +13,8 @@
 <script src="js/lib/intro.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/lib/crossfilter.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/lib/dataTables.fixedColumns.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/lib/dataTables.tableTools.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/lib/jquery.dataTables.fnSetFilteringDelay.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/lib/dc.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/lib/d3.layout.cloud.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script data-main="js/src/study-view/main.js?<%=GlobalProperties.getAppVersion()%>" src="js/require.js?<%=GlobalProperties.getAppVersion()%>"></script>

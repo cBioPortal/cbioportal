@@ -2,14 +2,15 @@
 
 
 var StudyViewMutationsTabController = (function() {
-    var initComponents = function (){
-        var _data = StudyViewProxy.getMutatedGenesData();
-        StudyViewInitMutationsTab.init(_data);
+    var init = function (){
+        StudyViewInitMutationsTab.init(
+            StudyViewProxy.getMutatedGenesData()
+        );
     };
     
     return {
         init: function() {
-            initComponents();
+            init();
         }
     };
 })();

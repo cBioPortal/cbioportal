@@ -153,8 +153,13 @@ class ConverterImpl implements Converter {
 
 				// get converter and create staging file
 				Object[] args = { config, fileUtils, caseIDs, idMapper };
-				Converter converter =
-					(Converter)ClassLoader.getInstance(datatypeMetadata.getConverterClassName(), args);
+				Converter converter;
+                                try {
+                                    converter = (Converter)ClassLoader.getInstance(datatypeMetadata.getConverterClassName(), args);
+                                } catch (ClassNotFoundException ex) {
+                                    ex.printStackTrace();
+                                    continue;
+                                }
 				converter.createStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrices);
 			}
 

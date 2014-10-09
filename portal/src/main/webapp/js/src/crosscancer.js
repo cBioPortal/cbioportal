@@ -30,7 +30,7 @@
 	// TODO 3d Visualizer should be initialized before document get ready
 	// ...due to incompatible Jmol initialization behavior
 	var _mut3dVis = null;
-	_mut3dVis = new Mutation3dVis("crossCancer3dView", {frame: "jsmol_frame.jsp"});
+	_mut3dVis = new Mutation3dVis("crossCancer3dView");
 	_mut3dVis.init();
 
 	// Prepare eveything only if the page is ready to load
@@ -979,6 +979,18 @@
 					                        "cancerStudy": "visible",
 					                        // exclude tumor type for now
 					                        "tumorType": "excluded"
+				                        },
+				                        dataTableOpts: {
+					                        "sDom": '<"H"<"mutation_datatables_filter"f>C<"mutation_datatables_info"i>>t<"F"<"datatable-paging"pl>>',
+					                        "deferRender": true,
+					                        "bPaginate": true,
+					                        "sPaginationType": "two_button",
+					                        "bLengthChange": true,
+					                        "iDisplayLength": 50,
+					                        "aLengthMenu": [[5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]],
+					                        "oLanguage": {
+						                        "sLengthMenu": "Show _MENU_ per page"
+					                        }
 				                        }
 			                        }
 		                        }
@@ -1099,6 +1111,11 @@
                         { "bSortable": false }
                     ]
                 });
+
+	            // TODO this is a workaround to remove the sort icons,
+	            // we should fix this thru the data tables API
+	            this.$el.find("span.DataTables_sort_icon").remove();
+	            this.$el.find("table.cc-tip-table th").removeClass("sorting_desc");
 
                 return this;
             }

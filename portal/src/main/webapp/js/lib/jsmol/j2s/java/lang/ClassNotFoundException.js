@@ -1,26 +1,26 @@
-$_L(["java.lang.Exception"],"java.lang.ClassNotFoundException",null,function(){
-c$=$_C(function(){
+Clazz.load(["java.lang.Exception"],"java.lang.ClassNotFoundException",null,function(){
+c$=Clazz.decorateAsClass(function(){
 this.ex=null;
-$_Z(this,arguments);
+Clazz.instantialize(this,arguments);
 },java.lang,"ClassNotFoundException",Exception);
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(){
-$_R(this,ClassNotFoundException,[Clazz.castNullAs("Throwable")]);
+Clazz.superConstructor(this,ClassNotFoundException,[Clazz.castNullAs("Throwable")]);
 });
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(detailMessage){
-$_R(this,ClassNotFoundException,[detailMessage,null]);
+Clazz.superConstructor(this,ClassNotFoundException,[detailMessage,null]);
 },"~S");
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(detailMessage,exception){
-$_R(this,ClassNotFoundException,[detailMessage]);
+Clazz.superConstructor(this,ClassNotFoundException,[detailMessage]);
 this.ex=exception;
 },"~S,Throwable");
-$_M(c$,"getException",
+Clazz.defineMethod(c$,"getException",
 function(){
 return this.ex;
 });
-$_V(c$,"getCause",
+Clazz.overrideMethod(c$,"getCause",
 function(){
 return this.ex;
 });

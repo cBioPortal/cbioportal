@@ -1,14 +1,14 @@
-$_L(["java.lang.RuntimeException"],"java.lang.TypeNotPresentException",null,function(){
-c$=$_C(function(){
+Clazz.load(["java.lang.RuntimeException"],"java.lang.TypeNotPresentException",null,function(){
+c$=Clazz.decorateAsClass(function(){
 this.$typeName=null;
-$_Z(this,arguments);
+Clazz.instantialize(this,arguments);
 },java.lang,"TypeNotPresentException",RuntimeException);
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(typeName,cause){
-$_R(this,TypeNotPresentException,["Type "+typeName+" not present",cause]);
+Clazz.superConstructor(this,TypeNotPresentException,["Type "+typeName+" not present",cause]);
 this.$typeName=typeName;
 },"~S,Throwable");
-$_M(c$,"typeName",
+Clazz.defineMethod(c$,"typeName",
 function(){
 return this.$typeName;
 });

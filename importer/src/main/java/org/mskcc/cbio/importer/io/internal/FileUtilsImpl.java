@@ -31,6 +31,7 @@ import org.mskcc.cbio.oncotator.OncotateTool;
 import org.mskcc.cbio.mutassessor.MutationAssessorTool;
 
 import org.apache.commons.io.*;
+import org.apache.commons.io.filefilter.*;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import org.apache.commons.logging.*;
@@ -155,6 +156,17 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
     public Collection<File> listFiles(File directory, String[] extensions, boolean recursive) throws Exception {
 
         return org.apache.commons.io.FileUtils.listFiles(directory, extensions, recursive);
+    }
+
+    @Override
+	public Collection<String> listFiles(File directory, String wildcard) throws Exception
+    {
+    	ArrayList toReturn = new ArrayList<String>();
+    	IOFileFilter filter = new WildcardFileFilter(wildcard);
+    	for (File file : org.apache.commons.io.FileUtils.listFiles(directory, filter, null)) {
+    		toReturn.add(file.getCanonicalPath());
+    	} 
+    	return toReturn;
     }
 
     @Override
@@ -472,7 +484,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			}
 			PrintWriter writer = new PrintWriter(org.apache.commons.io.FileUtils.openOutputStream(metaFile, false));
 			writer.print("type_of_cancer: " + cancerStudyMetadata.getTumorType() + "\n");
-			writer.print("cancer_study_identifier: " + cancerStudyMetadata + "\n");
+			writer.print("cancer_study_identifier: " + cancerStudyMetadata.getStableId() + "\n");
 			String name = (cancerStudyMetadata.getName().length() > 0) ?
 				cancerStudyMetadata.getName() : cancerStudyMetadata.getTumorTypeMetadata().getName();
 			name = name.replaceAll(CancerStudyMetadata.TUMOR_TYPE_NAME_TAG,
@@ -513,7 +525,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		}
 
 		PrintWriter writer = new PrintWriter(org.apache.commons.io.FileUtils.openOutputStream(metaFile, false));
-		writer.print("cancer_study_identifier: " + cancerStudyMetadata + "\n");
+		writer.print("cancer_study_identifier: " + cancerStudyMetadata.getStableId() + "\n");
 		writer.print("genetic_alteration_type: " + datatypeMetadata.getMetaGeneticAlterationType() + "\n");
 		String stableID = datatypeMetadata.getMetaStableID();
 		stableID = stableID.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
@@ -551,7 +563,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 				LOG.info("writeMetadataFile(), meta file: " + metaFile);
 			}
 			PrintWriter writer = new PrintWriter(org.apache.commons.io.FileUtils.openOutputStream(metaFile, false));
-			writer.print("cancer_study_identifier: " + cancerStudyMetadata + "\n");
+			writer.print("cancer_study_identifier: " + cancerStudyMetadata.getStableId() + "\n");
 			writer.print("genetic_alteration_type: " + datatypeMetadata.getMetaGeneticAlterationType() + "\n");
 			writer.print("datatype: " + datatypeMetadata.getMetaDatatypeType() + "\n");
 			String stableID = datatypeMetadata.getMetaStableID();
@@ -582,7 +594,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 				LOG.info("writeCopyNumberSegmentMetadataFile(), meta file: " + metaFile);
 			}
 			PrintWriter writer = new PrintWriter(org.apache.commons.io.FileUtils.openOutputStream(metaFile, false));
-			writer.print("cancer_study_identifier: " + cancerStudyMetadata + "\n");
+			writer.print("cancer_study_identifier: " + cancerStudyMetadata.getStableId() + "\n");
 			if (datatypeMetadata.getDatatype().contains(CopyNumberSegmentFile.ReferenceGenomeId.hg18.toString())){
 				writer.print("reference_genome_id: " + CopyNumberSegmentFile.ReferenceGenomeId.hg18.toString() + "\n");
 			}	
@@ -762,7 +774,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			LOG.info("writeCaseListFile(), case list file: " + caseListFile.getCanonicalPath());
 		}
 		PrintWriter writer = new PrintWriter(org.apache.commons.io.FileUtils.openOutputStream(caseListFile, false));
-		writer.print("cancer_study_identifier: " + cancerStudyMetadata + "\n");
+		writer.print("cancer_study_identifier: " + cancerStudyMetadata.getStableId() + "\n");
 		String stableID = caseListMetadata.getMetaStableID();
 		stableID = stableID.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
 		writer.print("stable_id: " + stableID + "\n");

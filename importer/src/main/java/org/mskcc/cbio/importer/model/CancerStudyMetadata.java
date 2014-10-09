@@ -54,8 +54,9 @@ public class CancerStudyMetadata {
 	private String description;
 	private String citation;
 	private String pmid;
-	private String center;
-	private String lab;
+	private String studyPath;
+	private String stableId;
+        private String center;
 	private String groups;
         private String shortName;
         private boolean convert;
@@ -75,43 +76,31 @@ public class CancerStudyMetadata {
 		if (properties.length < 5) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
-
-		String[] parts = properties[0].trim().split(CANCER_STUDY_DELIMITER);
+                
+                this.studyPath = properties[0].trim();
+                String[] parts = properties[0].trim().split(CANCER_STUDY_DELIMITER);
 		if (parts.length < 2) {
 			throw new IllegalArgumentException("cancerStudyPath is missing tumor type and or center");
-		}
-
-		// set tumor type & center
-		this.tumorType = parts[0];
-		this.center = parts[1];
-
-		// add remaining designations to lab
-		this.lab = "";
-		for (int lc = 2; lc <= parts.length-1; lc++) {
-			this.lab = this.lab + parts[lc] + File.separator;
-		}
-		// knock off trailing file separator
-		this.lab = (this.lab.length() > 0) ? this.lab.substring(0, this.lab.length()-1) : this.lab;
-		this.name = properties[1].trim();
-		this.description = properties[2].trim();
-		this.citation = properties[3].trim();
-		this.pmid = properties[4].trim();
-		this.groups = properties[5].trim();
-                this.shortName = properties[6].trim();
-                this.convert = Boolean.parseBoolean(properties[7].trim());
+                }
+                this.center = parts[1];
+		this.tumorType = properties[1].trim();
+                this.stableId = properties[2].trim();
+		this.name = properties[3].trim();
+		this.description = properties[4].trim();
+		this.citation = properties[5].trim();
+		this.pmid = properties[6].trim();
+		this.groups = properties[7].trim();
+                this.shortName = properties[8].trim();
+                this.convert = Boolean.parseBoolean(properties[9].trim());
 	}
 
 	public String getName() { return name; }
 	public String getTumorType() { return tumorType; }
+	public String getStableId() { return stableId; }
 	public TumorTypeMetadata getTumorTypeMetadata() { return tumorTypeMetadata; }
 	public void setTumorTypeMetadata(TumorTypeMetadata tumorTypeMetadata) { this.tumorTypeMetadata = tumorTypeMetadata; }
-
-	public String getCenter() { return center; }
-	public String getLab() { return lab; }
-	public String getStudyPath() {
-		String suffix = (lab.length() > 0) ? (File.separator + lab) : "";
-		return (tumorType + File.separator + center + suffix);
-	}
+	public String getStudyPath() { return studyPath; }
+        public String getCenter() { return center; }
 	public String getDescription() { return description; }
 	public String getCitation() { return citation; }
 	public String getPMID() { return pmid; }
@@ -125,9 +114,6 @@ public class CancerStudyMetadata {
 	}
 
 	public String toString() {
-		String centerLabDelimiter = (lab.length() > 0) ? CANCER_STUDY_IDENTIFIER_DELIMITER : "";
-		return (tumorType + CANCER_STUDY_IDENTIFIER_DELIMITER +
-				center + centerLabDelimiter +
-				lab.replaceAll(CANCER_STUDY_DELIMITER, CANCER_STUDY_IDENTIFIER_DELIMITER));
+		return stableId;
 	}
 }

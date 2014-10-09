@@ -11,7 +11,7 @@ var SurvivalCurveBroilerPlate = {
 	    censoredDots: "" 
 	},
 	settings : {
-	    canvas_width: 1000,
+	    canvas_width: 1005,
 	    canvas_height: 620,
 	    chart_width: 600,
 	    chart_height: 500,

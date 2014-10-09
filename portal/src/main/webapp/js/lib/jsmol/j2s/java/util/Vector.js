@@ -1,26 +1,26 @@
-$_L(["java.util.AbstractList","$.List","$.RandomAccess"],"java.util.Vector",["java.lang.ArrayIndexOutOfBoundsException","$.IllegalArgumentException","$.IndexOutOfBoundsException","$.StringBuffer","java.lang.reflect.Array","java.util.Arrays","$.Collections","$.Enumeration","$.NoSuchElementException"],function(){
-c$=$_C(function(){
+Clazz.load(["java.util.AbstractList","$.List","$.RandomAccess"],"java.util.Vector",["java.lang.ArrayIndexOutOfBoundsException","$.IllegalArgumentException","$.IndexOutOfBoundsException","$.StringBuffer","java.lang.reflect.Array","java.util.Arrays","$.Collections","$.Enumeration","$.NoSuchElementException"],function(){
+c$=Clazz.decorateAsClass(function(){
 this.elementCount=0;
 this.elementData=null;
 this.capacityIncrement=0;
-$_Z(this,arguments);
+Clazz.instantialize(this,arguments);
 },java.util,"Vector",java.util.AbstractList,[java.util.List,java.util.RandomAccess,Cloneable,java.io.Serializable]);
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(){
 this.construct(10,0);
 });
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(capacity){
 this.construct(capacity,0);
 },"~N");
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(capacity,capacityIncrement){
-$_R(this,java.util.Vector,[]);
+Clazz.superConstructor(this,java.util.Vector,[]);
 this.elementCount=0;
 try{
 this.elementData=this.newElementArray(capacity);
 }catch(e){
-if($_O(e,NegativeArraySizeException)){
+if(Clazz.instanceOf(e,NegativeArraySizeException)){
 throw new IllegalArgumentException();
 }else{
 throw e;
@@ -28,7 +28,7 @@ throw e;
 }
 this.capacityIncrement=capacityIncrement;
 },"~N,~N");
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(collection){
 this.construct(collection.size(),0);
 var it=collection.iterator();
@@ -36,20 +36,20 @@ while(it.hasNext()){
 this.elementData[this.elementCount++]=it.next();
 }
 },"java.util.Collection");
-$_M(c$,"newElementArray",
+Clazz.defineMethod(c$,"newElementArray",
 ($fz=function(size){
 return new Array(size);
 },$fz.isPrivate=true,$fz),"~N");
-$_M(c$,"add",
+Clazz.defineMethod(c$,"add",
 function(location,object){
 this.insertElementAt(object,location);
 },"~N,~O");
-$_M(c$,"add",
+Clazz.defineMethod(c$,"add",
 function(object){
 this.addElement(object);
 return true;
 },"~O");
-$_M(c$,"addAll",
+Clazz.defineMethod(c$,"addAll",
 function(location,collection){
 if(0<=location&&location<=this.elementCount){
 var size=collection.size();
@@ -70,68 +70,68 @@ this.modCount++;
 return true;
 }throw new ArrayIndexOutOfBoundsException(location);
 },"~N,java.util.Collection");
-$_M(c$,"addAll",
+Clazz.defineMethod(c$,"addAll",
 function(collection){
 return this.addAll(this.elementCount,collection);
 },"java.util.Collection");
-$_M(c$,"addElement",
+Clazz.defineMethod(c$,"addElement",
 function(object){
 if(this.elementCount==this.elementData.length){
 this.growByOne();
 }this.elementData[this.elementCount++]=object;
 this.modCount++;
 },"~O");
-$_M(c$,"capacity",
+Clazz.defineMethod(c$,"capacity",
 function(){
 return this.elementData.length;
 });
-$_V(c$,"clear",
+Clazz.overrideMethod(c$,"clear",
 function(){
 this.removeAllElements();
 });
-$_M(c$,"clone",
+Clazz.defineMethod(c$,"clone",
 function(){
 try{
-var vector=$_U(this,java.util.Vector,"clone",[]);
+var vector=Clazz.superCall(this,java.util.Vector,"clone",[]);
 vector.elementData=this.elementData.clone();
 return vector;
 }catch(e){
-if($_O(e,CloneNotSupportedException)){
+if(Clazz.instanceOf(e,CloneNotSupportedException)){
 return null;
 }else{
 throw e;
 }
 }
 });
-$_V(c$,"contains",
+Clazz.overrideMethod(c$,"contains",
 function(object){
 return this.indexOf(object,0)!=-1;
 },"~O");
-$_M(c$,"copyInto",
+Clazz.defineMethod(c$,"copyInto",
 function(elements){
 System.arraycopy(this.elementData,0,elements,0,this.elementCount);
 },"~A");
-$_M(c$,"elementAt",
+Clazz.defineMethod(c$,"elementAt",
 function(location){
 if(location<this.elementCount){
 return this.elementData[location];
 }throw new ArrayIndexOutOfBoundsException(location);
 },"~N");
-$_M(c$,"elements",
+Clazz.defineMethod(c$,"elements",
 function(){
-return(($_D("java.util.Vector$1")?0:java.util.Vector.$Vector$1$()),$_N(java.util.Vector$1,this,null));
+return((Clazz.isClassDefined("java.util.Vector$1")?0:java.util.Vector.$Vector$1$()),Clazz.innerTypeInstance(java.util.Vector$1,this,null));
 });
-$_M(c$,"ensureCapacity",
+Clazz.defineMethod(c$,"ensureCapacity",
 function(minimumCapacity){
 if(this.elementData.length<minimumCapacity){
 var next=(this.capacityIncrement<=0?this.elementData.length:this.capacityIncrement)+this.elementData.length;
 this.grow(minimumCapacity>next?minimumCapacity:next);
 }},"~N");
-$_V(c$,"equals",
+Clazz.overrideMethod(c$,"equals",
 function(object){
 if(this===object){
 return true;
-}if($_O(object,java.util.List)){
+}if(Clazz.instanceOf(object,java.util.List)){
 var list=object;
 if(list.size()!=this.size()){
 return false;
@@ -146,23 +146,23 @@ return false;
 return true;
 }return false;
 },"~O");
-$_M(c$,"firstElement",
+Clazz.defineMethod(c$,"firstElement",
 function(){
 if(this.elementCount>0){
 return this.elementData[0];
 }throw new java.util.NoSuchElementException();
 });
-$_V(c$,"get",
+Clazz.overrideMethod(c$,"get",
 function(location){
 return this.elementAt(location);
 },"~N");
-$_M(c$,"grow",
+Clazz.defineMethod(c$,"grow",
 ($fz=function(newCapacity){
 var newData=this.newElementArray(newCapacity);
 System.arraycopy(this.elementData,0,newData,0,this.elementCount);
 this.elementData=newData;
 },$fz.isPrivate=true,$fz),"~N");
-$_M(c$,"growByOne",
+Clazz.defineMethod(c$,"growByOne",
 ($fz=function(){
 var adding=0;
 if(this.capacityIncrement<=0){
@@ -174,7 +174,7 @@ adding=this.capacityIncrement;
 System.arraycopy(this.elementData,0,newData,0,this.elementCount);
 this.elementData=newData;
 },$fz.isPrivate=true,$fz));
-$_M(c$,"growBy",
+Clazz.defineMethod(c$,"growBy",
 ($fz=function(required){
 var adding=0;
 if(this.capacityIncrement<=0){
@@ -191,7 +191,7 @@ adding+=this.capacityIncrement;
 System.arraycopy(this.elementData,0,newData,0,this.elementCount);
 this.elementData=newData;
 },$fz.isPrivate=true,$fz),"~N");
-$_V(c$,"hashCode",
+Clazz.overrideMethod(c$,"hashCode",
 function(){
 var result=1;
 for(var i=0;i<this.elementCount;i++){
@@ -199,11 +199,11 @@ result=(31*result)+(this.elementData[i]==null?0:this.elementData[i].hashCode());
 }
 return result;
 });
-$_M(c$,"indexOf",
+Clazz.defineMethod(c$,"indexOf",
 function(object){
 return this.indexOf(object,0);
 },"~O");
-$_M(c$,"indexOf",
+Clazz.defineMethod(c$,"indexOf",
 function(object,location){
 if(object!=null){
 for(var i=location;i<this.elementCount;i++){
@@ -217,7 +217,7 @@ return i;
 }}
 }return-1;
 },"~O,~N");
-$_M(c$,"insertElementAt",
+Clazz.defineMethod(c$,"insertElementAt",
 function(object,location){
 if(0<=location&&location<=this.elementCount){
 if(this.elementCount==this.elementData.length){
@@ -231,27 +231,27 @@ this.modCount++;
 }else{
 throw new ArrayIndexOutOfBoundsException(location);
 }},"~O,~N");
-$_V(c$,"isEmpty",
+Clazz.overrideMethod(c$,"isEmpty",
 function(){
 return this.elementCount==0;
 });
-$_M(c$,"lastElement",
+Clazz.defineMethod(c$,"lastElement",
 function(){
 try{
 return this.elementData[this.elementCount-1];
 }catch(e){
-if($_O(e,IndexOutOfBoundsException)){
+if(Clazz.instanceOf(e,IndexOutOfBoundsException)){
 throw new java.util.NoSuchElementException();
 }else{
 throw e;
 }
 }
 });
-$_M(c$,"lastIndexOf",
+Clazz.defineMethod(c$,"lastIndexOf",
 function(object){
 return this.lastIndexOf(object,this.elementCount-1);
 },"~O");
-$_M(c$,"lastIndexOf",
+Clazz.defineMethod(c$,"lastIndexOf",
 function(object,location){
 if(location<this.elementCount){
 if(object!=null){
@@ -267,7 +267,7 @@ return i;
 }return-1;
 }throw new ArrayIndexOutOfBoundsException(location);
 },"~O,~N");
-$_M(c$,"remove",
+Clazz.defineMethod(c$,"remove",
 function(location){
 if(location<this.elementCount){
 var result=this.elementData[location];
@@ -280,17 +280,17 @@ this.modCount++;
 return result;
 }throw new ArrayIndexOutOfBoundsException(location);
 },"~N");
-$_M(c$,"remove",
+Clazz.defineMethod(c$,"remove",
 function(object){
 return this.removeElement(object);
 },"~O");
-$_M(c$,"removeAllElements",
+Clazz.defineMethod(c$,"removeAllElements",
 function(){
 java.util.Arrays.fill(this.elementData,0,this.elementCount,null);
 this.modCount++;
 this.elementCount=0;
 });
-$_M(c$,"removeElement",
+Clazz.defineMethod(c$,"removeElement",
 function(object){
 var index;
 if((index=this.indexOf(object,0))==-1){
@@ -298,7 +298,7 @@ return false;
 }this.removeElementAt(index);
 return true;
 },"~O");
-$_M(c$,"removeElementAt",
+Clazz.defineMethod(c$,"removeElementAt",
 function(location){
 if(0<=location&&location<this.elementCount){
 this.elementCount--;
@@ -310,7 +310,7 @@ this.modCount++;
 }else{
 throw new ArrayIndexOutOfBoundsException(location);
 }},"~N");
-$_V(c$,"removeRange",
+Clazz.overrideMethod(c$,"removeRange",
 function(start,end){
 if(start>=0&&start<=end&&end<=this.size()){
 if(start==end){
@@ -327,7 +327,7 @@ this.elementCount=start;
 }else{
 throw new IndexOutOfBoundsException();
 }},"~N,~N");
-$_V(c$,"set",
+Clazz.overrideMethod(c$,"set",
 function(location,object){
 if(location<this.elementCount){
 var result=this.elementData[location];
@@ -335,14 +335,14 @@ this.elementData[location]=object;
 return result;
 }throw new ArrayIndexOutOfBoundsException(location);
 },"~N,~O");
-$_M(c$,"setElementAt",
+Clazz.defineMethod(c$,"setElementAt",
 function(object,location){
 if(location<this.elementCount){
 this.elementData[location]=object;
 }else{
 throw new ArrayIndexOutOfBoundsException(location);
 }},"~O,~N");
-$_M(c$,"setSize",
+Clazz.defineMethod(c$,"setSize",
 function(length){
 if(length==this.elementCount){
 return;
@@ -352,21 +352,21 @@ java.util.Arrays.fill(this.elementData,length,this.elementCount,null);
 }this.elementCount=length;
 this.modCount++;
 },"~N");
-$_V(c$,"size",
+Clazz.overrideMethod(c$,"size",
 function(){
 return this.elementCount;
 });
-$_V(c$,"subList",
+Clazz.overrideMethod(c$,"subList",
 function(start,end){
-return new java.util.Collections.SynchronizedRandomAccessList($_U(this,java.util.Vector,"subList",[start,end]),this);
+return new java.util.Collections.SynchronizedRandomAccessList(Clazz.superCall(this,java.util.Vector,"subList",[start,end]),this);
 },"~N,~N");
-$_M(c$,"toArray",
+Clazz.defineMethod(c$,"toArray",
 function(){
 var result=new Array(this.elementCount);
 System.arraycopy(this.elementData,0,result,0,this.elementCount);
 return result;
 });
-$_M(c$,"toArray",
+Clazz.defineMethod(c$,"toArray",
 function(contents){
 if(this.elementCount>contents.length){
 var ct=contents.getClass().getComponentType();
@@ -376,7 +376,7 @@ if(this.elementCount<contents.length){
 contents[this.elementCount]=null;
 }return contents;
 },"~A");
-$_V(c$,"toString",
+Clazz.overrideMethod(c$,"toString",
 function(){
 if(this.elementCount==0){
 return"[]";
@@ -397,31 +397,31 @@ buffer.append(this.elementData[length]);
 }buffer.append(']');
 return buffer.toString();
 });
-$_M(c$,"trimToSize",
+Clazz.defineMethod(c$,"trimToSize",
 function(){
 if(this.elementData.length!=this.elementCount){
 this.grow(this.elementCount);
 }});
 c$.$Vector$1$=function(){
-$_H();
-c$=$_C(function(){
-$_B(this,arguments);
+Clazz.pu$h(self.c$);
+c$=Clazz.decorateAsClass(function(){
+Clazz.prepareCallback(this,arguments);
 this.pos=0;
-$_Z(this,arguments);
+Clazz.instantialize(this,arguments);
 },java.util,"Vector$1",null,java.util.Enumeration);
-$_V(c$,"hasMoreElements",
+Clazz.overrideMethod(c$,"hasMoreElements",
 function(){
 return this.pos<this.b$["java.util.Vector"].elementCount;
 });
-$_V(c$,"nextElement",
+Clazz.overrideMethod(c$,"nextElement",
 function(){
 {
 if(this.pos<this.b$["java.util.Vector"].elementCount){
 return this.b$["java.util.Vector"].elementData[this.pos++];
 }}throw new java.util.NoSuchElementException();
 });
-c$=$_P();
+c$=Clazz.p0p();
 };
-$_S(c$,
+Clazz.defineStatics(c$,
 "DEFAULT_SIZE",10);
 });

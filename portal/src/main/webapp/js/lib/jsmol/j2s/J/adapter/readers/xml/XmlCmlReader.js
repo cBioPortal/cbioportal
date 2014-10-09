@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.adapter.readers.xml");
-Clazz.load (["J.adapter.readers.xml.XmlReader"], "J.adapter.readers.xml.XmlCmlReader", ["java.lang.Float", "$.IndexOutOfBoundsException", "java.util.Properties", "$.StringTokenizer", "J.adapter.smarter.Atom", "$.AtomSetCollection", "$.Bond", "J.api.JmolAdapter", "J.util.Logger", "$.Parser"], function () {
+Clazz.load (["J.adapter.readers.xml.XmlReader"], "J.adapter.readers.xml.XmlCmlReader", ["java.lang.Float", "$.IndexOutOfBoundsException", "java.util.Properties", "$.StringTokenizer", "JU.PT", "J.adapter.smarter.Atom", "$.Bond", "J.api.JmolAdapter", "JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.scalarDictRef = null;
 this.scalarDictValue = null;
@@ -12,12 +12,11 @@ this.latticeVectorPtr = 0;
 this.embeddedCrystal = false;
 this.atomIdNames = null;
 this.tokens = null;
-this.atomCount = 0;
+this.ac = 0;
 this.atomArray = null;
 this.bondCount = 0;
 this.bondArray = null;
 this.tokenCount = 0;
-this.nModules = 0;
 this.moduleNestingLevel = 0;
 this.haveMolecule = false;
 this.localSpaceGroupName = null;
@@ -43,7 +42,7 @@ function (name) {
 if (!this.processing) return;
 this.processStart2 (name);
 }, "~S");
-$_M(c$, "processStart2", 
+Clazz.defineMethod (c$, "processStart2", 
 function (name) {
 switch (this.state) {
 case 0:
@@ -64,7 +63,6 @@ this.localSpaceGroupName = "P1";
 this.parent.clearUnitCell ();
 }} else if (name.equals ("module")) {
 this.moduleNestingLevel++;
-this.nModules++;
 } else if (name.equalsIgnoreCase ("latticeVector")) {
 this.state = 18;
 this.setKeepChars (true);
@@ -115,15 +113,15 @@ for (var i = this.tokenCount; --i >= 0; ) this.bondArray[i].order = this.parseBo
 
 }if (this.atts.containsKey ("atomRef1")) {
 this.breakOutBondTokens (this.atts.get ("atomRef1"));
-for (var i = this.tokenCount; --i >= 0; ) this.bondArray[i].atomIndex1 = this.atomSetCollection.getAtomIndexFromName (this.tokens[i]);
+for (var i = this.tokenCount; --i >= 0; ) this.bondArray[i].atomIndex1 = this.asc.getAtomIndex (this.tokens[i]);
 
 }if (this.atts.containsKey ("atomRef2")) {
 this.breakOutBondTokens (this.atts.get ("atomRef2"));
-for (var i = this.tokenCount; --i >= 0; ) this.bondArray[i].atomIndex2 = this.atomSetCollection.getAtomIndexFromName (this.tokens[i]);
+for (var i = this.tokenCount; --i >= 0; ) this.bondArray[i].atomIndex2 = this.asc.getAtomIndex (this.tokens[i]);
 
 }}if (name.equalsIgnoreCase ("atomArray")) {
 this.state = 7;
-this.atomCount = 0;
+this.ac = 0;
 var coords3D = false;
 if (this.atts.containsKey ("atomID")) {
 this.breakOutAtomTokens (this.atts.get ("atomID"));
@@ -154,7 +152,7 @@ for (var i = this.tokenCount; --i >= 0; ) this.atomArray[i].y = this.parseFloatS
 this.breakOutAtomTokens (this.atts.get ("elementType"));
 for (var i = this.tokenCount; --i >= 0; ) this.atomArray[i].elementSymbol = this.tokens[i];
 
-}for (var i = this.atomCount; --i >= 0; ) {
+}for (var i = this.ac; --i >= 0; ) {
 var atom = this.atomArray[i];
 if (!coords3D) atom.z = 0;
 this.addAtom (atom);
@@ -183,9 +181,9 @@ if (this.atts.containsKey ("name")) this.atom.atomName = this.atts.get ("name");
  else if (this.atts.containsKey ("label")) this.atom.atomName = this.atts.get ("label");
  else this.atom.atomName = id;
 if (!this.checkedSerial) {
-this.isSerial = (id != null && id.length > 1 && id.startsWith ("a") && J.util.Parser.parseInt (id.substring (1)) != -2147483648);
+this.isSerial = (id != null && id.length > 1 && id.startsWith ("a") && JU.PT.parseInt (id.substring (1)) != -2147483648);
 this.checkedSerial = true;
-}if (this.isSerial) this.atom.atomSerial = J.util.Parser.parseInt (id.substring (1));
+}if (this.isSerial) this.atom.atomSerial = JU.PT.parseInt (id.substring (1));
 if (this.atts.containsKey ("xFract") && (this.parent.iHaveUnitCell || !this.atts.containsKey ("x3"))) {
 this.parent.setFractionalCoordinates (true);
 this.atom.set (this.parseFloatStr (this.atts.get ("xFract")), this.parseFloatStr (this.atts.get ("yFract")), this.parseFloatStr (this.atts.get ("zFract")));
@@ -231,14 +229,14 @@ function (name) {
 if (!this.processing) return;
 this.processEnd2 (name);
 }, "~S");
-$_M(c$, "processEnd2", 
+Clazz.defineMethod (c$, "processEnd2", 
 function (name) {
 switch (this.state) {
 case 0:
 if (name.equals ("module")) {
 if (--this.moduleNestingLevel == 0) {
 if (this.parent.iHaveUnitCell) this.applySymmetryAndSetTrajectory ();
-this.atomIdNames = this.atomSetCollection.setAtomNames (this.atomIdNames);
+this.atomIdNames = this.asc.setAtomNames (this.atomIdNames);
 }}break;
 case 2:
 if (name.equals ("crystal")) {
@@ -259,13 +257,13 @@ break;
 for (var i = 0; i < 3; i++) this.parent.setUnitCellItem (i + 3, this.parseFloatStr (tokens[i]));
 
 break;
-}J.util.Logger.error ("bad cellParameter information: parameterType=" + this.cellParameterType + " data=" + this.chars);
+}JU.Logger.error ("bad cellParameter information: parameterType=" + this.cellParameterType + " data=" + this.chars);
 this.parent.setFractionalCoordinates (false);
 }break;
 case 3:
 if (name.equals ("scalar")) {
 this.state = 2;
-if (this.scalarTitle != null) this.checkUnitCellItem (J.adapter.smarter.AtomSetCollection.notionalUnitcellTags, this.scalarTitle);
+if (this.scalarTitle != null) this.checkUnitCellItem (J.adapter.readers.xml.XmlCmlReader.notionalUnitcellTags, this.scalarTitle);
  else if (this.scalarDictRef != null) this.checkUnitCellItem (J.api.JmolAdapter.cellParamNames, (this.scalarDictValue.startsWith ("_") ? this.scalarDictValue : "_" + this.scalarDictValue));
 }this.setKeepChars (false);
 this.scalarTitle = null;
@@ -292,7 +290,7 @@ case 6:
 if (name.equals ("molecule")) {
 if (--this.moleculeNesting == 0) {
 this.applySymmetryAndSetTrajectory ();
-this.atomIdNames = this.atomSetCollection.setAtomNames (this.atomIdNames);
+this.atomIdNames = this.asc.setAtomNames (this.atomIdNames);
 this.state = 0;
 } else {
 this.state = 6;
@@ -300,14 +298,14 @@ this.state = 6;
 case 10:
 if (name.equalsIgnoreCase ("bondArray")) {
 this.state = 6;
-for (var i = 0; i < this.bondCount; ++i) this.atomSetCollection.addBond (this.bondArray[i]);
+for (var i = 0; i < this.bondCount; ++i) this.asc.addBond (this.bondArray[i]);
 
 this.parent.applySymmetryToBonds = true;
 }break;
 case 7:
 if (name.equalsIgnoreCase ("atomArray")) {
 this.state = 6;
-for (var i = 0; i < this.atomCount; ++i) this.addAtom (this.atomArray[i]);
+for (var i = 0; i < this.ac; ++i) this.addAtom (this.atomArray[i]);
 
 }break;
 case 11:
@@ -355,35 +353,35 @@ this.state = 6;
 break;
 }
 }, "~S");
-$_M(c$, "addNewBond", 
-($fz = function (a1, a2, order) {
+Clazz.defineMethod (c$, "addNewBond", 
+ function (a1, a2, order) {
 this.parent.applySymmetryToBonds = true;
-if (this.isSerial) this.atomSetCollection.addNewBondWithMappedSerialNumbers (J.util.Parser.parseInt (a1.substring (1)), J.util.Parser.parseInt (a2.substring (1)), order);
- else this.atomSetCollection.addNewBondFromNames (a1, a2, order);
-}, $fz.isPrivate = true, $fz), "~S,~S,~N");
-$_M(c$, "getDictRefValue", 
-($fz = function () {
+if (this.isSerial) this.asc.addNewBondFromNames (a1.substring (1), a2.substring (1), order);
+ else this.asc.addNewBondFromNames (a1, a2, order);
+}, "~S,~S,~N");
+Clazz.defineMethod (c$, "getDictRefValue", 
+ function () {
 this.scalarDictRef = this.atts.get ("dictRef");
 if (this.scalarDictRef != null) {
 var iColon = this.scalarDictRef.indexOf (":");
 this.scalarDictValue = this.scalarDictRef.substring (iColon + 1);
-}}, $fz.isPrivate = true, $fz));
-$_M(c$, "checkUnitCellItem", 
-($fz = function (tags, value) {
+}});
+Clazz.defineMethod (c$, "checkUnitCellItem", 
+ function (tags, value) {
 for (var i = tags.length; --i >= 0; ) if (value.equals (tags[i])) {
 this.parent.setUnitCellItem (i, this.parseFloatStr (this.chars));
 return;
 }
-}, $fz.isPrivate = true, $fz), "~A,~S");
-$_M(c$, "addAtom", 
-($fz = function (atom) {
+}, "~A,~S");
+Clazz.defineMethod (c$, "addAtom", 
+ function (atom) {
 if ((atom.elementSymbol == null && atom.elementNumber < 0) || Float.isNaN (atom.z)) return;
 this.parent.setAtomCoord (atom);
-if (this.isSerial) this.atomSetCollection.addAtomWithMappedSerialNumber (atom);
- else this.atomSetCollection.addAtomWithMappedName (atom);
-}, $fz.isPrivate = true, $fz), "J.adapter.smarter.Atom");
-$_M(c$, "parseBondToken", 
-($fz = function (str) {
+if (this.isSerial) this.asc.addAtomWithMappedSerialNumber (atom);
+ else this.asc.addAtomWithMappedName (atom);
+}, "J.adapter.smarter.Atom");
+Clazz.defineMethod (c$, "parseBondToken", 
+ function (str) {
 var floatOrder = this.parseFloatStr (str);
 if (Float.isNaN (floatOrder) && str.length >= 1) {
 str = str.toUpperCase ();
@@ -404,9 +402,9 @@ return this.parseIntStr (str);
 if (floatOrder == 2) return 2;
 if (floatOrder == 3) return 3;
 return 1;
-}, $fz.isPrivate = true, $fz), "~S");
-$_M(c$, "breakOutTokens", 
-($fz = function (str) {
+}, "~S");
+Clazz.defineMethod (c$, "breakOutTokens", 
+ function (str) {
 var st =  new java.util.StringTokenizer (str);
 this.tokenCount = st.countTokens ();
 if (this.tokenCount > this.tokens.length) this.tokens =  new Array (this.tokenCount);
@@ -421,28 +419,28 @@ throw nsee;
 }
 }
 }
-}, $fz.isPrivate = true, $fz), "~S");
-$_M(c$, "breakOutAtomTokens", 
+}, "~S");
+Clazz.defineMethod (c$, "breakOutAtomTokens", 
 function (str) {
 this.breakOutTokens (str);
 this.checkAtomArrayLength (this.tokenCount);
 }, "~S");
-$_M(c$, "checkAtomArrayLength", 
+Clazz.defineMethod (c$, "checkAtomArrayLength", 
 function (newAtomCount) {
-if (this.atomCount == 0) {
+if (this.ac == 0) {
 if (newAtomCount > this.atomArray.length) this.atomArray =  new Array (newAtomCount);
 for (var i = newAtomCount; --i >= 0; ) this.atomArray[i] =  new J.adapter.smarter.Atom ();
 
-this.atomCount = newAtomCount;
-} else if (newAtomCount != this.atomCount) {
+this.ac = newAtomCount;
+} else if (newAtomCount != this.ac) {
 throw  new IndexOutOfBoundsException ("bad atom attribute length");
 }}, "~N");
-$_M(c$, "breakOutBondTokens", 
+Clazz.defineMethod (c$, "breakOutBondTokens", 
 function (str) {
 this.breakOutTokens (str);
 this.checkBondArrayLength (this.tokenCount);
 }, "~S");
-$_M(c$, "checkBondArrayLength", 
+Clazz.defineMethod (c$, "checkBondArrayLength", 
 function (newBondCount) {
 if (this.bondCount == 0) {
 if (newBondCount > this.bondArray.length) this.bondArray =  new Array (newBondCount);
@@ -452,16 +450,16 @@ this.bondCount = newBondCount;
 } else if (newBondCount != this.bondCount) {
 throw  new IndexOutOfBoundsException ("bad bond attribute length");
 }}, "~N");
-$_M(c$, "createNewAtomSet", 
-($fz = function () {
-this.atomSetCollection.newAtomSet ();
+Clazz.defineMethod (c$, "createNewAtomSet", 
+ function () {
+this.asc.newAtomSet ();
 var collectionName = null;
 if (this.atts.containsKey ("title")) collectionName = this.atts.get ("title");
  else if (this.atts.containsKey ("id")) collectionName = this.atts.get ("id");
 if (collectionName != null) {
-this.atomSetCollection.setAtomSetName (collectionName);
-}}, $fz.isPrivate = true, $fz));
-$_M(c$, "applySymmetryAndSetTrajectory", 
+this.asc.setAtomSetName (collectionName);
+}});
+Clazz.defineMethod (c$, "applySymmetryAndSetTrajectory", 
 function () {
 if (this.moduleNestingLevel > 0 || !this.haveMolecule || this.localSpaceGroupName == null) return;
 this.parent.setSpaceGroupName (this.localSpaceGroupName);
@@ -486,5 +484,6 @@ Clazz.defineStatics (c$,
 "MOLECULE_BOND_BUILTIN", 14,
 "MODULE", 15,
 "SYMMETRY", 17,
-"LATTICE_VECTOR", 18);
+"LATTICE_VECTOR", 18,
+"notionalUnitcellTags", ["a", "b", "c", "alpha", "beta", "gamma"]);
 });

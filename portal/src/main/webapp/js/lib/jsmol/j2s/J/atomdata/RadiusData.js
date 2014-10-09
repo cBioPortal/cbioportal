@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.atomdata");
-Clazz.load (["java.lang.Enum", "J.constant.EnumVdw"], "J.atomdata.RadiusData", ["java.lang.Float", "J.util.SB"], function () {
+Clazz.load (["java.lang.Enum", "J.c.VDW"], "J.atomdata.RadiusData", ["java.lang.Float", "JU.SB"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.info = null;
 this.factorType = null;
@@ -11,7 +11,7 @@ Clazz.instantialize (this, arguments);
 }, J.atomdata, "RadiusData");
 Clazz.prepareFields (c$, function () {
 this.factorType = J.atomdata.RadiusData.EnumType.ABSOLUTE;
-this.vdwType = J.constant.EnumVdw.AUTO;
+this.vdwType = J.c.VDW.AUTO;
 });
 Clazz.makeConstructor (c$, 
 function (values, value, factorType, vdwType) {
@@ -23,11 +23,11 @@ return;
 this.factorType = factorType;
 this.value = value;
 if (vdwType != null) this.vdwType = vdwType;
-}, "~A,~N,J.atomdata.RadiusData.EnumType,J.constant.EnumVdw");
+}, "~A,~N,J.atomdata.RadiusData.EnumType,J.c.VDW");
 Clazz.overrideMethod (c$, "toString", 
 function () {
 if (Float.isNaN (this.value)) return "";
-var sb =  new J.util.SB ();
+var sb =  new JU.SB ();
 switch (this.factorType) {
 case J.atomdata.RadiusData.EnumType.ABSOLUTE:
 sb.appendF (this.value);
@@ -37,14 +37,14 @@ sb.append (this.value > 0 ? "+" : "").appendF (this.value);
 break;
 case J.atomdata.RadiusData.EnumType.FACTOR:
 sb.appendI (Clazz.floatToInt (this.value * 100)).append ("%");
-if (this.vdwType !== J.constant.EnumVdw.AUTO) sb.append (this.vdwType.getVdwLabel ());
+if (this.vdwType !== J.c.VDW.AUTO) sb.append (this.vdwType.getVdwLabel ());
 break;
 case J.atomdata.RadiusData.EnumType.SCREEN:
 sb.appendI (Clazz.floatToInt (this.value));
 }
 return sb.toString ();
 });
-Clazz.pu$h ();
+Clazz.pu$h(self.c$);
 c$ = Clazz.declareType (J.atomdata.RadiusData, "EnumType", Enum);
 Clazz.defineEnumConstant (c$, "ABSOLUTE", 0, []);
 Clazz.defineEnumConstant (c$, "OFFSET", 1, []);

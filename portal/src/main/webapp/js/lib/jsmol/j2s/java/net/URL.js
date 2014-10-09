@@ -94,8 +94,8 @@ throw e$$;
 }
 }
 }, "java.net.URL,~S,java.net.URLStreamHandler");
-$_M(c$, "isValidProtocol", 
-($fz = function (protocol) {
+Clazz.defineMethod (c$, "isValidProtocol", 
+ function (protocol) {
 var len = protocol.length;
 if (len < 1) return false;
 var c = protocol.charAt (0);
@@ -106,11 +106,11 @@ if (!Character.isLetterOrDigit (c) && c != '.' && c != '+' && c != '-') {
 return false;
 }}
 return true;
-}, $fz.isPrivate = true, $fz), "~S");
-$_M(c$, "checkSpecifyHandler", 
-($fz = function (sm) {
-}, $fz.isPrivate = true, $fz), "SecurityManager");
-$_M(c$, "set5", 
+}, "~S");
+Clazz.defineMethod (c$, "checkSpecifyHandler", 
+ function (sm) {
+}, "SecurityManager");
+Clazz.defineMethod (c$, "set5", 
 function (protocol, host, port, file, ref) {
 {
 this.protocol = protocol;
@@ -126,7 +126,7 @@ this.query = file.substring (q + 1);
 this.path = file.substring (0, q);
 } else this.path = file;
 }}, "~S,~S,~N,~S,~S");
-$_M(c$, "set", 
+Clazz.defineMethod (c$, "set", 
 function (protocol, host, port, authority, userInfo, path, query, ref) {
 {
 this.protocol = protocol;
@@ -140,43 +140,43 @@ this.$hashCode = -1;
 this.query = query;
 this.authority = authority;
 }}, "~S,~S,~N,~S,~S,~S,~S,~S");
-$_M(c$, "getQuery", 
+Clazz.defineMethod (c$, "getQuery", 
 function () {
 return this.query;
 });
-$_M(c$, "getPath", 
+Clazz.defineMethod (c$, "getPath", 
 function () {
 return this.path;
 });
-$_M(c$, "getUserInfo", 
+Clazz.defineMethod (c$, "getUserInfo", 
 function () {
 return this.userInfo;
 });
-$_M(c$, "getAuthority", 
+Clazz.defineMethod (c$, "getAuthority", 
 function () {
 return this.authority;
 });
-$_M(c$, "getPort", 
+Clazz.defineMethod (c$, "getPort", 
 function () {
 return this.port;
 });
-$_M(c$, "getDefaultPort", 
+Clazz.defineMethod (c$, "getDefaultPort", 
 function () {
 return this.handler.getDefaultPort ();
 });
-$_M(c$, "getProtocol", 
+Clazz.defineMethod (c$, "getProtocol", 
 function () {
 return this.protocol;
 });
-$_M(c$, "getHost", 
+Clazz.defineMethod (c$, "getHost", 
 function () {
 return this.host;
 });
-$_M(c$, "getFile", 
+Clazz.defineMethod (c$, "getFile", 
 function () {
 return this.file;
 });
-$_M(c$, "getRef", 
+Clazz.defineMethod (c$, "getRef", 
 function () {
 return this.ref;
 });
@@ -192,7 +192,7 @@ if (this.$hashCode != -1) return this.$hashCode;
 this.$hashCode = this.handler.hashCode (this);
 return this.$hashCode;
 });
-$_M(c$, "sameFile", 
+Clazz.defineMethod (c$, "sameFile", 
 function (other) {
 return this.handler.sameFile (this, other);
 }, "java.net.URL");
@@ -200,23 +200,23 @@ Clazz.overrideMethod (c$, "toString",
 function () {
 return this.toExternalForm ();
 });
-$_M(c$, "toExternalForm", 
+Clazz.defineMethod (c$, "toExternalForm", 
 function () {
 return this.handler.toExternalForm (this);
 });
-$_M(c$, "openConnection", 
+Clazz.defineMethod (c$, "openConnection", 
 function () {
 return this.handler.openConnection (this);
 });
-$_M(c$, "openStream", 
+Clazz.defineMethod (c$, "openStream", 
 function () {
 return this.openConnection ().getInputStream ();
 });
-$_M(c$, "getContent", 
+Clazz.defineMethod (c$, "getContent", 
 function () {
 return this.openConnection ().getInputStream ();
 });
-c$.setURLStreamHandlerFactory = $_M(c$, "setURLStreamHandlerFactory", 
+c$.setURLStreamHandlerFactory = Clazz.defineMethod (c$, "setURLStreamHandlerFactory", 
 function (fac) {
 {
 if (java.net.URL.factory != null) {
@@ -225,9 +225,9 @@ throw  new Error ("factory already defined");
 if (security != null) {
 security.checkSetFactory ();
 }java.net.URL.handlers.clear ();
-($t$ = java.net.URL.factory = fac, java.net.URL.prototype.factory = java.net.URL.factory, $t$);
+java.net.URL.factory = fac;
 }}, "java.net.URLStreamHandlerFactory");
-c$.getURLStreamHandler = $_M(c$, "getURLStreamHandler", 
+c$.getURLStreamHandler = Clazz.defineMethod (c$, "getURLStreamHandler", 
 function (protocol) {
 var handler = java.net.URL.handlers.get (protocol);
 if (handler == null) {
@@ -238,5 +238,5 @@ handler = java.net.URL.factory.createURLStreamHandler (protocol);
 Clazz.defineStatics (c$,
 "factory", null);
 c$.handlers = c$.prototype.handlers =  new java.util.Hashtable ();
-c$.streamHandlerLock = c$.prototype.streamHandlerLock =  new JavaObject ();
+c$.streamHandlerLock = c$.prototype.streamHandlerLock =  new Clazz._O ();
 });

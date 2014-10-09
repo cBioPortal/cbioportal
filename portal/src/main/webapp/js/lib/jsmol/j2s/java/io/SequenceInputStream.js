@@ -35,7 +35,7 @@ throw ex;
 }
 }
 }, "java.io.InputStream,java.io.InputStream");
-$_M(c$, "nextStream", 
+Clazz.defineMethod (c$, "nextStream", 
 function () {
 if (this.$in != null) {
 this.$in.close ();
@@ -44,13 +44,13 @@ this.$in = this.e.nextElement ();
 if (this.$in == null) throw  new NullPointerException ();
 } else this.$in = null;
 });
-$_M(c$, "available", 
+Clazz.defineMethod (c$, "available", 
 function () {
 if (this.$in == null) {
 return 0;
 }return this.$in.available ();
 });
-$_M(c$, "readByteAsInt", 
+Clazz.defineMethod (c$, "readByteAsInt", 
 function () {
 if (this.$in == null) {
 return -1;
@@ -60,7 +60,7 @@ this.nextStream ();
 return this.readByteAsInt ();
 }return c;
 });
-$_M(c$, "read", 
+Clazz.defineMethod (c$, "read", 
 function (b, off, len) {
 if (this.$in == null) {
 return -1;
@@ -76,7 +76,7 @@ this.nextStream ();
 return this.read (b, off, len);
 }return n;
 }, "~A,~N,~N");
-$_M(c$, "close", 
+Clazz.defineMethod (c$, "close", 
 function () {
 do {
 this.nextStream ();

@@ -1,43 +1,40 @@
 Clazz.declarePackage ("J.awtjs");
 c$ = Clazz.declareType (J.awtjs, "Image");
-c$.grabPixels = $_M(c$, "grabPixels", 
+c$.grabPixels = Clazz.defineMethod (c$, "grabPixels", 
 function (imageobj, width, height) {
 return null;
 }, "~O,~N,~N");
-c$.drawImageToBuffer = $_M(c$, "drawImageToBuffer", 
+c$.drawImageToBuffer = Clazz.defineMethod (c$, "drawImageToBuffer", 
 function (gOffscreen, imageOffscreen, imageobj, width, height, bgcolor) {
 return null;
 }, "~O,~O,~O,~N,~N,~N");
-c$.getTextPixels = $_M(c$, "getTextPixels", 
+c$.getTextPixels = Clazz.defineMethod (c$, "getTextPixels", 
 function (text, font3d, gObj, image, width, height, ascent) {
 return null;
-}, "~S,J.util.JmolFont,~O,~O,~N,~N,~N");
-c$.newBufferedImage = $_M(c$, "newBufferedImage", 
+}, "~S,javajs.awt.Font,~O,~O,~N,~N,~N");
+c$.newBufferedImage = Clazz.defineMethod (c$, "newBufferedImage", 
 function (image, w, h) {
 return null;
 }, "~O,~N,~N");
-c$.newBufferedImage = $_M(c$, "newBufferedImage", 
+c$.newBufferedImage = Clazz.defineMethod (c$, "newBufferedImage", 
 function (w, h) {
 return null;
 }, "~N,~N");
-c$.allocateRgbImage = $_M(c$, "allocateRgbImage", 
+c$.allocateRgbImage = Clazz.defineMethod (c$, "allocateRgbImage", 
 function (windowWidth, windowHeight, pBuffer, windowSize, backgroundTransparent) {
 return null;
 }, "~N,~N,~A,~N,~B");
-c$.getStaticGraphics = $_M(c$, "getStaticGraphics", 
+c$.getStaticGraphics = Clazz.defineMethod (c$, "getStaticGraphics", 
 function (image, backgroundTransparent) {
 return null;
 }, "~O,~B");
-c$.getGraphics = $_M(c$, "getGraphics", 
+c$.getGraphics = Clazz.defineMethod (c$, "getGraphics", 
 function (image) {
 return null;
 }, "~O");
-c$.drawImage = $_M(c$, "drawImage", 
-function (g, img, x, y, width, height) {
-}, "~O,~O,~N,~N,~N,~N");
-c$.flush = $_M(c$, "flush", 
+c$.flush = Clazz.defineMethod (c$, "flush", 
 function (image) {
 }, "~O");
-c$.disposeGraphics = $_M(c$, "disposeGraphics", 
+c$.disposeGraphics = Clazz.defineMethod (c$, "disposeGraphics", 
 function (graphicForText) {
 }, "~O");

@@ -610,16 +610,15 @@ public final class DaoMutation {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
             String sql;
             if (caseIds==null) {
-                sql = "SELECT `CASE_ID`, count(DISTINCT `MUTATION_EVENT_ID`) FROM mutation"
-                        + " WHERE `GENETIC_PROFILE_ID`=" + profileId
-                        + " GROUP BY `CASE_ID`";
+                sql = "SELECT `CASE_ID`, `MUTATION_COUNT` FROM mutation_count"
+                        + " WHERE `GENETIC_PROFILE_ID`=" + profileId;
                 
             } else {
-                sql = "SELECT `CASE_ID`, count(DISTINCT `MUTATION_EVENT_ID`) FROM mutation"
+                sql = "SELECT `CASE_ID`, `MUTATION_COUNT` FROM mutation_count"
                         + " WHERE `GENETIC_PROFILE_ID`=" + profileId
                         + " AND `CASE_ID` IN ('"
                         + StringUtils.join(caseIds,"','")
-                        + "') GROUP BY `CASE_ID`";
+                        + "')";
             }
             pstmt = con.prepareStatement(sql);
             

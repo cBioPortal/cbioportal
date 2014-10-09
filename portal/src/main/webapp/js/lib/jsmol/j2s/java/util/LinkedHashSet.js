@@ -1,25 +1,25 @@
-$_L(["java.util.HashSet","$.Set"],"java.util.LinkedHashSet",["java.util.LinkedHashMap"],function(){
-c$=$_T(java.util,"LinkedHashSet",java.util.HashSet,[java.util.Set,Cloneable,java.io.Serializable]);
-$_K(c$,
+Clazz.load(["java.util.HashSet","$.Set"],"java.util.LinkedHashSet",["java.util.LinkedHashMap"],function(){
+c$=Clazz.declareType(java.util,"LinkedHashSet",java.util.HashSet,[java.util.Set,Cloneable,java.io.Serializable]);
+Clazz.makeConstructor(c$,
 function(){
-$_R(this,java.util.LinkedHashSet,[new java.util.LinkedHashMap()]);
+Clazz.superConstructor(this,java.util.LinkedHashSet,[new java.util.LinkedHashMap()]);
 });
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(capacity){
-$_R(this,java.util.LinkedHashSet,[new java.util.LinkedHashMap(capacity)]);
+Clazz.superConstructor(this,java.util.LinkedHashSet,[new java.util.LinkedHashMap(capacity)]);
 },"~N");
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(capacity,loadFactor){
-$_R(this,java.util.LinkedHashSet,[new java.util.LinkedHashMap(capacity,loadFactor)]);
+Clazz.superConstructor(this,java.util.LinkedHashSet,[new java.util.LinkedHashMap(capacity,loadFactor)]);
 },"~N,~N");
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(collection){
-$_R(this,java.util.LinkedHashSet,[new java.util.LinkedHashMap(collection.size()<6?11:collection.size()*2)]);
+Clazz.superConstructor(this,java.util.LinkedHashSet,[new java.util.LinkedHashMap(collection.size()<6?11:collection.size()*2)]);
 for(var e,$e=collection.iterator();$e.hasNext()&&((e=$e.next())||true);){
 this.add(e);
 }
 },"java.util.Collection");
-$_V(c$,"createBackingMap",
+Clazz.overrideMethod(c$,"createBackingMap",
 function(capacity,loadFactor){
 return new java.util.LinkedHashMap(capacity,loadFactor);
 },"~N,~N");

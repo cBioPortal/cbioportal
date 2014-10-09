@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.adapter.readers.molxyz");
-Clazz.load (["J.adapter.smarter.AtomSetCollectionReader"], "J.adapter.readers.molxyz.XyzReader", ["java.lang.Float", "J.util.Logger"], function () {
+Clazz.load (["J.adapter.smarter.AtomSetCollectionReader"], "J.adapter.readers.molxyz.XyzReader", ["java.lang.Float", "JU.Logger"], function () {
 c$ = Clazz.declareType (J.adapter.readers.molxyz, "XyzReader", J.adapter.smarter.AtomSetCollectionReader);
 Clazz.overrideMethod (c$, "checkLine", 
 function () {
@@ -9,13 +9,13 @@ this.continuing = false;
 return false;
 }this.vibrationNumber = ++this.modelNumber;
 if (this.desiredVibrationNumber <= 0 ? this.doGetModel (this.modelNumber, null) : this.doGetVibration (this.vibrationNumber)) {
-this.readLine ();
+this.rd ();
 this.checkCurrentLineForScript ();
-this.atomSetCollection.newAtomSet ();
+this.asc.newAtomSet ();
 var name = this.line;
 this.readAtoms (modelAtomCount);
 this.applySymmetryAndSetTrajectory ();
-this.atomSetCollection.setAtomSetName (name);
+this.asc.setAtomSetName (name);
 if (this.isLastModel (this.modelNumber)) {
 this.continuing = false;
 return false;
@@ -29,30 +29,23 @@ function () {
 this.isTrajectory = false;
 this.finalizeReaderASCR ();
 });
-$_M(c$, "skipAtomSet", 
-($fz = function (modelAtomCount) {
-this.readLine ();
-for (var i = modelAtomCount; --i >= 0; ) this.readLine ();
+Clazz.defineMethod (c$, "skipAtomSet", 
+ function (modelAtomCount) {
+this.rd ();
+for (var i = modelAtomCount; --i >= 0; ) this.rd ();
 
-}, $fz.isPrivate = true, $fz), "~N");
-$_M(c$, "readAtoms", 
-($fz = function (modelAtomCount) {
+}, "~N");
+Clazz.defineMethod (c$, "readAtoms", 
+ function (modelAtomCount) {
 for (var i = 0; i < modelAtomCount; ++i) {
-this.readLine ();
+this.rd ();
 var tokens = this.getTokens ();
 if (tokens.length < 4) {
-J.util.Logger.warn ("line cannot be read for XYZ atom data: " + this.line);
+JU.Logger.warn ("line cannot be read for XYZ atom data: " + this.line);
 continue;
-}var atom = this.atomSetCollection.addNewAtom ();
+}var atom = this.addAtomXYZSymName (tokens, 1, null, null);
 this.setElementAndIsotope (atom, tokens[0]);
-atom.x = this.parseFloatStr (tokens[1]);
-atom.y = this.parseFloatStr (tokens[2]);
-atom.z = this.parseFloatStr (tokens[3]);
-if (Float.isNaN (atom.x) || Float.isNaN (atom.y) || Float.isNaN (atom.z)) {
-J.util.Logger.warn ("line cannot be read for XYZ atom data: " + this.line);
-atom.set (0, 0, 0);
-}var vpt = 4;
-this.setAtomCoord (atom);
+var vpt = 4;
 switch (tokens.length) {
 case 4:
 continue;
@@ -80,8 +73,8 @@ var vx = this.parseFloatStr (tokens[vpt++]);
 var vy = this.parseFloatStr (tokens[vpt++]);
 var vz = this.parseFloatStr (tokens[vpt++]);
 if (Float.isNaN (vx) || Float.isNaN (vy) || Float.isNaN (vz)) continue;
-this.atomSetCollection.addVibrationVector (atom.index, vx, vy, vz);
+this.asc.addVibrationVector (atom.index, vx, vy, vz);
 }
 }
-}, $fz.isPrivate = true, $fz), "~N");
+}, "~N");
 });

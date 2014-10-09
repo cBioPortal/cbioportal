@@ -1,61 +1,61 @@
-$_L(["java.io.Writer"],"java.io.CharArrayWriter",["java.lang.IllegalArgumentException","$.IndexOutOfBoundsException","$.NullPointerException","$.StringIndexOutOfBoundsException"],function(){
-c$=$_C(function(){
+Clazz.load(["java.io.Writer"],"java.io.CharArrayWriter",["java.lang.IllegalArgumentException","$.IndexOutOfBoundsException","$.NullPointerException","$.StringIndexOutOfBoundsException"],function(){
+c$=Clazz.decorateAsClass(function(){
 this.buf=null;
 this.count=0;
-$_Z(this,arguments);
+Clazz.instantialize(this,arguments);
 },java.io,"CharArrayWriter",java.io.Writer);
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(){
-$_R(this,java.io.CharArrayWriter);
-this.buf=$_A(32,'\0');
+Clazz.superConstructor(this,java.io.CharArrayWriter);
+this.buf=Clazz.newArray(32,'\0');
 this.lock=this.buf;
 });
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(initialSize){
-$_R(this,java.io.CharArrayWriter);
+Clazz.superConstructor(this,java.io.CharArrayWriter);
 if(initialSize>=0){
-this.buf=$_A(initialSize,'\0');
+this.buf=Clazz.newArray(initialSize,'\0');
 this.lock=this.buf;
 }else{
 throw new IllegalArgumentException(("K005e"));
 }},"~N");
-$_V(c$,"close",
+Clazz.overrideMethod(c$,"close",
 function(){
 });
-$_M(c$,"expand",
+Clazz.defineMethod(c$,"expand",
 ($fz=function(i){
 if(this.count+i<=this.buf.length){
 return;
-}var newbuf=$_A(this.buf.length+(2*i),'\0');
+}var newbuf=Clazz.newArray(this.buf.length+(2*i),'\0');
 System.arraycopy(this.buf,0,newbuf,0,this.count);
 this.buf=newbuf;
 },$fz.isPrivate=true,$fz),"~N");
-$_V(c$,"flush",
+Clazz.overrideMethod(c$,"flush",
 function(){
 });
-$_M(c$,"reset",
+Clazz.defineMethod(c$,"reset",
 function(){
 {
 this.count=0;
 }});
-$_M(c$,"size",
+Clazz.defineMethod(c$,"size",
 function(){
 {
 return this.count;
 }});
-$_M(c$,"toCharArray",
+Clazz.defineMethod(c$,"toCharArray",
 function(){
 {
-var result=$_A(this.count,'\0');
+var result=Clazz.newArray(this.count,'\0');
 System.arraycopy(this.buf,0,result,0,this.count);
 return result;
 }});
-$_V(c$,"toString",
+Clazz.overrideMethod(c$,"toString",
 function(){
 {
 return String.instantialize(this.buf,0,this.count);
 }});
-$_M(c$,"write",
+Clazz.defineMethod(c$,"write",
 function(c,offset,len){
 if(0<=offset&&offset<=c.length&&0<=len&&len<=c.length-offset){
 {
@@ -65,13 +65,13 @@ this.count+=len;
 }}else{
 throw new IndexOutOfBoundsException();
 }},"~A,~N,~N");
-$_M(c$,"write",
+Clazz.defineMethod(c$,"write",
 function(oneChar){
 {
 this.expand(1);
 this.buf[this.count++]=String.fromCharCode(oneChar);
 }},"~N");
-$_M(c$,"write",
+Clazz.defineMethod(c$,"write",
 function(str,offset,len){
 if(str==null){
 throw new NullPointerException(("K0047"));
@@ -83,17 +83,17 @@ this.count+=len;
 }}else{
 throw new StringIndexOutOfBoundsException();
 }},"~S,~N,~N");
-$_M(c$,"writeTo",
+Clazz.defineMethod(c$,"writeTo",
 function(out){
 {
 out.write(this.buf,0,this.count);
 }},"java.io.Writer");
-$_M(c$,"append",
+Clazz.defineMethod(c$,"append",
 function(c){
 this.write(c.charCodeAt(0));
 return this;
 },"~N");
-$_M(c$,"append",
+Clazz.defineMethod(c$,"append",
 function(csq){
 if(null==csq){
 this.append("null",0,"null".length);
@@ -101,7 +101,7 @@ this.append("null",0,"null".length);
 this.append(csq,0,csq.length());
 }return this;
 },"CharSequence");
-$_M(c$,"append",
+Clazz.defineMethod(c$,"append",
 function(csq,start,end){
 if(null==csq){
 csq="null";

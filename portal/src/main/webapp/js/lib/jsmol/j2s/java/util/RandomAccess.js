@@ -1,1 +1,1 @@
-$_I(java.util,"RandomAccess");
+Clazz.declareInterface(java.util,"RandomAccess");

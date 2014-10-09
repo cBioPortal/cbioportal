@@ -1,49 +1,49 @@
-$_L(["java.util.HashMap"],"java.util.LinkedHashMap",["java.lang.IllegalStateException","java.util.AbstractCollection","$.AbstractSet","java.util.MapEntry.Type","java.util.NoSuchElementException"],function(){
-c$=$_C(function(){
+Clazz.load(["java.util.HashMap"],"java.util.LinkedHashMap",["java.lang.IllegalStateException","java.util.AbstractCollection","$.AbstractSet","java.util.MapEntry.Type","java.util.NoSuchElementException"],function(){
+c$=Clazz.decorateAsClass(function(){
 this.accessOrder=false;
 this.head=null;
 this.tail=null;
-$_Z(this,arguments);
+Clazz.instantialize(this,arguments);
 },java.util,"LinkedHashMap",java.util.HashMap);
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(){
-$_R(this,java.util.LinkedHashMap);
+Clazz.superConstructor(this,java.util.LinkedHashMap);
 this.accessOrder=false;
 this.head=null;
 });
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(s){
-$_R(this,java.util.LinkedHashMap,[s]);
+Clazz.superConstructor(this,java.util.LinkedHashMap,[s]);
 this.accessOrder=false;
 this.head=null;
 },"~N");
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(s,lf){
-$_R(this,java.util.LinkedHashMap,[s,lf]);
+Clazz.superConstructor(this,java.util.LinkedHashMap,[s,lf]);
 this.accessOrder=false;
 this.head=null;
 this.tail=null;
 },"~N,~N");
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(s,lf,order){
-$_R(this,java.util.LinkedHashMap,[s,lf]);
+Clazz.superConstructor(this,java.util.LinkedHashMap,[s,lf]);
 this.accessOrder=order;
 this.head=null;
 this.tail=null;
 },"~N,~N,~B");
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(m){
-$_R(this,java.util.LinkedHashMap,[]);
+Clazz.superConstructor(this,java.util.LinkedHashMap,[]);
 this.accessOrder=false;
 this.head=null;
 this.tail=null;
 this.putAll(m);
 },"java.util.Map");
-$_V(c$,"newElementArray",
+Clazz.overrideMethod(c$,"newElementArray",
 function(s){
 return new Array(s);
 },"~N");
-$_V(c$,"get",
+Clazz.overrideMethod(c$,"get",
 function(key){
 var m=this.getEntry(key);
 if(m==null){
@@ -62,7 +62,7 @@ this.tail.chainForward=m;
 this.tail=m;
 }return m.value;
 },"~O");
-$_V(c$,"createEntry",
+Clazz.overrideMethod(c$,"createEntry",
 function(key,index,value){
 var m=new java.util.LinkedHashMap.LinkedHashMapEntry(key,value);
 m.next=this.elementData[index];
@@ -70,7 +70,7 @@ this.elementData[index]=m;
 this.linkEntry(m);
 return m;
 },"~O,~N,~O");
-$_V(c$,"put",
+Clazz.overrideMethod(c$,"put",
 function(key,value){
 var index=this.getModuloHash(key);
 var m=this.findEntry(key,index);
@@ -88,7 +88,7 @@ if(this.removeEldestEntry(this.head)){
 this.remove(this.head.key);
 }return result;
 },"~O,~O");
-$_M(c$,"linkEntry",
+Clazz.defineMethod(c$,"linkEntry",
 function(m){
 if(this.tail===m){
 return;
@@ -122,23 +122,23 @@ m.chainBackward=this.tail;
 this.tail.chainForward=m;
 this.tail=m;
 }},"java.util.LinkedHashMap.LinkedHashMapEntry");
-$_V(c$,"entrySet",
+Clazz.overrideMethod(c$,"entrySet",
 function(){
 return new java.util.LinkedHashMap.LinkedHashMapEntrySet(this);
 });
-$_V(c$,"keySet",
+Clazz.overrideMethod(c$,"keySet",
 function(){
 if(this.$keySet==null){
-this.$keySet=(($_D("java.util.LinkedHashMap$1")?0:java.util.LinkedHashMap.$LinkedHashMap$1$()),$_N(java.util.LinkedHashMap$1,this,null));
+this.$keySet=((Clazz.isClassDefined("java.util.LinkedHashMap$1")?0:java.util.LinkedHashMap.$LinkedHashMap$1$()),Clazz.innerTypeInstance(java.util.LinkedHashMap$1,this,null));
 }return this.$keySet;
 });
-$_V(c$,"values",
+Clazz.overrideMethod(c$,"values",
 function(){
 if(this.valuesCollection==null){
-this.valuesCollection=(($_D("java.util.LinkedHashMap$2")?0:java.util.LinkedHashMap.$LinkedHashMap$2$()),$_N(java.util.LinkedHashMap$2,this,null));
+this.valuesCollection=((Clazz.isClassDefined("java.util.LinkedHashMap$2")?0:java.util.LinkedHashMap.$LinkedHashMap$2$()),Clazz.innerTypeInstance(java.util.LinkedHashMap$2,this,null));
 }return this.valuesCollection;
 });
-$_V(c$,"remove",
+Clazz.overrideMethod(c$,"remove",
 function(key){
 var m=this.removeEntry(key);
 if(m==null){
@@ -155,18 +155,18 @@ n.chainBackward=p;
 this.tail=p;
 }return m.value;
 },"~O");
-$_M(c$,"removeEldestEntry",
+Clazz.defineMethod(c$,"removeEldestEntry",
 function(eldest){
 return false;
 },"java.util.Map.Entry");
-$_M(c$,"clear",
+Clazz.defineMethod(c$,"clear",
 function(){
-$_U(this,java.util.LinkedHashMap,"clear",[]);
+Clazz.superCall(this,java.util.LinkedHashMap,"clear",[]);
 this.head=this.tail=null;
 });
-$_M(c$,"clone",
+Clazz.defineMethod(c$,"clone",
 function(){
-var map=$_U(this,java.util.LinkedHashMap,"clone",[]);
+var map=Clazz.superCall(this,java.util.LinkedHashMap,"clone",[]);
 map.clear();
 for(var entry,$entry=this.entrySet().iterator();$entry.hasNext()&&((entry=$entry.next())||true);){
 map.put(entry.getKey(),entry.getValue());
@@ -174,84 +174,84 @@ map.put(entry.getKey(),entry.getValue());
 return map;
 });
 c$.$LinkedHashMap$1$=function(){
-$_H();
-c$=$_W(java.util,"LinkedHashMap$1",java.util.AbstractSet);
-$_V(c$,"contains",
+Clazz.pu$h(self.c$);
+c$=Clazz.declareAnonymous(java.util,"LinkedHashMap$1",java.util.AbstractSet);
+Clazz.overrideMethod(c$,"contains",
 function(object){
 return this.b$["java.util.LinkedHashMap"].containsKey(object);
 },"~O");
-$_V(c$,"size",
+Clazz.overrideMethod(c$,"size",
 function(){
 return this.b$["java.util.LinkedHashMap"].size();
 });
-$_V(c$,"clear",
+Clazz.overrideMethod(c$,"clear",
 function(){
 this.b$["java.util.LinkedHashMap"].clear();
 });
-$_V(c$,"remove",
+Clazz.overrideMethod(c$,"remove",
 function(key){
 if(this.b$["java.util.LinkedHashMap"].containsKey(key)){
 this.b$["java.util.LinkedHashMap"].remove(key);
 return true;
 }return false;
 },"~O");
-$_V(c$,"iterator",
+Clazz.overrideMethod(c$,"iterator",
 function(){
-return new java.util.LinkedHashMap.LinkedHashIterator((($_D("java.util.LinkedHashMap$1$1")?0:java.util.LinkedHashMap.$LinkedHashMap$1$1$()),$_N(java.util.LinkedHashMap$1$1,this,null)),this.b$["java.util.LinkedHashMap"]);
+return new java.util.LinkedHashMap.LinkedHashIterator(((Clazz.isClassDefined("java.util.LinkedHashMap$1$1")?0:java.util.LinkedHashMap.$LinkedHashMap$1$1$()),Clazz.innerTypeInstance(java.util.LinkedHashMap$1$1,this,null)),this.b$["java.util.LinkedHashMap"]);
 });
-c$=$_P();
+c$=Clazz.p0p();
 };
 c$.$LinkedHashMap$1$1$=function(){
-$_H();
-c$=$_W(java.util,"LinkedHashMap$1$1",null,java.util.MapEntry.Type);
-$_V(c$,"get",
+Clazz.pu$h(self.c$);
+c$=Clazz.declareAnonymous(java.util,"LinkedHashMap$1$1",null,java.util.MapEntry.Type);
+Clazz.overrideMethod(c$,"get",
 function(entry){
 return entry.key;
 },"java.util.MapEntry");
-c$=$_P();
+c$=Clazz.p0p();
 };
 c$.$LinkedHashMap$2$=function(){
-$_H();
-c$=$_W(java.util,"LinkedHashMap$2",java.util.AbstractCollection);
-$_V(c$,"contains",
+Clazz.pu$h(self.c$);
+c$=Clazz.declareAnonymous(java.util,"LinkedHashMap$2",java.util.AbstractCollection);
+Clazz.overrideMethod(c$,"contains",
 function(object){
 return this.b$["java.util.LinkedHashMap"].containsValue(object);
 },"~O");
-$_V(c$,"size",
+Clazz.overrideMethod(c$,"size",
 function(){
 return this.b$["java.util.LinkedHashMap"].size();
 });
-$_V(c$,"clear",
+Clazz.overrideMethod(c$,"clear",
 function(){
 this.b$["java.util.LinkedHashMap"].clear();
 });
-$_V(c$,"iterator",
+Clazz.overrideMethod(c$,"iterator",
 function(){
-return new java.util.LinkedHashMap.LinkedHashIterator((($_D("java.util.LinkedHashMap$2$1")?0:java.util.LinkedHashMap.$LinkedHashMap$2$1$()),$_N(java.util.LinkedHashMap$2$1,this,null)),this.b$["java.util.LinkedHashMap"]);
+return new java.util.LinkedHashMap.LinkedHashIterator(((Clazz.isClassDefined("java.util.LinkedHashMap$2$1")?0:java.util.LinkedHashMap.$LinkedHashMap$2$1$()),Clazz.innerTypeInstance(java.util.LinkedHashMap$2$1,this,null)),this.b$["java.util.LinkedHashMap"]);
 });
-c$=$_P();
+c$=Clazz.p0p();
 };
 c$.$LinkedHashMap$2$1$=function(){
-$_H();
-c$=$_W(java.util,"LinkedHashMap$2$1",null,java.util.MapEntry.Type);
-$_V(c$,"get",
+Clazz.pu$h(self.c$);
+c$=Clazz.declareAnonymous(java.util,"LinkedHashMap$2$1",null,java.util.MapEntry.Type);
+Clazz.overrideMethod(c$,"get",
 function(entry){
 return entry.value;
 },"java.util.MapEntry");
-c$=$_P();
+c$=Clazz.p0p();
 };
-$_H();
-c$=$_T(java.util.LinkedHashMap,"LinkedHashIterator",java.util.HashMap.HashMapIterator);
-$_K(c$,
+Clazz.pu$h(self.c$);
+c$=Clazz.declareType(java.util.LinkedHashMap,"LinkedHashIterator",java.util.HashMap.HashMapIterator);
+Clazz.makeConstructor(c$,
 function(a,b){
-$_R(this,java.util.LinkedHashMap.LinkedHashIterator,[a,b]);
+Clazz.superConstructor(this,java.util.LinkedHashMap.LinkedHashIterator,[a,b]);
 this.entry=b.head;
 },"java.util.MapEntry.Type,java.util.LinkedHashMap");
-$_V(c$,"hasNext",
+Clazz.overrideMethod(c$,"hasNext",
 function(){
 return(this.entry!=null);
 });
-$_V(c$,"next",
+Clazz.overrideMethod(c$,"next",
 function(){
 this.checkConcurrentMod();
 if(!this.hasNext()){
@@ -262,7 +262,7 @@ this.entry=(this.entry).chainForward;
 this.canRemove=true;
 return a;
 });
-$_V(c$,"remove",
+Clazz.overrideMethod(c$,"remove",
 function(){
 this.checkConcurrentMod();
 if(!this.canRemove){
@@ -299,38 +299,38 @@ f.tail=null;
 }}this.associatedMap.elementCount--;
 this.expectedModCount++;
 });
-c$=$_P();
-$_H();
-c$=$_T(java.util.LinkedHashMap,"LinkedHashMapEntrySet",java.util.HashMap.HashMapEntrySet);
-$_V(c$,"iterator",
+c$=Clazz.p0p();
+Clazz.pu$h(self.c$);
+c$=Clazz.declareType(java.util.LinkedHashMap,"LinkedHashMapEntrySet",java.util.HashMap.HashMapEntrySet);
+Clazz.overrideMethod(c$,"iterator",
 function(){
-return new java.util.LinkedHashMap.LinkedHashIterator((($_D("java.util.LinkedHashMap$LinkedHashMapEntrySet$1")?0:java.util.LinkedHashMap.LinkedHashMapEntrySet.$LinkedHashMap$LinkedHashMapEntrySet$1$()),$_N(java.util.LinkedHashMap$LinkedHashMapEntrySet$1,this,null)),this.hashMap());
+return new java.util.LinkedHashMap.LinkedHashIterator(((Clazz.isClassDefined("java.util.LinkedHashMap$LinkedHashMapEntrySet$1")?0:java.util.LinkedHashMap.LinkedHashMapEntrySet.$LinkedHashMap$LinkedHashMapEntrySet$1$()),Clazz.innerTypeInstance(java.util.LinkedHashMap$LinkedHashMapEntrySet$1,this,null)),this.hashMap());
 });
 c$.$LinkedHashMap$LinkedHashMapEntrySet$1$=function(){
-$_H();
-c$=$_W(java.util,"LinkedHashMap$LinkedHashMapEntrySet$1",null,java.util.MapEntry.Type);
-$_V(c$,"get",
+Clazz.pu$h(self.c$);
+c$=Clazz.declareAnonymous(java.util,"LinkedHashMap$LinkedHashMapEntrySet$1",null,java.util.MapEntry.Type);
+Clazz.overrideMethod(c$,"get",
 function(a){
 return a;
 },"java.util.MapEntry");
-c$=$_P();
+c$=Clazz.p0p();
 };
-c$=$_P();
-$_H();
-c$=$_C(function(){
+c$=Clazz.p0p();
+Clazz.pu$h(self.c$);
+c$=Clazz.decorateAsClass(function(){
 this.chainForward=null;
 this.chainBackward=null;
-$_Z(this,arguments);
+Clazz.instantialize(this,arguments);
 },java.util.LinkedHashMap,"LinkedHashMapEntry",java.util.HashMap.Entry);
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(a,b){
-$_R(this,java.util.LinkedHashMap.LinkedHashMapEntry,[a,b]);
+Clazz.superConstructor(this,java.util.LinkedHashMap.LinkedHashMapEntry,[a,b]);
 this.chainForward=null;
 this.chainBackward=null;
 },"~O,~O");
-$_M(c$,"clone",
+Clazz.defineMethod(c$,"clone",
 function(){
-var a=$_U(this,java.util.LinkedHashMap.LinkedHashMapEntry,"clone",[]);
+var a=Clazz.superCall(this,java.util.LinkedHashMap.LinkedHashMapEntry,"clone",[]);
 a.chainBackward=this.chainBackward;
 a.chainForward=this.chainForward;
 var b=a.next;
@@ -338,5 +338,5 @@ if(b!=null){
 a.next=b.clone();
 }return a;
 });
-c$=$_P();
+c$=Clazz.p0p();
 });

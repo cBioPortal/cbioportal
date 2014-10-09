@@ -1,20 +1,20 @@
-$_L(["java.util.IllegalFormatException"],"java.util.IllegalFormatFlagsException",["java.lang.NullPointerException"],function(){
-c$=$_C(function(){
+Clazz.load(["java.util.IllegalFormatException"],"java.util.IllegalFormatFlagsException",["java.lang.NullPointerException"],function(){
+c$=Clazz.decorateAsClass(function(){
 this.flags=null;
-$_Z(this,arguments);
+Clazz.instantialize(this,arguments);
 },java.util,"IllegalFormatFlagsException",java.util.IllegalFormatException,java.io.Serializable);
-$_K(c$,
+Clazz.makeConstructor(c$,
 function(f){
-$_R(this,java.util.IllegalFormatFlagsException,[]);
+Clazz.superConstructor(this,java.util.IllegalFormatFlagsException,[]);
 if(null==f){
 throw new NullPointerException();
 }this.flags=f;
 },"~S");
-$_M(c$,"getFlags",
+Clazz.defineMethod(c$,"getFlags",
 function(){
 return this.flags;
 });
-$_V(c$,"getMessage",
+Clazz.overrideMethod(c$,"getMessage",
 function(){
 return"Flags = '"+this.flags+"'";
 });

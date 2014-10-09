@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.adapter.readers.quantum");
-Clazz.load (["J.adapter.readers.quantum.MOReader", "$.BasisFunctionReader"], "J.adapter.readers.quantum.QchemReader", ["java.lang.Float", "java.util.Hashtable", "J.api.JmolAdapter", "J.util.ArrayUtil", "$.JmolList", "$.Logger", "$.Parser"], function () {
+Clazz.load (["J.adapter.readers.quantum.MOReader", "$.BasisFunctionReader"], "J.adapter.readers.quantum.QchemReader", ["java.lang.Float", "java.util.Hashtable", "JU.AU", "$.Lst", "$.PT", "J.api.JmolAdapter", "JU.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.calculationNumber = 1;
 this.alphas = null;
@@ -55,79 +55,72 @@ if (this.filterMO ()) this.readQchemMolecularOrbitals ();
 return true;
 }return this.checkNboLine ();
 });
-$_M(c$, "readCalculationType", 
-($fz = function () {
+Clazz.defineMethod (c$, "readCalculationType", 
+ function () {
 this.calculationType = this.line.substring (this.line.indexOf ("set is") + 6).trim ();
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "readAtoms", 
-($fz = function () {
-this.atomSetCollection.newAtomSet ();
+});
+Clazz.defineMethod (c$, "readAtoms", 
+ function () {
+this.asc.newAtomSet ();
 this.setMOData (true);
 this.readLines (2);
 var tokens;
-while (this.readLine () != null && !this.line.startsWith (" --")) {
+while (this.rd () != null && !this.line.startsWith (" --")) {
 tokens = this.getTokens ();
 if (tokens.length < 5) continue;
 var symbol = tokens[1];
-if (J.api.JmolAdapter.getElementNumber (symbol) < 1) continue;
-var x = this.parseFloatStr (tokens[2]);
-var y = this.parseFloatStr (tokens[3]);
-var z = this.parseFloatStr (tokens[4]);
-if (Float.isNaN (x) || Float.isNaN (y) || Float.isNaN (z)) continue;
-var atom = this.atomSetCollection.addNewAtom ();
-atom.elementSymbol = symbol;
-this.setAtomCoordXYZ (atom, x, y, z);
-this.atomSetCollection.setAtomSetModelProperty (".PATH", "Calculation " + this.calculationNumber);
+if (J.api.JmolAdapter.getElementNumber (symbol) > 0) this.addAtomXYZSymName (tokens, 2, symbol, null);
 }
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "readFrequencies", 
-($fz = function () {
-while (this.readLine () != null && this.line.indexOf ("STANDARD") < 0) {
+this.asc.setAtomSetModelProperty (".PATH", "Calculation " + this.calculationNumber);
+});
+Clazz.defineMethod (c$, "readFrequencies", 
+ function () {
+while (this.rd () != null && this.line.indexOf ("STANDARD") < 0) {
 if (!this.line.startsWith (" Frequency:")) this.discardLinesUntilStartsWith (" Frequency:");
 var frequencies = this.getTokens ();
 var frequencyCount = frequencies.length - 1;
 var ignore =  Clazz.newBooleanArray (frequencyCount, false);
-var atomCount = this.atomSetCollection.getLastAtomSetAtomCount ();
-var iAtom0 = this.atomSetCollection.getAtomCount ();
+var ac = this.asc.getLastAtomSetAtomCount ();
+var iAtom0 = this.asc.ac;
 for (var i = 0; i < frequencyCount; ++i) {
 ignore[i] = !this.doGetVibration (++this.vibrationNumber);
 if (ignore[i]) continue;
-this.atomSetCollection.cloneLastAtomSet ();
-this.atomSetCollection.setAtomSetFrequency ("Calculation " + this.calculationNumber, null, frequencies[i + 1], null);
+this.asc.cloneLastAtomSet ();
+this.asc.setAtomSetFrequency ("Calculation " + this.calculationNumber, null, frequencies[i + 1], null);
 }
 this.discardLinesUntilStartsWith ("               X");
-this.fillFrequencyData (iAtom0, atomCount, atomCount, ignore, true, 0, 0, null, 0);
+this.fillFrequencyData (iAtom0, ac, ac, ignore, true, 0, 0, null, 0);
 this.discardLinesUntilBlank ();
 }
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "readPartialCharges", 
-($fz = function () {
+});
+Clazz.defineMethod (c$, "readPartialCharges", 
+ function () {
 this.readLines (3);
-var atoms = this.atomSetCollection.getAtoms ();
-var atomCount = this.atomSetCollection.getLastAtomSetAtomCount ();
-for (var i = 0; i < atomCount && this.readLine () != null; ++i) atoms[i].partialCharge = this.parseFloatStr (this.getTokens ()[2]);
+var atoms = this.asc.atoms;
+var ac = this.asc.getLastAtomSetAtomCount ();
+for (var i = 0; i < ac && this.rd () != null; ++i) atoms[i].partialCharge = this.parseFloatStr (this.getTokens ()[2]);
 
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "readBasis", 
-($fz = function () {
+});
+Clazz.defineMethod (c$, "readBasis", 
+ function () {
 this.moData =  new java.util.Hashtable ();
-var atomCount = 0;
+var ac = 0;
 var shellCount = 0;
 var gaussianCount = 0;
-this.shells =  new J.util.JmolList ();
-var gdata =  new J.util.JmolList ();
+this.shells =  new JU.Lst ();
+var gdata =  new JU.Lst ();
 var tokens;
 this.discardLinesUntilStartsWith ("$basis");
-this.readLine ();
-while (this.readLine () != null) {
+this.rd ();
+while (this.rd () != null) {
 if (this.line.startsWith ("****")) {
-atomCount++;
-if (this.readLine () != null && this.line.startsWith ("$end")) break;
+ac++;
+if (this.rd () != null && this.line.startsWith ("$end")) break;
 continue;
 }shellCount++;
 var slater =  Clazz.newIntArray (4, 0);
 tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.line);
-slater[0] = atomCount;
+slater[0] = ac;
 slater[1] = J.api.JmolAdapter.getQuantumShellTagID (tokens[0]);
 slater[2] = gaussianCount;
 var nGaussians = this.parseIntStr (tokens[1]);
@@ -135,25 +128,25 @@ slater[3] = nGaussians;
 this.shells.addLast (slater);
 gaussianCount += nGaussians;
 for (var i = 0; i < nGaussians; i++) {
-gdata.addLast (J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.readLine ()));
+gdata.addLast (J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.rd ()));
 }
 }
-this.gaussians = J.util.ArrayUtil.newFloat2 (gaussianCount);
+this.gaussians = JU.AU.newFloat2 (gaussianCount);
 for (var i = 0; i < gaussianCount; i++) {
 tokens = gdata.get (i);
 this.gaussians[i] =  Clazz.newFloatArray (tokens.length, 0);
 for (var j = 0; j < tokens.length; j++) this.gaussians[i][j] = this.parseFloatStr (tokens[j]);
 
 }
-if (J.util.Logger.debugging) {
-J.util.Logger.debug (shellCount + " slater shells read");
-J.util.Logger.debug (gaussianCount + " gaussian primitives read");
+if (JU.Logger.debugging) {
+JU.Logger.debug (shellCount + " slater shells read");
+JU.Logger.debug (gaussianCount + " gaussian primitives read");
 }this.discardLinesUntilStartsWith (" There are");
 tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.line);
 this.nBasis = this.parseIntStr (tokens[5]);
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "readESym", 
-($fz = function (haveSym) {
+});
+Clazz.defineMethod (c$, "readESym", 
+ function (haveSym) {
 this.alphas =  new Array (this.nBasis);
 this.betas =  new Array (this.nBasis);
 var moInfos;
@@ -164,12 +157,12 @@ var tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.line);
 moInfos = this.alphas;
 for (var e = 0; e < 2; e++) {
 var nMO = 0;
-while (this.readLine () != null) {
+while (this.rd () != null) {
 if (this.line.startsWith (" -- ")) {
 ne = 0;
 if (this.line.indexOf ("Vacant") < 0) {
 if (this.line.indexOf ("Occupied") > 0) ne = 1;
-}this.readLine ();
+}this.rd ();
 }if (this.line.startsWith (" -------")) {
 e = 2;
 break;
@@ -179,7 +172,7 @@ this.discardLinesUntilStartsWith (" Beta");
 readBetas = true;
 moInfos = this.betas;
 break;
-}if (haveSym) tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.readLine ());
+}if (haveSym) tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.rd ());
 for (var i = 0, j = 0; i < nOrbs; i++, j += 2) {
 var info = Clazz.innerTypeInstance (J.adapter.readers.quantum.QchemReader.MOInfo, this, null);
 info.ne = ne;
@@ -190,52 +183,51 @@ nMO++;
 }
 }
 if (!readBetas) this.betas = this.alphas;
-}, $fz.isPrivate = true, $fz), "~B");
-$_M(c$, "readQchemMolecularOrbitals", 
-($fz = function () {
-var nMOs;
+}, "~B");
+Clazz.defineMethod (c$, "readQchemMolecularOrbitals", 
+ function () {
 var orbitalType = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.line)[0];
 this.alphaBeta = (orbitalType.equals ("RESTRICTTED") ? "" : "A");
-nMOs = this.readMOs (orbitalType.equals ("RESTRICTED"), this.alphas);
+this.readMOs (orbitalType.equals ("RESTRICTED"), this.alphas);
 if (orbitalType.equals ("ALPHA")) {
 this.discardLinesUntilContains ("BETA");
 this.alphaBeta = "B";
-nMOs += this.readMOs (false, this.betas);
+this.readMOs (false, this.betas);
 }var isOK = true;
 if (this.dList.length > 0) {
 if (this.dSpherical) isOK = this.getDFMap (this.dList, J.api.JmolAdapter.SHELL_D_SPHERICAL, J.adapter.readers.quantum.QchemReader.$DS_LIST, 2);
  else isOK = this.getDFMap (this.dList, J.api.JmolAdapter.SHELL_D_CARTESIAN, J.adapter.readers.quantum.QchemReader.$DC_LIST, 3);
 if (!isOK) {
-J.util.Logger.error ("atomic orbital order is unrecognized -- skipping reading of MOs. dList=" + this.dList);
+JU.Logger.error ("atomic orbital order is unrecognized -- skipping reading of MOs. dList=" + this.dList);
 this.shells = null;
 }}if (this.fList.length > 0) {
 if (this.fSpherical) isOK = this.getDFMap (this.fList, J.api.JmolAdapter.SHELL_F_SPHERICAL, J.adapter.readers.quantum.QchemReader.$FS_LIST, 2);
  else isOK = this.getDFMap (this.fList, J.api.JmolAdapter.SHELL_F_CARTESIAN, J.adapter.readers.quantum.QchemReader.$FC_LIST, 3);
 if (!isOK) {
-J.util.Logger.error ("atomic orbital order is unrecognized -- skipping reading of MOs. fList=" + this.fList);
+JU.Logger.error ("atomic orbital order is unrecognized -- skipping reading of MOs. fList=" + this.fList);
 this.shells = null;
 }}this.setMOData (this.shells == null);
 this.shells = null;
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "readMOs", 
-($fz = function (restricted, moInfos) {
-var mos = J.util.ArrayUtil.createArrayOfHashtable (6);
-var mocoef = J.util.ArrayUtil.newFloat2 (6);
+});
+Clazz.defineMethod (c$, "readMOs", 
+ function (restricted, moInfos) {
+var mos = JU.AU.createArrayOfHashtable (6);
+var mocoef = JU.AU.newFloat2 (6);
 var moid =  Clazz.newIntArray (6, 0);
 var tokens;
 var energy;
 var nMOs = 0;
-while (this.readLine ().length > 2) {
+while (this.rd ().length > 2) {
 tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.line);
 var nMO = tokens.length;
-energy = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.readLine ().substring (13));
+energy = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.rd ().substring (13));
 for (var i = 0; i < nMO; i++) {
 moid[i] = this.parseIntStr (tokens[i]) - 1;
 mocoef[i] =  Clazz.newFloatArray (this.nBasis, 0);
 mos[i] =  new java.util.Hashtable ();
 }
 for (var i = 0, pt = 0; i < this.nBasis; i++) {
-tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.readLine ());
+tokens = J.adapter.smarter.AtomSetCollectionReader.getTokensStr (this.rd ());
 var s = this.line.substring (12, 17).trim ();
 var ch = s.charAt (0);
 switch (ch) {
@@ -267,7 +259,7 @@ pt++;
 }
 for (var i = 0; i < nMO; i++) {
 var moInfo = moInfos[moid[i]];
-mos[i].put ("energy", Float.$valueOf (J.util.Parser.fVal (energy[i])));
+mos[i].put ("energy", Float.$valueOf (JU.PT.fVal (energy[i])));
 mos[i].put ("coefficients", mocoef[i]);
 var label = this.alphaBeta;
 var ne = moInfo.ne;
@@ -290,9 +282,9 @@ this.orbitals.addLast (mos[i]);
 nMOs += nMO;
 }
 return nMOs;
-}, $fz.isPrivate = true, $fz), "~B,~A");
+}, "~B,~A");
 c$.$QchemReader$MOInfo$ = function () {
-Clazz.pu$h ();
+Clazz.pu$h(self.c$);
 c$ = Clazz.decorateAsClass (function () {
 Clazz.prepareCallback (this, arguments);
 this.ne = 0;

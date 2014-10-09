@@ -14,47 +14,47 @@ this.id = id;
 this.when = when;
 this.modifiers = modifiers;
 }, "~O,~N,~N,~N");
-$_M(c$, "isShiftDown", 
+Clazz.defineMethod (c$, "isShiftDown", 
 function () {
 return (this.modifiers & 1) != 0;
 });
-$_M(c$, "ibsControlDown", 
+Clazz.defineMethod (c$, "ibsControlDown", 
 function () {
 return (this.modifiers & 2) != 0;
 });
-$_M(c$, "isMetaDown", 
+Clazz.defineMethod (c$, "isMetaDown", 
 function () {
 return (this.modifiers & 4) != 0;
 });
-$_M(c$, "isAltDown", 
+Clazz.defineMethod (c$, "isAltDown", 
 function () {
 return (this.modifiers & 8) != 0;
 });
-$_M(c$, "isAltGraphDown", 
+Clazz.defineMethod (c$, "isAltGraphDown", 
 function () {
 return (this.modifiers & 32) != 0;
 });
-$_M(c$, "getWhen", 
+Clazz.defineMethod (c$, "getWhen", 
 function () {
 return this.when;
 });
-$_M(c$, "getModifiers", 
+Clazz.defineMethod (c$, "getModifiers", 
 function () {
 return this.modifiers & (-16321);
 });
-$_M(c$, "getModifiersEx", 
+Clazz.defineMethod (c$, "getModifiersEx", 
 function () {
 return this.modifiers & -64;
 });
-$_M(c$, "consume", 
+Clazz.defineMethod (c$, "consume", 
 function () {
 this.consumed = true;
 });
-$_M(c$, "isConsumed", 
+Clazz.defineMethod (c$, "isConsumed", 
 function () {
 return this.consumed;
 });
-c$.getModifiersExText = $_M(c$, "getModifiersExText", 
+c$.getModifiersExText = Clazz.defineMethod (c$, "getModifiersExText", 
 function (modifiers) {
 return "[" + modifiers + "]";
 }, "~N");

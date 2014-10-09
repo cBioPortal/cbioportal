@@ -15,7 +15,7 @@ this.$in = $in;
 this.charsetName = charsetName;
 if (!(this.isUTF8 = "UTF-8".equals (charsetName)) && !"ISO-8859-1".equals (charsetName)) throw  new NullPointerException ("charsetName");
 }, "java.io.InputStream,~S");
-$_M(c$, "getEncoding", 
+Clazz.defineMethod (c$, "getEncoding", 
 function () {
 return this.charsetName;
 });

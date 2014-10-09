@@ -136,12 +136,17 @@ var StudyViewInitCharts = (function(){
             var _allNumber = false;
             
             for( var j = 0; j < _arrLength; j++ ){
-                if(_varValuesNum.hasOwnProperty(_arr[j][_attr[i]["attr_id"]])){
-                    _varValuesNum[_arr[j][_attr[i]["attr_id"]]]++;
-                }else{
-                    _varValuesNum[_arr[j][_attr[i]["attr_id"]]]=0;
+                if(_attr[i]["attr_id"] === "PATIENT_ID" && 
+                        _arr[j]["PATIENT_ID"] === 'NA') {
+                    _varValuesNum.hasOwnProperty(_arr[j].CASE_ID)? _varValuesNum[_arr[j].CASE_ID]++ :_varValuesNum[_arr[j].CASE_ID]=0;
+                }else {
+                    if(_varValuesNum.hasOwnProperty(_arr[j][_attr[i]["attr_id"]])){
+                        _varValuesNum[_arr[j][_attr[i]["attr_id"]]]++;
+                    }else{
+                        _varValuesNum[_arr[j][_attr[i]["attr_id"]]]=0;
+                    }
+                    dataArr[_arr[j].CASE_ID] = _arr[j];
                 }
-                dataArr[_arr[j].CASE_ID] = _arr[j];   
             }
             
             _keys = Object.keys(_varValuesNum);
@@ -833,7 +838,7 @@ var StudyViewInitCharts = (function(){
     
     function resetBars(_exceptionAttr) {
         var _attrIds = [],
-            _attrIdsLength = 0
+            _attrIdsLength = 0;
     
         for( var _key in varType) {
             if(varType[_key] === 'bar'){
@@ -978,29 +983,6 @@ var StudyViewInitCharts = (function(){
         var _result = _dimention.top(Infinity);
         
         StudyViewInitTopComponents.changeHeader(_result, numOfCases, removedChart);
-    }
-    
-    function updateDataTableCallbackFuncs() {
-        
-        var _dataTableRowClickCallback = function(_deSelect, _selectedRowCaseId) {
-            StudyViewInitScatterPlot.setClickedCasesId(_selectedRowCaseId);
-            removeMarker();
-            //redrawChartsAfterDeletion();
-            if(!_deSelect){
-                getDataAndDrawMarker(_selectedRowCaseId);
-            }
-        };
-        
-        var _dataTableRowShiftClickCallback = function(_selectedRowCaseId) {
-            StudyViewInitScatterPlot.setShiftClickedCasesId(_selectedRowCaseId);
-            StudyViewInitScatterPlot.setClickedCasesId('');
-            removeMarker();
-            filterChartsByGivingIDs(_selectedRowCaseId);
-        };
-        
-        var _dataTable = StudyViewInitDataTable.getDataTable();
-        _dataTable.rowClickCallback(_dataTableRowClickCallback);
-        _dataTable.rowShiftClickCallback(_dataTableRowShiftClickCallback);
     }
     
     //This filter is the same one which used in previous Google Charts Version,

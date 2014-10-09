@@ -456,12 +456,16 @@ var PlotsTwoGenesView = (function(){
     function initXAxis(applyLogScale) {
         var analyseResult = analyseData();
         if (applyLogScale) {
-            if (analyseResult.min_x <= (Plots.getLogScaleThreshold())) {
-                var min_x = Math.log(Plots.getLogScaleThreshold()) / Math.log(2);
+            if (analyseResult.min_x <= (Plots.getLogScaleThresholdDown())) {
+                var min_x = Math.log(Plots.getLogScaleThresholdDown()) / Math.log(2);
             } else {
                 var min_x = Math.log(analyseResult.min_x) / Math.log(2);
             }
-            var max_x = Math.log(analyseResult.max_x) / Math.log(2);
+            if (analyseResult.max_x >= (Plots.getLogScaleThresholdUp())) {
+                var max_x = Math.log(Plots.getLogScaleThresholdUp()) / Math.log(2);
+            } else {
+                var max_x = Math.log(analyseResult.max_x) / Math.log(2);
+            }
         } else {
             var min_x = analyseResult.min_x;
             var max_x = analyseResult.max_x;
@@ -486,12 +490,16 @@ var PlotsTwoGenesView = (function(){
     function initYAxis(applyLogScale) {
         var analyseResult = analyseData();
         if (applyLogScale) {
-            if (analyseResult.min_y <= (Plots.getLogScaleThreshold())) {
-                var min_y = Math.log(Plots.getLogScaleThreshold()) / Math.log(2);
+            if (analyseResult.min_y <= (Plots.getLogScaleThresholdDown())) {
+                var min_y = Math.log(Plots.getLogScaleThresholdDown()) / Math.log(2);
             } else {
                 var min_y = Math.log(analyseResult.min_y) / Math.log(2);
             }
-            var max_y = Math.log(analyseResult.max_y) / Math.log(2);
+            if (analyseResult.max_y >= (Plots.getLogScaleThresholdUp())) {
+                var max_y = Math.log(Plots.getLogScaleThresholdUp()) / Math.log(2);
+            } else {
+                var max_y = Math.log(analyseResult.max_y) / Math.log(2);
+            }
         } else {
             var min_y = analyseResult.min_y;
             var max_y = analyseResult.max_y;
@@ -698,16 +706,20 @@ var PlotsTwoGenesView = (function(){
             .attr("transform", function() {
                 if (applyLogScale) {
                     if (axis === "x") {
-                        if (parseFloat(d3.select(this).attr("x_val")) <= (Plots.getLogScaleThreshold())) {
-                            var _post_x = elem.xScale(Math.log(Plots.getLogScaleThreshold()) / Math.log(2));
+                        if (parseFloat(d3.select(this).attr("x_val")) < Plots.getLogScaleThresholdDown()) {
+                            var _post_x = elem.xScale(Math.log(Plots.getLogScaleThresholdDown()) / Math.log(2));
+                        } else if (parseFloat(d3.select(this).attr("x_val")) > Plots.getLogScaleThresholdUp()) {
+                            var _post_x = elem.xScale(Math.log(Plots.getLogScaleThresholdUp()) / Math.log(2));
                         } else {
                             var _post_x = elem.xScale(Math.log(d3.select(this).attr("x_val")) / Math.log(2));
                         }
                         var _post_y = d3.select(this).attr("y_pos");
                     } else if (axis === "y") {
                         var _post_x = d3.select(this).attr("x_pos");
-                        if (parseFloat(d3.select(this).attr("x_val") <= (Plots.getLogScaleThreshold()))) {
-                            var _post_y = elem.yScale(Math.log(Plots.getLogScaleThreshold()) / Math.log(2));
+                        if ( parseFloat(d3.select(this).attr("y_val")) < Plots.getLogScaleThresholdDown()) {
+                            var _post_y = elem.yScale(Math.log(Plots.getLogScaleThresholdDown()) / Math.log(2));
+                        } else if ( parseFloat(d3.select(this).attr("y_val")) > Plots.getLogScaleThresholdUp()) {
+                            var _post_y = elem.yScale(Math.log(Plots.getLogScaleThresholdUp()) / Math.log(2));
                         } else {
                             var _post_y = elem.yScale(Math.log(d3.select(this).attr("y_val")) / Math.log(2));
                         }

@@ -1,5 +1,5 @@
 Clazz.declarePackage ("J.jvxl.readers");
-Clazz.load (["J.jvxl.api.VertexDataServer", "J.util.P3"], "J.jvxl.readers.SurfaceReader", ["java.lang.Float", "J.jvxl.calc.MarchingCubes", "$.MarchingSquares", "J.jvxl.data.JvxlCoder", "$.MeshData", "J.util.ArrayUtil", "$.BS", "$.BoxInfo", "$.C", "$.ColorEncoder", "$.Escape", "$.Logger"], function () {
+Clazz.load (["J.jvxl.api.VertexDataServer", "JU.P3"], "J.jvxl.readers.SurfaceReader", ["java.lang.Float", "JU.AU", "$.BS", "J.jvxl.calc.MarchingCubes", "$.MarchingSquares", "J.jvxl.data.JvxlCoder", "$.MeshData", "JU.BoxInfo", "$.C", "$.ColorEncoder", "$.Escape", "$.Logger"], function () {
 c$ = Clazz.decorateAsClass (function () {
 this.sg = null;
 this.meshDataServer = null;
@@ -68,12 +68,12 @@ this.haveSetAnisotropy = false;
 Clazz.instantialize (this, arguments);
 }, J.jvxl.readers, "SurfaceReader", null, J.jvxl.api.VertexDataServer);
 Clazz.prepareFields (c$, function () {
-this.ptTemp =  new J.util.P3 ();
+this.ptTemp =  new JU.P3 ();
 });
 Clazz.makeConstructor (c$, 
 function () {
 });
-$_M(c$, "initSR", 
+Clazz.defineMethod (c$, "initSR", 
 function (sg) {
 this.sg = sg;
 this.params = sg.getParams ();
@@ -94,14 +94,14 @@ this.setVolumeDataV (sg.getVolumeData ());
 this.meshDataServer = sg.getMeshDataServer ();
 this.cJvxlEdgeNaN = String.fromCharCode (125);
 }, "J.jvxl.readers.SurfaceGenerator");
-$_M(c$, "setOutputStream", 
-function (os) {
-}, "java.io.OutputStream");
-$_M(c$, "newVoxelDataCube", 
+Clazz.defineMethod (c$, "setOutputChannel", 
+function (out) {
+}, "JU.OC");
+Clazz.defineMethod (c$, "newVoxelDataCube", 
 function () {
 this.volumeData.setVoxelDataAsArray (this.voxelData =  Clazz.newFloatArray (this.nPointsX, this.nPointsY, this.nPointsZ, 0));
 });
-$_M(c$, "setVolumeDataV", 
+Clazz.defineMethod (c$, "setVolumeDataV", 
 function (v) {
 this.nBytes = 0;
 this.volumetricOrigin = v.volumetricOrigin;
@@ -110,24 +110,24 @@ this.voxelCounts = v.voxelCounts;
 this.voxelData = v.getVoxelData ();
 this.volumeData = v;
 }, "J.jvxl.data.VolumeData");
-$_M(c$, "jvxlUpdateInfo", 
+Clazz.defineMethod (c$, "jvxlUpdateInfo", 
 function () {
 this.jvxlData.jvxlUpdateInfo (this.params.title, this.nBytes);
 });
-$_M(c$, "readAndSetVolumeParameters", 
+Clazz.defineMethod (c$, "readAndSetVolumeParameters", 
 function (isMapData) {
 if (!this.readVolumeParameters (isMapData)) return false;
 if (this.vertexDataOnly) return true;
 return (this.volumeData.setUnitVectors ());
 }, "~B");
-$_M(c$, "createIsosurface", 
+Clazz.defineMethod (c$, "createIsosurface", 
 function (justForPlane) {
 this.resetIsosurface ();
-if (this.params.showTiming) J.util.Logger.startTimer ("isosurface creation");
+if (this.params.showTiming) JU.Logger.startTimer ("isosurface creation");
 this.jvxlData.cutoff = NaN;
 if (!this.readAndSetVolumeParameters (justForPlane)) return false;
 if (!justForPlane && !Float.isNaN (this.params.sigma) && !this.allowSigma) {
-if (this.params.sigma > 0) J.util.Logger.error ("Reader does not support SIGMA option -- using cutoff 1.6");
+if (this.params.sigma > 0) JU.Logger.error ("Reader does not support SIGMA option -- using cutoff 1.6");
 this.params.cutoff = 1.6;
 }if (this.params.sigma < 0) this.params.sigma = -this.params.sigma;
 this.nPointsX = this.voxelCounts[0];
@@ -156,7 +156,7 @@ var s = this.jvxlFileHeaderBuffer.toString ();
 var i = s.indexOf ('\n', s.indexOf ('\n', s.indexOf ('\n') + 1) + 1) + 1;
 this.jvxlData.jvxlFileTitle = s.substring (0, i);
 }if (this.params.contactPair == null) this.setBBoxAll ();
-if (!this.params.isSilent) J.util.Logger.info ("boundbox corners " + J.util.Escape.eP (this.xyzMin) + " " + J.util.Escape.eP (this.xyzMax));
+if (!this.params.isSilent) JU.Logger.info ("boundbox corners " + JU.Escape.eP (this.xyzMin) + " " + JU.Escape.eP (this.xyzMax));
 this.jvxlData.boundingBox = [this.xyzMin, this.xyzMax];
 this.jvxlData.dataMin = this.dataMin;
 this.jvxlData.dataMax = this.dataMax;
@@ -190,10 +190,10 @@ this.meshDataServer.fillMeshData (this.meshData, 2, null);
 }this.jvxlData.jvxlColorData = this.readColorData ();
 this.updateSurfaceData ();
 if (this.meshDataServer != null) this.meshDataServer.notifySurfaceMappingCompleted ();
-}if (this.params.showTiming) J.util.Logger.checkTimer ("isosurface creation", false);
+}if (this.params.showTiming) JU.Logger.checkTimer ("isosurface creation", false);
 return true;
 }, "~B");
-$_M(c$, "resetIsosurface", 
+Clazz.defineMethod (c$, "resetIsosurface", 
 function () {
 this.meshData =  new J.jvxl.data.MeshData ();
 this.xyzMin = this.xyzMax = null;
@@ -211,25 +211,25 @@ this.colorFractionBase = 35;
 this.colorFractionRange = 90;
 this.params.mappedDataMin = 3.4028235E38;
 });
-$_M(c$, "discardTempData", 
+Clazz.defineMethod (c$, "discardTempData", 
 function (discardAll) {
 this.discardTempDataSR (discardAll);
 }, "~B");
-$_M(c$, "discardTempDataSR", 
+Clazz.defineMethod (c$, "discardTempDataSR", 
 function (discardAll) {
 if (!discardAll) return;
 this.voxelData = null;
 this.sg.setMarchingSquares (this.marchingSquares = null);
 this.marchingCubes = null;
 }, "~B");
-$_M(c$, "initializeVolumetricData", 
+Clazz.defineMethod (c$, "initializeVolumetricData", 
 function () {
 this.nPointsX = this.voxelCounts[0];
 this.nPointsY = this.voxelCounts[1];
 this.nPointsZ = this.voxelCounts[2];
 this.setVolumeDataV (this.volumeData);
 });
-$_M(c$, "gotoAndReadVoxelData", 
+Clazz.defineMethod (c$, "gotoAndReadVoxelData", 
 function (isMapData) {
 this.initializeVolumetricData ();
 if (this.nPointsX > 0 && this.nPointsY > 0 && this.nPointsZ > 0) try {
@@ -237,7 +237,7 @@ this.gotoData (this.params.fileIndex - 1, this.nPointsX * this.nPointsY * this.n
 this.readSurfaceData (isMapData);
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
-J.util.Logger.error (e.toString ());
+JU.Logger.error (e.toString ());
 return false;
 } else {
 throw e;
@@ -245,18 +245,18 @@ throw e;
 }
 return true;
 }, "~B");
-$_M(c$, "gotoData", 
+Clazz.defineMethod (c$, "gotoData", 
 function (n, nPoints) {
 }, "~N,~N");
-$_M(c$, "readColorData", 
+Clazz.defineMethod (c$, "readColorData", 
 function () {
 if (this.jvxlData.vertexColors == null) return "";
 var vertexCount = this.jvxlData.vertexCount;
-var colixes = this.meshData.vertexColixes;
-var vertexValues = this.meshData.vertexValues;
-if (colixes == null || colixes.length < vertexCount) this.meshData.vertexColixes = colixes =  Clazz.newShortArray (vertexCount, 0);
-if (vertexValues == null || vertexValues.length < vertexCount) this.meshData.vertexValues = vertexValues =  Clazz.newFloatArray (vertexCount, 0);
-for (var i = 0; i < vertexCount; i++) colixes[i] = J.util.C.getColix (this.jvxlData.vertexColors[i]);
+var colixes = this.meshData.vcs;
+var vertexValues = this.meshData.vvs;
+if (colixes == null || colixes.length < vertexCount) this.meshData.vcs = colixes =  Clazz.newShortArray (vertexCount, 0);
+if (vertexValues == null || vertexValues.length < vertexCount) this.meshData.vvs = vertexValues =  Clazz.newFloatArray (vertexCount, 0);
+for (var i = 0; i < vertexCount; i++) colixes[i] = JU.C.getColix (this.jvxlData.vertexColors[i]);
 
 return "-";
 });
@@ -264,17 +264,17 @@ Clazz.overrideMethod (c$, "getPlane",
 function (x) {
 return this.getPlane2 (x);
 }, "~N");
-$_M(c$, "getPlane2", 
+Clazz.defineMethod (c$, "getPlane2", 
 function (x) {
 if (this.yzCount == 0) this.initPlanes ();
 if (this.qpc != null) this.qpc.getPlane (x, this.yzPlanes[x % 2]);
 return this.yzPlanes[x % 2];
 }, "~N");
-$_M(c$, "initPlanes", 
+Clazz.defineMethod (c$, "initPlanes", 
 function () {
 this.yzCount = this.nPointsY * this.nPointsZ;
-if (!this.isQuiet) J.util.Logger.info ("reading data progressively -- yzCount = " + this.yzCount);
-this.yzPlanes = J.util.ArrayUtil.newFloat2 (2);
+if (!this.isQuiet) JU.Logger.info ("reading data progressively -- yzCount = " + this.yzCount);
+this.yzPlanes = JU.AU.newFloat2 (2);
 this.yzPlanes[0] =  Clazz.newFloatArray (this.yzCount, 0);
 this.yzPlanes[1] =  Clazz.newFloatArray (this.yzCount, 0);
 });
@@ -282,12 +282,12 @@ Clazz.overrideMethod (c$, "getValue",
 function (x, y, z, ptyz) {
 return this.getValue2 (x, y, z, ptyz);
 }, "~N,~N,~N,~N");
-$_M(c$, "getValue2", 
+Clazz.defineMethod (c$, "getValue2", 
 function (x, y, z, ptyz) {
 return (this.yzPlanes == null ? this.voxelData[x][y][z] : this.yzPlanes[x % 2][ptyz]);
 }, "~N,~N,~N,~N");
-$_M(c$, "generateSurfaceData", 
-($fz = function () {
+Clazz.defineMethod (c$, "generateSurfaceData", 
+ function () {
 this.edgeData = "";
 if (this.vertexDataOnly) {
 try {
@@ -295,7 +295,7 @@ this.readSurfaceData (false);
 } catch (e) {
 if (Clazz.exceptionOf (e, Exception)) {
 System.out.println (e.toString ());
-J.util.Logger.error ("Exception in SurfaceReader::readSurfaceData: " + e.toString ());
+JU.Logger.error ("Exception in SurfaceReader::readSurfaceData: " + e.toString ());
 } else {
 throw e;
 }
@@ -317,8 +317,8 @@ this.jvxlData.setSurfaceInfoFromBitSetPts (this.marchingCubes.getBsVoxels (), th
 this.jvxlData.jvxlExcluded = this.params.bsExcluded;
 if (this.isJvxl) this.edgeData = this.jvxlEdgeDataRead;
 this.postProcessVertices ();
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "postProcessVertices", 
+});
+Clazz.defineMethod (c$, "postProcessVertices", 
 function () {
 });
 Clazz.overrideMethod (c$, "getSurfacePointIndexAndFraction", 
@@ -327,18 +327,18 @@ var thisValue = this.getSurfacePointAndFraction (cutoff, isCutoffAbsolute, value
 if (this.marchingSquares != null && this.params.isContoured) return this.marchingSquares.addContourVertex (this.ptTemp, cutoff);
 var assocVertex = (this.assocCutoff > 0 ? (fReturn[0] < this.assocCutoff ? vA : fReturn[0] > 1 - this.assocCutoff ? vB : -1) : -1);
 if (assocVertex >= 0) assocVertex = this.marchingCubes.getLinearOffset (x, y, z, assocVertex);
-var n = this.addVertexCopy (this.ptTemp, thisValue, assocVertex);
+var n = this.addVertexCopy (this.ptTemp, thisValue, assocVertex, true);
 if (n >= 0 && this.params.iAddGridPoints) {
 this.marchingCubes.calcVertexPoint (x, y, z, vB, this.ptTemp);
-this.addVertexCopy (valueA < valueB ? pointA : this.ptTemp, Math.min (valueA, valueB), -3);
-this.addVertexCopy (valueA < valueB ? this.ptTemp : pointA, Math.max (valueA, valueB), -3);
+this.addVertexCopy (valueA < valueB ? pointA : this.ptTemp, Math.min (valueA, valueB), -3, true);
+this.addVertexCopy (valueA < valueB ? this.ptTemp : pointA, Math.max (valueA, valueB), -3, true);
 }return n;
-}, "~N,~B,~N,~N,~N,J.util.P3i,~N,~N,~N,~N,J.util.P3,J.util.V3,~B,~A");
-$_M(c$, "getSurfacePointAndFraction", 
+}, "~N,~B,~N,~N,~N,JU.P3i,~N,~N,~N,~N,JU.T3,JU.V3,~B,~A");
+Clazz.defineMethod (c$, "getSurfacePointAndFraction", 
 function (cutoff, isCutoffAbsolute, valueA, valueB, pointA, edgeVector, x, y, z, vA, vB, fReturn, ptReturn) {
 return this.getSPF (cutoff, isCutoffAbsolute, valueA, valueB, pointA, edgeVector, x, y, z, vA, vB, fReturn, ptReturn);
-}, "~N,~B,~N,~N,J.util.P3,J.util.V3,~N,~N,~N,~N,~N,~A,J.util.P3");
-$_M(c$, "getSPF", 
+}, "~N,~B,~N,~N,JU.T3,JU.V3,~N,~N,~N,~N,~N,~A,JU.T3");
+Clazz.defineMethod (c$, "getSPF", 
 function (cutoff, isCutoffAbsolute, valueA, valueB, pointA, edgeVector, x, y, z, vA, vB, fReturn, ptReturn) {
 var diff = valueB - valueA;
 var fraction = (cutoff - valueA) / diff;
@@ -348,25 +348,23 @@ fraction = NaN;
 }fReturn[0] = fraction;
 ptReturn.scaleAdd2 (fraction, edgeVector, pointA);
 return valueA + fraction * diff;
-}, "~N,~B,~N,~N,J.util.P3,J.util.V3,~N,~N,~N,~N,~N,~A,J.util.P3");
-$_M(c$, "addVertexCopy", 
-function (vertexXYZ, value, assocVertex) {
-return this.addVC (vertexXYZ, value, assocVertex);
-}, "J.util.P3,~N,~N");
-$_M(c$, "addVC", 
-function (vertexXYZ, value, assocVertex) {
-if (Float.isNaN (value) && assocVertex != -3) return -1;
-if (this.meshDataServer == null) return this.meshData.addVertexCopy (vertexXYZ, value, assocVertex);
-return this.meshDataServer.addVertexCopy (vertexXYZ, value, assocVertex);
-}, "J.util.P3,~N,~N");
-$_M(c$, "addTriangleCheck", 
+}, "~N,~B,~N,~N,JU.T3,JU.V3,~N,~N,~N,~N,~N,~A,JU.T3");
+Clazz.defineMethod (c$, "addVertexCopy", 
+function (vertexXYZ, value, assocVertex, asCopy) {
+return this.addVC (vertexXYZ, value, assocVertex, asCopy);
+}, "JU.T3,~N,~N,~B");
+Clazz.defineMethod (c$, "addVC", 
+function (vertexXYZ, value, assocVertex, asCopy) {
+return (Float.isNaN (value) && assocVertex != -3 ? -1 : this.meshDataServer == null ? this.meshData.addVertexCopy (vertexXYZ, value, assocVertex, asCopy) : this.meshDataServer.addVertexCopy (vertexXYZ, value, assocVertex, asCopy));
+}, "JU.T3,~N,~N,~B");
+Clazz.defineMethod (c$, "addTriangleCheck", 
 function (iA, iB, iC, check, check2, isAbsolute, color) {
 if (this.marchingSquares != null && this.params.isContoured) {
 if (color == 0) return this.marchingSquares.addTriangle (iA, iB, iC, check, check2);
 color = 0;
-}return (this.meshDataServer != null ? this.meshDataServer.addTriangleCheck (iA, iB, iC, check, check2, isAbsolute, color) : isAbsolute && !J.jvxl.data.MeshData.checkCutoff (iA, iB, iC, this.meshData.vertexValues) ? -1 : this.meshData.addTriangleCheck (iA, iB, iC, check, check2, color));
+}return (this.meshDataServer != null ? this.meshDataServer.addTriangleCheck (iA, iB, iC, check, check2, isAbsolute, color) : isAbsolute && !J.jvxl.data.MeshData.checkCutoff (iA, iB, iC, this.meshData.vvs) ? -1 : this.meshData.addTriangleCheck (iA, iB, iC, check, check2, color));
 }, "~N,~N,~N,~N,~N,~B,~N");
-$_M(c$, "colorIsosurface", 
+Clazz.defineMethod (c$, "colorIsosurface", 
 function () {
 if (this.params.isSquared && this.volumeData != null) this.volumeData.filterData (true, NaN);
 if (this.meshDataServer != null) {
@@ -386,47 +384,47 @@ this.finalizeMapping ();
 this.jvxlData.nContours = (this.params.contourFromZero ? this.params.nContours : -1 - this.params.nContours);
 this.jvxlData.jvxlFileMessage = "mapped: min = " + this.params.valueMappedToRed + "; max = " + this.params.valueMappedToBlue;
 });
-$_M(c$, "applyColorScale", 
+Clazz.defineMethod (c$, "applyColorScale", 
 function () {
 this.colorFractionBase = this.jvxlData.colorFractionBase = 35;
 this.colorFractionRange = this.jvxlData.colorFractionRange = 90;
 if (this.params.colorPhase == 0) this.params.colorPhase = 1;
 if (this.meshDataServer == null) {
-this.meshData.vertexColixes =  Clazz.newShortArray (this.meshData.vertexCount, 0);
+this.meshData.vcs =  Clazz.newShortArray (this.meshData.vc, 0);
 } else {
 this.meshDataServer.fillMeshData (this.meshData, 1, null);
 if (this.params.contactPair == null) this.meshDataServer.fillMeshData (this.meshData, 2, null);
 }var saveColorData = (this.params.colorDensity || this.params.isBicolorMap || this.params.colorBySign || !this.params.colorByPhase);
 if (this.params.contactPair != null) saveColorData = false;
 this.jvxlData.isJvxlPrecisionColor = true;
-this.jvxlData.vertexCount = (this.contourVertexCount > 0 ? this.contourVertexCount : this.meshData.vertexCount);
+this.jvxlData.vertexCount = (this.contourVertexCount > 0 ? this.contourVertexCount : this.meshData.vc);
 this.jvxlData.minColorIndex = -1;
 this.jvxlData.maxColorIndex = 0;
 this.jvxlData.contourValues = this.params.contoursDiscrete;
 this.jvxlData.isColorReversed = this.params.isColorReversed;
 if (!this.params.colorDensity) if (this.params.isBicolorMap && !this.params.isContoured || this.params.colorBySign) {
-this.jvxlData.minColorIndex = J.util.C.getColixTranslucent3 (J.util.C.getColix (this.params.isColorReversed ? this.params.colorPos : this.params.colorNeg), this.jvxlData.translucency != 0, this.jvxlData.translucency);
-this.jvxlData.maxColorIndex = J.util.C.getColixTranslucent3 (J.util.C.getColix (this.params.isColorReversed ? this.params.colorNeg : this.params.colorPos), this.jvxlData.translucency != 0, this.jvxlData.translucency);
+this.jvxlData.minColorIndex = JU.C.getColixTranslucent3 (JU.C.getColix (this.params.isColorReversed ? this.params.colorPos : this.params.colorNeg), this.jvxlData.translucency != 0, this.jvxlData.translucency);
+this.jvxlData.maxColorIndex = JU.C.getColixTranslucent3 (JU.C.getColix (this.params.isColorReversed ? this.params.colorNeg : this.params.colorPos), this.jvxlData.translucency != 0, this.jvxlData.translucency);
 }this.jvxlData.isTruncated = (this.jvxlData.minColorIndex >= 0 && !this.params.isContoured);
 var useMeshDataValues = this.jvxlDataIs2dContour || this.hasColorData || this.vertexDataOnly || this.params.colorDensity || this.params.isBicolorMap && !this.params.isContoured;
 if (!useMeshDataValues) {
-if (this.haveSurfaceAtoms && this.meshData.vertexSource == null) this.meshData.vertexSource =  Clazz.newIntArray (this.meshData.vertexCount, 0);
+if (this.haveSurfaceAtoms && this.meshData.vertexSource == null) this.meshData.vertexSource =  Clazz.newIntArray (this.meshData.vc, 0);
 var min = 3.4028235E38;
 var max = -3.4028235E38;
 var value;
 this.initializeMapping ();
-for (var i = this.meshData.vertexCount; --i >= this.meshData.mergeVertexCount0; ) {
+for (var i = this.meshData.vc; --i >= this.meshData.mergeVertexCount0; ) {
 if (this.params.colorBySets) {
 value = this.meshData.vertexSets[i];
 } else if (this.params.colorByPhase) {
-value = this.getPhase (this.meshData.vertices[i]);
+value = this.getPhase (this.meshData.vs[i]);
 } else {
 var needSource = this.haveSurfaceAtoms;
-value = this.volumeData.lookupInterpolatedVoxelValue (this.meshData.vertices[i], needSource);
+value = this.volumeData.lookupInterpolatedVoxelValue (this.meshData.vs[i], needSource);
 if (needSource) this.meshData.vertexSource[i] = this.getSurfaceAtomIndex ();
 }if (value < min) min = value;
 if (value > max && value != 3.4028235E38) max = value;
-this.meshData.vertexValues[i] = value;
+this.meshData.vvs[i] = value;
 }
 if (this.params.rangeSelected && this.minMax == null) this.minMax = [min, max];
 this.finalizeMapping ();
@@ -436,22 +434,22 @@ this.jvxlData.mappedDataMax = this.params.mappedDataMax;
 this.jvxlData.valueMappedToRed = this.params.valueMappedToRed;
 this.jvxlData.valueMappedToBlue = this.params.valueMappedToBlue;
 if (this.params.contactPair == null && this.jvxlData.vertexColors == null) this.colorData ();
-J.jvxl.data.JvxlCoder.jvxlCreateColorData (this.jvxlData, (saveColorData ? this.meshData.vertexValues : null));
+J.jvxl.data.JvxlCoder.jvxlCreateColorData (this.jvxlData, (saveColorData ? this.meshData.vvs : null));
 if (this.haveSurfaceAtoms && this.meshDataServer != null) this.meshDataServer.fillMeshData (this.meshData, 4, null);
 if (this.meshDataServer != null && this.params.colorBySets) this.meshDataServer.fillMeshData (this.meshData, 3, null);
 });
-$_M(c$, "colorData", 
-($fz = function () {
-var vertexValues = this.meshData.vertexValues;
-var vertexColixes = this.meshData.vertexColixes;
-this.meshData.polygonColixes = null;
+Clazz.defineMethod (c$, "colorData", 
+ function () {
+var vertexValues = this.meshData.vvs;
+var vertexColixes = this.meshData.vcs;
+this.meshData.pcs = null;
 var valueBlue = this.jvxlData.valueMappedToBlue;
 var valueRed = this.jvxlData.valueMappedToRed;
 var minColorIndex = this.jvxlData.minColorIndex;
 var maxColorIndex = this.jvxlData.maxColorIndex;
-if (this.params.colorEncoder == null) this.params.colorEncoder =  new J.util.ColorEncoder (null);
+if (this.params.colorEncoder == null) this.params.colorEncoder =  new JU.ColorEncoder (null);
 this.params.colorEncoder.setRange (this.params.valueMappedToRed, this.params.valueMappedToBlue, this.params.isColorReversed);
-for (var i = this.meshData.vertexCount; --i >= 0; ) {
+for (var i = this.meshData.vc; --i >= 0; ) {
 var value = vertexValues[i];
 if (minColorIndex >= 0) {
 if (value <= 0) vertexColixes[i] = minColorIndex;
@@ -472,11 +470,11 @@ this.params.colorEncoder.setRange (this.params.valueMappedToRed, this.params.val
 for (var i = 0; i < n; i++) {
 var v = (values == null ? valueRed + (i + 1) * dv : values[i]);
 this.jvxlData.contourValuesUsed[i] = v;
-colors[i] = J.util.C.getColixTranslucent (this.params.colorEncoder.getArgb (v));
+colors[i] = JU.C.getColixTranslucent (this.params.colorEncoder.getArgb (v));
 }
-this.jvxlData.contourColors = J.util.C.getHexCodes (colors);
-}}, $fz.isPrivate = true, $fz));
-c$.getColorPhaseIndex = $_M(c$, "getColorPhaseIndex", 
+this.jvxlData.contourColors = JU.C.getHexCodes (colors);
+}});
+c$.getColorPhaseIndex = Clazz.defineMethod (c$, "getColorPhaseIndex", 
 function (color) {
 var colorPhase = -1;
 for (var i = 0; i < J.jvxl.readers.SurfaceReader.colorPhases.length; i++) if (color.equalsIgnoreCase (J.jvxl.readers.SurfaceReader.colorPhases[i])) {
@@ -485,8 +483,8 @@ break;
 }
 return colorPhase;
 }, "~S");
-$_M(c$, "getPhase", 
-($fz = function (pt) {
+Clazz.defineMethod (c$, "getPhase", 
+ function (pt) {
 switch (this.params.colorPhase) {
 case 0:
 case -1:
@@ -508,8 +506,8 @@ case 8:
 return (pt.z * pt.z * 2 - pt.x * pt.x - pt.y * pt.y > 0 ? 1 : -1);
 }
 return 1;
-}, $fz.isPrivate = true, $fz), "J.util.P3");
-$_M(c$, "getMinMaxMappedValues", 
+}, "JU.T3");
+Clazz.defineMethod (c$, "getMinMaxMappedValues", 
 function (haveData) {
 if (this.minMax != null && this.minMax[0] != 3.4028235E38) return this.minMax;
 if (this.params.colorBySets) return (this.minMax = [0, Math.max (this.meshData.nSets - 1, 0)]);
@@ -524,36 +522,36 @@ if (p < min) min = p;
 if (p > max) max = p;
 }
 return (this.minMax = [min, max]);
-}var vertexCount = (this.contourVertexCount > 0 ? this.contourVertexCount : this.meshData.vertexCount);
-var vertexes = this.meshData.vertices;
+}var vertexCount = (this.contourVertexCount > 0 ? this.contourVertexCount : this.meshData.vc);
+var vertexes = this.meshData.vs;
 var useVertexValue = (haveData || this.jvxlDataIs2dContour || this.vertexDataOnly || this.params.colorDensity);
 for (var i = this.meshData.mergeVertexCount0; i < vertexCount; i++) {
 var v;
-if (useVertexValue) v = this.meshData.vertexValues[i];
+if (useVertexValue) v = this.meshData.vvs[i];
  else v = this.volumeData.lookupInterpolatedVoxelValue (vertexes[i], false);
 if (v < min) min = v;
 if (v > max && v != 3.4028235E38) max = v;
 }
 return (this.minMax = [min, max]);
 }, "~B");
-$_M(c$, "updateTriangles", 
+Clazz.defineMethod (c$, "updateTriangles", 
 function () {
 if (this.meshDataServer == null) {
 this.meshData.invalidatePolygons ();
 } else {
 this.meshDataServer.invalidateTriangles ();
 }});
-$_M(c$, "updateSurfaceData", 
+Clazz.defineMethod (c$, "updateSurfaceData", 
 function () {
 this.meshData.setVertexSets (true);
 this.updateTriangles ();
-if (this.params.bsExcluded[1] == null) this.params.bsExcluded[1] =  new J.util.BS ();
+if (this.params.bsExcluded[1] == null) this.params.bsExcluded[1] =  new JU.BS ();
 this.meshData.updateInvalidatedVertices (this.params.bsExcluded[1]);
 });
-$_M(c$, "selectPocket", 
+Clazz.defineMethod (c$, "selectPocket", 
 function (doExclude) {
 }, "~B");
-$_M(c$, "excludeMinimumSet", 
+Clazz.defineMethod (c$, "excludeMinimumSet", 
 function () {
 if (this.meshDataServer != null) this.meshDataServer.fillMeshData (this.meshData, 1, null);
 this.meshData.getSurfaceSet ();
@@ -563,7 +561,7 @@ for (var i = this.meshData.nSets; --i >= 0; ) if ((bs = this.meshData.surfaceSet
 this.updateSurfaceData ();
 if (this.meshDataServer != null) this.meshDataServer.fillMeshData (this.meshData, 3, null);
 });
-$_M(c$, "excludeMaximumSet", 
+Clazz.defineMethod (c$, "excludeMaximumSet", 
 function () {
 if (this.meshDataServer != null) this.meshDataServer.fillMeshData (this.meshData, 1, null);
 this.meshData.getSurfaceSet ();
@@ -573,27 +571,27 @@ for (var i = this.meshData.nSets; --i >= 0; ) if ((bs = this.meshData.surfaceSet
 this.updateSurfaceData ();
 if (this.meshDataServer != null) this.meshDataServer.fillMeshData (this.meshData, 3, null);
 });
-$_M(c$, "slabIsosurface", 
+Clazz.defineMethod (c$, "slabIsosurface", 
 function (slabInfo) {
 if (this.meshDataServer != null) this.meshDataServer.fillMeshData (this.meshData, 1, null);
 this.meshData.slabPolygonsList (slabInfo, true);
 if (this.meshDataServer != null) this.meshDataServer.fillMeshData (this.meshData, 4, null);
-}, "J.util.JmolList");
-$_M(c$, "setVertexAnisotropy", 
+}, "JU.Lst");
+Clazz.defineMethod (c$, "setVertexAnisotropy", 
 function (pt) {
 pt.x *= this.anisotropy[0];
 pt.y *= this.anisotropy[1];
 pt.z *= this.anisotropy[2];
 pt.add (this.center);
-}, "J.util.P3");
-$_M(c$, "setVectorAnisotropy", 
+}, "JU.T3");
+Clazz.defineMethod (c$, "setVectorAnisotropy", 
 function (v) {
 this.haveSetAnisotropy = true;
 v.x *= this.anisotropy[0];
 v.y *= this.anisotropy[1];
 v.z *= this.anisotropy[2];
-}, "J.util.V3");
-$_M(c$, "setVolumetricAnisotropy", 
+}, "JU.T3");
+Clazz.defineMethod (c$, "setVolumetricAnisotropy", 
 function () {
 if (this.haveSetAnisotropy) return;
 this.setVolumetricOriginAnisotropy ();
@@ -601,41 +599,41 @@ this.setVectorAnisotropy (this.volumetricVectors[0]);
 this.setVectorAnisotropy (this.volumetricVectors[1]);
 this.setVectorAnisotropy (this.volumetricVectors[2]);
 });
-$_M(c$, "setVolumetricOriginAnisotropy", 
+Clazz.defineMethod (c$, "setVolumetricOriginAnisotropy", 
 function () {
 this.volumetricOrigin.setT (this.center);
 });
-$_M(c$, "setBBoxAll", 
-($fz = function () {
+Clazz.defineMethod (c$, "setBBoxAll", 
+ function () {
 if (this.meshDataServer != null) this.meshDataServer.fillMeshData (this.meshData, 1, null);
 this.xyzMin = null;
-for (var i = 0; i < this.meshData.vertexCount; i++) {
-var p = this.meshData.vertices[i];
+for (var i = 0; i < this.meshData.vc; i++) {
+var p = this.meshData.vs[i];
 if (!Float.isNaN (p.x)) this.setBBox (p, 0);
 }
-}, $fz.isPrivate = true, $fz));
-$_M(c$, "setBBox", 
+});
+Clazz.defineMethod (c$, "setBBox", 
 function (pt, margin) {
 if (this.xyzMin == null) {
-this.xyzMin = J.util.P3.new3 (3.4028235E38, 3.4028235E38, 3.4028235E38);
-this.xyzMax = J.util.P3.new3 (-3.4028235E38, -3.4028235E38, -3.4028235E38);
-}J.util.BoxInfo.addPoint (pt, this.xyzMin, this.xyzMax, margin);
-}, "J.util.P3,~N");
-$_M(c$, "getValueAtPoint", 
+this.xyzMin = JU.P3.new3 (3.4028235E38, 3.4028235E38, 3.4028235E38);
+this.xyzMax = JU.P3.new3 (-3.4028235E38, -3.4028235E38, -3.4028235E38);
+}JU.BoxInfo.addPoint (pt, this.xyzMin, this.xyzMax, margin);
+}, "JU.T3,~N");
+Clazz.defineMethod (c$, "getValueAtPoint", 
 function (pt, getSource) {
 return 0;
-}, "J.util.P3,~B");
-$_M(c$, "initializeMapping", 
+}, "JU.T3,~B");
+Clazz.defineMethod (c$, "initializeMapping", 
 function () {
 });
-$_M(c$, "finalizeMapping", 
+Clazz.defineMethod (c$, "finalizeMapping", 
 function () {
 });
-$_M(c$, "getSurfaceAtomIndex", 
+Clazz.defineMethod (c$, "getSurfaceAtomIndex", 
 function () {
 return -1;
 });
-$_M(c$, "getSpanningVectors", 
+Clazz.defineMethod (c$, "getSpanningVectors", 
 function () {
 return (this.volumeData == null ? null : this.volumeData.getSpanningVectors ());
 });

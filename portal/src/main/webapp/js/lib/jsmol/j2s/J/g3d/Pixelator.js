@@ -8,15 +8,15 @@ Clazz.makeConstructor (c$,
 function (graphics3d) {
 this.g = graphics3d;
 }, "J.g3d.Graphics3D");
-$_M(c$, "clearPixel", 
+Clazz.defineMethod (c$, "clearPixel", 
 function (offset, z) {
 if (!this.g.$isPass2 && this.g.zbuf[offset] > z) this.g.zbuf[offset] = 2147483647;
 }, "~N,~N");
-$_M(c$, "addPixel", 
+Clazz.defineMethod (c$, "addPixel", 
 function (offset, z, p) {
 this.addPixel1 (offset, z, p);
 }, "~N,~N,~N");
-$_M(c$, "addPixel1", 
+Clazz.defineMethod (c$, "addPixel1", 
 function (offset, z, p) {
 if (!this.g.$isPass2) {
 this.g.zbuf[offset] = z;

@@ -554,7 +554,7 @@
     width: 13px;
     margin: 0 auto;
 }
-.heightlightRow {
+.highlightRow {
     background-color: lightgrey !important;
 }
 /*.study-view-expand-icon {
@@ -971,4 +971,20 @@ ul li a:hover, ul li a:focus {
 }
 #clinical_table_wrapper table.dataTable>tbody>tr>td {
     white-space: nowrap;
+}
+#clinical_table_wrapper .DTTT_container.ui-buttonset.ui-buttonset-multi a {
+    width: 50px;
+    height: 20px;
+    line-height: 20px;
+}
+#clinical_table_wrapper .DTTT_container.ui-buttonset.ui-buttonset-multi {
+    float: left;
+}
+div.DTTT_print_info {
+    position: absolute;
+    top: 30%;
+    left: 40%;
+    background: white;
+    border: 1px solid black;
+    padding: 0 5px;
 }

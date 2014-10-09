@@ -566,6 +566,10 @@ var StudyViewSurvivalPlotView = (function() {
         _opts.plot.text.infoTableTitles.num_of_events_cases = "#cases deceased";
         _opts.plot.text.infoTableTitles.median = "median months survival";
 
+        if(_key === 'DFS') {
+            _opts.plot.text.qTips.estimation = "Disease free estimate";
+        }
+        
         return _opts;
     }
 

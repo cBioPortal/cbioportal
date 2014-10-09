@@ -9,12 +9,12 @@ this.bsModelsDefined = null;
 Clazz.instantialize (this, arguments);
 }, J.adapter.smarter, "StructureIterator", J.api.JmolAdapterStructureIterator);
 Clazz.makeConstructor (c$, 
-function (atomSetCollection) {
+function (asc) {
 Clazz.superConstructor (this, J.adapter.smarter.StructureIterator, []);
-this.structureCount = atomSetCollection.getStructureCount ();
-this.structures = atomSetCollection.getStructures ();
+this.structureCount = asc.structureCount;
+this.structures = asc.structures;
 this.istructure = 0;
-this.bsModelsDefined = atomSetCollection.bsStructuredModels;
+this.bsModelsDefined = asc.bsStructuredModels;
 }, "J.adapter.smarter.AtomSetCollection");
 Clazz.overrideMethod (c$, "hasNext", 
 function () {

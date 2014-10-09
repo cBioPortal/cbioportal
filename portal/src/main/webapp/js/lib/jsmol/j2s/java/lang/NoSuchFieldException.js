@@ -1,3 +1,3 @@
-$_L(["java.lang.Exception"],"java.lang.NoSuchFieldException",null,function(){
-c$=$_T(java.lang,"NoSuchFieldException",Exception);
+Clazz.load(["java.lang.Exception"],"java.lang.NoSuchFieldException",null,function(){
+c$=Clazz.declareType(java.lang,"NoSuchFieldException",Exception);
 });

@@ -19,13 +19,25 @@ define(function() {
                 regulated_order = {UPREGULATED: 2, DOWNREGULATED: 1, undefined: 0},
                 mutation_order_f = function(m) { 
                     
-                    if(m !== undefined)//multiply mutations
+                    if(m !== undefined)//multiple mutations
                     {
                         m = m.split(',');
 
                         if(m.length > 1)
                         {
-                            return 8;
+                            for(var i = 0; i < m.length; i++)
+                            {
+                                if((/^[A-z]([0-9]+)[A-z]$/g).test(m[i]))
+                                {
+                                    continue;
+                                }
+                                else
+                                {
+                                    return 7;
+                                }
+                            }
+
+                            return 2;
                         }
                     }
                     

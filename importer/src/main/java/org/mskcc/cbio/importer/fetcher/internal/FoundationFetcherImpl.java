@@ -25,13 +25,12 @@ import org.mskcc.cbio.importer.Fetcher;
 import org.mskcc.cbio.importer.FileTransformer;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.dao.ImportDataRecordDAO;
-import org.mskcc.cbio.importer.extractor.FileDataSource;
-
-import org.mskcc.cbio.importer.extractor.FoundationStudyExtractor;
+import org.mskcc.cbio.importer.foundation.extractor.FileDataSource;
+import org.mskcc.cbio.importer.foundation.extractor.FoundationStudyExtractor;
 import org.mskcc.cbio.importer.foundation.support.FoundationMetadataGenerator;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
-import org.mskcc.cbio.importer.transformer.FoundationXMLTransformer;
+import org.mskcc.cbio.importer.foundation.transformer.FoundationXMLTransformer;
 
 /**
  * This represents a Fetcher implementation that will fetch and transform XML

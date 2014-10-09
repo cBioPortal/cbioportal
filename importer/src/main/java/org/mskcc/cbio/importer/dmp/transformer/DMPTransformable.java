@@ -15,22 +15,20 @@
  *  Memorial Sloan-Kettering Cancer Center 
  *  has been advised of the possibility of such damage.
  */
+package org.mskcc.cbio.importer.dmp.transformer;
 
-package org.mskcc.cbio.importer;
-
-import java.io.IOException;
-import java.nio.file.Path;
-import org.mskcc.cbio.importer.foundation.extractor.FileDataSource;
+import com.google.common.base.Function;
+import java.util.List;
+import org.apache.log4j.Logger;
+import org.mskcc.cbio.importer.dmp.model.Result;
+import scala.Tuple2;
 
 /**
  *
  * @author criscuof
  */
-public interface FileTransformer {
+public interface DMPTransformable {
+   
     
-    public void transform(Path aPath) throws IOException;
-    public void transform(FileDataSource fds);
-    public String getPrimaryIdentifier();
-    public Integer getPrimaryEntityCount();
-    
+    public Tuple2<String,Function> getTransformationFunction();
 }

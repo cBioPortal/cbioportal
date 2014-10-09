@@ -1,4 +1,4 @@
-package org.mskcc.cbio.importer.extractor;
+package org.mskcc.cbio.importer.foundation.extractor;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;

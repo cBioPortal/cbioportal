@@ -1,6 +1,6 @@
 
 
-package org.mskcc.cbio.importer.extractor;
+package org.mskcc.cbio.importer.foundation.extractor;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;

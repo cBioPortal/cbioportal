@@ -1,4 +1,4 @@
-package org.mskcc.cbio.importer.transformer;
+package org.mskcc.cbio.importer.foundation.transformer;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -36,7 +36,7 @@ import org.apache.log4j.Logger;
 import org.mskcc.cbio.foundation.jaxb.*;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.FileTransformer;
-import org.mskcc.cbio.importer.extractor.FileDataSource;
+import org.mskcc.cbio.importer.foundation.extractor.FileDataSource;
 import org.mskcc.cbio.importer.foundation.support.CasesTypeSupplier;
 import org.mskcc.cbio.importer.foundation.support.CommonNames;
 import org.mskcc.cbio.importer.foundation.support.FoundationUtils;
@@ -534,7 +534,7 @@ public class FoundationXMLTransformer implements FileTransformer {
             }
         }
         /*
-         special method to handle foundation mutations dataß
+         special method to handle foundation mutations data
          */
 
         private void generateDataReportFromFluentIterable(String reportType, List<CaseType> dataList, Function fluentIterableFunction) {

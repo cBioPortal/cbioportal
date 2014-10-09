@@ -198,7 +198,6 @@ public class GetProfileDataJSON extends HttpServlet  {
                     val_str += "\n";
                 }
                 result_str += sampleId_str + val_str;
-                System.out.println(result_str);
             } else if (format.equals("matrix")) {
 
                 String  gene_str = "",

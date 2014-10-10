@@ -17,18 +17,12 @@
  */
 package org.mskcc.cbio.importer.dmp.transformer;
 
-import com.google.common.base.Function;
 import com.google.inject.internal.Preconditions;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.dmp.model.DmpData;
 import org.mskcc.cbio.importer.dmp.model.Result;
 import org.mskcc.cbio.importer.dmp.support.DMPStagingFileManager;
-import scala.Tuple2;
 
 /*
  Responsible for transforming the DMP data encapsulated in the DmpData object

@@ -35,6 +35,8 @@ import static java.nio.file.StandardOpenOption.DSYNC;
 import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
+import org.mskcc.cbio.importer.dmp.model.Result;
+import org.mskcc.cbio.importer.dmp.util.DmpUtils;
 
 /*
  Resonsible for writing DMP data to MAF files
@@ -77,7 +79,7 @@ public class DMPStagingFileManager {
 
     private void writeColumnHeaders(String reportType, Path path) throws IOException {
         BufferedWriter writer = Files.newBufferedWriter(path, Charset.defaultCharset());
-        //TODO: write out column headers
+        writer.append(DmpUtils.getColumnNamesByReportType(reportType));
         writer.newLine();
         writer.flush();
     }
@@ -104,6 +106,8 @@ public class DMPStagingFileManager {
         }
 
     }
+    
+    
     
 
 }

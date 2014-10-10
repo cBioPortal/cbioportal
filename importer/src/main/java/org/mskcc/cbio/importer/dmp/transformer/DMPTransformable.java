@@ -17,6 +17,7 @@
  */
 package org.mskcc.cbio.importer.dmp.transformer;
 
+import com.google.common.base.Function;
 import org.mskcc.cbio.importer.dmp.model.Result;
 import org.mskcc.cbio.importer.dmp.support.DMPStagingFileManager;
 
@@ -27,5 +28,6 @@ import org.mskcc.cbio.importer.dmp.support.DMPStagingFileManager;
 public interface DMPTransformable {
    
     public void transform(Result result, DMPStagingFileManager fileManager);
+     public Function getTransormationFunction();
     
 }

@@ -72,7 +72,7 @@ public class DMPconverters {
 	 * @return the complete result json string
 	 */
 	public static String attachMissingValues() {
-		
+		return null;
 
 	}
 }

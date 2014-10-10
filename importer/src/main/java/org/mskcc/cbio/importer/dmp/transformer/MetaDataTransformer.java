@@ -19,7 +19,6 @@ package org.mskcc.cbio.importer.dmp.transformer;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-import java.util.List;
 
 import java.util.Map;
 import org.mskcc.cbio.importer.dmp.model.Result;

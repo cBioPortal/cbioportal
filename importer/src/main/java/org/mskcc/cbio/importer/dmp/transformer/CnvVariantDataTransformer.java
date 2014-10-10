@@ -24,16 +24,19 @@ import com.google.gdata.util.common.base.Joiner;
 import com.google.gdata.util.common.base.Preconditions;
 import java.util.List;
 import java.util.Map;
+import joptsimple.internal.Strings;
 import org.mskcc.cbio.importer.dmp.model.CnvVariant;
 import org.mskcc.cbio.importer.dmp.model.Result;
 import org.mskcc.cbio.importer.dmp.support.DMPCommonNames;
 import org.mskcc.cbio.importer.dmp.support.DMPStagingFileManager;
+import org.mskcc.cbio.importer.dmp.util.DmpUtils;
 
 public class CnvVariantDataTransformer implements DMPTransformable {
 
     private static final String REPORT_TYPE = DMPCommonNames.REPORT_TYPE_CNV;
     public static final Joiner tabJoiner = Joiner.on("\t");
-
+     private static final Map<String, String> attributeMap = DmpUtils.reportTypeAttributeMaps.get(REPORT_TYPE);
+    
     private Map<String, String> baseMap;
 
     public CnvVariantDataTransformer() {
@@ -55,42 +58,36 @@ public class CnvVariantDataTransformer implements DMPTransformable {
    
     
     public Function getTransormationFunction() {
-        return this.transformationFunction;
+        return this.transformationFunction2;
     }
 
     public Function<CnvVariant, String> transformationFunction
             = new Function<CnvVariant, String>() {
-
                 @Override
                 public String apply(CnvVariant cnv) {
                     Map<String, String> cnvMap = Maps.newTreeMap();
                     cnvMap.putAll(baseMap);
-                    cnvMap.put("100Chromosome", cnv.getChromosome());
-                    cnvMap.put("101CNV_Class", cnv.getCnvClassName());
+                   for (Map.Entry<String, String> entry : attributeMap.entrySet()) {
+                        cnvMap.put(entry.getKey(), DmpUtils.pojoStringGetter(entry.getValue(), cnv));
+                    }
                     return tabJoiner.join(cnvMap.values());
                 }
+            };
+    
+    
+     public Function<Result, List<String>> transformationFunction2
+            = new Function<Result, List<String>>() {
 
+        @Override
+        public List<String> apply(Result result) {
+            final Map<String,String> baseMap = MetaDataTransformer.getBaseTransformationMap(result);
+            return FluentIterable.from(result.getCnvVariants())
+                    .transform(transformationFunction)
+                    .toList();
+        }
+
+                
             };
 
 }
-/*
 
-    @JsonProperty("confidence_class")
-    private String confidenceClass;
-    @JsonProperty("confidence_cv_id")
-    private Integer confidenceCvId;
-    @JsonProperty("cytoband")
-    private String cytoband;
-    @JsonProperty("gene_fold_change")
-    private Double geneFoldChange;
-    @JsonProperty("gene_id")
-    private String geneId;
-    @JsonProperty("gene_p_value")
-    private Double genePValue;
-    @JsonProperty("is_significant")
-    private Integer isSignificant;
-    @JsonProperty("variant_status_cv_id")
-    private Integer variantStatusCvId;
-    @JsonProperty("variant_status_name")
-    private String variantStatusName;
-*/

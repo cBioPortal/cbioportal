@@ -37,6 +37,7 @@
     background: #e6e6e6;
     font-weight: normal;
     color: #555555;
+    max-width: 500px;
 }
 #study-view-tutorial {
     right: 0;
@@ -983,7 +984,8 @@ ul li a:hover, ul li a:focus {
 div.DTTT_print_info {
     position: absolute;
     top: 30%;
-    left: 40%;
+    /*print info div width around 280px*/
+    left: calc(50% - 140px);
     background: white;
     border: 1px solid black;
     padding: 0 5px;

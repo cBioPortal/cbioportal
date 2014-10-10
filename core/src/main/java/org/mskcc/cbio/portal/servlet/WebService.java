@@ -29,6 +29,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
+import org.mskcc.cbio.portal.model.Sample;
 
 /**
  * Core Web Service.
@@ -206,6 +207,11 @@ public class WebService extends HttpServlet {
             } else if (cmd.equals("getClinicalData")) {
                 // PROVIDES case_set_id
                 getClinicalData(httpServletRequest, writer);
+            } else if (cmd.equals("getAllClinicalData")) {
+                // Get patient and sample clinical data
+                getSampleAndPatientClinicalDataBySampleIds(httpServletRequest, writer);
+            } else if (cmd.equals("getPatientSampleMapping")) {
+                getSampleAndPatientMappingTable(httpServletRequest, writer);
             } else if (cmd.equals("getMutationData")) {
                 // PROVIDES genetic_profile_id
                 getMutationData(httpServletRequest, writer);
@@ -422,6 +428,48 @@ public class WebService extends HttpServlet {
             throw new ProtocolException("please specify the format, i.e. format=txt OR format=json");
         }
     }
+    
+    private void getSampleAndPatientClinicalDataBySampleIds(HttpServletRequest request, PrintWriter writer)
+            throws DaoException, ProtocolException, IOException {
+        String cancerStudyId = WebserviceParserUtils.getCancerStudyId(request);
+        if(cancerStudyId == null) {
+            writer.print("Please specify the cancer study.");
+            return;
+        }
+        
+        String format = WebserviceParserUtils.getFormat(request);
+        if("json".equals(format)){
+            int internalCancerStudyId = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId).getInternalId();
+            List<String> patientIds = WebserviceParserUtils.getPatientList(request);
+            List<String> sampleIds = StableIdUtil.getStableSampleIdsFromPatientIds(internalCancerStudyId, patientIds);
+            JSONObject.writeJSONString(GetClinicalData.generateJson(DaoClinicalData.getSampleAndPatientData(internalCancerStudyId, sampleIds)), writer);
+        }else {
+            // die
+            writer.print("There was an error in processing your request.  Please try again");
+            throw new ProtocolException("please specify the format, format=json");
+        }
+    }
+    
+    private void getSampleAndPatientMappingTable(HttpServletRequest request, PrintWriter writer)
+            throws DaoException, ProtocolException, IOException {
+        
+        String cancerStudyId = WebserviceParserUtils.getCancerStudyId(request);
+        if(cancerStudyId == null) {
+            writer.print("Please specify the cancer study.");
+            return;
+        }
+        
+        int internalCancerStudyId = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId).getInternalId();
+        List<String> patientIds = WebserviceParserUtils.getPatientList(request);
+        
+        JSONObject mapping = new JSONObject();
+        for (String patientId : patientIds) {
+            List<String> patientList = new ArrayList<String>();
+            patientList.add(patientId);
+            mapping.put(patientId, StableIdUtil.getStableSampleIdsFromPatientIds(internalCancerStudyId, patientList));
+        }
+        JSONObject.writeJSONString(mapping, writer);
+    }
 
     /*
      * For getMutSig client specifies a Cancer Study ID,
@@ -522,8 +570,9 @@ public class WebService extends HttpServlet {
         // check that command is correct
         String[] commands = {"getTypesOfCancer", "getNetwork", "getCancerStudies",
                 "getCancerTypes", "getGeneticProfiles", "getProfileData", "getCaseLists",
-                "getClinicalData", "getMutationData", "getMutationFrequency",
-                "getProteinArrayInfo", "getProteinArrayData", "getMutSig"};
+                "getClinicalData", "getAllClinicalData", "getPatientSampleMapping", 
+                "getMutationData", "getMutationFrequency", "getProteinArrayInfo", 
+                "getProteinArrayData", "getMutSig"};
         for (String aCmd : commands) {
             if (aCmd.equals(cmd)) {
                 return true;

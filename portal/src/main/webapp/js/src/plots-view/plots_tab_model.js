@@ -43,7 +43,9 @@ var Plots = (function(){
             genetic_profile_dna_methylation : []
         },
         genetic_profiles = {},
-        log_scale_threshold_down = 0.17677669529, log_scale_threshold_up = 1024;  // -2.5 to 10
+        log_scale_threshold_down = 0.17677669529, 
+        //log_scale_threshold_up = 1024;  // -2.5 to 10
+        log_scale_threshold_up = 1.2676506e+30;
 
     function getGeneticProfileCallback(result) {
         for (var gene in result) {

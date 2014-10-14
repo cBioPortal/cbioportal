@@ -17,18 +17,19 @@
  */
 package org.mskcc.cbio.importer.dmp.transformer;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-
 import java.util.Map;
 import org.mskcc.cbio.importer.dmp.model.Result;
+import org.mskcc.cbio.importer.dmp.support.DMPStagingFileManager;
 
 public class MetaDataTransformer {
-
-    public MetaDataTransformer() {
-       
-    }
    
+    public MetaDataTransformer() {    
+    }
+    
+  
     /*
     public static method to transform Result metadata attributes into a 
     sorted map. Note that the keys for initial map are divided into two sections
@@ -38,9 +39,9 @@ public class MetaDataTransformer {
         Preconditions.checkArgument(null!=result,"A Result object is required");
         final Map<String, String> metaMap = Maps.newTreeMap();
                 // pre-sequence data
-                metaMap.put("001Tumor_Type", result.getMetaData().getTumorTypeName());
+                metaMap.put("001DMP_Sample_ID", result.getMetaData().getDmpSampleId().toString());            
                 metaMap.put("002DMP_Patient_ID", result.getMetaData().getDmpPatientId().toString());
-                metaMap.put("003DMP_Sample_ID", result.getMetaData().getDmpSampleId().toString());
+                metaMap.put("003Tumor_Type", result.getMetaData().getTumorTypeName());
                 metaMap.put("004Gender", (result.getMetaData().getGender() !=null)?result.getMetaData().getGender().toString():"");
                 // post-sequence data
                 metaMap.put("500Metastasis", (result.getMetaData().getIsMetastasis() !=null)?result.getMetaData().getIsMetastasis().toString():"");
@@ -51,6 +52,5 @@ public class MetaDataTransformer {
                 metaMap.put("505Tumor_Purity", (result.getMetaData().getTumorPurity()!=null)?result.getMetaData().getTumorPurity().toString():"");
                 return metaMap;
     }
-    
 
 }

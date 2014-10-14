@@ -30,15 +30,15 @@ import org.mskcc.cbio.importer.dmp.support.DMPCommonNames;
 import org.mskcc.cbio.importer.dmp.support.DMPStagingFileManager;
 import org.mskcc.cbio.importer.dmp.util.DmpUtils;
 
-public class CnvVariantDataTransformer implements DMPTransformable {
+public class CnvIntragenicVariantDataTransformer implements DMPTransformable {
 
-    private static final String REPORT_TYPE = DMPCommonNames.REPORT_TYPE_CNV;
+    private static final String REPORT_TYPE = DMPCommonNames.REPORT_TYPE_CNV_INTRAGENIC;
     public static final Joiner tabJoiner = Joiner.on("\t");
      private static final Map<String, String> attributeMap = DmpUtils.reportTypeAttributeMaps.get(REPORT_TYPE);
     
     private Map<String, String> baseMap;
 
-    public CnvVariantDataTransformer() {
+    public CnvIntragenicVariantDataTransformer() {
     }
 
     @Override

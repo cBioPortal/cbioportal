@@ -592,7 +592,7 @@ public class FoundationXMLTransformer implements FileTransformer {
         }
 
         /*
-         create a new staging filefor this study
+         create a new staging file for this study
          delete an older ones if it exist
          */
         private void createNewStagingFile(Path path) throws IOException {

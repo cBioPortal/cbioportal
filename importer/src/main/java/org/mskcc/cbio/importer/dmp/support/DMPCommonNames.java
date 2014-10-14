@@ -26,5 +26,7 @@ public interface DMPCommonNames {
     public static final String REPORT_TYPE_CNV = "CnvVariant";
     public static final String REPORT_TYPE_SNP_EXONIC = "SnpExonic";
     public static final String REPORT_TYPE_SNP_SILENT = "SnpSilent";
+    public static final String REPORT_TYPE_TUMOR_TYPE = "TumorType";
+  
     
 }

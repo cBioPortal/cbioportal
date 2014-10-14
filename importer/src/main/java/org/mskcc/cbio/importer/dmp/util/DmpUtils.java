@@ -39,6 +39,22 @@ public class DmpUtils {
 
     public static final Map<String, Map<String, String>> reportTypeAttributeMaps = Maps.newHashMap();
     
+     public static final Map<String, String> cnvIntragenicAttributeMap = Maps.newTreeMap();
+
+    static {
+        cnvIntragenicAttributeMap.put("100Gene ID", "getGeneId");
+        cnvIntragenicAttributeMap.put("101Chromosome", "getChromosome");
+        cnvIntragenicAttributeMap.put("102CNV_Class", "getCnvClassName");
+        cnvIntragenicAttributeMap.put("103Confidence Class", "getConfidenceClass");
+        cnvIntragenicAttributeMap.put("104Cytoband", "getCytoband");
+        cnvIntragenicAttributeMap.put("105Gene Fold Change", "getGeneFoldChange");
+        cnvIntragenicAttributeMap.put("106Gene p-value", "getGenePValue");
+        cnvIntragenicAttributeMap.put("107Significant", "getIsSignificant");
+        cnvIntragenicAttributeMap.put("108Variant Status", "getVariantStatusName");
+        // associate these attributes with the CNV Intragenic report
+        reportTypeAttributeMaps.put(DMPCommonNames.REPORT_TYPE_CNV_INTRAGENIC, cnvIntragenicAttributeMap);
+    }
+    
       public static final Map<String, String> cnvAttributeMap = Maps.newTreeMap();
 
     static {
@@ -146,8 +162,17 @@ public class DmpUtils {
         // associate these attributes with the SNP Silent report type
         reportTypeAttributeMaps.put(DMPCommonNames.REPORT_TYPE_SNP_SILENT, snpSilentAttributeMap);
     }
-    
     public static String getColumnNamesByReportType(String reportType){
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(reportType), "A report type is required");
+        Preconditions.checkArgument(reportTypeAttributeMaps.containsKey(reportType),
+                "Report type " +reportType +" is not supported");
+        return tabJoiner.join(getPreDataColumnHeadings(),
+                getDataColumnHeadingsByReportType(reportType),
+                getPostDataColumnHeadings());
+    }
+        
+    
+    private static String getDataColumnHeadingsByReportType(String reportType){
         Preconditions.checkArgument(!Strings.isNullOrEmpty(reportType), "A report type is required");
         Preconditions.checkArgument(reportTypeAttributeMaps.containsKey(reportType),
                 "Report type " +reportType +" is not supported");
@@ -183,6 +208,16 @@ public class DmpUtils {
             Logger.getLogger(DmpUtils.class.getName()).log(Level.SEVERE, null, ex);
         }
         return "";
+    }
+    
+    private static String getPreDataColumnHeadings() {
+        return tabJoiner.join("DMP Sample ID", "Tumor Type","DMP Patient ID",
+                "Gender");
+    }
+    
+    private static String getPostDataColumnHeadings() {
+        return tabJoiner.join("Metastasis","Metastasis Site", " Sample Coverage",
+                "Signout Comments", "Signout Status", "Tumor Purity");
     }
 
 }

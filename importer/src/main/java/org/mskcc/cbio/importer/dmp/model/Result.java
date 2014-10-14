@@ -28,7 +28,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 public class Result {
 
     @JsonProperty("cnv-intragenic-variants")
-    private List<Object> cnvIntragenicVariants = new ArrayList<Object>();
+    private List<CnvIntragenicVariant> cnvIntragenicVariants = new ArrayList<CnvIntragenicVariant>();
     @JsonProperty("cnv-variants")
     private List<CnvVariant> cnvVariants = new ArrayList<CnvVariant>();
     @JsonProperty("meta-data")
@@ -46,7 +46,7 @@ public class Result {
      *     The cnvIntragenicVariants
      */
     @JsonProperty("cnv-intragenic-variants")
-    public List<Object> getCnvIntragenicVariants() {
+    public List<CnvIntragenicVariant> getCnvIntragenicVariants() {
         return cnvIntragenicVariants;
     }
 
@@ -56,7 +56,7 @@ public class Result {
      *     The cnv-intragenic-variants
      */
     @JsonProperty("cnv-intragenic-variants")
-    public void setCnvIntragenicVariants(List<Object> cnvIntragenicVariants) {
+    public void setCnvIntragenicVariants(List<CnvIntragenicVariant> cnvIntragenicVariants) {
         this.cnvIntragenicVariants = cnvIntragenicVariants;
     }
 

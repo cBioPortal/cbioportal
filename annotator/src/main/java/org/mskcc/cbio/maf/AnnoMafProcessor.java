@@ -57,6 +57,19 @@ public class AnnoMafProcessor extends MafProcessor
 	}
 
 	/**
+	 * Adds other (custom) column names into the header list.
+	 * @param headerData    list of header names
+	 */
+	protected void addOtherColsToHeader(List<String> headerData)
+	{
+		// add other custom columns
+		super.addOtherColsToHeader(headerData);
+
+		// always add missing annotator headers
+		this.addNewColsToHeader(headerData);
+	}
+
+	/**
 	 * Adds new annotator column names into the header list.
 	 *
 	 * @param headerData    list of header names

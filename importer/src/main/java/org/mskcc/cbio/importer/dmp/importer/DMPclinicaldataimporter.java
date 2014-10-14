@@ -21,6 +21,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonFactory;
@@ -31,96 +32,104 @@ import org.mskcc.cbio.importer.dmp.util.*;
 
 public class DMPclinicaldataimporter {
 
-    //Tokens for webservice
     private static final String DMP_SERVER_NAME = "http://draco.mskcc.org:9770";
     private static final String DMP_CREATE_SESSION = "create_session";
     private static final String DMP_CBIO_RETRIEVE_VARIANTS = "cbio_retrieve_variants";
+    private static final String DMP_CBIO_CONSUME_SAMPLE = "cbio_consume_sample";
 
-    //Spring Rest Template for calling webservice
-    private final RestTemplate template; //spring rest template
+    private final RestTemplate template = new RestTemplate(); //spring rest template
+    private final ObjectMapper mapper = new ObjectMapper();
+    private final JsonFactory factory = mapper.getJsonFactory();
     
-    //Jackson JSON mapper instance
-    private final ObjectMapper mapper;
-    private final JsonFactory factory;
+    private String resultJsonStr; //sample result - includes everything; format - json string
 
-    private final DMPsession session; //dmp session
-    private final String sample_result_json_str; //sample result - includes everything; format - json string
-
+    /**
+     * 
+     * Create instance to retrieve sample data
+     * 
+     * @throws IOException
+     * 
+     */
     public DMPclinicaldataimporter()
         throws IOException {
 
-            //init
-            template = new RestTemplate();
-            mapper = new ObjectMapper();
-            factory = mapper.getJsonFactory();
-            session = initSession(); 
-
-            //Adjust the structure and order of raw result to fit in json2pojo library
-            sample_result_json_str = JSONconverters.convertRaw(getRawResult(session.getSessionId()));
+            DMPsession _session = new DMPsession(); 
+            
+            ResponseEntity<String> rawResultEntity = 
+                template.getForEntity(
+                    DMP_SERVER_NAME + "/" + DMP_CBIO_RETRIEVE_VARIANTS + "/" + _session.getSessionId() + "/0", 
+                    String.class
+                ); 
+            String rawResultJsonStr = rawResultEntity.getBody();
+            resultJsonStr = 
+                    JSONconverters.convertRaw(rawResultJsonStr); //Adjust the structure and order of raw result to fit in json2pojo library
+            
             //TODO: manually attach the cnv_introgenic_variants, therefore we can generate a complete template
             //System.out.println(JSONconverters.attachMissingValues(sample_result_json_str));
             
     }
-
-    private DMPsession initSession() 
+    
+    /**
+     * 
+     * Create instance to flag consumed samples
+     * 
+     * @param sampleIds an array list of id of samples which are consumed 
+     * @throws IOException
+     * 
+     */
+    public DMPclinicaldataimporter(ArrayList<String> sampleIds) 
         throws IOException {
         
-        //Get the session info JSON object and parse to get session Id
-        ResponseEntity<String> entity_session = 
-                template.getForEntity(
-                    DMP_SERVER_NAME + "/" + DMP_CREATE_SESSION + "/" + "Y2Jpb19ydwo=/eDM4I3hGMgo=/0", 
-                    String.class
-                );
-        JsonParser jp = factory.createJsonParser(entity_session.getBody());
-        JsonNode actualObj = mapper.readTree(jp);
+        DMPsession _session = new DMPsession(); 
         
-        return new DMPsession(
-                actualObj.get("session_id").asText(),
-                actualObj.get("time_created").asText(),
-                actualObj.get("time_expired").asText()
+        for(String sampleId : sampleIds) {
+            template.getForEntity(
+                    DMP_SERVER_NAME + "/" + DMP_CBIO_CONSUME_SAMPLE + "/" + sampleId + "/" + _session.getSessionId(),
+                    String.class
             );
-    }
+        }
 
-    private String getRawResult(String _sessionId) 
-        throws IOException {
-        
-        ResponseEntity<String> raw_result_entity = 
-                template.getForEntity(
-                    DMP_SERVER_NAME + "/" + DMP_CBIO_RETRIEVE_VARIANTS + "/" + _sessionId + "/0", 
-                    String.class
-                );    
-        
-        return raw_result_entity.getBody();
     }
     
     private class DMPsession {
 
-            private String SESSION_ID;
-            private String TIME_CREATED;
-            private String TIME_EXPIRED;
+        private final String SESSION_ID;
+        private final String TIME_CREATED;
+        private final String TIME_EXPIRED;
+        
+        public DMPsession() 
+            throws IOException{
+            
+            ResponseEntity<String> entitySession = 
+                template.getForEntity(
+                    DMP_SERVER_NAME + "/" + DMP_CREATE_SESSION + "/" + "Y2Jpb19ydwo=/eDM4I3hGMgo=/0", 
+                    String.class
+                );
+            JsonParser jp = factory.createJsonParser(entitySession.getBody());
+            JsonNode sessionObj = mapper.readTree(jp);
+        
+            SESSION_ID = sessionObj.get("session_id").asText();
+            TIME_CREATED = sessionObj.get("time_created").asText();
+            TIME_EXPIRED = sessionObj.get("time_expired").asText();
+            
+        }
 
-            public DMPsession(String _session_id, String _time_created, String _time_expired) {
-                SESSION_ID = _session_id;
-                TIME_CREATED = _time_created;
-                TIME_EXPIRED = _time_expired;
-            }
-
-            public String getSessionId() {
-                return SESSION_ID;
-            }
-
-            public String getTimeCreated() {
-                return TIME_CREATED;
-            }
-
-            public String getTimeExpired() {
-                return TIME_EXPIRED;
-            }
+        public String getSessionId() {
+            return SESSION_ID;
+        }
+        
+        public String getTimeCreated() {
+            return TIME_CREATED;
+        }
+        
+        public String getTimeExpired() {
+            return TIME_EXPIRED;
+        }
 
     }
 
     public String getResult() { 
-        return sample_result_json_str;
+        return resultJsonStr;
     }
     
 }

@@ -25,7 +25,6 @@ import java.io.IOException;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.node.ObjectNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import org.mskcc.cbio.importer.dmp.model.*;
@@ -37,11 +36,11 @@ public class DMPclinicaldataimporter {
     private static final String DMP_CREATE_SESSION = "create_session";
     private static final String DMP_CBIO_RETRIEVE_VARIANTS = "cbio_retrieve_variants";
 
-    private RestTemplate template; //spring rest template
-    private DMPsession session; //dmp session
-    private ObjectMapper mapper;
-    private JsonFactory factory;
-    private String sample_result_json_str; //sample result - includes everything; format - json string
+    private final RestTemplate template; //spring rest template
+    private final DMPsession session; //dmp session
+    private final ObjectMapper mapper;
+    private final JsonFactory factory;
+    private final String sample_result_json_str; //sample result - includes everything; format - json string
 
     public DMPclinicaldataimporter()
         throws IOException {
@@ -52,14 +51,15 @@ public class DMPclinicaldataimporter {
             factory = mapper.getJsonFactory();
             session = initSession(); 
 
-            //TEMP: Adjust the structure and order of raw result to fit in json2pojo library
-            sample_result_json_str = DMPconverters.convertRaw(getRawResult(session.getSessionId()));
-
+            //Adjust the structure and order of raw result to fit in json2pojo library
+            sample_result_json_str = JSONconverters.convertRaw(getRawResult(session.getSessionId()));
+            //TODO: manually attach the cnv_introgenic_variants, therefore we can generate a complete template
+            //System.out.println(JSONconverters.attachMissingValues(sample_result_json_str));
+            
     }
 
     private DMPsession initSession() 
         throws IOException {
-        
         //Get the session info JSON object and parse to get session Id
         RestTemplate template = new RestTemplate();
         ResponseEntity<String> entity_session = 
@@ -69,29 +69,24 @@ public class DMPclinicaldataimporter {
                 );
         JsonParser jp = factory.createJsonParser(entity_session.getBody());
         JsonNode actualObj = mapper.readTree(jp);
-
         return new DMPsession(
                 actualObj.get("session_id").asText(),
                 actualObj.get("time_created").asText(),
                 actualObj.get("time_expired").asText()
             );
-
     }
 
     private String getRawResult(String _sessionId) 
         throws IOException {
-
         ResponseEntity<String> raw_result_entity = 
                 template.getForEntity(
                     DMP_SERVER_NAME + "/" + DMP_CBIO_RETRIEVE_VARIANTS + "/" + _sessionId + "/0", 
                     String.class
                 );    
-
         return raw_result_entity.getBody();
-
     }
 
-    public String getResult() {
+    public String getResult() { 
         return sample_result_json_str;
     }
 

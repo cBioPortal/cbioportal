@@ -34,14 +34,13 @@ public class DMPFetcherImpl {
     public static void main(String args[])
             throws IOException {
         ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-        DMPStagingFileManager fileManager = new DMPStagingFileManager(Paths.get("/tmp/dmp"));
+        DMPStagingFileManager fileManager = new DMPStagingFileManager(Paths.get("/tmp/dmp/"));
         // DMPTransformable cnvTransformable = new CnvVariantDataTransformer();
         List<DMPTransformable> transformableList = Lists.newArrayList();
         transformableList.add(new CnvVariantDataTransformer());
         transformableList.add(new SnpExonicDataTransformer());
         transformableList.add(new SnpSilentDataTransformer());
         DMPDataTransformer transformer = new DMPDataTransformer(fileManager, transformableList);
-        
         
         DMPclinicaldataimporter dmp_importer = new DMPclinicaldataimporter();
         DmpData data = OBJECT_MAPPER.readValue(dmp_importer.getResult(), DmpData.class);

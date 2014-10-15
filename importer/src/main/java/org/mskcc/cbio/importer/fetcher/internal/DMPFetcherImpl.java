@@ -97,12 +97,4 @@ public class DMPFetcherImpl implements Fetcher{
             throws Exception {
     }
     
-//    public static void main(String args[])
-//        throws IOException, Exception {
-//        
-//        DMPFetcherImpl fetcher = new DMPFetcherImpl();
-//        fetcher.fetch(null, null);
-//    
-//    }
-    
 }

@@ -29,10 +29,6 @@ import org.apache.commons.lang.*;
 
 import org.owasp.validator.html.PolicyException;
 
-
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
 import java.io.*;
 import java.util.*;
 import javax.servlet.*;
@@ -115,9 +111,7 @@ public class QueryBuilder extends HttpServlet {
         super.init();
         try {
             servletXssUtil = ServletXssUtil.getInstance();
-			ApplicationContext context = 
-				new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
-			accessControl = (AccessControl)context.getBean("accessControl");
+			accessControl = SpringUtil.getAccessControl();
         } catch (PolicyException e) {
             throw new ServletException (e);
         }

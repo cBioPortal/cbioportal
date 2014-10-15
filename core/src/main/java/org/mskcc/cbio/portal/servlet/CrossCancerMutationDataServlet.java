@@ -29,8 +29,6 @@ import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.web_api.*;
 import org.owasp.validator.html.PolicyException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -72,9 +70,7 @@ public class CrossCancerMutationDataServlet extends HttpServlet
      */
     public void init() throws ServletException {
         super.init();
-        ApplicationContext context =
-                new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
-        accessControl = (AccessControl)context.getBean("accessControl");
+        accessControl = SpringUtil.getAccessControl();
     }
 
 	protected void doGet(HttpServletRequest request,

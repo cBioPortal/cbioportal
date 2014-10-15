@@ -20,16 +20,18 @@ package org.mskcc.cbio.portal.servlet;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.web_api.*;
-import org.mskcc.cbio.portal.model.CancerStudy;
+import org.mskcc.cbio.portal.model.*;
 
 import org.json.simple.*;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.io.*;
 import java.util.*;
 import java.util.regex.Pattern;
-import javax.servlet.ServletException;
 import javax.servlet.http.*;
-import org.mskcc.cbio.portal.model.Sample;
+import javax.servlet.ServletException;
 
 /**
  * Core Web Service.
@@ -57,6 +59,9 @@ public class WebService extends HttpServlet {
     public static final String PROTEIN_ARRAY_ID = "protein_array_id";
     public static final String FORMAT = "format";
 
+    // class which process access control to cancer studies
+    private AccessControl accessControl;
+
     /**
      * Shutdown the Servlet.
      */
@@ -74,6 +79,8 @@ public class WebService extends HttpServlet {
         System.out.println("Starting up the Web Service API...");
         System.out.println("Reading in init parameters from web.xml");
         DatabaseProperties dbProperties = DatabaseProperties.getInstance();
+        System.out.println("Initializing AccessControl");
+        accessControl = SpringUtil.getAccessControl();
         System.out.println("Starting CGDS Server");
         verifyDbConnection();
     }
@@ -191,6 +198,10 @@ public class WebService extends HttpServlet {
                 if (!DaoCancerStudy.doesCancerStudyExistByStableId(cancerStudyID)) {
                     outputError(writer, "The cancer study identified by the request (" + cancerStudyID +
                             ") is not in the dbms. Please reformulate request.");
+                    return;
+                }
+                if (accessControl.isAccessibleCancerStudy(cancerStudyID).size() != 1) {
+                    outputError(writer, "You are not authorized to view the cancer study identified by the request (" + cancerStudyID + ").");
                     return;
                 }
             }

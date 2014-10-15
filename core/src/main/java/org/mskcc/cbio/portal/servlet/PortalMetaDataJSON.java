@@ -21,9 +21,6 @@ import org.mskcc.cbio.portal.web_api.*;
 
 import org.json.simple.*;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
 import java.io.*;
@@ -52,9 +49,7 @@ public class PortalMetaDataJSON extends HttpServlet {
 
     public void init() throws ServletException {
         super.init();
-        ApplicationContext context
-                = new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
-        accessControl = (AccessControl) context.getBean("accessControl");
+        accessControl = SpringUtil.getAccessControl();
     }
 
     /**

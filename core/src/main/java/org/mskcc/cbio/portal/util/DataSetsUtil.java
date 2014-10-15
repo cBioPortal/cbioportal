@@ -24,9 +24,6 @@ import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.AccessControl;
 import org.mskcc.cbio.portal.web_api.ProtocolException;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
 import java.util.List;
 import java.util.HashSet;
 import java.util.ArrayList;
@@ -39,7 +36,7 @@ import java.util.ArrayList;
 public class DataSetsUtil {
 
 	// ref to our access control object
-	private static AccessControl accessControl = initializeAccessControl();
+	private static AccessControl accessControl = SpringUtil.getAccessControl();
 
 	// ref to total number of samples for al cancer studies
 	private Integer totalNumberOfSamples;
@@ -130,15 +127,6 @@ public class DataSetsUtil {
 
 		// outta here
 		return toReturn;
-	}
-
-	/** 
-	 * Initializes the AccessControl member.
-	 */
-	protected static final AccessControl initializeAccessControl() {
-		ApplicationContext context = 
-			new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
-		return (AccessControl)context.getBean("accessControl");
 	}
 
 	private int getCount(CancerStudy cancerStudy, String patientListSuffix) throws DaoException {

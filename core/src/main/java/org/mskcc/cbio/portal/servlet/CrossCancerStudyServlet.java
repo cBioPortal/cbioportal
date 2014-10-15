@@ -21,7 +21,7 @@ import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CategorizedGeneticProfileSet;
 import org.mskcc.cbio.portal.model.GeneticProfile;
-import org.mskcc.cbio.portal.util.AccessControl;
+import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.util.XssRequestWrapper;
 import org.mskcc.cbio.portal.web_api.GetGeneticProfiles;
 import org.mskcc.cbio.portal.validate.gene.GeneValidator;
@@ -39,9 +39,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
 /**
  * Central Servlet for performing Cross-Cancer Study Queries.
  *
@@ -56,10 +53,7 @@ public class CrossCancerStudyServlet extends HttpServlet {
      */
     public void init() throws ServletException {
         super.init();
-
-		ApplicationContext context =
-			new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
-		accessControl = (AccessControl)context.getBean("accessControl");
+		accessControl = SpringUtil.getAccessControl();
     }
 
     /**

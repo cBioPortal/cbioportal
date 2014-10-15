@@ -12,9 +12,6 @@ import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringUtils;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
 import java.io.*;
 import java.util.*;
 import java.util.regex.*;
@@ -66,10 +63,7 @@ public class PatientView extends HttpServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-
-	    ApplicationContext context =
-			    new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
-	    accessControl = (AccessControl)context.getBean("accessControl");
+        accessControl = SpringUtil.getAccessControl();
     }
     
     /** 

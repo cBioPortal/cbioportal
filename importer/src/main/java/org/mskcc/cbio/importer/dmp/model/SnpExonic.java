@@ -136,6 +136,8 @@ public class SnpExonic {
     private String variantStatusName;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    @JsonIgnore
+    private Integer dmpSampleId;
 
     /**
      * 
@@ -901,6 +903,12 @@ public class SnpExonic {
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
     }
+    
+    @JsonAnyGetter
+    public Integer getDmpSampleId() {return this.dmpSampleId;}
+    
+    @JsonAnySetter
+    public void setDmpSampleId(Integer id) {this.dmpSampleId = id;}
 
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {

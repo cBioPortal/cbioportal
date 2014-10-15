@@ -34,12 +34,12 @@ import org.mskcc.cbio.importer.dmp.support.DMPCommonNames;
  represents a collection of static utility methods used thoughout the application
  */
 public class DmpUtils {
-    
+
     public static final Joiner tabJoiner = Joiner.on("\t");
 
     public static final Map<String, Map<String, String>> reportTypeAttributeMaps = Maps.newHashMap();
-    
-     public static final Map<String, String> cnvIntragenicAttributeMap = Maps.newTreeMap();
+
+    public static final Map<String, String> cnvIntragenicAttributeMap = Maps.newTreeMap();
 
     static {
         cnvIntragenicAttributeMap.put("100Gene ID", "getGeneId");
@@ -54,8 +54,8 @@ public class DmpUtils {
         // associate these attributes with the CNV Intragenic report
         reportTypeAttributeMaps.put(DMPCommonNames.REPORT_TYPE_CNV_INTRAGENIC, cnvIntragenicAttributeMap);
     }
-    
-      public static final Map<String, String> cnvAttributeMap = Maps.newTreeMap();
+
+    public static final Map<String, String> cnvAttributeMap = Maps.newTreeMap();
 
     static {
         cnvAttributeMap.put("100Gene ID", "getGeneId");
@@ -75,54 +75,36 @@ public class DmpUtils {
 
     static {
         intragenicAttributeMap.put("100Gene ID", "getGeneId");
-        
+
         // associate these attributes with the intragenic report
         reportTypeAttributeMaps.put(DMPCommonNames.REPORT_TYPE_CNV_INTRAGENIC, intragenicAttributeMap);
     }
 
-    public static final Map<String, String> snpExonicAttributeMap = Maps.newTreeMap();
+    public static final Map<String, String> mutationAttributeMap = Maps.newTreeMap();
 
     static {
-        snpExonicAttributeMap.put("100Gene ID", "getGeneId");
-        snpExonicAttributeMap.put("101AA Change", "getAaChange");
-        snpExonicAttributeMap.put("102 Alt Allele", "getAltAllele");
-        snpExonicAttributeMap.put("103cDNA Change", "getCDNAChange");
-        snpExonicAttributeMap.put("104Chromosome", "getChromosome");
-        snpExonicAttributeMap.put("105Comments", "getComments");
-        snpExonicAttributeMap.put("106Confidence Class", "getConfidenceClass");
-        snpExonicAttributeMap.put("107COSMIC ID", "getCosmicId");
-        snpExonicAttributeMap.put("108dbSNP ID", "getDbSNPId");
-        snpExonicAttributeMap.put("109DMP Sample MRev ID", "getDmpSampleMrevId");
-        snpExonicAttributeMap.put("110DMP Sample So ID", "getDmpSampleSoId");
-        snpExonicAttributeMap.put("111DMP Variant ID", "getDmpVariantId");
-        snpExonicAttributeMap.put("112Exon Number", "getExonNum");
-        snpExonicAttributeMap.put("113Hotspot", "getIsHotspot");
-        snpExonicAttributeMap.put("114MA Freq", "getMafreq1000g");
-        snpExonicAttributeMap.put("115MRev Comments", "getMrevComments");
-        snpExonicAttributeMap.put("116MRev Status ID", "getMrevStatusCvId");
-        snpExonicAttributeMap.put("117MRev Status", "getMrevStatusName");
-        snpExonicAttributeMap.put("118Normal Ad", "getNormalAd");
-        snpExonicAttributeMap.put("119Normal DP", "getNormalDp");
-        snpExonicAttributeMap.put("120Normal V freq", "getNormalVfreq");
-        snpExonicAttributeMap.put("121Occurance In Normal", "getOccuranceInNormal");
-        snpExonicAttributeMap.put("122Occurance In Population", "getOccuranceInPop");
-        snpExonicAttributeMap.put("123Ref Allele", "getRefAllele");
-        snpExonicAttributeMap.put("124SNP indel Variant ID", "getSnpIndelVariantId");
-        snpExonicAttributeMap.put("125Signout Comments", "getSoComments");
-        snpExonicAttributeMap.put("126Signout Status", "getSoStatusName");
-        snpExonicAttributeMap.put("127Start Position", "getStartPosition");
-        snpExonicAttributeMap.put("128Transcript ID", "getTranscriptId");
-        snpExonicAttributeMap.put("129Tumor AD", "getTumorAd");
-        snpExonicAttributeMap.put("130Tumor Dp", "getTumorDp");
-        snpExonicAttributeMap.put("131Tumor V freq", "getTumorVfreq");
-        snpExonicAttributeMap.put("132Variant Class", "getVariantClass");
-        snpExonicAttributeMap.put("133Variant Status", "getVariantStatusName");
+        mutationAttributeMap.put("001Hugo_Symbol", "getGeneId");
+        mutationAttributeMap.put("002Entrez_Gene_Id", "getGeneId");
+        mutationAttributeMap.put("003Center", "getGeneId");
+        mutationAttributeMap.put("004Build", "getGeneId");
+        mutationAttributeMap.put("005Chromosome", "getChromosome");
+        mutationAttributeMap.put("006Start_Position", "getStartPosition");
+        mutationAttributeMap.put("007End_Position", "getStartPosition");
+        mutationAttributeMap.put("008Strand", "getStrand");
+        mutationAttributeMap.put("009Variant_Classification", "getVariantClass");
+        mutationAttributeMap.put("010Variant_Type", "getVariantClass");
+        mutationAttributeMap.put("011Ref_Allele", "getRefAllele");
+        mutationAttributeMap.put("012Tumor_Allele1", "getAltAllele");
+        mutationAttributeMap.put("013Tumor_Allele2", "getAltAllele");
+        mutationAttributeMap.put("014dbSNP_RS", "getDbSNPId");
+        mutationAttributeMap.put("015dbSNP_Val_Status", "getGeneId");
+        mutationAttributeMap.put("016Tumor_Sample_Barcode", "getDmpSampleId");
+
         // associate these attributes with the SNP Exonic report type
-        reportTypeAttributeMaps.put(DMPCommonNames.REPORT_TYPE_SNP_EXONIC, snpExonicAttributeMap);
+        reportTypeAttributeMaps.put(DMPCommonNames.REPORT_TYPE_MUTATIONS, mutationAttributeMap);
     }
-    
-    
-     public static final Map<String, String> snpSilentAttributeMap = Maps.newTreeMap();
+
+    public static final Map<String, String> snpSilentAttributeMap = Maps.newTreeMap();
 
     static {
         snpSilentAttributeMap.put("100Gene ID", "getGeneId");
@@ -162,28 +144,26 @@ public class DmpUtils {
         // associate these attributes with the SNP Silent report type
         reportTypeAttributeMaps.put(DMPCommonNames.REPORT_TYPE_SNP_SILENT, snpSilentAttributeMap);
     }
-    public static String getColumnNamesByReportType(String reportType){
+
+    public static String getColumnNamesByReportType(String reportType) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(reportType), "A report type is required");
         Preconditions.checkArgument(reportTypeAttributeMaps.containsKey(reportType),
-                "Report type " +reportType +" is not supported");
-        return tabJoiner.join(getPreDataColumnHeadings(),
-                getDataColumnHeadingsByReportType(reportType),
-                getPostDataColumnHeadings());
+                "Report type " + reportType + " is not supported");
+        return getDataColumnHeadingsByReportType(reportType);
     }
-        
-    
-    private static String getDataColumnHeadingsByReportType(String reportType){
+
+    private static String getDataColumnHeadingsByReportType(String reportType) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(reportType), "A report type is required");
         Preconditions.checkArgument(reportTypeAttributeMaps.containsKey(reportType),
-                "Report type " +reportType +" is not supported");
+                "Report type " + reportType + " is not supported");
         List<String> headings = FluentIterable.from(reportTypeAttributeMaps.get(reportType).keySet())
-                .transform(new Function<String,String>() {
-            @Override
-            public String apply(String s) {
-                return(s.substring(3)); // strip off the three digit numeric prefix
-            }
-        }).toList();
-           return tabJoiner.join(headings);
+                .transform(new Function<String, String>() {
+                    @Override
+                    public String apply(String s) {
+                        return (s.substring(3)); // strip off the three digit numeric prefix
+                    }
+                }).toList();
+        return tabJoiner.join(headings);
     }
 
     /*
@@ -209,14 +189,14 @@ public class DmpUtils {
         }
         return "";
     }
-    
+
     private static String getPreDataColumnHeadings() {
-        return tabJoiner.join("DMP Sample ID", "Tumor Type","DMP Patient ID",
+        return tabJoiner.join("DMP Sample ID", "Tumor Type", "DMP Patient ID",
                 "Gender");
     }
-    
+
     private static String getPostDataColumnHeadings() {
-        return tabJoiner.join("Metastasis","Metastasis Site", " Sample Coverage",
+        return tabJoiner.join("Metastasis", "Metastasis Site", " Sample Coverage",
                 "Signout Comments", "Signout Status", "Tumor Purity");
     }
 

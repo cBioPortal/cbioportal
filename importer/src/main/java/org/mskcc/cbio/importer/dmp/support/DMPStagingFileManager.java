@@ -18,11 +18,9 @@
 package org.mskcc.cbio.importer.dmp.support;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -43,11 +41,9 @@ import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 import static java.nio.file.StandardOpenOption.DSYNC;
 import static java.nio.file.StandardOpenOption.WRITE;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.dmp.util.DmpUtils;
 
@@ -158,8 +154,9 @@ public class DMPStagingFileManager {
     private void initFileMap() {
         this.filePathMap.put(DMPCommonNames.REPORT_TYPE_CNV, this.stagingFilePath.resolve("data_CNA.txt"));
         this.filePathMap.put(DMPCommonNames.REPORT_TYPE_CNV_INTRAGENIC, this.stagingFilePath.resolve("data_CNA_intragenic.txt"));
-        this.filePathMap.put(DMPCommonNames.REPORT_TYPE_SNP_EXONIC, this.stagingFilePath.resolve("data_mutations_extended.txt"));
-        this.filePathMap.put(DMPCommonNames.REPORT_TYPE_SNP_SILENT, this.stagingFilePath.resolve("data_mutations_silent.txt"));
+        // both exonic and silent snps are written to the same file
+        this.filePathMap.put(DMPCommonNames.REPORT_TYPE_MUTATIONS, this.stagingFilePath.resolve("data_mutations_extended.txt"));
+        //this.filePathMap.put(DMPCommonNames.REPORT_TYPE_SNP_SILENT, this.stagingFilePath.resolve("data_mutations_silent.txt"));
         
         // resolve Path to set of processed samples
 
@@ -188,6 +185,22 @@ public class DMPStagingFileManager {
     }
     
     
+    
+    public void appendMafDataToStagingFile(String reportType, List<String> mafData) {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(reportType), "A DMP report type is required");
+        Preconditions.checkArgument(this.filePathMap.containsKey(reportType),
+                "Report type: " + reportType + " is not supported");
+        Preconditions.checkArgument(null != mafData && !mafData.isEmpty(),
+                "A valid List of MAF data is required");
+        Path outPath = this.filePathMap.get(reportType);
+        OpenOption[] options = new OpenOption[]{CREATE, APPEND, DSYNC};
+        // create the file if it doesn't exist, append to it if it does
+        try {
+            Files.write(outPath, mafData, Charset.defaultCharset(), options);
+        } catch (IOException ex) {
+            logger.error(ex.getMessage());
+        }
+    }
     
 
     /*

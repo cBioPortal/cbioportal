@@ -27,6 +27,13 @@ public interface DMPCommonNames {
     public static final String REPORT_TYPE_SNP_EXONIC = "SnpExonic";
     public static final String REPORT_TYPE_SNP_SILENT = "SnpSilent";
     public static final String REPORT_TYPE_TUMOR_TYPE = "TumorType";
+    
+    public static final String REPORT_TYPE_MUTATIONS  = "mutations";
+    public static final String REPORT_TYPE_CNA  = "cna";   
+    
+    public static final String CENTER_MSKCC = "MSKCC";
+    public static final String DEFAULT_BUILD_NUMBER ="37";
+    public static final String DEFAULT_STRAND ="+";
   
     
 }

@@ -43,8 +43,8 @@ public class DMPTumorTypeSampleMapManager {
 
     private final DMPStagingFileManager fileManager;
     private Multimap<String, Integer> tumorSampleMap;
-    private static final Splitter scSplitter = Splitter.on(";");
-    private static final Joiner scJoiner = Joiner.on(";");
+    private static final Splitter tabSplitter = Splitter.on("\t");
+    private static final Joiner tabJoiner = Joiner.on(";");
 
     /*
      Suppliers.memoize(new GeneNameMapSupplier()).get();
@@ -82,7 +82,7 @@ public class DMPTumorTypeSampleMapManager {
 
             @Override
             public String apply(String key) {
-                return (scJoiner.join(key, tumorSampleMap.get(key)));
+                return (tabJoiner.join(key, tumorSampleMap.get(key)));
             }
         }).toList();
 
@@ -117,8 +117,8 @@ public class DMPTumorTypeSampleMapManager {
 
         private DMPStagingFileManager fileManager;
         private Multimap<String, Integer> tumorSampleMap;
-        private final Splitter scSplitter = Splitter.on(";");
-        private final Joiner scJoiner = Joiner.on(";");
+        private final Splitter tabSplitter = Splitter.on("\t");
+       
 
         TumorTypeMapSupplier(DMPStagingFileManager aManager) {
             this.fileManager = aManager;
@@ -138,7 +138,7 @@ public class DMPTumorTypeSampleMapManager {
             if (!tumorTypeList.isEmpty()) {
 
                 for (String line : tumorTypeList) {
-                    List<String> tokens = Lists.newArrayList(scSplitter.split(line));
+                    List<String> tokens = Lists.newArrayList(tabSplitter.split(line));
                     String tumorType = tokens.remove(0);
                     for (String token : tokens) {
                         this.tumorSampleMap.put(tumorType, Integer.valueOf(token));

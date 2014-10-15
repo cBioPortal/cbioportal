@@ -39,10 +39,10 @@ public class MetaDataTransformer {
         Preconditions.checkArgument(null!=result,"A Result object is required");
         final Map<String, String> metaMap = Maps.newTreeMap();
                 // pre-sequence data
-                metaMap.put("001DMP_Sample_ID", result.getMetaData().getDmpSampleId().toString());            
-                metaMap.put("002DMP_Patient_ID", result.getMetaData().getDmpPatientId().toString());
-                metaMap.put("003Tumor_Type", result.getMetaData().getTumorTypeName());
-                metaMap.put("004Gender", (result.getMetaData().getGender() !=null)?result.getMetaData().getGender().toString():"");
+                //metaMap.put("001DMP_Sample_ID", result.getMetaData().getDmpSampleId().toString());            
+                //metaMap.put("002DMP_Patient_ID", result.getMetaData().getDmpPatientId().toString());
+                //metaMap.put("003Tumor_Type", result.getMetaData().getTumorTypeName());
+                //metaMap.put("004Gender", (result.getMetaData().getGender() !=null)?result.getMetaData().getGender().toString():"");
                 // post-sequence data
                 metaMap.put("500Metastasis", (result.getMetaData().getIsMetastasis() !=null)?result.getMetaData().getIsMetastasis().toString():"");
                 metaMap.put("501Metastasis_Site", (result.getMetaData().getMetastasisSite() !=null)?result.getMetaData().getMetastasisSite().toString():"");

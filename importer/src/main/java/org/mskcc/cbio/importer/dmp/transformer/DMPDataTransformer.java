@@ -79,9 +79,9 @@ public class DMPDataTransformer {
         this.processRevisedSampleData(processedSampleSet);
         // process the tumor types
         this.tumorTypeMap.updateTumorTypeSampleMap(data.getResults());
+        
         for (Result result : data.getResults()) {
-            // register  result sample id with tumor type
-           
+            
             for (DMPTransformable transformable : this.transformableList) {
                 transformable.transform(result, fileManager);
             }

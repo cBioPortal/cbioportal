@@ -103,6 +103,29 @@ public class DmpUtils {
         // associate these attributes with the SNP Exonic report type
         reportTypeAttributeMaps.put(DMPCommonNames.REPORT_TYPE_MUTATIONS, mutationAttributeMap);
     }
+ public static final Map<String, String> snpAttributeMap = Maps.newTreeMap();
+
+    static {
+        snpAttributeMap.put("001Hugo_Symbol", "getGeneId");
+        snpAttributeMap.put("002Entrez_Gene_Id", "getGeneId");
+        snpAttributeMap.put("003Center", "getGeneId");
+        snpAttributeMap.put("004Build", "getGeneId");
+        snpAttributeMap.put("005Chromosome", "getChromosome");
+        snpAttributeMap.put("006Start_Position", "getStartPosition");
+        snpAttributeMap.put("007End_Position", "getStartPosition");
+        snpAttributeMap.put("008Strand", "getStrand");
+        snpAttributeMap.put("009Variant_Classification", "getVariantClass");
+        snpAttributeMap.put("010Variant_Type", "getVariantClass");
+        snpAttributeMap.put("011Ref_Allele", "getRefAllele");
+        snpAttributeMap.put("012Tumor_Allele1", "getAltAllele");
+        snpAttributeMap.put("013Tumor_Allele2", "getAltAllele");
+        snpAttributeMap.put("014dbSNP_RS", "getDbSNPId");
+        snpAttributeMap.put("015dbSNP_Val_Status", "getGeneId");
+        snpAttributeMap.put("016Tumor_Sample_Barcode", "getDmpSampleId");
+
+        // associate these attributes with the SNP Exonic report type
+        reportTypeAttributeMaps.put(DMPCommonNames.REPORT_TYPE_SNP_EXONIC, snpAttributeMap);
+    }
 
     public static final Map<String, String> snpSilentAttributeMap = Maps.newTreeMap();
 

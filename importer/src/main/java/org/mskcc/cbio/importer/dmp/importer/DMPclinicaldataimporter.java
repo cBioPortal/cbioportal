@@ -36,6 +36,8 @@ public class DMPclinicaldataimporter {
     private static final String DMP_CREATE_SESSION = "create_session";
     private static final String DMP_CBIO_RETRIEVE_VARIANTS = "cbio_retrieve_variants";
     private static final String DMP_CBIO_CONSUME_SAMPLE = "cbio_consume_sample";
+    private static final String DMP_CBIO_USERNAME = "Y2Jpb19ydwo=";
+    private static final String DMP_CBIO_PASSWORD = "eDM4I3hGMgo=";
 
     private final RestTemplate template = new RestTemplate(); //spring rest template
     private final ObjectMapper mapper = new ObjectMapper();
@@ -54,7 +56,6 @@ public class DMPclinicaldataimporter {
         throws IOException {
 
             DMPsession _session = new DMPsession(); 
-            
             ResponseEntity<String> rawResultEntity = 
                 template.getForEntity(
                     DMP_SERVER_NAME + "/" + DMP_CBIO_RETRIEVE_VARIANTS + "/" + _session.getSessionId() + "/0", 
@@ -81,7 +82,6 @@ public class DMPclinicaldataimporter {
         throws IOException {
         
         DMPsession _session = new DMPsession(); 
-        
         for(String sampleId : sampleIds) {
             template.getForEntity(
                     DMP_SERVER_NAME + "/" + DMP_CBIO_CONSUME_SAMPLE + "/" + sampleId + "/" + _session.getSessionId(),
@@ -102,15 +102,15 @@ public class DMPclinicaldataimporter {
             
             ResponseEntity<String> entitySession = 
                 template.getForEntity(
-                    DMP_SERVER_NAME + "/" + DMP_CREATE_SESSION + "/" + "Y2Jpb19ydwo=/eDM4I3hGMgo=/0", 
+                    DMP_SERVER_NAME + "/" + DMP_CREATE_SESSION + "/" + DMP_CBIO_USERNAME + "/"  + DMP_CBIO_PASSWORD + "/0", 
                     String.class
                 );
             JsonParser jp = factory.createJsonParser(entitySession.getBody());
             JsonNode sessionObj = mapper.readTree(jp);
         
-            SESSION_ID = sessionObj.get("session_id").asText();
-            TIME_CREATED = sessionObj.get("time_created").asText();
-            TIME_EXPIRED = sessionObj.get("time_expired").asText();
+            this.SESSION_ID = sessionObj.get("session_id").asText();
+            this.TIME_CREATED = sessionObj.get("time_created").asText();
+            this.TIME_EXPIRED = sessionObj.get("time_expired").asText();
             
         }
 

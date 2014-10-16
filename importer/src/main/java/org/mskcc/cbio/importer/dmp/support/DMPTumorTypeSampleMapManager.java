@@ -43,15 +43,9 @@ public class DMPTumorTypeSampleMapManager {
 
     private final DMPStagingFileManager fileManager;
     private Multimap<String, Integer> tumorSampleMap;
-    private static final Splitter tabSplitter = Splitter.on("\t");
-    private static final Joiner tabJoiner = Joiner.on(";");
+    
+    private static final Joiner tabJoiner = Joiner.on("\t");
 
-    /*
-     Suppliers.memoize(new GeneNameMapSupplier()).get();
-     */
-    /*
-     initialize the tumor type map supplier
-     */
     public DMPTumorTypeSampleMapManager(DMPStagingFileManager aManager) {
 
         Preconditions.checkArgument(null != aManager, "A DMPStagingFileManager is required");
@@ -76,24 +70,34 @@ public class DMPTumorTypeSampleMapManager {
         this.persistTumorTypeMap();
 
     }
-
+    /*
+    private method to persist the tumor type/sample map to a file
+     */
     private void persistTumorTypeMap() {
         List<String> lines = FluentIterable.from(this.tumorSampleMap.keySet()).transform(new Function<String, String>() {
-
             @Override
             public String apply(String key) {
-                return (tabJoiner.join(key, tumorSampleMap.get(key)));
+                String s =FluentIterable.from(tumorSampleMap.get(key))
+                        .transform(new Function<Integer,String>(){
+
+                    @Override
+                    public String apply(Integer f) {
+                        return f.toString();
+                    }
+                }).join(tabJoiner);
+                
+                return (tabJoiner.join(key,s));
             }
         }).toList();
 
         this.fileManager.writeTumorTypedata(lines);
-
     }
     /*
      public method to return the DMP sample ids assosiated with a specified 
      tumor type. An Optional object is used to encapsulate the result to
      provide support for an empty response.
      */
+
     public Optional<Collection<Integer>> getSampleIDsByTumorType(String tumorType) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(tumorType), "A tumor type is required");
         if (this.tumorSampleMap.containsKey(tumorType)) {
@@ -118,7 +122,6 @@ public class DMPTumorTypeSampleMapManager {
         private DMPStagingFileManager fileManager;
         private Multimap<String, Integer> tumorSampleMap;
         private final Splitter tabSplitter = Splitter.on("\t");
-       
 
         TumorTypeMapSupplier(DMPStagingFileManager aManager) {
             this.fileManager = aManager;

@@ -20,6 +20,7 @@ package org.mskcc.cbio.importer.dmp.transformer;
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Sets;
+import com.google.inject.internal.Lists;
 import com.google.inject.internal.Preconditions;
 import java.util.List;
 import java.util.Set;
@@ -42,15 +43,16 @@ public class DMPDataTransformer {
 
     private final static Logger logger = Logger.getLogger(DMPDataTransformer.class);
     private final DMPStagingFileManager fileManager;
-    private final List<DMPTransformable> transformableList;
+    private final List<DMPDataTransformable> transformableList;
     private final DMPTumorTypeSampleMapManager tumorTypeMap;
 
-    public DMPDataTransformer(DMPStagingFileManager aManager, List<DMPTransformable> transList) {
+    public DMPDataTransformer(DMPStagingFileManager aManager) {
         Preconditions.checkArgument(null != aManager, "A DMPStagingFileManager is required");
-        Preconditions.checkArgument(null != transList && !transList.isEmpty(),
-                "A valid list of DMPTransformable implemntations is required");
+
         this.fileManager = aManager;
-        this.transformableList = transList;
+        // instantiate and register data transformers
+        this.transformableList = Lists.newArrayList((DMPDataTransformable) new DmpSnpTransformer(this.fileManager));
+
         this.tumorTypeMap = new DMPTumorTypeSampleMapManager(this.fileManager);
 
     }
@@ -71,22 +73,17 @@ public class DMPDataTransformer {
                         return result.getMetaData().getDmpSampleId().toString();
                     }
                 }).toSet();
-        
+
         // update the tumor type-sample map
-        
-        
         // filter exisiting DMP MAF files for deprecated DMP samples
         this.processRevisedSampleData(processedSampleSet);
         // process the tumor types
         this.tumorTypeMap.updateTumorTypeSampleMap(data.getResults());
-        
-        for (Result result : data.getResults()) {
-            
-            for (DMPTransformable transformable : this.transformableList) {
-                transformable.transform(result, fileManager);
-            }
+        // invoke the type specific transformers on the DMP data
+        for (DMPDataTransformable transformable : this.transformableList) {
+            transformable.transform(data);
         }
-        
+
         return processedSampleSet;
     }
 

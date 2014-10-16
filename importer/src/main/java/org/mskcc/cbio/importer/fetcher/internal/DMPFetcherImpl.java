@@ -75,11 +75,8 @@ public class DMPFetcherImpl implements Fetcher{
         }
         
         //Register transformers
-        List<DMPTransformable> transformableList = Lists.newArrayList();
-        transformableList.add(new CnvVariantDataTransformer());
-        transformableList.add(new SnpExonicDataTransformer());
-        transformableList.add(new SnpSilentDataTransformer());
-        DMPDataTransformer transformer = new DMPDataTransformer(fileManager, transformableList);
+       
+        DMPDataTransformer transformer = new DMPDataTransformer(fileManager);
         
         //Retrieve process
         DMPclinicaldataimporter dmpImporter_retrieve = new DMPclinicaldataimporter();

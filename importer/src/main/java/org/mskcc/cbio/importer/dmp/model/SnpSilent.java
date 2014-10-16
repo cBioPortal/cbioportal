@@ -56,7 +56,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
     "variant_status_cv_id",
     "variant_status_name"
 })
-public class SnpSilent {
+public class SnpSilent implements DmpSnp{
 
     @JsonProperty("aa_change")
     private String aaChange;

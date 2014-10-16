@@ -130,6 +130,7 @@ var DataDownloadTab = (function() {
                         "<input type='hidden' name='genetic_profile_id' value='" + val + "'>" +
                         "<input type='hidden' name='gene_list' value='" + window.PortalGlobals.getGeneListString() + "'>" +
                         "<input type='hidden' name='force_download' value='true'>" +
+                        "<input type='hidden' name='file_name' value='" + window.PortalGlobals.getCancerStudyId() + "_" + val + ".txt'>" +
                         "<input type='hidden' name='format' value='"  + inner_obj.value + "'>" +
                         "<a href='#' onclick=\"document.forms['download_tab_form_" + val + "_" + inner_obj.value + "'].submit();return false;\"> [ " + inner_obj.name + " ]</a>" + 
                         "</form>&nbsp;&nbsp;&nbsp;";

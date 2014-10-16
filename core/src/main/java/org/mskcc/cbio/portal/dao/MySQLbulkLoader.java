@@ -17,20 +17,12 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.HashMap;
-import java.util.Map;
-import org.mskcc.cbio.portal.util.FileUtil;
-import org.mskcc.cbio.portal.util.GlobalProperties;
+import org.mskcc.cbio.portal.util.*;
+import org.apache.commons.io.FileUtils;
+
+import java.io.*;
+import java.sql.*;
+import java.util.*;
 
 /**
  * To speed up CGDS data loading, bulk load from files using MySQL "LOAD DATA INFILE" functionality.
@@ -103,9 +95,7 @@ public class MySQLbulkLoader {
     */
    private void openTempFile(String tableName) throws IOException {
 
-      // TODO: create special directory for temp dbms load files; perhaps make OS portable
-      String tmp = GlobalProperties.getTemporaryDir();
-      tempFileHandle = File.createTempFile( tableName, tempTableSuffix, new File(tmp) );
+      tempFileHandle = File.createTempFile( tableName, tempTableSuffix, FileUtils.getTempDirectory() );
 
       tempFileName = tempFileHandle.getAbsolutePath();
 

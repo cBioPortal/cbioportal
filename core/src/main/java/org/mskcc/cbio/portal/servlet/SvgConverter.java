@@ -109,6 +109,11 @@ public class SvgConverter extends HttpServlet {
         try {
             response.setContentType("application/svg+xml");
             response.setHeader("content-disposition", "inline; filename=" + filename);
+
+            //TEMP: Remove "font-family" attributes for being able to display in Adobe Illustrator
+            String pattern = "(font-family:)(.+?)(;)";
+            xml = xml.replaceAll(pattern, "");
+
             PrintWriter writer = response.getWriter();
             try {
                 writer.write(xml);

@@ -5,14 +5,12 @@
 package org.mskcc.cbio.portal.servlet;
 
 import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.util.AccessControl;
 import org.mskcc.cbio.portal.web_api.ProtocolException;
 import org.mskcc.cbio.portal.util.GlobalProperties;
 
 import org.json.simple.JSONValue;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.io.*;
 import java.util.*;
@@ -31,9 +29,8 @@ public class TumorMapServlet extends HttpServlet {
      * Initializes the AccessControl member.
      */
     private static synchronized AccessControl getaccessControl() {
-        if (accessControl==null) {ApplicationContext context = 
-                    new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
-            accessControl = (AccessControl)context.getBean("accessControl");
+        if (accessControl==null) { 
+            accessControl = SpringUtil.getAccessControl();
         }
             
         return accessControl;

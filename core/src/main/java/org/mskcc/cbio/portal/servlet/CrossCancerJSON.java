@@ -26,8 +26,6 @@ import org.mskcc.cbio.portal.util.*;
 
 import org.apache.log4j.Logger;
 import org.json.simple.JSONValue;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.ServletException;
@@ -48,9 +46,7 @@ public class CrossCancerJSON extends HttpServlet {
      */
     public void init() throws ServletException {
         super.init();
-        ApplicationContext context =
-                new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
-        accessControl = (AccessControl)context.getBean("accessControl");
+        accessControl = SpringUtil.getAccessControl();
     }
 
     /**

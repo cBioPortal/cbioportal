@@ -136,26 +136,26 @@ public class MutationFilter {
          return false;
       }
 
-      // Do not accept LOH or Wildtype Mutations
-      if( safeStringTest( mutation.getMutationStatus(), "LOH" ) ||
-               safeStringTest( mutation.getMutationStatus(), "Wildtype" ) ){
-         lohOrWildTypeRejects++;
-         return false;
-      }
-
-      // Do not accept Germline Missense Mutations or Germline Mutations that are not on the white list
-      if( safeStringTest( mutation.getMutationStatus(), "Germline" ) ){
-         if( safeStringTest( mutation.getMutationType(), "Missense" ) ){
-            missenseGermlineRejects++;
-            return false;
-         }
-         if(cancerSpecificGermlineWhiteList != null && cancerSpecificGermlineWhiteList.size() > 0) {
-             if (!cancerSpecificGermlineWhiteList.contains(
-                  new Long( mutation.getEntrezGeneId() ) ) ){
-                return false;
-             }
-         }         
-      }
+//      // Do not accept LOH or Wildtype Mutations
+//      if( safeStringTest( mutation.getMutationStatus(), "LOH" ) ||
+//               safeStringTest( mutation.getMutationStatus(), "Wildtype" ) ){
+//         lohOrWildTypeRejects++;
+//         return false;
+//      }
+//
+//      // Do not accept Germline Missense Mutations or Germline Mutations that are not on the white list
+//      if( safeStringTest( mutation.getMutationStatus(), "Germline" ) ){
+//         if( safeStringTest( mutation.getMutationType(), "Missense" ) ){
+//            missenseGermlineRejects++;
+//            return false;
+//         }
+//         if(cancerSpecificGermlineWhiteList != null && cancerSpecificGermlineWhiteList.size() > 0) {
+//             if (!cancerSpecificGermlineWhiteList.contains(
+//                  new Long( mutation.getEntrezGeneId() ) ) ){
+//                return false;
+//             }
+//         }         
+//      }
 
 		// Do not accept Redacted mutations
 		if (safeStringTest(mutation.getValidationStatus(), "Redacted"))

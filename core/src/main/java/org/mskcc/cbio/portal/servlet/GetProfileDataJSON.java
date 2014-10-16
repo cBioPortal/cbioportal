@@ -86,6 +86,7 @@ public class GetProfileDataJSON extends HttpServlet  {
         String[] geneticProfileIds = httpServletRequest.getParameter("genetic_profile_id").split("\\s+");
         String forceDownload = httpServletRequest.getParameter("force_download");
         String format = httpServletRequest.getParameter("format");
+        String fileName = httpServletRequest.getParameter("file_name");
 
         //Final result JSON
         ObjectMapper mapper = new ObjectMapper();
@@ -190,7 +191,9 @@ public class GetProfileDataJSON extends HttpServlet  {
                     Iterator<String> sampleIds_val = dataObj.getFieldNames();
                     while (sampleIds_val.hasNext()) {
                         String sampleId = sampleIds_val.next();
-                        val_str += dataObj.get(sampleId).get(geneticProfileIds[0]) + "\t";                        
+                        String _val = dataObj.get(sampleId).get(geneticProfileIds[0]).toString();
+                        _val = _val.replaceAll("\"", "");
+                        val_str +=  _val + "\t";                        
                     }
                     val_str += "\n";
                 }
@@ -219,14 +222,15 @@ public class GetProfileDataJSON extends HttpServlet  {
                     String sampleId = sampleIds.next();
                     val_str += sampleId + "\t";
                     for (String geneId : geneIdList) {
-                        val_str += result.get(geneId).get(sampleId).get(geneticProfileIds[0]) + "\t";
+                       String _val = result.get(geneId).get(sampleId).get(geneticProfileIds[0]).toString();
+                        _val = _val.replaceAll("\"", "");
+                        val_str += _val + "\t";
                     }
                     val_str += "\n";
                 }
                 result_str += gene_str + val_str;
             }
 
-            String fileName = "result.txt";
             httpServletResponse.setContentType("application/octet-stream");
             httpServletResponse.setHeader("content-disposition", "attachment; filename='" + fileName + "'");
             PrintWriter out = httpServletResponse.getWriter();

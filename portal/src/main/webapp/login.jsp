@@ -95,7 +95,7 @@
                     </form>
                     <% } else if (authenticationMethod.equals("saml")) { %>
                         <p>
-                            <button type="button" class="btn btn-danger btn-lg" onclick="window.location = 'saml/login?idp=https://testaccess2.mskcc.org/nidp/saml2/metadata'" >
+                            <button type="button" class="btn btn-danger btn-lg" onclick="window.location = 'saml/login?idp=https://msklogin.mskcc.org/nidp/saml2/metadata'" >
                             Sign in with MSK</button>
                         </p>
                     </fieldset>

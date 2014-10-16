@@ -16,12 +16,10 @@
 package org.mskcc.cbio.importer.fetcher.internal;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
 import org.mskcc.cbio.importer.dmp.importer.DMPclinicaldataimporter;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mskcc.cbio.importer.Config;
@@ -30,11 +28,7 @@ import org.mskcc.cbio.importer.Fetcher;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.dmp.model.DmpData;
 import org.mskcc.cbio.importer.dmp.support.DMPStagingFileManager;
-import org.mskcc.cbio.importer.dmp.transformer.CnvVariantDataTransformer;
 import org.mskcc.cbio.importer.dmp.transformer.DMPDataTransformer;
-import org.mskcc.cbio.importer.dmp.transformer.DMPTransformable;
-import org.mskcc.cbio.importer.dmp.transformer.SnpExonicDataTransformer;
-import org.mskcc.cbio.importer.dmp.transformer.SnpSilentDataTransformer;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 

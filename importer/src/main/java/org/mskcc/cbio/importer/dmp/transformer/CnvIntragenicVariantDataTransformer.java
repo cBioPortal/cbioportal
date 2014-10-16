@@ -30,7 +30,7 @@ import org.mskcc.cbio.importer.dmp.support.DMPCommonNames;
 import org.mskcc.cbio.importer.dmp.support.DMPStagingFileManager;
 import org.mskcc.cbio.importer.dmp.util.DmpUtils;
 
-public class CnvIntragenicVariantDataTransformer implements DMPTransformable {
+public class CnvIntragenicVariantDataTransformer  {
 
     private static final String REPORT_TYPE = DMPCommonNames.REPORT_TYPE_CNV_INTRAGENIC;
     public static final Joiner tabJoiner = Joiner.on("\t");
@@ -41,7 +41,7 @@ public class CnvIntragenicVariantDataTransformer implements DMPTransformable {
     public CnvIntragenicVariantDataTransformer() {
     }
 
-    @Override
+  
     public void transform(Result result, DMPStagingFileManager fileManager) {
 
         Preconditions.checkArgument(null != result, "A DMP Result object is required");
@@ -74,7 +74,7 @@ public class CnvIntragenicVariantDataTransformer implements DMPTransformable {
     
      public Function<Result, List<String>> transformationFunction2
             = new Function<Result, List<String>>() {
-        @Override
+       
         public List<String> apply(Result result) {
             final Map<String,String> baseMap = MetaDataTransformer.getBaseTransformationMap(result);
             return FluentIterable.from(result.getCnvVariants())

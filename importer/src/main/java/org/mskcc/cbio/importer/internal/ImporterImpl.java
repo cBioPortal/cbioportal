@@ -395,7 +395,7 @@ class ImporterImpl implements Importer {
 	                    }
 					}
 
-					if (stagingFilename.contains("clinical") && clinicalFileMissingMetadata(stagingFilename)) {
+					if (stagingFilename.contains("clinical") && !stagingFilename.endsWith(".xml") && clinicalFileMissingMetadata(stagingFilename)) {
                     	stagingFilename = addMetadataToClinicalFile(stagingFilename);
                 	}
 

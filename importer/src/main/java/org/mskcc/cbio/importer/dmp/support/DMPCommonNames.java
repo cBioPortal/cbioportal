@@ -34,6 +34,8 @@ public interface DMPCommonNames {
     public static final String CENTER_MSKCC = "MSKCC";
     public static final String DEFAULT_BUILD_NUMBER ="37";
     public static final String DEFAULT_STRAND ="+";
+    
+    public static final String SAMPLE_ID_COLUMN_NAME = "Tumor_Sample_Barcode";
   
     
 }

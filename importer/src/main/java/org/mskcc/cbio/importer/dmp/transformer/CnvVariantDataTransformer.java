@@ -30,7 +30,7 @@ import org.mskcc.cbio.importer.dmp.support.DMPCommonNames;
 import org.mskcc.cbio.importer.dmp.support.DMPStagingFileManager;
 import org.mskcc.cbio.importer.dmp.util.DmpUtils;
 
-public class CnvVariantDataTransformer implements DMPTransformable {
+public class CnvVariantDataTransformer  {
 
     private static final String REPORT_TYPE = DMPCommonNames.REPORT_TYPE_CNV;
     public static final Joiner tabJoiner = Joiner.on("\t");
@@ -41,7 +41,7 @@ public class CnvVariantDataTransformer implements DMPTransformable {
     public CnvVariantDataTransformer() {
     }
 
-    @Override
+   
     public void transform(Result result, DMPStagingFileManager fileManager) {
 
         Preconditions.checkArgument(null != result, "A DMP Result object is required");

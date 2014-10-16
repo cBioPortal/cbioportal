@@ -17,17 +17,19 @@
  */
 package org.mskcc.cbio.importer.dmp.transformer;
 
-import com.google.common.base.Function;
-import org.mskcc.cbio.importer.dmp.model.Result;
-import org.mskcc.cbio.importer.dmp.support.DMPStagingFileManager;
+import org.mskcc.cbio.importer.dmp.model.DmpData;
 
+/*
+A simple interface to allow aggregating specific transformation classes
+into a common collection
+*/
 /**
  *
  * @author criscuof
  */
-public interface DMPTransformable {
+public interface DMPDataTransformable {
    
-    public void transform(Result result, DMPStagingFileManager fileManager);
-     public Function getTransormationFunction();
+    public void transform(DmpData data);
+    
     
 }

@@ -56,7 +56,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
     "variant_status_cv_id",
     "variant_status_name"
 })
-public class SnpExonic {
+public class SnpExonic implements DmpSnp {
 
     @JsonProperty("aa_change")
     private String aaChange;
@@ -145,6 +145,7 @@ public class SnpExonic {
      *     The aaChange
      */
     @JsonProperty("aa_change")
+    @Override
     public String getAaChange() {
         return aaChange;
     }
@@ -165,6 +166,7 @@ public class SnpExonic {
      *     The altAllele
      */
     @JsonProperty("alt_allele")
+    @Override
     public String getAltAllele() {
         return altAllele;
     }
@@ -185,6 +187,7 @@ public class SnpExonic {
      *     The cDNAChange
      */
     @JsonProperty("cDNA_change")
+    @Override
     public String getCDNAChange() {
         return cDNAChange;
     }
@@ -205,6 +208,7 @@ public class SnpExonic {
      *     The chromosome
      */
     @JsonProperty("chromosome")
+    @Override
     public String getChromosome() {
         return chromosome;
     }
@@ -225,6 +229,7 @@ public class SnpExonic {
      *     The comments
      */
     @JsonProperty("comments")
+    @Override
     public Object getComments() {
         return comments;
     }
@@ -245,6 +250,7 @@ public class SnpExonic {
      *     The confidenceClass
      */
     @JsonProperty("confidence_class")
+    @Override
     public String getConfidenceClass() {
         return confidenceClass;
     }
@@ -265,6 +271,7 @@ public class SnpExonic {
      *     The confidenceCvId
      */
     @JsonProperty("confidence_cv_id")
+    @Override
     public Integer getConfidenceCvId() {
         return confidenceCvId;
     }
@@ -285,6 +292,7 @@ public class SnpExonic {
      *     The cosmicId
      */
     @JsonProperty("cosmic_id")
+    @Override
     public String getCosmicId() {
         return cosmicId;
     }
@@ -305,6 +313,7 @@ public class SnpExonic {
      *     The dbSNPId
      */
     @JsonProperty("dbSNP_id")
+    @Override
     public String getDbSNPId() {
         return dbSNPId;
     }
@@ -325,6 +334,7 @@ public class SnpExonic {
      *     The dmpSampleMrevId
      */
     @JsonProperty("dmp_sample_mrev_id")
+    @Override
     public Integer getDmpSampleMrevId() {
         return dmpSampleMrevId;
     }
@@ -345,6 +355,7 @@ public class SnpExonic {
      *     The dmpSampleSoId
      */
     @JsonProperty("dmp_sample_so_id")
+    @Override
     public Integer getDmpSampleSoId() {
         return dmpSampleSoId;
     }
@@ -365,6 +376,7 @@ public class SnpExonic {
      *     The dmpVariantId
      */
     @JsonProperty("dmp_variant_id")
+    @Override
     public Integer getDmpVariantId() {
         return dmpVariantId;
     }
@@ -385,6 +397,7 @@ public class SnpExonic {
      *     The exonNum
      */
     @JsonProperty("exon_num")
+    @Override
     public String getExonNum() {
         return exonNum;
     }
@@ -405,6 +418,7 @@ public class SnpExonic {
      *     The geneId
      */
     @JsonProperty("gene_id")
+    @Override
     public String getGeneId() {
         return geneId;
     }
@@ -425,6 +439,7 @@ public class SnpExonic {
      *     The isHotspot
      */
     @JsonProperty("is_hotspot")
+    @Override
     public Integer getIsHotspot() {
         return isHotspot;
     }
@@ -445,6 +460,7 @@ public class SnpExonic {
      *     The mafreq1000g
      */
     @JsonProperty("mafreq_1000g")
+    @Override
     public String getMafreq1000g() {
         return mafreq1000g;
     }
@@ -465,6 +481,7 @@ public class SnpExonic {
      *     The mrevComments
      */
     @JsonProperty("mrev_comments")
+    @Override
     public String getMrevComments() {
         return mrevComments;
     }
@@ -485,6 +502,7 @@ public class SnpExonic {
      *     The mrevStatusCvId
      */
     @JsonProperty("mrev_status_cv_id")
+    @Override
     public Integer getMrevStatusCvId() {
         return mrevStatusCvId;
     }
@@ -505,6 +523,7 @@ public class SnpExonic {
      *     The mrevStatusName
      */
     @JsonProperty("mrev_status_name")
+    @Override
     public String getMrevStatusName() {
         return mrevStatusName;
     }
@@ -525,6 +544,7 @@ public class SnpExonic {
      *     The normalAd
      */
     @JsonProperty("normal_ad")
+    @Override
     public Integer getNormalAd() {
         return normalAd;
     }
@@ -545,6 +565,7 @@ public class SnpExonic {
      *     The normalDp
      */
     @JsonProperty("normal_dp")
+    @Override
     public Integer getNormalDp() {
         return normalDp;
     }
@@ -565,6 +586,7 @@ public class SnpExonic {
      *     The normalVfreq
      */
     @JsonProperty("normal_vfreq")
+    @Override
     public Double getNormalVfreq() {
         return normalVfreq;
     }
@@ -585,6 +607,7 @@ public class SnpExonic {
      *     The occuranceInNormal
      */
     @JsonProperty("occurance_in_normal")
+    @Override
     public String getOccuranceInNormal() {
         return occuranceInNormal;
     }
@@ -605,6 +628,7 @@ public class SnpExonic {
      *     The occuranceInPop
      */
     @JsonProperty("occurance_in_pop")
+    @Override
     public Object getOccuranceInPop() {
         return occuranceInPop;
     }
@@ -625,6 +649,7 @@ public class SnpExonic {
      *     The refAllele
      */
     @JsonProperty("ref_allele")
+    @Override
     public String getRefAllele() {
         return refAllele;
     }
@@ -645,6 +670,7 @@ public class SnpExonic {
      *     The snpIndelVariantId
      */
     @JsonProperty("snp_indel_variant_id")
+    @Override
     public Integer getSnpIndelVariantId() {
         return snpIndelVariantId;
     }
@@ -665,6 +691,7 @@ public class SnpExonic {
      *     The soComments
      */
     @JsonProperty("so_comments")
+    @Override
     public String getSoComments() {
         return soComments;
     }
@@ -685,6 +712,7 @@ public class SnpExonic {
      *     The soStatusCvId
      */
     @JsonProperty("so_status_cv_id")
+    @Override
     public Integer getSoStatusCvId() {
         return soStatusCvId;
     }
@@ -705,6 +733,7 @@ public class SnpExonic {
      *     The soStatusName
      */
     @JsonProperty("so_status_name")
+    @Override
     public String getSoStatusName() {
         return soStatusName;
     }
@@ -725,6 +754,7 @@ public class SnpExonic {
      *     The startPosition
      */
     @JsonProperty("start_position")
+    @Override
     public Integer getStartPosition() {
         return startPosition;
     }
@@ -745,6 +775,7 @@ public class SnpExonic {
      *     The transcriptId
      */
     @JsonProperty("transcript_id")
+    @Override
     public String getTranscriptId() {
         return transcriptId;
     }
@@ -765,6 +796,7 @@ public class SnpExonic {
      *     The tumorAd
      */
     @JsonProperty("tumor_ad")
+    @Override
     public Integer getTumorAd() {
         return tumorAd;
     }
@@ -785,6 +817,7 @@ public class SnpExonic {
      *     The tumorDp
      */
     @JsonProperty("tumor_dp")
+    @Override
     public Integer getTumorDp() {
         return tumorDp;
     }
@@ -805,6 +838,7 @@ public class SnpExonic {
      *     The tumorVfreq
      */
     @JsonProperty("tumor_vfreq")
+    @Override
     public Double getTumorVfreq() {
         return tumorVfreq;
     }
@@ -825,6 +859,7 @@ public class SnpExonic {
      *     The variantClass
      */
     @JsonProperty("variant_class")
+    @Override
     public String getVariantClass() {
         return variantClass;
     }
@@ -845,6 +880,7 @@ public class SnpExonic {
      *     The variantClassCvId
      */
     @JsonProperty("variant_class_cv_id")
+    @Override
     public Integer getVariantClassCvId() {
         return variantClassCvId;
     }
@@ -865,6 +901,7 @@ public class SnpExonic {
      *     The variantStatusCvId
      */
     @JsonProperty("variant_status_cv_id")
+    @Override
     public Integer getVariantStatusCvId() {
         return variantStatusCvId;
     }
@@ -885,6 +922,7 @@ public class SnpExonic {
      *     The variantStatusName
      */
     @JsonProperty("variant_status_name")
+    @Override
     public String getVariantStatusName() {
         return variantStatusName;
     }
@@ -905,12 +943,14 @@ public class SnpExonic {
     }
     
     @JsonAnyGetter
+    @Override
     public Integer getDmpSampleId() {return this.dmpSampleId;}
     
     @JsonAnySetter
     public void setDmpSampleId(Integer id) {this.dmpSampleId = id;}
 
     @JsonAnyGetter
+    @Override
     public Map<String, Object> getAdditionalProperties() {
         return this.additionalProperties;
     }

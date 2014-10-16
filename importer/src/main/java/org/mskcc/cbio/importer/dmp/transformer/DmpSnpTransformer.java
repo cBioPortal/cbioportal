@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.dmp.model.DmpData;
+import org.mskcc.cbio.importer.dmp.model.DmpSnp;
 import org.mskcc.cbio.importer.dmp.model.MetaData;
 import org.mskcc.cbio.importer.dmp.model.Result;
 import org.mskcc.cbio.importer.dmp.model.SnpExonic;
@@ -49,47 +50,48 @@ import scala.Tuple3;
  of a DMP data file 
  generates the data_mutations_extended.txt (MAF format) file
  */
-public class DMPMutationsTransformer {
+public class DmpSnpTransformer implements DMPDataTransformable  {
 
     private final DMPStagingFileManager fileManager;
     private static final String REPORT_TYPE = DMPCommonNames.REPORT_TYPE_MUTATIONS;
-    private final static Logger logger = Logger.getLogger(DMPMutationsTransformer.class);
+    private final static Logger logger = Logger.getLogger(DmpSnpTransformer.class);
     private static final Joiner tabJoiner = Joiner.on('\t').useForNull(" ");
 
     private final Supplier<Map<String, Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>>>> transformationMaprSupplier
             = Suppliers.memoize(new DMPMutationsTransformationMapSupplier());
 
-    public DMPMutationsTransformer(DMPStagingFileManager aManager) {
+    public DmpSnpTransformer(DMPStagingFileManager aManager) {
         Preconditions.checkArgument(null != aManager, "A DMPStagingFileManager object is required");
         this.fileManager = aManager;
     }
-
+    @Override
     public void transform(DmpData data) {
         Preconditions.checkArgument(null != data, "A DmpData object is required");
         for (Result result : data.getResults()) {
-            this.processSNPExonic(result);
-            this.processSNPSilent(result);
+            this.processSnps(result);
         }
 
     }
-
-    private void processSNPExonic(Result result) {
-        final MetaData meta = result.getMetaData();
-
-        List<String> snpExonicList = FluentIterable.from(result.getSnpExonic())
-                .transform(new Function<SnpExonic, SnpExonic>() {
-
+    
+    private void processSnps (Result result){
+        List<DmpSnp> snpList =  Lists.newArrayList();
+         final MetaData meta = result.getMetaData();
+        snpList.addAll(result.getSnpExonic());
+        snpList.addAll(result.getSnpSilent());
+        List<String> snpReportList = FluentIterable.from(snpList)
+                .transform(new Function<DmpSnp, DmpSnp>() {
+                    
                     @Override
-                    public SnpExonic apply(SnpExonic snp) {
+                    public DmpSnp apply(DmpSnp snp) {
                         // add the sample id to the SNP
                         snp.setDmpSampleId(meta.getDmpSampleId());
                         return snp;
                     }
                 })
                 .transform(
-                        new Function<SnpExonic, String>() {
+                        new Function<DmpSnp, String>() {
                             @Override
-                            public String apply(final SnpExonic snp) {
+                            public String apply(final DmpSnp snp) {
                                 Set<String> attributeList = transformationMaprSupplier.get().keySet();
                                 List<String> mafAttributes = FluentIterable.from(attributeList)
                                 .transform(new Function<String, String>() {
@@ -112,60 +114,15 @@ public class DMPMutationsTransformer {
                                 return retRecord;
                             }
                         }).toList();
-
-        // write out data to staging file
-        if (snpExonicList.size() > 0) {
-            fileManager.appendMafDataToStagingFile(REPORT_TYPE, snpExonicList);
-            logger.info(snpExonicList.size() + " exonic mutations have been processed");
+         // write out data to staging file
+        if (snpReportList.size() > 0) {
+            fileManager.appendMafDataToStagingFile(REPORT_TYPE, snpReportList);
+            logger.info(snpReportList.size() + " SNPs have been processed");
         }
+               
     }
 
-    private void processSNPSilent(Result result) {
-        final MetaData meta = result.getMetaData();
-        List<String> snpSilentList = FluentIterable.from(result.getSnpSilent())
-                .transform(new Function<SnpSilent, SnpSilent>() {
-
-                    @Override
-                    public SnpSilent apply(SnpSilent snp) {
-                        // add the sample id to the SNP
-                        snp.setDmpSampleId(meta.getDmpSampleId());
-                        return snp;
-                    }
-                })
-                .transform(
-                        new Function<SnpSilent, String>() {
-                            @Override
-                            public String apply(final SnpSilent snp) {
-                                Set<String> attributeList = transformationMaprSupplier.get().keySet();
-                                List<String> mafAttributes = FluentIterable.from(attributeList)
-                                .transform(new Function<String, String>() {
-                                    @Override
-                                    public String apply(String attribute) {
-                                        Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>> tuple3
-                                        = transformationMaprSupplier.get().get(attribute);
-                                        String attribute1 = DmpUtils.pojoStringGetter(tuple3._2(), snp);
-
-                                        Optional<String> optAttribute2 = (Optional<String>) ((tuple3._3().isPresent())
-                                                ? Optional.of(DmpUtils.pojoStringGetter(tuple3._3().get(), snp))
-                                                : Optional.absent());
-
-                                        return tuple3._1().apply(new Tuple2(attribute1, optAttribute2));
-
-                                    }
-                                }).toList();
-                                String retRecord = tabJoiner.join(mafAttributes);
-
-                                return retRecord;
-                            }
-                        }).toList();
-
-        // write out data to the mutations ßstaging file
-        if (snpSilentList.size() > 0) {
-            fileManager.appendMafDataToStagingFile(REPORT_TYPE, snpSilentList);
-            logger.info(snpSilentList.size() + " silent mutations have been processed");
-        }
-
-    }
+    
 
     private class DMPMutationsTransformationMapSupplier implements
             Supplier<Map<String, Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>>>> {

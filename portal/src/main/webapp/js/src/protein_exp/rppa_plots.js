@@ -397,7 +397,7 @@ var rppaPlots = (function() {
             elem.dotsGroup.selectAll('path').each(
                 function(d) {
                     var content = "<font size='2'>";
-                    content += "Case ID: " + "<strong><a href='"
+                    content += "<strong><a href='"
                             +cbio.util.getLinkToSampleView(cancer_study_id,d.caseId)
                             + "' target = '_blank'>" + d.caseId + "</a></strong><br>";
                     content += "RPPA score: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";

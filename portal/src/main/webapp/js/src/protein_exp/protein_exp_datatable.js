@@ -213,19 +213,19 @@ function renderDataTable(result) {
             $(this).removeClass('p-value-plot-hide').addClass('p-value-plot-show');
             var aData = oTable.fnGetData( nTr );
             //var data = aData[10];
-            var antibody = "antibody:"+aData[4].replace(/<[^>]*>/g,"");
+            var antibody = "antibody:" + aData[4].replace(/<[^>]*>/g,"");
             if (aData[5])
                 antibody += ' ['+aData[5]+']';
             var xlabel = "Query: ";
             if (aData[1] === "Any")
-                xlabel += '<%=StringUtils.join(listOfGenes, " ")%>';
+                xlabel += window.PortalGlobals.getGeneListString();
             else
                 xlabel += aData[1];
             var pvalue = parsePValue(aData[9]);
             if (!isNaN(pvalue)) {
-                xlabel += " (p-value: "+pvalue+")";
+                xlabel += " (p-value: " + pvalue.toFixed(3) + ")";
             }
-            var ylabel = "RPPA score ("+antibody+")";
+            var ylabel = "RPPA score (" + antibody + ")";
 
             //Render plots under the expansion button 
             var title = "Boxplots of RPPA data (" + antibody + ") for altered and unaltered cases ";

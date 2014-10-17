@@ -145,7 +145,8 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
 
             // sync controls with oncoprint
             update_oncoprint_cna_levels();
-            oncoprint.zoom(zoom.slider("value"));
+//            oncoprint.zoom(zoom.slider("value"));// old vision modified by dong
+            oncoprint.zoom(zoom.val());//new vision added by dong
             oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
             oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
 //            oncoprint.sortBy(sortBy.val());

@@ -120,7 +120,9 @@ define("Oncoprint",
                 var label_svg = table
                     .append('td')
                     .append('svg')
-                    .attr('height', dims.height + browser_offset)
+                    .attr('height', function(){
+                        return params.clinical_attrs.length > 0 ? dims.height + browser_offset + gapSpaceGeneClinic : dims.height + browser_offset;
+                        }) // modified by dong if there are clinic attributes added
                     .attr('width', '' + dims.label_width)
                     .attr('id', 'label');
 
@@ -238,7 +240,9 @@ define("Oncoprint",
                     .style('overflow-y', 'hidden')
                     .append("svg")
                     .attr('width', dims.width)
-                    .attr('height', dims.height);
+                    .attr('height', function(){
+                        return params.clinical_attrs.length > 0 ? dims.height + browser_offset + gapSpaceGeneClinic : dims.height + browser_offset;
+                        }); // modified by dong if there are clinic attributes added)
 
                 var colors = utils.colors;     // alias
 
@@ -722,7 +726,6 @@ define("Oncoprint",
                     // *signature:* `undefined -> string`
                     var getPdfInput = function() {
                         var width = dims.width + dims.label_width;
-                        var height = dims.height+200;
                         var svg = main_svg[0][0];
                         var x = data2xscale(state.data);
 
@@ -766,13 +769,11 @@ define("Oncoprint",
                         var re3 = new RegExp(find3, 'g');
                         legends = legends.replace(re1, '<g').replace(re2, '</g>').replace(re3, '');
 
-                        var spaceHeight = dims.rect_height + dims.vert_padding;
-                        var moveDownDistance = (params.clinical_attrs.length + params.genes.length)*spaceHeight + gapSpaceGeneClinic;
-                        legends = "<g transform=\"translate(0,"+ moveDownDistance + ")\">" + legends + "</g> ";
+                        legends = "<g transform=\"translate(0,"+ dims.height + ")\">" + legends + "</g> ";
                         out += labels;
                         out += legends;
 
-                        return "<svg height=\"" + (height + moveDownDistance) + "\" width=\"" + width + "\">" + out + "</svg>";
+                        return "<svg height=\"" + (dims.height + 200 + dims.height) + "\" width=\"" + width + "\">" + out + "</svg>";
                     };
 
                     return {

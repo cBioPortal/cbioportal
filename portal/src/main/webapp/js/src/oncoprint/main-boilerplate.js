@@ -17,7 +17,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
     var clinicalAttributes = new ClinicalAttributesColl();
 
     var $zoom_el = $('#oncoprint_controls #zoom');
-    var $new_zoom_el = $('#oncoprint_whole_body .oncoprint-diagram-toolbar-buttons');
+    var $new_zoom_el = $('#oncoprint_whole_body .oncoprint_diagram_slider_icon');
     var zoom;
     var totalAttrs=[];
     var recordAttrs;//make a record of all attrs
@@ -28,7 +28,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
     // basically a hack to prevent the zoom function from a particular oncoprint
     // from getting bound to the UI slider forever
     var reset_zoom = function() {
-        $zoom_el.empty();
+        //$zoom_el.empty();//got problem here by dong 
+        $new_zoom_el.empty();
         zoom = utils.zoomSetup($new_zoom_el, oncoprint.zoom);
         
         $('#oncoprint_zoom_slider').hover(
@@ -48,7 +49,22 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             show: {event: "mouseover"},
             hide: {fixed: true, delay: 100, event: "mouseout"}
         });
-
+        
+        $('#oncoprint_legend div').mouseover(function(){
+                    if($(this).width()<$(this).children().width())
+                    {
+                        $(this)[0].style.overflowX='auto';
+                    }
+                    else
+                    {
+                        $(this)[0].style.overflowX='hidden';
+                    } 
+                }) 
+                .mouseout(function(){
+                    $(this)[0].style.overflowX='hidden';
+                });
+           
+            
         return zoom;
     };
 
@@ -114,8 +130,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                 show: {event: "mouseover"},
                 hide: {fixed: true, delay: 100, event: "mouseout"}
-            });
-                    
+            });  
+            
             zoom = reset_zoom();
         }
     });
@@ -144,6 +160,16 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
     };
     
     var selectedTitle;
+    //set all the icons status to default value
+    var controlIconsStatusReset = function()
+    {
+//        $('#oncoprint_zoom_slider')[0].attributes.value = '1';
+//        $('.oncoprint_diagram_showmutationcolor_icon')[0].attributes.src.value = 'images/uncolormutations.svg';
+//        $('.oncoprint-diagram-showlegend-icon')[0].attributes.src.value = 'images/hidelegend.svg';
+//        $('.oncoprint-diagram-removeWhitespace-icon')[0].attributes.src.value = 'images/unremoveWhitespace.svg';
+//        $('.oncoprint-diagram-removeUCases-icon')[0].attributes.src.value = 'images/unremoveUCases.svg';
+    }
+    
     var functionFunctions = function()
     {
         $('.special_delete').click(function() {
@@ -241,6 +267,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                     selectedTitle =$(this);
                     $(this).attr('fill', 'red');
                     });
+                    
+        controlIconsStatusReset();
     }
 
     //delete clinicalAttribute added before
@@ -266,13 +294,13 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         
         totalAttrs = recordAttrs.slice(0);
 
-        for(attributeElemValue in extraAttributes)
+        for(var attributeElemValue in extraAttributes)
         {
             var attributeElemValueIndex;
             
-            for(m in totalAttrs) 
+            for(var m=0; m<totalAttrs.length; m++) 
             {
-                if(totalAttrs[m].display_name === extraAttributes[attributeElemValue].display_name)
+                if(totalAttrs[m].display_name === attributeElemValue.display_name)
                 {
                     attributeElemValueIndex=m; 
                     totalAttrs.splice(attributeElemValueIndex,1);
@@ -390,7 +418,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         {
                             var attributeElemValueIndex;
                             
-                            for(m in totalAttrs) 
+                            for(var m= 0; m<totalAttrs.length;m++) 
                             {
                                 if(totalAttrs[m].display_name === extraAttributes[attributeElemValue].display_name)
                                 {
@@ -406,10 +434,10 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         
                         functionFunctions();
                         
-//                        zoom = reset_zoom();
+                        zoom = reset_zoom();
 
                         // sync
-                        oncoprint.zoom(zoom.slider("value"));
+                        oncoprint.zoom(zoom.val());
                         oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
                         oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
                         utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
@@ -456,7 +484,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         {
                             var attributeElemValueIndex;
                             
-                            for(m in totalAttrs) 
+                            for(var m= 0; m<totalAttrs.length;m++) 
                             {
                                 if(totalAttrs[m].display_name === extraAttributes[attributeElemValue].display_name)
                                 {
@@ -472,10 +500,10 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         
                         functionFunctions();
                         
-//                        zoom = reset_zoom();
+                        zoom = reset_zoom();
 
                         // sync
-                        oncoprint.zoom(zoom.slider("value"));
+                        oncoprint.zoom(zoom.val());
                         oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
                         oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
                         utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
@@ -522,7 +550,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         {
                             var attributeElemValueIndex;
                             
-                            for(m in totalAttrs) 
+                            for(var m= 0; m<totalAttrs.length;m++) 
                             {
                                 if(totalAttrs[m].display_name === extraAttributes[attributeElemValue].display_name)
                                 {
@@ -539,10 +567,10 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
                         functionFunctions();
                         
-//                        zoom = reset_zoom();
+                        zoom = reset_zoom();
 
                         // sync
-                        oncoprint.zoom(zoom.slider("value"));
+                        oncoprint.zoom(zoom.val());
                         oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
                         oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
                         utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
@@ -592,7 +620,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         //
         //tooltip for the track deletion function
         $('.special_delete').qtip({
-                    content: {text: 'click here to delete this track!'},
+                    content: {text: 'click here to delete this track'},
                     position: {my:'left bottom', at:'top right', viewport: $(window)},
                     style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                     show: {event: "mouseover"},
@@ -685,7 +713,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         //
         //tooltip for the track deletion function
         $('.special_delete').qtip({
-                    content: {text: 'click here to delete this track!'},
+                    content: {text: 'click here to delete this track'},
                     position: {my:'left bottom', at:'top right', viewport: $(window)},
                     style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                     show: {event: "mouseover"},
@@ -1025,15 +1053,6 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             }
             
             console.log(yPosition);
-            
-//            if(yPosition > (extraAttributes.length*spaceHeight + genes.length*spaceHeight - 7))
-//            {
-//                yPosition = extraAttributes.length*spaceHeight + genes.length*spaceHeight - 7;
-//            }
-//            else if(yPosition<(extraAttributes.length*spaceHeight+10))
-//            {
-//                yPosition = extraAttributes.length*spaceHeight + 10;
-//            }
         }
         
         _dragElement.parentElement.attributes.y.value = yPosition.toString(); 
@@ -1116,10 +1135,10 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             content: {text: 
                         function(){
                         if($(this)[0].attributes.src.value === 'images/removeUCases.svg')
-                        {return 'remove unaltered cases!'}
+                        {return 'remove unaltered cases';}
                         else
                         {
-                            return 'get unaltered cases back!'
+                            return 'show unaltered cases';
                         }
                     }
                 },
@@ -1156,10 +1175,10 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             content: {text: 
                         function(){
                         if($(this)[0].attributes.src.value === 'images/removeWhitespace.svg')
-                        {return 'remove whitespace!'}
+                        {return 'remove whitespace';}
                         else
                         {
-                            return 'get whitespace back!'
+                            return 'show whitespace between cases';
                         }
                     }
             },
@@ -1195,10 +1214,10 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             $('.oncoprint-diagram-showlegend-icon').qtip({
             content: {text:function(){
                         if($(this)[0].attributes.src.value === 'images/showlegend.svg')
-                        {return 'show legends!'}
+                        {return 'show legends';}
                         else
                         {
-                            return 'hide legends!'
+                            return 'hide legends';
                         }
                     }
             },
@@ -1214,12 +1233,24 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
               {
                 mutationColorControl = 'singleColor';
                 refreshOncoPrint();
+                zoom = reset_zoom();
+                // sync
+                oncoprint.zoom(zoom.val());
+                oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
+                oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
+                utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
                 $(this)[0].attributes.src.value = 'images/colormutations.svg';
               }
               else
               {
                 mutationColorControl = 'multiColor';
                 refreshOncoPrint();
+                zoom = reset_zoom();
+                // sync
+                oncoprint.zoom(zoom.val());
+                oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
+                oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
+                utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
                 $(this)[0].attributes.src.value = 'images/uncolormutations.svg'; 
               }
             });
@@ -1237,10 +1268,10 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             content: {text: 
                         function(){
                         if($(this)[0].attributes.src.value === 'images/uncolormutations.svg')
-                        {return 'color mutations green!'}
+                        {return 'show all mutations in the same color';}
                         else
                         {
-                            return 'color mutations differently!'
+                            return 'color-code different mutation types';
                         }
                     }
             },
@@ -1291,6 +1322,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 }
             }
         });
+        
+
         
         $('.oncoprint-diagram-Shift').click(function() {
             shiftGeneData();

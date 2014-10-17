@@ -55,7 +55,7 @@ public class CnvVariant {
     @JsonProperty("cnv_variant_id")
     private Integer cnvVariantId;
     @JsonProperty("comments")
-    private Object comments;
+    private String comments;
     @JsonProperty("confidence_class")
     private String confidenceClass;
     @JsonProperty("confidence_cv_id")
@@ -218,7 +218,7 @@ public class CnvVariant {
      */
     @JsonProperty("comments")
     
-    public Object getComments() {
+    public String getComments() {
         return comments;
     }
 
@@ -228,7 +228,7 @@ public class CnvVariant {
      *     The comments
      */
     @JsonProperty("comments")
-    public void setComments(Object comments) {
+    public void setComments(String comments) {
         this.comments = comments;
     }
 

@@ -51,9 +51,9 @@ public class MetaData {
     @JsonProperty("gender")
     private Integer gender;
     @JsonProperty("is_metastasis")
-    private Object isMetastasis;
+    private Integer isMetastasis;
     @JsonProperty("metastasis_site")
-    private Object metastasisSite;
+    private String metastasisSite;
     @JsonProperty("mrev_comments")
     private String mrevComments;
     @JsonProperty("retrieve_status")
@@ -65,7 +65,7 @@ public class MetaData {
     @JsonProperty("so_status_name")
     private String soStatusName;
     @JsonProperty("tumor_purity")
-    private Object tumorPurity;
+    private String tumorPurity;
     @JsonProperty("tumor_type_name")
     private String tumorTypeName;
     @JsonIgnore
@@ -217,7 +217,7 @@ public class MetaData {
      *     The isMetastasis
      */
     @JsonProperty("is_metastasis")
-    public Object getIsMetastasis() {
+    public Integer getIsMetastasis() {
         return isMetastasis;
     }
 
@@ -227,7 +227,7 @@ public class MetaData {
      *     The is_metastasis
      */
     @JsonProperty("is_metastasis")
-    public void setIsMetastasis(Object isMetastasis) {
+    public void setIsMetastasis(Integer isMetastasis) {
         this.isMetastasis = isMetastasis;
     }
 
@@ -237,7 +237,7 @@ public class MetaData {
      *     The metastasisSite
      */
     @JsonProperty("metastasis_site")
-    public Object getMetastasisSite() {
+    public String getMetastasisSite() {
         return metastasisSite;
     }
 
@@ -247,7 +247,7 @@ public class MetaData {
      *     The metastasis_site
      */
     @JsonProperty("metastasis_site")
-    public void setMetastasisSite(Object metastasisSite) {
+    public void setMetastasisSite(String metastasisSite) {
         this.metastasisSite = metastasisSite;
     }
 
@@ -357,7 +357,7 @@ public class MetaData {
      *     The tumorPurity
      */
     @JsonProperty("tumor_purity")
-    public Object getTumorPurity() {
+    public String getTumorPurity() {
         return tumorPurity;
     }
 
@@ -367,7 +367,7 @@ public class MetaData {
      *     The tumor_purity
      */
     @JsonProperty("tumor_purity")
-    public void setTumorPurity(Object tumorPurity) {
+    public void setTumorPurity(String tumorPurity) {
         this.tumorPurity = tumorPurity;
     }
 

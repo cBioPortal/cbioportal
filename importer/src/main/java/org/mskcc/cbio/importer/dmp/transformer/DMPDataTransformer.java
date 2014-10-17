@@ -43,7 +43,7 @@ public class DMPDataTransformer {
 
     private final static Logger logger = Logger.getLogger(DMPDataTransformer.class);
     private final DMPStagingFileManager fileManager;
-    private final List<DMPDataTransformable> transformableList;
+    private final List<DmpDataTransformable> transformableList;
     private final DMPTumorTypeSampleMapManager tumorTypeMap;
 
     public DMPDataTransformer(DMPStagingFileManager aManager) {
@@ -51,7 +51,7 @@ public class DMPDataTransformer {
 
         this.fileManager = aManager;
         // instantiate and register data transformers
-        this.transformableList = Lists.newArrayList((DMPDataTransformable) new DmpSnpTransformer(this.fileManager));
+        this.transformableList = Lists.newArrayList((DmpDataTransformable) new DmpSnpTransformer(this.fileManager));
 
         this.tumorTypeMap = new DMPTumorTypeSampleMapManager(this.fileManager);
 
@@ -80,7 +80,7 @@ public class DMPDataTransformer {
         // process the tumor types
         this.tumorTypeMap.updateTumorTypeSampleMap(data.getResults());
         // invoke the type specific transformers on the DMP data
-        for (DMPDataTransformable transformable : this.transformableList) {
+        for (DmpDataTransformable transformable : this.transformableList) {
             transformable.transform(data);
         }
 

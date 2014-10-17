@@ -24,21 +24,27 @@ package org.mskcc.cbio.importer.dmp.support;
 public interface DMPCommonNames {
     public static final String REPORT_TYPE_CNV_INTRAGENIC = "CnvIntragenicVariant";
     public static final String REPORT_TYPE_CNV = "CnvVariant";
+    public static final String REPORT_TYPE_METADATA = "Metadata";
     public static final String REPORT_TYPE_SNP_EXONIC = "SnpExonic";
     public static final String REPORT_TYPE_SNP_SILENT = "SnpSilent";
     public static final String REPORT_TYPE_TUMOR_TYPE = "TumorType";
     
     public static final String REPORT_TYPE_MUTATIONS  = "mutations";
     public static final String REPORT_TYPE_CNA  = "cna";   
+    public static final String REPORT_TYPE_CLINICAL  = "clinical";  
     
     public static final String CENTER_MSKCC = "MSKCC";
     public static final String DEFAULT_BUILD_NUMBER ="37";
     public static final String DEFAULT_STRAND ="+";
+    public static final String DEFAULT_SAMPLE_TYPE ="Tumor";
     
     public static final String SAMPLE_ID_COLUMN_NAME = "Tumor_Sample_Barcode";
     
     public static final String DMP_CNV_FILENAME = "data_CNA.txt";
+    public static final String DMP_CLINICAL_FILENAME = "data_clinical.txt";
     public static final String DMP_HUGO_COLUMNNAME = "Hugo_symbol";
+    
+    public static final String IS_METASTASTIC_SITE = "1";
   
     
 }

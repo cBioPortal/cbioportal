@@ -16,6 +16,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("org.jsonschema2pojo")
+
 @JsonPropertyOrder({
     "aa_change",
     "alt_allele",

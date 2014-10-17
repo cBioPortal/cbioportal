@@ -36,6 +36,9 @@ public interface DMPCommonNames {
     public static final String DEFAULT_STRAND ="+";
     
     public static final String SAMPLE_ID_COLUMN_NAME = "Tumor_Sample_Barcode";
+    
+    public static final String DMP_CNV_FILENAME = "data_CNA.txt";
+    public static final String DMP_HUGO_COLUMNNAME = "Hugo_symbol";
   
     
 }

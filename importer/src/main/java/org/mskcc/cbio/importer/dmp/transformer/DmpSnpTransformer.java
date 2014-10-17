@@ -36,8 +36,6 @@ import org.mskcc.cbio.importer.dmp.model.DmpData;
 import org.mskcc.cbio.importer.dmp.model.DmpSnp;
 import org.mskcc.cbio.importer.dmp.model.MetaData;
 import org.mskcc.cbio.importer.dmp.model.Result;
-import org.mskcc.cbio.importer.dmp.model.SnpExonic;
-import org.mskcc.cbio.importer.dmp.model.SnpSilent;
 import org.mskcc.cbio.importer.dmp.support.DMPCommonNames;
 import org.mskcc.cbio.importer.dmp.support.DMPStagingFileManager;
 import org.mskcc.cbio.importer.dmp.util.DmpUtils;

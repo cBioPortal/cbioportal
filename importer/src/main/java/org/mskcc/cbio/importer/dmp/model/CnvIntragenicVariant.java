@@ -76,6 +76,15 @@ public class CnvIntragenicVariant {
     private String variantStatusName;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    @JsonIgnore
+    private Integer dmpSampleId;
+    
+       
+    @JsonAnyGetter
+    public Integer getDmpSampleId() {return this.dmpSampleId;}
+    
+    @JsonAnySetter
+    public void setDmpSampleId(Integer id) {this.dmpSampleId = id;}
 
     /**
      * 
@@ -468,5 +477,7 @@ public class CnvIntragenicVariant {
         CnvIntragenicVariant rhs = ((CnvIntragenicVariant) other);
         return new EqualsBuilder().append(chromosome, rhs.chromosome).append(cnvClassCvId, rhs.cnvClassCvId).append(cnvClassName, rhs.cnvClassName).append(cnvFilterCvId, rhs.cnvFilterCvId).append(cnvFilterName, rhs.cnvFilterName).append(cnvIntragenicVariantId, rhs.cnvIntragenicVariantId).append(comments, rhs.comments).append(confidenceClass, rhs.confidenceClass).append(confidenceCvId, rhs.confidenceCvId).append(cytoband, rhs.cytoband).append(exonNum, rhs.exonNum).append(geneFoldChange, rhs.geneFoldChange).append(geneId, rhs.geneId).append(genePValue, rhs.genePValue).append(numCluster, rhs.numCluster).append(refseqAcc, rhs.refseqAcc).append(variantStatusCvId, rhs.variantStatusCvId).append(variantStatusName, rhs.variantStatusName).append(additionalProperties, rhs.additionalProperties).isEquals();
     }
+
+    
 
 }

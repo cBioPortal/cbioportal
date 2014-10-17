@@ -44,12 +44,64 @@ public class Annotator
 
 			if (retVal == 0)
 			{
-				// TODO keep the comment lines
-				mergeWithOriginal(input, output);
+				// not using the original input anymore, it is not safe to merge line by line
+				// annotator may change both the order of lines and the chromosome position...
+				//mergeWithOriginal(input, output);
+
+				// only keep the comment lines,
+				// assuming that annotator handles everything else
+				this.generateOutput(input, output);
 			}
 		}
 	}
 
+	/**
+	 * Generates the final output file.
+	 *
+	 * @param input     original input
+	 * @param output    target output
+	 * @throws IOException
+	 */
+	protected void generateOutput(File input, File output) throws IOException
+	{
+		BufferedReader bufReader = new BufferedReader(new FileReader(input));
+		MafHeaderUtil headerUtil = new MafHeaderUtil();
+
+		// this is to get comments from the original input
+		headerUtil.extractHeader(bufReader);
+
+		bufReader.close();
+
+		FileWriter writer = new FileWriter(output);
+
+		// write comments/metadata to the output
+		FileIOUtil.writeLines(writer, headerUtil.getComments());
+
+		bufReader = new BufferedReader(
+				new FileReader(this.config.getIntermediateMaf()));
+
+
+		// get everything else from the intermediate annotator output maf
+
+		String line;
+
+		while ((line = bufReader.readLine()) != null)
+		{
+			writer.write(line);
+			writer.write("\n");
+		}
+
+		bufReader.close();
+		writer.close();
+	}
+
+	/**
+	 * Merges original input file with the annotator (intermediate) output file.
+	 *
+	 * @param input     original input
+	 * @param output    target output
+	 * @throws IOException
+	 */
 	protected void mergeWithOriginal(File input, File output) throws IOException
 	{
 		List<String> annoHeaders = this.extractAnnoHeaders(this.config.getIntermediateMaf());

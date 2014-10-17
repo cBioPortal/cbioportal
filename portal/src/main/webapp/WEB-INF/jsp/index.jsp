@@ -146,5 +146,19 @@ $(document).ready(function(){
 </div>
 </form>
 <jsp:include page="global/xdebug.jsp" flush="true" />
+<style type="text/css">
+    input[type="checkbox"]  {
+        margin: 5px;
+    }
+    input[type="radio"]  {
+        margin: 3px;
+    }
+    button {
+        margin: 3px;
+    }
+    [class*="ui-button-text"] {
+        margin: 3px;
+    }
+</style>
 </body>
 </html>

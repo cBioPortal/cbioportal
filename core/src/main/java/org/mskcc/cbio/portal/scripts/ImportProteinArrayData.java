@@ -61,10 +61,10 @@ public class ImportProteinArrayData {
         BufferedReader buf = new BufferedReader(reader);
         String line = buf.readLine();
         String[] sampleIds = line.split("\t");
-
-        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
-        ImportDataUtil.addPatients(sampleIds, cancerStudy);
-        ImportDataUtil.addSamples(sampleIds, cancerStudy);
+        Sample[] samples = new Sample[sampleIds.length-1];
+        for (int i=1; i<sampleIds.length; i++) {
+            samples[i-1] = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, StableIdUtil.getSampleId(sampleIds[i]));
+        }
         
         ArrayList<Integer> internalSampleIds = new ArrayList<Integer>();
         while ((line=buf.readLine()) != null) {
@@ -79,10 +79,13 @@ public class ImportProteinArrayData {
            
             double[] zscores = convertToZscores(strs);
             for (int i=0; i<zscores.length; i++) {
-                Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, StableIdUtil.getSampleId(sampleIds[i]));
-                ProteinArrayData pad = new ProteinArrayData(cancerStudyId, arrayId, sample.getInternalId(), zscores[i]);
+                if (samples[i]==null) {
+                    continue;
+                }
+                int sampleId = samples[i].getInternalId();
+                ProteinArrayData pad = new ProteinArrayData(cancerStudyId, arrayId, sampleId, zscores[i]);
                 daoPAD.addProteinArrayData(pad);
-                internalSampleIds.add(sample.getInternalId());
+                internalSampleIds.add(sampleId);
             }
             
         }
@@ -93,7 +96,7 @@ public class ImportProteinArrayData {
 
     private double[] convertToZscores(String[] strs) {
         double[] data = new double[strs.length-1];
-        for (int i=1; i<strs.length; i++) {
+        for (int i=1; i<strs.length; i++) { // ignore the first column
             data[i-1] = Double.parseDouble(strs[i]);
         }
         

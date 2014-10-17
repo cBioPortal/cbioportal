@@ -69,7 +69,7 @@ public class AnnotatorService
 		return cache;
 	}
 
-	public Map<String, String> annotateRecordWithoutCache(MafRecord mafRecord) throws IOException
+	public Map<String, String> annotateRecord(MafRecord mafRecord) throws IOException
 	{
 		Map<String, String> data = new HashMap<String, String>();
 
@@ -77,34 +77,44 @@ public class AnnotatorService
 		{
 			this.reader = new BufferedReader(
 					new FileReader(this.config.getIntermediateMaf()));
+
+			MafHeaderUtil headerUtil = new MafHeaderUtil();
+			this.headerLine = headerUtil.extractHeader(this.reader);
+			this.mafUtil = new MafUtil(headerLine);
 		}
 
+		// TODO make sure that this line actually corresponds to the given maf record...
 		String line = this.reader.readLine();
-		MafRecord record = this.mafUtil.parseRecord(line);
-
-		// make sure that this line actually corresponds to the given maf record...
-		if (!MafUtil.generateKey(record).equals(
-				MafUtil.generateKey(mafRecord)))
-		{
-			LOG.warn("annotateRecordWithoutCache(), possibly merging with an incorrect line.");
-		}
-
-		for (String header: this.headerLine.split("\t"))
-		{
-			String parts[] = line.split("\t", -1);
-
-			data.put(header, parts[this.mafUtil.getColumnIndex(header)]);
-		}
 
 		if (line == null)
 		{
-			this.reader.close();
+			LOG.warn("annotateRecordWithoutCache(), input vs intermediate file size mismatch.");
+		}
+		else
+		{
+			MafRecord record = this.mafUtil.parseRecord(line);
+			String annotatedKey = MafUtil.generateKey(record);
+			String originalKey = MafUtil.generateKey(mafRecord);
+
+
+			if (!annotatedKey.equals(originalKey))
+			{
+				LOG.warn("annotateRecordWithoutCache(), key mismatch: " +
+				         originalKey + " & " + annotatedKey);
+			}
+
+			for (String header: this.headerLine.split("\t"))
+			{
+				String parts[] = line.split("\t", -1);
+
+				data.put(header, parts[this.mafUtil.getColumnIndex(header)]);
+			}
 		}
 
 		return data;
 	}
 
-	public Map<String, String> annotateRecord(MafRecord mafRecord) throws IOException
+	public Map<String, String> annotateRecordWithCache(MafRecord mafRecord) throws IOException
 	{
 		Map<String, String> data = new HashMap<String, String>();
 
@@ -125,5 +135,15 @@ public class AnnotatorService
 		}
 
 		return data;
+	}
+
+	public void cleanUp() throws IOException
+	{
+		if (this.reader != null)
+		{
+			this.reader.close();
+		}
+
+		// TODO also delete intermediate files?
 	}
 }

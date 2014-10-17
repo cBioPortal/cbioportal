@@ -36,20 +36,22 @@ public class Annotator
 		if (input.getName().toLowerCase().endsWith(".vcf"))
 		{
 			retVal = this.runVcf2Maf(input, output);
-			return;
 		}
 		// assuming it is a maf..
 		else
 		{
 			retVal = this.runMaf2Maf(input);
-		}
 
-		// TODO check return value?
-		if (retVal != 0)
-		{
-			return;
+			if (retVal == 0)
+			{
+				// TODO keep the comment lines
+				mergeWithOriginal(input, output);
+			}
 		}
+	}
 
+	protected void mergeWithOriginal(File input, File output) throws IOException
+	{
 		List<String> annoHeaders = this.extractAnnoHeaders(this.config.getIntermediateMaf());
 
 		FileReader reader = new FileReader(input);
@@ -105,9 +107,9 @@ public class Annotator
 			dataLine = bufReader.readLine();
 		}
 
+		service.cleanUp();
 		bufReader.close();
 		writer.close();
-
 	}
 
 	public int runMaf2Maf(File input) throws IOException

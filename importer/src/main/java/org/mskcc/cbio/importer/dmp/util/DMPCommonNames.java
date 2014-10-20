@@ -15,7 +15,7 @@
  *  Memorial Sloan-Kettering Cancer Center 
  *  has been advised of the possibility of such damage.
  */
-package org.mskcc.cbio.importer.dmp.support;
+package org.mskcc.cbio.importer.dmp.util;
 
 /**
  * a collection of literal values used throughout the DMP importer application
@@ -40,9 +40,10 @@ public interface DMPCommonNames {
     
     public static final String SAMPLE_ID_COLUMN_NAME = "Tumor_Sample_Barcode";
     
+    public static final String DMP_MUTATIONS_FILENAME = "data_mutations_exteneded.txt";
     public static final String DMP_CNV_FILENAME = "data_CNA.txt";
     public static final String DMP_CLINICAL_FILENAME = "data_clinical.txt";
-    public static final String DMP_HUGO_COLUMNNAME = "Hugo_symbol";
+   
     
     public static final String IS_METASTASTIC_SITE = "1";
   

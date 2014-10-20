@@ -36,8 +36,8 @@ import org.mskcc.cbio.importer.dmp.model.DmpData;
 import org.mskcc.cbio.importer.dmp.model.DmpSnp;
 import org.mskcc.cbio.importer.dmp.model.MetaData;
 import org.mskcc.cbio.importer.dmp.model.Result;
-import org.mskcc.cbio.importer.dmp.support.DMPCommonNames;
-import org.mskcc.cbio.importer.dmp.support.DMPStagingFileManager;
+import org.mskcc.cbio.importer.dmp.util.DMPCommonNames;
+import org.mskcc.cbio.importer.dmp.persistence.file.DMPStagingFileManager;
 import org.mskcc.cbio.importer.dmp.util.DmpUtils;
 import org.mskcc.cbio.importer.dmp.util.EntrezIDSupplier;
 import scala.Tuple2;
@@ -48,7 +48,7 @@ import scala.Tuple3;
  of a DMP data file 
  generates the data_mutations_extended.txt (MAF format) file
  */
-public class DmpSnpTransformer implements DmpDataTransformable  {
+public class DmpSnpTransformer implements DmpDataTransformable {
 
     private final DMPStagingFileManager fileManager;
     private static final String REPORT_TYPE = DMPCommonNames.REPORT_TYPE_MUTATIONS;
@@ -62,6 +62,7 @@ public class DmpSnpTransformer implements DmpDataTransformable  {
         Preconditions.checkArgument(null != aManager, "A DMPStagingFileManager object is required");
         this.fileManager = aManager;
     }
+
     @Override
     public void transform(DmpData data) {
         Preconditions.checkArgument(null != data, "A DmpData object is required");
@@ -70,15 +71,14 @@ public class DmpSnpTransformer implements DmpDataTransformable  {
         }
 
     }
-    
-    private void processSnps (Result result){
-        List<DmpSnp> snpList =  Lists.newArrayList();
-         final MetaData meta = result.getMetaData();
+
+    private void processSnps(Result result) {
+        List<DmpSnp> snpList = Lists.newArrayList();
+        final MetaData meta = result.getMetaData();
         snpList.addAll(result.getSnpExonic());
         snpList.addAll(result.getSnpSilent());
         List<String> snpReportList = FluentIterable.from(snpList)
                 .transform(new Function<DmpSnp, DmpSnp>() {
-                    
                     @Override
                     public DmpSnp apply(DmpSnp snp) {
                         // add the sample id to the SNP
@@ -112,15 +112,13 @@ public class DmpSnpTransformer implements DmpDataTransformable  {
                                 return retRecord;
                             }
                         }).toList();
-         // write out data to staging file
+        // write out data to staging file
         if (snpReportList.size() > 0) {
             fileManager.appendMafDataToStagingFile(REPORT_TYPE, snpReportList);
             logger.info(snpReportList.size() + " SNPs have been processed");
         }
-               
-    }
 
-    
+    }
 
     private class DMPMutationsTransformationMapSupplier implements
             Supplier<Map<String, Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>>>> {

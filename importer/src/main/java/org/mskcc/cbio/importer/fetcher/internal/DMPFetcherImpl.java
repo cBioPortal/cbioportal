@@ -27,7 +27,7 @@ import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.Fetcher;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.dmp.model.DmpData;
-import org.mskcc.cbio.importer.dmp.support.DMPStagingFileManager;
+import org.mskcc.cbio.importer.dmp.persistence.file.DMPStagingFileManager;
 import org.mskcc.cbio.importer.dmp.transformer.DMPDataTransformer;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;

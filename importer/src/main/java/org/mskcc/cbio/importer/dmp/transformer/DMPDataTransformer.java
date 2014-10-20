@@ -27,14 +27,14 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.dmp.model.DmpData;
 import org.mskcc.cbio.importer.dmp.model.Result;
-import org.mskcc.cbio.importer.dmp.support.DMPStagingFileManager;
-import org.mskcc.cbio.importer.dmp.support.DMPTumorTypeSampleMapManager;
+import org.mskcc.cbio.importer.dmp.persistence.file.DMPStagingFileManager;
+import org.mskcc.cbio.importer.dmp.persistence.file.DMPTumorTypeSampleMapManager;
 
 /*
  Responsible for transforming the DMP data encapsulated in the DmpData object
  graph into a set of MAF files
  Inputs: 1. The DMP data as a Java object graph
- 2. A reference to a DMPStagingFileManager for writing the DMP staging
+ 2. A reference to a DMPStagingFileManagerOld for writing the DMP staging
  data
  3. A List of DMPTransformable implementations responsible for 
  transforming specific components of the DMP data

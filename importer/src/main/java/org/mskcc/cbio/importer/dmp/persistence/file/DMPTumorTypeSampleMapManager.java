@@ -15,7 +15,7 @@
  *  Memorial Sloan-Kettering Cancer Center 
  *  has been advised of the possibility of such damage.
  */
-package org.mskcc.cbio.importer.dmp.support;
+package org.mskcc.cbio.importer.dmp.persistence.file;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import joptsimple.internal.Strings;
 import org.mskcc.cbio.importer.dmp.model.Result;
-import scala.Tuple2;
 
 /**
  *
@@ -42,7 +41,7 @@ import scala.Tuple2;
 public class DMPTumorTypeSampleMapManager {
 
     private final DMPStagingFileManager fileManager;
-    private Multimap<String, Integer> tumorSampleMap;
+    private final Multimap<String, Integer> tumorSampleMap;
     
     private static final Joiner tabJoiner = Joiner.on("\t");
 
@@ -90,7 +89,7 @@ public class DMPTumorTypeSampleMapManager {
             }
         }).toList();
 
-        this.fileManager.writeTumorTypedata(lines);
+        this.fileManager.persistDMPCaseListData(lines);
     }
     /*
      public method to return the DMP sample ids assosiated with a specified 
@@ -114,7 +113,7 @@ public class DMPTumorTypeSampleMapManager {
     }
 
     /**
-     * a private class that implements a Supplier to handle the persistance of
+     * a private class that implements a Supplier to handle the persistence of
      * the tumor type map all DMP data
      */
     private class TumorTypeMapSupplier implements Supplier<Multimap<String, Integer>> {
@@ -137,7 +136,7 @@ public class DMPTumorTypeSampleMapManager {
         public Multimap<String, Integer> get() {
             // instantiate a new map
             this.tumorSampleMap = HashMultimap.create(500, 2000);
-            List<String> tumorTypeList = this.fileManager.readDmpTumorTypeData();
+            List<String> tumorTypeList = this.fileManager.readDMPCaseListData();
             if (!tumorTypeList.isEmpty()) {
 
                 for (String line : tumorTypeList) {

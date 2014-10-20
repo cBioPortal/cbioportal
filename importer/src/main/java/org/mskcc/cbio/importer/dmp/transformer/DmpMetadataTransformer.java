@@ -18,14 +18,24 @@
 package org.mskcc.cbio.importer.dmp.transformer;
 
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.gdata.util.common.base.Preconditions;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.dmp.model.DmpData;
-import org.mskcc.cbio.importer.dmp.support.DMPCommonNames;
-import org.mskcc.cbio.importer.dmp.support.DMPStagingFileManager;
+import org.mskcc.cbio.importer.dmp.model.MetaData;
+import org.mskcc.cbio.importer.dmp.model.Result;
+import org.mskcc.cbio.importer.dmp.util.DMPCommonNames;
+import org.mskcc.cbio.importer.dmp.persistence.file.DMPStagingFileManager;
+import org.mskcc.cbio.importer.dmp.util.DmpUtils;
 import scala.Tuple2;
 import scala.Tuple3;
 
@@ -34,17 +44,55 @@ public class DmpMetadataTransformer implements DmpDataTransformable {
     private final DMPStagingFileManager fileManager;
     private final static Logger logger = Logger.getLogger(DmpMetadataTransformer.class);
     private final static String REPORT_TYPE = DMPCommonNames.REPORT_TYPE_METADATA;
+    private static final Joiner tabJoiner = Joiner.on('\t').useForNull(" ");
+
+    private final Supplier<Map<String, Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>>>> transformationMaprSupplier
+            = Suppliers.memoize(new DmpMetadataTransformationsSupplier());
 
     public DmpMetadataTransformer(DMPStagingFileManager aManager) {
+        Preconditions.checkArgument(null != aManager, "A DMPStagingFileManager object is required");
         this.fileManager = aManager;
     }
 
     @Override
     public void transform(DmpData data) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        Preconditions.checkArgument(null != data, "A DmpData object is required");
+        
     }
 
-    
+    private List<String> transformMetadata(DmpData data) {
+        return FluentIterable.from(data.getResults())
+                .transform(new Function<Result, MetaData>() {
+                    @Override
+                    public MetaData apply(Result result) {
+                        return result.getMetaData();
+                    }
+                })
+                .transform(new Function<MetaData, String>() {
+                    @Override
+                    public String apply(final MetaData meta) {
+                        Set<String> attributeList = transformationMaprSupplier.get().keySet();
+                        List<String> mafAttributes = FluentIterable.from(attributeList)
+                        .transform(new Function<String, String>() {
+                            @Override
+                            public String apply(String attribute) {
+                                Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>> tuple3
+                                = transformationMaprSupplier.get().get(attribute);
+                                String attribute1 = DmpUtils.pojoStringGetter(tuple3._2(), meta);
+
+                                Optional<String> optAttribute2 = (Optional<String>) ((tuple3._3().isPresent())
+                                        ? Optional.of(DmpUtils.pojoStringGetter(tuple3._3().get(), meta))
+                                        : Optional.absent());
+
+                                return tuple3._1().apply(new Tuple2(attribute1, optAttribute2));
+
+                            }
+                        }).toList();
+                        String retRecord = tabJoiner.join(mafAttributes);
+                        return retRecord;
+                    }
+                }).toList();
+    }
 
     private class DmpMetadataTransformationsSupplier implements
             Supplier<Map<String, Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>>>> {
@@ -85,7 +133,7 @@ public class DmpMetadataTransformer implements DmpDataTransformable {
 
                     @Override
                     public String apply(Tuple2<String, Optional<String>> f) {
-                        return (f._1().equalsIgnoreCase(DMPCommonNames.IS_METASTASTIC_SITE)) 
+                        return (f._1().equalsIgnoreCase(DMPCommonNames.IS_METASTASTIC_SITE))
                                 ? "Metastasis" : "Primary";
                     }
 

@@ -30,8 +30,8 @@ import org.mskcc.cbio.importer.dmp.model.CnvIntragenicVariant;
 import org.mskcc.cbio.importer.dmp.model.CnvVariant;
 import org.mskcc.cbio.importer.dmp.model.DmpData;
 import org.mskcc.cbio.importer.dmp.model.Result;
-import org.mskcc.cbio.importer.dmp.support.DMPCommonNames;
-import org.mskcc.cbio.importer.dmp.support.DMPStagingFileManager;
+import org.mskcc.cbio.importer.dmp.util.DMPCommonNames;
+import org.mskcc.cbio.importer.dmp.persistence.file.DMPStagingFileManager;
 import scala.Tuple3;
 
 /*

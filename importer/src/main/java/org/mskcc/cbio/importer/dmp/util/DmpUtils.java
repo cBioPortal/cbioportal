@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.mskcc.cbio.importer.dmp.support.DMPCommonNames;
 
 /*
  represents a collection of static utility methods used thoughout the application
@@ -71,15 +70,7 @@ public class DmpUtils {
         reportTypeAttributeMaps.put(DMPCommonNames.REPORT_TYPE_CNV, cnvAttributeMap);
     }
 
-    public static final Map<String, String> intragenicAttributeMap = Maps.newTreeMap();
-
-    static {
-        intragenicAttributeMap.put("100Gene ID", "getGeneId");
-
-        // associate these attributes with the intragenic report
-        reportTypeAttributeMaps.put(DMPCommonNames.REPORT_TYPE_CNV_INTRAGENIC, intragenicAttributeMap);
-    }
-
+  
     public static final Map<String, String> mutationAttributeMap = Maps.newTreeMap();
 
     static {

@@ -29,7 +29,7 @@ public class MetaController {
         } catch (DaoException e) {
             return new ArrayList<>();
         } catch (Exception e) {
-            // TODO: fail gracefully
+            // TODO: fail verbosely
             return new ArrayList<>();
         }
     }
@@ -49,7 +49,7 @@ public class MetaController {
         } catch (DaoException e) {
             return new ArrayList<>();
         } catch (Exception e) {
-            // TODO: fail gracefully
+            // TODO: fail verbosely
             return new ArrayList<>();
         }
     }
@@ -72,7 +72,7 @@ public class MetaController {
         } catch (DaoException e) {
             return new ArrayList<>();
         } catch (Exception e) {
-            // TODO: fail gracefully
+            // TODO: fail verbosely
             return new ArrayList<>();
         }
     }
@@ -95,18 +95,32 @@ public class MetaController {
         } catch (DaoException e) {
             return new ArrayList<>();
         } catch (Exception e) {
-            // TODO: fail gracefully
+            // TODO: fail verbosely
             return new ArrayList<>();
         }
     }
     
     @RequestMapping("/clinical")
-    public @ResponseBody ArrayList<ClinicalFieldJSON> dispatchClinical(@RequestParam(required = false) Integer study_internal_id,
-                                                                       @RequestParam(required = false) String case_list_id,
-                                                                       @RequestParam(required = false) Integer case_list_internal_id,
-                                                                       @RequestParam(required = false) List<String> case_ids,
-                                                                       @RequestParam(required = false) List<Integer> case_internal_ids) {
-        return null;
+    public @ResponseBody ArrayList<ClinicalFieldJSON> dispatchClinical(@RequestParam(required = false) Integer internal_study_id,
+                                                                       @RequestParam(required = false) Integer internal_case_list_id,
+                                                                       @RequestParam(required = false) List<Integer> internal_case_ids) {
+        try {
+            if (internal_study_id == null && internal_case_list_id == null && internal_case_ids == null) {
+                return new ArrayList<>(); // TODO: error report: one of these must be non-null
+            } else if (internal_case_list_id != null) {
+                return ClinicalController.getClinicalFieldsByCaseList(internal_case_list_id);
+            } else if (internal_case_ids != null) {
+                return ClinicalController.getClinicalFieldsByCaseList(internal_case_ids);
+            } else {
+                // internal_study_id != null
+                return ClinicalController.getClinicalFieldsByStudy(internal_study_id);
+            }
+        } catch (DaoException e) {
+            return new ArrayList<>();
+        } catch (Exception e) {
+            // TODO: fail verbosely
+            return new ArrayList<>();
+        }
     }
     
 }

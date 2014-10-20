@@ -5,23 +5,27 @@
  */
 package org.mskcc.cbio.portal.web;
 
-import org.mskcc.cbio.portal.model.GeneticProfile;
+import org.mskcc.cbio.portal.model.ClinicalAttribute;
 /**
  *
  * @author abeshoua
  */
 public class ClinicalFieldJSON {
     public String attr_id;
-    public String attr_val;
-    public String case_id;
+    public String display_name;
+    public String description;
+    public String datatype;
+    public String attribute_type;
+    public String priority;
+    public String category;
     
-    public ClinicalFieldJSON() {
-        this.id = model.getStableId();
-        this.internal_id = model.getGeneticProfileId();
-        this.name = model.getProfileName();
-        this.description = model.getProfileDescription();
-        this.cancer_study_internal_id = model.getCancerStudyId();
-        this.genetic_alteration_type = model.getGeneticAlterationType().toString();
-        this.show_profile_in_analysis_tab = model.showProfileInAnalysisTab();
+    public ClinicalFieldJSON(ClinicalAttribute model) {
+        this.attr_id = model.getAttrId();
+        this.display_name = model.getDisplayName();
+        this.description = model.getDescription();
+        this.datatype = model.getDatatype();
+        this.attribute_type = (model.isPatientAttribute()? "PATIENT":"SAMPLE");
+        this.priority = model.getPriority();
+        //this.category = model.
     }
 }

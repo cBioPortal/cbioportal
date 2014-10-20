@@ -125,7 +125,7 @@ public class DaoClinicalAttribute {
      * @return
      * @throws DaoException
      */
-    private static List<ClinicalAttribute> getDataByInternalIds(List<Integer> internalIds) throws DaoException {
+    public static List<ClinicalAttribute> getDataByInternalIds(List<Integer> internalIds) throws DaoException {
         
         Connection con = null;
         ResultSet rs = null;

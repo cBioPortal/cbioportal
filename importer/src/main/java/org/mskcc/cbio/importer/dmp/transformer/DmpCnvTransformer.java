@@ -42,7 +42,7 @@ import scala.Tuple3;
  updates table with new CNV data
  persists updated table to designated file
  */
-public class DmpCnvTransformer implements DmpDataTransformable {
+public class DmpCnvTransformer implements DMPDataTransformable {
 
     private final DMPStagingFileManager fileManager;
     private final static Logger logger = Logger.getLogger(DmpCnvTransformer.class);

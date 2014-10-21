@@ -39,7 +39,7 @@ import org.mskcc.cbio.importer.dmp.util.DmpUtils;
 import scala.Tuple2;
 import scala.Tuple3;
 
-public class DmpMetadataTransformer implements DmpDataTransformable {
+public class DmpMetadataTransformer implements DMPDataTransformable {
 
     private final DMPStagingFileManager fileManager;
     private final static Logger logger = Logger.getLogger(DmpMetadataTransformer.class);

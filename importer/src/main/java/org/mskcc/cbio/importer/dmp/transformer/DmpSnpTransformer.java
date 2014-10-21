@@ -48,7 +48,7 @@ import scala.Tuple3;
  of a DMP data file 
  generates the data_mutations_extended.txt (MAF format) file
  */
-public class DmpSnpTransformer implements DmpDataTransformable {
+public class DmpSnpTransformer implements DMPDataTransformable {
 
     private final DMPStagingFileManager fileManager;
     private static final String REPORT_TYPE = DMPCommonNames.REPORT_TYPE_MUTATIONS;

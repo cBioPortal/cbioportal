@@ -16,6 +16,7 @@
 package org.mskcc.cbio.importer.fetcher.internal;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.nio.file.Paths;
 import org.mskcc.cbio.importer.dmp.importer.DMPclinicaldataimporter;
 
 import java.util.ArrayList;
@@ -70,7 +71,8 @@ public class DMPFetcherImpl implements Fetcher{
         
         //Register transformers
        
-        DMPDataTransformer transformer = new DMPDataTransformer(fileManager);
+        //DMPDataTransformer transformer = new DMPDataTransformer(fileManager);
+        DMPDataTransformer transformer = new DMPDataTransformer(Paths.get(this.dataSourcePath));
         
         //Retrieve process
         DMPclinicaldataimporter dmpImporter_retrieve = new DMPclinicaldataimporter();

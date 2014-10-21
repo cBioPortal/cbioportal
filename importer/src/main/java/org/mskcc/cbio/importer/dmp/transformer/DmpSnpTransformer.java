@@ -27,6 +27,9 @@ import com.google.common.base.Suppliers;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
 
 import java.util.List;
 import java.util.Map;
@@ -37,9 +40,9 @@ import org.mskcc.cbio.importer.dmp.model.DmpSnp;
 import org.mskcc.cbio.importer.dmp.model.MetaData;
 import org.mskcc.cbio.importer.dmp.model.Result;
 import org.mskcc.cbio.importer.dmp.util.DMPCommonNames;
-import org.mskcc.cbio.importer.dmp.persistence.file.DMPStagingFileManager;
 import org.mskcc.cbio.importer.dmp.util.DmpUtils;
 import org.mskcc.cbio.importer.dmp.util.EntrezIDSupplier;
+import org.mskcc.cbio.importer.persistence.staging.MafFileHandler;
 import scala.Tuple2;
 import scala.Tuple3;
 
@@ -50,17 +53,41 @@ import scala.Tuple3;
  */
 public class DmpSnpTransformer implements DMPDataTransformable {
 
-    private final DMPStagingFileManager fileManager;
+    private final MafFileHandler fileHandler;
     private static final String REPORT_TYPE = DMPCommonNames.REPORT_TYPE_MUTATIONS;
     private final static Logger logger = Logger.getLogger(DmpSnpTransformer.class);
     private static final Joiner tabJoiner = Joiner.on('\t').useForNull(" ");
+    private static final String mutationsFileName = "data_mutations_extended.txt";
 
     private final Supplier<Map<String, Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>>>> transformationMaprSupplier
             = Suppliers.memoize(new DMPMutationsTransformationMapSupplier());
 
-    public DmpSnpTransformer(DMPStagingFileManager aManager) {
-        Preconditions.checkArgument(null != aManager, "A DMPStagingFileManager object is required");
-        this.fileManager = aManager;
+    public DmpSnpTransformer(MafFileHandler aHandler,Path stagingDirectoryPath) {
+        Preconditions.checkArgument(null != aHandler, "A MafFileHandler implementation is required");
+        Preconditions.checkArgument(null != stagingDirectoryPath,
+                "A Path to the staging file directory is required");
+        Preconditions.checkArgument(Files.isDirectory(stagingDirectoryPath, LinkOption.NOFOLLOW_LINKS),
+                "The specified Path: " + stagingDirectoryPath + " is not a directory");
+        Preconditions.checkArgument(Files.isWritable(stagingDirectoryPath),
+                "The specified Path: " + stagingDirectoryPath + " is not writable");
+        this.fileHandler = aHandler;
+        // initialize the MAF file handler for DMP SNP data
+        aHandler.registerMafStagingFile(stagingDirectoryPath.resolve(mutationsFileName),
+                this.resolveColumnNames());
+    }
+   
+   /*
+    resolve the MAF file headings from the transformation map
+    strip off the numeric prefix used to order the attributes
+    */ 
+    private List<String> resolveColumnNames() {
+       return FluentIterable.from(this.transformationMaprSupplier.get().keySet())
+                .transform(new Function<String, String>() {
+                    @Override
+                    public String apply(String s) {
+                        return (s.substring(3)); // strip off the three digit numeric prefix
+                    }
+                }).toList();
     }
 
     @Override
@@ -69,7 +96,6 @@ public class DmpSnpTransformer implements DMPDataTransformable {
         for (Result result : data.getResults()) {
             this.processSnps(result);
         }
-
     }
 
     private void processSnps(Result result) {
@@ -113,13 +139,17 @@ public class DmpSnpTransformer implements DMPDataTransformable {
                             }
                         }).toList();
         // write out data to staging file
-        if (snpReportList.size() > 0) {
-            fileManager.appendMafDataToStagingFile(REPORT_TYPE, snpReportList);
+        if (snpReportList.size() > 0) {      
+            this.fileHandler.appendMafDataToStagingFile( snpReportList);
             logger.info(snpReportList.size() + " SNPs have been processed");
         }
 
     }
 
+    /*
+    Private inner class to encapsulate the DMP to MAF attribute transformations
+    Implemented as a single item cache (i.e. Supplier)
+    */
     private class DMPMutationsTransformationMapSupplier implements
             Supplier<Map<String, Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>>>> {
 
@@ -132,6 +162,13 @@ public class DmpSnpTransformer implements DMPDataTransformable {
             this.entrezMap = entrezIDSupplier.get();
         }
 
+        /*
+        Map of MAF attributes and associated DMP to MAF attribute transformation functions
+        These transformation functions utilize specified getter methods from the DMP model
+        objects to resolve DMP attribute values
+        The second Optional DMP argument is provided to support transformation functions that
+        operate on two DMP attributes to determine a single MAF attribute
+        */
         @Override
         public Map<String, Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>>> get() {
             Map<String, Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>>> transformationMap = Maps.newTreeMap();

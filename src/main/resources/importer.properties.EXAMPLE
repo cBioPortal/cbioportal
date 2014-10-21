@@ -54,3 +54,4 @@ liftover_chain_file=
 
 # tcga clinical data
 nci.cadsr.url=http://cadsrapi.nci.nih.gov/cadsrapi40/GetXML?query=
+nci.cadsr.query=DataElement[@publicId=CDE_ID:]

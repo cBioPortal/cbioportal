@@ -1,5 +1,6 @@
 # app-name (used by at least authentication)
 app.name=
+app.version=
 
 # database
 db.tomcat_resource_name=jdbc/cbioportal

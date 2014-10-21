@@ -1,0 +1,55 @@
+# importer database settings
+db.user=
+db.password=
+db.host=localhost
+db.importer_db_name=
+db.driver=com.mysql.jdbc.Driver
+db.connection_string=jdbc:mysql://localhost/
+db.portal_schema=$PORTAL_HOME/core/src/main/resources/db/cgds.sql
+
+# google docs credentials
+google.id=
+google.pw=
+
+# google docs user access settings
+users.spreadsheet=
+users.worksheet=
+
+# google docs importer configuration settings
+importer.spreadsheet_service_appname=cBio Portal Importer Tool
+importer.spreadsheet=portal_importer_configuration
+importer.cancer_studies_worksheet=cancer_studies
+importer.case_id_filters_worksheet=case_id_filters-default
+importer.case_lists_worksheet=case_lists
+importer.clinical_attributes_namespace_worksheet=clinical_attributes_namespace
+importer.clinical_attributes_worksheet=clinical_attributes
+importer.datatypes_worksheet=datatypes
+importer.data_sources_worksheet=data_sources
+importer.portals_worksheet=portals
+importer.reference_data_worksheet=reference_data
+importer.tumor_types_worksheet=tumor_types
+importer.foundation_worksheet=foundation
+importer.icgc_worksheet=icgc
+
+# annotation database - should be removed after
+annotate.db.user=
+annotate.db.password=
+annotate.db.host=
+annotate.db.name=
+
+# NCI's clinical trial information
+nci.cancer.ftp.user=
+nci.cancer.ftp.password=
+nci.cancer.sftp.user=
+nci.cancer.sftp.password=
+sshpass.path=
+
+# firehose_get script
+firehose_get_script=$PORTAL_HOME/importer/src/main/scripts/firehose_get
+
+# liftover tool
+liftover_binary=
+liftover_chain_file=
+
+# tcga clinical data
+nci.cadsr.url=http://cadsrapi.nci.nih.gov/cadsrapi40/GetXML?query=

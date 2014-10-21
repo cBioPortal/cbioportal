@@ -14,7 +14,7 @@ http://www.springframework.org/schema/beans/spring-beans.xsd
     <b:property name="searchSystemEnvironment" value="true" />
     <b:property name="locations">
       <b:list>
-        <b:value>file:///${PORTAL_HOME}/portal.properties</b:value>
+        <b:value>file:///${PORTAL_HOME}/importer.properties</b:value>
       </b:list>
     </b:property>
   </b:bean>  

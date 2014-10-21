@@ -214,7 +214,7 @@ var DataTable = function() {
                     _value['CASE_ID'] + "</span></a></strong>";
                 }else if ( (_valueAo.sTitle === 'Patient Identifier' || _valueAo.sTitle === 'PATIENT ID') && _value['PATIENT_ID'] !== 'NA'){
                     _tmpValue = "<a href='case.do?cancer_study_id=" +
-                    StudyViewParams.params.studyId + "&patient_id="+
+                    StudyViewParams.params.studyId + "&case_id="+
                     _value['PATIENT_ID'] +
                     "' target='_blank'><span style='color: #2986e2'>" + 
                     _value['PATIENT_ID'] + "</span></a></strong>";

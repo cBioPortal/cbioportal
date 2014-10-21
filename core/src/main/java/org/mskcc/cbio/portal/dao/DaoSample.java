@@ -36,11 +36,9 @@ public class DaoSample {
 
     private static final Map<String, Sample> byStableId = new ConcurrentHashMap<String, Sample>();
     private static final Map<Integer, Sample> byInternalId = new ConcurrentHashMap<Integer, Sample>();
-    private static final Map<Integer, HashSet<Sample>> byInternalPatientId = new ConcurrentHashMap<Integer, HashSet<Sample>>();
-    private static final MultiKeyMap byInternalPatientAndStableSampleId = new MultiKeyMap();
-    private static final Map<String, HashSet<Sample>> byCancerTypeId = new ConcurrentHashMap<String, HashSet<Sample>>();
-    private static final MultiKeyMap normalsByCancerIdAndStableSampleId = new MultiKeyMap();
-    private static final MultiKeyMap byCancerIdAndStableSampleId = new MultiKeyMap();
+    private static final Map<Integer, Map<String, Sample>> byInternalPatientAndStableSampleId = new HashMap<Integer, Map<String, Sample>>();
+    private static final Map<Integer, Map<String, Sample>> byCancerStudyIdAndStableSampleId = new HashMap<Integer, Map<String, Sample>>();
+    private static final Map<Integer, Map<String, Sample>> normalsByCancerStudyIdAndStableSampleId = new HashMap<Integer, Map<String, Sample>>();
 
     static {
         cache();
@@ -50,10 +48,8 @@ public class DaoSample {
     {
         byStableId.clear();
         byInternalId.clear();
-        byInternalPatientId.clear();
         byInternalPatientAndStableSampleId.clear();
-        byCancerTypeId.clear();
-        byCancerIdAndStableSampleId.clear();
+        byCancerStudyIdAndStableSampleId.clear();
     }
 
     private static void cache()
@@ -83,9 +79,15 @@ public class DaoSample {
     {
         if (sample.getType().isNormal()) {
             int cancerStudyId = getCancerStudyId(sample);
-            if (!normalsByCancerIdAndStableSampleId.containsKey(cancerStudyId, sample.getStableId())) {
-                normalsByCancerIdAndStableSampleId.put(cancerStudyId, sample.getStableId(), sample);
+            Map<String, Sample> samples = normalsByCancerStudyIdAndStableSampleId.get(cancerStudyId);
+            if (samples==null) {
+                samples = new HashMap<String, Sample>();
+                normalsByCancerStudyIdAndStableSampleId.put(cancerStudyId, samples);
             }
+            if (samples.containsKey(sample.getStableId())) {
+                //System.err.println("Something is wrong: there are two normal samples of "+sample.getStableId()+" in the same study.");
+            }
+            samples.put(sample.getStableId(), sample);
         } else {
             // only non-normal samples
             cacheSample(sample, getCancerStudyId(sample));
@@ -108,25 +110,25 @@ public class DaoSample {
             byInternalId.put(sample.getInternalId(), sample);
         }
 
-        if (!byInternalPatientId.containsKey(sample.getInternalPatientId())) {
-            byInternalPatientId.put(sample.getInternalPatientId(), new HashSet<Sample>());
+        Map<String, Sample> samples = byInternalPatientAndStableSampleId.get(sample.getInternalPatientId());
+        if (samples==null) {
+            samples = new HashMap<String, Sample>();
+            byInternalPatientAndStableSampleId.put(sample.getInternalPatientId(), samples);
         }
-        byInternalPatientId.get(sample.getInternalPatientId()).add(sample);
+        if (samples.containsKey(sample.getStableId())) {
+            System.err.println("Something is wrong: there are two samples of "+sample.getStableId()+" in the same patient.");
+        }
+        samples.put(sample.getStableId(), sample);
 
-        if (!byInternalPatientAndStableSampleId.containsKey(sample.getInternalPatientId(),
-                                                            sample.getStableId())) {
-            byInternalPatientAndStableSampleId.put(sample.getInternalPatientId(),
-                                                    sample.getStableId(), sample);
+        samples = byCancerStudyIdAndStableSampleId.get(cancerStudyId);
+        if (samples==null) {
+            samples = new HashMap<String, Sample>();
+            byCancerStudyIdAndStableSampleId.put(cancerStudyId, samples);
         }
-
-        if (!byCancerTypeId.containsKey(sample.getCancerTypeId())) {
-            byCancerTypeId.put(sample.getCancerTypeId(), new HashSet<Sample>());
+        if (samples.containsKey(sample.getStableId())) {
+            System.err.println("Something is wrong: there are two samples of "+sample.getStableId()+" in the same study.");
         }
-        byCancerTypeId.get(sample.getCancerTypeId()).add(sample);
-
-        if (!byCancerIdAndStableSampleId.containsKey(cancerStudyId, sample.getStableId())) {
-            byCancerIdAndStableSampleId.put(cancerStudyId, sample.getStableId(), sample);
-        }
+        samples.put(sample.getStableId(), sample);
     }
 
     public static int addSample(Sample sample) throws DaoException
@@ -147,7 +149,6 @@ public class DaoSample {
             pstmt.executeUpdate();
             rs = pstmt.getGeneratedKeys();
             if (rs.next()) {
-                Patient patient = DaoPatient.getPatientById(sample.getInternalPatientId());
                 cacheSample(new Sample(rs.getInt(1), sample.getStableId(),
                                        sample.getInternalPatientId(), sample.getCancerTypeId()));
                 return rs.getInt(1);
@@ -175,29 +176,48 @@ public class DaoSample {
 
     public static List<Sample> getSamplesByPatientId(int internalPatientId)
     {
-        return (byInternalPatientId.isEmpty() || !byInternalPatientId.containsKey(internalPatientId)) ? Collections.<Sample>emptyList() :
-            new ArrayList<Sample>(byInternalPatientId.get(internalPatientId));
+        return (byInternalPatientAndStableSampleId.isEmpty() || !byInternalPatientAndStableSampleId.containsKey(internalPatientId)) ? Collections.<Sample>emptyList() :
+            new ArrayList<Sample>(byInternalPatientAndStableSampleId.get(internalPatientId).values());
     }
 
     public static Sample getSampleByPatientAndSampleId(int internalPatientId, String stableSampleId)
     {
-        return (Sample)byInternalPatientAndStableSampleId.get(internalPatientId, stableSampleId);
+        Map<String, Sample> samples = byInternalPatientAndStableSampleId.get(internalPatientId);
+        if (samples==null) {
+            return null;
+        }
+        
+        return samples.get(stableSampleId);
     }
-
-    public static List<Sample> getSamplesByCancerTypeId(String cancerTypeId)
+    
+    public static List<Sample> getSamplesByCancerStudy(int cancerStudyId)
     {
-        return (byCancerTypeId.isEmpty() || !byCancerTypeId.containsKey(cancerTypeId)) ? Collections.<Sample>emptyList() :
-            new ArrayList<Sample>(byCancerTypeId.get(cancerTypeId));
+        Map<String, Sample> samples = byCancerStudyIdAndStableSampleId.get(cancerStudyId);
+        if (samples==null) {
+            return Collections.emptyList();
+        }
+        
+        return new ArrayList<Sample>(samples.values());
     }
 
     public static Sample getSampleByCancerStudyAndSampleId(int cancerStudyId, String stableSampleId)
     {
-        return (Sample)byCancerIdAndStableSampleId.get(cancerStudyId, stableSampleId);
+        Map<String, Sample> samples = byCancerStudyIdAndStableSampleId.get(cancerStudyId);
+        if (samples==null) {
+            return null;
+        }
+        
+        return samples.get(stableSampleId);
     }
 
     public static Sample getNormalSampleByCancerStudyAndSampleId(int cancerStudyId, String stableSampleId)
     {
-        return (Sample)normalsByCancerIdAndStableSampleId.get(cancerStudyId, stableSampleId);
+        Map<String, Sample> samples = normalsByCancerStudyIdAndStableSampleId.get(cancerStudyId);
+        if (samples==null) {
+            return null;
+        }
+        
+        return samples.get(stableSampleId);
     }
 
     public static void deleteAllRecords() throws DaoException

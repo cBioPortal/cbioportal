@@ -74,9 +74,11 @@ function loadMutCountCnaFrac(caseIds,cancerStudyId,mutationProfileId,hasCnaSegme
     if (mutationProfileId!=null) {
         var params = {
             cmd: 'count_mutations',
-            case_ids: caseIds.join(' '),
             mutation_profile: mutationProfileId
         };
+        if (caseIds) {
+            params["case_ids"] = caseIds.join(' ')
+        }
 
         $.post("mutations.json", 
             params,

@@ -27,7 +27,7 @@ into a common collection
  *
  * @author criscuof
  */
-public interface DmpDataTransformable {
+public interface DMPDataTransformable {
    
     public void transform(DmpData data);
     

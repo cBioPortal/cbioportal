@@ -18,20 +18,21 @@
 package org.mskcc.cbio.importer.dmp.transformer;
 
 import com.google.common.base.Function;
-import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import com.google.inject.internal.Iterables;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
 import java.util.List;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.dmp.model.CnvIntragenicVariant;
 import org.mskcc.cbio.importer.dmp.model.CnvVariant;
 import org.mskcc.cbio.importer.dmp.model.DmpData;
 import org.mskcc.cbio.importer.dmp.model.Result;
-import org.mskcc.cbio.importer.dmp.util.DMPCommonNames;
-import org.mskcc.cbio.importer.dmp.persistence.file.DMPStagingFileManager;
+import org.mskcc.cbio.importer.persistence.staging.CnvFileHandler;
 import scala.Tuple3;
 
 /*
@@ -44,19 +45,27 @@ import scala.Tuple3;
  */
 public class DmpCnvTransformer implements DMPDataTransformable {
 
-    private final DMPStagingFileManager fileManager;
+    private final CnvFileHandler fileHandler;
     private final static Logger logger = Logger.getLogger(DmpCnvTransformer.class);
     private Table<String, String, Double> cnvTable;
+    private static final String cnaFileName = "data_CNA.txt";
 
-    public DmpCnvTransformer(DMPStagingFileManager aManager) {
-        Preconditions.checkArgument(null != aManager, "A DMPStagingFileManager object is required");
-        this.fileManager = aManager;
+    public DmpCnvTransformer(CnvFileHandler aHandler,Path stagingDirectoryPath) {
+        Preconditions.checkArgument(null != aHandler, "A CnvFileHandler implemebtaion is required");
+        Preconditions.checkArgument(null != stagingDirectoryPath,
+                "A Path to the staging file directory is required");
+        Preconditions.checkArgument(Files.isDirectory(stagingDirectoryPath, LinkOption.NOFOLLOW_LINKS),
+                "The specified Path: " + stagingDirectoryPath + " is not a directory");
+        Preconditions.checkArgument(Files.isWritable(stagingDirectoryPath),
+                "The specified Path: " + stagingDirectoryPath + " is not writable");
+        this.fileHandler = aHandler;
+        this.fileHandler.initializeFilePath(stagingDirectoryPath.resolve(cnaFileName));
         // initialize the in-memory table
-        this.cnvTable = fileManager.initializeCnvTable();
+        this.cnvTable = fileHandler.initializeCnvTable();
     }
 
     /*
-    Function to transform attributes from the Result object to a list of tuples conating the cnv gene name, the result sample id,
+    Function to transform attributes from the Result object to a list of tuples containing the cnv gene name, the result sample id,
     and the cnv fold change
     */
     Function<Result, List<Tuple3<String, String, Double>>> cnvFunction = new Function<Result, List<Tuple3<String, String, Double>>>() {
@@ -90,7 +99,7 @@ public class DmpCnvTransformer implements DMPDataTransformable {
             this.cnvTable.put(cnv._1(), cnv._2(), cnv._3());
         }
         // write out updated table
-        this.fileManager.persistCnvTable(cnvTable);
+        this.fileHandler.persistCnvTable(cnvTable);
 
     }
     

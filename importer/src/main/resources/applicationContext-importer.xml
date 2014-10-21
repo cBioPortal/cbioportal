@@ -147,10 +147,6 @@ http://www.springframework.org/schema/util/spring-util.xsd">
     </b:bean>
 
     
-    <b:bean id="foundationMetadataGenerator" class="org.mskcc.cbio.importer.foundation.support.FoundationMetaDataGenerator">
-        <b:constructor-arg ref="config"/>
-        <b:constructor-arg >
-
    <!-- 
     <b:bean id="foundationMetadataGenerator" class="org.mskcc.cbio.importer.foundation.support.FoundationMetadataGenerator">
          <b:constructor-arg ref="config"/>

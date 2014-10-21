@@ -22,6 +22,9 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Sets;
 import com.google.inject.internal.Lists;
 import com.google.inject.internal.Preconditions;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 import org.apache.log4j.Logger;
@@ -29,6 +32,8 @@ import org.mskcc.cbio.importer.dmp.model.DmpData;
 import org.mskcc.cbio.importer.dmp.model.Result;
 import org.mskcc.cbio.importer.dmp.persistence.file.DMPStagingFileManager;
 import org.mskcc.cbio.importer.dmp.persistence.file.DMPTumorTypeSampleMapManager;
+import org.mskcc.cbio.importer.persistence.staging.CnvFileHandlerImpl;
+import org.mskcc.cbio.importer.persistence.staging.MafFileHandlerImpl;
 
 /*
  Responsible for transforming the DMP data encapsulated in the DmpData object
@@ -42,18 +47,24 @@ import org.mskcc.cbio.importer.dmp.persistence.file.DMPTumorTypeSampleMapManager
 public class DMPDataTransformer {
 
     private final static Logger logger = Logger.getLogger(DMPDataTransformer.class);
-    private final DMPStagingFileManager fileManager;
+    
     private final List<DMPDataTransformable> transformableList;
-    private final DMPTumorTypeSampleMapManager tumorTypeMap;
+    private  DMPTumorTypeSampleMapManager tumorTypeMap;
 
-    public DMPDataTransformer(DMPStagingFileManager aManager) {
-        Preconditions.checkArgument(null != aManager, "A DMPStagingFileManager is required");
-
-        this.fileManager = aManager;
+    public DMPDataTransformer(Path stagingDirectoryPath) {
+        
+        com.google.common.base.Preconditions.checkArgument(null != stagingDirectoryPath,
+                "A Path to the staging file directory is required");
+        com.google.common.base.Preconditions.checkArgument(Files.isDirectory(stagingDirectoryPath, LinkOption.NOFOLLOW_LINKS),
+                "The specified Path: " + stagingDirectoryPath + " is not a directory");
+        com.google.common.base.Preconditions.checkArgument(Files.isWritable(stagingDirectoryPath),
+                "The specified Path: " + stagingDirectoryPath + " is not writable");
         // instantiate and register data transformers
-        this.transformableList = Lists.newArrayList((DMPDataTransformable) new DmpSnpTransformer(this.fileManager));
-
-        this.tumorTypeMap = new DMPTumorTypeSampleMapManager(this.fileManager);
+        this.transformableList = Lists.newArrayList((DMPDataTransformable) new DmpSnpTransformer( new MafFileHandlerImpl(), stagingDirectoryPath));
+       
+        this.transformableList.add((DMPDataTransformable) new DmpCnvTransformer( new CnvFileHandlerImpl(), stagingDirectoryPath));
+          //this.transformableList.add((DmpDataTransformable) new DmpMetadataTransformer(this.fileManager));
+       // this.tumorTypeMap = new DMPTumorTypeSampleMapManager(this.fileManager);
 
     }
     /*
@@ -61,38 +72,18 @@ public class DMPDataTransformer {
      return a Set of processed SMP sample ids
      */
 
-    public Set<String> transform(DmpData data) {
+    public void transform(DmpData data) {
         Preconditions.checkArgument(null != data, "DMP data is required for transformation");
-        /*
-         screen current DMP input sample list for previously processed sample ids
-         */
-        Set<String> processedSampleSet = FluentIterable.from(data.getResults())
-                .transform(new Function<Result, String>() {
-                    @Override
-                    public String apply(Result result) {
-                        return result.getMetaData().getDmpSampleId().toString();
-                    }
-                }).toSet();
-
-        // update the tumor type-sample map
-        // filter exisiting DMP MAF files for deprecated DMP samples
-        this.processRevisedSampleData(processedSampleSet);
+        
         // process the tumor types
-        this.tumorTypeMap.updateTumorTypeSampleMap(data.getResults());
+        //this.tumorTypeMap.updateTumorTypeSampleMap(data.getResults());
         // invoke the type specific transformers on the DMP data
         for (DMPDataTransformable transformable : this.transformableList) {
             transformable.transform(data);
         }
 
-        return processedSampleSet;
     }
 
-    private void processRevisedSampleData(Set<String> currentSampleList) {
-        // look for intersection between previously processed samples and current sample set
-        Set<String> deprecatedSampleSet = Sets.intersection(currentSampleList, fileManager.getProcessedSampleSet());
-        logger.info(deprecatedSampleSet.size() + " samples in the current input deprecate existing DMP samples");
-        fileManager.removeDeprecatedSamplesFomStagingFiles(deprecatedSampleSet);
-
-    }
+  
 
 }

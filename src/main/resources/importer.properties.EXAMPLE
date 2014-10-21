@@ -31,7 +31,7 @@ importer.tumor_types_worksheet=tumor_types
 importer.foundation_worksheet=foundation
 importer.icgc_worksheet=icgc
 
-# annotation database - should be removed after
+# annotation database
 annotate.db.user=
 annotate.db.password=
 annotate.db.host=

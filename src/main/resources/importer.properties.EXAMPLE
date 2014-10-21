@@ -2,6 +2,7 @@
 db.user=
 db.password=
 db.host=localhost
+db.portal_db_name=
 db.importer_db_name=
 db.driver=com.mysql.jdbc.Driver
 db.connection_string=jdbc:mysql://localhost/

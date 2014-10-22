@@ -23,9 +23,11 @@ import com.google.common.base.Optional;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gdata.util.common.base.Preconditions;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,44 +36,66 @@ import org.mskcc.cbio.importer.dmp.model.DmpData;
 import org.mskcc.cbio.importer.dmp.model.MetaData;
 import org.mskcc.cbio.importer.dmp.model.Result;
 import org.mskcc.cbio.importer.dmp.util.DMPCommonNames;
-import org.mskcc.cbio.importer.dmp.persistence.file.DMPStagingFileManager;
 import org.mskcc.cbio.importer.dmp.util.DmpUtils;
+import org.mskcc.cbio.importer.persistence.staging.ClinicalDataFileHandler;
 import scala.Tuple2;
 import scala.Tuple3;
 
 public class DmpMetadataTransformer implements DMPDataTransformable {
 
-    private final DMPStagingFileManager fileManager;
+    
+    private ClinicalDataFileHandler fileHandler;
     private final static Logger logger = Logger.getLogger(DmpMetadataTransformer.class);
-    private final static String REPORT_TYPE = DMPCommonNames.REPORT_TYPE_METADATA;
+   
     private static final Joiner tabJoiner = Joiner.on('\t').useForNull(" ");
+    private static final String clinicalDataFilename = "data_clinical.txt";
 
     private final Supplier<Map<String, Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>>>> transformationMaprSupplier
             = Suppliers.memoize(new DmpMetadataTransformationsSupplier());
-
-    public DmpMetadataTransformer(DMPStagingFileManager aManager) {
-        Preconditions.checkArgument(null != aManager, "A DMPStagingFileManager object is required");
-        this.fileManager = aManager;
+    
+    public DmpMetadataTransformer(ClinicalDataFileHandler aHandler, Path stagingDirectoryPath) {
+        com.google.common.base.Preconditions.checkArgument(null != aHandler, "A MafFileHandler implementation is required");
+        com.google.common.base.Preconditions.checkArgument(null != stagingDirectoryPath,
+                "A Path to the staging file directory is required");
+        com.google.common.base.Preconditions.checkArgument(Files.isDirectory(stagingDirectoryPath, LinkOption.NOFOLLOW_LINKS),
+                "The specified Path: " + stagingDirectoryPath + " is not a directory");
+        com.google.common.base.Preconditions.checkArgument(Files.isWritable(stagingDirectoryPath),
+                "The specified Path: " + stagingDirectoryPath + " is not writable");
+        this.fileHandler = aHandler;
+        //register a new or existing data_clinical.txt file with the file handler implementation
+        this.fileHandler.registerClinicalDataStagingFile(stagingDirectoryPath.resolve(clinicalDataFilename),
+                this.resolveColumnNames());
     }
-
+     /*
+    private method to determine the column headings for the data_clinical.txt file
+    */
+     private List<String> resolveColumnNames() {
+       return FluentIterable.from(this.transformationMaprSupplier.get().keySet())
+                .transform(new Function<String, String>() {
+                    @Override
+                    public String apply(String s) {
+                        return (s.substring(3)); // strip off the three digit numeric prefix
+                    }
+                }).toList();
+    }
+     /*
+     public method to transform and output the DMP metadata into a data_clinical.txt file
+     */
     @Override
     public void transform(DmpData data) {
-        Preconditions.checkArgument(null != data, "A DmpData object is required");
-        
+        Preconditions.checkArgument(null != data, "A DmpData object is required");     
+        this.fileHandler.transformImportDataToStagingFile(data.getResults(), transformationFunction);
     }
 
-    private List<String> transformMetadata(DmpData data) {
-        return FluentIterable.from(data.getResults())
-                .transform(new Function<Result, MetaData>() {
-                    @Override
-                    public MetaData apply(Result result) {
-                        return result.getMetaData();
-                    }
-                })
-                .transform(new Function<MetaData, String>() {
-                    @Override
-                    public String apply(final MetaData meta) {
-                        Set<String> attributeList = transformationMaprSupplier.get().keySet();
+    /*
+    Function to transform a DMP result object to a tsv String for output
+    */
+    Function<Result,String> transformationFunction = new Function<Result,String>() {
+
+        @Override
+        public String apply(Result result) {
+            final MetaData meta = result.getMetaData();
+            Set<String> attributeList = transformationMaprSupplier.get().keySet();
                         List<String> mafAttributes = FluentIterable.from(attributeList)
                         .transform(new Function<String, String>() {
                             @Override
@@ -85,15 +109,22 @@ public class DmpMetadataTransformer implements DMPDataTransformable {
                                         : Optional.absent());
 
                                 return tuple3._1().apply(new Tuple2(attribute1, optAttribute2));
-
                             }
                         }).toList();
                         String retRecord = tabJoiner.join(mafAttributes);
                         return retRecord;
-                    }
-                }).toList();
-    }
-
+        }
+    };
+   
+    
+    /*
+    Private class that encapsulates the individual DMP metadata attribute to clinical data attribute 
+    transformation
+    Currently up to two DMP metadata attributes can be used to resolve a 
+    clinical data attribute
+    The keys in the transformation map have a numeric prefix to control their ordering within 
+    key sets from the tree map. Otherwise they would be returned in alphabetical order.
+    */
     private class DmpMetadataTransformationsSupplier implements
             Supplier<Map<String, Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>>>> {
 
@@ -105,9 +136,9 @@ public class DmpMetadataTransformer implements DMPDataTransformable {
             transformationMap.put("001SAMPLE_ID", new Tuple3<>(copyAttribute, "getDmpSampleId", absent)); //1
             transformationMap.put("002PATIENT_ID", new Tuple3<>(copyAttribute, "getDmpPatientId", absent)); //2
             transformationMap.put("003CANCER_TYPE", new Tuple3<>(copyAttribute, "getTumorTypeName", absent)); //3
-            transformationMap.put("004SAMPLE_TYPE", new Tuple3<>(resolveSampleType, "getIsMetastasis()", absent)); //4
+            transformationMap.put("004SAMPLE_TYPE", new Tuple3<>(resolveSampleType, "getIsMetastasis", absent)); //4
             transformationMap.put("005SAMPLE_CLASS", new Tuple3<>(getSampleClass, "getDmpSampleId", absent)); //5
-            transformationMap.put("006METASTATIC_SITE", new Tuple3<>(resolveMetastaticSite, "getIsMetastasis()", Optional.of("getMetastasisSite")));
+            transformationMap.put("006METASTATIC_SITE", new Tuple3<>(resolveMetastaticSite, "getIsMetastasis", Optional.of("getMetastasisSite")));
             transformationMap.put("007PRIMARY_SITE", new Tuple3<>(unsupported, "getDmpSampleId", absent)); //7
             transformationMap.put("008CANCER_TYPE_DETAILED", new Tuple3<>(unsupported, "getDmpSampleId", absent)); //8
             transformationMap.put("009KNOWN_MOLECULAR_CLASSIFIER", new Tuple3<>(unsupported, "getDmpSampleId", absent)); //9

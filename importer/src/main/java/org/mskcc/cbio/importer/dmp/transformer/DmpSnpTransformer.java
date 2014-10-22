@@ -54,7 +54,6 @@ import scala.Tuple3;
 public class DmpSnpTransformer implements DMPDataTransformable {
 
     private final MafFileHandler fileHandler;
-    private static final String REPORT_TYPE = DMPCommonNames.REPORT_TYPE_MUTATIONS;
     private final static Logger logger = Logger.getLogger(DmpSnpTransformer.class);
     private static final Joiner tabJoiner = Joiner.on('\t').useForNull(" ");
     private static final String mutationsFileName = "data_mutations_extended.txt";
@@ -78,7 +77,7 @@ public class DmpSnpTransformer implements DMPDataTransformable {
    
    /*
     resolve the MAF file headings from the transformation map
-    strip off the numeric prefix used to order the attributes
+    strip off the numeric prefix used to order key sets from the map
     */ 
     private List<String> resolveColumnNames() {
        return FluentIterable.from(this.transformationMaprSupplier.get().keySet())
@@ -97,13 +96,18 @@ public class DmpSnpTransformer implements DMPDataTransformable {
             this.processSnps(result);
         }
     }
-
+    
+    /*
+    private method to invoke transformation of SNP attributes to a tsv
+    file. The two types of SNPs are combined into a single list.
+    */
     private void processSnps(Result result) {
         List<DmpSnp> snpList = Lists.newArrayList();
         final MetaData meta = result.getMetaData();
         snpList.addAll(result.getSnpExonic());
         snpList.addAll(result.getSnpSilent());
-        List<String> snpReportList = FluentIterable.from(snpList)
+        //add the sample id to each snp from the result metadata
+        List <DmpSnp> transformedSnpList = FluentIterable.from(snpList)
                 .transform(new Function<DmpSnp, DmpSnp>() {
                     @Override
                     public DmpSnp apply(DmpSnp snp) {
@@ -111,9 +115,18 @@ public class DmpSnpTransformer implements DMPDataTransformable {
                         snp.setDmpSampleId(meta.getDmpSampleId());
                         return snp;
                     }
-                })
-                .transform(
-                        new Function<DmpSnp, String>() {
+                }).toList();
+        // invoke the transformation function on each snp and output to a file
+        if(!transformedSnpList.isEmpty()){
+            this.fileHandler.transformImportDataToStagingFile(transformedSnpList, transformationFunction);
+        }
+    }
+    
+    /*
+    Function to transform DMP SNP attributesfrom a DmpSnp object into MAF attributes collected in
+    a tsv String for subsequent output
+    */
+    Function <DmpSnp, String> transformationFunction  = new Function<DmpSnp, String>() {
                             @Override
                             public String apply(final DmpSnp snp) {
                                 Set<String> attributeList = transformationMaprSupplier.get().keySet();
@@ -136,16 +149,10 @@ public class DmpSnpTransformer implements DMPDataTransformable {
                                 String retRecord = tabJoiner.join(mafAttributes);
 
                                 return retRecord;
-                            }
-                        }).toList();
-        // write out data to staging file
-        if (snpReportList.size() > 0) {      
-            this.fileHandler.appendMafDataToStagingFile( snpReportList);
-            logger.info(snpReportList.size() + " SNPs have been processed");
-        }
+                            };
+    };
 
-    }
-
+    
     /*
     Private inner class to encapsulate the DMP to MAF attribute transformations
     Implemented as a single item cache (i.e. Supplier)

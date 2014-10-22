@@ -36,6 +36,7 @@ public class CaseListFileManager {
 
     private final Path csPath; // path for tumor type data
     private final static Logger logger = Logger.getLogger(CaseListFileManager.class);
+    
     public CaseListFileManager(Path aBasePath) {
         Preconditions.checkArgument(null != aBasePath,
                 "A Path to the staging file directory is required");
@@ -44,7 +45,6 @@ public class CaseListFileManager {
         Preconditions.checkArgument(Files.isWritable(aBasePath),
                 "The specified Path: " + aBasePath + " is not writable");
         this.csPath = aBasePath.resolve(StagingCommonNames.CASE_STUDY_FILENAME);
-
     }
     
      /*

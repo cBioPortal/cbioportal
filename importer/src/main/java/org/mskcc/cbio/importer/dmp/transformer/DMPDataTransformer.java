@@ -17,21 +17,16 @@
  */
 package org.mskcc.cbio.importer.dmp.transformer;
 
-import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Sets;
 import com.google.inject.internal.Lists;
 import com.google.inject.internal.Preconditions;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Set;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.dmp.model.DmpData;
-import org.mskcc.cbio.importer.dmp.model.Result;
-import org.mskcc.cbio.importer.dmp.persistence.file.DMPStagingFileManager;
 import org.mskcc.cbio.importer.dmp.persistence.file.DMPTumorTypeSampleMapManager;
+import org.mskcc.cbio.importer.persistence.staging.ClinicalDataFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.CnvFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.MafFileHandlerImpl;
 
@@ -53,17 +48,28 @@ public class DMPDataTransformer {
 
     public DMPDataTransformer(Path stagingDirectoryPath) {
         
-        com.google.common.base.Preconditions.checkArgument(null != stagingDirectoryPath,
+        com.google.common.base.Preconditions.checkArgument
+        (null != stagingDirectoryPath,
                 "A Path to the staging file directory is required");
-        com.google.common.base.Preconditions.checkArgument(Files.isDirectory(stagingDirectoryPath, LinkOption.NOFOLLOW_LINKS),
+        com.google.common.base.Preconditions.checkArgument
+        (Files.isDirectory(stagingDirectoryPath, LinkOption.NOFOLLOW_LINKS),
                 "The specified Path: " + stagingDirectoryPath + " is not a directory");
-        com.google.common.base.Preconditions.checkArgument(Files.isWritable(stagingDirectoryPath),
+        com.google.common.base.Preconditions.checkArgument
+        (Files.isWritable(stagingDirectoryPath),
                 "The specified Path: " + stagingDirectoryPath + " is not writable");
         // instantiate and register data transformers
-        this.transformableList = Lists.newArrayList((DMPDataTransformable) new DmpSnpTransformer( new MafFileHandlerImpl(), stagingDirectoryPath));
+        //SNPs
+        this.transformableList = Lists.newArrayList((DMPDataTransformable) 
+                new DmpSnpTransformer( new MafFileHandlerImpl(), 
+                        stagingDirectoryPath));
+       //CNVs
+        this.transformableList.add((DMPDataTransformable) 
+                new DmpCnvTransformer( new CnvFileHandlerImpl(), 
+                        stagingDirectoryPath));
+        //Metadata
+        this.transformableList.add((DMPDataTransformable) new DmpMetadataTransformer 
+            ( new ClinicalDataFileHandlerImpl(), stagingDirectoryPath));
        
-        this.transformableList.add((DMPDataTransformable) new DmpCnvTransformer( new CnvFileHandlerImpl(), stagingDirectoryPath));
-          //this.transformableList.add((DmpDataTransformable) new DmpMetadataTransformer(this.fileManager));
        // this.tumorTypeMap = new DMPTumorTypeSampleMapManager(this.fileManager);
 
     }

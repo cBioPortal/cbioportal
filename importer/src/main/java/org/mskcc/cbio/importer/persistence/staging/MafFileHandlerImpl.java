@@ -51,10 +51,9 @@ collection of MAF staging files belonging to specified study
 public  class MafFileHandlerImpl  implements MafFileHandler{
 
     protected  Path stagingFilePath;
-    //protected final Map<String, Path> mafFilePathMap = Maps.newHashMap();
     
     private final static Logger logger = Logger.getLogger(MafFileHandlerImpl.class);
-    //private final Set<String> processedSampleSet = Sets.newHashSet();
+    
     
     public MafFileHandlerImpl(){}
     

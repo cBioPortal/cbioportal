@@ -71,11 +71,11 @@ var StudyViewProxy = (function() {
                 //The original data structure is { attr_id: , attr_va: , sample}
                 for(var i = 0; i < _dataLength; i++){
                     if(_data[i]["sample"] in _dataAttrMapArr){
-                        _dataAttrMapArr[_data[i]["sample"]][_data[i]["attr_id"]] = _data[i]["attr_val"];
+                        _dataAttrMapArr[_data[i]["sample"]][_data[i]["attr_id"].toString().toUpperCase()] = _data[i]["attr_val"];
                     }
                     else{
                         _dataAttrMapArr[_data[i]["sample"]] = [];
-                        _dataAttrMapArr[_data[i]["sample"]][_data[i]["attr_id"]] = _data[i]["attr_val"];
+                        _dataAttrMapArr[_data[i]["sample"]][_data[i]["attr_id"].toString().toUpperCase()] = _data[i]["attr_val"];
                     }
                 }
                 
@@ -87,6 +87,8 @@ var StudyViewProxy = (function() {
                     _caseDatum["COPY_NUMBER_ALTERATIONS"] = "NA";
                     _keyNumMapping[parObject.caseIds[j]] = j;
                     $.each(_dataAttrOfa1,function(key,value){
+                        value['attr_id'] = value['attr_id'].toUpperCase();
+                        _dataAttrOfa1[key]['attr_id'] = value['attr_id'];
                         if(value['attr_id'] !== 'CASE_ID'){
                             _caseDatum[value['attr_id']] = "NA";
                         }

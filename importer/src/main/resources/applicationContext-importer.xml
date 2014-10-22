@@ -14,7 +14,6 @@ http://www.springframework.org/schema/context
 http://www.springframework.org/schema/util/spring-util.xsd">
  
     <context:annotation-config />
-    <context:property-placeholder location="classpath:/importer.properties"/>
 
     <!-- enable the configuration of transactional behavior based on annotations -->
     <tx:annotation-driven transaction-manager="importerTransactionManager"/>

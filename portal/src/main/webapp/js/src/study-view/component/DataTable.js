@@ -133,19 +133,32 @@ var DataTable = function() {
         
         aoColumns.length = 0;
         
-        aoColumns.push({sTitle:"CASE ID",sType:'string',sClass:'nowrap'});
+        aoColumns.push({
+            dataTable: {sTitle:"CASE ID",sType:'string',sClass:'nowrap'},
+            fullDisplay: 'CASE ID',
+            attrId: "CASE_ID"
+        });
         displayMapName['CASE ID'] = 'CASE_ID';
         for( i = 0; i < attr.length; i++ ){
             if( attr[i].attr_id !== 'CASE_ID' ){
                 var _tmp = {};
                 
+                _tmp.dataTable = {};
+                _tmp.attrId = attr[i].attr_id;
+                
                 if(attr[i].attr_id === 'COPY_NUMBER_ALTERATIONS'){
-                    _tmp.sTitle = 'CNA';
+                    _tmp.dataTable.sTitle = 'CNA';
+                    _tmp.fullDisplay = 'CNA';
                 }else{
-                    _tmp.sTitle = attr[i].display_name;
+                    if(attr[i].display_name.toString().length > 15) {
+                        _tmp.dataTable.sTitle = attr[i].display_name.toString().substring(0,15) + "...";
+                    }else {
+                        _tmp.dataTable.sTitle = attr[i].display_name;
+                    }
+                    _tmp.fullDisplay = attr[i].display_name;
                 }
-                displayMapName[_tmp.sTitle] = attr[i].attr_id;
-                _tmp.sType = dataType[attr[i].attr_id];
+                displayMapName[_tmp.dataTable.sTitle] = attr[i].attr_id;
+                _tmp.dataTable.sType = dataType[attr[i].attr_id];
                 aoColumns.push(_tmp);
             }
         }
@@ -160,13 +173,13 @@ var DataTable = function() {
             //
             //TODO: Need second sorting function for sorting pre disabled
             //predisabled columns if needed.
-            if(_permenentDisabledTitles.indexOf(a.sTitle) !== -1) {
+            if(_permenentDisabledTitles.indexOf(a.dataTable.sTitle) !== -1) {
                 return -1;
-            }else if(_permenentDisabledTitles.indexOf(b.sTitle) !== -1) {
+            }else if(_permenentDisabledTitles.indexOf(b.dataTable.sTitle) !== -1) {
                 return 1;
             }else{
-                var _a = a.sTitle.toLowerCase(),
-                    _b = b.sTitle.toLowerCase();
+                var _a = a.dataTable.sTitle.toLowerCase(),
+                    _b = b.dataTable.sTitle.toLowerCase();
                     
                 if(_a < _b) {
                     return -1;
@@ -177,7 +190,7 @@ var DataTable = function() {
         });
         
         for( var i = 0; i < aoColumnsLength; i++) {
-            if(_permenentDisabledTitles.indexOf(aoColumns[i].sTitle) !== -1) {
+            if(_permenentDisabledTitles.indexOf(aoColumns[i].dataTable.sTitle) !== -1) {
                 permenentDisabledId.push(i);
             }
         }
@@ -197,7 +210,7 @@ var DataTable = function() {
             aaData[_key] = [];
             
             for ( var j = 0; j < _aoColumnsLength; j++) {
-                var _valueAo = aoColumns[j],
+                var _valueAo = aoColumns[j].dataTable,
                     _selectedString,
                     _specialCharLength,
                     _tmpValue ='',
@@ -219,7 +232,7 @@ var DataTable = function() {
                     "' target='_blank'><span style='color: #2986e2'>" + 
                     _value['PATIENT_ID'] + "</span></a></strong>";
                 }else{
-                    _tmpValue = _value[displayMapName[_valueAo.sTitle]];
+                    _tmpValue = _value[aoColumns[j].attrId];
                 }
                 if(!isNaN(_tmpValue) && (_tmpValue % 1 !== 0)){
                     _tmpValue = cbio.util.toPrecision(Number(_tmpValue),3,0.01);
@@ -251,12 +264,18 @@ var DataTable = function() {
     
     //Initialize the basic dataTable component by using jquery.dataTables.min.js
     function initDataTable() {
+        var dataTableaoColumns = [];
+        
+        for(var i = 0; i < aoColumnsLength; i++) {
+            dataTableaoColumns.push(aoColumns[i].dataTable);
+        }
+        
         var dataTableSettings = {
             "scrollX": "100%",
             "scrollY": dataTableScrollHeight,
             "paging": false,
             "scrollCollapse": true,
-            "aoColumns": aoColumns,
+            "aoColumns": dataTableaoColumns,
             "aaData": aaData,
             "bJQueryUI": true,
             "autoWidth": true,
@@ -316,6 +335,13 @@ var DataTable = function() {
         forzedLeftCol = new $.fn.dataTable.FixedColumns( dataTable, {
             "sHeightMatch": "none"
         } );
+        
+        $('#' + tableId + "_wrapper .dataTables_scroll .dataTables_scrollHeadInner thead").find('th').each(function(index) {
+            if(aoColumns[index].fullDisplay.toString() !== aoColumns[index].dataTable.sTitle.toString()){
+                StudyViewUtil.addQtip(aoColumns[index].fullDisplay, $(this), {my:'bottom left',at:'top right', viewport: $(window)});
+            }
+        });
+        dataTableaoColumns = null;
     }
     
     //Add th tags based on number of attributes

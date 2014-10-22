@@ -5,6 +5,7 @@
  */
 package org.mskcc.cbio.portal.web;
 
+import org.mskcc.cbio.portal.model.GeneticAlterationType;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 /**
  *
@@ -16,7 +17,7 @@ public class GeneticProfileJSON {
     public String name;
     public String description;
     public Integer cancer_study_internal_id;
-    public String genetic_alteration_type;
+    public GeneticAlterationType genetic_alteration_type;
     public boolean show_profile_in_analysis_tab;
     
     public GeneticProfileJSON(GeneticProfile model) {
@@ -25,7 +26,7 @@ public class GeneticProfileJSON {
         this.name = model.getProfileName();
         this.description = model.getProfileDescription();
         this.cancer_study_internal_id = model.getCancerStudyId();
-        this.genetic_alteration_type = model.getGeneticAlterationType().toString();
+        this.genetic_alteration_type = model.getGeneticAlterationType();
         this.show_profile_in_analysis_tab = model.showProfileInAnalysisTab();
     }
 }

@@ -178,8 +178,12 @@ public final class ImportCaisesClinicalXML {
             parseLabTests(clinicalEvents, patientNode, patientId, cancerStudyId);
             for (ClinicalEvent clinicalEvent : clinicalEvents) {
                 clinicalEvent.setClinicalEventId(++clinicalEventId);
-                clinicalEvent.setStartDate(clinicalEvent.getStartDate()-diagnositicDate);
-                clinicalEvent.setStopDate(clinicalEvent.getStopDate()-diagnositicDate);
+                if (clinicalEvent.getStartDate()!=null) {
+                    clinicalEvent.setStartDate(clinicalEvent.getStartDate()-diagnositicDate);
+                }
+                if (clinicalEvent.getStopDate()!=null) {
+                    clinicalEvent.setStopDate(clinicalEvent.getStopDate()-diagnositicDate);
+                }
                 DaoClinicalEvent.addClinicalEvent(clinicalEvent);
             }
         }

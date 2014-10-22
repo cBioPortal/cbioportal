@@ -122,15 +122,18 @@ public class CnaJSON extends HttpServlet {
         
         List<CopyNumberSegment> segs = Collections.emptyList();
         
+        List<Integer> internalSampleIds = null;
+        
         try {
             int studyId = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId).getInternalId();
-            segs = DaoCopyNumberSegment.getSegmentForSamples(InternalIdUtil.getInternalSampleIds(studyId, Arrays.asList(sampleIds)), studyId);
+            internalSampleIds = InternalIdUtil.getInternalSampleIds(studyId, Arrays.asList(sampleIds));
+            segs = DaoCopyNumberSegment.getSegmentForSamples(internalSampleIds, studyId);
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }
         
-        Map<String,List> map = new HashMap<String,List>();
-        for (String sampleId : sampleIds) {
+        Map<Integer,List> map = new HashMap<Integer,List>();
+        for (Integer sampleId : internalSampleIds) {
             map.put(sampleId, new ArrayList());
         }
         
@@ -163,6 +166,8 @@ public class CnaJSON extends HttpServlet {
             if (strPatientIds!=null) {
                 List<String> stablePatientIds = Arrays.asList(strPatientIds.split("[ ,]+"));
                 sampleIds = InternalIdUtil.getInternalNonNormalSampleIdsFromPatientIds(studyId, stablePatientIds);
+            } else {
+                sampleIds = InternalIdUtil.getInternalNonNormalSampleIds(studyId);
             }
             fraction = DaoCopyNumberSegment.getCopyNumberActeredFraction(sampleIds,
                                                                          studyId,

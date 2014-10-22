@@ -187,7 +187,7 @@
       function setTickFormat() {
           var tickValues = [];
           if (beginning<0) {
-              for (var i=-1; i*6*daysPerMonth>=beginning; i++) {
+              for (var i=-1; i*6*daysPerMonth>=beginning; i--) {
                   tickValues.push(i*6*daysPerMonth);
               }
           }

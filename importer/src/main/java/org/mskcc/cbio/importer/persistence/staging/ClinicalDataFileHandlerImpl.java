@@ -44,7 +44,7 @@ public class ClinicalDataFileHandlerImpl extends TsvStagingFileHandler
                    "Column headings are required for the new clinical data  file: " 
                            +cdFilePath.toString());
        }
-           super.registeStagingFile(cdFilePath, columnHeadings);
+           super.registerStagingFile(cdFilePath, columnHeadings);
     }
 
     @Override

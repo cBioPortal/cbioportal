@@ -39,7 +39,7 @@ public abstract class  TsvStagingFileHandler  {
     
     private final static Logger logger = Logger.getLogger(TsvStagingFileHandler.class);
      
-    protected void registeStagingFile(Path stagingFilePath, List<String> columnHeadings) {
+    protected void registerStagingFile(Path stagingFilePath, List<String> columnHeadings) {
          
        if (!Files.exists(stagingFilePath, LinkOption.NOFOLLOW_LINKS)) {
            Preconditions.checkArgument(null != columnHeadings && !columnHeadings.isEmpty(),

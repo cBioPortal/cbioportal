@@ -27,6 +27,7 @@ import com.google.common.base.Suppliers;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -91,7 +92,22 @@ public class DmpSnpTransformer implements DMPDataTransformable {
 
     @Override
     public void transform(DmpData data) {
+        // the deprecated samples in the legacy data must be removed before appending 
+        // the new samples
         Preconditions.checkArgument(null != data, "A DmpData object is required");
+        Set<String> processedSamples = this.fileHandler.resolveProcessedSampleSet(DMPCommonNames.SAMPLE_ID_COLUMN_NAME);
+        Set<String> currentSamples = FluentIterable.from(data.getResults())
+                .transform(new Function<Result,String>(){
+
+            @Override
+            public String apply(Result result) {
+                return result.getMetaData().getDmpSampleId().toString();
+            }
+        }).toSet();
+        Set<String> deprecatedSamples = Sets.intersection(processedSamples, currentSamples);
+        logger.info(deprecatedSamples.size() +" samples have been deprecated by new DMP data");
+        // remove the deprecated Samples
+        this.fileHandler.removeDeprecatedSamplesFomMAFStagingFiles(DMPCommonNames.SAMPLE_ID_COLUMN_NAME, deprecatedSamples);
         for (Result result : data.getResults()) {
             this.processSnps(result);
         }

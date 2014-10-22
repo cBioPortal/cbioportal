@@ -22,7 +22,6 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.inject.internal.Preconditions;
 import com.google.inject.internal.Sets;
 import java.io.FileReader;
@@ -37,9 +36,7 @@ import static java.nio.file.StandardOpenOption.APPEND;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.DSYNC;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -48,16 +45,12 @@ import org.apache.log4j.Logger;
 public class reposnsible for managing input/output operations with a 
 collection of MAF staging files belonging to specified study
 */
-public  class MafFileHandlerImpl  implements MafFileHandler{
+public  class MafFileHandlerImpl  extends TsvStagingFileHandler  implements MafFileHandler{
 
-    protected  Path stagingFilePath;
-    
     private final static Logger logger = Logger.getLogger(MafFileHandlerImpl.class);
-    
-    
+     
     public MafFileHandlerImpl(){}
-    
-    
+   
     /*
     public interface method to register a Path to a MAF file for subsequent 
     staging file operations
@@ -70,40 +63,16 @@ public  class MafFileHandlerImpl  implements MafFileHandler{
        if (!Files.exists(mafFilePath, LinkOption.NOFOLLOW_LINKS)) {
            Preconditions.checkArgument(null != columnHeadings && !columnHeadings.isEmpty(),
                    "Column headings are required for the new MAF file: " +mafFilePath.toString());
-            try {
-                OpenOption[] options = new OpenOption[]{CREATE, APPEND, DSYNC};
-                String line = StagingCommonNames.tabJoiner.join(columnHeadings) +"\n";
-                Files.write(mafFilePath,
-                        line.getBytes(),
-                        options);
-            } catch (IOException ex) {
-                logger.error(ex.getMessage());
-            }
            
        }
-      this.stagingFilePath = mafFilePath;
+      super.registerStagingFile(mafFilePath, columnHeadings);
     }
 
-    public MafFileHandlerImpl(Path aBasePath,Map<String,String> fileMap) {
-        Preconditions.checkArgument(null != aBasePath,
-                "A Path to the DMP staging file directory is required");
-        Preconditions.checkArgument(Files.isDirectory(aBasePath, LinkOption.NOFOLLOW_LINKS),
-                "The specified Path: " + aBasePath + " is not a directory");
-        Preconditions.checkArgument(Files.isWritable(aBasePath),
-                "The specified Path: " + aBasePath + " is not writable");
-        Preconditions.checkArgument(null!= fileMap && !fileMap.isEmpty(), 
-                "A Map containing report type(s) and file name(s) is required");
-        this.stagingFilePath = aBasePath;
-       
-       
-    }
-    
-   
-    
+  
      public Set<String> resolveProcessedSampleSet(final String sampleIdColumnName) {
-        // process all the DMP staging files in the specified Path as tab-delimited text
+        // process all the DMP staging data in the specified Path as tab-delimited text
         // sample ids are assumed to be in a specified  named column
-        // add to the processed sample set
+        // 
          Preconditions.checkArgument(!Strings.isNullOrEmpty(sampleIdColumnName), 
                  "The sample id column nmae is required");
          Preconditions.checkState(null != this.stagingFilePath, 
@@ -132,6 +101,7 @@ public  class MafFileHandlerImpl  implements MafFileHandler{
      public method to append a List of MAF data to the end of a designated file
      if the file does not exists, it will be created
      */
+    @Override
     public void appendMafDataToStagingFile( List<String> mafData) {
         
         Preconditions.checkArgument(null != mafData && !mafData.isEmpty(),
@@ -152,6 +122,7 @@ public  class MafFileHandlerImpl  implements MafFileHandler{
     If the staging file does not exist, it will be created
      */
 
+    @Override
     public void transformImportDataToStagingFile( List aList,
             Function transformationFunction) {
        
@@ -162,14 +133,7 @@ public  class MafFileHandlerImpl  implements MafFileHandler{
         Preconditions.checkState(null != this.stagingFilePath, 
                  "The requiste Path to the MAF staging file has not be specified");
         
-        OpenOption[] options = new OpenOption[]{CREATE, APPEND, DSYNC};
-        // create the file if it doesn't exist, append to it if it does
-        try {
-            Files.write(this.stagingFilePath, Lists.transform(aList, transformationFunction), 
-                    Charset.defaultCharset(), options);
-        } catch (IOException ex) {
-            logger.error(ex.getMessage());
-        }
+        super.transformImportDataToStagingFile(aList, transformationFunction);
     }
 
     /*
@@ -179,6 +143,7 @@ public  class MafFileHandlerImpl  implements MafFileHandler{
      The result of this method is that the staging files will be replaced by files without 
      data for the specified samples
      */
+    @Override
     public void removeDeprecatedSamplesFomMAFStagingFiles(final String sampleIdColumnName, final Set<String> deprecatedSampleSet) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(sampleIdColumnName), "The name of the sample id column is required");
         Preconditions.checkArgument(null != deprecatedSampleSet,

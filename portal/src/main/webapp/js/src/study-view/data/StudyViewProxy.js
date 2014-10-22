@@ -99,17 +99,17 @@ var StudyViewProxy = (function() {
                 //The original data structure is { attr_id: , attr_va: , sample}
                 for(var i = 0; i < _dataLength; i++){
                     if(_data[i]["sample"] in _dataAttrMapArr){
-                        _dataAttrMapArr[_data[i]["sample"]][_data[i]["attr_id"]] = _data[i]["attr_val"];
+                        _dataAttrMapArr[_data[i]["sample"]][_data[i]["attr_id"].toString().toUpperCase()] = _data[i]["attr_val"];
                     }
                     else{
                         _dataAttrMapArr[_data[i]["sample"]] = [];
                         _sampleIds.push(_data[i]['sample']);
-                        _dataAttrMapArr[_data[i]["sample"]][_data[i]["attr_id"]] = _data[i]["attr_val"];
+                        _dataAttrMapArr[_data[i]["sample"]][_data[i]["attr_id"].toString().toUpperCase()] = _data[i]["attr_val"];
                     }
                 }
                 
                 //Initial data array, not all of cases has MUTAION COUND OR COPY NUMBER ALTERATIONS.
-                for(var j = 0; j <  _sampleIds.length; j++){
+                for(var j = 0; j <  _sampleIds.length; j++å){
                     var _caseDatum = {};
                     _caseDatum["CASE_ID"] = _sampleIds[j];
                     _caseDatum["PATIENT_ID"] = samplePatientMapping[_sampleIds[j]];
@@ -117,6 +117,8 @@ var StudyViewProxy = (function() {
                     _caseDatum["COPY_NUMBER_ALTERATIONS"] = "NA";
                     _keyNumMapping[_sampleIds[j]] = j;
                     $.each(_dataAttrOfa1,function(key,value){
+                        value['attr_id'] = value['attr_id'].toUpperCase();
+                        _dataAttrOfa1[key]['attr_id'] = value['attr_id'];
                         if(value['attr_id'] !== 'CASE_ID'){
                             _caseDatum[value['attr_id']] = "NA";
                         }

@@ -217,7 +217,9 @@ var CoExpView = (function() {
                         },
                         {
                             "sType": 'coexp-absolute-value',
-                            "bSearchable": false,
+                            //TODO: should be disabled; this is just a quick fix, otherwise the fnfilter would work on this column
+                            //"bSearchable": false, 
+                            "bSearchable": true, 
                             "aTargets": [ 1 ],
                             "sWidth": "22%"
                         },

@@ -92,6 +92,11 @@ public class ImportFusionData
                 ImportDataUtil.addSamples(new String[] { StableIdUtil.getSampleId(barCode) }, geneticProfileId);
 		        Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
                                                                             StableIdUtil.getSampleId(barCode));
+		        if (sample == null) {
+		        	assert StableIdUtil.isNormal(barCode);
+		        	line = buf.readLine();
+		        	continue;
+		        }
 				if (!DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId))
 				{
 					DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId);

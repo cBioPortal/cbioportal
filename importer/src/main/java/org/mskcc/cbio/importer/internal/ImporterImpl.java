@@ -373,6 +373,10 @@ class ImporterImpl implements Importer {
 
 				// get the metafile/staging file for this cancer_study / datatype
 				for (String stagingFilename : getImportFilenames(rootDirectory, cancerStudyMetadata, datatypeMetadata.getStagingFilename())) {
+					// skip normal file import for now
+					if (stagingFilename.endsWith(DatatypeMetadata.NORMAL_STAGING_FILENAME_SUFFIX)) {
+						continue;
+					}
 					String origName = stagingFilename;
 
 					// datatype might not exists for cancer study

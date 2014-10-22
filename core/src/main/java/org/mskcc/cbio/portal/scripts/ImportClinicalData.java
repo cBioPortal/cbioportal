@@ -253,7 +253,7 @@ public class ImportClinicalData {
     private int addSampleToDatabase(String sampleId, String[] fields, List<ClinicalAttribute> columnAttrs) throws Exception
     {
         int internalSampleId = -1;
-        if (validSampleId(sampleId)) {
+        if (validSampleId(sampleId) && !StableIdUtil.isNormal(sampleId)) {
             String stablePatientId = getStablePatientId(sampleId, fields, columnAttrs);
             if (validPatientId(stablePatientId)) {
                 Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), stablePatientId);

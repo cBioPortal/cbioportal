@@ -38,7 +38,6 @@ public class DaoSample {
     private static final Map<Integer, Sample> byInternalId = new ConcurrentHashMap<Integer, Sample>();
     private static final Map<Integer, Map<String, Sample>> byInternalPatientAndStableSampleId = new HashMap<Integer, Map<String, Sample>>();
     private static final Map<Integer, Map<String, Sample>> byCancerStudyIdAndStableSampleId = new HashMap<Integer, Map<String, Sample>>();
-    private static final Map<Integer, Map<String, Sample>> normalsByCancerStudyIdAndStableSampleId = new HashMap<Integer, Map<String, Sample>>();
 
     static {
         cache();
@@ -77,21 +76,7 @@ public class DaoSample {
 
     private static void cacheSample(Sample sample)
     {
-        if (sample.getType().isNormal()) {
-            int cancerStudyId = getCancerStudyId(sample);
-            Map<String, Sample> samples = normalsByCancerStudyIdAndStableSampleId.get(cancerStudyId);
-            if (samples==null) {
-                samples = new HashMap<String, Sample>();
-                normalsByCancerStudyIdAndStableSampleId.put(cancerStudyId, samples);
-            }
-            if (samples.containsKey(sample.getStableId())) {
-                //System.err.println("Something is wrong: there are two normal samples of "+sample.getStableId()+" in the same study.");
-            }
-            samples.put(sample.getStableId(), sample);
-        } else {
-            // only non-normal samples
-            cacheSample(sample, getCancerStudyId(sample));
-        }
+        cacheSample(sample, getCancerStudyId(sample));
     }
 
     private static int getCancerStudyId(Sample sample)
@@ -203,16 +188,6 @@ public class DaoSample {
     public static Sample getSampleByCancerStudyAndSampleId(int cancerStudyId, String stableSampleId)
     {
         Map<String, Sample> samples = byCancerStudyIdAndStableSampleId.get(cancerStudyId);
-        if (samples==null) {
-            return null;
-        }
-        
-        return samples.get(stableSampleId);
-    }
-
-    public static Sample getNormalSampleByCancerStudyAndSampleId(int cancerStudyId, String stableSampleId)
-    {
-        Map<String, Sample> samples = normalsByCancerStudyIdAndStableSampleId.get(cancerStudyId);
         if (samples==null) {
             return null;
         }

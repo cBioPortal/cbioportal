@@ -338,7 +338,7 @@ var DataTable = function() {
         
         $('#' + tableId + "_wrapper .dataTables_scroll .dataTables_scrollHeadInner thead").find('th').each(function(index) {
             if(aoColumns[index].fullDisplay.toString() !== aoColumns[index].dataTable.sTitle.toString()){
-                StudyViewUtil.addQtip(aoColumns[index].fullDisplay, $(this), {my:'bottom left',at:'top right', viewport: $(window)});
+                StudyViewUtil.addQtip(aoColumns[index].fullDisplay, $(this), {my:'bottom left',at:'top left', viewport: $(window)});
             }
         });
         dataTableaoColumns = null;
@@ -703,6 +703,138 @@ var DataTable = function() {
             addEvents();
         },
         
-        updateFrozedColStyle: updateFrozedColStyle
+        updateFrozedColStyle: updateFrozedColStyle,
+        getColumnData: function() {
+            return aoColumns;
+        }
     };
 };
+
+TableTools.prototype._fnGetDataTablesData = function ( oConfig )
+{
+        var i, iLen, j, jLen;
+        var aRow, aData=[], sLoopData='', arr;
+        var dt = this.s.dt, tr, child;
+        var regex = new RegExp(oConfig.sFieldBoundary, "g"); /* Do it here for speed */
+        var aColumnsInc = this._fnColumnTargets( oConfig.mColumns );
+        var bSelectedOnly = (typeof oConfig.bSelectedOnly != 'undefined') ? oConfig.bSelectedOnly : false;
+        var aoColumns = StudyViewInitClinicalTab.getDataTable().getColumnData();
+        
+        /*
+         * Header
+         */
+        if ( oConfig.bHeader )
+        {
+                aRow = [];
+
+                for ( i=0, iLen=dt.aoColumns.length ; i<iLen ; i++ )
+                {
+                        if ( aColumnsInc[i] )
+                        {
+                                sLoopData = aoColumns[i].fullDisplay.replace(/\n/g," ").replace( /<.*?>/g, "" ).replace(/^\s+|\s+$/g,"");
+                                sLoopData = this._fnHtmlDecode( sLoopData );
+
+                                aRow.push( this._fnBoundData( sLoopData, oConfig.sFieldBoundary, regex ) );
+                        }
+                }
+
+                aData.push( aRow.join(oConfig.sFieldSeperator) );
+        }
+
+        /*
+         * Body
+         */
+        var aSelected = this.fnGetSelected();
+        bSelectedOnly = this.s.select.type !== "none" && bSelectedOnly && aSelected.length !== 0;
+
+        var api = $.fn.dataTable.Api;
+        var aDataIndex = api ?
+                new api( dt ).rows( oConfig.oSelectorOpts ).indexes().flatten().toArray() :
+                dt.oInstance
+                        .$('tr', oConfig.oSelectorOpts)
+                        .map( function (id, row) {
+                                // If "selected only", then ensure that the row is in the selected list
+                                return bSelectedOnly && $.inArray( row, aSelected ) === -1 ?
+                                        null :
+                                        dt.oInstance.fnGetPosition( row );
+                        } )
+                        .get();
+
+        for ( j=0, jLen=aDataIndex.length ; j<jLen ; j++ )
+        {
+                tr = dt.aoData[ aDataIndex[j] ].nTr;
+                aRow = [];
+
+                /* Columns */
+                for ( i=0, iLen=dt.aoColumns.length ; i<iLen ; i++ )
+                {
+                        if ( aColumnsInc[i] )
+                        {
+                                /* Convert to strings (with small optimisation) */
+                                var mTypeData = dt.oApi._fnGetCellData( dt, aDataIndex[j], i, 'display' );
+                                if ( oConfig.fnCellRender )
+                                {
+                                        sLoopData = oConfig.fnCellRender( mTypeData, i, tr, aDataIndex[j] )+"";
+                                }
+                                else if ( typeof mTypeData == "string" )
+                                {
+                                        /* Strip newlines, replace img tags with alt attr. and finally strip html... */
+                                        sLoopData = mTypeData.replace(/\n/g," ");
+                                        sLoopData =
+                                            sLoopData.replace(/<img.*?\s+alt\s*=\s*(?:"([^"]+)"|'([^']+)'|([^\s>]+)).*?>/gi,
+                                                '$1$2$3');
+                                        sLoopData = sLoopData.replace( /<.*?>/g, "" );
+                                }
+                                else
+                                {
+                                        sLoopData = mTypeData+"";
+                                }
+
+                                /* Trim and clean the data */
+                                sLoopData = sLoopData.replace(/^\s+/, '').replace(/\s+$/, '');
+                                sLoopData = this._fnHtmlDecode( sLoopData );
+
+                                /* Bound it and add it to the total data */
+                                aRow.push( this._fnBoundData( sLoopData, oConfig.sFieldBoundary, regex ) );
+                        }
+                }
+
+                aData.push( aRow.join(oConfig.sFieldSeperator) );
+
+                /* Details rows from fnOpen */
+                if ( oConfig.bOpenRows )
+                {
+                        arr = $.grep(dt.aoOpenRows, function(o) { return o.nParent === tr; });
+
+                        if ( arr.length === 1 )
+                        {
+                                sLoopData = this._fnBoundData( $('td', arr[0].nTr).html(), oConfig.sFieldBoundary, regex );
+                                aData.push( sLoopData );
+                        }
+                }
+        }
+
+        /*
+         * Footer
+         */
+        if ( oConfig.bFooter && dt.nTFoot !== null )
+        {
+                aRow = [];
+
+                for ( i=0, iLen=dt.aoColumns.length ; i<iLen ; i++ )
+                {
+                        if ( aColumnsInc[i] && dt.aoColumns[i].nTf !== null )
+                        {
+                                sLoopData = dt.aoColumns[i].nTf.innerHTML.replace(/\n/g," ").replace( /<.*?>/g, "" );
+                                sLoopData = this._fnHtmlDecode( sLoopData );
+
+                                aRow.push( this._fnBoundData( sLoopData, oConfig.sFieldBoundary, regex ) );
+                        }
+                }
+
+                aData.push( aRow.join(oConfig.sFieldSeperator) );
+        }
+
+        var _sLastData = aData.join( this._fnNewline(oConfig) );
+        return _sLastData;
+}

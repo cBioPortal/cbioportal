@@ -16,4 +16,5 @@ public interface GeneMapper
 {
     List<DBGene> byEntrezGeneId(@Param("ids") List<Long> ids);
     List<DBGene> byHugoGeneSymbol(@Param("ids") List<String> ids);
+    List<DBGene> getAll();
 }

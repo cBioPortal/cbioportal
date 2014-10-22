@@ -25,5 +25,11 @@
         #{item}
     </foreach>
 </select> 
+<select id="getAll" resultType="DBGene">
+    select
+        HUGO_GENE_SYMBOL as hugoGeneSymbol,
+        ENTREZ_GENE_ID as entrezGeneId
+    from gene
+</select>
     
 </mapper>

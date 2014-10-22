@@ -29,4 +29,8 @@ public class GeneService {
     public List<DBGene> byHugoGeneSymbol(List<String> ids) {
         return geneMapper.byHugoGeneSymbol(ids);
     }
+    @Transactional
+    public List<DBGene> getAll() {
+        return geneMapper.getAll();
+    }
 }

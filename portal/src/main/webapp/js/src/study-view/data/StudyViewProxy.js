@@ -109,7 +109,7 @@ var StudyViewProxy = (function() {
                 }
                 
                 //Initial data array, not all of cases has MUTAION COUND OR COPY NUMBER ALTERATIONS.
-                for(var j = 0; j <  _sampleIds.length; j++å){
+                for(var j = 0; j <  _sampleIds.length; j++){
                     var _caseDatum = {};
                     _caseDatum["CASE_ID"] = _sampleIds[j];
                     _caseDatum["PATIENT_ID"] = samplePatientMapping[_sampleIds[j]];

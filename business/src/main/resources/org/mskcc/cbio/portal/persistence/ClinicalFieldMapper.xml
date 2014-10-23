@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.mskcc.cbio.portal.persistence.ClinicalFieldMapper">
+
+<resultMap id="ClinicalFieldResult" type="DBClinicalField">
+    <id property="attr_id" column="ATTR_ID"/>
+    <result property="display_name" column="DISPLAY_NAME"/>
+    <result property="description" column="DESCRIPTION"/>
+    <result property="datatype" column="DATATYPE"/>
+    <result property="attribute_type" column="PATIENT_ATTRIBUTE"/>
+    <result property="priority" column="PRIORITY"/>
+</resultMap>
+
+
+<select id="byInternalCaseId" resultMap="ClinicalFieldResult" parameterType="list">
+    select * from clinical_attribute
+    where ATTR_ID in
+    (select distinct ATTR_ID from clinical_patient where INTERNAL_ID in
+    <foreach item="item" collection="ids" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+    )
+</select>
+<select id="byInternalStudyId" resultMap="ClinicalFieldResult" parameterType="list">
+    select * from clinical_attribute
+    where ATTR_ID in
+    (select distinct ATTR_ID from clinical_patient where INTERNAL_ID in
+        (select INTERNAL_ID from patient where CANCER_STUDY_ID in
+        <foreach item="item" collection="ids" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        )
+    )
+</select>
+
+<select id="getAll" resultMap="ClinicalFieldResult">
+    select * from clinical_attribute
+</select>
+    
+</mapper>

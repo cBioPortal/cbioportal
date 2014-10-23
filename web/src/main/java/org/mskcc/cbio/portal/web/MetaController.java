@@ -6,15 +6,18 @@
 package org.mskcc.cbio.portal.web;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import org.mskcc.cbio.portal.dao.DaoException;
+import java.util.Set;
 import org.mskcc.cbio.portal.model.DBCancerType;
 import org.mskcc.cbio.portal.model.DBCaseList;
+import org.mskcc.cbio.portal.model.DBClinicalField;
 import org.mskcc.cbio.portal.model.DBGene;
 import org.mskcc.cbio.portal.model.DBGeneticProfile;
 import org.mskcc.cbio.portal.model.DBStudy;
 import org.mskcc.cbio.portal.service.CancerTypeService;
 import org.mskcc.cbio.portal.service.CaseListService;
+import org.mskcc.cbio.portal.service.ClinicalFieldService;
 import org.mskcc.cbio.portal.service.GeneService;
 import org.mskcc.cbio.portal.service.GeneticProfileService;
 import org.mskcc.cbio.portal.service.StudyService;
@@ -41,6 +44,8 @@ public class MetaController {
     private CancerTypeService cancerTypeService;
     @Autowired
     private GeneticProfileService geneticProfileService;
+    @Autowired
+    private ClinicalFieldService clinicalFieldService;
     /*---*/
 
     /* UTILS */
@@ -146,33 +151,29 @@ public class MetaController {
     }
 
     @RequestMapping("/clinical")
-    public @ResponseBody
-    ArrayList<ClinicalFieldJSON> dispatchClinical(@RequestParam(required = false) List<Integer> internal_study_ids,
-                                                  @RequestParam(required = false) List<Integer> internal_case_list_ids,
-                                                  @RequestParam(required = false) List<Integer> internal_case_ids) {
-    }
-            
-            
-            @RequestParam(required = false) Integer internal_study_id,
-            @RequestParam(required = false) Integer internal_case_list_id,
-            @RequestParam(required = false) List<Integer> internal_case_ids) {
-        try {
-            if (internal_study_id == null && internal_case_list_id == null && internal_case_ids == null) {
-                return new ArrayList<>(); // TODO: error report: one of these must be non-null
-            } else if (internal_case_list_id != null) {
-                return ClinicalController.getClinicalFieldsByCaseList(internal_case_list_id);
-            } else if (internal_case_ids != null) {
-                return ClinicalController.getClinicalFieldsByCaseList(internal_case_ids);
-            } else {
-                // internal_study_id != null
-                return ClinicalController.getClinicalFieldsByStudy(internal_study_id);
+    public @ResponseBody List<DBClinicalField> dispatchClinical(@RequestParam(required = false) List<Integer> study_ids,
+                                                  @RequestParam(required = false) List<Integer> case_list_ids,
+                                                  @RequestParam(required = false) List<Integer> case_ids) 
+                                                  throws Exception {
+        if (case_list_ids == null && case_ids == null) {
+            if (study_ids == null) {
+                return clinicalFieldService.getAll();
             }
-        } catch (DaoException e) {
-            return new ArrayList<>();
-        } catch (Exception e) {
-            // TODO: fail verbosely
-            return new ArrayList<>();
+            // get all corresponding to study
+            return clinicalFieldService.byInternalStudyId(study_ids);
+        } else {
+            Set<Integer> caseSet = new HashSet<>();
+            if(case_ids != null) {
+                caseSet.addAll(case_ids);
+            } else {
+                List<DBCaseList> caselists = caseListService.byInternalId(case_list_ids);
+                for (DBCaseList cl: caselists) {
+                    caseSet.addAll(cl.internal_case_ids);
+                }
+            }
+            List<Integer> caseList = new ArrayList<>();
+            caseList.addAll(caseSet);
+            return clinicalFieldService.byInternalCaseId(caseList);
         }
     }
-
 }

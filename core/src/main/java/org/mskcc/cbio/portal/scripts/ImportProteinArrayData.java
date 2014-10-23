@@ -56,11 +56,15 @@ public class ImportProteinArrayData {
         MySQLbulkLoader.bulkLoadOff();
         // import array data
         DaoProteinArrayData daoPAD = DaoProteinArrayData.getInstance();
+
+        GeneticProfile profile = addRPPAProfile();
         
         FileReader reader = new FileReader(arrayData);
         BufferedReader buf = new BufferedReader(reader);
         String line = buf.readLine();
         String[] sampleIds = line.split("\t");
+        ImportDataUtil.addPatients(sampleIds, profile.getGeneticProfileId());
+        ImportDataUtil.addSamples(sampleIds, profile.getGeneticProfileId());
         Sample[] samples = new Sample[sampleIds.length-1];
         for (int i=1; i<sampleIds.length; i++) {
             samples[i-1] = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, StableIdUtil.getSampleId(sampleIds[i]));
@@ -90,8 +94,8 @@ public class ImportProteinArrayData {
             
         }
         
-        // import profile
-        addRPPAProfile(internalSampleIds);
+        // add samples to profile
+        DaoGeneticProfileSamples.addGeneticProfileSamples(profile.getGeneticProfileId(), internalSampleIds);
     }
 
     private double[] convertToZscores(String[] strs) {
@@ -198,19 +202,22 @@ public class ImportProteinArrayData {
         }
     }
     
-    private void addRPPAProfile(ArrayList<Integer> sampleIds) throws DaoException {
+    private GeneticProfile addRPPAProfile() throws DaoException
+    {
         // add profile
         String idProfProt = cancerStudyStableId+"_RPPA_protein_level";
-        if (DaoGeneticProfile.getGeneticProfileByStableId(idProfProt)==null) {
-            GeneticProfile gpPro = new GeneticProfile(idProfProt, cancerStudyId,
-													  GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL, "Z-SCORE",
-													  "protein/phosphoprotein level (RPPA)",
-													  "Protein or phosphoprotein level (Z-scores) measured by reverse phase protein array (RPPA)",
-													  true);
+        GeneticProfile gpPro = DaoGeneticProfile.getGeneticProfileByStableId(idProfProt);
+        if (gpPro == null) {
+            gpPro = new GeneticProfile(idProfProt, cancerStudyId,
+                                       GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL, "Z-SCORE",
+                                       "protein/phosphoprotein level (RPPA)",
+                                       "Protein or phosphoprotein level (Z-scores) measured by reverse phase protein array (RPPA)",
+                                       true);
             DaoGeneticProfile.addGeneticProfile(gpPro);
-            DaoGeneticProfileSamples.addGeneticProfileSamples(
-                    DaoGeneticProfile.getGeneticProfileByStableId(idProfProt).getGeneticProfileId(), sampleIds);
+            // get id
+            gpPro = DaoGeneticProfile.getGeneticProfileByStableId(gpPro.getStableId());
         }
+        return gpPro;
     }
     
     public static void main(String[] args) throws Exception {

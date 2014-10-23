@@ -179,7 +179,6 @@ public class ImportTabDelimData {
                 }
                 String values[] = (String[]) ArrayUtils.subarray(parts, sampleStartIndex, parts.length>lenParts?lenParts:parts.length);
                 values = filterOutNormalValues(filteredSampleIndices, values);
-                assert values.length == orderedSampleList.size();
 
                 String hugo = parts[hugoSymbolIndex];
                 if (hugo!=null && hugo.isEmpty()) {

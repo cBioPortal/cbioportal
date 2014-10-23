@@ -242,7 +242,7 @@ var StudyViewInitCharts = (function(){
             
             initSurvivalPlot(_arr);
         }
-        console.log(varName);
+        
         if(
                 StudyViewUtil.arrayFindByValue(varName, 'MUTATION_COUNT') && 
                 StudyViewUtil.arrayFindByValue(varName, 'COPY_NUMBER_ALTERATIONS') &&

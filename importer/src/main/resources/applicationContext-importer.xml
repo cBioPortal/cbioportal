@@ -14,9 +14,11 @@ http://www.springframework.org/schema/context
 http://www.springframework.org/schema/util/spring-util.xsd">
  
     <context:annotation-config />
+    <context:property-placeholder location="classpath:/importer.properties"/>
 
     <!-- enable the configuration of transactional behavior based on annotations -->
     <tx:annotation-driven transaction-manager="importerTransactionManager"/>
+    
 
     <!-- datasource -->
     <b:bean id="importerDataSource" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">
@@ -110,7 +112,10 @@ http://www.springframework.org/schema/util/spring-util.xsd">
         <b:constructor-arg index="14">
             <b:value>${importer.foundation_worksheet}</b:value>
         </b:constructor-arg>
-        <b:constructor-arg index="15" ref="ncicaDSRFetcher"/>  
+        <b:constructor-arg index="15">
+            <b:value>${importer.icgc_worksheet}</b:value>
+        </b:constructor-arg>
+        <b:constructor-arg index="16" ref="ncicaDSRFetcher"/>  
     </b:bean>
     <b:bean id="caseIDs" class="org.mskcc.cbio.importer.caseids.internal.CaseIDsImpl">
         <b:constructor-arg ref="config"/>
@@ -141,20 +146,11 @@ http://www.springframework.org/schema/util/spring-util.xsd">
         <b:constructor-arg ref="importDataRecordDAO"/>
     </b:bean>
     
-    <b:bean id="xmlTransformer" class="org.mskcc.cbio.importer.transformer.FoundationXMLTransformer">
+    <b:bean id="xmlTransformer" class="org.mskcc.cbio.importer.foundation.transformer.FoundationXMLTransformer">
         <b:constructor-arg ref="config"/>
     </b:bean>
 
-    
-   <!-- 
-    <b:bean id="foundationMetadataGenerator" class="org.mskcc.cbio.importer.foundation.support.FoundationMetadataGenerator">
-         <b:constructor-arg ref="config"/>
-          <b:constructor-arg >
-
-            <b:value>${foundation.root.directory}</b:value>
-        </b:constructor-arg>
-    </b:bean>
--->
+  
     <b:bean id="tcgaOverrideFetcher" class="org.mskcc.cbio.importer.fetcher.internal.MercurialFetcherImpl">
         <b:constructor-arg ref="config"/>
         <b:constructor-arg ref="fileUtils"/>

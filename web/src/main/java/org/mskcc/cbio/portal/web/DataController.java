@@ -11,8 +11,10 @@ import java.util.List;
 import java.util.Set;
 import org.mskcc.cbio.portal.model.DBCaseList;
 import org.mskcc.cbio.portal.model.DBClinicalData;
+import org.mskcc.cbio.portal.model.DBProfileData;
 import org.mskcc.cbio.portal.service.CaseListService;
 import org.mskcc.cbio.portal.service.ClinicalDataService;
+import org.mskcc.cbio.portal.service.ProfileDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.stereotype.Controller;
@@ -29,6 +31,8 @@ public class DataController {
     private CaseListService caseListService;
     @Autowired
     private ClinicalDataService clinicalDataService;
+    @Autowired
+    private ProfileDataService profileDataService;
     
     @Transactional
     @RequestMapping("/clinical")
@@ -38,7 +42,7 @@ public class DataController {
                                                   throws Exception {
         if (case_list_ids == null && case_ids == null) {
             if (study_ids == null) {
-                throw new Exception();
+                throw new Exception("Can't have case_list_ids, case_ids, and study_ids all unspecified");
             }
             // get all corresponding to study
             return clinicalDataService.byInternalStudyId(study_ids);
@@ -58,38 +62,30 @@ public class DataController {
         }
     }
     
-   /* @RequestMapping("/profiles")
-    public @ResponseBody ArrayList<ProfileDataJSON> dispatchProfiles(@RequestParam(required = false) List<String> ids,
-                                                                     @RequestParam(required = false) List<Integer> internal_ids,
-                                                                     @RequestParam(required = false) Integer internal_case_list_id,
-                                                                     @RequestParam(required = false) List<Integer> internal_case_ids,
-                                                                     @RequestParam(required = false) List<String> genes) {
-        try {
-            if (genes == null || (ids == null && internal_ids == null) || (internal_case_ids == null && internal_case_list_id == null)) {
-                return new ArrayList<>(); // TODO: error report: one of each conjunctive group must be non-null
-            }
-            
-            if (ids != null) {
-                if (internal_case_ids != null) {
-                    return ProfilesController.getProfileDataByIds(ids, internal_case_ids, genes);
-                } else {
-                    // internal_case_list_id != null
-                    return ProfilesController.getProfileDataByIds(ids, internal_case_list_id, genes);
-                }
-            } else {
-                // internal_ids != null
-                if (internal_case_ids != null) {
-                    return ProfilesController.getProfileDataByInternalIds(internal_ids, internal_case_ids, genes);
-                } else {
-                    // internal_case_list_id != null
-                    return ProfilesController.getProfileDataByInternalIds(internal_ids, internal_case_list_id, genes);
-                }
-            }
-        } catch (DaoException e) {
-            return new ArrayList<>();
-        } catch (Exception e) {
-            return new ArrayList<>();
+    @RequestMapping("/profiles")
+    public @ResponseBody List<DBProfileData> dispatchProfiles(@RequestParam(required = false) List<Integer> case_ids,
+                                                                     @RequestParam(required = false) List<Integer> case_list_ids,
+                                                                     @RequestParam(required = false) List<Integer> genes,
+                                                                     @RequestParam(required = false) List<Integer> profile_ids) 
+                                                                     throws Exception {
+        if (genes == null || profile_ids == null) {
+            throw new Exception("Must specify genes and profile_ids");
         }
-    }*/
-    
+        if (case_ids == null && case_list_ids == null) {
+            return profileDataService.byInternalId(profile_ids, genes);
+        } else {
+            Set<Integer> caseSet = new HashSet<>();
+            if(case_ids != null) {
+                caseSet.addAll(case_ids);
+            } else {
+                List<DBCaseList> caselists = caseListService.byInternalId(case_list_ids);
+                for (DBCaseList cl: caselists) {
+                    caseSet.addAll(cl.internal_case_ids);
+                }
+            }
+            List<Integer> caseList = new ArrayList<>();
+            caseList.addAll(caseSet);
+            return profileDataService.byInternalId(profile_ids, genes, caseList);
+        }
+    }
 }

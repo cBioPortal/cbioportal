@@ -62,7 +62,7 @@ public class DmpSnpTransformer implements DMPDataTransformable {
     private final Supplier<Map<String, Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>>>> transformationMaprSupplier
             = Suppliers.memoize(new DMPMutationsTransformationMapSupplier());
 
-    public DmpSnpTransformer(MafFileHandler aHandler,Path stagingDirectoryPath) {
+    public DmpSnpTransformer(MafFileHandler aHandler, Path stagingDirectoryPath) {
         Preconditions.checkArgument(null != aHandler, "A MafFileHandler implementation is required");
         Preconditions.checkArgument(null != stagingDirectoryPath,
                 "A Path to the staging file directory is required");
@@ -75,13 +75,13 @@ public class DmpSnpTransformer implements DMPDataTransformable {
         aHandler.registerMafStagingFile(stagingDirectoryPath.resolve(mutationsFileName),
                 this.resolveColumnNames());
     }
-   
-   /*
-    resolve the MAF file headings from the transformation map
-    strip off the numeric prefix used to order key sets from the map
-    */ 
+
+    /*
+     resolve the MAF file headings from the transformation map
+     strip off the numeric prefix used to order key sets from the map
+     */
     private List<String> resolveColumnNames() {
-       return FluentIterable.from(this.transformationMaprSupplier.get().keySet())
+        return FluentIterable.from(this.transformationMaprSupplier.get().keySet())
                 .transform(new Function<String, String>() {
                     @Override
                     public String apply(String s) {
@@ -97,33 +97,40 @@ public class DmpSnpTransformer implements DMPDataTransformable {
         Preconditions.checkArgument(null != data, "A DmpData object is required");
         Set<String> processedSamples = this.fileHandler.resolveProcessedSampleSet(DMPCommonNames.SAMPLE_ID_COLUMN_NAME);
         Set<String> currentSamples = FluentIterable.from(data.getResults())
-                .transform(new Function<Result,String>(){
+                .transform(new Function<Result, String>() {
 
-            @Override
-            public String apply(Result result) {
-                return result.getMetaData().getDmpSampleId().toString();
-            }
-        }).toSet();
+                    @Override
+                    public String apply(Result result) {
+                        return result.getMetaData().getDmpSampleId().toString();
+                    }
+                }).toSet();
         Set<String> deprecatedSamples = Sets.intersection(processedSamples, currentSamples);
-        logger.info(deprecatedSamples.size() +" samples have been deprecated by new DMP data");
-        // remove the deprecated Samples
-        this.fileHandler.removeDeprecatedSamplesFomMAFStagingFiles(DMPCommonNames.SAMPLE_ID_COLUMN_NAME, deprecatedSamples);
+        // the set of samples for all mutations
+        Set<String> totalMutationSamples = Sets.union(currentSamples, processedSamples);
+        
+        logger.info(deprecatedSamples.size() + " samples have been deprecated by new DMP data");
+        logger.info(totalMutationSamples.size() +" total mutation samples");
+        
+        // remove any deprecated Samples
+        if (!deprecatedSamples.isEmpty()) {
+            this.fileHandler.removeDeprecatedSamplesFomMAFStagingFiles(DMPCommonNames.SAMPLE_ID_COLUMN_NAME, deprecatedSamples);
+        }
         for (Result result : data.getResults()) {
             this.processSnps(result);
         }
     }
-    
+
     /*
-    private method to invoke transformation of SNP attributes to a tsv
-    file. The two types of SNPs are combined into a single list.
-    */
+     private method to invoke transformation of SNP attributes to a tsv
+     file. The two types of SNPs are combined into a single list.
+     */
     private void processSnps(Result result) {
         List<DmpSnp> snpList = Lists.newArrayList();
         final MetaData meta = result.getMetaData();
         snpList.addAll(result.getSnpExonic());
         snpList.addAll(result.getSnpSilent());
         //add the sample id to each snp from the result metadata
-        List <DmpSnp> transformedSnpList = FluentIterable.from(snpList)
+        List<DmpSnp> transformedSnpList = FluentIterable.from(snpList)
                 .transform(new Function<DmpSnp, DmpSnp>() {
                     @Override
                     public DmpSnp apply(DmpSnp snp) {
@@ -133,39 +140,40 @@ public class DmpSnpTransformer implements DMPDataTransformable {
                     }
                 }).toList();
         // invoke the transformation function on each snp and output to a file
-        if(!transformedSnpList.isEmpty()){
+        if (!transformedSnpList.isEmpty()) {
             this.fileHandler.transformImportDataToStagingFile(transformedSnpList, transformationFunction);
         }
     }
-    
+
     /*
-    Function to transform DMP SNP attributesfrom a DmpSnp object into MAF attributes collected in
-    a tsv String for subsequent output
-    */
-    Function <DmpSnp, String> transformationFunction  = new Function<DmpSnp, String>() {
-                            @Override
-                            public String apply(final DmpSnp snp) {
-                                Set<String> attributeList = transformationMaprSupplier.get().keySet();
-                                List<String> mafAttributes = FluentIterable.from(attributeList)
-                                .transform(new Function<String, String>() {
-                                    @Override
-                                    public String apply(String attribute) {
-                                        Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>> tuple3
-                                        = transformationMaprSupplier.get().get(attribute);
-                                        String attribute1 = DmpUtils.pojoStringGetter(tuple3._2(), snp);
+     Function to transform DMP SNP attributesfrom a DmpSnp object into MAF attributes collected in
+     a tsv String for subsequent output
+     */
+    Function<DmpSnp, String> transformationFunction = new Function<DmpSnp, String>() {
+        @Override
+        public String apply(final DmpSnp snp) {
+            Set<String> attributeList = transformationMaprSupplier.get().keySet();
+            List<String> mafAttributes = FluentIterable.from(attributeList)
+                    .transform(new Function<String, String>() {
+                        @Override
+                        public String apply(String attribute) {
+                            Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>> tuple3
+                            = transformationMaprSupplier.get().get(attribute);
+                            String attribute1 = DmpUtils.pojoStringGetter(tuple3._2(), snp);
 
-                                        Optional<String> optAttribute2 = (Optional<String>) ((tuple3._3().isPresent())
-                                                ? Optional.of(DmpUtils.pojoStringGetter(tuple3._3().get(), snp))
-                                                : Optional.absent());
+                            Optional<String> optAttribute2 = (Optional<String>) ((tuple3._3().isPresent())
+                                    ? Optional.of(DmpUtils.pojoStringGetter(tuple3._3().get(), snp))
+                                    : Optional.absent());
 
-                                        return tuple3._1().apply(new Tuple2(attribute1, optAttribute2));
+                            return tuple3._1().apply(new Tuple2(attribute1, optAttribute2));
 
-                                    }
-                                }).toList();
-                                String retRecord = tabJoiner.join(mafAttributes);
+                        }
+                    }).toList();
+            String retRecord = tabJoiner.join(mafAttributes);
 
-                                return retRecord;
-                            };
+            return retRecord;
+        }
+   
     };
 
     
@@ -186,12 +194,12 @@ public class DmpSnpTransformer implements DMPDataTransformable {
         }
 
         /*
-        Map of MAF attributes and associated DMP to MAF attribute transformation functions
-        These transformation functions utilize specified getter methods from the DMP model
-        objects to resolve DMP attribute values
-        The second Optional DMP argument is provided to support transformation functions that
-        operate on two DMP attributes to determine a single MAF attribute
-        */
+         Map of MAF attributes and associated DMP to MAF attribute transformation functions
+         These transformation functions utilize specified getter methods from the DMP model
+         objects to resolve DMP attribute values
+         The second Optional DMP argument is provided to support transformation functions that
+         operate on two DMP attributes to determine a single MAF attribute
+         */
         @Override
         public Map<String, Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>>> get() {
             Map<String, Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>>> transformationMap = Maps.newTreeMap();

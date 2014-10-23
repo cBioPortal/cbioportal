@@ -21,12 +21,14 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import com.google.inject.internal.Iterables;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.dmp.model.CnvIntragenicVariant;
 import org.mskcc.cbio.importer.dmp.model.CnvVariant;
@@ -93,14 +95,42 @@ public class DmpCnvTransformer implements DMPDataTransformable {
 
     @Override
     public void transform(DmpData data) {
-
+        // remove deprecated samples before inserting new data
+        this.resetDeprecatedSamples(data);
         Iterable<Tuple3<String, String, Double>> cnvList = Iterables.concat(Lists.transform(data.getResults(), cnvFunction));
         for (Tuple3<String, String, Double> cnv : cnvList) {
             this.cnvTable.put(cnv._1(), cnv._2(), cnv._3());
         }
         // write out updated table
         this.fileHandler.persistCnvTable(cnvTable);
+    }
+    
+    /*
+    private method to reset CNA data  for deprecated samples from table
+    */
+    private void resetDeprecatedSamples(DmpData data) {
+        final Set<String> geneNameSet = this.cnvTable.rowKeySet();
+        Set<String> currentSamples = FluentIterable.from(data.getResults())
+                .transform(new Function<Result, String>() {
 
+                    @Override
+                    public String apply(Result result) {
+                        return result.getMetaData().getDmpSampleId().toString();
+                    }
+                }).toSet();
+        //determine if any of the new samples are already in the cnv table.
+        // if so, reset column values to 0.0
+        final Set<String>deprecatedSet = Sets.intersection(currentSamples, 
+                this.cnvTable.columnKeySet());
+        for (String sampleId : deprecatedSet){         
+                for (String geneName : geneNameSet) {
+                   
+                    this.cnvTable.put(geneName, sampleId, 0.0d);
+                     logger.info("Removed gene " + geneName +" from cnvtable for sample " 
+                            +sampleId);
+                }
+            
+        }
     }
     
 }

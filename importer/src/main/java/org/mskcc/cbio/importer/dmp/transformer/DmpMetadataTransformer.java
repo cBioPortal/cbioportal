@@ -44,7 +44,7 @@ import scala.Tuple3;
 public class DmpMetadataTransformer implements DMPDataTransformable {
 
     
-    private ClinicalDataFileHandler fileHandler;
+    private final ClinicalDataFileHandler fileHandler;
     private final static Logger logger = Logger.getLogger(DmpMetadataTransformer.class);
    
     private static final Joiner tabJoiner = Joiner.on('\t').useForNull(" ");

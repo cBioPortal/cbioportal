@@ -190,7 +190,6 @@
         <div class="section" id="summary">
             <% //contents of fingerprint.jsp now come from attribute on request object %>
             <%@ include file="oncoprint/main.jsp" %>
-            <%@ include file="gene_info.jsp" %>
         </div>
 
             <% if ( has_mrna && (has_copy_no || has_methylation || has_copy_no) ) { %>

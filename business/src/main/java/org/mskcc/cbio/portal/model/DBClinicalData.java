@@ -11,11 +11,8 @@ import java.io.Serializable;
  *
  * @author abeshoua
  */
-public class DBClinicalField implements Serializable {
+public class DBClinicalData implements Serializable {
     public String attr_id;
-    public String display_name;
-    public String description;
-    public String datatype;
-    public String is_patient_attribute;
-    public String priority;
+    public String attr_val;
+    public String case_id;
 }

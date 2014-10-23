@@ -8,7 +8,7 @@
     <result property="display_name" column="DISPLAY_NAME"/>
     <result property="description" column="DESCRIPTION"/>
     <result property="datatype" column="DATATYPE"/>
-    <result property="attribute_type" column="PATIENT_ATTRIBUTE"/>
+    <result property="is_patient_attribute" column="PATIENT_ATTRIBUTE"/>
     <result property="priority" column="PRIORITY"/>
 </resultMap>
 

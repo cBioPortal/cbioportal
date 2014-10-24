@@ -21,7 +21,7 @@ public interface ProfileDataMapper {
                                                @Param("genes") List<Integer> genes);
     List<DBMutationData> mutByInternalId(@Param("ids") List<Integer> ids,
                                                @Param("genes") List<Integer> genes);
-    List<DBMutationData> mutByInternalIdInternalCaseId(@Param("ids") List<Integer> ids,
+    List<DBMutationData> mutByInternalIdCaseId(@Param("ids") List<Integer> ids,
                                                @Param("genes") List<Integer> genes,
                                                @Param("case_ids") List<Integer> case_ids);
 }

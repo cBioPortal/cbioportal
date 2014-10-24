@@ -140,7 +140,7 @@ public class ProfileDataService {
             }
         }
         if (!mutation.isEmpty()) {
-            ret.addAll(profileDataMapper.mutByInternalIdInternalCaseId(mutation, entrez_gene_ids, internal_case_ids));
+            ret.addAll(profileDataMapper.mutByInternalIdCaseId(mutation, entrez_gene_ids, internal_case_ids));
         }
         return ret;
     }

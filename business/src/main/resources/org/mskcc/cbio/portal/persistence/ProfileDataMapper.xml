@@ -27,20 +27,22 @@
     <result property="variant_read_count_normal" column="NORMAL_ALT_COUNT"/>  
 </resultMap>
 
-<select id="altRow" resultType="DBGeneticAltRow">
-    select 
-        GENETIC_PROFILE_ID as genetic_profile_id,
-        ENTREZ_GENE_ID as entrez_gene_id,
-        VALUES as values
-    from genetic_alteration
-    <!--where GENETIC_PROFILE_ID in
+<resultMap id="GeneticAltRowResult" type="DBGeneticAltRow">
+    <result property="genetic_profile_id" column="GENETIC_PROFILE_ID"/>
+    <result property="entrez_gene_id" column="ENTREZ_GENE_ID"/>
+    <result property="values" column="VALUES"/>
+</resultMap>
+
+<select id="altRow" resultMap="GeneticAltRowResult">
+    select * from genetic_alteration
+    where GENETIC_PROFILE_ID in
     <foreach item="item" collection="ids" open="(" separator="," close=")">
         #{item}
     </foreach>
     and ENTREZ_GENE_ID in
     <foreach item="item" collection="genes" open="(" separator="," close=")">
         #{item}
-    </foreach>-->
+    </foreach>
 </select>
 
 <select id="profileCaseList" resultType="DBProfileDataCaseList">

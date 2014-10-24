@@ -1,8 +1,4 @@
-# September 30, 2014
-* All TCGA data updated to the Firehose run of July 15, 2014
-* Added two new provisional TCGA studies:
-    * [Esophageal Carcinoma](study.do?cancer_study_id=esca_tcga)
-    * [Pheochromocytoma and Paraganglioma](study.do?cancer_study_id=pcpg_tcga)
+# October 24, 2014
 * Added data of 885 samples from 11 published studies:
     * [Colorectal Adenocarcinoma Triplets (MSKCC, Genome Biology 2014)](study.do?cancer_study_id=coadread_mskcc)
     * [Esophageal Squamous Cell Carcinoma (ICGC, Nature 2014)](study.do?cancer_study_id=escc_icgc)

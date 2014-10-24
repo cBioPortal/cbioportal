@@ -134,7 +134,7 @@ var StudyViewInitCharts = (function(){
             var _varValuesNum = [];
             var _dataType = _attr[i]["datatype"].toUpperCase();
             var _allNumber = false;
-            
+            var _createdChartsNum = pie.length + bar.length;
             for( var j = 0; j < _arrLength; j++ ){
                 if(_attr[i]["attr_id"] === "PATIENT_ID" && 
                         _arr[j]["PATIENT_ID"] === 'NA') {
@@ -169,8 +169,8 @@ var StudyViewInitCharts = (function(){
                 if(_keys.length !== Object.keys(dataArr).length) {
                     _studyDesc = "from " + _keys.length + " patients";
                 }
-            }else if(_dataType === "NUMBER" || _dataType === "BOOLEAN" || _allNumber){                
-                if(selectedCol(_attr[i]["attr_id"])){                    
+            }else if(_dataType === "NUMBER" || _dataType === "BOOLEAN" || _allNumber){ 
+                if(selectedCol(_attr[i]["attr_id"]) && _createdChartsNum < 28){                    
                     if(_keys.length>10 || _attr[i]["attr_id"] === 'AGE' || _attr[i]["attr_id"] === 'MUTATION_COUNT' 
                             || _attr[i]["attr_id"] === 'COPY_NUMBER_ALTERATIONS')
                         bar.push(_attr[i]);
@@ -203,7 +203,7 @@ var StudyViewInitCharts = (function(){
 
             }else if(_dataType === "STRING"){
                 varType[_attr[i]["attr_id"]] = "pie";
-                if(selectedCol(_attr[i]["attr_id"])){
+                if(selectedCol(_attr[i]["attr_id"]) && _createdChartsNum < 28){
                     if (_attr[i]["attr_id"]==="CANCER_TYPE") {
                         pie.unshift(_attr[i]);
                     } else {

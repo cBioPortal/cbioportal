@@ -325,8 +325,8 @@ define("OncoprintUtils", (function() {
                 if (attr.attr_id.toUpperCase() === "SEX"
                     || attr.attr_id.toUpperCase() === "GENDER") {
                     scale = d3.scale.ordinal()
-                .domain(["MALE", "male", "FEMALE", "female"])
-                .range(["#3790d6", "#3790d6", "pink", "pink"]);
+                .domain(["MALE", "male","M","m", "FEMALE", "female","F","f"])
+                .range(["#3790d6", "#3790d6",  "#3790d6", "#3790d6", "pink", "pink", "pink", "pink"]);
 
                     return [attr.attr_id, scale];
                 }
@@ -361,6 +361,7 @@ define("OncoprintUtils", (function() {
                     scale = d3.scale.ordinal()
                         .range( slice_googlecolors(attr.attr_id));
                 }
+//                attr.attr_id=attr.attr_id.toLowerCase().charAt(0).toUpperCase() + attr.attr_id.toLowerCase().slice(1);// added by dong li
                 scale.domain(attrId2range[attr.attr_id]);
                 return [attr.attr_id, scale];
             })
@@ -680,6 +681,8 @@ define("OncoprintUtils", (function() {
                 }
                 return totalLength;
             };
+            
+            
         for(var ii = 0; ii< datas.length;ii++)
         {
         var inteData = datas[ii];
@@ -687,6 +690,7 @@ define("OncoprintUtils", (function() {
         .append('table')
 //        .append('tr')
         .attr('id','legend_table')
+        .attr('class','mutation_legend_table')
         .attr('height', dims.vert_space)
         .attr('valign','top');
 
@@ -736,13 +740,6 @@ define("OncoprintUtils", (function() {
                             .style('width', container_width + 'px') // buffer of, say, 70
                             .style('display', 'inline-block')
                             .style('overflow-x', 'hidden')
-//                            .style('overflow-x', function(){
-//                                
-//                                if(this_legend_width > container_width){
-//                                    return 'auto';} 
-//                        
-//                                    return 'hidden';
-//                                })
                             .style('overflow-y', 'hidden'); 
         
         var gradientLegendColorbarLength = 100;
@@ -1005,7 +1002,7 @@ define("OncoprintUtils", (function() {
                       UPREGULATED: "RPPA Upregulation",
                       DOWNREGULATED: "RPPA Downregulation"
                   },
-            mutation: "Mutation",
+            mutation: "mutation",
             fusion: "Fusion"
         };
 
@@ -1024,54 +1021,54 @@ define("OncoprintUtils", (function() {
         // N.B. order matters here --- so cna is to the left, then comes
         // mutation, etc.
         var templates = [];
-        if (datatype2range.cna !== undefined) {
-            templates = templates.concat(
-                    _.map(datatype2range.cna, function(val) {
-                        if (val !== undefined && val !== "DIPLOID") {
-                            return item_templater({
-                                bg_color: cna_fills[val],
-                                text: captions.cna[val]
-                            });
-                        }
-                    }).filter(function(x) { return x !== undefined; })
-                    );
-        }
-
-        if (datatype2range.mutation !== undefined) {
-            templates = templates.concat(
-                    item_templater({ display_mutation: "inherit", text: captions.mutation})
-                    );
-        }
-
-        if (datatype2range.fusion !== undefined) {
-            templates = templates.concat(
-                    item_templater({ display_fusion: "inherit", text: captions.fusion})
-                    );
-        }
-
-        if (datatype2range.mrna !== undefined) {
-            templates = templates.concat(
-                    _.map(datatype2range.mrna, function(val) {
-                        return val2template.mrna[val];
-                    }).filter(function(x) { return x !== undefined; })
-                    );
-        }
-
-        if (datatype2range.rppa !== undefined) {
-            templates = templates.concat(
-                    _.map(datatype2range.rppa, function(val) {
-                        return val2template.rppa[val];
-                    }).filter(function(x) { return x !== undefined; })
-                    );
-        }     
-
-        var row = _.chain(templates)
-            .map(function(t) {
-                return "<td style='padding-right:10px;'>" + t + "</td>";
-            })
-            .join("")
-            .value();
-        row = "<tr>" +row+ "</tr>";
+//        if (datatype2range.cna !== undefined) {
+//            templates = templates.concat(
+//                    _.map(datatype2range.cna, function(val) {
+//                        if (val !== undefined && val !== "DIPLOID") {
+//                            return item_templater({
+//                                bg_color: cna_fills[val],
+//                                text: captions.cna[val]
+//                            });
+//                        }
+//                    }).filter(function(x) { return x !== undefined; })
+//                    );
+//        }
+//
+//        if (datatype2range.mutation !== undefined) {
+//            templates = templates.concat(
+//                    item_templater({ display_mutation: "inherit", text: captions.mutation})
+//                    );
+//        }
+//
+//        if (datatype2range.fusion !== undefined) {
+//            templates = templates.concat(
+//                    item_templater({ display_fusion: "inherit", text: captions.fusion})
+//                    );
+//        }
+//
+//        if (datatype2range.mrna !== undefined) {
+//            templates = templates.concat(
+//                    _.map(datatype2range.mrna, function(val) {
+//                        return val2template.mrna[val];
+//                    }).filter(function(x) { return x !== undefined; })
+//                    );
+//        }
+//
+//        if (datatype2range.rppa !== undefined) {
+//            templates = templates.concat(
+//                    _.map(datatype2range.rppa, function(val) {
+//                        return val2template.rppa[val];
+//                    }).filter(function(x) { return x !== undefined; })
+//                    );
+//        }     
+//
+//        var row = _.chain(templates)
+//            .map(function(t) {
+//                return "<td style='padding-right:10px;'>" + t + "</td>";
+//            })
+//            .join("")
+//            .value();
+//        row = "<tr>" +row+ "</tr>";
         
         d3.selectAll("#legend_table").remove();
         
@@ -1081,6 +1078,7 @@ define("OncoprintUtils", (function() {
                 return 23+6;
             })
             .attr('id','legend_table')
+            .attr('class','genetic_legend_table')
             .attr('valign','top');
 
 //        var legend_name = table.append('text')
@@ -1142,7 +1140,9 @@ define("OncoprintUtils", (function() {
                             .attr('height', 23 )
                             .attr('width', captions.cna[datatype2range.cna[i]].length * 7.5 + 5.5*3 )
                             .attr('x', 0)
-                            .attr('id', 'legend');
+                            .attr('id', 'legend_svg')
+                            .attr('class', 'legend_cna')
+                            .append('g');
 
                 legend_svg.append('rect')
                             .attr('height', 23)
@@ -1166,14 +1166,36 @@ define("OncoprintUtils", (function() {
             }
         }   
         
-        if(datatype2range.cna !== undefined && datatype2range.mutation !== undefined)
+//        if(datatype2range.cna !== undefined && datatype2range.mutation !== undefined)
+        var findProperMutation = function(source, specialtype)
+        {
+            switch(specialtype){
+                case 1:
+                    var findResult = _.find(source,function(element){ return (/^[A-z]([0-9]+)[A-z]$/g).test(element);});
+                    if(findResult !== undefined)
+                    {
+                        return true;
+                    }
+                    return false;
+                case 2:
+//                    var findResult = _.find(source,function(element){return });
+//                    if(findResult !== undefined)
+//                    {
+//                        return true;
+//                    }
+                    return true;
+            }
+        }
+        if(datatype2range.mutation !== undefined)
         {   
-//            var inter_item_templater;
-//            inter_item_templater = item_templater({ display_mutation: "inherit", text: captions.mutation});
+//            if($('#oncoprint_diagram_showmutationcolor_icon')[0].attributes.src.value === 'images/uncolormutations.svg')
+//            {
                 var legend_svg = table.append('svg')
                             .attr('height', 23 )
-                            .attr('width', captions.cna[datatype2range.cna[0]].length * 7.5 + 5.5*3 )
-                            .attr('id', 'legend');
+                            .attr('width', ('missense mutation').length * 7.5 + 5.5*3 )
+                            .attr('id', 'legend_svg')
+                            .attr('class','legend_missense')
+                            .append('g');
 
                 legend_svg.append('rect')
                             .attr('height', 23)
@@ -1190,7 +1212,8 @@ define("OncoprintUtils", (function() {
                 .attr('font-size', '12px')
                 .attr('width', function()
                 {
-                    return captions.cna[datatype2range.cna[0]].length * 6.5;
+    //                    return captions.cna[datatype2range.cna[0]].length * 6.5;
+                    return ('missense mutation').length * 6.5;
                 })
                 .attr('x', 5.5*3)
                 .attr('y', 21);
@@ -1198,8 +1221,84 @@ define("OncoprintUtils", (function() {
                 label.append('tspan')       // name
                     .attr('text-anchor', 'start')
                     .attr('fill','black')
-                    .attr('class','legend_name')
+                    .attr('class','legend_missense_name')
                     .text(captions.mutation); 
+//            }
+//            else if($('#oncoprint_diagram_showmutationcolor_icon')[0].attributes.src.value === 'images/colormutations.svg')
+//            {
+//                if(findProperMutation(datatype2range.mutation,1))
+//                {
+//                    var legend_svg = table.append('svg')
+//                                .attr('height', 23 )
+//                                .attr('width', ('missense mutation').length * 7.5 + 5.5*3 )
+//                                .attr('id', 'legend');
+//
+//                    legend_svg.append('rect')
+//                                .attr('height', 23)
+//                                .attr('width', 5.5)
+//                                .attr('fill', colors.grey);
+//
+//                    legend_svg.append('rect')
+//                            .attr('display',"inherit")
+//                            .attr('height', 7.666666666666667)
+//                            .attr('width', 5.5)
+//                            .attr('y',7.666666666666667)
+//                            .attr('fill', '#008000');      
+//                    var label = legend_svg.append('text')
+//                    .attr('font-size', '12px')
+//                    .attr('width', function()
+//                    {
+//        //                    return captions.cna[datatype2range.cna[0]].length * 6.5;
+//                        return ('missense mutation').length * 6.5;
+//                    })
+//                    .attr('x', 5.5*3)
+//                    .attr('y', 21);
+//
+//                    label.append('tspan')       // name
+//                        .attr('text-anchor', 'start')
+//                        .attr('fill','black')
+//                        .attr('class','legend_name')
+//                        .text(captions.mutation); 
+//                }
+                
+                if(findProperMutation(datatype2range.mutation,2))
+                {
+                    var legend_svg = table.append('svg')
+                                .attr('height', 23 )
+                                .attr('display','none')
+                                .attr('width', ('non-missense mutation').length * 7.5 + 5.5*3 )
+                                .attr('id', 'legend_svg')
+                                .attr('class', 'legend_nonmissense')
+                                .append('g');
+
+                    legend_svg.append('rect')
+                                .attr('height', 23)
+                                .attr('width', 5.5)
+                                .attr('fill', colors.grey);
+
+                    legend_svg.append('rect')
+                            .attr('display',"inherit")
+                            .attr('height', 7.666666666666667)
+                            .attr('width', 5.5)
+                            .attr('y',7.666666666666667)
+                            .attr('fill', '#000000');      
+                    var label = legend_svg.append('text')
+                    .attr('font-size', '12px')
+                    .attr('width', function()
+                    {
+        //                    return captions.cna[datatype2range.cna[0]].length * 6.5;
+                        return ('non-missense mutation').length * 6.5;
+                    })
+                    .attr('x', 5.5*3)
+                    .attr('y', 21);
+
+                    label.append('tspan')       // name
+                        .attr('text-anchor', 'start')
+                        .attr('fill','black')
+                        .attr('class','legend_name')
+                        .text('non-missense mutation'); 
+                }
+//            }
         }
         
         if(attrtype2range.length > 0)

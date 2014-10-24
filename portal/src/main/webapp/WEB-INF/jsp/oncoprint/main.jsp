@@ -16,7 +16,7 @@
             <p> Altered in <%=dataSummary.getNumCasesAffected()%> (<%=OncoPrintUtil.alterationValueToString(dataSummary.getPercentCasesAffected())%>) of cases
             <span class='oncoprint-diagram-toolbar-buttons' style="float:right;margin-right:20px;display: none;">
             
-            <img id="oncoprint_diagram_showmutationcolor_icon" checked="0" style="width: 12px; height: 12px" class="oncoprint_diagram_showmutationcolor_icon" src="images/colormutations.svg">
+            <img id="oncoprint_diagram_showmutationcolor_icon" checked="0" style="width: 12px; height: 12px" class="oncoprint_diagram_showmutationcolor_icon" src="images/uncolormutations.svg">
             <img id="oncoprint-diagram-showlegend-icon" checked="0" style="width: 12px; height: 12px" class="oncoprint-diagram-showlegend-icon" src="images/showlegend.svg">
             <img id="oncoprint-diagram-removeUCases-icon" checked="0" style="width: 12px; height: 12px" class="oncoprint-diagram-removeUCases-icon" src="images/removeUCases.svg">
             <img id="oncoprint-diagram-removeWhitespace-icon" checked="0" style="width: 15px; height: 12px" class="oncoprint-diagram-removeWhitespace-icon" src="images/removeWhitespace.svg">

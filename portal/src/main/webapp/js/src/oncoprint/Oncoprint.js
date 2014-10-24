@@ -289,6 +289,7 @@ define("Oncoprint",
                             }
                             else if (utils.is_clinical(d)) {
 
+                                //d.attr_id=d.attr_id.toLowerCase().charAt(0).toUpperCase() + d.attr_id.toLowerCase().slice(1);// added by dong li
                                 var result = attr2range[d.attr_id](d.attr_val);
                                 
                                 return d.attr_val === "NA"
@@ -302,7 +303,6 @@ define("Oncoprint",
                     })
                     .attr('width', dims.rect_width)
                         .attr('y', function(d) {
-                            
                             if(params.clinical_attrs.length > 0)
                             {
                                 return d.attr_id === undefined
@@ -448,6 +448,30 @@ define("Oncoprint",
                 };
 
                 update(data);
+                //needed to modify by dong li
+                var clinicalLength = parseInt(params.clinicalData.length/params.clinical_attrs.length);
+                var geneLength = params.geneData.length/params.genes.length;
+                
+                if(clinicalLength > 0 && clinicalLength !== geneLength)
+                {
+                    for(var u =0; u<geneLength; u++)
+                    {
+                        var newAddedClinic = params.clinicalData.slice(geneLength*(params.clinical_attrs.length-1)); 
+                        var geneElementValue = params.geneData[u].sample;
+                        var clinicalElementValueIndex = _.find(newAddedClinic, function(element){ return element.sample === geneElementValue;});
+                        
+                        if(clinicalElementValueIndex === undefined) 
+                        {
+                            var NAelement = {
+                                attr_id:params.clinicalData[0].attr_id, 
+                                attr_val:"NA",
+                                sample: geneElementValue
+                            };
+                            
+                            params.clinicalData.push(NAelement);
+                        }
+                    }
+                }
                 cbio.util.autoHideOnMouseLeave($("#oncoprint_table"), $(".special_delete"));
                 cbio.util.autoHideOnMouseLeave($("#oncoprint_table"), $(".oncoprint_Sort_Button"));
 
@@ -750,15 +774,26 @@ define("Oncoprint",
 
                                     return serialize(transformed[0]);
                                 });
+                                
+                        var out_svg = map_join($(svg).children(),
+                                function(index, sample_el) {
+                                    var sample_id = d3.select(sample_el).data()[0].key;
+                                    var transformed = $(sample_el).clone();
+                                    transformed = transformed.attr('transform', translate(0,dims.vert_space));
+
+                                    return serialize(transformed[0]);
+                                });
 
                         var labels = $('#oncoprint svg#label').children().clone();
                         labels.find("image").remove();
                         labels = map_join(labels, function(index, label) {
                             return serialize(label);
                         });
-
-                        var legends = $('#oncoprint #oncoprint_legend svg').children().clone();
-                        legends = map_join(legends, function(index,legend) {
+                        
+                        var verticalTranslateWidth= parseInt($('#oncoprint #oncoprint_legend .genetic_legend_table svg')[0].attributes.width.value);
+                        
+                        var generic_legends = $('#oncoprint #oncoprint_legend .genetic_legend_table #legend').children().clone();
+                        generic_legends = map_join(generic_legends, function(index,legend) {
                             return serialize(legend);
                         });
                         var find1 = '<svg xmlns="http://www.w3.org/2000/svg"';
@@ -767,13 +802,56 @@ define("Oncoprint",
                         var re1 = new RegExp(find1, 'g');
                         var re2 = new RegExp(find2, 'g');
                         var re3 = new RegExp(find3, 'g');
-                        legends = legends.replace(re1, '<g').replace(re2, '</g>').replace(re3, '');
-
-                        legends = "<g transform=\"translate(0,"+ dims.height + ")\">" + legends + "</g> ";
+                        generic_legends = generic_legends.replace(re1, '<g').replace(re2, '</g>').replace(re3, '');
+                        generic_legends = "<g transform=\"translate(0,"+ (dims.height + 10) + ")\">" + generic_legends + "</g> ";
+                        
+                        var generic_legends_svg = $('#oncoprint #oncoprint_legend .genetic_legend_table #legend_svg').children().clone();
+                        generic_legends_svg = map_join(generic_legends_svg, function(index,legend) {
+                            return serialize(legend);
+                        });
+                        var find1 = '<g xmlns="http://www.w3.org/2000/svg"';
+                        var n = 0;
+                        while(generic_legends_svg.indexOf(find1) > -1)
+                        {
+                            generic_legends_svg = generic_legends_svg.replace(find1, '<g transform = "translate('+ (144*n) +',0)"');
+                            n++; 
+                        }
+                        generic_legends_svg = "<g transform=\"translate("+ verticalTranslateWidth +","+ (dims.height + 10) + ")\">" + generic_legends_svg + "</g> ";
+                        
+                        var mutation_legends = $('#oncoprint #oncoprint_legend .mutation_legend_table #legend').children().clone();
+                        mutation_legends = map_join(mutation_legends, function(index,legend) {
+                            return serialize(legend);
+                        });
+                        var find1 = 'y="23"';
+                        var j=0;
+                        while(mutation_legends.indexOf(find1) > -1)
+                        {
+                            mutation_legends = mutation_legends.replace(find1, 'y = "' + (dims.vert_space * j + 23)+'"');
+                            j++; 
+                        }
+                        mutation_legends = "<g transform=\"translate(0,"+ (dims.height + 10 + dims.vert_space) + ")\">" + mutation_legends + "</g> ";
+                        
+                        var mutation_legends_svg = $('#oncoprint #oncoprint_legend .mutation_legend_table #legend_svg').children().clone();
+                        mutation_legends_svg = map_join(mutation_legends_svg, function(index,legend) {
+                            return serialize(legend);
+                        });
+                        var find1 = '<g xmlns="http://www.w3.org/2000/svg" transform="translate(0,0)"';                    
+                        var i=0;
+                        while(mutation_legends_svg.indexOf(find1) > -1)
+                        {
+                            mutation_legends_svg = mutation_legends_svg.replace(find1, '<g transform = "translate(0,'+ (dims.vert_space * i) +')"');
+                            mutation_legends_svg = mutation_legends_svg.replace(find1, '<g transform = "translate(0,'+ (dims.vert_space * i) +')"');
+                            i++;
+                        }
+                        mutation_legends_svg = "<g transform=\"translate("+ verticalTranslateWidth +","+ (dims.height + 10 + dims.vert_space) + ")\">" + mutation_legends_svg + "</g> ";
+                        
                         out += labels;
-                        out += legends;
+                        out += generic_legends;
+                        out += generic_legends_svg;
+                        out += mutation_legends;
+                        out += mutation_legends_svg;
 
-                        return "<svg height=\"" + (dims.height + 200 + dims.height) + "\" width=\"" + width + "\">" + out + "</svg>";
+                        return "<svg height=\"" + (dims.height + verticalTranslateWidth + dims.height) + "\" width=\"" + width + "\">" + out + "</svg>";
                     };
 
                     return {

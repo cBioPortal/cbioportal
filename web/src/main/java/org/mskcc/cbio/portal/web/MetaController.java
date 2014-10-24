@@ -96,6 +96,43 @@ public class MetaController {
     }
 
     @Transactional
+    @RequestMapping("/patients")
+    public @ResponseBody List<DBPatient> dispatchPatients(@RequestParam(required = false) List<String> study_ids,
+                                                          @RequestParam(required = false) List<String> patient_ids) throws Exception {
+        if (study_ids == null && patient_ids == null) {
+            throw new Exception("Too little specified"); // TODO better errors
+        } else if (patient_ids == null) {
+            // Multiple study ids
+            try {
+                List<Integer> istudy_ids = parseInts(study_ids);
+                return patientService.byInternalStudyId(istudy_ids);
+            } catch (NumberFormatException e) {
+                return patientService.byStableStudyId(study_ids);
+            }
+        } else if (study_ids == null) {
+            // Multiple internal patient ids
+            try {
+                List<Integer> ipatient_ids = parseInts(patient_ids);
+                return patientService.byInternalPatientId(ipatient_ids);
+            } catch (NumberFormatException e) {
+                throw new Exception("Must specify study id to use stable patient ids");
+            }
+        } else {
+            // Single study and multiple stable patient ids
+            try {
+                List<Integer> istudy_ids = parseInts(study_ids);
+                return patientService.byStablePatientId(istudy_ids.get(0), patient_ids);
+            } catch (NumberFormatException e) {
+                return patientService.byStablePatientId(study_ids.get(0), patient_ids);
+            }
+        }
+    }
+    
+    //TODO:
+    /*@Transactional
+    @RequestMapping("/samples")*/
+    
+    @Transactional
     @RequestMapping("/studies")
     public @ResponseBody
     List<DBStudy> dispatchStudies(@RequestParam(required = false) List<String> ids) throws Exception {

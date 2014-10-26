@@ -132,13 +132,15 @@ public class CnaJSON extends HttpServlet {
             throw new ServletException(ex);
         }
         
-        Map<Integer,List> map = new HashMap<Integer,List>();
+        Map<String,List> map = new HashMap<String,List>();
         for (Integer sampleId : internalSampleIds) {
-            map.put(sampleId, new ArrayList());
+            String stableId = DaoSample.getSampleById(sampleId).getStableId();
+            map.put(stableId, new ArrayList());
         }
         
         for (CopyNumberSegment seg : segs) {
-            exportCopyNumberSegment(map.get(seg.getSampleId()), seg);
+            String stableId = DaoSample.getSampleById(seg.getSampleId()).getStableId();
+            exportCopyNumberSegment(map.get(stableId), seg);
         }
 
         response.setContentType("application/json");

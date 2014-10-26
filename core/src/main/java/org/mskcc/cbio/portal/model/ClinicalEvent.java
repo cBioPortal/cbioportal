@@ -4,6 +4,7 @@ package org.mskcc.cbio.portal.model;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 /**
  *
@@ -11,7 +12,7 @@ import java.util.Map;
  */
 public class ClinicalEvent {
     private Long clinicalEventId;
-    private Patient patient;
+    private Integer patientId;
     private String eventType;
     private Long startDate;
     private Long stopDate;
@@ -25,15 +26,12 @@ public class ClinicalEvent {
         this.clinicalEventId = clinicalEventId;
     }
 
-    public Patient getPatient() {
-        return patient;
+    public int getPatientId() {
+        return patientId;
     }
 
-    public void setPatient(Patient patient) {
-        if (patient==null) {
-            throw new IllegalArgumentException("Patient ID cannot be null");
-        }
-        this.patient = patient;
+    public void setPatientId(int patientId) {
+        this.patientId = patientId;
     }
 
     public String getEventType() {

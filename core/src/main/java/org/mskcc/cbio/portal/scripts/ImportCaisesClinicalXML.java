@@ -269,7 +269,7 @@ public final class ImportCaisesClinicalXML {
         for (Node treatmentNode : treatmentNodes) {
             Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudyId, patientId);
             ClinicalEvent clinicalEvent = new ClinicalEvent();
-            clinicalEvent.setPatient(patient);
+            clinicalEvent.setPatientId(patient.getInternalId());
             clinicalEvent.setEventType("TREATMENT");
             clinicalEvent.addEventDatum("TREATMENT_TYPE","Medical Therapy");
             
@@ -336,7 +336,7 @@ public final class ImportCaisesClinicalXML {
         for (Node treatmentNode : treatmentNodes) {
             Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudyId, patientId);
             ClinicalEvent clinicalEvent = new ClinicalEvent();
-            clinicalEvent.setPatient(patient);
+            clinicalEvent.setPatientId(patient.getInternalId());
             clinicalEvent.setEventType("TREATMENT");
             clinicalEvent.addEventDatum("TREATMENT_TYPE", "Radiation Therapy");
             
@@ -403,7 +403,7 @@ public final class ImportCaisesClinicalXML {
         for (Node treatmentNode : treatmentNodes) {
             Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudyId, patientId);
             ClinicalEvent clinicalEvent = new ClinicalEvent();
-            clinicalEvent.setPatient(patient);
+            clinicalEvent.setPatientId(patient.getInternalId());
             clinicalEvent.setEventType("TREATMENT");
             clinicalEvent.addEventDatum("TREATMENT_TYPE","Brachytherapy");
             
@@ -439,7 +439,7 @@ public final class ImportCaisesClinicalXML {
         for (Node diagnosticNode : diagnosticNodes) {
             Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudyId, patientId);
             ClinicalEvent clinicalEvent = new ClinicalEvent();
-            clinicalEvent.setPatient(patient);
+            clinicalEvent.setPatientId(patient.getInternalId());
             clinicalEvent.setEventType("DIAGNOSTIC");
             
             Node node = diagnosticNode.selectSingleNode("DxDate");
@@ -499,7 +499,7 @@ public final class ImportCaisesClinicalXML {
         for (Node labTestNode : labTestNodes) {
             Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudyId, patientId);
             ClinicalEvent clinicalEvent = new ClinicalEvent();
-            clinicalEvent.setPatient(patient);
+            clinicalEvent.setPatientId(patient.getInternalId());
             clinicalEvent.setEventType("LAB_TEST");
             
             Node node  = labTestNode.selectSingleNode("LabDate");
@@ -572,7 +572,7 @@ public final class ImportCaisesClinicalXML {
                 Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudyId, patientId);
 
                 ClinicalEvent clinicalEvent = new ClinicalEvent();
-                clinicalEvent.setPatient(patient);
+            clinicalEvent.setPatientId(patient.getInternalId());
                 clinicalEvent.setEventType("SPECIMEN");
                 clinicalEvent.setStartDate(date);
                 if (site!=null) {
@@ -639,7 +639,7 @@ public final class ImportCaisesClinicalXML {
         for (Node statusNode : statusNodes) {
             Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudyId, patientId);
             ClinicalEvent clinicalEvent = new ClinicalEvent();
-            clinicalEvent.setPatient(patient);
+            clinicalEvent.setPatientId(patient.getInternalId());
             clinicalEvent.setEventType("STATUS");
             
             Node node  = statusNode.selectSingleNode("StatusDate");

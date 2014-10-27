@@ -28,7 +28,6 @@ import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.Fetcher;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.dmp.model.DmpData;
-import org.mskcc.cbio.importer.dmp.persistence.file.DMPStagingFileManager;
 import org.mskcc.cbio.importer.dmp.transformer.DMPDataTransformer;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
@@ -38,7 +37,7 @@ import org.mskcc.cbio.importer.dmp.importer.MockConfig;
 public class DMPFetcherImpl implements Fetcher{
 
     private ObjectMapper OBJECT_MAPPER;
-    private DMPStagingFileManager fileManager;
+    //private DMPStagingFileManager fileManager;
 
     private static final Log LOG = LogFactory.getLog(DMPFetcherImpl.class);
     private Config config;

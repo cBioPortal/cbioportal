@@ -53,6 +53,7 @@ public class FileDataSource {
      Preconditions.checkArgument(null != fileFilter," A file filter is required");
      this.setFilenameList(FluentIterable
              .from(Files.newDirectoryStream((Paths.get(this.directoryName))))
+             .filter(fileFilter)
              .toList());
  }
  

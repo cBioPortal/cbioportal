@@ -21,6 +21,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
@@ -34,6 +35,7 @@ import java.nio.file.Path;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.dmp.model.DmpData;
@@ -53,15 +55,15 @@ import scala.Tuple3;
  generates the data_mutations_extended.txt (MAF format) file
  */
 public class DmpSnpTransformer implements DMPDataTransformable {
-
+    
     private final MafFileHandler fileHandler;
     private final static Logger logger = Logger.getLogger(DmpSnpTransformer.class);
     private static final Joiner tabJoiner = Joiner.on('\t').useForNull(" ");
     private static final String mutationsFileName = "data_mutations_extended.txt";
-
+    
     private final Supplier<Map<String, Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>>>> transformationMaprSupplier
             = Suppliers.memoize(new DMPMutationsTransformationMapSupplier());
-
+    
     public DmpSnpTransformer(MafFileHandler aHandler, Path stagingDirectoryPath) {
         Preconditions.checkArgument(null != aHandler, "A MafFileHandler implementation is required");
         Preconditions.checkArgument(null != stagingDirectoryPath,
@@ -89,28 +91,33 @@ public class DmpSnpTransformer implements DMPDataTransformable {
                     }
                 }).toList();
     }
-
+    
     @Override
     public void transform(DmpData data) {
         // the deprecated samples in the legacy data must be removed before appending 
         // the new samples
         Preconditions.checkArgument(null != data, "A DmpData object is required");
-        Set<String> processedSamples = this.fileHandler.resolveProcessedSampleSet(DMPCommonNames.SAMPLE_ID_COLUMN_NAME);
-        Set<String> currentSamples = FluentIterable.from(data.getResults())
+        
+        Set<String> deprecatedSamples = FluentIterable.from(data.getResults())
+                .filter(new Predicate<Result>() {                
+                    @Override
+                    public boolean apply(Result result) {
+                       return (result.getMetaData().getRetrieveStatus() == DMPCommonNames.DMP_DATA_STATUS_RETRIEVAL) ;
+                    }
+                })
                 .transform(new Function<Result, String>() {
-
+                    
                     @Override
                     public String apply(Result result) {
                         return result.getMetaData().getDmpSampleId().toString();
                     }
-                }).toSet();
-        Set<String> deprecatedSamples = Sets.intersection(processedSamples, currentSamples);
-        // the set of samples for all mutations
-        Set<String> totalMutationSamples = Sets.union(currentSamples, processedSamples);
+                })
+                .toSet();
+       
         
         logger.info(deprecatedSamples.size() + " samples have been deprecated by new DMP data");
-        logger.info(totalMutationSamples.size() +" total mutation samples");
-        
+      
+
         // remove any deprecated Samples
         if (!deprecatedSamples.isEmpty()) {
             this.fileHandler.removeDeprecatedSamplesFomMAFStagingFiles(DMPCommonNames.SAMPLE_ID_COLUMN_NAME, deprecatedSamples);
@@ -160,35 +167,34 @@ public class DmpSnpTransformer implements DMPDataTransformable {
                             Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>> tuple3
                             = transformationMaprSupplier.get().get(attribute);
                             String attribute1 = DmpUtils.pojoStringGetter(tuple3._2(), snp);
-
+                            
                             Optional<String> optAttribute2 = (Optional<String>) ((tuple3._3().isPresent())
                                     ? Optional.of(DmpUtils.pojoStringGetter(tuple3._3().get(), snp))
                                     : Optional.absent());
-
+                            
                             return tuple3._1().apply(new Tuple2(attribute1, optAttribute2));
-
+                            
                         }
                     }).toList();
             String retRecord = tabJoiner.join(mafAttributes);
-
+            
             return retRecord;
         }
-   
+        
     };
 
-    
     /*
-    Private inner class to encapsulate the DMP to MAF attribute transformations
-    Implemented as a single item cache (i.e. Supplier)
-    */
+     Private inner class to encapsulate the DMP to MAF attribute transformations
+     Implemented as a single item cache (i.e. Supplier)
+     */
     private class DMPMutationsTransformationMapSupplier implements
             Supplier<Map<String, Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>>>> {
-
+        
         private final List<String> variationList = Lists.newArrayList("INS", "SNP", "DNP", "TNP", "ONP");
         private final Optional<String> absent = Optional.absent();
         private final Supplier<Map<String, String>> entrezIDSupplier = Suppliers.memoize(new EntrezIDSupplier());
         private Map<String, String> entrezMap;
-
+        
         public DMPMutationsTransformationMapSupplier() {
             this.entrezMap = entrezIDSupplier.get();
         }
@@ -221,7 +227,7 @@ public class DmpSnpTransformer implements DMPDataTransformable {
             transformationMap.put("016Tumor_Sample_Barcode", new Tuple3<>(copyAttribute, "getDmpSampleId", absent)); //14
             return transformationMap;
         }
-
+        
         Function<Tuple2<String, Optional<String>>, String> resolveVariantType
                 = new Function<Tuple2<String, Optional<String>>, String>() {
                     /*
@@ -250,12 +256,12 @@ public class DmpSnpTransformer implements DMPDataTransformable {
                         }
                         return "UNK";
                     }
-
+                    
                 };
-
+        
         Function<Tuple2<String, Optional<String>>, String> calculateEndPosition
                 = new Function<Tuple2<String, Optional<String>>, String>() {
-
+                    
                     @Override
                     public String apply(Tuple2<String, Optional<String>> tuple2) {
                         Integer start = Integer.valueOf(tuple2._1());
@@ -263,46 +269,46 @@ public class DmpSnpTransformer implements DMPDataTransformable {
                         // the reference allele involved
                         Integer stop = start + tuple2._2().get().length() - 1;
                         return stop.toString();
-
+                        
                     }
                 };
-
+        
         Function<Tuple2<String, Optional<String>>, String> getStrand
                 = new Function<Tuple2<String, Optional<String>>, String>() {
-
+                    
                     @Override
                     // for now return a default value
                     public String apply(Tuple2<String, Optional<String>> f) {
                         return DMPCommonNames.DEFAULT_STRAND;
-
+                        
                     }
                 };
-
+        
         Function<Tuple2<String, Optional<String>>, String> getBuild
                 = new Function<Tuple2<String, Optional<String>>, String>() {
-
+                    
                     @Override
                     // for now return a default value
                     public String apply(Tuple2<String, Optional<String>> f) {
                         return DMPCommonNames.DEFAULT_BUILD_NUMBER;
-
+                        
                     }
                 };
-
+        
         Function<Tuple2<String, Optional<String>>, String> getCenter
                 = new Function<Tuple2<String, Optional<String>>, String>() {
-
+                    
                     @Override
                     // for now return a default value
                     public String apply(Tuple2<String, Optional<String>> f) {
                         return DMPCommonNames.CENTER_MSKCC;
-
+                        
                     }
                 };
-
+        
         Function<Tuple2<String, Optional<String>>, String> copyAttribute
                 = new Function<Tuple2<String, Optional<String>>, String>() {
-
+                    
                     @Override
                     /*
                      simple copy of ICGC attribute to MAF file
@@ -312,9 +318,9 @@ public class DmpSnpTransformer implements DMPDataTransformable {
                             return f._1;
                         }
                         return "";
-
+                        
                     }
-
+                    
                 };
 
         /*
@@ -322,7 +328,7 @@ public class DmpSnpTransformer implements DMPDataTransformable {
          */
         Function<Tuple2<String, Optional<String>>, String> getEntrezIDFunction
                 = new Function<Tuple2<String, Optional<String>>, String>() {
-
+                    
                     @Override
                     public String apply(Tuple2<String, Optional<String>> f) {
                         if (!Strings.isNullOrEmpty(f._1)) {
@@ -330,7 +336,7 @@ public class DmpSnpTransformer implements DMPDataTransformable {
                         }
                         return "";
                     }
-
+                    
                 };
 
         /*
@@ -338,14 +344,14 @@ public class DmpSnpTransformer implements DMPDataTransformable {
          */
         Function<Tuple2<String, Optional<String>>, String> unsupported
                 = new Function<Tuple2<String, Optional<String>>, String>() {
-
+                    
                     @Override
                     public String apply(Tuple2<String, Optional<String>> f) {
                         return "";
                     }
-
+                    
                 };
-
+        
     }
-
+    
 }

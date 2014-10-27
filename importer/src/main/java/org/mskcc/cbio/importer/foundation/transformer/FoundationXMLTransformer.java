@@ -289,13 +289,13 @@ public class FoundationXMLTransformer implements FileTransformer {
             final String sample = ct.getCase(); // case is a reserved word use sample instead
 
             return FluentIterable.from(ct.getVariantReport().getShortVariants().getShortVariant())
-                    .filter(new Predicate<ShortVariantType>(){
+                    .filter(new Predicate<ShortVariantType>() {
 
-                @Override
-                public boolean apply(ShortVariantType svt) {
-                    return !Strings.isNullOrEmpty(svt.getGene());
-                }
-            })
+                        @Override
+                        public boolean apply(ShortVariantType svt) {
+                            return !Strings.isNullOrEmpty(svt.getGene());
+                        }
+                    })
                     .transform(new Function<ShortVariantType, String>() {
                         @Override
                         public String apply(ShortVariantType svt) {
@@ -538,20 +538,22 @@ public class FoundationXMLTransformer implements FileTransformer {
          special method to handle foundation mutations data
          */
 
-        private void generateDataReportFromFluentIterable(String reportType, List<CaseType> dataList, Function fluentIterableFunction) {
+        private void generateDataReportFromFluentIterable(String reportType,
+                List<CaseType> dataList, Function fluentIterableFunction) {
             if (this.stagingReportWriterPath.containsKey(reportType)) {
                 Path aPath = this.stagingReportWriterPath.get(reportType);
                 OpenOption[] options = new OpenOption[]{CREATE, APPEND, DSYNC};
 
                 try {
-                    List<String> outList = FluentIterable.from(dataList).transform(fluentIterableFunction)
-                            .filter(new Predicate<List<String>>(){
+                    List<String> outList = FluentIterable.from(dataList)
+                            .transform(fluentIterableFunction)
+                            .filter(new Predicate<List<String>>() {
 
-                        @Override
-                        public boolean apply(List<String> t) {
-                            return !t.isEmpty();
-                        }
-                    })
+                                @Override
+                                public boolean apply(List<String> t) {
+                                    return !t.isEmpty();
+                                }
+                            })
                             .transform(new Function<List<String>, String>() {
 
                                 @Override
@@ -559,7 +561,7 @@ public class FoundationXMLTransformer implements FileTransformer {
 
                                     StringBuilder sb = new StringBuilder();
                                     for (String s : f) {
-                                        if (!Strings.isNullOrEmpty(s) && s.length()>1) {
+                                        if (!Strings.isNullOrEmpty(s) && s.length() > 1) {
                                             sb.append(s);
                                         }
                                     }

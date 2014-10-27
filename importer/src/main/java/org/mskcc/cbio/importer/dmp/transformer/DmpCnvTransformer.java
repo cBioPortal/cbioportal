@@ -19,6 +19,7 @@ package org.mskcc.cbio.importer.dmp.transformer;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -34,6 +35,7 @@ import org.mskcc.cbio.importer.dmp.model.CnvIntragenicVariant;
 import org.mskcc.cbio.importer.dmp.model.CnvVariant;
 import org.mskcc.cbio.importer.dmp.model.DmpData;
 import org.mskcc.cbio.importer.dmp.model.Result;
+import org.mskcc.cbio.importer.dmp.util.DMPCommonNames;
 import org.mskcc.cbio.importer.persistence.staging.CnvFileHandler;
 import scala.Tuple3;
 
@@ -95,7 +97,7 @@ public class DmpCnvTransformer implements DMPDataTransformable {
 
     @Override
     public void transform(DmpData data) {
-        // remove deprecated samples before inserting new data
+        // reset deprecated samples  to 0 before inserting new data
         this.resetDeprecatedSamples(data);
         Iterable<Tuple3<String, String, Double>> cnvList = Iterables.concat(Lists.transform(data.getResults(), cnvFunction));
         for (Tuple3<String, String, Double> cnv : cnvList) {
@@ -110,19 +112,22 @@ public class DmpCnvTransformer implements DMPDataTransformable {
     */
     private void resetDeprecatedSamples(DmpData data) {
         final Set<String> geneNameSet = this.cnvTable.rowKeySet();
-        Set<String> currentSamples = FluentIterable.from(data.getResults())
+         Set<String> deprecatedSamples = FluentIterable.from(data.getResults())
+                .filter(new Predicate<Result>() {                
+                    @Override
+                    public boolean apply(Result result) {
+                       return (result.getMetaData().getRetrieveStatus() == DMPCommonNames.DMP_DATA_STATUS_RETRIEVAL) ;
+                    }
+                })
                 .transform(new Function<Result, String>() {
-
+                    
                     @Override
                     public String apply(Result result) {
                         return result.getMetaData().getDmpSampleId().toString();
                     }
-                }).toSet();
-        //determine if any of the new samples are already in the cnv table.
-        // if so, reset column values to 0.0
-        final Set<String>deprecatedSet = Sets.intersection(currentSamples, 
-                this.cnvTable.columnKeySet());
-        for (String sampleId : deprecatedSet){         
+                })
+                .toSet();
+        for (String sampleId : deprecatedSamples){         
                 for (String geneName : geneNameSet) {
                    
                     this.cnvTable.put(geneName, sampleId, 0.0d);

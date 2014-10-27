@@ -43,6 +43,9 @@ public interface DMPCommonNames {
     public static final String DMP_MUTATIONS_FILENAME = "data_mutations_exteneded.txt";
     public static final String DMP_CNV_FILENAME = "data_CNA.txt";
     public static final String DMP_CLINICAL_FILENAME = "data_clinical.txt";
+    
+    public static final Integer DMP_DATA_STATUS_NEW = 1;
+    public static final Integer DMP_DATA_STATUS_RETRIEVAL = 11;
    
     
     public static final String IS_METASTASTIC_SITE = "1";

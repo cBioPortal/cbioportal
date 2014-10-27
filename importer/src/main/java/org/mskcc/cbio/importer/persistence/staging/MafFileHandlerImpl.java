@@ -161,7 +161,7 @@ public  class MafFileHandlerImpl  extends TsvStagingFileHandler  implements MafF
                     Files.move(this.stagingFilePath, tempFilePath);
                     logger.info(" processing " + tempFilePath.toString());
                     final CSVParser parser = new CSVParser(new FileReader(tempFilePath.toFile()), CSVFormat.TDF.withHeader());
-                    List<String> columnHeadings =  Lists.newArrayList(parser.getHeaderMap().keySet());
+                    String headings = StagingCommonNames.tabJoiner.join(parser.getHeaderMap().keySet());
                     // filter persisted sample ids that are also in the current data input
                     List<String> filteredSamples = FluentIterable.from(parser)
                             .filter(new Predicate<CSVRecord>() {
@@ -176,14 +176,17 @@ public  class MafFileHandlerImpl  extends TsvStagingFileHandler  implements MafF
                             }).transform(new Function<CSVRecord, String>() {
                                 @Override
                                 public String apply(CSVRecord record) {
-                                    return record.toString();
+                                    
+                                    return StagingCommonNames
+                                            .tabJoiner
+                                            .join(Lists.newArrayList(record.iterator()));
                                 }
                             })
                             .toList();
 
                     // write the filtered data to the original MAF staging file
                     // column headings
-                    Files.write(this.stagingFilePath,columnHeadings, Charset.defaultCharset(),options);
+                    Files.write(this.stagingFilePath,Lists.newArrayList(headings), Charset.defaultCharset(),options);
                     // data
                     Files.write(this.stagingFilePath, filteredSamples, Charset.defaultCharset(), options);
                     Files.delete(tempFilePath);

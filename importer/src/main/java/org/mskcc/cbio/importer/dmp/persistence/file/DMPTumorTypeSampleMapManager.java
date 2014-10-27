@@ -24,10 +24,8 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gdata.util.common.base.Preconditions;
-import com.google.inject.internal.Lists;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -40,17 +38,17 @@ import org.mskcc.cbio.importer.dmp.model.Result;
  */
 public class DMPTumorTypeSampleMapManager {
 
-    private final DMPStagingFileManager fileManager;
+   // private final DMPStagingFileManager fileManager;
     private final Multimap<String, Integer> tumorSampleMap;
     
     private static final Joiner tabJoiner = Joiner.on("\t");
 
-    public DMPTumorTypeSampleMapManager(DMPStagingFileManager aManager) {
+    public DMPTumorTypeSampleMapManager(Object aManager) {
 
         Preconditions.checkArgument(null != aManager, "A DMPStagingFileManager is required");
 
-        this.fileManager = aManager;
-        this.tumorSampleMap = Suppliers.memoize(new TumorTypeMapSupplier(aManager)).get();
+        //this.fileManager = aManager;
+        this.tumorSampleMap = Suppliers.memoize(new TumorTypeMapSupplier()).get();
     }
 
     public void updateTumorTypeSampleMap(List<Result> resultList) {
@@ -89,7 +87,7 @@ public class DMPTumorTypeSampleMapManager {
             }
         }).toList();
 
-        this.fileManager.persistDMPCaseListData(lines);
+        //this.fileManager.persistDMPCaseListData(lines);
     }
     /*
      public method to return the DMP sample ids assosiated with a specified 
@@ -118,12 +116,12 @@ public class DMPTumorTypeSampleMapManager {
      */
     private class TumorTypeMapSupplier implements Supplier<Multimap<String, Integer>> {
 
-        private DMPStagingFileManager fileManager;
+       // private DMPStagingFileManager fileManager;
         private Multimap<String, Integer> tumorSampleMap;
         private final Splitter tabSplitter = Splitter.on("\t");
 
-        TumorTypeMapSupplier(DMPStagingFileManager aManager) {
-            this.fileManager = aManager;
+        TumorTypeMapSupplier() {
+           // this.fileManager = aManager;
         }
 
         /*
@@ -135,6 +133,7 @@ public class DMPTumorTypeSampleMapManager {
         @Override
         public Multimap<String, Integer> get() {
             // instantiate a new map
+            /*
             this.tumorSampleMap = HashMultimap.create(500, 2000);
             List<String> tumorTypeList = this.fileManager.readDMPCaseListData();
             if (!tumorTypeList.isEmpty()) {
@@ -148,6 +147,7 @@ public class DMPTumorTypeSampleMapManager {
                 }
 
             }
+                    */
             return this.tumorSampleMap;
 
         }

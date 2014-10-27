@@ -58,7 +58,7 @@ public class ImportCopyNumberSegmentData {
             
             Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId);
             if (s == null) {
-                //s = DaoSample.getNormalSampleByCancerStudyAndSampleId(cancerStudyId, sampleId);
+                assert StableIdUtil.isNormal(sampleId);
                 continue;
             }
             CopyNumberSegment cns = new CopyNumberSegment(cancerStudyId, s.getInternalId(), strs[1], start, end, numProbes, segMean);

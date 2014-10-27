@@ -73,7 +73,7 @@ public class ImportDataUtil
     {
         for (String barcode : barcodes) {
             String sampleId = StableIdUtil.getSampleId(barcode);
-            if (unknownSample(cancerStudy, sampleId)) {
+            if (!StableIdUtil.isNormal(barcode) && unknownSample(cancerStudy, sampleId)) {
                 addSample(sampleId, cancerStudy);
             }
         }

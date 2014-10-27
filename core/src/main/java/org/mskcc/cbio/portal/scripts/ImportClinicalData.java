@@ -132,7 +132,7 @@ public class ImportClinicalData {
 
         for (int i = 0; i < colnames.length; i+=1) {
             ClinicalAttribute attr =
-                new ClinicalAttribute(colnames[i], displayNames[i],
+                new ClinicalAttribute(colnames[i].trim().toUpperCase(), displayNames[i],
                                       descriptions[i], datatypes[i],
                                       attributeTypes[i].equals(ClinicalAttribute.PATIENT_ATTRIBUTE),
                                       priorities[i]);
@@ -253,7 +253,7 @@ public class ImportClinicalData {
     private int addSampleToDatabase(String sampleId, String[] fields, List<ClinicalAttribute> columnAttrs) throws Exception
     {
         int internalSampleId = -1;
-        if (validSampleId(sampleId)) {
+        if (validSampleId(sampleId) && !StableIdUtil.isNormal(sampleId)) {
             String stablePatientId = getStablePatientId(sampleId, fields, columnAttrs);
             if (validPatientId(stablePatientId)) {
                 Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), stablePatientId);

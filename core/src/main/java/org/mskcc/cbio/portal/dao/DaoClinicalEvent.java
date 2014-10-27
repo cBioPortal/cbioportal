@@ -25,7 +25,7 @@ public final class DaoClinicalEvent {
         
         MySQLbulkLoader.getMySQLbulkLoader("clinical_event").insertRecord(
                 Long.toString(clinicalEvent.getClinicalEventId()),
-                Integer.toString(clinicalEvent.getPatient().getInternalId()),
+                Integer.toString(clinicalEvent.getPatientId()),
                 clinicalEvent.getStartDate().toString(),
                 clinicalEvent.getStopDate()==null?null:clinicalEvent.getStopDate().toString(),
                 clinicalEvent.getEventType()
@@ -46,7 +46,7 @@ public final class DaoClinicalEvent {
         
     }
     
-    public static Collection<ClinicalEvent> getClinicalEvent(int cancerStudyId, String patientId) throws DaoException {
+    public static Collection<ClinicalEvent> getClinicalEvent(int patientId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -54,9 +54,8 @@ public final class DaoClinicalEvent {
             con = JdbcUtil.getDbConnection(DaoClinicalEvent.class);
 
             // get events first
-            pstmt = con.prepareStatement("SELECT * FROM clinical_event WHERE CANCER_STUDY_ID=? AND PATIENT_ID=?");
-            pstmt.setInt(1, cancerStudyId);
-            pstmt.setString(2, patientId);
+            pstmt = con.prepareStatement("SELECT * FROM clinical_event WHERE PATIENT_ID=?");
+            pstmt.setInt(1, patientId);
 
             rs = pstmt.executeQuery();
             Map<Long, ClinicalEvent> clinicalEvents = new HashMap<Long, ClinicalEvent>();
@@ -90,7 +89,7 @@ public final class DaoClinicalEvent {
     private static ClinicalEvent extractClinicalEvent(ResultSet rs) throws SQLException {
         ClinicalEvent clinicalEvent = new ClinicalEvent();
         clinicalEvent.setClinicalEventId(rs.getLong("CLINICAL_EVENT_ID"));
-        clinicalEvent.setPatient(DaoPatient.getPatientById(rs.getInt("PATIENT_ID")));
+        clinicalEvent.setPatientId(rs.getInt("PATIENT_ID"));
         clinicalEvent.setStartDate(JdbcUtil.readLongFromResultSet(rs, "START_DATE"));
         clinicalEvent.setStopDate(JdbcUtil.readLongFromResultSet(rs, "STOP_DATE"));
         clinicalEvent.setEventType(rs.getString("EVENT_TYPE"));

@@ -25,15 +25,6 @@
 </style>
 
 <%
-String jsonCaseIdsInStudy = "[]";
-if (mutationProfile!=null && hasCnaSegmentData) {
-    List<Sample> samples = DaoSample.getSamplesByCancerTypeId(cancerStudy.getCancerStudyStableId());
-    List<String> sampleIdsInStudy = new ArrayList<String>(samples.size());
-    for (Sample sample : samples) {
-        sampleIdsInStudy.add(sample.getStableId());
-    }
-    jsonCaseIdsInStudy = jsonMapper.writeValueAsString(sampleIdsInStudy);
-}
 String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy.getCancerStudyStableId());
 %>
 
@@ -125,7 +116,7 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
     }
     
     function loadMutCnaAndPlot(scatterPlotDiv,caseIdDiv) {
-        loadMutCountCnaFrac(<%=jsonCaseIdsInStudy%>, cancerStudyId,
+        loadMutCountCnaFrac(null, cancerStudyId,
             <%=mutationProfileStableId==null%>?null:'<%=mutationProfileStableId%>',
             hasCnaSegmentData,
             function(dt){

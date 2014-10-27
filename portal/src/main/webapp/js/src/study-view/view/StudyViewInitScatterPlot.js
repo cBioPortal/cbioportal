@@ -40,7 +40,7 @@ var StudyViewInitScatterPlot = (function() {
                     scatterPlotArr.push(_scatterPlotDatumTmp);
             }
         }
-        console.log(scatterPlotArr);
+        
         dcCharts = StudyViewInitCharts.getCharts();
         
         scatterPlotDataAttr = jQuery.extend(true, {}, StudyViewBoilerplate.scatterPlotDataAttr);

@@ -255,13 +255,13 @@ public class MetaController {
         }
     }
     
-    @RequestMapping("/clinical/sample")
-    public @ResponseBody List<DBClinicalField> dispatchClinicalSample(@RequestParam(required = false) List<String> study_ids,
+    @RequestMapping("/clinical/samples")
+    public @ResponseBody List<DBClinicalField> dispatchClinicalSamples(@RequestParam(required = false) List<String> study_ids,
                                                                       @RequestParam(required = false) List<String> sample_ids) throws Exception {
         return dispatchClinicalHelper(study_ids, sample_ids, true);
     }
-    @RequestMapping("/clinical/patient")
-    public @ResponseBody List<DBClinicalField> dispatchClinicalPatient(@RequestParam(required = false) List<String> study_ids,
+    @RequestMapping("/clinical/patients")
+    public @ResponseBody List<DBClinicalField> dispatchClinicalPatients(@RequestParam(required = false) List<String> study_ids,
                                                                       @RequestParam(required = false) List<String> patient_ids) throws Exception {
         return dispatchClinicalHelper(study_ids, patient_ids, false);
     }

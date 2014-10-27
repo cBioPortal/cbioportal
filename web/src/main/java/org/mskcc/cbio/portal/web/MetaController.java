@@ -10,16 +10,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.mskcc.cbio.portal.model.DBCancerType;
-import org.mskcc.cbio.portal.model.DBCaseList;
+import org.mskcc.cbio.portal.model.DBPatientList;
 import org.mskcc.cbio.portal.model.DBClinicalField;
 import org.mskcc.cbio.portal.model.DBGene;
 import org.mskcc.cbio.portal.model.DBGeneticProfile;
+import org.mskcc.cbio.portal.model.DBPatient;
+import org.mskcc.cbio.portal.model.DBSample;
 import org.mskcc.cbio.portal.model.DBStudy;
 import org.mskcc.cbio.portal.service.CancerTypeService;
-import org.mskcc.cbio.portal.service.CaseListService;
+import org.mskcc.cbio.portal.service.PatientListService;
 import org.mskcc.cbio.portal.service.ClinicalFieldService;
 import org.mskcc.cbio.portal.service.GeneService;
 import org.mskcc.cbio.portal.service.GeneticProfileService;
+import org.mskcc.cbio.portal.service.PatientService;
+import org.mskcc.cbio.portal.service.SampleService;
 import org.mskcc.cbio.portal.service.StudyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -39,13 +43,17 @@ public class MetaController {
     @Autowired
     private StudyService studyService;
     @Autowired
-    private CaseListService caseListService;
+    private PatientListService patientListService;
     @Autowired
     private CancerTypeService cancerTypeService;
     @Autowired
     private GeneticProfileService geneticProfileService;
     @Autowired
     private ClinicalFieldService clinicalFieldService;
+    @Autowired
+    private PatientService patientService;
+    @Autowired
+    private SampleService sampleService;
     /*---*/
 
     /* UTILS */
@@ -128,9 +136,38 @@ public class MetaController {
         }
     }
     
-    //TODO:
-    /*@Transactional
-    @RequestMapping("/samples")*/
+    @Transactional
+    @RequestMapping("/samples")
+    public @ResponseBody List<DBSample> dispatchSamples(@RequestParam(required = false) List<String> study_ids,
+                                                        @RequestParam(required = false) List<String> sample_ids) throws Exception {
+        if (study_ids == null && sample_ids == null) {
+            throw new Exception("Too little specified"); // TODO better errors
+        } else if (sample_ids == null) {
+            // Multiple study ids
+            try {
+                List<Integer> istudy_ids = parseInts(study_ids);
+                return sampleService.byInternalStudyId(istudy_ids);
+            } catch (NumberFormatException e) {
+                return sampleService.byStableStudyId(study_ids);
+            }
+        } else if (study_ids == null) {
+            // Multiple internal sample ids
+            try {
+                List<Integer> isample_ids = parseInts(sample_ids);
+                return sampleService.byInternalSampleId(isample_ids);
+            } catch (NumberFormatException e) {
+                throw new Exception("Must specify study id to use stable sample ids");
+            }
+        } else {
+            // Single study and multiple stable patient ids
+            try {
+                List<Integer> istudy_ids = parseInts(study_ids);
+                return sampleService.byStableSampleId(istudy_ids.get(0), sample_ids);
+            } catch (NumberFormatException e) {
+                return sampleService.byStableSampleId(study_ids.get(0), sample_ids);
+            }
+        }
+    }
     
     @Transactional
     @RequestMapping("/studies")
@@ -148,23 +185,23 @@ public class MetaController {
     }
 
     @Transactional
-    @RequestMapping("/caselists")
+    @RequestMapping("/patientlists")
     public @ResponseBody
-    List<DBCaseList> dispatchCaseLists(@RequestParam(required = false) List<String> case_list_ids,
+    List<DBPatientList> dispatchCaseLists(@RequestParam(required = false) List<String> patient_list_ids,
             @RequestParam(required = false) List<Integer> study_ids)
             throws Exception {
-        if (case_list_ids == null && study_ids == null) {
-            return caseListService.getAll();
-        } else if (case_list_ids != null) {
+        if (patient_list_ids == null && study_ids == null) {
+            return patientListService.getAll();
+        } else if (patient_list_ids != null) {
             try {
-                List<Integer> internals = parseInts(case_list_ids);
-                return caseListService.byInternalId(internals);
+                List<Integer> internals = parseInts(patient_list_ids);
+                return patientListService.byInternalId(internals);
             } catch (NumberFormatException e) {
-                return caseListService.byStableId(case_list_ids);
+                return patientListService.byStableId(patient_list_ids);
             }
         } else {
             // study_ids != null
-            return caseListService.byInternalStudyId(study_ids);
+            return patientListService.byInternalStudyId(study_ids);
         }
     }
 
@@ -187,30 +224,45 @@ public class MetaController {
         }
     }
 
-    @RequestMapping("/clinical")
-    public @ResponseBody List<DBClinicalField> dispatchClinical(@RequestParam(required = false) List<Integer> study_ids,
-                                                  @RequestParam(required = false) List<Integer> case_list_ids,
-                                                  @RequestParam(required = false) List<Integer> case_ids) 
-                                                  throws Exception {
-        if (case_list_ids == null && case_ids == null) {
-            if (study_ids == null) {
-                return clinicalFieldService.getAll();
+    
+    private List<DBClinicalField> dispatchClinicalHelper(List<String> study_ids, List<String> ids, boolean isSample) throws Exception {
+        if (study_ids == null && ids == null) {
+            return clinicalFieldService.getAll();
+        } else if (ids == null) {
+            // Multiple study ids
+            try {
+                List<Integer> istudy_ids = parseInts(study_ids);
+                return clinicalFieldService.byInternalStudyId(istudy_ids, isSample);
+            } catch (NumberFormatException e) {
+                return clinicalFieldService.byStableStudyId(study_ids, isSample);
             }
-            // get all corresponding to study
-            return clinicalFieldService.byInternalStudyId(study_ids);
+        } else if (study_ids == null) {
+            // Multiple internal ids
+            try {
+                List<Integer> iids = parseInts(ids);
+                return (isSample? clinicalFieldService.byInternalSampleId(iids) : clinicalFieldService.byInternalPatientId(iids));
+            } catch (NumberFormatException e) {
+                throw new Exception("Must specify study id to use stable ids");
+            }
         } else {
-            Set<Integer> caseSet = new HashSet<>();
-            if(case_ids != null) {
-                caseSet.addAll(case_ids);
-            } else {
-                List<DBCaseList> caselists = caseListService.byInternalId(case_list_ids);
-                for (DBCaseList cl: caselists) {
-                    caseSet.addAll(cl.internal_case_ids);
-                }
+            // Single study id and multiple stable ids
+            try {
+                List<Integer> istudy_ids = parseInts(study_ids);
+                return (isSample? clinicalFieldService.byStableSampleId(istudy_ids.get(0), ids): clinicalFieldService.byStablePatientId(istudy_ids.get(0), ids));
+            } catch (NumberFormatException e) {
+                return (isSample? clinicalFieldService.byStableSampleId(study_ids.get(0), ids): clinicalFieldService.byStablePatientId(study_ids.get(0), ids));
             }
-            List<Integer> caseList = new ArrayList<>();
-            caseList.addAll(caseSet);
-            return clinicalFieldService.byInternalCaseId(caseList);
         }
+    }
+    
+    @RequestMapping("/clinical/sample")
+    public @ResponseBody List<DBClinicalField> dispatchClinicalSample(@RequestParam(required = false) List<String> study_ids,
+                                                                      @RequestParam(required = false) List<String> sample_ids) throws Exception {
+        return dispatchClinicalHelper(study_ids, sample_ids, true);
+    }
+    @RequestMapping("/clinical/patient")
+    public @ResponseBody List<DBClinicalField> dispatchClinicalPatient(@RequestParam(required = false) List<String> study_ids,
+                                                                      @RequestParam(required = false) List<String> patient_ids) throws Exception {
+        return dispatchClinicalHelper(study_ids, patient_ids, false);
     }
 }

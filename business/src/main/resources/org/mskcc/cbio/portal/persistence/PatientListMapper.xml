@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.mskcc.cbio.portal.persistence.CaseListMapper">
+<mapper namespace="org.mskcc.cbio.portal.persistence.PatientListMapper">
 
-<resultMap id="CaseListResult" type="DBCaseList">
+<resultMap id="PatientListResult" type="DBPatientList">
     <id property="internal_id" column="LIST_ID"/>
     <result property="id" column="STABLE_ID"/>
     <result property="name" column="NAME"/>
     <result property="description" column="DESCRIPTION"/>
     <result property="internal_study_id" column="CANCER_STUDY_ID"/>
-    <collection property="internal_case_ids" column="LIST_ID" javaType="ArrayList"
+    <collection property="internal_patient_ids" column="LIST_ID" javaType="ArrayList"
         ofType="Integer" select="selectList"/>
 </resultMap>
 
@@ -17,7 +17,7 @@
     select PATIENT_ID from patient_list_list where LIST_ID = #{LIST_ID}
 </select>
 
-<select id="byStableId" resultMap="CaseListResult" parameterType="list">
+<select id="byStableId" resultMap="PatientListResult" parameterType="list">
     select * from patient_list
     where STABLE_ID in
     <foreach item="item" collection="ids" open="(" separator="," close=")">
@@ -25,7 +25,7 @@
     </foreach>
 </select>
 
-<select id="byInternalId" resultMap="CaseListResult" parameterType="list">
+<select id="byInternalId" resultMap="PatientListResult" parameterType="list">
     select * from patient_list
     where LIST_ID in
     <foreach item="item" collection="ids" open="(" separator="," close=")">
@@ -33,7 +33,7 @@
     </foreach>
 </select>
 
-<select id="byInternalStudyId" resultMap="CaseListResult" parameterType="list">
+<select id="byInternalStudyId" resultMap="PatientListResult" parameterType="list">
     select * from patient_list
     where CANCER_STUDY_ID in
     <foreach item="item" collection="ids" open="(" separator="," close=")">
@@ -41,7 +41,7 @@
     </foreach>
 </select>
 
-<select id="getAll" resultMap="CaseListResult">
+<select id="getAll" resultMap="PatientListResult">
     select * from patient_list
 </select>
     

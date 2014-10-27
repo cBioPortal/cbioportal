@@ -2,26 +2,71 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.mskcc.cbio.portal.persistence.SampleMapper">
-    
+
 <cache/>
 
-<select id="getAll" resultType="DBSample">
-    select
-        TYPE_OF_CANCER_ID as id,
-        NAME as name,
-        DEDICATED_COLOR as color
-    from type_of_cancer
-</select>
+<resultMap id="SampleResult" type="DBSample">
+    <result property="internal_id" column="INTERNAL_ID"/>
+    <result property="stable_id" column="STABLE_ID"/>
+    <result property="sample_type" column="SAMPLE_TYPE"/>
+    <result property="patient_id" column="PATIENT_ID"/>
+</resultMap>
 
-<select id="byId" resultType="DBSample" parameterType="list">
+<select id="byInternalStudyId" resultType="DBSample">
     select
-        TYPE_OF_CANCER_ID as id,
-        NAME as name,
-        DEDICATED_COLOR as color
-    from type_of_cancer
-    where TYPE_OF_CANCER_ID in
+        sample.INTERNAL_ID as internal_id,
+        sample.STABLE_ID as stable_id,
+        sample.SAMPLE_TYPE as sample_type,
+        sample.PATIENT_ID as patient_id
+    from sample inner join patient on sample.PATIENT_ID = patient.INTERNAL_ID
+    where patient.CANCER_STUDY_ID in
     <foreach item="item" collection="ids" open="(" separator="," close=")">
         #{item}
     </foreach>
-</select> 
+</select>
+<select id="byStableStudyId" resultType="DBSample">
+    select
+        sample.INTERNAL_ID as internal_id,
+        sample.STABLE_ID as stable_id,
+        sample.SAMPLE_TYPE as sample_type,
+        sample.PATIENT_ID as patient_id
+    from sample inner join patient on sample.PATIENT_ID = patient.INTERNAL_ID inner join cancer_study on patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+    where cancer_study.CANCER_STUDY_IDENTIFIER in
+    <foreach item="item" collection="ids" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+</select>
+<select id="byInternalSampleId" resultMap="SampleResult">
+    select * from sample
+    where INTERNAL_ID in 
+    <foreach item="item" collection="ids" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+</select>
+<select id="byStableSampleIdInternalStudyId" resultMap="SampleResult">
+    select
+        sample.INTERNAL_ID as internal_id,
+        sample.STABLE_ID as stable_id,
+        sample.SAMPLE_TYPE as sample_type,
+        sample.PATIENT_ID as patient_id
+    from sample inner join patient on sample.PATIENT_ID = patient.INTERNAL_ID
+    where patient.CANCER_STUDY_ID=#{study}
+    and sample.STABLE_ID in
+    <foreach item="item" collection="ids" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+</select>
+<select id="byStableSampleIdStableStudyId" resultMap="SampleResult">
+    select
+        sample.INTERNAL_ID as internal_id,
+        sample.STABLE_ID as stable_id,
+        sample.SAMPLE_TYPE as sample_type,
+        sample.PATIENT_ID as patient_id
+    from sample inner join patient on sample.PATIENT_ID = patient.INTERNAL_ID inner join cancer_study on patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+    where cancer_study.CANCER_STUDY_IDENTIFIER=#{study}
+    and sample.STABLE_ID in
+    <foreach item="item" collection="ids" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+</select>
 </mapper>

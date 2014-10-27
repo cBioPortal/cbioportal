@@ -10,22 +10,113 @@
 </resultMap>
 
 
-<select id="byInternalCaseId" resultMap="ClinicalDataResult" parameterType="list">
-    select * from clinical_patient
-    where INTERNAL_ID in
+<select id="byInternalStudyId_Sample" resultType="DBClinicalData">
+    select
+        clinical_sample.ATTR_ID as attr_id,
+        clinical_sample.ATTR_VALUE as attr_val,
+        clinical_sample.INTERNAL_ID as case_id
+    from clinical_sample inner join sample on clinical_sample.INTERNAL_ID=sample.INTERNAL_ID
+                         inner join patient on sample.PATIENT_ID=patient.INTERNAL_ID
+    where patient.CANCER_STUDY_ID in 
     <foreach item="item" collection="ids" open="(" separator="," close=")">
-        #{item}
+            #{item}
+    </foreach>
+</select>
+<select id="byInternalStudyId_Patient" resultType="DBClinicalData">
+    select
+        clinical_patient.ATTR_ID as attr_id,
+        clinical_patient.ATTR_VALUE as attr_val,
+        clinical_patient.INTERNAL_ID as case_id
+    from clinical_patient inner join patient on clinical_patient.INTERNAL_ID=patient.INTERNAL_ID
+    where patient.CANCER_STUDY_ID in 
+    <foreach item="item" collection="ids" open="(" separator="," close=")">
+            #{item}
+    </foreach>
+</select>
+<select id="byStableStudyId_Sample" resultType="DBClinicalData">
+    select
+        clinical_sample.ATTR_ID as attr_id,
+        clinical_sample.ATTR_VALUE as attr_val,
+        clinical_sample.INTERNAL_ID as case_id
+    from clinical_sample inner join sample on clinical_sample.INTERNAL_ID=sample.INTERNAL_ID
+                         inner join patient on sample.PATIENT_ID=patient.INTERNAL_ID
+                         inner join cancer_study on patient.CANCER_STUDY_ID=cancer_study.CANCER_STUDY_ID
+    where cancer_study.CANCER_STUDY_IDENTIFIER in 
+    <foreach item="item" collection="ids" open="(" separator="," close=")">
+            #{item}
     </foreach>
 </select>
 
-<select id="byInternalStudyId" resultMap="ClinicalDataResult" parameterType="list">
+<select id="byInternalSampleId" resultMap="ClinicalDataResult">
+    select * from clinical_sample
+    where INTERNAL_ID in 
+    <foreach item="item" collection="ids" open="(" separator="," close=")">
+            #{item}
+    </foreach>
+</select>
+<select id="byInternalPatientId" resultMap="ClinicalDataResult">
     select * from clinical_patient
     where INTERNAL_ID in
-    (select distinct INTERNAL_ID from patient where CANCER_STUDY_ID in
-        <foreach item="item" collection="ids" open="(" separator="," close=")">
+    <foreach item="item" collection="ids" open="(" separator="," close=")">
             #{item}
-        </foreach>
-    )
+    </foreach>
+</select>
+
+<select id="byStableSampleIdInternalStudyId" resultType="DBClinicalData">
+    select
+        clinical_sample.ATTR_ID as attr_id,
+        clinical_sample.ATTR_VALUE as attr_val,
+        clinical_sample.INTERNAL_ID as case_id
+    from clinical_sample inner join sample on clinical_sample.INTERNAL_ID=sample.INTERNAL_ID
+                         inner join patient on sample.PATIENT_ID=patient.INTERNAL_ID
+    where patient.CANCER_STUDY_ID = #{study}
+    and sample.STABLE_ID in
+    <foreach item="item" collection="ids" open="(" separator="," close=")">
+            #{item}
+    </foreach>
+</select>
+
+<select id="byStablePatientIdInternalStudyId" resultMap="ClinicalDataResult">
+    select
+        clinical_patient.ATTR_ID as attr_id,
+        clinical_patient.ATTR_VALUE as attr_val,
+        clinical_patient.INTERNAL_ID as case_id
+    from clinical_patient inner join patient on clinical_patient.INTERNAL_ID=patient.INTERNAL_ID
+    where patient.CANCER_STUDY_ID=#{study}
+    and patient.STABLE_ID in
+    <foreach item="item" collection="ids" open="(" separator="," close=")">
+            #{item}
+    </foreach>
+</select>
+
+<select id="byStableSampleIdStableStudyId" resultType="DBClinicalData">
+    select
+        clinical_sample.ATTR_ID as attr_id,
+        clinical_sample.ATTR_VALUE as attr_val,
+        clinical_sample.INTERNAL_ID as case_id
+    from clinical_sample inner join sample on clinical_sample.INTERNAL_ID=sample.INTERNAL_ID
+                         inner join patient on sample.PATIENT_ID=patient.INTERNAL_ID
+                         inner join cancer_study on patient.CANCER_STUDY_ID=cancer_study.CANCER_STUDY_ID
+    where cancer_study.CANCER_STUDY_IDENTIFIER = #{study}
+    and sample.STABLE_ID in
+    <foreach item="item" collection="ids" open="(" separator="," close=")">
+            #{item}
+    </foreach>
+</select>
+
+<select id="byStablePatientIdStableStudyId" resultMap="ClinicalDataResult">
+    select
+        clinical_patient.ATTR_ID as attr_id,
+        clinical_patient.ATTR_VALUE as attr_val,
+        clinical_patient.INTERNAL_ID as case_id
+    from clinical_patient inner join patient on clinical_patient.INTERNAL_ID=patient.INTERNAL_ID
+                          inner join cancer_study on patient.CANCER_STUDY_ID=cancer_study.CANCER_STUDY_ID
+    where cancer_study.CANCER_STUDY_IDENTIFIER = #{study}
+    and patient.STABLE_ID in
+    <foreach item="item" collection="ids" open="(" separator="," close=")">
+            #{item}
+    </foreach>
 </select>
     
+
 </mapper>

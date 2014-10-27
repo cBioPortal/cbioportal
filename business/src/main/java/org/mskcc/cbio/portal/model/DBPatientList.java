@@ -12,12 +12,12 @@ import java.util.List;
  *
  * @author abeshoua
  */
-public class DBCaseList implements Serializable {
+public class DBPatientList implements Serializable {
     public String id;
     public Integer internal_id;
     public String name;
     public String description;
     public Integer internal_study_id;
-    public List<Integer> internal_case_ids;
+    public List<Integer> internal_patient_ids;
     
 }

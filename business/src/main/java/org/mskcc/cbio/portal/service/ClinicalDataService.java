@@ -20,13 +20,37 @@ import org.springframework.transaction.annotation.Transactional;
 public class ClinicalDataService {
     @Autowired
     private ClinicalDataMapper clinicalDataMapper;
+    @Transactional
+    public List<DBClinicalData> byInternalStudyId(List<Integer> ids, boolean sample) {
+        return (sample ? clinicalDataMapper.byInternalStudyId_Sample(ids) : clinicalDataMapper.byInternalStudyId_Patient(ids));
+    }
+    @Transactional
+    public List<DBClinicalData> byStableStudyId(List<String> ids, boolean sample) {
+        return (sample? clinicalDataMapper.byStableStudyId_Sample(ids) : clinicalDataMapper.byStableStudyId_Patient(ids));
+    }
+    @Transactional
+    public List<DBClinicalData> byInternalSampleId(List<Integer> ids) {
+        return clinicalDataMapper.byInternalSampleId(ids);
+    }
+    @Transactional
+    public List<DBClinicalData> byInternalPatientId(List<Integer> ids) {
+        return clinicalDataMapper.byInternalPatientId(ids);
+    }
+    @Transactional
+    public List<DBClinicalData> byStableSampleId(String study_id, List<String> ids) {
+        return clinicalDataMapper.byStableSampleIdStableStudyId(study_id, ids);
+    }
+    @Transactional
+    public List<DBClinicalData> byStableSampleId(Integer study_id, List<String> ids) {
+        return clinicalDataMapper.byStableSampleIdInternalStudyId(study_id, ids);
+    }
+    @Transactional
+    public List<DBClinicalData> byStablePatientId(String study_id, List<String> ids) {
+        return clinicalDataMapper.byStablePatientIdStableStudyId(study_id, ids);
+    }
+    @Transactional
+    public List<DBClinicalData> byStablePatientId(Integer study_id, List<String> ids) {
+        return clinicalDataMapper.byStablePatientIdInternalStudyId(study_id, ids);
+    }
     
-    @Transactional
-    public List<DBClinicalData> byInternalStudyId(List<Integer> ids) {
-        return clinicalDataMapper.byInternalStudyId(ids);
-    }
-    @Transactional
-    public List<DBClinicalData> byInternalCaseId(List<Integer> ids) {
-        return clinicalDataMapper.byInternalCaseId(ids);
-    }
 }

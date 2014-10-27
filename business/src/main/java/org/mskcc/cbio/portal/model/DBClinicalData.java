@@ -14,5 +14,5 @@ import java.io.Serializable;
 public class DBClinicalData implements Serializable {
     public String attr_id;
     public String attr_val;
-    public String case_id;
+    public Long case_id;
 }

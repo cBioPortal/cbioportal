@@ -136,8 +136,15 @@ public class CaseIDsImpl implements CaseIDs {
 	public String getPatientId(int cancerStudyId, String caseId)
     {
         if (nonTCGAPattern.matcher(caseId).matches()) {
-            Patient p = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudyId, caseId);
-            return (p != null) ? p.getStableId() : caseId;
+            // data files should only have sample ids - get patient id via sample
+            Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, caseId);
+            if (s != null && s.getInternalPatientId() > 0) {
+                Patient p = DaoPatient.getPatientById(s.getInternalPatientId());
+                return (p != null) ? p.getStableId() : caseId;
+            }
+            else {
+                return caseId;
+            }
         }
         else {
             String cleanId = clean(caseId);

@@ -87,7 +87,7 @@ var rppaPlots = (function() {
             getUnAlteredCases: function() {
                 return unalteredCases;
             }
-        }
+        };
 
     }());
 
@@ -175,7 +175,7 @@ var rppaPlots = (function() {
                 .range([520, 20]);
             elem.xAxis = d3.svg.axis()
                 .scale(elem.xScale)
-                .orient("bottom")
+                .orient("bottom");
             elem.yAxis = d3.svg.axis()
                 .scale(elem.yScale)
                 .orient("left");
@@ -195,7 +195,7 @@ var rppaPlots = (function() {
                 .style("stroke-width", 0.5)
                 .style("stroke", "black")
                 .style("fill", "black")
-                .text(function(d){return d});
+                .text(function(d){ return d; });
             elem.svg.append("g")
                 .style("stroke-width", 2)
                 .style("fill", "none")
@@ -293,7 +293,7 @@ var rppaPlots = (function() {
                         tmp_y_arr.push(parseFloat(value.yVal));
                     }
                 });
-                tmp_y_arr.sort(function(a, b) { return a - b });
+                tmp_y_arr.sort(function(a, b) { return a - b; });
                 //Deal with individual data sub group
                 if (tmp_y_arr.length === 0) {
                     //Skip: do nothing
@@ -337,7 +337,7 @@ var rppaPlots = (function() {
                         for (var k = 0 ; k < tmp_y_arr.length ; k++) {
                             scaled_y_arr[k] = parseFloat(elem.yScale(tmp_y_arr[k]));
                         }
-                        scaled_y_arr.sort(function(a,b) { return a-b });
+                        scaled_y_arr.sort( function(a, b) { return a - b; });
                         IQR = Math.abs(quan2 - quan1);
                         var index_top = util.searchIndexTop(scaled_y_arr, (quan2 - 1.5 * IQR));
                         top = scaled_y_arr[index_top];
@@ -397,7 +397,7 @@ var rppaPlots = (function() {
             elem.dotsGroup.selectAll('path').each(
                 function(d) {
                     var content = "<font size='2'>";
-                    content += "Case ID: " + "<strong><a href='"
+                    content += "<strong><a href='"
                             +cbio.util.getLinkToSampleView(cancer_study_id,d.caseId)
                             + "' target = '_blank'>" + d.caseId + "</a></strong><br>";
                     content += "RPPA score: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
@@ -457,7 +457,7 @@ var rppaPlots = (function() {
                 divName = _divName;
             },
             init: init
-        }
+        };
 
     }());
 
@@ -480,7 +480,7 @@ var rppaPlots = (function() {
             for(var i = 0; i < arr.length; i++) {
                 if (parseFloat(ele) > parseFloat(arr[i])) {
                     continue ;
-                } else if (parseFloat(ele) == parseFloat(arr[i])) {
+                } else if (parseFloat(ele) === parseFloat(arr[i])) {
                     return i;
                 } else {
                     return i - 1;
@@ -504,7 +504,7 @@ var rppaPlots = (function() {
             analyseData: analyseData,
             searchIndexBottom: searchIndexBottom,
             searchIndexTop: searchIndexTop
-        }
+        };
 
     }());
 
@@ -522,7 +522,7 @@ var rppaPlots = (function() {
         return function(result) {
             data.init(result, alterationsObj);
             view.init();
-        }
+        };
     }
 
     return {
@@ -533,7 +533,7 @@ var rppaPlots = (function() {
             //Get data from server and drawing
             generatePlots(proteinArrayId, alterationsObj);
         }
-    }
+    };
 
 }());
 

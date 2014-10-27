@@ -347,6 +347,7 @@ public class QueryBuilder extends HttpServlet {
                 if (patientSet.getStableId().equals(patientSetId)) {
                     patientIds = patientSet.getPatientListAsString();
                     setOfPatientIds = new HashSet<String>(patientSet.getPatientList());
+                    break;
                 }
             }
         }
@@ -361,9 +362,10 @@ public class QueryBuilder extends HttpServlet {
                    setOfPatientIds.add(patientID);
                 }
             }
+            
+            patientIds = patientIds.replaceAll("\\s+", " ");
         }
 
-        patientIds = patientIds.replaceAll("\\s+", " ");
         request.setAttribute(SET_OF_CASE_IDS, patientIds);
         
         // Map user selected samples Ids to patient Ids

@@ -89,7 +89,7 @@ public class StableIdUtil
         }
     }
 
-    static public Sample.Type getTypeByTCGACode(String tcgaCode)
+    public static Sample.Type getTypeByTCGACode(String tcgaCode)
     {
         if (tcgaCode.equals("01")) {
             return Sample.Type.PRIMARY_SOLID_TUMOR;
@@ -115,6 +115,16 @@ public class StableIdUtil
         else {
             return Sample.Type.PRIMARY_SOLID_TUMOR;
         }
+    }
+
+    public static boolean isNormal(String barcode)
+    {
+        Matcher tcgaSampleBarcodeMatcher = TCGA_SAMPLE_TYPE_BARCODE_REGEX.matcher(barcode);
+        if (tcgaSampleBarcodeMatcher.find()) {
+            Sample.Type type = getTypeByTCGACode(tcgaSampleBarcodeMatcher.group(1));
+            return (type.equals(Sample.Type.BLOOD_NORMAL) || type.equals(Sample.Type.SOLID_NORMAL));
+        }
+        return false;
     }
 
     public static List<String> getStableSampleIdsFromPatientIds(int cancerStudyId, List<String> stablePatientIds) {

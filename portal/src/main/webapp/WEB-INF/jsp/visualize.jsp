@@ -173,7 +173,6 @@
         <div class="section" id="summary">
             <% //contents of fingerprint.jsp now come from attribute on request object %>
             <%@ include file="oncoprint/main.jsp" %>
-            <%@ include file="gene_info.jsp" %>
         </div>
 
             <% if ( has_mrna && (has_copy_no || has_methylation || has_copy_no) ) { %>
@@ -266,6 +265,22 @@
     //  Set up Tip-Tip Event Handler for Genomic Profiles help
     $(".result-tab").tipTip({defaultPosition: "bottom", delay:"100", edgeOffset: 10, maxWidth: 200});
 </script>
+
+
+<style type="text/css">
+    input[type="checkbox"]  {
+        margin: 5px;
+    }
+    input[type="radio"]  {
+        margin: 3px;
+    }
+    button {
+        margin: 3px;
+    }
+    [class*="ui-button-text"] {
+        margin: 3px;
+    }
+</style>
 
 </body>
 </html>

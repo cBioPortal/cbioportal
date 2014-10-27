@@ -122,20 +122,25 @@ public class CnaJSON extends HttpServlet {
         
         List<CopyNumberSegment> segs = Collections.emptyList();
         
+        List<Integer> internalSampleIds = null;
+        
         try {
             int studyId = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId).getInternalId();
-            segs = DaoCopyNumberSegment.getSegmentForSamples(InternalIdUtil.getInternalSampleIds(studyId, Arrays.asList(sampleIds)), studyId);
+            internalSampleIds = InternalIdUtil.getInternalSampleIds(studyId, Arrays.asList(sampleIds));
+            segs = DaoCopyNumberSegment.getSegmentForSamples(internalSampleIds, studyId);
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }
         
         Map<String,List> map = new HashMap<String,List>();
-        for (String sampleId : sampleIds) {
-            map.put(sampleId, new ArrayList());
+        for (Integer sampleId : internalSampleIds) {
+            String stableId = DaoSample.getSampleById(sampleId).getStableId();
+            map.put(stableId, new ArrayList());
         }
         
         for (CopyNumberSegment seg : segs) {
-            exportCopyNumberSegment(map.get(seg.getSampleId()), seg);
+            String stableId = DaoSample.getSampleById(seg.getSampleId()).getStableId();
+            exportCopyNumberSegment(map.get(stableId), seg);
         }
 
         response.setContentType("application/json");
@@ -163,6 +168,8 @@ public class CnaJSON extends HttpServlet {
             if (strPatientIds!=null) {
                 List<String> stablePatientIds = Arrays.asList(strPatientIds.split("[ ,]+"));
                 sampleIds = InternalIdUtil.getInternalNonNormalSampleIdsFromPatientIds(studyId, stablePatientIds);
+            } else {
+                sampleIds = InternalIdUtil.getInternalNonNormalSampleIds(studyId);
             }
             fraction = DaoCopyNumberSegment.getCopyNumberActeredFraction(sampleIds,
                                                                          studyId,

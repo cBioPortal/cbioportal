@@ -9017,14 +9017,15 @@ function MutationDetailsTable(options, gene, mutationUtil)
 					return "hidden";
 				}
 			},
-			"cosmic": function (util, gene) {
-				if (util.containsCosmic(gene)) {
-					return "visible";
-				}
-				else {
-					return "hidden";
-				}
-			},
+//			"cosmic": function (util, gene) {
+//				if (util.containsCosmic(gene)) {
+//					return "visible";
+//				}
+//				else {
+//					return "hidden";
+//				}
+//			},
+			"cosmic": "visible",
 			"mutationCount": function (util, gene) {
 				if (util.containsMutationCount(gene)) {
 					return "visible";

@@ -56,15 +56,19 @@ public class ImportProteinArrayData {
         MySQLbulkLoader.bulkLoadOff();
         // import array data
         DaoProteinArrayData daoPAD = DaoProteinArrayData.getInstance();
+
+        GeneticProfile profile = addRPPAProfile();
         
         FileReader reader = new FileReader(arrayData);
         BufferedReader buf = new BufferedReader(reader);
         String line = buf.readLine();
         String[] sampleIds = line.split("\t");
-
-        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
-        ImportDataUtil.addPatients(sampleIds, cancerStudy);
-        ImportDataUtil.addSamples(sampleIds, cancerStudy);
+        ImportDataUtil.addPatients(sampleIds, profile.getGeneticProfileId());
+        ImportDataUtil.addSamples(sampleIds, profile.getGeneticProfileId());
+        Sample[] samples = new Sample[sampleIds.length-1];
+        for (int i=1; i<sampleIds.length; i++) {
+            samples[i-1] = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, StableIdUtil.getSampleId(sampleIds[i]));
+        }
         
         ArrayList<Integer> internalSampleIds = new ArrayList<Integer>();
         while ((line=buf.readLine()) != null) {
@@ -79,21 +83,24 @@ public class ImportProteinArrayData {
            
             double[] zscores = convertToZscores(strs);
             for (int i=0; i<zscores.length; i++) {
-                Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, StableIdUtil.getSampleId(sampleIds[i]));
-                ProteinArrayData pad = new ProteinArrayData(cancerStudyId, arrayId, sample.getInternalId(), zscores[i]);
+                if (samples[i]==null) {
+                    continue;
+                }
+                int sampleId = samples[i].getInternalId();
+                ProteinArrayData pad = new ProteinArrayData(cancerStudyId, arrayId, sampleId, zscores[i]);
                 daoPAD.addProteinArrayData(pad);
-                internalSampleIds.add(sample.getInternalId());
+                internalSampleIds.add(sampleId);
             }
             
         }
         
-        // import profile
-        addRPPAProfile(internalSampleIds);
+        // add samples to profile
+        DaoGeneticProfileSamples.addGeneticProfileSamples(profile.getGeneticProfileId(), internalSampleIds);
     }
 
     private double[] convertToZscores(String[] strs) {
         double[] data = new double[strs.length-1];
-        for (int i=1; i<strs.length; i++) {
+        for (int i=1; i<strs.length; i++) { // ignore the first column
             data[i-1] = Double.parseDouble(strs[i]);
         }
         
@@ -195,19 +202,22 @@ public class ImportProteinArrayData {
         }
     }
     
-    private void addRPPAProfile(ArrayList<Integer> sampleIds) throws DaoException {
+    private GeneticProfile addRPPAProfile() throws DaoException
+    {
         // add profile
         String idProfProt = cancerStudyStableId+"_RPPA_protein_level";
-        if (DaoGeneticProfile.getGeneticProfileByStableId(idProfProt)==null) {
-            GeneticProfile gpPro = new GeneticProfile(idProfProt, cancerStudyId,
-													  GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL, "Z-SCORE",
-													  "protein/phosphoprotein level (RPPA)",
-													  "Protein or phosphoprotein level (Z-scores) measured by reverse phase protein array (RPPA)",
-													  true);
+        GeneticProfile gpPro = DaoGeneticProfile.getGeneticProfileByStableId(idProfProt);
+        if (gpPro == null) {
+            gpPro = new GeneticProfile(idProfProt, cancerStudyId,
+                                       GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL, "Z-SCORE",
+                                       "protein/phosphoprotein level (RPPA)",
+                                       "Protein or phosphoprotein level (Z-scores) measured by reverse phase protein array (RPPA)",
+                                       true);
             DaoGeneticProfile.addGeneticProfile(gpPro);
-            DaoGeneticProfileSamples.addGeneticProfileSamples(
-                    DaoGeneticProfile.getGeneticProfileByStableId(idProfProt).getGeneticProfileId(), sampleIds);
+            // get id
+            gpPro = DaoGeneticProfile.getGeneticProfileByStableId(gpPro.getStableId());
         }
+        return gpPro;
     }
     
     public static void main(String[] args) throws Exception {

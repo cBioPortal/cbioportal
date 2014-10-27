@@ -16,29 +16,37 @@ public final class DaoCopyNumberSegment {
     private DaoCopyNumberSegment() {}
     
     public static int addCopyNumberSegment(CopyNumberSegment seg) throws DaoException {
+        if (!MySQLbulkLoader.isBulkLoad()) {
+            throw new DaoException("You have to turn on MySQLbulkLoader in order to insert mutations");
+        } else {
+            MySQLbulkLoader.getMySQLbulkLoader("copy_number_seg").insertRecord(
+                    Long.toString(seg.getSegId()),
+                    Integer.toString(seg.getCancerStudyId()),
+                    Integer.toString(seg.getSampleId()),
+                    seg.getChr(),
+                    Long.toString(seg.getStart()),
+                    Long.toString(seg.getEnd()),
+                    Integer.toString(seg.getNumProbes()),
+                    Double.toString(seg.getSegMean())
+            );
+            return 1;
+        }
+    }
+    
+    public static long getLargestId() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection(DaoCopyNumberSegment.class);
+            con = JdbcUtil.getDbConnection(DaoMutation.class);
             pstmt = con.prepareStatement
-                    ("INSERT INTO copy_number_seg (`SAMPLE_ID`, `CHR`,"
-                        + " `START`, `END`, `NUM_PROBES`, `SEGMENT_MEAN`, `CANCER_STUDY_ID`)"
-                        + " VALUES (?,?,?,?,?,?,?)");
-            pstmt.setInt(1, seg.getSampleId());
-            pstmt.setString(2, seg.getChr());
-            pstmt.setLong(3, seg.getStart());
-            pstmt.setLong(4, seg.getEnd());
-            pstmt.setInt(5, seg.getNumProbes());
-            pstmt.setDouble(6, seg.getSegMean());
-            pstmt.setInt(7, seg.getCancerStudyId());
-            return pstmt.executeUpdate();
-        } catch (NullPointerException e) {
-            throw new DaoException(e);
+                    ("SELECT MAX(`SEG_ID`) FROM `copy_number_seg`");
+            rs = pstmt.executeQuery();
+            return rs.next() ? rs.getLong(1) : 0;
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(DaoCopyNumberSegment.class, con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
         }
     }
     

@@ -67,6 +67,8 @@ public class DatatypeMetadata {
 
     public static final String ZSCORE_STAGING_FILENAME_SUFFIX = "_Zscores.txt";
 
+	public static final String NORMAL_STAGING_FILENAME_SUFFIX = "_normals.txt";
+
 	/*
 	 * The following is an example of a downloadArchive string which the following 
 	 * static delimiters are meant to address:

@@ -67,9 +67,12 @@ class SegmentDataTransformer  implements DMPDataTransformable {
     }
 
     private Path resolveSegmentFilePath(Path basePath){
-        int start = basePath.toString().indexOf("mixed");
-        String rootname = basePath.toString().substring(start);
-        String filename = rootname.replaceAll("/","_") + segmentFileBaseName;
+        String filename = segmentFileBaseName;
+        if (basePath.toString().contains("mixed")) {
+            int start = basePath.toString().indexOf("mixed");
+            String rootname = basePath.toString().substring(start);
+            filename = rootname.replaceAll("/", "_") + segmentFileBaseName;
+        }
         return basePath.resolve(filename);
     }
 

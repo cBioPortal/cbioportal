@@ -45,7 +45,7 @@ public class MetaData {
     @JsonProperty("dmp_patient_id")
     private Integer dmpPatientId;
     @JsonProperty("dmp_sample_id")
-    private Integer dmpSampleId;
+    private String dmpSampleId;
     @JsonProperty("dmp_sample_so_id")
     private Integer dmpSampleSoId;
     @JsonProperty("gender")
@@ -157,7 +157,7 @@ public class MetaData {
      *     The dmpSampleId
      */
     @JsonProperty("dmp_sample_id")
-    public Integer getDmpSampleId() {
+    public String getDmpSampleId() {
         return dmpSampleId;
     }
 
@@ -167,7 +167,7 @@ public class MetaData {
      *     The dmp_sample_id
      */
     @JsonProperty("dmp_sample_id")
-    public void setDmpSampleId(Integer dmpSampleId) {
+    public void setDmpSampleId(String dmpSampleId) {
         this.dmpSampleId = dmpSampleId;
     }
 

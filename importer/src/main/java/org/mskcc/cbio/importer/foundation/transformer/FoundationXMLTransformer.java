@@ -1,13 +1,6 @@
 package org.mskcc.cbio.importer.foundation.transformer;
 
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
+import com.google.common.base.*;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Iterables;
@@ -41,10 +34,11 @@ import org.mskcc.cbio.importer.foundation.extractor.FileDataSource;
 import org.mskcc.cbio.importer.foundation.support.CasesTypeSupplier;
 import org.mskcc.cbio.importer.foundation.support.CommonNames;
 import org.mskcc.cbio.importer.foundation.support.FoundationUtils;
+import org.mskcc.cbio.importer.util.EntrezIDSupplier;
 import scala.Tuple2;
 
 /*
- responsible for transforming one or more XML files represnting Foundation
+ responsible for transforming one or more XML files representing Foundation
  studies in a directory to cbio staging files
  Transformation steps: 
  1. delete any existing staging files
@@ -68,6 +62,9 @@ public class FoundationXMLTransformer implements FileTransformer {
     private static final Splitter blankSplitter = Splitter.on(' ').omitEmptyStrings();
     private FoundationStagingFileManager fileManager;
     private Table<String, String, Integer> cnaTable;
+    // component to map HUGO symbols to Entrez IDs
+    private final Supplier<Map<String, String>> entrezIDSupplier = Suppliers.memoize(new EntrezIDSupplier());
+    private   Map<String,String> entrezMap;
 
     private Supplier<CasesType> casesTypeSupplier;
     //private final String baseStagingDirectory;
@@ -75,6 +72,7 @@ public class FoundationXMLTransformer implements FileTransformer {
 
     public FoundationXMLTransformer(Config aConfig) {
         Preconditions.checkArgument(null != aConfig, "A Config object is required");
+        this.entrezMap = entrezIDSupplier.get();
         this.config = aConfig;
     }
 
@@ -133,6 +131,23 @@ public class FoundationXMLTransformer implements FileTransformer {
         this.generateClinicalDataReport();
         this.generateFusionDataReport();
     }
+
+    /*
+        function to supply an Entrez ID based on a HUGO Symbol
+        */
+    Function<Tuple2<String, Optional<String>>, String> getEntrezIDFunction
+            = new Function<Tuple2<String, Optional<String>>, String>() {
+
+        @Override
+        public String apply(Tuple2<String, Optional<String>> f) {
+            if (!Strings.isNullOrEmpty(f._1)) {
+                return (Strings.isNullOrEmpty(entrezMap.get(f._1))) ? "" : entrezMap.get(f._1);
+            }
+            return "";
+        }
+
+    };
+
 
     Function<JAXBElement, Tuple2<String, Integer>> cnaFumction = new Function<JAXBElement, Tuple2<String, Integer>>() {
         @Override
@@ -266,7 +281,6 @@ public class FoundationXMLTransformer implements FileTransformer {
     /**
      * private method to generate the data_clinical.txt report
      *
-     * @param casesType
      */
     private void generateClinicalDataReport() {
         CasesType casesType = this.casesTypeSupplier.get();
@@ -298,28 +312,97 @@ public class FoundationXMLTransformer implements FileTransformer {
                     })
                     .transform(new Function<ShortVariantType, String>() {
                         @Override
+                        /*
+
+                        public static final String[] COMPLETE_MUTATIONS_REPORT_HEADINGS = { "Hugo_Symbol", "Entrez_Gene_Id", "Center",
+            "NCBI_Build", "Chromosome", "Start_Position","End_Position", "Strand", "Variant_Classification", "Variant_Type",
+            "Reference_Allele", "Tumor_Seq_Allele1", "Tumor_Seq_Allele2", "dbSNP_RS", "dbSNP_Val_Status",
+            "Tumor_Sample_Barcode", "Matched_Norm_Sample_Barcode", "Match_Norm_Seq_Allele1", "Match_Norm_Seq_Allele2",
+            "Tumor_Validation_Allele1", "Tumor_Validation_Allele2", "Match_Norm_Validation_Allele1",
+            "Match_Norm_Validation_Allele2", "Verification_Status", "Validation_Status", "Mutation_Status",
+            "Sequencing_Phase", "Sequence_Source", "Validation_Method", "Score", "BAM_File", "Sequencer" };
+            */
+
                         public String apply(ShortVariantType svt) {
                             ChromosomePosition cp = new ChromosomePosition(svt.getPosition());
                             CdsEffect cdsEffect = new CdsEffect(svt.getCdsEffect(), svt.getFunctionalEffect(), svt.getStrand());
                             Integer end = cp.getStart() + cdsEffect.getLength() - 1;
                             List<String> attributeList = Lists.newArrayList();
+                            // 1 HUGO SyMBOL
                             attributeList.add(svt.getGene());
+                            // 2 entrez id
+                            attributeList.add(getEntrezIDFunction.apply(new Tuple2(svt.getGene(),Optional.absent())));
+                            //3 Center
                             attributeList.add(CommonNames.CENTER_FOUNDATION);
+                            // 4 build
                             attributeList.add(CommonNames.BUILD);
+                            // 5 chromsome
                             attributeList.add(cp.getChromosome());
+                            // 6 start
                             attributeList.add(cp.getStart().toString());
+                            // 7 end
                             attributeList.add(end.toString());
+                            //8 strand
                             attributeList.add(svt.getStrand());
+                            //9 variant classification
                             attributeList.add(svt.getFunctionalEffect());
+                            // 10 variant type
+                            attributeList.add("");
+                            // 11 ref allele
                             attributeList.add(cdsEffect.getRefAllele());
+                            // 12 tumor allele1
                             attributeList.add(cdsEffect.getTumorAllele1());
+                            // 13 tumor allele2
                             attributeList.add(cdsEffect.getTumorAllele2());
+                            // 14 dbSNP RS
+                            attributeList.add("");
+                            // 15 dbSNP valStatus
+                            attributeList.add("");
+                            // 16 sample barcode
                             attributeList.add(sample);
-                            attributeList.add(CommonNames.DEFAULT_TUMOR_SAMPLE_BARCODE);  // unknown
-                            attributeList.add(CommonNames.DEFAULT_VALIDATION_STATUS);   // unknown
-                            attributeList.add(svt.getProteinEffect());
-                            attributeList.add(svt.getTranscript());
+                            // 17 matched normal sample barcode
+                            attributeList.add("");
+                            // 18 matched normal allele1
+                            attributeList.add("");
+                            // 19 matched normal allele1
+                            attributeList.add("");
+                            // 20 tumor validation allele1
+                            attributeList.add("");
+                            // 21 tumor validation allele2
+                            attributeList.add("");
+                            // 22 match normal validation allele1
+                            attributeList.add("");
+                            // 23 match normal validation allele2
+                            attributeList.add("");
+                            // 24 verification
+                            attributeList.add("");
+                            // 25 validation status
+                            attributeList.add(CommonNames.DEFAULT_VALIDATION_STATUS);  // unknown
+                            // 26 mutation status
+                            attributeList.add(CommonNames.DEFAULT_MUTATION_STATUS);   // unknown
+                            // 27 sequencing phase
+                            attributeList.add("");
+                            // 28 sequencing source
+                            attributeList.add("");
+                            // 29 validation method
+                            attributeList.add("");
+                            // 30 score
+                            attributeList.add("");
+                            //31 BAM file
+                            attributeList.add("");
+                            // 32 sequencer
+                            attributeList.add("");
+                            // 33  "Tumor_Sample_UUID"
+                            attributeList.add("");
+                            // 34   "Matched_Norm_Sample_UUID"
+                            attributeList.add("");
+                            // amino acid change
+                            //attributeList.add(svt.getProteinEffect());
+                            // transcript
+                            //attributeList.add(svt.getTranscript());
+                            // 33 t_ref_count
                             attributeList.add(FoundationUtils.INSTANCE.displayTumorRefCount(svt));
+                            // 34 t_alt_count
                             attributeList.add(FoundationUtils.INSTANCE.displayTumorAltCount(svt));
                             attributeList.add("\n");
                             return tabJoiner.join(attributeList);

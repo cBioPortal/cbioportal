@@ -55,7 +55,7 @@ public class DmpCnvTransformer implements DMPDataTransformable {
     private static final String cnaFileName = "data_CNA.txt";
 
     public DmpCnvTransformer(CnvFileHandler aHandler,Path stagingDirectoryPath) {
-        Preconditions.checkArgument(null != aHandler, "A CnvFileHandler implemebtaion is required");
+        Preconditions.checkArgument(null != aHandler, "A CnvFileHandler implementaion is required");
         Preconditions.checkArgument(null != stagingDirectoryPath,
                 "A Path to the staging file directory is required");
         Preconditions.checkArgument(Files.isDirectory(stagingDirectoryPath, LinkOption.NOFOLLOW_LINKS),
@@ -80,14 +80,14 @@ public class DmpCnvTransformer implements DMPDataTransformable {
                     .transform(new Function<CnvVariant, Tuple3<String, String, Double>>() {
                         @Override
                         public Tuple3<String, String, Double> apply(CnvVariant cnv) {
-                            return new Tuple3(cnv.getGeneId(), result.getMetaData().getDmpSampleId().toString(), cnv.getGeneFoldChange());
+                            return new Tuple3(cnv.getGeneId(), result.getMetaData().getDmpSampleId(), cnv.getGeneFoldChange());
                         }
                     }).toList());
             list1.addAll(FluentIterable.from(result.getCnvIntragenicVariants())
                     .transform(new Function<CnvIntragenicVariant, Tuple3<String, String, Double>>() {
                         @Override
                         public Tuple3<String, String, Double> apply(CnvIntragenicVariant intra) {
-                            return new Tuple3(intra.getGeneId(), result.getMetaData().getDmpSampleId().toString(), intra.getGeneFoldChange());
+                            return new Tuple3(intra.getGeneId(), result.getMetaData().getDmpSampleId(), intra.getGeneFoldChange());
                         }
                     }).toList());
 
@@ -123,7 +123,7 @@ public class DmpCnvTransformer implements DMPDataTransformable {
                     
                     @Override
                     public String apply(Result result) {
-                        return result.getMetaData().getDmpSampleId().toString();
+                        return result.getMetaData().getDmpSampleId();
                     }
                 })
                 .toSet();

@@ -261,6 +261,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             functionFunctions();
             toggleControls(true);
             
+            zoom = reset_zoom();
             oncoprint.zoom(zoom.val());
             oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
             oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
@@ -332,8 +333,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         
         toggleControls(true);
 //        // disable the option to sort by clinical data
+        zoom = reset_zoom();
         functionFunctions();
-//        zoom = reset_zoom();
     }
 
     var refreshOncoPrint = function(){
@@ -616,6 +617,12 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         genes[yMovement] = genes[_dragElementIndex];
         genes[_dragElementIndex]=tem;
         refreshOncoPrint();
+        zoom = reset_zoom();
+        // sync
+        oncoprint.zoom(zoom.val());
+        oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
+        oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
+        utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});
     }
     
     function calculateClinicMovement(yMovement)
@@ -644,6 +651,12 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         sortStatus[_dragElementIndex] = tempSortStatus;
         
         refreshOncoPrint();
+        zoom = reset_zoom();
+        // sync
+        oncoprint.zoom(zoom.val());
+        oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
+        oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
+        utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});
     }
                 
     function OnMouseDown(e)
@@ -763,16 +776,6 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                     yPosition = extraAttributes.length*spaceHeight + 10;
                 }
             }
-            
-            
-//            if(yPosition > (extraAttributes.length*spaceHeight + genes.length*spaceHeight - 7))
-//            {
-//                yPosition = extraAttributes.length*spaceHeight + genes.length*spaceHeight - 7;
-//            }
-//            else if(yPosition<(extraAttributes.length*spaceHeight+10))
-//            {
-//                yPosition = extraAttributes.length*spaceHeight + 10;
-//            }
         }
         
         var indexValue;

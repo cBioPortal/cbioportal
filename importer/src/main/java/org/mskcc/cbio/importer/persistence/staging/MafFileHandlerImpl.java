@@ -149,7 +149,7 @@ public  class MafFileHandlerImpl  extends TsvStagingFileHandler  implements MafF
         Preconditions.checkArgument(null != deprecatedSampleSet,
                 "A set of deprecated samples is required");
         Preconditions.checkState(null != this.stagingFilePath, 
-                 "The requiste Path to the MAF staging file has not be specified");
+                 "The requisite Path to the MAF staging file has not be specified");
         if (deprecatedSampleSet.size() > 0) {
             OpenOption[] options = new OpenOption[]{CREATE, APPEND, DSYNC};
                 try {               

@@ -465,7 +465,7 @@ var PlotsView = (function () {
                 stroke : "#A8A8A8",
                 fill : "none",
                 symbol : "circle",
-                legendText : "Unknown"
+                legendText : "No CNA data"
             }
         },
         userSelection = {
@@ -480,6 +480,17 @@ var PlotsView = (function () {
     var discretizedDataTypeIndicator = "";
 
     var Util = (function() {
+        
+        function hasCopyNumberData() {
+            var result = false;
+            $.each(PlotsData.getDotsGroup(), function(index, obj) {
+                if (!isEmpty(obj.gisticType)) {
+                    result = true;
+                    return false;
+                }
+            });
+            return result;
+        }
 
         function isEmpty(inputVal) {
             if (inputVal !== "NaN" && inputVal !== "NA" && (typeof inputVal !== "undefined")) {
@@ -581,7 +592,8 @@ var PlotsView = (function () {
             plotsIsDiscretized: plotsIsDiscretized,
             analyseData: analyseData,
             searchIndexBottom: searchIndexBottom,
-            searchIndexTop: searchIndexTop
+            searchIndexTop: searchIndexTop,
+            hasCopyNumberData: hasCopyNumberData
         };
 
     }());
@@ -830,7 +842,7 @@ var PlotsView = (function () {
                 var tmp_copy_no = [];
                 $.each(PlotsData.getDotsGroup(), function(index, value) {
                     tmp_copy_no.push(value.xVal);
-                })
+                });
                 for (var j = -2; j < 3; j++) {
                     if (tmp_copy_no.indexOf(j.toString()) !== -1) {
                         slotsCnt += 1;
@@ -1583,10 +1595,14 @@ var PlotsView = (function () {
                         }
                     })
                     .attr("stroke", function(d) {
-                        if (Util.isEmpty(d.gisticType)) {
-                            return gisticStyle.Unknown.stroke;
+                        if (Util.hasCopyNumberData()) {
+                            if (Util.isEmpty(d.gisticType)) {
+                                return gisticStyle.Unknown.stroke;
+                            } else {
+                                return gisticStyle[d.gisticType].stroke;
+                            }
                         } else {
-                            return gisticStyle[d.gisticType].stroke;
+                            return "black";
                         }
                     })
                     .attr("stroke-width", 1.2)
@@ -1707,17 +1723,20 @@ var PlotsView = (function () {
 
             function drawOtherViewLegends() {
                 var gisticStyleArr = [];
-                for (var key in gisticStyle) {
-                    var obj = gisticStyle[key];
-                    gisticStyleArr.push(obj);
+                
+                if (Util.hasCopyNumberData()) {
+                    for (var key in gisticStyle) {
+                        var obj = gisticStyle[key];
+                        gisticStyleArr.push(obj);
+                    }
                 }
-
+                
                 var mutatedStyle = {
-                    stroke : "none",
-                    symbol : "circle",
-                    fill : "orange",
-                    legendText : "Mutated"
-                };
+                        stroke : "none",
+                        symbol : "circle",
+                        fill : "orange",
+                        legendText : "Mutated"
+                    };
                 gisticStyleArr.push(mutatedStyle);
 
                 var legend = elem.svg.selectAll(".legend")
@@ -1742,7 +1761,7 @@ var PlotsView = (function () {
                     .attr("dx", ".75em")
                     .attr("dy", ".35em")
                     .style("text-anchor", "front")
-                    .text(function(d) { return d.legendText; });
+                    .text(function(d) { return d.legendText; });    
             }
 
             return {

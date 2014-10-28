@@ -26,9 +26,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.dmp.model.DmpData;
 import org.mskcc.cbio.importer.dmp.persistence.file.DMPTumorTypeSampleMapManager;
-import org.mskcc.cbio.importer.persistence.staging.ClinicalDataFileHandlerImpl;
-import org.mskcc.cbio.importer.persistence.staging.CnvFileHandlerImpl;
-import org.mskcc.cbio.importer.persistence.staging.MafFileHandlerImpl;
+import org.mskcc.cbio.importer.persistence.staging.*;
 
 /*
  Responsible for transforming the DMP data encapsulated in the DmpData object
@@ -69,7 +67,9 @@ public class DMPDataTransformer {
         //Metadata
         this.transformableList.add((DMPDataTransformable) new DmpMetadataTransformer 
             ( new ClinicalDataFileHandlerImpl(), stagingDirectoryPath));
-       
+
+        // segment data
+        this.transformableList.add( new SegmentDataTransformer(new SegmentFileHandlerImpl(),stagingDirectoryPath));
        // this.tumorTypeMap = new DMPTumorTypeSampleMapManager(this.fileManager);
 
     }

@@ -17,6 +17,7 @@
 
 package org.mskcc.cbio.importer.dmp.importer;
 
+
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.ResponseEntity;
 
@@ -73,6 +74,8 @@ public class DMPclinicaldataimporter {
             JsonParser jp = factory.createJsonParser(rawResultEntity.getBody());
             JsonNode rawResultObj = mapper.readTree(jp);
             Iterator<String> sampleIdsItr = rawResultObj.get("results").getFieldNames();
+
+
             while(sampleIdsItr.hasNext()) {
                 String sampleId = sampleIdsItr.next();
                 ResponseEntity<String> rawSegDataResultEntity = 

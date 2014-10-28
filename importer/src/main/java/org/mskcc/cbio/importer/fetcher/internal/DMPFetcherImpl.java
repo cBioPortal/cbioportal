@@ -37,7 +37,7 @@ import org.mskcc.cbio.importer.dmp.model.DmpData;
 
 public class DMPFetcherImpl implements Fetcher{
 
-    private static ObjectMapper OBJECT_MAPPER;
+    private static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     //private DMPStagingFileManager fileManager;
 
     private static final Log LOG = LogFactory.getLog(DMPFetcherImpl.class);

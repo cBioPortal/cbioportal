@@ -1183,7 +1183,7 @@ define("OncoprintUtils", (function() {
 //                    {
 //                        return true;
 //                    }
-                    return true;
+                    return true;// need to modified by dong li
             }
         }
         if(datatype2range.mutation !== undefined)
@@ -1223,43 +1223,6 @@ define("OncoprintUtils", (function() {
                     .attr('fill','black')
                     .attr('class','legend_missense_name')
                     .text(captions.mutation); 
-//            }
-//            else if($('#oncoprint_diagram_showmutationcolor_icon')[0].attributes.src.value === 'images/colormutations.svg')
-//            {
-//                if(findProperMutation(datatype2range.mutation,1))
-//                {
-//                    var legend_svg = table.append('svg')
-//                                .attr('height', 23 )
-//                                .attr('width', ('missense mutation').length * 7.5 + 5.5*3 )
-//                                .attr('id', 'legend');
-//
-//                    legend_svg.append('rect')
-//                                .attr('height', 23)
-//                                .attr('width', 5.5)
-//                                .attr('fill', colors.grey);
-//
-//                    legend_svg.append('rect')
-//                            .attr('display',"inherit")
-//                            .attr('height', 7.666666666666667)
-//                            .attr('width', 5.5)
-//                            .attr('y',7.666666666666667)
-//                            .attr('fill', '#008000');      
-//                    var label = legend_svg.append('text')
-//                    .attr('font-size', '12px')
-//                    .attr('width', function()
-//                    {
-//        //                    return captions.cna[datatype2range.cna[0]].length * 6.5;
-//                        return ('missense mutation').length * 6.5;
-//                    })
-//                    .attr('x', 5.5*3)
-//                    .attr('y', 21);
-//
-//                    label.append('tspan')       // name
-//                        .attr('text-anchor', 'start')
-//                        .attr('fill','black')
-//                        .attr('class','legend_name')
-//                        .text(captions.mutation); 
-//                }
                 
                 if(findProperMutation(datatype2range.mutation,2))
                 {

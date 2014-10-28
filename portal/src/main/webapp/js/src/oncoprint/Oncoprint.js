@@ -331,43 +331,9 @@ define("Oncoprint",
                         {
                             return 'green';
                         }
-                        else
+                        else if(params.mutationColor === 'multiColor')
                         {             
                             var mutationSplit;
-//                            if(mutation !== undefined)//multiple mutations
-//                            {
-//                                mutationSplit = mutation.split(',');
-//
-//                                if(mutationSplit.length > 1)
-//                                {
-//                                    return '#FF00FF';
-//                                }
-//                            }
-//
-//                            if((/^[A-z]([0-9]+)[A-z]$/g).test(mutationSplit))
-//                            {
-//                                return 'green';//Missense_mutation
-//                            }
-//                                else if((/^[A-z*]([0-9]+)[A-z]{2}$/g).test(mutationSplit))
-//                            {
-//                                return 'black'; //Frame_shift_del
-//                            }
-//                                else if((/^[A-Z]([0-9]+)[*]$/g).test(mutationSplit))
-//                            {
-//                                return 'Yellow'; //Nonsense_Mutation
-//                            }
-//                                else if((/^[A-Z]([0-9]+)_splice$/g).test(mutationSplit))
-//                            {
-//                                return 'white'; //Splice_Site
-//                            }
-//                                else if((/^([A-Z]+)([0-9]+)del$/g).test(mutationSplit))
-//                            {
-//                                return 'Pink'; //IN_frame_del
-//                            }
-//                                else 
-//                            {
-//                                return 'blue';
-//                            }
 
                             if(mutation !== undefined)//multiple mutations
                             {
@@ -398,6 +364,57 @@ define("Oncoprint",
                             else 
                             {
                                 return 'black';
+                            }
+                        }
+                        else
+                        {
+                            var mutationSplit;
+                            
+                            if(mutation !== undefined)//multiple mutations
+                            {
+                                mutationSplit = mutation.split(',');
+
+                                if(mutationSplit.length > 1)
+                                {
+                                    for(var i = 0; i < mutationSplit.length; i++)
+                                    {
+                                        if((/^[A-z]([0-9]+)[A-z]$/g).test(mutationSplit[i]))
+                                        {
+                                            continue;
+                                        }
+                                        else
+                                        {
+                                            return '#FF00FF';
+                                        }
+                                    }
+                                    
+                                    return 'green';
+                                }
+                            }
+                            
+                            if((/^[A-z]([0-9]+)[A-z]$/g).test(mutationSplit))
+                            {
+                                return 'green';//Missense_mutation
+                            }
+                                else if((/^[A-z*]([0-9]+)[A-z]{2}$/g).test(mutationSplit))
+                            {
+                                return 'black'; //Frame_shift_del
+                            }
+                                else if((/^[A-Z]([0-9]+)[*]$/g).test(mutationSplit))
+                            {
+                                return 'Yellow'; //Nonsense_Mutation
+                            }
+                                else if((/^[A-Z]([0-9]+)_splice$/g).test(mutationSplit))
+                            {
+                                return 'white'; //Splice_Site
+                            }
+                                else if((/^([A-Z]+)([0-9]+)del$/g).test(mutationSplit))
+                            {
+                                return 'Pink'; //IN_frame_del
+                            }
+                                else 
+                            {
+                                return 'blue';
                             }
                         }
                     };

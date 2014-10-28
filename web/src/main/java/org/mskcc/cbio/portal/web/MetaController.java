@@ -191,17 +191,17 @@ public class MetaController {
             @RequestParam(required = false) List<Integer> study_ids)
             throws Exception {
         if (patient_list_ids == null && study_ids == null) {
-            return patientListService.getAll();
+            return patientListService.getAll(false);
         } else if (patient_list_ids != null) {
             try {
                 List<Integer> internals = parseInts(patient_list_ids);
-                return patientListService.byInternalId(internals);
+                return patientListService.byInternalId(internals, false);
             } catch (NumberFormatException e) {
-                return patientListService.byStableId(patient_list_ids);
+                return patientListService.byStableId(patient_list_ids, false);
             }
         } else {
             // study_ids != null
-            return patientListService.byInternalStudyId(study_ids);
+            return patientListService.byInternalStudyId(study_ids, false);
         }
     }
 

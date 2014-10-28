@@ -20,4 +20,8 @@ public class DBPatientList implements Serializable {
     public Integer internal_study_id;
     public List<Integer> internal_patient_ids;
     
+    public DBPatientList discardList() {
+        this.internal_patient_ids = null;
+        return this;
+    }
 }

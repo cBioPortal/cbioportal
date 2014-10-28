@@ -72,6 +72,25 @@ public class DataController {
             }
         }
     }
+    @RequestMapping("/patientlists")
+    public @ResponseBody
+    List<DBPatientList> dispatchCaseLists(@RequestParam(required = false) List<String> patient_list_ids,
+            @RequestParam(required = false) List<Integer> study_ids)
+            throws Exception {
+        if (patient_list_ids == null && study_ids == null) {
+            return patientListService.getAll(true);
+        } else if (patient_list_ids != null) {
+            try {
+                List<Integer> internals = parseInts(patient_list_ids);
+                return patientListService.byInternalId(internals, true);
+            } catch (NumberFormatException e) {
+                return patientListService.byStableId(patient_list_ids, true);
+            }
+        } else {
+            // study_ids != null
+            return patientListService.byInternalStudyId(study_ids, true);
+        }
+    }
     
     @RequestMapping("/clinical/samples")
     public @ResponseBody List<DBClinicalData> dispatchClinicalSamples(@RequestParam(required = false) List<String> study_ids,
@@ -100,7 +119,7 @@ public class DataController {
             if(case_ids != null) {
                 caseSet.addAll(case_ids);
             } else {
-                List<DBPatientList> caselists = patientListService.byInternalId(case_list_ids);
+                List<DBPatientList> caselists = patientListService.byInternalId(case_list_ids, true);
                 for (DBPatientList cl: caselists) {
                     caseSet.addAll(cl.internal_patient_ids);
                 }

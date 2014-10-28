@@ -222,8 +222,9 @@ function renderDataTable(result) {
             else
                 xlabel += aData[1];
             var pvalue = parsePValue(aData[9]);
+            
             if (!isNaN(pvalue)) {
-                xlabel += " (p-value: " + pvalue.toFixed(3) + ")";
+                xlabel += " (p-value: " + pvalue + ")";
             }
             var ylabel = "RPPA score (" + antibody + ")";
 
@@ -252,7 +253,11 @@ function renderDataTable(result) {
 }
 
 function parsePValue(str) {
-    return parseFloat(str.replace(/<[^>]*>/g,""));
+    var value = parseFloat(str);
+    if (isNaN(value))
+        return "NaN";
+    var ret = value < 0.001 ? value.toExponential(2) : value.toFixed(3);
+    return ret;
 }
     
 jQuery.fn.dataTableExt.oSort['num-nan-col-asc']  = function(a,b) {

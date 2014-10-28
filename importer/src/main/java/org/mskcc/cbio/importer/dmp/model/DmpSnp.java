@@ -26,7 +26,7 @@ import java.util.Map;
 public interface DmpSnp {
     
      @JsonAnySetter
-    public void setDmpSampleId(Integer id);
+    public void setDmpSampleId(String id);
 
     /**
      *
@@ -104,7 +104,7 @@ public interface DmpSnp {
     String getDbSNPId();
 
     @JsonAnyGetter
-    Integer getDmpSampleId();
+    String getDmpSampleId();
 
     /**
      *

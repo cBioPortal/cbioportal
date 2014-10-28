@@ -109,7 +109,7 @@ public class DmpSnpTransformer implements DMPDataTransformable {
                     
                     @Override
                     public String apply(Result result) {
-                        return result.getMetaData().getDmpSampleId().toString();
+                        return result.getMetaData().getDmpSampleId();
                     }
                 })
                 .toSet();

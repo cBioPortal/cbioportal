@@ -38,8 +38,8 @@ import org.mskcc.cbio.importer.dmp.model.Result;
  */
 public class DMPTumorTypeSampleMapManager {
 
-   // private final DMPStagingFileManager fileManager;
-    private final Multimap<String, Integer> tumorSampleMap;
+
+    private final Multimap<String, String> tumorSampleMap;
     
     private static final Joiner tabJoiner = Joiner.on("\t");
 
@@ -47,7 +47,7 @@ public class DMPTumorTypeSampleMapManager {
 
         Preconditions.checkArgument(null != aManager, "A DMPStagingFileManager is required");
 
-        //this.fileManager = aManager;
+
         this.tumorSampleMap = Suppliers.memoize(new TumorTypeMapSupplier()).get();
     }
 
@@ -75,13 +75,7 @@ public class DMPTumorTypeSampleMapManager {
             @Override
             public String apply(String key) {
                 String s =FluentIterable.from(tumorSampleMap.get(key))
-                        .transform(new Function<Integer,String>(){
-
-                    @Override
-                    public String apply(Integer f) {
-                        return f.toString();
-                    }
-                }).join(tabJoiner);
+                        .join(tabJoiner);
                 
                 return (tabJoiner.join(key,s));
             }
@@ -95,7 +89,7 @@ public class DMPTumorTypeSampleMapManager {
      provide support for an empty response.
      */
 
-    public Optional<Collection<Integer>> getSampleIDsByTumorType(String tumorType) {
+    public Optional<Collection<String>> getSampleIDsByTumorType(String tumorType) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(tumorType), "A tumor type is required");
         if (this.tumorSampleMap.containsKey(tumorType)) {
             return Optional.of(this.tumorSampleMap.get(tumorType));
@@ -103,7 +97,7 @@ public class DMPTumorTypeSampleMapManager {
         return Optional.absent();
     }
 
-    public Optional<Collection<Map.Entry<String, Integer>>> getTumorTypeMap() {
+    public Optional<Collection<Map.Entry<String, String>>> getTumorTypeMap() {
         if (!this.tumorSampleMap.isEmpty()) {
             return Optional.of(this.tumorSampleMap.entries());
         }
@@ -114,10 +108,10 @@ public class DMPTumorTypeSampleMapManager {
      * a private class that implements a Supplier to handle the persistence of
      * the tumor type map all DMP data
      */
-    private class TumorTypeMapSupplier implements Supplier<Multimap<String, Integer>> {
+    private class TumorTypeMapSupplier implements Supplier<Multimap<String, String>> {
 
        // private DMPStagingFileManager fileManager;
-        private Multimap<String, Integer> tumorSampleMap;
+        private Multimap<String, String> tumorSampleMap;
         private final Splitter tabSplitter = Splitter.on("\t");
 
         TumorTypeMapSupplier() {
@@ -131,7 +125,7 @@ public class DMPTumorTypeSampleMapManager {
          the get() method creates the map from data read from the tumor type file
          */
         @Override
-        public Multimap<String, Integer> get() {
+        public Multimap<String, String> get() {
             // instantiate a new map
             /*
             this.tumorSampleMap = HashMultimap.create(500, 2000);

@@ -137,7 +137,7 @@ public class SnpExonic implements DmpSnp {
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
     @JsonIgnore
-    private Integer dmpSampleId;
+    private String dmpSampleId;
 
     /**
      * 
@@ -944,10 +944,10 @@ public class SnpExonic implements DmpSnp {
     
     @JsonAnyGetter
     @Override
-    public Integer getDmpSampleId() {return this.dmpSampleId;}
+    public String getDmpSampleId() {return this.dmpSampleId;}
     
     @JsonAnySetter
-    public void setDmpSampleId(Integer id) {this.dmpSampleId = id;}
+    public void setDmpSampleId(String id) {this.dmpSampleId = id;}
 
     @JsonAnyGetter
     @Override

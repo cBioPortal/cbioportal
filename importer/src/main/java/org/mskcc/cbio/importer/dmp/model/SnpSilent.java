@@ -136,7 +136,7 @@ public class SnpSilent implements DmpSnp{
     @JsonProperty("variant_status_name")
     private String variantStatusName;
     @JsonIgnore
-    private Integer dmpSampleId;
+    private String dmpSampleId;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -901,10 +901,10 @@ public class SnpSilent implements DmpSnp{
     }
     
     @JsonAnyGetter
-    public Integer getDmpSampleId() {return this.dmpSampleId;}
+    public String getDmpSampleId() {return this.dmpSampleId;}
     
     @JsonAnySetter
-    public void setDmpSampleId(Integer id) {this.dmpSampleId = id;}
+    public void setDmpSampleId(String id) {this.dmpSampleId = id;}
 
     @Override
     public String toString() {

@@ -23,7 +23,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
     "cnv-variants",
     "meta-data",
     "snp-exonic",
-    "snp-silent"
+    "snp-silent",
+    "segment-data"
 })
 public class Result {
 
@@ -37,6 +38,8 @@ public class Result {
     private List<SnpExonic> snpExonic = new ArrayList<SnpExonic>();
     @JsonProperty("snp-silent")
     private List<SnpSilent> snpSilent = new ArrayList<SnpSilent>();
+    @JsonProperty("segment-data")
+    private List<SegmentData> segmentData = new ArrayList<SegmentData>();
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -140,6 +143,21 @@ public class Result {
         this.snpSilent = snpSilent;
     }
 
+    @JsonProperty("segment-data")
+    public List<SegmentData> getSegmentData() {
+        return this.segmentData;
+    }
+
+    /**
+     *
+     * @param snpSilent
+     *     The segment-data
+     */
+    @JsonProperty("segment-data")
+    public void setSegmentData(List<SegmentData> segData) {
+        this.segmentData = segData;
+    }
+
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
@@ -157,7 +175,9 @@ public class Result {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(cnvIntragenicVariants).append(cnvVariants).append(metaData).append(snpExonic).append(snpSilent).append(additionalProperties).toHashCode();
+        return new HashCodeBuilder().append(cnvIntragenicVariants).append(cnvVariants)
+                .append(metaData).append(snpExonic).append(snpSilent)
+                .append(segmentData).append(additionalProperties).toHashCode();
     }
 
     @Override
@@ -169,7 +189,10 @@ public class Result {
             return false;
         }
         Result rhs = ((Result) other);
-        return new EqualsBuilder().append(cnvIntragenicVariants, rhs.cnvIntragenicVariants).append(cnvVariants, rhs.cnvVariants).append(metaData, rhs.metaData).append(snpExonic, rhs.snpExonic).append(snpSilent, rhs.snpSilent).append(additionalProperties, rhs.additionalProperties).isEquals();
+        return new EqualsBuilder().append(cnvIntragenicVariants, rhs.cnvIntragenicVariants)
+                .append(cnvVariants, rhs.cnvVariants).append(metaData, rhs.metaData).append(snpExonic, rhs.snpExonic)
+                .append(snpSilent, rhs.snpSilent).append(segmentData,rhs.segmentData)
+                .append(additionalProperties, rhs.additionalProperties).isEquals();
     }
 
 }

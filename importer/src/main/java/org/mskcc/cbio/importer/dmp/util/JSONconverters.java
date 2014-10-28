@@ -18,6 +18,7 @@
 package org.mskcc.cbio.importer.dmp.util;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.codehaus.jackson.JsonNode;
@@ -37,19 +38,19 @@ public class JSONconverters {
      * @return  the tailored json object ready for mapping 
      */
 
-    public static String convertRaw(String _raw_sample_json_str)
+    public static String convertRaw(String rawSampleJsonStr)
             throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         JsonFactory factory = mapper.getJsonFactory(); 
-        JsonParser jp = factory.createJsonParser(_raw_sample_json_str);
+        JsonParser jp = factory.createJsonParser(rawSampleJsonStr);
 
         JsonNode root = mapper.readTree(jp); //root contains: disclaimer, results, sample-count
         ArrayNode result_arr_node = mapper.createArrayNode();
         JsonNode samples = root.path("results");
         Iterator<JsonNode> ite = samples.getElements();
         while (ite.hasNext()) {
-                JsonNode sample = ite.next();
-                result_arr_node.add(sample);
+            JsonNode sample = ite.next();
+            result_arr_node.add(sample);
         }
 
         JsonNode final_result = mapper.createObjectNode();
@@ -59,6 +60,78 @@ public class JSONconverters {
 
         String indented = mapper.defaultPrettyPrintingWriter().writeValueAsString(final_result);
         return indented;
+    }
+    
+    public static String convertSegDataJson(String rawSegDataJsonStr) 
+            throws IOException {
+        
+        ObjectMapper mapper = new ObjectMapper();
+        JsonFactory factory = mapper.getJsonFactory(); 
+        JsonParser jp = factory.createJsonParser(rawSegDataJsonStr);
+        
+        ArrayNode result_arr_node = mapper.createArrayNode();
+        
+        JsonNode root = mapper.readTree(jp);
+        ArrayNode originalSegDataArr = (ArrayNode)root.get("seg-data");
+        String sampleId = root.get("sampleId").asText();
+        
+        String[] fieldNames = 
+                originalSegDataArr.get(0).toString().replaceAll("[\\[\\]]", "").replaceAll("\"", "").split(",");
+        for (int _index = 1; _index < originalSegDataArr.size(); _index++) {
+            String[] tokens = 
+                    originalSegDataArr.get(_index).toString().replaceAll("[\\[\\]]", "").replaceAll("\"", "").split(",");
+            JsonNode singleSegJson = mapper.createObjectNode();
+            int _fieldIndex = 0;
+            for(String token : tokens) {
+                ((ObjectNode)singleSegJson).put(fieldNames[_fieldIndex], token);
+                _fieldIndex += 1;
+            }
+            result_arr_node.add(singleSegJson);
+        }
+        
+        JsonNode final_result = mapper.createObjectNode();
+        ((ObjectNode)final_result).put("sampleId", sampleId);
+        ((ObjectNode)final_result).put("segment-data", result_arr_node);
+        
+        String indented = mapper.defaultPrettyPrintingWriter().writeValueAsString(final_result);
+        return indented;
+        
+    }
+    
+    public static String mergeSampleSegmentData(String sampleDataJsonStr, String segDataJsonStr) 
+            throws IOException {
+        
+        ObjectMapper mapper = new ObjectMapper();
+        JsonFactory factory = mapper.getJsonFactory(); 
+        JsonParser jp_sampleData = factory.createJsonParser(sampleDataJsonStr);
+        JsonParser jp_segmentData = factory.createJsonParser(segDataJsonStr);
+        JsonNode root_sampleData = mapper.readTree(jp_sampleData);
+        JsonNode root_segmentData = mapper.readTree(jp_segmentData);
+        
+        //Find the target sample result json by using "sampleId" (in segment data) / "alys2sample_id" in sample meta data
+        ArrayNode newResultsJson = mapper.createArrayNode();
+        Iterator<JsonNode> sampleDataResultsArrItr = ((ArrayNode)root_sampleData.get("results")).getElements();
+        while(sampleDataResultsArrItr.hasNext()) {
+            JsonNode sampleDataResultJson = sampleDataResultsArrItr.next();
+            if (sampleDataResultJson.get("meta-data").get("alys2sample_id").asText().equals(root_segmentData.get("sampleId").asText())) {
+                JsonNode convertedResultJson = mapper.createObjectNode();
+                ((ObjectNode)convertedResultJson).putAll((ObjectNode)sampleDataResultJson);
+                ((ObjectNode)convertedResultJson).put("segment-data", root_segmentData.get("segment-data"));
+                newResultsJson.add(convertedResultJson);
+            } else {
+                newResultsJson.add(sampleDataResultJson);
+            }
+        }
+        
+        //Get the rest of the information (sample-count, disclaimer, etc.)
+        JsonNode final_result = mapper.createObjectNode();
+        ((ObjectNode)final_result).put("sample-count", root_sampleData.get("sample-count").asText());
+        ((ObjectNode)final_result).put("disclaimer", root_sampleData.get("disclaimer").asText());
+        ((ObjectNode)final_result).put("results", newResultsJson);
+        
+        String indented = mapper.defaultPrettyPrintingWriter().writeValueAsString(final_result);
+        return indented;
+        
     }
 
     /**
@@ -70,47 +143,47 @@ public class JSONconverters {
      * @param result_json_str
      * @return the complete result json string
      */
-    public static String attachMissingValues(String result_json_str)
-        throws IOException {
-        
-        //Parse the original json string
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode root_node = mapper.readTree(result_json_str);
-        String sample_count = root_node.get("sample-count").asText();
-        String disclaimer = root_node.get("disclaimer").asText();
-        ArrayNode new_results_arr_node = mapper.createArrayNode();
-        
-        //Create a fake/tmp cnv introgenic json node
-        JsonNode introgenic_node = mapper.createObjectNode();
-        ((ObjectNode)introgenic_node).put("chromosome", "7");
-        ((ObjectNode)introgenic_node).put("gene", "BRAF");
-        ((ObjectNode)introgenic_node).put("cytoband", "7q34");
-        ((ObjectNode)introgenic_node).put("exon", "17,15,14,13,12,11,10");
-        ((ObjectNode)introgenic_node).put("cluster_num", "2");
-        ((ObjectNode)introgenic_node).put("comments", "place_holder_string");
-        ((ObjectNode)introgenic_node).put("cnv_class", "INTRAGENIC_LOSS");
-        ((ObjectNode)introgenic_node).put("cnv_filter", "NO_FILTER");
-        
-        //Add the fake/tmp cnv_intragenic json node into the results array
-        ArrayNode results_arr_node = (ArrayNode)root_node.get("results");
-        Iterator<JsonNode> itr = results_arr_node.getElements();
-        while(itr.hasNext()) {
-            JsonNode result_node = itr.next(); //single result for a sample
-            ((ObjectNode)result_node).put("cnv-intagenic-variants", introgenic_node);
-            new_results_arr_node.add(result_node);
-        }
-        
-        //Reassemble the final json object
-        JsonNode final_result = mapper.createObjectNode();
-        ((ObjectNode)final_result).put("sample-count", sample_count);
-        ((ObjectNode)final_result).put("disclaimer", disclaimer);
-        ((ObjectNode)final_result).put("results", new_results_arr_node);
-        
-        //Convert final result json object into string
-        String indented = mapper.defaultPrettyPrintingWriter().writeValueAsString(final_result);
-        System.out.println(indented);
-        return indented;
-
-    }
+//    public static String attachMissingValues(String result_json_str)
+//        throws IOException {
+//        
+//        //Parse the original json string
+//        ObjectMapper mapper = new ObjectMapper();
+//        JsonNode root_node = mapper.readTree(result_json_str);
+//        String sample_count = root_node.get("sample-count").asText();
+//        String disclaimer = root_node.get("disclaimer").asText();
+//        ArrayNode new_results_arr_node = mapper.createArrayNode();
+//        
+//        //Create a fake/tmp cnv introgenic json node
+//        JsonNode introgenic_node = mapper.createObjectNode();
+//        ((ObjectNode)introgenic_node).put("chromosome", "7");
+//        ((ObjectNode)introgenic_node).put("gene", "BRAF");
+//        ((ObjectNode)introgenic_node).put("cytoband", "7q34");
+//        ((ObjectNode)introgenic_node).put("exon", "17,15,14,13,12,11,10");
+//        ((ObjectNode)introgenic_node).put("cluster_num", "2");
+//        ((ObjectNode)introgenic_node).put("comments", "place_holder_string");
+//        ((ObjectNode)introgenic_node).put("cnv_class", "INTRAGENIC_LOSS");
+//        ((ObjectNode)introgenic_node).put("cnv_filter", "NO_FILTER");
+//        
+//        //Add the fake/tmp cnv_intragenic json node into the results array
+//        ArrayNode results_arr_node = (ArrayNode)root_node.get("results");
+//        Iterator<JsonNode> itr = results_arr_node.getElements();
+//        while(itr.hasNext()) {
+//            JsonNode result_node = itr.next(); //single result for a sample
+//            ((ObjectNode)result_node).put("cnv-intagenic-variants", introgenic_node);
+//            new_results_arr_node.add(result_node);
+//        }
+//        
+//        //Reassemble the final json object
+//        JsonNode final_result = mapper.createObjectNode();
+//        ((ObjectNode)final_result).put("sample-count", sample_count);
+//        ((ObjectNode)final_result).put("disclaimer", disclaimer);
+//        ((ObjectNode)final_result).put("results", new_results_arr_node);
+//        
+//        //Convert final result json object into string
+//        String indented = mapper.defaultPrettyPrintingWriter().writeValueAsString(final_result);
+//        System.out.println(indented);
+//        return indented;
+//
+//    }
 }
 

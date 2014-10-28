@@ -16,6 +16,7 @@
 package org.mskcc.cbio.importer.fetcher.internal;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.nio.file.Paths;
 import org.mskcc.cbio.importer.dmp.importer.DMPclinicaldataimporter;
 
@@ -27,22 +28,22 @@ import org.mskcc.cbio.importer.Config;
 
 import org.mskcc.cbio.importer.Fetcher;
 import org.mskcc.cbio.importer.FileUtils;
-import org.mskcc.cbio.importer.dmp.model.DmpData;
 import org.mskcc.cbio.importer.dmp.transformer.DMPDataTransformer;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 
 import org.mskcc.cbio.importer.dmp.importer.MockConfig;
+import org.mskcc.cbio.importer.dmp.model.DmpData;
 
 public class DMPFetcherImpl implements Fetcher{
 
-    private ObjectMapper OBJECT_MAPPER;
+    private static ObjectMapper OBJECT_MAPPER;
     //private DMPStagingFileManager fileManager;
 
     private static final Log LOG = LogFactory.getLog(DMPFetcherImpl.class);
-    private Config config;
+    private static Config config;
     private FileUtils fileUtils;
-    private String dataSourcePath;
+    private static String dataSourcePath;
 
     private DataSourcesMetadata dataSourceMetadata;
 
@@ -68,15 +69,13 @@ public class DMPFetcherImpl implements Fetcher{
             }
         }
         
-        //Register transformers
-       
         //DMPDataTransformer transformer = new DMPDataTransformer(fileManager);
         DMPDataTransformer transformer = new DMPDataTransformer(Paths.get(this.dataSourcePath));
         
-        //Retrieve process
+        //Retrieve sample data 
         DMPclinicaldataimporter dmpImporter_retrieve = new DMPclinicaldataimporter();
-        DmpData data = OBJECT_MAPPER.readValue(dmpImporter_retrieve.getResult(), DmpData.class);
-        transformer.transform(data);
+        //DmpData data = OBJECT_MAPPER.readValue(dmpImporter_retrieve.getResult(), DmpData.class);
+        //transformer.transform(data);
         
         //Marking/call back process
         ArrayList<String> _consumedSampleIds = new ArrayList<>();
@@ -87,6 +86,39 @@ public class DMPFetcherImpl implements Fetcher{
     @Override
     public void fetchReferenceData(ReferenceMetadata referenceMetadata) 
             throws Exception {
+    }
+    
+    public static void main(String[] args) 
+        throws IOException {
+        
+        String dataSource = "dmp";
+        String desiredRunDate = "2014, Oct";
+        
+        if (LOG.isInfoEnabled()) {
+                LOG.info("fetch(), dateSource:runDate: " + dataSource + ":" + desiredRunDate);
+        }
+        
+        //Get the datasource from config obj
+        config = new MockConfig(); //TODO: remove the mock config obj and replace with the real one
+        Collection<DataSourcesMetadata> dataSourcesMetaData = config.getDataSourcesMetadata(dataSource);
+        for (DataSourcesMetadata singleDataSourceMetaData : dataSourcesMetaData) {
+            if (singleDataSourceMetaData.getDataSource().equals(dataSource)) {
+                dataSourcePath = singleDataSourceMetaData.getDownloadDirectory();
+            }
+        }
+        
+        //DMPDataTransformer transformer = new DMPDataTransformer(fileManager);
+        DMPDataTransformer transformer = new DMPDataTransformer(Paths.get(dataSourcePath));
+        
+        //Retrieve sample data 
+        DMPclinicaldataimporter dmpImporter_retrieve = new DMPclinicaldataimporter();
+        System.out.println(dmpImporter_retrieve.getResult());
+        //DmpData data = OBJECT_MAPPER.readValue(dmpImporter_retrieve.getResult(), DmpData.class);
+        //transformer.transform(data);
+        
+        //Marking/call back process
+        //ArrayList<String> _consumedSampleIds = new ArrayList<>();
+        //DMPclinicaldataimporter dmpImporter_mark = new DMPclinicaldataimporter(_consumedSampleIds);
     }
     
 }

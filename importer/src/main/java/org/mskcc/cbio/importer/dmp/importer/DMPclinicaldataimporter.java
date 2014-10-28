@@ -22,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonFactory;
@@ -35,6 +36,7 @@ public class DMPclinicaldataimporter {
     private static final String DMP_SERVER_NAME = "http://draco.mskcc.org:9770";
     private static final String DMP_CREATE_SESSION = "create_session";
     private static final String DMP_CBIO_RETRIEVE_VARIANTS = "cbio_retrieve_variants";
+    private static final String DMP_CBIO_RETRIEVE_SEGMENT_DATA = "get_seg_data";
     private static final String DMP_CBIO_CONSUME_SAMPLE = "cbio_consume_sample";
     private static final String DMP_CBIO_USERNAME = "Y2Jpb19ydwo=";
     private static final String DMP_CBIO_PASSWORD = "eDM4I3hGMgo=";
@@ -43,11 +45,11 @@ public class DMPclinicaldataimporter {
     private final ObjectMapper mapper = new ObjectMapper();
     private final JsonFactory factory = mapper.getJsonFactory();
     
-    private String resultJsonStr; //sample result - includes everything; format - json string
+    private String resultJsonStr = ""; //sample result - includes everything; format - json string
 
     /**
      * 
-     * Create instance to retrieve sample data
+     * Create instance to retrieve sample meta data and segment data
      * 
      * @throws IOException
      * 
@@ -56,6 +58,8 @@ public class DMPclinicaldataimporter {
         throws IOException {
 
             DMPsession _session = new DMPsession(); 
+            
+            //Retrieves meta data 
             ResponseEntity<String> rawResultEntity = 
                 template.getForEntity(
                     DMP_SERVER_NAME + "/" + DMP_CBIO_RETRIEVE_VARIANTS + "/" + _session.getSessionId() + "/0", 
@@ -65,10 +69,22 @@ public class DMPclinicaldataimporter {
             resultJsonStr = 
                     JSONconverters.convertRaw(rawResultJsonStr); //Adjust the structure and order of raw result to fit in json2pojo library
             
-            //TODO: manually attach the cnv_introgenic_variants, therefore we can generate a complete template
-            //System.out.println(JSONconverters.attachMissingValues(sample_result_json_str));
-            
-    }
+            //Retrieves segment data
+            JsonParser jp = factory.createJsonParser(rawResultEntity.getBody());
+            JsonNode rawResultObj = mapper.readTree(jp);
+            Iterator<String> sampleIdsItr = rawResultObj.get("results").getFieldNames();
+            while(sampleIdsItr.hasNext()) {
+                String sampleId = sampleIdsItr.next();
+                ResponseEntity<String> rawSegDataResultEntity = 
+                template.getForEntity(
+                    DMP_SERVER_NAME + "/" + DMP_CBIO_RETRIEVE_SEGMENT_DATA + "/" + _session.getSessionId() + "/" + sampleId, 
+                    String.class
+                ); 
+                String _sampleSegmentDataJsonStr = JSONconverters.convertSegDataJson(rawSegDataResultEntity.getBody());
+                resultJsonStr = JSONconverters.mergeSampleSegmentData(resultJsonStr, _sampleSegmentDataJsonStr); //Map segment data to sample meta data
+            }
+        }
+    
     
     /**
      * 

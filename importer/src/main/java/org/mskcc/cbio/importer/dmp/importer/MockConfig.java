@@ -115,8 +115,7 @@ public class MockConfig implements Config {
 
     @Override
     public Collection<DataSourcesMetadata> getDataSourcesMetadata(String dataSource) {
-
-        DataSourcesMetadata meta1 = new DataSourcesMetadata(new String[]{"dmp", "/data/dmp", "TRUE", "dmpFetcher"});
+        DataSourcesMetadata meta1 = new DataSourcesMetadata(new String[]{"dmp", "/tmp/dmp", "TRUE", "dmpFetcher"});
         if (dataSource.equalsIgnoreCase("dmp")) {
             return Lists.newArrayList(meta1);
         }

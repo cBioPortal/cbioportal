@@ -16,12 +16,14 @@
 package org.mskcc.cbio.importer.fetcher.internal;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.nio.file.Paths;
 import org.mskcc.cbio.importer.dmp.importer.DMPclinicaldataimporter;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mskcc.cbio.importer.Config;
@@ -41,85 +43,44 @@ public class DMPFetcherImpl implements Fetcher{
     //private DMPStagingFileManager fileManager;
 
     private static final Log LOG = LogFactory.getLog(DMPFetcherImpl.class);
-    private static Config config;
-    private FileUtils fileUtils;
+    private Config config;
+    
     private static String dataSourcePath;
 
-    private DataSourcesMetadata dataSourceMetadata;
-
-    public DMPFetcherImpl(Config config, FileUtils fileUtils) {
+    public DMPFetcherImpl(Config config) {
         this.config = config;
-        this.fileUtils = fileUtils;
     }
     
     @Override
     public void fetch(String dataSource, String desiredRunDate) 
             throws Exception {
-
+        
         if (LOG.isInfoEnabled()) {
                 LOG.info("fetch(), dateSource:runDate: " + dataSource + ":" + desiredRunDate);
         }
         
         //Get the datasource from config obj
-        this.config = new MockConfig(); //TODO: remove the mock config obj and replace with the real one
         Collection<DataSourcesMetadata> dataSourcesMetaData = config.getDataSourcesMetadata(dataSource);
         for (DataSourcesMetadata singleDataSourceMetaData : dataSourcesMetaData) {
             if (singleDataSourceMetaData.getDataSource().equals(dataSource)) {
                 dataSourcePath = singleDataSourceMetaData.getDownloadDirectory();
             }
         }
-        
-        //DMPDataTransformer transformer = new DMPDataTransformer(fileManager);
-        DMPDataTransformer transformer = new DMPDataTransformer(Paths.get(this.dataSourcePath));
+        DMPDataTransformer transformer = new DMPDataTransformer(Paths.get(dataSourcePath));
         
         //Retrieve sample data 
         DMPclinicaldataimporter dmpImporter_retrieve = new DMPclinicaldataimporter();
-        //DmpData data = OBJECT_MAPPER.readValue(dmpImporter_retrieve.getResult(), DmpData.class);
-        //transformer.transform(data);
-        
-        //Marking/call back process
-        ArrayList<String> _consumedSampleIds = new ArrayList<>();
-        DMPclinicaldataimporter dmpImporter_mark = new DMPclinicaldataimporter(_consumedSampleIds);
 
+        DmpData data = OBJECT_MAPPER.readValue(dmpImporter_retrieve.getResult(), DmpData.class);
+        
+        DMPclinicaldataimporter dmpImporter_mark = 
+                new DMPclinicaldataimporter(transformer.transform(data)); //mark consumed samples (transformer returns a list of consumed sample ids)
+ 
     }
 
     @Override
     public void fetchReferenceData(ReferenceMetadata referenceMetadata) 
             throws Exception {
-    }
-    
-    public static void main(String[] args) 
-        throws IOException {
-        
-        String dataSource = "dmp";
-        String desiredRunDate = "2014, Oct";
-        
-        if (LOG.isInfoEnabled()) {
-                LOG.info("fetch(), dateSource:runDate: " + dataSource + ":" + desiredRunDate);
-        }
-        
-        //Get the datasource from config obj
-        config = new MockConfig(); //TODO: remove the mock config obj and replace with the real one
-        Collection<DataSourcesMetadata> dataSourcesMetaData = config.getDataSourcesMetadata(dataSource);
-        for (DataSourcesMetadata singleDataSourceMetaData : dataSourcesMetaData) {
-            if (singleDataSourceMetaData.getDataSource().equals(dataSource)) {
-                dataSourcePath = singleDataSourceMetaData.getDownloadDirectory();
-            }
-        }
-        
-        //DMPDataTransformer transformer = new DMPDataTransformer(fileManager);
-        DMPDataTransformer transformer = new DMPDataTransformer(Paths.get(dataSourcePath));
-        
-        //Retrieve sample data 
-        DMPclinicaldataimporter dmpImporter_retrieve = new DMPclinicaldataimporter();
-        System.out.println(dmpImporter_retrieve.getResult());
-
-        //DmpData data = OBJECT_MAPPER.readValue(dmpImporter_retrieve.getResult(), DmpData.class);
-        //transformer.transform(data);
-        
-        //Marking/call back process
-        //ArrayList<String> _consumedSampleIds = new ArrayList<>();
-        //DMPclinicaldataimporter dmpImporter_mark = new DMPclinicaldataimporter(_consumedSampleIds);
     }
     
 }

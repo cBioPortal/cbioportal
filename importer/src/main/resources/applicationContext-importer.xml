@@ -179,4 +179,7 @@ http://www.springframework.org/schema/util/spring-util.xsd">
         <b:constructor-arg ref="idMapper"/>
     </b:bean>
     <b:bean id="tcgaSurvivalDataCalculator" class="org.mskcc.cbio.importer.util.TCGASurvivalDataCalculator"/>
+    <b:bean id="dmpFetcher" class="org.mskcc.cbio.importer.fetcher.internal.DMPFetcherImpl">
+        <b:constructor-arg ref="config"/>
+    </b:bean>
 </b:beans>

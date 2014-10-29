@@ -22,8 +22,10 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonFactory;
@@ -31,6 +33,7 @@ import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import org.mskcc.cbio.importer.dmp.util.*;
+import org.mskcc.cbio.importer.fetcher.internal.DMPFetcherImpl;
 
 public class DMPclinicaldataimporter {
 
@@ -45,6 +48,7 @@ public class DMPclinicaldataimporter {
     private final RestTemplate template = new RestTemplate(); //spring rest template
     private final ObjectMapper mapper = new ObjectMapper();
     private final JsonFactory factory = mapper.getJsonFactory();
+    private static final Log LOG = LogFactory.getLog(DMPFetcherImpl.class);
     
     private String resultJsonStr = ""; //sample result - includes everything; format - json string
 
@@ -97,15 +101,31 @@ public class DMPclinicaldataimporter {
      * @throws IOException
      * 
      */
-    public DMPclinicaldataimporter(ArrayList<String> sampleIds) 
+    public DMPclinicaldataimporter(List<String> sampleIds) 
         throws IOException {
         
         DMPsession _session = new DMPsession(); 
         for(String sampleId : sampleIds) {
-            template.getForEntity(
-                    DMP_SERVER_NAME + "/" + DMP_CBIO_CONSUME_SAMPLE + "/" + sampleId + "/" + _session.getSessionId(),
+            ResponseEntity<String> rawConsumedMarkingResultEntity = 
+                template.getForEntity(
+                    DMP_SERVER_NAME + "/" + DMP_CBIO_CONSUME_SAMPLE + "/" + _session.getSessionId() + "/" + sampleId,
                     String.class
-            );
+                );
+            JsonParser jp = factory.createJsonParser(rawConsumedMarkingResultEntity.getBody());
+            JsonNode rawConsumedMarkingResultObj = mapper.readTree(jp);
+            if (!rawConsumedMarkingResultObj.findPath("error").isMissingNode()) {
+                if (LOG.isInfoEnabled()) {
+                    LOG.info(sampleId + " got error: " + rawConsumedMarkingResultObj.get("error").asText());
+                }
+            } else if (rawConsumedMarkingResultObj.get("affectedRows").asText().equals("1")) {
+                if (LOG.isInfoEnabled()) {
+                    LOG.info(sampleId + " successfully updated. ");
+                }
+            } else {
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("non sense feedback from DMP. ");
+                }
+            }
         }
 
     }

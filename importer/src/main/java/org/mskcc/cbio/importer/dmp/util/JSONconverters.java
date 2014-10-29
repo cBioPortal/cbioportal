@@ -18,7 +18,6 @@
 package org.mskcc.cbio.importer.dmp.util;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.codehaus.jackson.JsonNode;
@@ -134,56 +133,5 @@ public class JSONconverters {
         
     }
 
-    /**
-     * THIS IS TEMPORARY
-     * add missing fields for the live dmp sample result, 
-     * therefore enable jsonschema2pojo library to generate the complete template for future use
-     * (This is only for init, will be aborted for production run)
-     * 
-     * @param result_json_str
-     * @return the complete result json string
-     */
-//    public static String attachMissingValues(String result_json_str)
-//        throws IOException {
-//        
-//        //Parse the original json string
-//        ObjectMapper mapper = new ObjectMapper();
-//        JsonNode root_node = mapper.readTree(result_json_str);
-//        String sample_count = root_node.get("sample-count").asText();
-//        String disclaimer = root_node.get("disclaimer").asText();
-//        ArrayNode new_results_arr_node = mapper.createArrayNode();
-//        
-//        //Create a fake/tmp cnv introgenic json node
-//        JsonNode introgenic_node = mapper.createObjectNode();
-//        ((ObjectNode)introgenic_node).put("chromosome", "7");
-//        ((ObjectNode)introgenic_node).put("gene", "BRAF");
-//        ((ObjectNode)introgenic_node).put("cytoband", "7q34");
-//        ((ObjectNode)introgenic_node).put("exon", "17,15,14,13,12,11,10");
-//        ((ObjectNode)introgenic_node).put("cluster_num", "2");
-//        ((ObjectNode)introgenic_node).put("comments", "place_holder_string");
-//        ((ObjectNode)introgenic_node).put("cnv_class", "INTRAGENIC_LOSS");
-//        ((ObjectNode)introgenic_node).put("cnv_filter", "NO_FILTER");
-//        
-//        //Add the fake/tmp cnv_intragenic json node into the results array
-//        ArrayNode results_arr_node = (ArrayNode)root_node.get("results");
-//        Iterator<JsonNode> itr = results_arr_node.getElements();
-//        while(itr.hasNext()) {
-//            JsonNode result_node = itr.next(); //single result for a sample
-//            ((ObjectNode)result_node).put("cnv-intagenic-variants", introgenic_node);
-//            new_results_arr_node.add(result_node);
-//        }
-//        
-//        //Reassemble the final json object
-//        JsonNode final_result = mapper.createObjectNode();
-//        ((ObjectNode)final_result).put("sample-count", sample_count);
-//        ((ObjectNode)final_result).put("disclaimer", disclaimer);
-//        ((ObjectNode)final_result).put("results", new_results_arr_node);
-//        
-//        //Convert final result json object into string
-//        String indented = mapper.defaultPrettyPrintingWriter().writeValueAsString(final_result);
-//        System.out.println(indented);
-//        return indented;
-//
-//    }
 }
 

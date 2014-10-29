@@ -64,7 +64,6 @@ cbio = (function() {
 		apiCall('/api/meta/clinical/samples', args, callback, fail);
 	}
 	// DATA
-	i
 	var clinicalPatientsData = function(args, callback, fail) {
 		apiCall('/api/data/clinical/patients', args, callback, fail);
 	}

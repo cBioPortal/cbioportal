@@ -67,7 +67,6 @@ dataman = (function() {
 		}
 	}
 
-
 	// -- meta.genes --
 	var getAllGenes = function(callback, fail) {
 		// TODO?: caching

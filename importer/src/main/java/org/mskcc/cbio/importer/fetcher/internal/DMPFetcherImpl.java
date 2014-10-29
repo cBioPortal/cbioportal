@@ -113,6 +113,7 @@ public class DMPFetcherImpl implements Fetcher{
         //Retrieve sample data 
         DMPclinicaldataimporter dmpImporter_retrieve = new DMPclinicaldataimporter();
         System.out.println(dmpImporter_retrieve.getResult());
+
         //DmpData data = OBJECT_MAPPER.readValue(dmpImporter_retrieve.getResult(), DmpData.class);
         //transformer.transform(data);
         

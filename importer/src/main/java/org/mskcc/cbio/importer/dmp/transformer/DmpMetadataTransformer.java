@@ -17,11 +17,8 @@
  */
 package org.mskcc.cbio.importer.dmp.transformer;
 
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
+import com.google.common.base.*;
+
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Maps;
 import com.google.gdata.util.common.base.Preconditions;
@@ -54,12 +51,12 @@ public class DmpMetadataTransformer implements DMPDataTransformable {
             = Suppliers.memoize(new DmpMetadataTransformationsSupplier());
     
     public DmpMetadataTransformer(ClinicalDataFileHandler aHandler, Path stagingDirectoryPath) {
-        com.google.common.base.Preconditions.checkArgument(null != aHandler, "A MafFileHandler implementation is required");
-        com.google.common.base.Preconditions.checkArgument(null != stagingDirectoryPath,
+        Preconditions.checkArgument(null != aHandler, "A MafFileHandler implementation is required");
+        Preconditions.checkArgument(null != stagingDirectoryPath,
                 "A Path to the staging file directory is required");
-        com.google.common.base.Preconditions.checkArgument(Files.isDirectory(stagingDirectoryPath, LinkOption.NOFOLLOW_LINKS),
+        Preconditions.checkArgument(Files.isDirectory(stagingDirectoryPath, LinkOption.NOFOLLOW_LINKS),
                 "The specified Path: " + stagingDirectoryPath + " is not a directory");
-        com.google.common.base.Preconditions.checkArgument(Files.isWritable(stagingDirectoryPath),
+        Preconditions.checkArgument(Files.isWritable(stagingDirectoryPath),
                 "The specified Path: " + stagingDirectoryPath + " is not writable");
         this.fileHandler = aHandler;
         //register a new or existing data_clinical.txt file with the file handler implementation

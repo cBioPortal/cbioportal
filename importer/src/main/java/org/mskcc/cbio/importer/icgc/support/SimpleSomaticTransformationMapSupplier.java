@@ -68,9 +68,9 @@ public class SimpleSomaticTransformationMapSupplier implements Supplier<Map<Stri
         transformationMap.put("14dbSNP_RS", new Tuple3<>(unsupported, "", absent));  //14
         transformationMap.put("15dbSNP_Val_Status", new Tuple3<>(unsupported, "", absent));//15
         transformationMap.put("16Tumor_Sample_Barcode", new Tuple3<>(copyAttribute, "icgc_sample_id", absent)); //16
-        transformationMap.put("176Matched_Norm_Sample_Barcode", new Tuple3<>(copyAttribute, "submitted_matched_sample_id", absent)); //17
+        transformationMap.put("17Matched_Norm_Sample_Barcode", new Tuple3<>(copyAttribute, "submitted_matched_sample_id", absent)); //17
         transformationMap.put("18Match_Norm_Seq_Allele1", new Tuple3<>(copyAttribute, "reference_genome_allele", absent)); //18
-        transformationMap.put("198Match_Norm_Seq_Allele2", new Tuple3<>(copyAttribute, "reference_genome_allele", absent)); //19
+        transformationMap.put("19Match_Norm_Seq_Allele2", new Tuple3<>(copyAttribute, "reference_genome_allele", absent)); //19
         transformationMap.put("20Tumor_Validation_Allele1", new Tuple3<>(copyAttribute, "mutated_to_allele", absent)); //20
         transformationMap.put("21Tumor_Validation_Allele2", new Tuple3<>(copyAttribute, "mutated_to_allele", absent)); //21
         transformationMap.put("22Match_Norm_Validation_Allele1", new Tuple3<>(unsupported, "", absent));  //22

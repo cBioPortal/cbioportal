@@ -58,7 +58,7 @@ public class DMPDataTransformer {
         // instantiate and register data transformers
         //SNPs
         this.transformableList = Lists.newArrayList((DMPDataTransformable) 
-                new DmpSnpTransformer( new MafFileHandlerImpl(), 
+                new DmpSnpTransformer( new MutationFileHandlerImpl(),
                         stagingDirectoryPath));
        //CNVs
         this.transformableList.add((DMPDataTransformable) 

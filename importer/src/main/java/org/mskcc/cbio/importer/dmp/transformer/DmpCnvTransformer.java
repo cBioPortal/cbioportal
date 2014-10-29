@@ -83,13 +83,13 @@ public class DmpCnvTransformer implements DMPDataTransformable {
                             return new Tuple3(cnv.getGeneId(), result.getMetaData().getDmpSampleId(), cnv.getGeneFoldChange());
                         }
                     }).toList());
-            list1.addAll(FluentIterable.from(result.getCnvIntragenicVariants())
-                    .transform(new Function<CnvIntragenicVariant, Tuple3<String, String, Double>>() {
-                        @Override
-                        public Tuple3<String, String, Double> apply(CnvIntragenicVariant intra) {
-                            return new Tuple3(intra.getGeneId(), result.getMetaData().getDmpSampleId(), intra.getGeneFoldChange());
-                        }
-                    }).toList());
+          //  list1.addAll(FluentIterable.from(result.getCnvIntragenicVariants())
+             //       .transform(new Function<CnvIntragenicVariant, Tuple3<String, String, Double>>() {
+             //           @Override
+            //            public Tuple3<String, String, Double> apply(CnvIntragenicVariant intra) {
+              //              return new Tuple3(intra.getGeneId(), result.getMetaData().getDmpSampleId(), intra.getGeneFoldChange());
+               //         }
+               //     }).toList());
 
             return list1;
         }
@@ -108,7 +108,7 @@ public class DmpCnvTransformer implements DMPDataTransformable {
     }
     
     /*
-    private method to reset CNA data  for deprecated samples from table
+    private method to reset CNA data for deprecated samples from table
     */
     private void resetDeprecatedSamples(DmpData data) {
         final Set<String> geneNameSet = this.cnvTable.rowKeySet();

@@ -205,6 +205,16 @@ public class DmpSnpTransformer implements DMPDataTransformable {
          objects to resolve DMP attribute values
          The second Optional DMP argument is provided to support transformation functions that
          operate on two DMP attributes to determine a single MAF attribute
+
+        transformationMap.put("30Score", new Tuple3<>(copyAttribute, "quality_score", absent));  //30
+        transformationMap.put("31BAM_File", new Tuple3<>(unsupported, "", absent)); //31
+        transformationMap.put("32Sequencer", new Tuple3<>(copyAttribute, "platform", absent));//32
+        transformationMap.put("33Tumor_Sample_UUID", new Tuple3<>(copyAttribute, "submitted_sample_id", absent));//33
+        transformationMap.put("34Matched_Norm_Sample_UUID", new Tuple3<>(copyAttribute, "matched_igc_sample_id", absent)); //34
+        transformationMap.put("35t_alt_count", new Tuple3<>(copyAttribute, "mutant_allele_read_count", absent));  // new
+        transformationMap.put("36t_ref_count", new Tuple3<>(resolveReferenceCount, "total_read_count", Optional.of("mutant_allele_read_count"))); // new
+        transformationMap.put("37n_alt_count", new Tuple3<>(unsupported, "", absent));  // new
+        transformationMap.put("38n_ref_count", new Tuple3<>(unsupported, "", absent));  //new
          */
         @Override
         public Map<String, Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>>> get() {
@@ -224,7 +234,29 @@ public class DmpSnpTransformer implements DMPDataTransformable {
             transformationMap.put("013Tumor_Allele2", new Tuple3<>(copyAttribute, "getAltAllele", absent)); //13
             transformationMap.put("014dbSNP_RS", new Tuple3<>(copyAttribute, "getDbSNPId", absent)); //14
             transformationMap.put("015dbSNP_Val_Status", new Tuple3<>(unsupported, "getGeneId", absent)); //15
-            transformationMap.put("016Tumor_Sample_Barcode", new Tuple3<>(copyAttribute, "getDmpSampleId", absent)); //14
+            transformationMap.put("016Tumor_Sample_Barcode", new Tuple3<>(copyAttribute, "getDmpSampleId", absent)); //16
+            transformationMap.put("017Matched_Norm_Sample_Barcode", new Tuple3<>(unsupported, "getGeneId", absent)); //17
+            transformationMap.put("018Match_Norm_Seq_Allele1", new Tuple3<>(unsupported, "getGeneId", absent)); //18
+            transformationMap.put("018Match_Norm_Seq_Allele2", new Tuple3<>(unsupported, "getGeneId", absent)); //19
+            transformationMap.put("020Tumor_Validation_Allele1", new Tuple3<>(unsupported, "getGeneId", absent)); //20
+            transformationMap.put("021Tumor_Validation_Allele2", new Tuple3<>(unsupported, "getGeneId", absent)); //21
+            transformationMap.put("022Match_Norm_Validation_Allele1", new Tuple3<>(unsupported, "getGeneId", absent));  //22
+            transformationMap.put("023Match_Norm_Validation_Allele2", new Tuple3<>(unsupported, "getGeneId", absent)); //23
+            transformationMap.put("024Verification_Status", new Tuple3<>(unsupported, "getGeneId", absent)); //24
+            transformationMap.put("025Validation_Status", new Tuple3<>(unsupported, "getGeneId", absent)); //25
+            transformationMap.put("026Mutation_Status", new Tuple3<>(unsupported, "getGeneId", absent)); //26
+            transformationMap.put("027Sequencing_Phase", new Tuple3<>(unsupported, "getGeneId", absent));  //27
+            transformationMap.put("028Sequence_Source", new Tuple3<>(unsupported, "getGeneId", absent)); //28
+            transformationMap.put("029Validation_Method", new Tuple3<>(unsupported, "getGeneId", absent));// 29
+            transformationMap.put("030Score", new Tuple3<>(unsupported, "getGeneId", absent));  //30
+            transformationMap.put("031BAM_File", new Tuple3<>(unsupported, "getGeneId", absent)); //31
+            transformationMap.put("032Sequencer", new Tuple3<>(unsupported, "getGeneId", absent));//32
+            transformationMap.put("033Tumor_Sample_UUID", new Tuple3<>(unsupported, "getGeneId", absent));//33
+            transformationMap.put("034Matched_Norm_Sample_UUID", new Tuple3<>(unsupported, "getGeneId", absent)); //34
+            transformationMap.put("035t_alt_count", new Tuple3<>(unsupported, "getGeneId", absent));  // new
+            transformationMap.put("036t_ref_count", new Tuple3<>(unsupported, "getGeneId", absent)); // new
+            transformationMap.put("037n_alt_count", new Tuple3<>(unsupported, "getGeneId", absent));  // new
+            transformationMap.put("038n_ref_count", new Tuple3<>(unsupported, "getGeneId", absent));  //new
             return transformationMap;
         }
         

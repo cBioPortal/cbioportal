@@ -18,10 +18,8 @@
 package org.mskcc.cbio.importer.persistence.staging;
 
 import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Lists;
 import com.google.inject.internal.Preconditions;
 import com.google.inject.internal.Sets;
 import java.io.FileReader;
@@ -31,7 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+
 import static java.nio.file.StandardOpenOption.APPEND;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.DSYNC;
@@ -42,14 +40,14 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.log4j.Logger;
 /*
-public class reposnsible for managing input/output operations with a 
+public class responsible for managing input/output operations with a
 collection of MAF staging files belonging to specified study
 */
-public  class MafFileHandlerImpl  extends TsvStagingFileHandler  implements MafFileHandler{
+public  class MutationFileHandlerImpl extends TsvStagingFileHandler  implements MafFileHandler{
 
-    private final static Logger logger = Logger.getLogger(MafFileHandlerImpl.class);
+    private final static Logger logger = Logger.getLogger(MutationFileHandlerImpl.class);
      
-    public MafFileHandlerImpl(){}
+    public MutationFileHandlerImpl(){}
    
     /*
     public interface method to register a Path to a MAF file for subsequent 
@@ -68,7 +66,6 @@ public  class MafFileHandlerImpl  extends TsvStagingFileHandler  implements MafF
       super.registerStagingFile(mafFilePath, columnHeadings);
     }
 
-  
      public Set<String> resolveProcessedSampleSet(final String sampleIdColumnName) {
         // process all the DMP staging data in the specified Path as tab-delimited text
         // sample ids are assumed to be in a specified  named column
@@ -92,8 +89,6 @@ public  class MafFileHandlerImpl  extends TsvStagingFileHandler  implements MafF
             } catch (IOException ex) {
                 logger.error(ex.getMessage());
             }
-
-      
       return processedSampleSet;
     }
 
@@ -107,7 +102,7 @@ public  class MafFileHandlerImpl  extends TsvStagingFileHandler  implements MafF
         Preconditions.checkArgument(null != mafData && !mafData.isEmpty(),
                 "A valid List of MAF data is required");
         Preconditions.checkState(null != this.stagingFilePath, 
-                 "The requiste Path to the MAF staging file has not be specified");
+                 "The requisite Path to the MAF staging file has not be specified");
         OpenOption[] options = new OpenOption[]{CREATE, APPEND, DSYNC};
         // create the file if it doesn't exist, append to it if it does
         try {
@@ -125,14 +120,7 @@ public  class MafFileHandlerImpl  extends TsvStagingFileHandler  implements MafF
     @Override
     public void transformImportDataToStagingFile( List aList,
             Function transformationFunction) {
-       
-        Preconditions.checkArgument(null != aList && !aList.isEmpty(),
-                "A valid List of DMP data is required");
-        Preconditions.checkArgument(null != transformationFunction,
-                "A transformation function is required");
-        Preconditions.checkState(null != this.stagingFilePath, 
-                 "The requiste Path to the MAF staging file has not be specified");
-        
+
         super.transformImportDataToStagingFile(aList, transformationFunction);
     }
 
@@ -145,59 +133,8 @@ public  class MafFileHandlerImpl  extends TsvStagingFileHandler  implements MafF
      */
     @Override
     public void removeDeprecatedSamplesFomMAFStagingFiles(final String sampleIdColumnName, final Set<String> deprecatedSampleSet) {
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(sampleIdColumnName), "The name of the sample id column is required");
-        Preconditions.checkArgument(null != deprecatedSampleSet,
-                "A set of deprecated samples is required");
-        Preconditions.checkState(null != this.stagingFilePath, 
-                 "The requisite Path to the MAF staging file has not be specified");
-        if (deprecatedSampleSet.size() > 0) {
-            OpenOption[] options = new OpenOption[]{CREATE, APPEND, DSYNC};
-                try {               
-                    // move staging file to a temporay file, filter out deprecated samples,
-                    // then write non-deprecated samples
-                    // back to staging files
-                    Path tempFilePath = Paths.get("/tmp/dmp/tempfile.txt");
-                    Files.deleteIfExists(tempFilePath);
-                    Files.move(this.stagingFilePath, tempFilePath);
-                    logger.info(" processing " + tempFilePath.toString());
-                    final CSVParser parser = new CSVParser(new FileReader(tempFilePath.toFile()), CSVFormat.TDF.withHeader());
-                    String headings = StagingCommonNames.tabJoiner.join(parser.getHeaderMap().keySet());
-                    // filter persisted sample ids that are also in the current data input
-                    List<String> filteredSamples = FluentIterable.from(parser)
-                            .filter(new Predicate<CSVRecord>() {
-                                @Override
-                                public boolean apply(CSVRecord record) {
-                                    String sampleId = record.get(sampleIdColumnName); // the column name is typically Tumor_Sample_Barcode
-                                    if (!Strings.isNullOrEmpty(sampleId) && !deprecatedSampleSet.contains(sampleId)) {
-                                        return true;
-                                    }
-                                    return false;
-                                }
-                            }).transform(new Function<CSVRecord, String>() {
-                                @Override
-                                public String apply(CSVRecord record) {
-                                    
-                                    return StagingCommonNames
-                                            .tabJoiner
-                                            .join(Lists.newArrayList(record.iterator()));
-                                }
-                            })
-                            .toList();
+        super.removeDeprecatedSamplesFomMAFStagingFiles(sampleIdColumnName, deprecatedSampleSet);
 
-                    // write the filtered data to the original MAF staging file
-                    // column headings
-                    Files.write(this.stagingFilePath,Lists.newArrayList(headings), Charset.defaultCharset(),options);
-                    // data
-                    Files.write(this.stagingFilePath, filteredSamples, Charset.defaultCharset(), options);
-                    Files.delete(tempFilePath);
-                } catch (IOException ex) {
-                    logger.error(ex.getMessage());
-                    ex.printStackTrace();
-                }
- 
         }
     }
 
- 
-   
-}

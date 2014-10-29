@@ -181,7 +181,6 @@ $("#study-tabs").tabs("enable", 0);
 
 $('#study-tab-clinical-a').click(function(){
     if (!$(this).parent().hasClass('ui-state-disabled') && !$(this).hasClass("tab-clicked")) {
-        console.log('clicked');
         //First time: adjust the width of data table;
         $("#clinical-data-table-loading-wait").css('display', 'block');
         $("#clinical-data-table-div").css('display','none');
@@ -195,14 +194,14 @@ $('#study-tab-clinical-a').click(function(){
 });
 
 $('#study-tab-mutations-a').click(function(){
-    if (!$(this).hasClass("tab-clicked")) {
+    if (!$(this).parent().hasClass('ui-state-disabled') && !$(this).hasClass("tab-clicked")) {
         StudyViewMutationsTabController.init();
         $(this).addClass("tab-clicked");
     }
 });
 
 $('#study-tab-cna-a').click(function(){
-    if (!$(this).hasClass("tab-clicked")) {
+    if (!$(this).parent().hasClass('ui-state-disabled') && !$(this).hasClass("tab-clicked")) {
         StudyViewCNATabController.init();
         $(this).addClass("tab-clicked");
     }

@@ -10055,8 +10055,7 @@ function MutationDetailsTable(options, gene, mutationUtil, pancanProxy, portalPr
 					$(selector).find('.mutation_table_cbio_portal').each(function(idx, ele) {
 						var mutationId = $(this).closest("tr.mutation-table-data-row").attr("id");
 						var mutation = mutationUtil.getMutationIdMap()[mutationId];
-
-						cancerStudyName = cancerStudyName || mutation.cancerStudy;
+						var cancerStudy = cancerStudyName || mutation.cancerStudy;
 
 						$(ele).qtip({
 							content: {text: 'pancancer mutation bar chart is broken'},
@@ -10064,7 +10063,7 @@ function MutationDetailsTable(options, gene, mutationUtil, pancanProxy, portalPr
 								render: function(event, api) {
 									var model = {pancanMutationFreq: frequencies,
 										cancerStudyMetaData: cancerStudyMetaData,
-										cancerStudyName: cancerStudyName,
+										cancerStudyName: cancerStudy,
 										geneSymbol: gene,
 										keyword: mutation.keyword,
 										qtipApi: api};

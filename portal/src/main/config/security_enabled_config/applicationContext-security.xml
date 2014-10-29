@@ -82,6 +82,7 @@
         <intercept-url pattern="/cross_cancer.do*" access="isAuthenticated()"/>
         <intercept-url pattern="/cross_cancer_summary.do*" access="isAuthenticated()"/>
         <intercept-url pattern="/portal_meta_data.json*" access="isAuthenticated()"/>
+	    <intercept-url pattern="/portalMetadata.json*" access="isAuthenticated()"/>
         <intercept-url pattern="/mutation_diagram_data.json*" access="isAuthenticated()"/>
         <intercept-url pattern="/mutation_table_data.json*" access="isAuthenticated()"/>
         <intercept-url pattern="/getMutationData.json*" access="isAuthenticated()"/>

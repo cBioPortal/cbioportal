@@ -227,7 +227,7 @@ public class MetaController {
     
     private List<DBClinicalField> dispatchClinicalHelper(List<String> study_ids, List<String> ids, boolean isSample) throws Exception {
         if (study_ids == null && ids == null) {
-            return clinicalFieldService.getAll();
+            return clinicalFieldService.getAll(isSample);
         } else if (ids == null) {
             // Multiple study ids
             try {

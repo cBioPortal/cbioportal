@@ -25,5 +25,6 @@ public interface ClinicalFieldMapper {
     List<DBClinicalField> byStableSampleIdInternalStudyId(@Param("study_id") Integer study_id, @Param("ids") List<String> ids);
     List<DBClinicalField> byStablePatientIdStableStudyId(@Param("study_id") String study_id, @Param("ids") List<String> ids);
     List<DBClinicalField> byStablePatientIdInternalStudyId(@Param("study_id") Integer study_id, @Param("ids") List<String> ids);
-    List<DBClinicalField> getAll();
+    List<DBClinicalField> getAll_Sample();
+    List<DBClinicalField> getAll_Patient();
 }

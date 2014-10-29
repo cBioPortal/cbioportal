@@ -1,0 +1,280 @@
+/api/meta/cancertypes
+Out: 
+{'id':'acc', 'name':'Adrenocortical Carcinoma', 'color':'Purple'}
+
+In:
+Option 1: 
+	Nothing
+	=> Get all cancer types
+Option 2: 
+	List<String> ids: the cancer type ids
+	=> Get the cancer types with those ids
+
+
+
+
+/api/meta/genes
+Out:
+{'hugoGeneSymbol': 'BRCA1', 'entrezGeneId':672}
+
+In:
+Option 1:
+	Nothing
+	=> Get all genes
+Option 2:
+	List<String> ids: hugo gene symbols
+	or
+	List<Long> ids: entrez gene ids
+	=> Get those genes
+
+
+
+/api/meta/patients
+Out:
+{'internal_id':1, 'stable_id':'DMP0001', 'study_id':1}
+
+In:
+Option 1:
+	List<String> study_ids: stable study ids
+	or
+	List<Integer> study_ids: internal study ids
+	=> Get patients corresponding to those studies
+Option 2:
+	List<Integer> patient_ids: internal patient ids
+	=> Get patients corresponding to those ids
+Option 3:
+	String study_ids: stable study id
+	or
+	Integer study_ids: internal study id
+
+	and
+
+	List<String> patient_ids: stable patient ids
+	=> Get patients coresponding to that study and those ids
+
+
+
+
+/api/meta/samples
+Out:
+{'internal_id':1, 'stable_id':'DMP0001', 'sample_type':'Primary Solid Tumor', 'patient_id':1}
+
+In:
+Option 1:
+	List<String> study_ids: stable study ids
+	or
+	List<Integer> study_ids: internal study ids
+	=> Get samples corresponding to those studies
+Option 2:
+	List<Integer> sample_ids: internal sample ids
+	=> Get samples corresponding to those ids
+Option 3:
+	String study_ids: stable study id
+	or
+	Integer study_ids: internal study id
+
+	and
+
+	List<String> sample_ids: stable sample ids
+	=> Get samples coresponding to that study and those 
+
+
+
+
+/api/meta/studies
+Out:
+{'id':'prad_mskcc_2014','internal_id':7,'type_of_cancer':'prad','name':'Prostate Adenocarcinoma - CNA (MSKCC, PNAS 2014)','short_name':'Prostate (MSKCC 2014)','description':'...','pmid':25024180,'citation':'Hieronymus et al. PNAS 2014.','groups':'PUBLIC'}
+
+In:
+Option 1:
+	Nothing
+	=> Get all studies
+Option 2:
+	List<String> ids: stable study ids
+	or
+	List<Integer> ids: internal study ids
+	=> Get the studies corresponding to those ids
+
+
+
+/api/meta/patientlists
+Out:
+{'id':'mixed_dmp_MSK-IMPACT_2014_all','internal_id':1,'name':'All Tumors','description':'All tumor samples (1408 samples)','internal_study_id':1,'internal_patient_ids':null},{'id':'mixed_dmp_MSK-IMPACT_2014_sequenced','internal_id':2,'name':'Sequenced Tumors','description':'All (Next-Gen) sequenced samples (1408 samples)','internal_study_id':1,'internal_patient_ids':null}
+
+In:
+Option 1:
+	Nothing
+	=> Get all patient lists
+Option 2:
+	List<String> patient_list_ids: stable patient list ids
+	or
+	List<Integer> patient_list_ids: internal patient list ids
+	=> Get those patient lists
+Option 3:
+	List<Integer> study_ids: internal study ids
+	=> Get the patient lists corresponding to those studies
+
+
+/api/meta/profiles
+Out:
+{'id':'mixed_dmp_MSK-IMPACT_2014_cna','internal_id':2,'name':'Putative copy-number alterations (MSK-IMPACT)','description':'Putative copy-number calls derived from IMPACT data. Values: -2 = homozygous deletion; 0 = neutral / no change; 2 = high level amplification.','datatype':'DISCRETE','internal_study_id':1,'genetic_alteration_type':'COPY_NUMBER_ALTERATION','show_profile_in_analysis_tab':true}
+
+In:
+Option 1:
+	Nothing
+	=> Get all profiles
+Option 2:
+	List<String> profile_ids: stable profile ids
+	or
+	List<Integer> profile_ids: internal profile ids
+	=> Get profiles corresponding to those ids
+Option 3:
+	List<Integer> study_ids: internal study ids
+	=> Get profiles corresponding to those studies
+
+
+/api/meta/clinical/samples
+Out:
+{'attr_id':'SAMPLE_ID','display_name':'Sample Identifier','description':'A unique sample identifier.','datatype':'STRING','is_patient_attribute':'0','priority':'1'}
+
+In:
+Option 1:
+	Nothing
+	=> Get all sample clinical attributes
+Option 2:
+	List<String> study_ids: stable study ids
+	or
+	List<Integer> study_ids: internal study ids
+	=> Get clinical attributes present in data for samples in those studies
+Option 3:
+	List<Integer> sample_ids: internal sample ids
+	=> Get clinical attributes present in data for those samples
+Option 4:
+	Integer study_ids: internal study id
+	or
+	String study_ids: stable study id
+
+	and
+
+	List<String> sample_ids: stable sample ids
+	=> Get clinical attributes present in data for those samples
+
+
+/api/meta/clinical/patients
+Out:
+{'attr_id':'SAMPLE_ID','display_name':'Sample Identifier','description':'A unique sample identifier.','datatype':'STRING','is_patient_attribute':'0','priority':'1'}
+
+In:
+Option 1:
+	Nothing
+	=> Get all patient clinical attributes
+Option 2:
+	List<String> study_ids: stable study ids
+	or
+	List<Integer> study_ids: internal study ids
+	=> Get clinical attributes present in data for patients in those studies
+Option 3:
+	List<Integer> patient_ids: internal patient ids
+	=> Get clinical attributes present in data for those patients
+Option 4:
+	Integer study_ids: internal study id
+	or
+	String study_ids: stable study id
+
+	and
+
+	List<String> patient_ids: stable patient ids
+	=> Get clinical attributes present in data for those patients
+
+
+
+/api/data/patientlists
+Out:
+{'id':'mixed_dmp_MSK-IMPACT_2014_all','internal_id':1,'name':'All Tumors','description':'All tumor samples (1408 samples)','internal_study_id':1,'internal_patient_ids':null},{'id':'mixed_dmp_MSK-IMPACT_2014_sequenced','internal_id':2,'name':'Sequenced Tumors','description':'All (Next-Gen) sequenced samples (1408 samples)','internal_study_id':1,'internal_patient_ids':[1,2,3,...]}
+
+In:
+Option 1:
+	Nothing
+	=> Get all patient lists
+Option 2:
+	List<String> patient_list_ids: stable patient list ids
+	or
+	List<Integer> patient_list_ids: internal patient list ids
+	=> Get those patient lists
+Option 3:
+	List<Integer> study_ids: internal study ids
+	=> Get the patient lists corresponding to those studies
+
+
+/api/data/clinical/samples
+Out:
+{"attr_id":"SAMPLE_TYPE","attr_val":"Primary","case_id":1}
+
+In:
+Option 1:
+	List<String> study_ids: stable study ids
+	or
+	List<Integer> study_ids: internal study ids
+	=> Get clinical data for samples in those studies
+Option 2:
+	List<Integer> sample_ids: internal sample ids
+	=> Get clinical data for those samples
+Option 3:
+	Integer study_ids: internal study id
+	or
+	String study_ids: stable study id
+
+	and
+
+	List<String> sample_ids: stable sample ids
+	=> Get clinical data for those samples
+
+
+
+/api/data/clinical/patients
+Out:
+{"attr_id":"PRIMARY_SITE","attr_val":"Breast","case_id":1}
+
+In:
+Option 1:
+	List<String> study_ids: stable study ids
+	or
+	List<Integer> study_ids: internal study ids
+	=> Get clinical data for patients in those studies
+Option 2:
+	List<Integer> patient_ids: internal patient ids
+	=> Get clinical data for those patients
+Option 3:
+	Integer study_ids: internal study id
+	or
+	String study_ids: stable study id
+
+	and
+
+	List<String> patient_ids: stable patient ids
+	=> Get clinical data for those patients
+
+
+/api/data/profiles
+Out:
+Mutation profile:
+{'internal_id':22,'entrez_gene_id':7080,'internal_case_id':1784,'sequencing_center':'MSK-IMPACT','mutation_status':'SOMATIC','mutation_type':'In_Frame_Ins','validation_status':'NA','amino_acid_change':'241_242insGGG','functional_impact_score':'NA','xvar_link':'NA','xvar_link_pdb':'NA','xvar_link_msa':'NA','chr':14,'start_position':36986875,'end_position':36986876,'reference_allele':'-','variant_allele':'GCCCCCGCC','reference_read_count_tumor':'287','variant_read_count_tumor':'56','reference_read_count_normal':'151','variant_read_count_normal':'0'}
+
+Other:
+{'internal_id':23,'entrez_gene_id':7080,'internal_case_id':1796,'profile_data':'0'}
+
+In:
+Option 1:
+	List<Integer> genes: desired genes
+	List<Integer> profile_ids: internal ids of desired genetic profiles
+	=> Get all data corresponding to those
+Option 2:
+	List<Integer> genes: desired genes
+	List<Integer> profile_ids: internal ids of desired genetic profiles
+	List<Integer> patient_ids: internal ids of patients
+	=> Get all data corresponding to those and those patients
+Option 3:
+	List<Integer> genes: desired genes
+	List<Integer> profile_ids: internal ids of desired genetic profiles
+	List<Integer> patient_list_ids: internal ids of desired patient lists
+	=> Get all data corresponding to those and those patients in the lists

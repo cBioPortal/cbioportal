@@ -140,8 +140,12 @@
     )
 </select>
 
-<select id="getAll" resultMap="ClinicalFieldResult">
-    select * from clinical_attribute
+<select id="getAll_Sample" resultMap="ClinicalFieldResult">
+    select * from clinical_attribute where PATIENT_ATTRIBUTE=0
+</select>
+
+<select id="getAll_Patient" resultMap="ClinicalFieldResult">
+    select * from clinical_attribute where PATIENT_ATTRIBUTE=1
 </select>
     
 </mapper>

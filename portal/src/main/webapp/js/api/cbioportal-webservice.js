@@ -7,14 +7,17 @@ cbio = (function() {
 	var makeArgs = function(args) {
 		var url = '?';
 		for (var k in args) {
-			if (url.length > 1) {
-				url += '&';
+			if (args[k] && args[k].length > 0) {
+				if (url.length > 1) {
+					url += '&';
+				}
+				url += k + '=' + args[k].join(',');
 			}
-			url += k + '=' + args[k].join(',');
 		}
 		return url;
 	}
 	var getRequest = function(endpt, argstr, callback, fail) {
+		console.log("making get request");
 		var url = endpt + argstr;
 		var req = $.getJSON(url, callback);
 		if (fail) {
@@ -25,12 +28,12 @@ cbio = (function() {
 		getRequest(endpt, makeArgs(args), callback, fail);
 	}
 	// META
-	var cancerTypesMeta = function(ids, callback, fail) {
-		apiCall('/api/meta/cancertypes', {'ids':ids}, callback, fail);
+	var cancerTypesMeta = function(args, callback, fail) {
+		apiCall('/api/meta/cancertypes', args, callback, fail);
 	}
 
-	var genesMeta = function(ids, callback, fail) {
-		apiCall('/api/meta/genes', {'ids':ids}, callback, fail);
+	var genesMeta = function(args, callback, fail) {
+		apiCall('/api/meta/genes', args, callback, fail);
 	}
 
 	var patientsMeta = function(args, callback, fail) {
@@ -41,8 +44,8 @@ cbio = (function() {
 		apiCall('/api/meta/samples', args, callback, fail);
 	}
 
-	var studiesMeta = function(ids, callback, fail) {
-		apiCall('/api/meta/studies', {'ids':ids}, callback, fail);
+	var studiesMeta = function(args, callback, fail) {
+		apiCall('/api/meta/studies', args, callback, fail);
 	}
 
 	var patientListsMeta = function(args, callback, fail) {
@@ -61,11 +64,15 @@ cbio = (function() {
 		apiCall('/api/meta/clinical/samples', args, callback, fail);
 	}
 	// DATA
+	i
 	var clinicalPatientsData = function(args, callback, fail) {
 		apiCall('/api/data/clinical/patients', args, callback, fail);
 	}
 	var clinicalSamplesData = function(args, callback, fail) {
 		apiCall('/api/data/clinical/samples', args, callback, fail);
+	}
+	var patientListsData = function(args, callback, fail) {
+		apiCall('/api/data/patientlists', args, callback, fail);
 	}
 	var profilesData = function(args, callback, fail) {
 		apiCall('/api/data/profiles', args, callback, fail);
@@ -87,6 +94,7 @@ cbio = (function() {
 		data: {
 			clinicalPatients: clinicalPatientsData,
 			clinicalSamples: clinicalSamplesData,
+			patientLists: patientListsData,
 			profiles: profilesData,
 		}
 	}

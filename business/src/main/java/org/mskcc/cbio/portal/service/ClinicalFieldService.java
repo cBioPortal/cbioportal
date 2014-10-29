@@ -22,8 +22,8 @@ public class ClinicalFieldService {
     private ClinicalFieldMapper clinicalFieldMapper;
     
     @Transactional
-    public List<DBClinicalField> getAll() {
-        return clinicalFieldMapper.getAll();
+    public List<DBClinicalField> getAll(boolean sample) {
+        return (sample? clinicalFieldMapper.getAll_Sample() : clinicalFieldMapper.getAll_Patient());
     }
     @Transactional
     public List<DBClinicalField> byInternalStudyId(List<Integer> ids, boolean sample) {

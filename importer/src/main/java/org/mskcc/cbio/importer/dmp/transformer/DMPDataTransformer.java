@@ -17,14 +17,19 @@
  */
 package org.mskcc.cbio.importer.dmp.transformer;
 
+import com.google.common.collect.FluentIterable;
+import com.google.inject.internal.Function;
 import com.google.inject.internal.Lists;
 import com.google.inject.internal.Preconditions;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.List;
+
+import org.apache.commons.csv.CSVRecord;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.dmp.model.DmpData;
+import org.mskcc.cbio.importer.dmp.model.Result;
 import org.mskcc.cbio.importer.dmp.persistence.file.DMPTumorTypeSampleMapManager;
 import org.mskcc.cbio.importer.persistence.staging.*;
 
@@ -78,7 +83,7 @@ public class DMPDataTransformer {
      return a Set of processed SMP sample ids
      */
 
-    public void transform(DmpData data) {
+    public List<String> transform(DmpData data) {
         Preconditions.checkArgument(null != data, "DMP data is required for transformation");
         
         // process the tumor types
@@ -88,6 +93,13 @@ public class DMPDataTransformer {
             transformable.transform(data);
         }
 
+        return FluentIterable.from(data.getResults())
+        .transform(new com.google.common.base.Function<Result, String>() {
+            @Override
+            public String apply(Result result) {
+                return result.getMetaData().getDmpSampleId();
+            }
+        }).toList();
     }
 
   

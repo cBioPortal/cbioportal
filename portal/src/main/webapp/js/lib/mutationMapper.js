@@ -6544,6 +6544,23 @@ var PancanMutationHistTipView = Backbone.View.extend({
 
 		var self = this;
 
+		var variables = {
+			gene: self.model.geneSymbol
+		};
+
+		// render view
+		var templateFn = BackboneTemplateCache.getTemplateFn("pancan_mutation_hist_tip_template");
+		var content = templateFn(variables);
+
+		self.model.qtipApi.set('content.text', content);
+
+		// format after rendering
+		this.format();
+	},
+	format: function()
+	{
+		var self = this;
+
 		var gene = self.model.geneSymbol;
 		var keyword = self.model.keyword;
 		var metaData = self.model.cancerStudyMetaData;
@@ -6552,62 +6569,39 @@ var PancanMutationHistTipView = Backbone.View.extend({
 		var byKeywordData = self.model.pancanMutationFreq[keyword];
 		var byHugoData = self.model.pancanMutationFreq[gene];
 
-		// TODO parametrize or remove invisible_container
-		var invisible_container = document.getElementById("pancan_mutations_histogram_container");
+		var container = self.$el.find(".pancan-histogram-container");
 
+		// init the histogram
 		var histogram = PancanMutationHistogram(byKeywordData,
 		                                        byHugoData,
 		                                        metaData,
-		                                        invisible_container,
+		                                        container[0],
 		                                        {this_cancer_study: cancerStudy});
 
-		self.histogram = histogram;
-
-		// TODO add a new template for this content
-		var title = "<div><div><h3>"+gene+" mutations across all cancer studies</h3></div>" +
-		            "<div style='float:right;'><button class='cross-cancer-download' file-type='pdf'>PDF</button>"+
-		            "<button class='cross-cancer-download' file-type='svg'>SVG</button></div></div>"+
-		            "<div><p>"+histogram.overallCountText()+"</p></div>";
-
-		var content = title+invisible_container.innerHTML;
-
-		self.model.qtipApi.set('content.text', content);
-
-
-		this.format();
-	},
-	format: function()
-	{
-		var self = this;
-
-		var gene = self.model.geneSymbol;
-
-		// TODO parametrize or remove invisible_container
-		var invisible_container = document.getElementById("pancan_mutations_histogram_container");
+		// update the overall count text
+		self.$el.find(".overall-count").html(histogram.overallCountText());
 
 		// correct the qtip width
-		var svg_width = $(invisible_container).find('svg').attr('width');
-		//$(this).css('max-width', parseInt(svg_width));
-		self.$el.css('max-width', parseInt(svg_width));
+		var svgWidth = $(container).find('svg').attr('width');
+		self.$el.css('max-width', parseInt(svgWidth));
 
-		//var this_svg = $(this).find('svg')[0];
-		var this_svg = self.$el.find('svg')[0];
-		self.histogram.qtip(this_svg);
+		// add histogram tooltips (inner tooltips)
+		var svg = self.$el.find('svg')[0];
+		histogram.qtip(svg);
 
+		// add click functionality for the buttons
 		$(".cross-cancer-download").click(function() {
 			var fileType = $(this).attr("file-type");
 
 			var params = {
 				filetype: fileType,
 				filename: gene + "_mutations." + fileType,
-				svgelement: (new XMLSerializer()).serializeToString(this_svg)
+				svgelement: (new XMLSerializer()).serializeToString(svg)
 			};
 
 			// TODO customize download server
 			cbio.util.requestDownload("svgtopdf.do", params);
 		});
-
-		$(invisible_container).empty();     // N.B.
 	}
 });
 
@@ -10096,7 +10090,7 @@ function MutationDetailsTable(options, gene, mutationUtil, pancanProxy, portalPr
 					//addTooltip(freq, window.cancer_study_meta_data, window.cancerStudyName);
 					portalProxy.getPortalData(
 						{cancerStudyMetaData: true, cancerStudyName: true}, function(portalData) {
-							addTooltip(_additionalData.pancanFrequencies,
+							addTooltip(additionalData.pancanFrequencies,
 							           portalData.cancerStudyMetaData,
 							           portalData.cancerStudyName);
 					});

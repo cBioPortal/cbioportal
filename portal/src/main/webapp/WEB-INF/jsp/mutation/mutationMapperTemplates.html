@@ -434,6 +434,22 @@
 		</a>
 	</div>
 </script>
+
+<script type="text/template" id="pancan_mutation_hist_tip_template">
+    <div>
+        <div>
+            <h3>{{gene}} mutations across all cancer studies</h3>
+        </div>
+        <div style='float:right;'>
+            <button class='cross-cancer-download' file-type='pdf'>PDF</button>
+            <button class='cross-cancer-download' file-type='svg'>SVG</button>
+        </div>
+    </div>
+    <div>
+        <p class="overall-count"></p>
+    </div>
+    <div class="pancan-histogram-container"></div>
+</script>
 <script type="text/template" id="default_mutation_details_template">
 	<div class='mutation-3d-container'></div>
 	<div class='mutation-details-loader'>

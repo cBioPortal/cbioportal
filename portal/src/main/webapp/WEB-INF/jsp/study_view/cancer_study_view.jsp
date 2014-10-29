@@ -176,9 +176,12 @@ var caseIds = <%=jsonCaseIds%>;
 var cancer_study_id = cancerStudyId; //Some components using this as global ID
 var appVersion = <%=GlobalProperties.getAppVersion()%>;
 
-$("#study-tabs").tabs();
+$("#study-tabs").tabs({disabled: true});
+$("#study-tabs").tabs("enable", 0);
+
 $('#study-tab-clinical-a').click(function(){
-    if (!$(this).hasClass("tab-clicked")) {
+    if (!$(this).parent().hasClass('ui-state-disabled') && !$(this).hasClass("tab-clicked")) {
+        console.log('clicked');
         //First time: adjust the width of data table;
         $("#clinical-data-table-loading-wait").css('display', 'block');
         $("#clinical-data-table-div").css('display','none');

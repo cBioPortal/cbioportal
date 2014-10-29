@@ -42,7 +42,6 @@ var DataTable = function() {
         aoColumns = [], //DataTable Title Data
         aaData = [], //DataTable Content Data
         columnIndexMappingColumnId = [],
-        displayMapName = {},
         selectorData = [],
         filters = {};
     
@@ -127,9 +126,8 @@ var DataTable = function() {
     //Initialize aoColumns Data
     function initColumnsTitleData() {
         var i,
-            _permenentDisabledTitles =  ['CASE ID', 
-                                        'PATIENT ID', 
-                                        'Patient Identifier'];
+            _permenentDisabledAttrs =  ['CASE_ID', 
+                                        'PATIENT_ID'];
         
         aoColumns.length = 0;
         
@@ -138,7 +136,6 @@ var DataTable = function() {
             fullDisplay: 'CASE ID',
             attrId: "CASE_ID"
         });
-        displayMapName['CASE ID'] = 'CASE_ID';
         for( i = 0; i < attr.length; i++ ){
             if( attr[i].attr_id !== 'CASE_ID' ){
                 var _tmp = {};
@@ -157,7 +154,6 @@ var DataTable = function() {
                     }
                     _tmp.fullDisplay = attr[i].display_name;
                 }
-                displayMapName[_tmp.dataTable.sTitle] = attr[i].attr_id;
                 _tmp.dataTable.sType = dataType[attr[i].attr_id];
                 aoColumns.push(_tmp);
             }
@@ -173,9 +169,9 @@ var DataTable = function() {
             //
             //TODO: Need second sorting function for sorting pre disabled
             //predisabled columns if needed.
-            if(_permenentDisabledTitles.indexOf(a.dataTable.sTitle) !== -1) {
+            if(_permenentDisabledAttrs.indexOf(a.attrId) !== -1) {
                 return -1;
-            }else if(_permenentDisabledTitles.indexOf(b.dataTable.sTitle) !== -1) {
+            }else if(_permenentDisabledAttrs.indexOf(b.attrId) !== -1) {
                 return 1;
             }else{
                 var _a = a.dataTable.sTitle.toLowerCase(),
@@ -190,7 +186,7 @@ var DataTable = function() {
         });
         
         for( var i = 0; i < aoColumnsLength; i++) {
-            if(_permenentDisabledTitles.indexOf(aoColumns[i].dataTable.sTitle) !== -1) {
+            if(_permenentDisabledAttrs.indexOf(aoColumns[i].attrId) !== -1) {
                 permenentDisabledId.push(i);
             }
         }
@@ -210,22 +206,18 @@ var DataTable = function() {
             aaData[_key] = [];
             
             for ( var j = 0; j < _aoColumnsLength; j++) {
-                var _valueAo = aoColumns[j].dataTable,
+                var _attrId = aoColumns[j].attrId,
                     _selectedString,
                     _specialCharLength,
                     _tmpValue ='',
                     _specialChar = ['(',')','/','?','+'];
 
-                if(_valueAo.sTitle === 'CNA'){
-                    _tmpValue = _value['COPY_NUMBER_ALTERATIONS'];                
-                }else if ( _valueAo.sTitle === 'COMPLETE (ACGH, MRNA, SEQUENCING)'){
-                    _tmpValue = _value[_valueAo.sTitle];
-                }else if ( _valueAo.sTitle === 'CASE ID'){
+                if ( _attrId === 'CASE_ID'){
                     _tmpValue = "<a href='case.do?case_id=" + 
                     _value['CASE_ID'] + "&cancer_study_id=" +
                     StudyViewParams.params.studyId + "' target='_blank'><span style='color: #2986e2'>" + 
                     _value['CASE_ID'] + "</span></a></strong>";
-                }else if ( (_valueAo.sTitle === 'Patient Identifier' || _valueAo.sTitle === 'PATIENT ID') && _value['PATIENT_ID'] !== 'NA'){
+                }else if ( _attrId === 'PATIENT_ID' && _value['PATIENT_ID'] !== 'NA'){
                     _tmpValue = "<a href='case.do?cancer_study_id=" +
                     StudyViewParams.params.studyId + "&patient_id="+
                     _value['PATIENT_ID'] +
@@ -243,7 +235,7 @@ var DataTable = function() {
                 _specialCharLength = _specialChar.length;
                 
                 //Only usded for columns without URL link
-                if ( _valueAo.sTitle !== 'CASE ID' && _valueAo.sTitle !== 'Patient Identifier' && _valueAo.sTitle !== 'PATIENT ID' ){
+                if ( _attrId === 'CASE_ID' && _attrId === 'PATIENT_ID' ){
                     for( var z = 0; z < _specialCharLength; z++){
                         if(_selectedString.indexOf(_specialChar[z]) !== -1){
                             var _re = new RegExp("\\" + _specialChar[z], "g");

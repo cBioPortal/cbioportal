@@ -47,8 +47,7 @@ var SurvivalCurveView = function(_opts) {
         kmEstimator = "",
         logRankTest = "",
         //confidenceIntervals = "",
-        //data instances for each group
-        alteredGroup = [],
+        alteredGroup = [], //data instances for each group
         unalteredGroup = [],
         inputArr = [];
 

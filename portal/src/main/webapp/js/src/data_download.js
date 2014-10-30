@@ -116,7 +116,7 @@ var DataDownloadTab = (function() {
         var _formats = [
             { name: "Tab-delimited Format", value: "tab"},
             { name: "Transposed Matrix", value: "matrix"}
-        ]
+        ];
 
         $.each(window.PortalGlobals.getGeneticProfiles().split(" "), function(index, val) {
             var _str = "<li>" + profiles[val].NAME + ": "; 

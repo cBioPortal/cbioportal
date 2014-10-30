@@ -446,13 +446,22 @@ define("Oncoprint",
                             // UNREGULATED, at the bottom otherwise
                             var dy = dims.rect_height;
                             dy = d.rppa === "UPREGULATED" ? dy * 0.1 : dy / 1.1;
-                            return translate(dims.rect_width / 2, dy + vertical_pos(utils.get_attr(d))); });
+                            if(params.clinical_attrs.length === 0) //to check are there clinic data input
+                            {
+                                gapSpaceGeneClinic = 0;
+                            }
+                            return translate(dims.rect_width / 2, dy + gapSpaceGeneClinic + vertical_pos(utils.get_attr(d))); });
                         rppa.filter(function(d) {
                             return d.rppa === undefined;
                         }).remove();
 
                     var mrna = enter.append('rect')
-                        .attr('y', function(d) { return vertical_pos(utils.get_attr(d)); })
+                        .attr('y', function(d) { 
+                                    if(params.clinical_attrs.length === 0) //to check are there clinic data input
+                                    {
+                                        gapSpaceGeneClinic = 0;
+                                    }
+                                    return vertical_pos(utils.get_attr(d)) + gapSpaceGeneClinic; })
                         .attr('height', dims.rect_height)
                         .attr('width', dims.rect_width)
                         .attr('stroke-width', 2)
@@ -857,7 +866,7 @@ define("Oncoprint",
                         while(mutation_legends_svg.indexOf(find1) > -1)
                         {
                             mutation_legends_svg = mutation_legends_svg.replace(find1, '<g transform = "translate(0,'+ (dims.vert_space * i) +')"');
-                            mutation_legends_svg = mutation_legends_svg.replace(find1, '<g transform = "translate(0,'+ (dims.vert_space * i) +')"');
+//                            mutation_legends_svg = mutation_legends_svg.replace(find1, '<g transform = "translate(0,'+ (dims.vert_space * i) +')"');
                             i++;
                         }
                         mutation_legends_svg = "<g transform=\"translate("+ verticalTranslateWidth +","+ (dims.height + 10 + dims.vert_space) + ")\">" + mutation_legends_svg + "</g> ";

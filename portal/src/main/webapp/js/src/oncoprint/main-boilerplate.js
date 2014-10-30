@@ -23,7 +23,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
     var recordAttrs;//make a record of all attrs
     
     var gapSpaceGeneClinic = 10;// Gap between gene data and clinic 
-    var mutationColorControl = 'multiColor';
+    var mutationColorControl = 'singleColor';
     
     // basically a hack to prevent the zoom function from a particular oncoprint
     // from getting bound to the UI slider forever

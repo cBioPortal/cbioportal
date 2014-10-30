@@ -560,45 +560,6 @@ define("OncoprintUtils", (function() {
             
             return totalHeight;
         }
-        
-//        var table = d3.select(document.getElementById('oncoprint_legend'))
-//            .append('table')
-//            .append('tr')
-//            .attr('id','legend_table')
-//            .attr('valign','top');
-//
-//        // hack to get the label flush with the tracks in Firefox
-//        // the discrepancy is due to the difference in the way browsers display
-//        // <table>.  Assume that other browsers behave like chrome and that Firefox
-//        // is the exception.
-//        var is_firefox = navigator.userAgent.indexOf("Firefox") !== -1;
-//        var browser_offset = is_firefox ? 16 : 0;
-//
-//        var label_svg = table
-//            .append('td')
-//            .append('svg')
-//            .attr('height', dims.height + browser_offset)
-//            .attr('width', function(){return maxLabelLength>120 ? maxLabelLength : 120;})
-//            .attr('id', 'legend');
-//
-//        var label = label_svg.selectAll('text')
-//            .data(datas)
-//            .enter()
-//            .append('text')
-//            .attr('font-size', '12px')
-//            .attr('x', 0)
-//            .attr('y', function(d) { 
-//                return (_.indexOf(datas,d) + 1 ) * dims.vert_space - dims.vert_padding;
-//            });
-//
-//        label.append('tspan')       // name
-//            .attr('text-anchor', 'start')
-//            .attr('font-weight', 'bold')
-//            .attr('fill','gray')
-//            .attr('class','attribute_legend')
-//            .text(function(d) {
-//                return d[0].attr_id.toString().toLowerCase();
-//            });
             
         var calculateDistance = function (idName,valueName)
         {
@@ -688,7 +649,6 @@ define("OncoprintUtils", (function() {
         var inteData = datas[ii];
         var table = d3.select(document.getElementById('oncoprint_legend'))
         .append('table')
-//        .append('tr')
         .attr('id','legend_table')
         .attr('class','mutation_legend_table')
         .attr('height', dims.vert_space)
@@ -707,16 +667,6 @@ define("OncoprintUtils", (function() {
             .attr('height', dims.vert_space)
             .attr('width', function(){return maxLabelLength>120 ? maxLabelLength : 120;})
             .attr('id', 'legend');
-
-//        var label = label_svg.selectAll('text')
-//            .data(datas)
-//            .enter()
-//            .append('text')
-//            .attr('font-size', '12px')
-//            .attr('x', 0)
-//            .attr('y', function(d) { 
-//                return (_.indexOf(datas,d) + 1 ) * dims.vert_space - dims.vert_padding;
-//            });
             
         var label = label_svg.append('text')
             .attr('font-size', '12px')
@@ -748,41 +698,8 @@ define("OncoprintUtils", (function() {
                             .attr('height', dims.vert_space)
                             .attr('width', this_legend_width + gradientLegendColorbarLength)
                             .attr('id', 'legend_svg');
-                    
-//        var translate = function(x,y) { return "translate(" + x + "," + y + ")"; };
-//        var calculateDistance = function (idName,valueName)
-//            {
-//                var indexValue;
-//                var dataIndexValue;
-//                
-//                for(var n = 0; n < datas.length; n++)
-//                {
-//                    if(datas[n][0].attr_id === idName)
-//                    {
-//                        indexValue = n;
-//                        dataIndexValue = datas[n].length;
-//                        break;
-//                    }
-//                }
-//                var totalLength = 0;
-//                for(var i = 0 ; i < dataIndexValue; i++)
-//                {
-//                    if(datas[indexValue][i].attr_val!==valueName)
-//                    {
-//                        totalLength += datas[indexValue][i].attr_val.toString().length *6.5 + dims.rect_width * 5;
-//                    }
-//                    else
-//                    {
-//                        break;
-//                    }
-//                }
-//                return totalLength;
-//            };
-                
-        var legend_svg_main = legend_rec_text.selectAll('g')        
-            .data(inteData)
-            .enter()
-            .append('g')
+
+        var legend_svg_main = legend_rec_text.append('g')
             .attr('transform',function(){ return translate( 0, 0 );})
             .attr('height', dims.vert_space);
         
@@ -1081,13 +998,6 @@ define("OncoprintUtils", (function() {
             .attr('class','genetic_legend_table')
             .attr('valign','top');
 
-//        var legend_name = table.append('text')
-//            .attr('font-size', '14px')
-//            .append('tspan')
-//            .attr('font-weight', 'bold')
-//            .attr('fill','black')
-//            .text('genetic alteration');
-
         var calculateMaxLabelLength = function (datas)
         {
             var labelNumbers = datas.length;
@@ -1186,6 +1096,173 @@ define("OncoprintUtils", (function() {
                     return true;// need to modified by dong li
             }
         }
+        
+        if (datatype2range.mrna !== undefined) 
+        {
+                var legend_svg = table
+                            .append('svg')
+                            .attr('height', 23 )
+                            .attr('width', ('mRNA Downregulation').length * 7.5 + 5.5*3 )
+                            .attr('x', 0)
+                            .attr('id', 'legend_svg')
+                            .attr('class', 'legend_cna')
+                            .append('g');
+
+                legend_svg.append('rect')
+                            .attr('height', 23)
+                            .attr('width', 5.5)
+                            .attr('fill', colors.grey);
+                legend_svg.append('rect')
+                            .attr('height', 23)
+                            .attr('width', 5.5)
+                            .attr('stroke-width',2)
+                            .attr('stroke-opacity',1)
+                            .attr('stroke','#6699CC')
+                            .attr('fill', 'none');
+
+                var label = legend_svg.append('text')
+                    .attr('font-size', '12px')
+                    .attr('width', function()
+                    {
+                        return ('mRNA Downregulation').length * 6.5;
+                    })
+                    .attr('x', 5.5*3)
+                    .attr('y', 21);
+
+                label.append('tspan')       // name
+                    .attr('text-anchor', 'start')
+                    .attr('fill','black')
+                    .attr('class','legend_name')
+                    .text('mRNA Downregulation');
+            
+            
+                var legend_svg = table
+                            .append('svg')
+                            .attr('height', 23 )
+                            .attr('width', ('mRNA Upregulation').length * 7.5 + 5.5*3 )
+                            .attr('x', 0)
+                            .attr('id', 'legend_svg')
+                            .attr('class', 'legend_cna')
+                            .append('g');
+
+                legend_svg.append('rect')
+                            .attr('height', 23)
+                            .attr('width', 5.5)
+                            .attr('fill', colors.grey);
+                legend_svg.append('rect')
+                            .attr('height', 23)
+                            .attr('width', 5.5)
+                            .attr('stroke-width',2)
+                            .attr('stroke-opacity',1)
+                            .attr('stroke','#FF9999')
+                            .attr('fill', 'none');
+
+                var label = legend_svg.append('text')
+                    .attr('font-size', '12px')
+                    .attr('width', function()
+                    {
+                        return ('mRNA Upregulation').length * 6.5;
+                    })
+                    .attr('x', 5.5*3)
+                    .attr('y', 21);
+
+                label.append('tspan')       // name
+                    .attr('text-anchor', 'start')
+                    .attr('fill','black')
+                    .attr('class','legend_name')
+                    .text('mRNA Upregulation');
+        }
+        
+        if (datatype2range.rppa !== undefined) 
+        {
+                var legend_svg = table
+                            .append('svg')
+                            .attr('height', 23 )
+                            .attr('width', ('RPPA Downregulation').length * 7.5 + 5.5*3 )
+                            .attr('x', 0)
+                            .attr('id', 'legend_svg')
+                            .attr('class', 'legend_cna')
+                            .append('g');
+
+                legend_svg.append('rect')
+                            .attr('height', 23)
+                            .attr('width', 5.5)
+                            .attr('fill', colors.grey);
+//                var sym = d3.svg.symbol().size(5.5 * 3);
+//                // need to be modified
+//                var rppa = legend_svg.append('path')
+//                        .attr('d', sym.type(function(d) {
+//                            return "triangle-up"; }))
+//                        .attr('transform', function(d) {
+//                            // put the triangle in the right spot: at the top if
+//                            // UNREGULATED, at the bottom otherwise
+//                            var dy = 23;
+//                            dy =  dy * 0.1;
+//                            return translate( 5.5 / 2, dy); });
+//                        rppa.filter(function(d) {
+//                            return d.rppa === undefined;
+//                        });
+                legend_svg.append('rect')
+                            .attr('height', 23)
+                            .attr('width', 5.5)
+                            .attr('stroke-width',2)
+                            .attr('stroke-opacity',1)
+                            .attr('stroke','#6699CC')
+                            .attr('fill', 'none');
+
+                var label = legend_svg.append('text')
+                    .attr('font-size', '12px')
+                    .attr('width', function()
+                    {
+                        return ('RPPA Downregulation').length * 6.5;
+                    })
+                    .attr('x', 5.5*3)
+                    .attr('y', 21);
+
+                label.append('tspan')       // name
+                    .attr('text-anchor', 'start')
+                    .attr('fill','black')
+                    .attr('class','legend_name')
+                    .text('RPPA Downregulation');
+            
+            
+                var legend_svg = table
+                            .append('svg')
+                            .attr('height', 23 )
+                            .attr('width', ('RPPA Upregulation').length * 7.5 + 5.5*3 )
+                            .attr('x', 0)
+                            .attr('id', 'legend_svg')
+                            .attr('class', 'legend_cna')
+                            .append('g');
+
+                legend_svg.append('rect')
+                            .attr('height', 23)
+                            .attr('width', 5.5)
+                            .attr('fill', colors.grey);
+//                legend_svg.append('rect')
+//                            .attr('height', 23)
+//                            .attr('width', 5.5)
+//                            .attr('stroke-width',2)
+//                            .attr('stroke-opacity',1)
+//                            .attr('stroke','#FF9999')
+//                            .attr('fill', 'none');
+
+                var label = legend_svg.append('text')
+                    .attr('font-size', '12px')
+                    .attr('width', function()
+                    {
+                        return ('RPPA Upregulation').length * 6.5;
+                    })
+                    .attr('x', 5.5*3)
+                    .attr('y', 21);
+
+                label.append('tspan')       // name
+                    .attr('text-anchor', 'start')
+                    .attr('fill','black')
+                    .attr('class','legend_name')
+                    .text('RPPA Upregulation');
+        }
+        
         if(datatype2range.mutation !== undefined)
         {   
 //            if($('#oncoprint_diagram_showmutationcolor_icon')[0].attributes.src.value === 'images/uncolormutations.svg')
@@ -1212,7 +1289,6 @@ define("OncoprintUtils", (function() {
                 .attr('font-size', '12px')
                 .attr('width', function()
                 {
-    //                    return captions.cna[datatype2range.cna[0]].length * 6.5;
                     return ('missense mutation').length * 6.5;
                 })
                 .attr('x', 5.5*3)
@@ -1249,7 +1325,6 @@ define("OncoprintUtils", (function() {
                     .attr('font-size', '12px')
                     .attr('width', function()
                     {
-        //                    return captions.cna[datatype2range.cna[0]].length * 6.5;
                         return ('non-missense mutation').length * 6.5;
                     })
                     .attr('x', 5.5*3)
@@ -1261,7 +1336,6 @@ define("OncoprintUtils", (function() {
                         .attr('class','legend_name')
                         .text('non-missense mutation'); 
                 }
-//            }
         }
         
         if(attrtype2range.length > 0)

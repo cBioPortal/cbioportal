@@ -13,8 +13,6 @@ dataman = (function() {
 		cache.data[datacalls[i]] = {};
 		history.data[datacalls[i]] = {};
 	}
-	cache.meta.studies.stable = {};
-	cache.meta.studies.internal = {};
 
 	// HELPERS
 	var mapSlice = function(map, keys) {
@@ -39,8 +37,13 @@ dataman = (function() {
 		return ret;
 	}
 	// PUBLIC
-	// -- meta.cancerTypes -- 
+	// -- meta.cancerTypes --
+	var initCancerTypesCache = function() {
+		cache.meta.studies.stable = cache.meta.studies.stable || {};
+		cache.meta.studies.internal = cache.meta.studies.internal || {};
+	} 
 	var getAllCancerTypes = function(callback, fail) {
+		initCancerTypesCache();
 		if (history.meta.cancerTypes.all) {
 			callback(mapSlice(cache.meta.cancerTypes));
 		} else {
@@ -54,6 +57,7 @@ dataman = (function() {
 		}
 	}
 	var getCancerTypesById = function(ids, callback, fail) {
+		initCancerTypesCache();
 		var toQuery = missingKeys(cache.meta.cancerTypes, ids);
 		if (toQuery.length == 0) {
 			callback(mapSlice(cache.meta.cancerTypes, ids));
@@ -68,21 +72,62 @@ dataman = (function() {
 	}
 
 	// -- meta.genes --
+	var initGenesCache = function() {
+		cache.meta.genes.hugo = cache.meta.genes.hugo || {};
+		cache.meta.genes.entrez = cache.meta.genes.entrez || {};
+	}
 	var getAllGenes = function(callback, fail) {
-		// TODO?: caching
-		cbio.meta.genes({}, callback, fail);
+		initGenesCache();
+		if (history.meta.genes.all) {
+			callback(mapSlice(cache.meta.genes.hugo));
+		} else {
+			cbio.meta.genes({}, function(data) {
+				for (var i=0; i<data.length; i++) {
+					cache.meta.genes.hugo[data[i].hugoGeneSymbol] = data[i];
+					cache.meta.genes.entrez[data[i].entrezGeneId] = data[i];
+				}
+				history.meta.genes.all = true;
+				callback(mapSlice(cache.meta.genes.hugo));
+			}, fail)
+		}
 	}
 	var getGenesByHugoGeneSymbol = function(ids, callback, fail) {
-		// TODO?: caching
-		cbio.meta.genes({'ids':ids}, callback, fail);
+		initGenesCache();
+		var toQuery = missingKeys(cache.meta.genes.hugo, ids);
+		if (toQuery.length ==0) {
+			callback(mapSlice(cache.meta.genes.hugo, ids));
+		} else {
+			cbio.meta.genes({'ids': toQuery}, function(data) {
+				for (var i=0; i<data.length; i++) {
+					cache.meta.genes.hugo[data[i].hugoGeneSymbol] = data[i];
+					cache.meta.genes.entrez[data[i].entrezGeneId] = data[i];
+				}
+				callback(mapSlice(cache.meta.genes.hugo, ids));
+			}, fail);
+		}
 	}
 	var getGenesByEntrezGeneId = function(ids, callback, fail) {
-		// TODO?: caching
-		cbio.meta.genes({'ids':ids}, callback, fail);
+		initGenesCache();
+		var toQuery = missingKeys(cache.meta.genes.entrez, ids);
+		if (toQuery.length ==0) {
+			callback(mapSlice(cache.meta.genes.entrez, ids));
+		} else {
+			cbio.meta.genes({'ids': toQuery}, function(data) {
+				for (var i=0; i<data.length; i++) {
+					cache.meta.genes.hugo[data[i].hugoGeneSymbol] = data[i];
+					cache.meta.genes.entrez[data[i].entrezGeneId] = data[i];
+				}
+				callback(mapSlice(cache.meta.genes.entrez, ids));
+			}, fail);
+		}
 	}
 
 	// -- meta.patients --
-	var getPatientsByStudy = function(study_ids, callback, fail) {
+	var getPatientsByStableStudyId = function(study_ids, callback, fail) {
+		//TODO?: caching
+		cbio.meta.patients({'study_ids': study_ids}, callback, fail);
+	}
+	var getPatientsByInternalStudyId = function(study_ids, callback, fail) {
 		//TODO?: caching
 		cbio.meta.patients({'study_ids': study_ids}, callback, fail);
 	}
@@ -266,15 +311,28 @@ dataman = (function() {
 	}
 
 	// -- data.profiles --
+	var addProfileDataToCache = function(data) {
+
+	}
+	var getProfileDataFromCache = function(genes, profile_ids) {
+		
+	}
+	var initProfileDataCache = function() {
+		history.data.profiles.profiles = history.data.profiles.profiles || {};
+		history.data.profiles.patientlists = history.data.profiles.profiles || {};
+	}
 	var getAllProfileData = function(genes, profile_ids, callback, fail) {
+		initProfileDataCache();
 		//TODO: caching
 		cbio.data.profilesData({'genes': genes, 'profile_ids':profile_ids}, callback, fail);
 	}
 	var getProfileDataByPatientId = function(genes, profile_ids, patient_ids, callback, fail) {
+		initProfileDataCache();
 		//TODO: caching
 		cbio.data.profilesData({'genes': genes, 'profile_ids':profile_ids, 'patient_ids':patient_ids}, callback, fail);
 	}
 	var getProfileDataByPatientListId = function(genes, profile_ids, patient_list_ids, callback, fail) {
+		initProfileDataCache();
 		//TODO: caching
 		cbio.data.profilesData({'genes': genes, 'profile_ids':profile_ids, 'patient_list_ids':patient_list_ids}, callback, fail);
 	}

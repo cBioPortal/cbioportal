@@ -1,4 +1,4 @@
-/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+/** Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
@@ -19,106 +19,70 @@
 package org.mskcc.cbio.importer.fetcher.internal;
 
 // imports
-import org.mskcc.cbio.importer.Config;
-import org.mskcc.cbio.importer.Fetcher;
-import org.mskcc.cbio.importer.FileUtils;
-import org.mskcc.cbio.importer.DatabaseUtils;
-import org.mskcc.cbio.importer.model.ImportDataRecord;
-import org.mskcc.cbio.importer.model.ReferenceMetadata;
-import org.mskcc.cbio.importer.model.DataSourcesMetadata;
+import org.mskcc.cbio.importer.*;
+import org.mskcc.cbio.importer.model.*;
 import org.mskcc.cbio.importer.dao.ImportDataRecordDAO;
 import org.mskcc.cbio.importer.util.Shell;
+import org.mskcc.cbio.importer.mercurial.*;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.*;
 
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.*;
 
 /**
  * Class which implements the fetcher interface.
  */
-class MercurialFetcherImpl implements Fetcher {
-
-	// our logger
+public class MercurialFetcherImpl extends FetcherBaseImpl implements Fetcher
+{
 	private static Log LOG = LogFactory.getLog(MercurialFetcherImpl.class);
 
-	// ref to configuration
 	private Config config;
-
-	// ref to file utils
 	private FileUtils fileUtils;
-
-	// ref to import data
 	private ImportDataRecordDAO importDataRecordDAO;
-
-	// ref to database utils
 	private DatabaseUtils databaseUtils;
+	private MercurialService mercurialService;
 
-	// download directories
-	private DataSourcesMetadata dataSourceMetadata;
-
-	/**
-	 * Constructor.
-     *
-     * @param config Config
-	 * @param fileUtils FileUtils
-	 * @param databaseUtils DatabaseUtils
-	 * @param importDataRecordDAO ImportDataRecordDAO;
-	 */
 	public MercurialFetcherImpl(Config config, FileUtils fileUtils,
-								DatabaseUtils databaseUtils, ImportDataRecordDAO importDataRecordDAO) {
-
+								DatabaseUtils databaseUtils, ImportDataRecordDAO importDataRecordDAO,
+								MercurialService mercurialService)
+	{
 		// set members
 		this.config = config;
 		this.fileUtils = fileUtils;
 		this.databaseUtils = databaseUtils;
 		this.importDataRecordDAO = importDataRecordDAO;
+		this.mercurialService = mercurialService;
 	}
 
-	/**
-	 * Fetchers genomic data from an external datasource and
-	 * places in database for processing.
-	 *
-	 * @param dataSource String
-	 * @param desiredRunDate String
-	 * @throws Exception
-	 */
 	@Override
-	public void fetch(String dataSource, String desiredRunDate) throws Exception {
+	public void fetch(String dataSource, String desiredRunDate) throws Exception
+	{
+		logMessage(LOG, "fetch(), dateSource:runDate: " + dataSource + ":" + desiredRunDate);
 
-		if (LOG.isInfoEnabled()) {
-			LOG.info("fetch(), dateSource:runDate: " + dataSource + ":" + desiredRunDate);
+		DataSourcesMetadata dataSourceMetadata = getDataSourceMetadata(dataSource);
+		boolean updatesAvailable = mercurialService.updatesAvailable(dataSourceMetadata.getDownloadDirectory());
+		if (updatesAvailable) {
+			logMessage(LOG, "fetch(), updates available, pulling from repository.");
+			mercurialService.pullUpdate(dataSourceMetadata.getDownloadDirectory());
 		}
+		else {
+			logMessage(LOG, "fetch(), we have the latest dataset, nothing more to do.");
+		}
+	}
 
+	private DataSourcesMetadata getDataSourceMetadata(String dataSource)
+	{
 		// get our DataSourcesMetadata object
 		Collection<DataSourcesMetadata> dataSourcesMetadata = config.getDataSourcesMetadata(dataSource);
 		if (dataSourcesMetadata.isEmpty()) {
 			throw new IllegalArgumentException("cannot instantiate a proper DataSourcesMetadata object.");
 		}
-		this.dataSourceMetadata = dataSourcesMetadata.iterator().next();
-
-		String[] commands = new String[] { "hg pull", "hg merge", "hg commit -m \"latest pull\"", "hg update" };
-		for (String command : commands) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("executing: " + Arrays.asList(command));
-			}
-			if (Shell.exec(Arrays.asList(command), dataSourceMetadata.getDownloadDirectory())) {
-				if (LOG.isInfoEnabled()) {
-					LOG.info("complete!");
-				}
-			}
-		}
+		return dataSourcesMetadata.iterator().next();
 	}
 
-	/**
-	 * Fetchers reference data from an external datasource.
-	 *
-     * @param referenceMetadata ReferenceMetadata
-	 * @throws Exception
-	 */
 	@Override
 	public void fetchReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 }
+

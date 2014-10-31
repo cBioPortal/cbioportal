@@ -233,11 +233,16 @@ define("OncoprintUtils", (function() {
                 {
                     if(afterProcess.length > 12)
                     {
-                        var min = _.min(afterProcess,function(x){return x.attr_val;});
+//                        var min = _.min(afterProcess,function(x){return x.attr_val;});
+                        var min = jQuery.extend(true, {}, _.min(afterProcess,function(x){return x.attr_val;}));
                         min.attr_val_tpye = 'continuous';
                         var max = _.max(afterProcess,function(x){return x.attr_val;});
                         max.attr_val_tpye = 'continuous';
                         
+                        if(min.attr_id === '# mutations' || min.attr_id === 'FRACTION_GENOME_ALTERED')// specify minimum value of 'mutations' and 'FRACTION_GENOME_ALTERED' to 0
+                        {
+                            min.attr_val = 0;
+                        }
                         afterProcess = [min,max];
                     }
                 }
@@ -1096,7 +1101,11 @@ define("OncoprintUtils", (function() {
                     return true;// need to modified by dong li
             }
         }
-        
+        var translate = function(x,y) {
+            return "translate(" + x + "," + y + ")";
+        };
+
+
         if (datatype2range.mrna !== undefined) 
         {
                 var legend_svg = table
@@ -1188,27 +1197,21 @@ define("OncoprintUtils", (function() {
                             .attr('height', 23)
                             .attr('width', 5.5)
                             .attr('fill', colors.grey);
-//                var sym = d3.svg.symbol().size(5.5 * 3);
-//                // need to be modified
-//                var rppa = legend_svg.append('path')
-//                        .attr('d', sym.type(function(d) {
-//                            return "triangle-up"; }))
-//                        .attr('transform', function(d) {
-//                            // put the triangle in the right spot: at the top if
-//                            // UNREGULATED, at the bottom otherwise
-//                            var dy = 23;
-//                            dy =  dy * 0.1;
-//                            return translate( 5.5 / 2, dy); });
+                    
+                var sym = d3.svg.symbol().size(5.5 * 3);
+                // need to be modified
+                var rppa = legend_svg.append('path')
+                        .attr('d', sym.type(function(d) {
+                            return "triangle-up"; }))
+                        .attr('transform', function(d) {
+                            // put the triangle in the right spot: at the top if
+                            // UNREGULATED, at the bottom otherwise
+                            var dy = 23;
+                            dy =  dy * 0.1;
+                            return translate( 5.5 / 2, dy); });
 //                        rppa.filter(function(d) {
 //                            return d.rppa === undefined;
 //                        });
-                legend_svg.append('rect')
-                            .attr('height', 23)
-                            .attr('width', 5.5)
-                            .attr('stroke-width',2)
-                            .attr('stroke-opacity',1)
-                            .attr('stroke','#6699CC')
-                            .attr('fill', 'none');
 
                 var label = legend_svg.append('text')
                     .attr('font-size', '12px')
@@ -1239,13 +1242,15 @@ define("OncoprintUtils", (function() {
                             .attr('height', 23)
                             .attr('width', 5.5)
                             .attr('fill', colors.grey);
-//                legend_svg.append('rect')
-//                            .attr('height', 23)
-//                            .attr('width', 5.5)
-//                            .attr('stroke-width',2)
-//                            .attr('stroke-opacity',1)
-//                            .attr('stroke','#FF9999')
-//                            .attr('fill', 'none');
+                var rppa = legend_svg.append('path')
+                        .attr('d', sym.type(function(d) {
+                            return "triangle-down"; }))
+                        .attr('transform', function(d) {
+                            // put the triangle in the right spot: at the top if
+                            // UNREGULATED, at the bottom otherwise
+                            var dy = 23;
+                            dy =  dy / 1.1;
+                            return translate( 5.5 / 2, dy); });
 
                 var label = legend_svg.append('text')
                     .attr('font-size', '12px')
@@ -1305,7 +1310,7 @@ define("OncoprintUtils", (function() {
                     var legend_svg = table.append('svg')
                                 .attr('height', 23 )
                                 .attr('display','none')
-                                .attr('width', ('non-missense mutation').length * 7.5 + 5.5*3 )
+                                .attr('width', ('truncating mutation').length * 7.5 + 5.5*3 )
                                 .attr('id', 'legend_svg')
                                 .attr('class', 'legend_nonmissense')
                                 .append('g');
@@ -1325,7 +1330,7 @@ define("OncoprintUtils", (function() {
                     .attr('font-size', '12px')
                     .attr('width', function()
                     {
-                        return ('non-missense mutation').length * 6.5;
+                        return ('truncating mutation').length * 6.5;
                     })
                     .attr('x', 5.5*3)
                     .attr('y', 21);
@@ -1334,7 +1339,44 @@ define("OncoprintUtils", (function() {
                         .attr('text-anchor', 'start')
                         .attr('fill','black')
                         .attr('class','legend_name')
-                        .text('non-missense mutation'); 
+                        .text('truncating mutation'); 
+                }
+                
+                if(findProperMutation(datatype2range.mutation,2))
+                {
+                    var legend_svg = table.append('svg')
+                                .attr('height', 23 )
+                                .attr('display','none')
+                                .attr('width', ('inframe mutation').length * 7.5 + 5.5*3 )
+                                .attr('id', 'legend_svg')
+                                .attr('class', 'legend_nonmissense')
+                                .append('g');
+
+                    legend_svg.append('rect')
+                                .attr('height', 23)
+                                .attr('width', 5.5)
+                                .attr('fill', colors.grey);
+
+                    legend_svg.append('rect')
+                            .attr('display',"inherit")
+                            .attr('height', 7.666666666666667)
+                            .attr('width', 5.5)
+                            .attr('y',7.666666666666667)
+                            .attr('fill', '#9F8170');      
+                    var label = legend_svg.append('text')
+                    .attr('font-size', '12px')
+                    .attr('width', function()
+                    {
+                        return ('inframe mutation').length * 6.5;
+                    })
+                    .attr('x', 5.5*3)
+                    .attr('y', 21);
+
+                    label.append('tspan')       // name
+                        .attr('text-anchor', 'start')
+                        .attr('fill','black')
+                        .attr('class','legend_name')
+                        .text('inframe mutation'); 
                 }
         }
         

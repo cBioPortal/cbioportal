@@ -60,14 +60,14 @@ var ClinicalColl = Backbone.Collection.extend({
 var ClinicalMutationColl = Backbone.Collection.extend({
     model: Backbone.Model.extend({}),
     parse: function(response) {
-        this.attributes=function() { return [{attr_id: "mutations", datatype: "NUMBER",description: "Number of mutation", display_name: "Mutations"}]; };   // save the attributes
+        this.attributes=function() { return [{attr_id: "# mutations", datatype: "NUMBER",description: "Number of mutation", display_name: "# mutations"}]; };   // save the attributes
         var result = new Array();
         for (var property in response)
         {
             var tem = new Object();
             tem.attr_val = response[property];
             tem.sample =property;
-            tem.attr_id = "mutations";
+            tem.attr_id = "# mutations";
             result.push(tem);
         }
  

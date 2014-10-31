@@ -75,7 +75,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         success: function(attrs) {
             totalAttrs = attrs.toJSON();
             if(window.PortalGlobals.getMutationProfileId()!==null){
-                var tem={attr_id: "mutations", datatype: "NUMBER",description: "Number of mutation", display_name: "Mutations"};
+                var tem={attr_id: "# mutations", datatype: "NUMBER",description: "Number of mutation", display_name: "# mutations"};
                 totalAttrs.unshift(tem);
             }
             
@@ -384,7 +384,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             
             $('.select_clinical_attributes_from').attr("data-placeholder","Add another clinical attribute track");
             
-            if(clinicalAttribute.attr_id === "mutations")
+            if(clinicalAttribute.attr_id === "# mutations")
             {
                     oncoprintClinicals = new ClinicalMutationColl();
                     oncoprintClinicals.fetch({
@@ -1036,19 +1036,6 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             $('.oncoprint_diagram_showmutationcolor_icon').click(function(){
               if($(this)[0].attributes.src.value === 'images/colormutations.svg')
               {
-                mutationColorControl = 'moremultiColor';
-                refreshOncoPrint();
-                zoom = reset_zoom();
-                // sync
-                oncoprint.zoom(zoom.val());
-                oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
-                oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
-                utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
-                $(this)[0].attributes.src.value = 'images/multicolormutations.svg';
-                $('.legend_missense_name').text("mutation") ;
-              }
-                else if($(this)[0].attributes.src.value === 'images/multicolormutations.svg')
-              {
                 mutationColorControl = 'singleColor';
                 refreshOncoPrint();
                 zoom = reset_zoom();
@@ -1057,10 +1044,23 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
                 oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
                 utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
-                $(this)[0].attributes.src.value = 'images/uncolormutations.svg'; 
-                $('.legend_missense_name').text("missense mutation");
-                $('.legend_nonmissense').css("display","inline");
+                $(this)[0].attributes.src.value = 'images/uncolormutations.svg';
+                $('.legend_missense_name').text("mutation") ;
               }
+//                else if($(this)[0].attributes.src.value === 'images/multicolormutations.svg')
+//              {
+//                mutationColorControl = 'singleColor';
+//                refreshOncoPrint();
+//                zoom = reset_zoom();
+//                // sync
+//                oncoprint.zoom(zoom.val());
+//                oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
+//                oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
+//                utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
+//                $(this)[0].attributes.src.value = 'images/uncolormutations.svg'; 
+//                $('.legend_missense_name').text("missense mutation");
+//                $('.legend_nonmissense').css("display","inline");
+//              }
                 else if($(this)[0].attributes.src.value === 'images/uncolormutations.svg')
               {
                 mutationColorControl = 'multiColor';

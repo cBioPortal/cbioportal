@@ -21,6 +21,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 
@@ -37,6 +38,7 @@ public class FoundationMetadata {
     final private String cancerStudy;
     final private List<String> dependencies;
     final private List<String> excludedCases;
+    final private List<String> shortVariantExcludedStatuses;
 
     /**
      * Create a FoundationMetadata instance with properties in given array. Its
@@ -49,24 +51,32 @@ public class FoundationMetadata {
         Preconditions.checkArgument(properties.length >= 2, "Insufficient number of properties provided");
         this.cancerStudy = properties[0].trim();
         this.dependencies = Lists.newArrayList(semicolonSplitter.split(properties[1]));
-        // only a limited number of studies have excluded cases; most wil not have that property
+        // only a limited number of studies have excluded cases; most will not have that property
         if (properties.length >2) {
             this.excludedCases = Lists.newArrayList(semicolonSplitter.split(properties[2]));
+
         }else {
             this.excludedCases = Lists.newArrayList(); // an empty list
         }
-
+        if (properties.length > 3){
+            this.shortVariantExcludedStatuses = Lists.newArrayList(semicolonSplitter.split(properties[3]));
+        } else {
+            this.shortVariantExcludedStatuses = Lists.newArrayList();
+        }
     }
 
     public String getCancerStudy() {
         return this.cancerStudy;
     }
 
-    List<String> getDependencies() {
+    public List<String> getDependencies() {
         return this.dependencies;
     }
     
-    List<String> getExcludedCases() {return this.excludedCases;}
+    public List<String> getExcludedCases() {return this.excludedCases;}
+
+
+
     
     /*
     A NEGATIVE filter for excluded case ids
@@ -83,6 +93,19 @@ public class FoundationMetadata {
     public Predicate<String> getIncludedCaseFilter() {
         return includedCaseFilter;
     }
+
+    /*
+    NEGATIVE filter for excluded short variant statuses
+    returns short variant records whose status is NOT in the list
+     */
+    private final Predicate <String> includedShortVariantStatusFilter = new Predicate<String>() {
+        @Override
+        public boolean apply(@Nullable String svStatus) {
+            return !shortVariantExcludedStatuses.contains(svStatus);
+        }
+    };
+
+    public Predicate<String> getIncludedShortVariantStatusFilter () { return this.includedShortVariantStatusFilter; }
 
     /*
      predicate to determine if a filename contains one of the dependency values
@@ -114,46 +137,59 @@ public class FoundationMetadata {
      */
 
     public static void main(String... args) {
-        String[] testProperties1 = {"BRCA1/BRCA2 Study", "15-089;20-123"};
-        String[] testProperties2 = {"LBCL Study", "13-081;13-158"};
+        String[] testProperties1 = {"BRCA1/BRCA2 Study", "15-089;20-123","XYZ,ABC", "unknown"};
+        String[] testProperties2 = {"BRCA1/BRCA2 Study", "15-089;20-123"};
+        String[] testProperties3 = {"LBCL Study", "13-081;13-158"};
         FoundationMetadata meta1 = new FoundationMetadata(testProperties1);
         FoundationMetadata meta2 = new FoundationMetadata(testProperties2);
+        FoundationMetadata meta3 = new FoundationMetadata(testProperties3);
         final List<FoundationMetadata> metaList = Lists.newArrayList(meta1, meta2);
         String[] inputFiles = {"/test/XXX_15-089_brca.xml", "/test/xyz.xml",
-            "/data/cbio/20-123.xml", "cvftrxnkol", "/tmp/fgghhh13-158.xml"};
-        final List<String> brcaFileList = FluentIterable.from(Arrays.asList(inputFiles))
-                .filter(meta1.getRelatedFileFilter())
-                .toList();
+                "/data/cbio/20-123.xml", "cvftrxnkol", "/tmp/fgghhh13-158.xml"};
 
-        for (String f : brcaFileList) {
-            System.out.println(f);
+        String[] statuses = {"unknown", "likely", "known", "unknown"};
+        final List<String> validStatusList = FluentIterable.from(Lists.newArrayList(statuses))
+                .filter(meta1.getIncludedShortVariantStatusFilter())
+                .toList();
+        for (String s : validStatusList) {
+            System.out.println("Valid status " + s);
         }
 
-        for (String f : inputFiles) {
-            final List<String> fileList = Lists.newArrayList(f);
-            List<String> affectedList = FluentIterable.from(metaList)
-                    .filter(new Predicate<FoundationMetadata>() {
 
-                        @Override
-                        public boolean apply(final FoundationMetadata meta) {
-                            List<String> fl = FluentIterable.from(fileList).filter(meta.getRelatedFileFilter()).toList();
-                            return (!fl.isEmpty());
+            final List<String> brcaFileList = FluentIterable.from(Arrays.asList(inputFiles))
+                    .filter(meta1.getRelatedFileFilter())
+                    .toList();
 
-                        }
-                    }).transform(new Function<FoundationMetadata, String>() {
-
-                        @Override
-                        public String apply(FoundationMetadata f) {
-                            return f.getCancerStudy();
-                        }
-                    }).toList();
-            for (String s : affectedList) {
-                System.out.println("File " +f + " relates to study " +s);
+            for (String f : brcaFileList) {
+                System.out.println(f);
             }
 
-        }
+            for (String f : inputFiles) {
+                final List<String> fileList = Lists.newArrayList(f);
+                List<String> affectedList = FluentIterable.from(metaList)
+                        .filter(new Predicate<FoundationMetadata>() {
 
-        System.out.println("Finis");
+                            @Override
+                            public boolean apply(final FoundationMetadata meta) {
+                                List<String> fl = FluentIterable.from(fileList).filter(meta.getRelatedFileFilter()).toList();
+                                return (!fl.isEmpty());
+
+                            }
+                        }).transform(new Function<FoundationMetadata, String>() {
+
+                            @Override
+                            public String apply(FoundationMetadata f) {
+                                return f.getCancerStudy();
+                            }
+                        }).toList();
+                for (String s : affectedList) {
+                    System.out.println("File " + f + " relates to study " + s);
+                }
+
+            }
+
+            System.out.println("Finis");
+
 
     }
 }

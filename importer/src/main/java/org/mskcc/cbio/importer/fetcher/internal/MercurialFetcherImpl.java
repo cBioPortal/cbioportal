@@ -15,10 +15,8 @@
  * has been advised of the possibility of such damage.
 */
 
-// package
 package org.mskcc.cbio.importer.fetcher.internal;
 
-// imports
 import org.mskcc.cbio.importer.*;
 import org.mskcc.cbio.importer.model.*;
 import org.mskcc.cbio.importer.dao.ImportDataRecordDAO;

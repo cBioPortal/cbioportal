@@ -180,7 +180,7 @@
                 return oncoprintData; 
             },
             getOncoprintStat : function() { return oncoprintStat; }
-        }
+        };
     }());
 
     var PortalDataCollManager = (function() {
@@ -310,7 +310,7 @@
         window.PortalGlobals.setSampleIds(_sampleIds);
 
         //Configure the summary line of alteration statstics
-        var _stat_smry = "<h3 style='color:black;'>Gene Set / Pathway is altered in <b>" + window.PortalGlobals.getNumOfAlteredCases() + " (" + window.PortalGlobals.getPercentageOfAlteredCases() + "%)" + "</b> of queried samples</h3>";
+        var _stat_smry = "<h3 style='color:#686868;font-size:14px;'>Gene Set / Pathway is altered in <b>" + window.PortalGlobals.getNumOfAlteredCases() + " (" + window.PortalGlobals.getPercentageOfAlteredCases() + "%)" + "</b> of queried samples</h3>";
         $("#main_smry_stat_div").append(_stat_smry);
 
         //Configure the summary line of query

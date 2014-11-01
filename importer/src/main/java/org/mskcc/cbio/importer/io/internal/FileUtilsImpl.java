@@ -52,9 +52,6 @@ import java.util.regex.Matcher;
 import java.lang.reflect.Constructor;
 import java.util.zip.GZIPInputStream;
 
-/**
- * Class which implements the FileUtils interface.
- */
 public class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
     // used in unzip method

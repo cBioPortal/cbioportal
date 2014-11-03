@@ -1,202 +1,303 @@
+var log = function(data) { console.log(data); };
 dataman = (function() {
+	// TODO: put 'all' into fraemwork of caches so you dont need additional history object
+	// DELETE:
+	var missingKeys = function(){ return 0;};
+	var mapSlice = function() { return 0;};
+	// end DELETE
+	// CLASS DEFS
+	function Cache() {
+		this.data = [];
+		this.indexes = {};
+	}
+	Cache.prototype = {
+		constructor: Cache,
+		getAll: function() {
+			return this.data;
+		},
+		addIndex: function(name, cacheBy) {
+			this.indexes[name] = new Index(cacheBy, this.data);
+		},
+		addData: function(data) {
+			this.data = this.data.concat(data);
+			for (var ind in this.indexes) {
+				this.indexes[ind].add(data);
+			}
+		}
+	}
+	function Index(cacheBy, data, mapType) {
+		this.map = {};
+		this.cacheBy = cacheBy;
+		this.mapType = mapType;
+	}
+	Index.mapType = {ONE_TO_ONE:0, ONE_TO_MANY:1};
+	Index.prototype = {
+		constructor: Index,
+		add: function(objs) {
+			for (var i=0; i<objs.length; i++) {
+				if (this.mapType === Index.mapType.ONE_TO_ONE) {
+					this.map[this.cacheBy(objs[i])] = objs[i];
+				} else {
+					var key = this.cacheBy(objs[i]);
+					this.map[key] = this.map[key] || [];
+					this.map[key].push(objs[i]); 
+				}
+			}
+		},
+		missingKeys: function(keys) {
+			var ret = [];
+			for (var i=0; i<keys.length; i++) {
+				if (!(keys[i] in this.map)) {
+					ret.push(keys[i]);
+				} 
+			}
+			return ret;
+		},
+		get: function(keys) {
+			var ret = [];
+			for (var i=0; i<keys.length; i++) {
+				if (keys[i] in this.map) {
+					ret.push(this.map[keys[i]]);
+				}
+			}
+			if (this.mapType === Index.mapType.ONE_TO_ONE) {
+				return ret;
+			} else {
+				var retConc = [];
+				for (var i=0; i<ret.length; i++) {
+					retConc = retConc.concat(ret[i]);
+				}
+				return retConc;
+			}
+		}
+	}
 
+	// CACHE VARIABLE DECL/INIT
 	var cache = {meta:{}, data:{}};
 	var history = {meta:{}, data:{}};
 	var metacalls = ['cancerTypes', 'genes', 'patients', 'samples', 'studies', 'patientLists',
 					'profiles', 'clinicalPatients', 'clinicalSamples'];
 	var datacalls = ['clinicalPatients', 'clinicalSamples', 'patientLists', 'profiles'];
 	for (var i=0; i<metacalls.length; i++) {
-		cache.meta[metacalls[i]] = {};
+		cache.meta[metacalls[i]] = new Cache();
 		history.meta[metacalls[i]] = {};
 	}
 	for (var i=0; i<datacalls.length; i++) {
-		cache.data[datacalls[i]] = {};
+		cache.data[datacalls[i]] = new Cache();
 		history.data[datacalls[i]] = {};
 	}
+	cache.meta.cancerTypes.addIndex('id',function(x) { return x.id; }, Index.mapType.ONE_TO_ONE);
 
-	// HELPERS
-	var mapSlice = function(map, keys) {
-		// Returns a list containing all the objects
-		//	in the given map corresponding to the given keys
-		// If no keys passed in, returns whole map as list
-		var ret = [];
-		keys = keys || Object.keys(map);
-		for (var i=0; i<keys.length; i++) {
-			ret.push(map[keys[i]]);
-		}
-		return ret;
-	}
-	var missingKeys = function(map, keys) {
-		// Returns the sublist of keys that's not in map
-		var ret = [];
-		for (var i=0; i<keys.length; i++) {
-			if (!(keys[i] in map)) {
-				ret.push(keys[i]);
-			}
-		}
-		return ret;
-	}
-	// PUBLIC
+	cache.meta.genes.addIndex('hugo', function(x) { return x.hugoGeneSymbol; }, Index.mapType.ONE_TO_ONE);
+	cache.meta.genes.addIndex('entrez', function(x) { return x.entrezGeneId; }, Index.mapType.ONE_TO_ONE);
+
+	cache.meta.patients.addIndex('study', function(x) { return x.study_id; }, Index.mapType.ONE_TO_MANY);
+	cache.meta.patients.addIndex('internal_id', function(x) { return x.internal_id; }, Index.mapType.ONE_TO_ONE);
+	cache.meta.patients.addIndex('stable_id', function(x) { return x.study_id+"_"+x.stable_id;}, Index.mapType.ONE_TO_ONE);
+
+	cache.meta.studies.addIndex('internal_id', function(x) { return x.internal_id;}, Index.mapType.ONE_TO_ONE);
+	cache.meta.studies.addIndex('stable_id', function(x) { return x.stable_id;}, Index.mapType.ONE_TO_ONE);
+
+	cache.meta.profiles.addIndex('internal_id', function(x) { return x.internal_id;}, Index.mapType.ONE_TO_ONE);
+	cache.meta.profiles.addIndex('stable_id', function(x) { return x.id;}, Index.mapType.ONE_TO_ONE);
+	cache.meta.profiles.addIndex('study', function(x) { return x.internal_study_id;}, Index.mapType.ONE_TO_MANY);
+
+
+	// API METHODS
 	// -- meta.cancerTypes --
-	var initCancerTypesCache = function() {
-		cache.meta.studies.stable = cache.meta.studies.stable || {};
-		cache.meta.studies.internal = cache.meta.studies.internal || {};
-	} 
 	var getAllCancerTypes = function(callback, fail) {
-		initCancerTypesCache();
 		if (history.meta.cancerTypes.all) {
-			callback(mapSlice(cache.meta.cancerTypes));
+			callback(cache.meta.cancerTypes.getAll());
 		} else {
 			cbio.meta.cancerTypes({}, function(data) {
-				for (var i=0; i<data.length; i++) {
-					cache.meta.cancerTypes[data[i].id] = data[i];	
-				}
+				cache.meta.cancerTypes.addData(data);
 				history.meta.cancerTypes.all = true;
-				callback(mapSlice(cache.meta.cancerTypes));
+				callback(cache.meta.cancerTypes.getAll());
 			}, fail);
 		}
 	}
 	var getCancerTypesById = function(ids, callback, fail) {
-		initCancerTypesCache();
-		var toQuery = missingKeys(cache.meta.cancerTypes, ids);
-		if (toQuery.length == 0) {
-			callback(mapSlice(cache.meta.cancerTypes, ids));
+		var index = cache.meta.cancerTypes.indexes['id'];
+		var toQuery = index.missingKeys(ids);
+		if (toQuery.length === 0) {
+			callback(index.get(ids));
 		} else {
 			cbio.meta.cancerTypes({'ids':toQuery}, function(data) {
-				for(var i=0; i<data.length; i++) {
-					cache.meta.cancerTypes[data[i].id] = data[i]
-				}
-				callback(mapSlice(cache.meta.cancerTypes, ids));
+				cache.meta.cancerTypes.addData(data);
+				callback(index.get(ids));
 			}, fail);
 		}
 	}
 
 	// -- meta.genes --
-	var initGenesCache = function() {
-		cache.meta.genes.hugo = cache.meta.genes.hugo || {};
-		cache.meta.genes.entrez = cache.meta.genes.entrez || {};
-	}
 	var getAllGenes = function(callback, fail) {
-		initGenesCache();
 		if (history.meta.genes.all) {
-			callback(mapSlice(cache.meta.genes.hugo));
+			callback(cache.meta.genes.getAll());
 		} else {
 			cbio.meta.genes({}, function(data) {
-				for (var i=0; i<data.length; i++) {
-					cache.meta.genes.hugo[data[i].hugoGeneSymbol] = data[i];
-					cache.meta.genes.entrez[data[i].entrezGeneId] = data[i];
-				}
+				cache.meta.genes.addData(data);
 				history.meta.genes.all = true;
-				callback(mapSlice(cache.meta.genes.hugo));
-			}, fail)
+				callback(cache.meta.genes.getAll());
+			}, fail);
+		}
+	}
+	var getGenesHelper = function(ids, indexName, callback, fail) {
+		var index = cache.meta.genes.indexes[indexName];
+		var toQuery = index.missingKeys(ids);
+		if (toQuery.length === 0) {
+			callback(index.get(ids));
+		} else {
+			cbio.meta.genes({'ids':toQuery}, function(data) {
+				cache.meta.genes.addData(data);
+				callback(index.get(ids));
+			}, fail);
 		}
 	}
 	var getGenesByHugoGeneSymbol = function(ids, callback, fail) {
-		initGenesCache();
-		var toQuery = missingKeys(cache.meta.genes.hugo, ids);
-		if (toQuery.length ==0) {
-			callback(mapSlice(cache.meta.genes.hugo, ids));
-		} else {
-			cbio.meta.genes({'ids': toQuery}, function(data) {
-				for (var i=0; i<data.length; i++) {
-					cache.meta.genes.hugo[data[i].hugoGeneSymbol] = data[i];
-					cache.meta.genes.entrez[data[i].entrezGeneId] = data[i];
-				}
-				callback(mapSlice(cache.meta.genes.hugo, ids));
-			}, fail);
-		}
+		getGenesHelper(ids, 'hugo', callback, fail);
 	}
 	var getGenesByEntrezGeneId = function(ids, callback, fail) {
-		initGenesCache();
-		var toQuery = missingKeys(cache.meta.genes.entrez, ids);
-		if (toQuery.length ==0) {
-			callback(mapSlice(cache.meta.genes.entrez, ids));
+		getGenesHelper(ids, 'entrez', callback, fail);
+	}
+	
+	// -- meta.patients --
+	var getPatientsByStableStudyId = function(study_ids, callback, fail) {
+		cbio.meta.studies({'ids': study_ids}, function(data) {
+			var internal_ids = [];
+			for (var i=0; i<data.length; i++) {
+				internal_ids.push(data[i].internal_id);
+			}
+			getPatientsByInternalStudyId(internal_ids, callback, fail);
+		}, fail);
+	}
+	var getPatientsByInternalStudyId = function(study_ids, callback, fail) {
+		var index = cache.meta.patients.indexes['study'];
+		var toQuery = index.missingKeys(study_ids);
+		if (toQuery.length === 0) {
+			callback(index.get(study_ids));
 		} else {
-			cbio.meta.genes({'ids': toQuery}, function(data) {
-				for (var i=0; i<data.length; i++) {
-					cache.meta.genes.hugo[data[i].hugoGeneSymbol] = data[i];
-					cache.meta.genes.entrez[data[i].entrezGeneId] = data[i];
-				}
-				callback(mapSlice(cache.meta.genes.entrez, ids));
+			cbio.meta.patients({'study_ids': study_ids}, function(data) {
+				cache.meta.patients.addData(data);
+				callback(index.get(study_ids));
 			}, fail);
 		}
 	}
-
-	// -- meta.patients --
-	var getPatientsByStableStudyId = function(study_ids, callback, fail) {
-		//TODO?: caching
-		cbio.meta.patients({'study_ids': study_ids}, callback, fail);
-	}
-	var getPatientsByInternalStudyId = function(study_ids, callback, fail) {
-		//TODO?: caching
-		cbio.meta.patients({'study_ids': study_ids}, callback, fail);
-	}
 	var getPatientsByInternalId = function(internal_ids, callback, fail) {
-		//TODO?: caching
-		cbio.meta.patients({'patient_ids':internal_ids}, callback, fail);
+		var index = cache.meta.patients.indexes['internal_id'];
+		var toQuery = index.missingKeys(internal_ids);
+		if (toQuery.length === 0) {
+			callback(index.get(internal_ids));
+		} else {
+			cbio.meta.patients({'patient_ids': internal_ids}, function(data) {
+				cache.meta.patients.addData(data);
+				callback(index.get(internal_ids));
+			}, fail);
+		}
 	}
-	var getPatientsByStableId = function(study_id, stable_ids, callback, fail) {
-		//TODO?: caching
-		cbio.meta.patients({'study_ids':[study_id], 'patient_ids':stable_ids}, callback, fail);
+	var getPatientsByStableIdStableStudyId = function(study_id, stable_ids, callback, fail) {
+		cbio.meta.studies({'ids':[study_id]}, function(data) {
+			getPatientsByStableIdInternalStudyId(data[0].internal_id, stable_ids, callback, fail);
+		}, fail);
 	}
-
+	var getPatientsByStableIdInternalStudyId = function(study_id, stable_ids, callback, fail) {
+		var index = cache.meta.patients.indexes['stable_id'];
+		var goodIds = stable_ids.map(function(x) { return study_id+"_"+x;});
+		var toQuery = index.missingKeys(goodIds)
+		if (toQuery.length === 0) {
+			callback(index.get(goodIds));
+		} else {
+			cbio.meta.patients({'study_ids':[study_id], 'patient_ids':stable_ids}, function(data) {
+				cache.meta.patients.addData(data);
+				callback(index.get(goodIds));
+			}, fail);
+		}
+	}
 	// -- meta.samples --
-	var getSamplesByStudy = function(study_ids, callback, fail) {
-		//TODO?: caching
-		cbio.meta.samples({'study_ids': study_ids}, callback, fail);
+	// TODO: we're gonna have problems with this because of weird study dynamics.... namely that the return objects dont include study
+	/*var getSamplesByStableStudyId = function(study_ids, callback, fail) {
+		cbio.meta.studies({'ids': study_ids}, function(data) {
+			var internal_ids = [];
+			for (var i=0; i<data.length; i++) {
+				internal_ids.push(data[i].internal_id);
+			}
+			getSamplesByInternalStudyId(internal_ids, callback, fail);
+		}, fail);
+	}
+	var getSamplesByInternalStudyId = function(study_ids, callback, fail) {
+		var index = cache.meta.samples.indexes['study'];
+		var toQuery = index.missingKeys(study_ids);
+		if (toQuery.length === 0) {
+			callback(index.get(study_ids));
+		} else {
+			cbio.meta.samples({'study_ids': study_ids}, function(data) {
+				cache.meta.samples.addData(data);
+				callback(index.get(study_ids));
+			}, fail);
+		}
 	}
 	var getSamplesByInternalId = function(internal_ids, callback, fail) {
-		//TODO?: caching
-		cbio.meta.samples({'sample_ids':internal_ids}, callback, fail);
+		var index = cache.meta.samples.indexes['internal_id'];
+		var toQuery = index.missingKeys(internal_ids);
+		if (toQuery.length === 0) {
+			callback(index.get(internal_ids));
+		} else {
+			cbio.meta.samples({'sample_ids': internal_ids}, function(data) {
+				cache.meta.samples.addData(data);
+				callback(index.get(internal_ids));
+			}, fail);
+		}
 	}
-	var getSamplesByStableId = function(study_id, stable_ids, callback, fail) {
-		//TODO?: caching
-		cbio.meta.samples({'study_ids':[study_id], 'sample_ids':stable_ids}, callback, fail);
+	var getSamplesByStableIdStableStudyId = function(study_id, stable_ids, callback, fail) {
+		cbio.meta.samples({'ids':[study_id]}, function(data) {
+			getSamplesByStableIdInternalStudyId(data[0].internal_id, stable_ids, callback, fail);
+		}, fail);
 	}
+	var getSamplesByStableIdInternalStudyId = function(study_id, stable_ids, callback, fail) {
+		var index = cache.meta.samples.indexes['stable_id'];
+		var goodIds = stable_ids.map(function(x) { return study_id+"_"+x;});
+		var toQuery = index.missingKeys(goodIds)
+		if (toQuery.length === 0) {
+			callback(index.get(goodIds));
+		} else {
+			cbio.meta.samples({'study_ids':[study_id], 'sample_ids':stable_ids}, function(data) {
+				cache.meta.samples.addData(data);
+				callback(index.get(goodIds));
+			}, fail);
+		}
+	}*/
 
 	// -- meta.studies --
 	var getAllStudies = function(callback, fail) {
-		if (history.meta.studies.all) {
-			callback(mapSlice(cache.meta.studies.internal));
+		if(history.meta.studies.all) {
+			callback(cache.meta.studies.getAll());
 		} else {
 			cbio.meta.studies({}, function(data) {
-				for (var i=0; i<data.length; i++) {
-					cache.meta.studies.stable[data[i].id] = data[i];
-					cache.meta.studies.internal[data[i].internal_id] = data[i];
-				}
+				cache.meta.studies.addData(data);
 				history.meta.studies.all = true;
-				callback(mapSlice(cache.meta.studies.internal));
+				callback(cache.meta.studies.getAll());
+			}, fail);
+		}
+	}
+
+	var getStudiesHelper = function(ids, indexName, callback, fail) {
+		var index = cache.meta.studies.indexes[indexName];
+		var toQuery = index.missingKeys(ids);
+		if (toQuery.length === 0) {
+			callback(index.get(ids));
+		} else {
+			cbio.meta.studies({'ids':toQuery}, function(data) {
+				cache.meta.studies.addData(data);
+				callback(index.get(ids));
 			}, fail);
 		}
 	}
 	var getStudiesByStableId = function(ids, callback, fail) {
-		var toQuery = missingKeys(cache.meta.studies.stable, ids);
-		if (toQuery.length == 0) {
-			callback(mapSlice(cache.meta.studies.stable, ids));
-		} else {
-			cbio.meta.studies({'ids':ids}, function(data) {
-				for (var i=0; i<data.length; i++) {
-					cache.meta.studies.stable[data[i].id] = data[i];
-					cache.meta.studies.internal[data[i].internal_id] = data[i];
-				}
-				callback(mapSlice(cache.meta.studies.stable, ids));
-			}, fail);
-		}
+		getStudiesHelper(ids, 'stable_id', callback, fail);
 	}
 	var getStudiesByInternalId = function(ids, callback, fail) {
-		var toQuery = missingKeys(cache.meta.studies.internal, ids);
-		if (toQuery.length == 0) {
-			callback(mapSlice(cache.meta.studies.internal, ids));
-		} else {
-			cbio.meta.studies({'ids':ids}, function(data) {
-				for (var i=0; i<data.length; i++) {
-					cache.meta.studies.stable[data[i].id] = data[i];
-					cache.meta.studies.internal[data[i].internal_id] = data[i];
-				}
-				callback(mapSlice(cache.meta.studies.internal, ids));
-			}, fail);
-		}
+		getStudiesHelper(ids, 'internal_id', callback, fail);
 	}
+
 
 	// -- meta.patientlists and data.patientLists --
 	var getAllPatientLists = function(omit_lists, callback, fail) {
@@ -221,21 +322,40 @@ dataman = (function() {
 	}
 
 	// -- meta.profiles --
+	'study'
+	'stable_id'
+	'internal_id'
 	var getAllProfiles = function(callback, fail) {
-		//TODO?: caching
-		cbio.meta.profiles({}, callback, fail);
+		if(history.meta.profiles.all) {
+			callback(cache.meta.profiles.getAll());
+		} else {
+			cbio.meta.profiles({}, function(data){
+				cache.meta.profiles.addData(data);
+				history.meta.profiles.all = true;
+				callback(cache.meta.studies.getAll());
+			}, fail);
+		}
+	}
+	var getProfilesHelper = function(argname, ids, indexName, callback, fail) {
+		var index = cache.meta.profiles.indexes[indexName];
+		var toQuery = index.missingKeys(ids);
+		if (toQuery.length === 0) {
+			callback(index.get(ids));
+		} else {
+			cbio.meta.profiles({argname: ids}, function(data) {
+				cache.meta.profiles.addData(data);
+				callback(index.get(ids));
+			}, fail);
+		}
 	}
 	var getProfilesByStableId = function(profile_ids, callback, fail) {
-		//TODO?: caching
-		cbio.meta.profiles({'profile_ids': profile_ids}, callback, fail);
+		getProfilesHelper('profile_ids', profile_ids, 'stable_id', callback, fail);
 	}
 	var getProfilesByInternalId = function(profile_ids, callback, fail) {
-		//TODO?: caching
-		cbio.meta.profiles({'profile_ids': profile_ids}, callback, fail);
+		getProfilesHelper('profile_ids', profile_ids, 'internal_id', callback, fail);
 	}
 	var getProfilesByStudyId = function(study_ids, callback, fail) {
-		//TODO?: caching
-		cbio.meta.profiles({'study_ids': study_ids}, callback, fail);
+		getProfilesHelper('study_ids', study_ids, 'study', callback, fail);
 	}
 
 	// -- meta.clinicalPatients --
@@ -338,6 +458,7 @@ dataman = (function() {
 	}
 
 	return {
+		cache: cache,
 		getAllCancerTypes: getAllCancerTypes,
 		getCancerTypesById: getCancerTypesById,
 
@@ -345,11 +466,13 @@ dataman = (function() {
 		getGenesByHugoGeneSymbol: getGenesByHugoGeneSymbol,
 		getGenesByEntrezGeneId: getGenesByEntrezGeneId,
 
-		getPatientsByStudy: getPatientsByStudy,
+		getPatientsByStableStudyId: getPatientsByStableStudyId,
+		getPatientsByInternalStudyId: getPatientsByInternalStudyId,
 		getPatientsByInternalId: getPatientsByInternalId,
-		getPatientsByStableId: getPatientsByStableId,
+		getPatientsByStableIdStableStudyId: getPatientsByStableIdStableStudyId,
+		getPatientsByStableIdInternalStudyId: getPatientsByStableIdInternalStudyId,
 
-		getSamplesByStudy: getSamplesByStudy,
+		/*getSamplesByStudy: getSamplesByStudy,
 		getSamplesByInternalId: getSamplesByInternalId,
 		getSamplesByStableId: getSamplesByStableId,
 
@@ -376,9 +499,9 @@ dataman = (function() {
 		getClinicalSampleFieldsByInternalId: getClinicalSampleFieldsByInternalId,
 		getClinicalSampleFieldsByStableId: getClinicalSampleFieldsByStableId,
 
-		getAllProfileData: getAllProfileData
+		getAllProfileData: getAllProfileData,
 		getProfileDataByPatientId: getProfileDataByPatientId,
-		getProfileDataByPatientListId: getProfileDataByPatientListId
+		getProfileDataByPatientListId: getProfileDataByPatientListId*/
 	};
 
 })();

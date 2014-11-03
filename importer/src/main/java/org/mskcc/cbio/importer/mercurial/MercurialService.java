@@ -16,8 +16,10 @@
 */
 package org.mskcc.cbio.importer.mercurial;
 
+import java.util.List;
+
 public interface MercurialService
 {
 	boolean updatesAvailable(String repositoryName);
-	boolean pullUpdate(String repositoryName);
+	List<String> pullUpdate(String repositoryName);
 }

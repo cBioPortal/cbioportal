@@ -60,7 +60,10 @@ public class MercurialFetcherImpl extends FetcherBaseImpl implements Fetcher
 		boolean updatesAvailable = mercurialService.updatesAvailable(dataSourceMetadata.getDownloadDirectory());
 		if (updatesAvailable) {
 			logMessage(LOG, "fetch(), updates available, pulling from repository.");
-			mercurialService.pullUpdate(dataSourceMetadata.getDownloadDirectory());
+			List<String> studiesUpdated = mercurialService.pullUpdate(dataSourceMetadata.getDownloadDirectory());
+			for (String study : studiesUpdated) {
+				logMessage(LOG, "fetch(), the following study has been updated: " + study);
+			}
 			return true;
 		}
 		else {

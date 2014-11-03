@@ -16,6 +16,7 @@
 */
 package org.mskcc.cbio.importer.mercurial.internal;
 
+import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.mercurial.*;
 
 import org.apache.commons.logging.*;
@@ -28,6 +29,7 @@ public class MercurialServiceImpl implements MercurialService
 {
 
 	private static Pattern hgIdChangesetPattern = Pattern.compile("^(\\w+)$");
+	private static Pattern hgStatusPattern = Pattern.compile("^\\w{1}? (\\w+)$");
 	private static Log LOG = LogFactory.getLog(MercurialServiceImpl.class);
 
 	private MercurialServer mercurialServer;
@@ -64,23 +66,24 @@ public class MercurialServiceImpl implements MercurialService
 	}
 
 	@Override
-	public boolean pullUpdate(String repositoryName)
+	public List<String> pullUpdate(String repositoryName)
 	{
-		boolean pullSuccessful = false;
 		File repository = getRepository(repositoryName);
 
 		try {
 			prepareRepository(repository);
 			executeCommand(repository, "hg pull");
 			executeCommand(repository, "hg update");
-			pullSuccessful = true;
+			// does diff between what has been pulled and what is in working set.
+			return getUpdatedStudies(executeCommand(repository, "hg status --rev .:tip"),
+			                         hgStatusPattern);
 		}
 		catch(IOException e) {
 			logMessage("pullUpdate(), exception: ");
 			logMessage(e.getMessage());
 		}
 
-		return pullSuccessful;
+		return Collections.EMPTY_LIST;
 	}
 
 	private File getRepository(String repositoryName)
@@ -121,6 +124,25 @@ public class MercurialServiceImpl implements MercurialService
 			}
 		}
 		return "";
+	}
+
+	private List<String> getUpdatedStudies(List<String> serverOutput, Pattern pattern)
+	{
+		Set<String> toReturn = new HashSet<String>();
+		for (String lineOfOutput : serverOutput) {
+			Matcher matcher = pattern.matcher(lineOfOutput);
+			if (matcher.find()) {
+				String cancerStudy = matcher.group(1);
+				int caseListSubdirIndex = cancerStudy.indexOf(FileUtils.CASE_LIST_DIRECTORY_NAME);
+				if (caseListSubdirIndex != -1) {
+					toReturn.add(cancerStudy.substring(0, caseListSubdirIndex-1));
+				}
+				else {
+					toReturn.add(cancerStudy.substring(0, cancerStudy.lastIndexOf("/")-1));
+				}
+			}
+		}
+		return new ArrayList<String>(toReturn);
 	}
 
 	protected void logMessage(String message)

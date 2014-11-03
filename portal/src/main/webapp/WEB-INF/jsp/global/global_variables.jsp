@@ -180,7 +180,7 @@
                 return oncoprintData; 
             },
             getOncoprintStat : function() { return oncoprintStat; }
-        }
+        };
     }());
 
     var PortalDataCollManager = (function() {

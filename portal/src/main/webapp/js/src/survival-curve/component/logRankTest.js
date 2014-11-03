@@ -39,7 +39,7 @@ var LogRankTest = function() {
         mergedArr = [],
         callBackFunc = "";
     //os: DECEASED-->1, LIVING-->0; dfs: Recurred/Progressed --> 1, Disease Free-->0
-    function mergeGrps(inputGrp1, inputGrp2) {
+    function mergeGrps(inputGrp1, inputGrp2, _callBackFunc) {
         var _ptr_1 = 0; //index indicator/pointer for group1
         var _ptr_2 = 0; //index indicator/pointer for group2
 
@@ -90,32 +90,32 @@ var LogRankTest = function() {
             }
             mergedArr.push(_datum);
         }
+        calcExpection(_callBackFunc);
     }
 
-    function calcExpection() {
-        for (var i in mergedArr) {
-            var _item = mergedArr[i];
-            _item.expectation = (_item.num_at_risk_1 / (_item.num_at_risk_1 + _item.num_at_risk_2)) * (_item.num_of_failure_1 + _item.num_of_failure_2);
-        }
+    function calcExpection(_callBackFunc) {
+        $.each(mergedArr, function(index, _item) {
+             _item.expectation = (_item.num_at_risk_1 / (_item.num_at_risk_1 + _item.num_at_risk_2)) * (_item.num_of_failure_1 + _item.num_of_failure_2);
+        });
+        calcVariance(_callBackFunc);
     }
 
-    function calcVariance() {
-        for (var i in mergedArr) {
-            var _item = mergedArr[i];
+    function calcVariance(_callBackFunc) {
+        $.each(mergedArr, function(index, _item) {
             var _num_of_failures = _item.num_of_failure_1 + _item.num_of_failure_2;
             var _num_at_risk = _item.num_at_risk_1 + _item.num_at_risk_2;
             _item.variance = ( _num_of_failures * (_num_at_risk - _num_of_failures) * _item.num_at_risk_1 * _item.num_at_risk_2) / ((_num_at_risk * _num_at_risk) * (_num_at_risk - 1));
-        }
+        });
+        calcPval(_callBackFunc);
     }
 
     function calcPval(_callBackFunc) {
         var O1 = 0, E1 = 0, V = 0;
-        for (var i in mergedArr) {
-            var _item = mergedArr[i];
+        $.each(mergedArr, function(index, _item) {
             O1 += _item.num_of_failure_1;
             E1 += _item.expectation;
             V += _item.variance;
-        }
+        });
         var chi_square_score = (O1 - E1) * (O1 - E1) / V;
         $.post( "calcPval.do", { chi_square_score: chi_square_score })
             .done( function(_data) {
@@ -127,10 +127,10 @@ var LogRankTest = function() {
     return {
         calc: function(inputGrp1, inputGrp2, _callBackFunc) {
             mergedArr.length = 0;
-            mergeGrps(inputGrp1, inputGrp2);
-            calcExpection();
-            calcVariance();
-            calcPval(_callBackFunc);
+            mergeGrps(inputGrp1, inputGrp2, _callBackFunc);
+            //calcExpection(_callBackFunc);
+            //calcVariance();
+            //calcPval(_callBackFunc);
         }
-    }
+    };
 };

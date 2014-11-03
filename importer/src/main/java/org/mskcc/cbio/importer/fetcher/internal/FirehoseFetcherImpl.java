@@ -142,7 +142,7 @@ class FirehoseFetcherImpl implements Fetcher {
 	 * @throws Exception
 	 */
 	@Override
-	public void fetch(String dataSource, String desiredRunDate) throws Exception {
+	public boolean fetch(String dataSource, String desiredRunDate) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("fetch(), dateSource:runDate: " + dataSource + ":" + desiredRunDate);
@@ -176,6 +176,7 @@ class FirehoseFetcherImpl implements Fetcher {
 			latestBroadRun : Admin.PORTAL_DATE_FORMAT.parse(desiredRunDate);
 
 		fetchRun(runType, desiredRunDateDate);
+		return true;
 	}
 
 	/**
@@ -185,7 +186,7 @@ class FirehoseFetcherImpl implements Fetcher {
 	 * @throws Exception
 	 */
 	@Override
-	public void fetchReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
+	public boolean fetchReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 

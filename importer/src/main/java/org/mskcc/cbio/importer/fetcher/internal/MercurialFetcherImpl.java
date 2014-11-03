@@ -52,7 +52,7 @@ public class MercurialFetcherImpl extends FetcherBaseImpl implements Fetcher
 	}
 
 	@Override
-	public void fetch(String dataSource, String desiredRunDate) throws Exception
+	public boolean fetch(String dataSource, String desiredRunDate) throws Exception
 	{
 		logMessage(LOG, "fetch(), dateSource:runDate: " + dataSource + ":" + desiredRunDate);
 
@@ -61,9 +61,11 @@ public class MercurialFetcherImpl extends FetcherBaseImpl implements Fetcher
 		if (updatesAvailable) {
 			logMessage(LOG, "fetch(), updates available, pulling from repository.");
 			mercurialService.pullUpdate(dataSourceMetadata.getDownloadDirectory());
+			return true;
 		}
 		else {
 			logMessage(LOG, "fetch(), we have the latest dataset, nothing more to do.");
+			return false;
 		}
 	}
 
@@ -78,7 +80,7 @@ public class MercurialFetcherImpl extends FetcherBaseImpl implements Fetcher
 	}
 
 	@Override
-	public void fetchReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
+	public boolean fetchReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 }

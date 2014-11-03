@@ -33,7 +33,7 @@ import java.util.Arrays;
 /**
  * Class which implements the fetcher interface.
  */
-class ReferenceDataFetcherImpl implements Fetcher {
+public class ReferenceDataFetcherImpl implements Fetcher {
 
 	// our logger
 	private static Log LOG = LogFactory.getLog(ReferenceDataFetcherImpl.class);
@@ -63,7 +63,7 @@ class ReferenceDataFetcherImpl implements Fetcher {
 	 * @throws Exception
 	 */
 	@Override
-	public void fetch(String dataSource, String desiredRunDate) throws Exception {
+	public boolean fetch(String dataSource, String desiredRunDate) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
@@ -74,7 +74,7 @@ class ReferenceDataFetcherImpl implements Fetcher {
 	 * @throws Exception
 	 */
 	@Override
-	public void fetchReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
+	public boolean fetchReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
 
 		String fetcherName = referenceMetadata.getFetcherName();
 
@@ -82,7 +82,7 @@ class ReferenceDataFetcherImpl implements Fetcher {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("fetchReferenceData(), no fetcher name provided, exiting...");
 			}
-			return;
+			return false;
 		}
 
 		if (LOG.isInfoEnabled()) {
@@ -98,5 +98,6 @@ class ReferenceDataFetcherImpl implements Fetcher {
 		else if (LOG.isInfoEnabled()) {
 			LOG.info("fetchReferenceData(), failure executing importer.");
 		}
+		return true;
 	}
 }

@@ -37,8 +37,8 @@ import org.mskcc.cbio.importer.model.ReferenceMetadata;
 import org.mskcc.cbio.importer.dmp.importer.MockConfig;
 import org.mskcc.cbio.importer.dmp.model.DmpData;
 
-public class DMPFetcherImpl implements Fetcher{
-
+public class DMPFetcherImpl implements Fetcher
+{
     private static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     //private DMPStagingFileManager fileManager;
 
@@ -52,7 +52,7 @@ public class DMPFetcherImpl implements Fetcher{
     }
     
     @Override
-    public void fetch(String dataSource, String desiredRunDate) 
+    public boolean fetch(String dataSource, String desiredRunDate) 
             throws Exception {
         
         if (LOG.isInfoEnabled()) {
@@ -75,12 +75,14 @@ public class DMPFetcherImpl implements Fetcher{
         
         DMPclinicaldataimporter dmpImporter_mark = 
                 new DMPclinicaldataimporter(transformer.transform(data)); //mark consumed samples (transformer returns a list of consumed sample ids)
- 
+
+        return true;
     }
 
     @Override
-    public void fetchReferenceData(ReferenceMetadata referenceMetadata) 
+    public boolean fetchReferenceData(ReferenceMetadata referenceMetadata) 
             throws Exception {
+        throw new UnsupportedOperationException();
     }
     
 }

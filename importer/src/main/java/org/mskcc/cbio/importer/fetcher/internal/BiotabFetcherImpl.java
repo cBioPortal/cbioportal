@@ -40,7 +40,7 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.*;
 
-class BiotabFetcherImpl extends FetcherBaseImpl implements Fetcher
+public class BiotabFetcherImpl extends FetcherBaseImpl implements Fetcher
 {
     private static final int READ_TIMEOUT = 60000; // ms
     private static final int NO_REVISION_FOUND = -1;
@@ -75,19 +75,20 @@ class BiotabFetcherImpl extends FetcherBaseImpl implements Fetcher
 	}
 
 	@Override
-	public void fetchReferenceData(ReferenceMetadata referenceMetadata) throws Exception
+	public boolean fetchReferenceData(ReferenceMetadata referenceMetadata) throws Exception
     {
 		throw new UnsupportedOperationException();
 	}
 
     @Override
-	public void fetch(String dataSource, String desiredRunDate) throws Exception
+	public boolean fetch(String dataSource, String desiredRunDate) throws Exception
     {
 
 		logMessage(LOG, "fetch(), dateSource" + dataSource);
         initDataSourceMetadata(dataSource);
         fetchData();
         logMessage(LOG, "fetch(), complete.");
+        return true;
 	}
 
     private void initDataSourceMetadata(String dataSource) throws Exception

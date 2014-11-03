@@ -290,7 +290,7 @@ class ImporterImpl implements Importer {
                 }
 
                 // process case lists
-                String caseListDirectory = (rootDirectory + File.separator + cancerStudyMetadata.getStudyPath() + File.separator + "case_lists");
+                String caseListDirectory = (rootDirectory + File.separator + cancerStudyMetadata.getStudyPath() + File.separator + FileUtils.CASE_LIST_DIRECTORY_NAME);
                 String[] args = new String[] { caseListDirectory };
                 if (LOG.isInfoEnabled()) {
                         LOG.info("loadStagingFile(), ImportCaseList:main(), with args: " + Arrays.asList(args));

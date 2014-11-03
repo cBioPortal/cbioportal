@@ -209,7 +209,7 @@ public class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	public List<String> getMissingCaseListFilenames(String rootDirectory, CancerStudyMetadata cancerStudyMetadata) throws Exception {
 
 		ArrayList toReturn = new ArrayList<String>();
-		String caseListDirectory = (rootDirectory + File.separator + cancerStudyMetadata.getStudyPath() + File.separator + "case_lists");
+		String caseListDirectory = (rootDirectory + File.separator + cancerStudyMetadata.getStudyPath() + File.separator + org.mskcc.cbio.importer.FileUtils.CASE_LIST_DIRECTORY_NAME);
 		for (CaseListMetadata caseListMetadata : config.getCaseListMetadata(Config.ALL)) {
 			String caseListFilename = caseListDirectory + File.separator + caseListMetadata.getCaseListFilename();
 			File caseListFile = new File(caseListFilename);
@@ -228,7 +228,7 @@ public class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			}
 			File caseListFile = org.apache.commons.io.FileUtils.getFile(stagingDirectory,
 																		cancerStudyMetadata.getStudyPath(),
-																		"case_lists",
+																		org.mskcc.cbio.importer.FileUtils.CASE_LIST_DIRECTORY_NAME,
 																		caseListMetadata.getCaseListFilename());
 			if (caseListFile.exists() && !overwrite) {
 				if (LOG.isInfoEnabled()) {
@@ -783,7 +783,7 @@ public class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
 		File caseListFile = org.apache.commons.io.FileUtils.getFile(stagingDirectory,
 																	cancerStudyMetadata.getStudyPath(),
-																	"case_lists",
+																	org.mskcc.cbio.importer.FileUtils.CASE_LIST_DIRECTORY_NAME,
 																	caseListMetadata.getCaseListFilename());
 
 		if (LOG.isInfoEnabled()) {

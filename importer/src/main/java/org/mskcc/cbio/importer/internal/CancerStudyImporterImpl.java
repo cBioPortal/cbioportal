@@ -122,6 +122,12 @@ class CancerStudyImporterImpl implements Importer, Validator {
 		throw new UnsupportedOperationException();
     }
 
+    @Override
+    public void updateCancerStudy(String portal, CancerStudyMetadata cancerStudyMetadata) throws Exception
+    {
+        throw new UnsupportedOperationException();
+    }
+
 	@Override
 	public void importReferenceData(ReferenceMetadata referenceMetadata) throws Exception
     {

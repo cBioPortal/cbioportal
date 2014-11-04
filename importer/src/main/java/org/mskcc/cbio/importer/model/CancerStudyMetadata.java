@@ -25,7 +25,11 @@ import java.io.File;
  * Class which contains cancer study metadata.
  */
 public class CancerStudyMetadata {
-	
+
+	public static final String WORKSHEET_UPDATE_COLUMN_KEY = "CANCERSTUDY";
+	public static final String UPDATE_AVAILABLE_COLUMN_KEY = "UPDATEAVAILABLE";
+	public static final String IMPORT_COLUMN_KEY = "IMPORT";
+
     // delimiter between tumor type and center (used for find the path)
 	public static final String CANCER_STUDY_DELIMITER = "/"; 
 
@@ -53,10 +57,13 @@ public class CancerStudyMetadata {
 	private String pmid;
 	private String studyPath;
 	private String stableId;
-        private String center;
+    private String center;
 	private String groups;
-        private String shortName;
-        private boolean convert;
+    private String shortName;
+    private boolean convert;
+    private boolean importFlag;
+    private boolean requiresValidation;
+    private boolean updateAvailable;
 
     /**
      * Create a CancerStudyMetadata instance with properties in given array.
@@ -69,25 +76,28 @@ public class CancerStudyMetadata {
      */
     public CancerStudyMetadata(String[] properties) {
 
-		if (properties.length < 7) {
+		if (properties.length < 13) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
                 
-                this.studyPath = properties[0].trim();
-                String[] parts = properties[0].trim().split(CANCER_STUDY_DELIMITER);
+        this.studyPath = properties[0].trim();
+        String[] parts = properties[0].trim().split(CANCER_STUDY_DELIMITER);
 		if (parts.length < 2) {
 			throw new IllegalArgumentException("cancerStudyPath is missing tumor type and or center");
-                }
-                this.center = parts[1];
+        }
+        this.center = parts[1];
 		this.tumorType = properties[1].trim();
-                this.stableId = properties[2].trim();
+        this.stableId = properties[2].trim();
 		this.name = properties[3].trim();
 		this.description = properties[4].trim();
 		this.citation = properties[5].trim();
 		this.pmid = properties[6].trim();
 		this.groups = properties[7].trim();
-                this.shortName = properties[8].trim();
-                this.convert = Boolean.parseBoolean(properties[9].trim());
+        this.shortName = properties[8].trim();
+        this.convert = Boolean.parseBoolean(properties[9].trim());
+        this.importFlag = Boolean.parseBoolean(properties[10].trim());
+        this.requiresValidation = Boolean.parseBoolean(properties[11].trim());
+        this.updateAvailable = Boolean.parseBoolean(properties[12].trim());
 	}
 
 	public String getName() { return name; }
@@ -103,6 +113,9 @@ public class CancerStudyMetadata {
 	public String getGroups() { return groups; }
         public String getShortName() { return shortName; }
 	public Boolean isConverted() { return convert; }
+	public Boolean isImported() { return importFlag; }
+	public Boolean requiresValidation() { return requiresValidation; }
+	public Boolean updateAvailable() { return updateAvailable; }
 
 	public String getCancerStudyMetadataFilename() {
 		//return getStudyPath() + File.separator + toString() + CANCER_STUDY_METADATA_FILE_EXT;

@@ -807,6 +807,13 @@ class GDataImpl implements Config {
 
     }
 
+    @Override
+    public void updateCancerStudyAttributes(String cancerStudy, Map<String,String> properties)
+    {
+        updateWorksheet(gdataSpreadsheet, cancerStudiesWorksheet, false,
+                        CancerStudyMetadata.WORKSHEET_UPDATE_COLUMN_KEY,
+                        cancerStudy, properties);
+    }
 
 	/**
 	 * Constructs a collection of objects of the given classname from the given matrix.
@@ -815,7 +822,7 @@ class GDataImpl implements Config {
 	 * @param className String
 	 * @return Collection<Object>
 	 */
-	public Collection<?> getMetadataCollection(ArrayList<ArrayList<String>> metadataMatrix, String className) {
+	private Collection<?> getMetadataCollection(ArrayList<ArrayList<String>> metadataMatrix, String className) {
 
 
         Collection<Object> toReturn = new ArrayList<Object>();

@@ -64,6 +64,12 @@ public class BCRHTMLDictImporter extends ImporterBaseImpl implements Importer
     }
 
     @Override
+    public void updateCancerStudy(String portal, CancerStudyMetadata cancerStudyMetadata) throws Exception
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void importCancerStudy(String cancerStudyDirectoryName, boolean skip, boolean force) throws Exception
     {
 		throw new UnsupportedOperationException();

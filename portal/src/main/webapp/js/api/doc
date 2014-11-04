@@ -57,7 +57,7 @@ Option 3:
 
 /api/meta/samples
 Out:
-{'internal_id':1, 'stable_id':'DMP0001', 'sample_type':'Primary Solid Tumor', 'patient_id':1}
+{'internal_id':1, 'stable_id':'DMP0001', 'sample_type':'Primary Solid Tumor', 'patient_id':1, 'study_id':1}
 
 In:
 Option 1:
@@ -208,7 +208,7 @@ Option 3:
 
 /api/data/clinical/samples
 Out:
-{"attr_id":"SAMPLE_TYPE","attr_val":"Primary","case_id":1}
+{"attr_id":"SAMPLE_TYPE","attr_val":"Primary","sample_id":1,"study_id":1}
 
 In:
 Option 1:
@@ -233,7 +233,7 @@ Option 3:
 
 /api/data/clinical/patients
 Out:
-{"attr_id":"PRIMARY_SITE","attr_val":"Breast","case_id":1}
+{"attr_id":"PRIMARY_SITE","attr_val":"Breast","patient_id":1,"study_id":1}
 
 In:
 Option 1:
@@ -258,7 +258,7 @@ Option 3:
 /api/data/profiles
 Out:
 Mutation profile:
-{'internal_id':22,'entrez_gene_id':7080,'internal_case_id':1784,'sequencing_center':'MSK-IMPACT','mutation_status':'SOMATIC','mutation_type':'In_Frame_Ins','validation_status':'NA','amino_acid_change':'241_242insGGG','functional_impact_score':'NA','xvar_link':'NA','xvar_link_pdb':'NA','xvar_link_msa':'NA','chr':14,'start_position':36986875,'end_position':36986876,'reference_allele':'-','variant_allele':'GCCCCCGCC','reference_read_count_tumor':'287','variant_read_count_tumor':'56','reference_read_count_normal':'151','variant_read_count_normal':'0'}
+{'internal_id':22,'entrez_gene_id':7080,'internal_patient_id':1784,'sequencing_center':'MSK-IMPACT','mutation_status':'SOMATIC','mutation_type':'In_Frame_Ins','validation_status':'NA','amino_acid_change':'241_242insGGG','functional_impact_score':'NA','xvar_link':'NA','xvar_link_pdb':'NA','xvar_link_msa':'NA','chr':14,'start_position':36986875,'end_position':36986876,'reference_allele':'-','variant_allele':'GCCCCCGCC','reference_read_count_tumor':'287','variant_read_count_tumor':'56','reference_read_count_normal':'151','variant_read_count_normal':'0'}
 
 Other:
 {'internal_id':23,'entrez_gene_id':7080,'internal_case_id':1796,'profile_data':'0'}

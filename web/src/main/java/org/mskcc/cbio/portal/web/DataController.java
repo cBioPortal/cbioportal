@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Set;
 import org.mskcc.cbio.portal.model.DBPatientList;
 import org.mskcc.cbio.portal.model.DBClinicalData;
+import org.mskcc.cbio.portal.model.DBClinicalPatientData;
+import org.mskcc.cbio.portal.model.DBClinicalSampleData;
 import org.mskcc.cbio.portal.model.DBProfileData;
 import org.mskcc.cbio.portal.service.PatientListService;
 import org.mskcc.cbio.portal.service.ClinicalDataService;
@@ -18,7 +20,6 @@ import org.mskcc.cbio.portal.service.ProfileDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 /**
  *
  * @author abeshoua
@@ -63,7 +64,7 @@ public class DataController {
             return patientListService.byInternalStudyId(study_ids, true);
         }
     }
-    private List<DBClinicalData> dispatchClinicalHelper(List<String> study_ids, List<String> ids, boolean isSample) throws Exception {
+    private List<? extends DBClinicalData> dispatchClinicalHelper(List<String> study_ids, List<String> ids, boolean isSample) throws Exception {
         if (study_ids == null && ids == null) {
             throw new Exception("Not enough specified");//TODO: better error messages
         } else if (ids == null) {
@@ -93,14 +94,14 @@ public class DataController {
         }
     }
     @RequestMapping("/clinical/samples")
-    public @ResponseBody List<DBClinicalData> dispatchClinicalSamples(@RequestParam(required = false) List<String> study_ids,
+    public @ResponseBody List<DBClinicalSampleData> dispatchClinicalSamples(@RequestParam(required = false) List<String> study_ids,
                                                                       @RequestParam(required = false) List<String> sample_ids) throws Exception {
-        return dispatchClinicalHelper(study_ids, sample_ids, true);
+        return (List<DBClinicalSampleData>) dispatchClinicalHelper(study_ids, sample_ids, true);
     }
     @RequestMapping("/clinical/patients")
-    public @ResponseBody List<DBClinicalData> dispatchClinicalPatients(@RequestParam(required = false) List<String> study_ids,
+    public @ResponseBody List<DBClinicalPatientData> dispatchClinicalPatients(@RequestParam(required = false) List<String> study_ids,
                                                                       @RequestParam(required = false) List<String> patient_ids) throws Exception {
-        return dispatchClinicalHelper(study_ids, patient_ids, false);
+        return (List<DBClinicalPatientData>) dispatchClinicalHelper(study_ids, patient_ids, false);
     }
     
     @RequestMapping("/profiles")

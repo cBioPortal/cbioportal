@@ -10,11 +10,12 @@
 </resultMap>
 
 
-<select id="byInternalStudyId_Sample" resultType="DBClinicalData">
+<select id="byInternalStudyId_Sample" resultType="DBClinicalSampleData">
     select
         clinical_sample.ATTR_ID as attr_id,
         clinical_sample.ATTR_VALUE as attr_val,
-        clinical_sample.INTERNAL_ID as case_id
+        clinical_sample.INTERNAL_ID as sample_id,
+        patient.CANCER_STUDY_ID as study_id
     from clinical_sample inner join sample on clinical_sample.INTERNAL_ID=sample.INTERNAL_ID
                          inner join patient on sample.PATIENT_ID=patient.INTERNAL_ID
     where patient.CANCER_STUDY_ID in 
@@ -22,22 +23,24 @@
             #{item}
     </foreach>
 </select>
-<select id="byInternalStudyId_Patient" resultType="DBClinicalData">
+<select id="byInternalStudyId_Patient" resultType="DBClinicalPatientData">
     select
         clinical_patient.ATTR_ID as attr_id,
         clinical_patient.ATTR_VALUE as attr_val,
-        clinical_patient.INTERNAL_ID as case_id
+        clinical_patient.INTERNAL_ID as patient_id,
+        patient.CANCER_STUDY_ID as study_id
     from clinical_patient inner join patient on clinical_patient.INTERNAL_ID=patient.INTERNAL_ID
     where patient.CANCER_STUDY_ID in 
     <foreach item="item" collection="ids" open="(" separator="," close=")">
             #{item}
     </foreach>
 </select>
-<select id="byStableStudyId_Sample" resultType="DBClinicalData">
+<select id="byStableStudyId_Sample" resultType="DBClinicalSampleData">
     select
         clinical_sample.ATTR_ID as attr_id,
         clinical_sample.ATTR_VALUE as attr_val,
-        clinical_sample.INTERNAL_ID as case_id
+        clinical_sample.INTERNAL_ID as sample_id,
+        patient.CANCER_STUDY_ID as study_id
     from clinical_sample inner join sample on clinical_sample.INTERNAL_ID=sample.INTERNAL_ID
                          inner join patient on sample.PATIENT_ID=patient.INTERNAL_ID
                          inner join cancer_study on patient.CANCER_STUDY_ID=cancer_study.CANCER_STUDY_ID
@@ -47,26 +50,38 @@
     </foreach>
 </select>
 
-<select id="byInternalSampleId" resultMap="ClinicalDataResult">
-    select * from clinical_sample
+<select id="byInternalSampleId" resultType="DBClinicalSampleData">
+     select
+        clinical_sample.ATTR_ID as attr_id,
+        clinical_sample.ATTR_VALUE as attr_val,
+        clinical_sample.INTERNAL_ID as sample_id,
+        patient.CANCER_STUDY_ID as study_id
+    from clinical_sample inner join sample on clinical_sample.INTERNAL_ID=sample.INTERNAL_ID
+                         inner join patient on sample.PATIENT_ID=patient.INTERNAL_ID
     where INTERNAL_ID in 
     <foreach item="item" collection="ids" open="(" separator="," close=")">
             #{item}
     </foreach>
 </select>
-<select id="byInternalPatientId" resultMap="ClinicalDataResult">
-    select * from clinical_patient
+<select id="byInternalPatientId" resultType="DBClinicalPatientData">
+    select
+        clinical_patient.ATTR_ID as attr_id,
+        clinical_patient.ATTR_VALUE as attr_val,
+        clinical_patient.INTERNAL_ID as patient_id,
+        patient.CANCER_STUDY_ID as study_id
+    from clinical_patient inner join patient on clinical_patient.INTERNAL_ID=patient.INTERNAL_ID
     where INTERNAL_ID in
     <foreach item="item" collection="ids" open="(" separator="," close=")">
             #{item}
     </foreach>
 </select>
 
-<select id="byStableSampleIdInternalStudyId" resultType="DBClinicalData">
+<select id="byStableSampleIdInternalStudyId" resultType="DBClinicalSampleData">
     select
         clinical_sample.ATTR_ID as attr_id,
         clinical_sample.ATTR_VALUE as attr_val,
-        clinical_sample.INTERNAL_ID as case_id
+        clinical_sample.INTERNAL_ID as sample_id,
+        patient.CANCER_STUDY_ID as study_id
     from clinical_sample inner join sample on clinical_sample.INTERNAL_ID=sample.INTERNAL_ID
                          inner join patient on sample.PATIENT_ID=patient.INTERNAL_ID
     where patient.CANCER_STUDY_ID = #{study}
@@ -76,11 +91,12 @@
     </foreach>
 </select>
 
-<select id="byStablePatientIdInternalStudyId" resultMap="ClinicalDataResult">
+<select id="byStablePatientIdInternalStudyId" resultType="DBClinicalPatientData">
     select
         clinical_patient.ATTR_ID as attr_id,
         clinical_patient.ATTR_VALUE as attr_val,
-        clinical_patient.INTERNAL_ID as case_id
+        clinical_patient.INTERNAL_ID as patient_id,
+        patient.CANCER_STUDY_ID as study_id
     from clinical_patient inner join patient on clinical_patient.INTERNAL_ID=patient.INTERNAL_ID
     where patient.CANCER_STUDY_ID=#{study}
     and patient.STABLE_ID in
@@ -89,11 +105,12 @@
     </foreach>
 </select>
 
-<select id="byStableSampleIdStableStudyId" resultType="DBClinicalData">
+<select id="byStableSampleIdStableStudyId" resultType="DBClinicalSampleData">
     select
         clinical_sample.ATTR_ID as attr_id,
         clinical_sample.ATTR_VALUE as attr_val,
-        clinical_sample.INTERNAL_ID as case_id
+        clinical_sample.INTERNAL_ID as sample_id,
+        patient.CANCER_STUDY_ID as study_id
     from clinical_sample inner join sample on clinical_sample.INTERNAL_ID=sample.INTERNAL_ID
                          inner join patient on sample.PATIENT_ID=patient.INTERNAL_ID
                          inner join cancer_study on patient.CANCER_STUDY_ID=cancer_study.CANCER_STUDY_ID
@@ -104,11 +121,12 @@
     </foreach>
 </select>
 
-<select id="byStablePatientIdStableStudyId" resultMap="ClinicalDataResult">
+<select id="byStablePatientIdStableStudyId" resultType="DBClinicalPatientData">
     select
         clinical_patient.ATTR_ID as attr_id,
         clinical_patient.ATTR_VALUE as attr_val,
-        clinical_patient.INTERNAL_ID as case_id
+        clinical_patient.INTERNAL_ID as patient_id,
+        patient.CANCER_STUDY_ID as study_id
     from clinical_patient inner join patient on clinical_patient.INTERNAL_ID=patient.INTERNAL_ID
                           inner join cancer_study on patient.CANCER_STUDY_ID=cancer_study.CANCER_STUDY_ID
     where cancer_study.CANCER_STUDY_IDENTIFIER = #{study}
@@ -117,6 +135,4 @@
             #{item}
     </foreach>
 </select>
-    
-
 </mapper>

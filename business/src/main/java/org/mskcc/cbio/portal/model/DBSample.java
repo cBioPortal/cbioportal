@@ -16,4 +16,5 @@ public class DBSample implements Serializable {
     public String stable_id;
     public String sample_type;
     public Integer patient_id;
+    public Integer study_id;
 }

@@ -14,5 +14,5 @@ import java.io.Serializable;
 public class DBProfileData implements Serializable {
     public Integer internal_id;
     public Long entrez_gene_id; //protein_array_target
-    public Integer internal_case_id;
+    public Integer internal_patient_id;
 }

@@ -17,7 +17,8 @@
         sample.INTERNAL_ID as internal_id,
         sample.STABLE_ID as stable_id,
         sample.SAMPLE_TYPE as sample_type,
-        sample.PATIENT_ID as patient_id
+        sample.PATIENT_ID as patient_id,
+        patient.CANCER_STUDY_ID as study_id
     from sample inner join patient on sample.PATIENT_ID = patient.INTERNAL_ID
     where patient.CANCER_STUDY_ID in
     <foreach item="item" collection="ids" open="(" separator="," close=")">
@@ -29,26 +30,34 @@
         sample.INTERNAL_ID as internal_id,
         sample.STABLE_ID as stable_id,
         sample.SAMPLE_TYPE as sample_type,
-        sample.PATIENT_ID as patient_id
+        sample.PATIENT_ID as patient_id,
+        patient.CANCER_STUDY_ID as study_id
     from sample inner join patient on sample.PATIENT_ID = patient.INTERNAL_ID inner join cancer_study on patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
     where cancer_study.CANCER_STUDY_IDENTIFIER in
     <foreach item="item" collection="ids" open="(" separator="," close=")">
         #{item}
     </foreach>
 </select>
-<select id="byInternalSampleId" resultMap="SampleResult">
-    select * from sample
-    where INTERNAL_ID in 
+<select id="byInternalSampleId" resultType="DBSample">
+     select
+        sample.INTERNAL_ID as internal_id,
+        sample.STABLE_ID as stable_id,
+        sample.SAMPLE_TYPE as sample_type,
+        sample.PATIENT_ID as patient_id,
+        patient.CANCER_STUDY_ID as study_id
+    from sample inner join patient on sample.PATIENT_ID = patient.INTERNAL_ID
+    where sample.INTERNAL_ID in 
     <foreach item="item" collection="ids" open="(" separator="," close=")">
         #{item}
     </foreach>
 </select>
-<select id="byStableSampleIdInternalStudyId" resultMap="SampleResult">
+<select id="byStableSampleIdInternalStudyId" resultType="DBSample">
     select
         sample.INTERNAL_ID as internal_id,
         sample.STABLE_ID as stable_id,
         sample.SAMPLE_TYPE as sample_type,
-        sample.PATIENT_ID as patient_id
+        sample.PATIENT_ID as patient_id,
+        patient.CANCER_STUDY_ID as study_id
     from sample inner join patient on sample.PATIENT_ID = patient.INTERNAL_ID
     where patient.CANCER_STUDY_ID=#{study}
     and sample.STABLE_ID in
@@ -56,12 +65,13 @@
         #{item}
     </foreach>
 </select>
-<select id="byStableSampleIdStableStudyId" resultMap="SampleResult">
+<select id="byStableSampleIdStableStudyId" resultType="DBSample">
     select
         sample.INTERNAL_ID as internal_id,
         sample.STABLE_ID as stable_id,
         sample.SAMPLE_TYPE as sample_type,
-        sample.PATIENT_ID as patient_id
+        sample.PATIENT_ID as patient_id,
+        patient.CANCER_STUDY_ID as study_id
     from sample inner join patient on sample.PATIENT_ID = patient.INTERNAL_ID inner join cancer_study on patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
     where cancer_study.CANCER_STUDY_IDENTIFIER=#{study}
     and sample.STABLE_ID in

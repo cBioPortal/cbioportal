@@ -11,8 +11,6 @@ import java.io.Serializable;
  *
  * @author abeshoua
  */
-public abstract class DBClinicalData implements Serializable {
-    public String attr_id;
-    public String attr_val;
-    public Integer study_id;
+public class DBClinicalSampleData extends DBClinicalData implements Serializable {
+    public Long sample_id;
 }

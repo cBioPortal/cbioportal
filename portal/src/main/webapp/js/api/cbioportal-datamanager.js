@@ -18,10 +18,11 @@ dataman = (function() {
 		addIndex: function(name, cacheBy) {
 			this.indexes[name] = new Index(cacheBy, this.data);
 		},
-		addData: function(data) {
+		addData: function(data, indexNames) {
 			this.data = this.data.concat(data);
-			for (var ind in this.indexes) {
-				this.indexes[ind].add(data);
+			indexNames = indexNames || Object.keys(this.indexes);
+			for (var i=0; i<indexNames.length; i++) {
+				this.indexes[indexNames[i]].add(data);
 			}
 		}
 	}
@@ -30,45 +31,67 @@ dataman = (function() {
 		this.cacheBy = cacheBy;
 		this.mapType = mapType;
 	}
-	Index.mapType = {ONE_TO_ONE:0, ONE_TO_MANY:1};
+	Index.mapType = {ONE_TO_ONE:0, ONE_TO_MANY:1, TWO_TO_ONE:2};
 	Index.prototype = {
 		constructor: Index,
 		add: function(objs) {
 			for (var i=0; i<objs.length; i++) {
 				if (this.mapType === Index.mapType.ONE_TO_ONE) {
 					this.map[this.cacheBy(objs[i])] = objs[i];
-				} else {
+				} else if (this.mapType === Index.mapType.ONE_TO_MANY) {
 					var key = this.cacheBy(objs[i]);
 					this.map[key] = this.map[key] || [];
 					this.map[key].push(objs[i]); 
+				} else if (this.mapType === Index.mapType.TWO_TO_ONE) {
+					var keys = this.cacheBy(objs[i]);
+					var key1 = keys[0];
+					var key2 = keys[1];
+					this.map[key1] = this.map[key1] || {};
+					this.map[key1][key2] = objs[i];
 				}
 			}
 		},
 		missingKeys: function(keys) {
 			var ret = [];
-			for (var i=0; i<keys.length; i++) {
-				if (!(keys[i] in this.map)) {
-					ret.push(keys[i]);
-				} 
+			if (this.mapType === Index.mapType.ONE_TO_ONE || this.mapType === Index.mapType.ONE_TO_MANY) {
+				for (var i=0; i<keys.length; i++) {
+					if (!(keys[i] in this.map)) {
+						ret.push(keys[i]);
+					} 
+				}
+			} else if (this.mapType === Index.mapType.TWO_TO_ONE) {
+				for (var i=0; i<keys.length; i++) {
+					if (!(keys[i][0] in this.map)) {
+						ret.push(keys[i]);
+					} else if (!(keys[i][1] in this.map[keys[i][0]])) {
+						ret.push(keys[i]);
+					}
+				}
 			}
 			return ret;
 		},
 		get: function(keys) {
 			var ret = [];
-			for (var i=0; i<keys.length; i++) {
-				if (keys[i] in this.map) {
-					ret.push(this.map[keys[i]]);
-				}
-			}
 			if (this.mapType === Index.mapType.ONE_TO_ONE) {
-				return ret;
-			} else {
-				var retConc = [];
-				for (var i=0; i<ret.length; i++) {
-					retConc = retConc.concat(ret[i]);
+				for (var i=0; i<keys.length; i++) {
+					if (keys[i] in this.map) {
+						ret.push(this.map[keys[i]]);
+					}
 				}
-				return retConc;
+			} else if (this.mapType === Index.mapType.ONE_TO_MANY) {
+				for (var i=0; i<keys.length; i++) {
+					if (keys[i] in this.map) {
+						ret = ret.concat(this.map[keys[i]]);
+					}
+				}
+			} else if (this.mapType === Index.mapType.TWO_TO_ONE) {
+				for (var i=0; i<keys.length; i++) {
+					if ((keys[i][0] in this.map) && (keys[i][1] in this.map[keys[i][0]])) {
+						ret.push(this.map[keys[i][0]][keys[i][1]]);
+					}
+				}
 			}
+			return ret;
 		}
 	}
 
@@ -95,12 +118,24 @@ dataman = (function() {
 	cache.meta.patients.addIndex('internal_id', function(x) { return x.internal_id; }, Index.mapType.ONE_TO_ONE);
 	cache.meta.patients.addIndex('stable_id', function(x) { return x.study_id+"_"+x.stable_id;}, Index.mapType.ONE_TO_ONE);
 
+	cache.meta.samples.addIndex('study', function(x) { return x.study_id; }, Index.mapType.ONE_TO_MANY);
+	cache.meta.samples.addIndex('internal_id', function(x) { return x.internal_id; }, Index.mapType.ONE_TO_ONE);
+	cache.meta.samples.addIndex('stable_id', function(x) { return x.study_id+"_"+x.stable_id;}, Index.mapType.ONE_TO_ONE);
+
 	cache.meta.studies.addIndex('internal_id', function(x) { return x.internal_id;}, Index.mapType.ONE_TO_ONE);
 	cache.meta.studies.addIndex('stable_id', function(x) { return x.stable_id;}, Index.mapType.ONE_TO_ONE);
 
 	cache.meta.profiles.addIndex('internal_id', function(x) { return x.internal_id;}, Index.mapType.ONE_TO_ONE);
 	cache.meta.profiles.addIndex('stable_id', function(x) { return x.id;}, Index.mapType.ONE_TO_ONE);
 	cache.meta.profiles.addIndex('study', function(x) { return x.internal_study_id;}, Index.mapType.ONE_TO_MANY);
+
+	cache.data.clinicalPatients.addIndex('internal_id', function(x) { return x.patient_id;}, Index.mapType.ONE_TO_MANY);
+	cache.data.clinicalPatients.addIndex('study', function(x) { return x.study_id;}, Index.mapType.ONE_TO_MANY);
+
+	cache.data.clinicalSamples.addIndex('internal_id', function(x) { return x.sample_id;}, Index.mapType.ONE_TO_MANY);
+	cache.data.clinicalSamples.addIndex('study', function(x) { return x.study_id;}, Index.mapType.ONE_TO_MANY);
+
+	cache.data.profiles.addIndex('geneprofile_patient', function(x) { return [x.entrez_gene_id+"_"+x.internal_id, x.internal_patient_id]}
 
 
 	// API METHODS
@@ -189,7 +224,7 @@ dataman = (function() {
 			callback(index.get(internal_ids));
 		} else {
 			cbio.meta.patients({'patient_ids': internal_ids}, function(data) {
-				cache.meta.patients.addData(data);
+				cache.meta.patients.addData(data, ['internal_id', 'stable_id']);
 				callback(index.get(internal_ids));
 			}, fail);
 		}
@@ -207,14 +242,13 @@ dataman = (function() {
 			callback(index.get(goodIds));
 		} else {
 			cbio.meta.patients({'study_ids':[study_id], 'patient_ids':stable_ids}, function(data) {
-				cache.meta.patients.addData(data);
+				cache.meta.patients.addData(data, ['internal_id', 'stable_id']);
 				callback(index.get(goodIds));
 			}, fail);
 		}
 	}
 	// -- meta.samples --
-	// TODO: we're gonna have problems with this because of weird study dynamics.... namely that the return objects dont include study
-	/*var getSamplesByStableStudyId = function(study_ids, callback, fail) {
+	var getSamplesByStableStudyId = function(study_ids, callback, fail) {
 		cbio.meta.studies({'ids': study_ids}, function(data) {
 			var internal_ids = [];
 			for (var i=0; i<data.length; i++) {
@@ -242,7 +276,7 @@ dataman = (function() {
 			callback(index.get(internal_ids));
 		} else {
 			cbio.meta.samples({'sample_ids': internal_ids}, function(data) {
-				cache.meta.samples.addData(data);
+				cache.meta.samples.addData(data, ['internal_id', 'stable_id']);
 				callback(index.get(internal_ids));
 			}, fail);
 		}
@@ -260,11 +294,11 @@ dataman = (function() {
 			callback(index.get(goodIds));
 		} else {
 			cbio.meta.samples({'study_ids':[study_id], 'sample_ids':stable_ids}, function(data) {
-				cache.meta.samples.addData(data);
+				cache.meta.samples.addData(data, ['internal_id', 'stable_id']);
 				callback(index.get(goodIds));
 			}, fail);
 		}
-	}*/
+	}
 
 	// -- meta.studies --
 	var getAllStudies = function(callback, fail) {
@@ -322,9 +356,6 @@ dataman = (function() {
 	}
 
 	// -- meta.profiles --
-	'study'
-	'stable_id'
-	'internal_id'
 	var getAllProfiles = function(callback, fail) {
 		if(history.meta.profiles.all) {
 			callback(cache.meta.profiles.getAll());
@@ -336,26 +367,26 @@ dataman = (function() {
 			}, fail);
 		}
 	}
-	var getProfilesHelper = function(argname, ids, indexName, callback, fail) {
+	var getProfilesHelper = function(argname, ids, indexName, updateIndexes, callback, fail) {
 		var index = cache.meta.profiles.indexes[indexName];
 		var toQuery = index.missingKeys(ids);
 		if (toQuery.length === 0) {
 			callback(index.get(ids));
 		} else {
 			cbio.meta.profiles({argname: ids}, function(data) {
-				cache.meta.profiles.addData(data);
+				cache.meta.profiles.addData(data, updateIndexes);
 				callback(index.get(ids));
 			}, fail);
 		}
 	}
 	var getProfilesByStableId = function(profile_ids, callback, fail) {
-		getProfilesHelper('profile_ids', profile_ids, 'stable_id', callback, fail);
+		getProfilesHelper('profile_ids', profile_ids, 'stable_id', ['stable_id', 'internal_id'], callback, fail);
 	}
 	var getProfilesByInternalId = function(profile_ids, callback, fail) {
-		getProfilesHelper('profile_ids', profile_ids, 'internal_id', callback, fail);
+		getProfilesHelper('profile_ids', profile_ids, 'internal_id', ['stable_id', 'internal_id'], callback, fail);
 	}
-	var getProfilesByStudyId = function(study_ids, callback, fail) {
-		getProfilesHelper('study_ids', study_ids, 'study', callback, fail);
+	var getProfilesByInternalStudyId = function(study_ids, callback, fail) {
+		getProfilesHelper('study_ids', study_ids, 'study', undefined, callback, fail);
 	}
 
 	// -- meta.clinicalPatients --
@@ -396,63 +427,130 @@ dataman = (function() {
 
 	// -- data.clinicalPatients --
 	var getClinicalPatientDataByInternalStudyId = function(study_ids, callback, fail) {
-		//TODO: caching
-		cbio.data.clinicalPatients({'study_ids': study_ids}, callback, fail);
+		var index = cache.data.clinicalPatients.indexes['study'];
+		var toQuery = index.missingKeys(study_ids);
+		if (toQuery.length === 0) {
+			callback(index.get(study_ids));
+		} else {
+			cbio.data.clinicalPatients({'study_ids': toQuery}, function(data) {
+				cache.data.clinicalPatients.addData(data);
+				callback(index.get(study_ids));
+			}, fail)
+		}
 	}
 	var getClinicalPatientDataByStableStudyId = function(study_ids, callback, fail) {
-		//TODO: caching
-		cbio.data.clinicalPatients({'study_ids': study_ids}, callback, fail);
+		getStudiesByStableId(study_ids, function(data) {
+			var internal_ids = [];
+			for (var i=0; i<data.length; i++) {
+				internal_ids.push(data[i].internal_id);
+			}
+			getClinicalPatientDataByInternalStudyId(internal_ids, callback, fail);
+		}, fail);
 	}
 	var getClinicalPatientDataByInternalId = function(patient_ids, callback, fail) {
+		var index = cache.data.clinicalPatients.indexes['internal_id'];
+		var toQuery = index.missingKeys(patient_ids);
+		if (toQuery.length === 0) {
+			callback(index.get(study_ids));
+		} else {
+			cbio.data.clinicalPatients({'patient_ids': toQuery}, function(data) {
+				cache.data.clinicalPatients.addData(data, ['internal_id']);
+				callback(index.get(patient_ids));
+			}, fail);
+		}
 		//TODO: caching
 		cbio.data.clinicalPatients({'patient_ids': patient_ids}, callback, fail);
 	}
 	var getClinicalPatientDataByStableId = function(study_id, patient_ids, callback, fail) {
-		//TODO: caching
-		cbio.data.clinicalPatients({'study_ids':[study_id], 'patient_ids':patient_ids}, callback, fail);
+		var fetchFn = (typeof study_id === "number" ? getPatientsByStableIdInternalStudyId : getPatientsByStableIdStableStudyId);
+		fetchFn(study_id, patient_ids, function(data) {
+			var internal_ids = [];
+			for (var i=0; i<data.length; i++) {
+				internal_ids.push(data[i].internal_id);
+			}
+			getClinicalPatientDataByInternalId(internal_ids, callback, fail);
+		}, fail);
 	}
 
 	// -- data.clinicalSamples --
 	var getClinicalSampleDataByInternalStudyId = function(study_ids, callback, fail) {
-		//TODO: caching
-		cbio.data.clinicalSamples({'study_ids': study_ids}, callback, fail);
+		var index = cache.data.clinicalSamples.indexes['study'];
+		var toQuery = index.missingKeys(study_ids);
+		if (toQuery.length === 0) {
+			callback(index.get(study_ids));
+		} else {
+			cbio.data.clinicalSamples({'study_ids': toQuery}, function(data) {
+				cache.data.clinicalSamples.addData(data);
+				callback(index.get(study_ids));
+			}, fail)
+		}
 	}
 	var getClinicalSampleDataByStableStudyId = function(study_ids, callback, fail) {
-		//TODO: caching
-		cbio.data.clinicalSamples({'study_ids': study_ids}, callback, fail);
+		getStudiesByStableId(study_ids, function(data) {
+			var internal_ids = [];
+			for (var i=0; i<data.length; i++) {
+				internal_ids.push(data[i].internal_id);
+			}
+			getClinicalSampleDataByInternalStudyId(internal_ids, callback, fail);
+		}, fail);
 	}
 	var getClinicalSampleDataByInternalId = function(sample_ids, callback, fail) {
+		var index = cache.data.clinicalSamples.indexes['internal_id'];
+		var toQuery = index.missingKeys(sample_ids);
+		if (toQuery.length === 0) {
+			callback(index.get(study_ids));
+		} else {
+			cbio.data.clinicalSamples({'sample_ids': toQuery}, function(data) {
+				cache.data.clinicalSamples.addData(data, ['internal_id']);
+				callback(index.get(sample_ids));
+			}, fail);
+		}
 		//TODO: caching
-		cbio.data.clinicalSamples({'patient_ids': sample_ids}, callback, fail);
+		cbio.data.clinicalSamples({'sample_ids': sample_ids}, callback, fail);
 	}
 	var getClinicalSampleDataByStableId = function(study_id, sample_ids, callback, fail) {
-		//TODO: caching
-		cbio.data.clinicalSamples({'study_ids':[study_id], 'sample_ids':patient_ids}, callback, fail);
+		var fetchFn = (typeof study_id === "number" ? getSamplesByStableIdInternalStudyId : getSamplesByStableIdStableStudyId);
+		fetchFn(study_id, sample_ids, function(data) {
+			var internal_ids = [];
+			for (var i=0; i<data.length; i++) {
+				internal_ids.push(data[i].internal_id);
+			}
+			getClinicalSampleDataByInternalId(internal_ids, callback, fail);
+		}, fail);
 	}
 
 	// -- data.profiles --
-	var addProfileDataToCache = function(data) {
-
-	}
-	var getProfileDataFromCache = function(genes, profile_ids) {
-		
-	}
-	var initProfileDataCache = function() {
-		history.data.profiles.profiles = history.data.profiles.profiles || {};
-		history.data.profiles.patientlists = history.data.profiles.profiles || {};
+	var cartProd = function(A,B) {
+		var ret = [];
+		for (var i=0; i<A.length; i++) {
+			for (var j=0; j<B.length; j++) {
+				ret.push([A[i],B[j]]);
+			}
+		}
+		return ret;
 	}
 	var getAllProfileData = function(genes, profile_ids, callback, fail) {
-		initProfileDataCache();
+		var allKeys = cartProd(genes, profile_ids);
+		var toQuery = [];
+		for (var i=0; i<allKeys.length; i++) {
+			var key = allKeys[i][0]+"_"+allKeys[i][1];
+			if (!(key in history.data.profiles)) {
+				toQuery.push(allKeys[i]);
+			}
+		}
+		if (toQuery.length === 0) {
+			
+		}
+		var index = cache.data.profiles.indexes['geneprofile_patient'];
+
 		//TODO: caching
 		cbio.data.profilesData({'genes': genes, 'profile_ids':profile_ids}, callback, fail);
 	}
 	var getProfileDataByPatientId = function(genes, profile_ids, patient_ids, callback, fail) {
-		initProfileDataCache();
 		//TODO: caching
 		cbio.data.profilesData({'genes': genes, 'profile_ids':profile_ids, 'patient_ids':patient_ids}, callback, fail);
 	}
 	var getProfileDataByPatientListId = function(genes, profile_ids, patient_list_ids, callback, fail) {
-		initProfileDataCache();
 		//TODO: caching
 		cbio.data.profilesData({'genes': genes, 'profile_ids':profile_ids, 'patient_list_ids':patient_list_ids}, callback, fail);
 	}
@@ -472,22 +570,25 @@ dataman = (function() {
 		getPatientsByStableIdStableStudyId: getPatientsByStableIdStableStudyId,
 		getPatientsByStableIdInternalStudyId: getPatientsByStableIdInternalStudyId,
 
-		/*getSamplesByStudy: getSamplesByStudy,
+		getSamplesByStableStudyId: getSamplesByStableStudyId,
+		getSamplesByInternalStudyId: getSamplesByInternalStudyId,
 		getSamplesByInternalId: getSamplesByInternalId,
-		getSamplesByStableId: getSamplesByStableId,
+		getSamplesByStableIdStableStudyId: getSamplesByStableIdStableStudyId,
+		getSamplesByStableIdInternalStudyId: getSamplesByStableIdInternalStudyId,
 
 		getAllStudies: getAllStudies,
 		getStudiesByStableId: getStudiesByStableId,
 		getStudiesByInternalId: getStudiesByInternalId,
 
 		getAllPatientLists: getAllPatientLists,
-		getPatientListsById: getPatientListsById,
-		getPatientListsByStudy: getPatientListsBystudy,
+		getPatientListsByStableId: getPatientListsByStableId,
+		getPatientListsByInternalId: getPatientListsByInternalId,
+		getPatientListsByStudy: getPatientListsByStudy,
 
 		getAllProfiles: getAllProfiles,
 		getProfilesByStableId: getProfilesByStableId,
 		getProfilesByInternalId: getProfilesByInternalId,
-		getProfilesByStudyId: getProfilesByStudyId,
+		getProfilesByInternalStudyId: getProfilesByInternalStudyId,
 
 		getAllClinicalPatientFields: getAllClinicalPatientFields,
 		getClinicalPatientFieldsByStudy: getClinicalPatientFieldsByStudy,
@@ -501,7 +602,21 @@ dataman = (function() {
 
 		getAllProfileData: getAllProfileData,
 		getProfileDataByPatientId: getProfileDataByPatientId,
-		getProfileDataByPatientListId: getProfileDataByPatientListId*/
+		getProfileDataByPatientListId: getProfileDataByPatientListId,
+
+		getClinicalPatientDataByInternalStudyId: getClinicalPatientDataByInternalStudyId,
+		getClinicalPatientDataByStableStudyId: getClinicalPatientDataByStableStudyId,
+		getClinicalPatientDataByInternalId: getClinicalPatientDataByInternalId,
+		getClinicalPatientDataByStableId: getClinicalPatientDataByStableId,
+
+		getClinicalSampleDataByInternalStudyId: getClinicalSampleDataByInternalStudyId,
+		getClinicalSampleDataByStableStudyId: getClinicalSampleDataByStableStudyId,
+		getClinicalSampleDataByInternalId: getClinicalSampleDataByInternalId,
+		getClinicalSampleDataByStableId: getClinicalSampleDataByStableId,
+
+		getAllProfileData: getAllProfileData,
+		getProfileDataByPatientId: getProfileDataByPatientId,
+		getProfileDataByPatientListId: getProfileDataByPatientListId,
 	};
 
 })();

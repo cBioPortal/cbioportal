@@ -646,11 +646,11 @@ public class Admin implements Runnable {
 		}
 	}
         
-        /**
-         * 
-         * @param portal
-         * @throws Exception 
-         */
+    /**
+     * 
+     * @param portal
+     * @throws Exception 
+     */
 	private void importCaseLists(String portal) throws Exception {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("importData(), portal: " + portal);

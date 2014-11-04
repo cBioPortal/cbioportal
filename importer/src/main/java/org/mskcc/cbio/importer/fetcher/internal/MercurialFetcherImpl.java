@@ -60,10 +60,7 @@ public class MercurialFetcherImpl extends FetcherBaseImpl implements Fetcher
 		boolean updatesAvailable = mercurialService.updatesAvailable(dataSourceMetadata.getDownloadDirectory());
 		if (updatesAvailable) {
 			logMessage(LOG, "fetch(), updates available, pulling from repository.");
-			List<String> studiesUpdated = mercurialService.pullUpdate(dataSourceMetadata.getDownloadDirectory());
-			for (String study : studiesUpdated) {
-				logMessage(LOG, "fetch(), the following study has been updated: " + study);
-			}
+			updateStudiesWorksheet(mercurialService.pullUpdate(dataSourceMetadata.getDownloadDirectory()));
 			return true;
 		}
 		else {
@@ -85,6 +82,17 @@ public class MercurialFetcherImpl extends FetcherBaseImpl implements Fetcher
 	@Override
 	public boolean fetchReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
 		throw new UnsupportedOperationException();
+	}
+
+	private void updateStudiesWorksheet(List<String> studiesUpdated)
+	{
+		Map<String,String> propertyMap = new HashMap<String,String>();
+		for (String cancerStudy : studiesUpdated) {
+			propertyMap.clear();
+			propertyMap.put(CancerStudyMetadata.UPDATE_AVAILABLE_COLUMN_KEY, "true");
+			config.updateCancerStudyAttributes(cancerStudy, propertyMap);
+			logMessage(LOG, "fetch(), the following study has been updated: " + cancerStudy);
+		}
 	}
 }
 

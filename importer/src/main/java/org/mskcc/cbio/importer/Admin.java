@@ -159,6 +159,13 @@ public class Admin implements Runnable {
 											  "If init_tumor_types is 't' tumor types will be imported  " + 
 											  "If ref_data is 't', all reference data will be imported prior to importing staging files.")
                              .create("import_data"));
+
+        Option updateStudyData = (OptionBuilder.withArgName("portal:update_worksheet")
+                                  .hasArgs(2)
+                                  .withValueSeparator(':')
+                                  .withDescription("Updates study data for the given portal. if update_worksheet is 't' " +
+                                                   "UPDATE_AVAILABLE and IMPORT columns in cancer_studies google worksheet are updated.")
+                                  .create("update_study_data"));
         
         Option importCaseLists = (OptionBuilder.withArgName("portal")
                              .hasArgs(1)
@@ -194,6 +201,7 @@ public class Admin implements Runnable {
 		toReturn.addOption(importReferenceData);
 		toReturn.addOption(importTypesOfCancer);
 		toReturn.addOption(importData);
+		toReturn.addOption(updateStudyData);
 		toReturn.addOption(importCaseLists);
 		toReturn.addOption(copySegFiles);
 		toReturn.addOption(deleteCancerStudy);
@@ -283,6 +291,10 @@ public class Admin implements Runnable {
 			else if (commandLine.hasOption("import_data")) {
                 String[] values = commandLine.getOptionValues("import_data");
                 importData(values[0], values[1], values[2], values[3]);
+			}
+			else if (commandLine.hasOption("update_study_data")) {
+                String[] values = commandLine.getOptionValues("update_study_data");
+                updateStudyData(values[0], values[1]);
 			}
                         
 			// import case lists
@@ -643,6 +655,34 @@ public class Admin implements Runnable {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("importData(), complete");
+		}
+	}
+
+	private void updateStudyData(String portal, String updateWorksheet) throws Exception
+	{
+		if (LOG.isInfoEnabled()) {
+			LOG.info("updateStudyData(), portal: " + portal);
+			LOG.info("updateStudyData(), update_worksheet: " + updateWorksheet);
+		}
+
+		Boolean updateWorksheetBool = getBoolean(updateWorksheet);
+		Config config = (Config)getBean("config");
+		Importer importer = (Importer)getBean("importer");
+		Map<String,String> propertyMap = new HashMap<String,String>();
+		for (CancerStudyMetadata cancerStudyMetadata : config.getCancerStudyMetadata(portal)) {
+			if (cancerStudyMetadata.isImported() && cancerStudyMetadata.updateAvailable())  {
+				propertyMap.clear();
+				importer.updateCancerStudy(portal, cancerStudyMetadata);
+				// clear update available
+				propertyMap.put(CancerStudyMetadata.UPDATE_AVAILABLE_COLUMN_KEY, "false");
+				// clear import (if requires validation)
+				if (cancerStudyMetadata.requiresValidation()) {
+					propertyMap.put(CancerStudyMetadata.IMPORT_COLUMN_KEY, "false");
+				}
+				if (updateWorksheetBool) {
+					config.updateCancerStudyAttributes(cancerStudyMetadata.getName(), propertyMap);
+				}
+			}
 		}
 	}
         

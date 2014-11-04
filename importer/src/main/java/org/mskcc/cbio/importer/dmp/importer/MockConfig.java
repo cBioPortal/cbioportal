@@ -159,4 +159,8 @@ public class MockConfig implements Config {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    public void updateCancerStudyAttributes(String cancerStudy, Map<String,String> properties) {
+        throw new UnsupportedOperationException();
+    }
+
 }

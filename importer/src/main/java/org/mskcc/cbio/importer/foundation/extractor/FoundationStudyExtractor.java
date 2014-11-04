@@ -1,10 +1,6 @@
 package org.mskcc.cbio.importer.foundation.extractor;
 
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.base.Strings;
+import com.google.common.base.*;
 import com.google.common.collect.FluentIterable;
 import com.google.inject.internal.Lists;
 import java.io.IOException;
@@ -14,12 +10,12 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
+
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.Config;
-import org.mskcc.cbio.importer.model.DataSourcesMetadata;
-import org.mskcc.cbio.importer.model.FoundationMetadata;
+import org.mskcc.cbio.importer.model.*;
 
 /**
  * Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
@@ -39,19 +35,20 @@ import org.mskcc.cbio.importer.model.FoundationMetadata;
  * 
 */
 /**
- * Represents a FileExtractor subclass responsible for copying FMI XML files
- * from a base directory to subdirectories based on the MSKCC cancer study name.
+ * Represents a a file extractor responsible for copying FMI XML files
+ * from a download directory to subdirectories based on the MSKCC cancer study name.
  * Responsibilities: 
- * 1. for each XML file in the foundation base directory 
+ * 1. for each XML file in the foundation download directory
  *   a.determine the appropriate subdirectory based on the associated cancer study
  *      (FoundationMetadata) 
- *   b. copy the new XML file to that subdirectory 
+ *   b. move the new XML file to that subdirectory
  *   c. add the affected cancer study to a Set 
  * 2. return a Set of Foundation cancer studies that have new XML files
  *
  * @author fcriscuo
  */
 public class FoundationStudyExtractor {
+
     private  final FileDataSource inputDataSource;
     private final Config config;
     private final Joiner pathJoiner = Joiner.on(System.getProperty("file.separator"));
@@ -61,29 +58,47 @@ public class FoundationStudyExtractor {
     public FoundationStudyExtractor(final Config aConfig) {
         Preconditions.checkArgument(null != aConfig, "A Config implementation is required");   
         this.config = aConfig;
-        this.foundationDataDirectory = this.resolveFoundationDataDirectory();
-       this.inputDataSource = this.resolveInputDataSource();
+        Optional<String> dd = this.resolveFileDownloadDirectoryFromConfig();
+        if (dd.isPresent()){
+            this.foundationDataDirectory = dd.get();
+        } else {
+            this.foundationDataDirectory = "/tmp"; // divert search to temp
+        }
+        Optional<FileDataSource> fds  = this.resolveInputDataSource();
+        if (fds.isPresent()) {
+            this.inputDataSource = fds.get();
+            logger.info("FDS diretcory: " + this.inputDataSource.getDirectoryName());
+            for(Path p : this.inputDataSource.getFilenameList()){
+                logger.info("XML file " +p.toString());
+            }
+
+        } else {
+            this.inputDataSource = null;  // TODO: fix this
+        }
     }
     
-    private FileDataSource resolveInputDataSource() {
+    private Optional<FileDataSource> resolveInputDataSource() {
          try {
-            return  new FileDataSource(this.foundationDataDirectory, this.xmlFileExtensionFilter);
+            return  Optional.of(new FileDataSource(this.foundationDataDirectory, this.xmlFileExtensionFilter));
         } catch (IOException ex) {
             logger.error(ex.getMessage());
         }
-         return null;
+         return Optional.absent();
     }
-    
-     private String resolveFoundationDataDirectory() {   
+    /*
+    private method to return the download directory name for FMI files defined in the config
+    encapsulate the String in an Optional so that caller is aware that it may not be defined.
+     */
+     private Optional<String> resolveFileDownloadDirectoryFromConfig() {
         Collection<DataSourcesMetadata> dsmc = config.getDataSourcesMetadata("foundation");
         if(null == dsmc || dsmc.isEmpty()) {
             logger.error("Configuration error: unable to find FMI data source metadata");
         } else if  (dsmc.size()>1) {
             logger.error("Configuration error: multiple data sources registered for FMI");
         } else {
-           return  Lists.newArrayList(dsmc).get(0).getDownloadDirectory();
+           return  Optional.of(Lists.newArrayList(dsmc).get(0).getDownloadDirectory());
         }
-        return ""; 
+        return Optional.absent();
     }
      
      Predicate xmlFileExtensionFilter = new Predicate<Path>() {
@@ -92,8 +107,11 @@ public class FoundationStudyExtractor {
             return (input.toString().endsWith("xml"));
         }
      };
-     
-    private String resolveCancerStudyFromFilename(final String filename) {
+     /*
+     private method to determine the Foundation cancer study name from the XML file name
+     Usually only a subset of the file name is registered in the config  data
+      */
+    private String resolveFoundationCancerStudyNameFromXMLFileName(final String filename) {
         final Collection<FoundationMetadata> mdc = config.getFoundationMetadata();
         final List<String> fileList = Lists.newArrayList(filename);
         List<String> affectedStudyList = FluentIterable.from(mdc)
@@ -111,7 +129,7 @@ public class FoundationStudyExtractor {
                         return f.getCancerStudy();
                     }
                 }).toList();
-        // there should only be zero or one match
+        // there should only be one match
         if(affectedStudyList.size() == 1) {
             return affectedStudyList.get(0);
         }
@@ -124,12 +142,12 @@ public class FoundationStudyExtractor {
         return "";
     }
 
-    public Set<Path> extractData() throws IOException {
-        return this.processFoundationFiles();
-    }
-
+    /*
+    private method to determine where a new Foundation XML file should be moved to
+    the destination directory is based on the cancer study name registered in the config data
+     */
     private Path resolveDestinationPath(Path sourcePath) {
-        String study = this.resolveCancerStudyFromFilename(sourcePath.toString());
+        String study = this.resolveFoundationCancerStudyNameFromXMLFileName(sourcePath.toString());
         if(!Strings.isNullOrEmpty(study)){
             try {
                 // ensure that required directories exist
@@ -141,29 +159,24 @@ public class FoundationStudyExtractor {
                 logger.error(ex.getMessage());
             }
         }
-        return sourcePath; // copy the file to itself
+        return sourcePath;
     }
 
-      private Path resolveArchivePath(Path sourcePath){
-          return Paths.get(pathJoiner.join(this.foundationDataDirectory,"archive", 
-                  sourcePath.getFileName().toString()));
-      }
-      
+
     /**
-     * Process each XML file in the input source. Determine the copy destination
-     * from the cancer study the file belongs to, copy the file and rename the
-     * original. Add the affected cancer study to the Set
+     * Process each XML file in the input source. Determine the  destination
+     * from the cancer study the file belongs to, move the file.
+     * Add the affected cancer study to the Set
      *
      */
-    private Set<Path> processFoundationFiles() throws IOException {
-        
+    public Set<Path> extractData() throws IOException {
                return FluentIterable
                 .from(inputDataSource.getFilenameList())
                 .transform(new Function<Path, Path>() {
                     @Override
                     public Path apply(Path inPath) {
                         Path outPath = resolveDestinationPath(inPath);
-                        
+                        logger.info("Moving from " +inPath.toString() +" to " +outPath.toString());
                         try {
                             if (outPath != inPath) {
                                 Files.move(inPath, outPath, StandardCopyOption.REPLACE_EXISTING);                          
@@ -171,13 +184,12 @@ public class FoundationStudyExtractor {
                         } catch (IOException ex) {
                             logger.error(ex.getMessage());
                         }
-
+                        // return the Path to the parent directory
                         return outPath.getParent();
                     }
                 }).toSet();
         
     }
 
-   
 
 }

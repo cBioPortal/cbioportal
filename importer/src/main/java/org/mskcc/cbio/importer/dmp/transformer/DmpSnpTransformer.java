@@ -153,7 +153,7 @@ public class DmpSnpTransformer implements DMPDataTransformable {
     }
 
     /*
-     Function to transform DMP SNP attributesfrom a DmpSnp object into MAF attributes collected in
+     Function to transform DMP SNP attributes from a DmpSnp object into MAF attributes collected in
      a tsv String for subsequent output
      */
     Function<DmpSnp, String> transformationFunction = new Function<DmpSnp, String>() {
@@ -206,16 +206,7 @@ public class DmpSnpTransformer implements DMPDataTransformable {
          The second Optional DMP argument is provided to support transformation functions that
          operate on two DMP attributes to determine a single MAF attribute
 
-        transformationMap.put("30Score", new Tuple3<>(copyAttribute, "quality_score", absent));  //30
-        transformationMap.put("31BAM_File", new Tuple3<>(unsupported, "", absent)); //31
-        transformationMap.put("32Sequencer", new Tuple3<>(copyAttribute, "platform", absent));//32
-        transformationMap.put("33Tumor_Sample_UUID", new Tuple3<>(copyAttribute, "submitted_sample_id", absent));//33
-        transformationMap.put("34Matched_Norm_Sample_UUID", new Tuple3<>(copyAttribute, "matched_igc_sample_id", absent)); //34
-        transformationMap.put("35t_alt_count", new Tuple3<>(copyAttribute, "mutant_allele_read_count", absent));  // new
-        transformationMap.put("36t_ref_count", new Tuple3<>(resolveReferenceCount, "total_read_count", Optional.of("mutant_allele_read_count"))); // new
-        transformationMap.put("37n_alt_count", new Tuple3<>(unsupported, "", absent));  // new
-        transformationMap.put("38n_ref_count", new Tuple3<>(unsupported, "", absent));  //new
-         */
+        */
         @Override
         public Map<String, Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>>> get() {
             Map<String, Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>>> transformationMap = Maps.newTreeMap();

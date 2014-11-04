@@ -40,6 +40,10 @@ var PlotsMenu = (function () {
                 "rppa_mrna" : {
                     value : "rppa_protein_level_vs_mrna",
                     text : "RPPA Protein Level vs. mRNA"
+                },
+                "mrna_clinical" : {
+                    value : "mrna_vs_clinical",
+                    text : "mRNA vs. Clinical attributes"
                 }
             },
             data_type : {
@@ -64,6 +68,11 @@ var PlotsMenu = (function () {
                     value: "data_type_rppa",
                     genetic_profile : []
 
+                },
+                "clinical" : {
+                    label: "- Clinical Attributes - ",
+                    value: "data_type_clinical",
+                    attrbitues: []
                 }
             }
         },
@@ -71,7 +80,8 @@ var PlotsMenu = (function () {
             has_mrna : false,
             has_dna_methylation : false,
             has_rppa : false,
-            has_copy_no : false
+            has_copy_no : false,
+            has_clinical_data : false
         };
 
     var Util = (function() {

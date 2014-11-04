@@ -43,6 +43,7 @@ var Plots = (function(){
             genetic_profile_dna_methylation : []
         },
         genetic_profiles = {},
+        clinical_attributes = [],
         log_scale_threshold_down = 0.17677669529, 
         //log_scale_threshold_up = 1024;  // -2.5 to 10
         log_scale_threshold_up = 1.2676506e+30;
@@ -68,7 +69,25 @@ var Plots = (function(){
             }
             genetic_profiles[gene] = _genetic_profile;
         }
+        
+        //Get available clinical attributes for selected study
+        var paramsGetClinicalAttributes = {
+            cmd : "getAllClinicalData",
+            cancer_study_id: PortalGlobals.getCancerStudyId(),
+            case_set_id : PortalGlobals.getCaseSetId(),
+            format : "json"
+        };
+        $.post("webservice.do", paramsGetClinicalAttributes, getClinicalAttrCallBack, "json");
 
+    }
+    
+    function getClinicalAttrCallBack(result) {
+        clinical_attributes = result;
+        initViews();
+    }
+        
+    function initViews() {
+            
         PlotsMenu.init();
         PlotsTwoGenesMenu.init();
         PlotsCustomMenu.init();
@@ -85,8 +104,7 @@ var Plots = (function(){
             } else {
                 //TODO: error handle
             }
-        });
-
+        });        
     }
 
     function addxAxisHelp(svg, axisGroupSvg, xTitle, xTitleClass, xText) {
@@ -195,6 +213,9 @@ var Plots = (function(){
         getMutationType: function(gene, genetic_profile_id, case_set_id, case_ids_key, callback_func) {
             var proxy = DataProxyFactory.getDefaultMutationDataProxy();
             proxy.getMutationData(gene, callback_func);
+        },
+        getClinicalAttributes: function() {
+            return clinical_attributes;
         },
         addxAxisHelp: addxAxisHelp,
         addyAxisHelp: addyAxisHelp,

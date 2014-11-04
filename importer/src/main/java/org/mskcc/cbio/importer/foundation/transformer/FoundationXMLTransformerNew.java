@@ -522,7 +522,7 @@ public class FoundationXMLTransformerNew implements FileTransformer {
                 return metric.getMetricTypeValue();
             }
         }
-        logger.info("Failed to find metric " + metricName + " for case " + caseType.getCase());
+        
         return "";
     }
 

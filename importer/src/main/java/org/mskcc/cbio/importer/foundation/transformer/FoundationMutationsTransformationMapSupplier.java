@@ -4,6 +4,7 @@ import com.google.common.base.*;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.dmp.util.DMPCommonNames;
 import org.mskcc.cbio.importer.dmp.util.EntrezIDSupplier;
 import org.mskcc.cbio.importer.foundation.support.CommonNames;
@@ -19,6 +20,7 @@ import java.util.Map;
  * Created by fcriscuo on 11/2/14.
  */
 public class FoundationMutationsTransformationMapSupplier implements
+
         Supplier<Map<String, Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>>>> {
     private final Supplier<Map<String, String>> entrezIDSupplier = Suppliers.memoize(new EntrezIDSupplier());
     private Map<String, String> entrezMap = entrezIDSupplier.get();
@@ -27,6 +29,7 @@ public class FoundationMutationsTransformationMapSupplier implements
     private final Joiner pathJoiner = Joiner.on(System.getProperty("file.separator"));
     private static final Splitter posSplitter = Splitter.on(':');
     private static final Splitter blankSplitter = Splitter.on(' ').omitEmptyStrings();
+    private static final Logger logger = Logger.getLogger(FoundationMutationsTransformationMapSupplier.class);
 
     @Override
     public Map<String, Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>>> get() {
@@ -195,20 +198,26 @@ public class FoundationMutationsTransformationMapSupplier implements
         public String apply(Tuple2<String, Optional<String>> f) {
             String cdsEffect = f._1();
             Integer startPos = Integer.valueOf(Lists.newArrayList(posSplitter.split(f._2().get()).iterator()).get(1));
-            if (cdsEffect.contains("_") ){
-                if (cdsEffect.contains("-")){
-                   String change = cdsEffect.replaceAll("[^atcgATCG]", "").trim();
-                    return Integer.valueOf(startPos + change.length()).toString();
-                }
-                // split the string
-                String[] parts = cdsEffect.split("_");
-                System.out.println(cdsEffect);
-                Integer startCds = Integer.valueOf(parts[0].replaceAll("[^0123456789]", " ").trim());
-                Integer endCds = (parts.length > 1) ?Integer.valueOf(parts[1].replaceAll("[^0123456789]", " ").trim())
-                        : startCds;
-                return Integer.valueOf(startPos + (endCds - startCds)).toString();
+            String[] changes = cdsEffect.replaceAll("[^atcgATCG]", " ").trim().split(" "); // normally only 1
+            if (cdsEffect.contains("del")  ) {
 
+                if (changes.length > 1) {
+                    return (Integer.valueOf(startPos + changes[1].length() - changes[0].length() - 1)).toString();
+                }
+                return (Integer.valueOf(startPos + changes[0].length()  - 1)).toString();
             }
+            if (cdsEffect.contains("ins") ) {
+                return (Integer.valueOf(startPos + 1)).toString();
+            }
+            if (cdsEffect.contains(">")) {
+
+                if (changes.length > 0) {
+                    return (Integer.valueOf(startPos + changes[0].length() - 1)).toString();
+                }
+            }
+
+            logger.info("++++Unable to determine stop position for CDS effect " + cdsEffect);
+
             return startPos.toString();
 
         }

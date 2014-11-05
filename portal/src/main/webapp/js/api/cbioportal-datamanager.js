@@ -167,6 +167,14 @@ dataman = (function() {
 	cache.meta.studies.addIndex('internal_id', function(x) { return x.internal_id;}, Index.mapType.ONE_TO_ONE);
 	cache.meta.studies.addIndex('stable_id', function(x) { return x.id;}, Index.mapType.ONE_TO_ONE);
 
+	cache.meta.patientLists.addIndex('stable_id', function(x) { return x.id;}, Index.mapType.ONE_TO_ONE);
+	cache.meta.patientLists.addIndex('internal_id', function(x) { return x.internal_id;}, Index.mapType.ONE_TO_ONE);
+	cache.meta.patientLists.addIndex('study', function(x) { return x.internal_study_id;}, Index.mapType.ONE_TO_MANY);
+	
+	cache.data.patientLists.addIndex('stable_id', function(x) { return x.id;}, Index.mapType.ONE_TO_ONE);
+	cache.data.patientLists.addIndex('internal_id', function(x) { return x.internal_id;}, Index.mapType.ONE_TO_ONE);
+	cache.data.patientLists.addIndex('internal_study_id', function(x) { return x.internal_study_id;}, Index.mapType.ONE_TO_MANY);
+
 	cache.meta.profiles.addIndex('internal_id', function(x) { return x.internal_id;}, Index.mapType.ONE_TO_ONE);
 	cache.meta.profiles.addIndex('stable_id', function(x) { return x.id;}, Index.mapType.ONE_TO_ONE);
 	cache.meta.profiles.addIndex('study', function(x) { return x.internal_study_id;}, Index.mapType.ONE_TO_MANY);
@@ -381,20 +389,27 @@ dataman = (function() {
 		var namespace = (omit_lists? cbio.meta : cbio.data);
 		namespace.patientLists({},callback, fail);
 	}
+	var getPatientListsHelper = function(omit_lists, indexName, updateIndexes, argname, argval, callback, fail) {
+		var namespace = (omit_lists? 'meta' : 'data');
+		var index = cache[namespace].patientLists.indexes[indexName];
+		var toQuery = index.missingKeys(argval);
+		if (toQuery.length === 0) {
+			callback(index.get(argval));
+		} else {
+			cbio[namespace].patientLists({argname: argval}, function(data) {
+				cache[namespace].patientLists.addData(data, updateIndexes);
+				callback(index.get(argval));
+			}, fail);
+		}
+	}
 	var getPatientListsByStableId = function(omit_lists, patient_list_ids, callback, fail) {
-		// TODO?: caching
-		var namespace = (omit_lists? cbio.meta : cbio.data);
-		namespace.patientLists({'patient_list_ids': patient_list_ids},callback, fail);
+		getPatientListsHelper(omit_lists, 'stable_id', ['internal_id', 'stable_id'], 'patient_list_ids', ['internal_id', 'stable_id'], patient_list_ids, callback, fail);
 	}
 	var getPatientListsByInternalId = function(omit_lists, patient_list_ids, callback, fail) {
-		// TODO?: caching
-		var namespace = (omit_lists? cbio.meta : cbio.data);
-		namespace.patientLists({'patient_list_ids': patient_list_ids},callback, fail);
+		getPatientListsHelper(omit_lists, 'internal_id', ['internal_id', 'stable_id'], 'patient_list_ids',  patient_list_ids, callback, fail);
 	}
 	var getPatientListsByStudy = function(omit_lists, study_ids, callback, fail) {
-		// TODO?: caching
-		var namespace = (omit_lists? cbio.meta : cbio.data);
-		namespace.patientLists({'study_ids': study_ids},callback, fail);
+		getPatientListsHelper(omit_lists, 'study', null, 'study_ids', study_ids, callback, fail);
 	}
 
 	// -- meta.profiles --

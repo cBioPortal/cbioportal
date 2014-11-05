@@ -84,7 +84,7 @@ public class ProfileDataService {
                 for (int i=0; i<values.length; i++) {
                     DBSimpleProfileData newPD = new DBSimpleProfileData();
                     newPD.entrez_gene_id = row.entrez_gene_id;
-                    newPD.internal_case_id = caseMap.get(new Key(row.genetic_profile_id,i));
+                    newPD.internal_patient_id = caseMap.get(new Key(row.genetic_profile_id,i));
                     newPD.internal_id = row.genetic_profile_id;
                     newPD.profile_data = values[i];
                     ret.add(newPD);
@@ -131,7 +131,7 @@ public class ProfileDataService {
                     if(cases.contains(internal_case_id)) {
                         DBSimpleProfileData newPD = new DBSimpleProfileData();
                         newPD.entrez_gene_id = row.entrez_gene_id;
-                        newPD.internal_case_id = internal_case_id;
+                        newPD.internal_patient_id = internal_case_id;
                         newPD.internal_id = row.genetic_profile_id;
                         newPD.profile_data = values[i];
                         ret.add(newPD);

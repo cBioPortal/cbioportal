@@ -15,8 +15,8 @@ dataman = (function() {
 		getAll: function() {
 			return this.data;
 		},
-		addIndex: function(name, cacheBy) {
-			this.indexes[name] = new Index(cacheBy, this.data);
+		addIndex: function(name, cacheBy, mapType) {
+			this.indexes[name] = new Index(cacheBy, this.data, mapType);
 		},
 		addData: function(data, indexNames) {
 			this.data = this.data.concat(data);
@@ -31,7 +31,7 @@ dataman = (function() {
 		this.cacheBy = cacheBy;
 		this.mapType = mapType;
 	}
-	Index.mapType = {ONE_TO_ONE:0, ONE_TO_MANY:1, TWO_TO_ONE:2};
+	Index.mapType = {ONE_TO_ONE:0, ONE_TO_MANY:1, MANY_TO_ONE:2, MANY_TO_MANY:3};
 	Index.prototype = {
 		constructor: Index,
 		add: function(objs) {
@@ -42,12 +42,23 @@ dataman = (function() {
 					var key = this.cacheBy(objs[i]);
 					this.map[key] = this.map[key] || [];
 					this.map[key].push(objs[i]); 
-				} else if (this.mapType === Index.mapType.TWO_TO_ONE) {
+				} else if (this.mapType === Index.mapType.MANY_TO_ONE) {
 					var keys = this.cacheBy(objs[i]);
-					var key1 = keys[0];
-					var key2 = keys[1];
-					this.map[key1] = this.map[key1] || {};
-					this.map[key1][key2] = objs[i];
+					var currentMap = this.map;
+					for (var j=0; j<keys.length-1; j++) {
+						currentMap[keys[j]] = currentMap[keys[j]] || {};
+						currentMap = currentMap[keys[j]];
+					}
+					currentMap[keys[keys.length-1]] = objs[j];
+				} else if (this.mapType === Index.mapType.MANY_TO_MANY) {
+					var keys = this.cacheBy(objs[i]);
+					var currentMap = this.map;
+					for (var j=0; j<keys.length-1; j++) {
+						currentMap[keys[j]] = currentMap[keys[j]] || {};
+						currentMap = currentMap[keys[j]];
+					}
+					currentMap[keys[keys.length-1]] = currentMap[keys[keys.length-1]] || [];
+					currentMap[keys[keys.length-1]].push(objs[j]);
 				}
 			}
 		},
@@ -59,12 +70,17 @@ dataman = (function() {
 						ret.push(keys[i]);
 					} 
 				}
-			} else if (this.mapType === Index.mapType.TWO_TO_ONE) {
+			} else if (this.mapType === Index.mapType.MANY_TO_ONE || this.mapType === Index.mapType.MANY_TO_MANY) {
 				for (var i=0; i<keys.length; i++) {
-					if (!(keys[i][0] in this.map)) {
-						ret.push(keys[i]);
-					} else if (!(keys[i][1] in this.map[keys[i][0]])) {
-						ret.push(keys[i]);
+					var currentMap = this.map;
+					var key = keys[i];
+					for (var j=0; j<key.length; j++) {
+						if (!(key[j] in currentMap)) {
+							ret.push(key);
+							break;
+						} else {
+							currentMap = currentMap[key[j]];
+						}
 					}
 				}
 			}
@@ -84,10 +100,36 @@ dataman = (function() {
 						ret = ret.concat(this.map[keys[i]]);
 					}
 				}
-			} else if (this.mapType === Index.mapType.TWO_TO_ONE) {
+			} else if (this.mapType === Index.mapType.MANY_TO_ONE) {
 				for (var i=0; i<keys.length; i++) {
-					if ((keys[i][0] in this.map) && (keys[i][1] in this.map[keys[i][0]])) {
-						ret.push(this.map[keys[i][0]][keys[i][1]]);
+					var key = keys[i];
+					var currentMap = this.map;
+					for (var j=0; j<key.length; j++) {
+						if (key[j] in currentMap) {
+							if (j == key.length-1) {
+								ret.push(currentMap[key[j]]);
+							} else {
+								currentMap = currentMap[key[j]];
+							}
+						} else {
+							break;
+						}
+					}
+				}
+			} else if (this.mapType === Index.mapType.MANY_TO_MANY) {
+				for (var i=0; i<keys.length; i++) {
+					var key = keys[i];
+					var currentMap = this.map;
+					for (var j=0; j<key.length; j++) {
+						if (key[j] in currentMap) {
+							if (j == key.length-1) {
+								ret = ret.concat(currentMap[key[j]]);
+							} else {
+								currentMap = currentMap[key[j]];
+							}
+						} else {
+							break;
+						}
 					}
 				}
 			}
@@ -123,7 +165,7 @@ dataman = (function() {
 	cache.meta.samples.addIndex('stable_id', function(x) { return x.study_id+"_"+x.stable_id;}, Index.mapType.ONE_TO_ONE);
 
 	cache.meta.studies.addIndex('internal_id', function(x) { return x.internal_id;}, Index.mapType.ONE_TO_ONE);
-	cache.meta.studies.addIndex('stable_id', function(x) { return x.stable_id;}, Index.mapType.ONE_TO_ONE);
+	cache.meta.studies.addIndex('stable_id', function(x) { return x.id;}, Index.mapType.ONE_TO_ONE);
 
 	cache.meta.profiles.addIndex('internal_id', function(x) { return x.internal_id;}, Index.mapType.ONE_TO_ONE);
 	cache.meta.profiles.addIndex('stable_id', function(x) { return x.id;}, Index.mapType.ONE_TO_ONE);
@@ -135,7 +177,7 @@ dataman = (function() {
 	cache.data.clinicalSamples.addIndex('internal_id', function(x) { return x.sample_id;}, Index.mapType.ONE_TO_MANY);
 	cache.data.clinicalSamples.addIndex('study', function(x) { return x.study_id;}, Index.mapType.ONE_TO_MANY);
 
-	cache.data.profiles.addIndex('geneprofile_patient', function(x) { return [x.entrez_gene_id+"_"+x.internal_id, x.internal_patient_id]}
+	cache.data.profiles.addIndex('geneprofilepatient', function(x) { return [x.entrez_gene_id, x.internal_id, x.internal_patient_id]}, Index.mapType.MANY_TO_MANY);
 
 
 	// API METHODS
@@ -520,7 +562,7 @@ dataman = (function() {
 	}
 
 	// -- data.profiles --
-	var cartProd = function(A,B) {
+	var cartProd2 = function(A,B) {
 		var ret = [];
 		for (var i=0; i<A.length; i++) {
 			for (var j=0; j<B.length; j++) {
@@ -529,26 +571,111 @@ dataman = (function() {
 		}
 		return ret;
 	}
-	var getAllProfileData = function(genes, profile_ids, callback, fail) {
-		var allKeys = cartProd(genes, profile_ids);
-		var toQuery = [];
-		for (var i=0; i<allKeys.length; i++) {
-			var key = allKeys[i][0]+"_"+allKeys[i][1];
-			if (!(key in history.data.profiles)) {
-				toQuery.push(allKeys[i]);
+	var cartProd3 = function(A,B,C) {
+		var ret = [];
+		for (var i=0; i<A.length; i++) {
+			for (var j=0; j<B.length; j++) {
+				for (var h=0; h<C.length; h++) {
+					ret.push([A[i],B[j],C[h]]);
+				}
 			}
 		}
-		if (toQuery.length === 0) {
-			
+		return ret;
+	}
+	//helper function
+	// in: output of cartProd on genes and profile_ids
+	var getDataFromCache = function(gpcartprod) {
+		var ret = [];
+		var map = cache.data.profiles.indexes['geneprofilepatient'].map;
+		for (var i=0; i<gpcartprod.length; i++) {
+			if (!(gpcartprod[i][0] in map)) {
+				continue;
+			} else if (!(gpcartprod[i][1] in map[gpcartprod[i][0]])) {
+				continue;
+			} else {
+				for (var pat in map[gpcartprod[i][0]][gpcartprod[i][1]]) {
+					ret = ret.concat(map[gpcartprod[i][0]][gpcartprod[i][1]][pat]);
+				}
+			}
 		}
-		var index = cache.data.profiles.indexes['geneprofile_patient'];
-
-		//TODO: caching
-		cbio.data.profilesData({'genes': genes, 'profile_ids':profile_ids}, callback, fail);
+		return ret;
+	}
+	var getAllProfileData = function(genes, profile_ids, callback, fail) {
+		var allCombs = cartProd2(genes, profile_ids);
+		var toQuery = {};
+		var index = cache.data.profiles.indexes['geneprofilepatient'];
+		for (var i=0; i<allCombs.length; i++) {
+			var comb = allCombs[i];
+			if (!(comb[0] in history.data.profiles) || !(comb[1] in history.data.profiles[comb[0]])) {
+				toQuery[comb[0]] = toQuery[comb[0]] || {};
+				toQuery[comb[0]][comb[1]] = true;
+			}
+		}
+		var callsWaiting = Object.keys(toQuery).length;
+		if (callsWaiting === 0) {
+			callback(getDataFromCache(allCombs));
+		} else {
+			for (var gene in toQuery) {
+				(function(g) {
+				cbio.data.profiles({'genes':[g], 'profile_ids':[Object.keys(toQuery[g])]}, function(data){
+					cache.data.profiles.addData(data);
+					for(var prof in toQuery[g]) {
+						history.data.profiles[g] = history.data.profiles[g] || {};
+						history.data.profiles[g][prof] = true;
+					}
+					callsWaiting -= 1;
+					if (callsWaiting === 0) {
+						callback(getDataFromCache(allCombs));
+					}
+				}, fail)})(gene);
+			}
+		}
 	}
 	var getProfileDataByPatientId = function(genes, profile_ids, patient_ids, callback, fail) {
-		//TODO: caching
-		cbio.data.profilesData({'genes': genes, 'profile_ids':profile_ids, 'patient_ids':patient_ids}, callback, fail);
+		var allCombs = cartProd3(genes, profile_ids, patient_ids);
+		var index = cache.data.profiles.indexes['geneprofilepatient'];
+		var toQuery = index.missingKeys(allCombs);
+		var queryMap = {}; // what we'll query for
+		var newDataMap = {}; // the data we actually want
+		for (var i=0; i<toQuery.length; i++) {
+			var gene = toQuery[i][0];
+			var profile = toQuery[i][1];
+			var patient = toQuery[i][2];
+			queryMap[gene] = queryMap[gene] || {profiles:{}, patients:{}};
+			queryMap[gene].profiles[profile] = true;
+			queryMap[gene].patients[patient] = true;
+			newDataMap[gene] = newDataMap[gene] || {};
+			newDataMap[gene][profile] = newDataMap[gene][profile] || {};
+			newDataMap[gene][profile][patient] = true;
+		}
+		var callsWaiting = Object.keys(queryMap).length;
+		if (callsWaiting === 0) {
+			callback(index.get(allCombs));
+		} else {
+			for (var gene in toQuery) {
+				(function(g) {
+					cbio.data.profiles({'genes':[g], 'profile_ids':Object.keys(queryMap[g].profiles), 'patient_ids':Object.keys(queryMap[g].patients)}, function(data){
+						var newData = [];
+						for (var i=0; i<data.length; i++) {
+							var gene = data[i].entrez_gene_id;
+							var profile = data[i].internal_id;
+							var patient = data[i].internal_patient_id;
+							if((gene in newDataMap) && (profile in newDataMap[gene]) && (patient in newDataMap[gene][profile])) {
+								newData.push(data[i]);
+							}
+						}
+						cache.data.profiles.addData(newData);
+						callsWaiting -= 1;
+						if (callsWaiting === 0) {
+							callback(index.get(allCombs));
+						}
+					}, fail);
+				})(gene);
+			}
+		}
+		// filter only data that we desire
+
+
 	}
 	var getProfileDataByPatientListId = function(genes, profile_ids, patient_list_ids, callback, fail) {
 		//TODO: caching

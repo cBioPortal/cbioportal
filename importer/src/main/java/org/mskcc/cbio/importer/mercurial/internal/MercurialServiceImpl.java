@@ -99,7 +99,7 @@ public class MercurialServiceImpl implements MercurialService
 	private void prepareRepository(File repository) throws IOException
 	{
 		executeCommand(repository, "hg revert --all");
-		executeCommand(repository, "hg update default");
+		executeCommand(repository, "hg update -C default");
 	}
 
 	private List<String> executeCommand(File repository, String command) throws IOException

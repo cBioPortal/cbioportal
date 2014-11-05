@@ -30,11 +30,13 @@ import org.apache.log4j.Logger;
 import org.mskcc.cbio.foundation.jaxb.*;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.FileTransformer;
+import org.mskcc.cbio.importer.IDMapper;
 import org.mskcc.cbio.importer.foundation.extractor.FileDataSource;
 import org.mskcc.cbio.importer.foundation.support.CasesTypeSupplier;
 import org.mskcc.cbio.importer.foundation.support.CommonNames;
 import org.mskcc.cbio.importer.foundation.support.FoundationUtils;
-import org.mskcc.cbio.importer.util.EntrezIDSupplier;
+
+import org.mskcc.cbio.importer.util.GeneSymbolIDMapper;
 import scala.Tuple2;
 
 /*
@@ -63,17 +65,15 @@ public class FoundationXMLTransformer implements FileTransformer {
     private FoundationStagingFileManager fileManager;
     private Table<String, String, Integer> cnaTable;
     // component to map HUGO symbols to Entrez IDs
-    private final Supplier<Map<String, String>> entrezIDSupplier = Suppliers.memoize(new EntrezIDSupplier());
-    private   Map<String,String> entrezMap;
-
+    private IDMapper geneMapper;
     private Supplier<CasesType> casesTypeSupplier;
     //private final String baseStagingDirectory;
     private final Config config;
 
     public FoundationXMLTransformer(Config aConfig) {
         Preconditions.checkArgument(null != aConfig, "A Config object is required");
-        this.entrezMap = entrezIDSupplier.get();
         this.config = aConfig;
+        this.geneMapper = new GeneSymbolIDMapper();
     }
 
     public FoundationXMLTransformer(String filename, String outDir) {
@@ -140,10 +140,12 @@ public class FoundationXMLTransformer implements FileTransformer {
 
         @Override
         public String apply(Tuple2<String, Optional<String>> f) {
-            if (!Strings.isNullOrEmpty(f._1)) {
-                return (Strings.isNullOrEmpty(entrezMap.get(f._1))) ? "" : entrezMap.get(f._1);
+
+            try {
+                return (Strings.isNullOrEmpty(geneMapper.symbolToEntrezID(f._1))) ? "" : geneMapper.symbolToEntrezID(f._1);
+            } catch (Exception e) {
+                return "";
             }
-            return "";
         }
 
     };

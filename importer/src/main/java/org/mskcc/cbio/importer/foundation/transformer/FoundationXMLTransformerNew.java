@@ -27,13 +27,16 @@ import org.apache.log4j.Logger;
 import org.mskcc.cbio.foundation.jaxb.*;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.FileTransformer;
+import org.mskcc.cbio.importer.IDMapper;
 import org.mskcc.cbio.importer.dmp.util.DmpUtils;
 import org.mskcc.cbio.importer.foundation.extractor.FileDataSource;
 import org.mskcc.cbio.importer.foundation.support.CasesTypeSupplier;
 import org.mskcc.cbio.importer.foundation.support.CommonNames;
 import org.mskcc.cbio.importer.foundation.support.FoundationUtils;
+import org.mskcc.cbio.importer.mapper.internal.DAOGeneOptimizedIDMapper;
 import org.mskcc.cbio.importer.persistence.staging.*;
-import org.mskcc.cbio.importer.util.EntrezIDSupplier;
+
+import org.mskcc.cbio.importer.util.GeneSymbolIDMapper;
 import scala.Tuple2;
 import scala.Tuple3;
 
@@ -67,9 +70,9 @@ public class FoundationXMLTransformerNew implements FileTransformer {
     // instantiate the transformation map supplier
     private final Supplier<Map<String, Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>>>> transformationMaprSupplier =
             Suppliers.memoize(new FoundationMutationsTransformationMapSupplier());
-    // component to map HUGO symbols to Entrez IDs
-    private final Supplier<Map<String, String>> entrezIDSupplier = Suppliers.memoize(new EntrezIDSupplier());
-    private   Map<String,String> entrezMap = entrezIDSupplier.get();;
+
+    // use IDMapper for HUGO <-> Entrez conversions
+    private  IDMapper geneMapper;
 
     private Supplier<CasesType> casesTypeSupplier;
 
@@ -77,8 +80,10 @@ public class FoundationXMLTransformerNew implements FileTransformer {
 
     public FoundationXMLTransformerNew(Config aConfig) {
         Preconditions.checkArgument(null != aConfig, "A Config object is required");
-        this.entrezMap = entrezIDSupplier.get();
+
         this.config = aConfig;
+        //TODO: make constructor argument
+        this.geneMapper = new GeneSymbolIDMapper();
     }
 
     public FoundationXMLTransformerNew(String filename, String outDir) {
@@ -164,10 +169,13 @@ public class FoundationXMLTransformerNew implements FileTransformer {
 
         @Override
         public String apply(Tuple2<String, Optional<String>> f) {
-            if (!Strings.isNullOrEmpty(f._1)) {
-                return (Strings.isNullOrEmpty(entrezMap.get(f._1))) ? "" : entrezMap.get(f._1);
+
+            try {
+                return (Strings.isNullOrEmpty(geneMapper.symbolToEntrezID(f._1))) ? "" : geneMapper.symbolToEntrezID(f._1);
+            } catch (Exception e) {
+                return "";
             }
-            return "";
+
         }
 
     };
@@ -314,11 +322,7 @@ public class FoundationXMLTransformerNew implements FileTransformer {
      private method to generate mutation report from short variant elements
      */
 
-    private void generateMutationsDataReport() {
-        CasesType casesType = this.casesTypeSupplier.get();
-        this.fileManager.generateDataReportFromFluentIterable(CommonNames.MUTATION_REPORT_TYPE, casesType.getCase(), shortVariantTypeFunction);
-        //this.fileManager.generateDataReport(CommonNames.MUTATION_REPORT_TYPE, casesType.getCase(), shortVariantTypeFunction);
-    }
+
 
     private void generateDatMutationsExtendedReport() {
         // add the sample id to each short variant
@@ -328,7 +332,7 @@ public class FoundationXMLTransformerNew implements FileTransformer {
     }
 
     /*
-    Function to transform DMP SNP attributes from a DmpSnp object into MAF attributes collected in
+    Function to transform DMP SNP attributes from a Short Variant object into MAF attributes collected in
     a tsv String for subsequent output
     */
     Function<ShortVariantType, String> transformationFunction = new Function<ShortVariantType, String>() {
@@ -376,113 +380,6 @@ public class FoundationXMLTransformerNew implements FileTransformer {
         return transformedList;
     }
 
-
-    Function<CaseType, List<String>> shortVariantTypeFunction = new Function<CaseType, List<String>>() {
-        @Override
-        public List<String> apply(CaseType ct) {
-            final String sample = ct.getCase(); // case is a reserved word use sample instead
-
-            return FluentIterable.from(ct.getVariantReport().getShortVariants().getShortVariant())
-                    .filter(new Predicate<ShortVariantType>() {
-
-                        @Override
-                        public boolean apply(ShortVariantType svt) {
-                            return !Strings.isNullOrEmpty(svt.getGene());
-                        }
-                    })
-                    .transform(new Function<ShortVariantType, String>() {
-                        @Override
-                   
-
-                        public String apply(ShortVariantType svt) {
-                            ChromosomePosition cp = new ChromosomePosition(svt.getPosition());
-                            CdsEffect cdsEffect = new CdsEffect(svt.getCdsEffect(), svt.getFunctionalEffect(), svt.getStrand());
-                            Integer end = cp.getStart() + cdsEffect.getLength() - 1;
-                            List<String> attributeList = Lists.newArrayList();
-                            // 1 HUGO SyMBOL
-                            attributeList.add(svt.getGene());
-                            // 2 entrez id
-                            attributeList.add(getEntrezIDFunction.apply(new Tuple2(svt.getGene(),Optional.absent())));
-                            //3 Center
-                            attributeList.add(CommonNames.CENTER_FOUNDATION);
-                            // 4 build
-                            attributeList.add(CommonNames.BUILD);
-                            // 5 chromsome
-                            attributeList.add(cp.getChromosome());
-                            // 6 start
-                            attributeList.add(cp.getStart().toString());
-                            // 7 end
-                            attributeList.add(end.toString());
-                            //8 strand
-                            attributeList.add(svt.getStrand());
-                            //9 variant classification
-                            attributeList.add(svt.getFunctionalEffect());
-                            // 10 variant type
-                            attributeList.add("");
-                            // 11 ref allele
-                            attributeList.add(cdsEffect.getRefAllele());
-                            // 12 tumor allele1
-                            attributeList.add(cdsEffect.getTumorAllele1());
-                            // 13 tumor allele2
-                            attributeList.add(cdsEffect.getTumorAllele2());
-                            // 14 dbSNP RS
-                            attributeList.add("");
-                            // 15 dbSNP valStatus
-                            attributeList.add("");
-                            // 16 sample barcode
-                            attributeList.add(sample);
-                            // 17 matched normal sample barcode
-                            attributeList.add("");
-                            // 18 matched normal allele1
-                            attributeList.add("");
-                            // 19 matched normal allele1
-                            attributeList.add("");
-                            // 20 tumor validation allele1
-                            attributeList.add("");
-                            // 21 tumor validation allele2
-                            attributeList.add("");
-                            // 22 match normal validation allele1
-                            attributeList.add("");
-                            // 23 match normal validation allele2
-                            attributeList.add("");
-                            // 24 verification
-                            attributeList.add("");
-                            // 25 validation status
-                            attributeList.add(CommonNames.DEFAULT_VALIDATION_STATUS);  // unknown
-                            // 26 mutation status
-                            attributeList.add(CommonNames.DEFAULT_MUTATION_STATUS);   // unknown
-                            // 27 sequencing phase
-                            attributeList.add("");
-                            // 28 sequencing source
-                            attributeList.add("");
-                            // 29 validation method
-                            attributeList.add("");
-                            // 30 score
-                            attributeList.add("");
-                            //31 BAM file
-                            attributeList.add("");
-                            // 32 sequencer
-                            attributeList.add("");
-                            // 33  "Tumor_Sample_UUID"
-                            attributeList.add("");
-                            // 34   "Matched_Norm_Sample_UUID"
-                            attributeList.add("");
-                            // amino acid change
-                            //attributeList.add(svt.getProteinEffect());
-                            // transcript
-                            //attributeList.add(svt.getTranscript());
-                            // 33 t_ref_count
-                            attributeList.add(FoundationUtils.INSTANCE.displayTumorRefCount(svt));
-                            // 34 t_alt_count
-                            attributeList.add(FoundationUtils.INSTANCE.displayTumorAltCount(svt));
-                            attributeList.add("\n");
-                            return tabJoiner.join(attributeList);
-                        }
-                    }).toList();
-
-        }
-    };
-
     @Override
     /*
      * The primary identifier for Foundation Medicine cases is the study id
@@ -522,119 +419,10 @@ public class FoundationXMLTransformerNew implements FileTransformer {
                 return metric.getMetricTypeValue();
             }
         }
-        
+
         return "";
     }
 
-    /*
-     inner class representing the components of the CDS effect data
-     */
-    public class CdsEffect {
-
-        private Integer length;
-        private Integer startPos;
-        private Integer stopPos;
-        private String refAllele;
-        private String tumorAllele1;
-        private String tumorAllele2;
-        private final boolean plusStrand;
-
-        public CdsEffect(String cdsEffect, String functionalEffect, String strand) {
-            Preconditions.checkArgument(!Strings.isNullOrEmpty(cdsEffect), "A CDS effect is required");
-            Preconditions.checkArgument(!Strings.isNullOrEmpty(functionalEffect), "A functional effect is required");
-            Preconditions.checkArgument(!Strings.isNullOrEmpty(strand), "A strand is required");
-            Preconditions.checkArgument(strand.equals(CommonNames.PLUS_STRAND) || strand.equals(CommonNames.MINUS_STRAND),
-                    "The stand argument must be either " + CommonNames.PLUS_STRAND + " or " + CommonNames.MINUS_STRAND);
-
-            this.plusStrand = !(strand.equals(CommonNames.MINUS_STRAND));
-            this.determinePositionsAndLength(cdsEffect);
-            this.determineAlleles(cdsEffect);
-
-        }
-        /*
-         * private method to parse the cds effect value to determine the reference and tumore alleles
-         * current parctice is to set the value of tumorAllele2 to tumorAllele1
-         */
-
-        private void determineAlleles(String cdsEffect) {
-            this.refAllele = "-";  // default value
-            this.tumorAllele1 = "-";  // default value
-            // retain only DNA nucleotides from cdsEffect
-            String bases = cdsEffect.replaceAll("[^tcgaTCGA]", " ").trim();
-            // check for cdsEffects without nucleotides
-            if (Strings.isNullOrEmpty(bases)) {
-                logger.error(cdsEffect + " is not a valid CDS Effect");
-                return;
-            }
-            List<String> alleleList = FluentIterable
-                    .from(blankSplitter.split(bases))
-                    .transform(new Function<String, String>() {
-                        @Override
-                        public String apply(String input) {
-                            if (plusStrand) {
-                                return input.toUpperCase();
-                            }
-                            return FoundationUtils.INSTANCE.getCompliment(input.toUpperCase());
-                        }
-                    })
-                    .toList();
-
-            if (alleleList.size() > 1) {
-                this.refAllele = alleleList.get(0);
-                this.tumorAllele1 = alleleList.get(1);
-            } else if (cdsEffect.contains("ins")) {
-                this.tumorAllele1 = alleleList.get(0);
-            } else if (cdsEffect.contains("del")) {
-                this.refAllele = alleleList.get(0);
-            } else {
-                logger.error("Unable to determine alleles for " + cdsEffect);
-            }
-
-            // set tumor allele 2 to the value of tumor allele 1
-            this.tumorAllele2 = this.tumorAllele1;
-
-        }
-
-        private void determinePositionsAndLength(String cdsEffect) {
-
-            String positions = cdsEffect.replaceAll("[^0123456789]", " ").trim();
-            List<Integer> posList = FluentIterable
-                    .from(blankSplitter.split(positions))
-                    .transform(new Function<String, Integer>() {
-
-                        @Override
-                        public Integer apply(String input) {
-                            return Integer.valueOf(input);
-                        }
-                    }
-                    ).toList();
-            this.startPos = (posList.isEmpty()) ? 0 : posList.get(0);
-            this.stopPos = (posList.size() > 1) ? posList.get(1) : this.startPos;
-            this.length = this.stopPos - this.startPos + 1;
-
-        }
-
-        public boolean isPlusStrand() {
-            return this.plusStrand;
-        }
-
-        public Integer getLength() {
-            return this.length;
-        }
-
-        public String getRefAllele() {
-            return this.refAllele;
-        }
-
-        public String getTumorAllele1() {
-            return this.tumorAllele1;
-        }
-
-        public String getTumorAllele2() {
-            return this.tumorAllele2;
-        }
-
-    }
 
     /*
      a private inner class to manage interactions with the staging files

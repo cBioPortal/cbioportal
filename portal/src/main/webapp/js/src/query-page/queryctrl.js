@@ -1,0 +1,3 @@
+function QueryCtrl($scope) {
+	//
+}

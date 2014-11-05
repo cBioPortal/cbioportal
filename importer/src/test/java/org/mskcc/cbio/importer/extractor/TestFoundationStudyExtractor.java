@@ -195,5 +195,10 @@ public class TestFoundationStudyExtractor {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
+        @Override
+        public void updateCancerStudyAttributes(String cancerStudy, Map<String,String> properties) {
+            throw new UnsupportedOperationException();
+        }
+
     }
 }

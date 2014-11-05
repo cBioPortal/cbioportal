@@ -352,7 +352,9 @@ class ImporterImpl implements Importer {
 	{
 		// iterate over all cancer studies
 		for (CancerStudyMetadata cancerStudyMetadata : config.getCancerStudyMetadata(portalMetadata.getName())) {
-			loadCancerStudyStagingFiles(portalMetadata, cancerStudyMetadata);
+			if (cancerStudyMetadata.isImported()) {
+				loadCancerStudyStagingFiles(portalMetadata, cancerStudyMetadata);
+			}
 		}
 	}
 

@@ -68,15 +68,17 @@ public class MercurialServiceImpl implements MercurialService
 	@Override
 	public List<String> pullUpdate(String repositoryName)
 	{
+		List<String> toReturn = null;
 		File repository = getRepository(repositoryName);
 
 		try {
 			prepareRepository(repository);
 			executeCommand(repository, "hg pull");
-			executeCommand(repository, "hg update");
 			// does diff between what has been pulled and what is in working set.
-			return getUpdatedStudies(executeCommand(repository, "hg status --rev .:tip"),
-			                         hgStatusPattern);
+			toReturn = getUpdatedStudies(executeCommand(repository, "hg status --rev .:tip"),
+			                             hgStatusPattern);
+			executeCommand(repository, "hg update");
+			return toReturn;
 		}
 		catch(IOException e) {
 			logMessage("pullUpdate(), exception: ");
@@ -130,6 +132,7 @@ public class MercurialServiceImpl implements MercurialService
 	{
 		Set<String> toReturn = new HashSet<String>();
 		for (String lineOfOutput : serverOutput) {
+			if (lineOfOutput.startsWith("?")) continue; // ignore untracked files
 			Matcher matcher = pattern.matcher(lineOfOutput);
 			if (matcher.find()) {
 				String cancerStudy = matcher.group(1);

@@ -144,12 +144,18 @@ public class FoundationMutationsTransformationMapSupplier implements
     Function<Tuple2<String, Optional<String>>, String> getRefAllele =
             new Function<Tuple2<String, Optional<String>>, String>() {
                 public String apply(Tuple2<String, Optional<String>> f) {
-                    String cdsEffect = f._1();
+                    final String cdsEffect = f._1();
                     final String strand = f._2.get();
 
                     String bases = cdsEffect.replaceAll("[^tcgaTCGA]", " ").trim();
                     // check for cdsEffects without nucleotides
-
+                    if (cdsEffect.contains("ins")){
+                        return "-";
+                        }
+                    if (Strings.isNullOrEmpty(bases)){
+                        logger.info("No nucleotides in CDS: "+cdsEffect);
+                        return "";
+                    }
                     List<String> alleleList = FluentIterable
                             .from(blankSplitter.split(bases))
                             .transform(new Function<String, String>() {
@@ -163,10 +169,10 @@ public class FoundationMutationsTransformationMapSupplier implements
                             })
                             .toList();
 
-                    if (alleleList.size() > 1 ) {
+
+                    if (alleleList.size() > 0 ) {
+
                         return alleleList.get(0);
-                    } else if (cdsEffect.contains("ins")) {
-                        return "-";
                     }
                     return "";
 

@@ -191,6 +191,11 @@ public class TestFoundationStudyExtractor {
         }
 
         @Override
+        public void updateCancerStudyAttributes(String cancerStudy, Map<String, String> properties) {
+
+        }
+
+        @Override
         public Collection<IcgcMetadata> getIcgcMetadata() {
             throw new UnsupportedOperationException("Not supported yet.");
         }

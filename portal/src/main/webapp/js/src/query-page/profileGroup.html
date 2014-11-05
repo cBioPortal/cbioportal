@@ -1,0 +1,56 @@
+<div style="width:400px">
+    <div class="well well-sm" ng-if="profgp.list.length > 0">
+        <div ng-if='profgp.list.length > 1'>
+            <div>
+                <div ng-repeat="prof in profgp.list">
+                    <label class="btn btn-mskcc btn-block" ng-model="formVars.genomic_profiles[profgp.alt_type]" btn-radio="prof.id" uncheckable>
+                        {{formVars.genomic_profiles[profgp.alt_type] === prof.id?'&#9679;':'&#9675;'}} {{prof.name}}
+                    </label>
+                </div>
+            </div>
+            <!--&#10686; {{profgp.description}} data. Select one below:
+            <div style="padding-left:3em">
+                <div ng-repeat="prof in profgp.list">
+                    <input type="radio" ng-model="formVars.genomic_profiles[profgp.alt_type]" ng-value="prof.id">{{prof.name}}    
+                    <img src='images/help.png' title='{{prof.description}}'>
+                </div>
+                <input type="radio" ng-model="formVars.genomic_profiles[profgp.alt_type]" ng-value="false">None
+            </div>-->
+        </div>
+        <div ng-if='profgp.list.length === 1'>
+            <button type="button" class="btn btn-mskcc btn-block" 
+                    ng-model="formVars.genomic_profiles[profgp.alt_type]" 
+                    btn-checkbox btn-checkbox-true="'{{profgp.list[0].id}}'" btn-checkbox-false="false"
+                    tooltip='{{profgp.list[0].description}}'
+                    tooltip-placement="right"
+                    tooltip-popup-delay='750'>
+                {{!formVars.genomic_profiles[profgp.alt_type]?'&#x2610;':'&#x2611;'}} {{profgp.list[0].name}}
+            </button>
+            <!--<input type="checkbox" class="btn btn-default" ng-model="formVars.genomic_profiles[profgp.alt_type]" ng-true-value="{{profgp.list[0].id}}">{{profgp.list[0].name}}-->
+        </div>
+        <div ng-show="profgp.alt_type === 'MRNA_EXPRESSION' && formVars.genomic_profiles['MRNA_EXPRESSION']">
+            Enter a z-score threshold:
+            <!--<div class="btn-group-vertical">
+                <label class="btn btn-default" ng-model="formVars.z_score_threshold_type" btn-radio="'<='"><=</label>
+                <label class="btn btn-default" ng-model="formVars.z_score_threshold_type" btn-radio="'>='">>=</label>
+            </div>-->
+            <button type="button" class="btn btn-mskcc" ng-model="formVars.z_score_threshold_type" btn-checkbox btn-checkbox-true="'>='" btn-checkbox-false="'<='">{{formVars.z_score_threshold_type}}</button>
+            <!--<select chosen disable-search="true"
+                    ng-model="formVars.z_score_threshold_type"
+                    ng-options="x for x in ['<=','>=']"
+                    style="width:60px"
+            ></select>-->
+            <input type="text" ng-model="formVars.z_score_threshold">
+        </div>
+        <div ng-show="profgp.alt_type === 'PROTEIN_ARRAY_PROTEIN_LEVEL' && formVars.genomic_profiles['PROTEIN_ARRAY_PROTEIN_LEVEL']">
+            Enter a RPPA z-score threshold:
+            <!--<select chosen disable-search="true"
+                    ng-model="formVars.rppa_score_threshold_type"
+                    ng-options="x for x in ['<=','>=']"
+                    style="width:60px"
+            ></select>-->
+            <button type="button" class="btn btn-mskcc" ng-model="formVars.rppa_score_threshold_type" btn-checkbox btn-checkbox-true="'>='" btn-checkbox-false="'<='">{{formVars.rppa_score_threshold_type}}</button>
+            <input type="text" ng-model="formVars.rppa_score_threshold">
+        </div>
+    </div>
+</div>

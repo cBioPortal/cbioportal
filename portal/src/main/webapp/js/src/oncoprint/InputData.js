@@ -20,6 +20,10 @@ define("InputData", function() {
                 {
                     toReturn.cna = res;
                 }
+                else if(res === "UPREGULATED" || res === "DOWNREGULATED")
+                {
+                    toReturn.mrna = res;
+                } 
                 else
                 {
                     toReturn.mutation = res;

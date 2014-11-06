@@ -49,22 +49,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             show: {event: "mouseover"},
             hide: {fixed: true, delay: 100, event: "mouseout"}
         });
-        
-        $('#oncoprint_legend div').mouseover(function(){
-                    if($(this).width()<$(this).children().width())
-                    {
-                        $(this)[0].style.overflowX='auto';
-                    }
-                    else
-                    {
-                        $(this)[0].style.overflowX='hidden';
-                    } 
-                }) 
-                .mouseout(function(){
-                    $(this)[0].style.overflowX='hidden';
-                });
-           
-            
+              
         return zoom;
     };
 

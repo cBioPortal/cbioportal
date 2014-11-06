@@ -11,13 +11,62 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
             interpolate : /\{\{(.+?)\}\}/g
         };
 
-        // don't want to setup the zoom slider multiple times
-        var zoomSetup_once = _.once(OncoprintUtils.zoomSetup);
+//        // don't want to setup the zoom slider multiple times
+//        var zoomSetup_once = _.once(OncoprintUtils.zoomSetup);
 
+//        var $new_zoomer_el = $('.oncoprinter-diagram-toolbar-buttons .oncoprint_diagram_slider_icon');
+        var zoom;
+        
         var oncoprint;
         var cases;
         var oncoprint_el = document.getElementById("oncoprint");
         var $oncoprint_el = $(oncoprint_el);
+        var mutationColorControl = 'singleColor';
+        
+
+    
+        var reset_zoom = function() {
+            
+            var $new_zoomer_el = $('.oncoprinter-diagram-toolbar-buttons .oncoprint_diagram_slider_icon');
+            $new_zoomer_el.empty();
+            zoom = OncoprintUtils.zoomSetup($new_zoomer_el, oncoprint.zoom);
+
+            $('#oncoprint_zoom_slider').hover(
+            function () {
+            $(this).css('fill', '#0000FF');
+            $(this).css('font-size', '18px');
+            $(this).css('cursor', 'pointer');
+            },
+            function () {
+            $(this).css('fill', '#87CEFA');
+            $(this).css('font-size', '12px');
+            });
+            $('#oncoprint_zoom_slider').qtip({
+                content: {text: 'zoom in and out oncoprint'},
+                position: {my:'left bottom', at:'top middle', viewport: $(window)},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
+                show: {event: "mouseover"},
+                hide: {fixed: true, delay: 100, event: "mouseout"}
+            });
+
+            $('#oncoprint_legend div').mouseover(function(){
+                        if($(this).width()<$(this).children().width())
+                        {
+                            $(this)[0].style.overflowX='auto';
+                        }
+                        else
+                        {
+                            $(this)[0].style.overflowX='hidden';
+                        } 
+                    }) 
+                    .mouseout(function(){
+                        $(this)[0].style.overflowX='hidden';
+                    });
+
+
+            return zoom;
+        };
+    
         function exec(data) {
 
             var data_thresholded = (function() {
@@ -46,7 +95,7 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
             var genes = _.chain(data_thresholded).map(function(d){ return d.gene; }).uniq().value();
             var params = { geneData: data_thresholded, genes:genes };
             params.legend =  document.getElementById("oncoprint_legend");
-
+            
             function main(params) {
                 var extraTracks=[];
                 $oncoprint_el.empty();    // clear out the div each time
@@ -55,10 +104,14 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
             }
 
             main(params);
-
+            
+            // show controls when there's data
+            $('#oncoprint_controls').show();
+            
+            zoom = reset_zoom();
+            
             // remove text: "Copy number alterations are putative."
-            $('#oncoprint_legend p').remove();
-
+//            $('#oncoprint_legend p').remove();
 //            $('.attribute_name').hover(
 //                function(){
 //                $(this).css('cursor','move');
@@ -75,7 +128,8 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
 //            });
 
             // set up the controls
-            var zoom = zoomSetup_once($('#oncoprint_controls #zoom'), oncoprint.zoom);
+//            var zoom = zoomSetup_once($('#oncoprint_controls #zoom'), oncoprint.zoom);
+            
 
 //            var sortBy = $('#oncoprint_controls #sort_by');     // NB hard coded
 //            sortBy.chosen({width: "240px", disable_search: true });
@@ -86,18 +140,106 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
 //                oncoprint.sortBy(sortBy.val(), cases);
 //            });
 
-            $('#toggle_unaltered_cases').click(function() {
+//            $('#toggle_unaltered_cases').click(function() {
+//                oncoprint.toggleUnalteredCases();
+//                OncoprintUtils.make_mouseover(d3.selectAll('.sample rect'), {linkage:false});     // hack =(
+////            oncoprint.sortBy(sortBy.val());
+//            });
+//
+//            $('#toggle_whitespace').click(function() {
+//                oncoprint.toggleWhiteSpace();
+//            });
+
+
+
+            $('.oncoprinter-diagram-removeUCases-icon').click(function(){
+              if($(this)[0].attributes.src.value === 'images/removeUCases.svg')
+              {
                 oncoprint.toggleUnalteredCases();
-                OncoprintUtils.make_mouseover(d3.selectAll('.sample rect'), {linkage:false});     // hack =(
-//            oncoprint.sortBy(sortBy.val());
+                OncoprintUtils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});     // hack =(
+                $(this)[0].attributes.src.value = 'images/unremoveUCases.svg';
+                oncoprint.zoom(zoom.val());
+                zoom = reset_zoom();
+                oncoprint.zoom(zoom.val());
+                
+              }
+              else
+              {
+                oncoprint.toggleUnalteredCases();
+                OncoprintUtils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});     // hack =(
+                $(this)[0].attributes.src.value = 'images/removeUCases.svg';
+                oncoprint.zoom(zoom.val());
+                zoom = reset_zoom();
+                oncoprint.zoom(zoom.val());
+                
+              }
             });
-
-            $('#toggle_whitespace').click(function() {
-                oncoprint.toggleWhiteSpace();
+            $('.oncoprinter-diagram-removeUCases-icon').hover(
+            function () {
+            $(this).css('fill', '#0000FF');
+            $(this).css('font-size', '18px');
+            $(this).css('cursor', 'pointer');
+            },
+            function () {
+            $(this).css('fill', '#87CEFA');
+            $(this).css('font-size', '12px');
             });
-
-            // show controls when there's data
-            $('#oncoprint_controls').show();
+            $('.oncoprinter-diagram-removeUCases-icon').qtip({
+            content: {text: 
+                        function(){
+                        if($(this)[0].attributes.src.value === 'images/removeUCases.svg')
+                        {return 'remove unaltered cases';}
+                        else
+                        {
+                            return 'show unaltered cases';
+                        }
+                    }
+                },
+            position: {my:'left bottom', at:'top right', viewport: $(window)},
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
+            show: {event: "mouseover"},
+            hide: {fixed: true, delay: 100, event: "mouseout"}
+            });
+            
+            $('.oncoprinter-diagram-removeWhitespace-icon').click(function(){
+              if($(this)[0].attributes.src.value === 'images/removeWhitespace.svg')
+              {
+                  oncoprint.toggleWhiteSpace();
+                  $(this)[0].attributes.src.value = 'images/unremoveWhitespace.svg';
+              }
+              else
+              {
+                 oncoprint.toggleWhiteSpace();
+                 $(this)[0].attributes.src.value = 'images/removeWhitespace.svg'; 
+              }
+              oncoprint.zoom(zoom.val());
+            });
+            $('.oncoprinter-diagram-removeWhitespace-icon').hover(
+            function () {
+            $(this).css('fill', '#0000FF');
+            $(this).css('font-size', '18px');
+            $(this).css('cursor', 'pointer');
+            },
+            function () {
+            $(this).css('fill', '#87CEFA');
+            $(this).css('font-size', '12px');
+            });
+            $('.oncoprinter-diagram-removeWhitespace-icon').qtip({
+            content: {text: 
+                        function(){
+                        if($(this)[0].attributes.src.value === 'images/removeWhitespace.svg')
+                        {return 'remove whitespace';}
+                        else
+                        {
+                            return 'show whitespace between cases';
+                        }
+                    }
+            },
+            position: {my:'left bottom', at:'top right', viewport: $(window)},
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
+            show: {event: "mouseover"},
+            hide: {fixed: true, delay: 100, event: "mouseout"}
+            }); 
 
             // setup the download buttons
             $(".oncoprint-download").click(function() {
@@ -125,6 +267,147 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
                                 a.click();
                                 a.delete();
                             });
+                            
+            $('.oncoprinter-diagram-downloads-icon').qtip({
+                //id: "#oncoprint-diagram-downloads-icon-qtip",
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite'  },
+                show: {event: "mouseover"},
+                hide: {fixed:true, delay: 100, event: "mouseout"},
+                position: {my:'top center',at:'bottom center', viewport: $(window)},
+                content: {
+                    text:   "<button class='oncoprint-download' type='pdf' style='cursor:pointer'>PDF</button>"+
+                            "<button class='oncoprint-download' type='svg' style='cursor:pointer'>SVG</button>"+
+                            "<button class='sample-download'  type='txt' style='cursor:pointer'>Samples</button>"
+                },
+                events:{
+                    render:function(event){     
+                            $('.oncoprint-download').click(function() {
+                            var fileType = $(this).attr("type");
+                            var params = {
+                                filetype: fileType,
+                                filename:"oncoprint." + fileType,
+                                svgelement: oncoprint.getPdfInput()
+                            };
+
+                            cbio.util.requestDownload("svgtopdf.do", params);
+                        });
+
+                        $('.sample-download').click(function() {
+                            var samples = "Sample order in the Oncoprint is: \n";
+                            var genesValue = oncoprint.getData();
+                            for(var i = 0; i< genesValue.length; i++)
+                            {
+                                samples= samples + genesValue[i].key+"\n";
+                            }
+                            var a=document.createElement('a');
+                            a.href='data:text/plain;base64,'+btoa(samples);
+                            a.textContent='download';
+                            a.download='OncoPrintSamples.txt';
+                            a.click();
+                        });
+                    }
+                }
+            });
+            
+            //show or hide legends of oncoprint
+            $('.oncoprinter-diagram-showlegend-icon').click(function(){
+              if($(this)[0].attributes.src.value === 'images/showlegend.svg')
+              {
+                $("#oncoprint_legend").css("display","inline");
+                $(this)[0].attributes.src.value = 'images/hidelegend.svg';
+              }
+              else
+              {
+                $("#oncoprint_legend").css("display","none");
+                $(this)[0].attributes.src.value = 'images/showlegend.svg'; 
+              }
+            });
+            $('.oncoprinter-diagram-showlegend-icon').hover(
+            function () {
+            $(this).css('fill', '#0000FF');
+            $(this).css('font-size', '18px');
+            $(this).css('cursor', 'pointer');
+            },
+            function () {
+            $(this).css('fill', '#87CEFA');
+            $(this).css('font-size', '12px');
+            });
+            $('.oncoprinter-diagram-showlegend-icon').qtip({
+            content: {text:function(){
+                        if($(this)[0].attributes.src.value === 'images/showlegend.svg')
+                        {return 'show legends';}
+                        else
+                        {
+                            return 'hide legends';
+                        }
+                    }
+            },
+            position: {my:'left bottom', at:'top right', viewport: $(window)},
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
+            show: {event: "mouseover"},
+            hide: {fixed: true, delay: 100, event: "mouseout"}
+            });
+            
+            //color different mutation with different color
+            $('.oncoprinter_diagram_showmutationcolor_icon').click(function(){
+              if($(this)[0].attributes.src.value === 'images/colormutations.svg')
+              {
+                mutationColorControl = 'singleColor';
+                params.mutationColor = mutationColorControl;
+//                refreshOncoPrint();
+                main(params);
+//                zoom = reset_zoom();
+//                // sync
+                oncoprint.zoom(zoom.val());
+                oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
+                oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
+                OncoprintUtils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
+                $(this)[0].attributes.src.value = 'images/uncolormutations.svg';
+                $('.legend_missense_name').text("mutation") ;
+              }
+                else if($(this)[0].attributes.src.value === 'images/uncolormutations.svg')
+              {
+                mutationColorControl = 'multiColor';
+                params.mutationColor = mutationColorControl;
+//                refreshOncoPrint();
+                main(params);
+//                zoom = reset_zoom();
+//                // sync
+                oncoprint.zoom(zoom.val());
+                oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
+                oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
+                OncoprintUtils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
+                $(this)[0].attributes.src.value = 'images/colormutations.svg'; 
+                $('.legend_missense_name').text("missense mutation");
+                $('.legend_nonmissense').css("display","inline");
+              }
+            });
+            $('.oncoprinter_diagram_showmutationcolor_icon').hover(
+            function () {
+            $(this).css('fill', '#0000FF');
+            $(this).css('font-size', '18px');
+            $(this).css('cursor', 'pointer');
+            },
+            function () {
+            $(this).css('fill', '#87CEFA');
+            $(this).css('font-size', '12px');
+            });
+            $('.oncoprinter_diagram_showmutationcolor_icon').qtip({
+            content: {text: 
+                        function(){
+                        if($(this)[0].attributes.src.value === 'images/uncolormutations.svg')
+                        {return 'show all mutations in the same color';}
+                        else
+                        {
+                            return 'color-code different mutation types';
+                        }
+                    }
+            },
+            position: {my:'left bottom', at:'top right', viewport: $(window)},
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
+            show: {event: "mouseover"},
+            hide: {fixed: true, delay: 100, event: "mouseout"}
+            }); 
             
             var $all_cna_levels_checkbox = $('#all_cna_levels');
             function update_oncoprint_cna_levels() {
@@ -138,7 +421,7 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
                     main(params);
                 }
             }
-
+           
             $all_cna_levels_checkbox.click(function() {
                 update_oncoprint_cna_levels();
             });
@@ -151,7 +434,10 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
             oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
 //            oncoprint.sortBy(sortBy.val());
             OncoprintUtils.make_mouseover(d3.selectAll('.sample rect'), {linkage:false});        // hack =(
-
+            
+            cbio.util.autoHideOnMouseLeave($("#oncoprint_table"), $(".oncoprinter-diagram-toolbar-buttons"));
+            cbio.util.autoHideOnMouseLeave($("#oncoprint_controls"), $(".oncoprinter-diagram-toolbar-buttons"));
+            
             return false;
         };
 
@@ -169,7 +455,7 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
         // delete text when a file is selected
         $cnaForm.find("#cna").change(function() { $cna_file_example.html(""); });
         $mutationForm.find("#mutation").change(function() { $mutation_file_example.html(""); });
-
+        
         $('#create_oncoprint').click(function() {
             oncoprint_loader_img.show();
             var postFile = function(url, formData, callback) {
@@ -345,11 +631,11 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
 
                 var rawMutationString = _.isEmpty(mutationResponse) ? mutationTextAreaString : mutationResponse.mutation;
                 //mutation_data = EchoedDataUtils.munge_mutation(rawMutationString);
-                mutation_data = InputData.munge_the_mutation(rawMutationString);
+                var mutation_data = InputData.munge_the_mutation(rawMutationString);
 
 //                   var rawCnaString = _.isEmpty(cnaResponse) ? cnaTextAreaString : cnaResponse.cna;
                 var rawCnaString = cnaTextAreaString;
-                cna_data = EchoedDataUtils.munge_cna(rawCnaString);
+                var cna_data = EchoedDataUtils.munge_cna(rawCnaString);
 
                 var data = concatData(mutation_data,cna_data);
 
@@ -365,7 +651,7 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
                     exec(data);
                     $error_box.hide();
                     oncoprint_loader_img.hide();
-                    $('#download_oncoprint').show();
+                    //$('#download_oncoprint').show();
                 } catch(e) {
                     // catch all errors and console.log them,
                     // make sure that nothing is shown in the oncoprint box

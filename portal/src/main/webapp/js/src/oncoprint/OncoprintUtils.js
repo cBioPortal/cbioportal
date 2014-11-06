@@ -928,16 +928,16 @@ define("OncoprintUtils", (function() {
             fusion: "Fusion"
         };
 
-        var val2template = {
-            mrna: {
-                      "UPREGULATED": item_templater({display_up_mrna: "inherit", text: captions.mrna.UPREGULATED}),
-                      "DOWNREGULATED": item_templater({display_down_mrna: "inherit", text: captions.mrna.DOWNREGULATED})
-                  },
-            rppa: {
-                      "UPREGULATED": item_templater({display_up_rppa: "inherit", text: captions.rppa.UPREGULATED}),
-                      "DOWNREGULATED": item_templater({display_down_rppa: "inherit", text: captions.rppa.DOWNREGULATED})
-                  }
-        };
+//        var val2template = {
+//            mrna: {
+//                      "UPREGULATED": item_templater({display_up_mrna: "inherit", text: captions.mrna.UPREGULATED}),
+//                      "DOWNREGULATED": item_templater({display_down_mrna: "inherit", text: captions.mrna.DOWNREGULATED})
+//                  },
+//            rppa: {
+//                      "UPREGULATED": item_templater({display_up_rppa: "inherit", text: captions.rppa.UPREGULATED}),
+//                      "DOWNREGULATED": item_templater({display_down_rppa: "inherit", text: captions.rppa.DOWNREGULATED})
+//                  }
+//        };
 
         // build up an array of templates from the values in the dataset
         // N.B. order matters here --- so cna is to the left, then comes
@@ -1043,14 +1043,15 @@ define("OncoprintUtils", (function() {
             .attr('class','attribute_legend')
             .text('genetic alteration');
         
-        
+        var tabledata = table.append('td')
+                            .append('div');
         if (datatype2range.cna !== undefined && datatype2range.cna !== "DIPLOID") 
         {
 //            var inter_item_templater;
 //            inter_item_templater = item_templater({ bg_color: cna_fills[datatype2range.cna],text: captions.cna[datatype2range.cna]});
             for(var i = 0; i < datatype2range.cna.length; i++ )
             {
-                var legend_svg = table
+                var legend_svg = tabledata
                             .append('svg')
                             .attr('height', 23 )
                             .attr('width', captions.cna[datatype2range.cna[i]].length * 7.5 + 5.5*3 )
@@ -1108,7 +1109,7 @@ define("OncoprintUtils", (function() {
 
         if (datatype2range.mrna !== undefined) 
         {
-                var legend_svg = table
+                var legend_svg = tabledata
                             .append('svg')
                             .attr('height', 23 )
                             .attr('width', ('mRNA Downregulation').length * 7.5 + 5.5*3 )
@@ -1145,7 +1146,7 @@ define("OncoprintUtils", (function() {
                     .text('mRNA Downregulation');
             
             
-                var legend_svg = table
+                var legend_svg = tabledata
                             .append('svg')
                             .attr('height', 23 )
                             .attr('width', ('mRNA Upregulation').length * 7.5 + 5.5*3 )
@@ -1184,7 +1185,7 @@ define("OncoprintUtils", (function() {
         
         if (datatype2range.rppa !== undefined) 
         {
-                var legend_svg = table
+                var legend_svg = tabledata
                             .append('svg')
                             .attr('height', 23 )
                             .attr('width', ('RPPA Downregulation').length * 7.5 + 5.5*3 )
@@ -1229,7 +1230,7 @@ define("OncoprintUtils", (function() {
                     .text('RPPA Downregulation');
             
             
-                var legend_svg = table
+                var legend_svg = tabledata
                             .append('svg')
                             .attr('height', 23 )
                             .attr('width', ('RPPA Upregulation').length * 7.5 + 5.5*3 )
@@ -1272,7 +1273,7 @@ define("OncoprintUtils", (function() {
         {   
 //            if($('#oncoprint_diagram_showmutationcolor_icon')[0].attributes.src.value === 'images/uncolormutations.svg')
 //            {
-                var legend_svg = table.append('svg')
+                var legend_svg = tabledata.append('svg')
                             .attr('height', 23 )
                             .attr('width', ('missense mutation').length * 7.5 + 5.5*3 )
                             .attr('id', 'legend_svg')
@@ -1307,7 +1308,7 @@ define("OncoprintUtils", (function() {
                 
                 if(findProperMutation(datatype2range.mutation,2))
                 {
-                    var legend_svg = table.append('svg')
+                    var legend_svg = tabledata.append('svg')
                                 .attr('height', 23 )
                                 .attr('display','none')
                                 .attr('width', ('truncating mutation').length * 7.5 + 5.5*3 )
@@ -1344,7 +1345,7 @@ define("OncoprintUtils", (function() {
                 
                 if(findProperMutation(datatype2range.mutation,2))
                 {
-                    var legend_svg = table.append('svg')
+                    var legend_svg = tabledata.append('svg')
                                 .attr('height', 23 )
                                 .attr('display','none')
                                 .attr('width', ('inframe mutation').length * 7.5 + 5.5*3 )

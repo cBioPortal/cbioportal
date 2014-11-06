@@ -45,7 +45,7 @@
     generates <a href="faq.jsp#what-are-oncoprints">Oncoprints</a> from you own data
     (<a href="release_notes_oncoprinter.jsp" onclick="return popitup('release_notes_oncoprinter.jsp');">v1.0</a>)
     
-       <div id="inner-conainter" style="width:70%;"> 
+    <div id="inner-conainter" style="width:100%;"> <%-- need to be modified by dong li  used to by 70% resize problem--%>
         <div style="margin-top:20px;">
             <p>
                 Please input <b>tab-delimited</b> genomic alteration events.&nbsp;&nbsp;
@@ -71,6 +71,12 @@
                                     <li>GAIN: low level gain</li>
                                     <li>HETLOSS: heterozygous deletion</li>
                                     <li>HOMDEL: homozygous deletion</li>
+                                </ul>
+                            </li>
+                            <li>mRNA expression - please use one of the four events below: 
+                                <ul>
+                                    <li>UPREGULATED: expression up</li>
+                                    <li>DOWNREGULATED: expression down</li>
                                 </ul>
                             </li>
                         </ul>
@@ -141,15 +147,8 @@
     <img id="oncoprint_loader_img" src="images/ajax-loader.gif" style="display:none;">
     </div>
     <div id='oncoprint'></div>
+    <div id='oncoprint_legend' style="display: none;"></div>
     <script data-main="js/src/oncoprint/custom-boilerplate.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript" src="js/require.js?<%=GlobalProperties.getAppVersion()%>"></script>
-
-    <div id="download_oncoprint" style="display:none; margin-bottom:40px; margin-top:20px;">
-        <span>
-        <button class="oncoprint-download" type="pdf" style="display:inline;font-size: 13px; width: 50px;">PDF</button>
-        <button class="oncoprint-download" type="svg" style="display:inline;font-size: 13px; width: 50px;">SVG</button>
-        <button class="sample-download" type="txt" style="display:inline;font-size: 13px; width: 75px;">SAMPLES</button>
-        </span>
-    </div>
 </div>
         <script type="text/javascript"> 
                $('.sample-download').qtip({

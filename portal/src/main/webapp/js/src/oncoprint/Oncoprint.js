@@ -820,60 +820,101 @@ define("Oncoprint",
                             return serialize(label);
                         });
                         
-                        var verticalTranslateWidth= parseInt($('#oncoprint #oncoprint_legend .genetic_legend_table svg')[0].attributes.width.value);
-                        
-                        var generic_legends = $('#oncoprint #oncoprint_legend .genetic_legend_table #legend').children().clone();
-                        generic_legends = map_join(generic_legends, function(index,legend) {
-                            return serialize(legend);
-                        });
-                        var find1 = '<svg xmlns="http://www.w3.org/2000/svg"';
-                        var find2 = '</svg>';
-                        var find3 = 'xmlns="http://www.w3.org/1999/xhtml"';
-                        var re1 = new RegExp(find1, 'g');
-                        var re2 = new RegExp(find2, 'g');
-                        var re3 = new RegExp(find3, 'g');
-                        generic_legends = generic_legends.replace(re1, '<g').replace(re2, '</g>').replace(re3, '');
-                        generic_legends = "<g transform=\"translate(0,"+ (dims.height + 10) + ")\">" + generic_legends + "</g> ";
-                        
-                        var generic_legends_svg = $('#oncoprint #oncoprint_legend .genetic_legend_table #legend_svg').children().clone();
-                        generic_legends_svg = map_join(generic_legends_svg, function(index,legend) {
-                            return serialize(legend);
-                        });
-                        var find1 = '<g xmlns="http://www.w3.org/2000/svg"';
-                        var n = 0;
-                        while(generic_legends_svg.indexOf(find1) > -1)
+                        if($('#oncoprint_legend .genetic_legend_table svg')[0]!== undefined)
                         {
-                            generic_legends_svg = generic_legends_svg.replace(find1, '<g transform = "translate('+ (144*n) +',0)"');
-                            n++; 
+                            if($('#oncoprint #oncoprint_legend .genetic_legend_table svg')[0]!== undefined)
+                            {
+                                var verticalTranslateWidth= parseInt($('#oncoprint #oncoprint_legend .genetic_legend_table svg')[0].attributes.width.value);
+                            }
+                            else
+                            {
+                                var verticalTranslateWidth= parseInt($('#oncoprint #oncoprint_table svg')[0].attributes.width.value+$('#oncoprint #oncoprint_table svg')[1].attributes.width.value); 
+                            }
+                            
+                            if($('#oncoprint #oncoprint_legend .genetic_legend_table svg')[0]!== undefined)
+                            {
+                                var generic_legends = $('#oncoprint #oncoprint_legend .genetic_legend_table #legend').children().clone();
+                                generic_legends = map_join(generic_legends, function(index,legend) {
+                                    return serialize(legend);
+                                });
+                                var find1 = '<svg xmlns="http://www.w3.org/2000/svg"';
+                                var find2 = '</svg>';
+                                var find3 = 'xmlns="http://www.w3.org/1999/xhtml"';
+                                var re1 = new RegExp(find1, 'g');
+                                var re2 = new RegExp(find2, 'g');
+                                var re3 = new RegExp(find3, 'g');
+                                generic_legends = generic_legends.replace(re1, '<g').replace(re2, '</g>').replace(re3, '');
+                                generic_legends = "<g transform=\"translate(0,"+ (dims.height + 10) + ")\">" + generic_legends + "</g> ";
+
+                                var generic_legends_svg = $('#oncoprint #oncoprint_legend .genetic_legend_table #legend_svg').children().clone();
+                                generic_legends_svg = map_join(generic_legends_svg, function(index,legend) {
+                                    return serialize(legend);
+                                });
+                                var find1 = '<g xmlns="http://www.w3.org/2000/svg"';
+                                var n = 0;
+                                while(generic_legends_svg.indexOf(find1) > -1)
+                                {
+                                    generic_legends_svg = generic_legends_svg.replace(find1, '<g transform = "translate('+ (144*n) +',0)"');
+                                    n++; 
+                                }
+                                generic_legends_svg = "<g transform=\"translate("+ verticalTranslateWidth +","+ (dims.height + 10) + ")\">" + generic_legends_svg + "</g> ";
+                            }
+                            else
+                            {
+                                var generic_legends = $('#oncoprint_legend .genetic_legend_table #legend').children().clone();
+                                generic_legends = map_join(generic_legends, function(index,legend) {
+                                    return serialize(legend);
+                                });
+                                var find1 = '<svg xmlns="http://www.w3.org/2000/svg"';
+                                var find2 = '</svg>';
+                                var find3 = 'xmlns="http://www.w3.org/1999/xhtml"';
+                                var re1 = new RegExp(find1, 'g');
+                                var re2 = new RegExp(find2, 'g');
+                                var re3 = new RegExp(find3, 'g');
+                                generic_legends = generic_legends.replace(re1, '<g').replace(re2, '</g>').replace(re3, '');
+                                generic_legends = "<g transform=\"translate(0,"+ (dims.height + 10) + ")\">" + generic_legends + "</g> ";
+
+                                var generic_legends_svg = $('#oncoprint_legend .genetic_legend_table #legend_svg').children().clone();
+                                generic_legends_svg = map_join(generic_legends_svg, function(index,legend) {
+                                    return serialize(legend);
+                                });
+                                var find1 = '<g xmlns="http://www.w3.org/2000/svg"';
+                                var n = 0;
+                                while(generic_legends_svg.indexOf(find1) > -1)
+                                {
+                                    generic_legends_svg = generic_legends_svg.replace(find1, '<g transform = "translate('+ (144*n) +',0)"');
+                                    n++; 
+                                }
+                                generic_legends_svg = "<g transform=\"translate("+ (verticalTranslateWidth+20) +","+ (dims.height + 10) + ")\">" + generic_legends_svg + "</g> ";
+                            }
+
+                            var mutation_legends = $('#oncoprint #oncoprint_legend .mutation_legend_table #legend').children().clone();
+                            mutation_legends = map_join(mutation_legends, function(index,legend) {
+                                return serialize(legend);
+                            });
+                            var find1 = 'y="23"';
+                            var j=0;
+                            while(mutation_legends.indexOf(find1) > -1)
+                            {
+                                mutation_legends = mutation_legends.replace(find1, 'y = "' + (dims.vert_space * j + 23)+'"');
+                                j++; 
+                            }
+                            mutation_legends = "<g transform=\"translate(0,"+ (dims.height + 10 + dims.vert_space) + ")\">" + mutation_legends + "</g> ";
+
+                            var mutation_legends_svg = $('#oncoprint #oncoprint_legend .mutation_legend_table #legend_svg').children().clone();
+                            mutation_legends_svg = map_join(mutation_legends_svg, function(index,legend) {
+                                return serialize(legend);
+                            });
+                            var find1 = '<g xmlns="http://www.w3.org/2000/svg" transform="translate(0,0)"';                    
+                            var i=0;
+                            while(mutation_legends_svg.indexOf(find1) > -1)
+                            {
+                                mutation_legends_svg = mutation_legends_svg.replace(find1, '<g transform = "translate(0,'+ (dims.vert_space * i) +')"');
+    //                            mutation_legends_svg = mutation_legends_svg.replace(find1, '<g transform = "translate(0,'+ (dims.vert_space * i) +')"');
+                                i++;
+                            }
+                            mutation_legends_svg = "<g transform=\"translate("+ verticalTranslateWidth +","+ (dims.height + 10 + dims.vert_space) + ")\">" + mutation_legends_svg + "</g> ";
                         }
-                        generic_legends_svg = "<g transform=\"translate("+ verticalTranslateWidth +","+ (dims.height + 10) + ")\">" + generic_legends_svg + "</g> ";
-                        
-                        var mutation_legends = $('#oncoprint #oncoprint_legend .mutation_legend_table #legend').children().clone();
-                        mutation_legends = map_join(mutation_legends, function(index,legend) {
-                            return serialize(legend);
-                        });
-                        var find1 = 'y="23"';
-                        var j=0;
-                        while(mutation_legends.indexOf(find1) > -1)
-                        {
-                            mutation_legends = mutation_legends.replace(find1, 'y = "' + (dims.vert_space * j + 23)+'"');
-                            j++; 
-                        }
-                        mutation_legends = "<g transform=\"translate(0,"+ (dims.height + 10 + dims.vert_space) + ")\">" + mutation_legends + "</g> ";
-                        
-                        var mutation_legends_svg = $('#oncoprint #oncoprint_legend .mutation_legend_table #legend_svg').children().clone();
-                        mutation_legends_svg = map_join(mutation_legends_svg, function(index,legend) {
-                            return serialize(legend);
-                        });
-                        var find1 = '<g xmlns="http://www.w3.org/2000/svg" transform="translate(0,0)"';                    
-                        var i=0;
-                        while(mutation_legends_svg.indexOf(find1) > -1)
-                        {
-                            mutation_legends_svg = mutation_legends_svg.replace(find1, '<g transform = "translate(0,'+ (dims.vert_space * i) +')"');
-//                            mutation_legends_svg = mutation_legends_svg.replace(find1, '<g transform = "translate(0,'+ (dims.vert_space * i) +')"');
-                            i++;
-                        }
-                        mutation_legends_svg = "<g transform=\"translate("+ verticalTranslateWidth +","+ (dims.height + 10 + dims.vert_space) + ")\">" + mutation_legends_svg + "</g> ";
                         
                         out += labels;
                         out += generic_legends;

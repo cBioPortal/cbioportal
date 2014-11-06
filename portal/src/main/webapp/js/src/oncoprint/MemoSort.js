@@ -47,14 +47,17 @@ define(function() {
                     }
                     else if(m !== undefined)
                     {
-                        if((/^[A-Z]([0-9]+)[*]$/g).test(m))//Nonsense_Mutation
-                        {return 8;}
-                        if((/^[A-z*]([0-9]+)[A-z]{2}$/g).test(m))//Frame_shift_del
-                        {return 7;}
-                        if((/^([A-Z]+)([0-9]+)del$/g).test(m))//IN_frame_del
-                        {return 6;}
-                        if((/^[A-Z]([0-9]+)_splice$/g).test(m))//Splice_Site
-                        {return 5;}
+//                        if((/^[A-Z]([0-9]+)[*]$/g).test(m))//Nonsense_Mutation
+//                        {return 8;}
+//                        if((/^[A-z*]([0-9]+)[A-z]{2}$/g).test(m))//Frame_shift_del
+//                        {return 7;}
+//                        if((/^([A-Z]+)([0-9]+)del$/g).test(m))//IN_frame_del
+//                        {return 6;}
+//                        if((/^[A-Z]([0-9]+)_splice$/g).test(m))//Splice_Site
+//                        {return 5;}
+//                        if((/^([A-Z]+)([0-9]+)del$/g).test(m))//IN_frame_del
+//                        {return 4;}
+
                         if((/^([A-Z]+)([0-9]+)del$/g).test(m))//IN_frame_del
                         {return 4;}
 

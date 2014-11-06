@@ -22,9 +22,9 @@ public class PatientListService {
     @Autowired
     private PatientListMapper patientListMapper;
     
-    public List<DBPatientList> reduceLists(List<DBPatientList> list, boolean wholeLists) {
+    public List<DBPatientList> reduceLists(List<DBPatientList> list, boolean omit_lists) {
         // destructive
-        if (wholeLists) {
+        if (!omit_lists) {
             return list;
         } else {
             List<DBPatientList> ret = new ArrayList<>();
@@ -37,19 +37,19 @@ public class PatientListService {
                     
                     
     @Transactional
-    public List<DBPatientList> byStableId(List<String> ids, boolean wholeLists) {
-        return reduceLists(patientListMapper.byStableId(ids), wholeLists);
+    public List<DBPatientList> byStableId(List<String> ids, boolean omit_lists) {
+        return reduceLists(patientListMapper.byStableId(ids), omit_lists);
     }
     @Transactional
-    public List<DBPatientList> byInternalId(List<Integer> ids, boolean wholeLists) {
-        return reduceLists(patientListMapper.byInternalId(ids), wholeLists);
+    public List<DBPatientList> byInternalId(List<Integer> ids, boolean omit_lists) {
+        return reduceLists(patientListMapper.byInternalId(ids), omit_lists);
     }
     @Transactional
-    public List<DBPatientList> byInternalStudyId(List<Integer> ids, boolean wholeLists) {
-        return reduceLists(patientListMapper.byInternalStudyId(ids), wholeLists);
+    public List<DBPatientList> byInternalStudyId(List<Integer> ids, boolean omit_lists) {
+        return reduceLists(patientListMapper.byInternalStudyId(ids), omit_lists);
     }
     @Transactional
-    public List<DBPatientList> getAll(boolean wholeLists) {
-        return reduceLists(patientListMapper.getAll(), wholeLists);
+    public List<DBPatientList> getAll(boolean omit_lists) {
+        return reduceLists(patientListMapper.getAll(), omit_lists);
     }
 }

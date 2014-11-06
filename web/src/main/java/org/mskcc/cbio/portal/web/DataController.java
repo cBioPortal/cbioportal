@@ -13,9 +13,11 @@ import org.mskcc.cbio.portal.model.DBPatientList;
 import org.mskcc.cbio.portal.model.DBClinicalData;
 import org.mskcc.cbio.portal.model.DBClinicalPatientData;
 import org.mskcc.cbio.portal.model.DBClinicalSampleData;
+import org.mskcc.cbio.portal.model.DBGeneSet;
 import org.mskcc.cbio.portal.model.DBProfileData;
 import org.mskcc.cbio.portal.service.PatientListService;
 import org.mskcc.cbio.portal.service.ClinicalDataService;
+import org.mskcc.cbio.portal.service.GeneSetService;
 import org.mskcc.cbio.portal.service.ProfileDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +36,8 @@ public class DataController {
     private ClinicalDataService clinicalDataService;
     @Autowired
     private ProfileDataService profileDataService;
+    @Autowired
+    private GeneSetService geneSetService;
     
     private List<Integer> parseInts(List<String> list) throws NumberFormatException {
         // Util
@@ -44,26 +48,6 @@ public class DataController {
         return ret;
     }
     
-    
-    @RequestMapping("/patientlists")
-    public @ResponseBody
-    List<DBPatientList> dispatchCaseLists(@RequestParam(required = false) List<String> patient_list_ids,
-            @RequestParam(required = false) List<Integer> study_ids)
-            throws Exception {
-        if (patient_list_ids == null && study_ids == null) {
-            return patientListService.getAll(true);
-        } else if (patient_list_ids != null) {
-            try {
-                List<Integer> internals = parseInts(patient_list_ids);
-                return patientListService.byInternalId(internals, true);
-            } catch (NumberFormatException e) {
-                return patientListService.byStableId(patient_list_ids, true);
-            }
-        } else {
-            // study_ids != null
-            return patientListService.byInternalStudyId(study_ids, true);
-        }
-    }
     private List<? extends DBClinicalData> dispatchClinicalHelper(List<String> study_ids, List<String> ids, boolean isSample) throws Exception {
         if (study_ids == null && ids == null) {
             throw new Exception("Not enough specified");//TODO: better error messages

@@ -95,23 +95,41 @@ Option 2:
 	List<Integer> ids: internal study ids
 	=> Get the studies corresponding to those ids
 
-
-
-/api/meta/patientlists
-Out:
-{'id':'mixed_dmp_MSK-IMPACT_2014_all','internal_id':1,'name':'All Tumors','description':'All tumor samples (1408 samples)','internal_study_id':1,'internal_patient_ids':null},{'id':'mixed_dmp_MSK-IMPACT_2014_sequenced','internal_id':2,'name':'Sequenced Tumors','description':'All (Next-Gen) sequenced samples (1408 samples)','internal_study_id':1,'internal_patient_ids':null}
+/api/meta/genesets
+Out
+{'id':1, 'name':'Prostate Cancer: AR Signaling (10 genes)", 'gene_list':<"" OR "SOX9 RAN TNK2 ...">}
 
 In:
 Option 1:
 	Nothing
+	Boolean omit_lists (optional): whether the gene_list should be omitted (set to "")
+	=> Get all gene sets
+Option 2:
+	List<Integer> ids: list of internal geneset ids
+	Boolean omit_lists (optional): whether the gene_list should be omitted (set to "")
+	=> Get the lists corresponding to those ids
+	
+
+/api/meta/patientlists
+Out:
+{'id':'mixed_dmp_MSK-IMPACT_2014_all','internal_id':1,'name':'All Tumors','description':'All tumor samples (1408 samples)','internal_study_id':1,'internal_patient_ids':null},{'id':'mixed_dmp_MSK-IMPACT_2014_sequenced','internal_id':2,'name':'Sequenced Tumors','description':'All (Next-Gen) sequenced samples (1408 samples)','internal_study_id':1,'internal_patient_ids':<null OR [1,2,...]>}
+
+In:
+Option 1:
+	Nothing
+	Boolean omit_lists (optional): whether the internal_patient_ids list should be omitted (set to null)
 	=> Get all patient lists
 Option 2:
 	List<String> patient_list_ids: stable patient list ids
 	or
 	List<Integer> patient_list_ids: internal patient list ids
+
+	and
+	Boolean omit_lists (optional): whether the internal_patient_ids list should be omitted (set to null)
 	=> Get those patient lists
 Option 3:
 	List<Integer> study_ids: internal study ids
+	Boolean omit_lists (optional): whether the internal_patient_ids list should be omitted (set to null)
 	=> Get the patient lists corresponding to those studies
 
 
@@ -187,29 +205,6 @@ Option 4:
 	=> Get clinical attributes present in data for those patients
 
 
-
-/api/data/patientlists
-Out:
-{'id':'mixed_dmp_MSK-IMPACT_2014_all','internal_id':1,'name':'All Tumors','description':'All tumor samples (1408 samples)','internal_study_id':1,'internal_patient_ids':null},{'id':'mixed_dmp_MSK-IMPACT_2014_sequenced','internal_id':2,'name':'Sequenced Tumors','description':'All (Next-Gen) sequenced samples (1408 samples)','internal_study_id':1,'internal_patient_ids':[1,2,3,...]}
-
-In:
-Option 1:
-	Nothing
-	=> Get all patient lists
-Option 2:
-	List<String> patient_list_ids: stable patient list ids
-	or
-	List<Integer> patient_list_ids: internal patient list ids
-	=> Get those patient lists
-Option 3:
-	List<Integer> study_ids: internal study ids
-	=> Get the patient lists corresponding to those studies
-
-
-/api/data/clinical/samples
-Out:
-{"attr_id":"SAMPLE_TYPE","attr_val":"Primary","sample_id":1,"study_id":1}
-
 In:
 Option 1:
 	List<String> study_ids: stable study ids
@@ -258,7 +253,7 @@ Option 3:
 /api/data/profiles
 Out:
 Mutation profile:
-{'internal_id':22,'entrez_gene_id':7080,'internal_patient_id':1784,'sequencing_center':'MSK-IMPACT','mutation_status':'SOMATIC','mutation_type':'In_Frame_Ins','validation_status':'NA','amino_acid_change':'241_242insGGG','functional_impact_score':'NA','xvar_link':'NA','xvar_link_pdb':'NA','xvar_link_msa':'NA','chr':14,'start_position':36986875,'end_position':36986876,'reference_allele':'-','variant_allele':'GCCCCCGCC','reference_read_count_tumor':'287','variant_read_count_tumor':'56','reference_read_count_normal':'151','variant_read_count_normal':'0'}
+{'internal_id':22,'entrez_gene_id':7080,'internal_patienth_id':1784,'sequencing_center':'MSK-IMPACT','mutation_status':'SOMATIC','mutation_type':'In_Frame_Ins','validation_status':'NA','amino_acid_change':'241_242insGGG','functional_impact_score':'NA','xvar_link':'NA','xvar_link_pdb':'NA','xvar_link_msa':'NA','chr':14,'start_position':36986875,'end_position':36986876,'reference_allele':'-','variant_allele':'GCCCCCGCC','reference_read_count_tumor':'287','variant_read_count_tumor':'56','reference_read_count_normal':'151','variant_read_count_normal':'0'}
 
 Other:
 {'internal_id':23,'entrez_gene_id':7080,'internal_case_id':1796,'profile_data':'0'}

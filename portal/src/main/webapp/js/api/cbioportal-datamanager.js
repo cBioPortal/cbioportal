@@ -141,8 +141,8 @@ dataman = (function() {
 	var cache = {meta:{}, data:{}};
 	var history = {meta:{}, data:{}};
 	var metacalls = ['cancerTypes', 'genes', 'patients', 'samples', 'studies', 'patientLists',
-					'profiles', 'clinicalPatients', 'clinicalSamples'];
-	var datacalls = ['clinicalPatients', 'clinicalSamples', 'patientLists', 'profiles'];
+					'profiles', 'clinicalPatients', 'clinicalSamples', 'geneSets'];
+	var datacalls = ['clinicalPatients', 'clinicalSamples', 'profiles'];
 	for (var i=0; i<metacalls.length; i++) {
 		cache.meta[metacalls[i]] = new Cache();
 		history.meta[metacalls[i]] = {};
@@ -383,21 +383,21 @@ dataman = (function() {
 	}
 
 
-	// -- meta.patientlists and data.patientLists --
+	// -- meta.patientlists --
+	//TODO: HANDLE CACHING CORRECTLY - ITS FUCKED UP NOW BECAUSE OF OMIT LISTS AND STUFF
 	var getAllPatientLists = function(omit_lists, callback, fail) {
 		// TODO?: caching
 		var namespace = (omit_lists? cbio.meta : cbio.data);
 		namespace.patientLists({},callback, fail);
 	}
 	var getPatientListsHelper = function(omit_lists, indexName, updateIndexes, argname, argval, callback, fail) {
-		var namespace = (omit_lists? 'meta' : 'data');
-		var index = cache[namespace].patientLists.indexes[indexName];
+		var index = cache.meta.patientLists.indexes[indexName];
 		var toQuery = index.missingKeys(argval);
 		if (toQuery.length === 0) {
 			callback(index.get(argval));
 		} else {
-			cbio[namespace].patientLists({argname: argval}, function(data) {
-				cache[namespace].patientLists.addData(data, updateIndexes);
+			cbio.meta.patientLists({'omit_lists':omit_lists, argname: argval}, function(data) {
+				cache.meta.patientLists.addData(data, updateIndexes);
 				callback(index.get(argval));
 			}, fail);
 		}

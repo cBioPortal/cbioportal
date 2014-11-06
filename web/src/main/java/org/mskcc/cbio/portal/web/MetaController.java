@@ -6,13 +6,12 @@
 package org.mskcc.cbio.portal.web;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import org.mskcc.cbio.portal.model.DBCancerType;
 import org.mskcc.cbio.portal.model.DBPatientList;
 import org.mskcc.cbio.portal.model.DBClinicalField;
 import org.mskcc.cbio.portal.model.DBGene;
+import org.mskcc.cbio.portal.model.DBGeneSet;
 import org.mskcc.cbio.portal.model.DBGeneticProfile;
 import org.mskcc.cbio.portal.model.DBPatient;
 import org.mskcc.cbio.portal.model.DBSample;
@@ -21,6 +20,7 @@ import org.mskcc.cbio.portal.service.CancerTypeService;
 import org.mskcc.cbio.portal.service.PatientListService;
 import org.mskcc.cbio.portal.service.ClinicalFieldService;
 import org.mskcc.cbio.portal.service.GeneService;
+import org.mskcc.cbio.portal.service.GeneSetService;
 import org.mskcc.cbio.portal.service.GeneticProfileService;
 import org.mskcc.cbio.portal.service.PatientService;
 import org.mskcc.cbio.portal.service.SampleService;
@@ -54,6 +54,8 @@ public class MetaController {
     private PatientService patientService;
     @Autowired
     private SampleService sampleService;
+    @Autowired
+    private GeneSetService geneSetService;
     /*---*/
 
     /* UTILS */
@@ -187,21 +189,39 @@ public class MetaController {
     @Transactional
     @RequestMapping("/patientlists")
     public @ResponseBody
-    List<DBPatientList> dispatchCaseLists(@RequestParam(required = false) List<String> patient_list_ids,
-            @RequestParam(required = false) List<Integer> study_ids)
+    List<DBPatientList> dispatchPatientLists(@RequestParam(required = false) List<String> patient_list_ids,
+            @RequestParam(required = false) List<Integer> study_ids,
+            @RequestParam(required = false) Boolean omit_lists)
             throws Exception {
+        if (omit_lists == null) {
+            omit_lists = false;
+        }
         if (patient_list_ids == null && study_ids == null) {
-            return patientListService.getAll(false);
+            return patientListService.getAll(omit_lists);
         } else if (patient_list_ids != null) {
             try {
                 List<Integer> internals = parseInts(patient_list_ids);
-                return patientListService.byInternalId(internals, false);
+                return patientListService.byInternalId(internals, omit_lists);
             } catch (NumberFormatException e) {
-                return patientListService.byStableId(patient_list_ids, false);
+                return patientListService.byStableId(patient_list_ids, omit_lists);
             }
         } else {
             // study_ids != null
-            return patientListService.byInternalStudyId(study_ids, false);
+            return patientListService.byInternalStudyId(study_ids, omit_lists);
+        }
+    }
+    
+    @RequestMapping("/genesets")
+    public @ResponseBody
+    List<DBGeneSet> dispatchGeneSets(@RequestParam(required = false) List<Integer> ids,
+                                    @RequestParam(required = false) Boolean omit_lists) {
+        if (omit_lists == null) {
+            omit_lists = false;
+        }
+        if (ids == null) {
+            return geneSetService.getAll(omit_lists);
+        } else {
+            return geneSetService.byInternalId(ids, omit_lists);
         }
     }
 

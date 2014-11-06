@@ -48,6 +48,9 @@ cbio = (function() {
 		apiCall('/api/meta/studies', args, callback, fail);
 	}
 
+	var geneSetsMeta = function(args, callback, fail) {
+		apiCall('/api/meta/genesets', args, callback, fail);
+	}
 	var patientListsMeta = function(args, callback, fail) {
 		apiCall('/api/meta/patientlists', args, callback, fail);
 	}
@@ -70,9 +73,6 @@ cbio = (function() {
 	var clinicalSamplesData = function(args, callback, fail) {
 		apiCall('/api/data/clinical/samples', args, callback, fail);
 	}
-	var patientListsData = function(args, callback, fail) {
-		apiCall('/api/data/patientlists', args, callback, fail);
-	}
 	var profilesData = function(args, callback, fail) {
 		apiCall('/api/data/profiles', args, callback, fail);
 	}
@@ -93,7 +93,6 @@ cbio = (function() {
 		data: {
 			clinicalPatients: clinicalPatientsData,
 			clinicalSamples: clinicalSamplesData,
-			patientLists: patientListsData,
 			profiles: profilesData,
 		}
 	}

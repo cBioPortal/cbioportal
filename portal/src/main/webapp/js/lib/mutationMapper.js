@@ -4407,9 +4407,7 @@ var LollipopTipView = Backbone.View.extend({
  * options: {el: [target container],
  *           model: {geneSymbol: [hugo gene symbol],
  *                   mutationData: [mutation data for a specific gene]
- *                   mutationProxy: [mutation data proxy],
- *                   pdbProxy: [pdb data proxy],
- *                   pancanProxy: [pancancer mutation data proxy],
+ *                   dataProxies: [all available data proxies],
  *                   sequence: [PFAM sequence data],
  *                   sampleArray: [list of case ids as an array of strings],
  *                   diagramOpts: [mutation diagram options -- optional],
@@ -4463,8 +4461,7 @@ var MainMutationView = Backbone.View.extend({
 		var self = this;
 		var gene = self.model.geneSymbol;
 		var mutationData = self.model.mutationData;
-		var pancanProxy = self.model.pancanProxy;
-		var portalProxy = self.model.portalProxy;
+		var dataProxies = self.model.dataProxies;
 		var sequence = self.model.sequence;
 		var diagramOpts = self.model.diagramOpts;
 		var tableOpts = self.model.tableOpts;
@@ -4485,7 +4482,7 @@ var MainMutationView = Backbone.View.extend({
 				// init the 3d view
 				view3d = self._init3dView(gene,
 					sequence,
-					self.model.pdbProxy,
+					self.model.dataProxies.pdbProxy,
 					mut3dVisView);
 			}
 		}
@@ -4495,7 +4492,7 @@ var MainMutationView = Backbone.View.extend({
 		}
 
 		// init mutation table view
-		var tableView = self._initMutationTableView(gene, mutationData, pancanProxy, portalProxy, tableOpts);
+		var tableView = self._initMutationTableView(gene, mutationData, dataProxies, tableOpts);
 
 		// update component references
 		self._mutationDiagram = diagram;
@@ -4517,7 +4514,7 @@ var MainMutationView = Backbone.View.extend({
 			el: self.$el.find(".mutation-pdb-panel-view"),
 			model: {geneSymbol: self.model.geneSymbol,
 				pdbColl: pdbColl,
-				pdbProxy: self.model.pdbProxy},
+				pdbProxy: self.model.dataProxies.pdbProxy},
 			diagram: self._mutationDiagram
 		};
 
@@ -4536,7 +4533,7 @@ var MainMutationView = Backbone.View.extend({
 	_mutationSummary: function()
 	{
 		var self = this;
-		var mutationUtil = self.model.mutationProxy.getMutationUtil();
+		var mutationUtil = self.model.dataProxies.mutationProxy.getMutationUtil();
 		var gene = self.model.geneSymbol;
 		var cases = self.model.sampleArray;
 
@@ -4618,12 +4615,11 @@ var MainMutationView = Backbone.View.extend({
 	 *
 	 * @param gene          hugo gene symbol
 	 * @param mutationData  mutation data (array of JSON objects)
-	 * @param pancanProxy   pancancer mutation data proxy
-	 * @param portalProxy   portal data (metadata, etc.) proxy
+	 * @param dataProxies   all available data proxies
 	 * @param options       [optional] table options
 	 * @return {Object}     initialized mutation table view
 	 */
-	_initMutationTableView: function(gene, mutationData, pancanProxy, portalProxy, options)
+	_initMutationTableView: function(gene, mutationData, dataProxies, options)
 	{
 		var self = this;
 
@@ -4631,8 +4627,7 @@ var MainMutationView = Backbone.View.extend({
 			el: self.$el.find(".mutation-table-container"),
 			model: {geneSymbol: gene,
 				mutations: mutationData,
-				pancanProxy: pancanProxy,
-				portalProxy: portalProxy,
+				dataProxies: dataProxies,
 				tableOpts: options}
 		});
 
@@ -5826,7 +5821,7 @@ var MutationCustomizePanelView = Backbone.View.extend({
  *
  * options: {el: [target container],
  *           model: {mutations: mutation data as an array of JSON objects,
- *                   pancanProxy: pancancer mutation data proxy,
+ *                   dataProxies: all available data proxies,
  *                   geneSymbol: hugo gene symbol as a string,
  *                   tableOpts: mutation table options (optional)}
  *          }
@@ -5878,8 +5873,7 @@ var MutationDetailsTableView = Backbone.View.extend({
 			options,
 			self.model.geneSymbol,
 			mutationUtil,
-			self.model.pancanProxy,
-			self.model.portalProxy);
+			self.model.dataProxies);
 
 		// TODO self.mutationTable = table;
 		self.tableUtil = table;
@@ -7281,22 +7275,29 @@ var RegionTipView = Backbone.View.extend({
  * This class is designed to retrieve mutation data on demand, but it can be also
  * initialized with the full mutation data already retrieved from the server.
  *
- * @param geneList  list of target genes (genes of interest) as a string
+ * @param options  additional options
  *
  * @author Selcuk Onur Sumer
  */
-function MutationDataProxy(geneList)
+function MutationDataProxy(options)
 {
+	// default options
+	var _defaultOpts = {
+		geneList: "", // list of target genes (genes of interest) as a string
+		params: {} // fixed servlet params
+	};
+
+	// merge options with default options to use defaults for missing values
+	var _options = jQuery.extend(true, {}, _defaultOpts, options);
+
 	// MutationDetailsUtil instance
 	var _util = new MutationDetailsUtil();
 	// list of target genes as an array of strings (in the exact input order)
-	var _unsortedGeneList = geneList.trim().split(/\s+/);
+	var _unsortedGeneList = _options.geneList.trim().split(/\s+/);
 	// alphabetically sorted list of target genes as an array of strings
-	var _geneList = geneList.trim().split(/\s+/).sort();
+	var _geneList = _options.geneList.trim().split(/\s+/).sort();
 	// name of the mutation data servlet
 	var _servletName;
-	// parameters to be sent to the mutation data servlet
-	var _servletParams;
 	// flag to indicate if the initialization is full or lazy
 	var _fullInit;
 
@@ -7306,12 +7307,10 @@ function MutationDataProxy(geneList)
 	 * of getMutationData function.
 	 *
 	 * @param servletName   name of the mutation data servlet (used for AJAX query)
-	 * @param servletParams servlet (query) parameters
 	 */
-	function lazyInit(servletName, servletParams)
+	function lazyInit(servletName)
 	{
 		_servletName = servletName;
-		_servletParams = servletParams;
 		_fullInit = false;
 	}
 
@@ -7344,7 +7343,7 @@ function MutationDataProxy(geneList)
 
 	function getRawGeneList()
 	{
-		return geneList;
+		return _options.geneList;
 	}
 
 	function getMutationUtil()
@@ -7410,11 +7409,13 @@ function MutationDataProxy(geneList)
 			// send ajax request for missing genes
 			if (genesToQuery.length > 0)
 			{
+				var servletParams = _options.params;
+
 				// add genesToQuery to the servlet params
-				_servletParams.geneList = genesToQuery.join(" ");
+				servletParams.geneList = genesToQuery.join(" ");
 
 				// retrieve data from the server
-				$.post(_servletName, _servletParams, process, "json");
+				$.post(_servletName, servletParams, process, "json");
 			}
 			// data for all requested genes already cached
 			else
@@ -7454,10 +7455,18 @@ function MutationDataProxy(geneList)
 /**
  * This class is designed to retrieve PFAM data on demand.
  *
+ * @param options  additional options
+ *
  * @author Selcuk Onur Sumer
  */
-function PancanMutationDataProxy()
+function PancanMutationDataProxy(options)
 {
+	// default options
+	var _defaultOpts = {};
+
+	// merge options with default options to use defaults for missing values
+	var _options = jQuery.extend(true, {}, _defaultOpts, options);
+
 	// name of the PFAM data servlet
 	var _servletName;
 
@@ -7650,19 +7659,27 @@ function PancanMutationDataProxy()
 /**
  * This class is designed to retrieve PDB data on demand.
  *
- * @param mutationUtil  an instance of MutationDetailsUtil class
+ * @param options  additional options
  *
  * @author Selcuk Onur Sumer
  */
-function PdbDataProxy(mutationUtil)
+function PdbDataProxy(options)
 {
+	// default options
+	var _defaultOpts = {
+		mutationUtil: {} // an instance of MutationDetailsUtil class
+	};
+
+	// merge options with default options to use defaults for missing values
+	var _options = jQuery.extend(true, {}, _defaultOpts, options);
+
 	// name of the PDB data servlet
 	var _servletName;
 
 	// flag to indicate if the initialization is full or lazy
 	var _fullInit;
 
-	var _util = mutationUtil;
+	var _util = _options.mutationUtil;
 
 	// cache for PDB data:
 
@@ -8043,10 +8060,18 @@ function PdbDataProxy(mutationUtil)
 /**
  * This class is designed to retrieve PFAM data on demand.
  *
+ * @param options  additional options
+ *
  * @author Selcuk Onur Sumer
  */
-function PfamDataProxy()
+function PfamDataProxy(options)
 {
+	// default options
+	var _defaultOpts = {};
+
+	// merge options with default options to use defaults for missing values
+	var _options = jQuery.extend(true, {}, _defaultOpts, options);
+
 	// name of the PFAM data servlet
 	var _servletName;
 
@@ -8133,10 +8158,18 @@ function PfamDataProxy()
 /**
  * This class is designed to retrieve cBio Portal specific data on demand.
  *
+ * @param options  additional options
+ *
  * @author Selcuk Onur Sumer
  */
-function PortalDataProxy()
+function PortalDataProxy(options)
 {
+	// default options
+	var _defaultOpts = {};
+
+	// merge options with default options to use defaults for missing values
+	var _options = jQuery.extend(true, {}, _defaultOpts, options);
+
 	var _servletName;
 	var _fullInit;
 
@@ -9404,13 +9437,12 @@ function Mutation3dVis(name, options)
  * @param options       visual options object
  * @param gene          hugo gene symbol
  * @param mutationUtil  mutation details util
- * @param pancanProxy   proxy for pancancer mutation data
- * @param portalProxy   proxy for portal data
+ * @param dataProxies   all available data proxies
  * @constructor
  *
  * @author Selcuk Onur Sumer
  */
-function MutationDetailsTable(options, gene, mutationUtil, pancanProxy, portalProxy)
+function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 {
 	var self = this;
 
@@ -10047,7 +10079,7 @@ function MutationDetailsTable(options, gene, mutationUtil, pancanProxy, portalPr
 			"cBioPortal": function(selector, helper) {
 				var gene = helper.gene;
 				var mutationUtil = helper.mutationUtil;
-				var portalProxy = helper.portalProxy;
+				var portalProxy = helper.dataProxies.portalProxy;
 				var additionalData= helper.additionalData;
 
 				var addTooltip = function (frequencies, cancerStudyMetaData, cancerStudyName)
@@ -10083,10 +10115,9 @@ function MutationDetailsTable(options, gene, mutationUtil, pancanProxy, portalPr
 					});
 				};
 
-				// TODO get the pancan frequency data & add the tooltip without depending on a global variable!
 				if (additionalData.pancanFrequencies != null)
 				{
-					//addTooltip(freq, window.cancer_study_meta_data, window.cancerStudyName);
+					// TODO always get the cancerStudyName from the mutation data?
 					portalProxy.getPortalData(
 						{cancerStudyMetaData: true, cancerStudyName: true}, function(portalData) {
 							addTooltip(additionalData.pancanFrequencies,
@@ -10342,7 +10373,7 @@ function MutationDetailsTable(options, gene, mutationUtil, pancanProxy, portalPr
 		// to update the table on demand.
 		additionalData: {
 			"cBioPortal": function(helper) {
-				var pancanProxy = helper.pancanProxy;
+				var pancanProxy = helper.dataProxies.pancanProxy;
 				var indexMap = helper.indexMap;
 				var dataTable = helper.dataTable;
 				var additionalData = helper.additionalData;
@@ -10457,8 +10488,7 @@ function MutationDetailsTable(options, gene, mutationUtil, pancanProxy, portalPr
 			"fnDrawCallback": function(oSettings) {
 				self._addColumnTooltips({gene: gene,
 					mutationUtil: mutationUtil,
-					pancanProxy: pancanProxy,
-					portalProxy: portalProxy,
+					dataProxies: dataProxies,
 					additionalData: _additionalData});
 				self._addEventListeners(indexMap);
 
@@ -10508,8 +10538,7 @@ function MutationDetailsTable(options, gene, mutationUtil, pancanProxy, portalPr
 //					MutationDetailsEvents.MUTATION_TABLE_READY);
 
 				self._loadAdditionalData({
-					pancanProxy: pancanProxy,
-					portalProxy: portalProxy,
+					dataProxies: dataProxies,
 					indexMap: self.getIndexMap(),
 					additionalData: _additionalData,
 					dataTable: this
@@ -15400,10 +15429,12 @@ function Mutation3dController(mutationDetailsView, mainMutationView,
  * @author Selcuk Onur Sumer
  */
 function MutationDetailsController(
-	mutationDetailsView, mutationProxy, pfamProxy, pdbProxy, pancanProxy, portalProxy, sampleArray, diagramOpts, tableOpts, mut3dVis)
+	mutationDetailsView, dataProxies, sampleArray, diagramOpts, tableOpts, mut3dVis)
 {
-	var _pdbProxy = pdbProxy;
-	var _pfamProxy = pfamProxy;
+	var mutationProxy = dataProxies.mutationProxy;
+	var pfamProxy = dataProxies.pfamProxy;
+	var pdbProxy = dataProxies.pdbProxy;
+
 	var _geneTabView = {};
 
 	// a single 3D view instance shared by all MainMutationView instances
@@ -15441,7 +15472,7 @@ function MutationDetailsController(
 			var mutation3dVisView = new Mutation3dVisView(
 				{el: container3d,
 					mut3dVis: mut3dVis,
-					pdbProxy: _pdbProxy,
+					pdbProxy: pdbProxy,
 					mutationProxy: mutationProxy});
 
 			mutation3dVisView.render();
@@ -15489,10 +15520,7 @@ function MutationDetailsController(
 			// prepare data for mutation view
 			var model = {geneSymbol: gene,
 				mutationData: mutationData,
-				mutationProxy: mutationProxy, // TODO pass mutationUtil instead?
-				pdbProxy: _pdbProxy,
-				pancanProxy: pancanProxy,
-				portalProxy: portalProxy,
+				dataProxies: dataProxies,
 				sequence: sequenceData,
 				sampleArray: cases,
 				diagramOpts: diagramOpts,
@@ -15530,7 +15558,7 @@ function MutationDetailsController(
 			{
 				new Mutation3dController(mutationDetailsView, mainView,
 					_mut3dVisView, components.view3d, mut3dVis,
-					_pdbProxy, mutationUtil,
+					pdbProxy, mutationUtil,
 					components.diagram, components.tableView.tableUtil, gene);
 			}
 
@@ -15569,7 +15597,7 @@ function MutationDetailsController(
 				servletParams.uniprotAcc = uniprotAcc;
 			}
 
-			_pfamProxy.getPfamData(servletParams, function(sequenceData) {
+			pfamProxy.getPfamData(servletParams, function(sequenceData) {
 				// sequenceData may be null for unknown genes...
 				if (sequenceData == null)
 				{
@@ -15580,10 +15608,10 @@ function MutationDetailsController(
 				// get the first sequence from the response
 				var sequence = sequenceData[0];
 
-				if (_pdbProxy)
+				if (pdbProxy)
 				{
 					var uniprotId = sequence.metadata.identifier;
-					_pdbProxy.getPdbRowData(uniprotId, function(pdbRowData) {
+					pdbProxy.getPdbRowData(uniprotId, function(pdbRowData) {
 						init(sequence, data, pdbRowData);
 					});
 				}
@@ -15961,21 +15989,27 @@ function MutationMapper(options)
 		},
 		// data proxy configuration
 		proxy: {
-			pfam: {
+			pfamProxy: {
 				instance: null,
+				instanceClass: PfamDataProxy,
 				lazy: true,
+				servletName: "getPfamSequence.json",
 				data: {},
-				servletName: "getPfamSequence.json"
+				options: {}
 			},
-			mutation: {
+			mutationProxy: {
 				instance: null,
+				instanceClass: MutationDataProxy,
 				lazy: true,
-				data: {},
 				servletName: "getMutationData.json",
-				servletParams: ""
+				data: {},
+				options: {
+					servletParams: ""
+				}
 			},
-			pdb: {
+			pdbProxy: {
 				instance: null,
+				instanceClass: PdbDataProxy,
 				lazy: true,
 				servletName: "get3dPdb.json",
 				data: {
@@ -15983,22 +16017,27 @@ function MutationMapper(options)
 					infoData: {},
 					summaryData: {},
 					positionData: {}
-				}
+				},
+				options: {}
 			},
-			pancan: {
+			pancanProxy: {
 				instance: null,
+				instanceClass: PancanMutationDataProxy,
 				lazy: true,
 				servletName: "pancancerMutations.json",
 				data: {
 					byKeyword: {},
 					byGeneSymbol: {}
-				}
+				},
+				options: {}
 			},
-			portal: {
+			portalProxy: {
 				instance: null,
+				instanceClass: PortalDataProxy,
 				lazy: true,
 				servletName: "portalMetadata.json",
-				data: {}
+				data: {},
+				options: {}
 			}
 		}
 	};
@@ -16008,119 +16047,65 @@ function MutationMapper(options)
 
 	function init(mut3dVis)
 	{
-		var mutationProxyOpts = _options.proxy.mutation;
-		var pfamProxyOpts = _options.proxy.pfam;
-		var pdbProxyOpts = _options.proxy.pdb;
-		var pancanProxyOpts = _options.proxy.pancan;
-		var portalProxyOpts = _options.proxy.portal;
-
-		var mutationProxy = null;
-
 		// init proxies
+		var dataProxies = {};
 
-		if (mutationProxyOpts.instance)
-		{
-			// a custom instance is provided
-			mutationProxy = mutationProxyOpts.instance;
-		}
-		else if (mutationProxyOpts.lazy)
-		{
-			mutationProxy = new MutationDataProxy(_options.data.geneList.join(" "));
+		// workaround: alphabetically sorting to ensure that mutationProxy is
+		// initialized before pdpProxy, since pdbProxy depends on the mutationProxy instance
+		_.each(_.keys(_options.proxy).sort(), function(proxy) {
+			var proxyOpts = _options.proxy[proxy];
 
-			// init mutation data without a proxy
-			mutationProxy.initWithoutData(mutationProxyOpts.servletName,
-			                              mutationProxyOpts.servletParams);
-		}
-		else
-		{
-			mutationProxy = new MutationDataProxy(_options.data.geneList.join(" "));
+			// used the provided custom instance if available
+			var instance = proxyOpts.instance;
 
-			// init mutation data proxy with full data
-			mutationProxy.initWithData(mutationProxyOpts.data);
-		}
-
-		var pfamProxy = null;
-
-		if (pfamProxyOpts.instance)
-		{
-			pfamProxy = pfamProxyOpts.instance;
-		}
-		else if (pfamProxyOpts.lazy)
-		{
-			pfamProxy = new PfamDataProxy();
-			pfamProxy.initWithoutData(pfamProxyOpts.servletName);
-		}
-		else
-		{
-			pfamProxy = new PfamDataProxy();
-			pfamProxy.initWithData(pfamProxyOpts.data);
-		}
-
-		var pancanProxy = null;
-		
-		if (pancanProxyOpts.instance)
-		{
-			pancanProxy = pancanProxyOpts.instance;
-		}
-		else if (pancanProxyOpts.lazy)
-		{
-			pancanProxy = new PancanMutationDataProxy();
-			pancanProxy.initWithoutData(pancanProxyOpts.servletName);
-		}
-		else
-		{
-			pancanProxy = new PancanMutationDataProxy();
-			pancanProxy.initWithData(pancanProxyOpts.data);
-		}
-		
-		var pdbProxy = null;
-
-		if (mut3dVis &&
-		    mutationProxy.hasData())
-		{
-			if (pdbProxyOpts.instance)
+			if (instance == null)
 			{
-				pdbProxy = pdbProxyOpts.instance;
-			}
-			else
-			{
-				pdbProxy = new PdbDataProxy(mutationProxy.getMutationUtil());
-			}
-		}
+				var Constructor = proxyOpts.instanceClass;
 
-		if (pdbProxy != null)
-		{
-			if (pdbProxyOpts.lazy)
-			{
-				pdbProxy.initWithoutData(pdbProxyOpts.servletName);
-			}
-			else
-			{
-				pdbProxy.initWithData(pdbProxyOpts.data);
-			}
-		}
+				// default optional params for specific proxies
+				if (proxy == "mutationProxy")
+				{
+					proxyOpts.options.geneList = _options.data.geneList.join(" ");
+				}
+				else if (proxy == "pdbProxy")
+				{
+					var mutationProxy = dataProxies["mutationProxy"];
 
-		var portalProxy = null;
+					if (mut3dVis && mutationProxy.hasData())
+					{
+						proxyOpts.options.mutationUtil = mutationProxy.getMutationUtil();
+					}
+					else
+					{
+						// do not initialize pdbProxy at all
+						dataProxies["pdbProxy"] = null;
+						return;
+					}
 
-		if (pancanProxyOpts.instance)
-		{
-			portalProxy = portalProxyOpts.instance;
-		}
-		else if (portalProxyOpts.lazy)
-		{
-			portalProxy = new PortalDataProxy();
-			portalProxy.initWithoutData(portalProxyOpts.servletName);
-		}
-		else
-		{
-			portalProxy = new PortalDataProxy();
-			portalProxy.initWithData(portalProxyOpts.data);
-		}
+				}
+
+				// init data proxy
+				instance = Constructor(proxyOpts.options);
+
+				if (proxyOpts.lazy)
+				{
+					// init without data
+					instance.initWithoutData(proxyOpts.servletName);
+				}
+				else
+				{
+					// init with full data
+					instance.initWithData(proxyOpts.data);
+				}
+			}
+
+			dataProxies[proxy] = instance;
+		});
 
 		// TODO pass other view options (pdb table, pdb diagram, etc.)
 
 		var model = {
-			mutationProxy: mutationProxy,
+			mutationProxy: dataProxies.mutationProxy,
 			sampleArray: _options.data.sampleList,
 			tableOpts: _options.view.mutationTable,
 			diagramOpts: _options.view.mutationDiagram
@@ -16136,15 +16121,11 @@ function MutationMapper(options)
 		// init main controller...
 		var controller = new MutationDetailsController(
 			mutationDetailsView,
-			mutationProxy,
-			pfamProxy,
-			pdbProxy,
-			pancanProxy,
-			portalProxy,
+			dataProxies,
 			model.sampleArray,
-		    model.diagramOpts,
-		    model.tableOpts,
-		    mut3dVis);
+			model.diagramOpts,
+			model.tableOpts,
+			mut3dVis);
 
 		// ...and let the fun begin!
 		mutationDetailsView.render();

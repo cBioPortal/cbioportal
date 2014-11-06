@@ -29,7 +29,7 @@ $(document).ready(function(){
 			sampleList: sampleArray
 		},
 		proxy: {
-			mutation: {
+			mutationProxy: {
 				instance: mutationProxy
 			}
 		}

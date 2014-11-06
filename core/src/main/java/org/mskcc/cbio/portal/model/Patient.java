@@ -101,10 +101,14 @@ public class Patient {
 
     public Double getOverallSurvivalMonths()
     { 
+        System.out.println("Clinical Attribute: os months --");
+        System.out.println(getDoubleValue(ClinicalAttribute.OS_MONTHS));
 		return getDoubleValue(ClinicalAttribute.OS_MONTHS);
 	}
     public String getOverallSurvivalStatus()
     {
+        System.out.println("Clinical Attribute: os status --");
+        System.out.println(getStringValue(ClinicalAttribute.OS_STATUS);
 		return getStringValue(ClinicalAttribute.OS_STATUS);
 	}
     public Double getDiseaseFreeSurvivalMonths()

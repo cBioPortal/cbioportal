@@ -217,7 +217,7 @@ public class WebService extends HttpServlet {
                 getPatientLists(httpServletRequest, writer);
             } else if (cmd.equals("getClinicalData")) {
                 // PROVIDES case_set_id
-                getClinicalData(httpServletRequest, writer);
+                getSampleAndPatientClinicalDataBySampleIds(httpServletRequest, writer);
             } else if (cmd.equals("getAllClinicalData")) {
                 // Get patient and sample clinical data
                 getSampleAndPatientClinicalDataBySampleIds(httpServletRequest, writer);

@@ -54,7 +54,7 @@
             <% if (authenticationMethod.equals("googleplus")) { %>
             You have attempted to log in as <%= DynamicState.INSTANCE.getCurrentUser() %>.
             <% } %>
-            If you think you have received this message in error, please contact us at <a style="color:#FF0000" href="mailto:cbioportal@cbio.mskcc.org">cbioportal@cbio.mskcc.org</a>
+            If you think you have received this message in error, please contact us at <a style="color:#FF0000" href="mailto:cbioportal-access@cbio.mskcc.org">cbioportal-access@cbio.mskcc.org</a>
             </strong></p>
     </div>
     <% } %>

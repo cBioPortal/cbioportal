@@ -67,14 +67,13 @@ var PlotsMenu = (function () {
                     label: "- RPPA Protein Level -",
                     value: "data_type_rppa",
                     genetic_profile : []
-
                 },
                 "clinical" : {
                     label: "- Clinical Attributes - ",
                     value: "data_type_clinical",
-                    attrbitues: []
+                    attributes: []
                 }
-            }
+            },
         },
         status = {
             has_mrna : false,
@@ -154,7 +153,14 @@ var PlotsMenu = (function () {
                 content.plots_type.rppa_mrna.text
             );
         }
-        //Data Type Field : profile
+        if (status.has_mrna && status.has_clinical_data) {
+            Util.appendDropDown(
+                '#plots_type',
+                content.plots_type.mrna_clinical.value,
+                content.plots_type.mrna_clinical.text
+            );
+        }
+        //Data Type Field : profile/attributes
         for (var key in content.data_type) {
             var singleDataTypeObj = content.data_type[key];
             $("#one_gene_platform_select_div").append(
@@ -162,12 +168,16 @@ var PlotsMenu = (function () {
                     "<label for='" + singleDataTypeObj.value + "'>" + singleDataTypeObj.label + "</label><br>" +
                     "<select id='" + singleDataTypeObj.value + "' onchange='PlotsView.init();PlotsMenu.updateLogScaleOption();' class='plots-select'></select></div>"
             );
-            for (var index in singleDataTypeObj.genetic_profile) { //genetic_profile is ARRAY!
-                if (index.length === 1) { //TODO: this is temp solution
-                    var item_profile = singleDataTypeObj.genetic_profile[index];
+            if (singleDataTypeObj.hasOwnProperty("genetic_profile")) {
+                $.each(singleDataTypeObj.genetic_profile, function(index, item_profile) {
                     $("#" + singleDataTypeObj.value).append(
                         "<option value='" + item_profile[0] + "|" + item_profile[2] + "'>" + item_profile[1] + "</option>");
-                }
+                });               
+            } else if (singleDataTypeObj.hasOwnProperty("attributes")) { //for clinical data, we don't name it profile but attributes
+                $.each(singleDataTypeObj.attributes, function(index, item_attribute) {
+                    $("#" + singleDataTypeObj.value).append(
+                        "<option value='" + item_attribute.attr_id + "|" + item_attribute.description + "'>" + item_attribute.display_name + "</option>");
+                });
             }
         }
     }
@@ -265,15 +275,24 @@ var PlotsMenu = (function () {
             Util.toggleVisibilityY("data_type_mrna_dropdown");
             Util.toggleVisibilityHide("data_type_dna_methylation_dropdown");
             Util.toggleVisibilityHide("data_type_rppa_dropdown");
+            Util.toggleVisibilityHide("data_type_clinical_dropdown");
         } else if (currentPlotsType.indexOf("dna_methylation") !== -1) {
             Util.toggleVisibilityX("data_type_dna_methylation_dropdown");
             Util.toggleVisibilityY("data_type_mrna_dropdown");
             Util.toggleVisibilityHide("data_type_copy_no_dropdown");
             Util.toggleVisibilityHide("data_type_rppa_dropdown");
+            Util.toggleVisibilityHide("data_type_clinical_dropdown");
         } else if (currentPlotsType.indexOf("rppa") !== -1) {
             Util.toggleVisibilityX("data_type_mrna_dropdown");
             Util.toggleVisibilityY("data_type_rppa_dropdown");
             Util.toggleVisibilityHide("data_type_copy_no_dropdown");
+            Util.toggleVisibilityHide("data_type_dna_methylation_dropdown");
+            Util.toggleVisibilityHide("data_type_clinical_dropdown");
+        } else if (currentPlotsType.indexOf("clinical") !== -1) {
+            Util.toggleVisibilityX("data_type_clinical_dropdown");
+            Util.toggleVisibilityY("data_type_mrna_dropdown");
+            Util.toggleVisibilityHide("data_type_copy_no_dropdown");
+            Util.toggleVisibilityHide("data_type_rppa_dropdown");
             Util.toggleVisibilityHide("data_type_dna_methylation_dropdown");
         }
         updateLogScaleOption();
@@ -307,10 +326,12 @@ var PlotsMenu = (function () {
         content.data_type.copy_no.genetic_profile = Plots.getGeneticProfiles(selectedGene).genetic_profile_copy_no;
         content.data_type.dna_methylation.genetic_profile = Plots.getGeneticProfiles(selectedGene).genetic_profile_dna_methylation;
         content.data_type.rppa.genetic_profile = Plots.getGeneticProfiles(selectedGene).genetic_profile_rppa;
+        content.data_type.clinical.attributes = Plots.getClinicalAttributes();
         status.has_mrna = (content.data_type.mrna.genetic_profile.length !== 0);
         status.has_copy_no = (content.data_type.copy_no.genetic_profile.length !== 0);
         status.has_dna_methylation = (content.data_type.dna_methylation.genetic_profile.length !== 0);
         status.has_rppa = (content.data_type.rppa.genetic_profile.length !== 0);
+        status.has_clinical_data = (content.data_type.clinical.attributes.length !== 0);
     }
 
     return {
@@ -318,7 +339,7 @@ var PlotsMenu = (function () {
             $("#menu_err_msg").empty();
             fetchFrameContent(gene_list[0]);
             Util.generateList("gene", gene_list);
-            if(status.has_mrna && (status.has_copy_no || status.has_dna_methylation || status.has_rppa)) {
+            if(status.has_mrna && (status.has_copy_no || status.has_dna_methylation || status.has_rppa || status.has_clinical_data)) {
                 drawMenu();
                 setDefaultMrnaSelection();
                 setDefaultCopyNoSelection();
@@ -331,7 +352,7 @@ var PlotsMenu = (function () {
         updateMenu: function() {
             $("#menu_err_msg").empty();
             fetchFrameContent(document.getElementById("gene").value);
-            if(status.has_mrna && (status.has_copy_no || status.has_dna_methylation || status.has_rppa)) {
+            if(status.has_mrna && (status.has_copy_no || status.has_dna_methylation || status.has_rppa || status.has_clinical_data)) {
                 drawMenu();
                 setDefaultMrnaSelection();
                 setDefaultCopyNoSelection();

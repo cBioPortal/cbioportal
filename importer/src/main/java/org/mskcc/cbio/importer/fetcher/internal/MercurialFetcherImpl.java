@@ -88,8 +88,13 @@ public class MercurialFetcherImpl extends FetcherBaseImpl implements Fetcher
 	{
 		Map<String,String> propertyMap = new HashMap<String,String>();
 		for (String cancerStudy : studiesUpdated) {
+			CancerStudyMetadata cancerStudyMetadata = config.getCancerStudyMetadataByName(cancerStudy);
 			propertyMap.clear();
 			propertyMap.put(CancerStudyMetadata.UPDATE_AVAILABLE_COLUMN_KEY, "true");
+			// clear import (if requires validation)
+			if (cancerStudyMetadata.requiresValidation()) {
+				propertyMap.put(CancerStudyMetadata.IMPORT_COLUMN_KEY, "false");
+			}
 			config.updateCancerStudyAttributes(cancerStudy, propertyMap);
 			logMessage(LOG, "fetch(), the following study has been updated: " + cancerStudy);
 		}

@@ -670,15 +670,11 @@ public class Admin implements Runnable {
 		Importer importer = (Importer)getBean("importer");
 		Map<String,String> propertyMap = new HashMap<String,String>();
 		for (CancerStudyMetadata cancerStudyMetadata : config.getCancerStudyMetadata(portal)) {
-			if (cancerStudyMetadata.isImported() && cancerStudyMetadata.updateAvailable())  {
+			if ((portal.contains("triage") || cancerStudyMetadata.isImported()) && cancerStudyMetadata.updateAvailable())  {
 				propertyMap.clear();
 				importer.updateCancerStudy(portal, cancerStudyMetadata);
-				// clear update available
+				// clear update available - to prevent multiple imports
 				propertyMap.put(CancerStudyMetadata.UPDATE_AVAILABLE_COLUMN_KEY, "false");
-				// clear import (if requires validation)
-				if (cancerStudyMetadata.requiresValidation()) {
-					propertyMap.put(CancerStudyMetadata.IMPORT_COLUMN_KEY, "false");
-				}
 				if (updateWorksheetBool) {
 					config.updateCancerStudyAttributes(cancerStudyMetadata.getName(), propertyMap);
 				}

@@ -29,7 +29,7 @@ public class MercurialServiceImpl implements MercurialService
 {
 
 	private static Pattern hgIdChangesetPattern = Pattern.compile("^(\\w+)$");
-	private static Pattern hgStatusPattern = Pattern.compile("^\\w{1}? (\\w+)$");
+	private static Pattern hgStatusPattern = Pattern.compile("^\\w (.*)$");
 	private static Log LOG = LogFactory.getLog(MercurialServiceImpl.class);
 
 	private MercurialServer mercurialServer;
@@ -138,10 +138,10 @@ public class MercurialServiceImpl implements MercurialService
 				String cancerStudy = matcher.group(1);
 				int caseListSubdirIndex = cancerStudy.indexOf(FileUtils.CASE_LIST_DIRECTORY_NAME);
 				if (caseListSubdirIndex != -1) {
-					toReturn.add(cancerStudy.substring(0, caseListSubdirIndex-1));
+					toReturn.add(cancerStudy.substring(0, caseListSubdirIndex));
 				}
 				else {
-					toReturn.add(cancerStudy.substring(0, cancerStudy.lastIndexOf("/")-1));
+					toReturn.add(cancerStudy.substring(0, cancerStudy.lastIndexOf("/")));
 				}
 			}
 		}

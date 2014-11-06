@@ -34,7 +34,10 @@ public interface CommonNames {
     public static final String[] FUSION_DATA_HEADINGS = {"Hugo_Symbol","Entrez_Gene_Id","Center","Tumor_Sample_Barcode","Fusion","DNA support","RNA support","Method","Frame"};
 
     public static final String CNA_AMPLIFICATION = "amplification";
+    public static final Double CNA_AMPLIFICATION_VALUE = 2.0;
     public static final String CNA_LOSS = "loss";
+    public static final Double CNA_LOSS_VALUE = -2.0;
+    public static final Double CNA_DEFAULT_VALUE = 0.0;
     public static final String CENTER_FOUNDATION = "foundation";
     public static final String DEFAULT_FUSION ="fusion";
     public static final String DEFAULT_DNA_SUPPORT ="yes";

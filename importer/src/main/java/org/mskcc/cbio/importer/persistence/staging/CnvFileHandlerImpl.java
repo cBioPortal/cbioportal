@@ -54,7 +54,6 @@ public class CnvFileHandlerImpl implements CnvFileHandler {
     public void initializeFilePath(Path filePath) {
        Preconditions.checkArgument(null != filePath,
                 "A Path to the CNV staging file  is required");
-         
         // set Path for  CNV data
         this.cnvPath =filePath;
     }

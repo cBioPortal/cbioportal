@@ -725,12 +725,12 @@ class GDataImpl implements Config {
             icgcMatrix = getWorksheetData(gdataSpreadsheet, icgcWorksheet);
         }
 
-        Collection<IcgcMetadata> foundationMetadataCollection
+        Collection<IcgcMetadata> icgcMetadataCollection
                 = (Collection<IcgcMetadata>) getMetadataCollection(icgcMatrix,
                         "org.mskcc.cbio.importer.model.IcgcMetadata");
 
         
-        return foundationMetadataCollection;
+        return icgcMetadataCollection;
     }
 
     /**

@@ -37,6 +37,8 @@ public class FoundationMetadata {
     // bean properties
     final private String cancerStudy;
     final private List<String> dependencies;
+    final private String desciption;
+    final private String mskccContact;
     final private List<String> excludedCases;
     final private List<String> shortVariantExcludedStatuses;
 
@@ -48,18 +50,20 @@ public class FoundationMetadata {
      */
     public FoundationMetadata(String[] properties) {
         Preconditions.checkArgument(null != properties, "No properties have been provided");
-        Preconditions.checkArgument(properties.length >= 2, "Insufficient number of properties provided");
+        Preconditions.checkArgument(properties.length >= 4, "Insufficient number of properties provided");
         this.cancerStudy = properties[0].trim();
         this.dependencies = Lists.newArrayList(semicolonSplitter.split(properties[1]));
+            this.desciption = properties[2];
+            this.mskccContact = properties[3];
         // only a limited number of studies have excluded cases; most will not have that property
-        if (properties.length >2) {
-            this.excludedCases = Lists.newArrayList(semicolonSplitter.split(properties[2]));
+        if (properties.length >4) {
+            this.excludedCases = Lists.newArrayList(semicolonSplitter.split(properties[4]));
 
         }else {
             this.excludedCases = Lists.newArrayList(); // an empty list
         }
-        if (properties.length > 3){
-            this.shortVariantExcludedStatuses = Lists.newArrayList(semicolonSplitter.split(properties[3]));
+        if (properties.length > 5){
+            this.shortVariantExcludedStatuses = Lists.newArrayList(semicolonSplitter.split(properties[5]));
         } else {
             this.shortVariantExcludedStatuses = Lists.newArrayList();
         }
@@ -69,9 +73,14 @@ public class FoundationMetadata {
         return this.cancerStudy;
     }
 
+
     public List<String> getDependencies() {
         return this.dependencies;
     }
+
+    public String getDesciption() { return this.desciption;}
+
+    public String getMskccContact() { return this.mskccContact;}
     
     public List<String> getExcludedCases() {return this.excludedCases;}
 

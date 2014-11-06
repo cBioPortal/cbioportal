@@ -68,6 +68,8 @@ public class GeneSymbolIDMapper implements IDMapper {
 
     /*
     method to return the HUGO Symbol and EntrezID for a specified Ensembl ID
+    return object is a Tuple2 containing the HUGO Gene Symbol & the EntrezID
+    an empty tuple is returned if a mapping cannot be completed
      */
 
     public Tuple2<String,String> ensemblToHugoSymbolAndEntrezID(String ensemblID) {
@@ -104,9 +106,7 @@ public class GeneSymbolIDMapper implements IDMapper {
                 logger.error(e.getMessage());
                 e.printStackTrace();
             }
-
             return hugoMap;
-
         }
     }
 

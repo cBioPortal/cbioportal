@@ -434,7 +434,7 @@ class ImporterImpl implements Importer {
 				}
 
 				if (stagingFilename.contains("clinical") && !stagingFilename.endsWith(".xml") && clinicalFileMissingMetadata(stagingFilename)) {
-                	stagingFilename = addMetadataToClinicalFile(stagingFilename);
+                	stagingFilename = addMetadataToClinicalFile(cancerStudyMetadata, stagingFilename);
             	}
 
 				// if MAF, oncotate
@@ -518,7 +518,7 @@ class ImporterImpl implements Importer {
         return false;
     }
 
-    private String addMetadataToClinicalFile(String stagingFile) throws Exception
+    private String addMetadataToClinicalFile(CancerStudyMetadata cancerStudyMetadata, String stagingFile) throws Exception
     {
         StringBuilder newFileContents = new StringBuilder();
 
@@ -529,7 +529,7 @@ class ImporterImpl implements Importer {
             if (!headerProcessed) {
                 String header = it.nextLine().trim();
                 List<String> columnHeaders = new ArrayList(Arrays.asList(header.split(ImportClinicalData.DELIMITER, -1)));
-                headersWithMissingMetadata = MetadataUtils.getHeadersMissingMetadata(config, columnHeaders);
+                headersWithMissingMetadata = MetadataUtils.getHeadersMissingMetadata(config, cancerStudyMetadata, columnHeaders);
                 newFileContents.append(MetadataUtils.getClinicalMetadataHeaders(config, columnHeaders));
                 headerProcessed = true;
             }

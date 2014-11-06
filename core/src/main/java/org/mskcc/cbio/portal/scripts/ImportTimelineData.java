@@ -87,9 +87,9 @@ public class ImportTimelineData {
         BufferedReader buff = new BufferedReader(reader);
 
         String line = buff.readLine();
-        if (!line.startsWith("PATEINT_ID\tSTART_DATE\tSTOP_DATE\tEVENT_TYPE")) {
+        if (!line.startsWith("PATIENT_ID\tSTART_DATE\tSTOP_DATE\tEVENT_TYPE")) {
             System.err.println("The first line must start with 'PATEINT_ID\tSTART_DATE\tSTOP_DATE\tEVENT_TYPE'");
-            return;
+//            return;
         }
         String[] headers = line.split("\t");
 

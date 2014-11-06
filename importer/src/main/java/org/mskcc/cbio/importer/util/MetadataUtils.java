@@ -96,8 +96,9 @@ public class MetadataUtils {
 		return toReturn;
 	}
 
-	public static List<Boolean> getHeadersMissingMetadata(Config config, List<String> normalizedColumnHeaderNames)
+	public static List<Boolean> getHeadersMissingMetadata(Config config, CancerStudyMetadata cancerStudyMetadata, List<String> normalizedColumnHeaderNames)
 	{
+        Set<String> unknownAttributes = new HashSet<String>();
 		List<Boolean> headersWithMissingMetadata = new ArrayList<Boolean>();
         Map<String, ClinicalAttributesMetadata> clinicalAttributesMetadata =
         	getClinicalAttributesMetadata(config, normalizedColumnHeaderNames);
@@ -109,8 +110,14 @@ public class MetadataUtils {
                 headersWithMissingMetadata.add(++lc, false);
             }
             else {
+                if (metadata.isEmpty()) {
+                    unknownAttributes.add(columnHeader);
+                }
             	headersWithMissingMetadata.add(++lc, true);
             }
+        }
+        if (!unknownAttributes.isEmpty()) {
+            config.flagMissingClinicalAttributes(cancerStudyMetadata.toString(), cancerStudyMetadata.getTumorType(), unknownAttributes);
         }
         return headersWithMissingMetadata;
 	}

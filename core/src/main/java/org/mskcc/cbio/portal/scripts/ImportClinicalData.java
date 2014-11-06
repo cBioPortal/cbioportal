@@ -194,6 +194,12 @@ public class ImportClinicalData {
         int internalSampleId = (stableSampleId.length() > 0) ?
             addSampleToDatabase(stableSampleId, fields, columnAttrs) : -1;
 
+        // this will happen when clinical file contains sample id, but not patient id
+        if (internalPatientId == -1 && internalSampleId != -1) {
+            Sample sample = DaoSample.getSampleById(internalSampleId);
+            internalPatientId = sample.getInternalPatientId();
+        }
+
         for (int lc = 0; lc < fields.length; lc++) {
             if (MissingAttributeValues.has(fields[lc])) {
                 continue;

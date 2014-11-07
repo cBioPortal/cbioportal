@@ -962,7 +962,6 @@
 	                        var options = {
 		                        el: el,
 		                        data: {
-			                        geneList: proxy.getRawGeneList(),
 			                        sampleList: []
 		                        },
 		                        proxy: {

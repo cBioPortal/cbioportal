@@ -21,7 +21,7 @@
                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 leftColumn"><span>Select Cancer Study:</span></div>
                 <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
                     <select chosen ng-model="formVars.cancer_study_id"
-                            ng-options="csId as csObj.name group by appVars.vars.types_of_cancer[csObj.type_of_cancer] for (csId, csObj) in appVars.vars.cancer_study_stubs"
+                            ng-options="csObj.internal_id as csObj.name group by appVars.vars.types_of_cancer[csObj.type_of_cancer].name for csObj in appVars.vars.cancer_studies"
                     >
                     </select>
                 </div>

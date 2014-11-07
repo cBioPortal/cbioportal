@@ -671,10 +671,12 @@ app.controller('mainController', ['$location', '$interval', '$q', '$scope', 'Dat
         angular.element(document).ready(function () {
             // wait for datamanager to initialize before doing anything
             dataman.getAllCancerTypes(function(data){
-                $scope.appVars.vars.types_of_cancer = data;
+                $scope.appVars.vars.types_of_cancer = dataman.df.structure(["id"],data, true);
+                console.log($scope.appVars.vars.types_of_cancer);
             });
             dataman.getAllStudies(function(data){
-                $scope.appVars.vars.cancer_study_stubs = data;
+                $scope.appVars.vars.cancer_studies = data;
+                console.log($scope.appVars.vars.cancer_studies);
             });
             dataman.getAllGeneSets(true, function(data) {
                 $scope.appVars.vars.gene_set_stubs = data;

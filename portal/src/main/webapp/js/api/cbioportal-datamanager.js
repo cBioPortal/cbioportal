@@ -2,14 +2,18 @@ var log = function(data) { console.log(data); };
 dataman = (function() {
 	// CLASS DEFS
         var DataFormatter = function(){
-            var structureHelper = function(hierarchy, data) {
+            var structureHelper = function(hierarchy, data, injective) {
                 var ret = {};
                 var key = hierarchy[0];
                 if (hierarchy.length === 1) {
                     // bottom of tree
                     for (var i=0; i<data.length; i++) {
-                        ret[data[i][key]] = ret[data[i][key]] || [];
-                        ret[data[i][key]].push(data[i]);
+                        if (injective) {
+                            ret[data[i][key]] = data[i];
+                        } else {
+                            ret[data[i][key]] = ret[data[i][key]] || [];
+                            ret[data[i][key]].push(data[i]);
+                        }
                     }
                 } else {
                     // haven't reached bottom - keep recursing
@@ -22,7 +26,7 @@ dataman = (function() {
                     // recurse
                     var newhier = hierarchy.slice(1,hierarchy.length);
                     for (var v in buckets) {
-                        ret[v] = structureHelper(newhier, buckets[v]);
+                        ret[v] = structureHelper(newhier, buckets[v], injective);
                     }
                 }
                 return ret;
@@ -42,8 +46,8 @@ dataman = (function() {
                     }
                     return ret;
                 },
-                structure:function(hierarchy, data) {
-                    return structureHelper(hierarchy, data);
+                structure:function(hierarchy, data, injective) {
+                    return structureHelper(hierarchy, data, injective);
                 }
             }
         };

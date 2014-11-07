@@ -20,6 +20,8 @@ var GetEvidence = (function(){
         if(oncokbUrl && oncokbUrl !== ''){
             $.get(oncokbUrl+'access',accessableFunc)
                 .fail(unaccessableFunc);
+        }else {
+            unaccessableFunc();
         }
     }
     

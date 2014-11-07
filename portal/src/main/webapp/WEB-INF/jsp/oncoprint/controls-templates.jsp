@@ -107,7 +107,6 @@
         <img id="oncoprinter-diagram-removeUCases-icon" checked="0" style="width: 12px; height: 12px" class="oncoprinter-diagram-removeUCases-icon" src="images/removeUCases.svg">
         <img id="oncoprinter-diagram-removeWhitespace-icon" checked="0" style="width: 15px; height: 12px" class="oncoprinter-diagram-removeWhitespace-icon" src="images/removeWhitespace.svg">
         <img id="oncoprinter-diagram-downloads-icon" style="width: 12px; height: 12px" class="oncoprinter-diagram-downloads-icon" src="images/in.svg">
-        <%-- <span><div id="zoom" style="display: inline-table;"></div></spand>--%> 
         
         <span class='oncoprint_diagram_slider_icon' style="width: 80px; height: 12px"></span>
         

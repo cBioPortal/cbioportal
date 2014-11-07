@@ -33,6 +33,7 @@ import org.mskcc.cbio.importer.foundation.extractor.FileDataSource;
 import org.mskcc.cbio.importer.foundation.support.CasesTypeSupplier;
 import org.mskcc.cbio.importer.foundation.support.CommonNames;
 
+import org.mskcc.cbio.importer.model.FoundationMetadata;
 import org.mskcc.cbio.importer.persistence.staging.*;
 
 import org.mskcc.cbio.importer.util.GeneSymbolIDMapper;
@@ -89,7 +90,6 @@ public class FoundationXMLTransformerNew implements FileTransformer {
         this.geneMapper = new GeneSymbolIDMapper();
     }
 
-
     /*
      mod 03Oct2014 - modify transformer to process all XML files within the
      specified Path (i.e. directory). The transformation types (e.g. mutations)
@@ -124,12 +124,35 @@ public class FoundationXMLTransformerNew implements FileTransformer {
 
         // the CNA table must be persisted across all the XML files in a study
         this.cnaTable = HashBasedTable.create();
+        // process each xml file in the study's staging directory
         for (Path xmlPath : xmlSource.getFilenameList()) {
-            this.casesTypeSupplier = Suppliers.memoize(new CasesTypeSupplier(xmlPath.toString()));
-            this.processFoundationData();
+            Optional<FoundationMetadata> metadataOptional =
+                    this.resolveFoundationMetadataFromXMLFilename(xmlPath.getFileName().toString());
+            if( metadataOptional.isPresent()) {
+                this.casesTypeSupplier = Suppliers.memoize(new CasesTypeSupplier(xmlPath.toString(),
+                        metadataOptional.get()));
+                this.processFoundationData();
+            } else {
+                logger.error("File "+ xmlPath.toString() +" cannot be associated with a cancer study");
+            }
         }
-        // the CNA report can only be written after all the XML files have been processed
+        // the CNA report can only be generated after all the XML files have been processed
         this.cnvFileHandler.persistCnvTable(cnaTable);
+    }
+    // resolve the FoundationMetadata object for this study
+    private Optional<FoundationMetadata> resolveFoundationMetadataFromXMLFilename(final String filename) {
+        final Collection<FoundationMetadata> mdc = config.getFoundationMetadata();
+        final List<String> fileList = Lists.newArrayList(filename);
+       return  FluentIterable.from(mdc)
+                .firstMatch(new Predicate<FoundationMetadata>() {
+                    @Override
+                    public boolean apply(final FoundationMetadata meta) {
+                        List<String> fl = FluentIterable.from(fileList).filter(meta.getRelatedFileFilter()).toList();
+                        return (!fl.isEmpty());
+
+                    }
+                });
+
     }
 
 
@@ -150,7 +173,7 @@ public class FoundationXMLTransformerNew implements FileTransformer {
 
     private void processFoundationData() {
 
-       // this.generateMutationsDataReport();
+
         this.generateDatMutationsExtendedReport();
         this.generateCNATable();
         this.generateClinicalDataReport();
@@ -397,8 +420,7 @@ public class FoundationXMLTransformerNew implements FileTransformer {
         public FoundationStagingFileManager(Path aPath) {
 
             this.stagingFilePath = aPath;
-            //reportFileMap.put(CommonNames.MUTATION_REPORT_TYPE, "data_mutations_extended.txt");
-            //reportFileMap.put(CommonNames.CNA_REPORT_TYPE, "data_CNA.txt");
+
             reportFileMap.put(CommonNames.CLINICAL_REPORT_TYPE, "data_clinical.txt");
             reportFileMap.put(CommonNames.FUSION_REPORT_TYPE, "data_fusions.txt");
 

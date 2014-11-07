@@ -725,6 +725,7 @@ class GDataImpl implements Config {
             icgcMatrix = getWorksheetData(gdataSpreadsheet, icgcWorksheet);
         }
 
+
         Collection<IcgcMetadata> icgcMetadataCollection
                 = (Collection<IcgcMetadata>) getMetadataCollection(icgcMatrix,
                         "org.mskcc.cbio.importer.model.IcgcMetadata");

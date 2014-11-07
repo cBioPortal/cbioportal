@@ -1,5 +1,13 @@
 package org.mskcc.cbio.importer.persistence.staging;
 
+import com.google.inject.internal.Preconditions;
+import org.apache.log4j.Logger;
+
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.util.List;
+
 /**
  * Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
  * <p/>
@@ -23,4 +31,29 @@ public class FusionFileHandlerImpl extends TsvStagingFileHandler {
     /*
     responsible for writing out fusion variant data to a tsv file
      */
+    private final static Logger logger = Logger.getLogger(FusionFileHandlerImpl.class);
+
+    public FusionFileHandlerImpl(){
+        super();
+    }
+
+
+    /*
+    public interface method to register a Path to a fusion file for subsequent
+    staging file operations
+    if the file does not exist, it will be created and a tab-delimited list of column headings
+    will be written as the first line
+    */
+
+    public void registerFusionStagingFile(Path fusionFilePath, List<String> columnHeadings) {
+        Preconditions.checkArgument(null != fusionFilePath, "A Path object referencing the fusion data file is required");
+        if (!Files.exists(fusionFilePath, LinkOption.NOFOLLOW_LINKS)) {
+            Preconditions.checkArgument(null != columnHeadings && !columnHeadings.isEmpty(),
+                    "Column headings are required for the new fusion data file: " +fusionFilePath.toString());
+
+        }
+        super.registerStagingFile(fusionFilePath, columnHeadings);
+    }
+
+
 }

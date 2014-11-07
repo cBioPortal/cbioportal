@@ -19,11 +19,12 @@
 package org.mskcc.cbio.importer.persistence.staging;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
-import com.google.inject.internal.Preconditions;
+
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -36,6 +37,7 @@ import static java.nio.file.StandardOpenOption.DSYNC;
 import java.util.List;
 import java.util.Set;
 
+import com.google.inject.internal.Sets;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -141,5 +143,26 @@ public abstract class  TsvStagingFileHandler  {
         }
     }
 
+    /*
+    method to scan a tsv staging file and return a list of processed sample ids
+    based on a column  being identified as the sample id attribute
+    this is to facilitate sample replacement processing
+     */
+    protected Set<String> resolveProcessedSampleSet(final String sampleIdColumnName) {
+        Set<String> processedSampleSet = Sets.newHashSet();
+        try {
+            final CSVParser parser = new CSVParser(new FileReader(this.stagingFilePath.toFile()), CSVFormat.TDF.withHeader());
+            Set<String> sampleSet = FluentIterable.from(parser).transform(new Function<CSVRecord, String>() {
+                @Override
+                public String apply(CSVRecord record) {
+                    return record.get(sampleIdColumnName);
+                }
+            }).toSet();
 
+            processedSampleSet.addAll(sampleSet);
+        } catch (IOException ex) {
+            logger.error(ex.getMessage());
+        }
+        return processedSampleSet;
+    }
 }

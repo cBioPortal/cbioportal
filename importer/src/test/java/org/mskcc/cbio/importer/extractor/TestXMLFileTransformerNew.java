@@ -47,7 +47,7 @@ public class TestXMLFileTransformerNew {
                     return (input.toString().endsWith("xml"));
                 }
             };
-            FileDataSource fds = new FileDataSource("/tmp/foundation/lcll/mskcc/foundation", xmlFileExtensionFilter);
+            FileDataSource fds = new FileDataSource("/tmp/foundation/dlbc/mskcc/foundation", xmlFileExtensionFilter);
             FoundationXMLTransformerNew transformer = new FoundationXMLTransformerNew(config);
             transformer.transform(fds);
         } catch (IOException ex) {
@@ -164,19 +164,31 @@ public class TestXMLFileTransformerNew {
 
         @Override
         public Collection<FoundationMetadata> getFoundationMetadata() {
-            FoundationMetadata meta1 = new FoundationMetadata(new String[]{"lcll/mskcc/foundation", "13-156;13-079"});
+            FoundationMetadata meta1 = new FoundationMetadata(new String[]{"lcll/mskcc/foundation", "13-156;13-079",
+           "CLL" });
             FoundationMetadata meta2 = new FoundationMetadata(new String[]{"dlbc/mskcc/foundation", "13-158;13-081",
-                    "RD0345;RD0351;RD0354;RD0355;RD0374;RD0375;RD0376;RD0377;RD0378;RD0383;RD0384;TRF031674;TRF031934",
+                    "MYC/BCL",
+                    "RD0345;RD0351;RD0354;RD0355;RD0374;RD0375;RD0376;RD0377;RD0378;RD0383;RD0384;TRF031674.01;TRF031934.01",
                     "unknown"});
-            FoundationMetadata meta3 = new FoundationMetadata(new String[]{"mds_aml/mskcc/foundation", "13-157;13-080"});
-            FoundationMetadata meta4 = new FoundationMetadata(new String[]{"dlbcl/mskcc/foundation", "13-159;13-082"});
-            FoundationMetadata meta5 = new FoundationMetadata(new String[]{"aml-all/mskcc/foundation", "13-160;13-083"});
-            FoundationMetadata meta6 = new FoundationMetadata(new String[]{"dac-atra_mds/mskcc/foundation", "13-161;13-084"});
-            FoundationMetadata meta7 = new FoundationMetadata(new String[]{"jak2-neg_mpn/mskcc/foundation", "13-162;13-085"});
-            FoundationMetadata meta8 = new FoundationMetadata(new String[]{"post-mpn_aml/mskcc/foundation", "13-163;13-086"});
-            FoundationMetadata meta9 = new FoundationMetadata(new String[]{"carfilzomib-mm/mskcc/foundation", "13-164;13-087"});
-            FoundationMetadata meta10 = new FoundationMetadata(new String[]{"lymphoma/mskcc/foundation", "CLINICAL-HEME-COMPLETE;CLINICAL-T7"});
-            return Lists.newArrayList(meta1, meta2,meta3,meta4,meta5,meta6,meta7,meta8,meta9, meta10);
+            FoundationMetadata meta3 = new FoundationMetadata(new String[]{"mds_aml/mskcc/foundation", "13-157;13-080",
+            "transplant"});
+            FoundationMetadata meta4 = new FoundationMetadata(new String[]{"dlbcl/mskcc/foundation", "13-159;13-082",
+            "DLBCL"});
+            FoundationMetadata meta5 = new FoundationMetadata(new String[]{"aml-all/mskcc/foundation", "13-160;13-083",
+            "xenotransplant"});
+            FoundationMetadata meta6 = new FoundationMetadata(new String[]{"dac-atra_mds/mskcc/foundation", "13-161;13-084",
+            "DAC/ATRA"});
+            FoundationMetadata meta7 = new FoundationMetadata(new String[]{"jak2-neg_mpn/mskcc/foundation", "13-162;13-085",
+            "JAK2-neg"});
+            FoundationMetadata meta8 = new FoundationMetadata(new String[]{"post-mpn_aml/mskcc/foundation", "13-163;13-086",
+            "Post-MPN"});
+            FoundationMetadata meta9 = new FoundationMetadata(new String[]{"carfilzomib-mm/mskcc/foundation", "13-164;13-087",
+            "Carflizomib"});
+            FoundationMetadata meta10 = new FoundationMetadata(new String[]{"lymphoma/mskcc/foundation", "CLINICAL-HEME-COMPLETE",
+            "CLL" });
+            FoundationMetadata meta11 = new FoundationMetadata(new String[]{"lymphoma-sa_therp/mskcc/foundation", "14-036",
+                    "Lymphona-SA"});
+            return Lists.newArrayList(meta1, meta2,meta3,meta4,meta5,meta6,meta7,meta8,meta9, meta10,meta11);
 
         }
 

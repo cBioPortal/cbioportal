@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.List;
+import javax.annotation.Nullable;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -17,6 +18,8 @@ import org.apache.log4j.Logger;
 import org.mskcc.cbio.foundation.jaxb.CaseType;
 import org.mskcc.cbio.foundation.jaxb.CasesType;
 import org.mskcc.cbio.foundation.jaxb.ClientCaseInfoType;
+import org.mskcc.cbio.foundation.jaxb.ShortVariantType;
+import org.mskcc.cbio.importer.model.FoundationMetadata;
 
 /**
  * Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
@@ -44,36 +47,61 @@ public class CasesTypeSupplier implements Supplier<CasesType> {
 
     private final String xmlFileName;
     private static final Logger logger = Logger.getLogger(CasesTypeSupplier.class);
-    private List<String> excludedCaseList;
+    private FoundationMetadata metadata;
 
     public CasesTypeSupplier(String xmlFileName) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(xmlFileName), "A Foundation xml file name is required");
         this.xmlFileName = xmlFileName;
-        this.excludedCaseList = Lists.newArrayList();
     }
     /*
     constructor to support studies that have a list of case ids to exclude
     */
-    public CasesTypeSupplier(String xmlFileName, String[] excludedCases) {
+    public CasesTypeSupplier(String xmlFileName, FoundationMetadata meta) {
         this(xmlFileName);
-        this.excludedCaseList = Lists.newArrayList(excludedCases);
+        Preconditions.checkArgument(null != meta,"A FoundationMetadata instance is required");
+        this.metadata = meta;
+
     }
 
     @Override
     public CasesType get() {
         try {
+            logger.info("CaseTypeSupplier get  invoked...");
             JAXBContext context = JAXBContext.newInstance(ClientCaseInfoType.class);
             Unmarshaller jaxbUnmarshaller = context.createUnmarshaller();
             JAXBElement obj = (JAXBElement) jaxbUnmarshaller.unmarshal(new FileInputStream(this.xmlFileName));
             ClientCaseInfoType ccit = (ClientCaseInfoType) obj.getValue();
+            logger.info("++++File " +this.xmlFileName +" has " +ccit.getCases().getCase().size() +" samples before filtering");
             // mod 04Oct2014 - add support for filtering out excluded cases
-
-            if (!this.excludedCaseList.isEmpty()) {
-                // safely remove
+            if (null!=metadata && !metadata.getExcludedCases().isEmpty()){
                 List<CaseType> removalList = FluentIterable.from(ccit.getCases().getCase())
                         .filter(removeCaseFilter).toList();
                 ccit.getCases().getCase().removeAll(removalList);
+                // output removed cases during development
+                for (CaseType caseType : removalList){
+                    logger.info("Foundation case removed: " +caseType.getCase());
+                }
             }
+            // filter out short variants based on specified status
+            if(null!= metadata && !metadata.getShortVariantExcludedStatuses().isEmpty()) {
+                for ( CaseType caseType : ccit.getCases().getCase()){
+                   List<ShortVariantType>  removalList = FluentIterable.from(caseType.getVariantReport().getShortVariants().getShortVariant())
+                           .filter(new Predicate<ShortVariantType>() {
+                               @Override
+                               public boolean apply(@Nullable ShortVariantType svt) {
+                                   return metadata.getShortVariantExcludedStatuses().contains(svt.getStatus());
+                               }
+                           }).toList();
+                    // replace the original List with the filtered List
+                    caseType.getVariantReport().getShortVariants().getShortVariant().removeAll(removalList);
+                    // output removed svt during development
+                    for (ShortVariantType svt : removalList){
+                        logger.debug("Foundation svt removed from case " +caseType.getCase() +" gene " +svt.getGene() +" status " +svt.getStatus());
+                    }
+                }
+
+            }
+            logger.info("++++File " +this.xmlFileName +" has " +ccit.getCases().getCase().size() +" samples after filtering");
 
             return ccit.getCases();
         } catch (JAXBException | FileNotFoundException ex) {
@@ -89,7 +117,7 @@ public class CasesTypeSupplier implements Supplier<CasesType> {
         @Override
         public boolean apply(final CaseType caseType) {
 
-            return excludedCaseList.contains(caseType.getCase());
+            return metadata.getExcludedCases().contains(caseType.getCase());
         }
     };
 

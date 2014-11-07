@@ -74,22 +74,7 @@ public  class MutationFileHandlerImpl extends TsvStagingFileHandler  implements 
                  "The sample id column nmae is required");
          Preconditions.checkState(null != this.stagingFilePath, 
                  "The requiste Path to the MAF staging file has not be specified");
-         Set<String> processedSampleSet = Sets.newHashSet();
-       
-            try {
-                final CSVParser parser = new CSVParser(new FileReader(this.stagingFilePath.toFile()), CSVFormat.TDF.withHeader());
-                Set<String> sampleSet = FluentIterable.from(parser).transform(new Function<CSVRecord, String>() {
-                    @Override
-                    public String apply(CSVRecord record) {
-                        return record.get(sampleIdColumnName);
-                    }
-                }).toSet();
-
-                processedSampleSet.addAll(sampleSet);
-            } catch (IOException ex) {
-                logger.error(ex.getMessage());
-            }
-      return processedSampleSet;
+        return super.resolveProcessedSampleSet(sampleIdColumnName);
     }
 
     /*

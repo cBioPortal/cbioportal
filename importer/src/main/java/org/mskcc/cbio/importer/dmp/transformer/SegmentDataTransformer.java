@@ -10,9 +10,7 @@ import org.mskcc.cbio.importer.dmp.model.DmpData;
 import org.mskcc.cbio.importer.dmp.model.Result;
 import org.mskcc.cbio.importer.dmp.model.SegmentData;
 import org.mskcc.cbio.importer.dmp.util.DMPCommonNames;
-import org.mskcc.cbio.importer.persistence.staging.MafFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.SegmentFileHandler;
-import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ListOfOncoPrintLangException;
 
 import javax.annotation.Nullable;
 import java.nio.file.Files;

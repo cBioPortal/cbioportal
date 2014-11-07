@@ -1,13 +1,7 @@
 package org.mskcc.cbio.importer.foundation.transformer;
 
 import com.google.common.base.*;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import com.google.common.collect.Table;
+import com.google.common.collect.*;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -22,6 +16,7 @@ import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.DSYNC;
 
 import java.util.*;
+import javax.annotation.Nullable;
 import javax.xml.bind.JAXBElement;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.foundation.jaxb.*;
@@ -36,7 +31,6 @@ import org.mskcc.cbio.importer.foundation.support.CommonNames;
 import org.mskcc.cbio.importer.model.FoundationMetadata;
 import org.mskcc.cbio.importer.persistence.staging.*;
 
-import org.mskcc.cbio.importer.util.GeneSymbolIDMapper;
 import scala.Tuple2;
 import scala.Tuple3;
 
@@ -66,7 +60,7 @@ public class FoundationXMLTransformerNew implements FileTransformer {
     private FoundationStagingFileManager fileManager;
     //TODO: move these to Spring config file
     // common file handler responsible for generating MAF files
-    private final MafFileHandler mafFileHandler = new MutationFileHandlerImpl();
+    private final TsvStagingFileHandler tsvStagingFileHandler = new MutationFileHandlerImpl();
     // common file handler for generating CNV files
     private final CnvFileHandler cnvFileHandler = new CnvFileHandlerImpl();
 
@@ -82,12 +76,11 @@ public class FoundationXMLTransformerNew implements FileTransformer {
 
     private final Config config;
 
-    public FoundationXMLTransformerNew(Config aConfig) {
+    public FoundationXMLTransformerNew(Config aConfig, IDMapper anIDMapper) {
         Preconditions.checkArgument(null != aConfig, "A Config object is required");
-
+        Preconditions.checkArgument(null != anIDMapper,"An IDMapper implementation  for gene id resolution is required");
         this.config = aConfig;
-        //TODO: make constructor argument
-        this.geneMapper = new GeneSymbolIDMapper();
+        this.geneMapper = anIDMapper;
     }
 
     /*
@@ -112,18 +105,17 @@ public class FoundationXMLTransformerNew implements FileTransformer {
                 "A FileDataSource for XML input files is required");
         Preconditions.checkArgument(!xmlSource.getFilenameList().isEmpty(),
                 "The FileDataSource does not contain any XML files");
-        // instantiate a new FoundationStagingFileManager
-        this.fileManager
-                = new FoundationStagingFileManager(Paths.get(xmlSource.getDirectoryName()));
-        // register the data source and column names with the maf file handler
-        //TODO: refactor file names to properties file
-        Path mafPath = Paths.get(xmlSource.getDirectoryName()).resolve("data_mutations_extended.txt");
-        this.mafFileHandler.registerMafStagingFile(mafPath,this.resolveColumnNames());
-        this.cnvFileHandler.initializeFilePath(Paths.get(xmlSource.getDirectoryName())
-                .resolve("data_CNA.txt"));
+        //initialize the file handlers responsible for generating staging files
+        initializeFileHandlers(xmlSource);
+        // process the XML files listed in the file data source
+        processFoundationFileDataSource(xmlSource);
+    }
 
+    private void processFoundationFileDataSource(FileDataSource xmlSource) {
         // the CNA table must be persisted across all the XML files in a study
         this.cnaTable = HashBasedTable.create();
+        // initialize the set of case ids
+        Set<String> caseIdSet = Sets.newHashSet();
         // process each xml file in the study's staging directory
         for (Path xmlPath : xmlSource.getFilenameList()) {
             Optional<FoundationMetadata> metadataOptional =
@@ -132,13 +124,42 @@ public class FoundationXMLTransformerNew implements FileTransformer {
                 this.casesTypeSupplier = Suppliers.memoize(new CasesTypeSupplier(xmlPath.toString(),
                         metadataOptional.get()));
                 this.processFoundationData();
+                // add the file's case ids to set of case ids for the study
+               caseIdSet.addAll(this.generateFoundationCaseSetForFile());
             } else {
                 logger.error("File "+ xmlPath.toString() +" cannot be associated with a cancer study");
             }
         }
         // the CNA report can only be generated after all the XML files have been processed
-        this.cnvFileHandler.persistCnvTable(cnaTable);
+        this.cnvFileHandler.persistCnvTable(this.cnaTable);
     }
+
+    private void initializeFileHandlers(FileDataSource xmlSource) {
+        this.fileManager
+                = new FoundationStagingFileManager(Paths.get(xmlSource.getDirectoryName()));
+        // register the data source and column names with the maf file handler
+        //TODO: refactor file names to properties file
+        Path mafPath = Paths.get(xmlSource.getDirectoryName()).resolve("data_mutations_extended.txt");
+
+        this.tsvStagingFileHandler.registerTsvStagingFile(mafPath, this.resolveColumnNames(),true);
+        this.cnvFileHandler.initializeFilePath(Paths.get(xmlSource.getDirectoryName())
+                .resolve("data_CNA.txt"));
+    }
+
+    /*
+    private method to generate the set of unique case (i.e. sample) ids found in the XML file
+     */
+    private Set<String> generateFoundationCaseSetForFile(){
+      return  FluentIterable.from(this.casesTypeSupplier.get().getCase())
+                .transform(new Function<CaseType,String>() {
+                    @Nullable
+                    @Override
+                    public String apply(@Nullable CaseType caseType) {
+                        return caseType.getCase();
+                    }
+                }).toSet();
+    }
+
     // resolve the FoundationMetadata object for this study
     private Optional<FoundationMetadata> resolveFoundationMetadataFromXMLFilename(final String filename) {
         final Collection<FoundationMetadata> mdc = config.getFoundationMetadata();
@@ -149,13 +170,15 @@ public class FoundationXMLTransformerNew implements FileTransformer {
                     public boolean apply(final FoundationMetadata meta) {
                         List<String> fl = FluentIterable.from(fileList).filter(meta.getRelatedFileFilter()).toList();
                         return (!fl.isEmpty());
-
                     }
                 });
-
     }
 
-
+    /*
+    private method to strip off the numeric prefix used for map sorting
+    from the attribute name
+    TODO: move to utility class
+     */
     private List<String> resolveColumnNames() {
         return FluentIterable.from(this.transformationMaprSupplier.get().keySet())
                 .transform(new Function<String, String>() {
@@ -304,7 +327,7 @@ public class FoundationXMLTransformerNew implements FileTransformer {
     private void generateDatMutationsExtendedReport() {
         // add the sample id to each short variant
         List<ShortVariantType> svtList =this.transformShortVariants();
-        this.mafFileHandler.transformImportDataToStagingFile(svtList, transformationFunction);
+        this.tsvStagingFileHandler.transformImportDataToTsvStagingFile(svtList, transformationFunction);
 
     }
 

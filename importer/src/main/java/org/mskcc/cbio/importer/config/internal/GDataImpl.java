@@ -103,7 +103,7 @@ class GDataImpl implements Config {
      * @param clinicalAttributesWorksheet String
      * @param portalsWorksheet String
      * @param referenceDataWorksheet String
-     * @param dataSourceseWorksheet String
+     * @param dataSourcesWorksheet String
      * @param cancerStudiesWorksheet String
      * @param foundationWorksheet String
      * @param icgcWorksheet String
@@ -160,7 +160,7 @@ class GDataImpl implements Config {
      * Gets a TumorTypeMetadata object via tumorType. If tumorType ==
      * Config.ALL, all are returned.
      *
-     * @param tumortype String
+     * @param tumorType String
      * @return TumorTypeMetadata
      */
     @Override
@@ -410,7 +410,7 @@ class GDataImpl implements Config {
      * Gets a collection of ClinicalAttributesNamespace. If
      * clinicalAttributeNamespaceColumnHeader == Config.ALL, all are returned.
      *
-     * @param clinicalAttributeNamespaceColumnHeader String
+     * @param clinicalAttributesNamespaceColumnHeader String
      * @return Collection<ClinicalAttributesNamespace>
      */
     @Override
@@ -446,7 +446,7 @@ class GDataImpl implements Config {
      * Gets a collection of ClinicalAttributesMetadata. If
      * clinicalAttributeColumnHeader == Config.ALL, all are returned.
      *
-     * @param clinicalAttributeColumnHeader String
+     * @param clinicalAttributesColumnHeader String
      * @return Collection<ClinicalAttributesMetadata>
      */
     @Override
@@ -567,7 +567,7 @@ class GDataImpl implements Config {
     /**
      * Gets a PortalMetadata object given a portal name.
      *
-     * @param portal String
+     * @param portalName String
      * @return Collection<PortalMetadata>
      */
     @Override
@@ -674,7 +674,7 @@ class GDataImpl implements Config {
     /**
      * Gets all the cancer studies for a given portal.
      *
-     * @param portal String
+     * @param portalName String
      * @return Collection<CancerStudyMetadata>
      */
     @Override
@@ -757,7 +757,7 @@ class GDataImpl implements Config {
     /**
      * Gets a CancerStudyMetadata for the given cancer study.
      *
-     * @param cancerStudy String - fully qualified path as entered on worksheet,
+     * @param cancerStudyName String - fully qualified path as entered on worksheet,
      * e.g.: prad/mskcc/foundation
      * @return CancerStudyMetadata or null if not found
      */
@@ -907,7 +907,7 @@ class GDataImpl implements Config {
      * list of string lists.
      *
      * @param spreadsheetName String
-     * @param worksheet String
+     * @param worksheetName String
      * @return ArrayList<ArrayList<String>>
      */
     private ArrayList<ArrayList<String>> getWorksheetData(String spreadsheetName, String worksheetName) {
@@ -967,8 +967,8 @@ class GDataImpl implements Config {
      * @param worksheetName String
      * @param insertRow boolean
      * @param keyColumn String
-     * @param key String
-     * @param propertyMap Map<String,String>
+     * @param keyValue String
+     * @param properties Map<String,String>
      */
     private void updateWorksheet(String spreadsheetName, String worksheetName,
             boolean insertRow, String keyColumn, String keyValue,

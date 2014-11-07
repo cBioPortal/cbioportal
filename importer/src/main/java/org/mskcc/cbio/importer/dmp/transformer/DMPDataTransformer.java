@@ -18,7 +18,6 @@
 package org.mskcc.cbio.importer.dmp.transformer;
 
 import com.google.common.collect.FluentIterable;
-import com.google.inject.internal.Function;
 import com.google.inject.internal.Lists;
 import com.google.inject.internal.Preconditions;
 import java.nio.file.Files;
@@ -26,7 +25,6 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.List;
 
-import org.apache.commons.csv.CSVRecord;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.dmp.model.DmpData;
 import org.mskcc.cbio.importer.dmp.model.Result;

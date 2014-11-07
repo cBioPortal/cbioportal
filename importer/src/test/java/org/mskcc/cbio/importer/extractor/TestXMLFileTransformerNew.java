@@ -25,6 +25,7 @@ import org.mskcc.cbio.importer.foundation.extractor.FileDataSource;
 import org.mskcc.cbio.importer.foundation.transformer.FoundationXMLTransformer;
 import org.mskcc.cbio.importer.foundation.transformer.FoundationXMLTransformerNew;
 import org.mskcc.cbio.importer.model.*;
+import org.mskcc.cbio.importer.util.GeneSymbolIDMapper;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -48,7 +49,7 @@ public class TestXMLFileTransformerNew {
                 }
             };
             FileDataSource fds = new FileDataSource("/tmp/foundation/dlbc/mskcc/foundation", xmlFileExtensionFilter);
-            FoundationXMLTransformerNew transformer = new FoundationXMLTransformerNew(config);
+            FoundationXMLTransformerNew transformer = new FoundationXMLTransformerNew(config,  new GeneSymbolIDMapper());
             transformer.transform(fds);
         } catch (IOException ex) {
             logger.error(ex.getMessage());

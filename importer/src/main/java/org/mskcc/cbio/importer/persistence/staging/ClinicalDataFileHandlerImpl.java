@@ -30,7 +30,7 @@ import java.util.List;
 wrapper for TsvStagingFileHandler that provides context specific parameter
 validation and messages
 */
-public class ClinicalDataFileHandlerImpl extends TsvStagingFileHandler 
+public class ClinicalDataFileHandlerImpl extends TsvStagingFileProcessor
     implements ClinicalDataFileHandler {
      
     public ClinicalDataFileHandlerImpl() {} // default constructor
@@ -44,7 +44,7 @@ public class ClinicalDataFileHandlerImpl extends TsvStagingFileHandler
                    "Column headings are required for the new clinical data  file: " 
                            +cdFilePath.toString());
        }
-           super.registerStagingFile(cdFilePath, columnHeadings);
+           super.registerStagingFile(cdFilePath, columnHeadings,true);
     }
 
     @Override

@@ -19,10 +19,8 @@ package org.mskcc.cbio.importer.persistence.staging;
 
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
-import com.google.common.collect.FluentIterable;
 import com.google.inject.internal.Preconditions;
-import com.google.inject.internal.Sets;
-import java.io.FileReader;
+
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -35,15 +33,13 @@ import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.DSYNC;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
+
 import org.apache.log4j.Logger;
 /*
 public class responsible for managing input/output operations with a
 collection of MAF staging files belonging to specified study
 */
-public  class MutationFileHandlerImpl extends TsvStagingFileHandler  implements MafFileHandler{
+public  class MutationFileHandlerImpl extends TsvStagingFileProcessor implements TsvStagingFileHandler {
 
     private final static Logger logger = Logger.getLogger(MutationFileHandlerImpl.class);
      
@@ -56,17 +52,28 @@ public  class MutationFileHandlerImpl extends TsvStagingFileHandler  implements 
     will be written as the first line
     */
      @Override
-    public void registerMafStagingFile(Path mafFilePath, List<String> columnHeadings) {
-        Preconditions.checkArgument(null != mafFilePath, "A Path object referencing the MAF file is required");
-       if (!Files.exists(mafFilePath, LinkOption.NOFOLLOW_LINKS)) {
+    public void registerTsvStagingFile(Path stagingFilePath, List<String> columnHeadings) {
+        Preconditions.checkArgument(null != stagingFilePath, "A Path object referencing the MAF file is required");
+       if (!Files.exists(stagingFilePath, LinkOption.NOFOLLOW_LINKS)) {
            Preconditions.checkArgument(null != columnHeadings && !columnHeadings.isEmpty(),
-                   "Column headings are required for the new MAF file: " +mafFilePath.toString());
+                   "Column headings are required for the new MAF file: " + stagingFilePath.toString());
            
        }
-      super.registerStagingFile(mafFilePath, columnHeadings);
+      super.registerStagingFile(stagingFilePath, columnHeadings,false);
     }
 
-     public Set<String> resolveProcessedSampleSet(final String sampleIdColumnName) {
+    @Override
+    public void registerTsvStagingFile(Path stagingFilePath, List<String> columnHeadings, boolean deleteFile) {
+        if (!Files.exists(stagingFilePath, LinkOption.NOFOLLOW_LINKS)) {
+            Preconditions.checkArgument(null != columnHeadings && !columnHeadings.isEmpty(),
+                    "Column headings are required for the new MAF file: " + stagingFilePath.toString());
+
+        }
+        super.registerStagingFile(stagingFilePath, columnHeadings,deleteFile);
+    }
+
+
+    public Set<String> resolveProcessedSampleSet(final String sampleIdColumnName) {
         // process all the DMP staging data in the specified Path as tab-delimited text
         // sample ids are assumed to be in a specified  named column
         // 
@@ -82,7 +89,7 @@ public  class MutationFileHandlerImpl extends TsvStagingFileHandler  implements 
      if the file does not exists, it will be created
      */
     @Override
-    public void appendMafDataToStagingFile( List<String> mafData) {
+    public void appendDataToTsvStagingFile(List<String> mafData) {
         
         Preconditions.checkArgument(null != mafData && !mafData.isEmpty(),
                 "A valid List of MAF data is required");
@@ -103,8 +110,8 @@ public  class MutationFileHandlerImpl extends TsvStagingFileHandler  implements 
      */
 
     @Override
-    public void transformImportDataToStagingFile( List aList,
-            Function transformationFunction) {
+    public void transformImportDataToTsvStagingFile(List aList,
+                                                    Function transformationFunction) {
 
         super.transformImportDataToStagingFile(aList, transformationFunction);
     }
@@ -117,8 +124,8 @@ public  class MutationFileHandlerImpl extends TsvStagingFileHandler  implements 
      data for the specified samples
      */
     @Override
-    public void removeDeprecatedSamplesFomMAFStagingFiles(final String sampleIdColumnName, final Set<String> deprecatedSampleSet) {
-        super.removeDeprecatedSamplesFomMAFStagingFiles(sampleIdColumnName, deprecatedSampleSet);
+    public void removeDeprecatedSamplesFomTsvStagingFiles(final String sampleIdColumnName, final Set<String> deprecatedSampleSet) {
+        super.removeDeprecatedSamplesFomTsvStagingFiles(sampleIdColumnName, deprecatedSampleSet);
 
         }
     }

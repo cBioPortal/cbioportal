@@ -28,14 +28,13 @@ import com.google.common.base.Suppliers;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.dmp.model.DmpData;
@@ -45,7 +44,7 @@ import org.mskcc.cbio.importer.dmp.model.Result;
 import org.mskcc.cbio.importer.dmp.util.DMPCommonNames;
 import org.mskcc.cbio.importer.dmp.util.DmpUtils;
 import org.mskcc.cbio.importer.dmp.util.EntrezIDSupplier;
-import org.mskcc.cbio.importer.persistence.staging.MafFileHandler;
+import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
 import scala.Tuple2;
 import scala.Tuple3;
 
@@ -56,7 +55,7 @@ import scala.Tuple3;
  */
 public class DmpSnpTransformer implements DMPDataTransformable {
     
-    private final MafFileHandler fileHandler;
+    private final TsvStagingFileHandler fileHandler;
     private final static Logger logger = Logger.getLogger(DmpSnpTransformer.class);
     private static final Joiner tabJoiner = Joiner.on('\t').useForNull(" ");
     private static final String mutationsFileName = "data_mutations_extended.txt";
@@ -64,7 +63,7 @@ public class DmpSnpTransformer implements DMPDataTransformable {
     private final Supplier<Map<String, Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>>>> transformationMaprSupplier
             = Suppliers.memoize(new DMPMutationsTransformationMapSupplier());
     
-    public DmpSnpTransformer(MafFileHandler aHandler, Path stagingDirectoryPath) {
+    public DmpSnpTransformer(TsvStagingFileHandler aHandler, Path stagingDirectoryPath) {
         Preconditions.checkArgument(null != aHandler, "A MafFileHandler implementation is required");
         Preconditions.checkArgument(null != stagingDirectoryPath,
                 "A Path to the staging file directory is required");
@@ -74,7 +73,7 @@ public class DmpSnpTransformer implements DMPDataTransformable {
                 "The specified Path: " + stagingDirectoryPath + " is not writable");
         this.fileHandler = aHandler;
         // initialize the MAF file handler for DMP SNP data
-        aHandler.registerMafStagingFile(stagingDirectoryPath.resolve(mutationsFileName),
+        aHandler.registerTsvStagingFile(stagingDirectoryPath.resolve(mutationsFileName),
                 this.resolveColumnNames());
     }
 
@@ -120,7 +119,7 @@ public class DmpSnpTransformer implements DMPDataTransformable {
 
         // remove any deprecated Samples
         if (!deprecatedSamples.isEmpty()) {
-            this.fileHandler.removeDeprecatedSamplesFomMAFStagingFiles(DMPCommonNames.SAMPLE_ID_COLUMN_NAME, deprecatedSamples);
+            this.fileHandler.removeDeprecatedSamplesFomTsvStagingFiles(DMPCommonNames.SAMPLE_ID_COLUMN_NAME, deprecatedSamples);
         }
         for (Result result : data.getResults()) {
             this.processSnps(result);
@@ -148,7 +147,7 @@ public class DmpSnpTransformer implements DMPDataTransformable {
                 }).toList();
         // invoke the transformation function on each snp and output to a file
         if (!transformedSnpList.isEmpty()) {
-            this.fileHandler.transformImportDataToStagingFile(transformedSnpList, transformationFunction);
+            this.fileHandler.transformImportDataToTsvStagingFile(transformedSnpList, transformationFunction);
         }
     }
 

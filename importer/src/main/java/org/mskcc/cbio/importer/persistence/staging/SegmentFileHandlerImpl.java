@@ -5,22 +5,14 @@ import com.google.common.collect.Lists;
 import com.google.inject.internal.Preconditions;
 import org.apache.log4j.Logger;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
-import static java.nio.file.StandardOpenOption.APPEND;
-import static java.nio.file.StandardOpenOption.CREATE;
-import static java.nio.file.StandardOpenOption.DSYNC;
 
 /**
  * Created by criscuof on 10/28/14.
  */
-public class SegmentFileHandlerImpl extends TsvStagingFileHandler implements SegmentFileHandler{
+public class SegmentFileHandlerImpl extends TsvStagingFileProcessor implements SegmentFileHandler{
     private final static Logger logger = Logger.getLogger(SegmentFileHandlerImpl.class);
     private static final List<String> columnHeadings = Lists.newArrayList("ID", "chrom","loc.start", "loc.end", "num.mark", "seg.means");
 
@@ -36,14 +28,14 @@ public class SegmentFileHandlerImpl extends TsvStagingFileHandler implements Seg
     public void registerSegmentStagingFile(Path segmentFilePath) {
         Preconditions.checkArgument(null != segmentFilePath,
                 "A Path object is required to write out the segment data staging file");
-        super.registerStagingFile(segmentFilePath, columnHeadings);
+        super.registerStagingFile(segmentFilePath, columnHeadings,true);
     }
 
 
 
     @Override
     public void removeDeprecatedSamplesFromSegmentStagingFiles(String sampleIdColumnName, Set<String> deprecatedSampleSet) {
-        super.removeDeprecatedSamplesFomMAFStagingFiles(sampleIdColumnName, deprecatedSampleSet);
+        super.removeDeprecatedSamplesFomTsvStagingFiles(sampleIdColumnName, deprecatedSampleSet);
     }
 
     @Override

@@ -77,6 +77,11 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
                     "HETLOSS": "HEMIZYGOUSLYDELETED",
                     "HOMDEL": "HOMODELETED"
                 };
+                
+                var mrna_threshold_mapping = {
+                    "UP": "UPREGULATED",
+                    "DOWN": "DOWNREGULATED"
+                };
 
                 // maps cna values of GAINED, HEMIZYGOUSLYDELETED to DIPLOID, using the above map,
                 // returning a new object with modified cna values
@@ -87,8 +92,18 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
                     e.cna = cna_threshold_mapping[e.cna];
                     return e;
                 }
+                
+                function mrna_threshold(d) {
+                    if (!d.mrna) { return d; }
+                    //if (d.mutation !== "UP" && d.mutation !== "DOWN") { return d; }
+                    var e = _.clone(d);
+                    e.mrna = mrna_threshold_mapping[e.mrna];
 
-                return _.map(data, cna_threshold);
+                    return e;
+                }
+                var aftercna = _.map(data, cna_threshold);
+                var result = _.map(aftercna, mrna_threshold);
+                return result;
             }());
 
             // set up oncoprint params

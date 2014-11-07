@@ -99,7 +99,7 @@
     </div>  
      --%>  
                   
-    <div id="oncoprinter_control_panel"><p> Altered in of cases
+    <div id="oncoprinter_control_panel"><p>
         <span class='oncoprinter-diagram-toolbar-buttons' style="float:right;margin-right:50px;display: none;">
 
         <img id="oncoprinter_diagram_showmutationcolor_icon" checked="0" style="width: 12px; height: 12px" class="oncoprinter_diagram_showmutationcolor_icon" src="images/uncolormutations.svg">

@@ -75,8 +75,8 @@
                             </li>
                             <li>mRNA expression - please use one of the four events below: 
                                 <ul>
-                                    <li>UPREGULATED: expression up</li>
-                                    <li>DOWNREGULATED: expression down</li>
+                                    <li>UP: expression up</li>
+                                    <li>DOWN: expression down</li>
                                 </ul>
                             </li>
                         </ul>

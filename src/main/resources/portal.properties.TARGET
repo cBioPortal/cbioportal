@@ -116,3 +116,6 @@ broad.bam.checking.url=
 
 # temp dir
 temporary_dir=/tmp
+
+# oncokb
+oncokb.url=

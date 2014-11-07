@@ -148,6 +148,7 @@ app.factory('DataManager', ['$http', '$q', function ($http, $q) {
         var initPromise = $q.defer();
 
         /* Initialization */
+        
         $http.get('portal_meta_data.json?partial_studies=true&partial_genesets=true').success(function (json) {
             angular.forEach(json.cancer_studies, function (value, key) {
                 _cancerStudies[key] = value;
@@ -669,10 +670,19 @@ app.controller('mainController', ['$location', '$interval', '$q', '$scope', 'Dat
         }
         angular.element(document).ready(function () {
             // wait for datamanager to initialize before doing anything
+            dataman.getAllCancerTypes(function(data){
+                $scope.appVars.vars.types_of_cancer = data;
+            });
+            dataman.getAllStudies(function(data){
+                $scope.appVars.vars.cancer_study_stubs = data;
+            });
+            dataman.getAllGeneSets(true, function(data) {
+                $scope.appVars.vars.gene_set_stubs = data;
+            });
             DataManager.initPromise.then(function () {
                 $scope.syncedFromUrl = $scope.syncFromUrl();
                 $interval($scope.syncToUrl, 1000);
-                DataManager.typesOfCancer().then(function (toc) {
+                /*DataManager.typesOfCancer().then(function (toc) {
                     $scope.appVars.vars.types_of_cancer = toc;
                 });
                 DataManager.cancerStudyStubs().then(function (ccs) {
@@ -680,7 +690,7 @@ app.controller('mainController', ['$location', '$interval', '$q', '$scope', 'Dat
                 });
                 DataManager.geneSetStubs().then(function (gss) {
                     $scope.appVars.vars.gene_set_stubs = gss;
-                });
+                });*/
                 $scope.$watch('formVars.cancer_study_id', function () {
                     var av = $scope.appVars.vars;
                     $scope.appVars.updateStudyInfo($scope.formVars.cancer_study_id);

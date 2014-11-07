@@ -86,6 +86,7 @@ cbio = (function() {
 			samples: samplesMeta,
 			studies: studiesMeta,
 			patientLists: patientListsMeta,
+                        geneSets: geneSetsMeta,
 			profiles: profilesMeta,
 			clinicalPatients: clinicalPatientsMeta,
 			clinicalSamples: clinicalSamplesMeta,

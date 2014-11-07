@@ -1,11 +1,52 @@
 var log = function(data) { console.log(data); };
 dataman = (function() {
-	// TODO: put 'all' into fraemwork of caches so you dont need additional history object
-	// DELETE:
-	var missingKeys = function(){ return 0;};
-	var mapSlice = function() { return 0;};
-	// end DELETE
 	// CLASS DEFS
+        var DataFormatter = function(){
+            var structureHelper = function(hierarchy, data) {
+                var ret = {};
+                var key = hierarchy[0];
+                if (hierarchy.length === 1) {
+                    // bottom of tree
+                    for (var i=0; i<data.length; i++) {
+                        ret[data[i][key]] = ret[data[i][key]] || [];
+                        ret[data[i][key]].push(data[i]);
+                    }
+                } else {
+                    // haven't reached bottom - keep recursing
+                    var buckets = {};
+                    // gather
+                    for (var i=0; i<data.length; i++) {
+                        buckets[data[i][key]] = buckets[data[i][key]] || [];
+                        buckets[data[i][key]].push(data[i]);
+                    }
+                    // recurse
+                    var newhier = hierarchy.slice(1,hierarchy.length);
+                    for (var v in buckets) {
+                        ret[v] = structureHelper(newhier, buckets[v]);
+                    }
+                }
+                return ret;
+            };
+            var formatHelper = function(template, datum) {
+                var ret = {};
+                for (var k in template) {
+                    ret[k] = template[k](datum);
+                }
+                return ret;
+            };
+            return {
+                format: function(template, data) {
+                    var ret = [];
+                    for (var i=0; i<data.length; i++) {
+                        ret.push(formatHelper(template, data[i]));
+                    }
+                    return ret;
+                },
+                structure:function(hierarchy, data) {
+                    return structureHelper(hierarchy, data);
+                }
+            }
+        };
 	function Cache() {
 		this.data = [];
 		this.indexes = {};
@@ -167,14 +208,6 @@ dataman = (function() {
 	cache.meta.studies.addIndex('internal_id', function(x) { return x.internal_id;}, Index.mapType.ONE_TO_ONE);
 	cache.meta.studies.addIndex('stable_id', function(x) { return x.id;}, Index.mapType.ONE_TO_ONE);
 
-	cache.meta.patientLists.addIndex('stable_id', function(x) { return x.id;}, Index.mapType.ONE_TO_ONE);
-	cache.meta.patientLists.addIndex('internal_id', function(x) { return x.internal_id;}, Index.mapType.ONE_TO_ONE);
-	cache.meta.patientLists.addIndex('study', function(x) { return x.internal_study_id;}, Index.mapType.ONE_TO_MANY);
-	
-	cache.data.patientLists.addIndex('stable_id', function(x) { return x.id;}, Index.mapType.ONE_TO_ONE);
-	cache.data.patientLists.addIndex('internal_id', function(x) { return x.internal_id;}, Index.mapType.ONE_TO_ONE);
-	cache.data.patientLists.addIndex('internal_study_id', function(x) { return x.internal_study_id;}, Index.mapType.ONE_TO_MANY);
-
 	cache.meta.profiles.addIndex('internal_id', function(x) { return x.internal_id;}, Index.mapType.ONE_TO_ONE);
 	cache.meta.profiles.addIndex('stable_id', function(x) { return x.id;}, Index.mapType.ONE_TO_ONE);
 	cache.meta.profiles.addIndex('study', function(x) { return x.internal_study_id;}, Index.mapType.ONE_TO_MANY);
@@ -297,6 +330,7 @@ dataman = (function() {
 			}, fail);
 		}
 	}
+        
 	// -- meta.samples --
 	var getSamplesByStableStudyId = function(study_ids, callback, fail) {
 		cbio.meta.studies({'ids': study_ids}, function(data) {
@@ -383,33 +417,28 @@ dataman = (function() {
 	}
 
 
-	// -- meta.patientlists --
-	//TODO: HANDLE CACHING CORRECTLY - ITS FUCKED UP NOW BECAUSE OF OMIT LISTS AND STUFF
+        // -- meta.geneSets --
+        //TODO: caching
+        var getAllGeneSets = function(omit_lists, callback, fail) {
+            cbio.meta.geneSets({'omit_lists':omit_lists}, callback, fail);
+        }
+        var getGeneSetsById = function(ids, omit_lists, callback, fail) {
+            cbio.meta.geneSets({'ids':ids, 'omit_lists':omit_lists}, callback, fail);
+        }
+            
+	// -- meta.patientLists --
+	//TODO: caching
 	var getAllPatientLists = function(omit_lists, callback, fail) {
-		// TODO?: caching
-		var namespace = (omit_lists? cbio.meta : cbio.data);
-		namespace.patientLists({},callback, fail);
-	}
-	var getPatientListsHelper = function(omit_lists, indexName, updateIndexes, argname, argval, callback, fail) {
-		var index = cache.meta.patientLists.indexes[indexName];
-		var toQuery = index.missingKeys(argval);
-		if (toQuery.length === 0) {
-			callback(index.get(argval));
-		} else {
-			cbio.meta.patientLists({'omit_lists':omit_lists, argname: argval}, function(data) {
-				cache.meta.patientLists.addData(data, updateIndexes);
-				callback(index.get(argval));
-			}, fail);
-		}
+            cbio.meta.patientLists({'omit_lists':omit_lists}, callback, fail);
 	}
 	var getPatientListsByStableId = function(omit_lists, patient_list_ids, callback, fail) {
-		getPatientListsHelper(omit_lists, 'stable_id', ['internal_id', 'stable_id'], 'patient_list_ids', ['internal_id', 'stable_id'], patient_list_ids, callback, fail);
+            cbio.meta.patientLists({'omit_lists':omit_lists, 'patient_list_ids':patient_list_ids}, callback, fail);
 	}
 	var getPatientListsByInternalId = function(omit_lists, patient_list_ids, callback, fail) {
-		getPatientListsHelper(omit_lists, 'internal_id', ['internal_id', 'stable_id'], 'patient_list_ids',  patient_list_ids, callback, fail);
+            cbio.meta.patientLists({'omit_lists':omit_lists, 'patient_list_ids':patient_list_ids}, callback, fail);
 	}
 	var getPatientListsByStudy = function(omit_lists, study_ids, callback, fail) {
-		getPatientListsHelper(omit_lists, 'study', null, 'study_ids', study_ids, callback, fail);
+            cbio.meta.patientLists({'omit_lists':omit_lists, 'study_ids':study_ids}, callback, fail);
 	}
 
 	// -- meta.profiles --
@@ -430,7 +459,9 @@ dataman = (function() {
 		if (toQuery.length === 0) {
 			callback(index.get(ids));
 		} else {
-			cbio.meta.profiles({argname: ids}, function(data) {
+                    var args = {};
+                    args[argname] = ids;
+			cbio.meta.profiles(args, function(data) {
 				cache.meta.profiles.addData(data, updateIndexes);
 				callback(index.get(ids));
 			}, fail);
@@ -688,9 +719,6 @@ dataman = (function() {
 				})(gene);
 			}
 		}
-		// filter only data that we desire
-
-
 	}
 	var getProfileDataByPatientListId = function(genes, profile_ids, patient_list_ids, callback, fail) {
 		//TODO: caching
@@ -699,6 +727,7 @@ dataman = (function() {
 
 	return {
 		cache: cache,
+                df: new DataFormatter(),
 		getAllCancerTypes: getAllCancerTypes,
 		getCancerTypesById: getCancerTypesById,
 
@@ -726,6 +755,9 @@ dataman = (function() {
 		getPatientListsByStableId: getPatientListsByStableId,
 		getPatientListsByInternalId: getPatientListsByInternalId,
 		getPatientListsByStudy: getPatientListsByStudy,
+                
+                getAllGeneSets: getAllGeneSets,
+                getGeneSetsById: getGeneSetsById,
 
 		getAllProfiles: getAllProfiles,
 		getProfilesByStableId: getProfilesByStableId,
@@ -756,9 +788,6 @@ dataman = (function() {
 		getClinicalSampleDataByInternalId: getClinicalSampleDataByInternalId,
 		getClinicalSampleDataByStableId: getClinicalSampleDataByStableId,
 
-		getAllProfileData: getAllProfileData,
-		getProfileDataByPatientId: getProfileDataByPatientId,
-		getProfileDataByPatientListId: getProfileDataByPatientListId,
 	};
 
 })();

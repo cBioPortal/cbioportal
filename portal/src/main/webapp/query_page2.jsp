@@ -117,6 +117,8 @@
         <script type="text/javascript" src="js/src/query-page/ui-bootstrap-tpls-0.11.2.min.js"></script>
         <script type="text/javascript" src="js/lib/chosen.jquery.angular.js"></script>
         <script type="text/javascript" src="js/lib/chosen-angular.js"></script>
+        <script type="text/javascript" src="js/api/cbioportal-webservice.js"></script>
+        <script type="text/javascript" src="js/api/cbioportal-datamanager.js"></script>
         
         <script type="text/javascript" src="js/lib/oql-parser.js"></script>
         <script type="text/javascript" src="js/lib/oql.js"></script>

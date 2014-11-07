@@ -158,10 +158,10 @@
                                             _tip = '';
                                     
                                         if(_gene.summary) {
-                                            _tip += '<b>Summary</b><br/>' + _gene.summary + '<br/>';
+                                            _tip +=  _gene.summary;
                                         }
                                         if(_gene.background) {
-                                            _tip += '<b>Background</b><br/>' + _gene.background + '<br/>';
+                                            _tip += '<br/><div><a class="oncokb_background">More Info</a><br/><span style="display:none">' + _gene.background + '</span></div>';
                                         }
                                         ret += "&nbsp;<span class='"+table_id+"-tip' alt='"+_tip+"'><img width='12' height='12' src='images/file.svg'/></span>";
                                     }
@@ -195,7 +195,7 @@
                                             _tip += '<b>'+_alterations[i].knownEffect + '</b><br/>' + _alterations[i].description + '<br/>';
                                         }
                                         if (mutations.getValue(source[0], 'oncokb').oncogenic){
-                                            _tip += '<a target="_blank" href="'+oncokbUrl+'#/variant?hugoSymbol='+mutations.getValue(source[0], 'gene')+'&alteration='+mutations.getValue(source[0], 'aa')+'">More Info on OnckKB</a>';
+                                            _tip += '<br/><a target="_blank" href="'+oncokbUrl+'#/variant?hugoSymbol='+mutations.getValue(source[0], 'gene')+'&alteration='+mutations.getValue(source[0], 'aa')+'">More Info on OncoKB</a>';
                                         }
                                         ret += "&nbsp;<span class='"+table_id+"-tip' alt='"+_tip+"'><img width='12' height='12' src='images/file.svg'/></span>";
                                     }
@@ -813,6 +813,7 @@
                     addNoteTooltip("."+table_id+"-ma-tip",null,{my:'top right',at:'bottom center',viewport: $(window)});
                     addDrugsTooltip("."+table_id+"-drug-tip", 'top right', 'bottom center');
                     addCosmicTooltip(table_id);
+                    addOncoKBlistener(table_id);
                     listenToBamIgvClick(".igv-link");
                     drawPanCanThumbnails(this);
                 },
@@ -837,6 +838,15 @@
 //        });
 
         return oTable;
+    }
+    
+    function addOncoKBlistener(table_id){
+        $('.'+table_id+'-tip').hover(function(){
+            $(".oncokb_background").click(function() {
+                $(this).css('display', 'none');
+                $(this).parent().find('span').css('display', 'block');
+            });
+        });
     }
     
     function listenToBamIgvClick(elem) {

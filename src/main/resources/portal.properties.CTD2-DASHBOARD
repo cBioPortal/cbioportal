@@ -133,3 +133,6 @@ broad.bam.checking.url=
 
 # temp dir
 temporary_dir=/tmp
+
+# oncokb
+oncokb.url=http://miso-dev.cbio.mskcc.org:28080/oncokb/

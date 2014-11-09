@@ -43,7 +43,10 @@ var Plots = (function(){
             genetic_profile_dna_methylation : []
         },
         genetic_profiles = {},
-        clinical_attributes = [],
+        clinical = {
+            attributes: [],
+            data: []
+        },
         log_scale_threshold_down = 0.17677669529, 
         //log_scale_threshold_up = 1024;  // -2.5 to 10
         log_scale_threshold_up = 1.2676506e+30;
@@ -82,7 +85,8 @@ var Plots = (function(){
     }
     
     function getClinicalAttrCallBack(result) {
-        clinical_attributes = result.attributes;
+        clinical.attributes = result.attributes;
+        clinical.data = result.data;
         initViews();
     }
         
@@ -215,7 +219,16 @@ var Plots = (function(){
             proxy.getMutationData(gene, callback_func);
         },
         getClinicalAttributes: function() {
-            return clinical_attributes;
+            return clinical.attributes;
+        },
+        getClinicalData: function(sampleId, attributeId) {
+            var _result = "NaN";
+            $.each(clinical.data, function(index, obj) {
+                if (obj.attr_id === attributeId && obj.sample === sampleId) {
+                    _result = obj.attr_val;
+                }
+            });
+            return _result;
         },
         addxAxisHelp: addxAxisHelp,
         addyAxisHelp: addyAxisHelp,

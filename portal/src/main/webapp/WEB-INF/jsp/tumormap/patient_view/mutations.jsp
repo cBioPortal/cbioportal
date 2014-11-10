@@ -35,7 +35,7 @@
                         _tip +=  gene.summary;
                     }
                     if(gene.background) {
-                        _tip += '<br/><div><a class="oncokb_background">More Info</a><br/><span style="display:none">' + gene.background + '</span></div>';
+                        _tip += '<br/><div><span class="oncokb_moreInfo"><br/><a>More Info</a><i style="float:right">Powered by OncoKB(Beta)</i></span><br/><span class="oncokb_background" style="display:none">' + gene.background + '<br/><i style="float:right">Powered by OncoKB(Beta)</i></span></div>';
                     }
                     if(_tip !== '') {
                         $(this).css('display', '');
@@ -57,7 +57,7 @@
                             _tip += '<b>'+_alterations[i].knownEffect + '</b><br/>' + _alterations[i].description + '<br/>';
                         }
                         if (genomicEventObs.mutations.getValue(hashId, 'oncokb').oncogenic){
-                            _tip += '<br/><a target="_blank" href="'+oncokbUrl+'#/variant?hugoSymbol='+genomicEventObs.mutations.getValue(hashId, 'gene')+'&alteration='+genomicEventObs.mutations.getValue(hashId, 'aa')+'">More Info on OncoKB</a>';
+                            _tip += '<br/><a target="_blank" href="'+oncokbUrl+'#/variant?hugoSymbol='+genomicEventObs.mutations.getValue(hashId, 'gene')+'&alteration='+genomicEventObs.mutations.getValue(hashId, 'aa')+'">More Info on OncoKB</a><span style="float:right"><i>Powered by OncoKB(Beta)</i></span>';
                         }
                     
                         if(_tip !== '') {
@@ -874,9 +874,9 @@
     
     function addOncoKBlistener(table_id){
         $('.oncokb').hover(function(){
-            $(".oncokb_background").click(function() {
+            $(".oncokb_moreInfo").click(function() {
                 $(this).css('display', 'none');
-                $(this).parent().find('span').css('display', 'block');
+                $(this).parent().find('.oncokb_background').css('display', 'block');
             });
         });
     }

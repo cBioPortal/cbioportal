@@ -486,7 +486,7 @@ app.factory('DataManager', ['$http', '$q', function ($http, $q) {
  */
 app.factory('FormVars', function () {
     var defaults = {
-        cancer_study_id: 'all',
+        cancer_study_id: 0,
         data_priority: 'pri_mutcna',
         case_set_id: '-1',
         custom_case_list: '',
@@ -495,25 +495,20 @@ app.factory('FormVars', function () {
         genomic_profiles: {},
         z_score_threshold: '',
         rppa_score_threshold: '',
-    }
-
-    return {
-        cancer_study_id: 'all',
-        data_priority: 'pri_mutcna',
-        case_set_id: '-1',
-        custom_case_list: '',
-        oql_query: '',
-        genomic_profiles: {},
-        z_score_threshold: '',
-        rppa_score_threshold: '',
         z_score_threshold_type: '>=',
         rppa_score_threshold_type: '<=',
+    }
+
+    var ret = {
+        cancer_study_id:0,
         clear: function () {
             for (var member in defaults) {
                 this[member] = defaults[member];
             }
         }
     };
+    ret.clear();
+    return ret;
 });
 
 /**
@@ -554,7 +549,8 @@ app.factory('AppVars', ['$rootScope', 'FormVars', 'DataManager', '$q', function 
             cancer_study_stubs: cancer_study_stubs,
             cancer_studies: cancer_studies,
             case_sets: case_sets,
-            gene_set_stubs: gene_set_stubs
+            gene_set_stubs: gene_set_stubs,
+            profiles: {},
         }
 
         /* FUNCTIONS */
@@ -669,19 +665,33 @@ app.controller('mainController', ['$location', '$interval', '$q', '$scope', 'Dat
             }
         }
         angular.element(document).ready(function () {
-            // wait for datamanager to initialize before doing anything
-            dataman.getAllCancerTypes(function(data){
+            $.when(dataman.getAllCancerTypes()).then(function(data) {
                 $scope.appVars.vars.types_of_cancer = dataman.df.structure(["id"],data, true);
-                console.log($scope.appVars.vars.types_of_cancer);
+            }).then(function() {
+                dataman.getAllStudies(function(data){
+                    $scope.appVars.vars.cancer_studies = dataman.df.addFields(
+                        {
+                            'type_of_cancer_name':function(x) { return $scope.appVars.vars.types_of_cancer[x.type_of_cancer].name; }
+                        }, data);
+                    // add 'all' to it
+                    $scope.appVars.vars.cancer_studies.push({'internal_id':0, 'name':'All Cancer Studies', 'type_of_cancer_name':''});
+                    $scope.$apply();
+                });
             });
-            dataman.getAllStudies(function(data){
-                $scope.appVars.vars.cancer_studies = data;
-                console.log($scope.appVars.vars.cancer_studies);
-            });
+                
             dataman.getAllGeneSets(true, function(data) {
                 $scope.appVars.vars.gene_set_stubs = data;
             });
-            DataManager.initPromise.then(function () {
+            $scope.$watch('formVars.cancer_study_id', function() {
+                if ($scope.formVars.cancer_study_id !== 0) {
+                    dataman.getProfilesByInternalStudyId([$scope.formVars.cancer_study_id], function(data) {
+                        if (!($scope.formVars.cancer_study_id in $scope.appVars.vars.profiles)) {
+                            $scope.appVars.profiles[$scope.formVars.cancer_study_id] = dataman.df.structure(['genetic_alteration_type', data, false]);
+                        }
+                    });
+                }
+            });
+            /*DataManager.initPromise.then(function () {
                 $scope.syncedFromUrl = $scope.syncFromUrl();
                 $interval($scope.syncToUrl, 1000);
                 /*DataManager.typesOfCancer().then(function (toc) {
@@ -692,7 +702,7 @@ app.controller('mainController', ['$location', '$interval', '$q', '$scope', 'Dat
                 });
                 DataManager.geneSetStubs().then(function (gss) {
                     $scope.appVars.vars.gene_set_stubs = gss;
-                });*/
+                });
                 $scope.$watch('formVars.cancer_study_id', function () {
                     var av = $scope.appVars.vars;
                     $scope.appVars.updateStudyInfo($scope.formVars.cancer_study_id);
@@ -728,7 +738,7 @@ app.controller('mainController', ['$location', '$interval', '$q', '$scope', 'Dat
                         });
                     }
                 });
-            });
+            });*/
         });
 
         /**

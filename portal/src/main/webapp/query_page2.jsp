@@ -21,19 +21,19 @@
                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 leftColumn"><span>Select Cancer Study:</span></div>
                 <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
                     <select chosen ng-model="formVars.cancer_study_id"
-                            ng-options="csObj.internal_id as csObj.name group by appVars.vars.types_of_cancer[csObj.type_of_cancer].name for csObj in appVars.vars.cancer_studies"
+                            ng-options="csObj.internal_id as csObj.name group by csObj.type_of_cancer_name for csObj in appVars.vars.cancer_studies | orderBy:['type_of_cancer_name', 'name']"
                     >
                     </select>
                 </div>
             </div>
-            <div class="row hidden" ng-hide="formVars.cancer_study_id === 'all'">
+            <div class="row hidden" ng-hide="formVars.cancer_study_id === 0">
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                     <p class="leftFloat" ng-bind-html="appVars.vars.cancer_studies[formVars.cancer_study_id].description | to_trusted_html"></p>
                     <button class="btn btn-sm leftFloat">Study Summary</button>
                 </div>
             </div>
             <!-- STEP 2 (CROSS-STUDY) -->
-            <div class="row" ng-show="formVars.cancer_study_id === 'all'">
+            <div class="row" ng-show="formVars.cancer_study_id === 0">
                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 leftColumn"><span>Select Data Type Priority:</span></div>
                 <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
                     <div ng-repeat="datap in appVars.vars.data_priorities">

@@ -6313,7 +6313,7 @@ button.close {
 }
 .chosen-container {
   display: inline-block;
-  font-size: 14px;
+  font-size: 12px;
   position: relative;
   vertical-align: middle;
 }

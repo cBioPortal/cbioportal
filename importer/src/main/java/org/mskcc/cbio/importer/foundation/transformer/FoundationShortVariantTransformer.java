@@ -5,11 +5,15 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.foundation.jaxb.CaseType;
 import org.mskcc.cbio.foundation.jaxb.CasesType;
 import org.mskcc.cbio.foundation.jaxb.ClientCaseInfoType;
 import org.mskcc.cbio.foundation.jaxb.ShortVariantType;
+import org.mskcc.cbio.importer.Config;
+import org.mskcc.cbio.importer.model.CancerStudyMetadata;
+import org.mskcc.cbio.importer.persistence.staging.MetadataFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.MutationFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.MutationModel;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
@@ -28,6 +32,8 @@ import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
+
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.APPEND;
 import static java.nio.file.StandardOpenOption.DSYNC;
@@ -69,20 +75,38 @@ public class FoundationShortVariantTransformer {
     this requires a distinct method in order to support multiple source files being
     transformed to a single staging file
      */
-    void registerStagingFileDirectory(Path stagingDirectoryPath){
+    void registerStagingFileDirectory(CancerStudyMetadata csMetadata, Path stagingDirectoryPath){
+        Preconditions.checkArgument(null!=csMetadata);
         Preconditions.checkArgument(null != stagingDirectoryPath,
                 "A Path to the staging file directory is required");
-
         Path mafPath = stagingDirectoryPath.resolve("data_mutations_extended.txt");
         this.fileHandler.registerTsvStagingFile(mafPath, MutationModel.resolveColumnNames(), true);
+        this.generateMetadataFile(csMetadata,stagingDirectoryPath);
+    }
+
+    private void generateMetadataFile(CancerStudyMetadata csMetadata, Path stagingDirectoryPath){
+        Path metadataPath = stagingDirectoryPath.resolve("meta_mutations_extended.txt");
+        MetadataFileHandler.INSTANCE.generateMetadataFile(this.generateMetadataMap(csMetadata),
+                metadataPath);
+
+    }
+
+
+    private Map<String,String> generateMetadataMap(CancerStudyMetadata meta){
+        Map<String,String> metaMap = Maps.newTreeMap();
+        metaMap.put("001cancer_study_identifier:", meta.getStudyPath());
+        metaMap.put("002genetic_alteration_type:","MUTATION_EXTENDED");
+        metaMap.put("003stable_id:",meta.getStableId());
+        metaMap.put("004show_profile_in_analysis_tab:","true");
+        metaMap.put("005profile_description:",meta.getDescription());
+        metaMap.put("006profile_name:",meta.getName());
+        return metaMap;
     }
 
     /*
     package level method to transform all the short variants in a Foundation XML file
      */
     Integer transform( CasesType casesType){
-
-
         // get of list of ShortVariantType
         List<MutationModel> modelList = Lists.newArrayList();
         // we need to add the sample id to each set of short variants
@@ -129,7 +153,12 @@ public class FoundationShortVariantTransformer {
             Unmarshaller jaxbUnmarshaller = context.createUnmarshaller();
             JAXBElement obj = (JAXBElement) jaxbUnmarshaller.unmarshal(new FileInputStream("/tmp/13-081.xml"));
             ClientCaseInfoType ccit = (ClientCaseInfoType) obj.getValue();
-            test.registerStagingFileDirectory(testFile);
+            CancerStudyMetadata metadata = new CancerStudyMetadata(
+                    new String[]{"dlbc/13-081/mskcc/foundation",	"dlbc",	"dlbc_13-081_mskcc_foundation",	"DLBCL MYC/BCL2 13-081 & 13-158 (MSKCC / Foundation Medicine)",
+                            "DLBCL samples, profiled by Foundation Medicine","","","LEVINER",	"DLBCL (MSKCC/Foundation)",	"FALSE",	"TRUE",	"FALSE",	"FALSE",
+                            "x"			}
+            );
+            test.registerStagingFileDirectory(metadata,testFile);
             Integer sampleCount = test.transform(ccit.getCases());
            logger.info("Sample count = " +sampleCount);
         } catch (JAXBException | FileNotFoundException ex) {

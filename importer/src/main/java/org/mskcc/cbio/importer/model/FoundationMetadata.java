@@ -41,6 +41,7 @@ public class FoundationMetadata {
 
     final private List<String> excludedCases;
     final private List<String> shortVariantExcludedStatuses;
+    final private List<String> cnvExcludedStatuses;
 
     /**
      * Create a FoundationMetadata instance with properties in given array. Its
@@ -67,10 +68,15 @@ public class FoundationMetadata {
         }else {
             this.excludedCases = Lists.newArrayList(); // an empty list
         }
-        if (properties.length > 3){
+        if (properties.length > 4){
             this.shortVariantExcludedStatuses = Lists.newArrayList(semicolonSplitter.split(properties[4]));
         } else {
             this.shortVariantExcludedStatuses = Lists.newArrayList();
+        }
+        if (properties.length > 5){
+            this.cnvExcludedStatuses = Lists.newArrayList(semicolonSplitter.split(properties[5]));
+        } else {
+            this.cnvExcludedStatuses = Lists.newArrayList();
         }
     }
 
@@ -78,6 +84,7 @@ public class FoundationMetadata {
         return this.cancerStudy;
     }
 
+    public List<String> getCnvExcludedStatuses() { return this.cnvExcludedStatuses;}
 
     public List<String> getDependencies() {
         return this.dependencies;

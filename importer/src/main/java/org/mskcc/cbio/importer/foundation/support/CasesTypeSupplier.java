@@ -1,13 +1,11 @@
 package org.mskcc.cbio.importer.foundation.support;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.base.Strings;
-import com.google.common.base.Supplier;
+import com.google.common.base.*;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.Serializable;
 import java.util.List;
 import javax.annotation.Nullable;
 import javax.xml.bind.JAXBContext;
@@ -15,10 +13,7 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import org.apache.log4j.Logger;
-import org.mskcc.cbio.foundation.jaxb.CaseType;
-import org.mskcc.cbio.foundation.jaxb.CasesType;
-import org.mskcc.cbio.foundation.jaxb.ClientCaseInfoType;
-import org.mskcc.cbio.foundation.jaxb.ShortVariantType;
+import org.mskcc.cbio.foundation.jaxb.*;
 import org.mskcc.cbio.importer.model.FoundationMetadata;
 
 /**
@@ -97,6 +92,34 @@ public class CasesTypeSupplier implements Supplier<CasesType> {
                     // output removed svt during development
                     for (ShortVariantType svt : removalList){
                         logger.debug("Foundation svt removed from case " +caseType.getCase() +" gene " +svt.getGene() +" status " +svt.getStatus());
+                    }
+                }
+
+                // filter out CNVs that match an excluded status value
+                if (null != metadata && !metadata.getCnvExcludedStatuses().isEmpty()){
+                    for (CaseType caseType : ccit.getCases().getCase()){
+                        List<Serializable> removalList  = FluentIterable.from(caseType.getVariantReport().getCopyNumberAlterations().getContent())
+
+                                .filter(new Predicate<Serializable>() {
+                                            @Override
+                                            public boolean apply(@Nullable Serializable s) {
+                                                if (!(s instanceof JAXBElement)) {
+                                                    return false;
+                                                }
+                                                CopyNumberAlterationType cnv = (CopyNumberAlterationType) ((JAXBElement) s).getValue();
+                                                if (metadata.getCnvExcludedStatuses().contains(cnv.getStatus())) {
+                                                    return true;
+                                                }
+                                                return false;
+                                            }
+                                        }).toList();
+
+                        // remove these items from the original cnv list
+                        caseType.getVariantReport().getCopyNumberAlterations().getContent().removeAll(removalList);
+                        for (Serializable s : removalList){
+                            CopyNumberAlterationType ct = (CopyNumberAlterationType) ((JAXBElement) s).getValue();
+                            logger.info("CNV filter removed " +ct.getGene() +" status = " +ct.getStatus());
+                        }
                     }
                 }
 

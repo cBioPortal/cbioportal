@@ -36,5 +36,6 @@ public interface StagingCommonNames {
     public static final Splitter scSplitter = Splitter.on(";");
     public static final Joiner scJoiner = Joiner.on(";");
     public static final Joiner tabJoiner = Joiner.on("\t");
+    public static final Joiner blankJoiner = Joiner.on(" ");
     public static final Splitter posSplitter = Splitter.on(':');
 }

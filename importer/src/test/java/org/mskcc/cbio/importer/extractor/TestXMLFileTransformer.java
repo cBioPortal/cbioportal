@@ -166,12 +166,30 @@ public class TestXMLFileTransformer {
 
         @Override
         public Collection<CancerStudyMetadata> getCancerStudyMetadata(String portalName) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            CancerStudyMetadata meta1 = new CancerStudyMetadata(
+                    new String[]{"dlbc/mskcc/foundation",	"dlbc",	"dlbc_13-081_mskcc_foundation",	"DLBCL MYC/BCL2 13-081 & 13-158 (MSKCC / Foundation Medicine)",
+                            "DLBCL samples, profiled by Foundation Medicine","","","LEVINER",	"DLBCL (MSKCC/Foundation)",	"FALSE",	"TRUE",	"FALSE",	"FALSE",
+                            "x"			}
+            );
+            CancerStudyMetadata meta2 = new CancerStudyMetadata(
+                    new String[]{"dlbc/13-081/mskcc/foundation",	"dlbc",	"dlbc_13-081_mskcc_foundation",	"DLBCL MYC/BCL2 13-081 & 13-158 (MSKCC / Foundation Medicine)",
+                            "DLBCL samples, profiled by Foundation Medicine","","","LEVINER",	"DLBCL (MSKCC/Foundation)",	"FALSE",	"TRUE",	"FALSE",	"FALSE",
+                            "x"			}
+            );
+            return Lists.newArrayList(meta1,meta2);
         }
 
         @Override
         public CancerStudyMetadata getCancerStudyMetadataByName(String cancerStudyName) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            for (CancerStudyMetadata csmd : getCancerStudyMetadata("x")){
+                logger.info("Study name " +cancerStudyName +" metadata name " +csmd.getStudyPath() + " " +csmd.getCancerStudyMetadataFilename());
+                if (csmd.getStudyPath().equalsIgnoreCase(cancerStudyName)){
+
+
+                    return  csmd;
+                }
+            }
+            return null;
         }
 
         @Override
@@ -181,7 +199,7 @@ public class TestXMLFileTransformer {
             FoundationMetadata meta2 = new FoundationMetadata(new String[]{"dlbc/mskcc/foundation", "13-158;13-081",
                     "MYC/BCL",
                     "RD0345;RD0351;RD0354;RD0355;RD0374;RD0375;RD0376;RD0377;RD0378;RD0383;RD0384;TRF031674.01;TRF031934.01",
-                    "unknown"});
+                    "unknown","unknown"});
             FoundationMetadata meta3 = new FoundationMetadata(new String[]{"mds_aml/mskcc/foundation", "13-157;13-080",
             "transplant"});
             FoundationMetadata meta4 = new FoundationMetadata(new String[]{"dlbcl/mskcc/foundation", "13-159;13-082",

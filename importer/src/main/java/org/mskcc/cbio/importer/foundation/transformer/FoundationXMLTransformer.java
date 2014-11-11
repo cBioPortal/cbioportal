@@ -18,6 +18,8 @@ import org.mskcc.cbio.importer.FileTransformer;
 import org.mskcc.cbio.importer.foundation.extractor.FileDataSource;
 import org.mskcc.cbio.importer.foundation.support.CasesTypeSupplier;
 
+import org.mskcc.cbio.importer.foundation.transformer.util.FoundationTransformerUtil;
+import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.mskcc.cbio.importer.model.FoundationMetadata;
 
 /*
@@ -52,6 +54,9 @@ public class FoundationXMLTransformer implements FileTransformer {
 
     private final Config config;
 
+    private FoundationMetadata foundationMetadata;
+    private CancerStudyMetadata csMetadata;
+
     /*
     responsible for initiating the Foundation specific data transformers and for coordinating
     the transformation of mulitple XML source files
@@ -79,11 +84,26 @@ public class FoundationXMLTransformer implements FileTransformer {
                 "A FileDataSource for XML input files is required");
         Preconditions.checkArgument(!xmlSource.getFilenameList().isEmpty(),
                 "The FileDataSource does not contain any XML files");
+        this.resolveStudyMetadata(xmlSource);
         //initialize the file handlers responsible for generating staging files
         registerStagingFileDirectoryPathWithTransformers(xmlSource);
         // process the XML files listed in the file data source
         processFoundationFileDataSource(xmlSource);
     }
+
+    private void resolveStudyMetadata(FileDataSource xmlSource) {
+        // use the first file name to determine the FoundtationMetadata for this study
+        // from that determine the CancerStudyMetadata
+        Optional<FoundationMetadata> metadataOptional =
+                FoundationTransformerUtil.resolveFoundationMetadataFromXMLFilename(config, xmlSource.getFilenameList().get(0).toString());
+        if (metadataOptional.isPresent()) {
+            this.foundationMetadata = metadataOptional.get();
+            this.csMetadata = config.getCancerStudyMetadataByName(this.foundationMetadata.getCancerStudy());
+        } else {
+            logger.error("Unable to resolve metadata for Foundation file "
+                    +xmlSource.getFilenameList().get(0).toString());
+        }
+       }
 
     /*
     Evoke transformation of each Foundation listed in the file data source
@@ -97,11 +117,13 @@ public class FoundationXMLTransformer implements FileTransformer {
         Set<String> caseIdSet = Sets.newHashSet();
         // process each xml file in the study's staging directory
         for (Path xmlPath : xmlSource.getFilenameList()) {
-            Optional<FoundationMetadata> metadataOptional =
-                    this.resolveFoundationMetadataFromXMLFilename(xmlPath.getFileName().toString());
-            if( metadataOptional.isPresent()) {
+           // Optional<FoundationMetadata> metadataOptional =
+            //        this.resolveFoundationMetadataFromXMLFilename(xmlPath.getFileName().toString());
+
+            if(null != this.foundationMetadata) {
                 this.casesTypeSupplier = Suppliers.memoize(new CasesTypeSupplier(xmlPath.toString(),
-                        metadataOptional.get()));
+                       this.foundationMetadata));
+
                 this.processFoundationData();
                 // add the file's case ids to set of case ids for the study
                caseIdSet.addAll(this.resolveFoundationCaseSetForFile());
@@ -113,13 +135,14 @@ public class FoundationXMLTransformer implements FileTransformer {
        this.cnvTransformer.persistFoundationCnvs();
     }
 
+
     /*
     Register the staging directory for the location of the transformed data with the transformers
      */
     private void registerStagingFileDirectoryPathWithTransformers(FileDataSource xmlSource) {
         Path stagingFileDirectory = Paths.get(xmlSource.getDirectoryName());
-        this.svtTransformer.registerStagingFileDirectory(stagingFileDirectory);
-        this.cnvTransformer.registerStagingFileDirectory(stagingFileDirectory);
+        this.svtTransformer.registerStagingFileDirectory(this.csMetadata,stagingFileDirectory);
+        this.cnvTransformer.registerStagingFileDirectory(this.csMetadata,stagingFileDirectory);
         this.clinicalDataTransformer.registerStagingFileDirectory(stagingFileDirectory);
         this.fusionDataTransformer.registerStagingFileDirectory(stagingFileDirectory);
     }
@@ -138,6 +161,9 @@ public class FoundationXMLTransformer implements FileTransformer {
                     }
                 }).toSet();
     }
+
+
+
 
     // resolve the FoundationMetadata object for this study
     private Optional<FoundationMetadata> resolveFoundationMetadataFromXMLFilename(final String filename) {

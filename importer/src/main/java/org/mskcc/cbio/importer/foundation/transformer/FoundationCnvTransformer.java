@@ -4,17 +4,21 @@ import com.google.common.base.Function;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Maps;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.foundation.jaxb.*;
 import org.mskcc.cbio.importer.foundation.support.CommonNames;
 
+import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.mskcc.cbio.importer.persistence.staging.ClinicalDataModel;
 import org.mskcc.cbio.importer.persistence.staging.CnvFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.CnvTransformer;
+import org.mskcc.cbio.importer.persistence.staging.MetadataFileHandler;
 import scala.Tuple2;
 
 import javax.xml.bind.JAXBElement;
 import java.nio.file.Path;
+import java.util.Map;
 
 /**
  * Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
@@ -62,11 +66,31 @@ public class FoundationCnvTransformer extends CnvTransformer {
         }
     }
 
-    void registerStagingFileDirectory(Path stagingDirectoryPath){
+    void registerStagingFileDirectory(CancerStudyMetadata csMetadata, Path stagingDirectoryPath){
         Preconditions.checkArgument(null != stagingDirectoryPath,
                 "A Path to the staging file directory is required");
         Path cnvPath = stagingDirectoryPath.resolve("data_CNA.txt");
         this.fileHandler.initializeFilePath(cnvPath);
+        this.generateMetadataFile(csMetadata,stagingDirectoryPath);
+    }
+
+    private void generateMetadataFile(CancerStudyMetadata csMetadata, Path stagingDirectoryPath){
+        Path metadataPath = stagingDirectoryPath.resolve("meta_CNA.txt");
+        MetadataFileHandler.INSTANCE.generateMetadataFile(this.generateMetadataMap(csMetadata),
+                metadataPath);
+
+    }
+
+    private Map<String,String> generateMetadataMap(CancerStudyMetadata meta){
+        String values =" Values: -2 = homozygous deletion; 2 = high level amplification.";
+        Map<String,String> metaMap = Maps.newTreeMap();
+        metaMap.put("001cancer_study_identifier:", meta.getStudyPath());
+        metaMap.put("002genetic_alteration_type:","COPY_NUMBER_ALTERATION");
+        metaMap.put("003stable_id:",meta.getStableId()+"_cna");
+        metaMap.put("004show_profile_in_analysis_tab:","true");
+        metaMap.put("005profile_description:",meta.getDescription()+values);
+        metaMap.put("006profile_name:",meta.getName());
+        return metaMap;
     }
 
 

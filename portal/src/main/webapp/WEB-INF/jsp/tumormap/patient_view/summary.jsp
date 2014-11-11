@@ -234,8 +234,7 @@ legend.legend-border {
 </fieldset>
 <br/>
 <%}%>
-
-<%if(hasAlleleFrequencyData && caseIds.size() == 1) {%>
+<%if(hasAlleleFrequencyData && caseIds.size() >= 1) {%>
 <script type="text/javascript" src="js/src/patient-view/AlleleFreqPlot.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript">
     $(document).ready(function() {
@@ -244,16 +243,19 @@ legend.legend-border {
             var thumbnail = document.getElementById('allele-freq-plot-thumbnail');
             // create a small plot thumbnail
 
-            var processed_data = AlleleFreqPlotUtils.extract_and_process(genomicEventObs, caseIds[0]);
-
-            if (!processed_data) {
-                // data failed validation, stop the train
-                return;
+            var processed_data = {};
+            for (var i=0; i<caseIds.length; i++) {
+                var pd = AlleleFreqPlotUtils.extract_and_process(genomicEventObs, caseIds[i]);
+                if (!pd) {
+                    // data failed validation, stop the train
+                    continue;
+                }
+                processed_data[caseIds[i]] = pd;
             }
 
-            AlleleFreqPlot(thumbnail, processed_data,
+            AlleleFreqPlotMulti(thumbnail, processed_data,
                 {width: 62 , height: 64, label_font_size: "7px", xticks: 0, yticks: 0,
-                    margin: {bottom: 15}
+                    margin: {bottom: 15}, nolegend:true
                 });
 
             // make the curve lighter
@@ -262,47 +264,42 @@ legend.legend-border {
 
             // create a plot on a hidden element
             var hidden_plot_id = '#allele-freq-plot-big';
-            window.allelefreqplot = AlleleFreqPlot($(hidden_plot_id)[0], processed_data);
+            window.allelefreqplot = AlleleFreqPlotMulti($(hidden_plot_id)[0], processed_data);            
 
             // add qtip on allele frequency plot thumbnail
             $(thumbnail).qtip({
-                content: {text: 'allele frequency plot is broken'},
+                content: {text: '<div id="qtip-allele-freq-plot-big"></div>'},
                 events: {
                     render: function(event, api) {
-                        // grab the plot
-                        var $allelefreqplot = $(allelefreqplot);
-                        var content = $allelefreqplot.remove();
-
-                        // and dump it into the qtip
-                        content.show();
-                        content = content[0].outerHTML;
-                        api.set('content.text', content);
-
                         // bind toggle_histogram to toggle histogram button
                         // AFTER we've shuffled it around 
-                        var histogram_toggle = true;        // initialize toggle state
+                        window.allele_freq_plot_histogram_toggle = true; // initialize toggle state
                         $('#allelefreq_histogram_toggle').click(function() {
                             // qtip interferes with $.toggle
-                            histogram_toggle = !histogram_toggle;
-                            if (histogram_toggle) {
-                                $(hidden_plot_id + ' rect').removeAttr('display');
+                            window.allele_freq_plot_histogram_toggle = !window.allele_freq_plot_histogram_toggle;
+                            if (window.allele_freq_plot_histogram_toggle) {
+                                $(hidden_plot_id + ' .viz_hist').show();
                             }
                             else {
-                                $(hidden_plot_id + ' rect').attr('display', 'none');
+                                $(hidden_plot_id + ' .viz_hist').hide();
                             }
                         });
 
-                        var curve_toggle = true;
+                        window.allele_freq_plot_curve_toggle = true;
                         $('#allelefreq_curve_toggle').click(function() {
                             // qtip interferes with $.toggle
-                            curve_toggle = !curve_toggle;
-                            if (curve_toggle) {
-                                $(hidden_plot_id + ' .curve').removeAttr('display');
+                            window.allele_freq_plot_curve_toggle = !window.allele_freq_plot_curve_toggle;
+                            if (window.allele_freq_plot_curve_toggle) {
+                                $(hidden_plot_id + ' .viz_curve').show();
                             }
                             else {
-                                $(hidden_plot_id + ' .curve').attr('display', 'none');
+                                $(hidden_plot_id + ' .viz_curve').hide();
                             }
                         });
+                        if ($("#qtip-allele-freq-plot-big").children().length === 0) {
+                            $("#qtip-allele-freq-plot-big").append(window.allelefreqplot);
+                            $(window.allelefreqplot).show();
+                        }
                     }
                 },
 	            show: {event: "mouseover"},

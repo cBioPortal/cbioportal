@@ -61,8 +61,8 @@ var AlleleFreqPlotUtils = (function() {
     // for all sample in samples
     var kernelDensityEstimator = function(kernel, x) {
         return function(sample) {
-            return x.map(function(x) {
-                return [x, d3.mean(sample, function(v) { return kernel(x - v); })];
+            return x.map(function(z) {
+                return [z, d3.mean(sample, function(v) { return kernel(z - v); })];
             });
         };
     };
@@ -99,8 +99,17 @@ var AlleleFreqPlotUtils = (function() {
 }());
 
 var AlleleFreqPlotMulti = function(div, data, options) {
+    var fillcolors = d3.scale.category10();
+    var colors = {};
+    for (var k in data) {
+        if (data.hasOwnProperty(k)) {
+            var ind = Object.keys(colors).length;
+            //colors[k] = {stroke:d3.rgb(fillcolors(ind)).darker().toString(), fill:fillcolors(ind)};
+            colors[k] = {stroke:fillcolors(ind), fill:fillcolors(ind)};
+        }
+    }
     // data is a map of sample id to list of data
-    var options = options || { label_font_size: "10.5px", xticks: 3, yticks: 8}; // init
+    var options = options || { label_font_size: "10.5px", xticks: 3, yticks: 8, nolegend:false}; // init
     
     var label_dist_to_axis = options.xticks === 0 ? 13 : 30;
     
@@ -129,7 +138,7 @@ var AlleleFreqPlotMulti = function(div, data, options) {
     for (var k in data) {
         if (data.hasOwnProperty(k)) {
             bandwidth[k] = utils.calculate_bandwidth(data[k]);
-            kde[k] = utils.kernelDensityEstimator(utils.gaussianKernel(bandwidth[k], x.ticks(100)));
+            kde[k] = utils.kernelDensityEstimator(utils.gaussianKernel(bandwidth[k]), x.ticks(100));
             plot_data[k] = kde[k](data[k]);
         }
     }
@@ -193,8 +202,193 @@ var AlleleFreqPlotMulti = function(div, data, options) {
             .text("variant allele frequency");
     
     // make the y-axis mutation count
+    var all_binned_data = [];
+    for (var k in binned_data) {
+        if (binned_data.hasOwnProperty(k)) {
+            all_binned_data = all_binned_data.concat(binned_data[k]);
+        }
+    }
+    var mutation_counts = all_binned_data.map(function(d) { return d.length; });
+    var mutation_count_range = [0, d3.max(mutation_counts)]
+    
+    // create y axis
+    var yAxis = d3.svg.axis()
+            .scale(y.copy().domain(mutation_count_range))
+            .orient("left")
+            .ticks(options.yticks);
+    
+    // render axis
+    var y_axis = svg.append("g").call(yAxis);
+    
+    // takes a number and returns a displacement length for the
+    // yaxis label
+    //
+    // *signature:* `number -> number`
+    var displace_by_digits = function(n) {
+        var stringified = "" + n;
+        var no_digits = stringified.split("").length;
+
+        // there will be a comma in the string, i.e. 1,000 not 1000
+        if (no_digits >= 4) {
+            no_digits += 1.5;
+        }
+
+        return no_digits * 7 / 3;
+    };
+    
+    var ylabel_dist_to_axis = label_dist_to_axis;
+    ylabel_dist_to_axis += options.yticks === 0 ? 0 : displace_by_digits(mutation_count_range[1]);
+    
+    // y axis label
+    y_axis
+            .append("text")
+            .attr("class","label")
+            .attr("transform", "rotate(-90)")
+            .attr("x", - height/2)
+            .attr("y", -ylabel_dist_to_axis)
+            .attr("font-size", options.label_font_size)
+            .style("text-anchor","middle")
+            .text("mutation count");
+    
+    applyCss(y_axis.selectAll('path')).attr('display', options.yticks === 0? '' : 'none');
+    applyCss(y_axis.selectAll('line'));
+    
+    // calculate new domain for the binned data
+    var binned_yvalues = all_binned_data.map(function(d) { return d.y;});
+    var binned_ydomain = [d3.min(binned_yvalues), d3.max(binned_yvalues)];
+    var binned_yscale = y.copy();
+    binned_yscale.domain(binned_ydomain);
+    
+    // make bar charts
+    for (var k in binned_data) {
+        if (binned_data.hasOwnProperty(k)) {
+            svg.selectAll(".bar")
+                .data(binned_data[k])
+                .enter().insert("rect")
+                .attr("x", function(d) { return x(d.x) + 1; })
+                .attr("y", function(d) { return binned_yscale(d.y); })
+                .attr('class', k+'_viz_hist viz_hist')
+                .attr("width", x(binned_data[k][0].dx + binned_data[k][0].x) - x(binned_data[k][0].x) - 1)
+                .attr("height", function(d) {return (height - binned_yscale(d.y)); })
+                .attr('fill', colors[k].fill)
+                .attr('opacity', '0.7')
+                ;
+        }
+    }
+    
+    // make kde plots
+    for (var k in plot_data) {
+        if (plot_data.hasOwnProperty(k)) {
+            svg.append("path")
+                    .datum(plot_data[k])
+                    .attr("d", line)
+                    .attr('class', 'curve '+k+'_viz_curve viz_curve')
+                    .attr('fill', 'none')
+                    .attr('stroke', colors[k].stroke)
+                    .attr('stroke-width', '1.5px')
+                    .attr('opacity', '0.9')
+                    .attr('data-legend',function() { return k; })
+            ;
+        }
+    }
+    
+    // make legend
+    if (!options.nolegend) {
+        var legend = svg.append("g")
+                .attr('class', 'legend')
+                .attr('transform', 'translate('+(width-70)+',30)')
+                .style('font-size', '13px')
+                .call(d3.legend)
+        ;
+    }
+    return div;
 }
 
+
+// d3.legend.js 
+// (C) 2012 ziggy.jonsson.nyc@gmail.com
+// MIT licence
+
+d3.legend = function(g) {
+  g.each(function() {
+    var g= d3.select(this),
+        items = {},
+        svg = d3.select(g.property("nearestViewportElement")),
+        legendPadding = g.attr("data-style-padding") || 5,
+        lb = g.selectAll(".legend-box").data([true]),
+        li = g.selectAll(".legend-items").data([true])
+
+    li.enter().append("g").classed("legend-items",true);
+
+    svg.selectAll("[data-legend]").each(function() {
+        var self = d3.select(this)
+        items[self.attr("data-legend")] = {
+          pos : self.attr("data-legend-pos") || this.getBBox().y,
+          color : self.attr("data-legend-color") != undefined ? self.attr("data-legend-color") : self.style("fill") != 'none' ? self.style("fill") : self.style("stroke") 
+        }
+      })
+
+    items = d3.entries(items).sort(function(a,b) { return a.value.pos-b.value.pos})
+    
+    var highlightSample = function(k) {
+        $('.viz_hist').hide();
+        $('.viz_curve').hide();
+        if (window.allele_freq_plot_histogram_toggle) {
+            $("."+k+"_viz_hist").show();
+        }
+        if (window.allele_freq_plot_curve_toggle) {
+            $("."+k+"_viz_curve").show();
+        }
+    }
+    var showSamples = function() {
+        if (window.allele_freq_plot_histogram_toggle) {
+            $('.viz_hist').show();
+        }
+        if (window.allele_freq_plot_curve_toggle) {
+            $('.viz_curve').show();
+        }
+    }
+        
+    var spacing = 0.4;
+    li.selectAll("text")
+        .data(items,function(d) { return d.key;})
+        .call(function(d) { d.enter().append("text");})
+        .call(function(d) { d.exit().remove();})
+        .attr("y",function(d,i) { return (i-0.1+i*spacing)+"em";})
+        .attr("x","1em")
+        .text(function(d) { return d.key;})
+    
+    li.selectAll("circle")
+        .data(items,function(d) { return d.key})
+        .call(function(d) { d.enter().append("circle")})
+        .call(function(d) { d.exit().remove()})
+        .attr("cy",function(d,i) { return (i-0.5+i*spacing)+"em"})
+        .attr("cx",0)
+        .attr("r","0.45em")
+        .style("fill",function(d) { return d.value.color;})
+    ;
+    li.selectAll("rect")
+            .data(items, function(d) { return d.key;})
+            .call(function(d) { d.enter().append("rect");})
+            .call(function(d) { d.exit().remove();})
+            .attr("y", function(d,i) { return (i-1+i*spacing-spacing/2)+"em";})
+            .attr("x","-0.5em")
+            .attr('width',function(d) { return d.key.length+'em';})
+            .attr('height',(1+spacing)+'em')
+            .style('fill',function(d) { return d.value.color;})
+            .attr('opacity', '0')        
+            .on('mouseover', function(d) { highlightSample(d.key);})
+    ;
+    li.on('mouseout', function() { showSamples(); });
+    // Reposition and resize the box
+    var lbbox = li[0][0].getBBox()  
+    lb.attr("x",(lbbox.x-legendPadding))
+        .attr("y",(lbbox.y-legendPadding))
+        .attr("height",(lbbox.height+2*legendPadding))
+        .attr("width",(lbbox.width+2*legendPadding));
+  })
+  return g;
+}
 //
 // appends labels and such that are specific to the allele frequency density
 // plot

@@ -168,6 +168,9 @@ public class CrossCancerJSON extends HttpServlet {
                     
                     for (Sample sample: defaultSamples) {
                         String sampleId = sample.getStableId();
+                        if(sampleId == null) {
+                            continue;
+                        }
                         if(!genomicData.isCaseAltered(sampleId)) continue;
 
                         boolean isAnyMutated = false,

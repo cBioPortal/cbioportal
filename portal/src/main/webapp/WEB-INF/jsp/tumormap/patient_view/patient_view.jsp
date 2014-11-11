@@ -50,6 +50,8 @@ boolean showTimeline = (Boolean)request.getAttribute("has_timeline_data");
 
 String pathReportUrl = (String)request.getAttribute(PatientView.PATH_REPORT_URL);
 
+String oncokbUrl = (String)GlobalProperties.getOncoKBUrl();
+
 //String drugType = xssUtil.getCleanerInput(request, "drug_type");
 String drugType = request.getParameter("drug_type");
 
@@ -337,6 +339,7 @@ var drugType = drugType?'<%=drugType%>':null;
 var clinicalDataMap = <%=jsonClinicalData%>;
 var viewBam = <%=viewBam%>;
 var mapCaseBam = <%=jsonMapCaseBam%>;
+var oncokbUrl = '<%=oncokbUrl%>';
 
 var caseMetaData = {
     color : {}, label : {}, index : {}, tooltip : {}

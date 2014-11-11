@@ -48,8 +48,10 @@ public class InternalIdUtil
     {
         ArrayList<Integer> sampleIds = new ArrayList<Integer>();
         for (String sampleId : stableSampleIds) {
-            Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId);
-            sampleIds.add(s.getInternalId());
+            if (DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId) != null) {
+                Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId);
+                sampleIds.add(s.getInternalId());               
+            } 
         }
         return sampleIds;
     }

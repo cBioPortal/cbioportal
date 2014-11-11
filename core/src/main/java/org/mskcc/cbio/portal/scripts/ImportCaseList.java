@@ -77,7 +77,7 @@ public class ImportCaseList {
 
       // construct case id list
       ArrayList<String> caseIDsList = new ArrayList<String>();
-      String[] caseIds = caseListStr.split("\\s");
+      String[] caseIds = caseListStr.split("\t");
       for (String caseId : caseIds) {
          caseIDsList.add(caseId);
       }

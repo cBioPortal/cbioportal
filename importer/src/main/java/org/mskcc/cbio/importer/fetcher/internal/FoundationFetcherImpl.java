@@ -28,9 +28,9 @@ import org.mskcc.cbio.importer.dao.ImportDataRecordDAO;
 import org.mskcc.cbio.importer.foundation.extractor.FileDataSource;
 import org.mskcc.cbio.importer.foundation.extractor.FoundationStudyExtractor;
 import org.mskcc.cbio.importer.foundation.support.FoundationMetadataGenerator;
+import org.mskcc.cbio.importer.foundation.transformer.FoundationXMLTransformerOld;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
-import org.mskcc.cbio.importer.foundation.transformer.FoundationXMLTransformer;
 
 /**
  * This represents a Fetcher implementation that will fetch and transform XML
@@ -72,7 +72,7 @@ public class FoundationFetcherImpl implements Fetcher {
         Preconditions.checkArgument(null != aConfig, "A Config implementation is required");
         this.config = aConfig;
         this.extractor = new FoundationStudyExtractor(config);
-        this.fileTransformer = new FoundationXMLTransformer(aConfig);
+        this.fileTransformer = new FoundationXMLTransformerOld(aConfig);
     }
     
     /*

@@ -116,7 +116,6 @@ public class CasesTypeSupplier implements Supplier<CasesType> {
     final private Predicate<CaseType> removeCaseFilter = new Predicate<CaseType>() {
         @Override
         public boolean apply(final CaseType caseType) {
-
             return metadata.getExcludedCases().contains(caseType.getCase());
         }
     };

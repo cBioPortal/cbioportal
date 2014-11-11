@@ -28,7 +28,7 @@ import org.apache.log4j.Logger;
 
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.FileTransformer;
-import org.mskcc.cbio.importer.foundation.transformer.FoundationXMLTransformer;
+import org.mskcc.cbio.importer.foundation.transformer.FoundationXMLTransformerOld;
 
 
 public class TestFoundationStudyExtractorOld {
@@ -45,7 +45,7 @@ public class TestFoundationStudyExtractorOld {
             };
         try {
             FoundationStudyExtractor extractor = new FoundationStudyExtractor(config);
-            FileTransformer ft = new FoundationXMLTransformer(config);
+            FileTransformer ft = new FoundationXMLTransformerOld(config);
             Set<Path> pathSet = extractor.extractData();
             for (Path p : pathSet ){
                 logger.info("processing files in "+  p.toString());

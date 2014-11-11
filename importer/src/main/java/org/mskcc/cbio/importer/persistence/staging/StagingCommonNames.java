@@ -32,7 +32,9 @@ public interface StagingCommonNames {
     public static final String CASE_STUDY_FILENAME = "data_case_study.txt";
 
     public static final Splitter tabSplitter = Splitter.on("\t");
+    public static final Splitter blankSplitter = Splitter.on(" ");
     public static final Splitter scSplitter = Splitter.on(";");
     public static final Joiner scJoiner = Joiner.on(";");
     public static final Joiner tabJoiner = Joiner.on("\t");
+    public static final Splitter posSplitter = Splitter.on(':');
 }

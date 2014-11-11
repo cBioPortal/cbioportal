@@ -45,6 +45,7 @@ CNV data is maintained in a row (i.e. gene name) by column (i.e. sample) matrix
 */
 public class CnvFileHandlerImpl implements CnvFileHandler {
     private  Path cnvPath;
+    private boolean fileRegistered = false;
      private final static Logger logger = Logger.getLogger(CnvFileHandlerImpl.class);
      
     public CnvFileHandlerImpl(){  
@@ -56,7 +57,10 @@ public class CnvFileHandlerImpl implements CnvFileHandler {
                 "A Path to the CNV staging file  is required");
         // set Path for  CNV data
         this.cnvPath =filePath;
+         this.fileRegistered = true;
     }
+
+    public boolean isFileRegistered() { return this.fileRegistered;}
     
     @Override
      public Table<String, String, Double> initializeCnvTable() {

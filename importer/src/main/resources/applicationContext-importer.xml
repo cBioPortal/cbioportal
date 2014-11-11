@@ -71,7 +71,7 @@ http://www.springframework.org/schema/util/spring-util.xsd">
     <b:bean id="importDataRecordDAO" class="org.mskcc.cbio.importer.dao.internal.ImportDataRecordHibernateDAO">
         <b:property name="sessionFactory" ref="importerSessionFactory"/>
     </b:bean>
-    <b:bean id="xmlTransformer" class="org.mskcc.cbio.importer.foundation.transformer.FoundationXMLTransformer">
+    <b:bean id="xmlTransformer" class="org.mskcc.cbio.importer.foundation.transformer.FoundationXMLTransformerOld">
         <b:constructor-arg ref="config"/>
     </b:bean>
     <b:bean id="mercurialServer" class="org.mskcc.cbio.importer.mercurial.internal.MercurialServerImpl" />

@@ -48,6 +48,18 @@ public class ClinicalDataFileHandlerImpl extends TsvStagingFileProcessor
     }
 
     @Override
+    public void registerClinicalDataStagingFile(Path cdFilePath, List<String> columnHeadings, boolean deleteFile) {
+        Preconditions.checkArgument(null != cdFilePath,
+                "A Path object referencing the clinical data  file is required");
+        if (!Files.exists(cdFilePath, LinkOption.NOFOLLOW_LINKS)) {
+            Preconditions.checkArgument(null != columnHeadings && !columnHeadings.isEmpty(),
+                    "Column headings are required for the new clinical data  file: "
+                            +cdFilePath.toString());
+        }
+        super.registerStagingFile(cdFilePath, columnHeadings,deleteFile);
+    }
+
+    @Override
     public void transformImportDataToStagingFile(List aList, Function transformationFunction) {
          Preconditions.checkArgument(null != aList && !aList.isEmpty(),
                 "A valid List of DMP data is required");
@@ -57,5 +69,7 @@ public class ClinicalDataFileHandlerImpl extends TsvStagingFileProcessor
                  "The requiste Path to the clinical data staging file has not be specified");
         super.transformImportDataToStagingFile(aList, transformationFunction);
     }
+
+
 
 }

@@ -34,5 +34,6 @@ public interface CnvFileHandler {
      */
 
     public void persistCnvTable(Table<String, String, Double> cnvTable);
+    public boolean isFileRegistered();
 
 }

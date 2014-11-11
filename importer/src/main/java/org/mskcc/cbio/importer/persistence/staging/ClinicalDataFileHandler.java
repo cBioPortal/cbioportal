@@ -29,10 +29,14 @@ public interface ClinicalDataFileHandler {
     */
     public void registerClinicalDataStagingFile(Path cdFilePath, List<String> columnHeadings);
 
+    public void registerClinicalDataStagingFile(Path cdFilePath, List<String> columnHeadings, boolean deleteFile);
+
     /*
     public method to transform a List of sequence data to a List of Strings and
     output that List to the appropriate staging file based on the report type
      */
     public void transformImportDataToStagingFile(List aList,
-            Function transformationFunction);
+                                                 Function transformationFunction);
+    public boolean isRegistered();
+
 }

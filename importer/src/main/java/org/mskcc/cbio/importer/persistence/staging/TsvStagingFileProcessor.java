@@ -81,9 +81,6 @@ public abstract class TsvStagingFileProcessor {
       this.stagingFilePath = stagingFilePath;
     }
 
-
-
-    
     protected void transformImportDataToStagingFile(List aList,
             Function transformationFunction) {
 
@@ -116,11 +113,13 @@ public abstract class TsvStagingFileProcessor {
                 // move staging file to a temporary file, filter out deprecated samples,
                 // then write non-deprecated samples
                 // back to staging files
+                //TODO: change this implementation
                 Path tempFilePath = Paths.get("/tmp/dmp/tempfile.txt");
                 Files.deleteIfExists(tempFilePath);
                 Files.move(this.stagingFilePath, tempFilePath);
                 logger.info(" processing " + tempFilePath.toString());
-                final CSVParser parser = new CSVParser(new FileReader(tempFilePath.toFile()), CSVFormat.TDF.withHeader());
+                final CSVParser parser = new CSVParser(new FileReader(tempFilePath.toFile()),
+                        CSVFormat.TDF.withHeader());
                 String headings = StagingCommonNames.tabJoiner.join(parser.getHeaderMap().keySet());
                 // filter persisted sample ids that are also in the current data input
                 List<String> filteredSamples = FluentIterable.from(parser)
@@ -144,7 +143,7 @@ public abstract class TsvStagingFileProcessor {
                         })
                         .toList();
 
-                // write the filtered data to the original MAF staging file
+                // write the filtered data to the original staging file
                 // column headings
                 Files.write(this.stagingFilePath,Lists.newArrayList(headings), Charset.defaultCharset(),options);
                 // data
@@ -180,4 +179,6 @@ public abstract class TsvStagingFileProcessor {
         }
         return processedSampleSet;
     }
+
+    public boolean isRegistered() { return null != this.stagingFilePath; }
 }

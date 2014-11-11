@@ -26,27 +26,45 @@ import java.util.Set;
 public interface TsvStagingFileHandler {
     
     /*
-    register the MAF file for staging data with handler. If the file does not
+    register the staging file for persisting staging data with handler. If the file does not
     exist, create it and write out the column headings as tsv
+    existing files will not be deleted
     */
     public void registerTsvStagingFile(Path stagingFilePath, List<String> columnHeadings);
+    /*
+    register the staging file for persisting staging data with handler. If the file does not
+    exist, create it and write out the column headings as tsv
+     allow the user to specify whether a existing file should be deleted
+     */
 
     public void registerTsvStagingFile(Path stagingFilePath, List<String> columnHeadings, boolean deleteFile);
 
     public void appendDataToTsvStagingFile(List<String> mafData);
 
+    /*
+    method provides a set of existing sample ids in the previously registered staging file
+    user specifies which column in the tsv file is the sample id
+    throws an illegal state exception if a staging file has not been registered
+     */
     public Set<String> resolveProcessedSampleSet(final String sampleIdColumnName);
 
     /*
-    remove records from the DMP staging files that have been deprecated
+    remove records from the registered staging file that have been deprecated
      */
      public void removeDeprecatedSamplesFomTsvStagingFiles(final String sampleIdColumnName,
                                                            final Set<String> deprecatedSampleSet) ;
 
     /*
     public method to transform a List of sequence data to a List of Strings and
-    output that List to the appropriate staging file based on the report type
+    output that List to the registered staging file
      */
     public void transformImportDataToTsvStagingFile(List aList,
                                                     Function transformationFunction);
+
+    /*
+    public methos to verify that a staging file has been associated with the file handler
+     */
+    public boolean isRegistered();
+
+
 }

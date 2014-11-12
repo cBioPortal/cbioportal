@@ -271,7 +271,7 @@ var AlleleFreqPlotMulti = function(div, data, options) {
                 .attr("width", x(binned_data[k][0].dx + binned_data[k][0].x) - x(binned_data[k][0].x) - 1)
                 .attr("height", function(d) {return (height - binned_yscale(d.y)); })
                 .attr('fill', colors[k].fill)
-                .attr('opacity', '0.7')
+                .attr('opacity', '0.1')
                 ;
         }
     }
@@ -335,6 +335,7 @@ d3.legend = function(g) {
         $('.viz_curve').hide();
         if (window.allele_freq_plot_histogram_toggle) {
             $("."+k+"_viz_hist").show();
+            $("."+k+"_viz_hist").attr('opacity', '0.5');
         }
         if (window.allele_freq_plot_curve_toggle) {
             $("."+k+"_viz_curve").show();
@@ -343,6 +344,7 @@ d3.legend = function(g) {
     var showSamples = function() {
         if (window.allele_freq_plot_histogram_toggle) {
             $('.viz_hist').show();
+            $(".viz_hist").attr('opacity', '0.1');
         }
         if (window.allele_freq_plot_curve_toggle) {
             $('.viz_curve').show();

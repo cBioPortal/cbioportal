@@ -241,6 +241,7 @@ public class PatientView extends HttpServlet {
             return;
         }
         try {
+            Collections.sort(sampleIds);
             if (patientId!=null && DaoClinicalEvent.timeEventsExistForPatient(cancerStudyId, patientId)) {
                 List<ClinicalEvent> events = DaoClinicalEvent.getClinicalEvent(cancerStudyId, patientId, "SPECIMEN");
                 if (events!=null) {
@@ -265,7 +266,6 @@ public class PatientView extends HttpServlet {
                 
             ClinicalAttribute attr = DaoClinicalAttribute.getDatum("SAMPLE_TYPE");
             if (attr!=null) {
-                Collections.sort(sampleIds);
                 
                 List<ClinicalData> data = DaoClinicalData.getData(cancerStudyId, sampleIds, attr);
                 if (!data.isEmpty()) {

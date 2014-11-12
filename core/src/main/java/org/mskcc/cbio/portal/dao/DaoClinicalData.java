@@ -348,14 +348,14 @@ public final class DaoClinicalData {
     }
 
     public static List<ClinicalData> getDataByAttributeIds(int internalCancerStudyId, Collection<String> attributeIds) throws DaoException {
+        
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
 
-		Connection con = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
+        List<ClinicalData> clinicals = new ArrayList<ClinicalData>();
 
-		List<ClinicalData> clinicals = new ArrayList<ClinicalData>();
-
-		try {
+        try {
             con = JdbcUtil.getDbConnection(DaoClinicalData.class);
 
             pstmt = con.prepareStatement("SELECT * FROM clinical_patient WHERE" +

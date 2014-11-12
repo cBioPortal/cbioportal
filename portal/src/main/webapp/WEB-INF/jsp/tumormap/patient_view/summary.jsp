@@ -209,11 +209,18 @@ legend.legend-border {
 <table>
     <tr>
         <td><div id="genomics-overview"></div></td>
-        <td valign="top">
-            <span style="float: left;" id="allele-freq-plot-thumbnail"></span>
-        </td>
-        <td valign="top">
-            <span style="float: right;" id="mut-cna-scatter"><img src="images/ajax-loader.gif"/></span>
+        <td><table id="mutation-count-graphs">
+                <tr>
+                    <td valign="top">
+                        <span style="float: right;" id="mut-cna-scatter"><img src="images/ajax-loader.gif"/></span>
+                    </td>        
+                </tr>
+                <tr>
+                    <td valign="b">
+                        <span style="float: right;" id="allele-freq-plot-thumbnail"></span>
+                    </td>
+                </tr>
+            </table>
         </td>
     </tr>
 </table>
@@ -254,7 +261,7 @@ legend.legend-border {
             }
 
             AlleleFreqPlotMulti(thumbnail, processed_data,
-                {width: 62 , height: 64, label_font_size: "7px", xticks: 0, yticks: 0,
+                {width: 62 , height: 64, label_font_size: "6px", xticks: 0, yticks: 0,
                     margin: {bottom: 15}, nolegend:true
                 });
 

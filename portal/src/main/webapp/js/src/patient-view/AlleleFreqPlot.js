@@ -109,7 +109,7 @@ var AlleleFreqPlotMulti = function(div, data, options) {
         }
     }
     // data is a map of sample id to list of data
-    var options = options || { label_font_size: "10.5px", xticks: 3, yticks: 8, nolegend:false}; // init
+    var options = options || { label_font_size: "11.5px", xticks: 3, yticks: 8, nolegend:false}; // init
     
     var label_dist_to_axis = options.xticks === 0 ? 13 : 30;
     
@@ -194,11 +194,12 @@ var AlleleFreqPlotMulti = function(div, data, options) {
     // x-axis label
     x_axis
             .append("text")
-            .attr("class", "label")
+            //.attr("class", "label")
             .attr("x", width / 2)
             .attr("y", label_dist_to_axis)
             .attr("font-size", options.label_font_size)
             .style("text-anchor", "middle")
+            .style("font-style", "italic")
             .text("variant allele frequency");
     
     // make the y-axis mutation count
@@ -242,13 +243,14 @@ var AlleleFreqPlotMulti = function(div, data, options) {
     // y axis label
     y_axis
             .append("text")
-            .attr("class","label")
+            //.attr("class","label")
             .attr("transform", "rotate(-90)")
             .attr("x", - height/2)
             .attr("y", -ylabel_dist_to_axis)
             .attr("font-size", options.label_font_size)
             .style("text-anchor","middle")
-            .text("mutation count");
+            .style("font-style", "italic")
+            .text("# of mutations");
     
     applyCss(y_axis.selectAll('path')).attr('display', options.yticks === 0? '' : 'none');
     applyCss(y_axis.selectAll('line'));

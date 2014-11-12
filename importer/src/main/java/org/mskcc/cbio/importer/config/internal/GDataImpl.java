@@ -797,6 +797,11 @@ class GDataImpl implements Config {
     public List<String> findCancerStudiesBySubstring(final String organizationName) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(organizationName),
                 "An organization name is required");
+
+        if (cancerStudiesMatrix == null) {
+            cancerStudiesMatrix = getWorksheetData(gdataSpreadsheet, cancerStudiesWorksheet);
+        }
+
         // column 0 contains the cancer study names
         List<String> cancerStudyList = Lists.newArrayList();
         for (List<String> study : cancerStudiesMatrix) {
@@ -814,6 +819,15 @@ class GDataImpl implements Config {
         updateWorksheet(gdataSpreadsheet, cancerStudiesWorksheet, false,
                         CancerStudyMetadata.WORKSHEET_UPDATE_COLUMN_KEY,
                         cancerStudy, properties);
+        cancerStudiesMatrix = null;
+    }
+
+    @Override
+    public void insertCancerStudyMetadata(CancerStudyMetadata cancerStudyMetadata)
+    {
+        updateWorksheet(gdataSpreadsheet, cancerStudiesWorksheet,
+                        true, null, null, cancerStudyMetadata.getProperties());
+        cancerStudiesMatrix = null;
     }
 
 	/**

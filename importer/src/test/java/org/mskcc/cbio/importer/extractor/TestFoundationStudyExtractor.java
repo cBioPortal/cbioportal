@@ -200,5 +200,10 @@ public class TestFoundationStudyExtractor {
             throw new UnsupportedOperationException();
         }
 
+        @Override
+        public void insertCancerStudyMetadata(CancerStudyMetadata cancerStudyMetadata) {
+            throw new UnsupportedOperationException();
+        }
+
     }
 }

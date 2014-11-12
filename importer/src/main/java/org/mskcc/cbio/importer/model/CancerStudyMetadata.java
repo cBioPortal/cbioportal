@@ -19,6 +19,11 @@
 package org.mskcc.cbio.importer.model;
 
 // imports
+import org.mskcc.cbio.portal.model.CancerStudy;
+
+import org.apache.commons.lang.StringUtils;
+
+import java.util.*;
 import java.io.File;
 
 /**
@@ -27,10 +32,22 @@ import java.io.File;
 public class CancerStudyMetadata {
 
 	public static final String WORKSHEET_UPDATE_COLUMN_KEY = "CANCERSTUDY";
-	public static final String UPDATE_AVAILABLE_COLUMN_KEY = "UPDATEAVAILABLE";
+	public static final String CANCER_STUDY_COLUMN_KEY = "CANCERSTUDY";
+	public static final String CANCER_TYPE_COLUMN_KEY = "CANCERTYPE";
+	public static final String STABLE_ID_COLUMN_KEY = "STABLEID";
+	public static final String NAME_COLUMN_KEY = "NAME";
+	public static final String DESCRIPTION_COLUMN_KEY = "DESCRIPTION";
+	public static final String CITATION_COLUMN_KEY = "CITATION";
+	public static final String PMID_COLUMN_KEY = "PMID";
+	public static final String GROUPS_COLUMN_KEY = "GROUPS";
+	public static final String SHORT_NAME_COLUMN_KEY = "SHORTNAME";
+	public static final String CONVERT_COLUMN_KEY = "CONVERT";
 	public static final String IMPORT_COLUMN_KEY = "IMPORT";
+	public static final String REQUIRES_VALIDATION_COLUMN_KEY = "REQUIRESVALIDATION";
+	public static final String UPDATE_AVAILABLE_COLUMN_KEY = "UPDATEAVAILABLE";
 
     // delimiter between tumor type and center (used for find the path)
+
 	public static final String CANCER_STUDY_DELIMITER = "/"; 
 
 	// this is value in worsheet-matrix cell if cancer study is in a desired portal
@@ -38,7 +55,7 @@ public class CancerStudyMetadata {
 
 	// file/file extension of metadata file
 	private static final String CANCER_STUDY_METADATA_FILE_EXT = ".txt";
-	private static final String CANCER_STUDY_METADATA_FILE = "meta_study" + CANCER_STUDY_METADATA_FILE_EXT;
+	public static final String CANCER_STUDY_METADATA_FILE = "meta_study" + CANCER_STUDY_METADATA_FILE_EXT;
 
 	// cancer study identifier delimiter (used in metadata files)
 	private static final String CANCER_STUDY_IDENTIFIER_DELIMITER = "_";
@@ -100,6 +117,23 @@ public class CancerStudyMetadata {
         this.updateAvailable = Boolean.parseBoolean(properties[12].trim());
 	}
 
+	public CancerStudyMetadata(String studyPath, CancerStudy cancerStudy)
+	{
+		this.studyPath = studyPath;
+		this.tumorType = cancerStudy.getTypeOfCancerId();
+		this.stableId = cancerStudy.getCancerStudyStableId();
+		this.name = cancerStudy.getName();
+		this.description = cancerStudy.getDescription();
+		this.citation = cancerStudy.getCitation();
+		this.pmid = cancerStudy.getPmid();
+		this.groups = StringUtils.join(cancerStudy.getGroups(), ";");
+		this.shortName = cancerStudy.getShortName();
+		this.convert = false;
+		this.importFlag = false;
+		this.requiresValidation = true;
+		this.updateAvailable = true;
+	}
+
 	public String getName() { return name; }
 	public String getTumorType() { return tumorType; }
 	public String getStableId() { return stableId; }
@@ -124,5 +158,24 @@ public class CancerStudyMetadata {
 
 	public String toString() {
 		return stableId;
+	}
+
+	public Map<String, String> getProperties()
+	{
+		Map<String, String> toReturn = new HashMap<String, String>();
+		toReturn.put(CANCER_STUDY_COLUMN_KEY, studyPath);
+		toReturn.put(CANCER_TYPE_COLUMN_KEY, tumorType);
+		toReturn.put(STABLE_ID_COLUMN_KEY, stableId);
+		toReturn.put(NAME_COLUMN_KEY, name);
+		toReturn.put(DESCRIPTION_COLUMN_KEY, description);
+		toReturn.put(CITATION_COLUMN_KEY, citation);
+		toReturn.put(PMID_COLUMN_KEY, pmid);
+		toReturn.put(GROUPS_COLUMN_KEY, groups);
+		toReturn.put(SHORT_NAME_COLUMN_KEY, shortName);
+		toReturn.put(CONVERT_COLUMN_KEY, Boolean.toString(convert));
+		toReturn.put(IMPORT_COLUMN_KEY, Boolean.toString(importFlag));
+		toReturn.put(REQUIRES_VALIDATION_COLUMN_KEY, Boolean.toString(requiresValidation));
+		toReturn.put(UPDATE_AVAILABLE_COLUMN_KEY, Boolean.toString(updateAvailable));
+		return toReturn;
 	}
 }

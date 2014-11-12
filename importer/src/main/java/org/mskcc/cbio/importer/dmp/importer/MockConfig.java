@@ -164,4 +164,8 @@ public class MockConfig implements Config {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public void insertCancerStudyMetadata(CancerStudyMetadata cancerStudyMetadata) {
+        throw new UnsupportedOperationException();
+    }
 }

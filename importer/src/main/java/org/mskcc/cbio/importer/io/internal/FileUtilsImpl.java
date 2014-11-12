@@ -28,6 +28,7 @@ import org.mskcc.cbio.importer.util.*;
 import org.mskcc.cbio.portal.model.CopyNumberSegmentFile;
 import org.mskcc.cbio.importer.converter.internal.MethylationConverterImpl;
 
+import org.mskcc.cbio.portal.util.CancerStudyReader;
 import org.mskcc.cbio.liftover.Hg18ToHg19;
 import org.mskcc.cbio.oncotator.OncotateTool;
 import org.mskcc.cbio.mutassessor.MutationAssessorTool;
@@ -962,6 +963,22 @@ public class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 				LOG.info("copy unsucessful.");
 			}
 		}
+	}
+
+	@Override
+	public CancerStudyMetadata createCancerStudyMetadataFromMetaStudyFile(String downloadDirectory, String studyName)
+	{
+		CancerStudyMetadata toReturn = null;
+		try {
+			File cancerStudyFile = org.apache.commons.io.FileUtils.getFile(downloadDirectory,
+			                                                               studyName,
+			                                                               CancerStudyMetadata.CANCER_STUDY_METADATA_FILE);
+			toReturn = new CancerStudyMetadata(studyName, CancerStudyReader.loadCancerStudy(cancerStudyFile, true, false));
+		}	
+		catch (Exception e) {
+			LOG.info("Cannot create cancer metadata file (probably unknown tumor type): " + downloadDirectory + "/" + studyName);	
+		}
+		return toReturn;
 	}
 
     /*

@@ -237,5 +237,10 @@ public class TestXMLFileTransformer {
             throw new UnsupportedOperationException();
         }
 
+        @Override
+        public void insertCancerStudyMetadata(CancerStudyMetadata cancerStudyMetadata) {
+            throw new UnsupportedOperationException();
+        }
+
     }
 }

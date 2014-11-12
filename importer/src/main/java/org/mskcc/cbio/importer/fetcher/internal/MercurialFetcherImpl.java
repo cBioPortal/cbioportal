@@ -60,7 +60,8 @@ public class MercurialFetcherImpl extends FetcherBaseImpl implements Fetcher
 		boolean updatesAvailable = mercurialService.updatesAvailable(dataSourceMetadata.getDownloadDirectory());
 		if (updatesAvailable) {
 			logMessage(LOG, "fetch(), updates available, pulling from repository.");
-			updateStudiesWorksheet(mercurialService.pullUpdate(dataSourceMetadata.getDownloadDirectory()));
+			updateStudiesWorksheet(dataSourceMetadata.getDownloadDirectory(),
+			                       mercurialService.pullUpdate(dataSourceMetadata.getDownloadDirectory()));
 			return true;
 		}
 		else {
@@ -84,20 +85,47 @@ public class MercurialFetcherImpl extends FetcherBaseImpl implements Fetcher
 		throw new UnsupportedOperationException();
 	}
 
-	private void updateStudiesWorksheet(List<String> studiesUpdated)
+	private List<String> updateStudiesWorksheet(String downloadDirectory, List<String> studiesUpdated)
 	{
+		ArrayList<String> cancerStudiesUpdated = new ArrayList<String>(); 
 		Map<String,String> propertyMap = new HashMap<String,String>();
 		for (String cancerStudy : studiesUpdated) {
-			CancerStudyMetadata cancerStudyMetadata = config.getCancerStudyMetadataByName(cancerStudy);
-			propertyMap.clear();
-			propertyMap.put(CancerStudyMetadata.UPDATE_AVAILABLE_COLUMN_KEY, "true");
-			// clear import (if requires validation)
-			if (cancerStudyMetadata.requiresValidation()) {
-				propertyMap.put(CancerStudyMetadata.IMPORT_COLUMN_KEY, "false");
+			CancerStudyMetadata cancerStudyMetadata = getCancerStudyMetadata(downloadDirectory, cancerStudy);
+			if (cancerStudyMetadata == null) {
+				continue;
 			}
-			config.updateCancerStudyAttributes(cancerStudy, propertyMap);
-			logMessage(LOG, "fetch(), the following study has been updated: " + cancerStudy);
+			if (cancerStudyMetadataExists(cancerStudy)) {
+				propertyMap.clear();
+				propertyMap.put(CancerStudyMetadata.UPDATE_AVAILABLE_COLUMN_KEY, "true");
+				// clear import (if requires validation)
+				if (cancerStudyMetadata.requiresValidation()) {
+					propertyMap.put(CancerStudyMetadata.IMPORT_COLUMN_KEY, "false");
+				}
+				config.updateCancerStudyAttributes(cancerStudy, propertyMap);
+				logMessage(LOG, "fetch(), the following study has been updated: " + cancerStudy);
+			}
+			else {
+				config.insertCancerStudyMetadata(cancerStudyMetadata);
+				logMessage(LOG, "fetch(), the following study has been created: " + cancerStudy);
+			}
+			cancerStudiesUpdated.add(cancerStudy);
 		}
+		return cancerStudiesUpdated;
+	}
+
+	private CancerStudyMetadata getCancerStudyMetadata(String downloadDirectory, String cancerStudy)
+	{
+		CancerStudyMetadata cancerStudyMetadata = config.getCancerStudyMetadataByName(cancerStudy);
+		if (cancerStudyMetadata == null) {
+			// cancer study is unknown, create an entry
+			cancerStudyMetadata = fileUtils.createCancerStudyMetadataFromMetaStudyFile(downloadDirectory, cancerStudy);
+		}
+		return cancerStudyMetadata;
+	}
+
+	private boolean cancerStudyMetadataExists(String cancerStudy)
+	{
+		return (config.getCancerStudyMetadataByName(cancerStudy) != null);
 	}
 }
 

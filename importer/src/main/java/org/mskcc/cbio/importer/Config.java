@@ -206,4 +206,5 @@ public interface Config {
 
 
    void updateCancerStudyAttributes(String cancerStudy, Map<String,String> properties);
+   void insertCancerStudyMetadata(CancerStudyMetadata cancerStudyMetadata);
 }

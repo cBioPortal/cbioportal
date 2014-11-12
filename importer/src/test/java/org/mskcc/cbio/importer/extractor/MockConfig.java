@@ -169,4 +169,9 @@ public class MockConfig implements Config {
     public void updateCancerStudyAttributes(String cancerStudy, Map<String,String> properties) {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public void insertCancerStudyMetadata(CancerStudyMetadata cancerStudyMetadata) {
+        throw new UnsupportedOperationException();
+    }
 }

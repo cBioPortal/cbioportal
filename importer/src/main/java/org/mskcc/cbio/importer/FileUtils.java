@@ -327,4 +327,6 @@ public interface FileUtils {
 	 * @throws Exception
 	 */
 	void copySegFiles(PortalMetadata portalMetadata, DatatypeMetadata datatypeMetadata, String remoteUserName) throws Exception;
+
+	CancerStudyMetadata createCancerStudyMetadataFromMetaStudyFile(String downloadDirectory, String studyName);
 }

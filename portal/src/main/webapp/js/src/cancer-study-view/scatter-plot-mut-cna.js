@@ -61,7 +61,7 @@ function plotMutVsCna(csObs,divId,caseIdDiv,cancerStudyId,dt,emphasisCaseIds,col
         
         var options = {
             hAxis: {title: "Fraction of copy number altered genome"+(hLog?" (log)":""), logScale:hLog, format:'#%'},
-            vAxis: {title: "# of mutations"+(vLog?" (log)":""), logScale:vLog, format:'#,###'},
+            vAxis: {title: "mutation count"+(vLog?" (log)":""), logScale:vLog, format:'#,###'},
             legend: {position:'none'}
         };
         scatter.draw(scatterDataView,options);

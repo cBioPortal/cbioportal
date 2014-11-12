@@ -250,7 +250,7 @@ var AlleleFreqPlotMulti = function(div, data, options) {
             .attr("font-size", options.label_font_size)
             .style("text-anchor","middle")
             .style("font-style", "italic")
-            .text("# of mutations");
+            .text("mutation count");
     
     applyCss(y_axis.selectAll('path')).attr('display', options.yticks === 0? '' : 'none');
     applyCss(y_axis.selectAll('line'));

@@ -313,7 +313,7 @@ legend.legend-border {
                 hide: {fixed: true, delay: 100, event: "mouseout"},
                 style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow', tip: false},
                 //position: {my:'left top',at:'bottom center'}
-                position: {my:'top right',at:'top right',viewport: $(window)}
+                position: {my:'top right',at:'top left',viewport: $(window)}
             });
         });
     });

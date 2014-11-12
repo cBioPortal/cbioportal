@@ -254,31 +254,32 @@ public class PatientView extends HttpServlet {
             return;
         }
         try {
+            Collections.sort(sampleIds);
+
+            if (DaoClinicalEvent.timeEventsExistForPatient(patientId)) {
+                List<ClinicalEvent> events = DaoClinicalEvent.getClinicalEvent(patientId, "SPECIMEN");
+                if (events!=null) {
+                    final Map<String, Long> sampleTimes = new HashMap<String, Long>();
+                    for (ClinicalEvent event : events) {
+                        sampleTimes.put(event.getEventData().get("SpecimenReferenceNumber"), event.getStartDate());
+                    }
+
+                    Collections.sort(sampleIds, new Comparator<String>() {
+                    @Override
+                    public int compare(String s1, String s2) {
+                        Long l1 = sampleTimes.get(s1);
+                        if (l1==null) l1 = Long.MAX_VALUE;
+                        Long l2 = sampleTimes.get(s2);
+                        if (l2==null) l2 = Long.MAX_VALUE;
+
+                        return l1.compareTo(l2);
+                    }
+                });
+                }
+            }
+
             ClinicalAttribute attr = DaoClinicalAttribute.getDatum("SAMPLE_TYPE");
             if (attr!=null) {
-                Collections.sort(sampleIds);
-                
-                if (DaoClinicalEvent.timeEventsExistForPatient(patientId)) {
-                    List<ClinicalEvent> events = DaoClinicalEvent.getClinicalEvent(patientId, "SPECIMEN");
-                    if (events!=null) {
-                        final Map<String, Long> sampleTimes = new HashMap<String, Long>();
-                        for (ClinicalEvent event : events) {
-                            sampleTimes.put(event.getEventData().get("SpecimenReferenceNumber"), event.getStartDate());
-                        }
-                        
-                        Collections.sort(sampleIds, new Comparator<String>() {
-                        @Override
-                        public int compare(String s1, String s2) {
-                            Long l1 = sampleTimes.get(s1);
-                            if (l1==null) l1 = Long.MAX_VALUE;
-                            Long l2 = sampleTimes.get(s2);
-                            if (l2==null) l2 = Long.MAX_VALUE;
-                            
-                            return l1.compareTo(l2);
-                        }
-                    });
-                    }
-                }
                 
                 List<ClinicalData> data = DaoClinicalData.getSampleData(cancerStudyId, sampleIds, attr);
                 if (!data.isEmpty()) {

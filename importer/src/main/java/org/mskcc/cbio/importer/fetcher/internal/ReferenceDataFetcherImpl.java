@@ -63,7 +63,7 @@ public class ReferenceDataFetcherImpl implements Fetcher {
 	 * @throws Exception
 	 */
 	@Override
-	public boolean fetch(String dataSource, String desiredRunDate) throws Exception {
+	public void fetch(String dataSource, String desiredRunDate, boolean sendNotification) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
@@ -74,7 +74,7 @@ public class ReferenceDataFetcherImpl implements Fetcher {
 	 * @throws Exception
 	 */
 	@Override
-	public boolean fetchReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
+	public void fetchReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
 
 		String fetcherName = referenceMetadata.getFetcherName();
 
@@ -82,7 +82,6 @@ public class ReferenceDataFetcherImpl implements Fetcher {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("fetchReferenceData(), no fetcher name provided, exiting...");
 			}
-			return false;
 		}
 
 		if (LOG.isInfoEnabled()) {
@@ -98,6 +97,5 @@ public class ReferenceDataFetcherImpl implements Fetcher {
 		else if (LOG.isInfoEnabled()) {
 			LOG.info("fetchReferenceData(), failure executing importer.");
 		}
-		return true;
 	}
 }

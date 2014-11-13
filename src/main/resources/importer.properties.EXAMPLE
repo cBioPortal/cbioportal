@@ -32,6 +32,17 @@ importer.tumor_types_worksheet=tumor_types
 importer.foundation_worksheet=foundation
 importer.icgc_worksheet=icgc
 
+# mail
+mail.server=
+mail.triage_portal.update.message.sender=
+mail.triage_portal.update.message.recipient=
+mail.triage_portal.update.message.subject=
+mail.triage_portal.update.message.body=
+mail.production_portal.update.message.sender=
+mail.production_portal.update.message.recipient=
+mail.production_portal.update.message.subject=
+mail.production_portal.update.message.body=
+
 # annotation database
 annotate.db.user=
 annotate.db.password=
@@ -57,12 +68,3 @@ tcga.clinical.url=https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpuse
 tcga.clinical.filename=nationwidechildrens.org_<TUMOR_TYPE>.bio.Level_2.0.<REVISION>.0.tar.gz
 nci.cadsr.url=http://cadsrapi.nci.nih.gov/cadsrapi40/GetXML?query=
 nci.cadsr.query=DataElement[@publicId=CDE_ID:]
-
-# dmp credentials
-dmp.server_name = 
-dmp.user_name = 
-dmp.password = 
-dmp.tokens.create_session = create_session
-dmp.tokens.retrieve_variants = cbio_retrieve_variants
-dmp.tokens.retrieve_segment_data = get_seg_data
-dmp.tokens.consume_sample = cbio_consume_sample

@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 public class DataSourcesMetadata {
 
 	// delimiter between datasource names (like tcga-stddata)
+	public static final String CMO_PIPELINE_REPOS = "bic-mskcc";
 	public static final String DATA_SOURCE_NAME_DELIMITER = "-";
 
 	// bean properties

@@ -37,7 +37,7 @@ public interface Fetcher {
 	 * @param desiredRunDate String
 	 * @throws Exception
 	 */
-	boolean fetch(String dataSource, String desiredRunDate) throws Exception;
+	void fetch(String dataSource, String desiredRunDate, boolean sendNotification) throws Exception;
 
 	/**
 	 * Fetchers reference data from an external datasource.
@@ -45,5 +45,5 @@ public interface Fetcher {
      * @param referenceMetadata ReferenceMetadata
 	 * @throws Exception
 	 */
-	boolean fetchReferenceData(ReferenceMetadata referenceMetadata) throws Exception;
+	void fetchReferenceData(ReferenceMetadata referenceMetadata) throws Exception;
 }

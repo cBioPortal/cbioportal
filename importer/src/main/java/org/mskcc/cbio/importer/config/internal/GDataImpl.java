@@ -823,10 +823,10 @@ class GDataImpl implements Config {
     }
 
     @Override
-    public void insertCancerStudyMetadata(CancerStudyMetadata cancerStudyMetadata)
+    public void insertCancerStudyAttributes(Map<String,String> properties)
     {
         updateWorksheet(gdataSpreadsheet, cancerStudiesWorksheet,
-                        true, null, null, cancerStudyMetadata.getProperties());
+                        true, null, null, properties);
         cancerStudiesMatrix = null;
     }
 

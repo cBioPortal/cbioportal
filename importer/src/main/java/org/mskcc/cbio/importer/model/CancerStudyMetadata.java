@@ -42,9 +42,9 @@ public class CancerStudyMetadata {
 	public static final String GROUPS_COLUMN_KEY = "GROUPS";
 	public static final String SHORT_NAME_COLUMN_KEY = "SHORTNAME";
 	public static final String CONVERT_COLUMN_KEY = "CONVERT";
-	public static final String IMPORT_COLUMN_KEY = "IMPORT";
 	public static final String REQUIRES_VALIDATION_COLUMN_KEY = "REQUIRESVALIDATION";
-	public static final String UPDATE_AVAILABLE_COLUMN_KEY = "UPDATEAVAILABLE";
+	public static final String UPDATE_TRIAGE_COLUMN_KEY = "UPDATETRIAGE";
+	public static final String READY_FOR_RELEASE_COLUMN_KEY = "READYFORRELEASE";
 
     // delimiter between tumor type and center (used for find the path)
 
@@ -78,9 +78,9 @@ public class CancerStudyMetadata {
 	private String groups;
     private String shortName;
     private boolean convert;
-    private boolean importFlag;
     private boolean requiresValidation;
-    private boolean updateAvailable;
+    private boolean updateTriage;
+    private boolean readyForRelease;
 
     /**
      * Create a CancerStudyMetadata instance with properties in given array.
@@ -112,9 +112,9 @@ public class CancerStudyMetadata {
 		this.groups = properties[7].trim();
         this.shortName = properties[8].trim();
         this.convert = Boolean.parseBoolean(properties[9].trim());
-        this.importFlag = Boolean.parseBoolean(properties[10].trim());
-        this.requiresValidation = Boolean.parseBoolean(properties[11].trim());
-        this.updateAvailable = Boolean.parseBoolean(properties[12].trim());
+        this.requiresValidation = Boolean.parseBoolean(properties[10].trim());
+        this.updateTriage = Boolean.parseBoolean(properties[11].trim());
+        this.readyForRelease = Boolean.parseBoolean(properties[12].trim());
 	}
 
 	public CancerStudyMetadata(String studyPath, CancerStudy cancerStudy)
@@ -129,9 +129,9 @@ public class CancerStudyMetadata {
 		this.groups = StringUtils.join(cancerStudy.getGroups(), ";");
 		this.shortName = cancerStudy.getShortName();
 		this.convert = false;
-		this.importFlag = false;
-		this.requiresValidation = true;
-		this.updateAvailable = true;
+		this.requiresValidation = false;
+		this.updateTriage = false;
+		this.readyForRelease = false;
 	}
 
 	public String getName() { return name; }
@@ -147,9 +147,9 @@ public class CancerStudyMetadata {
 	public String getGroups() { return groups; }
         public String getShortName() { return shortName; }
 	public Boolean isConverted() { return convert; }
-	public Boolean isImported() { return importFlag; }
 	public Boolean requiresValidation() { return requiresValidation; }
-	public Boolean updateAvailable() { return updateAvailable; }
+	public Boolean updateTriage() { return updateTriage; }
+	public Boolean readyForRelease() { return readyForRelease; }
 
 	public String getCancerStudyMetadataFilename() {
 		//return getStudyPath() + File.separator + toString() + CANCER_STUDY_METADATA_FILE_EXT;
@@ -173,9 +173,9 @@ public class CancerStudyMetadata {
 		toReturn.put(GROUPS_COLUMN_KEY, groups);
 		toReturn.put(SHORT_NAME_COLUMN_KEY, shortName);
 		toReturn.put(CONVERT_COLUMN_KEY, Boolean.toString(convert));
-		toReturn.put(IMPORT_COLUMN_KEY, Boolean.toString(importFlag));
 		toReturn.put(REQUIRES_VALIDATION_COLUMN_KEY, Boolean.toString(requiresValidation));
-		toReturn.put(UPDATE_AVAILABLE_COLUMN_KEY, Boolean.toString(updateAvailable));
+		toReturn.put(UPDATE_TRIAGE_COLUMN_KEY, Boolean.toString(updateTriage));
+		toReturn.put(READY_FOR_RELEASE_COLUMN_KEY, Boolean.toString(readyForRelease));
 		return toReturn;
 	}
 }

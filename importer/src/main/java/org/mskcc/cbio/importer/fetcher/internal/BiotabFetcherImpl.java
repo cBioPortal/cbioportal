@@ -75,20 +75,19 @@ public class BiotabFetcherImpl extends FetcherBaseImpl implements Fetcher
 	}
 
 	@Override
-	public boolean fetchReferenceData(ReferenceMetadata referenceMetadata) throws Exception
+	public void fetchReferenceData(ReferenceMetadata referenceMetadata) throws Exception
     {
 		throw new UnsupportedOperationException();
 	}
 
     @Override
-	public boolean fetch(String dataSource, String desiredRunDate) throws Exception
+	public void fetch(String dataSource, String desiredRunDate, boolean sendNotification) throws Exception
     {
 
 		logMessage(LOG, "fetch(), dateSource" + dataSource);
         initDataSourceMetadata(dataSource);
         fetchData();
         logMessage(LOG, "fetch(), complete.");
-        return true;
 	}
 
     private void initDataSourceMetadata(String dataSource) throws Exception

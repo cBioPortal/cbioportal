@@ -165,7 +165,7 @@ public class MockConfig implements Config {
     }
 
     @Override
-    public void insertCancerStudyMetadata(CancerStudyMetadata cancerStudyMetadata) {
+    public void insertCancerStudyAttributes(Map<String,String> properties) {
         throw new UnsupportedOperationException();
     }
 }

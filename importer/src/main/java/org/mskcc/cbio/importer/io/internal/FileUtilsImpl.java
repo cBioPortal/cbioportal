@@ -951,16 +951,64 @@ public class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 											  sourceFilename,
 											  remoteUserName + "@" + segFileLocation.getHost() + ":" +
 											  segFileLocation.getFile() + destinationFilename };
+			executeCommand(command);
+		}
+	}
+
+	private boolean executeCommand(String[] command)
+	{
+		boolean toReturn = false;
+		if (LOG.isInfoEnabled()) {
+			LOG.info("executing: " + Arrays.asList(command));
+		}
+		if (Shell.exec(Arrays.asList(command), ".")) {
 			if (LOG.isInfoEnabled()) {
-				LOG.info("executing: " + Arrays.asList(command));
+				LOG.info("command successful.");
 			}
-			if (Shell.exec(Arrays.asList(command), ".")) {
-				if (LOG.isInfoEnabled()) {
-					LOG.info("copy successful.");
-				}
-			}
-			else if (LOG.isInfoEnabled()) {
-				LOG.info("copy unsucessful.");
+			toReturn = true;
+		}
+		else if (LOG.isInfoEnabled()) {
+			LOG.info("command unsucessful.");
+		}
+		return toReturn;
+	}
+
+	@Override
+	public void redeployWar(PortalMetadata portalMetadata, String remoteUserName) throws Exception
+	{
+		if (LOG.isInfoEnabled()) {
+			LOG.info("redeployWar()");
+		}
+
+        // check args
+        if (portalMetadata == null || remoteUserName == null) {
+            throw new IllegalArgumentException("portal or remoteUserName must not be null");
+		}
+
+		// war file location
+		URL warFileLocation = portalMetadata.getIGVSegFileLinkingLocation();
+
+		// copy war to home
+		boolean success;
+		String[] command = new String[] { "ssh",
+										  remoteUserName + "@" + warFileLocation.getHost(),
+										  "'cp" + warFileLocation.getFile() + "~'" 
+										};
+		success = executeCommand(command);
+
+		// delete war in webapps
+		if (success) {
+			command = new String[] { "ssh",
+									 remoteUserName + "@" + warFileLocation.getHost(),
+									 "'rm" + warFileLocation.getFile() + "~'" 
+									};
+			success = executeCommand(command);
+			if (success) {
+				command = new String[] { "ssh",
+										 remoteUserName + "@" + warFileLocation.getHost(),
+										 "'cp" + "~ NAME" + warFileLocation.getFile() 
+										};
+				success = executeCommand(command);
 			}
 		}
 	}

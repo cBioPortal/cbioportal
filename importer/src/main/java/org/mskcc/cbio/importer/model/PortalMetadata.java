@@ -28,7 +28,7 @@ import java.net.URL;
  */
 public class PortalMetadata {
 
-	// all cases indicator
+	public static final String TRIAGE_PORTAL = "triage-portal";
 	public static final String PUBLIC_PORTAL = "public-portal";
 
 	// bean properties
@@ -36,6 +36,7 @@ public class PortalMetadata {
     private String stagingDirectory;
     private String overrideDirectory;
 	private URL igvSegFileLinkingLocation;
+	private URL warFile;
 
     /**
      * Create a PortalMetadata instance with properties in given array.
@@ -45,7 +46,7 @@ public class PortalMetadata {
      */
     public PortalMetadata(String[] properties) {
 
-		if (properties.length < 4) {
+		if (properties.length < 5) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
 
@@ -54,6 +55,7 @@ public class PortalMetadata {
 		this.overrideDirectory = MetadataUtils.getCanonicalPath(properties[2].trim());
 		try {
 			this.igvSegFileLinkingLocation = new URL(properties[3].trim());
+			this.warFile = new URL(properties[4].trim());
 		}
 		catch (Exception e) {
 			throw new IllegalArgumentException("corrupt properties array passed to constructor");
@@ -64,4 +66,5 @@ public class PortalMetadata {
 	public String getStagingDirectory() { return stagingDirectory; }
 	public String getOverrideDirectory() { return overrideDirectory; }
 	public URL getIGVSegFileLinkingLocation() { return igvSegFileLinkingLocation; }
+	public URL getWarFileLocation() { return warFile; }
 }

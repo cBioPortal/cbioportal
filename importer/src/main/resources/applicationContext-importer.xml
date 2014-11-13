@@ -176,4 +176,20 @@ http://www.springframework.org/schema/util/spring-util.xsd">
         <b:constructor-arg ref="caseIDs"/>
         <b:constructor-arg ref="idMapper"/>
     </b:bean>
+    <b:bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <b:property name="host" value="${mail.server}"/>
+    </b:bean>
+    <b:bean id="triageUpdateMessage" class="org.springframework.mail.SimpleMailMessage">
+        <b:property name="from" value="${mail.triage_portal.update.message.sender}"/>
+        <b:property name="to" ref="${mail.triage_portal.update.message.recipient}"/>
+        <b:property name="subject" value="${mail.triage_portal.update.message.subject}"/>
+        <b:property name="text" value="${mail.triage_portal.update.message.body}"/>
+    </bean>
+    <b:bean id="productionUpdateMessage" class="org.springframework.mail.SimpleMailMessage">
+        <b:property name="from" value="${mail.production_portal.update.message.sender}"/>
+        <b:property name="to" ref="${mail.production_portal.update.message.recipient}"/>
+        <b:property name="subject" value="${mail.production_portal.update.message.subject}"/>
+        <b:property name="text" value="${mail.production_portal.update.message.body}"/>
+    </bean>
+
 </b:beans>

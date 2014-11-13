@@ -92,8 +92,8 @@ public class Admin implements Runnable {
 													  "\"" + Config.ALL + "\".")
 									 .create("init_db"));
 
-        Option fetchData = (OptionBuilder.withArgName("data_source:run_date")
-							.hasArgs(2)
+        Option fetchData = (OptionBuilder.withArgName("data_source:run_date:send_notification")
+							.hasArgs(3)
 							.withValueSeparator(':')
 							.withDescription("Fetch data from the given data_source and the given run date (mm/dd/yyyy).  " + 
 											 "Use \"" + Fetcher.LATEST_RUN_INDICATOR + "\" to retrieve the most current run or " +
@@ -180,6 +180,14 @@ public class Admin implements Runnable {
 												"command to add your identity to the authentication agent.")
 							   .create("copy_seg_files"));
 
+        Option redeployWar = (OptionBuilder.withArgName("portal:remote_user_name")
+							  .hasArgs(2)
+							  .withValueSeparator(':')
+							  .withDescription("Redeploy war for given portal. " + 
+											   "'ssh-add' should be executed prior to this " +
+											   "command to add your identity to the authentication agent.")
+							  .create("redeploy_war"));
+
         Option deleteCancerStudy = (OptionBuilder.withArgName("cancer_study_id")
 									.hasArg()
 									.withDescription("Delete a cancer study matching the given cancer study id.")
@@ -204,6 +212,7 @@ public class Admin implements Runnable {
 		toReturn.addOption(updateStudyData);
 		toReturn.addOption(importCaseLists);
 		toReturn.addOption(copySegFiles);
+		toReturn.addOption(redeployWar);
 		toReturn.addOption(deleteCancerStudy);
 
 		// outta here
@@ -252,7 +261,7 @@ public class Admin implements Runnable {
 			// fetch
 			else if (commandLine.hasOption("fetch_data")) {
                 String[] values = commandLine.getOptionValues("fetch_data");
-				fetchData(values[0], values[1]);
+				fetchData(values[0], values[1], (values.length == 3) ? values[2] : "");
 			}
 			// fetch reference data
 			else if (commandLine.hasOption("fetch_reference_data")) {
@@ -306,6 +315,11 @@ public class Admin implements Runnable {
 			else if (commandLine.hasOption("copy_seg_files")) {
                 String[] values = commandLine.getOptionValues("copy_seg_files");
                 copySegFiles(values[0], values[1], values[2]);
+			}
+			// redeploy war
+			else if (commandLine.hasOption("redeploy_war")) {
+                String[] values = commandLine.getOptionValues("redeploy_war");
+                redeployWar(values[0], values[1]);
 			}
 			else if (commandLine.hasOption("delete_cancer_study")) {
 				deleteCancerStudy(commandLine.getOptionValue("delete_cancer_study"));
@@ -364,17 +378,18 @@ public class Admin implements Runnable {
 	 * @param runDate String
 	 * @throws Exception
 	 */
-	private void fetchData(String dataSource, String runDate) throws Exception {
+	private void fetchData(String dataSource, String runDate, String sendNotification) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("fetchData(), dateSource:runDate: " + dataSource + ":" + runDate);
 		}
 
 		// create an instance of fetcher
+		Boolean sendNotificationBool = getBoolean(sendNotification);
 		DataSourcesMetadata dataSourcesMetadata = getDataSourcesMetadata(dataSource);
 		// fetch the given data source
 		Fetcher fetcher = (Fetcher)getBean(dataSourcesMetadata.getFetcherBeanID());
-		fetcher.fetch(dataSource, runDate);
+		fetcher.fetch(dataSource, runDate, sendNotificationBool);
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("fetchData(), complete");
@@ -670,14 +685,22 @@ public class Admin implements Runnable {
 		Importer importer = (Importer)getBean("importer");
 		Map<String,String> propertyMap = new HashMap<String,String>();
 		for (CancerStudyMetadata cancerStudyMetadata : config.getCancerStudyMetadata(portal)) {
-			if ((portal.contains("triage") || cancerStudyMetadata.isImported()) && cancerStudyMetadata.updateAvailable())  {
-				propertyMap.clear();
+			propertyMap.clear();
+			// if we are updating triage and this study is ready for update, then import it
+			if (portal.equals(PortalMetadata.TRIAGE_PORTAL) && cancerStudyMetadata.updateTriage()) {
 				importer.updateCancerStudy(portal, cancerStudyMetadata);
-				// clear update available - to prevent multiple imports
-				propertyMap.put(CancerStudyMetadata.UPDATE_AVAILABLE_COLUMN_KEY, "false");
-				if (updateWorksheetBool) {
-					config.updateCancerStudyAttributes(cancerStudyMetadata.getName(), propertyMap);
-				}
+				// we've updated the study in triage, turn off update triage flag
+				propertyMap.put(CancerStudyMetadata.UPDATE_TRIAGE_COLUMN_KEY, "false");
+			}
+			// otherwise, we only update studies that require validation and are ready for release
+			else if (cancerStudyMetadata.requiresValidation() && cancerStudyMetadata.readyForRelease()) {
+				importer.updateCancerStudy(portal, cancerStudyMetadata);
+				// turn off ready for release so that the next
+				// fetch does not get imported before being vetted
+				propertyMap.put(CancerStudyMetadata.READY_FOR_RELEASE_COLUMN_KEY, "false");
+			}
+			if (updateWorksheetBool) {
+				config.updateCancerStudyAttributes(cancerStudyMetadata.getName(), propertyMap);
 			}
 		}
 	}
@@ -738,6 +761,33 @@ public class Admin implements Runnable {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("copySegFiles(), complete");
+		}
+	}
+
+	private void redeployWar(String portalName, String remoteUserName) throws Exception
+	{
+		if (LOG.isInfoEnabled()) {
+			LOG.info("redeployWar(), portal: " + portalName);
+			LOG.info("redeployWar(), remoteUserName: " + remoteUserName);
+		}
+
+		Config config = (Config)getBean("config");
+		Collection<PortalMetadata> portalMetadatas = config.getPortalMetadata(portalName);
+
+		// sanity check args
+		if (remoteUserName.length() == 0 || portalMetadatas.isEmpty()) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("redeployWar(), error processing arguments, aborting....");
+			}
+		}
+		else {
+			// create an instance of Importer
+			FileUtils fileUtils = (FileUtils)getBean("fileUtils");
+			fileUtils.redeployWar(portalMetadatas.iterator().next(), remoteUserName);
+		}
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("redeployWar(), complete");
 		}
 	}
 

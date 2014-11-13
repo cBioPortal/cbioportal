@@ -238,7 +238,7 @@ public class TestXMLFileTransformer {
         }
 
         @Override
-        public void insertCancerStudyMetadata(CancerStudyMetadata cancerStudyMetadata) {
+        public void insertCancerStudyAttributes(Map<String,String> properties) {
             throw new UnsupportedOperationException();
         }
 

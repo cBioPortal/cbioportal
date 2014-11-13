@@ -91,7 +91,7 @@ public class FoundationFetcherImpl implements Fetcher {
     }
 
     @Override
-    public boolean fetch(final String dataSource, final String desiredRunDate) throws Exception {
+    public void fetch(final String dataSource, final String desiredRunDate, boolean sendNotification) throws Exception {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(dataSource), "A data source is required");
         logger.info("fetch operation for Foundation Medicine files invoked");
         
@@ -103,11 +103,10 @@ public class FoundationFetcherImpl implements Fetcher {
             logger.info("Transforming data from " + xmlPath.toString());
             this.fileTransformer.transform(fds);
         }
-        return true;
     }
 
     @Override
-    public boolean fetchReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
+    public void fetchReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
         throw new UnsupportedOperationException("Not supported yet.");
     }
     

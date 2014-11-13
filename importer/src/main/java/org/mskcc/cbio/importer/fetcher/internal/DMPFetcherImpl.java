@@ -52,7 +52,7 @@ public class DMPFetcherImpl implements Fetcher
     }
     
     @Override
-    public boolean fetch(String dataSource, String desiredRunDate) 
+    public void fetch(String dataSource, String desiredRunDate, boolean sendNotification) 
             throws Exception {
         
         if (LOG.isInfoEnabled()) {
@@ -75,12 +75,10 @@ public class DMPFetcherImpl implements Fetcher
         
         DMPclinicaldataimporter dmpImporter_mark = 
                 new DMPclinicaldataimporter(transformer.transform(data)); //mark consumed samples (transformer returns a list of consumed sample ids)
-
-        return true;
     }
 
     @Override
-    public boolean fetchReferenceData(ReferenceMetadata referenceMetadata) 
+    public void fetchReferenceData(ReferenceMetadata referenceMetadata) 
             throws Exception {
         throw new UnsupportedOperationException();
     }

@@ -24,6 +24,10 @@ import org.mskcc.cbio.importer.mercurial.*;
 
 import org.apache.commons.logging.*;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.SimpleMailMessage;
+
 import java.util.*;
 
 /**
@@ -39,6 +43,12 @@ public class MercurialFetcherImpl extends FetcherBaseImpl implements Fetcher
 	private DatabaseUtils databaseUtils;
 	private MercurialService mercurialService;
 
+	@Autowired
+	JavaMailSender mailSender;
+
+	@Autowired
+	SimpleMailMessage triageUpdateMessage;
+
 	public MercurialFetcherImpl(Config config, FileUtils fileUtils,
 								DatabaseUtils databaseUtils, ImportDataRecordDAO importDataRecordDAO,
 								MercurialService mercurialService)
@@ -52,7 +62,7 @@ public class MercurialFetcherImpl extends FetcherBaseImpl implements Fetcher
 	}
 
 	@Override
-	public boolean fetch(String dataSource, String desiredRunDate) throws Exception
+	public void fetch(String dataSource, String desiredRunDate, boolean sendNotification) throws Exception
 	{
 		logMessage(LOG, "fetch(), dateSource:runDate: " + dataSource + ":" + desiredRunDate);
 
@@ -60,13 +70,14 @@ public class MercurialFetcherImpl extends FetcherBaseImpl implements Fetcher
 		boolean updatesAvailable = mercurialService.updatesAvailable(dataSourceMetadata.getDownloadDirectory());
 		if (updatesAvailable) {
 			logMessage(LOG, "fetch(), updates available, pulling from repository.");
-			updateStudiesWorksheet(dataSourceMetadata.getDownloadDirectory(),
-			                       mercurialService.pullUpdate(dataSourceMetadata.getDownloadDirectory()));
-			return true;
+			List<String> cancerStudiesUpdated = updateStudiesWorksheet(dataSourceMetadata,
+			                                                           mercurialService.pullUpdate(dataSourceMetadata.getDownloadDirectory()));
+			if (sendNotification) {
+				sendNotification(cancerStudiesUpdated);
+			}
 		}
 		else {
 			logMessage(LOG, "fetch(), we have the latest dataset, nothing more to do.");
-			return false;
 		}
 	}
 
@@ -81,31 +92,25 @@ public class MercurialFetcherImpl extends FetcherBaseImpl implements Fetcher
 	}
 
 	@Override
-	public boolean fetchReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
+	public void fetchReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
-	private List<String> updateStudiesWorksheet(String downloadDirectory, List<String> studiesUpdated)
+	private List<String> updateStudiesWorksheet(DataSourcesMetadata dataSourceMetadata, List<String> studiesUpdated)
 	{
 		ArrayList<String> cancerStudiesUpdated = new ArrayList<String>(); 
-		Map<String,String> propertyMap = new HashMap<String,String>();
 		for (String cancerStudy : studiesUpdated) {
-			CancerStudyMetadata cancerStudyMetadata = getCancerStudyMetadata(downloadDirectory, cancerStudy);
+			CancerStudyMetadata cancerStudyMetadata = getCancerStudyMetadata(dataSourceMetadata.getDownloadDirectory(), cancerStudy);
 			if (cancerStudyMetadata == null) {
 				continue;
 			}
+			Map<String,String> cancerStudyProperties = getCancerStudyProperties(dataSourceMetadata, cancerStudyMetadata);
 			if (cancerStudyMetadataExists(cancerStudy)) {
-				propertyMap.clear();
-				propertyMap.put(CancerStudyMetadata.UPDATE_AVAILABLE_COLUMN_KEY, "true");
-				// clear import (if requires validation)
-				if (cancerStudyMetadata.requiresValidation()) {
-					propertyMap.put(CancerStudyMetadata.IMPORT_COLUMN_KEY, "false");
-				}
-				config.updateCancerStudyAttributes(cancerStudy, propertyMap);
+				config.updateCancerStudyAttributes(cancerStudy, cancerStudyProperties);
 				logMessage(LOG, "fetch(), the following study has been updated: " + cancerStudy);
 			}
 			else {
-				config.insertCancerStudyMetadata(cancerStudyMetadata);
+				config.insertCancerStudyAttributes(cancerStudyProperties);
 				logMessage(LOG, "fetch(), the following study has been created: " + cancerStudy);
 			}
 			cancerStudiesUpdated.add(cancerStudy);
@@ -127,5 +132,43 @@ public class MercurialFetcherImpl extends FetcherBaseImpl implements Fetcher
 	{
 		return (config.getCancerStudyMetadataByName(cancerStudy) != null);
 	}
-}
 
+	private Map<String,String> getCancerStudyProperties(DataSourcesMetadata dataSourceMetadata, CancerStudyMetadata cancerStudyMetadata)
+	{
+		Map<String,String> toReturn = (cancerStudyMetadataExists(cancerStudyMetadata.getStudyPath())) ?
+			new HashMap<String,String>() : cancerStudyMetadata.getProperties();
+
+	    // all cmo data needs to be vetted within the triage portal
+		if (dataSourceMetadata.getDataSource().equals(DataSourcesMetadata.CMO_PIPELINE_REPOS)) {
+			toReturn.put(CancerStudyMetadata.UPDATE_TRIAGE_COLUMN_KEY, "true");
+			toReturn.put(CancerStudyMetadata.READY_FOR_RELEASE_COLUMN_KEY, "false");
+		}
+		// all other data (like DMP-IMPACT) can pass through the validation step
+		else {
+			toReturn.put(CancerStudyMetadata.UPDATE_TRIAGE_COLUMN_KEY, "false");
+			toReturn.put(CancerStudyMetadata.READY_FOR_RELEASE_COLUMN_KEY, "true");
+		}
+		// this is required so that Admin.updateStudyData() will process the study
+		toReturn.put(CancerStudyMetadata.REQUIRES_VALIDATION_COLUMN_KEY, "true");
+
+		return toReturn;
+	}
+
+	private void sendNotification(List<String> cancerStudiesUpdated)
+	{
+		String body = triageUpdateMessage.getText();
+		SimpleMailMessage msg = new SimpleMailMessage(triageUpdateMessage);
+		for (String cancerStudy : cancerStudiesUpdated) {
+			CancerStudyMetadata cancerStudyMetadata = config.getCancerStudyMetadataByName(cancerStudy);
+			body += "\n" + cancerStudyMetadata.getName();
+		}
+		body += "\n";
+		msg.setText(body);
+		try {
+			mailSender.send(msg);
+		}
+		catch (Exception e) {
+			logMessage(LOG, "sendNotification(), error sending email notification:\n" + e.getMessage());
+		}
+	}
+}

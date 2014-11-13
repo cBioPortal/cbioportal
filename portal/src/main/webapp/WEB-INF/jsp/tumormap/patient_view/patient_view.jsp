@@ -20,7 +20,7 @@ ObjectMapper jsonMapper = new ObjectMapper();
 boolean print = "1".equals(request.getParameter("print"));
 boolean isPatientView = "patient".equals(request.getAttribute(PatientView.VIEW_TYPE));
 request.setAttribute("tumormap", true);
-List<String> caseIds = (Set<String>)request.getAttribute(PatientView.SAMPLE_ID);
+List<String> caseIds = (List<String>)request.getAttribute(PatientView.SAMPLE_ID);
 String jsonCaseIds = jsonMapper.writeValueAsString(caseIds);
 String caseIdStr = StringUtils.join(caseIds," ");
 String patientViewError = (String)request.getAttribute(PatientView.ERROR);

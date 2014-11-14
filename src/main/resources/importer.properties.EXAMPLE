@@ -43,6 +43,11 @@ mail.production_portal.update.message.recipient=
 mail.production_portal.update.message.subject=
 mail.production_portal.update.message.body=
 
+# sftp on production server (for redeploy war)
+production.sftp.host=
+production.sftp.username=
+production.sftp.password=
+
 # annotation database
 annotate.db.user=
 annotate.db.password=

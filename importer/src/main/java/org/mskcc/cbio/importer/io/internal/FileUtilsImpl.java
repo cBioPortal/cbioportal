@@ -25,6 +25,7 @@ import org.mskcc.cbio.portal.scripts.*;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.importer.util.*;
+import org.mskcc.cbio.importer.remote.RedeployWarFlowGateway;
 import org.mskcc.cbio.portal.model.CopyNumberSegmentFile;
 import org.mskcc.cbio.importer.converter.internal.MethylationConverterImpl;
 
@@ -45,6 +46,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.*;
 import java.util.*;
@@ -53,7 +55,10 @@ import java.util.regex.Matcher;
 import java.lang.reflect.Constructor;
 import java.util.zip.GZIPInputStream;
 
-public class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
+public class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils
+{
+	@Autowired
+	RedeployWarFlowGateway redeployWarFlow;
 
     // used in unzip method
     private static int BUFFER = 2048;
@@ -988,28 +993,12 @@ public class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		// war file location
 		URL warFileLocation = portalMetadata.getIGVSegFileLinkingLocation();
 
-		// copy war to home
-		boolean success;
-		String[] command = new String[] { "ssh",
-										  remoteUserName + "@" + warFileLocation.getHost(),
-										  "'cp" + warFileLocation.getFile() + "~'" 
-										};
-		success = executeCommand(command);
+		//SessionFactory sftpSessionFactory;
+		//RedeployWarFlowGateway redeployFlow;
 
-		// delete war in webapps
-		if (success) {
-			command = new String[] { "ssh",
-									 remoteUserName + "@" + warFileLocation.getHost(),
-									 "'rm" + warFileLocation.getFile() + "~'" 
-									};
-			success = executeCommand(command);
-			if (success) {
-				command = new String[] { "ssh",
-										 remoteUserName + "@" + warFileLocation.getHost(),
-										 "'cp" + "~ NAME" + warFileLocation.getFile() 
-										};
-				success = executeCommand(command);
-			}
+		List<String> lsResults = redeployWarFlow.redeployWar("/home/grossb");
+		for (String filename : lsResults) {
+			System.out.println("Remote file: " + filename);
 		}
 	}
 

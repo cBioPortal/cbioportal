@@ -4,14 +4,14 @@
          xmlns:tx="http://www.springframework.org/schema/tx"
          xmlns:context="http://www.springframework.org/schema/context"
          xmlns:util="http://www.springframework.org/schema/util"
-         xsi:schemaLocation="http://www.springframework.org/schema/beans 
-http://www.springframework.org/schema/beans/spring-beans.xsd 
-http://www.springframework.org/schema/tx 
-http://www.springframework.org/schema/tx/spring-tx.xsd 
-http://www.springframework.org/schema/context
- http://www.springframework.org/schema/context/spring-context.xsd
- http://www.springframework.org/schema/util 
-http://www.springframework.org/schema/util/spring-util.xsd">
+         xmlns:int="http://www.springframework.org/schema/integration"
+         xmlns:int-sftp="http://www.springframework.org/schema/integration/sftp"
+         xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-4.1.xsd
+http://www.springframework.org/schema/integration/sftp http://www.springframework.org/schema/integration/sftp/spring-integration-sftp-4.1.xsd
+http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
  
     <context:annotation-config />
     <context:property-placeholder location="classpath:/importer.properties"/>
@@ -176,20 +176,56 @@ http://www.springframework.org/schema/util/spring-util.xsd">
         <b:constructor-arg ref="caseIDs"/>
         <b:constructor-arg ref="idMapper"/>
     </b:bean>
+
+    <!-- sendmail beans -->
     <b:bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
         <b:property name="host" value="${mail.server}"/>
     </b:bean>
     <b:bean id="triageUpdateMessage" class="org.springframework.mail.SimpleMailMessage">
         <b:property name="from" value="${mail.triage_portal.update.message.sender}"/>
-        <b:property name="to" ref="${mail.triage_portal.update.message.recipient}"/>
+        <b:property name="to" value="${mail.triage_portal.update.message.recipient}"/>
         <b:property name="subject" value="${mail.triage_portal.update.message.subject}"/>
         <b:property name="text" value="${mail.triage_portal.update.message.body}"/>
-    </bean>
+    </b:bean>
     <b:bean id="productionUpdateMessage" class="org.springframework.mail.SimpleMailMessage">
         <b:property name="from" value="${mail.production_portal.update.message.sender}"/>
-        <b:property name="to" ref="${mail.production_portal.update.message.recipient}"/>
+        <b:property name="to" value="${mail.production_portal.update.message.recipient}"/>
         <b:property name="subject" value="${mail.production_portal.update.message.subject}"/>
         <b:property name="text" value="${mail.production_portal.update.message.body}"/>
-    </bean>
+    </b:bean>
+
+    <!-- spring integration - sftp beans -->
+    <int:gateway id="gw" service-interface="org.mskcc.cbio.importer.remote.RedeployWarFlowGateway" default-request-channel="inbound"/>
+
+    <b:bean id="sftpSessionFactory" class="org.springframework.integration.file.remote.session.CachingSessionFactory">
+        <b:constructor-arg ref="defaultSftpSessionFactory" />
+    </b:bean>
+
+    <b:bean id="defaultSftpSessionFactory" class="org.springframework.integration.sftp.session.DefaultSftpSessionFactory">
+        <!--
+        <property name="privateKey" value="${private.keyfile}"/>
+        <property name="privateKeyPassphrase" value="${passphrase}"/>
+        -->
+        <b:property name="host" value="${production.sftp.host}"/>
+        <b:property name="user" value="${production.sftp.username}"/>
+        <b:property name="password" value="${production.sftp.password}"/>
+        <b:property name="port" value="22"/>
+    </b:bean>
+
+    <int-sftp:outbound-gateway id="gatewayLS"
+            session-factory="sftpSessionFactory"
+            request-channel="inbound"
+            command="ls"
+            command-options="-1"
+            expression="payload"
+            reply-channel="toSplitter"/>
+
+    <int:splitter id="splitter" input-channel="toSplitter" output-channel="outSplitter"/>
+
+    <int:channel id="inbound"/>
+    <int:channel id="toSplitter"/>
+    <int:channel id="outSplitter">
+        <int:queue/>
+    </int:channel>
 
 </b:beans>

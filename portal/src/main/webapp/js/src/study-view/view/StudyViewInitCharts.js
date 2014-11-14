@@ -101,8 +101,9 @@ var StudyViewInitCharts = (function(){
         //plot if click filtered chart's 'plot data' button which will clear 
         //filter and redraw first then call the postredraw and postfiltered 
         //functions
-        plotDataFlag = false;
-       
+        plotDataFlag = false,
+        
+        tableCharts = ['CANCER_TYPE', 'CANCER_TYPE_DETAILED'];
     
     function allNumberElements(_array){
         var _length = _array.length;
@@ -123,7 +124,7 @@ var StudyViewInitCharts = (function(){
             _attrLength = _attr.length,
             _arrLength = _arr.length,
             _studyDesc = "",
-            _priorityAttrs = ['CANCER_TYPE', 'PATIENT_ID', 'CASE_ID'];
+            _priorityAttrs = ['CANCER_TYPE', 'CANCER_TYPE_DETAILED', 'PATIENT_ID', 'CASE_ID'];
         
         mutatedGenes = dataObtained.mutatedGenes;   
         numOfCases = _arr.length;        
@@ -245,7 +246,7 @@ var StudyViewInitCharts = (function(){
             }else if(_dataType === "STRING"){
                 varType[_attr_id] = "pie";
                 if(selectedCol(_attr_id) && _createdChartsNum < 21){
-                    if (_attr_id==="CANCER_TYPE") {
+                    if (tableCharts.indexOf(_attr_id) !== -1) {
                         pie.unshift(_attr[_attrIndex]);
                     } else {
                         pie.push(_attr[_attrIndex]);
@@ -269,16 +270,18 @@ var StudyViewInitCharts = (function(){
     }
     
     function initSpecialCharts(_arr){
-        if(     (StudyViewUtil.arrayFindByValue(varName, 'OS_MONTHS') && 
-                StudyViewUtil.arrayFindByValue(varName, 'OS_STATUS') &&
-                varKeys['OS_MONTHS'].length > 0 &&
-                varKeys['OS_STATUS'].length > 0) || 
-                (StudyViewUtil.arrayFindByValue(varName, 'DFS_MONTHS') && 
-                StudyViewUtil.arrayFindByValue(varName, 'DFS_STATUS') &&
-                varKeys['DFS_MONTHS'].length > 0 &&
-                varKeys['DFS_STATUS'].length > 0)){
-            
-            initSurvivalPlot(_arr);
+        if(cancerStudyId !== 'mixed_dmp_MSK-IMPACT_2014') {
+            if(     (StudyViewUtil.arrayFindByValue(varName, 'OS_MONTHS') && 
+                    StudyViewUtil.arrayFindByValue(varName, 'OS_STATUS') &&
+                    varKeys['OS_MONTHS'].length > 0 &&
+                    varKeys['OS_STATUS'].length > 0) || 
+                    (StudyViewUtil.arrayFindByValue(varName, 'DFS_MONTHS') && 
+                    StudyViewUtil.arrayFindByValue(varName, 'DFS_STATUS') &&
+                    varKeys['DFS_MONTHS'].length > 0 &&
+                    varKeys['DFS_STATUS'].length > 0)){
+
+                initSurvivalPlot(_arr);
+            }
         }
         
         if(
@@ -658,7 +661,7 @@ var StudyViewInitCharts = (function(){
             attrNameMapUID[pie[i]["attr_id"]] = createdChartID;
             displayedID.push(pie[i]["attr_id"]);
             
-            if (pie[i].attr_id==="CANCER_TYPE") {
+            if (tableCharts.indexOf(pie[i].attr_id) !== -1) {
                 var tableIcon = $("#study-view-dc-chart-" + createdChartID + "-table-icon");
                 if (tableIcon.css("display")!=="none")
                     tableIcons.push(tableIcon);
@@ -1026,7 +1029,7 @@ var StudyViewInitCharts = (function(){
     //This filter is the same one which used in previous Google Charts Version,
     //should be revised later.
     function selectedCol(col) {
-        return col.toLowerCase().match(/(^age)|(gender)|(os_status)|(os_months)|(dfs_status)|(dfs_months)|(race)|(ethnicity)|(.*class.*)|(.*type.*)|(.*site.*)|(.*grade.*)|(.*stage.*)|(histology)|(tumor_type)|(subtype)|(tumor_site)|(.*score.*)|(mutation_count)|(copy_number_alterations)/);
+        return col.toLowerCase().match(/(^age)|(gender)|(os_status)|(os_months)|(dfs_status)|(dfs_months)|(race)|(ethnicity)|(.*type.*)|(.*site.*)|(.*grade.*)|(.*stage.*)|(histology)|(tumor_type)|(subtype)|(tumor_site)|(.*score.*)|(mutation_count)|(copy_number_alterations)/);
     }
     
     function redrawChartsAfterDeletion(){

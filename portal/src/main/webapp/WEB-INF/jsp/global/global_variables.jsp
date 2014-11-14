@@ -166,14 +166,14 @@
             setOncoprintData : function(obj) { 
                 if (oncoprintData === null) {
                     oncoprintData = obj;    
+                    PortalDataCollManager.fire("oncoprint-data-fetched");
                 }
-                PortalDataCollManager.fire("oncoprint-data-fetched");
             },
             setOncoprintStat : function(obj) {
                 if (oncoprintStat === null) {
                     oncoprintStat = obj;
+                    PortalDataCollManager.fire("oncoprint-stat-fetched");
                 }
-                PortalDataCollManager.fire("oncoprint-stat-fetched");
             },
             getOncoprintData : function() { 
                 //TODO: sort the data by sample Id

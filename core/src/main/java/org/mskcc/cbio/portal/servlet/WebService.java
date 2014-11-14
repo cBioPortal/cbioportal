@@ -449,11 +449,22 @@ public class WebService extends HttpServlet {
         }
         
         String format = WebserviceParserUtils.getFormat(request);
+        String attrId = request.getParameter("attribute_id");
+        
         if("json".equals(format)){
             int internalCancerStudyId = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId).getInternalId();
             List<String> patientIds = WebserviceParserUtils.getPatientList(request);
             List<String> sampleIds = StableIdUtil.getStableSampleIdsFromPatientIds(internalCancerStudyId, patientIds);
-            JSONObject.writeJSONString(GetClinicalData.generateJson(DaoClinicalData.getSampleAndPatientData(internalCancerStudyId, sampleIds)), writer);
+            if(attrId == null) {
+                JSONObject.writeJSONString(GetClinicalData.generateJson(DaoClinicalData.getSampleAndPatientData(internalCancerStudyId, sampleIds)), writer);
+            }else {
+                ClinicalAttribute attr = DaoClinicalAttribute.getDatum(attrId);
+                if(attr == null) {
+                    throw new ProtocolException("Attribute ID is invalid.");
+                }else {
+                    JSONObject.writeJSONString(GetClinicalData.generateJson(DaoClinicalData.getSampleAndPatientData(internalCancerStudyId, sampleIds, attr)), writer);
+                }
+            }
         }else {
             // die
             writer.print("There was an error in processing your request.  Please try again");

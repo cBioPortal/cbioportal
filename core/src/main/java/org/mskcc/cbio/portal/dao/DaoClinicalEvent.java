@@ -5,8 +5,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.mskcc.cbio.portal.model.ClinicalEvent;
@@ -46,7 +47,12 @@ public final class DaoClinicalEvent {
         
     }
     
-    public static Collection<ClinicalEvent> getClinicalEvent(int patientId) throws DaoException {
+    public static List<ClinicalEvent> getClinicalEvent(int patientId) throws DaoException {
+        return getClinicalEvent(patientId, null);
+    }
+    
+    public static List<ClinicalEvent> getClinicalEvent(int patientId, String eventType) throws DaoException {
+
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -54,8 +60,15 @@ public final class DaoClinicalEvent {
             con = JdbcUtil.getDbConnection(DaoClinicalEvent.class);
 
             // get events first
-            pstmt = con.prepareStatement("SELECT * FROM clinical_event WHERE PATIENT_ID=?");
-            pstmt.setInt(1, patientId);
+            if (eventType==null) {
+                pstmt = con.prepareStatement("SELECT * FROM clinical_event WHERE PATIENT_ID=?");
+            } else {
+                pstmt = con.prepareStatement("SELECT * FROM clinical_event WHERE PATIENT_ID=? AND EVENT_TYPE=?");
+            }
+            pstmt.setInt(2, patientId);
+            if (eventType!=null) {
+                pstmt.setString(3, eventType);
+            }
 
             rs = pstmt.executeQuery();
             Map<Long, ClinicalEvent> clinicalEvents = new HashMap<Long, ClinicalEvent>();
@@ -78,7 +91,7 @@ public final class DaoClinicalEvent {
                 }
             }
 
-            return clinicalEvents.values();
+            return new ArrayList<ClinicalEvent>(clinicalEvents.values());
         } catch (SQLException e) {
            throw new DaoException(e);
         } finally {

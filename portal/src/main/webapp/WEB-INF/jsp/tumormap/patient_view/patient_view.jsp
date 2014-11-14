@@ -20,7 +20,7 @@ ObjectMapper jsonMapper = new ObjectMapper();
 boolean print = "1".equals(request.getParameter("print"));
 boolean isPatientView = "patient".equals(request.getAttribute(PatientView.VIEW_TYPE));
 request.setAttribute("tumormap", true);
-Set<String> caseIds = (Set<String>)request.getAttribute(PatientView.SAMPLE_ID);
+List<String> caseIds = (List<String>)request.getAttribute(PatientView.SAMPLE_ID);
 String jsonCaseIds = jsonMapper.writeValueAsString(caseIds);
 String caseIdStr = StringUtils.join(caseIds," ");
 String patientViewError = (String)request.getAttribute(PatientView.ERROR);
@@ -49,6 +49,8 @@ int numTumors = (Integer)request.getAttribute("num_tumors");
 boolean showTimeline = (Boolean)request.getAttribute("has_timeline_data");
 
 String pathReportUrl = (String)request.getAttribute(PatientView.PATH_REPORT_URL);
+
+String oncokbUrl = (String)GlobalProperties.getOncoKBUrl();
 
 //String drugType = xssUtil.getCleanerInput(request, "drug_type");
 String drugType = request.getParameter("drug_type");
@@ -337,6 +339,7 @@ var drugType = drugType?'<%=drugType%>':null;
 var clinicalDataMap = <%=jsonClinicalData%>;
 var viewBam = <%=viewBam%>;
 var mapCaseBam = <%=jsonMapCaseBam%>;
+var oncokbUrl = '<%=oncokbUrl%>';
 
 var caseMetaData = {
     color : {}, label : {}, index : {}, tooltip : {}
@@ -810,12 +813,12 @@ function outputClinicalData() {
         }
 
         // reorder based on color
-        var colors = {black:1, orange:2, red:3};
-        caseIds.sort(function(c1, c2){
-            var ret = colors[caseMetaData.color[c1]]-colors[caseMetaData.color[c2]];
-            if (ret===0) return c1<c2?-1:1;
-            return ret;
-        });
+//        var colors = {black:1, orange:2, red:3};
+//        caseIds.sort(function(c1, c2){
+//            var ret = colors[caseMetaData.color[c1]]-colors[caseMetaData.color[c2]];
+//            if (ret===0) return c1<c2?-1:1;
+//            return ret;
+//        });
         caseMetaData.index = cbio.util.arrayToAssociatedArrayIndices(caseIds);
 
         // set labels

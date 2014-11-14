@@ -1,22 +1,18 @@
 package org.mskcc.cbio.importer.foundation.transformer;
 
 import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.foundation.jaxb.CaseType;
 import org.mskcc.cbio.foundation.jaxb.CasesType;
 import org.mskcc.cbio.foundation.jaxb.ClientCaseInfoType;
 import org.mskcc.cbio.foundation.jaxb.ShortVariantType;
-import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.model.CancerStudyMetadata;
-import org.mskcc.cbio.importer.persistence.staging.MetadataFileHandler;
-import org.mskcc.cbio.importer.persistence.staging.MutationFileHandlerImpl;
-import org.mskcc.cbio.importer.persistence.staging.MutationModel;
+import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
+import org.mskcc.cbio.importer.persistence.staging.mutation.MutationModel;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
+import org.mskcc.cbio.importer.persistence.staging.mutation.MutationTransformer;
 
 import javax.annotation.Nullable;
 import javax.xml.bind.JAXBContext;
@@ -25,18 +21,9 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Map;
-
-import static java.nio.file.StandardOpenOption.CREATE;
-import static java.nio.file.StandardOpenOption.APPEND;
-import static java.nio.file.StandardOpenOption.DSYNC;
 
 /**
  * Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
@@ -57,51 +44,18 @@ import static java.nio.file.StandardOpenOption.DSYNC;
  * <p/>
  * Created by fcriscuo on 11/8/14.
  */
-public class FoundationShortVariantTransformer {
+public class FoundationShortVariantTransformer extends MutationTransformer {
     /*
     responsible for the transformation of Foundation Short Variants to standard MAF formatted Strings
     and output to a staging file
      */
     private static final Logger logger = Logger.getLogger(FoundationShortVariantTransformer.class);
-    private final TsvStagingFileHandler fileHandler;
 
     public FoundationShortVariantTransformer(TsvStagingFileHandler aHandler) {
-        Preconditions.checkArgument(null!= aHandler,"A TsvStagingFileHandler implementation is required");
-        this.fileHandler = aHandler;
-    }
-
-    /*
-    package method to register the staging file directory with the file handler
-    this requires a distinct method in order to support multiple source files being
-    transformed to a single staging file
-     */
-    void registerStagingFileDirectory(CancerStudyMetadata csMetadata, Path stagingDirectoryPath){
-        Preconditions.checkArgument(null!=csMetadata);
-        Preconditions.checkArgument(null != stagingDirectoryPath,
-                "A Path to the staging file directory is required");
-        Path mafPath = stagingDirectoryPath.resolve("data_mutations_extended.txt");
-        this.fileHandler.registerTsvStagingFile(mafPath, MutationModel.resolveColumnNames(), true);
-        this.generateMetadataFile(csMetadata,stagingDirectoryPath);
-    }
-
-    private void generateMetadataFile(CancerStudyMetadata csMetadata, Path stagingDirectoryPath){
-        Path metadataPath = stagingDirectoryPath.resolve("meta_mutations_extended.txt");
-        MetadataFileHandler.INSTANCE.generateMetadataFile(this.generateMetadataMap(csMetadata),
-                metadataPath);
+        super(aHandler);
 
     }
 
-
-    private Map<String,String> generateMetadataMap(CancerStudyMetadata meta){
-        Map<String,String> metaMap = Maps.newTreeMap();
-        metaMap.put("001cancer_study_identifier:", meta.getStudyPath());
-        metaMap.put("002genetic_alteration_type:","MUTATION_EXTENDED");
-        metaMap.put("003stable_id:",meta.getStableId());
-        metaMap.put("004show_profile_in_analysis_tab:","true");
-        metaMap.put("005profile_description:",meta.getDescription());
-        metaMap.put("006profile_name:",meta.getName());
-        return metaMap;
-    }
 
     /*
     package level method to transform all the short variants in a Foundation XML file
@@ -136,7 +90,6 @@ public class FoundationShortVariantTransformer {
         this.fileHandler.transformImportDataToTsvStagingFile(modelList,MutationModel.getTransformationModel());
         return casesType.getCase().size();
     }
-
 
     /*
     main method for stand alone testing

@@ -15,7 +15,7 @@
  *  Memorial Sloan-Kettering Cancer Center 
  *  has been advised of the possibility of such damage.
  */
-package org.mskcc.cbio.importer.persistence.staging;
+package org.mskcc.cbio.importer.persistence.staging.mutation;
 
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
@@ -35,6 +35,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
+import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileProcessor;
+
 /*
 public class responsible for managing input/output operations with a
 collection of MAF staging files belonging to specified study

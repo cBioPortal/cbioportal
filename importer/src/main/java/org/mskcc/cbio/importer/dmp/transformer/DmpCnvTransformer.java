@@ -22,7 +22,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import com.google.inject.internal.Iterables;
 import java.nio.file.Files;
@@ -31,12 +30,11 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 import org.apache.log4j.Logger;
-import org.mskcc.cbio.importer.dmp.model.CnvIntragenicVariant;
 import org.mskcc.cbio.importer.dmp.model.CnvVariant;
 import org.mskcc.cbio.importer.dmp.model.DmpData;
 import org.mskcc.cbio.importer.dmp.model.Result;
 import org.mskcc.cbio.importer.dmp.util.DMPCommonNames;
-import org.mskcc.cbio.importer.persistence.staging.CnvFileHandler;
+import org.mskcc.cbio.importer.persistence.staging.cnv.CnvFileHandler;
 import scala.Tuple3;
 
 /*
@@ -51,7 +49,7 @@ public class DmpCnvTransformer implements DMPDataTransformable {
 
     private final CnvFileHandler fileHandler;
     private final static Logger logger = Logger.getLogger(DmpCnvTransformer.class);
-    private Table<String, String, Double> cnvTable;
+    private Table<String, String, String> cnvTable;
     private static final String cnaFileName = "data_CNA.txt";
 
     public DmpCnvTransformer(CnvFileHandler aHandler,Path stagingDirectoryPath) {
@@ -72,24 +70,17 @@ public class DmpCnvTransformer implements DMPDataTransformable {
     Function to transform attributes from the Result object to a list of tuples containing the cnv gene name, the result sample id,
     and the cnv fold change
     */
-    Function<Result, List<Tuple3<String, String, Double>>> cnvFunction = new Function<Result, List<Tuple3<String, String, Double>>>() {
+    Function<Result, List<Tuple3<String, String, String>>> cnvFunction = new Function<Result, List<Tuple3<String, String, String>>>() {
         @Override
-        public List<Tuple3<String, String, Double>> apply(final Result result) {
-            List<Tuple3<String, String, Double>> list1 = Lists.newArrayList();
+        public List<Tuple3<String, String, String>> apply(final Result result) {
+            List<Tuple3<String, String,String>> list1 = Lists.newArrayList();
             list1.addAll(FluentIterable.from(result.getCnvVariants())
-                    .transform(new Function<CnvVariant, Tuple3<String, String, Double>>() {
+                    .transform(new Function<CnvVariant, Tuple3<String, String, String>>() {
                         @Override
-                        public Tuple3<String, String, Double> apply(CnvVariant cnv) {
-                            return new Tuple3(cnv.getGeneId(), result.getMetaData().getDmpSampleId(), cnv.getGeneFoldChange());
+                        public Tuple3<String, String, String> apply(CnvVariant cnv) {
+                            return new Tuple3(cnv.getGeneId(), result.getMetaData().getDmpSampleId(), cnv.getGeneFoldChange().toString());
                         }
                     }).toList());
-          //  list1.addAll(FluentIterable.from(result.getCnvIntragenicVariants())
-             //       .transform(new Function<CnvIntragenicVariant, Tuple3<String, String, Double>>() {
-             //           @Override
-            //            public Tuple3<String, String, Double> apply(CnvIntragenicVariant intra) {
-              //              return new Tuple3(intra.getGeneId(), result.getMetaData().getDmpSampleId(), intra.getGeneFoldChange());
-               //         }
-               //     }).toList());
 
             return list1;
         }
@@ -99,9 +90,9 @@ public class DmpCnvTransformer implements DMPDataTransformable {
     public void transform(DmpData data) {
         // reset deprecated samples  to 0 before inserting new data
         this.resetDeprecatedSamples(data);
-        Iterable<Tuple3<String, String, Double>> cnvList = Iterables.concat(Lists.transform(data.getResults(), cnvFunction));
-        for (Tuple3<String, String, Double> cnv : cnvList) {
-            this.cnvTable.put(cnv._1(), cnv._2(), cnv._3());
+        Iterable<Tuple3<String, String, String>> cnvList = Iterables.concat(Lists.transform(data.getResults(), cnvFunction));
+        for (Tuple3<String, String, String> cnv : cnvList) {
+            this.cnvTable.put(cnv._1(), cnv._2(), cnv._3().toString());
         }
         // write out updated table
         this.fileHandler.persistCnvTable(cnvTable);
@@ -130,7 +121,7 @@ public class DmpCnvTransformer implements DMPDataTransformable {
         for (String sampleId : deprecatedSamples){         
                 for (String geneName : geneNameSet) {
                    
-                    this.cnvTable.put(geneName, sampleId, 0.0d);
+                    this.cnvTable.put(geneName, sampleId, "0");
                      logger.info("Removed gene " + geneName +" from cnvtable for sample " 
                             +sampleId);
                 }

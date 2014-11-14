@@ -34,7 +34,8 @@ import org.mskcc.cbio.importer.dmp.model.MetaData;
 import org.mskcc.cbio.importer.dmp.model.Result;
 import org.mskcc.cbio.importer.dmp.util.DMPCommonNames;
 import org.mskcc.cbio.importer.dmp.util.DmpUtils;
-import org.mskcc.cbio.importer.persistence.staging.ClinicalDataFileHandler;
+import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
+import org.mskcc.cbio.importer.persistence.staging.clinical.ClinicalDataFileHandler;
 import scala.Tuple2;
 import scala.Tuple3;
 
@@ -43,8 +44,6 @@ public class DmpMetadataTransformer implements DMPDataTransformable {
     
     private final ClinicalDataFileHandler fileHandler;
     private final static Logger logger = Logger.getLogger(DmpMetadataTransformer.class);
-   
-    private static final Joiner tabJoiner = Joiner.on('\t').useForNull(" ");
     private static final String clinicalDataFilename = "data_clinical.txt";
 
     private final Supplier<Map<String, Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>>>> transformationMaprSupplier
@@ -108,7 +107,7 @@ public class DmpMetadataTransformer implements DMPDataTransformable {
                                 return tuple3._1().apply(new Tuple2(attribute1, optAttribute2));
                             }
                         }).toList();
-                        String retRecord = tabJoiner.join(mafAttributes);
+                        String retRecord = StagingCommonNames.tabJoiner.join(mafAttributes);
                         return retRecord;
         }
     };

@@ -1,8 +1,8 @@
-package org.mskcc.cbio.importer.foundation.support;
+package org.mskcc.cbio.importer.persistence.staging;
 
-import com.google.common.base.Joiner;
+
 import com.google.common.base.Strings;
-import com.google.inject.internal.Preconditions;
+import com.google.common.base.Preconditions;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
@@ -30,15 +30,15 @@ import org.mskcc.cbio.importer.model.DatatypeMetadata;
  */
 /**
  * This class is responsible for creating the metadata files associated with a
- * FoundationMedicine cancer study
+ * a cancer study
  *
  * @author criscuof
  */
-public class FoundationMetadataGenerator {
+public class CancerStudyMetadataGenerator {
    
     private final Config config;
     private final String outputDirectory;
-    private final Logger logger = Logger.getLogger(FoundationMetadataGenerator.class);
+    private final Logger logger = Logger.getLogger(CancerStudyMetadataGenerator.class);
     
     private final FileUtils fileUtils;
     private final CaseIDs caseIDs;
@@ -46,9 +46,9 @@ public class FoundationMetadataGenerator {
     public static final String CNA_METADATA = "cna-foundation";
     public static final String FUSION_METADATA = "fusion";
     private DataSourcesMetadata dataSourceMetadata;
-    private final Joiner pathJoiner = Joiner.on(System.getProperty("file.separator"));
+
     
-    public FoundationMetadataGenerator(Config aConfig, String aDirectory, FileUtils fileUtils, CaseIDs caseIDs) {
+    public CancerStudyMetadataGenerator(Config aConfig, String aDirectory, FileUtils fileUtils, CaseIDs caseIDs) {
         Preconditions.checkArgument(null != aConfig, "A Config implemntation is required");
         Preconditions.checkArgument(!Strings.isNullOrEmpty(aDirectory), "An metadata file output directory is required");
         Preconditions.checkArgument(null != fileUtils, "A FileUtils implementation is required");
@@ -120,7 +120,7 @@ public class FoundationMetadataGenerator {
         DatatypeMetadata datatypeMetadata = this.getDatatypeMetadata(CNA_METADATA);
         CancerStudyMetadata cancerMetadata = this.config.getCancerStudyMetadataByName(cancerStudyIdentifier);
         this.fileUtils.writeMetadataFile(
-                pathJoiner.join(dataSourceMetadata.getDownloadDirectory(), outputDir),
+                StagingCommonNames.pathJoiner.join(dataSourceMetadata.getDownloadDirectory(), outputDir),
                 cancerMetadata,
                 datatypeMetadata,
                 numCases);
@@ -131,7 +131,7 @@ public class FoundationMetadataGenerator {
         CancerStudyMetadata cancerMetadata = this.config.getCancerStudyMetadataByName(cancerStudyIdentifier);
         
         this.fileUtils.writeMetadataFile(
-                  pathJoiner.join(dataSourceMetadata.getDownloadDirectory(),outputDir),
+                  StagingCommonNames.pathJoiner.join(dataSourceMetadata.getDownloadDirectory(),outputDir),
                 cancerMetadata,
                 datatypeMetadata,
                 numCases);

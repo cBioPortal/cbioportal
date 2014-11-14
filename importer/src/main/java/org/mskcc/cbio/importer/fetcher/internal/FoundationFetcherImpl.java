@@ -27,7 +27,6 @@ import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.dao.ImportDataRecordDAO;
 import org.mskcc.cbio.importer.foundation.extractor.FileDataSource;
 import org.mskcc.cbio.importer.foundation.extractor.FoundationStudyExtractor;
-import org.mskcc.cbio.importer.foundation.support.FoundationMetadataGenerator;
 import org.mskcc.cbio.importer.foundation.transformer.FoundationXMLTransformerOld;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
@@ -53,7 +52,7 @@ import org.mskcc.cbio.importer.model.ReferenceMetadata;
 public class FoundationFetcherImpl implements Fetcher {
 
     private final Logger logger = Logger.getLogger(FoundationFetcherImpl.class);
-    private FoundationMetadataGenerator metaDataGenerator;
+
     private FoundationStudyExtractor extractor;
     private  FileTransformer fileTransformer;
     private final Config config;

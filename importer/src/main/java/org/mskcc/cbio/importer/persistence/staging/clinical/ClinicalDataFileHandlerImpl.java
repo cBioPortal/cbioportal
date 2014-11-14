@@ -16,10 +16,12 @@
   *  has been advised of the possibility of such damage.
  */
 
-package org.mskcc.cbio.importer.persistence.staging;
+package org.mskcc.cbio.importer.persistence.staging.clinical;
 
 import com.google.common.base.Function;
 import com.google.inject.internal.Preconditions;
+import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileProcessor;
+
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;

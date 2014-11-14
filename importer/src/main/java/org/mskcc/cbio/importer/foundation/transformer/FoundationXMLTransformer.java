@@ -21,6 +21,7 @@ import org.mskcc.cbio.importer.foundation.support.CasesTypeSupplier;
 import org.mskcc.cbio.importer.foundation.transformer.util.FoundationTransformerUtil;
 import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.mskcc.cbio.importer.model.FoundationMetadata;
+import org.mskcc.cbio.importer.persistence.staging.MetadataFileHandler;
 
 /*
  responsible for transforming one or more XML files representing Foundation
@@ -59,7 +60,7 @@ public class FoundationXMLTransformer implements FileTransformer {
 
     /*
     responsible for initiating the Foundation specific data transformers and for coordinating
-    the transformation of mulitple XML source files
+    the transformation of multiple XML source files
      */
 
     public FoundationXMLTransformer(Config aConfig, FoundationShortVariantTransformer svtTransformer,
@@ -135,17 +136,38 @@ public class FoundationXMLTransformer implements FileTransformer {
        this.cnvTransformer.persistFoundationCnvs();
     }
 
+    private void generateMetadataFile(CancerStudyMetadata csMetadata, Path stagingDirectoryPath){
+        Path metadataPath = stagingDirectoryPath.resolve(csMetadata.getCancerStudyMetadataFilename());
+        MetadataFileHandler.INSTANCE.generateMetadataFile(this.generateMetadataMap(csMetadata),
+                metadataPath);
+    }
 
     /*
     Register the staging directory for the location of the transformed data with the transformers
      */
     private void registerStagingFileDirectoryPathWithTransformers(FileDataSource xmlSource) {
         Path stagingFileDirectory = Paths.get(xmlSource.getDirectoryName());
+        this.generateMetadataFile(this.csMetadata,stagingFileDirectory);
         this.svtTransformer.registerStagingFileDirectory(this.csMetadata,stagingFileDirectory);
         this.cnvTransformer.registerStagingFileDirectory(this.csMetadata,stagingFileDirectory);
         this.clinicalDataTransformer.registerStagingFileDirectory(stagingFileDirectory);
-        this.fusionDataTransformer.registerStagingFileDirectory(stagingFileDirectory);
+        this.fusionDataTransformer.registerStagingFileDirectory(this.csMetadata,stagingFileDirectory);
     }
+
+
+    /*
+    private method to generate the metadata mappings
+     */
+    private Map<String,String> generateMetadataMap(CancerStudyMetadata meta){
+        Map<String,String> metaMap = Maps.newTreeMap();
+        metaMap.put("001type_of_cancer:", meta.getTumorType());
+        metaMap.put("002cancer_study_identifier:",meta.getStableId());
+        metaMap.put("003name:",meta.getName());
+        metaMap.put("005profile_description:",meta.getDescription());
+        metaMap.put("006groups:",meta.getGroups());
+        return metaMap;
+    }
+
 
 
     /*

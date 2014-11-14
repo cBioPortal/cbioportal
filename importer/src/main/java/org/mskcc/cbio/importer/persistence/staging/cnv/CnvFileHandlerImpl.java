@@ -16,7 +16,7 @@
   *  has been advised of the possibility of such damage.
  */
 
-package org.mskcc.cbio.importer.persistence.staging;
+package org.mskcc.cbio.importer.persistence.staging.cnv;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
@@ -37,6 +37,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.log4j.Logger;
+import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 
 /*
 public class responsible for read/write operations to/from the
@@ -62,12 +63,13 @@ public class CnvFileHandlerImpl implements CnvFileHandler {
 
     public boolean isFileRegistered() { return this.fileRegistered;}
     
-    @Override
-     public Table<String, String, Double> initializeCnvTable() {
-         Preconditions.checkState(null != this.cnvPath, 
-                 "The Path to the data_CNA.txt file has not been specified");
 
-        Table<String, String, Double> cnvTable = HashBasedTable.create();
+    @Override
+    public Table<String, String, String> initializeCnvTable() {
+        Preconditions.checkState(null != this.cnvPath,
+                "The Path to the data_CNA.txt file has not been specified");
+
+        Table<String, String,String> cnvTable = HashBasedTable.create();
         // determine if there are persisted cnv data; if so read into Table data structure
         if (Files.exists(cnvPath, LinkOption.NOFOLLOW_LINKS)) {
             Reader reader = null;
@@ -85,7 +87,7 @@ public class CnvFileHandlerImpl implements CnvFileHandler {
                 for (CSVRecord record : parser.getRecords()) {
                     String geneName = record.get(geneColumnName);
                     for (String sampleName : columnList) {
-                        cnvTable.put(geneName, sampleName, Double.valueOf(record.get(sampleName)));
+                        cnvTable.put(geneName, sampleName, record.get(sampleName));
                     }
                 }
             } catch (IOException ex) {
@@ -110,10 +112,12 @@ public class CnvFileHandlerImpl implements CnvFileHandler {
      */
 
     @Override
-    public void persistCnvTable(Table<String, String, Double> cnvTable) {
+
+
+    public void persistCnvTable(Table<String, String, String> cnvTable) {
         Preconditions.checkArgument(null != cnvTable, "A Table of CNV data is required");
-         Preconditions.checkState(null != this.cnvPath, 
-                 "The Path to the data_CNA.txt file has not been specified");
+        Preconditions.checkState(null != this.cnvPath,
+                "The Path to the data_CNA.txt file has not been specified");
         try (BufferedWriter writer = Files.newBufferedWriter(
                 cnvPath, Charset.defaultCharset())) {
             Set<String> geneSet = cnvTable.rowKeySet();
@@ -125,7 +129,7 @@ public class CnvFileHandlerImpl implements CnvFileHandler {
             for (String gene : geneSet) {
                 String geneLine = gene;
                 for (String sample : sampleSet) {
-                    String value = (cnvTable.get(gene, sample) != null) ? cnvTable.get(gene, sample).toString() : "0.0";
+                    String value = (cnvTable.get(gene, sample) != null) ? cnvTable.get(gene, sample).toString() : "0";
                     geneLine = StagingCommonNames.tabJoiner.join(geneLine, value);
 
                 }

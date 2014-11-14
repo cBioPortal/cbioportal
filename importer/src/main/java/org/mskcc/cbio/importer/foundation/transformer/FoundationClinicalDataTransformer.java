@@ -7,8 +7,9 @@ import org.apache.log4j.Logger;
 import org.mskcc.cbio.foundation.jaxb.CaseType;
 import org.mskcc.cbio.foundation.jaxb.CasesType;
 import org.mskcc.cbio.foundation.jaxb.ClientCaseInfoType;
-import org.mskcc.cbio.foundation.jaxb.ShortVariantType;
-import org.mskcc.cbio.importer.persistence.staging.*;
+import org.mskcc.cbio.importer.persistence.staging.clinical.ClinicalDataFileHandler;
+import org.mskcc.cbio.importer.persistence.staging.clinical.ClinicalDataFileHandlerImpl;
+import org.mskcc.cbio.importer.persistence.staging.clinical.ClinicalDataModel;
 
 import javax.annotation.Nullable;
 import javax.xml.bind.JAXBContext;

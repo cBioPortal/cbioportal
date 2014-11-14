@@ -34,6 +34,7 @@ public interface DMPCommonNames {
     public static final String REPORT_TYPE_CLINICAL  = "clinical";  
     
     public static final String CENTER_MSKCC = "MSKCC";
+    public static final String CENTER_FOUNDATION = "foundation";
     public static final String DEFAULT_BUILD_NUMBER ="37";
     public static final String DEFAULT_STRAND ="+";
     public static final String DEFAULT_SAMPLE_TYPE ="Tumor";

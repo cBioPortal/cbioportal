@@ -1,9 +1,10 @@
-package org.mskcc.cbio.importer.persistence.staging;
+package org.mskcc.cbio.importer.persistence.staging.clinical;
 
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Maps;
 import org.mskcc.cbio.importer.dmp.util.DmpUtils;
+import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 
 import java.util.List;
 import java.util.Map;

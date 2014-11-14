@@ -6,8 +6,8 @@ import com.google.common.base.Strings;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.foundation.jaxb.RearrangementType;
 import org.mskcc.cbio.importer.dmp.util.DMPCommonNames;
-import org.mskcc.cbio.importer.foundation.support.CommonNames;
-import org.mskcc.cbio.importer.persistence.staging.FusionModel;
+import org.mskcc.cbio.importer.foundation.support.FoundationCommonNames;
+import org.mskcc.cbio.importer.persistence.staging.fusion.FusionModel;
 
 import javax.annotation.Nullable;
 
@@ -74,17 +74,17 @@ public class FoundationFusionModel extends FusionModel {
 
     @Override
     public String getDNASupport() {
-        return CommonNames.DEFAULT_DNA_SUPPORT;
+        return FoundationCommonNames.DEFAULT_DNA_SUPPORT;
     }
 
     @Override
     public String getRNASupport() {
-        return CommonNames.DEFAULT_RNA_SUPPORT;
+        return FoundationCommonNames.DEFAULT_RNA_SUPPORT;
     }
 
     @Override
     public String getMethod() {
-        return CommonNames.DEFAULT_FUSION_METHOD;
+        return FoundationCommonNames.DEFAULT_FUSION_METHOD;
     }
 
     @Override
@@ -96,10 +96,10 @@ public class FoundationFusionModel extends FusionModel {
         @Nullable
         @Override
         public String apply(RearrangementType rt) {
-            if (Strings.isNullOrEmpty(rt.getInFrame()) || rt.getInFrame().equals(CommonNames.UNKNOWN)) {
-                return CommonNames.UNKNOWN;
+            if (Strings.isNullOrEmpty(rt.getInFrame()) || rt.getInFrame().equals(FoundationCommonNames.UNKNOWN)) {
+                return FoundationCommonNames.UNKNOWN;
             }
-            return (rt.getInFrame().equals("No")) ? CommonNames.OUT_OF_FRAME : CommonNames.IN_FRAME;
+            return (rt.getInFrame().equals("No")) ? FoundationCommonNames.OUT_OF_FRAME : FoundationCommonNames.IN_FRAME;
         }
     };
 

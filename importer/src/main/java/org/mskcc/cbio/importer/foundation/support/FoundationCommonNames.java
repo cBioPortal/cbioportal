@@ -7,7 +7,7 @@ package org.mskcc.cbio.importer.foundation.support;
  *
  * @author criscuof
  */
-public interface CommonNames {
+public interface FoundationCommonNames {
    
     public static final String MUTATION_REPORT_TYPE = "mutationReport";
     public static final String CNA_REPORT_TYPE = "cnaReport";
@@ -34,10 +34,10 @@ public interface CommonNames {
     public static final String[] FUSION_DATA_HEADINGS = {"Hugo_Symbol","Entrez_Gene_Id","Center","Tumor_Sample_Barcode","Fusion","DNA support","RNA support","Method","Frame"};
 
     public static final String CNA_AMPLIFICATION = "amplification";
-    public static final Double CNA_AMPLIFICATION_VALUE = 2.0;
+    public static final String CNA_AMPLIFICATION_VALUE = "2";
     public static final String CNA_LOSS = "loss";
-    public static final Double CNA_LOSS_VALUE = -2.0;
-    public static final Double CNA_DEFAULT_VALUE = 0.0;
+    public static final String CNA_LOSS_VALUE = "-2";
+    public static final String CNA_DEFAULT_VALUE = "0";
     public static final String CENTER_FOUNDATION = "foundation";
     public static final String DEFAULT_FUSION ="fusion";
     public static final String DEFAULT_DNA_SUPPORT ="yes";
@@ -64,40 +64,5 @@ public interface CommonNames {
 
     public static final String DEFAULT_FOUNDATION_OUTPUT_BASE = "/tmp/foundation";
 
-    // standard header column names
-    public static final String HUGO_SYMBOL = "Hugo_Symbol";
-    public static final String ENTREZ_GENE_ID = "Entrez_Gene_Id";
-    public static final String NCBI_BUILD = "NCBI_Build";
-    public static final String CHROMOSOME = "Chromosome";
-    public static final String START_POSITION = "Start_Position";
-    public static final String END_POSITION = "End_Position";
-    public static final String STRAND = "Strand";
-    public static final String VARIANT_CLASSIFICATION = "Variant_Classification";
-    public static final String VARIANT_TYPE = "Variant_Type";
-    public static final String REFERENCE_ALLELE = "Reference_Allele";
-    public static final String TUMOR_SEQ_ALLELE_1 = "Tumor_Seq_Allele1";
-    public static final String TUMOR_SEQ_ALLELE_2 = "Tumor_Seq_Allele2";
-    public static final String DBSNP_RS = "dbSNP_RS";
-    public static final String DBSNP_VAL_STATUS = "dbSNP_Val_Status";
-    public static final String TUMOR_SAMPLE_BARCODE = "Tumor_Sample_Barcode";
-    public static final String MATCHED_NORM_SAMPLE_BARCODE = "Matched_Norm_Sample_Barcode";
-    public static final String MATCH_NORM_SEQ_ALLELE1 = "Match_Norm_Seq_Allele1";
-    public static final String MATCH_NORM_SEQ_ALLELE2 = "Match_Norm_Seq_Allele2";
-    public static final String TUMOR_VALIDATION_ALLELE1 = "Tumor_Validation_Allele1";
-    public static final String TUMOR_VALIDATION_ALLELE2 = "Tumor_Validation_Allele2";
-    public static final String MATCH_NORM_VALIDATION_ALLELE1 = "Match_Norm_Validation_Allele1";
-    public static final String MATCH_NORM_VALIDATION_ALLELE2 = "Match_Norm_Validation_Allele2";
-    public static final String VERIFICATION_STATUS = "Verification_Status";
-    public static final String VALIDATION_STATUS = "Validation_Status";
-    public static final String MUTATION_STATUS = "Mutation_Status";
-    public static final String SEQUENCING_PHASE = "Sequencing_Phase";
-    public static final String SEQUENCE_SOURCE = "Sequence_Source";
-    public static final String VALIDATION_METHOD = "Validation_Method";
-    public static final String SCORE = "Score";
-    public static final String BAM_FILE = "BAM_File";
-    public static final String SEQUENCER = "Sequencer";
-    public static final String T_REF_COUNT = "t_ref_count";
-    public static final String T_ALT_COUNT = "t_alt_count";
-    public static final String AMINO_ACID_CHANGE_MANNUAL = "Amino_Acid_Change";
-    public static final String TRANSCRIPT = "Transcript";
+
 }

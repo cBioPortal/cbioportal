@@ -6,14 +6,19 @@
 
 package org.mskcc.cbio.importer.foundation.support;
 
+import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.log4j.Logger;
@@ -29,9 +34,30 @@ import org.mskcc.cbio.foundation.jaxb.ShortVariantType;
 public enum FoundationUtils {
     INSTANCE;
     
-    Map<String,String>complimentMap = new ConcurrentHashMap<>();
+    private  static Map<String,String>complimentMap = new ConcurrentHashMap<>();
     private static final Logger logger = Logger.getLogger(FoundationUtils.class);
      private static final Joiner tabJoiner = Joiner.on('\t').useForNull(" ");
+
+    final static Map<Character, Character> revComplimentMap = Maps.newHashMap();
+    final Joiner nullJoiner = Joiner.on("");
+    static {
+
+        revComplimentMap.put('A', 'T');
+        revComplimentMap.put('T', 'A');
+        revComplimentMap.put('C', 'G');
+        revComplimentMap.put('G', 'C');
+
+
+            complimentMap.put("A", "T");
+            complimentMap.put("T", "A");
+            complimentMap.put("C", "G");
+            complimentMap.put("G", "C");
+            complimentMap.put("a", "T");
+            complimentMap.put("t", "A");
+            complimentMap.put("c", "G");
+            complimentMap.put("g", "C");
+
+    }
     /**
      * common method to calculate a displayable tumor allele count value
      * @param svt
@@ -75,52 +101,37 @@ public enum FoundationUtils {
    
     private String getBaseCompliment(String base){
         
-        if(complimentMap.isEmpty()){
-           complimentMap.put("A", "T");
-           complimentMap.put("T", "A");
-           complimentMap.put("C", "G");
-           complimentMap.put("G", "C");
-           complimentMap.put("a", "T");
-           complimentMap.put("t", "A");
-           complimentMap.put("c", "G");
-           complimentMap.put("g", "C");  
-        }
+
         if( !complimentMap.containsKey(base)){
             return "";
         }
        
          return complimentMap.get(base);
     }
-    
-    public File configureOutputFile(String xmlFileName, String reportName, String baseDir){
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(xmlFileName), "An XML file name is required");
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(reportName), "A report name is required");
-        Preconditions.checkState( (new File(xmlFileName)).exists(), "The specified XML input file does not exist");
-        Preconditions.checkState( (new File(xmlFileName)).canRead(), "The specified XML input file cannot be read");
-        String studyName = Files.getNameWithoutExtension(xmlFileName);
-        logger.info("Preparing output file for study: " +studyName);
-        String pathSep = System.getProperty("file.separator");
-        String outDirectoryName = null;
-        if (!Strings.isNullOrEmpty(baseDir) && new File(baseDir).isDirectory()) {
-            outDirectoryName = baseDir + pathSep + studyName;
-        } else {
-            outDirectoryName = CommonNames.DEFAULT_FOUNDATION_OUTPUT_BASE + pathSep + studyName;
-         }
-       
-        String reportFileName = outDirectoryName + pathSep +reportName;
-         logger.info("Report: " + reportName+" Output file: " +reportFileName);
-         File outFile = new File(reportFileName);
-        try {
-            // create this directory and any parents as necessary
-            Files.createParentDirs(outFile);
-            // copy xml file to destination directory if necessary
-            this.copyXmlSourceFile(outDirectoryName, xmlFileName);
-            return outFile;
-        } catch (IOException ex) {
-            logger.error(ex.getMessage());
+    /*
+    public method to return the reverse compliment of a DNA sequence
+    the result is standardized to upper case
+     */
+    public String getReverseCompliment(String sequence){
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(sequence),"The sequence is null or empty");
+        if(sequence.length() == 1) {
+           return  this.getBaseCompliment(sequence);
         }
-        return null;     
+        List<Character> revList =  FluentIterable.from(Lists.reverse(Lists.charactersOf(sequence.toUpperCase())))
+                .transform(new Function<Character,Character>() {
+                    @Override
+                    public Character apply(Character nuc) {
+                        if(revComplimentMap.containsKey(nuc)){
+                            return(revComplimentMap.get(nuc));
+                        }
+                        return null;
+
+                    }
+                }).toList();
+       return nullJoiner.join(revList);
     }
+    
+
     
     /**
      * Copy the xml source file to the destination directory if it hasn't 

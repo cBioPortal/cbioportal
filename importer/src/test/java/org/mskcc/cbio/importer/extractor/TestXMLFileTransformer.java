@@ -25,6 +25,12 @@ import org.mskcc.cbio.importer.foundation.extractor.FileDataSource;
 import org.mskcc.cbio.importer.foundation.transformer.*;
 import org.mskcc.cbio.importer.model.*;
 import org.mskcc.cbio.importer.persistence.staging.*;
+import org.mskcc.cbio.importer.persistence.staging.clinical.ClinicalDataFileHandler;
+import org.mskcc.cbio.importer.persistence.staging.clinical.ClinicalDataFileHandlerImpl;
+import org.mskcc.cbio.importer.persistence.staging.cnv.CnvFileHandler;
+import org.mskcc.cbio.importer.persistence.staging.cnv.CnvFileHandlerImpl;
+import org.mskcc.cbio.importer.persistence.staging.fusion.FusionFileHandlerImpl;
+import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -47,7 +53,7 @@ public class TestXMLFileTransformer {
                     return (input.toString().endsWith("xml"));
                 }
             };
-            FileDataSource fds = new FileDataSource("/tmp/foundation/dlbc/mskcc/foundation", xmlFileExtensionFilter);
+            FileDataSource fds = new FileDataSource("/tmp/foundation/dlbc/13-081/mskcc/foundation", xmlFileExtensionFilter);
 
             TsvStagingFileHandler svtFileHandler = new MutationFileHandlerImpl();
             CnvFileHandler cnVFileHandler = new CnvFileHandlerImpl();
@@ -167,13 +173,14 @@ public class TestXMLFileTransformer {
         @Override
         public Collection<CancerStudyMetadata> getCancerStudyMetadata(String portalName) {
             CancerStudyMetadata meta1 = new CancerStudyMetadata(
-                    new String[]{"dlbc/mskcc/foundation",	"dlbc",	"dlbc_13-081_mskcc_foundation",	"DLBCL MYC/BCL2 13-081 & 13-158 (MSKCC / Foundation Medicine)",
+                    new String[]{"dlbc/13-081/mskcc/foundation",	"dlbc",	"dlbc_13-081_mskcc_foundation",	"DLBCL MYC/BCL2 13-081 & 13-158 (MSKCC / Foundation Medicine)",
                             "DLBCL samples, profiled by Foundation Medicine","","","LEVINER",	"DLBCL (MSKCC/Foundation)",	"FALSE",	"TRUE",	"FALSE",	"FALSE",
                             "x"			}
             );
+
             CancerStudyMetadata meta2 = new CancerStudyMetadata(
-                    new String[]{"dlbc/13-081/mskcc/foundation",	"dlbc",	"dlbc_13-081_mskcc_foundation",	"DLBCL MYC/BCL2 13-081 & 13-158 (MSKCC / Foundation Medicine)",
-                            "DLBCL samples, profiled by Foundation Medicine","","","LEVINER",	"DLBCL (MSKCC/Foundation)",	"FALSE",	"TRUE",	"FALSE",	"FALSE",
+                    new String[]{"lymphoma-sa_therp/mskcc/foundation",	"mixed",	"lymphoma-s1a_mskcc_foundation",	" Retrospective genomic analysis of patients on single agent therapeutics for relapsed lymphoma",
+                            " targeted sequencing of relapsed lymphoma treated with single agent targeted therapy","","","BATLEVI",	"Lymphoma targeted agents",	"FALSE",	"TRUE",	"FALSE",	"FALSE","Targeted",
                             "x"			}
             );
             return Lists.newArrayList(meta1,meta2);
@@ -196,7 +203,7 @@ public class TestXMLFileTransformer {
         public Collection<FoundationMetadata> getFoundationMetadata() {
             FoundationMetadata meta1 = new FoundationMetadata(new String[]{"lcll/mskcc/foundation", "13-156;13-079",
            "CLL" });
-            FoundationMetadata meta2 = new FoundationMetadata(new String[]{"dlbc/mskcc/foundation", "13-158;13-081",
+            FoundationMetadata meta2 = new FoundationMetadata(new String[]{"dlbc/13-081/mskcc/foundation", "13-158;13-081",
                     "MYC/BCL",
                     "RD0345;RD0351;RD0354;RD0355;RD0374;RD0375;RD0376;RD0377;RD0378;RD0383;RD0384;TRF031674.01;TRF031934.01",
                     "unknown","unknown"});

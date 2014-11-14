@@ -15,7 +15,7 @@
  *  Memorial Sloan-Kettering Cancer Center 
  *  has been advised of the possibility of such damage.
  */
-package org.mskcc.cbio.importer.persistence.staging;
+package org.mskcc.cbio.importer.persistence.staging.cnv;
 
 import com.google.common.collect.Table;
 import java.nio.file.Path;
@@ -24,7 +24,7 @@ public interface CnvFileHandler {
 
     public void initializeFilePath(Path filePath);
 
-    public Table<String, String, Double> initializeCnvTable();
+    public Table<String, String, String> initializeCnvTable();
     /*
      method to write out updated CNV data as TSV file
      rows = gene names
@@ -33,7 +33,7 @@ public interface CnvFileHandler {
      since legacy entries may have been updated, previous file contents are overwritten
      */
 
-    public void persistCnvTable(Table<String, String, Double> cnvTable);
+    public void persistCnvTable(Table<String, String, String> cnvTable);
     public boolean isFileRegistered();
 
 }

@@ -17,8 +17,9 @@
  */
 package org.mskcc.cbio.importer.persistence.staging;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
-import com.google.gdata.util.common.base.Joiner;
+import com.google.common.base.Joiner;
 
 /**
  *
@@ -35,7 +36,9 @@ public interface StagingCommonNames {
     public static final Splitter blankSplitter = Splitter.on(" ");
     public static final Splitter scSplitter = Splitter.on(";");
     public static final Joiner scJoiner = Joiner.on(";");
-    public static final Joiner tabJoiner = Joiner.on("\t");
+    public static final Joiner tabJoiner = Joiner.on('\t').useForNull(" ");
     public static final Joiner blankJoiner = Joiner.on(" ");
     public static final Splitter posSplitter = Splitter.on(':');
+    public final com.google.common.base.Joiner pathJoiner =
+            com.google.common.base.Joiner.on(System.getProperty("file.separator"));
 }

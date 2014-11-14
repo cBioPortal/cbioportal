@@ -9,10 +9,10 @@ import org.mskcc.cbio.foundation.jaxb.CaseType;
 import org.mskcc.cbio.foundation.jaxb.CasesType;
 import org.mskcc.cbio.foundation.jaxb.ClientCaseInfoType;
 import org.mskcc.cbio.foundation.jaxb.RearrangementType;
-import org.mskcc.cbio.importer.persistence.staging.FusionModel;
-import org.mskcc.cbio.importer.persistence.staging.MutationFileHandlerImpl;
-import org.mskcc.cbio.importer.persistence.staging.MutationModel;
-import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
+import org.mskcc.cbio.importer.persistence.staging.*;
+import org.mskcc.cbio.importer.persistence.staging.fusion.FusionModel;
+import org.mskcc.cbio.importer.persistence.staging.fusion.FusionTransformer;
+import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
 
 import javax.annotation.Nullable;
 import javax.xml.bind.*;
@@ -42,29 +42,16 @@ import java.util.List;
  * <p/>
  * Created by fcriscuo on 11/10/14.
  */
-public class FoundationFusionTransformer {
+public class FoundationFusionTransformer extends FusionTransformer {
     private static final Logger logger = Logger.getLogger(FoundationFusionTransformer.class);
-    private final TsvStagingFileHandler fileHandler;
 
     public FoundationFusionTransformer(TsvStagingFileHandler aHandler ) {
+        super(aHandler);
         Preconditions.checkArgument(aHandler != null,
-                "A TsvStagingFileHandler implemntation is required");
+                "A TsvStagingFileHandler implementation is required");
 
-        this.fileHandler = aHandler;
     }
 
-    /*
- package method to register the staging file directory with the file handler
- this requires a distinct method in order to support multiple source files being
- transformed to a single staging file
-  */
-    void registerStagingFileDirectory(Path stagingDirectoryPath){
-        Preconditions.checkArgument(null != stagingDirectoryPath,
-                "A Path to the staging file directory is required");
-
-        Path mafPath = stagingDirectoryPath.resolve("data_fusions.txt");
-        this.fileHandler.registerTsvStagingFile(mafPath, FusionModel.resolveColumnNames(), true);
-    }
 
     /*
     transform the xml data to the staging file
@@ -74,10 +61,10 @@ public class FoundationFusionTransformer {
         for (CaseType caseType : casesType.getCase()){
             final String sampleId = caseType.getCase();  // get sample id from case
             List<FusionModel> fusionModelList = FluentIterable.from(caseType.getVariantReport().getRearrangements().getContent())
-                    .filter(new Predicate<Serializable>(){
+                    .filter(new Predicate<Serializable>() {
                         @Override
                         public boolean apply(@Nullable Serializable input) {
-                            return  input instanceof JAXBElement;
+                            return input instanceof JAXBElement;
 
                         }
                     })
@@ -91,15 +78,10 @@ public class FoundationFusionTransformer {
                         @Nullable
                         @Override
                         public RearrangementType apply(JAXBElement input) {
-                            return  (RearrangementType) input.getValue();
+                            return (RearrangementType) input.getValue();
                         }
                     })
-                    .filter(new Predicate<RearrangementType>(){
-                        @Override
-                        public boolean apply(@Nullable RearrangementType input) {
-                            return input.getDescription().endsWith("fusion");
-                        }
-                    })
+
                     .transform(new Function<RearrangementType, FusionModel>() {
                         @Nullable
                         @Override
@@ -136,8 +118,6 @@ public class FoundationFusionTransformer {
         } catch (JAXBException | FileNotFoundException ex) {
             logger.error(ex.getMessage());
         }
-
-
     }
 
 

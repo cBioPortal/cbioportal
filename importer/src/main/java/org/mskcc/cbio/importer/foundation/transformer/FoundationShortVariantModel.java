@@ -10,9 +10,9 @@ import org.apache.log4j.Logger;
 import org.mskcc.cbio.foundation.jaxb.ShortVariantType;
 
 import org.mskcc.cbio.importer.dmp.util.DMPCommonNames;
-import org.mskcc.cbio.importer.foundation.support.CommonNames;
+import org.mskcc.cbio.importer.foundation.support.FoundationCommonNames;
 import org.mskcc.cbio.importer.foundation.support.FoundationUtils;
-import org.mskcc.cbio.importer.persistence.staging.MutationModel;
+import org.mskcc.cbio.importer.persistence.staging.mutation.MutationModel;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import scala.Tuple2;
 
@@ -69,7 +69,7 @@ public class FoundationShortVariantModel extends MutationModel{
 
     @Override
     public String getCenter() {
-        return DMPCommonNames.CENTER_MSKCC;
+        return DMPCommonNames.CENTER_FOUNDATION;
     }
 
     @Override
@@ -80,7 +80,7 @@ public class FoundationShortVariantModel extends MutationModel{
     @Override
     public String getChromosome() {
         return Lists.newArrayList(StagingCommonNames.posSplitter.split(svt.getPosition()).iterator()).get(0)
-                .replace(CommonNames.CHR_PREFIX, "");
+                .replace(FoundationCommonNames.CHR_PREFIX, "");
     }
 
     @Override
@@ -137,8 +137,35 @@ public class FoundationShortVariantModel extends MutationModel{
 
     @Override
     public String getVariantType() {
-        return "";
+        return this.resolveVariantType.apply(new Tuple2<String,String>(this.getRefAllele(), this.getTumorAllele1()));
     }
+
+    private final List<String> variationList = Lists.newArrayList("INS", "SNP", "DNP", "TNP", "ONP");
+    Function<Tuple2<String, String>, String> resolveVariantType
+            = new Function<Tuple2<String, String>, String>() {
+
+        @Override
+        public String apply(Tuple2<String, String> f) {
+            if (!Strings.isNullOrEmpty(f._1()) && !Strings.isNullOrEmpty(f._2())) {
+                String refAllele = f._1();
+                String altAllele = f._2();
+                if (refAllele.equals("-")) {
+                    return variationList.get(0);
+                }
+                if (altAllele.equals("-") || altAllele.length() < refAllele.length()) {
+                    return "DEL";
+                }
+                if ( refAllele.length() < altAllele.length()) {
+                    return "INS";
+                }
+                if (refAllele.length() < variationList.size()) {
+                    return variationList.get(refAllele.length());
+                }
+            }
+            return "UNK";
+        }
+
+    };
 
     @Override
     public String getRefAllele() {
@@ -164,10 +191,10 @@ public class FoundationShortVariantModel extends MutationModel{
                             .transform(new Function<String, String>() {
                                 @Override
                                 public String apply(String input) {
-                                    if (!(strand.equals(CommonNames.MINUS_STRAND))) {
-                                        return input.toUpperCase();
+                                    if ((strand.equals(FoundationCommonNames.MINUS_STRAND))) {
+                                        return FoundationUtils.INSTANCE.getReverseCompliment(input);
                                     }
-                                    return FoundationUtils.INSTANCE.getCompliment(input.toUpperCase());
+                                    return input.toUpperCase();
                                 }
                             })
                             .toList();
@@ -199,17 +226,16 @@ public class FoundationShortVariantModel extends MutationModel{
                     final String strand = f._2();
 
                     String bases = cdsEffect.replaceAll("[^tcgaTCGA]", " ").trim();
-                    // check for cdsEffects without nucleotides
 
                     List<String> alleleList = FluentIterable
                             .from(StagingCommonNames.blankSplitter.split(bases))
                             .transform(new Function<String, String>() {
                                 @Override
                                 public String apply(String input) {
-                                    if (!(strand.equals(CommonNames.MINUS_STRAND))) {
-                                        return input.toUpperCase();
+                                    if ((strand.equals(FoundationCommonNames.MINUS_STRAND))) {
+                                        return FoundationUtils.INSTANCE.getReverseCompliment(input);
                                     }
-                                    return FoundationUtils.INSTANCE.getCompliment(input.toUpperCase());
+                                    return input.toUpperCase();
                                 }
                             })
                             .toList();
@@ -282,12 +308,12 @@ public class FoundationShortVariantModel extends MutationModel{
 
     @Override
     public String getVerificationStatus() {
-        return CommonNames.DEFAULT_VALIDATION_STATUS;
+        return FoundationCommonNames.DEFAULT_VALIDATION_STATUS;
     }
 
     @Override
     public String getValidationStatus() {
-        return CommonNames.DEFAULT_VALIDATION_STATUS;
+        return FoundationCommonNames.DEFAULT_VALIDATION_STATUS;
     }
 
     @Override

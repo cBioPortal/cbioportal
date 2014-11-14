@@ -6,8 +6,8 @@ import org.apache.log4j.Logger;
 import org.mskcc.cbio.foundation.jaxb.CaseType;
 import org.mskcc.cbio.foundation.jaxb.MetricType;
 import org.mskcc.cbio.foundation.jaxb.MetricsType;
-import org.mskcc.cbio.importer.foundation.support.CommonNames;
-import org.mskcc.cbio.importer.persistence.staging.ClinicalDataModel;
+import org.mskcc.cbio.importer.foundation.support.FoundationCommonNames;
+import org.mskcc.cbio.importer.persistence.staging.clinical.ClinicalDataModel;
 
 /**
  * Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
@@ -68,22 +68,22 @@ public class FoundationClinicalDataModel  extends ClinicalDataModel {
 
     @Override
     public String getTumorNucleiPercent() {
-        return  displayMetricValue(caseType, CommonNames.METRIC_TUMOR_NUCLEI_PERCENT);
+        return  displayMetricValue(caseType, FoundationCommonNames.METRIC_TUMOR_NUCLEI_PERCENT);
     }
 
     @Override
     public String getMedianCoverage() {
-        return displayMetricValue(caseType, CommonNames.METRIC_MEDIAN_COVERAGE);
+        return displayMetricValue(caseType, FoundationCommonNames.METRIC_MEDIAN_COVERAGE);
     }
 
     @Override
     public String get100XCov() {
-        return displayMetricValue(caseType, CommonNames.METRIC_COVERAGE_GT_100);
+        return displayMetricValue(caseType, FoundationCommonNames.METRIC_COVERAGE_GT_100);
     }
 
     @Override
     public String getErrorPercent() {
-        return displayMetricValue(caseType, CommonNames.METRIC_ERROR);
+        return displayMetricValue(caseType, FoundationCommonNames.METRIC_ERROR);
     }
 
     /**

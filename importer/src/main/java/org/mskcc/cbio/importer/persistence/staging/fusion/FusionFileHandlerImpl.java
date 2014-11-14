@@ -1,9 +1,11 @@
-package org.mskcc.cbio.importer.persistence.staging;
+package org.mskcc.cbio.importer.persistence.staging.fusion;
 
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.inject.internal.Preconditions;
 import org.apache.log4j.Logger;
+import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
+import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileProcessor;
 
 import java.nio.file.Files;
 import java.nio.file.LinkOption;

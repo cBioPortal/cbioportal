@@ -10,7 +10,7 @@ import org.mskcc.cbio.importer.dmp.model.DmpData;
 import org.mskcc.cbio.importer.dmp.model.Result;
 import org.mskcc.cbio.importer.dmp.model.SegmentData;
 import org.mskcc.cbio.importer.dmp.util.DMPCommonNames;
-import org.mskcc.cbio.importer.persistence.staging.SegmentFileHandler;
+import org.mskcc.cbio.importer.persistence.staging.segment.SegmentFileHandler;
 
 import javax.annotation.Nullable;
 import java.nio.file.Files;
@@ -108,7 +108,8 @@ class SegmentDataTransformer  implements DMPDataTransformable {
     }
 
     private void processSegments(DmpData data){
-        List<SegmentData> segmentDataList = FluentIterable.from(data.getResults()).transformAndConcat(new Function<Result, List<SegmentData>>() {
+        List<SegmentData> segmentDataList = FluentIterable.from(data.getResults())
+                .transformAndConcat(new Function<Result, List<SegmentData>>() {
             @Nullable
             @Override
             public List<SegmentData> apply(@Nullable Result result) {

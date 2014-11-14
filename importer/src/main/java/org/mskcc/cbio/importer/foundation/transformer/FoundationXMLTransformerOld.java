@@ -33,7 +33,7 @@ import org.mskcc.cbio.importer.FileTransformer;
 import org.mskcc.cbio.importer.IDMapper;
 import org.mskcc.cbio.importer.foundation.extractor.FileDataSource;
 import org.mskcc.cbio.importer.foundation.support.CasesTypeSupplier;
-import org.mskcc.cbio.importer.foundation.support.CommonNames;
+import org.mskcc.cbio.importer.foundation.support.FoundationCommonNames;
 import org.mskcc.cbio.importer.foundation.support.FoundationUtils;
 
 import org.mskcc.cbio.importer.util.GeneSymbolIDMapper;
@@ -156,9 +156,9 @@ public class FoundationXMLTransformerOld implements FileTransformer {
         public Tuple2<String, Integer> apply(JAXBElement je) {
             CopyNumberAlterationType cna = (CopyNumberAlterationType) je.getValue();
             switch (cna.getType()) {
-                case CommonNames.CNA_AMPLIFICATION:
+                case FoundationCommonNames.CNA_AMPLIFICATION:
                     return new Tuple2(cna.getGene(), 2);
-                case CommonNames.CNA_LOSS:
+                case FoundationCommonNames.CNA_LOSS:
                     return new Tuple2(cna.getGene(), -2);
                 default:
                     return new Tuple2(cna.getGene(), 0);
@@ -188,7 +188,7 @@ public class FoundationXMLTransformerOld implements FileTransformer {
      write out the CNA table
      */
     private void generateCNAReport(Table<String, String, Integer> cnaTable) {
-        Path cnaReportPath = this.fileManager.stagingReportWriterPath.get(CommonNames.CNA_REPORT_TYPE);
+        Path cnaReportPath = this.fileManager.stagingReportWriterPath.get(FoundationCommonNames.CNA_REPORT_TYPE);
         try (BufferedWriter writer = Files.newBufferedWriter(
                 cnaReportPath, Charset.defaultCharset())) {
             Set<String> geneSet = cnaTable.rowKeySet();
@@ -220,7 +220,7 @@ public class FoundationXMLTransformerOld implements FileTransformer {
             List<Serializable> contentList = caseType.getVariantReport().getRearrangements().getContent();
             if (contentList.size() > 0) {
                 List<JAXBElement> jaxbList = Lists.newArrayList(Iterables.filter(contentList, JAXBElement.class));
-                this.fileManager.generateDataReport(CommonNames.FUSION_REPORT_TYPE, jaxbList, rearrangementDataFunction);
+                this.fileManager.generateDataReport(FoundationCommonNames.FUSION_REPORT_TYPE, jaxbList, rearrangementDataFunction);
             }
         }
 
@@ -237,13 +237,13 @@ public class FoundationXMLTransformerOld implements FileTransformer {
             RearrangementType rt = (RearrangementType) je.getValue();
             attributeList.add(rt.getTargetedGene());
             attributeList.add(""); // place holder for Entrez id
-            attributeList.add(CommonNames.CENTER_FOUNDATION);
+            attributeList.add(FoundationCommonNames.CENTER_FOUNDATION);
             attributeList.add(fusionCase);
             attributeList.add(rt.getTargetedGene() + "-" + rt.getOtherGene());
-            attributeList.add(CommonNames.DEFAULT_FUSION);
-            attributeList.add(CommonNames.DEFAULT_DNA_SUPPORT);
-            attributeList.add(CommonNames.DEFAULT_RNA_SUPPORT);
-            attributeList.add(CommonNames.DEFAULT_FUSION_METHOD);
+            attributeList.add(FoundationCommonNames.DEFAULT_FUSION);
+            attributeList.add(FoundationCommonNames.DEFAULT_DNA_SUPPORT);
+            attributeList.add(FoundationCommonNames.DEFAULT_RNA_SUPPORT);
+            attributeList.add(FoundationCommonNames.DEFAULT_FUSION_METHOD);
             attributeList.add(parseFusionFrame(rt));
             return tabJoiner.join(attributeList);
         }
@@ -251,10 +251,10 @@ public class FoundationXMLTransformerOld implements FileTransformer {
     };
 
     private String parseFusionFrame(RearrangementType rt) {
-        if (Strings.isNullOrEmpty(rt.getInFrame()) || rt.getInFrame().equals(CommonNames.UNKNOWN)) {
-            return CommonNames.UNKNOWN;
+        if (Strings.isNullOrEmpty(rt.getInFrame()) || rt.getInFrame().equals(FoundationCommonNames.UNKNOWN)) {
+            return FoundationCommonNames.UNKNOWN;
         }
-        return (rt.getInFrame().equals("No")) ? CommonNames.OUT_OF_FRAME : CommonNames.IN_FRAME;
+        return (rt.getInFrame().equals("No")) ? FoundationCommonNames.OUT_OF_FRAME : FoundationCommonNames.IN_FRAME;
     }
 
     /**
@@ -270,12 +270,12 @@ public class FoundationXMLTransformerOld implements FileTransformer {
             attributeList.add(caseType.getVariantReport().getGender());
             attributeList.add(caseType.getFmiCase());
             attributeList.add(caseType.getVariantReport().getPipelineVersion());
-            attributeList.add(displayMetricValue(caseType, CommonNames.METRIC_TUMOR_NUCLEI_PERCENT));  // not supported in current data
-            attributeList.add(displayMetricValue(caseType, CommonNames.METRIC_MEDIAN_COVERAGE));
-            attributeList.add(displayMetricValue(caseType, CommonNames.METRIC_COVERAGE_GT_100));
+            attributeList.add(displayMetricValue(caseType, FoundationCommonNames.METRIC_TUMOR_NUCLEI_PERCENT));  // not supported in current data
+            attributeList.add(displayMetricValue(caseType, FoundationCommonNames.METRIC_MEDIAN_COVERAGE));
+            attributeList.add(displayMetricValue(caseType, FoundationCommonNames.METRIC_COVERAGE_GT_100));
             //There are two (2) Error metrics; the first is the DNA error rate, the second is the RNA error rate
             // This application captures the first (i.e. DNA)
-            attributeList.add(displayMetricValue(caseType, CommonNames.METRIC_ERROR));
+            attributeList.add(displayMetricValue(caseType, FoundationCommonNames.METRIC_ERROR));
             return tabJoiner.join(attributeList);
         }
     };
@@ -286,7 +286,7 @@ public class FoundationXMLTransformerOld implements FileTransformer {
      */
     private void generateClinicalDataReport() {
         CasesType casesType = this.casesTypeSupplier.get();
-        this.fileManager.generateDataReport(CommonNames.CLINICAL_REPORT_TYPE,
+        this.fileManager.generateDataReport(FoundationCommonNames.CLINICAL_REPORT_TYPE,
                 casesType.getCase(), clinicalDataFunction);
     }
     /*
@@ -295,7 +295,7 @@ public class FoundationXMLTransformerOld implements FileTransformer {
 
     private void generateMutationsDataReport() {
         CasesType casesType = this.casesTypeSupplier.get();
-        this.fileManager.generateDataReportFromFluentIterable(CommonNames.MUTATION_REPORT_TYPE, casesType.getCase(), shortVariantTypeFunction);
+        this.fileManager.generateDataReportFromFluentIterable(FoundationCommonNames.MUTATION_REPORT_TYPE, casesType.getCase(), shortVariantTypeFunction);
         //this.fileManager.generateDataReport(CommonNames.MUTATION_REPORT_TYPE, casesType.getCase(), shortVariantTypeFunction);
     }
 
@@ -326,9 +326,9 @@ public class FoundationXMLTransformerOld implements FileTransformer {
                             // 2 entrez id
                             attributeList.add(getEntrezIDFunction.apply(new Tuple2(svt.getGene(),Optional.absent())));
                             //3 Center
-                            attributeList.add(CommonNames.CENTER_FOUNDATION);
+                            attributeList.add(FoundationCommonNames.CENTER_FOUNDATION);
                             // 4 build
-                            attributeList.add(CommonNames.BUILD);
+                            attributeList.add(FoundationCommonNames.BUILD);
                             // 5 chromsome
                             attributeList.add(cp.getChromosome());
                             // 6 start
@@ -370,9 +370,9 @@ public class FoundationXMLTransformerOld implements FileTransformer {
                             // 24 verification
                             attributeList.add("");
                             // 25 validation status
-                            attributeList.add(CommonNames.DEFAULT_VALIDATION_STATUS);  // unknown
+                            attributeList.add(FoundationCommonNames.DEFAULT_VALIDATION_STATUS);  // unknown
                             // 26 mutation status
-                            attributeList.add(CommonNames.DEFAULT_MUTATION_STATUS);   // unknown
+                            attributeList.add(FoundationCommonNames.DEFAULT_MUTATION_STATUS);   // unknown
                             // 27 sequencing phase
                             attributeList.add("");
                             // 28 sequencing source
@@ -465,10 +465,10 @@ public class FoundationXMLTransformerOld implements FileTransformer {
             Preconditions.checkArgument(!Strings.isNullOrEmpty(cdsEffect), "A CDS effect is required");
             Preconditions.checkArgument(!Strings.isNullOrEmpty(functionalEffect), "A functional effect is required");
             Preconditions.checkArgument(!Strings.isNullOrEmpty(strand), "A strand is required");
-            Preconditions.checkArgument(strand.equals(CommonNames.PLUS_STRAND) || strand.equals(CommonNames.MINUS_STRAND),
-                    "The stand argument must be either " + CommonNames.PLUS_STRAND + " or " + CommonNames.MINUS_STRAND);
+            Preconditions.checkArgument(strand.equals(FoundationCommonNames.PLUS_STRAND) || strand.equals(FoundationCommonNames.MINUS_STRAND),
+                    "The stand argument must be either " + FoundationCommonNames.PLUS_STRAND + " or " + FoundationCommonNames.MINUS_STRAND);
 
-            this.plusStrand = !(strand.equals(CommonNames.MINUS_STRAND));
+            this.plusStrand = !(strand.equals(FoundationCommonNames.MINUS_STRAND));
             this.determinePositionsAndLength(cdsEffect);
             this.determineAlleles(cdsEffect);
 
@@ -577,14 +577,14 @@ public class FoundationXMLTransformerOld implements FileTransformer {
         public FoundationStagingFileManager(Path aPath) {
 
             this.stagingFilePath = aPath;
-            reportFileMap.put(CommonNames.MUTATION_REPORT_TYPE, "data_mutations_extended.txt");
-            reportFileMap.put(CommonNames.CNA_REPORT_TYPE, "data_CNA.txt");
-            reportFileMap.put(CommonNames.CLINICAL_REPORT_TYPE, "data_clinical.txt");
-            reportFileMap.put(CommonNames.FUSION_REPORT_TYPE, "data_fusions.txt");
+            reportFileMap.put(FoundationCommonNames.MUTATION_REPORT_TYPE, "data_mutations_extended.txt");
+            reportFileMap.put(FoundationCommonNames.CNA_REPORT_TYPE, "data_CNA.txt");
+            reportFileMap.put(FoundationCommonNames.CLINICAL_REPORT_TYPE, "data_clinical.txt");
+            reportFileMap.put(FoundationCommonNames.FUSION_REPORT_TYPE, "data_fusions.txt");
 
-            reportHeadingsMap.put(CommonNames.MUTATION_REPORT_TYPE, Arrays.asList(CommonNames.MUTATIONS_REPORT_HEADINGS));
-            reportHeadingsMap.put(CommonNames.CLINICAL_REPORT_TYPE, Arrays.asList(CommonNames.CLINICAL_DATA_HEADINGS));
-            reportHeadingsMap.put(CommonNames.FUSION_REPORT_TYPE, Arrays.asList(CommonNames.FUSION_DATA_HEADINGS));
+            reportHeadingsMap.put(FoundationCommonNames.MUTATION_REPORT_TYPE, Arrays.asList(FoundationCommonNames.MUTATIONS_REPORT_HEADINGS));
+            reportHeadingsMap.put(FoundationCommonNames.CLINICAL_REPORT_TYPE, Arrays.asList(FoundationCommonNames.CLINICAL_DATA_HEADINGS));
+            reportHeadingsMap.put(FoundationCommonNames.FUSION_REPORT_TYPE, Arrays.asList(FoundationCommonNames.FUSION_DATA_HEADINGS));
             this.resolveStagingReportWriterPathMap();
         }
 
@@ -706,14 +706,14 @@ public class FoundationXMLTransformerOld implements FileTransformer {
 
         public ChromosomePosition(String position) {
             Preconditions.checkArgument(!Strings.isNullOrEmpty(position), "A chromosome position is required");
-            Preconditions.checkArgument(position.startsWith(CommonNames.CHR_PREFIX), "Invalid position " + position);
+            Preconditions.checkArgument(position.startsWith(FoundationCommonNames.CHR_PREFIX), "Invalid position " + position);
             Preconditions.checkArgument(position.contains(":"), "Invalid position " + position);
             this.setAttributes(position);
         }
 
         private void setAttributes(String position) {
             Iterator<String> is = posSplitter.split(position).iterator();
-            this.chromosome = is.next().replace(CommonNames.CHR_PREFIX, "");
+            this.chromosome = is.next().replace(FoundationCommonNames.CHR_PREFIX, "");
             this.start = Integer.valueOf(is.next());
         }
 

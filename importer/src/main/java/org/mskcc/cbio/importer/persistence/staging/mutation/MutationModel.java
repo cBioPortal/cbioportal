@@ -1,18 +1,12 @@
-package org.mskcc.cbio.importer.persistence.staging;
+package org.mskcc.cbio.importer.persistence.staging.mutation;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Maps;
-import org.mskcc.cbio.foundation.jaxb.ShortVariantType;
 import org.mskcc.cbio.importer.IDMapper;
 import org.mskcc.cbio.importer.dmp.util.DmpUtils;
-import org.mskcc.cbio.importer.dmp.util.EntrezIDSupplier;
+import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import org.mskcc.cbio.importer.util.GeneSymbolIDMapper;
-import scala.Tuple2;
-import scala.Tuple3;
 
 import java.util.List;
 import java.util.Map;

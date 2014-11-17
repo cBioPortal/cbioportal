@@ -40,7 +40,7 @@ public abstract class FusionModel {
         transformationMap.put("001Hugo_Symbol",  "getGene"); //1
         transformationMap.put("002Entrez_Gene_Id", "getEntrezGeneId"); //2
         transformationMap.put("003Center", "getCenter"); //3
-        transformationMap.put("004Tumor_Sample_Barcode/","getTumorSampleBarcode");
+        transformationMap.put("004Tumor_Sample_Barcode","getTumorSampleBarcode");
         transformationMap.put("005Fusion","getFusion");
         transformationMap.put("006DNA_support","getDNASupport");
         transformationMap.put("007RNA_support","getRNASupport");

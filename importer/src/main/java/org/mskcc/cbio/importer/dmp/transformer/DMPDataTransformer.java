@@ -29,6 +29,7 @@ import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.dmp.model.DmpData;
 import org.mskcc.cbio.importer.dmp.model.Result;
 import org.mskcc.cbio.importer.dmp.persistence.file.DMPTumorTypeSampleMapManager;
+import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.clinical.ClinicalDataFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.cnv.CnvFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
@@ -75,7 +76,7 @@ public class DMPDataTransformer {
             ( new ClinicalDataFileHandlerImpl(), stagingDirectoryPath));
 
         // segment data
-        this.transformableList.add( new DmpSegmentDataTransformer(new SegmentFileHandlerImpl(),stagingDirectoryPath));
+      //  this.transformableList.add( new DmpSegmentDataTransformer(new SegmentFileHandlerImpl(),stagingDirectoryPath));
        // this.tumorTypeMap = new DMPTumorTypeSampleMapManager(this.fileManager);
 
     }

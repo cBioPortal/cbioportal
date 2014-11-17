@@ -403,6 +403,15 @@ public class FoundationShortVariantModel extends MutationModel{
         return "";
     }
 
+    @Override
+    public String getAAChange() {
+        return svt.getProteinEffect();
+    }
+
+    @Override
+    public String getTranscript() {
+        return svt.getTranscript();
+    }
 
 
 }

@@ -48,14 +48,14 @@ public enum FoundationUtils {
         revComplimentMap.put('G', 'C');
 
 
-            complimentMap.put("A", "T");
-            complimentMap.put("T", "A");
-            complimentMap.put("C", "G");
-            complimentMap.put("G", "C");
-            complimentMap.put("a", "T");
-            complimentMap.put("t", "A");
-            complimentMap.put("c", "G");
-            complimentMap.put("g", "C");
+         complimentMap.put("A", "T");
+         complimentMap.put("T", "A");
+         complimentMap.put("C", "G");
+         complimentMap.put("G", "C");
+         complimentMap.put("a", "T");
+         complimentMap.put("t", "A");
+         complimentMap.put("c", "G");
+         complimentMap.put("g", "C");
 
     }
     /**

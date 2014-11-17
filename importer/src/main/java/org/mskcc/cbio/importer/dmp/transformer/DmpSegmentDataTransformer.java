@@ -10,7 +10,9 @@ import org.mskcc.cbio.importer.dmp.model.DmpData;
 import org.mskcc.cbio.importer.dmp.model.Result;
 import org.mskcc.cbio.importer.dmp.model.SegmentData;
 import org.mskcc.cbio.importer.dmp.util.DMPCommonNames;
-import org.mskcc.cbio.importer.persistence.staging.segment.SegmentFileHandler;
+import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
+import org.mskcc.cbio.importer.persistence.staging.segment.SegmentModel;
+import org.mskcc.cbio.importer.persistence.staging.segment.SegmentTransformer;
 
 import javax.annotation.Nullable;
 import java.nio.file.Files;
@@ -39,39 +41,27 @@ import java.util.Set;
  *
  * Created by criscuof on 10/28/14.
  */
-class SegmentDataTransformer  implements DMPDataTransformable {
+class DmpSegmentDataTransformer extends SegmentTransformer implements DMPDataTransformable {
     /*
     responsible for transforming DMP segment data from model objects to
     a staging file format and invoking their output.
      */
 
-    private final static Logger logger = Logger.getLogger(SegmentDataTransformer.class);
+    private final static Logger logger = Logger.getLogger(DmpSegmentDataTransformer.class);
     private static final Joiner tabJoiner = Joiner.on('\t').useForNull(" ");
     private static final String segmentFileBaseName = "_data_cna_hg.seg";
-    private final SegmentFileHandler fileHandler;
 
-    public SegmentDataTransformer(SegmentFileHandler aHandler, Path stagingDirectoryPath) {
-        Preconditions.checkArgument(null != aHandler, "A SegmentFileHandler implementation is required");
+    public DmpSegmentDataTransformer(TsvStagingFileHandler aHandler, Path stagingDirectoryPath) {
+        super(aHandler);
         Preconditions.checkArgument(null != stagingDirectoryPath,
                 "A Path to the staging file directory is required");
         Preconditions.checkArgument(Files.isDirectory(stagingDirectoryPath, LinkOption.NOFOLLOW_LINKS),
                 "The specified Path: " + stagingDirectoryPath + " is not a directory");
         Preconditions.checkArgument(Files.isWritable(stagingDirectoryPath),
                 "The specified Path: " + stagingDirectoryPath + " is not writable");
-        this.fileHandler = aHandler;
-        // initialize the Segment file handler for DMP Segment data
-        this.fileHandler.registerSegmentStagingFile(this.resolveSegmentFilePath(stagingDirectoryPath));
+        this.registerStagingFileDirectory(stagingDirectoryPath);
 
-    }
 
-    private Path resolveSegmentFilePath(Path basePath){
-        String filename = segmentFileBaseName;
-        if (basePath.toString().contains("mixed")) {
-            int start = basePath.toString().indexOf("mixed");
-            String rootname = basePath.toString().substring(start);
-            filename = rootname.replaceAll("/", "_") + segmentFileBaseName;
-        }
-        return basePath.resolve(filename);
     }
 
     @Override
@@ -102,34 +92,32 @@ class SegmentDataTransformer  implements DMPDataTransformable {
 
         // remove any deprecated Samples
         if (!deprecatedSamples.isEmpty()) {
-            this.fileHandler.removeDeprecatedSamplesFromSegmentStagingFiles(DMPCommonNames.SEGMENT_ID_COLUMN_NAME, deprecatedSamples);
+            this.fileHandler.removeDeprecatedSamplesFomTsvStagingFiles(DMPCommonNames.SEGMENT_ID_COLUMN_NAME, deprecatedSamples);
+
         }
         this.processSegments(data);
     }
 
+
     private void processSegments(DmpData data){
-        List<SegmentData> segmentDataList = FluentIterable.from(data.getResults())
+        List<SegmentModel> segmentModelList = FluentIterable.from(data.getResults())
                 .transformAndConcat(new Function<Result, List<SegmentData>>() {
             @Nullable
             @Override
             public List<SegmentData> apply(@Nullable Result result) {
                 return result.getSegmentData();
             }
-        }).toList();
-        // output the list of SegmentData objects to the staging file
-        this.fileHandler.transformImportDataToStagingFile(segmentDataList, transformationFunction);
-    }
+        })
+                .transform(new Function<SegmentData,SegmentModel>(){
+                    @Nullable
+                    @Override
+                    public SegmentModel apply(@Nullable SegmentData segmentData) {
+                        return new DmpSegmentModel(segmentData);
+                    }
+                }).toList();
 
-    /*
-    transformation function forms a tab-delimited String from individual attributes
-     */
-    Function<SegmentData,String> transformationFunction = new Function<SegmentData,String>(){
-        @Nullable
-        @Override
-        public String apply(@Nullable final SegmentData segmentData) {
-           return tabJoiner.join(segmentData.getID(), segmentData.getChromosome(),segmentData.getLocStart(),
-                   segmentData.getLocEnd(),segmentData.getNumMark(),segmentData.getSegMean().toString());
-        }
-    };
+        // output the list of SegmentData objects to the staging file
+        this.fileHandler.transformImportDataToTsvStagingFile(segmentModelList, SegmentModel.getTransformationModel());
+    }
 
 }

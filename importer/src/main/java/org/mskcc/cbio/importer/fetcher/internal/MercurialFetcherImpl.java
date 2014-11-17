@@ -25,8 +25,8 @@ import org.mskcc.cbio.importer.mercurial.*;
 import org.apache.commons.logging.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.SimpleMailMessage;
+//import org.springframework.mail.javamail.JavaMailSender;
+//import org.springframework.mail.SimpleMailMessage;
 
 import java.util.*;
 
@@ -43,11 +43,11 @@ public class MercurialFetcherImpl extends FetcherBaseImpl implements Fetcher
 	private DatabaseUtils databaseUtils;
 	private MercurialService mercurialService;
 
-	@Autowired
-	JavaMailSender mailSender;
+	//@Autowired
+	//JavaMailSender mailSender;
 
-	@Autowired
-	SimpleMailMessage triageUpdateMessage;
+	//@Autowired
+	//SimpleMailMessage triageUpdateMessage;
 
 	public MercurialFetcherImpl(Config config, FileUtils fileUtils,
 								DatabaseUtils databaseUtils, ImportDataRecordDAO importDataRecordDAO,
@@ -156,16 +156,16 @@ public class MercurialFetcherImpl extends FetcherBaseImpl implements Fetcher
 
 	private void sendNotification(List<String> cancerStudiesUpdated)
 	{
-		String body = triageUpdateMessage.getText();
-		SimpleMailMessage msg = new SimpleMailMessage(triageUpdateMessage);
+		//String body = triageUpdateMessage.getText();
+		//SimpleMailMessage msg = new SimpleMailMessage(triageUpdateMessage);
 		for (String cancerStudy : cancerStudiesUpdated) {
 			CancerStudyMetadata cancerStudyMetadata = config.getCancerStudyMetadataByName(cancerStudy);
-			body += "\n" + cancerStudyMetadata.getName();
+			//body += "\n" + cancerStudyMetadata.getName();
 		}
-		body += "\n";
-		msg.setText(body);
+		//body += "\n";
+		//msg.setText(body);
 		try {
-			mailSender.send(msg);
+			//mailSender.send(msg);
 		}
 		catch (Exception e) {
 			logMessage(LOG, "sendNotification(), error sending email notification:\n" + e.getMessage());

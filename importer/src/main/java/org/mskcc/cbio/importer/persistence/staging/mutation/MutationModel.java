@@ -33,7 +33,7 @@ import java.util.Set;
   */
 public abstract class MutationModel {
     /*
-    abstract class to support a consistent view of muatation data
+    abstract class to support a consistent view of mutation data
      */
 
 
@@ -82,6 +82,8 @@ public abstract class MutationModel {
         transformationMap.put("036t_ref_count", "getTRefCount"); // new
         transformationMap.put("037n_alt_count", "getNAltCount");  // new
         transformationMap.put("038n_ref_count", "getNRefCount");  //new
+        transformationMap.put("039Aminao_Acid_Change","getAAChange");
+        transformationMap.put("040Transcript","getTranscript");
     }
 
    public static  List<String> resolveColumnNames() {
@@ -136,6 +138,8 @@ public abstract class MutationModel {
     public abstract String getTRefCount();
     public abstract String getNAltCount();
     public abstract String getNRefCount();
+    public abstract String getAAChange();
+    public abstract String getTranscript();
 
     /*
     transformation function to transform a concrete MutationModel sublcass instance into a tab-delimited

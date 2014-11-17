@@ -75,7 +75,7 @@ public class DMPDataTransformer {
             ( new ClinicalDataFileHandlerImpl(), stagingDirectoryPath));
 
         // segment data
-        this.transformableList.add( new SegmentDataTransformer(new SegmentFileHandlerImpl(),stagingDirectoryPath));
+        this.transformableList.add( new DmpSegmentDataTransformer(new SegmentFileHandlerImpl(),stagingDirectoryPath));
        // this.tumorTypeMap = new DMPTumorTypeSampleMapManager(this.fileManager);
 
     }

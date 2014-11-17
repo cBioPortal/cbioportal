@@ -21,6 +21,7 @@ import org.mskcc.cbio.importer.foundation.support.CasesTypeSupplier;
 import org.mskcc.cbio.importer.foundation.transformer.util.FoundationTransformerUtil;
 import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.mskcc.cbio.importer.model.FoundationMetadata;
+import org.mskcc.cbio.importer.persistence.staging.CaseListFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.MetadataFileHandler;
 
 /*
@@ -134,6 +135,10 @@ public class FoundationXMLTransformer implements FileTransformer {
         }
         // the CNA report can only be generated after all the XML files have been processed
        this.cnvTransformer.persistFoundationCnvs();
+        // generate caseLists
+        CaseListFileHandler caseListFileHandler = new CaseListFileHandler(this.csMetadata.getStableId(), Paths.get(xmlSource.getDirectoryName()));
+        caseListFileHandler.generateCaseListFiles(caseIdSet);
+
     }
 
     private void generateMetadataFile(CancerStudyMetadata csMetadata, Path stagingDirectoryPath){

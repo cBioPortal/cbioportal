@@ -32,12 +32,14 @@ import java.io.File;
  */
 public class TestImportGeneData extends TestCase {
 
-    private static String geneDataFilename = initializeGeneDataFilename();
-    private static String initializeGeneDataFilename()
-    {
+    private static String geneDataFilename = null;
+    private static String suppGeneDataFilename = null;
+    static {
         String home = System.getenv(GlobalProperties.HOME_DIR);
-        return (home != null) ? 
-            home + File.separator + "core/target/test-classes/genes_test.txt" : null;
+        if (home != null) {
+            geneDataFilename = home + File.separator + "core/target/test-classes/genes_test.txt";
+            suppGeneDataFilename = home + File.separator + "core/target/test-classes/supp-genes.txt";
+        }
     }
 
     public void testImportGeneData() throws Exception {
@@ -46,6 +48,11 @@ public class TestImportGeneData extends TestCase {
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(false);
 		// TBD: change this to use getResourceAsStream()
+        if (suppGeneDataFilename!=null) {
+            File file = new File(suppGeneDataFilename);
+            ImportGeneData.importSuppGeneData(pMonitor, file);
+        }
+        
         if (geneDataFilename != null) {
             File file = new File(geneDataFilename);
             ImportGeneData.importData(pMonitor, file);

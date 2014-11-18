@@ -99,13 +99,20 @@ var AlleleFreqPlotUtils = (function() {
 }());
 
 var AlleleFreqPlotMulti = function(div, data, options) {
-    var fillcolors = d3.scale.category10();
+    //var fillcolors = d3.scale.category10();
+    // construct colors, if a duplicate found replace it with 'darker'
     var colors = {};
+    var colorhist = {};
     for (var k in data) {
         if (data.hasOwnProperty(k)) {
-            var ind = Object.keys(colors).length;
-            //colors[k] = {stroke:d3.rgb(fillcolors(ind)).darker().toString(), fill:fillcolors(ind)};
-            colors[k] = {stroke:fillcolors(ind), fill:fillcolors(ind)};
+            /*var ind = Object.keys(colors).length;
+            colors[k] = {stroke:fillcolors(ind), fill:fillcolors(ind)};*/
+            var col = d3.rgb(window.caseMetaData.color[k]).toString();
+            while (col in colorhist && col !== "#000000") {
+                col = d3.rgb(col).darker(0.3).toString();
+            }
+            colorhist[col] = true;
+            colors[k] = {stroke:col, fill:col};
         }
     }
     // data is a map of sample id to list of data
@@ -296,12 +303,13 @@ var AlleleFreqPlotMulti = function(div, data, options) {
     
     // make legend
     if (!options.nolegend) {
+        var legend_font_size = 13;
         var legend = svg.append("g")
                 .attr('class', 'legend')
                 .attr('transform', 'translate('+(width-70)+',30)')
-                .style('font-size', '13px')
-                .call(d3.legend)
+                .style('font-size', legend_font_size+"px")
         ;
+        d3.legend(legend, legend_font_size);
     }
     return div;
 }
@@ -312,7 +320,7 @@ var AlleleFreqPlotMulti = function(div, data, options) {
 // Modifications by Adam Abeshouse adama@cbio.mskcc.org
 // MIT licence
 
-d3.legend = function(g) {
+d3.legend = function(g, font_size) {
   g.each(function() {
     var g= d3.select(this),
         items = {},
@@ -362,22 +370,33 @@ d3.legend = function(g) {
         .attr("y",function(d,i) { return (i-0.1+i*spacing)+"em";})
         .attr("x","1em")
         .text(function(d) { return d.key;})
-    
+    ;
     li.selectAll("circle")
         .data(items,function(d) { return d.key})
-        .call(function(d) { d.enter().append("circle")})
+        .call(function(d) { d.enter().append("circle");})
         .call(function(d) { d.exit().remove()})
         .attr("cy",function(d,i) { return (i-0.5+i*spacing)+"em"})
         .attr("cx",0)
-        .attr("r","0.45em")
+        .attr("r","0.5em")
         .style("fill",function(d) { return d.value.color;})
     ;
+    for (var i=0, keys=Object.keys(items); i<keys.length; i++) {
+        li.append("text")
+        .attr("x",0)
+        .attr("y", (i-0.5+i*spacing)*font_size)
+        .attr("fill","white")
+        .attr("font-size","10")
+        .attr("dy","0.34em")
+        .attr("text-anchor","middle")
+        .text(window.caseMetaData.label[items[keys[i]].key])
+        ;
+    }
     li.selectAll("rect")
             .data(items, function(d) { return d.key;})
             .call(function(d) { d.enter().append("rect");})
             .call(function(d) { d.exit().remove();})
             .attr("y", function(d,i) { return (i-1+i*spacing-spacing/2)+"em";})
-            .attr("x","-0.5em")
+            .attr("x","-0.8em")
             .attr('width',function(d) { return d.key.length+'em';})
             .attr('height',(1+spacing)+'em')
             .style('fill',function(d) { return d.value.color;})

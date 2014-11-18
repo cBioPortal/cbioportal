@@ -180,9 +180,8 @@ public class Admin implements Runnable {
 												"command to add your identity to the authentication agent.")
 							   .create("copy_seg_files"));
 
-        Option redeployWar = (OptionBuilder.withArgName("portal:remote_user_name")
-							  .hasArgs(2)
-							  .withValueSeparator(':')
+        Option redeployWar = (OptionBuilder.withArgName("portal")
+							  .hasArg()
 							  .withDescription("Redeploy war for given portal. " + 
 											   "'ssh-add' should be executed prior to this " +
 											   "command to add your identity to the authentication agent.")
@@ -318,8 +317,7 @@ public class Admin implements Runnable {
 			}
 			// redeploy war
 			else if (commandLine.hasOption("redeploy_war")) {
-                String[] values = commandLine.getOptionValues("redeploy_war");
-                redeployWar(values[0], values[1]);
+                redeployWar(commandLine.getOptionValue("redeploy_war"));
 			}
 			else if (commandLine.hasOption("delete_cancer_study")) {
 				deleteCancerStudy(commandLine.getOptionValue("delete_cancer_study"));
@@ -764,26 +762,25 @@ public class Admin implements Runnable {
 		}
 	}
 
-	private void redeployWar(String portalName, String remoteUserName) throws Exception
+	private void redeployWar(String portalName) throws Exception
 	{
 		if (LOG.isInfoEnabled()) {
 			LOG.info("redeployWar(), portal: " + portalName);
-			LOG.info("redeployWar(), remoteUserName: " + remoteUserName);
 		}
 
 		Config config = (Config)getBean("config");
 		Collection<PortalMetadata> portalMetadatas = config.getPortalMetadata(portalName);
 
 		// sanity check args
-		if (remoteUserName.length() == 0 || portalMetadatas.isEmpty()) {
+		if (portalMetadatas.isEmpty()) {
 			if (LOG.isInfoEnabled()) {
-				LOG.info("redeployWar(), error processing arguments, aborting....");
+				LOG.info("redeployWar(), error processing argument, aborting....");
 			}
 		}
 		else {
 			// create an instance of Importer
 			FileUtils fileUtils = (FileUtils)getBean("fileUtils");
-			fileUtils.redeployWar(portalMetadatas.iterator().next(), remoteUserName);
+			fileUtils.redeployWar(portalMetadatas.iterator().next());
 		}
 
 		if (LOG.isInfoEnabled()) {

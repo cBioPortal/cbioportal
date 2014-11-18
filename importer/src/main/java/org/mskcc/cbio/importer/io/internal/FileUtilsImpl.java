@@ -48,6 +48,8 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.SimpleMailMessage;
 
 import java.io.*;
 import java.util.*;
@@ -63,6 +65,12 @@ public class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils
 
 	@Autowired
 	PutWarGateway putWarGateway;
+
+	@Autowired
+	JavaMailSender mailSender;
+
+	@Autowired
+	SimpleMailMessage redeployMessage;
 
     // used in unzip method
     private static int BUFFER = 2048;
@@ -983,15 +991,15 @@ public class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils
 	}
 
 	@Override
-	public void redeployWar(PortalMetadata portalMetadata, String remoteUserName) throws Exception
+	public void redeployWar(PortalMetadata portalMetadata) throws Exception
 	{
 		if (LOG.isInfoEnabled()) {
 			LOG.info("redeployWar()");
 		}
 
         // check args
-        if (portalMetadata == null || remoteUserName == null) {
-            throw new IllegalArgumentException("portal or remoteUserName must not be null");
+        if (portalMetadata == null) {
+            throw new IllegalArgumentException("portal must not be null");
 		}
 
 		try {
@@ -1003,8 +1011,20 @@ public class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils
 			putWarGateway.putWar(localFile, portalMetadata.getWarFilePath());
 		}
 		catch(Exception e) {
-			// send email here
-			e.printStackTrace();
+			sendNotification(portalMetadata.getWarFilename(), e.getMessage());
+		}
+	}
+
+	private void sendNotification(String warFilename, String exceptionMessage)
+	{
+		String body = redeployMessage.getText();
+		SimpleMailMessage msg = new SimpleMailMessage(redeployMessage);
+		msg.setText("\n\n" + warFilename + ",\n\n" + exceptionMessage);
+		try {
+			mailSender.send(msg);
+		}
+		catch (Exception e) {
+			logMessage(LOG, "sendNotification(), error sending email notification:\n" + e.getMessage());
 		}
 	}
 

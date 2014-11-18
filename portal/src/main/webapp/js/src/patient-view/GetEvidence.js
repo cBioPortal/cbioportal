@@ -25,16 +25,16 @@ var GetEvidence = (function(){
         }
     }
     
-    function getEvidence(genomicEventObs, callback) {
-        var mutationEventIds = genomicEventObs.mutations.getEventIds(false),
+    function getEvidence(mutations, callback) {
+        var mutationEventIds = mutations.getEventIds(false),
             searchPairs = [],
             geneStr = "",
             alterationStr="";
     
         for(var i=0, mutationL = mutationEventIds.length; i < mutationL; i++) {
             var datum = {},
-                gene = genomicEventObs.mutations.getValue(mutationEventIds[i], 'gene'),
-                alteration = genomicEventObs.mutations.getValue(mutationEventIds[i], 'aa');
+                gene = mutations.getValue(mutationEventIds[i], 'gene'),
+                alteration = mutations.getValue(mutationEventIds[i], 'aa');
             datum.gene = gene;
             datum.alteration = alteration;
             searchPairs.push(datum);
@@ -42,11 +42,16 @@ var GetEvidence = (function(){
             geneStr+=gene+",";
             alterationStr+=alteration+",";
         }
-        $.get(oncokbUrl + 'evidence.json?hugoSymbol=' + 
-                geneStr.substring(0, geneStr.length - 1) + 
-                '&alteration='+
-                alterationStr.substring(0, alterationStr.length - 1),
-            function(evidenceList) {
+        $.ajax({
+            type: 'POST',
+            url: oncokbUrl + 'evidence.json',
+            data: {
+                'hugoSymbol' : geneStr.substring(0, geneStr.length - 1),
+                'alteration': alterationStr.substring(0, alterationStr.length - 1)
+            },
+            crossDomain: true,
+            dataType: 'json',
+            success: function(evidenceList) {
                 var evidenceCollection = [],
                     evidenceL = evidenceList.length;
                 searchPairs.forEach(function(searchPair, i) {
@@ -81,9 +86,12 @@ var GetEvidence = (function(){
                     }
                     evidenceCollection.push(datum);
                 });
-                genomicEventObs.mutations.addData("oncokb", evidenceCollection);
-                callback(genomicEventObs);
-            });
+                callback(evidenceCollection);
+            },
+            error: function (responseData, textStatus, errorThrown) {
+                console.log('POST failed.');
+            }
+        });
     }
     
     function findRegex(str) {

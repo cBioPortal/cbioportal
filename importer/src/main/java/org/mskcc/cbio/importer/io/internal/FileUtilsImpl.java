@@ -995,12 +995,16 @@ public class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils
 		}
 
 		try {
-			getWarGateway.getWar("", portalMetadata.getWarFilePath(), portalMetadata.getWarFilename());
-			putWarGateway.putWar(new File(portalMetadata.getWarFilename()),
-			                     portalMetadata.getWarFilePath());
+			File localFile = org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
+			                                                         portalMetadata.getWarFilename());
+			deleteFile(localFile);
+			getWarGateway.getWar("", org.apache.commons.io.FileUtils.getTempDirectoryPath(),
+			                     portalMetadata.getWarFilePath(), portalMetadata.getWarFilename());
+			putWarGateway.putWar(localFile, portalMetadata.getWarFilePath());
 		}
 		catch(Exception e) {
-			System.out.println(e.getMessage());
+			// send email here
+			e.printStackTrace();
 		}
 	}
 

@@ -199,7 +199,7 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
     <int:channel id="inboundGet"/>
 
     <int-sftp:outbound-gateway id="gatewayGet"
-        local-directory="#{ T(System).getProperty('java.io.tmpdir')}"
+        local-directory-expression="headers['file_localDirectory']"
         session-factory="defaultsftpSessionFactory"
         request-channel="inboundGet"
         reply-channel="inboundRm"
@@ -222,7 +222,6 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
         reply-channel="nullChannel"
         command="put"
         remote-directory-expression="headers['file_remoteDirectory']"
-        local-directory="#{ T(System).getProperty('java.io.tmpdir')}"
         expression="payload"/>
 
     <b:bean id="defaultsftpSessionFactory" class="org.springframework.integration.sftp.session.DefaultSftpSessionFactory">

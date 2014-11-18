@@ -21,5 +21,5 @@ import org.springframework.integration.annotation.Payload;
 
 public interface GetWarGateway
 {
-	public void getWar(@Payload String unused, @Header("file_remoteDirectory") String remoteDirectory, @Header("file_remoteFile") String filename);
+	public void getWar(@Payload String unused, @Header("file_localDirectory") String localDirectory, @Header("file_remoteDirectory") String remoteDirectory, @Header("file_remoteFile") String remoteFile);
 }

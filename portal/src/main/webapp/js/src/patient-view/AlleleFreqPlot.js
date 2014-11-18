@@ -109,7 +109,7 @@ var AlleleFreqPlotMulti = function(div, data, options) {
             colors[k] = {stroke:fillcolors(ind), fill:fillcolors(ind)};*/
             var col = d3.rgb(window.caseMetaData.color[k]).toString();
             while (col in colorhist && col !== "#000000") {
-                col = d3.rgb(col).darker(0.3).toString();
+                col = d3.rgb(col).darker(0.4).toString();
             }
             colorhist[col] = true;
             colors[k] = {stroke:col, fill:col};
@@ -319,7 +319,26 @@ var AlleleFreqPlotMulti = function(div, data, options) {
 // (C) 2012 ziggy.jonsson.nyc@gmail.com
 // Modifications by Adam Abeshouse adama@cbio.mskcc.org
 // MIT licence
-
+var highlightSample = function (k) {
+    $('.viz_hist').hide();
+    $('.viz_curve').hide();
+    if (window.allele_freq_plot_histogram_toggle) {
+        $("." + k + "_viz_hist").show();
+        $("." + k + "_viz_hist").attr('opacity', '0.5');
+    }
+    if (window.allele_freq_plot_curve_toggle) {
+        $("." + k + "_viz_curve").show();
+    }
+}
+var showSamples = function () {
+    if (window.allele_freq_plot_histogram_toggle) {
+        $('.viz_hist').show();
+        $(".viz_hist").attr('opacity', '0.1');
+    }
+    if (window.allele_freq_plot_curve_toggle) {
+        $('.viz_curve').show();
+    }
+}
 d3.legend = function(g, font_size) {
   g.each(function() {
     var g= d3.select(this),
@@ -341,26 +360,7 @@ d3.legend = function(g, font_size) {
 
     items = d3.entries(items).sort(function(a,b) { return a.value.pos-b.value.pos})
     
-    var highlightSample = function(k) {
-        $('.viz_hist').hide();
-        $('.viz_curve').hide();
-        if (window.allele_freq_plot_histogram_toggle) {
-            $("."+k+"_viz_hist").show();
-            $("."+k+"_viz_hist").attr('opacity', '0.5');
-        }
-        if (window.allele_freq_plot_curve_toggle) {
-            $("."+k+"_viz_curve").show();
-        }
-    }
-    var showSamples = function() {
-        if (window.allele_freq_plot_histogram_toggle) {
-            $('.viz_hist').show();
-            $(".viz_hist").attr('opacity', '0.1');
-        }
-        if (window.allele_freq_plot_curve_toggle) {
-            $('.viz_curve').show();
-        }
-    }
+    
         
     var spacing = 0.4;
     li.selectAll("text")

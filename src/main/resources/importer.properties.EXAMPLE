@@ -42,6 +42,10 @@ mail.production_portal.update.message.sender=
 mail.production_portal.update.message.recipient=
 mail.production_portal.update.message.subject=
 mail.production_portal.update.message.body=
+mail.redeploy.message.sender=
+mail.redeploy.message.recipient=
+mail.redeploy.message.subject=
+mail.redeploy.message.body=
 
 # sftp on production server (for redeploy war)
 production.sftp.host=

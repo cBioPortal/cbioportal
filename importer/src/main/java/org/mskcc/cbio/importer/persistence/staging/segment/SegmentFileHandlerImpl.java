@@ -4,6 +4,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.inject.internal.Preconditions;
 import org.apache.log4j.Logger;
+import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileProcessor;
 
 import java.nio.file.Path;

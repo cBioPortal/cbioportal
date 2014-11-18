@@ -41,12 +41,13 @@ public class DaoTypeOfCancer {
       ResultSet rs = null;
       try {
          con = JdbcUtil.getDbConnection(DaoTypeOfCancer.class);
-         pstmt = con.prepareStatement("INSERT INTO type_of_cancer ( `TYPE_OF_CANCER_ID`, `NAME`, `CLINICAL_TRIAL_KEYWORDS`, `DEDICATED_COLOR`, `SHORT_NAME` ) VALUES (?,?,?,?,?)");
+         pstmt = con.prepareStatement("INSERT INTO type_of_cancer ( `TYPE_OF_CANCER_ID`, `NAME`, `CLINICAL_TRIAL_KEYWORDS`, `DEDICATED_COLOR`, `SHORT_NAME`, `PARENT` ) VALUES (?,?,?,?,?,?)");
          pstmt.setString(1, typeOfCancer.getTypeOfCancerId());
          pstmt.setString(2, typeOfCancer.getName());
          pstmt.setString(3, typeOfCancer.getClinicalTrialKeywords());
          pstmt.setString(4, typeOfCancer.getDedicatedColor());
          pstmt.setString(5, typeOfCancer.getShortName());
+         pstmt.setString(6, typeOfCancer.getParentTypeOfCancerId());
          return pstmt.executeUpdate();
       } catch (SQLException e) {
          throw new DaoException(e);

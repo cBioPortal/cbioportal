@@ -16,12 +16,12 @@
             <p> Altered in <%=dataSummary.getNumCasesAffected()%> (<%=OncoPrintUtil.alterationValueToString(dataSummary.getPercentCasesAffected())%>) of cases
             <span class='oncoprint-diagram-toolbar-buttons' style="float:right;margin-right:20px;display: none;">
             
-            <img id="oncoprint_diagram_showmutationcolor_icon" checked="0" style="width: 12px; height: 12px" class="oncoprint_diagram_showmutationcolor_icon" src="images/uncolormutations.svg">
-            <img id="oncoprint-diagram-showlegend-icon" checked="0" style="width: 12px; height: 12px" class="oncoprint-diagram-showlegend-icon" src="images/showlegend.svg">
-            <img id="oncoprint-diagram-removeUCases-icon" checked="0" style="width: 12px; height: 12px" class="oncoprint-diagram-removeUCases-icon" src="images/removeUCases.svg">
-            <img id="oncoprint-diagram-removeWhitespace-icon" checked="0" style="width: 15px; height: 12px" class="oncoprint-diagram-removeWhitespace-icon" src="images/removeWhitespace.svg">
-            <img id="oncoprint-diagram-downloads-icon" style="width: 12px; height: 12px" class="oncoprint-diagram-downloads-icon" src="images/in.svg">
-            <span class='oncoprint_diagram_slider_icon' style="width: 80px; height: 12px"></span>
+            <img id="oncoprint_diagram_showmutationcolor_icon" checked="0" style="width: 16px; height: 16px" class="oncoprint_diagram_showmutationcolor_icon" src="images/colormutations.svg">
+            <img id="oncoprint-diagram-showlegend-icon" checked="0" style="width: 16px; height: 16px" class="oncoprint-diagram-showlegend-icon" src="images/showlegend.svg">
+            <img id="oncoprint-diagram-removeUCases-icon" checked="0" style="width: 16px; height: 16px" class="oncoprint-diagram-removeUCases-icon" src="images/removeUCases.svg">
+            <img id="oncoprint-diagram-removeWhitespace-icon" checked="0" style="width: 20px; height: 16px" class="oncoprint-diagram-removeWhitespace-icon" src="images/removeWhitespace.svg">
+            <img id="oncoprint-diagram-downloads-icon" style="width: 16px; height: 16px" class="oncoprint-diagram-downloads-icon" src="images/in.svg">
+            <span class='oncoprint_diagram_slider_icon' style="width: 80px; height: 16px"></span>
             </span>
             </p>
         <img id="inner_loader_img" src="images/ajax-loader.gif" style="display:none;">

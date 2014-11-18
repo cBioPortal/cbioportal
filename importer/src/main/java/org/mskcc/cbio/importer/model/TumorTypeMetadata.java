@@ -40,6 +40,7 @@ public class TumorTypeMetadata {
     private String dedicatedColor;
     private String shortName;
     private Boolean download; // download?
+    private String parentTumorType; // oncotree
 
     /**
      * Create a TumorTypeMetadata instance with properties in given array.
@@ -48,7 +49,7 @@ public class TumorTypeMetadata {
 	 * @param properties String[]
      */
     public TumorTypeMetadata(String[] properties) {
-		if (properties.length < 7) {
+		if (properties.length < 8) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
 
@@ -60,6 +61,7 @@ public class TumorTypeMetadata {
         this.category = properties[5].trim();
         this.dedicatedColor = properties[6].trim();
         this.shortName = properties[7].trim();
+        this.parentTumorType = properties[8].trim();
 	}
 
 	public String getType() { return tumorType; }
@@ -70,4 +72,5 @@ public class TumorTypeMetadata {
     public String getTissue() { return tissue; }
     public String getCategory() { return category; }
     public String getShortName() { return shortName; }
+    public String getParentType() { return parentTumorType; }
 }

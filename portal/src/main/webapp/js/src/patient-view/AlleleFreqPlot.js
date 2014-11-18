@@ -309,6 +309,7 @@ var AlleleFreqPlotMulti = function(div, data, options) {
 
 // d3.legend.js 
 // (C) 2012 ziggy.jonsson.nyc@gmail.com
+// Modifications by Adam Abeshouse adama@cbio.mskcc.org
 // MIT licence
 
 d3.legend = function(g) {
@@ -381,7 +382,8 @@ d3.legend = function(g) {
             .attr('height',(1+spacing)+'em')
             .style('fill',function(d) { return d.value.color;})
             .attr('opacity', '0')        
-            .on('mouseover', function(d) { highlightSample(d.key);})
+            .on('mouseover', function(d) { $(this).attr('opacity','0.2'); highlightSample(d.key);})
+            .on('mouseout', function(d) { $(this).attr('opacity','0');})
     ;
     li.on('mouseout', function() { showSamples(); });
     // Reposition and resize the box

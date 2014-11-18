@@ -155,7 +155,8 @@ public class DaoTypeOfCancer {
       typeOfCancer.setClinicalTrialKeywords(rs.getString("CLINICAL_TRIAL_KEYWORDS"));
       typeOfCancer.setDedicatedColor(rs.getString("DEDICATED_COLOR"));
       typeOfCancer.setShortName(rs.getString("SHORT_NAME"));
-
+      typeOfCancer.setParentTypeOfCancerId(rs.getString("PARENT"));
+      
       return typeOfCancer;
    }
 }

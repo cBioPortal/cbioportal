@@ -16,9 +16,10 @@
 */
 package org.mskcc.cbio.importer.remote;
 
-import java.util.List;
+import org.springframework.integration.annotation.Header;
+import org.springframework.integration.annotation.Payload;
 
-public interface RedeployWarFlowGateway
+public interface GetWarGateway
 {
-	public List<String> redeployWar(String dir);
+	public void getWar(@Payload String unused, @Header("file_remoteDirectory") String remoteDirectory, @Header("file_remoteFile") String filename);
 }

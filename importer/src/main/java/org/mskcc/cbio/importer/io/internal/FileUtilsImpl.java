@@ -25,7 +25,8 @@ import org.mskcc.cbio.portal.scripts.*;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.importer.util.*;
-import org.mskcc.cbio.importer.remote.RedeployWarFlowGateway;
+import org.mskcc.cbio.importer.remote.GetWarGateway;
+import org.mskcc.cbio.importer.remote.PutWarGateway;
 import org.mskcc.cbio.portal.model.CopyNumberSegmentFile;
 import org.mskcc.cbio.importer.converter.internal.MethylationConverterImpl;
 
@@ -58,7 +59,10 @@ import java.util.zip.GZIPInputStream;
 public class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils
 {
 	@Autowired
-	RedeployWarFlowGateway redeployWarFlow;
+	GetWarGateway getWarGateway;
+
+	@Autowired
+	PutWarGateway putWarGateway;
 
     // used in unzip method
     private static int BUFFER = 2048;
@@ -990,15 +994,13 @@ public class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils
             throw new IllegalArgumentException("portal or remoteUserName must not be null");
 		}
 
-		// war file location
-		URL warFileLocation = portalMetadata.getIGVSegFileLinkingLocation();
-
-		//SessionFactory sftpSessionFactory;
-		//RedeployWarFlowGateway redeployFlow;
-
-		List<String> lsResults = redeployWarFlow.redeployWar("/home/grossb");
-		for (String filename : lsResults) {
-			System.out.println("Remote file: " + filename);
+		try {
+			getWarGateway.getWar("", portalMetadata.getWarFilePath(), portalMetadata.getWarFilename());
+			putWarGateway.putWar(new File(portalMetadata.getWarFilename()),
+			                     portalMetadata.getWarFilePath());
+		}
+		catch(Exception e) {
+			System.out.println(e.getMessage());
 		}
 	}
 

@@ -67,4 +67,12 @@ public class PortalMetadata {
 	public String getOverrideDirectory() { return overrideDirectory; }
 	public URL getIGVSegFileLinkingLocation() { return igvSegFileLinkingLocation; }
 	public URL getWarFileLocation() { return warFile; }
+	public String getWarFilePath()
+	{
+		return warFile.getFile().substring(0, warFile.getFile().lastIndexOf("/")+1);
+	}
+	public String getWarFilename()
+	{
+		return warFile.getFile().substring(warFile.getFile().lastIndexOf("/")+1);
+	}
 }

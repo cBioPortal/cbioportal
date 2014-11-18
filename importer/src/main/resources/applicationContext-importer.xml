@@ -195,13 +195,37 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
     </b:bean>
 
     <!-- spring integration - sftp beans -->
-    <int:gateway id="gw" service-interface="org.mskcc.cbio.importer.remote.RedeployWarFlowGateway" default-request-channel="inbound"/>
+    <int:gateway id="sftpGetGW" service-interface="org.mskcc.cbio.importer.remote.GetWarGateway" default-request-channel="inboundGet"/>
+    <int:channel id="inboundGet"/>
 
-    <b:bean id="sftpSessionFactory" class="org.springframework.integration.file.remote.session.CachingSessionFactory">
-        <b:constructor-arg ref="defaultSftpSessionFactory" />
-    </b:bean>
+    <int-sftp:outbound-gateway id="gatewayGet"
+        local-directory="#{ T(System).getProperty('java.io.tmpdir')}"
+        session-factory="defaultsftpSessionFactory"
+        request-channel="inboundGet"
+        reply-channel="inboundRm"
+        command="get"
+        expression= "headers['file_remoteDirectory'] + headers['file_remoteFile']"/>
 
-    <b:bean id="defaultSftpSessionFactory" class="org.springframework.integration.sftp.session.DefaultSftpSessionFactory">
+    <int-sftp:outbound-gateway id="gatewayRM"
+        session-factory="defaultsftpSessionFactory"
+        request-channel="inboundRm"
+        reply-channel="nullChannel"
+        command="rm"
+        expression="headers['file_remoteDirectory'] + headers['file_remoteFile']"/>
+
+    <int:gateway id="sftpPutGW" service-interface="org.mskcc.cbio.importer.remote.PutWarGateway" default-request-channel="inboundPut"/>
+    <int:channel id="inboundPut"/>
+
+    <int-sftp:outbound-gateway id="gatewayPut"
+        session-factory="defaultsftpSessionFactory"
+        request-channel="inboundPut"
+        reply-channel="nullChannel"
+        command="put"
+        remote-directory-expression="headers['file_remoteDirectory']"
+        local-directory="#{ T(System).getProperty('java.io.tmpdir')}"
+        expression="payload"/>
+
+    <b:bean id="defaultsftpSessionFactory" class="org.springframework.integration.sftp.session.DefaultSftpSessionFactory">
         <!--
         <property name="privateKey" value="${private.keyfile}"/>
         <property name="privateKeyPassphrase" value="${passphrase}"/>
@@ -211,21 +235,5 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
         <b:property name="password" value="${production.sftp.password}"/>
         <b:property name="port" value="22"/>
     </b:bean>
-
-    <int-sftp:outbound-gateway id="gatewayLS"
-            session-factory="sftpSessionFactory"
-            request-channel="inbound"
-            command="ls"
-            command-options="-1"
-            expression="payload"
-            reply-channel="toSplitter"/>
-
-    <int:splitter id="splitter" input-channel="toSplitter" output-channel="outSplitter"/>
-
-    <int:channel id="inbound"/>
-    <int:channel id="toSplitter"/>
-    <int:channel id="outSplitter">
-        <int:queue/>
-    </int:channel>
 
 </b:beans>

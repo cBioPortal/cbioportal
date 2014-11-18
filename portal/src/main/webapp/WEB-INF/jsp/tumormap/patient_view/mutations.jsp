@@ -21,60 +21,17 @@
     };
     
     var oncoKBDataInject = function(oTable, tableId) {
-        
-        GetEvidence.init(genomicEventObs, function(data) {
-            genomicEventObs = data;
-            
-            if(genomicEventObs.mutations.colExists('oncokb')) {
-                $(oTable).find('.oncokb_gene').each(function() {
-                    var hashId = $(this).attr('hashId');
-                    var gene = genomicEventObs.mutations.getValue(hashId, 'oncokb').gene;
-                    var _tip = '';
-                    
-                    if(gene.summary) {
-                        _tip +=  gene.summary;
-                    }
-                    if(gene.background) {
-                        _tip += '<br/><div><span class="oncokb_moreInfo"><br/><a>More Info</a><i style="float:right">Powered by OncoKB(Beta)</i></span><br/><span class="oncokb_background" style="display:none">' + gene.background + '<br/><i style="float:right">Powered by OncoKB(Beta)</i></span></div>';
-                    }
-                    if(_tip !== '') {
-                        $(this).css('display', '');
-                        $(this).qtip({
-                            content: {text: _tip},
-                            hide: { fixed: true, delay: 100 },
-                            style: { classes: 'qtip-light qtip-rounded qtip-shadow', tip: true },
-                            position: {my:'center right',at:'center left',viewport: $(window)}
-                        });
-                    }
-                });
-                $(oTable).find('.oncokb_alteration').each(function() {
-                    var hashId = $(this).attr('hashId');
-                    
-                    if(genomicEventObs.mutations.getValue(hashId, 'oncokb').alteration.length >0) {
-                        var _alterations = genomicEventObs.mutations.getValue(hashId, 'oncokb').alteration,
-                            _tip = '';
-                        for(var i=0, altsL=_alterations.length; i<altsL; i++) {
-                            _tip += '<b>'+_alterations[i].knownEffect + '</b><br/>' + _alterations[i].description + '<br/>';
-                        }
-                        if (genomicEventObs.mutations.getValue(hashId, 'oncokb').oncogenic){
-                            _tip += '<br/><a target="_blank" href="'+oncokbUrl+'#/variant?hugoSymbol='+genomicEventObs.mutations.getValue(hashId, 'gene')+'&alteration='+genomicEventObs.mutations.getValue(hashId, 'aa')+'">More Info on OncoKB</a><span style="float:right"><i>Powered by OncoKB(Beta)</i></span>';
-                        }
-                    
-                        if(_tip !== '') {
-                            $(this).css('display', '');
-                            $(this).qtip({
-                                content: {text: _tip},
-                                hide: { fixed: true, delay: 100 },
-                                style: { classes: 'qtip-light qtip-rounded qtip-shadow', tip: true },
-                                position: {my:'center right',at:'center left',viewport: $(window)}
-                            });
-                        }
-                    }
-                });
-                
-                addOncoKBlistener(tableId);
-            }
-        });
+        if(!genomicEventObs.oncoKBuilt) {
+            GetEvidence.init(genomicEventObs.mutations, function(data) {
+                if(data && data.length > 0) {
+                    genomicEventObs.mutations.addData("oncokb", data);
+                    addOncoKBlistener(oTable, tableId);
+                }
+                genomicEventObs.oncoKBuilt = true;
+            });
+        }else {
+            addOncoKBlistener(oTable, tableId);
+        }
     };
     
     var drawPanCanThumbnails = function(oTable) {
@@ -209,7 +166,7 @@
                                 if (tip) {
                                     ret = "<span class='"+table_id+"-tip' alt='"+tip+"'>"+ret+"</span>";
                                 }
-                                ret += "&nbsp;<span  class='oncokb oncokb_gene' gene='"+gene+"' hashId='"+source[0]+"' style='display:none'><img width='12' height='12' src='images/file.svg'/></span>";
+                                ret += "&nbsp;<span  class='oncokb oncokb_gene' gene='"+gene+"' hashId='"+source[0]+"' style='display:none'><img width='12' height='12' src='images/file.svg'/></span><img width='12' height='12' class='loader' src='images/ajax-loader.gif'/>";
 
                                 return ret;
                             } else {
@@ -231,7 +188,7 @@
                                 if (mutations.getValue(source[0],'status')==="Germline")
                                     ret += "&nbsp;<span style='background-color:red;font-size:x-small;' class='"
                                             +table_id+"-tip' alt='Germline mutation'>Germline</span>";
-                                ret += "&nbsp;<span class='oncokb oncokb_alteration' alteration='"+aa+"' hashId='"+source[0]+"' style='display:none'><img width='12' height='12' src='images/file.svg'/></span>";
+                                ret += "&nbsp;<span class='oncokb oncokb_alteration' alteration='"+aa+"' hashId='"+source[0]+"' style='display:none'><img width='12' height='12' src='images/file.svg'/></span><img width='12' height='12' class='loader' src='images/ajax-loader.gif'/>";
 
                                 return ret;
                             } else {
@@ -872,7 +829,56 @@
         return oTable;
     }
     
-    function addOncoKBlistener(table_id){
+    function addOncoKBlistener(oTable, table_id){
+        $(oTable).find('.oncokb_gene').each(function() {
+            var hashId = $(this).attr('hashId');
+            var gene = genomicEventObs.mutations.getValue(hashId, 'oncokb').gene;
+            var _tip = '';
+
+            if(gene.summary) {
+                _tip +=  '<b>Gene Summary</b><br/>' + gene.summary;
+            }
+            if(gene.background) {
+                _tip += '<br/><div><span class="oncokb_moreInfo"><br/><a>More Info</a><i style="float:right">Powered by OncoKB(Beta)</i></span><br/><span class="oncokb_background" style="display:none"><b>Gene Background</b><br/>' + gene.background + '<br/><i style="float:right">Powered by OncoKB(Beta)</i></span></div>';
+            }
+            if(_tip !== '') {
+                $(this).css('display', '');
+                $(this).qtip('destroy', true);
+                $(this).qtip({
+                    content: {text: _tip},
+                    hide: { fixed: true, delay: 100 },
+                    style: { classes: 'qtip-light qtip-rounded qtip-shadow', tip: true },
+                    position: {my:'center right',at:'center left',viewport: $(window)}
+                });
+            }
+            $(this).parent().find('.loader').remove();
+        });
+        $(oTable).find('.oncokb_alteration').each(function() {
+            var hashId = $(this).attr('hashId');
+
+            if(genomicEventObs.mutations.getValue(hashId, 'oncokb').alteration.length >0) {
+                var _alterations = genomicEventObs.mutations.getValue(hashId, 'oncokb').alteration,
+                    _tip = '';
+                for(var i=0, altsL=_alterations.length; i<altsL; i++) {
+                    _tip += i!==0?'<br/>':'' + '<b>Mutation Effect: '+_alterations[i].knownEffect + '</b><br/>' + _alterations[i].description + '<br/>';
+                }
+                if (genomicEventObs.mutations.getValue(hashId, 'oncokb').oncogenic){
+                    _tip += '<br/><a target="_blank" href="'+oncokbUrl+'#/variant?hugoSymbol='+genomicEventObs.mutations.getValue(hashId, 'gene')+'&alteration='+genomicEventObs.mutations.getValue(hashId, 'aa')+'">More Info on OncoKB</a><span style="float:right"><i>Powered by OncoKB(Beta)</i></span><br/><br/><i>OncoKB is under development, please pardon errors and omissions. Please send feedback to <a href="mailto:oncokb@cbio.mskcc.org" title="Contact us">oncokb@cbio.mskcc.org</a></i>';
+                }
+
+                if(_tip !== '') {
+                    $(this).css('display', '');
+                    $(this).qtip('destroy', true);
+                    $(this).qtip({
+                        content: {text: _tip},
+                        hide: { fixed: true, delay: 100 },
+                        style: { classes: 'qtip-light qtip-rounded qtip-shadow', tip: true },
+                        position: {my:'center right',at:'center left',viewport: $(window)}
+                    });
+                }
+            }
+            $(this).parent().find('.loader').remove();
+        });
         $('.oncokb').hover(function(){
             $(".oncokb_moreInfo").click(function() {
                 $(this).css('display', 'none');

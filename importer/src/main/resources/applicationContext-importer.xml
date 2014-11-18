@@ -226,10 +226,6 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
         expression="payload"/>
 
     <b:bean id="defaultsftpSessionFactory" class="org.springframework.integration.sftp.session.DefaultSftpSessionFactory">
-        <!--
-        <property name="privateKey" value="${private.keyfile}"/>
-        <property name="privateKeyPassphrase" value="${passphrase}"/>
-        -->
         <b:property name="host" value="${production.sftp.host}"/>
         <b:property name="user" value="${production.sftp.username}"/>
         <b:property name="password" value="${production.sftp.password}"/>

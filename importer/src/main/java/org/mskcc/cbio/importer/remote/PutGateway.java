@@ -19,7 +19,9 @@ package org.mskcc.cbio.importer.remote;
 import org.springframework.integration.annotation.Header;
 import org.springframework.integration.annotation.Payload;
 
-public interface GetWarGateway
+import java.io.File;
+
+public interface PutGateway
 {
-	public void getWar(@Payload String unused, @Header("file_localDirectory") String localDirectory, @Header("file_remoteDirectory") String remoteDirectory, @Header("file_remoteFile") String remoteFile);
+	public void put(@Payload File sourceFile, @Header("file_remoteDirectory") String remoteDirectory);
 }

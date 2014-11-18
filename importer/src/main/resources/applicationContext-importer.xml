@@ -201,7 +201,7 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
     </b:bean>
 
     <!-- spring integration - sftp beans -->
-    <int:gateway id="sftpGetGW" service-interface="org.mskcc.cbio.importer.remote.GetWarGateway" default-request-channel="inboundGet"/>
+    <int:gateway id="sftpGetGW" service-interface="org.mskcc.cbio.importer.remote.GetGateway" default-request-channel="inboundGet"/>
     <int:channel id="inboundGet"/>
 
     <int-sftp:outbound-gateway id="gatewayGet"
@@ -219,7 +219,7 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
         command="rm"
         expression="headers['file_remoteDirectory'] + headers['file_remoteFile']"/>
 
-    <int:gateway id="sftpPutGW" service-interface="org.mskcc.cbio.importer.remote.PutWarGateway" default-request-channel="inboundPut"/>
+    <int:gateway id="sftpPutGW" service-interface="org.mskcc.cbio.importer.remote.PutGateway" default-request-channel="inboundPut"/>
     <int:channel id="inboundPut"/>
 
     <int-sftp:outbound-gateway id="gatewayPut"

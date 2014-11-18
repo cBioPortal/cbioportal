@@ -25,8 +25,8 @@ import org.mskcc.cbio.portal.scripts.*;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.importer.util.*;
-import org.mskcc.cbio.importer.remote.GetWarGateway;
-import org.mskcc.cbio.importer.remote.PutWarGateway;
+import org.mskcc.cbio.importer.remote.GetGateway;
+import org.mskcc.cbio.importer.remote.PutGateway;
 import org.mskcc.cbio.portal.model.CopyNumberSegmentFile;
 import org.mskcc.cbio.importer.converter.internal.MethylationConverterImpl;
 
@@ -61,10 +61,10 @@ import java.util.zip.GZIPInputStream;
 public class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils
 {
 	@Autowired
-	GetWarGateway getWarGateway;
+	GetGateway getGateway;
 
 	@Autowired
-	PutWarGateway putWarGateway;
+	PutGateway putGateway;
 
 	@Autowired
 	JavaMailSender mailSender;
@@ -990,6 +990,55 @@ public class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils
 		return toReturn;
 	}
 
+	public void copySegFiles(PortalMetadata portalMetadata, DatatypeMetadata datatypeMetadata) throws Exception
+	{
+		if (LOG.isInfoEnabled()) {
+			LOG.info("copySegFiles()");
+		}
+
+        // check args
+        if (portalMetadata == null || datatypeMetadata == null) {
+            throw new IllegalArgumentException("portalMetadata && datatypeMetadata must not be null");
+		}
+
+		// seg file location
+		URL segFileLocation = portalMetadata.getIGVSegFileLinkingLocation();
+
+		// we need this to determine location 
+		Collection<DataSourcesMetadata> dataSourcesMetadata = config.getDataSourcesMetadata(Config.ALL);
+
+		// iterate over all cancer studies
+		for (CancerStudyMetadata cancerStudyMetadata : config.getCancerStudyMetadata(portalMetadata.getName())) {
+
+			// lets determine if cancer study is in staging directory or studies directory
+			String rootDirectory = MetadataUtils.getCancerStudyRootDirectory(portalMetadata, dataSourcesMetadata, cancerStudyMetadata);
+
+			if (rootDirectory == null) {
+				if (LOG.isInfoEnabled()) {
+					LOG.info("loadStagingFiles(), cannot find root directory for study: " + cancerStudyMetadata + " skipping...");
+				}
+				continue;
+			}
+
+			// construct staging filename for seg
+			String sourceFilename = (rootDirectory + File.separator +
+									  cancerStudyMetadata.getStudyPath() +
+									  File.separator + datatypeMetadata.getStagingFilename());
+			sourceFilename = sourceFilename.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
+			String destinationFilename = datatypeMetadata.getStagingFilename().replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
+
+			try {
+				File localFile = org.apache.commons.io.FileUtils.getFile(sourceFilename);
+				putGateway.put(localFile, segFileLocation.getFile() + destinationFilename);
+			}
+			catch(Exception e) {
+				if (LOG.isInfoEnabled()) {
+					LOG.info("Error copying seg file to remote server: " + sourceFilename);
+				}
+			}
+		}
+	}
+
 	@Override
 	public void redeployWar(PortalMetadata portalMetadata) throws Exception
 	{
@@ -1006,9 +1055,9 @@ public class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils
 			File localFile = org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
 			                                                         portalMetadata.getWarFilename());
 			deleteFile(localFile);
-			getWarGateway.getWar("", org.apache.commons.io.FileUtils.getTempDirectoryPath(),
-			                     portalMetadata.getWarFilePath(), portalMetadata.getWarFilename());
-			putWarGateway.putWar(localFile, portalMetadata.getWarFilePath());
+			getGateway.get("", org.apache.commons.io.FileUtils.getTempDirectoryPath(),
+			               portalMetadata.getWarFilePath(), portalMetadata.getWarFilename());
+			putGateway.put(localFile, portalMetadata.getWarFilePath());
 		}
 		catch(Exception e) {
 			sendNotification(portalMetadata.getWarFilename(), e.getMessage());

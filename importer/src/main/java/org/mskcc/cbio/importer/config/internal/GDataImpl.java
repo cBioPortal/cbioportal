@@ -916,6 +916,13 @@ class GDataImpl implements Config {
         return null;
     }
 
+
+    private List<String> getWorksheetDataByColumnName(String worksheetName, String columnName){
+        com.google.common.base.Preconditions.checkState(!Strings.isNullOrEmpty(this.gdataSpreadsheet),
+                "The Google spreadsheet has not been defined.");
+        return null;
+    }
+
     /**
      * Helper function to retrieve the given google worksheet data matrix. as a
      * list of string lists.

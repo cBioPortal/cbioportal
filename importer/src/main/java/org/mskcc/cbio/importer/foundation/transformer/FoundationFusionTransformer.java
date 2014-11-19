@@ -4,11 +4,9 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Lists;
 import org.apache.log4j.Logger;
-import org.mskcc.cbio.foundation.jaxb.CaseType;
-import org.mskcc.cbio.foundation.jaxb.CasesType;
-import org.mskcc.cbio.foundation.jaxb.ClientCaseInfoType;
-import org.mskcc.cbio.foundation.jaxb.RearrangementType;
+import org.mskcc.cbio.foundation.jaxb.*;
 import org.mskcc.cbio.importer.persistence.staging.*;
 import org.mskcc.cbio.importer.persistence.staging.fusion.FusionModel;
 import org.mskcc.cbio.importer.persistence.staging.fusion.FusionTransformer;
@@ -60,28 +58,7 @@ public class FoundationFusionTransformer extends FusionTransformer {
         Preconditions.checkState(this.fileHandler.isRegistered(),"The file handler has not been associated with a staging file");
         for (CaseType caseType : casesType.getCase()){
             final String sampleId = caseType.getCase();  // get sample id from case
-            List<FusionModel> fusionModelList = FluentIterable.from(caseType.getVariantReport().getRearrangements().getContent())
-                    .filter(new Predicate<Serializable>() {
-                        @Override
-                        public boolean apply(@Nullable Serializable input) {
-                            return input instanceof JAXBElement;
-
-                        }
-                    })
-                    .transform(new Function<Serializable, JAXBElement>() {
-                        @Override
-                        public JAXBElement apply(@Nullable Serializable input) {
-                            return (JAXBElement) input;
-                        }
-                    })
-                    .transform(new Function<JAXBElement, RearrangementType>() {
-                        @Nullable
-                        @Override
-                        public RearrangementType apply(JAXBElement input) {
-                            return (RearrangementType) input.getValue();
-                        }
-                    })
-
+            List<FusionModel> fusionModelList = FluentIterable.from(this.replicateFusionEvents(caseType))
                     .transform(new Function<RearrangementType, FusionModel>() {
                         @Nullable
                         @Override
@@ -99,6 +76,58 @@ public class FoundationFusionTransformer extends FusionTransformer {
 
         return casesType.getCase().size();
     }
+
+    /*
+    private method to replicate Fusion rearrangement event to support the original other-gene as
+    a targeted-gene
+
+    mod 19Nov2014 FJC added support for two fusion entries for each foundation rearrangement
+    create a new Rearrangement type
+     */
+    private List<RearrangementType> replicateFusionEvents(CaseType caseType){
+        List<RearrangementType> rearrangementTypes = Lists.newArrayList();
+        final String sampleId = caseType.getCase();  // get sample id from case
+       List<RearrangementType> originalList =  FluentIterable.from(caseType.getVariantReport().getRearrangements().getContent())
+               .filter(new Predicate<Serializable>() {
+                   @Override
+                   public boolean apply(@Nullable Serializable input) {
+                       return input instanceof JAXBElement;
+                   }
+               })
+               .transform(new Function<Serializable, JAXBElement>() {
+                   @Override
+                   public JAXBElement apply(@Nullable Serializable input) {
+                       return (JAXBElement) input;
+                   }
+               })
+               .transform(new Function<JAXBElement, RearrangementType>() {
+                   @Nullable
+                   @Override
+                   public RearrangementType apply(JAXBElement input) {
+                       return (RearrangementType) input.getValue();
+                   }
+               }).toList();
+        rearrangementTypes.addAll(originalList);
+        logger.info("Sample " +sampleId +" original rearrangement count " +rearrangementTypes.size());
+        for (RearrangementType origFusion : originalList) {
+            if ( !origFusion.getOtherGene().equals(origFusion.getTargetedGene()) && !origFusion.getOtherGene().contains("Region") ) {
+                RearrangementType newFusion = new ObjectFactory().createRearrangementType();
+                newFusion.setDescription(origFusion.getDescription());
+                newFusion.setInFrame(origFusion.getInFrame());
+                newFusion.setOtherGene(origFusion.getTargetedGene());
+                newFusion.setPos1(origFusion.getPos2());
+                newFusion.setPos2(origFusion.getPos1());
+                newFusion.setStatus(origFusion.getStatus());
+                newFusion.setTargetedGene(origFusion.getOtherGene());
+                newFusion.setSupportingReadPairs(origFusion.getSupportingReadPairs());
+                rearrangementTypes.add(newFusion);
+            }
+        }
+        logger.info("Sample " +sampleId +" replicated rearrangement count " +rearrangementTypes.size());
+        return rearrangementTypes;
+    }
+
+
      /*
     main method for stand alone testing
      */
@@ -117,6 +146,7 @@ public class FoundationFusionTransformer extends FusionTransformer {
             logger.info("Sample count = " +sampleCount);
         } catch (JAXBException | FileNotFoundException ex) {
             logger.error(ex.getMessage());
+            ex.printStackTrace();
         }
     }
 

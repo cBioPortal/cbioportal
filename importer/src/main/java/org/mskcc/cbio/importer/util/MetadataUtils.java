@@ -142,7 +142,7 @@ public class MetadataUtils {
             if (!metadata.isEmpty()) {
                 toReturn.put(columnHeader, metadata.iterator().next());
             }
-            if (supplyDefaultClinicalAttributeValues) {
+            else if (supplyDefaultClinicalAttributeValues) {
                 String[] properties = new String[] { columnHeader, columnHeader, columnHeader, "STRING", "PATIENT", "1"};
                 ClinicalAttributesMetadata m = new ClinicalAttributesMetadata(properties);
                 toReturn.put(columnHeader, m);

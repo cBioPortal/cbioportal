@@ -522,7 +522,7 @@ class ImporterImpl implements Importer {
     	String[] parts = nextLine.split(ImportClinicalData.DELIMITER, -1);
     	for (int lc = 0; lc < headersWithMissingMetadata.size(); lc++) {
     		if (!headersWithMissingMetadata.get(lc)) {
-    			lineBuilder.append((lc < parts.length) ? parts[lc] : ""	 + ImportClinicalData.DELIMITER);
+    			lineBuilder.append(((lc < parts.length) ? parts[lc] : "") + ImportClinicalData.DELIMITER);
     		}
     	}
     	return lineBuilder.toString().trim() + "\n";

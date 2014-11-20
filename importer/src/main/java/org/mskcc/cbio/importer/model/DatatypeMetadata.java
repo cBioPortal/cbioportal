@@ -88,6 +88,7 @@ public class DatatypeMetadata {
 	// bean properties
 	private String datatype;
 	private Boolean download;
+	private Boolean process;
 	private String[] dependencies;
 	// tcgadownloadArchive is parsed in constructor
 	private LinkedHashSet<String> tcgaArchives;
@@ -114,18 +115,19 @@ public class DatatypeMetadata {
      */
     public DatatypeMetadata(String[] properties) {
 
-		if (properties.length < 15) {
+		if (properties.length < 16) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
 
 		this.datatype = properties[0].trim();
 		this.download = new Boolean(properties[1].trim());
-		this.dependencies = (properties[2].trim() != null) ?
-			this.dependencies = properties[2].trim().split(DEPENDENCIES_DELIMITER) : new String[0];
+		this.process = new Boolean(properties[2].trim());
+		this.dependencies = (properties[3].trim() != null) ?
+			this.dependencies = properties[3].trim().split(DEPENDENCIES_DELIMITER) : new String[0];
 		tcgaArchives = new LinkedHashSet<String>();
 		tcgaArchivedFiles = new HashMap<String, String>();
-		if (properties[3] != null && properties[3].length() > 0) {
-			for (String archivePair : properties[3].trim().split(DOWNLOAD_ARCHIVE_DELIMITER)) {
+		if (properties[4] != null && properties[4].length() > 0) {
+			for (String archivePair : properties[4].trim().split(DOWNLOAD_ARCHIVE_DELIMITER)) {
 				String[] parts = archivePair.split(ARCHIVE_FILENAME_PAIR_DELIMITER);
 				String archive = parts[0].trim();
 				String archivedFile = parts[1].trim();
@@ -140,21 +142,22 @@ public class DatatypeMetadata {
 				}
 			}
 		}
-		this.stagingFilename = properties[4].trim();
-		this.converterClassName = properties[5].trim();
-		this.importerClassName = properties[6].trim();
-		this.requiresMetafile = new Boolean(properties[7].trim());
-		this.metaFilename = properties[8].trim();
-		this.metaStableID = properties[9].trim();
-		this.metaGeneticAlterationType = properties[10];
-		this.metaDatatypeType = properties[11];
-		this.metaShowProfileInAnalysisTab = new Boolean(properties[12].trim());
-		this.metaProfileName = properties[13].trim();
-		this.metaProfileDescription = properties[14].trim();
+		this.stagingFilename = properties[5].trim();
+		this.converterClassName = properties[6].trim();
+		this.importerClassName = properties[7].trim();
+		this.requiresMetafile = new Boolean(properties[8].trim());
+		this.metaFilename = properties[9].trim();
+		this.metaStableID = properties[10].trim();
+		this.metaGeneticAlterationType = properties[11];
+		this.metaDatatypeType = properties[12];
+		this.metaShowProfileInAnalysisTab = new Boolean(properties[13].trim());
+		this.metaProfileName = properties[14].trim();
+		this.metaProfileDescription = properties[15].trim();
 	}
 
 	public String getDatatype() { return datatype; }
 	public Boolean isDownloaded() { return download; }
+	public Boolean isProcessed() { return process; }
 	public String[] getDependencies() { return dependencies; }
 	public Set<String> getTCGADownloadArchives() { return tcgaArchives; }
 	public Set<String> getTCGAArchivedFiles(String archive) {

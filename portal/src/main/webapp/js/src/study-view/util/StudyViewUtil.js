@@ -145,6 +145,17 @@ var StudyViewUtil = (function(){
         }
     }
     
+    function addQtip(_text, element, position){
+        var _qtip = jQuery.extend(true,{},StudyViewBoilerplate.pieLabelQtip);
+        
+        _qtip.content.text = _text;
+        
+        if(typeof position !== 'undefined') {
+            _qtip.position = position;
+        }
+        element.qtip(_qtip);
+    }
+    
     return{
         showHideDivision: showHideDivision,
         echoWarningMessg: echoWarningMessg,
@@ -155,6 +166,7 @@ var StudyViewUtil = (function(){
         arrayFindByValue: arrayFindByValue,
         changePosition: changePosition,
         testM: testM,
-        changeTitle: changeTitle
+        changeTitle: changeTitle,
+        addQtip: addQtip
     };
 })();

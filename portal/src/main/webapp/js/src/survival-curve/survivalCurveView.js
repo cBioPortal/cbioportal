@@ -55,49 +55,50 @@ var SurvivalCurveView = function(_opts) {
     var pValCallBackFunc = function(_pVal) {
         opts.vals.pVal = _pVal;
         survivalCurve = new SurvivalCurve();
-        survivalCurve.init(inputArr, opts);
+        survivalCurve.init(inputArr, opts);            
     };
     
     var getResultInit = function(_caseLists, _data) {
-                    //Init all the calculators
-                    kmEstimator = new KmEstimator(); 
-                    logRankTest = new LogRankTest();   
-                    //confidenceIntervals = new ConfidenceIntervals();   
-                    
-                    //Split the data into different(altered/unaltered) groups  
-                    for (var key in _caseLists) {  
-                        if (_caseLists[key] === "altered") alteredGroup.push(key);
-                        else if (_caseLists[key] === "unaltered") unalteredGroup.push(key);
-                    }
+        //Init all the calculators
+        kmEstimator = new KmEstimator(); 
+        logRankTest = new LogRankTest();   
+        //confidenceIntervals = new ConfidenceIntervals();   
+        
+        //Split the data into different(altered/unaltered) groups  
+        for (var key in _caseLists) {  
+            if (_caseLists[key] === "altered") alteredGroup.push(key);
+            else if (_caseLists[key] === "unaltered") unalteredGroup.push(key);
+        }
 
-                    //Init data instances for different groups
-                    var alteredDataInst = new SurvivalCurveProxy();
-                    var unalteredDataInst = new SurvivalCurveProxy();
-                    alteredDataInst.init(_data, alteredGroup, kmEstimator, logRankTest);
-                    unalteredDataInst.init(_data, unalteredGroup, kmEstimator, logRankTest);
+        //Init data instances for different groups
+        var alteredDataInst = new SurvivalCurveProxy();
+        var unalteredDataInst = new SurvivalCurveProxy();
+        alteredDataInst.init(_data, alteredGroup, kmEstimator, logRankTest);
+        unalteredDataInst.init(_data, unalteredGroup, kmEstimator, logRankTest);
 
-                    //Individual settings 
-                    var unalteredSettingsInst = jQuery.extend(true, {}, SurvivalCurveBroilerPlate.subGroupSettings);
-                    unalteredSettingsInst.line_color = "blue";
-                    unalteredSettingsInst.mouseover_color = "#81BEF7";
-                    unalteredSettingsInst.legend = "Cases without Alteration(s) in Query Gene(s)";
-                    var alteredSettingsInst = jQuery.extend(true, {}, SurvivalCurveBroilerPlate.subGroupSettings);
-                    alteredSettingsInst.line_color = "red";
-                    alteredSettingsInst.mouseover_color = "#F5BCA9";
-                    alteredSettingsInst.legend = "Cases with Alteration(s) in Query Gene(s)";
-                    
-                    //Assemble the input
-                    var alteredInputInst = {},
-                        unalteredInputInst = {};
-                    alteredInputInst.data = alteredDataInst;
-                    alteredInputInst.settings = alteredSettingsInst;
-                    unalteredInputInst.data = unalteredDataInst;
-                    unalteredInputInst.settings = unalteredSettingsInst;
+        //Individual settings 
+        var unalteredSettingsInst = jQuery.extend(true, {}, SurvivalCurveBroilerPlate.subGroupSettings);
+        unalteredSettingsInst.line_color = "blue";
+        unalteredSettingsInst.mouseover_color = "#81BEF7";
+        unalteredSettingsInst.legend = "Cases without Alteration(s) in Query Gene(s)";
+        var alteredSettingsInst = jQuery.extend(true, {}, SurvivalCurveBroilerPlate.subGroupSettings);
+        alteredSettingsInst.line_color = "red";
+        alteredSettingsInst.mouseover_color = "#F5BCA9";
+        alteredSettingsInst.legend = "Cases with Alteration(s) in Query Gene(s)";
+        
+        //Assemble the input
+        var alteredInputInst = {},
+            unalteredInputInst = {};
+        alteredInputInst.data = alteredDataInst;
+        alteredInputInst.settings = alteredSettingsInst;
+        unalteredInputInst.data = unalteredDataInst;
+        unalteredInputInst.settings = unalteredSettingsInst;
 
-                    //render the curve
-                    inputArr = [alteredInputInst, unalteredInputInst];
-                    logRankTest.calc(inputArr[0].data.getData(), inputArr[1].data.getData(), pValCallBackFunc);
-            };
+        //render the curve
+        inputArr = [alteredInputInst, unalteredInputInst];
+
+        logRankTest.calc(inputArr[0].data.getData(), inputArr[1].data.getData(), pValCallBackFunc);
+};
 
     return {
         getResultInit: getResultInit,

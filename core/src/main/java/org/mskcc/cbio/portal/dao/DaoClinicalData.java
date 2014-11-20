@@ -270,7 +270,10 @@ public final class DaoClinicalData {
 
     public static List<ClinicalData> getData(String cancerStudyId, Collection<String> caseIds, ClinicalAttribute attr) throws DaoException {
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
-
+        return getData(cancerStudy.getInternalId(), caseIds, attr);
+    }
+    
+    public static List<ClinicalData> getData(int cancerStudyId, Collection<String> caseIds, ClinicalAttribute attr) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -280,7 +283,7 @@ public final class DaoClinicalData {
         String caseIdsSql = generateCaseIdsSql(caseIds);
 
         String sql = "SELECT * FROM clinical WHERE"
-                + " `CANCER_STUDY_ID`=" + "'" + cancerStudy.getInternalId() + "'"
+                + " `CANCER_STUDY_ID`=" + "'" + cancerStudyId + "'"
                 + " AND `ATTR_ID`=" + "'" + attr.getAttrId() + "'"
                 + " AND `CASE_ID` IN (" + caseIdsSql + ")";
 

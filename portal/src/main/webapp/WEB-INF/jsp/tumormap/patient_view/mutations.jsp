@@ -3,8 +3,9 @@
 <%@ page import="org.mskcc.cbio.portal.dao.DaoMutSig" %>
 
 <script type="text/javascript" src="js/lib/igv_webstart.js?<%=GlobalProperties.getAppVersion()%>"></script>
-
 <script type="text/javascript" src="js/src/patient-view/PancanMutationHistogram.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/patient-view/GetEvidence.js?<%=GlobalProperties.getAppVersion()%>"></script>
+
 <link href="css/mutationMapper.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
 
 <script type="text/javascript">
@@ -18,7 +19,21 @@
     _.templateSettings = {
         interpolate : /\{\{(.+?)\}\}/g
     };
-
+    
+    var oncoKBDataInject = function(oTable, tableId) {
+        if(!genomicEventObs.oncoKBuilt) {
+            GetEvidence.init(genomicEventObs.mutations, function(data) {
+                if(data && data.length > 0) {
+                    genomicEventObs.mutations.addData("oncokb", data);
+                    addOncoKBlistener(oTable, tableId);
+                }
+                genomicEventObs.oncoKBuilt = true;
+            });
+        }else {
+            addOncoKBlistener(oTable, tableId);
+        }
+    };
+    
     var drawPanCanThumbnails = function(oTable) {
         genomicEventObs.subscribePancanMutationsFrequency(function() {
             $(oTable).find('.pancan_mutations_histogram_wait').remove();
@@ -151,6 +166,8 @@
                                 if (tip) {
                                     ret = "<span class='"+table_id+"-tip' alt='"+tip+"'>"+ret+"</span>";
                                 }
+                                ret += "&nbsp;<span  class='oncokb oncokb_gene' gene='"+gene+"' hashId='"+source[0]+"' style='display:none'><img width='12' height='12' src='images/file.svg'/></span><img width='12' height='12' class='loader' src='images/ajax-loader.gif'/>";
+
                                 return ret;
                             } else {
                                 return mutations.getValue(source[0], "gene");
@@ -171,6 +188,8 @@
                                 if (mutations.getValue(source[0],'status')==="Germline")
                                     ret += "&nbsp;<span style='background-color:red;font-size:x-small;' class='"
                                             +table_id+"-tip' alt='Germline mutation'>Germline</span>";
+                                ret += "&nbsp;<span class='oncokb oncokb_alteration' alteration='"+aa+"' hashId='"+source[0]+"' style='display:none'><img width='12' height='12' src='images/file.svg'/></span><img width='12' height='12' class='loader' src='images/ajax-loader.gif'/>";
+
                                 return ret;
                             } else {
                                 return mutations.getValue(source[0], 'aa');
@@ -785,6 +804,7 @@
                     addCosmicTooltip(table_id);
                     listenToBamIgvClick(".igv-link");
                     drawPanCanThumbnails(this);
+                    oncoKBDataInject(this, table_id);
                 },
                 "bPaginate": true,
                 "sPaginationType": "two_button",
@@ -807,6 +827,64 @@
 //        });
 
         return oTable;
+    }
+    
+    function addOncoKBlistener(oTable, table_id){
+        $(oTable).find('.oncokb_gene').each(function() {
+            var hashId = $(this).attr('hashId');
+            var gene = genomicEventObs.mutations.getValue(hashId, 'oncokb').gene;
+            var _tip = '';
+
+            if(gene.summary) {
+                _tip +=  '<b>Gene Summary</b><br/>' + gene.summary;
+            }
+            if(gene.background) {
+                _tip += '<br/><div><span class="oncokb_moreInfo"><br/><a>More Info</a><i style="float:right">Powered by OncoKB(Beta)</i></span><br/><span class="oncokb_background" style="display:none"><b>Gene Background</b><br/>' + gene.background + '<br/><i style="float:right">Powered by OncoKB(Beta)</i></span></div>';
+            }
+            if(_tip !== '') {
+                $(this).css('display', '');
+                $(this).qtip('destroy', true);
+                $(this).qtip({
+                    content: {text: _tip},
+                    hide: { fixed: true, delay: 100 },
+                    style: { classes: 'qtip-light qtip-rounded qtip-shadow', tip: true },
+                    position: {my:'center right',at:'center left',viewport: $(window)}
+                });
+            }
+            $(this).parent().find('.loader').remove();
+        });
+        $(oTable).find('.oncokb_alteration').each(function() {
+            var hashId = $(this).attr('hashId');
+
+            if(genomicEventObs.mutations.getValue(hashId, 'oncokb').alteration.length >0) {
+                var _alterations = genomicEventObs.mutations.getValue(hashId, 'oncokb').alteration,
+                    _tip = '';
+                for(var i=0, altsL=_alterations.length; i<altsL; i++) {
+                    _tip += i!==0?'<br/>':'' + '<b>Mutation Effect: '+_alterations[i].knownEffect + '</b><br/>' + _alterations[i].description + '<br/>';
+                }
+                if (genomicEventObs.mutations.getValue(hashId, 'oncokb').oncogenic){
+                    _tip += '<br/><a target="_blank" href="'+oncokbUrl+'#/variant?hugoSymbol='+genomicEventObs.mutations.getValue(hashId, 'gene')+'&alteration='+genomicEventObs.mutations.getValue(hashId, 'aa')+'">More Info on OncoKB</a><span style="float:right"><i>Powered by OncoKB(Beta)</i></span><br/><br/><i>OncoKB is under development, please pardon errors and omissions. Please send feedback to <a href="mailto:oncokb@cbio.mskcc.org" title="Contact us">oncokb@cbio.mskcc.org</a></i>';
+                }
+
+                if(_tip !== '') {
+                    $(this).css('display', '');
+                    $(this).qtip('destroy', true);
+                    $(this).qtip({
+                        content: {text: _tip},
+                        hide: { fixed: true, delay: 100 },
+                        style: { classes: 'qtip-light qtip-rounded qtip-shadow', tip: true },
+                        position: {my:'center right',at:'center left',viewport: $(window)}
+                    });
+                }
+            }
+            $(this).parent().find('.loader').remove();
+        });
+        $('.oncokb').hover(function(){
+            $(".oncokb_moreInfo").click(function() {
+                $(this).css('display', 'none');
+                $(this).parent().find('.oncokb_background').css('display', 'block');
+            });
+        });
     }
     
     function listenToBamIgvClick(elem) {
@@ -966,7 +1044,7 @@
                 determineOverviewMutations(data);
                 genomicEventObs.mutations.setData(data);
                 genomicEventObs.fire('mutations-built');
-
+                
                 // summary table
                 buildMutationsDataTable(genomicEventObs.mutations,genomicEventObs.mutations.getEventIds(true), 'mutation_summary_table', 
                             '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pl>>', 25, "No mutation events of interest", true);
@@ -1004,7 +1082,7 @@
                 $('.mutation-summary-table-name').addClass("datatable-name");
                 $('#mutation_summary_wrapper_table').show();
                 $('#mutation_summary_wait').remove();
-                
+
                 // mutations
                 buildMutationsDataTable(genomicEventObs.mutations,genomicEventObs.mutations.getEventIds(false),
                     'mutation_table', '<"H"<"all-mutation-table-name">fr>t<"F"C<"datatable-paging"pil>>', 100, "No mutation events", false);
@@ -1064,7 +1142,7 @@
                             _.extend(munge(byKeywordResponse, "keyword"), munge(byHugoResponse, "hugo")));
                     genomicEventObs.fire("pancan-mutation-frequency-built");
                 });
-
+                
             }
             ,"json"
         );

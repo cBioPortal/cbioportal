@@ -3,6 +3,8 @@
 <%
     request.setAttribute(QueryBuilder.HTML_TITLE, "cBio Cancer Genomics Pathway Portal::Error");
     String userMessage = (String) request.getAttribute(QueryBuilder.USER_ERROR_MESSAGE);
+    String emailContact = (userMessage != null && userMessage.contains("not authorized")) ?
+      "cbioportal-access at cbio dot mskcc dot org" : GlobalProperties.getEmailContact();
 %>
 
 <jsp:include page="global/header.jsp" flush="true" />
@@ -13,7 +15,7 @@
             <% } else {%>
                 Oops!  An Error Has occurred while processing your request.
               <% } %>
-            &nbsp;Please try again or send email to <%= GlobalProperties.getEmailContact() %> if this is any error in this portal.
+            &nbsp;Please try again or send email to <%= emailContact %> if this is any error in this portal.
             </div>
   </td>
   </tr>

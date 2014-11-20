@@ -244,7 +244,6 @@ var PlotsMenu = (function () {
                 return false;
             }
         });
-
     }
 
     function updateVisibility() {
@@ -461,6 +460,12 @@ var PlotsView = (function () {
                 fill : "none",
                 symbol : "circle",
                 legendText : "Homdel"
+            },
+            Unknown : {
+                stroke : "#A8A8A8",
+                fill : "none",
+                symbol : "circle",
+                legendText : "No CNA data"
             }
         },
         userSelection = {
@@ -475,9 +480,20 @@ var PlotsView = (function () {
     var discretizedDataTypeIndicator = "";
 
     var Util = (function() {
+        
+        function hasCopyNumberData() {
+            var result = false;
+            $.each(PlotsData.getDotsGroup(), function(index, obj) {
+                if (!isEmpty(obj.gisticType)) {
+                    result = true;
+                    return false;
+                }
+            });
+            return result;
+        }
 
         function isEmpty(inputVal) {
-            if (inputVal !== "NaN" && inputVal !== "NA") {
+            if (inputVal !== "NaN" && inputVal !== "NA" && (typeof inputVal !== "undefined")) {
                 return false;
             }
             return true;
@@ -547,7 +563,7 @@ var PlotsView = (function () {
             for(var i = 0; i < arr.length; i++) {
                 if (parseFloat(ele) > parseFloat(arr[i])) {
                     continue ;
-                } else if (parseFloat(ele) == parseFloat(arr[i])) {
+                } else if (parseFloat(ele) === parseFloat(arr[i])) {
                     return i;
                 } else {
                     return i - 1;
@@ -576,7 +592,8 @@ var PlotsView = (function () {
             plotsIsDiscretized: plotsIsDiscretized,
             analyseData: analyseData,
             searchIndexBottom: searchIndexBottom,
-            searchIndexTop: searchIndexTop
+            searchIndexTop: searchIndexTop,
+            hasCopyNumberData: hasCopyNumberData
         };
 
     }());
@@ -606,7 +623,7 @@ var PlotsView = (function () {
             };
 
         function fetchPlotsData(profileDataResult) {
-
+            
             var resultObj = profileDataResult[userSelection.gene];
             for (var key in resultObj) {  //key is case id
                 caseSetLength += 1;
@@ -644,8 +661,7 @@ var PlotsView = (function () {
                 }
                 //Push into the dots array
                 if (!Util.isEmpty(_singleDot.xVal) &&
-                    !Util.isEmpty(_singleDot.yVal) &&
-                    !Util.isEmpty(_singleDot.gisticType)) {
+                    !Util.isEmpty(_singleDot.yVal)) {
                     dotsGroup.push(_singleDot);
                     status.combineHasData = true;
                 }
@@ -826,7 +842,7 @@ var PlotsView = (function () {
                 var tmp_copy_no = [];
                 $.each(PlotsData.getDotsGroup(), function(index, value) {
                     tmp_copy_no.push(value.xVal);
-                })
+                });
                 for (var j = -2; j < 3; j++) {
                     if (tmp_copy_no.indexOf(j.toString()) !== -1) {
                         slotsCnt += 1;
@@ -1192,7 +1208,7 @@ var PlotsView = (function () {
                 } else if (Util.plotsTypeIsMethylation()) {
                     content += "Methylation: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
                         "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
-                    if (d.gisticType !== "Diploid") {
+                    if (d.gisticType !== "Diploid" && !Util.isEmpty(d.gisticType)) {
                         content = content + "CNA: " + "<strong>" + d.gisticType + "</strong><br>";
                     }
                     content += "Case ID: <strong><a href='tumormap.do?case_id=" + d.caseId +
@@ -1204,7 +1220,7 @@ var PlotsView = (function () {
                 } else if (Util.plotsTypeIsRPPA()) {
                     content += "mRNA: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
                         "RPPA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
-                    if (d.gisticType !== "Diploid") {
+                    if (d.gisticType !== "Diploid" && !Util.isEmpty(d.gisticType)) {
                         content = content + "CNA: " + "<strong>" + d.gisticType + "</strong><br>";
                     }
                     content += "Case ID: <strong><a href='tumormap.do?case_id=" + d.caseId +
@@ -1579,7 +1595,15 @@ var PlotsView = (function () {
                         }
                     })
                     .attr("stroke", function(d) {
-                        return gisticStyle[d.gisticType].stroke;
+                        if (Util.hasCopyNumberData()) {
+                            if (Util.isEmpty(d.gisticType)) {
+                                return gisticStyle.Unknown.stroke;
+                            } else {
+                                return gisticStyle[d.gisticType].stroke;
+                            }
+                        } else {
+                            return "black";
+                        }
                     })
                     .attr("stroke-width", 1.2)
                     .attr("class", function(d) { return d.caseId; });
@@ -1699,17 +1723,20 @@ var PlotsView = (function () {
 
             function drawOtherViewLegends() {
                 var gisticStyleArr = [];
-                for (var key in gisticStyle) {
-                    var obj = gisticStyle[key];
-                    gisticStyleArr.push(obj);
+                
+                if (Util.hasCopyNumberData()) {
+                    for (var key in gisticStyle) {
+                        var obj = gisticStyle[key];
+                        gisticStyleArr.push(obj);
+                    }
                 }
-
+                
                 var mutatedStyle = {
-                    stroke : "none",
-                    symbol : "circle",
-                    fill : "orange",
-                    legendText : "Mutated"
-                }
+                        stroke : "none",
+                        symbol : "circle",
+                        fill : "orange",
+                        legendText : "Mutated"
+                    };
                 gisticStyleArr.push(mutatedStyle);
 
                 var legend = elem.svg.selectAll(".legend")
@@ -1718,7 +1745,7 @@ var PlotsView = (function () {
                     .attr("class", "legend")
                     .attr("transform", function(d, i) {
                         return "translate(610, " + (30 + i * 15) + ")";
-                    })
+                    });
 
                 legend.append("path")
                     .attr("width", 18)
@@ -1734,7 +1761,7 @@ var PlotsView = (function () {
                     .attr("dx", ".75em")
                     .attr("dy", ".35em")
                     .style("text-anchor", "front")
-                    .text(function(d) { return d.legendText; })
+                    .text(function(d) { return d.legendText; });    
             }
 
             return {

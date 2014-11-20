@@ -5062,11 +5062,11 @@ var Mutation3dVisView = Backbone.View.extend({
 		// make the main container draggable
 		container3d.draggable({
 			handle: ".mutation-3d-info-title",
-			start: function(event, ui) {
-				// fix the width to prevent resize during drag
-				var width = container3d.css("width");
-				container3d.css("width", width);
-			},
+//			start: function(event, ui) {
+//				// fix the width to prevent resize during drag
+//				var width = container3d.css("width");
+//				container3d.css("width", width);
+//			},
 			stop: function(event, ui) {
 				var top = parseInt(container3d.css("top"));
 				var left = parseInt(container3d.css("left"));
@@ -5086,6 +5086,31 @@ var Mutation3dVisView = Backbone.View.extend({
 				}
 
 				// TODO user can still take the panel out by dragging it to the bottom or right
+			}
+		});
+
+		//TODO something like this might be safer for "alsoResize" option:
+		// container3d.find(".mutation-3d-vis-container,.mutation-3d-vis-container div:eq(0)")
+
+		// make the container resizable
+		container3d.resizable({
+			alsoResize: ".mutation-3d-vis-container,.mutation-3d-vis-container div:eq(0)",
+			handles: "sw, s, w",
+			minWidth: 400,
+			minHeight: 300,
+			start: function(event, ui) {
+				// a workaround to properly redraw the 3d-info area
+				container3d.find(".mutation-3d-vis-help-content").css("width", "auto");
+
+				// a workaround to prevent position to be set to absolute
+				container3d.css("position", "fixed");
+			},
+			stop: function(event, ui) {
+				// a workaround to properly redraw the 3d-info area
+				container3d.css("height", "auto");
+
+				// a workaround to prevent position to be set to absolute
+				container3d.css("position", "fixed");
 			}
 		});
 	},
@@ -5648,7 +5673,7 @@ var Mutation3dVisView = Backbone.View.extend({
 		var self = this;
 		var container3d = self.$el;
 
-		container3d.css({"left": "", "width": "", "top": 0});
+		container3d.css({"left": "", position: "", "top": 0});
 	},
 	/**
 	 * Hides the 3D visualizer panel.
@@ -7805,6 +7830,8 @@ function PdbDataProxy(options)
 	// map of <uniprot id, pdb data summary> pairs
 	var _pdbDataSummaryCache = {};
 
+	// map of <gene_pdbId_chainId, positionMap> pairs
+	var _positionMapCache = {};
 
 	function lazyInit(servletName)
 	{
@@ -7828,9 +7855,12 @@ function PdbDataProxy(options)
 		_pdbDataSummaryCache = data.summaryData;
 
 		// process position data
-		_.each(_.keys(data.positionData), function(key) {
-			// TODO this is a bit tricky...
-		});
+//		_.each(_.keys(data.positionData), function(key) {
+//			// TODO this is a bit tricky so let the user provide whole cache for now...
+//		});
+
+		// set position data
+		_positionMapCache = data.positionData;
 
 		_fullInit = true;
 	}
@@ -7847,13 +7877,12 @@ function PdbDataProxy(options)
 	{
 		// collection of alignments (PdbAlignmentCollection)
 		var alignments = chain.alignments;
+		var cacheKey = generatePositionMapCacheKey(gene, chain);
 
-		// TODO use a proper cache instead of checking/reflecting a chain attribute?
 		// do not retrieve data if it is already there
-		if (_fullInit ||
-			chain.positionMap != undefined)
+		if (_fullInit || _positionMapCache[cacheKey] != null)
 		{
-			callbackFn(chain.positionMap || {});
+			callbackFn(_positionMapCache[cacheKey] || {});
 			return;
 		}
 
@@ -7930,6 +7959,13 @@ function PdbDataProxy(options)
 				}
 			}
 
+			// cache the map
+			if (cacheKey)
+			{
+				_positionMapCache[cacheKey] = positionMap;
+				//console.log("%s", JSON.stringify(_positionMapCache));
+			}
+
 			// call the callback function with the updated position map
 			callbackFn(positionMap);
 		};
@@ -7949,6 +7985,27 @@ function PdbDataProxy(options)
 			// just forward to callback with empty data
 			callbackFn({});
 		}
+	}
+
+	/**
+	 * Generates a cache key for the position map
+	 * by the given gene and chain information.
+	 *
+	 * @param gene  hugo gene symbol
+	 * @param chain a PdbChainModel instance
+	 * @returns {String} cache key as a string
+	 */
+	function generatePositionMapCacheKey(gene, chain)
+	{
+		var key = null;
+
+		if (chain.alignments.length > 0)
+		{
+			// TODO make sure that the key is unique!
+			key = gene + "_" + chain.alignments.at(0).pdbId + "_" + chain.chainId;
+		}
+
+		return key;
 	}
 
 	/**
@@ -15085,6 +15142,14 @@ function Mutation3dController(mutationDetailsView, mainMutationView,
 			diagramSelectHandler);
 
 		mutationDiagram.dispatcher.on(
+			MutationDetailsEvents.LOLLIPOP_MOUSEOVER,
+			diagramMouseoverHandler);
+
+		mutationDiagram.dispatcher.on(
+			MutationDetailsEvents.LOLLIPOP_MOUSEOUT,
+			diagramMouseoutHandler);
+
+		mutationDiagram.dispatcher.on(
 			MutationDetailsEvents.DIAGRAM_PLOT_UPDATED,
 			diagramUpdateHandler);
 
@@ -15366,6 +15431,28 @@ function Mutation3dController(mutationDetailsView, mainMutationView,
 		}
 	}
 
+	function diagramMouseoverHandler(datum, index)
+	{
+		// highlight the corresponding residue in 3D view
+		if (mut3dVisView && mut3dVisView.isVisible())
+		{
+			// selected pileups (mutations) on the diagram
+			var pileups = getSelectedPileups();
+
+			// add the mouse over datum
+			pileups.push(datum);
+
+			// highlight (selected + mouseover) residues
+			highlight3dResidues(pileups, true);
+		}
+	}
+
+	function diagramMouseoutHandler(datum, index)
+	{
+		// same as the deselect action...
+		diagramDeselectHandler(datum, index);
+	}
+
 	function proteinChangeLinkHandler(mutationId)
 	{
 		var mutation = highlightDiagram(mutationId);
@@ -15435,15 +15522,34 @@ function Mutation3dController(mutationDetailsView, mainMutationView,
 		// selected pileups (mutations) on the diagram
 		var selected = getSelectedPileups();
 
-		// highlight 3D residues for the initially selected diagram elements
-		var mappedCount = mut3dVisView.highlightView(selected, true);
+		// highlight residues
+		highlight3dResidues(selected);
+	}
 
-		var unmappedCount = selected.length - mappedCount;
+	/**
+	 * Highlight residues on the 3D diagram for the given pileup data.
+	 *
+	 *
+	 * @param pileupData    pileups to be highlighted
+	 * @param noWarning     if set true, warning messages are not be updated
+	 */
+	function highlight3dResidues(pileupData, noWarning)
+	{
+		// highlight 3D residues for the initially selected diagram elements
+		var mappedCount = mut3dVisView.highlightView(pileupData, true);
+
+		var unmappedCount = pileupData.length - mappedCount;
+
+		// no warning flag is provided, do not update the warning text
+		if (noWarning)
+		{
+			return;
+		}
 
 		// show a warning message if there is at least one unmapped selection
 		if (unmappedCount > 0)
 		{
-			mut3dVisView.showResidueWarning(unmappedCount, selected.length);
+			mut3dVisView.showResidueWarning(unmappedCount, pileupData.length);
 		}
 		else
 		{

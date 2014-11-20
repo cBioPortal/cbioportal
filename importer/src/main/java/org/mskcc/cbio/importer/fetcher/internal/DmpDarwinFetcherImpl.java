@@ -16,38 +16,33 @@
 package org.mskcc.cbio.importer.fetcher.internal;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
-import java.io.IOException;
 import java.nio.file.Paths;
 import org.mskcc.cbio.importer.cvr.dmp.importer.DMPclinicaldataimporter;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mskcc.cbio.importer.Config;
 
 import org.mskcc.cbio.importer.Fetcher;
-import org.mskcc.cbio.importer.FileUtils;
+import org.mskcc.cbio.importer.cvr.darwin.importer.Darwinclinicaldataimporter;
 import org.mskcc.cbio.importer.cvr.dmp.transformer.DMPDataTransformer;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 
-import org.mskcc.cbio.importer.cvr.dmp.importer.MockConfig;
 import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
 
-public class DMPFetcherImpl implements Fetcher
+public class DmpDarwinFetcherImpl implements Fetcher
 {
     private static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     //private DMPStagingFileManager fileManager;
 
-    private static final Log LOG = LogFactory.getLog(DMPFetcherImpl.class);
+    private static final Log LOG = LogFactory.getLog(DmpDarwinFetcherImpl.class);
     private Config config;
     
     private static String dataSourcePath;
 
-    public DMPFetcherImpl(Config config) {
+    public DmpDarwinFetcherImpl(Config config) {
         this.config = config;
     }
     
@@ -81,6 +76,10 @@ public class DMPFetcherImpl implements Fetcher
     public void fetchReferenceData(ReferenceMetadata referenceMetadata) 
             throws Exception {
         throw new UnsupportedOperationException();
+    }
+    
+    public static void main (String[] args) {
+        Darwinclinicaldataimporter darwinImporter = new Darwinclinicaldataimporter();
     }
     
 }

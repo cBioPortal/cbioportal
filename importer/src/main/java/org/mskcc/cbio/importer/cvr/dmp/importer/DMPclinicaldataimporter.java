@@ -38,7 +38,7 @@ import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import org.mskcc.cbio.importer.fetcher.internal.DMPFetcherImpl;
+import org.mskcc.cbio.importer.fetcher.internal.DmpDarwinFetcherImpl;
 import org.mskcc.cbio.portal.util.GlobalProperties;
 
 public class DMPclinicaldataimporter {
@@ -58,7 +58,7 @@ public class DMPclinicaldataimporter {
     private final RestTemplate template = new RestTemplate(); //spring rest template
     private final ObjectMapper mapper = new ObjectMapper();
     private final JsonFactory factory = mapper.getJsonFactory();
-    private static final Log LOG = LogFactory.getLog(DMPFetcherImpl.class);
+    private static final Log LOG = LogFactory.getLog(DmpDarwinFetcherImpl.class);
     
     private String resultJsonStr = ""; //sample result - includes everything; format - json string
 

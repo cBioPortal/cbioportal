@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="IdMapperMapper">
+    
+    <resultMap id="result" type="IdMapper">
+        <result column="DEIDENTIFICATION_ID" jdbcType="INTEGER" property="DEIDENTIFICATION_ID" />
+        <result column="SAMPLE_ID" jdbcType="VARCHAR" property="SAMPLE_ID" />
+    </resultMap>
+  
+    <select id="selectByDmpId" parameterType="String" resultMap="result">
+        SELECT * FROM dvcbio.DEID_TO_SAMPLE_ID WHERE SAMPLE_ID = #{id}
+    </select>
+
+    <select id="selectByDarwinId" parameterType="String" resultMap="result">
+        SELECT * FROM dvcbio.DEID_TO_SAMPLE_ID WHERE DEIDENTIFICATION_ID = #{id}
+    </select> 
+  
+</mapper>

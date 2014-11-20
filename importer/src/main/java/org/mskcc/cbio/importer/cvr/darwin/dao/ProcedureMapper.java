@@ -2,7 +2,7 @@ package org.mskcc.cbio.importer.cvr.darwin.dao;
 
 import org.mskcc.cbio.importer.cvr.darwin.model.Procedure;
 
-public interface ProcedureDAO {
+public interface ProcedureMapper {
  
 
     /**

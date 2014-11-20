@@ -16,12 +16,12 @@
 package org.mskcc.cbio.importer.cvr.darwin.importer;
 
 import org.mskcc.cbio.importer.cvr.darwin.util.DarwinConnectionFactory;
-import org.mskcc.cbio.importer.cvr.darwin.dao.IdMapperDAO;
+import org.mskcc.cbio.importer.cvr.darwin.dao.IdMapperMapper;
 import org.mskcc.cbio.importer.cvr.darwin.model.IdMapper;
 
 public class Darwinclinicaldataimporter {
     public Darwinclinicaldataimporter() {
-        IdMapperDAO idMapperDAO = new IdMapperDAO(new DarwinConnectionFactory().getSqlSessionFactory());
+        IdMapperMapper idMapperDAO = new IdMapperMapper(new DarwinConnectionFactory().getSqlSessionFactory());
         IdMapper idMapper = idMapperDAO.selectByDmpId("DMP0829");
         System.out.println(idMapper.toString());
     }

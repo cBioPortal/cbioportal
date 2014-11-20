@@ -6,11 +6,11 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mskcc.cbio.importer.cvr.darwin.model.IdMapper;
 
-public class IdMapperDAO {
+public class IdMapperMapper {
     
     private SqlSessionFactory sqlSessionFactory = null;
 
-    public IdMapperDAO(SqlSessionFactory sqlSessionFactory){
+    public IdMapperMapper(SqlSessionFactory sqlSessionFactory){
         this.sqlSessionFactory = sqlSessionFactory;
     }
     

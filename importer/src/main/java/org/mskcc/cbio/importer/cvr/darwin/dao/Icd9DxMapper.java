@@ -2,7 +2,7 @@ package org.mskcc.cbio.importer.cvr.darwin.dao;
 
 import org.mskcc.cbio.importer.cvr.darwin.model.Icd9Dx;
 
-public interface Icd9DxDAO{
+public interface Icd9DxMapper{
     
     int insert(Icd9Dx record);
 

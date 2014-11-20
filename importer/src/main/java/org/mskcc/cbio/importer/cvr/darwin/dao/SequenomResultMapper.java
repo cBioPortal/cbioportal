@@ -2,7 +2,7 @@ package org.mskcc.cbio.importer.cvr.darwin.dao;
 
 import org.mskcc.cbio.importer.cvr.darwin.model.SequenomResult;
 
-public interface SequenomResultDAO {
+public interface SequenomResultMapper {
 
 
     /**

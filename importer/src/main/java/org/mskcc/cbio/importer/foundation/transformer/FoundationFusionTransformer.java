@@ -87,6 +87,9 @@ public class FoundationFusionTransformer extends FusionTransformer {
     private List<RearrangementType> replicateFusionEvents(CaseType caseType){
         List<RearrangementType> rearrangementTypes = Lists.newArrayList();
         final String sampleId = caseType.getCase();  // get sample id from case
+        /*
+        extract the current rearrangements from the XML
+         */
        List<RearrangementType> originalList =  FluentIterable.from(caseType.getVariantReport().getRearrangements().getContent())
                .filter(new Predicate<Serializable>() {
                    @Override
@@ -108,6 +111,7 @@ public class FoundationFusionTransformer extends FusionTransformer {
                    }
                }).toList();
         rearrangementTypes.addAll(originalList);
+
         logger.info("Sample " +sampleId +" original rearrangement count " +rearrangementTypes.size());
         for (RearrangementType origFusion : originalList) {
             if ( !origFusion.getOtherGene().equals(origFusion.getTargetedGene()) && !origFusion.getOtherGene().contains("Region") ) {

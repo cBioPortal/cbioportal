@@ -15,7 +15,7 @@
  * has been advised of the possibility of such damage.
 */
 
-package org.mskcc.cbio.importer.dmp.util;
+package org.mskcc.cbio.importer.cvr.dmp.util;
 
 import java.io.IOException;
 import java.util.Iterator;

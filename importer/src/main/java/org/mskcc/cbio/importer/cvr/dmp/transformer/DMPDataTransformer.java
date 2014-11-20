@@ -15,7 +15,7 @@
  *  Memorial Sloan-Kettering Cancer Center 
  *  has been advised of the possibility of such damage.
  */
-package org.mskcc.cbio.importer.dmp.transformer;
+package org.mskcc.cbio.importer.cvr.dmp.transformer;
 
 import com.google.common.collect.FluentIterable;
 import com.google.inject.internal.Lists;
@@ -26,9 +26,9 @@ import java.nio.file.Path;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.mskcc.cbio.importer.dmp.model.DmpData;
-import org.mskcc.cbio.importer.dmp.model.Result;
-import org.mskcc.cbio.importer.dmp.persistence.file.DMPTumorTypeSampleMapManager;
+import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
+import org.mskcc.cbio.importer.cvr.dmp.model.Result;
+import org.mskcc.cbio.importer.cvr.dmp.persistence.file.DMPTumorTypeSampleMapManager;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.clinical.ClinicalDataFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.cnv.CnvFileHandlerImpl;

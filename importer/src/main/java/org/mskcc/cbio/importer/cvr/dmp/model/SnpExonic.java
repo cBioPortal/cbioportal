@@ -1,5 +1,5 @@
 
-package org.mskcc.cbio.importer.dmp.model;
+package org.mskcc.cbio.importer.cvr.dmp.model;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -15,9 +15,9 @@
  *  Memorial Sloan-Kettering Cancer Center 
  *  has been advised of the possibility of such damage.
  */
-package org.mskcc.cbio.importer.dmp.transformer;
+package org.mskcc.cbio.importer.cvr.dmp.transformer;
 
-import org.mskcc.cbio.importer.dmp.model.DmpData;
+import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
 
 /*
 A simple interface to allow aggregating specific transformation classes

@@ -1,4 +1,4 @@
-package org.mskcc.cbio.importer.dmp.util;
+package org.mskcc.cbio.importer.cvr.dmp.util;
 
 import org.mskcc.cbio.importer.icgc.support.*;
 import com.google.common.base.Supplier;

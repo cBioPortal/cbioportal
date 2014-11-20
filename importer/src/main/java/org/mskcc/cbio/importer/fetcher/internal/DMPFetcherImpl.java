@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.nio.file.Paths;
-import org.mskcc.cbio.importer.dmp.importer.DMPclinicaldataimporter;
+import org.mskcc.cbio.importer.cvr.dmp.importer.DMPclinicaldataimporter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,12 +30,12 @@ import org.mskcc.cbio.importer.Config;
 
 import org.mskcc.cbio.importer.Fetcher;
 import org.mskcc.cbio.importer.FileUtils;
-import org.mskcc.cbio.importer.dmp.transformer.DMPDataTransformer;
+import org.mskcc.cbio.importer.cvr.dmp.transformer.DMPDataTransformer;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 
-import org.mskcc.cbio.importer.dmp.importer.MockConfig;
-import org.mskcc.cbio.importer.dmp.model.DmpData;
+import org.mskcc.cbio.importer.cvr.dmp.importer.MockConfig;
+import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
 
 public class DMPFetcherImpl implements Fetcher
 {

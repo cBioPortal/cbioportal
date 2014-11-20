@@ -15,7 +15,7 @@
  *  Memorial Sloan-Kettering Cancer Center 
  *  has been advised of the possibility of such damage.
  */
-package org.mskcc.cbio.importer.dmp.util;
+package org.mskcc.cbio.importer.cvr.dmp.util;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;

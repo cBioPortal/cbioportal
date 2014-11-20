@@ -15,7 +15,7 @@
  *  Memorial Sloan-Kettering Cancer Center 
  *  has been advised of the possibility of such damage.
  */
-package org.mskcc.cbio.importer.dmp.transformer;
+package org.mskcc.cbio.importer.cvr.dmp.transformer;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -37,13 +37,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.log4j.Logger;
-import org.mskcc.cbio.importer.dmp.model.DmpData;
-import org.mskcc.cbio.importer.dmp.model.DmpSnp;
-import org.mskcc.cbio.importer.dmp.model.MetaData;
-import org.mskcc.cbio.importer.dmp.model.Result;
-import org.mskcc.cbio.importer.dmp.util.DMPCommonNames;
-import org.mskcc.cbio.importer.dmp.util.DmpUtils;
-import org.mskcc.cbio.importer.dmp.util.EntrezIDSupplier;
+import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
+import org.mskcc.cbio.importer.cvr.dmp.model.DmpSnp;
+import org.mskcc.cbio.importer.cvr.dmp.model.MetaData;
+import org.mskcc.cbio.importer.cvr.dmp.model.Result;
+import org.mskcc.cbio.importer.cvr.dmp.util.DMPCommonNames;
+import org.mskcc.cbio.importer.cvr.dmp.util.DmpUtils;
+import org.mskcc.cbio.importer.cvr.dmp.util.EntrezIDSupplier;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
 import scala.Tuple2;
 import scala.Tuple3;

@@ -15,7 +15,7 @@
  *  Memorial Sloan-Kettering Cancer Center 
  *  has been advised of the possibility of such damage.
  */
-package org.mskcc.cbio.importer.dmp.persistence.file;
+package org.mskcc.cbio.importer.cvr.dmp.persistence.file;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -30,7 +30,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import joptsimple.internal.Strings;
-import org.mskcc.cbio.importer.dmp.model.Result;
+import org.mskcc.cbio.importer.cvr.dmp.model.Result;
 
 /**
  *

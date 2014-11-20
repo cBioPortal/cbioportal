@@ -1,7 +1,7 @@
-package org.mskcc.cbio.importer.dmp.transformer;
+package org.mskcc.cbio.importer.cvr.dmp.transformer;
 
 import com.google.common.base.Preconditions;
-import org.mskcc.cbio.importer.dmp.model.SegmentData;
+import org.mskcc.cbio.importer.cvr.dmp.model.SegmentData;
 import org.mskcc.cbio.importer.persistence.staging.segment.SegmentModel;
 
 /**

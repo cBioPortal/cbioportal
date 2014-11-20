@@ -15,7 +15,7 @@
  *  Memorial Sloan-Kettering Cancer Center 
  *  has been advised of the possibility of such damage.
  */
-package org.mskcc.cbio.importer.dmp.util;
+package org.mskcc.cbio.importer.cvr.dmp.util;
 
 /**
  * a collection of literal values used throughout the DMP importer application

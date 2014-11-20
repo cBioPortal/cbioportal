@@ -1,5 +1,5 @@
 
-package org.mskcc.cbio.importer.dmp.model;
+package org.mskcc.cbio.importer.cvr.dmp.model;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +15,12 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+/*
+
+    "num_cluster",
+    "refseq_acc",
+    
+*/
 @Generated("org.jsonschema2pojo")
 @JsonPropertyOrder({
     "chromosome",
@@ -22,21 +28,19 @@ import org.apache.commons.lang.builder.ToStringBuilder;
     "cnv_class_name",
     "cnv_filter_cv_id",
     "cnv_filter_name",
-    "cnv_intragenic_variant_id",
+    "cnv_variant_id",
     "comments",
     "confidence_class",
     "confidence_cv_id",
     "cytoband",
-    "exon_num",
     "gene_fold_change",
     "gene_id",
     "gene_p_value",
-    "num_cluster",
-    "refseq_acc",
+    "is_significant",
     "variant_status_cv_id",
     "variant_status_name"
 })
-public class CnvIntragenicVariant {
+public class CnvVariant {
 
     @JsonProperty("chromosome")
     private String chromosome;
@@ -48,50 +52,46 @@ public class CnvIntragenicVariant {
     private Integer cnvFilterCvId;
     @JsonProperty("cnv_filter_name")
     private String cnvFilterName;
-    @JsonProperty("cnv_intragenic_variant_id")
-    private Integer cnvIntragenicVariantId;
+    @JsonProperty("cnv_variant_id")
+    private Integer cnvVariantId;
     @JsonProperty("comments")
-    private Object comments;
+    private String comments;
     @JsonProperty("confidence_class")
     private String confidenceClass;
     @JsonProperty("confidence_cv_id")
     private Integer confidenceCvId;
     @JsonProperty("cytoband")
     private String cytoband;
-    @JsonProperty("exon_num")
-    private Integer exonNum;
     @JsonProperty("gene_fold_change")
     private Double geneFoldChange;
     @JsonProperty("gene_id")
     private String geneId;
     @JsonProperty("gene_p_value")
     private Double genePValue;
-    @JsonProperty("num_cluster")
-    private Integer numCluster;
-    @JsonProperty("refseq_acc")
-    private String refseqAcc;
+    @JsonProperty("is_significant")
+    private Integer isSignificant;
     @JsonProperty("variant_status_cv_id")
     private Integer variantStatusCvId;
     @JsonProperty("variant_status_name")
     private String variantStatusName;
     @JsonIgnore
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    private Integer numCluster;
     @JsonIgnore
-    private Integer dmpSampleId;
+    private String refseqAcc;
+    @JsonIgnore
+    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    
+     private Integer dmpSampleId;
     
        
-    @JsonAnyGetter
-    public Integer getDmpSampleId() {return this.dmpSampleId;}
     
-    @JsonAnySetter
-    public void setDmpSampleId(Integer id) {this.dmpSampleId = id;}
-
     /**
      * 
      * @return
      *     The chromosome
      */
     @JsonProperty("chromosome")
+
     public String getChromosome() {
         return chromosome;
     }
@@ -112,6 +112,7 @@ public class CnvIntragenicVariant {
      *     The cnvClassCvId
      */
     @JsonProperty("cnv_class_cv_id")
+   
     public Integer getCnvClassCvId() {
         return cnvClassCvId;
     }
@@ -132,6 +133,7 @@ public class CnvIntragenicVariant {
      *     The cnvClassName
      */
     @JsonProperty("cnv_class_name")
+    
     public String getCnvClassName() {
         return cnvClassName;
     }
@@ -152,6 +154,7 @@ public class CnvIntragenicVariant {
      *     The cnvFilterCvId
      */
     @JsonProperty("cnv_filter_cv_id")
+   
     public Integer getCnvFilterCvId() {
         return cnvFilterCvId;
     }
@@ -172,6 +175,7 @@ public class CnvIntragenicVariant {
      *     The cnvFilterName
      */
     @JsonProperty("cnv_filter_name")
+    
     public String getCnvFilterName() {
         return cnvFilterName;
     }
@@ -189,21 +193,22 @@ public class CnvIntragenicVariant {
     /**
      * 
      * @return
-     *     The cnvIntragenicVariantId
+     *     The cnvVariantId
      */
-    @JsonProperty("cnv_intragenic_variant_id")
-    public Integer getCnvIntragenicVariantId() {
-        return cnvIntragenicVariantId;
+    @JsonProperty("cnv_variant_id")
+   
+    public Integer getCnvVariantId() {
+        return cnvVariantId;
     }
 
     /**
      * 
-     * @param cnvIntragenicVariantId
-     *     The cnv_intragenic_variant_id
+     * @param cnvVariantId
+     *     The cnv_variant_id
      */
-    @JsonProperty("cnv_intragenic_variant_id")
-    public void setCnvIntragenicVariantId(Integer cnvIntragenicVariantId) {
-        this.cnvIntragenicVariantId = cnvIntragenicVariantId;
+    @JsonProperty("cnv_variant_id")
+    public void setCnvVariantId(Integer cnvVariantId) {
+        this.cnvVariantId = cnvVariantId;
     }
 
     /**
@@ -212,7 +217,8 @@ public class CnvIntragenicVariant {
      *     The comments
      */
     @JsonProperty("comments")
-    public Object getComments() {
+    
+    public String getComments() {
         return comments;
     }
 
@@ -222,7 +228,7 @@ public class CnvIntragenicVariant {
      *     The comments
      */
     @JsonProperty("comments")
-    public void setComments(Object comments) {
+    public void setComments(String comments) {
         this.comments = comments;
     }
 
@@ -232,6 +238,7 @@ public class CnvIntragenicVariant {
      *     The confidenceClass
      */
     @JsonProperty("confidence_class")
+   
     public String getConfidenceClass() {
         return confidenceClass;
     }
@@ -252,6 +259,7 @@ public class CnvIntragenicVariant {
      *     The confidenceCvId
      */
     @JsonProperty("confidence_cv_id")
+   
     public Integer getConfidenceCvId() {
         return confidenceCvId;
     }
@@ -272,6 +280,7 @@ public class CnvIntragenicVariant {
      *     The cytoband
      */
     @JsonProperty("cytoband")
+    
     public String getCytoband() {
         return cytoband;
     }
@@ -289,29 +298,10 @@ public class CnvIntragenicVariant {
     /**
      * 
      * @return
-     *     The exonNum
-     */
-    @JsonProperty("exon_num")
-    public Integer getExonNum() {
-        return exonNum;
-    }
-
-    /**
-     * 
-     * @param exonNum
-     *     The exon_num
-     */
-    @JsonProperty("exon_num")
-    public void setExonNum(Integer exonNum) {
-        this.exonNum = exonNum;
-    }
-
-    /**
-     * 
-     * @return
      *     The geneFoldChange
      */
     @JsonProperty("gene_fold_change")
+    
     public Double getGeneFoldChange() {
         return geneFoldChange;
     }
@@ -332,6 +322,7 @@ public class CnvIntragenicVariant {
      *     The geneId
      */
     @JsonProperty("gene_id")
+    
     public String getGeneId() {
         return geneId;
     }
@@ -352,6 +343,7 @@ public class CnvIntragenicVariant {
      *     The genePValue
      */
     @JsonProperty("gene_p_value")
+    
     public Double getGenePValue() {
         return genePValue;
     }
@@ -369,41 +361,22 @@ public class CnvIntragenicVariant {
     /**
      * 
      * @return
-     *     The numCluster
+     *     The isSignificant
      */
-    @JsonProperty("num_cluster")
-    public Integer getNumCluster() {
-        return numCluster;
+    @JsonProperty("is_significant")
+    
+    public Integer getIsSignificant() {
+        return isSignificant;
     }
 
     /**
      * 
-     * @param numCluster
-     *     The num_cluster
+     * @param isSignificant
+     *     The is_significant
      */
-    @JsonProperty("num_cluster")
-    public void setNumCluster(Integer numCluster) {
-        this.numCluster = numCluster;
-    }
-
-    /**
-     * 
-     * @return
-     *     The refseqAcc
-     */
-    @JsonProperty("refseq_acc")
-    public String getRefseqAcc() {
-        return refseqAcc;
-    }
-
-    /**
-     * 
-     * @param refseqAcc
-     *     The refseq_acc
-     */
-    @JsonProperty("refseq_acc")
-    public void setRefseqAcc(String refseqAcc) {
-        this.refseqAcc = refseqAcc;
+    @JsonProperty("is_significant")
+    public void setIsSignificant(Integer isSignificant) {
+        this.isSignificant = isSignificant;
     }
 
     /**
@@ -412,6 +385,7 @@ public class CnvIntragenicVariant {
      *     The variantStatusCvId
      */
     @JsonProperty("variant_status_cv_id")
+    
     public Integer getVariantStatusCvId() {
         return variantStatusCvId;
     }
@@ -432,6 +406,7 @@ public class CnvIntragenicVariant {
      *     The variantStatusName
      */
     @JsonProperty("variant_status_name")
+    
     public String getVariantStatusName() {
         return variantStatusName;
     }
@@ -452,18 +427,36 @@ public class CnvIntragenicVariant {
     }
 
     @JsonAnyGetter
+    
+    public Integer getNumCluster() { return this.numCluster;}
+    
+    @JsonAnySetter
+    public void setNumCLuster(Integer nc){ this.numCluster = nc;}
+    
+    
+    @JsonAnyGetter
+    
+    public String getRefseqAcc() { return this.refseqAcc;}
+    
+    @JsonAnySetter
+    public void setRefseqAcc(String s){ this.refseqAcc = s;}
+    
+    
+    @JsonAnyGetter
+    
     public Map<String, Object> getAdditionalProperties() {
         return this.additionalProperties;
     }
 
     @JsonAnySetter
+   
     public void setAdditionalProperty(String name, Object value) {
         this.additionalProperties.put(name, value);
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(chromosome).append(cnvClassCvId).append(cnvClassName).append(cnvFilterCvId).append(cnvFilterName).append(cnvIntragenicVariantId).append(comments).append(confidenceClass).append(confidenceCvId).append(cytoband).append(exonNum).append(geneFoldChange).append(geneId).append(genePValue).append(numCluster).append(refseqAcc).append(variantStatusCvId).append(variantStatusName).append(additionalProperties).toHashCode();
+        return new HashCodeBuilder().append(chromosome).append(cnvClassCvId).append(cnvClassName).append(cnvFilterCvId).append(cnvFilterName).append(cnvVariantId).append(comments).append(confidenceClass).append(confidenceCvId).append(cytoband).append(geneFoldChange).append(geneId).append(genePValue).append(isSignificant).append(variantStatusCvId).append(variantStatusName).append(additionalProperties).toHashCode();
     }
 
     @Override
@@ -471,13 +464,11 @@ public class CnvIntragenicVariant {
         if (other == this) {
             return true;
         }
-        if ((other instanceof CnvIntragenicVariant) == false) {
+        if ((other instanceof CnvVariant) == false) {
             return false;
         }
-        CnvIntragenicVariant rhs = ((CnvIntragenicVariant) other);
-        return new EqualsBuilder().append(chromosome, rhs.chromosome).append(cnvClassCvId, rhs.cnvClassCvId).append(cnvClassName, rhs.cnvClassName).append(cnvFilterCvId, rhs.cnvFilterCvId).append(cnvFilterName, rhs.cnvFilterName).append(cnvIntragenicVariantId, rhs.cnvIntragenicVariantId).append(comments, rhs.comments).append(confidenceClass, rhs.confidenceClass).append(confidenceCvId, rhs.confidenceCvId).append(cytoband, rhs.cytoband).append(exonNum, rhs.exonNum).append(geneFoldChange, rhs.geneFoldChange).append(geneId, rhs.geneId).append(genePValue, rhs.genePValue).append(numCluster, rhs.numCluster).append(refseqAcc, rhs.refseqAcc).append(variantStatusCvId, rhs.variantStatusCvId).append(variantStatusName, rhs.variantStatusName).append(additionalProperties, rhs.additionalProperties).isEquals();
+        CnvVariant rhs = ((CnvVariant) other);
+        return new EqualsBuilder().append(chromosome, rhs.chromosome).append(cnvClassCvId, rhs.cnvClassCvId).append(cnvClassName, rhs.cnvClassName).append(cnvFilterCvId, rhs.cnvFilterCvId).append(cnvFilterName, rhs.cnvFilterName).append(cnvVariantId, rhs.cnvVariantId).append(comments, rhs.comments).append(confidenceClass, rhs.confidenceClass).append(confidenceCvId, rhs.confidenceCvId).append(cytoband, rhs.cytoband).append(geneFoldChange, rhs.geneFoldChange).append(geneId, rhs.geneId).append(genePValue, rhs.genePValue).append(isSignificant, rhs.isSignificant).append(variantStatusCvId, rhs.variantStatusCvId).append(variantStatusName, rhs.variantStatusName).append(additionalProperties, rhs.additionalProperties).isEquals();
     }
-
-    
 
 }

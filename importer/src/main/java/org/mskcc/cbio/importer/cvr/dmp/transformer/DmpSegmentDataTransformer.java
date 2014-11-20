@@ -1,4 +1,4 @@
-package org.mskcc.cbio.importer.dmp.transformer;
+package org.mskcc.cbio.importer.cvr.dmp.transformer;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -6,10 +6,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import org.apache.log4j.Logger;
-import org.mskcc.cbio.importer.dmp.model.DmpData;
-import org.mskcc.cbio.importer.dmp.model.Result;
-import org.mskcc.cbio.importer.dmp.model.SegmentData;
-import org.mskcc.cbio.importer.dmp.util.DMPCommonNames;
+import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
+import org.mskcc.cbio.importer.cvr.dmp.model.Result;
+import org.mskcc.cbio.importer.cvr.dmp.model.SegmentData;
+import org.mskcc.cbio.importer.cvr.dmp.util.DMPCommonNames;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.segment.SegmentModel;
 import org.mskcc.cbio.importer.persistence.staging.segment.SegmentTransformer;

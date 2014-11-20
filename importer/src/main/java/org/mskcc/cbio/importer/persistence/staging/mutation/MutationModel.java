@@ -4,7 +4,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Maps;
 import org.mskcc.cbio.importer.IDMapper;
-import org.mskcc.cbio.importer.dmp.util.DmpUtils;
+import org.mskcc.cbio.importer.cvr.dmp.util.DmpUtils;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import org.mskcc.cbio.importer.util.GeneSymbolIDMapper;
 

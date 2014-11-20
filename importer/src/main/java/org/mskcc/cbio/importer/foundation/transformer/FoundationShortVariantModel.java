@@ -9,7 +9,7 @@ import com.google.common.collect.Lists;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.foundation.jaxb.ShortVariantType;
 
-import org.mskcc.cbio.importer.dmp.util.DMPCommonNames;
+import org.mskcc.cbio.importer.cvr.dmp.util.DMPCommonNames;
 import org.mskcc.cbio.importer.foundation.support.FoundationCommonNames;
 import org.mskcc.cbio.importer.foundation.support.FoundationUtils;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationModel;

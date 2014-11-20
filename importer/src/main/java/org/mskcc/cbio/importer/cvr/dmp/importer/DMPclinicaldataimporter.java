@@ -15,9 +15,10 @@
  * has been advised of the possibility of such damage.
 */
 
-package org.mskcc.cbio.importer.dmp.importer;
+package org.mskcc.cbio.importer.cvr.dmp.importer;
 
 
+import org.mskcc.cbio.importer.cvr.dmp.util.JSONconverters;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -37,7 +38,6 @@ import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import org.mskcc.cbio.importer.dmp.util.*;
 import org.mskcc.cbio.importer.fetcher.internal.DMPFetcherImpl;
 import org.mskcc.cbio.portal.util.GlobalProperties;
 

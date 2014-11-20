@@ -429,7 +429,15 @@ define("OncoprintUtils", (function() {
         .value();
 
         var percent = (altered / total) * 100;
-        attr2percent[gene.key] = Math.round(percent);
+        //attr2percent[gene.key] = Math.round(percent);
+        if(percent>1.0)
+        {
+            attr2percent[gene.key] = Math.round(percent);
+        }
+        else
+        {
+            attr2percent[gene.key] = percent.toFixed(1);
+        }
         });
 
         return attr2percent;
@@ -657,7 +665,8 @@ define("OncoprintUtils", (function() {
         .attr('id','legend_table')
         .attr('class','mutation_legend_table')
         .attr('height', dims.vert_space)
-        .attr('valign','top');
+        .attr('valign','top')
+        .style('display','none');
 
         // hack to get the label flush with the tracks in Firefox
         // the discrepancy is due to the difference in the way browsers display
@@ -1001,6 +1010,7 @@ define("OncoprintUtils", (function() {
             })
             .attr('id','legend_table')
             .attr('class','genetic_legend_table')
+            .attr('display','inline')
             .attr('valign','top');
 
         var calculateMaxLabelLength = function (datas)
@@ -1094,12 +1104,30 @@ define("OncoprintUtils", (function() {
                     }
                     return false;
                 case 2:
-//                    var findResult = _.find(source,function(element){return });
-//                    if(findResult !== undefined)
-//                    {
-//                        return true;
-//                    }
-                    return true;// need to modified by dong li
+                    var findResult = _.find(source,function(element){return (/^([A-Z]+)([0-9]+)del$/g).test(element)});
+                    if(findResult !== undefined)
+                    {
+                        return true;
+                    }
+                    return false;// need to modified by dong li
+                case 3:
+//                    var findResult = _.find(source,function(element){return (/^([A-Z]+)([0-9]+)del$/g).test(element)});
+                    for(var i = 0; i<source.length; i++)
+                    {
+                        if((/^([A-Z]+)([0-9]+)del$/g).test(source[i]))
+                        {
+                            continue;
+                        }
+                        else if((/^[A-z]([0-9]+)[A-z]$/g).test(source[i]))
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            return true;
+                        }
+                    }
+                    return false;// need to modified by dong li
             }
         }
         var translate = function(x,y) {
@@ -1343,7 +1371,7 @@ define("OncoprintUtils", (function() {
                         .text('truncating mutation'); 
                 }
                 
-                if(findProperMutation(datatype2range.mutation,2))
+                if(findProperMutation(datatype2range.mutation,3))
                 {
                     var legend_svg = tabledata.append('svg')
                                 .attr('height', 23 )

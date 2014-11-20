@@ -982,12 +982,14 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             $('.oncoprint-diagram-showlegend-icon').click(function(){
               if($(this)[0].attributes.src.value === 'images/showlegend.svg')
               {
-                $("#oncoprint_legend").css("display","inline");
+//                $("#oncoprint_legend").css("display","inline");
+                $("#oncoprint_legend .mutation_legend_table").css("display","inline");
                 $(this)[0].attributes.src.value = 'images/hidelegend.svg';
               }
               else
               {
-                $("#oncoprint_legend").css("display","none");
+//                $("#oncoprint_legend").css("display","inline");
+                $("#oncoprint_legend .mutation_legend_table").css("display","none");
                 $(this)[0].attributes.src.value = 'images/showlegend.svg'; 
               }
             });
@@ -1019,7 +1021,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             
             //color different mutation with different color
             $('.oncoprint_diagram_showmutationcolor_icon').click(function(){
-              if($(this)[0].attributes.src.value === 'images/colormutations.svg')
+              if($(this)[0].attributes.src.value === 'images/uncolormutations.svg')
               {
                 mutationColorControl = 'singleColor';
                 refreshOncoPrint();
@@ -1029,7 +1031,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
                 oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
                 utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
-                $(this)[0].attributes.src.value = 'images/uncolormutations.svg';
+                $(this)[0].attributes.src.value = 'images/colormutations.svg';
                 $('.legend_missense_name').text("mutation") ;
               }
 //                else if($(this)[0].attributes.src.value === 'images/multicolormutations.svg')
@@ -1046,7 +1048,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 //                $('.legend_missense_name').text("missense mutation");
 //                $('.legend_nonmissense').css("display","inline");
 //              }
-                else if($(this)[0].attributes.src.value === 'images/uncolormutations.svg')
+                else if($(this)[0].attributes.src.value === 'images/colormutations.svg')
               {
                 mutationColorControl = 'multiColor';
                 refreshOncoPrint();
@@ -1056,7 +1058,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
                 oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
                 utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
-                $(this)[0].attributes.src.value = 'images/colormutations.svg'; 
+                $(this)[0].attributes.src.value = 'images/uncolormutations.svg'; 
                 $('.legend_missense_name').text("missense mutation");
                 $('.legend_nonmissense').css("display","inline");
               }
@@ -1074,11 +1076,13 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             $('.oncoprint_diagram_showmutationcolor_icon').qtip({
             content: {text: 
                         function(){
-                        if($(this)[0].attributes.src.value === 'images/uncolormutations.svg')
-                        {return 'show all mutations in the same color';}
-                        else
+                        if($(this)[0].attributes.src.value === 'images/colormutations.svg')
                         {
                             return 'color-code different mutation types';
+                        }
+                        else
+                        {
+                            return 'show all mutations in the same color';
                         }
                     }
             },

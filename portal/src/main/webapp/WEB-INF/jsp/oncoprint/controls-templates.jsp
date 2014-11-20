@@ -100,15 +100,15 @@
      --%>  
                   
     <div id="oncoprinter_control_panel"><p>
-        <span class='oncoprinter-diagram-toolbar-buttons' style="float:right;margin-right:50px;display: none;">
-
-        <img id="oncoprinter_diagram_showmutationcolor_icon" checked="0" style="width: 12px; height: 12px" class="oncoprinter_diagram_showmutationcolor_icon" src="images/uncolormutations.svg">
-        <img id="oncoprinter-diagram-showlegend-icon" checked="0" style="width: 12px; height: 12px" class="oncoprinter-diagram-showlegend-icon" src="images/showlegend.svg">
-        <img id="oncoprinter-diagram-removeUCases-icon" checked="0" style="width: 12px; height: 12px" class="oncoprinter-diagram-removeUCases-icon" src="images/removeUCases.svg">
-        <img id="oncoprinter-diagram-removeWhitespace-icon" checked="0" style="width: 15px; height: 12px" class="oncoprinter-diagram-removeWhitespace-icon" src="images/removeWhitespace.svg">
-        <img id="oncoprinter-diagram-downloads-icon" style="width: 12px; height: 12px" class="oncoprinter-diagram-downloads-icon" src="images/in.svg">
+        <span  class='oncoprinter-diagram-toolbar-buttons' style="float:right;margin-right:50px;display: inline;">
+        <img id="oncoprinter_sortfirst_icon" checked="0" style="width: 16px; height: 16px" class="oncoprinter_sortfirst_icon" src="images/cool.svg">
+        <img id="oncoprinter_diagram_showmutationcolor_icon" checked="0" style="width: 16px; height: 16px" class="oncoprinter_diagram_showmutationcolor_icon" src="images/uncolormutations.svg">
+        <img id="oncoprinter-diagram-showlegend-icon" checked="0" style="width: 16px; height: 16px" class="oncoprinter-diagram-showlegend-icon" src="images/showlegend.svg">
+        <img id="oncoprinter-diagram-removeUCases-icon" checked="0" style="width: 16px; height: 16px" class="oncoprinter-diagram-removeUCases-icon" src="images/removeUCases.svg">
+        <img id="oncoprinter-diagram-removeWhitespace-icon" checked="0" style="width: 20px; height: 16px" class="oncoprinter-diagram-removeWhitespace-icon" src="images/removeWhitespace.svg">
+        <img id="oncoprinter-diagram-downloads-icon" style="width: 16px; height: 16px" class="oncoprinter-diagram-downloads-icon" src="images/in.svg">
         
-        <span class='oncoprint_diagram_slider_icon' style="width: 80px; height: 12px"></span>
+        <span class='oncoprint_diagram_slider_icon' style="width: 80px; height: 16px"></span>
         
         
         </span>

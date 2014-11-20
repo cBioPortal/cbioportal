@@ -50,14 +50,12 @@
             <p>
                 Please input <b>tab-delimited</b> genomic alteration events.&nbsp;&nbsp;
                 <u><a id="data-format" href="#">Data format</a></u>&nbsp;&nbsp;
-                <u><a id="load-example-data" href="#">Load example data</a></u>
             </p>
-            
             <div id="div-data-format-exp" style="background-color:#eee;display:none;">
                 <h4>Data format</h4>
                 The data should contain three tab-delimited columns. 
                 The first row is a header row, which contains: <code>Sample Gene   Alteration</code>. 
-                Each following row contains a single genomic event (currently limited to mutations or copy number alterations) in a single sample. 
+                Each following row contains a single genomic event in a single sample. 
                 You can also list samples without any events at the end of the list so that the percentages can be properly calculated.
                <ol>
                     <li>Sample: Sample ID</li>
@@ -73,28 +71,63 @@
                                     <li>HOMDEL: homozygous deletion</li>
                                 </ul>
                             </li>
-                            <li>mRNA expression - please use one of the four events below: 
+                            <li>mRNA expression - please use one of the two events below: 
                                 <ul>
                                     <li>UP: expression up</li>
                                     <li>DOWN: expression down</li>
+                                </ul>
+                            </li>
+                            <li>RPPA - please use one of the two events below: 
+                                <ul>
+                                    <li>PROT-UP: RPPA Upregulation</li>
+                                    <li>PROT-DOWN: RPPA Downregulation</li>
                                 </ul>
                             </li>
                         </ul>
                     </li>
                 </ol>
             </div>
-            
             <script type="text/javascript">
             $('#data-format').click(function()
             {
                 $("#div-data-format-exp").slideToggle();
             });
+            </script>
+            <table style="width:100%;">
+            <tr>
+            <td style="width:45%;">
+            <div style="font-size:10px;">
+            <p >
+                <b>Input Mutation Data</b>
+                <u><a id="load-example-data" href="#">Load example data</a></u>
+            </p>
+            
+            <script type="text/javascript">
             $('#load-example-data').click(function()
             {
                 document.getElementById("mutation-file-example").value="<jsp:include page="WEB-INF/jsp/oncoprint/example-genomic-events.txt"/>";
             });
             </script>
-            <textarea id="mutation-file-example" rows=10 style="width:40%;"></textarea>
+            </div>
+                
+            <textarea id="mutation-file-example" rows=10 style="width:95%;"></textarea>
+            </td>
+            <td style="width:45%;">
+            <div>
+            <p>
+                <b>Input Clinical Data</b>
+                <u><a id="clinic-load-example-data" href="#">Load example data</a></u>
+            </p>
+            <script type="text/javascript">
+            $('#clinic-load-example-data').click(function()
+            {
+                document.getElementById("clinic-file-example").value="<jsp:include page="WEB-INF/jsp/oncoprint/example-clinic-events.txt"/>";
+            });
+            </script>
+            </div>
+            <textarea id="clinic-file-example" rows=10 style="width:95%;"></textarea>
+            </td>
+            </tr>
             <script>
                 //enable user to input tab in the textarea
                 function enableTab(id) {
@@ -124,14 +157,30 @@
                 // ... for a textarea that has an `id="mutation-file-example"`
                 enableTab('mutation-file-example');
             </script>
+            
+            <tr>
+            <td style="width:41%;">
             <form id="mutation-form" class="form-horizontal" enctype="multipart/form-data" method="post">
                 <div class="control-group">
-                    <label class="control-label" for="mutation">Input Data File</label>
+                    <label class="control-label" for="mutation">Input Mutation Data File</label>
                     <div class="controls">
                         <input id="mutation" name="mutation" type="file">
                     </div>
                 </div>
             </form>
+            </td>
+            <td>
+            <form id="clinic-form" class="clinic-form-horizontal" enctype="multipart/form-data" method="post">
+                <div class="clinic-control-group">
+                    <label class="clinic-control-label" for="mutation">Input Clinical Data File</label>
+                    <div class="clinic-controls">
+                        <input id="clinic" name="clinic" type="file">
+                    </div>
+                </div>
+            </form>
+            </td>
+            </tr>
+            </table>
         </div>
 
         <div style="margin-top:20px;">
@@ -147,7 +196,7 @@
     <img id="oncoprint_loader_img" src="images/ajax-loader.gif" style="display:none;">
     </div>
     <div id='oncoprint'></div>
-    <div id='oncoprint_legend' style="display: none;"></div>
+    <div id='oncoprint_legend' style="display: inline;"></div>
     <script data-main="js/src/oncoprint/custom-boilerplate.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript" src="js/require.js?<%=GlobalProperties.getAppVersion()%>"></script>
 </div>
         <script type="text/javascript"> 

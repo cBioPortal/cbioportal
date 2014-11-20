@@ -170,12 +170,13 @@ define("Oncoprint",
                         if(_.indexOf(params.genes,d)<0) 
                         {
                             var indexOfClinicAttr = _.indexOf(attributes,d);
-                            if(params.sortStatus[indexOfClinicAttr] === "nonSort")
+
+                            if(params.sortStatus!== undefined && params.sortStatus[indexOfClinicAttr] === "nonSort")
                             {
                                 return "images/nonSort.svg";
                             }
                             
-                            if(params.sortStatus[indexOfClinicAttr] === "decresort")
+                            if(params.sortStatus!== undefined && params.sortStatus[indexOfClinicAttr] === "decresort")
                             {
                                 return "images/decreaseSort.svg";
                             }

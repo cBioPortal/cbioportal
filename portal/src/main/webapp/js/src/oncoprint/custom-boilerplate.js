@@ -123,6 +123,11 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
                     "UP": "UPREGULATED",
                     "DOWN": "DOWNREGULATED"
                 };
+                
+                var rppa_threshold_mapping = {
+                    "PROT-UP": "UPREGULATED",
+                    "PROT-DOWN": "DOWNREGULATED"
+                };
 
                 // maps cna values of GAINED, HEMIZYGOUSLYDELETED to DIPLOID, using the above map,
                 // returning a new object with modified cna values
@@ -136,14 +141,22 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
                 
                 function mrna_threshold(d) {
                     if (!d.mrna) { return d; }
-                    //if (d.mutation !== "UP" && d.mutation !== "DOWN") { return d; }
                     var e = _.clone(d);
                     e.mrna = mrna_threshold_mapping[e.mrna];
 
                     return e;
                 }
+                
+                function rppa_threshold(d) {
+                    if (!d.rppa) { return d; }
+                    var e = _.clone(d);
+                    e.rppa = rppa_threshold_mapping[e.rppa];
+
+                    return e;
+                }
                 var aftercna = _.map(data, cna_threshold);
-                var result = _.map(aftercna, mrna_threshold);
+                var aftermrnd = _.map(aftercna, mrna_threshold);
+                var result = _.map(aftermrnd, rppa_threshold);
                 return result;
             }());
 
@@ -498,12 +511,12 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
             $('.oncoprinter-diagram-showlegend-icon').click(function(){
               if($(this)[0].attributes.src.value === 'images/showlegend.svg')
               {
-                $("#oncoprint_legend").css("display","inline");
+                $("#oncoprint_legend .mutation_legend_table").css("display","inline");
                 $(this)[0].attributes.src.value = 'images/hidelegend.svg';
               }
               else
               {
-                $("#oncoprint_legend").css("display","none");
+                $("#oncoprint_legend .mutation_legend_table").css("display","none");
                 $(this)[0].attributes.src.value = 'images/showlegend.svg'; 
               }
             });

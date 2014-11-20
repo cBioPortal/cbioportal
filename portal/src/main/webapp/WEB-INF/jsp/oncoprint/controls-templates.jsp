@@ -100,7 +100,7 @@
      --%>  
                   
     <div id="oncoprinter_control_panel"><p>
-        <span class='oncoprinter-diagram-toolbar-buttons' style="float:right;margin-right:50px;display: inline;">
+        <span  class='oncoprinter-diagram-toolbar-buttons' style="float:right;margin-right:50px;display: inline;">
         <img id="oncoprinter_sortfirst_icon" checked="0" style="width: 16px; height: 16px" class="oncoprinter_sortfirst_icon" src="images/cool.svg">
         <img id="oncoprinter_diagram_showmutationcolor_icon" checked="0" style="width: 16px; height: 16px" class="oncoprinter_diagram_showmutationcolor_icon" src="images/uncolormutations.svg">
         <img id="oncoprinter-diagram-showlegend-icon" checked="0" style="width: 16px; height: 16px" class="oncoprinter-diagram-showlegend-icon" src="images/showlegend.svg">

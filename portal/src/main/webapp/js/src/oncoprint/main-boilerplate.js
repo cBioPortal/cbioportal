@@ -982,12 +982,14 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             $('.oncoprint-diagram-showlegend-icon').click(function(){
               if($(this)[0].attributes.src.value === 'images/showlegend.svg')
               {
-                $("#oncoprint_legend").css("display","inline");
+//                $("#oncoprint_legend").css("display","inline");
+                $("#oncoprint_legend .mutation_legend_table").css("display","inline");
                 $(this)[0].attributes.src.value = 'images/hidelegend.svg';
               }
               else
               {
-                $("#oncoprint_legend").css("display","none");
+//                $("#oncoprint_legend").css("display","inline");
+                $("#oncoprint_legend .mutation_legend_table").css("display","none");
                 $(this)[0].attributes.src.value = 'images/showlegend.svg'; 
               }
             });

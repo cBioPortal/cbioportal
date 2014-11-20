@@ -24,6 +24,10 @@ define("InputData", function() {
                 {
                     toReturn.mrna = res;
                 } 
+                else if(res === "PROT-UP" || res === "PROT-DOWN")
+                {
+                    toReturn.rppa = res;
+                } 
                 else
                 {
                     toReturn.mutation = res;

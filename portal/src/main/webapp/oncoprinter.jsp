@@ -77,6 +77,12 @@
                                     <li>DOWN: expression down</li>
                                 </ul>
                             </li>
+                            <li>RPPA - please use one of the two events below: 
+                                <ul>
+                                    <li>PROT-UP: RPPA Upregulation</li>
+                                    <li>PROT-DOWN: RPPA Downregulation</li>
+                                </ul>
+                            </li>
                         </ul>
                     </li>
                 </ol>
@@ -190,7 +196,7 @@
     <img id="oncoprint_loader_img" src="images/ajax-loader.gif" style="display:none;">
     </div>
     <div id='oncoprint'></div>
-    <div id='oncoprint_legend' style="display: none;"></div>
+    <div id='oncoprint_legend' style="display: inline;"></div>
     <script data-main="js/src/oncoprint/custom-boilerplate.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript" src="js/require.js?<%=GlobalProperties.getAppVersion()%>"></script>
 </div>
         <script type="text/javascript"> 

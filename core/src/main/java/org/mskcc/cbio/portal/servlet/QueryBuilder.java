@@ -17,37 +17,27 @@
 
 package org.mskcc.cbio.portal.servlet;
 
-import java.io.IOException;
-
-import java.io.PrintWriter;
-import java.rmi.RemoteException;
-import java.util.*;
-
-
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang.StringEscapeUtils;
-import org.mskcc.cbio.portal.dao.DaoCancerStudy;
-import org.mskcc.cbio.portal.dao.DaoClinicalData;
-
-import org.mskcc.cbio.portal.model.*;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
-import org.mskcc.cbio.portal.model.Patient;
-import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
+import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.util.*;
-import org.mskcc.cbio.portal.validate.gene.GeneValidator;
-import org.mskcc.cbio.portal.validate.gene.GeneValidationException;
-import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.web_api.*;
+import org.mskcc.cbio.portal.validate.gene.*;
 import org.mskcc.cbio.portal.util.AccessControl;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.*;
+
+import org.apache.commons.lang.*;
+
 import org.owasp.validator.html.PolicyException;
+
+import java.io.*;
+import java.util.*;
+import javax.servlet.*;
+import javax.servlet.http.*;
+import java.rmi.RemoteException;
+
+// import org.codehaus.jackson.node.*;
+// import org.codehaus.jackson.JsonNode;
+// import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  * Central Servlet for building queries.
@@ -102,8 +92,10 @@ public class QueryBuilder extends HttpServlet {
     public static final String INDEX_PAGE = "index.do";
     public static final String INTERNAL_EXTENDED_MUTATION_LIST = "INTERNAL_EXTENDED_MUTATION_LIST";
     public static final String DATA_PRIORITY = "data_priority";
+    public static final String SELECTED_PATIENT_SAMPLE_ID_MAP = "selected_patient_sample_id_map";
     private static final String DB_CONNECT_ERROR = ("An error occurred while trying to connect to the database." +
                                                     "  This could happen if the database does not contain any cancer studies.");
+    
 
     private ServletXssUtil servletXssUtil;
 
@@ -119,9 +111,7 @@ public class QueryBuilder extends HttpServlet {
         super.init();
         try {
             servletXssUtil = ServletXssUtil.getInstance();
-			ApplicationContext context = 
-				new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
-			accessControl = (AccessControl)context.getBean("accessControl");
+			accessControl = SpringUtil.getAccessControl();
         } catch (PolicyException e) {
             throw new ServletException (e);
         }
@@ -203,42 +193,42 @@ public class QueryBuilder extends HttpServlet {
                 (cancerTypeId);
             httpServletRequest.setAttribute(PROFILE_LIST_INTERNAL, profileList);
 
-            //  Get Case Sets for Selected Cancer Type
+            //  Get Patient Sets for Selected Cancer Type
             xdebug.logMsg(this, "Using Cancer Study ID:  " + cancerTypeId);
-            ArrayList<CaseList> caseSets = GetCaseLists.getCaseLists(cancerTypeId);
-            xdebug.logMsg(this, "Total Number of Case Sets:  " + caseSets.size());
-            CaseList caseSet = new CaseList();
-            caseSet.setName("User-defined Case List");
-            caseSet.setDescription("User defined case list.");
-            caseSet.setStableId("-1");
-            caseSets.add(caseSet);
-            httpServletRequest.setAttribute(CASE_SETS_INTERNAL, caseSets);
+            ArrayList<PatientList> patientSets = GetPatientLists.getPatientLists(cancerTypeId);
+            xdebug.logMsg(this, "Total Number of Patient Sets:  " + patientSets.size());
+            PatientList patientSet = new PatientList();
+            patientSet.setName("User-defined Patient List");
+            patientSet.setDescription("User defined patient list.");
+            patientSet.setStableId("-1");
+            patientSets.add(patientSet);
+            httpServletRequest.setAttribute(CASE_SETS_INTERNAL, patientSets);
 
-            //  Get User Selected Case Set
-            String caseSetId = httpServletRequest.getParameter(CASE_SET_ID);
-            if (caseSetId != null) {
-                httpServletRequest.setAttribute(CASE_SET_ID, caseSetId);
+            //  Get User Selected Patient Set
+            String patientSetId = httpServletRequest.getParameter(CASE_SET_ID);
+            if (patientSetId != null) {
+                httpServletRequest.setAttribute(CASE_SET_ID, patientSetId);
             } else {
-                if (caseSets.size() > 0) {
-                    CaseList zeroSet = caseSets.get(0);
+                if (patientSets.size() > 0) {
+                    PatientList zeroSet = patientSets.get(0);
                     httpServletRequest.setAttribute(CASE_SET_ID, zeroSet.getStableId());
                 }
             }
-            String caseIds = httpServletRequest.getParameter(CASE_IDS);
+            String patientIds = httpServletRequest.getParameter(CASE_IDS);
 	        // TODO allowing only new line and tab chars, getRawParameter may be vulnerable here...
-	        if (caseIds != null)
+	        if (patientIds != null)
 	        {
-		        caseIds = caseIds.replaceAll("\\\\n", "\n").replaceAll("\\\\t", "\t");
+		        patientIds = patientIds.replaceAll("\\\\n", "\n").replaceAll("\\\\t", "\t");
 	        }
 
             httpServletRequest.setAttribute(XDEBUG_OBJECT, xdebug);
 
             boolean errorsExist = validateForm(action, profileList, geneticProfileIdSet, geneList,
-                                               caseSetId, caseIds, httpServletRequest);
+                                               patientSetId, patientIds, httpServletRequest);
             if (action != null && action.equals(ACTION_SUBMIT) && (!errorsExist)) {
 
-                processData(cancerTypeId, geneticProfileIdSet, profileList, geneList, caseSetId,
-                            caseIds, caseSets, getServletContext(), httpServletRequest,
+                processData(cancerTypeId, geneticProfileIdSet, profileList, geneList, patientSetId,
+                            patientIds, patientSets, getServletContext(), httpServletRequest,
                             httpServletResponse, xdebug);
             } else {
                 if (errorsExist) {
@@ -308,8 +298,8 @@ public class QueryBuilder extends HttpServlet {
 							 HashSet<String> geneticProfileIdSet,
 							 ArrayList<GeneticProfile> profileList,
 							 String geneListStr,
-							 String caseSetId, String caseIds,
-							 ArrayList<CaseList> caseSetList,
+							 String patientSetId, String patientIds,
+							 ArrayList<PatientList> patientSetList,
 							 ServletContext servletContext, HttpServletRequest request,
 							 HttpServletResponse response,
 							 XDebug xdebug) throws IOException, ServletException, DaoException {
@@ -333,57 +323,77 @@ public class QueryBuilder extends HttpServlet {
 
         xdebug.logMsg(this, "Using gene list geneList.toString():  " + geneList.toString());
         
-        HashSet<String> setOfCaseIds = null;
+        HashSet<String> setOfPatientIds = null;
         
-        String caseIdsKey = null;
+        String patientIdsKey = null;
         
-        // user-specified cases, but case_ids parameter is missing,
-        // so try to retrieve case_ids by using case_ids_key parameter.
+        // user-specified patients, but patient_ids parameter is missing,
+        // so try to retrieve patient_ids by using patient_ids_key parameter.
         // this is required for survival plot requests  
-        if (caseSetId.equals("-1") &&
-        	caseIds == null)
+        if (patientSetId.equals("-1") &&
+        	patientIds == null)
         {
-        	caseIdsKey = request.getParameter(CASE_IDS_KEY);
+        	patientIdsKey = request.getParameter(CASE_IDS_KEY);
         	
-        	if (caseIdsKey != null)
+        	if (patientIdsKey != null)
         	{
-        		caseIds = CaseSetUtil.getCaseIds(caseIdsKey);
+        		patientIds = PatientSetUtil.getPatientIds(patientIdsKey);
         	}
         }
         
-        if (!caseSetId.equals("-1"))
+        if (!patientSetId.equals("-1"))
         {
-            for (CaseList caseSet : caseSetList) {
-                if (caseSet.getStableId().equals(caseSetId)) {
-                    caseIds = caseSet.getCaseListAsString();
-                    setOfCaseIds = new HashSet<String>(caseSet.getCaseList());
+            for (PatientList patientSet : patientSetList) {
+                if (patientSet.getStableId().equals(patientSetId)) {
+                    patientIds = patientSet.getPatientListAsString();
+                    setOfPatientIds = new HashSet<String>(patientSet.getPatientList());
+                    break;
                 }
             }
         }
-        //if user specifies cases, add these to hashset, and send to GetMutationData
-        else if (caseIds != null)
+        //if user specifies patients, add these to hashset, and send to GetMutationData
+        else if (patientIds != null)
         {
-            String[] caseIdSplit = caseIds.split("\\s+");
-            setOfCaseIds = new HashSet<String>();
+            String[] patientIdSplit = patientIds.split("\\s+");
+            setOfPatientIds = new HashSet<String>();
             
-            for (String caseID : caseIdSplit){
-                if (null != caseID){
-                   setOfCaseIds.add(caseID);
+            for (String patientID : patientIdSplit){
+                if (null != patientID){
+                   setOfPatientIds.add(patientID);
                 }
             }
+            
+            patientIds = patientIds.replaceAll("\\s+", " ");
         }
 
-        caseIds = caseIds.replaceAll("\\s+", " ");
-        request.setAttribute(SET_OF_CASE_IDS, caseIds);
+        request.setAttribute(SET_OF_CASE_IDS, patientIds);
+        
+        // Map user selected samples Ids to patient Ids
+        HashMap<String, String> patientSampleIdMap = new HashMap<String, String>();
+        CancerStudy selectedCancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerTypeId);
+        Integer cancerStudyInternalId = selectedCancerStudy.getInternalId();
+        Iterator<String> itr = setOfPatientIds.iterator();
+        while(itr.hasNext()){
+            String tmpPatientId = itr.next();
+            ArrayList<String> tmpPatientIdList = new ArrayList<String>();
+            tmpPatientIdList.add(tmpPatientId);
+            List<String> tmpSampleIdsArr =
+              StableIdUtil.getStableSampleIdsFromPatientIds(cancerStudyInternalId,
+                                                            tmpPatientIdList);  
+            for (String tmpSampleId : tmpSampleIdsArr) {
+                patientSampleIdMap.put(tmpSampleId, tmpPatientId);
+            }    
+        }
+        request.setAttribute(SELECTED_PATIENT_SAMPLE_ID_MAP, patientSampleIdMap);
 
-        if (caseIdsKey == null)
+        if (patientIdsKey == null)
         {
-        	caseIdsKey = CaseSetUtil.shortenCaseIds(caseIds);
+            patientIdsKey = PatientSetUtil.shortenPatientIds(patientIds);
         }
         
-        // this will create a key even if the case set is a predefined set,
-        // because it is required to build a case id string in any case
-        request.setAttribute(CASE_IDS_KEY, caseIdsKey);
+        // this will create a key even if the patient set is a predefined set,
+        // because it is required to build a patient id string in any case
+        request.setAttribute(CASE_IDS_KEY, patientIdsKey);
 
         Iterator<String> profileIterator = geneticProfileIdSet.iterator();
         ArrayList<ProfileData> profileDataList = new ArrayList<ProfileData>();
@@ -397,11 +407,17 @@ public class QueryBuilder extends HttpServlet {
             GeneticProfile profile = GeneticProfileUtil.getProfile(profileId, profileList);
             if( null == profile ){
                continue;
-            }
+            } 
+            
+            List<String> stableSampleIds =
+              StableIdUtil.getStableSampleIdsFromPatientIds(profile.getCancerStudyId(),
+                                                            new ArrayList(setOfPatientIds));
+         
             xdebug.logMsg(this, "Getting data for:  " + profile.getProfileName());
-            GetProfileData remoteCall = new GetProfileData(profile, geneList, caseIds);
+            GetProfileData remoteCall =
+              new GetProfileData(profile, geneList, StringUtils.join(stableSampleIds, " "));
             ProfileData pData = remoteCall.getProfileData();
-            DownloadLink downloadLink = new DownloadLink(profile, geneList, caseIds,
+            DownloadLink downloadLink = new DownloadLink(profile, geneList, patientIds,
                     remoteCall.getRawContent());
             downloadLinkSet.add(downloadLink);
             warningUnion.addAll(remoteCall.getWarnings());
@@ -426,9 +442,8 @@ public class QueryBuilder extends HttpServlet {
                     xdebug.logMsg(this, "Number genes requested is <= " + MUTATION_DETAIL_LIMIT);
                     xdebug.logMsg(this, "Therefore, getting extended mutation data");
                     GetMutationData remoteCallMutation = new GetMutationData();
-                    ArrayList<ExtendedMutation> tempMutationList =
-                            remoteCallMutation.getMutationData(profile,
-                                    geneList, setOfCaseIds, xdebug);
+                    List<ExtendedMutation> tempMutationList =
+                            remoteCallMutation.getMutationData(profile, geneList, new HashSet(stableSampleIds), xdebug);
                     if (tempMutationList != null && tempMutationList.size() > 0) {
                         xdebug.logMsg(this, "Total number of mutation records retrieved:  "
                             + tempMutationList.size());
@@ -506,7 +521,7 @@ public class QueryBuilder extends HttpServlet {
     private boolean validateForm(String action,
                                 ArrayList<GeneticProfile> profileList,
                                  HashSet<String> geneticProfileIdSet,
-                                 String geneList, String caseSetId, String caseIds,
+                                 String geneList, String patientSetId, String patientIds,
                                  HttpServletRequest httpServletRequest) throws DaoException {
         boolean errorsExist = false;
         String tabIndex = httpServletRequest.getParameter(QueryBuilder.TAB_INDEX);
@@ -534,37 +549,37 @@ public class QueryBuilder extends HttpServlet {
                     errorsExist = true;
                 }
                 
-                // user-defined case set
-                if (caseIds != null &&
-                	caseSetId != null &&
-                	caseSetId.equals("-1"))
+                // user-defined patient set
+                if (patientIds != null &&
+                	patientSetId != null &&
+                	patientSetId.equals("-1"))
                 {
-                	// empty case list
-                	if (caseIds.trim().length() == 0)
+                	// empty patient list
+                	if (patientIds.trim().length() == 0)
                 	{
                 		httpServletRequest.setAttribute(STEP3_ERROR_MSG,
-                				"Please enter at least one case ID below. ");
+                				"Please enter at least one patient ID below. ");
                 		
                 		errorsExist = true;
                 	}
                 	else
                 	{
-                		List<String> invalidCases = CaseSetUtil.validateCaseSet(
-                				cancerStudyIdentifier, caseIds);
+                		List<String> invalidPatients = PatientSetUtil.validatePatientSet(
+                				cancerStudyIdentifier, patientIds);
                 		
-                		String caseSetErrMsg = "Invalid case(s) for the selected cancer study:";
+                		String patientSetErrMsg = "Invalid patient(s) for the selected cancer study:";
                 		
-                		// non-empty list, but contains invalid case IDs
-                		if (invalidCases.size() > 0)
+                		// non-empty list, but contains invalid patient IDs
+                		if (invalidPatients.size() > 0)
                 		{
-                			// append case ids to the message
-                    		for (String caseId : invalidCases)
+                			// append patient ids to the message
+                    		for (String patientId : invalidPatients)
                     		{
-                    			caseSetErrMsg += " " + caseId;
+                    			patientSetErrMsg += " " + patientId;
                     		}
                     		
                 			httpServletRequest.setAttribute(STEP3_ERROR_MSG,
-                					caseSetErrMsg);
+                					patientSetErrMsg);
                     		
                     		errorsExist = true;
                 		}

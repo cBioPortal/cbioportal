@@ -118,7 +118,10 @@ public class ProfileDataSummary {
      */
     public boolean isCaseAltered(String caseId) {
         determineFrequencyOfCaseAlteration();
-        return caseAlteredMap.get(caseId);
+        if (caseAlteredMap.get(caseId) != null) {
+            return caseAlteredMap.get(caseId);    
+        }
+        return false;
     }
 
     /**

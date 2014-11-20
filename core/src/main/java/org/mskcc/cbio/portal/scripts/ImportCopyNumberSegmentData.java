@@ -20,7 +20,6 @@ public class ImportCopyNumberSegmentData {
     private ProgressMonitor pMonitor;
     private int cancerStudyId;
     private File file;
-    private Pattern p = Pattern.compile("(TCGA\\-[^\\-]+-[^\\-]+).*");
     
     public ImportCopyNumberSegmentData(File file, int cancerStudyId, ProgressMonitor pMonitor)
     {
@@ -31,9 +30,11 @@ public class ImportCopyNumberSegmentData {
     
     public void importData() throws Exception
     {
+        MySQLbulkLoader.bulkLoadOn();
         FileReader reader = new FileReader(file);
         BufferedReader buf = new BufferedReader(reader);
         String line = buf.readLine(); // skip header line
+        long segId = DaoCopyNumberSegment.getLargestId();
         while ((line=buf.readLine()) != null) {
             if (pMonitor != null) {
                 pMonitor.incrementCurValue();
@@ -43,21 +44,28 @@ public class ImportCopyNumberSegmentData {
             String[] strs = line.split("\t");
             if (strs.length<6) {
                 System.err.println("wrong format: "+line);
-        }
-
-            String caseId = strs[0];
-            Matcher m = p.matcher(caseId);
-            if (m.matches()) {
-                caseId = m.group(1);
             }
+
+            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
+            ImportDataUtil.addPatients(new String[] { strs[0] }, cancerStudy);
+            ImportDataUtil.addSamples(new String[] { strs[0] }, cancerStudy);
+
+            String sampleId = StableIdUtil.getSampleId(strs[0]);
             long start = Double.valueOf(strs[2]).longValue();
             long end = Double.valueOf(strs[3]).longValue();
             int numProbes = new BigDecimal((strs[4])).intValue();
             double segMean = Double.parseDouble(strs[5]);
             
-            CopyNumberSegment cns = new CopyNumberSegment(cancerStudyId, caseId, strs[1], start, end, numProbes, segMean);
+            Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId);
+            if (s == null) {
+                assert StableIdUtil.isNormal(sampleId);
+                continue;
+            }
+            CopyNumberSegment cns = new CopyNumberSegment(cancerStudyId, s.getInternalId(), strs[1], start, end, numProbes, segMean);
+            cns.setSegId(++segId);
             DaoCopyNumberSegment.addCopyNumberSegment(cns);
         }
+        MySQLbulkLoader.flushAll();
     }
     
     public static void main(String[] args) throws Exception

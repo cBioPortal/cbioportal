@@ -114,33 +114,33 @@ public class DaoGeneticAlteration {
      * Gets the Specified Genetic Alteration.
      *
      * @param geneticProfileId  Genetic Profile ID.
-     * @param caseId            Case ID.
+     * @param sampleId            Sample ID.
      * @param entrezGeneId      Entrez Gene ID.
      * @return value or NAN.
      * @throws DaoException Database Error.
      */
-    public String getGeneticAlteration(int geneticProfileId, String caseId,
+    public String getGeneticAlteration(int geneticProfileId, int sampleId,
             long entrezGeneId) throws DaoException {
-        HashMap <String, String> caseMap = getGeneticAlterationMap (geneticProfileId, entrezGeneId);
-        if (caseMap.containsKey(caseId)) {
-            return caseMap.get(caseId);
+        HashMap <Integer, String> sampleMap = getGeneticAlterationMap (geneticProfileId, entrezGeneId);
+        if (sampleMap.containsKey(sampleId)) {
+            return sampleMap.get(sampleId);
         } else {
             return NAN;
         }
     }
 
     /**
-     * Gets a HashMap of Values, keyed by Case ID.
+     * Gets a HashMap of Values, keyed by Sample ID.
      * @param geneticProfileId  Genetic Profile ID.
      * @param entrezGeneId      Entrez Gene ID.
-     * @return HashMap of values, keyed by Case ID.
+     * @return HashMap of values, keyed by Sample ID.
      * @throws DaoException Database Error.
      */
-    public HashMap<String, String> getGeneticAlterationMap(int geneticProfileId,
+    public HashMap<Integer, String> getGeneticAlterationMap(int geneticProfileId,
             long entrezGeneId) throws DaoException {
-        HashMap<Long,HashMap<String, String>> map = getGeneticAlterationMap(geneticProfileId, Collections.singleton(entrezGeneId));
+        HashMap<Long,HashMap<Integer, String>> map = getGeneticAlterationMap(geneticProfileId, Collections.singleton(entrezGeneId));
         if (map.isEmpty()) {
-            return new HashMap<String, String>();
+            return new HashMap<Integer, String>();
         }
         
         return map.get(entrezGeneId);
@@ -153,16 +153,14 @@ public class DaoGeneticAlteration {
      * @return Map<Entrez, Map<CaseId, Value>>.
      * @throws DaoException Database Error.
      */
-    public HashMap<Long,HashMap<String, String>> getGeneticAlterationMap(int geneticProfileId, Collection<Long> entrezGeneIds) throws DaoException {
+    public HashMap<Long,HashMap<Integer, String>> getGeneticAlterationMap(int geneticProfileId, Collection<Long> entrezGeneIds) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        HashMap<Long,HashMap<String, String>> map = new HashMap<Long,HashMap<String, String>>();
-
-        ArrayList<String> orderedCaseList = DaoGeneticProfileCases.getOrderedCaseList
-                (geneticProfileId);
-        if (orderedCaseList == null || orderedCaseList.size() ==0) {
-            throw new IllegalArgumentException ("Could not find any cases for genetic" +
+        HashMap<Long,HashMap<Integer, String>> map = new HashMap<Long,HashMap<Integer, String>>();
+        ArrayList<Integer> orderedSampleList = DaoGeneticProfileSamples.getOrderedSampleList(geneticProfileId);
+        if (orderedSampleList == null || orderedSampleList.size() ==0) {
+            throw new IllegalArgumentException ("Could not find any samples for genetic" +
                     " profile ID:  " + geneticProfileId);
         }
         try {
@@ -177,16 +175,16 @@ public class DaoGeneticAlteration {
             }
             rs = pstmt.executeQuery();
             while (rs.next()) {
-                HashMap<String, String> mapCaseValue = new HashMap<String, String>();
+                HashMap<Integer, String> mapSampleValue = new HashMap<Integer, String>();
                 long entrez = rs.getLong("ENTREZ_GENE_ID");
                 String values = rs.getString("VALUES");
                 String valueParts[] = values.split(DELIM);
                 for (int i=0; i<valueParts.length; i++) {
                     String value = valueParts[i];
-                    String caseId = orderedCaseList.get(i);
-                    mapCaseValue.put(caseId, value);
+                    Integer sampleId = orderedSampleList.get(i);
+                    mapSampleValue.put(sampleId, value);
                 }
-                map.put(entrez, mapCaseValue);
+                map.put(entrez, mapSampleValue);
             }
             return map;
         } catch (SQLException e) {

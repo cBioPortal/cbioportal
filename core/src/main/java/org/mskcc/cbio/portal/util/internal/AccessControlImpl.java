@@ -19,20 +19,14 @@
 package org.mskcc.cbio.portal.util.internal;
 
 // imports
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoCancerStudy;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.util.GlobalProperties;
-import org.mskcc.cbio.portal.util.AccessControl;
 import org.mskcc.cbio.portal.web_api.ProtocolException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.*;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Collections;
+import java.util.*;
 
 /**
  * Utilities for managing access control.

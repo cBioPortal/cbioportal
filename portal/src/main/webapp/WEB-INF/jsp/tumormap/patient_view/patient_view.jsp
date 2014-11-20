@@ -20,7 +20,7 @@ ObjectMapper jsonMapper = new ObjectMapper();
 boolean print = "1".equals(request.getParameter("print"));
 boolean isPatientView = "patient".equals(request.getAttribute(PatientView.VIEW_TYPE));
 request.setAttribute("tumormap", true);
-List<String> caseIds = (List<String>)request.getAttribute(PatientView.CASE_ID);
+List<String> caseIds = (List<String>)request.getAttribute(PatientView.SAMPLE_ID);
 String jsonCaseIds = jsonMapper.writeValueAsString(caseIds);
 String caseIdStr = StringUtils.join(caseIds," ");
 String patientViewError = (String)request.getAttribute(PatientView.ERROR);
@@ -120,9 +120,9 @@ if (patientViewError!=null) {
 
 <jsp:include page="../../global/header.jsp" flush="true" />
 
-<%if(numTumors>1) {%>
+<%if(numTumors>1&&caseIds.size()==1) {%>
     <p style="background-color: lightyellow;"> This patient has 
-        <a title="Go to multi-sample view" href="case.do?cancer_study_id=<%=cancerStudy.getCancerStudyStableId()%>&patient_id=<%=patientID%>"><%=numTumors%> tumor samples</a>.
+        <a title="Go to multi-sample view" href="case.do?cancer_study_id=<%=cancerStudy.getCancerStudyStableId()%>&case_id=<%=patientID%>"><%=numTumors%> tumor samples</a>.
     </p>
 <%}%>
 
@@ -750,11 +750,6 @@ function d3AlleleFreqBar(div,alleFreq) {
 
 }
 
-function formatPatientLink(caseId,cancerStudyId,isPatient) {
-    return caseId===null?"":'<a title="Go to patient-centric view" href="case.do?cancer_study_id='
-            +cancerStudyId+'&'+(isPatient?'patient_id':'case_id')+'='+caseId+'">'+caseId+'</a>';
-}
-
 function trimHtml(html) {
     return html.replace(/<[^>]*>/g,"");
 }
@@ -786,7 +781,7 @@ function outputClinicalData() {
         var caseId = caseIds[i];
         var clinicalData = clinicalDataMap[caseId];
         
-        var row = "<tr><td><b><u>"+formatPatientLink(caseId, cancerStudyId)+"</b></u>&nbsp;";
+        var row = "<tr><td><b><u><a href='"+cbio.util.getLinkToSampleView(cancerStudyId,caseId)+"'>"+caseId+"<a></b></u>&nbsp;";
         if (n>1) {
             row += "<svg width='12' height='12' class='case-label-header' alt='"+caseId+"'></svg>&nbsp;";
         }
@@ -851,7 +846,7 @@ function outputClinicalData() {
             var caseId = caseIds[i];
             var clinicalData = clinicalDataMap[caseId];
 
-            var tip = "<tr><td><b><u>"+formatPatientLink(caseId, cancerStudyId)+"</b></u>";
+            var tip = "<tr><td><b><u>"+"<a href='"+cbio.util.getLinkToSampleView(cancerStudyId,caseId)+"'>"+caseId+"</a>"+"</b></u>";
 
             var stateInfo = formatStateInfo(clinicalData);
             if (stateInfo) tip +="&nbsp;"+stateInfo;

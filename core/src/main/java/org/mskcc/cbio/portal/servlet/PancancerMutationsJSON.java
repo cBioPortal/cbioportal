@@ -27,11 +27,9 @@ import org.mskcc.cbio.portal.dao.DaoMutation;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.GeneticAlterationType;
 import org.mskcc.cbio.portal.model.GeneticProfile;
-import org.mskcc.cbio.portal.util.AccessControl;
+import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.web_api.ProtocolException;
 import org.owasp.validator.html.PolicyException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -70,9 +68,8 @@ public class PancancerMutationsJSON extends HttpServlet {
      * TODO: may want to refactor this into a public method somewhere that other's can use.  I grabbed this from `TumorMapServlet`
      */
     private static synchronized AccessControl getaccessControl() {
-        if (accessControl==null) {ApplicationContext context =
-                new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
-            accessControl = (AccessControl)context.getBean("accessControl");
+        if (accessControl==null) {
+            accessControl = SpringUtil.getAccessControl();
         }
 
         return accessControl;

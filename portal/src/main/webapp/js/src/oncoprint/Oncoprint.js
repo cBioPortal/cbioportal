@@ -39,6 +39,12 @@ define("Oncoprint",
 
                 data = utils.process_data(data, attributes);
 
+                //TODO: tmp solution for re-using data
+                window.PortalGlobals.setGeneData(params.geneData);
+                PortalDataColl.setOncoprintData(data); 
+                var alterInfo = utils.alteration_info(params.geneData);
+                PortalDataColl.setOncoprintStat(alterInfo);
+
                 // keeps track of the order specified by the user (translates to vertical
                 // order in the visualization)
                 var attr2index = (function() {
@@ -140,6 +146,7 @@ define("Oncoprint",
                         
                         return (dims.vert_space / 1.80) + vertical_pos(d);
                     });
+
 
                 label.append('tspan')       // name
                     .attr('text-anchor', 'start')

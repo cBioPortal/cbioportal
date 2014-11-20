@@ -3,7 +3,7 @@
 
 <script type="text/javascript" src="js/lib/jquery.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/jquery-migrate.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type='text/javascript' src='https://www.google.com/jsapi'></script>
+<script type='text/javascript' src='https://www.google.com/jsapi?<%=GlobalProperties.getAppVersion()%>'></script>
 <script type="text/javascript" src="js/lib/jquery.cookie.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/jquery.address.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/jquery.expander.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
@@ -27,7 +27,8 @@
 <script type="text/javascript" src="js/lib/backbone-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/d3.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/igv_webstart.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<!--script type="text/javascript" src="js/lib/rainbowvis.js?<%=GlobalProperties.getAppVersion()%>"></script-->
+<script type="text/javascript" src="js/lib/genomespace.js"></script>
+<script src="https://gsui.genomespace.org/jsui/upload/gsuploadwindow.js" type="text/javascript"></script>
 
 <script type="text/javascript" src="js/lib/jsmol/JSmol.min.nojq.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/mutationMapper.js?<%=GlobalProperties.getAppVersion()%>"></script>
@@ -52,3 +53,4 @@
 <script type="text/javascript" src="js/src/gene-symbol-validator.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/d3.right-menu-stats.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/DataProxyFactory.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/download-data-form-validation.js"></script>

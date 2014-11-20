@@ -1,6 +1,6 @@
 package org.mskcc.cbio.portal.util;
 
-import org.mskcc.cbio.portal.model.CaseList;
+import org.mskcc.cbio.portal.model.PatientList;
 
 import java.util.Formatter;
 import java.util.List;
@@ -8,19 +8,19 @@ import java.util.List;
 public class OncoPrintUtil {
 
     /**
-     * Constructs the OncoPrint case set description.
+     * Constructs the OncoPrint patient set description.
      *
-     * @param caseSetId String
-     * @param caseSets List<CaseList>
+     * @param patientSetId String
+     * @param patientSets List<PatientList>
      *
      * @return String
      */
-    public static String getCaseSetDescription(String caseSetId, List<CaseList> caseSets) {
+    public static String getPatientSetDescription(String patientSetId, List<PatientList> patientSets) {
 
         StringBuilder builder = new StringBuilder();
-        for (CaseList caseSet : caseSets) {
-            if (caseSetId.equals(caseSet.getStableId())) {
-                builder.append(caseSet.getName() + ": " + caseSet.getDescription());
+        for (PatientList patientSet : patientSets) {
+            if (patientSetId.equals(patientSet.getStableId())) {
+                builder.append(patientSet.getName() + ": " + patientSet.getDescription());
             }
         }
         return builder.toString();

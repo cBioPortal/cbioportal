@@ -1,6 +1,6 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.CnaJSON" %>
-<%@ page import="org.mskcc.cbio.portal.dao.DaoCase" %>
-<%@ page import="org.mskcc.cbio.portal.model.Case" %>
+<%@ page import="org.mskcc.cbio.portal.dao.DaoSample" %>
+<%@ page import="org.mskcc.cbio.portal.model.Sample" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.List" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
@@ -25,15 +25,6 @@
 </style>
 
 <%
-String jsonCaseIdsInStudy = "[]";
-if (mutationProfile!=null && hasCnaSegmentData) {
-    List<Case> cases = DaoCase.getAllCaseIdsInCancer(cancerStudy.getInternalId());
-    List<String> caseIdsInStudy = new ArrayList<String>(cases.size());
-    for (Case c : cases) {
-        caseIdsInStudy.add(c.getCaseId());
-    }
-    jsonCaseIdsInStudy = jsonMapper.writeValueAsString(caseIdsInStudy);
-}
 String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy.getCancerStudyStableId());
 %>
 
@@ -89,7 +80,7 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
 
         var params = {
             <%=CnaJSON.CMD%>:'<%=CnaJSON.GET_SEGMENT_CMD%>',
-            <%=PatientView.CASE_ID%>:caseIdsStr,
+            <%=PatientView.SAMPLE_ID%>:caseIdsStr,
             cancer_study_id: cancerStudyId
         };
         $.post("cna.json", 
@@ -125,7 +116,7 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
     }
     
     function loadMutCnaAndPlot(scatterPlotDiv,caseIdDiv) {
-        loadMutCountCnaFrac(<%=jsonCaseIdsInStudy%>, cancerStudyId,
+        loadMutCountCnaFrac(null, cancerStudyId,
             <%=mutationProfileStableId==null%>?null:'<%=mutationProfileStableId%>',
             hasCnaSegmentData,
             function(dt){
@@ -174,7 +165,7 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
             if (s.length>1) return;
             if (caseIdDiv) {
                 var caseId = s.length===0 ? null : dt.getValue(s[0].row,0);
-                $('#case-id-div').html(formatPatientLink(caseId,cancerStudyId));
+                $('#case-id-div').html("<a href='"+cbio.util.getLinkToSampleView(cancerStudyId,caseId)+"'>"+caseId+"</a>");
             }
         });
     }

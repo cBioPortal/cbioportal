@@ -882,6 +882,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
     }
     
     $(document).ready(function() {
+
         // bind away
         $('#oncoprint_controls #sort_by').change(function() {
             oncoprint.sortBy(sortBy.val(), cases.split(" "));

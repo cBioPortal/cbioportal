@@ -74,9 +74,11 @@ function loadMutCountCnaFrac(caseIds,cancerStudyId,mutationProfileId,hasCnaSegme
     if (mutationProfileId!=null) {
         var params = {
             cmd: 'count_mutations',
-            case_ids: caseIds.join(' '),
             mutation_profile: mutationProfileId
         };
+        if (caseIds) {
+            params["case_ids"] = caseIds.join(' ')
+        }
 
         $.post("mutations.json", 
             params,
@@ -97,9 +99,11 @@ function loadMutCountCnaFrac(caseIds,cancerStudyId,mutationProfileId,hasCnaSegme
     if (hasCnaSegmentData) {
         var params = {
             cmd: 'get_cna_fraction',
-            case_ids: caseIds.join(' '),
             cancer_study_id: cancerStudyId
         };
+        if (caseIds) {
+            params["case_ids"] = caseIds.join(' ')
+        }
 
         $.post("cna.json", 
             params,

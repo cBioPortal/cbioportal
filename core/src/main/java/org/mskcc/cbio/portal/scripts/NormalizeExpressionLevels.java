@@ -167,7 +167,9 @@ public class NormalizeExpressionLevels{
          outputLine.add("Entrez_Gene_Id");
          for(int i=firstSamplePosition;i<samples.length;i++)
             if(!normalSamples.contains(samples[i]))
-               outputLine.add(samples[i]);
+               // use values array for sample id - if tcga, we want the full barcode (as passed into utility)
+               // if not tcga, values and sample are equal
+               outputLine.add(values[i]);
          out.println( join( outputLine, "\t") );
 
          // SAMPLES is number of tumors

@@ -2,14 +2,14 @@
     <img id="outer_loader_img" src="images/ajax-loader.gif"/>
     <div style="display:none;" id="everything">
         <h4 style="display:inline;">OncoPrint
-            <small>(<a href="faq.jsp#what-are-oncoprints">What are OncoPrints?</a>)</small>
+            <small>(<a href="faq.jsp#what-are-oncoprints" target="_blank">What are OncoPrints?</a>)</small>
         </h4>
 
         <div id="oncoprint_controls" style="margin-top:10px; margin-bottom:20px;"></div>
         <%@ include file="controls-templates.jsp" %>
 
         <div id="oncoprint-statment" style="margin-left:3;">
-            <p>Case Set: <%=StringEscapeUtils.escapeHtml(OncoPrintUtil.getCaseSetDescription(caseSetId, caseSets))%></p>   
+            <p>Case Set: <span id='oncoprint_sample_set_name'></span>: <span id='oncoprint_sample_set_description'></span></span></p>
         </div>
         
         <div id="oncoprint_whole_body">

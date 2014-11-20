@@ -240,12 +240,12 @@ var StudyViewInitScatterPlot = (function() {
         var _style = [];
         
         if(initStatus){
-            for(var i=0 ; i< StudyViewParams.params.caseIds.length ; i++){
+            for(var i=0 ; i< StudyViewParams.params.sampleIds.length ; i++){
                 var styleDatum = {};
 
-                styleDatum.case_id = StudyViewParams.params.caseIds[i];
-                if(_selectedCaseIds.length !== StudyViewParams.params.caseIds.length){
-                    if(_selectedCaseIds.indexOf(StudyViewParams.params.caseIds[i]) !== -1){
+                styleDatum.case_id = StudyViewParams.params.sampleIds[i];
+                if(_selectedCaseIds.length !== StudyViewParams.params.sampleIds.length){
+                    if(_selectedCaseIds.indexOf(StudyViewParams.params.sampleIds[i]) !== -1){
                         if(clickedCaseId !== ''){
                             styleDatum.fill = '#2986e2';
                             styleDatum.stroke = 'red';

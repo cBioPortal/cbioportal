@@ -8,425 +8,9 @@
     Set<String> antibodyTypes = GetProteinArrayData.getProteinArrayTypes();
 %>
 
-<style type="text/css" title="currentStyle"> 
-        @import "css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>";
-        @import "css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>";
-        #protein_exp .ColVis {
-                float: left;
-                margin-bottom: 0
-        }
-        .datatable-filter-custom {
-                float: left
-        }
-        #protein_exp .dataTables_length {
-                width: auto;
-                float: right;
-        }
-        #protein_exp .dataTables_info {
-                width: auto;
-                float: right;
-        }
-        #protein_exp .div.datatable-paging {
-                width: auto;
-                float: right;
-        }
-        #protein_exp td.rppa-details {
-                background-color : white;
-        }
-</style>
-
-<script type="text/javascript" src="js/src/protein_exp.js?<%=GlobalProperties.getAppVersion()%>"></script>
-
-<script type="text/javascript">
-    function parsePValue(str) {
-        return parseFloat(str.replace(/<[^>]*>/g,""));
-    }
-    
-    jQuery.fn.dataTableExt.oSort['num-nan-col-asc']  = function(a,b) {
-    	var x = parsePValue(a);
-    	var y = parsePValue(b);
-            if (isNaN(x)) {
-                return isNaN(y) ? 0 : 1;
-            }
-            if (isNaN(y))
-                return -1;
-    	return ((x < y) ? -1 : ((x > y) ?  1 : 0));
-    };
-
-    jQuery.fn.dataTableExt.oSort['num-nan-col-desc'] = function(a,b) {
-    	var x = parsePValue(a);
-    	var y = parsePValue(b);
-            if (isNaN(x)) {
-                return isNaN(y) ? 0 : 1;
-            }
-            if (isNaN(y))
-                return -1;
-    	return ((x < y) ? 1 : ((x > y) ?  -1 : 0));
-    };
-    
-    function getProteinArrayTypes() {
-        var ret = Array();
-        var i = 0;
-        <%for (String type : antibodyTypes) {%>
-                ret[i++] = "<%=type%>";
-        <%}%>
-        return ret;
-    }
-
-    function fnCreateSelect(aData, id, defaultOpt) {
-        var r='<select id="'+id+'">', i, iLen=aData.length;
-        for ( i=0 ; i<iLen ; i++ )
-        {
-            if (defaultOpt!=null && aData[i]==defaultOpt)
-                r += '<option value="'+aData[i]+'" selected="selected">'+aData[i]+'</option>';
-            else
-                r += '<option value="'+aData[i]+'">'+aData[i]+'</option>';
-        }
-        return r+'</select>';
-    }
-
-    /**
-     * Get altered and unaltered case lists for the rppa plots
-     *
-     * @global: dataSummary
-     * @global: mergedCaseLists
-     * @return: unalteredCaseList
-     * @return: alteredCaseList
-     *
-     * @author: Yichao S
-     * @date: Jul 2013
-     */
-    function getRppaPlotsCaseList() {
-    <%
-        JSONObject result = new JSONObject();
-        for (String caseId : mergedCaseList) {
-            //Is altered or not (x value)
-            if (dataSummary.isCaseAltered(caseId)) {
-                result.put(caseId, "altered");
-            } else {
-                result.put(caseId, "unaltered");
-            }
-        }
-    %>
-        var obj = jQuery.parseJSON('<%=result%>');
-        return obj;
-    }
-
-    function getAlterations() {
-    <%
-        JSONObject alterationResults = new JSONObject();
-        for (String caseId : mergedCaseList) {
-            JSONObject _alterationResult = new JSONObject();
-            for (GeneWithScore geneWithScore : geneWithScoreList) {
-                String singleGeneResult = "";
-                String value = mergedProfile.getValue(geneWithScore.getGene(), caseId);
-                ValueParser parser = ValueParser.generateValueParser( geneWithScore.getGene(), value,
-                        zScoreThreshold, rppaScoreThreshold, theOncoPrintSpecification );
-                if( null == parser){
-                    System.err.println( "null valueParser: cannot find: " + geneWithScore.getGene() );
-                    break;
-                }
-                if (parser.isCnaAmplified()) {
-                    singleGeneResult += "AMP;";
-                }
-                if (parser.isCnaHomozygouslyDeleted()) {
-                    singleGeneResult += "HOMDEL;";
-                }
-                if (parser.isCnaGained()) {
-                    singleGeneResult += "GAIN;";
-                }
-                if (parser.isCnaHemizygouslyDeleted()) {
-                    singleGeneResult += "HETLOSS;";
-                }
-                if (parser.isMutated()) {
-                    singleGeneResult += "MUT;";
-                }
-                if (parser.isMRNAWayUp()) {
-                    singleGeneResult += "UP;";
-                }
-                if (parser.isMRNAWayDown()) {
-                    singleGeneResult += "DOWN;";
-                }
-                if (parser.isRPPAWayUp()) {
-                    singleGeneResult += "RPPA-UP;";
-                }
-                if (parser.isRPPAWayDown()) {
-                    singleGeneResult += "RPPA-DOWN;";
-                }
-                _alterationResult.put(geneWithScore.getGene(), singleGeneResult);
-            }
-            alterationResults.put(caseId, _alterationResult);
-        }
-    %>
-        var alterationResults = jQuery.parseJSON('<%=alterationResults%>');;
-        return alterationResults;
-    }
-
-    $(document).ready(function(){
-        $('table#protein_expr_wrapper').hide();
-        var params = {<%=ProteinArraySignificanceTestJSON.CANCER_STUDY_ID%>:'<%=cancerStudyId_RPPA%>',
-            <%=ProteinArraySignificanceTestJSON.HEAT_MAP%>:$("textarea#heat_map").html(),
-            <%=ProteinArraySignificanceTestJSON.GENE%>:'Any',
-            <%=ProteinArraySignificanceTestJSON.ALTERATION_TYPE%>:'Any'
-        };
-        if (cbio.util.browser.msie) //TODO: this is a temporary fix for bug #74
-            params['<%=ProteinArraySignificanceTestJSON.DATA_SCALE%>'] = '100';
-                        
-        $.post("ProteinArraySignificanceTest.json", 
-            params,
-            function(aDataSet){
-                //$("div#protein_exp").html(aDataSet);
-                //alert(aDataSet);
-                if (aDataSet.length==0)
-                    return;
-                
-                var showPValueColumn = aDataSet[0][9]!="NaN";
-                var showAbsDiffColumn = !showPValueColumn && aDataSet[0][8]!="NaN";
-                
-                var sortingColumn;
-                if (showPValueColumn) {
-                    sortingColumn = [9,'asc'];
-                } else if (showAbsDiffColumn) {
-                    sortingColumn = [8, 'desc'];
-                } else if (aDataSet[0][6]!="NaN") {
-                    sortingColumn = [6, 'desc'];
-                } else {
-                    sortingColumn = [7, 'desc'];
-                }
-                
-                
-                var aiExclude = [1,2,3,10];
-                var oTable = $('table#protein_expr').dataTable( {
-                        "sDom": '<"H"<"datatable-filter-custom">fr>t<"F"C<"datatable-paging"pil>>', // selectable columns
-			"oColVis": {
-                            //"aiExclude": aiExclude
-                        },
-                        "bJQueryUI": true,
-                        "bDestroy": true,
-                        "aaData": aDataSet,
-                        "aoColumnDefs":[
-                            { //"sTitle": "RPPA ID",
-                              "bVisible": false,
-                              "aTargets": [ 0 ]
-                            },
-                            { //"sTitle": "Gene",
-                              "bVisible": false,
-                              "aTargets": [ 1 ]
-                            },
-                            { //"sTitle": "Alteration type",
-                              "bVisible": false,
-                              "aTargets": [ 2 ] 
-                            },
-                            { //"sTitle": "Type",
-                              "bVisible": false,
-                              "aTargets": [ 3 ]
-                            },
-                            { //"sTitle": "Target Gene",
-                              "mRender": function(data) {
-                                    return '<b>'+data+'</b>';
-                              },
-                              "aTargets": [ 4 ] 
-                            },
-                            { //"sTitle": "Target Residue",
-                              "aTargets": [ 5 ] 
-                            },
-//                            { //"sTitle": "Source organism",
-//                              "bVisible": false, 
-//                              "aTargets": [ 6 ] 
-//                            },
-//                            { //"sTitle": "Validated?",
-//                              "bVisible": false,
-//                              "aTargets": [ 7 ]
-//                            },
-                            { //"sTitle": "Ave. Altered<sup>1</sup>",
-                              "sType": "num-nan-col",
-                              "bSearchable": false,
-                              "mRender": function(data) {
-                                    var value = parseFloat(data);
-                                    if (isNaN(value))
-                                        return "NaN";
-                                    return value.toFixed(2);
-                              },
-                              "bSearchable": false,
-                              "aTargets": [ 6 ]
-                            },
-                            { //"sTitle": "Ave. Unaltered<sup>1</sup>",
-                              "sType": "num-nan-col",
-                              "bSearchable": false,
-                              "mRender": function(data) {
-                                    var value = parseFloat(data);
-                                    if (isNaN(value))
-                                        return "NaN";
-                                    return value.toFixed(2);
-                              },
-                              "bSearchable": false,
-                              "aTargets": [ 7 ]
-                            },
-                            { //"sTitle": "abs diff",
-                              "bVisible": showAbsDiffColumn,
-                              "sType": "num-nan-col",
-                              "mRender": function(data, type, full) {
-                                    var value = parseFloat(data);
-                                    if (isNaN(value))
-                                        return "NaN";
-                                    
-                                    var ret = value.toFixed(2);
-                                    
-                                    var eps = 10e-5;
-                                    var abunUnaltered = parseFloat(full[6]);
-                                    var abunAltered = parseFloat(full[7]);
-                                    
-                                    if (value<eps)
-                                        return ret;
-                                    if (abunUnaltered < abunAltered)
-                                        return ret + "<img src=\"images/up1.png\"/>";
-                                    
-                                    return ret + "<img src=\"images/down1.png\"/>";                                    
-                              },
-                              "bSearchable": false,
-                              "aTargets": [ 8 ]
-                            },
-                            { //"sTitle": "p-value",
-                              "bVisible": showPValueColumn,
-                              "sType": "num-nan-col",
-                              "mRender": function(data, display, full) {
-                                    var value = parseFloat(data);
-                                    if (isNaN(value))
-                                        return "NaN";
-                                    
-                                    var ret = value < 0.001 ? value.toExponential(2) : value.toFixed(3);
-                                    if (value <= 0.05)
-                                        ret = '<b>'+ret+'</b>';
-                                    
-                                    var eps = 10e-5;
-                                    var abunUnaltered = parseFloat(full[6]);
-                                    var abunAltered = parseFloat(full[7]);
-                                    
-                                    if (Math.abs(abunUnaltered-abunAltered)<eps)
-                                        return ret;
-                                    if (abunUnaltered < abunAltered)
-                                        return ret + "<img src=\"images/up1.png\"/>";
-                                    
-                                    return ret + "<img src=\"images/down1.png\"/>";                                    
-                              },
-                              "bSearchable": false,
-                              "aTargets": [ 9 ]
-                            },
-                            { //"sTitle": "data",
-                              "bVisible": false,
-                              "bSearchable": false,
-                              "bSortable": false,
-                              "aTargets": [ 10 ]
-                            },
-                            { //"sTitle": "plot",
-                              "bSearchable": false,
-                              "bSortable": false,
-                              "mRender": function(data) {
-                                    return "<img class=\"details_img\" src=\"images/details_open.png\">";
-                              },
-                              "aTargets": [ 11 ]
-                                
-                            }
-                        ],
-                        "aaSorting": [sortingColumn],
-                        "oLanguage": {
-                            "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
-                            "sInfoFiltered": "",
-                            "sLengthMenu": "Show _MENU_ per page"
-                        },
-                        "iDisplayLength": 100,
-                        "aLengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]]
-                } );
-
-                // help
-                $('.datatable_help').tipTip();
-                
-                // remove element from selectable columns - to fix a bug of ColVis
-                var excludeButtonRemoved = false;
-                $('div.ColVis button.ColVis_Button').click(function() {
-                    if (!excludeButtonRemoved) {
-                        for (var i=aiExclude.length-1; i>=0; i--) {
-                            $('div.ColVis_collection button.ColVis_Button').eq(aiExclude[i]).remove();
-                        }
-                        excludeButtonRemoved = true;
-                    }
-                });
-                
-                /* Add event listener for opening and closing details
-                 * Note that the indicator for showing which row is open is not controlled by DataTables,
-                 * rather it is done here
-                 */
-	            $(document).on('click', '.details_img', function () {
-                    var nTr = this.parentNode.parentNode;
-                    if ( this.src.match('details_close') ) {
-                            /* This row is already open - close it */
-                            this.src = "images/details_open.png";
-                            oTable.fnClose( nTr );
-                    } else {
-                        /* Open this row */
-                        this.src = "images/details_close.png";
-                        $(this).removeClass('p-value-plot-hide').addClass('p-value-plot-show');
-                        var aData = oTable.fnGetData( nTr );
-                        var data = aData[10];
-                        var antibody = "antibody:"+aData[4].replace(/<[^>]*>/g,"");
-                        if (aData[5])
-                            antibody += ' ['+aData[5]+']';
-                        var xlabel = "Query: ";
-                        if (aData[1] == "Any")
-                            xlabel += '<%=StringUtils.join(listOfGenes, " ")%>';
-                        else
-                            xlabel += aData[1];
-                        var pvalue = parsePValue(aData[9]);
-                        if (!isNaN(pvalue)) {
-                            xlabel += " (p-value: "+pvalue+")";
-                        }
-                        var ylabel = "RPPA score ("+antibody+")";
-
-
-                        /**
-                         * Replace the R plots by D3 plots for rppa value
-                         * clustered by altered and unaltered cases
-                         *
-                         * @author YichaoS
-                         * @date Jul 2013
-                        */
-                        //var param = 'xlabel='+xlabel+'&ylabel='+ylabel+'&width=500&height=400&data='+data;
-                        //var html = 'Boxplots of RPPA data ('+antibody+') for altered and unaltered cases ';
-                        //html += ' [<a href="boxplot.pdf?'+'format=pdf&'+param+'" target="_blank">PDF</a>]<br/>'
-                        //        + '<img src="boxplot.do?'+param+'">';
-                        var title = "Boxplots of RPPA data (" + antibody + ") for altered and unaltered cases ";
-                        var _divName = "rppa-plots-" + aData[4].replace(/<[^>]*>/g,"") + aData[5];
-                        _divName = _divName.replace(/\//g, "");
-                        oTable.fnOpen( nTr, "<div id='" + _divName + "'><img style='padding:200px;' src='images/ajax-loader.gif'></div>", 'rppa-details' );
-                        rppaPlots.init(xlabel, ylabel, title, _divName, getRppaPlotsCaseList(), aData[0], getAlterations()); //aData[0]-->protein array id
-                    }
-                } );
-                
-                // filter for antibody type
-                oTable.fnFilter("phosphorylation",3);
-                $('div.datatable-filter-custom').html("Antibody Type: "+
-                    fnCreateSelect(getProteinArrayTypes(),"array_type_alteration_select","phosphorylation")
-                    );
-                $('select#array_type_alteration_select').change( function () {
-                        oTable.fnFilter( $(this).val(), 3);
-                } );
-                
-                // widen the rppa data
-                $('table#protein_expr').css("width","100%");
-                
-                $('div#protein_expr_wait').remove();
-                $('table#protein_expr_wrapper').show();
-            }
-            ,"json"
-        );
-    });
-</script>
-
 <div class="section" id="protein_exp">
     <div id="protein_expr_wait"><img src="images/ajax-loader.gif"/></div>
-    
     <table cellpadding="0" cellspacing="0" border="0" id="protein_expr_wrapper" width="100%">
-        
         <tr>
         <td>
             <table cellpadding="0" cellspacing="0" border="0" class="display" id="protein_expr">
@@ -470,3 +54,111 @@
         </td></tr>
     </table>
 </div>
+
+<style type="text/css" title="currentStyle"> 
+        @import "css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>";
+        @import "css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>";
+        #protein_exp .ColVis {
+                float: left;
+                margin-bottom: 0
+        }
+        .datatable-filter-custom {
+                float: left
+        }
+        #protein_exp .dataTables_length {
+                width: auto;
+                float: right;
+        }
+        #protein_exp .dataTables_info {
+                width: auto;
+                float: right;
+        }
+        #protein_exp .div.datatable-paging {
+                width: auto;
+                float: right;
+        }
+        #protein_exp td.rppa-details {
+                background-color : white;
+        }
+</style>
+
+<script type="text/javascript" src="js/src/protein_exp/rppa_plots.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/protein_exp/protein_exp_datatable.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript">
+    function getRppaPlotsCaseList() {
+    <%
+        JSONObject result = new JSONObject();
+        for (String patientId : mergedPatientList) {
+            //Is altered or not (x value)
+            if (dataSummary.isCaseAltered(patientId)) {
+                result.put(patientId, "altered");
+            } else {
+                result.put(patientId, "unaltered");
+            }
+        }
+    %>
+        var obj = jQuery.parseJSON('<%=result%>');
+        return obj;
+    }
+    
+    function getProteinArrayTypes() {
+        var ret = Array();
+        var i = 0;
+        <%for (String type : antibodyTypes) {%>
+                ret[i++] = "<%=type%>";
+        <%}%>
+        return ret;
+    }
+
+    function getAlterations() {
+    <%
+        JSONObject alterationResults = new JSONObject();
+        for (String patientId : mergedPatientList) {
+            JSONObject _alterationResult = new JSONObject();
+            for (GeneWithScore geneWithScore : geneWithScoreList) {
+                String singleGeneResult = "";
+                String value = mergedProfile.getValue(geneWithScore.getGene(), patientId);
+                ValueParser parser = ValueParser.generateValueParser( geneWithScore.getGene(), value,
+                        zScoreThreshold, rppaScoreThreshold, theOncoPrintSpecification );
+                if( null == parser){
+                    System.err.println( "null valueParser: cannot find: " + geneWithScore.getGene() );
+                    break;
+                }
+                if (parser.isCnaAmplified()) {
+                    singleGeneResult += "AMP;";
+                }
+                if (parser.isCnaHomozygouslyDeleted()) {
+                    singleGeneResult += "HOMDEL;";
+                }
+                if (parser.isCnaGained()) {
+                    singleGeneResult += "GAIN;";
+                }
+                if (parser.isCnaHemizygouslyDeleted()) {
+                    singleGeneResult += "HETLOSS;";
+                }
+                if (parser.isMutated()) {
+                    singleGeneResult += "MUT;";
+                }
+                if (parser.isMRNAWayUp()) {
+                    singleGeneResult += "UP;";
+                }
+                if (parser.isMRNAWayDown()) {
+                    singleGeneResult += "DOWN;";
+                }
+                if (parser.isRPPAWayUp()) {
+                    singleGeneResult += "RPPA-UP;";
+                }
+                if (parser.isRPPAWayDown()) {
+                    singleGeneResult += "RPPA-DOWN;";
+                }
+                _alterationResult.put(geneWithScore.getGene(), singleGeneResult);
+            }
+            alterationResults.put(patientId, _alterationResult);
+        }
+    %>
+        var alterationResults = jQuery.parseJSON('<%=alterationResults%>');;
+        return alterationResults;
+    }
+
+</script>
+

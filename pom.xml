@@ -12,146 +12,138 @@
     <description>master maven module</description>
     <url>http://code.google.com/p/cbio-cancer-genomics-portal/</url>
 
-    <!-- profiles -->
-    <profiles>
-        <profile>
-            <id>gdac</id>
-            <properties>
-                <web-xml-file>${PORTAL_HOME}/portal/src/main/config/security_enabled_config/web.xml</web-xml-file>
-                <application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_enabled_config</application-context-security-xml-dir>
-                <property-file-dir>${PORTAL_HOME}/src/main/resources</property-file-dir>
-                <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
-                <gpl-files-to-exclude>lorem-ipsum</gpl-files-to-exclude>
-                <final-war-name>gdac-portal</final-war-name>
-            </properties>
-        </profile>
-        <profile>
-            <id>su2c</id>
-            <properties>
-                <web-xml-file>${PORTAL_HOME}/portal/src/main/config/security_enabled_config/web.xml</web-xml-file>
-                <application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_enabled_config</application-context-security-xml-dir>
-                <property-file-dir>${PORTAL_HOME}/src/main/resources</property-file-dir>
-                <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
-                <gpl-files-to-exclude>lorem-ipsum</gpl-files-to-exclude>
-                <final-war-name>su2c-portal</final-war-name>
-            </properties>
-        </profile>
-        <profile>
-            <id>public</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-                <web-xml-file>${PORTAL_HOME}/portal/src/main/config/security_disabled_config/web.xml</web-xml-file>
-                <application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_disabled_config</application-context-security-xml-dir>
-                <property-file-dir>${PORTAL_HOME}/src/main/resources</property-file-dir>
-                <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
-                <gpl-files-to-exclude>lorem-ipsum</gpl-files-to-exclude>
-                <final-war-name>public-portal</final-war-name>
-            </properties>
-        </profile>
-        <profile>
-            <id>prostate</id>
-            <properties>
-                <web-xml-file>${PORTAL_HOME}/portal/src/main/config/security_enabled_config/web.xml</web-xml-file>
-                <application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_enabled_config</application-context-security-xml-dir>
-                <property-file-dir>${PORTAL_HOME}/src/main/resources</property-file-dir>
-                <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
-                <gpl-files-to-exclude>lorem-ipsum</gpl-files-to-exclude>
-                <final-war-name>prostate-portal</final-war-name>
-            </properties>
-        </profile>
-        <profile>
-            <id>target</id>
-            <properties>
-                <web-xml-file>${PORTAL_HOME}/portal/src/main/config/security_enabled_config/web.xml</web-xml-file>
-                <application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_enabled_config</application-context-security-xml-dir>
-                <property-file-dir>${PORTAL_HOME}/src/main/resources</property-file-dir>
-                <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
-                <gpl-files-to-exclude>lorem-ipsum</gpl-files-to-exclude>
-                <final-war-name>target-portal</final-war-name>
-            </properties>
-        </profile>
-        <profile>
-            <id>glioma</id>
-            <properties>
-                <web-xml-file>${PORTAL_HOME}/portal/src/main/config/security_enabled_config/web.xml</web-xml-file>
-                <application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_enabled_config</application-context-security-xml-dir>
-                <property-file-dir>${PORTAL_HOME}/src/main/resources</property-file-dir>
-                <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
-                <gpl-files-to-exclude>lorem-ipsum</gpl-files-to-exclude>
-                <final-war-name>glioma-portal</final-war-name>
-            </properties>
-        </profile>
-        <profile>
-            <id>acc</id>
-            <properties>
-                <web-xml-file>${PORTAL_HOME}/portal/src/main/config/security_enabled_config/web.xml</web-xml-file>
-                <application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_enabled_config</application-context-security-xml-dir>
-                <property-file-dir>${PORTAL_HOME}/src/main/resources</property-file-dir>
-                <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
-                <gpl-files-to-exclude>lorem-ipsum</gpl-files-to-exclude>
-                <final-war-name>acc-portal</final-war-name>
-            </properties>
-        </profile>
-        <profile>
-            <id>ctd2-dashboard</id>
-            <properties>
-                <web-xml-file>${PORTAL_HOME}/portal/src/main/config/security_disabled_config/web.xml</web-xml-file>
-                <application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_disabled_config</application-context-security-xml-dir>
-                <property-file-dir>${PORTAL_HOME}/src/main/resources</property-file-dir>
-                <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
-                <gpl-files-to-exclude>lorem-ipsum</gpl-files-to-exclude>
-                <final-war-name>ctd2-dashboard-portal</final-war-name>
-            </properties>
-        </profile>
-        <profile>
-            <id>external-public</id>
-            <properties>
-                <web-xml-file>${PORTAL_HOME}/portal/src/main/config/security_disabled_config/web.xml</web-xml-file>
-                <application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_disabled_config</application-context-security-xml-dir>
-                <property-file-dir>${PORTAL_HOME}/portal/src/main/config/external_lab_properties</property-file-dir>
-                <importer-main-class>org.mskcc.cbio.importer.PortalImporterTool</importer-main-class>
-                <gpl-files-to-exclude>com/mysql/**</gpl-files-to-exclude>
-                <final-war-name>cbioportal</final-war-name>
-            </properties>
-        </profile>
-        <profile>
-            <id>external-private</id>
-            <properties>
-                <web-xml-file>${PORTAL_HOME}/portal/src/main/config/security_enabled_config/web.xml</web-xml-file>
-                <application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_enabled_config</application-context-security-xml-dir>
-                <property-file-dir>${PORTAL_HOME}/portal/src/main/config/external_lab_properties</property-file-dir>
-                <importer-main-class>org.mskcc.cbio.importer.PortalImporterTool</importer-main-class>
-                <gpl-files-to-exclude>com/mysql/**</gpl-files-to-exclude>
-                <final-war-name>cbioportal</final-war-name>
-            </properties>
-        </profile>
-    </profiles>
+    <repositories>
+    <repository>
+        <id>spring-milestones</id>
+        <name>Spring Milestones</name>
+        <url>http://repo.spring.io/milestone</url>
+        <snapshots>
+            <enabled>false</enabled>
+        </snapshots>
+    </repository>
+    </repositories>
 
-    <!-- properties -->
-    <properties>
-        <slf4j.version>1.6.6</slf4j.version>
-        <spring.version>4.0.4.RELEASE</spring.version>
-        <spring.security.version>3.1.0.RELEASE</spring.security.version>
-        <hibernate.version>3.6.9.Final</hibernate.version>
-        <spring.social.version>1.1.0.RELEASE</spring.social.version>
-        <org.springframework.social.google-version>1.0.0.RELEASE</org.springframework.social.google-version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <bundle.symbolicName.prefix>org.mskcc</bundle.symbolicName.prefix>
-        <bundle.namespace>org.mskcc.mondrian</bundle.namespace>
-    </properties>
+  <!-- profiles -->
+  <profiles>
+    <profile>
+      <id>mskcc</id>
+      <properties>
+        <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
+        <final-war-name>mskcc</final-war-name>
+      </properties>
+    </profile>
+    <profile>
+      <id>private</id>
+      <properties>
+        <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
+        <final-war-name>private</final-war-name>
+      </properties>
+    </profile>
+    <profile>
+      <id>triage</id>
+      <properties>
+        <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
+        <final-war-name>triage</final-war-name>
+      </properties>
+    </profile>
+	<profile>
+	  <id>gdac</id>
+	  <properties>
+        <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
+		<final-war-name>gdac-portal</final-war-name>
+	  </properties>
+	</profile>
+	<profile>
+	  <id>su2c</id>
+	  <properties>
+        <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
+		<final-war-name>su2c-portal</final-war-name>
+	  </properties>
+	</profile>
+	<profile>
+	  <id>public</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+	  <properties>
+        <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
+		<final-war-name>public-portal</final-war-name>
+	  </properties>
+	</profile>
+	<profile>
+	  <id>prostate</id>
+	  <properties>
+        <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
+		<final-war-name>prostate-portal</final-war-name>
+	  </properties>
+	</profile>
+        <profile>
+	  <id>target</id>
+	  <properties>
+        <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
+		<final-war-name>target-portal</final-war-name>
+	  </properties>
+	</profile>
+	<profile>
+	  <id>glioma</id>
+	  <properties>
+        <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
+		<final-war-name>glioma-portal</final-war-name>
+	  </properties>
+	</profile>
+	<profile>
+	  <id>acc</id>
+	  <properties>
+        <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
+		<final-war-name>acc-portal</final-war-name>
+	  </properties>
+	</profile>
+	<profile>
+	  <id>ctd2-dashboard</id>
+	  <properties>
+        <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
+		<final-war-name>ctd2-dashboard-portal</final-war-name>
+	  </properties>
+	</profile>
+	<profile>
+	  <id>external</id>
+	  <properties>
+        <importer-main-class>org.mskcc.cbio.importer.PortalImporterTool</importer-main-class>
+		<final-war-name>cbioportal</final-war-name>
+	  </properties>
+	</profile>
+  </profiles>
 
-    <!-- modules -->
-    <modules>
-        <module>portal</module>
-        <module>core</module>
-        <module>oncotator</module>
-        <module>liftover</module>
-        <module>mutation-assessor</module>
-        <module>importer</module>
-    </modules>
+  <!-- properties -->
+  <properties>
+	<slf4j.version>1.6.6</slf4j.version>
+	<spring.version>4.0.4.RELEASE</spring.version>
+	<spring.security.version>3.2.3.RELEASE</spring.security.version>
+    <spring.security.saml.version>1.0.0.RELEASE</spring.security.saml.version>
+	<mybatis.spring.version>1.2.2</mybatis.spring.version>
+    <spring.social.version>1.1.0.RELEASE</spring.social.version>
+    <org.springframework.social.google-version>1.0.0.RELEASE</org.springframework.social.google-version>
+	<mybatis.version>3.2.7</mybatis.version>
+	<hibernate.version>3.6.9.Final</hibernate.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <bundle.symbolicName.prefix>org.mskcc</bundle.symbolicName.prefix>
+    <bundle.namespace>org.mskcc.mondrian</bundle.namespace>
+    <timestamp>${maven.build.timestamp}</timestamp>
+    <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
+  </properties>
+
+  <!-- modules -->
+  <modules>
+    <module>portal</module>
+	<module>core</module>
+	<module>oncotator</module>
+	<module>liftover</module>
+	<module>mutation-assessor</module>
+    <module>importer</module>
+    <module>business</module>
+    <module>web</module>
+  </modules>
 
     <!-- dependencies -->
     <dependencies>
@@ -162,6 +154,13 @@
             <artifactId>apache-log4j-extras</artifactId>
             <version>1.1</version>
         </dependency>
+        
+        <dependency>
+	<groupId>commons-dbcp</groupId>
+	<artifactId>commons-dbcp</artifactId>
+	<version>1.4</version>
+        </dependency>
+
         
         <!-- Apache http components -->
         <dependency>
@@ -190,13 +189,13 @@
             <version>1.2.16</version>
         </dependency>
 
-        <!-- mysql -->
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.16</version>
-            <scope>runtime</scope>
-        </dependency>
+	<!-- mysql -->
+	<dependency>
+	  <groupId>mysql</groupId>
+	  <artifactId>mysql-connector-java</artifactId>
+	  <version>5.1.16</version>
+	  <scope>provided</scope>
+	</dependency>
 
         <!-- slf4j -->
         <dependency>
@@ -210,22 +209,57 @@
             <version>${slf4j.version}</version>
         </dependency>
 
-        <!-- spring -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-            <version>${spring.version}</version>
-        </dependency>
+	<!-- spring -->
+	<dependency>
+	  <groupId>org.springframework</groupId>
+	  <artifactId>spring-core</artifactId>
+	  <version>${spring.version}</version>
+	</dependency>
+	<dependency>		
+	  <groupId>org.springframework</groupId>		
+	  <artifactId>spring-expression</artifactId>		
+	  <version>${spring.version}</version>		
+	</dependency>		
+	<dependency>		
+	  <groupId>org.springframework</groupId>		
+	  <artifactId>spring-beans</artifactId>		
+	  <version>${spring.version}</version>		
+	</dependency>		
+	<dependency>		
+	  <groupId>org.springframework</groupId>		
+	  <artifactId>spring-aop</artifactId>		
+	  <version>${spring.version}</version>		
+	</dependency>		
+	<dependency>		
+	  <groupId>org.springframework</groupId>		
+	  <artifactId>spring-context</artifactId>		
+	  <version>${spring.version}</version>		
+	</dependency>		
+	<dependency>		
+	  <groupId>org.springframework</groupId>		
+	  <artifactId>spring-tx</artifactId>		
+	  <version>${spring.version}</version>		
+	</dependency>		
+	<dependency>		
+	  <groupId>org.springframework</groupId>		
+	  <artifactId>spring-orm</artifactId>		
+	  <version>${spring.version}</version>		
+	</dependency>
+	<dependency>
+	  <groupId>org.springframework</groupId>
+	  <artifactId>spring-jdbc</artifactId>
+	  <version>${spring.version}</version>
+	</dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
             <version>${spring.version}</version>
-        </dependency>
-        <dependency>		
-            <groupId>org.springframework</groupId>		
-            <artifactId>spring-expression</artifactId>		
-            <version>${spring.version}</version>		
-        </dependency>		
+        </dependency>	
         <dependency>		
             <groupId>org.springframework</groupId>		
             <artifactId>spring-beans</artifactId>		
@@ -257,37 +291,59 @@
             <version>${spring.version}</version>
         </dependency>
 
-        <!-- spring security -->
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-acl</artifactId>
-            <version>${spring.security.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-config</artifactId>
-            <version>${spring.security.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-core</artifactId>
-            <version>${spring.security.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-openid</artifactId>
-            <version>${spring.security.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-taglibs</artifactId>
-            <version>${spring.security.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-web</artifactId>
-            <version>${spring.security.version}</version>
-        </dependency>
+	<!-- spring security -->
+	<dependency>
+	  <groupId>org.springframework.security</groupId>
+	  <artifactId>spring-security-acl</artifactId>
+	  <version>${spring.security.version}</version>
+	</dependency>
+	<dependency>
+	  <groupId>org.springframework.security</groupId>
+	  <artifactId>spring-security-config</artifactId>
+	  <version>${spring.security.version}</version>
+	</dependency>
+	<dependency>
+	  <groupId>org.springframework.security</groupId>
+	  <artifactId>spring-security-core</artifactId>
+	  <version>${spring.security.version}</version>
+	</dependency>
+    <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-ldap</artifactId>
+        <version>${spring.security.version}</version>
+    </dependency>
+	<dependency>
+	  <groupId>org.springframework.security</groupId>
+	  <artifactId>spring-security-openid</artifactId>
+	  <version>${spring.security.version}</version>
+	</dependency>
+    <dependency>
+      <groupId>org.springframework.security.extensions</groupId>
+      <artifactId>spring-security-saml2-core</artifactId>
+      <version>${spring.security.saml.version}</version>
+    </dependency>
+	<dependency>
+	  <groupId>org.springframework.security</groupId>
+	  <artifactId>spring-security-taglibs</artifactId>
+	  <version>${spring.security.version}</version>
+	</dependency>
+	<dependency>
+	  <groupId>org.springframework.security</groupId>
+	  <artifactId>spring-security-web</artifactId>
+	  <version>${spring.security.version}</version>
+	</dependency>
+
+    <dependency>
+      <groupId>org.mybatis</groupId>
+      <artifactId>mybatis-spring</artifactId>
+      <version>${mybatis.spring.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mybatis</groupId>
+      <artifactId>mybatis</artifactId>
+      <version>${mybatis.version}</version>
+    </dependency>
         
         <!-- Spring Social -->
         <dependency>

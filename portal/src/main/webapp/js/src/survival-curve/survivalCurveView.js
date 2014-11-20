@@ -47,15 +47,14 @@ var SurvivalCurveView = function(_opts) {
         kmEstimator = "",
         logRankTest = "",
         //confidenceIntervals = "",
-        //data instances for each group
-        alteredGroup = [],
+        alteredGroup = [], //data instances for each group
         unalteredGroup = [],
         inputArr = [];
 
     var pValCallBackFunc = function(_pVal) {
         opts.vals.pVal = _pVal;
         survivalCurve = new SurvivalCurve();
-        survivalCurve.init(inputArr, opts);            
+        survivalCurve.init(inputArr, opts);
     };
     
     var getResultInit = function(_caseLists, _data) {
@@ -65,9 +64,16 @@ var SurvivalCurveView = function(_opts) {
         //confidenceIntervals = new ConfidenceIntervals();   
         
         //Split the data into different(altered/unaltered) groups  
+        var patientSampleIdMap = window.PortalGlobals.getPatientSampleIdMap();
         for (var key in _caseLists) {  
-            if (_caseLists[key] === "altered") alteredGroup.push(key);
-            else if (_caseLists[key] === "unaltered") unalteredGroup.push(key);
+            if (_caseLists[key] === "altered") {
+                var tmpPatientId = patientSampleIdMap[key];        
+                alteredGroup.push(tmpPatientId);
+            }
+            else if (_caseLists[key] === "unaltered") {
+                var tmpPatientId = patientSampleIdMap[key];  
+                unalteredGroup.push(tmpPatientId);    
+            }
         }
 
         //Init data instances for different groups
@@ -96,9 +102,8 @@ var SurvivalCurveView = function(_opts) {
 
         //render the curve
         inputArr = [alteredInputInst, unalteredInputInst];
-
         logRankTest.calc(inputArr[0].data.getData(), inputArr[1].data.getData(), pValCallBackFunc);
-};
+    };
 
     return {
         getResultInit: getResultInit,

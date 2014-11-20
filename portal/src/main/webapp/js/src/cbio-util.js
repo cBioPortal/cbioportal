@@ -396,6 +396,14 @@ cbio.util = (function() {
 		}
 	}
         
+    function getLinkToPatientView(cancerStudyId, patientId) {
+        return "case.do?cancer_study_id=" + cancerStudyId + "&case_id=" + patientId;
+    }
+    
+    function getLinkToSampleView(cancerStudyId, sampleId) {
+        return "case.do?cancer_study_id=" + cancerStudyId + "&sample_id=" + sampleId;
+    }
+
     return {
         toPrecision: toPrecision,
         getObjectLength: getObjectLength,
@@ -413,7 +421,9 @@ cbio.util = (function() {
 	    getTargetWindow: getTargetWindow,
 	    submitDownload: submitDownload,
 	    requestDownload: requestDownload,
-	    getTargetDocument: getTargetDocument
+	    getTargetDocument: getTargetDocument,
+        getLinkToPatientView: getLinkToPatientView,
+        getLinkToSampleView: getLinkToSampleView
     };
 
 })();

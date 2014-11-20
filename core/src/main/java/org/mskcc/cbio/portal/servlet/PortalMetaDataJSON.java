@@ -67,6 +67,7 @@ public class PortalMetaDataJSON extends HttpServlet {
         Map ret = new LinkedHashMap();
         ret.put("name", cancerStudy.getName());
         ret.put("type_of_cancer", cancerStudy.getTypeOfCancerId());
+        ret.put("description", cancerStudy.getDescription());
 
         if (partial) {
             ret.put("partial", "true");
@@ -99,7 +100,6 @@ public class PortalMetaDataJSON extends HttpServlet {
                 jsonCaseList.add(map);
             }
             ret.put("short_name", cancerStudy.getShortName());
-            ret.put("description", cancerStudy.getDescription());
             ret.put("citation", cancerStudy.getCitation());
             ret.put("pmid", cancerStudy.getPmid());
             ret.put("genomic_profiles", jsonGenomicProfileList);

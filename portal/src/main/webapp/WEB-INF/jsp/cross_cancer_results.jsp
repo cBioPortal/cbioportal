@@ -59,20 +59,14 @@
         <td>
 
             <div id="results_container">
-                <p><a href=""
-                      title="Modify your original query.  Recommended over hitting your browser's back button."
-                      id="toggle_query_form">
-                    <span class='query-toggle ui-icon ui-icon-triangle-1-e'
-                          style='float:left;'></span>
-                    <span class='query-toggle ui-icon ui-icon-triangle-1-s'
-                          style='float:left; display:none;'></span><b>Modify Query</b></a>
-
-                <p/>
-
-                <div style="margin-left:5px;display:none;" id="query_form_on_results_page">
-                    <%@ include file="query_form.jsp" %>
+                <div id='modify_query' style='margin:20px;'>
+                    <button type='button' class='btn btn-primary' data-toggle='button' id='modify_query_btn'>
+                        Modify Query
+                    </button>
+                    <div style="margin-left:5px;display:none;" id="query_form_on_results_page">
+                        <%@ include file="query_form.jsp" %>
+                    </div>
                 </div>
-
                 <div id="crosscancer-container">
                 </div>
             </div>
@@ -81,6 +75,23 @@
     </tr>
 </table>
 
+<script>
+    //Set Event listener for the modify query button (expand the hidden form)
+    $("#modify_query_btn").click(function () {
+        $("#query_form_on_results_page").toggle();
+        if($("#modify_query_btn").hasClass("active")) {
+            $("#modify_query_btn").removeClass("active");
+        } else {
+            $("#modify_query_btn").addClass("active");    
+        }
+    });
+    $("#toggle_query_form").click(function(event) {
+        event.preventDefault();
+        $('#query_form_on_results_page').toggle();
+        //  Toggle the icons
+        $(".query-toggle").toggle();
+    });
+</script>
 
 <!-- Crosscancer templates -->
 <script type="text/template" id="cross-cancer-main-tmpl">

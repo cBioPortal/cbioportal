@@ -298,7 +298,41 @@ public final class DaoClinicalData {
         
         return sampleClinicalData;
     }
-
+    
+    public static List<ClinicalData> getSampleAndPatientData(int cancerStudyId, Collection<String> sampleIds, ClinicalAttribute attr) throws DaoException
+    {
+        List<Integer> sampleIdsInt = new ArrayList<Integer>();
+        List<Integer> patientIdsInt = new ArrayList<Integer>();
+        Map<String,Set<String>> mapPatientIdSampleIds = new HashMap<String,Set<String>>();
+        for (String sampleId : sampleIds) {
+            Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId);
+            sampleIdsInt.add(sample.getInternalId());
+            int patientIdInt = sample.getInternalPatientId();
+            String patientIdStable = DaoPatient.getPatientById(patientIdInt).getStableId();
+            patientIdsInt.add(patientIdInt);
+            Set<String> sampleIdsForPatient = mapPatientIdSampleIds.get(patientIdStable);
+            if (sampleIdsForPatient==null) {
+                sampleIdsForPatient = new HashSet<String>();
+                mapPatientIdSampleIds.put(patientIdStable, sampleIdsForPatient);
+            }
+            sampleIdsForPatient.add(sampleId);
+        }
+        List<ClinicalData> sampleClinicalData =  getDataByInternalIds(cancerStudyId, SAMPLE_TABLE, sampleIdsInt, Collections.singletonList(attr.getAttrId()));
+        
+        List<ClinicalData> patientClinicalData = getDataByInternalIds(cancerStudyId, PATIENT_TABLE, patientIdsInt, Collections.singletonList(attr.getAttrId()));
+        for (ClinicalData cd : patientClinicalData) {
+            String stablePatientId = cd.getStableId();
+            Set<String> sampleIdsForPatient = mapPatientIdSampleIds.get(stablePatientId);
+            for (String sampleId : sampleIdsForPatient) {
+                ClinicalData cdSample = new ClinicalData(cd);
+                cdSample.setStableId(sampleId);
+                sampleClinicalData.add(cdSample);
+            }
+        }
+        
+        return sampleClinicalData;
+    }
+    
     public static List<ClinicalData> getSampleData(int cancerStudyId, Collection<String> sampleIds, ClinicalAttribute attr) throws DaoException
     {
         List<Integer> sampleIdsInt = new ArrayList<Integer>();
@@ -348,14 +382,14 @@ public final class DaoClinicalData {
     }
 
     public static List<ClinicalData> getDataByAttributeIds(int internalCancerStudyId, Collection<String> attributeIds) throws DaoException {
+        
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
 
-		Connection con = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
+        List<ClinicalData> clinicals = new ArrayList<ClinicalData>();
 
-		List<ClinicalData> clinicals = new ArrayList<ClinicalData>();
-
-		try {
+        try {
             con = JdbcUtil.getDbConnection(DaoClinicalData.class);
 
             pstmt = con.prepareStatement("SELECT * FROM clinical_patient WHERE" +

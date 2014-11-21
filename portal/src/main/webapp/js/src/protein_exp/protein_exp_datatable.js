@@ -142,7 +142,7 @@ function renderDataTable(result) {
 
                         var ret = value < 0.001 ? value.toExponential(2) : value.toFixed(3);
                         if (value <= 0.05)
-                            ret = '<b>'+ret+'</b>';
+                            ret = ret;
 
                         var eps = 10e-5;
                         var abunUnaltered = parseFloat(full[6]);
@@ -181,7 +181,12 @@ function renderDataTable(result) {
                 "sLengthMenu": "Show _MENU_ per page"
             },
             "iDisplayLength": 100,
-            "aLengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]]
+            "aLengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+            "fnRowCallback": function(nRow, aaData) {
+                if (parseFloat(aaData[9]) <= 0.05) {
+                    $('td:eq(4)', nRow).css("font-weight", "bold");   
+                }
+            }
     } );
 
     $('.datatable_help').tipTip();
@@ -256,29 +261,30 @@ function parsePValue(str) {
     var value = parseFloat(str);
     if (isNaN(value))
         return "NaN";
-    var ret = value < 0.001 ? value.toExponential(2) : value.toFixed(3);
+    //var ret = value < 0.001 ? value.toExponential(2) : value.toFixed(3);
+    var ret = value.toFixed(10);
     return ret;
 }
     
 jQuery.fn.dataTableExt.oSort['num-nan-col-asc']  = function(a,b) {
     var x = parsePValue(a);
     var y = parsePValue(b);
-        if (isNaN(x)) {
-            return isNaN(y) ? 0 : 1;
-        }
-        if (isNaN(y))
-            return -1;
+    if (isNaN(x)) {
+        return isNaN(y) ? 0 : 1;
+    }
+    if (isNaN(y))
+        return -1;
     return ((x < y) ? -1 : ((x > y) ?  1 : 0));
 };
 
 jQuery.fn.dataTableExt.oSort['num-nan-col-desc'] = function(a,b) {
     var x = parsePValue(a);
     var y = parsePValue(b);
-        if (isNaN(x)) {
-            return isNaN(y) ? 0 : 1;
-        }
-        if (isNaN(y))
-            return -1;
+    if (isNaN(x)) {
+        return isNaN(y) ? 0 : 1;
+    }
+    if (isNaN(y))
+        return -1;
     return ((x < y) ? 1 : ((x > y) ?  -1 : 0));
 };
 

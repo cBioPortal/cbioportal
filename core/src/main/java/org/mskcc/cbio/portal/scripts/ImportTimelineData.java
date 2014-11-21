@@ -85,12 +85,14 @@ public class ImportTimelineData {
     
     private static void importData(String dataFile, int cancerStudyId) throws IOException, DaoException {
         MySQLbulkLoader.bulkLoadOn();
+        
+        System.out.print("Reading file "+dataFile);
         FileReader reader =  new FileReader(dataFile);
         BufferedReader buff = new BufferedReader(reader);
 
         String line = buff.readLine();
         if (!line.startsWith("PATIENT_ID\tSTART_DATE\tSTOP_DATE\tEVENT_TYPE")) {
-            throw new RuntimeException("The first line must start with 'PATEINT_ID\tSTART_DATE\tSTOP_DATE\tEVENT_TYPE'");
+            throw new RuntimeException("The first line must start with 'PATIENT_ID\tSTART_DATE\tSTOP_DATE\tEVENT_TYPE'");
         }
         String[] headers = line.split("\t");
 

@@ -1,0 +1,4 @@
+#This file includes supplemental/non-standard gene symbols, such as isoforms
+CDKN2Ap16INK4A	protein-coding	9p21	468
+CDKN2Ap14ARF	protein-coding	9p21	396
+EGFRVIII	protein-coding	7p12	2115

@@ -101,8 +101,9 @@ var StudyViewInitCharts = (function(){
         //plot if click filtered chart's 'plot data' button which will clear 
         //filter and redraw first then call the postredraw and postfiltered 
         //functions
-        plotDataFlag = false;
-       
+        plotDataFlag = false,
+        
+        tableCharts = ['CANCER_TYPE', 'CANCER_TYPE_DETAILED'];
     
     function allNumberElements(_array){
         var _length = _array.length;
@@ -123,7 +124,8 @@ var StudyViewInitCharts = (function(){
             _attrLength = _attr.length,
             _arrLength = _arr.length,
             _studyDesc = "",
-            _priorityAttrs = ['CANCER_TYPE', 'PATIENT_ID', 'CASE_ID'];
+            //table chart will always put ahead, and the higher prioirty, the bigger index(later will use array unshift for table charts)
+            _priorityAttrs = ['CANCER_TYPE_DETAILED', 'CANCER_TYPE', 'PATIENT_ID', 'CASE_ID'];
         
         mutatedGenes = dataObtained.mutatedGenes;   
         numOfCases = _arr.length;        
@@ -166,16 +168,21 @@ var StudyViewInitCharts = (function(){
         }
         
         _attrskeys.sort(function(a, b) {
-            if(_priorityAttrs.indexOf(a[1]) !== -1) {
+            var aIndex = _priorityAttrs.indexOf(a[1]),
+                bIndex = _priorityAttrs.indexOf(b[1]);
+                
+             if(aIndex !== -1 && bIndex !== -1) {
+                return aIndex<bIndex?-1:1;
+            }else if(aIndex !== -1) {
                 return -1;
-            }else if(_priorityAttrs.indexOf(b[1]) !== -1) {
-                return 1;
-            }
-            
-            if(a[3] < b[3]) {
+            }else if(bIndex !== -1) {
                 return 1;
             }else {
-                return -1;
+                if(a[3] < b[3]) {
+                    return 1;
+                }else {
+                    return -1;
+                }
             }
         });
         
@@ -245,7 +252,7 @@ var StudyViewInitCharts = (function(){
             }else if(_dataType === "STRING"){
                 varType[_attr_id] = "pie";
                 if(selectedCol(_attr_id) && _createdChartsNum < 21){
-                    if (_attr_id==="CANCER_TYPE") {
+                    if (tableCharts.indexOf(_attr_id) !== -1) {
                         pie.unshift(_attr[_attrIndex]);
                     } else {
                         pie.push(_attr[_attrIndex]);
@@ -660,7 +667,7 @@ var StudyViewInitCharts = (function(){
             attrNameMapUID[pie[i]["attr_id"]] = createdChartID;
             displayedID.push(pie[i]["attr_id"]);
             
-            if (pie[i].attr_id==="CANCER_TYPE") {
+            if (tableCharts.indexOf(pie[i].attr_id) !== -1) {
                 var tableIcon = $("#study-view-dc-chart-" + createdChartID + "-table-icon");
                 if (tableIcon.css("display")!=="none")
                     tableIcons.push(tableIcon);

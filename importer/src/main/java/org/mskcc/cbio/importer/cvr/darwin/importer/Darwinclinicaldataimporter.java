@@ -15,15 +15,16 @@
 
 package org.mskcc.cbio.importer.cvr.darwin.importer;
 
-import org.mskcc.cbio.importer.cvr.darwin.util.DarwinConnectionFactory;
-import org.mskcc.cbio.importer.cvr.darwin.dao.IdMapperMapper;
-import org.mskcc.cbio.importer.cvr.darwin.model.IdMapper;
-
 public class Darwinclinicaldataimporter {
     public Darwinclinicaldataimporter() {
-        IdMapperMapper idMapperDAO = new IdMapperMapper(new DarwinConnectionFactory().getSqlSessionFactory());
-        IdMapper idMapper = idMapperDAO.selectByDmpId("DMP0829");
-        System.out.println(idMapper.toString());
+//        IdMapperMapper idMapperMapper = new IdMapperMapper(new DarwinConnectionFactory().getSqlSessionFactory());
+//        IdMapper idMapper = idMapperMapper.selectByDmpId("DMP0829");
+//        System.out.println(idMapper.toString());
+//        
+//        TumorMapper tumorMapper = new TumorMapper(new DarwinConnectionFactory().getSqlSessionFactory());
+//        Tumor tumor = tumorMapper.selectByDarwinId("DMP0829");
+//        System.out.println(tumor.getTUMOR_CLIN_STG_GRP());
+
     }
     
 }

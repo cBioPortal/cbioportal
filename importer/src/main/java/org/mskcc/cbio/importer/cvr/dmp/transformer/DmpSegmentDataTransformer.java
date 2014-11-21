@@ -48,8 +48,6 @@ class DmpSegmentDataTransformer extends SegmentTransformer implements DMPDataTra
      */
 
     private final static Logger logger = Logger.getLogger(DmpSegmentDataTransformer.class);
-    private static final Joiner tabJoiner = Joiner.on('\t').useForNull(" ");
-    private static final String segmentFileBaseName = "_data_cna_hg.seg";
 
     public DmpSegmentDataTransformer(TsvStagingFileHandler aHandler, Path stagingDirectoryPath) {
         super(aHandler);
@@ -60,8 +58,6 @@ class DmpSegmentDataTransformer extends SegmentTransformer implements DMPDataTra
         Preconditions.checkArgument(Files.isWritable(stagingDirectoryPath),
                 "The specified Path: " + stagingDirectoryPath + " is not writable");
         this.registerStagingFileDirectory(stagingDirectoryPath);
-
-
     }
 
     @Override
@@ -97,7 +93,6 @@ class DmpSegmentDataTransformer extends SegmentTransformer implements DMPDataTra
         }
         this.processSegments(data);
     }
-
 
     private void processSegments(DmpData data){
         List<SegmentModel> segmentModelList = FluentIterable.from(data.getResults())

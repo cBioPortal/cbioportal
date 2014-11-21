@@ -66,6 +66,7 @@ public class TestXMLFileTransformer {
                     new FoundationClinicalDataTransformer(clinicalDataFileHandler),
                     new FoundationFusionTransformer(fusionFileHandler)
 
+
             );
             transformer.transform(fds);
         } catch (IOException ex) {

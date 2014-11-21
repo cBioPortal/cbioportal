@@ -31,6 +31,7 @@ public interface StagingCommonNames {
     public static final String CNV_FILENAME = "data_CNA.txt";
     public static final String MUTATIONS_FILENAME = "data_mutations_extended.txt";
     public static final String CASE_STUDY_FILENAME = "data_case_study.txt";
+    public static final String segmentFileBaseName = "_data_cna_hg.seg";
 
     public static final Splitter tabSplitter = Splitter.on("\t");
     public static final Splitter blankSplitter = Splitter.on(" ");

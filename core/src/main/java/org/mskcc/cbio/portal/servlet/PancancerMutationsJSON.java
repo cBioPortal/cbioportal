@@ -88,30 +88,10 @@ public class PancancerMutationsJSON extends HttpServlet {
      * @return data     Collection of (Map: String -> Object)
      * @throws DaoException
      */
-    public Collection<Map<String, Object>> byKeywords(List<String> keywords) throws DaoException, ProtocolException {
-        List<CancerStudy> allCancerStudies = getaccessControl().getCancerStudies();
-        Collection<Integer> internalGeneticProfileIds = new ArrayList<Integer>();
-
-        for (CancerStudy cancerStudy : allCancerStudies) {
-            Integer internalId = cancerStudy.getInternalId();
-
-            List<GeneticProfile> geneticProfiles = DaoGeneticProfile.getAllGeneticProfiles(internalId);
-
-            for (GeneticProfile geneticProfile : geneticProfiles) {
-
-                if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED)) {
-                    internalGeneticProfileIds.add(geneticProfile.getGeneticProfileId());
-                }
-            }
-        }
-
-        if (internalGeneticProfileIds.isEmpty()) {
-            throw new DaoException("no genetic_profile_ids found");
-        }
-
-        Collection<Map<String, Object>> data = DaoMutation.countSamplesWithKeywords(keywords, internalGeneticProfileIds);
-
-        return data;
+    public Collection<Map<String, Object>> byKeywords(List<String> keywords)
+		    throws DaoException, ProtocolException
+    {
+        return DaoMutation.countSamplesWithKeywords(keywords, internalGeneticProfileIds());
     }
 
     /**
@@ -120,31 +100,49 @@ public class PancancerMutationsJSON extends HttpServlet {
      * @return
      * @throws DaoException
      */
-    public Collection<Map<String, Object>> byHugos(List<String> hugos) throws DaoException, ProtocolException {
-        List<CancerStudy> allCancerStudies = getaccessControl().getCancerStudies();
-        Collection<Integer> internalGeneticProfileIds = new ArrayList<Integer>();
-
-        for (CancerStudy cancerStudy : allCancerStudies) {
-            Integer internalId = cancerStudy.getInternalId();
-
-            List<GeneticProfile> geneticProfiles = DaoGeneticProfile.getAllGeneticProfiles(internalId);
-
-            for (GeneticProfile geneticProfile : geneticProfiles) {
-
-                if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED)) {
-                    internalGeneticProfileIds.add(geneticProfile.getGeneticProfileId());
-                }
-            }
-        }
-
-        if (internalGeneticProfileIds.isEmpty()) {
-            throw new DaoException("no genetic_profile_ids found");
-        }
-
-        Collection<Map<String, Object>> data = DaoMutation.countSamplesWithGenes(hugos, internalGeneticProfileIds);
-
-        return data;
+    public Collection<Map<String, Object>> byHugos(List<String> hugos)
+		    throws DaoException, ProtocolException
+    {
+		return DaoMutation.countSamplesWithGenes(hugos, internalGeneticProfileIds());
     }
+
+	/**
+	 *
+	 * @param proteinChanges
+	 * @return
+	 * @throws DaoException
+	 * @throws ProtocolException
+	 */
+	public Collection<Map<String, Object>> byProteinChanges(List<String> proteinChanges)
+		throws DaoException, ProtocolException
+	{
+		return DaoMutation.countSamplesWithProteinChanges(proteinChanges, internalGeneticProfileIds());
+	}
+
+	public Collection<Integer> internalGeneticProfileIds() throws DaoException, ProtocolException
+	{
+		List<CancerStudy> allCancerStudies = getaccessControl().getCancerStudies();
+		Collection<Integer> internalGeneticProfileIds = new ArrayList<Integer>();
+
+		for (CancerStudy cancerStudy : allCancerStudies) {
+			Integer internalId = cancerStudy.getInternalId();
+
+			List<GeneticProfile> geneticProfiles = DaoGeneticProfile.getAllGeneticProfiles(internalId);
+
+			for (GeneticProfile geneticProfile : geneticProfiles) {
+
+				if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED)) {
+					internalGeneticProfileIds.add(geneticProfile.getGeneticProfileId());
+				}
+			}
+		}
+
+		if (internalGeneticProfileIds.isEmpty()) {
+			throw new DaoException("no genetic_profile_ids found");
+		}
+
+		return internalGeneticProfileIds;
+	}
 
     /**
      * the request requires a parameter "mutation_keys" which is a JSON list of strings.
@@ -179,7 +177,6 @@ public class PancancerMutationsJSON extends HttpServlet {
                 throw new ServletException(e);
             }
         }
-
         else if (cmd.equals("byHugos")) {
             try {
                 data = byHugos(queryTerms);
@@ -189,7 +186,15 @@ public class PancancerMutationsJSON extends HttpServlet {
                 throw new ServletException(e);
             }
         }
-
+        else if (cmd.equals("byMutations")) {
+	        try {
+		        data = byProteinChanges(queryTerms);
+	        } catch (DaoException e) {
+		        throw new ServletException(e);
+	        } catch (ProtocolException e) {
+		        throw new ServletException(e);
+	        }
+        }
         else {
             throw new ServletException("cmd not found");
         }

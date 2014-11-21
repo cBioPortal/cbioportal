@@ -16,7 +16,11 @@
         </environment>
     </environments>
     <mappers>
-       <mapper resource="darwin-conn/xml/dvcbio-mapper/IdMapperMapper.xml"/>
+        <mapper class="org.mskcc.cbio.importer.cvr.darwin.util.deid.DeidMapper" />
+        <mapper resource="darwin-conn/xml/dvcbio-mapper/IdMapperMapper.xml"/>
+        <mapper resource="darwin-conn/xml/dvcbio-mapper/PathologyDataMapper.xml"/>
+        <mapper resource="darwin-conn/xml/dvcbio-mapper/TumorMapper.xml"/>
+
     </mappers>
     
 </configuration>

@@ -8,8 +8,8 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
-import org.mskcc.cbio.importer.cvr.darwin.deid.Deid;
-import org.mskcc.cbio.importer.cvr.darwin.deid.DeidMapper;
+import org.mskcc.cbio.importer.cvr.darwin.util.deid.Deid;
+import org.mskcc.cbio.importer.cvr.darwin.util.deid.DeidMapper;
 
 import java.util.ArrayList;
 import java.util.Collection;

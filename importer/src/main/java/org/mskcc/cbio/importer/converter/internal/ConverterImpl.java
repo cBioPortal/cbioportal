@@ -119,6 +119,10 @@ class ConverterImpl implements Converter {
 			boolean createCancerStudyMetadataFile = false;
 			for (DatatypeMetadata datatypeMetadata : config.getDatatypeMetadata(portalMetadata, cancerStudyMetadata)) {
 
+				if (!datatypeMetadata.isProcessed()) {
+					continue;
+				}
+
 				// get DataMatrices (may be multiple in the case of methylation, median zscores, gistic-genes
 				List<DataMatrix> dataMatrices = new ArrayList<DataMatrix>();
                 try {

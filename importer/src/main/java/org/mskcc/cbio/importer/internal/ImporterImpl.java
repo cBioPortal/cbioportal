@@ -41,6 +41,8 @@ import org.apache.commons.io.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import java.io.*;
 import java.util.*;
 import java.lang.reflect.Method;
@@ -61,6 +63,13 @@ class ImporterImpl implements Importer {
 
 	// ref to database utils
 	private DatabaseUtils databaseUtils;
+
+	private Boolean supplyDefaultClinicalAttributeValues;
+	@Value("${supply_default_clinical_attribute_values}")
+	public void setFillInClinicalAttributes(String property)
+	{
+		this.supplyDefaultClinicalAttributeValues = new Boolean(property);
+	}
 
 	/**
 	 * Constructor.
@@ -498,8 +507,8 @@ class ImporterImpl implements Importer {
             if (!headerProcessed) {
                 String header = it.nextLine().trim();
                 List<String> columnHeaders = new ArrayList(Arrays.asList(header.split(ImportClinicalData.DELIMITER, -1)));
-                headersWithMissingMetadata = MetadataUtils.getHeadersMissingMetadata(config, cancerStudyMetadata, columnHeaders);
-                newFileContents.append(MetadataUtils.getClinicalMetadataHeaders(config, columnHeaders));
+                headersWithMissingMetadata = MetadataUtils.getHeadersMissingMetadata(config, cancerStudyMetadata, columnHeaders, supplyDefaultClinicalAttributeValues);
+                newFileContents.append(MetadataUtils.getClinicalMetadataHeaders(config, columnHeaders, supplyDefaultClinicalAttributeValues));
                 headerProcessed = true;
             }
             else {
@@ -515,7 +524,7 @@ class ImporterImpl implements Importer {
     	String[] parts = nextLine.split(ImportClinicalData.DELIMITER, -1);
     	for (int lc = 0; lc < headersWithMissingMetadata.size(); lc++) {
     		if (!headersWithMissingMetadata.get(lc)) {
-    			lineBuilder.append(parts[lc] + ImportClinicalData.DELIMITER);
+    			lineBuilder.append(((lc < parts.length) ? parts[lc] : "") + ImportClinicalData.DELIMITER);
     		}
     	}
     	return lineBuilder.toString().trim() + "\n";

@@ -111,10 +111,10 @@ var LogRankTest = function() {
 
     function calcPval(_callBackFunc) {
         var O1 = 0, E1 = 0, V = 0;
-        $.each(mergedArr, function(index, _item) {
-            O1 += _item.num_of_failure_1;
-            E1 += _item.expectation;
-            V += _item.variance;
+        $.each(mergedArr, function(index, obj) {
+            O1 += obj.num_of_failure_1;
+            E1 += obj.expectation;
+            V += obj.variance;            
         });
         var chi_square_score = (O1 - E1) * (O1 - E1) / V;
         $.post( "calcPval.do", { chi_square_score: chi_square_score })

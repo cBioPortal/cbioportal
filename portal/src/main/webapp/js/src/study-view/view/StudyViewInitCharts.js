@@ -124,7 +124,8 @@ var StudyViewInitCharts = (function(){
             _attrLength = _attr.length,
             _arrLength = _arr.length,
             _studyDesc = "",
-            _priorityAttrs = ['CANCER_TYPE', 'CANCER_TYPE_DETAILED', 'PATIENT_ID', 'CASE_ID'];
+            //table chart will always put ahead, and the higher prioirty, the bigger index(later will use array unshift for table charts)
+            _priorityAttrs = ['CANCER_TYPE_DETAILED', 'CANCER_TYPE', 'PATIENT_ID', 'CASE_ID'];
         
         mutatedGenes = dataObtained.mutatedGenes;   
         numOfCases = _arr.length;        
@@ -167,16 +168,21 @@ var StudyViewInitCharts = (function(){
         }
         
         _attrskeys.sort(function(a, b) {
-            if(_priorityAttrs.indexOf(a[1]) !== -1) {
+            var aIndex = _priorityAttrs.indexOf(a[1]),
+                bIndex = _priorityAttrs.indexOf(b[1]);
+                
+             if(aIndex !== -1 && bIndex !== -1) {
+                return aIndex<bIndex?-1:1;
+            }else if(aIndex !== -1) {
                 return -1;
-            }else if(_priorityAttrs.indexOf(b[1]) !== -1) {
-                return 1;
-            }
-            
-            if(a[3] < b[3]) {
+            }else if(bIndex !== -1) {
                 return 1;
             }else {
-                return -1;
+                if(a[3] < b[3]) {
+                    return 1;
+                }else {
+                    return -1;
+                }
             }
         });
         

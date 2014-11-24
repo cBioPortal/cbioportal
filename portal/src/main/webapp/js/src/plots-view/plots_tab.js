@@ -943,10 +943,10 @@ var PlotsView = (function () {
                     yTitle = userSelection.gene + ", " + e.options[e.selectedIndex].text;
                     yTitleHelp = e.options[e.selectedIndex].value.split("|")[1];
                 } else if (Util.plotsTypeIsClinical()) {
-                    var e = document.getElementById("data_type_mrna");
+                    e = document.getElementById("data_type_clinical");
                     xTitle = userSelection.gene + ", " + e.options[e.selectedIndex].text;
                     xTitleHelp = e.options[e.selectedIndex].value.split("|")[1];
-                    e = document.getElementById("data_type_clinical");
+                    var e = document.getElementById("data_type_mrna");
                     yTitle = userSelection.gene + ", " + e.options[e.selectedIndex].text;
                     yTitleHelp = e.options[e.selectedIndex].value.split("|")[1];
                 }

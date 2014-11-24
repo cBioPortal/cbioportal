@@ -19,26 +19,26 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
     "num_cluster",
     "refseq_acc",
-    
+
 */
 @Generated("org.jsonschema2pojo")
 @JsonPropertyOrder({
-    "chromosome",
-    "cnv_class_cv_id",
-    "cnv_class_name",
-    "cnv_filter_cv_id",
-    "cnv_filter_name",
-    "cnv_variant_id",
-    "comments",
-    "confidence_class",
-    "confidence_cv_id",
-    "cytoband",
-    "gene_fold_change",
-    "gene_id",
-    "gene_p_value",
-    "is_significant",
-    "variant_status_cv_id",
-    "variant_status_name"
+        "chromosome",
+        "cnv_class_cv_id",
+        "cnv_class_name",
+        "cnv_filter_cv_id",
+        "cnv_filter_name",
+        "cnv_variant_id",
+        "comments",
+        "confidence_class",
+        "confidence_cv_id",
+        "cytoband",
+        "gene_fold_change",
+        "gene_id",
+        "gene_p_value",
+        "is_significant",
+        "variant_status_cv_id",
+        "variant_status_name"
 })
 public class CnvVariant {
 

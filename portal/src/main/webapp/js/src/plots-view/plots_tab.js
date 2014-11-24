@@ -394,6 +394,10 @@ var PlotsView = (function () {
                 "0": "Diploid",
                 "1": "Gain",
                 "2": "Amp"
+            },
+            disease_free_txt_val : {
+                "0": "DiseaseFree",
+                "1": "Recurred/Progressed"
             }
         },   //Text for the general view
         mutationStyle = {  //Key and "typeName" are always identical
@@ -532,7 +536,7 @@ var PlotsView = (function () {
         }
 
         function isNumeric(value) {
-            return /^[\d+-]+$/.test(value);
+            return /^[\d+-.]+$/.test(value);
         }
 
         function plotsTypeIsCopyNo() {
@@ -548,7 +552,7 @@ var PlotsView = (function () {
         };
 
         function plotsTypeIsClinical() {
-            return userSelection.plots_type = "mrna_vs_clinical";
+            return userSelection.plots_type === "mrna_vs_clinical";
         }
 
         function plotsIsDiscretized() {
@@ -560,11 +564,14 @@ var PlotsView = (function () {
                     userSelection.copy_no_type.indexOf("CNA") !== -1)) {
                 _result = true;
             } else if (userSelection.plots_type.indexOf("clinical") !== -1) {
-                $.each(PlotsData.getDotsGroup(), function(index, obj) {
-                    if (!isNumeric(obj.xVal) || !isNumeric(obj.yVal)) {
-                        _result = true;
-                    }
-                });
+                if (userSelection.clinical_attribute === "DFS_STATUS") {
+                    _result = true;
+                }
+                // $.each(PlotsData.getDotsGroup(), function(index, obj) {
+                //     if (!isNumeric(obj.xVal) || !isNumeric(obj.yVal)) {
+                //         _result = true;
+                //     }
+                // });
             }
             return _result;
         }
@@ -696,7 +703,7 @@ var PlotsView = (function () {
                     _singleDot.yVal = _obj[userSelection.rppa_type];
                 } else if (Util.plotsTypeIsClinical()) {
                     var _xVal = Plots.getClinicalData(key, userSelection.clinical_attribute);
-                    _singleDot.xVal = _xVal;
+                    _singleDot.xVal = clinicalDataTranslator.translateText(userSelection.clinical_attribute, _xVal)
                     _singleDot.yVal = _obj[userSelection.mrna_type];
                 }
                 if (_obj.hasOwnProperty(cancer_study_id + "_mutations")) {
@@ -919,8 +926,8 @@ var PlotsView = (function () {
                     yTitle = userSelection.gene + ", " + e.options[e.selectedIndex].text;
                     yTitleHelp = e.options[e.selectedIndex].value.split("|")[1];
                 } else if (Util.plotsTypeIsClinical()) {
-                    var e = document.getElementById("data_type_clinical");
-                    xTitle = e.options[e.selectedIndex].text;
+                    var e = document.getElementById("data_type_mrna");
+                    xTitle = userSelection.gene + ", " + e.options[e.selectedIndex].text;
                     xTitleHelp = e.options[e.selectedIndex].value.split("|")[1];
                     e = document.getElementById("data_type_clinical");
                     yTitle = userSelection.gene + ", " + e.options[e.selectedIndex].text;
@@ -928,7 +935,33 @@ var PlotsView = (function () {
                 }
             }
 
-            function initDiscretizedAxis() {
+            function initClinicalDiscretizedAxis() {
+                var _dataAttr = PlotsData.getDataAttr();
+                var min_x = _dataAttr.min_x;
+                var max_x = _dataAttr.max_x;
+                var edge_x = (max_x - min_x) * 0.5;
+                var min_y = _dataAttr.min_y;
+                var max_y = _dataAttr.max_y;
+                var edge_y = (max_y - min_y) * 0.1;
+                attr.xScale = d3.scale.linear()
+                    .domain([min_x - edge_x, max_x + edge_x])
+                    .range([100, 600]);
+                xAxis = d3.svg.axis()
+                    .scale(attr.xScale)
+                    .orient("bottom")
+                    .tickSize(6, 0, 0)
+                    .tickPadding([8]);
+                attr.yScale = d3.scale.linear()
+                    .domain([min_y - edge_y, max_y + edge_y])
+                    .range([520, 20]);
+                yAxis = d3.svg.axis()
+                    .scale(attr.yScale)
+                    .orient("left")
+                    .tickSize(6, 0, 0)
+                    .tickPadding([8]);               
+            }
+
+            function initGisticAxis() {
                 var _dataAttr = PlotsData.getDataAttr();
                 var min_y = _dataAttr.min_y;
                 var max_y = _dataAttr.max_y;
@@ -982,7 +1015,7 @@ var PlotsView = (function () {
                     .tickPadding([8]);
             }
 
-            function drawDiscretizedAxis() {
+            function drawGisticAxis() {
                 var textSet = [];
                 var svg = elem.svg;
                 var tmp_copy_no = [];
@@ -1042,7 +1075,6 @@ var PlotsView = (function () {
 
             function initContinuousAxisX() {
                 var _dataAttr = PlotsData.getDataAttr();
-                console.log(_dataAttr);
                 var min_x = _dataAttr.min_x;
                 var max_x = _dataAttr.max_x;
                 var edge_x = (max_x - min_x) * 0.2;
@@ -1094,6 +1126,31 @@ var PlotsView = (function () {
                     .style("stroke-width", 0.5)
                     .style("stroke", "black")
                     .style("fill", "black");
+            }
+
+            function drawClinicalDiscretizedAxisMainX() {
+                var _min_x = PlotsData.getDataAttr().min_x,
+                    _max_x = PlotsData.getDataAttr().max_x,
+                    textSet = [];
+                for (var i = _min_x; i < _max_x + 1; i++) {
+                    textSet.push(clinicalDataTranslator.translateNum(userSelection.clinical_attribute, i.toString()));
+                }
+                elem.svg.append("g")
+                    .style("stroke-width", 1.5)
+                    .style("fill", "none")
+                    .style("stroke", "grey")
+                    .style("shape-rendering", "crispEdges")
+                    .attr("transform", "translate(0, 520)")
+                    .attr("class", "plots-x-axis-class")
+                    .call(xAxis.ticks(textSet.length))
+                    .selectAll("text")
+                    .data(textSet)
+                    .style("font-family", "sans-serif")
+                    .style("font-size", "12px")
+                    .style("stroke-width", 0.5)
+                    .style("stroke", "black")
+                    .style("fill", "black")
+                    .text(function(d){return d;});
             }
 
             function drawContinuousAxisEdgeX() {
@@ -1180,9 +1237,16 @@ var PlotsView = (function () {
             return {
                 init: function() {
                     getAxisTitles();
-                    if (Util.plotsIsDiscretized()) {
-                        initDiscretizedAxis();
-                        drawDiscretizedAxis();
+                    if (userSelection.plots_type.indexOf("clinical") !== -1 &&
+                        Util.plotsIsDiscretized()) {
+                        initClinicalDiscretizedAxis();
+                        drawClinicalDiscretizedAxisMainX();
+                        drawContinuousAxisEdgeX();
+                        drawContinuousAxisMainY();
+                        drawContinuousAxisEdgeY();
+                    } else if (Util.plotsIsDiscretized()) {
+                        initGisticAxis();
+                        drawGisticAxis();                            
                     } else {
                         initContinuousAxisX();
                         initContinuousAxisY();
@@ -1327,6 +1391,17 @@ var PlotsView = (function () {
                     if (d.mutationType !== 'non') {
                         content = content + "Mutation: " + "<strong>" + d.mutationDetail.replace(/,/g, ", ") + "<br>";
                     }
+                } else if (Util.plotsTypeIsClinical()) {
+                    content += "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
+                    if (d.gisticType !== "Diploid" && !Util.isEmpty(d.gisticType)) {
+                        content = content + "CNA: " + "<strong>" + d.gisticType + "</strong><br>";
+                    }
+                    content += "Case ID: <strong><a href='"+
+                            + cbio.util.getLinkToSampleView(cancer_study_id,d.caseId)
+                            +"' target = '_blank'>" + d.caseId + "</a></strong><br>";
+                    if (d.mutationType !== 'non') {
+                        content = content + "Mutation: " + "<strong>" + d.mutationDetail.replace(/,/g, ", ") + "<br>";
+                    }
                 }
                 content = content + "</font>";
                 return content;
@@ -1416,7 +1491,54 @@ var PlotsView = (function () {
 
         var ScatterPlots = (function() {
 
-            function drawDiscretizedPlots() { //GISTIC, RAE view
+            function drawClinicalDiscretizedPlots() {
+                var ramRatio = 30; //Define Noise
+                elem.elemDotsGroup.selectAll("path")
+                    .data(PlotsData.getDotsGroup())
+                    .enter()
+                    .append("svg:path")
+                    .attr("transform", function(d){
+                        var _x = attr.xScale(d.xVal) + (Math.random() * ramRatio - ramRatio/2);
+                        var _y = attr.yScale(d.yVal);
+                        $(this).attr("x_pos", _x);
+                        $(this).attr("y_pos", _y);
+                        $(this).attr("x_val", d.xVal);
+                        $(this).attr("y_val", d.yVal);
+                        $(this).attr("symbol", "circle");
+                        $(this).attr("size", 35);
+                        return "translate(" + _x + ", " + _y + ")";
+                    })
+                    .attr("d", d3.svg.symbol()
+                        .size(35)
+                        .type("circle"))
+                    .attr("fill", function(d) {
+                        switch (d.mutationType) {
+                            case "non" : {$(this).attr("fill", "white");return "white";}
+                            default: {$(this).attr("fill", "orange");return "orange";}
+                        }
+                    })
+                    .attr("fill-opacity", function(d) {
+                        switch (d.mutationType) {
+                            case "non" : return 0.0;
+                            default : return 1.0;
+                        }
+                    })
+                    .attr("stroke", function(d) {
+                        if (Util.hasCopyNumberData()) {
+                            if (Util.isEmpty(d.gisticType)) {
+                                return gisticStyle.Unknown.stroke;
+                            } else {
+                                return gisticStyle[d.gisticType].stroke;
+                            }
+                        } else {
+                            return "black";
+                        }
+                    })
+                    .attr("stroke-width", 1.2)
+                    .attr("class", function(d) { return d.caseId; });
+            }
+
+            function drawGisticPlots() { //GISTIC, RAE view
                 var ramRatio = 30;  //Noise
                 //Divide Data Set by Gistic Type
                 var subDataSet = {
@@ -1713,10 +1835,15 @@ var PlotsView = (function () {
                     if (Util.plotsTypeIsCopyNo()) {
                         if (Util.plotsIsDiscretized()) {    //Gistic, RAE...
                             drawBoxPlots(false);
-                            drawDiscretizedPlots();
+                            drawGisticPlots();
                         } else {   //Log2
                             drawLog2Plots();
                         }
+                    } else if (Util.plotsTypeIsClinical()) {
+                        if (Util.plotsIsDiscretized()) {
+                            drawBoxPlots(false);
+                            drawClinicalDiscretizedPlots();
+                        } 
                     } else {  //Methylation, RPPA
                         drawContinuousPlots();
                     }
@@ -1996,22 +2123,19 @@ var PlotsView = (function () {
             init: function() {
                 initCanvas();
                 if (PlotsData.getDotsGroup().length !== 0) {
-                    console.log("Is this discretized? ");
-                    console.log(Util.plotsIsDiscretized());
-
-                    // drawImgConverter();
-                    // Axis.init();
-                    // ScatterPlots.init();
-                    // Legends.init();
-                    // Qtips.init();
-                    // if (document.getElementById("log_scale_option_x") !== null) {
-                    //     var _applyLogScaleX = document.getElementById("log_scale_option_x").checked;
-                    //     applyLogScaleX(_applyLogScaleX);
-                    // }
-                    // if (document.getElementById("log_scale_option_y") !== null) {
-                    //     var _applyLogScaleY = document.getElementById("log_scale_option_y").checked;
-                    //     applyLogScaleY(_applyLogScaleY);
-                    //}
+                    drawImgConverter();
+                    Axis.init();
+                    ScatterPlots.init();
+                    Legends.init();
+                    Qtips.init();
+                    if (document.getElementById("log_scale_option_x") !== null) {
+                        var _applyLogScaleX = document.getElementById("log_scale_option_x").checked;
+                        applyLogScaleX(_applyLogScaleX);
+                    }
+                    if (document.getElementById("log_scale_option_y") !== null) {
+                        var _applyLogScaleY = document.getElementById("log_scale_option_y").checked;
+                        applyLogScaleY(_applyLogScaleY);
+                    }                        
                 } else { //No available data
                     drawErrMsgs();
                 }
@@ -2093,7 +2217,6 @@ var PlotsView = (function () {
 
         function getMutationTypeCallBack(mutationTypeResult) {
             PlotsData.init(profileDataResult, mutationTypeResult);
-
         }
     }
 

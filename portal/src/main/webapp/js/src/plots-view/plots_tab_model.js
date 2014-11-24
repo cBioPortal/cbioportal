@@ -97,18 +97,18 @@ var Plots = (function(){
         PlotsCustomMenu.init();
         PlotsView.init();
 
-        // $('#plots-menus').bind('tabsactivate', function(event, ui) {
-	       //  // note: ui.index is replaced with ui.newTab.index() after jQuery 1.9
-	       //  if (ui.newTab.index() === 0) {
-        //         PlotsView.init();
-        //     } else if (ui.newTab.index() === 1) {
-        //         PlotsTwoGenesView.init();
-        //     } else if (ui.newTab.index() === 2) {
-        //         PlotsCustomView.init();
-        //     } else {
-        //         //TODO: error handle
-        //     }
-        // });        
+        $('#plots-menus').bind('tabsactivate', function(event, ui) {
+	        // note: ui.index is replaced with ui.newTab.index() after jQuery 1.9
+	        if (ui.newTab.index() === 0) {
+                PlotsView.init();
+            } else if (ui.newTab.index() === 1) {
+                PlotsTwoGenesView.init();
+            } else if (ui.newTab.index() === 2) {
+                PlotsCustomView.init();
+            } else {
+                //TODO: error handle
+            }
+        });        
     }
 
     function addxAxisHelp(svg, axisGroupSvg, xTitle, xTitleClass, xText) {

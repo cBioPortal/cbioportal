@@ -38,6 +38,7 @@ public interface StagingCommonNames {
     public static final Splitter scSplitter = Splitter.on(";");
     public static final Joiner scJoiner = Joiner.on(";");
     public static final Joiner tabJoiner = Joiner.on('\t').useForNull(" ");
+    public static final Joiner commaJoiner = Joiner.on(',').useForNull(" ");
     public static final Joiner blankJoiner = Joiner.on(" ");
     public static final Splitter posSplitter = Splitter.on(':');
     public final com.google.common.base.Joiner pathJoiner =

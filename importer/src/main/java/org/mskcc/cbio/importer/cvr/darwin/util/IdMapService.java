@@ -1,20 +1,18 @@
 package org.mskcc.cbio.importer.cvr.darwin.util;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
+import com.google.common.base.*;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.cvr.darwin.util.deid.Deid;
 import org.mskcc.cbio.importer.cvr.darwin.util.deid.DeidMapper;
+import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import javax.annotation.Nullable;
+import java.util.*;
 
 /**
  * Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
@@ -44,8 +42,21 @@ public enum IdMapService {
         return idMap;
     }
 
-    public final Set<Integer> getDarwinIdList(){
+    /*
+    public method to return a Set of valid Darwin ids
+     */
+    public final Set<Integer> getDarwinIdSet(){
         return this.idMap.keySet();
+
+    }
+
+    /*
+    public method to return a list of valid Darwin ids as a csv list
+    enclosed in parenthesis
+    for use in myBatis selects for groups
+     */
+    public List<Integer> getDarwinIdList() {
+        return Lists.newArrayList(this.idMap.keySet());
     }
 
     public final Collection<String> getSampleIdsByDarwinId(Integer darwinId){
@@ -94,7 +105,9 @@ public enum IdMapService {
             try {
                 DeidMapper mapper = session.getMapper(DeidMapper.class);
                 for (Deid deid : mapper.getAllDeids()) {
-                    idMap.put(deid.getDeidentificationid(), deid.getSampleid());
+                    if(null != deid.getDeidentificationid() && deid.getDeidentificationid() >0 ) {
+                        idMap.put(deid.getDeidentificationid(), deid.getSampleid());
+                    }
                 }
             } catch (Exception e) {
                 logger.error(e.getMessage());

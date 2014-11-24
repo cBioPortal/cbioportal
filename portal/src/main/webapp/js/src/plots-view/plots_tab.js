@@ -556,6 +556,19 @@ var PlotsView = (function () {
         }
 
         function plotsIsDiscretized() {
+            var discretizedClinicalAttrs = {
+                "DFS_STATUS": true,
+                "SEQUENCED": true,
+                "COMPLETE_DATA": true,
+                "MRNA_DATA": true,
+                "PRIMARY_THERAPY_OUTCOME_SUCCESS": true,
+                "TUMOR_RESIDUAL_DISEASE": true,
+                "OS_STATUS": true,
+                "TUMOR_STAGE_2009": true,
+                "PLATINUM_STATUS": true,
+                "GRADE": true,
+                "ACGH_DATA": true
+            };
             var _result = false;
             if (userSelection.plots_type.indexOf("copy_no") !== -1 &&
                 userSelection.copy_no_type.indexOf("log2") === -1 &&
@@ -564,7 +577,7 @@ var PlotsView = (function () {
                     userSelection.copy_no_type.indexOf("CNA") !== -1)) {
                 _result = true;
             } else if (userSelection.plots_type.indexOf("clinical") !== -1) {
-                if (userSelection.clinical_attribute === "DFS_STATUS") {
+                if (discretizedClinicalAttrs.hasOwnProperty(userSelection.clinical_attribute)) {
                     _result = true;
                 }
                 // $.each(PlotsData.getDotsGroup(), function(index, obj) {
@@ -703,7 +716,11 @@ var PlotsView = (function () {
                     _singleDot.yVal = _obj[userSelection.rppa_type];
                 } else if (Util.plotsTypeIsClinical()) {
                     var _xVal = Plots.getClinicalData(key, userSelection.clinical_attribute);
-                    _singleDot.xVal = clinicalDataTranslator.translateText(userSelection.clinical_attribute, _xVal)
+                    if (Util.plotsIsDiscretized()) {
+                        _singleDot.xVal = clinicalDataTranslator.translateText(userSelection.clinical_attribute, _xVal)
+                    } else {
+                        _singleDot.xVal = _xVal;
+                    }
                     _singleDot.yVal = _obj[userSelection.mrna_type];
                 }
                 if (_obj.hasOwnProperty(cancer_study_id + "_mutations")) {
@@ -939,7 +956,11 @@ var PlotsView = (function () {
                 var _dataAttr = PlotsData.getDataAttr();
                 var min_x = _dataAttr.min_x;
                 var max_x = _dataAttr.max_x;
-                var edge_x = (max_x - min_x) * 0.5;
+                if (min_x !== max_x) {
+                    var edge_x = (max_x - min_x) * 0.5;
+                } else {
+                    var edge_x = 0.5;
+                }
                 var min_y = _dataAttr.min_y;
                 var max_y = _dataAttr.max_y;
                 var edge_y = (max_y - min_y) * 0.1;
@@ -1239,11 +1260,11 @@ var PlotsView = (function () {
                     getAxisTitles();
                     if (userSelection.plots_type.indexOf("clinical") !== -1 &&
                         Util.plotsIsDiscretized()) {
-                        initClinicalDiscretizedAxis();
-                        drawClinicalDiscretizedAxisMainX();
-                        drawContinuousAxisEdgeX();
-                        drawContinuousAxisMainY();
-                        drawContinuousAxisEdgeY();
+                            initClinicalDiscretizedAxis();
+                            drawClinicalDiscretizedAxisMainX();
+                            drawContinuousAxisEdgeX();
+                            drawContinuousAxisMainY();
+                            drawContinuousAxisEdgeY();
                     } else if (Util.plotsIsDiscretized()) {
                         initGisticAxis();
                         drawGisticAxis();                            
@@ -1840,11 +1861,13 @@ var PlotsView = (function () {
                             drawLog2Plots();
                         }
                     } else if (Util.plotsTypeIsClinical()) {
-                        if (Util.plotsIsDiscretized()) {
+                        if (Util.plotsIsDiscretized()) { //discretized clinical attrs
                             drawBoxPlots(false);
                             drawClinicalDiscretizedPlots();
-                        } 
-                    } else {  //Methylation, RPPA
+                        } else { //continuous clinical attrs
+                            drawContinuousPlots();
+                        }
+                    } else {  //Methylation, RPPA 
                         drawContinuousPlots();
                     }
                 },
@@ -2143,7 +2166,7 @@ var PlotsView = (function () {
             applyLogScaleX: applyLogScaleX,
             applyLogScaleY: applyLogScaleY
         };
-    }());
+    }()); //closing plots view
 
     function getUserSelection() {
         userSelection.gene = document.getElementById("gene").value;

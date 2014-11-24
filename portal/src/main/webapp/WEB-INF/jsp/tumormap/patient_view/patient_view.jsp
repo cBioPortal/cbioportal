@@ -340,7 +340,8 @@ var clinicalDataMap = <%=jsonClinicalData%>;
 var viewBam = <%=viewBam%>;
 var mapCaseBam = <%=jsonMapCaseBam%>;
 var oncokbUrl = '<%=oncokbUrl%>';
-
+var oncoKBDataReady = false;
+    
 var caseMetaData = {
     color : {}, label : {}, index : {}, tooltip : {}
 };

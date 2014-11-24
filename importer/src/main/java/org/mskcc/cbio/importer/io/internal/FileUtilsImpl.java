@@ -640,6 +640,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		// staging file
 		String stagingFilename = datatypeMetadata.getStagingFilename();
 		stagingFilename = stagingFilename.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
+		stagingFilename = stagingFilename.replaceAll("_\\*", "");
 		File stagingFile = org.apache.commons.io.FileUtils.getFile(stagingDirectory,
 																   cancerStudyMetadata.getStudyPath(),
 																   stagingFilename);

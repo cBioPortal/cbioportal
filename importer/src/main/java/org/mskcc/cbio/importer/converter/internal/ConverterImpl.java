@@ -232,9 +232,23 @@ class ConverterImpl implements Converter {
 			for (DatatypeMetadata datatypeMetadata : config.getDatatypeMetadata(portalMetadata, cancerStudyMetadata)) {
 				if (excludeDatatypes.contains(datatypeMetadata.getDatatype())) continue;
 				// apply staging override
-				String stagingFilename = datatypeMetadata.getStagingFilename().replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
-				fileUtils.applyOverride(portalMetadata.getOverrideDirectory(), portalMetadata.getStagingDirectory(),
-                                        cancerStudyMetadata, stagingFilename, stagingFilename);
+				List<String> stagingFilenames = new ArrayList<String>();
+				String potentialStagingFilename = datatypeMetadata.getStagingFilename().replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
+				if (potentialStagingFilename.indexOf("*") > -1) {
+					stagingFilenames.addAll(fileUtils.listFiles(new File(portalMetadata.getOverrideDirectory() +
+					                        File.separator + cancerStudyMetadata.getStudyPath() + File.separator),
+					                        potentialStagingFilename));
+				}
+				else {
+					stagingFilenames.add(potentialStagingFilename);
+				}
+				for (String stagingFilename : stagingFilenames) {
+					if (stagingFilename.lastIndexOf(File.separator) > -1) {
+						stagingFilename = stagingFilename.substring(stagingFilename.lastIndexOf(File.separator)+1);
+					}
+					fileUtils.applyOverride(portalMetadata.getOverrideDirectory(), portalMetadata.getStagingDirectory(),
+	                                        cancerStudyMetadata, stagingFilename, stagingFilename);
+				}
 				// apply metadata override
 				if (datatypeMetadata.requiresMetafile()) {
 					fileUtils.applyOverride(portalMetadata.getOverrideDirectory(), portalMetadata.getStagingDirectory(),

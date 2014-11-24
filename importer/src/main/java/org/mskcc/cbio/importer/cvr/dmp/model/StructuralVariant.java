@@ -32,12 +32,7 @@ import java.util.Map;
  */
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-/*
 
-    "num_cluster",
-    "refseq_acc",
-
-*/
 @Generated("org.jsonschema2pojo")
 @JsonPropertyOrder({
         "comments",
@@ -59,8 +54,6 @@ import java.util.Map;
         "variant_status_name"
 })
 public class StructuralVariant {
-
-
     @JsonProperty( "comments")
     private String comments;
     @JsonProperty("confidence_class")

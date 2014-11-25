@@ -33,7 +33,7 @@ import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
 import org.mskcc.cbio.importer.cvr.dmp.model.MetaData;
 import org.mskcc.cbio.importer.cvr.dmp.model.Result;
 import org.mskcc.cbio.importer.cvr.dmp.util.DMPCommonNames;
-import org.mskcc.cbio.importer.cvr.dmp.util.DmpUtils;
+import org.mskcc.cbio.importer.persistence.staging.util.StagingUtils;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import org.mskcc.cbio.importer.persistence.staging.clinical.ClinicalDataFileHandler;
 import scala.Tuple2;
@@ -98,10 +98,10 @@ public class DmpMetadataTransformer implements DMPDataTransformable {
                             public String apply(String attribute) {
                                 Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>> tuple3
                                 = transformationMaprSupplier.get().get(attribute);
-                                String attribute1 = DmpUtils.pojoStringGetter(tuple3._2(), meta);
+                                String attribute1 = StagingUtils.pojoStringGetter(tuple3._2(), meta);
 
                                 Optional<String> optAttribute2 = (Optional<String>) ((tuple3._3().isPresent())
-                                        ? Optional.of(DmpUtils.pojoStringGetter(tuple3._3().get(), meta))
+                                        ? Optional.of(StagingUtils.pojoStringGetter(tuple3._3().get(), meta))
                                         : Optional.absent());
 
                                 return tuple3._1().apply(new Tuple2(attribute1, optAttribute2));

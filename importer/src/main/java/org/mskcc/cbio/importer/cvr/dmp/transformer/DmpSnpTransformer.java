@@ -42,8 +42,8 @@ import org.mskcc.cbio.importer.cvr.dmp.model.DmpSnp;
 import org.mskcc.cbio.importer.cvr.dmp.model.MetaData;
 import org.mskcc.cbio.importer.cvr.dmp.model.Result;
 import org.mskcc.cbio.importer.cvr.dmp.util.DMPCommonNames;
-import org.mskcc.cbio.importer.cvr.dmp.util.DmpUtils;
-import org.mskcc.cbio.importer.cvr.dmp.util.EntrezIDSupplier;
+import org.mskcc.cbio.importer.persistence.staging.util.StagingUtils;
+import org.mskcc.cbio.importer.persistence.staging.util.EntrezIDSupplier;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
 import scala.Tuple2;
 import scala.Tuple3;
@@ -165,10 +165,10 @@ public class DmpSnpTransformer implements DMPDataTransformable {
                         public String apply(String attribute) {
                             Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>> tuple3
                             = transformationMaprSupplier.get().get(attribute);
-                            String attribute1 = DmpUtils.pojoStringGetter(tuple3._2(), snp);
+                            String attribute1 = StagingUtils.pojoStringGetter(tuple3._2(), snp);
                             
                             Optional<String> optAttribute2 = (Optional<String>) ((tuple3._3().isPresent())
-                                    ? Optional.of(DmpUtils.pojoStringGetter(tuple3._3().get(), snp))
+                                    ? Optional.of(StagingUtils.pojoStringGetter(tuple3._3().get(), snp))
                                     : Optional.absent());
                             
                             return tuple3._1().apply(new Tuple2(attribute1, optAttribute2));

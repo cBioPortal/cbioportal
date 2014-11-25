@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.cvr.dmp.model.StructuralVariant;
+import org.mskcc.cbio.importer.cvr.dmp.util.DMPCommonNames;
 import org.mskcc.cbio.importer.foundation.support.FoundationCommonNames;
 import org.mskcc.cbio.importer.persistence.staging.fusion.FusionModel;
 
@@ -54,7 +55,7 @@ public class DmpFusionModel extends FusionModel {
 
     @Override
     public String getCenter() {
-        return "MSKCC_DMP";
+        return DMPCommonNames.CENTER_MSKCC_DMP;
     }
 
     @Override

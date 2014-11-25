@@ -105,9 +105,10 @@ public class DmpFusionTransformer extends FusionTransformer
     // main method for stand alone testing
     public static void main(String...args){
         ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+        Path stagingFileDirectory = Paths.get("/tmp/cvr/dmp");
         TsvStagingFileHandler fileHandler = new MutationFileHandlerImpl();
-        Path testFile = Paths.get("/tmp/cvr/dmp/data_fusion.txt");
-        fileHandler.registerTsvStagingFile(testFile, FusionModel.resolveColumnNames(),true);
+
+        fileHandler.registerTsvStagingFile(stagingFileDirectory.resolve("data_fusions.txt"), FusionModel.resolveColumnNames(),true);
         DmpFusionTransformer transformer = new DmpFusionTransformer(fileHandler);
 
         try {

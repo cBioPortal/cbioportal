@@ -20,8 +20,7 @@ package org.mskcc.cbio.importer.cvr.dmp.transformer;
 import com.google.common.collect.FluentIterable;
 import com.google.inject.internal.Lists;
 import com.google.inject.internal.Preconditions;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
+
 import java.nio.file.Path;
 import java.util.List;
 
@@ -29,11 +28,12 @@ import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
 import org.mskcc.cbio.importer.cvr.dmp.model.Result;
 import org.mskcc.cbio.importer.cvr.dmp.persistence.file.DMPTumorTypeSampleMapManager;
+import org.mskcc.cbio.importer.persistence.staging.util.StagingUtils;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.clinical.ClinicalDataFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.cnv.CnvFileHandlerImpl;
+import org.mskcc.cbio.importer.persistence.staging.fusion.FusionModel;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
-import org.mskcc.cbio.importer.persistence.staging.segment.SegmentFileHandlerImpl;
 
 /*
  Responsible for transforming the DMP data encapsulated in the DmpData object
@@ -48,38 +48,44 @@ public class DMPDataTransformer {
 
     private final static Logger logger = Logger.getLogger(DMPDataTransformer.class);
     
-    private final List<DMPDataTransformable> transformableList;
+    private  List<DMPDataTransformable> transformableList;
     private  DMPTumorTypeSampleMapManager tumorTypeMap;
+    private Path stagingDirectoryPath;
 
-    public DMPDataTransformer(Path stagingDirectoryPath) {
-        
-        com.google.common.base.Preconditions.checkArgument
-        (null != stagingDirectoryPath,
-                "A Path to the staging file directory is required");
-        com.google.common.base.Preconditions.checkArgument
-        (Files.isDirectory(stagingDirectoryPath, LinkOption.NOFOLLOW_LINKS),
-                "The specified Path: " + stagingDirectoryPath + " is not a directory");
-        com.google.common.base.Preconditions.checkArgument
-        (Files.isWritable(stagingDirectoryPath),
-                "The specified Path: " + stagingDirectoryPath + " is not writable");
+    public DMPDataTransformer(Path aPath) {
+        try {
+            StagingUtils.isValidStagingDirectoryPath(aPath);
+            this.stagingDirectoryPath = aPath;
+            registerTransformables();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
+    private void registerTransformables() {
         // instantiate and register data transformers
         //SNPs
-        this.transformableList = Lists.newArrayList((DMPDataTransformable) 
-                new DmpSnpTransformer( new MutationFileHandlerImpl(),
+        this.transformableList = Lists.newArrayList((DMPDataTransformable)
+                new DmpSnpTransformer(new MutationFileHandlerImpl(),
                         stagingDirectoryPath));
-       //CNVs
-        this.transformableList.add((DMPDataTransformable) 
+        //CNVs
+        this.transformableList.add((DMPDataTransformable)
                 new DmpCnvTransformer( new CnvFileHandlerImpl(),
                         stagingDirectoryPath));
         //Metadata
-        this.transformableList.add((DMPDataTransformable) new DmpMetadataTransformer 
+        this.transformableList.add((DMPDataTransformable) new DmpMetadataTransformer
             ( new ClinicalDataFileHandlerImpl(), stagingDirectoryPath));
 
+        //Structural Variants
+        TsvStagingFileHandler fileHandler = new MutationFileHandlerImpl();
+        fileHandler.registerTsvStagingFile(stagingDirectoryPath.resolve("data_fusions.txt"), FusionModel.resolveColumnNames(),true);
+        this.transformableList.add((DMPDataTransformable) new DmpFusionTransformer(fileHandler) );
         // segment data
-      //  this.transformableList.add( new DmpSegmentDataTransformer(new SegmentFileHandlerImpl(),stagingDirectoryPath));
-       // this.tumorTypeMap = new DMPTumorTypeSampleMapManager(this.fileManager);
-
+        //  this.transformableList.add( new DmpSegmentDataTransformer(new SegmentFileHandlerImpl(),stagingDirectoryPath));
+        // this.tumorTypeMap = new DMPTumorTypeSampleMapManager(this.fileManager);
     }
+
     /*
      transform the DMP data into variant type-specific MAF files
      return a Set of processed SMP sample ids

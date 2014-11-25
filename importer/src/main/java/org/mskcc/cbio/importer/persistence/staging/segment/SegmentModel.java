@@ -3,7 +3,7 @@ package org.mskcc.cbio.importer.persistence.staging.segment;
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Maps;
-import org.mskcc.cbio.importer.cvr.dmp.util.DmpUtils;
+import org.mskcc.cbio.importer.persistence.staging.util.StagingUtils;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 
 import java.util.List;
@@ -67,7 +67,7 @@ public abstract class SegmentModel {
                         @Override
                         public String apply(String attribute) {
                             String getterName = transformationMap.get(attribute);
-                            return DmpUtils.pojoStringGetter(getterName, sm);
+                            return StagingUtils.pojoStringGetter(getterName, sm);
 
                         }
                     }).toList();

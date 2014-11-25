@@ -15,7 +15,7 @@
  *  Memorial Sloan-Kettering Cancer Center 
  *  has been advised of the possibility of such damage.
  */
-package org.mskcc.cbio.importer.cvr.dmp.util;
+package org.mskcc.cbio.importer.persistence.staging.util;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
@@ -23,7 +23,12 @@ import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Maps;
 import com.google.gdata.util.common.base.Joiner;
+import org.mskcc.cbio.importer.cvr.dmp.util.DMPCommonNames;
+
 import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -32,7 +37,7 @@ import java.util.logging.Logger;
 /*
  represents a collection of static utility methods used thoughout the application
  */
-public class DmpUtils {
+public class StagingUtils {
 
     public static final Joiner tabJoiner = Joiner.on("\t");
 
@@ -199,7 +204,7 @@ public class DmpUtils {
             return (value != null) ? value.toString() : "";
 
         } catch (Exception ex) {
-            Logger.getLogger(DmpUtils.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(StagingUtils.class.getName()).log(Level.SEVERE, null, ex);
         }
         return "";
     }
@@ -212,6 +217,20 @@ public class DmpUtils {
     private static String getPostDataColumnHeadings() {
         return tabJoiner.join("Metastasis", "Metastasis Site", " Sample Coverage",
                 "Signout Comments", "Signout Status", "Tumor Purity");
+    }
+
+    public static boolean isValidStagingDirectoryPath(Path aPath){
+        com.google.common.base.Preconditions.checkArgument
+                (null != aPath,
+                        "A Path to the staging file directory is required");
+        com.google.common.base.Preconditions.checkArgument
+                (Files.isDirectory(aPath, LinkOption.NOFOLLOW_LINKS),
+                        "The specified Path: " + aPath + " is not a directory");
+        com.google.common.base.Preconditions.checkArgument
+                (Files.isWritable(aPath),
+                        "The specified Path: " + aPath + " is not writable");
+        return true;
+
     }
 
 }

@@ -4,7 +4,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Maps;
 import org.mskcc.cbio.importer.IDMapper;
-import org.mskcc.cbio.importer.cvr.dmp.util.DmpUtils;
+import org.mskcc.cbio.importer.persistence.staging.util.StagingUtils;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import org.mskcc.cbio.importer.util.GeneSymbolIDMapper;
 
@@ -158,7 +158,7 @@ public abstract class MutationModel {
                         @Override
                         public String apply(String attribute) {
                             String getterName = transformationMap.get(attribute);
-                            return DmpUtils.pojoStringGetter(getterName, mm);
+                            return StagingUtils.pojoStringGetter(getterName, mm);
 
                         }
                     }).toList();

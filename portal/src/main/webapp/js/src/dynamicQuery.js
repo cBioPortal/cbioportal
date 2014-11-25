@@ -780,7 +780,7 @@ function addMetaDataToPage() {
             return false;
         }
         // colors
-        var darkening = 0.03;
+        var darkening = 0.04;
         var colors = [d3.rgb('#ffffff').darker(darkening)];
         for (var i=0; i<5; i++) {
             colors.push(colors[colors.length-1].darker(darkening));

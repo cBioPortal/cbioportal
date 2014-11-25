@@ -377,7 +377,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 					if (mafCaseIDColumnIndex  == -1) {
 						if (LOG.isInfoEnabled()) LOG.info("getCaseListFromStagingFile(), this is not a MAF header contains sample ids...");
 						for (String potentialCaseID : thisRow) {
-							if (!strict || caseIDs.isSampleId(cancerStudy.getInternalId(), potentialCaseID) || caseIDs.isTCGAPatientId(potentialCaseID)) {
+							if (!strict || caseIDs.isSampleId(cancerStudy.getInternalId(), potentialCaseID) || caseIDs.isTruncatedTCGAPatientId(potentialCaseID)) {
 								// check to filter out column headers other than sample ids
 								if (Converter.NON_CASE_IDS.contains(potentialCaseID.toUpperCase())) {
 									continue;

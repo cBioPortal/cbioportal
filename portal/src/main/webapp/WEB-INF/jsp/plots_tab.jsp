@@ -7,10 +7,15 @@
 <%@ page import="org.mskcc.cbio.portal.model.GeneticAlterationType" %>
 
 <script type="text/javascript" src="js/src/plots-view/plots_tab_model.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/plots-view/plots_tab.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/plots-view/plots_two_genes.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/plots-view/plots_custom.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/plots-view/plots-tab/one-gene/PlotsMenu.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/plots-view/plots-tab/one-gene/PlotsView.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/plots-view/plots-tab/two-genes/PlotsTwoGenesMenu.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/plots-view/plots-tab/two-genes/PlotsTwoGenesView.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/plots-view/plots-tab/custom/PlotsCustomMenu.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/plots-view/plots-tab/custom/PlotsCustomView.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/plots-view/util/clinicalDataTranslator.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/plots-view/util/LoadPlotsSvg.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <style>
     #plots .plots {
@@ -181,5 +186,4 @@
         var element = document.getElementById("plots-menus");
         element.className += " " + "plots-firefox";
     }
-
 </script>

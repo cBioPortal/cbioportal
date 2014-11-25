@@ -30,6 +30,7 @@ public interface CaseIDs {
 	boolean isSampleId(String caseId);
 	boolean isSampleId(int cancerStudyId, String caseId);
     boolean isNormalId(String caseId);
+    boolean isTCGAPatientId(String caseId);
     String getSampleId(String caseId);
     String getSampleId(int cancerStudyId, String caseId);
 	String getPatientId(String caseId);

@@ -107,6 +107,12 @@ public class CaseIDsImpl implements CaseIDs {
     }
 
     @Override
+    public boolean isTCGAPatientId(String caseId)
+    {
+        return patientPattern.matcher(caseId).matches();
+    }
+
+    @Override
     public String getSampleId(String caseId)
     {
         return getSampleId(0, caseId);

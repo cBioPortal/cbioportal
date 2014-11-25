@@ -5,23 +5,19 @@
  */
 
 
-var GetEvidence = (function(){
-    function init(data, callback) {
-        var accessableFunc = function(){
-            getEvidence(data, callback);
-        };
-        var unaccessableFunc = function() {
-            callback(data);
-        };
-        oncokbAccess(accessableFunc, unaccessableFunc);
+var OncoKBConnector = (function(){
+    var oncokbUrl = '';
+    
+    function init(data) {
+        oncokbUrl = data.url || '';
     }
-
-    function oncokbAccess(accessableFunc, unaccessableFunc) {
-        if(oncokbUrl && oncokbUrl !== ''){
-            $.get(oncokbUrl+'access',accessableFunc)
-                .fail(unaccessableFunc);
+    
+    function oncokbAccess(callback) {
+        if(oncokbUrl && oncokbUrl !== 'null'){
+            $.get(oncokbUrl+'access', function(){callback(true);})
+                .fail(function(){callback(false);});
         }else {
-            unaccessableFunc();
+            callback(false);
         }
     }
     
@@ -128,6 +124,8 @@ var GetEvidence = (function(){
         return str;
     }
     return {
-        init: init
+        init: init,
+        oncokbAccess: oncokbAccess,
+        getEvidence: getEvidence
     };
 })();

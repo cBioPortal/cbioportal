@@ -740,7 +740,7 @@ function addMetaDataToPage() {
     }
     // Add studies to tree, and climb up marking each level as having a study there
     for (var study in json.cancer_studies) {
-        if (json.cancer_studies.hasOwnProperty(study)) {
+        if (json.cancer_studies.hasOwnProperty(study) && study !== 'all') { // don't re-add 'all'
             try {
                 var type = json.cancer_studies[study].type_of_cancer;
                 oncotree[type].studies.push(study);

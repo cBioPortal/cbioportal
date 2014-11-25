@@ -66,6 +66,9 @@
           if (option.hasAttribute('data-description')) {
               topush.description = option.getAttribute('data-description');
           }
+          if (option.hasAttribute('data-depth')) {
+              topush.depth = +option.getAttribute('data-depth');
+          }
           this.parsed.push(topush);
         } else {
           this.parsed.push({
@@ -206,12 +209,11 @@
         if (option.classes !== "") {
           classes.push(option.classes);
         }
-        style = option.style.cssText !== "" ? " style=\"" + option.style + "\"" : "";
         var ret = '<li ';
         if (option.description) {
             ret += 'data-description="'+option.description+'" ';
         }
-        ret +='id="' + option.dom_id + '" class="' + classes.join(' ') + '"' + style + '>' + option.html + '</li>';
+        ret +='id="' + option.dom_id + '" class="' + classes.join(' ') + '"' + 'style="' + option.style + '"' + '>' + option.html + '</li>';
         return ret;
     };
 

@@ -779,15 +779,19 @@ function addMetaDataToPage() {
         if (!root.hasstudy) {
             return false;
         }
-        var indent = "";
-        var indentchar = "   "
-        for (var i=0; i<depth; i++) {
-            indent += indentchar;
+        // colors
+        var darkening = 0.03;
+        var colors = [d3.rgb('#ffffff').darker(darkening)];
+        for (var i=0; i<5; i++) {
+            colors.push(colors[colors.length-1].darker(darkening));
         }
+        colors = colors.map(function(x) { return x.toString();});
+        
+        var margin = 8;
         var label = (root.type in json.type_of_cancers ? json.type_of_cancers[root.type] : root.type);
         if (root.type !== "") {
-            $("<option value='" + root.type + "-study-group' style='font-weight:bold' disabled>"+
-                    indent+" "+ label + "</option>").appendTo(cancerTypeContainer);
+            $("<option value='" + root.type + "-study-group' style='font-weight:bold; margin-left:"+(depth*margin)+"px; background-color:"+colors[depth]+"' data-depth='"+depth+"' disabled>"
+                +label + "</option>").appendTo(cancerTypeContainer);
         }
         // Add all studies
         for (var i=0; i<root.studies.length; i++) {
@@ -803,7 +807,7 @@ function addMetaDataToPage() {
                 var key = root.studies[i];
                 var cancer_study = json.cancer_studies[key];
                 console.log("Adding Cancer Study:  " + cancer_study.name);
-                var newOption = $("<option value='" + key + "'>" + indent + indentchar + " "+cancer_study.name + "</option>");
+                var newOption = $("<option style='background-color:"+colors[depth+1]+"; margin-left:"+((depth+1)*margin)+"px' data-depth='"+(depth+1)+"' value='" + key + "'>" +cancer_study.name + "</option>");
                 var type_of_cancer = cancer_study.type_of_cancer;
 
                 // This is a hack to move the dmp study to the top.

@@ -784,6 +784,10 @@ function addMetaDataToPage() {
         var margin = margin_inc*(+(depth > 0));
         var margin_children = margin_inc*(+(depth + 1 > 0));
         
+        var tissue_color = '#7f7f7f';
+        var cancer_color = '#5f5f5f';
+        var color = (depth === 0 ? tissue_color : cancer_color);
+        
         var possible_label = json.type_of_cancers[root.type];
         var names = root.type.split("/");
         for (var i=0; i<names.length; i++) {
@@ -792,7 +796,7 @@ function addMetaDataToPage() {
         var label = possible_label || root.type;
         if (root.type !== "" && !(depth > 0 && root.studies.length === 0)) {
             // don't insert a group element if A. this is the root of the tree, B. depth > 0 and there are no studies at this level
-            $("<option value='" + root.type + "-study-group' style='font-weight:bold; margin-left:"+margin+"px;' data-depth='"+depth+"' disabled>"
+            $("<option value='" + root.type + "-study-group' style='font-weight:bold; margin-left:"+margin+"px; color:"+color+";' data-depth='"+depth+"' disabled>"
                 +label + "</option>").appendTo(cancerTypeContainer);
         }
         // Add all studies

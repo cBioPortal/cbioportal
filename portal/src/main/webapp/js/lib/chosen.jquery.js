@@ -209,11 +209,16 @@
         if (option.classes !== "") {
           classes.push(option.classes);
         }
+        var style = option.style;
         var ret = '<li ';
         if (option.description) {
             ret += 'data-description="'+option.description+'" ';
         }
-        ret +='id="' + option.dom_id + '" class="' + classes.join(' ') + '"' + 'style="' + option.style + '"' + '>' + option.html + '</li>';
+        if (option.disabled) {
+            ret += 'data-disabled="true" ';
+            style += '; cursor:default';
+        }
+        ret +='id="' + option.dom_id + '" class="' + classes.join(' ') + '"' + 'style="' + style + '"' + '>' + option.html + '</li>';
         return ret;
     };
 
@@ -633,7 +638,7 @@
 
         Chosen.prototype.result_do_highlight = function (el) {
             var high_bottom, high_top, maxHeight, visible_bottom, visible_top;
-            if (el.length) {
+            if (el.length && !el[0].attributes.getNamedItem('data-disabled')) {
                 this.result_clear_highlight();
                 this.result_highlight = el;
                 this.result_highlight.addClass("highlighted");

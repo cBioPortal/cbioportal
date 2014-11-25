@@ -40,7 +40,7 @@ public class DaoSample {
     private static final Map<Integer, Map<String, Sample>> byCancerStudyIdAndStableSampleId = new HashMap<Integer, Map<String, Sample>>();
 
     static {
-        cache();
+        reCache();
     }
 
     private static void clearCache()
@@ -51,7 +51,7 @@ public class DaoSample {
         byCancerStudyIdAndStableSampleId.clear();
     }
 
-    private static void cache()
+    public static synchronized void reCache()
     {
         clearCache();
 

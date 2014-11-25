@@ -696,42 +696,77 @@ function addMetaDataToPage() {
     var cancerTypeContainer = $("#select_cancer_type");
 
     // Construct oncotree
-    var oncotree = {};
-    // Pointers to the leaf elements, i.e. the actual studies
-    var studies = [];
+    var oncotree = {"":{type:"", studies:[], children:[], parent: false, hasstudy:false}};
     var parents = json.parent_type_of_cancers;
     
+    // Put tumortypes in tree
+    // If the type is slash-delineated, add two pointers to the same object
     for (var tumortype in parents) {
         if (parents.hasOwnProperty(tumortype)) {
-            oncotree[tumortype] = oncotree[tumortype] || {type:tumortype, studies:[], children:[]};
-            oncotree[parents[tumortype]] = oncotree[parents[tumortype]] || {type:parents[tumortype], studies:[], children:[]};
-            oncotree[parents[tumortype]].children.push(oncotree[tumortype]);
+            var ttypes = tumortype.split("/");
+            var newobj = {type:tumortype, studies:[], children:[], parent: false, hasstudy:false}
+            for (var i=0; i<ttypes.length; i++) {
+                var type = ttypes[i];
+                oncotree[type] = oncotree[type] || newobj;
+            }
+            var parenttypes = parents[tumortype].split("/");
+            var newparentobj = {type:parents[tumortype], studies:[], children:[], parent: false, hasstudy:false}
+            for (var i=0; i<parenttypes.length; i++) {
+                var ptype = parenttypes[i];
+                oncotree[ptype] = oncotree[ptype] || newparentobj;
+            }
+            oncotree[parenttypes[0]].children.push(oncotree[ttypes[0]]);
+            oncotree[ttypes[0]].parent = oncotree[parenttypes[0]];
         }
     }
-    // Add studies to tree
+    // find tissues: tree members that don't have a parent,
+    // and attach them to the root
+    for (var tumortype in oncotree) {
+        if (oncotree.hasOwnProperty(tumortype) && tumortype !== "") {
+            if (!(tumortype in parents)) {
+                oncotree[""].children.push(oncotree[tumortype]);
+                oncotree[tumortype].parent = oncotree[""];
+            }
+        }
+    }
+    console.log(oncotree);
+    // Add studies to tree, and climb up marking each level as having a study there
     for (var study in json.cancer_studies) {
         if (json.cancer_studies.hasOwnProperty(study)) {
-            oncotree[json.cancer_studies[study].type_of_cancer].studies.push(study);
+            try {
+                var type = json.cancer_studies[study].type_of_cancer;
+                oncotree[type].studies.push(study);
+                var node = oncotree[type];
+                while (node) {
+                    node.hasstudy = true;
+                    node = node.parent;
+                }
+            } catch (err) {
+                console.log("Unable to add study");
+                console.log(json.cancer_studies[study]);
+            }
         }
     }
     // Sort all the children alphabetically
     for (var tumortype in parents) {
         if (parents.hasOwnProperty(tumortype)) {
+            tumortype = tumortype.split("/")[0];
             oncotree[tumortype].children.sort(function(a,b) {
-                return json.type_of_cancers[a.type].localeCompare(json.type_of_cancers[b.type]);
+                try {
+                    return json.type_of_cancers[a.type].localeCompare(json.type_of_cancers[b.type]);
+                } catch(err) {
+                    return a.type.localeCompare(b.type);
+                }
             });
             oncotree[tumortype].studies.sort(function(a,b) {
                 return a.localeCompare(b);
             });
         }
     }
-    // Sort root
+    // Sort root (tissues)
     console.log(oncotree);
     oncotree[""].children.sort(function (a, b) {
-        return json.type_of_cancers[a.type].localeCompare(json.type_of_cancers[b.type]);
-    });
-    oncotree[""].studies.sort(function (a, b) {
-        return a.localeCompare(b);
+        return a.type.localeCompare(b.type);
     });
     
     // First add 'all' study
@@ -739,22 +774,21 @@ function addMetaDataToPage() {
         cancerTypeContainer.prepend($("<option value='all'>"+json.cancer_studies['all'].name+"</option>"));
     }
     // Add groups recursively
-    var addStudyGroups = function(root, parent, depth) {
+    var addStudyGroups = function(root, depth) {
         //var rootGroup = $("<optgroup id='" + root.type + "-study-group' label='" + json.type_of_cancers[root.type] + "'></optgroup>");
+        if (!root.hasstudy) {
+            return false;
+        }
         var indent = "";
-        var indentchar = "---"
+        var indentchar = "   "
         for (var i=0; i<depth; i++) {
             indent += indentchar;
         }
-        var rootGroup = $("<option value='" + root.type + "-study-group' style='font-weight:bold' disabled>"+indent+" "+json.type_of_cancers[root.type] + "</option>");
-        if (root.type === "") {
-            rootGroup = cancerTypeContainer;
-        } else {
-            rootGroup.appendTo(parent);
+        var label = (root.type in json.type_of_cancers ? json.type_of_cancers[root.type] : root.type);
+        if (root.type !== "") {
+            $("<option value='" + root.type + "-study-group' style='font-weight:bold' disabled>"+
+                    indent+" "+ label + "</option>").appendTo(cancerTypeContainer);
         }
-        // TO-DELETE
-        rootGroup = cancerTypeContainer;
-        //
         // Add all studies
         for (var i=0; i<root.studies.length; i++) {
             // jQuery.each(json.cancer_studies,function(key,cancer_study){
@@ -775,16 +809,16 @@ function addMetaDataToPage() {
                 // This is a hack to move the dmp study to the top.
                 if (key.indexOf("_dmp_")>=0) type_of_cancer = "dmp";
 
-                rootGroup.append(newOption);
+                cancerTypeContainer.append(newOption);
             }
         }
         // Add sub-types
         for (var i=0; i<root.children.length; i++) {
             //addStudyGroups(root.children[i], rootGroup);
-            addStudyGroups(root.children[i], cancerTypeContainer, depth+1);
+            addStudyGroups(root.children[i], depth+1);
         }
     };
-    addStudyGroups(oncotree[""], cancerTypeContainer, -1);
+    addStudyGroups(oncotree[""], -1);
     /*var orderedTypes = [];
     
     // First create the groups and sort'em

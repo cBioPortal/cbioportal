@@ -294,10 +294,10 @@ legend.legend-border {
                             // qtip interferes with $.toggle
                             window.allele_freq_plot_histogram_toggle = !window.allele_freq_plot_histogram_toggle;
                             if (window.allele_freq_plot_histogram_toggle) {
-                                $(hidden_plot_id + ' .viz_hist').show();
+                                $('.viz_hist').show();
                             }
                             else {
-                                $(hidden_plot_id + ' .viz_hist').hide();
+                                $('.viz_hist').hide();
                             }
                         });
 
@@ -306,10 +306,10 @@ legend.legend-border {
                             // qtip interferes with $.toggle
                             window.allele_freq_plot_curve_toggle = !window.allele_freq_plot_curve_toggle;
                             if (window.allele_freq_plot_curve_toggle) {
-                                $(hidden_plot_id + ' .viz_curve').show();
+                                $('.viz_curve').show();
                             }
                             else {
-                                $(hidden_plot_id + ' .viz_curve').hide();
+                                $('.viz_curve').hide();
                             }
                         });
                         if ($("#qtip-allele-freq-plot-big").children().length === 0) {

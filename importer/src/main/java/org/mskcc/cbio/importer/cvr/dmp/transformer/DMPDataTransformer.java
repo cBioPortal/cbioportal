@@ -50,17 +50,13 @@ public class DMPDataTransformer {
     
     private  List<DMPDataTransformable> transformableList;
     private  DMPTumorTypeSampleMapManager tumorTypeMap;
-    private Path stagingDirectoryPath;
+    private  Path stagingDirectoryPath;
 
     public DMPDataTransformer(Path aPath) {
-        try {
-            StagingUtils.isValidStagingDirectoryPath(aPath);
-            this.stagingDirectoryPath = aPath;
-            registerTransformables();
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-
+            if(StagingUtils.isValidStagingDirectoryPath(aPath)) {
+                this.stagingDirectoryPath = aPath;
+                registerTransformables();
+            }
     }
 
     private void registerTransformables() {

@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
 import org.mskcc.cbio.importer.cvr.dmp.model.Result;
 import org.mskcc.cbio.importer.cvr.dmp.model.StructuralVariant;
+import org.mskcc.cbio.importer.cvr.dmp.util.DmpUtils;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.fusion.FusionModel;
 import org.mskcc.cbio.importer.persistence.staging.fusion.FusionTransformer;
@@ -55,6 +56,8 @@ public class DmpFusionTransformer extends FusionTransformer
     public void transform(DmpData data) {
         Preconditions.checkArgument(null != data, "A DmpData object is required");
         List<DmpFusionModel> fusionModelList = Lists.newArrayList();
+        // process any deprecated samples
+        DmpUtils.removeDeprecatedSamples(data,this.fileHandler);
         for(Result result : data.getResults()){
             String sampleId = result.getMetaData().getDmpSampleId();
             for(StructuralVariant sv : result.getStructuralVariants()){

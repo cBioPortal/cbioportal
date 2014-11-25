@@ -248,6 +248,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             
             zoom = reset_zoom();
             oncoprint.zoom(zoom.val());
+            $('.oncoprint-diagram-showlegend-icon')[0].attributes.src.value === 'images/showlegend.svg';
             oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
             oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
             utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
@@ -430,6 +431,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         oncoprint.zoom(zoom.val());
                         oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
                         oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
+                        $('.oncoprint-diagram-showlegend-icon')[0].attributes.src.value === 'images/showlegend.svg';
                         utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
 
                     }
@@ -496,6 +498,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         oncoprint.zoom(zoom.val());
                         oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
                         oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
+                        $('.oncoprint-diagram-showlegend-icon')[0].attributes.src.value === 'images/showlegend.svg';
                         utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
                     }
                 });
@@ -563,6 +566,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         oncoprint.zoom(zoom.val());
                         oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
                         oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
+                        $('.oncoprint-diagram-showlegend-icon')[0].attributes.src.value === 'images/showlegend.svg';
                         utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
 
                     }

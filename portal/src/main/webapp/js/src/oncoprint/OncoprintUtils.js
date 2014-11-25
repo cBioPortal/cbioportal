@@ -1111,7 +1111,7 @@ define("OncoprintUtils", (function() {
                         return captions.cna[datatype2range.cna[i]].length * 6.5;
                     })
                     .attr('x', 5.5*3)
-                    .attr('y', 21);
+                    .attr('y', 19);
 
                 label.append('tspan')       // name
                     .attr('text-anchor', 'start')
@@ -1194,7 +1194,7 @@ define("OncoprintUtils", (function() {
                         return ('mRNA Downregulation').length * 6.5;
                     })
                     .attr('x', 5.5*3)
-                    .attr('y', 21);
+                    .attr('y', 19);
 
                 label.append('tspan')       // name
                     .attr('text-anchor', 'start')
@@ -1231,7 +1231,7 @@ define("OncoprintUtils", (function() {
                         return ('mRNA Upregulation').length * 6.5;
                     })
                     .attr('x', 5.5*3)
-                    .attr('y', 21);
+                    .attr('y', 19);
 
                 label.append('tspan')       // name
                     .attr('text-anchor', 'start')
@@ -1278,7 +1278,7 @@ define("OncoprintUtils", (function() {
                         return ('RPPA Downregulation').length * 6.5;
                     })
                     .attr('x', 5.5*3)
-                    .attr('y', 21);
+                    .attr('y', 19);
 
                 label.append('tspan')       // name
                     .attr('text-anchor', 'start')
@@ -1317,7 +1317,7 @@ define("OncoprintUtils", (function() {
                         return ('RPPA Upregulation').length * 6.5;
                     })
                     .attr('x', 5.5*3)
-                    .attr('y', 21);
+                    .attr('y', 19);
 
                 label.append('tspan')       // name
                     .attr('text-anchor', 'start')
@@ -1355,7 +1355,7 @@ define("OncoprintUtils", (function() {
                     return ('missense mutation').length * 6.5;
                 })
                 .attr('x', 5.5*3)
-                .attr('y', 21);
+                .attr('y', 19);
 
                 label.append('tspan')       // name
                     .attr('text-anchor', 'start')
@@ -1391,7 +1391,7 @@ define("OncoprintUtils", (function() {
                         return ('truncating mutation').length * 6.5;
                     })
                     .attr('x', 5.5*3)
-                    .attr('y', 21);
+                    .attr('y', 19);
 
                     label.append('tspan')       // name
                         .attr('text-anchor', 'start')
@@ -1428,7 +1428,7 @@ define("OncoprintUtils", (function() {
                         return ('inframe mutation').length * 6.5;
                     })
                     .attr('x', 5.5*3)
-                    .attr('y', 21);
+                    .attr('y', 19);
 
                     label.append('tspan')       // name
                         .attr('text-anchor', 'start')

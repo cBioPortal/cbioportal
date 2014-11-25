@@ -98,8 +98,23 @@
         </table>
     </div>  
      --%>  
-                  
-    <div id="oncoprinter_control_panel"><p>
+         
+    <div class="btn-group btn-group-sm" style="float:right;margin-right:45px;display: inline;height:18px">
+        <button type="button" class="btn btn-default" style="background-color:#f1f1f1"><img src="images/cool.svg" alt="icon" width="16" height="16" /></button>
+        <button type="button" class="btn btn-default" style="background-color:#efefef"><img src="images/uncolormutations.svg" alt="icon" width="16" height="16" /></button>
+        <button type="button" class="btn btn-default" style="background-color:#efefef"><img src="images/showlegend.svg" alt="icon" width="16" height="16" /></button>
+        <button type="button" class="btn btn-default" style="background-color:#efefef"><img src="images/removeUCases.svg" alt="icon" width="16" height="16" /></button>
+        <button type="button" class="btn btn-default" style="background-color:#efefef"><img src="images/removeWhitespace.svg" alt="icon" width="16" height="16" /></button>
+        <button type="button" class="btn btn-default" style="background-color:#efefef"><img src="images/in.svg" alt="icon" width="16" height="16" /></button>      
+        <div class="btn-group">
+            <button type="button" class="btn btn-default" style="background-color:#efefef">+</button>
+            <span class="btn" style="background-color:#efefef"><input type="range" step = "0.05" min="0.0" max="1.0"></span>
+            <button type="button" class="btn btn-default" style="background-color:#efefef">-</button>
+        </div>
+    </div>
+
+    
+    <div id="oncoprinter_control_panel" style="height:18px"><p>
         <span  class='oncoprinter-diagram-toolbar-buttons' style="float:right;margin-right:50px;display: inline;">
         <img id="oncoprinter_sortfirst_icon" checked="0" style="width: 16px; height: 16px" class="oncoprinter_sortfirst_icon" src="images/cool.svg">
         <img id="oncoprinter_diagram_showmutationcolor_icon" checked="0" style="width: 16px; height: 16px" class="oncoprinter_diagram_showmutationcolor_icon" src="images/uncolormutations.svg">

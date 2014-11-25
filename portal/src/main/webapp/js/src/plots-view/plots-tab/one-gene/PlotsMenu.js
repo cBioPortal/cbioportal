@@ -46,7 +46,7 @@ var PlotsMenu = (function () {
                     value: "data_type_clinical",
                     attributes: []
                 }
-            },
+            }
         },
         status = {
             has_mrna : false,

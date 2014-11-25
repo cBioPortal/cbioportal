@@ -30,24 +30,16 @@ public class DmpFusionModel extends FusionModel {
 
     private final static Logger logger = Logger.getLogger(DmpFusionModel.class);
     private final StructuralVariant structuralVariant;
-    private final Boolean primaryGene;
 
-    /*
-    the primary attribute determines which of the two genes in a translocation
-    is being processed (e.g. in BCR-ABL, BCR is primary, ABL is secondary)
-     */
 
-    public DmpFusionModel(StructuralVariant sv, boolean primary){
+    public DmpFusionModel(StructuralVariant sv){
         Preconditions.checkArgument(null !=sv ,
                 "A SMP StructuralVariant object is required");
         this.structuralVariant = sv;
-        this.primaryGene = primary;
-
     }
     @Override
     public String getGene() {
-        return (primaryGene) ? this.structuralVariant.getSite1Gene():
-                this.structuralVariant.getSite2Gene();
+        return  this.structuralVariant.getSite1Gene();
     }
 
     @Override
@@ -69,20 +61,15 @@ public class DmpFusionModel extends FusionModel {
     public String getTumorSampleBarcode() {
         return this.structuralVariant.getDmpSampleId();
     }
-    
+
     @Override
     public String getFusion() {
         if( this.structuralVariant.getSite1Gene().equals(this.structuralVariant.getSite2Gene()) ){
             return this.getGene() +"-intragenic";
         }
-        if(this.primaryGene){
             return this.structuralVariant.getSite1Gene() +"-"
                     +this.structuralVariant.getSite2Gene()
                     +" fusion";
-        }
-        return this.structuralVariant.getSite2Gene() +"-"
-                +this.structuralVariant.getSite1Gene()
-                +" fusion";
     }
 
     @Override

@@ -24,9 +24,13 @@ import org.apache.commons.lang.builder.ToStringBuilder;
     "meta-data",
     "snp-exonic",
     "snp-silent",
+     "sv-variants",
     "segment-data"
 })
 public class Result {
+    /*
+    "sv-variants" : [ {
+     */
 
     @JsonProperty("cnv-intragenic-variants")
     private List<CnvIntragenicVariant> cnvIntragenicVariants = new ArrayList<CnvIntragenicVariant>();
@@ -38,8 +42,11 @@ public class Result {
     private List<SnpExonic> snpExonic = new ArrayList<SnpExonic>();
     @JsonProperty("snp-silent")
     private List<SnpSilent> snpSilent = new ArrayList<SnpSilent>();
+    @JsonProperty("sv-variants")
+    private List<StructuralVariant> structuralVariants = new ArrayList<>();
     @JsonProperty("segment-data")
     private List<SegmentData> segmentData = new ArrayList<SegmentData>();
+
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -143,6 +150,12 @@ public class Result {
         this.snpSilent = snpSilent;
     }
 
+    @JsonProperty("sv-variants")
+    public List<StructuralVariant> getStructuralVariants () { return this.structuralVariants;}
+    @JsonProperty("sv-variants")
+    public void setStructuralVariants (List<StructuralVariant> svList)
+    {this.structuralVariants = svList;}
+
     @JsonProperty("segment-data")
     public List<SegmentData> getSegmentData() {
         return this.segmentData;
@@ -191,7 +204,9 @@ public class Result {
         Result rhs = ((Result) other);
         return new EqualsBuilder().append(cnvIntragenicVariants, rhs.cnvIntragenicVariants)
                 .append(cnvVariants, rhs.cnvVariants).append(metaData, rhs.metaData).append(snpExonic, rhs.snpExonic)
-                .append(snpSilent, rhs.snpSilent).append(segmentData,rhs.segmentData)
+                .append(snpSilent, rhs.snpSilent)
+                .append(this.structuralVariants, rhs.structuralVariants)
+                .append(segmentData,rhs.segmentData)
                 .append(additionalProperties, rhs.additionalProperties).isEquals();
     }
 

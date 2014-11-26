@@ -280,7 +280,7 @@ var AlleleFreqPlotMulti = function(div, data, options) {
                 .attr("width", x(binned_data[k][0].dx + binned_data[k][0].x) - x(binned_data[k][0].x) - 1)
                 .attr("height", function(d) {return (height - binned_yscale(d.y)); })
                 .attr('fill', colors[k].fill)
-                .attr('opacity', (Object.keys(data).length > 1 ? '0.1': '0.5'))
+                .attr('opacity', (Object.keys(data).length > 1 ? '0.1': '0.3'))
                 ;
         }
     }

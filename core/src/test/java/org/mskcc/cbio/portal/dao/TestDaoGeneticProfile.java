@@ -19,9 +19,8 @@ package org.mskcc.cbio.portal.dao;
 
 import java.util.ArrayList;
 import junit.framework.TestCase;
-import org.mskcc.cbio.portal.model.GeneticAlterationType;
-import org.mskcc.cbio.portal.model.GeneticProfile;
-import org.mskcc.cbio.portal.scripts.ResetDatabase;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.TestImportUtil;
 
 /**
  * JUnit tests for DaoGeneticProfile class.
@@ -30,7 +29,7 @@ public class TestDaoGeneticProfile extends TestCase {
 
     public void testDaoGeneticProfile() throws DaoException {
        
-       createSmallDbms();
+       TestImportUtil.createSmallDbms(true);
 
        ArrayList<GeneticProfile> list = DaoGeneticProfile.getAllGeneticProfiles(1);
         assertEquals(2, list.size());
@@ -85,29 +84,5 @@ public class TestDaoGeneticProfile extends TestCase {
         assertEquals ("Updated Description", geneticProfile.getProfileDescription());
         DaoGeneticProfile.deleteAllRecords();
         assertEquals(0, DaoGeneticProfile.getCount() );
-    }
-    
-    public static void createSmallDbms() throws DaoException{
-       ResetDatabase.resetDatabase();
-
-       GeneticProfile profile1 = new GeneticProfile();
-       profile1.setCancerStudyId(1);
-       profile1.setStableId("gbm_rae");
-       profile1.setGeneticAlterationType(GeneticAlterationType.COPY_NUMBER_ALTERATION);
-       profile1.setDatatype("DISCRETE");
-       profile1.setProfileName("Barry CNA Results");
-       profile1.setProfileDescription("Blah, Blah, Blah.");
-       profile1.setShowProfileInAnalysisTab(true);
-       DaoGeneticProfile.addGeneticProfile(profile1);
-
-       GeneticProfile profile2 = new GeneticProfile();
-       profile2.setCancerStudyId(1);
-       profile2.setStableId("gbm_gistic");
-       profile2.setGeneticAlterationType(GeneticAlterationType.COPY_NUMBER_ALTERATION);
-       profile2.setDatatype("DISCRETE");
-       profile2.setProfileName("Gistic CNA Results");
-       profile2.setShowProfileInAnalysisTab(true);
-       DaoGeneticProfile.addGeneticProfile(profile2);
-       
     }
 }

@@ -25,7 +25,7 @@
    }
 %>
 
-   
+
 <div id="right_side">
     
     

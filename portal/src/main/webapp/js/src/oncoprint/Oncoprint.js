@@ -13,6 +13,7 @@ define("Oncoprint",
         [           "OncoprintUtils",  "MemoSort"],
         function(   utils,              MemoSort) {
             return function(div, params) {
+
                 params.clinicalData = params.clinicalData || [];        // initialize
                 params.clinical_attrs = params.clinical_attrs || [];
 
@@ -37,6 +38,12 @@ define("Oncoprint",
                 var attributes = clinical_attrs.concat(params.genes);
 
                 data = utils.process_data(data, attributes);
+
+                //TODO: tmp solution for re-using data
+                window.PortalGlobals.setGeneData(params.geneData);
+                PortalDataColl.setOncoprintData(data); 
+                var alterInfo = utils.alteration_info(params.geneData);
+                PortalDataColl.setOncoprintStat(alterInfo);
 
                 // keeps track of the order specified by the user (translates to vertical
                 // order in the visualization)
@@ -130,6 +137,7 @@ define("Oncoprint",
                         return (dims.vert_space / 1.80) + vertical_pos(d); });
 
                 var gene2percent = utils.percent_altered(params.geneData);
+
 
                 label.append('tspan')       // name
                     .attr('text-anchor', 'start')

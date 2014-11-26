@@ -17,17 +17,11 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import org.mskcc.cbio.portal.util.ProgressMonitor;
 import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.model.ExtendedMutation;
-import org.mskcc.cbio.portal.model.CanonicalGene;
-import org.mskcc.cbio.portal.model.CaseList;
+import org.mskcc.cbio.portal.util.*;
+import org.mskcc.cbio.portal.model.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.HashMap;
-import java.util.Comparator;
-import java.util.Collections;
+import java.util.*;
 import java.text.DecimalFormat;
 
 /**
@@ -36,27 +30,28 @@ import java.text.DecimalFormat;
 public class CalculateMutationFrequencies {
 
     public static void main(String[] args) throws Exception {
-        HashMap <CanonicalGene, HashSet<String>> mutationMap = new HashMap<CanonicalGene, HashSet<String>>();
+        HashMap <CanonicalGene, HashSet<Integer>> mutationMap = new HashMap<CanonicalGene, HashSet<Integer>>();
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(true);
 
-        if (args.length == 0) {
-            System.out.println ("You must specify a stable case set id.");
+        if (args.length != 2) {
+            System.out.println ("You must specify a stable case set id and stable cancer study id.");
             return;
         }
 
-        String caseSetName = args[0];
-        DaoCaseList daoCaseList = new DaoCaseList();
-        CaseList caseSet = daoCaseList.getCaseListByStableId(caseSetName);
-        HashSet <String> masterCaseSet = new HashSet<String>();
-        masterCaseSet.addAll(caseSet.getCaseList());
+        String patientSetName = args[0];
+        DaoPatientList daoPatientList = new DaoPatientList();
+        PatientList patientSet = daoPatientList.getPatientListByStableId(patientSetName);
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(args[1]);
+        HashSet <Integer> masterSampleSet = new HashSet<Integer>();
+        masterSampleSet.addAll(InternalIdUtil.getInternalNonNormalSampleIdsFromPatientIds(cancerStudy.getInternalId(), patientSet.getPatientList()));
 
-        if (caseSet == null) {
-            System.out.println ("Case set id:  " + caseSetName + " does not exist in database.");
+        if (patientSet == null) {
+            System.out.println ("Patient set id:  " + patientSetName + " does not exist in database.");
             return;
         }
-        pMonitor.setCurrentMessage("Using case set:  " + caseSet.getName());
-        pMonitor.setCurrentMessage("Number of cases:  " + caseSet.getCaseList().size());
+        pMonitor.setCurrentMessage("Using patient set:  " + patientSet.getName());
+        pMonitor.setCurrentMessage("Number of patients:  " + patientSet.getPatientList().size());
 
         //  Delete all Existing Mutation Frequency Records
         pMonitor.setCurrentMessage("Deleting all existing mutation frequency records");
@@ -75,16 +70,16 @@ public class CalculateMutationFrequencies {
 
             //  Only count the mutation if it's in the selected case set,
             //  and it's somatic.
-            if (masterCaseSet.contains(mutation.getCaseId())) {
+            if (masterSampleSet.contains(mutation.getSampleId())) {
                 if (mutation.getMutationStatus().equalsIgnoreCase("SOMATIC")
                         || mutation.getMutationStatus().equalsIgnoreCase("UNKNOWN")) {
                     //  Store in mutation map
                     if (mutationMap.containsKey(gene)) {
-                        HashSet <String> mutationCaseSet = mutationMap.get(gene);
-                        mutationCaseSet.add(mutation.getCaseId());
+                        HashSet <Integer> mutationCaseSet = mutationMap.get(gene);
+                        mutationCaseSet.add(mutation.getSampleId());
                     } else {
-                        HashSet <String> mutationCaseSet = new HashSet <String>();
-                        mutationCaseSet.add(mutation.getCaseId());
+                        HashSet <Integer> mutationCaseSet = new HashSet <Integer>();
+                        mutationCaseSet.add(mutation.getSampleId());
                         mutationMap.put(gene, mutationCaseSet);
                     }
                 }
@@ -93,8 +88,8 @@ public class CalculateMutationFrequencies {
 
         ArrayList <CanonicalGene> geneList = new ArrayList <CanonicalGene>();
         for (CanonicalGene gene:  mutationMap.keySet()) {
-            HashSet <String> mutationCaseSet = mutationMap.get(gene);
-            gene.setSomaticMutationFrequency(mutationCaseSet.size() / (double) caseSet.getCaseList().size());
+            HashSet <Integer> mutationCaseSet = mutationMap.get(gene);
+            gene.setSomaticMutationFrequency(mutationCaseSet.size() / (double) patientSet.getPatientList().size());
             geneList.add(gene);
         }
         Collections.sort(geneList, new SingleGeneComparator());
@@ -114,7 +109,7 @@ public class CalculateMutationFrequencies {
         for (int i=0; i<geneList.size(); i++) {
             CanonicalGene gene = geneList.get(i);
             daoMutationFrequency.addGene(gene.getEntrezGeneId(), gene.getSomaticMutationFrequency(),
-                    caseSet.getCancerStudyId());
+                    patientSet.getCancerStudyId());
         }
 
     }

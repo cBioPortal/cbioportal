@@ -17,22 +17,16 @@
 
 package org.mskcc.cbio.portal.model;
 
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoGistic;
-import org.mskcc.cbio.portal.dao.DaoMutSig;
-import org.mskcc.cbio.portal.util.EqualsUtil;
-import org.mskcc.cbio.portal.web_api.GetGeneticProfiles;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import org.mskcc.cbio.portal.dao.DaoCancerStudy;
-import org.mskcc.cbio.portal.dao.DaoCaseProfile;
-import org.mskcc.cbio.portal.dao.DaoClinicalData;
-import org.mskcc.cbio.portal.dao.DaoCopyNumberSegment;
-import static org.mskcc.cbio.portal.servlet.QueryBuilder.HAS_SURVIVAL_DATA;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.util.*;
+import org.mskcc.cbio.portal.web_api.GetGeneticProfiles;
+
+
 
 /**
  * This represents a cancer study, with a set of cases and some data sets.
@@ -204,14 +198,20 @@ public class CancerStudy {
     public GeneticProfile getMutationProfile(ArrayList<GeneticProfile> geneticProfiles,
             String caseId) throws DaoException {
         for(GeneticProfile geneticProfile: geneticProfiles) {
-            if(geneticProfile.getGeneticAlterationType()
-                    .equals(GeneticAlterationType.MUTATION_EXTENDED)
-                    && (caseId==null || DaoCaseProfile.caseExistsInGeneticProfile(caseId,geneticProfile.getGeneticProfileId()))) {
+            if(geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED) &&
+               acceptableCaseId(caseId, geneticProfile)) {
                 return geneticProfile;
             }
         }
 
         return null;
+    }
+
+    private boolean acceptableCaseId(String caseId, GeneticProfile geneticProfile) throws DaoException {
+        if (caseId == null) return true;
+        Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
+                                                                    StableIdUtil.getSampleId(caseId));
+        return DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfile.getGeneticProfileId());
     }
     
     public GeneticProfile getMutationProfile(String caseId) throws DaoException {
@@ -259,10 +259,9 @@ public class CancerStudy {
     public GeneticProfile getCopyNumberAlterationProfile(String caseId, boolean showInAnalysisOnly)
             throws DaoException {
         for(GeneticProfile geneticProfile: getGeneticProfiles()) {
-            if(geneticProfile.getGeneticAlterationType()
-                    .equals(GeneticAlterationType.COPY_NUMBER_ALTERATION)
-                    && (!showInAnalysisOnly || geneticProfile.showProfileInAnalysisTab())
-                    && (caseId==null || DaoCaseProfile.caseExistsInGeneticProfile(caseId,geneticProfile.getGeneticProfileId()))) {
+            if(geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.COPY_NUMBER_ALTERATION) &&
+               (!showInAnalysisOnly || geneticProfile.showProfileInAnalysisTab()) &&
+               acceptableCaseId(caseId, geneticProfile)) {
                 return geneticProfile;
             }
         }
@@ -296,9 +295,8 @@ public class CancerStudy {
             throws DaoException {
         GeneticProfile ret = null;
         for(GeneticProfile geneticProfile: getGeneticProfiles()) {
-            if(geneticProfile.getGeneticAlterationType()
-                    .equals(GeneticAlterationType.MRNA_EXPRESSION)
-                    && (caseId==null || DaoCaseProfile.caseExistsInGeneticProfile(caseId,geneticProfile.getGeneticProfileId()))) {
+            if(geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MRNA_EXPRESSION) &&
+               acceptableCaseId(caseId, geneticProfile)) {
                 String stableId = geneticProfile.getStableId().toLowerCase();
                 if (stableId.matches(".+rna_seq.*_zscores")) {
                     return geneticProfile;

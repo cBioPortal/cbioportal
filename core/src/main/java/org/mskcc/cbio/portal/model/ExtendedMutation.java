@@ -336,7 +336,7 @@ public final class ExtendedMutation
 
     private MutationEvent event;
     private int geneticProfileId;
-    private String caseId;
+    private int sampleId;
     private String sequencingCenter;
     private String sequencer;
     private String mutationStatus;
@@ -463,12 +463,12 @@ public final class ExtendedMutation
         this.geneticProfileId = geneticProfileId;
     }
 
-    public String getCaseId() {
-        return caseId;
+    public int getSampleId() {
+        return sampleId;
     }
 
-    public void setCaseId(String caseId) {
-        this.caseId = caseId;
+    public void setSampleId(int sampleId) {
+        this.sampleId = sampleId;
     }
 
     public String getChr() {
@@ -919,7 +919,7 @@ public final class ExtendedMutation
         int hash = 7;
         hash = 79 * hash + (this.event != null ? this.event.hashCode() : 0);
         hash = 79 * hash + this.geneticProfileId;
-        hash = 79 * hash + (this.caseId != null ? this.caseId.hashCode() : 0);
+        hash = 79 * hash;
         return hash;
     }
 
@@ -938,7 +938,7 @@ public final class ExtendedMutation
         if (this.geneticProfileId != other.geneticProfileId) {
             return false;
         }
-        if ((this.caseId == null) ? (other.caseId != null) : !this.caseId.equals(other.caseId)) {
+        if (this.sampleId != other.sampleId) {
             return false;
         }
         return true;

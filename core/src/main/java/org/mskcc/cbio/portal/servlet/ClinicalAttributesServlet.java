@@ -51,7 +51,7 @@ public class ClinicalAttributesServlet extends HttpServlet {
     }
 
     /**
-     * Takes any sort of case list parameter in the request
+     * Takes any sort of patient list parameter in the request
      *
      * Returns a list of clinical attributes in json format
      *
@@ -65,9 +65,9 @@ public class ClinicalAttributesServlet extends HttpServlet {
             response.setContentType("text/json");
 
             int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(WebserviceParserUtils.getCancerStudyId(request)).getInternalId();
-            List<String> caseIds = WebserviceParserUtils.getCaseList(request);
-            Set<String> caseIdSet = new HashSet<String>(caseIds);
-            List<ClinicalAttribute> clinicalAttributes = DaoClinicalAttribute.getDataBySamples(cancerStudyId, caseIdSet);
+            List<String> patientIds = WebserviceParserUtils.getPatientList(request);
+            Set<String> patientIdSet = new HashSet<String>(patientIds);
+            List<ClinicalAttribute> clinicalAttributes = DaoClinicalAttribute.getDataBySamples(cancerStudyId, patientIdSet);
 
             for (ClinicalAttribute attr : clinicalAttributes) {
                 toWrite.add(ClinicalJSON.reflectToMap(attr));

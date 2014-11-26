@@ -37,7 +37,7 @@ public class TestClinicalJSON extends TestCase {
 //        assertTrue( map.get("cancer_study_id").equals("-1") );
         assertTrue( map.get("case_id").equals("caseId") );
 
-        map = clinicalJSON.reflectToMap(new ClinicalAttribute("attrId", "displayName", "description", "datatype"));
+        map = clinicalJSON.reflectToMap(new ClinicalAttribute("attrId", "displayName", "description", "datatype", true, "1"));
         assertTrue( map.get("attr_id").equals("attrId") );
         assertTrue( map.get("display_name").equals("displayName") );
         assertTrue( map.get("description").equals("description") );

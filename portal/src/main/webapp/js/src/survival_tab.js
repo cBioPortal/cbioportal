@@ -30,16 +30,16 @@ var SurvivalTab = (function() {
     return {
         init: function(_caseList) {
 
-    		//Import default settings
-	        var osOpts = jQuery.extend(true, {}, SurvivalCurveBroilerPlate);
-	        var dfsOpts = jQuery.extend(true, {}, SurvivalCurveBroilerPlate);  
+            //Import default settings
+            var osOpts = jQuery.extend(true, {}, SurvivalCurveBroilerPlate);
+            var dfsOpts = jQuery.extend(true, {}, SurvivalCurveBroilerPlate);  
 
-    		//Customize settings
-    		osOpts.text.xTitle = "Months Survival";
-    		osOpts.text.yTitle = "Surviving";
-    		osOpts.text.qTips.estimation = "Survival estimate";
-    		osOpts.text.qTips.censoredEvent = "Time of last observation";
-    		osOpts.text.qTips.failureEvent = "Time of death";
+            //Customize settings
+            osOpts.text.xTitle = "Months Survival";
+            osOpts.text.yTitle = "Surviving";
+            osOpts.text.qTips.estimation = "Survival estimate";
+            osOpts.text.qTips.censoredEvent = "Time of last observation";
+            osOpts.text.qTips.failureEvent = "Time of death";
             osOpts.settings.include_info_table = true;
             osOpts.divs.curveDivId = "os_survival_curve";
             osOpts.divs.headerDivId = "os_header";
@@ -47,11 +47,11 @@ var SurvivalTab = (function() {
             osOpts.text.infoTableTitles.total_cases = "#total cases";
             osOpts.text.infoTableTitles.num_of_events_cases = "#cases deceased";
             osOpts.text.infoTableTitles.median = "median months survival";
-    		dfsOpts.text.xTitle = "Months Disease Free";
-    		dfsOpts.text.yTitle = "Disease Free";
-    		dfsOpts.text.qTips.estimation = "Disease free estimate";
-    		dfsOpts.text.qTips.censoredEvent = "Time of last observation";
-    		dfsOpts.text.qTips.failureEvent = "Time of relapse";
+            dfsOpts.text.xTitle = "Months Disease Free";
+            dfsOpts.text.yTitle = "Disease Free";
+            dfsOpts.text.qTips.estimation = "Disease free estimate";
+            dfsOpts.text.qTips.censoredEvent = "Time of last observation";
+            dfsOpts.text.qTips.failureEvent = "Time of relapse";
             dfsOpts.settings.include_info_table = true;
             dfsOpts.divs.curveDivId = "dfs_survival_curve";
             dfsOpts.divs.headerDivId = "dfs_header";
@@ -60,7 +60,7 @@ var SurvivalTab = (function() {
             dfsOpts.text.infoTableTitles.num_of_events_cases = "#cases relapsed";
             dfsOpts.text.infoTableTitles.median = "median months disease free";
 
-    		//Init Instances
+            //Init Instances
             var survivalCurveViewOS = SurvivalCurveView(osOpts);
             var params = {
                 case_set_id: PortalGlobals.getCaseSetId(),
@@ -78,7 +78,7 @@ var SurvivalTab = (function() {
                 survivalCurveViewDFS.getResultInit(_caseList,data);
             }, "json");
         }
-    }
+    };
 
 }()); //Close SubvivalTabView (Singular)
 

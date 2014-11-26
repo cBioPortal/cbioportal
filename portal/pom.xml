@@ -29,22 +29,22 @@
 	  <version>${project.version}</version>
 	  <scope>runtime</scope>
 	</dependency>
-        
-	<!-- 3rd party jars -->
-	<!--the following jars should be installed first: 
-        http://maven.apache.org/guides/mini/guide-3rd-party-jars-local.html-->
-	<!--dependency>
-		<download jar from http://loci.wisc.edu/software/bio-formats-->
-	<!--groupId>loci</groupId>
-		<artifactId>bio-formats</artifactId>
-		<version>4.5</version>
-        </dependency-->
-        
-        <!--dependency>
-                <groupId>net.bull.javamelody</groupId>
-                <artifactId>javamelody-core</artifactId>
-                <version>1.50.0</version>
-        </dependency-->
+
+	<!-- business portal module -->
+	<dependency>
+	  <groupId>org.mskcc.cbio</groupId>
+	  <artifactId>business</artifactId>
+	  <version>${project.version}</version>
+	  <scope>runtime</scope>
+	</dependency>
+
+	<!-- web portal module -->
+	<dependency>
+	  <groupId>org.mskcc.cbio</groupId>
+	  <artifactId>web</artifactId>
+	  <version>${project.version}</version>
+	  <scope>runtime</scope>
+	</dependency>
 
   </dependencies>
 
@@ -73,20 +73,19 @@
 		<artifactId>maven-war-plugin</artifactId>
 		<version>2.2</version>
 		<configuration>
-		  <webXml>${web-xml-file}</webXml>
 		  <webappDirectory>${project.build.directory}/portal</webappDirectory>
-		  <packagingExcludes>WEB-INF/lib/servlet-api-2.3.jar</packagingExcludes>
-		  <packagingExcludes>WEB-INF/lib/mysql-connector-java-5.1.16.jar</packagingExcludes>
 		  <filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
 		  <webResources>
-			<resource>
-			  <directory>${application-context-security-xml-dir}</directory>
-			  <targetPath>WEB-INF/classes</targetPath>
-			  <filtering>true</filtering>
-			  <excludes>
-				<exclude>**/web.xml</exclude>
-			  </excludes>
-			</resource>
+		  	<resource>
+		  		<directory>${PORTAL_HOME}/business/src/main/resources</directory>
+		  		<targetPath>WEB-INF/classes</targetPath>
+		  		<filtering>true</filtering>
+		  	</resource>
+		  	<resource>
+		  		<directory>${PORTAL_HOME}/web/src/main/resources</directory>
+		  		<targetPath>WEB-INF/classes</targetPath>
+		  		<filtering>true</filtering>
+		  	</resource>
 		  </webResources>
 		</configuration>
 	  </plugin>
@@ -117,7 +116,7 @@
 			  <outputDirectory>${project.build.directory}/classes</outputDirectory>
 			  <resources>
 				<resource>
-				  <directory>${property-file-dir}</directory>
+				  <directory>${PORTAL_HOME}/src/main/resources</directory>
                                   <filtering>true</filtering>
 				  <includes>
 					<include>**/*.properties</include>
@@ -139,6 +138,7 @@
 	<!-- properties file used for filtering our context file in resources -->
 	<filters>
 	  <filter>${PORTAL_HOME}/src/main/resources/portal.properties</filter>
+	  <filter>${PORTAL_HOME}/src/main/resources/spring.security.url.intercepts</filter>
 	</filters>
 
 	<!-- prevent some resources from getting into war -->
@@ -147,11 +147,19 @@
 		<directory>src/main/resources</directory>
 		<filtering>true</filtering>
 		<excludes>
+		  <exclude>**/*.jks</exclude>
 		  <exclude>artwork/**</exclude>
 		  <exclude>content/**</exclude>
 		  <exclude>tutorials/**</exclude>
 		</excludes>
 	  </resource>
+	  <resource>
+      	<directory>src/main/resources</directory>
+        <filtering>false</filtering>
+        <includes>
+        	<include>**/*.jks</include>
+        </includes>
+      </resource>
 	</resources>
 
   </build>

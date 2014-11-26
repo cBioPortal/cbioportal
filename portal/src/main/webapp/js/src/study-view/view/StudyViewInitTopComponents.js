@@ -61,25 +61,14 @@ var StudyViewInitTopComponents = (function() {
         $("#study-view-header-left-4").click(function() {
             var _url;
             var _selectedCaseIds = StudyViewInitCharts.getSelectedCasesID();
-            var _sampleidToPatientidMap = StudyViewProxy.getSampleidToPatientidMap();
-            if (_sampleidToPatientidMap && _.size(_sampleidToPatientidMap)===_.size(_selectedCaseIds)) {
-                // only if all sampes have patient id
-                var _selectedPatientIds = _.map(_selectedCaseIds, function(sampleId) {
-                    return _sampleidToPatientidMap[sampleId];
-                }).sort();
-                _selectedPatientIds = _.uniq(_selectedPatientIds, true);
-                _url =  "case.do?cancer_study_id="+
-                        StudyViewParams.params.studyId+
-                        "&patient_id="+_selectedPatientIds[0]+
-                        "#nav_case_ids="+_selectedPatientIds.join(",");
-            } else {
-                _selectedCaseIds = _selectedCaseIds.sort();
-                _url =  "case.do?cancer_study_id="+
-                        StudyViewParams.params.studyId+
-                        "&case_id="+_selectedCaseIds[0]+
-                        "#nav_case_ids="+_selectedCaseIds.join(",");
-            }
-
+            var _selectedPatientIds = StudyViewProxy.getPatientIdsBySampleIds(_selectedCaseIds);
+            
+            _selectedPatientIds = _selectedPatientIds.sort();
+            _url =  "case.do?cancer_study_id="+
+                    StudyViewParams.params.studyId+
+                    "&case_id="+_selectedPatientIds[0]+
+                    "#nav_case_ids="+_selectedPatientIds.join(",");
+            
             window.open(_url);
         });
     }
@@ -156,9 +145,9 @@ var StudyViewInitTopComponents = (function() {
                 $("#study-view-header-left-2").val('Reset all');
                 $("#study-view-header-left-3").html("");
                 $("#study-view-header-left-3")
-                        .append("<a title='Go to patient-centric view' " + 
-                        "href='case.do?cancer_study_id=" + StudyViewParams.params.studyId +
-                        "&amp;case_id=" + _caseID[0] + "'><span style='color: red'>" + _caseID[0] + 
+                        .append("<a title='Go to sample view' href='"
+                        + cbio.util.getLinkToSampleView(StudyViewParams.params.studyId, _caseID[0])
+                        + "'><span style='color: red'>" + _caseID[0] + 
                         "</span></a>" + " is selected.");                
             }else{
                 $("#study-view-header-left-0").css('display','none');
@@ -170,7 +159,7 @@ var StudyViewInitTopComponents = (function() {
                 $("#study-view-header-left-3").text(_resultLength + " cases are selected.");
             }
         }
-        $("#study-view-header-left-case-ids").val(_caseID.join(" "));
+        $("#study-view-header-left-case-ids").val(StudyViewProxy.getPatientIdsBySampleIds(_caseID).join(" "));
     }
     
     function initAddCharts() {
@@ -186,7 +175,7 @@ var StudyViewInitTopComponents = (function() {
         $("#study-view-header-function").append(_newElement);
         $("#study-view-header-function").append(StudyViewBoilerplate.customDialogDiv);
         $("#study-view-header-left-cancer_study-ids").val(StudyViewParams.params.studyId);
-        $("#study-view-header-left-case-ids").val(StudyViewParams.params.caseIds.join(" "));
+        $("#study-view-header-left-case-ids").val(StudyViewParams.params.patientIds.join(" "));
         //$("#study-view-header-function").append(StudyViewBoilerplate.tutorialDiv);
         _headerLeftQtip.position.target = $(window);
         _headerLeftQtip.content.text = $('#study-view-case-select-custom-dialog');

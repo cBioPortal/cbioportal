@@ -48,6 +48,7 @@ public class GlobalProperties {
     public static final String BITLY_API_KEY = "bitly.api_key";
     public static final String INCLUDE_NETWORKS = "include_networks";
     public static final String GOOGLE_ANALYTICS_PROFILE_ID = "google_analytics_profile_id";
+    public static final String GENOMESPACE = "genomespace";
 
     public static final String APP_NAME = "app.name";
     public static final String DEFAULT_APP_NAME = "public_portal";
@@ -79,8 +80,6 @@ public class GlobalProperties {
     public static final String PATIENT_VIEW_TCGA_PATH_REPORT_URL = "tcga_path_report.url";
     public static final String ONCOKB_URL = "oncokb.url";
     
-    public static final String TEMPORARY_DIR = "temporary_dir";
-
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
     private static Properties initializeProperties()
@@ -180,7 +179,13 @@ public class GlobalProperties {
 
     public static boolean usersMustAuthenticate()
     {
-		return Boolean.parseBoolean(properties.getProperty(AUTHENTICATE));
+        String prop = properties.getProperty(AUTHENTICATE);
+        return (!prop.isEmpty() && !prop.equals("false"));
+    }
+
+    public static String authenticationMethod()
+    {
+        return properties.getProperty(AUTHENTICATE);
     }
 
 	public static boolean usersMustBeAuthorized()
@@ -242,6 +247,11 @@ public class GlobalProperties {
     public static String getGoogleAnalyticsProfileId()
     {
         return properties.getProperty(GOOGLE_ANALYTICS_PROFILE_ID);
+    }
+
+    public static boolean genomespaceEnabled()
+    {
+        return Boolean.parseBoolean(properties.getProperty(GENOMESPACE));
     }
 
     public static boolean showPlaceholderInPatientView()
@@ -309,7 +319,14 @@ public class GlobalProperties {
     public static String getLinkToPatientView(String caseId, String cancerStudyId)
     {
         return "case.do?" + QueryBuilder.CANCER_STUDY_ID + "=" + cancerStudyId
-                 + "&"+ org.mskcc.cbio.portal.servlet.PatientView.CASE_ID + "=" + caseId;
+                 //+ "&"+ org.mskcc.cbio.portal.servlet.PatientView.PATIENT_ID + "=" + caseId;
+                 + "&"+ org.mskcc.cbio.portal.servlet.PatientView.SAMPLE_ID + "=" + caseId;
+    }
+
+    public static String getLinkToSampleView(String caseId, String cancerStudyId)
+    {
+        return "case.do?" + QueryBuilder.CANCER_STUDY_ID + "=" + cancerStudyId
+                 + "&"+ org.mskcc.cbio.portal.servlet.PatientView.SAMPLE_ID + "=" + caseId;
     }
 
     public static String getLinkToCancerStudyView(String cancerStudyId)
@@ -345,11 +362,6 @@ public class GlobalProperties {
     {
         String url = GlobalProperties.getProperty(PATIENT_VIEW_TCGA_PATH_REPORT_URL);
         return (url==null) ? null : url.replace("{cancer.type}", typeOfCancer);
-    }
-    
-    public static String getTemporaryDir() {
-        String tmp = GlobalProperties.getProperty(TEMPORARY_DIR);
-        return tmp == null || tmp.isEmpty() ? "/tmp" : tmp;
     }
     
     public static String getOncoKBUrl()

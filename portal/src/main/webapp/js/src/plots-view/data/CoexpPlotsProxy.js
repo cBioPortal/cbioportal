@@ -35,9 +35,9 @@ var CoexpPlotsProxy = (function() {
                     datum.x_val = _obj_x["value"];  
                     datum.y_val = _obj_y["value"];
                     datum.case_id = _obj_x["caseId"];
-                    datum.qtip = "Case ID: <strong><a href='tumormap.do?case_id=" + 
-                             _obj_x["caseId"] + "&cancer_study_id=" +
-                             window.PortalGlobals.getCancerStudyId() + "' target='_blank'>" + 
+                    datum.qtip = "Case ID: <strong><a href='"
+                            +cbio.util.getLinkToSampleView(window.PortalGlobals.getCancerStudyId(),_obj_x["caseId"])
+                            +"' target='_blank'>" + 
                              _obj_x["caseId"] + "</a></strong><br>" + 
                              geneX + ": <strong>" + parseFloat(_obj_x["value"]).toFixed(2) + "</strong><br>" +
                              geneY + ": <strong>" + parseFloat(_obj_y["value"]).toFixed(2) + "</strong>";

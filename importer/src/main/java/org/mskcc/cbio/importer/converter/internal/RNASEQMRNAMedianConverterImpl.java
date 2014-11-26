@@ -43,35 +43,18 @@ import java.util.ArrayList;
  */
 public class RNASEQMRNAMedianConverterImpl extends RNASEQV2MRNAMedianConverterImpl implements Converter {
 
-	// our logger
-	private static Log LOG = LogFactory.getLog(RNASEQMRNAMedianConverterImpl.class);
-
-    /**
-	 * Constructor.
-	 *
-	 * @param config Config
-	 * @param fileUtils FileUtils
-	 * @param caseIDs CaseIDs;
-	 * @param idMapper IDMapper
-	 */
 	public RNASEQMRNAMedianConverterImpl(Config config, FileUtils fileUtils,
-										 CaseIDs caseIDs, IDMapper idMapper) {
-		super(config, fileUtils, caseIDs, idMapper);
+										 CaseIDs caseIDs, IDMapper idMapper)
+	{
+		super(config, fileUtils, caseIDs, idMapper,
+		      LogFactory.getLog(RNASEQMRNAMedianConverterImpl.class),
+		      ConversionType.TUMOR_ONLY);
 	}
 
-	/**
-	 * Creates a staging file from the given import data.
-	 *
-     * @param portalMetadata PortalMetadata
-	 * @param cancerStudyMetadata CancerStudyMetadata
-	 * @param datatypeMetadata DatatypeMetadata
-	 * @param dataMatrices DataMatrix[]
-	 * @throws Exception
-	 */
 	@Override
 	public void createStagingFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
-								  DatatypeMetadata datatypeMetadata, DataMatrix[] dataMatrices) throws Exception {
-
+								  DatatypeMetadata datatypeMetadata, DataMatrix[] dataMatrices) throws Exception
+	{
 		// sanity check
 		if (dataMatrices.length != 1) {
 			if (LOG.isErrorEnabled()) {
@@ -83,20 +66,8 @@ public class RNASEQMRNAMedianConverterImpl extends RNASEQV2MRNAMedianConverterIm
 
 		// rnaseq v1 files have 3 columns per sample (first column is Hybridization REF).
 		// discard first & second columns and take third - RPKM
-		if (LOG.isInfoEnabled()) {
-			LOG.info("createStagingFile(), removing  and keepng RPKM column per sample");
-		}
-		String previousHeader = "";
-		List<String> columnHeaders = dataMatrix.getColumnHeaders();
-		for (int lc = columnHeaders.size()-1; lc >= 0; lc--) {
-			String columnHeader = columnHeaders.get(lc);
-			if (columnHeader.equals(previousHeader)) {
-				dataMatrix.ignoreColumn(lc, true);
-			}
-			else {
-				previousHeader = columnHeader;
-			}
-		}
+		logMessage(LOG, "createStagingFile(), removing  and keepng RPKM column per sample");
+		removeUsedV1ColumnHeaders(dataMatrix);
 		
 		// everything from here is the same for rna seq v2, lets pass processing to it
 		dataMatrices = new DataMatrix[] { dataMatrix };

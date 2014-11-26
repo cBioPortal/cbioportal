@@ -1,23 +1,19 @@
 package org.mskcc.cbio.portal.servlet;
 
-import java.io.*;
-import java.util.*;
-import java.lang.Float;
-
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.node.JsonNodeFactory;
-import org.codehaus.jackson.node.ObjectNode;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.node.ArrayNode;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
+
+import org.codehaus.jackson.node.*;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
+
+import javax.servlet.http.*;
+import javax.servlet.ServletException;
+
+import java.io.*;
+import java.util.*;
+import java.lang.Float;
 
 /**
  * Author: yichao
@@ -54,6 +50,8 @@ public class GetAlterationDataJSON extends HttpServlet {
                           HttpServletResponse httpServletResponse) throws ServletException, IOException {
 
         String cancerStudyIdentifier = httpServletRequest.getParameter("cancer_study_id");
+        String patientSetId = httpServletRequest.getParameter("case_set_id");
+        String patientIdsKey = httpServletRequest.getParameter("case_ids_key");
         
         String rawGeneIdList;
         if (httpServletRequest instanceof XssRequestWrapper) {
@@ -63,15 +61,14 @@ public class GetAlterationDataJSON extends HttpServlet {
         }
         
         String[] geneIdList = rawGeneIdList.split("\\s+");
-        String caseSetId = httpServletRequest.getParameter("case_set_id");
-        String caseIdsKey = httpServletRequest.getParameter("case_ids_key");
         String profileId = httpServletRequest.getParameter("profile_id");
 
 
         try {
 
             GeneticProfile final_gp = DaoGeneticProfile.getGeneticProfileByStableId(profileId);
-            ArrayList<String> caseIds = CoExpUtil.getCaseIds(caseSetId, caseIdsKey);
+            List<Integer> sampleIds = InternalIdUtil.getInternalNonNormalSampleIdsFromPatientIds(final_gp.getCancerStudyId(),
+                                                                                        CoExpUtil.getPatientIds(patientSetId, patientIdsKey));
 
             ObjectMapper mapper = new ObjectMapper();
             JsonNodeFactory factory = JsonNodeFactory.instance;
@@ -85,16 +82,17 @@ public class GetAlterationDataJSON extends HttpServlet {
                 ArrayList<String> tmpProfileDataArr = 
                             GeneticAlterationUtil.getGeneticAlterationDataRow(
                                 daoGeneOptimized.getGene(geneId), 
-                                caseIds, 
+                                sampleIds, 
                                 final_gp
                             );
-                for (int i = 0; i < caseIds.size(); i++) {
+                for (int i = 0; i < sampleIds.size(); i++) {
                     if (!tmpProfileDataArr.get(i).equals("NA") && 
                         tmpProfileDataArr.get(i) != null &&
                         !tmpProfileDataArr.get(i).equals("NaN")) {
                         //JSONObject _datum = new JSONObject();
                         ObjectNode _datum = mapper.createObjectNode();
-                        _datum.put("caseId", caseIds.get(i));
+                        Sample sample = DaoSample.getSampleById(sampleIds.get(i));
+                        _datum.put("caseId", sample.getStableId());
                         _datum.put("value", Float.parseFloat(tmpProfileDataArr.get(i)));
                         _geneArr.add(_datum);                        
                     }

@@ -619,11 +619,13 @@ var PlotsView = (function () {
                 min_x: 0,
                 max_x: 0,
                 min_y: 0,
-                max_y: 0
+                max_y: 0,
+                pearson: 0,
+                spearman: 0
             };
 
         function fetchPlotsData(profileDataResult) {
-            
+
             var resultObj = profileDataResult[userSelection.gene];
             for (var key in resultObj) {  //key is case id
                 caseSetLength += 1;
@@ -706,7 +708,7 @@ var PlotsView = (function () {
                     mutationPriorityList[mutationStyle.splice.typeName] = "4";
                     mutationPriorityList[mutationStyle.nonstop.typeName] = "5";
                     mutationPriorityList[mutationStyle.nonstart.typeName] = "6";
-                    mutationPriorityList[mutationStyle.other.typeName] = "7"
+                    mutationPriorityList[mutationStyle.other.typeName] = "7";
                     mutationPriorityList[mutationStyle.non.typeName] = "8";
                     var _primaryMutation = _mutationTypes[0];
                     $.each(_mutationTypes, function(index, val) {
@@ -715,7 +717,6 @@ var PlotsView = (function () {
                         }
                     });
                     dot.mutationType = _primaryMutation;
-
                 }
             });
         }
@@ -758,6 +759,38 @@ var PlotsView = (function () {
             attr.max_x = Math.max.apply(Math, tmp_xData);
             attr.min_y = Math.min.apply(Math, tmp_yData);
             attr.max_y = Math.max.apply(Math, tmp_yData);
+
+            //Calculate the co-express/correlation scores
+            //(When data is discretized)
+            if (!Util.plotsIsDiscretized()) {
+                var tmpGeneXcoExpStr = "",
+                    tmpGeneYcoExpStr = "";
+                $.each(PlotsData.getDotsGroup(), function(index, obj) {
+                    tmpGeneXcoExpStr += obj.xVal + " ";
+                    tmpGeneYcoExpStr += obj.yVal + " ";
+                });
+                var paramsCalcCoexp = {
+                    gene_x : tmpGeneXcoExpStr,
+                    gene_y : tmpGeneYcoExpStr
+                };
+                $.post("calcCoExp.do", paramsCalcCoexp, getCalcCoExpCallBack, "json");
+            } else {
+                $('#view_title').show();
+                $('#plots_box').show();
+                $('#loading-image').hide();
+                View.init();                
+            }
+        }
+
+        function getCalcCoExpCallBack(result) {
+            //Parse the coexp scoring result
+            var tmpArrCoexpScores = result.split(" ");
+            attr.pearson = parseFloat(tmpArrCoexpScores[0]).toFixed(3);
+            attr.spearman = parseFloat(tmpArrCoexpScores[1]).toFixed(3);
+            $('#view_title').show();
+            $('#plots_box').show();
+            $('#loading-image').hide();
+            View.init();
         }
 
         return {
@@ -789,7 +822,7 @@ var PlotsView = (function () {
                 boxPlots: ""
             },   //DOM elements
             settings = {
-                canvas_width: 700,
+                canvas_width: 750,
                 canvas_height: 600
             },   //basic d3 canvas settings
             attr = {
@@ -892,7 +925,7 @@ var PlotsView = (function () {
                 var tmp_copy_no = [];
                 $.each(PlotsData.getDotsGroup(), function(index, value) {
                     tmp_copy_no.push(value.xVal);
-                })
+                });
                 for (var j = -2; j < 3; j++) {
                     if (tmp_copy_no.indexOf(j.toString()) !== -1) {
                         textSet.push(text.gistic_txt_val[j.toString()]);
@@ -913,7 +946,7 @@ var PlotsView = (function () {
                     .style("stroke-width", 0.5)
                     .style("stroke", "black")
                     .style("fill", "black")
-                    .text(function(d){return d});
+                    .text(function(d){return d;});
                 svg.append("g")
                     .style("stroke-width", 1.5)
                     .style("fill", "none")
@@ -1099,7 +1132,7 @@ var PlotsView = (function () {
                     addXaxisTitle(axisTitleGroup, xTitle);
                     addYaxisTitle(axisTitleGroup, yTitle);
                     addxAxisHelp(axisTitleGroup, xTitle);
-                    addyAxisHelp(axisTitleGroup, yTitle);
+                    addyAxisHelp(axisTitleGroup, yTitle);  
                 },
                 getXHelp: function() {
                     return xTitleHelp;
@@ -1184,8 +1217,6 @@ var PlotsView = (function () {
                     drawContinuousAxisMainY();
                 }
             };
-
-
         }());
 
         var Qtips = (function() {
@@ -1199,8 +1230,9 @@ var PlotsView = (function () {
                         content += "CNA: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
                             "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
                     }
-                    content += "Case ID: <strong><a href='tumormap.do?case_id=" + d.caseId +
-                        "&cancer_study_id=" + cancer_study_id + "' target = '_blank'>" + d.caseId +
+                    content += "Case ID: <strong><a href='"+
+                            +cbio.util.getLinkToSampleView(cancer_study_id,d.caseId)
+                            +"' target = '_blank'>" + d.caseId +
                         "</a></strong><br>";
                     if (d.mutationType !== 'non') {
                         content = content + "Mutation: " + "<strong>" + d.mutationDetail.replace(/,/g, ", ") + "<br>";
@@ -1211,8 +1243,9 @@ var PlotsView = (function () {
                     if (d.gisticType !== "Diploid" && !Util.isEmpty(d.gisticType)) {
                         content = content + "CNA: " + "<strong>" + d.gisticType + "</strong><br>";
                     }
-                    content += "Case ID: <strong><a href='tumormap.do?case_id=" + d.caseId +
-                        "&cancer_study_id=" + cancer_study_id + "'>" + d.caseId +
+                    content += "Case ID: <strong><a href='"
+                            +cbio.util.getLinkToSampleView(cancer_study_id,d.caseId)
+                            + "'>" + d.caseId +
                         "</a></strong><br>";
                     if (d.mutationType !== 'non') {
                         content = content + "Mutation: " + "<strong>" + d.mutationDetail.replace(/,/g, ", ") + "<br>";
@@ -1223,8 +1256,9 @@ var PlotsView = (function () {
                     if (d.gisticType !== "Diploid" && !Util.isEmpty(d.gisticType)) {
                         content = content + "CNA: " + "<strong>" + d.gisticType + "</strong><br>";
                     }
-                    content += "Case ID: <strong><a href='tumormap.do?case_id=" + d.caseId +
-                        "&cancer_study_id=" + cancer_study_id + "'>" + d.caseId +
+                    content += "Case ID: <strong><a href='"
+                            +cbio.util.getLinkToSampleView(cancer_study_id,d.caseId)
+                            + "'>" + d.caseId +
                         "</a></strong><br>";
                     if (d.mutationType !== 'non') {
                         content = content + "Mutation: " + "<strong>" + d.mutationDetail.replace(/,/g, ", ") + "<br>";
@@ -1314,7 +1348,6 @@ var PlotsView = (function () {
                     );
                 }
             };
-
         }());
 
         var ScatterPlots = (function() {
@@ -1426,7 +1459,7 @@ var PlotsView = (function () {
                             tmp_y_arr.push(parseFloat(value.yVal));
                         }
                     });
-                    tmp_y_arr.sort(function(a, b) { return a - b });
+                    tmp_y_arr.sort(function(a, b) { return (a - b); });
                     if (tmp_y_arr.length === 0) {
                         //Do nothing: DO NOT MOVE POSITION INDEX (pos)
                     } else if (tmp_y_arr.length === 1) {
@@ -1471,7 +1504,7 @@ var PlotsView = (function () {
                             for (var k = 0 ; k < tmp_y_arr.length ; k++) {
                                 scaled_y_arr[k] = parseFloat(attr.yScale(tmp_y_arr[k]));
                             }
-                            scaled_y_arr.sort(function(a,b) { return a-b });
+                            scaled_y_arr.sort(function(a,b) { return (a - b); });
                             IQR = Math.abs(quan2 - quan1);
                             var index_top = Util.searchIndexTop(scaled_y_arr, (quan2 - 1.5 * IQR));
                             top = scaled_y_arr[index_top];
@@ -1560,7 +1593,7 @@ var PlotsView = (function () {
                         return mutationStyle[d.mutationType].stroke;
                     })
                     .attr("stroke-width", 1.2)
-                    .attr("class", function(d) { return d.caseId});
+                    .attr("class", function(d) { return d.caseId; });
             }
 
             function drawContinuousPlots() {  //RPPA, DNA Methylation Views
@@ -1667,8 +1700,7 @@ var PlotsView = (function () {
                         drawBoxPlots(applyLogScale);
                     }
                 }
-            }
-
+            };
         }());
 
         var Legends = (function() {
@@ -1771,9 +1803,27 @@ var PlotsView = (function () {
                     } else {
                         drawOtherViewLegends();
                     }
+                    if (!Util.plotsIsDiscretized()) {
+                        var tmpDataAttr = PlotsData.getDataAttr();
+                        var tmpPearson = "Pearson: " + tmpDataAttr.pearson,
+                            tmpSpearman = "Spearman: " + tmpDataAttr.spearman;
+                        var coExpLegend = elem.svg.selectAll(".coexp_legend")
+                            .data(["Correlation", tmpPearson, tmpSpearman])
+                            .enter().append("g")
+                            .attr("class", "coexp_legend")
+                            .attr("transform", function(d, i) {
+                                return "translate(600, " + (150 + i * 15) + ")";
+                            });
+                        coExpLegend.append("text")
+                                .attr("dx", ".75em")
+                                .attr("dy", ".35em")
+                                .style("text-anchor", "front")
+                                .text(function(d) {
+                                    return d;
+                                });                      
+                    }
                 }
-            }
-
+            };
         }());
 
         function initCanvas() {
@@ -1822,13 +1872,13 @@ var PlotsView = (function () {
                 .attr("y", 50)
                 .attr("text-anchor", "middle")
                 .attr("fill", "#DF3A01")
-                .text(err_line1)
+                .text(err_line1);
             elem.svg.append("text")
                 .attr("x", 350)
                 .attr("y", 70)
                 .attr("text-anchor", "middle")
                 .attr("fill", "#DF3A01")
-                .text(err_line2)
+                .text(err_line2);
             elem.svg.append("rect")
                 .attr("x", 150)
                 .attr("y", 30)
@@ -1901,7 +1951,7 @@ var PlotsView = (function () {
             },
             applyLogScaleX: applyLogScaleX,
             applyLogScaleY: applyLogScaleY
-        }
+        };
     }());
 
     function getUserSelection() {
@@ -1922,7 +1972,7 @@ var PlotsView = (function () {
         var vals = [];
         for (var i = 0; i < sel.children.length; ++i) {
             var child = sel.children[i];
-            if (child.tagName == 'OPTION') vals.push(child.value.split("|")[0]);
+            if (child.tagName === 'OPTION') vals.push(child.value.split("|")[0]);
         }
         if (vals.indexOf(cancer_study_id + "_gistic") !== -1) {
             discretizedDataTypeIndicator = cancer_study_id + "_gistic";
@@ -1942,8 +1992,8 @@ var PlotsView = (function () {
         Plots.getProfileData(
             userSelection.gene,
             _profileIdsStr,
-            case_set_id,
-            case_ids_key,
+            patient_set_id,
+            patient_ids_key,
             getProfileDataCallBack
         );
     }
@@ -1965,26 +2015,18 @@ var PlotsView = (function () {
             Plots.getMutationType(
                 userSelection.gene,
                 cancer_study_id + "_mutations",
-                case_set_id,
-                case_ids_key,
+                patient_set_id,
+                patient_ids_key,
                 getMutationTypeCallBack
             );
         } else {
             PlotsData.init(profileDataResult, "");
-            $('#view_title').show();
-            $('#plots_box').show();
-            $('#loading-image').hide();
-            View.init();
         }
 
         function getMutationTypeCallBack(mutationTypeResult) {
             PlotsData.init(profileDataResult, mutationTypeResult);
-            $('#view_title').show();
-            $('#plots_box').show();
-            $('#loading-image').hide();
-            View.init();
-        }
 
+        }
     }
 
     return {

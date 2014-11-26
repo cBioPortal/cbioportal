@@ -31,17 +31,17 @@ import java.util.List;
  * <p/>
  * Created by criscuof on 11/11/14.
  */
-public class DmpSnpTransformerModel extends MutationModel {
+public class DmpSnpModel extends MutationModel {
 
     /*
     a data value object that represents a MutationModel subclass that maps
     DMP SNP attributes to a standard format for mutation data
      */
 
-    private static final Logger logger = Logger.getLogger(DmpSnpTransformerModel.class);
+    private static final Logger logger = Logger.getLogger(DmpSnpModel.class);
     private final DmpSnp snp;
 
-    DmpSnpTransformerModel(DmpSnp aSnp){
+    DmpSnpModel(DmpSnp aSnp){
         Preconditions.checkArgument(null != aSnp," A DmpSnp object is required");
         this.snp = aSnp;
     }

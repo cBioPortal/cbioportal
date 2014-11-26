@@ -213,7 +213,7 @@ var DataTable = function() {
                     _specialChar = ['(',')','/','?','+'];
 
                 if ( _attrId === 'CASE_ID'){
-                    _tmpValue = "<a href='case.do?case_id=" + 
+                    _tmpValue = "<a href='case.do?sample_id=" + 
                     _value['CASE_ID'] + "&cancer_study_id=" +
                     StudyViewParams.params.studyId + "' target='_blank'><span style='color: #2986e2'>" + 
                     _value['CASE_ID'] + "</span></a></strong>";

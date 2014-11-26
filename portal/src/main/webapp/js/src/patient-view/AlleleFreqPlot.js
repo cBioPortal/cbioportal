@@ -276,11 +276,11 @@ var AlleleFreqPlotMulti = function(div, data, options) {
                 .enter().insert("rect")
                 .attr("x", function(d) { return x(d.x) + 1; })
                 .attr("y", function(d) { return binned_yscale(d.y); })
-                .attr('class', k+'_viz_hist viz_hist')
+                .attr('class', window.caseIds.indexOf(k)+'_viz_hist viz_hist')
                 .attr("width", x(binned_data[k][0].dx + binned_data[k][0].x) - x(binned_data[k][0].x) - 1)
                 .attr("height", function(d) {return (height - binned_yscale(d.y)); })
                 .attr('fill', colors[k].fill)
-                .attr('opacity', '0.1')
+                .attr('opacity', (Object.keys(data).length > 1 ? '0.1': '0.5'))
                 ;
         }
     }
@@ -291,7 +291,7 @@ var AlleleFreqPlotMulti = function(div, data, options) {
             svg.append("path")
                     .datum(plot_data[k])
                     .attr("d", line)
-                    .attr('class', 'curve '+k+'_viz_curve viz_curve')
+                    .attr('class', 'curve '+window.caseIds.indexOf(k)+'_viz_curve viz_curve')
                     .attr('fill', 'none')
                     .attr('stroke', colors[k].stroke)
                     .attr('stroke-width', '1.5px')
@@ -323,11 +323,11 @@ var highlightSample = function (k) {
     $('.viz_hist').hide();
     $('.viz_curve').hide();
     if (window.allele_freq_plot_histogram_toggle) {
-        $("." + k + "_viz_hist").show();
-        $("." + k + "_viz_hist").attr('opacity', '0.5');
+        $("." + window.caseIds.indexOf(k) + "_viz_hist").show();
+        $("." + window.caseIds.indexOf(k) + "_viz_hist").attr('opacity', '0.5');
     }
     if (window.allele_freq_plot_curve_toggle) {
-        $("." + k + "_viz_curve").show();
+        $("." + window.caseIds.indexOf(k) + "_viz_curve").show();
     }
 }
 var showSamples = function () {
@@ -369,7 +369,11 @@ d3.legend = function(g, font_size) {
         .call(function(d) { d.exit().remove();})
         .attr("y",function(d,i) { return (i-0.1+i*spacing)+"em";})
         .attr("x","1em")
-        .text(function(d) { return d.key;})
+        .text(function(d) { 
+            var key = d.key;
+            var label = key.length > 9 ? key.substring(0,3) + "..." + key.slice(-3) : key;
+            return label;
+        })
     ;
     li.selectAll("circle")
         .data(items,function(d) { return d.key})
@@ -401,10 +405,13 @@ d3.legend = function(g, font_size) {
             .attr('height',(1+spacing)+'em')
             .style('fill',function(d) { return d.value.color;})
             .attr('opacity', '0')        
-            .on('mouseover', function(d) { $(this).attr('opacity','0.2'); highlightSample(d.key);})
+            .on('mouseover', (Object.keys(items).length > 1 ? 
+                function(d) { 
+                    $(this).attr('opacity','0.2'); highlightSample(d.key);
+                } : function(d) {}))
             .on('mouseout', function(d) { $(this).attr('opacity','0');})
     ;
-    li.on('mouseout', function() { showSamples(); });
+    li.on('mouseout', (Object.keys(items).length > 1 ? function() { showSamples(); } : function() {}));
     // Reposition and resize the box
     var lbbox = li[0][0].getBBox()  
     lb.attr("x",(lbbox.x-legendPadding))

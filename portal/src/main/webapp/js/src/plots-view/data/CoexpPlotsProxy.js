@@ -35,7 +35,7 @@ var CoexpPlotsProxy = (function() {
                     datum.x_val = _obj_x["value"];  
                     datum.y_val = _obj_y["value"];
                     datum.case_id = _obj_x["caseId"];
-                    datum.qtip = "Case ID: <strong><a href='"
+                    datum.qtip = "Sample ID: <strong><a href='"
                             +cbio.util.getLinkToSampleView(window.PortalGlobals.getCancerStudyId(),_obj_x["caseId"])
                             +"' target='_blank'>" + 
                              _obj_x["caseId"] + "</a></strong><br>" + 

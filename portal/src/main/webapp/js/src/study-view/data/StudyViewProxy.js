@@ -215,8 +215,8 @@ var StudyViewProxy = (function() {
                 if(!caseidExist){
                     obtainDataObject['attr'].push({
                         attr_id: 'CASE_ID',
-                        display_name: 'CASE ID',
-                        description: 'Case Identifier',
+                        display_name: 'SAMPLE ID',
+                        description: 'Sample Identifier',
                         datatype: 'STRING'
                     });
                 }

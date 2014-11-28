@@ -68,7 +68,7 @@ public class CnvFileHandlerImpl implements CnvFileHandler {
     public Table<String, String, String> initializeCnvTable() {
         Preconditions.checkState(null != this.cnvPath,
                 "The Path to the data_CNA.txt file has not been specified");
-
+        logger.info("Reading in existing cnv data from " +this.cnvPath.toString());
         Table<String, String,String> cnvTable = HashBasedTable.create();
         // determine if there are persisted cnv data; if so read into Table data structure
         if (Files.exists(cnvPath, LinkOption.NOFOLLOW_LINKS)) {
@@ -105,9 +105,8 @@ public class CnvFileHandlerImpl implements CnvFileHandler {
     /*
      method to write out updated CNV data as TSV file
      rows = gene names
-     columns = DMP smaple ids 
+     columns = DMP sample ids
      values  = gene fold change
-    
      since legacy entries may have been updated, previous file contents are overwritten
      */
 

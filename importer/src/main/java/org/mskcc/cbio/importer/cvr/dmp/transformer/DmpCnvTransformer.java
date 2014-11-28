@@ -17,6 +17,7 @@
  */
 package org.mskcc.cbio.importer.cvr.dmp.transformer;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
@@ -24,9 +25,13 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import com.google.inject.internal.Iterables;
+
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
 import org.apache.log4j.Logger;
@@ -34,7 +39,12 @@ import org.mskcc.cbio.importer.cvr.dmp.model.CnvVariant;
 import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
 import org.mskcc.cbio.importer.cvr.dmp.model.Result;
 import org.mskcc.cbio.importer.cvr.dmp.util.DMPCommonNames;
+import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.cnv.CnvFileHandler;
+import org.mskcc.cbio.importer.persistence.staging.cnv.CnvFileHandlerImpl;
+import org.mskcc.cbio.importer.persistence.staging.cnv.CnvTransformer;
+import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
+import org.mskcc.cbio.importer.persistence.staging.util.StagingUtils;
 import scala.Tuple3;
 
 /*
@@ -45,25 +55,18 @@ import scala.Tuple3;
  updates table with new CNV data
  persists updated table to designated file
  */
-public class DmpCnvTransformer implements DMPDataTransformable {
+public class DmpCnvTransformer extends CnvTransformer implements DMPDataTransformable {
 
-    private final CnvFileHandler fileHandler;
+
     private final static Logger logger = Logger.getLogger(DmpCnvTransformer.class);
-    private Table<String, String, String> cnvTable;
+
     private static final String cnaFileName = "data_CNA.txt";
 
     public DmpCnvTransformer(CnvFileHandler aHandler,Path stagingDirectoryPath) {
-        Preconditions.checkArgument(null != aHandler, "A CnvFileHandler implementaion is required");
-        Preconditions.checkArgument(null != stagingDirectoryPath,
-                "A Path to the staging file directory is required");
-        Preconditions.checkArgument(Files.isDirectory(stagingDirectoryPath, LinkOption.NOFOLLOW_LINKS),
-                "The specified Path: " + stagingDirectoryPath + " is not a directory");
-        Preconditions.checkArgument(Files.isWritable(stagingDirectoryPath),
-                "The specified Path: " + stagingDirectoryPath + " is not writable");
-        this.fileHandler = aHandler;
-        this.fileHandler.initializeFilePath(stagingDirectoryPath.resolve(cnaFileName));
-        // initialize the in-memory table
-        this.cnvTable = fileHandler.initializeCnvTable();
+        super(aHandler);
+        this.registerStagingFileDirectory(stagingDirectoryPath, true);
+        //this.fileHandler.initializeFilePath(stagingDirectoryPath.resolve(cnaFileName));
+
     }
 
     /*
@@ -92,17 +95,17 @@ public class DmpCnvTransformer implements DMPDataTransformable {
         this.resetDeprecatedSamples(data);
         Iterable<Tuple3<String, String, String>> cnvList = Iterables.concat(Lists.transform(data.getResults(), cnvFunction));
         for (Tuple3<String, String, String> cnv : cnvList) {
-            this.cnvTable.put(cnv._1(), cnv._2(), cnv._3().toString());
+            this.registerCnv(cnv._1(), cnv._2(), cnv._3().toString());
         }
-        // write out updated table
-        this.fileHandler.persistCnvTable(cnvTable);
+        // persist results to staging file
+        super.persistCnvData();
     }
-    
     /*
     private method to reset CNA data for deprecated samples from table
+
     */
     private void resetDeprecatedSamples(DmpData data) {
-        final Set<String> geneNameSet = this.cnvTable.rowKeySet();
+
          Set<String> deprecatedSamples = FluentIterable.from(data.getResults())
                 .filter(new Predicate<Result>() {                
                     @Override
@@ -118,14 +121,26 @@ public class DmpCnvTransformer implements DMPDataTransformable {
                     }
                 })
                 .toSet();
-        for (String sampleId : deprecatedSamples){         
-                for (String geneName : geneNameSet) {
-                   
-                    this.cnvTable.put(geneName, sampleId, "0");
-                     logger.info("Removed gene " + geneName +" from cnvtable for sample " 
-                            +sampleId);
-                }
-            
+        if (deprecatedSamples.size() >0) {
+            this.processDeprecatedSamples(deprecatedSamples);
+        }
+    }
+
+    // main method for stand alone testing
+    public static void main(String...args){
+        ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+        String tempDir = "/tmp/cvr/dmp";
+        File tmpDir = new File(tempDir);
+        tmpDir.mkdirs();
+        Path stagingFileDirectory = Paths.get(tempDir);
+        DmpCnvTransformer transformer = new DmpCnvTransformer( new CnvFileHandlerImpl(),
+                stagingFileDirectory);
+        try {
+            DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/cvr/dmp/result-sv.json"), DmpData.class);
+            transformer.transform(data);
+
+        } catch (IOException ex) {
+            logger.error(ex.getMessage());
         }
     }
     

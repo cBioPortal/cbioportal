@@ -17,17 +17,22 @@
  */
 package org.mskcc.cbio.importer.cvr.dmp.transformer;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.FluentIterable;
 import com.google.inject.internal.Lists;
 import com.google.inject.internal.Preconditions;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
 import org.mskcc.cbio.importer.cvr.dmp.model.Result;
 import org.mskcc.cbio.importer.cvr.dmp.persistence.file.DMPTumorTypeSampleMapManager;
+import org.mskcc.cbio.importer.persistence.staging.segment.SegmentFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.util.StagingUtils;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.clinical.ClinicalDataFileHandlerImpl;
@@ -74,11 +79,11 @@ public class DMPDataTransformer {
             ( new ClinicalDataFileHandlerImpl(), stagingDirectoryPath));
 
         //Structural Variants
-        TsvStagingFileHandler fileHandler = new MutationFileHandlerImpl();
-        fileHandler.registerTsvStagingFile(stagingDirectoryPath.resolve("data_fusions.txt"), FusionModel.resolveColumnNames(),true);
-        this.transformableList.add((DMPDataTransformable) new DmpFusionTransformer(fileHandler) );
+        this.transformableList.add((DMPDataTransformable) new DmpFusionTransformer
+                (new MutationFileHandlerImpl(),stagingDirectoryPath) );
         // segment data
-        //  this.transformableList.add( new DmpSegmentDataTransformer(new SegmentFileHandlerImpl(),stagingDirectoryPath));
+         this.transformableList.add( (DMPDataTransformable) new DmpSegmentDataTransformer
+                 ( new MutationFileHandlerImpl() , stagingDirectoryPath));
         // this.tumorTypeMap = new DMPTumorTypeSampleMapManager(this.fileManager);
     }
 
@@ -106,6 +111,21 @@ public class DMPDataTransformer {
         }).toList();
     }
 
-  
+    // main method for stand alone testing
+    public static void main(String...args){
+        ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+        String tempDir = "/tmp/cvr/dmp";
+        File tmpDir = new File(tempDir);
+        tmpDir.mkdirs();
+        Path stagingFileDirectory = Paths.get(tempDir);
+        DMPDataTransformer transformer = new DMPDataTransformer(stagingFileDirectory);
+        try {
+            DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/cvr/dmp/result-sv.json"), DmpData.class);
+            transformer.transform(data);
+
+        } catch (IOException ex) {
+            logger.error(ex.getMessage());
+        }
+    }
 
 }

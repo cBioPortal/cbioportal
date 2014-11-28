@@ -15,6 +15,7 @@ import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationModel;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationTransformer;
+import org.mskcc.cbio.importer.persistence.staging.util.StagingUtils;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -46,8 +47,12 @@ public class DmpSnpTransformer extends MutationTransformer implements DMPDataTra
 
     private final static Logger logger = Logger.getLogger(DmpSnpTransformer.class);
 
-    public DmpSnpTransformer(TsvStagingFileHandler aHandler) {
+    public DmpSnpTransformer(TsvStagingFileHandler aHandler,Path stagingFileDirectory) {
         super(aHandler);
+        if(StagingUtils.isValidStagingDirectoryPath(stagingFileDirectory)) {
+            aHandler.registerTsvStagingFile(stagingFileDirectory.resolve("data_mutations_extended.txt"),
+                    MutationModel.resolveColumnNames());
+        }
     }
 
     @Override
@@ -102,9 +107,9 @@ public class DmpSnpTransformer extends MutationTransformer implements DMPDataTra
         Path stagingFileDirectory = Paths.get(tempDir);
         TsvStagingFileHandler fileHandler = new MutationFileHandlerImpl();
 
-        fileHandler.registerTsvStagingFile(stagingFileDirectory.resolve("data_mutations_mutations.txt"),
-                MutationModel.resolveColumnNames(),true);
-        DmpSnpTransformer transformer = new DmpSnpTransformer(fileHandler);
+       // fileHandler.registerTsvStagingFile(stagingFileDirectory.resolve("data_mutations_mutations.txt"),
+        //        MutationModel.resolveColumnNames(),true);
+        DmpSnpTransformer transformer = new DmpSnpTransformer(fileHandler,stagingFileDirectory);
 
         try {
             DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/cvr/dmp/result-sv.json"), DmpData.class);

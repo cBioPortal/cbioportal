@@ -43,15 +43,22 @@ public abstract class CnvTransformer {
     protected CnvTransformer(CnvFileHandler aHandler){
         Preconditions.checkArgument(null!=aHandler,"A CnvFileHandler Implementation is required");
         this.fileHandler = aHandler;
-        this.cnaTable = HashBasedTable.create();
-
     }
 
-    public void registerStagingFileDirectory(CancerStudyMetadata csMetadata, Path stagingDirectoryPath){
+    public void registerStagingFileDirectory(Path stagingDirectoryPath, boolean reuse) {
         Preconditions.checkArgument(null != stagingDirectoryPath,
                 "A Path to the staging file directory is required");
         Path cnvPath = stagingDirectoryPath.resolve("data_CNA.txt");
         this.fileHandler.initializeFilePath(cnvPath);
+        // if we wish to reuse any  existing CNV data (e.g. DMP studies)
+        if (reuse) {
+            this.cnaTable = this.fileHandler.initializeCnvTable();
+        }
+    }
+
+    public void registerStagingFileDirectory(CancerStudyMetadata csMetadata, Path stagingDirectoryPath){
+        Preconditions.checkArgument(null != csMetadata," A CancerStudyMetadata object is required");
+        this.registerStagingFileDirectory(stagingDirectoryPath,false);
         this.generateMetadataFile(csMetadata,stagingDirectoryPath);
     }
 
@@ -59,7 +66,6 @@ public abstract class CnvTransformer {
         Path metadataPath = stagingDirectoryPath.resolve("meta_CNA.txt");
         MetadataFileHandler.INSTANCE.generateMetadataFile(this.generateMetadataMap(csMetadata),
                 metadataPath);
-
     }
 
     protected Map<String,String> generateMetadataMap(CancerStudyMetadata meta){
@@ -82,13 +88,12 @@ public abstract class CnvTransformer {
     }
 
 
-    protected void resetDeprecatedSamples(List<String> deprecatedSamples){
+    protected void processDeprecatedSamples(Set<String> deprecatedSamples){
+        logger.info(deprecatedSamples.size() +" DMP samples have been deprecated");
         Set<String> geneNameSet = this.cnaTable.rowKeySet();
         for (String sampleId : deprecatedSamples){
             for (String geneName : geneNameSet) {
                 this.cnaTable.put(geneName, sampleId, "0");
-                logger.info("Removed gene " + geneName +" from cnvtable for sample "
-                        +sampleId);
             }
 
         }

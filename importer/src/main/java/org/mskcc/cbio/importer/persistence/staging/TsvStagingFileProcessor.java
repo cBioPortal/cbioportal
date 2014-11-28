@@ -109,12 +109,17 @@ public abstract class TsvStagingFileProcessor {
                 "The requisite Path to the  staging file has not be specified");
         if (deprecatedSampleSet.size() > 0) {
             OpenOption[] options = new OpenOption[]{CREATE, APPEND, DSYNC};
+            Path tempDir = null;
+            Path tempFilePath = null;
             try {
                 // move staging file to a temporary file, filter out deprecated samples,
                 // then write non-deprecated samples
                 // back to staging files
                 //TODO: change this implementation
-                Path tempFilePath = Paths.get("/tmp/dmp/tempfile.txt");
+
+                //Path tempFilePath = Paths.get("/tmp/dmp/tempfile.txt");
+                tempDir = Files.createTempDirectory("dmptemp");
+                tempFilePath = Files.createTempFile(tempDir, ".txt" ,null);
                 Files.deleteIfExists(tempFilePath);
                 Files.move(this.stagingFilePath, tempFilePath);
                 logger.info(" processing " + tempFilePath.toString());
@@ -148,10 +153,16 @@ public abstract class TsvStagingFileProcessor {
                 Files.write(this.stagingFilePath,Lists.newArrayList(headings), Charset.defaultCharset(),options);
                 // data
                 Files.write(this.stagingFilePath, filteredSamples, Charset.defaultCharset(), options);
-                Files.delete(tempFilePath);
             } catch (IOException ex) {
                 logger.error(ex.getMessage());
                 ex.printStackTrace();
+            } finally {
+                try {
+                    Files.delete(tempFilePath);
+                    Files.delete(tempDir);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
 
         }

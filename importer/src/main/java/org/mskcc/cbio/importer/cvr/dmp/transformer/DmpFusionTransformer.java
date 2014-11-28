@@ -13,6 +13,8 @@ import org.mskcc.cbio.importer.persistence.staging.fusion.FusionModel;
 import org.mskcc.cbio.importer.persistence.staging.fusion.FusionTransformer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
+import org.mskcc.cbio.importer.persistence.staging.mutation.MutationModel;
+import org.mskcc.cbio.importer.persistence.staging.util.StagingUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,8 +50,12 @@ public class DmpFusionTransformer extends FusionTransformer
 
     private final static Logger logger = Logger.getLogger(DmpFusionTransformer.class);
 
-    public DmpFusionTransformer(TsvStagingFileHandler aHandler) {
+    public DmpFusionTransformer(TsvStagingFileHandler aHandler, Path stagingFileDirectory) {
         super(aHandler);
+        if(StagingUtils.isValidStagingDirectoryPath(stagingFileDirectory)) {
+            aHandler.registerTsvStagingFile(stagingFileDirectory.resolve("data_fusions.txt"),
+                    MutationModel.resolveColumnNames());
+        }
     }
 
     @Override
@@ -109,11 +115,7 @@ public class DmpFusionTransformer extends FusionTransformer
     public static void main(String...args){
         ObjectMapper OBJECT_MAPPER = new ObjectMapper();
         Path stagingFileDirectory = Paths.get("/tmp/cvr/dmp");
-        TsvStagingFileHandler fileHandler = new MutationFileHandlerImpl();
-
-        fileHandler.registerTsvStagingFile(stagingFileDirectory.resolve("data_fusions.txt"), FusionModel.resolveColumnNames(),true);
-        DmpFusionTransformer transformer = new DmpFusionTransformer(fileHandler);
-
+        DmpFusionTransformer transformer = new DmpFusionTransformer(new MutationFileHandlerImpl(), stagingFileDirectory);
         try {
             DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/cvr/dmp/result-sv.json"), DmpData.class);
             transformer.transform(data);

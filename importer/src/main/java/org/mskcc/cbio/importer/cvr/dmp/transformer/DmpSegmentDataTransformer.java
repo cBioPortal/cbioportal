@@ -1,5 +1,6 @@
 package org.mskcc.cbio.importer.cvr.dmp.transformer;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -10,14 +11,21 @@ import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
 import org.mskcc.cbio.importer.cvr.dmp.model.Result;
 import org.mskcc.cbio.importer.cvr.dmp.model.SegmentData;
 import org.mskcc.cbio.importer.cvr.dmp.util.DMPCommonNames;
+import org.mskcc.cbio.importer.cvr.dmp.util.DmpUtils;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
+import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
+import org.mskcc.cbio.importer.persistence.staging.mutation.MutationModel;
 import org.mskcc.cbio.importer.persistence.staging.segment.SegmentModel;
 import org.mskcc.cbio.importer.persistence.staging.segment.SegmentTransformer;
+import org.mskcc.cbio.importer.persistence.staging.util.StagingUtils;
 
 import javax.annotation.Nullable;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
 
@@ -51,13 +59,9 @@ class DmpSegmentDataTransformer extends SegmentTransformer implements DMPDataTra
 
     public DmpSegmentDataTransformer(TsvStagingFileHandler aHandler, Path stagingDirectoryPath) {
         super(aHandler);
-        Preconditions.checkArgument(null != stagingDirectoryPath,
-                "A Path to the staging file directory is required");
-        Preconditions.checkArgument(Files.isDirectory(stagingDirectoryPath, LinkOption.NOFOLLOW_LINKS),
-                "The specified Path: " + stagingDirectoryPath + " is not a directory");
-        Preconditions.checkArgument(Files.isWritable(stagingDirectoryPath),
-                "The specified Path: " + stagingDirectoryPath + " is not writable");
-        this.registerStagingFileDirectory(stagingDirectoryPath);
+        if (StagingUtils.isValidStagingDirectoryPath(stagingDirectoryPath)) {
+            this.registerStagingFileDirectory(stagingDirectoryPath);
+        }
     }
 
     @Override
@@ -65,32 +69,8 @@ class DmpSegmentDataTransformer extends SegmentTransformer implements DMPDataTra
         // the deprecated samples in the legacy data must be removed before appending
         // the new samples
         Preconditions.checkArgument(null != data, "A DmpData object is required");
-
-        Set<String> deprecatedSamples = FluentIterable.from(data.getResults())
-                .filter(new Predicate<Result>() {
-                    @Override
-                    public boolean apply(Result result) {
-                        return (result.getMetaData().getRetrieveStatus() == DMPCommonNames.DMP_DATA_STATUS_RETRIEVAL) ;
-                    }
-                })
-                .transform(new Function<Result, String>() {
-
-                    @Override
-                    public String apply(Result result) {
-                        return result.getMetaData().getDmpSampleId();
-                    }
-                })
-                .toSet();
-
-
-        logger.info(deprecatedSamples.size() + " samples have been deprecated by new DMP data");
-
-
-        // remove any deprecated Samples
-        if (!deprecatedSamples.isEmpty()) {
-            this.fileHandler.removeDeprecatedSamplesFomTsvStagingFiles(DMPCommonNames.SEGMENT_ID_COLUMN_NAME, deprecatedSamples);
-
-        }
+        // remove any deprecated samples
+        DmpUtils.removeDeprecatedSamples(data, this.fileHandler);
         this.processSegments(data);
     }
 
@@ -113,6 +93,26 @@ class DmpSegmentDataTransformer extends SegmentTransformer implements DMPDataTra
 
         // output the list of SegmentData objects to the staging file
         this.fileHandler.transformImportDataToTsvStagingFile(segmentModelList, SegmentModel.getTransformationModel());
+    }
+
+    // main method for stand alone testing
+    public static void main(String...args){
+        ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+        String tempDir = "/tmp/cvr/dmp";
+        File tmpDir = new File(tempDir);
+        tmpDir.mkdirs();
+        Path stagingFileDirectory = Paths.get(tempDir);
+        TsvStagingFileHandler fileHandler = new MutationFileHandlerImpl();
+
+        DmpSegmentDataTransformer transformer = new DmpSegmentDataTransformer(fileHandler,stagingFileDirectory);
+
+        try {
+            DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/cvr/dmp/result-sv.json"), DmpData.class);
+            transformer.transform(data);
+
+        } catch (IOException ex) {
+            logger.error(ex.getMessage());
+        }
     }
 
 }

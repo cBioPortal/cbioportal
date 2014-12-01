@@ -54,7 +54,6 @@ public class PatientClinicalReportGenerator {
     responsible for generating a tsv file containing all persisted clinical findings
     for a specified patient within the Darwin data repository
      */
-
     private static final Logger logger = Logger.getLogger(PatientClinicalReportGenerator.class);
     private final List<DarwinTransformer> darwinTransformerList = Lists.newArrayList();
 
@@ -71,7 +70,6 @@ public class PatientClinicalReportGenerator {
         this.completeTransformerMap();
         this.completeTransformerList();
         this.workbook = new XSSFWorkbook();
-
     }
 
     private void completeTransformerMap(){
@@ -80,7 +78,6 @@ public class PatientClinicalReportGenerator {
         this.transformerMap.put("Lab Results",new DarwinLabResultTransformer(this.stagingFilePath.resolve("data_clinical_lab_result.txt")) );
         this.transformerMap.put("Pathology", new DarwinPathologyDataTransformer(this.stagingFilePath.resolve("data_clinical_pathology_result.txt")));
         this.transformerMap.put("Tumor",new DarwinTumorTransformer(this.stagingFilePath.resolve("data_clinical_tumor.txt")));
-
     }
 
 
@@ -125,7 +122,6 @@ public class PatientClinicalReportGenerator {
 
         }
         return patientReport;
-
     }
 
     private void generateSheet(String name, List<String> dataList) {
@@ -158,12 +154,5 @@ public class PatientClinicalReportGenerator {
         } catch (IOException e) {
             e.printStackTrace();
        }
-
-
     }
-
-
-
-    
-
 }

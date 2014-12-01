@@ -34,6 +34,7 @@ public interface StagingCommonNames {
     public static final String segmentFileBaseName = "_data_cna_hg.seg";
 
     public static final Splitter tabSplitter = Splitter.on("\t");
+    public static final Splitter lineSplitter = Splitter.on("\n").trimResults();
     public static final Splitter blankSplitter = Splitter.on(" ");
     public static final Splitter scSplitter = Splitter.on(";");
     public static final Joiner scJoiner = Joiner.on(";");

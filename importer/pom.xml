@@ -119,7 +119,7 @@
             <artifactId>mybatis-generator-core</artifactId>
             <version>1.3.0</version>
         </dependency>
-
+	  
 	<!-- google -->
 	<dependency>
         <groupId>com.google.guava</groupId>

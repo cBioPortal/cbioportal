@@ -261,6 +261,11 @@
     text-align: left;
     padding-top: 4px;
 }
+.study-view-tables .dataTables_filter {
+    width: 100%;
+    text-align: left;
+    padding-top: 4px;
+}
 .qtip-content .dataTables_filter {
     width: 100%;
 }
@@ -373,13 +378,16 @@
 .pieLabel:hover{
     cursor: pointer;
 }
-.study-view-word-cloud {
+.study-view-tables {
     float:left;
     width:180px;
-    height:220px;
     border:1px;
     border-color:lightgrey;
     border-style:solid;
+}
+
+.study-view-tables table thead th {
+    font-size: 10px;
 }
 .study-view-pdf-svg-side {
     position: absolute;

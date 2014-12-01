@@ -77,7 +77,7 @@ public class DarwinClinicalNoteTransformer extends DarwinTransformer {
         DarwinClinicalNoteTransformer transformer = new DarwinClinicalNoteTransformer(filePath);
         transformer.transform();
         // test for an individual patient
-        for (String s : transformer.generateReportByPatientId(1339055)) {
+        for (String s : transformer.generateReportByPatientId(1519355)) {
             System.out.println(s);
         }
 

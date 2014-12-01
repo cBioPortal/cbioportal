@@ -147,7 +147,7 @@ public class PatientClinicalReportGenerator {
         PatientClinicalReportGenerator generator = new PatientClinicalReportGenerator(patientPath);
         generator.generateWorksheet(1519355);
         List<String> report = generator.generatePatientReport(1519355);
-        Path reportPath = patientPath.resolve("patient_1339055.txt");
+        Path reportPath = patientPath.resolve("patient_15193555.txt");
         try {
            Files.deleteIfExists(reportPath);
             Files.write(reportPath, report, Charset.defaultCharset(),options);

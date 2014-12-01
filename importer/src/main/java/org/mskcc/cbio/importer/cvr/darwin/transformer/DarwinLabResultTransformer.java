@@ -76,7 +76,7 @@ public class DarwinLabResultTransformer extends DarwinTransformer {
         DarwinLabResultTransformer transformer = new  DarwinLabResultTransformer(labPath);
         transformer.transform();
         // test report for individual patient
-        for(String line: transformer.generateReportByPatientId(1339055)) {
+        for(String line: transformer.generateReportByPatientId(1519355)) {
             System.out.println(line);
         }
         // terminate the SQL session

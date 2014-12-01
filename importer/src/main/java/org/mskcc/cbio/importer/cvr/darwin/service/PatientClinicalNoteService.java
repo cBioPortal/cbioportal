@@ -1,8 +1,6 @@
 package org.mskcc.cbio.importer.cvr.darwin.service;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.base.Strings;
+import com.google.common.base.*;
 import com.google.common.collect.*;
 
 import org.apache.commons.lang.StringUtils;
@@ -143,11 +141,15 @@ public class PatientClinicalNoteService {
             boolean processed = false;
             for (String attribute : ClinicalNoteNames.CN_ATTIBUTE_LIST){
                 if (line.startsWith(attribute)) {
-                    if(null != attributeName && sb.length() > 0) {
-                        clinTable.put(seq, attributeName,sb.toString());
-                       // logger.info("row = " + seq.toString() +" col = " +attributeName  +" value = " +sb.toString());
-                        sb.setLength(0);
 
+                    if(null != attributeName && sb.length() > 0) {
+                        if (attributeName.equals(ClinicalNoteNames.CN_REVIEW_OF_SYSTEMS)){
+                            this.processROS(seq, sb.toString(), clinTable);
+                        } else {
+                            clinTable.put(seq, attributeName, sb.toString());
+
+                        }
+                        sb.setLength(0);
                     }
                     attributeName = attribute;
                     sb.append(line.replace(attribute,""));
@@ -163,9 +165,37 @@ public class PatientClinicalNoteService {
         return ;
     }
 
+    /*
+    Review of Systems mus be parsed by keyword substrings
+     */
+    private void processROS(Integer seq, String rosString, Table<Integer, String,String> clinTable){
+        Splitter wsSplitter = Splitter.on(CharMatcher.BREAKING_WHITESPACE).trimResults().omitEmptyStrings();
+        String s1 = CharMatcher.JAVA_ISO_CONTROL.removeFrom(rosString);
+        String s2 = CharMatcher.WHITESPACE.trimAndCollapseFrom(s1,' ');
+        List<String> words = wsSplitter.splitToList(s2);
+        String keyword = null;
+        StringBuilder sb = new StringBuilder();
+        for (String word : words) {
+            //logger.info(word);
+            if (ClinicalNoteNames.ROS_KEYWORD_LIST.contains(word)){
+                if(!Strings.isNullOrEmpty(keyword) && !Strings.isNullOrEmpty(sb.toString())){
+                    String columnName = "ROS_" +keyword;
+                    clinTable.put(seq, columnName, sb.toString());
+
+                }
+                keyword = word;
+                sb.setLength(0);
+            } else if (!Strings.isNullOrEmpty(keyword)){
+                sb.append(word);
+                sb.append(" ");
+            }
+
+        }
+
+    }
 
     public static void main (String...args){
-        OpenOption[] options = new OpenOption[]{ CREATE, APPEND, DSYNC};
+
         Path clinicalPath = Paths.get("/tmp/cvr/patient/clinical");
         PatientClinicalNoteService service = new PatientClinicalNoteService(clinicalPath);
         service.processClinicalNotesForPatient(1519355);

@@ -31,6 +31,7 @@ public interface ClinicalNoteNames {
     public static final String CN_INTERVAL_HISTORY = "INTERVAL HISTORY:";
     public static final String CN_MEDICATIONS = "MEDICATIONS:";
     public static final String CN_DIAGNOSIS = "DIAGNOSIS:";
+    public static final String CN_CONSTIT = "CONSTIT.:";
     public static final String CN_REVIEW_OF_SYSTEMS = "REVIEW OF SYSTEMS:";
     public static final String CN_PHYSICAL_EXAMINATION = "PHYSICAL_EXAMINATION:";
     public static final String CN_PHYSICAL_EXAMINATION_GENERAL = "GENERAL:";
@@ -43,21 +44,43 @@ public interface ClinicalNoteNames {
     public static final String CN_PHYSICAL_EXAMINATION_SKIN = "SKIN:";
     public static final String CN_PHYSICAL_EXAMINATION_EXTREMITIES = "EXTREMITIES:";
     public static final String CN_PHYSICAL_EXAMINATION_NEURO = "NEURO:";
-    public static final String CN_DATA_REVIEW = "DATA_REVIEW:";
+    public static final String CN_DATA_REVIEW = "DATA REVIEW:";
+    public static final String CN_HEME = "HEME:";
     public static final String CN_IMPRESSION = "IMPRESSION";
     public static final String CN_PLAN = "PLAN:";
+    public static final String CN_IMPRESSION_PLAN = "IMPRESSION/PLAN:";
+    public static final String CN_SOCIAL = "SOCIAL:";
     public static final String CN_FAMILY_SOCIAL_HISTORY = "FAMILY, SOCIAL HISTORY:";
-
+    public static final String CN_ALLERGIES = "ALLERGIES:";
+    public static final String CN_CHIEF_COMPLAINT = "CHIEF COMPLAINT:";
+    public static final String CN_PAST_SURGICAL_HISTORY = "PAST SURGICAL HISTORY:";
+    public static final String CN_SUMMARY = "SUMMARY:";
     public static final String CN_PAGE = "PAGE:";
     public static final String CN_NAME = "NAME:";
     public static final String CN_DICT = "DICT:";
+    public static final String CN_DATE = "DATE:";
+    public static final String CN_DOB = "DOB:";
     public static final String CN_ATTENDING = "ATTENDING:";
 
 
     public static final List<String> FILTER_LIST = Lists.newArrayList(
             CN_PAGE, CN_NAME, CN_DICT, CN_ATTENDING,"**INSTITUTION","OUTPATIENT PROGRESS", CN_PHYSICAL_EXAMINATION,
             "INTERNAL", "Report Electronically Signed","**NAME","TRANS","*JOB-NUM","OUTPATIENT","FOLLOWUP VISIT",
-                    "DATE:","B/","INITIAL CONSULTATION","DOB:"
+                    "B/","INITIAL CONSULTATION"
+
+    );
+
+    /*
+    Lisy of Review of Systems keywords
+     */
+    public static final List<String> ROS_KEYWORD_LIST = Lists.newArrayList(
+            "CONSTIT.:", "EYES:","ENT:","RESP:","CV:","GI:","GU:",
+            "EXTREMITIES:","HEME:","NEURO:","PSYCH:","SUMMARY:",
+            "SKIN:","MS:"
+    );
+
+    public static final List<String> REVIEW_OF_SYSTEMS_SUBFIELD_LIST = Lists.newArrayList(
+            CN_CONSTIT, CN_HEME, CN_SUMMARY, CN_PHYSICAL_EXAMINATION_EXTREMITIES
 
     );
 
@@ -67,8 +90,9 @@ public interface ClinicalNoteNames {
             CN_PHYSICAL_EXAMINATION_VITAL_SIGNS, CN_PHYSICAL_EXAMINATION_HEAD_NECK, CN_PHYSICAL_EXAMINATION_NODES,
             CN_PHYSICAL_EXAMINATION_HEART, CN_PHYSICAL_EXAMINATION_LUNGS, CN_PHYSICAL_EXAMINATION_ABDOMEN,
             CN_PHYSICAL_EXAMINATION_SKIN, CN_PHYSICAL_EXAMINATION_EXTREMITIES, CN_PHYSICAL_EXAMINATION_NEURO,
-            CN_DATA_REVIEW, CN_IMPRESSION, CN_PLAN, CN_FAMILY_SOCIAL_HISTORY,"CHIEF COMPLAINT:","PAST SURGICAL_HISTORY:",
-            "ALLERGIES:","SOCIAL:","REVIEW OF SYSTEMS:"
+            CN_DATA_REVIEW, CN_IMPRESSION, CN_PLAN, CN_FAMILY_SOCIAL_HISTORY,CN_CHIEF_COMPLAINT,CN_PAST_SURGICAL_HISTORY,
+            CN_ALLERGIES,CN_SOCIAL,CN_REVIEW_OF_SYSTEMS, CN_CONSTIT, CN_HEME, CN_SUMMARY,CN_DATE,CN_DOB,
+            CN_IMPRESSION_PLAN
     );
 
     public static final List<String> PHYSICAL_EXAM_ATTRIBUTE_LIST = Lists.newArrayList(CN_PHYSICAL_EXAMINATION_GENERAL,

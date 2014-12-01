@@ -110,6 +110,10 @@ public final class DaoCancerStudy {
             if (overwrite) {
                 System.out.println("Overwrite cancer study " + stableId);
                 deleteCancerStudy(existing.getInternalId());
+                DaoGeneticProfile.reCache();
+                DaoPatient.reCache();
+                DaoSample.reCache();
+                DaoClinicalData.reCache();
             } else {
                 throw new DaoException("Cancer study " + stableId + "is already imported.");
             }

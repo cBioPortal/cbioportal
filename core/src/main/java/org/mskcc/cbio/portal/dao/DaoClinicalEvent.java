@@ -65,9 +65,9 @@ public final class DaoClinicalEvent {
             } else {
                 pstmt = con.prepareStatement("SELECT * FROM clinical_event WHERE PATIENT_ID=? AND EVENT_TYPE=?");
             }
-            pstmt.setInt(2, patientId);
+            pstmt.setInt(1, patientId);
             if (eventType!=null) {
-                pstmt.setString(3, eventType);
+                pstmt.setString(2, eventType);
             }
 
             rs = pstmt.executeQuery();

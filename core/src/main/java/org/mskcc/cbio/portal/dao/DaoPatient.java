@@ -37,7 +37,7 @@ public class DaoPatient {
     private static final MultiKeyMap byCancerIdAndStablePatientId = new MultiKeyMap();
 
     static {
-        cache();
+        reCache();
     }
 
     private static void clearCache()
@@ -47,7 +47,7 @@ public class DaoPatient {
         byCancerIdAndStablePatientId.clear();
     }
 
-    private static void cache()
+    public static synchronized void reCache()
     {
         clearCache();
 

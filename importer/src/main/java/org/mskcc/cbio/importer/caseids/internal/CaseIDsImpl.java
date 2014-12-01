@@ -37,6 +37,7 @@ public class CaseIDsImpl implements CaseIDs {
 
     private static final String SAMPLE_REGEX = "tcga-sample-pattern";
     private static final String PATIENT_REGEX = "tcga-patient-pattern";
+    private static final String TRUCATED_PATIENT_REGEX = "tcga-truncated-patient-pattern";
     private static final String NON_TCGA_REGEX = "non-tcga-pattern";
 
     private static final List<String> tcgaNormalTypes = initTCGANormalTypes();
@@ -48,6 +49,7 @@ public class CaseIDsImpl implements CaseIDs {
 	// ref to our matchers
     private Pattern samplePattern;
     private Pattern patientPattern;
+    private Pattern truncatedTCGAPatientPattern;
     private Pattern nonTCGAPattern;
 
 	/**
@@ -69,6 +71,9 @@ public class CaseIDsImpl implements CaseIDs {
 		for (CaseIDFilterMetadata caseIDFilter : caseIDFilters) {
             if (caseIDFilter.getFilterName().equals(PATIENT_REGEX)) {
                 patientPattern = Pattern.compile(caseIDFilter.getRegex());
+            }
+            else if (caseIDFilter.getFilterName().equals(TRUCATED_PATIENT_REGEX)) {
+                truncatedTCGAPatientPattern = Pattern.compile(caseIDFilter.getRegex());
             }
             else if (caseIDFilter.getFilterName().equals(SAMPLE_REGEX)) {
                 samplePattern = Pattern.compile(caseIDFilter.getRegex());
@@ -104,6 +109,12 @@ public class CaseIDsImpl implements CaseIDs {
         String cleanId = clean(caseId);
         Matcher matcher = samplePattern.matcher(cleanId);
         return (matcher.find()) ? tcgaNormalTypes.contains(matcher.group(2)) : false;
+    }
+
+    @Override
+    public boolean isTruncatedTCGAPatientId(String caseId)
+    {
+        return truncatedTCGAPatientPattern.matcher(caseId).matches();
     }
 
     @Override

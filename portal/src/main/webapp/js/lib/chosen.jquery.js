@@ -875,20 +875,53 @@
             }
         };
 
-        Chosen.prototype.result_activate = function (el) {
-            var ret = el.addClass("active-result");
+        Chosen.prototype.result_activate_up = function (el, activated) {
+            // recursively activates parents
+            var ret1 = el.addClass("active-result");
+            for (var i=0; i<el.length; i++) {
+                activated[el[i].id] = true;
+            }
+            var ret2 = true;
             try {
                 var parent = el[0].attributes.getNamedItem("data-parent");
-            } catch(err) {
+                if (parent) {
+                    parent = $("li[data-tree-id='" + parent.value + "']");
+                    if (parent) {
+                        ret2 = this.result_activate_up(parent, activated);
+                    }
+                }
+            } catch (err) {
                 // parent doesn't exist ... this is a problem with the naming right now
             }
-            if (parent) {
-                parent = $("li[data-tree-id='"+parent.value+"']");
-                if (parent) {
-                    this.result_activate(parent);
-                }
+            return ret1 && ret2;
+        }
+        
+        Chosen.prototype.result_activate_down = function(el, activated) {
+            var ret1 = el.addClass("active-result");
+            for (var i=0; i<el.length; i++) {
+                activated[el[i].id] = true;
             }
-            return ret;
+            var ret2 = true;
+            try {
+                for (var i=0; i<el.length; i++) {
+                    try {
+                        ret2 = ret2 && this.result_activate_down($("li[data-parent='"+
+                                                        el[i].attributes.getNamedItem("data-tree-id").value
+                                                        +"']"), activated);
+                    } catch(err) {
+                    }
+                }
+            } catch(err) {
+                // something went wrong
+            }
+            return ret1 && ret2;
+        }
+        
+        Chosen.prototype.result_activate = function (el, activated) {
+            // recursively activates all parents and children
+            var ret1 = this.result_activate_up(el, activated);
+            var ret2 = this.result_activate_down(el, activated);
+            return activated;
         };
 
         Chosen.prototype.result_deactivate = function (el) {
@@ -923,6 +956,8 @@
 
         Chosen.prototype.winnow_results = function() {
       var found, founddesc, option, part, parts, regex, regexAnchor, result, result_id, results, searchText, startpos, text, zregex, _i, _j, _len, _len1, _ref;
+      var activated = {};
+      var not_found = [];
       this.no_results_clear();
       results = 0;
       searchText = this.search_field.val() === this.default_text ? "" : $('<div/>').text($.trim(this.search_field.val())).html();
@@ -983,18 +1018,27 @@
                 text = option.html;
               }
               result.html(text);
-              this.result_activate(result);
+              this.result_activate(result, activated);
               if (option.group_array_index != null) {
                 $("#" + this.results_data[option.group_array_index].dom_id).css('display', 'list-item');
               }
             } else {
+                not_found.push({result:result, option:option, id:result[0].id});
+                result.html(option.html); // clear search highlight no matter what
+            }
+          }
+        }
+      }
+      for (var i=0; i<not_found.length; i++) {
+          // only hide if not activated by any other child/parent
+          if (!(not_found[i].id in activated)) {
+              result = not_found[i].result;
+              option = not_found[i].option;
               if (this.result_highlight && result_id === this.result_highlight.attr('id')) {
                 this.result_clear_highlight();
               }
               this.result_deactivate(result);
-            }
           }
-        }
       }
       if (results < 1 && searchText.length) {
         return this.no_results(searchText);

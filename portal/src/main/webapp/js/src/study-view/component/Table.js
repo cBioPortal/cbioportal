@@ -34,47 +34,70 @@ var Table = function() {
         attr = [],
         arr = [],
         dataTable = '',
+        callbacks = {},
         initStatus = false;
     
-    function init(input,callback) {
-        initData(input.data, input.opts);
-        initDiv();
-        initTable(input.data);
-        initDataTable();
+    function init(input) {
         initStatus = true;
-        if(typeof callback !== 'undefined' && callback) {
-            callback();
+        try {
+            initData(input);
+            initDiv();
+            initTable(input.data);
+            initDataTable();
+            addEvents();
+        }catch(e) {
+            initStatus = false;
+            throw e;
+        }
+        if(callbacks.hasOwnProperty('callback')) {
+            callbacks.callback();
         }
     }
     
-    function initData(data, opts) {
-        if(typeof opts === 'object' && opts.hasOwnProperty('tableId')) {
-           var tableId = opts.tableId;
-           
-           divs.attachedId = opts.parentId;
-           divs.mainId = tableId + '-main';
-           divs.title = opts.title;
-           divs.titleId = tableId + '-title';
-           divs.titleWrapperId = divs.titleId + '-wrapper';
-           divs.tableId = tableId;
-           divs.headerId = tableId + '-header';
-           divs.reloadId = tableId + '-reload-icon';
-           divs.downloadId = tableId + '-download-icon';
-           divs.downloadWrapperId = tableId + '-download-icon-wrapper'
-           divs.loaderId = tableId + '-loader';
-       }
+    function initData(input) {
+        if(input.hasOwnProperty('opts') && input.opts.hasOwnProperty('parentId')) {
+            var tableId = input.opts.hasOwnProperty('tableId')?input.opts.tableId:createTableId();
+
+            divs.attachedId = input.opts.parentId;
+            divs.mainId = tableId + '-main';
+            divs.title = input.opts.title || 'Unknown';
+            divs.titleId = tableId + '-title';
+            divs.titleWrapperId = divs.titleId + '-wrapper';
+            divs.deleteIconId = divs.titleId + '-delete';
+            divs.tableId = tableId;
+            divs.headerId = tableId + '-header';
+            divs.reloadId = tableId + '-reload-icon';
+            divs.downloadId = tableId + '-download-icon';
+            divs.downloadWrapperId = tableId + '-download-icon-wrapper'
+            divs.loaderId = tableId + '-loader';
+        }else {
+            initStatus = false;
+        }
+        
+        if(input.hasOwnProperty('callbacks')) {
+            callbacks = input.callbacks;
+        }
+    }
+    
+    function createTableId() {
+        var randomId = 'special-table-' + Math.floor((Math.random() * 100) + 1);
+        if($('#' + randomId).length === 0) {
+            return randomId;
+        }else {
+            return createTableId();
+        }
     }
     
     function initDiv() {
         var _div = "<div id='"+divs.mainId+"' class='study-view-dc-chart study-view-tables h1half w2'>"+
-            "<div id='"+divs.titleWrapperId+"'style='height: 16px; width:100%; float:left; text-align:center;'>"+
-                "<div style='height:16px;float:right;' id='"+divs.titleWrapperId+"'>"+
+            "<div id='"+divs.headerId+"'style='height: 16px; width:100%; float:left; text-align:center;'>"+
+                "<div class='titleWrapper' id='"+divs.titleWrapperId+"'>"+
                     "<img id='"+divs.reloadId+"' class='study-view-title-icon hidden hover' src='images/reload-alt.svg'/>"+    
 //                    "<div id='"+divs.downloadWrapperId+"' class='study-view-download-icon'>" +
 //                        "<img id='"+divs.downloadId+"' style='float:left' src='images/in.svg'/>"+
 //                    "</div>"+
                     "<img class='study-view-drag-icon' src='images/move.svg'/>"+
-                    "<span chartID='"+divs.tableId+"' class='study-view-dc-chart-delete'>x</span>"+
+                    "<span id='"+divs.deleteIconId+"' class='study-view-tables-delete'>x</span>"+
                 "</div>"+
                 "<chartTitleH4 id='"+divs.titleId+"'>"+divs.title+"</chartTitleH4>" +
             "</div>"+
@@ -85,8 +108,23 @@ var Table = function() {
         $('#' + divs.attachedId).append(_div);
     }
     
+    function addEvents() {
+        showHideDivision('#' + divs.mainId,['#' + divs.titleWrapperId],  0);
+        chartDelete();
+    }
+    
+    function chartDelete() {
+        $('#'+ divs.deleteIconId).click(function() {
+            if(callbacks.hasOwnProperty('deleteTable')) {
+                callbacks.deleteTable(divs.mainId, divs.title);
+            }else {
+                $('#'+divs.mainId).remove();
+            }
+        });
+    }
+    
     function initTable(data) {
-        var table = $('#' + divs.tableId)
+        var table = $('#' + divs.tableId);
         
         arr = data.arr;
         attr = data.attr;
@@ -235,10 +273,31 @@ var Table = function() {
     function redraw(data, callback) {
         dataTable.api().destroy();
         $('#' + divs.tableId).empty();
-        initData(data);
         initTable(data);
         initDataTable();
         callback();
+    }
+    
+    function showHideDivision(_listenedDiv, _targetDiv, _time){
+        var _targetLength = _targetDiv.length;
+        for ( var i = 0; i < _targetLength; i++) {
+            $(_targetDiv[i]).css('display', 'none');
+        }
+        $(_listenedDiv).hover(function(){
+            $(_listenedDiv).css('z-index', '1');
+            for ( var i = 0; i < _targetLength; i++) {
+                $(_targetDiv[i]).stop().fadeIn(_time, function(){
+                    $(this).css('display', 'block');
+                });
+            }
+        }, function(){
+            $(_listenedDiv).css('z-index', '0');
+            for ( var i = 0; i < _targetLength; i++) {
+                $(_targetDiv[i]).stop().fadeOut(_time, function(){
+                    $(this).css('display', 'none');
+                });
+            }
+        });
     }
     
     return {

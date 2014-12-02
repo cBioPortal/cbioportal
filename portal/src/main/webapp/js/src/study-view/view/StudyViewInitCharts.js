@@ -1038,52 +1038,49 @@ var StudyViewInitCharts = (function(){
         var _selectedChartType,
             _index,
             _chartType = [],
-            _selectedAttr = _id,
             _selectedAttrDisplay = _text,
             _chartID = -1,
             _createdFlag = true;
     
         if(_id === 'mutationCNA'){
             _chartType = ['scatter'];
-        }else if(_id === 'wordCloud'){
-            _chartType = ['wordCloud'];
         }else if(_id.indexOf('survival') !== -1){
             _chartType = [_id];
-        }else{
+        }else if(varType.hasOwnProperty(_id)){
             _chartType = varType[_id].split(',');
+        }else {
+            _chartType = [_id];
         }
 
         _selectedChartType = _chartType[0];
         
-        if(_selectedAttr==='mutationCNA'){
+        if(_id==='mutationCNA'){
             $("#study-view-scatter-plot").css('display','block');
-        }else if(_selectedAttr==='wordCloud'){
-            $("#study-view-word-cloud").css('display','block');
-        }else if(_selectedAttr.indexOf('survival') !== -1){
-            var tmp = _selectedAttr.split("-"),
+        }else if(_id.indexOf('survival') !== -1){
+            var tmp = _id.split("-"),
                 _index = tmp[tmp.length - 1];
             
             $("#study-view-survival-plot-" + _index).css('display','block');
-        }else{
+        }else if(varType.hasOwnProperty(_selectedChartType)){
             if(totalCharts < 31) {
-                if(Object.keys(attrNameMapUID).indexOf(_selectedAttr) !== -1){
-                    _chartID = attrNameMapUID[_selectedAttr];
+                if(Object.keys(attrNameMapUID).indexOf(_id) !== -1){
+                    _chartID = attrNameMapUID[_id];
                 }else{
                     _chartID = totalCharts;
                     HTMLtagsMapUID["study-view-dc-chart-" + totalCharts] = totalCharts;
-                    attrNameMapUID[_selectedAttr] = totalCharts;
+                    attrNameMapUID[_id] = totalCharts;
                     totalCharts++;       
                 }
 
                 if(_selectedChartType === 'pie'){
                     makeNewPieChartInstance(_chartID, 
-                                            {attr_id:_selectedAttr,
+                                            {attr_id:_id,
                                                 display_name:_selectedAttrDisplay});
                 }else{
                     makeNewBarChartInstance(_chartID,
-                                            {attr_id:_selectedAttr,
+                                            {attr_id:_id,
                                                 display_name:_selectedAttrDisplay},
-                                            distanceMinMaxArray[_selectedAttr]);
+                                            distanceMinMaxArray[_id]);
                 }
 
 
@@ -1110,6 +1107,8 @@ var StudyViewInitCharts = (function(){
                 alert("Can not create more than 30 plots.");
                 _createdFlag = false;
             }
+        }else {
+            $('#' + _id.replace('-option', '')).css('display','block');
         }
         
         if(_createdFlag) {
@@ -1121,7 +1120,7 @@ var StudyViewInitCharts = (function(){
             bondDragForLayout();
 
 //            $('#study-view-add-chart ul').find('li[id="' + _selectedAttr + '"]').remove();
-            $('#study-view-add-chart').find('option[id="' + _selectedAttr + '"]').remove();
+            $('#study-view-add-chart').find('option[id="' + _id + '"]').remove();
 //            if($('#study-view-add-chart ul').find('li').length === 0 ){
             if($('#study-view-add-chart').find('option').length === 1 && 
                     $('#study-view-add-chart').find('option').attr('id') === ''){
@@ -1140,7 +1139,7 @@ var StudyViewInitCharts = (function(){
 //            updateDataTableCallbackFuncs();
             filterCharts();
         },
-        
+        bondDragForLayout: bondDragForLayout,
         getFilteredResults: function() {
             var _filteredResult = varChart[attrNameMapUID['CASE_ID']].getCluster().top(Infinity);
             return _filteredResult;

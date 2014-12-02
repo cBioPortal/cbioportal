@@ -52,6 +52,7 @@ var StudyViewInitTables = (function() {
             
             _worker.opts = {};
             _worker.data = {};
+            _worker.callbacks = {};
             
             switch (e.name) {
                 case 'mutatedGenes':
@@ -100,8 +101,20 @@ var StudyViewInitTables = (function() {
             _worker.opts.tableId = 'study-view-table-' + e.name;
             _worker.opts.parentId = 'study-view-charts';
             _worker.opts.webService = e.webService;
+            _worker.callbacks.deleteTable = deleteTable;
             workers.push(_worker);
         });
+    }
+    
+    function deleteTable(tableId, title) {
+        $('#' + tableId).css('display','none');
+        $('#study-view-add-chart').css('display','block');
+        $('#study-view-add-chart')
+                .append($('<option></option>')
+                    .attr('id',tableId + '-option')
+                    .text(title));
+        StudyViewInitCharts.bondDragForLayout();
+        AddCharts.bindliClickFunc();
     }
     
     function initTables() {

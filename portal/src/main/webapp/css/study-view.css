@@ -385,7 +385,12 @@
     border-color:lightgrey;
     border-style:solid;
 }
-
+.study-view-tables .titleWrapper {
+    height:16px;
+    float:right;
+    position: absolute;
+    right: 0;
+}
 .study-view-tables table thead th {
     font-size: 10px;
 }
@@ -480,6 +485,13 @@
     color: grey;
     cursor: pointer;
 }
+.study-view-tables-delete {
+    float: left;
+    margin-right: 5px;
+    color: grey;
+    cursor: pointer;
+} 
+
 .study-view-chart-plot-delete{  
     margin-right: 5px;
     color: grey;

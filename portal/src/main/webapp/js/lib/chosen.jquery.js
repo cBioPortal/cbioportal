@@ -58,7 +58,8 @@
             text: option.text,
             html: option.innerHTML,
             selected: option.selected,
-            disabled: group_disabled === true ? group_disabled : option.disabled,
+            is_group_header: false,
+            disabled: group_disabled || option.disabled,
             group_array_index: group_position,
             classes: option.className,
             style: option.style.cssText
@@ -68,6 +69,15 @@
           }
           if (option.hasAttribute('data-depth')) {
               topush.depth = +option.getAttribute('data-depth');
+          }
+          if (option.hasAttribute('data-is-group-header')) {
+              topush.is_group_header = true;
+          }
+          if (option.hasAttribute('data-parent')) {
+              topush.parent = option.getAttribute('data-parent');
+          }
+          if (option.hasAttribute('data-tree-id')) {
+              topush.tree_id = option.getAttribute('data-tree-id');
           }
           this.parsed.push(topush);
         } else {
@@ -214,8 +224,18 @@
         if (option.description) {
             ret += 'data-description="'+option.description+'" ';
         }
+        if (option.parent) {
+            ret += 'data-parent="'+option.parent+'" ';
+        }
+        if (option.tree_id) {
+            ret += 'data-tree-id="'+option.tree_id+'" ';
+        }
         if (option.disabled) {
             ret += 'data-disabled="true" ';
+            style += '; cursor:default';
+        }
+        if (option.is_group_header) {
+            ret += 'data-is-group-header="true" ';
             style += '; cursor:default';
         }
         ret +='id="' + option.dom_id + '" class="' + classes.join(' ') + '"' + 'style="' + style + '"' + '>' + option.html + '</li>';
@@ -638,7 +658,7 @@
 
         Chosen.prototype.result_do_highlight = function (el) {
             var high_bottom, high_top, maxHeight, visible_bottom, visible_top;
-            if (el.length && !el[0].attributes.getNamedItem('data-disabled')) {
+            if (el.length && !el[0].attributes.getNamedItem('data-disabled') && !el[0].attributes.getNamedItem('data-is-group-header')) {
                 this.result_clear_highlight();
                 this.result_highlight = el;
                 this.result_highlight.addClass("highlighted");
@@ -856,7 +876,19 @@
         };
 
         Chosen.prototype.result_activate = function (el) {
-            return el.addClass("active-result");
+            var ret = el.addClass("active-result");
+            try {
+                var parent = el[0].attributes.getNamedItem("data-parent");
+            } catch(err) {
+                // parent doesn't exist ... this is a problem with the naming right now
+            }
+            if (parent) {
+                parent = $("li[data-tree-id='"+parent.value+"']");
+                if (parent) {
+                    this.result_activate(parent);
+                }
+            }
+            return ret;
         };
 
         Chosen.prototype.result_deactivate = function (el) {
@@ -900,7 +932,7 @@
       _ref = this.results_data;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         option = _ref[_i];
-        if (!option.disabled && !option.empty) {
+        if (!option.empty) {
           if (option.group) {
             $('#' + option.dom_id).css('display', 'none');
           } else if (!(this.is_multiple && option.selected)) {

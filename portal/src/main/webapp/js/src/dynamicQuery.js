@@ -696,7 +696,7 @@ function addMetaDataToPage() {
     var cancerTypeContainer = $("#select_cancer_type");
 
     // Construct oncotree
-    var oncotree = {"":{type:"", studies:[], children:[], parent: false, hasstudy:false}};
+    var oncotree = {"":{type:"", studies:[], children:[], parent: false, hasstudy:false, tissue:""}};
     var parents = json.parent_type_of_cancers;
     var tissues = {};
     var tumors = {};
@@ -712,20 +712,20 @@ function addMetaDataToPage() {
     // Put tissues in tree
     for (var tissue in tissues) {
         if (tissues.hasOwnProperty(tissue)) {
-            oncotree[tissue] = {type:tissue, studies:[], children:[], parent: oncotree[""], hasstudy: false};
+            oncotree[tissue] = {type:tissue, studies:[], children:[], parent: oncotree[""], hasstudy: false, tissue:tissue};
             oncotree[""].children.push(oncotree[tissue]);
         }
     }
     // Put tumors in tree
     for (var tumor in tumors) {
         if (tumors.hasOwnProperty(tumor)) {
-            var tumor_node = {type:tumor, studies:[], children:[], parent:false, hasstudy:false}
+            var tumor_node = {type:tumor, studies:[], children:[], parent:false, hasstudy:false, tissue:false}
             var tumor_names = tumor.split("/");
             for (var i=0; i<tumor_names.length; i++) {
                 oncotree[tumor_names[i]] = oncotree[tumor_names[i]] || tumor_node;
             }
             if (!(parents[tumor] in tissues)) {
-                var parent_node = {type:parents[tumor], studies:[], children:[], parent:false, hasstudy:false};
+                var parent_node = {type:parents[tumor], studies:[], children:[], parent:false, hasstudy:false, tissue:false};
                 var parent_names = parents[tumor].split("/");
                 for (var i=0; i<parent_names.length; i++) {
                     oncotree[parent_names[i]] = oncotree[parent_names[i]] || parent_node;
@@ -735,6 +735,20 @@ function addMetaDataToPage() {
             } else {
                 oncotree[parents[tumor]].children.push(oncotree[tumor_names[0]]);
                 oncotree[tumor_names[0]].parent = oncotree[parents[tumor]];
+            }
+        }
+    }
+    // Insert tissue information in a "union-find" type way
+    for (var elt in oncotree) {
+        if (oncotree.hasOwnProperty(elt) && elt !== '') {
+            var to_modify = [];
+            var currelt = oncotree[elt];
+            while (!currelt.tissue && currelt.type !== '') {
+                to_modify.push(currelt);
+                currelt = currelt.parent;
+            }
+            for (var i=0; i<to_modify.length; i++) {
+                to_modify[i].tissue = currelt.tissue;
             }
         }
     }
@@ -793,10 +807,17 @@ function addMetaDataToPage() {
         for (var i=0; i<names.length; i++) {
             possible_label = possible_label || json.type_of_cancers[names[i]];
         }
+        console.log(root);
         var label = possible_label || root.type;
         if (root.type !== "" && !(depth > 0 && root.studies.length === 0)) {
             // don't insert a group element if A. this is the root of the tree, B. depth > 0 and there are no studies at this level
-            $("<option value='" + root.type + "-study-group' style='font-weight:bold; margin-left:"+margin+"px; color:"+color+";' data-depth='"+depth+"' disabled>"
+            $("<option value='" + root.type + "-study-group'"+
+                    "style='font-weight:bold; margin-left:"+margin+"px; color:"+color+";'"+
+                    "data-depth='"+depth+"' "+
+                    "data-is-group-header='true' "+
+                    "data-tree-id='"+ root.type +"' "
+                    + (root.type === root.tissue ? "" : "data-parent='"+root.tissue+"' ")
+                    +"disabled>"
                 +label + "</option>").appendTo(cancerTypeContainer);
         }
         // Add all studies
@@ -813,7 +834,12 @@ function addMetaDataToPage() {
                 var key = root.studies[i];
                 var cancer_study = json.cancer_studies[key];
                 console.log("Adding Cancer Study:  " + cancer_study.name);
-                var newOption = $("<option style='margin-left:"+margin_children+"px' data-depth='"+(depth+1)+"' value='" + key + "'>" +cancer_study.name + "</option>");
+                var newOption = $("<option style='margin-left:"+margin_children+"px'"
+                                    +"data-depth='"+(depth+1)
+                                    +"' value='" + key +"'"
+                                    +"data-description='"+cancer_study.description.replace(/["'\\]/g,"")+"' "
+                                    +"data-parent='"+root.type+"' "
+                                    +">" +cancer_study.name + "</option>");
                 cancerTypeContainer.append(newOption);
             }
         }

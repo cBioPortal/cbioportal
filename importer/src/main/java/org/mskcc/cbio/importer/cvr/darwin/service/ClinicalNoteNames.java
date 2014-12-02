@@ -61,9 +61,31 @@ public interface ClinicalNoteNames {
     public static final String CN_DATE = "DATE:";
     public static final String CN_DOB = "DOB:";
     public static final String CN_ATTENDING = "ATTENDING:";
+    //Pathology Report Attributes
+    public static final String PATH_CLIN_DIAG_HIST = "Clinical Diagnosis & History:";
+    public static final String PATH_DIAGNOSIS = "DIAGNOSIS:";
+    public static final String PATH_SPEC_SUB = "Specimens Submitted:";
+    public static final String PATH_DATE_REPORT ="Date of Report:";
+    public static final String PATH_DIAG_INTERP = "DIAGNOSTIC INTERPRETATION:";
+    public static final String PATH_CLIN_PANEL = "CLINICAL PANEL";
+    public static final String PATH_INVES_PANEL = "INVESTIGATIONAL PANEL";
+    public static final String PATH_METHODOLOGY = "Methodology:";
 
+    public static final List<String> PATH_ATTRIBUTE_LIST = Lists.newArrayList(
+            PATH_CLIN_DIAG_HIST, PATH_DATE_REPORT, PATH_DIAGNOSIS, PATH_SPEC_SUB,
+            PATH_DIAG_INTERP,PATH_CLIN_PANEL,PATH_METHODOLOGY, PATH_INVES_PANEL
 
-    public static final List<String> FILTER_LIST = Lists.newArrayList(
+    );
+
+    public static final String PATH_STOP_SIGNAL = "I ATTEST";
+
+    public static final List<String> PATH_FILTER_LIST = Lists.newArrayList(
+            "PathDoc", "MRN", "Account", "Physician", "Accession", "Date of Collection",
+            "Date of Receipt","PLATE#",
+            "*** Report","==","[Report","..."
+    );
+
+    public static final List<String> CN_FILTER_LIST = Lists.newArrayList(
             CN_PAGE, CN_NAME, CN_DICT, CN_ATTENDING,"**INSTITUTION","OUTPATIENT PROGRESS", CN_PHYSICAL_EXAMINATION,
             "INTERNAL", "Report Electronically Signed","**NAME","TRANS","*JOB-NUM","OUTPATIENT","FOLLOWUP VISIT",
                     "B/","INITIAL CONSULTATION"
@@ -71,17 +93,12 @@ public interface ClinicalNoteNames {
     );
 
     /*
-    Lisy of Review of Systems keywords
+    List of Review of Systems keywords
      */
     public static final List<String> ROS_KEYWORD_LIST = Lists.newArrayList(
             "CONSTIT.:", "EYES:","ENT:","RESP:","CV:","GI:","GU:",
             "EXTREMITIES:","HEME:","NEURO:","PSYCH:","SUMMARY:",
             "SKIN:","MS:"
-    );
-
-    public static final List<String> REVIEW_OF_SYSTEMS_SUBFIELD_LIST = Lists.newArrayList(
-            CN_CONSTIT, CN_HEME, CN_SUMMARY, CN_PHYSICAL_EXAMINATION_EXTREMITIES
-
     );
 
     public static final List<String> CN_ATTIBUTE_LIST = Lists.newArrayList(
@@ -95,16 +112,6 @@ public interface ClinicalNoteNames {
             CN_IMPRESSION_PLAN
     );
 
-    public static final List<String> PHYSICAL_EXAM_ATTRIBUTE_LIST = Lists.newArrayList(CN_PHYSICAL_EXAMINATION_GENERAL,
-            CN_PHYSICAL_EXAMINATION_VITAL_SIGNS,
-            CN_PHYSICAL_EXAMINATION_HEAD_NECK,
-            CN_PHYSICAL_EXAMINATION_NODES,
-            CN_PHYSICAL_EXAMINATION_HEART,
-            CN_PHYSICAL_EXAMINATION_LUNGS,
-            CN_PHYSICAL_EXAMINATION_ABDOMEN,
-            CN_PHYSICAL_EXAMINATION_SKIN,
-            CN_PHYSICAL_EXAMINATION_EXTREMITIES,
-            CN_PHYSICAL_EXAMINATION_NEURO
-    );
+
 
 }

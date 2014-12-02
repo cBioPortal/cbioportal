@@ -39,10 +39,11 @@ public class DarwinProcedureTransformer extends DarwinTransformer {
 
     private final ProcedureMapper procedureMapper;
     private final ProcedureExample procedureExample;
+    private static final String procedureFile = "data_clinical_procedure.txt";
 
 
     public DarwinProcedureTransformer(Path filePath){
-        super(filePath);
+        super(filePath.resolve(procedureFile));
         this.procedureMapper =  DarwinSessionManager.INSTANCE.getDarwinSession()
                 .getMapper(ProcedureMapper.class);
         this.procedureExample = new ProcedureExample();
@@ -72,9 +73,18 @@ public class DarwinProcedureTransformer extends DarwinTransformer {
         return this.generateProcedureReport();
     }
 
+    @Override
+    public List<String> generateReportByPatientIdList(List<Integer> patientIdList) {
+        Preconditions.checkArgument(null != patientIdList,
+                "A List of patient ids is required.");
+        this.procedureExample.clear();
+        this.procedureExample.createCriteria().andPROC_PT_DEIDENTIFICATION_IDIn(IdMapService.INSTANCE.getDarwinIdList());
+        return this.generateProcedureReport();
+    }
+
     // main class for testing
     public static void main (String...args){
-        Path procedurePath = Paths.get("/tmp/cvr/data_clinical_procedure.txt");
+        Path procedurePath = Paths.get("/tmp/cvr");
         DarwinProcedureTransformer transformer = new DarwinProcedureTransformer(procedurePath);
         transformer.transform();
         // test report for individual patient

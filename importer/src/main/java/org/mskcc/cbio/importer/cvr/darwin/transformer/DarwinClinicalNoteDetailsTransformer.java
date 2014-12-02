@@ -1,4 +1,4 @@
-package org.mskcc.cbio.importer.cvr.darwin.service;
+package org.mskcc.cbio.importer.cvr.darwin.transformer;
 
 import com.google.common.base.*;
 import com.google.common.collect.*;
@@ -8,9 +8,8 @@ import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.cvr.darwin.dao.dvcbio.ClinicalNoteMapper;
 import org.mskcc.cbio.importer.cvr.darwin.model.dvcbio.ClinicalNote;
 import org.mskcc.cbio.importer.cvr.darwin.model.dvcbio.ClinicalNoteExample;
-import org.mskcc.cbio.importer.cvr.darwin.transformer.DarwinClinicalNoteTransformer;
+import org.mskcc.cbio.importer.cvr.darwin.service.ClinicalNoteNames;
 import org.mskcc.cbio.importer.cvr.darwin.util.DarwinSessionManager;
-import org.mskcc.cbio.importer.cvr.darwin.util.IdMapService;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 
 import java.io.IOException;
@@ -20,11 +19,8 @@ import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import static java.nio.file.StandardOpenOption.APPEND;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.DSYNC;
 
@@ -47,17 +43,18 @@ import static java.nio.file.StandardOpenOption.DSYNC;
  * <p/>
  * Created by criscuof on 11/30/14.
  */
-public class PatientClinicalNoteService {
-    private static final Logger logger = Logger.getLogger(PatientClinicalNoteService.class);
+public class DarwinClinicalNoteDetailsTransformer {
+    private static final Logger logger = Logger.getLogger(DarwinClinicalNoteDetailsTransformer.class);
     private final ClinicalNoteMapper clinicalNoteMapper;
     private final ClinicalNoteExample clinicalNoteExample;
     private final Path clinicalDetailsPath;
     private Integer seq  = 0;
     private static final String patientIdColumn = "Patient ID";
+    private static final  String clinicalNoteDetailsFile = "data_clinical_clinicalnotes.details.txt";
 
-    public PatientClinicalNoteService(Path clinPath){
+    public DarwinClinicalNoteDetailsTransformer(Path clinPath){
         Preconditions.checkArgument(null != clinPath, "A Path for clinical reports is required");
-        this.clinicalDetailsPath = clinPath.resolve("clinical_notes.dtails.txt");
+        this.clinicalDetailsPath = clinPath.resolve(clinicalNoteDetailsFile);
         this.clinicalNoteExample = new ClinicalNoteExample();
         this.clinicalNoteMapper = DarwinSessionManager.INSTANCE.getDarwinSession()
                 .getMapper(ClinicalNoteMapper.class);
@@ -119,7 +116,7 @@ public class PatientClinicalNoteService {
                 .filter(new Predicate<String>() {
                     @Override
                     public boolean apply(String line) {
-                        for (String skipWord : ClinicalNoteNames.FILTER_LIST) {
+                        for (String skipWord : ClinicalNoteNames.CN_FILTER_LIST) {
                             if (line.startsWith(skipWord)) {
                                 return false;
                             }
@@ -197,7 +194,7 @@ public class PatientClinicalNoteService {
     public static void main (String...args){
 
         Path clinicalPath = Paths.get("/tmp/cvr/patient/clinical");
-        PatientClinicalNoteService service = new PatientClinicalNoteService(clinicalPath);
+        DarwinClinicalNoteDetailsTransformer service = new DarwinClinicalNoteDetailsTransformer(clinicalPath);
         service.processClinicalNotesForPatient(1519355);
 
     }

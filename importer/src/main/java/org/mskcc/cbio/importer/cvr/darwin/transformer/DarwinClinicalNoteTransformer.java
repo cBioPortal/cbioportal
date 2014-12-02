@@ -39,9 +39,10 @@ public class DarwinClinicalNoteTransformer extends DarwinTransformer {
     private static final Logger logger = Logger.getLogger(DarwinClinicalNoteTransformer.class);
     private final ClinicalNoteMapper clinicalNoteMapper;
     private final ClinicalNoteExample clinicalNoteExample;
+    private static final String clinicalNoteFile = "data_clinical_clinicalnote.txt";
 
     public DarwinClinicalNoteTransformer(Path aPath) {
-        super(aPath);
+        super(aPath.resolve(clinicalNoteFile));
         this.clinicalNoteExample = new ClinicalNoteExample();
         this.clinicalNoteMapper = DarwinSessionManager.INSTANCE.getDarwinSession()
                 .getMapper(ClinicalNoteMapper.class);
@@ -71,16 +72,25 @@ public class DarwinClinicalNoteTransformer extends DarwinTransformer {
         this.clinicalNoteExample.createCriteria().andCLNT_PT_DEIDENTIFICATION_IDEqualTo(patientId);
         return this.generateClinicalNoteReport();
     }
+
+    @Override
+    public List<String> generateReportByPatientIdList(List<Integer> patientIdList) {
+        Preconditions.checkArgument(null != patientIdList, "A List of patient ids is required");
+        this.clinicalNoteExample.clear();
+        this.clinicalNoteExample.createCriteria()
+                .andCLNT_PT_DEIDENTIFICATION_IDIn(patientIdList);
+        return this.generateClinicalNoteReport();
+    }
+
     // main class for testing
     public static void main (String...args){
-        Path filePath = Paths.get("/tmp/cvr/data_clinical_clinical_note.txt");
+        Path filePath = Paths.get("/tmp/cvr");
         DarwinClinicalNoteTransformer transformer = new DarwinClinicalNoteTransformer(filePath);
         transformer.transform();
         // test for an individual patient
         for (String s : transformer.generateReportByPatientId(1519355)) {
             System.out.println(s);
         }
-
         // terminate the SQL session
         DarwinSessionManager.INSTANCE.closeSession();
     }

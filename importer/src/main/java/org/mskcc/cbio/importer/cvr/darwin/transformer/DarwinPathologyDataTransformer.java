@@ -38,21 +38,28 @@ public class DarwinPathologyDataTransformer extends DarwinTransformer {
 
     private static final Logger logger = Logger.getLogger(DarwinPathologyDataTransformer.class);
     private final PathologyDataMapper pathMapper;
+    private final PathologyDataExample pathEx;
+    private static final String pathDataFile = "data_clinical_pathology.txt";
 
     public DarwinPathologyDataTransformer(Path aPath){
-        super(aPath);
+        super(aPath.resolve(pathDataFile));
         this.pathMapper = DarwinSessionManager.INSTANCE.getDarwinSession()
                 .getMapper(PathologyDataMapper.class);
+        this.pathEx = new PathologyDataExample();
+    }
+
+    private List<String> generatePathReport() {
+        List<String> pathDataList = Lists.newArrayList(this.generateColumnHeaders(PathologyData.class));
+        List<Object> pathObjectList = new ArrayList<Object>(this.pathMapper.selectByExampleWithBLOBs(this.pathEx));
+        pathDataList.addAll(this.generateStagingFileRecords(pathObjectList));
+        return pathDataList;
     }
 
     @Override
     public void transform() {
-        List<String> pathDataList = Lists.newArrayList(this.generateColumnHeaders(PathologyData.class));
-        PathologyDataExample pathEx = new PathologyDataExample();
-        pathEx.createCriteria().andPATH_PT_DEIDENTIFICATION_IDIn(IdMapService.INSTANCE.getDarwinIdList());
-        List<Object> pathologyObjectList = new ArrayList<Object>(this.pathMapper.selectByExampleWithBLOBs(pathEx));
-        pathDataList.addAll(this.generateStagingFileRecords(pathologyObjectList));
-        this.writeStagingFile(pathDataList);
+        this.pathEx.clear();
+        this.pathEx.createCriteria().andPATH_PT_DEIDENTIFICATION_IDIn(IdMapService.INSTANCE.getDarwinIdList());
+        this.writeStagingFile(this.generatePathReport());
         return;
     }
 
@@ -60,23 +67,22 @@ public class DarwinPathologyDataTransformer extends DarwinTransformer {
     public List<String> generateReportByPatientId(Integer patientId) {
         Preconditions.checkArgument(null != patientId && patientId > 0,
                 "A valid patient id is required");
-        List<String> pathDataList = Lists.newArrayList();
-        pathDataList.add(this.generateColumnHeaders(PathologyData.class));
-        PathologyDataExample pathEx = new PathologyDataExample();
-        pathEx.createCriteria().andPATH_PT_DEIDENTIFICATION_IDEqualTo(patientId);
-        PathologyDataMapper pathMapper = DarwinSessionManager.INSTANCE.getDarwinSession()
-                .getMapper(PathologyDataMapper.class);
-        List<PathologyData> pathList = pathMapper.selectByExampleWithBLOBs(pathEx);
+        this.pathEx.clear();
+        this.pathEx.createCriteria().andPATH_PT_DEIDENTIFICATION_IDEqualTo(patientId);
+        return this.generatePathReport();
+    }
 
-        for (PathologyData pathData : pathList) {
-            pathDataList.add(this.generateStagingFileRecord(pathData));
-        }
-        return pathDataList;
+    @Override
+    public List<String> generateReportByPatientIdList(List<Integer> patientIdList) {
+        Preconditions.checkArgument(null!= patientIdList,"A List of patient ids is required");
+        this.pathEx.clear();
+        this.pathEx.createCriteria().andPATH_PT_DEIDENTIFICATION_IDIn(patientIdList);
+        return this.generatePathReport();
     }
 
     // main class for testing
     public static void main (String...args){
-        Path pathPath = Paths.get("/tmp/cvr/data_clinical_pathology.txt");
+        Path pathPath = Paths.get("/tmp/cvr");
         DarwinPathologyDataTransformer transformer = new DarwinPathologyDataTransformer(pathPath);
         transformer.transform();
         // terminate the SQL session

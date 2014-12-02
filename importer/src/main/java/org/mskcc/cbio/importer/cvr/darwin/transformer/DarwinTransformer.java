@@ -7,6 +7,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import org.apache.log4j.Logger;
+import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -41,7 +42,6 @@ import static java.nio.file.StandardOpenOption.*;
  */
 public abstract class DarwinTransformer {
 
-    public static final Joiner tabJoiner = Joiner.on('\t').useForNull(" ");
     private final Path stagingFilePath;
     private static final Logger logger = Logger.getLogger(DarwinTransformer.class);
 
@@ -53,6 +53,8 @@ public abstract class DarwinTransformer {
     public abstract void transform();
 
     public abstract List<String> generateReportByPatientId(Integer patientId);
+
+    public abstract List<String> generateReportByPatientIdList(List<Integer> patientIdList);
 
     protected String generateColumnHeaders(final Class aClass){
         List<String> headerList = FluentIterable.from(Lists.newArrayList(aClass.getDeclaredMethods()))
@@ -69,13 +71,12 @@ public abstract class DarwinTransformer {
                     }
                 })
                 .toList();
-        return tabJoiner.join(headerList);
+        return StagingCommonNames.tabJoiner.join(headerList);
     }
 
 
    protected void writeStagingFile( List<String> dataList){
         OpenOption[] options = new OpenOption[]{ CREATE, APPEND, DSYNC};
-
         try {
             Files.deleteIfExists(this.stagingFilePath);
             Files.write(this.stagingFilePath, dataList, Charset.defaultCharset(),options);
@@ -119,7 +120,7 @@ public abstract class DarwinTransformer {
                                         return "";
                                     }
                                 }).toList();
-                        return tabJoiner.join(valueList);
+                        return StagingCommonNames.tabJoiner.join(valueList);
                     }
                 }).toList();
     }
@@ -149,6 +150,6 @@ public abstract class DarwinTransformer {
                     }
                 }).toList();
 
-        return tabJoiner.join(valueList);
+        return StagingCommonNames.tabJoiner.join(valueList);
     }
 }

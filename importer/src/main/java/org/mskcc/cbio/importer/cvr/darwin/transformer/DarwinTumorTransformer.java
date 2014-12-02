@@ -42,9 +42,10 @@ public class DarwinTumorTransformer extends DarwinTransformer {
     private static final Logger logger = Logger.getLogger(DarwinTumorTransformer.class);
     private final TumorMapper tumorMapper;
     private final TumorExample tumorEx;
+    private static final String tumorFile = "data_clinical_tumor.txt";
 
     public DarwinTumorTransformer(Path filePath) {
-        super(filePath);
+        super(filePath.resolve(tumorFile));
         this.tumorEx = new TumorExample();
         this.tumorMapper = DarwinSessionManager.INSTANCE.getDarwinSession()
                 .getMapper(TumorMapper.class);
@@ -73,10 +74,19 @@ public class DarwinTumorTransformer extends DarwinTransformer {
         return this.generateTumorReport();
     }
 
+    @Override
+    public List<String> generateReportByPatientIdList(List<Integer> patientIdList) {
+        Preconditions.checkArgument(null != patientIdList,
+                "A List of patient ids is required.");
+        this.tumorEx.clear();
+        this.tumorEx.createCriteria().andTUMOR_PT_DEIDENTIFICATION_IDIn(IdMapService.INSTANCE.getDarwinIdList());
+        return this.generateTumorReport();
+    }
+
 
     // main class for testing
     public static void main (String...args){
-        Path tumorPath = Paths.get("/tmp/cvr/data_clinical_tumor.txt");
+        Path tumorPath = Paths.get("/tmp/cvr");
         DarwinTumorTransformer transformer = new DarwinTumorTransformer(tumorPath);
         transformer.transform();
         // test report for individual patient

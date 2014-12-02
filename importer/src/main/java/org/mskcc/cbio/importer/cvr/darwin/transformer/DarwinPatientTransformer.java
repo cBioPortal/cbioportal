@@ -37,23 +37,28 @@ import java.util.Set;
 public class DarwinPatientTransformer extends DarwinTransformer {
     private static final Logger logger = Logger.getLogger(DarwinPatientTransformer.class);
     private final PatientMapper patientMapper;
+    private final PatientExample patientExample;
+    private static final String patientFile = "data_clinical_patient.txt";
 
     public DarwinPatientTransformer(Path aPath){
-        super(aPath);
+        super(aPath.resolve(patientFile));
+        this.patientExample = new PatientExample();
         this.patientMapper = DarwinSessionManager.INSTANCE.getDarwinSession()
                 .getMapper(PatientMapper.class);
     }
 
-
+    private List<String> generatePatientReport() {
+        List<String> patientDataList = Lists.newArrayList(this.generateColumnHeaders(Patient.class));
+        List<Object>patientObjectList = new ArrayList<Object>(this.patientMapper.selectByExample(this.patientExample));
+        patientDataList.addAll(this.generateStagingFileRecords(patientObjectList));
+        return patientDataList;
+    }
 
     @Override
     public  void transform() {
-        List<String> patientDataList = Lists.newArrayList(this.generateColumnHeaders(Patient.class));
-        PatientExample patientExample = new PatientExample();
-        patientExample.createCriteria().andPT_PT_DEIDENTIFICATION_IDIn(IdMapService.INSTANCE.getDarwinIdList());
-        List<Object> patientObjectlist = new ArrayList<Object>(this.patientMapper.selectByExample(patientExample));
-        patientDataList.addAll(this.generateStagingFileRecords(patientObjectlist));
-        this.writeStagingFile(patientDataList);
+        this.patientExample.clear();
+        this.patientExample.createCriteria().andPT_PT_DEIDENTIFICATION_IDIn(IdMapService.INSTANCE.getDarwinIdList());
+        this.writeStagingFile(this.generatePatientReport());
         return;
     }
 
@@ -61,20 +66,23 @@ public class DarwinPatientTransformer extends DarwinTransformer {
     public List<String> generateReportByPatientId(Integer patientId) {
         Preconditions.checkArgument(null != patientId && patientId > 0,
                 "A valid patient id is required");
-        List<String> patientDataList = Lists.newArrayList();
-        patientDataList.add(this.generateColumnHeaders(Patient.class));
-        PatientExample patientExample = new PatientExample();
-        patientExample.createCriteria().andPT_PT_DEIDENTIFICATION_IDEqualTo(patientId);
-        List<Patient> patientList = this.patientMapper.selectByExample(patientExample);
-        for (Patient patient : patientList) {
-            patientDataList.add(this.generateStagingFileRecord(patient));
-        }
-        return patientDataList;
+        this.patientExample.clear();
+        this.patientExample.createCriteria().andPT_PT_DEIDENTIFICATION_IDEqualTo(patientId);
+        return this.generatePatientReport();
+    }
+
+    @Override
+    public List<String> generateReportByPatientIdList(List<Integer> patientIdList) {
+        Preconditions.checkArgument(null != patientIdList,
+                "A List of patient ids is required.");
+        this.patientExample.clear();
+        this.patientExample.createCriteria().andPT_PT_DEIDENTIFICATION_IDIn(patientIdList);
+        return this.generatePatientReport();
     }
 
     // main class for testing
     public static void main (String...args){
-        Path patientPath = Paths.get("/tmp/cvr/data_clinical_patient.txt");
+        Path patientPath = Paths.get("/tmp/cvr");
         DarwinPatientTransformer transformer = new DarwinPatientTransformer(patientPath);
         transformer.transform();
         // test report for individual patient

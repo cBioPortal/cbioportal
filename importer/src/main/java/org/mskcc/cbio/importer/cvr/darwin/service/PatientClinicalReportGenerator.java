@@ -55,20 +55,15 @@ public class PatientClinicalReportGenerator {
     for a specified patient within the Darwin data repository
      */
     private static final Logger logger = Logger.getLogger(PatientClinicalReportGenerator.class);
-    private final List<DarwinTransformer> darwinTransformerList = Lists.newArrayList();
 
     private final Map<String,DarwinTransformer> transformerMap = Maps.newHashMap();
-
     private final Path stagingFilePath;
     private final XSSFWorkbook  workbook;
-
-
 
     public PatientClinicalReportGenerator(Path filePath){
         Preconditions.checkArgument(null != filePath, " A file path is required");
         this.stagingFilePath = filePath;
         this.completeTransformerMap();
-        this.completeTransformerList();
         this.workbook = new XSSFWorkbook();
     }
 
@@ -78,15 +73,6 @@ public class PatientClinicalReportGenerator {
         this.transformerMap.put("Lab Results",new DarwinLabResultTransformer(this.stagingFilePath.resolve("data_clinical_lab_result.txt")) );
         this.transformerMap.put("Pathology", new DarwinPathologyDataTransformer(this.stagingFilePath.resolve("data_clinical_pathology_result.txt")));
         this.transformerMap.put("Tumor",new DarwinTumorTransformer(this.stagingFilePath.resolve("data_clinical_tumor.txt")));
-    }
-
-
-    private void completeTransformerList(){
-        this.darwinTransformerList.add(new DarwinPatientTransformer(this.stagingFilePath.resolve("data_clinical_patient.txt")));
-        this.darwinTransformerList.add( new DarwinClinicalNoteTransformer(this.stagingFilePath.resolve("data_clinical_clinical_note.txt")));
-        this.darwinTransformerList.add(new DarwinLabResultTransformer(this.stagingFilePath.resolve("data_clinical_lab_result.txt")));
-        this.darwinTransformerList.add( new DarwinPathologyDataTransformer(this.stagingFilePath.resolve("data_clinical_pathology_result.txt")));
-        this.darwinTransformerList.add(new DarwinTumorTransformer(this.stagingFilePath.resolve("data_clinical_tumor.txt")));
     }
 
     public void generateWorksheet(final Integer patientId){
@@ -113,17 +99,6 @@ public class PatientClinicalReportGenerator {
         }
     }
 
-    public List<String> generatePatientReport(final Integer patientId) {
-        Preconditions.checkArgument(null != patientId && patientId > 0 ,
-                "A valid patient id is required");
-        List<String>patientReport = Lists.newArrayList();
-        for (DarwinTransformer transformer : this.darwinTransformerList){
-            patientReport.addAll(transformer.generateReportByPatientId(patientId));
-
-        }
-        return patientReport;
-    }
-
     private void generateSheet(String name, List<String> dataList) {
         logger.info("name = " +name + " lines = " +dataList.size());
         XSSFSheet sheet = workbook.createSheet(name);
@@ -146,13 +121,6 @@ public class PatientClinicalReportGenerator {
         Path patientPath = Paths.get("/tmp/cvr/patient");
         PatientClinicalReportGenerator generator = new PatientClinicalReportGenerator(patientPath);
         generator.generateWorksheet(1519355);
-        List<String> report = generator.generatePatientReport(1519355);
-        Path reportPath = patientPath.resolve("patient_15193555.txt");
-        try {
-           Files.deleteIfExists(reportPath);
-            Files.write(reportPath, report, Charset.defaultCharset(),options);
-        } catch (IOException e) {
-            e.printStackTrace();
-       }
+
     }
 }

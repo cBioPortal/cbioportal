@@ -37,9 +37,10 @@ public class DarwinClinicalTrialTransformer extends DarwinTransformer {
     private static final Logger logger = Logger.getLogger(DarwinClinicalTrialTransformer.class);
     private final ClinicalTrialMapper clinicalTrialMapper;
     private final ClinicalTrialExample clinicalTrialExample;
+    private static final String clinicalTrialFile = "data_clinical_clinicaltrial.txt";
 
     public DarwinClinicalTrialTransformer(Path aFilePath) {
-        super(aFilePath);
+        super(aFilePath.resolve(clinicalTrialFile));
         this.clinicalTrialMapper =  DarwinSessionManager.INSTANCE.getDarwinSession()
                 .getMapper(ClinicalTrialMapper.class);
         this.clinicalTrialExample = new ClinicalTrialExample();
@@ -67,10 +68,19 @@ public class DarwinClinicalTrialTransformer extends DarwinTransformer {
         this.clinicalTrialExample.createCriteria().andCLIN_TRIAL_PT_DEIDENTIFICATION_IDEqualTo(patientId);
         return this.generateClinicalTrialReport();
     }
+
+    @Override
+    public List<String> generateReportByPatientIdList(List<Integer> patientIdList) {
+        Preconditions.checkArgument(null != patientIdList, "A List of patient ids is required");
+        this.clinicalTrialExample.clear();
+        this.clinicalTrialExample.createCriteria().andCLIN_TRIAL_PT_DEIDENTIFICATION_IDIn(patientIdList);
+        return this.generateClinicalTrialReport();
+    }
+
     // main method for stand alone testing
     public static void main (String...args){
         DarwinClinicalTrialTransformer transformer = new DarwinClinicalTrialTransformer
-                (Paths.get("/tmp/cvr/data_clinical_trial_tumor.txt"));
+                (Paths.get("/tmp/cvr"));
         transformer.transform();
         // test report for individual patient
         for(String line: transformer.generateReportByPatientId(1339055)) {

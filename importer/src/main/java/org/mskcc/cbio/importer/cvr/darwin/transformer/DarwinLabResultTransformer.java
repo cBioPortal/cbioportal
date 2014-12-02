@@ -37,9 +37,10 @@ public class DarwinLabResultTransformer extends DarwinTransformer {
     private static final Logger logger = Logger.getLogger(DarwinLabResultTransformer.class);
     private final LabResultMapper labResultMapper;
     private final LabResultExample labResultExample;
+    private static final String labResultFile = "data_clinical_labresult.txt";
 
     public DarwinLabResultTransformer(Path filePath) {
-        super(filePath);
+        super(filePath.resolve(labResultFile));
         this.labResultMapper = DarwinSessionManager.INSTANCE.getDarwinSession()
                 .getMapper(LabResultMapper.class);
         this.labResultExample = new LabResultExample();
@@ -70,9 +71,17 @@ public class DarwinLabResultTransformer extends DarwinTransformer {
 
     }
 
+    @Override
+    public List<String> generateReportByPatientIdList(List<Integer> patientIdList) {
+        Preconditions.checkArgument(null!=patientIdList, "A List of patient ids is required.");
+        this.labResultExample.clear();
+        this.labResultExample.createCriteria().andLAB_PT_DEIDENTIFICATION_IDIn(patientIdList);
+        return this.generateLabResultReport();
+    }
+
     // main class for testing
     public static void main (String...args){
-        Path labPath = Paths.get("/tmp/cvr/data_clinical_lab_result.txt");
+        Path labPath = Paths.get("/tmp/cvr");
         DarwinLabResultTransformer transformer = new  DarwinLabResultTransformer(labPath);
         transformer.transform();
         // test report for individual patient

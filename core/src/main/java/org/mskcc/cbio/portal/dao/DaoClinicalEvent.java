@@ -158,11 +158,11 @@ public final class DaoClinicalEvent {
             con = JdbcUtil.getDbConnection(DaoClinicalEvent.class);
             
             pstmt = con.prepareStatement("DELETE FROM clinical_event_data WHERE CLINICAL_EVENT_ID IN "
-                    + "(SELECT CLINICAL_EVENT_ID FROM clinical_event WHERE PATIENT_ID in (SELECT PATIENT_ID FROM patient where CANCER_STUDY_ID=?))");
+                    + "(SELECT CLINICAL_EVENT_ID FROM clinical_event WHERE PATIENT_ID in (SELECT INTERNAL_ID FROM patient where CANCER_STUDY_ID=?))");
             pstmt.setInt(1, cancerStudyId);
             pstmt.executeUpdate();
             
-            pstmt = con.prepareStatement("DELETE FROM clinical_event WHERE PATIENT_ID in (SELECT PATIENT_ID FROM patient where CANCER_STUDY_ID=?)");
+            pstmt = con.prepareStatement("DELETE FROM clinical_event WHERE PATIENT_ID in (SELECT INTERNAL_ID FROM patient where CANCER_STUDY_ID=?)");
             pstmt.setInt(1, cancerStudyId);
             pstmt.executeUpdate();
         } catch (SQLException e) {

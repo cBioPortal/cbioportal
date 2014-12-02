@@ -132,8 +132,8 @@ var DataTable = function() {
         aoColumns.length = 0;
         
         aoColumns.push({
-            dataTable: {sTitle:"CASE ID",sType:'string',sClass:'nowrap'},
-            fullDisplay: 'CASE ID',
+            dataTable: {sTitle:"Sample ID",sType:'string',sClass:'nowrap'},
+            fullDisplay: 'SAMPLE ID',
             attrId: "CASE_ID"
         });
         for( i = 0; i < attr.length; i++ ){
@@ -164,7 +164,7 @@ var DataTable = function() {
         //Sort table columns based on display name. If title is in
         //permenentDisabledTitles, put it to front of table.
         aoColumns.sort(function(a, b) {
-            //Case ID is the first element of permenentDisabledTitles,
+            //Sample ID is the first element of permenentDisabledTitles,
             //It will always be treated as first column.
             //
             //TODO: Need second sorting function for sorting pre disabled
@@ -213,7 +213,7 @@ var DataTable = function() {
                     _specialChar = ['(',')','/','?','+'];
 
                 if ( _attrId === 'CASE_ID'){
-                    _tmpValue = "<a href='case.do?case_id=" + 
+                    _tmpValue = "<a href='case.do?sample_id=" + 
                     _value['CASE_ID'] + "&cancer_study_id=" +
                     StudyViewParams.params.studyId + "' target='_blank'><span style='color: #2986e2'>" + 
                     _value['CASE_ID'] + "</span></a></strong>";

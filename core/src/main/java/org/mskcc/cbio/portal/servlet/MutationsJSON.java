@@ -150,8 +150,14 @@ public class MutationsJSON extends HttpServlet {
             }
             
             Pattern p = Pattern.compile("[,\\s]+");
-            String caseIds[] = p.split(entry.getValue().get("caseIds"));
-            map.put("caseIds", caseIds);
+            String sampleIds[] = p.split(entry.getValue().get("caseIds"));
+            List<Integer> sampleInternalIds = new ArrayList<>();
+            for(String s : sampleIds) {
+                sampleInternalIds.add(Integer.valueOf(s));
+            }
+            List<String> sampleStableIds = InternalIdUtil.getStableSampleIds(sampleInternalIds);
+                
+            map.put("caseIds", sampleStableIds);
             data.add(map);
         }
         

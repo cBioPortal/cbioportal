@@ -106,28 +106,16 @@ var Table = function() {
             "<div id='"+divs.loaderId+"' class='study-view-loader' style='top:30%;left:30%'><img src='images/ajax-loader.gif'/></div>"+
         "</div>"
         $('#' + divs.attachedId).append(_div);
-    }
-    
-    function addEvents() {
         showHideDivision('#' + divs.mainId,['#' + divs.titleWrapperId],  0);
-        chartDelete();
-    }
-    
-    function chartDelete() {
-        $('#'+ divs.deleteIconId).click(function() {
-            if(callbacks.hasOwnProperty('deleteTable')) {
-                callbacks.deleteTable(divs.mainId, divs.title);
-            }else {
-                $('#'+divs.mainId).remove();
-            }
-        });
+        reset();
     }
     
     function initTable(data) {
         var table = $('#' + divs.tableId);
-        
-        arr = data.arr;
-        attr = data.attr;
+        if(typeof data === 'object' && data.hasOwnProperty('attr') && data.hasOwnProperty('arr')) {
+            arr = data.arr;
+            attr = data.attr;
+        }
     
         var tableHtml = '<table><thead><tr></tr></thead><tbody></tbody></table>';
         table.html(tableHtml);
@@ -136,7 +124,7 @@ var Table = function() {
         
         //Append table header
         attr.forEach(function(e, i) {
-            tableHeader.append('<th>'+ e.displayName +'</th>');
+            tableHeader.append('<th>'+ e.displayName||'Unknown' +'</th>');
         });
         
         var tableBody = table.find('tbody');
@@ -144,6 +132,27 @@ var Table = function() {
         //Append table body
         arr.forEach(function(e, i){
             var _row= '<tr>';
+             
+            if(typeof data === 'object' && data.selected instanceof Array && data.selected.length > 0) {
+                var match = false;
+                data.selected.forEach(function(e1, i1){
+                    var _match = true;
+                    for(var key in e1) {
+                        if(e1[key] !== e[key]) {
+                            _match = false;
+                            break;
+                        }
+                    }
+                    if(_match) {
+                        match = true;
+                    }
+                });
+                
+                if(match) {
+                    _row= '<tr class="highlightRow">';
+                }
+            }
+            
             attr.forEach(function(e1, i1){
                 _row += '<td>' + e[e1.name] + '</td>';
             });
@@ -177,7 +186,8 @@ var Table = function() {
         var geneIndex = -1,
             altTypeIndex = -1,
             cytobandIndex = -1,
-            mutatedSamplesIndex = -1;
+            mutatedSamplesIndex = -1,
+            unvisiable = [];
         
         attr.forEach(function(e, i){
             if(e.name === 'gene') {
@@ -192,7 +202,17 @@ var Table = function() {
             if(e.name === 'mutatedSamples') {
                 mutatedSamplesIndex = i;
             }
+            if(!e.hasOwnProperty('displayName')){
+                unvisiable.push(i);
+            }
         });
+        
+        if(unvisiable.length > 0) {
+            dataTableOpts.aoColumnDefs.push({
+                "targets": unvisiable,
+                'visible': false
+            });
+        }
         
         if(mutatedSamplesIndex !== -1) {
             dataTableOpts.aaSorting.push([mutatedSamplesIndex, 'desc']); 
@@ -275,7 +295,73 @@ var Table = function() {
         $('#' + divs.tableId).empty();
         initTable(data);
         initDataTable();
-        callback();
+        addEvents();
+        if(typeof callback === 'function') {
+            callback();
+        }
+    }
+    
+    function addEvents() {
+        deleteTable();
+        rowClick();
+    }
+    
+    function rowClick() {
+        $('#' + divs.tableId + ' tbody').on( 'click', 'tr', function () {
+            var shiftClicked = StudyViewWindowEvents.getShiftKeyDown(),
+            highlightedRowsData = '';
+                
+            if(!shiftClicked) {
+                var _isClicked = $(this).hasClass('highlightRow');
+                $('#' + divs.tableId + ' tbody').find('.highlightRow').removeClass('highlightRow');
+                if(!_isClicked) {
+                    $(this).toggleClass('highlightRow');
+                }
+            }else{
+                $(this).toggleClass('highlightRow');
+            }
+            
+            highlightedRowsData = dataTable.api().rows('.highlightRow').data();
+            
+            if(highlightedRowsData.length === 0) {
+                hideReload();
+            }else {
+                showReload();
+            }
+            
+            if(callbacks.hasOwnProperty('rowClick')) {
+                callbacks.rowClick(divs.tableId, highlightedRowsData);
+            }
+        });
+    }
+    
+    function deleteTable() {
+        $('#'+ divs.deleteIconId).click(function() {
+            if(callbacks.hasOwnProperty('deleteTable')) {
+                callbacks.deleteTable(divs.mainId, divs.title);
+            }else {
+                redraw();
+            }
+        });
+    }
+    
+    function reset() {
+        $('#'+ divs.reloadId).click(function() {
+            $('#' + divs.tableId + ' tbody').find('.highlightRow').removeClass('highlightRow');
+            if(callbacks.hasOwnProperty('rowClick')) {
+                callbacks.rowClick(divs.tableId, []);
+            }
+            redraw();
+            hideReload();
+        });
+    }
+    
+    function showReload() {
+        $('#' + divs.reloadId).css('display', 'block');
+    }
+    
+    function hideReload() {
+        $('#' + divs.reloadId).css('display', 'none');
     }
     
     function showHideDivision(_listenedDiv, _targetDiv, _time){

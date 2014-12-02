@@ -31,7 +31,8 @@
 
 
 var StudyViewInitTables = (function() {
-    var workers = [];
+    var workers = [],
+        numOfWorkers = 0;
     
     function init(input,callback) {
         initData(input);
@@ -68,7 +69,9 @@ var StudyViewInitTables = (function() {
                         },{
                             name: 'sampleRate',
                             displayName: 'Smaple Mutated Freq'
-                        } 
+                        },{
+                            name: 'caseIds'
+                        }
                     ];
                     _worker.data.arr = mutatedGenesData(_datum, numOfCases);
                     break;
@@ -88,6 +91,8 @@ var StudyViewInitTables = (function() {
                         },{
                             name: 'altrateInSample',
                             displayName: 'Altered Samples Freq'
+                        },{
+                            name: 'caseIds'
                         }
                     ];
                     _worker.data.arr = cnaData(_datum, numOfCases);
@@ -96,14 +101,102 @@ var StudyViewInitTables = (function() {
                     _worker.opts.title = 'Unknown';
                     break;
             }
+            _worker.data.selected = [];
             _worker.opts.title = e.displayName || '';
             _worker.opts.name = e.name;
             _worker.opts.tableId = 'study-view-table-' + e.name;
             _worker.opts.parentId = 'study-view-charts';
             _worker.opts.webService = e.webService;
             _worker.callbacks.deleteTable = deleteTable;
+            _worker.callbacks.rowClick = rowClick;
             workers.push(_worker);
         });
+        
+        numOfWorkers = workers.length;
+    }
+    
+    function rowClick(tableId, data) {
+        var dcCharts = StudyViewInitCharts.getCharts(),
+            dcChartsL = dcCharts.length,
+            worker = '',
+            workerIndex = -1,
+            numOfSelectedRows = data.length,
+            selectedSamples = [],
+            Ids = [],
+            exceptionId = [],
+            caseIdChartIndex = StudyViewInitCharts.getCaseIdChartIndex();;
+        
+        //Find reletive table data
+        for(var i = 0; i < numOfWorkers; i++) {
+            if(workers[i].opts.tableId === tableId)  {
+                worker = workers[i];
+                workerIndex = i;
+                break;
+            }
+        }
+        
+        switch (worker.opts.name) {
+            case 'mutatedGenes':
+                for(var i=0; i < numOfSelectedRows; i++) {
+                    Ids.push({gene: data[i][0]});
+                }
+                break;
+            case 'cna':
+                for(var i=0; i < numOfSelectedRows; i++) {
+                    Ids.push({gene: data[i][0], altType: data[i][2]});
+                }
+                break;
+            default:
+                break;
+        }
+        
+        workers[workerIndex].data.selected= Ids;
+        
+        if(Ids.length === 0) {
+            workers[workerIndex].data.selectedSamples.length=0;
+            workers.forEach(function(e, i){
+                selectedSamples = StudyViewUtil.arrayDeDuplicate(selectedSamples.concat(e.data.selectedSamples));
+            });
+        }else {
+            exceptionId.push(tableId);
+            worker.data.arr.forEach(function(e1, i1){
+                if(e1.hasOwnProperty('caseIds')) {
+                    worker.data.selected.forEach(function(e2, i2){
+                        var match = true;
+                        for(var key in e2) {
+                            if(e2.hasOwnProperty(key)) {
+                                if(e2[key] !== e1[key]) {
+                                    match = false;
+                                    break;
+                                }
+                            }
+                        }
+                        if(match) {
+                            selectedSamples = StudyViewUtil.arrayDeDuplicate(selectedSamples.concat(e1.caseIds));
+                        }
+                    });
+                }
+            });
+            workers[workerIndex].data.selectedSamples = selectedSamples;
+        }
+        
+        if(selectedSamples.length > 0){
+            dcCharts[caseIdChartIndex].getChart().filterAll();
+            dcCharts[caseIdChartIndex].getChart().filter([selectedSamples]);
+            dc.redrawAll();
+        }else{
+            for(var i=0; i< dcChartsL ; i++){
+                if(dcCharts[i] !== ''){
+                    if(dcCharts[i].getChart().filters().length > 0)
+                        dcCharts[i].getChart().filterAll();
+                }
+            }
+            dc.redrawAll();
+        }
+        
+        StudyViewInitCharts.resetBars();
+        StudyViewInitCharts.redrawScatter();
+        StudyViewInitCharts.redrawWSCharts(exceptionId);
     }
     
     function deleteTable(tableId, title) {
@@ -139,6 +232,7 @@ var StudyViewInitTables = (function() {
             }).length;
             datum.sampleRate = 
                     (datum.mutatedSamples / Number(numOfCases)* 100).toFixed(1) + '%';
+            datum.caseIds = data[i].caseIds;
             genes.push(datum);
         }
         return genes;
@@ -167,41 +261,49 @@ var StudyViewInitTables = (function() {
             datum.altType = _altType;
             datum.altrate = data.caseIds[i].length;
             datum.altrateInSample = (datum.altrate / numOfCases * 100).toFixed(1) + '%';
+            datum.caseIds = data.caseIds[i];
             genes.push(datum);
         }
         return genes;
     }
     
     function redraw(data){
-        var numSelectedCasesL = data.selectedCases.length;
+        var numSelectedCasesL = data.selectedCases.length,
+            exceptionIds = [];
+    
+        if(data.hasOwnProperty('exceptionIds') && typeof data.exceptionIds === 'object'){
+            exceptionIds = data.exceptionIds;
+        }
         //Start loaders
         workers.forEach(function(e, i){
-            e.tableInstance.startLoading();
+            if(exceptionIds.indexOf(e.opts.tableId) === -1){
+                e.tableInstance.startLoading();
+            }
         });
         
         workers.forEach(function(e, i){
-            if(numSelectedCasesL.length !== 0){
-                $.ajax(data.webService[e.opts.name])
-                    .done(function(d){
-                        switch (e.opts.name) {
-                            case 'mutatedGenes':
-                                workers[i].data.arr = mutatedGenesData(d, numSelectedCasesL);
-                                break;
-                            case 'cna':
-                                workers[i].data.arr = cnaData(d, numSelectedCasesL);
-                                break;
-                            default:
-                                break;
-                        }
-                        
-                        e.tableInstance.redraw(workers[i].data, function(){
-                            e.tableInstance.stopLoading();
+            if(exceptionIds.indexOf(e.opts.tableId) === -1){
+                if(numSelectedCasesL.length !== 0){
+                    $.ajax(data.webService[e.opts.name])
+                        .done(function(d){
+                            switch (e.opts.name) {
+                                case 'mutatedGenes':
+                                    workers[i].data.arr = mutatedGenesData(d, numSelectedCasesL);
+                                    break;
+                                case 'cna':
+                                    workers[i].data.arr = cnaData(d, numSelectedCasesL);
+                                    break;
+                                default:
+                                    break;
+                            }
+                            e.tableInstance.redraw(workers[i].data, function(){
+                                e.tableInstance.stopLoading();
+                            });
                         });
-                    });
-
-            }else{
-                workers[i].data.arr = [];
-                e.tableInstance.redraw(workers[i].data);;
+                }else{
+                    workers[i].data.arr = [];
+                    e.tableInstance.redraw(workers[i].data);;
+                }
             }
         });
     }

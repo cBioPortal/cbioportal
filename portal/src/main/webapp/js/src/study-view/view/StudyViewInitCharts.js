@@ -658,12 +658,12 @@ var StudyViewInitCharts = (function(){
         varChart[_chartID].plotDataCallbackFunc(plotDataCallbackFunc);
     }
     
-    function redrawWSCharts() {
+    function redrawWSCharts(exceptionIds) {
         removeContentsAndStartLoading();
         changeHeader();
         
         if(StudyViewInitTables.getInitStatus()){
-            redrawTables();
+            redrawTables(exceptionIds);
         }
         if(StudyViewSurvivalPlotView.getInitStatus()){
             //The timeout is set equal to the transition duration of dc charts.
@@ -673,13 +673,14 @@ var StudyViewInitCharts = (function(){
         }
     }
     
-    function redrawTables() {
+    function redrawTables(exceptionIds) {
         var _selectedCases = getSelectedCases().map(function(e){
             return e.CASE_ID;
         });
         
         StudyViewInitTables.redraw({
             selectedCases: _selectedCases,
+            exceptionIds: exceptionIds,
             webService: {
                 'mutatedGenes': {
                     type: 'POST',

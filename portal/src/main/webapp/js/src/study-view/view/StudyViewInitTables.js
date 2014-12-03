@@ -154,9 +154,10 @@ var StudyViewInitTables = (function() {
         
         if(Ids.length === 0) {
             workers[workerIndex].data.selectedSamples.length=0;
-            workers.forEach(function(e, i){
-                selectedSamples = StudyViewUtil.arrayDeDuplicate(selectedSamples.concat(e.data.selectedSamples));
-            });
+            selectedSamples = StudyViewInitCharts.getSelectedCasesID();
+//            workers.forEach(function(e, i){
+//                selectedSamples = StudyViewUtil.arrayDeDuplicate(selectedSamples.concat(e.data.selectedSamples));
+//            });
         }else {
             exceptionId.push(tableId);
             worker.data.arr.forEach(function(e1, i1){
@@ -308,9 +309,21 @@ var StudyViewInitTables = (function() {
         });
     }
     
+    function clearAllSelected() {
+        workers.forEach(function(e, i){
+            if(workers[i].data.hasOwnProperty('selectedSamples')){
+                workers[i].data.selectedSamples.length = 0;
+            }
+            if(workers[i].data.hasOwnProperty('selected')){
+                workers[i].data.selected.length = 0;
+            }
+        });
+    }
+    
     return {
         init: init,
         redraw: redraw,
+        clearAllSelected: clearAllSelected,
         getInitStatus: function() {
             if(workers.length > 0) {
                 return true;

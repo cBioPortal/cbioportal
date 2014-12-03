@@ -159,6 +159,9 @@ var Table = function() {
             _row += '</tr>';
             tableBody.append(_row);
         });
+        if(data.hasOwnProperty('selectedSamples') && data.selectedSamples.length === 0){
+            hideReload();
+        }
     }
     
     function initDataTable() {

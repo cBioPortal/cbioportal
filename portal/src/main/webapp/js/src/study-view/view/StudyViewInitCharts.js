@@ -663,7 +663,9 @@ var StudyViewInitCharts = (function(){
         changeHeader();
         
         if(StudyViewInitTables.getInitStatus()){
-            redrawTables(exceptionIds);
+            setTimeout(function() {
+                redrawTables(exceptionIds);
+            }, StudyViewParams.summaryParams.transitionDuration);
         }
         if(StudyViewSurvivalPlotView.getInitStatus()){
             //The timeout is set equal to the transition duration of dc charts.

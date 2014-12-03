@@ -658,7 +658,7 @@
 
         Chosen.prototype.result_do_highlight = function (el) {
             var high_bottom, high_top, maxHeight, visible_bottom, visible_top;
-            if (el.length && !el[0].attributes.getNamedItem('data-disabled') && !el[0].attributes.getNamedItem('data-is-group-header')) {
+            if (el.length && !el.attr('data-disabled') && !el.attr('data-is-group-header')) {
                 this.result_clear_highlight();
                 this.result_highlight = el;
                 this.result_highlight.addClass("highlighted");
@@ -883,9 +883,9 @@
             }
             var ret2 = true;
             try {
-                var parent = el[0].attributes.getNamedItem("data-parent");
+                var parent = el.attr('data-parent');
                 if (parent) {
-                    parent = $("li[data-tree-id='" + parent.value + "']");
+                    parent = $("li[data-tree-id='" + parent + "']");
                     if (parent) {
                         ret2 = this.result_activate_up(parent, activated);
                     }
@@ -906,7 +906,7 @@
                 for (var i=0; i<el.length; i++) {
                     try {
                         ret2 = ret2 && this.result_activate_down($("li[data-parent='"+
-                                                        el[i].attributes.getNamedItem("data-tree-id").value
+                                                        $(el[i]).attr("data-tree-id")
                                                         +"']"), activated);
                     } catch(err) {
                     }
@@ -921,7 +921,7 @@
             // recursively activates all parents and children
             var ret1 = this.result_activate_up(el, activated);
             var ret2 = this.result_activate_down(el, activated);
-            return activated;
+            return ret1 && ret2;
         };
 
         Chosen.prototype.result_deactivate = function (el) {
@@ -957,7 +957,7 @@
         Chosen.prototype.winnow_results = function() {
       var found, founddesc, option, part, parts, regex, regexAnchor, result, result_id, results, searchText, startpos, text, zregex, _i, _j, _len, _len1, _ref;
       var activated = {};
-      var not_found = [];
+      var not_found_results = [];
       this.no_results_clear();
       results = 0;
       searchText = this.search_field.val() === this.default_text ? "" : $('<div/>').text($.trim(this.search_field.val())).html();
@@ -965,6 +965,14 @@
       regex = new RegExp(regexAnchor + searchText.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), 'i');
       zregex = new RegExp(searchText.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), 'i');
       _ref = this.results_data;
+      // first clear descendant studies counts so that we can iteratively add to them when activating
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+	      option = _ref[_i];
+	      if (!option.empty) {
+		      result_id = option.dom_id;
+		      $("#" + result_id).attr('data-desc-studies', 0);
+	      }
+      }
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         option = _ref[_i];
         if (!option.empty) {
@@ -1023,22 +1031,50 @@
                 $("#" + this.results_data[option.group_array_index].dom_id).css('display', 'list-item');
               }
             } else {
-                not_found.push({result:result, option:option, id:result[0].id});
+                not_found_results.push({result:result, option:option, id:result[0].id});
                 result.html(option.html); // clear search highlight no matter what
             }
           }
         }
       }
-      for (var i=0; i<not_found.length; i++) {
+      for (var i=0; i<not_found_results.length; i++) {
           // only hide if not activated by any other child/parent
-          if (!(not_found[i].id in activated)) {
-              result = not_found[i].result;
-              option = not_found[i].option;
+          if (!(not_found_results[i].id in activated)) {
+              result = not_found_results[i].result;
+              option = not_found_results[i].option;
               if (this.result_highlight && result_id === this.result_highlight.attr('id')) {
                 this.result_clear_highlight();
               }
               this.result_deactivate(result);
           }
+      }
+      // update descendant study count
+      for (var i in activated) {
+	      if (activated.hasOwnProperty(i)) {
+		      var curr_result = $("#"+i);
+		      if (!curr_result.attr('data-is-group-header')) {
+			      // its a study and we recurse up
+			      curr_result = $("li[data-tree-id='" + curr_result.attr('data-parent') + "']");
+			      while (curr_result.length > 0) {
+				      curr_result.attr('data-desc-studies', +curr_result.attr('data-desc-studies')+1);
+				      curr_result = $("li[data-tree-id='" + curr_result.attr('data-parent') + "']");
+			      }
+		      }
+	      }
+      }
+      // update descendant study count display
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+	      option = _ref[_i];
+	      if (!option.empty) {
+		      result_id = option.dom_id;
+		      result = $("#" + result_id);
+		      var desc_study_count = +result.attr('data-desc-studies');
+		      if (desc_study_count > 0) {
+			      result.html(result.html() + " ("+ desc_study_count
+			//	      + " stud"+(desc_study_count > 1 ? "ies" : "y")
+				      +")");
+		      }
+	      }
       }
       if (results < 1 && searchText.length) {
         return this.no_results(searchText);

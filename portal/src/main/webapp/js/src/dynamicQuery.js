@@ -819,7 +819,6 @@ function addMetaDataToPage() {
                     + (root.type === root.tissue ? "" : "data-parent='"+root.tissue+"' ")
                     +"disabled>"
                 +label 
-                + " (" + root.desc_studies_count + " stud"+(root.desc_studies_count === 1 ? "y" : "ies")+")" 
                 + "</option>").appendTo(cancerTypeContainer);
         }
         // Add all studies

@@ -6,6 +6,7 @@
 <%@ page import="org.mskcc.cbio.portal.model.GeneticProfile" %>
 <%@ page import="org.mskcc.cbio.portal.model.GeneticAlterationType" %>
 
+<<<<<<< local
 <script type="text/javascript" src="js/src/plots-view/plots-tab/plots.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/plots-view/plots-tab/one-gene/StyleSheet.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/plots-view/plots-tab/one-gene/PlotsMenu.js?<%=GlobalProperties.getAppVersion()%>"></script>
@@ -20,6 +21,12 @@
 <script type="text/javascript" src="js/src/plots-view/plots-tab/custom/PlotsCustomView.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/plots-view/util/clinicalDataTranslator.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/plots-view/util/LoadPlotsSvg.js?<%=GlobalProperties.getAppVersion()%>"></script>
+=======
+<script type="text/javascript" src="js/src/plots-tab/plots_tab_model.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/plots-tab/plots_tab.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/plots-tab/plots_two_genes.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/plots-tab/plots_custom.js?<%=GlobalProperties.getAppVersion()%>"></script>
+>>>>>>> other
 
 <style>
     #plots .plots {

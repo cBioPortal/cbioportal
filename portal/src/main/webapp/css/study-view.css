@@ -755,7 +755,7 @@ pieH3{
     z-index: 14800 !important;
 }
 .qtip-max-width {
-    max-width: 1000px;
+    max-width: 500px;
 }
 //Show/Hide columns related classes
 .ColVis_collection {

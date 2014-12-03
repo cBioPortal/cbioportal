@@ -273,7 +273,7 @@ var PieChart = function(){
         
         $('#' + DIV.mainDiv).qtip({
             id: DIV.mainDiv,
-            style: { 
+            style: {
                 classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow forceZindex qtip-max-width',
             },
             show: {event: "mouseover", solo: true, delay: 0},
@@ -288,7 +288,7 @@ var PieChart = function(){
                         "sScrollY": _sScrollY,
                         "bPaginate": false,
                         "bScrollCollapse": true,
-                        "aaSorting": [[1, 'desc']]
+                        "autoWidth": false
                     });
                     
                     $('.pieLabel', api.elements.tooltip).mouseenter(function() {
@@ -1060,6 +1060,10 @@ var PieChart = function(){
 //            if(label[i].name.length > 9){
 //                addQtip(label[i].name, DIV.labelTableTdID +label[i].id+'-'+i);
 //            }
+        }
+        if(selectedAttrDisplay.length > maxLabelNameLength && selectedAttrDisplay.length > 20) {
+            $('#' + DIV.mainDiv)
+                .find('#' + DIV.labelTableID+'-0 thead th:nth-child(1)').text(selectedAttrDisplay.substring(0, maxLabelNameLength<20?18:maxLabelNameLength-3) + '...');
         }
         
         if(category === 'extendable') {

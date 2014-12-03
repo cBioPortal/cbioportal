@@ -4,12 +4,12 @@ var LoadingJS = (function(){
     //before merge study view to default branch
     var JSPublic = [
                     'util/StudyViewBoilerplate',
-                    'js/src/survival-curve/survivalCurveProxy.js',
-                    'js/src/survival-curve/component/survivalCurve.js',
-                    'js/src/survival-curve/component/confidenceIntervals.js',
-                    'js/src/survival-curve/component/kmEstimator.js',
-                    'js/src/survival-curve/component/logRankTest.js',
-                    'js/src/survival-curve/component/boilerPlate.js'];
+                    'js/src/survival-tab/survivalCurveProxy.js',
+                    'js/src/survival-tab/component/survivalCurve.js',
+                    'js/src/survival-tab/component/confidenceIntervals.js',
+                    'js/src/survival-tab/component/kmEstimator.js',
+                    'js/src/survival-tab/component/logRankTest.js',
+                    'js/src/survival-tab/component/boilerPlate.js'];
     
     //As input for RequireJS
     var JSarray = [];

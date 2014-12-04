@@ -543,28 +543,48 @@ var StudyViewInitCharts = (function(){
     
     function initCharts(_data) { 
         $("#study-view-charts").html("");
-        initSpecialCharts(_data.arr);
+        if(cancerStudyId !== 'mixed_dmp_MSK-IMPACT_2014') {
+            initSpecialCharts(_data.arr);
+        }
         initDcCharts(_data);
     }
     
-    function initDcCharts() {
+    function initDcCharts(_data) {
         var createdChartID = 0;
         
         var tableIcons = [];
-            
-        for(var i=0; i< pie.length ; i++){
-            makeNewPieChartInstance(createdChartID, pie[i]);
-            HTMLtagsMapUID["study-view-dc-chart-" + createdChartID] = createdChartID;
-            attrNameMapUID[pie[i]["attr_id"]] = createdChartID;
-            displayedID.push(pie[i]["attr_id"]);
-            
-            if (tableCharts.indexOf(pie[i].attr_id) !== -1) {
-                var tableIcon = $("#study-view-dc-chart-" + createdChartID + "-table-icon");
-                if (tableIcon.css("display")!=="none")
-                    tableIcons.push(tableIcon);
+        
+        tableCharts.forEach(function(e, i){
+            for(var i=0; i< pie.length ; i++){
+                if(pie[i].attr_id === e) {
+                    makeNewPieChartInstance(createdChartID, pie[i]);
+                    HTMLtagsMapUID["study-view-dc-chart-" + createdChartID] = createdChartID;
+                    attrNameMapUID[pie[i]["attr_id"]] = createdChartID;
+                    displayedID.push(pie[i]["attr_id"]);
+                    var tableIcon = $("#study-view-dc-chart-" + createdChartID + "-table-icon");
+                    if (tableIcon.css("display")!=="none")
+                        tableIcons.push(tableIcon);
+                    createdChartID++;
+                    break;
+                }else {
+                    continue;
+                }
             }
-            
-            createdChartID++;
+        });
+        
+        if(cancerStudyId === 'mixed_dmp_MSK-IMPACT_2014') {
+            initSpecialCharts(_data.arr);      
+        }
+        
+        
+        for(var i=0; i< pie.length ; i++){
+            if (tableCharts.indexOf(pie[i].attr_id) === -1) {
+                makeNewPieChartInstance(createdChartID, pie[i]);
+                HTMLtagsMapUID["study-view-dc-chart-" + createdChartID] = createdChartID;
+                attrNameMapUID[pie[i]["attr_id"]] = createdChartID;
+                displayedID.push(pie[i]["attr_id"]);
+                createdChartID++;
+            }
         }
         
         for(var i=0; i< bar.length ; i++){
@@ -614,7 +634,7 @@ var StudyViewInitCharts = (function(){
         for(var i = 0; i < _casesLength; i++){
             _casesID.push(_cases[i].CASE_ID);
         }
-        
+    
         return _casesID;
     }
     

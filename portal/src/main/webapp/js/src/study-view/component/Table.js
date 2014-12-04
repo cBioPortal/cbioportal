@@ -33,6 +33,7 @@ var Table = function() {
     var divs = {},
         attr = [],
         arr = [],
+        selectedSamples = [],
         dataTable = '',
         callbacks = {},
         initStatus = false;
@@ -116,7 +117,9 @@ var Table = function() {
             arr = data.arr;
             attr = data.attr;
         }
-    
+        if(typeof data === 'object' && data.hasOwnProperty('selectedSamples')) {
+            selectedSamples = data.selectedSamples;
+        }
         var tableHtml = '<table><thead><tr></tr></thead><tbody></tbody></table>';
         table.html(tableHtml);
         
@@ -159,7 +162,7 @@ var Table = function() {
             _row += '</tr>';
             tableBody.append(_row);
         });
-        if(data.hasOwnProperty('selectedSamples') && data.selectedSamples.length === 0){
+        if(selectedSamples.length === 0){
             hideReload();
         }
     }

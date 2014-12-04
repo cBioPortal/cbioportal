@@ -154,10 +154,11 @@ var StudyViewInitTables = (function() {
         
         if(Ids.length === 0) {
             workers[workerIndex].data.selectedSamples.length=0;
-            selectedSamples = StudyViewInitCharts.getSelectedCasesID();
-//            workers.forEach(function(e, i){
-//                selectedSamples = StudyViewUtil.arrayDeDuplicate(selectedSamples.concat(e.data.selectedSamples));
-//            });
+            workers.forEach(function(e, i){
+                if(e.data.hasOwnProperty('selectedSamples')) {
+                    selectedSamples = StudyViewUtil.arrayDeDuplicate(selectedSamples.concat(e.data.selectedSamples));
+                }
+            });
         }else {
             exceptionId.push(tableId);
             worker.data.arr.forEach(function(e1, i1){
@@ -172,7 +173,7 @@ var StudyViewInitTables = (function() {
                                 }
                             }
                         }
-                        if(match) {
+                        if(match && e1.hasOwnProperty('caseIds')) {
                             selectedSamples = StudyViewUtil.arrayDeDuplicate(selectedSamples.concat(e1.caseIds));
                         }
                     });

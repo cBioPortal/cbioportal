@@ -90,14 +90,18 @@ var StudyViewUtil = (function(){
     }
     
     function arrayDeDuplicate(_array) {
-        _array = _array.concat();
-        for(var i=0; i<_array.length; ++i) {
-            for(var j=i+1; j<_array.length; ++j) {
-                if(_array[i] === _array[j])
-                    _array.splice(j--, 1);
+        if(_array instanceof Array) {
+            _array = _array.concat();
+            for(var i=0; i<_array.length; ++i) {
+                for(var j=i+1; j<_array.length; ++j) {
+                    if(_array[i] === _array[j])
+                        _array.splice(j--, 1);
+                }
             }
+            return _array;
+        }else {
+            return [];
         }
-        return _array;
     }
     function arrayFindByValue(_array, _value){
         if(_array.indexOf(_value) === -1){

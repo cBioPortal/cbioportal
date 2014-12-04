@@ -1037,20 +1037,30 @@
 		var wordStart = 0;
 		var inWord = false;
 		var inQuote = false;
+		var negated = false;
+		var positive = [];
+		var negative = [];
 		for (var i=0; i<searchText.length; i++) {
+			var newTerm = null;
 			if (searchText[i] === '"') {
-				if (inQuote) {
-					terms.push(searchText.substring(quoteStart+1, i));
-					inQuote = false;
-				} else {
-					quoteStart = i;
-					inQuote = true;
+				if (!inWord) {
+					if (inQuote) {
+						newTerm = searchText.substring(quoteStart+1, i);
+						inQuote = false;
+					} else {
+						quoteStart = i;
+						inQuote = true;
+					}
 				}
 			} else if (!inQuote) {
 				if (searchText[i] === ' ') {
 					if (inWord) {
-						terms.push(searchText.substring(wordStart, i));
+						newTerm = searchText.substring(wordStart, i);
 						inWord = false;
+					}
+				} else if (searchText[i] === '-') {
+					if (!inWord && !inQuote) {
+						negated = true;
 					}
 				} else {
 					if (!inWord) {
@@ -1059,16 +1069,32 @@
 					}
 				}
 			}
+			if (newTerm) {
+				if (negated) {
+					negative.push(newTerm);
+				} else {
+					positive.push(newTerm);
+				}
+				negated = false;
+			}
 		}
+		var newTerm = null;
 		if (inQuote) {
-			terms.push(searchText.substring(quoteStart+1));
+			newTerm = searchText.substring(quoteStart+1);
 		} else if (inWord) {
-			terms.push(searchText.substring(wordStart));
+			newTerm = searchText.substring(wordStart);
 		}
-		if (terms.length === 0) {
-			terms.push("");
+		if (newTerm) {
+			if (negated) {
+				negative.push(newTerm);
+			} else {
+				positive.push(newTerm);
+			}
 		}
-		return terms;
+		if (positive.length === 0 && negative.length === 0) {
+			positive.push("");
+		}
+		return {positive: positive, negative:negative};
 	}
 	
         Chosen.prototype.winnow_results = function() {
@@ -1088,14 +1114,22 @@
       }
 
       searchText = this.search_field.val() === this.default_text ? "" : $('<div/>').text($.trim(this.search_field.val())).html();
-      var searchWords = get_search_terms(searchText);
-      var searchResults = {};
-     for (var i=0; i<searchWords.length; i++) {
-	     searchResults[searchWords[i]] = this.get_results(searchWords[i]);
+      var searchTerms = get_search_terms(searchText);
+      console.log(searchTerms);
+      var deactivated = {};
+      var positiveSearchWords = searchTerms.positive;
+      var negativeSearchWords = searchTerms.negative;
+      var positiveSearchResults = {};
+      var negativeSearchResults = {};
+     for (var i=0; i<positiveSearchWords.length; i++) {
+	     positiveSearchResults[positiveSearchWords[i]] = this.get_results(positiveSearchWords[i]);
      }
-     for (var searchWord in searchResults) {
-	     if (searchResults.hasOwnProperty(searchWord)) {
-		     var res = searchResults[searchWord];
+     for (var i=0; i<negativeSearchWords.length; i++) {
+	     negativeSearchResults[negativeSearchWords[i]] = this.get_results(negativeSearchWords[i]);
+     }
+     for (var searchWord in positiveSearchResults) {
+	     if (positiveSearchResults.hasOwnProperty(searchWord)) {
+		     var res = positiveSearchResults[searchWord];
 		     for (var j=0; j<res.found.length; j++) {
 				var item = res.found[j];
 				found_results[item.id] = found_results[item.id] || {result:item.result, option:item.option,highlights:[]};
@@ -1103,9 +1137,9 @@
 			}
 	     }
      }
-     for (var searchWord in searchResults) {
-	     if (searchResults.hasOwnProperty(searchWord)) {
-		     var res = searchResults[searchWord];
+     for (var searchWord in positiveSearchResults) {
+	     if (positiveSearchResults.hasOwnProperty(searchWord)) {
+		     var res = positiveSearchResults[searchWord];
 		     for (var j=0; j<res.not_found.length; j++) {
 				var item = res.not_found[j];
 				if (item.id in found_results) {
@@ -1113,6 +1147,20 @@
 					delete found_results[item.id];
 				}
 				not_found_results[item.id] = not_found_results[item.id] || {result: item.result, option:item.option};
+			 }
+	     }
+     }
+     for (var searchWord in negativeSearchResults) {
+	     if (negativeSearchResults.hasOwnProperty(searchWord)) {
+		     var res = negativeSearchResults[searchWord];
+		     for (var j=0; j<res.found.length; j++) {
+				var item = res.found[j];
+				if (item.id in found_results) {
+					// each result must match every search term
+					delete found_results[item.id];
+				}
+				not_found_results[item.id] = not_found_results[item.id] || {result: item.result, option:item.option};
+				deactivated[item.id] = true;
 			 }
 	     }
      }
@@ -1150,7 +1198,7 @@
        for (var id in not_found_results) {
 	      if (not_found_results.hasOwnProperty(id)) {
 		      not_found_results[id].result.html(not_found_results[id].option.html);
-		      if (!(id in activated)) {
+		      if (!(id in activated) || id in deactivated) {
 				result = not_found_results[id].result;
 				option = not_found_results[id].option;
 				if (this.result_highlight && option.dom_id === this.result_highlight.attr('id')) {
@@ -1162,7 +1210,7 @@
       }
       // update descendant study count and display
       for (var i in activated) {
-	      if (activated.hasOwnProperty(i)) {
+	      if (activated.hasOwnProperty(i) && !(i in deactivated)) {
 		      var curr_result = $("#"+i);
 			curr_result.css('display', 'list-item');
 		      if (!curr_result.attr('data-is-group-header')) {

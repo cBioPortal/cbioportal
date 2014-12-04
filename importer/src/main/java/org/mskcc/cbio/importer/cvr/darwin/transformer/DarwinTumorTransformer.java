@@ -13,7 +13,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
@@ -82,7 +81,6 @@ public class DarwinTumorTransformer extends DarwinTransformer {
         this.tumorEx.createCriteria().andTUMOR_PT_DEIDENTIFICATION_IDIn(IdMapService.INSTANCE.getDarwinIdList());
         return this.generateTumorReport();
     }
-
 
     // main class for testing
     public static void main (String...args){

@@ -79,10 +79,13 @@ nci.cadsr.url=http://cadsrapi.nci.nih.gov/cadsrapi40/GetXML?query=
 nci.cadsr.query=DataElement[@publicId=CDE_ID:]
 
 #dmp
-dmp.server_name=
+dmp.server_name=http://draco.mskcc.org:9770/
 dmp.user_name=
 dmp.password=
-dmp.tokens.create_session=
-dmp.tokens.retrieve_variants=
-dmp.tokens.retrieve_segment_data=
-dmp.tokens.consume_sample=
+dmp.tokens.create_session=create_session
+dmp.tokens.retrieve_variants=cbio_retrieve_variants
+dmp.tokens.retrieve_segment_data=get_seg_data
+dmp.tokens.consume_sample=cbio_consume_sample
+
+#darwin
+darwin.config_file_path = $PORTAL_HOME/importer/src/main/resources/mybatis-config.xml

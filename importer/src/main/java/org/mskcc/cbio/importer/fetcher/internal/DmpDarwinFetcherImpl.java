@@ -17,7 +17,6 @@ package org.mskcc.cbio.importer.fetcher.internal;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.file.Paths;
-import org.mskcc.cbio.importer.cvr.dmp.importer.DMPclinicaldataimporter;
 
 import java.util.Collection;
 import org.apache.commons.logging.Log;
@@ -25,12 +24,16 @@ import org.apache.commons.logging.LogFactory;
 import org.mskcc.cbio.importer.Config;
 
 import org.mskcc.cbio.importer.Fetcher;
-import org.mskcc.cbio.importer.cvr.darwin.importer.Darwinclinicaldataimporter;
-import org.mskcc.cbio.importer.cvr.dmp.transformer.DMPDataTransformer;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 
 import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
+import org.mskcc.cbio.importer.cvr.dmp.importer.DMPclinicaldataimporter;
+import org.mskcc.cbio.importer.cvr.dmp.transformer.DMPDataTransformer;
+
+import org.mskcc.cbio.importer.cvr.darwin.transformer.DarwinTumorTransformer;
+import org.mskcc.cbio.importer.cvr.darwin.util.DarwinSessionManager;
+
 
 public class DmpDarwinFetcherImpl implements Fetcher
 {
@@ -61,25 +64,23 @@ public class DmpDarwinFetcherImpl implements Fetcher
                 dataSourcePath = singleDataSourceMetaData.getDownloadDirectory();
             }
         }
+        //Retrieve DMP data
         DMPDataTransformer transformer = new DMPDataTransformer(Paths.get(dataSourcePath));
-        
-        //Retrieve sample data 
-        DMPclinicaldataimporter dmpImporter_retrieve = new DMPclinicaldataimporter();
-
-        DmpData data = OBJECT_MAPPER.readValue(dmpImporter_retrieve.getResult(), DmpData.class);
-        
+        DMPclinicaldataimporter dmpImporterRetriever = new DMPclinicaldataimporter();
+        DmpData data = OBJECT_MAPPER.readValue(dmpImporterRetriever.getResult(), DmpData.class);
         DMPclinicaldataimporter dmpImporter_mark = 
                 new DMPclinicaldataimporter(transformer.transform(data)); //mark consumed samples (transformer returns a list of consumed sample ids)
+        
+        //Retrieve Darwin clinical data for retrieved DMP samples
+        DarwinTumorTransformer darwinTransformer = new DarwinTumorTransformer(Paths.get(dataSourcePath));
+        darwinTransformer.transform();
+        DarwinSessionManager.INSTANCE.closeSession();
     }
 
     @Override
     public void fetchReferenceData(ReferenceMetadata referenceMetadata) 
             throws Exception {
         throw new UnsupportedOperationException();
-    }
-    
-    public static void main (String[] args) {
-        Darwinclinicaldataimporter darwinImporter = new Darwinclinicaldataimporter();
     }
     
 }

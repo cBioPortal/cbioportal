@@ -158,7 +158,7 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
         <b:constructor-arg ref="importDataRecordDAO"/>
         <b:constructor-arg ref="mercurialService"/>
     </b:bean>
-    <b:bean id="dmpFetcher" class="org.mskcc.cbio.importer.fetcher.internal.DMPFetcherImpl">
+    <b:bean id="dmpDarwinFetcher" class="org.mskcc.cbio.importer.fetcher.internal.DmpDarwinFetcherImpl">
         <b:constructor-arg ref="config"/>
     </b:bean>
     <b:bean id="referenceDataFetcher" class="org.mskcc.cbio.importer.fetcher.internal.ReferenceDataFetcherImpl">

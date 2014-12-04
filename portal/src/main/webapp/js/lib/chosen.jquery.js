@@ -925,6 +925,7 @@
         };
 
         Chosen.prototype.result_deactivate = function (el) {
+		el.css('display','none');
             return el.removeClass("active-result");
         };
 
@@ -954,25 +955,18 @@
             }
         };
 
-        Chosen.prototype.winnow_results = function() {
-      var found, founddesc, option, part, parts, regex, regexAnchor, result, result_id, results, searchText, startpos, text, zregex, _i, _j, _len, _len1, _ref;
-      var activated = {};
+	Chosen.prototype.get_results = function(searchText) {
+		// returns results and the indexes in text to be highlighted for the match
+		// returns {found:[], not_found:[]}
+		// each element of one of those lists is {result: result, option: option, id: id, highlight:[start, end]}
+		var found, founddesc, option, part, parts, regex, regexAnchor, result, result_id, results, searchText, startpos, text, zregex, _i, _j, _len, _len1, _ref;
       var not_found_results = [];
-      this.no_results_clear();
+      var found_results = [];
       results = 0;
-      searchText = this.search_field.val() === this.default_text ? "" : $('<div/>').text($.trim(this.search_field.val())).html();
       regexAnchor = this.search_contains ? "" : "^";
       regex = new RegExp(regexAnchor + searchText.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), 'i');
       zregex = new RegExp(searchText.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), 'i');
       _ref = this.results_data;
-      // first clear descendant studies counts so that we can iteratively add to them when activating
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-	      option = _ref[_i];
-	      if (!option.empty) {
-		      result_id = option.dom_id;
-		      $("#" + result_id).attr('data-desc-studies', 0);
-	      }
-      }
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         option = _ref[_i];
         if (!option.empty) {
@@ -1020,38 +1014,157 @@
             if (found) {
               if (searchText.length && !founddesc) {
                 startpos = option.html.search(zregex);
-                text = option.html.substr(0, startpos + searchText.length) + '</em>' + option.html.substr(startpos + searchText.length);
-                text = text.substr(0, startpos) + '<em>' + text.substr(startpos);
+		found_results.push({result:result, option:option, id:option.dom_id, highlight:[startpos, startpos+searchText.length]}); 
               } else {
-                text = option.html;
-              }
-              result.html(text);
-              this.result_activate(result, activated);
-              if (option.group_array_index != null) {
-                $("#" + this.results_data[option.group_array_index].dom_id).css('display', 'list-item');
+		found_results.push({result:result, option:option, id:option.dom_id, highlight:[0,0]});
               }
             } else {
-                not_found_results.push({result:result, option:option, id:result[0].id});
-                result.html(option.html); // clear search highlight no matter what
+                not_found_results.push({result:result, option:option, id:option.dom_id});
             }
           }
         }
       }
-      for (var i=0; i<not_found_results.length; i++) {
-          // only hide if not activated by any other child/parent
-          if (!(not_found_results[i].id in activated)) {
-              result = not_found_results[i].result;
-              option = not_found_results[i].option;
-              if (this.result_highlight && result_id === this.result_highlight.attr('id')) {
-                this.result_clear_highlight();
-              }
-              this.result_deactivate(result);
-          }
+      return {found: found_results, not_found:not_found_results};
+	}
+	
+	var get_search_terms = function(searchText) {
+		// searchText is assumed to be trimmed
+		// extract terms that will be searched as a block
+		// this means quotation-mark-surrounded phrases and, if none, then space-separated
+		// munch this FSM-style
+		var terms = [];
+		var quoteStart = 0;
+		var wordStart = 0;
+		var inWord = false;
+		var inQuote = false;
+		for (var i=0; i<searchText.length; i++) {
+			if (searchText[i] === '"') {
+				if (inQuote) {
+					terms.push(searchText.substring(quoteStart+1, i));
+					inQuote = false;
+				} else {
+					quoteStart = i;
+					inQuote = true;
+				}
+			} else if (!inQuote) {
+				if (searchText[i] === ' ') {
+					if (inWord) {
+						terms.push(searchText.substring(wordStart, i));
+						inWord = false;
+					}
+				} else {
+					if (!inWord) {
+						inWord = true;
+						wordStart = i;
+					}
+				}
+			}
+		}
+		if (inQuote) {
+			terms.push(searchText.substring(quoteStart+1));
+		} else if (inWord) {
+			terms.push(searchText.substring(wordStart));
+		}
+		if (terms.length === 0) {
+			terms.push("");
+		}
+		return terms;
+	}
+	
+        Chosen.prototype.winnow_results = function() {
+      var option, result, result_id, results, searchText, text, zregex, _i, _len, _ref;
+      var activated = {};
+      this.no_results_clear();
+      var found_results = {};
+      var not_found_results = {};
+      _ref = this.results_data;
+	// first clear descendant studies counts so that we can iteratively add to them when activating
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+	      option = _ref[_i];
+	      if (!option.empty) {
+		      result_id = option.dom_id;
+		      $("#" + result_id).attr('data-desc-studies', 0);
+	      }
       }
-      // update descendant study count
+
+      searchText = this.search_field.val() === this.default_text ? "" : $('<div/>').text($.trim(this.search_field.val())).html();
+      var searchWords = get_search_terms(searchText);
+      var searchResults = {};
+     for (var i=0; i<searchWords.length; i++) {
+	     searchResults[searchWords[i]] = this.get_results(searchWords[i]);
+     }
+     for (var searchWord in searchResults) {
+	     if (searchResults.hasOwnProperty(searchWord)) {
+		     var res = searchResults[searchWord];
+		     for (var j=0; j<res.found.length; j++) {
+				var item = res.found[j];
+				found_results[item.id] = found_results[item.id] || {result:item.result, option:item.option,highlights:[]};
+				found_results[item.id].highlights.push(item.highlight);
+			}
+	     }
+     }
+     for (var searchWord in searchResults) {
+	     if (searchResults.hasOwnProperty(searchWord)) {
+		     var res = searchResults[searchWord];
+		     for (var j=0; j<res.not_found.length; j++) {
+				var item = res.not_found[j];
+				if (item.id in found_results) {
+					// each result must match every search term
+					delete found_results[item.id];
+				}
+				not_found_results[item.id] = not_found_results[item.id] || {result: item.result, option:item.option};
+			 }
+	     }
+     }
+      results = Object.keys(found_results).length;
+      // Highlight text
+      for (var id in found_results) {
+	      if (found_results.hasOwnProperty(id)) {
+		      text = found_results[id].option.html;
+		      var highlight_map = [];
+		      for (var i=0; i<text.length; i++) {
+			      highlight_map.push(0);
+		      }
+		      for (var i=0; i<found_results[id].highlights.length; i++) {
+			      var highlight = found_results[id].highlights[i];
+			      highlight_map[highlight[0]] += 1;
+			      highlight_map[highlight[1]] -= 1;
+		      }
+		      var highlighted_text = "";
+		      var highlight_depth = 0;
+		      for (var i=0; i<text.length; i++) {
+			      var new_depth = highlight_depth + highlight_map[i];
+			      if (highlight_depth === 0 && new_depth > 0) {
+				      highlighted_text += "<em>";
+			      } else if (highlight_depth > 0 && new_depth === 0) {
+				      highlighted_text += "</em>";
+			      }
+			      highlighted_text += text[i];
+			      highlight_depth = new_depth;
+		      }
+		      
+		      found_results[id].result.html(highlighted_text);
+		      this.result_activate(found_results[id].result, activated);
+	      }
+      }
+       for (var id in not_found_results) {
+	      if (not_found_results.hasOwnProperty(id)) {
+		      not_found_results[id].result.html(not_found_results[id].option.html);
+		      if (!(id in activated)) {
+				result = not_found_results[id].result;
+				option = not_found_results[id].option;
+				if (this.result_highlight && option.dom_id === this.result_highlight.attr('id')) {
+					this.result_clear_highlight();
+				}
+				this.result_deactivate(result);
+		      }
+	      }
+      }
+      // update descendant study count and display
       for (var i in activated) {
 	      if (activated.hasOwnProperty(i)) {
 		      var curr_result = $("#"+i);
+			curr_result.css('display', 'list-item');
 		      if (!curr_result.attr('data-is-group-header')) {
 			      // its a study and we recurse up
 			      curr_result = $("li[data-tree-id='" + curr_result.attr('data-parent') + "']");
@@ -1094,7 +1207,7 @@
                 if (li.hasClass("group-result")) {
                     _results.push(li.css('display', 'auto'));
                 } else if (!this.is_multiple || !li.hasClass("result-selected")) {
-                    _results.push(this.result_activate(li));
+                    _results.push(this.result_activate(li, {}));
                 } else {
                     _results.push(void 0);
                 }

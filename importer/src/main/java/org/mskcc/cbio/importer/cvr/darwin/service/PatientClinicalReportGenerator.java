@@ -68,11 +68,13 @@ public class PatientClinicalReportGenerator {
     }
 
     private void completeTransformerMap(){
-        this.transformerMap.put("Patient", new DarwinPatientTransformer(this.stagingFilePath.resolve("data_clinical_patient.txt")));
-        this.transformerMap.put("ClinicalNotes",new DarwinClinicalNoteTransformer(this.stagingFilePath.resolve("data_clinical_clinical_note.txt")) );
-        this.transformerMap.put("Lab Results",new DarwinLabResultTransformer(this.stagingFilePath.resolve("data_clinical_lab_result.txt")) );
-        this.transformerMap.put("Pathology", new DarwinPathologyDataTransformer(this.stagingFilePath.resolve("data_clinical_pathology_result.txt")));
-        this.transformerMap.put("Tumor",new DarwinTumorTransformer(this.stagingFilePath.resolve("data_clinical_tumor.txt")));
+        this.transformerMap.put("Patient", new DarwinPatientTransformer(this.stagingFilePath));
+        this.transformerMap.put("ClinicalNotes",new DarwinClinicalNoteTransformer(this.stagingFilePath) );
+        this.transformerMap.put("ClinicalNoteDetails", new DarwinClinicalNoteDetailsTransformer(this.stagingFilePath));
+        this.transformerMap.put("Lab Results", new DarwinLabResultTransformer(this.stagingFilePath));
+        this.transformerMap.put("Pathology", new DarwinPathologyDataTransformer(this.stagingFilePath));
+        this.transformerMap.put("PathologyDetails", new DarwinPathologyDataDetailsTransformer(this.stagingFilePath));
+        this.transformerMap.put("Tumor",new DarwinTumorTransformer(this.stagingFilePath));
     }
 
     public void generateWorksheet(final Integer patientId){

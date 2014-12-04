@@ -3,26 +3,19 @@ package org.mskcc.cbio.importer.cvr.darwin.transformer;
 import com.google.common.base.*;
 import com.google.common.collect.*;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.cvr.darwin.dao.dvcbio.ClinicalNoteMapper;
 import org.mskcc.cbio.importer.cvr.darwin.model.dvcbio.ClinicalNote;
 import org.mskcc.cbio.importer.cvr.darwin.model.dvcbio.ClinicalNoteExample;
-import org.mskcc.cbio.importer.cvr.darwin.service.ClinicalNoteNames;
+import org.mskcc.cbio.importer.cvr.darwin.service.DarwinDocumentParsers;
 import org.mskcc.cbio.importer.cvr.darwin.util.DarwinSessionManager;
+import org.mskcc.cbio.importer.cvr.darwin.util.IdMapService;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
-
-import static java.nio.file.StandardOpenOption.CREATE;
-import static java.nio.file.StandardOpenOption.DSYNC;
 
 /**
  * Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
@@ -43,39 +36,41 @@ import static java.nio.file.StandardOpenOption.DSYNC;
  * <p/>
  * Created by criscuof on 11/30/14.
  */
-public class DarwinClinicalNoteDetailsTransformer {
+public class DarwinClinicalNoteDetailsTransformer  extends DarwinTransformer {
     private static final Logger logger = Logger.getLogger(DarwinClinicalNoteDetailsTransformer.class);
     private final ClinicalNoteMapper clinicalNoteMapper;
     private final ClinicalNoteExample clinicalNoteExample;
-    private final Path clinicalDetailsPath;
     private Integer seq  = 0;
     private static final String patientIdColumn = "Patient ID";
-    private static final  String clinicalNoteDetailsFile = "data_clinical_clinicalnotes.details.txt";
+    private static final  String clinicalNoteDetailsFile = "data_clinical_clinicalnotedetails.txt";
 
     public DarwinClinicalNoteDetailsTransformer(Path clinPath){
-        Preconditions.checkArgument(null != clinPath, "A Path for clinical reports is required");
-        this.clinicalDetailsPath = clinPath.resolve(clinicalNoteDetailsFile);
+        super(clinPath.resolve(clinicalNoteDetailsFile));
         this.clinicalNoteExample = new ClinicalNoteExample();
         this.clinicalNoteMapper = DarwinSessionManager.INSTANCE.getDarwinSession()
                 .getMapper(ClinicalNoteMapper.class);
     }
 
-
-
-    private void processClinicalNotesForPatient(Integer patientId){
-        this.clinicalNoteExample.clear();
-        this.clinicalNoteExample.createCriteria().andCLNT_PT_DEIDENTIFICATION_IDEqualTo(patientId);
-        Table<Integer, String,String> clinTable = HashBasedTable.create();
-        for(ClinicalNote cn : this.clinicalNoteMapper.selectByExampleWithBLOBs(this.clinicalNoteExample)){
-            String clinicalDoc = cn.getCLNT_DEID_MEDICAL_DOCUMENT_TXT();
-            if (!Strings.isNullOrEmpty(clinicalDoc))
-                this.parseClinicalDoc(patientId, clinicalDoc, clinTable);
-        }
-        this.exportClinicalNotes(clinTable);
+    @Override
+    public void transform() {
+        this.writeStagingFile(this.generateReportByPatientIdList(IdMapService.INSTANCE.getDarwinIdList()));
+        return ;
     }
 
-    private void exportClinicalNotes(Table<Integer,String,String> clinTable ) {
-        OpenOption[] options = new OpenOption[]{ CREATE, DSYNC};
+    @Override
+    public List<String> generateReportByPatientId(Integer patientId) {
+        Preconditions.checkArgument(null != patientId && patientId >0,
+                "A valid patient Id is required");
+        return this.generateReportByPatientIdList(Lists.newArrayList(patientId));
+
+    }
+
+    @Override
+    public List<String> generateReportByPatientIdList(List<Integer> patientIdList) {
+        Preconditions.checkArgument(null != patientIdList && patientIdList.size() > 0,
+                "A valid list of patient ids is required.");
+
+        Table<Integer, String,String> clinTable = processClinicalNoteDetails(patientIdList);
         List<String> reportList = Lists.newArrayList();
         reportList.add( StagingCommonNames.tabJoiner.join(clinTable.columnKeySet()));
         Set<String> colSet = clinTable.columnKeySet();
@@ -83,119 +78,39 @@ public class DarwinClinicalNoteDetailsTransformer {
             List<String> valueList = Lists.newArrayList();
             for (String column : colSet){
                 valueList.add(clinTable.get(row,column));
-
             }
             reportList.add( StagingCommonNames.tabJoiner.join(valueList));
-
-        }
-        try {
-            Files.deleteIfExists(this.clinicalDetailsPath);
-            Files.write(this.clinicalDetailsPath, reportList, Charset.defaultCharset(),options);
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-            e.printStackTrace();
         }
 
-    }
-
- /*
- private method to filter and parse clinical attributes from a String encapsulating the
- entire clinical note
-  */
-   private void parseClinicalDoc (Integer patientId, String clinDoc, Table<Integer, String,String> clinTable){
-
-        List<String> lines = Lists.newArrayList(StagingCommonNames.lineSplitter.split(clinDoc));
-        logger.info("Clinical notes has " +lines.size() + " lines");
-        List<String> filteredLines = FluentIterable.from(lines)
-                .filter(new Predicate<String>() {
-                    @Override
-                    public boolean apply(String line) {
-                        return StringUtils.isNotBlank(line);
-                    }
-                })
-                .filter(new Predicate<String>() {
-                    @Override
-                    public boolean apply(String line) {
-                        for (String skipWord : ClinicalNoteNames.CN_FILTER_LIST) {
-                            if (line.startsWith(skipWord)) {
-                                return false;
-                            }
-                        }
-                        return true;
-                    }
-                }).toList();
-
-        String attributeName = patientIdColumn;
-        StringBuilder sb = new StringBuilder(patientId.toString());
-        seq++;
-
-       /*
-       process each report line
-       determine in a line represents the start of a new clinical attribute or the
-       continuation of the current clinical attribute.
-        */
-        for ( String line : filteredLines){
-            boolean processed = false;
-            for (String attribute : ClinicalNoteNames.CN_ATTIBUTE_LIST){
-                if (line.startsWith(attribute)) {
-
-                    if(null != attributeName && sb.length() > 0) {
-                        if (attributeName.equals(ClinicalNoteNames.CN_REVIEW_OF_SYSTEMS)){
-                            this.processROS(seq, sb.toString(), clinTable);
-                        } else {
-                            clinTable.put(seq, attributeName, sb.toString());
-
-                        }
-                        sb.setLength(0);
-                    }
-                    attributeName = attribute;
-                    sb.append(line.replace(attribute,""));
-                    processed = true;
-                }
-            }
-            // if the line is a continuation, add its value to the buffer
-            if(!processed){
-                sb.append(" ");
-                sb.append(line);
-            }
-        }
-        return ;
+        return reportList;
     }
 
     /*
-    Review of Systems mus be parsed by keyword substrings
+    private method to generate a Table of clinical note details for a List of patient ids
      */
-    private void processROS(Integer seq, String rosString, Table<Integer, String,String> clinTable){
-        Splitter wsSplitter = Splitter.on(CharMatcher.BREAKING_WHITESPACE).trimResults().omitEmptyStrings();
-        String s1 = CharMatcher.JAVA_ISO_CONTROL.removeFrom(rosString);
-        String s2 = CharMatcher.WHITESPACE.trimAndCollapseFrom(s1,' ');
-        List<String> words = wsSplitter.splitToList(s2);
-        String keyword = null;
-        StringBuilder sb = new StringBuilder();
-        for (String word : words) {
-            //logger.info(word);
-            if (ClinicalNoteNames.ROS_KEYWORD_LIST.contains(word)){
-                if(!Strings.isNullOrEmpty(keyword) && !Strings.isNullOrEmpty(sb.toString())){
-                    String columnName = "ROS_" +keyword;
-                    clinTable.put(seq, columnName, sb.toString());
-
-                }
-                keyword = word;
-                sb.setLength(0);
-            } else if (!Strings.isNullOrEmpty(keyword)){
-                sb.append(word);
-                sb.append(" ");
-            }
-
+    private Table<Integer, String,String> processClinicalNoteDetails (List<Integer> patientIdList){
+        this.clinicalNoteExample.clear();
+        this.clinicalNoteExample.createCriteria().andCLNT_PT_DEIDENTIFICATION_IDIn(patientIdList);
+        Table<Integer, String,String> clinTable = HashBasedTable.create();
+        for(ClinicalNote cn : this.clinicalNoteMapper.selectByExampleWithBLOBs(this.clinicalNoteExample)){
+            String clinicalDoc = cn.getCLNT_DEID_MEDICAL_DOCUMENT_TXT();
+            Integer patientId = cn.getCLNT_PT_DEIDENTIFICATION_ID();
+            if (!Strings.isNullOrEmpty(clinicalDoc))
+                DarwinDocumentParsers.parseDarwinClinicalNoteDocument(patientId, clinicalDoc, clinTable);
         }
-
+        return clinTable;
     }
 
     public static void main (String...args){
 
         Path clinicalPath = Paths.get("/tmp/cvr/patient/clinical");
-        DarwinClinicalNoteDetailsTransformer service = new DarwinClinicalNoteDetailsTransformer(clinicalPath);
-        service.processClinicalNotesForPatient(1519355);
+        DarwinClinicalNoteDetailsTransformer transformer = new DarwinClinicalNoteDetailsTransformer(clinicalPath);
+      // transformer.transform();
+        for (String s : transformer.generateReportByPatientId(1519355)) {
+            System.out.println(s);
+        }
+        // terminate the SQL session
+        DarwinSessionManager.INSTANCE.closeSession();
 
     }
 

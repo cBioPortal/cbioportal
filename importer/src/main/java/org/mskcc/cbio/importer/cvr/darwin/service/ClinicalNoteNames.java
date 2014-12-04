@@ -32,7 +32,7 @@ public interface ClinicalNoteNames {
     public static final String CN_MEDICATIONS = "MEDICATIONS:";
     public static final String CN_DIAGNOSIS = "DIAGNOSIS:";
     public static final String CN_CONSTIT = "CONSTIT.:";
-    public static final String CN_REVIEW_OF_SYSTEMS = "REVIEW OF SYSTEMS:";
+    public static final String CN_REVIEW_OF_SYSTEMS = "REVIEW OF SYSTEMS";
     public static final String CN_PHYSICAL_EXAMINATION = "PHYSICAL_EXAMINATION:";
     public static final String CN_PHYSICAL_EXAMINATION_GENERAL = "GENERAL:";
     public static final String CN_PHYSICAL_EXAMINATION_VITAL_SIGNS = "VITAL SIGNS:";

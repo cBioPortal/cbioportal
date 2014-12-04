@@ -20,7 +20,11 @@
         <mapper resource="darwin-conn/xml/dvcbio-mapper/IdMapperMapper.xml"/>
         <mapper resource="darwin-conn/xml/dvcbio-mapper/PathologyDataMapper.xml"/>
         <mapper resource="darwin-conn/xml/dvcbio-mapper/TumorMapper.xml"/>
+        <mapper resource="darwin-conn/xml/dvcbio-mapper/PatientMapper.xml"/>
+        <mapper resource="darwin-conn/xml/dvcbio-mapper/ClinicalNoteMapper.xml"/>
         <mapper resource="darwin-conn/xml/dvcbio-mapper/ClinicalTrialMapper.xml"/>
+        <mapper resource="darwin-conn/xml/dvcbio-mapper/LabResultMapper.xml"/>
+        <mapper resource="darwin-conn/xml/dvcbio-mapper/ProcedureMapper.xml"/>
     </mappers>
     
 </configuration>

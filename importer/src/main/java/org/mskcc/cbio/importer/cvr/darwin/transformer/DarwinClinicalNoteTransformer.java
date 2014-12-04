@@ -48,6 +48,12 @@ public class DarwinClinicalNoteTransformer extends DarwinTransformer {
                 .getMapper(ClinicalNoteMapper.class);
     }
 
+    /*
+    private method to generate a List of tsv Strings. The first String in the list
+    contains the attribute names; subsequent Strings contain item values
+    This method queries the ClinicalNotes view based on the criteria specified
+    in the ClinicalNoteExample object
+     */
     private List<String> generateClinicalNoteReport() {
         List<String> clinicalNoteDataList = Lists.newArrayList(this.generateColumnHeaders(ClinicalNote.class));
         List<Object> clinicalNoteObjectList = new ArrayList<Object>
@@ -56,6 +62,10 @@ public class DarwinClinicalNoteTransformer extends DarwinTransformer {
         return clinicalNoteDataList;
     }
 
+    /*
+    transforms all the data in the ClinicNotes view into a tsv Strings and exports
+    them to a staging file. The exported report includes column headings
+     */
     public void transform() {
         this.clinicalNoteExample.clear();
         this.clinicalNoteExample.createCriteria()
@@ -64,6 +74,10 @@ public class DarwinClinicalNoteTransformer extends DarwinTransformer {
         return ;
     }
 
+    /*
+    public method to generate a report contain the clinical note data for a specified
+    patient as a List of Strings. The first item in the list is the column headings
+     */
     @Override
     public List<String> generateReportByPatientId(Integer patientId) {
         Preconditions.checkArgument(null != patientId && patientId > 0,

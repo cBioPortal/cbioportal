@@ -19,32 +19,35 @@
         width: 350px;
         height: 610px;
     }
-    #plots-sidebar-title {
+    #plots-sidebar-x {
+        width: inherit;
+        height: 250px;
+    }
+    #plots-sidebar-y {
+        width: inherit;
+        height: 250px;
+    }
+    #plots-sidebar-search {
+        width: inherit;
+        height: 50px;
+    }
+    #plots-sidebar h3 {
         margin: 10px;
     }
-    #plots-sidebar-x-axis {
-        height: 230px;
-    }
-    #plots-sidebar-y-axis {
-        height: 230px;
-    }
-    #plots-sidebar-filters {
-        height: 90px;
-    }
-    
-    #plots-sidebar .plots-opts {
-        margin-left: 40px;
-        margin-top: 10px;
+    #plots-sidebar h4 {
+        margin: 10px;
     }
     #plots-sidebar h5 {
         margin-top: -5px;
         margin-left: 20px;
         padding-left: 5px;
         padding-right: 5px;
-        background-color: white;
         display: inline-block;
         font-weight: bold;  
         margin-bottom: 20px;
+    }
+    #plots-sidebar select {
+        max-width: 180px;
     }
     #plots-content {
         width: 800px;
@@ -54,71 +57,48 @@
 
 
 <div id="plots" class="section" np-app="menuApp">
-    <div id='test-angular' ng-controller='MenuController as menu'>
-        <div ng-repeat="item in menu.items" ng-show="item.isGenomicProfile">
-            <span>{{item.title}}</span>
-            <select ng-model="item" ng-options="opt as opt.label for opt in item.options"></select>
+    <div id="plots-sidebar" ng-controller='MenuController as menu'>
+        <h3>Plots Parameters</h3>
+        <div id="plots-sidebar-x" class="plots">
+            <h4>X Axis</h4>
+            <br><h5>{{plotsType.title}}</h5>
+            <select id="plots-x-plots-type" ng-model="form.plotsTypeX" ng-options="option.value as option.label for option in plotsType.options"></select>
+            <!--genomic profile specs-->
+            <div ng-show="form.plotsTypeX==='genomic_profile'">
+                <h5>{{profileType.title}}</h5>
+                <select id="plots-x-profile-type" ng-model="form.profileTypeX" ng-options="option.value as option.label for option in profileType.options"></select>
+                <br><h5>{{profileName.title}}</h5>
+                <select id="plots-x-profile-name" ng-model="form.profileNameX" ng-options="option.value as option.label for option in profileName.options | filter: {value: }"></select>
+                <br><h5>{{gene.title}}</h5>
+                <select id="plots-x-gene" ng-model="form.geneX" ng-options="option.value as option.label for option in gene.options"></select>
+            </div>
+            <!--clinical attr specs-->
+            <div ng-show="form.plotsTypeX==='clinical_attr'">
+                <h5>{{clinicalAttr.title}}</h5>
+                <select id="plots-x-clincal-attr" ng-model="form.clinicalAttrX" ng-options="option.value as option.label for option in clinicalAttr.options"></select>
+            </div>
+        </div>
+        <div id="plots-sidebar-y" class="plots">
+            <h4>Y Axis</h4>
+            <br><h5>{{plotsType.title}}</h5>
+            <select id="plots-y-plots-type" ng-model="form.plotsTypeY" ng-options="option.value as option.label for option in plotsType.options"></select>
+            <!--genomic profile specs-->
+            <div ng-show="form.plotsTypeY==='genomic_profile'">
+                <h5>{{profileType.title}}</h5>
+                <select id="plots-y-profile-type" ng-model="form.profileTypeY" ng-options="option.value as option.label for option in profileType.options"></select>
+                <br><h5>{{profileName.title}}</h5>
+                <select id="plots-y-profile-name" ng-model="form.profileNameY" ng-options="option.value as option.label for option in profileName.options"></select>
+                <br><h5>{{gene.title}}</h5>
+                <select id="plots-y-gene" ng-model="form.geneY" ng-options="option.value as option.label for option in gene.options"></select>
+            </div>
+            <!--clinical attr specs-->
+            <div ng-show="form.plotsTypeY==='clinical_attr'">
+                <h5>{{clinicalAttr.title}}</h5>
+                <select id="plots-y-clincal-attr" ng-model="form.clinicalAttrY" ng-options="option.value as option.label for option in clinicalAttr.options"></select>
+            </div>
+        </div>
+        <div id="plots-sidebar-search" class="plots">
+            <h4>Search</h4>
         </div>
     </div>
-    <table>
-        <tr>
-            <td>
-                <div id="plots-sidebar">
-                    <div id='plots-sidebar-title'><h4>Plots Parameters</h4></div>
-                    <div id='plots-sidebar-x-axis' class='plots'>
-                        <h5>X Axis</h5>
-                        <div id='plots-x-axis-plots-type-div' class='plots-opts'>
-                            <label for="plots-x-axis-plots-type">Plots Type</label>
-                            <select id="plots-x-axis-plots-type">
-                                <option value="genomic-profile">Genomic Profile</option>
-                                <option value="clinical-attributes">Clinical Attributes</option>
-                            </select>
-                        </div>
-                        <!-- genome profile vision-->
-                        <div id="plots-x-axis-profile-type-div" class='plots-opts' style="display:none">
-                            <label for="plots-x-axis-profile-type">Profile Type</label>
-                            <select id="plots-x-axis-profile-type"></select>
-                        </div>
-                        <div id="plots-x-axis-profile-name-div" class='plots-opts' style="display:none">
-                            <label for="plots-x-axis-profile-type">Profile Name</label>
-                            <select id="plots-x-axis-profile-name"></select>
-                        </div>
-                        <div id="plots-x-axis-gene-div" class='plots-opts' style="display:none">
-                            <label for="plots-x-axis-profile-type">Gene</label>
-                            <select id="plots-x-axis-gene"></select>
-                        </div>
-                        <!-- clinical attributes vision-->
-                        <div id="plots-x-axis-clinical-attr-div" class='plots-opts' style="display:none">
-                            <label for="plots-x-axis-profile-type">Clinical Attribute</label>
-                            <select id="plots-x-axis-clinical-attr"></select>
-                        </div>
-                    </div>
-                    <div id='plots-sidebar-y-axis' class='plots'>
-                        <h5>Y Axis</h5>
-                        <div id='plots-y-axis-plots-type-div' class='plots-opts'>
-                            <label for="plots-y-axis-plots-type">Plots Type</label>
-                            <select id="plots-y-axis-plots-type">
-                                <option value="genomic-profile">Genomic Profile</option>
-                                <option value="clinical-attributes">Clinical Attributes</option>
-                            </select>
-                        </div>
-                        <!-- genome profile vision-->
-                        <div id="plots-y-axis-profile-type-div" class='plots-opts' style="display:none"></div>
-                        <div id="plots-y-axis-profile-name-div" class='plots-opts' style="display:none"></div>
-                        <div id="plots-y-axis-gene-div" class='plots-opts' style="display:none"></div>
-                        <!-- clinical attributes vision-->
-                        <div id="plots-y-axis-clinical-attr" class='plots-opts' style="display:none"></div>
-                    </div>
-                    <div id='plots-sidebar-filters' class='plots'>
-                        <h5>Filters</h5>
-                    </div>
-                </div>
-            </td>
-            <td>
-                <div id="plots-content" class='plots'>
-                    
-                </div>
-            </td>        
-        </tr>
-    </table>
 </div>

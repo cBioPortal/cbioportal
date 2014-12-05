@@ -1,3 +1,8 @@
+# December 8, 2014
+* Complete and updated TCGA clinical data
+* Redesigned mutual exclusivity tab
+* Links to Genome Space
+
 # October 24, 2014
 * Added data of 885 samples from 11 published studies:
     * [Colorectal Adenocarcinoma Triplets (MSKCC, Genome Biology 2014)](study.do?cancer_study_id=coadread_mskcc)

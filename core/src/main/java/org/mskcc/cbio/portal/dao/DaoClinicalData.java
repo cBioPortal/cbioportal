@@ -44,10 +44,10 @@ public final class DaoClinicalData {
     private DaoClinicalData() {}
 
     static {
-        cache();
+        reCache();
     }
 
-    private static void cache()
+    public static synchronized void reCache()
     {
         clearCache();
         cacheAttributes(SAMPLE_TABLE, sampleAttributes);

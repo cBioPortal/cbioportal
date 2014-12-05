@@ -164,11 +164,11 @@ define("OncoprintUtils", (function() {
         var mutations = extract_unique(raw_gene_data, 'mutation', function(d){
             var aas = d.split(",");// e.g. A32G,fusion
             for (var i=0, n=aas.length; i<n; i++) {
-                if (!/fusion$/i.test(aas[i])) return true;
+                if (!/fusion( |$)/i.test(aas[i])) return true;
             }
             return false;
         });
-        var fusions = extract_unique(raw_gene_data, 'mutation', function(d){return /fusion($|,)/i.test(d);});
+        var fusions = extract_unique(raw_gene_data, 'mutation', function(d){return /fusion( |$|,)/i.test(d);});
         var mrnas = extract_unique(raw_gene_data, 'mrna');
         var rppas = extract_unique(raw_gene_data, 'rppa');
 
@@ -1477,7 +1477,7 @@ define("OncoprintUtils", (function() {
         return {
             mutation: function(d) {
                 if (d.mutation) {
-                    if (/fusion($|,)/i.test(d.mutation)) return "<b>" + d.mutation + "</b><br/>";
+                    if (/fusion( |$|,)/i.test(d.mutation)) return "<b>" + d.mutation + "</b><br/>";
                     else return "Mutation: <b>" + d.mutation + "</b><br/>";
                 }
                 return "";

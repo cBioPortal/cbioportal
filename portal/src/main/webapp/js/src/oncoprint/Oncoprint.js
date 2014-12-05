@@ -338,7 +338,7 @@ define("Oncoprint",
                         .attr('d', "M0,0L0,"+dims.rect_height+" "+dims.rect_width+","+dims.rect_height/2+"Z")
                         .attr('transform',function(d) {return 'translate(0,'+(vertical_pos(utils.get_attr(d)))+')';});
                     fusion.filter(function(d) {
-                        return d.mutation === undefined || !/fusion($|,)/i.test(d.mutation.toLowerCase());
+                        return d.mutation === undefined || !/fusion( |$|,)/i.test(d.mutation.toLowerCase());
                     }).remove();
                     
                     //seperate the mutation type
@@ -453,7 +453,7 @@ define("Oncoprint",
                         if (d.mutation === undefined) return true;
                         var aas = d.mutation.split(","); // e.g. A32G,fusion
                         for (var i=0, n=aas.length; i<n; i++) {
-                            if (!/fusion$/i.test(aas[i])) return false;
+                            if (!/fusion( |$)/i.test(aas[i])) return false;
                         }
                         return true;
                     }).remove();

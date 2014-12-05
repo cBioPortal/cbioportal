@@ -44,7 +44,8 @@ public class DataSetsUtil {
 	// ref to our list of cancer study stats & total num of samples
 	private List<CancerStudyStats> cancerStudyStats;
 
-	// ref to patient list DAO
+	private DaoSample daoSample;
+	private DaoPatient daoPatient;
 	private DaoPatientList daoPatientList;
 
 	/**
@@ -53,6 +54,8 @@ public class DataSetsUtil {
 	public DataSetsUtil() {
 
 		try {
+			daoSample = new DaoSample();
+			daoPatient = new DaoPatient();
 			daoPatientList = new DaoPatientList();
 			// totalNumberOfSamples will be set while computing stats
 			totalNumberOfSamples = 0;
@@ -129,12 +132,21 @@ public class DataSetsUtil {
 		return toReturn;
 	}
 
-	private int getCount(CancerStudy cancerStudy, String patientListSuffix) throws DaoException {
+	private int getCount(CancerStudy cancerStudy, String patientListSuffix) throws DaoException
+	{
+		int count = 0;
 		
 		String patientListID = cancerStudy.getCancerStudyStableId() + patientListSuffix;
 		PatientList desiredPatientList = daoPatientList.getPatientListByStableId(patientListID);
+
+		if (desiredPatientList != null) {
+			for (String stablePatientId : desiredPatientList.getPatientList()) {
+				Patient p = daoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(),
+				                                                           stablePatientId);
+				count += DaoSample.getSamplesByPatientId(p.getInternalId()).size();
+			}
+		}
 		
-		// outta here
-		return (desiredPatientList != null) ? desiredPatientList.getPatientList().size() : 0;
+		return count;
 	}
 }

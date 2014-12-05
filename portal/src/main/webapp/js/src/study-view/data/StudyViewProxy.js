@@ -93,18 +93,19 @@ var StudyViewProxy = (function() {
                     _data = a1[0]['data'],
                     _dataAttrOfa1 = a1[0]['attributes'],
                     _dataLength = _data.length,
-                    _sampleIds = [];
+                    _sampleIds = Object.keys(samplePatientMapping);
                     
                 //Reorganize data into wanted format datum[ caseID ][ Attribute Name ] = Attribute Value
                 //The original data structure is { attr_id: , attr_va: , sample}
                 for(var i = 0; i < _dataLength; i++){
                     if(_data[i]["sample"] in _dataAttrMapArr){
                         _dataAttrMapArr[_data[i]["sample"]][_data[i]["attr_id"].toString().toUpperCase()] = _data[i]["attr_val"];
-                    }
-                    else{
+                    }else{
                         _dataAttrMapArr[_data[i]["sample"]] = [];
-                        _sampleIds.push(_data[i]['sample']);
                         _dataAttrMapArr[_data[i]["sample"]][_data[i]["attr_id"].toString().toUpperCase()] = _data[i]["attr_val"];
+                    }
+                    if(_sampleIds.indexOf(_data[i]["sample"]) === -1) {
+                        console.log('Unknown sample exists in clincial data.');
                     }
                 }
                 
@@ -214,8 +215,8 @@ var StudyViewProxy = (function() {
                 if(!caseidExist){
                     obtainDataObject['attr'].push({
                         attr_id: 'CASE_ID',
-                        display_name: 'CASE ID',
-                        description: 'Case Identifier',
+                        display_name: 'SAMPLE ID',
+                        description: 'Sample Identifier',
                         datatype: 'STRING'
                     });
                 }
@@ -230,7 +231,7 @@ var StudyViewProxy = (function() {
                         datatype: 'STRING'
                     });
                }
-                
+               
                 callbackFunc(obtainDataObject);
             });
     };

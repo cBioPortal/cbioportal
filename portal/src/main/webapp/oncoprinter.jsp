@@ -30,7 +30,8 @@
     display:block;
     }
 </style>
-
+<script src="js/lib/bootstrap.min.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript"></script>
+        
 <link href="css/bootstrap.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 
 <div id="container" style="margin-left:20px;">

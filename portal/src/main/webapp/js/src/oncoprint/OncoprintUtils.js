@@ -430,13 +430,18 @@ define("OncoprintUtils", (function() {
 
         var percent = (altered / total) * 100;
         //attr2percent[gene.key] = Math.round(percent);
-        if(percent>1.0)
+        if(percent>=1.0)
         {
             attr2percent[gene.key] = Math.round(percent);
         }
         else
         {
-            attr2percent[gene.key] = percent.toFixed(1);
+            if(percent>0)
+            {
+                attr2percent[gene.key] = percent.toFixed(1);
+            }
+            
+            attr2percent[gene.key] = 0;
         }
         });
 
@@ -495,7 +500,7 @@ define("OncoprintUtils", (function() {
         tmp.remove();
         // bye bye tmp
 
-        return 42 + max; // http://goo.gl/iPzfU
+        return 42 + 20 + max; // http://goo.gl/iPzfU
     };
 
     // takes a list of clinical attribute objects and returns a map that maps
@@ -1560,9 +1565,13 @@ define("OncoprintUtils", (function() {
 //                }}).appendTo($(div));
 //    };
 
+    var addShowLegendIcon = function(div){
+        return $('<img>', { id: "oncoprint-diagram-showlegend-icon",class: "oncoprint-diagram-showlegend-icon",checked:'0', width: "16px",height:"16px", src:"images/showlegend.svg"}).appendTo($(div));
+    };
+
     var zoomSetup = function(div, fun) {
         
-        return $('<input>', { id: "oncoprint_zoom_slider",type:'range', width: "80",height:"10", min: .1, max: 1, step: .01, value: 1, change: function(event, ui) {
+        return $('<input>', { id: "oncoprint_zoom_slider",type:'range', width: "80",height:"16", min: .1, max: 1, step: .01, value: 1, change: function(event, ui) {
                     fun(this.value, 'animation');       // N.B.
                 }}).appendTo($(div));
     };
@@ -1593,6 +1602,7 @@ define("OncoprintUtils", (function() {
         colors: colors,
         populate_clinical_attr_select: populate_clinical_attr_select,
         make_mouseover: make_mouseover,
+        addShowLegendIcon:addShowLegendIcon,
         zoomSetup: zoomSetup,
         alteration_info: alteration_info
     };

@@ -59,9 +59,9 @@ define(function() {
 //                        {return 4;}
 
                         if((/^([A-Z]+)([0-9]+)del$/g).test(m))//IN_frame_del
-                        {return 4;}
+                        {return 3;}
 
-                        return 3; // need to modified by dong li
+                        return 4; // need to modified by dong li
                     }
                     
                     return m === undefined ? 0 : (/fusion($|,)/i.test(m)?2:1); 

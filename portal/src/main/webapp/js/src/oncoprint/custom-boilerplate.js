@@ -33,7 +33,7 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
     
         var reset_zoom = function() {
             
-            var $new_zoomer_el = $('.oncoprinter-diagram-toolbar-buttons .oncoprint_diagram_slider_icon');
+            var $new_zoomer_el = $('#oncoprinter-diagram-toolbar-buttons #oncoprint_diagram_slider_icon');
             $new_zoomer_el.empty();
             zoom = OncoprintUtils.zoomSetup($new_zoomer_el, oncoprint.zoom);
 
@@ -284,6 +284,17 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
                         $(this).css('fill', '#87CEFA');
                         $(this).css('font-size', '12px');
                         });
+                        
+//            $('.oncoprinter_zoomout').click(function() {
+//                var tempValue = $('.oncoprint_zoom_slider')[0].value - 0.05;
+//                $('.oncoprint_zoom_slider')[0].value = tempValue < 1.0 ? tempValue : 0.1;
+//            });
+//            
+//            $('.oncoprinter_zoomin').click(function() {
+//                var tempValue = $('.oncoprint_zoom_slider')[0].value + 0.05;
+//                $('.oncoprint_zoom_slider')[0].value = tempValue > 1.0 ? tempValue : 1.0;
+//            });
+            
             }
 
             main(params);
@@ -348,7 +359,17 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
 //            });// enable delete symbol "x" function
 
 
-
+            $('#oncoprinter_zoomout').click(function() {
+                var tempValue = parseFloat($('#oncoprint_zoom_slider')[0].value) - 0.05;
+                $('#oncoprint_zoom_slider')[0].value = tempValue > 0.1 ? tempValue : 0.1;
+                oncoprint.zoom(zoom.val());
+            });
+            
+            $('#oncoprinter_zoomin').click(function() {
+                var tempValue = parseFloat($('#oncoprint_zoom_slider')[0].value) + 0.05;
+                $('#oncoprint_zoom_slider')[0].value = tempValue < 1.0 ? tempValue : 1.0;
+                oncoprint.zoom(zoom.val());
+            });
 
             $('.oncoprinter-diagram-removeUCases-icon').click(function(){
               if($(this)[0].attributes.src.value === 'images/removeUCases.svg')
@@ -547,52 +568,69 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
             });
             
             //sort by first button
-            $('.oncoprinter_sortfirst_icon').click(function(){
-              if($(this)[0].attributes.src.value === 'images/cool.svg')
-              {
-                main(params,'clinical');
-                oncoprint.zoom(zoom.val());
-                oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
-                oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
-                OncoprintUtils.make_mouseover(d3.selectAll('.sample rect'),{linkage:false});        // hack =(
-                $(this)[0].attributes.src.value = 'images/cool2.svg';
-              }
-                else if($(this)[0].attributes.src.value === 'images/cool2.svg')
-              {
+            $('#genesfirst').click(function(){
                 main(params,'genes');
                 oncoprint.zoom(zoom.val());
                 oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
                 oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
                 OncoprintUtils.make_mouseover(d3.selectAll('.sample rect'),{linkage:false});        // hack =(
-                $(this)[0].attributes.src.value = 'images/cool.svg'; 
-              }
+//                $(this)[0].attributes.src.value = 'images/cool.svg'; 
             });
-            $('.oncoprinter_sortfirst_icon').hover(
-            function () {
-            $(this).css('fill', '#0000FF');
-            $(this).css('font-size', '18px');
-            $(this).css('cursor', 'pointer');
-            },
-            function () {
-            $(this).css('fill', '#87CEFA');
-            $(this).css('font-size', '12px');
+            $('#clinicalfirst').click(function(){
+                main(params,'clinical');
+                oncoprint.zoom(zoom.val());
+                oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
+                oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
+                OncoprintUtils.make_mouseover(d3.selectAll('.sample rect'),{linkage:false});        // hack =(
+//                $(this)[0].attributes.src.value = 'images/cool2.svg'; 
             });
-            $('.oncoprinter_sortfirst_icon').qtip({
-            content: {text: 
-                        function(){
-                        if($(this)[0].attributes.src.value === 'images/cool.svg')
-                        {return 'sort by genes first now';}
-                        else
-                        {
-                            return 'sort by clinical first now';
-                        }
-                    }
-            },
-            position: {my:'left bottom', at:'top right', viewport: $(window)},
-            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
-            show: {event: "mouseover"},
-            hide: {fixed: true, delay: 100, event: "mouseout"}
-            });
+            
+//            $('.oncoprinter_sortfirst_icon').click(function(){
+//              if($(this)[0].attributes.src.value === 'images/cool.svg')
+//              {
+//                main(params,'clinical');
+//                oncoprint.zoom(zoom.val());
+//                oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
+//                oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
+//                OncoprintUtils.make_mouseover(d3.selectAll('.sample rect'),{linkage:false});        // hack =(
+//                $(this)[0].attributes.src.value = 'images/cool2.svg';
+//              }
+//                else if($(this)[0].attributes.src.value === 'images/cool2.svg')
+//              {
+//                main(params,'genes');
+//                oncoprint.zoom(zoom.val());
+//                oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
+//                oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
+//                OncoprintUtils.make_mouseover(d3.selectAll('.sample rect'),{linkage:false});        // hack =(
+//                $(this)[0].attributes.src.value = 'images/cool.svg'; 
+//              }
+//            });
+//            $('.oncoprinter_sortfirst_icon').hover(
+//            function () {
+//            $(this).css('fill', '#0000FF');
+//            $(this).css('font-size', '18px');
+//            $(this).css('cursor', 'pointer');
+//            },
+//            function () {
+//            $(this).css('fill', '#87CEFA');
+//            $(this).css('font-size', '12px');
+//            });
+//            $('.oncoprinter_sortfirst_icon').qtip({
+//            content: {text: 
+//                        function(){
+//                        if($(this)[0].attributes.src.value === 'images/cool.svg')
+//                        {return 'sort by genes first now';}
+//                        else
+//                        {
+//                            return 'sort by clinical first now';
+//                        }
+//                    }
+//            },
+//            position: {my:'left bottom', at:'top right', viewport: $(window)},
+//            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
+//            show: {event: "mouseover"},
+//            hide: {fixed: true, delay: 100, event: "mouseout"}
+//            });
             
             
             //color different mutation with different color
@@ -601,8 +639,16 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
               {
                 mutationColorControl = 'singleColor';
                 params.mutationColor = mutationColorControl;
+                if($('#oncoprinter_sortbyfirst_dropdonw span')[0].innerHTML === 'Clinical first')
+                {
+                    main(params,'clinical');
+                }
+                else
+                {
+                    main(params,'genes');
+                }
 //                refreshOncoPrint();
-                main(params);
+//                main(params);
 //                zoom = reset_zoom();
 //                // sync
                 oncoprint.zoom(zoom.val());
@@ -616,8 +662,16 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
               {
                 mutationColorControl = 'multiColor';
                 params.mutationColor = mutationColorControl;
+                if($('#oncoprinter_sortbyfirst_dropdonw span')[0].innerHTML === 'Clinical first')
+                {
+                    main(params,'clinical');
+                }
+                else
+                {
+                    main(params,'genes');
+                }
 //                refreshOncoPrint();
-                main(params);
+//                main(params);
 //                zoom = reset_zoom();
 //                // sync
                 oncoprint.zoom(zoom.val());
@@ -709,13 +763,14 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
                 params.genes = genesAttributes;
                 params.clinicalData = ClinicalAttributes;
                 params.clinical_attrs = Attributes;
-                if($('.oncoprinter_sortfirst_icon')[0].attributes.src.value === 'images/cool.svg')
+//                if($('.oncoprinter_sortfirst_icon')[0].attributes.src.value === 'images/cool.svg')
+                if($('#oncoprinter_sortbyfirst_dropdonw span')[0].attributes.src.value === 'Clinical first')
                 {
-                    main(params,'genes');
+                    main(params,'clinical');
                 }
                 else
                 {
-                    main(params,'clinical');
+                    main(params,'genes');
                 }
             }
 

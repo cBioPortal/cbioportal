@@ -16,6 +16,15 @@ define("Oncoprint",
                 params.clinicalData = params.clinicalData || [];        // initialize
                 params.clinical_attrs = params.clinical_attrs || [];
 
+                if(params.clinical_attrs.length > 0)
+                {
+                    $('#oncoprint-diagram-showlegend-icon').css("display","inline");
+                }
+//                if(params.clinical_attrs.length < 1)
+//                {
+//                    $('#oncoprint-diagram-toolbar-buttons #sort_by')[0].options[1].disabled = true;
+//                }
+
                 // make strings of numbers into numbers
                 var clinicalData = params.clinicalData.map(function(i) {
                     if (!utils.is_discrete(i.attr_val)) {

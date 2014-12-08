@@ -2,16 +2,19 @@
 <!DOCTYPE configuration
         PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
-        
+
 <configuration>
+    <typeAliases>
+        <typeAlias alias="IdMapper" type="org.mskcc.cbio.importer.cvr.darwin.model.dvcbio.IdMapper"/>
+    </typeAliases>
     <environments default="development">
         <environment id="development">
             <transactionManager type="JDBC"/>
             <dataSource type="POOLED">
                 <property name="driver" value="com.ibm.db2.jcc.DB2Driver"/>
                 <property name="url" value="jdbc:db2://tidvudb1.mskcc.org:51009/DVDDB03"/>
-                <property name="username" value=""/>
-                <property name="password" value=""/>
+                <property name="username" value="criscuof"/>
+                <property name="password" value="fred3372"/>
             </dataSource>
         </environment>
     </environments>
@@ -20,8 +23,11 @@
         <mapper resource="darwin-conn/xml/dvcbio-mapper/IdMapperMapper.xml"/>
         <mapper resource="darwin-conn/xml/dvcbio-mapper/PathologyDataMapper.xml"/>
         <mapper resource="darwin-conn/xml/dvcbio-mapper/TumorMapper.xml"/>
+        <mapper resource="darwin-conn/xml/dvcbio-mapper/PatientMapper.xml"/>
+        <mapper resource="darwin-conn/xml/dvcbio-mapper/ClinicalNoteMapper.xml"/>
         <mapper resource="darwin-conn/xml/dvcbio-mapper/ClinicalTrialMapper.xml"/>
-
+        <mapper resource="darwin-conn/xml/dvcbio-mapper/LabResultMapper.xml"/>
+        <mapper resource="darwin-conn/xml/dvcbio-mapper/ProcedureMapper.xml"/>
     </mappers>
-    
+
 </configuration>

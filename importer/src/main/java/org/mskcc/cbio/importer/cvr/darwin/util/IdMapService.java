@@ -35,7 +35,7 @@ import java.util.*;
  */
 public enum IdMapService {
     INSTANCE;
-     static final Logger logger = Logger.getLogger(IdMapService.class);
+    static  final Logger logger = Logger.getLogger(IdMapService.class);
     private Multimap<Integer,String> idMap = Suppliers.memoize(new IdMapSupplier()).get();
 
     public Multimap<Integer,String> getIdMap() {
@@ -65,6 +65,17 @@ public enum IdMapService {
          return (this.idMap.containsKey(darwinId))?
             idMap.get(darwinId) : new ArrayList<String>();
     }
+    /*
+    public method to format the collection of DMP sample ids to a
+     csv string for display
+     */
+    public final String displayDmpIdsByDarwinId(Integer darwinId){
+        Collection<String> ids = this.getSampleIdsByDarwinId(darwinId);
+        if (null != ids && ids.size()>0){
+            return StagingCommonNames.commaJoiner.join(ids);
+        }
+        return "";
+    }
 
     public final Integer resolveDarwinIdBySampleId(String sampleId){
         Preconditions.checkArgument(!Strings.isNullOrEmpty(sampleId),
@@ -89,10 +100,12 @@ public enum IdMapService {
             logger.info("darwin id 308814 sample id " +sampleId);
             // test reverse
             logger.info("Darwin Id for sample id " + sampleId +" is " + IdMapService.INSTANCE.resolveDarwinIdBySampleId(sampleId));
+            logger.info("CSV for sample id " +IdMapService.INSTANCE.displayDmpIdsByDarwinId(308814));
         }
     }
 
     private class IdMapSupplier implements Supplier<Multimap<Integer,String>> {
+        private final Logger logger = Logger.getLogger(IdMapSupplier.class);
         //TODO make map dimensions properties
         private Multimap<Integer, String> idMap = HashMultimap.create(10000, 50);
         public IdMapSupplier() {
@@ -100,7 +113,7 @@ public enum IdMapService {
 
         @Override
         public Multimap<Integer, String> get() {
-           System.out.println("IdMapSupplier get invoked");
+           logger.info("IdMapSupplier get invoked");
             SqlSession session = DarwinSessionManager.INSTANCE.getDarwinSession();
             try {
                 DeidMapper mapper = session.getMapper(DeidMapper.class);
@@ -110,7 +123,7 @@ public enum IdMapService {
                     }
                 }
             } catch (Exception e) {
-                logger.error(e.getMessage());
+               System.out.println(e.getMessage());
                 e.printStackTrace();
             }
             return this.idMap;

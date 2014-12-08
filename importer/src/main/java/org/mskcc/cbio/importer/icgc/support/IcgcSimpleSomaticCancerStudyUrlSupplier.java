@@ -41,7 +41,8 @@ public class IcgcSimpleSomaticCancerStudyUrlSupplier implements Supplier<List<St
     
     public IcgcSimpleSomaticCancerStudyUrlSupplier(String dataSource) {
         
-      Preconditions.checkArgument(!Strings.isNullOrEmpty(dataSource), "A source for ICSC cancer studies is required");
+      Preconditions.checkArgument(!Strings.isNullOrEmpty(dataSource),
+              "A source for ICSC cancer studies is required");
       this.studyFileName = dataSource;
     }
 

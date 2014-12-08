@@ -18,7 +18,9 @@ import org.mskcc.cbio.importer.cvr.darwin.model.dvcbio.ClinicalNoteExample;
 import org.mskcc.cbio.importer.cvr.darwin.model.dvcbio.PathologyData;
 import org.mskcc.cbio.importer.cvr.darwin.model.dvcbio.PathologyDataExample;
 import org.mskcc.cbio.importer.cvr.darwin.util.DarwinSessionManager;
+import org.mskcc.cbio.importer.cvr.darwin.util.IdMapService;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
+import scala.Tuple2;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -49,7 +51,7 @@ public class DarwinDocumentParsers {
     transforming data extracted from Darwin database BLOB columns
      */
 
-    private static final String patientIdColumn = "Patient ID";
+    private static final String patientIdColumn = "Patient ID: ";
     private static final StanfordCoreNLP pipeline =  Suppliers.memoize(new NLPSupplier()).get();
     private static final Logger logger = Logger.getLogger(DarwinDocumentParsers.class);
 
@@ -58,7 +60,80 @@ public class DarwinDocumentParsers {
     Gooogle Guava Table object
      */
 
-    public static void parseDarwinClinicalNoteDocument (Integer patientId, String clinDoc, Table<Integer, String,String> clinTable){
+    public static void parseDarwinClinicalNoteDocument (Integer patientId, String clinDoc, Table<Integer, String,String> clinTable) {
+        Preconditions.checkArgument(null != patientId && patientId > 0, "A valid patient id is required");
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(clinDoc), " A clinical note document is required");
+        Preconditions.checkArgument(null != clinTable, " A Google Guava Table is required");
+
+        Integer rowNum = clinTable.rowKeySet().size();
+        List<String> lines = Lists.newArrayList(StagingCommonNames.lineSplitter.split(clinDoc));
+
+        StringBuilder sb = new StringBuilder(patientIdColumn);
+        sb.append(patientId.toString());
+        sb.append(".\n");
+        sb.append("SAMPLE ID(s): ");
+        sb.append(IdMapService.INSTANCE.displayDmpIdsByDarwinId(patientId));
+        sb.append(".\n");
+
+        List<String> filteredLines = FluentIterable.from(lines)
+                .filter(new Predicate<String>() {
+                    @Override
+                    public boolean apply(String line) {
+                        return StringUtils.isNotBlank(line);
+                    }
+                })
+                .filter(new Predicate<String>() {
+                    @Override
+                    public boolean apply(String line) {
+                        for (String skipWord : DarwinParserNames.CN_FILTER_LIST) {
+                            if (line.startsWith(skipWord)) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+                })
+                        //get rid of multiple blank spaces
+                .transform(new Function<String, String>() {
+                               @Nullable
+                               @Override
+                               public String apply(String input) {
+                                   return input.replaceAll(" +", " ");
+                               }
+                           }
+                )
+                .toList();
+        for (String line : filteredLines){
+            sb.append(line);
+            sb.append("\n");
+        }
+        Annotation annotation = new Annotation(sb.toString());
+        pipeline.annotate(annotation);
+        List<CoreMap> sentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
+        String columnName = null;
+        String value = null;
+        for (CoreMap sentence : sentences){
+            String s = sentence.toString();
+            if(s.startsWith(DarwinParserNames.CN_REVIEW_OF_SYSTEMS)) {
+                processReviewOfSystemsAttribute(rowNum, sentence.toString(), clinTable);
+            } else {
+                List<String> parts = edu.stanford.nlp.util.StringUtils.split(s, "\\:");
+                if (parts.size() > 1) {
+                    if (!Strings.isNullOrEmpty(columnName) && !Strings.isNullOrEmpty(value)) {
+                        clinTable.put(rowNum, columnName, value);
+                    }
+                    columnName = parts.get(0);
+                    value = parts.get(1);
+
+                } else {
+                    value = value + " " + s;
+                }
+            }
+        }
+
+    }
+
+    public static void parseDarwinClinicalNoteDocumentOld (Integer patientId, String clinDoc, Table<Integer, String,String> clinTable){
         Preconditions.checkArgument(null!= patientId && patientId >0, "A valid patient id is required");
         Preconditions.checkArgument(!Strings.isNullOrEmpty(clinDoc)," A clinical note document is required");
         Preconditions.checkArgument(null!=clinTable," A Google Guava Table is required");
@@ -76,7 +151,7 @@ public class DarwinDocumentParsers {
                 .filter(new Predicate<String>() {
                     @Override
                     public boolean apply(String line) {
-                        for (String skipWord : ClinicalNoteNames.CN_FILTER_LIST) {
+                        for (String skipWord : DarwinParserNames.CN_FILTER_LIST) {
                             if (line.startsWith(skipWord)) {
                                 return false;
                             }
@@ -106,11 +181,11 @@ public class DarwinDocumentParsers {
         */
         for ( String line : filteredLines){
             boolean processed = false;
-            for (String attribute : ClinicalNoteNames.CN_ATTIBUTE_LIST){
+            for (String attribute : DarwinParserNames.CN_ATTIBUTE_LIST){
                 if (line.startsWith(attribute)) {
 
                     if(null != attributeName && sb.length() > 0) {
-                        if (attributeName.equals(ClinicalNoteNames.CN_REVIEW_OF_SYSTEMS)){
+                        if (attributeName.equals(DarwinParserNames.CN_REVIEW_OF_SYSTEMS)){
 
                             processReviewOfSystemsAttribute(seq, sb.toString(), clinTable);
 
@@ -138,9 +213,10 @@ public class DarwinDocumentParsers {
     updates supplied Table
      */
 
-    private static void processReviewOfSystemsAttribute(final Integer rowNum, final String text, Table<Integer, String,String> clinTable){
+    private static void processReviewOfSystemsAttribute(final Integer rowNum, final String text, Table<Integer,
+            String,String> clinTable){
         // remove the REVIEW OF SYSTEMS: header
-        String rosText = text.replace(ClinicalNoteNames.CN_REVIEW_OF_SYSTEMS,"").trim();
+        String rosText = text.replace(DarwinParserNames.CN_REVIEW_OF_SYSTEMS,"").trim();
         Annotation annotation = new Annotation(rosText);
         pipeline.annotate(annotation);
         List<CoreMap> sentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
@@ -174,7 +250,7 @@ public class DarwinDocumentParsers {
                 .filter(new Predicate<String>() {
                     @Override
                     public boolean apply(String line) {
-                        for (String skipWord : ClinicalNoteNames.PATH_FILTER_LIST) {
+                        for (String skipWord : DarwinParserNames.PATH_FILTER_LIST) {
                             if (line.startsWith(skipWord)) {
                                 return false;
                             }
@@ -187,7 +263,7 @@ public class DarwinDocumentParsers {
         StringBuilder sb = new StringBuilder(patientId.toString());
         seq++;
         for(String line : filteredLines) {
-            if(line.startsWith(ClinicalNoteNames.PATH_STOP_SIGNAL)){
+            if(line.startsWith(DarwinParserNames.PATH_STOP_SIGNAL)){
                 break;
             }
             // a blank line may signal the end of any previous attribute
@@ -198,7 +274,7 @@ public class DarwinDocumentParsers {
                     attributeName = null;
                 }
             } else {
-                if (ClinicalNoteNames.PATH_ATTRIBUTE_LIST.contains(line.trim())){
+                if (DarwinParserNames.PATH_ATTRIBUTE_LIST.contains(line.trim())){
                     attributeName = line.trim();
                 } else if(!Strings.isNullOrEmpty(attributeName)){
                     sb.append(line);

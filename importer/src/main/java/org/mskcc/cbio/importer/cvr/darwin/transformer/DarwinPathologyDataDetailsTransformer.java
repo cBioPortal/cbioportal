@@ -1,33 +1,23 @@
 package org.mskcc.cbio.importer.cvr.darwin.transformer;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.cvr.darwin.dao.dvcbio.PathologyDataMapper;
 import org.mskcc.cbio.importer.cvr.darwin.model.dvcbio.PathologyData;
 import org.mskcc.cbio.importer.cvr.darwin.model.dvcbio.PathologyDataExample;
-import org.mskcc.cbio.importer.cvr.darwin.service.ClinicalNoteNames;
+import org.mskcc.cbio.importer.cvr.darwin.service.DarwinDocumentParsers;
 import org.mskcc.cbio.importer.cvr.darwin.util.DarwinSessionManager;
 import org.mskcc.cbio.importer.cvr.darwin.util.IdMapService;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
-
-import static java.nio.file.StandardOpenOption.CREATE;
-import static java.nio.file.StandardOpenOption.DSYNC;
 
 /**
  * Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
@@ -80,9 +70,7 @@ public class DarwinPathologyDataDetailsTransformer  extends DarwinTransformer{
         Preconditions.checkArgument(null != patientId && patientId >0,
                 "A valid patient Id is required");
         return this.generateReportByPatientIdList(Lists.newArrayList(patientId));
-
     }
-
 
     @Override
     public List<String> generateReportByPatientIdList(List<Integer> patientIdList) {
@@ -110,57 +98,16 @@ public class DarwinPathologyDataDetailsTransformer  extends DarwinTransformer{
             String pathologyReport = pd.getPATH_RPT_YEAR();
             if (!Strings.isNullOrEmpty(pathologyReport)){
                 Integer patientId = pd.getPATH_PT_DEIDENTIFICATION_ID();
-                this.parsePathologyReport(patientId, pathologyReport, pathTable);
+                DarwinDocumentParsers.parsePathologyReport(patientId, pathologyReport, pathTable);
             }
         }
         return pathTable;
     }
 
-    private void parsePathologyReport(Integer patientId, String pathologyReport,
-                                      Table<Integer,String,String> pathTable){
-        List<String> lines = Lists.newArrayList(StagingCommonNames.lineSplitter.split(pathologyReport));
-        List<String> filteredLines = FluentIterable.from(lines)
-                .filter(new Predicate<String>() {
-                    @Override
-                    public boolean apply(String line) {
-                        for (String skipWord : ClinicalNoteNames.PATH_FILTER_LIST) {
-                            if (line.startsWith(skipWord)) {
-                                return false;
-                            }
-                        }
-                        return true;
-                    }
-                }).toList();
-
-        String attributeName = patientIdColumn;
-        StringBuilder sb = new StringBuilder(patientId.toString());
-        seq++;
-        for(String line : filteredLines) {
-            if(line.startsWith(ClinicalNoteNames.PATH_STOP_SIGNAL)){
-                break;
-            }
-            // a blank line may signal the end of any previous attribute
-            if(StringUtils.isBlank(line)){
-                if(!Strings.isNullOrEmpty(attributeName) && sb.length()>0){
-                    pathTable.put(seq,attributeName, sb.toString().trim());
-                    sb.setLength(0);
-                    attributeName = null;
-                }
-            } else {
-                if (ClinicalNoteNames.PATH_ATTRIBUTE_LIST.contains(line.trim())){
-                    attributeName = line.trim();
-                } else if(!Strings.isNullOrEmpty(attributeName)){
-                    sb.append(line);
-                    sb.append(" ");
-                }
-            }
-        }
-        return;
-    }
-
     public static void main (String...args){
         Path pathologyPath = Paths.get("/tmp/cvr/patient/pathology");
         DarwinPathologyDataDetailsTransformer transformer = new DarwinPathologyDataDetailsTransformer(pathologyPath);
+        transformer.transform();
         for (String line :transformer.generateReportByPatientId(1519355)) {
             logger.info(line);
         }

@@ -61,10 +61,7 @@ public class SimpleSomaticFileTransformer implements IcgcFileTransformer {
     private Path mafFilePath;
    
     private BloomFilter<IcgcSimpleSomaticRecord> icgcRecordFilter;
-    /*
-     the Suppliers respresent single item caches for data structures that see
-     significant reuse
-     */
+
 
     private final Supplier<Map<String, Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>>>> simplesomaticTransformationMaprSupplier
             = Suppliers.memoize(new SimpleSomaticTransformationMapSupplier());
@@ -219,7 +216,7 @@ public class SimpleSomaticFileTransformer implements IcgcFileTransformer {
     public static void main(String... args) {
         ListeningExecutorService service = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(3));
         SimpleSomaticFileTransformer transformer = new SimpleSomaticFileTransformer();
-        String fn = "/tmp/BLCA-CN.tsv";
+        String fn = "/tmp/EOPC-DE.tsv";
         transformer.setIcgcFilePath(Paths.get(fn));
         service.submit(transformer);
         try {

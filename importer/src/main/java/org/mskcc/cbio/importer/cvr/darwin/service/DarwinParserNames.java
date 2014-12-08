@@ -23,7 +23,7 @@ import java.util.List;
  * <p/>
  * Created by criscuof on 11/30/14.
  */
-public interface ClinicalNoteNames {
+public interface DarwinParserNames {
 
     public static final String CN_STATUS = "STATUS:";
     public static final String CN_REASON_FOR_VISIT = "REASON FOR VISIT:";
@@ -32,7 +32,7 @@ public interface ClinicalNoteNames {
     public static final String CN_MEDICATIONS = "MEDICATIONS:";
     public static final String CN_DIAGNOSIS = "DIAGNOSIS:";
     public static final String CN_CONSTIT = "CONSTIT.:";
-    public static final String CN_REVIEW_OF_SYSTEMS = "REVIEW OF SYSTEMS";
+    public static final String CN_REVIEW_OF_SYSTEMS = "REVIEW OF SYSTEMS:";
     public static final String CN_PHYSICAL_EXAMINATION = "PHYSICAL_EXAMINATION:";
     public static final String CN_PHYSICAL_EXAMINATION_GENERAL = "GENERAL:";
     public static final String CN_PHYSICAL_EXAMINATION_VITAL_SIGNS = "VITAL SIGNS:";

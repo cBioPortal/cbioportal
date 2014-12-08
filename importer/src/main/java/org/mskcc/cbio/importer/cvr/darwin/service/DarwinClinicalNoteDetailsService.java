@@ -10,7 +10,6 @@ import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.cvr.darwin.dao.dvcbio.ClinicalNoteMapper;
 import org.mskcc.cbio.importer.cvr.darwin.model.dvcbio.ClinicalNote;
 import org.mskcc.cbio.importer.cvr.darwin.model.dvcbio.ClinicalNoteExample;
-import org.mskcc.cbio.importer.cvr.darwin.transformer.DarwinTransformer;
 import org.mskcc.cbio.importer.cvr.darwin.util.DarwinSessionManager;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 
@@ -131,7 +130,7 @@ public class DarwinClinicalNoteDetailsService  {
                 .filter(new Predicate<String>() {
                     @Override
                     public boolean apply(String line) {
-                        for (String skipWord : ClinicalNoteNames.CN_FILTER_LIST) {
+                        for (String skipWord : DarwinParserNames.CN_FILTER_LIST) {
                             if (line.startsWith(skipWord)) {
                                 return false;
                             }
@@ -151,11 +150,11 @@ public class DarwinClinicalNoteDetailsService  {
         */
         for ( String line : filteredLines){
             boolean processed = false;
-            for (String attribute : ClinicalNoteNames.CN_ATTIBUTE_LIST){
+            for (String attribute : DarwinParserNames.CN_ATTIBUTE_LIST){
                 if (line.startsWith(attribute)) {
 
                     if(null != attributeName && sb.length() > 0) {
-                        if (attributeName.equals(ClinicalNoteNames.CN_REVIEW_OF_SYSTEMS)){
+                        if (attributeName.equals(DarwinParserNames.CN_REVIEW_OF_SYSTEMS)){
                             this.processROS(seq, sb.toString(), clinTable);
                         } else {
                             clinTable.put(seq, attributeName, sb.toString());
@@ -189,7 +188,7 @@ public class DarwinClinicalNoteDetailsService  {
         StringBuilder sb = new StringBuilder();
         for (String word : words) {
             //logger.info(word);
-            if (ClinicalNoteNames.ROS_KEYWORD_LIST.contains(word)){
+            if (DarwinParserNames.ROS_KEYWORD_LIST.contains(word)){
                 if(!Strings.isNullOrEmpty(keyword) && !Strings.isNullOrEmpty(sb.toString())){
                     String columnName = "ROS_" +keyword;
                     clinTable.put(seq, columnName, sb.toString());

@@ -20,6 +20,9 @@ package org.mskcc.cbio.importer.persistence.staging;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+
+import java.util.List;
 
 /**
  *
@@ -32,6 +35,8 @@ public interface StagingCommonNames {
     public static final String MUTATIONS_FILENAME = "data_mutations_extended.txt";
     public static final String CASE_STUDY_FILENAME = "data_case_study.txt";
     public static final String segmentFileBaseName = "_data_cna_hg.seg";
+
+    public static final List<String> variationList = Lists.newArrayList("INS", "SNP", "DNP", "TNP", "ONP");
 
     public static final Splitter tabSplitter = Splitter.on("\t");
     public static final Splitter lineSplitter = Splitter.on("\n").trimResults();

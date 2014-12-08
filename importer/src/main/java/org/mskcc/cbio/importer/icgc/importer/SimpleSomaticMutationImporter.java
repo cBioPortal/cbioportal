@@ -56,8 +56,7 @@ public class SimpleSomaticMutationImporter {
                 "A list of ICGC Study URLs is required");
         Preconditions.checkArgument(null != destDir,
                 "A destination directory for ICGC study data is required");
-        Preconditions.checkArgument(Files.isDirectory(destDir)
-                && Files.isDirectory(destDir),
+        Preconditions.checkArgument(Files.isDirectory(destDir),
                 "The specified directory " + destDir + " is invalid");
         this.destPath = destDir;
        

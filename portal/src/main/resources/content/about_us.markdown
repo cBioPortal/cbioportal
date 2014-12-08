@@ -39,4 +39,4 @@ The cBioPortal for Cancer Genomics is developed and maintained by the [Center fo
  * Starr Cancer Consortium
  * Prostate Cancer Foundation
  * Stand Up 2 Cancer
- * Marie-Josée and Henry R. Kravis Center for Molecular Oncology at MSKCC
+ * Marie-Jos&eacute;e and Henry R. Kravis Center for Molecular Oncology at MSKCC

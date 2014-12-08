@@ -159,10 +159,10 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
     var select_clinical_attributes_id = '#select_clinical_attributes';
     var oncoprintClinicals;
-    var sortBy = $('#oncoprint-diagram-toolbar-buttons #sort_by');
+//    var sortBy = $('#oncoprint-diagram-toolbar-buttons #sort_by');
     var sortBy1 = $('#oncoprint-diagram-toolbar-buttons #oncoprint_sortbyfirst_dropdonw span');
 //    var sortBy = $('#oncoprint_sortbyfirst_dropdonw span')[0];
-    $('#oncoprint_controls #sort_by').chosen({width: "240px", disable_search: true });
+//    $('#oncoprint_controls #sort_by').chosen({width: "240px", disable_search: true });
 //    $('#oncoprint-diagram-toolbar-buttons #sort_by').chosen({float:"left",width: "200px", disable_search: true });
 
     // params: bool
@@ -180,7 +180,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         unaltered.attr('disabled', enable_disable);
         select_clinical_attributes.prop('disabled', enable_disable).trigger("liszt:updated");
         zoom.attr('disabled', enable_disable);
-        sortBy.prop('disabled', enable_disable).trigger("liszt:updated");
+//        sortBy.prop('disabled', enable_disable).trigger("liszt:updated");
     };
     
     var selectedTitle;
@@ -330,8 +330,9 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         },extraTracks);
         if(extraAttributes.length < 1)
         {
-            $('#oncoprint-diagram-toolbar-buttons #sort_by')[0].options[1].disabled = true;
+//            $('#oncoprint-diagram-toolbar-buttons #sort_by')[0].options[1].disabled = true;
             $('#oncoprint-diagram-toolbar-buttons #clinical_first')[0].style.display = "none";
+            sortBy1[0].innerHTML = 'gene data first';
         }
 //        oncoprint.sortBy(sortBy.val(), cases.split(" "));
         if($('#oncoprint_sortbyfirst_dropdonw span')[0].innerHTML === 'Sort by')
@@ -447,7 +448,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             }
 
             // disable the option to sort by clinical data
-            $(sortBy.add('option[value="clinical"]')[1]).prop('disabled', true);
+//            $(sortBy.add('option[value="clinical"]')[1]).prop('disabled', true);
         } else {
             
             $('.select_clinical_attributes_from').attr("data-placeholder","Add another clinical attribute track");
@@ -494,7 +495,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 //                        $(sortBy.add('option[value="clinical"]')[1]).prop('disabled', false);
 //                        sortBy.selectpicker('refresh');
 //                        sortBy[0].options[1].attributes.style="display:inline";
-                        sortBy[0].options[1].disabled = false;
+//                        sortBy[0].options[1].disabled = false;
                         $('#oncoprint-diagram-toolbar-buttons #clinical_first')[0].style.display = "inline";
 
 //                        // sort by genes by default
@@ -571,7 +572,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
                         // enable the option to sort by clinical data
 //                        $(sortBy.add('option[value="clinical"]')[1]).prop('disabled', false);
-                        sortBy[0].options[1].disabled = false;
+//                        sortBy[0].options[1].disabled = false;
 
 //                        // sort by genes by default
 //                        sortBy.val('genes');
@@ -646,7 +647,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
                         // enable the option to sort by clinical data
 //                        $(sortBy.add('option[value="clinical"]')[1]).prop('disabled', false);
-                        sortBy[0].options[1].disabled = false;
+//                        sortBy[0].options[1].disabled = false;
 
 //                        // sort by genes by default
 //                        sortBy.val('genes');
@@ -1000,9 +1001,9 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
     $(document).ready(function() {
 
         // bind away
-        $('#oncoprint-diagram-toolbar-buttons #sort_by').change(function() {
-            oncoprint.sortBy(sortBy.val(), cases.split(" "));
-        });
+//        $('#oncoprint-diagram-toolbar-buttons #sort_by').change(function() {
+//            oncoprint.sortBy(sortBy.val(), cases.split(" "));
+//        });
         $('#oncoprint-diagram-toolbar-buttons #genes_first_a').click(function(){
             oncoprint.sortBy('genes', cases.split(" "));
         });

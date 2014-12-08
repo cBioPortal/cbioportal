@@ -632,6 +632,25 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
 //            hide: {fixed: true, delay: 100, event: "mouseout"}
 //            });
             
+            var selectsortby = function()
+            {
+                if($('#oncoprinter_sortbyfirst_dropdonw span')[0].innerHTML === 'Genes first')
+                {
+                    main(params,'genes');
+                }
+                else if($('#oncoprinter_sortbyfirst_dropdonw span')[0].innerHTML === 'Clinical first')
+                {
+                    main(params,'clinical');
+                }
+                else if($('#oncoprinter_sortbyfirst_dropdonw span')[0].innerHTML === 'alphabetically by case id')
+                {
+                    main(params,'alphabetical');
+                }
+                else
+                {
+                    main(params,'custom');
+                }
+            };
             
             //color different mutation with different color
             $('.oncoprinter_diagram_showmutationcolor_icon').click(function(){
@@ -639,14 +658,16 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
               {
                 mutationColorControl = 'singleColor';
                 params.mutationColor = mutationColorControl;
-                if($('#oncoprinter_sortbyfirst_dropdonw span')[0].innerHTML === 'Clinical first')
-                {
-                    main(params,'clinical');
-                }
-                else
-                {
-                    main(params,'genes');
-                }
+//                if($('#oncoprinter_sortbyfirst_dropdonw span')[0].innerHTML === 'Clinical first')
+//                {
+//                    main(params,'clinical');
+//                }
+//                else
+//                {
+//                    main(params,'genes');
+//                }
+                
+                selectsortby();
 //                refreshOncoPrint();
 //                main(params);
 //                zoom = reset_zoom();
@@ -662,14 +683,15 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
               {
                 mutationColorControl = 'multiColor';
                 params.mutationColor = mutationColorControl;
-                if($('#oncoprinter_sortbyfirst_dropdonw span')[0].innerHTML === 'Clinical first')
-                {
-                    main(params,'clinical');
-                }
-                else
-                {
-                    main(params,'genes');
-                }
+//                if($('#oncoprinter_sortbyfirst_dropdonw span')[0].innerHTML === 'Clinical first')
+//                {
+//                    main(params,'clinical');
+//                }
+//                else
+//                {
+//                    main(params,'genes');
+//                }
+                selectsortby();
 //                refreshOncoPrint();
 //                main(params);
 //                zoom = reset_zoom();

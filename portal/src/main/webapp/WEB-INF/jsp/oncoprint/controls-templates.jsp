@@ -96,8 +96,7 @@
     <%--
         </table>
     </div>  
-     --%>  
-         
+     --%>    
     <div class="btn-group btn-group-sm" id="oncoprinter-diagram-toolbar-buttons" style="float:right;margin-right:45px;display: inline;height:33px">
         <div class="btn-group btn-group-sm">
            <button type="button" class="btn btn-default dropdown-toggle" id="oncoprinter_sortbyfirst_dropdonw" data-toggle="dropdown" style="background-color:#efefef">

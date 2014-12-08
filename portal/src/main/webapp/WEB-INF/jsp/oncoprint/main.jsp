@@ -37,13 +37,14 @@
         <select data-placeholder="Add a clinical attribute track" id="select_clinical_attributes" class="select_clinical_attributes_from" style="float:left;width: 360px;height:30px;background-color:#efefef;margin:0px">
         <option value=""></option>
         </select>
-            
+            <%--
             <select id="sort_by" class="form-control" style="float:left;width:200px;height:30px;background-color:#efefef;margin:0px">
                 <option value="genes">gene data first</option>
                 <option value="clinical" disabled="true">clinical data first</option>
                 <option value="alphabetical">alphabetically by case id</option>
                 <option value="custom">user-defined case list / default</option>
             </select>
+            --%>
             
             <div class="btn-group btn-group-sm">
                <button type="button" class="btn btn-default dropdown-toggle" id="oncoprint_sortbyfirst_dropdonw" data-toggle="dropdown" style="background-color:#efefef;height:30px;margin:0px">

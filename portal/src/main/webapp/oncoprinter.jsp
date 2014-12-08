@@ -188,7 +188,7 @@
             <p>Please define the order of genes (optional).</p>
             <textarea id="filter_example" rows=2 style="width:40%;"></textarea>
         </div>
-        <button id="create_oncoprint" type="button" class="btn" style="margin-top:20px; margin-bottom:20px;">Create</button>
+        <button id="create_oncoprint" type="button" class="btn" style="margin-top:20px; margin-bottom:20px;">Submit</button>
 
     <div id="oncoprint_controls" style="margin-bottom: 20px;"></div>
 

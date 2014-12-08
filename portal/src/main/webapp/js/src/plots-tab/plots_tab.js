@@ -773,7 +773,11 @@ var PlotsView = (function () {
                     gene_x : tmpGeneXcoExpStr,
                     gene_y : tmpGeneYcoExpStr
                 };
-                $.post("calcCoExp.do", paramsCalcCoexp, getCalcCoExpCallBack, "json");
+                if (PlotsData.getDotsGroup().length === 0) {
+                    View.init();
+                } else {
+                    $.post("calcCoExp.do", paramsCalcCoexp, getCalcCoExpCallBack, "json");
+                }
             } else {
                 $('#view_title').show();
                 $('#plots_box').show();
@@ -1834,6 +1838,11 @@ var PlotsView = (function () {
         }
 
         function drawErrMsgs() {
+
+            $("#one_gene_type_specification").hide();
+            $("#loading-image").hide();
+            $("#plots_box").show();
+
             var _xDataType = "",
                 _yDataType = "";
             if (Util.plotsTypeIsCopyNo()) {
@@ -1930,7 +1939,7 @@ var PlotsView = (function () {
 
         return {
             init: function() {
-                initCanvas();
+                initCanvas();              
                 if (PlotsData.getDotsGroup().length !== 0) {
                     drawImgConverter();
                     Axis.init();

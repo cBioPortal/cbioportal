@@ -1,7 +1,6 @@
 # November 26, 2014
 * Complete and updated TCGA clinical data
 * Redesigned mutual exclusivity tab
-* Links to Genome Space
 
 # September 26, 2014
 * All TCGA data updated to the Firehose run of July 15, 2014

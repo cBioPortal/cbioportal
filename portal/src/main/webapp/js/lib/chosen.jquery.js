@@ -875,52 +875,58 @@
             }
         };
 
-        Chosen.prototype.result_activate_up = function (el, activated) {
+        Chosen.prototype.result_activate_up = function (el, activated, deactivated) {
             // recursively activates parents
-            var ret1 = el.addClass("active-result");
             for (var i=0; i<el.length; i++) {
-                activated[el[i].id] = true;
+		    if (!(el[i].id in deactivated) || el[i].getAttribute('data-is-group-header')) {
+			    // when activating up, we show headers even if they're deactivated
+			activated[el[i].id] = true;
+		    }
             }
-            var ret2 = true;
+            var ret = true;
             try {
                 var parent = el.attr('data-parent');
                 if (parent) {
-                    parent = $("li[data-tree-id='" + parent + "']");
+                    parent = this.container.find("li[data-tree-id='" + parent + "']");
                     if (parent) {
-                        ret2 = this.result_activate_up(parent, activated);
+                        ret = ret && this.result_activate_up(parent, activated, deactivated);
                     }
                 }
             } catch (err) {
-                // parent doesn't exist ... this is a problem with the naming right now
+                ret = false;
             }
-            return ret1 && ret2;
+            return ret;
         }
         
-        Chosen.prototype.result_activate_down = function(el, activated) {
-            var ret1 = el.addClass("active-result");
+        Chosen.prototype.result_activate_down = function(el, activated, deactivated) {
             for (var i=0; i<el.length; i++) {
-                activated[el[i].id] = true;
+                if (!(el[i].id in deactivated)) {
+			activated[el[i].id] = true;
+		}
             }
-            var ret2 = true;
+            var ret = true;
             try {
                 for (var i=0; i<el.length; i++) {
                     try {
-                        ret2 = ret2 && this.result_activate_down($("li[data-parent='"+
-                                                        $(el[i]).attr("data-tree-id")
-                                                        +"']"), activated);
+                        ret = ret && this.result_activate_down(this.container.find("li[data-parent='"+
+                                                        this.container.find(el[i]).attr("data-tree-id")
+                                                        +"']"), activated, deactivated);
                     } catch(err) {
+			ret = false;
                     }
                 }
             } catch(err) {
-                // something went wrong
+                ret = false;
             }
-            return ret1 && ret2;
+            return ret;
         }
         
-        Chosen.prototype.result_activate = function (el, activated) {
+        Chosen.prototype.result_activate = function (el, activated, deactivated) {
             // recursively activates all parents and children
-            var ret1 = this.result_activate_up(el, activated);
-            var ret2 = this.result_activate_down(el, activated);
+	    activated = activated || {};
+	    deactivated = deactivated || {};
+            var ret1 = this.result_activate_up(el, activated, deactivated);
+            var ret2 = this.result_activate_down(el, activated, deactivated);
             return ret1 && ret2;
         };
 
@@ -955,7 +961,18 @@
             }
         };
 
-	Chosen.prototype.get_results = function(searchText) {
+	Chosen.prototype.get_all_results = function() {
+		var _ref = this.results_data;
+		var ret = {};
+		var result, option;
+		for (var i=0; i<_ref.length; i++) {
+			option = _ref[i];
+			result = $("#" + option.dom_id);
+			ret[option.dom_id] = {result:result, option:option};
+		}
+		return ret;
+	}
+	Chosen.prototype.get_search_results = function(searchText) {
 		// returns results and the indexes in text to be highlighted for the match
 		// returns {found:[], not_found:[]}
 		// each element of one of those lists is {result: result, option: option, id: id, highlight:[start, end]}
@@ -1102,141 +1119,124 @@
       var activated = {};
       this.no_results_clear();
       var found_results = {};
-      var not_found_results = {};
       _ref = this.results_data;
-	// first clear descendant studies counts so that we can iteratively add to them when activating
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-	      option = _ref[_i];
-	      if (!option.empty) {
-		      result_id = option.dom_id;
-		      $("#" + result_id).attr('data-desc-studies', 0);
-	      }
-      }
-
       searchText = this.search_field.val() === this.default_text ? "" : $('<div/>').text($.trim(this.search_field.val())).html();
       var searchTerms = get_search_terms(searchText);
-      console.log(searchTerms);
       var deactivated = {};
       var positiveSearchWords = searchTerms.positive;
       var negativeSearchWords = searchTerms.negative;
       var positiveSearchResults = {};
       var negativeSearchResults = {};
+      var allResults = this.get_all_results();
      for (var i=0; i<positiveSearchWords.length; i++) {
-	     positiveSearchResults[positiveSearchWords[i]] = this.get_results(positiveSearchWords[i]);
+	     positiveSearchResults[positiveSearchWords[i]] = this.get_search_results(positiveSearchWords[i]);
      }
      for (var i=0; i<negativeSearchWords.length; i++) {
-	     negativeSearchResults[negativeSearchWords[i]] = this.get_results(negativeSearchWords[i]);
+	     negativeSearchResults[negativeSearchWords[i]] = this.get_search_results(negativeSearchWords[i]);
      }
-     for (var searchWord in positiveSearchResults) {
-	     if (positiveSearchResults.hasOwnProperty(searchWord)) {
-		     var res = positiveSearchResults[searchWord];
-		     for (var j=0; j<res.found.length; j++) {
-				var item = res.found[j];
-				found_results[item.id] = found_results[item.id] || {result:item.result, option:item.option,highlights:[]};
-				found_results[item.id].highlights.push(item.highlight);
+     // intersect the results by unioning the found then subtracting the not found
+     // A ^ B = (A u B) ^ A ^ B 
+     $.each(positiveSearchResults, function(searchWord, res) {
+		for (var j=0; j<res.found.length; j++) {
+			var item = res.found[j];
+			found_results[item.id] = found_results[item.id] || {result:item.result, option:item.option,highlights:[]};
+			found_results[item.id].highlights.push(item.highlight);
+		}
+     });
+     $.each(positiveSearchResults, function(searchWord, res) {
+		for (var j = 0; j < res.not_found.length; j++) {
+			var item = res.not_found[j];
+			if (item.id in found_results) {
+				delete found_results[item.id];
 			}
-	     }
-     }
-     for (var searchWord in positiveSearchResults) {
-	     if (positiveSearchResults.hasOwnProperty(searchWord)) {
-		     var res = positiveSearchResults[searchWord];
-		     for (var j=0; j<res.not_found.length; j++) {
-				var item = res.not_found[j];
-				if (item.id in found_results) {
-					// each result must match every search term
-					delete found_results[item.id];
-				}
-				not_found_results[item.id] = not_found_results[item.id] || {result: item.result, option:item.option};
-			 }
-	     }
-     }
-     for (var searchWord in negativeSearchResults) {
-	     if (negativeSearchResults.hasOwnProperty(searchWord)) {
-		     var res = negativeSearchResults[searchWord];
-		     for (var j=0; j<res.found.length; j++) {
-				var item = res.found[j];
-				if (item.id in found_results) {
-					// each result must match every search term
-					delete found_results[item.id];
-				}
-				not_found_results[item.id] = not_found_results[item.id] || {result: item.result, option:item.option};
-				deactivated[item.id] = true;
-			 }
-	     }
-     }
-      results = Object.keys(found_results).length;
-      // Highlight text
-      for (var id in found_results) {
-	      if (found_results.hasOwnProperty(id)) {
-		      text = found_results[id].option.html;
-		      var highlight_map = [];
-		      for (var i=0; i<text.length; i++) {
-			      highlight_map.push(0);
-		      }
-		      for (var i=0; i<found_results[id].highlights.length; i++) {
-			      var highlight = found_results[id].highlights[i];
-			      highlight_map[highlight[0]] += 1;
-			      highlight_map[highlight[1]] -= 1;
-		      }
-		      var highlighted_text = "";
-		      var highlight_depth = 0;
-		      for (var i=0; i<text.length; i++) {
-			      var new_depth = highlight_depth + highlight_map[i];
-			      if (highlight_depth === 0 && new_depth > 0) {
-				      highlighted_text += "<em>";
-			      } else if (highlight_depth > 0 && new_depth === 0) {
-				      highlighted_text += "</em>";
-			      }
-			      highlighted_text += text[i];
-			      highlight_depth = new_depth;
-		      }
-		      
-		      found_results[id].result.html(highlighted_text);
-		      this.result_activate(found_results[id].result, activated);
+		}
+     });
+     // Now we mark for deactivation results found by negative search words
+     $.each(negativeSearchResults, function(searchWord, res) {
+		for (var j = 0; j < res.found.length; j++) {
+			var item = res.found[j];
+			if (item.id in found_results) {
+				delete found_results[item.id];
+			}
+			deactivated[item.id] = {result: item.result, option: item.option};
+		}  
+     });
+
+      // Deactivate everything
+      var _this = this;
+      $.each(allResults, function(id, val) {
+	      val.result.html(val.option.html);
+	      _this.result_deactivate(val.result);
+	      if (_this.result_highlight && val.option.dom_id === _this.result_highlight.attr('id')) {
+		      _this.result_clear_highlight();
 	      }
-      }
-       for (var id in not_found_results) {
-	      if (not_found_results.hasOwnProperty(id)) {
-		      not_found_results[id].result.html(not_found_results[id].option.html);
-		      if (!(id in activated) || id in deactivated) {
-				result = not_found_results[id].result;
-				option = not_found_results[id].option;
-				if (this.result_highlight && option.dom_id === this.result_highlight.attr('id')) {
-					this.result_clear_highlight();
-				}
-				this.result_deactivate(result);
-		      }
+      });
+      // Compute highlighted labels and perform recursion to traverse the tree and mark for activation activate parents and children using result_activate
+      $.each(found_results, function(id, val) {
+		text = val.option.html;
+		var highlight_map = [];
+		for (var i = 0; i < text.length; i++) {
+			highlight_map.push(0);
+		}
+		for (var i = 0; i < found_results[id].highlights.length; i++) {
+			var highlight = found_results[id].highlights[i];
+			highlight_map[highlight[0]] += 1;
+			highlight_map[highlight[1]] -= 1;
+		}
+		var highlighted_text = "";
+		var highlight_depth = 0;
+		for (var i = 0; i < text.length; i++) {
+			var new_depth = highlight_depth + highlight_map[i];
+			if (highlight_depth === 0 && new_depth > 0) {
+				highlighted_text += "<em>";
+			} else if (highlight_depth > 0 && new_depth === 0) {
+				highlighted_text += "</em>";
+			}
+			highlighted_text += text[i];
+			highlight_depth = new_depth;
+		}
+
+		found_results[id].result.html(highlighted_text);
+		if (!(id in deactivated)) {
+			_this.result_activate(found_results[id].result, activated, deactivated);
+		}
+      });
+      
+      // Reactivate things that are in 'activated'
+      $.each(activated, function(id, _) {
+	      allResults[id].result.css('display', 'list-item');
+	      allResults[id].result.addClass('active-result');
+      });
+      
+      // first clear descendant studies counts so that we can iteratively add to them when activating
+      $.each(allResults, function(id, value) {
+	      if (!value.option.empty) {
+		      value.result.attr('data-desc-studies', 0);
 	      }
-      }
-      // update descendant study count and display
-      for (var i in activated) {
-	      if (activated.hasOwnProperty(i) && !(i in deactivated)) {
-		      var curr_result = $("#"+i);
-			curr_result.css('display', 'list-item');
-		      if (!curr_result.attr('data-is-group-header')) {
-			      // its a study and we recurse up
-			      curr_result = $("li[data-tree-id='" + curr_result.attr('data-parent') + "']");
-			      while (curr_result.length > 0) {
-				      curr_result.attr('data-desc-studies', +curr_result.attr('data-desc-studies')+1);
-				      curr_result = $("li[data-tree-id='" + curr_result.attr('data-parent') + "']");
-			      }
-		      }
-	      }
-      }
+      });
+      // update descendant study count
+      $.each(activated, function(id, val) {
+		var curr_result = $("#" + id);
+		if (!curr_result.attr('data-is-group-header')) {
+			// its a study and we recurse up
+			curr_result = _this.container.find("li[data-tree-id='" + curr_result.attr('data-parent') + "']");
+			while (curr_result.length > 0) {
+				curr_result.attr('data-desc-studies', +curr_result.attr('data-desc-studies') + 1);
+				curr_result = _this.container.find("li[data-tree-id='" + curr_result.attr('data-parent') + "']");
+			}
+		}
+      });
+      
       // update descendant study count display
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-	      option = _ref[_i];
-	      if (!option.empty) {
-		      result_id = option.dom_id;
-		      result = $("#" + result_id);
-		      var desc_study_count = +result.attr('data-desc-studies');
-		      if (desc_study_count > 0) {
-			      result.html(result.html() + " ("+ desc_study_count
-			//	      + " stud"+(desc_study_count > 1 ? "ies" : "y")
-				      +")");
+      $.each(allResults, function(id, value) {
+	      if (!value.option.empty) {
+		      var count = +value.result.attr('data-desc-studies');
+		      if (count > 0) {
+			      value.result.html(value.result.html() + " ("+count+")");
 		      }
 	      }
-      }
+      });
+      results = Object.keys(activated).length;
       if (results < 1 && searchText.length) {
         return this.no_results(searchText);
       } else {

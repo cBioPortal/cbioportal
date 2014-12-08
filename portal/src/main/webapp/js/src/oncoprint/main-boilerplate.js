@@ -74,7 +74,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             oncoprint.sortBy(sortBy.val(), cases.split(" "));
 
             zoom = reset_zoom();  
-            invodeDataManager(); 
+            invokeDataManager(); 
         }
     });
 
@@ -185,7 +185,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
                         
                         $('.special_delete').click(resetClinicalAttribute);// enable delete symbol "x" function
-                        invodeDataManager();
+                        invokeDataManager();
                     }
                 });
             }
@@ -230,7 +230,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
                         
                         $('.special_delete').click(resetClinicalAttribute);// enable delete symbol "x" function
-                        invodeDataManager();
+                        invokeDataManager();
                     }
                 });
             }
@@ -238,7 +238,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
     };
     $(select_clinical_attributes_id).change(clinicalAttributeSelected);
 
-    var invodeDataManager = function() {
+    var invokeDataManager = function() {
         //TODO: tmp solution for re-using data
         window.PortalGlobals.setGeneData(geneDataColl.toJSON());
         PortalDataColl.setOncoprintData(oncoprint.getOncoprintData()); 

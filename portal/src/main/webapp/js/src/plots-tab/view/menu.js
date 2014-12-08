@@ -122,7 +122,10 @@
 })();
 
 var PlotsTabSidebar = (function() {
-    
+
+    var genomicProfiles = [],
+        clinicalAttrs = [];
+
     function fetchProfileMetaData() {
         var paramsGetProfiles = {
             cancer_study_id: window.PortalGlobals.getCancerStudyId(),
@@ -130,7 +133,7 @@ var PlotsTabSidebar = (function() {
             case_ids_key: window.PortalGlobals.getCaseIdsKey(),
             gene_list: window.PortalGlobals.getGeneListString()
         };
-        $.post("getGeneticProfile.json", paramsGetProfiles, getGeneticProfileCallback, "json");  
+        $.post("getGeneticProfile.json", paramsGetProfiles, fetchClinicalAttrMetaData, "json");  
     }
 
     function fetchClinicalAttrMetaData(profileMetaDataResult) {
@@ -140,12 +143,39 @@ var PlotsTabSidebar = (function() {
             case_set_id : window.PortalGlobals.getCaseSetId(),
             format : "json"
         };
-        $.post("webservice.do", paramsGetClinicalAttributes, getClinicalAttrCallBack(profileMetaDataResult), "json");
+        $.post("webservice.do", paramsGetClinicalAttributes, function(result) {
+            mergeMetaData(result.attributes, profileMetaDataResult);
+        }, "json");
     }
 
     function mergeMetaData(clinicalAttrMetaDataResult, profileMetaDataResult) {
-        console.log(clinicalAttrMetaDataResult);
-        console.log(profileMetaDataResult);
+        var datum = {
+            stableId: "",
+            name: "",
+            description: ""
+        };
+
+        for (var gene in profileMetaDataResult) {
+            var _obj = result[gene];
+            var _datum = jQuery.extend(true, {}, datum);
+            for (var key in _obj) {
+                var obj = _obj[key];
+                var profile_type = obj.GENETIC_ALTERATION_TYPE;
+                if (profile_type === "MUTATION_EXTENDED") {
+                    _genetic_profile.genetic_profile_mutations.push([obj.STABLE_ID, obj.NAME, obj.DESCRIPTION]);
+                } else if(profile_type === "COPY_NUMBER_ALTERATION") {
+                    _genetic_profile.genetic_profile_copy_no.push([obj.STABLE_ID, obj.NAME, obj.DESCRIPTION]);
+                } else if(profile_type === "MRNA_EXPRESSION") {
+                    _genetic_profile.genetic_profile_mrna.push([obj.STABLE_ID, obj.NAME, obj.DESCRIPTION]);
+                } else if(profile_type === "METHYLATION") {
+                    _genetic_profile.genetic_profile_dna_methylation.push([obj.STABLE_ID, obj.NAME, obj.DESCRIPTION]);
+                } else if(profile_type === "PROTEIN_ARRAY_PROTEIN_LEVEL") {
+                    _genetic_profile.genetic_profile_rppa.push([obj.STABLE_ID, obj.NAME, obj.DESCRIPTION]);
+                }
+            }
+            genetic_profiles[gene] = _genetic_profile;
+        }
+
     }
 
     return {

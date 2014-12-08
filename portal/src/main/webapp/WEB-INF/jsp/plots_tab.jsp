@@ -56,49 +56,10 @@
 </style>
 
 
-<div id="plots" class="section" np-app="menuApp">
-    <div id="plots-sidebar" ng-controller='MenuController as menu'>
-        <h3>Plots Parameters</h3>
-        <div id="plots-sidebar-x" class="plots">
-            <h4>X Axis</h4>
-            <br><h5>{{plotsType.title}}</h5>
-            <select id="plots-x-plots-type" ng-model="form.plotsTypeX" ng-options="option.value as option.label for option in plotsType.options"></select>
-            <!--genomic profile specs-->
-            <div ng-show="form.plotsTypeX==='genomic_profile'">
-                <h5>{{profileType.title}}</h5>
-                <select id="plots-x-profile-type" ng-model="form.profileTypeX" ng-options="option.value as option.label for option in profileType.options"></select>
-                <br><h5>{{profileName.title}}</h5>
-                <select id="plots-x-profile-name" ng-model="form.profileNameX" ng-options="option.value as option.label for option in profileName.options | filter: {value: }"></select>
-                <br><h5>{{gene.title}}</h5>
-                <select id="plots-x-gene" ng-model="form.geneX" ng-options="option.value as option.label for option in gene.options"></select>
-            </div>
-            <!--clinical attr specs-->
-            <div ng-show="form.plotsTypeX==='clinical_attr'">
-                <h5>{{clinicalAttr.title}}</h5>
-                <select id="plots-x-clincal-attr" ng-model="form.clinicalAttrX" ng-options="option.value as option.label for option in clinicalAttr.options"></select>
-            </div>
-        </div>
-        <div id="plots-sidebar-y" class="plots">
-            <h4>Y Axis</h4>
-            <br><h5>{{plotsType.title}}</h5>
-            <select id="plots-y-plots-type" ng-model="form.plotsTypeY" ng-options="option.value as option.label for option in plotsType.options"></select>
-            <!--genomic profile specs-->
-            <div ng-show="form.plotsTypeY==='genomic_profile'">
-                <h5>{{profileType.title}}</h5>
-                <select id="plots-y-profile-type" ng-model="form.profileTypeY" ng-options="option.value as option.label for option in profileType.options"></select>
-                <br><h5>{{profileName.title}}</h5>
-                <select id="plots-y-profile-name" ng-model="form.profileNameY" ng-options="option.value as option.label for option in profileName.options"></select>
-                <br><h5>{{gene.title}}</h5>
-                <select id="plots-y-gene" ng-model="form.geneY" ng-options="option.value as option.label for option in gene.options"></select>
-            </div>
-            <!--clinical attr specs-->
-            <div ng-show="form.plotsTypeY==='clinical_attr'">
-                <h5>{{clinicalAttr.title}}</h5>
-                <select id="plots-y-clincal-attr" ng-model="form.clinicalAttrY" ng-options="option.value as option.label for option in clinicalAttr.options"></select>
-            </div>
-        </div>
-        <div id="plots-sidebar-search" class="plots">
-            <h4>Search</h4>
-        </div>
-    </div>
-</div>
+<script>
+    $(document).ready( function() {
+        PlotsTabSidebar.init();
+    });
+</script>
+
+

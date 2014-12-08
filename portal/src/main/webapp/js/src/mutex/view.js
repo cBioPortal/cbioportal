@@ -101,13 +101,13 @@
                 },
                 {
                     "sType": 'mutex-odds-ratio',
-                    "bSearchable": false,
+                    "bSearchable": true,
                     "aTargets": [ index.oddsRatio ],
                     "sWidth": "100px",
                     "sClass": "classMutexTable"
                 },
                 {
-                    "bSearchable": false,
+                    "bSearchable": true,
                     "aTargets": [ index.association ],
                     "sWidth": "400px"
                 }
@@ -342,7 +342,7 @@
             appendDownloadButton();
   		},
         resize: function() {
-            var tid = setInterval(detectInstance, 300);
+            var tid = setInterval(detectInstance, 100);
             function detectInstance() {
                 if (mutexTableInstance !== "" && (typeof mutexTableInstance !== "undefined")) {
                     abortTimer();                    

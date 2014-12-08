@@ -1230,7 +1230,7 @@ var PlotsView = (function () {
                         content += "CNA: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
                             "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
                     }
-                    content += "Case ID: <strong><a href='"+
+                    content += "Sample ID: <strong><a href='"+
                             +cbio.util.getLinkToSampleView(cancer_study_id,d.caseId)
                             +"' target = '_blank'>" + d.caseId +
                         "</a></strong><br>";
@@ -1243,7 +1243,7 @@ var PlotsView = (function () {
                     if (d.gisticType !== "Diploid" && !Util.isEmpty(d.gisticType)) {
                         content = content + "CNA: " + "<strong>" + d.gisticType + "</strong><br>";
                     }
-                    content += "Case ID: <strong><a href='"
+                    content += "Sample ID: <strong><a href='"
                             +cbio.util.getLinkToSampleView(cancer_study_id,d.caseId)
                             + "'>" + d.caseId +
                         "</a></strong><br>";
@@ -1256,7 +1256,7 @@ var PlotsView = (function () {
                     if (d.gisticType !== "Diploid" && !Util.isEmpty(d.gisticType)) {
                         content = content + "CNA: " + "<strong>" + d.gisticType + "</strong><br>";
                     }
-                    content += "Case ID: <strong><a href='"
+                    content += "Sample ID: <strong><a href='"
                             +cbio.util.getLinkToSampleView(cancer_study_id,d.caseId)
                             + "'>" + d.caseId +
                         "</a></strong><br>";

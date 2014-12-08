@@ -108,6 +108,9 @@ public class ImportTimelineData {
             }
             
             Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudyId, fields[0]);
+            if (patient == null) {
+              continue;
+            }
             ClinicalEvent event = new ClinicalEvent();
             event.setClinicalEventId(++clinicalEventId);
             event.setPatientId(patient.getInternalId());

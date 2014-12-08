@@ -377,7 +377,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 					if (mafCaseIDColumnIndex  == -1) {
 						if (LOG.isInfoEnabled()) LOG.info("getCaseListFromStagingFile(), this is not a MAF header contains sample ids...");
 						for (String potentialCaseID : thisRow) {
-							if (!strict || caseIDs.isSampleId(cancerStudy.getInternalId(), potentialCaseID)) {
+							if (!strict || caseIDs.isSampleId(cancerStudy.getInternalId(), potentialCaseID) || caseIDs.isTruncatedTCGAPatientId(potentialCaseID)) {
 								// check to filter out column headers other than sample ids
 								if (Converter.NON_CASE_IDS.contains(potentialCaseID.toUpperCase())) {
 									continue;
@@ -640,6 +640,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		// staging file
 		String stagingFilename = datatypeMetadata.getStagingFilename();
 		stagingFilename = stagingFilename.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
+		stagingFilename = stagingFilename.replaceAll("_\\*", "");
 		File stagingFile = org.apache.commons.io.FileUtils.getFile(stagingDirectory,
 																   cancerStudyMetadata.getStudyPath(),
 																   stagingFilename);

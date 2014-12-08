@@ -38,6 +38,11 @@ define("Oncoprint",
                 var attributes = tracks.concat(params.genes);
 
                 data = utils.process_data(data, attributes);
+                //TODO: tmp solution for re-using data
+                window.PortalGlobals.setGeneData(params.geneData);
+                PortalDataColl.setOncoprintData(data); 
+                var alterInfo = utils.alteration_info(params.geneData);
+                PortalDataColl.setOncoprintStat(alterInfo);
 
 //                //TODO: tmp solution for re-using data
 //                window.PortalGlobals.setGeneData(params.geneData);

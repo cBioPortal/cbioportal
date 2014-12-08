@@ -153,6 +153,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             });  
             
             zoom = reset_zoom();
+            invodeDataManager(); 
+
         }
     });
 
@@ -527,7 +529,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
                         $('.oncoprint-diagram-showlegend-icon')[0].attributes.src.value === 'images/showlegend.svg';
                         utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
-
+                        invodeDataManager();
                     }
                 });
             }
@@ -603,6 +605,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
                         $('.oncoprint-diagram-showlegend-icon')[0].attributes.src.value === 'images/showlegend.svg';
                         utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
+                        invodeDataManager();
                     }
                 });
             }
@@ -680,7 +683,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
                         $('.oncoprint-diagram-showlegend-icon')[0].attributes.src.value === 'images/showlegend.svg';
                         utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
-
+                        invodeDataManager();
                     }
                 });
             }
@@ -708,7 +711,6 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
     function ExtractNumber(value)
     {
         var n = parseInt(value);
-
         return n == null || isNaN(n) ? 0 : n;
     }
     
@@ -996,7 +998,15 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         document.onmousedown = OnMouseDown;
         document.onmouseup = OnMouseUp;
     }
-    
+
+    var invodeDataManager = function() {
+        //TODO: tmp solution for re-using data
+        window.PortalGlobals.setGeneData(geneDataColl.toJSON());
+        PortalDataColl.setOncoprintData(oncoprint.getOncoprintData()); 
+        var alterInfo = utils.alteration_info(geneDataColl.toJSON());
+        PortalDataColl.setOncoprintStat(alterInfo);
+    }
+
     $(document).ready(function() {
 
         // bind away

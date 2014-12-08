@@ -48,18 +48,6 @@ define("Oncoprint",
 
                 data = utils.process_data(data, attributes);
 
-//                //TODO: tmp solution for re-using data
-                window.PortalGlobals.setGeneData(params.geneData);
-                PortalDataColl.setOncoprintData(data); 
-                var alterInfo = utils.alteration_info(params.geneData);
-                PortalDataColl.setOncoprintStat(alterInfo);
-
-//                //TODO: tmp solution for re-using data
-//                window.PortalGlobals.setGeneData(params.geneData);
-//                PortalDataColl.setOncoprintData(data); 
-//                var alterInfo = utils.alteration_info(params.geneData);
-//                PortalDataColl.setOncoprintStat(alterInfo);
-
                 // keeps track of the order specified by the user (translates to vertical
                 // order in the visualization)
                 var attr2index = (function() {
@@ -961,7 +949,10 @@ define("Oncoprint",
                             showUnalteredCases(show_unaltered_bool);
                         },
                         sortBy: sortBy,
-                        getPdfInput: getPdfInput
+                        getPdfInput: getPdfInput,
+                        getOncoprintData: function() {
+                            return data;
+                        }
                     };
                 })();
 

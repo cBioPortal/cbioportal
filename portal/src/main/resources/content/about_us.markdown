@@ -9,9 +9,10 @@ The cBioPortal for Cancer Genomics is developed and maintained by the [Center fo
  * Yichao Sun
  * Hongxin Zhang
  * Fred Criscuolo
- * Ritika Kundra
+ * Dong Li
  * Adam Abeshouse
  * Gideon Dresdner
+ * Ritika Kundra
  * Chris Sander
  * Nikolaus Schultz
  

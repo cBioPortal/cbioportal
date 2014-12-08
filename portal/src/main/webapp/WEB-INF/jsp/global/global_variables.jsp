@@ -51,22 +51,22 @@
     double rppaScoreThreshold = ZScoreUtil.getRPPAScore(request);
 
     //Onco Query Language Parser Instance
-	String oql = request.getParameter(QueryBuilder.GENE_LIST);
+    String oql = request.getParameter(QueryBuilder.GENE_LIST);
 
-	// onco print spec parser needs the raw parameter
-	if (request instanceof XssRequestWrapper)
-	{
-		oql = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.GENE_LIST);
-	}
+    // onco print spec parser needs the raw parameter
+    if (request instanceof XssRequestWrapper)
+    {
+        oql = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.GENE_LIST);
+    }
 
     ParserOutput theOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( oql,
             (HashSet<String>) request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS),
             (ArrayList<GeneticProfile>) request.getAttribute(QueryBuilder.PROFILE_LIST_INTERNAL),
             zScoreThreshold, rppaScoreThreshold );
     OncoPrintSpecification theOncoPrintSpecification = theOncoPrintSpecParserOutput.getTheOncoPrintSpecification();
-	// make the oql variable script-safe after processing
-	//oql = StringEscapeUtils.escapeJavaScript(oql);
-	oql = xssUtil.getCleanerInput(oql);
+    // make the oql variable script-safe after processing
+    //oql = StringEscapeUtils.escapeJavaScript(oql);
+    oql = xssUtil.getCleanerInput(oql);
 
     //Info from data analysis/summary
     ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile, theOncoPrintSpecification, zScoreThreshold, rppaScoreThreshold );
@@ -411,4 +411,3 @@
     var gene_list = gene_list_str.split(/\s+/);
 
 </script>
-

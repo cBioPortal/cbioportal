@@ -22,7 +22,6 @@
                 <td><label><input id='toggle_unaltered_cases' type='checkbox'>Remove Unaltered Cases</label></td>
                 <td><label><input id='toggle_whitespace' type='checkbox'><label>Remove Whitespace</label></td>
             </tr>
-        
             <tr>
                 <td>
                     <div id="disable_select_clinical_attributes" style="display: none; z-index: 1000; opacity: 0.7; background-color: grey; width: 22.5%; height: 6%; position: absolute;"></div>
@@ -109,6 +108,7 @@
              <li style="list-style-type:none;cursor:pointer"><a id="custom">user-defined case list / default</a></li>
            </ul>
         </div>
+
         <%--
         <button type="button" class="btn btn-default" style="background-color:#efefef"><img id="oncoprinter_sortfirst_icon" class="oncoprinter_sortfirst_icon" checked="0" src="images/cool.svg" alt="icon" width="16" height="16" /></button>
         --%>

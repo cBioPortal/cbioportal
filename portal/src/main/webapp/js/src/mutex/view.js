@@ -342,7 +342,7 @@
             appendDownloadButton();
   		},
         resize: function() {
-            var tid = setInterval(detectInstance, 300);
+            var tid = setInterval(detectInstance, 100);
             function detectInstance() {
                 if (mutexTableInstance !== "" && (typeof mutexTableInstance !== "undefined")) {
                     abortTimer();                    

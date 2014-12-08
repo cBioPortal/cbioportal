@@ -60,7 +60,6 @@ define(function() {
 
                         if((/^([A-Z]+)([0-9]+)del$/g).test(m))//IN_frame_del
                         {return 3;}
-
                         return 4; // need to modified by dong li
                     }
                     

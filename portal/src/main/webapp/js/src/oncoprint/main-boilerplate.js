@@ -133,9 +133,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             },extraTracks);
             outer_loader_img.hide();
             $('#oncoprint #everything').show();
-//            oncoprint.sortBy(sortBy.val(), cases.split(" "));
 
-
+            //            oncoprint.sortBy(sortBy.val(), cases.split(" "));
             if($('#oncoprint_sortbyfirst_dropdonw span')[0].innerHTML === 'Sort by')
             {
                 oncoprint.sortBy("genes", cases.split(" "));

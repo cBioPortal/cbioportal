@@ -164,11 +164,11 @@ define("OncoprintUtils", (function() {
         var mutations = extract_unique(raw_gene_data, 'mutation', function(d){
             var aas = d.split(",");// e.g. A32G,fusion
             for (var i=0, n=aas.length; i<n; i++) {
-                if (!/fusion( |$)/i.test(aas[i])) return true;
+                if (!/fusion$/i.test(aas[i])) return true;
             }
             return false;
         });
-        var fusions = extract_unique(raw_gene_data, 'mutation', function(d){return /fusion( |$|,)/i.test(d);});
+        var fusions = extract_unique(raw_gene_data, 'mutation', function(d){return /fusion($|,)/i.test(d);});
         var mrnas = extract_unique(raw_gene_data, 'mrna');
         var rppas = extract_unique(raw_gene_data, 'rppa');
 
@@ -430,6 +430,7 @@ define("OncoprintUtils", (function() {
 
         var percent = (altered / total) * 100;
         //attr2percent[gene.key] = Math.round(percent);
+
         if(percent>=1.0)
         {
             attr2percent[gene.key] = Math.round(percent);
@@ -1477,7 +1478,7 @@ define("OncoprintUtils", (function() {
         return {
             mutation: function(d) {
                 if (d.mutation) {
-                    if (/fusion( |$|,)/i.test(d.mutation)) return "<b>" + d.mutation + "</b><br/>";
+                    if (/fusion($|,)/i.test(d.mutation)) return "<b>" + d.mutation + "</b><br/>";
                     else return "Mutation: <b>" + d.mutation + "</b><br/>";
                 }
                 return "";
@@ -1568,7 +1569,6 @@ define("OncoprintUtils", (function() {
     var addShowLegendIcon = function(div){
         return $('<img>', { id: "oncoprint-diagram-showlegend-icon",class: "oncoprint-diagram-showlegend-icon",checked:'0', width: "16px",height:"16px", src:"images/showlegend.svg"}).appendTo($(div));
     };
-
     var zoomSetup = function(div, fun) {
         
         return $('<input>', { id: "oncoprint_zoom_slider",type:'range', width: "80",height:"16", min: .1, max: 1, step: .01, value: 1, change: function(event, ui) {

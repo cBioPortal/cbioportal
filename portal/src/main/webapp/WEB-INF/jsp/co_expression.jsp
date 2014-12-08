@@ -76,12 +76,15 @@
         if ($("#coexp").is(":visible")) {
             CoExpView.init();
             coexp_tab_init = true;
+        } else {
+            $(window).trigger("resize");
         }
         $("#tabs").bind("tabsactivate", function(event, ui) {
             if (ui.newTab.text().trim().toLowerCase() === "co-expression") {
                 if (coexp_tab_init === false) {
                     CoExpView.init();
                     coexp_tab_init = true;
+                    $(window).trigger("resize");
                 } else {
                     $(window).trigger("resize");
                 }

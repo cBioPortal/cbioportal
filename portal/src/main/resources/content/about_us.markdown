@@ -1,18 +1,26 @@
-The cBioPortal for Cancer Genomics is developed and maintained by the [Computational Biology Center](http://cbio.mskcc.org/) at [Memorial Sloan-Kettering Cancer Center](http://www.mskcc.org/) and the [i-Vis (Information Visualization) Research Group](http://www.cs.bilkent.edu.tr/~ivis/) of the Computer Engineering Department at [Bilkent University](http://www.bilkent.edu.tr/index.html).
+The cBioPortal for Cancer Genomics is developed and maintained by the [Center for Molecular Oncology](http://www.mskcc.org/research/molecular-oncology) and the [Computational Biology Center](http://cbio.mskcc.org/) at [Memorial Sloan-Kettering Cancer Center](http://www.mskcc.org/).
 
 ## Team members (MSKCC)
 
  * Jianjiong Gao
- * B. Arman Aksoy
  * Benjamin Gross
- * Gideon Dresdner
- * Kitika Kundra
  * S. Onur Sumer
+ * B. Arman Aksoy
  * Yichao Sun
  * Hongxin Zhang
+ * Fred Criscuolo
+ * Ritika Kundra
+ * Adam Abeshouse
+ * Gideon Dresdner
  * Chris Sander
  * Nikolaus Schultz
  
+## Collaborators ([i-Vis Research Group](http://www.cs.bilkent.edu.tr/~ivis/) at [Bilkent University](http://www.bilkent.edu.tr/index.html))
+
+ * Ugur Dogrusoz
+ * Istemi Bahceci
+ * Sinan Sonlu
+
 ## Alumni
 
  * Ethan Cerami, now at Blueprint Medicines
@@ -22,11 +30,6 @@ The cBioPortal for Cancer Genomics is developed and maintained by the [Computati
  * Erik Larsson, now at University of Gothenburg
  * Caitlin Byrne, MSKCC
 
-## Collaborators
-
- * Ugur Dogrusoz, Bilkent University
- * Istemi Bahceci, Bilkent University
- * Sinan Sonlu, Bilkent University
 
 ## Funding for the cBioPortal for Cancer Genomics is provided in part from:
 
@@ -35,3 +38,4 @@ The cBioPortal for Cancer Genomics is developed and maintained by the [Computati
  * Starr Cancer Consortium
  * Prostate Cancer Foundation
  * Stand Up 2 Cancer
+ * Marie-Josée and Henry R. Kravis Center for Molecular Oncology at MSKCC

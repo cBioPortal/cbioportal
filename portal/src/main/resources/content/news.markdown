@@ -1,15 +1,15 @@
 # December 9, 2014
-* New TCGA data:
+* __New TCGA data__:
     * Added complete and up-to-date __clinical data__ for all __TCGA__ provisional studies
     * All TCGA data updated to the Firehose run of July 15, 2014
     * New TCGA provisional studies: Esophageal cancer, Pheochromocytoma and Paraganglioma (PCPG)
-    * New published TCGA studies: Thyroid Cancer and Kindney Chrompophobe
-* Added data of 172 samples from 4 published studies:
+    * New published TCGA studies: [Thyroid Cancer](study.do?cancer_study_id=thca_tcga_pub) and [Kidney Chromophobe](study.do?cancer_study_id=kich_tcga_pub)
+* __Added data__ of 172 samples from 4 published studies:
     * [Cholangiocarcinoma (National University of Singapore, Nature Genetics 2012)](study.do?cancer_study_id=chol_nus_2012)
     * [Cholangiocarcinoma (National Cancer Centre of Singapore, Nature Genetics 2013)](study.do?cancer_study_id=chol_nccs_2013)
     * [Intrahepatic Cholangiocarcinoma (Johns Hopkins University, Nature Genetics 2013)](study.do?cancer_study_id=chol_jhu_2013)
     * [Bladder Cancer (MSKCC, Eur Urol 2014)](study.do?cancer_study_id=blca_mskcc_solit_2014)
-* New features:
+* __New features__:
     * Redesigned __Mutual Exclusivity__ tab
     * Added __correlation scores__ for scatter plots on the Plots tab
     * Download links to [__GenomeSpace__](http://www.genomespace.org/)

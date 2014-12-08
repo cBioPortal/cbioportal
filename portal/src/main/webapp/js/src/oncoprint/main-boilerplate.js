@@ -153,8 +153,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             });  
             
             zoom = reset_zoom();
-            invodeDataManager(); 
-
+            invokeDataManager(); 
         }
     });
 
@@ -605,7 +604,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
                         $('.oncoprint-diagram-showlegend-icon')[0].attributes.src.value === 'images/showlegend.svg';
                         utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
-                        invodeDataManager();
+                        invokeDataManager();
                     }
                 });
             }
@@ -683,7 +682,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
                         $('.oncoprint-diagram-showlegend-icon')[0].attributes.src.value === 'images/showlegend.svg';
                         utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
-                        invodeDataManager();
+                        invokeDataManager();
                     }
                 });
             }
@@ -999,7 +998,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         document.onmouseup = OnMouseUp;
     }
 
-    var invodeDataManager = function() {
+    var invokeDataManager = function() {
         //TODO: tmp solution for re-using data
         window.PortalGlobals.setGeneData(geneDataColl.toJSON());
         PortalDataColl.setOncoprintData(oncoprint.getOncoprintData()); 

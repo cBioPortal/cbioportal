@@ -1,8 +1,10 @@
-# December 8, 2014
-* All TCGA data updated to the Firehose run of July 15, 2014
-* Complete and updated TCGA clinical data
-* Redesigned mutual exclusivity tab
-* Links to Genome Space
+# December 9, 2014
+* New data and several new features:
+    * Added complete and up-to-date __clinical data__ for all __TCGA__ provisional studies
+    * All TCGA data updated to the Firehose run of July 15, 2014
+    * Redesigned __mutual exclusivity__ tab
+    * Added __correlation scores__ for scatter plots on the Plots tab
+    * Download links to [__GenomeSpace__](http://www.genomespace.org/)
 
 # October 24, 2014
 * Added data of 885 samples from 11 published studies:

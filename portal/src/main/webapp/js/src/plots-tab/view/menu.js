@@ -29,8 +29,6 @@
     var menuApp = angular.module('menu', []);
     menuApp.controller('MenuController', function($scope) {
         
-
-        
         //init -- retrieve data
         init = function() {
             var paramsGetProfiles = {
@@ -122,3 +120,38 @@
     });
 
 })();
+
+var PlotsTabSidebar = (function() {
+    
+    function fetchProfileMetaData() {
+        var paramsGetProfiles = {
+            cancer_study_id: window.PortalGlobals.getCancerStudyId(),
+            case_set_id: window.PortalGlobals.getCaseSetId(),
+            case_ids_key: window.PortalGlobals.getCaseIdsKey(),
+            gene_list: window.PortalGlobals.getGeneListString()
+        };
+        $.post("getGeneticProfile.json", paramsGetProfiles, getGeneticProfileCallback, "json");  
+    }
+
+    function fetchClinicalAttrMetaData(profileMetaDataResult) {
+        var paramsGetClinicalAttributes = {
+            cmd : "getAllClinicalData",
+            cancer_study_id: window.PortalGlobals.getCancerStudyId(),
+            case_set_id : window.PortalGlobals.getCaseSetId(),
+            format : "json"
+        };
+        $.post("webservice.do", paramsGetClinicalAttributes, getClinicalAttrCallBack(profileMetaDataResult), "json");
+    }
+
+    function mergeMetaData(clinicalAttrMetaDataResult, profileMetaDataResult) {
+        console.log(clinicalAttrMetaDataResult);
+        console.log(profileMetaDataResult);
+    }
+
+    return {
+        init: function() {
+            fetchProfileMetaData(); //invoke fetch other meta data in a chain
+        }
+    }
+
+}());

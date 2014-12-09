@@ -63,18 +63,18 @@ public class GetClinicalData {
         List<Patient> caseSurvivalList = DaoClinicalData.getSurvivalData(cancerStudyId, caseIdList);
         Map<String,Patient> mapClinicalData = new HashMap<String,Patient>();
         for (Patient cd : caseSurvivalList) {
-            mapClinicalData.put(cd.getCaseId(), cd);
+            mapClinicalData.put(cd.getStableId(), cd);
         }
 
         Map<String,Map<String,String>> mapClinicalFreeForms = Collections.emptyMap();
         Set<String> freeFormParams = Collections.emptySet();
         if (includeFreeFormData) {
-            List<ClinicalData> clinicalFreeForms = DaoClinicalData.getCasesByCases(cancerStudyId, new ArrayList(caseIdList));
+            List<ClinicalData> clinicalFreeForms = DaoClinicalData.getDataByPatientIds(cancerStudyId, new ArrayList(caseIdList));
             mapClinicalFreeForms = new HashMap<String,Map<String,String>>();
             freeFormParams = new HashSet<String>();
             for (ClinicalData cff : clinicalFreeForms) {
                 freeFormParams.add(cff.getAttrId());
-                String caseId = cff.getCaseId();
+                String caseId = cff.getStableId();
                 Map<String,String> cffs = mapClinicalFreeForms.get(caseId);
                 if (cffs==null) {
                     cffs = new HashMap<String,String>();
@@ -141,7 +141,7 @@ public class GetClinicalData {
         map.put("attr_val", clinical.getAttrVal());
         //TODO: at some point we may want to incorporate the cancer_study_id
 //        map.put("cancer_study_id", Integer.toString(clinical.getCancerStudyId()));
-        map.put("sample", clinical.getCaseId());
+        map.put("sample", clinical.getStableId());
 
         return map;
     }
@@ -179,7 +179,7 @@ public class GetClinicalData {
     public static String getTxtDatum(String cancerStudyId, String caseId, String attrId) throws DaoException {
         ClinicalData c = DaoClinicalData.getDatum(cancerStudyId, caseId, attrId);
 
-        return "" + c.getCaseId() + "\t" + c.getAttrId() + "\t" + c.getAttrVal();
+        return "" + c.getStableId() + "\t" + c.getAttrId() + "\t" + c.getAttrVal();
     }
 
     /**
@@ -286,11 +286,11 @@ public class GetClinicalData {
                 continue;
             }
             
-            Map<String,ClinicalData> got = caseId2Clinical.get(c.getCaseId());
+            Map<String,ClinicalData> got = caseId2Clinical.get(c.getStableId());
 
             if (got == null) {
                 got = new HashMap<String,ClinicalData>();
-                caseId2Clinical.put(c.getCaseId(), got);
+                caseId2Clinical.put(c.getStableId(), got);
             }
             
             got.put(c.getAttrId(),c);

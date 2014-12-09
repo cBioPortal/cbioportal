@@ -17,10 +17,9 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.util.ConsoleUtil;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
-import org.mskcc.cbio.portal.util.CancerStudyReader;
+import org.mskcc.cbio.portal.util.*;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.service.EntityService;
 
 import java.io.File;
 

@@ -19,26 +19,38 @@
 package org.mskcc.cbio.importer.caseids.internal;
 
 // imports
-import org.mskcc.cbio.importer.Config;
-import org.mskcc.cbio.importer.CaseIDs;
-import org.mskcc.cbio.importer.model.DataMatrix;
-import org.mskcc.cbio.importer.model.CaseIDFilterMetadata;
+import org.mskcc.cbio.importer.*;
+import org.mskcc.cbio.importer.model.*;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
 
-import java.util.Collection;
-import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import org.apache.commons.logging.*;
+
+import java.util.*;
+import java.util.regex.*;
 
 /**
  * Class which implements the CaseIDs interface.
  */
 public class CaseIDsImpl implements CaseIDs {
 
+    private static final String SAMPLE_REGEX = "tcga-sample-pattern";
+    private static final String PATIENT_REGEX = "tcga-patient-pattern";
+    private static final String TRUCATED_PATIENT_REGEX = "tcga-truncated-patient-pattern";
+    private static final String NON_TCGA_REGEX = "non-tcga-pattern";
+
+    private static final List<String> tcgaNormalTypes = initTCGANormalTypes();
+    private static final List<String> initTCGANormalTypes()
+    {
+        return Arrays.asList(new String[] { "10","11","12","13","14","15","16","17","18","19" });
+    }
+
 	// ref to our matchers
-	private Collection<Pattern> patterns;
+    private Pattern samplePattern;
+    private Pattern patientPattern;
+    private Pattern truncatedTCGAPatientPattern;
+    private Pattern nonTCGAPattern;
 
 	/**
 	 * Constructor.
@@ -56,70 +68,112 @@ public class CaseIDsImpl implements CaseIDs {
 		}
 
 		// setup our matchers
-		patterns = new ArrayList<Pattern>();
 		for (CaseIDFilterMetadata caseIDFilter : caseIDFilters) {
-			patterns.add(Pattern.compile(caseIDFilter.getRegex()));
+            if (caseIDFilter.getFilterName().equals(PATIENT_REGEX)) {
+                patientPattern = Pattern.compile(caseIDFilter.getRegex());
+            }
+            else if (caseIDFilter.getFilterName().equals(TRUCATED_PATIENT_REGEX)) {
+                truncatedTCGAPatientPattern = Pattern.compile(caseIDFilter.getRegex());
+            }
+            else if (caseIDFilter.getFilterName().equals(SAMPLE_REGEX)) {
+                samplePattern = Pattern.compile(caseIDFilter.getRegex());
+            }
+            else if (caseIDFilter.getFilterName().equals(NON_TCGA_REGEX)) {
+                nonTCGAPattern = Pattern.compile(caseIDFilter.getRegex());
+            }
 		}
 	}
 
-	/**
-	 * Converts the given case id to mskcc format.
-	 *
-	 * @param caseID String
-	 * @return String
-	 */
+    @Override
+    public boolean isSampleId(String caseId)
+    {
+        return isSampleId(0, caseId);
+    }
+
 	@Override
-	public String convertCaseID(String caseID) {
-
-		for (Pattern pattern : patterns) {
-			Matcher matcher = pattern.matcher(caseID);
-			if (matcher.find()) {
-				return matcher.group(1);
-			}
-		}
-
-		// outta here
-		return caseID;
+	public boolean isSampleId(int cancerStudyId, String caseId)
+    {
+        if (nonTCGAPattern.matcher(caseId).matches()) {
+            Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, caseId);
+            return (s != null);
+        }
+        else {
+            caseId = clean(caseId);
+            return (samplePattern.matcher(caseId).matches());
+        }
 	}
 
-	/**
-	 * Determines if given case id is a tumor case id.
-	 *
-     * @param caseID String
-	 * @return boolean
-	 */
+    @Override
+    public boolean isNormalId(String caseId)
+    {
+        String cleanId = clean(caseId);
+        Matcher matcher = samplePattern.matcher(cleanId);
+        return (matcher.find()) ? tcgaNormalTypes.contains(matcher.group(2)) : false;
+    }
+
+    @Override
+    public boolean isTruncatedTCGAPatientId(String caseId)
+    {
+        return truncatedTCGAPatientPattern.matcher(caseId).matches();
+    }
+
+    @Override
+    public String getSampleId(String caseId)
+    {
+        return getSampleId(0, caseId);
+    }
+
+    @Override
+    public String getSampleId(int cancerStudyId, String caseId)
+    {
+        if (nonTCGAPattern.matcher(caseId).matches()) {
+            Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, caseId);
+            return (s != null) ? s.getStableId() : caseId;
+        }
+        else {
+            String cleanId = clean(caseId);
+            Matcher matcher = samplePattern.matcher(cleanId);
+            return (matcher.find()) ? matcher.group(1) : caseId;
+        }
+    }
+
+    @Override
+    public String getPatientId(String caseId)
+    {
+        return getPatientId(0, caseId);
+    }
+
 	@Override
-	public boolean isTumorCaseID(String caseID) {
-
-		for (Pattern pattern : patterns) {
-			if (pattern.matcher(caseID).matches()) {
-				return true;
-			}
-		}
-
-		// outta here
-		return false;
+	public String getPatientId(int cancerStudyId, String caseId)
+    {
+        if (nonTCGAPattern.matcher(caseId).matches()) {
+            // data files should only have sample ids - get patient id via sample
+            Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, caseId);
+            if (s != null && s.getInternalPatientId() > 0) {
+                Patient p = DaoPatient.getPatientById(s.getInternalPatientId());
+                return (p != null) ? p.getStableId() : caseId;
+            }
+            else {
+                return caseId;
+            }
+        }
+        else {
+            String cleanId = clean(caseId);
+            Matcher matcher = patientPattern.matcher(cleanId);
+            return (matcher.find()) ? matcher.group(1) : caseId;
+        }
 	}
 
-	/**
-	 * Computes the number of case ids within the give import data matrix.
-	 *
-     * @param dataMatrix DataMatrix
-	 * @return int
-	 */
-	@Override
-	public int getCaseCount(DataMatrix dataMatrix) {
-
-		int toReturn = 0;
-
-		Collection<String> columnHeaders = dataMatrix.getColumnHeaders();
-		for (String columnHeader : columnHeaders) {
-			if (isTumorCaseID(columnHeader)) {
-				++toReturn;
-			}
-		}
-
-		// outta here
-		return toReturn;
-	}
+    private String clean(String caseId)
+    {
+        if (caseId.contains("Tumor")) {
+            return caseId.replace("Tumor", "01");
+        }
+        else if (caseId.contains("Normal")) {
+            return caseId.replace("Normal", "11");
+        }
+        else {
+            return caseId;
+        }
+    }
 }

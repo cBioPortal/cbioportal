@@ -6,10 +6,7 @@ package org.mskcc.cbio.portal.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -18,7 +15,9 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoClinicalEvent;
 import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoPatient;
 import org.mskcc.cbio.portal.model.ClinicalEvent;
+import org.mskcc.cbio.portal.model.Patient;
 
 /**
  *
@@ -39,10 +38,13 @@ public class ClinicalTimelineData extends HttpServlet {
         int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(request.getParameter("cancer_study_id")).getInternalId();
         String patientId = request.getParameter("patient_id");
         
+        Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudyId, patientId);
+        
         Collection<ClinicalEvent> clinicalEvents;
         
+        
         try {
-            clinicalEvents = DaoClinicalEvent.getClinicalEvent(cancerStudyId, patientId);
+            clinicalEvents = DaoClinicalEvent.getClinicalEvent(patient.getInternalId());
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }

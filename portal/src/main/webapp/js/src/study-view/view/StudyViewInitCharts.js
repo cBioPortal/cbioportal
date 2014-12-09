@@ -309,7 +309,7 @@ var StudyViewInitCharts = (function(){
     function redrawSurvival() {
         var _unselectedCases= [],
             _selectedCases = getSelectedCasesID(),
-            _allCases = StudyViewParams.params.caseIds;
+            _allCases = StudyViewParams.params.sampleIds;
         
         var _passedCases = [];
         var _selectedCasesLength = _selectedCases.length,
@@ -564,7 +564,7 @@ var StudyViewInitCharts = (function(){
                 status: [["LIVING"], ["DECEASED"]],
                 caseLists: {
                     'All cases': {
-                        caseIds: StudyViewParams.params.caseIds, 
+                        caseIds: StudyViewParams.params.sampleIds, 
                         color: '#2986e2'
                     }
                 }
@@ -582,7 +582,7 @@ var StudyViewInitCharts = (function(){
                 status: [["DISEASEFREE"], ["RECURRED", "RECURRED/PROGRESSED", "PROGRESSED"]],
                 caseLists: {
                     'All cases': {
-                        caseIds: StudyViewParams.params.caseIds, 
+                        caseIds: StudyViewParams.params.sampleIds, 
                         color: '#2986e2'
                     }
                 }

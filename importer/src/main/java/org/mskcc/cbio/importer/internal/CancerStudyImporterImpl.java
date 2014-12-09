@@ -24,16 +24,12 @@ import org.mskcc.cbio.importer.util.ClassLoader;
 
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
-import org.mskcc.cbio.portal.util.CancerStudyReader;
-import org.mskcc.cbio.portal.scripts.ImportCaseList;
-import org.mskcc.cbio.portal.scripts.ImportTypesOfCancers;
+import org.mskcc.cbio.portal.util.*;
+import org.mskcc.cbio.portal.scripts.*;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.*;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.*;
 
 import org.apache.commons.io.*;
 import org.apache.commons.io.filefilter.*;
@@ -349,7 +345,7 @@ class CancerStudyImporterImpl implements Importer, Validator {
         if (caseListDirectory.exists()) {
             logMessage("Importing case lists found in directory: " + caseListDirectory.getCanonicalPath());
             String[] args = new String[] { caseListDirectory.getCanonicalPath() };
-            ImportCaseList.main(args);
+            ImportPatientList.main(args);
         }
         else {
             logMessage("Cannot find case list directory, skipping case list import: " + caseListDirectory.getCanonicalPath());

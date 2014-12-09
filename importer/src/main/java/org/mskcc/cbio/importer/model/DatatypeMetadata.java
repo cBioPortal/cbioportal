@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.regex.Pattern;
 import java.lang.reflect.Method;
 
 /**
@@ -36,22 +37,26 @@ public class DatatypeMetadata {
 	public static final String NUM_GENES_TAG = "<NUM_GENES>";
 	public static final String TUMOR_TYPE_TAG = "<TUMOR_TYPE>";
 	public static final String CANCER_STUDY_TAG = "<CANCER_STUDY>";
+    public static final String CLINICAL_FOLLOWUP_VERSION = "<FOLLOWUP_VERSION>";
+    // this will match both patient and nte followup files - which is ok.
+    public static final Pattern CLINICAL_FOLLOWUP_FILE_REGEX = Pattern.compile("nationwidechildrens.org_clinical_follow_up_v(\\d\\.\\d+)_\\w+\\.txt");
+    public static final Pattern CLINICAL_PATIENT_FILE_REGEX = Pattern.compile("nationwidechildrens.org_clinical_patient_(\\w+)\\.txt");
+    public static final Pattern CLINICAL_NTE_FILE_REGEX = Pattern.compile("nationwidechildrens.org_clinical_nte_(\\w+)\\.txt");
+    public static final Pattern CLINICAL_NTE_FOLLOWUP_FILE_REGEX = Pattern.compile("nationwidechildrens.org_clinical_follow_up_v(\\d\\.\\d+)_nte_\\w+\\.txt");
+    public static final Pattern CLINICAL_SAMPLE_FILE_REGEX = Pattern.compile("nationwidechildrens.org_biospecimen_sample_(\\w+)\\.txt");
 	
 	// delimiter when specifying datatypes on worksheet
     public static final String DATATYPES_DELIMITER = ":"; 
 
-	// MAF file extension - used (at least) by FileUtils.oncotateAllMAFs
+    public static final String MUT_PACK_CALLS_FILE = "Mutation_Packager_Calls";
 	public static final String MAF_FILE_EXT = ".maf.annotated";
-
-	// correlate methylation file v mrna file id - used to id a correlation file
-	// - used by at least ConverterImpl
-	public static final String CORRELATE_METHYL_FILE_ID = "Correlate";
-
-	// mutation data staging filename
 	public static final String MUTATIONS_STAGING_FILENAME = "data_mutations_extended.txt";
 
-	// clinical data staging filename
-	public static final String CLINICAL_STAGING_FILENAME = "data_clinical.txt";
+	public static final String CORRELATE_METHYL_FILE_ID = "Correlate";
+
+    public static final String COMMON_DATA_ELEMENT_ID = "CDE_ID:";
+    public static final String BCR_CLINICAL_FILENAME_PREFIX = "nationwidechildrens.org";
+	public static final String CLINICAL_FILENAME = "data_clinical_patient.txt";
 
 	// fusion data staging filename
 	public static final String FUSIONS_STAGING_FILENAME = "data_fusions.txt";
@@ -61,6 +66,8 @@ public class DatatypeMetadata {
 	public static final String SEQUENCED_SAMPLES_FILENAME = "sequenced_samples.txt";
 
     public static final String ZSCORE_STAGING_FILENAME_SUFFIX = "_Zscores.txt";
+
+	public static final String NORMAL_STAGING_FILENAME_SUFFIX = "_normals.txt";
 
 	/*
 	 * The following is an example of a downloadArchive string which the following 
@@ -81,6 +88,7 @@ public class DatatypeMetadata {
 	// bean properties
 	private String datatype;
 	private Boolean download;
+	private Boolean process;
 	private String[] dependencies;
 	// tcgadownloadArchive is parsed in constructor
 	private LinkedHashSet<String> tcgaArchives;
@@ -107,18 +115,19 @@ public class DatatypeMetadata {
      */
     public DatatypeMetadata(String[] properties) {
 
-		if (properties.length < 15) {
+		if (properties.length < 16) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
 
 		this.datatype = properties[0].trim();
 		this.download = new Boolean(properties[1].trim());
-		this.dependencies = (properties[2].trim() != null) ?
-			this.dependencies = properties[2].trim().split(DEPENDENCIES_DELIMITER) : new String[0];
+		this.process = new Boolean(properties[2].trim());
+		this.dependencies = (properties[3].trim() != null) ?
+			this.dependencies = properties[3].trim().split(DEPENDENCIES_DELIMITER) : new String[0];
 		tcgaArchives = new LinkedHashSet<String>();
 		tcgaArchivedFiles = new HashMap<String, String>();
-		if (properties[3] != null && properties[3].length() > 0) {
-			for (String archivePair : properties[3].trim().split(DOWNLOAD_ARCHIVE_DELIMITER)) {
+		if (properties[4] != null && properties[4].length() > 0) {
+			for (String archivePair : properties[4].trim().split(DOWNLOAD_ARCHIVE_DELIMITER)) {
 				String[] parts = archivePair.split(ARCHIVE_FILENAME_PAIR_DELIMITER);
 				String archive = parts[0].trim();
 				String archivedFile = parts[1].trim();
@@ -133,21 +142,22 @@ public class DatatypeMetadata {
 				}
 			}
 		}
-		this.stagingFilename = properties[4].trim();
-		this.converterClassName = properties[5].trim();
-		this.importerClassName = properties[6].trim();
-		this.requiresMetafile = new Boolean(properties[7].trim());
-		this.metaFilename = properties[8].trim();
-		this.metaStableID = properties[9].trim();
-		this.metaGeneticAlterationType = properties[10];
-		this.metaDatatypeType = properties[11];
-		this.metaShowProfileInAnalysisTab = new Boolean(properties[12].trim());
-		this.metaProfileName = properties[13].trim();
-		this.metaProfileDescription = properties[14].trim();
+		this.stagingFilename = properties[5].trim();
+		this.converterClassName = properties[6].trim();
+		this.importerClassName = properties[7].trim();
+		this.requiresMetafile = new Boolean(properties[8].trim());
+		this.metaFilename = properties[9].trim();
+		this.metaStableID = properties[10].trim();
+		this.metaGeneticAlterationType = properties[11];
+		this.metaDatatypeType = properties[12];
+		this.metaShowProfileInAnalysisTab = new Boolean(properties[13].trim());
+		this.metaProfileName = properties[14].trim();
+		this.metaProfileDescription = properties[15].trim();
 	}
 
 	public String getDatatype() { return datatype; }
 	public Boolean isDownloaded() { return download; }
+	public Boolean isProcessed() { return process; }
 	public String[] getDependencies() { return dependencies; }
 	public Set<String> getTCGADownloadArchives() { return tcgaArchives; }
 	public Set<String> getTCGAArchivedFiles(String archive) {

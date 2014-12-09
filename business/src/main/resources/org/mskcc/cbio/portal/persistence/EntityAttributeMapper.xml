@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.mskcc.cbio.portal.persistence.EntityAttributeMapper">
+
+<cache/>
+
+<insert id="insertEntityAttribute" parameterType="EntityAttribute">
+	insert into entity_attribute (ENTITY_ID, ATTR_ID, ATTR_VALUE)
+	values (#{entityId},#{attributeId},#{attributeValue})
+</insert>
+
+<update id="updateEntityAttribute" parameterType="EntityAttribute">
+	update entity_attribute
+	set ATTR_VALUE = #{attributeValue}
+	where ENTITY_ID = #{entityId}
+	and ATTR_ID = #{attributeId}
+</update>
+
+<insert id="insertAttributeMetadata" parameterType="AttributeMetadata">
+	insert into attribute_metadata (ATTR_ID, DISPLAY_NAME, DESCRIPTION, DATATYPE, TYPE)
+	values (#{attributeId},#{displayName},#{description},#{datatype}, #{type})
+</insert>
+
+<select id="getEntityAttributeById" resultType="EntityAttribute">
+	select
+		ENTITY_ID as entityId,
+		ATTR_ID as attributeId,
+		ATTR_VALUE as attributeValue
+	from entity_attribute
+	where ENTITY_ID = #{entityId}
+	and ATTR_ID = #{attributeId}
+</select>
+
+<select id="getAllAttributeMetadata" resultType="AttributeMetadata">
+	select
+		ATTR_ID as attributeId,
+		DISPLAY_NAME as displayName,
+		DESCRIPTION as description,
+		DATATYPE as datatype,
+		TYPE as type
+	from attribute_metadata
+</select>
+
+<select id="getAttributeMetadataById" resultType="AttributeMetadata">
+	select
+		ATTR_ID as attributeId,
+		DISPLAY_NAME as displayName,
+		DESCRIPTION as description,
+		DATATYPE as datatype,
+		TYPE as type
+	from attribute_metadata
+	where ATTR_ID = #{attributeId}
+</select>
+
+<delete id="deleteEntityAttributes" flushCache="true">
+	delete from entity_attribute where ENTITY_ID = #{entityId}
+</delete>
+
+<delete id="deleteAllEntityAttributes" flushCache="true">
+	delete from entity_attribute
+</delete>
+
+</mapper>

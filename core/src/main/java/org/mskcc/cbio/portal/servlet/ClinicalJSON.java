@@ -68,7 +68,7 @@ public class ClinicalJSON extends HttpServlet {
         map.put("attr_val", clinical.getAttrVal());
         //TODO: at some point we may want to incorporate the cancer_study_id
 //        map.put("cancer_study_id", Integer.toString(clinical.getCancerStudyId()));
-        map.put("case_id", clinical.getCaseId());
+        map.put("case_id", clinical.getStableId());
 
         return map;
     }

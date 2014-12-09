@@ -106,7 +106,7 @@ public class DarwinFetcherImpl implements Fetcher
 
 		File clinicalFile = fileUtils.createFileWithContents(
 				dataSourceMetadata.getDownloadDirectory() + File.separator +
-					DatatypeMetadata.CLINICAL_STAGING_FILENAME,
+					DatatypeMetadata.CLINICAL_FILENAME,
 				header + content.toString());
 
 		return clinicalFile;

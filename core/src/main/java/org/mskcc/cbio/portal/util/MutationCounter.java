@@ -29,22 +29,22 @@ import java.text.DecimalFormat;
  * @author Ethan Cerami.
  */
 public class MutationCounter {
-    private int numCasesWithSomaticMutation = 0;
-    private int numCasesWithGermlineMutation = 0;
-    private int numCasesWithMutation = 0;
+    private int numSamplesWithSomaticMutation = 0;
+    private int numSamplesWithGermlineMutation = 0;
+    private int numSamplesWithMutation = 0;
     private ExtendedMutationMap mutationMap;
     private String gene;
 
-    private int totalNumCases;
+    private int totalNumSamples;
 
     public MutationCounter (String gene, ExtendedMutationMap mutationMap) {
         this.gene = gene;
         this.mutationMap = mutationMap;
-        totalNumCases = mutationMap.getCaseList().size();
-        for (String caseId:  mutationMap.getCaseList()) {
-            if (caseIsMutated(caseId)) {
-                numCasesWithMutation++;
-                MutationStatus mutationStatus = getMutationStatus (caseId);
+        totalNumSamples = mutationMap.getSampleList().size();
+        for (Integer sampleId:  mutationMap.getSampleList()) {
+            if (sampleIsMutated(sampleId)) {
+                numSamplesWithMutation++;
+                MutationStatus mutationStatus = getMutationStatus(sampleId);
                 incrementCounters(mutationStatus);
             }
         }
@@ -66,33 +66,33 @@ public class MutationCounter {
     }
 
     public double getSomaticMutationRate() {
-        return numCasesWithSomaticMutation / (float) totalNumCases;
+        return numSamplesWithSomaticMutation / (float) totalNumSamples;
     }
 
     public double getGermlineMutationRate() {
-        return numCasesWithGermlineMutation / (float) totalNumCases;
+        return numSamplesWithGermlineMutation / (float) totalNumSamples;
     }
 
     public double getMutationRate() {
-        return numCasesWithMutation / (float) totalNumCases;
+        return numSamplesWithMutation / (float) totalNumSamples;
     }
 
     private void incrementCounters(MutationStatus mutationStatus) {
-        if (mutationStatus.isCaseGermlineMutated()) {
-            numCasesWithGermlineMutation++;
+        if (mutationStatus.isSampleGermlineMutated()) {
+            numSamplesWithGermlineMutation++;
         }
-        if (mutationStatus.isCaseSomaticallyMutated()) {
-            numCasesWithSomaticMutation++;
+        if (mutationStatus.isSampleSomaticallyMutated()) {
+            numSamplesWithSomaticMutation++;
         }
     }
 
-    private boolean caseIsMutated(String caseId) {
-        ArrayList<ExtendedMutation> mutationList = mutationMap.getExtendedMutations(gene, caseId);
+    private boolean sampleIsMutated(Integer sampleId) {
+        ArrayList<ExtendedMutation> mutationList = mutationMap.getExtendedMutations(gene, sampleId);
         return mutationList != null && mutationList.size() > 0;
     }
 
-    private MutationStatus getMutationStatus(String caseId) {
-        ArrayList<ExtendedMutation> mutationList = mutationMap.getExtendedMutations(gene, caseId);
+    private MutationStatus getMutationStatus(Integer sampleId) {
+        ArrayList<ExtendedMutation> mutationList = mutationMap.getExtendedMutations(gene, sampleId);
         MutationStatus mutationStatus = new MutationStatus();
         for (ExtendedMutation mutation:  mutationList) {
             setMutationStatus(mutation, mutationStatus);
@@ -113,7 +113,7 @@ class MutationStatus {
     private boolean germlineMutated;
     private boolean somaticMutated;
 
-    public boolean isCaseGermlineMutated() {
+    public boolean isSampleGermlineMutated() {
         return germlineMutated;
     }
 
@@ -121,7 +121,7 @@ class MutationStatus {
         this.germlineMutated = germlineMutated;
     }
 
-    public boolean isCaseSomaticallyMutated() {
+    public boolean isSampleSomaticallyMutated() {
         return somaticMutated;
     }
 

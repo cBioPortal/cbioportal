@@ -18,22 +18,12 @@
 package org.mskcc.cbio.portal.scripts;
 
 import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.model.CanonicalGene;
-import org.mskcc.cbio.portal.model.ExtendedMutation;
-import org.mskcc.cbio.portal.util.ConsoleUtil;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
-import org.mskcc.cbio.maf.FusionFileUtil;
-import org.mskcc.cbio.maf.FusionRecord;
-import org.mskcc.cbio.maf.TabDelimitedFileUtil;
-import org.mskcc.cbio.portal.util.CaseIdUtil;
-import org.mskcc.cbio.portal.util.ExtendedMutationUtil;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.*;
+import org.mskcc.cbio.maf.*;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
 /**
  * Imports a fusion file.
@@ -83,6 +73,7 @@ public class ImportFusionData
 
 		boolean addEvent;
 
+        GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
 		while ((line = buf.readLine()) != null)
 		{
 			if( pMonitor != null)
@@ -97,11 +88,18 @@ public class ImportFusionData
 
 				// process case id
 				String barCode = record.getTumorSampleID();
-				String caseId = CaseIdUtil.getCaseId(barCode);
-
-				if (!DaoCaseProfile.caseExistsInGeneticProfile(caseId, geneticProfileId))
+                ImportDataUtil.addPatients(new String[] { StableIdUtil.getPatientId(barCode) }, geneticProfileId);
+                ImportDataUtil.addSamples(new String[] { StableIdUtil.getSampleId(barCode) }, geneticProfileId);
+		        Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
+                                                                            StableIdUtil.getSampleId(barCode));
+		        if (sample == null) {
+		        	assert StableIdUtil.isNormal(barCode);
+		        	line = buf.readLine();
+		        	continue;
+		        }
+				if (!DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId))
 				{
-					DaoCaseProfile.addCaseProfile(caseId, geneticProfileId);
+					DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId);
 				}
 
 				//  Assume we are dealing with Entrez Gene Ids (this is the best / most stable option)
@@ -131,7 +129,7 @@ public class ImportFusionData
 					ExtendedMutation mutation = ExtendedMutationUtil.newMutation();
 
 					mutation.setGeneticProfileId(geneticProfileId);
-					mutation.setCaseId(caseId);
+					mutation.setSampleId(sample.getInternalId());
 					mutation.setGene(gene);
 					mutation.setSequencingCenter(record.getCenter());
 					mutation.setProteinChange(record.getFusion());

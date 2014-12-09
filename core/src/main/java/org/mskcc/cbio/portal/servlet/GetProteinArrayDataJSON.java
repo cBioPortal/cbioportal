@@ -17,23 +17,15 @@
 
 package org.mskcc.cbio.portal.servlet;
 
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-import org.mskcc.cbio.portal.dao.DaoCancerStudy;
-import org.mskcc.cbio.portal.dao.DaoCaseList;
-import org.mskcc.cbio.portal.dao.DaoProteinArrayData;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.CaseList;
-import org.mskcc.cbio.portal.model.ProteinArrayData;
-import org.mskcc.cbio.portal.util.CaseSetUtil;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.*;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
+import org.json.simple.*;
+
+import java.io.*;
+import javax.servlet.*;
+import javax.servlet.http.*;
 import java.util.ArrayList;
 
 /**
@@ -67,8 +59,8 @@ public class GetProteinArrayDataJSON extends HttpServlet {
                           HttpServletResponse httpServletResponse) throws ServletException, IOException {
 
         String cancerStudyIdentifier = httpServletRequest.getParameter("cancer_study_id");
-        String caseSetId = httpServletRequest.getParameter("case_set_id");
-        String caseIdsKey = httpServletRequest.getParameter("case_ids_key");
+        String patientSetId = httpServletRequest.getParameter("case_set_id");
+        String patientIdsKey = httpServletRequest.getParameter("case_ids_key");
         String proteinArrayId = httpServletRequest.getParameter("protein_array_id");
 
         try {
@@ -77,26 +69,28 @@ public class GetProteinArrayDataJSON extends HttpServlet {
             CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
             int cancerStudyId = cancerStudy.getInternalId();
 
-            //Get Case case ID list
-            DaoCaseList daoCaseList = new DaoCaseList();
-            CaseList caseList;
-            ArrayList<String> caseIdList = new ArrayList<String>();
-            if (caseSetId.equals("-1") && caseIdsKey.length() != 0) {
-                String strCaseIds = CaseSetUtil.getCaseIds(caseIdsKey);
-                String[] caseArray = strCaseIds.split("\\s+");
-                for (String item : caseArray) {
-                    caseIdList.add(item);
+            //Get patient ID list
+            DaoPatientList daoPatientList = new DaoPatientList();
+            PatientList patientList;
+            ArrayList<String> patientIdList = new ArrayList<String>();
+            if (patientSetId.equals("-1") && patientIdsKey.length() != 0) {
+                String strPatientIds = PatientSetUtil.getPatientIds(patientIdsKey);
+                String[] patientArray = strPatientIds.split("\\s+");
+                for (String item : patientArray) {
+                    patientIdList.add(item);
                 }
             } else {
-                caseList = daoCaseList.getCaseListByStableId(caseSetId);
-                caseIdList = caseList.getCaseList();
+                patientList = daoPatientList.getPatientListByStableId(patientSetId);
+                patientIdList = patientList.getPatientList();
             }
 
             //Get Protein Array Data and return JSON
             JSONObject result = new JSONObject();
             DaoProteinArrayData daoPAD = DaoProteinArrayData.getInstance();
-            for (ProteinArrayData pad : daoPAD.getProteinArrayData(cancerStudyId, proteinArrayId, caseIdList)) {
-                result.put(pad.getCaseId(), pad.getAbundance());
+            for (ProteinArrayData pad : daoPAD.getProteinArrayData(cancerStudyId, proteinArrayId,
+                                                                    InternalIdUtil.getInternalNonNormalSampleIdsFromPatientIds(cancerStudyId, patientIdList))) {
+                Sample s = DaoSample.getSampleById(pad.getSampleId());
+                result.put(s.getStableId(), pad.getAbundance());
             }
 
             httpServletResponse.setContentType("application/json");
@@ -111,6 +105,5 @@ public class GetProteinArrayDataJSON extends HttpServlet {
         }
 
     }
-
 }
 

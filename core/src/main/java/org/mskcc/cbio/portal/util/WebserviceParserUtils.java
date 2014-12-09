@@ -18,25 +18,14 @@
 
 package org.mskcc.cbio.portal.util;
 
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.regex.Pattern;
-
-import javax.servlet.http.HttpServletRequest;
-import org.mskcc.cbio.portal.dao.DaoCancerStudy;
-
-import org.mskcc.cbio.portal.dao.DaoCaseList;
-import org.mskcc.cbio.portal.dao.DaoCaseProfile;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
-import org.mskcc.cbio.portal.model.CaseList;
-import org.mskcc.cbio.portal.model.GeneticProfile;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.servlet.WebService;
 import org.mskcc.cbio.portal.web_api.ProtocolException;
-import org.mskcc.cbio.portal.util.CaseSetUtil;
+
+import java.util.*;
+import java.util.regex.Pattern;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  *
@@ -53,42 +42,42 @@ public final class WebserviceParserUtils {
      * @throws ProtocolException
      * @throws DaoException
      */
-    public static ArrayList<String> getCaseList(HttpServletRequest request) throws ProtocolException,
+    public static ArrayList<String> getPatientList(HttpServletRequest request) throws ProtocolException,
             DaoException {
-        String cases = request.getParameter(WebService.CASE_LIST);
-        String caseSetId = request.getParameter(WebService.CASE_SET_ID);
-        String caseIdsKey = request.getParameter(WebService.CASE_IDS_KEY);
+        String patients = request.getParameter(WebService.CASE_LIST);
+        String patientSetId = request.getParameter(WebService.CASE_SET_ID);
+        String patientIdsKey = request.getParameter(WebService.CASE_IDS_KEY);
         String samples = request.getParameter("samples");
 
-        if (cases == null &&
-        	caseIdsKey != null)
+        if (patients == null &&
+        	patientIdsKey != null)
         {
-        	cases = CaseSetUtil.getCaseIds(caseIdsKey);
+        	patients = PatientSetUtil.getPatientIds(patientIdsKey);
         }
 
-        ArrayList<String> caseList = new ArrayList<String>();
-        if (caseSetId != null) {
-            DaoCaseList dao = new DaoCaseList();
-            CaseList selectedCaseList = dao.getCaseListByStableId(caseSetId);
-            if (selectedCaseList == null) {
-                throw new ProtocolException("Invalid " + WebService.CASE_SET_ID + ":  " + caseSetId + ".");
+        ArrayList<String> patientList = new ArrayList<String>();
+        if (patientSetId != null) {
+            DaoPatientList dao = new DaoPatientList();
+            PatientList selectedPatientList = dao.getPatientListByStableId(patientSetId);
+            if (selectedPatientList == null) {
+                throw new ProtocolException("Invalid " + WebService.CASE_SET_ID + ":  " + patientSetId + ".");
             }
-            caseList = selectedCaseList.getCaseList();
+            patientList = selectedPatientList.getPatientList();
         }
-        else if (cases != null) {
-            for (String _case : cases.split("[\\s,]+")) {
-                _case = _case.trim();
-                if (_case.length() == 0) continue;
-                caseList.add(_case);
+        else if (patients != null) {
+            for (String _patient : patients.split("[\\s,]+")) {
+                _patient = _patient.trim();
+                if (_patient.length() == 0) continue;
+                patientList.add(_patient);
             }
         }
-        else if (samples != null) {     // todo: this is a hack, samples is just another word for cases
+        else if (samples != null) {     // todo: this is a hack, samples is just another word for patients
             return new ArrayList(Arrays.asList(samples.split(" ")));
         }
         else {
             throw new ProtocolException(WebService.CASE_SET_ID + " or " + WebService.CASE_LIST + " must be specified.");
         }
-        return caseList;
+        return patientList;
     }
 
     /**
@@ -139,57 +128,20 @@ public final class WebserviceParserUtils {
             return cancerStudies;
         }
 
-        // a case_set_id is explicitly provided, as in getProfileData, getMutationData, getClinicalData, etc.
-        String caseSetId = request.getParameter(WebService.CASE_SET_ID);
-        if (caseSetId != null) {
-            DaoCaseList aDaoCaseList = new DaoCaseList();
-            CaseList aCaseList = aDaoCaseList.getCaseListByStableId(caseSetId);
+        // a patient_set_id is explicitly provided, as in getProfileData, getMutationData, getClinicalData, etc.
+        String patientSetId = request.getParameter(WebService.CASE_SET_ID);
+        if (patientSetId != null) {
+            DaoPatientList aDaoPatientList = new DaoPatientList();
+            PatientList aPatientList = aDaoPatientList.getPatientListByStableId(patientSetId);
             
-            if (aCaseList != null && DaoCancerStudy.doesCancerStudyExistByInternalId(aCaseList.getCancerStudyId())) {
+            if (aPatientList != null && DaoCancerStudy.doesCancerStudyExistByInternalId(aPatientList.getCancerStudyId())) {
                 cancerStudies.add(DaoCancerStudy.getCancerStudyByInternalId
-                        (aCaseList.getCancerStudyId()).getCancerStudyStableId());
+                        (aPatientList.getCancerStudyId()).getCancerStudyStableId());
             } 
             
             return cancerStudies;
         }
         
-        // Cannot not this any more because case IDs are not necessary unique.
-//        // a case_list is explicitly provided, as in getClinicalData, etc.
-//        String caseList = request.getParameter(WebService.CASE_LIST);
-//        String caseIdsKey = request.getParameter(WebService.CASE_IDS_KEY);
-//        
-//        // no case list provided, but case IDs key provided
-//        if (caseList == null
-//        	&& caseIdsKey != null)
-//        {
-//        	// try to get case list by using the key
-//        	caseList = CaseSetUtil.getCaseIds(caseIdsKey);
-//        }
-//        
-//        if (caseList != null) {
-//            for (String aCase : caseList.split("[\\s,]+")) {
-//                aCase = aCase.trim();
-//                if (aCase.length() == 0) {
-//                    continue;
-//                }
-//
-//                int profileId = DaoCaseProfile.getProfileIdForCase(aCase);
-//                if (DaoCaseProfile.NO_SUCH_PROFILE_ID == profileId) {
-//                    return cancerStudies;
-//                }
-//
-//                GeneticProfile aGeneticProfile = DaoGeneticProfile.getGeneticProfileById(profileId);
-//                if (aGeneticProfile == null) {
-//                    return cancerStudies;
-//                }
-//                if (DaoCancerStudy.doesCancerStudyExistByInternalId(aGeneticProfile.getCancerStudyId())) {
-//                    cancerStudies.add(DaoCancerStudy.getCancerStudyByInternalId
-//                            (aGeneticProfile.getCancerStudyId()).getCancerStudyStableId());
-//                } else {
-//                    return cancerStudies;
-//                }
-//            }
-//        }
         return cancerStudies;
     }
 

@@ -19,17 +19,10 @@
 package org.mskcc.cbio.portal.util;
 
 // imports
-import org.mskcc.cbio.portal.dao.DaoCaseList;
-import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.AccessControl;
-import org.mskcc.cbio.portal.model.CaseList;
-import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.CancerStudyStats;
-import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.web_api.ProtocolException;
-
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.List;
 import java.util.HashSet;
@@ -43,7 +36,7 @@ import java.util.ArrayList;
 public class DataSetsUtil {
 
 	// ref to our access control object
-	private static AccessControl accessControl = initializeAccessControl();
+	private static AccessControl accessControl = SpringUtil.getAccessControl();
 
 	// ref to total number of samples for al cancer studies
 	private Integer totalNumberOfSamples;
@@ -51,8 +44,9 @@ public class DataSetsUtil {
 	// ref to our list of cancer study stats & total num of samples
 	private List<CancerStudyStats> cancerStudyStats;
 
-	// ref to case list DAO
-	private DaoCaseList daoCaseList;
+	private DaoSample daoSample;
+	private DaoPatient daoPatient;
+	private DaoPatientList daoPatientList;
 
 	/**
 	 * Constructor (private).
@@ -60,7 +54,9 @@ public class DataSetsUtil {
 	public DataSetsUtil() {
 
 		try {
-			daoCaseList = new DaoCaseList();
+			daoSample = new DaoSample();
+			daoPatient = new DaoPatient();
+			daoPatientList = new DaoPatientList();
 			// totalNumberOfSamples will be set while computing stats
 			totalNumberOfSamples = 0;
 			cancerStudyStats = computeCancerStudyStats();
@@ -136,21 +132,21 @@ public class DataSetsUtil {
 		return toReturn;
 	}
 
-	/** 
-	 * Initializes the AccessControl member.
-	 */
-	protected static final AccessControl initializeAccessControl() {
-		ApplicationContext context = 
-			new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
-		return (AccessControl)context.getBean("accessControl");
-	}
+	private int getCount(CancerStudy cancerStudy, String patientListSuffix) throws DaoException
+	{
+		int count = 0;
+		
+		String patientListID = cancerStudy.getCancerStudyStableId() + patientListSuffix;
+		PatientList desiredPatientList = daoPatientList.getPatientListByStableId(patientListID);
 
-	private int getCount(CancerStudy cancerStudy, String caseListSuffix) throws DaoException {
+		if (desiredPatientList != null) {
+			for (String stablePatientId : desiredPatientList.getPatientList()) {
+				Patient p = daoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(),
+				                                                           stablePatientId);
+				count += DaoSample.getSamplesByPatientId(p.getInternalId()).size();
+			}
+		}
 		
-		String caseListID = cancerStudy.getCancerStudyStableId() + caseListSuffix;
-		CaseList desiredCaseList = daoCaseList.getCaseListByStableId(caseListID);
-		
-		// outta here
-		return (desiredCaseList != null) ? desiredCaseList.getCaseList().size() : 0;
+		return count;
 	}
 }

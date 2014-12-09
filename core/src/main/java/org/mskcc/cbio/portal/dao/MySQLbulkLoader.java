@@ -17,20 +17,12 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.HashMap;
-import java.util.Map;
-import org.mskcc.cbio.portal.util.FileUtil;
-import org.mskcc.cbio.portal.util.GlobalProperties;
+import org.mskcc.cbio.portal.util.*;
+import org.apache.commons.io.FileUtils;
+
+import java.io.*;
+import java.sql.*;
+import java.util.*;
 
 /**
  * To speed up CGDS data loading, bulk load from files using MySQL "LOAD DATA INFILE" functionality.
@@ -103,9 +95,7 @@ public class MySQLbulkLoader {
     */
    private void openTempFile(String tableName) throws IOException {
 
-      // TODO: create special directory for temp dbms load files; perhaps make OS portable
-      String tmp = GlobalProperties.getTemporaryDir();
-      tempFileHandle = File.createTempFile( tableName, tempTableSuffix, new File(tmp) );
+      tempFileHandle = File.createTempFile( tableName, tempTableSuffix, FileUtils.getTempDirectory() );
 
       tempFileName = tempFileHandle.getAbsolutePath();
 
@@ -191,13 +181,14 @@ public class MySQLbulkLoader {
          con = JdbcUtil.getDbConnection(MySQLbulkLoader.class);
          stmt = con.createStatement();
          
-         // will throw error if attempts to overwrite primary keys in table
-         String command = "LOAD DATA LOCAL INFILE '" + tempFileName + "' INTO TABLE " + tableName;
+         // will throw error if attempts to overwrite primary keys in table (except for clinical data)
+         String replace = (processingClinicalData()) ? " REPLACE" : "";
+         String command = "LOAD DATA LOCAL INFILE '" + tempFileName + "'" + replace + " INTO TABLE " + tableName;
          stmt.execute( command );
          int updateCount = stmt.getUpdateCount();
          System.out.println(""+updateCount+" records inserted into "+tableName);
          int nLines = FileUtil.getNumLines(tempFileHandle);
-         if (nLines!=updateCount) {
+         if (nLines!=updateCount && !processingClinicalData()) {
              System.err.println("Error: but there are "+nLines+" lines in the temp file "+tempFileName);
          } else {
              tempFileHandle.delete();
@@ -234,5 +225,10 @@ public class MySQLbulkLoader {
    public static void bulkLoadOff() {
       MySQLbulkLoader.bulkLoad = false;
    }
-   
+
+   private boolean processingClinicalData()
+   {
+      return (tempFileName.contains(DaoClinicalData.SAMPLE_TABLE) ||
+              tempFileName.contains(DaoClinicalData.PATIENT_TABLE));
+   }
 }

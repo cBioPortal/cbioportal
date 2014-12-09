@@ -250,7 +250,7 @@ public class ExtendedMutationUtil
 		ExtendedMutation mutation = new ExtendedMutation();
 
 		mutation.setGeneticProfileId(defaultInt);
-		mutation.setCaseId(defaultStr);
+		mutation.setSampleId(defaultInt);
 		mutation.setGene(defaultGene);
 		mutation.setSequencingCenter(defaultStr);
 		mutation.setSequencer(defaultStr);

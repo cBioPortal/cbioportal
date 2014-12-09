@@ -75,15 +75,17 @@ public class MutationDataServlet extends HttpServlet
 
 		try
 		{
-			// generate list by processing possible valid case list parameters
-			ArrayList<String> targetCaseList = this.getCaseList(request);
+			// generate list by processing possible valid patient list parameters
+			ArrayList<String> targetPatientList = this.getPatientList(request);
 
 			for (String profileId : geneticProfileList)
 			{
+				GeneticProfile profile = DaoGeneticProfile.getGeneticProfileByStableId(profileId);
+                List<String> targetSampleList = StableIdUtil.getStableSampleIdsFromPatientIds(profile.getCancerStudyId(), targetPatientList);
 				// add mutation data for each genetic profile
 				data.addAll(mutationDataUtils.getMutationData(profileId,
 					targetGeneList,
-					targetCaseList));
+					targetSampleList));
 			}
 		}
 		catch (DaoException e)
@@ -105,64 +107,64 @@ public class MutationDataServlet extends HttpServlet
 	}
 
 	/**
-	 * Generates a case list by processing related request parameters,
-	 * which are caseList, caseSetId and caseIdsKey. If none of these
+	 * Generates a patient list by processing related request parameters,
+	 * which are patientList, patientSetId and patientIdsKey. If none of these
 	 * parameters are valid, then this method will return an empty list.
 	 *
 	 * @param request   servlet request containing parameters
-	 * @return          a list of cases
+	 * @return          a list of patients
 	 * @throws DaoException
 	 */
-	protected ArrayList<String> getCaseList(HttpServletRequest request) throws DaoException
+	protected ArrayList<String> getPatientList(HttpServletRequest request) throws DaoException
 	{
-		DaoCaseList daoCaseList = new DaoCaseList();
+		DaoPatientList daoPatientList = new DaoPatientList();
 
-		String caseListStr = request.getParameter("caseList");
-		String caseSetId = request.getParameter("caseSetId");
-		String caseIdsKey = request.getParameter("caseIdsKey");
+		String patientListStr = request.getParameter("caseList");
+		String patientSetId = request.getParameter("caseSetId");
+		String patientIdsKey = request.getParameter("caseIdsKey");
 
-		ArrayList<String> caseList;
+		ArrayList<String> patientList;
 
-		// first check if caseSetId param provided
-		if (caseSetId != null &&
-		    caseSetId.length() != 0 &&
-		    !caseSetId.equals("-1"))
+		// first check if patientSetId param provided
+		if (patientSetId != null &&
+		    patientSetId.length() != 0 &&
+		    !patientSetId.equals("-1"))
 		{
-			caseList = new ArrayList<String>();
+			patientList = new ArrayList<String>();
 
-			// fetch a case list for each case set id
-			// (this allows providing more than one caseSetId)
-			for (String id : this.parseValues(caseSetId))
+			// fetch a patient list for each patient set id
+			// (this allows providing more than one patientSetId)
+			for (String id : this.parseValues(patientSetId))
 			{
-				CaseList list = daoCaseList.getCaseListByStableId(id);
+				PatientList list = daoPatientList.getPatientListByStableId(id);
 
 				if (list != null)
 				{
-					caseList.addAll(list.getCaseList());
+					patientList.addAll(list.getPatientList());
 				}
 			}
 		}
-		// if there is no caseSetId, then check for caseIdsKey param
-		else if(caseIdsKey != null &&
-		        caseIdsKey.length() != 0)
+		// if there is no patientSetId, then check for patientIdsKey param
+		else if(patientIdsKey != null &&
+		        patientIdsKey.length() != 0)
 		{
-			caseList = new ArrayList<String>();
+			patientList = new ArrayList<String>();
 
-			// fetch a case list for each case ids key
-			// (this allows providing more than one caseIdsKey)
-			for (String key : this.parseValues(caseIdsKey))
+			// fetch a patient list for each patient ids key
+			// (this allows providing more than one patientIdsKey)
+			for (String key : this.parseValues(patientIdsKey))
 			{
-				caseList.addAll(this.parseValues(
-					CaseSetUtil.getCaseIds(key)));
+				patientList.addAll(this.parseValues(
+					PatientSetUtil.getPatientIds(key)));
 			}
 		}
 		else
 		{
-			// plain list of cases provided, just parse the values
-			caseList = this.parseValues(caseListStr);
+			// plain list of patients provided, just parse the values
+			patientList = this.parseValues(patientListStr);
 		}
 
-		return caseList;
+		return patientList;
 	}
 
 	/**

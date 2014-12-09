@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * A HashMap of ExtendedMutation Objects, indexed by Gene and Case ID.
+ * A HashMap of ExtendedMutation Objects, indexed by Gene and Sample ID.
  *
  * @author Ethan Cerami.
  */
@@ -31,26 +31,26 @@ public class ExtendedMutationMap {
             new HashMap<String, ArrayList<ExtendedMutation>>();
     private HashMap <String, ArrayList<ExtendedMutation>> mutationMap =
             new HashMap<String, ArrayList<ExtendedMutation>>();
-    private ArrayList<String> caseList;
+    private ArrayList<Integer> sampleList;
 
     public ExtendedMutationMap (ArrayList<ExtendedMutation> mutationList,
-            ArrayList<String> caseList) {
-        this.caseList = caseList;
+            ArrayList<Integer> sampleList) {
+        this.sampleList = sampleList;
         for (ExtendedMutation mutation:  mutationList) {
-            String key = getKey(mutation.getGeneSymbol(), mutation.getCaseId());
+            String key = getKey(mutation.getGeneSymbol(), mutation.getSampleId());
             appendToMap(key, mutation, mutationCaseMap);
             appendToMap(mutation.getGeneSymbol(), mutation, mutationMap);
         }
     }
 
     /**
-     * Gets all Extended Mutations, associated with the specified Gene / Case ID combination.
+     * Gets all Extended Mutations, associated with the specified Gene / Sample ID combination.
      * @param geneSymbol    Gene Symbol.
-     * @param caseId        Case ID.
+     * @param sampleId        Case ID.
      * @return ArrayList of ExtendedMutation Objects.
      */
-    public ArrayList <ExtendedMutation> getExtendedMutations(String geneSymbol, String caseId) {
-        String key = getKey(geneSymbol.toUpperCase(), caseId);
+    public ArrayList <ExtendedMutation> getExtendedMutations(String geneSymbol, Integer sampleId) {
+        String key = getKey(geneSymbol.toUpperCase(), sampleId);
         return mutationCaseMap.get(key);
     }
 
@@ -76,8 +76,8 @@ public class ExtendedMutationMap {
         return mutationMap.keySet().size();
     }
 
-    public ArrayList<String> getCaseList() {
-        return caseList;
+    public ArrayList<Integer> getSampleList() {
+        return sampleList;
     }
 
     private void appendToMap(String key, ExtendedMutation mutation,
@@ -92,7 +92,7 @@ public class ExtendedMutationMap {
         }
     }
 
-    private String getKey(String geneSymbol, String caseId) {
-        return geneSymbol + DELIMITER + caseId;
+    private String getKey(String geneSymbol, Integer sampleId) {
+        return geneSymbol + DELIMITER + sampleId;
     }
 }

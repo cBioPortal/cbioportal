@@ -161,6 +161,12 @@ body {
     border-bottom: 1px solid #AEAEFF;
 }
 
+.main_smry {
+    font-family: verdana, arial, sans-serif;
+    font-size:125%;
+    font-weight:bold;  
+}
+
 .gene_set_summary {
     font-family: verdana, arial, sans-serif;
     color: green;
@@ -281,7 +287,6 @@ table td {
   padding-right:8px;
   font-weight:bold;
 }
-
 
 .low {
   background: #eeeeee;
@@ -489,6 +494,7 @@ td.op_data_cell{
     border-left: 1px solid #ffffff;
 
 }
+
 #header td.navigation li a {
     display:block;
     padding:0 10px;    
@@ -499,6 +505,7 @@ td.op_data_cell{
     background-color:inherit;
     color: #ffffff;
 }
+
 #header td.navigation li.selected, #header td.navigation li a:hover {
     background:#8cbadc;
     color:#ffffff;

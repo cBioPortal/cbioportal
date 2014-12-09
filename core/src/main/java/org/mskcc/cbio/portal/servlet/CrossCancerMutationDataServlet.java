@@ -29,8 +29,6 @@ import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.web_api.*;
 import org.owasp.validator.html.PolicyException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -72,9 +70,7 @@ public class CrossCancerMutationDataServlet extends HttpServlet
      */
     public void init() throws ServletException {
         super.init();
-        ApplicationContext context =
-                new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
-        accessControl = (AccessControl)context.getBean("accessControl");
+        accessControl = SpringUtil.getAccessControl();
     }
 
 	protected void doGet(HttpServletRequest request,
@@ -115,12 +111,20 @@ public class CrossCancerMutationDataServlet extends HttpServlet
                 //  Get all Genetic Profiles Associated with this Cancer Study ID.
                 ArrayList<GeneticProfile> geneticProfileList = GetGeneticProfiles.getGeneticProfiles(cancerStudyId);
 
-                //  Get all Case Lists Associated with this Cancer Study ID.
-                ArrayList<CaseList> caseSetList = GetCaseLists.getCaseLists(cancerStudyId);
+                //  Get all Patient Lists Associated with this Cancer Study ID.
+                ArrayList<PatientList> patientSetList = GetPatientLists.getPatientLists(cancerStudyId);
 
-                //  Get the default case set
-                AnnotatedCaseSets annotatedCaseSets = new AnnotatedCaseSets(caseSetList, dataTypePriority);
-                CaseList defaultCaseSet = annotatedCaseSets.getDefaultCaseList();
+                //  Get the default patient set
+                AnnotatedPatientSets annotatedPatientSets = new AnnotatedPatientSets(patientSetList, dataTypePriority);
+                PatientList defaultPatientSet = annotatedPatientSets.getDefaultPatientList();
+                
+                List<Sample> defaultSamples = InternalIdUtil.getSamplesById(
+                        InternalIdUtil.getInternalNonNormalSampleIdsFromPatientIds(cancerStudy.getInternalId(),
+                                defaultPatientSet.getPatientList()));
+                ArrayList<String> sampleList = new ArrayList<String>();
+                for (Sample sample : defaultSamples) {
+                    sampleList.add(sample.getStableId());
+                }
 
                 //  Get the default genomic profiles
                 CategorizedGeneticProfileSet categorizedGeneticProfileSet =
@@ -140,15 +144,13 @@ public class CrossCancerMutationDataServlet extends HttpServlet
 
                 for (GeneticProfile profile : defaultGeneticProfileSet.values()) {
                     ArrayList<String> targetGeneList = this.parseValues(geneList);
-                    ArrayList<String> caseList = new ArrayList<String>();
-                    caseList.addAll(defaultCaseSet.getCaseList());
 
                     if(!profile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED))
                             continue;
 
                     // add mutation data for each genetic profile
                     JSONArray mutationData
-                            = mutationDataUtils.getMutationData(profile.getStableId(), targetGeneList, caseList);
+                            = mutationDataUtils.getMutationData(profile.getStableId(), targetGeneList, sampleList);
                     data.addAll(mutationData);
                 }
             }

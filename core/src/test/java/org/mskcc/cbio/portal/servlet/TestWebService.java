@@ -17,18 +17,14 @@
 
 package org.mskcc.cbio.portal.servlet;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
+import java.io.*;
+import java.util.*;
 import java.util.HashSet;
 import junit.framework.TestCase;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.scripts.ImportTypesOfCancers;
-import org.mskcc.cbio.portal.scripts.ResetDatabase;
-import org.mskcc.cbio.portal.util.NullHttpServletRequest;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
-import org.mskcc.cbio.portal.util.WebserviceParserUtils;
+import org.mskcc.cbio.portal.scripts.*;
+import org.mskcc.cbio.portal.util.*;
 
 /**
  * JUnit test for WebService class.
@@ -196,25 +192,25 @@ public class TestWebService extends TestCase {
       studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
       assertTrue(studies.isEmpty());
 
-      DaoCaseList aDaoCaseList = new DaoCaseList();
-      String exampleCaseSetId = "exampleID";
+      DaoPatientList aDaoPatientList = new DaoPatientList();
+      String examplePatientSetId = "exampleID";
       int thisIsNotACancerStudyId = 5;
-      CaseList caseList = new CaseList( exampleCaseSetId, 0, thisIsNotACancerStudyId, "", CaseListCategory.OTHER);
+      PatientList patientList = new PatientList( examplePatientSetId, 0, thisIsNotACancerStudyId, "", PatientListCategory.OTHER);
       ArrayList<String> t = new ArrayList<String>();
-      caseList.setCaseList( t );
-      aDaoCaseList.addCaseList(caseList);
-      aNullHttpServletRequest.setParameter(WebService.CASE_SET_ID, exampleCaseSetId );
+      patientList.setPatientList( t );
+      aDaoPatientList.addPatientList(patientList);
+      aNullHttpServletRequest.setParameter(WebService.CASE_SET_ID, examplePatientSetId );
       studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
       assertTrue(studies.isEmpty());
 
-      aDaoCaseList.deleteAllRecords();
-      caseList.setCancerStudyId( 1 ); // CancerStudyId inserted by setUpDBMS()
-      aDaoCaseList.addCaseList(caseList);
+      aDaoPatientList.deleteAllRecords();
+      patientList.setCancerStudyId( 1 ); // CancerStudyId inserted by setUpDBMS()
+      aDaoPatientList.addPatientList(patientList);
       studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
       assertEquals( 1, studies.size() );
       assertTrue( studies.contains("study1"));
       
-      // test situations when case_set_id not provided, but profile_id is, as by getProfileData
+      // test situations when patient_set_id not provided, but profile_id is, as by getProfileData
       aNullHttpServletRequest = new NullHttpServletRequest();
       aNullHttpServletRequest.setParameter(WebService.GENETIC_PROFILE_ID, 
                privateGeneticProfile.getStableId() );
@@ -237,7 +233,7 @@ public class TestWebService extends TestCase {
 
       // test situation when a case_list is explicitly provided, as in getClinicalData, etc.
 //      String c1 = "TCGA-12345";
-//      DaoCaseProfile.addCaseProfile( c1, publicGeneticProfile.getGeneticProfileId());
+//      DaoCaseProfile.addSampleProfile( c1, publicGeneticProfile.getGeneticProfileId());
 //      aNullHttpServletRequest = new NullHttpServletRequest();
 //      aNullHttpServletRequest.setParameter( WebService.CASE_LIST, c1 ); 
 //      studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
@@ -245,7 +241,7 @@ public class TestWebService extends TestCase {
 //              (publicGeneticProfile.getCancerStudyId()).getCancerStudyStableId()));
 //
 //      String c2 = "TCGA-54321";
-//      DaoCaseProfile.addCaseProfile( c2, privateGeneticProfile.getGeneticProfileId() );
+//      DaoCaseProfile.addSampleProfile( c2, privateGeneticProfile.getGeneticProfileId() );
 //      aNullHttpServletRequest = new NullHttpServletRequest();
 //      aNullHttpServletRequest.setParameter( WebService.CASE_LIST, c1 + "," + c2 ); 
 //      studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);

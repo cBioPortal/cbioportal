@@ -1041,7 +1041,7 @@
     $(document).ready(function(){
         $('#mutation_id_filter_msg').hide();
         var params = {
-            <%=PatientView.CASE_ID%>:caseIdsStr,
+            <%=PatientView.SAMPLE_ID%>:caseIdsStr,
             <%=PatientView.MUTATION_PROFILE%>:mutationProfileId
         };
         

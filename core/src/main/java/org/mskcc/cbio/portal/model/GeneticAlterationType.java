@@ -67,6 +67,10 @@ public class GeneticAlterationType {
             return COPY_NUMBER_ALTERATION;
         } else if (type.equals(MRNA_EXPRESSION.toString())) {
             return MRNA_EXPRESSION;
+        } else if (type.equals(MRNA_EXPRESSION_NORMALS.toString())) {
+            return MRNA_EXPRESSION_NORMALS;
+        } else if (type.equals(RNA_EXPRESSION.toString())) {
+            return RNA_EXPRESSION;
         } else if (type.equals(MICRO_RNA_EXPRESSION.toString())) {
             return MICRO_RNA_EXPRESSION;
         } else if (type.equals(METHYLATION.toString())) {
@@ -119,6 +123,11 @@ public class GeneticAlterationType {
      */
     public static final GeneticAlterationType MRNA_EXPRESSION
             = new GeneticAlterationType("MRNA_EXPRESSION");
+    public static final GeneticAlterationType MRNA_EXPRESSION_NORMALS
+            = new GeneticAlterationType("MRNA_EXPRESSION_NORMALS");
+
+    public static final GeneticAlterationType RNA_EXPRESSION
+            = new GeneticAlterationType("RNA_EXPRESSION");
 
     /**
      * Methylation alteration type.

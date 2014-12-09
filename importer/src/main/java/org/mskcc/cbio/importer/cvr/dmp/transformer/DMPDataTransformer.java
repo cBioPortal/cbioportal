@@ -57,6 +57,10 @@ public class DMPDataTransformer {
     private  DMPTumorTypeSampleMapManager tumorTypeMap;
     private  Path stagingDirectoryPath;
 
+
+
+
+
     public DMPDataTransformer(Path aPath) {
             if(StagingUtils.isValidStagingDirectoryPath(aPath)) {
                 this.stagingDirectoryPath = aPath;
@@ -94,7 +98,7 @@ public class DMPDataTransformer {
 
     public List<String> transform(DmpData data) {
         Preconditions.checkArgument(null != data, "DMP data is required for transformation");
-        
+
         // process the tumor types
         //this.tumorTypeMap.updateTumorTypeSampleMap(data.getResults());
         // invoke the type specific transformers on the DMP data

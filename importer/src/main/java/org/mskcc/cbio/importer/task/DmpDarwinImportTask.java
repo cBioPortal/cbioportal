@@ -31,8 +31,7 @@ import java.util.concurrent.TimeUnit;
 public class DmpDarwinImportTask extends AbstractScheduledService {
     private static final Logger logger = Logger.getLogger(DmpDarwinImportTask.class);
     private final Fetcher fetcher;
-    //TODO: move to Spring config file
-    private static final String DMP_DARWIN_DATA_SOURCE = "dmp-darwin-mskcc";
+    private String dataSource ;
 
     public DmpDarwinImportTask(Fetcher fetcher){
         Preconditions.checkArgument(null != fetcher ,
@@ -56,7 +55,7 @@ public class DmpDarwinImportTask extends AbstractScheduledService {
     protected void runOneIteration() throws Exception {
         logger.info("The DMP Web service fetcher application will now check for new/revised DMP " +
                 "& Darwin data");
-        //this.fetcher.fetch(DMP_DARWIN_DATA_SOURCE, "",false);
+        this.fetcher.fetch(this.dataSource, "",false);
 
     }
 
@@ -64,5 +63,13 @@ public class DmpDarwinImportTask extends AbstractScheduledService {
     //TODO: make the time interval a property
     protected Scheduler scheduler() {
         return Scheduler.newFixedRateSchedule(0,60, TimeUnit.SECONDS);
+    }
+
+    public String getDataSource() {
+        return dataSource;
+    }
+
+    public void setDataSource(String dataSource) {
+        this.dataSource = dataSource;
     }
 }

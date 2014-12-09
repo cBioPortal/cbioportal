@@ -158,6 +158,8 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
         <b:constructor-arg ref="importDataRecordDAO"/>
         <b:constructor-arg ref="mercurialService"/>
     </b:bean>
+
+    <!-- Darwin importer service-->
     <b:bean id="darwinImporterService" class="org.mskcc.cbio.importer.cvr.darwin.service.DarwinImporterService">
        <b:property name="transformerClassList">
             <b:list>
@@ -193,7 +195,7 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
                     <b:property name="targetMethod"><b:value>forName</b:value></b:property>
                     <b:property  name="arguments"><b:value>org.mskcc.cbio.importer.cvr.darwin.transformer.DarwinClinicalTrialTransformer</b:value></b:property>
                 </b:bean>
-                <!-- problem with Procedure view
+                <!-- problem with Procedure view -  wait for correction from DBA
                 <b:bean id="class7"    class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
                     <b:property  name="targetClass"><b:value>java.lang.Class</b:value></b:property>
                     <b:property name="targetMethod"><b:value>forName</b:value></b:property>
@@ -219,13 +221,18 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
             </b:list>
         </b:constructor-arg>
     </b:bean>
+    <!-- DmpDarwinImportTask -->
     <b:bean id="dmpDarwinImportTask" class = "org.mskcc.cbio.importer.task.DmpDarwinImportTask">
         <b:constructor-arg ref="dmpDarwinFetcher"/>
+        <b:property name="dataSource" value="dmp-darwin-mskcc"/>
     </b:bean>
+    <!-- FoundationImportTask -->
     <b:bean id="foundationImportTask" class ="org.mskcc.cbio.importer.task.FoundationImportTask">
     </b:bean>
+    <!-- ICGCImportTask -->
     <b:bean id="icgcImportTask" class ="org.mskcc.cbio.importer.task.IcgcDataImportTask">
     </b:bean>
+    <!-- DmpDarwinFetcher -->
     <b:bean id="dmpDarwinFetcher" class="org.mskcc.cbio.importer.fetcher.internal.DmpDarwinFetcherImpl">
         <b:constructor-arg ref="config"/>
     </b:bean>

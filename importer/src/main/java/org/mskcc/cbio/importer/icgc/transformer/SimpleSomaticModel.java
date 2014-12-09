@@ -26,6 +26,10 @@ import java.util.Map;
  * has been advised of the possibility of such damage.
  * <p/>
  * Created by criscuof on 12/7/14.
+ *
+ * responsible for converting a csv record from an ICGC Simple Somatic Mutation file
+ * to a standardized MutationModel object
+ * implements abstract getters from MutationModel superclass
  */
 public class SimpleSomaticModel extends MutationModel {
 
@@ -75,7 +79,7 @@ public class SimpleSomaticModel extends MutationModel {
 
     @Override
     public String getStrand() {
-        return this.recordMap.get("chromosome_strand");
+        return this.resolveStrand.apply( this.recordMap.get("chromosome_strand"));
     }
 
     @Override
@@ -278,8 +282,12 @@ public class SimpleSomaticModel extends MutationModel {
                 @Nullable
                 @Override
                 public String apply(final String input) {
-                    Tuple2<String,String> geneTuple = geneMapper.ensemblToHugoSymbolAndEntrezID(input);
-                    return geneTuple._1();
+                    if (!Strings.isNullOrEmpty(input)) {
+                        Tuple2<String,String> geneTuple = geneMapper.ensemblToHugoSymbolAndEntrezID(input);
+                        return geneTuple._1();
+                    }
+                        return "";
+
                 }
             };
 
@@ -288,8 +296,11 @@ public class SimpleSomaticModel extends MutationModel {
                 @Nullable
                 @Override
                 public String apply(final String input) {
-                    Tuple2<String,String> geneTuple = geneMapper.ensemblToHugoSymbolAndEntrezID(input);
-                    return geneTuple._2();
+                    if (!Strings.isNullOrEmpty(input)) {
+                        Tuple2<String,String> geneTuple = geneMapper.ensemblToHugoSymbolAndEntrezID(input);
+                        return geneTuple._2();
+                    }
+                    return  "";
                 }
             };
 
@@ -307,6 +318,17 @@ public class SimpleSomaticModel extends MutationModel {
 
         }
 
+    };
+
+    Function<String,String> resolveStrand = new Function<String,String>() {
+        @Nullable
+        @Override
+        public String apply(@Nullable String strand) {
+            if (strand.equals("1")){
+             return "+";
+            }
+            return "-";
+        }
     };
 
     Function<Tuple2<String, String>, String> resolveVariantType

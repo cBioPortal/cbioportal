@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.mskcc.cbio.importer.Config;
 
 import org.mskcc.cbio.importer.Fetcher;
+import org.mskcc.cbio.importer.cvr.darwin.service.DarwinImporterService;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 
@@ -33,6 +34,8 @@ import org.mskcc.cbio.importer.cvr.dmp.transformer.DMPDataTransformer;
 
 import org.mskcc.cbio.importer.cvr.darwin.transformer.DarwinTumorTransformer;
 import org.mskcc.cbio.importer.cvr.darwin.util.DarwinSessionManager;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 
 public class DmpDarwinFetcherImpl implements Fetcher
@@ -68,12 +71,17 @@ public class DmpDarwinFetcherImpl implements Fetcher
         DMPDataTransformer transformer = new DMPDataTransformer(Paths.get(dataSourcePath));
         DMPclinicaldataimporter dmpImporterRetriever = new DMPclinicaldataimporter();
         DmpData data = OBJECT_MAPPER.readValue(dmpImporterRetriever.getResult(), DmpData.class);
+
         DMPclinicaldataimporter dmpImporter_mark = 
                 new DMPclinicaldataimporter(transformer.transform(data)); //mark consumed samples (transformer returns a list of consumed sample ids)
         
         //Retrieve Darwin clinical data for retrieved DMP samples
-        DarwinTumorTransformer darwinTransformer = new DarwinTumorTransformer(Paths.get(dataSourcePath));
-        darwinTransformer.transform();
+
+        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("/applicationContext-importer.xml");
+        DarwinImporterService darwinImporterService = (DarwinImporterService) applicationContext.getBean("darwinImporterService");
+        darwinImporterService.transformDarwinData(Paths.get(dataSourcePath));
+       // DarwinTumorTransformer darwinTransformer = new DarwinTumorTransformer(Paths.get(dataSourcePath));
+       // darwinTransformer.transform();
         DarwinSessionManager.INSTANCE.closeSession();
     }
 

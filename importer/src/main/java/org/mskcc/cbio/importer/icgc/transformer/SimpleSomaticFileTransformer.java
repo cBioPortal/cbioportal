@@ -49,30 +49,34 @@ import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.icgc.support.IcgcSimpleSomaticRecord;
 import org.mskcc.cbio.importer.icgc.support.IcgcSimpleSomaticRecordFunnel;
 import org.mskcc.cbio.importer.icgc.support.SimpleSomaticTransformationMapSupplier;
+import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
+import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
+import org.mskcc.cbio.importer.persistence.staging.mutation.MutationModel;
+import org.mskcc.cbio.importer.persistence.staging.mutation.MutationTransformer;
+import org.mskcc.cbio.importer.persistence.staging.util.StagingUtils;
 import scala.Tuple2;
 import scala.Tuple3;
 
-public class SimpleSomaticFileTransformer implements IcgcFileTransformer {
+public class SimpleSomaticFileTransformer extends MutationTransformer implements IcgcFileTransformer {
 
     private static final Logger logger = Logger.getLogger(SimpleSomaticFileTransformer.class);
-    private static final Joiner tabJoiner = Joiner.on('\t').useForNull(" ");
+
     private Path icgcFilePath;
     private final String mafExtension = "maf";
     private Path mafFilePath;
-   
     private BloomFilter<IcgcSimpleSomaticRecord> icgcRecordFilter;
 
-
-    private final Supplier<Map<String, Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>>>> simplesomaticTransformationMaprSupplier
-            = Suppliers.memoize(new SimpleSomaticTransformationMapSupplier());
-
-    public SimpleSomaticFileTransformer() {
-
+    public SimpleSomaticFileTransformer(TsvStagingFileHandler aHandler,Path stagingFileDirectory) {
+        super(aHandler);
+        if(StagingUtils.isValidStagingDirectoryPath(stagingFileDirectory)) {
+            aHandler.registerTsvStagingFile(stagingFileDirectory.resolve("data_mutations_extended.txt"),
+                    MutationModel.resolveColumnNames());
+        }
     }
 
     @Override
     public Path call() throws Exception {
-        this.filterAndTransformSimpleSomaticData();
+        this.processSimpleSomaticData();
         return this.mafFilePath;
     }
 
@@ -83,69 +87,39 @@ public class SimpleSomaticFileTransformer implements IcgcFileTransformer {
         Preconditions.checkArgument(Files.isReadable(aPath), aPath + " is not readable");
         this.icgcFilePath = aPath;
         logger.info("Input path = " + this.icgcFilePath.toString());
-        this.mafFilePath = this.generateMafFile();
-        logger.info("Output path = " + this.mafFilePath.toString());
-       
+
     }
 
-    private void generateMetaData(Path icgcPath) {
-    }
-    /*
-     private method to generate an ordered list of MAF file attributes also 
-     used as report column names
-     numeric prefixes used for ordering the key set are removed
-     */
-
-    private List<String> getMafFileAttributeList() {
-        return FluentIterable.from(this.simplesomaticTransformationMaprSupplier.get().keySet())
-                .transform(new Function<String, String>() {
-                    @Override
-                    public String apply(String s) {
-                        return s.substring(2);
-                    }
-                }).toList();
-    }
-    /*
-     private method to read each line in a ICGC file and invoke its transformation
-     to a new MAF record
-     */
-
-    private void filterAndTransformSimpleSomaticData() {
+   private void processSimpleSomaticData() {
         // maintain a collection of the last 200 valid MAF entries using an EvictingQueue to evaluate
-        // possible flase positives from the Bloom Filter
+        // possible false positives from the Bloom Filter
         final EvictingQueue<IcgcSimpleSomaticRecord> mafQueue = EvictingQueue.create(200);
-        final Set<String> somaticAttributeSet = this.simplesomaticTransformationMaprSupplier.get().keySet();
-        final Map<String, Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>>> transformationMap
-                = this.simplesomaticTransformationMaprSupplier.get();
-        try (BufferedReader reader = Files.newBufferedReader(this.icgcFilePath, Charset.defaultCharset());
-                BufferedWriter writer = Files.newBufferedWriter(this.mafFilePath, Charset.defaultCharset());) {
 
-            // write the MAF file column headers
-            writer.append(tabJoiner.join(this.getMafFileAttributeList()));
-            writer.newLine();
-            
+        try (BufferedReader reader = Files.newBufferedReader(this.icgcFilePath, Charset.defaultCharset());)
+            {
+
             // generate a new Bloom Filter
             this.icgcRecordFilter = BloomFilter.create(IcgcSimpleSomaticRecordFunnel.INSTANCE, 5000000);
             final CSVParser parser = new CSVParser(reader, CSVFormat.TDF.withHeader());
             /*
-            process the uncompressed TSV file downlaoded from ICGC
+            process the uncompressed TSV file downloaded from ICGC
                 -filter out duplicate records
                 -transform the simple somatic ICGC attributes to MAF records
                 - write out the MAF file
             */
-            
-            List<String> somaticList = FluentIterable.from(parser)
+
+            List<SimpleSomaticModel> somaticList = FluentIterable.from(parser)
                     .filter(new Predicate<CSVRecord>() {
                         @Override
                         public boolean apply(CSVRecord record) {
                             final IcgcSimpleSomaticRecord icgcRecord = new IcgcSimpleSomaticRecord(record.toMap());
                             return (!icgcRecordFilter.mightContain(icgcRecord)
-                            || !mafQueue.contains(icgcRecord));
+                                    || !mafQueue.contains(icgcRecord));
                         }
 
                     })
-                    // 
-                    // use a filter to update the BloomFilter and maf queue contents
+                            //
+                            // use a filter to update the BloomFilter and maf queue contents
                     .filter(new Predicate<CSVRecord>() {
                         @Override
                         public boolean apply(CSVRecord record) {
@@ -155,46 +129,22 @@ public class SimpleSomaticFileTransformer implements IcgcFileTransformer {
                             return true;
                         }
                     })
-                    .transform(new Function<CSVRecord, String>() {
+                    .transform(new Function<CSVRecord, SimpleSomaticModel>() {
 
                         @Override
-                        public String apply(CSVRecord record) {
+                        public SimpleSomaticModel apply(CSVRecord record) {
                             final Map<String, String> recordMap = record.toMap();
-                            List<String> mafAttributes = FluentIterable.from(somaticAttributeSet)
-                            .transform(new Function<String, String>() {
-                                @Override
-                                public String apply(String somaticAttribute) {
-                                    Tuple3<Function<Tuple2<String, Optional<String>>, String>, String, Optional<String>> somaticAttributeTransformationTuple
-                                    = transformationMap.get(somaticAttribute);
-                                    String attribute1Value = recordMap.get(somaticAttributeTransformationTuple._2());  // resolve the first function argument
-
-                                    Optional optionalAttribute2Value = (somaticAttributeTransformationTuple._3().isPresent())
-                                            ? Optional.of(recordMap.get(somaticAttributeTransformationTuple._3().get())) : Optional.absent();
-                                    // invoke the function encapsulated within the tuple
-                                    return somaticAttributeTransformationTuple._1().apply(new Tuple2(attribute1Value, optionalAttribute2Value));
-                                }
-                            }).toList();
-
-                            String retRecord = tabJoiner.join(mafAttributes);
-                            // a functional programming no no
-                            // but it avoids a redundant loop
-                            try {
-                                writer.append(retRecord);
-                                writer.newLine();
-                            } catch (IOException ex) {
-                                logger.error(ex.getMessage());
-                            }
-                            return retRecord;
+                            return new SimpleSomaticModel(recordMap);
                         }
                     }).toList();
+            this.fileHandler.transformImportDataToTsvStagingFile(somaticList,MutationModel.getTransformationModel());
 
-            writer.flush();
         } catch (Exception ex) {
             logger.error(ex.getMessage());
             ex.printStackTrace();
         }
 
-}
+    }
 
     /**
      * private method to generate a new file for the MAF data whose name is
@@ -208,14 +158,14 @@ public class SimpleSomaticFileTransformer implements IcgcFileTransformer {
         System.out.println(this.icgcFilePath.toString() + " will be mapped to " + mafFileName);
         return Paths.get(mafFileName);
     }
-
-    
     /*
      main method for standalone testing
      */
     public static void main(String... args) {
         ListeningExecutorService service = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(3));
-        SimpleSomaticFileTransformer transformer = new SimpleSomaticFileTransformer();
+
+        SimpleSomaticFileTransformer transformer = new SimpleSomaticFileTransformer(
+                new MutationFileHandlerImpl(), Paths.get("/tmp/icgc"));
         String fn = "/tmp/EOPC-DE.tsv";
         transformer.setIcgcFilePath(Paths.get(fn));
         service.submit(transformer);

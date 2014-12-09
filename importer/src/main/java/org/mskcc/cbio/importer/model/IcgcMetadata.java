@@ -19,6 +19,9 @@
 package org.mskcc.cbio.importer.model;
 
 import com.google.gdata.util.common.base.Preconditions;
+import org.apache.commons.beanutils.BeanUtils;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
 
 /*
 Represents metadata associated with ICGC Cancer studies
@@ -26,27 +29,71 @@ Mapped from ICGC panel on Google spreadsheet
 */
 
 public class IcgcMetadata {
-    private final String icgcId;
-    private final String downloadDirectory;
-    private final String tumorType;
-    private final String description;
-    private final String shortName;
+    private  String icgcid;
+    private  String downloaddirectory;
+    private  String tumortype;
+    private  String description;
+    private  String shortname;
     
     public IcgcMetadata(String[] properties){
         Preconditions.checkArgument(null != properties && properties.length >2, 
                 "The properties array is null or invalid");
-        this.icgcId = properties[0];
-        this.downloadDirectory = properties[1];
-        this.tumorType = properties[2];
+        this.icgcid = properties[0];
+        this.downloaddirectory = properties[1];
+        this.tumortype = properties[2];
         this.description = (properties.length >3)?properties[3]:"";
-        this.shortName = (properties.length >4)? properties[4]:"";
+        this.shortname = (properties.length >4)? properties[4]:"";
     }
-   
-    public String getIcgcId() { return this.icgcId; }
-    public String getDownloadDirectory() { return this.downloadDirectory; }
-    public String getTumorType() { return this.tumorType;}
-    public String getDescription() { return this.description;}
-    public String getShortName() { return this.shortName;}
-    
-   
+
+    /*
+    constructor based on row from google worksheet
+     */
+    public IcgcMetadata(Map<String,String> worksheetRowMap){
+        try {
+            BeanUtils.populate(this, worksheetRowMap);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public String getIcgcid() {
+        return icgcid;
+    }
+
+    public String getDownloaddirectory() {
+        return downloaddirectory;
+    }
+
+    public String getTumortype() {
+        return tumortype;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getShortname() {
+        return shortname;
+    }
+
+    public void setIcgcid(String icgcid) {
+        this.icgcid = icgcid;
+    }
+
+    public void setDownloaddirectory(String downloaddirectory) {
+        this.downloaddirectory = downloaddirectory;
+    }
+
+    public void setTumortype(String tumortype) {
+        this.tumortype = tumortype;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setShortname(String shortname) {
+        this.shortname = shortname;
+    }
 }

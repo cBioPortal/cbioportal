@@ -34,11 +34,10 @@ import java.util.List;
 public class DarwinImporterService {
     private static final Logger logger = Logger.getLogger(DarwinImporterService.class);
     private List<Class> transformerClassList;
+    // the List of transformers is populated by Spring IOC
     private List<DarwinTransformer> transformerList = Lists.newArrayList();
-    private boolean registered = false;
 
     public DarwinImporterService(){
-
     }
 
     public void setTransformerClassList(List<Class> aList) {
@@ -57,8 +56,6 @@ public class DarwinImporterService {
                 e.printStackTrace();
             }
         }
-        this.registered = true;
-
     }
 
     /*
@@ -78,10 +75,8 @@ public class DarwinImporterService {
      */
     public static void main (String...args){
         ApplicationContext applicationContext = new ClassPathXmlApplicationContext("/applicationContext-importer.xml");
-
         DarwinImporterService service = (DarwinImporterService) applicationContext.getBean("darwinImporterService");
         service.transformDarwinData(Paths.get("/tmp/class"));
-
         logger.info("FINIS...");
 
     }

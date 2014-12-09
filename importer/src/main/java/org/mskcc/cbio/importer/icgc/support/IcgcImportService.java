@@ -68,7 +68,7 @@ public enum IcgcImportService {
                 "A valid ICGC mutation Type is required");
         switch (icgcMutationType) {
             case SIMPLE_SOMATIC_MUTATION_TYPE:
-                return Optional.of((IcgcFileTransformer) new SimpleSomaticFileTransformer());
+                //return Optional.of((IcgcFileTransformer) new SimpleSomaticFileTransformer());
             case CLINICALSAMPLE_TYPE:
                 return Optional.of((IcgcFileTransformer) new ClinicalDataFileTransformer());
             default:

@@ -34,6 +34,7 @@ import org.mskcc.cbio.importer.icgc.analytics.ICGCSummaryTable;
 import org.mskcc.cbio.importer.icgc.support.IcgcImportService;
 import org.mskcc.cbio.importer.icgc.support.IcgcStudyBaseUrlMapFromFileSupplier;
 import org.mskcc.cbio.importer.icgc.transformer.SimpleSomaticFileTransformer;
+import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
 
 /*
  responsible for invoking ETL operations for simple somatic ICGC studys
@@ -78,7 +79,7 @@ public class SimpleSomaticMutationImporter {
     
     public  List<Path> processSimpleSomaticMutations() {
        List<Path> mafList = this.etl.processICGCStudies(simpleSomaticStudyList, destPath,
-               new SimpleSomaticFileTransformer());
+               new SimpleSomaticFileTransformer(new MutationFileHandlerImpl(), destPath));
        // complete summary ststistics
        ICGCSummaryTable table = new ICGCSummaryTable(destPath.toString());
        logger.info("Summary statistics completed");

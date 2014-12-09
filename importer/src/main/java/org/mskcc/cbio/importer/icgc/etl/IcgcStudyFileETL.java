@@ -49,6 +49,7 @@ import org.mskcc.cbio.importer.icgc.support.IcgcImportService;
 import org.mskcc.cbio.importer.icgc.support.IcgcStudyBaseUrlMapFromFileSupplier;
 import org.mskcc.cbio.importer.icgc.transformer.SimpleSomaticFileTransformer;
 import org.mskcc.cbio.importer.icgc.transformer.IcgcFileTransformer;
+import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
 
 /*
  represents an component responsible for ICGC ETL operations for a specified 
@@ -269,7 +270,9 @@ public class IcgcStudyFileETL {
         Path p = Paths.get("/data/icgctest");
         
        
-        List<Path> tsvPathList = ex.processICGCStudies(urlList, p, new SimpleSomaticFileTransformer());
+        List<Path> tsvPathList = ex.processICGCStudies(urlList, p, new SimpleSomaticFileTransformer(
+                new MutationFileHandlerImpl(), Paths.get("/tmp/icgc")
+        ));
         for (Path path : tsvPathList) {
             logger.info(path.toString());
         }

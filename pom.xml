@@ -163,6 +163,12 @@
 	<version>1.4</version>
         </dependency>
 
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>1.9.1</version>
+        </dependency>
+
         
         <!-- Apache http components -->
         <dependency>

@@ -51,7 +51,7 @@ var StudyViewProxy = (function() {
     function initAjaxParameters(){
         ajaxParameters = {
             webserviceData: {
-                cmd: "getAllClinicalData",
+                cmd: "getClinicalData",
                 format: "json",
                 cancer_study_id: parObject.studyId,
                 case_set_id: parObject.caseSetId

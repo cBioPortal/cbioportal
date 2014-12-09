@@ -218,9 +218,6 @@ public class WebService extends HttpServlet {
             } else if (cmd.equals("getClinicalData")) {
                 // PROVIDES case_set_id
                 getClinicalData(httpServletRequest, writer);
-            } else if (cmd.equals("getAllClinicalData")) {
-                // Get patient and sample clinical data
-                getSampleAndPatientClinicalDataBySampleIds(httpServletRequest, writer);
             } else if (cmd.equals("getPatientSampleMapping")) {
                 getSampleAndPatientMappingTable(httpServletRequest, writer);
             } else if (cmd.equals("getMutationData")) {
@@ -438,38 +435,6 @@ public class WebService extends HttpServlet {
             // die
             writer.print("There was an error in processing your request.  Please try again");
             throw new ProtocolException("please specify the format, i.e. format=txt OR format=json");
-        }
-    }
-    
-    private void getSampleAndPatientClinicalDataBySampleIds(HttpServletRequest request, PrintWriter writer)
-            throws DaoException, ProtocolException, IOException {
-        Set<String> cancerStudyIds = WebserviceParserUtils.getCancerStudyIDs(request);
-        if(cancerStudyIds.size()!=1) {
-            writer.print("Please specify ONE cancer study.");
-            return;
-        }
-        
-        String cancerStudyId = cancerStudyIds.iterator().next();
-        
-        String format = WebserviceParserUtils.getFormat(request);
-        String attrId = request.getParameter("attribute_id");
-        
-        if("json".equals(format)){
-            int internalCancerStudyId = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId).getInternalId();
-            List<String> patientIds = WebserviceParserUtils.getPatientList(request);
-            List<String> sampleIds = StableIdUtil.getStableSampleIdsFromPatientIds(internalCancerStudyId, patientIds);
-            if(attrId == null) {
-                JSONObject.writeJSONString(GetClinicalData.generateJson(DaoClinicalData.getSampleAndPatientData(internalCancerStudyId, sampleIds)), writer);
-            }else {
-                ClinicalAttribute attr = DaoClinicalAttribute.getDatum(attrId);
-                if(attr == null) {
-                    throw new ProtocolException("Attribute ID is invalid.");
-                }else {
-                    JSONObject.writeJSONString(GetClinicalData.generateJson(DaoClinicalData.getSampleAndPatientData(internalCancerStudyId, sampleIds, attr)), writer);
-                }
-            }
-        }else {
-            
         }
     }
     

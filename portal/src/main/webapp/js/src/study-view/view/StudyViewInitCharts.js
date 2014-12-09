@@ -323,7 +323,7 @@ var StudyViewInitCharts = (function(){
                         }
                     },{
                         name: 'cna',
-                        displayName: 'CNA',
+                        displayName: 'Copy Number Altered Genes',
                         webService: {
                             type: 'POST',
                             url: "Gistic.json",

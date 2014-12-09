@@ -68,7 +68,7 @@ var StudyViewInitTables = (function() {
                             displayName: 'Mutated Samples'
                         },{
                             name: 'sampleRate',
-                            displayName: 'Smaple Mutated Freq'
+                            displayName: 'Freq'
                         },{
                             name: 'caseIds'
                         }
@@ -90,7 +90,7 @@ var StudyViewInitTables = (function() {
                             displayName: '# Alt'
                         },{
                             name: 'altrateInSample',
-                            displayName: 'Altered Samples Freq'
+                            displayName: 'Freq'
                         },{
                             name: 'caseIds'
                         }

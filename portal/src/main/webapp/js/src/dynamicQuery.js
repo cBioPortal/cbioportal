@@ -87,16 +87,6 @@ $(document).ready(function(){
       $('#cancer_results').toggle();
     });
 
-    //  Set up Event Handler for View/Hide Query Form, when it is on the results page
-    $("#toggle_query_form").click(function(event) {
-      event.preventDefault();
-      $('#query_form_on_results_page').toggle();
-
-      //  Toggle the icons
-      $(".query-toggle").toggle();
-
-    });
-
     //  Set up an Event Handler to intercept form submission
     $("#main_form").submit(function() {
        return chooseAction();
@@ -302,8 +292,12 @@ function chooseAction() {
     $("#exp_error_box").remove();
 
     if ($("#select_cancer_type").val() == 'all') {
-        $("#main_form").get(0).setAttribute('action','cross_cancer.do');
-
+        if ($("#tab_index").val() == 'tab_download') {
+            $("#main_form").get(0).setAttribute('action','index.do');
+        }
+        else {
+            $("#main_form").get(0).setAttribute('action','cross_cancer.do');
+        }
         if ( haveExpInQuery ) {
             createAnEXPError("Expression filtering in the gene list is not supported when doing cross cancer queries.");
             return false;
@@ -731,7 +725,7 @@ function addMetaDataToPage() {
         }
         if (addCancerStudy) {
             console.log("Adding Cancer Study:  " + cancer_study.name);
-            var newOption = $("<option value='" + key + "'>" + cancer_study.name + "</option>");
+            var newOption = $("<option value='" + key + "' data-description='"+cancer_study.description.replace(/["'\\]/g,"")+"'>" + cancer_study.name + "</option>");
             if(key == "all") {
                 cancerTypeContainer.prepend(newOption);
             } else {

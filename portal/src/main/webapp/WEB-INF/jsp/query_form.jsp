@@ -4,12 +4,13 @@
 <%@ page import="java.io.IOException" %>
 <%@ page import="java.net.URLEncoder" %>
 <%@ page import="org.apache.commons.lang.*" %>
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
 <%
     org.mskcc.cbio.portal.servlet.ServletXssUtil localXssUtil = ServletXssUtil.getInstance();
     String localCancerTypeId =
 		    (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
-    String localCaseSetId =
+    String localPatientSetId =
 		    (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
     HashSet<String> localGeneticProfileIdSet = (HashSet<String>) request.getAttribute
             (QueryBuilder.GENETIC_PROFILE_IDS);
@@ -76,7 +77,7 @@
 <script type="text/javascript">
     // Store the currently selected options as global variables;
     window.cancer_study_id_selected = '<%= localCancerTypeId%>';
-    window.case_set_id_selected = '<%= localCaseSetId %>';
+    window.case_set_id_selected = '<%= localPatientSetId %>';
     window.gene_set_id_selected = '<%= localGeneSetChoice %>';
     window.tab_index = '<%= localTabIndex %>';
     window.zscore_threshold = '<%= localzScoreThreshold %>';
@@ -110,6 +111,7 @@
         &nbsp;<br/>
         <input id="main_submit" class="ui-button ui-widget ui-state-default ui-corner-all" style="height: 34px;"
                    type=submit name="<%= QueryBuilder.ACTION_NAME%>" value="<%= QueryBuilder.ACTION_SUBMIT %>"/>
+        <% conditionallyOutputGenomespaceOption(localTabIndex, out); %>
         </form>
     </div>
 </div>
@@ -139,6 +141,19 @@
             return "checked";
         } else {
             return "";
+        }
+    }
+
+    private void conditionallyOutputGenomespaceOption(String localTabIndex, JspWriter out)
+            throws IOException {
+        if (GlobalProperties.genomespaceEnabled() && localTabIndex.equals(QueryBuilder.TAB_DOWNLOAD)) {
+            out.println("<a id=\"gs_submit\" " +
+                        "class=\"ui-button ui-widget ui-state-default ui-corner-all\" " +
+                        "style=\"height: 34px;\" " +
+                        "title=\"Send data matrix to GenomeSpace.\" " +
+                        "href=\"#\" onclick=\"prepGSLaunch($('#main_form'), " +
+                        "$('#select_cancer_type').val(), " +
+                        "$('#genomic_profiles'));\"><img src=\"images/send-to-gs.png\" alt=\"\"/></a>");
         }
     }
 %>

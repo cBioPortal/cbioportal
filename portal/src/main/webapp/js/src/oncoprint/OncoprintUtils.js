@@ -163,11 +163,11 @@ define("OncoprintUtils", (function() {
         var mutations = extract_unique(raw_gene_data, 'mutation', function(d){
             var aas = d.split(",");// e.g. A32G,fusion
             for (var i=0, n=aas.length; i<n; i++) {
-                if (!/fusion$/i.test(aas[i])) return true;
+                if (!/fusion( |$)/i.test(aas[i])) return true;
             }
             return false;
         });
-        var fusions = extract_unique(raw_gene_data, 'mutation', function(d){return /fusion($|,)/i.test(d);});
+        var fusions = extract_unique(raw_gene_data, 'mutation', function(d){return /fusion( |$|,)/i.test(d);});
         var mrnas = extract_unique(raw_gene_data, 'mrna');
         var rppas = extract_unique(raw_gene_data, 'rppa');
 
@@ -387,6 +387,35 @@ define("OncoprintUtils", (function() {
         return attr2percent;
     };
 
+    var alteration_info = function(raw_gene_data) {
+        var data = d3.nest()
+            .key(function(d) { return get_attr(d); })
+            .entries(raw_gene_data);
+
+        var alterinfo = {};
+
+        data.forEach(function(gene) {
+            var total = gene.values.length;
+            var altered = _.chain(gene.values)
+            .map(function(sample_gene) {
+                return altered_gene(sample_gene) ? 1 : 0;
+            })
+            .reduce(function(sum, zero_or_one) {
+                return sum + zero_or_one;
+            }, 0)
+            .value();
+
+            var percent = (altered / total) * 100;
+            alterinfo[gene.key] = {
+                "total_alter_num" : altered,
+                "percent" : Math.round(percent)
+            }
+        });
+
+        return alterinfo;
+    };
+
+
     // params: array of strings (names of attributes)
     // returns: length (number)
     //
@@ -605,7 +634,7 @@ define("OncoprintUtils", (function() {
         return {
             mutation: function(d) {
                 if (d.mutation) {
-                    if (/fusion($|,)/i.test(d.mutation)) return "<b>" + d.mutation + "</b><br/>";
+                    if (/fusion( |$|,)/i.test(d.mutation)) return "<b>" + d.mutation + "</b><br/>";
                     else return "Mutation: <b>" + d.mutation + "</b><br/>";
                 }
                 return "";
@@ -639,9 +668,7 @@ define("OncoprintUtils", (function() {
 
     var patientViewUrl = function(sample_id) {
         // helper function
-        var href = "case.do?case_id=" + sample_id
-            + "&cancer_study_id=" + window.cancer_study_id_selected;        // N.B.
-
+        var href = cbio.util.getLinkToSampleView(window.cancer_study_id_selected,sample_id);
         return "<a href='" + href + "'>" + sample_id + "</a>";
     };
 
@@ -716,7 +743,8 @@ define("OncoprintUtils", (function() {
         colors: colors,
         populate_clinical_attr_select: populate_clinical_attr_select,
         make_mouseover: make_mouseover,
-        zoomSetup: zoomSetup
+        zoomSetup: zoomSetup,
+        alteration_info: alteration_info
     };
 })()
 );

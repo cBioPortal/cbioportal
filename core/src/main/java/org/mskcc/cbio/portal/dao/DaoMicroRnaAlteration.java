@@ -17,7 +17,6 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -117,9 +116,9 @@ public class DaoMicroRnaAlteration {
      * @return microRNA Value.
      * @throws DaoException Database Error.
      */
-    public String getMicroRnaAlteration(int geneticProfileId, String caseId,
+    public String getMicroRnaAlteration(int geneticProfileId, int sampleId,
             String microRnaId) throws DaoException {
-        return getMicroRnaAlterationMap(geneticProfileId, microRnaId).get(caseId);
+        return getMicroRnaAlterationMap(geneticProfileId, microRnaId).get(sampleId);
     }
 
     /**
@@ -129,17 +128,17 @@ public class DaoMicroRnaAlteration {
      * @return HashMap of microRNA values, keyed by Case ID.
      * @throws DaoException Database Error.
      */
-    public HashMap<String, String> getMicroRnaAlterationMap(int geneticProfileId,
+    public HashMap<Integer, String> getMicroRnaAlterationMap(int geneticProfileId,
             String microRnaId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        HashMap<String, String> map = new HashMap<String, String>();
+        HashMap<Integer, String> map = new HashMap<Integer, String>();
 
-        ArrayList<String> orderedCaseList = DaoGeneticProfileCases.getOrderedCaseList
+        ArrayList<Integer> orderedSampleList = DaoGeneticProfileSamples.getOrderedSampleList
                 (geneticProfileId);
-        if (orderedCaseList == null || orderedCaseList.size() ==0) {
-            throw new IllegalArgumentException ("Could not find any cases for genetic" +
+        if (orderedSampleList == null || orderedSampleList.size() ==0) {
+            throw new IllegalArgumentException ("Could not find any samples for genetic" +
                     " profile ID:  " + geneticProfileId);
         }
 
@@ -156,8 +155,8 @@ public class DaoMicroRnaAlteration {
                 String valueParts[] = values.split(DELIM);
                 for (int i=0; i<valueParts.length; i++) {
                     String value = valueParts[i];
-                    String caseId = orderedCaseList.get(i);
-                    map.put(caseId, value);
+                    Integer sampleId = orderedSampleList.get(i);
+                    map.put(sampleId, value);
                 }
             }
             return map;

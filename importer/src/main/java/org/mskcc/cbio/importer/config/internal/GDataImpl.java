@@ -20,28 +20,24 @@ package org.mskcc.cbio.importer.config.internal;
 
 // imports
 import org.mskcc.cbio.importer.Config;
-import org.mskcc.cbio.importer.converter.internal.ClinicalDataConverterImpl;
 import org.mskcc.cbio.importer.model.*;
+import org.mskcc.cbio.importer.NCIcaDSRFetcher;
 import org.mskcc.cbio.importer.util.ClassLoader;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.google.gdata.data.spreadsheet.ListFeed;
-import com.google.gdata.data.spreadsheet.ListEntry;
-import com.google.gdata.data.spreadsheet.ListFeed;
-import com.google.gdata.data.spreadsheet.ListEntry;
-import com.google.gdata.data.spreadsheet.WorksheetFeed;
-import com.google.gdata.data.spreadsheet.WorksheetEntry;
-import com.google.gdata.data.spreadsheet.SpreadsheetFeed;
-import com.google.gdata.data.spreadsheet.SpreadsheetEntry;
-import com.google.gdata.client.spreadsheet.SpreadsheetService;
-import com.google.gdata.client.spreadsheet.FeedURLFactory;
+import com.google.common.base.Strings;
+import com.google.gdata.data.spreadsheet.*;
+import com.google.gdata.client.spreadsheet.*;
+import com.google.gdata.util.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 import org.springframework.beans.factory.annotation.Value;
 
 import java.util.*;
 import java.io.IOException;
+import java.util.Calendar;
 import java.lang.reflect.Method;
 
 /**
@@ -59,17 +55,20 @@ class GDataImpl implements Config {
 	private String gdataPassword;
 	// ref to spreadsheet client
 	private SpreadsheetService spreadsheetService;
+	private NCIcaDSRFetcher nciDSRFetcher;
 
 	// for performance optimization - we try to limit the number of accesses to google
 	ArrayList<ArrayList<String>> cancerStudiesMatrix;
 	ArrayList<ArrayList<String>> caseIDFiltersMatrix;
 	ArrayList<ArrayList<String>> caseListMatrix;
+	ArrayList<ArrayList<String>> clinicalAttributesNamespaceMatrix;
 	ArrayList<ArrayList<String>> clinicalAttributesMatrix;
 	ArrayList<ArrayList<String>> datatypesMatrix;
 	ArrayList<ArrayList<String>> dataSourcesMatrix;
 	ArrayList<ArrayList<String>> portalsMatrix;
 	ArrayList<ArrayList<String>> referenceMatrix;
 	ArrayList<ArrayList<String>> tumorTypesMatrix;
+	ArrayList<ArrayList<String>> foundationMatrix;
 
 	// worksheet names we need for updates
 	private String gdataSpreadsheet;
@@ -77,11 +76,13 @@ class GDataImpl implements Config {
 	private String datatypesWorksheet;
 	private String caseIDFiltersWorksheet;
 	private String caseListWorksheet;
+	private String clinicalAttributesNamespaceWorksheet;
 	private String clinicalAttributesWorksheet;
 	private String portalsWorksheet;
 	private String referenceDataWorksheet;
 	private String dataSourcesWorksheet;
 	private String cancerStudiesWorksheet;
+	private String foundationWorksheet;
 
 	/**
 	 * Constructor.
@@ -99,20 +100,27 @@ class GDataImpl implements Config {
 	 * @param datatypesWorksheet String
 	 * @param caseIDFiltersWorksheet String
 	 * @param caseListWorksheet String
+	 * @param clinicalAttributesNamespaceWorksheet String
+	 * @param clinicalAttributesWorksheet String
 	 * @param portalsWorksheet String
 	 * @param referenceDataWorksheet String
 	 * @param dataSourceseWorksheet String
 	 * @param cancerStudiesWorksheet String
+	 * @param foundationWorksheet String
 	 */
 	public GDataImpl(String gdataUser, String gdataPassword, SpreadsheetService spreadsheetService,
 					 String gdataSpreadsheet, String tumorTypesWorksheet, String datatypesWorksheet,
-					 String caseIDFiltersWorksheet, String caseListWorksheet, String clinicalAttributesWorksheet,
-					 String portalsWorksheet, String referenceDataWorksheet, String dataSourcesWorksheet, String cancerStudiesWorksheet) {
+					 String caseIDFiltersWorksheet, String caseListWorksheet,
+                     String clinicalAttributesNamespaceWorksheet, String clinicalAttributesWorksheet,
+					 String portalsWorksheet, String referenceDataWorksheet, String dataSourcesWorksheet, String cancerStudiesWorksheet,
+					 String foundationWorksheet, NCIcaDSRFetcher nciDSRFetcher)
+	{
 
 		// set members
 		this.gdataUser = gdataUser;
 		this.gdataPassword = gdataPassword;
 		this.spreadsheetService = spreadsheetService;
+		this.nciDSRFetcher = nciDSRFetcher;
 
 		// save name(s) of worksheet we update later
 		this.gdataSpreadsheet = gdataSpreadsheet;
@@ -120,11 +128,13 @@ class GDataImpl implements Config {
 		this.datatypesWorksheet = datatypesWorksheet;
 		this.caseIDFiltersWorksheet = caseIDFiltersWorksheet;
 		this.caseListWorksheet = caseListWorksheet;
+		this.clinicalAttributesNamespaceWorksheet = clinicalAttributesNamespaceWorksheet;
 		this.clinicalAttributesWorksheet = clinicalAttributesWorksheet;
 		this.portalsWorksheet = portalsWorksheet;
 		this.referenceDataWorksheet = referenceDataWorksheet;
 		this.dataSourcesWorksheet = dataSourcesWorksheet;
 		this.cancerStudiesWorksheet = cancerStudiesWorksheet;
+		this.foundationWorksheet = foundationWorksheet;
 	}
 
 	/**
@@ -396,6 +406,42 @@ class GDataImpl implements Config {
 	}
 
 	/**
+	 * Gets a collection of ClinicalAttributesNamespace.
+	 * If clinicalAttributeNamespaceColumnHeader == Config.ALL, all are returned.
+	 *
+	 * @param clinicalAttributeNamespaceColumnHeader String
+	 * @return Collection<ClinicalAttributesNamespace>
+	 */
+	@Override
+	public Collection<ClinicalAttributesNamespace> getClinicalAttributesNamespace(String clinicalAttributesNamespaceColumnHeader) {
+
+		Collection<ClinicalAttributesNamespace> toReturn = new ArrayList<ClinicalAttributesNamespace>();
+
+		if (clinicalAttributesNamespaceMatrix == null) {
+			clinicalAttributesNamespaceMatrix = getWorksheetData(gdataSpreadsheet, clinicalAttributesNamespaceWorksheet);
+		}
+
+		Collection<ClinicalAttributesNamespace> clinicalAttributesNamespace = 
+			(Collection<ClinicalAttributesNamespace>)getMetadataCollection(clinicalAttributesNamespaceMatrix,
+                                                                           "org.mskcc.cbio.importer.model.ClinicalAttributesNamespace");
+
+		// if user wants all, we're done
+		if (clinicalAttributesNamespaceColumnHeader.equals(Config.ALL)) {
+			return clinicalAttributesNamespace;
+		}
+
+		for (ClinicalAttributesNamespace clinicalAttributesNamespaceEntry : clinicalAttributesNamespace) {
+			if (clinicalAttributesNamespaceEntry.getExternalColumnHeader().equals(clinicalAttributesNamespaceColumnHeader)) {
+				toReturn.add(clinicalAttributesNamespaceEntry);
+				break;
+			}
+		}
+
+		// outta here
+		return toReturn;
+	}
+
+	/**
 	 * Gets a collection of ClinicalAttributesMetadata.
 	 * If clinicalAttributeColumnHeader == Config.ALL, all are returned.
 	 *
@@ -421,7 +467,7 @@ class GDataImpl implements Config {
 		}
 
 		for (ClinicalAttributesMetadata clinicalAttributesMetadata : clinicalAttributesMetadatas) {
-			if (clinicalAttributesMetadata.getColumnHeader().equals(clinicalAttributesColumnHeader)) {
+			if (clinicalAttributesMetadata.getNormalizedColumnHeader().equals(clinicalAttributesColumnHeader)) {
 				toReturn.add(clinicalAttributesMetadata);
 				break;
 			}
@@ -431,180 +477,94 @@ class GDataImpl implements Config {
 		return toReturn;
 	}
 
-    public void insertClinicalAttributesMetadata(ClinicalAttributesMetadata clinicalAttributesMetadata, boolean insertRow) {
-
-        // vars used in call to updateWorksheet below
-        String keyColumn = ClinicalAttributesMetadata.WORKSHEET_UPDATE_COLUMN_KEY;
-        String key = clinicalAttributesMetadata.getColumnHeader();
-
-        updateWorksheet(gdataSpreadsheet, clinicalAttributesWorksheet,
-                insertRow, keyColumn, key, clinicalAttributesMetadata.getPropertiesMap());
-
-        clinicalAttributesMatrix = null;
-    }
-
-    /**
-     * inserts without asking questions
-     * @param clinicalAttributesMetadata ClinicalAttributesMetadata
-     */
     @Override
-    public void insertClinicalAttributesMetadata(ClinicalAttributesMetadata clinicalAttributesMetadata) {
-        insertClinicalAttributesMetadata(clinicalAttributesMetadata, true);
-    }
+	public Map<String,ClinicalAttributesMetadata> getClinicalAttributesMetadata(Collection<String> externalColumnHeaders)
+    {
+        Map<String, ClinicalAttributesMetadata> toReturn = new HashMap<String, ClinicalAttributesMetadata>();
 
-	/**
-	 * Updates (or inserts) the given ClinicalAttributesMetadata object.
-     * Comparison is done by COLUMN_HEADER (whether it be the empty string
-     * or otherwise)
-	 *
-	 * @param clinicalAttributesMetadata ClinicalAttributesMetadata
-	 */
-	@Override
-	public void updateClinicalAttributesMetadata(ClinicalAttributesMetadata clinicalAttributesMetadata) {
-
-		// vars used in call to updateWorksheet below
-		boolean insertRow = true;
-
-		if (clinicalAttributesMatrix == null) {
-			clinicalAttributesMatrix = getWorksheetData(gdataSpreadsheet, clinicalAttributesWorksheet);
-		}
-
-		Collection<ClinicalAttributesMetadata> clinicalAttributesMetadatas = 
-			(Collection<ClinicalAttributesMetadata>) getMetadataCollection(clinicalAttributesMatrix,
-																		  "org.mskcc.cbio.importer.model.ClinicalAttributesMetadata");
-
-		// iterate over existing clinicalAttributesMatrix and determine if the given clinicalAttributesMetadata
-		// object already exists - this would indicate an update is to take place, not an insert
-		for (ClinicalAttributesMetadata potentialClinicalAttributeMetadataMatch : clinicalAttributesMetadatas) {
-			if (potentialClinicalAttributeMetadataMatch.getColumnHeader().equals(clinicalAttributesMetadata.getColumnHeader())) {
-				insertRow = false;
-				break;
-			}
-		}
-        insertClinicalAttributesMetadata(clinicalAttributesMetadata, insertRow);
-    }
-
-    /**
-     * Special case of updating the clinical attributes worksheet with a Biospecimen Core Resource (BCR).
-     *
-     * In this case, a row in the worksheet should keep the columns specific to our system:
-     * COLUMN_HEADER, DATATYPE, ALIASES, ANNOTATION_STATUS.
-     *
-     * But should should update columns that should be synced with the "standard" BCR dictionary:
-     * DISPLAY_NAME, DESCRIPTION, DISEASE SPECIFICITY.
-     *
-     * A bcr matches iff. its id has a match in the list of aliases of the row in the worksheet
-     * If it doesn't match, it gets added.
-     *
-     * @param bcr BcrClinicalAttributeEntry
-     */
-    public void updateClinicalAttributesMetadata(BcrClinicalAttributeEntry bcr) {
-
-        if (clinicalAttributesMatrix == null) {
-            clinicalAttributesMatrix = getWorksheetData(gdataSpreadsheet, clinicalAttributesWorksheet);
-        }
-
-        Collection<ClinicalAttributesMetadata> clinicalAttributesMetadatas =
-                (Collection<ClinicalAttributesMetadata>) getMetadataCollection(clinicalAttributesMatrix,
-                        "org.mskcc.cbio.importer.model.ClinicalAttributesMetadata");
-
-        // you say tomaito, i say tomaato
-        String bcrAlias = bcr.getId().replaceAll("_", "");
-
-        String keyColumn = ClinicalAttributesMetadata.WORKSHEET_ALIAS_KEY;     // N.B.
-
-        // iterate over existing clinicalAttributesMatrix and determine if the given clinicalAttributesMetadata
-        // object already exists - this would indicate an update is to take place, not an insert
-        // exists means that the first alias matches
-        for (ClinicalAttributesMetadata attribute : clinicalAttributesMetadatas) {
-            String[] aliases = attribute.getAliases().split(ClinicalDataConverterImpl.ALIAS_DELIMITER);
-            for (String alias : aliases) {
-                if (alias.trim().matches(bcrAlias)) {
-                    // match!
-                    if (!attribute.getAnnotationStatus().equals(ClinicalDataConverterImpl.OK)) {
-                        // not OKed!
-                        attribute.setDescription(bcr.getDescription());
-                        attribute.setDisplayName(bcr.getDisplayName());
-                        attribute.setDiseaseSpecificity(bcr.getDiseaseSpecificity());
-                        attribute.setColumnHeader(bcr.getId().toUpperCase());
-
-                        boolean insertRow = false;
-                        String key = attribute.getAliases();
-                        updateWorksheet(gdataSpreadsheet, clinicalAttributesWorksheet,
-                                insertRow, keyColumn, key, attribute.getPropertiesMap());
+        HashMap<String, ClinicalAttributesNamespace> clinicalAttributesNamespace = makeClinicalAttributesNamespaceHashMap();
+        for (String externalColumnHeader : externalColumnHeaders) {
+            if (clinicalAttributesNamespace.containsKey(externalColumnHeader)) {
+                ClinicalAttributesNamespace namespace = clinicalAttributesNamespace.get(externalColumnHeader);
+                if (!namespace.getNormalizedColumnHeader().isEmpty()) {
+                    Collection<ClinicalAttributesMetadata> metadata = getClinicalAttributesMetadata(namespace.getNormalizedColumnHeader());
+                    if (metadata.size() == 1) {
+                        toReturn.put(externalColumnHeader, metadata.iterator().next());
                     }
-                    // there was a match, but it has already been Oked so skip.  In other words,
-                    // OK stops things from being overridden
-                    return;
                 }
             }
         }
-
-        // else: insert into worksheet
-        String key = null;
-        boolean insertRow = true;
-        updateWorksheet(gdataSpreadsheet, clinicalAttributesWorksheet,
-                insertRow, keyColumn, key, bcr.getPropertiesMap());
-
-//        clinicalAttributesMatrix = null;
+        return toReturn;
     }
 
-    public void batchUpdateClinicalAttributeMetadata(Collection<BcrClinicalAttributeEntry> bcrs) {
-        if (clinicalAttributesMatrix == null) {
-            clinicalAttributesMatrix = getWorksheetData(gdataSpreadsheet, clinicalAttributesWorksheet);
-        }
+    @Override
+    public void importBCRClinicalAttributes(Collection<BCRDictEntry> bcrs) {
 
-        Collection<ClinicalAttributesMetadata> clinicalAttributesMetadatas =
-                (Collection<ClinicalAttributesMetadata>) getMetadataCollection(clinicalAttributesMatrix,
-                        "org.mskcc.cbio.importer.model.ClinicalAttributesMetadata");
+        HashMap<String, ClinicalAttributesNamespace> clinicalAttributesNamespace = makeClinicalAttributesNamespaceHashMap();
 
-        // make a hashmap out of the worksheet
-        // alias -> ClinicalAttributeMetadata
-        HashMap<String, ClinicalAttributesMetadata> aliasToAttr = new HashMap<String, ClinicalAttributesMetadata>();
-        for (ClinicalAttributesMetadata attr : clinicalAttributesMetadatas) {
-            String[] aliases = attr.getAliases().split(ClinicalDataConverterImpl.ALIAS_DELIMITER);
-            for (String alias : aliases) {
-                aliasToAttr.put(alias.trim(), attr);
+        for (BCRDictEntry bcr : bcrs) {
+            if (!clinicalAttributesNamespace.containsKey(bcr.id)) {
+                updateWorksheet(gdataSpreadsheet, clinicalAttributesNamespaceWorksheet,
+                                true, null, null,
+                                ClinicalAttributesNamespace.getPropertiesMap(bcr,
+                                                                             ClinicalAttributesNamespace.DATE_FORMAT.format(Calendar.getInstance().getTime())));
             }
         }
+    }
 
-        Collection<BcrClinicalAttributeEntry> toInsert = new ArrayList<BcrClinicalAttributeEntry>();
-        Collection<BcrClinicalAttributeEntry> toUpdate = new ArrayList<BcrClinicalAttributeEntry>();
-        for (BcrClinicalAttributeEntry bcr : bcrs) {
-            // you say tomaito, i say tomaato
-            String bcrAlias = bcr.getId().replaceAll("_", "");       // TODO: duplication
+    @Override
+    public void flagMissingClinicalAttributes(String cancerStudy, String tumorType, Collection<String> missingAttributeColumnHeaders)
+    {
+        BCRDictEntry bcr = new BCRDictEntry();
+        HashMap<String, ClinicalAttributesNamespace> clinicalAttributesNamespace = makeClinicalAttributesNamespaceHashMap();
 
-            ClinicalAttributesMetadata attr = aliasToAttr.get(bcrAlias.trim());
-            if (attr != null) {
-                // match!
-                if (!attr.getAnnotationStatus().equals(ClinicalDataConverterImpl.OK)
-                        && !attr.getAnnotationStatus().equals(ClinicalDataConverterImpl.IGNORE)) {
-                    // not Oked, nor ignored, update away!
-                    toUpdate.add(bcr);
-                }
-            } else {
-                // no match insert ho!
-                toInsert.add(bcr);
+        boolean updatedClinicalAttributes = false;
+        for (String missingAttribute : missingAttributeColumnHeaders) {
+        	String[] parts = missingAttribute.split(ClinicalAttributesNamespace.CDE_DELIM);
+            if (!clinicalAttributesNamespace.containsKey(parts[0])) {
+            	NCIcaDSREntry entry = (parts.length == 2 && parts[1].length() > 0) ?
+            		nciDSRFetcher.fetchDSREntry(parts[1]) : null;
+                bcr.id = parts[0];
+                bcr.displayName = (entry == null) ? "" : entry.preferredName;
+                bcr.description = (entry == null) ? "" : entry.preferredDefinition;
+                bcr.tumorType = tumorType;
+                bcr.cancerStudy = cancerStudy;
+                updateWorksheet(gdataSpreadsheet, clinicalAttributesNamespaceWorksheet,
+                                true, null, null,
+                                ClinicalAttributesNamespace.getPropertiesMap(bcr,
+                                                                             ClinicalAttributesNamespace.DATE_FORMAT.format(Calendar.getInstance().getTime())));
+                updatedClinicalAttributes = true;
+            }
+            else {
+            	ClinicalAttributesNamespace ns = clinicalAttributesNamespace.get(parts[0]);
+            	if (!ns.getCancerStudy().contains(cancerStudy)) {
+            		bcr.id = ns.getExternalColumnHeader();
+            		bcr.displayName = ns.getDisplayName();
+            		bcr.description = ns.getDescription();
+            		bcr.tumorType = (ns.getTumorType().contains(tumorType)) ? ns.getTumorType() : ns.getTumorType() + "," + tumorType;
+            		bcr.cancerStudy = ns.getCancerStudy() + "," + cancerStudy;
+	                updateWorksheet(gdataSpreadsheet, clinicalAttributesNamespaceWorksheet,
+	                                false, ClinicalAttributesNamespace.WORKSHEET_UPDATE_COLUMN_KEY,
+                                	ns.getExternalColumnHeader(),
+                                ClinicalAttributesNamespace.getPropertiesMap(bcr,
+                                                                             ClinicalAttributesNamespace.DATE_FORMAT.format(Calendar.getInstance().getTime())));
+                	updatedClinicalAttributes = true;
+            	}
             }
         }
+        if (updatedClinicalAttributes) {
+            clinicalAttributesNamespaceMatrix = null;
+        }
+    }
 
-        String keyColumn = ClinicalAttributesMetadata.WORKSHEET_ALIAS_KEY;     // N.B.
-        // iterate over toInsert, inserting each one
-        for (BcrClinicalAttributeEntry bcr : toInsert) {
-            String key = null;
-            boolean insertRow = true;
-            updateWorksheet(gdataSpreadsheet, clinicalAttributesWorksheet,
-                    insertRow, keyColumn, key, bcr.getPropertiesMap());
+    private HashMap<String, ClinicalAttributesNamespace> makeClinicalAttributesNamespaceHashMap()
+    {
+        HashMap toReturn = new HashMap<String, ClinicalAttributesNamespace>();
+        for (ClinicalAttributesNamespace clinicalAttributeNamespace : getClinicalAttributesNamespace(Config.ALL)) {
+            toReturn.put(clinicalAttributeNamespace.getExternalColumnHeader(), clinicalAttributeNamespace);
         }
 
-        for (BcrClinicalAttributeEntry bcr : toUpdate) {
-            // you say tomaito, i say tomaato
-            String bcrAlias = bcr.getId().replaceAll("_", "");      // TODO: duplication
-            String key = bcrAlias;
-            boolean insertRow = false;
-            updateWorksheet(gdataSpreadsheet, clinicalAttributesWorksheet,
-                    insertRow, keyColumn, key, bcr.getPropertiesMap());
-        }
+        return toReturn;
     }
 
 	/**
@@ -755,6 +715,28 @@ class GDataImpl implements Config {
         // outta here
         return toReturn;
 	}
+
+
+	/**
+	 * Gets FoundationMetadata.
+	 *
+	 * @return Collection<FoundationMetadata>
+	 */
+    @Override
+	public Collection<FoundationMetadata> getFoundationMetadata()
+	{
+
+		if (foundationMatrix == null) {
+			foundationMatrix = getWorksheetData(gdataSpreadsheet, dataSourcesWorksheet);
+		}
+
+		Collection<FoundationMetadata> foundationMetadatas =
+			(Collection<FoundationMetadata>)getMetadataCollection(foundationMatrix,
+																   "org.mskcc.cbio.importer.model.FoundationMetadata");
+
+        // outta here
+        return foundationMetadatas;
+	}
 	
 	/**
 	 * Gets a CancerStudyMetadata for the given cancer study.
@@ -788,11 +770,32 @@ class GDataImpl implements Config {
 	}
 
 	/**
+     * public method to return a List of registered cancer
+     * studies by organization name
+     * @param organizationName
+     * @return List<String>
+     */
+    @Override
+    public List<String> findCancerStudiesBySubstring(final String organizationName) {
+       Preconditions.checkArgument(!Strings.isNullOrEmpty(organizationName), 
+              "An organization name is required");
+       // column 0 contains the cancer study names
+       List<String> cancerStudyList = Lists.newArrayList();
+       for( List<String> study: cancerStudiesMatrix) {
+           if(study.get(0).contains(organizationName.toLowerCase())){
+               cancerStudyList.add(study.get(0));
+           }
+       }
+     return cancerStudyList;
+      
+    }
+
+	/**
 	 * Constructs a collection of objects of the given classname from the given matrix.
 	 *
 	 * @param metadataMatrix ArrayList<ArrayList<String>>
 	 * @param className String
-	 * @return Collection<?>
+	 * @return Collection<Object>
 	 */
 	public Collection<?> getMetadataCollection(ArrayList<ArrayList<String>> metadataMatrix, String className) {
 
@@ -931,7 +934,7 @@ class GDataImpl implements Config {
 	 * Insert (or update) a worksheet row.  If insertRow is true,
 	 * a new row will be inserted into the database.  If insertRow is
 	 * false, the row will be updated.  Note, if update is to occur,
-	 * keyColumn (worksheet column header) and key (key to identify row)
+	 * keyColumn (worksheet column header) and keyValue (key to identify row)
 	 * must be set, otherwise they will be ignored (and can be null).
 	 *
 	 * @param spreadsheetName String
@@ -995,4 +998,6 @@ class GDataImpl implements Config {
 			e.printStackTrace();
 		}
 	}
+
+
 }

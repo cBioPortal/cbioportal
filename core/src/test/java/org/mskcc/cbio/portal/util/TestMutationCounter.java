@@ -32,10 +32,10 @@ import java.util.ArrayList;
 public class TestMutationCounter extends TestCase {
     private static final String BRCA1 = "BRCA1";
     private static final String BRCA2 = "BRCA2";
-    private static final String CASE_A = "A";
-    private static final String CASE_B = "B";
-    private static final String CASE_C = "C";
-    private static final String CASE_D = "D";
+    private static final int CASE_A = 1;
+    private static final int CASE_B = 2;
+    private static final int CASE_C = 3;
+    private static final int CASE_D = 4;
 
     public void test1() {
         CanonicalGene brca1 = new CanonicalGene(672, BRCA1);
@@ -49,11 +49,11 @@ public class TestMutationCounter extends TestCase {
         ArrayList<ExtendedMutation> mutationList =
                 createMutationList(mutation1, mutation2, mutation3);
 
-        ArrayList<String> caseList = new ArrayList<String>();
-        caseList.add(CASE_A);
-        caseList.add(CASE_B);
+        ArrayList<Integer> sampleList = new ArrayList<Integer>();
+        sampleList.add(CASE_A);
+        sampleList.add(CASE_B);
 
-        ExtendedMutationMap mutationMap = new ExtendedMutationMap(mutationList, caseList);
+        ExtendedMutationMap mutationMap = new ExtendedMutationMap(mutationList, sampleList);
         MutationCounter mutationCounter = new MutationCounter (BRCA1, mutationMap);
         assertEquals (0.5, mutationCounter.getMutationRate(), 0.01);
         assertEquals (0.5, mutationCounter.getSomaticMutationRate(), 0.01);
@@ -75,11 +75,11 @@ public class TestMutationCounter extends TestCase {
         ArrayList<ExtendedMutation> mutationList =
                 createMutationList(mutation1, mutation2, mutation3);
 
-        ArrayList<String> caseList = new ArrayList<String>();
-        caseList.add(CASE_A);
-        caseList.add(CASE_B);
+        ArrayList<Integer> sampleList = new ArrayList<Integer>();
+        sampleList.add(CASE_A);
+        sampleList.add(CASE_B);
 
-        ExtendedMutationMap mutationMap = new ExtendedMutationMap(mutationList, caseList);
+        ExtendedMutationMap mutationMap = new ExtendedMutationMap(mutationList, sampleList);
         MutationCounter mutationCounter = new MutationCounter (BRCA1, mutationMap);
         assertEquals (0.5, mutationCounter.getMutationRate(), 0.01);
         assertEquals (0.5, mutationCounter.getSomaticMutationRate(), 0.01);
@@ -100,13 +100,13 @@ public class TestMutationCounter extends TestCase {
         ArrayList<ExtendedMutation> mutationList =
                 createMutationList(mutation1, mutation2, mutation3);
 
-        ArrayList<String> caseList = new ArrayList<String>();
-        caseList.add(CASE_A);
-        caseList.add(CASE_B);
-        caseList.add(CASE_C);
-        caseList.add(CASE_D);
+        ArrayList<Integer> sampleList = new ArrayList<Integer>();
+        sampleList.add(CASE_A);
+        sampleList.add(CASE_B);
+        sampleList.add(CASE_C);
+        sampleList.add(CASE_D);
 
-        ExtendedMutationMap mutationMap = new ExtendedMutationMap(mutationList, caseList);
+        ExtendedMutationMap mutationMap = new ExtendedMutationMap(mutationList, sampleList);
         MutationCounter mutationCounter = new MutationCounter (BRCA1, mutationMap);
         assertEquals (0.25, mutationCounter.getMutationRate(), 0.01);
         assertEquals (0.25, mutationCounter.getSomaticMutationRate(), 0.01);
@@ -124,10 +124,10 @@ public class TestMutationCounter extends TestCase {
     }
 
     private ExtendedMutation createMutation1(CanonicalGene
-            gene, String caseId) {
+            gene, Integer sampleId) {
         ExtendedMutation mutation2 = new ExtendedMutation();
         mutation2.setGene(gene);
-        mutation2.setCaseId(caseId);
+        mutation2.setSampleId(sampleId);
         mutation2.setProteinChange("C22G");
         return mutation2;
     }

@@ -32,8 +32,7 @@ var StudyViewInitScatterPlot = (function() {
                         _value['MUTATION_COUNT'] + 
                         "</strong></br>Fraction of CNA: <strong>"+
                         cbio.util.toPrecision(_value['COPY_NUMBER_ALTERATIONS'],2,0.01)+
-                        "</strong><br/>Case ID: <strong>" +
-                        "<a href='case.do?case_id=" +
+                        "<br><a href='case.do?sample_id=" +
                         _value['CASE_ID'] + "&cancer_study_id=" +
                         StudyViewParams.params.studyId + "' target='_blank'>" + 
                         _value['CASE_ID'] + "</a></strong>";
@@ -240,12 +239,12 @@ var StudyViewInitScatterPlot = (function() {
         var _style = [];
         
         if(initStatus){
-            for(var i=0 ; i< StudyViewParams.params.caseIds.length ; i++){
+            for(var i=0 ; i< StudyViewParams.params.sampleIds.length ; i++){
                 var styleDatum = {};
 
-                styleDatum.case_id = StudyViewParams.params.caseIds[i];
-                if(_selectedCaseIds.length !== StudyViewParams.params.caseIds.length){
-                    if(_selectedCaseIds.indexOf(StudyViewParams.params.caseIds[i]) !== -1){
+                styleDatum.case_id = StudyViewParams.params.sampleIds[i];
+                if(_selectedCaseIds.length !== StudyViewParams.params.sampleIds.length){
+                    if(_selectedCaseIds.indexOf(StudyViewParams.params.sampleIds[i]) !== -1){
                         if(clickedCaseId !== ''){
                             styleDatum.fill = '#2986e2';
                             styleDatum.stroke = 'red';

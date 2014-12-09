@@ -301,7 +301,7 @@ var StudyViewBoilerplate ={
     
     customDialogDiv:
             "<div class='hidden' id='study-view-case-select-custom-dialog'>" +
-                "Please input case IDs (one per line)" +
+                "Please input sample IDs (one per line)" +
                 "<textarea rows='20' cols='50' id='study-view-case-select-custom-input'></textarea><br/>" +
                 "<button type='button' id='study-view-case-select-custom-submit-btn'>Select</button>" +
             "</div>",

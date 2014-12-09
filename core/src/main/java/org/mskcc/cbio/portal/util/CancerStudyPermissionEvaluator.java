@@ -30,7 +30,7 @@ import org.mskcc.cbio.portal.dao.DaoException;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.social.security.SocialUser;
+import org.springframework.security.core.userdetails.User;
 
 
 /**
@@ -87,9 +87,9 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 				return false;
 			}
 
-			SocialUser socialUser = (SocialUser) authentication.getPrincipal();
-			if (socialUser != null && socialUser instanceof SocialUser) {
-				return hasPermission(cancerStudy, socialUser);
+			User user = (User) authentication.getPrincipal();
+			if (user != null) {
+				return hasPermission(cancerStudy, user);
 			}
 			else {
 				return false;
@@ -109,29 +109,11 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 	 * @param user SocialUserDetails
 	 * @return boolean
 	 */
-	private boolean hasPermission(CancerStudy cancerStudy, SocialUser user) {
+	private boolean hasPermission(CancerStudy cancerStudy, User user) {
 
-		/*
-		  boolean publicStudy = cancerStudy.isPublicStudy();
-		  if (log.isDebugEnabled()) {
-		  log.debug("hasPermission(), public study: " + publicStudy);
-		  }
-
-		  // if public study or
-		  // public study and authentication is null (anonymous user)
-		  // bypass granted authorities check
-		  if (publicStudy || (publicStudy && authentication == null)) {
-		  return true;
-		  // private study and anonymous user does not get permission
-		  } else if (!publicStudy && authentication == null) {
-		  return false;
-		  }
-		*/
-
-		//Set<String> grantedAuthorities = AuthorityUtils.authorityListToSet(user.getAuthorities());
-                Set<String> grantedAuthorities = getGrantedAuthorities(user);
+        Set<String> grantedAuthorities = getGrantedAuthorities(user);
                 
-                String stableStudyID = cancerStudy.getCancerStudyStableId();
+        String stableStudyID = cancerStudy.getCancerStudyStableId();
 
 		if (log.isDebugEnabled()) {
 			log.debug("hasPermission(), cancer study stable id: " + stableStudyID);
@@ -201,7 +183,7 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 		return toReturn;
 	}
         
-        private Set<String> getGrantedAuthorities(SocialUser user) {
+        private Set<String> getGrantedAuthorities(User user) {
             String appName = GlobalProperties.getAppName().toUpperCase();
             Set<String> allAuthorities = AuthorityUtils.authorityListToSet(user.getAuthorities());
             Set<String> grantedAuthorities = new HashSet<>();

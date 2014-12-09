@@ -4,31 +4,18 @@
  */
 package org.mskcc.cbio.portal.servlet;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.json.simple.JSONValue;
-import org.mskcc.cbio.portal.dao.DaoCancerStudy;
-import org.mskcc.cbio.portal.dao.DaoCase;
-import org.mskcc.cbio.portal.dao.DaoCaseProfile;
-import org.mskcc.cbio.portal.dao.DaoCopyNumberSegment;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoMutation;
-import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.GeneticProfile;
-import org.mskcc.cbio.portal.util.AccessControl;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.util.*;
+import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.web_api.ProtocolException;
 import org.mskcc.cbio.portal.util.GlobalProperties;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import org.json.simple.JSONValue;
+
+import java.io.*;
+import java.util.*;
+import javax.servlet.*;
+import javax.servlet.http.*;
 
 /**
  *
@@ -42,9 +29,8 @@ public class TumorMapServlet extends HttpServlet {
      * Initializes the AccessControl member.
      */
     private static synchronized AccessControl getaccessControl() {
-        if (accessControl==null) {ApplicationContext context = 
-                    new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
-            accessControl = (AccessControl)context.getBean("accessControl");
+        if (accessControl==null) { 
+            accessControl = SpringUtil.getAccessControl();
         }
             
         return accessControl;
@@ -128,7 +114,7 @@ public class TumorMapServlet extends HttpServlet {
                     if (citation!=null) {
                         row.put("citation", citation);
                     }
-                    row.put("cases",DaoCase.countCases(cancerStudy.getInternalId()));
+                    row.put("cases", DaoPatient.getPatientsByCancerStudyId(cancerStudy.getInternalId()).size());
                 }
                 
                 if (includeMut) {
@@ -137,7 +123,7 @@ public class TumorMapServlet extends HttpServlet {
                         row.put("mut",0);
                     } else {
                         int mutEvents = DaoMutation.countMutationEvents(mutProfile.getGeneticProfileId());
-                        int samplesWithMut = DaoCaseProfile.countCasesInProfile(mutProfile.getGeneticProfileId());
+                        int samplesWithMut = DaoSampleProfile.countSamplesInProfile(mutProfile.getGeneticProfileId());
                         row.put("mut",1.0*mutEvents/samplesWithMut);
                     }
                 }
@@ -147,14 +133,14 @@ public class TumorMapServlet extends HttpServlet {
                     if (cnaProfile==null) {
                         row.put("cna",0);
                     } else {
-                        List<String> cases = DaoCaseProfile.getAllCaseIdsInProfile(cnaProfile.getGeneticProfileId());
-                        Map<String,Double> fracs = DaoCopyNumberSegment.getCopyNumberActeredFraction(cases,
+                        List<Integer> samples = DaoSampleProfile.getAllSampleIdsInProfile(cnaProfile.getGeneticProfileId());
+                        Map<Integer,Double> fracs = DaoCopyNumberSegment.getCopyNumberActeredFraction(samples,
                                 cnaProfile.getCancerStudyId(),GlobalProperties.getPatientViewGenomicOverviewCnaCutoff()[0]);
                         double aveFrac = 0;
                         for (double frac : fracs.values()) {
                             aveFrac += frac;
                         }
-                        aveFrac /= cases.size();
+                        aveFrac /= samples.size();
                         row.put("cna",aveFrac);
                     }
                 }

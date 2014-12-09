@@ -5,8 +5,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.mskcc.cbio.portal.model.ClinicalEvent;
@@ -25,8 +26,7 @@ public final class DaoClinicalEvent {
         
         MySQLbulkLoader.getMySQLbulkLoader("clinical_event").insertRecord(
                 Long.toString(clinicalEvent.getClinicalEventId()),
-                Integer.toString(clinicalEvent.getCancerStudyId()),
-                clinicalEvent.getPatientId(),
+                Integer.toString(clinicalEvent.getPatientId()),
                 clinicalEvent.getStartDate().toString(),
                 clinicalEvent.getStopDate()==null?null:clinicalEvent.getStopDate().toString(),
                 clinicalEvent.getEventType()
@@ -47,7 +47,12 @@ public final class DaoClinicalEvent {
         
     }
     
-    public static Collection<ClinicalEvent> getClinicalEvent(int cancerStudyId, String patientId) throws DaoException {
+    public static List<ClinicalEvent> getClinicalEvent(int patientId) throws DaoException {
+        return getClinicalEvent(patientId, null);
+    }
+    
+    public static List<ClinicalEvent> getClinicalEvent(int patientId, String eventType) throws DaoException {
+
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -55,9 +60,15 @@ public final class DaoClinicalEvent {
             con = JdbcUtil.getDbConnection(DaoClinicalEvent.class);
 
             // get events first
-            pstmt = con.prepareStatement("SELECT * FROM clinical_event WHERE CANCER_STUDY_ID=? AND PATIENT_ID=?");
-            pstmt.setInt(1, cancerStudyId);
-            pstmt.setString(2, patientId);
+            if (eventType==null) {
+                pstmt = con.prepareStatement("SELECT * FROM clinical_event WHERE PATIENT_ID=?");
+            } else {
+                pstmt = con.prepareStatement("SELECT * FROM clinical_event WHERE PATIENT_ID=? AND EVENT_TYPE=?");
+            }
+            pstmt.setInt(1, patientId);
+            if (eventType!=null) {
+                pstmt.setString(2, eventType);
+            }
 
             rs = pstmt.executeQuery();
             Map<Long, ClinicalEvent> clinicalEvents = new HashMap<Long, ClinicalEvent>();
@@ -80,7 +91,7 @@ public final class DaoClinicalEvent {
                 }
             }
 
-            return clinicalEvents.values();
+            return new ArrayList<ClinicalEvent>(clinicalEvents.values());
         } catch (SQLException e) {
            throw new DaoException(e);
         } finally {
@@ -91,8 +102,7 @@ public final class DaoClinicalEvent {
     private static ClinicalEvent extractClinicalEvent(ResultSet rs) throws SQLException {
         ClinicalEvent clinicalEvent = new ClinicalEvent();
         clinicalEvent.setClinicalEventId(rs.getLong("CLINICAL_EVENT_ID"));
-        clinicalEvent.setCancerStudyId(rs.getInt("CANCER_STUDY_ID"));
-        clinicalEvent.setPatientId(rs.getString("PATIENT_ID"));
+        clinicalEvent.setPatientId(rs.getInt("PATIENT_ID"));
         clinicalEvent.setStartDate(JdbcUtil.readLongFromResultSet(rs, "START_DATE"));
         clinicalEvent.setStopDate(JdbcUtil.readLongFromResultSet(rs, "STOP_DATE"));
         clinicalEvent.setEventType(rs.getString("EVENT_TYPE"));
@@ -123,15 +133,14 @@ public final class DaoClinicalEvent {
      * @return true if timeline data exist for the case
      * @throws DaoException 
      */
-    public static boolean timeEventsExistForPatient(int cancerStudyId, String patientId) throws DaoException {
+    public static boolean timeEventsExistForPatient(int patientId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCopyNumberSegment.class);
-            pstmt = con.prepareStatement("SELECT EXISTS(SELECT 1 FROM `clinical_event` WHERE `CANCER_STUDY_ID`=? AND `PATIENT_ID`=?)");
-            pstmt.setInt(1, cancerStudyId);
-            pstmt.setString(2, patientId);
+            pstmt = con.prepareStatement("SELECT EXISTS(SELECT 1 FROM `clinical_event` WHERE `PATIENT_ID`=?)");
+            pstmt.setInt(1, patientId);
             rs = pstmt.executeQuery();
             return rs.next() && rs.getInt(1)==1;
         } catch (SQLException e) {
@@ -149,17 +158,34 @@ public final class DaoClinicalEvent {
             con = JdbcUtil.getDbConnection(DaoClinicalEvent.class);
             
             pstmt = con.prepareStatement("DELETE FROM clinical_event_data WHERE CLINICAL_EVENT_ID IN "
-                    + "(SELECT CLINICAL_EVENT_ID FROM clinical_event WHERE CANCER_STUDY_ID=?)");
+                    + "(SELECT CLINICAL_EVENT_ID FROM clinical_event WHERE PATIENT_ID in (SELECT INTERNAL_ID FROM patient where CANCER_STUDY_ID=?))");
             pstmt.setInt(1, cancerStudyId);
             pstmt.executeUpdate();
             
-            pstmt = con.prepareStatement("DELETE FROM clinical_event WHERE CANCER_STUDY_ID=?");
+            pstmt = con.prepareStatement("DELETE FROM clinical_event WHERE PATIENT_ID in (SELECT INTERNAL_ID FROM patient where CANCER_STUDY_ID=?)");
             pstmt.setInt(1, cancerStudyId);
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
             JdbcUtil.closeAll(DaoClinicalEvent.class, con, pstmt, rs);
+        }
+    }
+    
+    public static void deleteAllRecords() throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoClinicalData.class);
+            pstmt = con.prepareStatement("TRUNCATE TABLE clinical_event_data");
+            pstmt.executeUpdate();
+            pstmt = con.prepareStatement("TRUNCATE TABLE clinical_event");
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoClinicalData.class, con, pstmt, rs);
         }
     }
 }

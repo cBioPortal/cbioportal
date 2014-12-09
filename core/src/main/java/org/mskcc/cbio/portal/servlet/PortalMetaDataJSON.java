@@ -14,31 +14,16 @@
  */
 package org.mskcc.cbio.portal.servlet;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONValue;
-import org.mskcc.cbio.portal.dao.DaoCancerStudy;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoTypeOfCancer;
-import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.CaseList;
-import org.mskcc.cbio.portal.model.GeneticProfile;
-import org.mskcc.cbio.portal.model.TypeOfCancer;
-import org.mskcc.cbio.portal.util.AccessControl;
-import org.mskcc.cbio.portal.web_api.ProtocolException;
-import org.mskcc.cbio.portal.model.GeneSet;
-import org.mskcc.cbio.portal.web_api.GetCaseLists;
-import org.mskcc.cbio.portal.web_api.GetGeneticProfiles;
-import org.mskcc.cbio.portal.util.GeneSetUtil;
-import org.mskcc.cbio.portal.util.XDebug;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.*;
+import org.mskcc.cbio.portal.web_api.*;
+
+import org.json.simple.*;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
+import javax.servlet.http.*;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -64,9 +49,7 @@ public class PortalMetaDataJSON extends HttpServlet {
 
     public void init() throws ServletException {
         super.init();
-        ApplicationContext context
-                = new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
-        accessControl = (AccessControl) context.getBean("accessControl");
+        accessControl = SpringUtil.getAccessControl();
     }
 
     /**
@@ -84,12 +67,13 @@ public class PortalMetaDataJSON extends HttpServlet {
         Map ret = new LinkedHashMap();
         ret.put("name", cancerStudy.getName());
         ret.put("type_of_cancer", cancerStudy.getTypeOfCancerId());
+        ret.put("description", cancerStudy.getDescription());
 
         if (partial) {
             ret.put("partial", "true");
         } else {
             // at this point we have the study corresponding to the given ID
-            ArrayList<CaseList> caseSets = GetCaseLists.getCaseLists(cancerStudy.getCancerStudyStableId());
+            ArrayList<PatientList> caseSets = GetPatientLists.getPatientLists(cancerStudy.getCancerStudyStableId());
 
             ArrayList<GeneticProfile> geneticProfiles
                     = GetGeneticProfiles.getGeneticProfiles(cancerStudy.getCancerStudyStableId());
@@ -107,16 +91,15 @@ public class PortalMetaDataJSON extends HttpServlet {
             }
 
             JSONArray jsonCaseList = new JSONArray();
-            for (CaseList caseSet : caseSets) {
+            for (PatientList caseSet : caseSets) {
                 Map map = new LinkedHashMap();
                 map.put("id", caseSet.getStableId());
                 map.put("name", caseSet.getName());
                 map.put("description", caseSet.getDescription());
-                map.put("size", caseSet.getCaseList().size());
+                map.put("size", caseSet.getPatientList().size());
                 jsonCaseList.add(map);
             }
             ret.put("short_name", cancerStudy.getShortName());
-            ret.put("description", cancerStudy.getDescription());
             ret.put("citation", cancerStudy.getCitation());
             ret.put("pmid", cancerStudy.getPmid());
             ret.put("genomic_profiles", jsonGenomicProfileList);

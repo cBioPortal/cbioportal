@@ -18,17 +18,13 @@
 package org.mskcc.cbio.portal.scripts;
 
 import junit.framework.TestCase;
-import org.mskcc.cbio.portal.dao.DaoClinicalData;
-import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
-import org.mskcc.cbio.portal.model.Patient;
-import org.mskcc.cbio.portal.model.ClinicalParameterMap;
+import org.mskcc.cbio.portal.scripts.ImportClinicalData;
 
+import java.io.*;
 import java.util.*;
-import java.io.File;
-import java.io.IOException;
-
-import org.mskcc.cbio.portal.model.CancerStudy;
 
 /**
  * Tests Import of Clinical Data.
@@ -45,14 +41,14 @@ public class TestImportClinicalData extends TestCase {
      * @throws DaoException Database Access Error.
      * @throws IOException  IO Error.
      */
-    public void testImportClinicalData() throws DaoException, IOException {
+    public void testImportClinicalData() throws Exception {
         ResetDatabase.resetDatabase();
         ProgressMonitor pMonitor = new ProgressMonitor();
 		// TBD: change this to use getResourceAsStream()
-        File file = new File("target/test-classes/clinical_test.txt");
+        File clinicalFile = new File("target/test-classes/clinical_data.txt");
         CancerStudy cancerStudy = new CancerStudy("test","test","test","test",true);
         cancerStudy.setInternalId(CANCER_STUDY_ID);
-        ImportClinicalData importClinicalData = new ImportClinicalData(cancerStudy, file, pMonitor);
+        ImportClinicalData importClinicalData = new ImportClinicalData(cancerStudy, clinicalFile);
         importClinicalData.importData();
 
         LinkedHashSet <String> caseSet = new LinkedHashSet<String>();
@@ -80,13 +76,13 @@ public class TestImportClinicalData extends TestCase {
         Patient clinical2 = clinicalCaseList.get(2);
         assertEquals (null, clinical2.getDiseaseFreeSurvivalMonths());
 
-		ClinicalParameterMap paramMap = DaoClinicalData.getDataSlice(CANCER_STUDY_ID, Arrays.asList("TUMORGRADE")).get(0);
-		assertEquals ("TUMORGRADE", paramMap.getName());
-		assertEquals("G3", paramMap.getValue("TCGA-04-1331"));
-        assertEquals("G2", paramMap.getValue("TCGA-04-1337"));
-        assertEquals(2, paramMap.getDistinctCategories().size());
+		ClinicalParameterMap paramMap = DaoClinicalData.getDataSlice(CANCER_STUDY_ID, Arrays.asList("PLATINUMSTATUS")).get(0);
+		assertEquals ("PLATINUMSTATUS", paramMap.getName());
+		assertEquals("Sensitive", paramMap.getValue("TCGA-04-1331"));
+        assertEquals("MISSING", paramMap.getValue("TCGA-04-1337"));
+        assertEquals(4, paramMap.getDistinctCategories().size());
 
 		Set<String> paramSet = DaoClinicalData.getDistinctParameters(CANCER_STUDY_ID);
-        assertEquals (12, paramSet.size());
+        assertEquals (9, paramSet.size());
     }
 }

@@ -5,11 +5,11 @@ app.version=
 
 
 # Database Settings
-db.tomcat_resource_name=cgds_gdac
 db.user=
 db.password=
 db.host=localhost
 db.portal_db_name=cgds_gdac
+db.tomcat_resource_name=jdbc/cbioportal
 # props used by importer
 db.importer_db_name=cgds_importer
 db.driver=com.mysql.jdbc.Driver
@@ -28,12 +28,14 @@ importer.spreadsheet=
 importer.cancer_studies_worksheet=
 importer.case_id_filters_worksheet=
 importer.case_lists_worksheet=
+importer.clinical_attributes_namespace_worksheet=
 importer.clinical_attributes_worksheet=
 importer.datatypes_worksheet=
 importer.data_sources_worksheet=
 importer.portals_worksheet=
 importer.reference_data_worksheet=
 importer.tumor_types_worksheet=
+importer.foundation_worksheet=
 
 # Location of log file
 log.file.path=/srv/www/sander-tomcat/tomcat6/logs/su2c-portal.log
@@ -60,6 +62,16 @@ google_analytics_profile_id=
 #Google+
 googleplus.consumer.key=
 googleplus.consumer.secret=
+
+#SAML
+saml.sp.metadata.entityid=
+saml.idp.metadata.location=
+saml.keystore.location=
+saml.keystore.password=
+saml.keystore.private-key.key=
+saml.keystore.private-key.password=
+saml.keystore.default-key=
+
 
 about=about_us_su2c.html
 news=news_su2c.html
@@ -104,8 +116,7 @@ liftover_binary=
 liftover_chain_file=
 
 # foundation medicine
-foundation.service.user=
-foundation.service.password=
+foundation.root.directory=
 
 # darwin database
 darwin.db.host=
@@ -129,3 +140,15 @@ broad.bam.checking.url=
 
 # temp dir
 temporary_dir=/tmp
+
+# tcga - bcr
+tcga.clinical.url=https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/<TUMOR_TYPE>/bcr/nationwidechildrens.org/bio/clin/
+tcga.clinical.filename=nationwidechildrens.org_<TUMOR_TYPE>.bio.Level_2.0.<REVISION>.0.tar.gz
+
+genomespace=false
+
+nci.cadsr.url=http://cadsrapi.nci.nih.gov/cadsrapi40/GetXML?query=
+nci.cadsr.query=DataElement[@publicId=CDE_ID:]
+
+# oncokb
+oncokb.url=

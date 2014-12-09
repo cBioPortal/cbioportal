@@ -13,6 +13,7 @@ define("Oncoprint",
         [           "OncoprintUtils",  "MemoSort"],
         function(   utils,              MemoSort) {
             return function(div, params) {
+
                 params.clinicalData = params.clinicalData || [];        // initialize
                 params.clinical_attrs = params.clinical_attrs || [];
 
@@ -131,6 +132,7 @@ define("Oncoprint",
 
                 var gene2percent = utils.percent_altered(params.geneData);
 
+
                 label.append('tspan')       // name
                     .attr('text-anchor', 'start')
                     .attr('font-weight', 'bold')
@@ -238,7 +240,7 @@ define("Oncoprint",
                         .attr('d', "M0,0L0,"+dims.rect_height+" "+dims.rect_width+","+dims.rect_height/2+"Z")
                         .attr('transform',function(d) {return 'translate(0,'+(vertical_pos(utils.get_attr(d)))+')';});
                     fusion.filter(function(d) {
-                        return d.mutation === undefined || !/fusion($|,)/i.test(d.mutation.toLowerCase());
+                        return d.mutation === undefined || !/fusion( |$|,)/i.test(d.mutation.toLowerCase());
                     }).remove();
 
                     var mut = enter.append('rect')
@@ -251,7 +253,7 @@ define("Oncoprint",
                         if (d.mutation === undefined) return true;
                         var aas = d.mutation.split(","); // e.g. A32G,fusion
                         for (var i=0, n=aas.length; i<n; i++) {
-                            if (!/fusion$/i.test(aas[i])) return false;
+                            if (!/fusion( |$)/i.test(aas[i])) return false;
                         }
                         return true;
                     }).remove();
@@ -568,7 +570,10 @@ define("Oncoprint",
                             showUnalteredCases(show_unaltered_bool);
                         },
                         sortBy: sortBy,
-                        getPdfInput: getPdfInput
+                        getPdfInput: getPdfInput,
+                        getOncoprintData: function() {
+                            return data;
+                        }
                     };
                 })();
 

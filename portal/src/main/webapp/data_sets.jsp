@@ -36,10 +36,9 @@
             <td width="100%">
                 <h1>Data Sets</h1>
            <div class="markdown">
-           <p>
 			  <%
 			     if (dataSetsHeader != null) {
-				     out.println("<p>" + dataSetsHeader + "<br><br></p>");
+				     out.println("<p>" + dataSetsHeader + "<br></p>");
                  }
 				 out.println("<table style='display:none;' cellpadding='0' cellspacing='0' border='0' class='display' id='data-set-table'>");
 				 out.println("<thead><tr>");
@@ -117,7 +116,6 @@
 				     out.println("<br><br>" + dataSetsFooter + "</p>");
                  }
 			  %>
-			</p>
           </div> 
             </td>
         </tr>

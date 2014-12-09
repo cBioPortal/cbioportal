@@ -11,6 +11,7 @@ function GenomicEventObserver(hasMut, hasCna, hasSeg) {
     this.mutBuilt = false;
     this.cnaBuilt = false;
     this.pancanFreqBuilt = false;
+    this.oncoKBBuilt = false;
     this.mutations = new GenomicEventContainer;
     this.cnas = new GenomicEventContainer;
 }

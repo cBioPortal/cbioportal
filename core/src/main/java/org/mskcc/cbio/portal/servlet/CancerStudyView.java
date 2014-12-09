@@ -2,24 +2,13 @@
 package org.mskcc.cbio.portal.servlet;
 
 import java.io.IOException;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.*;
+import javax.servlet.http.*;
 import org.apache.log4j.Logger;
-import org.mskcc.cbio.portal.dao.DaoCancerStudy;
-import org.mskcc.cbio.portal.dao.DaoCaseList;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
-import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.CaseList;
-import org.mskcc.cbio.portal.model.GeneticProfile;
-import org.mskcc.cbio.portal.util.AccessControl;
-import org.mskcc.cbio.portal.util.XDebug;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.*;
 import org.owasp.validator.html.PolicyException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  *
@@ -32,7 +21,7 @@ public class CancerStudyView extends HttpServlet {
     public static final String MUTATION_PROFILE = "mutation_profile";
     public static final String CNA_PROFILE = "cna_profile";
     
-    private static final DaoCaseList daoCaseList = new DaoCaseList();
+    private static final DaoPatientList daoPatientList = new DaoPatientList();
 
     // class which process access control to cancer studies
     private AccessControl accessControl;
@@ -45,10 +34,7 @@ public class CancerStudyView extends HttpServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-
-		ApplicationContext context =
-			new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
-		accessControl = (AccessControl)context.getBean("accessControl");
+		accessControl = SpringUtil.getAccessControl();
     }
     
     /** 
@@ -108,20 +94,20 @@ public class CancerStudyView extends HttpServlet {
             return false;
         }
         
-        String caseListId = (String)request.getAttribute(QueryBuilder.CASE_SET_ID);
-        if (caseListId==null) {
-            caseListId = cancerStudy.getCancerStudyStableId()+"_all";
-            request.setAttribute(QueryBuilder.CASE_SET_ID, caseListId);
+        String patientListId = (String)request.getAttribute(QueryBuilder.CASE_SET_ID);
+        if (patientListId==null) {
+            patientListId = cancerStudy.getCancerStudyStableId()+"_all";
+            request.setAttribute(QueryBuilder.CASE_SET_ID, patientListId);
         }
         
-        CaseList caseList = daoCaseList.getCaseListByStableId(caseListId);
-        if (caseList==null) {
+        PatientList patientList = daoPatientList.getPatientListByStableId(patientListId);
+        if (patientList==null) {
             request.setAttribute(ERROR,
-                    "Could not find case list of '" + caseListId + "'. ");
+                    "Could not find patient list of '" + patientListId + "'. ");
             return false;
         }
         
-        request.setAttribute(QueryBuilder.CASE_IDS, caseList.getCaseList());
+        request.setAttribute(QueryBuilder.CASE_IDS, patientList.getPatientList());
         
         request.setAttribute(CANCER_STUDY, cancerStudy);
         request.setAttribute(QueryBuilder.HTML_TITLE, cancerStudy.getName());

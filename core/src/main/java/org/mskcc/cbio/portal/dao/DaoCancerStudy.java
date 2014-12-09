@@ -18,12 +18,13 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.TypeOfCancer;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.ImportDataUtil;
 
 import java.sql.*;
 import java.util.*;
 import org.apache.commons.lang.StringUtils;
+import org.mskcc.cbio.portal.util.ImportDataUtil;
 
 /**
  * Analogous to and replaces the old DaoCancerType. A CancerStudy has a NAME and
@@ -109,6 +110,10 @@ public final class DaoCancerStudy {
             if (overwrite) {
                 System.out.println("Overwrite cancer study " + stableId);
                 deleteCancerStudy(existing.getInternalId());
+                DaoGeneticProfile.reCache();
+                DaoPatient.reCache();
+                DaoSample.reCache();
+                DaoClinicalData.reCache();
             } else {
                 throw new DaoException("Cancer study " + stableId + "is already imported.");
             }
@@ -282,27 +287,28 @@ public final class DaoCancerStudy {
             // ideally database dependency should be modeled with option of delete on cascade.
             // remember to update this code if new tables are added or existing tables are changed.
             String[] sqls = {
-                "delete from case_cna_event where GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID from genetic_profile where CANCER_STUDY_ID=?);",
+                "delete from sample_cna_event where GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID from genetic_profile where CANCER_STUDY_ID=?);",
                 "delete from genetic_alteration where GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID from genetic_profile where CANCER_STUDY_ID=?);",
-                "delete from genetic_profile_cases where GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID from genetic_profile where CANCER_STUDY_ID=?);",
-                "delete from case_profile where GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID from genetic_profile where CANCER_STUDY_ID=?);",
+                "delete from genetic_profile_samples where GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID from genetic_profile where CANCER_STUDY_ID=?);",
+                "delete from sample_profile where GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID from genetic_profile where CANCER_STUDY_ID=?);",
                 "delete from mutation where GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID from genetic_profile where CANCER_STUDY_ID=?);",
                 "delete from mutation_event where MUTATION_EVENT_ID NOT IN (select MUTATION_EVENT_ID from mutation);",
                 "delete from mutation_count where GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID from genetic_profile where CANCER_STUDY_ID=?);",
-                "delete from case_list_list where LIST_ID IN (select LIST_ID from case_list where CANCER_STUDY_ID=?);",
-                "delete from clinical where CANCER_STUDY_ID=?;",
+                "delete from clinical_event_data where CLINICAL_EVENT_ID IN (select CLINICAL_EVENT_ID from clinical_event where PATIENT_ID in (SELECT INTERNAL_ID FROM patient where CANCER_STUDY_ID=?))",
+                "delete from clinical_event where PATIENT_ID in (SELECT INTERNAL_ID FROM patient where CANCER_STUDY_ID=?)",
+                "delete from patient_list_list where LIST_ID IN (select LIST_ID from patient_list where CANCER_STUDY_ID=?);",
+                "delete from clinical_sample where INTERNAL_ID IN (select INTERNAL_ID from sample where PATIENT_ID in (select INTERNAL_ID from patient where CANCER_STUDY_ID=?));",
+                "delete from sample where PATIENT_ID IN (select INTERNAL_ID from patient where CANCER_STUDY_ID=?);",
+                "delete from clinical_patient where INTERNAL_ID IN (select INTERNAL_ID from patient where CANCER_STUDY_ID=?);",
+                "delete from patient where CANCER_STUDY_ID=?;",
                 "delete from copy_number_seg where CANCER_STUDY_ID=?;",
-                "delete from copy_number_seg_file where CANCER_STUDY_ID=?;",
-                "delete from case_list where CANCER_STUDY_ID=?;",
+                "delete from patient_list where CANCER_STUDY_ID=?;",
                 "delete from genetic_profile where CANCER_STUDY_ID=?;",
                 "delete from gistic_to_gene where GISTIC_ROI_ID IN (select GISTIC_ROI_ID from gistic where CANCER_STUDY_ID=?);",
                 "delete from gistic where CANCER_STUDY_ID=?;",
                 "delete from mut_sig where CANCER_STUDY_ID=?;",
-                "delete from _case where CANCER_STUDY_ID=?;",
                 "delete from protein_array_data where CANCER_STUDY_ID=?;",
                 "delete from protein_array_cancer_study where CANCER_STUDY_ID=?;",
-                "delete from clinical_event_data where CLINICAL_EVENT_ID IN (select CLINICAL_EVENT_ID from clinical_event where CANCER_STUDY_ID=?)",
-                "delete from clinical_event where CANCER_STUDY_ID=?;",
                 "delete from cancer_study where CANCER_STUDY_ID=?;"
                 };
             for (String sql : sqls) {    

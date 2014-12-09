@@ -46,7 +46,7 @@ public final class DaoGeneticProfile {
         reCache();
     }
     
-    private static synchronized void reCache() {
+    public static synchronized void reCache() {
         byStableId.clear();
         byInternalId.clear();
         byStudy.clear();

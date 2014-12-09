@@ -176,9 +176,11 @@ var caseIds = <%=jsonCaseIds%>;
 var cancer_study_id = cancerStudyId; //Some components using this as global ID
 var appVersion = <%=GlobalProperties.getAppVersion()%>;
 
-$("#study-tabs").tabs();
+$("#study-tabs").tabs({disabled: true});
+$("#study-tabs").tabs("enable", 0);
+
 $('#study-tab-clinical-a').click(function(){
-    if (!$(this).hasClass("tab-clicked")) {
+    if (!$(this).parent().hasClass('ui-state-disabled') && !$(this).hasClass("tab-clicked")) {
         //First time: adjust the width of data table;
         $("#clinical-data-table-loading-wait").css('display', 'block');
         $("#clinical-data-table-div").css('display','none');
@@ -187,19 +189,19 @@ $('#study-tab-clinical-a').click(function(){
             StudyViewClinicalTabController.init();
             $("#clinical-data-table-loading-wait").css('display', 'none');
             $('#study-tab-clinical-a').addClass("tab-clicked");
-        }, 500);
+        }, 200);
     }
 });
 
 $('#study-tab-mutations-a').click(function(){
-    if (!$(this).hasClass("tab-clicked")) {
+    if (!$(this).parent().hasClass('ui-state-disabled') && !$(this).hasClass("tab-clicked")) {
         StudyViewMutationsTabController.init();
         $(this).addClass("tab-clicked");
     }
 });
 
 $('#study-tab-cna-a').click(function(){
-    if (!$(this).hasClass("tab-clicked")) {
+    if (!$(this).parent().hasClass('ui-state-disabled') && !$(this).hasClass("tab-clicked")) {
         StudyViewCNATabController.init();
         $(this).addClass("tab-clicked");
     }

@@ -62,6 +62,7 @@
 					  <excludes>
 						<exclude>com.kenai.nbpwr:org-apache-commons-dbcp</exclude>
 						<exclude>org.springframework*</exclude>
+						<exclude>org.bouncycastle:bcprov-jdk15</exclude>
 					  </excludes>
 					</artifactSet>
 					<transformers>

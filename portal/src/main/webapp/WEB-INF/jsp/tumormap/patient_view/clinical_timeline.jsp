@@ -42,6 +42,7 @@
             var caseId = caseIds[i];
             var clinicalData = clinicalDataMap[caseId];
             var su2cSampleId = guessClinicalData(clinicalData,["SU2C_SAMPLE_ID"]);
+            if (!su2cSampleId) su2cSampleId = caseId;
             fillColorAndLabelForCase(d3.select('.timeline-'+su2cSampleId),caseId);
         }
     }

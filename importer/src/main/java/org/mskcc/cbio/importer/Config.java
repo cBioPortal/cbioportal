@@ -19,8 +19,10 @@
 package org.mskcc.cbio.importer;
 
 // imports
-import org.mskcc.cbio.importer.model.*;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import org.mskcc.cbio.importer.model.*;
 
 /**
  * Interface used to get/set configuration properties.
@@ -103,6 +105,15 @@ public interface Config {
 	Collection<CaseListMetadata> getCaseListMetadata(String caseListFilename);
 
 	/**
+	 * Gets a collection of ClinicalAttributesNamespace.
+	 * If clinicalAttributeNamespaceColumnHeader == Config.ALL, all are returned.
+	 *
+	 * @param clinicalAttributeNamespaceColumnHeader String
+	 * @return Collection<ClinicalAttributesNamespace>
+	 */
+	Collection<ClinicalAttributesNamespace> getClinicalAttributesNamespace(String clinicalAttributesNamespaceColumnHeader);
+
+	/**
 	 * Gets a collection of ClinicalAttributesMetadata.
 	 * If clinicalAttributeColumnHeader == Config.ALL, all are returned.
 	 *
@@ -112,32 +123,22 @@ public interface Config {
 	Collection<ClinicalAttributesMetadata> getClinicalAttributesMetadata(String clinicalAttributeColumnHeader);
 
 	/**
-	 * Updates (or inserts) the given ClinicalAttributesMetadata object.
+	 * Gets a map of ClinicalAttributesMetadata (external column header key, metadata object value) given
+     * a collection of "external" column header values (column headers from incoming datafiles).
 	 *
-	 * @param clinicalAttributesMetadata ClinicalAttributesMetadata
+	 * @param Collection<String> 
+	 * @return Map<String,ClinicalAttributesMetadata>
 	 */
-	void updateClinicalAttributesMetadata(ClinicalAttributesMetadata clinicalAttributesMetadata);
+	Map<String,ClinicalAttributesMetadata> getClinicalAttributesMetadata(Collection<String> externalColumnHeaders);
 
     /**
-     * Updates (or inserts) the given BcrClinicalAttributeEntry object.
+     * Imports the given collection of bcrs if they are unknown.
      *
-     * @param bcrClinicalAttributeEntry bcrClinicalAttributeEntry
+     * @param Collection<BCRDictEntry> bcrs
      */
-    void updateClinicalAttributesMetadata(BcrClinicalAttributeEntry bcrClinicalAttributeEntry);
+    void importBCRClinicalAttributes(Collection<BCRDictEntry> bcrs);
 
-    /**
-     * Updates (or inserts) the given collection of bcrs all as a batch.
-     *
-     * @param Collection<bcrClinicalAttributeEntry> bcrs
-     */
-    void batchUpdateClinicalAttributeMetadata(Collection<BcrClinicalAttributeEntry> bcrs);
-
-    /**
-     * Inserts the given ClinicalAttributesMetadata object without asking questions
-     *
-     * @param clinicalAttributesMetadata ClinicalAttributesMetadata
-     */
-    void insertClinicalAttributesMetadata(ClinicalAttributesMetadata clinicalAttributesMetadata);
+    void flagMissingClinicalAttributes(String cancerStudy, String tumorType, Collection<String> missingAttributeColumnHeaders);
 
 	/**
 	 * Gets a PortalMetadata object given a portal name.
@@ -181,4 +182,20 @@ public interface Config {
 	 * @return CancerStudyMetadata or null if not found
 	 */
 	CancerStudyMetadata getCancerStudyMetadataByName(String cancerStudyName);
+
+	/**
+	 * Gets FoundationMetadata.
+	 *
+	 * @return Collection<FoundationMetadata>
+	 */
+	Collection<FoundationMetadata> getFoundationMetadata();
+        
+   /**
+    * Returns a list of cancer study names which incorporate the supplied
+    * substring. Comparisons are standardized to 
+    * lower case. An empty list is returned if no matches are found.
+    * @param organizationName
+    * @return 
+    */
+    List<String> findCancerStudiesBySubstring(String substring);
 }

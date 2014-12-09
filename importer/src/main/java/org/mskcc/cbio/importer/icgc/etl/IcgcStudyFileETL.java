@@ -81,8 +81,7 @@ public class IcgcStudyFileETL {
                 "A list of ICGC Study URLs is required");
         Preconditions.checkArgument(null != destinationDirectory,
                 "A destination directory for ICGC study data is required");
-        Preconditions.checkArgument(Files.isDirectory(destinationDirectory)
-                && Files.isDirectory(destinationDirectory),
+        Preconditions.checkArgument(Files.isDirectory(destinationDirectory),
                 "The specified directory " + destinationDirectory + " is invalid");
         Preconditions.checkArgument(null != transformer, 
                 "An ICGC data transformer instance is required");

@@ -25,6 +25,7 @@ import org.mskcc.cbio.portal.model.CanonicalGene;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import scala.Tuple2;
 
 import java.util.List;
 
@@ -76,6 +77,11 @@ public class DAOGeneOptimizedIDMapper implements IDMapper {
 		}
 		CanonicalGene gene = guessGene(entrezID);
 		return (gene != null) ? gene.getHugoGeneSymbolAllCaps() : "";
+	}
+
+	@Override
+	public Tuple2<String, String> ensemblToHugoSymbolAndEntrezID(String ensemblID) {
+		return null;
 	}
 
 	/**

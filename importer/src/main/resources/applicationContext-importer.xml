@@ -158,6 +158,74 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
         <b:constructor-arg ref="importDataRecordDAO"/>
         <b:constructor-arg ref="mercurialService"/>
     </b:bean>
+    <b:bean id="darwinImporterService" class="org.mskcc.cbio.importer.cvr.darwin.service.DarwinImporterService">
+       <b:property name="transformerClassList">
+            <b:list>
+                <b:bean id="class1"    class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+                    <b:property  name="targetClass"><b:value>java.lang.Class</b:value></b:property>
+                    <b:property name="targetMethod"><b:value>forName</b:value></b:property>
+                    <b:property  name="arguments"><b:value>org.mskcc.cbio.importer.cvr.darwin.transformer.DarwinTumorTransformer</b:value></b:property>
+                </b:bean>
+                <b:bean id="class2"    class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+                    <b:property  name="targetClass"><b:value>java.lang.Class</b:value></b:property>
+                    <b:property name="targetMethod"><b:value>forName</b:value></b:property>
+                    <b:property  name="arguments"><b:value>org.mskcc.cbio.importer.cvr.darwin.transformer.DarwinPatientTransformer</b:value></b:property>
+                </b:bean>
+                <b:bean id="class3"    class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+                    <b:property  name="targetClass"><b:value>java.lang.Class</b:value></b:property>
+                    <b:property name="targetMethod"><b:value>forName</b:value></b:property>
+                    <b:property  name="arguments"><b:value>org.mskcc.cbio.importer.cvr.darwin.transformer.DarwinPathologyDataDetailsTransformer</b:value></b:property>
+                </b:bean>
+                <!--
+                <b:bean id="class4"    class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+                    <b:property  name="targetClass"><b:value>java.lang.Class</b:value></b:property>
+                    <b:property name="targetMethod"><b:value>forName</b:value></b:property>
+                    <b:property  name="arguments"><b:value>org.mskcc.cbio.importer.cvr.darwin.transformer.DarwinClinicalNoteDetailsTransformer</b:value></b:property>
+                </b:bean>
+                -->
+                <b:bean id="class5"    class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+                    <b:property  name="targetClass"><b:value>java.lang.Class</b:value></b:property>
+                    <b:property name="targetMethod"><b:value>forName</b:value></b:property>
+                    <b:property  name="arguments"><b:value>org.mskcc.cbio.importer.cvr.darwin.transformer.DarwinClinicalNoteTransformer</b:value></b:property>
+                </b:bean>
+                <b:bean id="class6"    class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+                    <b:property  name="targetClass"><b:value>java.lang.Class</b:value></b:property>
+                    <b:property name="targetMethod"><b:value>forName</b:value></b:property>
+                    <b:property  name="arguments"><b:value>org.mskcc.cbio.importer.cvr.darwin.transformer.DarwinClinicalTrialTransformer</b:value></b:property>
+                </b:bean>
+                <!-- problem with Procedure view
+                <b:bean id="class7"    class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+                    <b:property  name="targetClass"><b:value>java.lang.Class</b:value></b:property>
+                    <b:property name="targetMethod"><b:value>forName</b:value></b:property>
+                    <b:property  name="arguments"><b:value>org.mskcc.cbio.importer.cvr.darwin.transformer.DarwinProcedureTransformer</b:value></b:property>
+                </b:bean>
+                -->
+                <b:bean id="class8"    class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+                    <b:property  name="targetClass"><b:value>java.lang.Class</b:value></b:property>
+                    <b:property name="targetMethod"><b:value>forName</b:value></b:property>
+                    <b:property  name="arguments"><b:value>org.mskcc.cbio.importer.cvr.darwin.transformer.DarwinPathologyDataTransformer</b:value></b:property>
+                </b:bean>
+            </b:list>
+        </b:property>
+    </b:bean>
+
+    <!-- Import task manager -->
+    <b:bean id="importTaskManager" class="org.mskcc.cbio.importer.task.ImportTaskManager">
+        <b:constructor-arg>
+            <b:list>
+                <b:ref bean="dmpDarwinImportTask"></b:ref>
+            <b:ref bean="foundationImportTask"></b:ref>
+            <b:ref bean="icgcImportTask"></b:ref>
+            </b:list>
+        </b:constructor-arg>
+    </b:bean>
+    <b:bean id="dmpDarwinImportTask" class = "org.mskcc.cbio.importer.task.DmpDarwinImportTask">
+        <b:constructor-arg ref="dmpDarwinFetcher"/>
+    </b:bean>
+    <b:bean id="foundationImportTask" class ="org.mskcc.cbio.importer.task.FoundationImportTask">
+    </b:bean>
+    <b:bean id="icgcImportTask" class ="org.mskcc.cbio.importer.task.IcgcDataImportTask">
+    </b:bean>
     <b:bean id="dmpDarwinFetcher" class="org.mskcc.cbio.importer.fetcher.internal.DmpDarwinFetcherImpl">
         <b:constructor-arg ref="config"/>
     </b:bean>

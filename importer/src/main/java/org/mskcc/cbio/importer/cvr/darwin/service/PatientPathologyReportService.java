@@ -113,7 +113,7 @@ public class PatientPathologyReportService {
                 .filter(new Predicate<String>() {
                     @Override
                     public boolean apply(String line) {
-                        for (String skipWord : ClinicalNoteNames.PATH_FILTER_LIST) {
+                        for (String skipWord : DarwinParserNames.PATH_FILTER_LIST) {
                             if (line.startsWith(skipWord)) {
                                 return false;
                             }
@@ -126,7 +126,7 @@ public class PatientPathologyReportService {
         StringBuilder sb = new StringBuilder(patientId.toString());
         seq++;
         for(String line : filteredLines) {
-            if(line.startsWith(ClinicalNoteNames.PATH_STOP_SIGNAL)){
+            if(line.startsWith(DarwinParserNames.PATH_STOP_SIGNAL)){
                 break;
             }
             // a blank line may signal the end of any previous attribute
@@ -137,7 +137,7 @@ public class PatientPathologyReportService {
                     attributeName = null;
                 }
             } else {
-                if (ClinicalNoteNames.PATH_ATTRIBUTE_LIST.contains(line.trim())){
+                if (DarwinParserNames.PATH_ATTRIBUTE_LIST.contains(line.trim())){
                     attributeName = line.trim();
                 } else if(!Strings.isNullOrEmpty(attributeName)){
                     sb.append(line);

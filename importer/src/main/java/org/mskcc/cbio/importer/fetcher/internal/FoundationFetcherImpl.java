@@ -28,6 +28,7 @@ import org.mskcc.cbio.importer.dao.ImportDataRecordDAO;
 import org.mskcc.cbio.importer.foundation.extractor.FileDataSource;
 import org.mskcc.cbio.importer.foundation.extractor.FoundationStudyExtractor;
 import org.mskcc.cbio.importer.foundation.transformer.FoundationXMLTransformerOld;
+import org.mskcc.cbio.importer.foundation.transformer.FoundationXMLTransformer;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 

@@ -916,10 +916,21 @@ class GDataImpl implements Config {
         return null;
     }
 
-
+    /**
+     *
+     * @param worksheetName
+     * @param columnName
+     * @return A List of String values from a specified column in a specified worksheet
+     *
+     */
     private List<String> getWorksheetDataByColumnName(String worksheetName, String columnName){
         com.google.common.base.Preconditions.checkState(!Strings.isNullOrEmpty(this.gdataSpreadsheet),
                 "The Google spreadsheet has not been defined.");
+        com.google.common.base.Preconditions.checkArgument(!Strings.isNullOrEmpty(worksheetName),
+                "A worksheet name is required");
+        com.google.common.base.Preconditions.checkArgument(!Strings.isNullOrEmpty(columnName),
+                "A worksheet column name is required");
+
         return null;
     }
 

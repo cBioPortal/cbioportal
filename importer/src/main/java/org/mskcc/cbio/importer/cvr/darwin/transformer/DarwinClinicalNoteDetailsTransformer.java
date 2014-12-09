@@ -105,7 +105,7 @@ public class DarwinClinicalNoteDetailsTransformer  extends DarwinTransformer {
 
         Path clinicalPath = Paths.get("/tmp/cvr/patient/clinical");
         DarwinClinicalNoteDetailsTransformer transformer = new DarwinClinicalNoteDetailsTransformer(clinicalPath);
-      // transformer.transform();
+        transformer.transform();
         for (String s : transformer.generateReportByPatientId(1519355)) {
             System.out.println(s);
         }

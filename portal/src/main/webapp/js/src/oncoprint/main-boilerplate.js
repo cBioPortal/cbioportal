@@ -51,7 +51,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         });
         $('#oncoprint_zoom_slider').qtip({
             content: {text: 'zoom in and out oncoprint'},
-            position: {my:'left bottom', at:'top middle', viewport: $(window)},
+            position: {my:'bottom middle', at:'top middle', viewport: $(window)},
             style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
             show: {event: "mouseover"},
             hide: {fixed: true, delay: 100, event: "mouseout"}
@@ -146,7 +146,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
             $('.attribute_name').qtip({
                 content: {text: 'Click to drag '},
-                position: {my:'left bottom', at:'top middle', viewport: $(window)},
+                position: {my:'bottom middle', at:'top middle', viewport: $(window)},
                 style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                 show: {event: "mouseover"},
                 hide: {fixed: true, delay: 100, event: "mouseout"}
@@ -210,7 +210,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         //tooltip for the track deletion function
         $('.special_delete').qtip({
                     content: {text: 'click here to delete this track!'},
-                    position: {my:'left bottom', at:'top right', viewport: $(window)},
+                    position: {my:'bottom middle', at:'top right', viewport: $(window)},
                     style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                     show: {event: "mouseover"},
                     hide: {fixed: true, delay: 100, event: "mouseout"}
@@ -228,7 +228,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                     
         $('.attribute_name').qtip({
                 content: {text: 'Click to drag '},
-                position: {my:'left bottom', at:'top middle', viewport: $(window)},
+                position: {my:'bottom middle', at:'top middle', viewport: $(window)},
                 style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                 show: {event: "mouseover"},
                 hide: {fixed: true, delay: 100, event: "mouseout"}
@@ -236,7 +236,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             
         $(".oncoprint_Sort_Button").qtip({
                 content: {text: 'Click to sort '},
-                position: {my:'left bottom', at:'top middle', viewport: $(window)},
+                position: {my:'bottom middle', at:'top middle', viewport: $(window)},
                 style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                 show: {event: "mouseover"},
                 hide: {fixed: true, delay: 100, event: "mouseout"}
@@ -1024,6 +1024,11 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         $('#oncoprint-diagram-toolbar-buttons #user_defined_first_a').click(function(){
             oncoprint.sortBy('custom', cases.split(" "));
         });
+//        $('#select_clinical_attributes_div')[0].style.display = "none";
+        $('#oncoprint_diagram_showmorefeatures_icon').click(function(){
+//            $('#select_clinical_attributes_div').css('display','inline');
+            $('#select_clinical_attributes_div')[0].style.display = "inline";
+        });
         
         $('#toggle_unaltered_cases').click(function() {
             oncoprint.toggleUnalteredCases();
@@ -1070,7 +1075,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         }
                     }
                 },
-            position: {my:'left bottom', at:'top right', viewport: $(window)},
+            position: {my:'bottom middle', at:'top right', viewport: $(window)},
             style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
             show: {event: "mouseover"},
             hide: {fixed: true, delay: 100, event: "mouseout"}
@@ -1110,7 +1115,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         }
                     }
             },
-            position: {my:'left bottom', at:'top right', viewport: $(window)},
+            position: {my:'bottom middle', at:'top right', viewport: $(window)},
             style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
             show: {event: "mouseover"},
             hide: {fixed: true, delay: 100, event: "mouseout"}
@@ -1151,7 +1156,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         }
                     }
             },
-            position: {my:'left bottom', at:'top right', viewport: $(window)},
+            position: {my:'bottom middle', at:'top right', viewport: $(window)},
             style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
             show: {event: "mouseover"},
             hide: {fixed: true, delay: 100, event: "mouseout"}
@@ -1224,7 +1229,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         }
                     }
             },
-            position: {my:'left bottom', at:'top right', viewport: $(window)},
+            position: {my:'bottom middle', at:'top right', viewport: $(window)},
             style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
             show: {event: "mouseover"},
             hide: {fixed: true, delay: 100, event: "mouseout"}

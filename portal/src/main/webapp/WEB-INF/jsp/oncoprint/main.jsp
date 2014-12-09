@@ -33,17 +33,44 @@
 
         Altered in <%=dataSummary.getNumCasesAffected()%> (<%=OncoPrintUtil.alterationValueToString(dataSummary.getPercentCasesAffected())%>) of cases
         <div class="btn-group btn-group-sm" id="oncoprint-diagram-toolbar-buttons" style="float:right;margin-right:15px;display: none;height:33px">
-            
-        <select data-placeholder="Add a clinical attribute track" id="select_clinical_attributes" class="select_clinical_attributes_from" style="float:left;width: 360px;height:30px;background-color:#efefef;margin:0px">
-        <option value=""></option>
-        </select>
-            <%--
+            <%--   
+            <select data-placeholder="Add a clinical attribute track" id="select_clinical_attributes" class="select_clinical_attributes_from" style="float:left;width: 360px;height:30px;background-color:#efefef;margin:0px">
+            <option value=""></option>
+            </select>
+       
             <select id="sort_by" class="form-control" style="float:left;width:200px;height:30px;background-color:#efefef;margin:0px">
                 <option value="genes">gene data first</option>
                 <option value="clinical" disabled="true">clinical data first</option>
                 <option value="alphabetical">alphabetically by case id</option>
                 <option value="custom">user-defined case list / default</option>
             </select>
+            --%>
+            
+            <div class="btn-group btn-group-sm">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="background-color:#efefef;margin:0px;float:left">
+                    <img id="oncoprint_diagram_showmorefeatures_icon" class="oncoprint_diagram_showmorefeatures_icon" checked="0" src="images/plus.svg" alt="icon" width="16" height="16" />
+                </button>
+                <ul class="dropdown-menu" style="height: 0px;background-color:rgba(255,255,255,.0)">
+                <li style="list-style-type:none;cursor:pointer">
+                    <select data-placeholder="Add a clinical attribute track" id="select_clinical_attributes" class="select_clinical_attributes_from" style="float:left;width: 360px;height:30px;background-color:rgba(255,255,255,.8);margin:0px">
+                    <option value=""></option>
+                    </select>
+                </li>
+                </ul>
+            </div>
+            
+            
+            
+            <%-- 
+            <div class="nav-collapse" style="float: left;" >
+            <ul class="nav">
+            <li>                  
+                <select data-placeholder="Add a clinical attribute track" id="select_clinical_attributes" class="select_clinical_attributes_from" style="float:left;width: 360px;height:30px;background-color:#efefef;margin:0px">
+                <option value=""></option>
+                </select>
+            </li>
+            </ul>
+            </div>
             --%>
             
             <div class="btn-group btn-group-sm">
@@ -76,7 +103,9 @@
         </div>
             <div id="oncoprint_legend" style="display: inline;"></div>
         <%@ include file="legend-template.jsp" %>
-        
+        <script type="text/javascript">
+            $('.dropdown-menu #select_clinical_attributes').click(function(){return false;});
+        </script>
         <script data-main="js/src/oncoprint/main-boilerplate.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript" src="js/require.js?<%=GlobalProperties.getAppVersion()%>"></script>
     </div>
 </div>

@@ -1462,6 +1462,7 @@ define("OncoprintUtils", (function() {
             .data(clinical_attributes)
             .enter()
             .append('option')
+//            .css('background-color','rgba(255,255,255,.8)')
             .text(function(d) { return d.display_name; });
     };
 

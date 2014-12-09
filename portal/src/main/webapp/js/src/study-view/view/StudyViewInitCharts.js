@@ -277,6 +277,10 @@ var StudyViewInitCharts = (function(){
     }
     
     function initSpecialCharts(_arr){
+        if(mutatedGenes){
+            initTables();
+        }
+        
         if(cancerStudyId !== 'mixed_dmp_MSK-IMPACT_2014') {
             if(     (StudyViewUtil.arrayFindByValue(varName, 'OS_MONTHS') && 
                     StudyViewUtil.arrayFindByValue(varName, 'OS_STATUS') &&
@@ -297,11 +301,6 @@ var StudyViewInitCharts = (function(){
                 varKeys['MUTATION_COUNT'].length > 0 &&
                 varKeys['COPY_NUMBER_ALTERATIONS'].length > 0){
             initScatterPlot(_arr);
-        }
-        
-        
-        if(mutatedGenes){
-            initTables();
         }
     }
     

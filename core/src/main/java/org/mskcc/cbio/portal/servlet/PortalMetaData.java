@@ -1,9 +1,10 @@
 package org.mskcc.cbio.portal.servlet;
 
 import org.json.simple.JSONValue;
-import org.mskcc.cbio.portal.dao.DaoCaseProfile;
+import org.mskcc.cbio.portal.dao.DaoSampleProfile;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.util.AccessControl;
+import org.mskcc.cbio.portal.util.SpringUtil;
 import org.mskcc.cbio.portal.web_api.ProtocolException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -39,7 +40,7 @@ public class PortalMetaData extends HttpServlet
 		ApplicationContext context
 				= new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
 
-		accessControl = (AccessControl) context.getBean("accessControl");
+		accessControl = SpringUtil.getAccessControl();
 	}
 
 	/**
@@ -76,7 +77,7 @@ public class PortalMetaData extends HttpServlet
 			if (cancerStudyMetadata != null &&
 			    !cancerStudyMetadata.equalsIgnoreCase("false"))
 			{
-				metaData.put("cancerStudyMetaData", DaoCaseProfile.metaData(
+				metaData.put("cancerStudyMetaData", DaoSampleProfile.metaData(
 					accessControl.getCancerStudies()));
 			}
 

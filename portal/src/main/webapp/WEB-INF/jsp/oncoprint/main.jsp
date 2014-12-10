@@ -47,19 +47,17 @@
             --%>
             
             <div class="btn-group btn-group-sm">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="background-color:#efefef;margin:0px;float:left">
-                    <img id="oncoprint_diagram_showmorefeatures_icon" class="oncoprint_diagram_showmorefeatures_icon" checked="0" src="images/plus.svg" alt="icon" width="16" height="16" />
+                <button type="button" class="btn btn-default dropdown-toggle" id="oncoprint_diagram_showmorefeatures_icon" data-toggle="dropdown" style="background-color:#efefef;margin:0px;height:30px;">
+                    <span data-bind="label" style="color:#7f7f7f;font-weight: 1000;">+</span>
                 </button>
                 <ul class="dropdown-menu" style="height: 0px;background-color:rgba(255,255,255,.0)">
-                <li style="list-style-type:none;cursor:pointer">
+                <li style="list-style-type:none;cursor:pointer;font-weight: bold;">
                     <select data-placeholder="Add a clinical attribute track" id="select_clinical_attributes" class="select_clinical_attributes_from" style="float:left;width: 360px;height:30px;background-color:rgba(255,255,255,.8);margin:0px">
                     <option value=""></option>
                     </select>
                 </li>
                 </ul>
             </div>
-            
-            
             
             <%-- 
             <div class="nav-collapse" style="float: left;" >
@@ -96,8 +94,6 @@
             </div>
         </div>
    
-        
-            
         <img id="inner_loader_img" src="images/ajax-loader.gif" style="display:none;">
         <div id="oncoprint_body"></div>
         </div>
@@ -108,8 +104,13 @@
                 $('#select_clinical_attributes').click();
                 return false;
             });
+        </script>    
+        <div id="oncoprint_legend"></div>
+        <%@ include file="legend-template.jsp" %>
+        <script type="text/javascript">
             $('.dropdown-menu #select_clinical_attributes').click(function(){return false;});
         </script>
+
         <script data-main="js/src/oncoprint/main-boilerplate.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript" src="js/require.js?<%=GlobalProperties.getAppVersion()%>"></script>
     </div>
 </div>

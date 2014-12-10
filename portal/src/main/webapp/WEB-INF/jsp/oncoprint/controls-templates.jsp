@@ -128,6 +128,7 @@
             
             <button type="button" id="oncoprinter_zoomin" class="btn btn-default" style="background-color:#efefef"><img src="images/zoom-in.svg" alt="icon" width="16" height="16" /></button>
         </div>
+
     </div>
     <%--
     <div id="oncoprinter_control_panel" style="height:18px"><p>

@@ -983,6 +983,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         $('#oncoprint-diagram-toolbar-buttons #genes_first_a').click(function(){
             oncoprint.sortBy('genes', cases.split(" "));
         });
+
         $('#oncoprint-diagram-toolbar-buttons #clinical_first_a').click(function(){
             oncoprint.sortBy('clinical', cases.split(" "));
         });
@@ -992,11 +993,14 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         $('#oncoprint-diagram-toolbar-buttons #user_defined_first_a').click(function(){
             oncoprint.sortBy('custom', cases.split(" "));
         });
-        
-//        $('#oncoprint_diagram_showmorefeatures_icon').click(function(){
-//            $('#select_clinical_attributes').click();
-//            return false;
-//        });
+
+        $('#oncoprint_diagram_showmorefeatures_icon').qtip({
+            content: {text:'Add more clinical attributes'},
+            position: {my:'bottom middle', at:'top right', viewport: $(window)},
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
+            show: {event: "mouseover"},
+            hide: {fixed: true, delay: 100, event: "mouseout"}
+            });
         
         $('#toggle_unaltered_cases').click(function() {
             oncoprint.toggleUnalteredCases();

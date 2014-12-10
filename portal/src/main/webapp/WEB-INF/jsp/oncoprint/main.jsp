@@ -104,6 +104,10 @@
             <div id="oncoprint_legend" style="display: inline;"></div>
         <%@ include file="legend-template.jsp" %>
         <script type="text/javascript">
+            $('#oncoprint_diagram_showmorefeatures_icon').click(function(){
+                $('#select_clinical_attributes').click();
+                return false;
+            });
             $('.dropdown-menu #select_clinical_attributes').click(function(){return false;});
         </script>
         <script data-main="js/src/oncoprint/main-boilerplate.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript" src="js/require.js?<%=GlobalProperties.getAppVersion()%>"></script>

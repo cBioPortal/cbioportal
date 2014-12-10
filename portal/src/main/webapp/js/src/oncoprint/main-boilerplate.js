@@ -993,6 +993,11 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             oncoprint.sortBy('custom', cases.split(" "));
         });
         
+//        $('#oncoprint_diagram_showmorefeatures_icon').click(function(){
+//            $('#select_clinical_attributes').click();
+//            return false;
+//        });
+        
         $('#toggle_unaltered_cases').click(function() {
             oncoprint.toggleUnalteredCases();
             utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});     // hack =(

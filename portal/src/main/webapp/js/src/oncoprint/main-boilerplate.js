@@ -1024,11 +1024,6 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         $('#oncoprint-diagram-toolbar-buttons #user_defined_first_a').click(function(){
             oncoprint.sortBy('custom', cases.split(" "));
         });
-//        $('#select_clinical_attributes_div')[0].style.display = "none";
-        $('#oncoprint_diagram_showmorefeatures_icon').click(function(){
-//            $('#select_clinical_attributes_div').css('display','inline');
-            $('#select_clinical_attributes_div')[0].style.display = "inline";
-        });
         
         $('#toggle_unaltered_cases').click(function() {
             oncoprint.toggleUnalteredCases();

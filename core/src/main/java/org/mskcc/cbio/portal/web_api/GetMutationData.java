@@ -120,8 +120,8 @@ public class GetMutationData {
     }
 
     public static String getProfileData(String geneticProfileId,
-                                        ArrayList<String> targetGeneList,
-                                        ArrayList<String> targetSampleList) throws DaoException {
+                                        List<String> targetGeneList,
+                                        List<String> targetSampleList) throws DaoException {
 
         StringBuffer buf = new StringBuffer();
 
@@ -134,11 +134,11 @@ public class GetMutationData {
             return buf.toString();
         }
 
-        List<Integer> internalSampleIds =
+        List<Integer> internalSampleIds = targetSampleList==null ? null :
             InternalIdUtil.getInternalSampleIds(geneticProfile.getCancerStudyId(), targetSampleList);
 
         //  Output Actual Data
-        ArrayList<Gene> geneList = WebApiUtil.getGeneList(targetGeneList,
+        List<Gene> geneList = WebApiUtil.getGeneList(targetGeneList,
                 geneticProfile.getGeneticAlterationType(),
                 buf, new ArrayList<String>());
 

@@ -51,13 +51,6 @@ public enum IcgcImportService {
             = "https://dcc.icgc.org/api/v1/download?fn=/current/Projects/PROJECT/MUTATION_TYPE.PROJECT.tsv.gz";
     private static final String US = "US";
 
-    public static final Joiner tabJoiner = Joiner.on('\t').useForNull(" ");
-    public static final Joiner pathJoiner = Joiner.on(System.getProperty("file.separator"));
-    public static final Splitter pathSplitter = Splitter.on(System.getProperty("file.separator"));
-    public static final Splitter colonSplitter = Splitter.on(':');
-    public static final Splitter blankSplitter = Splitter.on(' ').omitEmptyStrings();
-    public static final Splitter dotSplitter = Splitter.on('.').omitEmptyStrings();
-
     /*
     return the appropriate type of transformer based on the ICGC file type
     return object is encapsulated within an Optional so caller is aware
@@ -74,7 +67,6 @@ public enum IcgcImportService {
             default:
                 logger.error("A FileTransformer for mutation type " + icgcMutationType + " is not supported");
                 return Optional.absent();
-                
                 
         }
             

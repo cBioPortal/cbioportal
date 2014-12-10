@@ -22,6 +22,8 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Maps;
+import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -67,7 +69,7 @@ public class IcgcStudyBaseUrlMapFromFileSupplier implements Supplier<Map<String,
 
                         @Override
                         public String apply(String f) {
-                            return IcgcImportService.blankSplitter.splitToList(f).get(0);
+                            return StagingCommonNames.blankSplitter.splitToList(f).get(0);
                         }
                     }).toMap(new Function<String, String>() {
 

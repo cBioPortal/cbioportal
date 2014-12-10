@@ -1,9 +1,6 @@
 package org.mskcc.cbio.importer.config.internal;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
+import com.google.common.base.*;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
@@ -98,6 +95,27 @@ public enum ImporterSpreadsheetService {
         return worksheetTable;
     }
 
+    public List<String> getWorksheetValuesByColumnName(String worksheetName, String columnName){
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(worksheetName),
+                "A worksheet name is required");
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(columnName),
+                "A column name is required");
+        List<String> columnList = Lists.newArrayList();
+        Table<Integer,String,String> worksheetTable = this.getWorksheetTableByName(worksheetName);
+        if(null != worksheetTable){
+            if(worksheetTable.containsColumn(columnName)){
+                for (Integer row : worksheetTable.rowKeySet()) {
+                    columnList.add(worksheetTable.get(row, columnName));
+                }
+            } else {
+                logger.error("Worksheet: " +worksheetName +" does not contain column: " +columnName);
+            }
+        } else {
+            logger.info("The importer spreadsheet does not contain worksheet: " +worksheetName);
+        }
+        return columnList;
+    }
+
     /*
     Public method to return a list of worksheet column names for a specified
     importer worksheet
@@ -138,6 +156,31 @@ public enum ImporterSpreadsheetService {
         return null;
     }
 
+    public Optional<Map<String,String > > getWorksheetRowByColumnValue(String worksheetName,String columnName, String value) {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(worksheetName),
+                "A Google worksheet name is required");
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(columnName),
+                "A worksheet column name is required");
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(value),
+                "A  column value is required");
+        Table<Integer, String, String> table = ImporterSpreadsheetService.INSTANCE.getWorksheetTableByName(worksheetName);
+        String columnKey = columnName;
+        if (table.containsColumn(columnKey)) {
+            Map<Integer, String> columnMap = table.column(columnKey);
+            if (columnMap.containsValue(value)) {
+                for (Map.Entry<Integer, String> entry : columnMap.entrySet()) {
+                    if (entry.getValue().equals(value)) {
+                        return Optional.of(table.row(entry.getKey()));
+                    }
+                }
+            } else {
+                logger.error("The column " + columnName + " does not contain a value for " + value);
+            }
+        } else {
+            logger.error("The table does not contain column" + columnKey);
+        }
+        return Optional.absent(); // return an empty object
+    }
 
     private class SpreadsheetSupplier implements Supplier<SpreadsheetService> {
         private  SpreadsheetService spreadsheetService;
@@ -178,7 +221,6 @@ public enum ImporterSpreadsheetService {
   */
     public static void main(String...args) {
         testIcgcWorksheet();
-
     }
 
     private static void testIcgcWorksheet() {

@@ -29,18 +29,13 @@ import com.google.common.collect.Lists;
 import com.google.common.hash.BloomFilter;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
-import com.google.gdata.util.common.base.Preconditions;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Executors;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -48,27 +43,22 @@ import org.apache.commons.csv.CSVRecord;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.icgc.support.IcgcSimpleSomaticRecord;
 import org.mskcc.cbio.importer.icgc.support.IcgcSimpleSomaticRecordFunnel;
-import org.mskcc.cbio.importer.icgc.support.SimpleSomaticTransformationMapSupplier;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationModel;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationTransformer;
 import org.mskcc.cbio.importer.persistence.staging.util.StagingUtils;
-import scala.Tuple2;
-import scala.Tuple3;
 
 public class SimpleSomaticFileTransformer extends MutationTransformer implements IcgcFileTransformer {
 
     private static final Logger logger = Logger.getLogger(SimpleSomaticFileTransformer.class);
 
     private Path icgcFilePath;
-    private final String mafExtension = "maf";
-    private Path mafFilePath;
     private BloomFilter<IcgcSimpleSomaticRecord> icgcRecordFilter;
 
-    public SimpleSomaticFileTransformer(TsvStagingFileHandler aHandler,Path stagingFileDirectory) {
+    public SimpleSomaticFileTransformer(TsvStagingFileHandler aHandler, Path stagingFileDirectory) {
         super(aHandler);
-        if(StagingUtils.isValidStagingDirectoryPath(stagingFileDirectory)) {
+        if (StagingUtils.isValidStagingDirectoryPath(stagingFileDirectory)) {
             aHandler.registerTsvStagingFile(stagingFileDirectory.resolve("data_mutations_extended.txt"),
                     MutationModel.resolveColumnNames());
         }
@@ -77,26 +67,23 @@ public class SimpleSomaticFileTransformer extends MutationTransformer implements
     @Override
     public Path call() throws Exception {
         this.processSimpleSomaticData();
-        return this.mafFilePath;
+        return this.icgcFilePath;
     }
 
     @Override
     public void setIcgcFilePath(final Path aPath) {
-        Preconditions.checkArgument(null != aPath, "A Path to an ICGC Cancer study file is required");
-        Preconditions.checkArgument(Files.exists(aPath, LinkOption.NOFOLLOW_LINKS), aPath + " is not a file");
-        Preconditions.checkArgument(Files.isReadable(aPath), aPath + " is not readable");
-        this.icgcFilePath = aPath;
-        logger.info("Input path = " + this.icgcFilePath.toString());
-
+        if (StagingUtils.isValidInputFilePath(aPath)) {
+            this.icgcFilePath = aPath;
+            logger.info("Input path = " + this.icgcFilePath.toString());
+        }
     }
 
-   private void processSimpleSomaticData() {
+    private void processSimpleSomaticData() {
         // maintain a collection of the last 200 valid MAF entries using an EvictingQueue to evaluate
         // possible false positives from the Bloom Filter
         final EvictingQueue<IcgcSimpleSomaticRecord> mafQueue = EvictingQueue.create(200);
 
-        try (BufferedReader reader = Files.newBufferedReader(this.icgcFilePath, Charset.defaultCharset());)
-            {
+        try (BufferedReader reader = Files.newBufferedReader(this.icgcFilePath, Charset.defaultCharset());) {
 
             // generate a new Bloom Filter
             this.icgcRecordFilter = BloomFilter.create(IcgcSimpleSomaticRecordFunnel.INSTANCE, 5000000);
@@ -137,27 +124,13 @@ public class SimpleSomaticFileTransformer extends MutationTransformer implements
                             return new SimpleSomaticModel(recordMap);
                         }
                     }).toList();
-            this.fileHandler.transformImportDataToTsvStagingFile(somaticList,MutationModel.getTransformationModel());
-
+            this.fileHandler.transformImportDataToTsvStagingFile(somaticList, MutationModel.getTransformationModel());
         } catch (Exception ex) {
             logger.error(ex.getMessage());
             ex.printStackTrace();
         }
-
     }
 
-    /**
-     * private method to generate a new file for the MAF data whose name is
-     * based on the name of the ICGC file
-     *
-     * @return
-     */
-    private Path generateMafFile() {
-        String icscExtension = com.google.common.io.Files.getFileExtension(this.icgcFilePath.toString());
-        String mafFileName = this.icgcFilePath.toString().replace(icscExtension, mafExtension);
-        System.out.println(this.icgcFilePath.toString() + " will be mapped to " + mafFileName);
-        return Paths.get(mafFileName);
-    }
     /*
      main method for standalone testing
      */
@@ -165,7 +138,7 @@ public class SimpleSomaticFileTransformer extends MutationTransformer implements
         ListeningExecutorService service = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(3));
 
         SimpleSomaticFileTransformer transformer = new SimpleSomaticFileTransformer(
-                new MutationFileHandlerImpl(), Paths.get("/tmp/icgc"));
+                new MutationFileHandlerImpl(), Paths.get("/tmp/icgc/EOPC-DE"));
         String fn = "/tmp/EOPC-DE.tsv";
         transformer.setIcgcFilePath(Paths.get(fn));
         service.submit(transformer);

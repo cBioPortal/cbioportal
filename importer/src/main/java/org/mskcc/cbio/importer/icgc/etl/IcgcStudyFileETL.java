@@ -49,6 +49,7 @@ import org.mskcc.cbio.importer.icgc.support.IcgcImportService;
 import org.mskcc.cbio.importer.icgc.support.IcgcStudyBaseUrlMapFromFileSupplier;
 import org.mskcc.cbio.importer.icgc.transformer.SimpleSomaticFileTransformer;
 import org.mskcc.cbio.importer.icgc.transformer.IcgcFileTransformer;
+import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
 
 /*
@@ -227,8 +228,8 @@ public class IcgcStudyFileETL {
          */
         private Path resolveCompressedFilePath(Path aBasePath) throws IOException {
             //the file name is the last part of the url minus the gz extension
-            List<String> urlParts = IcgcImportService.pathSplitter.splitToList(this.icgcStudyUrl);
-            Path outPath = Paths.get(IcgcImportService.pathJoiner
+            List<String> urlParts = StagingCommonNames.pathSplitter.splitToList(this.icgcStudyUrl);
+            Path outPath = Paths.get(StagingCommonNames.pathJoiner
                     .join(aBasePath.toString(), urlParts.get(urlParts.size() - 1)));
             if (Files.deleteIfExists(outPath)) {
                 logger.warn("Existing compressed  file " + this.compressedFilePath + " has been deleted");

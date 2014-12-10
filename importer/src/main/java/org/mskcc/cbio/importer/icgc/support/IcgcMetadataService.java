@@ -1,14 +1,18 @@
 package org.mskcc.cbio.importer.icgc.support;
 
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.config.internal.ImporterSpreadsheetService;
 import org.mskcc.cbio.importer.model.IcgcMetadata;
 
+import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -48,19 +52,41 @@ public enum IcgcMetadataService {
     }
 
     /*
+    public method to return a List of non-US ICGC studies registered in the cbio-portal
+     */
+    public List<String> getRegisteredIcgcStudyList() {
+        return ImporterSpreadsheetService.INSTANCE.getWorksheetValuesByColumnName("icgc","icgcid");
+    }
+
+
+    /*
     public method to generate a Map of all ICGC metadata entries from the importer spreadsheet
      keyed by the ICGC ID attribute
      */
-    public Map<String,IcgcMetadata> getIcgcMetadataMap() {
-        Map<String,IcgcMetadata> metadataMap = Maps.newHashMap();
+    public List<IcgcMetadata> getIcgcMetadataList() {
 
-        return metadataMap;
+        return FluentIterable.from(ImporterSpreadsheetService.INSTANCE.getWorksheetValuesByColumnName("icgc","icgcid"))
+                .transform(new Function<String, IcgcMetadata>() {
+                    @Nullable
+                    @Override
+                    public IcgcMetadata apply(String studyId) {
+                        return getIcgcMetadataById(studyId);
+                    }
+                }).toList();
+
+
     }
 
+    /*
+    main method for testing
+     */
     public static void main (String...args){
         String icgcId = "LICA-FR";
         IcgcMetadata meta = IcgcMetadataService.INSTANCE.getIcgcMetadataById(icgcId);
         logger.info("download directory " +meta.getDownloaddirectory());
+        for (String studyId : IcgcMetadataService.INSTANCE.getRegisteredIcgcStudyList()){
+            logger.info(studyId);
+        }
     }
 
 }

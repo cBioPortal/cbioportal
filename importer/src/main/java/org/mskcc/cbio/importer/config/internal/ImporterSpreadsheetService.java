@@ -220,7 +220,14 @@ public enum ImporterSpreadsheetService {
  main method to support stand alone testing
   */
     public static void main(String...args) {
+       testColumnNames();
         testIcgcWorksheet();
+    }
+
+    private static void testColumnNames() {
+        for(String value :  ImporterSpreadsheetService.INSTANCE.getWorksheetValuesByColumnName("icgc","icgcid")){
+            logger.info(value);
+        }
     }
 
     private static void testIcgcWorksheet() {

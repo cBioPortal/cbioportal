@@ -18,8 +18,6 @@
 package org.mskcc.cbio.importer.icgc.etl;
 
 import com.google.common.base.Function;
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import com.google.common.collect.FluentIterable;
 import com.google.common.util.concurrent.AsyncFunction;
 import com.google.common.util.concurrent.FutureCallback;
@@ -46,7 +44,6 @@ import java.util.zip.GZIPInputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.icgc.support.IcgcImportService;
-import org.mskcc.cbio.importer.icgc.support.IcgcStudyBaseUrlMapFromFileSupplier;
 import org.mskcc.cbio.importer.icgc.transformer.SimpleSomaticFileTransformer;
 import org.mskcc.cbio.importer.icgc.transformer.IcgcFileTransformer;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
@@ -257,8 +254,7 @@ public class IcgcStudyFileETL {
 
     public static void main(String... args) {
         IcgcStudyFileETL ex = new IcgcStudyFileETL(2);
-        Supplier<Map<String, String>> supplier = Suppliers.memoize(new IcgcStudyBaseUrlMapFromFileSupplier());
-        Map<String, String> urlMap = supplier.get();
+        Map<String, String> urlMap = IcgcImportService.INSTANCE.getIcgcMutationUrlMap();
         
          List<String> urlList = FluentIterable.from(Lists.newArrayList(urlMap.values()))
                 .transform(new Function<String, String>() {

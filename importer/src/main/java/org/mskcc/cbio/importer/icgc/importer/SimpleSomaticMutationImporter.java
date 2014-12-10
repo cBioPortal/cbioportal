@@ -18,8 +18,6 @@
 package org.mskcc.cbio.importer.icgc.importer;
 
 import com.google.common.base.Function;
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import com.google.common.collect.FluentIterable;
 import com.google.inject.internal.Lists;
 import com.google.inject.internal.Preconditions;
@@ -32,7 +30,6 @@ import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.icgc.etl.IcgcStudyFileETL;
 import org.mskcc.cbio.importer.icgc.analytics.ICGCSummaryTable;
 import org.mskcc.cbio.importer.icgc.support.IcgcImportService;
-import org.mskcc.cbio.importer.icgc.support.IcgcStudyBaseUrlMapFromFileSupplier;
 import org.mskcc.cbio.importer.icgc.transformer.SimpleSomaticFileTransformer;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
 
@@ -91,8 +88,8 @@ public class SimpleSomaticMutationImporter {
     */
     public static void main(String...args){
         // Base URls for ICGC non-US studies - requires editing to specific file type by Importer
-        Supplier<Map<String, String>> supplier = Suppliers.memoize(new IcgcStudyBaseUrlMapFromFileSupplier());
-        Map<String, String> urlMap = supplier.get();
+
+        Map<String, String> urlMap = IcgcImportService.INSTANCE.getIcgcMutationUrlMap();
         // test Path
          Path p = Paths.get("/tmp/asynctest");
         SimpleSomaticMutationImporter controller = new SimpleSomaticMutationImporter(

@@ -18,8 +18,6 @@
 package org.mskcc.cbio.importer.icgc.importer;
 
 import com.google.common.base.Function;
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import com.google.common.collect.FluentIterable;
 import com.google.inject.internal.Lists;
 import com.google.inject.internal.Preconditions;
@@ -90,8 +88,8 @@ public class ClinicalDataImporter {
     */
     public static void main(String...args){
         // Base URls for ICGC non-US studies - requires editing to specific file type by Importer
-        Supplier<Map<String, String>> supplier = Suppliers.memoize(new IcgcStudyBaseUrlMapFromFileSupplier());
-        Map<String, String> urlMap = supplier.get();
+
+        Map<String, String> urlMap = IcgcImportService.INSTANCE.getIcgcMutationUrlMap();
         // test Path
          Path p = Paths.get("/tmp/asynctest");
         ClinicalDataImporter controller = new ClinicalDataImporter(

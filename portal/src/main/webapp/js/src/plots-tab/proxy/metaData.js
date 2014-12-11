@@ -17,7 +17,7 @@ var metaData = (function() {
 
     function fetchProfileMetaData() {
         var paramsGetProfiles = {
-            cancer_study_id: window.PortalGlobals.getCancerStudyId()
+            cancer_study_id: window.PortalGlobals.getCancerStudyId(),
         };
         $.post("getGeneticProfile.json", paramsGetProfiles, fetchClinicalAttrMetaData, "json");  
     }

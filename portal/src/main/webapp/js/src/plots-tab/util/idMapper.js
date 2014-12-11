@@ -20,7 +20,22 @@ var ids = {
             log_scale: "plots-tab-y-log-scale",
             clin_attr: "plots-tab-y-clinical-attribute"
         }
-    }    
+    },
+    main_view: {
+        div: "plots-box"
+    }
+};
+
+var d3_class = {
+    x : {
+        axis: "plots-x-axis-class",
+        axis_title: "plots-x-axis-title"
+    },
+    y: {
+        axis: "plots-y-axis-class",
+        axis_title: "plots-y-axis-title"
+    }
+
 };
 
 

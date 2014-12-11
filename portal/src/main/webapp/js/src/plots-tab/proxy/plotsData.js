@@ -10,6 +10,18 @@ var plotsData = (function() {
                     stat: false //whether data is retrieved
                 }
             },
+        stat = {
+                x: {
+                    min: "",
+                    max: "",
+                    edge: ""
+                },
+                y: {
+                    min: "",
+                    max: "",
+                    edge: ""
+                }
+            },
         datum = { //each associates with one individual dot in the plots 
                 caseId : "",
                 xVal : "",
@@ -66,7 +78,6 @@ var plotsData = (function() {
 
     
     var merge = function(axis, result) {
-
         //fill in x, y value
         data[axis].stat = true;
         data[axis].raw = result;
@@ -74,13 +85,17 @@ var plotsData = (function() {
             for(var xCaseId in data.x.raw) {
                 var _obj = data.y.raw;
                 if (_obj.hasOwnProperty(xCaseId)) {
-                    var _datum = jQuery.extend(true, {}, datum);
-                    _datum.caseId = xCaseId;
-                    _datum.xVal = data.x.raw[xCaseId];
-                    _datum.yVal = data.y.raw[xCaseId];
-                    dotsContent[xCaseId] = _datum;
+                    if (!isEmpty(data.x.raw[xCaseId]) && !isEmpty(data.y.raw[xCaseId])) { //eliminate empty values
+                        var _datum = jQuery.extend(true, {}, datum);
+                        _datum.caseId = xCaseId;
+                        _datum.xVal = data.x.raw[xCaseId];
+                        _datum.yVal = data.y.raw[xCaseId];
+                        dotsContent[xCaseId] = _datum;
+                    }
                 }
             }
+            //calculate data status
+            analyseData();
             //get mutation data
             var _gene_list = "";
             if ($("#" + ids.sidebar.x.data_type).val() === vals.data_type.genetic) {
@@ -98,19 +113,37 @@ var plotsData = (function() {
         
     };
     
+    function analyseData() {    //pDataX, pDataY: array of single dot objects
+        var tmp_xData = [];
+        var tmp_yData = [];
+        for (var key in dotsContent) {
+            tmp_xData.push(parseFloat(dotsContent[key].xVal));
+            tmp_yData.push(parseFloat(dotsContent[key].yVal));
+        }
+
+        stat.x.min = Math.min.apply(Math, tmp_xData);
+        stat.x.max = Math.max.apply(Math, tmp_xData);
+        stat.x.edge = (stat.x.max - stat.x.min) * 0.2;
+        stat.y.min = Math.min.apply(Math, tmp_yData);
+        stat.y.max = Math.max.apply(Math, tmp_yData);
+        stat.y.edge = (stat.y.max - stat.y.min) * 0.1;
+    }
+    
     function mutationCallback(mutationData) {
         var mutationDetailsUtil = new MutationDetailsUtil(new MutationCollection(mutationData));
         var mutationMap = mutationDetailsUtil.getMutationCaseMap();
         for (var key in mutationMap) {
             $.each(mutationMap[key], function(index, obj) {
-                if (typeof(dotsContent[key.toUpperCase()].mutation[obj.geneSymbol]) !== "undefined") {
-                    dotsContent[key.toUpperCase()].mutation[obj.geneSymbol].details += "; " + obj.proteinChange;
-                    dotsContent[key.toUpperCase()].mutation[obj.geneSymbol].type = mutationTranslator(obj.mutationType);
-                } else {
-                    dotsContent[key.toUpperCase()].mutation[obj.geneSymbol] = {
-                        "details": obj.proteinChange,
-                        "type": obj.mutationType //TODO: prioritize mutation
-                    };
+                if (dotsContent.hasOwnProperty(key.toUpperCase())) {
+                    if (typeof(dotsContent[key.toUpperCase()].mutation[obj.geneSymbol]) !== "undefined") {
+                        dotsContent[key.toUpperCase()].mutation[obj.geneSymbol].details += "; " + obj.proteinChange;
+                        dotsContent[key.toUpperCase()].mutation[obj.geneSymbol].type = mutationTranslator(obj.mutationType);
+                    } else {
+                        dotsContent[key.toUpperCase()].mutation[obj.geneSymbol] = {
+                            "details": obj.proteinChange,
+                            "type": obj.mutationType //TODO: prioritize mutation
+                        };
+                    }                    
                 }
             });
         }
@@ -138,6 +171,9 @@ var plotsData = (function() {
                     callback_func(dotsContent);
                 }
             }
+        },
+        stat: function() {
+            return stat;
         }
     };
     

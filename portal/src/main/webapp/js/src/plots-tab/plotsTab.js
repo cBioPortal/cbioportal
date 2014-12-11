@@ -31,6 +31,7 @@ var plotsTab = (function() {
         init: function() {
             
             //init logic
+            $("#" + ids.main_view.div).empty();
             metaData.fetch(); 
             sidebar.init();
             plotsData.fetch("x");
@@ -40,12 +41,14 @@ var plotsTab = (function() {
             //apply event listening logic
             $( "#" + ids.sidebar.x.div ).bind({
                 change: function() {
+                    $("#" + ids.main_view.div).empty();
                     plotsData.fetch("x");
                     plotsbox.init();
                 }
             });
             $( "#" + ids.sidebar.y.div ).bind({
                 change: function() {
+                    $("#" + ids.main_view.div).empty();
                     plotsData.fetch("y");
                     plotsbox.init();
                 }

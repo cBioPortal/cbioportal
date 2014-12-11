@@ -7,7 +7,8 @@ var vals = {
         "MUTATION_EXTENDED": "mutation",
         "COPY_NUMBER_ALTERATION": "Copy Number",
         "MRNA_EXPRESSION": "mRNA",
-        "PROTEIN_ARRAY_PROTEIN_LEVEL": "RPPA Protein Level"
+        "PROTEIN_ARRAY_PROTEIN_LEVEL": "RPPA Protein Level",
+        "METHYLATION": "DNA Methylation"
     }
 };
 

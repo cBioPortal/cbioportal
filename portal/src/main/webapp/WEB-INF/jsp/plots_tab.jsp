@@ -13,6 +13,7 @@
 <script type="text/javascript" src="js/src/plots-tab/proxy/plotsData.js"></script>
 <script type="text/javascript" src="js/src/plots-tab/util/idMapper.js"></script>
 <script type="text/javascript" src="js/src/plots-tab/util/textMapper.js"></script>
+<script type="text/javascript" src="js/src/plots-tab/util/plotsUtil.js"></script>
 <script type="text/javascript" src="js/src/plots-tab/util/mutationTranslator.js"></script>
 <script type="text/javascript" src="js/src/plots-tab/view/components/profileSpec.js"></script>
 <script type="text/javascript" src="js/src/plots-tab/view/components/clinSpec.js"></script>
@@ -42,17 +43,18 @@
     }
     
     #plots-sidebar h3 {
-        margin: 10px;
+        margin: 12px;
         margin-bottom: 20px;
         font-size: 14px;
     }
     #plots-sidebar h4 {
-        margin: 20px;
+        margin: 15px;
         font-size: 12px;
         color: grey;
         background-color: white;
-        margin-top: -35px;
-        display: inline-table;
+        margin-top: -6px;
+        display: table;
+        padding: 5px;
     }
     #plots-sidebar h5 {
         margin-left: 20px;
@@ -64,39 +66,49 @@
     #plots-sidebar select {
         max-width: 180px;
     }
-    #plots-content {
-        width: 800px;
+    #plots-box {
+        width: 820px;
         height: 610px;
+        float: right;
     }
 </style>
 
 <div class="section" id="plots">
-    <div id="plots-sidebar">
-        <h3>Plots Parameters</h3>
-        <div id="plots-sidebar-x-div" class="plots">
-            <h4>X Axis</h4>
-            <br><h5>Data Type</h5> 
-            <select id="plots-x-data-type">
-                <option value="genetic_profile">Genetic Profile</option>
-                <option value="clinical_attribute">Clinical Attribute</option>
-            </select>
-            <div id="plots-x-spec"></div>
-        </div>
-        <div id="plots-sidebar-y-div" class="plots">
-            <h4>Y Axis</h4>
-            <br><h5>Data Type</h5>
-            <select id="plots-y-data-type">
-                <option value="genetic_profile">Genetic Profile</option>
-                <option value="clinical_attribute">Clinical Attribute</option>
-            </select>
-            <div id="plots-y-spec"></div>
-        </div>
-        <div id="plots-sidebar-util-div" class="plots">
-            <h4>Filters</h4>
-            <br><h5>Search case(s)</h5><input type="text" name="case_id_search_keyword"><br>
-            <h5>Search mutation(s)</h5><input type="text" name="mutation_search_keyword"><br>
-        </div>        
-    </div>
+    <table>
+        <tr>
+            <td>
+                 <div id="plots-sidebar">
+                    <h3>Plots Parameters</h3>
+                    <div id="plots-sidebar-x-div" class="plots">
+                        <h4>X Axis</h4>
+                        <br><h5>Data Type</h5> 
+                        <select id="plots-x-data-type">
+                            <option value="genetic_profile">Genetic Profile</option>
+                            <option value="clinical_attribute">Clinical Attribute</option>
+                        </select>
+                        <div id="plots-x-spec"></div>
+                    </div>
+                    <div id="plots-sidebar-y-div" class="plots">
+                        <h4>Y Axis</h4>
+                        <br><h5>Data Type</h5>
+                        <select id="plots-y-data-type">
+                            <option value="genetic_profile">Genetic Profile</option>
+                            <option value="clinical_attribute">Clinical Attribute</option>
+                        </select>
+                        <div id="plots-y-spec"></div>
+                    </div>
+                    <div id="plots-sidebar-util-div" class="plots">
+                        <h4>Search</h4>
+                        <br><h5>Case(s)</h5><input type="text" name="case_id_search_keyword" placeholder="case id.."><br>
+                        <h5>Mutation(s)</h5><input type="text" name="mutation_search_keyword" placeholder="protein change.."><br>
+                    </div>        
+                </div>
+            </td>
+            <td>
+                <div id="plots-box" class="plots"></div>
+            </td>
+        </tr>
+    </table>
 </div>
 
 

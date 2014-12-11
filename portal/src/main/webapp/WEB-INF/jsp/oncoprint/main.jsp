@@ -48,11 +48,11 @@
             
             <div class="btn-group btn-group-sm">
                 <button type="button" class="btn btn-default dropdown-toggle" id="oncoprint_diagram_showmorefeatures_icon" data-toggle="dropdown" style="background-color:#efefef;margin:0px;height:30px;">
-                    <span data-bind="label" style="color:#7f7f7f;font-weight: 1000;">+</span>
+                    <span data-bind="label" style="color:#7f7f7f;">+</span>
                 </button>
                 <ul class="dropdown-menu" style="height: 0px;background-color:rgba(255,255,255,.0)">
                 <li style="list-style-type:none;cursor:pointer;font-weight: bold;">
-                    <select data-placeholder="Add a clinical attribute track" id="select_clinical_attributes" class="select_clinical_attributes_from" style="float:left;width: 360px;height:30px;background-color:rgba(255,255,255,.8);margin:0px">
+                    <select data-placeholder="Add a clinical attribute track" id="select_clinical_attributes" class="select_clinical_attributes_from chosen-select" style="float:left;width: 360px;height:30px;background-color:rgba(255,255,255,.8);margin:0px">
                     <option value=""></option>
                     </select>
                 </li>
@@ -97,17 +97,21 @@
         <img id="inner_loader_img" src="images/ajax-loader.gif" style="display:none;">
         <div id="oncoprint_body"></div>
         </div>
-            <div id="oncoprint_legend" style="display: inline;"></div>
-        <%@ include file="legend-template.jsp" %>
+        <div id="oncoprint_legend" style="display: inline;"></div>
+        <%@ include file="legend-template.jsp" %>   
         <script type="text/javascript">
-            $('#oncoprint_diagram_showmorefeatures_icon').click(function(){
-                $('#select_clinical_attributes').click();
-                return false;
+            $( document.body ).on( 'click', '.dropdown-menu li', function( event ) {
+
+              var $target = $( event.currentTarget );
+
+              $target.closest( '.btn-group' )
+                 .find( '[data-bind="label"]' ).text( $target.text() )
+                    .end()
+                 .children( '.dropdown-toggle' ).dropdown( 'toggle' );
+
+              return false;
+
             });
-        </script>    
-        <div id="oncoprint_legend"></div>
-        <%@ include file="legend-template.jsp" %>
-        <script type="text/javascript">
             $('.dropdown-menu #select_clinical_attributes').click(function(){return false;});
         </script>
 

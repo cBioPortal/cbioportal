@@ -16,7 +16,8 @@
 
     <div id="main" style="display:inline;">
     <%--
-    <table style="padding-left:13px; padding-top:5px">
+    <table style="padding-left:13px; padding-top:5px">    
+    
             <tr>
                 <td style="padding-right: 15px;"><span>Zoom</span><div id="zoom" style="display: inline-table;"></div></td>
                 <td><label><input id='toggle_unaltered_cases' type='checkbox'>Remove Unaltered Cases</label></td>
@@ -40,9 +41,8 @@
                 </td>  
                 <td style="padding-right: 15px;"><span>Zoom</span><div id="zoom" style="display: inline-table;"></div></td>
                 <td><label><input id='toggle_unaltered_cases' type='checkbox'>Remove Unaltered Cases</label></td>
-                <td><label><input id='toggle_whitespace' type='checkbox'><label>Remove Whitespace</label></td>
+                <td><label><input id='toggle_whitespace' type='checkbox'><label>Remove Whitespace</label></td>     
             </tr>
-    
         </table>
     --%>
     </div>
@@ -120,12 +120,6 @@
         <div class="btn-group btn-group-sm">
             <button type="button" id="oncoprinter_zoomout" class="btn btn-default" style="background-color:#efefef"><img src="images/zoom-out.svg" alt="icon" width="16" height="16" /></button>
             <span class="btn btn-default" id="oncoprint_diagram_slider_icon" style="background-color:#efefef;width: 80px; height: 20px"></span>
-            <%--
-            <span class="btn" style="background-color:#efefef;width: 85px">
-            <input type="range" value="1" step = "0.05" min="0.1" max="1.0">
-            </span>
-            --%>
-            
             <button type="button" id="oncoprinter_zoomin" class="btn btn-default" style="background-color:#efefef"><img src="images/zoom-in.svg" alt="icon" width="16" height="16" /></button>
         </div>
 

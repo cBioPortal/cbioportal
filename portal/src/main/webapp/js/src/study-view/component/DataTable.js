@@ -316,7 +316,7 @@ var DataTable = function() {
         if(arrLength > 500) {
             delete dataTableSettings.scrollY;
             dataTableSettings.paging = true;
-            dataTableSettings.sPaginationType = "two_button";
+            dataTableSettings.sPaginationType = "full_numbers";
             dataTableSettings.iDisplayLength = 30;
             dataTableSettings.sDom = '<"H"TpCi<"dataTableReset">f>rt';
         }

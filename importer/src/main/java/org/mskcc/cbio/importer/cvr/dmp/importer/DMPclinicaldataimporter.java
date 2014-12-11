@@ -78,7 +78,7 @@ public class DMPclinicaldataimporter {
         //Retrieves meta data 
         ResponseEntity<String> rawResultEntity = 
             template.getForEntity(
-                properties.getProperty(DMP_SERVER_NAME) + "/" + 
+                properties.getProperty(DMP_SERVER_NAME) + 
                 properties.getProperty(DMP_CBIO_RETRIEVE_VARIANTS) + "/" + _session.getSessionId() + "/0", 
                 String.class
             ); 
@@ -96,13 +96,14 @@ public class DMPclinicaldataimporter {
             String sampleId = sampleIdsItr.next();
             ResponseEntity<String> rawSegDataResultEntity = 
             template.getForEntity(
-                properties.getProperty(DMP_SERVER_NAME) + "/" + 
+                properties.getProperty(DMP_SERVER_NAME) + 
                 properties.getProperty(DMP_CBIO_RETRIEVE_SEGMENT_DATA) + "/" + _session.getSessionId() + "/" + sampleId, 
                 String.class
             ); 
             String _sampleSegmentDataJsonStr = JSONconverters.convertSegDataJson(rawSegDataResultEntity.getBody());
             resultJsonStr = JSONconverters.mergeSampleSegmentData(resultJsonStr, _sampleSegmentDataJsonStr); //Map segment data to sample meta data
         }
+
     }
     
     

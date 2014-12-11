@@ -76,12 +76,11 @@ public class DmpDarwinFetcherImpl implements Fetcher
                 new DMPclinicaldataimporter(transformer.transform(data)); //mark consumed samples (transformer returns a list of consumed sample ids)
         
         //Retrieve Darwin clinical data for retrieved DMP samples
-
         ApplicationContext applicationContext = new ClassPathXmlApplicationContext("/applicationContext-importer.xml");
-        DarwinImporterService darwinImporterService = (DarwinImporterService) applicationContext.getBean("darwinImporterService");
-        darwinImporterService.transformDarwinData(Paths.get(dataSourcePath));
-       // DarwinTumorTransformer darwinTransformer = new DarwinTumorTransformer(Paths.get(dataSourcePath));
-       // darwinTransformer.transform();
+//        DarwinImporterService darwinImporterService = (DarwinImporterService) applicationContext.getBean("darwinImporterService");
+//        darwinImporterService.transformDarwinData(Paths.get(dataSourcePath));
+        DarwinTumorTransformer darwinTransformer = new DarwinTumorTransformer(Paths.get(dataSourcePath));
+        darwinTransformer.transform();
         DarwinSessionManager.INSTANCE.closeSession();
     }
 

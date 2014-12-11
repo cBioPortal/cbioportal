@@ -72,7 +72,7 @@ public class JSONconverters {
         
         JsonNode root = mapper.readTree(jp);
         ArrayNode originalSegDataArr = (ArrayNode)root.get("seg-data");
-        String sampleId = root.get("sampleId").asText();
+        String sampleId = root.get("dmp_sample_id").asText();
         
         String[] fieldNames = 
                 originalSegDataArr.get(0).toString().replaceAll("[\\[\\]]", "").replaceAll("\"", "").split(",");
@@ -107,12 +107,11 @@ public class JSONconverters {
         JsonNode root_sampleData = mapper.readTree(jp_sampleData);
         JsonNode root_segmentData = mapper.readTree(jp_segmentData);
         
-        //Find the target sample result json by using "sampleId" (in segment data) / "alys2sample_id" in sample meta data
         ArrayNode newResultsJson = mapper.createArrayNode();
         Iterator<JsonNode> sampleDataResultsArrItr = ((ArrayNode)root_sampleData.get("results")).getElements();
         while(sampleDataResultsArrItr.hasNext()) {
             JsonNode sampleDataResultJson = sampleDataResultsArrItr.next();
-            if (sampleDataResultJson.get("meta-data").get("alys2sample_id").asText().equals(root_segmentData.get("sampleId").asText())) {
+            if (sampleDataResultJson.get("meta-data").get("dmp_sample_id").asText().equals(root_segmentData.get("sampleId").asText())) {
                 JsonNode convertedResultJson = mapper.createObjectNode();
                 ((ObjectNode)convertedResultJson).putAll((ObjectNode)sampleDataResultJson);
                 ((ObjectNode)convertedResultJson).put("segment-data", root_segmentData.get("segment-data"));

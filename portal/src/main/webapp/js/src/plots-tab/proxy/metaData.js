@@ -1,4 +1,4 @@
-var fetchMetaData = (function() {
+var metaData = (function() {
     
     var datum_genetic_profile_meta = {
             type: "",
@@ -12,7 +12,8 @@ var fetchMetaData = (function() {
             description: ""
         },
         geneticProfiles = [],
-        clinicalAttrs = [];
+        clinicalAttrs = [],
+        retrieve_status = -1; //data not yet retrieved (-1), retrieved (1)
 
     function fetchProfileMetaData() {
         var paramsGetProfiles = {
@@ -50,12 +51,22 @@ var fetchMetaData = (function() {
             _datum.description = obj.description;
             clinicalAttrs.push(_datum);
         });
-        Plots.setMetaData(geneticProfiles, clinicalAttrs);
+        retrieve_status = 1;
     }
     
     return {
         fetch: function() {
+            retrieve_status = -1;
             fetchProfileMetaData();
+        },
+        getClinAttrsMeta: function() {
+            return clinicalAttrs;
+        },
+        getGeneticProfilesMeta: function() {
+            return geneticProfiles;
+        },
+        getRetrieveStatus: function() {
+            return retrieve_status;
         }
     };
     

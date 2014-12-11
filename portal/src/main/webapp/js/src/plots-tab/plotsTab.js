@@ -25,18 +25,33 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-var Plots = (function() {
-
-    var geneticProfilesMeta = [],
-        clinicalAttrsMeta = [];
+var plotsTab = (function() {
         
     return {
         init: function() {
-            fetchMetaData.fetch();
-        },
-        setMetaData: function(profileArr, clinicalArr) {
-            geneticProfilesMeta = profileArr;
-            clinicalAttrsMeta = clinicalArr;
+            
+            //init logic
+            metaData.fetch(); 
+            sidebar.init();
+            plotsData.fetch("x");
+            plotsData.fetch("y");
+            plotsbox.init();
+            
+            //apply event listening logic
+            $( "#" + ids.sidebar.x.div ).bind({
+                change: function() {
+                    plotsData.fetch("x");
+                    plotsbox.init();
+                }
+            });
+            $( "#" + ids.sidebar.y.div ).bind({
+                change: function() {
+                    plotsData.fetch("y");
+                    plotsbox.init();
+                }
+            });
+            
         }
+        
     };
 }());

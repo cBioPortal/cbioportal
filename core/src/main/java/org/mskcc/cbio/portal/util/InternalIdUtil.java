@@ -33,6 +33,14 @@ public class InternalIdUtil
         }
         return sampleIds;
     }
+    
+    public static List<Integer> getInternalPatientIds(int cancerStudyId) {
+        List<Integer> patientIds = new ArrayList<Integer>();
+        for (Patient patient : DaoPatient.getPatientsByCancerStudyId(cancerStudyId)) {
+            patientIds.add(patient.getInternalId());
+        }
+        return patientIds;
+    }
      
     public static List<Integer> getInternalNonNormalSampleIds(int cancerStudyId)
     {

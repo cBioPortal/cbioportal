@@ -382,7 +382,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 								if (Converter.NON_CASE_IDS.contains(potentialCaseID.toUpperCase())) {
 									continue;
 								}
-								caseSet.add(caseIDs.getPatientId(cancerStudy.getInternalId(), potentialCaseID));
+								caseSet.add(caseIDs.getSampleId(cancerStudy.getInternalId(), potentialCaseID));
 							}
 						}
 						break;

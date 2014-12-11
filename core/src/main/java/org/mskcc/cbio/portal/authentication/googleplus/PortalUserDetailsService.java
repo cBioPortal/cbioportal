@@ -100,7 +100,11 @@ public class PortalUserDetailsService implements UserDetailsService {
             if (log.isDebugEnabled()) {
                 log.debug("loadUserByUsername(), user and/or user authorities is null, user name: " +username);
             }
-            throw new UsernameNotFoundException("Error:  Unknown user or account disabled");
+            // set the failedUser  & currentUser attributes
+            DynamicState.INSTANCE.setCurrentUser("");
+            DynamicState.INSTANCE.setFailedUser(username);
+            // use the Exception message to attache the username to the request object
+            throw new UsernameNotFoundException(username);
         }    
         else {
             if (log.isDebugEnabled()) {

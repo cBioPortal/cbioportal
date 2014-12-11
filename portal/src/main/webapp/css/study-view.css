@@ -256,6 +256,9 @@
     width:auto;
     float: right;
 }
+#clinical-data-table-div .dataTables_filter {
+    width: 30%;
+}
 .study-view-pie-label .dataTables_filter {
     width: 100%;
     text-align: left;

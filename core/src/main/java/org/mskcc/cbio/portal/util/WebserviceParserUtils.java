@@ -34,6 +34,26 @@ import javax.servlet.http.HttpServletRequest;
 public final class WebserviceParserUtils {
     
     private WebserviceParserUtils() {}
+    
+    public static List<String> getSampleList(HttpServletRequest request) throws ProtocolException,
+            DaoException {
+        String samples = request.getParameter("samples");
+        if (samples != null) {     // todo: this is a hack, samples is just another word for patients
+            return new ArrayList(Arrays.asList(samples.split(" ")));
+        }
+        
+        String studyId = WebserviceParserUtils.getCancerStudyIDs(request).iterator().next();
+        int internalStudyId = DaoCancerStudy.getCancerStudyByStableId(studyId).getInternalId();
+        
+        ArrayList<String> patients = getPatientList(request);
+        if (patients==null) {
+            return Collections.emptyList();
+        }
+        
+        List<Integer> internalSampleIds = InternalIdUtil.getInternalNonNormalSampleIdsFromPatientIds(internalStudyId, patients);
+        
+        return InternalIdUtil.getStableSampleIds(internalSampleIds);
+    }
 
     /**
      * Grabs the appropriate stuff from a request and returns a list of case_ids

@@ -29,7 +29,6 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.icgc.etl.IcgcStudyFileETL;
 import org.mskcc.cbio.importer.icgc.support.IcgcImportService;
-import org.mskcc.cbio.importer.icgc.support.IcgcStudyBaseUrlMapFromFileSupplier;
 import org.mskcc.cbio.importer.icgc.transformer.ClinicalDataFileTransformer;
 
 /*

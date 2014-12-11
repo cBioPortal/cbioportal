@@ -995,9 +995,9 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         });
 
         $('#oncoprint_diagram_showmorefeatures_icon').click(function(){
-            //$('#select_clinical_attributes').chosen();
             $('#select_clinical_attributes_chzn').addClass("chzn-with-drop");
         });
+        
         $('#oncoprint_diagram_showmorefeatures_icon').qtip({
             content: {text:'Add more clinical attributes'},
             position: {my:'bottom middle', at:'top right', viewport: $(window)},

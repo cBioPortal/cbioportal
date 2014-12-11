@@ -358,7 +358,18 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
 //                removeClinicalAttribute();
 //            });// enable delete symbol "x" function
 
+            $('#oncoprinter_diagram_sortby_group' ).on( 'click', '.dropdown-menu li', function( event ) {
+                var $target = $( event.currentTarget );
 
+                $target.closest( '.btn-group' )
+                   .find( '[data-bind="label"]' ).text( $target.text() )
+                      .end()
+                   .children( '.dropdown-toggle' ).dropdown( 'toggle' );
+
+                return false;
+
+             }); 
+             
             $('#oncoprinter_zoomout').click(function() {
                 var tempValue = parseFloat($('#oncoprint_zoom_slider')[0].value) - 0.05;
                 $('#oncoprint_zoom_slider')[0].value = tempValue > 0.1 ? tempValue : 0.1;

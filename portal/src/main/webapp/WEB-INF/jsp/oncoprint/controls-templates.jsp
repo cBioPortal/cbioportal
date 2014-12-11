@@ -97,7 +97,7 @@
     </div>  
      --%>    
     <div class="btn-group btn-group-sm" id="oncoprinter-diagram-toolbar-buttons" style="float:right;margin-right:45px;display: inline;height:33px">
-        <div class="btn-group btn-group-sm">
+        <div class="btn-group btn-group-sm" id="oncoprinter_diagram_sortby_group">
            <button type="button" class="btn btn-default dropdown-toggle" id="oncoprinter_sortbyfirst_dropdonw" data-toggle="dropdown" style="background-color:#efefef">
              <span data-bind="label">Sort by</span>&nbsp;<span class="caret"></span>
            </button>
@@ -109,9 +109,6 @@
            </ul>
         </div>
 
-        <%--
-        <button type="button" class="btn btn-default" style="background-color:#efefef"><img id="oncoprinter_sortfirst_icon" class="oncoprinter_sortfirst_icon" checked="0" src="images/cool.svg" alt="icon" width="16" height="16" /></button>
-        --%>
         <button type="button" class="btn btn-default" style="background-color:#efefef"><img id="oncoprinter_diagram_showmutationcolor_icon" class="oncoprinter_diagram_showmutationcolor_icon" checked="0" src="images/uncolormutations.svg" alt="icon" width="16" height="16" /></button>
         <button type="button" class="btn btn-default" style="background-color:#efefef"><img id="oncoprinter-diagram-showlegend-icon" class="oncoprinter-diagram-showlegend-icon" checked="0" src="images/showlegend.svg" alt="icon" width="16" height="16" /></button>
         <button type="button" class="btn btn-default" style="background-color:#efefef"><img id="oncoprinter-diagram-removeUCases-icon" class="oncoprinter-diagram-removeUCases-icon" checked="0" src="images/removeUCases.svg" alt="icon" width="16" height="16" /></button>
@@ -122,7 +119,6 @@
             <span class="btn btn-default" id="oncoprint_diagram_slider_icon" style="background-color:#efefef;width: 80px; height: 20px"></span>
             <button type="button" id="oncoprinter_zoomin" class="btn btn-default" style="background-color:#efefef"><img src="images/zoom-in.svg" alt="icon" width="16" height="16" /></button>
         </div>
-
     </div>
     <%--
     <div id="oncoprinter_control_panel" style="height:18px"><p>
@@ -135,8 +131,6 @@
         <img id="oncoprinter-diagram-downloads-icon" style="width: 16px; height: 16px" class="oncoprinter-diagram-downloads-icon" src="images/in.svg">
         
         <span class='oncoprint_diagram_slider_icon' style="width: 80px; height: 16px"></span>
-        
-        
         </span>
     </p>
     </div>
@@ -144,16 +138,5 @@
 </script>
 
 <script type="text/javascript">
-    $( document.body ).on( 'click', '.dropdown-menu li', function( event ) {
-
-      var $target = $( event.currentTarget );
-
-      $target.closest( '.btn-group' )
-         .find( '[data-bind="label"]' ).text( $target.text() )
-            .end()
-         .children( '.dropdown-toggle' ).dropdown( 'toggle' );
-
-      return false;
-
-   });   
+  
 </script>

@@ -383,8 +383,7 @@ var SurvivalCurve = function() {
             vals = _opts.vals;
 
             //Init and Render
-            if (_inputArr[0].data.getData().length !== 0 &&
-                _inputArr[1].data.getData().length !== 0) {
+            if (_inputArr[0].data.getData().length !== 0) {
                     initCanvas();
                     initAxis(_inputArr);
                     appendAxis(elem.xAxis, elem.yAxis);

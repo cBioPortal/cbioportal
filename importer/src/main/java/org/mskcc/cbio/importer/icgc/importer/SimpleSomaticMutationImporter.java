@@ -17,21 +17,17 @@
  */
 package org.mskcc.cbio.importer.icgc.importer;
 
-import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
-import com.google.inject.internal.Lists;
-import com.google.inject.internal.Preconditions;
-import java.nio.file.Files;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+
+import com.google.common.base.Preconditions;
 import org.apache.log4j.Logger;
-import org.mskcc.cbio.importer.icgc.etl.IcgcStudyFileETL;
+
 import org.mskcc.cbio.importer.icgc.analytics.ICGCSummaryTable;
 import org.mskcc.cbio.importer.icgc.support.IcgcImportService;
-import org.mskcc.cbio.importer.icgc.transformer.SimpleSomaticFileTransformer;
-import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
 
 /*
  responsible for invoking ETL operations for simple somatic ICGC studys
@@ -40,47 +36,36 @@ import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerI
  */
 public class SimpleSomaticMutationImporter {
 
+    /*
+    responsible for:
+        1. generating a List of URLs for ICGC simple somatic mutation files
+        2. instantiating a SimpleSomaticFileTransformer object
+        3. invoking multiple IcgcStudyFileETL operations to import ICGC data
+
+     */
+
     private static Logger logger = Logger.getLogger(SimpleSomaticMutationImporter.class);
-    private static final Integer EXTRACTOR_THREADS = 4;
+    private static final Integer ETL_THREADS = 4;
     private List<String> simpleSomaticStudyList;
-    private Path destPath;
-    //private  IcgcSimpleSomaticMutationETL etl;
-    private  IcgcStudyFileETL etl;
-    
-    
-    public SimpleSomaticMutationImporter(final List<String> baseUrlList, final Path destDir) {
-        
-        Preconditions.checkArgument(null != baseUrlList && baseUrlList.size() > 0,
-                "A list of ICGC Study URLs is required");
-        Preconditions.checkArgument(null != destDir,
-                "A destination directory for ICGC study data is required");
-        Preconditions.checkArgument(Files.isDirectory(destDir),
-                "The specified directory " + destDir + " is invalid");
-        this.destPath = destDir;
-       
-        // edit mutation type in list
-        this.simpleSomaticStudyList = FluentIterable.from(baseUrlList)
-                .transform(new Function<String, String>() {
-                    @Override
-                    public String apply(String f) {
-                        return f.replaceAll(IcgcImportService.INSTANCE.MUTATION_TYPE,
-                                IcgcImportService.INSTANCE.SIMPLE_SOMATIC_MUTATION_TYPE);
-                    }
-                }).toList();
-        this.etl = new IcgcStudyFileETL(4);
+    private Path baseStagingPath;
+
+    public SimpleSomaticMutationImporter( final Path aPath) {
+        Preconditions.checkArgument(null != aPath,
+                "A Path to the head of the staging file area is required");
+        // get simple somatic mutation URLs for registered studies
+        Map<String, String> urlMap = IcgcImportService.INSTANCE.getIcgcMutationUrlMap();
+
+
     }
-    
-    private void dispose() {
-        this.etl.dispose();
-    }
+
     
     public  List<Path> processSimpleSomaticMutations() {
-       List<Path> mafList = this.etl.processICGCStudies(simpleSomaticStudyList, destPath,
-               new SimpleSomaticFileTransformer(new MutationFileHandlerImpl(), destPath));
+     //  List<Path> mafList = this.etl.processICGCStudies(simpleSomaticStudyList, destPath,
+         //      new SimpleSomaticFileTransformer(new MutationFileHandlerImpl(), destPath));
        // complete summary ststistics
-       ICGCSummaryTable table = new ICGCSummaryTable(destPath.toString());
+       ICGCSummaryTable table = new ICGCSummaryTable(baseStagingPath.toString());
        logger.info("Summary statistics completed");
-       return mafList;
+       return null;
     }
 
     /*
@@ -92,8 +77,7 @@ public class SimpleSomaticMutationImporter {
         Map<String, String> urlMap = IcgcImportService.INSTANCE.getIcgcMutationUrlMap();
         // test Path
          Path p = Paths.get("/tmp/asynctest");
-        SimpleSomaticMutationImporter controller = new SimpleSomaticMutationImporter(
-            Lists.newArrayList(urlMap.values()), p);
+        SimpleSomaticMutationImporter controller = new SimpleSomaticMutationImporter( p);
       List<Path> mafPathList = controller.processSimpleSomaticMutations();
       for(Path path : mafPathList){
           logger.info("MAF File: " +path.toString());

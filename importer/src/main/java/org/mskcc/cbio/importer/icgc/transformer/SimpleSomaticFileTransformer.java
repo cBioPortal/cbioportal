@@ -18,25 +18,13 @@
 package org.mskcc.cbio.importer.icgc.transformer;
 
 import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Lists;
 import com.google.common.hash.BloomFilter;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
-import java.io.BufferedReader;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Executors;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -48,6 +36,18 @@ import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerI
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationModel;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationTransformer;
 import org.mskcc.cbio.importer.persistence.staging.util.StagingUtils;
+
+import java.io.BufferedReader;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class SimpleSomaticFileTransformer extends MutationTransformer implements IcgcFileTransformer {
 
@@ -62,12 +62,6 @@ public class SimpleSomaticFileTransformer extends MutationTransformer implements
             aHandler.registerTsvStagingFile(stagingFileDirectory.resolve("data_mutations_extended.txt"),
                     MutationModel.resolveColumnNames());
         }
-    }
-
-    @Override
-    public Path call() throws Exception {
-        this.processSimpleSomaticData();
-        return this.icgcFilePath;
     }
 
     @Override
@@ -125,12 +119,19 @@ public class SimpleSomaticFileTransformer extends MutationTransformer implements
                         }
                     }).toList();
             this.fileHandler.transformImportDataToTsvStagingFile(somaticList, MutationModel.getTransformationModel());
+            logger.info("transformation complete ");
         } catch (Exception ex) {
             logger.error(ex.getMessage());
             ex.printStackTrace();
         }
     }
 
+    @Override
+    public Path call() throws Exception {
+        logger.info("Transformer invoked");
+        this.processSimpleSomaticData();
+        return this.icgcFilePath;
+    }
     /*
      main method for standalone testing
      */
@@ -141,15 +142,25 @@ public class SimpleSomaticFileTransformer extends MutationTransformer implements
                 new MutationFileHandlerImpl(), Paths.get("/tmp/icgc/EOPC-DE"));
         String fn = "/tmp/EOPC-DE.tsv";
         transformer.setIcgcFilePath(Paths.get(fn));
-        service.submit(transformer);
-        try {
-            Thread.sleep(60000); // shutdown after 1 minute
-            service.shutdown();
-            logger.info("Test completed");
-        } catch (InterruptedException ex) {
-            logger.error(ex.getMessage());
-        }
+        ListenableFuture<Path> p = service.submit(transformer);
+
+            try {
+                logger.info("Path " +p.get(90,TimeUnit.SECONDS));
+                p.cancel(true);
+                service.shutdown();
+                logger.info("service shutdown ");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (TimeoutException e) {
+                e.printStackTrace();
+            }
+        logger.info("FINIS");
+
+
 
     }
+
 
 }

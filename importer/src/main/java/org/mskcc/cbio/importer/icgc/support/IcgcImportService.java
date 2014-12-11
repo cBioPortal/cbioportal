@@ -125,7 +125,8 @@ public enum IcgcImportService {
 
                         @Override
                         public String apply(String f) {
-                            return icgcMutationUrlTemplate.replaceAll(STUDY_FLAG, f);
+                            String template = icgcMutationUrlTemplate.replaceAll(MUTATION_TYPE, SIMPLE_SOMATIC_MUTATION_TYPE);
+                            return template.replaceAll(STUDY_FLAG, f);
                         }
                     });
         }

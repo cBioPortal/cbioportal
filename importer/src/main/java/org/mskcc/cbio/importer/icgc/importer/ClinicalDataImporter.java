@@ -27,8 +27,9 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
-import org.mskcc.cbio.importer.icgc.etl.IcgcStudyFileETL;
+
 import org.mskcc.cbio.importer.icgc.support.IcgcImportService;
+
 import org.mskcc.cbio.importer.icgc.transformer.ClinicalDataFileTransformer;
 
 /*
@@ -42,7 +43,7 @@ public class ClinicalDataImporter {
     private static final Integer EXTRACTOR_THREADS = 4;
     private List<String> clinicalDataStudyList;
     private Path destPath;    
-    private  IcgcStudyFileETL etl;
+
     
     
     public ClinicalDataImporter(final List<String> baseUrlList, final Path destDir) {
@@ -67,19 +68,20 @@ public class ClinicalDataImporter {
                     }
                 }).toList();
         //instantiate an ETL processor with n threads
-        this.etl = new IcgcStudyFileETL(EXTRACTOR_THREADS);
+        //this.etl = new IcgcStudyFileETL(EXTRACTOR_THREADS);
     }
     
     private void dispose() {
-        this.etl.dispose();
+
     }
     
     public  List<Path> processClinicalData() {
        // process the clinical data files with the ETL app      
-       List<Path> txtList = this.etl.processICGCStudies(clinicalDataStudyList, destPath,
-               new ClinicalDataFileTransformer());
+     //  List<Path> txtList = this.etl.processICGCStudies(clinicalDataStudyList, destPath,
+               new ClinicalDataFileTransformer();
       // return a list of text files containing the transformed clinical data
-       return txtList;
+      // return txtList;
+        return null;
     }
 
     /*

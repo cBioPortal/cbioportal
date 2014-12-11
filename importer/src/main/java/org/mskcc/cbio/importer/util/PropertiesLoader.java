@@ -6,6 +6,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.portal.util.GlobalProperties;
 
@@ -123,6 +126,13 @@ public class PropertiesLoader {
 
     public String getDmpTokenConsumerSample() {
         return properties.getProperty(DMP_CBIO_CONSUME_SAMPLE);
+    }
+
+    public String getImporterPropertyByName(String propertyName){
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(propertyName),"A property name is required");
+       Preconditions.checkArgument( properties.containsKey(propertyName),
+               "Property " +propertyName +" is invalid");
+        return properties.getProperty(propertyName);
     }
 
 }

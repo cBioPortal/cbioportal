@@ -554,8 +554,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         }
 
                         // enable the option to sort by clinical data
-//                        $(sortBy.add('option[value="clinical"]')[1]).prop('disabled', false);
-//                        sortBy[0].options[1].disabled = false;
+                        $('#oncoprint-diagram-toolbar-buttons #clinical_first')[0].style.display = "inline";
 
 //                        // sort by genes by default
 //                        sortBy.val('genes');
@@ -629,8 +628,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         }
 
                         // enable the option to sort by clinical data
-//                        $(sortBy.add('option[value="clinical"]')[1]).prop('disabled', false);
-//                        sortBy[0].options[1].disabled = false;
+                        $('#oncoprint-diagram-toolbar-buttons #clinical_first')[0].style.display = "inline";
 
 //                        // sort by genes by default
 //                        sortBy.val('genes');
@@ -1007,7 +1005,18 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             show: {event: "mouseover"},
             hide: {fixed: true, delay: 100, event: "mouseout"}
             });
-        
+            
+        $('#oncoprint_zoomout').click(function() {
+            var tempValue = parseFloat($('#oncoprint_zoom_slider')[0].value) - 0.05;
+            $('#oncoprint_zoom_slider')[0].value = tempValue > 0.1 ? tempValue : 0.1;
+            oncoprint.zoom(zoom.val());
+        });
+        $('#oncoprint_zoomin').click(function() {
+            var tempValue = parseFloat($('#oncoprint_zoom_slider')[0].value) + 0.05;
+            $('#oncoprint_zoom_slider')[0].value = tempValue < 1.0 ? tempValue : 1.0;
+            oncoprint.zoom(zoom.val());
+        });
+            
         $('#toggle_unaltered_cases').click(function() {
             oncoprint.toggleUnalteredCases();
             utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});     // hack =(

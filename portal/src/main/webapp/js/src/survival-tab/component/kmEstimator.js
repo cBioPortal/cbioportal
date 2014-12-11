@@ -43,6 +43,6 @@ var KmEstimator = function() {
                 }
             }
         }
-    }
+    };
 
 }; //Close KmEstimator

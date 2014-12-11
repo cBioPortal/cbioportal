@@ -162,33 +162,33 @@
 
     function overWriteFilters() {
         jQuery.fn.dataTableExt.oSort['mutex-odds-ratio-desc'] = function(a,b) {
-            if (a == "<-3") { a = -3 };
-            if (b == "<-3") { b = -3 };
-            if (a == ">3") { a = 3 };
-            if (b == ">3") { b = 3 };
+            if (a === "<-3") { a = -3; }
+            if (b === "<-3") { b = -3; }
+            if (a === ">3") { a = 3; }
+            if (b === ">3") { b = 3; }
             if (a > b) return -1;
             else if (a < b) return 1;
             else return 0;
         };
         jQuery.fn.dataTableExt.oSort['mutex-odds-ratio-asc'] = function(a,b) {
-            if (a == "<-3") { a = -3 };
-            if (b == "<-3") { b = -3 };
-            if (a == ">3") { a = 3 };
-            if (b == ">3") { b = 3 };
+            if (a === "<-3") { a = -3; }
+            if (b === "<-3") { b = -3; }
+            if (a === ">3") { a = 3; }
+            if (b === ">3") { b = 3; }
             if (a > b) return 1;
             else if (a < b) return -1;
             else return 0;
         };
         jQuery.fn.dataTableExt.oSort['mutex-p-value-desc'] = function(a,b) {
-            if (a == "<0.001") { a = 0.0009 };
-            if (b == "<0.001") { b = 0.0009 };
+            if (a === "<0.001") { a = 0.0009; }
+            if (b === "<0.001") { b = 0.0009; }
             if (a > b) return -1;
             else if (a < b) return 1;
             else return 0;
         };
         jQuery.fn.dataTableExt.oSort['mutex-p-value-asc'] = function(a,b) {
-            if (a == "<0.001") { a = 0.0009 };
-            if (b == "<0.001") { b = 0.0009 };
+            if (a === "<0.001") { a = 0.0009; }
+            if (b === "<0.001") { b = 0.0009; }
             if (a > b) return 1;
             else if (a < b) return -1;
             else return 0;
@@ -291,8 +291,12 @@
     function addStatInfo() {
         var _stat = MutexData.getDataStat();
         //replace 0 (text) with "non"
-        if (_stat.num_of_sig_mutex === 0) _stat.num_of_sig_mutex = "none";
-        if (_stat.num_of_sig_co_oc === 0) _stat.num_of_sig_co_oc = "none";
+        if (_stat.num_of_sig_mutex === 0) {
+            _stat.num_of_sig_mutex = "none";
+        }
+        if (_stat.num_of_sig_co_oc === 0) {
+            _stat.num_of_sig_co_oc = "none";
+        } 
         if (_stat.num_of_mutex === 0) {
             _stat.num_of_mutex = "no";    
             $("#stat_sig_mutex").remove(); 

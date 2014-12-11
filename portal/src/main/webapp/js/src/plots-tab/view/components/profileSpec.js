@@ -57,7 +57,11 @@ var profileSpec = (function() {
             $("#" + ids.sidebar[axis].log_scale + "-div").empty();
             if ($("#" + ids.sidebar[axis].profile_name).val().toLowerCase().indexOf(("zscores")) === -1 &&
                 $("#" + ids.sidebar[axis].profile_name).val().toLowerCase().indexOf(("rna_seq")) !== -1) { //if rna seq (no z-score) profile, show log scale option
-                    $("#" + ids.sidebar[axis].spec_div).append("<br><div id='" + ids.sidebar[axis].log_scale + "-div'><h5>Apply Log Scale</h5><input type='checkbox' id='" + ids.sidebar[axis].log_scale + "'></div>");
+                    $("#" + ids.sidebar[axis].spec_div).append(
+                            "<br><div id='" + ids.sidebar[axis].log_scale + "-div'>" + 
+                            "<h5>Apply Log Scale</h5>" +
+                            "<input type='checkbox' id='" + ids.sidebar[axis].log_scale + "' checked>" + 
+                            "</div>");
             }            
         }
         

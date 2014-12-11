@@ -1,17 +1,13 @@
 var plotsbox = (function() {
     
-    var render = function() {
+    var render = function(result) {
         
     };
     
     return {
         init: function() {
-           render(); 
-        },
-        update: {
-            
-        }
-        
+            plotsData.get(render);
+        }        
     };
     
 }());

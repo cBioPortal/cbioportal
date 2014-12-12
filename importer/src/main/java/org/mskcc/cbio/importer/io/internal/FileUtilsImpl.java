@@ -48,7 +48,7 @@ import org.springframework.beans.factory.annotation.Value;
 import java.io.*;
 import java.util.*;
 import java.net.URL;
-import java.util.regex.Matcher;
+import java.util.regex.*;
 import java.lang.reflect.Constructor;
 import java.util.zip.GZIPInputStream;
 
@@ -529,6 +529,41 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
 			writer.flush();
 			writer.close();
+	}
+
+	public void updateCancerStudyMetadataFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata, Map<String,String> properties) throws Exception
+	{
+		File metaFile = org.apache.commons.io.FileUtils.getFile(stagingDirectory,
+																cancerStudyMetadata.getStudyPath(),
+																cancerStudyMetadata.getCancerStudyMetadataFilename());
+		if (LOG.isInfoEnabled()) {
+			LOG.info("updateCancerStudyMetadataFile(), meta file: " + metaFile);
+		}
+
+		StringBuilder builder = new StringBuilder();
+		Pattern propertyPattern = Pattern.compile("^(\\w+)\\: .*$");
+		org.apache.commons.io.LineIterator it = org.apache.commons.io.FileUtils.lineIterator(metaFile);
+		try {
+			while (it.hasNext()) {
+				String line = it.nextLine();
+				Matcher matcher = propertyPattern.matcher(line);
+				if (matcher.find()) {
+					if (properties.containsKey(matcher.group(1))) {
+						builder.append(matcher.group(1) + ": " + properties.get(matcher.group(1)) + "\n");
+					}
+					else {
+						builder.append(line + "\n");
+					}
+				}
+				else {
+					builder.append(line + "\n");
+				}
+			}
+		} finally {
+			it.close();
+		}
+
+		org.apache.commons.io.FileUtils.writeStringToFile(metaFile, builder.toString(), false);
 	}
 
 	public void writeMetadataFile(String stagingDirectory,

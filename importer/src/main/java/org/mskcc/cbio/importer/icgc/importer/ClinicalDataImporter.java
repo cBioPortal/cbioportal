@@ -44,8 +44,6 @@ public class ClinicalDataImporter {
     private List<String> clinicalDataStudyList;
     private Path destPath;    
 
-    
-    
     public ClinicalDataImporter(final List<String> baseUrlList, final Path destDir) {
         
         Preconditions.checkArgument(null != baseUrlList && baseUrlList.size() > 0,

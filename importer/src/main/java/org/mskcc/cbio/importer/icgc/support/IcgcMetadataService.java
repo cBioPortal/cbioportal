@@ -73,8 +73,6 @@ public enum IcgcMetadataService {
                         return getIcgcMetadataById(studyId);
                     }
                 }).toList();
-
-
     }
 
     /*

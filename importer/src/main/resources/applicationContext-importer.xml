@@ -231,6 +231,14 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
     </b:bean>
     <!-- ICGCImportTask -->
     <b:bean id="icgcImportTask" class ="org.mskcc.cbio.importer.task.IcgcDataImportTask">
+        <b:constructor-arg>
+            <b:list>
+                <b:ref bean="icgcSimpleSomaticImporter"></b:ref>
+            </b:list>
+        </b:constructor-arg>
+    </b:bean>
+    <!-- ICGC  Simple Somatic Mutation Importer -->
+    <b:bean id="icgcSimpleSomaticImporter" class="org.mskcc.cbio.importer.icgc.importer.SimpleSomaticMutationImporter">
     </b:bean>
     <!-- DmpDarwinFetcher -->
     <b:bean id="dmpDarwinFetcher" class="org.mskcc.cbio.importer.fetcher.internal.DmpDarwinFetcherImpl">

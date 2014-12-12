@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 import com.google.common.base.Preconditions;
@@ -43,6 +45,8 @@ public class PropertiesLoader {
     private static final String DMP_CBIO_RETRIEVE_VARIANTS = "dmp.tokens.retrieve_variants";
     private static final String DMP_CBIO_RETRIEVE_SEGMENT_DATA = "dmp.tokens.retrieve_segment_data";
     private static final String DMP_CBIO_CONSUME_SAMPLE = "dmp.tokens.consume_sample";
+
+    private static final String IMPORTER_BASE_DIRECTORY = "importer.base.directory";
     
     private static PropertiesLoader instance = null;
    
@@ -127,6 +131,16 @@ public class PropertiesLoader {
     public String getDmpTokenConsumerSample() {
         return properties.getProperty(DMP_CBIO_CONSUME_SAMPLE);
     }
+
+    public String getImporterBaseDirectory() { return properties.getProperty(IMPORTER_BASE_DIRECTORY);}
+
+    public Path getImporterBasePath() {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(this.getImporterBaseDirectory()),
+                "The base directory for staging files is undefined");
+         return Paths.get(this.getImporterBaseDirectory());
+    }
+
+
 
     public String getImporterPropertyByName(String propertyName){
         Preconditions.checkArgument(!Strings.isNullOrEmpty(propertyName),"A property name is required");

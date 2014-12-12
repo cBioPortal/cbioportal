@@ -18,6 +18,7 @@
 package org.mskcc.cbio.importer.icgc.transformer;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.FluentIterable;
@@ -38,6 +39,7 @@ import org.mskcc.cbio.importer.persistence.staging.mutation.MutationTransformer;
 import org.mskcc.cbio.importer.persistence.staging.util.StagingUtils;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -58,10 +60,16 @@ public class SimpleSomaticFileTransformer extends MutationTransformer implements
 
     public SimpleSomaticFileTransformer(TsvStagingFileHandler aHandler, Path stagingFileDirectory) {
         super(aHandler);
-        if (StagingUtils.isValidStagingDirectoryPath(stagingFileDirectory)) {
+        Preconditions.checkArgument(null != stagingFileDirectory,
+                "A Path to a staging file directory is required");
+        try {
+            Files.createDirectories(stagingFileDirectory);
             aHandler.registerTsvStagingFile(stagingFileDirectory.resolve("data_mutations_extended.txt"),
                     MutationModel.resolveColumnNames());
+        } catch (IOException e) {
+            logger.error(e);
         }
+
     }
 
     @Override

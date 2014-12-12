@@ -1,4 +1,4 @@
-package org.mskcc.cbio.importer.icgc.app;
+package org.mskcc.cbio.importer.icgc.etl;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -203,6 +203,7 @@ public class IcgcStudyEtlCallable implements Callable<String> {
 
             } catch (IOException e) {
                 logger.error(e.getMessage());
+                e.printStackTrace();
             }
             return this.compressedFilePath;
         }

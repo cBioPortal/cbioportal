@@ -232,14 +232,15 @@ public class DaoPatientList {
         int skippedPatients = 0;
         try {
             StringBuilder sql = new StringBuilder("INSERT INTO patient_list_list (`LIST_ID`, `PATIENT_ID`) VALUES ");
-            for (String patientId : patientList.getPatientList()) {
-                Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(patientList.getCancerStudyId(), patientId);
-                if (patient == null) {
-                    System.out.println("null patient: " + patientId + ":" + patientList.getStableId());
+            // NOTE - as of 12/12/14, patient lists contain sample ids
+            for (String sampleId : patientList.getPatientList()) {
+                Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(patientList.getCancerStudyId(), sampleId);
+                if (sample == null) {
+                    System.out.println("null sample: " + sampleId + ":" + patientList.getStableId());
                     ++skippedPatients;
                     continue;
                 }
-                sql.append("('").append(patientListId).append("','").append(patient.getInternalId()).append("'),");
+                sql.append("('").append(patientListId).append("','").append(sample.getInternalId()).append("'),");
             }
             if (skippedPatients == patientList.getPatientList().size()) {
                 return 0;
@@ -270,8 +271,9 @@ public class DaoPatientList {
             rs = pstmt.executeQuery();
             ArrayList<String> patientIds = new ArrayList<String>();
             while (rs.next()) {
-                Patient patient = DaoPatient.getPatientById(rs.getInt("PATIENT_ID"));
-				patientIds.add(patient.getStableId());
+                // NOTE - as of 12/12/14, patient lists contain sample ids
+                Sample sample = DaoSample.getSampleById(rs.getInt("PATIENT_ID"));
+				patientIds.add(sample.getStableId());
 			}
             return patientIds;
         } catch (NullPointerException e) {

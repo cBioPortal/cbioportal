@@ -22,9 +22,8 @@ import org.mskcc.cbio.portal.model.Patient;
 import org.mskcc.cbio.portal.dao.DaoPatient;
 import org.mskcc.cbio.portal.dao.DaoSample;
 
+import java.util.*;
 import java.util.regex.*;
-import java.util.List;
-import java.util.ArrayList;
 
 public class StableIdUtil
 {
@@ -151,5 +150,16 @@ public class StableIdUtil
             }
         }
         return sampleIds;
+    }
+
+    public static List<String> getStablePatientIdsFromSampleIds(int cancerStudyId, List<String> stableSampleIds)
+    {
+        Set<String> patientIds = new HashSet<String>();
+        for (String sampleId : stableSampleIds) {
+            Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId);
+            Patient p = DaoPatient.getPatientById(s.getInternalPatientId());
+            patientIds.add(p.getStableId()); 
+        }
+        return new ArrayList<String>(patientIds);
     }
 }

@@ -645,7 +645,7 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
             
             var selectsortby = function()
             {
-                if($('#oncoprinter_sortbyfirst_dropdonw span')[0].innerHTML === 'Genes first')
+                if($('#oncoprinter_sortbyfirst_dropdonw span')[0].innerHTML === 'Genes first' || $('#oncoprinter_sortbyfirst_dropdonw span')[0].innerHTML === 'Sort by')
                 {
                     main(params,'genes');
                 }

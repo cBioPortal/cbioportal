@@ -287,7 +287,9 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             
             zoom = reset_zoom();
             oncoprint.zoom(zoom.val());
-            $('.oncoprint-diagram-showlegend-icon')[0].attributes.src.value === 'images/showlegend.svg';
+            $('.oncoprint-diagram-showlegend-icon')[0].attributes.src.value = 'images/showlegend.svg'; // === or =
+            $('.oncoprint-diagram-removeUCases-icon')[0].attributes.src.value = 'images/removeUCases.svg';
+            $('.oncoprint-diagram-removeWhitespace-icon')[0].attributes.src.value = 'images/removeWhitespace.svg';
             oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
             oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
             utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
@@ -378,6 +380,9 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 //        // disable the option to sort by clinical data
         zoom = reset_zoom();
         functionFunctions();
+        $('.oncoprint-diagram-showlegend-icon')[0].attributes.src.value = 'images/showlegend.svg'; // === or =
+        $('.oncoprint-diagram-removeUCases-icon')[0].attributes.src.value = 'images/removeUCases.svg';
+        $('.oncoprint-diagram-removeWhitespace-icon')[0].attributes.src.value = 'images/removeWhitespace.svg';
     }
 
     var refreshOncoPrint = function(){
@@ -509,9 +514,11 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         oncoprint.zoom(zoom.val());
                         oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
                         oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
-                        $('.oncoprint-diagram-showlegend-icon')[0].attributes.src.value === 'images/showlegend.svg';
+                        $('.oncoprint-diagram-showlegend-icon')[0].attributes.src.value = 'images/showlegend.svg';
+                        $('.oncoprint-diagram-removeUCases-icon')[0].attributes.src.value = 'images/removeUCases.svg';
+                        $('.oncoprint-diagram-removeWhitespace-icon')[0].attributes.src.value = 'images/removeWhitespace.svg';
                         utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
-                        invodeDataManager();
+                        invokeDataManager();
                     }
                 });
             }
@@ -584,7 +591,9 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         oncoprint.zoom(zoom.val());
                         oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
                         oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
-                        $('.oncoprint-diagram-showlegend-icon')[0].attributes.src.value === 'images/showlegend.svg';
+                        $('.oncoprint-diagram-showlegend-icon')[0].attributes.src.value = 'images/showlegend.svg';
+                        $('.oncoprint-diagram-removeUCases-icon')[0].attributes.src.value = 'images/removeUCases.svg';
+                         $('.oncoprint-diagram-removeWhitespace-icon')[0].attributes.src.value = 'images/removeWhitespace.svg';
                         utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
                         invokeDataManager();
                     }
@@ -660,7 +669,9 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         oncoprint.zoom(zoom.val());
                         oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
                         oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
-                        $('.oncoprint-diagram-showlegend-icon')[0].attributes.src.value === 'images/showlegend.svg';
+                        $('.oncoprint-diagram-showlegend-icon')[0].attributes.src.value = 'images/showlegend.svg';
+                        $('.oncoprint-diagram-removeUCases-icon')[0].attributes.src.value = 'images/removeUCases.svg';
+                         $('.oncoprint-diagram-removeWhitespace-icon')[0].attributes.src.value = 'images/removeWhitespace.svg';
                         utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
                         invokeDataManager();
                     }

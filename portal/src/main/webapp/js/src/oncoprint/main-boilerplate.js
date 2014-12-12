@@ -282,9 +282,16 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 samples= samples + genesValue[i].key+"\n";
             }
             var a=document.createElement('a');
-            a.href='data:text/plain;base64,'+btoa(samples);
+//            a.href='data:text/plain;base64,'+btoa(samples);
+            a.href='data:text/data:application/octet-stream;charset=utf-16le;base64,'+btoa(samples);
+            
             a.textContent='download';
             a.download='OncoPrintSamples.txt';
+            var is_firefox = navigator.userAgent.indexOf("Firefox") !== -1;
+            if(is_firefox)
+            {
+                window.open(a.href,'OncoPrintSamples.txt');
+            }
             a.click();
             //a.delete();
         });

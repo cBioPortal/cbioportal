@@ -371,6 +371,14 @@ class ImporterImpl implements Importer {
 				map.put("type_of_cancer", cancerStudyMetadata.getTumorType());
 		    	fileUtils.updateCancerStudyMetadataFile(rootDirectory, cancerStudyMetadata, map);
 		    }
+		    if (!createdCancerStudyMetadataFile) {
+		    	// if we didnt create a cancer study metadata file,
+		    	// we may have an incomplete cancerStudyMetadata object
+		    	// (for bic-mskcc, most properties are blank)
+		    	Properties properties = getProperties(cancerStudyMetadataFile);
+		    	properties.setProperty("study_path", cancerStudyMetadata.getStudyPath());
+		    	cancerStudyMetadata = new CancerStudyMetadata(properties);
+		    }
 			String[] args = { cancerStudyMetadataFile };
 			if (LOG.isInfoEnabled()) {
 				LOG.info("loadStagingFiles(), Importing cancer study metafile: " + cancerStudyMetadataFile);

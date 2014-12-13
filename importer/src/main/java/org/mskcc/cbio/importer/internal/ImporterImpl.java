@@ -295,7 +295,12 @@ class ImporterImpl implements Importer {
                                 LOG.info("loadStagingFile(), the following case lists are missing and if data files are available will be generated: " + missingCaseListFilenames);
                         }
                         // create missing caselists
-                        fileUtils.generateCaseLists(false, true, rootDirectory, cancerStudyMetadata);
+                        try {
+                            fileUtils.generateCaseLists(false, true, rootDirectory, cancerStudyMetadata);
+                        } catch (Exception e) {
+                            // todo: this is a temp fix
+                            e.printStackTrace();
+                        }
                 }
 
                 // process case lists

@@ -76,16 +76,20 @@ public class ImportPatientList {
       for (String sampleId : sampleIds) {
          Sample s = DaoSample.getSampleByCancerStudyAndSampleId(theCancerStudy.getInternalId(), sampleId);
          if (s==null) {
-            throw new RuntimeException("Sample does not exist: "+sampleId);
-//             Patient p = DaoPatient.getPatientByCancerStudyAndPatientId(theCancerStudy.getInternalId(), sampleId);
-//             if (p!=null) {
-//                List<Sample> samples = DaoSample.getSamplesByPatientId(p.getInternalId());
-//                for (Sample sa : samples) {
-//                      if (!sampleIDsList.contains(sa.getStableId())) {
-//                          sampleIDsList.add(sa.getStableId());
-//                      }
-//                }
-//             };
+//            throw new RuntimeException("Sample does not exist: "+sampleId);
+             System.err.println("Error: count not find sample "+sampleId);
+             Patient p = DaoPatient.getPatientByCancerStudyAndPatientId(theCancerStudy.getInternalId(), sampleId);
+             if (p!=null) {
+                System.err.println("Error: but found a patient with this ID. Will use it in the sample list.");
+                List<Sample> samples = DaoSample.getSamplesByPatientId(p.getInternalId());
+                for (Sample sa : samples) {
+                      if (!sampleIDsList.contains(sa.getStableId())) {
+                          sampleIDsList.add(sa.getStableId());
+                      }
+                }
+             } else {
+                 //throw new RuntimeException("Sample does not exist: "+sampleId);
+             }
          } else if (!sampleIDsList.contains(s.getStableId())) {
             sampleIDsList.add(s.getStableId());
          } else {

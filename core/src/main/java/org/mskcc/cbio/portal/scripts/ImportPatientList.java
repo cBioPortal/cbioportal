@@ -74,14 +74,17 @@ public class ImportPatientList {
       ArrayList<String> sampleIDsList = new ArrayList<String>();
       String[] sampleIds = sampleListStr.split("\t");
       for (String sampleId : sampleIds) {
-         //Patient p = DaoPatient.getPatientByCancerStudyAndPatientId(theCancerStudy.getInternalId(), patientId);
          Sample s = DaoSample.getSampleByCancerStudyAndSampleId(theCancerStudy.getInternalId(), sampleId);
-         if (s==null) {
-             throw new RuntimeException("Sample does not exist: "+sampleId);
-         }
-         
-         if (!sampleIDsList.contains(s.getStableId())) {
+         if (s!=null && !sampleIDsList.contains(s.getStableId())) {
             sampleIDsList.add(s.getStableId());
+         } else {
+             Patient p = DaoPatient.getPatientByCancerStudyAndPatientId(theCancerStudy.getInternalId(), sampleId);
+             if (p!=null) {
+                List<Sample> samples = DaoSample.getSamplesByPatientId(p.getInternalId());
+                for (Sample sa : samples) {
+                    sampleIDsList.add(sa.getStableId());
+                }
+             };
          }
       }
 

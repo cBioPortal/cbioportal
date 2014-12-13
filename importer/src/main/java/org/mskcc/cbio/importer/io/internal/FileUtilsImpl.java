@@ -261,6 +261,9 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("generateCaseLists(), stagingFilenames: " + java.util.Arrays.toString(stagingFilenames));
 			}
+			if (!allStagingFilesExist(cancerStudyMetadata, stagingDirectory, stagingFilenames)) {
+				continue;
+			}
 			// this is the set we will pass to writeCaseListFile
 			LinkedHashSet<String> caseSet = new LinkedHashSet<String>();
 			// this indicates the number of staging files processed -
@@ -319,6 +322,20 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 				writeCancerStudyMetadataFile(stagingDirectory, cancerStudyMetadata, caseSet.size());
 			}
 		}
+	}
+
+	private boolean allStagingFilesExist(CancerStudyMetadata cancerStudyMetadata, String stagingDirectory, String[] stagingFilenames)
+	{
+		for (String stagingFilename : stagingFilenames) {
+			File stagingFile = org.apache.commons.io.FileUtils.getFile(stagingDirectory,
+																	   cancerStudyMetadata.getStudyPath(),
+																	   stagingFilename);
+			// sanity check
+			if (!stagingFile.exists()) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	@Override

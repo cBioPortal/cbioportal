@@ -875,12 +875,13 @@
             }
         };
 
-        Chosen.prototype.result_activate_up = function (el, activated, deactivated) {
+        Chosen.prototype.result_compute_activation_up = function (el, activation) {
             // recursively activates parents
             for (var i=0; i<el.length; i++) {
-		    if (!(el[i].id in deactivated) || el[i].getAttribute('data-is-group-header')) {
+		    activation[el[i].id] += 1;
+		    if (el[i].getAttribute('data-is-group-header')) {
 			    // when activating up, we show headers even if they're deactivated
-			activated[el[i].id] = true;
+			    activation[el[i].id] = 1;
 		    }
             }
             var ret = true;
@@ -889,7 +890,7 @@
                 if (parent) {
                     parent = this.container.find("li[data-tree-id='" + parent + "']");
                     if (parent) {
-                        ret = ret && this.result_activate_up(parent, activated, deactivated);
+                        ret = ret && this.result_activate_up(parent, activation);
                     }
                 }
             } catch (err) {
@@ -898,11 +899,9 @@
             return ret;
         }
         
-        Chosen.prototype.result_activate_down = function(el, activated, deactivated) {
+        Chosen.prototype.result_compute_activation_down = function(el, activation) {
             for (var i=0; i<el.length; i++) {
-                if (!(el[i].id in deactivated)) {
-			activated[el[i].id] = true;
-		}
+		    activation[el[i].id] += 1;
             }
             var ret = true;
             try {
@@ -910,7 +909,7 @@
                     try {
                         ret = ret && this.result_activate_down(this.container.find("li[data-parent='"+
                                                         this.container.find(el[i]).attr("data-tree-id")
-                                                        +"']"), activated, deactivated);
+                                                        +"']"), activation);
                     } catch(err) {
 			ret = false;
                     }
@@ -921,15 +920,19 @@
             return ret;
         }
         
-        Chosen.prototype.result_activate = function (el, activated, deactivated) {
+        Chosen.prototype.result_compute_activation = function (el, activation) {
             // recursively activates all parents and children
-	    activated = activated || {};
-	    deactivated = deactivated || {};
-            var ret1 = this.result_activate_up(el, activated, deactivated);
-            var ret2 = this.result_activate_down(el, activated, deactivated);
+	    activation = activation || {};
+            var ret1 = this.result_compute_activation_up(el, activation);
+            var ret2 = this.result_compute_activation_down(el, activation);
             return ret1 && ret2;
         };
 
+	Chosen.prototype.result_activate = function(el) {
+		el.css('display', 'list-item');
+		el.addClass('active-result');
+	};
+	
         Chosen.prototype.result_deactivate = function (el) {
 		el.css('display','none');
             return el.removeClass("active-result");
@@ -1114,29 +1117,129 @@
 		return {positive: positive, negative:negative};
 	}
 	
+	
         Chosen.prototype.winnow_results = function() {
-      var option, result, result_id, results, searchText, text, zregex, _i, _len, _ref;
-      var activated = {};
+      var option, result, result_id, results, searchText, zregex, _i, _len, _ref;
       this.no_results_clear();
-      var found_results = {};
       _ref = this.results_data;
       searchText = this.search_field.val() === this.default_text ? "" : $('<div/>').text($.trim(this.search_field.val())).html();
-      var searchTerms = get_search_terms(searchText);
-      var deactivated = {};
-      var positiveSearchWords = searchTerms.positive;
-      var negativeSearchWords = searchTerms.negative;
-      var positiveSearchResults = {};
-      var negativeSearchResults = {};
+      var disjunctiveTerms = searchText.split(";");
+      var searchTermGroups = disjunctiveTerms.map(function(x) { return get_search_terms(x);}) ;
+      var conjunctions = [];
+      
+      
+      var highlights = {};
       var allResults = this.get_all_results();
-     for (var i=0; i<positiveSearchWords.length; i++) {
-	     positiveSearchResults[positiveSearchWords[i]] = this.get_search_results(positiveSearchWords[i]);
-     }
-     for (var i=0; i<negativeSearchWords.length; i++) {
-	     negativeSearchResults[negativeSearchWords[i]] = this.get_search_results(negativeSearchWords[i]);
-     }
+      $.each(allResults, function(key, val) {
+	      allResults[key].highlights = [];
+      });
+      // Deactivate everything
+      var _this = this;
+      $.each(allResults, function(id, val) {
+	      val.result.html(val.option.html);
+	      _this.result_deactivate(val.result);
+	      if (_this.result_highlight && val.option.dom_id === _this.result_highlight.attr('id')) {
+		      _this.result_clear_highlight();
+	      }
+      });
+      for (var i=0; i<searchTermGroups.length; i++) {
+	      conjunctions.push({positiveResults:{}, negativeResults:{}, highlights:{}, foundResults:{}, activation:{}});
+	      var positiveSearchWords = searchTermGroups[i].positive;
+	      var negativeSearchWords = searchTermGroups[i].negative;
+	      for (var j=0; j<positiveSearchWords.length; j++) {
+		      conjunctions[i].positiveResults[positiveSearchWords[j]] = this.get_search_results(positiveSearchWords[j]);
+	      }
+	      for (var j=0; j<negativeSearchWords.length; j++) {
+		      conjunctions[i].negativeResults[negativeSearchWords[j]] = this.get_search_results(negativeSearchWords[j]);
+	      }
+      }
      // intersect the results by unioning the found then subtracting the not found
-     // A ^ B = (A u B) ^ A ^ B 
-     $.each(positiveSearchResults, function(searchWord, res) {
+     // A ^ B = (A u B) - (~A) - (~A)
+     for (var i=0; i<conjunctions.length; i++) {
+	     $.each(conjunctions[i].positiveResults, function(searchWord, res) {
+		     for (var j=0; j<res.found.length; j++) {
+			     var item = res.found[j];
+			     conjunctions[i].activation[item.id] = 1;
+			     conjunctions[i].foundResults[item.id] = true;
+			     conjunctions[i].highlights[item.id] = conjunctions[i].highlights[item.id] || [];
+			     conjunctions[i].highlights[item.id].push(item.highlight);
+		     }
+	     });
+	     $.each(conjunctions[i].positiveResults, function(searchWord, res) {
+		     for (var j=0; j<res.not_found.length; j++) {
+			     var item = res.not_found[j];
+			     conjunctions[i].activation[item.id] = 0;
+			     conjunctions[i].highlights[item.id] = [];
+			     
+			     if (item.id in conjunctions[i].foundResults) {
+				     delete conjunctions[i].foundResults[item.id];
+			     }
+		     }
+	     });
+	     $.each(conjunctions[i].negativeResults, function(searchWord, res) {
+		     for (var j=0; j<res.found.length; j++) {
+			     var item = res.found[j];
+			     conjunctions[i].activation[item.id] = -Infinity;
+			     conjunctions[i].highlights[item.id] = [];
+			     
+			     if (item.id in conjunctions[i].foundResults) {
+				     delete conjunctions[i].foundResults[item.id];
+			     }
+		     }
+	     });
+	     $.each(conjunctions[i].highlights, function(id, hlist) {
+		     if (hlist.length > 0) {
+			     highlights[id] = highlights[id].concat(hlist);
+		     }
+	     });
+     }
+     // compute and apply highlights
+     $.each(highlights, function(id, hlist) {
+	     if (hlist.length === 0) {
+		     return 1; // continue
+	     }
+	     var orig_text = allResults[id].option.html;
+	     var highlight_map = Array.apply(null, new Array(orig_text.length)).apply(Number.prototype.valueOf, 0); // array of 0's, one per index in orig_text
+	     for (var h = 0; h<hlist.length; h++) {
+		     highlight_map[hlist[h][0]] += 1;
+		     highlight_map[hlist[h][1]] -= 1;
+	     }
+	     var highlighted_text = "";
+	     var highlight_depth = 0;
+	     for (var h=0; h<orig_text.length; h++) {
+		     var new_depth = highlight_depth + highlight_map[h];
+		     if (highlight_depth === 0 && new_depth > 0) {
+			     highlighted_text += "<em>";
+		     } else if (highlight_depth > 0 && new_depth === 0) {
+			     highlighted_text += "</em>";
+		     }
+		     highlighted_text += orig_text[h];
+		     highlight_depth = new_depth;
+	     }
+	     allResults[id].result.html(highlighted_text);
+     });
+     
+     // compute activation recursively
+     for (var i=0; i<conjunctions.length; i++) {
+	     $.each(conjunctions[i].foundResults, function(id, _) {
+		     _this.result_compute_activation(allResults[id].result, conjunctions[i].activation);
+	     });
+     }
+     
+     $.each(allResults, function(id, val) {
+	var shouldActivate = false;
+	for (var i=0; i<conjunctions.length; i++) {
+		if (conjunctions[i].activation[id] > 0) {
+			shouldActivate = true;
+			break;
+		}
+	}
+	if (shouldActivate) {
+		_this.result_activate(val.result);
+	}
+     });
+     
+     /*$.each(positiveSearchResults, function(searchWord, res) {
 		for (var j=0; j<res.found.length; j++) {
 			var item = res.found[j];
 			found_results[item.id] = found_results[item.id] || {result:item.result, option:item.option,highlights:[]};
@@ -1160,18 +1263,10 @@
 			}
 			deactivated[item.id] = {result: item.result, option: item.option};
 		}  
-     });
+     });*/
 
-      // Deactivate everything
-      var _this = this;
-      $.each(allResults, function(id, val) {
-	      val.result.html(val.option.html);
-	      _this.result_deactivate(val.result);
-	      if (_this.result_highlight && val.option.dom_id === _this.result_highlight.attr('id')) {
-		      _this.result_clear_highlight();
-	      }
-      });
-      // Compute highlighted labels and perform recursion to traverse the tree and mark for activation activate parents and children using result_activate
+      
+      /*// Compute highlighted labels
       $.each(found_results, function(id, val) {
 		text = val.option.html;
 		var highlight_map = [];
@@ -1200,7 +1295,7 @@
 		if (!(id in deactivated)) {
 			_this.result_activate(found_results[id].result, activated, deactivated);
 		}
-      });
+      });*/
       
       // Reactivate things that are in 'activated'
       $.each(activated, function(id, _) {

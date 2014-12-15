@@ -62,7 +62,7 @@ public class SimpleSomaticMutationImporter implements Callable<List<String>> {
      */
 
     private static Logger logger = Logger.getLogger(SimpleSomaticMutationImporter.class);
-    private static final Integer ETL_THREADS = 1;
+    private static final Integer ETL_THREADS = 4;
     private final Path baseStagingPath;
     final ListeningExecutorService service =
             MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(ETL_THREADS));

@@ -26,6 +26,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+
 import org.apache.log4j.Logger;
 
 import org.mskcc.cbio.importer.icgc.support.IcgcImportService;
@@ -37,7 +39,7 @@ import org.mskcc.cbio.importer.icgc.transformer.ClinicalDataFileTransformer;
  primary input is a list of ICGC studys
 
  */
-public class ClinicalDataImporter {
+public class ClinicalDataImporter implements Callable<List<String>> {
 
     private static Logger logger = Logger.getLogger(ClinicalDataImporter.class);
     private static final Integer EXTRACTOR_THREADS = 4;
@@ -101,4 +103,8 @@ public class ClinicalDataImporter {
         
     }
 
+    @Override
+    public List<String> call() throws Exception {
+        return null;
+    }
 }

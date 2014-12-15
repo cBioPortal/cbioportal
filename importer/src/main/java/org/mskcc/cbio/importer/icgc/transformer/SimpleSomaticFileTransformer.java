@@ -22,6 +22,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Lists;
 import com.google.common.hash.BloomFilter;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
@@ -80,23 +81,80 @@ public class SimpleSomaticFileTransformer extends MutationTransformer implements
         }
     }
 
-    private void processSimpleSomaticData() {
+    /*
+    method to transform individual simple somatic mutation records.
+    some icgc files are too large to transform as a single List of model objects
+     */
+    private void processSimpleSomaticModelData() {
         // maintain a collection of the last 200 valid MAF entries using an EvictingQueue to evaluate
         // possible false positives from the Bloom Filter
         final EvictingQueue<IcgcSimpleSomaticRecord> mafQueue = EvictingQueue.create(200);
 
         try (BufferedReader reader = Files.newBufferedReader(this.icgcFilePath, Charset.defaultCharset());) {
-
             // generate a new Bloom Filter
             this.icgcRecordFilter = BloomFilter.create(IcgcSimpleSomaticRecordFunnel.INSTANCE, 5000000);
             final CSVParser parser = new CSVParser(reader, CSVFormat.TDF.withHeader());
             /*
             process the uncompressed TSV file downloaded from ICGC
                 -filter out duplicate records
-                -transform the simple somatic ICGC attributes to MAF records
+                -transform the simple somatic ICGC attributes to a SimpleSomaticModel instance
                 - write out the MAF file
             */
+            logger.info("Staring transformation of " +this.icgcFilePath.toString());
+           FluentIterable.from(parser)
+                    .filter(new Predicate<CSVRecord>() {
+                        @Override
+                        public boolean apply(CSVRecord record) {
+                            final IcgcSimpleSomaticRecord icgcRecord = new IcgcSimpleSomaticRecord(record.toMap());
+                            return (!icgcRecordFilter.mightContain(icgcRecord)
+                                    || !mafQueue.contains(icgcRecord));
+                        }
 
+                    })
+                            // use a filter to update the BloomFilter and maf queue contents
+                    .filter(new Predicate<CSVRecord>() {
+                        @Override
+                        public boolean apply(CSVRecord record) {
+                            final IcgcSimpleSomaticRecord icgcRecord = new IcgcSimpleSomaticRecord(record.toMap());
+                            mafQueue.add(icgcRecord);
+                            icgcRecordFilter.put(icgcRecord);
+                            return true;
+                        }
+                    })
+                    .transform(new Function<CSVRecord, Integer>() {
+                        @Override
+                        public Integer apply(CSVRecord record) {
+
+                            final Map<String, String> recordMap = record.toMap();
+                            fileHandler.transformImportDataToTsvStagingFile(Lists.newArrayList(new SimpleSomaticModel(recordMap)),
+                                    MutationModel.getTransformationModel());
+
+                                    return 1;
+                        }
+                    }).toList();
+
+            logger.info("transformation complete ");
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+
+    private void processSimpleSomaticData() {
+        // maintain a collection of the last 200 valid MAF entries using an EvictingQueue to evaluate
+        // possible false positives from the Bloom Filter
+        final EvictingQueue<IcgcSimpleSomaticRecord> mafQueue = EvictingQueue.create(200);
+
+        try (BufferedReader reader = Files.newBufferedReader(this.icgcFilePath, Charset.defaultCharset());) {
+            // generate a new Bloom Filter
+            this.icgcRecordFilter = BloomFilter.create(IcgcSimpleSomaticRecordFunnel.INSTANCE, 5000000);
+            final CSVParser parser = new CSVParser(reader, CSVFormat.TDF.withHeader());
+            /*
+            process the uncompressed TSV file downloaded from ICGC
+                -filter out duplicate records
+                -transform the simple somatic ICGC attributes to a SimpleSomaticModel instance
+                - write out the MAF file
+            */
             List<SimpleSomaticModel> somaticList = FluentIterable.from(parser)
                     .filter(new Predicate<CSVRecord>() {
                         @Override
@@ -107,7 +165,6 @@ public class SimpleSomaticFileTransformer extends MutationTransformer implements
                         }
 
                     })
-                            //
                             // use a filter to update the BloomFilter and maf queue contents
                     .filter(new Predicate<CSVRecord>() {
                         @Override
@@ -119,7 +176,6 @@ public class SimpleSomaticFileTransformer extends MutationTransformer implements
                         }
                     })
                     .transform(new Function<CSVRecord, SimpleSomaticModel>() {
-
                         @Override
                         public SimpleSomaticModel apply(CSVRecord record) {
                             final Map<String, String> recordMap = record.toMap();
@@ -137,7 +193,8 @@ public class SimpleSomaticFileTransformer extends MutationTransformer implements
     @Override
     public Path call() throws Exception {
         logger.info("Transformer invoked");
-        this.processSimpleSomaticData();
+        //this.processSimpleSomaticData();
+        this.processSimpleSomaticModelData();
         return this.icgcFilePath;
     }
     /*
@@ -147,13 +204,13 @@ public class SimpleSomaticFileTransformer extends MutationTransformer implements
         ListeningExecutorService service = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(3));
 
         SimpleSomaticFileTransformer transformer = new SimpleSomaticFileTransformer(
-                new MutationFileHandlerImpl(), Paths.get("/tmp/icgc/EOPC-DE"));
-        String fn = "/tmp/EOPC-DE.tsv";
+                new MutationFileHandlerImpl(), Paths.get("/tmp/icgc/ESAD-UK"));
+        String fn = "/tmp/ESAD-UK.tsv";
         transformer.setIcgcFilePath(Paths.get(fn));
         ListenableFuture<Path> p = service.submit(transformer);
 
             try {
-                logger.info("Path " +p.get(90,TimeUnit.SECONDS));
+                logger.info("Path " +p.get(600,TimeUnit.SECONDS));
                 p.cancel(true);
                 service.shutdown();
                 logger.info("service shutdown ");

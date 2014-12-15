@@ -51,9 +51,14 @@ public class IcgcStudyEtlCallable implements Callable<String> {
     private String sourceUrl;
     private IcgcFileTransformer transformer;
     /*
-    this class is responsible for extracting the file from the ICGC site, decompressing it,
+    this class is responsible for extracting a file from the ICGC data portal, decompressing it,
     transforming it to a staging data format, and outputting the transformed data to the
     specified staging path
+
+    the constructor for this class requires
+    1. a Ptah pointing to the icgc study-specific staging file directory
+    2. a URL referencing the ICGC file to download and tramsform
+    3. an IcgcFileTransformer implementation responsible for transforming the ICGC data
      */
 
     public IcgcStudyEtlCallable(Path stagingFileDirectory, String aUrl, IcgcFileTransformer transformer) {
@@ -136,6 +141,11 @@ public class IcgcStudyEtlCallable implements Callable<String> {
             return this.gunzipIt();
         }
 
+        /*
+        private method to decompress a gzip file
+        the new file has the same name minus the .gz extension (file.txt.gz -> file.txt)
+        returns a Path to the decompressed file
+         */
         private Path gunzipIt() {
             String tsvFilename = this.compressedFile.getAbsolutePath().replace(".gz", "");
             File tsvFile = new File(tsvFilename);
@@ -155,6 +165,7 @@ public class IcgcStudyEtlCallable implements Callable<String> {
 
             } catch (IOException ex) {
                 logger.error(ex.getMessage());
+                ex.printStackTrace();
             }
             return tsvFile.toPath();
         }
@@ -209,41 +220,21 @@ public class IcgcStudyEtlCallable implements Callable<String> {
         }
     }
 
+    /*
+    main method for stand alone testing
+     */
+
     public static void main (String...args)  {
         final ListeningExecutorService service = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(4));
-       List<String> testUrlList = Lists.newArrayList("https://dcc.icgc.org/api/v1/download?fn=/current/Projects/BLCA-CN/simple_somatic_mutation.open.BLCA-CN.tsv.gz",
-               "https://dcc.icgc.org/api/v1/download?fn=/current/Projects/BOCA-UK/simple_somatic_mutation.open.BOCA-UK.tsv.gz",
-               " https://dcc.icgc.org/api/v1/download?fn=/current/Projects/BRCA-UK/simple_somatic_mutation.open.BRCA-UK.tsv.gz",
-               "https://dcc.icgc.org/api/v1/download?fn=/current/Projects/PAEN-AU/simple_somatic_mutation.open.PAEN-AU.tsv.gz",
-               "https://dcc.icgc.org/api/v1/download?fn=/current/Projects/RECA-EU/simple_somatic_mutation.open.RECA-EU.tsv.gz"
+       List<String> testUrlList = Lists.newArrayList("https://dcc.icgc.org/api/v1/download?fn=/current/Projects/ESAD-UK/simple_somatic_mutation.open.ESAD-UK.tsv.gz"
                );
         Path icgcPath1 = Paths.get("/tmp/icgc1");
-        Path icgcPath2 = Paths.get("/tmp/icgc2");
-        Path icgcPath3 = Paths.get("/tmp/icgc3");
-        Path icgcPath4 = Paths.get("/tmp/icgc4");
-        Path icgcPath5 = Paths.get("/tmp/icgc5");
-
         boolean processing = true;
         IcgcFileTransformer transformer1 = (IcgcFileTransformer) new SimpleSomaticFileTransformer(new MutationFileHandlerImpl(), icgcPath1);
-        IcgcFileTransformer transformer2 = (IcgcFileTransformer) new SimpleSomaticFileTransformer(new MutationFileHandlerImpl(), icgcPath2);
-        IcgcFileTransformer transformer3 = (IcgcFileTransformer) new SimpleSomaticFileTransformer(new MutationFileHandlerImpl(), icgcPath3);
-        IcgcFileTransformer transformer4 = (IcgcFileTransformer) new SimpleSomaticFileTransformer(new MutationFileHandlerImpl(), icgcPath4);
-        IcgcFileTransformer transformer5 = (IcgcFileTransformer) new SimpleSomaticFileTransformer(new MutationFileHandlerImpl(), icgcPath5);
-
-
-
-        IcgcStudyEtlCallable etl01 = new IcgcStudyEtlCallable(icgcPath1, testUrlList.get(2), transformer1);
-        IcgcStudyEtlCallable etl02 = new IcgcStudyEtlCallable(icgcPath2, testUrlList.get(1), transformer2);
-        IcgcStudyEtlCallable etl03 = new IcgcStudyEtlCallable(icgcPath3, testUrlList.get(0), transformer3);
-        IcgcStudyEtlCallable etl04 = new IcgcStudyEtlCallable(icgcPath4, testUrlList.get(0), transformer4);
-        IcgcStudyEtlCallable etl05 = new IcgcStudyEtlCallable(icgcPath5, testUrlList.get(0), transformer5);
-
+        IcgcStudyEtlCallable etl01 = new IcgcStudyEtlCallable(icgcPath1, testUrlList.get(0), transformer1);
         List<ListenableFuture<String>> futureList = Lists.newArrayList();
         futureList.add(service.submit(etl01));
-        futureList.add(service.submit(etl02));
-        futureList.add(service.submit(etl03));
-        futureList.add(service.submit(etl04));
-        futureList.add(service.submit(etl05));
+
        ListenableFuture<List<String>> etlResults = Futures.successfulAsList(futureList);
         Futures.addCallback(etlResults, new FutureCallback<List<String>>() {
             @Override
@@ -261,7 +252,7 @@ public class IcgcStudyEtlCallable implements Callable<String> {
         logger.info("futures submitted");
         while(!etlResults.isDone()){
             try {
-                Thread.sleep(15000L);
+                Thread.sleep(60000L);
                 logger.info("Waiting.....");
             } catch (InterruptedException e) {
                 e.printStackTrace();

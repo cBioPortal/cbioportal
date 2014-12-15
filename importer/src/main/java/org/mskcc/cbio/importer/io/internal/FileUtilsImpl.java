@@ -261,7 +261,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("generateCaseLists(), stagingFilenames: " + java.util.Arrays.toString(stagingFilenames));
 			}
-			if (!allStagingFilesExist(cancerStudyMetadata, stagingDirectory, stagingFilenames)) {
+			if (intersectionCaseList && !allStagingFilesExist(cancerStudyMetadata, stagingDirectory, stagingFilenames)) {
 				continue;
 			}
 			// this is the set we will pass to writeCaseListFile

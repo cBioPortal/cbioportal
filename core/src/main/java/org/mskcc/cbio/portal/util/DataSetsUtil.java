@@ -140,11 +140,8 @@ public class DataSetsUtil {
 		PatientList desiredPatientList = daoPatientList.getPatientListByStableId(patientListID);
 
 		if (desiredPatientList != null) {
-			for (String stablePatientId : desiredPatientList.getPatientList()) {
-				Patient p = daoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(),
-				                                                           stablePatientId);
-				count += DaoSample.getSamplesByPatientId(p.getInternalId()).size();
-			}
+			// NOTE - as of 12/12/14, patient lists contain sample ids
+			count = desiredPatientList.getPatientList().size();
 		}
 		
 		return count;

@@ -125,41 +125,4 @@ public class StableIdUtil
         }
         return false;
     }
-
-    public static List<String> getStableSampleIdsFromPatientIds(int cancerStudyId, List<String> stablePatientIds) {
-        ArrayList<String> sampleIds = new ArrayList<String>();
-        for (String stablePatientId : stablePatientIds) {
-            Patient p = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudyId, stablePatientId);
-            for (Sample s : DaoSample.getSamplesByPatientId(p.getInternalId())) {
-                sampleIds.add(s.getStableId());
-            }
-        }
-        return sampleIds;
-    }
-
-    public static List<String> getStableSampleIdsFromPatientIds(int cancerStudyId, List<String> stablePatientIds, List<Sample.Type> excludes)
-    {
-        List<String> sampleIds = new ArrayList<String>();
-        for (String patientId : stablePatientIds) {
-            Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudyId, patientId);
-            for (Sample sample : DaoSample.getSamplesByPatientId(patient.getInternalId())) {
-                if (excludes.contains(sample.getType())) {
-                    continue;
-                }
-                sampleIds.add(sample.getStableId());
-            }
-        }
-        return sampleIds;
-    }
-
-    public static List<String> getStablePatientIdsFromSampleIds(int cancerStudyId, List<String> stableSampleIds)
-    {
-        Set<String> patientIds = new HashSet<String>();
-        for (String sampleId : stableSampleIds) {
-            Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId);
-            Patient p = DaoPatient.getPatientById(s.getInternalPatientId());
-            patientIds.add(p.getStableId()); 
-        }
-        return new ArrayList<String>(patientIds);
-    }
 }

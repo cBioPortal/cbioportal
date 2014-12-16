@@ -450,7 +450,7 @@ public class WebService extends HttpServlet {
         Map<String, List<String>> mapping = new JSONObject();
         for (String sampleId : sampleIds) {
             Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(internalCancerStudyId, sampleId);
-            Patient patient = DaoPatient.getPatientById(sample.getInternalId());
+            Patient patient = DaoPatient.getPatientById(sample.getInternalPatientId());
             String patientId = patient.getStableId();
             List<String> sids = mapping.get(patientId);
             if (sids==null) {

@@ -24,9 +24,6 @@ import org.mskcc.cbio.portal.model.*;
 
 import org.json.simple.*;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
 import java.io.*;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -296,7 +293,7 @@ public class WebService extends HttpServlet {
         if (null != httpServletRequest.getParameter(CASE_LIST)
         		|| null != httpServletRequest.getParameter(CASE_SET_ID)
         		|| null != httpServletRequest.getParameter(CASE_IDS_KEY))
-            targetSampleIds = WebserviceParserUtils.getSampleList(httpServletRequest);
+            targetSampleIds = WebserviceParserUtils.getSampleIds(httpServletRequest);
         
         String arrayInfo = httpServletRequest.getParameter("array_info");
         boolean includeArrayInfo = arrayInfo!=null && arrayInfo.equalsIgnoreCase("1");
@@ -360,7 +357,7 @@ public class WebService extends HttpServlet {
 
     private void getProfileData(HttpServletRequest request, PrintWriter writer)
             throws DaoException, ProtocolException, IOException {
-        List<String> sampleList = WebserviceParserUtils.getSampleList(request);
+        List<String> sampleList = WebserviceParserUtils.getSampleIds(request);
         validateRequestForProfileOrMutationData(request);
         ArrayList<String> geneticProfileIdList = WebserviceParserUtils.getGeneticProfileId(request);
         ArrayList<String> targetGeneList = getGeneList(request);
@@ -401,7 +398,7 @@ public class WebService extends HttpServlet {
         }
         int internalCancerStudyId = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId).getInternalId();
 
-        List<String> sampleIds = WebserviceParserUtils.getSampleList(request);
+        List<String> sampleIds = WebserviceParserUtils.getSampleIds(request);
 
         String format = WebserviceParserUtils.getFormat(request);
 
@@ -448,13 +445,19 @@ public class WebService extends HttpServlet {
         }
         
         int internalCancerStudyId = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId).getInternalId();
-        List<String> patientIds = WebserviceParserUtils.getPatientList(request);
+        List<String> sampleIds = WebserviceParserUtils.getSampleIds(request);
         
-        JSONObject mapping = new JSONObject();
-        for (String patientId : patientIds) {
-            List<String> patientList = new ArrayList<String>();
-            patientList.add(patientId);
-            mapping.put(patientId, StableIdUtil.getStableSampleIdsFromPatientIds(internalCancerStudyId, patientList));
+        Map<String, List<String>> mapping = new JSONObject();
+        for (String sampleId : sampleIds) {
+            Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(internalCancerStudyId, sampleId);
+            Patient patient = DaoPatient.getPatientById(sample.getInternalId());
+            String patientId = patient.getStableId();
+            List<String> sids = mapping.get(patientId);
+            if (sids==null) {
+                sids = new ArrayList<String>();
+                mapping.put(patientId, sids);
+            }
+            sids.add(sampleId);
         }
         JSONObject.writeJSONString(mapping, writer);
     }
@@ -492,7 +495,7 @@ public class WebService extends HttpServlet {
             throws DaoException, ProtocolException, UnsupportedEncodingException {
         List<String> sampleList = null;
         try {
-            sampleList = WebserviceParserUtils.getSampleList(request);
+            sampleList = WebserviceParserUtils.getSampleIds(request);
         } catch (ProtocolException ex) {}
         validateRequestForProfileOrMutationData(request);
         ArrayList<String> geneticProfileIdList = WebserviceParserUtils.getGeneticProfileId(request);

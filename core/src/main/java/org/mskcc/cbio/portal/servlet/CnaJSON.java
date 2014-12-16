@@ -157,7 +157,7 @@ public class CnaJSON extends HttpServlet {
     private void processCnaFractionsRequest(HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
-        String strPatientIds = request.getParameter(QueryBuilder.CASE_IDS);
+        String strSampleIds = request.getParameter(QueryBuilder.CASE_IDS);
         List<Integer> sampleIds = null;
         String cancerStudyId = request.getParameter(QueryBuilder.CANCER_STUDY_ID);
         
@@ -165,9 +165,9 @@ public class CnaJSON extends HttpServlet {
         
         try {
             int studyId = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId).getInternalId();
-            if (strPatientIds!=null) {
-                List<String> stablePatientIds = Arrays.asList(strPatientIds.split("[ ,]+"));
-                sampleIds = InternalIdUtil.getInternalNonNormalSampleIdsFromPatientIds(studyId, stablePatientIds);
+            if (strSampleIds!=null) {
+                List<String> stableSampleIds = Arrays.asList(strSampleIds.split("[ ,]+"));
+                sampleIds = InternalIdUtil.getInternalNonNormalSampleIds(studyId, stableSampleIds);
             } else {
                 sampleIds = InternalIdUtil.getInternalNonNormalSampleIds(studyId);
             }

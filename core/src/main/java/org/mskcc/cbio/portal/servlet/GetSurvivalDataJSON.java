@@ -93,7 +93,7 @@ public class GetSurvivalDataJSON extends HttpServlet {
             }
 
             //Get Clinical Data List - NOTE - as of 12/12/14, patient lists contain sample ids
-            HashSet<String> patientIdListHashSet = new HashSet<String>(StableIdUtil.getStablePatientIdsFromSampleIds(cancerStudyId, patientIdList));
+            HashSet<String> patientIdListHashSet = new HashSet<String>(InternalIdUtil.getStablePatientIdsFromSampleIds(cancerStudyId, patientIdList));
             List<Patient> clinicalDataList =
                     GetClinicalData.getClinicalData(cancerStudyId, patientIdListHashSet);
 

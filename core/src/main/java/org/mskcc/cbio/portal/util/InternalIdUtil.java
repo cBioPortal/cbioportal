@@ -108,4 +108,15 @@ public class InternalIdUtil
         }
         return samples;
     }
+    
+    public static List<String> getStablePatientIdsFromSampleIds(int cancerStudyId, List<String> stableSampleIds)
+    {
+        Set<String> patientIds = new HashSet<String>();
+        for (String sampleId : stableSampleIds) {
+            Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId);
+            Patient p = DaoPatient.getPatientById(s.getInternalPatientId());
+            patientIds.add(p.getStableId()); 
+        }
+        return new ArrayList<String>(patientIds);
+    }
 }

@@ -366,6 +366,19 @@ class ImporterImpl implements Importer {
 				fileUtils.writeCancerStudyMetadataFile(rootDirectory, cancerStudyMetadata, -1);
 				createdCancerStudyMetadataFile = true;
 			}
+			else if (cancerStudyMetadataNeedsUpdating(cancerStudyMetadataFile, cancerStudyMetadata)) {
+				HashMap<String,String> map = new HashMap<String,String>();
+				map.put("type_of_cancer", cancerStudyMetadata.getTumorType());
+		    	fileUtils.updateCancerStudyMetadataFile(rootDirectory, cancerStudyMetadata, map);
+		    }
+		    if (!createdCancerStudyMetadataFile) {
+		    	// if we didnt create a cancer study metadata file,
+		    	// we may have an incomplete cancerStudyMetadata object
+		    	// (for bic-mskcc, most properties are blank)
+		    	Properties properties = getProperties(cancerStudyMetadataFile);
+		    	properties.setProperty("study_path", cancerStudyMetadata.getStudyPath());
+		    	cancerStudyMetadata = new CancerStudyMetadata(properties);
+		    }
 			String[] args = { cancerStudyMetadataFile };
 			if (LOG.isInfoEnabled()) {
 				LOG.info("loadStagingFiles(), Importing cancer study metafile: " + cancerStudyMetadataFile);
@@ -537,6 +550,34 @@ class ImporterImpl implements Importer {
 							  FileUtils.FILE_URL_PREFIX + tmpMAF.getCanonicalPath());
 		return tmpMAF.getCanonicalPath();
 	}
+
+    private boolean cancerStudyMetadataNeedsUpdating(String cancerStudyMetadataFilename, CancerStudyMetadata cancerStudyMetadata) throws Exception
+    {
+        Properties properties = getProperties(cancerStudyMetadataFilename);
+        return propertyNeedsUpdating(properties.getProperty("type_of_cancer"), cancerStudyMetadata.getTumorType());
+    }
+
+    private Properties getProperties(String cancerStudyMetadataFilename) throws Exception
+    {
+        Properties properties = new Properties();
+        File metaStudyFile = new File(cancerStudyMetadataFilename);
+        properties.load(new FileInputStream(metaStudyFile));
+        return properties;
+    }
+
+    private boolean propertyNeedsUpdating(String metaStudyFileProperty, String cancerStudyMetadataProperty)
+    {
+        if (!cancerStudyMetadataProperty.isEmpty() &&
+            (metaStudyFileProperty == null || metaStudyFileProperty.isEmpty())) {
+            return true;
+        }
+        if (!cancerStudyMetadataProperty.isEmpty() &&
+            metaStudyFileProperty != null &&
+            !cancerStudyMetadataProperty.equals(metaStudyFileProperty.trim())) {
+            return true;
+        }
+        return false;
+    }
 
     private boolean isZScoreFile(String stagingFilename, DatatypeMetadata datatypeMetadata)
     {

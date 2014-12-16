@@ -104,9 +104,7 @@ public class CrossCancerJSON extends HttpServlet {
                     continue;
                 }
                 
-                List<Sample> defaultSamples = InternalIdUtil.getSamplesById(
-                        InternalIdUtil.getInternalNonNormalSampleIdsFromPatientIds(cancerStudy.getInternalId(),
-                                defaultPatientSet.getPatientList()));
+                List<String> sampleIds = defaultPatientSet.getPatientList();
 
                 //  Get the default genomic profiles
                 CategorizedGeneticProfileSet categorizedGeneticProfileSet =
@@ -138,7 +136,7 @@ public class CrossCancerJSON extends HttpServlet {
                 cancerMap.put("cnaProfile", cnaProfile);
 
                 cancerMap.put("caseSetId", defaultPatientSet.getStableId());
-                cancerMap.put("caseSetLength", defaultSamples.size());
+                cancerMap.put("caseSetLength", sampleIds.size());
 
 
                 ProfileDataSummary genomicData = getGenomicData(
@@ -166,8 +164,7 @@ public class CrossCancerJSON extends HttpServlet {
                 boolean skipStudy = defaultGeneticProfileSet.isEmpty();
                 if(!skipStudy) {
                     
-                    for (Sample sample: defaultSamples) {
-                        String sampleId = sample.getStableId();
+                    for (String sampleId: sampleIds) {
                         if(sampleId == null) {
                             continue;
                         }
@@ -264,7 +261,7 @@ public class CrossCancerJSON extends HttpServlet {
         for (GeneticProfile profile : defaultGeneticProfileSet.values()) {
             GetProfileData remoteCall =
                 new GetProfileData(profile, geneList,
-                                   StringUtils.join(StableIdUtil.getStableSampleIdsFromPatientIds(profile.getCancerStudyId(), defaultPatientSet.getPatientList()), " "));
+                                   StringUtils.join(defaultPatientSet.getPatientList(), " "));
             ProfileData pData = remoteCall.getProfileData();
             warningUnion.addAll(remoteCall.getWarnings());
             profileDataList.add(pData);

@@ -118,7 +118,8 @@ public class GetGeneticProfilesJSON extends HttpServlet  {
                             patientList = daoPatientList.getPatientListByStableId(patientSetId);
                             patientIdList = patientList.getPatientList();
                         }
-                        List<Integer> internalSampleIds = InternalIdUtil.getInternalNonNormalSampleIdsFromPatientIds(cancerStudyId, patientIdList);
+                        // NOTE - as of 12/12/14, patient lists contain sample ids
+                        List<Integer> internalSampleIds = InternalIdUtil.getInternalNonNormalSampleIds(cancerStudyId, patientIdList);
 
                         for (String geneId : geneList) {
                             //Get gene

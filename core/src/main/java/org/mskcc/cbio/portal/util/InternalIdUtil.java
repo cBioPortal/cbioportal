@@ -51,6 +51,19 @@ public class InternalIdUtil
         }
         return sampleIds;
     }
+
+    public static List<Integer> getInternalNonNormalSampleIds(int cancerStudyId, List<String> stableSampleIds)
+    {
+        List<Integer> sampleIds = new ArrayList<Integer>();
+        for (String sampleId : stableSampleIds) {
+            Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId);
+            if (Sample.Type.normalTypes().contains(sample.getType())) {
+                continue;
+            }
+            sampleIds.add(sample.getInternalId());
+        }
+        return sampleIds;
+    }
      
     public static List<Integer> getInternalSampleIds(int cancerStudyId, List<String> stableSampleIds)
     {
@@ -94,5 +107,16 @@ public class InternalIdUtil
             }
         }
         return samples;
+    }
+    
+    public static List<String> getStablePatientIdsFromSampleIds(int cancerStudyId, List<String> stableSampleIds)
+    {
+        Set<String> patientIds = new HashSet<String>();
+        for (String sampleId : stableSampleIds) {
+            Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId);
+            Patient p = DaoPatient.getPatientById(s.getInternalPatientId());
+            patientIds.add(p.getStableId()); 
+        }
+        return new ArrayList<String>(patientIds);
     }
 }

@@ -166,9 +166,11 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
     {
     	ArrayList toReturn = new ArrayList<String>();
     	IOFileFilter filter = new WildcardFileFilter(wildcard);
-    	for (File file : org.apache.commons.io.FileUtils.listFiles(directory, filter, null)) {
-    		toReturn.add(file.getCanonicalPath());
-    	} 
+    	if (directory.exists()) {	
+	    	for (File file : org.apache.commons.io.FileUtils.listFiles(directory, filter, null)) {
+	    		toReturn.add(file.getCanonicalPath());
+	    	} 
+    	}	
     	return toReturn;
     }
 

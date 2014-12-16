@@ -291,7 +291,7 @@ public class MutationsJSON extends HttpServlet {
             HttpServletResponse response)
             throws ServletException, IOException {
         String mutationProfileId = request.getParameter(PatientView.MUTATION_PROFILE);
-        String strPatientIds = request.getParameter(QueryBuilder.CASE_IDS);
+        String strSampleIds = request.getParameter(QueryBuilder.CASE_IDS);
         List<Integer> sampleIds = null;
 
         GeneticProfile mutationProfile;
@@ -299,9 +299,9 @@ public class MutationsJSON extends HttpServlet {
         
         try {
             mutationProfile = DaoGeneticProfile.getGeneticProfileByStableId(mutationProfileId);
-            if (strPatientIds!=null) {
-                List<String> stablePatientIds = Arrays.asList(strPatientIds.split("[ ,]+"));
-                sampleIds = InternalIdUtil.getInternalNonNormalSampleIdsFromPatientIds(mutationProfile.getCancerStudyId(), stablePatientIds);
+            if (strSampleIds!=null) {
+                List<String> stableSampleIds = Arrays.asList(strSampleIds.split("[ ,]+"));
+                sampleIds = InternalIdUtil.getInternalNonNormalSampleIds(mutationProfile.getCancerStudyId(), stableSampleIds);
             }
             if (mutationProfile!=null) {
                 count = convertMapSampleKeys(DaoMutation.countMutationEvents(mutationProfile.getGeneticProfileId(),sampleIds));

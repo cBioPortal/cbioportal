@@ -118,13 +118,7 @@ public class CrossCancerMutationDataServlet extends HttpServlet
                 AnnotatedPatientSets annotatedPatientSets = new AnnotatedPatientSets(patientSetList, dataTypePriority);
                 PatientList defaultPatientSet = annotatedPatientSets.getDefaultPatientList();
                 
-                List<Sample> defaultSamples = InternalIdUtil.getSamplesById(
-                        InternalIdUtil.getInternalNonNormalSampleIdsFromPatientIds(cancerStudy.getInternalId(),
-                                defaultPatientSet.getPatientList()));
-                ArrayList<String> sampleList = new ArrayList<String>();
-                for (Sample sample : defaultSamples) {
-                    sampleList.add(sample.getStableId());
-                }
+                List<String> sampleList = defaultPatientSet.getPatientList();
 
                 //  Get the default genomic profiles
                 CategorizedGeneticProfileSet categorizedGeneticProfileSet =

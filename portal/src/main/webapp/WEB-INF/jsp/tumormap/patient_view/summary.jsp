@@ -271,13 +271,14 @@ legend.legend-border {
 
             // create a plot on a hidden element
             var hidden_plot_id = '#allele-freq-plot-big';
-            window.allelefreqplot = AlleleFreqPlotMulti($(hidden_plot_id)[0], processed_data);            
+            window.allelefreqplot = AlleleFreqPlotMulti($(hidden_plot_id)[0], processed_data, null, window.caseMetaData.label);            
 
             // add qtip on allele frequency plot thumbnail
             $(thumbnail).qtip({
                 content: {text: '<div id="qtip-allele-freq-plot-big"></div>'},
                 events: {
-                    render: function(event, api) {
+                    render: (function(numCaseIds) {
+                        return function(event, api) {
                         // bind toggle_histogram to toggle histogram button
                         // AFTER we've shuffled it around 
                         window.allele_freq_plot_histogram_toggle = true; // initialize toggle state
@@ -307,7 +308,11 @@ legend.legend-border {
                             $("#qtip-allele-freq-plot-big").append(window.allelefreqplot);
                             $(window.allelefreqplot).show();
                         }
-                    }
+                        if (numCaseIds > 1) {
+                            $("#qtip-allele-freq-plot-big").parent().parent().addClass("qtip-wide");
+                        }
+                    };
+                })(caseIds.length)
                 },
 	            show: {event: "mouseover"},
                 hide: {fixed: true, delay: 100, event: "mouseout"},

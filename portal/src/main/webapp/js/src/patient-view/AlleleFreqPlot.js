@@ -98,11 +98,21 @@ var AlleleFreqPlotUtils = (function() {
     };
 }());
 
-var AlleleFreqPlotMulti = function(div, data, options) {
+var AlleleFreqPlotMulti = function(div, data, options, order) {
     //var fillcolors = d3.scale.category10();
     // construct colors, if a duplicate found replace it with 'darker'
     var colors = {};
     var colorhist = {};
+    if (!order) {
+	    order = {};
+	    var order_ctr = 0;
+	    for (var k in data) {
+		    if (data.hasOwnProperty(k)) {
+			    order[k] = order_ctr;
+			    order_ctr += 1;
+		    }
+	    }
+    }
     for (var k in data) {
         if (data.hasOwnProperty(k)) {
             /*var ind = Object.keys(colors).length;
@@ -175,7 +185,7 @@ var AlleleFreqPlotMulti = function(div, data, options) {
             .y(function(d) { return y(d[1]); });
     
     var svg = d3.select(div).append("svg")
-            .attr("width", width + margin.left + (options.yticks === 0 ? 0 : margin.right))
+            .attr("width", width + margin.left + (options.yticks === 0 ? 0 : margin.right) + 100)
             .attr("height", height + margin.top + margin.bottom)
             .append("g")
             .attr("transform", "translate(" + (options.yticks === 0 ? margin.left / 2 : margin.left) + "," + margin.top + ")");
@@ -297,16 +307,17 @@ var AlleleFreqPlotMulti = function(div, data, options) {
                     .attr('stroke-width', '1.5px')
                     .attr('opacity', '0.9')
                     .attr('data-legend',function() { return k; })
+		    .attr('data-legend-pos', function() { return order[k];})
             ;
         }
     }
     
     // make legend
-    if (!options.nolegend) {
+    if (!options.nolegend && Object.keys(data).length > 1) {
         var legend_font_size = 13;
         var legend = svg.append("g")
                 .attr('class', 'legend')
-                .attr('transform', 'translate('+(width-70)+',30)')
+                .attr('transform', 'translate('+(width+25)+',0)')
                 .style('font-size', legend_font_size+"px")
         ;
         d3.legend(legend, legend_font_size);

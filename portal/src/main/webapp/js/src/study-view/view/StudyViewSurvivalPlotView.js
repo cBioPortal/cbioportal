@@ -547,6 +547,7 @@ var StudyViewSurvivalPlotView = (function() {
         _opts.plot.text.qTips.estimation = "Survival estimate";
         _opts.plot.text.qTips.censoredEvent = "Time of last observation";
         _opts.plot.text.qTips.failureEvent = "Time of death";
+        _opts.plot.text.qTips.id = 'Sample ID';
         _opts.plot.settings.canvas_width = 365;
         _opts.plot.settings.canvas_height = 310;
         _opts.plot.settings.chart_width = 290;
@@ -565,7 +566,8 @@ var StudyViewSurvivalPlotView = (function() {
         _opts.plot.text.infoTableTitles.total_cases = "#total cases";
         _opts.plot.text.infoTableTitles.num_of_events_cases = "#cases deceased";
         _opts.plot.text.infoTableTitles.median = "median months survival";
-
+        _opts.plot.qtipFunc = cbio.util.getLinkToSampleView;
+        
         if(_key === 'DFS') {
             _opts.plot.text.qTips.estimation = "Disease free estimate";
         }

@@ -1260,10 +1260,30 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             }
         });
         
-
-        
         $('.oncoprint-diagram-Shift').click(function() {
             shiftGeneData();
+        });
+
+        $('.oncoprint-sample-download').click(function() {
+            var samples = "Sample order in the Oncoprint is: \n";
+            var genesValue = oncoprint.getData();
+            for(var i = 0; i< genesValue.length; i++)
+            {
+                samples= samples + genesValue[i].key+"\n";
+            }
+            var a=document.createElement('a');
+//            a.href='data:text/plain;base64,'+btoa(samples);
+            a.href='data:text/data:application/octet-stream;charset=utf-16le;base64,'+btoa(samples);
+            
+            a.textContent='download';
+            a.download='OncoPrintSamples.txt';
+            var is_firefox = navigator.userAgent.indexOf("Firefox") !== -1;
+            if(is_firefox)
+            {
+                window.open(a.href,'OncoPrintSamples.txt');
+            }
+            a.click();
+            //a.delete();
         });
         
         $('.oncoprint-diagram-top').click(function() {

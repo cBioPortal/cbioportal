@@ -366,11 +366,19 @@ class ImporterImpl implements Importer {
 				fileUtils.writeCancerStudyMetadataFile(rootDirectory, cancerStudyMetadata, -1);
 				createdCancerStudyMetadataFile = true;
 			}
-            else {
-                if (cancerStudyMetadataNeedsUpdating(cancerStudyMetadataFile, cancerStudyMetadata)) {
-                    fileUtils.writeCancerStudyMetadataFile(rootDirectory, cancerStudyMetadata, -1);
-                }
-            }
+			else if (cancerStudyMetadataNeedsUpdating(cancerStudyMetadataFile, cancerStudyMetadata)) {
+				HashMap<String,String> map = new HashMap<String,String>();
+				map.put("type_of_cancer", cancerStudyMetadata.getTumorType());
+		    	fileUtils.updateCancerStudyMetadataFile(rootDirectory, cancerStudyMetadata, map);
+		    }
+		    if (!createdCancerStudyMetadataFile) {
+		    	// if we didnt create a cancer study metadata file,
+		    	// we may have an incomplete cancerStudyMetadata object
+		    	// (for bic-mskcc, most properties are blank)
+		    	Properties properties = getProperties(cancerStudyMetadataFile);
+		    	properties.setProperty("study_path", cancerStudyMetadata.getStudyPath());
+		    	cancerStudyMetadata = new CancerStudyMetadata(properties);
+		    }
 			String[] args = { cancerStudyMetadataFile };
 			if (LOG.isInfoEnabled()) {
 				LOG.info("loadStagingFiles(), Importing cancer study metafile: " + cancerStudyMetadataFile);
@@ -546,12 +554,7 @@ class ImporterImpl implements Importer {
     private boolean cancerStudyMetadataNeedsUpdating(String cancerStudyMetadataFilename, CancerStudyMetadata cancerStudyMetadata) throws Exception
     {
         Properties properties = getProperties(cancerStudyMetadataFilename);
-        return (propertyNeedsUpdating(properties.getProperty("name"), cancerStudyMetadata.getName()) ||
-                propertyNeedsUpdating(properties.getProperty("description"), cancerStudyMetadata.getDescription()) ||
-                propertyNeedsUpdating(properties.getProperty("citation"), cancerStudyMetadata.getCitation()) ||
-                propertyNeedsUpdating(properties.getProperty("pmid"), cancerStudyMetadata.getPMID()) ||
-                propertyNeedsUpdating(properties.getProperty("groups"), cancerStudyMetadata.getGroups()) ||
-                propertyNeedsUpdating(properties.getProperty("short_name"), cancerStudyMetadata.getShortName()));
+        return propertyNeedsUpdating(properties.getProperty("type_of_cancer"), cancerStudyMetadata.getTumorType());
     }
 
     private Properties getProperties(String cancerStudyMetadataFilename) throws Exception
@@ -571,10 +574,6 @@ class ImporterImpl implements Importer {
         if (!cancerStudyMetadataProperty.isEmpty() &&
             metaStudyFileProperty != null &&
             !cancerStudyMetadataProperty.equals(metaStudyFileProperty.trim())) {
-            return true;
-        }
-        if (cancerStudyMetadataProperty.isEmpty() &&
-            metaStudyFileProperty != null) {
             return true;
         }
         return false;

@@ -16,20 +16,6 @@
         </div>
         
         <div id="oncoprint_whole_body">
-            <%--
-            <p> Altered in <%=dataSummary.getNumCasesAffected()%> (<%=OncoPrintUtil.alterationValueToString(dataSummary.getPercentCasesAffected())%>) of cases
-            
-            <span class='oncoprint-diagram-toolbar-buttons' style="float:right;margin-right:20px;display: none;">
-            
-            <img id="oncoprint_diagram_showmutationcolor_icon" checked="0" style="width: 16px; height: 16px" class="oncoprint_diagram_showmutationcolor_icon" src="images/colormutations.svg">
-            <img id="oncoprint-diagram-showlegend-icon" checked="0" style="width: 16px; height: 16px;display:none;" class="oncoprint-diagram-showlegend-icon" src="images/showlegend.svg">
-            <img id="oncoprint-diagram-removeUCases-icon" checked="0" style="width: 16px; height: 16px" class="oncoprint-diagram-removeUCases-icon" src="images/removeUCases.svg">
-            <img id="oncoprint-diagram-removeWhitespace-icon" checked="0" style="width: 20px; height: 16px" class="oncoprint-diagram-removeWhitespace-icon" src="images/removeWhitespace.svg">
-            <img id="oncoprint-diagram-downloads-icon" style="width: 16px; height: 16px" class="oncoprint-diagram-downloads-icon" src="images/in.svg">
-            <span class='oncoprint_diagram_slider_icon' style="width: 80px; height: 16px"></span>
-            </span>
-            </p>
-            --%>
 
         Altered in <%=dataSummary.getNumCasesAffected()%> (<%=OncoPrintUtil.alterationValueToString(dataSummary.getPercentCasesAffected())%>) of cases
         <div class="btn-group btn-group-sm" id="oncoprint-diagram-toolbar-buttons" style="float:right;margin-right:15px;display: none;height:33px">           

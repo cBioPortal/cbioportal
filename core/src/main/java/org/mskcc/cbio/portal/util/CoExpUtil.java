@@ -54,10 +54,9 @@ public class CoExpUtil {
     public static Map<Long,double[]> getExpressionMap(int profileId, String patientSetId, String patientIdsKey) throws DaoException {
         
         GeneticProfile gp = DaoGeneticProfile.getGeneticProfileById(profileId);
-        List<String> sampleIdsFromPatientIds =
-            StableIdUtil.getStableSampleIdsFromPatientIds(gp.getCancerStudyId(), getPatientIds(patientSetId, patientIdsKey));
+        List<String> stableSampleIds = getPatientIds(patientSetId, patientIdsKey);
         List<Integer> sampleIds = new ArrayList<Integer>();
-        for(String sampleId : sampleIdsFromPatientIds) {
+        for(String sampleId : stableSampleIds) {
             Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(gp.getCancerStudyId(), sampleId);   
             sampleIds.add(sample.getInternalId()); 
         }   

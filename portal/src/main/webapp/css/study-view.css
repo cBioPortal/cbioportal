@@ -256,6 +256,9 @@
     width:auto;
     float: right;
 }
+#clinical-data-table-div .dataTables_filter {
+    width: 30%;
+}
 .study-view-pie-label .dataTables_filter {
     width: 100%;
     text-align: left;
@@ -989,4 +992,14 @@ div.DTTT_print_info {
     background: white;
     border: 1px solid black;
     padding: 0 5px;
+}
+#file-saved-message {
+    position: absolute;
+    top: 30%;
+    left: calc(50% - 140px);
+    background: white;
+    border: 1px solid black;
+    display: none;
+    padding: 20px;
+    z-index: 1000;
 }

@@ -20,6 +20,7 @@ package org.mskcc.cbio.importer.model;
 
 // imports
 import java.io.File;
+import java.util.Properties;
 
 /**
  * Class which contains cancer study metadata.
@@ -88,6 +89,19 @@ public class CancerStudyMetadata {
 		this.groups = properties[7].trim();
                 this.shortName = properties[8].trim();
                 this.convert = Boolean.parseBoolean(properties[9].trim());
+	}
+
+	public CancerStudyMetadata(Properties props)
+	{
+		this.name = props.getProperty("name", "");
+		this.tumorType = props.getProperty("type_of_cancer", "");
+		this.stableId = props.getProperty("cancer_study_identifier", "");
+		this.studyPath = props.getProperty("study_path", "");
+		this.description = props.getProperty("description", "");
+		this.citation = props.getProperty("citation", "");
+		this.pmid = props.getProperty("pmid", "");
+		this.groups = props.getProperty("groups", "");
+		this.shortName = props.getProperty("short_name", "");
 	}
 
 	public String getName() { return name; }

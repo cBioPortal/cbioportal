@@ -244,7 +244,7 @@ var StudyViewProxy = (function() {
                 _patientIds.push(samplePatientMapping[_sampleIds[i]]);
             }
         }
-        return _patientIds;
+        return _.uniq(_patientIds);
     }
     
     //Webservice may retrun extra cases including there data

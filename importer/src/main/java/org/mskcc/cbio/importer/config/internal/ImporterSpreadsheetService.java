@@ -52,7 +52,6 @@ public enum ImporterSpreadsheetService {
             WorksheetFeed worksheetFeed = spreadsheetService.getFeed(spreadsheet.getWorksheetFeedUrl(), WorksheetFeed.class);
             for (WorksheetEntry worksheet : worksheetFeed.getEntries()) {
                 if (worksheet.getTitle().getPlainText().equals(worksheetName)) {
-                    logger.info("found worksheet " +worksheet.getTitle().getPlainText());
                     return worksheet;
                 }
             }

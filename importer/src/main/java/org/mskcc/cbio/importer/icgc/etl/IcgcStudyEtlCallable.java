@@ -1,5 +1,6 @@
 package org.mskcc.cbio.importer.icgc.etl;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -75,13 +76,19 @@ public class IcgcStudyEtlCallable implements Callable<String> {
 
     @Override
     public String call() throws Exception {
-        ListenableFuture<Path> icgcFetchFuture = service.submit(new ICGCStudyFetcher(this.sourceUrl, this.stagingFilePath));
-        AsyncFunction<Path, Path> gzipToTsv = new AsyncFunction<Path, Path>() {
+        ListenableFuture<Optional<Path>> icgcFetchFuture = service.submit(new ICGCStudyFetcher(this.sourceUrl,
+                this.stagingFilePath));
+
+        // function takes the Optional<Path> from the URL fetch and decompresses the
+        // referenced file
+        AsyncFunction<Optional<Path>, Path> gzipToTsv = new AsyncFunction<Optional<Path>, Path>() {
             @Override
-            public ListenableFuture<Path> apply(Path aPath) throws Exception {
+            public ListenableFuture<Path> apply(Optional<Path> aPath) throws Exception {
                 return service.submit(new ICGCFileDecompressor(aPath));
             }
         };
+        // function sets the Path to the decompressed ICGC file in the transformer
+        // then invokes the transformer
         AsyncFunction<Path, Path> tsvToMaf = new AsyncFunction<Path, Path>() {
 
             @Override
@@ -98,7 +105,7 @@ public class IcgcStudyEtlCallable implements Callable<String> {
         Futures.addCallback(mafFuture, new FutureCallback<Path>() {
             @Override
             public void onSuccess(Path v) {
-                logger.info("Success: File " + v.toString() + " created");
+                logger.info("Success:  TSV File " + v.toString() + " transformed");
             }
             @Override
             public void onFailure(Throwable thrwbl) {
@@ -109,7 +116,7 @@ public class IcgcStudyEtlCallable implements Callable<String> {
         try {
             // add maf path to list
             Path mafPath = mafFuture.get();
-            logger.info("ICGC study data transformed to " + mafPath.toString());
+            //logger.info("ICGC study data transformed to " + mafPath.toString());
             //mafPathList.add(mafPath);
         } catch (InterruptedException | ExecutionException ex) {
             logger.error(ex.getMessage());
@@ -126,18 +133,24 @@ public class IcgcStudyEtlCallable implements Callable<String> {
     /*
      private inner class responsible for decompressing compressed ICGC
      study file
+     An Optional is used to deal with an incomplete file transfer from ICGC
      */
 
     private class ICGCFileDecompressor implements Callable<Path> {
 
         private final File compressedFile;
 
-        public ICGCFileDecompressor(Path aFilePath) {
-            this.compressedFile = aFilePath.toFile();
+        public ICGCFileDecompressor(Optional<Path> aFilePathOptional) {
+            if (aFilePathOptional.isPresent()){
+                this.compressedFile = aFilePathOptional.get().toFile();
+            } else {
+
+                this.compressedFile = null;
+            }
         }
 
         public Path call() throws Exception {
-            logger.info("Compressed filename " + this.compressedFile);
+
             return this.gunzipIt();
         }
 
@@ -161,7 +174,7 @@ public class IcgcStudyEtlCallable implements Callable<String> {
                     }
                 }
                 out.close();
-                logger.info("TSV file = " + tsvFilename);
+
 
             } catch (IOException ex) {
                 logger.error(ex.getMessage());
@@ -175,7 +188,7 @@ public class IcgcStudyEtlCallable implements Callable<String> {
     private inner class for fetching a compressed ICGC study file based
     on a supplied ICGC URL
     */
-    private class ICGCStudyFetcher implements Callable<Path> {
+    private class ICGCStudyFetcher implements Callable<Optional<Path>> {
 
         private final String icgcStudyUrl;
         private Path compressedFilePath;
@@ -205,18 +218,30 @@ public class IcgcStudyEtlCallable implements Callable<String> {
             return Files.createFile(outPath);
         }
 
+        /*
+        public method to transfer a copy of a specified ICGC file
+        disrupted transfers are retried a specified number of times
+        An Optional is used to indicate that a transfer operation may
+        not be successful
+         */
         @Override
-        public Path call() throws Exception {
-            try {
-                URL url = new URL(this.icgcStudyUrl);
-                FileUtils.copyURLToFile(url, this.compressedFilePath.toFile());
-                logger.info("File " + compressedFilePath.toString() + " created");
-
-            } catch (IOException e) {
-                logger.error(e.getMessage());
-                e.printStackTrace();
+        public Optional<Path> call() throws Exception {
+            int retryCount = 0;
+            while (retryCount < 3) {
+                try {
+                    URL url = new URL(this.icgcStudyUrl);
+                    FileUtils.copyURLToFile(url, this.compressedFilePath.toFile());
+                    logger.info("File " + compressedFilePath.toString() + " created");
+                    // successful transfer - outta here
+                    return Optional.of(this.compressedFilePath);
+                } catch (IOException e) {
+                    logger.error(e.getMessage());
+                    retryCount++;
+                    logger.info("Failed transfer for " +this.icgcStudyUrl +" retry count = " +retryCount);
+                }
             }
-            return this.compressedFilePath;
+            logger.error("Failed to obtain file " +this.icgcStudyUrl);
+            return Optional.absent();
         }
     }
 

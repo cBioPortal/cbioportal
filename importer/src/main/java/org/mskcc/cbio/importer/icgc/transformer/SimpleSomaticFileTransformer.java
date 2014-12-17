@@ -92,7 +92,7 @@ public class SimpleSomaticFileTransformer extends MutationTransformer implements
 
         try (BufferedReader reader = Files.newBufferedReader(this.icgcFilePath, Charset.defaultCharset());) {
             // generate a new Bloom Filter
-            this.icgcRecordFilter = BloomFilter.create(IcgcSimpleSomaticRecordFunnel.INSTANCE, 5000000);
+            this.icgcRecordFilter = BloomFilter.create(new IcgcSimpleSomaticRecordFunnel(), 5000000);
             final CSVParser parser = new CSVParser(reader, CSVFormat.TDF.withHeader());
             /*
             process the uncompressed TSV file downloaded from ICGC
@@ -147,7 +147,7 @@ public class SimpleSomaticFileTransformer extends MutationTransformer implements
 
         try (BufferedReader reader = Files.newBufferedReader(this.icgcFilePath, Charset.defaultCharset());) {
             // generate a new Bloom Filter
-            this.icgcRecordFilter = BloomFilter.create(IcgcSimpleSomaticRecordFunnel.INSTANCE, 5000000);
+            this.icgcRecordFilter = BloomFilter.create(new IcgcSimpleSomaticRecordFunnel(), 5000000);
             final CSVParser parser = new CSVParser(reader, CSVFormat.TDF.withHeader());
             /*
             process the uncompressed TSV file downloaded from ICGC

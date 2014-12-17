@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 
@@ -29,6 +30,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.*;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.icgc.etl.IcgcStudyEtlCallable;
@@ -63,17 +65,19 @@ public class SimpleSomaticMutationImporter implements Callable<List<String>> {
 
     private static Logger logger = Logger.getLogger(SimpleSomaticMutationImporter.class);
     private static final Integer ETL_THREADS = 4;
+    private boolean processCompleteFlag = false;
     private final Path baseStagingPath;
+    private final Set<String> completedFiles = Sets.newHashSet();
     final ListeningExecutorService service =
             MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(ETL_THREADS));
 
 
-    public SimpleSomaticMutationImporter( ) {
+    public SimpleSomaticMutationImporter() {
         this.baseStagingPath = PropertiesLoader.getInstance().getImporterBasePath();
     }
 
     //for testing purposes only - limit access
-     SimpleSomaticMutationImporter(Path aPath ) {
+    SimpleSomaticMutationImporter(Path aPath) {
         Preconditions.checkArgument(null != aPath);
         this.baseStagingPath = aPath;
     }
@@ -82,26 +86,27 @@ public class SimpleSomaticMutationImporter implements Callable<List<String>> {
     public List<String> call() throws Exception {
         return this.processSimpleSomaticMutations();
     }
+
     /*
     private method to create a Collection of the attributes needed to import & transform
     ICGC files
     use a Tuple3 as a data value object containing: (1) Path to the study's staging file directory,
     (2) the URL to the ICGC source file, and (3) a ICGCFileTransformer implementation
      */
-    private List<Tuple3<Path,String,IcgcFileTransformer>> resolveImportAttributeList(){
+    private List<Tuple3<Path, String, IcgcFileTransformer>> resolveImportAttributeList() {
         // get simple somatic mutation URLs for registered studies
         final Map<String, String> urlMap = IcgcImportService.INSTANCE.getIcgcMutationUrlMap();
         return FluentIterable.from(urlMap.keySet())
-                .transform(new Function<String,Tuple3<Path,String,IcgcFileTransformer>>() {
+                .transform(new Function<String, Tuple3<Path, String, IcgcFileTransformer>>() {
                     @Nullable
                     @Override
                     public Tuple3<Path, String, IcgcFileTransformer> apply(String studyId) {
                         final IcgcMetadata meta = IcgcMetadataService.INSTANCE.getIcgcMetadataById(studyId);
                         final Path stagingDirectoryPath = Paths.get(StagingCommonNames.pathJoiner.join(baseStagingPath,
-                               meta.getDownloaddirectory()) );
+                                meta.getDownloaddirectory()));
                         final String url = urlMap.get(studyId);
-                        final IcgcFileTransformer  transformer = (IcgcFileTransformer) new SimpleSomaticFileTransformer(
-                                new MutationFileHandlerImpl(),stagingDirectoryPath);
+                        final IcgcFileTransformer transformer = (IcgcFileTransformer) new SimpleSomaticFileTransformer(
+                                new MutationFileHandlerImpl(), stagingDirectoryPath);
                         return new Tuple3<Path, String, IcgcFileTransformer>(stagingDirectoryPath, url,
                                 transformer);
                     }
@@ -113,43 +118,79 @@ public class SimpleSomaticMutationImporter implements Callable<List<String>> {
     in the cbio portal
     Returns a List of Strings (i.e. messages) for successfully processed studies
      */
-    public  List<String> processSimpleSomaticMutations() {
+    public List<String> processSimpleSomaticMutations() {
         final List<String> retList = Lists.newArrayList();
         List<ListenableFuture<String>> futureList = Lists.newArrayList();
-     for (Tuple3<Path, String, IcgcFileTransformer> tuple3 : this.resolveImportAttributeList()){
-         futureList.add( service.submit(new IcgcStudyEtlCallable(tuple3._1(),
-                 tuple3._2(), tuple3._3())));
-         ListenableFuture<List<String>> etlResults = Futures.successfulAsList(futureList);
-         Futures.addCallback(etlResults, new FutureCallback<List<String>>() {
-             @Override
-             public void onSuccess(List<String> resultList) {
-                 for (String r : resultList) {
-                     logger.info(r);
-                     retList.add(r);
-                 }
-             }
-             @Override
-             public void onFailure(Throwable t) {
-                 logger.error(t.getMessage());
-             }
-         });
 
-     }
-       return retList;
+        final List<Tuple3<Path, String, IcgcFileTransformer> >tupleList = this.resolveImportAttributeList();
+        final Integer studyCount =  tupleList.size();
+        for (Tuple3<Path, String, IcgcFileTransformer> tuple3 : tupleList) {
+            futureList.add(service.submit(new IcgcStudyEtlCallable(tuple3._1(),
+                    tuple3._2(), tuple3._3())));
+
+            ListenableFuture<List<String>> etlResults = Futures.successfulAsList(futureList);
+            Futures.addCallback(etlResults, new FutureCallback<List<String>>() {
+                @Override
+                public void onSuccess(List<String> resultList) {
+                    completedFiles.addAll(resultList);
+                    logger.info("Transformation success callback - completed count = " + completedFiles.size());
+                    if(completedFiles.size() == studyCount ) {
+                        processCompleteFlag = true;
+                        logger.info("Process complete flag set to true");
+                    }
+                }
+                @Override
+                public void onFailure(Throwable t) {
+                    logger.error(t.getMessage());
+                }
+            });
+        }
+        return Lists.newArrayList(completedFiles);
     }
 
     /*
     main method for testing
     */
-    public static void main(String...args){
+    public static void main(String... args) {
         ApplicationContext applicationContext = new ClassPathXmlApplicationContext("/applicationContext-importer.xml");
-        SimpleSomaticMutationImporter importer = (SimpleSomaticMutationImporter) applicationContext.getBean("icgcSimpleSomaticImporter");
-        for(String result : importer.processSimpleSomaticMutations()){
-            logger.info("++++RESULT: " +result);
-        }
+        SimpleSomaticMutationImporter importer = (SimpleSomaticMutationImporter)
+                applicationContext.getBean("icgcSimpleSomaticImporter");
+        List<ListenableFuture<List<String>>> futureList = Lists.newArrayList();
+        futureList.add(importer.service.submit(importer));
+        ListenableFuture<List<List<String>>> etlResults = Futures.successfulAsList(futureList);
+        Futures.addCallback(etlResults, new FutureCallback<List<List<String>>>() {
+            @Override
+            public void onSuccess(List<List<String>> resultList) {
+                for(List<String> results: resultList){
+                    for (String result : results) {
+                        logger.info("Transformed study: " +result);
+                    }
+                }
+            }
+            @Override
+            public void onFailure(Throwable t) {
+                logger.error(t.getMessage());
+            }
+        });
+        logger.info("futures submitted");
+        // loop until work is done
+        while(!importer.processCompleteFlag){
+            try {
+                Thread.sleep(120000L);
+                logger.info("Waiting.....completion flag = " +importer.processCompleteFlag);
 
-      logger.info("Finis");
-        
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        // all transformations have completed - shutdown the executor service  and exit
+        for(String s : importer.completedFiles){
+            logger.info("Completed staging file: " +s);
+        }
+        importer.service.shutdownNow();
+        logger.info("service shutdown");
+        logger.info("FINIS...");
+        System.exit(0);
     }
 
 }

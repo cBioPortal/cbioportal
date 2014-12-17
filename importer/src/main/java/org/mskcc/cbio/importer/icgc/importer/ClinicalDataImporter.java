@@ -57,7 +57,7 @@ public class ClinicalDataImporter implements Callable<List<String>> {
                 "The specified directory " + destDir + " is invalid");
         this.destPath = destDir;
        
-        // edit MUTATION_TYPE place holder in URLs tp clinical
+        // edit MUTATION_TYPE place holder in URLs to clinical
         
         this.clinicalDataStudyList = FluentIterable.from(baseUrlList)
                 .transform(new Function<String, String>() {

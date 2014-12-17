@@ -890,7 +890,7 @@
                 if (parent) {
                     parent = this.container.find("li[data-tree-id='" + parent + "']");
                     if (parent) {
-                        ret = ret && this.result_activate_up(parent, activation);
+                        ret = ret && this.result_compute_activation_up(parent, activation);
                     }
                 }
             } catch (err) {
@@ -907,7 +907,7 @@
             try {
                 for (var i=0; i<el.length; i++) {
                     try {
-                        ret = ret && this.result_activate_down(this.container.find("li[data-parent='"+
+                        ret = ret && this.result_compute_activation_down(this.container.find("li[data-parent='"+
                                                         this.container.find(el[i]).attr("data-tree-id")
                                                         +"']"), activation);
                     } catch(err) {
@@ -1123,13 +1123,21 @@
       this.no_results_clear();
       _ref = this.results_data;
       searchText = this.search_field.val() === this.default_text ? "" : $('<div/>').text($.trim(this.search_field.val())).html();
-      var disjunctiveTerms = searchText.split(";");
+      var disjunctiveTerms = searchText.split(";").map(function(x) { return x.trim(); });
+      if (disjunctiveTerms.length > 1 && disjunctiveTerms[disjunctiveTerms.length-1] === "") {
+	      disjunctiveTerms = disjunctiveTerms.slice(0,disjunctiveTerms.length-1);
+      }
       var searchTermGroups = disjunctiveTerms.map(function(x) { return get_search_terms(x);}) ;
       var conjunctions = [];
       
       
-      var highlights = {};
+       // first clear descendant studies counts so that we can iteratively add to them when activating
       var allResults = this.get_all_results();
+      $.each(allResults, function(id, value) {
+	      if (!value.option.empty) {
+		      value.result.attr('data-desc-studies', 0);
+	      }
+      });
       $.each(allResults, function(key, val) {
 	      allResults[key].highlights = [];
       });
@@ -1189,17 +1197,18 @@
 	     });
 	     $.each(conjunctions[i].highlights, function(id, hlist) {
 		     if (hlist.length > 0) {
-			     highlights[id] = highlights[id].concat(hlist);
+			     allResults[id].highlights = allResults[id].highlights.concat(hlist);
 		     }
 	     });
      }
      // compute and apply highlights
-     $.each(highlights, function(id, hlist) {
+     $.each(allResults, function(id, value) {
+	     var hlist = value.highlights;
 	     if (hlist.length === 0) {
 		     return 1; // continue
 	     }
 	     var orig_text = allResults[id].option.html;
-	     var highlight_map = Array.apply(null, new Array(orig_text.length)).apply(Number.prototype.valueOf, 0); // array of 0's, one per index in orig_text
+	     var highlight_map = Array.apply(null, new Array(orig_text.length)).map(Number.prototype.valueOf, 0); // array of 0's, one per index in orig_text
 	     for (var h = 0; h<hlist.length; h++) {
 		     highlight_map[hlist[h][0]] += 1;
 		     highlight_map[hlist[h][1]] -= 1;
@@ -1226,6 +1235,8 @@
 	     });
      }
      
+     // activate and update descendant study count
+     results = 0;
      $.each(allResults, function(id, val) {
 	var shouldActivate = false;
 	for (var i=0; i<conjunctions.length; i++) {
@@ -1235,93 +1246,18 @@
 		}
 	}
 	if (shouldActivate) {
+		results += 1;
 		_this.result_activate(val.result);
-	}
-     });
-     
-     /*$.each(positiveSearchResults, function(searchWord, res) {
-		for (var j=0; j<res.found.length; j++) {
-			var item = res.found[j];
-			found_results[item.id] = found_results[item.id] || {result:item.result, option:item.option,highlights:[]};
-			found_results[item.id].highlights.push(item.highlight);
-		}
-     });
-     $.each(positiveSearchResults, function(searchWord, res) {
-		for (var j = 0; j < res.not_found.length; j++) {
-			var item = res.not_found[j];
-			if (item.id in found_results) {
-				delete found_results[item.id];
-			}
-		}
-     });
-     // Now we mark for deactivation results found by negative search words
-     $.each(negativeSearchResults, function(searchWord, res) {
-		for (var j = 0; j < res.found.length; j++) {
-			var item = res.found[j];
-			if (item.id in found_results) {
-				delete found_results[item.id];
-			}
-			deactivated[item.id] = {result: item.result, option: item.option};
-		}  
-     });*/
-
-      
-      /*// Compute highlighted labels
-      $.each(found_results, function(id, val) {
-		text = val.option.html;
-		var highlight_map = [];
-		for (var i = 0; i < text.length; i++) {
-			highlight_map.push(0);
-		}
-		for (var i = 0; i < found_results[id].highlights.length; i++) {
-			var highlight = found_results[id].highlights[i];
-			highlight_map[highlight[0]] += 1;
-			highlight_map[highlight[1]] -= 1;
-		}
-		var highlighted_text = "";
-		var highlight_depth = 0;
-		for (var i = 0; i < text.length; i++) {
-			var new_depth = highlight_depth + highlight_map[i];
-			if (highlight_depth === 0 && new_depth > 0) {
-				highlighted_text += "<em>";
-			} else if (highlight_depth > 0 && new_depth === 0) {
-				highlighted_text += "</em>";
-			}
-			highlighted_text += text[i];
-			highlight_depth = new_depth;
-		}
-
-		found_results[id].result.html(highlighted_text);
-		if (!(id in deactivated)) {
-			_this.result_activate(found_results[id].result, activated, deactivated);
-		}
-      });*/
-      
-      // Reactivate things that are in 'activated'
-      $.each(activated, function(id, _) {
-	      allResults[id].result.css('display', 'list-item');
-	      allResults[id].result.addClass('active-result');
-      });
-      
-      // first clear descendant studies counts so that we can iteratively add to them when activating
-      $.each(allResults, function(id, value) {
-	      if (!value.option.empty) {
-		      value.result.attr('data-desc-studies', 0);
-	      }
-      });
-      // update descendant study count
-      $.each(activated, function(id, val) {
-		var curr_result = $("#" + id);
-		if (!curr_result.attr('data-is-group-header')) {
-			// its a study and we recurse up
-			curr_result = _this.container.find("li[data-tree-id='" + curr_result.attr('data-parent') + "']");
+		if (!val.option.is_group_header && val.result.attr('data-parent')) {
+			var curr_result = _this.container.find("li[data-tree-id='" + val.result.attr('data-parent') + "']");
 			while (curr_result.length > 0) {
 				curr_result.attr('data-desc-studies', +curr_result.attr('data-desc-studies') + 1);
 				curr_result = _this.container.find("li[data-tree-id='" + curr_result.attr('data-parent') + "']");
 			}
 		}
-      });
-      
+	}
+     });
+     
       // update descendant study count display
       $.each(allResults, function(id, value) {
 	      if (!value.option.empty) {
@@ -1331,7 +1267,6 @@
 		      }
 	      }
       });
-      results = Object.keys(activated).length;
       if (results < 1 && searchText.length) {
         return this.no_results(searchText);
       } else {

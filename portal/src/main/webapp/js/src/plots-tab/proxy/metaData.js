@@ -17,14 +17,14 @@ var metaData = (function() {
 
     function fetchProfileMetaData() {
         var paramsGetProfiles = {
-            cancer_study_id: window.PortalGlobals.getCancerStudyId(),
+            cancer_study_id: window.PortalGlobals.getCancerStudyId()
         };
         $.post("getGeneticProfile.json", paramsGetProfiles, fetchClinicalAttrMetaData, "json");  
     }
 
     function fetchClinicalAttrMetaData(profileMetaDataResult) {
         var paramsGetClinicalAttributes = {
-            cmd : "getAllClinicalData",
+            cmd : "getClinicalData",
             cancer_study_id: window.PortalGlobals.getCancerStudyId(),
             case_set_id : window.PortalGlobals.getCaseSetId(),
             format : "json"
@@ -67,6 +67,20 @@ var metaData = (function() {
         },
         getRetrieveStatus: function() {
             return retrieve_status;
+        },
+        getDescription: function(attr_id) {
+            var _result = "";
+            $.each(geneticProfiles, function(index, obj) {
+                if (obj.id === attr_id) {
+                    _result = obj.description;
+                }
+            });
+            $.each(clinicalAttrs, function(index, obj) {
+                if (obj.id === attr_id) {
+                    _result = obj.description;
+                }
+            });
+            return _result;
         }
     };
     

@@ -141,7 +141,7 @@ var plotsData = (function() {
                     } else {
                         dotsContent[key.toUpperCase()].mutation[obj.geneSymbol] = {
                             "details": obj.proteinChange,
-                            "type": obj.mutationType //TODO: prioritize mutation
+                            "type": mutationTranslator(obj.mutationType)
                         };
                     }                    
                 }

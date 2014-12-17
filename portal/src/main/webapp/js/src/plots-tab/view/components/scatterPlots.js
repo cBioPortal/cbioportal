@@ -9,14 +9,18 @@ var scatterPlots = (function() {
                     range_max: 620,
                     orient: "bottom",
                     title_x: 350,
-                    title_y: 590
+                    title_y: 590,
+                    help_x: 350,
+                    help_y: 575
                 },
                 y: {
                     range_min: 520,
                     range_max: 20,
                     orient: "left",
                     title_x: -240,
-                    title_y: 55
+                    title_y: 55,
+                    help_x: 135,
+                    help_y: 125
                 }
             }
         },
@@ -34,7 +38,8 @@ var scatterPlots = (function() {
             dotsGroup : "",   //Group of single Dots
             axisTitleGroup: ""
         },
-        data = [];
+        data = [],
+        glyphs = [];
     
     function initCanvas() {
         elem.svg = d3.select("#" + div)
@@ -106,17 +111,28 @@ var scatterPlots = (function() {
                 $(this).attr("y_pos", elem.y.scale(d.yVal));
                 $(this).attr("x_val", d.xVal);
                 $(this).attr("y_val", d.yVal);
+                $(this).attr("case_id", d.caseId);
                 $(this).attr("size", 20);
                 return "translate(" + elem.x.scale(d.xVal) + ", " + elem.y.scale(d.yVal) + ")";
             })
             .attr("d", d3.svg.symbol()
                 .size(20)
-                .type("circle"));
+                .type(function(d){
+                    return mutationInterpreter.getSymbol(d);
+                }))
+            .attr("fill", function(d){
+                return mutationInterpreter.getFill(d);
+            })
+            .attr("stroke", function(d){
+                return mutationInterpreter.getStroke(d);
+            })
+            .attr("stroke-width", 1.2);
     }
     
     function appendTitle(axis) { //axis titles
         var elt = document.getElementById(ids.sidebar[axis].profile_name);
-        var text = elt.options[elt.selectedIndex].text;
+        var _profile_name = elt.options[elt.selectedIndex].text;
+        var _profile_id = elt.options[elt.selectedIndex].value;
         
         var _tmp_attr = (axis === "y")? "rotate(-90)": "";
         d3.select("#" + div).select(d3_class[axis].axis_title).remove();
@@ -127,21 +143,23 @@ var scatterPlots = (function() {
             .attr("y", settings.axis[axis].title_y)
             .style("text-anchor", "middle")
             .style("font-weight","bold")
-            .text(text);
+            .text(_profile_name);
         
         //append help icon (mouseover)
+        var _pos_x = (axis==="x")? (settings.axis.x.title_x + _profile_name.length / 2 * 8 + 10): (settings.axis.y.title_y - 10);
+        var _pos_y = (axis==="x")? (settings.axis.x.title_y - 10): (settings.axis.y.title_x + 450 - _profile_name.length / 2 * 8 );
         elem.axisTitleGroup.append("svg:image")
             .attr("xlink:href", "images/help.png")
-            .attr("class", d3_class[axis].axis_title)
-            .attr("x", 350 + text.length / 2 * 8)
-            .attr("y", 567)
+            .attr("class", d3_class[axis].title_help)
+            .attr("x", _pos_x)
+            .attr("y", _pos_y)
             .attr("width", "16")
             .attr("height", "16");
-        svg.select("." + d3_class[axis].axis_title).each(
+        elem.svg.select("." + d3_class[axis].title_help).each(
             function() {
                 $(this).qtip(
                     {
-                        content: {text: "<font size=2>" + xText + "</font>" },
+                        content: {text: "<font size=2>" + metaData.getDescription(_profile_id) + "</font>" },
                         style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                         show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
@@ -150,7 +168,33 @@ var scatterPlots = (function() {
                 );
             }
         );
-            
+    }
+    
+    function appendGlyphs() {
+        var legend = elem.svg.selectAll(".legend")
+                .data(glyphs)
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", function(d, i) {
+                    return "translate(630, " + (25 + i * 15) + ")";
+                });
+
+            legend.append("path")
+                .attr("width", 18)
+                .attr("height", 18)
+                .attr("d", d3.svg.symbol()
+                    .size(30)
+                    .type(function(d) { return d.symbol; }))
+                .attr("fill", function (d) { return d.fill; })
+                .attr("stroke", function (d) { return d.stroke; })
+                .attr("stroke-width", 1.1);
+
+            legend.append("text")
+                .attr("dx", ".75em")
+                .attr("dy", ".35em")
+                .style("text-anchor", "front")
+                .text(function(d){return d.legendText;});
+
     }
     
     return {
@@ -158,7 +202,9 @@ var scatterPlots = (function() {
             div = _div;
             //convert input data from JSON to array
             data = [];
+            glyphs = [];
             data.length = 0;
+            glyphs.length = 0;
             for (var key in _data) {
                 data.push(_data[key]);
             }
@@ -171,6 +217,17 @@ var scatterPlots = (function() {
             drawDots();
             appendTitle("x");
             appendTitle("y");
+            appendGlyphs();
+        },
+        addGlyph: function(obj) {
+            glyphs.push(obj);
+        },
+        isGlyphExist: function(type_id) {
+            var _result = false;
+            $.each(glyphs, function(index, _obj) {
+                if(_obj.typeName === type_id) _result = true; 
+            });
+            return _result;
         }
     };
     

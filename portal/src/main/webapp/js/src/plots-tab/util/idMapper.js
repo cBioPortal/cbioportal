@@ -29,11 +29,13 @@ var ids = {
 var d3_class = {
     x : {
         axis: "plots-x-axis-class",
-        axis_title: "plots-x-axis-title"
+        axis_title: "plots-x-axis-title",
+        title_help: "plots-x-axis-title-help"
     },
     y: {
         axis: "plots-y-axis-class",
-        axis_title: "plots-y-axis-title"
+        axis_title: "plots-y-axis-title",
+        title_help: "plots-y-axis-title-help"
     }
 
 };

@@ -24,9 +24,6 @@ import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.AccessControl;
 import org.mskcc.cbio.portal.web_api.ProtocolException;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
 import java.util.List;
 import java.util.HashSet;
 import java.util.ArrayList;
@@ -39,7 +36,7 @@ import java.util.ArrayList;
 public class DataSetsUtil {
 
 	// ref to our access control object
-	private static AccessControl accessControl = initializeAccessControl();
+	private static AccessControl accessControl = SpringUtil.getAccessControl();
 
 	// ref to total number of samples for al cancer studies
 	private Integer totalNumberOfSamples;
@@ -47,7 +44,8 @@ public class DataSetsUtil {
 	// ref to our list of cancer study stats & total num of samples
 	private List<CancerStudyStats> cancerStudyStats;
 
-	// ref to patient list DAO
+	private DaoSample daoSample;
+	private DaoPatient daoPatient;
 	private DaoPatientList daoPatientList;
 
 	/**
@@ -56,6 +54,8 @@ public class DataSetsUtil {
 	public DataSetsUtil() {
 
 		try {
+			daoSample = new DaoSample();
+			daoPatient = new DaoPatient();
 			daoPatientList = new DaoPatientList();
 			// totalNumberOfSamples will be set while computing stats
 			totalNumberOfSamples = 0;
@@ -132,21 +132,18 @@ public class DataSetsUtil {
 		return toReturn;
 	}
 
-	/** 
-	 * Initializes the AccessControl member.
-	 */
-	protected static final AccessControl initializeAccessControl() {
-		ApplicationContext context = 
-			new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
-		return (AccessControl)context.getBean("accessControl");
-	}
-
-	private int getCount(CancerStudy cancerStudy, String patientListSuffix) throws DaoException {
+	private int getCount(CancerStudy cancerStudy, String patientListSuffix) throws DaoException
+	{
+		int count = 0;
 		
 		String patientListID = cancerStudy.getCancerStudyStableId() + patientListSuffix;
 		PatientList desiredPatientList = daoPatientList.getPatientListByStableId(patientListID);
+
+		if (desiredPatientList != null) {
+			// NOTE - as of 12/12/14, patient lists contain sample ids
+			count = desiredPatientList.getPatientList().size();
+		}
 		
-		// outta here
-		return (desiredPatientList != null) ? desiredPatientList.getPatientList().size() : 0;
+		return count;
 	}
 }

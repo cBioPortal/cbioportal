@@ -32,15 +32,14 @@ var StudyViewInitScatterPlot = (function() {
                         _value['MUTATION_COUNT'] + 
                         "</strong></br>Fraction of CNA: <strong>"+
                         cbio.util.toPrecision(_value['COPY_NUMBER_ALTERATIONS'],2,0.01)+
-                        "</strong><br/>Case ID: <strong>" +
-                        "<a href='case.do?case_id=" +
+                        "<br><a href='case.do?sample_id=" +
                         _value['CASE_ID'] + "&cancer_study_id=" +
                         StudyViewParams.params.studyId + "' target='_blank'>" + 
                         _value['CASE_ID'] + "</a></strong>";
                     scatterPlotArr.push(_scatterPlotDatumTmp);
             }
         }
-        console.log(scatterPlotArr);
+        
         dcCharts = StudyViewInitCharts.getCharts();
         
         scatterPlotDataAttr = jQuery.extend(true, {}, StudyViewBoilerplate.scatterPlotDataAttr);

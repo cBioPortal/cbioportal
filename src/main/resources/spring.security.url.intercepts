@@ -7,6 +7,7 @@ url.intercepts=<intercept-url pattern="/auth/*" access="permitAll"/>${line.separ
     <intercept-url pattern="/data_sets.jsp" access="isAuthenticated()"/>${line.separator} \
     <intercept-url pattern="/about_us.jsp" access="isAuthenticated()"/>${line.separator} \
     <intercept-url pattern="/web_api.jsp" access="isAuthenticated()"/>${line.separator} \
+    <intercept-url pattern="/api/**/*" access="isAuthenticated()"/>${line.separator} \
     <intercept-url pattern="/jobs.jsp" access="isAuthenticated()"/>${line.separator} \
     <intercept-url pattern="/cgds_r.jsp" access="isAuthenticated()"/>${line.separator} \
     <intercept-url pattern="/networks.jsp" access="isAuthenticated()"/>${line.separator} \
@@ -81,4 +82,5 @@ url.intercepts=<intercept-url pattern="/auth/*" access="permitAll"/>${line.separ
     <intercept-url pattern="/oncoprinter.jsp*" access="isAuthenticated()"/>${line.separator} \
     <intercept-url pattern="/release_notes_oncoprinter.jsp*" access="isAuthenticated()"/>${line.separator} \
     <intercept-url pattern="/mutexdownload.do*" access="isAuthenticated()"/>${line.separator} \
+    <intercept-url pattern="/calcCoExp.do*" access="isAuthenticated()"/>${line.separator} \
     <intercept-url pattern="/**" access="denyAll"/>

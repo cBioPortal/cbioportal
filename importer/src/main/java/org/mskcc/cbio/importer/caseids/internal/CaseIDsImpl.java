@@ -37,6 +37,7 @@ public class CaseIDsImpl implements CaseIDs {
 
     private static final String SAMPLE_REGEX = "tcga-sample-pattern";
     private static final String PATIENT_REGEX = "tcga-patient-pattern";
+    private static final String TRUCATED_PATIENT_REGEX = "tcga-truncated-patient-pattern";
     private static final String NON_TCGA_REGEX = "non-tcga-pattern";
 
     private static final List<String> tcgaNormalTypes = initTCGANormalTypes();
@@ -48,6 +49,7 @@ public class CaseIDsImpl implements CaseIDs {
 	// ref to our matchers
     private Pattern samplePattern;
     private Pattern patientPattern;
+    private Pattern truncatedTCGAPatientPattern;
     private Pattern nonTCGAPattern;
 
 	/**
@@ -69,6 +71,9 @@ public class CaseIDsImpl implements CaseIDs {
 		for (CaseIDFilterMetadata caseIDFilter : caseIDFilters) {
             if (caseIDFilter.getFilterName().equals(PATIENT_REGEX)) {
                 patientPattern = Pattern.compile(caseIDFilter.getRegex());
+            }
+            else if (caseIDFilter.getFilterName().equals(TRUCATED_PATIENT_REGEX)) {
+                truncatedTCGAPatientPattern = Pattern.compile(caseIDFilter.getRegex());
             }
             else if (caseIDFilter.getFilterName().equals(SAMPLE_REGEX)) {
                 samplePattern = Pattern.compile(caseIDFilter.getRegex());
@@ -107,6 +112,12 @@ public class CaseIDsImpl implements CaseIDs {
     }
 
     @Override
+    public boolean isTruncatedTCGAPatientId(String caseId)
+    {
+        return truncatedTCGAPatientPattern.matcher(caseId).matches();
+    }
+
+    @Override
     public String getSampleId(String caseId)
     {
         return getSampleId(0, caseId);
@@ -136,8 +147,15 @@ public class CaseIDsImpl implements CaseIDs {
 	public String getPatientId(int cancerStudyId, String caseId)
     {
         if (nonTCGAPattern.matcher(caseId).matches()) {
-            Patient p = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudyId, caseId);
-            return (p != null) ? p.getStableId() : caseId;
+            // data files should only have sample ids - get patient id via sample
+            Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, caseId);
+            if (s != null && s.getInternalPatientId() > 0) {
+                Patient p = DaoPatient.getPatientById(s.getInternalPatientId());
+                return (p != null) ? p.getStableId() : caseId;
+            }
+            else {
+                return caseId;
+            }
         }
         else {
             String cleanId = clean(caseId);

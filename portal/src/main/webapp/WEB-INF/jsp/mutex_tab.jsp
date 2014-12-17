@@ -34,11 +34,15 @@
                 if (ui.newTab.text().trim().toLowerCase() === "mutual exclusivity") {
                     MutexView.resize();
                 }
+            } else {
+                MutexView.resize();
             }
         });
         if ($("#mutex").is(":visible")) {
             if (!MutexView.isTableInstanceExisted()) {
                 MutexData.init();
+                MutexView.resize();
+            } else {
                 MutexView.resize();
             }
         }

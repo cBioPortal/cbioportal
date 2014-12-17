@@ -440,7 +440,9 @@ public class Admin implements Runnable {
 		                      FileUtils.FILE_URL_PREFIX + mafFile.getCanonicalPath());
 
 		// clean up
-		org.apache.commons.io.FileUtils.forceDelete(tmpMAF);
+		if (tmpMAF.exists()) {
+			org.apache.commons.io.FileUtils.forceDelete(tmpMAF);
+		}
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("annotateMAF(), complete");

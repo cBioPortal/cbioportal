@@ -21,9 +21,6 @@ import org.mskcc.cbio.portal.web_api.*;
 
 import org.json.simple.*;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
 import java.io.*;
@@ -52,9 +49,7 @@ public class PortalMetaDataJSON extends HttpServlet {
 
     public void init() throws ServletException {
         super.init();
-        ApplicationContext context
-                = new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
-        accessControl = (AccessControl) context.getBean("accessControl");
+        accessControl = SpringUtil.getAccessControl();
     }
 
     /**
@@ -72,6 +67,7 @@ public class PortalMetaDataJSON extends HttpServlet {
         Map ret = new LinkedHashMap();
         ret.put("name", cancerStudy.getName());
         ret.put("type_of_cancer", cancerStudy.getTypeOfCancerId());
+        ret.put("description", cancerStudy.getDescription());
 
         if (partial) {
             ret.put("partial", "true");
@@ -104,7 +100,6 @@ public class PortalMetaDataJSON extends HttpServlet {
                 jsonCaseList.add(map);
             }
             ret.put("short_name", cancerStudy.getShortName());
-            ret.put("description", cancerStudy.getDescription());
             ret.put("citation", cancerStudy.getCitation());
             ret.put("pmid", cancerStudy.getPmid());
             ret.put("genomic_profiles", jsonGenomicProfileList);

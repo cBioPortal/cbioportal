@@ -116,7 +116,7 @@ var DataDownloadTab = (function() {
         var _formats = [
             { name: "Tab-delimited Format", value: "tab"},
             { name: "Transposed Matrix", value: "matrix"}
-        ]
+        ];
 
         $.each(window.PortalGlobals.getGeneticProfiles().split(" "), function(index, val) {
             var _str = "<li>" + profiles[val].NAME + ": "; 
@@ -187,19 +187,7 @@ var DataDownloadTab = (function() {
         },
         isRendered: function() {
             return _isRendered;
-        },
-        // onClick: function(genetic_profile_id, format) {
-        //     var _params = {
-        //         cancer_study_id: window.PortalGlobals.getCancerStudyId(),
-        //         case_set_id: window.PortalGlobals.getCaseSetId(),
-        //         case_ids_key: window.PortalGlobals.getCaseIdsKey(),
-        //         genetic_profile_id: genetic_profile_id,
-        //         gene_list: window.PortalGlobals.getGeneListString(),
-        //         force_download: true,
-        //         format: format
-        //     };
-        //     $.post("getProfileData.json", _params);
-        // }
+        }
     };
 
 }());
@@ -214,7 +202,7 @@ $(document).ready( function() {
         DataDownloadTab.setStat(PortalDataColl.getOncoprintStat()); 
         //AJAX call to grab relevant data
         var _paramsGetProfiles = {
-            cancer_study_id: window.PortalGlobals.getCancerStudyId(),
+            cancer_study_id: window.PortalGlobals.getCancerStudyId()
         };
         $.post("getGeneticProfile.json", _paramsGetProfiles, getGeneticProfileCallback, "json");
 

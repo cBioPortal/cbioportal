@@ -85,13 +85,14 @@ public class ImportTimelineData {
     
     private static void importData(String dataFile, int cancerStudyId) throws IOException, DaoException {
         MySQLbulkLoader.bulkLoadOn();
+        
+        System.out.print("Reading file "+dataFile);
         FileReader reader =  new FileReader(dataFile);
         BufferedReader buff = new BufferedReader(reader);
 
         String line = buff.readLine();
-        if (!line.startsWith("PATEINT_ID\tSTART_DATE\tSTOP_DATE\tEVENT_TYPE")) {
-            System.err.println("The first line must start with 'PATEINT_ID\tSTART_DATE\tSTOP_DATE\tEVENT_TYPE'");
-            return;
+        if (!line.startsWith("PATIENT_ID\tSTART_DATE\tSTOP_DATE\tEVENT_TYPE")) {
+            throw new RuntimeException("The first line must start with 'PATIENT_ID\tSTART_DATE\tSTOP_DATE\tEVENT_TYPE'");
         }
         String[] headers = line.split("\t");
 
@@ -107,9 +108,12 @@ public class ImportTimelineData {
             }
             
             Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudyId, fields[0]);
+            if (patient == null) {
+              continue;
+            }
             ClinicalEvent event = new ClinicalEvent();
             event.setClinicalEventId(++clinicalEventId);
-            event.setPatient(patient);
+            event.setPatientId(patient.getInternalId());
             event.setStartDate(Long.valueOf(fields[1]));
             if (!fields[2].isEmpty()) {
                 event.setStopDate(Long.valueOf(fields[2]));

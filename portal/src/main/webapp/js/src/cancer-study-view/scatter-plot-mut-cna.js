@@ -61,7 +61,7 @@ function plotMutVsCna(csObs,divId,caseIdDiv,cancerStudyId,dt,emphasisCaseIds,col
         
         var options = {
             hAxis: {title: "Fraction of copy number altered genome"+(hLog?" (log)":""), logScale:hLog, format:'#%'},
-            vAxis: {title: "# of mutations"+(vLog?" (log)":""), logScale:vLog, format:'#,###'},
+            vAxis: {title: "mutation count"+(vLog?" (log)":""), logScale:vLog, format:'#,###'},
             legend: {position:'none'}
         };
         scatter.draw(scatterDataView,options);
@@ -74,9 +74,11 @@ function loadMutCountCnaFrac(caseIds,cancerStudyId,mutationProfileId,hasCnaSegme
     if (mutationProfileId!=null) {
         var params = {
             cmd: 'count_mutations',
-            case_ids: caseIds.join(' '),
             mutation_profile: mutationProfileId
         };
+        if (caseIds) {
+            params["case_ids"] = caseIds.join(' ')
+        }
 
         $.post("mutations.json", 
             params,
@@ -97,9 +99,11 @@ function loadMutCountCnaFrac(caseIds,cancerStudyId,mutationProfileId,hasCnaSegme
     if (hasCnaSegmentData) {
         var params = {
             cmd: 'get_cna_fraction',
-            case_ids: caseIds.join(' '),
             cancer_study_id: cancerStudyId
         };
+        if (caseIds) {
+            params["case_ids"] = caseIds.join(' ')
+        }
 
         $.post("cna.json", 
             params,

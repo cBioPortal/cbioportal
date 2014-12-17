@@ -40,6 +40,8 @@ import org.apache.commons.io.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import java.io.*;
 import java.util.*;
 import java.lang.reflect.Method;
@@ -60,6 +62,13 @@ class ImporterImpl implements Importer {
 
 	// ref to database utils
 	private DatabaseUtils databaseUtils;
+
+	private Boolean supplyDefaultClinicalAttributeValues;
+	@Value("${supply_default_clinical_attribute_values}")
+	public void setFillInClinicalAttributes(String property)
+	{
+		this.supplyDefaultClinicalAttributeValues = new Boolean(property);
+	}
 
 	/**
 	 * Constructor.
@@ -356,11 +365,19 @@ class ImporterImpl implements Importer {
 				fileUtils.writeCancerStudyMetadataFile(rootDirectory, cancerStudyMetadata, -1);
 				createdCancerStudyMetadataFile = true;
 			}
-            else {
-                if (cancerStudyMetadataNeedsUpdating(cancerStudyMetadataFile, cancerStudyMetadata)) {
-                    fileUtils.writeCancerStudyMetadataFile(rootDirectory, cancerStudyMetadata, -1);
-                }
-            }
+			else if (cancerStudyMetadataNeedsUpdating(cancerStudyMetadataFile, cancerStudyMetadata)) {
+				HashMap<String,String> map = new HashMap<String,String>();
+				map.put("type_of_cancer", cancerStudyMetadata.getTumorType());
+		    	fileUtils.updateCancerStudyMetadataFile(rootDirectory, cancerStudyMetadata, map);
+		    }
+		    if (!createdCancerStudyMetadataFile) {
+		    	// if we didnt create a cancer study metadata file,
+		    	// we may have an incomplete cancerStudyMetadata object
+		    	// (for bic-mskcc, most properties are blank)
+		    	Properties properties = getProperties(cancerStudyMetadataFile);
+		    	properties.setProperty("study_path", cancerStudyMetadata.getStudyPath());
+		    	cancerStudyMetadata = new CancerStudyMetadata(properties);
+		    }
 			String[] args = { cancerStudyMetadataFile };
 			if (LOG.isInfoEnabled()) {
 				LOG.info("loadStagingFiles(), Importing cancer study metafile: " + cancerStudyMetadataFile);
@@ -372,6 +389,10 @@ class ImporterImpl implements Importer {
 
 				// get the metafile/staging file for this cancer_study / datatype
 				for (String stagingFilename : getImportFilenames(rootDirectory, cancerStudyMetadata, datatypeMetadata.getStagingFilename())) {
+					// skip normal file import for now
+					if (stagingFilename.endsWith(DatatypeMetadata.NORMAL_STAGING_FILENAME_SUFFIX)) {
+						continue;
+					}
 					String origName = stagingFilename;
 
 					// datatype might not exists for cancer study
@@ -394,8 +415,8 @@ class ImporterImpl implements Importer {
 	                    }
 					}
 
-					if (stagingFilename.contains("clinical") && clinicalFileMissingMetadata(stagingFilename)) {
-                    	stagingFilename = addMetadataToClinicalFile(stagingFilename);
+					if (stagingFilename.contains("clinical") && !stagingFilename.endsWith(".xml") && clinicalFileMissingMetadata(stagingFilename)) {
+                    	stagingFilename = addMetadataToClinicalFile(cancerStudyMetadata, stagingFilename);
                 	}
 
 					// if MAF, annotate
@@ -480,7 +501,7 @@ class ImporterImpl implements Importer {
         return false;
     }
 
-    private String addMetadataToClinicalFile(String stagingFile) throws Exception
+    private String addMetadataToClinicalFile(CancerStudyMetadata cancerStudyMetadata, String stagingFile) throws Exception
     {
         StringBuilder newFileContents = new StringBuilder();
 
@@ -491,8 +512,8 @@ class ImporterImpl implements Importer {
             if (!headerProcessed) {
                 String header = it.nextLine().trim();
                 List<String> columnHeaders = new ArrayList(Arrays.asList(header.split(ImportClinicalData.DELIMITER, -1)));
-                headersWithMissingMetadata = MetadataUtils.getHeadersMissingMetadata(config, columnHeaders);
-                newFileContents.append(MetadataUtils.getClinicalMetadataHeaders(config, columnHeaders));
+                headersWithMissingMetadata = MetadataUtils.getHeadersMissingMetadata(config, cancerStudyMetadata, columnHeaders, supplyDefaultClinicalAttributeValues);
+                newFileContents.append(MetadataUtils.getClinicalMetadataHeaders(config, columnHeaders, supplyDefaultClinicalAttributeValues));
                 headerProcessed = true;
             }
             else {
@@ -508,7 +529,7 @@ class ImporterImpl implements Importer {
     	String[] parts = nextLine.split(ImportClinicalData.DELIMITER, -1);
     	for (int lc = 0; lc < headersWithMissingMetadata.size(); lc++) {
     		if (!headersWithMissingMetadata.get(lc)) {
-    			lineBuilder.append(parts[lc] + ImportClinicalData.DELIMITER);
+    			lineBuilder.append(((lc < parts.length) ? parts[lc] : "") + ImportClinicalData.DELIMITER);
     		}
     	}
     	return lineBuilder.toString().trim() + "\n";
@@ -532,12 +553,7 @@ class ImporterImpl implements Importer {
     private boolean cancerStudyMetadataNeedsUpdating(String cancerStudyMetadataFilename, CancerStudyMetadata cancerStudyMetadata) throws Exception
     {
         Properties properties = getProperties(cancerStudyMetadataFilename);
-        return (propertyNeedsUpdating(properties.getProperty("name"), cancerStudyMetadata.getName()) ||
-                propertyNeedsUpdating(properties.getProperty("description"), cancerStudyMetadata.getDescription()) ||
-                propertyNeedsUpdating(properties.getProperty("citation"), cancerStudyMetadata.getCitation()) ||
-                propertyNeedsUpdating(properties.getProperty("pmid"), cancerStudyMetadata.getPMID()) ||
-                propertyNeedsUpdating(properties.getProperty("groups"), cancerStudyMetadata.getGroups()) ||
-                propertyNeedsUpdating(properties.getProperty("short_name"), cancerStudyMetadata.getShortName()));
+        return propertyNeedsUpdating(properties.getProperty("type_of_cancer"), cancerStudyMetadata.getTumorType());
     }
 
     private Properties getProperties(String cancerStudyMetadataFilename) throws Exception
@@ -557,10 +573,6 @@ class ImporterImpl implements Importer {
         if (!cancerStudyMetadataProperty.isEmpty() &&
             metaStudyFileProperty != null &&
             !cancerStudyMetadataProperty.equals(metaStudyFileProperty.trim())) {
-            return true;
-        }
-        if (cancerStudyMetadataProperty.isEmpty() &&
-            metaStudyFileProperty != null) {
             return true;
         }
         return false;

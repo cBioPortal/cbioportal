@@ -22,9 +22,8 @@ import org.mskcc.cbio.portal.model.Patient;
 import org.mskcc.cbio.portal.dao.DaoPatient;
 import org.mskcc.cbio.portal.dao.DaoSample;
 
+import java.util.*;
 import java.util.regex.*;
-import java.util.List;
-import java.util.ArrayList;
 
 public class StableIdUtil
 {
@@ -89,7 +88,7 @@ public class StableIdUtil
         }
     }
 
-    static public Sample.Type getTypeByTCGACode(String tcgaCode)
+    public static Sample.Type getTypeByTCGACode(String tcgaCode)
     {
         if (tcgaCode.equals("01")) {
             return Sample.Type.PRIMARY_SOLID_TUMOR;
@@ -117,6 +116,16 @@ public class StableIdUtil
         }
     }
 
+    public static boolean isNormal(String barcode)
+    {
+        Matcher tcgaSampleBarcodeMatcher = TCGA_SAMPLE_TYPE_BARCODE_REGEX.matcher(barcode);
+        if (tcgaSampleBarcodeMatcher.find()) {
+            Sample.Type type = getTypeByTCGACode(tcgaSampleBarcodeMatcher.group(1));
+            return (type.equals(Sample.Type.BLOOD_NORMAL) || type.equals(Sample.Type.SOLID_NORMAL));
+        }
+        return false;
+    }
+
     public static List<String> getStableSampleIdsFromPatientIds(int cancerStudyId, List<String> stablePatientIds) {
         ArrayList<String> sampleIds = new ArrayList<String>();
         for (String stablePatientId : stablePatientIds) {
@@ -141,5 +150,16 @@ public class StableIdUtil
             }
         }
         return sampleIds;
+    }
+
+    public static List<String> getStablePatientIdsFromSampleIds(int cancerStudyId, List<String> stableSampleIds)
+    {
+        Set<String> patientIds = new HashSet<String>();
+        for (String sampleId : stableSampleIds) {
+            Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId);
+            Patient p = DaoPatient.getPatientById(s.getInternalPatientId());
+            patientIds.add(p.getStableId()); 
+        }
+        return new ArrayList<String>(patientIds);
     }
 }

@@ -42,7 +42,6 @@ var DataTable = function() {
         aoColumns = [], //DataTable Title Data
         aaData = [], //DataTable Content Data
         columnIndexMappingColumnId = [],
-        displayMapName = {},
         selectorData = [],
         filters = {};
     
@@ -127,25 +126,35 @@ var DataTable = function() {
     //Initialize aoColumns Data
     function initColumnsTitleData() {
         var i,
-            _permenentDisabledTitles =  ['CASE ID', 
-                                        'PATIENT ID', 
-                                        'Patient Identifier'];
+            _permenentDisabledAttrs =  ['CASE_ID', 
+                                        'PATIENT_ID'];
         
         aoColumns.length = 0;
         
-        aoColumns.push({sTitle:"CASE ID",sType:'string',sClass:'nowrap'});
-        displayMapName['CASE ID'] = 'CASE_ID';
+        aoColumns.push({
+            dataTable: {sTitle:"Sample ID",sType:'string',sClass:'nowrap'},
+            fullDisplay: 'SAMPLE ID',
+            attrId: "CASE_ID"
+        });
         for( i = 0; i < attr.length; i++ ){
             if( attr[i].attr_id !== 'CASE_ID' ){
                 var _tmp = {};
                 
+                _tmp.dataTable = {};
+                _tmp.attrId = attr[i].attr_id;
+                
                 if(attr[i].attr_id === 'COPY_NUMBER_ALTERATIONS'){
-                    _tmp.sTitle = 'CNA';
+                    _tmp.dataTable.sTitle = 'CNA';
+                    _tmp.fullDisplay = 'CNA';
                 }else{
-                    _tmp.sTitle = attr[i].display_name;
+                    if(attr[i].display_name.toString().length > 15) {
+                        _tmp.dataTable.sTitle = attr[i].display_name.toString().substring(0,15) + "...";
+                    }else {
+                        _tmp.dataTable.sTitle = attr[i].display_name;
+                    }
+                    _tmp.fullDisplay = attr[i].display_name;
                 }
-                displayMapName[_tmp.sTitle] = attr[i].attr_id;
-                _tmp.sType = dataType[attr[i].attr_id];
+                _tmp.dataTable.sType = dataType[attr[i].attr_id];
                 aoColumns.push(_tmp);
             }
         }
@@ -155,18 +164,18 @@ var DataTable = function() {
         //Sort table columns based on display name. If title is in
         //permenentDisabledTitles, put it to front of table.
         aoColumns.sort(function(a, b) {
-            //Case ID is the first element of permenentDisabledTitles,
+            //Sample ID is the first element of permenentDisabledTitles,
             //It will always be treated as first column.
             //
             //TODO: Need second sorting function for sorting pre disabled
             //predisabled columns if needed.
-            if(_permenentDisabledTitles.indexOf(a.sTitle) !== -1) {
+            if(_permenentDisabledAttrs.indexOf(a.attrId) !== -1) {
                 return -1;
-            }else if(_permenentDisabledTitles.indexOf(b.sTitle) !== -1) {
+            }else if(_permenentDisabledAttrs.indexOf(b.attrId) !== -1) {
                 return 1;
             }else{
-                var _a = a.sTitle.toLowerCase(),
-                    _b = b.sTitle.toLowerCase();
+                var _a = a.dataTable.sTitle.toLowerCase(),
+                    _b = b.dataTable.sTitle.toLowerCase();
                     
                 if(_a < _b) {
                     return -1;
@@ -177,7 +186,7 @@ var DataTable = function() {
         });
         
         for( var i = 0; i < aoColumnsLength; i++) {
-            if(_permenentDisabledTitles.indexOf(aoColumns[i].sTitle) !== -1) {
+            if(_permenentDisabledAttrs.indexOf(aoColumns[i].attrId) !== -1) {
                 permenentDisabledId.push(i);
             }
         }
@@ -197,29 +206,25 @@ var DataTable = function() {
             aaData[_key] = [];
             
             for ( var j = 0; j < _aoColumnsLength; j++) {
-                var _valueAo = aoColumns[j],
+                var _attrId = aoColumns[j].attrId,
                     _selectedString,
                     _specialCharLength,
                     _tmpValue ='',
                     _specialChar = ['(',')','/','?','+'];
 
-                if(_valueAo.sTitle === 'CNA'){
-                    _tmpValue = _value['COPY_NUMBER_ALTERATIONS'];                
-                }else if ( _valueAo.sTitle === 'COMPLETE (ACGH, MRNA, SEQUENCING)'){
-                    _tmpValue = _value[_valueAo.sTitle];
-                }else if ( _valueAo.sTitle === 'CASE ID'){
+                if ( _attrId === 'CASE_ID'){
                     _tmpValue = "<a href='case.do?sample_id=" + 
                     _value['CASE_ID'] + "&cancer_study_id=" +
                     StudyViewParams.params.studyId + "' target='_blank'><span style='color: #2986e2'>" + 
                     _value['CASE_ID'] + "</span></a></strong>";
-                }else if ( (_valueAo.sTitle === 'Patient Identifier' || _valueAo.sTitle === 'PATIENT ID') && _value['PATIENT_ID'] !== 'NA'){
+                }else if ( _attrId === 'PATIENT_ID' && _value['PATIENT_ID'] !== 'NA'){
                     _tmpValue = "<a href='case.do?cancer_study_id=" +
-                    StudyViewParams.params.studyId + "&patient_id="+
+                    StudyViewParams.params.studyId + "&case_id="+
                     _value['PATIENT_ID'] +
                     "' target='_blank'><span style='color: #2986e2'>" + 
                     _value['PATIENT_ID'] + "</span></a></strong>";
                 }else{
-                    _tmpValue = _value[displayMapName[_valueAo.sTitle]];
+                    _tmpValue = _value[aoColumns[j].attrId];
                 }
                 if(!isNaN(_tmpValue) && (_tmpValue % 1 !== 0)){
                     _tmpValue = cbio.util.toPrecision(Number(_tmpValue),3,0.01);
@@ -230,7 +235,7 @@ var DataTable = function() {
                 _specialCharLength = _specialChar.length;
                 
                 //Only usded for columns without URL link
-                if ( _valueAo.sTitle !== 'CASE ID' && _valueAo.sTitle !== 'Patient Identifier' && _valueAo.sTitle !== 'PATIENT ID' ){
+                if ( _attrId === 'CASE_ID' && _attrId === 'PATIENT_ID' ){
                     for( var z = 0; z < _specialCharLength; z++){
                         if(_selectedString.indexOf(_specialChar[z]) !== -1){
                             var _re = new RegExp("\\" + _specialChar[z], "g");
@@ -251,12 +256,18 @@ var DataTable = function() {
     
     //Initialize the basic dataTable component by using jquery.dataTables.min.js
     function initDataTable() {
+        var dataTableaoColumns = [];
+        
+        for(var i = 0; i < aoColumnsLength; i++) {
+            dataTableaoColumns.push(aoColumns[i].dataTable);
+        }
+        
         var dataTableSettings = {
             "scrollX": "100%",
             "scrollY": dataTableScrollHeight,
             "paging": false,
             "scrollCollapse": true,
-            "aoColumns": aoColumns,
+            "aoColumns": dataTableaoColumns,
             "aaData": aaData,
             "bJQueryUI": true,
             "autoWidth": true,
@@ -305,7 +316,7 @@ var DataTable = function() {
         if(arrLength > 500) {
             delete dataTableSettings.scrollY;
             dataTableSettings.paging = true;
-            dataTableSettings.sPaginationType = "two_button";
+            dataTableSettings.sPaginationType = "full_numbers";
             dataTableSettings.iDisplayLength = 30;
             dataTableSettings.sDom = '<"H"TpCi<"dataTableReset">f>rt';
         }
@@ -316,6 +327,13 @@ var DataTable = function() {
         forzedLeftCol = new $.fn.dataTable.FixedColumns( dataTable, {
             "sHeightMatch": "none"
         } );
+        
+        $('#' + tableId + "_wrapper .dataTables_scroll .dataTables_scrollHeadInner thead").find('th').each(function(index) {
+            if(aoColumns[index].fullDisplay.toString() !== aoColumns[index].dataTable.sTitle.toString()){
+                StudyViewUtil.addQtip(aoColumns[index].fullDisplay, $(this), {my:'bottom left',at:'top left', viewport: $(window)});
+            }
+        });
+        dataTableaoColumns = null;
     }
     
     //Add th tags based on number of attributes
@@ -677,6 +695,138 @@ var DataTable = function() {
             addEvents();
         },
         
-        updateFrozedColStyle: updateFrozedColStyle
+        updateFrozedColStyle: updateFrozedColStyle,
+        getColumnData: function() {
+            return aoColumns;
+        }
     };
 };
+
+TableTools.prototype._fnGetDataTablesData = function ( oConfig )
+{
+        var i, iLen, j, jLen;
+        var aRow, aData=[], sLoopData='', arr;
+        var dt = this.s.dt, tr, child;
+        var regex = new RegExp(oConfig.sFieldBoundary, "g"); /* Do it here for speed */
+        var aColumnsInc = this._fnColumnTargets( oConfig.mColumns );
+        var bSelectedOnly = (typeof oConfig.bSelectedOnly != 'undefined') ? oConfig.bSelectedOnly : false;
+        var aoColumns = StudyViewInitClinicalTab.getDataTable().getColumnData();
+        
+        /*
+         * Header
+         */
+        if ( oConfig.bHeader )
+        {
+                aRow = [];
+
+                for ( i=0, iLen=dt.aoColumns.length ; i<iLen ; i++ )
+                {
+                        if ( aColumnsInc[i] )
+                        {
+                                sLoopData = aoColumns[i].fullDisplay.replace(/\n/g," ").replace( /<.*?>/g, "" ).replace(/^\s+|\s+$/g,"");
+                                sLoopData = this._fnHtmlDecode( sLoopData );
+
+                                aRow.push( this._fnBoundData( sLoopData, oConfig.sFieldBoundary, regex ) );
+                        }
+                }
+
+                aData.push( aRow.join(oConfig.sFieldSeperator) );
+        }
+
+        /*
+         * Body
+         */
+        var aSelected = this.fnGetSelected();
+        bSelectedOnly = this.s.select.type !== "none" && bSelectedOnly && aSelected.length !== 0;
+
+        var api = $.fn.dataTable.Api;
+        var aDataIndex = api ?
+                new api( dt ).rows( oConfig.oSelectorOpts ).indexes().flatten().toArray() :
+                dt.oInstance
+                        .$('tr', oConfig.oSelectorOpts)
+                        .map( function (id, row) {
+                                // If "selected only", then ensure that the row is in the selected list
+                                return bSelectedOnly && $.inArray( row, aSelected ) === -1 ?
+                                        null :
+                                        dt.oInstance.fnGetPosition( row );
+                        } )
+                        .get();
+
+        for ( j=0, jLen=aDataIndex.length ; j<jLen ; j++ )
+        {
+                tr = dt.aoData[ aDataIndex[j] ].nTr;
+                aRow = [];
+
+                /* Columns */
+                for ( i=0, iLen=dt.aoColumns.length ; i<iLen ; i++ )
+                {
+                        if ( aColumnsInc[i] )
+                        {
+                                /* Convert to strings (with small optimisation) */
+                                var mTypeData = dt.oApi._fnGetCellData( dt, aDataIndex[j], i, 'display' );
+                                if ( oConfig.fnCellRender )
+                                {
+                                        sLoopData = oConfig.fnCellRender( mTypeData, i, tr, aDataIndex[j] )+"";
+                                }
+                                else if ( typeof mTypeData == "string" )
+                                {
+                                        /* Strip newlines, replace img tags with alt attr. and finally strip html... */
+                                        sLoopData = mTypeData.replace(/\n/g," ");
+                                        sLoopData =
+                                            sLoopData.replace(/<img.*?\s+alt\s*=\s*(?:"([^"]+)"|'([^']+)'|([^\s>]+)).*?>/gi,
+                                                '$1$2$3');
+                                        sLoopData = sLoopData.replace( /<.*?>/g, "" );
+                                }
+                                else
+                                {
+                                        sLoopData = mTypeData+"";
+                                }
+
+                                /* Trim and clean the data */
+                                sLoopData = sLoopData.replace(/^\s+/, '').replace(/\s+$/, '');
+                                sLoopData = this._fnHtmlDecode( sLoopData );
+
+                                /* Bound it and add it to the total data */
+                                aRow.push( this._fnBoundData( sLoopData, oConfig.sFieldBoundary, regex ) );
+                        }
+                }
+
+                aData.push( aRow.join(oConfig.sFieldSeperator) );
+
+                /* Details rows from fnOpen */
+                if ( oConfig.bOpenRows )
+                {
+                        arr = $.grep(dt.aoOpenRows, function(o) { return o.nParent === tr; });
+
+                        if ( arr.length === 1 )
+                        {
+                                sLoopData = this._fnBoundData( $('td', arr[0].nTr).html(), oConfig.sFieldBoundary, regex );
+                                aData.push( sLoopData );
+                        }
+                }
+        }
+
+        /*
+         * Footer
+         */
+        if ( oConfig.bFooter && dt.nTFoot !== null )
+        {
+                aRow = [];
+
+                for ( i=0, iLen=dt.aoColumns.length ; i<iLen ; i++ )
+                {
+                        if ( aColumnsInc[i] && dt.aoColumns[i].nTf !== null )
+                        {
+                                sLoopData = dt.aoColumns[i].nTf.innerHTML.replace(/\n/g," ").replace( /<.*?>/g, "" );
+                                sLoopData = this._fnHtmlDecode( sLoopData );
+
+                                aRow.push( this._fnBoundData( sLoopData, oConfig.sFieldBoundary, regex ) );
+                        }
+                }
+
+                aData.push( aRow.join(oConfig.sFieldSeperator) );
+        }
+
+        var _sLastData = aData.join( this._fnNewline(oConfig) );
+        return _sLastData;
+}

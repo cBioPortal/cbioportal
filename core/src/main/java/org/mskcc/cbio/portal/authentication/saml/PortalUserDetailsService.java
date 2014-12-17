@@ -21,6 +21,7 @@ import org.mskcc.cbio.portal.model.User;
 import org.mskcc.cbio.portal.model.UserAuthorities;
 import org.mskcc.cbio.portal.dao.PortalUserDAO;
 import org.mskcc.cbio.portal.authentication.PortalUserDetails;
+import org.mskcc.cbio.portal.util.GlobalProperties;
 
 import org.springframework.security.saml.*;
 import org.springframework.security.saml.userdetails.*;
@@ -31,7 +32,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 
 import org.apache.commons.logging.*;
 
-import java.util.List;
+import java.util.*;
 
 /**
  * Custom UserDetailsService which authenticates
@@ -42,8 +43,17 @@ import java.util.List;
 public class PortalUserDetailsService implements SAMLUserDetailsService
 {
 	private static final Log log = LogFactory.getLog(PortalUserDetailsService.class);
+    private static final Collection<String> defaultAuthorities = initializeDefaultAuthorities();
+    private static final Collection<String> initializeDefaultAuthorities()
+    {
+        String appName = GlobalProperties.getAppName();
+        Collection<String> toReturn = new ArrayList<String>();
+        toReturn.add(appName + ":PUBLIC");
+        toReturn.add(appName + ":EXTENDED");
+        toReturn.add(appName + ":DMP");
+        return toReturn;
+    }
 
-	// ref to our user dao
     private final PortalUserDAO portalUserDAO;
 
     /**
@@ -92,11 +102,21 @@ public class PortalUserDetailsService implements SAMLUserDetailsService
             }
 		}
 		catch (Exception e) {
-            if (log.isDebugEnabled()) {
-                log.debug(e.getMessage());
+            if (userid.endsWith("mskcc.org")) {
+                if (log.isDebugEnabled()) {
+                    log.debug("loadUserDetails(), granting default authorities for userid: " + userid);
+                }
+                toReturn = new PortalUserDetails(userid, getDefaultGrantedAuthorities(userid));
+                toReturn.setEmail(userid);
+                toReturn.setName(userid);
             }
             else {
-                e.printStackTrace();
+                if (log.isDebugEnabled()) {
+                    log.debug(e.getMessage());
+                }
+                else {
+                    e.printStackTrace();
+                }
             }
 		}
 
@@ -113,5 +133,12 @@ public class PortalUserDetailsService implements SAMLUserDetailsService
             }
 			return toReturn;
 		}
+    }
+
+    private List<GrantedAuthority> getDefaultGrantedAuthorities(final String username)
+    {
+        UserAuthorities authorities = new UserAuthorities(username, defaultAuthorities);
+        return AuthorityUtils.createAuthorityList(authorities.getAuthorities().toArray(new String[authorities.getAuthorities().size()]));
+
     }
 }

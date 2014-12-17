@@ -801,7 +801,7 @@ var PlotsTwoGenesView = (function(){
         elem.dotsGroup.selectAll('path').each(
             function(d) {
                 var content = "<font size='2'>";
-                content += "Case ID: " + "<strong><a href='"
+                content += "Sample ID: " + "<strong><a href='"
                         +cbio.util.getLinkToSampleView(cancer_study_id,d.case_id)
                         + "' target = '_blank'>" + d.case_id + "</a></strong><br>";
                 content += menu.geneX + ": <strong>" + parseFloat(d.x_value).toFixed(3) + "</strong><br>" +

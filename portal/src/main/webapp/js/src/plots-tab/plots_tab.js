@@ -244,7 +244,6 @@ var PlotsMenu = (function () {
                 return false;
             }
         });
-
     }
 
     function updateVisibility() {
@@ -461,6 +460,12 @@ var PlotsView = (function () {
                 fill : "none",
                 symbol : "circle",
                 legendText : "Homdel"
+            },
+            Unknown : {
+                stroke : "#A8A8A8",
+                fill : "none",
+                symbol : "circle",
+                legendText : "No CNA data"
             }
         },
         userSelection = {
@@ -475,9 +480,20 @@ var PlotsView = (function () {
     var discretizedDataTypeIndicator = "";
 
     var Util = (function() {
+        
+        function hasCopyNumberData() {
+            var result = false;
+            $.each(PlotsData.getDotsGroup(), function(index, obj) {
+                if (!isEmpty(obj.gisticType)) {
+                    result = true;
+                    return false;
+                }
+            });
+            return result;
+        }
 
         function isEmpty(inputVal) {
-            if (inputVal !== "NaN" && inputVal !== "NA") {
+            if (inputVal !== "NaN" && inputVal !== "NA" && (typeof inputVal !== "undefined")) {
                 return false;
             }
             return true;
@@ -547,7 +563,7 @@ var PlotsView = (function () {
             for(var i = 0; i < arr.length; i++) {
                 if (parseFloat(ele) > parseFloat(arr[i])) {
                     continue ;
-                } else if (parseFloat(ele) == parseFloat(arr[i])) {
+                } else if (parseFloat(ele) === parseFloat(arr[i])) {
                     return i;
                 } else {
                     return i - 1;
@@ -576,7 +592,8 @@ var PlotsView = (function () {
             plotsIsDiscretized: plotsIsDiscretized,
             analyseData: analyseData,
             searchIndexBottom: searchIndexBottom,
-            searchIndexTop: searchIndexTop
+            searchIndexTop: searchIndexTop,
+            hasCopyNumberData: hasCopyNumberData
         };
 
     }());
@@ -608,6 +625,7 @@ var PlotsView = (function () {
             };
 
         function fetchPlotsData(profileDataResult) {
+
             var resultObj = profileDataResult[userSelection.gene];
             for (var key in resultObj) {  //key is case id
                 caseSetLength += 1;
@@ -645,8 +663,7 @@ var PlotsView = (function () {
                 }
                 //Push into the dots array
                 if (!Util.isEmpty(_singleDot.xVal) &&
-                    !Util.isEmpty(_singleDot.yVal) &&
-                    !Util.isEmpty(_singleDot.gisticType)) {
+                    !Util.isEmpty(_singleDot.yVal)) {
                     dotsGroup.push(_singleDot);
                     status.combineHasData = true;
                 }
@@ -691,7 +708,7 @@ var PlotsView = (function () {
                     mutationPriorityList[mutationStyle.splice.typeName] = "4";
                     mutationPriorityList[mutationStyle.nonstop.typeName] = "5";
                     mutationPriorityList[mutationStyle.nonstart.typeName] = "6";
-                    mutationPriorityList[mutationStyle.other.typeName] = "7"
+                    mutationPriorityList[mutationStyle.other.typeName] = "7";
                     mutationPriorityList[mutationStyle.non.typeName] = "8";
                     var _primaryMutation = _mutationTypes[0];
                     $.each(_mutationTypes, function(index, val) {
@@ -756,7 +773,11 @@ var PlotsView = (function () {
                     gene_x : tmpGeneXcoExpStr,
                     gene_y : tmpGeneYcoExpStr
                 };
-                $.post("calcCoExp.do", paramsCalcCoexp, getCalcCoExpCallBack, "json");
+                if (PlotsData.getDotsGroup().length === 0) {
+                    View.init();
+                } else {
+                    $.post("calcCoExp.do", paramsCalcCoexp, getCalcCoExpCallBack, "json");
+                }
             } else {
                 $('#view_title').show();
                 $('#plots_box').show();
@@ -858,7 +879,7 @@ var PlotsView = (function () {
                 var tmp_copy_no = [];
                 $.each(PlotsData.getDotsGroup(), function(index, value) {
                     tmp_copy_no.push(value.xVal);
-                })
+                });
                 for (var j = -2; j < 3; j++) {
                     if (tmp_copy_no.indexOf(j.toString()) !== -1) {
                         slotsCnt += 1;
@@ -908,7 +929,7 @@ var PlotsView = (function () {
                 var tmp_copy_no = [];
                 $.each(PlotsData.getDotsGroup(), function(index, value) {
                     tmp_copy_no.push(value.xVal);
-                })
+                });
                 for (var j = -2; j < 3; j++) {
                     if (tmp_copy_no.indexOf(j.toString()) !== -1) {
                         textSet.push(text.gistic_txt_val[j.toString()]);
@@ -929,7 +950,7 @@ var PlotsView = (function () {
                     .style("stroke-width", 0.5)
                     .style("stroke", "black")
                     .style("fill", "black")
-                    .text(function(d){return d});
+                    .text(function(d){return d;});
                 svg.append("g")
                     .style("stroke-width", 1.5)
                     .style("fill", "none")
@@ -1213,7 +1234,7 @@ var PlotsView = (function () {
                         content += "CNA: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
                             "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
                     }
-                    content += "Case ID: <strong><a href='"+
+                    content += "Sample ID: <strong><a href='"+
                             +cbio.util.getLinkToSampleView(cancer_study_id,d.caseId)
                             +"' target = '_blank'>" + d.caseId +
                         "</a></strong><br>";
@@ -1223,10 +1244,10 @@ var PlotsView = (function () {
                 } else if (Util.plotsTypeIsMethylation()) {
                     content += "Methylation: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
                         "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
-                    if (d.gisticType !== "Diploid") {
+                    if (d.gisticType !== "Diploid" && !Util.isEmpty(d.gisticType)) {
                         content = content + "CNA: " + "<strong>" + d.gisticType + "</strong><br>";
                     }
-                    content += "Case ID: <strong><a href='"
+                    content += "Sample ID: <strong><a href='"
                             +cbio.util.getLinkToSampleView(cancer_study_id,d.caseId)
                             + "'>" + d.caseId +
                         "</a></strong><br>";
@@ -1236,10 +1257,10 @@ var PlotsView = (function () {
                 } else if (Util.plotsTypeIsRPPA()) {
                     content += "mRNA: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
                         "RPPA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
-                    if (d.gisticType !== "Diploid") {
+                    if (d.gisticType !== "Diploid" && !Util.isEmpty(d.gisticType)) {
                         content = content + "CNA: " + "<strong>" + d.gisticType + "</strong><br>";
                     }
-                    content += "Case ID: <strong><a href='"
+                    content += "Sample ID: <strong><a href='"
                             +cbio.util.getLinkToSampleView(cancer_study_id,d.caseId)
                             + "'>" + d.caseId +
                         "</a></strong><br>";
@@ -1442,7 +1463,7 @@ var PlotsView = (function () {
                             tmp_y_arr.push(parseFloat(value.yVal));
                         }
                     });
-                    tmp_y_arr.sort(function(a, b) { return a - b });
+                    tmp_y_arr.sort(function(a, b) { return (a - b); });
                     if (tmp_y_arr.length === 0) {
                         //Do nothing: DO NOT MOVE POSITION INDEX (pos)
                     } else if (tmp_y_arr.length === 1) {
@@ -1487,7 +1508,7 @@ var PlotsView = (function () {
                             for (var k = 0 ; k < tmp_y_arr.length ; k++) {
                                 scaled_y_arr[k] = parseFloat(attr.yScale(tmp_y_arr[k]));
                             }
-                            scaled_y_arr.sort(function(a,b) { return a-b });
+                            scaled_y_arr.sort(function(a,b) { return (a - b); });
                             IQR = Math.abs(quan2 - quan1);
                             var index_top = Util.searchIndexTop(scaled_y_arr, (quan2 - 1.5 * IQR));
                             top = scaled_y_arr[index_top];
@@ -1576,7 +1597,7 @@ var PlotsView = (function () {
                         return mutationStyle[d.mutationType].stroke;
                     })
                     .attr("stroke-width", 1.2)
-                    .attr("class", function(d) { return d.caseId});
+                    .attr("class", function(d) { return d.caseId; });
             }
 
             function drawContinuousPlots() {  //RPPA, DNA Methylation Views
@@ -1611,7 +1632,15 @@ var PlotsView = (function () {
                         }
                     })
                     .attr("stroke", function(d) {
-                        return gisticStyle[d.gisticType].stroke;
+                        if (Util.hasCopyNumberData()) {
+                            if (Util.isEmpty(d.gisticType)) {
+                                return gisticStyle.Unknown.stroke;
+                            } else {
+                                return gisticStyle[d.gisticType].stroke;
+                            }
+                        } else {
+                            return "black";
+                        }
                     })
                     .attr("stroke-width", 1.2)
                     .attr("class", function(d) { return d.caseId; });
@@ -1675,7 +1704,7 @@ var PlotsView = (function () {
                         drawBoxPlots(applyLogScale);
                     }
                 }
-            }
+            };
         }());
 
         var Legends = (function() {
@@ -1730,17 +1759,20 @@ var PlotsView = (function () {
 
             function drawOtherViewLegends() {
                 var gisticStyleArr = [];
-                for (var key in gisticStyle) {
-                    var obj = gisticStyle[key];
-                    gisticStyleArr.push(obj);
+                
+                if (Util.hasCopyNumberData()) {
+                    for (var key in gisticStyle) {
+                        var obj = gisticStyle[key];
+                        gisticStyleArr.push(obj);
+                    }
                 }
-
+                
                 var mutatedStyle = {
-                    stroke : "none",
-                    symbol : "circle",
-                    fill : "orange",
-                    legendText : "Mutated"
-                }
+                        stroke : "none",
+                        symbol : "circle",
+                        fill : "orange",
+                        legendText : "Mutated"
+                    };
                 gisticStyleArr.push(mutatedStyle);
 
                 var legend = elem.svg.selectAll(".legend")
@@ -1749,7 +1781,7 @@ var PlotsView = (function () {
                     .attr("class", "legend")
                     .attr("transform", function(d, i) {
                         return "translate(610, " + (30 + i * 15) + ")";
-                    })
+                    });
 
                 legend.append("path")
                     .attr("width", 18)
@@ -1765,7 +1797,7 @@ var PlotsView = (function () {
                     .attr("dx", ".75em")
                     .attr("dy", ".35em")
                     .style("text-anchor", "front")
-                    .text(function(d) { return d.legendText; })
+                    .text(function(d) { return d.legendText; });    
             }
 
             return {
@@ -1795,7 +1827,7 @@ var PlotsView = (function () {
                                 });                      
                     }
                 }
-            }
+            };
         }());
 
         function initCanvas() {
@@ -1806,6 +1838,11 @@ var PlotsView = (function () {
         }
 
         function drawErrMsgs() {
+
+            $("#one_gene_type_specification").hide();
+            $("#loading-image").hide();
+            $("#plots_box").show();
+
             var _xDataType = "",
                 _yDataType = "";
             if (Util.plotsTypeIsCopyNo()) {
@@ -1844,13 +1881,13 @@ var PlotsView = (function () {
                 .attr("y", 50)
                 .attr("text-anchor", "middle")
                 .attr("fill", "#DF3A01")
-                .text(err_line1)
+                .text(err_line1);
             elem.svg.append("text")
                 .attr("x", 350)
                 .attr("y", 70)
                 .attr("text-anchor", "middle")
                 .attr("fill", "#DF3A01")
-                .text(err_line2)
+                .text(err_line2);
             elem.svg.append("rect")
                 .attr("x", 150)
                 .attr("y", 30)
@@ -1902,7 +1939,7 @@ var PlotsView = (function () {
 
         return {
             init: function() {
-                initCanvas();
+                initCanvas();              
                 if (PlotsData.getDotsGroup().length !== 0) {
                     drawImgConverter();
                     Axis.init();
@@ -1923,7 +1960,7 @@ var PlotsView = (function () {
             },
             applyLogScaleX: applyLogScaleX,
             applyLogScaleY: applyLogScaleY
-        }
+        };
     }());
 
     function getUserSelection() {
@@ -1944,7 +1981,7 @@ var PlotsView = (function () {
         var vals = [];
         for (var i = 0; i < sel.children.length; ++i) {
             var child = sel.children[i];
-            if (child.tagName == 'OPTION') vals.push(child.value.split("|")[0]);
+            if (child.tagName === 'OPTION') vals.push(child.value.split("|")[0]);
         }
         if (vals.indexOf(cancer_study_id + "_gistic") !== -1) {
             discretizedDataTypeIndicator = cancer_study_id + "_gistic";

@@ -9,9 +9,6 @@
                         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
 
-    <!-- this bean is shared between profiles -->
-    <b:bean id="accessControl" class="org.mskcc.cbio.portal.util.internal.AccessControlImpl"/>
-
     <!-- beans shared across any authentication system -->
     <b:beans profile="googleplus,openid,saml">
 
@@ -28,6 +25,9 @@
         <b:property name="permissionEvaluator" ref="customPermissionEvaluator"/>
     </b:bean>
     <b:bean id="customPermissionEvaluator" class="org.mskcc.cbio.portal.util.CancerStudyPermissionEvaluator"/>
+
+    <!-- this bean needs to come after context:annotation-config so that annotations are recognized -->
+    <b:bean id="accessControl" class="org.mskcc.cbio.portal.util.internal.AccessControlImpl"/>
 
     <!-- beans used to access portal user db tables -->
     <b:bean id="portalUserDAO" class="org.mskcc.cbio.portal.dao.internal.PortalUserJDBCDAO">
@@ -422,6 +422,7 @@
     <b:beans profile="false">
     <global-method-security pre-post-annotations="disabled"/>
     <http pattern="/**" security="none"/>
+    <b:bean id="accessControl" class="org.mskcc.cbio.portal.util.internal.AccessControlImpl"/>
     </b:beans>
 
 </b:beans>

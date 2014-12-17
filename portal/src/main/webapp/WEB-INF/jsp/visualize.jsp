@@ -3,16 +3,16 @@
 <jsp:include page="global/header.jsp" flush="true" />
 
 <div class='main_smry'>
-    <div id='main_smry_stat_div' style='float:right;margin-right:15px;width:50%;padding-top:10px;text-align:right;'></div>
+    <div id='main_smry_stat_div' style='float:right;margin-right:15px;margin-bottom:-5px;width:50%;text-align:right;'></div>
     <div id='main_smry_info_div'>
-        <table style='margin-left:10px;width=40%;' >
+        <table style='margin-left:0px;width=40%;margin-top:-10px;margin-bottom:-5px;' >
             <tr>
                 <td><div id='main_smry_modify_query_btn'><div></td>
                 <td><div id='main_smry_query_div' style='padding-left: 5px;'></div></td>
             </tr>
         </table>
     </div>
-    <div style="margin-left:5px;display:none;" id="query_form_on_results_page">
+    <div style="margin-left:5px;display:none;margin-top:-5px;" id="query_form_on_results_page">
         <%@ include file="query_form.jsp" %>
     </div>
 </div>
@@ -173,7 +173,6 @@
         <div class="section" id="summary">
             <% //contents of fingerprint.jsp now come from attribute on request object %>
             <%@ include file="oncoprint/main.jsp" %>
-            <%@ include file="gene_info.jsp" %>
         </div>
 
             <% if ( has_mrna && (has_copy_no || has_methylation || has_copy_no) ) { %>
@@ -266,6 +265,22 @@
     //  Set up Tip-Tip Event Handler for Genomic Profiles help
     $(".result-tab").tipTip({defaultPosition: "bottom", delay:"100", edgeOffset: 10, maxWidth: 200});
 </script>
+
+
+<style type="text/css">
+    input[type="checkbox"]  {
+        margin: 5px;
+    }
+    input[type="radio"]  {
+        margin: 3px;
+    }
+    button {
+        margin: 3px;
+    }
+    [class*="ui-button-text"] {
+        margin: 3px;
+    }
+</style>
 
 </body>
 </html>

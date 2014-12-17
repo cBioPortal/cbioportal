@@ -19,13 +19,11 @@ package org.mskcc.cbio.portal.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.web_api.GetClinicalData;
-import org.mskcc.cbio.portal.util.PatientSetUtil;
+import org.mskcc.cbio.portal.util.*;
 
 import org.json.simple.*;
 
@@ -94,8 +92,8 @@ public class GetSurvivalDataJSON extends HttpServlet {
                 patientIdList = patientList.getPatientList();
             }
 
-            //Get Clinical Data List
-            HashSet<String> patientIdListHashSet = new HashSet<String>(patientIdList);
+            //Get Clinical Data List - NOTE - as of 12/12/14, patient lists contain sample ids
+            HashSet<String> patientIdListHashSet = new HashSet<String>(StableIdUtil.getStablePatientIdsFromSampleIds(cancerStudyId, patientIdList));
             List<Patient> clinicalDataList =
                     GetClinicalData.getClinicalData(cancerStudyId, patientIdListHashSet);
 

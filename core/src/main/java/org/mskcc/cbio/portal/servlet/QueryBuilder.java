@@ -29,10 +29,6 @@ import org.apache.commons.lang.*;
 
 import org.owasp.validator.html.PolicyException;
 
-
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
 import java.io.*;
 import java.util.*;
 import javax.servlet.*;
@@ -115,9 +111,7 @@ public class QueryBuilder extends HttpServlet {
         super.init();
         try {
             servletXssUtil = ServletXssUtil.getInstance();
-			ApplicationContext context = 
-				new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
-			accessControl = (AccessControl)context.getBean("accessControl");
+			accessControl = SpringUtil.getAccessControl();
         } catch (PolicyException e) {
             throw new ServletException (e);
         }
@@ -353,6 +347,7 @@ public class QueryBuilder extends HttpServlet {
                 if (patientSet.getStableId().equals(patientSetId)) {
                     patientIds = patientSet.getPatientListAsString();
                     setOfPatientIds = new HashSet<String>(patientSet.getPatientList());
+                    break;
                 }
             }
         }
@@ -367,9 +362,10 @@ public class QueryBuilder extends HttpServlet {
                    setOfPatientIds.add(patientID);
                 }
             }
+            
+            patientIds = patientIds.replaceAll("\\s+", " ");
         }
 
-        patientIds = patientIds.replaceAll("\\s+", " ");
         request.setAttribute(SET_OF_CASE_IDS, patientIds);
         
         // Map user selected samples Ids to patient Ids

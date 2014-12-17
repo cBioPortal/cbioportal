@@ -73,7 +73,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
             oncoprint.sortBy(sortBy.val(), cases.split(" "));
 
-            zoom = reset_zoom();   
+            zoom = reset_zoom();  
+            invokeDataManager(); 
         }
     });
 
@@ -184,6 +185,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
                         
                         $('.special_delete').click(resetClinicalAttribute);// enable delete symbol "x" function
+                        invokeDataManager();
                     }
                 });
             }
@@ -228,12 +230,21 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
                         
                         $('.special_delete').click(resetClinicalAttribute);// enable delete symbol "x" function
+                        invokeDataManager();
                     }
                 });
             }
         }
     };
     $(select_clinical_attributes_id).change(clinicalAttributeSelected);
+
+    var invokeDataManager = function() {
+        //TODO: tmp solution for re-using data
+        window.PortalGlobals.setGeneData(geneDataColl.toJSON());
+        PortalDataColl.setOncoprintData(oncoprint.getOncoprintData()); 
+        var alterInfo = utils.alteration_info(geneDataColl.toJSON());
+        PortalDataColl.setOncoprintStat(alterInfo);
+    }
 
     $(document).ready(function() {
 
@@ -271,9 +282,16 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 samples= samples + genesValue[i].key+"\n";
             }
             var a=document.createElement('a');
-            a.href='data:text/plain;base64,'+btoa(samples);
+//            a.href='data:text/plain;base64,'+btoa(samples);
+            a.href='data:text/data:application/octet-stream;charset=utf-16le;base64,'+btoa(samples);
+            
             a.textContent='download';
             a.download='OncoPrintSamples.txt';
+            var is_firefox = navigator.userAgent.indexOf("Firefox") !== -1;
+            if(is_firefox)
+            {
+                window.open(a.href,'OncoPrintSamples.txt');
+            }
             a.click();
             //a.delete();
         });

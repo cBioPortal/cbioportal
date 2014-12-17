@@ -107,7 +107,7 @@ var SurvivalCurve = function() {
         elem.dots[_index].selectAll('path').each(
             function(d) {
                 var content = "<font size='2'>";
-                content += "Case id: " + "<strong><a href='"
+                content += "Case ID: " + "<strong><a href='"
                         + cbio.util.getLinkToPatientView(cancer_study_id, d.case_id)
                         + "' target='_blank'>" + d.case_id + "</a></strong><br>";
                 content += text.qTips.estimation + ": <strong>" + (d.survival_rate * 100).toFixed(2) + "%</strong><br>";
@@ -193,10 +193,10 @@ var SurvivalCurve = function() {
             .data(data)
             .enter()
             .append("line")
-            .attr("x1", function(d) {return elem.xScale(d.time)})
-            .attr("x2", function(d) {return elem.xScale(d.time)})
-            .attr("y1", function(d) {return elem.yScale(d.survival_rate) + style.censored_sign_size})
-            .attr("y2", function(d) {return elem.yScale(d.survival_rate) - style.censored_sign_size})
+            .attr("x1", function(d) {return elem.xScale(d.time);})
+            .attr("x2", function(d) {return elem.xScale(d.time);})
+            .attr("y1", function(d) {return elem.yScale(d.survival_rate) + style.censored_sign_size;})
+            .attr("y2", function(d) {return elem.yScale(d.survival_rate) - style.censored_sign_size;})
             .attr("stroke", opts.line_color)
             .style("opacity", function(d) {
                 if (d.status === "1") {
@@ -209,10 +209,10 @@ var SurvivalCurve = function() {
             .data(data)
             .enter()
             .append("line")
-            .attr("x1", function(d) {return elem.xScale(d.time) + style.censored_sign_size})
-            .attr("x2", function(d) {return elem.xScale(d.time) - style.censored_sign_size})
-            .attr("y1", function(d) {return elem.yScale(d.survival_rate)})
-            .attr("y2", function(d) {return elem.yScale(d.survival_rate)})
+            .attr("x1", function(d) {return elem.xScale(d.time) + style.censored_sign_size;})
+            .attr("x2", function(d) {return elem.xScale(d.time) - style.censored_sign_size;})
+            .attr("y1", function(d) {return elem.yScale(d.survival_rate);})
+            .attr("y2", function(d) {return elem.yScale(d.survival_rate);})
             .attr("stroke", opts.line_color)
             .style("opacity", function(d) {
                 if (d.status === "1") {
@@ -238,7 +238,7 @@ var SurvivalCurve = function() {
             .attr("class", "legend")
             .attr("transform", function(d, i) {
                 return "translate(" + (settings.chart_left + settings.chart_width + 15) + ", " + (70 + i * 15) + ")";
-            })
+            });
 
         legend.append("path")
             .attr("width", 18)
@@ -254,7 +254,7 @@ var SurvivalCurve = function() {
             .attr("x", 15)
             .attr("y", 4)
             .style("text-anchor", "front")
-            .text(function(d) { return d.text });
+            .text(function(d) { return d.text; });
 
     }
 
@@ -373,7 +373,7 @@ var SurvivalCurve = function() {
     }
     
     return {
-        init: function(_inputArr, _opts) { 
+        init: function(_inputArr, _opts) {
             //Place parameters
             elem = _opts.elem;
             settings = _opts.settings;
@@ -381,29 +381,42 @@ var SurvivalCurve = function() {
             style = _opts.style;
             divs = _opts.divs;
             vals = _opts.vals;
+
             //Init and Render
-            initCanvas();
-            initAxis(_inputArr);
-            appendAxis(elem.xAxis, elem.yAxis);
-            appendAxisTitles(text.xTitle, text.yTitle);
+            var _empty_data = false;
             $.each(_inputArr, function(index, obj) {
-                drawCurve(_inputArr, obj);
+                if (obj.data.getData().length === 0) {
+                    _empty_data = true;
+                    return false;
+                }
             });
-            appendImgConverter();
-            if (_opts.settings.include_info_table) {
-                var _infoTableInputArr = [];
-                $.each(_inputArr, function(index, obj) {
-                    var _tmp = jQuery.extend(true, {}, obj.data.getStats());
-                    _tmp.groupName = obj.settings.legend;
-                    _infoTableInputArr.push(_tmp);
-                });
-                appendInfoTable(_infoTableInputArr);
+            if (!_empty_data) {
+                    initCanvas();
+                    initAxis(_inputArr);
+                    appendAxis(elem.xAxis, elem.yAxis);
+                    appendAxisTitles(text.xTitle, text.yTitle);
+                    $.each(_inputArr, function(index, obj) {
+                        drawCurve(_inputArr, obj);
+                    });
+                    appendImgConverter();
+                    if (_opts.settings.include_info_table) {
+                        var _infoTableInputArr = [];
+                        $.each(_inputArr, function(index, obj) {
+                            var _tmp = jQuery.extend(true, {}, obj.data.getStats());
+                            _tmp.groupName = obj.settings.legend;
+                            _infoTableInputArr.push(_tmp);
+                        });
+                        appendInfoTable(_infoTableInputArr);
+                    }
+                    if (_opts.settings.include_pvalue) {
+                        addPvals();
+                    }            
+            } else {
+                $("#" + divs.infoTableDivId).empty();
+                $("#" + divs.infoTableDivId).append("<span style='margin: 20px; color: grey;'>Survival data not available</span>");
             }
-            if (_opts.settings.include_pvalue) {
-                addPvals();
-            }
+
         },
-        
         addCurve: addCurve,
         removeCurve: removeCurve
     };

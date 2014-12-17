@@ -9,8 +9,6 @@ import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
 import org.owasp.validator.html.PolicyException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  *
@@ -36,10 +34,7 @@ public class CancerStudyView extends HttpServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-
-		ApplicationContext context =
-			new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
-		accessControl = (AccessControl)context.getBean("accessControl");
+		accessControl = SpringUtil.getAccessControl();
     }
     
     /** 

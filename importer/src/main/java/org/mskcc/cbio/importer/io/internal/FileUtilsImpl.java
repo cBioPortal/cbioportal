@@ -49,7 +49,7 @@ import org.springframework.beans.factory.annotation.Value;
 import java.io.*;
 import java.util.*;
 import java.net.URL;
-import java.util.regex.Matcher;
+import java.util.regex.*;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -297,6 +297,9 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("generateCaseLists(), stagingFilenames: " + java.util.Arrays.toString(stagingFilenames));
 			}
+			if (intersectionCaseList && !allStagingFilesExist(cancerStudyMetadata, stagingDirectory, stagingFilenames)) {
+				continue;
+			}
 			// this is the set we will pass to writeCaseListFile
 			LinkedHashSet<String> caseSet = new LinkedHashSet<String>();
 			// this indicates the number of staging files processed -
@@ -357,6 +360,20 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		}
 	}
 
+	private boolean allStagingFilesExist(CancerStudyMetadata cancerStudyMetadata, String stagingDirectory, String[] stagingFilenames)
+	{
+		for (String stagingFilename : stagingFilenames) {
+			File stagingFile = org.apache.commons.io.FileUtils.getFile(stagingDirectory,
+																	   cancerStudyMetadata.getStudyPath(),
+																	   stagingFilename);
+			// sanity check
+			if (!stagingFile.exists()) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	@Override
 	public List<String> getCaseListFromStagingFile(boolean strict, CaseIDs caseIDs, CancerStudyMetadata cancerStudyMetadata, String stagingDirectory, String stagingFilename) throws Exception {
 
@@ -413,12 +430,12 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 					if (mafCaseIDColumnIndex  == -1) {
 						if (LOG.isInfoEnabled()) LOG.info("getCaseListFromStagingFile(), this is not a MAF header contains sample ids...");
 						for (String potentialCaseID : thisRow) {
-							if (!strict || caseIDs.isSampleId(cancerStudy.getInternalId(), potentialCaseID)) {
+							if (!strict || caseIDs.isSampleId(cancerStudy.getInternalId(), potentialCaseID) || caseIDs.isTruncatedTCGAPatientId(potentialCaseID)) {
 								// check to filter out column headers other than sample ids
 								if (Converter.NON_CASE_IDS.contains(potentialCaseID.toUpperCase())) {
 									continue;
 								}
-								caseSet.add(caseIDs.getPatientId(cancerStudy.getInternalId(), potentialCaseID));
+								caseSet.add(caseIDs.getSampleId(cancerStudy.getInternalId(), potentialCaseID));
 							}
 						}
 						break;
@@ -432,7 +449,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 				// we want to add the value at mafCaseIDColumnIndex into return set - this is a case ID
 				String potentialCaseID = thisRow.get(mafCaseIDColumnIndex);
 				if (!strict || caseIDs.isSampleId(cancerStudy.getInternalId(), potentialCaseID)) {
-					caseSet.add(caseIDs.getPatientId(cancerStudy.getInternalId(), potentialCaseID));
+					caseSet.add(caseIDs.getSampleId(cancerStudy.getInternalId(), potentialCaseID));
 				}
 			}
 		} finally {
@@ -567,6 +584,41 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			writer.close();
 	}
 
+	public void updateCancerStudyMetadataFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata, Map<String,String> properties) throws Exception
+	{
+		File metaFile = org.apache.commons.io.FileUtils.getFile(stagingDirectory,
+																cancerStudyMetadata.getStudyPath(),
+																cancerStudyMetadata.getCancerStudyMetadataFilename());
+		if (LOG.isInfoEnabled()) {
+			LOG.info("updateCancerStudyMetadataFile(), meta file: " + metaFile);
+		}
+
+		StringBuilder builder = new StringBuilder();
+		Pattern propertyPattern = Pattern.compile("^(\\w+)\\: .*$");
+		org.apache.commons.io.LineIterator it = org.apache.commons.io.FileUtils.lineIterator(metaFile);
+		try {
+			while (it.hasNext()) {
+				String line = it.nextLine();
+				Matcher matcher = propertyPattern.matcher(line);
+				if (matcher.find()) {
+					if (properties.containsKey(matcher.group(1))) {
+						builder.append(matcher.group(1) + ": " + properties.get(matcher.group(1)) + "\n");
+					}
+					else {
+						builder.append(line + "\n");
+					}
+				}
+				else {
+					builder.append(line + "\n");
+				}
+			}
+		} finally {
+			it.close();
+		}
+
+		org.apache.commons.io.FileUtils.writeStringToFile(metaFile, builder.toString(), false);
+	}
+
 	public void writeMetadataFile(String stagingDirectory,
 			CancerStudyMetadata cancerStudyMetadata,
 			DatatypeMetadata datatypeMetadata,
@@ -676,6 +728,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		// staging file
 		String stagingFilename = datatypeMetadata.getStagingFilename();
 		stagingFilename = stagingFilename.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
+		stagingFilename = stagingFilename.replaceAll("_\\*", "");
 		File stagingFile = org.apache.commons.io.FileUtils.getFile(stagingDirectory,
 																   cancerStudyMetadata.getStudyPath(),
 																   stagingFilename);

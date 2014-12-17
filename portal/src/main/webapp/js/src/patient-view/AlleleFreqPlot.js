@@ -185,7 +185,7 @@ var AlleleFreqPlotMulti = function(div, data, options, order) {
             .y(function(d) { return y(d[1]); });
     
     var svg = d3.select(div).append("svg")
-            .attr("width", width + margin.left + (options.yticks === 0 ? 0 : margin.right) + 100)
+            .attr("width", width + margin.left + (options.yticks === 0 ? 0 : margin.right) + (options.nolegend? 0 : 100))
             .attr("height", height + margin.top + margin.bottom)
             .append("g")
             .attr("transform", "translate(" + (options.yticks === 0 ? margin.left / 2 : margin.left) + "," + margin.top + ")");

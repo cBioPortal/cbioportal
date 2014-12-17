@@ -1234,10 +1234,10 @@ var PlotsView = (function () {
                         content += "CNA: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
                             "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
                     }
-                    content += "Sample ID: <strong><a href='"+
-                            +cbio.util.getLinkToSampleView(cancer_study_id,d.caseId)
-                            +"' target = '_blank'>" + d.caseId +
-                        "</a></strong><br>";
+                    content += "Sample ID: <strong><a href='" +
+                                cbio.util.getLinkToSampleView(cancer_study_id,d.caseId) +
+                                "' target = '_blank'>" + d.caseId +
+                                "</a></strong><br>";
                     if (d.mutationType !== 'non') {
                         content = content + "Mutation: " + "<strong>" + d.mutationDetail.replace(/,/g, ", ") + "<br>";
                     }

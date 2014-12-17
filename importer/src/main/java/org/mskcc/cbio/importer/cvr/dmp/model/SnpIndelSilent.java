@@ -16,7 +16,6 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("org.jsonschema2pojo")
-
 @JsonPropertyOrder({
     "aa_change",
     "alt_allele",
@@ -43,6 +42,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
     "occurance_in_normal",
     "occurance_in_pop",
     "ref_allele",
+    "snp_indel_tool_name",
     "snp_indel_variant_id",
     "so_comments",
     "so_status_cv_id",
@@ -57,7 +57,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
     "variant_status_cv_id",
     "variant_status_name"
 })
-public class SnpSilent implements DmpSnp{
+public class SnpIndelSilent implements DmpSnp {
 
     @JsonProperty("aa_change")
     private String aaChange;
@@ -109,6 +109,8 @@ public class SnpSilent implements DmpSnp{
     private Object occuranceInPop;
     @JsonProperty("ref_allele")
     private String refAllele;
+    @JsonProperty("snp_indel_tool_name")
+    private String snpIndelToolName;
     @JsonProperty("snp_indel_variant_id")
     private Integer snpIndelVariantId;
     @JsonProperty("so_comments")
@@ -136,9 +138,12 @@ public class SnpSilent implements DmpSnp{
     @JsonProperty("variant_status_name")
     private String variantStatusName;
     @JsonIgnore
-    private String dmpSampleId;
-    @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+    @Override
+    public void setDmpSampleId(String id) {
+
+    }
 
     /**
      * 
@@ -308,6 +313,11 @@ public class SnpSilent implements DmpSnp{
     @JsonProperty("dbSNP_id")
     public String getDbSNPId() {
         return dbSNPId;
+    }
+
+    @Override
+    public String getDmpSampleId() {
+        return null;
     }
 
     /**
@@ -643,6 +653,26 @@ public class SnpSilent implements DmpSnp{
     /**
      * 
      * @return
+     *     The snpIndelToolName
+     */
+    @JsonProperty("snp_indel_tool_name")
+    public String getSnpIndelToolName() {
+        return snpIndelToolName;
+    }
+
+    /**
+     * 
+     * @param snpIndelToolName
+     *     The snp_indel_tool_name
+     */
+    @JsonProperty("snp_indel_tool_name")
+    public void setSnpIndelToolName(String snpIndelToolName) {
+        this.snpIndelToolName = snpIndelToolName;
+    }
+
+    /**
+     * 
+     * @return
      *     The snpIndelVariantId
      */
     @JsonProperty("snp_indel_variant_id")
@@ -899,12 +929,6 @@ public class SnpSilent implements DmpSnp{
     public void setVariantStatusName(String variantStatusName) {
         this.variantStatusName = variantStatusName;
     }
-    
-    @JsonAnyGetter
-    public String getDmpSampleId() {return this.dmpSampleId;}
-    
-    @JsonAnySetter
-    public void setDmpSampleId(String id) {this.dmpSampleId = id;}
 
     @Override
     public String toString() {
@@ -923,7 +947,7 @@ public class SnpSilent implements DmpSnp{
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(aaChange).append(altAllele).append(cDNAChange).append(chromosome).append(comments).append(confidenceClass).append(confidenceCvId).append(cosmicId).append(dbSNPId).append(dmpSampleMrevId).append(dmpSampleSoId).append(dmpVariantId).append(exonNum).append(geneId).append(isHotspot).append(mafreq1000g).append(mrevComments).append(mrevStatusCvId).append(mrevStatusName).append(normalAd).append(normalDp).append(normalVfreq).append(occuranceInNormal).append(occuranceInPop).append(refAllele).append(snpIndelVariantId).append(soComments).append(soStatusCvId).append(soStatusName).append(startPosition).append(transcriptId).append(tumorAd).append(tumorDp).append(tumorVfreq).append(variantClass).append(variantClassCvId).append(variantStatusCvId).append(variantStatusName).append(additionalProperties).toHashCode();
+        return new HashCodeBuilder().append(aaChange).append(altAllele).append(cDNAChange).append(chromosome).append(comments).append(confidenceClass).append(confidenceCvId).append(cosmicId).append(dbSNPId).append(dmpSampleMrevId).append(dmpSampleSoId).append(dmpVariantId).append(exonNum).append(geneId).append(isHotspot).append(mafreq1000g).append(mrevComments).append(mrevStatusCvId).append(mrevStatusName).append(normalAd).append(normalDp).append(normalVfreq).append(occuranceInNormal).append(occuranceInPop).append(refAllele).append(snpIndelToolName).append(snpIndelVariantId).append(soComments).append(soStatusCvId).append(soStatusName).append(startPosition).append(transcriptId).append(tumorAd).append(tumorDp).append(tumorVfreq).append(variantClass).append(variantClassCvId).append(variantStatusCvId).append(variantStatusName).append(additionalProperties).toHashCode();
     }
 
     @Override
@@ -931,11 +955,11 @@ public class SnpSilent implements DmpSnp{
         if (other == this) {
             return true;
         }
-        if ((other instanceof SnpSilent) == false) {
+        if ((other instanceof SnpIndelSilent) == false) {
             return false;
         }
-        SnpSilent rhs = ((SnpSilent) other);
-        return new EqualsBuilder().append(aaChange, rhs.aaChange).append(altAllele, rhs.altAllele).append(cDNAChange, rhs.cDNAChange).append(chromosome, rhs.chromosome).append(comments, rhs.comments).append(confidenceClass, rhs.confidenceClass).append(confidenceCvId, rhs.confidenceCvId).append(cosmicId, rhs.cosmicId).append(dbSNPId, rhs.dbSNPId).append(dmpSampleMrevId, rhs.dmpSampleMrevId).append(dmpSampleSoId, rhs.dmpSampleSoId).append(dmpVariantId, rhs.dmpVariantId).append(exonNum, rhs.exonNum).append(geneId, rhs.geneId).append(isHotspot, rhs.isHotspot).append(mafreq1000g, rhs.mafreq1000g).append(mrevComments, rhs.mrevComments).append(mrevStatusCvId, rhs.mrevStatusCvId).append(mrevStatusName, rhs.mrevStatusName).append(normalAd, rhs.normalAd).append(normalDp, rhs.normalDp).append(normalVfreq, rhs.normalVfreq).append(occuranceInNormal, rhs.occuranceInNormal).append(occuranceInPop, rhs.occuranceInPop).append(refAllele, rhs.refAllele).append(snpIndelVariantId, rhs.snpIndelVariantId).append(soComments, rhs.soComments).append(soStatusCvId, rhs.soStatusCvId).append(soStatusName, rhs.soStatusName).append(startPosition, rhs.startPosition).append(transcriptId, rhs.transcriptId).append(tumorAd, rhs.tumorAd).append(tumorDp, rhs.tumorDp).append(tumorVfreq, rhs.tumorVfreq).append(variantClass, rhs.variantClass).append(variantClassCvId, rhs.variantClassCvId).append(variantStatusCvId, rhs.variantStatusCvId).append(variantStatusName, rhs.variantStatusName).append(additionalProperties, rhs.additionalProperties).isEquals();
+        SnpIndelSilent rhs = ((SnpIndelSilent) other);
+        return new EqualsBuilder().append(aaChange, rhs.aaChange).append(altAllele, rhs.altAllele).append(cDNAChange, rhs.cDNAChange).append(chromosome, rhs.chromosome).append(comments, rhs.comments).append(confidenceClass, rhs.confidenceClass).append(confidenceCvId, rhs.confidenceCvId).append(cosmicId, rhs.cosmicId).append(dbSNPId, rhs.dbSNPId).append(dmpSampleMrevId, rhs.dmpSampleMrevId).append(dmpSampleSoId, rhs.dmpSampleSoId).append(dmpVariantId, rhs.dmpVariantId).append(exonNum, rhs.exonNum).append(geneId, rhs.geneId).append(isHotspot, rhs.isHotspot).append(mafreq1000g, rhs.mafreq1000g).append(mrevComments, rhs.mrevComments).append(mrevStatusCvId, rhs.mrevStatusCvId).append(mrevStatusName, rhs.mrevStatusName).append(normalAd, rhs.normalAd).append(normalDp, rhs.normalDp).append(normalVfreq, rhs.normalVfreq).append(occuranceInNormal, rhs.occuranceInNormal).append(occuranceInPop, rhs.occuranceInPop).append(refAllele, rhs.refAllele).append(snpIndelToolName, rhs.snpIndelToolName).append(snpIndelVariantId, rhs.snpIndelVariantId).append(soComments, rhs.soComments).append(soStatusCvId, rhs.soStatusCvId).append(soStatusName, rhs.soStatusName).append(startPosition, rhs.startPosition).append(transcriptId, rhs.transcriptId).append(tumorAd, rhs.tumorAd).append(tumorDp, rhs.tumorDp).append(tumorVfreq, rhs.tumorVfreq).append(variantClass, rhs.variantClass).append(variantClassCvId, rhs.variantClassCvId).append(variantStatusCvId, rhs.variantStatusCvId).append(variantStatusName, rhs.variantStatusName).append(additionalProperties, rhs.additionalProperties).isEquals();
     }
 
 }

@@ -18,6 +18,7 @@
 package org.mskcc.cbio.importer.cvr.dmp.transformer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.inject.internal.Lists;
 import com.google.inject.internal.Preconditions;
@@ -29,6 +30,7 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.mskcc.cbio.importer.cvr.darwin.util.IdMapService;
 import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
 import org.mskcc.cbio.importer.cvr.dmp.model.Result;
 import org.mskcc.cbio.importer.cvr.dmp.persistence.file.DMPTumorTypeSampleMapManager;
@@ -39,6 +41,7 @@ import org.mskcc.cbio.importer.persistence.staging.clinical.ClinicalDataFileHand
 import org.mskcc.cbio.importer.persistence.staging.cnv.CnvFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.fusion.FusionModel;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
+import scala.Tuple2;
 
 /*
  Responsible for transforming the DMP data encapsulated in the DmpData object
@@ -98,6 +101,8 @@ public class DMPDataTransformer {
 
     public List<String> transform(DmpData data) {
         Preconditions.checkArgument(null != data, "DMP data is required for transformation");
+        //filter out DMP samples that have not been registered in Darwin
+        this.filterDmpSamples(data);
 
         // process the tumor types
         //this.tumorTypeMap.updateTumorTypeSampleMap(data.getResults());
@@ -115,6 +120,34 @@ public class DMPDataTransformer {
         }).toList();
     }
 
+    /*
+    private method to filter out DMP samples that have not yet been registered in Darwin
+    these samples will not be marked as consumed and will continue to be presented until
+    they have been registered in Darwin
+     */
+    private void filterDmpSamples (DmpData data){
+        logger.info("Original sample count = " +data.getResults().size());
+       List<Result> newResultList = FluentIterable.from(data.getResults())
+               .filter(new Predicate<Result>() {
+                   @Override
+                   public boolean apply(Result input) {
+                       Tuple2<String,String> idTuple = new Tuple2(input.getMetaData().getDmpSampleId(),
+                             //  input.getMetaData().getLegacysampleid());
+                       input.getMetaData().getDmpSampleId());
+                       return IdMapService.INSTANCE.isSampleIdInDarwin(idTuple);
+                   }
+               }).toList();
+        // during development - report how many samples were skipped
+
+        logger.info("Number of amples that pass Darwin filter " +newResultList.size());
+        // replace original list with new one if necessary
+        if( newResultList.size() < data.getResults().size()) {
+            logger.info("DMP data has samples that have not been registered in Darwin");
+            data.setResults(newResultList);
+        }
+
+    }
+
     // main method for stand alone testing
     public static void main(String...args){
         ObjectMapper OBJECT_MAPPER = new ObjectMapper();
@@ -124,7 +157,7 @@ public class DMPDataTransformer {
         Path stagingFileDirectory = Paths.get(tempDir);
         DMPDataTransformer transformer = new DMPDataTransformer(stagingFileDirectory);
         try {
-            DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/cvr/dmp/result-sv.json"), DmpData.class);
+            DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/cvr/dmp/result-dec-11.json"), DmpData.class);
             transformer.transform(data);
 
         } catch (IOException ex) {

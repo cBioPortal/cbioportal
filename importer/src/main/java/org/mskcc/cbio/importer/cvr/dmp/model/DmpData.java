@@ -26,7 +26,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 public class DmpData {
 
     @JsonProperty("sample-count")
-    private Integer sampleCount;
+    private String sampleCount;
     @JsonProperty("disclaimer")
     private String disclaimer;
     @JsonProperty("results")
@@ -40,7 +40,7 @@ public class DmpData {
      *     The sampleCount
      */
     @JsonProperty("sample-count")
-    public Integer getSampleCount() {
+    public String getSampleCount() {
         return sampleCount;
     }
 
@@ -50,7 +50,7 @@ public class DmpData {
      *     The sample-count
      */
     @JsonProperty("sample-count")
-    public void setSampleCount(Integer sampleCount) {
+    public void setSampleCount(String sampleCount) {
         this.sampleCount = sampleCount;
     }
 

@@ -2,19 +2,15 @@ package org.mskcc.cbio.importer.cvr.dmp.transformer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
-import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
 import org.mskcc.cbio.importer.cvr.dmp.model.Result;
-import org.mskcc.cbio.importer.cvr.dmp.model.SegmentData;
-import org.mskcc.cbio.importer.cvr.dmp.util.DMPCommonNames;
+import org.mskcc.cbio.importer.cvr.dmp.model.SegmentDatum;
 import org.mskcc.cbio.importer.cvr.dmp.util.DmpUtils;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
-import org.mskcc.cbio.importer.persistence.staging.mutation.MutationModel;
 import org.mskcc.cbio.importer.persistence.staging.segment.SegmentModel;
 import org.mskcc.cbio.importer.persistence.staging.segment.SegmentTransformer;
 import org.mskcc.cbio.importer.persistence.staging.util.StagingUtils;
@@ -22,12 +18,9 @@ import org.mskcc.cbio.importer.persistence.staging.util.StagingUtils;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Set;
 
 /**
  * *
@@ -76,17 +69,17 @@ class DmpSegmentDataTransformer extends SegmentTransformer implements DMPDataTra
 
     private void processSegments(DmpData data){
         List<SegmentModel> segmentModelList = FluentIterable.from(data.getResults())
-                .transformAndConcat(new Function<Result, List<SegmentData>>() {
+                .transformAndConcat(new Function<Result, List<SegmentDatum>>() {
             @Nullable
             @Override
-            public List<SegmentData> apply(@Nullable Result result) {
+            public List<SegmentDatum> apply(@Nullable Result result) {
                 return result.getSegmentData();
             }
         })
-                .transform(new Function<SegmentData,SegmentModel>(){
+                .transform(new Function<SegmentDatum,SegmentModel>(){
                     @Nullable
                     @Override
-                    public SegmentModel apply(@Nullable SegmentData segmentData) {
+                    public SegmentModel apply(@Nullable SegmentDatum segmentData) {
                         return new DmpSegmentModel(segmentData);
                     }
                 }).toList();

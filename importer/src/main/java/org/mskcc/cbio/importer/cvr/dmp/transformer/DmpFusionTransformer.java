@@ -66,7 +66,7 @@ public class DmpFusionTransformer extends FusionTransformer
         DmpUtils.removeDeprecatedSamples(data,this.fileHandler);
         for(Result result : data.getResults()){
             String sampleId = result.getMetaData().getDmpSampleId();
-            for(StructuralVariant sv : result.getStructuralVariants()){
+            for(StructuralVariant sv : result.getSvVariants()){
                 // add the metadata sample id to the structural variant
                 sv.setDmpSampleId(sampleId);
                 fusionModelList.add(new DmpFusionModel((sv)));

@@ -42,6 +42,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
     "occurance_in_normal",
     "occurance_in_pop",
     "ref_allele",
+    "snp_indel_tool_name",
     "snp_indel_variant_id",
     "so_comments",
     "so_status_cv_id",
@@ -56,7 +57,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
     "variant_status_cv_id",
     "variant_status_name"
 })
-public class SnpExonic implements DmpSnp {
+public class SnpIndelExonic implements DmpSnp {
 
     @JsonProperty("aa_change")
     private String aaChange;
@@ -108,6 +109,8 @@ public class SnpExonic implements DmpSnp {
     private Object occuranceInPop;
     @JsonProperty("ref_allele")
     private String refAllele;
+    @JsonProperty("snp_indel_tool_name")
+    private String snpIndelToolName;
     @JsonProperty("snp_indel_variant_id")
     private Integer snpIndelVariantId;
     @JsonProperty("so_comments")
@@ -136,8 +139,11 @@ public class SnpExonic implements DmpSnp {
     private String variantStatusName;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
-    @JsonIgnore
-    private String dmpSampleId;
+
+    @Override
+    public void setDmpSampleId(String id) {
+
+    }
 
     /**
      * 
@@ -145,7 +151,6 @@ public class SnpExonic implements DmpSnp {
      *     The aaChange
      */
     @JsonProperty("aa_change")
-    @Override
     public String getAaChange() {
         return aaChange;
     }
@@ -166,7 +171,6 @@ public class SnpExonic implements DmpSnp {
      *     The altAllele
      */
     @JsonProperty("alt_allele")
-    @Override
     public String getAltAllele() {
         return altAllele;
     }
@@ -187,7 +191,6 @@ public class SnpExonic implements DmpSnp {
      *     The cDNAChange
      */
     @JsonProperty("cDNA_change")
-    @Override
     public String getCDNAChange() {
         return cDNAChange;
     }
@@ -208,7 +211,6 @@ public class SnpExonic implements DmpSnp {
      *     The chromosome
      */
     @JsonProperty("chromosome")
-    @Override
     public String getChromosome() {
         return chromosome;
     }
@@ -229,7 +231,6 @@ public class SnpExonic implements DmpSnp {
      *     The comments
      */
     @JsonProperty("comments")
-    @Override
     public Object getComments() {
         return comments;
     }
@@ -250,7 +251,6 @@ public class SnpExonic implements DmpSnp {
      *     The confidenceClass
      */
     @JsonProperty("confidence_class")
-    @Override
     public String getConfidenceClass() {
         return confidenceClass;
     }
@@ -271,7 +271,6 @@ public class SnpExonic implements DmpSnp {
      *     The confidenceCvId
      */
     @JsonProperty("confidence_cv_id")
-    @Override
     public Integer getConfidenceCvId() {
         return confidenceCvId;
     }
@@ -292,7 +291,6 @@ public class SnpExonic implements DmpSnp {
      *     The cosmicId
      */
     @JsonProperty("cosmic_id")
-    @Override
     public String getCosmicId() {
         return cosmicId;
     }
@@ -313,9 +311,13 @@ public class SnpExonic implements DmpSnp {
      *     The dbSNPId
      */
     @JsonProperty("dbSNP_id")
-    @Override
     public String getDbSNPId() {
         return dbSNPId;
+    }
+
+    @Override
+    public String getDmpSampleId() {
+        return null;
     }
 
     /**
@@ -334,7 +336,6 @@ public class SnpExonic implements DmpSnp {
      *     The dmpSampleMrevId
      */
     @JsonProperty("dmp_sample_mrev_id")
-    @Override
     public Integer getDmpSampleMrevId() {
         return dmpSampleMrevId;
     }
@@ -355,7 +356,6 @@ public class SnpExonic implements DmpSnp {
      *     The dmpSampleSoId
      */
     @JsonProperty("dmp_sample_so_id")
-    @Override
     public Integer getDmpSampleSoId() {
         return dmpSampleSoId;
     }
@@ -376,7 +376,6 @@ public class SnpExonic implements DmpSnp {
      *     The dmpVariantId
      */
     @JsonProperty("dmp_variant_id")
-    @Override
     public Integer getDmpVariantId() {
         return dmpVariantId;
     }
@@ -397,7 +396,6 @@ public class SnpExonic implements DmpSnp {
      *     The exonNum
      */
     @JsonProperty("exon_num")
-    @Override
     public String getExonNum() {
         return exonNum;
     }
@@ -418,7 +416,6 @@ public class SnpExonic implements DmpSnp {
      *     The geneId
      */
     @JsonProperty("gene_id")
-    @Override
     public String getGeneId() {
         return geneId;
     }
@@ -439,7 +436,6 @@ public class SnpExonic implements DmpSnp {
      *     The isHotspot
      */
     @JsonProperty("is_hotspot")
-    @Override
     public Integer getIsHotspot() {
         return isHotspot;
     }
@@ -460,7 +456,6 @@ public class SnpExonic implements DmpSnp {
      *     The mafreq1000g
      */
     @JsonProperty("mafreq_1000g")
-    @Override
     public String getMafreq1000g() {
         return mafreq1000g;
     }
@@ -481,7 +476,6 @@ public class SnpExonic implements DmpSnp {
      *     The mrevComments
      */
     @JsonProperty("mrev_comments")
-    @Override
     public String getMrevComments() {
         return mrevComments;
     }
@@ -502,7 +496,6 @@ public class SnpExonic implements DmpSnp {
      *     The mrevStatusCvId
      */
     @JsonProperty("mrev_status_cv_id")
-    @Override
     public Integer getMrevStatusCvId() {
         return mrevStatusCvId;
     }
@@ -523,7 +516,6 @@ public class SnpExonic implements DmpSnp {
      *     The mrevStatusName
      */
     @JsonProperty("mrev_status_name")
-    @Override
     public String getMrevStatusName() {
         return mrevStatusName;
     }
@@ -544,7 +536,6 @@ public class SnpExonic implements DmpSnp {
      *     The normalAd
      */
     @JsonProperty("normal_ad")
-    @Override
     public Integer getNormalAd() {
         return normalAd;
     }
@@ -565,7 +556,6 @@ public class SnpExonic implements DmpSnp {
      *     The normalDp
      */
     @JsonProperty("normal_dp")
-    @Override
     public Integer getNormalDp() {
         return normalDp;
     }
@@ -586,7 +576,6 @@ public class SnpExonic implements DmpSnp {
      *     The normalVfreq
      */
     @JsonProperty("normal_vfreq")
-    @Override
     public Double getNormalVfreq() {
         return normalVfreq;
     }
@@ -607,7 +596,6 @@ public class SnpExonic implements DmpSnp {
      *     The occuranceInNormal
      */
     @JsonProperty("occurance_in_normal")
-    @Override
     public String getOccuranceInNormal() {
         return occuranceInNormal;
     }
@@ -628,7 +616,6 @@ public class SnpExonic implements DmpSnp {
      *     The occuranceInPop
      */
     @JsonProperty("occurance_in_pop")
-    @Override
     public Object getOccuranceInPop() {
         return occuranceInPop;
     }
@@ -649,7 +636,6 @@ public class SnpExonic implements DmpSnp {
      *     The refAllele
      */
     @JsonProperty("ref_allele")
-    @Override
     public String getRefAllele() {
         return refAllele;
     }
@@ -667,10 +653,29 @@ public class SnpExonic implements DmpSnp {
     /**
      * 
      * @return
+     *     The snpIndelToolName
+     */
+    @JsonProperty("snp_indel_tool_name")
+    public String getSnpIndelToolName() {
+        return snpIndelToolName;
+    }
+
+    /**
+     * 
+     * @param snpIndelToolName
+     *     The snp_indel_tool_name
+     */
+    @JsonProperty("snp_indel_tool_name")
+    public void setSnpIndelToolName(String snpIndelToolName) {
+        this.snpIndelToolName = snpIndelToolName;
+    }
+
+    /**
+     * 
+     * @return
      *     The snpIndelVariantId
      */
     @JsonProperty("snp_indel_variant_id")
-    @Override
     public Integer getSnpIndelVariantId() {
         return snpIndelVariantId;
     }
@@ -691,7 +696,6 @@ public class SnpExonic implements DmpSnp {
      *     The soComments
      */
     @JsonProperty("so_comments")
-    @Override
     public String getSoComments() {
         return soComments;
     }
@@ -712,7 +716,6 @@ public class SnpExonic implements DmpSnp {
      *     The soStatusCvId
      */
     @JsonProperty("so_status_cv_id")
-    @Override
     public Integer getSoStatusCvId() {
         return soStatusCvId;
     }
@@ -733,7 +736,6 @@ public class SnpExonic implements DmpSnp {
      *     The soStatusName
      */
     @JsonProperty("so_status_name")
-    @Override
     public String getSoStatusName() {
         return soStatusName;
     }
@@ -754,7 +756,6 @@ public class SnpExonic implements DmpSnp {
      *     The startPosition
      */
     @JsonProperty("start_position")
-    @Override
     public Integer getStartPosition() {
         return startPosition;
     }
@@ -775,7 +776,6 @@ public class SnpExonic implements DmpSnp {
      *     The transcriptId
      */
     @JsonProperty("transcript_id")
-    @Override
     public String getTranscriptId() {
         return transcriptId;
     }
@@ -796,7 +796,6 @@ public class SnpExonic implements DmpSnp {
      *     The tumorAd
      */
     @JsonProperty("tumor_ad")
-    @Override
     public Integer getTumorAd() {
         return tumorAd;
     }
@@ -817,7 +816,6 @@ public class SnpExonic implements DmpSnp {
      *     The tumorDp
      */
     @JsonProperty("tumor_dp")
-    @Override
     public Integer getTumorDp() {
         return tumorDp;
     }
@@ -838,7 +836,6 @@ public class SnpExonic implements DmpSnp {
      *     The tumorVfreq
      */
     @JsonProperty("tumor_vfreq")
-    @Override
     public Double getTumorVfreq() {
         return tumorVfreq;
     }
@@ -859,7 +856,6 @@ public class SnpExonic implements DmpSnp {
      *     The variantClass
      */
     @JsonProperty("variant_class")
-    @Override
     public String getVariantClass() {
         return variantClass;
     }
@@ -880,7 +876,6 @@ public class SnpExonic implements DmpSnp {
      *     The variantClassCvId
      */
     @JsonProperty("variant_class_cv_id")
-    @Override
     public Integer getVariantClassCvId() {
         return variantClassCvId;
     }
@@ -901,7 +896,6 @@ public class SnpExonic implements DmpSnp {
      *     The variantStatusCvId
      */
     @JsonProperty("variant_status_cv_id")
-    @Override
     public Integer getVariantStatusCvId() {
         return variantStatusCvId;
     }
@@ -922,7 +916,6 @@ public class SnpExonic implements DmpSnp {
      *     The variantStatusName
      */
     @JsonProperty("variant_status_name")
-    @Override
     public String getVariantStatusName() {
         return variantStatusName;
     }
@@ -941,16 +934,8 @@ public class SnpExonic implements DmpSnp {
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
     }
-    
-    @JsonAnyGetter
-    @Override
-    public String getDmpSampleId() {return this.dmpSampleId;}
-    
-    @JsonAnySetter
-    public void setDmpSampleId(String id) {this.dmpSampleId = id;}
 
     @JsonAnyGetter
-    @Override
     public Map<String, Object> getAdditionalProperties() {
         return this.additionalProperties;
     }
@@ -962,7 +947,7 @@ public class SnpExonic implements DmpSnp {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(aaChange).append(altAllele).append(cDNAChange).append(chromosome).append(comments).append(confidenceClass).append(confidenceCvId).append(cosmicId).append(dbSNPId).append(dmpSampleMrevId).append(dmpSampleSoId).append(dmpVariantId).append(exonNum).append(geneId).append(isHotspot).append(mafreq1000g).append(mrevComments).append(mrevStatusCvId).append(mrevStatusName).append(normalAd).append(normalDp).append(normalVfreq).append(occuranceInNormal).append(occuranceInPop).append(refAllele).append(snpIndelVariantId).append(soComments).append(soStatusCvId).append(soStatusName).append(startPosition).append(transcriptId).append(tumorAd).append(tumorDp).append(tumorVfreq).append(variantClass).append(variantClassCvId).append(variantStatusCvId).append(variantStatusName).append(additionalProperties).toHashCode();
+        return new HashCodeBuilder().append(aaChange).append(altAllele).append(cDNAChange).append(chromosome).append(comments).append(confidenceClass).append(confidenceCvId).append(cosmicId).append(dbSNPId).append(dmpSampleMrevId).append(dmpSampleSoId).append(dmpVariantId).append(exonNum).append(geneId).append(isHotspot).append(mafreq1000g).append(mrevComments).append(mrevStatusCvId).append(mrevStatusName).append(normalAd).append(normalDp).append(normalVfreq).append(occuranceInNormal).append(occuranceInPop).append(refAllele).append(snpIndelToolName).append(snpIndelVariantId).append(soComments).append(soStatusCvId).append(soStatusName).append(startPosition).append(transcriptId).append(tumorAd).append(tumorDp).append(tumorVfreq).append(variantClass).append(variantClassCvId).append(variantStatusCvId).append(variantStatusName).append(additionalProperties).toHashCode();
     }
 
     @Override
@@ -970,11 +955,11 @@ public class SnpExonic implements DmpSnp {
         if (other == this) {
             return true;
         }
-        if ((other instanceof SnpExonic) == false) {
+        if ((other instanceof SnpIndelExonic) == false) {
             return false;
         }
-        SnpExonic rhs = ((SnpExonic) other);
-        return new EqualsBuilder().append(aaChange, rhs.aaChange).append(altAllele, rhs.altAllele).append(cDNAChange, rhs.cDNAChange).append(chromosome, rhs.chromosome).append(comments, rhs.comments).append(confidenceClass, rhs.confidenceClass).append(confidenceCvId, rhs.confidenceCvId).append(cosmicId, rhs.cosmicId).append(dbSNPId, rhs.dbSNPId).append(dmpSampleMrevId, rhs.dmpSampleMrevId).append(dmpSampleSoId, rhs.dmpSampleSoId).append(dmpVariantId, rhs.dmpVariantId).append(exonNum, rhs.exonNum).append(geneId, rhs.geneId).append(isHotspot, rhs.isHotspot).append(mafreq1000g, rhs.mafreq1000g).append(mrevComments, rhs.mrevComments).append(mrevStatusCvId, rhs.mrevStatusCvId).append(mrevStatusName, rhs.mrevStatusName).append(normalAd, rhs.normalAd).append(normalDp, rhs.normalDp).append(normalVfreq, rhs.normalVfreq).append(occuranceInNormal, rhs.occuranceInNormal).append(occuranceInPop, rhs.occuranceInPop).append(refAllele, rhs.refAllele).append(snpIndelVariantId, rhs.snpIndelVariantId).append(soComments, rhs.soComments).append(soStatusCvId, rhs.soStatusCvId).append(soStatusName, rhs.soStatusName).append(startPosition, rhs.startPosition).append(transcriptId, rhs.transcriptId).append(tumorAd, rhs.tumorAd).append(tumorDp, rhs.tumorDp).append(tumorVfreq, rhs.tumorVfreq).append(variantClass, rhs.variantClass).append(variantClassCvId, rhs.variantClassCvId).append(variantStatusCvId, rhs.variantStatusCvId).append(variantStatusName, rhs.variantStatusName).append(additionalProperties, rhs.additionalProperties).isEquals();
+        SnpIndelExonic rhs = ((SnpIndelExonic) other);
+        return new EqualsBuilder().append(aaChange, rhs.aaChange).append(altAllele, rhs.altAllele).append(cDNAChange, rhs.cDNAChange).append(chromosome, rhs.chromosome).append(comments, rhs.comments).append(confidenceClass, rhs.confidenceClass).append(confidenceCvId, rhs.confidenceCvId).append(cosmicId, rhs.cosmicId).append(dbSNPId, rhs.dbSNPId).append(dmpSampleMrevId, rhs.dmpSampleMrevId).append(dmpSampleSoId, rhs.dmpSampleSoId).append(dmpVariantId, rhs.dmpVariantId).append(exonNum, rhs.exonNum).append(geneId, rhs.geneId).append(isHotspot, rhs.isHotspot).append(mafreq1000g, rhs.mafreq1000g).append(mrevComments, rhs.mrevComments).append(mrevStatusCvId, rhs.mrevStatusCvId).append(mrevStatusName, rhs.mrevStatusName).append(normalAd, rhs.normalAd).append(normalDp, rhs.normalDp).append(normalVfreq, rhs.normalVfreq).append(occuranceInNormal, rhs.occuranceInNormal).append(occuranceInPop, rhs.occuranceInPop).append(refAllele, rhs.refAllele).append(snpIndelToolName, rhs.snpIndelToolName).append(snpIndelVariantId, rhs.snpIndelVariantId).append(soComments, rhs.soComments).append(soStatusCvId, rhs.soStatusCvId).append(soStatusName, rhs.soStatusName).append(startPosition, rhs.startPosition).append(transcriptId, rhs.transcriptId).append(tumorAd, rhs.tumorAd).append(tumorDp, rhs.tumorDp).append(tumorVfreq, rhs.tumorVfreq).append(variantClass, rhs.variantClass).append(variantClassCvId, rhs.variantClassCvId).append(variantStatusCvId, rhs.variantStatusCvId).append(variantStatusName, rhs.variantStatusName).append(additionalProperties, rhs.additionalProperties).isEquals();
     }
 
 }

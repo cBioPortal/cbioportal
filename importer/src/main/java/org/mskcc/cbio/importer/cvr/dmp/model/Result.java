@@ -22,15 +22,12 @@ import org.apache.commons.lang.builder.ToStringBuilder;
     "cnv-intragenic-variants",
     "cnv-variants",
     "meta-data",
-    "snp-exonic",
-    "snp-silent",
-     "sv-variants",
+    "snp-indel-exonic",
+    "snp-indel-silent",
+    "sv-variants",
     "segment-data"
 })
 public class Result {
-    /*
-    "sv-variants" : [ {
-     */
 
     @JsonProperty("cnv-intragenic-variants")
     private List<CnvIntragenicVariant> cnvIntragenicVariants = new ArrayList<CnvIntragenicVariant>();
@@ -38,15 +35,14 @@ public class Result {
     private List<CnvVariant> cnvVariants = new ArrayList<CnvVariant>();
     @JsonProperty("meta-data")
     private MetaData metaData;
-    @JsonProperty("snp-exonic")
-    private List<SnpExonic> snpExonic = new ArrayList<SnpExonic>();
-    @JsonProperty("snp-silent")
-    private List<SnpSilent> snpSilent = new ArrayList<SnpSilent>();
+    @JsonProperty("snp-indel-exonic")
+    private List<SnpIndelExonic> snpIndelExonic = new ArrayList<SnpIndelExonic>();
+    @JsonProperty("snp-indel-silent")
+    private List<SnpIndelSilent> snpIndelSilent = new ArrayList<SnpIndelSilent>();
     @JsonProperty("sv-variants")
-    private List<StructuralVariant> structuralVariants = new ArrayList<>();
+    private List<StructuralVariant> svVariants = new ArrayList<StructuralVariant>();
     @JsonProperty("segment-data")
-    private List<SegmentData> segmentData = new ArrayList<SegmentData>();
-
+    private List<SegmentDatum> segmentData = new ArrayList<SegmentDatum>();
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -113,62 +109,81 @@ public class Result {
     /**
      * 
      * @return
-     *     The snpExonic
+     *     The snpIndelExonic
      */
-    @JsonProperty("snp-exonic")
-    public List<SnpExonic> getSnpExonic() {
-        return snpExonic;
+    @JsonProperty("snp-indel-exonic")
+    public List<SnpIndelExonic> getSnpIndelExonic() {
+        return snpIndelExonic;
     }
 
     /**
      * 
-     * @param snpExonic
-     *     The snp-exonic
+     * @param snpIndelExonic
+     *     The snp-indel-exonic
      */
-    @JsonProperty("snp-exonic")
-    public void setSnpExonic(List<SnpExonic> snpExonic) {
-        this.snpExonic = snpExonic;
+    @JsonProperty("snp-indel-exonic")
+    public void setSnpIndelExonic(List<SnpIndelExonic> snpIndelExonic) {
+        this.snpIndelExonic = snpIndelExonic;
     }
 
     /**
      * 
      * @return
-     *     The snpSilent
+     *     The snpIndelSilent
      */
-    @JsonProperty("snp-silent")
-    public List<SnpSilent> getSnpSilent() {
-        return snpSilent;
+    @JsonProperty("snp-indel-silent")
+    public List<SnpIndelSilent> getSnpIndelSilent() {
+        return snpIndelSilent;
     }
 
     /**
      * 
-     * @param snpSilent
-     *     The snp-silent
+     * @param snpIndelSilent
+     *     The snp-indel-silent
      */
-    @JsonProperty("snp-silent")
-    public void setSnpSilent(List<SnpSilent> snpSilent) {
-        this.snpSilent = snpSilent;
-    }
-
-    @JsonProperty("sv-variants")
-    public List<StructuralVariant> getStructuralVariants () { return this.structuralVariants;}
-    @JsonProperty("sv-variants")
-    public void setStructuralVariants (List<StructuralVariant> svList)
-    {this.structuralVariants = svList;}
-
-    @JsonProperty("segment-data")
-    public List<SegmentData> getSegmentData() {
-        return this.segmentData;
+    @JsonProperty("snp-indel-silent")
+    public void setSnpIndelSilent(List<SnpIndelSilent> snpIndelSilent) {
+        this.snpIndelSilent = snpIndelSilent;
     }
 
     /**
-     *
-     * @param snpSilent
+     * 
+     * @return
+     *     The svVariants
+     */
+    @JsonProperty("sv-variants")
+    public List<StructuralVariant> getSvVariants() {
+        return svVariants;
+    }
+
+    /**
+     * 
+     * @param svVariants
+     *     The sv-variants
+     */
+    @JsonProperty("sv-variants")
+    public void setSvVariants(List<StructuralVariant> svVariants) {
+        this.svVariants = svVariants;
+    }
+
+    /**
+     * 
+     * @return
+     *     The segmentData
+     */
+    @JsonProperty("segment-data")
+    public List<SegmentDatum> getSegmentData() {
+        return segmentData;
+    }
+
+    /**
+     * 
+     * @param segmentData
      *     The segment-data
      */
     @JsonProperty("segment-data")
-    public void setSegmentData(List<SegmentData> segData) {
-        this.segmentData = segData;
+    public void setSegmentData(List<SegmentDatum> segmentData) {
+        this.segmentData = segmentData;
     }
 
     @Override
@@ -188,9 +203,7 @@ public class Result {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(cnvIntragenicVariants).append(cnvVariants)
-                .append(metaData).append(snpExonic).append(snpSilent)
-                .append(segmentData).append(additionalProperties).toHashCode();
+        return new HashCodeBuilder().append(cnvIntragenicVariants).append(cnvVariants).append(metaData).append(snpIndelExonic).append(snpIndelSilent).append(svVariants).append(segmentData).append(additionalProperties).toHashCode();
     }
 
     @Override
@@ -202,12 +215,7 @@ public class Result {
             return false;
         }
         Result rhs = ((Result) other);
-        return new EqualsBuilder().append(cnvIntragenicVariants, rhs.cnvIntragenicVariants)
-                .append(cnvVariants, rhs.cnvVariants).append(metaData, rhs.metaData).append(snpExonic, rhs.snpExonic)
-                .append(snpSilent, rhs.snpSilent)
-                .append(this.structuralVariants, rhs.structuralVariants)
-                .append(segmentData,rhs.segmentData)
-                .append(additionalProperties, rhs.additionalProperties).isEquals();
+        return new EqualsBuilder().append(cnvIntragenicVariants, rhs.cnvIntragenicVariants).append(cnvVariants, rhs.cnvVariants).append(metaData, rhs.metaData).append(snpIndelExonic, rhs.snpIndelExonic).append(snpIndelSilent, rhs.snpIndelSilent).append(svVariants, rhs.svVariants).append(segmentData, rhs.segmentData).append(additionalProperties, rhs.additionalProperties).isEquals();
     }
 
 }

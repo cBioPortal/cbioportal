@@ -1,7 +1,7 @@
 package org.mskcc.cbio.importer.cvr.dmp.transformer;
 
 import com.google.common.base.Preconditions;
-import org.mskcc.cbio.importer.cvr.dmp.model.SegmentData;
+import org.mskcc.cbio.importer.cvr.dmp.model.SegmentDatum;
 import org.mskcc.cbio.importer.persistence.staging.segment.SegmentModel;
 
 /**
@@ -24,40 +24,40 @@ import org.mskcc.cbio.importer.persistence.staging.segment.SegmentModel;
  * Created by fcriscuo on 11/15/14.
  */
 public class DmpSegmentModel extends SegmentModel {
-    private final SegmentData segmentData;
+    private final SegmentDatum segmentDatum;
 
-    public DmpSegmentModel(SegmentData sd){
+    public DmpSegmentModel(SegmentDatum sd){
         Preconditions.checkArgument(sd!= null, "A SegmentData instance is required");
-        this.segmentData = sd;
+        this.segmentDatum = sd;
     }
 
     @Override
     public String getID() {
-        return this.segmentData.getID();
+        return this.segmentDatum.getID();
     }
 
     @Override
     public String getChromosome() {
-        return this.segmentData.getChromosome();
+        return this.segmentDatum.getChrom();
     }
 
     @Override
     public String getLocStart() {
-        return this.segmentData.getLocStart();
+        return this.segmentDatum.getLocStart();
     }
 
     @Override
     public String getLocEnd() {
-        return this.segmentData.getLocEnd();
+        return this.segmentDatum.getLocEnd();
     }
 
     @Override
     public String getNumMark() {
-        return this.segmentData.getNumMark();
+        return this.segmentDatum.getNumMark();
     }
 
     @Override
     public String getSegMean() {
-        return this.segmentData.getSegMean().toString();
+        return this.segmentDatum.getSegMean().toString();
     }
 }

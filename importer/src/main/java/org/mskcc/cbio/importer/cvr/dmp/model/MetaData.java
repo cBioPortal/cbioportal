@@ -18,6 +18,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 @Generated("org.jsonschema2pojo")
 @JsonPropertyOrder({
     "alys2sample_id",
+    "cbx_patient_id",
+    "cbx_sample_id",
     "dmp_alys_task_id",
     "dmp_alys_task_name",
     "dmp_patient_id",
@@ -25,6 +27,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
     "dmp_sample_so_id",
     "gender",
     "is_metastasis",
+    "legacy_patient_id",
+    "legacy_sample_id",
     "metastasis_site",
     "mrev_comments",
     "retrieve_status",
@@ -38,12 +42,16 @@ public class MetaData {
 
     @JsonProperty("alys2sample_id")
     private Integer alys2sampleId;
+    @JsonProperty("cbx_patient_id")
+    private Integer cbxPatientId;
+    @JsonProperty("cbx_sample_id")
+    private Integer cbxSampleId;
     @JsonProperty("dmp_alys_task_id")
     private Integer dmpAlysTaskId;
     @JsonProperty("dmp_alys_task_name")
     private String dmpAlysTaskName;
     @JsonProperty("dmp_patient_id")
-    private Integer dmpPatientId;
+    private String dmpPatientId;
     @JsonProperty("dmp_sample_id")
     private String dmpSampleId;
     @JsonProperty("dmp_sample_so_id")
@@ -51,9 +59,13 @@ public class MetaData {
     @JsonProperty("gender")
     private Integer gender;
     @JsonProperty("is_metastasis")
-    private Integer isMetastasis;
+    private Object isMetastasis;
+    @JsonProperty("legacy_patient_id")
+    private String legacyPatientId;
+    @JsonProperty("legacy_sample_id")
+    private Object legacySampleId;
     @JsonProperty("metastasis_site")
-    private String metastasisSite;
+    private Object metastasisSite;
     @JsonProperty("mrev_comments")
     private String mrevComments;
     @JsonProperty("retrieve_status")
@@ -65,7 +77,7 @@ public class MetaData {
     @JsonProperty("so_status_name")
     private String soStatusName;
     @JsonProperty("tumor_purity")
-    private String tumorPurity;
+    private Object tumorPurity;
     @JsonProperty("tumor_type_name")
     private String tumorTypeName;
     @JsonIgnore
@@ -89,6 +101,46 @@ public class MetaData {
     @JsonProperty("alys2sample_id")
     public void setAlys2sampleId(Integer alys2sampleId) {
         this.alys2sampleId = alys2sampleId;
+    }
+
+    /**
+     * 
+     * @return
+     *     The cbxPatientId
+     */
+    @JsonProperty("cbx_patient_id")
+    public Integer getCbxPatientId() {
+        return cbxPatientId;
+    }
+
+    /**
+     * 
+     * @param cbxPatientId
+     *     The cbx_patient_id
+     */
+    @JsonProperty("cbx_patient_id")
+    public void setCbxPatientId(Integer cbxPatientId) {
+        this.cbxPatientId = cbxPatientId;
+    }
+
+    /**
+     * 
+     * @return
+     *     The cbxSampleId
+     */
+    @JsonProperty("cbx_sample_id")
+    public Integer getCbxSampleId() {
+        return cbxSampleId;
+    }
+
+    /**
+     * 
+     * @param cbxSampleId
+     *     The cbx_sample_id
+     */
+    @JsonProperty("cbx_sample_id")
+    public void setCbxSampleId(Integer cbxSampleId) {
+        this.cbxSampleId = cbxSampleId;
     }
 
     /**
@@ -137,7 +189,7 @@ public class MetaData {
      *     The dmpPatientId
      */
     @JsonProperty("dmp_patient_id")
-    public Integer getDmpPatientId() {
+    public String getDmpPatientId() {
         return dmpPatientId;
     }
 
@@ -147,7 +199,7 @@ public class MetaData {
      *     The dmp_patient_id
      */
     @JsonProperty("dmp_patient_id")
-    public void setDmpPatientId(Integer dmpPatientId) {
+    public void setDmpPatientId(String dmpPatientId) {
         this.dmpPatientId = dmpPatientId;
     }
 
@@ -217,7 +269,7 @@ public class MetaData {
      *     The isMetastasis
      */
     @JsonProperty("is_metastasis")
-    public Integer getIsMetastasis() {
+    public Object getIsMetastasis() {
         return isMetastasis;
     }
 
@@ -227,8 +279,48 @@ public class MetaData {
      *     The is_metastasis
      */
     @JsonProperty("is_metastasis")
-    public void setIsMetastasis(Integer isMetastasis) {
+    public void setIsMetastasis(Object isMetastasis) {
         this.isMetastasis = isMetastasis;
+    }
+
+    /**
+     * 
+     * @return
+     *     The legacyPatientId
+     */
+    @JsonProperty("legacy_patient_id")
+    public String getLegacyPatientId() {
+        return legacyPatientId;
+    }
+
+    /**
+     * 
+     * @param legacyPatientId
+     *     The legacy_patient_id
+     */
+    @JsonProperty("legacy_patient_id")
+    public void setLegacyPatientId(String legacyPatientId) {
+        this.legacyPatientId = legacyPatientId;
+    }
+
+    /**
+     * 
+     * @return
+     *     The legacySampleId
+     */
+    @JsonProperty("legacy_sample_id")
+    public Object getLegacySampleId() {
+        return legacySampleId;
+    }
+
+    /**
+     * 
+     * @param legacySampleId
+     *     The legacy_sample_id
+     */
+    @JsonProperty("legacy_sample_id")
+    public void setLegacySampleId(Object legacySampleId) {
+        this.legacySampleId = legacySampleId;
     }
 
     /**
@@ -237,7 +329,7 @@ public class MetaData {
      *     The metastasisSite
      */
     @JsonProperty("metastasis_site")
-    public String getMetastasisSite() {
+    public Object getMetastasisSite() {
         return metastasisSite;
     }
 
@@ -247,7 +339,7 @@ public class MetaData {
      *     The metastasis_site
      */
     @JsonProperty("metastasis_site")
-    public void setMetastasisSite(String metastasisSite) {
+    public void setMetastasisSite(Object metastasisSite) {
         this.metastasisSite = metastasisSite;
     }
 
@@ -357,7 +449,7 @@ public class MetaData {
      *     The tumorPurity
      */
     @JsonProperty("tumor_purity")
-    public String getTumorPurity() {
+    public Object getTumorPurity() {
         return tumorPurity;
     }
 
@@ -367,7 +459,7 @@ public class MetaData {
      *     The tumor_purity
      */
     @JsonProperty("tumor_purity")
-    public void setTumorPurity(String tumorPurity) {
+    public void setTumorPurity(Object tumorPurity) {
         this.tumorPurity = tumorPurity;
     }
 
@@ -408,7 +500,7 @@ public class MetaData {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(alys2sampleId).append(dmpAlysTaskId).append(dmpAlysTaskName).append(dmpPatientId).append(dmpSampleId).append(dmpSampleSoId).append(gender).append(isMetastasis).append(metastasisSite).append(mrevComments).append(retrieveStatus).append(sampleCoverage).append(soComments).append(soStatusName).append(tumorPurity).append(tumorTypeName).append(additionalProperties).toHashCode();
+        return new HashCodeBuilder().append(alys2sampleId).append(cbxPatientId).append(cbxSampleId).append(dmpAlysTaskId).append(dmpAlysTaskName).append(dmpPatientId).append(dmpSampleId).append(dmpSampleSoId).append(gender).append(isMetastasis).append(legacyPatientId).append(legacySampleId).append(metastasisSite).append(mrevComments).append(retrieveStatus).append(sampleCoverage).append(soComments).append(soStatusName).append(tumorPurity).append(tumorTypeName).append(additionalProperties).toHashCode();
     }
 
     @Override
@@ -420,7 +512,7 @@ public class MetaData {
             return false;
         }
         MetaData rhs = ((MetaData) other);
-        return new EqualsBuilder().append(alys2sampleId, rhs.alys2sampleId).append(dmpAlysTaskId, rhs.dmpAlysTaskId).append(dmpAlysTaskName, rhs.dmpAlysTaskName).append(dmpPatientId, rhs.dmpPatientId).append(dmpSampleId, rhs.dmpSampleId).append(dmpSampleSoId, rhs.dmpSampleSoId).append(gender, rhs.gender).append(isMetastasis, rhs.isMetastasis).append(metastasisSite, rhs.metastasisSite).append(mrevComments, rhs.mrevComments).append(retrieveStatus, rhs.retrieveStatus).append(sampleCoverage, rhs.sampleCoverage).append(soComments, rhs.soComments).append(soStatusName, rhs.soStatusName).append(tumorPurity, rhs.tumorPurity).append(tumorTypeName, rhs.tumorTypeName).append(additionalProperties, rhs.additionalProperties).isEquals();
+        return new EqualsBuilder().append(alys2sampleId, rhs.alys2sampleId).append(cbxPatientId, rhs.cbxPatientId).append(cbxSampleId, rhs.cbxSampleId).append(dmpAlysTaskId, rhs.dmpAlysTaskId).append(dmpAlysTaskName, rhs.dmpAlysTaskName).append(dmpPatientId, rhs.dmpPatientId).append(dmpSampleId, rhs.dmpSampleId).append(dmpSampleSoId, rhs.dmpSampleSoId).append(gender, rhs.gender).append(isMetastasis, rhs.isMetastasis).append(legacyPatientId, rhs.legacyPatientId).append(legacySampleId, rhs.legacySampleId).append(metastasisSite, rhs.metastasisSite).append(mrevComments, rhs.mrevComments).append(retrieveStatus, rhs.retrieveStatus).append(sampleCoverage, rhs.sampleCoverage).append(soComments, rhs.soComments).append(soStatusName, rhs.soStatusName).append(tumorPurity, rhs.tumorPurity).append(tumorTypeName, rhs.tumorTypeName).append(additionalProperties, rhs.additionalProperties).isEquals();
     }
 
 }

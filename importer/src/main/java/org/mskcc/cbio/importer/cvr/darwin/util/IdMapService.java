@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.cvr.darwin.util.deid.Deid;
 import org.mskcc.cbio.importer.cvr.darwin.util.deid.DeidMapper;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
+import scala.Tuple2;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -47,7 +48,6 @@ public enum IdMapService {
      */
     public final Set<Integer> getDarwinIdSet(){
         return this.idMap.keySet();
-
     }
 
     /*
@@ -75,6 +75,20 @@ public enum IdMapService {
             return StagingCommonNames.commaJoiner.join(ids);
         }
         return "";
+    }
+
+    public boolean isSampleIdInDarwin(String sampleId){
+        return (!Strings.isNullOrEmpty(sampleId) && this.idMap.containsValue(sampleId));
+    }
+
+    /*
+    public method to determine if either the current or legacy ids is in darwin
+     */
+    public boolean isSampleIdInDarwin(Tuple2<String,String> idTuple){
+        if (null != idTuple) {
+            return( isSampleIdInDarwin(idTuple._1()) || isSampleIdInDarwin(idTuple._2()));
+        }
+        return false;
     }
 
     public final Integer resolveDarwinIdBySampleId(String sampleId){

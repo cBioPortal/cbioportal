@@ -75,8 +75,8 @@ public class DmpSnpTransformer extends MutationTransformer implements DMPDataTra
             List<DmpSnp> snpList = Lists.newArrayList();
             final MetaData meta = result.getMetaData();
             // combine the two types of SNPs in DMP data
-            snpList.addAll(result.getSnpExonic());
-            snpList.addAll(result.getSnpSilent());
+            snpList.addAll(result.getSnpIndelExonic());
+            snpList.addAll(result.getSnpIndelSilent());
             modelList.addAll(FluentIterable.from(snpList)
                     .transform(new Function<DmpSnp, DmpSnp>() {
                         @Override

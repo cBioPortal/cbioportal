@@ -11,6 +11,9 @@ var SurvivalCurve = function() {
     //Each curve will have unique ID which will be used to add/remove curve
     var curvesInfo = {};
     
+    //qtip func
+    var qtipFunc = {};
+    
     function initCanvas() {
         $('#' + divs.curveDivId).empty();
         elem.svg = d3.select("#" + divs.curveDivId)
@@ -107,8 +110,8 @@ var SurvivalCurve = function() {
         elem.dots[_index].selectAll('path').each(
             function(d) {
                 var content = "<font size='2'>";
-                content += "Case ID: " + "<strong><a href='"
-                        + cbio.util.getLinkToPatientView(cancer_study_id, d.case_id)
+                content += text.qTips.id + ": " + "<strong><a href='"
+                        + qtipFunc(cancer_study_id, d.case_id)
                         + "' target='_blank'>" + d.case_id + "</a></strong><br>";
                 content += text.qTips.estimation + ": <strong>" + (d.survival_rate * 100).toFixed(2) + "%</strong><br>";
                 if (d.status === "0") { // If censored, mark it
@@ -381,6 +384,7 @@ var SurvivalCurve = function() {
             style = _opts.style;
             divs = _opts.divs;
             vals = _opts.vals;
+            qtipFunc = _opts.qtipFunc;
 
             //Init and Render
             var _empty_data = false;

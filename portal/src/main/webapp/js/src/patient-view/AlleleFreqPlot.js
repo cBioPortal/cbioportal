@@ -373,6 +373,7 @@ d3.legend = function(g, font_size) {
     
     
         
+    var maxLabelLength = 10;
     var spacing = 0.4;
     li.selectAll("text")
         .data(items,function(d) { return d.key;})
@@ -382,7 +383,7 @@ d3.legend = function(g, font_size) {
         .attr("x","1em")
         .text(function(d) { 
             var key = d.key;
-            var label = key.length > 9 ? key.substring(0,3) + "..." + key.slice(-3) : key;
+            var label = key.length > maxLabelLength ? key.substring(0,4) + "..." + key.slice(-3) : key;
             return label;
         })
     ;
@@ -410,9 +411,10 @@ d3.legend = function(g, font_size) {
             .data(items, function(d) { return d.key;})
             .call(function(d) { d.enter().append("rect");})
             .call(function(d) { d.exit().remove();})
+	    .attr("id", function(d) { return d.key+"legend_hover_rect";})
             .attr("y", function(d,i) { return (i-1+i*spacing-spacing/2)+"em";})
             .attr("x","-0.8em")
-            .attr('width',function(d) { return d.key.length+'em';})
+            .attr('width',function(d) { return '110px';})
             .attr('height',(1+spacing)+'em')
             .style('fill',function(d) { return d.value.color;})
             .attr('opacity', '0')        
@@ -422,6 +424,17 @@ d3.legend = function(g, font_size) {
                 } : function(d) {}))
             .on('mouseout', function(d) { $(this).attr('opacity','0');})
     ;
+    for (var i=0; i<items.length; i++) {
+	    var k = items[i].key;
+	    if (k.length > maxLabelLength) {
+		    $("#"+k+"legend_hover_rect").attr("title", k);
+		    $("#"+k+"legend_hover_rect").qtip({
+			content: { attr: 'title' },
+			style: { classes: 'qtip-light qtip-rounded' },
+			position: { my:'center left',at:'center right',viewport: $(window) }
+		    });
+		}
+    }
     li.on('mouseout', (Object.keys(items).length > 1 ? function() { showSamples(); } : function() {}));
     // Reposition and resize the box
     var lbbox = li[0][0].getBBox()  

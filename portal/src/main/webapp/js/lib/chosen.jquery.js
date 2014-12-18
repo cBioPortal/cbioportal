@@ -1047,19 +1047,20 @@
       return {found: found_results, not_found:not_found_results};
 	}
 	
-	var get_search_terms = function(searchText) {
+	var get_search_term_groups = function(searchText) {
 		// searchText is assumed to be trimmed
 		// extract terms that will be searched as a block
 		// this means quotation-mark-surrounded phrases and, if none, then space-separated
 		// munch this FSM-style
-		var terms = [];
+		var termGroups = [];
 		var quoteStart = 0;
 		var wordStart = 0;
 		var inWord = false;
 		var inQuote = false;
 		var negated = false;
-		var positive = [];
+		//var positive = [];
 		var negative = [];
+		var currTermGroup = [];
 		for (var i=0; i<searchText.length; i++) {
 			var newTerm = null;
 			if (searchText[i] === '"') {
@@ -1090,12 +1091,18 @@
 				}
 			}
 			if (newTerm) {
-				if (negated) {
-					negative.push(newTerm);
+				if (newTerm === "or") {
+					termGroups.push(currTermGroup);
+					currTermGroup = [];
 				} else {
-					positive.push(newTerm);
+					if (negated) {
+						negative.push(newTerm);
+					} else {
+						currTermGroup.push(newTerm);
+						//positive.push(newTerm);
+					}
+					negated = false;
 				}
-				negated = false;
 			}
 		}
 		var newTerm = null;
@@ -1105,16 +1112,25 @@
 			newTerm = searchText.substring(wordStart);
 		}
 		if (newTerm) {
-			if (negated) {
-				negative.push(newTerm);
+			if (newTerm === "or") {
+				termGroups.push(currTermGroup);
+				currTermGroup = [];
 			} else {
-				positive.push(newTerm);
+				if (negated) {
+					negative.push(newTerm);
+				} else {
+					currTermGroup.push(newTerm);
+					//positive.push(newTerm);
+				}
 			}
 		}
-		if (positive.length === 0 && negative.length === 0) {
-			positive.push("");
+		if (currTermGroup.length > 0) {
+			termGroups.push(currTermGroup);
 		}
-		return {positive: positive, negative:negative};
+		if (termGroups.length === 0 && negative.length === 0) {
+			termGroups.push([""]);
+		}
+		return {positive: termGroups, negative:negative};
 	}
 	
 	
@@ -1123,13 +1139,9 @@
       this.no_results_clear();
       _ref = this.results_data;
       searchText = this.search_field.val() === this.default_text ? "" : $('<div/>').text($.trim(this.search_field.val())).html();
-      var disjunctiveTerms = searchText.split(";").map(function(x) { return x.trim(); });
-      if (disjunctiveTerms.length > 1 && disjunctiveTerms[disjunctiveTerms.length-1] === "") {
-	      disjunctiveTerms = disjunctiveTerms.slice(0,disjunctiveTerms.length-1);
-      }
-      var searchTermGroups = disjunctiveTerms.map(function(x) { return get_search_terms(x);}) ;
+      var searchTermGroups = get_search_term_groups(searchText);
       var conjunctions = [];
-      
+      var negativeTermResults = {};
       
        // first clear descendant studies counts so that we can iteratively add to them when activating
       var allResults = this.get_all_results();
@@ -1150,21 +1162,20 @@
 		      _this.result_clear_highlight();
 	      }
       });
-      for (var i=0; i<searchTermGroups.length; i++) {
-	      conjunctions.push({positiveResults:{}, negativeResults:{}, highlights:{}, foundResults:{}, activation:{}});
-	      var positiveSearchWords = searchTermGroups[i].positive;
-	      var negativeSearchWords = searchTermGroups[i].negative;
-	      for (var j=0; j<positiveSearchWords.length; j++) {
-		      conjunctions[i].positiveResults[positiveSearchWords[j]] = this.get_search_results(positiveSearchWords[j]);
+      for (var i=0; i<searchTermGroups.positive.length; i++) {
+	      conjunctions.push({termResults:{}, highlights:{}, foundResults:{}, activation:{}});
+	      var searchWords = searchTermGroups.positive[i];
+	      for (var j=0; j<searchWords.length; j++) {
+		      conjunctions[i].termResults[searchWords[j]] = this.get_search_results(searchWords[j]);
 	      }
-	      for (var j=0; j<negativeSearchWords.length; j++) {
-		      conjunctions[i].negativeResults[negativeSearchWords[j]] = this.get_search_results(negativeSearchWords[j]);
-	      }
+      }
+      for (var i=0; i<searchTermGroups.negative.length; i++) {
+	      negativeTermResults[searchTermGroups.negative[i]] = this.get_search_results(searchTermGroups.negative[i]);
       }
      // intersect the results by unioning the found then subtracting the not found
      // A ^ B = (A u B) - (~A) - (~A)
      for (var i=0; i<conjunctions.length; i++) {
-	     $.each(conjunctions[i].positiveResults, function(searchWord, res) {
+	     $.each(conjunctions[i].termResults, function(searchWord, res) {
 		     for (var j=0; j<res.found.length; j++) {
 			     var item = res.found[j];
 			     conjunctions[i].activation[item.id] = 1;
@@ -1173,21 +1184,10 @@
 			     conjunctions[i].highlights[item.id].push(item.highlight);
 		     }
 	     });
-	     $.each(conjunctions[i].positiveResults, function(searchWord, res) {
+	     $.each(conjunctions[i].termResults, function(searchWord, res) {
 		     for (var j=0; j<res.not_found.length; j++) {
 			     var item = res.not_found[j];
 			     conjunctions[i].activation[item.id] = 0;
-			     conjunctions[i].highlights[item.id] = [];
-			     
-			     if (item.id in conjunctions[i].foundResults) {
-				     delete conjunctions[i].foundResults[item.id];
-			     }
-		     }
-	     });
-	     $.each(conjunctions[i].negativeResults, function(searchWord, res) {
-		     for (var j=0; j<res.found.length; j++) {
-			     var item = res.found[j];
-			     conjunctions[i].activation[item.id] = -Infinity;
 			     conjunctions[i].highlights[item.id] = [];
 			     
 			     if (item.id in conjunctions[i].foundResults) {
@@ -1201,6 +1201,18 @@
 		     }
 	     });
      }
+     $.each(negativeTermResults, function(searchWord, res) {
+	     for (var j=0; j<res.found.length; j++) {
+		     var item = res.found[j];
+		     for (var i=0; i<conjunctions.length; i++) {
+			     conjunctions[i].activation[item.id] = -Infinity;
+			     if (item.id in conjunctions[i].foundResults) {
+				     delete conjunctions[i].foundResults[item.id];
+			     }
+			     conjunctions[i].highlights[item.id] = [];
+		     }
+	     }
+     });
      // compute and apply highlights
      $.each(allResults, function(id, value) {
 	     var hlist = value.highlights;
@@ -1235,9 +1247,12 @@
 	     });
      }
      
-     // activate and update descendant study count
+     // update descendant study counts and activate
      results = 0;
      $.each(allResults, function(id, val) {
+	if (val.option.is_group_header) {
+		return 1; // continue
+	}
 	var shouldActivate = false;
 	for (var i=0; i<conjunctions.length; i++) {
 		if (conjunctions[i].activation[id] > 0) {
@@ -1264,6 +1279,7 @@
 		      var count = +value.result.attr('data-desc-studies');
 		      if (count > 0) {
 			      value.result.html(value.result.html() + " ("+count+")");
+			      _this.result_activate(value.result); // activate no matter what if it has a child thats activated
 		      }
 	      }
       });

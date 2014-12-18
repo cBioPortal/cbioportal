@@ -5,6 +5,15 @@
 <div class="query_step_section">
 <span class="step_header">Select Cancer Study:</span>
 <select id="select_cancer_type" name="<%= QueryBuilder.CANCER_STUDY_ID %>"></select>
+<img id="select_cancer_type_help" src="images/help.png" title="SEARCH SYNTAX COPY GOES HERE">
+
+<script type="text/javascript">
+$('#select_cancer_type_help').qtip({
+                    content: { attr: 'title' },
+                    style: { classes: 'qtip-light qtip-rounded' },
+                    position: { my:'left center',at:'right center',viewport: $(window) }
+});
+</script>
 
 <%
 if (step1ErrorMsg != null) {

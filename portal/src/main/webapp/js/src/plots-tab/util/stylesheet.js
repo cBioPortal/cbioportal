@@ -62,7 +62,29 @@ var mutationStyle = (function() {  //Key and "typeName" are always identical
         fill : "#00AAF8",
         stroke : "#0089C6",
         legendText : "No mutation"
-    }];
+    },
+    {
+        typeName: "one_mut",
+        symbol : "circle",
+        fill : "#DBA901",
+        stroke : "#886A08",
+        legendText : "One Gene mutated"
+    },
+    {
+        typeName : "both_mut",
+        symbol : "circle",
+        fill : "#FF0000",
+        stroke : "#B40404",
+        legendText : "Both mutated"
+    },
+    {
+        typeName : "non_mut",
+        symbol : "circle",
+        fill : "#00AAF8",
+        stroke : "#0089C6",
+        legendText : "Neither mutated"
+    }
+];
     
     return {
         getSymbol: function(_typeName) {

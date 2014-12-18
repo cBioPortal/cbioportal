@@ -1,7 +1,7 @@
 var scatterPlots = (function() {
     
     var settings = {
-            canvas_width: 720,
+            canvas_width: 800,
             canvas_height: 600,
             axis: {
                 x: {
@@ -36,7 +36,8 @@ var scatterPlots = (function() {
                 axis: ""
             },
             dotsGroup : "",   //Group of single Dots
-            axisTitleGroup: ""
+            axisTitleGroup: "",
+            boxPlots: ""
         },
         data = [],
         glyphs = [];
@@ -65,16 +66,17 @@ var scatterPlots = (function() {
     }
     
     function drawAxis(axis) {
+        var top_x, top_y, bottom_x, bottom_y;
         if (axis === "x") {
-            var top_x = 0;
-            var top_y = settings.axis.y.range_min;
-            var bottom_x = 0;
-            var bottom_y = settings.axis.y.range_max;
+            top_x = 0;
+            top_y = settings.axis.y.range_min;
+            bottom_x = 0;
+            bottom_y = settings.axis.y.range_max;
         } else if (axis === "y") {
-            var top_x = settings.axis.x.range_min;
-            var top_y = 0;
-            var bottom_x = settings.axis.x.range_max;
-            var bottom_y = 0;
+            top_x = settings.axis.x.range_min;
+            top_y = 0;
+            bottom_x = settings.axis.x.range_max;
+            bottom_y = 0;
         }
         d3.select("#" + div).select(d3_class[axis].axis).remove();
         elem.svg.append("g")
@@ -127,6 +129,151 @@ var scatterPlots = (function() {
                 return mutationInterpreter.getStroke(d);
             })
             .attr("stroke-width", 1.2);
+    }
+    
+    function appendBoxPlots(axis) {
+        //find the min and max discretized value
+        var stat = plotsData.stat();
+        var min = stat[axis].min;
+        var max = stat[axis].max;
+        //divide data by discretized values
+        var _arr = [], _pos = 0;
+        var datum = {
+            pos: 0, //the position on the discretized axis; doesn't represent the real value, since empty dataset got skipped
+            val: 0,
+            dataset: []
+        };
+        for (var i = min ; i < max + 1; i++) {
+            var _datum = jQuery.extend(true, {}, datum);
+            _datum.val = i;
+            $.each(data, function(index, obj) {
+                var _val = (axis === "x")? obj.xVal: obj.yVal;
+                if (_val === i.toString()) {
+                    var _tmp = (axis === "x")? obj.yVal: obj.xVal;
+                    _datum.dataset.push(_tmp);
+                }
+            });
+            if (_datum.dataset.length !== 0) {
+                _datum.pos = _pos;
+                _pos += 1;
+                _arr.push(_datum);
+            }
+        }
+        //generate the boxes
+        elem.boxPlots = elem.svg.append("svg:g").attr("class", d3_class.box_plots);
+        $.each(_arr, function(index, obj) {
+            var top;
+            var bottom;
+            var quan1;
+            var quan2;
+            var mean;
+            var IQR;
+            
+            //Find the middle (vertical) line for one box plot
+            var midLine = elem[axis].scale(obj.pos);
+            
+            //convert data from string to float
+            var _data = [];
+            $.each(obj.dataset, function(index, value) {
+                _data.push(parseFloat(value));
+            });
+            _data.sort(function(a, b) { return (a - b); });
+
+            if (obj.dataset.length === 1) { //if only one data dots, draw a simple line
+                mean = elem[axis].scale(_data[0]);
+                elem.boxPlots.append("line")
+                    .attr("x1", midLine - 30)
+                    .attr("x2", midLine + 30)
+                    .attr("y1", mean)
+                    .attr("y2", mean)
+                    .attr("stroke-width", 2)
+                    .attr("stroke", "grey");
+            } else { //draw a actual box with multiple data points
+                if (obj.dataset.length === 2) { //a box without the middle line
+                    mean = elem[axis].scale((_data[0] + _data[1]) / 2);
+                    quan1 = bottom = elem[axis].scale(_data[0]);
+                    quan2 = top = elem[axis].scale(_data[1]);
+                    IQR = Math.abs(quan2 - quan1);
+                } else { //a regular box 
+                    var yl = _data.length;
+                    if (yl % 2 === 0) {
+                        mean = elem[axis].scale((_data[(yl / 2)-1] + _data[yl / 2]) / 2);
+                        if (yl % 4 === 0) {
+                            quan1 = elem[axis].scale((_data[(yl / 4)-1] + _data[yl / 4]) / 2);
+                            quan2 = elem[axis].scale((_data[(3*yl / 4)-1] + _data[3 * yl / 4]) / 2);
+                        } else {
+                            quan1 = elem[axis].scale(_data[Math.floor(yl / 4)]);
+                            quan2 = elem[axis].scale(_data[Math.floor(3 * yl / 4)]);
+                        }
+                    } else {
+                        mean = elem[axis].scale(_data[Math.floor(yl / 2)]);
+                        var tmp_yl = Math.floor(yl / 2) + 1;
+                        if (tmp_yl % 2 === 0) {
+                            quan1 = elem[axis].scale((_data[tmp_yl / 2 - 1] + _data[tmp_yl / 2]) / 2);
+                            quan2 = elem[axis].scale((_data[(3 * tmp_yl / 2) - 2] + _data[(3 * tmp_yl / 2) - 1]) / 2);
+                        } else {
+                            quan1 = elem[axis].scale(_data[Math.floor(tmp_yl / 2)]);
+                            quan2 = elem[axis].scale(_data[tmp_yl - 1 + Math.floor(tmp_yl / 2)]);
+                        }
+                    }
+                    var _scaled_arr = [];
+                    $.each(_data, function(index, value) {
+                        _scaled_arr.push(elem[axis].scale(value));
+                    });
+                    _scaled_arr.sort(function(a,b) { return (a - b); });
+                    IQR = Math.abs(quan2 - quan1);
+                    var index_top = searchIndexTop(_scaled_arr, (quan2 - 1.5 * IQR));
+                    top = _scaled_arr[index_top];
+                    var index_bottom = searchIndexBottom(_scaled_arr, (quan1 + 1.5 * IQR));
+                    bottom = _scaled_arr[index_bottom];
+                }
+                
+                elem.boxPlots.append("rect")
+                    .attr("x", midLine-40)
+                    .attr("y", quan2)
+                    .attr("width", 80)
+                    .attr("height", IQR)
+                    .attr("fill", "none")
+                    .attr("stroke-width", 1)
+                    .attr("stroke", "#BDBDBD");
+                elem.boxPlots.append("line")
+                    .attr("x1", midLine-40)
+                    .attr("x2", midLine+40)
+                    .attr("y1", mean)
+                    .attr("y2", mean)
+                    .attr("stroke-width", 2)
+                    .attr("stroke", "#BDBDBD");
+                elem.boxPlots.append("line")
+                    .attr("x1", midLine-30)
+                    .attr("x2", midLine+30)
+                    .attr("y1", top)
+                    .attr("y2", top)
+                    .attr("stroke-width", 1)
+                    .attr("stroke", "#BDBDBD");
+                elem.boxPlots.append("line")
+                    .attr("x1", midLine-30)
+                    .attr("x2", midLine+30)
+                    .attr("y1", bottom)
+                    .attr("y2", bottom)
+                    .attr("stroke", "#BDBDBD")
+                    .style("stroke-width", 1);
+                elem.boxPlots.append("line")
+                    .attr("x1", midLine)
+                    .attr("x2", midLine)
+                    .attr("y1", quan1)
+                    .attr("y2", bottom)
+                    .attr("stroke", "#BDBDBD")
+                    .attr("stroke-width", 1);
+                elem.boxPlots.append("line")
+                    .attr("x1", midLine)
+                    .attr("x2", midLine)
+                    .attr("y1", quan2)
+                    .attr("y2", top)
+                    .attr("stroke", "#BDBDBD")
+                    .style("stroke-width", 1);
+            }
+            
+        });
     }
     
     function appendTitle(axis) { //axis titles
@@ -198,7 +345,7 @@ var scatterPlots = (function() {
     }
     
     return {
-        init: function(_div, _data) {
+        init: function(_div, _data, _apply_box_plots, _box_plots_axis) {
             div = _div;
             //convert input data from JSON to array
             data = [];
@@ -215,6 +362,9 @@ var scatterPlots = (function() {
             drawAxis("x");
             drawAxis("y");
             drawDots();
+            if (_apply_box_plots) {
+                appendBoxPlots(_box_plots_axis);
+            }
             appendTitle("x");
             appendTitle("y");
             appendGlyphs();

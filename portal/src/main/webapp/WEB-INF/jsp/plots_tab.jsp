@@ -11,12 +11,10 @@
 <script type="text/javascript" src="js/src/plots-tab/view/plotsbox.js"></script>
 <script type="text/javascript" src="js/src/plots-tab/proxy/metaData.js"></script>
 <script type="text/javascript" src="js/src/plots-tab/proxy/plotsData.js"></script>
-<script type="text/javascript" src="js/src/plots-tab/util/idMapper.js"></script>
-<script type="text/javascript" src="js/src/plots-tab/util/textMapper.js"></script>
+<script type="text/javascript" src="js/src/plots-tab/util/map.js"></script>
 <script type="text/javascript" src="js/src/plots-tab/util/plotsUtil.js"></script>
-<script type="text/javascript" src="js/src/plots-tab/util/mutationTranslator.js"></script>
 <script type="text/javascript" src="js/src/plots-tab/util/mutationInterpreter.js"></script>
-<script type="text/javascript" src="js/src/plots-tab/util/mutationStyle.js"></script>
+<script type="text/javascript" src="js/src/plots-tab/util/stylesheet.js"></script>
 <script type="text/javascript" src="js/src/plots-tab/view/components/profileSpec.js"></script>
 <script type="text/javascript" src="js/src/plots-tab/view/components/clinSpec.js"></script>
 <script type="text/javascript" src="js/src/plots-tab/view/components/scatterPlots.js"></script>

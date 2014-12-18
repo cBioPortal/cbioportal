@@ -36,8 +36,25 @@ var d3_class = {
         axis: "plots-y-axis-class",
         axis_title: "plots-y-axis-title",
         title_help: "plots-y-axis-title-help"
-    }
+    },
+    box_plots: "box-plots"
 
 };
+
+var vals = {
+    data_type : {
+        genetic: "genetic_profile",
+        clin: "clinical_attribute"
+    },
+    profile_type : {
+        "MUTATION_EXTENDED": "mutation",
+        "COPY_NUMBER_ALTERATION": "Copy Number",
+        "MRNA_EXPRESSION": "mRNA",
+        "PROTEIN_ARRAY_PROTEIN_LEVEL": "RPPA Protein Level",
+        "METHYLATION": "DNA Methylation"
+    }
+};
+
+
 
 

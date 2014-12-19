@@ -141,11 +141,10 @@ public class GisticReader {
             Gistic gistic;
             try {
                 gistic = this.parseLine(line, cancerStudyId, chromosomeField, peakStartField, peakEndField, genesField, qvalField, ampField, cytobandField);
+                gistics.add(gistic);
             } catch(Exception e) {
                 e.printStackTrace();
-                continue;
             }
-            gistics.add(gistic);
             line = buf.readLine();
         }
 

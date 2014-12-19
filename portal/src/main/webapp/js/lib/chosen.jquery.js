@@ -1091,7 +1091,7 @@
 				}
 			}
 			if (newTerm) {
-				if (newTerm === "or") {
+				if (newTerm.toLowerCase() === "or") {
 					termGroups.push(currTermGroup);
 					currTermGroup = [];
 				} else {

@@ -280,7 +280,13 @@ var DataTable = function() {
                     },
                     {
                         "sExtends": "csv",
-                        "bFooter": false
+                        "bFooter": false,
+                        "fnInit": function ( nButton, oConfig ) {
+                            $('#'+tableContainerId).append('<div id="file-saved-message"><span>File has been saved.</span></div>');
+                        },
+                        "fnComplete": function ( nButton, oConfig, oFlash, sFlash ) {
+                            $('#'+tableContainerId).find('#file-saved-message').fadeIn('slow').delay(2000).fadeOut('fast');
+                        }
                     }
                 ],
                 "sSwfPath": "swf/copy_csv_xls_pdf.swf"

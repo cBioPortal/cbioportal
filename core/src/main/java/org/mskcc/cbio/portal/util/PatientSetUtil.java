@@ -41,55 +41,30 @@ public class PatientSetUtil
 	 * @throws DaoException		if a DB error occurs
 	 */
 	public static List<String> validatePatientSet(String studyId,
-			String patientIds) throws DaoException
+			String sampleIds) throws DaoException
 	{
-		ArrayList<String> invalidPatients = new ArrayList<String>();
-		
-		// get list of all patients sets for the given cancer study
-		ArrayList<PatientList> patientLists = GetPatientLists.getPatientLists(studyId);
+		ArrayList<String> invalidSample = new ArrayList<String>();
 		
 		// get cancer study for the given stable id
 		CancerStudy study = DaoCancerStudy.getCancerStudyByStableId(studyId);
-		
-		// get all patients in the clinical free form table for the given cancer study
-		Set<String> freeFormPatients = DaoClinicalData.getAllPatients(study.getInternalId());
-		
-		if (!patientLists.isEmpty() &&
-			patientIds != null)
+                int iStudyId = study.getInternalId();
+				
+		if (sampleIds != null)
 		{
+                    
 			// validate each patient ID
-			for(String patientId: patientIds.trim().split("\\s+"))
+			for(String sampleId: sampleIds.trim().split("\\s+"))
 			{
-				boolean valid = false;
+				Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(iStudyId, sampleId);
 				
-				// search all lists for the current patient
-				for (PatientList patientList: patientLists)
+				if (sample==null)
 				{
-					// if the patient is found in any of the lists,
-					// then it is valid, no need to search further
-					if(patientList.getPatientList().contains(patientId))
-					{
-						valid = true;
-						break;
-					}
-				}
-				
-				// search also clinical free form table for the current patient
-				if (freeFormPatients.contains(patientId))
-				{
-					valid = true;
-				}
-				
-				// if the patient cannot be found in any of the lists,
-				// then it is an invalid patient for this cancer study
-				if (!valid)
-				{
-					invalidPatients.add(patientId);
+					invalidSample.add(sampleId);
 				}
 			}
 		}
 		
-		return invalidPatients;
+		return invalidSample;
 	}
 	
 	/**

@@ -1,5 +1,6 @@
 package org.mskcc.cbio.annotator;
 
+import com.google.common.base.Joiner;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecuteResultHandler;
 import org.apache.commons.exec.DefaultExecutor;
@@ -7,6 +8,7 @@ import org.apache.commons.exec.Executor;
 import org.mskcc.cbio.maf.*;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -177,6 +179,8 @@ public class Annotator
 		cmdLine.addArgument(this.config.getVepData());
 		cmdLine.addArgument("--ref-fasta");
 		cmdLine.addArgument(this.config.getRefFasta());
+		cmdLine.addArgument("--retain-cols");
+		cmdLine.addArgument(this.getRetainCols(input, this.config.getExcludeCols()));
 		cmdLine.addArgument("--input-maf");
 		cmdLine.addArgument(inputMaf);
 		//cmdLine.addArgument("--output-dir");
@@ -258,6 +262,46 @@ public class Annotator
 		reader.close();
 
 		return Arrays.asList(parts);
+	}
+
+	protected String getRetainCols(File input, String excludeCols) throws IOException
+	{
+		List<String> retainCols = new ArrayList<>();
+
+		BufferedReader bufReader = new BufferedReader(new FileReader(input));
+		MafHeaderUtil headerUtil = new MafHeaderUtil();
+		String header = headerUtil.extractHeader(bufReader);
+
+		bufReader.close();
+
+		// headers in the original input file
+		String[] cols = header.toLowerCase().split("\t");
+
+		// headers to exclude from the output file
+		String[] excluded = excludeCols.toLowerCase().split(",");
+
+		// find out which columns to exclude
+		for (String col: cols)
+		{
+			boolean exclude = false;
+
+			for (String exCol: excluded)
+			{
+				// TODO startsWith may not be safe, do an exact search instead?
+				if (col.startsWith(exCol))
+				{
+					exclude = true;
+					break;
+				}
+			}
+
+			if (!exclude)
+			{
+				retainCols.add(col);
+			}
+		}
+
+		return Joiner.on(",").join(retainCols);
 	}
 
 	// Getters and Setters

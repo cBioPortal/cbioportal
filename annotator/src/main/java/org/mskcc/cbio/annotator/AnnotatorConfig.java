@@ -16,8 +16,11 @@ public class AnnotatorConfig
 	public static final String DEFAULT_VEP_PATH = ".";
 	public static final String DEFAULT_VEP_DATA = ".";
 	public static final String DEFAULT_REF_FASTA = "Homo_sapiens.GRCh37.75.dna.primary_assembly.fa";
+	public static final String DEFAULT_EXCLUDE_COLS = "oncotator";
 	public static final String DEFAULT_INTERMEDIATE_MAF = "annotator_out.maf";
 	public static final String DEFAULT_INTERMEDIATE_DIR = "annotator_dir";
+
+	// TODO allele count col options?
 
 	@Option(name="-i",
 	        aliases={"--input-file"},
@@ -70,6 +73,11 @@ public class AnnotatorConfig
 	        aliases={"--ref-fasta"},
 	        usage="Reference FASTA file")
 	protected String refFasta = DEFAULT_REF_FASTA;
+
+	@Option(name="-ec",
+	        aliases={"--exclude-cols"},
+	        usage="Comma-delimited list of columns to exclude from the input MAF")
+	protected String excludeCols = DEFAULT_EXCLUDE_COLS;
 
 	@Option(name="-t",
 	        aliases={"--annotator"},
@@ -204,6 +212,16 @@ public class AnnotatorConfig
 	public void setRefFasta(String refFasta)
 	{
 		this.refFasta = refFasta;
+	}
+
+	public String getExcludeCols()
+	{
+		return excludeCols;
+	}
+
+	public void setExcludeCols(String excludeCols)
+	{
+		this.excludeCols = excludeCols;
 	}
 
 	public String getAnnotator()

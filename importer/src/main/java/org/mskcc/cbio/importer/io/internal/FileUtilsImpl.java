@@ -111,6 +111,12 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	public void setRefFasta(String refFasta) { this.refFasta = refFasta; }
 	public String getRefFasta() { return MetadataUtils.getCanonicalPath(refFasta); }
 
+	// columns to exclude in the annotator output MAF
+	private String excludeCols;
+	@Value("${annotator.exclude_cols}")
+	public void setExcludeCols(String excludeCols) { this.excludeCols = excludeCols; }
+	public String getExcludeCols() { return excludeCols; }
+
 	// path to the temporary maf output file used by annotator
 	private String intermediateMaf;
 	@Value("${annotator.intermediate_maf}")
@@ -987,6 +993,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		config.setVepPath(getVepPath());
 		config.setVepData(getVepData());
 		config.setRefFasta(getRefFasta());
+		config.setExcludeCols(getExcludeCols());
 		AnnotateTool.driver(config);
 //		OncotateTool.driver(oncotatorInputFile.getCanonicalPath(), oncotatorOutputFile.getCanonicalPath(), true, true, true);
 

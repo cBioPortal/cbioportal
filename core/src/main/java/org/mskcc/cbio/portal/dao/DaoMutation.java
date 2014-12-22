@@ -552,6 +552,8 @@ public final class DaoMutation {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
+            pstmt = con.prepareStatement("SET SESSION group_concat_max_len = 1000000");
+            rs = pstmt.executeQuery();
             String sql = "SELECT mutation.ENTREZ_GENE_ID, GROUP_CONCAT(mutation.SAMPLE_ID), COUNT(*), COUNT(*)/`LENGTH` AS count_per_nt"
                     + " FROM mutation, gene"
                     + " WHERE mutation.ENTREZ_GENE_ID=gene.ENTREZ_GENE_ID"

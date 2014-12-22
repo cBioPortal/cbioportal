@@ -127,7 +127,7 @@ var Table = function() {
         
         //Append table header
         attr.forEach(function(e, i) {
-            tableHeader.append('<th>'+ e.displayName||'Unknown' +'</th>');
+            tableHeader.append('<th style=" white-space: nowrap;">'+ e.displayName||'Unknown' +'</th>');
         });
         
         var tableBody = table.find('tbody');
@@ -170,7 +170,7 @@ var Table = function() {
     function initDataTable() {
         var dataTableOpts = {
             "sDom": 'rt<f>',
-            "sScrollY": '240',
+            "sScrollY": '270',
             "bPaginate": false,
             "aaSorting": [],
             "bAutoWidth": true,
@@ -253,7 +253,7 @@ var Table = function() {
                     if (type==='display') {
                         var str = '';
                         if(_cytoband.toString().length > 8) {
-                            str += '<span class="hasQtip" qtip="'+_cytoband+'">'+_cytoband.substring(0,7) + '...'+'</span>';
+                            str += '<span class="hasQtip" qtip="'+_cytoband+'">'+_cytoband.substring(0,6) + '...'+'</span>';
                         }else {
                             str = _cytoband;
                         }
@@ -270,8 +270,8 @@ var Table = function() {
                     var _gene = source[geneIndex];
                     if (type==='display') {
                         var str = '';
-                        if(_gene.toString().length > 8) {
-                            str += '<span class="hasQtip" qtip="'+_gene+'">'+_gene.substring(0,5) + '...'+'</span>';
+                        if(_gene.toString().length > 6) {
+                            str += '<span class="hasQtip" qtip="'+_gene+'">'+_gene.substring(0,4) + '...'+'</span>';
                         }else {
                             str = _gene;
                         }

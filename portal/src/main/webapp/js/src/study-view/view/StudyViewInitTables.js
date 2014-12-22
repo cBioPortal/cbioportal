@@ -62,10 +62,10 @@ var StudyViewInitTables = (function() {
                             displayName: 'Gene'
                         },{
                             name: 'numOfMutations',
-                            displayName: '# Mutations'
+                            displayName: '# Mut'
                         },{
                             name: 'mutatedSamples',
-                            displayName: 'Mutated Samples'
+                            displayName: 'Mut Samples'
                         },{
                             name: 'sampleRate',
                             displayName: 'Freq'

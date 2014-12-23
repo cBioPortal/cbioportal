@@ -1265,7 +1265,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         $('.oncoprint-diagram-Shift').click(function() {
             shiftGeneData();
         });
-        
+
         $('.oncoprint-diagram-top').click(function() {
             shiftClinicData();
         });

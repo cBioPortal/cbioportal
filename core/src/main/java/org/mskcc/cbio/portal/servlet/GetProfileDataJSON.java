@@ -113,7 +113,8 @@ public class GetProfileDataJSON extends HttpServlet  {
                 patientList = daoPatientList.getPatientListByStableId(patientSetId);
                 patientIdList = patientList.getPatientList();
             }
-            List<Integer> internalSampleIds = InternalIdUtil.getInternalNonNormalSampleIdsFromPatientIds(cancerStudy.getInternalId(), patientIdList);
+            // NOTE - as of 12/12/14, patient lists contain sample ids
+            List<Integer> internalSampleIds = InternalIdUtil.getInternalNonNormalSampleIds(cancerStudy.getInternalId(), patientIdList);
             List<String> stableSampleIds = InternalIdUtil.getStableSampleIds(internalSampleIds);
 
             //Get profile data

@@ -268,7 +268,7 @@ public class MutationDataUtils {
 
     public String generateMutationSid(ExtendedMutation mutation, Sample sample) {
         return mutation.getGene()
-                + sample.getStableId()
+                + Integer.toString(sample.getInternalPatientId())
                 + mutation.getEvent().getProteinChange().replace('*', '-');
     }
 

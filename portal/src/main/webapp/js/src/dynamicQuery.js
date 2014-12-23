@@ -627,7 +627,7 @@ function updateCancerStudyInformation(cancerStudyId) {
 					edgeOffset: 10,
 					maxWidth: 100});
 				
-				$("#build_custom_case_set").show();
+				$("#build_custom_case_set").hide();//.show(); temporarily disabled build case list
 			}
 		});
 }

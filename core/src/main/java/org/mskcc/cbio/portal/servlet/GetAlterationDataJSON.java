@@ -67,8 +67,8 @@ public class GetAlterationDataJSON extends HttpServlet {
         try {
 
             GeneticProfile final_gp = DaoGeneticProfile.getGeneticProfileByStableId(profileId);
-            List<Integer> sampleIds = InternalIdUtil.getInternalNonNormalSampleIdsFromPatientIds(final_gp.getCancerStudyId(),
-                                                                                        CoExpUtil.getPatientIds(patientSetId, patientIdsKey));
+            List<String> stableSampleIds = CoExpUtil.getPatientIds(patientSetId, patientIdsKey);
+            List<Integer> sampleIds = InternalIdUtil.getInternalSampleIds(final_gp.getCancerStudyId(), stableSampleIds);
 
             ObjectMapper mapper = new ObjectMapper();
             JsonNodeFactory factory = JsonNodeFactory.instance;

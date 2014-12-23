@@ -9,12 +9,12 @@ import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
 
 import org.json.simple.*;
 import org.apache.commons.logging.*;
-import com.google.common.base.Joiner;
 
 import java.io.*;
 import java.util.*;
 import javax.servlet.http.*;
 import javax.servlet.ServletException;
+import org.apache.commons.lang.StringUtils;
 
 public class GeneDataJSON extends HttpServlet {
     public static final String SELECTED_CANCER_STUDY = "selected_cancer_type";
@@ -105,9 +105,9 @@ public class GeneDataJSON extends HttpServlet {
 
         oql = oql.replaceAll("\n", " \n ");
 
-        List<String> patientIds;
+        List<String> sampleIdList;
         try {
-            patientIds = WebserviceParserUtils.getPatientList(request);
+            sampleIdList = WebserviceParserUtils.getSampleIds(request);
         } catch (ProtocolException e) {
             throw new ServletException(e);
         } catch (DaoException e) {
@@ -161,18 +161,11 @@ public class GeneDataJSON extends HttpServlet {
 
             xdebug.logMsg(this, "Getting data for:  " + profile.getProfileName());
 
-            // GetProfileData remoteCall;
-            // String sampleIds =
-            //     Joiner.on(" ").join(StableIdUtil.getStableSampleIdsFromPatientIds(profile.getCancerStudyId(), patientIds));
-
             GetProfileData remoteCall;
             List<Sample.Type> excludes = new ArrayList<Sample.Type>();
             excludes.add(Sample.Type.SOLID_NORMAL);
             excludes.add(Sample.Type.BLOOD_NORMAL);
-            String sampleIds =
-              Joiner.on(" ").join(StableIdUtil.getStableSampleIdsFromPatientIds(profile.getCancerStudyId(),
-                                                            patientIds,
-                                                            excludes));
+            String sampleIds = StringUtils.join(sampleIdList, " ");
             
             try {
                 remoteCall = new GetProfileData(profile, listOfGenes, sampleIds);

@@ -1172,6 +1172,11 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
                 utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
                 $(this)[0].attributes.src.value = 'images/colormutations.svg';
+                
+                $('.oncoprint-diagram-showlegend-icon')[0].attributes.src.value = 'images/showlegend.svg';
+                $('.oncoprint-diagram-removeUCases-icon')[0].attributes.src.value = 'images/removeUCases.svg';
+                $('.oncoprint-diagram-removeWhitespace-icon')[0].attributes.src.value = 'images/removeWhitespace.svg';
+                
                 $('.legend_missense_name').text("mutation") ;
               }
                 else if($(this)[0].attributes.src.value === 'images/colormutations.svg')
@@ -1184,7 +1189,12 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
                 oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
                 utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
-                $(this)[0].attributes.src.value = 'images/uncolormutations.svg'; 
+                $(this)[0].attributes.src.value = 'images/uncolormutations.svg';
+                
+                $('.oncoprint-diagram-showlegend-icon')[0].attributes.src.value = 'images/showlegend.svg';
+                $('.oncoprint-diagram-removeUCases-icon')[0].attributes.src.value = 'images/removeUCases.svg';
+                $('.oncoprint-diagram-removeWhitespace-icon')[0].attributes.src.value = 'images/removeWhitespace.svg';
+                
                 $('.legend_missense_name').text("missense mutation");
                 $('.legend_nonmissense').css("display","inline");
               }

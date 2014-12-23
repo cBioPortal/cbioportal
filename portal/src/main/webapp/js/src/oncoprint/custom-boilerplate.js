@@ -669,15 +669,6 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
               {
                 mutationColorControl = 'singleColor';
                 params.mutationColor = mutationColorControl;
-//                if($('#oncoprinter_sortbyfirst_dropdonw span')[0].innerHTML === 'Clinical first')
-//                {
-//                    main(params,'clinical');
-//                }
-//                else
-//                {
-//                    main(params,'genes');
-//                }
-                
                 selectsortby();
 //                refreshOncoPrint();
 //                main(params);
@@ -688,6 +679,11 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
                 oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
                 OncoprintUtils.make_mouseover(d3.selectAll('.sample rect'),{linkage:false});        // hack =(
                 $(this)[0].attributes.src.value = 'images/uncolormutations.svg';
+                
+                $('.oncoprinter-diagram-showlegend-icon')[0].attributes.src.value = 'images/showlegend.svg';
+                $('.oncoprinter-diagram-removeUCases-icon')[0].attributes.src.value = 'images/removeUCases.svg';
+                $('.oncoprinter-diagram-removeWhitespace-icon')[0].attributes.src.value = 'images/removeWhitespace.svg';
+                
                 $('.legend_missense_name').text("mutation") ;
               }
                 else if($(this)[0].attributes.src.value === 'images/uncolormutations.svg')
@@ -712,6 +708,11 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
                 oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
                 OncoprintUtils.make_mouseover(d3.selectAll('.sample rect'),{linkage:false});        // hack =(
                 $(this)[0].attributes.src.value = 'images/colormutations.svg'; 
+                
+                $('.oncoprinter-diagram-showlegend-icon')[0].attributes.src.value = 'images/showlegend.svg';
+                $('.oncoprinter-diagram-removeUCases-icon')[0].attributes.src.value = 'images/removeUCases.svg';
+                $('.oncoprinter-diagram-removeWhitespace-icon')[0].attributes.src.value = 'images/removeWhitespace.svg';
+                
                 $('.legend_missense_name').text("missense mutation");
                 $('.legend_nonmissense').css("display","inline");
               }

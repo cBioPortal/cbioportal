@@ -1,6 +1,5 @@
 var plotsbox = (function() {
     
-    
     var render = function(data) {
         if(isSameGene()) {
             if(isDiscretized("x") && !isDiscretized("y")) { //copy number profile is gistic

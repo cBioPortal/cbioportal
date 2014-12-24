@@ -170,7 +170,7 @@ var scatterPlots = (function() {
             var IQR;
             
             //Find the middle (vertical) line for one box plot
-            var midLine = elem[axis].scale(obj.pos);
+            var midLine = elem[axis].scale(obj.val);
             
             //convert data from string to float
             var _data = [];
@@ -179,8 +179,9 @@ var scatterPlots = (function() {
             });
             _data.sort(function(a, b) { return (a - b); });
 
+            var _axis = (axis === "x")? "y": "x"; 
             if (obj.dataset.length === 1) { //if only one data dots, draw a simple line
-                mean = elem[axis].scale(_data[0]);
+                mean = elem[_axis].scale(_data[0]);
                 elem.boxPlots.append("line")
                     .attr("x1", midLine - 30)
                     .attr("x2", midLine + 30)
@@ -188,91 +189,165 @@ var scatterPlots = (function() {
                     .attr("y2", mean)
                     .attr("stroke-width", 2)
                     .attr("stroke", "grey");
-            } else { //draw a actual box with multiple data points
-                if (obj.dataset.length === 2) { //a box without the middle line
-                    mean = elem[axis].scale((_data[0] + _data[1]) / 2);
-                    quan1 = bottom = elem[axis].scale(_data[0]);
-                    quan2 = top = elem[axis].scale(_data[1]);
+            } else { 
+                if (obj.dataset.length === 2) {
+                    mean = elem[_axis].scale((_data[0] + _data[1]) / 2);
+                    quan1 = bottom = elem[_axis].scale(_data[0]);
+                    quan2 = top = elem[_axis].scale(_data[1]);
                     IQR = Math.abs(quan2 - quan1);
                 } else { //a regular box 
                     var yl = _data.length;
                     if (yl % 2 === 0) {
-                        mean = elem[axis].scale((_data[(yl / 2)-1] + _data[yl / 2]) / 2);
+                        mean = elem[_axis].scale((_data[(yl / 2)-1] + _data[yl / 2]) / 2);
                         if (yl % 4 === 0) {
-                            quan1 = elem[axis].scale((_data[(yl / 4)-1] + _data[yl / 4]) / 2);
-                            quan2 = elem[axis].scale((_data[(3*yl / 4)-1] + _data[3 * yl / 4]) / 2);
+                            quan1 = elem[_axis].scale((_data[(yl / 4)-1] + _data[yl / 4]) / 2);
+                            quan2 = elem[_axis].scale((_data[(3*yl / 4)-1] + _data[3 * yl / 4]) / 2);
                         } else {
-                            quan1 = elem[axis].scale(_data[Math.floor(yl / 4)]);
-                            quan2 = elem[axis].scale(_data[Math.floor(3 * yl / 4)]);
+                            quan1 = elem[_axis].scale(_data[Math.floor(yl / 4)]);
+                            quan2 = elem[_axis].scale(_data[Math.floor(3 * yl / 4)]);
                         }
                     } else {
-                        mean = elem[axis].scale(_data[Math.floor(yl / 2)]);
+                        mean = elem[_axis].scale(_data[Math.floor(yl / 2)]);
                         var tmp_yl = Math.floor(yl / 2) + 1;
                         if (tmp_yl % 2 === 0) {
-                            quan1 = elem[axis].scale((_data[tmp_yl / 2 - 1] + _data[tmp_yl / 2]) / 2);
-                            quan2 = elem[axis].scale((_data[(3 * tmp_yl / 2) - 2] + _data[(3 * tmp_yl / 2) - 1]) / 2);
+                            quan1 = elem[_axis].scale((_data[tmp_yl / 2 - 1] + _data[tmp_yl / 2]) / 2);
+                            quan2 = elem[_axis].scale((_data[(3 * tmp_yl / 2) - 2] + _data[(3 * tmp_yl / 2) - 1]) / 2);
                         } else {
-                            quan1 = elem[axis].scale(_data[Math.floor(tmp_yl / 2)]);
-                            quan2 = elem[axis].scale(_data[tmp_yl - 1 + Math.floor(tmp_yl / 2)]);
+                            quan1 = elem[_axis].scale(_data[Math.floor(tmp_yl / 2)]);
+                            quan2 = elem[_axis].scale(_data[tmp_yl - 1 + Math.floor(tmp_yl / 2)]);
                         }
                     }
+                    
                     var _scaled_arr = [];
                     $.each(_data, function(index, value) {
-                        _scaled_arr.push(elem[axis].scale(value));
+                        _scaled_arr.push(elem[_axis].scale(value));
                     });
                     _scaled_arr.sort(function(a,b) { return (a - b); });
                     IQR = Math.abs(quan2 - quan1);
-                    var index_top = searchIndexTop(_scaled_arr, (quan2 - 1.5 * IQR));
-                    top = _scaled_arr[index_top];
-                    var index_bottom = searchIndexBottom(_scaled_arr, (quan1 + 1.5 * IQR));
-                    bottom = _scaled_arr[index_bottom];
+
+                    if (axis === "x") {
+                        var index_top = searchIndexTop(_scaled_arr, (quan2 - 1.5 * IQR));
+                        top = _scaled_arr[index_top];
+                        var index_bottom = searchIndexBottom(_scaled_arr, (quan1 + 1.5 * IQR));
+                        bottom = _scaled_arr[index_bottom];                        
+                    } else {
+                        var index_top = searchIndexTop(_scaled_arr, (quan1 - 1.5 * IQR));
+                        top = _scaled_arr[index_top];
+                        var index_bottom = searchIndexBottom(_scaled_arr, (quan2 + 1.5 * IQR));
+                        bottom = _scaled_arr[index_bottom];                            
+                    }
+
                 }
                 
-                elem.boxPlots.append("rect")
-                    .attr("x", midLine-40)
-                    .attr("y", quan2)
-                    .attr("width", 80)
-                    .attr("height", IQR)
-                    .attr("fill", "none")
-                    .attr("stroke-width", 1)
-                    .attr("stroke", "#BDBDBD");
-                elem.boxPlots.append("line")
-                    .attr("x1", midLine-40)
-                    .attr("x2", midLine+40)
-                    .attr("y1", mean)
-                    .attr("y2", mean)
-                    .attr("stroke-width", 2)
-                    .attr("stroke", "#BDBDBD");
-                elem.boxPlots.append("line")
-                    .attr("x1", midLine-30)
-                    .attr("x2", midLine+30)
-                    .attr("y1", top)
-                    .attr("y2", top)
-                    .attr("stroke-width", 1)
-                    .attr("stroke", "#BDBDBD");
-                elem.boxPlots.append("line")
-                    .attr("x1", midLine-30)
-                    .attr("x2", midLine+30)
-                    .attr("y1", bottom)
-                    .attr("y2", bottom)
-                    .attr("stroke", "#BDBDBD")
-                    .style("stroke-width", 1);
-                elem.boxPlots.append("line")
-                    .attr("x1", midLine)
-                    .attr("x2", midLine)
-                    .attr("y1", quan1)
-                    .attr("y2", bottom)
-                    .attr("stroke", "#BDBDBD")
-                    .attr("stroke-width", 1);
-                elem.boxPlots.append("line")
-                    .attr("x1", midLine)
-                    .attr("x2", midLine)
-                    .attr("y1", quan2)
-                    .attr("y2", top)
-                    .attr("stroke", "#BDBDBD")
-                    .style("stroke-width", 1);
+                if (axis === "x") {
+                    elem.boxPlots.append("rect")
+                        .attr("x", midLine-40)
+                        .attr("y", quan2)
+                        .attr("width", 80)
+                        .attr("height", IQR)
+                        .attr("fill", "none")
+                        .attr("stroke-width", 1)
+                        .attr("stroke", "#BDBDBD");
+                    elem.boxPlots.append("line")
+                        .attr("x1", midLine-40)
+                        .attr("x2", midLine+40)
+                        .attr("y1", mean)
+                        .attr("y2", mean)
+                        .attr("stroke-width", 2)
+                        .attr("stroke", "#BDBDBD");
+                    elem.boxPlots.append("line")
+                        .attr("x1", midLine-30)
+                        .attr("x2", midLine+30)
+                        .attr("y1", top)
+                        .attr("y2", top)
+                        .attr("stroke-width", 1)
+                        .attr("stroke", "#BDBDBD");
+                    elem.boxPlots.append("line")
+                        .attr("x1", midLine-30)
+                        .attr("x2", midLine+30)
+                        .attr("y1", bottom)
+                        .attr("y2", bottom)
+                        .attr("stroke", "#BDBDBD")
+                        .style("stroke-width", 1);
+                    elem.boxPlots.append("line")
+                        .attr("x1", midLine)
+                        .attr("x2", midLine)
+                        .attr("y1", quan1)
+                        .attr("y2", bottom)
+                        .attr("stroke", "#BDBDBD")
+                        .attr("stroke-width", 1);
+                    elem.boxPlots.append("line")
+                        .attr("x1", midLine)
+                        .attr("x2", midLine)
+                        .attr("y1", quan2)
+                        .attr("y2", top)
+                        .attr("stroke", "#BDBDBD")
+                        .style("stroke-width", 1);
+                } else {
+                    elem.boxPlots.append("rect") 
+                        .attr("x", quan1)
+                        .attr("y", midLine-30)
+                        .attr("height", 60)
+                        .attr("width", IQR)
+                        .attr("fill", "none")
+                        .attr("stroke-width", 1)
+                        .attr("stroke", "#BDBDBD");
+                    elem.boxPlots.append("line") 
+                        .attr("y1", midLine-30)
+                        .attr("y2", midLine+30)
+                        .attr("x1", mean)
+                        .attr("x2", mean)
+                        .attr("stroke-width", 2)
+                        .attr("stroke", "#BDBDBD");
+                    elem.boxPlots.append("line") 
+                        .attr("y1", midLine-30)
+                        .attr("y2", midLine+30)
+                        .attr("x1", top)
+                        .attr("x2", top)
+                        .attr("stroke-width", 1)
+                        .attr("stroke", "#BDBDBD");
+                    elem.boxPlots.append("line")
+                        .attr("y1", midLine-30)
+                        .attr("y2", midLine+30)
+                        .attr("x1", bottom)
+                        .attr("x2", bottom)
+                        .attr("stroke", "#BDBDBD")
+                        .style("stroke-width", 1);
+                    if (obj.dataset.length === 2) {
+                        elem.boxPlots.append("line")
+                            .attr("y1", midLine)
+                            .attr("y2", midLine)
+                            .attr("x1", quan2)
+                            .attr("x2", top)
+                            .attr("stroke", "#BDBDBD")
+                            .attr("stroke-width", 1);
+                        elem.boxPlots.append("line")
+                            .attr("y1", midLine)
+                            .attr("y2", midLine)
+                            .attr("x1", quan1)
+                            .attr("x2", bottom)
+                            .attr("stroke", "#BDBDBD")
+                            .style("stroke-width", 1); 
+                    } else {
+                        elem.boxPlots.append("line")
+                            .attr("y1", midLine)
+                            .attr("y2", midLine)
+                            .attr("x1", quan2)
+                            .attr("x2", bottom)
+                            .attr("stroke", "#BDBDBD")
+                            .attr("stroke-width", 1);
+                        elem.boxPlots.append("line")
+                            .attr("y1", midLine)
+                            .attr("y2", midLine)
+                            .attr("x1", quan1)
+                            .attr("x2", top)
+                            .attr("stroke", "#BDBDBD")
+                            .style("stroke-width", 1); 
+                    }
+
+                } 
+                
             }
-            
         });
     }
     

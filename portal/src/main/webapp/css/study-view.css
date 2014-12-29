@@ -256,6 +256,11 @@
     width:auto;
     float: right;
 }
+.dataTables_filter label input {
+    appearance: searchfield;
+    -moz-appearance: searchfield;
+    -webkit-appearance: searchfield;
+}
 #clinical-data-table-div .dataTables_filter {
     width: 30%;
 }
@@ -954,8 +959,17 @@ ul li a:hover, ul li a:focus {
     width:100%;
     font-size:12px;
 }
-#data-table-chart table#dataTable>tbody:hover{
+#dc-plots .dataTables_scrollBody table tbody tr{
+    cursor: default;
+}
+#dc-plots .dataTables_scrollBody table tbody tr td{
+    border-bottom: 2px white solid;
+}
+#dc-plots .dataTables_scrollBody table tbody tr:hover {
     cursor: pointer;
+}
+#dc-plots .dataTables_scrollBody table tbody tr:hover td{
+    border-bottom: 2px grey dotted;
 }
 #data-table-chart table.dataTable>thead>tr>th:nth-child(1) {background-color: white; white-space: nowrap;}
 #data-table-chart table.dataTable>thead>tr>th {

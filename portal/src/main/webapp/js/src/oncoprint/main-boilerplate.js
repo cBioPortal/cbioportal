@@ -1017,6 +1017,12 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             hide: {fixed: true, delay: 100, event: "mouseout"}
             });
             
+        $('#oncoprint_diagram_slider_icon').css('height',function(){ 
+            var is_firefox = navigator.userAgent.indexOf("Firefox") !== -1;
+            var result = is_firefox ? '30px' : '16px';
+            return result;
+        }); 
+        
         $('#oncoprint_zoomout').click(function() {
             var tempValue = parseFloat($('#oncoprint_zoom_slider')[0].value) - 0.05;
             $('#oncoprint_zoom_slider')[0].value = tempValue > 0.1 ? tempValue : 0.1;

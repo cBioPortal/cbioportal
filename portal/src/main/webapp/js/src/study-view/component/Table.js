@@ -157,7 +157,7 @@ var Table = function() {
             }
             
             attr.forEach(function(e1, i1){
-                _row += '<td>' + e[e1.name] + '</td>';
+                _row += '<td' + (e1.name === 'samples'?' class="clickable"':'') + '>' + e[e1.name] + '</td>';
             });
             _row += '</tr>';
             tableBody.append(_row);
@@ -192,7 +192,7 @@ var Table = function() {
         var geneIndex = -1,
             altTypeIndex = -1,
             cytobandIndex = -1,
-            mutatedSamplesIndex = -1,
+            samplesIndex = -1,
             unvisiable = [];
         
         attr.forEach(function(e, i){
@@ -205,8 +205,8 @@ var Table = function() {
             if(e.name === 'cytoband') {
                 cytobandIndex = i;
             }
-            if(e.name === 'mutatedSamples') {
-                mutatedSamplesIndex = i;
+            if(e.name === 'samples') {
+                samplesIndex = i;
             }
             if(!e.hasOwnProperty('displayName')){
                 unvisiable.push(i);
@@ -220,8 +220,8 @@ var Table = function() {
             });
         }
         
-        if(mutatedSamplesIndex !== -1) {
-            dataTableOpts.aaSorting.push([mutatedSamplesIndex, 'desc']); 
+        if(samplesIndex !== -1) {
+            dataTableOpts.aaSorting.push([samplesIndex, 'desc']); 
         }
         
         if(altTypeIndex !== -1) {
@@ -291,6 +291,14 @@ var Table = function() {
                         position: {my:'center left',at:'center right',viewport: $(window)}
                     });
                 });
+                
+                $('#'+ divs.tableId).find('table tbody tr td.clickable').hover(function(e, i) {
+                    $(this).siblings().addBack().addClass('hoverRow');
+                },function(e, i) {
+                    $(this).siblings().addBack().removeClass('hoverRow');
+                });
+                
+                rowClick();
             };
         }
         dataTable = $('#'+ divs.tableId +' table').dataTable(dataTableOpts);
@@ -309,22 +317,24 @@ var Table = function() {
     
     function addEvents() {
         deleteTable();
-        rowClick();
     }
     
     function rowClick() {
-        $('#' + divs.tableId + ' tbody').on( 'click', 'tr', function () {
+        $('#' + divs.tableId + ' tbody tr td.clickable').on( 'click', function () {
             var shiftClicked = StudyViewWindowEvents.getShiftKeyDown(),
             highlightedRowsData = '';
                 
             if(!shiftClicked) {
-                var _isClicked = $(this).hasClass('highlightRow');
+                var _isClicked = $(this).parent().hasClass('highlightRow');
                 $('#' + divs.tableId + ' tbody').find('.highlightRow').removeClass('highlightRow');
                 if(!_isClicked) {
-                    $(this).toggleClass('highlightRow');
+                    $(this).parent().toggleClass('highlightRow');
+                    $(this).siblings().addBack().toggleClass('highlightRow');
+                    
                 }
             }else{
-                $(this).toggleClass('highlightRow');
+                $(this).parent().toggleClass('highlightRow');
+                $(this).siblings().addBack().toggleClass('highlightRow');
             }
             
             highlightedRowsData = dataTable.api().rows('.highlightRow').data();
@@ -364,10 +374,12 @@ var Table = function() {
     
     function showReload() {
         $('#' + divs.reloadId).css('display', 'block');
+        $('#' + divs.mainId).css({'border-width':'2px', 'border-style':'inset'});
     }
     
     function hideReload() {
         $('#' + divs.reloadId).css('display', 'none');
+        $('#' + divs.mainId).css({'border-width':'1px', 'border-style':'solid'});
     }
     
     function showHideDivision(_listenedDiv, _targetDiv, _time){

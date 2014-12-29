@@ -586,6 +586,9 @@
 .highlightRow {
     background-color: lightgrey !important;
 }
+.hoverRow {
+    background-color: lightgrey !important;
+}
 /*.study-view-expand-icon {
     width:9px;
     height:9px;
@@ -959,18 +962,7 @@ ul li a:hover, ul li a:focus {
     width:100%;
     font-size:12px;
 }
-#dc-plots .dataTables_scrollBody table tbody tr{
-    cursor: default;
-}
-#dc-plots .dataTables_scrollBody table tbody tr td{
-    border-bottom: 2px white solid;
-}
-#dc-plots .dataTables_scrollBody table tbody tr:hover {
-    cursor: pointer;
-}
-#dc-plots .dataTables_scrollBody table tbody tr:hover td{
-    border-bottom: 2px grey dotted;
-}
+
 #data-table-chart table.dataTable>thead>tr>th:nth-child(1) {background-color: white; white-space: nowrap;}
 #data-table-chart table.dataTable>thead>tr>th {
     //white-space:nowrap;

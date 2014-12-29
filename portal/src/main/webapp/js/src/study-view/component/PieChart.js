@@ -1093,6 +1093,13 @@ var PieChart = function(){
                             .attr('placeholder', 'Search...');
 
                     labelTableOrder = oSettings.aaSorting;
+                },
+                "fnDrawCallback": function() {
+                    $('#'+ DIV.mainDiv).find('table tbody tr').hover(function(e, i) {
+                        $(this).find('td').addClass('hoverRow');
+                    },function(e, i) {
+                        $(this).find('td').removeClass('hoverRow');
+                    });
                 }
             });
             

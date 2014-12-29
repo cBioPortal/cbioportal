@@ -64,7 +64,7 @@ var StudyViewInitTables = (function() {
                             name: 'numOfMutations',
                             displayName: '# Mut'
                         },{
-                            name: 'mutatedSamples',
+                            name: 'samples',
                             displayName: 'Samples'
                         },{
                             name: 'sampleRate',
@@ -86,7 +86,7 @@ var StudyViewInitTables = (function() {
                             name: 'altType',
                             displayName: 'CNA'
                         },{
-                            name: 'altrate',
+                            name: 'samples',
                             displayName: 'Samples'
                         },{
                             name: 'altrateInSample',
@@ -229,11 +229,11 @@ var StudyViewInitTables = (function() {
             
             datum.gene = data[i].gene_symbol;
             datum.numOfMutations = Number(data[i].num_muts);
-            datum.mutatedSamples = caseIds.filter(function(elem, pos) {
+            datum.samples = caseIds.filter(function(elem, pos) {
                 return caseIds.indexOf(elem) === pos;
             }).length;
             datum.sampleRate = 
-                    (datum.mutatedSamples / Number(numOfCases)* 100).toFixed(1) + '%';
+                    (datum.samples / Number(numOfCases)* 100).toFixed(1) + '%';
             datum.caseIds = data[i].caseIds;
             genes.push(datum);
         }
@@ -261,8 +261,8 @@ var StudyViewInitTables = (function() {
             datum.gene = data.gene[i];
             datum.cytoband = data.cytoband[i];
             datum.altType = _altType;
-            datum.altrate = data.caseIds[i].length;
-            datum.altrateInSample = (datum.altrate / numOfCases * 100).toFixed(1) + '%';
+            datum.samples = data.caseIds[i].length;
+            datum.altrateInSample = (datum.samples / numOfCases * 100).toFixed(1) + '%';
             datum.caseIds = data.caseIds[i];
             genes.push(datum);
         }

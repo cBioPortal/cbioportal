@@ -71,6 +71,7 @@ public class AnnotateTool
 		Annotator annotator = new Annotator(config);
 
 		try {
+			System.out.println("[" + start + "] Started annotating: " + config.getInput());
 			annotator.annotateFile(new File(config.getInput()),
 			                       new File(config.getOutput()));
 		} catch (IOException e) {
@@ -81,7 +82,7 @@ public class AnnotateTool
 			double timeElapsed = (end.getTime() - start.getTime()) / 1000.0;
 
 //			System.out.println("Total number of records processed: " + annotator.getNumRecordsProcessed());
-			System.out.println("Total time: " + timeElapsed + " seconds.");
+			System.out.println("[" + end + "] Total time: " + timeElapsed + " seconds.");
 		}
 
 		return result;

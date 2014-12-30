@@ -12,7 +12,7 @@ var profileSpec = (function() {
     
     function appendProfileTypeList(axis) {
         var _tmp = [];
-        $.each(metaData.getGeneticProfilesMeta(), function(index, obj) {
+        $.each(metaData.getGeneticProfilesMeta($("#" + ids.sidebar[axis].gene).val()), function(index, obj) {
             if($.inArray(obj.type, _tmp) === -1 && 
                 obj.type !== "MUTATION_EXTENDED") //tmp: skip mutation profile
                     _tmp.push(obj.type);
@@ -37,7 +37,7 @@ var profileSpec = (function() {
         });
         
         function append() {
-             $.each(metaData.getGeneticProfilesMeta(), function(index, obj) {
+             $.each(metaData.getGeneticProfilesMeta($("#" + ids.sidebar[axis].gene).val()), function(index, obj) {
                 if (obj.type === $("#" + ids.sidebar[axis].profile_type).val()) {
                     $("#" + ids.sidebar[axis].profile_name).append(
                             "<option value='" + obj.id + "'>" + obj.name + "</option>");

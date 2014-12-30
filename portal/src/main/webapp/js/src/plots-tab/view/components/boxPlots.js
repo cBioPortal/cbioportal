@@ -36,13 +36,24 @@ var boxPlots = (function () {
                 var _axis = (axis === "x")? "y": "x"; 
                 if (obj.dataset.length === 1) { //if only one data dots, draw a simple line
                     mean = elem[_axis].scale(_data[0]);
-                    elem.boxPlots.append("line")
-                        .attr("x1", midLine - 30)
-                        .attr("x2", midLine + 30)
-                        .attr("y1", mean)
-                        .attr("y2", mean)
-                        .attr("stroke-width", 2)
-                        .attr("stroke", "grey");
+                    if (axis === "x") {
+                        elem.boxPlots.append("line")
+                            .attr("x1", midLine - 30)
+                            .attr("x2", midLine + 30)
+                            .attr("y1", mean)
+                            .attr("y2", mean)
+                            .attr("stroke-width", 2)
+                            .attr("stroke", "grey");
+                    } else {
+                        elem.boxPlots.append("line")
+                            .attr("y1", midLine - 30)
+                            .attr("y2", midLine + 30)
+                            .attr("x1", mean)
+                            .attr("x2", mean)
+                            .attr("stroke-width", 2)
+                            .attr("stroke", "grey");
+                    }
+
                 } else { 
                     if (obj.dataset.length === 2) {
                         mean = elem[_axis].scale((_data[0] + _data[1]) / 2);
@@ -208,6 +219,11 @@ var boxPlots = (function () {
         return {
             init: function(input_data, input_axis, input_elem){
                 
+                //clear out data container
+                _arr = [];
+                _arr.length = 0;
+                _pos = 0;
+                
                 data = input_data;
                 axis = input_axis;
                 elem = input_elem;
@@ -233,7 +249,7 @@ var boxPlots = (function () {
                         _arr.push(_datum);
                     }
                 }
-                
+
                 render();
             }
         };

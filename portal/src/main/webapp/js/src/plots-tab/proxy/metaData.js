@@ -17,7 +17,10 @@ var metaData = (function() {
 
     function fetchProfileMetaData() {
         var paramsGetProfiles = {
-            cancer_study_id: window.PortalGlobals.getCancerStudyId()
+            cancer_study_id: window.PortalGlobals.getCancerStudyId(),
+            case_set_id: window.PortalGlobals.getCaseSetId(),
+            case_ids_key: window.PortalGlobals.getCaseIdsKey(),
+            gene_list: window.PortalGlobals.getGeneListString()
         };
         $.post("getGeneticProfile.json", paramsGetProfiles, fetchClinicalAttrMetaData, "json");  
     }
@@ -35,15 +38,21 @@ var metaData = (function() {
     }
 
     function registerMetaData(clinicalAttrMetaDataResult, profileMetaDataResult) {
-        for (var key in profileMetaDataResult) {
-            var obj = profileMetaDataResult[key]; 
-            var _datum = jQuery.extend(true, {}, datum_genetic_profile_meta);
-            _datum.type = obj.GENETIC_ALTERATION_TYPE;
-            _datum.id = obj.STABLE_ID;
-            _datum.name = obj.NAME;
-            _datum.description = obj.DESCRIPTION;
-            geneticProfiles.push(_datum);
+        for (var gene in profileMetaDataResult) {
+            var _gene_obj = profileMetaDataResult[gene];
+            var _profile_arr = [];
+            for (var _profile_name in _gene_obj) {
+                var obj = _gene_obj[_profile_name];
+                var _datum = jQuery.extend(true, {}, datum_genetic_profile_meta);
+                _datum.type = obj.GENETIC_ALTERATION_TYPE;
+                _datum.id = obj.STABLE_ID;
+                _datum.name = obj.NAME;
+                _datum.description = obj.DESCRIPTION;    
+                _profile_arr.push(_datum);
+            }
+            geneticProfiles[gene] = _profile_arr;
         }
+        console.log(geneticProfiles);
         $.each(clinicalAttrMetaDataResult, function(index, obj) {
             var _datum = jQuery.extend(true, {}, datum_clinical_attr_meta);
             _datum.id = obj.attr_id;
@@ -62,8 +71,8 @@ var metaData = (function() {
         getClinAttrsMeta: function() {
             return clinicalAttrs;
         },
-        getGeneticProfilesMeta: function() {
-            return geneticProfiles;
+        getGeneticProfilesMeta: function(_gene) {
+            return geneticProfiles[_gene];
         },
         getRetrieveStatus: function() {
             return retrieve_status;

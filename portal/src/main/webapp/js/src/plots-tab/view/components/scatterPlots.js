@@ -48,6 +48,7 @@ var scatterPlots = (function() {
             .attr("width", settings.canvas_width)
             .attr("height", settings.canvas_height);
         elem.dotsGroup = elem.svg.append("svg:g");
+        elem.boxPlots = elem.svg.append("svg:g");
         elem.axisTitleGroup = elem.svg.append("svg:g").attr("class", "axis");
     }
     
@@ -102,7 +103,8 @@ var scatterPlots = (function() {
             .call(elem[axis].axis.orient(settings.axis[axis].orient).ticks(0));
     }
     
-    function drawDots() {
+    function drawDots(_apply_box_plots, _box_plots_axis) {
+        
         elem.dotsGroup.selectAll("path").remove();
         elem.dotsGroup.selectAll("path")
             .data(data)
@@ -115,7 +117,22 @@ var scatterPlots = (function() {
                 $(this).attr("y_val", d.yVal);
                 $(this).attr("case_id", d.caseId);
                 $(this).attr("size", 20);
-                return "translate(" + elem.x.scale(d.xVal) + ", " + elem.y.scale(d.yVal) + ")";
+                
+                var _x, _y;
+                if (_apply_box_plots) { //apply noise
+                    if (_box_plots_axis === "x") {
+                        _x = elem.x.scale(d.xVal) + (Math.random() * 30 - 30/2);
+                        _y = elem.y.scale(d.yVal);
+                    } else {
+                        _x = elem.x.scale(d.xVal);
+                        _y = elem.y.scale(d.yVal) + (Math.random() * 20 - 20/2);
+                    }
+                } else {
+                    _x = elem.x.scale(d.xVal);
+                    _y = elem.y.scale(d.yVal);
+                }
+
+                return "translate(" + _x + ", " + _y + ")";
             })
             .attr("d", d3.svg.symbol()
                 .size(20)
@@ -198,12 +215,54 @@ var scatterPlots = (function() {
                 .attr("dy", ".35em")
                 .style("text-anchor", "front")
                 .text(function(d){return d.legendText;});
+    }
+    
+    function applyMouseover() {
+        elem.dotsGroup.selectAll("path").each(function(d) {
+            var _content = "<strong><a href='" +
+                cbio.util.getLinkToSampleView(window.PortalGlobals.getCancerStudyId(), d.caseId) +
+                "' target = '_blank'>" + d.caseId +
+                "</a></strong>";
+            if (Object.keys(d.mutation).length !== 0) {
+                $.each(Object.keys(d.mutation), function(index, gene) {
+                    _content += "<br>" + gene + ": " + d.mutation[gene].details;
+                });
+            }
 
+            $(this).qtip(
+                {
+                    content: {text: _content},
+                    style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                    show: {event: "mouseover"},
+                    hide: {fixed:true, delay: 100, event: "mouseout"},
+                    position: {my:'left bottom',at:'top right', viewport: $(window)}
+                }
+            );
+        });
+        var mouseOn = function() {
+            var dot = d3.select(this);
+            dot.transition()
+                .ease("elastic")
+                .duration(600)
+                .delay(100)
+                .attr("d", d3.svg.symbol().size(200));
+        };
+        var mouseOff = function() {
+            var dot = d3.select(this);
+            dot.transition()
+                .ease("elastic")
+                .duration(600)
+                .delay(100)
+                .attr("d", d3.svg.symbol().size(20));
+        };
+        elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
+        elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
     }
     
     return {
         init: function(_div, _data, _apply_box_plots, _box_plots_axis) {
             div = _div;
+            $("#" + _div).empty();
             //convert input data from JSON to array
             data = [];
             glyphs = [];
@@ -218,10 +277,11 @@ var scatterPlots = (function() {
             initAxis("y");
             drawAxis("x");
             drawAxis("y");
-            drawDots();
             if (_apply_box_plots) {
                 boxPlots.init(data, _box_plots_axis, elem);
             }
+            drawDots(_apply_box_plots, _box_plots_axis);
+            applyMouseover();
             appendTitle("x");
             appendTitle("y");
             appendGlyphs();

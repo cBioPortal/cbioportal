@@ -7,7 +7,7 @@ var plotsbox = (function() {
             } else if (!isDiscretized("x") && isDiscretized("y")) {
                 scatterPlots.init(ids.main_view.div, data, true, "y");
             } else if (!isDiscretized("x") && !isDiscretized("y")) { 
-                scatterPlots.init(ids.main_view.div, data, false);
+                scatterPlots.init(ids.main_view.div, data, false, "");
             } else if (isDiscretized("x") && isDiscretized("y")) {
                 //TODO: heatmap
             }
@@ -17,7 +17,7 @@ var plotsbox = (function() {
             } else if (!isDiscretized("x") && isDiscretized("y")) {
                 scatterPlots.init(ids.main_view.div, data, true, "y");
             } else if (!isDiscretized("x") && !isDiscretized("y")) { 
-                scatterPlots.init(ids.main_view.div, data, false);
+                scatterPlots.init(ids.main_view.div, data, false, "");
             } else if (isDiscretized("x") && isDiscretized("y")) {
                 //TODO: heatmap
             }
@@ -30,7 +30,6 @@ var plotsbox = (function() {
     
     return {
         init: function() {
-            $("#" + ids.main_view.div).empty();
             plotsData.get(render);
         }        
     };

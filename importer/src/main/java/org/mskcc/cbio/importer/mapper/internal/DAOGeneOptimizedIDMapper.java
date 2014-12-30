@@ -43,6 +43,11 @@ public class DAOGeneOptimizedIDMapper implements IDMapper {
 	// ref to DAOGeneOptimized
 	DaoGeneOptimized daoGeneOptimized;
 
+	@Override
+	public String resolveGeneNameFromPosition(String chromosome, Integer startPos) {
+		return "";
+	}
+
 	/**
 	 * For the given symbol, return id.
 	 *

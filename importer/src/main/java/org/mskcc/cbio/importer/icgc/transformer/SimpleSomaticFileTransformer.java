@@ -31,6 +31,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.log4j.Logger;
+import org.mskcc.cbio.importer.icgc.model.SimpleSomaticModel;
 import org.mskcc.cbio.importer.icgc.support.IcgcSimpleSomaticRecord;
 import org.mskcc.cbio.importer.icgc.support.IcgcSimpleSomaticRecordFunnel;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
@@ -70,7 +71,6 @@ public class SimpleSomaticFileTransformer extends MutationTransformer implements
         } catch (IOException e) {
             logger.error(e);
         }
-
     }
 
     @Override
@@ -127,7 +127,7 @@ public class SimpleSomaticFileTransformer extends MutationTransformer implements
 
                             final Map<String, String> recordMap = record.toMap();
                             fileHandler.transformImportDataToTsvStagingFile(Lists.newArrayList(new SimpleSomaticModel(recordMap)),
-                                    MutationModel.getTransformationModel());
+                                    MutationModel.getTransformationFunction());
 
                                     return 1;
                         }
@@ -182,7 +182,7 @@ public class SimpleSomaticFileTransformer extends MutationTransformer implements
                             return new SimpleSomaticModel(recordMap);
                         }
                     }).toList();
-            this.fileHandler.transformImportDataToTsvStagingFile(somaticList, MutationModel.getTransformationModel());
+            this.fileHandler.transformImportDataToTsvStagingFile(somaticList, MutationModel.getTransformationFunction());
             logger.info("transformation complete ");
         } catch (Exception ex) {
             logger.error(ex.getMessage());

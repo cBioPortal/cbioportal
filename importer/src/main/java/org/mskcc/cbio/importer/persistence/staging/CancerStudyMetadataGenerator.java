@@ -35,47 +35,47 @@ import org.mskcc.cbio.importer.model.DatatypeMetadata;
  * @author criscuof
  */
 public class CancerStudyMetadataGenerator {
-   
-    private final Config config;
-    private final String outputDirectory;
-    private final Logger logger = Logger.getLogger(CancerStudyMetadataGenerator.class);
-    
-    private final FileUtils fileUtils;
-    private final CaseIDs caseIDs;
-    public static final String MUTATION_METADATA = "mutation-foundation";
-    public static final String CNA_METADATA = "cna-foundation";
-    public static final String FUSION_METADATA = "fusion";
-    private DataSourcesMetadata dataSourceMetadata;
 
-    
-    public CancerStudyMetadataGenerator(Config aConfig, String aDirectory, FileUtils fileUtils, CaseIDs caseIDs) {
-        Preconditions.checkArgument(null != aConfig, "A Config implemntation is required");
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(aDirectory), "An metadata file output directory is required");
-        Preconditions.checkArgument(null != fileUtils, "A FileUtils implementation is required");
-        Preconditions.checkArgument(null != caseIDs, "A CaseIDs implementation is required");
-        this.config = aConfig;
-        this.outputDirectory = aDirectory;
-       this.caseIDs = caseIDs;
-       this.fileUtils = fileUtils;
-        
-    }
-    
-    public void generateFoundationMetadataFiles(final String dataSource,
+                private final Config config;
+                private final String outputDirectory;
+                private final Logger logger = Logger.getLogger(CancerStudyMetadataGenerator.class);
+
+                private final FileUtils fileUtils;
+                private final CaseIDs caseIDs;
+                public static final String MUTATION_METADATA = "mutation-foundation";
+                public static final String CNA_METADATA = "cna-foundation";
+                public static final String FUSION_METADATA = "fusion";
+                private DataSourcesMetadata dataSourceMetadata;
+
+
+                public CancerStudyMetadataGenerator(Config aConfig, String aDirectory, FileUtils fileUtils, CaseIDs caseIDs) {
+                    Preconditions.checkArgument(null != aConfig, "A Config implemntation is required");
+                    Preconditions.checkArgument(!Strings.isNullOrEmpty(aDirectory), "An metadata file output directory is required");
+                    Preconditions.checkArgument(null != fileUtils, "A FileUtils implementation is required");
+                    Preconditions.checkArgument(null != caseIDs, "A CaseIDs implementation is required");
+                    this.config = aConfig;
+                    this.outputDirectory = aDirectory;
+                    this.caseIDs = caseIDs;
+                    this.fileUtils = fileUtils;
+
+                }
+
+            public void generateFoundationMetadataFiles(final String dataSource,
             final String cancerStudyIdentifier, final Integer numCases, final String outputDir) {
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(dataSource),
-                "A data source is required");        
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(cancerStudyIdentifier),
-                "A cancer study identifier is required");
-        Preconditions.checkArgument(null != numCases && numCases > 0,
-                "The number of cases must be > 0");
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(outputDir),
-                "An output directory is required");
-        try {
-            this.resolveDataSourceMetadata(dataSource);
-            this.generateCancerStudyMetaData(cancerStudyIdentifier, numCases);        
-            this.generateCNAMetadataFile(dataSource, numCases, outputDirectory);
-            this.generateMutationMetadataFile(cancerStudyIdentifier, numCases, outputDir);
-            this.generateFusionMetaFile(cancerStudyIdentifier, numCases, outputDir);
+                Preconditions.checkArgument(!Strings.isNullOrEmpty(dataSource),
+                        "A data source is required");
+                Preconditions.checkArgument(!Strings.isNullOrEmpty(cancerStudyIdentifier),
+                        "A cancer study identifier is required");
+                Preconditions.checkArgument(null != numCases && numCases > 0,
+                        "The number of cases must be > 0");
+                Preconditions.checkArgument(!Strings.isNullOrEmpty(outputDir),
+                        "An output directory is required");
+                try {
+                    this.resolveDataSourceMetadata(dataSource);
+                    this.generateCancerStudyMetaData(cancerStudyIdentifier, numCases);
+                    this.generateCNAMetadataFile(dataSource, numCases, outputDirectory);
+                    this.generateMutationMetadataFile(cancerStudyIdentifier, numCases, outputDir);
+                    this.generateFusionMetaFile(cancerStudyIdentifier, numCases, outputDir);
         } catch (Exception ex) {
             logger.error(ex.getMessage());
         }      

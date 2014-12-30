@@ -132,14 +132,14 @@ public class DMPDataTransformer {
                    @Override
                    public boolean apply(Result input) {
                        Tuple2<String,String> idTuple = new Tuple2(input.getMetaData().getDmpSampleId(),
-                             //  input.getMetaData().getLegacysampleid());
-                       input.getMetaData().getDmpSampleId());
+                              input.getMetaData().getLegacySampleId());
+
                        return IdMapService.INSTANCE.isSampleIdInDarwin(idTuple);
                    }
                }).toList();
         // during development - report how many samples were skipped
 
-        logger.info("Number of amples that pass Darwin filter " +newResultList.size());
+        logger.info("Number of samples that pass Darwin filter " +newResultList.size());
         // replace original list with new one if necessary
         if( newResultList.size() < data.getResults().size()) {
             logger.info("DMP data has samples that have not been registered in Darwin");

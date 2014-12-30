@@ -44,8 +44,8 @@ import java.util.zip.GZIPInputStream;
  * <p/>
  * Created by criscuof on 12/10/14.
  */
-public class IcgcStudyEtlCallable implements Callable<String> {
-    private static Logger logger = Logger.getLogger(IcgcStudyEtlCallable.class);
+public class IcgcStudyFileEtlCallable implements Callable<String> {
+    private static Logger logger = Logger.getLogger(IcgcStudyFileEtlCallable.class);
     private ListeningExecutorService service;
     private static final Integer defaultThreadCount = 3;
     private Path stagingFilePath;
@@ -57,12 +57,12 @@ public class IcgcStudyEtlCallable implements Callable<String> {
     specified staging path
 
     the constructor for this class requires
-    1. a Ptah pointing to the icgc study-specific staging file directory
+    1. a Path pointing to the icgc study-specific staging file directory
     2. a URL referencing the ICGC file to download and tramsform
     3. an IcgcFileTransformer implementation responsible for transforming the ICGC data
      */
 
-    public IcgcStudyEtlCallable(Path stagingFileDirectory, String aUrl, IcgcFileTransformer transformer) {
+    public IcgcStudyFileEtlCallable(Path stagingFileDirectory, String aUrl, IcgcFileTransformer transformer) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(aUrl),
                 "A URL to an ICGC file is required");
         Preconditions.checkArgument(null != transformer, "An IcgcFileTransformer implemntation is required");
@@ -114,10 +114,7 @@ public class IcgcStudyEtlCallable implements Callable<String> {
 
         });
         try {
-            // add maf path to list
             Path mafPath = mafFuture.get();
-            //logger.info("ICGC study data transformed to " + mafPath.toString());
-            //mafPathList.add(mafPath);
         } catch (InterruptedException | ExecutionException ex) {
             logger.error(ex.getMessage());
         }
@@ -144,13 +141,11 @@ public class IcgcStudyEtlCallable implements Callable<String> {
             if (aFilePathOptional.isPresent()){
                 this.compressedFile = aFilePathOptional.get().toFile();
             } else {
-
                 this.compressedFile = null;
             }
         }
 
         public Path call() throws Exception {
-
             return this.gunzipIt();
         }
 
@@ -174,8 +169,6 @@ public class IcgcStudyEtlCallable implements Callable<String> {
                     }
                 }
                 out.close();
-
-
             } catch (IOException ex) {
                 logger.error(ex.getMessage());
                 ex.printStackTrace();
@@ -256,7 +249,7 @@ public class IcgcStudyEtlCallable implements Callable<String> {
         Path icgcPath1 = Paths.get("/tmp/icgc1");
         boolean processing = true;
         IcgcFileTransformer transformer1 = (IcgcFileTransformer) new SimpleSomaticFileTransformer(new MutationFileHandlerImpl(), icgcPath1);
-        IcgcStudyEtlCallable etl01 = new IcgcStudyEtlCallable(icgcPath1, testUrlList.get(0), transformer1);
+        IcgcStudyFileEtlCallable etl01 = new IcgcStudyFileEtlCallable(icgcPath1, testUrlList.get(0), transformer1);
         List<ListenableFuture<String>> futureList = Lists.newArrayList();
         futureList.add(service.submit(etl01));
 

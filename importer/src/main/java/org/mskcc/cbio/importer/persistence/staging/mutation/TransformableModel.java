@@ -1,9 +1,6 @@
-package org.mskcc.cbio.importer.cvr.darwin.service;
+package org.mskcc.cbio.importer.persistence.staging.mutation;
 
-import com.google.common.base.Supplier;
-import edu.stanford.nlp.pipeline.StanfordCoreNLP;
-
-import java.util.Properties;
+import com.google.common.base.Function;
 
 /**
  * Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
@@ -22,19 +19,9 @@ import java.util.Properties;
  * Memorial Sloan-Kettering Cancer Center
  * has been advised of the possibility of such damage.
  * <p/>
- * Created by criscuof on 12/3/14.
+ * Created by criscuof on 12/24/14.
  */
-public class NLPSupplier  implements Supplier<StanfordCoreNLP> {
+public abstract class TransformableModel {
 
-        public NLPSupplier() {}
-
-        @Override
-        public StanfordCoreNLP get() {
-            // specifiy the minimum set of annotators
-            Properties props = new Properties();
-            props.put("annotators", "tokenize, ssplit");
-
-            return new StanfordCoreNLP(props);
-        }
-
+    public abstract Function<TransformableModel,String> resolveTransformationFunction();
 }

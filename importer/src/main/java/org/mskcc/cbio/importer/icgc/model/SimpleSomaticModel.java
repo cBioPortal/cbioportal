@@ -1,4 +1,4 @@
-package org.mskcc.cbio.importer.icgc.transformer;
+package org.mskcc.cbio.importer.icgc.model;
 
 import com.google.common.base.*;
 import org.apache.log4j.Logger;
@@ -74,6 +74,11 @@ public class SimpleSomaticModel extends MutationModel {
 
     @Override
     public String getEndPosition() {
+        if(this.getVariantType().equals("INS")) {
+            Integer end = Integer.valueOf(this.recordMap.get("chromosome_start")) + 1;
+            //logger.info(this.recordMap.get("project_code") + " INS start " + this.recordMap.get("chromosome_start") +" end " +end.toString());
+            return end.toString();
+        }
         return this.recordMap.get("chromosome_end");
     }
 

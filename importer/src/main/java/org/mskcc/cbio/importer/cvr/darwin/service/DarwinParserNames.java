@@ -33,7 +33,7 @@ public interface DarwinParserNames {
     public static final String CN_DIAGNOSIS = "DIAGNOSIS:";
     public static final String CN_CONSTIT = "CONSTIT.:";
     public static final String CN_REVIEW_OF_SYSTEMS = "REVIEW OF SYSTEMS:";
-    public static final String CN_PHYSICAL_EXAMINATION = "PHYSICAL_EXAMINATION:";
+    public static final String CN_PHYSICAL_EXAMINATION = "PHYSICAL EXAMINATION";
     public static final String CN_PHYSICAL_EXAMINATION_GENERAL = "GENERAL:";
     public static final String CN_PHYSICAL_EXAMINATION_VITAL_SIGNS = "VITAL SIGNS:";
     public static final String CN_PHYSICAL_EXAMINATION_HEAD_NECK = "HEAD/NECK:";
@@ -86,7 +86,7 @@ public interface DarwinParserNames {
     );
 
     public static final List<String> CN_FILTER_LIST = Lists.newArrayList(
-            CN_PAGE, CN_NAME, CN_DICT, CN_ATTENDING,"**INSTITUTION","OUTPATIENT PROGRESS", CN_PHYSICAL_EXAMINATION,
+            CN_PAGE, CN_NAME, CN_DICT, CN_ATTENDING,"**INSTITUTION","OUTPATIENT PROGRESS",CN_PHYSICAL_EXAMINATION,
             "INTERNAL", "Report Electronically Signed","**NAME","TRANS","*JOB-NUM","OUTPATIENT","FOLLOWUP VISIT",
                     "B/","INITIAL CONSULTATION"
 

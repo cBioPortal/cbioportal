@@ -5,11 +5,14 @@ import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Table;
+import com.google.common.collect.TreeBasedTable;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.IDMapper;
+import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import scala.Tuple2;
 
 import java.io.IOException;
@@ -48,11 +51,38 @@ public class GeneSymbolIDMapper implements IDMapper {
     private Map<String,String> entrezMap = Suppliers.memoize(new EntrezIDSupplier()).get();
     private Map<String,Tuple2<String,String>>
             gnMap = Suppliers.memoize(new EnsemblNameMapSupplier()).get();
+    private Table<String,Integer,Tuple2<java.lang.Integer,String>>  ensemblGeneTable =
+            Suppliers.memoize( new EnsemblGeneNameTableSupplier() ).get();
 
     @Override
-    public String symbolToEntrezID(String geneSymbol) throws Exception {
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(geneSymbol));
-        return (this.entrezMap.containsKey(geneSymbol)) ? this.entrezMap.get(geneSymbol): "";
+    public String resolveGeneNameFromPosition(String chromosome, Integer startPos) {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(chromosome),"A chromosome name is required");
+        Preconditions.checkArgument(StagingCommonNames.validChromosomeSet.contains(chromosome),
+                "chromosome " +chromosome +" is invalid");
+        Preconditions.checkArgument(null != startPos && startPos > 0,
+                "A valid start position is required");
+        Map<Integer,Tuple2<java.lang.Integer,String>> chromosomeMap = this.ensemblGeneTable.row(chromosome);
+        if (null != chromosomeMap){
+            for (Map.Entry<Integer,Tuple2<java.lang.Integer,String>> entry : chromosomeMap.entrySet()){
+
+                if (startPos >= entry.getKey()){
+                   Tuple2<java.lang.Integer,String> tuple = entry.getValue();
+                    if( startPos<  tuple._1()){
+                        return tuple._2();  // gene name
+                    }
+                }
+            }
+        }
+
+        return "";
+    }
+
+    @Override
+    public String symbolToEntrezID(String geneSymbol)  {
+        if(!Strings.isNullOrEmpty(geneSymbol)) {
+            return (this.entrezMap.containsKey(geneSymbol)) ? this.entrezMap.get(geneSymbol) : "";
+        }
+        return "";
    }
 
     @Override
@@ -76,6 +106,36 @@ public class GeneSymbolIDMapper implements IDMapper {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(ensemblID));
         return (this.gnMap.containsKey(ensemblID))? this.gnMap.get(ensemblID) :
                 new Tuple2<String,String>("","");
+    }
+
+
+    /*
+    inner class to create a table (row = chromosome, col = start position, value = gene name)
+    to resolve a gene name from chromosome and start position
+    */
+    public class EnsemblGeneNameTableSupplier implements Supplier<Table<String,Integer,Tuple2<java.lang.Integer,String>>>{
+        private InputStreamReader reader;
+        private final String ENSEMBL_GENE_FILE = "/ensembl_gene_list.tsv";
+        public EnsemblGeneNameTableSupplier() {
+            reader = new InputStreamReader((this.getClass().getResourceAsStream(ENSEMBL_GENE_FILE)));
+        }
+        @Override
+        public Table<String, Integer, Tuple2<java.lang.Integer,String>> get() {
+            Table<String, Integer, Tuple2<java.lang.Integer,String>> geneTable = TreeBasedTable.create();
+            try {
+                final CSVParser parser = new CSVParser(this.reader, CSVFormat.TDF.withHeader());
+                for (CSVRecord record : parser) {
+                    geneTable.put(record.get("Chromosome"), Integer.valueOf(record.get("Gene Start")),
+                          new Tuple2( Integer.valueOf(record.get("Gene End")), record.get("Gene Name")));
+
+                }
+
+            } catch (IOException e) {
+                logger.error(e.getMessage());
+                e.printStackTrace();
+            }
+            return geneTable;
+        }
     }
 
     public class EntrezIDSupplier implements Supplier<Map<String, String>> {

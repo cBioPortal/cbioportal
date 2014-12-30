@@ -18,9 +18,11 @@
 
 package org.mskcc.cbio.importer.model;
 
+import com.google.common.collect.Lists;
 import com.google.gdata.util.common.base.Preconditions;
 import org.apache.commons.beanutils.BeanUtils;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 import java.util.Map;
 
 /*
@@ -34,6 +36,19 @@ public class IcgcMetadata {
     private  String tumortype;
     private  String description;
     private  String shortname;
+    private String studyname;
+    private String clinicalurl;
+    private String copynumberurl;
+    private String exparrayurl;
+    private String expsequrl;
+    private String metharrayurl;
+    private String methsequrl;
+    private String mirnasequrl;
+    private String somaticmutationurl;
+    private String splicevarianturl;
+    private String structuralmutationurl;
+
+
     
     public IcgcMetadata(String[] properties){
         Preconditions.checkArgument(null != properties && properties.length >2, 
@@ -43,6 +58,7 @@ public class IcgcMetadata {
         this.tumortype = properties[2];
         this.description = (properties.length >3)?properties[3]:"";
         this.shortname = (properties.length >4)? properties[4]:"";
+        this.studyname = (properties.length >5)? properties[5]:"";
     }
 
     /*
@@ -95,5 +111,93 @@ public class IcgcMetadata {
 
     public void setShortname(String shortname) {
         this.shortname = shortname;
+    }
+
+    public String getStudyname() {
+        return studyname;
+    }
+
+    public void setStudyname(String studyname) {
+        this.studyname = studyname;
+    }
+
+    public String getClinicalurl() {
+        return clinicalurl;
+    }
+
+    public void setClinicalurl(String clinicalurl) {
+        this.clinicalurl = clinicalurl;
+    }
+
+    public String getCopynumberurl() {
+        return copynumberurl;
+    }
+
+    public void setCopynumberurl(String copynumberurl) {
+        this.copynumberurl = copynumberurl;
+    }
+
+    public String getExparrayurl() {
+        return exparrayurl;
+    }
+
+    public void setExparrayurl(String exparrayurl) {
+        this.exparrayurl = exparrayurl;
+    }
+
+    public String getExpsequrl() {
+        return expsequrl;
+    }
+
+    public void setExpsequrl(String expsequrl) {
+        this.expsequrl = expsequrl;
+    }
+
+    public String getMetharrayurl() {
+        return metharrayurl;
+    }
+
+    public void setMetharrayurl(String metharrayurl) {
+        this.metharrayurl = metharrayurl;
+    }
+
+    public String getMethsequrl() {
+        return methsequrl;
+    }
+
+    public void setMethsequrl(String methsequrl) {
+        this.methsequrl = methsequrl;
+    }
+
+    public String getSomaticmutationurl() {
+        return somaticmutationurl;
+    }
+
+    public void setSomaticmutationurl(String somaticmutationurl) {
+        this.somaticmutationurl = somaticmutationurl;
+    }
+
+    public String getSplicevarianturl() {
+        return splicevarianturl;
+    }
+
+    public void setSplicevarianturl(String splicevarianturl) {
+        this.splicevarianturl = splicevarianturl;
+    }
+
+    public String getStructuralmutationurl() {
+        return structuralmutationurl;
+    }
+
+    public void setStructuralmutationurl(String structuralmutationurl) {
+        this.structuralmutationurl = structuralmutationurl;
+    }
+
+    public String getMirnasequrl() {
+        return mirnasequrl;
+    }
+
+    public void setMirnasequrl(String mirnasequrl) {
+        this.mirnasequrl = mirnasequrl;
     }
 }

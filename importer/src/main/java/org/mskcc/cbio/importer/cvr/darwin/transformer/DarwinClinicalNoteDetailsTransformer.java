@@ -53,7 +53,8 @@ public class DarwinClinicalNoteDetailsTransformer  extends DarwinTransformer {
 
     @Override
     public void transform() {
-        this.writeStagingFile(this.generateReportByPatientIdList(IdMapService.INSTANCE.getDarwinIdList()));
+        //this.writeStagingFile(this.generateReportByPatientIdList(IdMapService.INSTANCE.getDarwinIdList()));
+        this.writeStagingFile(this.generateReportByPatientIdList(Lists.newArrayList(1519355)));
         return ;
     }
 
@@ -77,11 +78,14 @@ public class DarwinClinicalNoteDetailsTransformer  extends DarwinTransformer {
         for (Integer row : clinTable.rowKeySet()){
             List<String> valueList = Lists.newArrayList();
             for (String column : colSet){
-                valueList.add(clinTable.get(row,column));
+                if (!Strings.isNullOrEmpty(clinTable.get(row,column))) {
+                    valueList.add(clinTable.get(row,column).replace("\n"," "));
+                } else {
+                    valueList.add(" ");
+                }
             }
             reportList.add( StagingCommonNames.tabJoiner.join(valueList));
         }
-
         return reportList;
     }
 
@@ -102,15 +106,17 @@ public class DarwinClinicalNoteDetailsTransformer  extends DarwinTransformer {
     }
 
     public static void main (String...args){
+        logger.info("Start....");
 
         Path clinicalPath = Paths.get("/tmp/cvr/patient/clinical");
         DarwinClinicalNoteDetailsTransformer transformer = new DarwinClinicalNoteDetailsTransformer(clinicalPath);
         transformer.transform();
-        for (String s : transformer.generateReportByPatientId(1519355)) {
-            System.out.println(s);
-        }
+       // for (String s : transformer.generateReportByPatientId(1519355)) {
+        //    System.out.println(s);
+       // }
         // terminate the SQL session
         DarwinSessionManager.INSTANCE.closeSession();
+        logger.info("FINIS...");
 
     }
 

@@ -39,7 +39,7 @@ public enum MetadataFileHandler {
     /*
     Singleton class implemented as a enum
     responsible for writing out a importer metadata file
-    assumes metadata attributes have a 3 digit numeric prefix to support mapp order
+    assumes metadata attributes have a 3 digit numeric prefix to support map order
     an existing metadata file with the same absolute Path will be overwritten
      */
     INSTANCE;

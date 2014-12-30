@@ -53,6 +53,8 @@ public abstract class CnvTransformer {
         // if we wish to reuse any  existing CNV data (e.g. DMP studies)
         if (reuse) {
             this.cnaTable = this.fileHandler.initializeCnvTable();
+        } else {
+            this.cnaTable = HashBasedTable.create();
         }
     }
 

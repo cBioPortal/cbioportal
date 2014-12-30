@@ -44,7 +44,7 @@ import org.apache.commons.csv.CSVRecord;
 import org.apache.log4j.Logger;
 
 
-public abstract class TsvStagingFileProcessor {
+public abstract class TsvStagingFileProcessor implements TsvStagingFileHandler{
      protected  Path stagingFilePath;
     
     private final static Logger logger = Logger.getLogger(TsvStagingFileProcessor.class);
@@ -69,6 +69,8 @@ public abstract class TsvStagingFileProcessor {
                    "Column headings are required for the new staging file: " 
                            +stagingFilePath.toString());
             try {
+                // create the file and parent directories
+                Files.createDirectories(stagingFilePath.getParent());
                 OpenOption[] options = new OpenOption[]{CREATE, APPEND, DSYNC};
                 String line = StagingCommonNames.tabJoiner.join(columnHeadings) +"\n";
                 Files.write(stagingFilePath,
@@ -79,6 +81,7 @@ public abstract class TsvStagingFileProcessor {
             }       
        }
       this.stagingFilePath = stagingFilePath;
+        logger.info("Staging file path = " +this.stagingFilePath);
     }
 
     protected void transformImportDataToStagingFile(List aList,
@@ -91,17 +94,18 @@ public abstract class TsvStagingFileProcessor {
         Preconditions.checkState(null != this.stagingFilePath,
                 "The requisite Path to the tsv staging file has not be specified");
         
-        OpenOption[] options = new OpenOption[]{ APPEND, DSYNC};      
+        OpenOption[] options = new OpenOption[]{ APPEND, DSYNC};
         try {
             Files.write(this.stagingFilePath, Lists.transform(aList, 
                     transformationFunction), 
                     Charset.defaultCharset(), options);
         } catch (IOException ex) {
             logger.error(ex.getMessage());
+            ex.printStackTrace();
         }
     }
 
-    protected void removeDeprecatedSamplesFomTsvStagingFiles(final String sampleIdColumnName, final Set<String> deprecatedSampleSet) {
+   public void removeDeprecatedSamplesFomTsvStagingFiles(final String sampleIdColumnName, final Set<String> deprecatedSampleSet) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(sampleIdColumnName), "The name of the sample id column is required");
         Preconditions.checkArgument(null != deprecatedSampleSet,
                 "A set of deprecated samples is required");
@@ -173,7 +177,7 @@ public abstract class TsvStagingFileProcessor {
     based on a column  being identified as the sample id attribute
     this is to facilitate sample replacement processing
      */
-    protected Set<String> resolveProcessedSampleSet(final String sampleIdColumnName) {
+    public Set<String> resolveProcessedSampleSet(final String sampleIdColumnName) {
         Set<String> processedSampleSet = Sets.newHashSet();
         try {
             final CSVParser parser = new CSVParser(new FileReader(this.stagingFilePath.toFile()), CSVFormat.TDF.withHeader());

@@ -43,8 +43,8 @@ public abstract class ClinicalDataModel {
         transformationMap.put("004PIPELINE_VER","getPipelineVersion");
         transformationMap.put("005TUMOR_NUCLEI_PERCENT", "getTumorNucleiPercent");
         transformationMap.put("006MEDIAN_COV","getMedianCoverage");
-        transformationMap.put("COV>100X", "get100XCov");
-        transformationMap.put("ERROR_PERCENT","getErrorPercent");
+        transformationMap.put("007COV>100X", "get100XCov");
+        transformationMap.put("008ERROR_PERCENT","getErrorPercent");
 
     }
     public static List<String> resolveColumnNames() {

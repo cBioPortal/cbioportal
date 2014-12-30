@@ -18,10 +18,12 @@
 package org.mskcc.cbio.importer.persistence.staging.clinical;
 
 import com.google.common.base.Function;
+import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
+
 import java.nio.file.Path;
 import java.util.List;
 
-public interface ClinicalDataFileHandler {
+public interface ClinicalDataFileHandler extends TsvStagingFileHandler {
     
     /*
     register the clinical data file for staging data with handler. If the file does not

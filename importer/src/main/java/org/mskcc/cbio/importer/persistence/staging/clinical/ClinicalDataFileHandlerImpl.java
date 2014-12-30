@@ -73,5 +73,23 @@ public class ClinicalDataFileHandlerImpl extends TsvStagingFileProcessor
     }
 
 
+    @Override
+    public void registerTsvStagingFile(Path stagingFilePath, List<String> columnHeadings) {
 
+    }
+
+    @Override
+    public void registerTsvStagingFile(Path stagingFilePath, List<String> columnHeadings, boolean deleteFile) {
+
+    }
+
+    @Override
+    public void appendDataToTsvStagingFile(List<String> mafData) {
+
+    }
+
+    @Override
+    public void transformImportDataToTsvStagingFile(List aList, Function transformationFunction) {
+        super.transformImportDataToStagingFile(aList, transformationFunction);
+    }
 }

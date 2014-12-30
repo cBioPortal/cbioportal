@@ -28,13 +28,21 @@ import scala.Tuple2;
 public interface IDMapper {
 
 	/**
+	 * for a starting positon resolve the gene name
+	 * @param chromosome
+	 * @param startPos
+	 * @return
+	 */
+	String resolveGeneNameFromPosition(String chromosome, Integer startPos);
+
+	/**
 	 * For the given symbol, return id.
 	 *
 	 * @param geneSymbol String
 	 * @return String
 	 * @throws Exception
 	 */
-	String symbolToEntrezID(String geneSymbol) throws Exception;
+	String symbolToEntrezID(String geneSymbol)  throws Exception;
 
 	/**
 	 * For the entrezID, return symbol.

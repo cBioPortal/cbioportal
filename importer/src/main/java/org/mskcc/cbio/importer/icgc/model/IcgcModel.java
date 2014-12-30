@@ -1,9 +1,6 @@
-package org.mskcc.cbio.importer.cvr.darwin.service;
+package org.mskcc.cbio.importer.icgc.model;
 
-import com.google.common.base.Supplier;
-import edu.stanford.nlp.pipeline.StanfordCoreNLP;
-
-import java.util.Properties;
+import java.util.Map;
 
 /**
  * Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
@@ -22,19 +19,15 @@ import java.util.Properties;
  * Memorial Sloan-Kettering Cancer Center
  * has been advised of the possibility of such damage.
  * <p/>
- * Created by criscuof on 12/3/14.
+ * Created by criscuof on 12/22/14.
  */
-public class NLPSupplier  implements Supplier<StanfordCoreNLP> {
+public abstract class IcgcModel {
+    /*
+    an abstract class that provides generic access to a model class's
+    transformation map
+     */
+    public abstract Map<String,String> getTransformationMap();
 
-        public NLPSupplier() {}
 
-        @Override
-        public StanfordCoreNLP get() {
-            // specifiy the minimum set of annotators
-            Properties props = new Properties();
-            props.put("annotators", "tokenize, ssplit");
-
-            return new StanfordCoreNLP(props);
-        }
 
 }

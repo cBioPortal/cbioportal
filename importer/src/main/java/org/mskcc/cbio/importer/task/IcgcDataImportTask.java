@@ -1,13 +1,21 @@
 package org.mskcc.cbio.importer.task;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.*;
 import org.apache.log4j.Logger;
+import org.mskcc.cbio.importer.icgc.importer.IcgcCancerStudyImporter;
+import org.mskcc.cbio.importer.icgc.importer.SimpleSomaticMutationImporter;
+import org.mskcc.cbio.importer.icgc.support.IcgcMetadataService;
+import org.mskcc.cbio.importer.model.IcgcMetadata;
+import org.mskcc.cbio.importer.persistence.staging.util.StagingUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
@@ -34,17 +42,16 @@ import java.util.concurrent.TimeUnit;
  */
 public class IcgcDataImportTask extends AbstractScheduledService {
     private static final Logger logger = Logger.getLogger(IcgcDataImportTask.class);
+    private  Path baseStagingPath;
 
 
     final ListeningExecutorService service =
-            MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(2));
-    // List of ICGC Import tasks - populated by Spring configuration
-    private List<Callable<List<String>>> icgcImporterList;
+            MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(12));
 
-
-    public IcgcDataImportTask(List<Callable<List<String>>> importerList) {
-        Preconditions.checkArgument(null != importerList, "A List of callable import tasks is required");
-        this.icgcImporterList = importerList;
+    public IcgcDataImportTask(String stagingBase) {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(stagingBase),
+                "A base directory specification is required");
+        this.baseStagingPath = Paths.get(stagingBase);
     }
 
     protected void startup() {
@@ -59,38 +66,44 @@ public class IcgcDataImportTask extends AbstractScheduledService {
         logger.error("ERROR: IcgcDataImportTask stopped");
     }
 
-
     /*
     operation to be run once, every time this task is invoked by the scheduler
      */
     @Override
     protected void runOneIteration() throws Exception {
         logger.info("ICGC Import process invoked");
+        // get the current collection of IcgcMetadata objects
         final List<String> retList = Lists.newArrayList();
-        List<ListenableFuture<List<String>>> futureList = Lists.newArrayList();
-        for (Callable<List<String>> task : this.icgcImporterList){
-            futureList.add( service.submit(task));
-            ListenableFuture<List<List<String>>> taskResults = Futures.successfulAsList(futureList);
-            Futures.addCallback(taskResults, new FutureCallback<List<List<String>>>() {
-                @Override
-                public void onSuccess(List<List<String>> resultListList) {
-                    for(List<String> sl : resultListList){
-                      retList.addAll(sl);
-                    }
-                }
-                @Override
-                public void onFailure(Throwable t) {
-                    logger.error(t.getMessage());
-                    t.printStackTrace();
-                }
-            });
+        List<ListenableFuture<String>> futureList = Lists.newArrayList();
+        // run the SimpleSomaticMutationTransformer
+      //  futureList.add(service.submit(new SimpleSomaticMutationImporter(baseStagingPath)));
+        // run the smaller
+        for (IcgcMetadata metadata : IcgcMetadataService.INSTANCE.getIcgcMetadataList()) {
+            futureList.add(service.submit(new IcgcCancerStudyImporter(metadata, this.baseStagingPath)));
+            logger.info("Task added for " +metadata.getIcgcid());
         }
+        ListenableFuture<List<String>> taskResults = Futures.successfulAsList(futureList);
+        Futures.addCallback(taskResults, new FutureCallback<List<String>>() {
+            @Override
+            public void onSuccess(List<String> resultList) {
+                for(String s : resultList){
+                    logger.info(s);
+
+                }
+            }
+            @Override
+            public void onFailure(Throwable t) {
+                logger.error(t.getMessage());
+                t.printStackTrace();
+            }
+        });
+
     }
 
     @Override
     protected Scheduler scheduler() {
         // define how often this task should be invoked
-        return Scheduler.newFixedRateSchedule(0,61, TimeUnit.SECONDS);
+        return Scheduler.newFixedRateSchedule(0,61, TimeUnit.MINUTES);
     }
     /*
     main method for stand alone testing outside of task scheduler

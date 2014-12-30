@@ -62,7 +62,7 @@ public class DmpSnpTransformer extends MutationTransformer implements DMPDataTra
         DmpUtils.removeDeprecatedSamples(data, this.fileHandler);
         // convert DmpSnp objects to DmpSnpModel objects and output to staging file
         this.fileHandler.transformImportDataToTsvStagingFile(this.resolveDmpMutations(data),
-                MutationModel.getTransformationModel());
+                MutationModel.getTransformationFunction());
     }
 
     /*

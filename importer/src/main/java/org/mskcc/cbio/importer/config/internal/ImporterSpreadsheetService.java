@@ -234,7 +234,7 @@ public enum ImporterSpreadsheetService {
             Table<Integer,String,String> table = ImporterSpreadsheetService.INSTANCE.getWorksheetTableByName("icgc");
             // find the download directory for the BRCA-UK study
             String columnKey = "icgcid";
-            String studyID = "BRCA-UK";
+            String studyID = "BOCA-UK";
             if(table.containsColumn(columnKey)) {
                 Map<Integer,String> columnMap = table.column(columnKey);
                 if(columnMap.containsValue(studyID)) {

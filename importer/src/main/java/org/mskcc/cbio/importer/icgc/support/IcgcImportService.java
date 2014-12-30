@@ -22,7 +22,6 @@ import com.google.common.collect.FluentIterable;
 import com.google.gdata.util.common.base.Preconditions;
 import joptsimple.internal.Strings;
 import org.apache.log4j.Logger;
-import org.mskcc.cbio.importer.icgc.transformer.ClinicalDataFileTransformer;
 import org.mskcc.cbio.importer.icgc.transformer.IcgcFileTransformer;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 
@@ -52,11 +51,14 @@ public enum IcgcImportService {
     private static final String US = "US";
 
 
-    private Map<String, String> urlMap = Suppliers.memoize(new IcgcMutationURLSupplier()).get();
+    private Map<String, String> mutationMap = Suppliers.memoize(new IcgcMutationURLSupplier()).get();
+    private Map<String,String> clinicalMap = Suppliers.memoize(new IcgcClinicalURLSupplier()).get();
 
     public Map<String, String> getIcgcMutationUrlMap() {
-        return this.urlMap;
+        return this.mutationMap;
     }
+
+    public Map<String,String> getIcgcClinicalUrlMap() {return this.clinicalMap; }
 
     /*
     return the appropriate type of transformer based on the ICGC file type
@@ -69,8 +71,8 @@ public enum IcgcImportService {
         switch (icgcMutationType) {
             case SIMPLE_SOMATIC_MUTATION_TYPE:
                 //return Optional.of((IcgcFileTransformer) new SimpleSomaticFileTransformer());
-            case CLINICALSAMPLE_TYPE:
-                return Optional.of((IcgcFileTransformer) new ClinicalDataFileTransformer());
+            //case CLINICALSAMPLE_TYPE:
+             //   return Optional.of((IcgcFileTransformer) new ClinicalDataFileTransformer());
             default:
                 logger.error("A FileTransformer for mutation type " + icgcMutationType + " is not supported");
                 return Optional.absent();
@@ -132,13 +134,49 @@ public enum IcgcImportService {
         }
     }
 
+    private class IcgcClinicalURLSupplier implements Supplier<Map<String, String>> {
+
+        public final String icgcMutationUrlTemplate
+                = "https://dcc.icgc.org/api/v1/download?fn=/current/Projects/STUDY/MUTATION_TYPE.STUDY.tsv.gz";
+
+        private final String STUDY_FLAG = "STUDY";
+
+        public IcgcClinicalURLSupplier() {
+
+        }
+
+        @Override
+        public Map<String, String> get() {
+            return FluentIterable.from(IcgcMetadataService.INSTANCE.getRegisteredIcgcStudyList())
+                    .transform(new Function<String, String>() {
+                        @Override
+                        public String apply(String f) {
+                            return StagingCommonNames.blankSplitter.splitToList(f).get(0);
+                        }
+                    }).toMap(new Function<String, String>() {
+
+                        @Override
+                        public String apply(String f) {
+                            String template = icgcMutationUrlTemplate.replaceAll(MUTATION_TYPE, CLINICAL_TYPE);
+                            return template.replaceAll(STUDY_FLAG, f);
+                        }
+                    });
+        }
+    }
+
      /*
     main method for testing
      */
 
     public static void main(String... args) {
-        Map<String, String> urlMap = IcgcImportService.INSTANCE.getIcgcMutationUrlMap();
-        for (Map.Entry<String, String> entry : urlMap.entrySet()) {
+        // mutation urls
+        Map<String, String> mutationMap = IcgcImportService.INSTANCE.getIcgcMutationUrlMap();
+        for (Map.Entry<String, String> entry : mutationMap.entrySet()) {
+            System.out.println("study: " + entry.getKey() + "  url " + entry.getValue());
+        }
+        // clinical urls
+        Map<String, String> clinicalMap = IcgcImportService.INSTANCE.getIcgcClinicalUrlMap();
+        for (Map.Entry<String, String> entry : clinicalMap.entrySet()) {
             System.out.println("study: " + entry.getKey() + "  url " + entry.getValue());
         }
     }

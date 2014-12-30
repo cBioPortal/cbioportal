@@ -70,6 +70,8 @@ public class CnvVariant {
     private String variantStatusName;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    @JsonIgnore
+    private Integer dmpSampleId;
 
     /**
      * 
@@ -423,4 +425,11 @@ public class CnvVariant {
         return new EqualsBuilder().append(chromosome, rhs.chromosome).append(cnvClassCvId, rhs.cnvClassCvId).append(cnvClassName, rhs.cnvClassName).append(cnvFilterCvId, rhs.cnvFilterCvId).append(cnvFilterName, rhs.cnvFilterName).append(cnvVariantId, rhs.cnvVariantId).append(comments, rhs.comments).append(confidenceClass, rhs.confidenceClass).append(confidenceCvId, rhs.confidenceCvId).append(cytoband, rhs.cytoband).append(geneFoldChange, rhs.geneFoldChange).append(geneId, rhs.geneId).append(genePValue, rhs.genePValue).append(isSignificant, rhs.isSignificant).append(variantStatusCvId, rhs.variantStatusCvId).append(variantStatusName, rhs.variantStatusName).append(additionalProperties, rhs.additionalProperties).isEquals();
     }
 
+    public Integer getDmpSampleId() {
+        return dmpSampleId;
+    }
+
+    public void setDmpSampleId(Integer dmpSampleId) {
+        this.dmpSampleId = dmpSampleId;
+    }
 }

@@ -17,13 +17,19 @@
  */
 package org.mskcc.cbio.importer.persistence.staging.util;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.collect.FluentIterable;
 import org.apache.log4j.Logger;
+
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
 
 /*
  represents a collection of static utility methods used though out the application
@@ -52,8 +58,34 @@ public class StagingUtils {
 
         } catch (Exception ex) {
             logger.error(ex.getMessage());
+            ex.printStackTrace();
         }
         return "";
+    }
+
+    /*
+    utility method to convert the keys of a supplied map to a List of Strings
+    to be used as column headings in a tsv file
+     */
+    public static List<String> resolveColumnNames(Map<String,String> transformationMap) {
+        Preconditions.checkArgument(null != transformationMap && transformationMap.size()>0,
+                "A valid transformation map is required");
+        return FluentIterable.from(transformationMap.keySet())
+                .transform(new Function<String, String>() {
+                    @Override
+                    public String apply(String s) {
+                        return (s.substring(3)); // strip off the three digit numeric prefix
+                    }
+                }).toList();
+    }
+
+    public static String[]  resolveFieldNames(Class modelClass){
+        Field[] modelFields = modelClass.getDeclaredFields();
+        String[] fieldnames = new String[modelFields.length];
+        for (int i = 0; i < modelFields.length; i++) {
+            fieldnames[i] = modelFields[i].getName();
+        }
+        return fieldnames;
     }
 
     /*
@@ -64,12 +96,12 @@ public class StagingUtils {
         com.google.common.base.Preconditions.checkArgument
                 (null != aPath,
                         "A Path to the staging file directory is required");
-        com.google.common.base.Preconditions.checkArgument
-                (Files.isDirectory(aPath, LinkOption.NOFOLLOW_LINKS),
-                        "The specified Path: " + aPath + " is not a directory");
-        com.google.common.base.Preconditions.checkArgument
-                (Files.isWritable(aPath),
-                        "The specified Path: " + aPath + " is not writable");
+       // com.google.common.base.Preconditions.checkArgument
+         //       (Files.isDirectory(aPath, LinkOption.NOFOLLOW_LINKS),
+        //                "The specified Path: " + aPath + " is not a directory");
+      //  com.google.common.base.Preconditions.checkArgument
+       //         (Files.isWritable(aPath),
+       //                 "The specified Path: " + aPath + " is not writable");
         return true;
 
     }

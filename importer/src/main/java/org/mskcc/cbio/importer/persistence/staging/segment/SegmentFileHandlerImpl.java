@@ -45,4 +45,24 @@ public class SegmentFileHandlerImpl extends TsvStagingFileProcessor implements S
         super.transformImportDataToStagingFile(aList, transformationFunction);
 
     }
+
+    @Override
+    public void registerTsvStagingFile(Path stagingFilePath, List<String> columnHeadings) {
+
+    }
+
+    @Override
+    public void registerTsvStagingFile(Path stagingFilePath, List<String> columnHeadings, boolean deleteFile) {
+
+    }
+
+    @Override
+    public void appendDataToTsvStagingFile(List<String> mafData) {
+
+    }
+
+    @Override
+    public void transformImportDataToTsvStagingFile(List aList, Function transformationFunction) {
+
+    }
 }

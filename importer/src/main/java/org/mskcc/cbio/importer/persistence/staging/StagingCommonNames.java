@@ -19,13 +19,12 @@ package org.mskcc.cbio.importer.persistence.staging;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSortedMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import com.google.common.collect.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * represents a collection of common values used throughout the importer
@@ -50,11 +49,26 @@ public interface StagingCommonNames {
     public static final Joiner tabJoiner = Joiner.on('\t').useForNull(" ");
     public static final Joiner commaJoiner = Joiner.on(',').useForNull(" ");
     public static final Joiner blankJoiner = Joiner.on(" ");
+    public static final Joiner lineJoiner = Joiner.on("\n");
     public static final Splitter posSplitter = Splitter.on(':');
     public final Joiner pathJoiner =
             Joiner.on(System.getProperty("file.separator"));
     public final Splitter pathSplitter =
             Splitter.on(System.getProperty("file.separator"));
+    public final Pattern tabPattern = Pattern.compile("\t");
+
+    // transformation types
+    public static final String MUTATION_TYPE = "mutation";
+    public static final String CLINICAL_TYPE = "clinical";
+    public static final String COPY_NUMBER_TYPE = "copy_number";
+    public static final String EXP_ARRAY_TYPE = "exp_array";
+    public static final String EXP_SEQ_TYPE = "exp_seq";
+    public static final String METH_ARRAY_TYPE = "meth_array";
+    public static final String METH_SEQ_TYPE = "meth_seq";
+    public static final String MIRNA_SEQ_TYPE = "mirna_seq";
+    public static final String SPLICE_VARIANT_TYPE = "splice_variant";
+    public static final String STRUCTURAL_MUTATION_TYPE = "structural_mutation";
+
 
     // length of human chromosomes
     // http://www.ncbi.nlm.nih.gov/projects/genome/assembly/grc/human/data/
@@ -68,7 +82,7 @@ public interface StagingCommonNames {
                     .put("7", Long.valueOf(159_345_973))
                     .put("8", Long.valueOf(145_138_636))
                     .put("9", Long.valueOf(138_394_717))
-                    .put("10", Long.valueOf(133_797_422))
+                    .put("10", Long.valueOf(133_797_42))
                     .put("11", Long.valueOf(135_086_622))  // this is correct
                     .put("12", Long.valueOf(133_75_309))
                     .put("13", Long.valueOf(114_364_328))
@@ -83,4 +97,8 @@ public interface StagingCommonNames {
                     .put("22", Long.valueOf(50_818_468))
                     .put("X", Long.valueOf(156_040_895))
                     .put("Y", Long.valueOf(57_227_415)).build();
+    // valid chromosome values
+    public static final Set<String> validChromosomeSet = Sets.newHashSet("1","2","3","4","5","6",
+           "7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","X","Y",
+           "x","y" );
 }

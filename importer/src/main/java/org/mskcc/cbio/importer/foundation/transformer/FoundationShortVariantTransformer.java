@@ -87,7 +87,7 @@ public class FoundationShortVariantTransformer extends MutationTransformer {
 
             );
         }
-        this.fileHandler.transformImportDataToTsvStagingFile(modelList,MutationModel.getTransformationModel());
+        this.fileHandler.transformImportDataToTsvStagingFile(modelList,MutationModel.getTransformationFunction());
         return casesType.getCase().size();
     }
 

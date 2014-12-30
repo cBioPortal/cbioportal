@@ -20,10 +20,9 @@ import org.mskcc.cbio.importer.cvr.darwin.model.dvcbio.PathologyDataExample;
 import org.mskcc.cbio.importer.cvr.darwin.util.DarwinSessionManager;
 import org.mskcc.cbio.importer.cvr.darwin.util.IdMapService;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
-import scala.Tuple2;
-
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -56,7 +55,7 @@ public class DarwinDocumentParsers {
     private static final Logger logger = Logger.getLogger(DarwinDocumentParsers.class);
 
     /*
-    public static utility method that parses the contents of the clinical not medical document to a supplied
+    public static utility method that parses the contents of the clinical note medical document to a supplied
     Gooogle Guava Table object
      */
 
@@ -74,7 +73,7 @@ public class DarwinDocumentParsers {
         sb.append("SAMPLE ID(s): ");
         sb.append(IdMapService.INSTANCE.displayDmpIdsByDarwinId(patientId));
         sb.append(".\n");
-
+        // filter the original text
         List<String> filteredLines = FluentIterable.from(lines)
                 .filter(new Predicate<String>() {
                     @Override
@@ -110,137 +109,50 @@ public class DarwinDocumentParsers {
         Annotation annotation = new Annotation(sb.toString());
         pipeline.annotate(annotation);
         List<CoreMap> sentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
+        processSentences(sentences, clinTable.row(rowNum));
+    }
+
+    /*
+    private method that processes sentences into cells within a table row
+    a cell may contain one or more sentences
+    if a sentence starts with an uppercase word followed by a colon (e.g. ABCD:), it is
+    consider to be start of a new cell. The cell name is the uppercase word
+    the exception is sentences belonging to the review of systems group; these are processed as a
+    group.
+     */
+    private static void processSentences(List<CoreMap> sentences, Map<String,String> rowMap){
         String columnName = null;
+        boolean rosFlag = false;
         String value = null;
-        for (CoreMap sentence : sentences){
+        for (CoreMap sentence : sentences) {
             String s = sentence.toString();
             if(s.startsWith(DarwinParserNames.CN_REVIEW_OF_SYSTEMS)) {
-                processReviewOfSystemsAttribute(rowNum, sentence.toString(), clinTable);
-            } else {
-                List<String> parts = edu.stanford.nlp.util.StringUtils.split(s, "\\:");
-                if (parts.size() > 1) {
-                    if (!Strings.isNullOrEmpty(columnName) && !Strings.isNullOrEmpty(value)) {
-                        clinTable.put(rowNum, columnName, value);
-                    }
-                    columnName = parts.get(0);
-                    value = parts.get(1);
-
+                rosFlag = true;
+                rowMap.put(DarwinParserNames.CN_REVIEW_OF_SYSTEMS, "");
+                s.replace(DarwinParserNames.CN_REVIEW_OF_SYSTEMS,"");
+                columnName = DarwinParserNames.CN_REVIEW_OF_SYSTEMS;
+            } else if (s.startsWith("GENERAL:")) {
+                rosFlag = false;
+            }
+                if (rosFlag) {
+                    StringBuilder sb = new StringBuilder(rowMap.get(DarwinParserNames.CN_REVIEW_OF_SYSTEMS))
+                            .append(" ").append(s);
+                    rowMap.put(DarwinParserNames.CN_REVIEW_OF_SYSTEMS,sb.toString());
                 } else {
-                    value = value + " " + s;
-                }
-            }
-        }
-
-    }
-
-    public static void parseDarwinClinicalNoteDocumentOld (Integer patientId, String clinDoc, Table<Integer, String,String> clinTable){
-        Preconditions.checkArgument(null!= patientId && patientId >0, "A valid patient id is required");
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(clinDoc)," A clinical note document is required");
-        Preconditions.checkArgument(null!=clinTable," A Google Guava Table is required");
-
-        Integer seq = clinTable.rowKeySet().size();
-        List<String> lines = Lists.newArrayList(StagingCommonNames.lineSplitter.split(clinDoc));
-
-        List<String> filteredLines = FluentIterable.from(lines)
-                .filter(new Predicate<String>() {
-                    @Override
-                    public boolean apply(String line) {
-                        return StringUtils.isNotBlank(line);
-                    }
-                })
-                .filter(new Predicate<String>() {
-                    @Override
-                    public boolean apply(String line) {
-                        for (String skipWord : DarwinParserNames.CN_FILTER_LIST) {
-                            if (line.startsWith(skipWord)) {
-                                return false;
-                            }
+                    List<String> parts = edu.stanford.nlp.util.StringUtils.split(s, "\\:");
+                    if(parts.size() > 1){
+                        columnName = parts.get(0);
+                        rowMap.put(columnName, parts.get(1));
+                    } else {
+                        if (!Strings.isNullOrEmpty(columnName)){
+                            StringBuilder sb = new StringBuilder(rowMap.get(columnName))
+                                    .append(" ").append(s);
+                            rowMap.put(columnName,sb.toString());
                         }
-                        return true;
                     }
-                })
-                //get rid of multiple blank spaces
-                .transform(new Function<String, String>() {
-                               @Nullable
-                               @Override
-                               public String apply(String input) {
-                                   return input.replaceAll(" +"," ");
-                               }
-                           }
-                )
-                .toList();
-
-        String attributeName = patientIdColumn;
-        StringBuilder sb = new StringBuilder(patientId.toString());
-        seq++;
-
-       /*
-       process each report line
-       determine in a line represents the start of a new clinical attribute or the
-       continuation of the current clinical attribute.
-        */
-        for ( String line : filteredLines){
-            boolean processed = false;
-            for (String attribute : DarwinParserNames.CN_ATTIBUTE_LIST){
-                if (line.startsWith(attribute)) {
-
-                    if(null != attributeName && sb.length() > 0) {
-                        if (attributeName.equals(DarwinParserNames.CN_REVIEW_OF_SYSTEMS)){
-
-                            processReviewOfSystemsAttribute(seq, sb.toString(), clinTable);
-
-                        } else {
-                            clinTable.put(seq, attributeName, sb.toString());
-
-                        }
-                        sb.setLength(0);
-                    }
-                    attributeName = attribute.replace(":","");
-                    sb.append(line.replace(attribute,""));
-                    processed = true;
                 }
-            }
-            // if the line is a continuation, add its value to the buffer
-            if(!processed){
-                sb.append(" ");
-                sb.append(line);
-            }
         }
-        return ;
     }
-    /*
-    private method to process the attributes within the Review of Systems text block
-    updates supplied Table
-     */
-
-    private static void processReviewOfSystemsAttribute(final Integer rowNum, final String text, Table<Integer,
-            String,String> clinTable){
-        // remove the REVIEW OF SYSTEMS: header
-        String rosText = text.replace(DarwinParserNames.CN_REVIEW_OF_SYSTEMS,"").trim();
-        Annotation annotation = new Annotation(rosText);
-        pipeline.annotate(annotation);
-        List<CoreMap> sentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
-        String columnName = null;
-        String value = null;
-        for (CoreMap sentence: sentences){
-            //String s1 = CharMatcher.JAVA_ISO_CONTROL.removeFrom(sentence.toString());
-            String  s1 = sentence.toString().replace("\n","");
-            String filtered = s1.replaceAll(" +"," ");
-            List<String>parts = edu.stanford.nlp.util.StringUtils.split(filtered,"\\:");
-            if(parts.size()> 1){
-                if (!Strings.isNullOrEmpty(columnName) && !Strings.isNullOrEmpty(value) ) {
-                    clinTable.put(rowNum, "ROS_" +columnName, value);
-                }
-                columnName = parts.get(0);
-                value = parts.get(1);
-
-            }else {
-                value = value + " " + filtered;
-            }
-        }
-        return;
-    }
-
 
     public static  void parsePathologyReport(final Integer patientId, final String pathologyReport,
                                       Table<Integer,String,String> pathTable){
@@ -311,12 +223,9 @@ public class DarwinDocumentParsers {
             logger.info("+++++++++++++++++++PATHOLOGY DATA ++++++++++++++++++++++++++++++++");
             Set<String> colSet = pathTable.columnKeySet();
             for (Integer row : pathTable.rowKeySet()){
-
                 for (String column : colSet){
-
                     logger.info("ROW " +row.toString() + " COL: " +column +" VALUE " +pathTable.get(row,column));
                 }
-
             }
         }
     }

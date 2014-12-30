@@ -53,7 +53,7 @@ public class TestXMLFileTransformer {
                     return (input.toString().endsWith("xml"));
                 }
             };
-            FileDataSource fds = new FileDataSource("/tmp/foundation/dlbc/13-081/mskcc/foundation", xmlFileExtensionFilter);
+            FileDataSource fds = new FileDataSource("/data/foundation/lymphoma-sa_therp/mskcc/foundation", xmlFileExtensionFilter);
 
             TsvStagingFileHandler svtFileHandler = new MutationFileHandlerImpl();
             CnvFileHandler cnVFileHandler = new CnvFileHandlerImpl();
@@ -180,7 +180,7 @@ public class TestXMLFileTransformer {
             );
 
             CancerStudyMetadata meta2 = new CancerStudyMetadata(
-                    new String[]{"lymphoma-sa_therp/mskcc/foundation",	"mixed",	"lymphoma-s1a_mskcc_foundation",	" Retrospective genomic analysis of patients on single agent therapeutics for relapsed lymphoma",
+                    new String[]{"lymphoma-sa_therp/mskcc/foundation",	"mixed",	"lymphoma-sa_mskcc_foundation",	" Retrospective genomic analysis of patients on single agent therapeutics for relapsed lymphoma",
                             " targeted sequencing of relapsed lymphoma treated with single agent targeted therapy","","","BATLEVI",	"Lymphoma targeted agents",	"FALSE",	"TRUE",	"FALSE",	"FALSE","Targeted",
                             "x"			}
             );

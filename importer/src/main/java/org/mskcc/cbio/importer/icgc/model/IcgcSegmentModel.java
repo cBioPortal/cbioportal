@@ -1,5 +1,10 @@
 package org.mskcc.cbio.importer.icgc.model;
 
+import com.google.common.collect.Maps;
+import org.mskcc.cbio.importer.persistence.staging.segment.SegmentModel;
+
+import java.util.Map;
+
 /**
  * Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
  * <p/>
@@ -19,7 +24,7 @@ package org.mskcc.cbio.importer.icgc.model;
  * <p/>
  * Created by criscuof on 12/19/14.
  */
-public class IcgcCopyNumberModel {
+public class IcgcSegmentModel  extends SegmentModel{
 
     private String cgc_donor_id;
     private String project_code;
@@ -58,6 +63,7 @@ public class IcgcCopyNumberModel {
     private String seq_coverage;
     private String raw_data_repository;
     private String raw_data_accession;
+
 
     public String getCgc_donor_id() {
         return cgc_donor_id;
@@ -147,8 +153,34 @@ public class IcgcCopyNumberModel {
         this.segment_median = segment_median;
     }
 
+
+    @Override
+    public String getID() {
+        return this.getIcgc_sample_id();
+    }
+
     public String getChromosome() {
-        return chromosome;
+        return this.chromosome;
+    }
+
+    @Override
+    public String getLocStart() {
+        return this.getChromosome_start();
+    }
+
+    @Override
+    public String getLocEnd() {
+        return this.getChromosome_end();
+    }
+
+    @Override
+    public String getNumMark() {
+        return "";
+    }
+
+    @Override
+    public String getSegMean() {
+        return this.getSegment_median(); // ICGC files populate segment_median, not segment_mean
     }
 
     public void setChromosome(String chromosome) {

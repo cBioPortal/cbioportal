@@ -5,8 +5,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Table;
+
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.config.internal.ImporterSpreadsheetService;
 import org.mskcc.cbio.importer.model.IcgcMetadata;

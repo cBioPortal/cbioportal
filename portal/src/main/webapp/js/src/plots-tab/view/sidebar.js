@@ -6,9 +6,14 @@ var sidebar = (function() {
     };
     
     var listener = function() {
+        
+        //listener on data types
         $("#" + ids.sidebar.x.data_type).change(function() {
             if ($("#" + ids.sidebar.x.data_type).val() === vals.data_type.genetic) {
                 profileSpec.init("x");
+                $("#" + ids.sidebar.x.gene).change(function() {
+                    profileSpec.update("x");
+                });
             } else if ($("#" + ids.sidebar.x.data_type).val() === vals.data_type.clin) {
                 clinSpec.init("x");
             }
@@ -16,10 +21,21 @@ var sidebar = (function() {
         $("#" + ids.sidebar.y.data_type).change(function() {
             if ($("#" + ids.sidebar.y.data_type).val() === vals.data_type.genetic) {
                 profileSpec.init("y");
+                $("#" + ids.sidebar.y.gene).change(function() {
+                    profileSpec.update("y");
+                });
             } else if ($("#" + ids.sidebar.y.data_type).val() === vals.data_type.clin) {
                 clinSpec.init("y");
             }
-        });        
+        });  
+        
+        //listener on genes
+        $("#" + ids.sidebar.x.gene).change(function() {
+            profileSpec.update("x");
+        });
+        $("#" + ids.sidebar.y.gene).change(function() {
+            profileSpec.update("y");
+        });
     };
     
     return {

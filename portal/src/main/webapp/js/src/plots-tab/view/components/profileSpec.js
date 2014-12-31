@@ -26,6 +26,20 @@ var profileSpec = (function() {
         $("#" + ids.sidebar[axis].spec_div).append("</select>");
     }
     
+    function updateProfileTypeList(axis) {
+        var _tmp = [];
+        $.each(metaData.getGeneticProfilesMeta($("#" + ids.sidebar[axis].gene).val()), function(index, obj) {
+            if($.inArray(obj.type, _tmp) === -1 && 
+                obj.type !== "MUTATION_EXTENDED") //tmp: skip mutation profile
+                    _tmp.push(obj.type);
+        });
+        $("#" + ids.sidebar[axis].profile_type).empty();
+        $.each(_tmp, function(index, value) {
+            $("#" + ids.sidebar[axis].profile_type).append(
+                    "<option value='" + value + "'>" + vals.profile_type[value] + "</option>");
+        });
+    }
+    
     function appendProfileNameList(axis) {
         $("#" + ids.sidebar[axis].spec_div).append("<br><h5>Profile Name</h5>");
         $("#" + ids.sidebar[axis].spec_div).append("<select id='" + ids.sidebar[axis].profile_name + "'>");
@@ -45,6 +59,25 @@ var profileSpec = (function() {
             });           
         };
         
+    }
+    
+    function updateProfileNameList(axis) {
+        $("#" + ids.sidebar[axis].profile_name).empty();
+        append();
+        //register event listener
+        $("#" + ids.sidebar[axis].profile_type).change(function() {
+            $("#" + ids.sidebar[axis].profile_name).empty();
+            append();
+        });
+        
+        function append() {
+             $.each(metaData.getGeneticProfilesMeta($("#" + ids.sidebar[axis].gene).val()), function(index, obj) {
+                if (obj.type === $("#" + ids.sidebar[axis].profile_type).val()) {
+                    $("#" + ids.sidebar[axis].profile_name).append(
+                            "<option value='" + obj.id + "'>" + obj.name + "</option>");
+                }
+            });           
+        };
     }
     
     function appendLogScaleOption (axis) {
@@ -75,6 +108,12 @@ var profileSpec = (function() {
             appendProfileTypeList(axis);
             appendProfileNameList(axis);
             appendLogScaleOption(axis);
+        },
+        update: function(axis) {
+            $("#" + ids.sidebar[axis].profile_type).empty();
+            $("#" + ids.sidebar[axis].profile_name).empty();
+            updateProfileTypeList(axis);
+            updateProfileNameList(axis);
         }
     };
 }());

@@ -1,11 +1,14 @@
 package org.mskcc.cbio.annotator;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.Date;
 
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.CmdLineException;
+import org.mskcc.cbio.maf.MafHeaderUtil;
 import org.mskcc.cbio.oncotator.OncotateTool;
 
 /**
@@ -74,6 +77,12 @@ public class AnnotateTool
 			System.out.println("[" + start + "] Started annotating: " + config.getInput());
 			annotator.annotateFile(new File(config.getInput()),
 			                       new File(config.getOutput()));
+			int diff = compareFiles(config.getInput(), config.getOutput());
+
+			if (diff != 0)
+			{
+				System.out.println("Possible error processing the input file: " + config.getInput());
+			}
 		} catch (IOException e) {
 			System.out.println("IO error occurred: " + e.getMessage());
 			e.printStackTrace();
@@ -86,5 +95,66 @@ public class AnnotateTool
 		}
 
 		return result;
+	}
+
+	/**
+	 * Compare the given 2 files with respect to number of total data lines.
+	 *
+	 * @param file1
+	 * @param file2
+	 * @return difference between the two files wrt total number of data lines
+	 */
+	private static int compareFiles(String file1, String file2)
+	{
+		int diff;
+
+		try
+		{
+			diff = calcLineCount(file1) - calcLineCount(file2);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+			return -1;
+		}
+
+		return diff;
+	}
+
+	/**
+	 * Calculates the total number of data lines: Lines excluding the comments,
+	 * header line and empty lines.
+	 *
+	 * @param filename  name of the data file
+	 * @return  total number of data lines
+	 * @throws IOException
+	 */
+	private static int calcLineCount(String filename) throws IOException
+	{
+		BufferedReader bufReader = new BufferedReader(new FileReader(filename));
+		MafHeaderUtil headerUtil = new MafHeaderUtil();
+
+		// this is to exclude comments and header lines from the count
+		String headerLine = headerUtil.extractHeader(bufReader);
+
+		String dataLine;
+		int count = 0;
+
+		// process the file line by line
+		while ((dataLine = bufReader.readLine()) != null)
+		{
+			// skip empty lines
+			if (dataLine.trim().length() == 0)
+			{
+				continue;
+			}
+
+			// update total number of lines
+			count++;
+		}
+
+		bufReader.close();
+
+		return count;
 	}
 }

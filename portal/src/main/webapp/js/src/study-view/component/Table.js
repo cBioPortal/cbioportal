@@ -302,6 +302,7 @@ var Table = function() {
                     });
                 });
                 
+                $('#'+ divs.tableId).find('table tbody tr td.clickable').unbind('hover');
                 $('#'+ divs.tableId).find('table tbody tr td.clickable').hover(function(e, i) {
                     $(this).siblings().addBack().addClass('hoverRow');
                 },function(e, i) {
@@ -330,7 +331,8 @@ var Table = function() {
     }
     
     function rowClick() {
-        $('#' + divs.tableId + ' tbody tr td.clickable').on( 'click', function () {
+        $('#' + divs.tableId + ' table tbody tr td.clickable').unbind('click');
+        $('#' + divs.tableId + ' table tbody tr td.clickable').click(function () {
             var shiftClicked = StudyViewWindowEvents.getShiftKeyDown(),
             highlightedRowsData = '';
                 
@@ -362,6 +364,7 @@ var Table = function() {
     }
     
     function deleteTable() {
+        $('#'+ divs.deleteIconId).unbind('click');
         $('#'+ divs.deleteIconId).click(function() {
             if(callbacks.hasOwnProperty('deleteTable')) {
                 callbacks.deleteTable(divs.mainId, divs.title);
@@ -372,6 +375,7 @@ var Table = function() {
     }
     
     function reset() {
+        $('#'+ divs.reloadId).unbind('click');
         $('#'+ divs.reloadId).click(function() {
             $('#' + divs.tableId + ' tbody').find('.highlightRow').removeClass('highlightRow');
             if(callbacks.hasOwnProperty('rowClick')) {

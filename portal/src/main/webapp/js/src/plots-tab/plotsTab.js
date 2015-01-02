@@ -26,7 +26,7 @@
  */
 
 var plotsTab = (function() {
-        
+    
     return {
         init: function() {
             
@@ -51,6 +51,10 @@ var plotsTab = (function() {
                     $("#" + ids.main_view.div).empty();
                     plotsData.fetch("y");
                     plotsbox.init();
+                }
+            });
+            $("#" + ids.sidebar.util.view_switch).bind({
+                change: function() {
                 }
             });
             

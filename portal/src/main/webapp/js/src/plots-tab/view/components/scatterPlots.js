@@ -106,49 +106,92 @@ var scatterPlots = (function() {
     function drawDots(_apply_box_plots, _box_plots_axis) {
         
         elem.dotsGroup.selectAll("path").remove();
-        elem.dotsGroup.selectAll("path")
-            .data(data)
-            .enter()
-            .append("svg:path")
-            .attr("transform", function(d){
-                $(this).attr("x_pos", elem.x.scale(d.xVal));
-                $(this).attr("y_pos", elem.y.scale(d.yVal));
-                $(this).attr("x_val", d.xVal);
-                $(this).attr("y_val", d.yVal);
-                $(this).attr("case_id", d.caseId);
-                $(this).attr("size", 20);
-                
-                var _x, _y;
-                if (_apply_box_plots) { //apply noise
-                    if (_box_plots_axis === "x") {
-                        _x = elem.x.scale(d.xVal) + (Math.random() * 30 - 30/2);
-                        _y = elem.y.scale(d.yVal);
+
+        if ($("input[name=" + ids.sidebar.util.view_switch + "]:checked").val() === "mutation_details") {
+            elem.dotsGroup.selectAll("path")
+                .data(data)
+                .enter()
+                .append("svg:path")
+                .attr("transform", function(d){
+                    $(this).attr("x_pos", elem.x.scale(d.xVal));
+                    $(this).attr("y_pos", elem.y.scale(d.yVal));
+                    $(this).attr("x_val", d.xVal);
+                    $(this).attr("y_val", d.yVal);
+                    $(this).attr("case_id", d.caseId);
+                    $(this).attr("size", 20);
+
+                    var _x, _y;
+                    if (_apply_box_plots) { //apply noise
+                        if (_box_plots_axis === "x") {
+                            _x = elem.x.scale(d.xVal) + (Math.random() * 30 - 30/2);
+                            _y = elem.y.scale(d.yVal);
+                        } else {
+                            _x = elem.x.scale(d.xVal);
+                            _y = elem.y.scale(d.yVal) + (Math.random() * 20 - 20/2);
+                        }
                     } else {
                         _x = elem.x.scale(d.xVal);
-                        _y = elem.y.scale(d.yVal) + (Math.random() * 20 - 20/2);
+                        _y = elem.y.scale(d.yVal);
                     }
-                } else {
-                    _x = elem.x.scale(d.xVal);
-                    _y = elem.y.scale(d.yVal);
-                }
 
-                return "translate(" + _x + ", " + _y + ")";
-            })
-            .attr("d", d3.svg.symbol()
-                .size(20)
-                .type(function(d){
-                    return mutationInterpreter.getSymbol(d);
-                }))
-            .attr("fill", function(d){
-                return mutationInterpreter.getFill(d);
-            })
-            .attr("stroke", function(d){
-                return mutationInterpreter.getStroke(d);
-            })
-            .attr("stroke-width", 1.2);
+                    return "translate(" + _x + ", " + _y + ")";
+                })
+                .attr("d", d3.svg.symbol()
+                    .size(20)
+                    .type(function(d){
+                        return mutationInterpreter.getSymbol(d);
+                    }))
+                .attr("fill", function(d){
+                    return mutationInterpreter.getFill(d);
+                })
+                .attr("stroke", function(d){
+                    return mutationInterpreter.getStroke(d);
+                })
+                .attr("stroke-width", 1.2);            
+        } else if ($("input[name=" + ids.sidebar.util.view_switch + "]:checked").val() === "gistic") {
+            elem.dotsGroup.selectAll("path")
+                .data(data)
+                .enter()
+                .append("svg:path")
+                .attr("transform", function(d){
+                    $(this).attr("x_pos", elem.x.scale(d.xVal));
+                    $(this).attr("y_pos", elem.y.scale(d.yVal));
+                    $(this).attr("x_val", d.xVal);
+                    $(this).attr("y_val", d.yVal);
+                    $(this).attr("case_id", d.caseId);
+                    $(this).attr("size", 20);
+
+                    var _x, _y;
+                    if (_apply_box_plots) { //apply noise
+                        if (_box_plots_axis === "x") {
+                            _x = elem.x.scale(d.xVal) + (Math.random() * 30 - 30/2);
+                            _y = elem.y.scale(d.yVal);
+                        } else {
+                            _x = elem.x.scale(d.xVal);
+                            _y = elem.y.scale(d.yVal) + (Math.random() * 20 - 20/2);
+                        }
+                    } else {
+                        _x = elem.x.scale(d.xVal);
+                        _y = elem.y.scale(d.yVal);
+                    }
+
+                    return "translate(" + _x + ", " + _y + ")";
+                })
+                .attr("d", d3.svg.symbol()
+                    .size(20)
+                    .type(function(d){
+                        return mutationInterpreter.getSymbol(d);
+                    }))
+                .attr("fill", function(d){
+                    return mutationInterpreter.getFill(d);
+                })
+                .attr("stroke", function(d){
+                    return mutationInterpreter.getStroke(d);
+                })
+                .attr("stroke-width", 1.2);
+        }
+
     }
-    
-    
     
     function appendTitle(axis) { //axis titles
         var elt = document.getElementById(ids.sidebar[axis].profile_name);

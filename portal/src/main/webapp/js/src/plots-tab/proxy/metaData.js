@@ -52,7 +52,6 @@ var metaData = (function() {
             }
             geneticProfiles[gene] = _profile_arr;
         }
-        console.log(geneticProfiles);
         $.each(clinicalAttrMetaDataResult, function(index, obj) {
             var _datum = jQuery.extend(true, {}, datum_clinical_attr_meta);
             _datum.id = obj.attr_id;

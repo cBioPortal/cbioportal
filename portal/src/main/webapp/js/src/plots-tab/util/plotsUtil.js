@@ -143,3 +143,13 @@ function searchIndexTop(arr, ele) {
     }
     return arr.length - 1;
 };
+
+function discretizedCNAProfile() {
+    
+}
+
+var discretized_cna_profile_keywords = [
+    "_cna",
+    "_cna_rae",
+    "_gistic"
+];

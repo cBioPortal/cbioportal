@@ -19,6 +19,12 @@ var ids = {
             profile_name: "plots-tab-y-profile-name",
             log_scale: "plots-tab-y-log-scale",
             clin_attr: "plots-tab-y-clinical-attribute"
+        },
+        "util": {
+            div: "plots-sidebar-util-div",
+            case_id_search: "case_id_search_keyword",
+            mutation_search: "mutation_search_keyword",
+            view_switch: "mutation_details_vs_gistic_view"
         }
     },
     main_view: {

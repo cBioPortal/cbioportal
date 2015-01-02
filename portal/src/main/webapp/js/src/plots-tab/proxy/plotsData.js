@@ -26,6 +26,7 @@ var plotsData = (function() {
                 caseId : "",
                 xVal : "",
                 yVal : "",
+                cna_anno: "",
                 mutation : {}  //Mutation ID
             },
         dotsContent = {}; //json of datums -- final recipe for rendering the view
@@ -65,7 +66,6 @@ var plotsData = (function() {
                 var _tmp = {};
                 $.each(clinicalData.data, function(index, obj) { //convert to json format
                     if (obj.attr_id === $("#" + ids.sidebar[axis].clin_attr).val()) {
-                        var _tmp_obj = {};
                         _tmp[obj.sample] = obj.attr_val;
                     }
                 });
@@ -109,6 +109,32 @@ var plotsData = (function() {
                 var proxy = DataProxyFactory.getDefaultMutationDataProxy();
                 proxy.getMutationData(_gene_list, mutationCallback);
             } 
+            //get cna data
+            var cna_annotation_profile_name = "";
+            if (isSameGene()) {
+                $.each(metaData.getGeneticProfilesMeta($("#" + ids.sidebar[axis].gene).val()), function(index, obj) {
+                    $.each(discretized_cna_profile_keywords, function(_index, keyword) {
+                        if (obj.id.toLowerCase().indexOf(keyword) !== -1) {
+                            cna_annotation_profile_name = obj.id;
+                            return false;
+                        }
+                    });
+                }); 
+                if (cna_annotation_profile_name !== "") {
+                    var paramsGetProfileData = {  //webservice call to get profile data
+                        cancer_study_id: window.PortalGlobals.getCancerStudyId(),
+                        gene_list: $("#" + ids.sidebar[axis].gene).val(),
+                        genetic_profile_id: cna_annotation_profile_name,
+                        case_set_id: window.PortalGlobals.getCaseSetId(),
+                        case_ids_key: window.PortalGlobals.getCaseIdsKey()
+                    };
+                    $.post("getProfileData.json", paramsGetProfileData, inner_profile_callback_func, "json");
+                    
+                    function inner_profile_callback_func(_result) {
+                        console.log(_result);
+                    };
+                }
+            }
         }
         
     };

@@ -221,6 +221,16 @@ var Table = function() {
         }
         
         if(samplesIndex !== -1) {
+            dataTableOpts.aoColumnDefs.push({
+                "aTargets": [samplesIndex],
+                "mDataProp": function(source,type) {
+                    var _samplesType = source[samplesIndex];
+                    if (type==='display') {
+                        return '<span style="border-bottom:2px dotted grey">'+_samplesType+'</span>';
+                    }
+                    return _samplesType;
+                }
+            });
             dataTableOpts.aaSorting.push([samplesIndex, 'desc']); 
         }
         

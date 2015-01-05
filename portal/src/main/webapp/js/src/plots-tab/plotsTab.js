@@ -55,10 +55,19 @@ var plotsTab = (function() {
             });
             $("#" + ids.sidebar.util.view_switch).bind({
                 change: function() {
-                    console.log("change");
                     $("#" + ids.main_view.div).empty();
                     plotsData.fetch("x");
                     plotsData.fetch("y");
+                    if (isSameGene()) {
+                        var stat = plotsData.stat();
+                        if (!stat.hasCnaAnno) {
+                            $("#" + ids.sidebar.util.view_switch).hide();
+                        } else {
+                            $("#" + ids.sidebar.util.view_switch).show();
+                        }                        
+                    } else {
+                        $("#" + ids.sidebar.util.view_switch).hide();
+                    }
                     plotsbox.init();
                 }
             });

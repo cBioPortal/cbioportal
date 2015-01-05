@@ -130,52 +130,46 @@ var mutationStyle = (function() {  //Key and "typeName" are always identical
 var gisticStyle = (function() {
    var stylesheet = [
     {    
-         type: "Amp",
-         value: "2",
-         stroke : "#FF0000",
-         fill : "none",
-         symbol : "circle",
-         legendText : "Amp"
-     },
-     {
-         type: "Gain",
-         value: "1",
-         stroke : "#FF69B4",
-         fill : "none",
-         symbol : "circle",
-         legendText : "Gain"
-     },
-     {
-         type: "Diploid",
-         value: "0",
-         stroke : "#000000",
-         fill : "none",
-         symbol : "circle",
-         legendText : "Diploid"
-     },
-     {
-         type: "Hetloss",
-         value: "-1",
-         stroke : "#00BFFF",
-         fill : "none",
-         symbol : "circle",
-         legendText : "Hetloss"
-     },
-     {
+        type: "Amp",
+        value: "2",
+        stroke : "#FF0000",
+        symbol : "circle",
+        legendText : "Amp",
+        fill: "transparent"
+    },
+    {
+        type: "Gain",
+        value: "1",
+        stroke : "#FF69B4",
+        symbol : "circle",
+        legendText : "Gain",
+        fill: "transparent"
+
+    },
+    {
+        type: "Diploid",
+        value: "0",
+        stroke : "#000000",
+        symbol : "circle",
+        legendText : "Diploid",
+        fill: "transparent"
+
+    },
+    {
+        type: "Hetloss",
+        value: "-1",
+        stroke : "#00BFFF",
+        symbol : "circle",
+        legendText : "Hetloss",
+        fill: "transparent"
+    },
+    {
          type: "Homdel",
          value: "-2",
          stroke : "#00008B",
-         fill : "none",
          symbol : "circle",
-         legendText : "Homdel"
-     },
-     {
-         type: "Unknown",
-         value : "",
-         stroke : "#A8A8A8",
-         fill : "none",
-         symbol : "circle",
-         legendText : "No CNA data"
+         legendText : "Homdel",
+         fill: "transparent"
      }
    ]; 
     
@@ -194,15 +188,6 @@ var gisticStyle = (function() {
             $.each(stylesheet, function(index, obj) {
                 if (obj.value === _value) {
                     _result = obj.stroke;
-                }
-            });
-            return _result;
-        },
-        getFill: function(_value) {
-            var _result = "";
-            $.each(stylesheet, function(index, obj) {
-                if (obj.value === _value) {
-                    _result = obj.fill;
                 }
             });
             return _result;

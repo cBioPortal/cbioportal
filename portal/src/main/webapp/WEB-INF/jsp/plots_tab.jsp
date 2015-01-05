@@ -14,6 +14,7 @@
 <script type="text/javascript" src="js/src/plots-tab/util/map.js"></script>
 <script type="text/javascript" src="js/src/plots-tab/util/plotsUtil.js"></script>
 <script type="text/javascript" src="js/src/plots-tab/util/mutationInterpreter.js"></script>
+<script type="text/javascript" src="js/src/plots-tab/util/gisticInterpreter.js"></script>
 <script type="text/javascript" src="js/src/plots-tab/util/stylesheet.js"></script>
 <script type="text/javascript" src="js/src/plots-tab/view/components/profileSpec.js"></script>
 <script type="text/javascript" src="js/src/plots-tab/view/components/clinSpec.js"></script>
@@ -102,7 +103,8 @@
                         <h4>Search</h4>
                         <br><h5>Case(s)</h5><input type="text" id="case_id_search_keyword" name="case_id_search_keyword" placeholder="case id.."><br>
                         <h5>Mutation(s)</h5><input type="text" id="mutation_search_keyword" name="mutation_search_keyword" placeholder="protein change.."><br>
-                        <h5>View</h5><div id="mutation_details_vs_gistic_view" style="display:inline;">
+                        <div id="mutation_details_vs_gistic_view" class="mutation_details_vs_gistic_view" style="display:inline;">
+                            <h5>View</h5>
                             <input type="radio" value="mutation_details" name="mutation_details_vs_gistic_view" checked>Mutation Details
                             <input type="radio" value="gistic" name="mutation_details_vs_gistic_view" >GISTIC
                         </div>

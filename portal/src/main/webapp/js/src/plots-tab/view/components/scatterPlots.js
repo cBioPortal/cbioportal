@@ -107,7 +107,50 @@ var scatterPlots = (function() {
         
         elem.dotsGroup.selectAll("path").remove();
 
-        if ($("input[name=" + ids.sidebar.util.view_switch + "]:checked").val() === "mutation_details") {
+        var stat = plotsData.stat();
+        if ($("input[name=" + ids.sidebar.util.view_switch + "]:checked").val() === "gistic" && isSameGene() && stat.hasCnaAnno) { 
+            //gistic view (only apply to one gene and having cna profile data case)
+            elem.dotsGroup.selectAll("path")
+                .data(data)
+                .enter()
+                .append("svg:path")
+                .attr("transform", function(d){
+                    $(this).attr("x_pos", elem.x.scale(d.xVal));
+                    $(this).attr("y_pos", elem.y.scale(d.yVal));
+                    $(this).attr("x_val", d.xVal);
+                    $(this).attr("y_val", d.yVal);
+                    $(this).attr("case_id", d.caseId);
+                    $(this).attr("size", 35);
+
+                    var _x, _y;
+                    if (_apply_box_plots) { //apply noise
+                        if (_box_plots_axis === "x") {
+                            _x = elem.x.scale(d.xVal) + (Math.random() * 30 - 30/2);
+                            _y = elem.y.scale(d.yVal);
+                        } else {
+                            _x = elem.x.scale(d.xVal);
+                            _y = elem.y.scale(d.yVal) + (Math.random() * 20 - 20/2);
+                        }
+                    } else {
+                        _x = elem.x.scale(d.xVal);
+                        _y = elem.y.scale(d.yVal);
+                    }
+
+                    return "translate(" + _x + ", " + _y + ")";
+                })
+                .attr("d", d3.svg.symbol()
+                    .size(35)
+                    .type(function(d){
+                        return gisticInterpreter.getSymbol(d);
+                    }))
+                .attr("fill", function(d){
+                    return gisticInterpreter.getFill(d);
+                })
+                .attr("stroke", function(d){
+                    return gisticInterpreter.getStroke(d);
+                })
+                .attr("stroke-width", 1.2);
+        } else {
             elem.dotsGroup.selectAll("path")
                 .data(data)
                 .enter()
@@ -147,48 +190,7 @@ var scatterPlots = (function() {
                 .attr("stroke", function(d){
                     return mutationInterpreter.getStroke(d);
                 })
-                .attr("stroke-width", 1.2);            
-        } else if ($("input[name=" + ids.sidebar.util.view_switch + "]:checked").val() === "gistic") {
-            elem.dotsGroup.selectAll("path")
-                .data(data)
-                .enter()
-                .append("svg:path")
-                .attr("transform", function(d){
-                    $(this).attr("x_pos", elem.x.scale(d.xVal));
-                    $(this).attr("y_pos", elem.y.scale(d.yVal));
-                    $(this).attr("x_val", d.xVal);
-                    $(this).attr("y_val", d.yVal);
-                    $(this).attr("case_id", d.caseId);
-                    $(this).attr("size", 35);
-
-                    var _x, _y;
-                    if (_apply_box_plots) { //apply noise
-                        if (_box_plots_axis === "x") {
-                            _x = elem.x.scale(d.xVal) + (Math.random() * 30 - 30/2);
-                            _y = elem.y.scale(d.yVal);
-                        } else {
-                            _x = elem.x.scale(d.xVal);
-                            _y = elem.y.scale(d.yVal) + (Math.random() * 20 - 20/2);
-                        }
-                    } else {
-                        _x = elem.x.scale(d.xVal);
-                        _y = elem.y.scale(d.yVal);
-                    }
-
-                    return "translate(" + _x + ", " + _y + ")";
-                })
-                .attr("d", d3.svg.symbol()
-                    .size(35)
-                    .type(function(d){
-                        return gisticStyle.getSymbol(d.cna_anno);
-                    }))
-                .attr("fill", function(d){
-                    return gisticStyle.getFill(d.cna_anno);
-                })
-                .attr("stroke", function(d){
-                    return gisticStyle.getStroke(d.cna_anno);
-                })
-                .attr("stroke-width", 1.2);
+                .attr("stroke-width", 1.2); 
         }
 
     }
@@ -336,6 +338,15 @@ var scatterPlots = (function() {
             var _result = false;
             $.each(glyphs, function(index, _obj) {
                 if(_obj.typeName === type_id) _result = true; 
+            });
+            return _result;
+        },
+        isGisticGlyphExist: function(_value) {
+            var _result = false;
+            $.each(glyphs, function(index, obj) {
+                if (obj.value === _value) {
+                    _result = true;
+                }
             });
             return _result;
         }

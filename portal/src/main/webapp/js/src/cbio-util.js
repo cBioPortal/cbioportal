@@ -395,7 +395,46 @@ cbio.util = (function() {
 			$(document.body).append(form);
 		}
 	}
-        
+
+	/**
+	 * Initiates a client side download for the given content.
+	 *
+	 * @param content   data content to download
+	 * @param filename  download file name
+	 * @param type      download type
+	 */
+	function clientSideDownload(content, filename, type)
+	{
+		if (type == null)
+		{
+			// text by default
+			type = "text/plain;charset=utf-8"
+		}
+
+		if (filename == null)
+		{
+			filename = "download.txt";
+		}
+
+		// TODO if type is not text, we may need to do something else...
+		var blob = new Blob([content], {type: type});
+
+		saveAs(blob, filename);
+	}
+
+	/**
+	 * Serializes the given html element into a string.
+	 *
+	 * @param element       html element
+	 * @returns {string}    serialized string
+	 */
+	function serializeHtml(element)
+	{
+		// convert html element to string
+		var xmlSerializer = new XMLSerializer();
+		return xmlSerializer.serializeToString(element);
+	}
+
     function getLinkToPatientView(cancerStudyId, patientId) {
         return "case.do?cancer_study_id=" + cancerStudyId + "&case_id=" + patientId;
     }
@@ -421,6 +460,8 @@ cbio.util = (function() {
 	    getTargetWindow: getTargetWindow,
 	    submitDownload: submitDownload,
 	    requestDownload: requestDownload,
+	    clientSideDownload: clientSideDownload,
+	    serializeHtml: serializeHtml,
 	    getTargetDocument: getTargetDocument,
         getLinkToPatientView: getLinkToPatientView,
         getLinkToSampleView: getLinkToSampleView

@@ -852,6 +852,11 @@ define("OncoprintUtils", (function() {
                 .text(function() {
                     if(typeof(inteData[1].attr_val) === 'number')
                     {
+                        if(inteData[1].attr_val%1 === 0)
+                        {
+                            return inteData[1].attr_val;
+                        }
+                        
                         return cbio.util.toPrecision(inteData[1].attr_val,4,0.00001);
                     }
                     else{
@@ -1507,6 +1512,10 @@ define("OncoprintUtils", (function() {
 
             clinical: function(d) {
                 if(typeof d.attr_val === "number"){
+                    if(d.attr_val%1 === 0)
+                    {
+                       return "value: <b>" + d.attr_val + "</b><br/>"; 
+                    }
                     return "value: <b>" + cbio.util.toPrecision(d.attr_val,4,0.00001) + "</b><br/>";
                 }
                 

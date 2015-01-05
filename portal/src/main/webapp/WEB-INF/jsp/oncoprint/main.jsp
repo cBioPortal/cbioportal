@@ -19,7 +19,7 @@
 
         Altered in <%=dataSummary.getNumCasesAffected()%> (<%=OncoPrintUtil.alterationValueToString(dataSummary.getPercentCasesAffected())%>) of cases
         <div class="btn-group btn-group-sm" id="oncoprint-diagram-toolbar-buttons" style="float:right;margin-right:15px;display: none;height:33px">           
-            <div class="btn-group btn-group-sm">
+            <div class="btn-group btn-group-sm" id="oncoprint_addclinical_attributes">
                 <button type="button" class="btn btn-default dropdown-toggle" id="oncoprint_diagram_showmorefeatures_icon" data-toggle="dropdown" style="background-color:#efefef;margin:0px;height:30px;">
                     <span data-bind="label" style="color:#7f7f7f;">+</span>
                 </button>
@@ -75,7 +75,7 @@
               return false;
 
             });
-            $('.dropdown-menu #select_clinical_attributes').click(function(){return false;});
+           // $('.dropdown-menu #select_clinical_attributes').click(function(){return false;});
         </script>
 
         <script data-main="js/src/oncoprint/main-boilerplate.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript" src="js/require.js?<%=GlobalProperties.getAppVersion()%>"></script>

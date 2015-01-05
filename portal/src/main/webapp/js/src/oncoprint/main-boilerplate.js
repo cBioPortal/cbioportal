@@ -66,6 +66,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             case_list: window.PortalGlobals.getCases() },
         success: function(attrs) {
             totalAttrs = attrs.toJSON();
+            totalAttrs = _.sortBy(totalAttrs, function(o) { return o.display_name; })
             if(window.PortalGlobals.getMutationProfileId()!==null){
                 var tem={attr_id: "# mutations", datatype: "NUMBER",description: "Number of mutation", display_name: "# mutations"};
                 totalAttrs.unshift(tem);
@@ -367,6 +368,27 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 $('.select_clinical_attributes_from').attr("data-placeholder","Add a clinical attribute track");
             }
         }
+        
+        $('#oncoprint_diagram_showmorefeatures_icon').qtip({
+            content: {text:
+                        function()
+                        { 
+                            if(extraAttributes.length>1)
+                            {
+                                return 'Add another clinical attribute track';
+                            }
+                            else
+                            {
+                                return 'Add clinical attribute track';
+                            }
+                        }
+                    },
+            position: {my:'bottom middle', at:'top right', viewport: $(window)},
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
+            show: {event: "mouseover"},
+            hide: {fixed: true, delay: 100, event: "mouseout"}
+            });
+            
 //        oncoprint.sortBy(sortBy.val(), cases.split(" "));
         if($('#oncoprint_sortbyfirst_dropdonw span')[0].innerHTML === 'Sort by')
         {
@@ -511,6 +533,13 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         zoom = reset_zoom();
 
                         // sync
+                        $('#oncoprint_diagram_showmorefeatures_icon').qtip({
+                        content: {text:'Add another clinical attribute track'},
+                        position: {my:'bottom middle', at:'top right', viewport: $(window)},
+                        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
+                        show: {event: "mouseover"},
+                        hide: {fixed: true, delay: 100, event: "mouseout"}
+                        });
                         oncoprint.zoom(zoom.val());
                         oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
                         oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
@@ -588,6 +617,13 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         zoom = reset_zoom();
 
                         // sync
+                        $('#oncoprint_diagram_showmorefeatures_icon').qtip({
+                        content: {text:'Add another clinical attribute track'},
+                        position: {my:'bottom middle', at:'top right', viewport: $(window)},
+                        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
+                        show: {event: "mouseover"},
+                        hide: {fixed: true, delay: 100, event: "mouseout"}
+                        });
                         oncoprint.zoom(zoom.val());
                         oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
                         oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
@@ -666,6 +702,13 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         zoom = reset_zoom();
 
                         // sync
+                        $('#oncoprint_diagram_showmorefeatures_icon').qtip({
+                        content: {text:'Add another clinical attribute track'},
+                        position: {my:'bottom middle', at:'top right', viewport: $(window)},
+                        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
+                        show: {event: "mouseover"},
+                        hide: {fixed: true, delay: 100, event: "mouseout"}
+                        });
                         oncoprint.zoom(zoom.val());
                         oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
                         oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
@@ -1007,10 +1050,18 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
         $('#oncoprint_diagram_showmorefeatures_icon').click(function(){
             $('#select_clinical_attributes_chzn').addClass("chzn-with-drop");
+            $('#select_clinical_attributes_chzn .chzn-search input')[0].focus();
+//            $('#select_clinical_attributes_chzn .chzn-search input').addClass("chzn-with-drop");
+//            $('#select_clinical_attributes_chzn .chzn-search input')[0].autocomplete = "on"
+        });
+        
+        $('#select_clinical_attributes_chzn .chzn-search input').focus(function(){
+//            $('#oncoprint_addclinical_attributes ul li')[0].onclick = function() {return false;};
+            $('#oncoprint_addclinical_attributes ul li').click(function(){return false;});
         });
         
         $('#oncoprint_diagram_showmorefeatures_icon').qtip({
-            content: {text:'Add more clinical attributes'},
+            content: {text:'Add clinical attribute track'},
             position: {my:'bottom middle', at:'top right', viewport: $(window)},
             style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
             show: {event: "mouseover"},
@@ -1152,10 +1203,12 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             $('.oncoprint-diagram-showlegend-icon').qtip({
             content: {text:function(){
                         if($(this)[0].attributes.src.value === 'images/showlegend.svg')
-                        {return 'show legends';}
+                        {
+                            return 'Show legends for clinical attribute tracks';
+                        }
                         else
                         {
-                            return 'hide legends';
+                            return 'Hide legends for clinical attribute tracks';
                         }
                     }
             },

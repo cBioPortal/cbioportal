@@ -55,6 +55,11 @@ var plotsTab = (function() {
             });
             $("#" + ids.sidebar.util.view_switch).bind({
                 change: function() {
+                    console.log("change");
+                    $("#" + ids.main_view.div).empty();
+                    plotsData.fetch("x");
+                    plotsData.fetch("y");
+                    plotsbox.init();
                 }
             });
             

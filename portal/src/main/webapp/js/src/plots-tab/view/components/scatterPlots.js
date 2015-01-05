@@ -159,7 +159,7 @@ var scatterPlots = (function() {
                     $(this).attr("x_val", d.xVal);
                     $(this).attr("y_val", d.yVal);
                     $(this).attr("case_id", d.caseId);
-                    $(this).attr("size", 20);
+                    $(this).attr("size", 35);
 
                     var _x, _y;
                     if (_apply_box_plots) { //apply noise
@@ -178,15 +178,15 @@ var scatterPlots = (function() {
                     return "translate(" + _x + ", " + _y + ")";
                 })
                 .attr("d", d3.svg.symbol()
-                    .size(20)
+                    .size(35)
                     .type(function(d){
-                        return mutationInterpreter.getSymbol(d);
+                        return gisticStyle.getSymbol(d.cna_anno);
                     }))
                 .attr("fill", function(d){
-                    return mutationInterpreter.getFill(d);
+                    return gisticStyle.getFill(d.cna_anno);
                 })
                 .attr("stroke", function(d){
-                    return mutationInterpreter.getStroke(d);
+                    return gisticStyle.getStroke(d.cna_anno);
                 })
                 .attr("stroke-width", 1.2);
         }

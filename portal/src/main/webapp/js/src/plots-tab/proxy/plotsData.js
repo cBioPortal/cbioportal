@@ -20,13 +20,14 @@ var plotsData = (function() {
                     min: "",
                     max: "",
                     edge: ""
-                }
+                },
+                hasCnaAnno: false
             },
         datum = { //each associates with one individual dot in the plots 
                 caseId : "",
                 xVal : "",
                 yVal : "",
-                cna_anno: "",
+                cna_anno: "", //if same gene on each axis and having discretized cna data
                 mutation : {}  //Mutation ID
             },
         dotsContent = {}; //json of datums -- final recipe for rendering the view
@@ -131,7 +132,10 @@ var plotsData = (function() {
                     $.post("getProfileData.json", paramsGetProfileData, inner_profile_callback_func, "json");
                     
                     function inner_profile_callback_func(_result) {
-                        console.log(_result);
+                        stat.hasCnaAnno = true;
+                        $.each(Object.keys(dotsContent), function(index, caseId) {
+                            dotsContent[caseId].cna_anno = _result[$("#" + ids.sidebar[axis].gene).val()][caseId][cna_annotation_profile_name];
+                        });
                     };
                 }
             }

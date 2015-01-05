@@ -23,7 +23,7 @@
                 <button type="button" class="btn btn-default dropdown-toggle" id="oncoprint_diagram_showmorefeatures_icon" data-toggle="dropdown" style="background-color:#efefef;margin:0px;height:30px;">
                     <span data-bind="label" style="color:#7f7f7f;">+</span>
                 </button>
-                <ul class="dropdown-menu" style="height: 0px;background-color:rgba(255,255,255,.0)">
+                <ul class="dropdown-menu" id="clinical_dropdown" style="height: 0px;background-color:rgba(255,255,255,.0)">
                 <li style="list-style-type:none;cursor:pointer;font-weight: bold;">
                     <select data-placeholder="Add a clinical attribute track" id="select_clinical_attributes" class="select_clinical_attributes_from chosen-select" style="float:left;width: 360px;height:30px;background-color:rgba(255,255,255,.8);margin:0px">
                     <option value=""></option>
@@ -75,7 +75,7 @@
               return false;
 
             });
-           // $('.dropdown-menu #select_clinical_attributes').click(function(){return false;});
+//           $('.dropdown-menu #select_clinical_attributes').click(function(){$('#clinical_dropdown').dropdown('toggle');});
         </script>
 
         <script data-main="js/src/oncoprint/main-boilerplate.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript" src="js/require.js?<%=GlobalProperties.getAppVersion()%>"></script>

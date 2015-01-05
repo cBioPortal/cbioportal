@@ -80,6 +80,12 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             recordAttrs=totalAttrs.slice(0);// record the original total attributes
             utils.populate_clinical_attr_select(document.getElementById('select_clinical_attributes'), totalAttrs);
             $(select_clinical_attributes_id).chosen({width: "330px", "font-size": "12px", search_contains: true});
+        
+            $('#select_clinical_attributes_chzn .chzn-search input').click(
+                function(e){
+                    e.stopPropagation();
+                }
+            );
         }
     });
 
@@ -373,7 +379,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             content: {text:
                         function()
                         { 
-                            if(extraAttributes.length>1)
+                            if(extraAttributes.length>=1)
                             {
                                 return 'Add another clinical attribute track';
                             }
@@ -439,6 +445,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
     // handler for when user selects a clinical attribute to visualization
     var clinicalAttributeSelected = function() {
+        $('#clinical_dropdown').dropdown( 'toggle' );
         oncoprint.remove_oncoprint();
         inner_loader_img.show();
         toggleControls(false);
@@ -1050,14 +1057,6 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
         $('#oncoprint_diagram_showmorefeatures_icon').click(function(){
             $('#select_clinical_attributes_chzn').addClass("chzn-with-drop");
-            $('#select_clinical_attributes_chzn .chzn-search input')[0].focus();
-//            $('#select_clinical_attributes_chzn .chzn-search input').addClass("chzn-with-drop");
-//            $('#select_clinical_attributes_chzn .chzn-search input')[0].autocomplete = "on"
-        });
-        
-        $('#select_clinical_attributes_chzn .chzn-search input').focus(function(){
-//            $('#oncoprint_addclinical_attributes ul li')[0].onclick = function() {return false;};
-            $('#oncoprint_addclinical_attributes ul li').click(function(){return false;});
         });
         
         $('#oncoprint_diagram_showmorefeatures_icon').qtip({

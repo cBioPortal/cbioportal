@@ -19,16 +19,12 @@ package org.mskcc.cbio.importer.cvr.dmp.transformer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Lists;import com.google.common.collect.Table;
+import com.google.common.collect.Lists;
 import com.google.inject.internal.Iterables;
-
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -38,12 +34,9 @@ import org.mskcc.cbio.importer.cvr.dmp.model.CnvVariant;
 import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
 import org.mskcc.cbio.importer.cvr.dmp.model.Result;
 import org.mskcc.cbio.importer.cvr.dmp.util.DMPCommonNames;
-import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.cnv.CnvFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.cnv.CnvFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.cnv.CnvTransformer;
-import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
-import org.mskcc.cbio.importer.persistence.staging.util.StagingUtils;
 import scala.Tuple3;
 
 /*
@@ -56,16 +49,11 @@ import scala.Tuple3;
  */
 public class DmpCnvTransformer extends CnvTransformer implements DMPDataTransformable {
 
-
     private final static Logger logger = Logger.getLogger(DmpCnvTransformer.class);
-
-    private static final String cnaFileName = "data_CNA.txt";
 
     public DmpCnvTransformer(CnvFileHandler aHandler,Path stagingDirectoryPath) {
         super(aHandler);
         this.registerStagingFileDirectory(stagingDirectoryPath, true);
-        //this.fileHandler.initializeFilePath(stagingDirectoryPath.resolve(cnaFileName));
-
     }
 
     /*

@@ -34,10 +34,7 @@ import java.util.regex.Pattern;
 public interface StagingCommonNames {
 
     public static final String HUGO_COLUMNNAME = "Hugo_symbol";
-    public static final String CNV_FILENAME = "data_CNA.txt";
-    public static final String MUTATIONS_FILENAME = "data_mutations_extended.txt";
-    public static final String CASE_STUDY_FILENAME = "data_case_study.txt";
-    public static final String segmentFileBaseName = "_data_cna_hg.seg";
+    public static final String INTERGENIC = "intergenic";
 
     public static final List<String> variationList = Lists.newArrayList("INS", "SNP", "DNP", "TNP", "ONP");
 
@@ -60,14 +57,9 @@ public interface StagingCommonNames {
     // transformation types
     public static final String MUTATION_TYPE = "mutation";
     public static final String CLINICAL_TYPE = "clinical";
-    public static final String COPY_NUMBER_TYPE = "copy_number";
-    public static final String EXP_ARRAY_TYPE = "exp_array";
-    public static final String EXP_SEQ_TYPE = "exp_seq";
-    public static final String METH_ARRAY_TYPE = "meth_array";
-    public static final String METH_SEQ_TYPE = "meth_seq";
-    public static final String MIRNA_SEQ_TYPE = "mirna_seq";
-    public static final String SPLICE_VARIANT_TYPE = "splice_variant";
+
     public static final String STRUCTURAL_MUTATION_TYPE = "structural_mutation";
+
 
 
     // length of human chromosomes

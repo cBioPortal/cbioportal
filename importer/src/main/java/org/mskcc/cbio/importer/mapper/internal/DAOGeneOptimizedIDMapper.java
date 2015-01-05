@@ -44,6 +44,11 @@ public class DAOGeneOptimizedIDMapper implements IDMapper {
 	DaoGeneOptimized daoGeneOptimized;
 
 	@Override
+	public String findGeneNameByGenomicPosition(String chromosome, String position, String strand) {
+		return "";
+	}
+
+	@Override
 	public String resolveGeneNameFromPosition(String chromosome, Integer startPos) {
 		return "";
 	}

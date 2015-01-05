@@ -59,19 +59,17 @@ public class FoundationCnvTransformer extends CnvTransformer {
         }
     }
 
-
-
     private final Function<JAXBElement, Tuple2<String, String>> cnaFumction = new Function<JAXBElement, Tuple2<String, String>>() {
         @Override
         public Tuple2<String, String> apply(JAXBElement je) {
             CopyNumberAlterationType cna = (CopyNumberAlterationType) je.getValue();
             switch (cna.getType()) {
                 case FoundationCommonNames.CNA_AMPLIFICATION:
-                    return new Tuple2(cna.getGene(), FoundationCommonNames.CNA_AMPLIFICATION_VALUE);
+                    return new Tuple2(cna.getGene(), AMP);
                 case FoundationCommonNames.CNA_LOSS:
-                    return new Tuple2(cna.getGene(), FoundationCommonNames.CNA_LOSS_VALUE);
+                    return new Tuple2(cna.getGene(), HOMOZY_LOSS);
                 default:
-                    return new Tuple2(cna.getGene(), FoundationCommonNames.CNA_DEFAULT_VALUE);
+                    return new Tuple2(cna.getGene(), COPY_NEUTRAL);
             }
         }
     };

@@ -1,20 +1,22 @@
 package org.mskcc.cbio.importer.util;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
+import com.google.common.base.*;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.validator.routines.DoubleValidator;
+import org.apache.commons.validator.routines.FloatValidator;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.IDMapper;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import scala.Tuple2;
-
+import com.github.davidmoten.rtree.Entry;
+import com.github.davidmoten.rtree.RTree;
+import com.github.davidmoten.rtree.geometry.Point;
+import com.github.davidmoten.rtree.geometry.Rectangle;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Map;
@@ -53,6 +55,38 @@ public class GeneSymbolIDMapper implements IDMapper {
             gnMap = Suppliers.memoize(new EnsemblNameMapSupplier()).get();
     private Table<String,Integer,Tuple2<java.lang.Integer,String>>  ensemblGeneTable =
             Suppliers.memoize( new EnsemblGeneNameTableSupplier() ).get();
+    private RTree<String,Rectangle> genePositionTree = Suppliers.memoize(new GenomicNameSupplier()).get();
+
+
+    public String findGeneNameByGenomicPosition(String chromosome, String position,String strand){
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(chromosome),"A chromosome name is required");
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(position),"A chromosome start position is required");
+        if(Strings.isNullOrEmpty(strand)){
+            strand = "1";
+        }
+        if (chromosome.toUpperCase().equals("X")) {
+            chromosome = "23";
+        } else if (chromosome.toUpperCase().equals("Y")) {
+            chromosome = "24";
+        }
+        Double x = DoubleValidator.getInstance().validate(chromosome) ;
+        // negate the position if it relates to the negative strand
+        Double y = (strand.equals("1")) ? DoubleValidator.getInstance().validate(position):
+                DoubleValidator.getInstance().validate(position) * -1.0D;
+        if( null ==x  || null ==y ){
+            logger.error("Invalid chromosome or position was provided");
+            return "";
+        }
+
+        Entry<String,Rectangle> result = null;
+        try {
+            result = this.genePositionTree.search(Point.create(x, y))
+                    .toBlocking().first();
+        } catch (Exception e) {
+            return StagingCommonNames.INTERGENIC; // a gene name wasn't found
+        }
+        return result.value();
+    }
 
     @Override
     public String resolveGeneNameFromPosition(String chromosome, Integer startPos) {
@@ -73,7 +107,6 @@ public class GeneSymbolIDMapper implements IDMapper {
                 }
             }
         }
-
         return "";
     }
 
@@ -135,6 +168,70 @@ public class GeneSymbolIDMapper implements IDMapper {
                 e.printStackTrace();
             }
             return geneTable;
+        }
+    }
+
+    /*
+  inner class responsible for creating an RTree based on a file of genomic entities and
+  their chromosome name, position, and strand
+   */
+    public class GenomicNameSupplier implements Supplier<RTree<String,Rectangle>> {
+        private InputStreamReader reader;
+        private final String ENSEMBL_GENE_FILE = "/ensembl_gene_list.tsv";
+
+        public GenomicNameSupplier() {
+            reader = new InputStreamReader((this.getClass().getResourceAsStream(ENSEMBL_GENE_FILE)));
+        }
+
+        @Override
+        public RTree<String, Rectangle> get() {
+            RTree<String, Rectangle> genePositionTree = RTree.create();
+            try {
+                final CSVParser parser = new CSVParser(this.reader, CSVFormat.TDF.withHeader());
+                for (CSVRecord record : parser) {
+                    Optional<Rectangle> geneRectangleOpt = this.resolveGenePosition(record.get("Chromosome"),
+                            record.get("Gene Start"), record.get("Gene End"), record.get("Strand"));
+                    if (geneRectangleOpt.isPresent()) {
+                        genePositionTree = genePositionTree.add(record.get("Gene Name"), geneRectangleOpt.get());
+                    }
+                }
+            } catch (IOException e) {
+                logger.error(e.getMessage());
+                e.printStackTrace();
+            }
+            return genePositionTree;
+        }
+
+        /*
+        private method to create a rectangle with zero height representing the "area" covered by
+        the genomic entity - really just the length
+        n.b. starting and end coordinates are reversed for features on the minus strand
+         */
+        private Optional<Rectangle> resolveGenePosition(String chromosome, String startPos, String endPos, String strand) {
+            if(Strings.isNullOrEmpty(strand)){
+                strand = "1";
+            }
+            Float s = FloatValidator.getInstance().validate(strand);
+            Float y1 ;
+            Float y2;
+            if (s > 0.0) {
+                y1 = FloatValidator.getInstance().validate(startPos);
+                y2 = FloatValidator.getInstance().validate(endPos);
+            } else {
+                y1 = FloatValidator.getInstance().validate(endPos) * s;
+                y2 = FloatValidator.getInstance().validate(startPos) *s;
+            }
+
+            // convert  X & Y chromosome to numeric values (X=22, Y= 23)
+            if (chromosome.toUpperCase().equals("X")) {
+                chromosome = "23";
+            } else if (chromosome.toUpperCase().equals("Y")) {
+                chromosome = "24";
+            }
+            Float x1 = FloatValidator.getInstance().validate(chromosome);
+            if (null == x1 || null == y1 || null == y2) return Optional.absent();
+            Float x2 = x1 ; // pseudo rectangle
+            return Optional.of(Rectangle.create(x1, y1, x2, y2));
         }
     }
 

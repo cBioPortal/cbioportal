@@ -46,6 +46,11 @@
 	  <artifactId>commons-cli</artifactId>
 	  <version>1.2</version>
 	</dependency>
+	  <dependency>
+		  <groupId>commons-validator</groupId>
+		  <artifactId>commons-validator</artifactId>
+		  <version>1.4.0</version>
+	  </dependency>
 	<dependency>
 	  <groupId>net.sourceforge.jtds</groupId>
 	  <artifactId>jtds</artifactId>
@@ -104,6 +109,17 @@
 		  <version>3.4.1</version>
 		  <classifier>models</classifier>
 	  </dependency>
+	  <dependency>
+		  <groupId>com.github.davidmoten</groupId>
+		  <artifactId>rtree</artifactId>
+		  <version>0.5.4</version>
+	  </dependency>
+	  <dependency>
+		  <groupId>com.netflix.rxjava</groupId>
+		  <artifactId>rxjava-core</artifactId>
+		  <version>0.20.7</version>
+	  </dependency>
+
 
 	<!-- for foundation -->
 	<dependency>

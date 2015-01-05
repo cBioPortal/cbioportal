@@ -8,6 +8,7 @@ import com.google.common.collect.Table;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.mskcc.cbio.importer.persistence.staging.MetadataFileHandler;
+import scala.Tuple3;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -39,6 +40,34 @@ public abstract class CnvTransformer {
     protected Table<String, String, String> cnaTable;
     private final static Logger logger = Logger.getLogger(CnvTransformer.class);
     protected final CnvFileHandler fileHandler;
+    private static final String cnaFileName = "data_CNA.txt";
+
+    protected static final String COPY_NEUTRAL = "0";
+    protected static final String HETEROZY_LOSS = "-1";
+    protected static final String HOMOZY_LOSS = "-2";
+    protected static final String AMP_LOH = "+1";
+    protected static final String AMP = "+2";
+
+    public static  String resolveCopyNumberVariation(String copyNumber) {
+        if(Strings.isNullOrEmpty(copyNumber)) { return COPY_NEUTRAL;}
+        switch (copyNumber ) {
+            case "0":
+            case "0.0":
+                return HOMOZY_LOSS;
+            case "1":
+            case "1.0":
+                return HETEROZY_LOSS;
+            case "2":
+            case "2.0":
+                return COPY_NEUTRAL;
+            case "3":
+            case "3.0":
+                return AMP_LOH;
+        }
+
+        return AMP;
+
+    }
 
     protected CnvTransformer(CnvFileHandler aHandler){
         Preconditions.checkArgument(null!=aHandler,"A CnvFileHandler Implementation is required");
@@ -48,7 +77,7 @@ public abstract class CnvTransformer {
     public void registerStagingFileDirectory(Path stagingDirectoryPath, boolean reuse) {
         Preconditions.checkArgument(null != stagingDirectoryPath,
                 "A Path to the staging file directory is required");
-        Path cnvPath = stagingDirectoryPath.resolve("data_CNA.txt");
+        Path cnvPath = stagingDirectoryPath.resolve(cnaFileName);
         this.fileHandler.initializeFilePath(cnvPath);
         // if we wish to reuse any  existing CNV data (e.g. DMP studies)
         if (reuse) {
@@ -89,9 +118,14 @@ public abstract class CnvTransformer {
         this.cnaTable.put(geneName, sampleId,cnvValue);
     }
 
+    protected void registerCnv(Tuple3<String,String,String> name_sample_cnv){
+        Preconditions.checkArgument(null !=name_sample_cnv);
+        this.registerCnv(name_sample_cnv._1(),
+                name_sample_cnv._2(), name_sample_cnv._3());
+    }
 
     protected void processDeprecatedSamples(Set<String> deprecatedSamples){
-        logger.info(deprecatedSamples.size() +" DMP samples have been deprecated");
+        logger.info(deprecatedSamples.size() +" samples have been deprecated");
         Set<String> geneNameSet = this.cnaTable.rowKeySet();
         for (String sampleId : deprecatedSamples){
             for (String geneName : geneNameSet) {

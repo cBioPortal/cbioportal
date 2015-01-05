@@ -97,11 +97,14 @@ public class IcgcFusionModel extends FusionModel {
 
     @Override
     public String getGene() {
-        // the gene affected columns are usually empty
+        // the gene affected column is usually empty
         if(!Strings.isNullOrEmpty(this.getGene_affected_by_bkpt_from())){
             return this.getGene_affected_by_bkpt_from();
         }
-        return geneMapper.resolveGeneNameFromPosition(this.getChr_from(), Integer.valueOf(this.getChr_from_bkpt()));
+        // try to resolve name by position
+        String geneName = geneMapper.findGeneNameByGenomicPosition(this.getChr_from(), this.getChr_from_bkpt(),
+                this.chr_from_strand);
+        return (!Strings.isNullOrEmpty(geneName))? geneName : StagingCommonNames.INTERGENIC;
 
     }
 
@@ -126,7 +129,9 @@ public class IcgcFusionModel extends FusionModel {
         if(!Strings.isNullOrEmpty(this.getGene())){
             sb.append(this.getGene() +"-");
         }
-        String geneTo = geneMapper.resolveGeneNameFromPosition(this.getChr_to(), Integer.valueOf(this.getChr_to_bkpt()));
+        String geneTo = geneMapper.findGeneNameByGenomicPosition(this.getChr_to(), this.getChr_to_bkpt(),
+                this.chr_to_strand);
+
         if(!Strings.isNullOrEmpty(geneTo)){
             sb.append(geneTo +"-");
         }

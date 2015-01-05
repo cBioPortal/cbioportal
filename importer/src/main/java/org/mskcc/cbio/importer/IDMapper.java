@@ -28,6 +28,16 @@ import scala.Tuple2;
 public interface IDMapper {
 
 	/**
+	 *
+	 * @param chromosome
+	 * @param position
+	 * @param strand
+	 * @return
+	 */
+
+	public String findGeneNameByGenomicPosition(String chromosome, String position,String strand);
+
+	/**
 	 * for a starting positon resolve the gene name
 	 * @param chromosome
 	 * @param startPos

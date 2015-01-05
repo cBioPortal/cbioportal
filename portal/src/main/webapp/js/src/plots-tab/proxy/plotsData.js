@@ -21,7 +21,8 @@ var plotsData = (function() {
                     max: "",
                     edge: ""
                 },
-                hasCnaAnno: false
+                hasCnaAnno: false,
+                retrieved: false
             },
         datum = { //each associates with one individual dot in the plots 
                 caseId : "",
@@ -110,37 +111,8 @@ var plotsData = (function() {
                 var proxy = DataProxyFactory.getDefaultMutationDataProxy();
                 proxy.getMutationData(_gene_list, mutationCallback);
             } 
-            //get cna data
-            var cna_annotation_profile_name = "";
-            if (isSameGene()) {
-                $.each(metaData.getGeneticProfilesMeta($("#" + ids.sidebar[axis].gene).val()), function(index, obj) {
-                    $.each(discretized_cna_profile_keywords, function(_index, keyword) {
-                        if (obj.id.toLowerCase().indexOf(keyword) !== -1) {
-                            cna_annotation_profile_name = obj.id;
-                            return false;
-                        }
-                    });
-                }); 
-                if (cna_annotation_profile_name !== "") {
-                    var paramsGetProfileData = {  //webservice call to get profile data
-                        cancer_study_id: window.PortalGlobals.getCancerStudyId(),
-                        gene_list: $("#" + ids.sidebar[axis].gene).val(),
-                        genetic_profile_id: cna_annotation_profile_name,
-                        case_set_id: window.PortalGlobals.getCaseSetId(),
-                        case_ids_key: window.PortalGlobals.getCaseIdsKey()
-                    };
-                    $.post("getProfileData.json", paramsGetProfileData, inner_profile_callback_func, "json");
-                    
-                    function inner_profile_callback_func(_result) {
-                        stat.hasCnaAnno = true;
-                        $.each(Object.keys(dotsContent), function(index, caseId) {
-                            dotsContent[caseId].cna_anno = _result[$("#" + ids.sidebar[axis].gene).val()][caseId][cna_annotation_profile_name];
-                        });
-                    };
-                }
-            }
+
         }
-        
     };
     
     function analyseData() {    //pDataX, pDataY: array of single dot objects
@@ -177,10 +149,42 @@ var plotsData = (function() {
                 }
             });
         }
+        //get cna data
+        var cna_annotation_profile_name = "";
+        if (isSameGene()) {
+            $.each(metaData.getGeneticProfilesMeta($("#" + ids.sidebar.y.gene).val()), function(index, obj) {
+                $.each(discretized_cna_profile_keywords, function(_index, keyword) {
+                    if (obj.id.toLowerCase().indexOf(keyword) !== -1) {
+                        cna_annotation_profile_name = obj.id;
+                        return false;
+                    }
+                });
+            }); 
+            if (cna_annotation_profile_name !== "") {
+                var paramsGetProfileData = {  //webservice call to get profile data
+                    cancer_study_id: window.PortalGlobals.getCancerStudyId(),
+                    gene_list: $("#" + ids.sidebar.y.gene).val(),
+                    genetic_profile_id: cna_annotation_profile_name,
+                    case_set_id: window.PortalGlobals.getCaseSetId(),
+                    case_ids_key: window.PortalGlobals.getCaseIdsKey()
+                };
+                $.post("getProfileData.json", paramsGetProfileData, inner_profile_callback_func, "json");
+
+                function inner_profile_callback_func(_result) {
+                    stat.hasCnaAnno = true;
+                    $.each(Object.keys(dotsContent), function(index, caseId) {
+                        dotsContent[caseId].cna_anno = _result[$("#" + ids.sidebar.y.gene).val()][caseId][cna_annotation_profile_name];
+                    });
+                    stat.retrieved = true;
+                };
+            }
+        }
     }
 
     return {
         fetch: function(axis) {
+            stat.retrieved = false;
+            
             data[axis].stat = false;
             data[axis].raw.length = 0;
             dotsContent = {}; //need to regenerated dots content 
@@ -196,7 +200,8 @@ var plotsData = (function() {
         get: function(callback_func) {
             var tmp = setInterval(function () {timer();}, 1000);
             function timer() {
-                if (Object.keys(dotsContent).length !== 0) {
+                //if (Object.keys(dotsContent).length !== 0) {
+                if (stat.retrieved) {
                     clearInterval(tmp);
                     callback_func(dotsContent);
                 }

@@ -290,7 +290,13 @@ var scatterPlots = (function() {
                 .ease("elastic")
                 .duration(600)
                 .delay(100)
-                .attr("d", d3.svg.symbol().size(200));
+                .attr("d", d3.svg.symbol()
+                    .size(200)
+                    .type(function(d) {
+                        return mutationInterpreter.getSymbol(d);
+                    })
+                );
+
         };
         var mouseOff = function() {
             var dot = d3.select(this);
@@ -298,7 +304,14 @@ var scatterPlots = (function() {
                 .ease("elastic")
                 .duration(600)
                 .delay(100)
-                .attr("d", d3.svg.symbol().size(20));
+                .attr("d", d3.svg.symbol()
+                    .size(function(d) {
+                        return $(this).attr("size");
+                    })
+                    .type(function(d) {
+                        return mutationInterpreter.getSymbol(d);
+                    })
+                );
         };
         elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
         elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);

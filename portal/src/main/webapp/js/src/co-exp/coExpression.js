@@ -378,8 +378,8 @@ var CoExpView = (function() {
                         "json"
                     );
                 }
-            }          
-        } //Closing CoExpTable
+            };          
+        }; //Closing CoExpTable
 
         function assembleNames() {
             //figure out div id
@@ -423,9 +423,9 @@ var CoExpView = (function() {
                     coExpTable.init(geneId);
                 }
             }
-        }
+        };
 
-    }   //Closing coExpSubTabView
+    };   //Closing coExpSubTabView
 
     function getGeneticProfileCallback(result) {
         var _genes = window.PortalGlobals.getGeneList();

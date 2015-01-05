@@ -32,6 +32,8 @@ var plotsTab = (function() {
             
             //init logic
             $("#" + ids.main_view.div).empty();
+            appendLoadingImg(ids.main_view.div);
+
             metaData.fetch(); 
             sidebar.init();
             plotsData.fetch("x");
@@ -42,6 +44,7 @@ var plotsTab = (function() {
             $( "#" + ids.sidebar.x.div ).bind({
                 change: function() {
                     $("#" + ids.main_view.div).empty();
+                    appendLoadingImg(ids.main_view.div);
                     plotsData.fetch("x");
                     plotsbox.init();
                 }
@@ -49,6 +52,7 @@ var plotsTab = (function() {
             $( "#" + ids.sidebar.y.div ).bind({
                 change: function() {
                     $("#" + ids.main_view.div).empty();
+                    appendLoadingImg(ids.main_view.div);
                     plotsData.fetch("y");
                     plotsbox.init();
                 }
@@ -56,6 +60,7 @@ var plotsTab = (function() {
             $("#" + ids.sidebar.util.view_switch).bind({
                 change: function() {
                     $("#" + ids.main_view.div).empty();
+                    appendLoadingImg(ids.main_view.div);
                     plotsData.fetch("x");
                     plotsData.fetch("y");
                     if (isSameGene()) {

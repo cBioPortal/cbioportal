@@ -2,6 +2,7 @@ var plotsbox = (function() {
     
     var render = function(data) {
         if(isSameGene()) {
+            console.log("in is one gene");
             if(isDiscretized("x") && !isDiscretized("y")) { //copy number profile is gistic
                 scatterPlots.init(ids.main_view.div, data, true, "x");
             } else if (!isDiscretized("x") && isDiscretized("y")) {
@@ -12,6 +13,7 @@ var plotsbox = (function() {
                 //TODO: heatmap
             }
         } else if (isTwoGenes()) {
+            console.log("in two genes");
             if(isDiscretized("x") && !isDiscretized("y")) { //copy number profile is gistic
                 scatterPlots.init(ids.main_view.div, data, true, "x");
             } else if (!isDiscretized("x") && isDiscretized("y")) {

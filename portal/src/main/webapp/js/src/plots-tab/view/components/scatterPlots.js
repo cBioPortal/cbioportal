@@ -320,7 +320,6 @@ var scatterPlots = (function() {
     return {
         init: function(_div, _data, _apply_box_plots, _box_plots_axis) {
             div = _div;
-            $("#" + _div).empty();
             //convert input data from JSON to array
             data = [];
             glyphs = [];
@@ -329,6 +328,7 @@ var scatterPlots = (function() {
             for (var key in _data) {
                 data.push(_data[key]);
             }
+            $("#" + _div).empty();
             //rendering
             initCanvas(div);
             initAxis("x");

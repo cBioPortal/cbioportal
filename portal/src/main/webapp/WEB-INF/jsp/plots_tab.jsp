@@ -112,7 +112,8 @@
                 </div>
             </td>
             <td>
-                <div id="plots-box" class="plots"></div>
+                <div id="plots-box" class="plots">
+                </div>
             </td>
         </tr>
     </table>

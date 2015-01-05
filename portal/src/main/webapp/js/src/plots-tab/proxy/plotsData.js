@@ -178,11 +178,14 @@ var plotsData = (function() {
                     stat.retrieved = true;
                 };
             }
+        } else {
+            stat.retrieved = true;
         }
     }
 
     return {
         fetch: function(axis) {
+            
             stat.retrieved = false;
             
             data[axis].stat = false;

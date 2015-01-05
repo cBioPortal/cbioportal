@@ -502,8 +502,16 @@ public class MafUtil
 	    record.setOncotatorExonAffectedBestEffect(TabDelimitedFileUtil.getPartInt(oncoExonAffectedBeIndex, parts));
 	    record.setOncotatorProteinPosStartBestEffect(TabDelimitedFileUtil.getPartInt(oncoProteinPosStartBeIndex, parts));
 	    record.setOncotatorProteinPosEndBestEffect(TabDelimitedFileUtil.getPartInt(oncoProteinPosEndBeIndex, parts));
-
+            
+            fixEndPointForInsertion(record);
+            
         return record;
+    }
+    
+    private void fixEndPointForInsertion(MafRecord record) {
+        if (record.getReferenceAllele().equals("-")) {
+            record.setEndPosition(record.getStartPosition()+1);
+        }
     }
 
     public int getChrIndex() {

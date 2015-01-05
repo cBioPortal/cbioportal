@@ -138,67 +138,74 @@ public class GisticReader {
 
         line = buf.readLine();
         while (line != null) {
-
-            fields = line.split("\t");
-
-            Gistic gistic = new Gistic();
-            gistic.setCancerStudyId(cancerStudyId);
-
-			try {
-				gistic.setChromosome(Integer.parseInt(fields[chromosomeField]));
-			}
-			catch (NumberFormatException e) {
-				System.err.println("Ignoring row with chromosome number: " + fields[chromosomeField]);
-				line = buf.readLine();
-				continue;
-			}
-            gistic.setPeakStart(Integer.parseInt(fields[peakStartField]));
-            gistic.setPeakEnd(Integer.parseInt(fields[peakEndField]));
-
-            int amp = Integer.parseInt(fields[ampField]);
-            gistic.setAmp(amp == 1);
-
-            gistic.setCytoband(fields[cytobandField]);
-            gistic.setqValue((Float.parseFloat(fields[qvalField])));
-
-            // -- parse genes --
-
-            // parse out '[' and ']' chars and         ** Do these brackets have meaning? **
-            String[] _genes = fields[genesField].replace("[","")
-                    .replace("]", "")
-                    .split(",");
-
-            // map _genes to list of CanonicalGenes
-            ArrayList<CanonicalGene> genes = new ArrayList<CanonicalGene>();
-            DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-            for (String gene : _genes) {
-
-                CanonicalGene canonicalGene = daoGene.getNonAmbiguousGene(gene);
-
-                if (canonicalGene == null) {
-                    canonicalGene = new CanonicalGene(gene);
-
-//                    System.out.println("gene not found, skipping: " + gene);
-//                    throw new DaoException("gene not found: " + gene);
-                }
-
-                if (canonicalGene.isMicroRNA()) {
-                    System.err.println("ignoring miRNA: " + canonicalGene.getHugoGeneSymbolAllCaps());
-                    continue;
-                }
-
-                genes.add(canonicalGene);
+            Gistic gistic;
+            try {
+                gistic = this.parseLine(line, cancerStudyId, chromosomeField, peakStartField, peakEndField, genesField, qvalField, ampField, cytobandField);
+                gistics.add(gistic);
+            } catch(Exception e) {
+                e.printStackTrace();
             }
-            // -- end parse genes --
-
-            gistic.setGenes_in_ROI(genes);
-
-            gistics.add(gistic);
             line = buf.readLine();
         }
 
         buf.close();
         reader.close();
         return gistics;
+    }
+    
+    private Gistic parseLine(String line, int cancerStudyId, int chromosomeField, int peakStartField, int peakEndField, int genesField, int qvalField, int ampField, int cytobandField) {
+        String[] fields = line.split("\t");
+
+        Gistic gistic = new Gistic();
+        gistic.setCancerStudyId(cancerStudyId);
+
+        if (fields[chromosomeField].equalsIgnoreCase("X"))
+            fields[chromosomeField] = "23";
+        if (fields[chromosomeField].equalsIgnoreCase("Y"))
+            fields[chromosomeField] = "24";
+        gistic.setChromosome(Integer.parseInt(fields[chromosomeField]));
+
+        gistic.setPeakStart(Integer.parseInt(fields[peakStartField]));
+        gistic.setPeakEnd(Integer.parseInt(fields[peakEndField]));
+
+        int amp = Integer.parseInt(fields[ampField]);
+        gistic.setAmp(amp == 1);
+
+        gistic.setCytoband(fields[cytobandField]);
+        gistic.setqValue((Float.parseFloat(fields[qvalField])));
+
+        // -- parse genes --
+
+        // parse out '[' and ']' chars and         ** Do these brackets have meaning? **
+        String[] _genes = fields[genesField].replace("[","")
+                .replace("]", "")
+                .split(",");
+
+        // map _genes to list of CanonicalGenes
+        ArrayList<CanonicalGene> genes = new ArrayList<CanonicalGene>();
+        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+        for (String gene : _genes) {
+
+            CanonicalGene canonicalGene = daoGene.getNonAmbiguousGene(gene);
+
+            if (canonicalGene == null) {
+                canonicalGene = new CanonicalGene(gene);
+
+//                    System.out.println("gene not found, skipping: " + gene);
+//                    throw new DaoException("gene not found: " + gene);
+            }
+
+            if (canonicalGene.isMicroRNA()) {
+                System.err.println("ignoring miRNA: " + canonicalGene.getHugoGeneSymbolAllCaps());
+                continue;
+            }
+
+            genes.add(canonicalGene);
+        }
+        // -- end parse genes --
+
+        gistic.setGenes_in_ROI(genes);
+
+        return gistic;
     }
 }

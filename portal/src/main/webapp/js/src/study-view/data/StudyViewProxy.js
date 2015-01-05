@@ -65,7 +65,7 @@ var StudyViewProxy = (function() {
                 cases_ids: sampleIdStr,
                 mutation_profile: parObject.mutationProfileId
             },
-            cnaData: {
+            cnaFraction: {
                 cmd: "get_cna_fraction",
                 case_ids: patientIdStr,
                 cancer_study_id: parObject.studyId
@@ -76,6 +76,11 @@ var StudyViewProxy = (function() {
             },
             gisticData: {
                 selected_cancer_type: parObject.studyId
+            },
+            cnaData: {
+                sample_id: sampleIdStr,
+                cna_profile: parObject.cnaProfileId,
+                cbio_genes_filter: true
             }
         };
     }
@@ -84,10 +89,11 @@ var StudyViewProxy = (function() {
          $.when(  
                 $.ajax({type: "POST", url: "webservice.do", data: ajaxParameters.webserviceData}), 
                 $.ajax({type: "POST", url: "mutations.json", data: ajaxParameters.mutationsData}),
-                $.ajax({type: "POST", url: "cna.json", data: ajaxParameters.cnaData}),
+                $.ajax({type: "POST", url: "cna.json", data: ajaxParameters.cnaFraction}),
                 $.ajax({type: "POST", url: "mutations.json", data: ajaxParameters.mutatedGenesData}),
-                $.ajax({type: "POST", url: "Gistic.json", data: ajaxParameters.gisticData}))
-            .done(function(a1, a2, a3, a4, a5){
+                $.ajax({type: "POST", url: "Gistic.json", data: ajaxParameters.gisticData}),
+                $.ajax({type: "POST", url: "cna.json", data: ajaxParameters.cnaData}))
+            .done(function(a1, a2, a3, a4, a5, a6){
                 var _dataAttrMapArr = {}, //Map attrbute value with attribute name for each datum
                     _keyNumMapping = {},
                     _data = a1[0]['data'],
@@ -221,7 +227,8 @@ var StudyViewProxy = (function() {
                     });
                 }
                 obtainDataObject['mutatedGenes'] = a4[0];
-                obtainDataObject['cna'] = a5[0];
+                obtainDataObject['gistic'] = a5[0];
+                obtainDataObject['cna'] = a6[0];
                 
                 if (!patientidExist) {
                     obtainDataObject['attr'].push({
@@ -286,6 +293,7 @@ var StudyViewProxy = (function() {
         getArrData: function(){ return obtainDataObject['arr'];},
         getAttrData: function(){ return obtainDataObject['attr'];},
         getMutatedGenesData: function(){ return obtainDataObject['mutatedGenes'];},
+        getGisticData: function(){return obtainDataObject['gistic'];},
         getCNAData: function(){return obtainDataObject['cna'];},
         getSampleidToPatientidMap: function(){return obtainDataObject['sampleidToPatientidMap'];},
         getPatientIdsBySampleIds: getPatientIdsBySampleIds

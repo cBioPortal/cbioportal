@@ -256,10 +256,20 @@
     width:auto;
     float: right;
 }
+.dataTables_filter label input {
+    appearance: searchfield;
+    -moz-appearance: searchfield;
+    -webkit-appearance: searchfield;
+}
 #clinical-data-table-div .dataTables_filter {
     width: 30%;
 }
 .study-view-pie-label .dataTables_filter {
+    width: 100%;
+    text-align: left;
+    padding-top: 4px;
+}
+.study-view-tables .dataTables_filter {
     width: 100%;
     text-align: left;
     padding-top: 4px;
@@ -376,13 +386,21 @@
 .pieLabel:hover{
     cursor: pointer;
 }
-.study-view-word-cloud {
+.study-view-tables {
     float:left;
     width:180px;
-    height:220px;
     border:1px;
     border-color:lightgrey;
     border-style:solid;
+}
+.study-view-tables .titleWrapper {
+    height:16px;
+    float:right;
+    position: absolute;
+    right: 0;
+}
+.study-view-tables table thead th {
+    font-size: 10px;
 }
 .study-view-pdf-svg-side {
     position: absolute;
@@ -475,6 +493,13 @@
     color: grey;
     cursor: pointer;
 }
+.study-view-tables-delete {
+    float: left;
+    margin-right: 5px;
+    color: grey;
+    cursor: pointer;
+} 
+
 .study-view-chart-plot-delete{  
     margin-right: 5px;
     color: grey;
@@ -559,6 +584,9 @@
     margin: 0 auto;
 }
 .highlightRow {
+    background-color: lightgrey !important;
+}
+.hoverRow {
     background-color: lightgrey !important;
 }
 /*.study-view-expand-icon {
@@ -738,7 +766,7 @@ pieH3{
     z-index: 14800 !important;
 }
 .qtip-max-width {
-    max-width: 1000px;
+    max-width: 500px;
 }
 //Show/Hide columns related classes
 .ColVis_collection {
@@ -934,9 +962,7 @@ ul li a:hover, ul li a:focus {
     width:100%;
     font-size:12px;
 }
-#data-table-chart table#dataTable>tbody:hover{
-    cursor: pointer;
-}
+
 #data-table-chart table.dataTable>thead>tr>th:nth-child(1) {background-color: white; white-space: nowrap;}
 #data-table-chart table.dataTable>thead>tr>th {
     //white-space:nowrap;

@@ -81,25 +81,20 @@ public class MutationsJSON extends HttpServlet {
         String mutationProfileId = request.getParameter(PatientView.MUTATION_PROFILE);
         GeneticProfile mutationProfile;
         Map<Long, Double> mutsig = Collections.emptyMap();
-        Map<Long, Integer> smgs = Collections.emptyMap();
+        Map<Long, Map<String, String>> smgs = Collections.emptyMap();
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         try {
             mutationProfile = DaoGeneticProfile.getGeneticProfileByStableId(mutationProfileId);
             if (mutationProfile!=null) {
                 int profileId = mutationProfile.getGeneticProfileId();
-                Set<String> selectedCaseList = new HashSet<String>();
+                List<Integer> selectedCaseList = new ArrayList<Integer>();
                 
                 if (request.getParameterMap().containsKey("case_list")) {
                     String caseList = request.getParameter("case_list");
                     Pattern p = Pattern.compile("[,\\s]+");
-                    String cases[] = p.split(caseList);
-                    for (String selectedCase : cases) {
-                        selectedCase = selectedCase.trim();
-                        if (selectedCase.length() == 0) {
-                            continue;
-                        }
-                        selectedCaseList.add("'" + selectedCase + "'");
-                    }
+                    String sampleIds[] = p.split(caseList);
+                    CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(mutationProfile.getCancerStudyId());
+                    selectedCaseList = InternalIdUtil.getInternalSampleIds(cancerStudy.getInternalId(), Arrays.asList(sampleIds));
                 }
                 
                 // get all recurrently mutation genes
@@ -129,7 +124,7 @@ public class MutationsJSON extends HttpServlet {
         }
         
         List<Map<String,Object>> data = new ArrayList<Map<String,Object>>();
-        for (Map.Entry<Long, Integer> entry : smgs.entrySet()) {
+        for (Map.Entry<Long, Map<String, String>> entry : smgs.entrySet()) {
             Map<String,Object> map = new HashMap<String,Object>();
             
             Long entrez = entry.getKey();
@@ -146,7 +141,7 @@ public class MutationsJSON extends HttpServlet {
                 map.put("length", length);
             }
             
-            Integer count = entry.getValue();
+            Integer count = Integer.parseInt(entry.getValue().get("count"));
             map.put("num_muts", count);
             
             Double qvalue = mutsig.get(entrez);
@@ -154,6 +149,15 @@ public class MutationsJSON extends HttpServlet {
                 map.put("qval", qvalue);
             }
             
+            Pattern p = Pattern.compile("[,\\s]+");
+            String sampleIds[] = p.split(entry.getValue().get("caseIds"));
+            List<Integer> sampleInternalIds = new ArrayList<>();
+            for(String s : sampleIds) {
+                sampleInternalIds.add(Integer.valueOf(s));
+            }
+            List<String> sampleStableIds = InternalIdUtil.getStableSampleIds(sampleInternalIds);
+                
+            map.put("caseIds", sampleStableIds);
             data.add(map);
         }
         

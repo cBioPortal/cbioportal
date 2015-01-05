@@ -89,6 +89,20 @@ var StudyViewUtil = (function(){
         }
     }
     
+    function arrayDeDuplicate(_array) {
+        if(_array instanceof Array) {
+            _array = _array.concat();
+            for(var i=0; i<_array.length; ++i) {
+                for(var j=i+1; j<_array.length; ++j) {
+                    if(_array[i] === _array[j])
+                        _array.splice(j--, 1);
+                }
+            }
+            return _array;
+        }else {
+            return [];
+        }
+    }
     function arrayFindByValue(_array, _value){
         if(_array.indexOf(_value) === -1){
             return false;
@@ -156,6 +170,95 @@ var StudyViewUtil = (function(){
         element.qtip(_qtip);
     }
     
+    function addCytobandSorting() {
+        jQuery.fn.dataTableExt.oSort['cytoband-base-desc'] = function(a,b) {
+            return -cytobanBaseSort(a, b);
+        };
+        jQuery.fn.dataTableExt.oSort['cytoband-base-asc'] = function(a,b) {
+            return cytobanBaseSort(a, b)
+        };
+    }
+    
+    function cytobanBaseSort(a, b) {
+        var _a = a.toString().trim().split('|')[0].replace(/[\s-]+/gm, '').split(/([pq])/gm),
+            _b = b.toString().trim().split('|')[0].replace(/[\s-]+/gm, '').split(/([pq])/gm);
+
+        var _al = _a.length,
+            _bl = _b.length;
+
+        if(_al > 5) {
+            console.log('Unrecognizable cytoband formate: ' + _a);
+            return 1;
+        }
+        if(_bl > 5) {
+            console.log('Unrecognizable cytoband formate: ' + _b);
+            return -1;
+        }
+
+        for(var i=0; i < _al; i++) {
+            if (_a[i] === 'p') {
+                if(i+1 < _al && !isNaN(_a[i+1])) {
+                    _a[i+1] = -Number(_a[i+1]);
+                }
+            }
+        }
+
+        for(var i=0; i < _bl; i++) {
+            if (_b[i] === 'p') {
+                if(i+1 < _bl && !isNaN(_b[i+1])) {
+                    _b[i+1] = -Math.abs(_b[i+1]);
+                }
+            }
+        }
+
+        if(_al <= _bl) {
+            return compare(_a, _b, 0);
+        }else{
+            return -compare(_b, _a, 0);
+        }
+    }
+    
+    function compare(a, b, index) {
+        //the length a always small b, otherwise switch
+        if(a.length > b.length) {
+            var _b = $.expand(true, [], b);
+            a = b;
+            b = _b;
+        }
+        
+        //if two cytobands are in different arms, show p arm first
+        if(index-1 >= 0 && a[index-1] !== b[index-1]) {
+            if(a[index-1] === 'q') {
+                return 1;
+            }else {
+                return -1;
+            }
+        }
+        
+        //if two cytobands are located on different chromosome, sort numerically,
+        //X chromosome treated as relativly bigger chromosome
+        
+        if(index === 0 && a[index] !== b[index]) {
+            if(b[index].toString().toLowerCase() === 'x'){
+                return -1;
+            }else if(a[index].toString().toLowerCase() === 'x'){
+                return 1;
+            }else {
+                return Number(a[index]) < Number(b[index]) ? -1: 1;
+            }
+        }
+        
+        if(Number(a[index]) < Number(b[index])) {
+            return -1;
+        }else if(Number(a[index]) > Number(b[index])){
+            return 1;
+        }else {
+            if(index + 2 < a.length) {
+                return compare(a, b, index+2);
+            }
+        }
+    }
+    
     return{
         showHideDivision: showHideDivision,
         echoWarningMessg: echoWarningMessg,
@@ -167,6 +270,8 @@ var StudyViewUtil = (function(){
         changePosition: changePosition,
         testM: testM,
         changeTitle: changeTitle,
-        addQtip: addQtip
+        addQtip: addQtip,
+        addCytobandSorting: addCytobandSorting,
+        arrayDeDuplicate: arrayDeDuplicate
     };
 })();

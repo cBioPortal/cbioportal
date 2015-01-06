@@ -299,16 +299,14 @@ var StudyViewInitCharts = (function(){
             initScatterPlot(_arr);
         }
         
-        if(mutatedGenes){
-            initTables();
-        }
+        initTables();
     }
     
     function initTables() {
-        StudyViewInitTables.init({
-            data: {
-                attr: [
-                    {
+        var initParams = {data: {attr: [], arr: {}}, numOfCases: numOfCases};
+        
+        if(mutatedGenes && mutatedGenes.length > 0) {
+            initParams.data.attr.push({
                         name: 'mutatedGenes',
                         displayName: 'Mutated Genes',
                         webService: {
@@ -320,7 +318,12 @@ var StudyViewInitCharts = (function(){
                                 mutation_profile: StudyViewParams.params.mutationProfileId
                             }
                         }
-                    },{
+                    });
+            initParams.data.arr.mutatedGenes = mutatedGenes;
+        }
+        
+        if(cna) {
+            initParams.data.attr.push({
                         name: 'cna',
                         displayName: 'Copy Number Altered Genes',
                         webService: {
@@ -330,15 +333,11 @@ var StudyViewInitCharts = (function(){
                                 selected_cancer_type: StudyViewParams.params.studyId
                             }
                         }
-                    }
-                ],
-                arr: {
-                    'mutatedGenes': mutatedGenes,
-                    'cna': cna
-                }
-            },
-            numOfCases: numOfCases
-        });
+                    });
+            initParams.data.arr.cna = cna;
+        }
+        
+        StudyViewInitTables.init(initParams);
     }
         
     function redrawSurvival() {

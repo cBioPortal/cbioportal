@@ -120,7 +120,10 @@
         <b:constructor-arg index="15">
             <b:value>${importer.foundation_worksheet}</b:value>
         </b:constructor-arg>
-       <b:constructor-arg index="16" ref="ncicaDSRFetcher"/>  
+        <b:constructor-arg index="16">
+            <b:value>${importer.tcga_tumor_types_worksheet}</b:value>
+        </b:constructor-arg>
+       <b:constructor-arg index="17" ref="ncicaDSRFetcher"/>  
     </b:bean>
     <b:bean id="caseIDs" class="org.mskcc.cbio.importer.caseids.internal.CaseIDsImpl">
         <b:constructor-arg ref="config"/>

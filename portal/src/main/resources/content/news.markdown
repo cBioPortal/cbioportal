@@ -1,6 +1,6 @@
 # January 6, 2014
 * __New feature__: You can now view __frequencies of mutations and copy-number alterations__ in the study view. These tables are updated dynamically when selecting subsets of samples.<br>
-<br>![Alterations in heavily copy-number altered endometrial cancer cases](images/previews/study_view_alt_frequencies.png)
+<center>![Alterations in heavily copy-number altered endometrial cancer cases](images/previews/study_view_alt_frequencies.png)</center>
 
 # December 9, 2014
 * __New TCGA data__:

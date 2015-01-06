@@ -266,10 +266,18 @@ public class MutationDataUtils {
         return "m" + Integer.toString(mutation.hashCode());
     }
 
-    public String generateMutationSid(ExtendedMutation mutation, Sample sample) {
-        return mutation.getGene()
-                + Integer.toString(sample.getInternalPatientId())
-                + mutation.getEvent().getProteinChange().replace('*', '-');
+    public String generateMutationSid(ExtendedMutation mutation, Sample sample)
+    {
+	    // we need stable patient id, internal patient id does not always work
+	    Patient patient = DaoPatient.getPatientById(sample.getInternalPatientId());
+
+	    // generate mutation sid by using gene, patient id, and protein change values
+	    String sid = mutation.getGene() +
+			patient.getStableId() +
+			mutation.getEvent().getProteinChange();
+
+	    // remove problematic characters from the id
+	    return sid.replaceAll("[^a-zA-Z0-9-]", "-");
     }
 
     /**

@@ -271,7 +271,17 @@ legend.legend-border {
 
             // create a plot on a hidden element
             var hidden_plot_id = '#allele-freq-plot-big';
+            // NECESSARY HACK FOR FIREFOX: 
+            // Firefox can't handle the method 'SVGLocatable.getBBox()', which 
+            // is used in rendering the legend for AlleleFreqPlotMulti, when
+            // the element it's called on is currently hidden. Thus, we must
+            // show the element while that's called, then hide it again to be revealed by Qtip.
+            // This sucks but is necessary unless we can replace the call to getBBox, which
+            // I could not figure out a cleaner way than this to do.
+            // - Adam Abeshouse (adama@cbio.mskcc.org)
+            $(hidden_plot_id).show()
             window.allelefreqplot = AlleleFreqPlotMulti($(hidden_plot_id)[0], processed_data, null, window.caseMetaData.label);            
+            $(hidden_plot_id).hide()
 
             // add qtip on allele frequency plot thumbnail
             $(thumbnail).qtip({

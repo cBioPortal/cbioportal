@@ -99,12 +99,18 @@ var AlleleFreqPlotUtils = (function() {
 }());
 
 var AlleleFreqPlotMulti = function(div, data, options, order) {
+	// If nolegend is false, the div this is called on must be attached and 
+	// rendered at call time or else Firefox will throw an error on the call
+	// to getBBox
+	
     //var fillcolors = d3.scale.category10();
     // construct colors, if a duplicate found replace it with 'darker'
     var colors = {};
     var colorhist = {};
     if (!order) {
 	    order = {};
+    }
+    if (Object.keys(order).length === 0) {
 	    var order_ctr = 0;
 	    for (var k in data) {
 		    if (data.hasOwnProperty(k)) {

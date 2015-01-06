@@ -463,14 +463,20 @@ cbio.util = (function() {
 	 */
 	function clientSideSvgDownload(svgElement, filename)
 	{
-		// serialize element (convert to string)
-		var svgString = serializeHtml(svgElement);
+		// serialize element (convert to string) & init download
+		clientSideSvgStrDownload(serializeHtml(svgElement), filename);
+	}
 
-		// add header
-		svgString = addSvgHeader(svgString);
-
-		// init download
-		clientSideDownload(svgString, filename, "application/svg+xml");
+	/**
+	 * Initiates a client side download specifically for svg file type.
+	 *
+	 * @param svgString     svg element (as a string)
+	 * @param filename      download file name
+	 */
+	function clientSideSvgStrDownload(svgString, filename)
+	{
+		// add header & init download
+		clientSideDownload(addSvgHeader(svgString), filename, "application/svg+xml");
 	}
 
     function getLinkToPatientView(cancerStudyId, patientId) {
@@ -500,6 +506,7 @@ cbio.util = (function() {
 	    requestDownload: requestDownload,
 	    clientSideDownload: clientSideDownload,
 	    clientSideSvgDownload: clientSideSvgDownload,
+	    clientSideSvgStrDownload: clientSideSvgStrDownload,
 	    serializeHtml: serializeHtml,
 	    addSvgHeader: addSvgHeader,
 	    getTargetDocument: getTargetDocument,

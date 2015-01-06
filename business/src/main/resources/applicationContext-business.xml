@@ -9,47 +9,62 @@
      http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
      http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 
-    <!-- scan for mappers and let them be autowired -->
-    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-        <property name="basePackage" value="org.mskcc.cbio.portal.persistence" />
-    </bean>
+     <beans profile="jndi,dbcp">
 
-    <!-- these are required to get properly autowired mappers into our service classes -->
-    <!-- when creating services via manually loading this context file -->
-    <bean id="entityMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
-        <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.EntityMapper" />
-        <property name="sqlSessionFactory" ref="sqlSessionFactory" />
-    </bean>
-    <bean id="entityAttributeMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
-        <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.EntityAttributeMapper" />
-        <property name="sqlSessionFactory" ref="sqlSessionFactory" />
-    </bean>
-    <bean id="entityService" class="org.mskcc.cbio.portal.service.EntityService">
-        <property name="entityMapper" ref="entityMapper" />
-    </bean>
-    <bean id="entityAttributeService" class="org.mskcc.cbio.portal.service.EntityAttributeService">
-        <property name="entityAttributeMapper" ref="entityAttributeMapper" />
-    </bean>
+         <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+            <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+            <property name="searchSystemEnvironment" value="true" />
+            <property name="ignoreResourceNotFound" value="true" />
+            <property name="locations">
+              <list>
+                <value>file:///${PORTAL_HOME}/portal.properties</value>
+              </list>
+            </property>
+          </bean>
 
-    <!-- enable component scanning (beware that this does not enable mapper scanning!) -->    
-    <context:component-scan base-package="org.mskcc.cbio.portal.service" />
+        <!-- scan for mappers and let them be autowired -->
+        <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+            <property name="basePackage" value="org.mskcc.cbio.portal.persistence" />
+        </bean>
 
-    <!-- enable autowire -->
-    <context:annotation-config />
+        <!-- these are required to get properly autowired mappers into our service classes -->
+        <!-- when creating services via manually loading this context file -->
+        <bean id="entityMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+            <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.EntityMapper" />
+            <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+        </bean>
+        <bean id="entityAttributeMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+            <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.EntityAttributeMapper" />
+            <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+        </bean>
+        <bean id="entityService" class="org.mskcc.cbio.portal.service.EntityService">
+            <property name="entityMapper" ref="entityMapper" />
+        </bean>
+        <bean id="entityAttributeService" class="org.mskcc.cbio.portal.service.EntityAttributeService">
+            <property name="entityAttributeMapper" ref="entityAttributeMapper" />
+        </bean>
 
-    <!-- enable transaction demarcation with annotations -->
-    <tx:annotation-driven />
+        <!-- enable component scanning (beware that this does not enable mapper scanning!) -->    
+        <context:component-scan base-package="org.mskcc.cbio.portal.service" />
 
-    <!-- transaction manager, use JtaTransactionManager for global tx -->
-    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="businessDataSource" />
-    </bean>
+        <!-- enable autowire -->
+        <context:annotation-config />
 
-    <!-- define the SqlSessionFactory -->
-    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-        <property name="dataSource" ref="businessDataSource" />
-        <property name="typeAliasesPackage" value="org.mskcc.cbio.portal.model" />
-    </bean>
+        <!-- enable transaction demarcation with annotations -->
+        <tx:annotation-driven />
+
+        <!-- transaction manager, use JtaTransactionManager for global tx -->
+        <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+            <property name="dataSource" ref="businessDataSource" />
+        </bean>
+
+        <!-- define the SqlSessionFactory -->
+        <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+            <property name="dataSource" ref="businessDataSource" />
+            <property name="typeAliasesPackage" value="org.mskcc.cbio.portal.model" />
+        </bean>
+
+    </beans>
   
     <beans profile="dbcp">
         <!-- business data source -->

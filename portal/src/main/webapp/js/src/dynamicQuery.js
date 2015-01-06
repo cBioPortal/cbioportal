@@ -756,7 +756,7 @@ function addMetaDataToPage() {
     for (var study in json.cancer_studies) {
         if (json.cancer_studies.hasOwnProperty(study) && study !== 'all') { // don't re-add 'all'
             try {
-                var type = json.cancer_studies[study].type_of_cancer;
+                var type = json.cancer_studies[study].type_of_cancer.toUpperCase();
                 oncotree[type].studies.push(study);
                 var node = oncotree[type];
                 while (node) {
@@ -808,6 +808,7 @@ function addMetaDataToPage() {
             possible_label = possible_label || json.type_of_cancers[names[i]];
         }
         var label = possible_label || root.type;
+	label = label.replace(/_/g,' ');
         if (root.type !== "" && !(depth > 0 && root.studies.length === 0)) {
             // don't insert a group element if A. this is the root of the tree, B. depth > 0 and there are no studies at this level
             $("<option value='" + root.type + "-study-group'"+
@@ -849,51 +850,6 @@ function addMetaDataToPage() {
         }
     };
     addStudyGroups(oncotree[""], -1);
-    /*var orderedTypes = [];
-    
-    // First create the groups and sort'em
-    var orderedTypes = [];
-    jQuery.each(json.type_of_cancers, function(key, typeStr) {
-        orderedTypes.push({ key: key, name: typeStr });
-    });
-
-    orderedTypes.sort(function(a, b) {
-        return a.name.localeCompare(b.name);
-    });
-    
-    // This is a hack to move the dmp study to the top.
-    orderedTypes.unshift({key:"dmp", name: "MSKCC DMP"});
-    
-    // Then add them in alphanumeric order
-    for(var j=0; j < orderedTypes.length; j ++) {
-        $("<optgroup id='"+ orderedTypes[j].key + "-study-group' label='" + orderedTypes[j].name + "'></optgroup>")
-            .appendTo(cancerTypeContainer);
-    }
-
-    //  Then iterate through all cancer studies and append each to the corresponding group
-    jQuery.each(json.cancer_studies,function(key,cancer_study){
-        //  Append to Cancer Study Pull-Down Menu
-        var addCancerStudy = true;
-
-        //  If the tab index is selected, and this is the all cancer studies option, do not show
-        if (window.tab_index == "tab_download" && key == "all") {
-            addCancerStudy = false;
-        }
-        if (addCancerStudy) {
-            console.log("Adding Cancer Study:  " + cancer_study.name);
-            var newOption = $("<option value='" + key + "' data-description='"+cancer_study.description.replace(/["'\\]/g,"")+"'>" + cancer_study.name + "</option>");
-            if(key == "all") {
-                cancerTypeContainer.prepend(newOption);
-            } else {
-                var type_of_cancer = cancer_study.type_of_cancer;
-                
-                // This is a hack to move the dmp study to the top.
-                if (key.indexOf("_dmp_")>=0) type_of_cancer = "dmp";
-                
-                $("#" + type_of_cancer + "-study-group").append(newOption);
-            }
-        }
-    });  //  end 1st for each cancer study loop*/
 
     //  Add Gene Sets to Pull-down Menu
     jQuery.each(json.gene_sets,function(key,gene_set){

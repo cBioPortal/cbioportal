@@ -38,7 +38,6 @@ public class TumorTypeMetadata {
     private String tissue;
     private String category;
     private String dedicatedColor;
-    private String shortName;
     private Boolean download; // download?
     private String parentTumorType; // oncotree
 
@@ -48,29 +47,21 @@ public class TumorTypeMetadata {
      *
 	 * @param properties String[]
      */
-    public TumorTypeMetadata(String[] properties) {
-		if (properties.length < 8) {
-            throw new IllegalArgumentException("corrupt properties array passed to contructor");
-		}
-
-		this.download = Boolean.parseBoolean(properties[0].trim());
-		this.tumorType = properties[1].trim();
-		this.tumorTypeName = properties[2].trim();
-        this.clinicalTrialKeywords = properties[3].trim();
-        this.tissue = properties[4].trim();
-        this.category = properties[5].trim();
-        this.dedicatedColor = properties[6].trim();
-        this.shortName = properties[7].trim();
-        this.parentTumorType = properties[8].trim();
+    public TumorTypeMetadata(String type_of_cancer_id, String name, String color, String parent, String clinical_trial_keywords, String tissue) {
+	    this.tumorType = type_of_cancer_id;
+	    this.tumorTypeName = name;
+	    this.dedicatedColor = color;
+	    this.parentTumorType = parent;
+	    this.clinicalTrialKeywords = clinical_trial_keywords;
+	    this.tissue = tissue;
 	}
 
 	public String getType() { return tumorType; }
 	public String getName() { return tumorTypeName; }
-	public Boolean getDownload() { return download; }
+	public Boolean getDownload() { return true; }
     public String getClinicalTrialKeywords() { return clinicalTrialKeywords; }
     public String getDedicatedColor() { return dedicatedColor; }
     public String getTissue() { return tissue; }
-    public String getCategory() { return category; }
-    public String getShortName() { return shortName; }
+    public String getCategory() { return ""; }
     public String getParentType() { return parentTumorType; }
 }

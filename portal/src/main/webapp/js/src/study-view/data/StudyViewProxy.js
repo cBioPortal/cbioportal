@@ -56,6 +56,10 @@ var StudyViewProxy = (function() {
                 cancer_study_id: parObject.studyId,
                 case_set_id: parObject.caseSetId
             },
+            caseLists: {
+                cmd: "getCaseLists",
+                cancer_study_id: parObject.studyId
+            },
             clinicalAttributesData: {
                 cancer_study_id: parObject.studyId,
                 case_list: sampleIdStr
@@ -86,14 +90,16 @@ var StudyViewProxy = (function() {
                 $.ajax({type: "POST", url: "mutations.json", data: ajaxParameters.mutationsData}),
                 $.ajax({type: "POST", url: "cna.json", data: ajaxParameters.cnaData}),
                 $.ajax({type: "POST", url: "mutations.json", data: ajaxParameters.mutatedGenesData}),
-                $.ajax({type: "POST", url: "Gistic.json", data: ajaxParameters.gisticData}))
-            .done(function(a1, a2, a3, a4, a5){
+                $.ajax({type: "POST", url: "Gistic.json", data: ajaxParameters.gisticData}),
+                $.ajax({type: "POST", url: "webservice.do", data: ajaxParameters.caseLists}))
+            .done(function(a1, a2, a3, a4, a5, a6){
                 var _dataAttrMapArr = {}, //Map attrbute value with attribute name for each datum
                     _keyNumMapping = {},
                     _data = a1[0]['data'],
                     _dataAttrOfa1 = a1[0]['attributes'],
                     _dataLength = _data.length,
-                    _sampleIds = Object.keys(samplePatientMapping);
+                    _sampleIds = Object.keys(samplePatientMapping),
+                    _sequencedSampleIds = [];
                     
                 //Reorganize data into wanted format datum[ caseID ][ Attribute Name ] = Attribute Value
                 //The original data structure is { attr_id: , attr_va: , sample}
@@ -152,6 +158,20 @@ var StudyViewProxy = (function() {
                 var filteredA2 = removeExtraData(_sampleIds,a2[0]);
                 var filteredA3 = removeExtraData(_sampleIds,a3[0]);
                 
+                //Find sequenced sample Ids
+                if(a6[0]) {
+                    var _lists = a6[0].split('\n');
+                    for(var i = 0; i < _lists.length; i++) {
+                        if(_lists[i].indexOf('sequenced samples') !== -1) {
+                            var _info = _lists[i].split('\t');
+                            if(_info.length === 5) {
+                                _sequencedSampleIds = _info[4].split(' ');
+                            }
+                            break;
+                        }
+                    }
+                }
+                
                 //Add new attribute MUTATIOIN COUNT for each case if have any
                 if(Object.keys(filteredA2).length !== 0){
                     var _newAttr = {};
@@ -163,6 +183,11 @@ var StudyViewProxy = (function() {
                     jQuery.each(filteredA2, function(i,val){
                         if(val === undefined)
                             val = 'NA';
+                        if(isNaN(val) && _sequencedSampleIds.indexOf(i) !== -1) {
+                            console.log(i, 'has been sequenced but does not have data. Changed mutation count to 0.');
+                            val = 0;
+                        }
+                        
                         obtainDataObject['arr'][_keyNumMapping[i]]['MUTATION_COUNT'] = val;
                     }); 
                     obtainDataObject['attr'].push(_newAttr);

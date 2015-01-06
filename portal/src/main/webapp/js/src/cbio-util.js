@@ -435,6 +435,44 @@ cbio.util = (function() {
 		return xmlSerializer.serializeToString(element);
 	}
 
+	/**
+	 * Adds missing xml and svg headers to the provided svg string
+	 *
+	 * @param xml   xml as a string
+	 * @returns {string}    new xml string with additional headers
+	 */
+	function addSvgHeader(xml)
+	{
+		var xmlHeader = "<?xml version='1.0'?>";
+		var svg = xmlHeader + xml;
+
+		if(svg.indexOf("svg xmlns") == -1)
+		{
+			svg = svg.replace(
+				"<svg", "<svg xmlns='http://www.w3.org/2000/svg' version='1.1'");
+		}
+
+		return svg;
+	}
+
+	/**
+	 * Initiates a client side download specifically for svg file type.
+	 *
+	 * @param svgElement    svg element (as an html element)
+	 * @param filename      download file name
+	 */
+	function clientSideSvgDownload(svgElement, filename)
+	{
+		// serialize element (convert to string)
+		var svgString = serializeHtml(svgElement);
+
+		// add header
+		svgString = addSvgHeader(svgString);
+
+		// init download
+		clientSideDownload(svgString, filename, "application/svg+xml");
+	}
+
     function getLinkToPatientView(cancerStudyId, patientId) {
         return "case.do?cancer_study_id=" + cancerStudyId + "&case_id=" + patientId;
     }
@@ -461,7 +499,9 @@ cbio.util = (function() {
 	    submitDownload: submitDownload,
 	    requestDownload: requestDownload,
 	    clientSideDownload: clientSideDownload,
+	    clientSideSvgDownload: clientSideSvgDownload,
 	    serializeHtml: serializeHtml,
+	    addSvgHeader: addSvgHeader,
 	    getTargetDocument: getTargetDocument,
         getLinkToPatientView: getLinkToPatientView,
         getLinkToSampleView: getLinkToSampleView

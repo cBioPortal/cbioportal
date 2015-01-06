@@ -1180,12 +1180,8 @@
 //                    formElement.find("input[name=svgelement]").val($("#cchistogram").html());
 //                    formElement.submit();
 
-	                  // request download
-	                cbio.util.requestDownload("svgtopdf.do",
-						{filetype: "svg",
-		                    filename: "crosscancerhistogram.svg",
-		                    svgelement: $("#cchistogram").html()}
-	                );
+	                cbio.util.clientSideSvgDownload(
+		                $("#cchistogram")[0], "crosscancerhistogram.svg");
                 });
 
                 $("#histogram-customize").click(function() {

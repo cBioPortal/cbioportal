@@ -1223,9 +1223,16 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
               {
                 mutationColorControl = 'singleColor';
                 refreshOncoPrint();
+                //the code below is that after color mutation zoom to the largest value 
+//                zoom = reset_zoom();
+//                // sync
+//                oncoprint.zoom(zoom.val());
+
+                var zoomvalue = $('#oncoprint_zoom_slider')[0].value;
                 zoom = reset_zoom();
+                $('#oncoprint_zoom_slider')[0].value = zoomvalue;
                 // sync
-                oncoprint.zoom(zoom.val());
+                oncoprint.zoom(zoomvalue);
                 oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
                 oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
                 utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
@@ -1241,9 +1248,17 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
               {
                 mutationColorControl = 'multiColor';
                 refreshOncoPrint();
+                //the code below is that after color mutation zoom to the largest value 
+//                zoom = reset_zoom();
+//                // sync
+//                oncoprint.zoom(zoom.val());
+
+                var zoomvalue = $('#oncoprint_zoom_slider')[0].value;
                 zoom = reset_zoom();
+                $('#oncoprint_zoom_slider')[0].value = zoomvalue;
                 // sync
-                oncoprint.zoom(zoom.val());
+                oncoprint.zoom(zoomvalue);
+                
                 oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
                 oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
                 utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(

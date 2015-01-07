@@ -1,9 +1,9 @@
 <svg width="45" height="45" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
  <g>
-  <rect id="svg_14" height="38" width="6" y="3.5" x="1" stroke-width="5" stroke="null" fill="#d3d3d3"/>
-   <rect id="svg_16" height="38" width="6" y="3.5" x="14" stroke-width="5" stroke="null" fill="#d3d3d3"/>
-   <rect id="svg_15" height="38" width="6" y="3.5" x="27" stroke-width="5" stroke="null" fill="#d3d3d3"/>
-   <rect id="svg_18" height="38" width="6" y="3.5" x="39" stroke-width="5" stroke="null" fill="#d3d3d3"/>
-  <path fill="#7f7f7f" id="svg_22" d="m37.59375,5l-19.21875,19.79998l-8.96875,-9.24l-6.40625,6.60001l15.375,15.84001l25.625,-26.39999l-6.40625,-6.60001z"/>
+  <rect fill="#d3d3d3" stroke-width="5" x="13.375" y="0.75" width="2.25" height="15" id="svg_18" stroke="null"/>
+  <rect fill="#d3d3d3" stroke-width="5" x="5.25" y="0.875" width="2.25" height="15" stroke="null" id="svg_2"/>
+  <rect fill="#d3d3d3" stroke-width="5" x="1.25" y="0.875" width="2.25" height="15" stroke="null" id="svg_3"/>
+  <rect fill="#d3d3d3" stroke-width="5" x="9.5" y="0.875" width="2.25" height="15" stroke="null" id="svg_4"/>
+  <path d="m13.58008,0.875l-6.88477,8.88749l-3.21289,-4.1475l-2.29492,2.9625l5.50781,7.11l9.17969,-11.85l-2.29492,-2.9625z" id="svg_22" fill="#7f7f7f"/>
  </g>
 </svg>

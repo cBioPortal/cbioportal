@@ -1073,6 +1073,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             return result;
         }); 
         
+        $('#oncoprint_diagram_slider_icon')[0].style.display = cbio.util.browser.msie ? "none":"inline";
+        
         $('#oncoprint_zoomout').click(function() {
             var tempValue = parseFloat($('#oncoprint_zoom_slider')[0].value) - 0.05;
             $('#oncoprint_zoom_slider')[0].value = tempValue > 0.1 ? tempValue : 0.1;

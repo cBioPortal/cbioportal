@@ -1042,12 +1042,35 @@ var StudyViewInitCharts = (function(){
         }
     }
     
+    /**
+     * Pass in array of case Ids, return stable case Ids(fix case sensitive)
+     * @param {type} caseIds
+     * @returns {Array}
+     */
+    function getStableIds(caseIds) {
+        var a = [],
+            selectedIds = getSelectedCasesID();
+        
+        caseIds = caseIds.map(function(datum){ return datum.toString().toLowerCase();});
+        
+        if(caseIds instanceof Array && caseIds.length > 0) {
+            selectedIds.forEach(function(e, i){
+                if( caseIds.indexOf(e.toString().toLowerCase()) !== -1) {
+                    a.push(e);
+                }
+            });
+        }
+        
+        return a;
+    }
+    
     function filterChartsByGivingIDs(_ids){
         var _caseIDChart = varChart[attrNameMapUID['CASE_ID']].getChart();
         
         if(_ids.length > 1){
             StudyViewInitScatterPlot.setClickedCasesId('');;
         }
+        _ids = getStableIds(_ids);
         _caseIDChart.filterAll();
         _caseIDChart.filter([_ids]);
         dc.redrawAll();

@@ -1,7 +1,7 @@
-<svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+<svg width="15" height="15" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
  <g>
-  <rect x="7" y="0.75" width="2.875" height="14.375" fill="#7f7f7f" id="svg_1"/>
-  <path transform="rotate(-179.6527557373047 13.0625,7.8125) " d="m9.875,7.8125l3.1875,7.8125l0,-4.88281l3.18749,0l0.00001,-5.85938l-3.1875,0l0,-4.88281l-3.1875,7.8125z" id="svg_3" fill="#7f7f7f"/>
-  <path transform="rotate(-180 3.5,7.875000476837158) " d="m7,7.875l-3.5,-7.75l0,4.84375l-3.49998,0l-0.00002,5.8125l3.5,0l0,4.84375l3.5,-7.75z" id="svg_4" fill="#7f7f7f"/>
+  <rect id="svg_1" fill="#7f7f7f" height="14.375" width="2.875" y="0.75" x="6.375"/>
+  <path transform="rotate(179.60757446289062 12.3125,7.8125) " fill="#7f7f7f" id="svg_3" d="m9.125,7.8125l3.1875,7.8125l0,-4.88281l3.18749,0l0.00001,-5.85938l-3.1875,0l0,-4.88281l-3.1875,7.8125z"/>
+  <path transform="rotate(180 3.1875,7.875) " fill="#7f7f7f" id="svg_4" d="m6.4375,7.875l-3.25,-7.75l0,4.84375l-3.24998,0l-0.00002,5.8125l3.25,0l0,4.84375l3.25,-7.75z"/>
  </g>
 </svg>

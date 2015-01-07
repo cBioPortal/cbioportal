@@ -17,7 +17,7 @@ define(function() {
         var comp_genes = function(attr1, attr2) {
             var cna_order = {AMPLIFIED:4, HOMODELETED:3, GAINED:2, HEMIZYGOUSLYDELETED:1, DIPLOID: 0, undefined: 0},
                 regulated_order = {UPREGULATED: 2, DOWNREGULATED: 1, undefined: 0},
-                mutation_order_f = function(m) { return m === undefined ? 0 : (/fusion($|,)/i.test(m)?2:1); };
+                mutation_order_f = function(m) { return m === undefined ? 0 : (/\bfusion\b/i.test(m)?2:1); };
 
             var cna_diff = cna_order[attr2.cna] - cna_order[attr1.cna];
             if (cna_diff !== 0) {

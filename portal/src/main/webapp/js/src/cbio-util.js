@@ -1,4 +1,7 @@
-var cbio = {};
+if (cbio === undefined)
+{
+	var cbio = {};
+}
 
 cbio.util = (function() {
 
@@ -396,89 +399,6 @@ cbio.util = (function() {
 		}
 	}
 
-	/**
-	 * Initiates a client side download for the given content.
-	 *
-	 * @param content   data content to download
-	 * @param filename  download file name
-	 * @param type      download type
-	 */
-	function clientSideDownload(content, filename, type)
-	{
-		if (type == null)
-		{
-			// text by default
-			type = "text/plain;charset=utf-8"
-		}
-
-		if (filename == null)
-		{
-			filename = "download.txt";
-		}
-
-		// TODO if type is not text, we may need to do something else...
-		var blob = new Blob([content], {type: type});
-
-		saveAs(blob, filename);
-	}
-
-	/**
-	 * Serializes the given html element into a string.
-	 *
-	 * @param element       html element
-	 * @returns {string}    serialized string
-	 */
-	function serializeHtml(element)
-	{
-		// convert html element to string
-		var xmlSerializer = new XMLSerializer();
-		return xmlSerializer.serializeToString(element);
-	}
-
-	/**
-	 * Adds missing xml and svg headers to the provided svg string
-	 *
-	 * @param xml   xml as a string
-	 * @returns {string}    new xml string with additional headers
-	 */
-	function addSvgHeader(xml)
-	{
-		var xmlHeader = "<?xml version='1.0'?>";
-		var svg = xmlHeader + xml;
-
-		if(svg.indexOf("svg xmlns") == -1)
-		{
-			svg = svg.replace(
-				"<svg", "<svg xmlns='http://www.w3.org/2000/svg' version='1.1'");
-		}
-
-		return svg;
-	}
-
-	/**
-	 * Initiates a client side download specifically for svg file type.
-	 *
-	 * @param svgElement    svg element (as an html element)
-	 * @param filename      download file name
-	 */
-	function clientSideSvgDownload(svgElement, filename)
-	{
-		// serialize element (convert to string) & init download
-		clientSideSvgStrDownload(serializeHtml(svgElement), filename);
-	}
-
-	/**
-	 * Initiates a client side download specifically for svg file type.
-	 *
-	 * @param svgString     svg element (as a string)
-	 * @param filename      download file name
-	 */
-	function clientSideSvgStrDownload(svgString, filename)
-	{
-		// add header & init download
-		clientSideDownload(addSvgHeader(svgString), filename, "application/svg+xml");
-	}
-
     function getLinkToPatientView(cancerStudyId, patientId) {
         return "case.do?cancer_study_id=" + cancerStudyId + "&case_id=" + patientId;
     }
@@ -502,13 +422,9 @@ cbio.util = (function() {
         autoHideOnMouseLeave: autoHideOnMouseLeave,
         swapElement: swapElement,
 	    getTargetWindow: getTargetWindow,
+	    // TODO remove download functions when done with PDF!
 	    submitDownload: submitDownload,
 	    requestDownload: requestDownload,
-	    clientSideDownload: clientSideDownload,
-	    clientSideSvgDownload: clientSideSvgDownload,
-	    clientSideSvgStrDownload: clientSideSvgStrDownload,
-	    serializeHtml: serializeHtml,
-	    addSvgHeader: addSvgHeader,
 	    getTargetDocument: getTargetDocument,
         getLinkToPatientView: getLinkToPatientView,
         getLinkToSampleView: getLinkToSampleView

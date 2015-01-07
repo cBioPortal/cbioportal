@@ -1168,7 +1168,7 @@
 //                    formElement.submit();
 
 	                // request download
-	                cbio.util.requestDownload("svgtopdf.do",
+	                cbio.download.requestDownload("svgtopdf.do",
 						{filetype: "pdf",
 		                    filename: "crosscancerhistogram.pdf",
 		                    svgelement: $("#cchistogram").html()}
@@ -1180,7 +1180,7 @@
 //                    formElement.find("input[name=svgelement]").val($("#cchistogram").html());
 //                    formElement.submit();
 
-	                cbio.util.clientSideSvgDownload(
+	                cbio.download.clientSideSvgDownload(
 		                $("#cchistogram")[0], "crosscancerhistogram.svg");
                 });
 

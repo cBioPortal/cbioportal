@@ -56,9 +56,16 @@ var scatterPlots = (function() {
         var stat = plotsData.stat();
         var domainMin = stat[axis].min - stat[axis].edge;
         var domainMax = stat[axis].max + stat[axis].edge;
-        elem[axis].scale = d3.scale.linear()
-            .domain([domainMin, domainMax])
-            .range([settings.axis[axis].range_min, settings.axis[axis].range_max]);
+        if (domainMin === domainMax && domainMin === 0) {
+            elem[axis].scale = d3.scale.linear()
+                .domain([-1, 1])
+                .range([settings.axis[axis].range_min, settings.axis[axis].range_max]);            
+        } else {
+            elem[axis].scale = d3.scale.linear()
+                .domain([domainMin, domainMax])
+                .range([settings.axis[axis].range_min, settings.axis[axis].range_max]);            
+        }
+
         elem[axis].axis = d3.svg.axis()
             .scale(elem[axis].scale)
             .orient(settings.axis[axis].orient)
@@ -204,7 +211,7 @@ var scatterPlots = (function() {
                     $(this).attr("x_val", d.xVal);
                     $(this).attr("y_val", d.yVal);
                     $(this).attr("case_id", d.caseId);
-                    $(this).attr("size", 35);
+                    $(this).attr("size", 20);
                     return "translate(" + elem.x.scale(d.xVal) + ", " + elem.y.scale(d.yVal) + ")";
                 })
                 .attr("d", d3.svg.symbol()
@@ -230,7 +237,7 @@ var scatterPlots = (function() {
                     $(this).attr("x_val", d.xVal);
                     $(this).attr("y_val", d.yVal);
                     $(this).attr("case_id", d.caseId);
-                    $(this).attr("size", 35);
+                    $(this).attr("size", 20);
                     return "translate(" + elem.x.scale(d.xVal) + ", " + elem.y.scale(d.yVal) + ")";
                 })
                 .attr("d", d3.svg.symbol()

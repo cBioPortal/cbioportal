@@ -95,20 +95,24 @@ var plotsData = (function() {
                     }
                 }
             }
-            //get mutation data
-            var _gene_list = "";
-            if ($("#" + ids.sidebar.x.data_type).val() === vals.data_type.genetic) {
-                _gene_list += $("#" + ids.sidebar.x.gene).val();
+            if (genetic_vs_genetic() || genetic_vs_clinical()) {
+                //get mutation data
+                var _gene_list = "";
+                if ($("#" + ids.sidebar.x.data_type).val() === vals.data_type.genetic) {
+                    _gene_list += $("#" + ids.sidebar.x.gene).val();
+                }
+                if ($("#" + ids.sidebar.y.data_type).val() === vals.data_type.genetic &&
+                        $("#" + ids.sidebar.y.gene).val() !== $("#" + ids.sidebar.x.gene).val()) {
+                    _gene_list += " " + $("#" + ids.sidebar.y.gene).val();
+                }
+                if (_gene_list !== "") {
+                    var proxy = DataProxyFactory.getDefaultMutationDataProxy();
+                    proxy.getMutationData(_gene_list, mutationCallback);
+                }                 
+            } else {
+                analyseData();
+                stat.retrieved = true;
             }
-            if ($("#" + ids.sidebar.y.data_type).val() === vals.data_type.genetic &&
-                    $("#" + ids.sidebar.y.gene).val() !== $("#" + ids.sidebar.x.gene).val()) {
-                _gene_list += " " + $("#" + ids.sidebar.y.gene).val();
-            }
-            if (_gene_list !== "") {
-                var proxy = DataProxyFactory.getDefaultMutationDataProxy();
-                proxy.getMutationData(_gene_list, mutationCallback);
-            } 
-
         }
     };
     
@@ -166,7 +170,6 @@ var plotsData = (function() {
                 stat.retrieved = true;
             }
         } else if (genetic_vs_clinical()) {
-            
             //translate: assign text value a numeric value for clinical data
             var _axis, _axis_key;
             if ($("#" + ids.sidebar.x.data_type).val() === vals.data_type.clin) {
@@ -184,16 +187,12 @@ var plotsData = (function() {
             if (!is_numeric(_arr)) {
                 clinical_data_interpreter.process(dotsContent, _axis);
                 for (var key in dotsContent) {
-                    dotsContent[key][_axis_key] = clinical_data_interpreter.convert_to_numeric(dotsContent[key][_axis_key]);
+                    dotsContent[key][_axis_key] = clinical_data_interpreter.convert_to_numeric(dotsContent[key][_axis_key], _axis);
                 }                        
             }
-            
             analyseData();
             stat.retrieved = true; 
-        } else if (clinical_vs_clinical()) {
-            analyseData();
-            stat.retrieved = true;
-        }
+        } 
     }
 
     function analyseData() {    //pDataX, pDataY: array of single dot objects

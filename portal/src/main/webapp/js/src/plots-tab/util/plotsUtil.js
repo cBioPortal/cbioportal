@@ -145,15 +145,18 @@ var mutationTranslator = function(mutationDetail) {
 
 };
 
+var discretized_cna_profile_keywords = [
+    "_cna",
+    "_cna_rae",
+    "_gistic"
+];
+
 var isDiscretized = function(axis) {
-    var discretizedDataList = [
-        "gistic"
-    ];
-    
     var elt = document.getElementById(ids.sidebar[axis].profile_name);
     var _profile_name = elt.options[elt.selectedIndex].value;
-    var _token = _profile_name.replace(window.PortalGlobals.getCancerStudyId() + "_", "");
-    if ($.inArray(_token, discretizedDataList) !== -1) return true;
+    var _token = _profile_name.replace(window.PortalGlobals.getCancerStudyId(), "");
+    //if ($.inArray(_token, discretizedDataList) !== -1) return true;
+    if ($.inArray(_token, discretized_cna_profile_keywords) !== -1) return true;
     return false;
 };
 
@@ -181,8 +184,4 @@ function searchIndexTop(arr, ele) {
     return arr.length - 1;
 };
 
-var discretized_cna_profile_keywords = [
-    "_cna",
-    "_cna_rae",
-    "_gistic"
-];
+

@@ -27,6 +27,7 @@ var plotsbox = (function() {
         } else if (genetic_vs_clinical()) {
             scatterPlots.init(ids.main_view.div, data, false, "");
         } else if (clinical_vs_clinical()) {
+            console.log(data);
             scatterPlots.init(ids.main_view.div, data, false, "");
         }
     };

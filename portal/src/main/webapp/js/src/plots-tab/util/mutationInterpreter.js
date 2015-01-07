@@ -38,8 +38,14 @@ var mutationInterpreter = (function() {
                 var _elt = document.getElementById(ids.sidebar[_gene_axis].gene);
                 var _gene_symbol = _elt.options[_elt.selectedIndex].value;
                 if (Object.keys(obj.mutation).length !== 0 && obj.mutation.hasOwnProperty(_gene_symbol)) {
+                    if(!scatterPlots.isGlyphExist(obj.mutation[_gene_symbol].type)) {
+                        scatterPlots.addGlyph(mutationStyle.getGlyph(obj.mutation[_gene_symbol].type));
+                    }
                     return mutationStyle.getSymbol(obj.mutation[_gene_symbol].type);
                 } else {
+                    if(!scatterPlots.isGlyphExist("non")) {
+                        scatterPlots.addGlyph(mutationStyle.getGlyph("non"));
+                    }
                     return mutationStyle.getSymbol("non");
                 }                
             } else if (clinical_vs_clinical()) {

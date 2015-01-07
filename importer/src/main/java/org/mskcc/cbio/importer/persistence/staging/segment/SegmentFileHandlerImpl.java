@@ -33,8 +33,6 @@ public class SegmentFileHandlerImpl extends TsvStagingFileProcessor implements S
         super.registerStagingFile(segmentFilePath, columnHeadings,true);
     }
 
-
-
     @Override
     public void removeDeprecatedSamplesFromSegmentStagingFiles(String sampleIdColumnName, Set<String> deprecatedSampleSet) {
         super.removeDeprecatedSamplesFomTsvStagingFiles(sampleIdColumnName, deprecatedSampleSet);

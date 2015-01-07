@@ -38,14 +38,6 @@ public interface IDMapper {
 	public String findGeneNameByGenomicPosition(String chromosome, String position,String strand);
 
 	/**
-	 * for a starting positon resolve the gene name
-	 * @param chromosome
-	 * @param startPos
-	 * @return
-	 */
-	String resolveGeneNameFromPosition(String chromosome, Integer startPos);
-
-	/**
 	 * For the given symbol, return id.
 	 *
 	 * @param geneSymbol String

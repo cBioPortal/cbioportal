@@ -136,6 +136,7 @@ public class CnvFileHandlerImpl implements CnvFileHandler {
             }
         } catch (IOException ex) {
             logger.error(ex.getMessage());
+            ex.printStackTrace();
         }
     }
 

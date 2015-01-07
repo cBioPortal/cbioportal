@@ -48,11 +48,6 @@ public class DAOGeneOptimizedIDMapper implements IDMapper {
 		return "";
 	}
 
-	@Override
-	public String resolveGeneNameFromPosition(String chromosome, Integer startPos) {
-		return "";
-	}
-
 	/**
 	 * For the given symbol, return id.
 	 *

@@ -100,11 +100,12 @@ class DmpSegmentDataTransformer extends SegmentTransformer implements DMPDataTra
         DmpSegmentDataTransformer transformer = new DmpSegmentDataTransformer(fileHandler,stagingFileDirectory);
 
         try {
-            DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/cvr/dmp/result-sv.json"), DmpData.class);
+            DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/cvr/result-sv.json"), DmpData.class);
             transformer.transform(data);
 
         } catch (IOException ex) {
             logger.error(ex.getMessage());
+            ex.printStackTrace();
         }
     }
 

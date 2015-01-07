@@ -116,6 +116,4 @@ public class FusionFileHandlerImpl extends TsvStagingFileProcessor implements Ts
                 " The sample id column name is required");
         return super.resolveProcessedSampleSet(sampleIdColumnName);
     }
-
-
 }

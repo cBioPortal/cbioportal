@@ -61,7 +61,7 @@ public class DarwinPathologyDataDetailsTransformer  extends DarwinTransformer{
 
     @Override
     public void transform() {
-        this.writeStagingFile(this.generateReportByPatientIdList(IdMapService.INSTANCE.getDarwinIdList()));
+      this.writeStagingFile(this.generateReportByPatientIdList(IdMapService.INSTANCE.getDarwinIdList()));
         return ;
     }
 

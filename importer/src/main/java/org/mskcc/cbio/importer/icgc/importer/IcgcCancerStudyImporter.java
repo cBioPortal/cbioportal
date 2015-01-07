@@ -7,6 +7,8 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.*;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.icgc.etl.IcgcCancerStudyETLCallable;
+import org.mskcc.cbio.importer.icgc.etl.IcgcCopyNumberETLCallable;
+import org.mskcc.cbio.importer.icgc.etl.IcgcSegmentDataETLCallable;
 import org.mskcc.cbio.importer.icgc.model.IcgcClinicalModel;
 import org.mskcc.cbio.importer.icgc.model.IcgcFusionModel;
 import org.mskcc.cbio.importer.icgc.model.IcgcSimpleSomaticMutationModel;
@@ -15,6 +17,7 @@ import org.mskcc.cbio.importer.icgc.support.IcgcMetadataService;
 import org.mskcc.cbio.importer.model.IcgcMetadata;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
+import org.mskcc.cbio.importer.persistence.staging.cnv.CnvFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.fusion.FusionModel;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationTransformation;
@@ -50,6 +53,7 @@ public class IcgcCancerStudyImporter implements Callable<String> {
     /*
     Callable implementation that is responsible for the ETL operations
     for a specified ICGC Cancer Study
+
      */
     private static Logger logger = Logger.getLogger(IcgcCancerStudyImporter.class);
     private final IcgcMetadata metadata;
@@ -84,11 +88,11 @@ public class IcgcCancerStudyImporter implements Callable<String> {
 
     private String invokeEtlTasks() {
 
-        List<IcgcCancerStudyETLCallable> etlTaskList = this.resolveEtlTasks();
+        List<Callable<String>> etlTaskList = this.resolveEtlTasks();
         final Integer submittedStudies = etlTaskList.size();
         final List<String> completedStudies = Lists.newArrayList();
 
-        for (IcgcCancerStudyETLCallable etlTask : etlTaskList) {
+        for (Callable<String> etlTask : etlTaskList) {
             futureList.add(service.submit(etlTask));
         }
         final StringBuffer sb = new StringBuffer();   // StringBuffer for concurrency;
@@ -117,11 +121,16 @@ public class IcgcCancerStudyImporter implements Callable<String> {
         return sb.toString();
     }
 
-    private List<IcgcCancerStudyETLCallable> resolveEtlTasks() {
-        List<IcgcCancerStudyETLCallable> etlTasks = Lists.newArrayList();
+    /*
+    private method to construct a list of transformation tasks for the current ICGC cancer study
+    since not every cancer study contains the same set of variation files, the task list will
+    vary based on whether there is an appropriate file type registered for that study
+     */
+    private List<Callable<String>> resolveEtlTasks() {
+        List<Callable<String>> etlTasks = Lists.newArrayList();
 
         if (!Strings.isNullOrEmpty(this.metadata.getSomaticmutationurl())) {
-            Path stagingFilePath = this.stagingFileDirectory.resolve("data_mutations_extended.txt");
+            Path stagingFilePath = this.stagingFileDirectory.resolve(StagingCommonNames.MUTATIONS_STAGING_FILENAME);
             TsvStagingFileHandler aHandler = new MutationFileHandlerImpl();
             aHandler.registerTsvStagingFile(stagingFilePath,
                     Lists.newArrayList(MutationTransformation.INSTANCE.getTransformationMap().keySet()), true);
@@ -133,7 +142,7 @@ public class IcgcCancerStudyImporter implements Callable<String> {
         // clinical
 
         if (!Strings.isNullOrEmpty(this.metadata.getClinicalurl())) {
-            Path stagingFilePath = this.stagingFileDirectory.resolve("data_clinical.txt");
+            Path stagingFilePath = this.stagingFileDirectory.resolve(StagingCommonNames.CLINICAL_STAGING_FILENAmE);
             TsvStagingFileHandler aHandler = new MutationFileHandlerImpl();
             aHandler.registerTsvStagingFile(stagingFilePath, Lists.newArrayList(
                     IcgcFunctionLibrary.resolveColumnNames(IcgcClinicalModel.transformationMap)), true);
@@ -142,8 +151,19 @@ public class IcgcCancerStudyImporter implements Callable<String> {
             logger.info("Added clinical transformation for: " + this.metadata.getClinicalurl());
 
         }
-
+        /*
+         ICGC copy number variation data generates two (2) staging files:
+            1.  CNA matrix file
+            2. segment file
+         */
         if (!Strings.isNullOrEmpty(this.metadata.getCopynumberurl())) {
+            // generate the CNA file
+            //Path stagingFilePath = this.stagingFileDirectory.resolve(StagingCommonNames.CNA_STAGING_FILENAME);
+            etlTasks.add(new IcgcCopyNumberETLCallable(this.metadata, this.stagingFileDirectory,new CnvFileHandlerImpl() ));
+            logger.info("Added copy number transformation for " +this.metadata.getCopynumberurl());
+            // generate the segment file
+            etlTasks.add(new IcgcSegmentDataETLCallable(this.metadata, this.stagingFileDirectory, new MutationFileHandlerImpl()));
+            logger.info("Added segment transformation for " +this.metadata.getCopynumberurl());
 
         }
         if (!Strings.isNullOrEmpty(this.metadata.getExparrayurl())) {
@@ -182,7 +202,7 @@ public class IcgcCancerStudyImporter implements Callable<String> {
     // main method for stand alone testing
 
     public static void main(String... args) {
-        IcgcMetadata metadata = IcgcMetadataService.INSTANCE.getIcgcMetadataById("PACA-AU");
+        IcgcMetadata metadata = IcgcMetadataService.INSTANCE.getIcgcMetadataById("PACA-CA");
         logger.info("Metadata for " + metadata.getIcgcid() + " obtained");
         Path basePath = Paths.get("/tmp/icgctest");
         final ListeningExecutorService service =

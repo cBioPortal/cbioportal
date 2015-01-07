@@ -59,6 +59,19 @@ public interface StagingCommonNames {
     public static final String CLINICAL_TYPE = "clinical";
 
     public static final String STRUCTURAL_MUTATION_TYPE = "structural_mutation";
+    // staging file names
+    // mutations
+    public static final String MUTATIONS_STAGING_FILENAME = "data_mutations_extended.txt";
+    public static final String  MUTATIONS_METADATA_FILENAME = "meta_mutations_extended.txt";
+    //copy number
+    public static final String CNA_STAGING_FILENAME = "data_CNA.txt";
+    public static final String CNA_METADATA_FILENAME = "meta_CNA.txt";
+    // fusion data
+    public static final String FUSION_STAGING_FILENAME ="data_fusions.txt";
+    public static final String FUSION_METADATA_FILENAME = "meta_fusions.txt";
+    //clinical
+    public static final String CLINICAL_STAGING_FILENAmE = "data_clinical.txt";
+
 
 
 

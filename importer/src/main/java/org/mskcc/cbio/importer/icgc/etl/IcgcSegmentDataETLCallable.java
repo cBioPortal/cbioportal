@@ -64,7 +64,8 @@ public class IcgcSegmentDataETLCallable extends SegmentTransformer implements Ca
         Preconditions.checkArgument(null != meta && !Strings.isNullOrEmpty(meta.getCopynumberurl()), "The ICGC metadata parameter is null or invalid");
         Preconditions.checkArgument(null != aPath,"A Path to the staging file directory is required" );
         this.icgcCopyNumberUrl = meta.getCopynumberurl();
-        this.registerStagingFileDirectory(aPath.resolve( meta.getStudyname()));
+        //this.registerStagingFileDirectory(aPath.resolve( meta.getDownloaddirectory()),meta.getStudyname());
+        this.registerStagingFileDirectory(aPath,meta.getStudyname());
     }
 
     /*

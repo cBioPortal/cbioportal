@@ -64,9 +64,7 @@ public abstract class CnvTransformer {
             case "3.0":
                 return AMP_LOH;
         }
-
         return AMP;
-
     }
 
     protected CnvTransformer(CnvFileHandler aHandler){

@@ -433,7 +433,11 @@ public class IcgcFusionModel extends FusionModel {
     }
 
     public String getGene_affected_by_bkpt_from() {
-        return gene_affected_by_bkpt_from;
+        if(!Strings.isNullOrEmpty(this.getGene_affected_by_bkpt_from())) {
+            return gene_affected_by_bkpt_from;
+        }
+        return geneMapper.findGeneNameByGenomicPosition(this.chr_from,
+                this.getChr_from_bkpt(), this.chr_from_strand);
     }
 
     public void setGene_affected_by_bkpt_from(String gene_affected_by_bkpt_from) {
@@ -445,7 +449,7 @@ public class IcgcFusionModel extends FusionModel {
         if (!Strings.isNullOrEmpty( gene_affected_by_bkpt_to)) {
             return gene_affected_by_bkpt_to;
         }
-        return geneMapper.resolveGeneNameFromPosition(this.chr_to, Integer.valueOf(this.chr_to_bkpt));
+        return geneMapper.findGeneNameByGenomicPosition(this.chr_to, this.chr_to_bkpt,this.chr_to_strand);
     }
 
     public void setGene_affected_by_bkpt_to(String gene_affected_by_bkpt_to) {

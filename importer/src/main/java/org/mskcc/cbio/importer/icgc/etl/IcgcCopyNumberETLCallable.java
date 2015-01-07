@@ -58,7 +58,7 @@ public class IcgcCopyNumberETLCallable extends CnvTransformer implements Callabl
         Preconditions.checkArgument(null != meta && !Strings.isNullOrEmpty(meta.getCopynumberurl()), "The ICGC metadata parameter is null or invalid");
         Preconditions.checkArgument(null != aPath, "A Path to the staging file directory is required");
         this.icgcCopyNumberUrl = meta.getCopynumberurl();
-        this.registerStagingFileDirectory(aPath.resolve( meta.getStudyname()),false);
+        this.registerStagingFileDirectory(aPath,false);
     }
 
     @Override

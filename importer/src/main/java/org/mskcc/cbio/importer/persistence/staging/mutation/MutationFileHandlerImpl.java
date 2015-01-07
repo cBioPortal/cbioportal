@@ -49,7 +49,7 @@ public  class MutationFileHandlerImpl extends TsvStagingFileProcessor implements
     public MutationFileHandlerImpl(){}
    
     /*
-    public interface method to register a Path to a MAF file for subsequent 
+    public interface method to register a Path to a TSV file for subsequent
     staging file operations
     if the file does not exist, it will be created and a tab-delimited list of column headings
     will be written as the first line

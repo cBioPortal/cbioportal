@@ -119,9 +119,7 @@ public abstract class TsvStagingFileProcessor implements TsvStagingFileHandler{
                 // move staging file to a temporary file, filter out deprecated samples,
                 // then write non-deprecated samples
                 // back to staging files
-                //TODO: change this implementation
 
-                //Path tempFilePath = Paths.get("/tmp/dmp/tempfile.txt");
                 tempDir = Files.createTempDirectory("dmptemp");
                 tempFilePath = Files.createTempFile(tempDir, ".txt" ,null);
                 Files.deleteIfExists(tempFilePath);

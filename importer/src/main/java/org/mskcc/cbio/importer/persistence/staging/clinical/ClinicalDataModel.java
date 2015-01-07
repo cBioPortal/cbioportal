@@ -31,10 +31,7 @@ import java.util.Set;
  */
 public abstract class ClinicalDataModel {
 
-    /*
-     public static final String[] CLINICAL_DATA_HEADINGS = { "SAMPLE_ID","GENDER",   "FMI_CASE_ID", "PIPELINE_VER",
-        						"TUMOR_NUCLEI_PERCENT", "MEDIAN_COV", "COV>100X", "ERROR_PERCENT" };
-     */
+
     public static final Map<String,String> transformationMap = Maps.newTreeMap();
     static {
         transformationMap.put("001SAMPLE_ID","getSampleId");

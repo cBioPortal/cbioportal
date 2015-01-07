@@ -76,7 +76,7 @@ public class IcgcDataImportTask extends AbstractScheduledService {
         final List<String> retList = Lists.newArrayList();
         List<ListenableFuture<String>> futureList = Lists.newArrayList();
         // run the SimpleSomaticMutationTransformer
-      //  futureList.add(service.submit(new SimpleSomaticMutationImporter(baseStagingPath)));
+        futureList.add(service.submit(new SimpleSomaticMutationImporter(baseStagingPath)));
         // run the smaller
         for (IcgcMetadata metadata : IcgcMetadataService.INSTANCE.getIcgcMetadataList()) {
             futureList.add(service.submit(new IcgcCancerStudyImporter(metadata, this.baseStagingPath)));

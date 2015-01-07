@@ -8,6 +8,7 @@ import com.google.common.collect.FluentIterable;
 
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.config.internal.ImporterSpreadsheetService;
+import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.mskcc.cbio.importer.model.IcgcMetadata;
 
 import javax.annotation.Nullable;
@@ -51,6 +52,22 @@ public enum IcgcMetadataService {
     }
 
     /*
+    utility method to resolve the download directory for a specified ICGC study
+     */
+    public Optional<String> getCancerStudyPathByStudyId(String studyId ){
+        if (Strings.isNullOrEmpty(studyId)) { return Optional.absent(); }
+        IcgcMetadata icgcMeta = this.getIcgcMetadataById(studyId);
+        if ( null != icgcMeta){
+            Optional<CancerStudyMetadata> opt = CancerStudyMetadata.findCancerStudyMetaDataByStableId(icgcMeta.getStudyname());
+            if (opt.isPresent()){
+                return Optional.of(opt.get().getStudyPath());
+            }
+        }
+        logger.info("Unable to find a study path for ICGC study " + studyId);
+        return Optional.absent();
+    }
+
+    /*
     public method to return a List of non-US ICGC studies registered in the cbio-portal
      */
     public List<String> getRegisteredIcgcStudyList() {
@@ -83,6 +100,11 @@ public enum IcgcMetadataService {
         logger.info("download directory " +meta.getDownloaddirectory());
         for (String studyId : IcgcMetadataService.INSTANCE.getRegisteredIcgcStudyList()){
             logger.info(studyId);
+        }
+        // test for resolving cancer path from icgc study id
+        Optional<String> pathOpt = IcgcMetadataService.INSTANCE.getCancerStudyPathByStudyId("BRCA-UK");
+        if(pathOpt.isPresent()){
+            logger.info("Path = " +pathOpt.get());
         }
     }
 

@@ -55,4 +55,23 @@ public class SegmentTransformer  {
         return basePath.resolve(filename);
     }
 
+
+    protected void registerStagingFileDirectory( Path stagingDirectoryPath,String studyName){
+        Preconditions.checkArgument(null != stagingDirectoryPath,
+                "A Path to the staging file directory is required");
+        this.fileHandler.registerTsvStagingFile(this.resolveSegmentFilePath(stagingDirectoryPath,studyName),
+                SegmentModel.resolveColumnNames(), true);
+    }
+
+    protected Path resolveSegmentFilePath(Path basePath,String studyName){
+        String filename;
+        if (studyName.contains("mixed")) {
+            int start = basePath.toString().indexOf("mixed");
+            filename = basePath.toString().substring(start).replaceAll("/", "_") + segmentFileBaseName;;
+        } else {
+            filename = studyName + segmentFileBaseName;
+        }
+        return basePath.resolve(filename);
+    }
+
 }

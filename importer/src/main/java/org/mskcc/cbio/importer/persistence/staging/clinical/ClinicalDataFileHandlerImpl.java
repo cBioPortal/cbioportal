@@ -37,18 +37,25 @@ public class ClinicalDataFileHandlerImpl extends TsvStagingFileProcessor
      
     public ClinicalDataFileHandlerImpl() {} // default constructor
 
+    /*
+    Default Path registration method. Will delete an existing file at the Path location
+     */
     @Override
     public void registerClinicalDataStagingFile(Path cdFilePath, List<String> columnHeadings) {
          Preconditions.checkArgument(null != cdFilePath, 
                  "A Path object referencing the clinical data  file is required");
-       if (!Files.exists(cdFilePath, LinkOption.NOFOLLOW_LINKS)) {
+
            Preconditions.checkArgument(null != columnHeadings && !columnHeadings.isEmpty(),
                    "Column headings are required for the new clinical data  file: " 
                            +cdFilePath.toString());
-       }
+
            super.registerStagingFile(cdFilePath, columnHeadings,true);
     }
 
+    /*
+    Alternative Path registration method that requires the caller to specify whether an existing file
+    should be deleted or not. Useful for staging data are incrementally appended (e.g. DMP)
+     */
     @Override
     public void registerClinicalDataStagingFile(Path cdFilePath, List<String> columnHeadings, boolean deleteFile) {
         Preconditions.checkArgument(null != cdFilePath,

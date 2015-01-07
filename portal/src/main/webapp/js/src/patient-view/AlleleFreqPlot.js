@@ -98,11 +98,27 @@ var AlleleFreqPlotUtils = (function() {
     };
 }());
 
-var AlleleFreqPlotMulti = function(div, data, options) {
+var AlleleFreqPlotMulti = function(div, data, options, order) {
+	// If nolegend is false, the div this is called on must be attached and 
+	// rendered at call time or else Firefox will throw an error on the call
+	// to getBBox
+	
     //var fillcolors = d3.scale.category10();
     // construct colors, if a duplicate found replace it with 'darker'
     var colors = {};
     var colorhist = {};
+    if (!order) {
+	    order = {};
+    }
+    if (Object.keys(order).length === 0) {
+	    var order_ctr = 0;
+	    for (var k in data) {
+		    if (data.hasOwnProperty(k)) {
+			    order[k] = order_ctr;
+			    order_ctr += 1;
+		    }
+	    }
+    }
     for (var k in data) {
         if (data.hasOwnProperty(k)) {
             /*var ind = Object.keys(colors).length;
@@ -175,7 +191,7 @@ var AlleleFreqPlotMulti = function(div, data, options) {
             .y(function(d) { return y(d[1]); });
     
     var svg = d3.select(div).append("svg")
-            .attr("width", width + margin.left + (options.yticks === 0 ? 0 : margin.right))
+            .attr("width", width + margin.left + (options.yticks === 0 ? 0 : margin.right) + (options.nolegend? 0 : 100))
             .attr("height", height + margin.top + margin.bottom)
             .append("g")
             .attr("transform", "translate(" + (options.yticks === 0 ? margin.left / 2 : margin.left) + "," + margin.top + ")");
@@ -297,16 +313,17 @@ var AlleleFreqPlotMulti = function(div, data, options) {
                     .attr('stroke-width', '1.5px')
                     .attr('opacity', '0.9')
                     .attr('data-legend',function() { return k; })
+		    .attr('data-legend-pos', function() { return order[k];})
             ;
         }
     }
     
     // make legend
-    if (!options.nolegend) {
+    if (!options.nolegend && Object.keys(data).length > 1) {
         var legend_font_size = 13;
         var legend = svg.append("g")
                 .attr('class', 'legend')
-                .attr('transform', 'translate('+(width-70)+',30)')
+                .attr('transform', 'translate('+(width+25)+',0)')
                 .style('font-size', legend_font_size+"px")
         ;
         d3.legend(legend, legend_font_size);
@@ -362,6 +379,7 @@ d3.legend = function(g, font_size) {
     
     
         
+    var maxLabelLength = 10;
     var spacing = 0.4;
     li.selectAll("text")
         .data(items,function(d) { return d.key;})
@@ -371,7 +389,7 @@ d3.legend = function(g, font_size) {
         .attr("x","1em")
         .text(function(d) { 
             var key = d.key;
-            var label = key.length > 9 ? key.substring(0,3) + "..." + key.slice(-3) : key;
+            var label = key.length > maxLabelLength ? key.substring(0,4) + "..." + key.slice(-3) : key;
             return label;
         })
     ;
@@ -399,9 +417,10 @@ d3.legend = function(g, font_size) {
             .data(items, function(d) { return d.key;})
             .call(function(d) { d.enter().append("rect");})
             .call(function(d) { d.exit().remove();})
+	    .attr("id", function(d) { return d.key+"legend_hover_rect";})
             .attr("y", function(d,i) { return (i-1+i*spacing-spacing/2)+"em";})
             .attr("x","-0.8em")
-            .attr('width',function(d) { return d.key.length+'em';})
+            .attr('width',function(d) { return '110px';})
             .attr('height',(1+spacing)+'em')
             .style('fill',function(d) { return d.value.color;})
             .attr('opacity', '0')        
@@ -411,6 +430,17 @@ d3.legend = function(g, font_size) {
                 } : function(d) {}))
             .on('mouseout', function(d) { $(this).attr('opacity','0');})
     ;
+    for (var i=0; i<items.length; i++) {
+	    var k = items[i].key;
+	    if (k.length > maxLabelLength) {
+		    $("#"+k+"legend_hover_rect").attr("title", k);
+		    $("#"+k+"legend_hover_rect").qtip({
+			content: { attr: 'title' },
+			style: { classes: 'qtip-light qtip-rounded' },
+			position: { my:'center left',at:'center right',viewport: $(window) }
+		    });
+		}
+    }
     li.on('mouseout', (Object.keys(items).length > 1 ? function() { showSamples(); } : function() {}));
     // Reposition and resize the box
     var lbbox = li[0][0].getBBox()  

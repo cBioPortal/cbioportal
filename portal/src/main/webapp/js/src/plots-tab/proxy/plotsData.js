@@ -55,9 +55,8 @@ var plotsData = (function() {
             }
             
         } else if ($("#" + ids.sidebar[axis].data_type).val() === vals.data_type.clin) {
-            
             var paramsGetClinicalAttributes = { //webservice call to get clinical data
-                cmd : "getAllClinicalData",
+                cmd : "getClinicalData",
                 cancer_study_id: window.PortalGlobals.getCancerStudyId(),
                 case_set_id : window.PortalGlobals.getCaseSetId(),
                 format : "json"
@@ -96,8 +95,6 @@ var plotsData = (function() {
                     }
                 }
             }
-            //calculate data status
-            analyseData();
             //get mutation data
             var _gene_list = "";
             if ($("#" + ids.sidebar.x.data_type).val() === vals.data_type.genetic) {
@@ -114,22 +111,6 @@ var plotsData = (function() {
 
         }
     };
-    
-    function analyseData() {    //pDataX, pDataY: array of single dot objects
-        var tmp_xData = [];
-        var tmp_yData = [];
-        for (var key in dotsContent) {
-            tmp_xData.push(parseFloat(dotsContent[key].xVal));
-            tmp_yData.push(parseFloat(dotsContent[key].yVal));
-        }
-
-        stat.x.min = Math.min.apply(Math, tmp_xData);
-        stat.x.max = Math.max.apply(Math, tmp_xData);
-        stat.x.edge = (stat.x.max - stat.x.min) * 0.2;
-        stat.y.min = Math.min.apply(Math, tmp_yData);
-        stat.y.max = Math.max.apply(Math, tmp_yData);
-        stat.y.edge = (stat.y.max - stat.y.min) * 0.1;
-    }
     
     function mutationCallback(mutationData) {
         var mutationDetailsUtil = new MutationDetailsUtil(new MutationCollection(mutationData));
@@ -149,38 +130,86 @@ var plotsData = (function() {
                 }
             });
         }
-        //get cna data
-        var cna_annotation_profile_name = "";
-        if (isSameGene()) {
-            $.each(metaData.getGeneticProfilesMeta($("#" + ids.sidebar.y.gene).val()), function(index, obj) {
-                $.each(discretized_cna_profile_keywords, function(_index, keyword) {
-                    if (obj.id.toLowerCase().indexOf(keyword) !== -1) {
-                        cna_annotation_profile_name = obj.id;
-                        return false;
-                    }
-                });
-            }); 
-            if (cna_annotation_profile_name !== "") {
-                var paramsGetProfileData = {  //webservice call to get profile data
-                    cancer_study_id: window.PortalGlobals.getCancerStudyId(),
-                    gene_list: $("#" + ids.sidebar.y.gene).val(),
-                    genetic_profile_id: cna_annotation_profile_name,
-                    case_set_id: window.PortalGlobals.getCaseSetId(),
-                    case_ids_key: window.PortalGlobals.getCaseIdsKey()
-                };
-                $.post("getProfileData.json", paramsGetProfileData, inner_profile_callback_func, "json");
-
-                function inner_profile_callback_func(_result) {
-                    stat.hasCnaAnno = true;
-                    $.each(Object.keys(dotsContent), function(index, caseId) {
-                        dotsContent[caseId].cna_anno = _result[$("#" + ids.sidebar.y.gene).val()][caseId][cna_annotation_profile_name];
+        if (genetic_vs_genetic()) {
+            //get cna data
+            var cna_annotation_profile_name = "";
+            if (isSameGene()) {
+                $.each(metaData.getGeneticProfilesMeta($("#" + ids.sidebar.y.gene).val()), function(index, obj) {
+                    $.each(discretized_cna_profile_keywords, function(_index, keyword) {
+                        if (obj.id.toLowerCase().indexOf(keyword) !== -1) {
+                            cna_annotation_profile_name = obj.id;
+                            return false;
+                        }
                     });
-                    stat.retrieved = true;
-                };
+                }); 
+                if (cna_annotation_profile_name !== "") {
+                    var paramsGetProfileData = {  //webservice call to get profile data
+                        cancer_study_id: window.PortalGlobals.getCancerStudyId(),
+                        gene_list: $("#" + ids.sidebar.y.gene).val(),
+                        genetic_profile_id: cna_annotation_profile_name,
+                        case_set_id: window.PortalGlobals.getCaseSetId(),
+                        case_ids_key: window.PortalGlobals.getCaseIdsKey()
+                    };
+                    $.post("getProfileData.json", paramsGetProfileData, inner_profile_callback_func, "json");
+
+                    function inner_profile_callback_func(_result) {
+                        stat.hasCnaAnno = true;
+                        $.each(Object.keys(dotsContent), function(index, caseId) {
+                            dotsContent[caseId].cna_anno = _result[$("#" + ids.sidebar.y.gene).val()][caseId][cna_annotation_profile_name];
+                        });
+                        analyseData();
+                        stat.retrieved = true;
+                    };
+                }
+            } else {
+                analyseData();
+                stat.retrieved = true;
             }
-        } else {
+        } else if (genetic_vs_clinical()) {
+            
+            //translate: assign text value a numeric value for clinical data
+            var _axis, _axis_key;
+            if ($("#" + ids.sidebar.x.data_type).val() === vals.data_type.clin) {
+                _axis = "x";
+                _axis_key = "xVal";
+            } else if ($("#" + ids.sidebar.y.data_type).val() === vals.data_type.clin) {
+                _axis = "y";
+                _axis_key = "yVal";
+            }
+            var _arr = [];
+            _arr.length = 0;
+            for(var key in dotsContent) {
+                _arr.push(dotsContent[key][_axis_key]);
+            }
+            if (!is_numeric(_arr)) {
+                clinical_data_interpreter.process(dotsContent, _axis);
+                for (var key in dotsContent) {
+                    dotsContent[key][_axis_key] = clinical_data_interpreter.convert_to_numeric(dotsContent[key][_axis_key]);
+                }                        
+            }
+            
+            analyseData();
+            stat.retrieved = true; 
+        } else if (clinical_vs_clinical()) {
+            analyseData();
             stat.retrieved = true;
         }
+    }
+
+    function analyseData() {    //pDataX, pDataY: array of single dot objects
+        var tmp_xData = [];
+        var tmp_yData = [];
+        for (var key in dotsContent) {
+            tmp_xData.push(parseFloat(dotsContent[key].xVal));
+            tmp_yData.push(parseFloat(dotsContent[key].yVal));
+        }
+
+        stat.x.min = Math.min.apply(Math, tmp_xData);
+        stat.x.max = Math.max.apply(Math, tmp_xData);
+        stat.x.edge = (stat.x.max - stat.x.min) * 0.2;
+        stat.y.min = Math.min.apply(Math, tmp_yData);
+        stat.y.max = Math.max.apply(Math, tmp_yData);
+        stat.y.edge = (stat.y.max - stat.y.min) * 0.1;
     }
 
     return {

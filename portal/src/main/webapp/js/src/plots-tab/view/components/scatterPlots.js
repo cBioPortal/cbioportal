@@ -108,8 +108,92 @@ var scatterPlots = (function() {
         elem.dotsGroup.selectAll("path").remove();
 
         var stat = plotsData.stat();
-        if ($("input[name=" + ids.sidebar.util.view_switch + "]:checked").val() === "gistic" && isSameGene() && stat.hasCnaAnno) { 
-            //gistic view (only apply to one gene and having cna profile data case)
+        if (genetic_vs_genetic()) {
+            if ($("input[name=" + ids.sidebar.util.view_switch + "]:checked").val() === "gistic" && isSameGene() && stat.hasCnaAnno) { 
+                //gistic view (only apply to one gene and having cna profile data case)
+                elem.dotsGroup.selectAll("path")
+                    .data(data)
+                    .enter()
+                    .append("svg:path")
+                    .attr("transform", function(d){
+                        $(this).attr("x_pos", elem.x.scale(d.xVal));
+                        $(this).attr("y_pos", elem.y.scale(d.yVal));
+                        $(this).attr("x_val", d.xVal);
+                        $(this).attr("y_val", d.yVal);
+                        $(this).attr("case_id", d.caseId);
+                        $(this).attr("size", 35);
+
+                        var _x, _y;
+                        if (_apply_box_plots) { //apply noise
+                            if (_box_plots_axis === "x") {
+                                _x = elem.x.scale(d.xVal) + (Math.random() * 30 - 30/2);
+                                _y = elem.y.scale(d.yVal);
+                            } else {
+                                _x = elem.x.scale(d.xVal);
+                                _y = elem.y.scale(d.yVal) + (Math.random() * 20 - 20/2);
+                            }
+                        } else {
+                            _x = elem.x.scale(d.xVal);
+                            _y = elem.y.scale(d.yVal);
+                        }
+
+                        return "translate(" + _x + ", " + _y + ")";
+                    })
+                    .attr("d", d3.svg.symbol()
+                        .size(35)
+                        .type(function(d){
+                            return gisticInterpreter.getSymbol(d);
+                        }))
+                    .attr("fill", function(d){
+                        return gisticInterpreter.getFill(d);
+                    })
+                    .attr("stroke", function(d){
+                        return gisticInterpreter.getStroke(d);
+                    })
+                    .attr("stroke-width", 1.2);
+            } else {
+                elem.dotsGroup.selectAll("path")
+                    .data(data)
+                    .enter()
+                    .append("svg:path")
+                    .attr("transform", function(d){
+                        $(this).attr("x_pos", elem.x.scale(d.xVal));
+                        $(this).attr("y_pos", elem.y.scale(d.yVal));
+                        $(this).attr("x_val", d.xVal);
+                        $(this).attr("y_val", d.yVal);
+                        $(this).attr("case_id", d.caseId);
+                        $(this).attr("size", 20);
+
+                        var _x, _y;
+                        if (_apply_box_plots) { //apply noise
+                            if (_box_plots_axis === "x") {
+                                _x = elem.x.scale(d.xVal) + (Math.random() * 30 - 30/2);
+                                _y = elem.y.scale(d.yVal);
+                            } else {
+                                _x = elem.x.scale(d.xVal);
+                                _y = elem.y.scale(d.yVal) + (Math.random() * 20 - 20/2);
+                            }
+                        } else {
+                            _x = elem.x.scale(d.xVal);
+                            _y = elem.y.scale(d.yVal);
+                        }
+
+                        return "translate(" + _x + ", " + _y + ")";
+                    })
+                    .attr("d", d3.svg.symbol()
+                        .size(20)
+                        .type(function(d){
+                            return mutationInterpreter.getSymbol(d);
+                        }))
+                    .attr("fill", function(d){
+                        return mutationInterpreter.getFill(d);
+                    })
+                    .attr("stroke", function(d){
+                        return mutationInterpreter.getStroke(d);
+                    })
+                    .attr("stroke-width", 1.2); 
+            } 
+        } else if (genetic_vs_clinical()) {
             elem.dotsGroup.selectAll("path")
                 .data(data)
                 .enter()
@@ -121,36 +205,21 @@ var scatterPlots = (function() {
                     $(this).attr("y_val", d.yVal);
                     $(this).attr("case_id", d.caseId);
                     $(this).attr("size", 35);
-
-                    var _x, _y;
-                    if (_apply_box_plots) { //apply noise
-                        if (_box_plots_axis === "x") {
-                            _x = elem.x.scale(d.xVal) + (Math.random() * 30 - 30/2);
-                            _y = elem.y.scale(d.yVal);
-                        } else {
-                            _x = elem.x.scale(d.xVal);
-                            _y = elem.y.scale(d.yVal) + (Math.random() * 20 - 20/2);
-                        }
-                    } else {
-                        _x = elem.x.scale(d.xVal);
-                        _y = elem.y.scale(d.yVal);
-                    }
-
-                    return "translate(" + _x + ", " + _y + ")";
+                    return "translate(" + elem.x.scale(d.xVal) + ", " + elem.y.scale(d.yVal) + ")";
                 })
                 .attr("d", d3.svg.symbol()
-                    .size(35)
+                    .size(20)
                     .type(function(d){
-                        return gisticInterpreter.getSymbol(d);
+                        return mutationInterpreter.getSymbol(d);
                     }))
                 .attr("fill", function(d){
-                    return gisticInterpreter.getFill(d);
+                    return mutationInterpreter.getFill(d);
                 })
                 .attr("stroke", function(d){
-                    return gisticInterpreter.getStroke(d);
+                    return mutationInterpreter.getStroke(d);
                 })
-                .attr("stroke-width", 1.2);
-        } else {
+                .attr("stroke-width", 1.2); 
+        } else if (clinical_vs_clinical()) {
             elem.dotsGroup.selectAll("path")
                 .data(data)
                 .enter()
@@ -161,23 +230,8 @@ var scatterPlots = (function() {
                     $(this).attr("x_val", d.xVal);
                     $(this).attr("y_val", d.yVal);
                     $(this).attr("case_id", d.caseId);
-                    $(this).attr("size", 20);
-
-                    var _x, _y;
-                    if (_apply_box_plots) { //apply noise
-                        if (_box_plots_axis === "x") {
-                            _x = elem.x.scale(d.xVal) + (Math.random() * 30 - 30/2);
-                            _y = elem.y.scale(d.yVal);
-                        } else {
-                            _x = elem.x.scale(d.xVal);
-                            _y = elem.y.scale(d.yVal) + (Math.random() * 20 - 20/2);
-                        }
-                    } else {
-                        _x = elem.x.scale(d.xVal);
-                        _y = elem.y.scale(d.yVal);
-                    }
-
-                    return "translate(" + _x + ", " + _y + ")";
+                    $(this).attr("size", 35);
+                    return "translate(" + elem.x.scale(d.xVal) + ", " + elem.y.scale(d.yVal) + ")";
                 })
                 .attr("d", d3.svg.symbol()
                     .size(20)
@@ -196,9 +250,9 @@ var scatterPlots = (function() {
     }
     
     function appendTitle(axis) { //axis titles
-        var elt = document.getElementById(ids.sidebar[axis].profile_name);
-        var _profile_name = elt.options[elt.selectedIndex].text;
-        var _profile_id = elt.options[elt.selectedIndex].value;
+        var elt = ($("#" + ids.sidebar[axis].data_type).val() === vals.data_type.genetic)? document.getElementById(ids.sidebar[axis].profile_name):document.getElementById(ids.sidebar[axis].clin_attr);
+        var _name = elt.options[elt.selectedIndex].text;
+        var _id = elt.options[elt.selectedIndex].value;
         
         var _tmp_attr = (axis === "y")? "rotate(-90)": "";
         d3.select("#" + div).select(d3_class[axis].axis_title).remove();
@@ -209,11 +263,11 @@ var scatterPlots = (function() {
             .attr("y", settings.axis[axis].title_y)
             .style("text-anchor", "middle")
             .style("font-weight","bold")
-            .text(_profile_name);
+            .text(_name);
         
         //append help icon (mouseover)
-        var _pos_x = (axis==="x")? (settings.axis.x.title_x + _profile_name.length / 2 * 8 + 10): (settings.axis.y.title_y - 10);
-        var _pos_y = (axis==="x")? (settings.axis.x.title_y - 10): (settings.axis.y.title_x + 450 - _profile_name.length / 2 * 8 );
+        var _pos_x = (axis==="x")? (settings.axis.x.title_x + _name.length / 2 * 8 + 10): (settings.axis.y.title_y - 10);
+        var _pos_y = (axis==="x")? (settings.axis.x.title_y - 10): (settings.axis.y.title_x + 450 - _name.length / 2 * 8 );
         elem.axisTitleGroup.append("svg:image")
             .attr("xlink:href", "images/help.png")
             .attr("class", d3_class[axis].title_help)
@@ -221,11 +275,17 @@ var scatterPlots = (function() {
             .attr("y", _pos_y)
             .attr("width", "16")
             .attr("height", "16");
+        var _description = "";
+        if ($("#" + ids.sidebar[axis].data_type).val() === vals.data_type.genetic) {
+            _description = metaData.getProfileDescription($("#" + ids.sidebar[axis].gene).val(), _id); 
+        } else {
+            _description = metaData.getClinicalAttrDescription(_id);
+        }
         elem.svg.select("." + d3_class[axis].title_help).each(
             function() {
                 $(this).qtip(
                     {
-                        content: {text: "<font size=2>" + metaData.getDescription(_profile_id) + "</font>" },
+                        content: {text: "<font size=2>" + _description + "</font>" },
                         style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                         show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
@@ -233,7 +293,8 @@ var scatterPlots = (function() {
                     }
                 );
             }
-        );
+        );            
+
     }
     
     function appendGlyphs() {
@@ -328,6 +389,7 @@ var scatterPlots = (function() {
             for (var key in _data) {
                 data.push(_data[key]);
             }
+            
             $("#" + _div).empty();
             //rendering
             initCanvas(div);

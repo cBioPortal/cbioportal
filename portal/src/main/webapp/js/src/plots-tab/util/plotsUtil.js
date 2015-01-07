@@ -1,3 +1,14 @@
+var is_numeric = function(_arr) {
+    var _result = true;
+    var regex = /^-?[0-9]+(\.[0-9]+)?$/;
+    $.each(_arr, function(index, val) {
+        if (!regex.test(val)) {
+            _result = false;
+        }
+    });
+    return _result;
+};
+
 var isEmpty = function(inputVal) {
     if (inputVal !== "NaN" && inputVal !== "NA") {
         return false;
@@ -21,6 +32,28 @@ var isTwoGenes = function () {
         return true;
     } 
     return false;
+};
+
+var genetic_vs_genetic = function() {
+    if ($("#" + ids.sidebar.x.data_type).val() === $("#" + ids.sidebar.y.data_type).val() && 
+        $("#" + ids.sidebar.x.data_type).val() === vals.data_type.genetic) {
+        return true;
+    } return false;   
+};
+
+var genetic_vs_clinical = function() {
+    var _type_x = $("#" + ids.sidebar.x.data_type).val();
+    var _type_y = $("#" + ids.sidebar.y.data_type).val();
+    if (_type_x !== _type_y) {
+        return true;
+    } return false;
+};
+
+var clinical_vs_clinical = function() {
+    if ($("#" + ids.sidebar.x.data_type).val() === $("#" + ids.sidebar.y.data_type).val() && 
+        $("#" + ids.sidebar.x.data_type).val() === vals.data_type.clin) {
+        return true;
+    } return false;
 };
 
 var getXGene = function() {
@@ -147,10 +180,6 @@ function searchIndexTop(arr, ele) {
     }
     return arr.length - 1;
 };
-
-function discretizedCNAProfile() {
-    
-}
 
 var discretized_cna_profile_keywords = [
     "_cna",

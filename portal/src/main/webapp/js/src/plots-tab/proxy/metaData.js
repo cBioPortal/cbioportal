@@ -76,13 +76,16 @@ var metaData = (function() {
         getRetrieveStatus: function() {
             return retrieve_status;
         },
-        getDescription: function(attr_id) {
-            var _result = "";
-            $.each(geneticProfiles, function(index, obj) {
+        getProfileDescription: function(_gene, attr_id) {
+            $.each(metaData.getGeneticProfilesMeta(_gene), function(index, obj) {
                 if (obj.id === attr_id) {
                     _result = obj.description;
                 }
             });
+            return _result;
+        },
+        getClinicalAttrDescription: function(attr_id) {
+            var _result = "";
             $.each(clinicalAttrs, function(index, obj) {
                 if (obj.id === attr_id) {
                     _result = obj.description;

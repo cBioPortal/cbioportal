@@ -16,7 +16,6 @@
         </div>
         
         <div id="oncoprint_whole_body">
-
         Altered in <%=dataSummary.getNumCasesAffected()%> (<%=OncoPrintUtil.alterationValueToString(dataSummary.getPercentCasesAffected())%>) of cases
         <div class="btn-group btn-group-sm" id="oncoprint-diagram-toolbar-buttons" style="float:right;margin-right:15px;display: none;height:33px">           
             <div class="btn-group btn-group-sm" id="oncoprint_addclinical_attributes">
@@ -43,8 +42,8 @@
                  <li style="list-style-type:none;cursor:pointer" value="custom"><a id="user_defined_first_a">user-defined case list / default</a></li>
                </ul>
             </div>
-            <button type="button" class="btn btn-default" id="oncoprint_diagram_showmutationcolor_icon" style="background-color:#efefef;margin:0px"><img class="oncoprint_diagram_showmutationcolor_icon" checked="0" src="images/colormutations.svg" alt="icon" width="16" height="16" /></button>
-            <button type="button" class="btn btn-default" id="oncoprint-diagram-showlegend-icon" style="background-color:#efefef;margin:0px;display:none;"><img class="oncoprint-diagram-showlegend-icon" checked="0" src="images/showlegend.svg" alt="icon" width="16" height="16" /></button>
+            <button type="button" class="btn btn-default" id="oncoprint_diagram_showmutationcolor_icon" style="background-color:#efefef;margin:0px"><img checked="0" src="images/colormutations.svg" alt="icon" width="16" height="16" /></button>
+            <button type="button" class="btn btn-default" id="oncoprint-diagram-showlegend-icon" style="background-color:#efefef;margin:0px;display:none;"><img checked="0" src="images/showlegend.svg" alt="icon" width="16" height="16" /></button>
             <button type="button" class="btn btn-default" style="background-color:#efefef;margin:0px"><img id="oncoprint-diagram-removeUCases-icon" class="oncoprint-diagram-removeUCases-icon" checked="0" src="images/removeUCases.svg" alt="icon" width="16" height="16" /></button>
             <button type="button" class="btn btn-default" style="background-color:#efefef;margin:0px"><img id="oncoprint-diagram-removeWhitespace-icon" class="oncoprint-diagram-removeWhitespace-icon" checked="0" src="images/removeWhitespace.svg" alt="icon" width="16" height="16" /></button>
             <button type="button" class="btn btn-default" style="background-color:#efefef;margin:0px"><img id="oncoprint-diagram-downloads-icon" class="oncoprint-diagram-downloads-icon" src="images/in.svg" alt="icon" width="16" height="16" /></button>      

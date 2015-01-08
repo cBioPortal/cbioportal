@@ -27,8 +27,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.List;
 
+import edu.stanford.nlp.util.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.cvr.darwin.util.IdMapService;
 import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
@@ -143,7 +145,13 @@ public class DMPDataTransformer {
         // replace original list with new one if necessary
         if( newResultList.size() < data.getResults().size()) {
             logger.info("DMP data has samples that have not been registered in Darwin");
+            Collection<Result> missingResultList = CollectionUtils.diff(data.getResults(), newResultList);
+            for ( Result result : missingResultList){
+                logger.info("DMP sample id :" +result.getMetaData().getDmpSampleId() +" was not found in the Darwin database");
+            }
             data.setResults(newResultList);
+        } else {
+            logger.info("All DMP samples were found in the Darwin database");
         }
 
     }

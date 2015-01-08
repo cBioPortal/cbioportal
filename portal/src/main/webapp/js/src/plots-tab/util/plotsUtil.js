@@ -9,6 +9,22 @@ var is_numeric = function(_arr) {
     return _result;
 };
 
+var is_clinical_data_discretized = function(_arr) {
+    var _result;
+    if (is_numeric(_arr)) {
+        _result = false;   
+    } else {
+        var _tmp = [];
+        $.each(_arr, function(index, val) {
+           if ($.inArray(val, _tmp) === -1) _tmp.push(val); 
+        });   
+        if (_tmp.length > 15) {
+            _result = false;
+        } else _result = true;
+    }
+    return _result;
+};
+
 var isEmpty = function(inputVal) {
     if (inputVal !== "NaN" && inputVal !== "NA") {
         return false;

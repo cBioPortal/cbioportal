@@ -1,6 +1,9 @@
 var clinical_data_interpreter = (function() {
     
-    var text_val_map = {x: {}, y:{}};
+    var text_val_map = {
+            x: {}, 
+            y: {}
+        };
     
     var extract_discretized_vals = function(_arr) {
         var _result = [];
@@ -11,6 +14,7 @@ var clinical_data_interpreter = (function() {
     };
     
     var translate_to_numeric = function(_arr, axis) {
+        //create text-value pair map
         var datum = {
             numeric_val: -1,
             real_val: ""
@@ -27,8 +31,7 @@ var clinical_data_interpreter = (function() {
     
     return {
         process: function(data, axis) {
-            text_val_map.x = {};
-            text_val_map.y = {};
+            text_val_map[axis] = {};
             var _key = (axis === "x")? "xVal": "yVal";
             var _arr = [];
             _arr.length = 0;
@@ -40,6 +43,9 @@ var clinical_data_interpreter = (function() {
         convert_to_numeric: function(text_val, axis) {
             var _val = text_val_map[axis][text_val].numeric_val;
             return _val.toString();
+        },
+        get_text_labels: function(axis) {
+            return Object.keys(text_val_map[axis]);
         }
     };
     

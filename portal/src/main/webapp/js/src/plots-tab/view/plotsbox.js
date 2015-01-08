@@ -27,8 +27,12 @@ var plotsbox = (function() {
         } else if (genetic_vs_clinical()) {
             scatterPlots.init(ids.main_view.div, data, false, "");
         } else if (clinical_vs_clinical()) {
-            console.log(data);
-            scatterPlots.init(ids.main_view.div, data, false, "");
+            var stat = plotsData.stat();
+            if (stat.x.is_discretized && stat.y.is_discretized) {
+                heat_map.init(ids.main_view.div, data);
+            } else {
+                scatterPlots.init(ids.main_view.div, data, false, "");
+            }
         }
     };
     

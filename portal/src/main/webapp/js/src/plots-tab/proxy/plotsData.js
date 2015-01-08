@@ -14,12 +14,14 @@ var plotsData = (function() {
                 x: {
                     min: "",
                     max: "",
-                    edge: ""
+                    edge: "",
+                    is_discretized: false
                 },
                 y: {
                     min: "",
                     max: "",
-                    edge: ""
+                    edge: "",
+                    is_discretized: false
                 },
                 hasCnaAnno: false,
                 retrieved: false
@@ -31,7 +33,8 @@ var plotsData = (function() {
                 cna_anno: "", //if same gene on each axis and having discretized cna data
                 mutation : {}  //Mutation ID
             },
-        dotsContent = {}; //json of datums -- final recipe for rendering the view
+        dotsContent = {}, //json of datums -- final recipe for rendering the view
+        heatmapContent = [];
         
     var ajaxCall = function(axis, callback_func) {
         if ($("#" + ids.sidebar[axis].data_type).val() === vals.data_type.genetic) {
@@ -109,9 +112,39 @@ var plotsData = (function() {
                     var proxy = DataProxyFactory.getDefaultMutationDataProxy();
                     proxy.getMutationData(_gene_list, mutationCallback);
                 }                 
-            } else {
-                analyseData();
-                stat.retrieved = true;
+            } else { //clinical vs. clinical
+                //translate: assign text value a numeric value for clinical data
+                var _arr_x = [], _arr_y = [];
+                _arr_x.length = 0;
+                _arr_y.length = 0;
+                for(var key in dotsContent) {
+                    _arr_x.push(dotsContent[key].xVal);
+                    _arr_y.push(dotsContent[key].yVal);
+                }
+                if (!is_numeric(_arr_x)) {
+                    clinical_data_interpreter.process(dotsContent, "x");
+                    for (var key in dotsContent) {
+                        dotsContent[key].xVal = clinical_data_interpreter.convert_to_numeric(dotsContent[key].xVal, "x");
+                    }                        
+                }
+                if (!is_numeric(_arr_y)) {
+                    clinical_data_interpreter.process(dotsContent, "y");
+                    for (var key in dotsContent) {
+                        dotsContent[key].yVal = clinical_data_interpreter.convert_to_numeric(dotsContent[key].yVal, "y");
+                    }                        
+                }
+                
+                stat.x.is_discretized = is_clinical_data_discretized(_arr_x);
+                stat.y.is_discretized = is_clinical_data_discretized(_arr_y);
+                
+                if (is_clinical_data_discretized(_arr_x) &&
+                    is_clinical_data_discretized(_arr_y)) {
+                    stat.retrieved = true;
+                } else {
+                    analyseData();
+                    stat.retrieved = true;                     
+                }
+
             }
         }
     };
@@ -215,10 +248,12 @@ var plotsData = (function() {
         fetch: function(axis) {
             
             stat.retrieved = false;
+            stat.x.is_discretized = false;
+            stat.y.is_discretized = false;
             
             data[axis].stat = false;
             data[axis].raw.length = 0;
-            dotsContent = {}; //need to regenerated dots content 
+            dotsContent = {}; 
             
             var tmp = setInterval(function () {timer();}, 1000);
             function timer() {
@@ -234,7 +269,7 @@ var plotsData = (function() {
                 //if (Object.keys(dotsContent).length !== 0) {
                 if (stat.retrieved) {
                     clearInterval(tmp);
-                    callback_func(dotsContent);
+                    callback_func(dotsContent); 
                 }
             }
         },

@@ -21,6 +21,7 @@
 <script type="text/javascript" src="js/src/plots-tab/view/components/clinSpec.js"></script>
 <script type="text/javascript" src="js/src/plots-tab/view/components/scatterPlots.js"></script>
 <script type="text/javascript" src="js/src/plots-tab/view/components/boxPlots.js"></script>
+<script type="text/javascript" src="js/src/plots-tab/view/components/heatMap.js"></script>
 
 <style>
     #plots .plots {

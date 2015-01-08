@@ -5,12 +5,12 @@ if (cbio === undefined)
 
 cbio.download = (function() {
 
-	// Default client-side (FileSaver.js) download options
+	// Default client-side download options
 	var _defaultOpts = {
 		filename: "download.svg", // download file name
-		downloadType: "application/svg+xml", // download data type
-		servletName: null,      // name of the data/conversion servlet (optional)
-		servletParams: null,             // servlet parameters (optional)
+		contentType: "application/svg+xml", // download data type
+		servletName: null,   // name of the data/conversion servlet (optional)
+		servletParams: null, // servlet parameters (optional)
 		preProcess: addSvgHeader,   // pre-process function for the provided data
 		postProcess: pdfPostProcess // post-process function for the data returned by the server (optional)
 	};
@@ -199,7 +199,7 @@ cbio.download = (function() {
 			content = options.preProcess(content);
 		}
 
-		if (options.downloadType.toLowerCase().indexOf("pdf") != -1)
+		if (options.contentType.toLowerCase().indexOf("pdf") != -1)
 		{
 			// if no servlet params provided, use default ones for pdf...
 			options.servletParams = options.servletParams || {
@@ -223,13 +223,13 @@ cbio.download = (function() {
 							downloadData = options.postProcess(servletData);
 						}
 
-						clientSideDownload(downloadData, options.filename, options.downloadType);
+						clientSideDownload(downloadData, options.filename, options.contentType);
 					}
 			});
 		}
 		else
 		{
-			clientSideDownload([content], options.filename, options.downloadType);
+			clientSideDownload([content], options.filename, options.contentType);
 		}
 	}
 

@@ -1176,7 +1176,6 @@
 
 	                var downloadOptions = {
 		                filename: "crosscancerhistogram.pdf",
-		                fileType: "pdf",
 		                downloadType: "application/pdf",
 		                servletName: "svgtopdf.do"
 	                };

@@ -8,7 +8,6 @@ cbio.download = (function() {
 	// Default client-side (FileSaver.js) download options
 	var _defaultOpts = {
 		filename: "download.svg", // download file name
-		fileType: "svg",          // download file type
 		downloadType: "application/svg+xml", // download data type
 		servletName: null,      // name of the data/conversion servlet (optional)
 		servletParams: null,             // servlet parameters (optional)
@@ -200,7 +199,7 @@ cbio.download = (function() {
 			content = options.preProcess(content);
 		}
 
-		if (options.fileType.toLowerCase() == "pdf")
+		if (options.downloadType.toLowerCase().indexOf("pdf") != -1)
 		{
 			// if no servlet params provided, use default ones for pdf...
 			options.servletParams = options.servletParams || {

@@ -184,7 +184,7 @@ class GDataImpl implements Config {
 		if (newEnt.isEmpty()) {
 			return null;
 		}
-		String parentEnt = line.get(newEntIndex - 1).trim();
+		String parentEnt = newEntIndex==0?"tissue":line.get(newEntIndex - 1).trim();
 
 		String tissue = line.get(0);
 		String color = colorMap.get(tissue);
@@ -224,7 +224,7 @@ class GDataImpl implements Config {
 		HashMap<String, TumorTypeMetadata> tumorTypes = new HashMap<>();
 		for (int i=1; i<oncotreeMatrix.size(); i++) {
 			ArrayList<String> line = oncotreeMatrix.get(i);
-			for (int j=1; j<line.size(); j++) {
+			for (int j=0; j<line.size(); j++) {
 				TumorTypeMetadata ttmd = parseTumorTypeMetadata(line, j, colorMap);
 				if (ttmd!= null && !tumorTypes.containsKey(ttmd.getType())) {
 					tumorTypes.put(ttmd.getType(), ttmd);

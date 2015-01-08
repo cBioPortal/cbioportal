@@ -21,6 +21,7 @@ package org.mskcc.cbio.portal.dao;
 // imports
 import org.mskcc.cbio.portal.model.User;
 import org.mskcc.cbio.portal.model.UserAuthorities;
+import org.mskcc.cbio.portal.authentication.PortalUserDetails;
 
 /**
  * Interface to use to retrieve
@@ -45,4 +46,6 @@ public interface PortalUserDAO {
      * @return User
 	 */
 	UserAuthorities getPortalUserAuthorities(String username);
+
+	void addPortalUser(PortalUserDetails user);
 }

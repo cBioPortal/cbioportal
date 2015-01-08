@@ -22,6 +22,7 @@ package org.mskcc.cbio.portal.dao.internal;
 import org.mskcc.cbio.portal.model.User;
 import org.mskcc.cbio.portal.model.UserAuthorities;
 import org.mskcc.cbio.portal.dao.PortalUserDAO;
+import org.mskcc.cbio.portal.authentication.PortalUserDetails;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -35,7 +36,7 @@ import java.sql.ResultSet;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 
-import java.util.Collection;
+import java.util.*;
 
 /**
  * JDBC implementation of PortalUserDAO.
@@ -114,4 +115,14 @@ public class PortalUserJDBCDAO implements PortalUserDAO {
 		// outta here
 		return this.namedParameterJdbcTemplate.queryForList(sql, namedParameters, String.class);
 	}
+
+	public void addPortalUser(PortalUserDetails user)
+	{
+		String sql = "insert into users (email, name, enabled) values(:email, :name, :enabled)";
+		Map namedParameters = new HashMap();
+		namedParameters.put("email", user.getEmail());
+		namedParameters.put("name", user.getName());
+		namedParameters.put("enabled", 1);
+	}
+
 }

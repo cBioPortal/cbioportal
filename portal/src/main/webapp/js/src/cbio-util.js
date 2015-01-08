@@ -126,9 +126,9 @@ cbio.util = (function() {
     };
 
 	/**
-	 * Converts b64 encoded string into an array of byte arrays.
+	 * Converts base 64 encoded string into an array of byte arrays.
 	 *
-	 * @param b64Data   b64 encoded string
+	 * @param b64Data   base 64 encoded string
 	 * @param sliceSize size of each byte array (default: 512)
 	 * @returns {Array} an array of byte arrays
 	 */

@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.batik.transcoder.Transcoder;
 import org.apache.batik.transcoder.TranscoderException;
@@ -160,7 +161,8 @@ public class SvgConverter extends HttpServlet {
     }
 
 	/**
-	 * Convert svg xml to pdf and writes it to the response
+	 * Converts svg xml to pdf and writes it to the response as
+	 * a Base 64 encoded string.
 	 *
 	 * @param response
 	 * @param xml
@@ -170,14 +172,19 @@ public class SvgConverter extends HttpServlet {
 	private void convertToPDF(HttpServletResponse response, String xml)
 			throws ServletException, IOException {
 		OutputStream out = response.getOutputStream();
+		ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
 		try {
 			InputStream is = new ByteArrayInputStream(xml.getBytes());
 			TranscoderInput input = new TranscoderInput(is);
-			TranscoderOutput output = new TranscoderOutput(out);
+			TranscoderOutput output = new TranscoderOutput(byteOut);
 			Transcoder transcoder = new PDFTranscoder();
-			transcoder.addTranscodingHint(PDFTranscoder.KEY_XML_PARSER_CLASSNAME, "org.apache.xerces.parsers.SAXParser");
+			transcoder.addTranscodingHint(
+					PDFTranscoder.KEY_XML_PARSER_CLASSNAME,
+					"org.apache.xerces.parsers.SAXParser");
 			response.setContentType("application/pdf");
 			transcoder.transcode(input, output);
+			byteOut.close();
+			out.write(Base64.encodeBase64(byteOut.toByteArray()));
 		} catch (Exception e) {
 			System.err.println(e.toString());
 		}

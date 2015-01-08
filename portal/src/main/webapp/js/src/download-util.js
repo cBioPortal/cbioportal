@@ -3,16 +3,22 @@ if (cbio === undefined)
 	var cbio = {};
 }
 
+/**
+ * Singleton utility class for download related tasks.
+ *
+ * @author Selcuk Onur Sumer
+ */
 cbio.download = (function() {
 
 	// Default client-side download options
 	var _defaultOpts = {
 		filename: "download.svg", // download file name
-		contentType: "application/svg+xml", // download data type
+		contentType: "application/svg+xml", // download data type,
+		dataType: null,      // servlet data type
 		servletName: null,   // name of the data/conversion servlet (optional)
 		servletParams: null, // servlet parameters (optional)
 		preProcess: addSvgHeader,   // pre-process function for the provided data
-		postProcess: pdfPostProcess // post-process function for the data returned by the server (optional)
+		postProcess: cbio.util.b64ToByteArrays // post-process function for the data returned by the server (optional)
 	};
 
 	/**
@@ -139,12 +145,6 @@ cbio.download = (function() {
 		saveAs(blob, filename);
 	}
 
-	function pdfPostProcess(content)
-	{
-		// TODO doesn't work for Firefox, need a proper binary data processor (base64 to byteArrays?)
-		return [content];
-	}
-
 	/**
 	 * Serializes the given html element into a string.
 	 *
@@ -214,7 +214,7 @@ cbio.download = (function() {
 			$.ajax({url: options.servletName,
 					type: "POST",
 					data: options.servletParams,
-					dataType: "binary",
+					dataType: options.dataType,
 					success: function(servletData){
 						var downloadData = servletData;
 

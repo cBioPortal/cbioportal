@@ -1168,20 +1168,19 @@
 //                    formElement.submit();
 
 	                // request download
-	                cbio.download.requestDownload("svgtopdf.do",
-						{filetype: "pdf",
-		                    filename: "crosscancerhistogram.pdf",
-		                    svgelement: $("#cchistogram").html()}
-	                );
+//	                cbio.download.requestDownload("svgtopdf.do",
+//						{filetype: "pdf",
+//		                    filename: "crosscancerhistogram.pdf",
+//		                    svgelement: $("#cchistogram").html()}
+//	                );
+
+	                cbio.download.initSvgDownload(
+		                $("#cchistogram svg")[0], "crosscancerhistogram.pdf", "pdf");
                 });
 
                 $("#histogram-download-svg").click(function() {
-//                    var formElement = $("form.svg-to-file-form");
-//                    formElement.find("input[name=svgelement]").val($("#cchistogram").html());
-//                    formElement.submit();
-
-	                cbio.download.clientSideSvgDownload(
-		                $("#cchistogram")[0], "crosscancerhistogram.svg");
+	                cbio.download.initSvgDownload(
+		                $("#cchistogram svg")[0], "crosscancerhistogram.svg", "svg");
                 });
 
                 $("#histogram-customize").click(function() {

@@ -4,6 +4,10 @@ if (cbio === undefined)
 }
 
 cbio.download = (function() {
+
+	// TODO allow to update?
+	var _pdfDataServlet = "svgtopdf.do";
+
 	/**
 	 * Submits the download form.
 	 * This will send a request to the server.
@@ -186,12 +190,80 @@ cbio.download = (function() {
 		clientSideDownload(addSvgHeader(svgString), filename, "application/svg+xml");
 	}
 
+	/**
+	 * Initiates a client side PDF download for the given svg string.
+	 *
+	 * @param svgString     svg element (as a string)
+	 * @param filename      download file name
+	 */
+	function clientSidePdfDownload(svgString, filename)
+	{
+		var servletParams = {filetype: "pdf_data",
+			svgelement: svgString};
+
+		// retrieve data from the server
+		//$.post(_pdfDataServlet, servletParams, initFn, "binary");
+
+		$.ajax({url: _pdfDataServlet,
+			type: "POST",
+			data: servletParams,
+			dataType: "binary",
+			success: function(pdfData){
+				// TODO doesn't work for Firefox, need a proper binary data processor
+				clientSideDownload(pdfData, filename, "application/pdf");
+			}
+		});
+
+//		requestDownload(_pdfDataServlet,
+//			{filetype: "pdf",
+//				filename: filename,
+//                svgelement: svgString}
+//        );
+	}
+
+	/**
+	 * Initiates a client side download for the given svg element.
+	 *
+	 * @param svgElement    svg element (DOM object)
+	 * @param filename      download file name
+	 * @param type          type of the download (PDF or SVG)
+	 */
+	function initSvgDownload(svgElement, filename, type)
+	{
+		initSvgStrDownload(serializeHtml(svgElement), filename, type);
+	}
+
+	/**
+	 * Initiates a client side download for the given svg string.
+	 *
+	 * @param svgString     svg element (as a string)
+	 * @param filename      download file name
+	 * @param type          type of the download (PDF or SVG)
+	 */
+	function initSvgStrDownload(svgString, filename, type)
+	{
+		if (type.toLowerCase() == "svg")
+		{
+			clientSideSvgStrDownload(svgString, filename);
+		}
+		else if (type.toLowerCase() == "pdf")
+		{
+			clientSidePdfDownload(svgString, filename);
+		}
+		else
+		{
+			// TODO any other type?
+		}
+	}
+
     return {
 	    submitDownload: submitDownload,
 	    requestDownload: requestDownload,
 	    clientSideDownload: clientSideDownload,
 	    clientSideSvgDownload: clientSideSvgDownload,
 	    clientSideSvgStrDownload: clientSideSvgStrDownload,
+	    initSvgDownload: initSvgDownload,
+	    initSvgStrDownload: initSvgStrDownload,
 	    serializeHtml: serializeHtml,
 	    addSvgHeader: addSvgHeader
     };

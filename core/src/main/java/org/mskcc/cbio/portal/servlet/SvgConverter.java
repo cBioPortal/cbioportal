@@ -91,6 +91,8 @@ public class SvgConverter extends HttpServlet {
 
         if (format.equals("pdf")) {
             convertToPDF(httpServletResponse, xml, filename);
+        } else if (format.equals("pdf_data")) {
+	        convertToPDF(httpServletResponse, xml);
         } else if (format.equals("svg")) {
             convertToSVG(httpServletResponse, xml, filename);
         }
@@ -152,6 +154,30 @@ public class SvgConverter extends HttpServlet {
             System.err.println(e.toString());
         }
     }
+
+	/**
+	 * Convert svg xml to pdf and writes it to the response
+	 *
+	 * @param response
+	 * @param xml
+	 * @throws ServletException
+	 * @throws IOException
+	 */
+	private void convertToPDF(HttpServletResponse response, String xml)
+			throws ServletException, IOException {
+		OutputStream out = response.getOutputStream();
+		try {
+			InputStream is = new ByteArrayInputStream(xml.getBytes());
+			TranscoderInput input = new TranscoderInput(is);
+			TranscoderOutput output = new TranscoderOutput(out);
+			Transcoder transcoder = new PDFTranscoder();
+			transcoder.addTranscodingHint(PDFTranscoder.KEY_XML_PARSER_CLASSNAME, "org.apache.xerces.parsers.SAXParser");
+			response.setContentType("application/pdf");
+			transcoder.transcode(input, output);
+		} catch (Exception e) {
+			System.err.println(e.toString());
+		}
+	}
 
     /**
      * Convert svg xml to PNG and writes it to the response

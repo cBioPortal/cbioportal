@@ -126,6 +126,35 @@ cbio.util = (function() {
     };
 
 	/**
+	 * Converts b64 encoded string into an array of byte arrays.
+	 *
+	 * @param b64Data   b64 encoded string
+	 * @param sliceSize size of each byte array (default: 512)
+	 * @returns {Array} an array of byte arrays
+	 */
+	function b64ToByteArrays(b64Data, sliceSize) {
+		sliceSize = sliceSize || 512;
+
+		var byteCharacters = atob(b64Data);
+		var byteArrays = [];
+
+		for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+			var slice = byteCharacters.slice(offset, offset + sliceSize);
+
+			var byteNumbers = new Array(slice.length);
+			for (var i = 0; i < slice.length; i++) {
+				byteNumbers[i] = slice.charCodeAt(i);
+			}
+
+			var byteArray = new Uint8Array(byteNumbers);
+
+			byteArrays.push(byteArray);
+		}
+
+		return byteArrays;
+	}
+
+	/**
 	 * Detects browser and its version.
 	 * This function is implemented as an alternative to the deprecated jQuery.browser object.
 	 *
@@ -415,6 +444,7 @@ cbio.util = (function() {
         arrayToAssociatedArrayIndices: arrayToAssociatedArrayIndices,
         alterAxesAttrForPDFConverter: alterAxesAttrForPDFConverter,
         lcss: lcss,
+	    b64ToByteArrays: b64ToByteArrays,
         browser: detectBrowser(), // returning the browser object, not the function itself
         getWindowOrigin: getOrigin,
         sortByAttribute: sortByAttribute,

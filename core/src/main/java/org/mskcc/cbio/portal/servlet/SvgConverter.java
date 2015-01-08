@@ -80,7 +80,11 @@ public class SvgConverter extends HttpServlet {
 	    }
 
         String xmlHeader = "<?xml version='1.0'?>";
-        xml = xmlHeader + xml;
+
+	    if (!xml.contains(xmlHeader)) {
+	        xml = xmlHeader + xml;
+	    }
+
         if(!xml.contains("svg xmlns")) {
             xml = xml.replace("<svg", "<svg xmlns='http://www.w3.org/2000/svg' version='1.1'");
         }

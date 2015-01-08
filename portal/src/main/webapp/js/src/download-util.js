@@ -5,8 +5,16 @@ if (cbio === undefined)
 
 cbio.download = (function() {
 
-	// TODO allow to update?
-	var _pdfDataServlet = "svgtopdf.do";
+	// Default client-side (FileSaver.js) download options
+	var _defaultOpts = {
+		filename: "download.svg", // download file name
+		fileType: "svg",          // download file type
+		downloadType: "application/svg+xml", // download data type
+		servletName: null,      // name of the data/conversion servlet (optional)
+		servletParams: null,             // servlet parameters (optional)
+		preProcess: addSvgHeader,   // pre-process function for the provided data
+		postProcess: pdfPostProcess // post-process function for the data returned by the server (optional)
+	};
 
 	/**
 	 * Submits the download form.
@@ -108,9 +116,9 @@ cbio.download = (function() {
 	}
 
 	/**
-	 * Initiates a client side download for the given content.
+	 * Initiates a client side download for the given content array.
 	 *
-	 * @param content   data content to download
+	 * @param content   data array to download
 	 * @param filename  download file name
 	 * @param type      download type
 	 */
@@ -127,10 +135,15 @@ cbio.download = (function() {
 			filename = "download.txt";
 		}
 
-		// TODO if type is not text, we may need to do something else...
-		var blob = new Blob([content], {type: type});
+		var blob = new Blob(content, {type: type});
 
 		saveAs(blob, filename);
+	}
+
+	function pdfPostProcess(content)
+	{
+		// TODO doesn't work for Firefox, need a proper binary data processor (base64 to byteArrays?)
+		return [content];
 	}
 
 	/**
@@ -167,92 +180,57 @@ cbio.download = (function() {
 	}
 
 	/**
-	 * Initiates a client side download specifically for svg file type.
+	 * Initializes a client side download for the given content.
 	 *
-	 * @param svgElement    svg element (as an html element)
-	 * @param filename      download file name
+	 * @param content   data content, either string or DOM element
+	 * @param options   download options (see _defaultOpts)
 	 */
-	function clientSideSvgDownload(svgElement, filename)
+	function initDownload(content, options)
 	{
-		// serialize element (convert to string) & init download
-		clientSideSvgStrDownload(serializeHtml(svgElement), filename);
-	}
+		options = jQuery.extend(true, {}, _defaultOpts, options);
 
-	/**
-	 * Initiates a client side download specifically for svg file type.
-	 *
-	 * @param svgString     svg element (as a string)
-	 * @param filename      download file name
-	 */
-	function clientSideSvgStrDownload(svgString, filename)
-	{
-		// add header & init download
-		clientSideDownload(addSvgHeader(svgString), filename, "application/svg+xml");
-	}
-
-	/**
-	 * Initiates a client side PDF download for the given svg string.
-	 *
-	 * @param svgString     svg element (as a string)
-	 * @param filename      download file name
-	 */
-	function clientSidePdfDownload(svgString, filename)
-	{
-		var servletParams = {filetype: "pdf_data",
-			svgelement: svgString};
-
-		// retrieve data from the server
-		//$.post(_pdfDataServlet, servletParams, initFn, "binary");
-
-		$.ajax({url: _pdfDataServlet,
-			type: "POST",
-			data: servletParams,
-			dataType: "binary",
-			success: function(pdfData){
-				// TODO doesn't work for Firefox, need a proper binary data processor
-				clientSideDownload(pdfData, filename, "application/pdf");
-			}
-		});
-
-//		requestDownload(_pdfDataServlet,
-//			{filetype: "pdf",
-//				filename: filename,
-//                svgelement: svgString}
-//        );
-	}
-
-	/**
-	 * Initiates a client side download for the given svg element.
-	 *
-	 * @param svgElement    svg element (DOM object)
-	 * @param filename      download file name
-	 * @param type          type of the download (PDF or SVG)
-	 */
-	function initSvgDownload(svgElement, filename, type)
-	{
-		initSvgStrDownload(serializeHtml(svgElement), filename, type);
-	}
-
-	/**
-	 * Initiates a client side download for the given svg string.
-	 *
-	 * @param svgString     svg element (as a string)
-	 * @param filename      download file name
-	 * @param type          type of the download (PDF or SVG)
-	 */
-	function initSvgStrDownload(svgString, filename, type)
-	{
-		if (type.toLowerCase() == "svg")
+		// try to serialize only if content is not string...
+		if (!_.isString(content))
 		{
-			clientSideSvgStrDownload(svgString, filename);
+			content = serializeHtml(content);
 		}
-		else if (type.toLowerCase() == "pdf")
+
+		if (_.isFunction(options.preProcess))
 		{
-			clientSidePdfDownload(svgString, filename);
+			content = options.preProcess(content);
+		}
+
+		if (options.fileType.toLowerCase() == "pdf")
+		{
+			// if no servlet params provided, use default ones for pdf...
+			options.servletParams = options.servletParams || {
+				filetype: "pdf_data",
+				svgelement: content
+			};
+		}
+
+		// check if a servlet name provided
+		if (options.servletName != null)
+		{
+			$.ajax({url: options.servletName,
+					type: "POST",
+					data: options.servletParams,
+					dataType: "binary",
+					success: function(servletData){
+						var downloadData = servletData;
+
+						if (_.isFunction(options.postProcess))
+						{
+							downloadData = options.postProcess(servletData);
+						}
+
+						clientSideDownload(downloadData, options.filename, options.downloadType);
+					}
+			});
 		}
 		else
 		{
-			// TODO any other type?
+			clientSideDownload([content], options.filename, options.downloadType);
 		}
 	}
 
@@ -260,10 +238,7 @@ cbio.download = (function() {
 	    submitDownload: submitDownload,
 	    requestDownload: requestDownload,
 	    clientSideDownload: clientSideDownload,
-	    clientSideSvgDownload: clientSideSvgDownload,
-	    clientSideSvgStrDownload: clientSideSvgStrDownload,
-	    initSvgDownload: initSvgDownload,
-	    initSvgStrDownload: initSvgStrDownload,
+	    initDownload: initDownload,
 	    serializeHtml: serializeHtml,
 	    addSvgHeader: addSvgHeader
     };

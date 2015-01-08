@@ -40,9 +40,10 @@ import java.util.*;
  *
  * @author Benjamin Gross
  */
-public class PortalUserDetailsService implements SAMLUserDetailsService
+public class MSKCCPortalUserDetailsService implements SAMLUserDetailsService
 {
-	private static final Log log = LogFactory.getLog(PortalUserDetailsService.class);
+    private static final String MSKCC_EMAIL_SUFFIX = "mskcc.org";
+	private static final Log log = LogFactory.getLog(MSKCCPortalUserDetailsService.class);
     private static final Collection<String> defaultAuthorities = initializeDefaultAuthorities();
     private static final Collection<String> initializeDefaultAuthorities()
     {
@@ -64,7 +65,7 @@ public class PortalUserDetailsService implements SAMLUserDetailsService
      *
      * @param portalUserDAO PortalUserDAO
      */
-    public PortalUserDetailsService(PortalUserDAO portalUserDAO) {
+    public MSKCCPortalUserDetailsService(PortalUserDAO portalUserDAO) {
         this.portalUserDAO = portalUserDAO;
     }
           
@@ -95,6 +96,10 @@ public class PortalUserDetailsService implements SAMLUserDetailsService
                 if (authorities != null) {
                     List<GrantedAuthority> grantedAuthorities =
                         AuthorityUtils.createAuthorityList(authorities.getAuthorities().toArray(new String[authorities.getAuthorities().size()]));
+                    // ensure that granted authorities contains default (google spreadsheet may not have default authorities for all users)
+                    if (userid.endsWith(MSKCC_EMAIL_SUFFIX)) {
+                        grantedAuthorities.addAll(getDefaultGrantedAuthorities(userid));
+                    }
                     toReturn = new PortalUserDetails(userid, grantedAuthorities);
                     toReturn.setEmail(userid);
                     toReturn.setName(userid);
@@ -102,13 +107,14 @@ public class PortalUserDetailsService implements SAMLUserDetailsService
             }
 		}
 		catch (Exception e) {
-            if (userid.endsWith("mskcc.org")) {
+            if (userid.endsWith(MSKCC_EMAIL_SUFFIX)) {
                 if (log.isDebugEnabled()) {
                     log.debug("loadUserDetails(), granting default authorities for userid: " + userid);
                 }
                 toReturn = new PortalUserDetails(userid, getDefaultGrantedAuthorities(userid));
                 toReturn.setEmail(userid);
                 toReturn.setName(userid);
+                portalUserDAO.addPortalUser(toReturn);
             }
             else {
                 if (log.isDebugEnabled()) {

@@ -18,6 +18,9 @@ import org.mskcc.cbio.importer.model.IcgcMetadata;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.cnv.CnvFileHandlerImpl;
+import org.mskcc.cbio.importer.persistence.staging.filehandler.FileHandlerService;
+import org.mskcc.cbio.importer.persistence.staging.filehandler.TsvFileHandler;
+import org.mskcc.cbio.importer.persistence.staging.filehandler.TsvFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.fusion.FusionModel;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationTransformation;
@@ -131,9 +134,10 @@ public class IcgcCancerStudyImporter implements Callable<String> {
 
         if (!Strings.isNullOrEmpty(this.metadata.getSomaticmutationurl())) {
             Path stagingFilePath = this.stagingFileDirectory.resolve(StagingCommonNames.MUTATIONS_STAGING_FILENAME);
-            TsvStagingFileHandler aHandler = new MutationFileHandlerImpl();
-            aHandler.registerTsvStagingFile(stagingFilePath,
-                    Lists.newArrayList(MutationTransformation.INSTANCE.getTransformationMap().keySet()), true);
+           // TsvStagingFileHandler aHandler = new MutationFileHandlerImpl();
+            TsvFileHandler aHandler = FileHandlerService.INSTANCE.obtainFileHandlerForNewStagingFile(stagingFilePath,
+                    Lists.newArrayList(MutationTransformation.INSTANCE.getTransformationMap().keySet()));
+
             etlTasks.add(new IcgcCancerStudyETLCallable(this.metadata.getSomaticmutationurl(),
                     IcgcSimpleSomaticMutationModel.class, StagingCommonNames.MUTATION_TYPE, aHandler));
             logger.info("Added clinical transformation for: " + this.metadata.getSomaticmutationurl());
@@ -143,9 +147,13 @@ public class IcgcCancerStudyImporter implements Callable<String> {
 
         if (!Strings.isNullOrEmpty(this.metadata.getClinicalurl())) {
             Path stagingFilePath = this.stagingFileDirectory.resolve(StagingCommonNames.CLINICAL_STAGING_FILENAmE);
-            TsvStagingFileHandler aHandler = new MutationFileHandlerImpl();
-            aHandler.registerTsvStagingFile(stagingFilePath, Lists.newArrayList(
-                    IcgcFunctionLibrary.resolveColumnNames(IcgcClinicalModel.transformationMap)), true);
+            //TsvStagingFileHandler aHandler = new MutationFileHandlerImpl();
+
+           // aHandler.registerTsvStagingFile(stagingFilePath, Lists.newArrayList(
+             //       IcgcFunctionLibrary.resolveColumnNames(IcgcClinicalModel.transformationMap)), true);
+            TsvFileHandler aHandler = FileHandlerService.INSTANCE.obtainFileHandlerForNewStagingFile
+                        (stagingFilePath, Lists.newArrayList(
+                         IcgcFunctionLibrary.resolveColumnNames(IcgcClinicalModel.transformationMap)));
             etlTasks.add(new IcgcCancerStudyETLCallable(this.metadata.getClinicalurl(),
                     IcgcClinicalModel.class, StagingCommonNames.CLINICAL_TYPE, aHandler));
             logger.info("Added clinical transformation for: " + this.metadata.getClinicalurl());
@@ -188,11 +196,17 @@ public class IcgcCancerStudyImporter implements Callable<String> {
         }
         if (!Strings.isNullOrEmpty(this.metadata.getStructuralmutationurl())) {
             Path stagingFilePath = this.stagingFileDirectory.resolve("data_fusions.txt");
-            TsvStagingFileHandler aHandler = new MutationFileHandlerImpl();
-            aHandler.registerTsvStagingFile(stagingFilePath,
-                    Lists.newArrayList(FusionModel.transformationMap.keySet()), true);
-            etlTasks.add(new IcgcCancerStudyETLCallable(this.metadata.getStructuralmutationurl(),
+
+            //TsvStagingFileHandler aHandler = new MutationFileHandlerImpl();
+           // aHandler.registerTsvStagingFile(stagingFilePath,
+                //     Lists.newArrayList(FusionModel.transformationMap.keySet()), true);
+            TsvFileHandler aHandler = FileHandlerService.INSTANCE.obtainFileHandlerForNewStagingFile(
+                    stagingFilePath,
+                    Lists.newArrayList(FusionModel.transformationMap.keySet())
+            );
+                    etlTasks.add(new IcgcCancerStudyETLCallable(this.metadata.getStructuralmutationurl(),
                     IcgcFusionModel.class, StagingCommonNames.STRUCTURAL_MUTATION_TYPE, aHandler));
+
             logger.info("Added  fusion transformation for: " + this.metadata.getStructuralmutationurl());
         }
         return etlTasks;

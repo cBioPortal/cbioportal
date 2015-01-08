@@ -15,6 +15,9 @@ import org.mskcc.cbio.importer.icgc.model.IcgcFusionModel;
 import org.mskcc.cbio.importer.icgc.support.IcgcFunctionLibrary;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
+import org.mskcc.cbio.importer.persistence.staging.filehandler.FileHandlerService;
+import org.mskcc.cbio.importer.persistence.staging.filehandler.TsvFileHandler;
+import org.mskcc.cbio.importer.persistence.staging.filehandler.TsvFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.fusion.FusionModel;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationModel;
@@ -24,6 +27,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.*;
 
@@ -55,11 +59,14 @@ public class IcgcCancerStudyETLCallable implements Callable<String> {
     private final String icgcStudyUrl;
     private final Class modelClass;
     private final String modelType;
-    private final TsvStagingFileHandler fileHandler;
+    //private final TsvStagingFileHandler fileHandler;
+    private final TsvFileHandler fileHandler;
 
 
-    public IcgcCancerStudyETLCallable(String aUrl, Class aClass,
-                                      String aType, TsvStagingFileHandler aHandler){
+    //public IcgcCancerStudyETLCallable(String aUrl, Class aClass,
+      //                                String aType, TsvStagingFileHandler aHandler){
+        public IcgcCancerStudyETLCallable(String aUrl, Class aClass,
+                String aType, TsvFileHandler aHandler){
         Preconditions.checkArgument(!Strings.isNullOrEmpty(aUrl), "An ICGC Cancer study is required");
         Preconditions.checkArgument(null != aClass, "A model Class is required");
         Preconditions.checkArgument(!Strings.isNullOrEmpty(aType),"A model type specification is required");
@@ -185,10 +192,11 @@ public class IcgcCancerStudyETLCallable implements Callable<String> {
     // main class for stand alone testing
     public static void main (String...args){
         String studyUrl = "https://dcc.icgc.org/api/v1/download?fn=/current/Projects/PACA-AU/structural_somatic_mutation.PACA-AU.tsv.gz";
+        Path tempPath = Paths.get("/tmp/icgctest/data_fusions.txt");
 
-        TsvStagingFileHandler handler = new MutationFileHandlerImpl();
-        handler.registerTsvStagingFile(Paths.get("/tmp/icgctest/data_fusions.txt"),
-                FusionModel.resolveColumnNames(),true);
+        TsvFileHandler handler = FileHandlerService.INSTANCE.obtainFileHandlerForNewStagingFile
+                (tempPath,FusionModel.resolveColumnNames());
+
         ListeningExecutorService service = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(3));
         IcgcCancerStudyETLCallable etl = new IcgcCancerStudyETLCallable(studyUrl, IcgcFusionModel.class,
                 StagingCommonNames.STRUCTURAL_MUTATION_TYPE, handler);

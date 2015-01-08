@@ -433,7 +433,7 @@ public class IcgcFusionModel extends FusionModel {
     }
 
     public String getGene_affected_by_bkpt_from() {
-        if(!Strings.isNullOrEmpty(this.getGene_affected_by_bkpt_from())) {
+        if(!Strings.isNullOrEmpty(gene_affected_by_bkpt_from)) {
             return gene_affected_by_bkpt_from;
         }
         return geneMapper.findGeneNameByGenomicPosition(this.chr_from,

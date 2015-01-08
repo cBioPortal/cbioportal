@@ -160,11 +160,12 @@ class PortalProperties(object):
         self.google_worksheet = google_worksheet
 
 class User(object):
-    def __init__(self, inst_email, google_email, name, enabled, authorities):
+    def __init__(self, inst_email, google_email, name, enabled, acknowledged_policy, authorities):
         self.inst_email = inst_email
         self.google_email = google_email
         self.name = name
         self.enabled = enabled
+        self.acknowledged_policy = acknowledged_policy
         self.authorities = authorities
 
 # ------------------------------------------------------------------------------
@@ -239,8 +240,8 @@ def get_worksheet_feed(ss, ws):
 def insert_new_users(cursor, new_user_list):
 
     try:
-        cursor.executemany("insert into users values(%s, %s, %s)",
-                           [(user.google_email, user.name, user.enabled) for user in new_user_list])
+        cursor.executemany("insert into users values(%s, %s, %s, %s)",
+                           [(user.google_email, user.name, user.enabled, user.acknowledged_policy) for user in new_user_list])
         for user in new_user_list:
             # authorities is semicolon delimited
             authorities = user.authorities
@@ -266,7 +267,7 @@ def get_current_user_map(cursor):
     try:
         cursor.execute('select * from users')
         for row in cursor.fetchall():
-            to_return[row[0]] = User('not_used_here', row[0], row[1], row[2], 'not_used_here')
+            to_return[row[0]] = User(row[0], row[0], row[1], row[2], 'not_used_here')
     except MySQLdb.Error, msg:
         print >> ERROR_FILE, msg
         return None
@@ -296,7 +297,7 @@ def get_user_authorities(cursor, google_email):
 # ------------------------------------------------------------------------------
 # get current users from google spreadsheet
 
-def get_new_user_map(worksheet_feed, current_user_map, portal_name, use_institutional_id):
+def get_new_user_map(spreadsheet, worksheet_feed, current_user_map, portal_name, use_institutional_id):
 
     # map that we are returning
     # key is the institutional email address + google (in case user has multiple google ids)
@@ -325,7 +326,7 @@ def get_new_user_map(worksheet_feed, current_user_map, portal_name, use_institut
     return to_return
 
 # ------------------------------------------------------------------------------
-# get all users from google spreadsheet.  note only inst email, google is returned
+# get all users from google spreadsheet.  note only inst & google email is returned
 
 def get_all_user_map(worksheet_feed, use_institutional_id):
 
@@ -341,7 +342,7 @@ def get_all_user_map(worksheet_feed, use_institutional_id):
         else:
             inst_email = entry.custom[INST_EMAIL_KEY].text.strip()
             google_email = entry.custom[OPENID_EMAIL_KEY].text.strip().lower()
-        to_return[google_email] = User(inst_email, google_email, "not_used", 1, "not_used")
+        to_return[google_email] = User(inst_email, google_email, "not_used", 1, 1, "not_used")
 
     return to_return
     
@@ -411,7 +412,7 @@ def get_portal_properties(portal_properties_filename):
 # adds new users from the google spreadsheet into the cgds portal database
 # returns new user map if users have been inserted, None otherwise
 
-def manage_users(cursor, worksheet_feed, portal_name, use_institutional_id):
+def manage_users(spreadsheet, cursor, worksheet_feed, portal_name, use_institutional_id):
 
     # get map of current portal users
     print >> OUTPUT_FILE, 'Getting list of current portal users'
@@ -424,7 +425,7 @@ def manage_users(cursor, worksheet_feed, portal_name, use_institutional_id):
 
     # get list of new users and insert
     print >> OUTPUT_FILE, 'Checking for new users'
-    new_user_map = get_new_user_map(worksheet_feed, current_user_map, portal_name, use_institutional_id)
+    new_user_map = get_new_user_map(spreadsheet, worksheet_feed, current_user_map, portal_name, use_institutional_id)
     if (len(new_user_map) > 0):
         print >> OUTPUT_FILE, 'We have %s new user(s) to add' % len(new_user_map)
         success = insert_new_users(cursor, new_user_map.values())
@@ -440,11 +441,11 @@ def manage_users(cursor, worksheet_feed, portal_name, use_institutional_id):
 
 # ------------------------------------------------------------------------------
 # updates user study access
-def update_user_authorities(cursor, worksheet_feed, portal_name, use_institutional_id):
+def update_user_authorities(spreadsheet, cursor, worksheet_feed, portal_name, use_institutional_id):
 
         # get map of current portal users
         print >> OUTPUT_FILE, 'Getting list of current portal users from spreadsheet'
-        all_user_map = get_new_user_map(worksheet_feed, {}, portal_name, use_institutional_id)
+        all_user_map = get_new_user_map(spreadsheet, worksheet_feed, {}, portal_name, use_institutional_id)
         if all_user_map is None:
                 return None;
         print >> OUTPUT_FILE, 'Updating authorities for each user in current portal user list'
@@ -470,7 +471,8 @@ def add_unknown_users_to_spreadsheet(cursor, spreadsheet, worksheet, use_institu
     # for each user in portal database not in google spreadsheet, insert user into google spreadsheet
     for email in portal_db_user_map.keys():
         if email not in google_spreadsheet_user_map:
-            row = { "mskccemailaddress" : email}
+            user = portal_db_user_map[email]
+            row = { MSKCC_EMAIL_KEY : user.inst_email, FULLNAME_KEY : user.name }
             add_row_to_google_worksheet(spreadsheet, worksheet, row)
 
 
@@ -552,10 +554,10 @@ def main():
                                             portal_properties.google_worksheet)
 
         # the 'guts' of the script
-        new_user_map = manage_users(cursor, worksheet_feed, PORTAL_NAME[google_spreadsheet], use_institutional_id)
+        new_user_map = manage_users(google_spreadsheet, cursor, worksheet_feed, PORTAL_NAME[google_spreadsheet], use_institutional_id)
 
         # update user authorities
-        update_user_authorities(cursor, worksheet_feed, PORTAL_NAME[google_spreadsheet], use_institutional_id)
+        update_user_authorities(google_spreadsheet, cursor, worksheet_feed, PORTAL_NAME[google_spreadsheet], use_institutional_id)
 
         # sending emails
         if new_user_map is not None:

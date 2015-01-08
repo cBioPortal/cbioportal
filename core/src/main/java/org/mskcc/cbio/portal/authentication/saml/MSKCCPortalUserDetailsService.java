@@ -112,9 +112,8 @@ public class MSKCCPortalUserDetailsService implements SAMLUserDetailsService
                     log.debug("loadUserDetails(), granting default authorities for userid: " + userid);
                 }
                 toReturn = new PortalUserDetails(userid, getDefaultGrantedAuthorities(userid));
-                toReturn.setEmail(userid);
-                toReturn.setName(userid);
-                portalUserDAO.addPortalUser(toReturn);
+                //TBD - we need to get user name from SAML credential
+                portalUserDAO.addPortalUser(new User(userid, userid, true));
             }
             else {
                 if (log.isDebugEnabled()) {

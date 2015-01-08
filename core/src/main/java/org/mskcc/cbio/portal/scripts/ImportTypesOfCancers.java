@@ -62,11 +62,12 @@ public class ImportTypesOfCancers {
             String[] tokens = scanner.nextLine().split("\t", -1);
             assert tokens.length == 5;
 
-            String typeOfCancerId = tokens[0].trim().toLowerCase();
-            aTypeOfCancer.setTypeOfCancerId(typeOfCancerId);
+            String typeOfCancerId = tokens[0].trim();
+            aTypeOfCancer.setTypeOfCancerId(typeOfCancerId.toLowerCase());
             aTypeOfCancer.setName(tokens[1].trim());
             aTypeOfCancer.setClinicalTrialKeywords(tokens[2].trim().toLowerCase());
             aTypeOfCancer.setDedicatedColor(tokens[3].trim());
+            aTypeOfCancer.setShortName(typeOfCancerId);
             aTypeOfCancer.setParentTypeOfCancerId(tokens[4].trim());
             DaoTypeOfCancer.addTypeOfCancer(aTypeOfCancer);
         }

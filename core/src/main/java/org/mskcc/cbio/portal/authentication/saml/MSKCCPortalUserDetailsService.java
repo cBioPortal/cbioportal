@@ -79,8 +79,9 @@ public class MSKCCPortalUserDetailsService implements SAMLUserDetailsService
 		// what we return
 		PortalUserDetails toReturn = null;
 
-		// get user id
-        String userid = credential.getNameID().getValue().toLowerCase();
+		// get userid and name
+        String userid = credential.getAttributeAsString("/UserAttribute[@ldap:targetAttribute=\"mail\"]");
+        String name = credential.getAttributeAsString("/UserAttribute[@ldap:targetAttribute=\"displayName\"]");
 
 		// check if this user exists in our backend db
 		try {
@@ -113,7 +114,7 @@ public class MSKCCPortalUserDetailsService implements SAMLUserDetailsService
                 }
                 toReturn = new PortalUserDetails(userid, getDefaultGrantedAuthorities(userid));
                 //TBD - we need to get user name from SAML credential
-                portalUserDAO.addPortalUser(new User(userid, userid, true));
+                portalUserDAO.addPortalUser(new User(userid, name, true));
             }
             else {
                 if (log.isDebugEnabled()) {

@@ -82,11 +82,15 @@ MSKCC_EMAIL_KEY = "mskccemailaddress"
 OPENID_EMAIL_KEY = "googleoropenidaddress"
 STATUS_KEY = "statusapprovedorblank"
 AUTHORITIES_KEY = "authoritiesalloralltcgaandorsemicolondelimitedcancerstudylist"
+LAB_PI_KEY = "labpi"
 
 # possible values in status column
 STATUS_APPROVED = "APPROVED"
 
+DEFAULT_AUTHORITIES = "PUBLIC;EXTENDED;DMP"
+
 # consts used in email
+MSKCC_EMAIL_SUFFIX = "@mskcc.org"
 SMTP_SERVER = "cbio.mskcc.org"
 MESSAGE_FROM = "cbioportal-access@cbio.mskcc.org"
 MESSAGE_BCC = ["jgao@cbio.mskcc.org", "schultz@cbio.mskcc.org", "grossb@cbio.mskcc.org"]
@@ -160,12 +164,11 @@ class PortalProperties(object):
         self.google_worksheet = google_worksheet
 
 class User(object):
-    def __init__(self, inst_email, google_email, name, enabled, acknowledged_policy, authorities):
+    def __init__(self, inst_email, google_email, name, enabled, authorities):
         self.inst_email = inst_email
         self.google_email = google_email
         self.name = name
         self.enabled = enabled
-        self.acknowledged_policy = acknowledged_policy
         self.authorities = authorities
 
 # ------------------------------------------------------------------------------
@@ -240,8 +243,8 @@ def get_worksheet_feed(ss, ws):
 def insert_new_users(cursor, new_user_list):
 
     try:
-        cursor.executemany("insert into users values(%s, %s, %s, %s)",
-                           [(user.google_email, user.name, user.enabled, user.acknowledged_policy) for user in new_user_list])
+        cursor.executemany("insert into users values(%s, %s, %s)",
+                           [(user.google_email, user.name, user.enabled) for user in new_user_list])
         for user in new_user_list:
             # authorities is semicolon delimited
             authorities = user.authorities
@@ -342,7 +345,7 @@ def get_all_user_map(worksheet_feed, use_institutional_id):
         else:
             inst_email = entry.custom[INST_EMAIL_KEY].text.strip()
             google_email = entry.custom[OPENID_EMAIL_KEY].text.strip().lower()
-        to_return[google_email] = User(inst_email, google_email, "not_used", 1, 1, "not_used")
+        to_return[google_email] = User(inst_email, google_email, "not_used", 1, "not_used")
 
     return to_return
     
@@ -470,9 +473,16 @@ def add_unknown_users_to_spreadsheet(cursor, spreadsheet, worksheet, use_institu
     portal_db_user_map = get_current_user_map(cursor)
     # for each user in portal database not in google spreadsheet, insert user into google spreadsheet
     for email in portal_db_user_map.keys():
-        if email not in google_spreadsheet_user_map:
+        if email.endswith(MSKCC_EMAIL_SUFFIX) and email not in google_spreadsheet_user_map:
             user = portal_db_user_map[email]
-            row = { MSKCC_EMAIL_KEY : user.inst_email, FULLNAME_KEY : user.name }
+            print >> OUTPUT_FILE, user.name
+            # we only got here if user was inserted via MSK AD - in which case name is formatted as:
+            # Gross, Benjamin E./Sloan Kettering Institute
+            if "/" in user.name:
+                user_name_parts = user.name.split("/")
+                row = { MSKCC_EMAIL_KEY : user.inst_email, FULLNAME_KEY : user_name_parts[0], LAB_PI_KEY : user_name_parts[1], STATUS_KEY : STATUS_APPROVED, AUTHORITIES_KEY : DEFAULT_AUTHORITIES }
+            else:
+                row = { MSKCC_EMAIL_KEY : user.inst_email, FULLNAME_KEY : user.name, STATUS_KEY : STATUS_APPROVED, AUTHORITIES_KEY : DEFAULT_AUTHORITIES }
             add_row_to_google_worksheet(spreadsheet, worksheet, row)
 
 

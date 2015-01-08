@@ -62,7 +62,7 @@ public class ImportTypesOfCancers {
             String[] tokens = scanner.nextLine().split("\t", -1);
             assert tokens.length == 5;
 
-            String typeOfCancerId = tokens[0].trim();
+            String typeOfCancerId = tokens[0].trim().toLowerCase();
             aTypeOfCancer.setTypeOfCancerId(typeOfCancerId);
             aTypeOfCancer.setName(tokens[1].trim());
             aTypeOfCancer.setClinicalTrialKeywords(tokens[2].trim().toLowerCase());

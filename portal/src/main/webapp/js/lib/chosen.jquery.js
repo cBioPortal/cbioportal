@@ -1266,6 +1266,7 @@
 		if (!val.option.is_group_header && val.result.attr('data-parent')) {
 			var curr_result = _this.container.find("li[data-tree-id='" + val.result.attr('data-parent') + "']");
 			while (curr_result.length > 0) {
+				console.log("yoooooo");
 				curr_result.attr('data-desc-studies', +curr_result.attr('data-desc-studies') + 1);
 				curr_result = _this.container.find("li[data-tree-id='" + curr_result.attr('data-parent') + "']");
 			}

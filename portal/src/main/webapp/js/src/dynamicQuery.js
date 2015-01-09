@@ -760,7 +760,6 @@ function addMetaDataToPage() {
             });
         }
     }
-    console.log(oncotree);
     // First add 'all' study
     if ('all' in json.cancer_studies) {
         cancerTypeContainer.prepend($("<option value='all'>"+json.cancer_studies['all'].name+"</option>"));
@@ -788,7 +787,7 @@ function addMetaDataToPage() {
                     "data-depth='"+depth+"' "+
                     "data-is-group-header='true' "+
                     "data-tree-id='"+ root.code +"' "
-                    + (root.parent === 'tissue' ? "" : "data-parent='"+root.tissue+"' ")
+                    + (root.parent.code === 'tissue' ? "" : "data-parent='"+root.tissue+"' ")
                     +"disabled>"
                 +label 
                 + "</option>").appendTo(cancerTypeContainer);

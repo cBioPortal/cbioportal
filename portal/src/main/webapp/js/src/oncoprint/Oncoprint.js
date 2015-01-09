@@ -338,11 +338,11 @@ define("Oncoprint",
                     //seperate the mutation type
                     var seperateMuation = function(mutation){
                         
-                        if(params.mutationColor === 'singleColor' || params.mutationColor === undefined)
+                        if(params.mutationColor === 'singleColor')
                         {
                             return 'green';
                         }
-                        else if(params.mutationColor === 'multiColor')
+                        else if(params.mutationColor === 'multiColor'  || params.mutationColor === undefined)
                         {             
                             var mutationSplit;
 
@@ -743,6 +743,12 @@ define("Oncoprint",
                         utils.legend(params.legend,utils.gene_data_type2range(params.geneData), dims.label_width, attr2rangeValue,attr2rangeFuntion);
                     }
                     
+                    //if multicolor state is on, then show multiple genetic legend
+                    if(params.mutationColor === 'multiColor'|| params.mutationColor === undefined)
+                    {
+                        $('.legend_missense_name').text("missense mutation");
+                        $('.legend_nonmissense').css("display","inline");
+                    }
                     
                     var memoSort = function(attributes, animation) {
                         state.data = MemoSort(state.data, attributes);

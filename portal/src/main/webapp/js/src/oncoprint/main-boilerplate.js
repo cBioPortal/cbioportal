@@ -30,7 +30,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         };
     
     var gapSpaceGeneClinic = 10;// Gap between gene data and clinic 
-    var mutationColorControl = 'singleColor';
+    var mutationColorControl = 'multiColor';
     
     // basically a hack to prevent the zoom function from a particular oncoprint
     // from getting bound to the UI slider forever
@@ -292,8 +292,13 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             functionFunctions();
             toggleControls(true);
             
+//            zoom = reset_zoom();
+//            oncoprint.zoom(zoom.val());
+            var zoomvalue = $('#oncoprint_zoom_slider')[0].value;
             zoom = reset_zoom();
-            oncoprint.zoom(zoom.val());
+            $('#oncoprint_zoom_slider')[0].value = zoomvalue;
+            // sync
+            oncoprint.zoom(zoomvalue);
             $('#oncoprint-diagram-showlegend-icon img')[0].attributes.src.value = 'images/showlegend.svg'; // === or =
             $('#oncoprint-diagram-removeUCases-icon img')[0].attributes.src.value = 'images/removeUCases.svg';
             $('#oncoprint-diagram-removeWhitespace-icon img')[0].attributes.src.value = 'images/removeWhitespace.svg';
@@ -1163,7 +1168,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             content: {text: 
                         function(){
                         if($('#oncoprint-diagram-removeWhitespace-icon img')[0].attributes.src.value === 'images/removeWhitespace.svg')
-                        {return 'remove whitespace';}
+                        {return 'remove whitespace between cases';}
                         else
                         {
                             return 'show whitespace between cases';

@@ -22,7 +22,6 @@ package org.mskcc.cbio.portal.dao.internal;
 import org.mskcc.cbio.portal.model.User;
 import org.mskcc.cbio.portal.model.UserAuthorities;
 import org.mskcc.cbio.portal.dao.PortalUserDAO;
-import org.mskcc.cbio.portal.authentication.PortalUserDetails;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -116,13 +115,25 @@ public class PortalUserJDBCDAO implements PortalUserDAO {
 		return this.namedParameterJdbcTemplate.queryForList(sql, namedParameters, String.class);
 	}
 
-	public void addPortalUser(PortalUserDetails user)
+	public void addPortalUser(User user)
 	{
 		String sql = "insert into users (email, name, enabled) values(:email, :name, :enabled)";
 		Map namedParameters = new HashMap();
 		namedParameters.put("email", user.getEmail());
 		namedParameters.put("name", user.getName());
-		namedParameters.put("enabled", 1);
+		namedParameters.put("enabled", user.isEnabled() ? new Integer(1) : new Integer(0));
+		namedParameterJdbcTemplate.update(sql, namedParameters);
+	}
+
+	public void addPortalUserAuthorities(UserAuthorities userAuthorities)
+	{
+		for (String authority : userAuthorities.getAuthorities()) {
+			String sql = "insert into authorities (email, authority) values(:email, :authority)";
+			Map namedParameters = new HashMap();
+			namedParameters.put("email", userAuthorities.getEmail());
+			namedParameters.put("authority", authority);
+			namedParameterJdbcTemplate.update(sql, namedParameters);
+		}
 	}
 
 }

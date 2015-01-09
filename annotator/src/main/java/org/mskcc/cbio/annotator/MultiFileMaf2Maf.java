@@ -42,7 +42,12 @@ public class MultiFileMaf2Maf extends MultiFileAnnotator
 			this.config.setInput(inputMaf);
 			this.config.setOutput(outputMaf);
 
-			AnnotateTool.driver(this.config);
+			int result = AnnotateTool.driver(this.config);
+
+			if (result != 0)
+			{
+				System.out.println("[ERROR] Process completed with exit code " + result);
+			}
 		}
 	}
 }

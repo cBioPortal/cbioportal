@@ -125,4 +125,15 @@ public class PortalUserJDBCDAO implements PortalUserDAO {
 		namedParameterJdbcTemplate.update(sql, namedParameters);
 	}
 
+	public void addPortalUserAuthorities(UserAuthorities userAuthorities)
+	{
+		for (String authority : userAuthorities.getAuthorities()) {
+			String sql = "insert into authorities (email, authority) values(:email, :authority)";
+			Map namedParameters = new HashMap();
+			namedParameters.put("email", userAuthorities.getEmail());
+			namedParameters.put("authority", authority);
+			namedParameterJdbcTemplate.update(sql, namedParameters);
+		}
+	}
+
 }

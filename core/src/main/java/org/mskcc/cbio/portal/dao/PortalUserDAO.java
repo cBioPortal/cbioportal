@@ -48,4 +48,5 @@ public interface PortalUserDAO {
 	UserAuthorities getPortalUserAuthorities(String username);
 
 	void addPortalUser(User user);
+	void addPortalUserAuthorities(UserAuthorities userAuthorities);
 }

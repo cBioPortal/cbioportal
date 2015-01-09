@@ -14,16 +14,18 @@
  */
 package org.mskcc.cbio.importer.model;
 
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.base.Splitter;
+import com.google.common.base.*;
+
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Table;
+import org.mskcc.cbio.importer.config.internal.ImporterSpreadsheetService;
+import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -31,8 +33,8 @@ import java.util.List;
  */
 public class FoundationMetadata {
 
-    // delimiter between foundation studies entries and excluded cases
-    public static final Splitter semicolonSplitter = Splitter.on(';');
+    private static final String worksheetName = "foundation";
+    private static final String dependeciesColumnName = "dependencies";
 
     // bean properties
     final private String cancerStudy;
@@ -42,6 +44,24 @@ public class FoundationMetadata {
     final private List<String> excludedCases;
     final private List<String> shortVariantExcludedStatuses;
     final private List<String> cnvExcludedStatuses;
+
+    /*
+    Constructor uses a row from the foundation worksheet on the importer Google spreadsheet
+     */
+
+    public FoundationMetadata(Map<String,String> worksheetRowMap){
+        this.cancerStudy = worksheetRowMap.get("cancerstudy").trim();
+        this.dependencies = Lists.newArrayList(StagingCommonNames.semicolonSplitter.split(
+                worksheetRowMap.get("dependencies")));
+        this.comments = worksheetRowMap.get("comments").trim();
+        this.excludedCases =  Lists.newArrayList(StagingCommonNames.semicolonSplitter.split(
+                worksheetRowMap.get("excludedcases")));
+        this.shortVariantExcludedStatuses =  Lists.newArrayList(StagingCommonNames.semicolonSplitter.split(
+                worksheetRowMap.get("excludedsvstatuses")));
+        this.cnvExcludedStatuses =  Lists.newArrayList(StagingCommonNames.semicolonSplitter.split(
+                worksheetRowMap.get("excludedcvstatuses")));
+
+    }
 
     /**
      * Create a FoundationMetadata instance with properties in given array. Its
@@ -58,23 +78,23 @@ public class FoundationMetadata {
         Preconditions.checkArgument(null != properties, "No properties have been provided");
         Preconditions.checkArgument(properties.length >= 3, "Insufficient number of properties provided");
         this.cancerStudy = properties[0].trim();
-        this.dependencies = Lists.newArrayList(semicolonSplitter.split(properties[1]));
+        this.dependencies = Lists.newArrayList(StagingCommonNames.semicolonSplitter.split(properties[1]));
         this.comments = properties[2];
 
         // only a limited number of studies have excluded cases; most will not have that property
         if (properties.length >3) {
-            this.excludedCases = Lists.newArrayList(semicolonSplitter.split(properties[3]));
+            this.excludedCases = Lists.newArrayList(StagingCommonNames.semicolonSplitter.split(properties[3]));
 
         }else {
             this.excludedCases = Lists.newArrayList(); // an empty list
         }
         if (properties.length > 4){
-            this.shortVariantExcludedStatuses = Lists.newArrayList(semicolonSplitter.split(properties[4]));
+            this.shortVariantExcludedStatuses = Lists.newArrayList(StagingCommonNames.semicolonSplitter.split(properties[4]));
         } else {
             this.shortVariantExcludedStatuses = Lists.newArrayList();
         }
         if (properties.length > 5){
-            this.cnvExcludedStatuses = Lists.newArrayList(semicolonSplitter.split(properties[5]));
+            this.cnvExcludedStatuses = Lists.newArrayList(StagingCommonNames.semicolonSplitter.split(properties[5]));
         } else {
             this.cnvExcludedStatuses = Lists.newArrayList();
         }
@@ -154,14 +174,49 @@ public class FoundationMetadata {
     public Predicate<String> getRelatedFileFilter() {
         return this.relatedFileFilter;
     }
+
+    /*
+    // static method to return a CancerStudyMetadata instance based on a unique stable id
+    public static Optional<CancerStudyMetadata> findCancerStudyMetaDataByStableId(final String stableId){
+        final String cancerStudyWorksheet = "cancer_studies";
+        final String stableIdColumnName = "stableid";
+        if(Strings.isNullOrEmpty(stableId)) {return Optional.absent();}
+        Optional<Map<String,String >> rowOptional = ImporterSpreadsheetService.INSTANCE.getWorksheetRowByColumnValue(cancerStudyWorksheet, stableIdColumnName,
+                stableId);
+        if (rowOptional.isPresent()) {
+            return Optional.of(new CancerStudyMetadata(rowOptional.get()));
+        }
+        return Optional.absent();
+    }
+
+     */
+    /*
+    static method to return a FoundationMetadata instance based on a dependency value
+     */
+    public static Optional<FoundationMetadata> findFoundationMetadataByDependency(String dependency){
+        if(Strings.isNullOrEmpty(dependency)){ return Optional.absent(); }
+        /*
+        Table<Integer,String,String> getWorksheetTableByName(String worksheetName){
+         */
+        Table<Integer,String,String> worksheetTable = ImporterSpreadsheetService.INSTANCE.getWorksheetTableByName(worksheetName);
+        Map<Integer,String> dependenciesColumnMap = worksheetTable.column(dependeciesColumnName);
+        for (Map.Entry<Integer,String> entry : dependenciesColumnMap.entrySet()){
+            if ( entry.getValue().contains(dependency)){
+                return  Optional.of(new FoundationMetadata(worksheetTable.row(entry.getKey())));
+            }
+        }
+        return Optional.absent();
+
+    }
+
     /*
      main method for stand alone testing
      */
 
     public static void main(String... args) {
         String[] testProperties1 = {"BRCA1/BRCA2 Study", "15-089;20-123","XYZ,ABC", "unknown"};
-        String[] testProperties2 = {"BRCA1/BRCA2 Study", "15-089;20-123"};
-        String[] testProperties3 = {"LBCL Study", "13-081;13-158"};
+        String[] testProperties2 = {"BRCA1/BRCA2 Study", "15-089;20-123","unknown"};
+        String[] testProperties3 = {"LBCL Study", "13-081;13-158","unknown"};
         FoundationMetadata meta1 = new FoundationMetadata(testProperties1);
         FoundationMetadata meta2 = new FoundationMetadata(testProperties2);
         FoundationMetadata meta3 = new FoundationMetadata(testProperties3);
@@ -209,6 +264,19 @@ public class FoundationMetadata {
                 }
 
             }
+        /*
+        test using the google worksheet constructor
+         */
+
+        Optional<FoundationMetadata> opt = FoundationMetadata.findFoundationMetadataByDependency("13-084");
+        if (opt.isPresent()){
+            System.out.println("Found related study " +opt.get().getCancerStudy());
+        }
+
+        Optional<FoundationMetadata> opt2 = FoundationMetadata.findFoundationMetadataByDependency("HEME-COMPLETE");
+        if (opt2.isPresent()){
+            System.out.println("Found related study " +opt2.get().getCancerStudy());
+        }
 
             System.out.println("Finis");
 

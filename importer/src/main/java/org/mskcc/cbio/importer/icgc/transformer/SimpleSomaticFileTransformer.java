@@ -74,7 +74,7 @@ public class SimpleSomaticFileTransformer extends MutationTransformer implements
         }
     }
 
-    public SimpleSomaticFileTransformer( Path stagingFileDirectory) {
+    public SimpleSomaticFileTransformer(Path stagingFileDirectory) {
         super(stagingFileDirectory.resolve(StagingCommonNames.MUTATIONS_STAGING_FILENAME));
 
     }
@@ -106,8 +106,8 @@ public class SimpleSomaticFileTransformer extends MutationTransformer implements
                 -transform the simple somatic ICGC attributes to a SimpleSomaticModel instance
                 - write out the MAF file
             */
-            logger.info("Staring transformation of " +this.icgcFilePath.toString());
-           FluentIterable.from(parser)
+            logger.info("Staring transformation of " + this.icgcFilePath.toString());
+            FluentIterable.from(parser)
                     .filter(new Predicate<CSVRecord>() {
                         @Override
                         public boolean apply(CSVRecord record) {
@@ -135,7 +135,7 @@ public class SimpleSomaticFileTransformer extends MutationTransformer implements
                             tsvFileHandler.transformImportDataToTsvStagingFile(Lists.newArrayList(new SimpleSomaticModel(recordMap)),
                                     MutationModel.getTransformationFunction());
 
-                                    return 1;
+                            return 1;
                         }
                     }).toList();
 
@@ -203,43 +203,34 @@ public class SimpleSomaticFileTransformer extends MutationTransformer implements
         this.processSimpleSomaticModelData();
         return this.icgcFilePath;
     }
+
     /*
      main method for standalone testing
      */
     public static void main(String... args) {
         ListeningExecutorService service = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(3));
         Path tsvPath = Paths.get("/tmp/icgctest/ESAD-UK");
-        if (!Files.exists(tsvPath)){
-            try {
+        try {
+            if (!Files.exists(tsvPath)) {
                 Files.createDirectories(tsvPath);
-            } catch (IOException e) {
-                logger.error(e.getMessage());
-                e.printStackTrace();
+
             }
+            SimpleSomaticFileTransformer transformer = new SimpleSomaticFileTransformer(
+                    tsvPath);
+            String fn = "/tmp/simple_somatic_mutation.open.ESAD-UK.tsv";
+            transformer.setIcgcFilePath(Paths.get(fn));
+            ListenableFuture<Path> p = service.submit(transformer);
+
+
+            logger.info("Path " + p.get(600, TimeUnit.SECONDS));
+            p.cancel(true);
+            service.shutdown();
+            logger.info("service shutdown ");
+        } catch (IOException | InterruptedException | ExecutionException | TimeoutException e) {
+            logger.error(e.getMessage());
+            e.printStackTrace();
         }
-
-       // SimpleSomaticFileTransformer transformer = new SimpleSomaticFileTransformer(
-         //       new MutationFileHandlerImpl(), Paths.get("/tmp/icgc/ESAD-UK"));
-        SimpleSomaticFileTransformer transformer = new SimpleSomaticFileTransformer(
-               tsvPath);
-        String fn = "/tmp/simple_somatic_mutation.open.ESAD-UK.tsv";
-        transformer.setIcgcFilePath(Paths.get(fn));
-        ListenableFuture<Path> p = service.submit(transformer);
-
-            try {
-                logger.info("Path " +p.get(600,TimeUnit.SECONDS));
-                p.cancel(true);
-                service.shutdown();
-                logger.info("service shutdown ");
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            } catch (TimeoutException e) {
-                e.printStackTrace();
-            }
         logger.info("FINIS");
-
 
 
     }

@@ -68,15 +68,14 @@ public class IcgcCancerStudyImporter implements Callable<String> {
             MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(ETL_THREADS));
 
     public IcgcCancerStudyImporter(
-            IcgcMetadata meta, Path aPath) {
-        Preconditions.checkArgument(null != meta,
-                "An IcgcMetadata object is required");
+           String icgcId, Path aPath) {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(icgcId),
+                "An IcgcMetadata id is required");
         Preconditions.checkArgument(StagingUtils.isValidStagingDirectoryPath(aPath),
                 "The staging file directory is null or invalid");
-        this.metadata = meta;
+        this.metadata = IcgcMetadataService.INSTANCE.getIcgcMetadataById(icgcId);
         this.stagingFileDirectory = aPath.resolve(this.metadata.getDownloaddirectory());
         logger.info("Staging file directory set to " + this.stagingFileDirectory);
-
     }
 
     public boolean isCompleted() {
@@ -86,7 +85,6 @@ public class IcgcCancerStudyImporter implements Callable<String> {
     @Override
     public String call() throws Exception {
         return this.invokeEtlTasks();
-
     }
 
     private String invokeEtlTasks() {
@@ -134,7 +132,6 @@ public class IcgcCancerStudyImporter implements Callable<String> {
 
         if (!Strings.isNullOrEmpty(this.metadata.getSomaticmutationurl())) {
             Path stagingFilePath = this.stagingFileDirectory.resolve(StagingCommonNames.MUTATIONS_STAGING_FILENAME);
-           // TsvStagingFileHandler aHandler = new MutationFileHandlerImpl();
             TsvFileHandler aHandler = FileHandlerService.INSTANCE.obtainFileHandlerForNewStagingFile(stagingFilePath,
                     Lists.newArrayList(MutationTransformation.INSTANCE.getTransformationMap().keySet()));
 
@@ -212,16 +209,14 @@ public class IcgcCancerStudyImporter implements Callable<String> {
         return etlTasks;
     }
 
-
     // main method for stand alone testing
 
     public static void main(String... args) {
-        IcgcMetadata metadata = IcgcMetadataService.INSTANCE.getIcgcMetadataById("PACA-CA");
-        logger.info("Metadata for " + metadata.getIcgcid() + " obtained");
+
         Path basePath = Paths.get("/tmp/icgctest");
         final ListeningExecutorService service =
                 MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(1));
-        IcgcCancerStudyImporter importer = new IcgcCancerStudyImporter(metadata, basePath);
+        IcgcCancerStudyImporter importer = new IcgcCancerStudyImporter("PACA-CA", basePath);
 
         List<ListenableFuture<String>> futureList = Lists.newArrayList();
         futureList.add(service.submit(importer));

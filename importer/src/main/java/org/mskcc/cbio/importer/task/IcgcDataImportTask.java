@@ -97,15 +97,15 @@ public class IcgcDataImportTask extends AbstractScheduledService {
     @Override
     protected void runOneIteration() throws Exception {
         logger.info("ICGC Import process invoked");
-        // get the current collection of IcgcMetadata objects
-        final List<String> retList = Lists.newArrayList();
+
         List<ListenableFuture<String>> futureList = Lists.newArrayList();
         // run the SimpleSomaticMutationTransformer
         futureList.add(service.submit(new SimpleSomaticMutationImporter(baseStagingPath)));
         // run the smaller
-        for (IcgcMetadata metadata : IcgcMetadataService.INSTANCE.getIcgcMetadataList()) {
-            futureList.add(service.submit(new IcgcCancerStudyImporter(metadata, this.baseStagingPath)));
-            logger.info("Task added for " +metadata.getIcgcid());
+
+        for (String icgcId : IcgcMetadataService.INSTANCE.getRegisteredIcgcStudyList()) {
+            futureList.add(service.submit(new IcgcCancerStudyImporter(icgcId, this.baseStagingPath)));
+            logger.info("Task added for " +icgcId);
         }
         ListenableFuture<List<String>> taskResults = Futures.successfulAsList(futureList);
         Futures.addCallback(taskResults, new FutureCallback<List<String>>() {

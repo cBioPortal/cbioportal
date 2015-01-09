@@ -4,6 +4,10 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.FluentIterable;
 
 import org.apache.log4j.Logger;
@@ -14,6 +18,8 @@ import org.mskcc.cbio.importer.model.IcgcMetadata;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
@@ -40,15 +46,44 @@ public enum IcgcMetadataService {
     private static final String studyIdColumnName = "icgcid";
     private static final Logger logger = Logger.getLogger(IcgcMetadataService.class);
 
-    public IcgcMetadata getIcgcMetadataById(String studyID) {
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(studyID),
+    private LoadingCache<String, IcgcMetadata>  icgcMetadataCache;
+
+    //TODO: change return type to Optional
+    public IcgcMetadata getIcgcMetadataById(String icgcId) {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(icgcId),
                 "An ICGC ID is required");
-        Optional<Map<String,String >> rowOptional = ImporterSpreadsheetService.INSTANCE.getWorksheetRowByColumnValue(icgcWorksheetName, studyIdColumnName,
-                studyID);
-        if (rowOptional.isPresent()){
-            return( new IcgcMetadata(rowOptional.get()));
+        if (null == this.icgcMetadataCache) { this.intitializeIcgcMetadataCache(); }
+        try {
+            return this.icgcMetadataCache.get(icgcId);
+        } catch (ExecutionException e) {
+            logger.error(e.getMessage());
+            e.printStackTrace();
         }
         return null;
+
+    }
+
+    private void intitializeIcgcMetadataCache() {
+
+       this.icgcMetadataCache =CacheBuilder.newBuilder()
+               .maximumSize(100)
+               .expireAfterAccess(10, TimeUnit.MINUTES)
+               .build( new CacheLoader<String,IcgcMetadata>(){
+
+                   @Override
+                   public IcgcMetadata load(String key) throws Exception {
+                       Optional<Map<String,String >> rowOptional = ImporterSpreadsheetService.INSTANCE.getWorksheetRowByColumnValue(icgcWorksheetName,
+                               studyIdColumnName,
+                               key);
+                       if (rowOptional.isPresent()){
+                           return( new IcgcMetadata(rowOptional.get()));
+                       }
+                       return null;
+                   }
+               });
+        logger.info("IcgcMetadataCache has been initalized");
+
+
     }
 
     /*
@@ -99,7 +134,9 @@ public enum IcgcMetadataService {
         IcgcMetadata meta = IcgcMetadataService.INSTANCE.getIcgcMetadataById(icgcId);
         logger.info("download directory " +meta.getDownloaddirectory());
         for (String studyId : IcgcMetadataService.INSTANCE.getRegisteredIcgcStudyList()){
-            logger.info(studyId);
+            IcgcMetadataService.INSTANCE.getIcgcMetadataById(studyId);
+
+            logger.info(studyId + " cache size = " +IcgcMetadataService.INSTANCE.icgcMetadataCache.size());
         }
         // test for resolving cancer path from icgc study id
         Optional<String> pathOpt = IcgcMetadataService.INSTANCE.getCancerStudyPathByStudyId("BRCA-UK");

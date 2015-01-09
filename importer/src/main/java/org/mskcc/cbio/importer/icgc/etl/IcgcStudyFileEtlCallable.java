@@ -246,9 +246,19 @@ public class IcgcStudyFileEtlCallable implements Callable<String> {
         final ListeningExecutorService service = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(4));
        List<String> testUrlList = Lists.newArrayList("https://dcc.icgc.org/api/v1/download?fn=/current/Projects/ESAD-UK/simple_somatic_mutation.open.ESAD-UK.tsv.gz"
                );
-        Path icgcPath1 = Paths.get("/tmp/icgc1");
+        Path icgcPath1 = Paths.get("/tmp/icgctest");
+
+        if (!Files.exists(icgcPath1)) {
+            try {
+                Files.createDirectories(icgcPath1);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
         boolean processing = true;
-        IcgcFileTransformer transformer1 = (IcgcFileTransformer) new SimpleSomaticFileTransformer(new MutationFileHandlerImpl(), icgcPath1);
+        //IcgcFileTransformer transformer1 = (IcgcFileTransformer) new SimpleSomaticFileTransformer(new MutationFileHandlerImpl(), icgcPath1);
+        IcgcFileTransformer transformer1 = (IcgcFileTransformer) new SimpleSomaticFileTransformer( icgcPath1);
         IcgcStudyFileEtlCallable etl01 = new IcgcStudyFileEtlCallable(icgcPath1, testUrlList.get(0), transformer1);
         List<ListenableFuture<String>> futureList = Lists.newArrayList();
         futureList.add(service.submit(etl01));

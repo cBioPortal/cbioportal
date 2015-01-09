@@ -48,6 +48,7 @@ public interface StagingCommonNames {
     public static final Joiner blankJoiner = Joiner.on(" ");
     public static final Joiner lineJoiner = Joiner.on("\n");
     public static final Splitter posSplitter = Splitter.on(':');
+    public static final Splitter semicolonSplitter = Splitter.on(';');
     public final Joiner pathJoiner =
             Joiner.on(System.getProperty("file.separator"));
     public final Splitter pathSplitter =

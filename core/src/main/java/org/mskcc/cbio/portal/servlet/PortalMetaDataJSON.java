@@ -216,7 +216,7 @@ public class PortalMetaDataJSON extends HttpServlet {
                 for (CancerStudy cancerStudy : cancerStudiesList) {
                     Map jsonCancerStudySubMap = cancerStudyMap(cancerStudy, !full_studies_data);
                     cancerStudyMap.put(cancerStudy.getCancerStudyStableId(), jsonCancerStudySubMap);
-                    String typeOfCancerId = cancerStudy.getTypeOfCancerId().toUpperCase();
+                    String typeOfCancerId = cancerStudy.getTypeOfCancerId().toLowerCase();
                     visibleTypeOfCancerMap.put(typeOfCancerId, typeOfCancerMap.get(typeOfCancerId));
                     visibleCancerColors.put(typeOfCancerId, cancerColors.get(typeOfCancerId));
                     visibleShortNames.put(typeOfCancerId, shortNames.get(typeOfCancerId));

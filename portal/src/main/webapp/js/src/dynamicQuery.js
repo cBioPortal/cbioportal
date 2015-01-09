@@ -703,12 +703,14 @@ function addMetaDataToPage() {
     // Gather tissues and tumors
     for (var tumortype in parents) {
         if (parents.hasOwnProperty(tumortype)) {
-            if (!(parents[tumortype] in parents)) {
-                tissues[parents[tumortype]] = true;
-            }
-            tumors[tumortype] = true;
+	    if (parents[tumortype] === "tissue") {
+                tissues[tumortype] = true;
+            } else {
+		tumors[tumortype] = true;
+	    }
         }
     }
+    console.log(tissues);
     // Put tissues in tree
     for (var tissue in tissues) {
         if (tissues.hasOwnProperty(tissue)) {
@@ -756,7 +758,7 @@ function addMetaDataToPage() {
     for (var study in json.cancer_studies) {
         if (json.cancer_studies.hasOwnProperty(study) && study !== 'all') { // don't re-add 'all'
             try {
-                var type = json.cancer_studies[study].type_of_cancer.toUpperCase();
+                var type = json.cancer_studies[study].type_of_cancer.toLowerCase();
                 oncotree[type].studies.push(study);
                 var node = oncotree[type];
                 while (node) {
@@ -808,7 +810,7 @@ function addMetaDataToPage() {
             possible_label = possible_label || json.type_of_cancers[names[i]];
         }
         var label = possible_label || root.type;
-	label = label.replace(/_/g,' ');
+	label = label.split("_").map(function(x) { return (x.length > 0 ? x[0].toUpperCase()+x.slice(1) : x);}).join(" "); // capitalize and replace underscores with spaces
         if (root.type !== "" && !(depth > 0 && root.studies.length === 0)) {
             // don't insert a group element if A. this is the root of the tree, B. depth > 0 and there are no studies at this level
             $("<option value='" + root.type + "-study-group'"+

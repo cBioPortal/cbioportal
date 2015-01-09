@@ -35,7 +35,7 @@ import java.sql.ResultSet;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 
-import java.util.Collection;
+import java.util.*;
 
 /**
  * JDBC implementation of PortalUserDAO.
@@ -114,4 +114,15 @@ public class PortalUserJDBCDAO implements PortalUserDAO {
 		// outta here
 		return this.namedParameterJdbcTemplate.queryForList(sql, namedParameters, String.class);
 	}
+
+	public void addPortalUser(User user)
+	{
+		String sql = "insert into users (email, name, enabled) values(:email, :name, :enabled)";
+		Map namedParameters = new HashMap();
+		namedParameters.put("email", user.getEmail());
+		namedParameters.put("name", user.getName());
+		namedParameters.put("enabled", user.isEnabled() ? new Integer(1) : new Integer(0));
+		namedParameterJdbcTemplate.update(sql, namedParameters);
+	}
+
 }

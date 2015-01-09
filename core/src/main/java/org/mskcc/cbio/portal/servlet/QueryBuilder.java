@@ -561,7 +561,7 @@ public class QueryBuilder extends HttpServlet {
                 		List<String> invalidPatients = PatientSetUtil.validatePatientSet(
                 				cancerStudyIdentifier, patientIds);
                 		
-                		String patientSetErrMsg = "Invalid patient(s) for the selected cancer study:";
+                		String patientSetErrMsg = "Invalid samples(s) for the selected cancer study:";
                 		
                 		// non-empty list, but contains invalid patient IDs
                 		if (invalidPatients.size() > 0)

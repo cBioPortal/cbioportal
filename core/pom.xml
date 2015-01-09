@@ -200,7 +200,13 @@
       <version>1.3.2</version>
     </dependency>
 
-    <!--svg to PDF Converter-->
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+      <version>1.10</version>
+    </dependency>
+
+	<!--svg to PDF Converter-->
     <dependency>
       <groupId>batik</groupId>
       <artifactId>batik</artifactId>

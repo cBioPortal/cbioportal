@@ -115,7 +115,7 @@ public final class DaoCnaEvent {
         }
     }
     
-    public static List<CnaEvent> getCnaEvents(List<Integer> sampleIds, int profileId, Collection<Short> cnaLevels) throws DaoException {
+    public static List<CnaEvent> getCnaEvents(List<Integer> sampleIds, Collection<Long> entrezGeneIds , int profileId, Collection<Short> cnaLevels) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -126,6 +126,7 @@ public final class DaoCnaEvent {
                     + " ENTREZ_GENE_ID, ALTERATION FROM sample_cna_event, cna_event"
                     + " WHERE `GENETIC_PROFILE_ID`=?"
                     + " AND sample_cna_event.CNA_EVENT_ID=cna_event.CNA_EVENT_ID"
+                    + (entrezGeneIds==null?"":" AND ENTREZ_GENE_ID IN(" + StringUtils.join(entrezGeneIds,",") + ")")
                     + " AND ALTERATION IN (" + StringUtils.join(cnaLevels,",") + ")"
                     + " AND SAMPLE_ID in ('"+StringUtils.join(sampleIds, "','")+"')");
             pstmt.setInt(1, profileId);

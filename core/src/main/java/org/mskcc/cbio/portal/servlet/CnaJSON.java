@@ -25,6 +25,7 @@ public class CnaJSON extends HttpServlet {
     public static final String GET_SEGMENT_CMD = "get_segment";
     public static final String GET_CNA_FRACTION_CMD = "get_cna_fraction";
     public static final String CNA_EVENT_ID = "cna_id";
+    public static final String CBIO_GENES_FILTER = "cbio_genes_filter";//Only get cna events from Cbio Cancer genes
     
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -57,6 +58,7 @@ public class CnaJSON extends HttpServlet {
         String cnaProfileId = request.getParameter(PatientView.CNA_PROFILE);
         String mrnaProfileId = request.getParameter(PatientView.MRNA_PROFILE);
         String drugType = request.getParameter(PatientView.DRUG_TYPE);
+        Boolean filterByCbioGene = Boolean.parseBoolean(request.getParameter(CBIO_GENES_FILTER));
         boolean fdaOnly = false;
         boolean cancerDrug = true;
         if (drugType!=null && drugType.equalsIgnoreCase(PatientView.DRUG_TYPE_FDA_ONLY)) {
@@ -66,6 +68,7 @@ public class CnaJSON extends HttpServlet {
                 
         GeneticProfile cnaProfile;
         CancerStudy cancerStudy = null;
+        DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         List<CnaEvent> cnaEvents = Collections.emptyList();
         Map<Long, Set<String>> drugs = Collections.emptyMap();
         Map<Long, Integer>  contextMap = Collections.emptyMap();
@@ -75,7 +78,8 @@ public class CnaJSON extends HttpServlet {
             cnaProfile = DaoGeneticProfile.getGeneticProfileByStableId(cnaProfileId);
             cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cnaProfile.getCancerStudyId());
             List<Integer> internalSampleIds = InternalIdUtil.getInternalSampleIds(cancerStudy.getInternalId(), Arrays.asList(sampleIds)); 
-            cnaEvents = DaoCnaEvent.getCnaEvents(internalSampleIds, cnaProfile.getGeneticProfileId(), Arrays.asList((short)-2,(short)2));
+            cnaEvents = DaoCnaEvent.getCnaEvents(internalSampleIds,
+                    (filterByCbioGene?daoGeneOptimized.getEntrezGeneIds(daoGeneOptimized.getCbioCancerGenes()):null), cnaProfile.getGeneticProfileId(), Arrays.asList((short)-2,(short)2));
             String concatEventIds = getConcatEventIds(cnaEvents);
             int profileId = cnaProfile.getGeneticProfileId();
             drugs = getDrugs(cnaEvents, fdaOnly, cancerDrug);
@@ -89,7 +93,6 @@ public class CnaJSON extends HttpServlet {
         
         Map<String,List> data = initMap();
         Map<Long, Integer> mapEventIndex = new HashMap<Long, Integer>();
-        DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         for (CnaEvent cnaEvent : cnaEvents) {
             Set<String> drug = Collections.emptySet();
             try {

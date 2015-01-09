@@ -78,7 +78,7 @@
                                     <li>DOWN: expression down</li>
                                 </ul>
                             </li>
-                            <li>RPPA - please use one of the two events below: 
+                            <li style="display:none">RPPA - please use one of the two events below: 
                                 <ul>
                                     <li>PROT-UP: RPPA Upregulation</li>
                                     <li>PROT-DOWN: RPPA Downregulation</li>
@@ -113,7 +113,7 @@
                 
             <textarea id="mutation-file-example" rows=10 style="width:95%;"></textarea>
             </td>
-            <td style="width:45%;">
+            <td style="width:45%;display:none;">
             <div>
             <p>
                 <b>Input Clinical Data</b>
@@ -170,7 +170,7 @@
                 </div>
             </form>
             </td>
-            <td>
+            <td style="display:none;">
             <form id="clinic-form" class="clinic-form-horizontal" enctype="multipart/form-data" method="post">
                 <div class="clinic-control-group">
                     <label class="clinic-control-label" for="mutation">Input Clinical Data File</label>

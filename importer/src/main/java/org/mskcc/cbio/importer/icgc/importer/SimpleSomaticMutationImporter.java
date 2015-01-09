@@ -74,10 +74,6 @@ public class SimpleSomaticMutationImporter implements Callable<String> {
     final ListeningExecutorService service =
             MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(ETL_THREADS));
 
-    public SimpleSomaticMutationImporter() {
-        this.baseStagingPath = PropertiesLoader.getInstance().getImporterBasePath();
-    }
-
     public SimpleSomaticMutationImporter(Path aPath) {
         Preconditions.checkArgument(null != aPath);
         this.baseStagingPath = aPath;

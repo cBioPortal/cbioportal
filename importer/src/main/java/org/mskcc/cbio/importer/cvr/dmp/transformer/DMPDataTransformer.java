@@ -105,7 +105,12 @@ public class DMPDataTransformer {
         Preconditions.checkArgument(null != data, "DMP data is required for transformation");
         //filter out DMP samples that have not been registered in Darwin
         this.filterDmpSamples(data);
-
+        //it's possible that none of the new DMP samples were found in Darwin
+        // if so return an empty List to caller
+        if (data.getResults().isEmpty() ) {
+            logger.info("No suitable DMP samples were found in the the input data");
+            return Lists.newArrayList();
+        }
         // process the tumor types
         //this.tumorTypeMap.updateTumorTypeSampleMap(data.getResults());
         // invoke the type specific transformers on the DMP data

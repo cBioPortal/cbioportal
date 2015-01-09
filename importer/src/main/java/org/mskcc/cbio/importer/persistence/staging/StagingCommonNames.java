@@ -72,6 +72,14 @@ public interface StagingCommonNames {
     //clinical
     public static final String CLINICAL_STAGING_FILENAmE = "data_clinical.txt";
 
+    // Datasource names
+    public static final String DATA_SOURCE_ICGC = "icgc";
+    public static final String DATA_SOURCE_FOUNDATION = "foundation";
+    public static final String DATA_SOURCE_DMP = "dmp-darwin-mskcc";
+
+    // default base directory
+    public static final String DEFAULT_BASE_DIRECTORY = "/tmp/cbio-portal-data";
+
 
 
 

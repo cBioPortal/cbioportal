@@ -65,7 +65,7 @@ public enum FileHandlerService {
 
           com.google.common.base.Preconditions.checkArgument
                 (Files.isWritable(subPath),
-                        "The specified Path: " + aPath + " is not writable");
+                        "The specified Path: " + subPath + " is not writable");
         return true;
 
     }

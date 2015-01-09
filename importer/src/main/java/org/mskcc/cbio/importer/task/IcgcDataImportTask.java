@@ -1,5 +1,6 @@
 package org.mskcc.cbio.importer.task;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -8,12 +9,16 @@ import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.icgc.importer.IcgcCancerStudyImporter;
 import org.mskcc.cbio.importer.icgc.importer.SimpleSomaticMutationImporter;
 import org.mskcc.cbio.importer.icgc.support.IcgcMetadataService;
+import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.IcgcMetadata;
+import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import org.mskcc.cbio.importer.persistence.staging.util.StagingUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -44,14 +49,34 @@ public class IcgcDataImportTask extends AbstractScheduledService {
     private static final Logger logger = Logger.getLogger(IcgcDataImportTask.class);
     private  Path baseStagingPath;
 
-
     final ListeningExecutorService service =
             MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(12));
 
-    public IcgcDataImportTask(String stagingBase) {
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(stagingBase),
-                "A base directory specification is required");
-        this.baseStagingPath = Paths.get(stagingBase);
+    public IcgcDataImportTask() {
+        this.resolveBaseStagingPath();
+    }
+
+    /*
+    private method to resolve the current base directory for ICGC staging files
+    register in the importer spreadsheet data sources worksheet
+    the directory will be created if it does not exist
+     */
+    private void resolveBaseStagingPath() {
+        Optional<DataSourcesMetadata> optMeta = DataSourcesMetadata
+                .findDataSourcesMetadatByDataSourceName(StagingCommonNames.DATA_SOURCE_ICGC);
+        if (optMeta.isPresent()) {
+            this.baseStagingPath = optMeta.get().resolveBaseStatgingPath();
+        } else {
+            this.baseStagingPath = Paths.get(StagingCommonNames.DEFAULT_BASE_DIRECTORY);
+        }
+            if (!Files.exists(this.baseStagingPath)) {
+                try {
+                    Files.createDirectories(this.baseStagingPath);
+                } catch (IOException e) {
+                    logger.error(e.getMessage());
+                    e.printStackTrace();
+                }
+            }
     }
 
     protected void startup() {

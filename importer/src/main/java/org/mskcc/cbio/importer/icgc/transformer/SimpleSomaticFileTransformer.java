@@ -34,6 +34,7 @@ import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.icgc.model.SimpleSomaticModel;
 import org.mskcc.cbio.importer.icgc.support.IcgcSimpleSomaticRecord;
 import org.mskcc.cbio.importer.icgc.support.IcgcSimpleSomaticRecordFunnel;
+import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationModel;
@@ -66,11 +67,16 @@ public class SimpleSomaticFileTransformer extends MutationTransformer implements
                 "A Path to a staging file directory is required");
         try {
             Files.createDirectories(stagingFileDirectory);
-            aHandler.registerTsvStagingFile(stagingFileDirectory.resolve("data_mutations_extended.txt"),
+            aHandler.registerTsvStagingFile(stagingFileDirectory.resolve(StagingCommonNames.MUTATIONS_STAGING_FILENAME),
                     MutationModel.resolveColumnNames());
         } catch (IOException e) {
             logger.error(e);
         }
+    }
+
+    public SimpleSomaticFileTransformer( Path stagingFileDirectory) {
+        super(stagingFileDirectory.resolve(StagingCommonNames.MUTATIONS_STAGING_FILENAME));
+
     }
 
     @Override
@@ -126,7 +132,7 @@ public class SimpleSomaticFileTransformer extends MutationTransformer implements
                         public Integer apply(CSVRecord record) {
 
                             final Map<String, String> recordMap = record.toMap();
-                            fileHandler.transformImportDataToTsvStagingFile(Lists.newArrayList(new SimpleSomaticModel(recordMap)),
+                            tsvFileHandler.transformImportDataToTsvStagingFile(Lists.newArrayList(new SimpleSomaticModel(recordMap)),
                                     MutationModel.getTransformationFunction());
 
                                     return 1;
@@ -182,7 +188,7 @@ public class SimpleSomaticFileTransformer extends MutationTransformer implements
                             return new SimpleSomaticModel(recordMap);
                         }
                     }).toList();
-            this.fileHandler.transformImportDataToTsvStagingFile(somaticList, MutationModel.getTransformationFunction());
+            this.tsvFileHandler.transformImportDataToTsvStagingFile(somaticList, MutationModel.getTransformationFunction());
             logger.info("transformation complete ");
         } catch (Exception ex) {
             logger.error(ex.getMessage());
@@ -202,10 +208,21 @@ public class SimpleSomaticFileTransformer extends MutationTransformer implements
      */
     public static void main(String... args) {
         ListeningExecutorService service = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(3));
+        Path tsvPath = Paths.get("/tmp/icgctest/ESAD-UK");
+        if (!Files.exists(tsvPath)){
+            try {
+                Files.createDirectories(tsvPath);
+            } catch (IOException e) {
+                logger.error(e.getMessage());
+                e.printStackTrace();
+            }
+        }
 
+       // SimpleSomaticFileTransformer transformer = new SimpleSomaticFileTransformer(
+         //       new MutationFileHandlerImpl(), Paths.get("/tmp/icgc/ESAD-UK"));
         SimpleSomaticFileTransformer transformer = new SimpleSomaticFileTransformer(
-                new MutationFileHandlerImpl(), Paths.get("/tmp/icgc/ESAD-UK"));
-        String fn = "/tmp/ESAD-UK.tsv";
+               tsvPath);
+        String fn = "/tmp/simple_somatic_mutation.open.ESAD-UK.tsv";
         transformer.setIcgcFilePath(Paths.get(fn));
         ListenableFuture<Path> p = service.submit(transformer);
 

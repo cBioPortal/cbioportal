@@ -6,6 +6,8 @@ import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.mskcc.cbio.importer.model.IcgcMetadata;
 import org.mskcc.cbio.importer.persistence.staging.MetadataFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
+import org.mskcc.cbio.importer.persistence.staging.filehandler.FileHandlerService;
+import org.mskcc.cbio.importer.persistence.staging.filehandler.TsvFileHandler;
 
 import java.nio.file.Path;
 import java.util.Map;
@@ -30,7 +32,16 @@ import java.util.Map;
  * Created by criscuof on 11/13/14.
  */
 public class MutationTransformer {
-    protected final TsvStagingFileHandler fileHandler;
+    protected  TsvStagingFileHandler fileHandler;
+    protected TsvFileHandler tsvFileHandler;
+
+
+    public MutationTransformer(Path aPath) {
+        Preconditions.checkArgument(null != aPath,"A Path to a staging file is required");
+        this.tsvFileHandler = FileHandlerService.INSTANCE.obtainFileHandlerForNewStagingFile(aPath,
+                MutationModel.resolveColumnNames() );
+
+    }
 
     public MutationTransformer(TsvStagingFileHandler aHandler) {
         Preconditions.checkArgument(null != aHandler, "A TsvStagingFileHandler implementation is required");

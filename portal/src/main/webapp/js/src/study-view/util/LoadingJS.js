@@ -27,7 +27,8 @@ var LoadingJS = (function(){
                     'PieChart', 
                     'BarChart', 
                     'DataTable',
-                    'AddCharts'
+                    'AddCharts',
+                    'Table'
                 ],
                 data: ['StudyViewProxy'],
                 util: [
@@ -46,7 +47,8 @@ var LoadingJS = (function(){
                     'StudyViewInitMutationsTab',
                     'StudyViewInitCNATab',
                     'StudyViewInitClinicalTab',
-                    'StudyViewSurvivalPlotView'
+                    'StudyViewSurvivalPlotView',
+                    'StudyViewInitTables'
                 ],
                 controller: [
                     'StudyViewMainController',

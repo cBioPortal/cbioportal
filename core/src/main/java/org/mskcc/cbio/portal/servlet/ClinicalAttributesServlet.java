@@ -65,17 +65,13 @@ public class ClinicalAttributesServlet extends HttpServlet {
             response.setContentType("text/json");
 
             int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(WebserviceParserUtils.getCancerStudyId(request)).getInternalId();
-            List<String> patientIds = WebserviceParserUtils.getPatientList(request);
-            Set<String> patientIdSet = new HashSet<String>(patientIds);
-            List<ClinicalAttribute> clinicalAttributes = DaoClinicalAttribute.getDataBySamples(cancerStudyId, patientIdSet);
+            List<ClinicalAttribute> clinicalAttributes = DaoClinicalAttribute.getDataByStudy(cancerStudyId);
 
             for (ClinicalAttribute attr : clinicalAttributes) {
                 toWrite.add(ClinicalJSON.reflectToMap(attr));
             }
             PrintWriter out = response.getWriter();
             JSONArray.writeJSONString(toWrite, out);
-        } catch (ProtocolException e) {
-            throw new ServletException(e);
         } catch (DaoException e) {
             throw new ServletException(e);
         } catch (IOException e) {

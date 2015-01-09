@@ -63,7 +63,7 @@ public class ImportPatientList {
       PatientListCategory patientListCategory = PatientListCategory.get(patientListCategoryStr); 
        
       String patientListDescription = properties.getProperty("case_list_description");
-      String patientListStr = properties.getProperty("case_list_ids");
+      String sampleListStr = properties.getProperty("case_list_ids");
       if (patientListName == null) {
          throw new IllegalArgumentException("case_list_name is not specified.");
       } else if (patientListDescription == null) {
@@ -71,21 +71,29 @@ public class ImportPatientList {
       }
 
       // construct patient id list
-      ArrayList<String> patientIDsList = new ArrayList<String>();
-      String[] patientIds = patientListStr.split("\t");
-      for (String patientId : patientIds) {
-         Patient p = DaoPatient.getPatientByCancerStudyAndPatientId(theCancerStudy.getInternalId(), patientId);
-         if (p != null && !patientIDsList.contains(p.getStableId())) {
-            patientIDsList.add(p.getStableId());
-         }
-         else {
-            Sample s = DaoSample.getSampleByCancerStudyAndSampleId(theCancerStudy.getInternalId(), patientId);
-            if (s != null) {
-               p = DaoPatient.getPatientById(s.getInternalPatientId());
-               if (!patientIDsList.contains(p.getStableId())) {
-                  patientIDsList.add(p.getStableId());
-               }
-            }
+      ArrayList<String> sampleIDsList = new ArrayList<String>();
+      String[] sampleIds = sampleListStr.split("\t");
+      for (String sampleId : sampleIds) {
+         Sample s = DaoSample.getSampleByCancerStudyAndSampleId(theCancerStudy.getInternalId(), sampleId);
+         if (s==null) {
+//            throw new RuntimeException("Sample does not exist: "+sampleId);
+             System.err.println("Error: could not find sample "+sampleId);
+             Patient p = DaoPatient.getPatientByCancerStudyAndPatientId(theCancerStudy.getInternalId(), sampleId);
+             if (p!=null) {
+                System.err.println("Error: but found a patient with this ID. Will use it in the sample list.");
+                List<Sample> samples = DaoSample.getSamplesByPatientId(p.getInternalId());
+                for (Sample sa : samples) {
+                      if (!sampleIDsList.contains(sa.getStableId())) {
+                          sampleIDsList.add(sa.getStableId());
+                      }
+                }
+             } else {
+                 //throw new RuntimeException("Sample does not exist: "+sampleId);
+             }
+         } else if (!sampleIDsList.contains(s.getStableId())) {
+            sampleIDsList.add(s.getStableId());
+         } else {
+             System.err.println("Warning: duplicated sample ID "+s.getStableId()+" in case list "+stableId);
          }
       }
 
@@ -102,14 +110,14 @@ public class ImportPatientList {
       patientList.setPatientListCategory(patientListCategory);
       patientList.setName(patientListName);
       patientList.setDescription(patientListDescription);
-      patientList.setPatientList(patientIDsList);
+      patientList.setPatientList(sampleIDsList);
       daoPatientList.addPatientList(patientList);
 
       patientList = daoPatientList.getPatientListByStableId(stableId);
 
       pMonitor.setCurrentMessage(" --> stable ID:  " + patientList.getStableId());
       pMonitor.setCurrentMessage(" --> patient list name:  " + patientList.getName());
-      pMonitor.setCurrentMessage(" --> number of patients:  " + patientIDsList.size());
+      pMonitor.setCurrentMessage(" --> number of patients:  " + sampleIDsList.size());
    }
 
    public static void main(String[] args) throws Exception {

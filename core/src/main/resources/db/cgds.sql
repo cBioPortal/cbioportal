@@ -96,7 +96,7 @@ CREATE TABLE `users` (
 drop table IF EXISTS authorities;
 CREATE TABLE `authorities` (
   `EMAIL` varchar(128) NOT NULL,
-  `AUTHORITY` varchar(50) NOT NULL
+  `AUTHORITY` varchar(255) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------

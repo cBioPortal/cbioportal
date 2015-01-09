@@ -13,7 +13,7 @@
         </div>
         
         <div id="oncoprint_whole_body">
-            <p>Altered in <span id='oncoprint_num_of_altered_cases'></span> (<span id='oncoprint_percentage_of_altered_cases'></span>%) of cases</p> 
+            <p>Altered in <span id='oncoprint_num_of_altered_cases'></span> (<span id='oncoprint_percentage_of_altered_cases'></span>%) of cases 
             <span class='oncoprint-diagram-toolbar-buttons' style="float:right;margin-right:20px;">
             <button class='oncoprint-diagram-download' type="pdf">PDF</button>
             <button class='oncoprint-diagram-download' type="svg">SVG</button>

@@ -21,7 +21,11 @@
                   //openid.setDemoMode(false); // if true, Stops form submission for client javascript-only test purposes
           });
         </script>
-        <% } %>
+        <%
+        }
+        String idpEntityId = (authenticationMethod.equals("saml")) ?
+            GlobalProperties.getProperty("saml.idp.metadata.entityid") : "";
+        %>
 
     </head>
 
@@ -52,7 +56,7 @@
             <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
             <strong>You are not authorized to access this resource.&nbsp;
             <% if (authenticationMethod.equals("googleplus")) { %>
-            You have attempted to log in as <%= DynamicState.INSTANCE.getCurrentUser() %>.
+            You have attempted to log in as <%= DynamicState.INSTANCE.getFailedUser() %>.
             <% } %>
             If you think you have received this message in error, please contact us at <a style="color:#FF0000" href="mailto:cbioportal-access@cbio.mskcc.org">cbioportal-access@cbio.mskcc.org</a>
             </strong></p>
@@ -95,7 +99,7 @@
                     </form>
                     <% } else if (authenticationMethod.equals("saml")) { %>
                         <p>
-                            <button type="button" class="btn btn-danger btn-lg" onclick="window.location = 'saml/login?idp=https://msklogin.mskcc.org/nidp/saml2/metadata'" >
+                            <button type="button" class="btn btn-danger btn-lg" onclick="window.location = 'saml/login?idp=<%= idpEntityId %>'" >
                             Sign in with MSK</button>
                         </p>
                     </fieldset>

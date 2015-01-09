@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.batik.transcoder.Transcoder;
 import org.apache.batik.transcoder.TranscoderException;
@@ -80,7 +81,11 @@ public class SvgConverter extends HttpServlet {
 	    }
 
         String xmlHeader = "<?xml version='1.0'?>";
-        xml = xmlHeader + xml;
+
+	    if (!xml.contains(xmlHeader)) {
+	        xml = xmlHeader + xml;
+	    }
+
         if(!xml.contains("svg xmlns")) {
             xml = xml.replace("<svg", "<svg xmlns='http://www.w3.org/2000/svg' version='1.1'");
         }
@@ -91,6 +96,8 @@ public class SvgConverter extends HttpServlet {
 
         if (format.equals("pdf")) {
             convertToPDF(httpServletResponse, xml, filename);
+        } else if (format.equals("pdf_data")) {
+	        convertToPDF(httpServletResponse, xml);
         } else if (format.equals("svg")) {
             convertToSVG(httpServletResponse, xml, filename);
         }
@@ -152,6 +159,36 @@ public class SvgConverter extends HttpServlet {
             System.err.println(e.toString());
         }
     }
+
+	/**
+	 * Converts svg xml to pdf and writes it to the response as
+	 * a Base 64 encoded string.
+	 *
+	 * @param response
+	 * @param xml
+	 * @throws ServletException
+	 * @throws IOException
+	 */
+	private void convertToPDF(HttpServletResponse response, String xml)
+			throws ServletException, IOException {
+		OutputStream out = response.getOutputStream();
+		ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+		try {
+			InputStream is = new ByteArrayInputStream(xml.getBytes());
+			TranscoderInput input = new TranscoderInput(is);
+			TranscoderOutput output = new TranscoderOutput(byteOut);
+			Transcoder transcoder = new PDFTranscoder();
+			transcoder.addTranscodingHint(
+					PDFTranscoder.KEY_XML_PARSER_CLASSNAME,
+					"org.apache.xerces.parsers.SAXParser");
+			response.setContentType("application/pdf");
+			transcoder.transcode(input, output);
+			byteOut.close();
+			out.write(Base64.encodeBase64(byteOut.toByteArray()));
+		} catch (Exception e) {
+			System.err.println(e.toString());
+		}
+	}
 
     /**
      * Convert svg xml to PNG and writes it to the response

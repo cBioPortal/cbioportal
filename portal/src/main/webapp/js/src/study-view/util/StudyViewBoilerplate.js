@@ -254,7 +254,7 @@ var StudyViewBoilerplate ={
             .attr({
                 type: "submit",
                 id: "study-view-header-left-1",
-                value: "Query all cases",
+                value: "Query all samples",
 //                class: "study-view-header hidden"
                 class: "study-view-header-button"
             });

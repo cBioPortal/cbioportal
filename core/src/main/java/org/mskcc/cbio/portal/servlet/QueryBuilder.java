@@ -298,7 +298,7 @@ public class QueryBuilder extends HttpServlet {
 							 HashSet<String> geneticProfileIdSet,
 							 ArrayList<GeneticProfile> profileList,
 							 String geneListStr,
-							 String patientSetId, String patientIds,
+							 String patientSetId, String sampleIds,
 							 ArrayList<PatientList> patientSetList,
 							 ServletContext servletContext, HttpServletRequest request,
 							 HttpServletResponse response,
@@ -323,7 +323,7 @@ public class QueryBuilder extends HttpServlet {
 
         xdebug.logMsg(this, "Using gene list geneList.toString():  " + geneList.toString());
         
-        HashSet<String> setOfPatientIds = null;
+        HashSet<String> setOfSampleIds = null;
         
         String patientIdsKey = null;
         
@@ -331,13 +331,13 @@ public class QueryBuilder extends HttpServlet {
         // so try to retrieve patient_ids by using patient_ids_key parameter.
         // this is required for survival plot requests  
         if (patientSetId.equals("-1") &&
-        	patientIds == null)
+        	sampleIds == null)
         {
         	patientIdsKey = request.getParameter(CASE_IDS_KEY);
         	
         	if (patientIdsKey != null)
         	{
-        		patientIds = PatientSetUtil.getPatientIds(patientIdsKey);
+        		sampleIds = PatientSetUtil.getPatientIds(patientIdsKey);
         	}
         }
         
@@ -345,50 +345,48 @@ public class QueryBuilder extends HttpServlet {
         {
             for (PatientList patientSet : patientSetList) {
                 if (patientSet.getStableId().equals(patientSetId)) {
-                    patientIds = patientSet.getPatientListAsString();
-                    setOfPatientIds = new HashSet<String>(patientSet.getPatientList());
+                    sampleIds = patientSet.getPatientListAsString();
+                    setOfSampleIds = new HashSet<String>(patientSet.getPatientList());
                     break;
                 }
             }
         }
         //if user specifies patients, add these to hashset, and send to GetMutationData
-        else if (patientIds != null)
+        else if (sampleIds != null)
         {
-            String[] patientIdSplit = patientIds.split("\\s+");
-            setOfPatientIds = new HashSet<String>();
+            String[] sampleIdSplit = sampleIds.split("\\s+");
+            setOfSampleIds = new HashSet<String>();
             
-            for (String patientID : patientIdSplit){
-                if (null != patientID){
-                   setOfPatientIds.add(patientID);
+            for (String sampleID : sampleIdSplit){
+                if (null != sampleID){
+                   setOfSampleIds.add(sampleID);
                 }
             }
             
-            patientIds = patientIds.replaceAll("\\s+", " ");
+            sampleIds = sampleIds.replaceAll("\\s+", " ");
         }
 
-        request.setAttribute(SET_OF_CASE_IDS, patientIds);
+        request.setAttribute(SET_OF_CASE_IDS, sampleIds);
         
         // Map user selected samples Ids to patient Ids
         HashMap<String, String> patientSampleIdMap = new HashMap<String, String>();
         CancerStudy selectedCancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerTypeId);
-        Integer cancerStudyInternalId = selectedCancerStudy.getInternalId();
-        Iterator<String> itr = setOfPatientIds.iterator();
+        int cancerStudyInternalId = selectedCancerStudy.getInternalId();
+        Iterator<String> itr = setOfSampleIds.iterator();
         while(itr.hasNext()){
-            String tmpPatientId = itr.next();
-            ArrayList<String> tmpPatientIdList = new ArrayList<String>();
-            tmpPatientIdList.add(tmpPatientId);
-            List<String> tmpSampleIdsArr =
-              StableIdUtil.getStableSampleIdsFromPatientIds(cancerStudyInternalId,
-                                                            tmpPatientIdList);  
-            for (String tmpSampleId : tmpSampleIdsArr) {
-                patientSampleIdMap.put(tmpSampleId, tmpPatientId);
-            }    
+            String sampleId = itr.next();
+            ArrayList<String> sampleIdList = new ArrayList<String>();
+            sampleIdList.add(sampleId);
+            
+            Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyInternalId, sampleId);
+            Patient patient = DaoPatient.getPatientById(sample.getInternalPatientId());
+            patientSampleIdMap.put(sampleId, patient.getStableId());
         }
         request.setAttribute(SELECTED_PATIENT_SAMPLE_ID_MAP, patientSampleIdMap);
 
         if (patientIdsKey == null)
         {
-            patientIdsKey = PatientSetUtil.shortenPatientIds(patientIds);
+            patientIdsKey = PatientSetUtil.shortenPatientIds(sampleIds);
         }
         
         // this will create a key even if the patient set is a predefined set,
@@ -408,16 +406,12 @@ public class QueryBuilder extends HttpServlet {
             if( null == profile ){
                continue;
             } 
-            
-            List<String> stableSampleIds =
-              StableIdUtil.getStableSampleIdsFromPatientIds(profile.getCancerStudyId(),
-                                                            new ArrayList(setOfPatientIds));
          
             xdebug.logMsg(this, "Getting data for:  " + profile.getProfileName());
             GetProfileData remoteCall =
-              new GetProfileData(profile, geneList, StringUtils.join(stableSampleIds, " "));
+              new GetProfileData(profile, geneList, StringUtils.join(setOfSampleIds, " "));
             ProfileData pData = remoteCall.getProfileData();
-            DownloadLink downloadLink = new DownloadLink(profile, geneList, patientIds,
+            DownloadLink downloadLink = new DownloadLink(profile, geneList, sampleIds,
                     remoteCall.getRawContent());
             downloadLinkSet.add(downloadLink);
             warningUnion.addAll(remoteCall.getWarnings());
@@ -443,7 +437,7 @@ public class QueryBuilder extends HttpServlet {
                     xdebug.logMsg(this, "Therefore, getting extended mutation data");
                     GetMutationData remoteCallMutation = new GetMutationData();
                     List<ExtendedMutation> tempMutationList =
-                            remoteCallMutation.getMutationData(profile, geneList, new HashSet(stableSampleIds), xdebug);
+                            remoteCallMutation.getMutationData(profile, geneList, setOfSampleIds, xdebug);
                     if (tempMutationList != null && tempMutationList.size() > 0) {
                         xdebug.logMsg(this, "Total number of mutation records retrieved:  "
                             + tempMutationList.size());
@@ -567,7 +561,7 @@ public class QueryBuilder extends HttpServlet {
                 		List<String> invalidPatients = PatientSetUtil.validatePatientSet(
                 				cancerStudyIdentifier, patientIds);
                 		
-                		String patientSetErrMsg = "Invalid patient(s) for the selected cancer study:";
+                		String patientSetErrMsg = "Invalid samples(s) for the selected cancer study:";
                 		
                 		// non-empty list, but contains invalid patient IDs
                 		if (invalidPatients.size() > 0)

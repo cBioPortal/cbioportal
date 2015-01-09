@@ -68,6 +68,7 @@ class GDataImpl implements Config {
 	ArrayList<ArrayList<String>> portalsMatrix;
 	ArrayList<ArrayList<String>> referenceMatrix;
 	ArrayList<ArrayList<String>> tumorTypesMatrix;
+	ArrayList<ArrayList<String>> tcgaTumorTypesMatrix;
 	ArrayList<ArrayList<String>> foundationMatrix;
 
 	// worksheet names we need for updates
@@ -83,6 +84,7 @@ class GDataImpl implements Config {
 	private String dataSourcesWorksheet;
 	private String cancerStudiesWorksheet;
 	private String foundationWorksheet;
+	private String tcgaTumorTypesWorksheet;
 
 	/**
 	 * Constructor.
@@ -91,31 +93,14 @@ class GDataImpl implements Config {
 	 *  metadata objects can be retrieved during construction of this class.  Which will
 	 * prevent us from having to access google more than once.  Of course any changes to
 	 * the google docs will not be reflected in this class until its next instantiation.
-     *
-	 * @param gdataUser String
-	 * @param gdataPassword String
-     * @param spreadsheetService SpreadsheetService
-	 * @param gdataSpreadsheet String
-	 * @param tumorTypesWorksheet String
-	 * @param datatypesWorksheet String
-	 * @param caseIDFiltersWorksheet String
-	 * @param caseListWorksheet String
-	 * @param clinicalAttributesNamespaceWorksheet String
-	 * @param clinicalAttributesWorksheet String
-	 * @param portalsWorksheet String
-	 * @param referenceDataWorksheet String
-	 * @param dataSourceseWorksheet String
-	 * @param cancerStudiesWorksheet String
-	 * @param foundationWorksheet String
 	 */
 	public GDataImpl(String gdataUser, String gdataPassword, SpreadsheetService spreadsheetService,
 					 String gdataSpreadsheet, String tumorTypesWorksheet, String datatypesWorksheet,
 					 String caseIDFiltersWorksheet, String caseListWorksheet,
                      String clinicalAttributesNamespaceWorksheet, String clinicalAttributesWorksheet,
 					 String portalsWorksheet, String referenceDataWorksheet, String dataSourcesWorksheet, String cancerStudiesWorksheet,
-					 String foundationWorksheet, NCIcaDSRFetcher nciDSRFetcher)
+					 String foundationWorksheet, String tcgaTumorTypesWorksheet, NCIcaDSRFetcher nciDSRFetcher)
 	{
-
 		// set members
 		this.gdataUser = gdataUser;
 		this.gdataPassword = gdataPassword;
@@ -135,6 +120,7 @@ class GDataImpl implements Config {
 		this.dataSourcesWorksheet = dataSourcesWorksheet;
 		this.cancerStudiesWorksheet = cancerStudiesWorksheet;
 		this.foundationWorksheet = foundationWorksheet;
+		this.tcgaTumorTypesWorksheet = tcgaTumorTypesWorksheet;
 	}
 
 	/**
@@ -146,14 +132,22 @@ class GDataImpl implements Config {
 	public String[] getTumorTypesToDownload() {
 
 		String toReturn = "";
-		for (TumorTypeMetadata tumorTypeMetadata : getTumorTypeMetadata(Config.ALL)) {
-			if (tumorTypeMetadata.getDownload()) {
-				toReturn += tumorTypeMetadata.getType() + ":";
-			}
+		for (TCGATumorTypeMetadata tcgaTumorTypeMetadata : getTCGATumorTypeMetadata()) {
+			toReturn += tcgaTumorTypeMetadata.getTCGACode() + ":";
 		}
 
 		// outta here
 		return toReturn.split(":");
+	}
+
+	private Collection<TCGATumorTypeMetadata> getTCGATumorTypeMetadata()
+	{
+		if (tcgaTumorTypesMatrix == null) {
+			tcgaTumorTypesMatrix = getWorksheetData(gdataSpreadsheet, tcgaTumorTypesWorksheet);
+		}
+
+		return (Collection<TCGATumorTypeMetadata>)getMetadataCollection(tcgaTumorTypesMatrix,
+																 		"org.mskcc.cbio.importer.model.TCGATumorTypeMetadata");
 	}
 
 	/**

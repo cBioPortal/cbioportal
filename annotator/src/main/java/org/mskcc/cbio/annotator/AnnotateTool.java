@@ -45,24 +45,26 @@ public class AnnotateTool
 			if (config.getAnnotator().equalsIgnoreCase("oncotator"))
 			{
 				result = OncotateTool.driver(config);
+
+				if (result != 0)
+				{
+					System.out.println("Process completed with " + result + " error(s).");
+				}
 			}
 			else
 			{
 				result = driver(config);
+
+				if (result != 0)
+				{
+					System.out.println("[ERROR] Process completed with exit code " + result);
+				}
 			}
 		}
 		catch (RuntimeException e)
 		{
 			System.out.println("Fatal error: " + e.getMessage());
 			e.printStackTrace();
-		}
-		finally
-		{
-			// check errors at the end
-			if (result != 0)
-			{
-				System.out.println("Process completed with " + result + " error(s).");
-			}
 		}
 	}
 
@@ -75,7 +77,7 @@ public class AnnotateTool
 
 		try {
 			System.out.println("[" + start + "] Started annotating: " + config.getInput());
-			annotator.annotateFile(new File(config.getInput()),
+			result = annotator.annotateFile(new File(config.getInput()),
 			                       new File(config.getOutput()));
 			int diff = compareFiles(config.getInput(), config.getOutput());
 

@@ -29,7 +29,7 @@ public class Annotator
 		this.config = config;
 	}
 
-	public void annotateFile(File input,
+	public int annotateFile(File input,
 			File output) throws IOException
 	{
 		int retVal = -1;
@@ -55,6 +55,8 @@ public class Annotator
 				this.generateOutput(input, output);
 			}
 		}
+
+		return retVal;
 	}
 
 	/**

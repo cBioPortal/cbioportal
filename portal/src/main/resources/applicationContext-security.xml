@@ -39,9 +39,13 @@
 
     <!-- static resources not processed by spring security filters -->
     <http pattern="/css/**" security="none"/>
+    <http pattern="/saml/css/**" security="none"/>
     <http pattern="/images/**" security="none"/>
+    <http pattern="/saml/images/**" security="none"/>
     <http pattern="/js/**" security="none"/>
+    <http pattern="/saml/js/**" security="none"/>
     <http pattern="/gfx/**" security="none"/>
+    <http pattern="/saml/gfx/**" security="none"/>
 
     <!-- end beans shared across any authentication provider -->
     </b:beans>
@@ -194,7 +198,7 @@
     <!-- Handler deciding where to redirect user after successful login -->
     <b:bean id="successRedirectHandler" class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler">
         <b:property name="defaultTargetUrl" value="/index.do"/>
-        <b:property name="alwaysUseDefaultTargetUrl" value="true"/>
+        <b:property name="alwaysUseDefaultTargetUrl" value="false"/>
     </b:bean>
 
     <!-- Handler deciding where to redirect user after failed login -->

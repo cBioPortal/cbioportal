@@ -51,7 +51,8 @@ public class MSKCCPortalUserDetailsService implements SAMLUserDetailsService
         Collection<String> toReturn = new ArrayList<String>();
         toReturn.add(appName + ":PUBLIC");
         toReturn.add(appName + ":EXTENDED");
-        toReturn.add(appName + ":DMP");
+        toReturn.add(appName + ":MIXED_DMP_MSK-IMPACT_2014");
+        toReturn.add(appName + ":MSK_IMPACT");
         return toReturn;
     }
 

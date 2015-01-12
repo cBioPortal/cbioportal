@@ -99,7 +99,7 @@
                     </form>
                     <% } else if (authenticationMethod.equals("saml")) { %>
                         <p>
-                            <button type="button" class="btn btn-danger btn-lg" onclick="window.location = 'saml/login?idp=<%= idpEntityId %>'" >
+                            <button type="button" class="btn btn-danger btn-lg" onclick="window.location = 'login?idp=<%= idpEntityId %>'" >
                             Sign in with MSK</button>
                         </p>
                     </fieldset>

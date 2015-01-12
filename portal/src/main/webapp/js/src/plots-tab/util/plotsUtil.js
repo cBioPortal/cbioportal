@@ -200,4 +200,12 @@ function searchIndexTop(arr, ele) {
     return arr.length - 1;
 };
 
+function bubble_up(_arr, _index) {
+    for (var i = _index; i > 0; i--) {
+        var _tmp_obj = _arr[i - 1];
+        _arr[i - 1] = _arr[i];
+        _arr[i] = _tmp_obj;
+    }
+}
+
 

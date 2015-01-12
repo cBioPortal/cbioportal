@@ -61,6 +61,20 @@ var vals = {
     }
 };
 
+var genetic_profile_type_priority_list = [ //from low to high
+    "MUTATION_EXTENDED",
+    "METHYLATION",
+    "PROTEIN_ARRAY_PROTEIN_LEVEL",
+    "COPY_NUMBER_ALTERATION",
+    "MRNA_EXPRESSION"    
+];
+
+var genetic_profile_name_priority_list = [ //from low to high
+    "hm450", //dna methylation 
+    "gistic", //copy no
+    "Zscores", "rna_seq", "rna_seq_v2" //mrna
+];
+
 
 
 

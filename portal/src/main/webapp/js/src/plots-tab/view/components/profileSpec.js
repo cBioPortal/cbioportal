@@ -99,7 +99,6 @@ var profileSpec = (function() {
         }
         
     }
-     
     
     return {
         init: function(axis) {
@@ -114,6 +113,7 @@ var profileSpec = (function() {
             $("#" + ids.sidebar[axis].profile_name).empty();
             updateProfileTypeList(axis);
             updateProfileNameList(axis);
-        }
+        },
+        updateProfileNameList: updateProfileNameList
     };
 }());

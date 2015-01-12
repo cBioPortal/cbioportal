@@ -35,22 +35,17 @@
     }
     #plots-sidebar-x-div {
         width: inherit;
-        height: 200px;
+        height: 202px;
     }
     #plots-sidebar-y-div {
         width: inherit;
-        height: 200px;
+        height: 202px;
     }
     #plots-sidebar-util-div {
         width: inherit;
-        height: 140px;
+        height: 170px;
     }
-    
-    #plots-sidebar h3 {
-        margin: 12px;
-        margin-bottom: 20px;
-        font-size: 14px;
-    }
+
     #plots-sidebar h4 {
         margin: 15px;
         font-size: 12px;
@@ -82,9 +77,8 @@
         <tr>
             <td>
                  <div id="plots-sidebar">
-                    <h3>Plots Parameters</h3>
                     <div id="plots-sidebar-x-div" class="plots">
-                        <h4>X Axis</h4>
+                        <h4>Horizontal Axis</h4>
                         <br><h5>Data Type</h5> 
                         <select id="plots-x-data-type">
                             <option value="genetic_profile">Genetic Profile</option>
@@ -93,7 +87,7 @@
                         <div id="plots-x-spec"></div>
                     </div>
                     <div id="plots-sidebar-y-div" class="plots">
-                        <h4>Y Axis</h4>
+                        <h4>Vertical Axis</h4>
                         <br><h5>Data Type</h5>
                         <select id="plots-y-data-type">
                             <option value="genetic_profile">Genetic Profile</option>

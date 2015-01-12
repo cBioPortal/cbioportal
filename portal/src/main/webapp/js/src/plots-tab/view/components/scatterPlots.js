@@ -115,6 +115,14 @@ var scatterPlots = (function() {
         elem.dotsGroup.selectAll("path").remove();
 
         var stat = plotsData.stat();
+        
+        //sort data array (to plot the mutated dots last)
+        $.each(data, function(index, obj) {
+            if (Object.keys(obj.mutation).length === 0) {
+                bubble_up(data, index);
+            }
+        });
+        
         if (genetic_vs_genetic()) {
             if ($("input[name=" + ids.sidebar.util.view_switch + "]:checked").val() === "gistic" && isSameGene() && stat.hasCnaAnno) { 
                 //gistic view (only apply to one gene and having cna profile data case)

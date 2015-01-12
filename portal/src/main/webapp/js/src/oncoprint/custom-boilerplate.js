@@ -690,14 +690,6 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
               {
                 mutationColorControl = 'multiColor';
                 params.mutationColor = mutationColorControl;
-//                if($('#oncoprinter_sortbyfirst_dropdonw span')[0].innerHTML === 'Clinical first')
-//                {
-//                    main(params,'clinical');
-//                }
-//                else
-//                {
-//                    main(params,'genes');
-//                }
                 selectsortby();
 //                refreshOncoPrint();
 //                main(params);

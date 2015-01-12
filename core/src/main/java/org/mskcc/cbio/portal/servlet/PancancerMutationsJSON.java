@@ -116,6 +116,12 @@ public class PancancerMutationsJSON extends HttpServlet {
 		return DaoMutation.countSamplesWithProteinChanges(proteinChanges, internalGeneticProfileIds());
 	}
 
+	public Collection<Map<String, Object>> byProteinPosStarts(List<String> proteinPosStarts)
+			throws DaoException, ProtocolException
+	{
+		return DaoMutation.countSamplesWithProteinPosStarts(proteinPosStarts, internalGeneticProfileIds());
+	}
+
 	public Collection<Integer> internalGeneticProfileIds() throws DaoException, ProtocolException
 	{
 		List<CancerStudy> allCancerStudies = getaccessControl().getCancerStudies();
@@ -186,6 +192,15 @@ public class PancancerMutationsJSON extends HttpServlet {
         else if (cmd.equals("byMutations")) {
 	        try {
 		        data = byProteinChanges(queryTerms);
+	        } catch (DaoException e) {
+		        throw new ServletException(e);
+	        } catch (ProtocolException e) {
+		        throw new ServletException(e);
+	        }
+        }
+        else if (cmd.equals("byProteinPos")) {
+	        try {
+		        data = byProteinPosStarts(queryTerms);
 	        } catch (DaoException e) {
 		        throw new ServletException(e);
 	        } catch (ProtocolException e) {

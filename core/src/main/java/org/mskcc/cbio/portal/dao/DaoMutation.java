@@ -1111,7 +1111,64 @@ public final class DaoMutation {
 		}
 	}
 
-    public static Set<Long> getGenesOfMutations(
+	public static Collection<Map<String, Object>> countSamplesWithProteinPosStarts(
+			Collection<String> proteinPosStarts, Collection<Integer> internalProfileIds) throws DaoException
+	{
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try {
+			con = JdbcUtil.getDbConnection(DaoMutation.class);
+
+			String sql = "SELECT PROTEIN_CHANGE, GENETIC_PROFILE_ID, mutation.ENTREZ_GENE_ID, count(DISTINCT CASE_ID) FROM mutation, mutation_event " +
+			             "WHERE GENETIC_PROFILE_ID IN (" + StringUtils.join(internalProfileIds, ",") + ") " +
+			             "AND mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID " +
+			             "AND ONCOTATOR_PROTEIN_POS_START IN ('" + StringUtils.join(proteinPosStarts, "','") + "') " +
+			             "GROUP BY PROTEIN_CHANGE, GENETIC_PROFILE_ID";
+
+			pstmt = con.prepareStatement(sql);
+			rs = pstmt.executeQuery();
+
+			Collection<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
+			while (rs.next()) {
+
+				Map<String, Object> d = new HashMap<String, Object>();
+
+				String proteinPosStart = rs.getString(1);
+				Integer geneticProfileId = rs.getInt(2);
+				Long entrez = rs.getLong(3);
+				Integer count = rs.getInt(4);
+
+				// can you do the boogie woogie to get a cancerStudy's name?
+				// this is computing a join and in not optimal
+				GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
+				Integer cancerStudyId = geneticProfile.getCancerStudyId();
+				CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
+				String name = cancerStudy.getName();
+				String cancerType = cancerStudy.getTypeOfCancerId();
+
+				CanonicalGene gene = DaoGeneOptimized.getInstance().getGene(entrez);
+				String hugo = gene.getHugoGeneSymbolAllCaps();
+
+				d.put("protein_pos_start", proteinPosStart);
+				d.put("hugo", hugo);
+				d.put("cancer_study", name);
+				d.put("cancer_type", cancerType);
+				d.put("count", count);
+
+				data.add(d);
+			}
+
+			return data;
+
+		} catch (SQLException e) {
+			throw new DaoException(e);
+		} finally {
+			JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
+		}
+	}
+
+	public static Set<Long> getGenesOfMutations(
             Collection<Long> eventIds, int profileId) throws DaoException {
         return getGenesOfMutations(StringUtils.join(eventIds, ","), profileId);
     }

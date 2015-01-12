@@ -190,7 +190,7 @@ public class PortalMetaDataJSON extends HttpServlet {
                         return typeOfCancer.getName().compareTo(typeOfCancer1.getName());
                     }
                 });
-                Map<String, String> typeOfCancerMap = new HashMap<String, String>();
+                Map<String, TypeOfCancer> typeOfCancerMap = new HashMap<>();
                 Map<String, String> visibleTypeOfCancerMap = new HashMap<String, String>();
                 Map<String, String> cancerColors = new HashMap<String, String>();
                 Map<String, String> visibleCancerColors = new HashMap<String, String>();
@@ -198,7 +198,7 @@ public class PortalMetaDataJSON extends HttpServlet {
                 Map<String, String> visibleShortNames = new HashMap<String, String>();
                 Map<String, String> parentTypeOfCancer = new HashMap<String, String>();
                 for (TypeOfCancer typeOfCancer : allTypesOfCancer) {
-                    typeOfCancerMap.put(typeOfCancer.getTypeOfCancerId(), typeOfCancer.getName());
+                    typeOfCancerMap.put(typeOfCancer.getTypeOfCancerId(), typeOfCancer);
                     cancerColors.put(typeOfCancer.getTypeOfCancerId(), typeOfCancer.getDedicatedColor());
                     shortNames.put(typeOfCancer.getTypeOfCancerId(), typeOfCancer.getShortName());
                     parentTypeOfCancer.put(typeOfCancer.getTypeOfCancerId(), typeOfCancer.getParentTypeOfCancerId());
@@ -217,7 +217,13 @@ public class PortalMetaDataJSON extends HttpServlet {
                     Map jsonCancerStudySubMap = cancerStudyMap(cancerStudy, !full_studies_data);
                     cancerStudyMap.put(cancerStudy.getCancerStudyStableId(), jsonCancerStudySubMap);
                     String typeOfCancerId = cancerStudy.getTypeOfCancerId().toLowerCase();
-                    visibleTypeOfCancerMap.put(typeOfCancerId, typeOfCancerMap.get(typeOfCancerId));
+                    visibleTypeOfCancerMap.put(typeOfCancerId, typeOfCancerMap.get(typeOfCancerId).getName());
+		    // climb the oncotree
+		    String currId = typeOfCancerMap.get(typeOfCancerId).getParentTypeOfCancerId();
+		    while (!currId.equals("tissue")) {
+			    visibleTypeOfCancerMap.put(currId, typeOfCancerMap.get(currId).getName());
+			    currId = typeOfCancerMap.get(currId).getParentTypeOfCancerId();
+		    }
                     visibleCancerColors.put(typeOfCancerId, cancerColors.get(typeOfCancerId));
                     visibleShortNames.put(typeOfCancerId, shortNames.get(typeOfCancerId));
                 }

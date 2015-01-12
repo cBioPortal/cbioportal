@@ -60,6 +60,7 @@ var metaData = (function() {
             clinicalAttrs.push(_datum);
         });
         
+        //sort genetic profiles
         for(var gene in geneticProfiles) {
             var _gene_obj = geneticProfiles[gene];
             $.each(_gene_obj, function(index, _profile_obj) {
@@ -99,6 +100,12 @@ var metaData = (function() {
                     }
                 });
 
+            });
+            //sort clinical attribute alphabetically 
+            clinicalAttrs.sort(function(a, b){
+                if(a.name < b.name) return -1;
+                if(a.name > b.name) return 1;
+                return 0;
             });
         }
         retrieve_status = 1;

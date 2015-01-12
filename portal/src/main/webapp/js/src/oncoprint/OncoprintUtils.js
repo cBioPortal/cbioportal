@@ -1143,14 +1143,14 @@ define("OncoprintUtils", (function() {
                         return true;
                     }
                     return false;
-                case 2:
+                case 3:
                     var findResult = _.find(source,function(element){return (/^([A-Z]+)([0-9]+)del$/g).test(element)});
                     if(findResult !== undefined)
                     {
                         return true;
                     }
                     return false;// need to modified by dong li
-                case 3:
+                case 2:
 //                    var findResult = _.find(source,function(element){return (/^([A-Z]+)([0-9]+)del$/g).test(element)});
                     for(var i = 0; i<source.length; i++)
                     {

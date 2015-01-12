@@ -151,11 +151,10 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             }
 
             $('.attribute_name').qtip({
-                content: {text: 'Click to drag '},
-                position: {my:'bottom middle', at:'top middle', viewport: $(window)},
+                content: {text: 'click to drag '},
+                position: {my:'middle right', at:'middle left', viewport: $(window)},
                 style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
-                show: {event: "mouseover"},
-                hide: {fixed: true, delay: 100, event: "mouseout"}
+                show: {event: "mouseover"}
             });  
             
             zoom = reset_zoom();
@@ -208,8 +207,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
         //tooltip for the track deletion function
         $('.special_delete').qtip({
-                    content: {text: 'click here to delete this track!'},
-                    position: {my:'bottom middle', at:'top right', viewport: $(window)},
+                    content: {text: 'click to remove'},
+                    position: {my:'bottom middle', at:'top middle', viewport: $(window)},
                     style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                     show: {event: "mouseover"},
                     hide: {fixed: true, delay: 100, event: "mouseout"}
@@ -226,15 +225,25 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                     });
                     
         $('.attribute_name').qtip({
-                content: {text: 'Click to drag '},
-                position: {my:'bottom middle', at:'top middle', viewport: $(window)},
+                content: {text: 'click to drag '},
+                position: {my:'middle right', at:'middle left', viewport: $(window)},
                 style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
-                show: {event: "mouseover"},
-                hide: {fixed: true, delay: 100, event: "mouseout"}
+                show: {event: "mouseover"}
             });
             
         $(".oncoprint_Sort_Button").qtip({
-                content: {text: 'Click to sort '},
+                content: {text:
+                        function(){
+                        if($(this)[0].attributes.href.value === 'images/increaseSort.svg')
+                        {
+                            return 'Click to disable sorting';
+                        }
+                        else
+                        {
+                            return 'Click to enable sorting';
+                        }
+                    }
+                },
                 position: {my:'bottom middle', at:'top middle', viewport: $(window)},
                 style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                 show: {event: "mouseover"},
@@ -386,15 +395,15 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         { 
                             if(extraAttributes.length>=1)
                             {
-                                return 'Add another clinical attribute track';
+                                return 'click to add another clinical attribute track';
                             }
                             else
                             {
-                                return 'Add clinical attribute track';
+                                return 'click to add clinical attribute track';
                             }
                         }
                     },
-            position: {my:'bottom middle', at:'top right', viewport: $(window)},
+            position: {my:'bottom middle', at:'top middle', viewport: $(window)},
             style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
             show: {event: "mouseover"},
             hide: {fixed: true, delay: 100, event: "mouseout"}
@@ -546,8 +555,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
                         // sync
                         $('#oncoprint_diagram_showmorefeatures_icon').qtip({
-                        content: {text:'Add another clinical attribute track'},
-                        position: {my:'bottom middle', at:'top right', viewport: $(window)},
+                        content: {text:'click to add another clinical attribute track'},
+                        position: {my:'bottom middle', at:'top middle', viewport: $(window)},
                         style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
                         show: {event: "mouseover"},
                         hide: {fixed: true, delay: 100, event: "mouseout"}
@@ -630,8 +639,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
                         // sync
                         $('#oncoprint_diagram_showmorefeatures_icon').qtip({
-                        content: {text:'Add another clinical attribute track'},
-                        position: {my:'bottom middle', at:'top right', viewport: $(window)},
+                        content: {text:'click to add another clinical attribute track'},
+                        position: {my:'bottom middle', at:'top middle', viewport: $(window)},
                         style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
                         show: {event: "mouseover"},
                         hide: {fixed: true, delay: 100, event: "mouseout"}
@@ -715,8 +724,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
                         // sync
                         $('#oncoprint_diagram_showmorefeatures_icon').qtip({
-                        content: {text:'Add another clinical attribute track'},
-                        position: {my:'bottom middle', at:'top right', viewport: $(window)},
+                        content: {text:'click to add another clinical attribute track'},
+                        position: {my:'bottom middle', at:'top middle', viewport: $(window)},
                         style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
                         show: {event: "mouseover"},
                         hide: {fixed: true, delay: 100, event: "mouseout"}
@@ -1065,8 +1074,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         });
         
         $('#oncoprint_diagram_showmorefeatures_icon').qtip({
-            content: {text:'Add clinical attribute track'},
-            position: {my:'bottom middle', at:'top right', viewport: $(window)},
+            content: {text:'click to add clinical attribute track'},
+            position: {my:'bottom middle', at:'top middle', viewport: $(window)},
             style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
             show: {event: "mouseover"},
             hide: {fixed: true, delay: 100, event: "mouseout"}
@@ -1128,14 +1137,14 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             content: {text: 
                         function(){
                         if($('#oncoprint-diagram-removeUCases-icon img')[0].attributes.src.value === 'images/removeUCases.svg')
-                        {return 'remove unaltered cases';}
+                        {return 'click to remove unaltered cases';}
                         else
                         {
-                            return 'show unaltered cases';
+                            return 'click to show unaltered cases';
                         }
                     }
                 },
-            position: {my:'bottom middle', at:'top right', viewport: $(window)},
+            position: {my:'bottom middle', at:'top middle', viewport: $(window)},
             style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
             show: {event: "mouseover"},
             hide: {fixed: true, delay: 100, event: "mouseout"}
@@ -1168,14 +1177,14 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             content: {text: 
                         function(){
                         if($('#oncoprint-diagram-removeWhitespace-icon img')[0].attributes.src.value === 'images/removeWhitespace.svg')
-                        {return 'remove whitespace between cases';}
+                        {return 'click to remove whitespace between cases';}
                         else
                         {
-                            return 'show whitespace between cases';
+                            return 'click to show whitespace between cases';
                         }
                     }
             },
-            position: {my:'bottom middle', at:'top right', viewport: $(window)},
+            position: {my:'bottom middle', at:'top middle', viewport: $(window)},
             style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
             show: {event: "mouseover"},
             hide: {fixed: true, delay: 100, event: "mouseout"}
@@ -1210,15 +1219,15 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             content: {text:function(){
                         if($('#oncoprint-diagram-showlegend-icon img')[0].attributes.src.value === 'images/showlegend.svg')
                         {
-                            return 'Show legends for clinical attribute tracks';
+                            return 'click to show legends for clinical attribute tracks';
                         }
                         else
                         {
-                            return 'Hide legends for clinical attribute tracks';
+                            return 'click to hide legends for clinical attribute tracks';
                         }
                     }
             },
-            position: {my:'bottom middle', at:'top right', viewport: $(window)},
+            position: {my:'bottom middle', at:'top middle', viewport: $(window)},
             style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
             show: {event: "mouseover"},
             hide: {fixed: true, delay: 100, event: "mouseout"}
@@ -1294,15 +1303,15 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         function(){
                         if($('#oncoprint_diagram_showmutationcolor_icon img')[0].attributes.src.value === 'images/colormutations.svg')
                         {
-                            return 'color-code different mutation types';
+                            return 'click to color-code different mutation types';
                         }
                         else
                         {
-                            return 'show all mutations in the same color';
+                            return 'click to show all mutations in the same color';
                         }
                     }
             },
-            position: {my:'bottom middle', at:'top right', viewport: $(window)},
+            position: {my:'bottom middle', at:'top middle', viewport: $(window)},
             style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
             show: {event: "mouseover"},
             hide: {fixed: true, delay: 100, event: "mouseout"}

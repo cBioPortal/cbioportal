@@ -44,8 +44,8 @@ var plotsTab = (function() {
                     if (stat.hasCnaAnno) {
                         $("#" + ids.sidebar.util.view_switch).append(
                             "<h5>View</h5>" + 
-                            "<input type='radio' value='mutation_details' name='mutation_details_vs_gistic_view' checked>Mutation Details" + 
-                            "<input type='radio' value='gistic' name='mutation_details_vs_gistic_view' >GISTIC"
+                            "<input type='radio' value='mutation_details' name='mutation_details_vs_gistic_view' checked>Mutation Type" + 
+                            "<input type='radio' value='gistic' name='mutation_details_vs_gistic_view' >Copy-number"
                         );                    
                     }
                 }                

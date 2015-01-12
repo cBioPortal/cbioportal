@@ -167,7 +167,6 @@ public class FoundationMetadata {
                     });
 
         }
-    ;
 
     };
     
@@ -175,21 +174,6 @@ public class FoundationMetadata {
         return this.relatedFileFilter;
     }
 
-    /*
-    // static method to return a CancerStudyMetadata instance based on a unique stable id
-    public static Optional<CancerStudyMetadata> findCancerStudyMetaDataByStableId(final String stableId){
-        final String cancerStudyWorksheet = "cancer_studies";
-        final String stableIdColumnName = "stableid";
-        if(Strings.isNullOrEmpty(stableId)) {return Optional.absent();}
-        Optional<Map<String,String >> rowOptional = ImporterSpreadsheetService.INSTANCE.getWorksheetRowByColumnValue(cancerStudyWorksheet, stableIdColumnName,
-                stableId);
-        if (rowOptional.isPresent()) {
-            return Optional.of(new CancerStudyMetadata(rowOptional.get()));
-        }
-        return Optional.absent();
-    }
-
-     */
     /*
     static method to return a FoundationMetadata instance based on a dependency value
      */
@@ -206,7 +190,6 @@ public class FoundationMetadata {
             }
         }
         return Optional.absent();
-
     }
 
     /*
@@ -264,23 +247,20 @@ public class FoundationMetadata {
                 }
 
             }
+
         /*
         test using the google worksheet constructor
          */
-
         Optional<FoundationMetadata> opt = FoundationMetadata.findFoundationMetadataByDependency("13-084");
         if (opt.isPresent()){
-            System.out.println("Found related study " +opt.get().getCancerStudy());
+            System.out.println("Found related study " +opt.get().getCancerStudy() + " comments: " +opt.get().getComments());
         }
 
         Optional<FoundationMetadata> opt2 = FoundationMetadata.findFoundationMetadataByDependency("HEME-COMPLETE");
         if (opt2.isPresent()){
-            System.out.println("Found related study " +opt2.get().getCancerStudy());
+            System.out.println("Found related study " +opt2.get().getCancerStudy()+ " comments: " +opt2.get().getComments());
         }
-
             System.out.println("Finis");
-
-
     }
 
 

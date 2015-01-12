@@ -159,6 +159,16 @@
 		<artifactId>core</artifactId>
 		<version>1.47.1</version>
 	</dependency>
+	  <dependency>
+		  <groupId>com.netflix.rxjava</groupId>
+		  <artifactId>rxjava-core</artifactId>
+		  <version>0.20.7</version>
+	  </dependency>
+	  <dependency>
+		  <groupId>com.netflix.rxjava</groupId>
+		  <artifactId>rxjava-string</artifactId>
+		  <version>0.20.7</version>
+	  </dependency>
 
 	<!-- hibernate -->
 	<dependency>

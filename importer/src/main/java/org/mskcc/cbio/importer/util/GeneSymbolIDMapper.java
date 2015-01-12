@@ -2,8 +2,6 @@ package org.mskcc.cbio.importer.util;
 
 import com.google.common.base.*;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Table;
-import com.google.common.collect.TreeBasedTable;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -12,6 +10,9 @@ import org.apache.commons.validator.routines.FloatValidator;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.IDMapper;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
+import rx.Observable;
+import rx.Subscriber;
+import rx.functions.Func1;
 import scala.Tuple2;
 import com.github.davidmoten.rtree.Entry;
 import com.github.davidmoten.rtree.RTree;
@@ -125,29 +126,66 @@ public class GeneSymbolIDMapper implements IDMapper {
     public class GenomicNameSupplier implements Supplier<RTree<String,Rectangle>> {
         private InputStreamReader reader;
         private final String ENSEMBL_GENE_FILE = "/ensembl_gene_list.tsv";
+        private RTree<String, Rectangle> genePositionTree ;
 
         public GenomicNameSupplier() {
             reader = new InputStreamReader((this.getClass().getResourceAsStream(ENSEMBL_GENE_FILE)));
+            this.genePositionTree = RTree.create();
         }
 
         @Override
         public RTree<String, Rectangle> get() {
-            RTree<String, Rectangle> genePositionTree = RTree.create();
             try {
                 final CSVParser parser = new CSVParser(this.reader, CSVFormat.TDF.withHeader());
-                for (CSVRecord record : parser) {
-                    Optional<Rectangle> geneRectangleOpt = this.resolveGenePosition(record.get("Chromosome"),
-                            record.get("Gene Start"), record.get("Gene End"), record.get("Strand"));
-                    if (geneRectangleOpt.isPresent()) {
-                        genePositionTree = genePositionTree.add(record.get("Gene Name"), geneRectangleOpt.get());
+                Observable<Tuple2<String, Optional<Rectangle>>> source = Observable.from(parser)
+                        // filter out coordinates not associated wiyh nuclear chromosomes
+                        .filter(new Func1<CSVRecord, Boolean>() {
+                            @Override
+                            public Boolean call(CSVRecord record) {
+                                return (StagingCommonNames.validChromosomeSet.contains(record.get("Chromosome")));
+                            }
+                        })
+                        // transform chromosome coordinates to RTree Rectangles
+                        .map(new Func1<CSVRecord, Tuple2<String, Optional<Rectangle>>>() {
+                            @Override
+                            public Tuple2<String, Optional<Rectangle>> call(CSVRecord record) {
+                                Optional<Rectangle> optRect = resolveGenePosition(record.get("Chromosome"),
+                                        record.get("Gene Start"), record.get("Gene End"), record.get("Strand"));
+                                return new Tuple2<String, Optional<Rectangle>>(record.get("Gene Name"), optRect);
+                            }
+                           // filter out Rectangles not associated with known genes
+                        }).filter(new Func1<Tuple2<String, Optional<Rectangle>>, Boolean>() {
+                            @Override
+                            public Boolean call(Tuple2<String, Optional<Rectangle>> tuple) {
+                                return tuple._2().isPresent();
+                            }
+                        });
+
+                source.subscribe(new Subscriber<Tuple2<String, Optional<Rectangle>>>() {
+                    @Override
+                    public void onCompleted() {
+                        logger.info("Completed RTree, size = " +  genePositionTree.size());
                     }
-                }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        logger.error(throwable.getMessage());
+                    }
+
+                    @Override
+                    public void onNext(Tuple2<String, Optional<Rectangle>> nameRectTuple) {
+                        genePositionTree = genePositionTree.add(nameRectTuple._1(), nameRectTuple._2().get());
+                    }
+                });
+
             } catch (IOException e) {
                 logger.error(e.getMessage());
                 e.printStackTrace();
             }
-            return genePositionTree;
+
+            return this.genePositionTree;
         }
+
 
         /*
         private method to create a rectangle with zero height representing the "area" covered by

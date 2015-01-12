@@ -21,7 +21,7 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
         var cases;
         var oncoprint_el = document.getElementById("oncoprint");
         var $oncoprint_el = $(oncoprint_el);
-        var mutationColorControl = 'singleColor';
+        var mutationColorControl = 'multiColor';
         var sortStatus = new Array();
         var ClinicalAttributes = new Array();
         var genesDatas = new Array();
@@ -665,7 +665,7 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
             
             //color different mutation with different color
             $('.oncoprinter_diagram_showmutationcolor_icon').click(function(){
-              if($(this)[0].attributes.src.value === 'images/colormutations.svg')
+              if($(this)[0].attributes.src.value === 'images/uncolormutations.svg')
               {
                 mutationColorControl = 'singleColor';
                 params.mutationColor = mutationColorControl;
@@ -686,7 +686,7 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
                 
                 $('.legend_missense_name').text("mutation") ;
               }
-                else if($(this)[0].attributes.src.value === 'images/uncolormutations.svg')
+                else if($(this)[0].attributes.src.value === 'images/colormutations.svg')
               {
                 mutationColorControl = 'multiColor';
                 params.mutationColor = mutationColorControl;

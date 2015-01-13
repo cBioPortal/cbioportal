@@ -21,7 +21,11 @@
                   //openid.setDemoMode(false); // if true, Stops form submission for client javascript-only test purposes
           });
         </script>
-        <% } %>
+        <%
+        }
+        String idpEntityId = (authenticationMethod.equals("saml")) ?
+            GlobalProperties.getProperty("saml.idp.metadata.entityid") : "";
+        %>
 
     </head>
 
@@ -95,7 +99,7 @@
                     </form>
                     <% } else if (authenticationMethod.equals("saml")) { %>
                         <p>
-                            <button type="button" class="btn btn-danger btn-lg" onclick="window.location = 'saml/login?idp=https://msklogin.mskcc.org/nidp/saml2/metadata'" >
+                            <button type="button" class="btn btn-danger btn-lg" onclick="window.location = 'login?idp=<%= idpEntityId %>'" >
                             Sign in with MSK</button>
                         </p>
                     </fieldset>

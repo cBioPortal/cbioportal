@@ -271,13 +271,24 @@ legend.legend-border {
 
             // create a plot on a hidden element
             var hidden_plot_id = '#allele-freq-plot-big';
-            window.allelefreqplot = AlleleFreqPlotMulti($(hidden_plot_id)[0], processed_data);            
+            // NECESSARY HACK FOR FIREFOX: 
+            // Firefox can't handle the method 'SVGLocatable.getBBox()', which 
+            // is used in rendering the legend for AlleleFreqPlotMulti, when
+            // the element it's called on is currently hidden. Thus, we must
+            // show the element while that's called, then hide it again to be revealed by Qtip.
+            // This sucks but is necessary unless we can replace the call to getBBox, which
+            // I could not figure out a cleaner way than this to do.
+            // - Adam Abeshouse (adama@cbio.mskcc.org)
+            $(hidden_plot_id).show()
+            window.allelefreqplot = AlleleFreqPlotMulti($(hidden_plot_id)[0], processed_data, null, window.caseMetaData.label);            
+            $(hidden_plot_id).hide()
 
             // add qtip on allele frequency plot thumbnail
             $(thumbnail).qtip({
                 content: {text: '<div id="qtip-allele-freq-plot-big"></div>'},
                 events: {
-                    render: function(event, api) {
+                    render: (function(numCaseIds) {
+                        return function(event, api) {
                         // bind toggle_histogram to toggle histogram button
                         // AFTER we've shuffled it around 
                         window.allele_freq_plot_histogram_toggle = true; // initialize toggle state
@@ -307,7 +318,11 @@ legend.legend-border {
                             $("#qtip-allele-freq-plot-big").append(window.allelefreqplot);
                             $(window.allelefreqplot).show();
                         }
-                    }
+                        if (numCaseIds > 1) {
+                            $("#qtip-allele-freq-plot-big").parent().parent().addClass("qtip-wide");
+                        }
+                    };
+                })(caseIds.length)
                 },
 	            show: {event: "mouseover"},
                 hide: {fixed: true, delay: 100, event: "mouseout"},

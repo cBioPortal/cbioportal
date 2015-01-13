@@ -729,8 +729,13 @@ function addMetaDataToPage() {
         }
     }
     // Add studies to tree, and climb up adding one to each level's descendant studies
+    // DMP hack
+    var dmp_studies = [];
     for (var study in json.cancer_studies) {
-        if (json.cancer_studies.hasOwnProperty(study) && study !== 'all') { // don't re-add 'all'
+	if (study.indexOf("_dmp_") !== -1) {
+		// DMP hack
+		dmp_studies.push(study);
+	} else if (json.cancer_studies.hasOwnProperty(study) && study !== 'all') { // don't re-add 'all'
             try {
                 var code = json.cancer_studies[study].type_of_cancer.toLowerCase();
                 oncotree[code].studies.push(study);
@@ -745,6 +750,23 @@ function addMetaDataToPage() {
             }
         }
     }
+    // Sort dmp by number if there is one in the name
+    dmp_studies.sort(function(a,b) {
+	var matchA = a.match(/\d+/);
+	var matchB = b.match(/\d+/);
+	var numberA = (matchA === null ? NaN : parseInt(a.match(/\d+/)[0], 10));
+	var numberB = (matchB === null ? NaN : parseInt(b.match(/\d+/)[0], 10));
+	if (isNaN(numberA) && isNaN(numberB)) {
+		return a.localeCompare(b);
+	} else if (isNaN(numberA)) {
+		return -1;
+	} else if (isNaN(numberB)) {
+		return 1;
+	} else {
+		return numberA-numberB;
+	}
+    });
+    dmp_studies.reverse();
     // Sort all the children alphabetically
     for (var node in oncotree) {
         if (oncotree.hasOwnProperty(node)) {
@@ -764,18 +786,29 @@ function addMetaDataToPage() {
     if ('all' in json.cancer_studies) {
         cancerTypeContainer.prepend($("<option value='all'>"+json.cancer_studies['all'].name+"</option>"));
     }
+    var margin_inc = 12;
+    var tissue_color = '#7f7f7f';
+    var cancer_color = '#5f5f5f';
+    // Next add the dmps
+    $("<option value='mskcc-dmp-study-group' style='font-weight:bold; margin-left:0px; color:"+tissue_color+";'"
+    + "data-depth='0' data-is-group-header='true' data-tree-id='mskcc-dmp' disabled>MSKCC DMP</option>").appendTo(cancerTypeContainer);
+    for (var i=0; i<dmp_studies.length; i++) {	    
+	    var dmp_study = json.cancer_studies[dmp_studies[i]];
+	$("<option style='margin-left:"+margin_inc+"px' data-depth='1' value='"+dmp_studies[i]+"'"+
+		    " data-description='"+dmp_study.description.replace(/["'\\]/g,"")+"' data-parent='mskcc-dmp'>"+
+		dmp_study.name+"</option>").appendTo(cancerTypeContainer);
+    }
     // Add groups recursively
     var addStudyGroups = function(root, depth) {
         if (root.desc_studies_count === 0) {
             // don't insert if no study
             return false;
         }
-        var margin_inc = 12;
+        
         var margin = margin_inc*(+(depth > 0));
         var margin_children = margin + margin_inc;
         
-        var tissue_color = '#7f7f7f';
-        var cancer_color = '#5f5f5f';
+        
         var color = (depth === 0 ? tissue_color : cancer_color);
         
         var label = json.type_of_cancers[root.code] || root.code;
@@ -796,12 +829,9 @@ function addMetaDataToPage() {
         for (var i=0; i<root.studies.length; i++) {
             // jQuery.each(json.cancer_studies,function(key,cancer_study){
             //  Append to Cancer Study Pull-Down Menu
-            var addCancerStudy = true;
+	    //  If the tab index is selected, and this is the all cancer studies option, do not show
+            var addCancerStudy = !(window.tab_index === "tab_download" && root.studies[i] === "all");
 
-            //  If the tab index is selected, and this is the all cancer studies option, do not show
-            if (window.tab_index == "tab_download" && key == "all") {
-                addCancerStudy = false;
-            }
             if (addCancerStudy) {
                 var key = root.studies[i];
                 var cancer_study = json.cancer_studies[key];

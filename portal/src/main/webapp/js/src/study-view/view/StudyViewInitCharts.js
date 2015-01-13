@@ -1082,7 +1082,7 @@ var StudyViewInitCharts = (function(){
                 _index = tmp[tmp.length - 1];
             
             $("#study-view-survival-plot-" + _index).css('display','block');
-        }else if(varType.hasOwnProperty(_selectedChartType)){
+        }else if(varType.hasOwnProperty(_id)){
             if(totalCharts < 31) {
                 if(Object.keys(attrNameMapUID).indexOf(_id) !== -1){
                     _chartID = attrNameMapUID[_id];

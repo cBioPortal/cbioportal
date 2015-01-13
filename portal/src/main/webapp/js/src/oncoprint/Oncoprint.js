@@ -170,7 +170,27 @@ define("Oncoprint",
                     .data(attributes)
                     .enter()
                     .append('svg:image')
-                    .attr('class','oncoprint_Sort_Button')
+//                    .append(function(d){
+//                        if(_.indexOf(params.genes,d)<0) 
+//                        {
+//                            return 'svg:img';
+//                        } 
+//                        else
+//                        {
+//                            return '';
+//                        }
+//                    })
+//                    .attr('class','oncoprint_Sort_Button')
+                    .attr('class',function(d){
+                        if(_.indexOf(params.genes,d)<0) 
+                        {
+                            return 'oncoprint_Sort_Button';
+                        } 
+                        else
+                        {
+                            return 'oncoprint_Blank_Button';
+                        }
+                    })
                     .attr('width', 15)
                     .attr('height', 15)
                     .attr("xlink:href",function(d){
@@ -194,7 +214,7 @@ define("Oncoprint",
                             return "images/increaseSort.svg";
                         }
 
-                            return "";
+                            return "images/blank.svg";
                         })
                     .attr('x', '' + dims.label_width-40)
                     .attr('text-anchor', 'end')

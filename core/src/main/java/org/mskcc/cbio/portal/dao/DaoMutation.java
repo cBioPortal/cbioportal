@@ -1063,7 +1063,7 @@ public final class DaoMutation {
 		try {
 			con = JdbcUtil.getDbConnection(DaoMutation.class);
 
-			String sql = "SELECT PROTEIN_CHANGE, GENETIC_PROFILE_ID, mutation.ENTREZ_GENE_ID, count(DISTINCT CASE_ID) FROM mutation, mutation_event " +
+			String sql = "SELECT PROTEIN_CHANGE, GENETIC_PROFILE_ID, mutation.ENTREZ_GENE_ID, count(DISTINCT SAMPLE_ID) FROM mutation, mutation_event " +
 			             "WHERE GENETIC_PROFILE_ID IN (" + StringUtils.join(internalProfileIds, ",") + ") " +
 			             "AND mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID " +
 			             "AND PROTEIN_CHANGE IN ('" + StringUtils.join(proteinChanges, "','") + "') " +
@@ -1120,11 +1120,11 @@ public final class DaoMutation {
 		try {
 			con = JdbcUtil.getDbConnection(DaoMutation.class);
 
-			String sql = "SELECT PROTEIN_CHANGE, GENETIC_PROFILE_ID, mutation.ENTREZ_GENE_ID, count(DISTINCT CASE_ID) FROM mutation, mutation_event " +
+			String sql = "SELECT ONCOTATOR_PROTEIN_POS_START, GENETIC_PROFILE_ID, mutation.ENTREZ_GENE_ID, count(DISTINCT SAMPLE_ID) FROM mutation, mutation_event " +
 			             "WHERE GENETIC_PROFILE_ID IN (" + StringUtils.join(internalProfileIds, ",") + ") " +
 			             "AND mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID " +
 			             "AND ONCOTATOR_PROTEIN_POS_START IN ('" + StringUtils.join(proteinPosStarts, "','") + "') " +
-			             "GROUP BY PROTEIN_CHANGE, GENETIC_PROFILE_ID";
+			             "GROUP BY ONCOTATOR_PROTEIN_POS_START, GENETIC_PROFILE_ID";
 
 			pstmt = con.prepareStatement(sql);
 			rs = pstmt.executeQuery();

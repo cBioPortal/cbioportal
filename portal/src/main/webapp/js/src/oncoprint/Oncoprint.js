@@ -170,17 +170,6 @@ define("Oncoprint",
                     .data(attributes)
                     .enter()
                     .append('svg:image')
-//                    .append(function(d){
-//                        if(_.indexOf(params.genes,d)<0) 
-//                        {
-//                            return 'svg:img';
-//                        } 
-//                        else
-//                        {
-//                            return '';
-//                        }
-//                    })
-//                    .attr('class','oncoprint_Sort_Button')
                     .attr('class',function(d){
                         if(_.indexOf(params.genes,d)<0) 
                         {

@@ -229,30 +229,31 @@ var PieChart = function(){
             hide: {fixed:true, delay: 300, event: "mouseout"},
             position: {my:'top center',at:'bottom center', viewport: $(window)},
             content: {
-                text:   "<form style='display:inline-block;float:left;margin: 0 2px' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-pdf'>"+
-                        "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-pdf-value'>"+
-                        "<input type='hidden' name='filetype' value='pdf'>"+
-                        "<input type='hidden' id='"+DIV.chartDiv+"-pdf-name' name='filename' value='"+StudyViewParams.params.studyId + "_" +selectedAttr+".pdf'>"+
-                        "<input type='submit' style='font-size:10px;' value='PDF'>"+          
-                        "</form>"+
-                        "<form style='display:inline-block;float:left;margin: 0 2px' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-svg'>"+
-                        "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-svg-value'>"+
-                        "<input type='hidden' name='filetype' value='svg'>"+
-                        "<input type='hidden' id='"+DIV.chartDiv+"-svg-name' name='filename' value='"+StudyViewParams.params.studyId + "_" +selectedAttr+".svg'>"+
-                        "<input type='submit' style='font-size:10px;clear:right;float:right;' value='SVG'></form>"
+                text:   "<div style='display:inline-block;float:left;margin: 0 2px'>"+
+                        "<button  id='"+DIV.chartDiv+"-pdf'>PDF</button>"+          
+                        "</div>"+
+                        "<div style='display:inline-block;float:left;margin: 0 2px'>"+
+                        "<button  id='"+DIV.chartDiv+"-svg'>SVG</button>"+
+                        "</div>"
             },
             events: {
                 show: function() {
                     $('#' + DIV.chartDiv + '-download-icon-wrapper').qtip('api').hide();
                 },
                 render: function(event, api) {
-                    $("#"+DIV.chartDiv+"-pdf", api.elements.tooltip).submit(function(){
+                    $("#"+DIV.chartDiv+"-pdf", api.elements.tooltip).click(function(){
                         setSVGElementValue(DIV.chartDiv,
-                            DIV.chartDiv+"-pdf-value");
+                            DIV.chartDiv+"-pdf-value", {
+                                filename: StudyViewParams.params.studyId + "_" +selectedAttr+".pdf",
+                                contentType: "application/pdf",
+                                servletName: "svgtopdf.do"
+                            });
                     });
-                    $("#"+DIV.chartDiv+"-svg", api.elements.tooltip).submit(function(){
+                    $("#"+DIV.chartDiv+"-svg", api.elements.tooltip).click(function(){
                         setSVGElementValue(DIV.chartDiv,
-                            DIV.chartDiv+"-svg-value");
+                            DIV.chartDiv+"-svg-value", {
+                                filename: StudyViewParams.params.studyId + "_" +selectedAttr+".svg",
+                            });
                     });
                 }
             }
@@ -600,7 +601,7 @@ var PieChart = function(){
         return _caseIds;
     }
     
-    function setSVGElementValue(_svgParentDivId,_idNeedToSetValue){
+    function setSVGElementValue(_svgParentDivId,_idNeedToSetValue, downloadOptions){
         var _svgElement;
         
         var _svgWidth = (maxLabelNameLength>selectedAttrDisplay.length?maxLabelNameLength:selectedAttrDisplay.length + maxLabelValue.toString().length) * 10 + 20,
@@ -688,14 +689,16 @@ var PieChart = function(){
         
         _svgElement = $("#" + _svgParentDivId + " svg").html();
         
-        $("#" + _idNeedToSetValue)
-                .val("<svg width='"+_svgWidth+"' height='"+(180+_pieLabelYCoord)+"'>"+
+        var svg = "<svg width='"+_svgWidth+"' height='"+(180+_pieLabelYCoord)+"'>"+
                     "<g><text x='"+(_svgWidth/2)+"' y='20' style='font-weight: bold;"+
                     "text-anchor: middle'>"+
                     selectedAttrDisplay+"</text></g>"+
                     "<g transform='translate("+(_svgWidth / 2 - 65)+", 20)'>"+_svgElement+ "</g>"+
                     "<g transform='translate(10, "+(_svgHeight+20)+")'>"+
-                    _pieLabelString+"</g></svg>");
+                    _pieLabelString+"</g></svg>";
+        
+        cbio.download.initDownload(
+            svg, downloadOptions);
     
         //Remove pie slice text styles
         for ( var i = 0; i < _textLength; i++) {

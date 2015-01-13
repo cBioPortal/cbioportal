@@ -27,6 +27,10 @@
 
 var plotsTab = (function() {
     
+    var append_loading_img = function(div) {
+        $("#" + div).append("<img style='padding-top:200px; padding-left:300px;' src='images/ajax-loader.gif'>");
+    };
+    
     var append_view_switch_opt = function() {
         $("#" + ids.sidebar.util.view_switch).empty();
 
@@ -53,12 +57,28 @@ var plotsTab = (function() {
         }
     };
     
+    var regenerate_plots = function(_axis) {
+        $("#" + ids.main_view.div).empty();
+        append_loading_img(ids.main_view.div);
+        plotsData.fetch(_axis);
+        append_view_switch_opt();
+        plotsbox.init();        
+    };
+    
+    var mutation_copy_no_view_switch = function() {
+        $("#" + ids.main_view.div).empty();
+        append_loading_img(ids.main_view.div);
+        plotsData.fetch("x");
+        plotsData.fetch("y");
+        plotsbox.init();        
+    };
+    
     return {
         init: function() {
             
             //init logic
             $("#" + ids.main_view.div).empty();
-            appendLoadingImg(ids.main_view.div);
+            append_loading_img(ids.main_view.div);
 
             metaData.fetch(); 
             sidebar.init();
@@ -68,33 +88,19 @@ var plotsTab = (function() {
             append_view_switch_opt();
             
             //apply event listening logic
-            $( "#" + ids.sidebar.x.div ).bind({
-                change: function() {
-                    $("#" + ids.main_view.div).empty();
-                    appendLoadingImg(ids.main_view.div);
-                    plotsData.fetch("x");
-                    append_view_switch_opt();
-                    plotsbox.init();
-                }
-            });
-            $( "#" + ids.sidebar.y.div ).bind({
-                change: function() {
-                    $("#" + ids.main_view.div).empty();
-                    appendLoadingImg(ids.main_view.div);
-                    plotsData.fetch("y");
-                    append_view_switch_opt();
-                    plotsbox.init();
-                }
-            });
-            $("#" + ids.sidebar.util.view_switch).bind({
-                change: function() {
-                    $("#" + ids.main_view.div).empty();
-                    appendLoadingImg(ids.main_view.div);
-                    plotsData.fetch("x");
-                    plotsData.fetch("y");
-                    plotsbox.init();
-                }
-            });
+            $( "#" + ids.sidebar.x.data_type ).bind("change", function() { regenerate_plots("x"); });
+            $( "#" + ids.sidebar.x.gene ).bind("change", function() { regenerate_plots("x"); });
+            $( "#" + ids.sidebar.x.profile_type ).bind("change", function() { regenerate_plots("x"); });
+            $( "#" + ids.sidebar.x.profile_name ).bind("change", function() { regenerate_plots("x"); });
+            $( "#" + ids.sidebar.x.log_scale ).bind("change", function() { scatterPlots.log_scale("apply", "x"); });
+            
+            $( "#" + ids.sidebar.y.data_type ).bind("change", function() { regenerate_plots("y"); });
+            $( "#" + ids.sidebar.y.gene ).bind("change", function() { regenerate_plots("y"); });
+            $( "#" + ids.sidebar.y.profile_type ).bind("change", function() { regenerate_plots("y"); });
+            $( "#" + ids.sidebar.y.profile_name ).bind("change", function() { regenerate_plots("y"); });
+            $( "#" + ids.sidebar.y.log_scale ).bind("change", function() { scatterPlots.log_scale("apply", "y"); });
+            
+            $("#" + ids.sidebar.util.view_switch).bind("change", function() { mutation_copy_no_view_switch(); });
             
         }
         

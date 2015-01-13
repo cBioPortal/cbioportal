@@ -172,13 +172,7 @@ var scatterPlots = (function() {
                     .enter()
                     .append("svg:path")
                     .attr("transform", function(d){
-                        $(this).attr("x_pos", elem.x.scale(d.xVal));
-                        $(this).attr("y_pos", elem.y.scale(d.yVal));
-                        $(this).attr("x_val", d.xVal);
-                        $(this).attr("y_val", d.yVal);
-                        $(this).attr("case_id", d.caseId);
-                        $(this).attr("size", 20);
-
+                        
                         var _x, _y;
                         if (_apply_box_plots) { //apply noise
                             if (_box_plots_axis === "x") {
@@ -192,6 +186,13 @@ var scatterPlots = (function() {
                             _x = elem.x.scale(d.xVal);
                             _y = elem.y.scale(d.yVal);
                         }
+                        
+                        $(this).attr("x_pos", _x);
+                        $(this).attr("y_pos", _y);
+                        $(this).attr("x_val", d.xVal);
+                        $(this).attr("y_val", d.yVal);
+                        $(this).attr("case_id", d.caseId);
+                        $(this).attr("size", 20);
 
                         return "translate(" + _x + ", " + _y + ")";
                     })
@@ -262,6 +263,35 @@ var scatterPlots = (function() {
                 .attr("stroke-width", 1.2); 
         }
 
+    }
+    
+    function log_scale(_opt, _axis) {
+        
+        if (_opt === "remove") {
+            
+        } else if (_opt === "apply") {
+            //adjust the axis scale
+            var _stat = plotsData.stat();
+            var _new_min = Math.log(_stat[_axis].min) / Math.log(2);
+            var _new_max = Math.log(_stat[_axis].max) / Math.log(2);
+            var _new_edge = (_new_max - _new_min) * 0.1;
+            var _new_scale = d3.scale.linear()
+                .domain([_new_min - _new_edge, _new_max + _new_edge])
+                .range([settings.axis[_axis].range_min, settings.axis[_axis].range_max]);
+            //d3.select("#" + ids.main_view).select("." + d3_class[_axis].axis).remove();
+            
+            //adjust the position of points
+            elem.dotsGroup.selectAll("path")
+                .transition().duration(300)
+                .attr("transform", function() {
+                    var _changed_axis_value_attr_name = (_axis === "x")? "x_val": "y_val";
+                    var _log_pos = _new_scale(Math.log(d3.select(this).attr(_changed_axis_value_attr_name)) / Math.log(2));
+                    var _remained_axis_pos_attr_name = (_axis === "x")? "y_pos": "x_pos";
+                    var _pre_pos = d3.select(this).attr(_remained_axis_pos_attr_name);
+                    if (_axis === "x") return "translate(" + _log_pos + ", " + _pre_pos + ")";
+                    else return "translate(" + _pre_pos + ", " + _log_pos + ")";    
+                });        
+        }
     }
     
     function appendTitle(axis) { //axis titles
@@ -416,6 +446,7 @@ var scatterPlots = (function() {
                 boxPlots.init(data, _box_plots_axis, elem);
             }
             drawDots(_apply_box_plots, _box_plots_axis);
+            
             applyMouseover();
             appendTitle("x");
             appendTitle("y");
@@ -439,7 +470,8 @@ var scatterPlots = (function() {
                 }
             });
             return _result;
-        }
+        },
+        log_scale: log_scale
     };
     
 }());

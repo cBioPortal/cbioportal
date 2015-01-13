@@ -68,13 +68,17 @@ public class PortalMetaDataJSON extends HttpServlet {
         ret.put("name", cancerStudy.getName());
         ret.put("type_of_cancer", cancerStudy.getTypeOfCancerId());
         ret.put("description", cancerStudy.getDescription());
-
+	ArrayList<PatientList> caseSets = GetPatientLists.getPatientLists(cancerStudy.getCancerStudyStableId());
+	int numSamples = 0;
+	for (PatientList pl: caseSets) {
+		numSamples = Math.max(numSamples, pl.getPatientList().size());
+	}
+	ret.put("num_samples", numSamples);
+	
         if (partial) {
             ret.put("partial", "true");
         } else {
             // at this point we have the study corresponding to the given ID
-            ArrayList<PatientList> caseSets = GetPatientLists.getPatientLists(cancerStudy.getCancerStudyStableId());
-
             ArrayList<GeneticProfile> geneticProfiles
                     = GetGeneticProfiles.getGeneticProfiles(cancerStudy.getCancerStudyStableId());
 

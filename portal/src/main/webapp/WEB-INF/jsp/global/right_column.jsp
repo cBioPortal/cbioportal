@@ -47,15 +47,25 @@
 if (GlobalProperties.showRightNavDataSets()) {
 %>
     <h3>Data Sets</h3>
+    <p id="portal_data_stats_copy"></p>
 <%
-    out.println("<P>The Portal contains data for <b>" + dataSetsUtil.getTotalNumberOfSamples() + " tumor samples from " +
-                     cancerStudyStats.size() + " cancer studies.</b> [<a href='data_sets.jsp'>Details.</a>]</p>");
+    // TODO: whats going on here? why are the numbers different?
+    /*out.println("<P>The Portal contains data for <b>" + dataSetsUtil.getTotalNumberOfSamples() + " tumor samples from " +
+                     cancerStudyStats.size() + " cancer studies.</b> [<a href='data_sets.jsp'>Details.</a>]</p>");*/
 %>
     <div id='rightmenu-stats-box'></div>
 	<script type="text/javascript">
 		$(document).ready( function() {
-			$.getJSON("portal_meta_data.json", function(json) {
-				RightMenuStudyStatsUtil.plotTree(json);
+			$.getJSON("portal_meta_data.json?partial_studies=true&partial_genesets=true", function(json) {
+                            var totalNumSamples = Object.keys(json.cancer_studies).map(function(x) { 
+                                return (x === 'all' ? 0 : json.cancer_studies[x].num_samples);
+                            }).reduce(function(acc, currVal) {
+                                return acc+currVal;
+                            }, 0);
+                            var numStudies = Object.keys(json.cancer_studies).length - 1; // subtract one for the cross-cancer "study"
+                            $("#portal_data_stats_copy").html("The Portal contains data for <b>" + totalNumSamples + " tumor samples from " +
+                                    numStudies + " cancer studies.</b> [<a href='data_sets.jsp'>Details</a>]</p>");
+                            RightMenuStudyStatsUtil.plotTree(json);
 			});
 		});
 	</script>

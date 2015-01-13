@@ -138,7 +138,7 @@ public class GeneSymbolIDMapper implements IDMapper {
             try {
                 final CSVParser parser = new CSVParser(this.reader, CSVFormat.TDF.withHeader());
                 Observable<Tuple2<String, Optional<Rectangle>>> source = Observable.from(parser)
-                        // filter out coordinates not associated wiyh nuclear chromosomes
+                        // filter out coordinates not associated with nuclear chromosomes
                         .filter(new Func1<CSVRecord, Boolean>() {
                             @Override
                             public Boolean call(CSVRecord record) {
@@ -153,7 +153,7 @@ public class GeneSymbolIDMapper implements IDMapper {
                                         record.get("Gene Start"), record.get("Gene End"), record.get("Strand"));
                                 return new Tuple2<String, Optional<Rectangle>>(record.get("Gene Name"), optRect);
                             }
-                           // filter out Rectangles not associated with known genes
+                            // filter out Rectangles not associated with known genes
                         }).filter(new Func1<Tuple2<String, Optional<Rectangle>>, Boolean>() {
                             @Override
                             public Boolean call(Tuple2<String, Optional<Rectangle>> tuple) {
@@ -284,6 +284,16 @@ public class GeneSymbolIDMapper implements IDMapper {
             return ensemblMap;
 
         }
+    }
+    public static void main (String...args){
+        GeneSymbolIDMapper test = new GeneSymbolIDMapper();
+        logger.info(test.findGeneNameByGenomicPosition("1", "42817156", "1")); //ERMAP
+        logger.info(test.findGeneNameByGenomicPosition("1", "42817156", "-1")); //CCDC23
+        logger.info(test.findGeneNameByGenomicPosition("8", "13566900", "1")); //C8orf48
+        logger.info(test.findGeneNameByGenomicPosition("8", "1000", "1")); // intergenic
+        logger.info(test.findGeneNameByGenomicPosition("X", "91982655", "-1")); //VDAC1P3
+        logger.info(test.findGeneNameByGenomicPosition("Y", "6246223","1")); //TSPY2
+
     }
 
     }

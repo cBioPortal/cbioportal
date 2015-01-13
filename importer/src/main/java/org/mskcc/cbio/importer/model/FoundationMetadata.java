@@ -35,6 +35,10 @@ public class FoundationMetadata {
 
     private static final String worksheetName = "foundation";
     private static final String dependeciesColumnName = "dependencies";
+    private static final String cancerStudyColumnName = "cancerstudy";
+    // instantiate a map of the foundation worksheet
+    private static final Table<Integer,String,String> foundationWorksheetTable =
+            ImporterSpreadsheetService.INSTANCE.getWorksheetTableByName(worksheetName);
 
     // bean properties
     final private String cancerStudy;
@@ -44,6 +48,7 @@ public class FoundationMetadata {
     final private List<String> excludedCases;
     final private List<String> shortVariantExcludedStatuses;
     final private List<String> cnvExcludedStatuses;
+    final private String filteredStudy;
 
     /*
     Constructor uses a row from the foundation worksheet on the importer Google spreadsheet
@@ -60,6 +65,7 @@ public class FoundationMetadata {
                 worksheetRowMap.get("excludedsvstatuses")));
         this.cnvExcludedStatuses =  Lists.newArrayList(StagingCommonNames.semicolonSplitter.split(
                 worksheetRowMap.get("excludedcvstatuses")));
+        this.filteredStudy = worksheetRowMap.get("filteredstudy").trim();
 
     }
 
@@ -98,6 +104,11 @@ public class FoundationMetadata {
         } else {
             this.cnvExcludedStatuses = Lists.newArrayList();
         }
+        if (properties.length > 6){
+            this.filteredStudy = properties[6].trim();
+        } else {
+            this.filteredStudy = "";
+        }
     }
 
     public String getCancerStudy() {
@@ -118,6 +129,8 @@ public class FoundationMetadata {
     public List<String> getShortVariantExcludedStatuses() {
         return shortVariantExcludedStatuses;
     }
+
+    public String getFilteredStudy() { return this.filteredStudy;}
 
     
     /*
@@ -151,7 +164,7 @@ public class FoundationMetadata {
 
     /*
      predicate to determine if a filename contains one of the dependency values
-     this is identify the cancer study assocaited with non-standard filenames
+     this is identify the cancer study associated with non-standard filenames
      received from FMI
      */
     private final Predicate<String> relatedFileFilter = new Predicate<String>() {
@@ -165,13 +178,30 @@ public class FoundationMetadata {
                             return filename.contains(dependency);
                         }
                     });
-
         }
-
     };
     
     public Predicate<String> getRelatedFileFilter() {
         return this.relatedFileFilter;
+    }
+
+    public static Optional<FoundationMetadata> findFilteredStudyMetaData (FoundationMetadata baseStudy){
+        if (null == baseStudy || Strings.isNullOrEmpty(baseStudy.getFilteredStudy())){
+            return Optional.absent();
+        }
+        return findFoundtaionMetadataByStudyName(baseStudy.getFilteredStudy());
+    }
+
+    public static Optional<FoundationMetadata> findFoundtaionMetadataByStudyName (String studyName){
+        if(Strings.isNullOrEmpty(studyName)) { return Optional.absent();}
+
+        Map<Integer,String> studiesColumnMap = foundationWorksheetTable.column(cancerStudyColumnName);
+        for (Map.Entry<Integer,String> entry : studiesColumnMap.entrySet()){
+            if ( entry.getValue().equals(studyName)){
+                return  Optional.of(new FoundationMetadata(foundationWorksheetTable.row(entry.getKey())));
+            }
+        }
+        return Optional.absent();
     }
 
     /*
@@ -179,14 +209,10 @@ public class FoundationMetadata {
      */
     public static Optional<FoundationMetadata> findFoundationMetadataByDependency(String dependency){
         if(Strings.isNullOrEmpty(dependency)){ return Optional.absent(); }
-        /*
-        Table<Integer,String,String> getWorksheetTableByName(String worksheetName){
-         */
-        Table<Integer,String,String> worksheetTable = ImporterSpreadsheetService.INSTANCE.getWorksheetTableByName(worksheetName);
-        Map<Integer,String> dependenciesColumnMap = worksheetTable.column(dependeciesColumnName);
+        Map<Integer,String> dependenciesColumnMap = foundationWorksheetTable.column(dependeciesColumnName);
         for (Map.Entry<Integer,String> entry : dependenciesColumnMap.entrySet()){
             if ( entry.getValue().contains(dependency)){
-                return  Optional.of(new FoundationMetadata(worksheetTable.row(entry.getKey())));
+                return  Optional.of(new FoundationMetadata(foundationWorksheetTable.row(entry.getKey())));
             }
         }
         return Optional.absent();
@@ -214,8 +240,6 @@ public class FoundationMetadata {
         for (String s : validStatusList) {
             System.out.println("Valid status " + s);
         }
-
-
             final List<String> brcaFileList = FluentIterable.from(Arrays.asList(inputFiles))
                     .filter(meta1.getRelatedFileFilter())
                     .toList();
@@ -223,7 +247,6 @@ public class FoundationMetadata {
             for (String f : brcaFileList) {
                 System.out.println(f);
             }
-
             for (String f : inputFiles) {
                 final List<String> fileList = Lists.newArrayList(f);
                 List<String> affectedList = FluentIterable.from(metaList)
@@ -259,6 +282,16 @@ public class FoundationMetadata {
         Optional<FoundationMetadata> opt2 = FoundationMetadata.findFoundationMetadataByDependency("HEME-COMPLETE");
         if (opt2.isPresent()){
             System.out.println("Found related study " +opt2.get().getCancerStudy()+ " comments: " +opt2.get().getComments());
+        }
+
+        Optional<FoundationMetadata> opt3 = FoundationMetadata.findFoundtaionMetadataByStudyName("lymphoma/mskcc/foundation");
+        if (opt3.isPresent()) {
+            System.out.println("Found metadata by study " +opt3.get().getCancerStudy());
+            // find filtered study
+            Optional<FoundationMetadata> opt4 = FoundationMetadata.findFilteredStudyMetaData(opt3.get());
+            if (opt4.isPresent()){
+                System.out.println("Found filtered study: " +opt4.get().getCancerStudy());
+            }
         }
             System.out.println("Finis");
     }

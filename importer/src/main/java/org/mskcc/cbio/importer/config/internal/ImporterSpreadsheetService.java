@@ -1,6 +1,9 @@
 package org.mskcc.cbio.importer.config.internal;
 
 import com.google.common.base.*;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
@@ -8,6 +11,7 @@ import com.google.gdata.client.spreadsheet.FeedURLFactory;
 import com.google.gdata.client.spreadsheet.SpreadsheetService;
 import com.google.gdata.data.spreadsheet.*;
 import com.google.gdata.util.ServiceException;
+import com.mysql.jdbc.StringUtils;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.IcgcMetadata;
@@ -16,6 +20,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
@@ -43,7 +49,23 @@ public enum ImporterSpreadsheetService {
     private static final String spreadsheetName = "portal_importer_configuration";
     private final SpreadsheetService spreadsheetService = Suppliers.memoize(new SpreadsheetSupplier()).get();
 
+    private LoadingCache<String, Table<Integer,String,String> > importerWorksheetCache =
+            Suppliers.memoize( new WorksheetCacheSupplier()).get();
 
+    /*
+      public method to map a specified worksheet from the importer spreadsheet to a Google Guava Table
+      table is maintained in a cache for subsequent reuse
+       */
+    public Table<Integer,String,String> getWorksheetTableByName(String name) {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(name), "A worksheet name is required");
+
+        try {
+            return this.importerWorksheetCache.get(name);
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
     public WorksheetEntry getWorksheet( String worksheetName) throws Exception {
       Preconditions.checkArgument(!Strings.isNullOrEmpty(worksheetName),
               "A worksheet name is required");
@@ -60,11 +82,8 @@ public enum ImporterSpreadsheetService {
         return null;
 
     }
-    /*
-      public method to map a specified worksheet from the importer spreadsheet to a Google Guava Table
-      Row indexing starts at 1
-       */
-    public Table<Integer,String,String> getWorksheetTableByName(String worksheetName){
+
+    private Table<Integer,String,String> generateWorksheetTableByName(String worksheetName){
         Preconditions.checkArgument(!Strings.isNullOrEmpty(worksheetName),
                 "A worksheet name is required");
         Table<Integer,String,String> worksheetTable = HashBasedTable.create(200,200);
@@ -176,11 +195,35 @@ public enum ImporterSpreadsheetService {
                 logger.error("The column " + columnName + " does not contain a value for " + value);
             }
         } else {
-            logger.error("The table does not contain column" + columnKey);
+            logger.error("Worksheet " +worksheetName +" does not contain column" + columnKey);
         }
         return Optional.absent(); // return an empty object
     }
 
+    /*
+    A Supplier implementation responsible fo initializing the worksheet cache
+     */
+
+    private class WorksheetCacheSupplier implements Supplier <LoadingCache<String, Table<Integer,String,String>> > {
+        public WorksheetCacheSupplier() {}
+
+        @Override
+        public LoadingCache<String, Table<Integer, String, String>> get() {
+            return CacheBuilder.newBuilder()
+                    .maximumSize(200)
+                    .expireAfterAccess(30L, TimeUnit.MINUTES)
+                    .build(new CacheLoader<String, Table<Integer, String, String>>() {
+                        @Override
+                        public Table<Integer, String, String> load(String key) throws Exception {
+                            return ImporterSpreadsheetService.INSTANCE.generateWorksheetTableByName(key);
+                        }
+                    });
+        }
+    }
+
+    /*
+    A Supplier implementation to handle the overhead of getting the importer spreadsheet from Google
+     */
     private class SpreadsheetSupplier implements Supplier<SpreadsheetService> {
         private  SpreadsheetService spreadsheetService;
         private String googleId;
@@ -219,8 +262,9 @@ public enum ImporterSpreadsheetService {
  main method to support stand alone testing
   */
     public static void main(String...args) {
-       testColumnNames();
+        testColumnNames();
         testIcgcWorksheet();
+        testWorksheetCache();
     }
 
     private static void testColumnNames() {
@@ -260,6 +304,13 @@ public enum ImporterSpreadsheetService {
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private static void testWorksheetCache() {
+        Table<Integer,String,String> table = ImporterSpreadsheetService.INSTANCE.getWorksheetTableByName("case_lists");
+        for (String column : table.columnKeySet()){
+            logger.info("column: " +column);
         }
     }
 

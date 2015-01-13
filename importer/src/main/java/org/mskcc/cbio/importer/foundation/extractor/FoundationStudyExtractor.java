@@ -16,6 +16,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.model.*;
+import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 
 /**
  * Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
@@ -51,9 +52,9 @@ public class FoundationStudyExtractor {
 
     private  final FileDataSource inputDataSource;
     private final Config config;
-    private final Joiner pathJoiner = Joiner.on(System.getProperty("file.separator"));
     private final Logger logger = Logger.getLogger(FoundationStudyExtractor.class);  
     private final String foundationDataDirectory;
+    private final String foundationDataSource = "foundation";
 
     public FoundationStudyExtractor(final Config aConfig) {
         Preconditions.checkArgument(null != aConfig, "A Config implementation is required");   
@@ -90,13 +91,9 @@ public class FoundationStudyExtractor {
     encapsulate the String in an Optional so that caller is aware that it may not be defined.
      */
      private Optional<String> resolveFileDownloadDirectoryFromConfig() {
-        Collection<DataSourcesMetadata> dsmc = config.getDataSourcesMetadata("foundation");
-        if(null == dsmc || dsmc.isEmpty()) {
-            logger.error("Configuration error: unable to find FMI data source metadata");
-        } else if  (dsmc.size()>1) {
-            logger.error("Configuration error: multiple data sources registered for FMI");
-        } else {
-           return  Optional.of(Lists.newArrayList(dsmc).get(0).getDownloadDirectory());
+         Optional<DataSourcesMetadata> dsMetaOpt = DataSourcesMetadata.findDataSourcesMetadatByDataSourceName(foundationDataSource);
+        if (dsMetaOpt.isPresent()){
+            return Optional.of(dsMetaOpt.get().getDownloadDirectory());
         }
         return Optional.absent();
     }
@@ -151,9 +148,9 @@ public class FoundationStudyExtractor {
         if(!Strings.isNullOrEmpty(study)){
             try {
                 // ensure that required directories exist
-                Path subDirPath = Paths.get(pathJoiner.join(this.foundationDataDirectory, study));
+                Path subDirPath = Paths.get(StagingCommonNames.pathJoiner.join(this.foundationDataDirectory, study));
                 Files.createDirectories(subDirPath);   
-                return Paths.get(pathJoiner.join(this.foundationDataDirectory, study,
+                return Paths.get(StagingCommonNames.pathJoiner.join(this.foundationDataDirectory, study,
                         sourcePath.getFileName().toString()));
             } catch (IOException ex) {
                 logger.error(ex.getMessage());
@@ -161,7 +158,6 @@ public class FoundationStudyExtractor {
         }
         return sourcePath;
     }
-
 
     /**
      * Process each XML file in the input source. Determine the  destination

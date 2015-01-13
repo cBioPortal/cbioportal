@@ -105,6 +105,10 @@ public class FoundationFetcherImpl implements Fetcher {
         }
     }
 
+    private void duplicateFilesForFilteredStudies(){
+
+    }
+
     @Override
     public void fetchReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
         throw new UnsupportedOperationException("Not supported yet.");

@@ -11,18 +11,6 @@
    } else {
 	   examplesHtml = "../../../content/" + examplesHtml;
    }
-
-   DataSetsUtil dataSetsUtil = null;
-   List<CancerStudyStats> cancerStudyStats = null;
-   if (GlobalProperties.showRightNavDataSets()) {
-	   dataSetsUtil = new DataSetsUtil();
-	   try {
-		   cancerStudyStats = dataSetsUtil.getCancerStudyStats();
-	   }
-	   catch (Exception e) {
-		   cancerStudyStats = new ArrayList<CancerStudyStats>();
-	   }
-   }
 %>
 
 
@@ -48,15 +36,10 @@ if (GlobalProperties.showRightNavDataSets()) {
 %>
     <h3>Data Sets</h3>
     <p id="portal_data_stats_copy"></p>
-<%
-    // TODO: whats going on here? why are the numbers different?
-    /*out.println("<P>The Portal contains data for <b>" + dataSetsUtil.getTotalNumberOfSamples() + " tumor samples from " +
-                     cancerStudyStats.size() + " cancer studies.</b> [<a href='data_sets.jsp'>Details.</a>]</p>");*/
-%>
     <div id='rightmenu-stats-box'></div>
 	<script type="text/javascript">
 		$(document).ready( function() {
-			$.getJSON("portal_meta_data.json?partial_studies=true&partial_genesets=true", function(json) {
+                        var plotTree = function(json) {
                             var totalNumSamples = Object.keys(json.cancer_studies).map(function(x) { 
                                 return (x === 'all' ? 0 : json.cancer_studies[x].num_samples);
                             }).reduce(function(acc, currVal) {
@@ -66,7 +49,12 @@ if (GlobalProperties.showRightNavDataSets()) {
                             $("#portal_data_stats_copy").html("The Portal contains data for <b>" + totalNumSamples + " tumor samples from " +
                                     numStudies + " cancer studies.</b> [<a href='data_sets.jsp'>Details</a>]</p>");
                             RightMenuStudyStatsUtil.plotTree(json);
-			});
+			};
+                        if (window.metaDataPromise) {
+                            window.metaDataPromise.then(plotTree);
+                        } else {
+                            $.getJSON("portal_meta_data.json?partial_studies=true&partial_genesets=true", plotTree);
+                        }
 		});
 	</script>
 <%

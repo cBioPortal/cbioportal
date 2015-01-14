@@ -85,42 +85,45 @@
             <b:value>${importer.spreadsheet}</b:value>
         </b:constructor-arg>
         <b:constructor-arg index="4">
-            <b:value>${importer.tumor_types_worksheet}</b:value>
+            <b:value>${importer.oncotree_worksheet}</b:value>
         </b:constructor-arg>
         <b:constructor-arg index="5">
-            <b:value>${importer.datatypes_worksheet}</b:value>
+            <b:value>${importer.oncotree_properties_worksheet}</b:value>
         </b:constructor-arg>
         <b:constructor-arg index="6">
-            <b:value>${importer.case_id_filters_worksheet}</b:value>
+            <b:value>${importer.datatypes_worksheet}</b:value>
         </b:constructor-arg>
         <b:constructor-arg index="7">
-            <b:value>${importer.case_lists_worksheet}</b:value>
+            <b:value>${importer.case_id_filters_worksheet}</b:value>
         </b:constructor-arg>
         <b:constructor-arg index="8">
-            <b:value>${importer.clinical_attributes_namespace_worksheet}</b:value>
+            <b:value>${importer.case_lists_worksheet}</b:value>
         </b:constructor-arg>
         <b:constructor-arg index="9">
-            <b:value>${importer.clinical_attributes_worksheet}</b:value>
+            <b:value>${importer.clinical_attributes_namespace_worksheet}</b:value>
         </b:constructor-arg>
         <b:constructor-arg index="10">
-            <b:value>${importer.portals_worksheet}</b:value>
+            <b:value>${importer.clinical_attributes_worksheet}</b:value>
         </b:constructor-arg>
         <b:constructor-arg index="11">
-            <b:value>${importer.reference_data_worksheet}</b:value>
+            <b:value>${importer.portals_worksheet}</b:value>
         </b:constructor-arg>
         <b:constructor-arg index="12">
-            <b:value>${importer.data_sources_worksheet}</b:value>
+            <b:value>${importer.reference_data_worksheet}</b:value>
         </b:constructor-arg>
         <b:constructor-arg index="13">
-            <b:value>${importer.cancer_studies_worksheet}</b:value>
+            <b:value>${importer.data_sources_worksheet}</b:value>
         </b:constructor-arg>
         <b:constructor-arg index="14">
-            <b:value>${importer.foundation_worksheet}</b:value>
+            <b:value>${importer.cancer_studies_worksheet}</b:value>
         </b:constructor-arg>
         <b:constructor-arg index="15">
+            <b:value>${importer.foundation_worksheet}</b:value>
+        </b:constructor-arg>
+        <b:constructor-arg index="16">
             <b:value>${importer.tcga_tumor_types_worksheet}</b:value>
         </b:constructor-arg>
-       <b:constructor-arg index="16" ref="ncicaDSRFetcher"/>  
+       <b:constructor-arg index="17" ref="ncicaDSRFetcher"/>  
     </b:bean>
     <b:bean id="caseIDs" class="org.mskcc.cbio.importer.caseids.internal.CaseIDsImpl">
         <b:constructor-arg ref="config"/>

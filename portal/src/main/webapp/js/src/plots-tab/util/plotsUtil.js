@@ -84,10 +84,6 @@ var getYGene = function() {
     return _gene_symbol;
 };
 
-var appendLoadingImg = function(div) {
-    $("#" + div).append("<img style='padding-top:200px; padding-left:300px;' src='images/ajax-loader.gif'>");
-};
-
 var mutationTranslator = function(mutationDetail) {
     
      vocabulary = {  

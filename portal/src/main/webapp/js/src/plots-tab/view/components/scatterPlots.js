@@ -265,11 +265,8 @@ var scatterPlots = (function() {
 
     }
     
-    function log_scale(_opt, _axis) {
-        
-        if (_opt === "remove") {
-            
-        } else if (_opt === "apply") {
+    function log_scale(_axis) {
+        if($("#" + ids.sidebar[_axis].log_scale).is(':checked')) {
             //adjust the axis scale
             var _stat = plotsData.stat();
             var _new_min = Math.log(_stat[_axis].min) / Math.log(2);
@@ -279,7 +276,7 @@ var scatterPlots = (function() {
                 .domain([_new_min - _new_edge, _new_max + _new_edge])
                 .range([settings.axis[_axis].range_min, settings.axis[_axis].range_max]);
             //d3.select("#" + ids.main_view).select("." + d3_class[_axis].axis).remove();
-            
+
             //adjust the position of points
             elem.dotsGroup.selectAll("path")
                 .transition().duration(300)
@@ -290,8 +287,11 @@ var scatterPlots = (function() {
                     var _pre_pos = d3.select(this).attr(_remained_axis_pos_attr_name);
                     if (_axis === "x") return "translate(" + _log_pos + ", " + _pre_pos + ")";
                     else return "translate(" + _pre_pos + ", " + _log_pos + ")";    
-                });        
+                }); 
+        } else {
+            alert("removing!");
         }
+       
     }
     
     function appendTitle(axis) { //axis titles

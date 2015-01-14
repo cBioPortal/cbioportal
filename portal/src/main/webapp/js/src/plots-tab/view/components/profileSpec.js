@@ -95,7 +95,7 @@ var profileSpec = (function() {
                             "<h5>Apply Log Scale</h5>" +
                             "<input type='checkbox' id='" + ids.sidebar[axis].log_scale + "' checked>" + 
                             "</div>");
-            }            
+            }      
         }
         
     }

@@ -31,32 +31,6 @@ var plotsTab = (function() {
         $("#" + div).append("<img style='padding-top:200px; padding-left:300px;' src='images/ajax-loader.gif'>");
     };
     
-    var append_view_switch_opt = function() {
-        $("#" + ids.sidebar.util.view_switch).empty();
-
-        var stat = plotsData.stat();
-        var tmp = setInterval(function () {timer();}, 1000);
-        function timer() {
-            if (metaData.getRetrieveStatus() !== -1 && stat.retrieved) {
-                clearInterval(tmp);
-                append();
-            }
-        }
-        function append() {
-            if (genetic_vs_genetic()) {
-                if(isSameGene()) {
-                    if (stat.hasCnaAnno) {
-                        $("#" + ids.sidebar.util.view_switch).append(
-                            "<h5>View</h5>" + 
-                            "<input type='radio' value='mutation_details' name='mutation_details_vs_gistic_view' checked>Mutation Type" + 
-                            "<input type='radio' value='gistic' name='mutation_details_vs_gistic_view' >Copy-number"
-                        );                    
-                    }
-                }                
-            }
-        }
-    };
-    
     var regenerate_plots = function(_axis) {
         $("#" + ids.main_view.div).empty();
         append_loading_img(ids.main_view.div);
@@ -76,7 +50,6 @@ var plotsTab = (function() {
     return {
         init: function() {
             
-            //init logic
             $("#" + ids.main_view.div).empty();
             append_loading_img(ids.main_view.div);
 
@@ -85,21 +58,16 @@ var plotsTab = (function() {
             plotsData.fetch("x");
             plotsData.fetch("y");
             plotsbox.init();
-            append_view_switch_opt();
             
-            //apply event listening logic
-            $( "#" + ids.sidebar.x.data_type ).bind("change", function() { regenerate_plots("x"); });
-            $( "#" + ids.sidebar.x.gene ).bind("change", function() { regenerate_plots("x"); });
-            $( "#" + ids.sidebar.x.profile_type ).bind("change", function() { regenerate_plots("x"); });
-            $( "#" + ids.sidebar.x.profile_name ).bind("change", function() { regenerate_plots("x"); });
-            $( "#" + ids.sidebar.x.log_scale ).bind("change", function() { scatterPlots.log_scale("apply", "x"); });
-            
-            $( "#" + ids.sidebar.y.data_type ).bind("change", function() { regenerate_plots("y"); });
-            $( "#" + ids.sidebar.y.gene ).bind("change", function() { regenerate_plots("y"); });
-            $( "#" + ids.sidebar.y.profile_type ).bind("change", function() { regenerate_plots("y"); });
-            $( "#" + ids.sidebar.y.profile_name ).bind("change", function() { regenerate_plots("y"); });
-            $( "#" + ids.sidebar.y.log_scale ).bind("change", function() { scatterPlots.log_scale("apply", "y"); });
-            
+            $("#" + ids.sidebar.x.data_type).bind("change", function() { regenerate_plots("x"); });
+            $("#" + ids.sidebar.x.gene).bind("change", function() { regenerate_plots("x"); });
+            $("#" + ids.sidebar.x.profile_type).bind("change", function() { regenerate_plots("x"); });
+            $("#" + ids.sidebar.x.profile_name).bind("change", function() { regenerate_plots("x"); });
+            //TODO: somehow binding event listener to update log scale doesn't work here -- moved to profile spec init.
+            $("#" + ids.sidebar.y.data_type).bind("change", function() { regenerate_plots("y"); });
+            $("#" + ids.sidebar.y.gene).bind("change", function() { regenerate_plots("y"); });
+            $("#" + ids.sidebar.y.profile_type).bind("change", function() { regenerate_plots("y"); });
+            $("#" + ids.sidebar.y.profile_name).bind("change", function() { regenerate_plots("y"); });
             $("#" + ids.sidebar.util.view_switch).bind("change", function() { mutation_copy_no_view_switch(); });
             
         }

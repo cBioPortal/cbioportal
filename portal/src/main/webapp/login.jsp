@@ -1,3 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title><%= GlobalProperties.getTitle() %>::cBioPortal Login</title>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <%@ page import="org.mskcc.cbio.portal.util.DynamicState" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
@@ -5,42 +11,34 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <jsp:include page="WEB-INF/jsp/global/css_include.jsp" flush="true" />
 <jsp:include page="WEB-INF/jsp/global/js_include.jsp" flush="true" />
+<%
+    String idpEntityId = "";
+    String authenticationMethod = GlobalProperties.authenticationMethod();
+    if (authenticationMethod.equals("openid")) {
+%>
+    <link type="text/css" rel="stylesheet" href="css/openid.css" />
+    <script type="text/javascript" src="js/lib/openid-jquery.js"></script>
+    <script type="text/javascript">
+      $(document).ready(function() {
+              openid.init('openid_identifier');
+              //openid.setDemoMode(false); // if true, Stops form submission for client javascript-only test purposes
+      });
+    </script>
+<%
+    }
+    else if (authenticationMethod.equals("saml")) {
+        idpEntityId = GlobalProperties.getProperty("saml.idp.metadata.entityid");
+    }
+   String siteTitle = GlobalProperties.getTitle();
+%>
 
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-<title><%= GlobalProperties.getTitle() %>::cBioPortal Login</title>
+<% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Login/Logout"); %>
+<%
+    String login_error = request.getParameter("login_error");
+    String logout_success = request.getParameter("logout_success");
+%>
 </head>
 <body>
-    <%
-        String idpEntityId = "";
-        String authenticationMethod = GlobalProperties.authenticationMethod();
-        if (authenticationMethod.equals("openid")) {
-    %>
-        <link type="text/css" rel="stylesheet" href="css/openid.css" />
-        <script type="text/javascript" src="js/lib/openid-jquery.js"></script>
-        <script type="text/javascript">
-          $(document).ready(function() {
-                  openid.init('openid_identifier');
-                  //openid.setDemoMode(false); // if true, Stops form submission for client javascript-only test purposes
-          });
-        </script>
-    <%
-        }
-        else if (authenticationMethod.equals("saml")) {
-            idpEntityId = GlobalProperties.getProperty("saml.idp.metadata.entityid");
-        }
-       String siteTitle = GlobalProperties.getTitle();
-    %>
-
-    <% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Login/Logout"); %>
-    <%
-        String login_error = request.getParameter("login_error");
-        String logout_success = request.getParameter("logout_success");
-    %>
-
     <center>
     <div id="page_wrapper">
     <table width="860px" cellpadding="0px" cellspacing="5px" border="0px">

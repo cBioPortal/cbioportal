@@ -18,12 +18,22 @@
 
 package org.mskcc.cbio.importer.model;
 
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.gdata.util.common.base.Preconditions;
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.log4j.Logger;
+import org.mskcc.cbio.importer.config.internal.ImporterSpreadsheetService;
+
+import javax.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /*
 Represents metadata associated with ICGC Cancer studies
@@ -31,6 +41,11 @@ Mapped from ICGC panel on Google spreadsheet
 */
 
 public class IcgcMetadata {
+
+    public static final String worksheetName = "icgc";
+    public static final String  keyColumnName = "icgcid";
+    private static final Logger logger = Logger.getLogger(IcgcMetadata.class);
+
     private  String icgcid;
     private  String downloaddirectory;
     private  String tumortype;
@@ -51,7 +66,7 @@ public class IcgcMetadata {
 
     
     public IcgcMetadata(String[] properties){
-        Preconditions.checkArgument(null != properties && properties.length >2, 
+        Preconditions.checkArgument(null != properties && properties.length >2,
                 "The properties array is null or invalid");
         this.icgcid = properties[0];
         this.downloaddirectory = properties[1];
@@ -71,6 +86,56 @@ public class IcgcMetadata {
             e.printStackTrace();
         }
     }
+
+  // collection of static service methods
+    public static Optional<IcgcMetadata> getIcgcMetadataById(String icgcId) {
+        if (Strings.isNullOrEmpty(icgcId)){ return Optional.absent(); }
+            return Optional.of(new IcgcMetadata(ImporterSpreadsheetService.INSTANCE.
+                    getWorksheetRowByColumnValue(worksheetName, keyColumnName, icgcId).get()));
+    }
+
+    public static Optional<String> getCancerStudyPathByStudyId(String studyId ){
+        if (Strings.isNullOrEmpty(studyId) ) { return Optional.absent(); }
+        IcgcMetadata meta = new IcgcMetadata(ImporterSpreadsheetService.INSTANCE.
+                getWorksheetRowByColumnValue(worksheetName, keyColumnName, studyId).get());
+
+        if ( null != meta){
+            Optional<CancerStudyMetadata> opt = CancerStudyMetadata.findCancerStudyMetaDataByStableId(meta.getStudyname());
+            if (opt.isPresent()){
+                return Optional.of(opt.get().getStudyPath());
+            }
+        }
+        logger.info("Unable to find a study path for ICGC study " + studyId);
+        return Optional.absent();
+    }
+
+    public static List<String> getRegisteredIcgcStudyList() {
+        return ImporterSpreadsheetService.INSTANCE.getWorksheetValuesByColumnName(worksheetName,keyColumnName);
+    }
+
+    /*
+    public method to generate a Map of all ICGC metadata entries from the importer spreadsheet
+     keyed by the ICGC ID attribute
+     */
+    public static List<IcgcMetadata> getIcgcMetadataList() {
+
+        return FluentIterable.from(ImporterSpreadsheetService.INSTANCE.getWorksheetValuesByColumnName("icgc", "icgcid"))
+                .filter(new Predicate<String>() {
+                    @Override
+                    public boolean apply(@Nullable String input) {
+                        return ImporterSpreadsheetService.INSTANCE.getWorksheetRowByColumnValue(worksheetName, keyColumnName, input).isPresent();
+                    }
+                })
+                    .transform(new Function<String, IcgcMetadata>() {
+                                   @Nullable
+                                   @Override
+                                   public IcgcMetadata apply(String studyId) {
+
+                                       return getIcgcMetadataById(studyId).get();
+                                   }}
+
+                    ).toList();
+                }
 
 
     public String getIcgcid() {
@@ -199,5 +264,22 @@ public class IcgcMetadata {
 
     public void setMirnasequrl(String mirnasequrl) {
         this.mirnasequrl = mirnasequrl;
+    }
+
+    public static void main (String...args){
+        // test getIcgcMetadataById method
+        IcgcMetadata meta1 = IcgcMetadata.getIcgcMetadataById("BLCA-CN").get();
+        logger.info("download directory = " +meta1.getDownloaddirectory());
+        // test getCancerStudyPathByStudyId method
+        String cs = IcgcMetadata.getCancerStudyPathByStudyId("BRCA-UK").get();
+        logger.info("Cancer study = " +cs);
+        // test List<String> getRegisteredIcgcStudyList() method
+        for (String s : IcgcMetadata.getRegisteredIcgcStudyList()) {
+            logger.info("registered study " +s);
+        }
+        // test getRegisteredIcgcStudyList method
+        List<IcgcMetadata> metaList  = IcgcMetadata.getIcgcMetadataList();
+        logger.info ("There are " +metaList.size() +" icgc metadata entries");
+
     }
 }

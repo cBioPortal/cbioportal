@@ -219,7 +219,7 @@ public class IcgcSegmentDataETLCallable extends SegmentTransformer implements Ca
     // main  method for standalone testing
     public static void main (String...args) {
         final ListeningExecutorService service = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(1));
-        IcgcMetadata meta = IcgcMetadataService.INSTANCE.getIcgcMetadataById("PACA-CA");
+        IcgcMetadata meta = IcgcMetadata.getIcgcMetadataById("PACA-CA").get();
         Path testPath = Paths.get("/tmp/icgctest");
 
         ListenableFuture<String> lf = service.submit(new IcgcSegmentDataETLCallable(meta,testPath, new MutationFileHandlerImpl()));

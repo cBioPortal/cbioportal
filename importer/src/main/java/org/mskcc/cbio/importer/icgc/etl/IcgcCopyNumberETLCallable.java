@@ -8,16 +8,13 @@ import edu.stanford.nlp.io.IOUtils;
 import edu.stanford.nlp.util.StringUtils;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.icgc.model.IcgcCopyNumberModel;
-import org.mskcc.cbio.importer.icgc.model.IcgcSegmentModel;
 import org.mskcc.cbio.importer.icgc.support.IcgcFunctionLibrary;
 import org.mskcc.cbio.importer.icgc.support.IcgcMetadataService;
 import org.mskcc.cbio.importer.model.IcgcMetadata;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
-import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.cnv.CnvFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.cnv.CnvFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.cnv.CnvTransformer;
-import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
 import scala.Tuple3;
 
 import java.io.BufferedReader;
@@ -103,7 +100,8 @@ public class IcgcCopyNumberETLCallable extends CnvTransformer implements Callabl
     // main  method for standalone testing
     public static void main (String...args) {
         final ListeningExecutorService service = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(1));
-        IcgcMetadata meta = IcgcMetadataService.INSTANCE.getIcgcMetadataById("OV-AU");
+
+        IcgcMetadata meta = IcgcMetadata.getIcgcMetadataById("OV-AU").get();  // throws an Exception if icgcid is invalid
         Path testPath = Paths.get("/tmp/icgctest");
 
         ListenableFuture<String> lf = service.submit(new IcgcCopyNumberETLCallable(meta,testPath, new CnvFileHandlerImpl()));

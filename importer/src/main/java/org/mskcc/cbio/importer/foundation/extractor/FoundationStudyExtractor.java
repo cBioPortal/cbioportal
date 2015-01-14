@@ -8,15 +8,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.Config;
+import org.mskcc.cbio.importer.config.internal.ImporterSpreadsheetService;
 import org.mskcc.cbio.importer.model.*;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
+
+import javax.annotation.Nullable;
 
 /**
  * Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
@@ -51,10 +53,35 @@ import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 public class FoundationStudyExtractor {
 
     private  final FileDataSource inputDataSource;
-    private final Config config;
+    private  Config config;
     private final Logger logger = Logger.getLogger(FoundationStudyExtractor.class);  
     private final String foundationDataDirectory;
     private final String foundationDataSource = "foundation";
+    private final static String DEFAULT_DOWNLOAD_DIRECTORY = "/tmp/foundation";
+    private final static String worksheetName = "foundation";
+
+
+
+    public FoundationStudyExtractor() {
+      Optional<DataSourcesMetadata> dsMeta =
+        DataSourcesMetadata.findDataSourcesMetadataByDataSourceName(foundationDataSource);
+        if(dsMeta.isPresent()) {
+            this.foundationDataDirectory = dsMeta.get().getDownloadDirectory();
+        } else {
+            this.foundationDataDirectory = DEFAULT_DOWNLOAD_DIRECTORY;
+        }
+        Optional<FileDataSource> fds  = this.resolveInputDataSource();
+        if (fds.isPresent()) {
+            this.inputDataSource = fds.get();
+            logger.info("FDS diretcory: " + this.inputDataSource.getDirectoryName());
+            for(Path p : this.inputDataSource.getFilenameList()){
+                logger.info("XML file " +p.toString());
+            }
+
+        } else {
+            this.inputDataSource = null;  // TODO: fix this
+        }
+    }
 
     public FoundationStudyExtractor(final Config aConfig) {
         Preconditions.checkArgument(null != aConfig, "A Config implementation is required");   
@@ -77,6 +104,8 @@ public class FoundationStudyExtractor {
             this.inputDataSource = null;  // TODO: fix this
         }
     }
+
+
     
     private Optional<FileDataSource> resolveInputDataSource() {
          try {
@@ -91,7 +120,7 @@ public class FoundationStudyExtractor {
     encapsulate the String in an Optional so that caller is aware that it may not be defined.
      */
      private Optional<String> resolveFileDownloadDirectoryFromConfig() {
-         Optional<DataSourcesMetadata> dsMetaOpt = DataSourcesMetadata.findDataSourcesMetadatByDataSourceName(foundationDataSource);
+         Optional<DataSourcesMetadata> dsMetaOpt = DataSourcesMetadata.findDataSourcesMetadataByDataSourceName(foundationDataSource);
         if (dsMetaOpt.isPresent()){
             return Optional.of(dsMetaOpt.get().getDownloadDirectory());
         }
@@ -107,36 +136,49 @@ public class FoundationStudyExtractor {
      /*
      private method to determine the Foundation cancer study name from the XML file name
      Usually only a subset of the file name is registered in the config  data
+     return an Optional to deal with cases where a study could not be found
       */
-    private String resolveFoundationCancerStudyNameFromXMLFileName(final String filename) {
-        final Collection<FoundationMetadata> mdc = config.getFoundationMetadata();
-        final List<String> fileList = Lists.newArrayList(filename);
-        List<String> affectedStudyList = FluentIterable.from(mdc)
+    private Optional<String> resolveFoundationCancerStudyNameFromXMLFileName(final String filename) {
+
+       /*
+       obtain a list of FMI cancer studies from the foundation worksheet
+        */
+        List<String> cancerStudyList = ImporterSpreadsheetService.INSTANCE.getWorksheetValuesByColumnName(FoundationMetadata.worksheetName,
+                FoundationMetadata.cancerStudyColumnName);
+
+        /*
+        for each FMI cancer study, determine if one of its dependencies forms a unique portion of the file name
+         if so, return the name of that study
+         */
+        return FluentIterable.from(cancerStudyList)
+                .transform(new Function<String, FoundationMetadata>() {
+                    @Nullable
+                    @Override
+                    public FoundationMetadata apply(String cs) {
+                        Optional<Map<String,String>> optMap = ImporterSpreadsheetService.INSTANCE.getWorksheetRowByColumnValue(FoundationMetadata.worksheetName, FoundationMetadata.cancerStudyColumnName,cs);
+                        if (optMap.isPresent()){
+                            return new FoundationMetadata(optMap.get());
+                        }
+
+                        return null;
+                    }
+                })
+
                 .filter(new Predicate<FoundationMetadata>() {
                     @Override
-                    public boolean apply(final FoundationMetadata meta) {
-                        List<String> fl = FluentIterable.from(fileList).filter(meta.getRelatedFileFilter()).toList();
+                    public boolean apply(@Nullable FoundationMetadata meta) {
+                        List<String> fl = FluentIterable.from(Lists.newArrayList(filename)).filter(meta.getRelatedFileFilter())
+                                .toList();
                         return (!fl.isEmpty());
-
                     }
-                }).transform(new Function<FoundationMetadata, String>() {
+                })
+                .transform(new Function<FoundationMetadata, String>() {
 
                     @Override
                     public String apply(FoundationMetadata f) {
                         return f.getCancerStudy();
                     }
-                }).toList();
-        // there should only be one match
-        if(affectedStudyList.size() == 1) {
-            return affectedStudyList.get(0);
-        }
-        if(affectedStudyList.isEmpty()) {
-            logger.error("File " +filename +" is not associated with a registered FMI cancer study and will not be processed" );
-        } else {
-            logger.error("File " +filename +" is associated with >1 registered FMI Cancer studies and will not be processed");
-        }
-        // return an empty String
-        return "";
+                }).first();
     }
 
     /*
@@ -144,13 +186,13 @@ public class FoundationStudyExtractor {
     the destination directory is based on the cancer study name registered in the config data
      */
     private Path resolveDestinationPath(Path sourcePath) {
-        String study = this.resolveFoundationCancerStudyNameFromXMLFileName(sourcePath.toString());
-        if(!Strings.isNullOrEmpty(study)){
+       Optional<String> studyOpt = this.resolveFoundationCancerStudyNameFromXMLFileName(sourcePath.toString());
+        if(studyOpt.isPresent()){
             try {
                 // ensure that required directories exist
-                Path subDirPath = Paths.get(StagingCommonNames.pathJoiner.join(this.foundationDataDirectory, study));
+                Path subDirPath = Paths.get(StagingCommonNames.pathJoiner.join(this.foundationDataDirectory, studyOpt.get()));
                 Files.createDirectories(subDirPath);   
-                return Paths.get(StagingCommonNames.pathJoiner.join(this.foundationDataDirectory, study,
+                return Paths.get(StagingCommonNames.pathJoiner.join(this.foundationDataDirectory, studyOpt.get(),
                         sourcePath.getFileName().toString()));
             } catch (IOException ex) {
                 logger.error(ex.getMessage());
@@ -185,6 +227,12 @@ public class FoundationStudyExtractor {
                     }
                 }).toSet();
         
+    }
+
+    // main method for stand alone testing
+    public static void main (String...args){
+        FoundationStudyExtractor extractor = new FoundationStudyExtractor();
+
     }
 
 

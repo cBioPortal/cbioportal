@@ -33,22 +33,23 @@ import java.util.Map;
  */
 public class FoundationMetadata {
 
-    private static final String worksheetName = "foundation";
-    private static final String dependeciesColumnName = "dependencies";
-    private static final String cancerStudyColumnName = "cancerstudy";
+    public static final String worksheetName = "foundation";
+    public static final String dependeciesColumnName = "dependencies";
+    public static final String cancerStudyColumnName = "cancerstudy";
     // instantiate a map of the foundation worksheet
-    private static final Table<Integer,String,String> foundationWorksheetTable =
+    public static final Table<Integer,String,String> foundationWorksheetTable =
             ImporterSpreadsheetService.INSTANCE.getWorksheetTableByName(worksheetName);
 
     // bean properties
     final private String cancerStudy;
     final private List<String> dependencies;
     final private String comments;
-
     final private List<String> excludedCases;
     final private List<String> shortVariantExcludedStatuses;
     final private List<String> cnvExcludedStatuses;
     final private String filteredStudy;
+
+
 
     /*
     Constructor uses a row from the foundation worksheet on the importer Google spreadsheet
@@ -185,6 +186,12 @@ public class FoundationMetadata {
         return this.relatedFileFilter;
     }
 
+    /*
+    public static method to find and instantiate a FoundationMetadata object based on a
+    supplied link to a registered filtered study
+    a filtered study represents a copy of another study with the exclusion of all variants of
+     unknown status
+     */
     public static Optional<FoundationMetadata> findFilteredStudyMetaData (FoundationMetadata baseStudy){
         if (null == baseStudy || Strings.isNullOrEmpty(baseStudy.getFilteredStudy())){
             return Optional.absent();
@@ -192,16 +199,18 @@ public class FoundationMetadata {
         return findFoundtaionMetadataByStudyName(baseStudy.getFilteredStudy());
     }
 
-    public static Optional<FoundationMetadata> findFoundtaionMetadataByStudyName (String studyName){
+    /*
+    public static method to find and instantiate a FoundationMetadata object based on a
+    registered Foundation Medicine study name
+    the return object is encapsulated in an Optional to deal with cases where the specified
+    study name was not found
+     */
+    public static Optional<FoundationMetadata> findFoundtaionMetadataByStudyName(String studyName){
         if(Strings.isNullOrEmpty(studyName)) { return Optional.absent();}
 
-        Map<Integer,String> studiesColumnMap = foundationWorksheetTable.column(cancerStudyColumnName);
-        for (Map.Entry<Integer,String> entry : studiesColumnMap.entrySet()){
-            if ( entry.getValue().equals(studyName)){
-                return  Optional.of(new FoundationMetadata(foundationWorksheetTable.row(entry.getKey())));
-            }
-        }
-        return Optional.absent();
+        return Optional.of(new FoundationMetadata(ImporterSpreadsheetService.INSTANCE.
+                getWorksheetRowByColumnValue(worksheetName, cancerStudyColumnName, studyName).get()));
+
     }
 
     /*

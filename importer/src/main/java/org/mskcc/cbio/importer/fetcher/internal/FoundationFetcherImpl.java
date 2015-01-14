@@ -81,21 +81,17 @@ public class FoundationFetcherImpl implements Fetcher {
 
     public FoundationFetcherImpl(Config config, FileUtils fileUtils,
             DatabaseUtils databaseUtils, ImportDataRecordDAO importDataRecordDAO) {
-
         // set members
         this.config = config;
         this.fileUtils = fileUtils;
         this.databaseUtils = databaseUtils;
         this.importDataRecordDAO = importDataRecordDAO;
-
     }
 
     @Override
     public void fetch(final String dataSource, final String desiredRunDate, boolean sendNotification) throws Exception {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(dataSource), "A data source is required");
         logger.info("fetch operation for Foundation Medicine files invoked");
-        
-       
         // transform the XML data to text format
         for (Path xmlPath : this.extractor.extractData()) {
             // use the Foundation XML Parser to generate the data files

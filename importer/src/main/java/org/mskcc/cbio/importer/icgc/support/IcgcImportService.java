@@ -23,6 +23,7 @@ import com.google.gdata.util.common.base.Preconditions;
 import joptsimple.internal.Strings;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.icgc.transformer.IcgcFileTransformer;
+import org.mskcc.cbio.importer.model.IcgcMetadata;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 
 import java.util.Map;
@@ -117,7 +118,7 @@ public enum IcgcImportService {
 
         @Override
         public Map<String, String> get() {
-            return FluentIterable.from(IcgcMetadataService.INSTANCE.getRegisteredIcgcStudyList())
+            return FluentIterable.from(IcgcMetadata.getRegisteredIcgcStudyList())
                     .transform(new Function<String, String>() {
                         @Override
                         public String apply(String f) {
@@ -147,7 +148,7 @@ public enum IcgcImportService {
 
         @Override
         public Map<String, String> get() {
-            return FluentIterable.from(IcgcMetadataService.INSTANCE.getRegisteredIcgcStudyList())
+            return FluentIterable.from(IcgcMetadata.getRegisteredIcgcStudyList())
                     .transform(new Function<String, String>() {
                         @Override
                         public String apply(String f) {

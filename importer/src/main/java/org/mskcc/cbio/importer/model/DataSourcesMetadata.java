@@ -29,8 +29,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Class which contains datasource metadata.
@@ -102,7 +100,12 @@ public class DataSourcesMetadata {
 	}
 
 
-	public static final  Optional<DataSourcesMetadata> findDataSourcesMetadatByDataSourceName(String name){
+	/*
+	public static method to instantiate a DataSourcesMetadata object based on a data source name
+	the return object is encapsulated in an Optional to handle cases where a DataSourcesMetadata object
+	wasn't found
+	 */
+	public static final  Optional<DataSourcesMetadata> findDataSourcesMetadataByDataSourceName(String name){
 		final String dataSourcesWorksheet = "data_sources";
 		final String dataSourceColumnName = "datasource";
 		if(Strings.isNullOrEmpty(name)) {return Optional.absent();}
@@ -117,7 +120,7 @@ public class DataSourcesMetadata {
 	// main method for testing
 	public static void main (String...args){
 		String dataSourceName = StagingCommonNames.DATA_SOURCE_DMP;
-		Optional<DataSourcesMetadata> optMeta = DataSourcesMetadata.findDataSourcesMetadatByDataSourceName(dataSourceName);
+		Optional<DataSourcesMetadata> optMeta = DataSourcesMetadata.findDataSourcesMetadataByDataSourceName(dataSourceName);
 		if(optMeta.isPresent()){
 			System.out.println(System.getenv("PORTAL_DATA_HOME"));
 			System.out.println(optMeta.get().getDataSource());

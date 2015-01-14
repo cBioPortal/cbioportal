@@ -1,8 +1,6 @@
 package org.mskcc.cbio.importer.task;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.*;
 import org.apache.log4j.Logger;
@@ -12,7 +10,6 @@ import org.mskcc.cbio.importer.icgc.support.IcgcMetadataService;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.IcgcMetadata;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
-import org.mskcc.cbio.importer.persistence.staging.util.StagingUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -22,7 +19,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -63,7 +59,7 @@ public class IcgcDataImportTask extends AbstractScheduledService {
      */
     private void resolveBaseStagingPath() {
         Optional<DataSourcesMetadata> optMeta = DataSourcesMetadata
-                .findDataSourcesMetadatByDataSourceName(StagingCommonNames.DATA_SOURCE_ICGC);
+                .findDataSourcesMetadataByDataSourceName(StagingCommonNames.DATA_SOURCE_ICGC);
         if (optMeta.isPresent()) {
             this.baseStagingPath = optMeta.get().resolveBaseStatgingPath();
         } else {
@@ -103,7 +99,7 @@ public class IcgcDataImportTask extends AbstractScheduledService {
         futureList.add(service.submit(new SimpleSomaticMutationImporter(baseStagingPath)));
         // run the smaller importers
 
-        for (String icgcId : IcgcMetadataService.INSTANCE.getRegisteredIcgcStudyList()) {
+        for (String icgcId : IcgcMetadata.getRegisteredIcgcStudyList()) {
             futureList.add(service.submit(new IcgcCancerStudyImporter(icgcId, this.baseStagingPath)));
             logger.info("Task added for " +icgcId);
         }

@@ -16,11 +16,9 @@ import org.mskcc.cbio.importer.icgc.support.IcgcFunctionLibrary;
 import org.mskcc.cbio.importer.icgc.support.IcgcMetadataService;
 import org.mskcc.cbio.importer.model.IcgcMetadata;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
-import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.cnv.CnvFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.filehandler.FileHandlerService;
 import org.mskcc.cbio.importer.persistence.staging.filehandler.TsvFileHandler;
-import org.mskcc.cbio.importer.persistence.staging.filehandler.TsvFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.fusion.FusionModel;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationTransformation;
@@ -73,7 +71,9 @@ public class IcgcCancerStudyImporter implements Callable<String> {
                 "An IcgcMetadata id is required");
         Preconditions.checkArgument(StagingUtils.isValidStagingDirectoryPath(aPath),
                 "The staging file directory is null or invalid");
-        this.metadata = IcgcMetadataService.INSTANCE.getIcgcMetadataById(icgcId);
+        Preconditions.checkState(IcgcMetadata.getIcgcMetadataById(icgcId).isPresent(),
+                "Supplied icgc id " + icgcId +" is invalid");
+        this.metadata = IcgcMetadata.getIcgcMetadataById(icgcId).get();
         this.stagingFileDirectory = aPath.resolve(this.metadata.getDownloaddirectory());
         logger.info("Staging file directory set to " + this.stagingFileDirectory);
     }

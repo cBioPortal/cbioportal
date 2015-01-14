@@ -30,6 +30,7 @@ import java.util.concurrent.Executors;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -45,7 +46,6 @@ import org.mskcc.cbio.importer.model.IcgcMetadata;
 import org.mskcc.cbio.importer.persistence.staging.MetadataFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
-import org.mskcc.cbio.importer.util.PropertiesLoader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import scala.Tuple3;
@@ -95,11 +95,17 @@ public class SimpleSomaticMutationImporter implements Callable<String> {
         // get simple somatic mutation URLs for registered studies
         final Map<String, String> mutationUrlMap = IcgcImportService.INSTANCE.getIcgcMutationUrlMap();
         return FluentIterable.from(mutationUrlMap.keySet())
+                .filter(new Predicate<String>() {
+                    @Override
+                    public boolean apply(@Nullable String id) {
+                        return IcgcMetadata.getIcgcMetadataById(id).isPresent();
+                    }
+                })
                 .transform(new Function<String, Tuple3<Path, String, IcgcFileTransformer>>() {
                     @Nullable
                     @Override
                     public Tuple3<Path, String, IcgcFileTransformer> apply(String studyId) {
-                        final IcgcMetadata meta = IcgcMetadataService.INSTANCE.getIcgcMetadataById(studyId);
+                        final IcgcMetadata meta = IcgcMetadata.getIcgcMetadataById(studyId).get();
                         final Path stagingDirectoryPath = Paths.get(StagingCommonNames.pathJoiner.join(baseStagingPath,
                                 meta.getDownloaddirectory()));
                         final String url = mutationUrlMap.get(studyId);
@@ -112,8 +118,8 @@ public class SimpleSomaticMutationImporter implements Callable<String> {
     }
 
     private void generateMetaDataFiles(){
-        for(String studyId : IcgcMetadataService.INSTANCE.getRegisteredIcgcStudyList()){
-            IcgcMetadata meta = IcgcMetadataService.INSTANCE.getIcgcMetadataById(studyId);
+        for(String studyId : IcgcMetadata.getRegisteredIcgcStudyList()){
+            IcgcMetadata meta = IcgcMetadata.getIcgcMetadataById(studyId).get();
             final Path stagingDirectoryPath = Paths.get(StagingCommonNames.pathJoiner.join(baseStagingPath,
                     meta.getDownloaddirectory()));
             try {

@@ -225,7 +225,18 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                     });
                     
         $('.attribute_name').qtip({
-                content: {text: 'click to drag '},
+//                content: {text: 'click to drag '},
+                content: {text: function(){
+                            if($(this)[0].attributes.attributename.value === 'shortname')
+                            {
+                                return 'click to drag';
+                            }
+                            else
+                            {
+                                return $(this)[0].attributes.attributename.value + '<br/> click to drag';
+                            }
+                        }
+                    },
                 position: {my:'middle right', at:'middle left', viewport: $(window)},
                 style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                 show: {event: "mouseover"}

@@ -85,7 +85,15 @@ define("Oncoprint",
                             function(attr) {
                                 var maybe = utils.maybe_map(id2ClinicalAttr);
                                 var value = maybe(attr);
-                                return value === attr ? value : value.display_name;
+//                                return value === attr ? value : value.display_name;
+                                value= (value === attr ? value : value.display_name);
+
+                                if(value.length>20)
+                                {
+                                    return value.substring(0,17) + "...";
+                                }
+
+                                return value;
 
                             }));
 
@@ -157,10 +165,31 @@ define("Oncoprint",
                     .attr('fill','black')
                     .attr('cursor','move')
                     .attr('class','attribute_name')
+                    .attr('attributename',function(d) {
+                        var maybe = utils.maybe_map(id2ClinicalAttr);
+                        var value = maybe(d);
+                        value= (value === d ? value : value.display_name);
+                        
+                        if(value.length>20)
+                        {
+                            return value;
+                        }
+                        else
+                        {
+                            return 'shortname';
+                        }
+                    })
                     .text(function(d) {
                         var maybe = utils.maybe_map(id2ClinicalAttr);
                         var value = maybe(d);
-                        return value === d ? value : value.display_name;
+                        value= (value === d ? value : value.display_name);
+                        
+                        if(value.length>20)
+                        {
+                            return value.substring(0,17) + "...";
+                        }
+                        
+                        return value;
                     });
                     
 

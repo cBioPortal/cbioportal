@@ -20,8 +20,8 @@ package org.mskcc.cbio.portal.servlet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
-import org.json.simple.JSONValue;
 import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
 import org.mskcc.cbio.portal.dao.DaoMutation;
 import org.mskcc.cbio.portal.model.CancerStudy;
@@ -119,7 +119,23 @@ public class PancancerMutationsJSON extends HttpServlet {
 	public Collection<Map<String, Object>> byProteinPosStarts(List<String> proteinPosStarts)
 			throws DaoException, ProtocolException
 	{
-		return DaoMutation.countSamplesWithProteinPosStarts(proteinPosStarts, internalGeneticProfileIds());
+		List<String> posWithEntrez = new ArrayList<String>();
+
+		for (String proteinPos: proteinPosStarts)
+		{
+			String[] parts = proteinPos.split("_");
+
+			// assuming that protein position start string is in a format <GENE>_<POSITION>
+			if (parts.length > 1)
+			{
+				// get entrez gene id corresponding to the gene symbol
+				long entrezId = DaoGeneOptimized.getInstance().getGene(parts[0]).getEntrezGeneId();
+				// create the query string (<ENTREZ ID>_<POSITION>
+				posWithEntrez.add(entrezId + "_" + parts[1]);
+			}
+		}
+
+		return DaoMutation.countSamplesWithProteinPosStarts(posWithEntrez, internalGeneticProfileIds());
 	}
 
 	public Collection<Integer> internalGeneticProfileIds() throws DaoException, ProtocolException

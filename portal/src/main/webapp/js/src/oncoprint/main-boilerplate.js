@@ -151,7 +151,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             }
 
             $('.attribute_name').qtip({
-                content: {text: 'click to drag '},
+                content: {text: 'hold to drag '},
                 position: {my:'middle right', at:'middle left', viewport: $(window)},
                 style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                 show: {event: "mouseover"}
@@ -227,13 +227,13 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         $('.attribute_name').qtip({
 //                content: {text: 'click to drag '},
                 content: {text: function(){
-                            if($(this)[0].attributes.attributename.value === 'shortname')
+                            if($(this)[0].attributes.attributename.value.length <= 20)
                             {
-                                return 'click to drag';
+                                return 'hold to drag';
                             }
                             else
                             {
-                                return $(this)[0].attributes.attributename.value + '<br/> click to drag';
+                                return $(this)[0].attributes.attributename.value + '<br/> hold to drag';
                             }
                         }
                     },
@@ -406,11 +406,11 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         { 
                             if(extraAttributes.length>=1)
                             {
-                                return 'click to add another clinical attribute track';
+                                return 'add another clinical attribute track';
                             }
                             else
                             {
-                                return 'click to add clinical attribute track';
+                                return 'add clinical attribute track';
                             }
                         }
                     },
@@ -566,7 +566,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
                         // sync
                         $('#oncoprint_diagram_showmorefeatures_icon').qtip({
-                        content: {text:'click to add another clinical attribute track'},
+                        content: {text:'add another clinical attribute track'},
                         position: {my:'bottom middle', at:'top middle', viewport: $(window)},
                         style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
                         show: {event: "mouseover"},
@@ -650,7 +650,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
                         // sync
                         $('#oncoprint_diagram_showmorefeatures_icon').qtip({
-                        content: {text:'click to add another clinical attribute track'},
+                        content: {text:'add another clinical attribute track'},
                         position: {my:'bottom middle', at:'top middle', viewport: $(window)},
                         style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
                         show: {event: "mouseover"},
@@ -735,7 +735,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
                         // sync
                         $('#oncoprint_diagram_showmorefeatures_icon').qtip({
-                        content: {text:'click to add another clinical attribute track'},
+                        content: {text:'add another clinical attribute track'},
                         position: {my:'bottom middle', at:'top middle', viewport: $(window)},
                         style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
                         show: {event: "mouseover"},
@@ -850,7 +850,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             
             for(m in genes) 
             {
-                if(genes[m] === target.textContent)
+//                if(genes[m] === target.textContent)
+                if(genes[m] === target.attributes.attributename.value)
                 {
                     _dragElementIndex = parseInt(m); 
                     break;
@@ -862,7 +863,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 selectedNotMutation = true;
                 for(n in extraAttributes)
                 {
-                    if(extraAttributes[n].display_name === target.textContent)
+//                    if(extraAttributes[n].display_name === target.textContent)
+                    if(extraAttributes[n].display_name === target.attributes.attributename.value)
                     {
                         _dragElementIndex = parseInt(n);
                         break;
@@ -1083,7 +1085,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         });
         
         $('#oncoprint_diagram_showmorefeatures_icon').qtip({
-            content: {text:'click to add clinical attribute track'},
+            content: {text:'add clinical attribute track'},
             position: {my:'bottom middle', at:'top middle', viewport: $(window)},
             style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
             show: {event: "mouseover"},
@@ -1146,10 +1148,10 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             content: {text: 
                         function(){
                         if($('#oncoprint-diagram-removeUCases-icon img')[0].attributes.src.value === 'images/removeUCases.svg')
-                        {return 'click to remove unaltered cases';}
+                        {return 'remove unaltered cases';}
                         else
                         {
-                            return 'click to show unaltered cases';
+                            return 'show unaltered cases';
                         }
                     }
                 },
@@ -1186,10 +1188,10 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             content: {text: 
                         function(){
                         if($('#oncoprint-diagram-removeWhitespace-icon img')[0].attributes.src.value === 'images/removeWhitespace.svg')
-                        {return 'click to remove whitespace between cases';}
+                        {return 'remove whitespace between cases';}
                         else
                         {
-                            return 'click to show whitespace between cases';
+                            return 'show whitespace between cases';
                         }
                     }
             },
@@ -1228,11 +1230,11 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             content: {text:function(){
                         if($('#oncoprint-diagram-showlegend-icon img')[0].attributes.src.value === 'images/showlegend.svg')
                         {
-                            return 'click to show legends for clinical attribute tracks';
+                            return 'show legends for clinical attribute tracks';
                         }
                         else
                         {
-                            return 'click to hide legends for clinical attribute tracks';
+                            return 'hide legends for clinical attribute tracks';
                         }
                     }
             },
@@ -1349,11 +1351,11 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         function(){
                         if($('#oncoprint_diagram_showmutationcolor_icon img')[0].attributes.src.value === 'images/colormutations.svg')
                         {
-                            return 'click to color-code different mutation types';
+                            return 'color-code different mutation types';
                         }
                         else
                         {
-                            return 'click to show all mutations in the same color';
+                            return 'show all mutations in the same color';
                         }
                     }
             },

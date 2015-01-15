@@ -169,15 +169,8 @@ define("Oncoprint",
                         var maybe = utils.maybe_map(id2ClinicalAttr);
                         var value = maybe(d);
                         value= (value === d ? value : value.display_name);
-                        
-                        if(value.length>20)
-                        {
-                            return value;
-                        }
-                        else
-                        {
-                            return 'shortname';
-                        }
+
+                        return value;
                     })
                     .text(function(d) {
                         var maybe = utils.maybe_map(id2ClinicalAttr);
@@ -186,7 +179,7 @@ define("Oncoprint",
                         
                         if(value.length>20)
                         {
-                            return value.substring(0,17) + "...";
+                            return value.slice(0,17) + "...";
                         }
                         
                         return value;

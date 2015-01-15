@@ -277,7 +277,7 @@ var StudyViewInitCharts = (function(){
     }
     
     function initSpecialCharts(_arr){
-        if(cancerStudyId !== 'mixed_dmp_MSK-IMPACT_2014') {
+        if(cancerStudyId !== 'mskimpact') {
             if(     (StudyViewUtil.arrayFindByValue(varName, 'OS_MONTHS') && 
                     StudyViewUtil.arrayFindByValue(varName, 'OS_STATUS') &&
                     varKeys['OS_MONTHS'].length > 0 &&
@@ -541,7 +541,7 @@ var StudyViewInitCharts = (function(){
     
     function initCharts(_data) { 
         $("#study-view-charts").html("");
-        if(cancerStudyId !== 'mixed_dmp_MSK-IMPACT_2014') {
+        if(cancerStudyId !== 'mskimpact') {
             initSpecialCharts(_data.arr);
         }
         initDcCharts(_data);
@@ -570,7 +570,7 @@ var StudyViewInitCharts = (function(){
             }
         });
         
-        if(cancerStudyId === 'mixed_dmp_MSK-IMPACT_2014') {
+        if(cancerStudyId === 'mskimpact') {
             initSpecialCharts(_data.arr);      
         }
         

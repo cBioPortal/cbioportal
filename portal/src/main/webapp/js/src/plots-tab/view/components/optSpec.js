@@ -28,7 +28,7 @@ var optSpec = (function() {
     return {
         init: function() {
             append_view_switch_opt();
-        }, 
+        },
         update: function() {
             append_view_switch_opt();
         }

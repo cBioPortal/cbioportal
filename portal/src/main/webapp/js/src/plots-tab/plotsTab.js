@@ -27,48 +27,16 @@
 
 var plotsTab = (function() {
     
-    var append_loading_img = function(div) {
-        $("#" + div).append("<img style='padding-top:200px; padding-left:300px;' src='images/ajax-loader.gif'>");
-    };
-    
-    var regenerate_plots = function(_axis) {
-        $("#" + ids.main_view.div).empty();
-        append_loading_img(ids.main_view.div);
-        plotsData.fetch(_axis);
-        append_view_switch_opt();
-        plotsbox.init();        
-    };
-    
-    var mutation_copy_no_view_switch = function() {
-        $("#" + ids.main_view.div).empty();
-        append_loading_img(ids.main_view.div);
-        plotsData.fetch("x");
-        plotsData.fetch("y");
-        plotsbox.init();        
-    };
-    
+
     return {
         init: function() {
-            
-            $("#" + ids.main_view.div).empty();
-            append_loading_img(ids.main_view.div);
-
+   
+            clear_plot_box();
             metaData.fetch(); 
             sidebar.init();
             plotsData.fetch("x");
             plotsData.fetch("y");
             plotsbox.init();
-            
-            $("#" + ids.sidebar.x.data_type).bind("change", function() { regenerate_plots("x"); });
-            $("#" + ids.sidebar.x.gene).bind("change", function() { regenerate_plots("x"); });
-            $("#" + ids.sidebar.x.profile_type).bind("change", function() { regenerate_plots("x"); });
-            $("#" + ids.sidebar.x.profile_name).bind("change", function() { regenerate_plots("x"); });
-            //TODO: somehow binding event listener to update log scale doesn't work here -- moved to profile spec init.
-            $("#" + ids.sidebar.y.data_type).bind("change", function() { regenerate_plots("y"); });
-            $("#" + ids.sidebar.y.gene).bind("change", function() { regenerate_plots("y"); });
-            $("#" + ids.sidebar.y.profile_type).bind("change", function() { regenerate_plots("y"); });
-            $("#" + ids.sidebar.y.profile_name).bind("change", function() { regenerate_plots("y"); });
-            $("#" + ids.sidebar.util.view_switch).bind("change", function() { mutation_copy_no_view_switch(); });
             
         }
         

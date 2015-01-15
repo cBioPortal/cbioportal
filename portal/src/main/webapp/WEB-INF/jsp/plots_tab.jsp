@@ -19,6 +19,7 @@
 <script type="text/javascript" src="js/src/plots-tab/util/stylesheet.js"></script>
 <script type="text/javascript" src="js/src/plots-tab/view/components/profileSpec.js"></script>
 <script type="text/javascript" src="js/src/plots-tab/view/components/clinSpec.js"></script>
+<script type="text/javascript" src="js/src/plots-tab/view/components/optSpec.js"></script>
 <script type="text/javascript" src="js/src/plots-tab/view/components/scatterPlots.js"></script>
 <script type="text/javascript" src="js/src/plots-tab/view/components/boxPlots.js"></script>
 <script type="text/javascript" src="js/src/plots-tab/view/components/heatMap.js"></script>

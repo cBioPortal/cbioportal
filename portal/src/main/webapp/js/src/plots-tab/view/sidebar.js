@@ -5,8 +5,8 @@ var sidebar = (function() {
         profileSpec.init("y");
         optSpec.init();
         //reset the default value of x: default is always x copy num, y mrna
-        document.getElementById(ids.sidebar.x.profile_type).selectedIndex = "1";
-        profileSpec.updateProfileNameList("x");
+        //document.getElementById(ids.sidebar.x.profile_type).selectedIndex = "1";
+        //profileSpec.updateProfileNameList("x");
     };
     
     var listener = function() {
@@ -16,38 +16,30 @@ var sidebar = (function() {
             if ($("#" + ids.sidebar.x.data_type).val() === vals.data_type.genetic) {
                 profileSpec.init("x");
                 optSpec.init();
-                $("#" + ids.sidebar.x.gene).change(function() {
-                    profileSpec.update("x");
-                    optSpec.update();
-                });
             } else if ($("#" + ids.sidebar.x.data_type).val() === vals.data_type.clin) {
                 clinSpec.init("x");
             }
+            regenerate_plots("x");
         });
         $("#" + ids.sidebar.y.data_type).change(function() {
             if ($("#" + ids.sidebar.y.data_type).val() === vals.data_type.genetic) {
                 profileSpec.init("y");
                 optSpec.init();
-                
-                $("#" + ids.sidebar.y.gene).change(function() {
-                    profileSpec.update("y");
-                    optSpec.init();
-                });
             } else if ($("#" + ids.sidebar.y.data_type).val() === vals.data_type.clin) {
                 clinSpec.init("y");
             }
+            regenerate_plots("y");
         });  
         
-        //listener on genes
-        $("#" + ids.sidebar.x.gene).change(function() {
-            profileSpec.update("x");
-            optSpec.update();
-        });
-        $("#" + ids.sidebar.y.gene).change(function() {
-            profileSpec.update("y");
-            optSpec.update();
-        });
-        
+    };
+    
+
+    
+    var mutation_copy_no_view_switch = function() {
+        clear_plot_box();
+        plotsData.fetch("x");
+        plotsData.fetch("y");
+        plotsbox.init();        
     };
     
     return {

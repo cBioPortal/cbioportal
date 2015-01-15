@@ -204,4 +204,21 @@ function bubble_up(_arr, _index) {
     }
 }
 
+var append_loading_img = function(div) {
+    $("#" + div).append("<img style='padding-top:200px; padding-left:300px;' src='images/ajax-loader.gif'>");
+};
+
+var clear_plot_box = function() {
+    $("#" + ids.main_view.div).empty();
+    append_loading_img(ids.main_view.div);
+};
+
+var regenerate_plots = function(_axis) {
+    clear_plot_box();
+    optSpec.update();
+    plotsData.fetch(_axis);
+    plotsbox.init();
+};
+    
+
 

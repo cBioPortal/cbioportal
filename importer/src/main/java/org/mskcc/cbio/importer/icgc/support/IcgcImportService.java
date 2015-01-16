@@ -17,16 +17,16 @@
  */
 package org.mskcc.cbio.importer.icgc.support;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.base.Splitter;
+import com.google.common.base.*;
+import com.google.common.collect.FluentIterable;
 import com.google.gdata.util.common.base.Preconditions;
 import joptsimple.internal.Strings;
 import org.apache.log4j.Logger;
-import org.mskcc.cbio.importer.icgc.transformer.ClinicalDataFileTransformer;
 import org.mskcc.cbio.importer.icgc.transformer.IcgcFileTransformer;
-import org.mskcc.cbio.importer.icgc.transformer.SimpleSomaticFileTransformer;
+import org.mskcc.cbio.importer.model.IcgcMetadata;
+import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
+
+import java.util.Map;
 
 /*
  Singleton responsible for providing utility methods to ICGC import 
@@ -47,16 +47,19 @@ public enum IcgcImportService {
     public final String CLINICALSAMPLE_TYPE = "clinicalsample";
     public final String CLINICAL_TYPE = "clinical";
     public final String MUTATION_TYPE = "MUTATION_TYPE";
-    public final String icgcBaseUrlTemplate
+    public final String icgcProjectUrlTemplate
             = "https://dcc.icgc.org/api/v1/download?fn=/current/Projects/PROJECT/MUTATION_TYPE.PROJECT.tsv.gz";
     private static final String US = "US";
 
-    public static final Joiner tabJoiner = Joiner.on('\t').useForNull(" ");
-    public static final Joiner pathJoiner = Joiner.on(System.getProperty("file.separator"));
-    public static final Splitter pathSplitter = Splitter.on(System.getProperty("file.separator"));
-    public static final Splitter colonSplitter = Splitter.on(':');
-    public static final Splitter blankSplitter = Splitter.on(' ').omitEmptyStrings();
-    public static final Splitter dotSplitter = Splitter.on('.').omitEmptyStrings();
+
+    private Map<String, String> mutationMap = Suppliers.memoize(new IcgcMutationURLSupplier()).get();
+    private Map<String,String> clinicalMap = Suppliers.memoize(new IcgcClinicalURLSupplier()).get();
+
+    public Map<String, String> getIcgcMutationUrlMap() {
+        return this.mutationMap;
+    }
+
+    public Map<String,String> getIcgcClinicalUrlMap() {return this.clinicalMap; }
 
     /*
     return the appropriate type of transformer based on the ICGC file type
@@ -68,13 +71,12 @@ public enum IcgcImportService {
                 "A valid ICGC mutation Type is required");
         switch (icgcMutationType) {
             case SIMPLE_SOMATIC_MUTATION_TYPE:
-                return Optional.of((IcgcFileTransformer) new SimpleSomaticFileTransformer());
-            case CLINICALSAMPLE_TYPE:
-                return Optional.of((IcgcFileTransformer) new ClinicalDataFileTransformer());
+                //return Optional.of((IcgcFileTransformer) new SimpleSomaticFileTransformer());
+            //case CLINICALSAMPLE_TYPE:
+             //   return Optional.of((IcgcFileTransformer) new ClinicalDataFileTransformer());
             default:
                 logger.error("A FileTransformer for mutation type " + icgcMutationType + " is not supported");
                 return Optional.absent();
-                
                 
         }
             
@@ -88,19 +90,96 @@ public enum IcgcImportService {
     };
 
     public String getClinicalSampleBaseUrl() {
-        return this.icgcBaseUrlTemplate.replaceAll(this.MUTATION_TYPE, this.CLINICALSAMPLE_TYPE);
+        return this.icgcProjectUrlTemplate.replaceAll(this.MUTATION_TYPE, this.CLINICALSAMPLE_TYPE);
     }
 
     public String getSimpleSomaticBaseUrl() {
-        return this.icgcBaseUrlTemplate.replaceAll(this.MUTATION_TYPE, this.SIMPLE_SOMATIC_MUTATION_TYPE);
+        return this.icgcProjectUrlTemplate.replaceAll(this.MUTATION_TYPE, this.SIMPLE_SOMATIC_MUTATION_TYPE);
     }
 
     public String getStructuralSomaticBaseUrl() {
-        return this.icgcBaseUrlTemplate.replaceAll(this.MUTATION_TYPE, this.STRUCTURAL_SOMATIC_MUTATION_TYPE);
+        return this.icgcProjectUrlTemplate.replaceAll(this.MUTATION_TYPE, this.STRUCTURAL_SOMATIC_MUTATION_TYPE);
     }
 
     public String getCopyNumberSomaticBaseUrl() {
-        return this.icgcBaseUrlTemplate.replaceAll(this.MUTATION_TYPE, this.COPY_NUMBER_SOMATIC_MUTATION_TYPE);
+        return this.icgcProjectUrlTemplate.replaceAll(this.MUTATION_TYPE, this.COPY_NUMBER_SOMATIC_MUTATION_TYPE);
+    }
+
+    private class IcgcMutationURLSupplier implements Supplier<Map<String, String>> {
+
+        public final String icgcMutationUrlTemplate
+                = "https://dcc.icgc.org/api/v1/download?fn=/current/Projects/STUDY/MUTATION_TYPE.STUDY.tsv.gz";
+
+        private final String STUDY_FLAG = "STUDY";
+
+        public IcgcMutationURLSupplier() {
+
+        }
+
+        @Override
+        public Map<String, String> get() {
+            return FluentIterable.from(IcgcMetadata.getRegisteredIcgcStudyList())
+                    .transform(new Function<String, String>() {
+                        @Override
+                        public String apply(String f) {
+                            return StagingCommonNames.blankSplitter.splitToList(f).get(0);
+                        }
+                    }).toMap(new Function<String, String>() {
+
+                        @Override
+                        public String apply(String f) {
+                            String template = icgcMutationUrlTemplate.replaceAll(MUTATION_TYPE, SIMPLE_SOMATIC_MUTATION_TYPE);
+                            return template.replaceAll(STUDY_FLAG, f);
+                        }
+                    });
+        }
+    }
+
+    private class IcgcClinicalURLSupplier implements Supplier<Map<String, String>> {
+
+        public final String icgcMutationUrlTemplate
+                = "https://dcc.icgc.org/api/v1/download?fn=/current/Projects/STUDY/MUTATION_TYPE.STUDY.tsv.gz";
+
+        private final String STUDY_FLAG = "STUDY";
+
+        public IcgcClinicalURLSupplier() {
+
+        }
+
+        @Override
+        public Map<String, String> get() {
+            return FluentIterable.from(IcgcMetadata.getRegisteredIcgcStudyList())
+                    .transform(new Function<String, String>() {
+                        @Override
+                        public String apply(String f) {
+                            return StagingCommonNames.blankSplitter.splitToList(f).get(0);
+                        }
+                    }).toMap(new Function<String, String>() {
+
+                        @Override
+                        public String apply(String f) {
+                            String template = icgcMutationUrlTemplate.replaceAll(MUTATION_TYPE, CLINICAL_TYPE);
+                            return template.replaceAll(STUDY_FLAG, f);
+                        }
+                    });
+        }
+    }
+
+     /*
+    main method for testing
+     */
+
+    public static void main(String... args) {
+        // mutation urls
+        Map<String, String> mutationMap = IcgcImportService.INSTANCE.getIcgcMutationUrlMap();
+        for (Map.Entry<String, String> entry : mutationMap.entrySet()) {
+            System.out.println("study: " + entry.getKey() + "  url " + entry.getValue());
+        }
+        // clinical urls
+        Map<String, String> clinicalMap = IcgcImportService.INSTANCE.getIcgcClinicalUrlMap();
+        for (Map.Entry<String, String> entry : clinicalMap.entrySet()) {
+            System.out.println("study: " + entry.getKey() + "  url " + entry.getValue());
+        }
     }
 
 }

@@ -19,10 +19,16 @@
 package org.mskcc.cbio.importer.model;
 
 // imports
+import com.google.common.base.Optional;
+import com.google.common.base.Strings;
+import org.mskcc.cbio.importer.config.internal.ImporterSpreadsheetService;
+import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import org.mskcc.cbio.importer.util.MetadataUtils;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Class which contains datasource metadata.
@@ -30,13 +36,27 @@ import java.util.regex.Pattern;
 public class DataSourcesMetadata {
 
 	// delimiter between datasource names (like tcga-stddata)
+	public static final String CMO_PIPELINE_REPOS = "bic-mskcc";
 	public static final String DATA_SOURCE_NAME_DELIMITER = "-";
+
+	private static final String DEFAULT_STAGING_BASE = "/tmp";
 
 	// bean properties
 	private String dataSource;
     private String downloadDirectory;
 	private Boolean additionalStudiesSource;
     private String fetcherBeanID;
+
+	/*
+	Constructor using Google worksheet paramteer
+	 */
+
+	public DataSourcesMetadata( Map<String,String> worksheetRowMap){
+		this.dataSource = worksheetRowMap.get("datasource");
+		this.downloadDirectory = worksheetRowMap.get("downloaddirectory");
+		this.additionalStudiesSource = Boolean.parseBoolean(worksheetRowMap.get("addtionalstudiessource"));
+		this.fetcherBeanID = worksheetRowMap.get("fetcherbeanid");
+	}
 
     /**
      * Create a DataSourcesMetadata instance with properties in given array.
@@ -60,4 +80,58 @@ public class DataSourcesMetadata {
 	public String getDownloadDirectory() { return downloadDirectory; }
 	public Boolean isAdditionalStudiesSource() { return additionalStudiesSource; }
 	public String getFetcherBeanID() { return fetcherBeanID; }
+
+	public Path resolveBaseStatgingPath() {
+		if(!this.getDownloadDirectory().startsWith("$")){
+			return Paths.get(this.getDownloadDirectory());
+		}
+		// the first portion of the download directory field is an environment variable
+		List<String> dirList = StagingCommonNames.pathSplitter.splitToList(this.getDownloadDirectory());
+		String envVar = System.getenv(dirList.get(0).replace("$", "")) ; // resolve the system environment variable
+		String base;
+		if(Strings.isNullOrEmpty(envVar)) {
+			System.out.println("Unable to resolve system environment variable " + dirList.get(0)
+			+" Setting to default " +DEFAULT_STAGING_BASE);
+			base = DEFAULT_STAGING_BASE;
+		}else {
+			base = envVar;
+		}
+		return  Paths.get(base,StagingCommonNames.pathJoiner.join( dirList.subList(1, dirList.size())));
+	}
+
+
+	/*
+	public static method to instantiate a DataSourcesMetadata object based on a data source name
+	the return object is encapsulated in an Optional to handle cases where a DataSourcesMetadata object
+	wasn't found
+	 */
+	public static final  Optional<DataSourcesMetadata> findDataSourcesMetadataByDataSourceName(String name){
+		final String dataSourcesWorksheet = "data_sources";
+		final String dataSourceColumnName = "datasource";
+		if(Strings.isNullOrEmpty(name)) {return Optional.absent();}
+		Optional<Map<String,String >> rowOptional = ImporterSpreadsheetService.INSTANCE.getWorksheetRowByColumnValue(dataSourcesWorksheet, dataSourceColumnName,
+				name);
+		if (rowOptional.isPresent()) {
+			return Optional.of(new DataSourcesMetadata(rowOptional.get()));
+		}
+		return Optional.absent();
+	}
+
+	// main method for testing
+	public static void main (String...args){
+		String dataSourceName = StagingCommonNames.DATA_SOURCE_DMP;
+		Optional<DataSourcesMetadata> optMeta = DataSourcesMetadata.findDataSourcesMetadataByDataSourceName(dataSourceName);
+		if(optMeta.isPresent()){
+			System.out.println(System.getenv("PORTAL_DATA_HOME"));
+			System.out.println(optMeta.get().getDataSource());
+			System.out.println(optMeta.get().getDownloadDirectory());
+			System.out.println( "Path = " +optMeta.get().resolveBaseStatgingPath().toString());
+		} else {
+			System.out.println("Unable to resolve data source for " +dataSourceName);
+		}
+
+
+
+	}
+
 }

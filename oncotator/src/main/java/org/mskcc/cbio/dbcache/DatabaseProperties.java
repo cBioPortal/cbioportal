@@ -29,7 +29,7 @@ import java.util.Properties;
 public class DatabaseProperties
 {
     private static final String HOME_DIR = "PORTAL_HOME";
-    private static final String PORTAL_PROPERTIES_FILENAME = "portal.properties";
+    private static final String PORTAL_PROPERTIES_FILENAME = "importer.properties";
     private static Log LOG = LogFactory.getLog(DatabaseProperties.class);
 
     private String dbHost;

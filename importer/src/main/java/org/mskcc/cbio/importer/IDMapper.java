@@ -20,10 +20,22 @@ package org.mskcc.cbio.importer;
 
 // imports
 
+import scala.Tuple2;
+
 /**
  * Interface used to map IDS.
  */
 public interface IDMapper {
+
+	/**
+	 *
+	 * @param chromosome
+	 * @param position
+	 * @param strand
+	 * @return
+	 */
+
+	public String findGeneNameByGenomicPosition(String chromosome, String position,String strand);
 
 	/**
 	 * For the given symbol, return id.
@@ -32,7 +44,7 @@ public interface IDMapper {
 	 * @return String
 	 * @throws Exception
 	 */
-	String symbolToEntrezID(String geneSymbol) throws Exception;
+	String symbolToEntrezID(String geneSymbol)  throws Exception;
 
 	/**
 	 * For the entrezID, return symbol.
@@ -42,4 +54,12 @@ public interface IDMapper {
 	 * @throws Exception
 	 */
 	String entrezIDToSymbol(String entrezID) throws Exception;
+
+	/**
+	 * returns the Gene Symbol and Entrez ID for a specified Ensembl ID
+	 * @param ensemblID
+	 * @return
+	 */
+
+	Tuple2<String,String> ensemblToHugoSymbolAndEntrezID(String ensemblID);
 }

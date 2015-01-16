@@ -43,7 +43,7 @@ import java.util.*;
 import java.util.regex.*;
 import java.net.URLEncoder;
 
-class NCIcaDSRFetcherImpl extends FetcherBaseImpl implements NCIcaDSRFetcher
+public class NCIcaDSRFetcherImpl extends FetcherBaseImpl implements NCIcaDSRFetcher
 {
     private static final int READ_TIMEOUT = 60000; // ms
     private static final int NO_REVISION_FOUND = -1;

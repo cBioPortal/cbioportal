@@ -23,6 +23,7 @@
 # imports
 import os
 import sys
+import time
 import getopt
 import MySQLdb
 
@@ -63,7 +64,7 @@ ACC_USER_SPREADSHEET = 'Request Access to the cBio ACC Cancer Genomics Portal'
 TARGET_USER_SPREADSHEET = 'Request Access to the cBio TARGET Cancer Genomics Portal'
 MSKCC_USER_SPREADSHEET = 'Request Access to the cBio MSKCC Cancer Genomics Portal'
 
-# portal name
+# portal name (these should correspond to what is in property file of the respective portal)
 PORTAL_NAME = { GDAC_USER_SPREADSHEET : "gdac-portal",
                 PROSTATE_USER_SPREADSHEET : "prostate-portal",
                 GLIOMA_USER_SPREADSHEET : "glioma-portal",
@@ -78,14 +79,20 @@ GOOGLE_SPREADSHEET_CLIENT = gdata.spreadsheet.service.SpreadsheetsService()
 # column constants on google spreadsheet
 FULLNAME_KEY = "fullname"
 INST_EMAIL_KEY = "institutionalemailaddress"
+MSKCC_EMAIL_KEY = "mskccemailaddress"
 OPENID_EMAIL_KEY = "googleoropenidaddress"
 STATUS_KEY = "statusapprovedorblank"
 AUTHORITIES_KEY = "authoritiesalloralltcgaandorsemicolondelimitedcancerstudylist"
+LAB_PI_KEY = "labpi"
+TIMESTAMP_KEY = "timestamp"
 
 # possible values in status column
 STATUS_APPROVED = "APPROVED"
 
+DEFAULT_AUTHORITIES = "PUBLIC;EXTENDED;MSKPUB"
+
 # consts used in email
+MSKCC_EMAIL_SUFFIX = "@mskcc.org"
 SMTP_SERVER = "cbio.mskcc.org"
 MESSAGE_FROM = "cbioportal-access@cbio.mskcc.org"
 MESSAGE_BCC = ["jgao@cbio.mskcc.org", "schultz@cbio.mskcc.org", "grossb@cbio.mskcc.org"]
@@ -159,9 +166,9 @@ class PortalProperties(object):
         self.google_worksheet = google_worksheet
 
 class User(object):
-    def __init__(self, inst_email, openid_email, name, enabled, authorities):
+    def __init__(self, inst_email, google_email, name, enabled, authorities):
         self.inst_email = inst_email
-        self.openid_email = openid_email
+        self.google_email = google_email
         self.name = name
         self.enabled = enabled
         self.authorities = authorities
@@ -239,12 +246,12 @@ def insert_new_users(cursor, new_user_list):
 
     try:
         cursor.executemany("insert into users values(%s, %s, %s)",
-                           [(user.openid_email, user.name, user.enabled) for user in new_user_list])
+                           [(user.google_email, user.name, user.enabled) for user in new_user_list])
         for user in new_user_list:
             # authorities is semicolon delimited
             authorities = user.authorities
             cursor.executemany("insert into authorities values(%s, %s)",
-                               [(user.openid_email, authority) for authority in authorities])
+                               [(user.google_email, authority) for authority in authorities])
     except MySQLdb.Error, msg:
         print >> ERROR_FILE, msg
         return False
@@ -265,7 +272,7 @@ def get_current_user_map(cursor):
     try:
         cursor.execute('select * from users')
         for row in cursor.fetchall():
-            to_return[row[0]] = User('not_used_here', row[0], row[1], row[2], 'not_used_here')
+            to_return[row[0]] = User(row[0], row[0], row[1], row[2], 'not_used_here')
     except MySQLdb.Error, msg:
         print >> ERROR_FILE, msg
         return None
@@ -275,7 +282,7 @@ def get_current_user_map(cursor):
 # ------------------------------------------------------------------------------
 # get current user authorities
 
-def get_user_authorities(cursor, openid_email):
+def get_user_authorities(cursor, google_email):
 
         # list of authorities (cancer studies) we are returning -- as a set
         to_return = []
@@ -283,7 +290,7 @@ def get_user_authorities(cursor, openid_email):
         # recall each tuple in authorities table is ['EMAIL', 'AUTHORITY']
         # no tuple can contain nulls
         try:
-                cursor.execute('select * from authorities where email = (%s)', openid_email)
+                cursor.execute('select * from authorities where email = (%s)', google_email)
                 for row in cursor.fetchall():
                         to_return.append(row[1])
         except MySQLdb.Error, msg:
@@ -293,12 +300,12 @@ def get_user_authorities(cursor, openid_email):
         return to_return
 
 # ------------------------------------------------------------------------------
-# get current users
+# get current users from google spreadsheet
 
-def get_new_user_map(worksheet_feed, current_user_map, portal_name, use_institutional_id):
+def get_new_user_map(spreadsheet, worksheet_feed, current_user_map, portal_name):
 
     # map that we are returning
-    # key is the institutional email address + openid (in case 1 use wants multiple openids)
+    # key is the institutional email address + google (in case user has multiple google ids)
     # of the user and value is a User object
     to_return = {}
 
@@ -306,19 +313,41 @@ def get_new_user_map(worksheet_feed, current_user_map, portal_name, use_institut
         # we are only concerned with 'APPROVED' entries
         if (entry.custom[STATUS_KEY].text is not None and
             entry.custom[STATUS_KEY].text.strip() == STATUS_APPROVED):
-            inst_email = entry.custom[INST_EMAIL_KEY].text.strip()
-            if use_institutional_id == 'true':
-                openid_email = entry.custom[INST_EMAIL_KEY].text.strip().lower()
+            if spreadsheet == MSKCC_USER_SPREADSHEET:
+                inst_email = entry.custom[MSKCC_EMAIL_KEY].text.strip()
+                google_email = entry.custom[MSKCC_EMAIL_KEY].text.strip().lower()
             else:
-                openid_email = entry.custom[OPENID_EMAIL_KEY].text.strip().lower()
+                inst_email = entry.custom[INST_EMAIL_KEY].text.strip()
+                google_email = entry.custom[OPENID_EMAIL_KEY].text.strip().lower()
             name = entry.custom[FULLNAME_KEY].text.strip()
             authorities = entry.custom[AUTHORITIES_KEY].text.strip()
             # do not add entry if this entry is a current user
-            if openid_email not in current_user_map:
+            if google_email not in current_user_map:
                 if authorities[-1:] == ';':
                     authorities = authorities[:-1]
-                to_return[openid_email] = User(inst_email, openid_email, name, 1,
+                to_return[google_email] = User(inst_email, google_email, name, 1,
                     [portal_name + ':' + au for au in authorities.split(';')])
+
+    return to_return
+
+# ------------------------------------------------------------------------------
+# get all users from google spreadsheet.  note only inst & google email is returned
+
+def get_all_user_map(spreadsheet, worksheet_feed):
+
+    # map that we are returning
+    # key is the institutional email address + google (in case user has multiple google ids)
+    # of the user and value is a User object
+    to_return = {}
+
+    for entry in worksheet_feed.entry:
+        if spreadsheet == MSKCC_USER_SPREADSHEET:
+            inst_email = entry.custom[MSKCC_EMAIL_KEY].text.strip()
+            google_email = entry.custom[MSKCC_EMAIL_KEY].text.strip().lower()
+        else:
+            inst_email = entry.custom[INST_EMAIL_KEY].text.strip()
+            google_email = entry.custom[OPENID_EMAIL_KEY].text.strip().lower()
+        to_return[google_email] = User(inst_email, google_email, "not_used", 1, "not_used")
 
     return to_return
     
@@ -388,7 +417,7 @@ def get_portal_properties(portal_properties_filename):
 # adds new users from the google spreadsheet into the cgds portal database
 # returns new user map if users have been inserted, None otherwise
 
-def manage_users(cursor, worksheet_feed, portal_name, use_institutional_id):
+def manage_users(spreadsheet, cursor, worksheet_feed, portal_name):
 
     # get map of current portal users
     print >> OUTPUT_FILE, 'Getting list of current portal users'
@@ -401,7 +430,7 @@ def manage_users(cursor, worksheet_feed, portal_name, use_institutional_id):
 
     # get list of new users and insert
     print >> OUTPUT_FILE, 'Checking for new users'
-    new_user_map = get_new_user_map(worksheet_feed, current_user_map, portal_name, use_institutional_id)
+    new_user_map = get_new_user_map(spreadsheet, worksheet_feed, current_user_map, portal_name)
     if (len(new_user_map) > 0):
         print >> OUTPUT_FILE, 'We have %s new user(s) to add' % len(new_user_map)
         success = insert_new_users(cursor, new_user_map.values())
@@ -417,22 +446,55 @@ def manage_users(cursor, worksheet_feed, portal_name, use_institutional_id):
 
 # ------------------------------------------------------------------------------
 # updates user study access
-def update_user_authorities(cursor, worksheet_feed, portal_name, use_institutional_id):
+def update_user_authorities(spreadsheet, cursor, worksheet_feed, portal_name):
 
         # get map of current portal users
         print >> OUTPUT_FILE, 'Getting list of current portal users from spreadsheet'
-        all_user_map = get_new_user_map(worksheet_feed, {}, portal_name, use_institutional_id)
+        all_user_map = get_new_user_map(spreadsheet, worksheet_feed, {}, portal_name)
         if all_user_map is None:
                 return None;
         print >> OUTPUT_FILE, 'Updating authorities for each user in current portal user list'
         for user in all_user_map.values():
                 worksheet_authorities = set(user.authorities)
-                db_authorities = set(get_user_authorities(cursor, user.openid_email))
+                db_authorities = set(get_user_authorities(cursor, user.google_email))
                 try:
                         cursor.executemany("insert into authorities values(%s, %s)",
-                                           [(user.openid_email, authority) for authority in worksheet_authorities - db_authorities])
+                                           [(user.google_email, authority) for authority in worksheet_authorities - db_authorities])
                 except MySQLdb.Error, msg:
                         print >> ERROR_FILE, msg
+
+# ------------------------------------------------------------------------------
+# Adds unknown users to user spreadsheet. MSKCC users are given default access.
+# during MSK signon.  If this happens, we want to make sure they get into the google
+# spreadsheet for tracking purposes.
+def add_unknown_users_to_spreadsheet(cursor, spreadsheet, worksheet):
+
+    # get map of all users in google spreadsheet and portal database
+    worksheet_feed = get_worksheet_feed(spreadsheet, worksheet)
+    google_spreadsheet_user_map = get_all_user_map(spreadsheet, worksheet_feed)
+    portal_db_user_map = get_current_user_map(cursor)
+    current_time = time.strftime("%m/%d/%y %H:%M:%S")
+    # for each user in portal database not in google spreadsheet, insert user into google spreadsheet
+    for email in portal_db_user_map.keys():
+        if email.endswith(MSKCC_EMAIL_SUFFIX) and email not in google_spreadsheet_user_map:
+            user = portal_db_user_map[email]
+            print >> OUTPUT_FILE, user.name
+            # we only got here if user was inserted via MSK AD - in which case name is formatted as:
+            # Gross, Benjamin E./Sloan Kettering Institute
+            if "/" in user.name:
+                user_name_parts = user.name.split("/")
+                row = { TIMESTAMP_KEY : current_time, MSKCC_EMAIL_KEY : user.inst_email, FULLNAME_KEY : user_name_parts[0], LAB_PI_KEY : user_name_parts[1], STATUS_KEY : STATUS_APPROVED, AUTHORITIES_KEY : DEFAULT_AUTHORITIES }
+            else:
+                row = { TIMESTAMP_KEY : current_time, MSKCC_EMAIL_KEY : user.inst_email, FULLNAME_KEY : user.name, STATUS_KEY : STATUS_APPROVED, AUTHORITIES_KEY : DEFAULT_AUTHORITIES }
+            add_row_to_google_worksheet(spreadsheet, worksheet, row)
+
+
+# ------------------------------------------------------------------------------
+# adds a row to the google spreadsheet
+def add_row_to_google_worksheet(spreadsheet, worksheet, row):
+    ss_id = get_feed_id(GOOGLE_SPREADSHEET_CLIENT.GetSpreadsheetsFeed(), spreadsheet)
+    ws_id = get_feed_id(GOOGLE_SPREADSHEET_CLIENT.GetWorksheetsFeed(ss_id), worksheet)
+    GOOGLE_SPREADSHEET_CLIENT.InsertRow(row, ss_id, ws_id);
 
 # ------------------------------------------------------------------------------
 # displays program usage (invalid args)
@@ -456,19 +518,15 @@ def main():
     # process the options
     properties_filename = ''
     send_email_confirm = ''
-    use_institutional_id = ''
 
     for o, a in opts:
         if o == '--properties-file':
             properties_filename = a
         elif o == '--send-email-confirm':
             send_email_confirm = a
-        elif o == '--use-institutional-id':
-            use_institutional_id = a
 
-    if (properties_filename == '' or send_email_confirm == '' or use_institutional_id == '' or
-        (send_email_confirm != 'true' and send_email_confirm != 'false') or
-        (use_institutional_id != 'true' and use_institutional_id != 'false')):
+    if (properties_filename == '' or send_email_confirm == '' or 
+        (send_email_confirm != 'true' and send_email_confirm != 'false')):
         usage()
         sys.exit(2)
 
@@ -505,10 +563,10 @@ def main():
                                             portal_properties.google_worksheet)
 
         # the 'guts' of the script
-        new_user_map = manage_users(cursor, worksheet_feed, PORTAL_NAME[google_spreadsheet], use_institutional_id)
+        new_user_map = manage_users(google_spreadsheet, cursor, worksheet_feed, PORTAL_NAME[google_spreadsheet])
 
         # update user authorities
-        update_user_authorities(cursor, worksheet_feed, PORTAL_NAME[google_spreadsheet], use_institutional_id)
+        update_user_authorities(google_spreadsheet, cursor, worksheet_feed, PORTAL_NAME[google_spreadsheet])
 
         # sending emails
         if new_user_map is not None:
@@ -521,6 +579,8 @@ def main():
                               MESSAGE_SUBJECT[google_spreadsheet],
                               MESSAGE_BODY[google_spreadsheet])
 
+        if google_spreadsheet == MSKCC_USER_SPREADSHEET:
+            add_unknown_users_to_spreadsheet(cursor, google_spreadsheet, portal_properties.google_worksheet)
 
     # clean up
     cursor.close()

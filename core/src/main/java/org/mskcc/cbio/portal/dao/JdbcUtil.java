@@ -22,7 +22,7 @@ import org.mskcc.cbio.portal.util.*;
 import org.apache.commons.logging.*;
 
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.GenericXmlApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.beans.factory.BeanCreationException;
 
 import java.sql.*;
@@ -87,8 +87,9 @@ public class JdbcUtil {
     private static DataSource initDataSource()
     {
         DataSource ds = null;
-        ApplicationContext ctx = getContext("jndi");
+        ApplicationContext ctx = null;
         try {
+            ctx = getContext("jndi");
             ds = (DataSource)ctx.getBean("businessDataSource");
         }
         catch (Exception e) {
@@ -104,10 +105,9 @@ public class JdbcUtil {
 
     private static ApplicationContext getContext(String profile)
     {
-        GenericXmlApplicationContext ctx = new GenericXmlApplicationContext();
+        ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:applicationContext-business.xml");
         ctx.getEnvironment().setActiveProfiles(profile);
         ctx.refresh();
-        ctx.load("classpath:applicationContext-business.xml");
         return ctx; 
     }
 

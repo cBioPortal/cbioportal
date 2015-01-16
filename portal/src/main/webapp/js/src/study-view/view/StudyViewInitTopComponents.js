@@ -39,6 +39,7 @@ var StudyViewInitTopComponents = (function() {
             //StudyViewInitCharts.redrawScatter();
             
             dc.redrawAll();
+            StudyViewInitTables.clearAllSelected();
             StudyViewInitCharts.resetBars();
             StudyViewInitCharts.redrawSpecialPlots();
             setTimeout(function() {

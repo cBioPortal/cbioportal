@@ -33,12 +33,12 @@ import com.google.gdata.client.spreadsheet.*;
 import com.google.gdata.util.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.*;
-import java.io.IOException;
 import java.util.Calendar;
 import java.lang.reflect.Method;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Class which implements the Config interface
@@ -67,12 +67,17 @@ class GDataImpl implements Config {
 	ArrayList<ArrayList<String>> dataSourcesMatrix;
 	ArrayList<ArrayList<String>> portalsMatrix;
 	ArrayList<ArrayList<String>> referenceMatrix;
-	ArrayList<ArrayList<String>> tumorTypesMatrix;
+	
+	ArrayList<ArrayList<String>> oncotreeMatrix;
+	ArrayList<ArrayList<String>> oncotreePropertyMatrix;
+	
+	ArrayList<ArrayList<String>> tcgaTumorTypesMatrix;
 	ArrayList<ArrayList<String>> foundationMatrix;
 
 	// worksheet names we need for updates
 	private String gdataSpreadsheet;
-	private String tumorTypesWorksheet;
+	private String oncotreeWorksheet;
+	private String oncotreePropertyWorksheet;
 	private String datatypesWorksheet;
 	private String caseIDFiltersWorksheet;
 	private String caseListWorksheet;
@@ -83,6 +88,7 @@ class GDataImpl implements Config {
 	private String dataSourcesWorksheet;
 	private String cancerStudiesWorksheet;
 	private String foundationWorksheet;
+	private String tcgaTumorTypesWorksheet;
 
 	/**
 	 * Constructor.
@@ -91,31 +97,16 @@ class GDataImpl implements Config {
 	 *  metadata objects can be retrieved during construction of this class.  Which will
 	 * prevent us from having to access google more than once.  Of course any changes to
 	 * the google docs will not be reflected in this class until its next instantiation.
-     *
-	 * @param gdataUser String
-	 * @param gdataPassword String
-     * @param spreadsheetService SpreadsheetService
-	 * @param gdataSpreadsheet String
-	 * @param tumorTypesWorksheet String
-	 * @param datatypesWorksheet String
-	 * @param caseIDFiltersWorksheet String
-	 * @param caseListWorksheet String
-	 * @param clinicalAttributesNamespaceWorksheet String
-	 * @param clinicalAttributesWorksheet String
-	 * @param portalsWorksheet String
-	 * @param referenceDataWorksheet String
-	 * @param dataSourceseWorksheet String
-	 * @param cancerStudiesWorksheet String
-	 * @param foundationWorksheet String
 	 */
 	public GDataImpl(String gdataUser, String gdataPassword, SpreadsheetService spreadsheetService,
-					 String gdataSpreadsheet, String tumorTypesWorksheet, String datatypesWorksheet,
+					 String gdataSpreadsheet, 
+					 String oncotreeWorksheet, String oncotreePropertyWorksheet,
+					 String datatypesWorksheet,
 					 String caseIDFiltersWorksheet, String caseListWorksheet,
                      String clinicalAttributesNamespaceWorksheet, String clinicalAttributesWorksheet,
 					 String portalsWorksheet, String referenceDataWorksheet, String dataSourcesWorksheet, String cancerStudiesWorksheet,
-					 String foundationWorksheet, NCIcaDSRFetcher nciDSRFetcher)
+					 String foundationWorksheet, String tcgaTumorTypesWorksheet, NCIcaDSRFetcher nciDSRFetcher)
 	{
-
 		// set members
 		this.gdataUser = gdataUser;
 		this.gdataPassword = gdataPassword;
@@ -124,7 +115,8 @@ class GDataImpl implements Config {
 
 		// save name(s) of worksheet we update later
 		this.gdataSpreadsheet = gdataSpreadsheet;
-		this.tumorTypesWorksheet = tumorTypesWorksheet;
+		this.oncotreeWorksheet = oncotreeWorksheet;
+		this.oncotreePropertyWorksheet = oncotreePropertyWorksheet;
 		this.datatypesWorksheet = datatypesWorksheet;
 		this.caseIDFiltersWorksheet = caseIDFiltersWorksheet;
 		this.caseListWorksheet = caseListWorksheet;
@@ -135,6 +127,7 @@ class GDataImpl implements Config {
 		this.dataSourcesWorksheet = dataSourcesWorksheet;
 		this.cancerStudiesWorksheet = cancerStudiesWorksheet;
 		this.foundationWorksheet = foundationWorksheet;
+		this.tcgaTumorTypesWorksheet = tcgaTumorTypesWorksheet;
 	}
 
 	/**
@@ -146,14 +139,22 @@ class GDataImpl implements Config {
 	public String[] getTumorTypesToDownload() {
 
 		String toReturn = "";
-		for (TumorTypeMetadata tumorTypeMetadata : getTumorTypeMetadata(Config.ALL)) {
-			if (tumorTypeMetadata.getDownload()) {
-				toReturn += tumorTypeMetadata.getType() + ":";
-			}
+		for (TCGATumorTypeMetadata tcgaTumorTypeMetadata : getTCGATumorTypeMetadata()) {
+			toReturn += tcgaTumorTypeMetadata.getTCGACode() + ":";
 		}
 
 		// outta here
 		return toReturn.split(":");
+	}
+
+	private Collection<TCGATumorTypeMetadata> getTCGATumorTypeMetadata()
+	{
+		if (tcgaTumorTypesMatrix == null) {
+			tcgaTumorTypesMatrix = getWorksheetData(gdataSpreadsheet, tcgaTumorTypesWorksheet);
+		}
+
+		return (Collection<TCGATumorTypeMetadata>)getMetadataCollection(tcgaTumorTypesMatrix,
+																 		"org.mskcc.cbio.importer.model.TCGATumorTypeMetadata");
 	}
 
 	/**
@@ -163,18 +164,74 @@ class GDataImpl implements Config {
 	 * @param tumortype String
 	 * @return TumorTypeMetadata
 	 */
+	private String[] extractTumorTypeData(String dataCell) {
+		String[] ret = new String[2];
+		if (dataCell.contains("(") && dataCell.contains(")")) {
+			String[] splitCell = dataCell.split("\\(");
+			ret[0] = splitCell[0].trim();
+			ret[1] = splitCell[1].split("\\)")[0];
+		} else {
+			// tissue
+			ret[0] = dataCell;
+			ret[1] = "";
+		}
+		return ret;
+	}
+	
+	private TumorTypeMetadata parseTumorTypeMetadata(ArrayList<String> line, int index, Map<String, String> colorMap) {
+		int newEntIndex = index;
+		String newEnt = line.get(newEntIndex).trim();
+		if (newEnt.isEmpty()) {
+			return null;
+		}
+		String parentEnt = newEntIndex==0?"tissue":line.get(newEntIndex - 1).trim();
+
+		String tissue = line.get(0);
+		String color = colorMap.get(tissue);
+		String[] newEntData = extractTumorTypeData(newEnt);
+		String name = newEntData[0];
+		String id = newEntData[1];
+		if (id.isEmpty()) {
+			id = name;
+		}
+		String[] parentEntData = extractTumorTypeData(parentEnt);
+		String parent = parentEntData[1];
+		if (parent.isEmpty()) {
+			parent = parentEntData[0];
+		}
+		String clinicalTrialKeywords = name.toLowerCase();
+		return new TumorTypeMetadata(id, name, color, parent, clinicalTrialKeywords, tissue);
+	}
+	
 	@Override
 	public Collection<TumorTypeMetadata> getTumorTypeMetadata(String tumorType) {
 
 		Collection<TumorTypeMetadata> toReturn = new ArrayList<TumorTypeMetadata>();
-
-		if (tumorTypesMatrix == null) {
-			tumorTypesMatrix = getWorksheetData(gdataSpreadsheet, tumorTypesWorksheet);
+		
+		if (oncotreeMatrix == null) {
+			oncotreeMatrix = getWorksheetData(gdataSpreadsheet, oncotreeWorksheet);
 		}
-
-		Collection<TumorTypeMetadata> tumorTypeMetadatas = 
-			(Collection<TumorTypeMetadata>)getMetadataCollection(tumorTypesMatrix,
-																 "org.mskcc.cbio.importer.model.TumorTypeMetadata");
+		if (oncotreePropertyMatrix == null) {
+			oncotreePropertyMatrix = getWorksheetData(gdataSpreadsheet, oncotreePropertyWorksheet);
+		}
+		
+		HashMap<String, String> colorMap = new HashMap<>();
+		for (int i=1; i<oncotreePropertyMatrix.size(); i++) {
+			ArrayList<String> line = oncotreePropertyMatrix.get(i);
+			colorMap.put(line.get(0), line.get(1));
+		}
+		
+		HashMap<String, TumorTypeMetadata> tumorTypes = new HashMap<>();
+		for (int i=1; i<oncotreeMatrix.size(); i++) {
+			ArrayList<String> line = oncotreeMatrix.get(i);
+			for (int j=0; j<line.size(); j++) {
+				TumorTypeMetadata ttmd = parseTumorTypeMetadata(line, j, colorMap);
+				if (ttmd!= null && !tumorTypes.containsKey(ttmd.getType())) {
+					tumorTypes.put(ttmd.getType(), ttmd);
+				}
+			}
+		}
+		Collection<TumorTypeMetadata> tumorTypeMetadatas = tumorTypes.values();
 		// if user wants all, we're done
 		if (tumorType.equals(Config.ALL)) {
 			return tumorTypeMetadatas;

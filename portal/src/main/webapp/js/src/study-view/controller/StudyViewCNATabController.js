@@ -4,7 +4,7 @@
 var StudyViewCNATabController = (function() {
     var init = function (){
         StudyViewInitCNATab.init(
-            StudyViewProxy.getCNAData()
+            StudyViewProxy.getGisticData()
         );
     };
     

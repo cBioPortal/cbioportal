@@ -63,7 +63,7 @@ define(function() {
                         return 4; // need to modified by dong li
                     }
                     
-                    return m === undefined ? 0 : (/fusion($|,)/i.test(m)?2:1); 
+                    return m === undefined ? 0 : (/\bfusion\b/i.test(m)?2:1); 
                 };
 
             var cna_diff = cna_order[attr2.cna] - cna_order[attr1.cna];

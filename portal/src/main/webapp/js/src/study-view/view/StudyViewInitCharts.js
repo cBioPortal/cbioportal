@@ -277,7 +277,7 @@ var StudyViewInitCharts = (function(){
     }
     
     function initSpecialCharts(_arr){
-        if(cancerStudyId !== 'mixed_dmp_MSK-IMPACT_2014') {
+        if(cancerStudyId !== 'mskimpact') {
             if(     (StudyViewUtil.arrayFindByValue(varName, 'OS_MONTHS') && 
                     StudyViewUtil.arrayFindByValue(varName, 'OS_STATUS') &&
                     varKeys['OS_MONTHS'].length > 0 &&
@@ -541,7 +541,7 @@ var StudyViewInitCharts = (function(){
     
     function initCharts(_data) { 
         $("#study-view-charts").html("");
-        if(cancerStudyId !== 'mixed_dmp_MSK-IMPACT_2014') {
+        if(cancerStudyId !== 'mskimpact') {
             initSpecialCharts(_data.arr);
         }
         initDcCharts(_data);
@@ -570,7 +570,7 @@ var StudyViewInitCharts = (function(){
             }
         });
         
-        if(cancerStudyId === 'mixed_dmp_MSK-IMPACT_2014') {
+        if(cancerStudyId === 'mskimpact') {
             initSpecialCharts(_data.arr);      
         }
         
@@ -1105,7 +1105,7 @@ var StudyViewInitCharts = (function(){
                 _index = tmp[tmp.length - 1];
             
             $("#study-view-survival-plot-" + _index).css('display','block');
-        }else if(varType.hasOwnProperty(_selectedChartType)){
+        }else if(varType.hasOwnProperty(_id)){
             if(totalCharts < 31) {
                 if(Object.keys(attrNameMapUID).indexOf(_id) !== -1){
                     _chartID = attrNameMapUID[_id];

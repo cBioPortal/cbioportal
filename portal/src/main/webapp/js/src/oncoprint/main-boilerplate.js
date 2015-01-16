@@ -1373,9 +1373,9 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'top center',at:'bottom center', viewport: $(window)},
             content: {
-                text:   "<button class='oncoprint-diagram-download' type='pdf' style='cursor:pointer'>PDF</button>"+
-                        "<button class='oncoprint-diagram-download' type='svg' style='cursor:pointer'>SVG</button>"+
-                        "<button class='oncoprint-sample-download'  type='txt' style='cursor:pointer'>Samples</button>"
+                text:   "<button class='oncoprint-diagram-download' type='pdf' style='cursor:pointer;width:90px;'>PDF</button> <br/>"+
+                        "<button class='oncoprint-diagram-download' type='svg' style='cursor:pointer;width:90px;'>SVG</button> <br/>"+
+                        "<button class='oncoprint-sample-download'  type='txt' style='cursor:pointer;width:90px;'>Sample order</button>"
             },
             events:{
                 render:function(event){     

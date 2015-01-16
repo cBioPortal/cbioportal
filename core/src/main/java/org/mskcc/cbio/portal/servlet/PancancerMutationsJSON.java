@@ -130,7 +130,7 @@ public class PancancerMutationsJSON extends HttpServlet {
 			{
 				// get entrez gene id corresponding to the gene symbol
 				long entrezId = DaoGeneOptimized.getInstance().getGene(parts[0]).getEntrezGeneId();
-				// create the query string (<ENTREZ ID>_<POSITION>
+				// create the query string (<ENTREZ ID>_<POSITION>)
 				posWithEntrez.add(entrezId + "_" + parts[1]);
 			}
 		}

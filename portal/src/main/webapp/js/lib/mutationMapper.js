@@ -2561,6 +2561,8 @@ var MutationDetailsUtil = function(mutations)
 	var _mutationCaseMap = {};
 	var _mutationIdMap = {};
 	var _mutationKeywordMap = {};
+	var _mutationProteinChangeMap = {};
+	var _mutationProteinPosStartMap = {};
 	var _mutations = [];
 
 	this.getMutationGeneMap = function()
@@ -2597,6 +2599,8 @@ var MutationDetailsUtil = function(mutations)
 		_mutationCaseMap = this._updateCaseMap(mutations);
 		_mutationIdMap = this._updateIdMap(mutations);
 		_mutationKeywordMap = this._updateKeywordMap(mutations);
+		_mutationProteinChangeMap = this._updateProteinChangeMap(mutations);
+		_mutationProteinPosStartMap = this._updateProteinPosStartMap(mutations);
 		_mutations = _mutations.concat(mutations.models);
 	};
 
@@ -2631,6 +2635,16 @@ var MutationDetailsUtil = function(mutations)
 	this.getAllKeywords = function()
 	{
 		return _.keys(_mutationKeywordMap);
+	};
+
+	this.getAllProteinChanges = function()
+	{
+		return _.keys(_mutationProteinChangeMap);
+	};
+
+	this.getAllProteinPosStarts = function()
+	{
+		return _.keys(_mutationProteinPosStartMap);
 	};
 
 	this.getAllGenes = function()
@@ -2741,6 +2755,73 @@ var MutationDetailsUtil = function(mutations)
 				}
 
 				mutationMap[keyword].push(mutations.at(i));
+			}
+		}
+
+		return mutationMap;
+	};
+
+	/**
+	 * Processes the collection of mutations, and creates a map of
+	 * <protein change, mutation array> pairs.
+	 *
+	 * @param mutations collection of mutations
+	 * @returns {object} map of mutations (keyed on protein change)
+	 * @private
+	 */
+	this._updateProteinChangeMap = function(mutations)
+	{
+		var mutationMap = _mutationProteinChangeMap;
+
+		// process raw data to group mutations by genes
+		for (var i=0; i < mutations.length; i++)
+		{
+			var proteinChange = mutations.at(i).proteinChange;
+
+			if (proteinChange != null)
+			{
+				if (mutationMap[proteinChange] == undefined)
+				{
+					mutationMap[proteinChange] = [];
+				}
+
+				mutationMap[proteinChange].push(mutations.at(i));
+			}
+		}
+
+		return mutationMap;
+	};
+
+	/**
+	 * Processes the collection of mutations, and creates a map of
+	 * <protein position start, mutation array> pairs.
+	 *
+	 * @param mutations collection of mutations
+	 * @returns {object} map of mutations (keyed on protein position start)
+	 * @private
+	 */
+	this._updateProteinPosStartMap = function(mutations)
+	{
+		var mutationMap = _mutationProteinPosStartMap;
+
+		// process raw data to group mutations by genes
+		for (var i=0; i < mutations.length; i++)
+		{
+			// using only protein position start is ambiguous,
+			// so we also need gene symbol for the key...
+			var gene = mutations.at(i).geneSymbol;
+			var proteinPosStart = mutations.at(i).proteinPosStart;
+
+			if (proteinPosStart != null && gene != null)
+			{
+				var key = gene + "_" + proteinPosStart;
+
+				if (mutationMap[key] == undefined)
+				{
+					mutationMap[key] = [];
+				}
+
+				mutationMap[key].push(mutations.at(i));
 			}
 		}
 
@@ -3451,16 +3532,22 @@ var PancanMutationDataUtil = (function()
 			{});
 	}
 
-	function getMutationFrequencies(byKeywordResponse, byHugoResponse)
+	function getMutationFrequencies(data)
 	{
-		return _.extend(munge(byKeywordResponse, "keyword"), munge(byHugoResponse, "hugo"));
+		var frequencies = {};
+
+		_.each(_.keys(data), function(key, i) {
+			frequencies = _.extend(frequencies, munge(data[key], key));
+		});
+
+		return frequencies;
 	}
 
 	/**
 	 * Counts number of total mutations for the given frequencies and key.
 	 *
 	 * @param frequencies   pancan mutation frequencies
-	 * @param key           key (keyword or gene symbol)
+	 * @param key           key (keyword, gene symbol or protein change)
 	 * @returns {Object}    mutation count
 	 */
 	function countByKey(frequencies, key)
@@ -6899,17 +6986,19 @@ var PancanMutationHistTipView = Backbone.View.extend({
 		var self = this;
 
 		var gene = self.model.geneSymbol;
-		var keyword = self.model.keyword;
+		//var keyword = self.model.keyword;
+		var proteinPosStart = self.model.proteinPosStart;
 		var metaData = self.model.cancerStudyMetaData;
 		var cancerStudy = self.model.cancerStudyName;
 
-		var byKeywordData = self.model.pancanMutationFreq[keyword];
+		//var byKeywordData = self.model.pancanMutationFreq[keyword];
+		var byProteinPosData = self.model.pancanMutationFreq[proteinPosStart];
 		var byHugoData = self.model.pancanMutationFreq[gene];
 
 		var container = self.$el.find(".pancan-histogram-container");
 
 		// init the histogram
-		var histogram = PancanMutationHistogram(byKeywordData,
+		var histogram = PancanMutationHistogram(byProteinPosData,
 		                                        byHugoData,
 		                                        metaData,
 		                                        container[0],
@@ -7818,6 +7907,10 @@ function PancanMutationDataProxy(options)
 
 	// map of <keyword, data> pairs
 	var _cacheByKeyword = {};
+	// map of <proteinChange, data> pairs
+	var _cacheByProteinChange = {};
+	// map of <proteinPosStart, data> pairs
+	var _cacheByProteinPosition = {};
 	// map of <gene, data> pairs
 	var _cacheByGeneSymbol = {};
 
@@ -7842,8 +7935,9 @@ function PancanMutationDataProxy(options)
 	function fullInit(data)
 	{
 		_cacheByKeyword = data.byKeyword;
+		_cacheByProteinChange = data.byProteinChange;
 		_cacheByGeneSymbol = data.byGeneSymbol;
-
+		_cacheByProteinPosition = data.byProteinPosition;
 		_fullInit = true;
 	}
 
@@ -7864,13 +7958,25 @@ function PancanMutationDataProxy(options)
 		{
 			// if no query params (keywords) provided, use all available
 			var keywords = (q == null) ? mutationUtil.getAllKeywords() : q.split(",");
-			getData(cmd, keywords, _cacheByKeyword, "keyword", callback);
+			getData(cmd, keywords, _cacheByKeyword, ["keyword"], callback);
 		}
 		else if (cmd == "byHugos")
 		{
 			// if no query params (genes) provided, use all available
 			var genes = (q == null) ? mutationUtil.getAllGenes() : q.split(",");
-			getData(cmd, genes, _cacheByGeneSymbol, "hugo", callback);
+			getData(cmd, genes, _cacheByGeneSymbol, ["hugo"], callback);
+		}
+		else if (cmd == "byProteinChanges")
+		{
+			// if no query params (genes) provided, use all available
+			var proteinChanges = (q == null) ? mutationUtil.getAllProteinChanges() : q.split(",");
+			getData(cmd, proteinChanges, _cacheByProteinChange, ["protein_change"], callback);
+		}
+		else if (cmd == "byProteinPos")
+		{
+			// if no query params (genes) provided, use all available
+			var proteinPositions = (q == null) ? mutationUtil.getAllProteinPosStarts() : q.split(",");
+			getData(cmd, proteinPositions, _cacheByProteinPosition, ["hugo", "protein_pos_start"], callback);
 		}
 		else
 		{
@@ -7885,10 +7991,10 @@ function PancanMutationDataProxy(options)
 	 * @param cmd       cmd (byHugos or byKeyword)
 	 * @param keys      keys used to get cached data
 	 * @param cache     target cache (byKeyword or byGeneSymbol)
-	 * @param field     field name to be used as a cache key
+	 * @param fields     field names to be used as a cache key
 	 * @param callback  callback function to forward the data
 	 */
-	function getData(cmd, keys, cache, field, callback)
+	function getData(cmd, keys, cache, fields, callback)
 	{
 		// get cached data
 		var data = getCachedData(keys, cache);
@@ -7902,14 +8008,14 @@ function PancanMutationDataProxy(options)
 			$.getJSON(_servletName,
 			          {cmd: cmd, q: toQuery.join(",")},
 			          function(response) {
-				          processData(response, data, cache, field, callback);
+				          processData(response, data, cache, fields, callback);
 			          }
 			);
 		}
 		// everything is already cached (or full init)
 		else
 		{
-			processData([], data, cache, field, callback);
+			processData([], data, cache, fields, callback);
 		}
 	}
 
@@ -7919,12 +8025,18 @@ function PancanMutationDataProxy(options)
 	 * @param response  raw data
 	 * @param data      previously cached data (for provided keys)
 	 * @param cache     target cache (byKeyword or byGeneSymbol)
-	 * @param field     field name to be used as a cache key
+	 * @param fields     field names to be used as a cache key
 	 * @param callback  callback function to forward the processed data
 	 */
-	function processData (response, data, cache, field, callback) {
+	function processData (response, data, cache, fields, callback) {
 		_.each(response, function(ele, idx) {
-			var key = ele[field];
+			var keyValues = [];
+
+			_.each(fields, function(field, idx){
+				keyValues.push(ele[field]);
+			});
+
+			var key = keyValues.join("_");
 
 			// init the list if not init yet
 			if (cache[key] == null)
@@ -10473,6 +10585,8 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 										cancerStudyName: cancerStudy,
 										geneSymbol: gene,
 										keyword: mutation.keyword,
+										proteinPosStart: mutation.proteinPosStart,
+										mutationType: mutation.mutationType,
 										qtipApi: api};
 
 									//var container = $(this).find('.qtip-content');
@@ -10754,10 +10868,10 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 				var additionalData = helper.additionalData;
 
 				// get the pancan data and update the data & display values
-				pancanProxy.getPancanData({cmd: "byKeywords"}, mutationUtil, function(dataByKeyword) {
+				pancanProxy.getPancanData({cmd: "byProteinPos"}, mutationUtil, function(dataByPos) {
 					pancanProxy.getPancanData({cmd: "byHugos"}, mutationUtil, function(dataByGeneSymbol) {
 						var frequencies = PancanMutationDataUtil.getMutationFrequencies(
-							dataByKeyword, dataByGeneSymbol);
+							{protein_pos_start: dataByPos, hugo: dataByGeneSymbol});
 
 						additionalData.pancanFrequencies = frequencies;
 
@@ -10767,7 +10881,7 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 						_.each(tableData, function(ele, i) {
 							// update the value of the datum
 							ele[indexMap["datum"]].cBioPortal = PancanMutationDataUtil.countByKey(
-								frequencies, ele[indexMap["datum"]].mutation.keyword);
+								frequencies, ele[indexMap["datum"]].mutation.proteinPosStart);
 
 							// update but do not redraw, it is too slow
 							dataTable.fnUpdate(null, i, indexMap["cBioPortal"], false, false);
@@ -14639,7 +14753,7 @@ MutationPdbTable.prototype.constructor = MutationPdbTable;
 /**
  * Makes a Pancancer Mutation Histogram on the DOM el.
  *
- * @param byKeywordData             [list of {cancer_study, cancer_type, hugo, keyword, count} ]
+ * @param byProteinPosData          [list of {cancer_study, cancer_type, hugo, protein_pos_start, count} ]
  * @param byGeneData                [list of {cancer_study, cancer_type, hugo, count} ]
  * @param cancer_study_meta_data    [list of {cancer_study, cancer_type, num_sequenced_samples} ]
  * @param el                        DOM element
@@ -14651,7 +14765,8 @@ MutationPdbTable.prototype.constructor = MutationPdbTable;
  * @author Gideon Dresdner <dresdnerg@cbio.mskcc.org>
  * September 2013
  */
-function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_data, el, params) {
+// TODO make the histogram compatible for different data types (keyword, position data, mutation type, etc)
+function PancanMutationHistogram(byProteinPosData, byGeneData, cancer_study_meta_data, el, params) {
 
     params = params || {};
     if (params.sparkline) {
@@ -14676,11 +14791,13 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
     // --- data munging --- //
 
     // copy
-    var bykeyword_data = deep_copy(byKeywordData);
+    var bykeyword_data = deep_copy(byProteinPosData);
     var bygene_data = deep_copy(byGeneData);
 
     // extend
-    var keyword = bykeyword_data[0].keyword;
+	//var keyword = bykeyword_data[0].keyword;
+	var keyword = bykeyword_data[0].hugo + " " + bykeyword_data[0].protein_pos_start;
+
     bykeyword_data = extend_by_zero_set(bykeyword_data)
         .map(function(d) { d.keyword = keyword; return d; });     // make sure everything has a key.  TODO: remove this extra list traversal
     bygene_data = extend_by_zero_set(bygene_data);
@@ -16296,6 +16413,8 @@ function MutationMapper(options)
 				servletName: "pancancerMutations.json",
 				data: {
 					byKeyword: {},
+					byProteinChange: {},
+					byProteinPosition: {},
 					byGeneSymbol: {}
 				},
 				options: {}

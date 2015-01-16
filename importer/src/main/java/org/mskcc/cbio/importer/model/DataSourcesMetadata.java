@@ -79,13 +79,13 @@ public class DataSourcesMetadata {
 	public String getDataSource() { return dataSource; }
 	public String getDownloadDirectory() {
 		// resolve envroment variable portion of worksheet entry
-		return this.resolveBaseStatgingPath().toString();
+		return this.resolveBaseStagingDirectory().toString();
 		//return downloadDirectory;
 	}
 	public Boolean isAdditionalStudiesSource() { return additionalStudiesSource; }
 	public String getFetcherBeanID() { return fetcherBeanID; }
 
-	public Path resolveBaseStatgingPath() {
+	public Path resolveBaseStagingDirectory() {
 		if(!this.downloadDirectory.startsWith("$")){
 			return Paths.get(this.downloadDirectory);
 		}
@@ -130,7 +130,7 @@ public class DataSourcesMetadata {
 			System.out.println(System.getenv("PORTAL_DATA_HOME"));
 			System.out.println(optMeta.get().getDataSource());
 			System.out.println(optMeta.get().getDownloadDirectory());
-			System.out.println( "Path = " +optMeta.get().resolveBaseStatgingPath().toString());
+			System.out.println( "Path = " +optMeta.get().resolveBaseStagingDirectory().toString());
 		} else {
 			System.out.println("Unable to resolve data source for " +dataSourceName);
 		}

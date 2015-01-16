@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.cvr.dmp.model.DmpSnp;
 import org.mskcc.cbio.importer.cvr.dmp.util.DMPCommonNames;
+import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationModel;
 import scala.Tuple2;
 
@@ -173,7 +174,7 @@ public class DmpSnpModel extends MutationModel {
 
     @Override
     public String getValidationStatus() {
-        return "";
+        return StagingCommonNames.VALIDATION_STATUS_PROVISIONAL;
     }
 
     @Override

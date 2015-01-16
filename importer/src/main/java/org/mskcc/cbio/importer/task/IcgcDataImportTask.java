@@ -60,7 +60,7 @@ public class IcgcDataImportTask extends AbstractScheduledService {
         Optional<DataSourcesMetadata> optMeta = DataSourcesMetadata
                 .findDataSourcesMetadataByDataSourceName(StagingCommonNames.DATA_SOURCE_ICGC);
         if (optMeta.isPresent()) {
-            this.baseStagingPath = optMeta.get().resolveBaseStatgingPath();
+            this.baseStagingPath = optMeta.get().resolveBaseStagingDirectory();
         } else {
             this.baseStagingPath = Paths.get(StagingCommonNames.DEFAULT_BASE_DIRECTORY);
         }
@@ -99,9 +99,9 @@ public class IcgcDataImportTask extends AbstractScheduledService {
         // run the smaller importers
 
         for (String icgcId : IcgcMetadata.getRegisteredIcgcStudyList()) {
-            futureList.add(service.submit(new IcgcCancerStudyImporter(icgcId, this.baseStagingPath)));
+           futureList.add(service.submit(new IcgcCancerStudyImporter(icgcId, this.baseStagingPath)));
             logger.info("Task added for " +icgcId);
-        }
+       }
         ListenableFuture<List<String>> taskResults = Futures.successfulAsList(futureList);
         Futures.addCallback(taskResults, new FutureCallback<List<String>>() {
             @Override

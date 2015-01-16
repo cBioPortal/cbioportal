@@ -84,6 +84,10 @@ public interface StagingCommonNames {
     //suffix for filtered foundation studies
     public static final String FOUNDATION_FILTERED_NOTATION = "-filtered";
 
+    // validation status values
+    public static final String VALIDATION_STATUS_PROVISIONAL = "Provisional";
+    public static final String VALIDATION_STATUS_VALID = "Valid";
+
 
 
 

@@ -130,6 +130,7 @@ public class SimpleSomaticFileTransformer extends MutationTransformer implements
                     .transform(new Function<CSVRecord, Integer>() {
                         @Override
                         public Integer apply(CSVRecord record) {
+                            //debug
 
                             final Map<String, String> recordMap = record.toMap();
                             tsvFileHandler.transformImportDataToTsvStagingFile(Lists.newArrayList(new SimpleSomaticModel(recordMap)),
@@ -141,6 +142,7 @@ public class SimpleSomaticFileTransformer extends MutationTransformer implements
 
             logger.info("transformation complete ");
         } catch (Exception ex) {
+            logger.error("++++Transformation error for  " +this.icgcFilePath.toString() );
             logger.error(ex.getMessage());
             ex.printStackTrace();
         }
@@ -217,6 +219,7 @@ public class SimpleSomaticFileTransformer extends MutationTransformer implements
             }
             SimpleSomaticFileTransformer transformer = new SimpleSomaticFileTransformer(
                     tsvPath);
+            //String fn = "/Users/criscuof/cbio-portal-data/icgc/pbca/icgc/au/simple_somatic_mutation.open.PBCA-DE.tsv";
             String fn = "/tmp/simple_somatic_mutation.open.BOCA-UK.tsv";
             transformer.setIcgcFilePath(Paths.get(fn));
             ListenableFuture<Path> p = service.submit(transformer);

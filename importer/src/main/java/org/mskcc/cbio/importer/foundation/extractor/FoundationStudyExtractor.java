@@ -70,7 +70,7 @@ public class FoundationStudyExtractor {
             this.foundationDataDirectory = DEFAULT_DOWNLOAD_DIRECTORY;
         }
         // duplicate files for filtered studies
-        StagingUtils.copyFilteredXMLFiles(dsMeta.get().resolveBaseStatgingPath());
+        StagingUtils.copyFilteredXMLFiles(dsMeta.get().resolveBaseStagingDirectory());
         Optional<FileDataSource> fds  = this.resolveInputDataSource();
         if (fds.isPresent()) {
             this.inputDataSource = fds.get();

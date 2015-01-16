@@ -107,8 +107,10 @@ public class SimpleSomaticMutationImporter implements Callable<String> {
                         final Path stagingDirectoryPath = Paths.get(StagingCommonNames.pathJoiner.join(baseStagingPath,
                                 meta.getDownloaddirectory()));
                         final String url = mutationUrlMap.get(studyId);
+                       // final IcgcFileTransformer transformer = (IcgcFileTransformer) new SimpleSomaticFileTransformer(
+                        //        new MutationFileHandlerImpl(), stagingDirectoryPath);
                         final IcgcFileTransformer transformer = (IcgcFileTransformer) new SimpleSomaticFileTransformer(
-                                new MutationFileHandlerImpl(), stagingDirectoryPath);
+                                 stagingDirectoryPath);
                         return new Tuple3<Path, String, IcgcFileTransformer>(stagingDirectoryPath, url,
                                 transformer);
                     }

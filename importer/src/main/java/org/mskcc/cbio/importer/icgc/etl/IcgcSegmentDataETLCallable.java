@@ -100,7 +100,7 @@ public class IcgcSegmentDataETLCallable extends SegmentTransformer implements Ca
     this list includes default values that span chromosome regions without variation
      */
     private List<IcgcSegmentModel>  transformIcgcSample(String sampleId, Collection<IcgcSegmentModel> models) {
-        logger.info("Processing sample " +sampleId);
+       
         // sort the models by start position - the source data are unsorted
         Map<String,IcgcSegmentModel> sortedModelMap = Maps.newTreeMap();
         for (IcgcSegmentModel model : models){

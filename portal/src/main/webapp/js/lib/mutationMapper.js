@@ -10879,9 +10879,18 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 
 						// update mutation counts (cBioPortal data field) for each datum
 						_.each(tableData, function(ele, i) {
-							// update the value of the datum
-							ele[indexMap["datum"]].cBioPortal = PancanMutationDataUtil.countByKey(
-								frequencies, ele[indexMap["datum"]].mutation.proteinPosStart);
+							var proteinPosStart = ele[indexMap["datum"]].mutation.proteinPosStart;
+
+							// update the value of the datum only if proteinPosStart value is valid
+							if (proteinPosStart > 0)
+							{
+								ele[indexMap["datum"]].cBioPortal = PancanMutationDataUtil.countByKey(
+									frequencies, proteinPosStart);
+							}
+							else
+							{
+								ele[indexMap["datum"]].cBioPortal = 0;
+							}
 
 							// update but do not redraw, it is too slow
 							dataTable.fnUpdate(null, i, indexMap["cBioPortal"], false, false);

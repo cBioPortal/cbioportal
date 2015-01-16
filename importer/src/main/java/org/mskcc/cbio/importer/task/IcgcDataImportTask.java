@@ -6,7 +6,6 @@ import com.google.common.util.concurrent.*;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.icgc.importer.IcgcCancerStudyImporter;
 import org.mskcc.cbio.importer.icgc.importer.SimpleSomaticMutationImporter;
-import org.mskcc.cbio.importer.icgc.support.IcgcMetadataService;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.IcgcMetadata;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
@@ -107,10 +106,7 @@ public class IcgcDataImportTask extends AbstractScheduledService {
         Futures.addCallback(taskResults, new FutureCallback<List<String>>() {
             @Override
             public void onSuccess(List<String> resultList) {
-                for(String s : resultList){
-                    logger.info(s);
 
-                }
             }
             @Override
             public void onFailure(Throwable t) {

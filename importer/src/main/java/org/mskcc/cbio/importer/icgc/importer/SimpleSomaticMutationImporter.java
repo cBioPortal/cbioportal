@@ -38,8 +38,6 @@ import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.*;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.icgc.etl.IcgcStudyFileEtlCallable;
-import org.mskcc.cbio.importer.icgc.support.IcgcImportService;
-import org.mskcc.cbio.importer.icgc.support.IcgcMetadataService;
 import org.mskcc.cbio.importer.icgc.transformer.IcgcFileTransformer;
 import org.mskcc.cbio.importer.icgc.transformer.SimpleSomaticFileTransformer;
 import org.mskcc.cbio.importer.model.IcgcMetadata;
@@ -93,7 +91,7 @@ public class SimpleSomaticMutationImporter implements Callable<String> {
      */
     private List<Tuple3<Path, String, IcgcFileTransformer>> resolveImportAttributeList() {
         // get simple somatic mutation URLs for registered studies
-        final Map<String, String> mutationUrlMap = IcgcImportService.INSTANCE.getIcgcMutationUrlMap();
+        final Map<String, String> mutationUrlMap = IcgcMetadata.resolveIcgcUrlsByType("somaticmutationurl");
         return FluentIterable.from(mutationUrlMap.keySet())
                 .filter(new Predicate<String>() {
                     @Override

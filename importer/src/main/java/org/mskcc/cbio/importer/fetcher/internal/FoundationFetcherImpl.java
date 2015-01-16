@@ -27,10 +27,16 @@ import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.dao.ImportDataRecordDAO;
 import org.mskcc.cbio.importer.foundation.extractor.FileDataSource;
 import org.mskcc.cbio.importer.foundation.extractor.FoundationStudyExtractor;
-import org.mskcc.cbio.importer.foundation.transformer.FoundationXMLTransformerOld;
-import org.mskcc.cbio.importer.foundation.transformer.FoundationXMLTransformer;
+import org.mskcc.cbio.importer.foundation.transformer.*;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
+import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
+import org.mskcc.cbio.importer.persistence.staging.clinical.ClinicalDataFileHandler;
+import org.mskcc.cbio.importer.persistence.staging.clinical.ClinicalDataFileHandlerImpl;
+import org.mskcc.cbio.importer.persistence.staging.cnv.CnvFileHandler;
+import org.mskcc.cbio.importer.persistence.staging.cnv.CnvFileHandlerImpl;
+import org.mskcc.cbio.importer.persistence.staging.fusion.FusionFileHandlerImpl;
+import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
 
 /**
  * This represents a Fetcher implementation that will fetch and transform XML
@@ -52,45 +58,53 @@ import org.mskcc.cbio.importer.model.ReferenceMetadata;
  */
 public class FoundationFetcherImpl implements Fetcher {
 
-    private final Logger logger = Logger.getLogger(FoundationFetcherImpl.class);
+    private final static Logger logger = Logger.getLogger(FoundationFetcherImpl.class);
 
     private FoundationStudyExtractor extractor;
     private  FileTransformer fileTransformer;
-    private final Config config;
-    
-    
+    private Config config;
     private FileUtils fileUtils;
     private ImportDataRecordDAO importDataRecordDAO;
     private DatabaseUtils databaseUtils;
     private DataSourcesMetadata dataSourceMetadata;
-    
-    
-   /*
-    Constructor that only requires a Config
-    */ 
-    public FoundationFetcherImpl(Config aConfig){
-        Preconditions.checkArgument(null != aConfig, "A Config implementation is required");
-        this.config = aConfig;
-        this.extractor = new FoundationStudyExtractor(config);
-        this.fileTransformer = new FoundationXMLTransformerOld(aConfig);
-    }
-    
-    /*
-    legacy constructor 
-    */
 
-    public FoundationFetcherImpl(Config config, FileUtils fileUtils,
-            DatabaseUtils databaseUtils, ImportDataRecordDAO importDataRecordDAO) {
-        // set members
-        this.config = config;
-        this.fileUtils = fileUtils;
-        this.databaseUtils = databaseUtils;
-        this.importDataRecordDAO = importDataRecordDAO;
+   /*
+    Default constructor - for stand alone testing
+
+    */ 
+    public FoundationFetcherImpl(){
+        this.extractor = new FoundationStudyExtractor();
+        TsvStagingFileHandler svtFileHandler = new MutationFileHandlerImpl();
+        CnvFileHandler cnVFileHandler = new CnvFileHandlerImpl();
+        ClinicalDataFileHandler clinicalDataFileHandler = new ClinicalDataFileHandlerImpl();
+        TsvStagingFileHandler fusionFileHandler = new FusionFileHandlerImpl();
+
+        this.fileTransformer= new FoundationXMLTransformer(
+                new FoundationShortVariantTransformer(svtFileHandler),
+                new FoundationCnvTransformer(cnVFileHandler),
+                new FoundationClinicalDataTransformer(clinicalDataFileHandler),
+                new FoundationFusionTransformer(fusionFileHandler));
+
+    }
+
+    //Spring-based constructor
+    public FoundationFetcherImpl (FoundationStudyExtractor extract,
+                                  FoundationXMLTransformer  trans             ){
+        Preconditions.checkArgument(null != extract, "A FoundationStudyExtractor is required");
+        Preconditions.checkArgument(null != trans,"A FoundationXMLTransformer is required");
+        this.extractor = extract;
+        this.fileTransformer = trans;
     }
 
     @Override
+    // legacy fetch
+    // attributes now resolved from importer spreadsheet
     public void fetch(final String dataSource, final String desiredRunDate, boolean sendNotification) throws Exception {
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(dataSource), "A data source is required");
+        this.fetch();
+
+    }
+
+    private void fetch() throws Exception {
         logger.info("fetch operation for Foundation Medicine files invoked");
         // transform the XML data to text format
         for (Path xmlPath : this.extractor.extractData()) {
@@ -99,10 +113,6 @@ public class FoundationFetcherImpl implements Fetcher {
             logger.info("Transforming data from " + xmlPath.toString());
             this.fileTransformer.transform(fds);
         }
-    }
-
-    private void duplicateFilesForFilteredStudies(){
-
     }
 
     @Override
@@ -116,4 +126,15 @@ public class FoundationFetcherImpl implements Fetcher {
                     return (input.toString().endsWith("xml"));
                 }
             };
+
+    // main method for standalone test
+    public static void main (String...args){
+        FoundationFetcherImpl fetcher = new FoundationFetcherImpl();
+        try {
+            fetcher.fetch();
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            e.printStackTrace();
+        }
+    }
 }

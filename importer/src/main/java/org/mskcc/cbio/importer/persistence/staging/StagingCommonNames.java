@@ -36,13 +36,13 @@ public interface StagingCommonNames {
     public static final String HUGO_COLUMNNAME = "Hugo_symbol";
     public static final String INTERGENIC = "intergenic";
 
+    public static final String xmlExtension = "xml";
+
     public static final List<String> variationList = Lists.newArrayList("INS", "SNP", "DNP", "TNP", "ONP");
 
     public static final Splitter tabSplitter = Splitter.on("\t");
     public static final Splitter lineSplitter = Splitter.on("\n").trimResults();
     public static final Splitter blankSplitter = Splitter.on(" ");
-    public static final Splitter scSplitter = Splitter.on(";");
-    public static final Joiner scJoiner = Joiner.on(";");
     public static final Joiner tabJoiner = Joiner.on('\t').useForNull(" ");
     public static final Joiner commaJoiner = Joiner.on(',').useForNull(" ");
     public static final Joiner blankJoiner = Joiner.on(" ");
@@ -80,6 +80,10 @@ public interface StagingCommonNames {
 
     // default base directory
     public static final String DEFAULT_BASE_DIRECTORY = "/tmp/cbio-portal-data";
+
+    //suffix for filtered foundation studies
+    public static final String FOUNDATION_FILTERED_NOTATION = "-filtered";
+
 
 
 

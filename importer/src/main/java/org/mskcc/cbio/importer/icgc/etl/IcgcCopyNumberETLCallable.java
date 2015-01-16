@@ -9,7 +9,6 @@ import edu.stanford.nlp.util.StringUtils;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.icgc.model.IcgcCopyNumberModel;
 import org.mskcc.cbio.importer.icgc.support.IcgcFunctionLibrary;
-import org.mskcc.cbio.importer.icgc.support.IcgcMetadataService;
 import org.mskcc.cbio.importer.model.IcgcMetadata;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import org.mskcc.cbio.importer.persistence.staging.cnv.CnvFileHandler;

@@ -81,7 +81,7 @@ public class TsvFileHandlerImpl implements TsvFileHandler{
 
     private void registerTsvStagingFile(Path stagingFilePath, List<String> columnHeadings, boolean deleteFile) {
 
-        Preconditions.checkArgument(StagingUtils.isValidStagingDirectoryPath(stagingFilePath),
+        Preconditions.checkArgument(null != stagingFilePath,
                 "A valid Path to a staging file is required");
 
         /*

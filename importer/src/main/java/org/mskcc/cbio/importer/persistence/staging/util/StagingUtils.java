@@ -18,16 +18,28 @@
 package org.mskcc.cbio.importer.persistence.staging.util;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
+import edu.stanford.nlp.io.FileSequentialCollection;
 import org.apache.log4j.Logger;
+import org.mskcc.cbio.importer.model.FoundationMetadata;
+import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
+import rx.Observable;
+import rx.Subscriber;
+import rx.functions.Func1;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
@@ -57,10 +69,66 @@ public class StagingUtils {
             return (value != null) ? value.toString() : "";
 
         } catch (Exception ex) {
+            logger.error("Failed to execute getter " +getterName +" for " +obj.getClass().getName());
             logger.error(ex.getMessage());
             ex.printStackTrace();
         }
         return "";
+    }
+
+    /*
+    public static method to find Foundation XML files that should be copied for filtered import
+    1. find the XML files in a specified download directory
+    2. filter out prexisting filtered files
+    3. find the FoundationMetadata object associated with each XML file
+    4, determine if the file belongs to a filtered study
+    5. if so, copy the file to the same directory, appending "-filtered" to the file name
+     */
+    public static void copyFilteredXMLFiles(Path xmlDirPath) {
+        FileSequentialCollection fsc = new FileSequentialCollection(xmlDirPath.toFile(),
+                StagingCommonNames.xmlExtension,false);
+        Observable<File> fileObservable = Observable.from(fsc)
+                // filter out -filtered files from a previous run
+                .filter(new Func1<File,Boolean>() {
+                            @Override
+                            public Boolean call(File file) {
+                                return !file.getName().contains("-filtered.xml");
+                            }
+                        }
+                        // filter for files belonging to a filtered study
+                ).filter(new Func1<File, Boolean>() {
+                    @Override
+                    public Boolean call(File file) {
+                        Optional<FoundationMetadata>optSrcMeta =
+                                FoundationMetadata.findFoundationMetadataByXmlFileName(file.getName());
+                        return optSrcMeta.isPresent() && !Strings.isNullOrEmpty(optSrcMeta.get().getFilteredStudy());
+                    }
+                });
+        fileObservable.subscribe(new Subscriber<File>() {
+            @Override
+            public void onCompleted() {
+                logger.info("Filtered XML file copy operation(s) completed");
+            }
+            @Override
+            public void onError(Throwable throwable) {
+                logger.error(throwable.getMessage());
+            }
+            @Override
+            public void onNext(File file) {
+                try {
+                        File destFile = new File(file.getAbsolutePath().replace(".xml","-filtered.xml"));
+                        new FileOutputStream(destFile).getChannel().transferFrom(
+                                new FileInputStream(file).getChannel(), 0, Long.MAX_VALUE);
+                        logger.info("XML file " +file.getName() +" copied to " +destFile.getName()
+                        +" for filtered analysis");
+
+
+                } catch (IOException e) {
+                    logger.error(e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     /*
@@ -96,12 +164,12 @@ public class StagingUtils {
         com.google.common.base.Preconditions.checkArgument
                 (null != aPath,
                         "A Path to the staging file directory is required");
-       // com.google.common.base.Preconditions.checkArgument
-         //       (Files.isDirectory(aPath, LinkOption.NOFOLLOW_LINKS),
-        //                "The specified Path: " + aPath + " is not a directory");
-      //  com.google.common.base.Preconditions.checkArgument
-       //         (Files.isWritable(aPath),
-       //                 "The specified Path: " + aPath + " is not writable");
+        com.google.common.base.Preconditions.checkArgument
+                (Files.isDirectory(aPath, LinkOption.NOFOLLOW_LINKS),
+                        "The specified Path: " + aPath + " is not a directory");
+        com.google.common.base.Preconditions.checkArgument
+                (Files.isWritable(aPath),
+                        "The specified Path: " + aPath + " is not writable");
         return true;
 
     }
@@ -116,6 +184,29 @@ common criteria for validating a specified Path to an input file
         com.google.gdata.util.common.base.Preconditions.checkArgument(Files.isReadable(aPath),
                 aPath + " is not readable");
         return true;
+    }
+
+    // main method for stand alone testing
+    public static void main (String...args){
+        Path testPath = Paths.get("/tmp/foundation-test");
+        StagingUtils.copyFilteredXMLFiles(testPath);
+        logger.info("Valid staging directory " + StagingUtils.isValidStagingDirectoryPath(testPath));
+        // invalid directory - should throw Exception
+        try{
+            logger.info("Valid staging directory " + StagingUtils.isValidStagingDirectoryPath(Paths.get("/tmp/xxxxxxxxxx")));
+        }catch (Exception e){
+            logger.error(e.getMessage());
+        }
+        // valid input file
+        Path inputPath = testPath.resolve("lymphoma.xml"); // good file
+        logger.info("Valid input file " + StagingUtils.isValidInputFilePath(inputPath));
+        // invalid input file
+        Path badPath = testPath.resolve("xxxxxx.xml");
+        try{
+            logger.info("Input file " + StagingUtils.isValidInputFilePath(badPath));
+        }catch (Exception e){
+            logger.error(e.getMessage());
+        }
     }
 }
 

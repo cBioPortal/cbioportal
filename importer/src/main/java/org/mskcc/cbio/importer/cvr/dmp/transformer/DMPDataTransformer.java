@@ -18,6 +18,7 @@
 package org.mskcc.cbio.importer.cvr.dmp.transformer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.inject.internal.Lists;
@@ -36,6 +37,8 @@ import org.mskcc.cbio.importer.cvr.darwin.util.IdMapService;
 import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
 import org.mskcc.cbio.importer.cvr.dmp.model.Result;
 import org.mskcc.cbio.importer.cvr.dmp.persistence.file.DMPTumorTypeSampleMapManager;
+import org.mskcc.cbio.importer.model.CancerStudyMetadata;
+import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.persistence.staging.segment.SegmentFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.util.StagingUtils;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
@@ -61,16 +64,42 @@ public class DMPDataTransformer {
     private  List<DMPDataTransformable> transformableList;
     private  DMPTumorTypeSampleMapManager tumorTypeMap;
     private  Path stagingDirectoryPath;
-
+    private static final String DATA_SOURCE_NAME = "dmp-darwin-mskcc";
+    private static final String STABLE_ID = "mskimpact-current";
+    private static final Path DEFAULT_BASE_PATH = Paths.get("/tmp/dmp-staging");
 
 
 
 
     public DMPDataTransformer(Path aPath) {
             if(StagingUtils.isValidStagingDirectoryPath(aPath)) {
-                this.stagingDirectoryPath = aPath;
+                this.stagingDirectoryPath = this.resolveStagingPath(aPath);
+                logger.info("Staging Path = " + this.stagingDirectoryPath.toString());
                 registerTransformables();
             }
+    }
+
+    public DMPDataTransformer() {
+        this.stagingDirectoryPath = this.resolveStagingPath(this.resolveBasePath());
+        logger.info("Staging Path = " + this.stagingDirectoryPath.toString());
+        registerTransformables();
+
+    }
+
+    private Path resolveBasePath() {
+        Optional<DataSourcesMetadata> optMeta = DataSourcesMetadata.findDataSourcesMetadataByDataSourceName(DATA_SOURCE_NAME);
+        if(optMeta.isPresent()){
+            return optMeta.get().resolveBaseStagingDirectory();
+        }
+        return DEFAULT_BASE_PATH;
+    }
+
+    private Path resolveStagingPath (Path basePath) {
+        Optional<CancerStudyMetadata> optMeta = CancerStudyMetadata.findCancerStudyMetaDataByStableId(STABLE_ID);
+        if (optMeta.isPresent()){
+            return basePath.resolve(optMeta.get().getStudyPath());
+        }
+        return basePath; // files go into base path
     }
 
     private void registerTransformables() {
@@ -168,7 +197,8 @@ public class DMPDataTransformer {
         File tmpDir = new File(tempDir);
         tmpDir.mkdirs();
         Path stagingFileDirectory = Paths.get(tempDir);
-        DMPDataTransformer transformer = new DMPDataTransformer(stagingFileDirectory);
+       // DMPDataTransformer transformer = new DMPDataTransformer(stagingFileDirectory);
+        DMPDataTransformer transformer = new DMPDataTransformer();
         try {
             DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/cvr/dmp/result-dec-11.json"), DmpData.class);
             transformer.transform(data);

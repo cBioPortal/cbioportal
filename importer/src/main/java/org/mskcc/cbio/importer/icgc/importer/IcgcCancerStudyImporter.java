@@ -13,7 +13,6 @@ import org.mskcc.cbio.importer.icgc.model.IcgcClinicalModel;
 import org.mskcc.cbio.importer.icgc.model.IcgcFusionModel;
 import org.mskcc.cbio.importer.icgc.model.IcgcSimpleSomaticMutationModel;
 import org.mskcc.cbio.importer.icgc.support.IcgcFunctionLibrary;
-import org.mskcc.cbio.importer.icgc.support.IcgcMetadataService;
 import org.mskcc.cbio.importer.model.IcgcMetadata;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import org.mskcc.cbio.importer.persistence.staging.cnv.CnvFileHandlerImpl;
@@ -129,6 +128,8 @@ public class IcgcCancerStudyImporter implements Callable<String> {
      */
     private List<Callable<String>> resolveEtlTasks() {
         List<Callable<String>> etlTasks = Lists.newArrayList();
+        /*
+        retain use of SimpleSomaticMutationImporter for importing mutation data
 
         if (!Strings.isNullOrEmpty(this.metadata.getSomaticmutationurl())) {
             Path stagingFilePath = this.stagingFileDirectory.resolve(StagingCommonNames.MUTATIONS_STAGING_FILENAME);
@@ -140,6 +141,7 @@ public class IcgcCancerStudyImporter implements Callable<String> {
             logger.info("Added clinical transformation for: " + this.metadata.getSomaticmutationurl());
 
         }
+        */
         // clinical
 
         if (!Strings.isNullOrEmpty(this.metadata.getClinicalurl())) {

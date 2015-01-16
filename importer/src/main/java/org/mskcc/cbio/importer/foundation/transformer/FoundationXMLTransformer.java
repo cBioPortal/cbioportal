@@ -54,8 +54,6 @@ public class FoundationXMLTransformer implements FileTransformer {
     // JAXB object source
     private Supplier<CasesType> casesTypeSupplier;
 
-    private final Config config;
-
     private FoundationMetadata foundationMetadata;
     private CancerStudyMetadata csMetadata;
 
@@ -64,16 +62,15 @@ public class FoundationXMLTransformer implements FileTransformer {
     the transformation of multiple XML source files
      */
 
-    public FoundationXMLTransformer(Config aConfig, FoundationShortVariantTransformer svtTransformer,
+    public FoundationXMLTransformer(FoundationShortVariantTransformer svtTransformer,
                                     FoundationCnvTransformer cnvTransformer,
                                     FoundationClinicalDataTransformer clinicalDataTransformer,
                                     FoundationFusionTransformer fusionDataTransformer) {
-        Preconditions.checkArgument(null != aConfig);
+
         Preconditions.checkArgument(null != svtTransformer);
         Preconditions.checkArgument(null!= cnvTransformer);
         Preconditions.checkArgument(null!=clinicalDataTransformer);
         Preconditions.checkArgument(null!= fusionDataTransformer);
-        this.config = aConfig;
         this.svtTransformer = svtTransformer;
         this.cnvTransformer = cnvTransformer;
         this.clinicalDataTransformer = clinicalDataTransformer;
@@ -96,13 +93,22 @@ public class FoundationXMLTransformer implements FileTransformer {
     private void resolveStudyMetadata(FileDataSource xmlSource) {
         // use the first file name to determine the FoundtationMetadata for this study
         // from that determine the CancerStudyMetadata
-        Optional<FoundationMetadata> metadataOptional =
-                FoundationTransformerUtil.resolveFoundationMetadataFromXMLFilename(config, xmlSource.getFilenameList().get(0).toString());
+        Optional<FoundationMetadata> metadataOptional = FoundationMetadata.
+                findFoundationMetadataByXmlFileName(xmlSource.getFilenameList().get(0).toString());
+        //Optional<FoundationMetadata> metadataOptional =
+         //       FoundationTransformerUtil.resolveFoundationMetadataFromXMLFilename(config, xmlSource.getFilenameList().get(0).toString());
         if (metadataOptional.isPresent()) {
             this.foundationMetadata = metadataOptional.get();
-            this.csMetadata = config.getCancerStudyMetadataByName(this.foundationMetadata.getCancerStudy());
+            Optional<CancerStudyMetadata> csMeta = CancerStudyMetadata.
+                    findCancerStudyMetaDataByCancerStudyName(foundationMetadata.getCancerStudy());
+            if (csMeta.isPresent()){
+                this.csMetadata = csMeta.get();
+            } else {
+                logger.error("Unable to resolve cancer study  metadata for Foundation file "
+                        +xmlSource.getFilenameList().get(0).toString());
+            }
         } else {
-            logger.error("Unable to resolve metadata for Foundation file "
+            logger.error("Unable to resolve foundation metadata for Foundation file "
                     +xmlSource.getFilenameList().get(0).toString());
         }
        }
@@ -136,7 +142,8 @@ public class FoundationXMLTransformer implements FileTransformer {
         // the CNA report can only be generated after all the XML files have been processed
        this.cnvTransformer.persistFoundationCnvs();
         // generate caseLists
-        CaseListFileHandler caseListFileHandler = new CaseListFileHandler(this.csMetadata.getStableId(), Paths.get(xmlSource.getDirectoryName()));
+        CaseListFileHandler caseListFileHandler = new CaseListFileHandler(this.csMetadata.getStableId(),
+                Paths.get(xmlSource.getDirectoryName()));
         caseListFileHandler.generateCaseListFiles(caseIdSet);
 
     }
@@ -159,7 +166,6 @@ public class FoundationXMLTransformer implements FileTransformer {
         this.fusionDataTransformer.registerStagingFileDirectory(this.csMetadata,stagingFileDirectory);
     }
 
-
     /*
     private method to generate the metadata mappings
      */
@@ -174,7 +180,6 @@ public class FoundationXMLTransformer implements FileTransformer {
     }
 
 
-
     /*
     private method to resolve the set of unique case (i.e. sample) ids found in the XML file
      */
@@ -187,23 +192,6 @@ public class FoundationXMLTransformer implements FileTransformer {
                         return caseType.getCase();
                     }
                 }).toSet();
-    }
-
-
-
-
-    // resolve the FoundationMetadata object for this study
-    private Optional<FoundationMetadata> resolveFoundationMetadataFromXMLFilename(final String filename) {
-        final Collection<FoundationMetadata> mdc = config.getFoundationMetadata();
-        final List<String> fileList = Lists.newArrayList(filename);
-       return  FluentIterable.from(mdc)
-                .firstMatch(new Predicate<FoundationMetadata>() {
-                    @Override
-                    public boolean apply(final FoundationMetadata meta) {
-                        List<String> fl = FluentIterable.from(fileList).filter(meta.getRelatedFileFilter()).toList();
-                        return (!fl.isEmpty());
-                    }
-                });
     }
 
     @Override

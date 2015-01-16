@@ -158,12 +158,14 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
         <b:constructor-arg ref="databaseUtils"/>
         <b:constructor-arg ref="importDataRecordDAO"/>
     </b:bean>
+    <!--
     <b:bean id="foundationFetcher" class="org.mskcc.cbio.importer.fetcher.internal.FoundationFetcherImpl">
         <b:constructor-arg ref="config"/>
         <b:constructor-arg ref="fileUtils"/>
         <b:constructor-arg ref="databaseUtils"/>
         <b:constructor-arg ref="importDataRecordDAO"/>
     </b:bean>
+    -->
     <b:bean id="mercurialFetcher" class="org.mskcc.cbio.importer.fetcher.internal.MercurialFetcherImpl">
         <b:constructor-arg ref="config"/>
         <b:constructor-arg ref="fileUtils"/>
@@ -244,12 +246,6 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
     </b:bean>
     <!-- ICGCImportTask -->
     <b:bean id="icgcImportTask" class ="org.mskcc.cbio.importer.task.IcgcDataImportTask">
-        <b:constructor-arg index="0">
-            <b:value>/tmp/icgctest</b:value>
-        </b:constructor-arg>
-    </b:bean>
-    <!-- ICGC  Simple Somatic Mutation Importer -->
-    <b:bean id="icgcSimpleSomaticImporter" class="org.mskcc.cbio.importer.icgc.importer.SimpleSomaticMutationImporter">
     </b:bean>
     <!-- DmpDarwinFetcher -->
     <b:bean id="dmpDarwinFetcher" class="org.mskcc.cbio.importer.fetcher.internal.DmpDarwinFetcherImpl">
@@ -270,6 +266,45 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
         <b:constructor-arg ref="caseIDs"/>
         <b:constructor-arg ref="idMapper"/>
     </b:bean>
+    <!-- Foundation Fetcher & Importer -->
+    <!--SVT Transformer -->
+    <b:bean id="foundationSvtTransformer" class="org.mskcc.cbio.importer.foundation.transformer.FoundationShortVariantTransformer" >
+        <b:constructor-arg index="0" ref="mut01" ></b:constructor-arg>
+    </b:bean>
+    <b:bean id="mut01" class="org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl" ></b:bean>
+    <!--CNV Transformer -->
+    <b:bean id="foundationCNVTransformer" class="org.mskcc.cbio.importer.foundation.transformer.FoundationCnvTransformer">
+        <b:constructor-arg index="0" ref="cnv01" ></b:constructor-arg>
+    </b:bean>
+    <b:bean id="cnv01" class="org.mskcc.cbio.importer.persistence.staging.cnv.CnvFileHandlerImpl"></b:bean>
+    <!--Clinical Data Transformer -->
+    <b:bean id="foundationClinicalTransformer" class="org.mskcc.cbio.importer.foundation.transformer.FoundationClinicalDataTransformer">
+        <b:constructor-arg index="0" ref="clin01"></b:constructor-arg>
+    </b:bean>
+    <b:bean id="clin01" class="org.mskcc.cbio.importer.persistence.staging.clinical.ClinicalDataFileHandlerImpl"></b:bean>
+    <!--Fusion Transformer-->
+    <b:bean id="foundationFusionTransformer" class="org.mskcc.cbio.importer.foundation.transformer.FoundationFusionTransformer">
+        <b:constructor-arg index="0" ref="fusion01"></b:constructor-arg>
+    </b:bean>
+    <b:bean id="fusion01" class="org.mskcc.cbio.importer.persistence.staging.fusion.FusionFileHandlerImpl"></b:bean>
+    <!--Foundation XML Transformer -->
+    <b:bean id="foundationTransformer" class="org.mskcc.cbio.importer.foundation.transformer.FoundationXMLTransformer">
+        <b:constructor-arg index="0" ref="foundationSvtTransformer"></b:constructor-arg>
+        <b:constructor-arg index="1" ref="foundationCNVTransformer"></b:constructor-arg>
+        <b:constructor-arg index="2" ref="foundationClinicalTransformer"></b:constructor-arg>
+        <b:constructor-arg index="3" ref ="foundationFusionTransformer"></b:constructor-arg>
+    </b:bean>
+    <!-- Foundation Extractor-->
+    <b:bean id="foundationExtractor" class="org.mskcc.cbio.importer.foundation.extractor.FoundationStudyExtractor"></b:bean>
+    <!--Foundation Fetcher-->
+    <!-- bean id must match entry in data_sources worksheet  -->
+    <b:bean id="foundationFetcher" class="org.mskcc.cbio.importer.fetcher.internal.FoundationFetcherImpl">
+        <b:constructor-arg index="0" ref="foundationExtractor">
+        </b:constructor-arg>
+        <b:constructor-arg index="1" ref="foundationTransformer"></b:constructor-arg>
+    </b:bean>
+
+
 
     <!-- sendmail beans -->
     <b:bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">

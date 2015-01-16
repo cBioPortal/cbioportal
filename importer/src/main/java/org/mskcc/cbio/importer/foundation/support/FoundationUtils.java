@@ -111,9 +111,10 @@ public enum FoundationUtils {
     /*
     public method to return the reverse compliment of a DNA sequence
     the result is standardized to upper case
+
      */
     public String getReverseCompliment(String sequence){
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(sequence),"The sequence is null or empty");
+        if(Strings.isNullOrEmpty(sequence)) { return "";}
         if(sequence.length() == 1) {
            return  this.getBaseCompliment(sequence);
         }

@@ -9,7 +9,6 @@ import edu.stanford.nlp.util.StringUtils;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.icgc.model.IcgcSegmentModel;
 import org.mskcc.cbio.importer.icgc.support.IcgcFunctionLibrary;
-import org.mskcc.cbio.importer.icgc.support.IcgcMetadataService;
 import org.mskcc.cbio.importer.model.IcgcMetadata;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
@@ -83,10 +82,10 @@ public class IcgcSegmentDataETLCallable extends SegmentTransformer implements Ca
        List<IcgcSegmentModel> segModelList = Lists.newArrayList();
        // process each unique sample
        for(String sampleId : this.sampleSet) {
-           logger.info("Transforming sample id: " + sampleId);
+        //   logger.info("Transforming sample id: " + sampleId);
            segModelList.addAll(this.transformIcgcSample(sampleId, this.copyNumberModelMap.get(sampleId)));
        }
-       logger.info("ICGC Copy Model List contains: " +segModelList.size() +" entries");
+      // logger.info("ICGC Copy Model List contains: " +segModelList.size() +" entries");
 
        return segModelList;
    }
@@ -101,7 +100,7 @@ public class IcgcSegmentDataETLCallable extends SegmentTransformer implements Ca
     this list includes default values that span chromosome regions without variation
      */
     private List<IcgcSegmentModel>  transformIcgcSample(String sampleId, Collection<IcgcSegmentModel> models) {
-        logger.info("Processing sample " +sampleId);
+       
         // sort the models by start position - the source data are unsorted
         Map<String,IcgcSegmentModel> sortedModelMap = Maps.newTreeMap();
         for (IcgcSegmentModel model : models){
@@ -125,7 +124,7 @@ public class IcgcSegmentDataETLCallable extends SegmentTransformer implements Ca
                        StagingCommonNames.chromosomeLengthMap.get(chr.toUpperCase()).toString()));
            }
         }
-        logger.info("The model list for sample: " + sampleId +" contains " +modelList.size() +" entries");
+       // logger.info("The model list for sample: " + sampleId +" contains " +modelList.size() +" entries");
         return modelList;
     }
 
@@ -137,7 +136,7 @@ public class IcgcSegmentDataETLCallable extends SegmentTransformer implements Ca
      */
 
     private List<IcgcSegmentModel> resolveChromosomeMap( String sampleId, String chr, Collection<IcgcSegmentModel> chrModels){
-        logger.info("Processing sample " +sampleId +" chromosome " +chr);
+       // logger.info("Processing sample " +sampleId +" chromosome " +chr);
         // sort the models by their start position
         SortedSet<IcgcSegmentModel> sortedModelSet = FluentIterable.from(chrModels)
                 .toSortedSet(new IcgcCopyNumberModelStartPositionComparator());
@@ -164,7 +163,7 @@ public class IcgcSegmentDataETLCallable extends SegmentTransformer implements Ca
         if(currentStop < maxStop){
             modelList.add( this.createDefaultCopyNumberModel(sampleId, chr, currentStop.toString(), maxStop.toString()));
         }
-        logger.info("The model list for sample: " + sampleId +" chromosome: " +chr +" contains " +modelList.size() +" entries");
+        //logger.info("The model list for sample: " + sampleId +" chromosome: " +chr +" contains " +modelList.size() +" entries");
         return modelList;
     }
 

@@ -24,6 +24,8 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.gdata.util.common.base.Preconditions;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.log4j.Logger;
@@ -33,6 +35,7 @@ import javax.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 /*
@@ -42,8 +45,14 @@ Mapped from ICGC panel on Google spreadsheet
 
 public class IcgcMetadata {
 
-    public static final String worksheetName = "icgc";
+    public static final String worksheetName = MetadataCommonNames.Worksheet_ICGC;
     public static final String  keyColumnName = "icgcid";
+    public static final List<String> urlColumnNames = Lists.newArrayList("clinicalurl", "copynumberurl",
+            "exparrayurl", "expsequrl" , "metharrayurl","methsequrl","mirnasequrl", "mirnasequrl", "somaticmutationurl",
+           "splicevarianturl", "structuralmutationurl" );
+
+
+
     private static final Logger logger = Logger.getLogger(IcgcMetadata.class);
 
     private  String icgcid;
@@ -87,6 +96,22 @@ public class IcgcMetadata {
         }
     }
 
+    public static Map<String,String> resolveIcgcUrlsByType(String studyType) {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(studyType),"An ICGC Study type is required");
+        Preconditions.checkArgument(urlColumnNames.contains(studyType),"Study type " +studyType +" is invalid");
+        Map<String,String> urlMap = Maps.newHashMap();
+        List<String> urlList =  ImporterSpreadsheetService.INSTANCE.getWorksheetValuesByColumnName(worksheetName,studyType);
+        for (String url : urlList){
+            if(!Strings.isNullOrEmpty(url)){
+                IcgcMetadata meta =  new IcgcMetadata(ImporterSpreadsheetService.INSTANCE.getWorksheetRowByColumnValue(worksheetName, studyType, url).get());
+                urlMap.put(meta.getIcgcid(), url);
+            }
+        }
+        return urlMap;
+
+
+    }
+
   // collection of static service methods
     public static Optional<IcgcMetadata> getIcgcMetadataById(String icgcId) {
         if (Strings.isNullOrEmpty(icgcId)){ return Optional.absent(); }
@@ -119,7 +144,7 @@ public class IcgcMetadata {
      */
     public static List<IcgcMetadata> getIcgcMetadataList() {
 
-        return FluentIterable.from(ImporterSpreadsheetService.INSTANCE.getWorksheetValuesByColumnName("icgc", "icgcid"))
+        return FluentIterable.from(ImporterSpreadsheetService.INSTANCE.getWorksheetValuesByColumnName(worksheetName, keyColumnName))
                 .filter(new Predicate<String>() {
                     @Override
                     public boolean apply(@Nullable String input) {
@@ -280,6 +305,11 @@ public class IcgcMetadata {
         // test getRegisteredIcgcStudyList method
         List<IcgcMetadata> metaList  = IcgcMetadata.getIcgcMetadataList();
         logger.info ("There are " +metaList.size() +" icgc metadata entries");
+        // test urlMap
+        Map<String,String> urlMap = IcgcMetadata.resolveIcgcUrlsByType("somaticmutationurl");
+        for(Map.Entry<String,String> entry : urlMap.entrySet()){
+            logger.info("URL map " +entry.getKey() +" " +entry.getValue());
+        }
 
     }
 }

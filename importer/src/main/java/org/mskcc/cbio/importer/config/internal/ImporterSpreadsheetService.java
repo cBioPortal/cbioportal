@@ -49,6 +49,7 @@ public enum ImporterSpreadsheetService {
     private static final String spreadsheetName = "portal_importer_configuration";
     private final SpreadsheetService spreadsheetService = Suppliers.memoize(new SpreadsheetSupplier()).get();
 
+
     private LoadingCache<String, Table<Integer,String,String> > importerWorksheetCache =
             Suppliers.memoize( new WorksheetCacheSupplier()).get();
 

@@ -77,16 +77,20 @@ public class DataSourcesMetadata {
 	}
 
 	public String getDataSource() { return dataSource; }
-	public String getDownloadDirectory() { return downloadDirectory; }
+	public String getDownloadDirectory() {
+		// resolve envroment variable portion of worksheet entry
+		return this.resolveBaseStagingDirectory().toString();
+		//return downloadDirectory;
+	}
 	public Boolean isAdditionalStudiesSource() { return additionalStudiesSource; }
 	public String getFetcherBeanID() { return fetcherBeanID; }
 
-	public Path resolveBaseStatgingPath() {
-		if(!this.getDownloadDirectory().startsWith("$")){
-			return Paths.get(this.getDownloadDirectory());
+	public Path resolveBaseStagingDirectory() {
+		if(!this.downloadDirectory.startsWith("$")){
+			return Paths.get(this.downloadDirectory);
 		}
 		// the first portion of the download directory field is an environment variable
-		List<String> dirList = StagingCommonNames.pathSplitter.splitToList(this.getDownloadDirectory());
+		List<String> dirList = StagingCommonNames.pathSplitter.splitToList(this.downloadDirectory);
 		String envVar = System.getenv(dirList.get(0).replace("$", "")) ; // resolve the system environment variable
 		String base;
 		if(Strings.isNullOrEmpty(envVar)) {
@@ -119,13 +123,14 @@ public class DataSourcesMetadata {
 
 	// main method for testing
 	public static void main (String...args){
-		String dataSourceName = StagingCommonNames.DATA_SOURCE_DMP;
+		//String dataSourceName = StagingCommonNames.DATA_SOURCE_DMP;
+		String dataSourceName = "foundation-dev";
 		Optional<DataSourcesMetadata> optMeta = DataSourcesMetadata.findDataSourcesMetadataByDataSourceName(dataSourceName);
 		if(optMeta.isPresent()){
 			System.out.println(System.getenv("PORTAL_DATA_HOME"));
 			System.out.println(optMeta.get().getDataSource());
 			System.out.println(optMeta.get().getDownloadDirectory());
-			System.out.println( "Path = " +optMeta.get().resolveBaseStatgingPath().toString());
+			System.out.println( "Path = " +optMeta.get().resolveBaseStagingDirectory().toString());
 		} else {
 			System.out.println("Unable to resolve data source for " +dataSourceName);
 		}

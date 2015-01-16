@@ -235,13 +235,12 @@ public class CancerStudyMetadata {
     }
 
     // static method to return a CancerStudyMetadata instance based on a unique cancer study value
-    public static Optional<CancerStudyMetadata> findCancerStudyMetaDataByCancerStudyPath(final String pathName)
-    {
-        final String cancerStudyWorksheet = "cancer_studies";
-        final String stableIdColumnName = "cancerstudies";
-        if(Strings.isNullOrEmpty(pathName)) {return Optional.absent();}
+    public static Optional<CancerStudyMetadata> findCancerStudyMetaDataByCancerStudyName(final String studyName){
+        final String cancerStudyWorksheet = MetadataCommonNames.Worksheet_CancerStudies;
+        final String stableIdColumnName = MetadataCommonNames.idColumnMap.get(cancerStudyWorksheet);
+        if(Strings.isNullOrEmpty(studyName)) {return Optional.absent();}
         Optional<Map<String,String >> rowOptional = ImporterSpreadsheetService.INSTANCE.getWorksheetRowByColumnValue(cancerStudyWorksheet, stableIdColumnName,
-                pathName);
+                studyName);
         if (rowOptional.isPresent()) {
             return Optional.of(new CancerStudyMetadata(rowOptional.get()));
         }
@@ -261,5 +260,14 @@ public class CancerStudyMetadata {
         } else {
             System.out.println("Failed to find a CancerStudyMetadata with stable id " +stableId);
         }
+        String testCancerStudyId = "lcll/mskcc/foundation";
+        Optional<CancerStudyMetadata> opt1  = CancerStudyMetadata.findCancerStudyMetaDataByCancerStudyName(testCancerStudyId);
+        try {
+            System.out.println("study = " +testCancerStudyId +" Name " +opt1.get().getName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
     }
 }

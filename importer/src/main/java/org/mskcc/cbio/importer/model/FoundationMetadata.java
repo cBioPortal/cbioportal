@@ -19,6 +19,7 @@ import com.google.common.base.*;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
+import edu.stanford.nlp.util.StringUtils;
 import org.mskcc.cbio.importer.config.internal.ImporterSpreadsheetService;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 
@@ -33,7 +34,8 @@ import java.util.Map;
  */
 public class FoundationMetadata {
 
-    public static final String worksheetName = "foundation";
+    public static final String worksheetName = MetadataCommonNames.Worksheet_Foundation;
+    public static final String idColumn = "cancerstudy";
     public static final String dependeciesColumnName = "dependencies";
     public static final String cancerStudyColumnName = "cancerstudy";
     // instantiate a map of the foundation worksheet
@@ -48,8 +50,6 @@ public class FoundationMetadata {
     final private List<String> shortVariantExcludedStatuses;
     final private List<String> cnvExcludedStatuses;
     final private String filteredStudy;
-
-
 
     /*
     Constructor uses a row from the foundation worksheet on the importer Google spreadsheet
@@ -67,7 +67,6 @@ public class FoundationMetadata {
         this.cnvExcludedStatuses =  Lists.newArrayList(StagingCommonNames.semicolonSplitter.split(
                 worksheetRowMap.get("excludedcvstatuses")));
         this.filteredStudy = worksheetRowMap.get("filteredstudy").trim();
-
     }
 
     /**
@@ -124,7 +123,6 @@ public class FoundationMetadata {
 
     public String getComments() { return this.comments;}
 
-    
     public List<String> getExcludedCases() {return this.excludedCases;}
 
     public List<String> getShortVariantExcludedStatuses() {
@@ -176,6 +174,11 @@ public class FoundationMetadata {
                     .anyMatch(new Predicate<String>() {
                         @Override
                         public boolean apply(final String dependency) {
+                            // mod to accommodate name collisions with  -filtered files
+                            if (!dependency.contains(StagingCommonNames.FOUNDATION_FILTERED_NOTATION)
+                                    && filename.contains(StagingCommonNames.FOUNDATION_FILTERED_NOTATION)){
+                                return false;
+                            }
                             return filename.contains(dependency);
                         }
                     });
@@ -223,6 +226,22 @@ public class FoundationMetadata {
             if ( entry.getValue().contains(dependency)){
                 return  Optional.of(new FoundationMetadata(foundationWorksheetTable.row(entry.getKey())));
             }
+        }
+        return Optional.absent();
+    }
+
+    /*
+  static method to return a FoundationMetadata instance based on a dependency value
+   */
+    public static Optional<FoundationMetadata> findFoundationMetadataByXmlFileName(String filename){
+        if(Strings.isNullOrEmpty(filename)){ return Optional.absent(); }
+        Map<Integer,String> dependenciesColumnMap = foundationWorksheetTable.column(dependeciesColumnName);
+        for (Map.Entry<Integer,String> entry : dependenciesColumnMap.entrySet()){
+          for (String dependency : StagingCommonNames.semicolonSplitter.splitToList(entry.getValue()) ) {
+              if (StringUtils.getBaseName(filename, StagingCommonNames.xmlExtension).contains(dependency)) {
+                  return Optional.of(new FoundationMetadata(foundationWorksheetTable.row(entry.getKey())));
+              }
+          }
         }
         return Optional.absent();
     }

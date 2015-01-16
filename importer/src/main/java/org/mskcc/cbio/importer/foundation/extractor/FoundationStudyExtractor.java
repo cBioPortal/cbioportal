@@ -17,6 +17,7 @@ import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.config.internal.ImporterSpreadsheetService;
 import org.mskcc.cbio.importer.model.*;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
+import org.mskcc.cbio.importer.persistence.staging.util.StagingUtils;
 
 import javax.annotation.Nullable;
 
@@ -54,13 +55,11 @@ public class FoundationStudyExtractor {
 
     private  final FileDataSource inputDataSource;
     private  Config config;
-    private final Logger logger = Logger.getLogger(FoundationStudyExtractor.class);  
+    private final static Logger logger = Logger.getLogger(FoundationStudyExtractor.class);
     private final String foundationDataDirectory;
-    private final String foundationDataSource = "foundation";
+    private final String foundationDataSource = "foundation-dev";
     private final static String DEFAULT_DOWNLOAD_DIRECTORY = "/tmp/foundation";
     private final static String worksheetName = "foundation";
-
-
 
     public FoundationStudyExtractor() {
       Optional<DataSourcesMetadata> dsMeta =
@@ -70,6 +69,8 @@ public class FoundationStudyExtractor {
         } else {
             this.foundationDataDirectory = DEFAULT_DOWNLOAD_DIRECTORY;
         }
+        // duplicate files for filtered studies
+        StagingUtils.copyFilteredXMLFiles(dsMeta.get().resolveBaseStagingDirectory());
         Optional<FileDataSource> fds  = this.resolveInputDataSource();
         if (fds.isPresent()) {
             this.inputDataSource = fds.get();
@@ -105,8 +106,6 @@ public class FoundationStudyExtractor {
         }
     }
 
-
-    
     private Optional<FileDataSource> resolveInputDataSource() {
          try {
             return  Optional.of(new FileDataSource(this.foundationDataDirectory, this.xmlFileExtensionFilter));
@@ -155,7 +154,10 @@ public class FoundationStudyExtractor {
                     @Nullable
                     @Override
                     public FoundationMetadata apply(String cs) {
-                        Optional<Map<String,String>> optMap = ImporterSpreadsheetService.INSTANCE.getWorksheetRowByColumnValue(FoundationMetadata.worksheetName, FoundationMetadata.cancerStudyColumnName,cs);
+                        Optional<Map<String,String>> optMap =
+                                ImporterSpreadsheetService.INSTANCE.getWorksheetRowByColumnValue(FoundationMetadata.worksheetName,
+                                        FoundationMetadata.cancerStudyColumnName,cs);
+
                         if (optMap.isPresent()){
                             return new FoundationMetadata(optMap.get());
                         }
@@ -232,6 +234,10 @@ public class FoundationStudyExtractor {
     // main method for stand alone testing
     public static void main (String...args){
         FoundationStudyExtractor extractor = new FoundationStudyExtractor();
+        String fileName1 = "lymphoma.xml";
+        String fileName2 = "lymphoma-filtered.xml";
+        logger.info(extractor.resolveFoundationCancerStudyNameFromXMLFileName(fileName1).get());
+        logger.info(extractor.resolveFoundationCancerStudyNameFromXMLFileName(fileName2).get());
 
     }
 

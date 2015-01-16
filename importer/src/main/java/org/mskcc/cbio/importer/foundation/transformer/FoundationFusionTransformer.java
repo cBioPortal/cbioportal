@@ -70,7 +70,7 @@ public class FoundationFusionTransformer extends FusionTransformer {
             if (!fusionModelList.isEmpty()) {
                 this.fileHandler.transformImportDataToTsvStagingFile(fusionModelList, FusionModel.getTransformationModel());
             } else {
-                logger.info("Sample id : " +sampleId +" does not contain any fusion rearrangements");
+               // logger.info("Sample id : " +sampleId +" does not contain any fusion rearrangements");
             }
         }
 
@@ -112,7 +112,7 @@ public class FoundationFusionTransformer extends FusionTransformer {
                }).toList();
         rearrangementTypes.addAll(originalList);
 
-        logger.info("Sample " +sampleId +" original rearrangement count " +rearrangementTypes.size());
+       // logger.info("Sample " +sampleId +" original rearrangement count " +rearrangementTypes.size());
         for (RearrangementType origFusion : originalList) {
             if ( !origFusion.getOtherGene().equals(origFusion.getTargetedGene()) && !origFusion.getOtherGene().contains("Region") ) {
                 RearrangementType newFusion = new ObjectFactory().createRearrangementType();
@@ -127,7 +127,7 @@ public class FoundationFusionTransformer extends FusionTransformer {
                 rearrangementTypes.add(newFusion);
             }
         }
-        logger.info("Sample " +sampleId +" replicated rearrangement count " +rearrangementTypes.size());
+       // logger.info("Sample " +sampleId +" replicated rearrangement count " +rearrangementTypes.size());
         return rearrangementTypes;
     }
 

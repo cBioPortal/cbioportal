@@ -14,14 +14,12 @@ var plotsData = (function() {
                 x: {
                     min: "",
                     max: "",
-                    edge: "",
-                    is_discretized: false
+                    edge: ""
                 },
                 y: {
                     min: "",
                     max: "",
-                    edge: "",
-                    is_discretized: false
+                    edge: ""
                 },
                 hasCnaAnno: false,
                 retrieved: false
@@ -134,9 +132,6 @@ var plotsData = (function() {
                     }                        
                 }
                 
-                stat.x.is_discretized = is_clinical_data_discretized(_arr_x);
-                stat.y.is_discretized = is_clinical_data_discretized(_arr_y);
-                
                 if (is_clinical_data_discretized(_arr_x) &&
                     is_clinical_data_discretized(_arr_y)) {
                     stat.retrieved = true;
@@ -248,8 +243,6 @@ var plotsData = (function() {
         fetch: function(axis) {
             
             stat.retrieved = false;
-            stat.x.is_discretized = false;
-            stat.y.is_discretized = false;
             
             data[axis].stat = false;
             data[axis].raw.length = 0;

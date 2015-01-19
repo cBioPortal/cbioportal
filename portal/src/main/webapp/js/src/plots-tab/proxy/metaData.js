@@ -9,6 +9,7 @@ var metaData = (function() {
         datum_clinical_attr_meta = {
             id: "",
             name: "",
+            type: "",
             description: ""
         },
         geneticProfiles = {},
@@ -55,6 +56,7 @@ var metaData = (function() {
         $.each(clinicalAttrMetaDataResult, function(index, obj) {
             var _datum = jQuery.extend(true, {}, datum_clinical_attr_meta);
             _datum.id = obj.attr_id;
+            _datum.type = obj.datatype;
             _datum.name = obj.display_name;
             _datum.description = obj.description;
             clinicalAttrs.push(_datum);
@@ -138,6 +140,15 @@ var metaData = (function() {
             $.each(clinicalAttrs, function(index, obj) {
                 if (obj.id === attr_id) {
                     _result = obj.description;
+                }
+            });
+            return _result;
+        },
+        getClinicalAttrType: function(attr_id) {
+            var _result = "";
+            $.each(clinicalAttrs, function(index, obj) {
+                if (obj.id === attr_id) {
+                    _result = obj.type;
                 }
             });
             return _result;

@@ -25,6 +25,12 @@ var is_clinical_data_discretized = function(_arr) {
     return _result;
 };
 
+var clinical_attr_is_discretized = function(_axis) {
+    var _type = metaData.getClinicalAttrType($("#" + ids.sidebar[_axis].clin_attr).val());
+    if (_type === "STRING") return true;
+    else return false;
+};
+
 var isEmpty = function(inputVal) {
     if (inputVal !== "NaN" && inputVal !== "NA") {
         return false;
@@ -163,7 +169,7 @@ var discretized_cna_profile_keywords = [
     "_gistic"
 ];
 
-var isDiscretized = function(axis) {
+var is_profile_discretized = function(axis) {
     var elt = document.getElementById(ids.sidebar[axis].profile_name);
     var _profile_name = elt.options[elt.selectedIndex].value;
     var _token = _profile_name.replace(window.PortalGlobals.getCancerStudyId(), "");

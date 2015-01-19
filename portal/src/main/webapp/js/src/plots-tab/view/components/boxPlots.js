@@ -14,7 +14,7 @@ var boxPlots = (function () {
         };
         
         function render() {
-            elem.boxPlots = elem.svg.append("svg:g").attr("class", d3_class.box_plots);
+            
             $.each(_arr, function(index, obj) {
                 var top;
                 var bottom;
@@ -209,15 +209,17 @@ var boxPlots = (function () {
                                 .attr("stroke", "#BDBDBD")
                                 .style("stroke-width", 1); 
                         }
-
                     } 
-
                 }
             });
         }
         
         return {
-            init: function(input_data, input_axis, input_elem){
+            init: function(input_data, input_data_stat, input_axis, input_elem){
+                
+                d3.select("#" + ids.main_view.div).select("." + d3_class.box_plots).remove();
+                input_elem.boxPlots = input_elem.svg.append("svg:g").attr("class", d3_class.box_plots);
+                input_elem.dotsGroup = input_elem.svg.append("svg:g").attr("class", d3_class.dots);
                 
                 //clear out data container
                 _arr = [];
@@ -227,11 +229,11 @@ var boxPlots = (function () {
                 data = input_data;
                 axis = input_axis;
                 elem = input_elem;
+                stat = input_data_stat;
                 
-                stat = plotsData.stat();
                 min = stat[axis].min;
                 max = stat[axis].max;
-                
+
                 //divide data by discretized values
                 for (var i = min ; i < max + 1; i++) {
                     var _datum = jQuery.extend(true, {}, datum);
@@ -249,7 +251,7 @@ var boxPlots = (function () {
                         _arr.push(_datum);
                     }
                 }
-
+                
                 render();
             }
         };

@@ -40,15 +40,18 @@ var scatterPlots = (function() {
             boxPlots: ""
         },
         data = [],
-        glyphs = [];
+        glyphs = [],
+        stat = {
+            applied_box_plots: false,
+            box_plots_axis: ""
+        };
     
     function initCanvas() {
         elem.svg = d3.select("#" + div)
             .append("svg")
             .attr("width", settings.canvas_width)
             .attr("height", settings.canvas_height);
-        elem.dotsGroup = elem.svg.append("svg:g");
-        elem.boxPlots = elem.svg.append("svg:g");
+        elem.dotsGroup = elem.svg.append("svg:g").attr("class", d3_class.dots);
         elem.axisTitleGroup = elem.svg.append("svg:g").attr("class", "axis");
     }
     
@@ -86,7 +89,7 @@ var scatterPlots = (function() {
             bottom_x = settings.axis.x.range_max;
             bottom_y = 0;
         }
-        d3.select("#" + div).select(d3_class[axis].axis).remove();
+        d3.select("#" + div).select("." + d3_class[axis].axis).remove();
         elem.svg.append("g")
             .style("stroke-width", 1.5)
             .style("fill", "none")
@@ -112,6 +115,7 @@ var scatterPlots = (function() {
     
     function drawDots(_apply_box_plots, _box_plots_axis) {
         
+        elem.dotsGroup = elem.svg.append("svg:g");
         elem.dotsGroup.selectAll("path").remove();
 
         var stat = plotsData.stat();
@@ -215,13 +219,29 @@ var scatterPlots = (function() {
                 .enter()
                 .append("svg:path")
                 .attr("transform", function(d){
+                    
                     $(this).attr("x_pos", elem.x.scale(d.xVal));
                     $(this).attr("y_pos", elem.y.scale(d.yVal));
                     $(this).attr("x_val", d.xVal);
                     $(this).attr("y_val", d.yVal);
                     $(this).attr("case_id", d.caseId);
                     $(this).attr("size", 20);
-                    return "translate(" + elem.x.scale(d.xVal) + ", " + elem.y.scale(d.yVal) + ")";
+                    
+                    var _x, _y;
+                    if (_apply_box_plots) { //apply noise
+                        if (_box_plots_axis === "x") {
+                            _x = elem.x.scale(d.xVal) + (Math.random() * 20 - 20/2);
+                            _y = elem.y.scale(d.yVal);
+                        } else {
+                            _x = elem.x.scale(d.xVal);
+                            _y = elem.y.scale(d.yVal) + (Math.random() * 20 - 20/2);
+                        }
+                    } else {
+                        _x = elem.x.scale(d.xVal);
+                        _y = elem.y.scale(d.yVal);
+                    }
+
+                    return "translate(" + _x + ", " + _y + ")";
                 })
                 .attr("d", d3.svg.symbol()
                     .size(20)
@@ -273,7 +293,7 @@ var scatterPlots = (function() {
             var _new_max = Math.log(_stat[_axis].max) / Math.log(2);
             var _new_edge;
             if (_axis === "x") _new_edge = (_new_max - _new_min) * 0.1;
-            else if (_axis === "y") _new_edge = _new_edge = (_new_max - _new_min) * 0.2;
+            else if (_axis === "y") _new_edge = (_new_max - _new_min) * 0.2;
             var _new_scale = d3.scale.linear()
                 .domain([_new_min - _new_edge, _new_max + _new_edge])
                 .range([settings.axis[_axis].range_min, settings.axis[_axis].range_max]); 
@@ -289,7 +309,7 @@ var scatterPlots = (function() {
                 .tickSize(6, 0, 0)
                 .tickPadding([8]);
         
-            var top_x, top_y, bottom_x, bottom_y;
+            var top_x, top_y;
             if (_axis === "x") {
                 top_x = 0;
                 top_y = settings.axis.y.range_min;
@@ -313,13 +333,74 @@ var scatterPlots = (function() {
                 .style("fill", "black");
         };
         
-        if ($("#" + ids.sidebar.x.log_scale).is(':checked') && $("#" + ids.sidebar.y.log_scale).is(':checked')) {
+        var update_stat = function(_axis) {
+            //flip the axis
+            _axis = (_axis === "x")? "y": "x";
+            var _stat = jQuery.extend(true, {}, plotsData.stat());
+            _stat[_axis].min = Math.log(_stat[_axis].min) / Math.log(2);
+            _stat[_axis].max = Math.log(_stat[_axis].max) / Math.log(2);
+            if (_axis === "x") _stat[_axis].edge = (_stat[_axis].max - _stat[_axis].min) * 0.1;
+            else if (_axis === "y") _stat[_axis].edge = (_stat[_axis].max - _stat[_axis].min) * 0.2;
+            return _stat;
+        };
+        
+        var update_data = function(_axis) {
+            var _data = jQuery.extend(true, [], data);
+            var _attr_name = (_axis === "x")? "yVal": "xVal";
+            $.each(_data, function(index, _obj) {
+                _obj[_attr_name] = (Math.log(_obj[_attr_name]) / Math.log(2)).toString();
+            });
+            return _data;
+        };
+        
+        var update_box_plots = function(_data, _stat) {
+            d3.select("#" + div).select("." + d3_class.box_plots).remove();
+            var _elem = jQuery.extend(true, {}, elem);
+            var _axis = (stat.box_plots_axis === "x")? "y": "x";
+            _elem[_axis].scale = re_scale(_axis);
+            boxPlots.init(_data, _stat, stat.box_plots_axis, _elem);
+        };
+        
+        var restore_box_plots = function() {
+            boxPlots.init(data, plotsData.stat(), stat.box_plots_axis, elem);
+        };
+        
+        var update_axis_title = function(_axis, _opt) {
+            var _previous_text = d3.select("#plots-box").select("." + d3_class[_axis].axis_title).text();
+            if (_opt === "append") {
+                if (_previous_text.indexOf("(log2)") === -1) {
+                    d3.select("#plots-box").select("." + d3_class[_axis].axis_title).text(_previous_text + " (log2)");
+                    var _pre_x = d3.select("#" + ids.main_view.div).select("." + d3_class[_axis].title_help).attr("x");
+                    var _pre_y = d3.select("#" + ids.main_view.div).select("." + d3_class[_axis].title_help).attr("y");
+                    if (_axis === "x") {
+                        d3.select("#" + ids.main_view.div).select("." + d3_class[_axis].title_help).attr("x", parseInt(_pre_x) + 15);
+                    } else if (_axis === "y") {
+                        d3.select("#" + ids.main_view.div).select("." + d3_class[_axis].title_help).attr("y", parseInt(_pre_y) - 15);
+                    }
+                }
+            } else if (_opt === "remove") {
+                if (_previous_text.indexOf("(log2)") !== -1) {
+                    d3.select("#plots-box").select("." + d3_class[_axis].axis_title).text(_previous_text.replace(" (log2)", "")); 
+                    var _pre_x = d3.select("#" + ids.main_view.div).select("." + d3_class[_axis].title_help).attr("x");
+                    var _pre_y = d3.select("#" + ids.main_view.div).select("." + d3_class[_axis].title_help).attr("y");
+                    if (_axis === "x") {
+                        d3.select("#" + ids.main_view.div).select("." + d3_class[_axis].title_help).attr("x", parseInt(_pre_x) - 15);
+                    } else if (_axis === "y") {
+                         d3.select("#" + ids.main_view.div).select("." + d3_class[_axis].title_help).attr("y", parseInt(_pre_y) + 15);
+                    }                    
+                }
+            }
+        };
+        
+         if ($("#" + ids.sidebar.x.log_scale).is(':checked') && $("#" + ids.sidebar.y.log_scale).is(':checked')) {
         
             var _new_x_scale = re_scale("x");
             var _new_y_scale = re_scale("y");
-            
             re_draw_axis("x");
             re_draw_axis("y");
+            update_axis_title("x", "append");
+            update_axis_title("y", "append");
+            if (stat.applied_box_plots) update_box_plots(update_data(stat.box_plots_axis), update_stat(stat.box_plots_axis));
         
             elem.dotsGroup.selectAll("path")
                 .transition().duration(300)
@@ -333,7 +414,11 @@ var scatterPlots = (function() {
         
             var _new_scale = re_scale("x");
             re_draw_axis("x");
+            initAxis("y");
             drawAxis("y");
+            update_axis_title("x", "append");
+            update_axis_title("y", "remove");
+            if (stat.applied_box_plots) update_box_plots(update_data(stat.box_plots_axis), update_stat(stat.box_plots_axis));
         
             elem.dotsGroup.selectAll("path")
                 .transition().duration(300)
@@ -346,8 +431,12 @@ var scatterPlots = (function() {
         } else if (!$("#" + ids.sidebar.x.log_scale).is(':checked') && $("#" + ids.sidebar.y.log_scale).is(':checked')) {
             
             var _new_scale = re_scale("y");
+            initAxis("x");
             drawAxis("x");
             re_draw_axis("y");
+            update_axis_title("x", "remove");
+            update_axis_title("y", "append");
+            if (stat.applied_box_plots) update_box_plots(update_data(stat.box_plots_axis), update_stat(stat.box_plots_axis));
         
             elem.dotsGroup.selectAll("path")
                 .transition().duration(300)
@@ -359,8 +448,13 @@ var scatterPlots = (function() {
                 
         } else if (!$("#" + ids.sidebar.x.log_scale).is(':checked') && !$("#" + ids.sidebar.y.log_scale).is(':checked')) {
             
+            initAxis("x");
             drawAxis("x");
+            initAxis("y");
             drawAxis("y");
+            update_axis_title("x", "remove");
+            update_axis_title("y", "remove");
+            if (stat.applied_box_plots) restore_box_plots();
             elem.dotsGroup.selectAll("path")
                 .transition().duration(300)
                 .attr("transform", function() {
@@ -387,8 +481,8 @@ var scatterPlots = (function() {
             .text(_name);
         
         //append help icon (mouseover)
-        var _pos_x = (axis==="x")? (settings.axis.x.title_x + _name.length / 2 * 8 + 10): (settings.axis.y.title_y - 10);
-        var _pos_y = (axis==="x")? (settings.axis.x.title_y - 10): (settings.axis.y.title_x + 450 - _name.length / 2 * 8 );
+        var _pos_x = (axis==="x")? (settings.axis.x.title_x + _name.length / 2 * 8 + 5): (settings.axis.y.title_y - 11);
+        var _pos_y = (axis==="x")? (settings.axis.x.title_y - 12): (settings.axis.y.title_x + 455 - _name.length / 2 * 8 );
         elem.axisTitleGroup.append("svg:image")
             .attr("xlink:href", "images/help.png")
             .attr("class", d3_class[axis].title_help)
@@ -450,6 +544,8 @@ var scatterPlots = (function() {
                 cbio.util.getLinkToSampleView(window.PortalGlobals.getCancerStudyId(), d.caseId) +
                 "' target = '_blank'>" + d.caseId +
                 "</a></strong>";
+            _content += "<br>Horizontal: <b>" + d.xVal + "</b><br>" + "Vertical: <b>" + d.yVal + "</b>";
+            
             if (Object.keys(d.mutation).length !== 0) {
                 $.each(Object.keys(d.mutation), function(index, gene) {
                     _content += "<br>" + gene + ": " + d.mutation[gene].details;
@@ -501,12 +597,17 @@ var scatterPlots = (function() {
     
     return {
         init: function(_div, _data, _apply_box_plots, _box_plots_axis) {
+            
             div = _div;
-            //convert input data from JSON to array
+            stat.applied_box_plots = _apply_box_plots;
+            stat.box_plots_axis = _box_plots_axis;
+            
             data = [];
             glyphs = [];
             data.length = 0;
             glyphs.length = 0;
+
+            //convert input data from JSON to array
             for (var key in _data) {
                 data.push(_data[key]);
             }
@@ -519,7 +620,7 @@ var scatterPlots = (function() {
             drawAxis("x");
             drawAxis("y");
             if (_apply_box_plots) {
-                boxPlots.init(data, _box_plots_axis, elem);
+                boxPlots.init(data, plotsData.stat(), _box_plots_axis, elem);
             }
             drawDots(_apply_box_plots, _box_plots_axis);
             

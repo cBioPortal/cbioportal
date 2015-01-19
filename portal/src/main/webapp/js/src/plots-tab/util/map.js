@@ -43,7 +43,8 @@ var d3_class = {
         axis_title: "plots-y-axis-title",
         title_help: "plots-y-axis-title-help"
     },
-    box_plots: "box-plots"
+    box_plots: "box-plots",
+    dots: "dots"
 
 };
 

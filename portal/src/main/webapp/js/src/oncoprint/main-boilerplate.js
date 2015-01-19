@@ -86,6 +86,10 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                     e.stopPropagation();
                 }
             );
+        
+            $("#select_clinical_attributes_chzn").mouseenter(function() {
+                $("#select_clinical_attributes_chzn .chzn-search input").focus();
+            });
         }
     });
 

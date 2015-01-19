@@ -92,6 +92,11 @@ var heat_map = (function() {
         var colorScale = d3.scale.linear()
             .domain([stat.count.min, stat.count.max])
             .range(["white", "#0066CC"]);
+            
+        var textColorScale = d3.scale.linear()
+            .domain([stat.count.min, stat.count.max])
+            .range(["#0066CC", "white"]);
+    
     
         //pile rects
         var heatmapRects = svg.selectAll("rect")
@@ -110,27 +115,35 @@ var heat_map = (function() {
                 return colorScale(d.count);
             })
             .style('stroke', "#D0D0D0")
-            .on("mouseover", function(d) {
-                d3.select(this)
-                  .style("stroke","black");
-                this.parentNode.appendChild(this);
-                var xPosition = parseFloat(d3.select(this).attr("x")) + w / 2;
-                var yPosition = parseFloat(d3.select(this).attr("y"))+ h / 2 + 5;
-                svg.append("text")
-                    .attr("id","tooltip")
-                    .attr("x", xPosition)
-                    .attr("y", yPosition)
-                    .style("fill", "black")
-                    .attr("text-anchor", "middle")
-                    .attr("font-family", "sans-serif")
-                    .attr("font-size", "12px")
-                    .text(d.count);
-                })
-                .on("mouseout", function() {
-                    d3.select("#tooltip").remove();
-                    d3.select(this)
-                    .style("stroke","#D0D0D0");
-                });
+            .attr("count", function(d) { return d.count; });
+    
+        var heatmapText = svg.selectAll("text").data(data).enter().append("text");
+         heatmapText.attr("x", function(d) { return ((d.x * w) + w/2 + 90);})
+                    .attr("y", function(d) { return ((d.y * h) + h / 2 + 5 + 50); })
+                    .attr("fill", function(d) { return textColorScale(d.count); })
+                    .text(function(d) { return d.count; });
+        
+//            .on("mouseover", function(d) {
+//                d3.select(this)
+//                  .style("stroke","black");
+//                this.parentNode.appendChild(this);
+//                var xPosition = parseFloat(d3.select(this).attr("x")) + w / 2;
+//                var yPosition = parseFloat(d3.select(this).attr("y"))+ h / 2 + 5;
+//                svg.append("text")
+//                    .attr("id","tooltip")
+//                    .attr("x", xPosition)
+//                    .attr("y", yPosition)
+//                    .style("fill", "black")
+//                    .attr("text-anchor", "middle")
+//                    .attr("font-family", "sans-serif")
+//                    .attr("font-size", "12px")
+//                    .text(d.count);
+//                })
+//                .on("mouseout", function() {
+//                    d3.select("#tooltip").remove();
+//                    d3.select(this)
+//                    .style("stroke","#D0D0D0");
+//                });
         
         //labels
         var columnLabel = svg.selectAll(".colLabel")

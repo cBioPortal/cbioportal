@@ -135,12 +135,6 @@ var scatterPlots = (function() {
                     .enter()
                     .append("svg:path")
                     .attr("transform", function(d){
-                        $(this).attr("x_pos", elem.x.scale(d.xVal));
-                        $(this).attr("y_pos", elem.y.scale(d.yVal));
-                        $(this).attr("x_val", d.xVal);
-                        $(this).attr("y_val", d.yVal);
-                        $(this).attr("case_id", d.caseId);
-                        $(this).attr("size", 35);
 
                         var _x, _y;
                         if (_apply_box_plots) { //apply noise
@@ -155,6 +149,13 @@ var scatterPlots = (function() {
                             _x = elem.x.scale(d.xVal);
                             _y = elem.y.scale(d.yVal);
                         }
+                        
+                        $(this).attr("x_pos", _x);
+                        $(this).attr("y_pos", _y);
+                        $(this).attr("x_val", d.xVal);
+                        $(this).attr("y_val", d.yVal);
+                        $(this).attr("case_id", d.caseId);
+                        $(this).attr("size", 35);
 
                         return "translate(" + _x + ", " + _y + ")";
                     })
@@ -220,13 +221,6 @@ var scatterPlots = (function() {
                 .append("svg:path")
                 .attr("transform", function(d){
                     
-                    $(this).attr("x_pos", elem.x.scale(d.xVal));
-                    $(this).attr("y_pos", elem.y.scale(d.yVal));
-                    $(this).attr("x_val", d.xVal);
-                    $(this).attr("y_val", d.yVal);
-                    $(this).attr("case_id", d.caseId);
-                    $(this).attr("size", 20);
-                    
                     var _x, _y;
                     if (_apply_box_plots) { //apply noise
                         if (_box_plots_axis === "x") {
@@ -240,6 +234,13 @@ var scatterPlots = (function() {
                         _x = elem.x.scale(d.xVal);
                         _y = elem.y.scale(d.yVal);
                     }
+                    
+                    $(this).attr("x_pos", _x);
+                    $(this).attr("y_pos", _y);
+                    $(this).attr("x_val", d.xVal);
+                    $(this).attr("y_val", d.yVal);
+                    $(this).attr("case_id", d.caseId);
+                    $(this).attr("size", 20);
 
                     return "translate(" + _x + ", " + _y + ")";
                 })
@@ -261,13 +262,29 @@ var scatterPlots = (function() {
                 .enter()
                 .append("svg:path")
                 .attr("transform", function(d){
-                    $(this).attr("x_pos", elem.x.scale(d.xVal));
-                    $(this).attr("y_pos", elem.y.scale(d.yVal));
+                    
+                    var _x, _y;
+                    if (_apply_box_plots) { //apply noise
+                        if (_box_plots_axis === "x") {
+                            _x = elem.x.scale(d.xVal) + (Math.random() * 20 - 20/2);
+                            _y = elem.y.scale(d.yVal);
+                        } else {
+                            _x = elem.x.scale(d.xVal);
+                            _y = elem.y.scale(d.yVal) + (Math.random() * 20 - 20/2);
+                        }
+                    } else {
+                        _x = elem.x.scale(d.xVal);
+                        _y = elem.y.scale(d.yVal);
+                    }
+
+                    $(this).attr("x_pos", _x);
+                    $(this).attr("y_pos", _y);
                     $(this).attr("x_val", d.xVal);
                     $(this).attr("y_val", d.yVal);
                     $(this).attr("case_id", d.caseId);
                     $(this).attr("size", 20);
-                    return "translate(" + elem.x.scale(d.xVal) + ", " + elem.y.scale(d.yVal) + ")";
+                    
+                    return "translate(" + _x + ", " + _y + ")";
                 })
                 .attr("d", d3.svg.symbol()
                     .size(20)
@@ -392,74 +409,115 @@ var scatterPlots = (function() {
             }
         };
         
-         if ($("#" + ids.sidebar.x.log_scale).is(':checked') && $("#" + ids.sidebar.y.log_scale).is(':checked')) {
-        
-            var _new_x_scale = re_scale("x");
-            var _new_y_scale = re_scale("y");
-            re_draw_axis("x");
-            re_draw_axis("y");
-            update_axis_title("x", "append");
-            update_axis_title("y", "append");
-            if (stat.applied_box_plots) update_box_plots(update_data(stat.box_plots_axis), update_stat(stat.box_plots_axis));
-        
-            elem.dotsGroup.selectAll("path")
-                .transition().duration(300)
-                .attr("transform", function() {
-                    var _x = _new_x_scale(Math.log(d3.select(this).attr("x_val")) / Math.log(2));
-                    var _y = _new_y_scale(Math.log(d3.select(this).attr("y_val")) / Math.log(2));
-                    return "translate(" + _x + ", " + _y + ")";
-                }); 
-        
-        } else if ($("#" + ids.sidebar.x.log_scale).is(':checked') && !$("#" + ids.sidebar.y.log_scale).is(':checked')) {
-        
-            var _new_scale = re_scale("x");
-            re_draw_axis("x");
-            initAxis("y");
-            drawAxis("y");
-            update_axis_title("x", "append");
-            update_axis_title("y", "remove");
-            if (stat.applied_box_plots) update_box_plots(update_data(stat.box_plots_axis), update_stat(stat.box_plots_axis));
-        
-            elem.dotsGroup.selectAll("path")
-                .transition().duration(300)
-                .attr("transform", function() {
-                    var _log_pos = _new_scale(Math.log(d3.select(this).attr("x_val")) / Math.log(2));
-                    var _pre_pos = d3.select(this).attr("y_pos");
-                    return "translate(" + _log_pos + ", " + _pre_pos + ")";    
-                }); 
+        if (genetic_vs_genetic()) {
+            if ($("#" + ids.sidebar.x.log_scale).is(':checked') && $("#" + ids.sidebar.y.log_scale).is(':checked')) {
+
+                       var _new_x_scale = re_scale("x");
+                       var _new_y_scale = re_scale("y");
+                       re_draw_axis("x");
+                       re_draw_axis("y");
+                       update_axis_title("x", "append");
+                       update_axis_title("y", "append");
+                       if (stat.applied_box_plots) update_box_plots(update_data(stat.box_plots_axis), update_stat(stat.box_plots_axis));
+
+                       elem.dotsGroup.selectAll("path")
+                           .transition().duration(300)
+                           .attr("transform", function() {
+                               var _x = _new_x_scale(Math.log(d3.select(this).attr("x_val")) / Math.log(2));
+                               var _y = _new_y_scale(Math.log(d3.select(this).attr("y_val")) / Math.log(2));
+                               return "translate(" + _x + ", " + _y + ")";
+                           }); 
+
+                   } else if ($("#" + ids.sidebar.x.log_scale).is(':checked') && (!$("#" + ids.sidebar.y.log_scale).is(':checked'))) {
+
+                       var _new_scale = re_scale("x");
+                       re_draw_axis("x");
+                       initAxis("y");
+                       drawAxis("y");
+                       update_axis_title("x", "append");
+                       update_axis_title("y", "remove");
+                       if (stat.applied_box_plots) update_box_plots(update_data(stat.box_plots_axis), update_stat(stat.box_plots_axis));
+
+                       elem.dotsGroup.selectAll("path")
+                           .transition().duration(300)
+                           .attr("transform", function() {
+                               var _log_pos = _new_scale(Math.log(d3.select(this).attr("x_val")) / Math.log(2));
+                               var _pre_pos = d3.select(this).attr("y_pos");
+                               return "translate(" + _log_pos + ", " + _pre_pos + ")";    
+                           }); 
+
+                   } else if ((!$("#" + ids.sidebar.x.log_scale).is(':checked')) && $("#" + ids.sidebar.y.log_scale).is(':checked')) {
+
+                       var _new_scale = re_scale("y");
+                       initAxis("x");
+                       drawAxis("x");
+                       re_draw_axis("y");
+                       update_axis_title("x", "remove");
+                       update_axis_title("y", "append");
+                       if (stat.applied_box_plots) update_box_plots(update_data(stat.box_plots_axis), update_stat(stat.box_plots_axis));
+
+                       elem.dotsGroup.selectAll("path")
+                           .transition().duration(300)
+                           .attr("transform", function() {
+                               var _log_pos = _new_scale(Math.log(d3.select(this).attr("y_val")) / Math.log(2));
+                               var _pre_pos = d3.select(this).attr("x_pos");
+                               return "translate(" + _pre_pos + ", " + _log_pos + ")";    
+                           }); 
+
+                   } else if ((!$("#" + ids.sidebar.x.log_scale).is(':checked')) && (!$("#" + ids.sidebar.y.log_scale).is(':checked'))) {
+
+                        initAxis("x");
+                        drawAxis("x");
+                        initAxis("y");
+                        drawAxis("y");
+                        update_axis_title("x", "remove");
+                        update_axis_title("y", "remove");
+                        if (stat.applied_box_plots) restore_box_plots();
+                        elem.dotsGroup.selectAll("path")
+                                .transition().duration(300)
+                                .attr("transform", function() {
+                                    var _x = d3.select(this).attr("x_pos");
+                                    var _y = d3.select(this).attr("y_pos");
+                                    return "translate(" + _x + ", " + _y + ")";
+                                });
+                   }           
+        } else if (genetic_vs_clinical()) {
+            var _profile_axis = ($("#" + ids.sidebar.x.data_type).val() === vals.data_type.genetic)? "x": "y";
+            var _clin_axis = ($("#" + ids.sidebar.x.data_type).val() === vals.data_type.genetic)? "y": "x";
+            if ($("#" + ids.sidebar[_profile_axis].log_scale).is(":checked")) {
+                var _new_scale = re_scale(_profile_axis);
+                initAxis(_clin_axis);
+                drawAxis(_clin_axis);
+                re_draw_axis(_profile_axis);
+                update_axis_title(_clin_axis, "remove");
+                update_axis_title(_profile_axis, "append");
+                if (stat.applied_box_plots) update_box_plots(update_data(stat.box_plots_axis), update_stat(stat.box_plots_axis));
                 
-        } else if (!$("#" + ids.sidebar.x.log_scale).is(':checked') && $("#" + ids.sidebar.y.log_scale).is(':checked')) {
-            
-            var _new_scale = re_scale("y");
-            initAxis("x");
-            drawAxis("x");
-            re_draw_axis("y");
-            update_axis_title("x", "remove");
-            update_axis_title("y", "append");
-            if (stat.applied_box_plots) update_box_plots(update_data(stat.box_plots_axis), update_stat(stat.box_plots_axis));
-        
-            elem.dotsGroup.selectAll("path")
-                .transition().duration(300)
-                .attr("transform", function() {
-                    var _log_pos = _new_scale(Math.log(d3.select(this).attr("y_val")) / Math.log(2));
-                    var _pre_pos = d3.select(this).attr("x_pos");
-                    return "translate(" + _pre_pos + ", " + _log_pos + ")";    
-                }); 
+                elem.dotsGroup.selectAll("path")
+                   .transition().duration(300)
+                   .attr("transform", function() {
+                       var _log_pos = _new_scale(Math.log(d3.select(this).attr(_profile_axis + "_val")) / Math.log(2));
+                       var _pre_pos = d3.select(this).attr(_clin_axis + "_pos");
+                       return "translate(" + _pre_pos + ", " + _log_pos + ")";    
+                   }); 
                 
-        } else if (!$("#" + ids.sidebar.x.log_scale).is(':checked') && !$("#" + ids.sidebar.y.log_scale).is(':checked')) {
+            } else if (!$("#" + ids.sidebar[_profile_axis].log_scale).is(":checked")) {
+                initAxis("x");
+                drawAxis("x");
+                initAxis("y");
+                drawAxis("y");
+                update_axis_title("x", "remove");
+                update_axis_title("y", "remove");
+                if (stat.applied_box_plots) restore_box_plots();
+                elem.dotsGroup.selectAll("path")
+                    .transition().duration(300)
+                    .attr("transform", function() {
+                        var _x = d3.select(this).attr("x_pos");
+                        var _y = d3.select(this).attr("y_pos");
+                        return "translate(" + _x + ", " + _y + ")";
+                    }); 
+            }
             
-            initAxis("x");
-            drawAxis("x");
-            initAxis("y");
-            drawAxis("y");
-            update_axis_title("x", "remove");
-            update_axis_title("y", "remove");
-            if (stat.applied_box_plots) restore_box_plots();
-            elem.dotsGroup.selectAll("path")
-                .transition().duration(300)
-                .attr("transform", function() {
-                    return "translate(" + d3.select(this).attr("x_pos") + ", " + d3.select(this).attr("y_pos") + ")";
-                });
         }
        
     }

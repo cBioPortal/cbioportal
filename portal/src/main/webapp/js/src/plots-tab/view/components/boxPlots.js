@@ -219,7 +219,6 @@ var boxPlots = (function () {
                 
                 d3.select("#" + ids.main_view.div).select("." + d3_class.box_plots).remove();
                 input_elem.boxPlots = input_elem.svg.append("svg:g").attr("class", d3_class.box_plots);
-                input_elem.dotsGroup = input_elem.svg.append("svg:g").attr("class", d3_class.dots);
                 
                 //clear out data container
                 _arr = [];

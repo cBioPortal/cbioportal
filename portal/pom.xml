@@ -7,7 +7,7 @@
 	<version>1.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>portal</artifactId>
+  <artifactId>cbioportal</artifactId>
   <packaging>war</packaging>
   <name>cBio Cancer Genomics Portal</name>
   <url>http://maven.apache.org</url>
@@ -138,6 +138,7 @@
 	<!-- properties file used for filtering our context file in resources -->
 	<filters>
 	  <filter>${PORTAL_HOME}/src/main/resources/portal.properties</filter>
+	  <filter>${PORTAL_HOME}/src/main/resources/importer.properties</filter>
 	  <filter>${PORTAL_HOME}/src/main/resources/spring.security.url.intercepts</filter>
 	</filters>
 

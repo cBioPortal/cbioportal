@@ -27,9 +27,12 @@ import org.mskcc.cbio.portal.scripts.*;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.importer.util.*;
+import org.mskcc.cbio.importer.remote.GetGateway;
+import org.mskcc.cbio.importer.remote.PutGateway;
 import org.mskcc.cbio.portal.model.CopyNumberSegmentFile;
 import org.mskcc.cbio.importer.converter.internal.MethylationConverterImpl;
 
+import org.mskcc.cbio.portal.util.CancerStudyReader;
 import org.mskcc.cbio.liftover.Hg18ToHg19;
 import org.mskcc.cbio.mutassessor.MutationAssessorTool;
 
@@ -45,6 +48,9 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.SimpleMailMessage;
 
 import java.io.*;
 import java.util.*;
@@ -52,10 +58,19 @@ import java.net.URL;
 import java.util.regex.*;
 import java.util.zip.GZIPInputStream;
 
-/**
- * Class which implements the FileUtils interface.
- */
-class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
+public class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils
+{
+	@Autowired
+	GetGateway getGateway;
+
+	@Autowired
+	PutGateway putGateway;
+
+	@Autowired
+	JavaMailSender mailSender;
+
+	@Autowired
+	SimpleMailMessage redeployMessage;
 
     // used in unzip method
     private static int BUFFER = 2048;
@@ -256,7 +271,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	public List<String> getMissingCaseListFilenames(String rootDirectory, CancerStudyMetadata cancerStudyMetadata) throws Exception {
 
 		ArrayList toReturn = new ArrayList<String>();
-		String caseListDirectory = (rootDirectory + File.separator + cancerStudyMetadata.getStudyPath() + File.separator + "case_lists");
+		String caseListDirectory = (rootDirectory + File.separator + cancerStudyMetadata.getStudyPath() + File.separator + org.mskcc.cbio.importer.FileUtils.CASE_LIST_DIRECTORY_NAME);
 		for (CaseListMetadata caseListMetadata : config.getCaseListMetadata(Config.ALL)) {
 			String caseListFilename = caseListDirectory + File.separator + caseListMetadata.getCaseListFilename();
 			File caseListFile = new File(caseListFilename);
@@ -275,7 +290,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			}
 			File caseListFile = org.apache.commons.io.FileUtils.getFile(stagingDirectory,
 																		cancerStudyMetadata.getStudyPath(),
-																		"case_lists",
+																		org.mskcc.cbio.importer.FileUtils.CASE_LIST_DIRECTORY_NAME,
 																		caseListMetadata.getCaseListFilename());
 			if (caseListFile.exists() && !overwrite) {
 				if (LOG.isInfoEnabled()) {
@@ -565,18 +580,19 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			PrintWriter writer = new PrintWriter(org.apache.commons.io.FileUtils.openOutputStream(metaFile, false));
 			writer.print("type_of_cancer: " + cancerStudyMetadata.getTumorType() + "\n");
 			writer.print("cancer_study_identifier: " + cancerStudyMetadata.getStableId() + "\n");
-			String name = (cancerStudyMetadata.getName().length() > 0) ?
-				cancerStudyMetadata.getName() : cancerStudyMetadata.getTumorTypeMetadata().getName();
-			name = name.replaceAll(CancerStudyMetadata.TUMOR_TYPE_NAME_TAG,
-								   cancerStudyMetadata.getTumorTypeMetadata().getName());
+                        String name = cancerStudyMetadata.getName();
+//			String name = (cancerStudyMetadata.getName().length() > 0) ?
+//				cancerStudyMetadata.getName() : cancerStudyMetadata.getTumorTypeMetadata().getName();
+//			name = name.replaceAll(CancerStudyMetadata.TUMOR_TYPE_NAME_TAG,
+//								   cancerStudyMetadata.getTumorTypeMetadata().getName());
 			writer.print("name: " + name + "\n");
             		writer.print("short_name: " + cancerStudyMetadata.getShortName() + "\n");
 			String description = cancerStudyMetadata.getDescription();
 			description = description.replaceAll(CancerStudyMetadata.NUM_CASES_TAG, Integer.toString(numCases));
-			description = description.replaceAll(CancerStudyMetadata.TUMOR_TYPE_TAG,
-												 cancerStudyMetadata.getTumorTypeMetadata().getType().toUpperCase());
-			description = description.replaceAll(CancerStudyMetadata.TUMOR_TYPE_NAME_TAG,
-												 cancerStudyMetadata.getTumorTypeMetadata().getName());
+//			description = description.replaceAll(CancerStudyMetadata.TUMOR_TYPE_TAG,
+//												 cancerStudyMetadata.getTumorTypeMetadata().getType().toUpperCase());
+//			description = description.replaceAll(CancerStudyMetadata.TUMOR_TYPE_NAME_TAG,
+//												 cancerStudyMetadata.getTumorTypeMetadata().getName());
 			writer.print("description: " + description + "\n");
 			if (cancerStudyMetadata.getCitation().length() > 0) {
 				writer.print("citation: " + cancerStudyMetadata.getCitation() + "\n");
@@ -883,7 +899,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
 		File caseListFile = org.apache.commons.io.FileUtils.getFile(stagingDirectory,
 																	cancerStudyMetadata.getStudyPath(),
-																	"case_lists",
+																	org.mskcc.cbio.importer.FileUtils.CASE_LIST_DIRECTORY_NAME,
 																	caseListMetadata.getCaseListFilename());
 
 		if (LOG.isInfoEnabled()) {
@@ -1063,18 +1079,129 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 											  sourceFilename,
 											  remoteUserName + "@" + segFileLocation.getHost() + ":" +
 											  segFileLocation.getFile() + destinationFilename };
+			executeCommand(command);
+		}
+	}
+
+	private boolean executeCommand(String[] command)
+	{
+		boolean toReturn = false;
+		if (LOG.isInfoEnabled()) {
+			LOG.info("executing: " + Arrays.asList(command));
+		}
+		if (Shell.exec(Arrays.asList(command), ".")) {
 			if (LOG.isInfoEnabled()) {
-				LOG.info("executing: " + Arrays.asList(command));
+				LOG.info("command successful.");
 			}
-			if (Shell.exec(Arrays.asList(command), ".")) {
+			toReturn = true;
+		}
+		else if (LOG.isInfoEnabled()) {
+			LOG.info("command unsucessful.");
+		}
+		return toReturn;
+	}
+
+	public void copySegFiles(PortalMetadata portalMetadata, DatatypeMetadata datatypeMetadata) throws Exception
+	{
+		if (LOG.isInfoEnabled()) {
+			LOG.info("copySegFiles()");
+		}
+
+        // check args
+        if (portalMetadata == null || datatypeMetadata == null) {
+            throw new IllegalArgumentException("portalMetadata && datatypeMetadata must not be null");
+		}
+
+		// seg file location
+		URL segFileLocation = portalMetadata.getIGVSegFileLinkingLocation();
+
+		// we need this to determine location 
+		Collection<DataSourcesMetadata> dataSourcesMetadata = config.getDataSourcesMetadata(Config.ALL);
+
+		// iterate over all cancer studies
+		for (CancerStudyMetadata cancerStudyMetadata : config.getCancerStudyMetadata(portalMetadata.getName())) {
+
+			// lets determine if cancer study is in staging directory or studies directory
+			String rootDirectory = MetadataUtils.getCancerStudyRootDirectory(portalMetadata, dataSourcesMetadata, cancerStudyMetadata);
+
+			if (rootDirectory == null) {
 				if (LOG.isInfoEnabled()) {
-					LOG.info("copy successful.");
+					LOG.info("loadStagingFiles(), cannot find root directory for study: " + cancerStudyMetadata + " skipping...");
+				}
+				continue;
+			}
+
+			// construct staging filename for seg
+			String sourceFilename = (rootDirectory + File.separator +
+									  cancerStudyMetadata.getStudyPath() +
+									  File.separator + datatypeMetadata.getStagingFilename());
+			sourceFilename = sourceFilename.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
+			String destinationFilename = datatypeMetadata.getStagingFilename().replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
+
+			try {
+				File localFile = org.apache.commons.io.FileUtils.getFile(sourceFilename);
+				putGateway.put(localFile, segFileLocation.getFile() + destinationFilename);
+			}
+			catch(Exception e) {
+				if (LOG.isInfoEnabled()) {
+					LOG.info("Error copying seg file to remote server: " + sourceFilename);
 				}
 			}
-			else if (LOG.isInfoEnabled()) {
-				LOG.info("copy unsucessful.");
-			}
 		}
+	}
+
+	@Override
+	public void redeployWar(PortalMetadata portalMetadata) throws Exception
+	{
+		if (LOG.isInfoEnabled()) {
+			LOG.info("redeployWar()");
+		}
+
+        // check args
+        if (portalMetadata == null) {
+            throw new IllegalArgumentException("portal must not be null");
+		}
+
+		try {
+			File localFile = org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
+			                                                         portalMetadata.getWarFilename());
+			deleteFile(localFile);
+			getGateway.get("", org.apache.commons.io.FileUtils.getTempDirectoryPath(),
+			               portalMetadata.getWarFilePath(), portalMetadata.getWarFilename());
+			putGateway.put(localFile, portalMetadata.getWarFilePath());
+		}
+		catch(Exception e) {
+			sendNotification(portalMetadata.getWarFilename(), e.getMessage());
+		}
+	}
+
+	private void sendNotification(String warFilename, String exceptionMessage)
+	{
+		String body = redeployMessage.getText();
+		SimpleMailMessage msg = new SimpleMailMessage(redeployMessage);
+		msg.setText("\n\n" + warFilename + ",\n\n" + exceptionMessage);
+		try {
+			mailSender.send(msg);
+		}
+		catch (Exception e) {
+			logMessage(LOG, "sendNotification(), error sending email notification:\n" + e.getMessage());
+		}
+	}
+
+	@Override
+	public CancerStudyMetadata createCancerStudyMetadataFromMetaStudyFile(String downloadDirectory, String studyName)
+	{
+		CancerStudyMetadata toReturn = null;
+		try {
+			File cancerStudyFile = org.apache.commons.io.FileUtils.getFile(downloadDirectory,
+			                                                               studyName,
+			                                                               CancerStudyMetadata.CANCER_STUDY_METADATA_FILE);
+			toReturn = new CancerStudyMetadata(studyName, CancerStudyReader.loadCancerStudy(cancerStudyFile, true, false));
+		}	
+		catch (Exception e) {
+			LOG.info("Cannot create cancer metadata file (probably unknown tumor type): " + downloadDirectory + "/" + studyName);	
+		}
+		return toReturn;
 	}
 
     /*

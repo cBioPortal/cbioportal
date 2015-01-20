@@ -152,30 +152,31 @@ var BarChart = function(){
             hide: {fixed:true, delay: 100, event: "mouseout "},
             position: {my:'top center',at:'bottom center', viewport: $(window)},
             content: {
-                text:   "<form style='display:inline-block;float:left;margin: 0 2px' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-pdf'>"+
-                        "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-pdf-value'>"+
-                        "<input type='hidden' name='filetype' value='pdf'>"+
-                        "<input type='hidden' id='"+DIV.chartDiv+"-pdf-name' name='filename' value='"+StudyViewParams.params.studyId + "_" +param.selectedAttr+".pdf'>"+
-                        "<input type='submit' style='font-size:10px;' value='PDF'>"+          
-                        "</form>"+
-                        "<form style='display:inline-block;float:left;margin: 0 2px' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-svg'>"+
-                        "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-svg-value'>"+
-                        "<input type='hidden' name='filetype' value='svg'>"+
-                        "<input type='hidden' id='"+DIV.chartDiv+"-svg-name' name='filename' value='"+StudyViewParams.params.studyId + "_" +param.selectedAttr+".svg'>"+
-                        "<input type='submit' style='font-size:10px;clear:right;float:right;' value='SVG'></form>"
+                text:   "<div style='display:inline-block;float:left;margin: 0 2px'>"+
+                        "<button  id='"+DIV.chartDiv+"-pdf'>PDF</button>"+          
+                        "</div>"+
+                        "<div style='display:inline-block;float:left;margin: 0 2px'>"+
+                        "<button  id='"+DIV.chartDiv+"-svg'>SVG</button>"+
+                        "</div>"
             },
             events: {
                 show: function() {
                     $('#' + DIV.chartDiv + '-download-icon-wrapper').qtip('api').hide();
                 },
                 render: function(event, api) {
-                    $("#"+DIV.chartDiv+"-pdf", api.elements.tooltip).submit(function(){
+                    $("#"+DIV.chartDiv+"-pdf", api.elements.tooltip).click(function(){
                         setSVGElementValue(DIV.chartDiv,
-                            DIV.chartDiv+"-pdf-value");
+                            DIV.chartDiv+"-pdf-value", {
+                                filename: StudyViewParams.params.studyId + "_" +param.selectedAttr+".pdf",
+                                contentType: "application/pdf",
+                                servletName: "svgtopdf.do"
+                            });
                     });
-                    $("#"+DIV.chartDiv+"-svg", api.elements.tooltip).submit(function(){
+                    $("#"+DIV.chartDiv+"-svg", api.elements.tooltip).click(function(){
                         setSVGElementValue(DIV.chartDiv,
-                            DIV.chartDiv+"-svg-value");
+                            DIV.chartDiv+"-svg-value", {
+                                filename: StudyViewParams.params.studyId + "_" +param.selectedAttr+".svg",
+                            });
                     });
                 }
             }
@@ -303,7 +304,7 @@ var BarChart = function(){
     //Bar chart SVG style is controled by CSS file. In order to change 
     //brush and deselected bar, this function is designed to change the svg
     //style, save svg and delete added style.
-    function setSVGElementValue(_svgParentDivId,_idNeedToSetValue){
+    function setSVGElementValue(_svgParentDivId,_idNeedToSetValue, downloadOptions){
         var _svgElement;
         
         var _svg = $("#" + _svgParentDivId + " svg");
@@ -374,14 +375,15 @@ var BarChart = function(){
             _svgElement = parseSVG(_svg.html());
         }
         
-        $("#" + _idNeedToSetValue)
-                .val("<svg width='370' height='200'>"+
+        var svg = "<svg width='370' height='200'>"+
                     "<g><text x='180' y='20' style='font-weight: bold; "+
                     "text-anchor: middle'>"+
                     param.selectedAttrDisplay+"</text></g>"+
-                    "<g transform='translate(0, 20)'>"+_svgElement + "</g></svg>");
-       
+                    "<g transform='translate(0, 20)'>"+_svgElement + "</g></svg>";
         
+        cbio.download.initDownload(
+            svg, downloadOptions);
+            
         //Remove added styles
         _brush.find('rect.extent')
                 .css({
@@ -491,18 +493,6 @@ var BarChart = function(){
                 "\" class='"+ param.className +"'  oValue='" + param.selectedAttr + "," + 
                 param.selectedAttrDisplay + ",bar'>"+
                 "<div id='"+DIV.chartDiv+"-side' class='study-view-pdf-svg-side bar'>"+
-                
-//                "<form style='clear:right;float:right;display:inline-block;' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-pdf'>"+
-//                "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-pdf-value'>"+
-//                "<input type='hidden' name='filetype' value='pdf'>"+
-//                "<input type='hidden' id='"+DIV.chartDiv+"-pdf-name' name='filename' value='"+StudyViewParams.params.studyId + "_" +param.selectedAttr+".pdf'>"+
-//                "<input type='submit' style='font-size:10px' value='PDF'>"+          
-//                "</form>"+
-//                "<form style='clear:right;float:right;display:inline-block' action='svgtopdf.do' method='post' id='"+DIV.chartDiv+"-svg'>"+
-//                "<input type='hidden' name='svgelement' id='"+DIV.chartDiv+"-svg-value'>"+
-//                "<input type='hidden' name='filetype' value='svg'>"+
-//                "<input type='hidden' id='"+DIV.chartDiv+"-svg-name' name='filename' value='"+StudyViewParams.params.studyId + "_" +param.selectedAttr+".svg'>"+
-//                "<input type='submit' style='font-size:10px' value='SVG'></form>"+
                 "</div></div>"+
                 "<div style='width:100%; float:center;text-align:center;'>"+
                 "<chartTitleH4>" + param.selectedAttrDisplay + "</chartTitleH4></div>";

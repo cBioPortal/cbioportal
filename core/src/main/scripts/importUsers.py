@@ -23,6 +23,7 @@
 # imports
 import os
 import sys
+import time
 import getopt
 import MySQLdb
 
@@ -63,7 +64,7 @@ ACC_USER_SPREADSHEET = 'Request Access to the cBio ACC Cancer Genomics Portal'
 TARGET_USER_SPREADSHEET = 'Request Access to the cBio TARGET Cancer Genomics Portal'
 MSKCC_USER_SPREADSHEET = 'Request Access to the cBio MSKCC Cancer Genomics Portal'
 
-# portal name
+# portal name (these should correspond to what is in property file of the respective portal)
 PORTAL_NAME = { GDAC_USER_SPREADSHEET : "gdac-portal",
                 PROSTATE_USER_SPREADSHEET : "prostate-portal",
                 GLIOMA_USER_SPREADSHEET : "glioma-portal",
@@ -83,11 +84,12 @@ OPENID_EMAIL_KEY = "googleoropenidaddress"
 STATUS_KEY = "statusapprovedorblank"
 AUTHORITIES_KEY = "authoritiesalloralltcgaandorsemicolondelimitedcancerstudylist"
 LAB_PI_KEY = "labpi"
+TIMESTAMP_KEY = "timestamp"
 
 # possible values in status column
 STATUS_APPROVED = "APPROVED"
 
-DEFAULT_AUTHORITIES = "PUBLIC;EXTENDED;DMP"
+DEFAULT_AUTHORITIES = "PUBLIC;EXTENDED;MSKPUB"
 
 # consts used in email
 MSKCC_EMAIL_SUFFIX = "@mskcc.org"
@@ -300,7 +302,7 @@ def get_user_authorities(cursor, google_email):
 # ------------------------------------------------------------------------------
 # get current users from google spreadsheet
 
-def get_new_user_map(spreadsheet, worksheet_feed, current_user_map, portal_name, use_institutional_id):
+def get_new_user_map(spreadsheet, worksheet_feed, current_user_map, portal_name):
 
     # map that we are returning
     # key is the institutional email address + google (in case user has multiple google ids)
@@ -311,7 +313,7 @@ def get_new_user_map(spreadsheet, worksheet_feed, current_user_map, portal_name,
         # we are only concerned with 'APPROVED' entries
         if (entry.custom[STATUS_KEY].text is not None and
             entry.custom[STATUS_KEY].text.strip() == STATUS_APPROVED):
-            if use_institutional_id == 'true':
+            if spreadsheet == MSKCC_USER_SPREADSHEET:
                 inst_email = entry.custom[MSKCC_EMAIL_KEY].text.strip()
                 google_email = entry.custom[MSKCC_EMAIL_KEY].text.strip().lower()
             else:
@@ -323,15 +325,22 @@ def get_new_user_map(spreadsheet, worksheet_feed, current_user_map, portal_name,
             if google_email not in current_user_map:
                 if authorities[-1:] == ';':
                     authorities = authorities[:-1]
-                to_return[google_email] = User(inst_email, google_email, name, 1,
-                    [portal_name + ':' + au for au in authorities.split(';')])
+                if google_email in to_return:
+                    # there may be multiple entries per email address
+                    # in google spreadsheet, combine entries
+                    user = to_return[google_email]
+                    user.authorities.extend([portal_name + ':' + au for au in authorities.split(';')])
+                    to_return[google_email] = user
+                else:
+                    to_return[google_email] = User(inst_email, google_email, name, 1,
+                        [portal_name + ':' + au for au in authorities.split(';')])
 
     return to_return
 
 # ------------------------------------------------------------------------------
 # get all users from google spreadsheet.  note only inst & google email is returned
 
-def get_all_user_map(worksheet_feed, use_institutional_id):
+def get_all_user_map(spreadsheet, worksheet_feed):
 
     # map that we are returning
     # key is the institutional email address + google (in case user has multiple google ids)
@@ -339,7 +348,7 @@ def get_all_user_map(worksheet_feed, use_institutional_id):
     to_return = {}
 
     for entry in worksheet_feed.entry:
-        if use_institutional_id == 'true':
+        if spreadsheet == MSKCC_USER_SPREADSHEET:
             inst_email = entry.custom[MSKCC_EMAIL_KEY].text.strip()
             google_email = entry.custom[MSKCC_EMAIL_KEY].text.strip().lower()
         else:
@@ -415,7 +424,7 @@ def get_portal_properties(portal_properties_filename):
 # adds new users from the google spreadsheet into the cgds portal database
 # returns new user map if users have been inserted, None otherwise
 
-def manage_users(spreadsheet, cursor, worksheet_feed, portal_name, use_institutional_id):
+def manage_users(spreadsheet, cursor, worksheet_feed, portal_name):
 
     # get map of current portal users
     print >> OUTPUT_FILE, 'Getting list of current portal users'
@@ -428,7 +437,7 @@ def manage_users(spreadsheet, cursor, worksheet_feed, portal_name, use_instituti
 
     # get list of new users and insert
     print >> OUTPUT_FILE, 'Checking for new users'
-    new_user_map = get_new_user_map(spreadsheet, worksheet_feed, current_user_map, portal_name, use_institutional_id)
+    new_user_map = get_new_user_map(spreadsheet, worksheet_feed, current_user_map, portal_name)
     if (len(new_user_map) > 0):
         print >> OUTPUT_FILE, 'We have %s new user(s) to add' % len(new_user_map)
         success = insert_new_users(cursor, new_user_map.values())
@@ -444,11 +453,11 @@ def manage_users(spreadsheet, cursor, worksheet_feed, portal_name, use_instituti
 
 # ------------------------------------------------------------------------------
 # updates user study access
-def update_user_authorities(spreadsheet, cursor, worksheet_feed, portal_name, use_institutional_id):
+def update_user_authorities(spreadsheet, cursor, worksheet_feed, portal_name):
 
         # get map of current portal users
         print >> OUTPUT_FILE, 'Getting list of current portal users from spreadsheet'
-        all_user_map = get_new_user_map(spreadsheet, worksheet_feed, {}, portal_name, use_institutional_id)
+        all_user_map = get_new_user_map(spreadsheet, worksheet_feed, {}, portal_name)
         if all_user_map is None:
                 return None;
         print >> OUTPUT_FILE, 'Updating authorities for each user in current portal user list'
@@ -465,12 +474,13 @@ def update_user_authorities(spreadsheet, cursor, worksheet_feed, portal_name, us
 # Adds unknown users to user spreadsheet. MSKCC users are given default access.
 # during MSK signon.  If this happens, we want to make sure they get into the google
 # spreadsheet for tracking purposes.
-def add_unknown_users_to_spreadsheet(cursor, spreadsheet, worksheet, use_institutional_id):
+def add_unknown_users_to_spreadsheet(cursor, spreadsheet, worksheet):
 
     # get map of all users in google spreadsheet and portal database
     worksheet_feed = get_worksheet_feed(spreadsheet, worksheet)
-    google_spreadsheet_user_map = get_all_user_map(worksheet_feed, use_institutional_id)
+    google_spreadsheet_user_map = get_all_user_map(spreadsheet, worksheet_feed)
     portal_db_user_map = get_current_user_map(cursor)
+    current_time = time.strftime("%m/%d/%y %H:%M:%S")
     # for each user in portal database not in google spreadsheet, insert user into google spreadsheet
     for email in portal_db_user_map.keys():
         if email.endswith(MSKCC_EMAIL_SUFFIX) and email not in google_spreadsheet_user_map:
@@ -480,9 +490,9 @@ def add_unknown_users_to_spreadsheet(cursor, spreadsheet, worksheet, use_institu
             # Gross, Benjamin E./Sloan Kettering Institute
             if "/" in user.name:
                 user_name_parts = user.name.split("/")
-                row = { MSKCC_EMAIL_KEY : user.inst_email, FULLNAME_KEY : user_name_parts[0], LAB_PI_KEY : user_name_parts[1], STATUS_KEY : STATUS_APPROVED, AUTHORITIES_KEY : DEFAULT_AUTHORITIES }
+                row = { TIMESTAMP_KEY : current_time, MSKCC_EMAIL_KEY : user.inst_email, FULLNAME_KEY : user_name_parts[0], LAB_PI_KEY : user_name_parts[1], STATUS_KEY : STATUS_APPROVED, AUTHORITIES_KEY : DEFAULT_AUTHORITIES }
             else:
-                row = { MSKCC_EMAIL_KEY : user.inst_email, FULLNAME_KEY : user.name, STATUS_KEY : STATUS_APPROVED, AUTHORITIES_KEY : DEFAULT_AUTHORITIES }
+                row = { TIMESTAMP_KEY : current_time, MSKCC_EMAIL_KEY : user.inst_email, FULLNAME_KEY : user.name, STATUS_KEY : STATUS_APPROVED, AUTHORITIES_KEY : DEFAULT_AUTHORITIES }
             add_row_to_google_worksheet(spreadsheet, worksheet, row)
 
 
@@ -515,19 +525,15 @@ def main():
     # process the options
     properties_filename = ''
     send_email_confirm = ''
-    use_institutional_id = ''
 
     for o, a in opts:
         if o == '--properties-file':
             properties_filename = a
         elif o == '--send-email-confirm':
             send_email_confirm = a
-        elif o == '--use-institutional-id':
-            use_institutional_id = a
 
-    if (properties_filename == '' or send_email_confirm == '' or use_institutional_id == '' or
-        (send_email_confirm != 'true' and send_email_confirm != 'false') or
-        (use_institutional_id != 'true' and use_institutional_id != 'false')):
+    if (properties_filename == '' or send_email_confirm == '' or 
+        (send_email_confirm != 'true' and send_email_confirm != 'false')):
         usage()
         sys.exit(2)
 
@@ -564,10 +570,10 @@ def main():
                                             portal_properties.google_worksheet)
 
         # the 'guts' of the script
-        new_user_map = manage_users(google_spreadsheet, cursor, worksheet_feed, PORTAL_NAME[google_spreadsheet], use_institutional_id)
+        new_user_map = manage_users(google_spreadsheet, cursor, worksheet_feed, PORTAL_NAME[google_spreadsheet])
 
         # update user authorities
-        update_user_authorities(google_spreadsheet, cursor, worksheet_feed, PORTAL_NAME[google_spreadsheet], use_institutional_id)
+        update_user_authorities(google_spreadsheet, cursor, worksheet_feed, PORTAL_NAME[google_spreadsheet])
 
         # sending emails
         if new_user_map is not None:
@@ -581,7 +587,7 @@ def main():
                               MESSAGE_BODY[google_spreadsheet])
 
         if google_spreadsheet == MSKCC_USER_SPREADSHEET:
-            add_unknown_users_to_spreadsheet(cursor, google_spreadsheet, portal_properties.google_worksheet, use_institutional_id)
+            add_unknown_users_to_spreadsheet(cursor, google_spreadsheet, portal_properties.google_worksheet)
 
     # clean up
     cursor.close()

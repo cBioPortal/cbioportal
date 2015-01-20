@@ -255,11 +255,11 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         function(){
                         if($(this)[0].attributes.href.value === 'images/increaseSort.svg')
                         {
-                            return 'Click to disable sorting';
+                            return 'Disable sorting by this attribute';
                         }
                         else
                         {
-                            return 'Click to enable sorting';
+                            return 'Enable sorting by this attribute';
                         }
                     }
                 },
@@ -796,6 +796,10 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         zoom = reset_zoom();
         // sync
         oncoprint.zoom(zoom.val());
+        //reset all icons
+        $('#oncoprint-diagram-showlegend-icon img')[0].attributes.src.value = 'images/showlegend.svg'; // === or =
+        $('#oncoprint-diagram-removeUCases-icon img')[0].attributes.src.value = 'images/removeUCases.svg';
+        $('#oncoprint-diagram-removeWhitespace-icon img')[0].attributes.src.value = 'images/removeWhitespace.svg';
         oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
         oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
         utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});
@@ -830,6 +834,10 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         zoom = reset_zoom();
         // sync
         oncoprint.zoom(zoom.val());
+        //reset all icons
+        $('#oncoprint-diagram-showlegend-icon img')[0].attributes.src.value = 'images/showlegend.svg'; // === or =
+        $('#oncoprint-diagram-removeUCases-icon img')[0].attributes.src.value = 'images/removeUCases.svg';
+        $('#oncoprint-diagram-removeWhitespace-icon img')[0].attributes.src.value = 'images/removeWhitespace.svg';
         oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
         oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
         utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});

@@ -234,8 +234,10 @@ public class ImportExtendedMutationData{
 				refseqMrnaId = record.getRefSeq();
 				uniprotName = record.getSwissprot();
 				uniprotAccession = DaoUniProtIdMapping.mapFromUniprotIdToAccession(record.getSwissprot());
-				proteinPosStart = ExtendedMutationUtil.getProteinPosStart(record.getProteinPosition());
-				proteinPosEnd = ExtendedMutationUtil.getProteinPosEnd(record.getProteinPosition());
+				proteinPosStart = ExtendedMutationUtil.getProteinPosStart(
+						record.getProteinPosition(), proteinChange);
+				proteinPosEnd = ExtendedMutationUtil.getProteinPosEnd(
+						record.getProteinPosition(), proteinChange);
 
 				//  Assume we are dealing with Entrez Gene Ids (this is the best / most stable option)
 				String geneSymbol = record.getHugoGeneSymbol();

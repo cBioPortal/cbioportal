@@ -156,6 +156,7 @@ var scatterPlots = (function() {
                         $(this).attr("y_val", d.yVal);
                         $(this).attr("case_id", d.caseId);
                         $(this).attr("size", 35);
+                        $(this).attr("shape", gisticInterpreter.getSymbol(d));
 
                         return "translate(" + _x + ", " + _y + ")";
                     })
@@ -198,6 +199,7 @@ var scatterPlots = (function() {
                         $(this).attr("y_val", d.yVal);
                         $(this).attr("case_id", d.caseId);
                         $(this).attr("size", 20);
+                        $(this).attr("shape", mutationInterpreter.getSymbol(d));
 
                         return "translate(" + _x + ", " + _y + ")";
                     })
@@ -241,6 +243,8 @@ var scatterPlots = (function() {
                     $(this).attr("y_val", d.yVal);
                     $(this).attr("case_id", d.caseId);
                     $(this).attr("size", 20);
+                    $(this).attr("shape", mutationInterpreter.getSymbol(d));
+                    
 
                     return "translate(" + _x + ", " + _y + ")";
                 })
@@ -283,6 +287,7 @@ var scatterPlots = (function() {
                     $(this).attr("y_val", d.yVal);
                     $(this).attr("case_id", d.caseId);
                     $(this).attr("size", 20);
+                    $(this).attr("shape", mutationInterpreter.getSymbol(d));
                     
                     return "translate(" + _x + ", " + _y + ")";
                 })
@@ -629,7 +634,7 @@ var scatterPlots = (function() {
                 .attr("d", d3.svg.symbol()
                     .size(200)
                     .type(function(d) {
-                        return mutationInterpreter.getSymbol(d);
+                        return $(this).attr("shape");
                     })
                 );
 
@@ -645,7 +650,7 @@ var scatterPlots = (function() {
                         return $(this).attr("size");
                     })
                     .type(function(d) {
-                        return mutationInterpreter.getSymbol(d);
+                        return $(this).attr("shape");
                     })
                 );
         };

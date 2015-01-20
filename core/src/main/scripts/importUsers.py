@@ -325,8 +325,15 @@ def get_new_user_map(spreadsheet, worksheet_feed, current_user_map, portal_name)
             if google_email not in current_user_map:
                 if authorities[-1:] == ';':
                     authorities = authorities[:-1]
-                to_return[google_email] = User(inst_email, google_email, name, 1,
-                    [portal_name + ':' + au for au in authorities.split(';')])
+                if google_email in to_return:
+                    # there may be multiple entries per email address
+                    # in google spreadsheet, combine entries
+                    user = to_return[google_email]
+                    user.authorities.extend([portal_name + ':' + au for au in authorities.split(';')])
+                    to_return[google_email] = user
+                else:
+                    to_return[google_email] = User(inst_email, google_email, name, 1,
+                        [portal_name + ':' + au for au in authorities.split(';')])
 
     return to_return
 

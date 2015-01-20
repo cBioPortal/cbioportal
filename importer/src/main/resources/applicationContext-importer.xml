@@ -135,13 +135,6 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
         </b:constructor-arg>
        <b:constructor-arg index="18" ref="ncicaDSRFetcher"/>  
     </b:bean>
-    <b:bean id="caseIDs" class="org.mskcc.cbio.importer.caseids.internal.CaseIDsImpl">
-        <b:constructor-arg ref="config"/>
-    </b:bean>
-    <b:bean id="fileUtils" class="org.mskcc.cbio.importer.io.internal.FileUtilsImpl">
-        <b:constructor-arg ref="config"/>
-        <b:constructor-arg ref="caseIDs"/>
-    </b:bean>
     <b:bean id="importDataRecordDAO" class="org.mskcc.cbio.importer.dao.internal.ImportDataRecordHibernateDAO">
         <b:property name="sessionFactory" ref="importerSessionFactory"/>
     </b:bean>

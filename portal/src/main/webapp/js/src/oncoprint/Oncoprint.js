@@ -361,7 +361,20 @@ define("Oncoprint",
 
                     var fusion = enter.append('path')
                         .attr('d', "M0,0L0,"+dims.rect_height+" "+dims.rect_width+","+dims.rect_height/2+"Z")
-                        .attr('transform',function(d) {return 'translate(0,'+(vertical_pos(utils.get_attr(d)))+')';});
+                        .attr('transform',function(d) {
+                            if(params.clinical_attrs.length > 0){
+                                return d.attr_id === undefined
+                                 ? 'translate(0,'+(vertical_pos(utils.get_attr(d))+ gapSpaceGeneClinic)+')'
+                                 : 'translate(0,'+(vertical_pos(utils.get_attr(d))+ dims.clinical_offset)+')';
+                            }
+                            else
+                            {
+//                                return 'translate(0,'+(vertical_pos(utils.get_attr(d)))+')';
+                                return d.attr_id === undefined
+                                 ? 'translate(0,'+(vertical_pos(utils.get_attr(d)))+')'
+                                 : 'translate(0,'+(vertical_pos(utils.get_attr(d))+ dims.clinical_offset)+')';
+                            }
+                            });
                     fusion.filter(function(d) {
                         return d.mutation === undefined || !/\bfusion\b/i.test(d.mutation.toLowerCase());
                     }).remove();
@@ -777,7 +790,7 @@ define("Oncoprint",
                     //if multicolor state is on, then show multiple genetic legend
                     if(params.mutationColor === 'multiColor'|| params.mutationColor === undefined)
                     {
-                        $('.legend_missense_name').text("missense mutation");
+                        $('.legend_missense_name').text("Missense Mutation");
                         $('.legend_nonmissense').css("display","inline");
                     }
                     

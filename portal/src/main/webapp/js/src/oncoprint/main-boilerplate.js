@@ -10,6 +10,10 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         interpolate : /\{\{(.+?)\}\}/g
     };
 
+    var showmutationflag = true;
+    var showalteredcaseflag = true;
+    var showwhitespaceflag = true;
+    var increasesortflag = true;
     // add in controls from template
     document.getElementById('oncoprint_controls').innerHTML
         = _.template(document.getElementById('main-controls-template').innerHTML)();
@@ -1250,8 +1254,16 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             
             //color different mutation with different color
             $('#oncoprint_diagram_showmutationcolor_icon').click(function(){
+                
               if($('#oncoprint_diagram_showmutationcolor_icon img')[0].attributes.src.value === 'images/uncolormutations.svg')
               {
+                $(this).qtip({
+                content: {text: 'color-code different mutation types'},
+                position: {my:'bottom middle', at:'top middle', viewport: $(window)},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
+                show: {event: "mouseover"}
+                });
+                
                 mutationColorControl = 'singleColor';
                 refreshOncoPrint();
                 //the code below is that after color mutation zoom to the largest value 
@@ -1292,10 +1304,17 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 $('#oncoprint-diagram-removeUCases-icon img')[0].attributes.src.value = 'images/removeUCases.svg';
                 //$('#oncoprint-diagram-removeWhitespace-icon img')[0].attributes.src.value = 'images/removeWhitespace.svg';
                 
-                $('.legend_missense_name').text("mutation") ;
+                $('.legend_missense_name').text("Mutation") ;
               }
                 else if($('#oncoprint_diagram_showmutationcolor_icon img')[0].attributes.src.value === 'images/colormutations.svg')
               {
+                $(this).qtip({
+                content: {text: 'show all mutations in the same color'},
+                position: {my:'bottom middle', at:'top middle', viewport: $(window)},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
+                show: {event: "mouseover"}
+                });
+                
                 mutationColorControl = 'multiColor';
                 refreshOncoPrint();
                 //the code below is that after color mutation zoom to the largest value 
@@ -1336,7 +1355,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 $('#oncoprint-diagram-removeUCases-icon img')[0].attributes.src.value = 'images/removeUCases.svg';
                 //$('#oncoprint-diagram-removeWhitespace-icon img')[0].attributes.src.value = 'images/removeWhitespace.svg';
                 
-                $('.legend_missense_name').text("missense mutation");
+                $('.legend_missense_name').text("Missense Mutation");
                 $('.legend_nonmissense').css("display","inline");
               }
             });

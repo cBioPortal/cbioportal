@@ -68,9 +68,6 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
         <b:constructor-arg ref="config"/>
         <b:constructor-arg ref="caseIDs"/>
     </b:bean>
-    <b:bean id="importDataRecordDAO" class="org.mskcc.cbio.importer.dao.internal.ImportDataRecordHibernateDAO">
-        <b:property name="sessionFactory" ref="importerSessionFactory"/>
-    </b:bean>
     <b:bean id="mercurialServer" class="org.mskcc.cbio.importer.mercurial.internal.MercurialServerImpl" />
     <b:bean id="mercurialService" class="org.mskcc.cbio.importer.mercurial.internal.MercurialServiceImpl" >
         <b:constructor-arg ref="mercurialServer"/>

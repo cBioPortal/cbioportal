@@ -117,51 +117,25 @@ var heat_map = (function() {
             .style('stroke', "#D0D0D0")
             .attr("count", function(d) { return d.count; });
     
-        var heatmapText = svg.selectAll("text").data(data).enter().append("text");
-         heatmapText.attr("x", function(d) { return ((d.x * w) + w/2 + 90);})
+        //annotation for each brick
+        svg.selectAll(".overlayText").data(data).enter().append("text")
+                    .attr("x", function(d) { return ((d.x * w) + w/2 + 90);})
                     .attr("y", function(d) { return ((d.y * h) + h / 2 + 5 + 50); })
                     .attr("fill", function(d) { return textColorScale(d.count); })
                     .text(function(d) { return d.count; });
         
-//            .on("mouseover", function(d) {
-//                d3.select(this)
-//                  .style("stroke","black");
-//                this.parentNode.appendChild(this);
-//                var xPosition = parseFloat(d3.select(this).attr("x")) + w / 2;
-//                var yPosition = parseFloat(d3.select(this).attr("y"))+ h / 2 + 5;
-//                svg.append("text")
-//                    .attr("id","tooltip")
-//                    .attr("x", xPosition)
-//                    .attr("y", yPosition)
-//                    .style("fill", "black")
-//                    .attr("text-anchor", "middle")
-//                    .attr("font-family", "sans-serif")
-//                    .attr("font-size", "12px")
-//                    .text(d.count);
-//                })
-//                .on("mouseout", function() {
-//                    d3.select("#tooltip").remove();
-//                    d3.select(this)
-//                    .style("stroke","#D0D0D0");
-//                });
-        
-        //labels
-        var columnLabel = svg.selectAll(".colLabel")
+        //labels for rows/columns
+        svg.selectAll(".colLabel")
             .data(clinical_data_interpreter.get_text_labels("x"))
             .enter().append('text')
             .attr("dy", ".35em")
-//            .attr('x', function(d,i) {
-//                    return (i + 0.5) * w + 100;
-//                })
-//            .attr('y', 40)
             .attr("transform", function(d, i) {
                 return "translate(" + ((i + 0.5) * w + 100) + ",40) rotate(-15)";
             })
             .attr('class','label')
             .style('text-anchor','start')
             .text(function(d) {return d;});
-    
-        var rowLabel = svg.selectAll(".rowLabel")
+        svg.selectAll(".rowLabel")
                 .data(clinical_data_interpreter.get_text_labels("y"))
                 .enter().append('svg:text')
                 .attr('x', parseInt(stat.x.max) * w + 190)
@@ -171,19 +145,72 @@ var heat_map = (function() {
                 .attr('class', 'label')
                 .attr('text-anchor', 'start')
                 .text(function(d) {return d;});
-    
-        heatmapRects.selectAll(".rect").each(function(d) {
-            $(this).qtip(
-                {
-                    content: {text: d.count},
-                    style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
-                    show: {event: "mouseover"},
-                    hide: {fixed:true, delay: 100, event: "mouseout"},
-                    position: {my:'left bottom',at:'top right', viewport: $(window)}
-                }
-            );
+        
+        //axis titles
+        var elt_x = document.getElementById(ids.sidebar.x.clin_attr);
+        var elt_y = document.getElementById(ids.sidebar.y.clin_attr);
+        var _x_text = "Horizontal: " + elt_x.options[elt_x.selectedIndex].text;
+        var _y_text = "Vertical:  " + elt_y.options[elt_y.selectedIndex].text;
+        var _x_id = elt_x.options[elt_x.selectedIndex].value;
+        var _y_id = elt_x.options[elt_y.selectedIndex].value;
+        var _x_description = metaData.getClinicalAttrDescription(_x_id);
+        var _y_description = metaData.getClinicalAttrDescription(_y_id);
 
-        });
+        svg.selectAll(".heatmap_x_title")
+                .data(data)
+                .enter().append('text')
+                .attr("x", 100)
+                .attr("y", parseInt(stat.y.max) * h + 120)
+                .style('text-anchor', 'start')
+                .text(_x_text);
+        svg.selectAll(".heatmap_y_title")
+                .data(data)
+                .enter().append('text')
+                .attr("x", 100)
+                .attr("y", parseInt(stat.y.max) * h + 135)
+                .style('text-anchor', 'start')
+                .text(_y_text);
+        svg.append("svg:image")
+            .attr("xlink:href", "images/help.png")
+            .attr("class", "x_help")
+            .attr("x", _x_text.length * 8 + 10)
+            .attr("y", parseInt(stat.y.max) * h + 108)
+            .attr("width", "16")
+            .attr("height", "16");
+        svg.append("svg:image")
+            .attr("xlink:href", "images/help.png")
+            .attr("class", "y_help")
+            .attr("x", _y_text.length * 8 + 10)
+            .attr("y", parseInt(stat.y.max) * h + 123)
+            .attr("width", "16")
+            .attr("height", "16");
+
+        svg.select(".x_help").each(
+            function() {
+                $(this).qtip(
+                    {
+                        content: {text: "<font size=2>" +  _x_description + "</font>" },
+                        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                        show: {event: "mouseover"},
+                        hide: {fixed:true, delay: 100, event: "mouseout"},
+                        position: {my:'left bottom',at:'top right', viewport: $(window)}
+                    }
+                );
+            }
+        );  
+        svg.select(".y_help").each(
+            function() {
+                $(this).qtip(
+                    {
+                        content: {text: "<font size=2>" + _y_description  + "</font>" },
+                        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                        show: {event: "mouseover"},
+                        hide: {fixed:true, delay: 100, event: "mouseout"},
+                        position: {my:'left bottom',at:'top right', viewport: $(window)}
+                    }
+                );
+            }
+        );  
     };
     
     return {

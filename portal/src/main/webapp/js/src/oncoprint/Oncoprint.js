@@ -396,19 +396,21 @@ define("Oncoprint",
 
                                 if(mutationSplit.length > 1)
                                 {
+                                    var hasIndel = false;
                                     for(var i = 0; i < mutationSplit.length; i++)
                                     {
-                                        if((/^[A-z]([0-9]+)[A-z]$/g).test(mutationSplit[i]))
-                                        {
-                                            continue;
-                                        }
-                                        else
+                                        if(!/\bfusion\b/i.test(mutationSplit[i]) &&
+                                                !(/^[A-z]([0-9]+)[A-z]$/g).test(mutationSplit[i]))
                                         {
                                             return 'black';
                                         }
+                                        
+                                        if ((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(mutationSplit)) {
+                                            hasIndel = true;
+                                        }
                                     }
                                     
-                                    return 'green';
+                                    return hasIndel ? '#9F8170' : 'green';
                                 }
                             }
 
@@ -416,7 +418,7 @@ define("Oncoprint",
                             {
                                 return 'green';//Missense_mutation
                             }
-                            else if((/^([A-Z]+)([0-9]+)del$/g).test(mutationSplit) )
+                            else if((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(mutationSplit) )
                             {
                                 return '#9F8170';//inframe
                             }

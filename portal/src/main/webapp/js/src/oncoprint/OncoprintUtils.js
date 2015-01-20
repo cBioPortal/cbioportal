@@ -1344,7 +1344,7 @@ define("OncoprintUtils", (function() {
 //            {
                 var legend_svg = tabledata.append('svg')
                             .attr('height', 23 )
-                            .attr('width', ('missense mutation').length * 7.5 + 5.5*3 )
+                            .attr('width', ('Missense Mutation').length * 7.5 + 5.5*3 )
                             .attr('id', 'legend_svg')
                             .attr('class','legend_missense')
                             .append('g');
@@ -1364,7 +1364,7 @@ define("OncoprintUtils", (function() {
                 .attr('font-size', '12px')
                 .attr('width', function()
                 {
-                    return ('missense mutation').length * 6.5;
+                    return ('Missense Mutation').length * 6.5;
                 })
                 .attr('x', 5.5*3)
                 .attr('y', 19);
@@ -1380,7 +1380,7 @@ define("OncoprintUtils", (function() {
                     var legend_svg = tabledata.append('svg')
                                 .attr('height', 23 )
                                 .attr('display','none')
-                                .attr('width', ('truncating mutation').length * 7.5 + 5.5*3 )
+                                .attr('width', ('Truncating Mutation').length * 7.5 + 5.5*3 )
                                 .attr('id', 'legend_svg')
                                 .attr('class', 'legend_nonmissense')
                                 .append('g');
@@ -1400,7 +1400,7 @@ define("OncoprintUtils", (function() {
                     .attr('font-size', '12px')
                     .attr('width', function()
                     {
-                        return ('truncating mutation').length * 6.5;
+                        return ('Truncating Mutation').length * 6.5;
                     })
                     .attr('x', 5.5*3)
                     .attr('y', 19);
@@ -1409,7 +1409,7 @@ define("OncoprintUtils", (function() {
                         .attr('text-anchor', 'start')
                         .attr('fill','black')
                         .attr('class','legend_name')
-                        .text('truncating mutation'); 
+                        .text('Truncating Mutation'); 
                 }
                 
                 if(findProperMutation(datatype2range.mutation,3))
@@ -1446,10 +1446,50 @@ define("OncoprintUtils", (function() {
                         .attr('text-anchor', 'start')
                         .attr('fill','black')
                         .attr('class','legend_name')
-                        .text('inframe mutation'); 
+                        .text('Inframe Mutation'); 
                 }
         }
-        
+        if (datatype2range.fusion !== undefined)
+        {
+                var legend_svg = tabledata
+                            .append('svg')
+                            .attr('height', 23 )
+                            .attr('width', ('Fusion').length * 7.5 + 5.5*3 )
+                            .attr('x', 0)
+                            .attr('id', 'legend_svg')
+                            .attr('class', 'legend_fusion')
+                            .append('g');
+
+                legend_svg.append('rect')
+                            .attr('height', 23)
+                            .attr('width', 5.5)
+                            .attr('fill', colors.grey);
+                    
+                //var sym = d3.svg.symbol().size(5.5 * 3);
+                // need to be modified
+                var fusion = legend_svg.append('path')
+                    .attr('d', "M0,0L0,"+ 23 + " " + 5.5+"," + 23/2 + "Z")
+                    .attr('transform',function(d) {
+                            var dy = 23;
+                            dy =  dy / 23;
+                            return translate( 0, 0);
+                        });
+
+                var label = legend_svg.append('text')
+                    .attr('font-size', '12px')
+                    .attr('width', function()
+                    {
+                        return ('Fusion').length * 6.5;
+                    })
+                    .attr('x', 5.5*3)
+                    .attr('y', 19);
+
+                label.append('tspan')       // name
+                    .attr('text-anchor', 'start')
+                    .attr('fill','black')
+                    .attr('class','legend_name')
+                    .text('Fusion');
+        }
         if(attrtype2range.length > 0)
         {
             CreateLegendII(attrtype2range,attr2rangeFuntion);

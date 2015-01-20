@@ -361,7 +361,20 @@ define("Oncoprint",
 
                     var fusion = enter.append('path')
                         .attr('d', "M0,0L0,"+dims.rect_height+" "+dims.rect_width+","+dims.rect_height/2+"Z")
-                        .attr('transform',function(d) {return 'translate(0,'+(vertical_pos(utils.get_attr(d)))+')';});
+                        .attr('transform',function(d) {
+                            if(params.clinical_attrs.length > 0){
+                                return d.attr_id === undefined
+                                 ? 'translate(0,'+(vertical_pos(utils.get_attr(d))+ gapSpaceGeneClinic)+')'
+                                 : 'translate(0,'+(vertical_pos(utils.get_attr(d))+ dims.clinical_offset)+')';
+                            }
+                            else
+                            {
+//                                return 'translate(0,'+(vertical_pos(utils.get_attr(d)))+')';
+                                return d.attr_id === undefined
+                                 ? 'translate(0,'+(vertical_pos(utils.get_attr(d)))+')'
+                                 : 'translate(0,'+(vertical_pos(utils.get_attr(d))+ dims.clinical_offset)+')';
+                            }
+                            });
                     fusion.filter(function(d) {
                         return d.mutation === undefined || !/\bfusion\b/i.test(d.mutation.toLowerCase());
                     }).remove();
@@ -383,19 +396,21 @@ define("Oncoprint",
 
                                 if(mutationSplit.length > 1)
                                 {
+                                    var hasIndel = false;
                                     for(var i = 0; i < mutationSplit.length; i++)
                                     {
-                                        if((/^[A-z]([0-9]+)[A-z]$/g).test(mutationSplit[i]))
-                                        {
-                                            continue;
-                                        }
-                                        else
+                                        if(!/\bfusion\b/i.test(mutationSplit[i]) &&
+                                                !(/^[A-z]([0-9]+)[A-z]$/g).test(mutationSplit[i]))
                                         {
                                             return 'black';
                                         }
+                                        
+                                        if ((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(mutationSplit)) {
+                                            hasIndel = true;
+                                        }
                                     }
                                     
-                                    return 'green';
+                                    return hasIndel ? '#9F8170' : 'green';
                                 }
                             }
 
@@ -403,7 +418,7 @@ define("Oncoprint",
                             {
                                 return 'green';//Missense_mutation
                             }
-                            else if((/^([A-Z]+)([0-9]+)del$/g).test(mutationSplit) )
+                            else if((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(mutationSplit) )
                             {
                                 return '#9F8170';//inframe
                             }
@@ -777,7 +792,7 @@ define("Oncoprint",
                     //if multicolor state is on, then show multiple genetic legend
                     if(params.mutationColor === 'multiColor'|| params.mutationColor === undefined)
                     {
-                        $('.legend_missense_name').text("missense mutation");
+                        $('.legend_missense_name').text("Missense Mutation");
                         $('.legend_nonmissense').css("display","inline");
                     }
                     

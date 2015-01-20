@@ -735,7 +735,7 @@ function addMetaDataToPage() {
     // DMP hack
     var dmp_studies = [];
     for (var study in json.cancer_studies) {
-	if (study.indexOf("_dmp_") !== -1) {
+	if (study.indexOf("mskimpact") !== -1) {
 		// DMP hack
 		dmp_studies.push(study);
 	} else if (json.cancer_studies.hasOwnProperty(study) && study !== 'all') { // don't re-add 'all'

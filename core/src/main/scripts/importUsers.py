@@ -23,6 +23,7 @@
 # imports
 import os
 import sys
+import time
 import getopt
 import MySQLdb
 
@@ -70,8 +71,7 @@ PORTAL_NAME = { GDAC_USER_SPREADSHEET : "gdac-portal",
                 ACC_USER_SPREADSHEET : "acc-portal",
                 SU2C_USER_SPREADSHEET : "su2c-portal",
                 TARGET_USER_SPREADSHEET : "target-portal",
-                MSKCC_USER_SPREADSHEET : "gdac-portal" }
-                #MSKCC_USER_SPREADSHEET : "mskcc-portal" }
+                MSKCC_USER_SPREADSHEET : "mskcc-portal" }
 
 # a ref to the google spreadsheet client - used for all i/o to google spreadsheet
 GOOGLE_SPREADSHEET_CLIENT = gdata.spreadsheet.service.SpreadsheetsService()
@@ -84,11 +84,12 @@ OPENID_EMAIL_KEY = "googleoropenidaddress"
 STATUS_KEY = "statusapprovedorblank"
 AUTHORITIES_KEY = "authoritiesalloralltcgaandorsemicolondelimitedcancerstudylist"
 LAB_PI_KEY = "labpi"
+TIMESTAMP_KEY = "timestamp"
 
 # possible values in status column
 STATUS_APPROVED = "APPROVED"
 
-DEFAULT_AUTHORITIES = "PUBLIC;EXTENDED;MIXED_DMP_MSK-IMPACT_2014;MSK_IMPACT"
+DEFAULT_AUTHORITIES = "PUBLIC;EXTENDED;MSKPUB"
 
 # consts used in email
 MSKCC_EMAIL_SUFFIX = "@mskcc.org"
@@ -324,8 +325,15 @@ def get_new_user_map(spreadsheet, worksheet_feed, current_user_map, portal_name)
             if google_email not in current_user_map:
                 if authorities[-1:] == ';':
                     authorities = authorities[:-1]
-                to_return[google_email] = User(inst_email, google_email, name, 1,
-                    [portal_name + ':' + au for au in authorities.split(';')])
+                if google_email in to_return:
+                    # there may be multiple entries per email address
+                    # in google spreadsheet, combine entries
+                    user = to_return[google_email]
+                    user.authorities.extend([portal_name + ':' + au for au in authorities.split(';')])
+                    to_return[google_email] = user
+                else:
+                    to_return[google_email] = User(inst_email, google_email, name, 1,
+                        [portal_name + ':' + au for au in authorities.split(';')])
 
     return to_return
 
@@ -472,6 +480,7 @@ def add_unknown_users_to_spreadsheet(cursor, spreadsheet, worksheet):
     worksheet_feed = get_worksheet_feed(spreadsheet, worksheet)
     google_spreadsheet_user_map = get_all_user_map(spreadsheet, worksheet_feed)
     portal_db_user_map = get_current_user_map(cursor)
+    current_time = time.strftime("%m/%d/%y %H:%M:%S")
     # for each user in portal database not in google spreadsheet, insert user into google spreadsheet
     for email in portal_db_user_map.keys():
         if email.endswith(MSKCC_EMAIL_SUFFIX) and email not in google_spreadsheet_user_map:
@@ -481,9 +490,9 @@ def add_unknown_users_to_spreadsheet(cursor, spreadsheet, worksheet):
             # Gross, Benjamin E./Sloan Kettering Institute
             if "/" in user.name:
                 user_name_parts = user.name.split("/")
-                row = { MSKCC_EMAIL_KEY : user.inst_email, FULLNAME_KEY : user_name_parts[0], LAB_PI_KEY : user_name_parts[1], STATUS_KEY : STATUS_APPROVED, AUTHORITIES_KEY : DEFAULT_AUTHORITIES }
+                row = { TIMESTAMP_KEY : current_time, MSKCC_EMAIL_KEY : user.inst_email, FULLNAME_KEY : user_name_parts[0], LAB_PI_KEY : user_name_parts[1], STATUS_KEY : STATUS_APPROVED, AUTHORITIES_KEY : DEFAULT_AUTHORITIES }
             else:
-                row = { MSKCC_EMAIL_KEY : user.inst_email, FULLNAME_KEY : user.name, STATUS_KEY : STATUS_APPROVED, AUTHORITIES_KEY : DEFAULT_AUTHORITIES }
+                row = { TIMESTAMP_KEY : current_time, MSKCC_EMAIL_KEY : user.inst_email, FULLNAME_KEY : user.name, STATUS_KEY : STATUS_APPROVED, AUTHORITIES_KEY : DEFAULT_AUTHORITIES }
             add_row_to_google_worksheet(spreadsheet, worksheet, row)
 
 

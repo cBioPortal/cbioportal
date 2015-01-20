@@ -1,4 +1,5 @@
 url.intercepts=<intercept-url pattern="/auth/*" access="permitAll"/>${line.separator} \
+    <intercept-url pattern="/favicon.ico" access="permitAll"/>${line.separator} \
     <intercept-url pattern="/login.jsp*" access="permitAll"/>${line.separator} \
     <intercept-url pattern="/monitoring*" access="isAuthenticated()"/>${line.separator} \
     <intercept-url pattern="/video.jsp" access="isAuthenticated()"/>${line.separator} \

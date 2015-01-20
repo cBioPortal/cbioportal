@@ -26,9 +26,9 @@ import java.nio.charset.Charset;
  *
  * @author criscuof
  */
-public enum IcgcSimpleSomaticRecordFunnel  implements Funnel<IcgcSimpleSomaticRecord>{
+public class IcgcSimpleSomaticRecordFunnel  implements Funnel<IcgcSimpleSomaticRecord>{
 
-    INSTANCE;
+    public IcgcSimpleSomaticRecordFunnel () {}
 
     @Override
     public void funnel(IcgcSimpleSomaticRecord t, PrimitiveSink into) {

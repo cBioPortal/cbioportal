@@ -241,7 +241,7 @@
 
     <!-- IDP Discovery Service -->
     <b:bean id="samlIDPDiscovery" class="org.springframework.security.saml.SAMLDiscovery">
-        <b:property name="idpSelectionPath" value="/login.jsp"/>
+        <!--<b:property name="idpSelectionPath" value="/login.jsp"/>-->
     </b:bean>
 
     <b:bean id="metadataGeneratorFilter" class="org.springframework.security.saml.metadata.MetadataGeneratorFilter">

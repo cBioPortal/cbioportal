@@ -92,8 +92,8 @@ public class Admin implements Runnable {
 													  "\"" + Config.ALL + "\".")
 									 .create("init_db"));
 
-        Option fetchData = (OptionBuilder.withArgName("data_source:run_date")
-							.hasArgs(2)
+        Option fetchData = (OptionBuilder.withArgName("data_source:run_date:send_notification")
+							.hasArgs(3)
 							.withValueSeparator(':')
 							.withDescription("Fetch data from the given data_source and the given run date (mm/dd/yyyy).  " + 
 											 "Use \"" + Fetcher.LATEST_RUN_INDICATOR + "\" to retrieve the most current run or " +
@@ -159,6 +159,13 @@ public class Admin implements Runnable {
 											  "If init_tumor_types is 't' tumor types will be imported  " + 
 											  "If ref_data is 't', all reference data will be imported prior to importing staging files.")
                              .create("import_data"));
+
+        Option updateStudyData = (OptionBuilder.withArgName("portal:update_worksheet")
+                                  .hasArgs(2)
+                                  .withValueSeparator(':')
+                                  .withDescription("Updates study data for the given portal. if update_worksheet is 't' " +
+                                                   "UPDATE_AVAILABLE and IMPORT columns in cancer_studies google worksheet are updated.")
+                                  .create("update_study_data"));
         
         Option importCaseLists = (OptionBuilder.withArgName("portal")
                              .hasArgs(1)
@@ -172,6 +179,13 @@ public class Admin implements Runnable {
 												"from cBio Portal web site. 'ssh-add' should be executed prior to this " +
 												"command to add your identity to the authentication agent.")
 							   .create("copy_seg_files"));
+
+        Option redeployWar = (OptionBuilder.withArgName("portal")
+							  .hasArg()
+							  .withDescription("Redeploy war for given portal. " + 
+											   "'ssh-add' should be executed prior to this " +
+											   "command to add your identity to the authentication agent.")
+							  .create("redeploy_war"));
 
         Option deleteCancerStudy = (OptionBuilder.withArgName("cancer_study_id")
 									.hasArg()
@@ -194,8 +208,10 @@ public class Admin implements Runnable {
 		toReturn.addOption(importReferenceData);
 		toReturn.addOption(importTypesOfCancer);
 		toReturn.addOption(importData);
+		toReturn.addOption(updateStudyData);
 		toReturn.addOption(importCaseLists);
 		toReturn.addOption(copySegFiles);
+		toReturn.addOption(redeployWar);
 		toReturn.addOption(deleteCancerStudy);
 
 		// outta here
@@ -244,7 +260,7 @@ public class Admin implements Runnable {
 			// fetch
 			else if (commandLine.hasOption("fetch_data")) {
                 String[] values = commandLine.getOptionValues("fetch_data");
-				fetchData(values[0], values[1]);
+				fetchData(values[0], values[1], (values.length == 3) ? values[2] : "");
 			}
 			// fetch reference data
 			else if (commandLine.hasOption("fetch_reference_data")) {
@@ -284,6 +300,10 @@ public class Admin implements Runnable {
                 String[] values = commandLine.getOptionValues("import_data");
                 importData(values[0], values[1], values[2], values[3]);
 			}
+			else if (commandLine.hasOption("update_study_data")) {
+                String[] values = commandLine.getOptionValues("update_study_data");
+                updateStudyData(values[0], values[1]);
+			}
                         
 			// import case lists
 			else if (commandLine.hasOption("import_case_lists")) {
@@ -294,6 +314,10 @@ public class Admin implements Runnable {
 			else if (commandLine.hasOption("copy_seg_files")) {
                 String[] values = commandLine.getOptionValues("copy_seg_files");
                 copySegFiles(values[0], values[1], values[2]);
+			}
+			// redeploy war
+			else if (commandLine.hasOption("redeploy_war")) {
+                redeployWar(commandLine.getOptionValue("redeploy_war"));
 			}
 			else if (commandLine.hasOption("delete_cancer_study")) {
 				deleteCancerStudy(commandLine.getOptionValue("delete_cancer_study"));
@@ -352,17 +376,18 @@ public class Admin implements Runnable {
 	 * @param runDate String
 	 * @throws Exception
 	 */
-	private void fetchData(String dataSource, String runDate) throws Exception {
+	private void fetchData(String dataSource, String runDate, String sendNotification) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("fetchData(), dateSource:runDate: " + dataSource + ":" + runDate);
 		}
 
 		// create an instance of fetcher
+		Boolean sendNotificationBool = getBoolean(sendNotification);
 		DataSourcesMetadata dataSourcesMetadata = getDataSourcesMetadata(dataSource);
 		// fetch the given data source
 		Fetcher fetcher = (Fetcher)getBean(dataSourcesMetadata.getFetcherBeanID());
-		fetcher.fetch(dataSource, runDate);
+		fetcher.fetch(dataSource, runDate, sendNotificationBool);
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("fetchData(), complete");
@@ -647,12 +672,44 @@ public class Admin implements Runnable {
 			LOG.info("importData(), complete");
 		}
 	}
+
+	private void updateStudyData(String portal, String updateWorksheet) throws Exception
+	{
+		if (LOG.isInfoEnabled()) {
+			LOG.info("updateStudyData(), portal: " + portal);
+			LOG.info("updateStudyData(), update_worksheet: " + updateWorksheet);
+		}
+
+		Boolean updateWorksheetBool = getBoolean(updateWorksheet);
+		Config config = (Config)getBean("config");
+		Importer importer = (Importer)getBean("importer");
+		Map<String,String> propertyMap = new HashMap<String,String>();
+		for (CancerStudyMetadata cancerStudyMetadata : config.getCancerStudyMetadata(portal)) {
+			propertyMap.clear();
+			// if we are updating triage and this study is ready for update, then import it
+			if (portal.equals(PortalMetadata.TRIAGE_PORTAL) && cancerStudyMetadata.updateTriage()) {
+				importer.updateCancerStudy(portal, cancerStudyMetadata);
+				// we've updated the study in triage, turn off update triage flag
+				propertyMap.put(CancerStudyMetadata.UPDATE_TRIAGE_COLUMN_KEY, "false");
+			}
+			// otherwise, we only update studies that require validation and are ready for release
+			else if (cancerStudyMetadata.requiresValidation() && cancerStudyMetadata.readyForRelease()) {
+				importer.updateCancerStudy(portal, cancerStudyMetadata);
+				// turn off ready for release so that the next
+				// fetch does not get imported before being vetted
+				propertyMap.put(CancerStudyMetadata.READY_FOR_RELEASE_COLUMN_KEY, "false");
+			}
+			if (updateWorksheetBool) {
+				config.updateCancerStudyAttributes(cancerStudyMetadata.getName(), propertyMap);
+			}
+		}
+	}
         
-        /**
-         * 
-         * @param portal
-         * @throws Exception 
-         */
+    /**
+     * 
+     * @param portal
+     * @throws Exception 
+     */
 	private void importCaseLists(String portal) throws Exception {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("importData(), portal: " + portal);
@@ -704,6 +761,32 @@ public class Admin implements Runnable {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("copySegFiles(), complete");
+		}
+	}
+
+	private void redeployWar(String portalName) throws Exception
+	{
+		if (LOG.isInfoEnabled()) {
+			LOG.info("redeployWar(), portal: " + portalName);
+		}
+
+		Config config = (Config)getBean("config");
+		Collection<PortalMetadata> portalMetadatas = config.getPortalMetadata(portalName);
+
+		// sanity check args
+		if (portalMetadatas.isEmpty()) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("redeployWar(), error processing argument, aborting....");
+			}
+		}
+		else {
+			// create an instance of Importer
+			FileUtils fileUtils = (FileUtils)getBean("fileUtils");
+			fileUtils.redeployWar(portalMetadatas.iterator().next());
+		}
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("redeployWar(), complete");
 		}
 	}
 

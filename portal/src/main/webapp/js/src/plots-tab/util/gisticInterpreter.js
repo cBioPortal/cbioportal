@@ -1,7 +1,28 @@
 var gisticInterpreter = (function() {
-
+    
+    var _mutated_case_glyph = {
+        value: "mutated",
+        symbol: "circle",
+        fill: "orange",
+        stroke: "none",
+        legendText: "Mutated"
+    };
+    var _no_cna_data_glyph = {
+        value: "no_cna",
+        symbol: "circle",
+        fill: "transparent",
+        stroke: "grey",
+        legendText: "No CNA data"
+    };
+    
     return {
         getSymbol: function(d) {
+            if (isNaN(d.cna_anno)) {
+                if (!scatterPlots.isGisticGlyphExist("no_cna")) {
+                    scatterPlots.addGlyph(_no_cna_data_glyph);
+                }
+                return _no_cna_data_glyph.stroke;
+            }
             return gisticStyle.getSymbol(d.cna_anno);
         },
         getFill: function(d) {
@@ -12,13 +33,14 @@ var gisticInterpreter = (function() {
             }
         },
         getStroke: function(d) {
-            var _mutated_case_glyph = {
-                value: "mutated",
-                symbol: "circle",
-                fill: "orange",
-                stroke: "none",
-                legendText: "Mutated"
-            };
+
+            if (isNaN(d.cna_anno)) {
+                if (!scatterPlots.isGisticGlyphExist("no_cna")) {
+                    scatterPlots.addGlyph(_no_cna_data_glyph);
+                }
+                return _no_cna_data_glyph.stroke;
+            }
+
             if (!scatterPlots.isGisticGlyphExist("mutated")) {
                 scatterPlots.addGlyph(_mutated_case_glyph);
             }

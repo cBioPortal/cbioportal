@@ -29,17 +29,18 @@ var sidebar = (function() {
                 clinSpec.init("y");
             }
             regenerate_plots("y");
-        });  
+        });
+        $("#" + ids.sidebar.util.view_switch).change(function() {
+            mutation_copy_no_view_switch();
+        });
         
     };
-    
-
     
     var mutation_copy_no_view_switch = function() {
         clear_plot_box();
         plotsData.fetch("x");
         plotsData.fetch("y");
-        plotsbox.init();        
+        plotsbox.init();       
     };
     
     return {

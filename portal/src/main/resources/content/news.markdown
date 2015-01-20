@@ -2,9 +2,10 @@
 * All __TCGA data__ updated to the Firehose run of October 17, 2014
 * __COSMIC data__ updated to V71
 * __New features__:
-    * Query page: better support for cancer studies
-    * Improved Oncoprint customize options
-    * Supported multiple clinical tracks in oncoprint
+    * Query page: better search functions to find cancer studies
+    * OncoPrints now support color coding of different mutation types
+    * OncoPrints now support multiple clinical annotation tracks
+    * [__OncoPrinter tool__](oncoprinter.jsp) now supports mRNA expression changes 
 <br/>![Oncoprint with multiple clinical tracks](images/previews/multi-clinical-track-oncoprint.png)
 
 # January 6, 2014

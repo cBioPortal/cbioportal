@@ -629,7 +629,7 @@ define("OncoprintUtils", (function() {
             {
                 if(datas[indexValue][i].attr_val!==valueName)
                 {
-                    totalLength += datas[indexValue][i].attr_val.toString().length *6.5 + dims.rect_width * 5;
+                    totalLength += datas[indexValue][i].attr_val.toString().length *dims.character_length + dims.rect_width * 5;
                 }
                 else
                 {
@@ -646,7 +646,7 @@ define("OncoprintUtils", (function() {
             for( i = 0; i < datas.length; i++ )
             {
                 var longestEachData = 0;
-                longestEachData = calculateDistance(datas[i][datas[i].length - 1].attr_id, datas[i][datas[i].length - 1].attr_val) + datas[i][datas[i].length - 1].attr_val.toString().length *6.5 + dims.rect_width * 5;
+                longestEachData = calculateDistance(datas[i][datas[i].length - 1].attr_id, datas[i][datas[i].length - 1].attr_val) + datas[i][datas[i].length - 1].attr_val.toString().length *dims.character_length + dims.rect_width * 5;
                 longestLegendLength= longestEachData > longestLegendLength ? longestEachData: longestLegendLength;
             }
             
@@ -657,7 +657,7 @@ define("OncoprintUtils", (function() {
         {
             var i = legendIndex;
             var longestEachData = 0;
-            longestEachData = calculateDistance(datas[i][datas[i].length - 1].attr_id, datas[i][datas[i].length - 1].attr_val) + datas[i][datas[i].length - 1].attr_val.toString().length *6.5 + dims.rect_width * 5;
+            longestEachData = calculateDistance(datas[i][datas[i].length - 1].attr_id, datas[i][datas[i].length - 1].attr_val) + datas[i][datas[i].length - 1].attr_val.toString().length *dims.character_length + dims.rect_width * 5;
             
             return longestEachData;
         }; 
@@ -682,7 +682,7 @@ define("OncoprintUtils", (function() {
                 {
                     if(datas[indexValue][i].attr_val!==valueName)
                     {
-                        totalLength += datas[indexValue][i].attr_val.toString().length *6.5 + dims.rect_width * 5;
+                        totalLength += datas[indexValue][i].attr_val.toString().length *7.5 + dims.rect_width * 5;
                     }
                     else
                     {

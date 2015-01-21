@@ -1,0 +1,95 @@
+# importer database settings
+db.user=
+db.password=
+db.host=
+db.portal_db_name=
+db.importer_db_name=
+db.driver=com.mysql.jdbc.Driver
+db.connection_string=jdbc:mysql://localhost/
+db.portal_schema=$PORTAL_HOME/core/src/main/resources/db/cgds.sql
+
+# annotation database
+annotate.db.user=
+annotate.db.password=
+annotate.db.host=
+annotate.db.name=
+
+# google docs credentials
+google.id=
+google.pw=
+
+# google docs user registration spreadsheet
+users.spreadsheet=
+users.worksheet=
+
+# google docs portal importer configuration worksheet
+importer.spreadsheet_service_appname=cBio Portal Importer Tool
+importer.spreadsheet=portal_importer_configuration
+importer.cancer_studies_worksheet=cancer_studies
+importer.case_id_filters_worksheet=case_id_filters-default
+importer.case_lists_worksheet=case_lists
+importer.clinical_attributes_namespace_worksheet=clinical_attributes_namespace
+importer.clinical_attributes_worksheet=clinical_attributes
+importer.datatypes_worksheet=datatypes
+importer.data_sources_worksheet=data_sources
+importer.portals_worksheet=portals
+importer.reference_data_worksheet=reference_data
+importer.tumor_types_worksheet=tumor_types
+importer.tcga_tumor_types_worksheet=tcga_tumor_types
+importer.oncotree_worksheet=oncotree_src
+importer.oncotree_properties_worksheet=oncotree_properties
+importer.foundation_worksheet=foundation
+importer.icgc_worksheet=icgc
+
+# firehose_get script
+firehose_get_script=$PORTAL_HOME/importer/src/main/scripts/firehose_get
+
+# liftover tool
+liftover_binary=
+liftover_chain_file=
+
+# NCI's clinical trial information
+nci.cancer.ftp.user=
+nci.cancer.ftp.password=
+nci.cancer.sftp.user=
+nci.cancer.sftp.password=
+sshpass.path=
+
+# tcga clinical data
+tcga.clinical.url=https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/<TUMOR_TYPE>/bcr/nationwidechildrens.org/bio/clin/
+tcga.clinical.filename=nationwidechildrens.org_<TUMOR_TYPE>.bio.Level_2.0.<REVISION>.0.tar.gz
+nci.cadsr.url=http://cadsrapi.nci.nih.gov/cadsrapi40/GetXML?query=
+nci.cadsr.query=DataElement[@publicId=CDE_ID:]
+
+# dmp
+dmp.server_name=
+dmp.user_name=
+dmp.password=
+dmp.tokens.create_session=create_session
+dmp.tokens.retrieve_variants=cbio_retrieve_variants
+dmp.tokens.retrieve_segment_data=get_seg_data
+dmp.tokens.consume_sample=cbio_consume_sample
+
+# darwin
+darwin.config_file_path = $PORTAL_HOME/importer/src/main/resources/mybatis-config.xml
+
+# mail
+mail.server=
+mail.triage_portal.update.message.sender=
+mail.triage_portal.update.message.recipient=
+mail.triage_portal.update.message.subject=
+mail.triage_portal.update.message.body=
+mail.production_portal.update.message.sender=
+mail.production_portal.update.message.recipient=
+mail.production_portal.update.message.subject=
+mail.production_portal.update.message.body=
+mail.redeploy.message.sender=
+mail.redeploy.message.recipient=
+mail.redeploy.message.subject=
+mail.redeploy.message.body=
+
+# sftp on production server (for redeploy war)
+production.sftp.host=
+production.sftp.username=
+production.sftp.password=
+

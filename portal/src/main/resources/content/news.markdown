@@ -1,5 +1,5 @@
 # January 20, 2014
-* All __TCGA data__ updated to the Firehose run of October 20, 2014
+* All __TCGA data__ updated to the Firehose run of October 17, 2014
 * __COSMIC data__ updated to V71
 * __New features__:
     * Query page: better search functions to find cancer studies

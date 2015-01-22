@@ -92,29 +92,6 @@ public class CancerStudyMetadata {
     private boolean updateTriage;
     private boolean readyForRelease;
 
-
-    /*
-    Constructor based on Google worksheet Map
-
-     */
-
-    public CancerStudyMetadata(Map<String, String> worksheetRowMap) {
-        this.studyPath = worksheetRowMap.get("cancerstudies").trim();
-        this.tumorType = worksheetRowMap.get("cancertype").trim();
-        this.stableId = worksheetRowMap.get("stableid").trim();
-        this.name = worksheetRowMap.get("name").trim();
-        this.description = worksheetRowMap.get("description").trim();
-        this.citation = worksheetRowMap.get("citation").trim();
-        this.pmid = worksheetRowMap.get("pmid").trim();
-        this.groups = worksheetRowMap.get("groups").trim();
-        this.shortName = worksheetRowMap.get("shortname").trim();
-        this.convert = Boolean.parseBoolean(worksheetRowMap.get("convert").trim());
-        this.requiresValidation = Boolean.parseBoolean(worksheetRowMap.get("requiresvalidation").trim());
-        this.updateTriage = Boolean.parseBoolean(worksheetRowMap.get("updatetriage").trim());
-        this.readyForRelease = Boolean.parseBoolean(worksheetRowMap.get("readyforrelease").trim());
-
-    }
-
     /**
      * Create a CancerStudyMetadata instance with properties in given array.
      * ITs assumed order of properties is that from google worksheet.
@@ -179,6 +156,28 @@ public class CancerStudyMetadata {
 		this.groups = props.getProperty("groups", "");
 		this.shortName = props.getProperty("short_name", "");
 	}
+
+    /*
+    Constructor based on Google worksheet Map
+
+     */
+
+    public CancerStudyMetadata(Map<String, String> worksheetRowMap) {
+        this.studyPath = worksheetRowMap.get("cancerstudies").trim();
+        this.tumorType = worksheetRowMap.get("cancertype").trim();
+        this.stableId = worksheetRowMap.get("stableid").trim();
+        this.name = worksheetRowMap.get("name").trim();
+        this.description = worksheetRowMap.get("description").trim();
+        this.citation = worksheetRowMap.get("citation").trim();
+        this.pmid = worksheetRowMap.get("pmid").trim();
+        this.groups = worksheetRowMap.get("groups").trim();
+        this.shortName = worksheetRowMap.get("shortname").trim();
+        this.convert = Boolean.parseBoolean(worksheetRowMap.get("convert").trim());
+        this.requiresValidation = Boolean.parseBoolean(worksheetRowMap.get("requiresvalidation").trim());
+        this.updateTriage = Boolean.parseBoolean(worksheetRowMap.get("updatetriage").trim());
+        this.readyForRelease = Boolean.parseBoolean(worksheetRowMap.get("readyforrelease").trim());
+
+    }
 
 	public String getName() { return name; }
 	public String getTumorType() { return tumorType; }

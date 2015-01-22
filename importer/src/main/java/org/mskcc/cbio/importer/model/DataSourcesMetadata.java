@@ -47,17 +47,6 @@ public class DataSourcesMetadata {
 	private Boolean additionalStudiesSource;
     private String fetcherBeanID;
 
-	/*
-	Constructor using Google worksheet paramteer
-	 */
-
-	public DataSourcesMetadata( Map<String,String> worksheetRowMap){
-		this.dataSource = worksheetRowMap.get("datasource");
-		this.downloadDirectory = worksheetRowMap.get("downloaddirectory");
-		this.additionalStudiesSource = Boolean.parseBoolean(worksheetRowMap.get("addtionalstudiessource"));
-		this.fetcherBeanID = worksheetRowMap.get("fetcherbeanid");
-	}
-
     /**
      * Create a DataSourcesMetadata instance with properties in given array.
 	 * Its assumed order of properties is that from google worksheet.
@@ -74,6 +63,16 @@ public class DataSourcesMetadata {
 		this.downloadDirectory = MetadataUtils.getCanonicalPath(properties[1].trim());
 		this.additionalStudiesSource = new Boolean(properties[2].trim());
 		this.fetcherBeanID = properties[3].trim();
+	}
+
+	/*
+	Constructor using Google worksheet paramteer
+	 */
+	public DataSourcesMetadata( Map<String,String> worksheetRowMap){
+		this.dataSource = worksheetRowMap.get("datasource");
+		this.downloadDirectory = worksheetRowMap.get("downloaddirectory");
+		this.additionalStudiesSource = Boolean.parseBoolean(worksheetRowMap.get("addtionalstudiessource"));
+		this.fetcherBeanID = worksheetRowMap.get("fetcherbeanid");
 	}
 
 	public String getDataSource() { return dataSource; }

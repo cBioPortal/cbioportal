@@ -18,50 +18,6 @@
     </welcome-file-list>
     <display-name>Cancer Genomics Portal</display-name>
 
-    <!-- db connection pools -->
-
-    <resource-ref>
-      <description>DB Connection</description>
-      <res-ref-name>jdbc/cbioportal-public</res-ref-name>
-      <res-type>javax.sql.DataSource</res-type>
-      <res-auth>Container</res-auth>
-    </resource-ref>
-
-    <resource-ref>
-      <description>DB Connection</description>
-      <res-ref-name>jdbc/cbioportal-private</res-ref-name>
-      <res-type>javax.sql.DataSource</res-type>
-      <res-auth>Container</res-auth>
-    </resource-ref>
-
-    <resource-ref>
-      <description>DB Connection</description>
-      <res-ref-name>jdbc/cbioportal-mskcc</res-ref-name>
-      <res-type>javax.sql.DataSource</res-type>
-      <res-auth>Container</res-auth>
-    </resource-ref>
-
-    <resource-ref>
-      <description>DB Connection</description>
-      <res-ref-name>jdbc/cgds_gdac</res-ref-name>
-      <res-type>javax.sql.DataSource</res-type>
-      <res-auth>Container</res-auth>
-    </resource-ref>
-
-    <resource-ref>
-      <description>DB Connection</description>
-      <res-ref-name>jdbc/cgds_public</res-ref-name>
-      <res-type>javax.sql.DataSource</res-type>
-      <res-auth>Container</res-auth>
-    </resource-ref>
-
-    <resource-ref>
-      <description>DB Connection</description>
-      <res-ref-name>jdbc/dev</res-ref-name>
-      <res-type>javax.sql.DataSource</res-type>
-      <res-auth>Container</res-auth>
-    </resource-ref>
-
     <!-- context configuration -->
     <!-- jndi profile is defined here to prevent exceptions during war deployment -->
     <context-param>

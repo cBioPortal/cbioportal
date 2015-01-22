@@ -60,6 +60,7 @@ var StudyViewInitCharts = (function(){
         msnry,
         totalCharts,
         mutatedGenes = [],
+        cna = [],
         dataArr = {},
         pie = [], //Displayed attributes info, dataType: STRING, NUMBER, OR BOOLEAN
         bar = [], //Displayed attributes info, dataType: NUMBER
@@ -90,7 +91,6 @@ var StudyViewInitCharts = (function(){
         displayedID = [], //Displayed Charts ID number
         varDisplay = [], //Displayed Charts Name -- the display_name in each attribute   
         
-        WORDCLOUDTEXTSIZECONSTANT = 200,
         barOriginalColor = "#1F77B4",
        
         // Color scale from GOOGLE charts
@@ -101,8 +101,9 @@ var StudyViewInitCharts = (function(){
         //plot if click filtered chart's 'plot data' button which will clear 
         //filter and redraw first then call the postredraw and postfiltered 
         //functions
-        plotDataFlag = false;
-       
+        plotDataFlag = false,
+        
+        tableCharts = ['CANCER_TYPE', 'CANCER_TYPE_DETAILED'];
     
     function allNumberElements(_array){
         var _length = _array.length;
@@ -123,9 +124,11 @@ var StudyViewInitCharts = (function(){
             _attrLength = _attr.length,
             _arrLength = _arr.length,
             _studyDesc = "",
-            _priorityAttrs = ['CANCER_TYPE', 'PATIENT_ID', 'CASE_ID'];
+            //table chart will always put ahead, and the higher prioirty, the bigger index(later will use array unshift for table charts)
+            _priorityAttrs = ['CANCER_TYPE_DETAILED', 'CANCER_TYPE', 'PATIENT_ID', 'CASE_ID'];
         
         mutatedGenes = dataObtained.mutatedGenes;   
+        cna = dataObtained.cna || '';
         numOfCases = _arr.length;        
         ndx = crossfilter(_arr);
         
@@ -166,16 +169,21 @@ var StudyViewInitCharts = (function(){
         }
         
         _attrskeys.sort(function(a, b) {
-            if(_priorityAttrs.indexOf(a[1]) !== -1) {
+            var aIndex = _priorityAttrs.indexOf(a[1]),
+                bIndex = _priorityAttrs.indexOf(b[1]);
+                
+             if(aIndex !== -1 && bIndex !== -1) {
+                return aIndex<bIndex?-1:1;
+            }else if(aIndex !== -1) {
                 return -1;
-            }else if(_priorityAttrs.indexOf(b[1]) !== -1) {
-                return 1;
-            }
-            
-            if(a[3] < b[3]) {
+            }else if(bIndex !== -1) {
                 return 1;
             }else {
-                return -1;
+                if(a[3] < b[3]) {
+                    return 1;
+                }else {
+                    return -1;
+                }
             }
         });
         
@@ -245,7 +253,7 @@ var StudyViewInitCharts = (function(){
             }else if(_dataType === "STRING"){
                 varType[_attr_id] = "pie";
                 if(selectedCol(_attr_id) && _createdChartsNum < 21){
-                    if (_attr_id==="CANCER_TYPE") {
+                    if (tableCharts.indexOf(_attr_id) !== -1) {
                         pie.unshift(_attr[_attrIndex]);
                     } else {
                         pie.push(_attr[_attrIndex]);
@@ -269,7 +277,7 @@ var StudyViewInitCharts = (function(){
     }
     
     function initSpecialCharts(_arr){
-        if(cancerStudyId !== 'mixed_dmp_MSK-IMPACT_2014') {
+        if(cancerStudyId !== 'mskimpact') {
             if(     (StudyViewUtil.arrayFindByValue(varName, 'OS_MONTHS') && 
                     StudyViewUtil.arrayFindByValue(varName, 'OS_STATUS') &&
                     varKeys['OS_MONTHS'].length > 0 &&
@@ -291,14 +299,47 @@ var StudyViewInitCharts = (function(){
             initScatterPlot(_arr);
         }
         
-        /*
-        if(!( 
-                _trimedData.names.length === 1 && 
-                _trimedData.names[0] === 'No Mutated Gene')){
-        
-            initWordCloud(_trimedData);
-        }*/
+        initTables();
     }
+    
+    function initTables() {
+        var initParams = {data: {attr: [], arr: {}}, numOfCases: numOfCases};
+        
+        if(mutatedGenes && mutatedGenes.length > 0) {
+            initParams.data.attr.push({
+                        name: 'mutatedGenes',
+                        displayName: 'Mutated Genes',
+                        webService: {
+                            type: 'POST',
+                            url: "mutations.json",
+                            data: {
+                                cmd: 'get_smg',
+                                case_list: '',
+                                mutation_profile: StudyViewParams.params.mutationProfileId
+                            }
+                        }
+                    });
+            initParams.data.arr.mutatedGenes = mutatedGenes;
+        }
+        
+        if(cna) {
+            initParams.data.attr.push({
+                        name: 'cna',
+                        displayName: 'Copy Number Altered Genes',
+                        webService: {
+                            type: 'POST',
+                            url: "Gistic.json",
+                            data: {
+                                selected_cancer_type: StudyViewParams.params.studyId
+                            }
+                        }
+                    });
+            initParams.data.arr.cna = cna;
+        }
+        
+        StudyViewInitTables.init(initParams);
+    }
+        
     function redrawSurvival() {
         var _unselectedCases= [],
             _selectedCases = getSelectedCasesID(),
@@ -334,131 +375,6 @@ var StudyViewInitCharts = (function(){
             };
         }
         StudyViewSurvivalPlotView.redraw(_passedCases, false);
-    }
-    function redrawWordCloud(){
-        var _selectedCases = getSelectedCases(),
-        _selectedCasesLength = _selectedCases.length,
-        _selectedGeneMutatedInfo = [],
-        _filteredMutatedGenes = {},
-        _selectedCasesIds = [];
-        
-        if(_selectedCasesLength !== 0){
-            for( var i = 0; i < _selectedCasesLength; i++){
-                _selectedCasesIds.push(_selectedCases[i].CASE_ID);
-            }
-
-            var mutatedGenesObject = {
-                cmd: 'get_smg',
-                case_list: _selectedCasesIds.join(' '),
-                mutation_profile: StudyViewParams.params.mutationProfileId
-            };
-
-            $.when($.ajax({type: "POST", url: "mutations.json", data: mutatedGenesObject}))
-            .done(function(a1){
-                var i, dataLength = a1.length;
-
-                for( i = 0; i < dataLength; i++){
-                    _selectedGeneMutatedInfo.push(a1[i]);
-                }
-                _filteredMutatedGenes = wordCloudDataProcess(_selectedGeneMutatedInfo);
-                StudyViewInitWordCloud.redraw(_filteredMutatedGenes);
-                callBackFunctions();
-                $("#study-view-word-cloud-loader").css('display', 'none');
-            });
-        }else{
-            _filteredMutatedGenes = wordCloudDataProcess([]);
-            StudyViewInitWordCloud.redraw(_filteredMutatedGenes);
-            $("#study-view-word-cloud-loader").css('display', 'none');
-        }     
-    }
-    
-    //This function defined all of callback functions.
-    function callBackFunctions(){
-        if(StudyViewSurvivalPlotView.getInitStatus()){
-            redrawSurvival();
-        }
-    }
-    
-    //Only return top 10 of maximum number of mutations gene
-    function wordCloudDataProcess(_data) {
-        /*This data format is:
-        * cytoband: _value(string)
-        * gene_symbol: _value(string)
-        * length: _value(number)
-        * num_muts: _value(number)
-        */
-        var i,
-            //Use array instead of object, array has sorting function
-            _mutatedGenes = [],
-            _mutatedGenesLength,
-            _topGenes = {},
-            _dataLength = _data.length;
-        for( i = 0; i < _dataLength; i++){
-            if( _data[i].length > 0 ){
-                var _numOfMutationsPerNucletide = 
-                        Number(_data[i].num_muts) / Number(_data[i].length);
-                
-                _mutatedGenes.push([_data[i].gene_symbol, 
-                                    _numOfMutationsPerNucletide]);
-            }
-        }
-        if(_mutatedGenes.length !== 0){
-            _mutatedGenes.sort(sortNumMuts);
-        }
-        
-        if(_dataLength < 10){
-            _mutatedGenesLength = _dataLength;
-        }else{
-            _mutatedGenesLength = 10;
-        }
-        
-        if(_mutatedGenesLength === 0){
-            _topGenes.names = ['No Mutated Gene'];
-            _topGenes.size = [15];
-        }else{
-            _topGenes.names = [];
-            _topGenes.size = [];
-
-            for( i = 0; i< _mutatedGenesLength; i++){
-                _topGenes.names.push(_mutatedGenes[i][0]);
-                _topGenes.size.push(_mutatedGenes[i][1]);
-            }
-            _topGenes.size = calculateWordSize(_topGenes.size);
-        }
-        
-        return _topGenes;
-    }
-    
-    function calculateWordSize(_genes) {
-        var i,
-            _geneLength = _genes.length,
-            _percental = [],
-            _totalMuts = 0;
-        
-        for( i = 0; i < _geneLength; i++){
-            _totalMuts += _genes[i];
-        }
-        
-        for( i = 0; i < _geneLength; i++){
-            var _size = (_genes[i] / _totalMuts) * WORDCLOUDTEXTSIZECONSTANT;
-            if(_size > 40){
-                _size = 40;
-            }
-            _percental.push(_size);
-        }
-        
-        return _percental;
-    }
-    
-    function sortNumMuts(a, b) {
-        a = a[1];
-        b = b[1];
-        
-        if (a < b)
-            return 1;
-        if (a > b)
-            return -1;
-        return 0;
     }
     
     function createLayout() {
@@ -522,26 +438,6 @@ var StudyViewInitCharts = (function(){
             msnry.bindDraggabillyEvents( draggie );
         }
         msnry.layout();
-    }
-    
-    function initWordCloud(_data) {
-        StudyViewInitWordCloud.init(_data);
-        $(".study-view-word-cloud-delete").unbind('click');
-        $(".study-view-word-cloud-delete").click(function (){
-            $("#study-view-word-cloud").css('display','none');
-            $('#study-view-add-chart').css('display','block');
-//            $('#study-view-add-chart ul')
-//                    .append($('<li></li>')
-//                        .attr('id','wordCloud')
-//                        .text('Word Cloud'));
-//            $('#study-view-add-chart ul').stop().hide();
-            $('#study-view-add-chart')
-                    .append($('<option></option>')
-                        .attr('id','wordCloud')
-                        .text('Word Cloud'));
-            bondDragForLayout();
-            AddCharts.bindliClickFunc();
-        });
     }
     
     function initSurvivalPlot(_data) {
@@ -645,28 +541,48 @@ var StudyViewInitCharts = (function(){
     
     function initCharts(_data) { 
         $("#study-view-charts").html("");
-        initSpecialCharts(_data.arr);
+        if(cancerStudyId !== 'mskimpact') {
+            initSpecialCharts(_data.arr);
+        }
         initDcCharts(_data);
     }
     
-    function initDcCharts() {
+    function initDcCharts(_data) {
         var createdChartID = 0;
         
         var tableIcons = [];
-            
-        for(var i=0; i< pie.length ; i++){
-            makeNewPieChartInstance(createdChartID, pie[i]);
-            HTMLtagsMapUID["study-view-dc-chart-" + createdChartID] = createdChartID;
-            attrNameMapUID[pie[i]["attr_id"]] = createdChartID;
-            displayedID.push(pie[i]["attr_id"]);
-            
-            if (pie[i].attr_id==="CANCER_TYPE") {
-                var tableIcon = $("#study-view-dc-chart-" + createdChartID + "-table-icon");
-                if (tableIcon.css("display")!=="none")
-                    tableIcons.push(tableIcon);
+        
+        tableCharts.forEach(function(e, i){
+            for(var i=0; i< pie.length ; i++){
+                if(pie[i].attr_id === e) {
+                    makeNewPieChartInstance(createdChartID, pie[i]);
+                    HTMLtagsMapUID["study-view-dc-chart-" + createdChartID] = createdChartID;
+                    attrNameMapUID[pie[i]["attr_id"]] = createdChartID;
+                    displayedID.push(pie[i]["attr_id"]);
+                    var tableIcon = $("#study-view-dc-chart-" + createdChartID + "-table-icon");
+                    if (tableIcon.css("display")!=="none")
+                        tableIcons.push(tableIcon);
+                    createdChartID++;
+                    break;
+                }else {
+                    continue;
+                }
             }
-            
-            createdChartID++;
+        });
+        
+        if(cancerStudyId === 'mskimpact') {
+            initSpecialCharts(_data.arr);      
+        }
+        
+        
+        for(var i=0; i< pie.length ; i++){
+            if (tableCharts.indexOf(pie[i].attr_id) === -1) {
+                makeNewPieChartInstance(createdChartID, pie[i]);
+                HTMLtagsMapUID["study-view-dc-chart-" + createdChartID] = createdChartID;
+                attrNameMapUID[pie[i]["attr_id"]] = createdChartID;
+                displayedID.push(pie[i]["attr_id"]);
+                createdChartID++;
+            }
         }
         
         for(var i=0; i< bar.length ; i++){
@@ -716,7 +632,7 @@ var StudyViewInitCharts = (function(){
         for(var i = 0; i < _casesLength; i++){
             _casesID.push(_cases[i].CASE_ID);
         }
-        
+    
         return _casesID;
     }
     
@@ -760,21 +676,16 @@ var StudyViewInitCharts = (function(){
         varChart[_chartID].plotDataCallbackFunc(plotDataCallbackFunc);
     }
     
-    function redrawWSCharts() {
+    function redrawWSCharts(exceptionIds) {
         removeContentsAndStartLoading();
         changeHeader();
         
-        if(StudyViewInitWordCloud.getInitStatus()){
-            //redrawSurvival has been added in redrawWordCloud as callback func
-            redrawWordCloud();
-        }else if(StudyViewSurvivalPlotView.getInitStatus()){
-            var _length = StudyViewSurvivalPlotView.getNumOfPlots();
-            
-            for(var i = 0; i < _length; i++){
-                $("#study-view-survival-plot-body-" + i).css('opacity', '0.3');
-                $("#study-view-survival-plot-loader-" + i).css('display', 'block');
-            }
-            
+        if(StudyViewInitTables.getInitStatus()){
+            setTimeout(function() {
+                redrawTables(exceptionIds);
+            }, StudyViewParams.summaryParams.transitionDuration);
+        }
+        if(StudyViewSurvivalPlotView.getInitStatus()){
             //The timeout is set equal to the transition duration of dc charts.
             setTimeout(function() {
                 redrawSurvival();
@@ -782,6 +693,36 @@ var StudyViewInitCharts = (function(){
         }
     }
     
+    function redrawTables(exceptionIds) {
+        var _selectedCases = getSelectedCases().map(function(e){
+            return e.CASE_ID;
+        });
+        
+        StudyViewInitTables.redraw({
+            selectedCases: _selectedCases,
+            exceptionIds: exceptionIds,
+            webService: {
+                'mutatedGenes': {
+                    type: 'POST',
+                    url: "mutations.json",
+                    data: {
+                        cmd: 'get_smg',
+                        case_list: _selectedCases.join(' '),
+                        mutation_profile: StudyViewParams.params.mutationProfileId
+                    }
+                },
+                'cna': {
+                    type: 'POST',
+                    url: "cna.json",
+                    data: {
+                        sample_id: _selectedCases.join(' '),
+                        cna_profile:  StudyViewParams.params.cnaProfileId,
+                        cbio_genes_filter: true
+                    }
+                }
+            }
+        });
+    }
     
     function redrawSpecialPlots(_casesInfo, _selectedAttr){
         var _scatterInit = StudyViewInitScatterPlot.getInitStatus();
@@ -913,8 +854,6 @@ var StudyViewInitCharts = (function(){
     }
     
     function removeContentsAndStartLoading(){
-        $("#study-view-word-cloud svg").remove();
-        $("#study-view-word-cloud-loader").css('display', 'block');
         if(StudyViewSurvivalPlotView.getInitStatus()) {
             var _length = StudyViewSurvivalPlotView.getNumOfPlots();
             
@@ -1103,12 +1042,35 @@ var StudyViewInitCharts = (function(){
         }
     }
     
+    /**
+     * Pass in array of case Ids, return stable case Ids(fix case sensitive)
+     * @param {type} caseIds
+     * @returns {Array}
+     */
+    function getStableIds(caseIds) {
+        var a = [],
+            selectedIds = getSelectedCasesID();
+        
+        caseIds = caseIds.map(function(datum){ return datum.toString().toLowerCase();});
+        
+        if(caseIds instanceof Array && caseIds.length > 0) {
+            selectedIds.forEach(function(e, i){
+                if( caseIds.indexOf(e.toString().toLowerCase()) !== -1) {
+                    a.push(e);
+                }
+            });
+        }
+        
+        return a;
+    }
+    
     function filterChartsByGivingIDs(_ids){
         var _caseIDChart = varChart[attrNameMapUID['CASE_ID']].getChart();
         
         if(_ids.length > 1){
             StudyViewInitScatterPlot.setClickedCasesId('');;
         }
+        _ids = getStableIds(_ids);
         _caseIDChart.filterAll();
         _caseIDChart.filter([_ids]);
         dc.redrawAll();
@@ -1120,52 +1082,49 @@ var StudyViewInitCharts = (function(){
         var _selectedChartType,
             _index,
             _chartType = [],
-            _selectedAttr = _id,
             _selectedAttrDisplay = _text,
             _chartID = -1,
             _createdFlag = true;
     
         if(_id === 'mutationCNA'){
             _chartType = ['scatter'];
-        }else if(_id === 'wordCloud'){
-            _chartType = ['wordCloud'];
         }else if(_id.indexOf('survival') !== -1){
             _chartType = [_id];
-        }else{
+        }else if(varType.hasOwnProperty(_id)){
             _chartType = varType[_id].split(',');
+        }else {
+            _chartType = [_id];
         }
 
         _selectedChartType = _chartType[0];
         
-        if(_selectedAttr==='mutationCNA'){
+        if(_id==='mutationCNA'){
             $("#study-view-scatter-plot").css('display','block');
-        }else if(_selectedAttr==='wordCloud'){
-            $("#study-view-word-cloud").css('display','block');
-        }else if(_selectedAttr.indexOf('survival') !== -1){
-            var tmp = _selectedAttr.split("-"),
+        }else if(_id.indexOf('survival') !== -1){
+            var tmp = _id.split("-"),
                 _index = tmp[tmp.length - 1];
             
             $("#study-view-survival-plot-" + _index).css('display','block');
-        }else{
+        }else if(varType.hasOwnProperty(_id)){
             if(totalCharts < 31) {
-                if(Object.keys(attrNameMapUID).indexOf(_selectedAttr) !== -1){
-                    _chartID = attrNameMapUID[_selectedAttr];
+                if(Object.keys(attrNameMapUID).indexOf(_id) !== -1){
+                    _chartID = attrNameMapUID[_id];
                 }else{
                     _chartID = totalCharts;
                     HTMLtagsMapUID["study-view-dc-chart-" + totalCharts] = totalCharts;
-                    attrNameMapUID[_selectedAttr] = totalCharts;
+                    attrNameMapUID[_id] = totalCharts;
                     totalCharts++;       
                 }
 
                 if(_selectedChartType === 'pie'){
                     makeNewPieChartInstance(_chartID, 
-                                            {attr_id:_selectedAttr,
+                                            {attr_id:_id,
                                                 display_name:_selectedAttrDisplay});
                 }else{
                     makeNewBarChartInstance(_chartID,
-                                            {attr_id:_selectedAttr,
+                                            {attr_id:_id,
                                                 display_name:_selectedAttrDisplay},
-                                            distanceMinMaxArray[_selectedAttr]);
+                                            distanceMinMaxArray[_id]);
                 }
 
 
@@ -1192,6 +1151,8 @@ var StudyViewInitCharts = (function(){
                 alert("Can not create more than 30 plots.");
                 _createdFlag = false;
             }
+        }else {
+            $('#' + _id.replace('-option', '')).css('display','block');
         }
         
         if(_createdFlag) {
@@ -1203,7 +1164,7 @@ var StudyViewInitCharts = (function(){
             bondDragForLayout();
 
 //            $('#study-view-add-chart ul').find('li[id="' + _selectedAttr + '"]').remove();
-            $('#study-view-add-chart').find('option[id="' + _selectedAttr + '"]').remove();
+            $('#study-view-add-chart').find('option[id="' + _id + '"]').remove();
 //            if($('#study-view-add-chart ul').find('li').length === 0 ){
             if($('#study-view-add-chart').find('option').length === 1 && 
                     $('#study-view-add-chart').find('option').attr('id') === ''){
@@ -1222,7 +1183,7 @@ var StudyViewInitCharts = (function(){
 //            updateDataTableCallbackFuncs();
             filterCharts();
         },
-        
+        bondDragForLayout: bondDragForLayout,
         getFilteredResults: function() {
             var _filteredResult = varChart[attrNameMapUID['CASE_ID']].getCluster().top(Infinity);
             return _filteredResult;

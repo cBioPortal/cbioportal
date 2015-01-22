@@ -20,7 +20,7 @@ ObjectMapper jsonMapper = new ObjectMapper();
 boolean print = "1".equals(request.getParameter("print"));
 boolean isPatientView = "patient".equals(request.getAttribute(PatientView.VIEW_TYPE));
 request.setAttribute("tumormap", true);
-Set<String> caseIds = (Set<String>)request.getAttribute(PatientView.SAMPLE_ID);
+List<String> caseIds = (List<String>)request.getAttribute(PatientView.SAMPLE_ID);
 String jsonCaseIds = jsonMapper.writeValueAsString(caseIds);
 String caseIdStr = StringUtils.join(caseIds," ");
 String patientViewError = (String)request.getAttribute(PatientView.ERROR);
@@ -340,7 +340,8 @@ var clinicalDataMap = <%=jsonClinicalData%>;
 var viewBam = <%=viewBam%>;
 var mapCaseBam = <%=jsonMapCaseBam%>;
 var oncokbUrl = '<%=oncokbUrl%>';
-
+var oncoKBDataReady = false;
+    
 var caseMetaData = {
     color : {}, label : {}, index : {}, tooltip : {}
 };
@@ -813,15 +814,16 @@ function outputClinicalData() {
         }
 
         // reorder based on color
-        var colors = {black:1, orange:2, red:3};
-        caseIds.sort(function(c1, c2){
-            var ret = colors[caseMetaData.color[c1]]-colors[caseMetaData.color[c2]];
-            if (ret===0) return c1<c2?-1:1;
-            return ret;
-        });
+//        var colors = {black:1, orange:2, red:3};
+//        caseIds.sort(function(c1, c2){
+//            var ret = colors[caseMetaData.color[c1]]-colors[caseMetaData.color[c2]];
+//            if (ret===0) return c1<c2?-1:1;
+//            return ret;
+//        });
         caseMetaData.index = cbio.util.arrayToAssociatedArrayIndices(caseIds);
 
-        // set labels
+        // alt 1: set labels by color group
+        /*
         var mapColorCases = {};
         caseIds.forEach(function (caseId) {
             var color = caseMetaData.color[caseId];
@@ -839,7 +841,12 @@ function outputClinicalData() {
                     caseMetaData.label[_case] = i+1;
                 };
             }
+        }*/
+        // alt 2: set labels all together
+        for (var i=0; i<caseIds.length; i++) {
+            caseMetaData.label[caseIds[i]] = i+1;
         }
+        
 
         // set tooltips
         for (var i=0; i<n; i++) {

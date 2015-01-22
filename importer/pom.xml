@@ -129,11 +129,13 @@
     </dependency>
     
     <!--dmp/darwin importer-->
+    <!--
        <dependency>
           <groupId>com.ibm.db2</groupId>
           <artifactId>db2jcc</artifactId>
           <version>3.8.46</version>
         </dependency>
+    -->
 
         
         <dependency>

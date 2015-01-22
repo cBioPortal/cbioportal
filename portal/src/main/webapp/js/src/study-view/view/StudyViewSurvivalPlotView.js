@@ -119,32 +119,28 @@ var StudyViewSurvivalPlotView = (function() {
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'top center',at:'bottom center', viewport: $(window)},
             content: {
-                text:   "<form style='display:inline-block; float:left; margin-right:5px' action='svgtopdf.do' method='post' id='" + _opts.divs.pdf + "'>" +
-                        "<input type='hidden' name='svgelement' id='" + _opts.divs.pdfValue + "'>" +
-                        "<input type='hidden' name='filetype' value='pdf'>" +
-                        "<input type='hidden' id='" + _opts.divs.pdfName + "' name='filename' value=''>" +
-                        "<input type='submit' style='font-size:10px' value='PDF'>" +
-                        "</form>" +
-                        "<form style='display:inline-block; float:left; margin-right:5px' action='svgtopdf.do' method='post' id='" + _opts.divs.svg + "'>" +
-                        "<input type='hidden' name='svgelement' id='" + _opts.divs.svgValue + "'>" +
-                        "<input type='hidden' name='filetype' value='svg'>" +
-                        "<input type='hidden' id='" + _opts.divs.svgName + "' name='filename' value=''>" +
-                        "<input type='submit' style='font-size:10px' value='SVG'>" +
-                        "</form>"
+                text:   "<div style='display:inline-block;float:left;margin: 0 2px'>"+
+                        "<button  id='"+_opts.divs.pdf+"'>PDF</button>"+          
+                        "</div>"+
+                        "<div style='display:inline-block;float:left;margin: 0 2px'>"+
+                        "<button  id='"+_opts.divs.svg+"'>SVG</button>"+
+                        "</div>"
             },
             events: {
                 render: function(event, api) {
-
-                    $("#" + _opts.divs.pdfName).val("Survival_Plot_result-" + StudyViewParams.params.studyId + ".pdf");
-                    $("#" + _opts.divs.svgName).val("Survival_Plot_result-" + StudyViewParams.params.studyId + ".svg");
-    
-                    $("#" + _opts.divs.pdf, api.elements.tooltip).submit(function() {
+                    $("#" + _opts.divs.pdf, api.elements.tooltip).click(function() {
                         setSVGElementValue(_opts.divs.bodySvg,
-                                _opts.divs.pdfValue, _plotKey, _title);
+                                _opts.divs.pdfValue, _plotKey, _title, {
+                                filename: "Survival_Plot_result-" + StudyViewParams.params.studyId + ".pdf",
+                                contentType: "application/pdf",
+                                servletName: "svgtopdf.do"
+                            });
                     });
-                    $("#" + _opts.divs.svg, api.elements.tooltip).submit(function() {
+                    $("#" + _opts.divs.svg, api.elements.tooltip).click(function() {
                         setSVGElementValue(_opts.divs.bodySvg,
-                                _opts.divs.svgValue, _plotKey, _title);
+                                _opts.divs.svgValue, _plotKey, _title,  {
+                                    filename: "Survival_Plot_result-" + StudyViewParams.params.studyId + ".svg",
+                                });
                     });
 //                    $("#study-view-scatter-plot-pdf", api.elements.tooltip).submit(function(){
 //                        $("#study-view-scatter-plot-pdf-name").val("Scatter_Plot_result-"+ StudyViewParams.params.studyId +".pdf");
@@ -175,7 +171,7 @@ var StudyViewSurvivalPlotView = (function() {
      *                                  content, Exp. 'Scatter Plot'
      * @returns {undefined}
      */
-    function setSVGElementValue(_svgParentDivId, _idNeedToSetValue, _plotKey, _title) {
+    function setSVGElementValue(_svgParentDivId, _idNeedToSetValue, _plotKey, _title, downloadOptions) {
         var _svgElement, _svgLabels, _svgTitle,
                 _labelTextMaxLength = 0,
                 _numOfLabels = 0,
@@ -215,7 +211,10 @@ var StudyViewSurvivalPlotView = (function() {
                 _svgTitle + "<g transform='translate(0,40)'>" +
                 _svgElement + "</g><g transform='translate(370,50)'>" +
                 _svgLabels + "</g></svg>";
-        $("#" + _idNeedToSetValue).val(_svgElement);
+        
+        cbio.download.initDownload(
+            _svgElement, downloadOptions);
+    
         $("#" + opts[_plotKey].divs.bodyLabel + " svg").remove();
         drawLabels(_plotKey);
         //The style has been reset because of the addEvents function, so we
@@ -547,6 +546,7 @@ var StudyViewSurvivalPlotView = (function() {
         _opts.plot.text.qTips.estimation = "Survival estimate";
         _opts.plot.text.qTips.censoredEvent = "Time of last observation";
         _opts.plot.text.qTips.failureEvent = "Time of death";
+        _opts.plot.text.qTips.id = 'Sample ID';
         _opts.plot.settings.canvas_width = 365;
         _opts.plot.settings.canvas_height = 310;
         _opts.plot.settings.chart_width = 290;
@@ -565,7 +565,8 @@ var StudyViewSurvivalPlotView = (function() {
         _opts.plot.text.infoTableTitles.total_cases = "#total cases";
         _opts.plot.text.infoTableTitles.num_of_events_cases = "#cases deceased";
         _opts.plot.text.infoTableTitles.median = "median months survival";
-
+        _opts.plot.qtipFunc = cbio.util.getLinkToSampleView;
+        
         if(_key === 'DFS') {
             _opts.plot.text.qTips.estimation = "Disease free estimate";
         }

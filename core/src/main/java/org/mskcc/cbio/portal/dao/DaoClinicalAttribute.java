@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.sql.*;
 import java.util.*;
+import org.mskcc.cbio.portal.util.InternalIdUtil;
 
 /**
  * Data Access Object for `clinical_attribute` table
@@ -107,13 +108,16 @@ public class DaoClinicalAttribute {
         }
     }
 
-    public static List<ClinicalAttribute> getDataBySamples(int cancerStudyId, Set<String> sampleIdSet) throws DaoException
+    public static List<ClinicalAttribute> getDataByStudy(int cancerStudyId) throws DaoException
     {
-        List<Integer> patientIds = new ArrayList<Integer>();
-        for (Patient patient : DaoPatient.getPatientsByCancerStudyId(cancerStudyId)) {
-            patientIds.add(patient.getInternalId());
-        }
-        return getDataByInternalIds(patientIds);
+        List<ClinicalAttribute> attrs = new ArrayList<ClinicalAttribute>();
+        List<Integer> patientIds = InternalIdUtil.getInternalPatientIds(cancerStudyId);
+        attrs.addAll(getDataByInternalIds(patientIds, "clinical_patient"));
+        
+        List<Integer> sampleIds = InternalIdUtil.getInternalNonNormalSampleIds(cancerStudyId);
+        attrs.addAll(getDataByInternalIds(sampleIds, "clinical_sample"));
+        
+        return attrs;
     }
 
     /**
@@ -125,14 +129,15 @@ public class DaoClinicalAttribute {
      * @return
      * @throws DaoException
      */
-    private static List<ClinicalAttribute> getDataByInternalIds(List<Integer> internalIds) throws DaoException {
+    private static List<ClinicalAttribute> getDataByInternalIds(List<Integer> internalIds, String table) throws DaoException {
         
         Connection con = null;
         ResultSet rs = null;
 		PreparedStatement pstmt = null;
 
-        String sql = ("SELECT DISTINCT ATTR_ID FROM clinical_patient WHERE INTERNAL_ID IN " +
-                      "(" + generateCaseIdsSql(internalIds) + ")");
+        String sql = ("SELECT DISTINCT ATTR_ID FROM " + table
+                + " WHERE INTERNAL_ID IN " +
+                      "(" + StringUtils.join(internalIds, ",") + ")");
 
         Set<String> attrIds = new HashSet<String>();
         try {
@@ -151,10 +156,6 @@ public class DaoClinicalAttribute {
         }
 
         return getDatum(attrIds);
-    }
-
-    private static String generateCaseIdsSql(Collection<Integer> caseIds) {
-        return "'" + StringUtils.join(caseIds, "','") + "'";
     }
 
     private static Collection<ClinicalAttribute> getAll() throws DaoException {

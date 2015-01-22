@@ -193,6 +193,7 @@ public interface FileUtils {
 	 * @throws Exception
 	 */
 	void writeCancerStudyMetadataFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata, int numCases) throws Exception;
+	void updateCancerStudyMetadataFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata, Map<String,String> properties) throws Exception;
 
 	/**
 	 * Method which writes a metadata file for

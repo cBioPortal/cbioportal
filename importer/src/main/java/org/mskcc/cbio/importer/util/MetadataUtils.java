@@ -96,12 +96,10 @@ public class MetadataUtils {
 		return toReturn;
 	}
 
-	public static List<Boolean> getHeadersMissingMetadata(Config config, CancerStudyMetadata cancerStudyMetadata, List<String> normalizedColumnHeaderNames)
+	public static List<Boolean> getHeadersMissingMetadata(Config config, CancerStudyMetadata cancerStudyMetadata, List<String> normalizedColumnHeaderNames, boolean supplyDefaultClinicalAttributeValues)
 	{
         Set<String> unknownAttributes = new HashSet<String>();
-        List<Boolean> headersWithMissingMetadata = new ArrayList<Boolean>();
-        Map<String, ClinicalAttributesMetadata> clinicalAttributesMetadata =
-            getClinicalAttributesMetadata(config, normalizedColumnHeaderNames);
+		List<Boolean> headersWithMissingMetadata = new ArrayList<Boolean>();
 
         int lc = -1;
         for (String columnHeader : normalizedColumnHeaderNames) {
@@ -113,7 +111,7 @@ public class MetadataUtils {
                 if (metadata.isEmpty()) {
                     unknownAttributes.add(columnHeader);
                 }
-                headersWithMissingMetadata.add(++lc, true);
+            	headersWithMissingMetadata.add(++lc, (!supplyDefaultClinicalAttributeValues));
             }
         }
         if (!unknownAttributes.isEmpty()) {
@@ -122,10 +120,10 @@ public class MetadataUtils {
         return headersWithMissingMetadata;	
 	}
 
-    public static String getClinicalMetadataHeaders(Config config, List<String> normalizedColumnHeaderNames) throws Exception
+    public static String getClinicalMetadataHeaders(Config config, List<String> normalizedColumnHeaderNames, boolean supplyDefaultClinicalAttributeValues) throws Exception
     {
 		StringBuilder clinicalDataHeader = new StringBuilder();
-        Map<String, ClinicalAttributesMetadata> clinicalAttributesMetadata = getClinicalAttributesMetadata(config, normalizedColumnHeaderNames);
+        Map<String, ClinicalAttributesMetadata> clinicalAttributesMetadata = getClinicalAttributesMetadata(config, normalizedColumnHeaderNames, supplyDefaultClinicalAttributeValues);
 
         clinicalDataHeader.append(addClinicalDataHeader(normalizedColumnHeaderNames, clinicalAttributesMetadata, "getDisplayName"));
         clinicalDataHeader.append(addClinicalDataHeader(normalizedColumnHeaderNames, clinicalAttributesMetadata, "getDescription"));
@@ -136,13 +134,18 @@ public class MetadataUtils {
         return clinicalDataHeader.toString();
     }
 
-    private static Map <String, ClinicalAttributesMetadata> getClinicalAttributesMetadata(Config config, List<String> normalizedColumnHeaderNames)
+    private static Map <String, ClinicalAttributesMetadata> getClinicalAttributesMetadata(Config config, List<String> normalizedColumnHeaderNames, boolean supplyDefaultClinicalAttributeValues)
     {
         Map<String, ClinicalAttributesMetadata> toReturn = new HashMap<String, ClinicalAttributesMetadata>();
         for (String columnHeader : normalizedColumnHeaderNames) {
             Collection<ClinicalAttributesMetadata> metadata = config.getClinicalAttributesMetadata(columnHeader.toUpperCase());
             if (!metadata.isEmpty()) {
                 toReturn.put(columnHeader, metadata.iterator().next());
+            }
+            else if (supplyDefaultClinicalAttributeValues) {
+                String[] properties = new String[] { columnHeader, columnHeader, columnHeader, "STRING", "PATIENT", "1"};
+                ClinicalAttributesMetadata m = new ClinicalAttributesMetadata(properties);
+                toReturn.put(columnHeader, m);
             }
         }
         return toReturn;

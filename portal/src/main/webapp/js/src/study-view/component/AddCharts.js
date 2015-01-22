@@ -87,7 +87,7 @@ var AddCharts = (function(){
 //            var _id = $(this).attr('id'),
 //                _text = $(this).text();
             var _id = $(this).children(":selected").attr('id'),
-                _text = $(this).children(":selected").text()
+                _text = $(this).children(":selected").text();
             liClickCallback(_id, _text);
         });
     }

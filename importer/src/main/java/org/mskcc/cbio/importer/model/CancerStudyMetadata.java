@@ -34,6 +34,7 @@ import javax.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.io.File;
+import java.util.Properties;
 
 /**
  * Class which contains cancer study metadata.
@@ -91,6 +92,70 @@ public class CancerStudyMetadata {
     private boolean updateTriage;
     private boolean readyForRelease;
 
+    /**
+     * Create a CancerStudyMetadata instance with properties in given array.
+     * ITs assumed order of properties is that from google worksheet.
+     * cancerStudyPath is of the form brca/tcga/pub that you would find
+     * on the google spreadsheet cancer_studies worksheet
+     * All portal columns are ignored (anything > 1)
+     *
+     * @param properties String[]
+     */
+    public CancerStudyMetadata(String[] properties) {
+
+        if (properties.length < 13) {
+            throw new IllegalArgumentException("corrupt properties array passed to contructor");
+		}
+                
+        this.studyPath = properties[0].trim();
+        String[] parts = properties[0].trim().split(CANCER_STUDY_DELIMITER);
+		if (parts.length < 2) {
+			throw new IllegalArgumentException("cancerStudyPath is missing tumor type and or center");
+        }
+        this.center = parts[1];
+		this.tumorType = properties[1].trim();
+        this.stableId = properties[2].trim();
+		this.name = properties[3].trim();
+		this.description = properties[4].trim();
+		this.citation = properties[5].trim();
+		this.pmid = properties[6].trim();
+		this.groups = properties[7].trim();
+        this.shortName = properties[8].trim();
+        this.convert = Boolean.parseBoolean(properties[9].trim());
+        this.requiresValidation = Boolean.parseBoolean(properties[10].trim());
+        this.updateTriage = Boolean.parseBoolean(properties[11].trim());
+        this.readyForRelease = Boolean.parseBoolean(properties[12].trim());
+	}
+
+    public CancerStudyMetadata(String studyPath, CancerStudy cancerStudy)
+    {
+        this.studyPath = studyPath;
+        this.tumorType = cancerStudy.getTypeOfCancerId();
+        this.stableId = cancerStudy.getCancerStudyStableId();
+        this.name = cancerStudy.getName();
+        this.description = cancerStudy.getDescription();
+        this.citation = cancerStudy.getCitation();
+        this.pmid = cancerStudy.getPmid();
+        this.groups = StringUtils.join(cancerStudy.getGroups(), ";");
+        this.shortName = cancerStudy.getShortName();
+        this.convert = false;
+        this.requiresValidation = false;
+        this.updateTriage = false;
+        this.readyForRelease = false;
+    }
+
+	public CancerStudyMetadata(Properties props)
+	{
+		this.name = props.getProperty("name", "");
+		this.tumorType = props.getProperty("type_of_cancer", "");
+		this.stableId = props.getProperty("cancer_study_identifier", "");
+		this.studyPath = props.getProperty("study_path", "");
+		this.description = props.getProperty("description", "");
+		this.citation = props.getProperty("citation", "");
+		this.pmid = props.getProperty("pmid", "");
+		this.groups = props.getProperty("groups", "");
+		this.shortName = props.getProperty("short_name", "");
+	}
 
     /*
     Constructor based on Google worksheet Map
@@ -114,129 +179,27 @@ public class CancerStudyMetadata {
 
     }
 
-    /**
-     * Create a CancerStudyMetadata instance with properties in given array.
-     * ITs assumed order of properties is that from google worksheet.
-     * cancerStudyPath is of the form brca/tcga/pub that you would find
-     * on the google spreadsheet cancer_studies worksheet
-     * All portal columns are ignored (anything > 1)
-     *
-     * @param properties String[]
-     */
-    public CancerStudyMetadata(String[] properties) {
-
-        if (properties.length < 13) {
-            throw new IllegalArgumentException("corrupt properties array passed to contructor");
-        }
-
-        this.studyPath = properties[0].trim();
-        String[] parts = properties[0].trim().split(CANCER_STUDY_DELIMITER);
-        if (parts.length < 2) {
-            throw new IllegalArgumentException("cancerStudyPath is missing tumor type and or center");
-        }
-        this.center = parts[1];
-        this.tumorType = properties[1].trim();
-        this.stableId = properties[2].trim();
-        this.name = properties[3].trim();
-        this.description = properties[4].trim();
-        this.citation = properties[5].trim();
-        this.pmid = properties[6].trim();
-        this.groups = properties[7].trim();
-        this.shortName = properties[8].trim();
-        this.convert = Boolean.parseBoolean(properties[9].trim());
-        this.requiresValidation = Boolean.parseBoolean(properties[10].trim());
-        this.updateTriage = Boolean.parseBoolean(properties[11].trim());
-        this.readyForRelease = Boolean.parseBoolean(properties[12].trim());
-    }
-
-    public CancerStudyMetadata(String studyPath, CancerStudy cancerStudy) {
-        this.studyPath = studyPath;
-        this.tumorType = cancerStudy.getTypeOfCancerId();
-        this.stableId = cancerStudy.getCancerStudyStableId();
-        this.name = cancerStudy.getName();
-        this.description = cancerStudy.getDescription();
-        this.citation = cancerStudy.getCitation();
-        this.pmid = cancerStudy.getPmid();
-        this.groups = StringUtils.join(cancerStudy.getGroups(), ";");
-        this.shortName = cancerStudy.getShortName();
-        this.convert = false;
-        this.requiresValidation = false;
-        this.updateTriage = false;
-        this.readyForRelease = false;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getTumorType() {
-        return tumorType;
-    }
-
-    public String getStableId() {
-        return stableId;
-    }
-
-    public TumorTypeMetadata getTumorTypeMetadata() {
-        return tumorTypeMetadata;
-    }
-
-    public void setTumorTypeMetadata(TumorTypeMetadata tumorTypeMetadata) {
-        this.tumorTypeMetadata = tumorTypeMetadata;
-    }
-
-    public String getStudyPath() {
-        return studyPath;
-    }
-
-    public String getCenter() {
-        return center;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getCitation() {
-        return citation;
-    }
-
-    public String getPMID() {
-        return pmid;
-    }
-
-    public String getGroups() {
-        return groups;
-    }
-
-    public String getShortName() {
-        return shortName;
-    }
-
-    public Boolean isConverted() {
-        return convert;
-    }
-
-    public Boolean requiresValidation() {
-        return requiresValidation;
-    }
-
-    public Boolean updateTriage() {
-        return updateTriage;
-    }
-
-    public Boolean readyForRelease() {
-        return readyForRelease;
-    }
-
-    public String getCancerStudyMetadataFilename() {
-        //return getStudyPath() + File.separator + toString() + CANCER_STUDY_METADATA_FILE_EXT;
-        return CANCER_STUDY_METADATA_FILE;
-    }
-
-    public String toString() {
-        return stableId;
-    }
+	public String getName() { return name; }
+	public String getTumorType() { return tumorType; }
+	public String getStableId() { return stableId; }
+	public TumorTypeMetadata getTumorTypeMetadata() { return tumorTypeMetadata; }
+	public void setTumorTypeMetadata(TumorTypeMetadata tumorTypeMetadata) { this.tumorTypeMetadata = tumorTypeMetadata; }
+	public String getStudyPath() { return studyPath; }
+    public String getCenter() { return center; }
+	public String getDescription() { return description; }
+	public String getCitation() { return citation; }
+	public String getPMID() { return pmid; }
+	public String getGroups() { return groups; }
+    public String getShortName() { return shortName; }
+	public Boolean isConverted() { return convert; }
+    public Boolean requiresValidation() { return requiresValidation; }
+    public Boolean updateTriage() { return updateTriage; }
+    public Boolean readyForRelease() { return readyForRelease; }
+	public String getCancerStudyMetadataFilename() {
+		//return getStudyPath() + File.separator + toString() + CANCER_STUDY_METADATA_FILE_EXT;
+		return CANCER_STUDY_METADATA_FILE;
+	}
+	public String toString() { return stableId; }
 
     public Map<String, String> getProperties() {
         Map<String, String> toReturn = new HashMap<String, String>();
@@ -257,7 +220,8 @@ public class CancerStudyMetadata {
     }
 
     // static method to return a CancerStudyMetadata instance based on a unique stable id
-    public static Optional<CancerStudyMetadata> findCancerStudyMetaDataByStableId(final String stableId){
+    public static Optional<CancerStudyMetadata> findCancerStudyMetaDataByStableId(final String stableId)
+    {
         final String cancerStudyWorksheet = "cancer_studies";
         final String stableIdColumnName = "stableid";
         if(Strings.isNullOrEmpty(stableId)) {return Optional.absent();}
@@ -282,9 +246,9 @@ public class CancerStudyMetadata {
         return Optional.absent();
     }
 
-
     // main method for testing
-    public static void main(String...args) {
+    public static void main(String...args)
+    {
         String stableId= "brca_icgc_uk";
         Optional<CancerStudyMetadata> opt  = CancerStudyMetadata.findCancerStudyMetaDataByStableId(stableId);
         if(opt.isPresent()){

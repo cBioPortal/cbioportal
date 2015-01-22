@@ -30,7 +30,7 @@
  * Basic Scatter Plots Component. 
  *
  * @param: options -- includes customized style, canvas(position), elem(svg), text(titles, etc.)
- * @param: dataArr -- Json object from data proxy (x value, y value, qtip content, case id, etc.)
+ * @param: dataArr -- Json object from data proxy (x value, y value, qtip content, sample id, etc.)
  * @param: dataAttr -- attributes of input data object (max, min, etc.)
  * @param: brushOn -- signal for turning on the brush feature or not
  *

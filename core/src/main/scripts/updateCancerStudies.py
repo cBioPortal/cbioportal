@@ -61,6 +61,7 @@ IMPORTER_SPREADSHEET_SERVICE_APPNAME = 'importer.spreadsheet_service_appname'
 GOOGLE_SPREADSHEET_CLIENT = gdata.spreadsheet.service.SpreadsheetsService()
 
 # column constants on google spreadsheet
+CANCER_STUDIES_KEY = 'cancerstudies'
 CANCER_STUDY_STABLE_ID_KEY = 'stableid'
 CANCER_STUDY_GROUPS_KEY = 'groups'
 
@@ -254,7 +255,7 @@ def get_worksheet_cancer_studies(worksheet_feed):
 
     for entry in worksheet_feed.entry:
         cancer_study_id = 'not_used_here'
-        cancer_study_stable_id = entry.custom[CANCER_STUDY_STABLE_ID_KEY].text
+        cancer_study_stable_id = entry.custom[CANCER_STUDIES_KEY].text.replace("/", "_")
         groups = entry.custom[CANCER_STUDY_GROUPS_KEY].text
         to_return[cancer_study_stable_id] = CancerStudy(cancer_study_id, cancer_study_stable_id, groups)
 

@@ -51,22 +51,22 @@
     double rppaScoreThreshold = ZScoreUtil.getRPPAScore(request);
 
     //Onco Query Language Parser Instance
-	String oql = request.getParameter(QueryBuilder.GENE_LIST);
+    String oql = request.getParameter(QueryBuilder.GENE_LIST);
 
-	// onco print spec parser needs the raw parameter
-	if (request instanceof XssRequestWrapper)
-	{
-		oql = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.GENE_LIST);
-	}
+    // onco print spec parser needs the raw parameter
+    if (request instanceof XssRequestWrapper)
+    {
+        oql = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.GENE_LIST);
+    }
 
     ParserOutput theOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( oql,
             (HashSet<String>) request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS),
             (ArrayList<GeneticProfile>) request.getAttribute(QueryBuilder.PROFILE_LIST_INTERNAL),
             zScoreThreshold, rppaScoreThreshold );
     OncoPrintSpecification theOncoPrintSpecification = theOncoPrintSpecParserOutput.getTheOncoPrintSpecification();
-	// make the oql variable script-safe after processing
-	//oql = StringEscapeUtils.escapeJavaScript(oql);
-	oql = xssUtil.getCleanerInput(oql);
+    // make the oql variable script-safe after processing
+    //oql = StringEscapeUtils.escapeJavaScript(oql);
+    oql = xssUtil.getCleanerInput(oql);
 
     //Info from data analysis/summary
     ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile, theOncoPrintSpecification, zScoreThreshold, rppaScoreThreshold );
@@ -166,14 +166,14 @@
             setOncoprintData : function(obj) { 
                 if (oncoprintData === null) {
                     oncoprintData = obj;    
+                    PortalDataCollManager.fire("oncoprint-data-fetched");
                 }
-                PortalDataCollManager.fire("oncoprint-data-fetched");
             },
             setOncoprintStat : function(obj) {
                 if (oncoprintStat === null) {
                     oncoprintStat = obj;
+                    PortalDataCollManager.fire("oncoprint-stat-fetched");
                 }
-                PortalDataCollManager.fire("oncoprint-stat-fetched");
             },
             getOncoprintData : function() { 
                 //TODO: sort the data by sample Id
@@ -236,8 +236,8 @@
         getNumOfAlteredCases: function() { return num_altered_cases; },
         getPercentageOfAlteredCases: function() { return ((num_altered_cases / num_total_cases) * 100).toFixed(1); },
         getCancerStudyId: function() { return '<%=cancerTypeId%>'},
+        getMutationProfileId: function() { return <%=(mutationProfileID==null?"null":("'"+mutationProfileID+"'"))%>},
         getCancerStudyName: function() { return '<%=cancerStudyName%>'},
-        gerMutationProfileId: function() { return <%=(mutationProfileID==null?"null":("'"+mutationProfileID+"'"))%>},
         getGenes: function() { return '<%=genes%>'},  // raw gene list (as it is entered by the user, it MAY CONTAIN onco query language)
         getGeneListString: function() {  // gene list WITHOUT onco query language
             return '<%=StringUtils.join(theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes(), " ")%>'
@@ -411,4 +411,3 @@
     var gene_list = gene_list_str.split(/\s+/);
 
 </script>
-

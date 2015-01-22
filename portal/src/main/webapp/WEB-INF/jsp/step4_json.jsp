@@ -16,11 +16,11 @@
     </script>
     <span style="font-size:120%; color:black">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="onco_query_lang_desc.jsp" onclick="return popitup('onco_query_lang_desc.jsp')">Advanced:  Onco Query Language (OQL)</a></span>
     
-    <div style='padding-top:10px;'>
+    <div style='padding-top:10px;padding-bottom:5px;'>
         <select id="select_gene_set" name="<%= QueryBuilder.GENE_SET_CHOICE %>"></select>
     </div>
         
-    <div>
+    <div style="padding-bottom:5px;margin-left:-3px;">
         <button id="toggle_mutsig_dialog" onclick="promptMutsigTable(); return false;" style="font-size: 1em;">Select From Recurrently Mutated Genes (MutSig)</button>
         <button id="toggle_gistic_dialog_button" onclick="Gistic.UI.open_dialog(); return false;" style="font-size: 1em; display: none;">Select Genes from Recurrent CNAs (Gistic)</button>
     </div>

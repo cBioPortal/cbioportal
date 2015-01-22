@@ -130,7 +130,7 @@ public class MutationDataUtils {
         Map<Long, Set<CosmicMutationFrequency>> cosmic =
 		        DaoCosmicData.getCosmicForMutationEvents(mutationList);
         Map<Integer, Integer> countMap = this.getMutationCountMap(mutationList);
-	    Map<String, ClinicalData> clinicalDataMap = getClinicalDataMap(
+	    Map<Integer, ClinicalData> clinicalDataMap = getClinicalDataMap(
                     targetSampleList, cancerStudy, TUMOR_TYPE_CLINICAL_ATTR);
         
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
@@ -158,11 +158,11 @@ public class MutationDataUtils {
         return mutationArray;
     }
 
-	protected Map<String, ClinicalData> getClinicalDataMap(List<String> targetSampleList,
+	protected Map<Integer, ClinicalData> getClinicalDataMap(List<String> targetSampleList,
 			CancerStudy cancerStudy,
 			String attrId) throws DaoException
 	{
-		Map<String, ClinicalData> map = new HashMap<String, ClinicalData>();
+		Map<Integer, ClinicalData> map = new HashMap<Integer, ClinicalData>();
 		ClinicalAttribute attr = DaoClinicalAttribute.getDatum(attrId);
 
 		// check if attrId is in the DB
@@ -176,7 +176,8 @@ public class MutationDataUtils {
 			// create the map using case id as a key
 			for (ClinicalData data : clinicalDataList)
 			{
-				map.put(data.getStableId(), data);
+                Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudy.getInternalId(), data.getStableId());
+				map.put(s.getInternalId(), data);
 			}
 		}
 
@@ -190,7 +191,7 @@ public class MutationDataUtils {
             Map<Integer, Integer> countMap,
             Map<String,Map<Integer,String>> cnaDataMap,
             Map<Long, Set<CosmicMutationFrequency>> cosmic,
-			Map<String, ClinicalData> clinicalDataMap) throws DaoException
+			Map<Integer, ClinicalData> clinicalDataMap) throws DaoException
     {
         HashMap<String, Object> mutationData = new HashMap<String, Object>();
 
@@ -265,10 +266,18 @@ public class MutationDataUtils {
         return "m" + Integer.toString(mutation.hashCode());
     }
 
-    public String generateMutationSid(ExtendedMutation mutation, Sample sample) {
-        return mutation.getGene()
-                + sample.getStableId()
-                + mutation.getEvent().getProteinChange().replace('*', '-');
+    public String generateMutationSid(ExtendedMutation mutation, Sample sample)
+    {
+	    // we need stable patient id, internal patient id does not always work
+	    Patient patient = DaoPatient.getPatientById(sample.getInternalPatientId());
+
+	    // generate mutation sid by using gene, patient id, and protein change values
+	    String sid = mutation.getGene() +
+			patient.getStableId() +
+			mutation.getEvent().getProteinChange();
+
+	    // remove problematic characters from the id
+	    return sid.replaceAll("[^a-zA-Z0-9-]", "-");
     }
 
     /**
@@ -654,7 +663,7 @@ public class MutationDataUtils {
     }
 
 	protected String getTumorType(ExtendedMutation mutation,
-			Map<String,ClinicalData> clinicalDataMap)
+			Map<Integer,ClinicalData> clinicalDataMap)
 	{
 		String tumorType = null;
 

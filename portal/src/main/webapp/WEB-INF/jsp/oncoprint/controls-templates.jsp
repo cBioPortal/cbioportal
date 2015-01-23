@@ -28,13 +28,6 @@
              <li style="list-style-type:none;cursor:pointer"><a id="custom">user-defined case list / default</a></li>
            </ul>
         </div>
-        <%--
-        <button type="button" class="btn btn-default" style="background-color:#efefef"><img id="oncoprinter_diagram_showmutationcolor_icon" class="oncoprinter_diagram_showmutationcolor_icon" checked="0" src="images/uncolormutations.svg" alt="icon" width="16" height="16" /></button>
-        <button type="button" class="btn btn-default" style="background-color:#efefef;display:none;"><img id="oncoprinter-diagram-showlegend-icon" class="oncoprinter-diagram-showlegend-icon" checked="0" src="images/showlegend.svg" alt="icon" width="16" height="16" /></button>
-        <button type="button" class="btn btn-default" style="background-color:#efefef"><img id="oncoprinter-diagram-removeUCases-icon" class="oncoprinter-diagram-removeUCases-icon" checked="0" src="images/removeUCases.svg" alt="icon" width="16" height="16" /></button>
-        <button type="button" class="btn btn-default" style="background-color:#efefef"><img id="oncoprinter-diagram-removeWhitespace-icon" class="oncoprinter-diagram-removeWhitespace-icon" checked="0" src="images/removeWhitespace.svg" alt="icon" width="16" height="16" /></button>
-        <button type="button" class="btn btn-default" style="background-color:#efefef"><img id="oncoprinter-diagram-downloads-icon" class="oncoprinter-diagram-downloads-icon" src="images/in.svg" alt="icon" width="16" height="16" /></button>      
-        --%>  
         <button type="button" class="btn btn-default" id="oncoprinter_diagram_showmutationcolor_icon" style="background-color:#efefef"><img  class="oncoprinter_diagram_showmutationcolor_icon" checked="0" src="images/uncolormutations.svg" alt="icon" width="16" height="16" /></button>
         <button type="button" class="btn btn-default" id="oncoprinter-diagram-showlegend-icon" style="background-color:#efefef;display:none;"><img class="oncoprinter-diagram-showlegend-icon" checked="0" src="images/showlegend.svg" alt="icon" width="16" height="16" /></button>
         <button type="button" class="btn btn-default" id="oncoprinter-diagram-removeUCases-icon" style="background-color:#efefef"><img class="oncoprinter-diagram-removeUCases-icon" checked="0" src="images/removeUCases.svg" alt="icon" width="16" height="16" /></button>

@@ -1258,7 +1258,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             
             //color different mutation with different color
             $('#oncoprint_diagram_showmutationcolor_icon').click(function(){
-                
+              $('#working_message')[0].style.display = "inline";  
               if($('#oncoprint_diagram_showmutationcolor_icon img')[0].attributes.src.value === 'images/uncolormutations.svg')
               {
                 $(this).qtip({
@@ -1362,6 +1362,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 $('.legend_missense_name').text("Missense Mutation");
                 $('.legend_nonmissense').css("display","inline");
               }
+              $('#working_message')[0].style.display = "none"; 
             });
             $('#oncoprint_diagram_showmutationcolor_icon').hover(
             function () {

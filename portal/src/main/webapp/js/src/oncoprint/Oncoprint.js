@@ -405,7 +405,7 @@ define("Oncoprint",
                                             return 'black';
                                         }
                                         
-                                        if ((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(mutationSplit)) {
+                                        if ((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(mutationSplit[i])) {
                                             hasIndel = true;
                                         }
                                     }

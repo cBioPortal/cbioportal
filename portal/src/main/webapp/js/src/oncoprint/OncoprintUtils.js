@@ -229,9 +229,16 @@ define("OncoprintUtils", (function() {
                 afterProcess = afterProcess.filter( function(d) {
                         return d !== undefined && (!filter || filter(d));
                     });
-                    
+                
+                var afterprocessDatatype = false;
                 for(var j=0; j<afterProcess.length;j++)
                 {
+                   //determin the datatype of afterProcess data
+                   if(typeof(afterProcess[j].attr_val) === 'number')
+                   {
+                      afterprocessDatatype = true;
+                   }
+                   
                    for(var n=0; n<raw_clinical_attr.length;n++)
                    {
                        if(afterProcess[j].attr_id === raw_clinical_attr[n].attr_id)
@@ -241,7 +248,7 @@ define("OncoprintUtils", (function() {
                    }
                 }
                 
-                if(typeof(afterProcess[0].attr_val)==='number')
+                if(afterprocessDatatype)// if data type is number
                 {
                     if(afterProcess.length > 12)
                     {

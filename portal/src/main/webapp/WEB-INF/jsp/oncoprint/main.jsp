@@ -52,6 +52,7 @@
         </div>
         
         <div style="height:20px;"></div>
+        <div id="working_message" style="height:20px;display:none;"><p style="text-align: center;">working...</p></div>
    
         <img id="inner_loader_img" src="images/ajax-loader.gif" style="display:none;">
         <div id="oncoprint_body"></div>

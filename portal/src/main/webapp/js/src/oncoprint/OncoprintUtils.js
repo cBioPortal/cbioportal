@@ -215,9 +215,9 @@ define("OncoprintUtils", (function() {
         return to_return;
     };
     
-    var attr_data_type2range = function(raw_attr_and_gene_data,attrs_number)
+    var attr_data_type2range = function(raw_attr_and_gene_data,attrs_number,raw_clinical_attr)
     {
-        var extract_unique = function(raw_data, length, filter) {
+        var extract_unique = function(raw_data, length, raw_clinical_attributes ,filter) {
             
             var finalAfterProcess = [];
             var testFinalAfterProcess = [];
@@ -230,6 +230,17 @@ define("OncoprintUtils", (function() {
                         return d !== undefined && (!filter || filter(d));
                     });
                     
+                for(var j=0; j<afterProcess.length;j++)
+                {
+                   for(var n=0; n<raw_clinical_attr.length;n++)
+                   {
+                       if(afterProcess[j].attr_id === raw_clinical_attr[n].attr_id)
+                       {
+                          afterProcess[j].display_name = raw_clinical_attr[n].display_name;
+                       }
+                   }
+                }
+                
                 if(typeof(afterProcess[0].attr_val)==='number')
                 {
                     if(afterProcess.length > 12)
@@ -252,10 +263,11 @@ define("OncoprintUtils", (function() {
                 testFinalAfterProcess[i] = afterProcess;
                 raw_data = raw_data.concat(seperate_raw_data);
             }
+            
             return testFinalAfterProcess;
         };
         
-        var attrs = extract_unique(raw_attr_and_gene_data,attrs_number);
+        var attrs = extract_unique(raw_attr_and_gene_data,attrs_number,raw_clinical_attr);
         
         return attrs;
     }
@@ -629,7 +641,7 @@ define("OncoprintUtils", (function() {
             {
                 if(datas[indexValue][i].attr_val!==valueName)
                 {
-                    totalLength += datas[indexValue][i].attr_val.toString().length *6.5 + dims.rect_width * 5;
+                    totalLength += datas[indexValue][i].attr_val.toString().length *dims.character_length + dims.rect_width * 5;
                 }
                 else
                 {
@@ -646,7 +658,7 @@ define("OncoprintUtils", (function() {
             for( i = 0; i < datas.length; i++ )
             {
                 var longestEachData = 0;
-                longestEachData = calculateDistance(datas[i][datas[i].length - 1].attr_id, datas[i][datas[i].length - 1].attr_val) + datas[i][datas[i].length - 1].attr_val.toString().length *6.5 + dims.rect_width * 5;
+                longestEachData = calculateDistance(datas[i][datas[i].length - 1].attr_id, datas[i][datas[i].length - 1].attr_val) + datas[i][datas[i].length - 1].attr_val.toString().length *dims.character_length + dims.rect_width * 5;
                 longestLegendLength= longestEachData > longestLegendLength ? longestEachData: longestLegendLength;
             }
             
@@ -657,7 +669,7 @@ define("OncoprintUtils", (function() {
         {
             var i = legendIndex;
             var longestEachData = 0;
-            longestEachData = calculateDistance(datas[i][datas[i].length - 1].attr_id, datas[i][datas[i].length - 1].attr_val) + datas[i][datas[i].length - 1].attr_val.toString().length *6.5 + dims.rect_width * 5;
+            longestEachData = calculateDistance(datas[i][datas[i].length - 1].attr_id, datas[i][datas[i].length - 1].attr_val) + datas[i][datas[i].length - 1].attr_val.toString().length *dims.character_length + dims.rect_width * 5;
             
             return longestEachData;
         }; 
@@ -682,7 +694,7 @@ define("OncoprintUtils", (function() {
                 {
                     if(datas[indexValue][i].attr_val!==valueName)
                     {
-                        totalLength += datas[indexValue][i].attr_val.toString().length *6.5 + dims.rect_width * 5;
+                        totalLength += datas[indexValue][i].attr_val.toString().length *7.5 + dims.rect_width * 5;
                     }
                     else
                     {
@@ -729,7 +741,13 @@ define("OncoprintUtils", (function() {
             .attr('fill','gray')
             .attr('class','attribute_legend')
             .text(function() {
-                return inteData[0].attr_id.toString().toLowerCase();
+                var display_name_value = inteData[0].display_name;
+                if(display_name_value.length > 20)
+                {
+                    display_name_value = display_name_value.slice(0,17) + "...";
+                }
+//                return inteData[0].display_name.toString().toLowerCase();
+                return display_name_value.toString().toLowerCase();
             });
             
         var container_width = $('#oncoprint_table div').width();              // default setting 

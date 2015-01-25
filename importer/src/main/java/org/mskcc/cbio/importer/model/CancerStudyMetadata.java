@@ -52,9 +52,9 @@ public class CancerStudyMetadata {
     public static final String GROUPS_COLUMN_KEY = "GROUPS";
     public static final String SHORT_NAME_COLUMN_KEY = "SHORTNAME";
     public static final String CONVERT_COLUMN_KEY = "CONVERT";
-    public static final String REQUIRES_VALIDATION_COLUMN_KEY = "REQUIRESVALIDATION";
     public static final String UPDATE_TRIAGE_COLUMN_KEY = "UPDATETRIAGE";
     public static final String READY_FOR_RELEASE_COLUMN_KEY = "READYFORRELEASE";
+    public static final String TRIAGE_PORTAL_STUDY_KEY = "triageportal";
 
     // delimiter between tumor type and center (used for find the path)
 

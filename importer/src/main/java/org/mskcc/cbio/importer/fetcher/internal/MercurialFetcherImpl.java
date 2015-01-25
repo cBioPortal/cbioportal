@@ -148,8 +148,6 @@ public class MercurialFetcherImpl extends FetcherBaseImpl implements Fetcher
 			toReturn.put(CancerStudyMetadata.UPDATE_TRIAGE_COLUMN_KEY, "false");
 			toReturn.put(CancerStudyMetadata.READY_FOR_RELEASE_COLUMN_KEY, "true");
 		}
-		// this is required so that Admin.updateStudyData() will process the study
-		toReturn.put(CancerStudyMetadata.REQUIRES_VALIDATION_COLUMN_KEY, "true");
 
 		return toReturn;
 	}

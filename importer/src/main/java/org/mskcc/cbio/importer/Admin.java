@@ -692,8 +692,8 @@ public class Admin implements Runnable {
 				// we've updated the study in triage, turn off update triage flag
 				propertyMap.put(CancerStudyMetadata.UPDATE_TRIAGE_COLUMN_KEY, "false");
 			}
-			// otherwise, we only update studies that require validation and are ready for release
-			else if (cancerStudyMetadata.requiresValidation() && cancerStudyMetadata.readyForRelease()) {
+			// otherwise, we only update studies that are ready for release
+			else if (cancerStudyMetadata.readyForRelease()) {
 				importer.updateCancerStudy(portal, cancerStudyMetadata);
 				// turn off ready for release so that the next
 				// fetch does not get imported before being vetted

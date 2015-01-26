@@ -32,7 +32,7 @@ var sidebar = (function() {
             }
             regenerate_plots("y");
         });
-        $("#" + ids.sidebar.util.view_switch).change(function() {
+        $("#" + ids.sidebar.util.view_switch + "-div").change(function() {
             mutation_copy_no_view_switch();
         });
         

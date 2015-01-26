@@ -221,7 +221,7 @@ var clear_plot_box = function() {
 
 var regenerate_plots = function(_axis) {
     clear_plot_box();
-    optSpec.update();
+    optSpec.init();
     plotsData.fetch(_axis);
     plotsbox.init();
 };

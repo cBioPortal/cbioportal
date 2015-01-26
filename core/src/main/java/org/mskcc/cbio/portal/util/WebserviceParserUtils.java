@@ -42,7 +42,7 @@ public final class WebserviceParserUtils {
      * @throws ProtocolException
      * @throws DaoException
      */
-    public static ArrayList<String> getPatientList(HttpServletRequest request) throws ProtocolException,
+    public static ArrayList<String> getSampleIds(HttpServletRequest request) throws ProtocolException,
             DaoException {
         String patients = request.getParameter(WebService.CASE_LIST);
         String patientSetId = request.getParameter(WebService.CASE_SET_ID);

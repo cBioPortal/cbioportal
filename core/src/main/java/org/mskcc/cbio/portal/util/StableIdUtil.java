@@ -22,9 +22,8 @@ import org.mskcc.cbio.portal.model.Patient;
 import org.mskcc.cbio.portal.dao.DaoPatient;
 import org.mskcc.cbio.portal.dao.DaoSample;
 
+import java.util.*;
 import java.util.regex.*;
-import java.util.List;
-import java.util.ArrayList;
 
 public class StableIdUtil
 {
@@ -125,31 +124,5 @@ public class StableIdUtil
             return (type.equals(Sample.Type.BLOOD_NORMAL) || type.equals(Sample.Type.SOLID_NORMAL));
         }
         return false;
-    }
-
-    public static List<String> getStableSampleIdsFromPatientIds(int cancerStudyId, List<String> stablePatientIds) {
-        ArrayList<String> sampleIds = new ArrayList<String>();
-        for (String stablePatientId : stablePatientIds) {
-            Patient p = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudyId, stablePatientId);
-            for (Sample s : DaoSample.getSamplesByPatientId(p.getInternalId())) {
-                sampleIds.add(s.getStableId());
-            }
-        }
-        return sampleIds;
-    }
-
-    public static List<String> getStableSampleIdsFromPatientIds(int cancerStudyId, List<String> stablePatientIds, List<Sample.Type> excludes)
-    {
-        List<String> sampleIds = new ArrayList<String>();
-        for (String patientId : stablePatientIds) {
-            Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudyId, patientId);
-            for (Sample sample : DaoSample.getSamplesByPatientId(patient.getInternalId())) {
-                if (excludes.contains(sample.getType())) {
-                    continue;
-                }
-                sampleIds.add(sample.getStableId());
-            }
-        }
-        return sampleIds;
     }
 }

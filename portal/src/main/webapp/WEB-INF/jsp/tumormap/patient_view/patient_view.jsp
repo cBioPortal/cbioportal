@@ -340,7 +340,8 @@ var clinicalDataMap = <%=jsonClinicalData%>;
 var viewBam = <%=viewBam%>;
 var mapCaseBam = <%=jsonMapCaseBam%>;
 var oncokbUrl = '<%=oncokbUrl%>';
-
+var oncoKBDataReady = false;
+    
 var caseMetaData = {
     color : {}, label : {}, index : {}, tooltip : {}
 };
@@ -821,7 +822,8 @@ function outputClinicalData() {
 //        });
         caseMetaData.index = cbio.util.arrayToAssociatedArrayIndices(caseIds);
 
-        // set labels
+        // alt 1: set labels by color group
+        /*
         var mapColorCases = {};
         caseIds.forEach(function (caseId) {
             var color = caseMetaData.color[caseId];
@@ -839,7 +841,12 @@ function outputClinicalData() {
                     caseMetaData.label[_case] = i+1;
                 };
             }
+        }*/
+        // alt 2: set labels all together
+        for (var i=0; i<caseIds.length; i++) {
+            caseMetaData.label[caseIds[i]] = i+1;
         }
+        
 
         // set tooltips
         for (var i=0; i<n; i++) {

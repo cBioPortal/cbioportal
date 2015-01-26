@@ -76,12 +76,10 @@ public class MutationDataServlet extends HttpServlet
 		try
 		{
 			// generate list by processing possible valid patient list parameters
-			ArrayList<String> targetPatientList = this.getPatientList(request);
+			ArrayList<String> targetSampleList = this.getPatientList(request);
 
 			for (String profileId : geneticProfileList)
 			{
-				GeneticProfile profile = DaoGeneticProfile.getGeneticProfileByStableId(profileId);
-                List<String> targetSampleList = StableIdUtil.getStableSampleIdsFromPatientIds(profile.getCancerStudyId(), targetPatientList);
 				// add mutation data for each genetic profile
 				data.addAll(mutationDataUtils.getMutationData(profileId,
 					targetGeneList,

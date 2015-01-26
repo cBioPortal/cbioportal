@@ -254,7 +254,7 @@ var StudyViewBoilerplate ={
             .attr({
                 type: "submit",
                 id: "study-view-header-left-1",
-                value: "Query all cases",
+                value: "Query all samples",
 //                class: "study-view-header hidden"
                 class: "study-view-header-button"
             });
@@ -301,7 +301,7 @@ var StudyViewBoilerplate ={
     
     customDialogDiv:
             "<div class='hidden' id='study-view-case-select-custom-dialog'>" +
-                "Please input case IDs (one per line)" +
+                "Please input sample IDs (one per line)" +
                 "<textarea rows='20' cols='50' id='study-view-case-select-custom-input'></textarea><br/>" +
                 "<button type='button' id='study-view-case-select-custom-submit-btn'>Select</button>" +
             "</div>",
@@ -351,22 +351,6 @@ var StudyViewBoilerplate ={
             "<chartTitleH4 id='study-view-scatter-plot-title'>"+
             "Mutation Count vs CNA</chartTitleH4>"+
             "<div id='study-view-scatter-plot-header'>"+
-            
-//            "<form style='display:inline-block; margin-right:5px; float:left' action='svgtopdf.do' method='post' id='study-view-scatter-plot-pdf'>"+
-//            "<input type='hidden' name='svgelement' id='study-view-scatter-plot-pdf-value'>"+
-//            "<input type='hidden' name='filetype' value='pdf'>"+
-//            "<input type='hidden' id='study-view-scatter-plot-pdf-name' name='filename' value=''>"+
-//            "<input type='submit' style='font-size:10px' value='PDF'>"+          
-//            "</form>"+
-//            
-//            "<form style='display:inline-block; margin-right:5px; float:left' action='svgtopdf.do' method='post' id='study-view-scatter-plot-svg'>"+
-//            "<input type='hidden' name='svgelement' id='study-view-scatter-plot-svg-value'>"+
-//            "<input type='hidden' name='filetype' value='svg'>"+
-//            "<input type='hidden' id='study-view-scatter-plot-svg-name' name='filename' value=''>"+
-//            "<input type='submit' style='font-size:10px' value='SVG'>"+    
-//            "</form>"+
-            
-//            "<img id='study-view-scatter-plot-menu-icon' class='study-view-menu-icon' style='float:left; width:10px; height:10px;margin-top:4px; margin-right:4px;' class='study-view-menu-icon' src='images/menu.svg'/>"+
             "<img id='study-view-scatter-plot-download-icon' class='study-view-download-icon' src='images/in.svg'/>" +
             "<img style='width:10px; height:10px;margin-top:4px; margin-right:4px;float:left;' class='study-view-drag-icon' src='images/move.svg'/>"+
             "<span style='float:left;' class='study-view-chart-plot-delete study-view-scatter-plot-delete'>x</span>"+
@@ -385,31 +369,6 @@ var StudyViewBoilerplate ={
             "<div id='study-view-scatter-plot-control-panel'></div>"+
             "</div>",
     
-    wordCloudDiv:
-            "<div id='study-view-word-cloud' "+
-            "class='study-view-dc-chart study-view-word-cloud'>" +
-            "<div id='study-view-word-cloud-side' class='study-view-pdf-svg-side'>"+
-            "<form style='display:inline-block;' action='svgtopdf.do' method='post' id='study-view-word-cloud-pdf'>"+
-            "<input type='hidden' name='svgelement' id='study-view-word-cloud-pdf-value'>"+
-            "<input type='hidden' name='filetype' value='pdf'>"+
-            "<input type='hidden' id='study-view-word-cloud-pdf-name' name='filename' value=''>"+
-            "<input type='submit' style='font-size:10px' value='PDF'>"+          
-            "</form>"+
-            "<form style='display:inline-block' action='svgtopdf.do' method='post' id='study-view-word-cloud-svg'>"+
-            "<input type='hidden' name='svgelement' id='study-view-word-cloud-svg-value'>"+
-            "<input type='hidden' name='filetype' value='svg'>"+
-            "<input type='hidden' id='study-view-word-cloud-svg-name' name='filename' value=''>"+
-            "<input type='submit' style='font-size:10px' value='SVG'>"+    
-            "</form></div>"+
-            "<div id='study-view-word-cloud-title'>" +
-            "<chartTitleH4>Mutated Genes</chartTitleH4>" +
-            "<span class='study-view-chart-cloud-delete study-view-word-cloud-delete' "+
-            "style = 'float:right;'>x</span><div style='width:14px; height:16px;float:right'>"+
-            "<img style='width:10px; height:10px;margin-top:4px; margin-right:4px;' class='study-view-drag-icon' src='images/move.svg'/>"+
-            "</div></div>" +
-            "<div id='study-view-word-cloud-loader' style='width: 100%; display:none; text-align:center'>"+
-            "<img src='images/ajax-loader.gif'/></div>"+
-            "</div>",
     dataTableDiv: 
             "<table id='dataTable'>"+
             "<tfoot>"+

@@ -11,13 +11,107 @@
 //
 // returns the data, sorted
 define(function() {
-    return function(data, attributes) {
+    return function(data, attributes,mutationColorControl) {
         // compares two objects that have gene data (cna, mutation, mrna, rppa).
         // Returns a number that indicates the order.
-        var comp_genes = function(attr1, attr2) {
+        var comp_genes = function(attr1, attr2,mutationcontrol) {
             var cna_order = {AMPLIFIED:4, HOMODELETED:3, GAINED:2, HEMIZYGOUSLYDELETED:1, DIPLOID: 0, undefined: 0},
                 regulated_order = {UPREGULATED: 2, DOWNREGULATED: 1, undefined: 0},
-                mutation_order_f = function(m) { return m === undefined ? 0 : (/fusion($|,)/i.test(m)?2:1); };
+                mutation_order_f = function(m) { 
+                    
+//                    if(m !== undefined)//multiple mutations
+//                    {
+//                        m = m.split(',');
+//
+//                        if(m.length > 1)
+//                        {
+//                            for(var i = 0; i < m.length; i++)
+//                            {
+//                                if((/^[A-z]([0-9]+)[A-z]$/g).test(m[i]))
+//                                {
+//                                    continue;
+//                                }
+//                                else
+//                                {
+//                                    return 8;
+//                                }
+//                            }
+//
+//                            return 2;
+//                        }
+//                    }
+//                    
+//                    if((/^[A-z]([0-9]+)[A-z]$/g).test(m))
+//                    {
+//                        return 2;
+//                    }
+//                    else if(m !== undefined)
+//                    {
+////                        if((/^[A-Z]([0-9]+)[*]$/g).test(m))//Nonsense_Mutation
+////                        {return 8;}
+////                        if((/^[A-z*]([0-9]+)[A-z]{2}$/g).test(m))//Frame_shift_del
+////                        {return 7;}
+////                        if((/^([A-Z]+)([0-9]+)del$/g).test(m))//IN_frame_del
+////                        {return 6;}
+////                        if((/^[A-Z]([0-9]+)_splice$/g).test(m))//Splice_Site
+////                        {return 5;}
+////                        if((/^([A-Z]+)([0-9]+)del$/g).test(m))//IN_frame_del
+////                        {return 4;}
+//
+//                        if((/^([A-Z]+)([0-9]+)del$/g).test(m))//IN_frame_del
+//                        {return 3;}
+//                        return 4; // need to modified by dong li
+//                    }
+//                    
+//                    return m === undefined ? 0 : (/\bfusion\b/i.test(m)?2:1); 
+                    if(mutationcontrol === 'multiColor'|| mutationcontrol === undefined)
+                    {
+                        if(m === undefined) 
+                        {
+                            return 0;
+                        }
+
+                        if(m !== undefined)//multiple mutations
+                        {
+                            m = m.split(',');
+
+                            if(m.length > 1)
+                            {
+                                var hasIndel = false;
+                                for(var i = 0; i < m.length; i++)
+                                {
+                                    if(!/\bfusion\b/i.test(m[i]) && !(/^[A-z]([0-9]+)[A-z]$/g).test(m[i]))
+                                    {
+                                        return 3;
+                                    }
+
+                                    if ((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(m[i])) {
+                                        hasIndel = true;
+                                    }
+                                }
+
+                                return hasIndel ? 2 : 1;
+                            }
+                        }
+
+                        if((/^[A-z]([0-9]+)[A-z]$/g).test(m))
+                        {
+                            return 1;//Missense_mutation
+                        }
+                        else if((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(m) )
+                        {
+                            return 2;//inframe
+                        }
+                        else 
+                        {
+                            return 3;
+                        }
+                    }
+                    else
+                    {
+                        return m === undefined ? 0 : 1;
+                    }
+                };
 
             var cna_diff = cna_order[attr2.cna] - cna_order[attr1.cna];
             if (cna_diff !== 0) {
@@ -93,42 +187,42 @@ define(function() {
         }());
 
         var comp = function(x,y) {
-            for (var i = 0; i < x.values.length; i+=1) {
+            // sort attributes according to the order specified by the user
+            var x_attrs = x.values
+                .sort(function(x,y) { return attr2index[getAttr(x)] - attr2index[getAttr(y)]; });
+            x_attrs=_.filter(x_attrs,function(e){return (e.attr_id in attr2index || e.gene in attr2index)});
 
-                // sort attributes according to the order specified by the user
-                var x_attrs = x.values
-                    .sort(function(x,y) { return attr2index[getAttr(x)] - attr2index[getAttr(y)]; });
-                var y_attrs = y.values
-                    .sort(function(x,y) { return attr2index[getAttr(x)] - attr2index[getAttr(y)]; });
+            var y_attrs = y.values
+                .sort(function(x,y) { return attr2index[getAttr(x)] - attr2index[getAttr(y)]; });
+            y_attrs=_.filter(y_attrs,function(e){return (e.attr_id in attr2index || e.gene in attr2index)});
 
-                // this is a hack
-                // if there is missing data, just put the one with less data to the right
-                if (x_attrs.length !== y_attrs.length) {
-                    return y_attrs.length - x_attrs.length;
-                }
+            // this is a hack
+            // if there is missing data, just put the one with less data to the right
+            if (x_attrs.length !== y_attrs.length) {
+                return y_attrs.length - x_attrs.length;
+            }
 
-                // iterate over the attributes of x and y in the user defined
-                // order, comparing along the way
-                for (var j = 0; j < x_attrs.length; j+=1) {
+            // iterate over the attributes of x and y in the user defined
+            // order, comparing along the way
+            for (var j = 0; j < x_attrs.length; j+=1) {
 
-                    var xj = x_attrs[j];
-                    var yj = y_attrs[j];
+                var xj = x_attrs[j];
+                var yj = y_attrs[j];
 
-                    assert(xj.gene === yj.gene);        // what we are comparing are comparable
-                    assert(xj.attr_id === yj.attr_id);
+                assert(xj.gene === yj.gene);        // what we are comparing are comparable
+                assert(xj.attr_id === yj.attr_id);
 
-                    var diff = (xj.gene === undefined
-                        ? comp_clinical(xj, yj)
-                        :  comp_genes(xj, yj));
+                var diff = (xj.gene === undefined
+                    ? comp_clinical(xj, yj)
+                    :  comp_genes(xj, yj,mutationColorControl));
 
-                    // return the first nonzero diff
-                    if (diff !== 0) {
-                        return diff;
-                    }
+                // return the first nonzero diff
+                if (diff !== 0) {
+                    return diff;
                 }
             }
             // if they are equal in all diffs, then they are truly equal.
-            return 0;
+            return x_attrs[0].sample.localeCompare(y_attrs[0].sample);
         };
 
         return data.sort(comp);

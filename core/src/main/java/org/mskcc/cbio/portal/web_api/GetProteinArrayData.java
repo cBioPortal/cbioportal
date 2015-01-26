@@ -159,10 +159,10 @@ public class GetProteinArrayData {
     }
     
     public static String getProteinArrayData(String cancerStudyStableId, List<String> arrayIds,
-            ArrayList<String> targetSampleList, boolean arrayInfo) throws DaoException {
+            List<String> targetSampleList, boolean arrayInfo) throws DaoException {
         Map<String,ProteinArrayInfo> mapArrayIdArray = new HashMap<String,ProteinArrayInfo>();
         DaoProteinArrayInfo daoPAI = DaoProteinArrayInfo.getInstance();
-        ArrayList<ProteinArrayInfo> pais;
+        List<ProteinArrayInfo> pais;
         int studyId = DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId).getInternalId();
         if (arrayIds==null || arrayIds.isEmpty()) {
             pais = daoPAI.getProteinArrayInfo(studyId);

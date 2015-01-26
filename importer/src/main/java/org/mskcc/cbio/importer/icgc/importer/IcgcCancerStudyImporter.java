@@ -11,7 +11,6 @@ import org.mskcc.cbio.importer.icgc.etl.IcgcCopyNumberETLCallable;
 import org.mskcc.cbio.importer.icgc.etl.IcgcSegmentDataETLCallable;
 import org.mskcc.cbio.importer.icgc.model.IcgcClinicalModel;
 import org.mskcc.cbio.importer.icgc.model.IcgcFusionModel;
-import org.mskcc.cbio.importer.icgc.model.IcgcSimpleSomaticMutationModel;
 import org.mskcc.cbio.importer.icgc.support.IcgcFunctionLibrary;
 import org.mskcc.cbio.importer.model.IcgcMetadata;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
@@ -20,7 +19,6 @@ import org.mskcc.cbio.importer.persistence.staging.filehandler.FileHandlerServic
 import org.mskcc.cbio.importer.persistence.staging.filehandler.TsvFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.fusion.FusionModel;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
-import org.mskcc.cbio.importer.persistence.staging.mutation.MutationTransformation;
 import org.mskcc.cbio.importer.persistence.staging.util.StagingUtils;
 
 

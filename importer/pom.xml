@@ -316,8 +316,8 @@
 				</resource>
 				<resource>
 				  <directory>${PORTAL_HOME}/business/src/main/resources</directory>
-				  <includes>
-					<include>**/*.xml</include>
+					<includes>
+						<include>**/*.xml</include>
 				  </includes>
 				  <filtering>true</filtering>
 				</resource>

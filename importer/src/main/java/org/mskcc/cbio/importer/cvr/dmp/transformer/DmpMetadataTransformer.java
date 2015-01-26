@@ -50,7 +50,7 @@ public class DmpMetadataTransformer implements DMPDataTransformable {
             = Suppliers.memoize(new DmpMetadataTransformationsSupplier());
     
     public DmpMetadataTransformer(ClinicalDataFileHandler aHandler, Path stagingDirectoryPath) {
-        Preconditions.checkArgument(null != aHandler, "A MafFileHandler implementation is required");
+        Preconditions.checkArgument(null != aHandler, "A FileHandler implementation is required");
         Preconditions.checkArgument(null != stagingDirectoryPath,
                 "A Path to the staging file directory is required");
         Preconditions.checkArgument(Files.isDirectory(stagingDirectoryPath, LinkOption.NOFOLLOW_LINKS),
@@ -153,7 +153,7 @@ public class DmpMetadataTransformer implements DMPDataTransformable {
                 };
 
         /*
-         resolve the sample type based on the is_metastastic attribute value
+         resolve the sample type based on the is_metastastis attribute value
          */
         Function<Tuple2<String, Optional<String>>, String> resolveSampleType
                 = new Function<Tuple2<String, Optional<String>>, String>() {

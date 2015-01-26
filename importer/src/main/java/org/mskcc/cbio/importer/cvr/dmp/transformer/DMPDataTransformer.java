@@ -23,14 +23,12 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.inject.internal.Lists;
 import com.google.inject.internal.Preconditions;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
-
 import edu.stanford.nlp.util.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.cvr.darwin.util.IdMapService;
@@ -39,12 +37,9 @@ import org.mskcc.cbio.importer.cvr.dmp.model.Result;
 import org.mskcc.cbio.importer.cvr.dmp.persistence.file.DMPTumorTypeSampleMapManager;
 import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
-import org.mskcc.cbio.importer.persistence.staging.segment.SegmentFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.util.StagingUtils;
-import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.clinical.ClinicalDataFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.cnv.CnvFileHandlerImpl;
-import org.mskcc.cbio.importer.persistence.staging.fusion.FusionModel;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
 import scala.Tuple2;
 
@@ -52,10 +47,7 @@ import scala.Tuple2;
  Responsible for transforming the DMP data encapsulated in the DmpData object
  graph into a set of MAF files
  Inputs: 1. The DMP data as a Java object graph
- 2. A reference to a DMPStagingFileManagerOld for writing the DMP staging
- data
- 3. A List of DMPTransformable implementations responsible for 
- transforming specific components of the DMP data
+
  */
 public class DMPDataTransformer {
 
@@ -68,17 +60,19 @@ public class DMPDataTransformer {
     private static final String STABLE_ID = "mskimpact-current";
     private static final Path DEFAULT_BASE_PATH = Paths.get("/tmp/dmp-staging");
 
-
-
-
-    public DMPDataTransformer(Path aPath) {
+/*
+temporarily retain this constructor to support legacy client code and testing
+ */
+ public DMPDataTransformer(Path aPath) {
             if(StagingUtils.isValidStagingDirectoryPath(aPath)) {
                 this.stagingDirectoryPath = this.resolveStagingPath(aPath);
                 logger.info("Staging Path = " + this.stagingDirectoryPath.toString());
                 registerTransformables();
             }
     }
-
+    /*
+    preferred constructor
+     */
     public DMPDataTransformer() {
         this.stagingDirectoryPath = this.resolveStagingPath(this.resolveBasePath());
         logger.info("Staging Path = " + this.stagingDirectoryPath.toString());
@@ -86,6 +80,9 @@ public class DMPDataTransformer {
 
     }
 
+    /*
+    resolves the base staging directory from the data sources worksheet
+     */
     private Path resolveBasePath() {
         Optional<DataSourcesMetadata> optMeta = DataSourcesMetadata.findDataSourcesMetadataByDataSourceName(DATA_SOURCE_NAME);
         if(optMeta.isPresent()){
@@ -94,12 +91,16 @@ public class DMPDataTransformer {
         return DEFAULT_BASE_PATH;
     }
 
+    /*
+    resolves the specific staging directory based  on the established base directory and the
+    cancer study name
+     */
     private Path resolveStagingPath (Path basePath) {
         Optional<CancerStudyMetadata> optMeta = CancerStudyMetadata.findCancerStudyMetaDataByStableId(STABLE_ID);
         if (optMeta.isPresent()){
             return basePath.resolve(optMeta.get().getStudyPath());
         }
-        return basePath; // files go into base path
+        return basePath; // default -files go into base path
     }
 
     private void registerTransformables() {
@@ -113,8 +114,13 @@ public class DMPDataTransformer {
                 new DmpCnvTransformer( new CnvFileHandlerImpl(),
                         stagingDirectoryPath));
         //Metadata
-        this.transformableList.add((DMPDataTransformable) new DmpMetadataTransformer
-            ( new ClinicalDataFileHandlerImpl(), stagingDirectoryPath));
+        //this.transformableList.add((DMPDataTransformable) new DmpMetadataTransformer
+         //   ( new ClinicalDataFileHandlerImpl(), stagingDirectoryPath));
+
+        //IMPACT Clinical Data
+        // replacement for Metadata transformer
+        this.transformableList.add((DMPDataTransformable)
+                new DmpImpactClinicalDataTransformer(stagingDirectoryPath));
 
         //Structural Variants
         this.transformableList.add((DMPDataTransformable) new DmpFusionTransformer
@@ -132,8 +138,10 @@ public class DMPDataTransformer {
 
     public List<String> transform(DmpData data) {
         Preconditions.checkArgument(null != data, "DMP data is required for transformation");
+        //++++++++DARWIN DATABASE FILTER +++++++++++++++++++++
+        //25Jan2015 - filter turned off until access to production Darwin database is resolved
         //filter out DMP samples that have not been registered in Darwin
-        this.filterDmpSamples(data);
+        //this.filterDmpSamples(data);
         //it's possible that none of the new DMP samples were found in Darwin
         // if so return an empty List to caller
         if (data.getResults().isEmpty() ) {

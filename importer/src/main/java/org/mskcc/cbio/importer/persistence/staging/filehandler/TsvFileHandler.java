@@ -26,8 +26,6 @@ import java.util.Set;
 
 
 public interface TsvFileHandler {
-    
-
 
     /*
     method provides a set of existing sample ids in the previously registered staging file

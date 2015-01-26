@@ -1,7 +1,9 @@
 package org.mskcc.cbio.importer.cvr.dmp.util;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
@@ -34,9 +36,27 @@ public class DmpUtils {
     /*
     utility to remove deprecated data from an existing DMP staging file
      */
+    // legacy method signature
     public static void removeDeprecatedSamples( DmpData data, TsvStagingFileHandler fileHandler){
+        removeDeprecatedSamples(data,fileHandler,DMPCommonNames.SAMPLE_ID_COLUMN_NAME);
+    }
+    public static void removeDeprecatedSamples( DmpData data, TsvStagingFileHandler fileHandler, String sampleColumnName){
+        Preconditions.checkArgument(null != data, "A DmpData object is required");
+        Preconditions.checkArgument(null != fileHandler, "A file fandler implementation is required");
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(sampleColumnName),
+                "The name of the sample column is required");
         // identify samples that have been marked as deprecated
-        Set<String> deprecatedSamples = FluentIterable.from(data.getResults())
+        Set<String> deprecatedSamples = resolveDeprecatedSamples(data);
+        if (!deprecatedSamples.isEmpty()) {
+           fileHandler.removeDeprecatedSamplesFomTsvStagingFiles(sampleColumnName,
+                   deprecatedSamples);
+            logger.info(deprecatedSamples.size() +" deprecated samples have been removed");
+        }
+    }
+    public static Set<String> resolveDeprecatedSamples(DmpData data){
+        Preconditions.checkArgument(null!= data ,
+                "DMP data are required");
+        return  FluentIterable.from(data.getResults())
                 .filter(new Predicate<Result>() {
                     @Override
                     public boolean apply(Result result) {
@@ -50,10 +70,5 @@ public class DmpUtils {
                     }
                 })
                 .toSet();
-        if (!deprecatedSamples.isEmpty()) {
-           fileHandler.removeDeprecatedSamplesFomTsvStagingFiles(DMPCommonNames.SAMPLE_ID_COLUMN_NAME,
-                   deprecatedSamples);
-            logger.info(deprecatedSamples.size() +" deprecated samples have been removed");
-        }
     }
 }

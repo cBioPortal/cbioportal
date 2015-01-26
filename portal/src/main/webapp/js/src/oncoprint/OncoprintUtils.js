@@ -1471,7 +1471,7 @@ define("OncoprintUtils", (function() {
                         .attr('text-anchor', 'start')
                         .attr('fill','black')
                         .attr('class','legend_name')
-                        .text('inframe mutation'); 
+                        .text('Inframe Mutation'); 
                 }
         }
         if (datatype2range.fusion !== undefined)

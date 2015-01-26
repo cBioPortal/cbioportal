@@ -19,12 +19,14 @@ var sidebar = (function() {
             } else if ($("#" + ids.sidebar.x.data_type).val() === vals.data_type.clin) {
                 clinSpec.init("x");
             }
+            profileSpec.appendLockGene();
             regenerate_plots("x");
         });
         $("#" + ids.sidebar.y.data_type).change(function() {
             if ($("#" + ids.sidebar.y.data_type).val() === vals.data_type.genetic) {
                 profileSpec.init("y");
                 optSpec.init();
+                profileSpec.appendLockGene();
             } else if ($("#" + ids.sidebar.y.data_type).val() === vals.data_type.clin) {
                 clinSpec.init("y");
             }

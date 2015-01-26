@@ -18,7 +18,8 @@ var ids = {
             profile_type: "plots-tab-y-profile-type",
             profile_name: "plots-tab-y-profile-name",
             log_scale: "plots-tab-y-log-scale",
-            clin_attr: "plots-tab-y-clinical-attribute"
+            clin_attr: "plots-tab-y-clinical-attribute",
+            lock_gene: "plots-tab-y-lock-gene"
         },
         "util": {
             div: "plots-sidebar-util-div",

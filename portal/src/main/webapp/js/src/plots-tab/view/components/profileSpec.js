@@ -11,7 +11,12 @@ var profileSpec = (function() {
         $("#" + ids.sidebar[axis].gene).change(function() {
             regenerate_plots(axis);
         });
-    }
+        
+        if (axis === "y") {
+            $("#" + ids.sidebar.y.spec_div).append("<div id='" + 
+                    ids.sidebar.y.lock_gene + "-div' style='display:inline;'></div>");
+        }
+    }   
     
     function appendProfileTypeList(axis) {
         $("#" + ids.sidebar[axis].spec_div).append("<br><h5>Profile Type</h5>");
@@ -103,6 +108,30 @@ var profileSpec = (function() {
         
     }
     
+    function appendLockGene() {
+        $("#" + ids.sidebar.y.lock_gene + "-div").empty();
+        if (genetic_vs_genetic()) {
+            $("#" + ids.sidebar.y.lock_gene + "-div").append(
+                    "<input type='checkbox' id='" + 
+                    ids.sidebar.y.lock_gene + 
+                    "' checked>Lock Gene");
+            if (document.getElementById(ids.sidebar.y.gene)) {
+                document.getElementById(ids.sidebar.y.gene).disabled = true;
+            }
+            $("#" + ids.sidebar.y.lock_gene).change(function() {
+                if (document.getElementById(ids.sidebar.y.gene).disabled) {
+                    document.getElementById(ids.sidebar.y.gene).disabled = false;
+                } else document.getElementById(ids.sidebar.y.gene).disabled = true;
+            });
+            $("#" + ids.sidebar.x.gene).change(function() {
+                if(document.getElementById(ids.sidebar.y.lock_gene).checked) {
+                    $("#" + ids.sidebar.y.gene).prop("selectedIndex", $("#" + ids.sidebar.x.gene).prop("selectedIndex"));
+                    regenerate_plots("y");
+                }
+            });
+        }
+    }
+    
     return {
         init: function(axis) {
             $("#" + ids.sidebar[axis].spec_div).empty();
@@ -110,6 +139,8 @@ var profileSpec = (function() {
             appendProfileTypeList(axis);
             appendProfileNameList(axis);
             appendLogScaleOption(axis);
-        }
+            appendLockGene();
+        },
+        appendLockGene: appendLockGene
     };
 }());

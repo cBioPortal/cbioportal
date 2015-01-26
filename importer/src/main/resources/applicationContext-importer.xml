@@ -14,7 +14,18 @@ http://www.springframework.org/schema/integration/sftp http://www.springframewor
 http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
  
     <context:annotation-config />
-    <context:property-placeholder location="classpath:/importer.properties"/>
+    <!--<context:property-placeholder location="classpath:/importer.properties"/>-->
+    <b:bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <b:property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+        <b:property name="searchSystemEnvironment" value="true" />
+        <b:property name="ignoreResourceNotFound" value="true" />
+        <b:property name="locations">
+            <b:list>
+                <b:value>classpath:/importer.properties</b:value>
+                <b:value>file:///${PORTAL_HOME}/importer.properties</b:value>
+            </b:list>
+        </b:property>
+    </b:bean>
 
     <!-- enable the configuration of transactional behavior based on annotations -->
     <tx:annotation-driven transaction-manager="importerTransactionManager"/>

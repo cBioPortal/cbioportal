@@ -222,6 +222,14 @@ var scatterPlots = (function() {
                         $(this).attr("size", 35);
                         $(this).attr("shape", gisticInterpreter.getSymbol(d));
 
+                        var _mutation_details = "";
+                        if (Object.keys(d.mutation).length !== 0) {
+                            $.each(Object.keys(d.mutation), function(index, gene) {
+                                _mutation_details += "<br>" + gene + ": " + d.mutation[gene].details;
+                            });
+                        }
+                        $(this).attr("mutation_details", _mutation_details);
+
                         return "translate(" + _x + ", " + _y + ")";
                     })
                     .attr("d", d3.svg.symbol()
@@ -264,6 +272,14 @@ var scatterPlots = (function() {
                         $(this).attr("case_id", d.caseId);
                         $(this).attr("size", 20);
                         $(this).attr("shape", mutationInterpreter.getSymbol(d));
+
+                        var _mutation_details = "";
+                        if (Object.keys(d.mutation).length !== 0) {
+                            $.each(Object.keys(d.mutation), function(index, gene) {
+                                _mutation_details += "<br>" + gene + ": " + d.mutation[gene].details;
+                            });
+                        }
+                        $(this).attr("mutation_details", _mutation_details);
 
                         return "translate(" + _x + ", " + _y + ")";
                     })
@@ -309,6 +325,13 @@ var scatterPlots = (function() {
                     $(this).attr("size", 20);
                     $(this).attr("shape", mutationInterpreter.getSymbol(d));
                     
+                    var _mutation_details = "";
+                    if (Object.keys(d.mutation).length !== 0) {
+                        $.each(Object.keys(d.mutation), function(index, gene) {
+                            _mutation_details += "<br>" + gene + ": " + d.mutation[gene].details;
+                        });
+                    }
+                    $(this).attr("mutation_details", _mutation_details);
 
                     return "translate(" + _x + ", " + _y + ")";
                 })
@@ -352,6 +375,14 @@ var scatterPlots = (function() {
                     $(this).attr("case_id", d.caseId);
                     $(this).attr("size", 20);
                     $(this).attr("shape", mutationInterpreter.getSymbol(d));
+
+                    var _mutation_details = "";
+                    if (Object.keys(d.mutation).length !== 0) {
+                        $.each(Object.keys(d.mutation), function(index, gene) {
+                            _mutation_details += "<br>" + gene + ": " + d.mutation[gene].details;
+                        });
+                    }
+                    $(this).attr("mutation_details", _mutation_details);
                     
                     return "translate(" + _x + ", " + _y + ")";
                 })

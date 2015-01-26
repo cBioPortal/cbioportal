@@ -225,6 +225,60 @@ var regenerate_plots = function(_axis) {
     plotsData.fetch(_axis);
     plotsbox.init();
 };
+
+var search_mutation = function() {
+    var searchToken = document.getElementById("mutation_search_keyword").value;
+    d3.select("#" + ids.main_view.div).selectAll("path").each(
+        function() {
+            var mutation_details = $(this).attr("mutation_details");
+            if (typeof mutation_details !== 'undefined' && mutation_details !== false && mutation_details !== "domain") {
+                if ( searchToken.length >= 3 ) {
+                    if (mutation_details.toUpperCase().indexOf(searchToken.toUpperCase()) !== -1) {
+                        $(this).attr("d", d3.svg.symbol()
+                            .size(d3.select(this).attr("size") + 5)
+                            .type(d3.select(this).attr("shape")));
+                    } else {
+                        $(this).attr("d", d3.svg.symbol()
+                            .size(d3.select(this).attr("size"))
+                            .type(d3.select(this).attr("shape")));
+                    }
+                } else {
+                    $(this).attr("d", d3.svg.symbol()
+                        .size(d3.select(this).attr("size"))
+                        .type(d3.select(this).attr("shape")));
+                }
+            }
+        }
+    );   
+};
+
+var search_case_id = function() {
+    var searchToken = document.getElementById("case_id_search_keyword").value;
+    d3.select("#" + ids.main_view.div).selectAll("path").each(
+        function() {
+            var _case_id = $(this).attr("case_id");
+            if (typeof _case_id !== 'undefined' && _case_id !== false && _case_id !== "domain") {
+                if ( searchToken.length >= 4 ) {
+                    if ( _case_id.toUpperCase().indexOf(searchToken.toUpperCase()) !== -1 &&
+                        (searchToken.toUpperCase()) !== "TCGA" && (searchToken.toUpperCase()) !== "TCGA-") {
+                        $(this).attr("d", d3.svg.symbol()
+                            .size(d3.select(this).attr("size") + 5)
+                            .type(d3.select(this).attr("symbol")));
+                    } else {
+                        $(this).attr("d", d3.svg.symbol()
+                            .size(d3.select(this).attr("size"))
+                            .type(d3.select(this).attr("symbol")));
+                    }
+                } else {
+                    $(this).attr("d", d3.svg.symbol()
+                        .size(d3.select(this).attr("size"))
+                        .type(d3.select(this).attr("symbol")));
+                }
+            }
+        }
+    );     
+};
+
     
 
 

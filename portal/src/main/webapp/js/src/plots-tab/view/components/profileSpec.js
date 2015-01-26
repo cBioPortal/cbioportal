@@ -110,6 +110,9 @@ var profileSpec = (function() {
     
     function appendLockGene() {
         $("#" + ids.sidebar.y.lock_gene + "-div").empty();
+        if (document.getElementById(ids.sidebar.y.gene)) {
+            document.getElementById(ids.sidebar.y.gene).disabled = false;
+        }
         if (genetic_vs_genetic()) {
             $("#" + ids.sidebar.y.lock_gene + "-div").append(
                     "<input type='checkbox' id='" + 

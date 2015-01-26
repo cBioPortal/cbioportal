@@ -102,7 +102,7 @@ public class AnnotatorConfig
 
 	@Option(name="-vf",
 	        aliases={"--vep-forks"},
-	        usage=" Number of forked processes to use when running VEP")
+	        usage="Number of forked processes to use when running VEP")
 	protected String vepForks = DEFAULT_VEP_FORKS;
 
 	public String getIntermediateMaf()

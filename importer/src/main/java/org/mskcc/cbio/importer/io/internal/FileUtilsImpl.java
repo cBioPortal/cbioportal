@@ -138,6 +138,30 @@ public class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils
 	public void setIntermediateMaf(String intermediateMaf) { this.intermediateMaf = intermediateMaf; }
 	public String getIntermediateMaf() { return MetadataUtils.getCanonicalPath(intermediateMaf); }
 
+	// number of forked processes to use when running VEP
+	private String vepForks;
+	@Value("${annotator.vep_forks}")
+	public void setVepForks(String vepForks)
+	{
+		this.vepForks = vepForks;
+	}
+	public String getVepForks()
+	{
+		return vepForks;
+	}
+
+	// folder to retain intermediate VCFs/MAFs after runtime
+	private String tmpDir;
+	@Value("${annotator.tmp_dir}")
+	public void setTmpDir(String tmpDir)
+	{
+		this.tmpDir = tmpDir;
+	}
+	public String getTmpDir()
+	{
+		return tmpDir;
+	}
+
 	public FileUtilsImpl(Config config, CaseIDs caseIDs) {
 
 		// set members
@@ -1012,6 +1036,8 @@ public class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils
 		config.setVepData(getVepData());
 		config.setRefFasta(getRefFasta());
 		config.setExcludeCols(getExcludeCols());
+		config.setVepForks(getVepForks());
+		config.setTmpDir(getTmpDir());
 		AnnotateTool.driver(config);
 //		OncotateTool.driver(oncotatorInputFile.getCanonicalPath(), oncotatorOutputFile.getCanonicalPath(), true, true, true);
 

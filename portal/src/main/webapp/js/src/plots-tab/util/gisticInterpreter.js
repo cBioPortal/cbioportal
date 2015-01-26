@@ -14,7 +14,14 @@ var gisticInterpreter = (function() {
         stroke: "grey",
         legendText: "No CNA data"
     };
-    
+    var _text_val_pair = {
+        "-2": "Homdel",
+        "-1": "Hetloss",
+        "0": "Diploid",
+        "1": "Gain",
+        "2": "Amp"
+    }; 
+
     return {
         getSymbol: function(d) {
             if (isNaN(d.cna_anno)) {
@@ -48,6 +55,9 @@ var gisticInterpreter = (function() {
                 scatterPlots.addGlyph(gisticStyle.getGlyph(d.cna_anno));
             }
             return gisticStyle.getStroke(d.cna_anno);
+        },
+        convert_to_val: function(numeric_val) {
+            return _text_val_pair[numeric_val.toString()];
         }
     };
     

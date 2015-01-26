@@ -44,6 +44,13 @@ var clinical_data_interpreter = (function() {
             var _val = text_val_map[axis][text_val].numeric_val;
             return _val.toString();
         },
+        convert_to_text: function(numeric_val, axis) {
+            for (var key in text_val_map[axis]) {
+                if (parseFloat(text_val_map[axis][key].numeric_val) === parseFloat(numeric_val)) {
+                    return text_val_map[axis][key].real_val;
+                }
+            }
+        },
         get_text_labels: function(axis) {
             return Object.keys(text_val_map[axis]);
         }

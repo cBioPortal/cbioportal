@@ -77,6 +77,8 @@ var scatterPlots = (function() {
     }
     
     function drawAxis(axis) {
+        
+        d3.select("#" + div).select("." + d3_class[axis].axis).remove();
         var top_x, top_y, bottom_x, bottom_y;
         if (axis === "x") {
             top_x = 0;
@@ -89,28 +91,90 @@ var scatterPlots = (function() {
             bottom_x = settings.axis.x.range_max;
             bottom_y = 0;
         }
-        d3.select("#" + div).select("." + d3_class[axis].axis).remove();
-        elem.svg.append("g")
-            .style("stroke-width", 1.5)
-            .style("fill", "none")
-            .style("stroke", "grey")
-            .style("shape-rendering", "crispEdges")
-            .attr("transform", "translate(" + top_x + ", " + top_y + ")")
-            .attr("class", d3_class[axis].axis)
-            .call(elem[axis].axis)
-            .selectAll("text")
-            .style("font-family", "sans-serif")
-            .style("font-size", "12px")
-            .style("stroke-width", 0.5)
-            .style("stroke", "black")
-            .style("fill", "black");
-        elem.svg.append("g")
-            .style("stroke-width", 1.5)
-            .style("fill", "none")
-            .style("stroke", "grey")
-            .style("shape-rendering", "crispEdges")
-            .attr("transform", "translate(" + bottom_x + ", " + bottom_y + ")")
-            .call(elem[axis].axis.orient(settings.axis[axis].orient).ticks(0));
+        
+        if (genetic_vs_genetic()) {
+            if (stat.applied_box_plots && stat.box_plots_axis === axis) {
+                function sort_by_cna(a, b){
+                    var _attr_name = (stat.box_plots_axis === "x")? "xVal": "yVal";
+                    var a_val = parseInt(a[_attr_name]);
+                    var b_val = parseInt(b[_attr_name]); 
+                    return ((a_val < b_val) ? -1 : ((a_val > b_val) ? 1 : 0));
+                }
+                var _data_for_sorting = jQuery.extend(true, [], data);
+                _data_for_sorting = _data_for_sorting.sort(sort_by_cna);
+                var _text_set = [];
+                $.each(_data_for_sorting, function(index, obj) {
+                    var _attr_name = (stat.box_plots_axis === "x")? "xVal": "yVal";
+                    if($.inArray(gisticInterpreter.convert_to_val(obj[_attr_name]), _text_set) === -1) {
+                        _text_set.push(gisticInterpreter.convert_to_val(obj[_attr_name]));
+                    }
+                });
+                discretized_axis(_text_set);
+            } else {
+                continuous_axis();
+            }
+        } else {
+            if ($("#" + ids.sidebar[axis].data_type).val() === vals.data_type.clin) {
+                var _type = metaData.getClinicalAttrType($("#" + ids.sidebar.x.clin_attr).val());
+                if (_type === "STRING") {
+                    discretized_axis(clinical_data_interpreter.get_text_labels(axis));
+                } else if (_type === "NUMBER") {
+                    continuous_axis();
+                }
+            } else {
+                continuous_axis();
+            }
+        }
+        
+        function discretized_axis(_text_set) {
+             elem.svg.append("g")
+                .style("stroke-width", 1.5)
+                .style("fill", "none")
+                .style("stroke", "grey")
+                .style("shape-rendering", "crispEdges")
+                .attr("transform", "translate(" + top_x + ", " + top_y + ")")
+                .attr("class", d3_class[axis].axis)
+                .call(elem[axis].axis.ticks(_text_set.length))
+                .selectAll("text")
+                .data(_text_set)
+                .style("font-family", "sans-serif")
+                .style("font-size", "12px")
+                .style("stroke-width", 0.5)
+                .style("stroke", "black")
+                .style("fill", "black")
+                .text(function(d){return d;});
+            elem.svg.append("g")
+                .style("stroke-width", 1.5)
+                .style("fill", "none")
+                .style("stroke", "grey")
+                .style("shape-rendering", "crispEdges")
+                .attr("transform", "translate(" + bottom_x + ", " + bottom_y + ")")
+                .call(elem[axis].axis.orient(settings.axis[axis].orient).ticks(0));              
+        }
+        function continuous_axis() {
+            
+            elem.svg.append("g")
+                .style("stroke-width", 1.5)
+                .style("fill", "none")
+                .style("stroke", "grey")
+                .style("shape-rendering", "crispEdges")
+                .attr("transform", "translate(" + top_x + ", " + top_y + ")")
+                .attr("class", d3_class[axis].axis)
+                .call(elem[axis].axis)
+                .selectAll("text")
+                .style("font-family", "sans-serif")
+                .style("font-size", "12px")
+                .style("stroke-width", 0.5)
+                .style("stroke", "black")
+                .style("fill", "black");
+            elem.svg.append("g")
+                .style("stroke-width", 1.5)
+                .style("fill", "none")
+                .style("stroke", "grey")
+                .style("shape-rendering", "crispEdges")
+                .attr("transform", "translate(" + bottom_x + ", " + bottom_y + ")")
+                .call(elem[axis].axis.orient(settings.axis[axis].orient).ticks(0));            
+        }
     }
     
     function drawDots(_apply_box_plots, _box_plots_axis) {
@@ -607,7 +671,49 @@ var scatterPlots = (function() {
                 cbio.util.getLinkToSampleView(window.PortalGlobals.getCancerStudyId(), d.caseId) +
                 "' target = '_blank'>" + d.caseId +
                 "</a></strong>";
-            _content += "<br>Horizontal: <b>" + d.xVal + "</b><br>" + "Vertical: <b>" + d.yVal + "</b>";
+            if (genetic_vs_genetic()) {
+                if (stat.applied_box_plots) {
+                    if (stat.box_plots_axis === "x") {
+                        _content += "<br>Horizontal: <b>" + gisticInterpreter.convert_to_val(d.xVal) + "</b><br>" + "Vertical: <b>" + d.yVal + "</b>";
+                    } else if (stat.box_plots_axis === "y") {
+                        _content += "<br>Horizontal: <b>" + d.xVal + "</b><br>" + "Vertical: <b>" + gisticInterpreter.convert_to_val(d.yVal) + "</b>";
+                    }
+                } else {
+                    _content += "<br>Horizontal: <b>" + d.xVal + "</b><br>" + "Vertical: <b>" + d.yVal + "</b>";
+                }
+            } else {
+                if (genetic_vs_clinical()) {
+                    if ($("#" + ids.sidebar.x.data_type).val() === vals.data_type.clin) {
+                        var _type = metaData.getClinicalAttrType($("#" + ids.sidebar.x.clin_attr).val());
+                        if (_type === "STRING") {
+                            _content += "<br>Horizontal: <b>" + clinical_data_interpreter.convert_to_text(d.xVal, "x") + "</b><br>" +
+                                        "Vertical: <b>" + d.yVal + "</b>";
+                        } else if (_type === "NUMBER") {
+                            _content += "<br>Horizontal: <b>" + d.xVal + "</b><br>" + "Vertical: <b>" + d.yVal + "</b>";
+                        }
+                    } else if ($("#" + ids.sidebar.y.data_type).val() === vals.data_type.clin) {
+                        var _type = metaData.getClinicalAttrType($("#" + ids.sidebar.y.clin_attr).val());
+                        if (_type === "STRING") {
+                            _content += "<br>Horizontal: <b>" + d.xVal + "</b><br>" +
+                                        "Vertical: <b>" + clinical_data_interpreter.convert_to_text(d.yVal, "y") + "</b>";
+                        } else if (_type === "NUMBER") {
+                            _content += "<br>Horizontal: <b>" + d.xVal + "</b><br>" + "Vertical: <b>" + d.yVal + "</b>";
+                        }
+                    }
+                } else if (clinical_vs_clinical()) {
+                    var _type_x = metaData.getClinicalAttrType($("#" + ids.sidebar.x.clin_attr).val());
+                    var _type_y = metaData.getClinicalAttrType($("#" + ids.sidebar.y.clin_attr).val());
+                    var _text_x, _text_y;
+                    if (_type_x === "STRING") {
+                        _text_x = clinical_data_interpreter.convert_to_text(d.xVal, "x");
+                    } else _text_x = d.xVal;
+                    if (_type_y === "STRING") {
+                        _text_y = clinical_data_interpreter.convert_to_text(d.yVal, "y");
+                    } else _text_y = d.yVal;
+                    _content += "<br>Horizontal: <b>" + _text_x + "</b><br>" +
+                                "Vertical: <b>" + _text_y + "</b>";
+                }
+            }
             
             if (Object.keys(d.mutation).length !== 0) {
                 $.each(Object.keys(d.mutation), function(index, gene) {

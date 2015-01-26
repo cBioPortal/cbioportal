@@ -19,6 +19,7 @@ public class AnnotatorConfig
 	public static final String DEFAULT_EXCLUDE_COLS = "oncotator";
 	public static final String DEFAULT_INTERMEDIATE_MAF = "annotator_out.maf";
 	public static final String DEFAULT_INTERMEDIATE_DIR = "annotator_dir";
+	public static final String DEFAULT_VEP_FORKS = "8";
 
 	// TODO allele count col options?
 
@@ -94,6 +95,16 @@ public class AnnotatorConfig
 	        usage="Directory name for intermediate output files")
 	protected String intermediateDir = DEFAULT_INTERMEDIATE_DIR;
 
+	@Option(name="-td",
+	        aliases={"--tmp-dir"},
+	        usage="Folder to retain intermediate VCFs/MAFs after runtime")
+	protected String tmpDir = DEFAULT_INTERMEDIATE_DIR;
+
+	@Option(name="-vf",
+	        aliases={"--vep-forks"},
+	        usage=" Number of forked processes to use when running VEP")
+	protected String vepForks = DEFAULT_VEP_FORKS;
+
 	public String getIntermediateMaf()
 	{
 		return intermediateMaf;
@@ -112,6 +123,26 @@ public class AnnotatorConfig
 	public void setIntermediateDir(String intermediateDir)
 	{
 		this.intermediateDir = intermediateDir;
+	}
+
+	public String getTmpDir()
+	{
+		return tmpDir;
+	}
+
+	public void setTmpDir(String tmpDir)
+	{
+		this.tmpDir = tmpDir;
+	}
+
+	public String getVepForks()
+	{
+		return vepForks;
+	}
+
+	public void setVepForks(String vepForks)
+	{
+		this.vepForks = vepForks;
 	}
 
 	public String getInput()

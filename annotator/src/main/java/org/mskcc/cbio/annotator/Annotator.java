@@ -189,6 +189,10 @@ public class Annotator
 		//cmdLine.addArgument(this.config.getIntermediateDir());
 		cmdLine.addArgument("--output-maf");
 		cmdLine.addArgument(this.config.getIntermediateMaf());
+		cmdLine.addArgument("--tmp-dir");
+		cmdLine.addArgument(this.config.getTmpDir());
+		cmdLine.addArgument("--vep-forks");
+		cmdLine.addArgument(this.config.getVepForks());
 
 		return execProcess(cmdLine);
 	}

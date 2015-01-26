@@ -51,24 +51,6 @@ public class FoundationMetadata {
     final private List<String> cnvExcludedStatuses;
     final private String filteredStudy;
 
-    /*
-    Constructor uses a row from the foundation worksheet on the importer Google spreadsheet
-     */
-
-    public FoundationMetadata(Map<String,String> worksheetRowMap){
-        this.cancerStudy = worksheetRowMap.get("cancerstudy").trim();
-        this.dependencies = Lists.newArrayList(StagingCommonNames.semicolonSplitter.split(
-                worksheetRowMap.get("dependencies")));
-        this.comments = worksheetRowMap.get("comments").trim();
-        this.excludedCases =  Lists.newArrayList(StagingCommonNames.semicolonSplitter.split(
-                worksheetRowMap.get("excludedcases")));
-        this.shortVariantExcludedStatuses =  Lists.newArrayList(StagingCommonNames.semicolonSplitter.split(
-                worksheetRowMap.get("excludedsvstatuses")));
-        this.cnvExcludedStatuses =  Lists.newArrayList(StagingCommonNames.semicolonSplitter.split(
-                worksheetRowMap.get("excludedcvstatuses")));
-        this.filteredStudy = worksheetRowMap.get("filteredstudy").trim();
-    }
-
     /**
      * Create a FoundationMetadata instance with properties in given array. Its
      * assumed order of properties is that from google worksheet.
@@ -109,6 +91,24 @@ public class FoundationMetadata {
         } else {
             this.filteredStudy = "";
         }
+    }
+
+    /*
+    Constructor uses a row from the foundation worksheet on the importer Google spreadsheet
+     */
+
+    public FoundationMetadata(Map<String,String> worksheetRowMap){
+        this.cancerStudy = worksheetRowMap.get("cancerstudy").trim();
+        this.dependencies = Lists.newArrayList(StagingCommonNames.semicolonSplitter.split(
+                worksheetRowMap.get("dependencies")));
+        this.comments = worksheetRowMap.get("comments").trim();
+        this.excludedCases =  Lists.newArrayList(StagingCommonNames.semicolonSplitter.split(
+                worksheetRowMap.get("excludedcases")));
+        this.shortVariantExcludedStatuses =  Lists.newArrayList(StagingCommonNames.semicolonSplitter.split(
+                worksheetRowMap.get("excludedsvstatuses")));
+        this.cnvExcludedStatuses =  Lists.newArrayList(StagingCommonNames.semicolonSplitter.split(
+                worksheetRowMap.get("excludedcvstatuses")));
+        this.filteredStudy = worksheetRowMap.get("filteredstudy").trim();
     }
 
     public String getCancerStudy() {

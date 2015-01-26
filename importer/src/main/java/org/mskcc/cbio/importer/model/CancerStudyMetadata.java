@@ -52,9 +52,9 @@ public class CancerStudyMetadata {
     public static final String GROUPS_COLUMN_KEY = "GROUPS";
     public static final String SHORT_NAME_COLUMN_KEY = "SHORTNAME";
     public static final String CONVERT_COLUMN_KEY = "CONVERT";
-    public static final String REQUIRES_VALIDATION_COLUMN_KEY = "REQUIRESVALIDATION";
     public static final String UPDATE_TRIAGE_COLUMN_KEY = "UPDATETRIAGE";
     public static final String READY_FOR_RELEASE_COLUMN_KEY = "READYFORRELEASE";
+    public static final String TRIAGE_PORTAL_STUDY_KEY = "triageportal";
 
     // delimiter between tumor type and center (used for find the path)
 
@@ -88,32 +88,8 @@ public class CancerStudyMetadata {
     private String groups;
     private String shortName;
     private boolean convert;
-    private boolean requiresValidation;
     private boolean updateTriage;
     private boolean readyForRelease;
-
-
-    /*
-    Constructor based on Google worksheet Map
-
-     */
-
-    public CancerStudyMetadata(Map<String, String> worksheetRowMap) {
-        this.studyPath = worksheetRowMap.get("cancerstudies").trim();
-        this.tumorType = worksheetRowMap.get("cancertype").trim();
-        this.stableId = worksheetRowMap.get("stableid").trim();
-        this.name = worksheetRowMap.get("name").trim();
-        this.description = worksheetRowMap.get("description").trim();
-        this.citation = worksheetRowMap.get("citation").trim();
-        this.pmid = worksheetRowMap.get("pmid").trim();
-        this.groups = worksheetRowMap.get("groups").trim();
-        this.shortName = worksheetRowMap.get("shortname").trim();
-        this.convert = Boolean.parseBoolean(worksheetRowMap.get("convert").trim());
-        this.requiresValidation = Boolean.parseBoolean(worksheetRowMap.get("requiresvalidation").trim());
-        this.updateTriage = Boolean.parseBoolean(worksheetRowMap.get("updatetriage").trim());
-        this.readyForRelease = Boolean.parseBoolean(worksheetRowMap.get("readyforrelease").trim());
-
-    }
 
     /**
      * Create a CancerStudyMetadata instance with properties in given array.
@@ -126,16 +102,13 @@ public class CancerStudyMetadata {
      */
     public CancerStudyMetadata(String[] properties) {
 
-        if (properties.length < 13) {
+        if (properties.length < 12) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
                 
         this.studyPath = properties[0].trim();
         String[] parts = properties[0].trim().split(CANCER_STUDY_DELIMITER);
-		if (parts.length < 2) {
-			throw new IllegalArgumentException("cancerStudyPath is missing tumor type and or center");
-        }
-        this.center = parts[1];
+        this.center = (parts.length < 2) ? "No center defined" : parts[1];
 		this.tumorType = properties[1].trim();
         this.stableId = properties[2].trim();
 		this.name = properties[3].trim();
@@ -145,9 +118,8 @@ public class CancerStudyMetadata {
 		this.groups = properties[7].trim();
         this.shortName = properties[8].trim();
         this.convert = Boolean.parseBoolean(properties[9].trim());
-        this.requiresValidation = Boolean.parseBoolean(properties[10].trim());
-        this.updateTriage = Boolean.parseBoolean(properties[11].trim());
-        this.readyForRelease = Boolean.parseBoolean(properties[12].trim());
+        this.updateTriage = Boolean.parseBoolean(properties[10].trim());
+        this.readyForRelease = Boolean.parseBoolean(properties[11].trim());
 	}
 
     public CancerStudyMetadata(String studyPath, CancerStudy cancerStudy)
@@ -162,7 +134,6 @@ public class CancerStudyMetadata {
         this.groups = StringUtils.join(cancerStudy.getGroups(), ";");
         this.shortName = cancerStudy.getShortName();
         this.convert = false;
-        this.requiresValidation = false;
         this.updateTriage = false;
         this.readyForRelease = false;
     }
@@ -180,6 +151,27 @@ public class CancerStudyMetadata {
 		this.shortName = props.getProperty("short_name", "");
 	}
 
+    /*
+    Constructor based on Google worksheet Map
+
+     */
+
+    public CancerStudyMetadata(Map<String, String> worksheetRowMap) {
+        this.studyPath = worksheetRowMap.get("cancerstudies").trim();
+        this.tumorType = worksheetRowMap.get("cancertype").trim();
+        this.stableId = worksheetRowMap.get("stableid").trim();
+        this.name = worksheetRowMap.get("name").trim();
+        this.description = worksheetRowMap.get("description").trim();
+        this.citation = worksheetRowMap.get("citation").trim();
+        this.pmid = worksheetRowMap.get("pmid").trim();
+        this.groups = worksheetRowMap.get("groups").trim();
+        this.shortName = worksheetRowMap.get("shortname").trim();
+        this.convert = Boolean.parseBoolean(worksheetRowMap.get("convert").trim());
+        this.updateTriage = Boolean.parseBoolean(worksheetRowMap.get("updatetriage").trim());
+        this.readyForRelease = Boolean.parseBoolean(worksheetRowMap.get("readyforrelease").trim());
+
+    }
+
 	public String getName() { return name; }
 	public String getTumorType() { return tumorType; }
 	public String getStableId() { return stableId; }
@@ -193,7 +185,6 @@ public class CancerStudyMetadata {
 	public String getGroups() { return groups; }
     public String getShortName() { return shortName; }
 	public Boolean isConverted() { return convert; }
-    public Boolean requiresValidation() { return requiresValidation; }
     public Boolean updateTriage() { return updateTriage; }
     public Boolean readyForRelease() { return readyForRelease; }
 	public String getCancerStudyMetadataFilename() {
@@ -214,7 +205,6 @@ public class CancerStudyMetadata {
         toReturn.put(GROUPS_COLUMN_KEY, groups);
         toReturn.put(SHORT_NAME_COLUMN_KEY, shortName);
         toReturn.put(CONVERT_COLUMN_KEY, Boolean.toString(convert));
-        toReturn.put(REQUIRES_VALIDATION_COLUMN_KEY, Boolean.toString(requiresValidation));
         toReturn.put(UPDATE_TRIAGE_COLUMN_KEY, Boolean.toString(updateTriage));
         toReturn.put(READY_FOR_RELEASE_COLUMN_KEY, Boolean.toString(readyForRelease));
         return toReturn;

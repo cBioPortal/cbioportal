@@ -19,51 +19,92 @@ define(function() {
                 regulated_order = {UPREGULATED: 2, DOWNREGULATED: 1, undefined: 0},
                 mutation_order_f = function(m) { 
                     
+//                    if(m !== undefined)//multiple mutations
+//                    {
+//                        m = m.split(',');
+//
+//                        if(m.length > 1)
+//                        {
+//                            for(var i = 0; i < m.length; i++)
+//                            {
+//                                if((/^[A-z]([0-9]+)[A-z]$/g).test(m[i]))
+//                                {
+//                                    continue;
+//                                }
+//                                else
+//                                {
+//                                    return 8;
+//                                }
+//                            }
+//
+//                            return 2;
+//                        }
+//                    }
+//                    
+//                    if((/^[A-z]([0-9]+)[A-z]$/g).test(m))
+//                    {
+//                        return 2;
+//                    }
+//                    else if(m !== undefined)
+//                    {
+////                        if((/^[A-Z]([0-9]+)[*]$/g).test(m))//Nonsense_Mutation
+////                        {return 8;}
+////                        if((/^[A-z*]([0-9]+)[A-z]{2}$/g).test(m))//Frame_shift_del
+////                        {return 7;}
+////                        if((/^([A-Z]+)([0-9]+)del$/g).test(m))//IN_frame_del
+////                        {return 6;}
+////                        if((/^[A-Z]([0-9]+)_splice$/g).test(m))//Splice_Site
+////                        {return 5;}
+////                        if((/^([A-Z]+)([0-9]+)del$/g).test(m))//IN_frame_del
+////                        {return 4;}
+//
+//                        if((/^([A-Z]+)([0-9]+)del$/g).test(m))//IN_frame_del
+//                        {return 3;}
+//                        return 4; // need to modified by dong li
+//                    }
+//                    
+//                    return m === undefined ? 0 : (/\bfusion\b/i.test(m)?2:1); 
+                    
+                    if(m=== undefined) 
+                    {
+                        return 0;
+                    }
+                    
                     if(m !== undefined)//multiple mutations
                     {
                         m = m.split(',');
 
                         if(m.length > 1)
                         {
+                            var hasIndel = false;
                             for(var i = 0; i < m.length; i++)
                             {
-                                if((/^[A-z]([0-9]+)[A-z]$/g).test(m[i]))
+                                if(!/\bfusion\b/i.test(m[i]) && !(/^[A-z]([0-9]+)[A-z]$/g).test(m[i]))
                                 {
-                                    continue;
+                                    return 3;
                                 }
-                                else
-                                {
-                                    return 8;
+
+                                if ((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(m[i])) {
+                                    hasIndel = true;
                                 }
                             }
 
-                            return 2;
+                            return hasIndel ? 2 : 1;
                         }
                     }
-                    
+
                     if((/^[A-z]([0-9]+)[A-z]$/g).test(m))
                     {
-                        return 2;
+                        return 1;//Missense_mutation
                     }
-                    else if(m !== undefined)
+                    else if((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(m) )
                     {
-//                        if((/^[A-Z]([0-9]+)[*]$/g).test(m))//Nonsense_Mutation
-//                        {return 8;}
-//                        if((/^[A-z*]([0-9]+)[A-z]{2}$/g).test(m))//Frame_shift_del
-//                        {return 7;}
-//                        if((/^([A-Z]+)([0-9]+)del$/g).test(m))//IN_frame_del
-//                        {return 6;}
-//                        if((/^[A-Z]([0-9]+)_splice$/g).test(m))//Splice_Site
-//                        {return 5;}
-//                        if((/^([A-Z]+)([0-9]+)del$/g).test(m))//IN_frame_del
-//                        {return 4;}
-
-                        if((/^([A-Z]+)([0-9]+)del$/g).test(m))//IN_frame_del
-                        {return 3;}
-                        return 4; // need to modified by dong li
+                        return 2;//inframe
                     }
-                    
-                    return m === undefined ? 0 : (/\bfusion\b/i.test(m)?2:1); 
+                    else 
+                    {
+                        return 3;
+                    }
                 };
 
             var cna_diff = cna_order[attr2.cna] - cna_order[attr1.cna];

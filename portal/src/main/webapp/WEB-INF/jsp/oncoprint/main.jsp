@@ -4,10 +4,6 @@
 <div id="oncoprint" style="padding-top:10px; padding-bottom:10px; padding-left:10px; border: 1px solid #CCC;">
     <img id="outer_loader_img" src="images/ajax-loader.gif"/>
     <div style="display:none;" id="everything">
-        <h4 style="display:inline;">OncoPrint
-            <small>(<a href="faq.jsp#what-are-oncoprints" target="_blank">What are OncoPrints?</a>)</small>
-        </h4>
-
         <div id="oncoprint_controls" style="margin-top:10px; margin-bottom:20px;"></div>
         <%@ include file="controls-templates.jsp" %>
 
@@ -56,6 +52,7 @@
         </div>
         
         <div style="height:20px;"></div>
+        <div id="working_message" style="height:20px;display:none;"><p style="text-align: center;">working...</p></div>
    
         <img id="inner_loader_img" src="images/ajax-loader.gif" style="display:none;">
         <div id="oncoprint_body"></div>

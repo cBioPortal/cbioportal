@@ -315,10 +315,10 @@ def get_new_user_map(spreadsheet, worksheet_feed, current_user_map, portal_name)
             entry.custom[STATUS_KEY].text.strip() == STATUS_APPROVED):
             if spreadsheet == MSKCC_USER_SPREADSHEET:
                 inst_email = entry.custom[MSKCC_EMAIL_KEY].text.strip()
-                google_email = entry.custom[MSKCC_EMAIL_KEY].text.strip().lower()
+                google_email = entry.custom[MSKCC_EMAIL_KEY].text.strip()
             else:
                 inst_email = entry.custom[INST_EMAIL_KEY].text.strip()
-                google_email = entry.custom[OPENID_EMAIL_KEY].text.strip().lower()
+                google_email = entry.custom[OPENID_EMAIL_KEY].text.strip()
             name = entry.custom[FULLNAME_KEY].text.strip()
             authorities = entry.custom[AUTHORITIES_KEY].text.strip()
             # do not add entry if this entry is a current user
@@ -350,10 +350,10 @@ def get_all_user_map(spreadsheet, worksheet_feed):
     for entry in worksheet_feed.entry:
         if spreadsheet == MSKCC_USER_SPREADSHEET:
             inst_email = entry.custom[MSKCC_EMAIL_KEY].text.strip()
-            google_email = entry.custom[MSKCC_EMAIL_KEY].text.strip().lower()
+            google_email = entry.custom[MSKCC_EMAIL_KEY].text.strip()
         else:
             inst_email = entry.custom[INST_EMAIL_KEY].text.strip()
-            google_email = entry.custom[OPENID_EMAIL_KEY].text.strip().lower()
+            google_email = entry.custom[OPENID_EMAIL_KEY].text.strip()
         to_return[google_email] = User(inst_email, google_email, "not_used", 1, "not_used")
 
     return to_return

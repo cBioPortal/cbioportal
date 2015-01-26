@@ -44,7 +44,7 @@
         }
     </script>
     generates <a href="faq.jsp#what-are-oncoprints">Oncoprints</a> from you own data
-    (<a href="release_notes_oncoprinter.jsp" onclick="return popitup('release_notes_oncoprinter.jsp');">v1.0</a>)
+    (<a href="release_notes_oncoprinter.jsp" onclick="return popitup('release_notes_oncoprinter.jsp');">v1.0.1</a>)
     
     <div id="inner-conainter" style="width:100%;"> <%-- need to be modified by dong li  used to by 70% resize problem--%>
         <div style="margin-top:20px;">

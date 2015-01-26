@@ -405,7 +405,7 @@ define("Oncoprint",
                                             return 'black';
                                         }
                                         
-                                        if ((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(mutationSplit)) {
+                                        if ((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(mutationSplit[i])) {
                                             hasIndel = true;
                                         }
                                     }
@@ -783,7 +783,7 @@ define("Oncoprint",
                     };
 
                     // create a legend if user asked for it
-                    var attr2rangeValue = utils.attr_data_type2range(params.clinicalData, params.clinical_attrs.length);
+                    var attr2rangeValue = utils.attr_data_type2range(params.clinicalData, params.clinical_attrs.length,params.clinical_attrs);
                     var attr2rangeFuntion = utils.make_attribute2scale(params.clinical_attrs, params.clinicalData);
                     if (params.legend) {
                         utils.legend(params.legend,utils.gene_data_type2range(params.geneData), dims.label_width, attr2rangeValue,attr2rangeFuntion);

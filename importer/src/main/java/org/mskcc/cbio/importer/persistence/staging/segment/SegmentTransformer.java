@@ -1,11 +1,14 @@
 package org.mskcc.cbio.importer.persistence.staging.segment;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 import org.mskcc.cbio.importer.model.CancerStudyMetadata;
+import org.mskcc.cbio.importer.persistence.staging.MetadataFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationModel;
 
 import java.nio.file.Path;
+import java.util.Map;
 
 /**
  * Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
@@ -38,6 +41,16 @@ public class SegmentTransformer  {
         this.fileHandler = aHandler;
     }
 
+    protected void registerStagingFileDirectory( CancerStudyMetadata csMetadata, Path stagingDirectoryPath){
+        Preconditions.checkArgument(null != csMetadata, "A CancerStudyMetadata object is required");
+        Preconditions.checkArgument(null != stagingDirectoryPath,
+                "A Path to the staging file directory is required");
+        this.fileHandler.registerTsvStagingFile(this.resolveSegmentFilePath(stagingDirectoryPath),
+                SegmentModel.resolveColumnNames(), true);
+        this.generateMetadataFile(csMetadata,stagingDirectoryPath);
+
+    }
+
     protected void registerStagingFileDirectory( Path stagingDirectoryPath){
         Preconditions.checkArgument(null != stagingDirectoryPath,
                 "A Path to the staging file directory is required");
@@ -61,6 +74,22 @@ public class SegmentTransformer  {
                 "A Path to the staging file directory is required");
         this.fileHandler.registerTsvStagingFile(this.resolveSegmentFilePath(stagingDirectoryPath,studyName),
                 SegmentModel.resolveColumnNames(), true);
+    }
+
+    private void generateMetadataFile(CancerStudyMetadata csMetadata, Path stagingDirectoryPath){
+        Path metadataPath = stagingDirectoryPath.resolve("mskimpact_meta_cna_hg19_seg.txt");
+        MetadataFileHandler.INSTANCE.generateMetadataFile(this.generateMetadataMap(csMetadata),
+                metadataPath);
+    }
+
+
+    protected Map<String,String> generateMetadataMap(CancerStudyMetadata meta){
+        Map<String,String> metaMap = Maps.newTreeMap();
+        metaMap.put("001cancer_study_identifier:", meta.getStableId());
+        metaMap.put("002reference_genome_id:","hg19");
+        metaMap.put("003description:",meta.getDescription());
+        metaMap.put("004data_filename:","mskimpact_data_cna_hg19.seg");
+        return metaMap;
     }
 
     protected Path resolveSegmentFilePath(Path basePath,String studyName){

@@ -88,6 +88,9 @@ public interface StagingCommonNames {
     public static final String VALIDATION_STATUS_PROVISIONAL = "Provisional";
     public static final String VALIDATION_STATUS_VALID = "Valid";
 
+    // IMPACT study
+    public static final String IMPACT_STUDY_IDENTIFIER = "mskimpact";
+
 
 
 

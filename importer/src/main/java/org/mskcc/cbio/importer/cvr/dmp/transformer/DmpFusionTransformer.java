@@ -1,5 +1,6 @@
 package org.mskcc.cbio.importer.cvr.dmp.transformer;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
@@ -9,6 +10,8 @@ import org.mskcc.cbio.importer.cvr.dmp.model.Result;
 import org.mskcc.cbio.importer.cvr.dmp.model.StructuralVariant;
 import org.mskcc.cbio.importer.cvr.dmp.util.DMPCommonNames;
 import org.mskcc.cbio.importer.cvr.dmp.util.DmpUtils;
+import org.mskcc.cbio.importer.model.CancerStudyMetadata;
+import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.fusion.FusionModel;
 import org.mskcc.cbio.importer.persistence.staging.fusion.FusionTransformer;
@@ -43,19 +46,24 @@ import java.util.List;
  * Created by criscuof on 11/24/14.
  */
 public class DmpFusionTransformer extends FusionTransformer
-    /*
+        implements DMPDataTransformable{
+
+     /*
     responsible for generating the fusion staging file for DMP structural variants
      */
-
- implements DMPDataTransformable{
 
     private final static Logger logger = Logger.getLogger(DmpFusionTransformer.class);
 
     public DmpFusionTransformer(TsvStagingFileHandler aHandler, Path stagingFileDirectory) {
         super(aHandler);
         if(StagingUtils.isValidStagingDirectoryPath(stagingFileDirectory)) {
-            aHandler.registerTsvStagingFile(stagingFileDirectory.resolve("data_fusions.txt"),
-                    MutationModel.resolveColumnNames());
+            Optional<CancerStudyMetadata> csMetaOpt = CancerStudyMetadata.findCancerStudyMetaDataByStableId(StagingCommonNames.IMPACT_STUDY_IDENTIFIER);
+            if(csMetaOpt.isPresent()){
+                this.registerStagingFileDirectory(csMetaOpt.get(), stagingFileDirectory);
+            } else {
+                aHandler.registerTsvStagingFile(stagingFileDirectory.resolve("data_fusions.txt"),
+                        MutationModel.resolveColumnNames());
+            }
         }
     }
 
@@ -118,7 +126,7 @@ public class DmpFusionTransformer extends FusionTransformer
         Path stagingFileDirectory = Paths.get("/tmp/cvr/dmp");
         DmpFusionTransformer transformer = new DmpFusionTransformer(new MutationFileHandlerImpl(), stagingFileDirectory);
         try {
-            DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/cvr/dmp/result-sv.json"), DmpData.class);
+            DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/cvr/dmp/result.json"), DmpData.class);
             transformer.transform(data);
 
         } catch (IOException ex) {

@@ -19,6 +19,7 @@ package org.mskcc.cbio.importer.cvr.dmp.transformer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
@@ -34,6 +35,8 @@ import org.mskcc.cbio.importer.cvr.dmp.model.CnvVariant;
 import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
 import org.mskcc.cbio.importer.cvr.dmp.model.Result;
 import org.mskcc.cbio.importer.cvr.dmp.util.DMPCommonNames;
+import org.mskcc.cbio.importer.model.CancerStudyMetadata;
+import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import org.mskcc.cbio.importer.persistence.staging.cnv.CnvFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.cnv.CnvFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.cnv.CnvTransformer;
@@ -53,7 +56,12 @@ public class DmpCnvTransformer extends CnvTransformer implements DMPDataTransfor
 
     public DmpCnvTransformer(CnvFileHandler aHandler,Path stagingDirectoryPath) {
         super(aHandler);
-        this.registerStagingFileDirectory(stagingDirectoryPath, true);
+        Optional<CancerStudyMetadata> csMetaOpt = CancerStudyMetadata.findCancerStudyMetaDataByStableId(StagingCommonNames.IMPACT_STUDY_IDENTIFIER);
+        if(csMetaOpt.isPresent()) {
+            this.registerStagingFileDirectory(csMetaOpt.get(), stagingDirectoryPath, true);
+        } else{
+            this.registerStagingFileDirectory( stagingDirectoryPath, true);
+        }
     }
 
     /*
@@ -116,14 +124,14 @@ public class DmpCnvTransformer extends CnvTransformer implements DMPDataTransfor
     // main method for stand alone testing
     public static void main(String...args){
         ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-        String tempDir = "/tmp/cvr/dmp";
+        String tempDir = "/tmp/msk-impact/msk-impact";
         File tmpDir = new File(tempDir);
         tmpDir.mkdirs();
         Path stagingFileDirectory = Paths.get(tempDir);
         DmpCnvTransformer transformer = new DmpCnvTransformer( new CnvFileHandlerImpl(),
                 stagingFileDirectory);
         try {
-            DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/cvr/dmp/result-sv.json"), DmpData.class);
+            DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/cvr/dmp/result.json"), DmpData.class);
             transformer.transform(data);
 
         } catch (IOException ex) {

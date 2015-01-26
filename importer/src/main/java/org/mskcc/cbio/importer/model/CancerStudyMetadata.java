@@ -173,7 +173,7 @@ public class CancerStudyMetadata {
         this.groups = worksheetRowMap.get("groups").trim();
         this.shortName = worksheetRowMap.get("shortname").trim();
         this.convert = Boolean.parseBoolean(worksheetRowMap.get("convert").trim());
-        this.requiresValidation = Boolean.parseBoolean(worksheetRowMap.get("requiresvalidation").trim());
+        //this.requiresValidation = Boolean.parseBoolean(worksheetRowMap.get("requiresvalidation").trim());
         this.updateTriage = Boolean.parseBoolean(worksheetRowMap.get("updatetriage").trim());
         this.readyForRelease = Boolean.parseBoolean(worksheetRowMap.get("readyforrelease").trim());
 
@@ -249,7 +249,7 @@ public class CancerStudyMetadata {
     // main method for testing
     public static void main(String...args)
     {
-        String stableId= "brca_icgc_uk";
+        String stableId= "mskimpact";
         Optional<CancerStudyMetadata> opt  = CancerStudyMetadata.findCancerStudyMetaDataByStableId(stableId);
         if(opt.isPresent()){
             CancerStudyMetadata meta = opt.get();

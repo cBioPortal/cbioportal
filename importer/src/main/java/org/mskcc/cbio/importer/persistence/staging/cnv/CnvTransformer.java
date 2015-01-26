@@ -85,6 +85,12 @@ public abstract class CnvTransformer {
         }
     }
 
+    public void registerStagingFileDirectory(CancerStudyMetadata csMetadata, Path stagingDirectoryPath, boolean reuse){
+        Preconditions.checkArgument(null != csMetadata," A CancerStudyMetadata object is required");
+        this.registerStagingFileDirectory(stagingDirectoryPath,reuse);
+        this.generateMetadataFile(csMetadata,stagingDirectoryPath);
+    }
+
     public void registerStagingFileDirectory(CancerStudyMetadata csMetadata, Path stagingDirectoryPath){
         Preconditions.checkArgument(null != csMetadata," A CancerStudyMetadata object is required");
         this.registerStagingFileDirectory(stagingDirectoryPath,false);

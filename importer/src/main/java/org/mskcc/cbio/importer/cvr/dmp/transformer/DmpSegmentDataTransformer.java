@@ -2,6 +2,7 @@ package org.mskcc.cbio.importer.cvr.dmp.transformer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
 import org.apache.log4j.Logger;
@@ -10,6 +11,8 @@ import org.mskcc.cbio.importer.cvr.dmp.model.Result;
 import org.mskcc.cbio.importer.cvr.dmp.model.SegmentDatum;
 import org.mskcc.cbio.importer.cvr.dmp.util.DMPCommonNames;
 import org.mskcc.cbio.importer.cvr.dmp.util.DmpUtils;
+import org.mskcc.cbio.importer.model.CancerStudyMetadata;
+import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.segment.SegmentModel;
@@ -54,7 +57,13 @@ class DmpSegmentDataTransformer extends SegmentTransformer implements DMPDataTra
     public DmpSegmentDataTransformer(TsvStagingFileHandler aHandler, Path stagingDirectoryPath) {
         super(aHandler);
         if (StagingUtils.isValidStagingDirectoryPath(stagingDirectoryPath)) {
-            this.registerStagingFileDirectory(stagingDirectoryPath);
+            Optional<CancerStudyMetadata> csMetaOpt =
+                    CancerStudyMetadata.findCancerStudyMetaDataByStableId(StagingCommonNames.IMPACT_STUDY_IDENTIFIER);
+            if(csMetaOpt.isPresent()){
+                this.registerStagingFileDirectory(csMetaOpt.get(), stagingDirectoryPath);
+            } else {
+                this.registerStagingFileDirectory(stagingDirectoryPath);
+            }
         }
     }
 
@@ -101,7 +110,7 @@ class DmpSegmentDataTransformer extends SegmentTransformer implements DMPDataTra
         DmpSegmentDataTransformer transformer = new DmpSegmentDataTransformer(fileHandler,stagingFileDirectory);
 
         try {
-            DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/cvr/result-sv.json"), DmpData.class);
+            DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/cvr/dmp/result.json"), DmpData.class);
             transformer.transform(data);
 
         } catch (IOException ex) {

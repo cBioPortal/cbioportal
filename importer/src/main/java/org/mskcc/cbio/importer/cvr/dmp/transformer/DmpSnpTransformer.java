@@ -2,6 +2,7 @@ package org.mskcc.cbio.importer.cvr.dmp.transformer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
@@ -12,6 +13,8 @@ import org.mskcc.cbio.importer.cvr.dmp.model.MetaData;
 import org.mskcc.cbio.importer.cvr.dmp.model.Result;
 import org.mskcc.cbio.importer.cvr.dmp.util.DMPCommonNames;
 import org.mskcc.cbio.importer.cvr.dmp.util.DmpUtils;
+import org.mskcc.cbio.importer.model.CancerStudyMetadata;
+import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationModel;
@@ -51,8 +54,13 @@ public class DmpSnpTransformer extends MutationTransformer implements DMPDataTra
     public DmpSnpTransformer(TsvStagingFileHandler aHandler,Path stagingFileDirectory) {
         super(aHandler);
         if(StagingUtils.isValidStagingDirectoryPath(stagingFileDirectory)) {
-            aHandler.registerTsvStagingFile(stagingFileDirectory.resolve("data_mutations_extended.txt"),
-                    MutationModel.resolveColumnNames());
+            Optional<CancerStudyMetadata> csMetaOpt = CancerStudyMetadata.findCancerStudyMetaDataByStableId(StagingCommonNames.IMPACT_STUDY_IDENTIFIER);
+            if(csMetaOpt.isPresent()){
+                this.registerStagingFileDirectory(csMetaOpt.get(),stagingFileDirectory );
+            }
+
+            //aHandler.registerTsvStagingFile(stagingFileDirectory.resolve("data_mutations_extended.txt"),
+              //      MutationModel.resolveColumnNames());
         }
     }
 
@@ -113,7 +121,7 @@ public class DmpSnpTransformer extends MutationTransformer implements DMPDataTra
         DmpSnpTransformer transformer = new DmpSnpTransformer(fileHandler,stagingFileDirectory);
 
         try {
-            DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/cvr/dmp/result-sv.json"), DmpData.class);
+            DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/cvr/dmp/result.json"), DmpData.class);
             transformer.transform(data);
 
         } catch (IOException ex) {

@@ -5,12 +5,14 @@ import com.google.common.collect.Maps;
 import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.mskcc.cbio.importer.model.IcgcMetadata;
 import org.mskcc.cbio.importer.persistence.staging.MetadataFileHandler;
+import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.filehandler.FileHandlerService;
 import org.mskcc.cbio.importer.persistence.staging.filehandler.TsvFileHandler;
 
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.logging.FileHandler;
 
 /**
  * Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
@@ -35,13 +37,17 @@ public class MutationTransformer {
     protected  TsvStagingFileHandler fileHandler;
     protected TsvFileHandler tsvFileHandler;
 
-
-    public MutationTransformer(Path aPath) {
+    public MutationTransformer(Path aPath, Boolean deleteFlag){
         Preconditions.checkArgument(null != aPath,"A Path to a staging file is required");
-        this.tsvFileHandler = FileHandlerService.INSTANCE.obtainFileHandlerForNewStagingFile(aPath,
-                MutationModel.resolveColumnNames() );
-
+        if (deleteFlag) {
+            this.tsvFileHandler = FileHandlerService.INSTANCE.obtainFileHandlerForNewStagingFile(aPath,
+                    MutationModel.resolveColumnNames());
+        } else {
+            this.tsvFileHandler = FileHandlerService.INSTANCE
+                    .obtainFileHandlerForAppendingToStagingFile(aPath, MutationModel.resolveColumnNames());
+        }
     }
+
 
     public MutationTransformer(TsvStagingFileHandler aHandler) {
         Preconditions.checkArgument(null != aHandler, "A TsvStagingFileHandler implementation is required");
@@ -64,7 +70,7 @@ public class MutationTransformer {
     protected void generateMetadataFile(CancerStudyMetadata csMetadata, Path stagingDirectoryPath){
         Path metadataPath = stagingDirectoryPath.resolve("meta_mutations_extended.txt");
         MetadataFileHandler.INSTANCE.generateMetadataFile(this.generateMetadataMap(csMetadata),
-                metadataPath);
+                    metadataPath);
     }
 
     protected void generateMetadataFile(IcgcMetadata icgcMetadata, Path stagingDirectoryPath){
@@ -96,4 +102,6 @@ public class MutationTransformer {
         metaMap.put("006profile_name:","mutations");
         return metaMap;
     }
+
+
 }

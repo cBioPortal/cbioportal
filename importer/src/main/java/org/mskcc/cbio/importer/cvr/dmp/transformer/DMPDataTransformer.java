@@ -31,7 +31,9 @@ import java.util.Collection;
 import java.util.List;
 import edu.stanford.nlp.util.CollectionUtils;
 import org.apache.log4j.Logger;
+import org.hibernate.type.descriptor.java.DateTypeDescriptor;
 import org.mskcc.cbio.importer.cvr.darwin.util.IdMapService;
+import org.mskcc.cbio.importer.cvr.dmp.importer.DMPclinicaldataimporter;
 import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
 import org.mskcc.cbio.importer.cvr.dmp.model.Result;
 import org.mskcc.cbio.importer.cvr.dmp.persistence.file.DMPTumorTypeSampleMapManager;
@@ -56,8 +58,8 @@ public class DMPDataTransformer {
     private  List<DMPDataTransformable> transformableList;
     private  DMPTumorTypeSampleMapManager tumorTypeMap;
     private  Path stagingDirectoryPath;
-    private static final String DATA_SOURCE_NAME = "dmp-darwin-mskcc";
-    private static final String STABLE_ID = "mskimpact-current";
+    private static final String DATA_SOURCE_NAME = "dmp-clinical-data-darwin";
+    private static final String STABLE_ID = "mskimpact";
     private static final Path DEFAULT_BASE_PATH = Paths.get("/tmp/dmp-staging");
 
 /*
@@ -201,18 +203,19 @@ temporarily retain this constructor to support legacy client code and testing
     // main method for stand alone testing
     public static void main(String...args){
         ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-        String tempDir = "/tmp/cvr/dmp";
-        File tmpDir = new File(tempDir);
-        tmpDir.mkdirs();
-        Path stagingFileDirectory = Paths.get(tempDir);
-       // DMPDataTransformer transformer = new DMPDataTransformer(stagingFileDirectory);
-        DMPDataTransformer transformer = new DMPDataTransformer();
-        try {
-            DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/cvr/dmp/result-dec-11.json"), DmpData.class);
-            transformer.transform(data);
 
-        } catch (IOException ex) {
-            logger.error(ex.getMessage());
+        try {
+            DMPDataTransformer transformer = new DMPDataTransformer((Paths.get("/tmp/msk-impact")));
+            DMPclinicaldataimporter dmpImporterRetriever = new DMPclinicaldataimporter();
+            DmpData data = OBJECT_MAPPER.readValue(dmpImporterRetriever.getResult(), DmpData.class);
+              logger.info("Results size = " +data.getResults().size()   );
+
+
+            DMPclinicaldataimporter dmpIporter_mark =
+                    new  DMPclinicaldataimporter(transformer.transform(data));
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

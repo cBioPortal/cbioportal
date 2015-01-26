@@ -57,6 +57,7 @@ import java.util.concurrent.TimeoutException;
 public class SimpleSomaticFileTransformer extends MutationTransformer implements IcgcFileTransformer {
 
     private static final Logger logger = Logger.getLogger(SimpleSomaticFileTransformer.class);
+    private static Boolean DELETE_EXISTING_FILE = true;
 
     private Path icgcFilePath;
     private BloomFilter<IcgcSimpleSomaticRecord> icgcRecordFilter;
@@ -75,7 +76,7 @@ public class SimpleSomaticFileTransformer extends MutationTransformer implements
     }
 
     public SimpleSomaticFileTransformer(Path stagingFileDirectory) {
-        super(stagingFileDirectory.resolve(StagingCommonNames.MUTATIONS_STAGING_FILENAME));
+        super(stagingFileDirectory.resolve(StagingCommonNames.MUTATIONS_STAGING_FILENAME),DELETE_EXISTING_FILE);
 
     }
 

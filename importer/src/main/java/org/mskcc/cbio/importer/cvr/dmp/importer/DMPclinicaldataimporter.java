@@ -105,8 +105,7 @@ public class DMPclinicaldataimporter {
         }
 
     }
-    
-    
+
     /**
      * 
      * Create instance to flag consumed samples

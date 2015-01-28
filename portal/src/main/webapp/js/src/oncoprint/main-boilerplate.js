@@ -1296,15 +1296,6 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                     oncoprint.toggleWhiteSpace(false);
                 }
                 
-//                if($('#oncoprint-diagram-removeUCases-icon img')[0].attributes.src.value === 'images/removeUCases.svg')
-//                {
-//                    oncoprint.toggleUnalteredCases(true);
-//                }
-//                else
-//                {
-//                   oncoprint.toggleUnalteredCases(false); 
-//                }
-                
                 utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
                 $('#oncoprint_diagram_showmutationcolor_icon img')[0].attributes.src.value = 'images/colormutations.svg';
                 
@@ -1346,15 +1337,6 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 {
                     oncoprint.toggleWhiteSpace(false);
                 }
-                
-//                if($('#oncoprint-diagram-removeUCases-icon img')[0].attributes.src.value === 'images/removeUCases.svg')
-//                {
-//                    oncoprint.toggleUnalteredCases(true);
-//                }
-//                else
-//                {
-//                   oncoprint.toggleUnalteredCases(false); 
-//                }
                 
                 utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
                 $('#oncoprint_diagram_showmutationcolor_icon img')[0].attributes.src.value = 'images/uncolormutations.svg';
@@ -1398,7 +1380,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             }); 
             
             
-            $('.oncoprint-diagram-downloads-icon').qtip({
+            $('#oncoprint-diagram-downloads-icon').qtip({
             //id: "#oncoprint-diagram-downloads-icon-qtip",
             style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite'  },
             show: {event: "mouseover"},
@@ -1412,28 +1394,52 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             events:{
                 render:function(event){     
                         $('.oncoprint-diagram-download').click(function() {
-                        var fileType = $(this).attr("type");
-                        var params = {
-                            filetype: fileType,
-                            filename:"oncoprint." + fileType,
-                            svgelement: oncoprint.getPdfInput()
-                        };
+//                        var fileType = $(this).attr("type");
+//                        var params = {
+//                            filetype: fileType,
+//                            filename:"oncoprint." + fileType,
+//                            svgelement: oncoprint.getPdfInput()
+//                        };
+//
+//                        cbio.util.requestDownload("svgtopdf.do", params);
 
-                        cbio.util.requestDownload("svgtopdf.do", params);
+                        var fileType = $(this).attr("type");
+                        if(fileType === 'pdf')
+                        {
+                           var downloadOptions = {
+		                filename: "oncoprint.pdf",
+		                contentType: "application/pdf",
+		                servletName: "svgtopdf.do"
+                                };
+
+                            cbio.download.initDownload(oncoprint.getPdfInput(), downloadOptions); 
+                        }
+                        else if(fileType === 'svg')
+                        {
+                            cbio.download.initDownload(oncoprint.getPdfInput(), {filename: "oncoprint.svg"});
+                        }
                     });
 
                     $('.oncoprint-sample-download').click(function() {
+//                        var samples = "Sample order in the Oncoprint is: \n";
+//                        var genesValue = oncoprint.getData();
+//                        for(var i = 0; i< genesValue.length; i++)
+//                        {
+//                            samples= samples + genesValue[i].key+"\n";
+//                        }
+//                        var a=document.createElement('a');
+//                        a.href='data:text/plain;base64,'+btoa(samples);
+//                        a.textContent='download';
+//                        a.download='OncoPrintSamples.txt';
+//                        a.click();
+
                         var samples = "Sample order in the Oncoprint is: \n";
                         var genesValue = oncoprint.getData();
                         for(var i = 0; i< genesValue.length; i++)
                         {
                             samples= samples + genesValue[i].key+"\n";
                         }
-                        var a=document.createElement('a');
-                        a.href='data:text/plain;base64,'+btoa(samples);
-                        a.textContent='download';
-                        a.download='OncoPrintSamples.txt';
-                        a.click();
+                        cbio.util.requestDownload("downloadfile.do",{fileContent: samples, filename:"OncoPrintSamples.txt"});
                     });
                 }
             }

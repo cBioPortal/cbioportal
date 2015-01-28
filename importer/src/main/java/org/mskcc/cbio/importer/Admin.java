@@ -700,7 +700,7 @@ public class Admin implements Runnable {
 				propertyMap.put(CancerStudyMetadata.READY_FOR_RELEASE_COLUMN_KEY, "false");
 			}
 			if (updateWorksheetBool) {
-				config.updateCancerStudyAttributes(cancerStudyMetadata.getName(), propertyMap);
+				config.updateCancerStudyAttributes(cancerStudyMetadata.getStudyPath(), propertyMap);
 			}
 		}
 	}
